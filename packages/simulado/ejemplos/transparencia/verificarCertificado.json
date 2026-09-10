@@ -1,0 +1,35 @@
+{
+  "servicio": "transparencia",
+  "operacion": "verificarCertificado",
+  "metodo": "get",
+  "ruta": "/verificar/{codigo}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "valido": true,
+        "estado": "VIGENTE",
+        "emitidoEn": "2026-01-15T10:30:00Z",
+        "expiraEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "valido": false,
+        "estado": "VIGENTE",
+        "emitidoEn": "2026-01-15T10:30:00Z",
+        "expiraEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "valido": true,
+        "estado": "VIGENTE",
+        "emitidoEn": "2026-01-15T10:30:00Z",
+        "expiraEn": "2026-01-15T10:30:00Z"
+      }
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "retenerSaldo",
+  "metodo": "post",
+  "ruta": "/billetera/retenciones",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "retencionId": "34506680-9a31-414c-8519-e4834ce8237c",
+        "saldoDisponible": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "saldoRetenido": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "expiraEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "retencionId": "34506680-9a31-414c-8519-e4834ce8237c",
+        "saldoDisponible": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "saldoRetenido": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "expiraEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "retencionId": "34506680-9a31-414c-8519-e4834ce8237c",
+        "saldoDisponible": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "saldoRetenido": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "expiraEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "retencionId": "34506680-9a31-414c-8519-e4834ce8237c",
+        "saldoDisponible": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "saldoRetenido": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "expiraEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

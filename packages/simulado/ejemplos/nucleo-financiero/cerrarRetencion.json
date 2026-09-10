@@ -1,0 +1,86 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "cerrarRetencion",
+  "metodo": "post",
+  "ruta": "/billetera/retenciones/{retencionId}/cierre",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "retencionId": "e57da63d-a4f2-46cd-818f-d0f08a701d0a",
+        "estado": "estado",
+        "saldoDisponible": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "saldoRetenido": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "retencionId": "e57da63d-a4f2-46cd-818f-d0f08a701d0a",
+        "estado": "estado",
+        "saldoDisponible": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "saldoRetenido": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "retencionId": "e57da63d-a4f2-46cd-818f-d0f08a701d0a",
+        "estado": "estado",
+        "saldoDisponible": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "saldoRetenido": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "retencionId": "e57da63d-a4f2-46cd-818f-d0f08a701d0a",
+        "estado": "estado",
+        "saldoDisponible": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "saldoRetenido": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

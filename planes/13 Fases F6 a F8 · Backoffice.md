@@ -3,7 +3,7 @@ tags:
   - plan
   - fase
   - frontend
-titulo: "Fases F6 a F8 — Backoffice (React + Vite)"
+titulo: "Fases F6 a F8 — Backoffice (Angular)"
 fases: [F6, F7, F8]
 depende_de: [F0, F1]
 habilita: [F12]
@@ -16,11 +16,21 @@ habilita: [F12]
 
 > [!important] Antes de escribir la primera línea
 > [[10b Estándar de ejecución del frontend]] aplica en las tres fases. Cada pantalla
-> sale de la línea **«Backoffice:»** de la sección Interfaz de su caso de uso.
+> sale de la línea **«Backoffice:»** de la sección Interfaz de su caso de uso, y su forma
+> de [[AportaYa-Maqueta]]: [[22 Mapa de la maqueta · pantalla, carril y mundo]] §3 dice la
+> ruta Angular, los organismos de `@aportaya/ui` y el delta de cada una. Toda pantalla lleva
+> arriba la banda **«Para qué sirve»** (`BandaDeProposito`).
+
+> [!important] Stack: Angular ([[ADR-044 Frontend en Angular y Flutter]])
+> El backoffice es una **SPA de Angular** (*standalone*, *zoneless*, señales) servida
+> como estático detrás de NGINX, con `HttpClient` sobre el cliente generado
+> `clientes/angular`, Angular CDK para tablas, virtualización y accesibilidad, y la
+> biblioteca `@aportaya/ui`. La skill que manda la forma del código es `web-angular`;
+> la que manda el comportamiento del producto, `web-backoffice`.
 
 **Usuario distinto, producto distinto.** Escritorio, pantallas densas, jornada
-completa, usuario experto. **El backoffice no es la app estirada**: comparte
-componentes de dominio, no comparte layout (ADR-004).
+completa, usuario experto. **El backoffice no es la app estirada**: comparte tokens y
+vocabulario, no comparte layout ni componentes (ADR-044).
 
 > [!important] Son **dos** backoffices, no uno con más pestañas (delta D-2)
 > El **financiero** (F7, F8.A–C) y el **de sistemas** (F8.D) no comparten usuario, ni
@@ -44,15 +54,36 @@ componentes de dominio, no comparte layout (ADR-004).
 
 ## Alcance
 
-| Pieza | Qué resuelve |
-| --- | --- |
-| **TanStack Router** por archivos + **TanStack Query** | Cada carril agrega rutas sin tocar un registro común |
-| `ProveedorSesion` con **rol y permisos** | Del token; se muestran u ocultan secciones **por comodidad** — el servidor decide |
-| **`TablaDeDatos`** | Toolbar con búsqueda y filtros, orden por columna **con lista blanca**, selección múltiple, paginación del servidor, **virtualización** |
-| `BarraDeFiltros` | Chips de filtro con estado en la URL (compartible, sin datos sensibles) |
-| `Exportador` | CSV/XLSX **por el endpoint de CU-58**, nunca armado en el cliente |
-| `PanelDeEvidencia` | Bitácora, movimientos y trazas de un caso, reutilizado por reclamos, disputas y descargos |
-| `RegistroDeAcceso` | Toda vista de datos personales dispara el registro (CU-58, `R-SEG-02`) |
+| Pieza | Qué resuelve | Con qué |
+| --- | --- | --- |
+| **Enrutador con un enchufe por dominio** | Cada carril agrega rutas en su `<dominio>.routes.ts` sin tocar `app.routes.ts` | Angular Router, `loadChildren` por dominio, guardias funcionales `canMatch` por permiso |
+| `ServicioSesion` con **rol y permisos** | Del token; se muestran u ocultan secciones **por comodidad** — el servidor decide | token solo en memoria, refresh en cookie `HttpOnly`; señales `permisos()` y `rol()` |
+| Interceptores de `nucleo/` | `x-request-id` · bearer · `401 → un refresh → un reintento` · idempotencia por `HttpContextToken` · traducción de errores · registro de acceso | `provideHttpClient(withInterceptors([...]))`; **ningún componente inyecta `HttpClient`** |
+| **`TablaDeDatos`** | Toolbar con búsqueda y filtros, orden por columna **con lista blanca**, selección múltiple, paginación del servidor, **virtualización** | `cdk-table` + `cdk-virtual-scroll-viewport` + `SelectionModel`; el orden es una unión literal generada del contrato |
+| `BarraDeFiltros` | Chips de filtro con estado en la URL (compartible, sin datos sensibles) | `withComponentInputBinding()`: los *query params* son `input()` del componente |
+| `Exportador` | CSV/XLSX **por el endpoint de CU-58**, nunca armado en el cliente | llama al contrato; muestra permiso exigido, caducidad y tope antes de pedir |
+| `PanelDeEvidencia` | Bitácora, movimientos y trazas de un caso, reutilizado por reclamos, disputas y descargos | `LineaDeTiempo` de `@aportaya/ui` |
+| `RegistroDeAcceso` | Toda vista de datos personales dispara el registro (CU-58, `R-SEG-02`) | interceptor que marca las rutas con `HttpContextToken<accesoADatos>` |
+| **Acceso administrativo** | Ingreso, desafío TOTP, enrolamiento, recuperación asistida | [[ADR-038 Acceso administrativo · segundo factor y recuperación asistida]] · [[Flujo de pantallas · backoffice administrador]] §2.0 |
+| `EstadoDePantalla` | Los cuatro estados sobre un `ResourceRef`, más «vacío por permiso» y «vacío por filtro» como variantes distintas | directiva estructural de `@aportaya/ui` |
+| Borrador local | Los formularios largos guardan borrador cifrado | `IndexedDB` vía un `ServicioBorrador`; sin datos personales en claro |
+
+### La estructura que F6 deja lista y congela
+
+```
+apps/backoffice/src/app/
+├── app.config.ts            provideZonelessChangeDetection · provideRouter(rutas, withComponentInputBinding()) · provideHttpClient(withInterceptors)
+├── app.routes.ts            UN ENCHUFE POR DOMINIO: operacion · cumplimiento · sistemas · contabilidad · publicidad — se congela
+├── nucleo/                  interceptores · sesion · permisos · errores · idempotencia · conexion · registro-de-acceso · borrador
+├── layout/                  shell financiero y shell de sistemas (menú, cabecera, sección) — dos layouts, un shell
+└── rutas/
+    ├── operacion/operacion.routes.ts        (vacío; lo llena B1)
+    ├── cumplimiento/cumplimiento.routes.ts  (vacío; lo llena B2)
+    ├── sistemas/sistemas.routes.ts          (vacío; lo llena B5)
+    ├── contabilidad/contabilidad.routes.ts  (vacío; lo llena B3)
+    ├── publicidad/publicidad.routes.ts      (vacío; lo llena B4)
+    └── tablero/                             el tablero y `operacion/estado` — los hace F6
+```
 
 ## Las cuatro reglas del shell
 
@@ -67,12 +98,19 @@ componentes de dominio, no comparte layout (ADR-004).
 
 ## Gate de salida F6
 
-- [ ] Gate común de §10 del plan maestro del frontend
-- [ ] `TablaDeDatos` probada con 100 000 filas: virtualizada, sin bloquear la interfaz
+- [ ] Gate común de §11 del plan maestro del frontend
+- [ ] `TablaDeDatos` probada con 100 000 filas paginadas del servidor: virtualizada con
+      el CDK, sin bloquear la interfaz, **navegable por teclado** fila a fila
+- [ ] El estado de la tabla (página, orden, filtros) sobrevive a recargar la página y a
+      pegar la URL en otro navegador con sesión
 - [ ] Ordenar por un campo no permitido ⇒ rechazado, no ignorado en silencio
 - [ ] Toda exportación pasa por CU-58 (verificado: no hay generación en cliente)
 - [ ] `noindex, nofollow` + `X-Robots-Tag` verificados con `curl`
 - [ ] Rol sin permiso ⇒ la sección no se ve **y** el endpoint responde `403`
+- [ ] Una ruta nueva se registra **solo dentro del directorio de su dominio**; nada de
+      `app.routes.ts`, `nucleo/` ni `layout/` cambia (probado)
+- [ ] El paquete de producción no contiene `clientes/angular` de servicios que el
+      backoffice no consume (carga perezosa por dominio verificada en `dist/`)
 
 ---
 
@@ -268,7 +306,7 @@ en la pantalla y no en un instructivo.
 
 ## Gate de salida F8.D
 
-- [ ] Gate común de §10 del plan maestro del frontend
+- [ ] Gate común de §11 del plan maestro del frontend
 - [ ] Un rol financiero **no ve** este backoffice **y** sus endpoints responden `403`
 - [ ] Presupuesto de error agotado ⇒ la pantalla lo declara, no lo insinúa
 - [ ] Restauración probada hace más de 30 días ⇒ marcada como vencida
@@ -277,6 +315,20 @@ en la pantalla y no en un instructivo.
 - [ ] Migración pendiente y retraso de réplica **se muestran en la pantalla que los
       sufre**, no solo acá
 
+---
+
+# FASES F13 y F14 — Backoffice · contabilidad ERP y publicidad
+
+> **Carriles B3 y B4**, sobre el mismo shell y con los mismos organismos de F1-W. Sus
+> documentos de fase se escriben al abrir el carril (skills `plan-por-fases` y
+> `caso-de-uso`), con la plantilla de F7: tabla CU → pantalla → lo que el CU exige, las
+> reglas de la fase, el gate. Lo que ya está fijado:
+
+| Fase | Rutas | CU | Lo que no puede pasar |
+| :-: | --- | --- | --- |
+| **F13** | `rutas/contabilidad/`: período · presupuesto · compras/CxP · cobros · activos · estados | CU-100–106 | Un período cerrado **se ve cerrado** y la pantalla no ofrece asentar en él · el estado financiero se descarga con su hash · `Monto` es el único formateador, también acá |
+| **F14** | `rutas/publicidad/`: partners · anunciantes · campañas (aprobar) · moderación · liquidación | CU-110–114 | La cola de moderación es **previa** a la entrega · el desempeño mostrado cuadra con lo facturado en CU-114 · segregación gestionar **o** aprobar |
+
 ## Ver también
 
-[[00c Recetario · implementar un caso de uso]] · [[16 Carriles de frontend]] · [[10 Plan maestro del frontend]] · [[12 Fases F2 a F5 · App móvil]] · [[14 Fases F9 a F11 · Sitio público, SEO y GEO]] · [[20 Maqueta de referencia · deltas del frontend]] · [[Cumplimiento]]
+[[00c Recetario · implementar un caso de uso]] · [[16 Carriles de frontend]] · [[10 Plan maestro del frontend]] · [[12 Fases F2 a F5 · App móvil]] · [[14 Fases F9 a F11 · Sitio público, SEO y GEO]] · [[20 Maqueta de referencia · deltas del frontend]] · [[ADR-044 Frontend en Angular y Flutter]] · [[Cumplimiento]]

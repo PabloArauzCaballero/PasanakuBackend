@@ -27,6 +27,15 @@ Se completan **antes** de cualquier otra cosa. Si falta uno, se pregunta y se pa
 | `OLA` · `CARRIL` | `planes/07` §3 | `2` · `B` |
 | `RAMA` | fórmula fija | `<usuario>/feature/carril-2B-tarifas` |
 
+**Si sos carril de frontend**, los datos son otros y salen de `planes/16` §2 y de tu ficha en `planes/18`:
+
+| Dato | De dónde sale | Ejemplo |
+| --- | --- | --- |
+| `MUNDO` | la ficha | `Flutter` (carriles `M*`, `F0-M`, `F1-M`) · `Angular` (`B*`, `W*`, `F0-B`, `F0-W`, `F1-W`) |
+| `DOMINIO` | `planes/16` §2 | `billetera` → `apps/movil/lib/pantallas/billetera/` · `operacion` → `apps/backoffice/src/app/rutas/operacion/` |
+| `PANTALLAS` | `planes/22` §2 o §3, tu bloque | la lista con ruta, organismos y delta |
+| `CU` · `CARRIL` · `RAMA` | igual que arriba | `10–19, 30–33, 57` · `M2` · `<usuario>/feature/carril-M2-billetera` |
+
 ---
 
 ## 2 · Orden de lectura — exacto, y nada más
@@ -69,6 +78,18 @@ despliegue/compose/<SERVICIO>.yml    solo si necesitás un auxiliar
 **No hay ningún archivo fuera de ahí que necesites tocar para entregar un caso de uso
 completo.** Si creés que sí, la respuesta está en §7.
 
+**Carril de frontend:**
+
+```
+apps/<producto>/…/<DOMINIO>/**       tus pantallas, tu rutas.dart / <dominio>.routes.ts, tu dominio/, tu textos.*, pruebas y goldens
+packages/simulado/ejemplos/<servicio>/CU-NN.json   solo los CU cuyo ejemplo creás primero
+planes/informes/carril-<CARRIL>.md   tu informe (plantilla: planes/informes/_plantilla-frontend.md)
+```
+
+No tocás `packages/tokens`, `packages/ui`, `packages/diseno_flutter`, `clientes/angular`,
+`clientes/dart`, los shells (`navegacion/`, `proveedores/`, `infraestructura/`, `nucleo/`,
+`layout/`, `app.routes.ts`), `pubspec.*`, `angular.json`. Detalle en `planes/16` §4.
+
 ### Solo lectura — tocarlo es un rechazo automático
 
 | Ruta | Quién la cambia |
@@ -78,7 +99,7 @@ completo.** Si creés que sí, la respuesta está en §7.
 | `gradle/libs.versions.toml` | Micro-PR. **Nunca** una dependencia en tu rama |
 | `settings.gradle.kts` | Nadie: descubre por barrido |
 | `despliegue/Dockerfile` `despliegue/k8s/` | Ola 0 y Ola 5 |
-| `clientes/typescript/` | Generado |
+| `clientes/angular/` `clientes/dart/` | Generados |
 | `.claude/skills/**` | Micro-PR |
 | **El `openapi/` de otro servicio** | **Se lee** para generar su cliente. Nunca se edita |
 
@@ -119,7 +140,7 @@ docker compose --profile base up -d --wait        # postgres + pgbouncer + kafka
 ./gradlew :servicios:<SERVICIO>:generateJooq       # clases de TU esquema
 ./gradlew :servicios:<SERVICIO>:build
 
-ls .claude/skills | grep -v README | wc -l         # 65
+ls .claude/skills | grep -v README | wc -l         # 66
 python3 scripts/verificar_boveda.py                # TODO OK
 python3 scripts/verificar_carriles.py              # tu puesto dice lo mismo en los dos planes
 python3 scripts/generar_k8s.py                     # tu descriptor cierra contra el pool
@@ -129,6 +150,13 @@ python3 scripts/generar_k8s.py                     # tu descriptor cierra contra
 
 **No se levantan los quince procesos.** Contra los otros trece se programa por su
 OpenAPI y se prueba con dobles.
+
+**Si sos carril de frontend**, tu bloque es otro y no necesita Docker
+(`planes/16 Carriles de frontend.md` §8): `yarn install --immutable`,
+`./gradlew generateOpenApiClients`, `yarn dev:mock` (Prism), y según el mundo
+`fvm flutter pub get && yarn dev:movil` (Flutter, skill `movil-flutter`) o
+`yarn dev:backoffice` / `yarn dev:web` (Angular, skill `web-angular`). Tu gate es
+`yarn lint && yarn typecheck && yarn test:front && yarn test:a11y`.
 
 Si algo de esto falla, **no es problema tuyo**: `main` está roto. Avisá antes de
 seguir.

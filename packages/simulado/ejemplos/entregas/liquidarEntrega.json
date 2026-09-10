@@ -1,0 +1,102 @@
+{
+  "servicio": "entregas",
+  "operacion": "liquidarEntrega",
+  "metodo": "post",
+  "ruta": "/entregas",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "entregaId": "49abfb56-6aa8-40e4-8303-3bb2b454bc3a",
+        "bruto": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "totalDeducciones": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "neto": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "estado": "estado"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "entregaId": "49abfb56-6aa8-40e4-8303-3bb2b454bc3a",
+        "bruto": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "totalDeducciones": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "neto": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "estado": "estado"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "entregaId": "49abfb56-6aa8-40e4-8303-3bb2b454bc3a",
+        "bruto": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "totalDeducciones": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "neto": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "estado": "estado"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "entregaId": "49abfb56-6aa8-40e4-8303-3bb2b454bc3a",
+        "bruto": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "totalDeducciones": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "neto": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "estado": "estado"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "servicio": "grupos",
+  "operacion": "consultarActividad",
+  "metodo": "get",
+  "ruta": "/grupos/participantes/{usuarioId}/actividad",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "gruposActivos": 1
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "gruposActivos": 0
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "gruposActivos": 1
+      }
+    }
+  }
+}

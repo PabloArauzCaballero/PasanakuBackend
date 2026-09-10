@@ -1,0 +1,41 @@
+{
+  "servicio": "entregas",
+  "operacion": "consultarDisponibilidad",
+  "metodo": "get",
+  "ruta": "/cuentas-bancarias/{cuentaId}/disponibilidad",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "disponible": true,
+        "restanteSegundos": 0,
+        "motivo": "motivo"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "disponible": false,
+        "restanteSegundos": 0,
+        "motivo": "motivo"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "disponible": true,
+        "restanteSegundos": 0,
+        "motivo": "motivo"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

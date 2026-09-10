@@ -1,0 +1,54 @@
+{
+  "servicio": "grupos",
+  "operacion": "solicitarRetiro",
+  "metodo": "post",
+  "ruta": "/grupos/{grupoId}/retiros",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "solicitudId": "a7152090-3896-4260-8607-c5d10dfaba2f",
+        "posicion": "ACREEDORA"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "solicitudId": "a7152090-3896-4260-8607-c5d10dfaba2f",
+        "posicion": "ACREEDORA"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "solicitudId": "a7152090-3896-4260-8607-c5d10dfaba2f",
+        "posicion": "ACREEDORA"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "solicitudId": "a7152090-3896-4260-8607-c5d10dfaba2f",
+        "posicion": "ACREEDORA"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

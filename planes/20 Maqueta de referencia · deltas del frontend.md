@@ -29,7 +29,10 @@ afecta: [F1, F3, F4, F5, F6, F7, F8, "2B", "2C", "2E", "4B", "5B"]
 > No es diseño final ni código a copiar: es HTML de una sola pieza con un simulador de
 > backend adentro. Lo que se toma de ella es el **inventario de pantallas, el
 > comportamiento y el nivel de desglose**. Los tokens siguen saliendo de
-> `disenar-frontend §0` y los componentes de `packages/ui`.
+> `disenar-frontend §0` (generados en `packages/tokens`) y los componentes de
+> `packages/diseno_flutter` (app, Flutter) y `packages/ui` (web, Angular). **Dónde se
+> implementa cada pantalla y cada pieza, con su ruta en cada mundo, está en
+> [[22 Mapa de la maqueta · pantalla, carril y mundo]].**
 
 ---
 
@@ -903,9 +906,9 @@ devuelve el ciclo entero.
 
 ---
 
-## 2 · Componentes que suma `packages/ui` (F1)
+## 2 · Componentes que suma el sistema de diseño (F1-W y F1-M)
 
-La maqueta usa nueve piezas que el inventario de [[11 Fases F0 y F1 · Cimientos y sistema de diseño]] no tenía. Se agregan a F1 **antes** de que los carriles compongan:
+La maqueta usa piezas que el inventario de [[11 Fases F0 y F1 · Cimientos y sistema de diseño]] no tenía. Se agregan a F1 **antes** de que los carriles compongan; **en qué mundo va cada una** (Flutter, Angular o los dos) lo dice [[22 Mapa de la maqueta · pantalla, carril y mundo]] §6:
 
 | Componente | Nivel | Dónde se usa |
 | --- | :-: | --- |
@@ -965,4 +968,4 @@ Y dos reglas de estilo que la maqueta fija y `disenar-frontend` recoge:
 
 ## Ver también
 
-[[AportaYa-Maqueta]] · [[10 Plan maestro del frontend]] · [[10b Estándar de ejecución del frontend]] · [[11 Fases F0 y F1 · Cimientos y sistema de diseño]] · [[12 Fases F2 a F5 · App móvil]] · [[13 Fases F6 a F8 · Backoffice]] · [[16 Carriles de frontend]]
+[[22 Mapa de la maqueta · pantalla, carril y mundo]] · [[AportaYa-Maqueta]] · [[10 Plan maestro del frontend]] · [[10b Estándar de ejecución del frontend]] · [[11 Fases F0 y F1 · Cimientos y sistema de diseño]] · [[12 Fases F2 a F5 · App móvil]] · [[13 Fases F6 a F8 · Backoffice]] · [[16 Carriles de frontend]]

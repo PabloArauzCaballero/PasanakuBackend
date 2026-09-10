@@ -38,7 +38,7 @@ nombre dice lo que la cosa es, y si la frontera transaccional es la correcta.
 
 ## 1 · Arranque de máquina — las skills
 
-Las **65 skills** del proyecto están versionadas en `.claude/skills/`: **viajan con el
+Las **66 skills** del proyecto están versionadas en `.claude/skills/`: **viajan con el
 clon**. Pero «viajan» no es «llegaron», y una máquina que arranca un carril sin las
 skills de su dominio va a inventar exactamente lo que las skills existen para evitar.
 
@@ -49,11 +49,11 @@ skills de su dominio va a inventar exactamente lo que las skills existen para ev
 ls .claude/skills | grep -v README | wc -l          # tiene que dar 65
 
 # 2 · el índice coincide con las carpetas
-python3 scripts/verificar_boveda.py                 # "índice de skills completo (65 skills)"
+python3 scripts/verificar_boveda.py                 # "índice de skills completo (66 skills)"
                                                     # + "frontmatter de cada skill coincide con su carpeta"
 
 # 3 · las ve la sesión
-#    en el chat del puesto: /skills  → tienen que aparecer las 65 del proyecto
+#    en el chat del puesto: /skills  → tienen que aparecer las 66 del proyecto
 ```
 
 **Si falta alguna: no se copia a mano.** Se restaura desde el repositorio:
@@ -108,7 +108,7 @@ producen cinco estilos.
 
 | Grupo | Skills |
 | --- | --- |
-| **Producto** (1) | `movil-expo` **o** `web-backoffice`, según el carril |
+| **Producto** (1–2) | `movil-flutter` (carriles `M*`, `F0-M`, `F1-M`) **o** `web-angular` (carriles `B*`, `W*`, `F0-B`, `F0-W`, `F1-W`); los `B*` cargan **además** `web-backoffice` |
 | **Diseño** (2) | `disenar-frontend` · `arquitectura-atomica` |
 | **Forma** (3) | `codigo-limpio` · `glosario-dominio` · `contratos-api` *(de lectura: los contratos son del backend)* |
 | **Dinero** (1) | `dinero-decimal` |
@@ -141,15 +141,17 @@ suyas está trabajando de memoria.
 | `5T` convergencia | `resiliencia-rendimiento` · `respaldos-restauracion` · `despliegue-contenedores` · `ci-calidad` · `documentacion-entregables` · `observabilidad` |
 | `5A` ERP ★ | `contabilidad-partida-doble` · `facturacion-sin` · `plan-por-fases` · `caso-de-uso` |
 | `5B` publicidad ★ | `facturacion-sin` · `motor-de-reglas` · `proveedores-externos` |
-| `F0-M` `F0-B` `F0-W` andamiajes | `decisiones-adr` · `ci-calidad` |
-| `F1` sistema de diseño | `disenar-frontend` **completa**, con `docs/Views/Sistema-Diseno/` |
-| `F2` shell móvil | `movil-expo` · `autenticacion-jwt` *(de lectura: el `ProveedorSesion`, refresh y `401`)* · `resiliencia-rendimiento` *(offline e intermitencia)* |
+| `F0.T` troncal del frontend | `entorno-monorepo` · `contratos-api` · `ci-calidad` · `decisiones-adr` |
+| `F0-M` `F0-B` `F0-W` andamiajes | `decisiones-adr` · `ci-calidad` · `entorno-monorepo` |
+| `F1-W` `F1-M` sistemas de diseño | `disenar-frontend` **completa**, con `docs/Views/Sistema-Diseno/` · y la del mundo (`web-angular` / `movil-flutter`) |
+| `F2` shell móvil | `movil-flutter` · `autenticacion-jwt` *(de lectura: `proveedorSesion`, refresh y `401`)* · `resiliencia-rendimiento` *(offline e intermitencia)* · `proveedores-externos` *(Shorebird, FCM)* |
 | `F3` móvil identidad | `kyc-onboarding` · `autenticacion-jwt` |
 | `F4` móvil billetera | `qr-pagos` · `dinero-decimal` |
 | `F5` móvil pasanaku | `gobernanza-grupo` · `alertas-riesgo-temprano` · `reclamos-consumidor` |
-| `F6` shell backoffice | `web-backoffice` · `roles-y-accesos` *(navegación y tabla según rol)* |
+| `F6` shell backoffice | `web-angular` · `web-backoffice` · `roles-y-accesos` *(navegación y tabla según rol)* |
 | `F7` backoffice operación | `roles-y-accesos` · `extraccion-de-datos` |
 | `F8` backoffice cumplimiento | `cumplimiento-uif` · `debido-proceso` · `gobierno-comites` |
+| `B5` backoffice de sistemas | `observabilidad` · `respaldos-restauracion` · `despliegue-contenedores` · `proveedores-externos` · `trabajos-outbox` *(de lectura: lo que la pantalla muestra)* |
 | `F9` sitio público | `sorteo-transparencia` · `reputacion-social` · `reclamos-consumidor` |
 | `F10` `F11` SEO y GEO | `documentacion-entregables` |
 | `F12` publicación | `definicion-de-terminado` · `despliegue-contenedores` |
@@ -358,12 +360,16 @@ puede evaluar dentro de un servicio.** Corren en el CI de integración y en la O
 
 ### El que corre sobre el **frontend**
 
-Vive en el CI de frontend (`test:front`), no en el de servicios, y cubre el único
-recurso compartido que quedó entre carriles de interfaz: los mocks de MSW.
+Vive en el CI de frontend (`test:front`), no en el de servicios, y cubre los dos
+recursos compartidos que quedaron entre carriles de interfaz: los ejemplos del contrato
+que sirve Prism, y los enchufes de ruta de los shells.
 
 | # | Barrido | Qué afirma | Preocupación |
 | :-: | --- | --- | --- |
-| 17 | **Mocks sin duplicar** | En `pruebas/mocks/`, **ningún CU tiene dos handlers**: el primer carril que necesita un CU crea su handler y el segundo lo importa ([[20 Saneamiento del plan · huecos de la migración a microservicios]] §6.3) | conflicto |
+| 17 | **Un CU, un archivo de ejemplos** | En `packages/simulado/ejemplos/`, **ningún CU tiene dos archivos**, y cada ejemplo **valida contra el esquema** de su operación (lo consumen Vitest y `flutter_test` por igual) | conflicto · corrección |
+| 18 | **El shell no se toca** | Ningún commit de un carril de pantallas modifica `navegacion/rutas.dart`, `app.routes.ts`, `nucleo/`, `layout/` ni `proveedores/`; las rutas nuevas aparecen solo en el `rutas.dart` / `<dominio>.routes.ts` del directorio del carril | conflicto |
+| 19 | **Sin restos del stack anterior** | `apps/`, `packages/` y `package.json` no contienen `expo`, `react`, `vite`, `astro`, `msw` ni `maestro` (desde el tramo TF) | corrección |
+| 20 | **El plan coincide con la maqueta** | `scripts/verificar_maqueta.py`: toda ruta de [[AportaYa-Maqueta]] tiene su fila en [[22 Mapa de la maqueta · pantalla, carril y mundo]], toda pieza de planes/20 §2 está en planes/22 §6 y en el alcance F1.9 de planes/11, y cada pieza tiene mundo | corrección |
 
 > **El barrido 13 es el que reemplaza a una garantía que se perdió.** Con un solo
 > proceso, dos rutas iguales rompían el arranque y alguien lo veía en el acto. Con
@@ -391,8 +397,9 @@ ninguno, porque entonces «va lento» es una opinión.
 | Respuesta con el proveedor externo caído | ≤ 2 s | barrido 10 | sí |
 | Arranque del proceso hasta `/salud/listo` | ≤ 5 s | compose | sí |
 | Tamaño de la imagen de runtime | ≤ 300 MB | `docker build` | advierte |
-| JS inicial del sitio público | ≤ 150 KB | Lighthouse CI | sí |
-| Arranque de la app en Android de gama baja | ≤ 3 s | `F12` | sí |
+| JS inicial del sitio público | ≤ 150 KB **comprimidos** (`budgets` de `angular.json` + Lighthouse CI) | Lighthouse CI en P5 | sí |
+| Arranque en frío de la app en Android de gama baja | ≤ 3 s | `flutter run --profile --trace-startup` en P3 | sí |
+| *Jank* en la lista de 5.000 movimientos | 0 cuadros perdidos al desplazar | DevTools en dispositivo real | sí |
 | Tamaño de archivo | 220 advierte · 260 revisión · **300 bloquea** | lint | sí |
 | Cobertura | los pisos de §6 del [[00 Plan maestro]] | CI | sí |
 | Dependencias nuevas en rama de carril | **0** | `gradle/libs.versions.toml` sin diff | sí |
@@ -494,7 +501,7 @@ Los 19 pasos de §6 del [[00 Plan maestro]] siguen igual y en el mismo orden. Se
 seis pasos de **backend**, **todos bloqueantes**:
 
 ```
- 0b  python3 scripts/verificar_carriles.py     65 skills asignadas · puestos alineados 17↔18 · balance
+ 0b  python3 scripts/verificar_carriles.py     66 skills asignadas · puestos alineados 17↔18 · balance
  0c  python3 scripts/generar_k8s.py            ningún servicio con 1 réplica · el escalado cabe en el pool
  6b  python3 scripts/verificar_criterios.py    criterios gherkin ↔ prueba  ·  R-XXX ↔ prueba de rechazo
 12b  ./gradlew testAislamiento                 barrido 15: ningún rol lee un esquema ajeno
@@ -512,11 +519,14 @@ Y una guarda sobre las guardas:
 Y los pasos de **frontend**, que corren en los carriles `F*`, todos **bloqueantes**:
 
 ```
- f1  yarn lint && yarn typecheck               capas, tokens, tipos del contrato
- f2  yarn test:front                           unitarias, componente (MSW) y contrato · incluye el barrido 17 (mocks sin duplicar)
- f3  yarn test:a11y                            jest-axe / axe-core: cero violaciones serias
- f4  npx lighthouse-ci autorun                 CWV y presupuesto de JS del sitio (§6: ≤ 150 KB) — corre en P5
+ f0  ./gradlew generateOpenApiClients          clientes/angular y clientes/dart sin diff
+ f0b python3 scripts/verificar_maqueta.py      toda pantalla de la maqueta tiene fila en planes/22 · toda pieza está en F1 · sin restos del stack anterior
+ f1  yarn lint && yarn typecheck               angular-eslint + flutter analyze + custom_lint: capas, tokens, tipos del contrato
+ f2  yarn test:front                           vitest (unidad, componente, contrato) + flutter test (unidad, widget, contrato, goldens) · barridos 17, 18 y 19
+ f3  yarn test:a11y                            vitest-axe + meetsGuideline: cero violaciones serias
+ f4  npx lighthouse-ci autorun                 CWV y presupuesto de JS del sitio (§6: ≤ 150 KB comprimidos) — corre en P5
  f5  yarn seo:validar                          metadatos, canonical, hreflang, JSON-LD (solo `apps/web`)
+ f6  patrol test                               E2E móvil — solo en P3 y en la máquina con Android físico (F12)
 ```
 
 > **Lighthouse y la medición de frontend corren en P5**, la máquina que trabaja el
@@ -614,20 +624,24 @@ cada carril pega la que le corresponde.
 - [ ] Piezas declaradas por nivel (átomo/molécula/organismo/pantalla) antes de escribir, con visto bueno
 
 **Verificado por máquina** — salida pegada abajo
-- [ ] `yarn lint && yarn typecheck` en verde   → capas, tokens, tipos del contrato
-- [ ] `yarn test:front` en verde                → unitarias, componente (MSW) y contrato · incluye el barrido 17 (mocks sin duplicar)
-- [ ] `yarn test:a11y` en verde                 → cero violaciones serias
-- [ ] `npx lighthouse-ci autorun` en verde (solo `apps/web`) → CWV y **JS ≤ 150 KB** (§6) · corrido en P5
+- [ ] `./gradlew generateOpenApiClients` sin diff → los clientes son los del contrato
+- [ ] `python3 scripts/verificar_maqueta.py` en verde → tus pantallas están en el mapa, con su mundo
+- [ ] `yarn lint && yarn typecheck` en verde   → capas, tokens, tipos del contrato, en Dart y en TypeScript
+- [ ] `yarn test:front` en verde                → unitarias, componente/widget, contrato, goldens · barridos 17, 18 y 19
+- [ ] `yarn test:a11y` en verde                 → cero violaciones serias (`vitest-axe` / `meetsGuideline`)
+- [ ] `npx lighthouse-ci autorun` en verde (solo `apps/web`) → CWV y **JS ≤ 150 KB comprimidos** (§6) · corrido en P5
 - [ ] `yarn seo:validar` en verde (solo `apps/web`)  → metadatos, canonical, hreflang, JSON-LD
+- [ ] `patrol test` en verde (solo carriles móviles, en P3) → el flujo del carril en dispositivo
+- [ ] Goldens / capturas actualizados **en un commit propio, con la imagen en el PR**
 
 **Presupuestos (§6)**
-- [ ] JS inicial del sitio ≤ 150 KB (gate) · objetivo < 50 KB en páginas de contenido
+- [ ] JS inicial del sitio ≤ 150 KB comprimidos (gate) · objetivo ≤ 90 KB en páginas de contenido
 - [ ] Tamaño de archivo bajo el límite · arranque de la app ≤ 3 s en Android de gama baja (F12)
 
 **Invariantes del frontend**
 - [ ] Los cuatro estados en toda pantalla con datos: cargando, vacío, error, éxito
 - [ ] Cero literales de diseño fuera de tokens (lint) · ningún importe formateado fuera de `Monto`
-- [ ] Ningún `fetch` en un componente · ningún tipo reescrito a mano (viene de `clientes/typescript`)
+- [ ] Ninguna llamada de red en un componente o widget · ningún tipo reescrito a mano (viene de `clientes/angular` o `clientes/dart`)
 - [ ] Doble envío bloqueado en operaciones de dinero, con la misma clave de idempotencia
 - [ ] Contraste AA, foco visible, navegación por teclado · claro y oscuro probados
 

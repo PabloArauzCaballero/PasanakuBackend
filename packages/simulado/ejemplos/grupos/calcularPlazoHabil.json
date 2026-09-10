@@ -1,0 +1,48 @@
+{
+  "servicio": "grupos",
+  "operacion": "calcularPlazoHabil",
+  "metodo": "get",
+  "ruta": "/grupos/calendario/calcular",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "fechaLimite": "2026-01-15",
+        "diasSalteados": [
+          {
+            "fecha": "2026-01-15",
+            "descripcion": "descripcion"
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "fechaLimite": "2026-01-15",
+        "diasSalteados": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "fechaLimite": "2026-01-15",
+        "diasSalteados": [
+          {
+            "fecha": "2026-01-15",
+            "descripcion": "descripcion"
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

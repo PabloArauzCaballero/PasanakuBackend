@@ -1,0 +1,78 @@
+{
+  "servicio": "aportes",
+  "operacion": "cobrarAporte",
+  "metodo": "post",
+  "ruta": "/aportes/obligaciones/{obligacionId}/pagos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "pagoId": "7d6392bb-a0c4-47e3-8225-89aa81e288a9",
+        "obligacionId": "68a98585-2854-4b71-80fd-5ef490fe60f6",
+        "estadoObligacion": "PENDIENTE",
+        "pendiente": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "esNuevo": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "pagoId": "7d6392bb-a0c4-47e3-8225-89aa81e288a9",
+        "obligacionId": "68a98585-2854-4b71-80fd-5ef490fe60f6",
+        "estadoObligacion": "PENDIENTE",
+        "pendiente": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "esNuevo": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "pagoId": "7d6392bb-a0c4-47e3-8225-89aa81e288a9",
+        "obligacionId": "68a98585-2854-4b71-80fd-5ef490fe60f6",
+        "estadoObligacion": "PENDIENTE",
+        "pendiente": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "esNuevo": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "pagoId": "7d6392bb-a0c4-47e3-8225-89aa81e288a9",
+        "obligacionId": "68a98585-2854-4b71-80fd-5ef490fe60f6",
+        "estadoObligacion": "PENDIENTE",
+        "pendiente": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "esNuevo": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

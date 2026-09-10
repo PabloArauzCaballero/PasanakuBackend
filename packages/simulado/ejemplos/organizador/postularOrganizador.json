@@ -1,0 +1,77 @@
+{
+  "servicio": "organizador",
+  "operacion": "postularOrganizador",
+  "metodo": "post",
+  "ruta": "/organizadores/postulaciones",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "solicitudId": "79f1f053-1aa8-4a9b-8359-dac8949a1aee",
+        "estado": "PENDIENTE",
+        "esNueva": true,
+        "faltantes": [
+          {
+            "codigo": "codigo",
+            "motivo": "motivo"
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "solicitudId": "79f1f053-1aa8-4a9b-8359-dac8949a1aee",
+        "estado": "PENDIENTE",
+        "esNueva": false,
+        "faltantes": []
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "solicitudId": "79f1f053-1aa8-4a9b-8359-dac8949a1aee",
+        "estado": "PENDIENTE",
+        "esNueva": true,
+        "faltantes": [
+          {
+            "codigo": "codigo",
+            "motivo": "motivo"
+          }
+        ]
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "solicitudId": "79f1f053-1aa8-4a9b-8359-dac8949a1aee",
+        "estado": "PENDIENTE",
+        "esNueva": true,
+        "faltantes": [
+          {
+            "codigo": "codigo",
+            "motivo": "motivo"
+          }
+        ]
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

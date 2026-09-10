@@ -42,10 +42,20 @@ aportaya/
 │   ├── erp/
 │   └── publicidad/
 ├── clientes/
-│   └── typescript/              cliente generado desde los OpenAPI · no se edita a mano
+│   ├── angular/                 cliente generado desde los OpenAPI (typescript-angular) · no se edita a mano
+│   └── dart/                    cliente generado desde los OpenAPI (dart-dio) · no se edita a mano
 ├── apps/
-│   ├── movil/                   Expo · app del participante
-│   └── backoffice/              React + Vite · cumplimiento, soporte, contabilidad
+│   ├── movil/                   Flutter · app del participante
+│   ├── backoffice/              Angular · cumplimiento, soporte, contabilidad, sistemas
+│   └── web/                     Angular + @angular/ssr · sitio público, la única superficie indexable
+│       ├── pruebas/e2e/         Playwright contra el build SSR: páginas y el catálogo de @aportaya/ui
+│       └── capturas/            capturas de /catalogo en claro y oscuro · evidencia visual de F1-W
+├── packages/
+│   ├── tokens/                  tokens.json → tokens.css y tokens.dart GENERADOS · vectores de Monto
+│   ├── ui/                      biblioteca Angular @aportaya/ui · una carpeta por pieza (src/<pieza>/<pieza>.ts) · src/catalogo/ la monta entera
+│   ├── diseno_flutter/          paquete Dart aportaya_diseno · lib/{atomos,moleculas,organismos,moviles} · lib/catalogo/ es el Widgetbook · goldens en test/goldens/imagenes
+│   ├── simulado/                Prism sobre los contratos + ejemplos por CU · lo consumen los dos mundos
+│   └── dominio-cliente/         átomos del sorteo y la cadena en TypeScript, con vectores dorados
 ├── despliegue/
 │   ├── Dockerfile               plantilla única, parametrizada por servicio
 │   ├── infra.yml                niveles, conexiones y entornos — lo que ningún carril posee
@@ -125,7 +135,7 @@ Los átomos y moléculas **visuales** que sirven a los dos productos suben a un 
 compartido; los que dependen de una API nativa (cámara, biometría) se quedan en
 `apps/movil`.
 
-> **`clientes/typescript/` es generado y no se edita.** Un tipo escrito a mano ahí es
+> **`clientes/angular/` y `clientes/dart/` son generados y no se editan.** Un tipo escrito a mano ahí es
 > una divergencia esperando a ocurrir: el CI regenera y falla si hay diff.
 
 ## Convención de nombres
@@ -158,7 +168,7 @@ Esto es lo que hace posible que cinco máquinas trabajen a la vez.
 | Ruta | Quién la toca |
 | --- | --- |
 | `servicios/<suyo>/**` | **El carril, en exclusiva.** Todo: build, configuración, contrato, código, pruebas, descriptor, README |
-| `clientes/typescript/**` | Nadie: es generado |
+| `clientes/angular/**` · `clientes/dart/**` | Nadie: son generados |
 | `plataforma/**` | Ola 0. Después, **micro-PR** |
 | `gradle/libs.versions.toml` | **Micro-PR.** Una dependencia nueva no se agrega en rama de carril |
 | `settings.gradle.kts` | Nadie: descubre por barrido |

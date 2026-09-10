@@ -14,19 +14,26 @@ seeders
 scripts
 !scripts/generar_errores.py
 !scripts/modelo.py
-# `apps/` sigue fuera de las imagenes de backend, que llevan un jar. La excepcion es
-# `apps/web`: el sitio publico tiene su propia imagen y necesita su fuente en el
-# contexto. Se reincluye el codigo y se dejan afuera sus artefactos.
+# `apps/` sigue fuera de las imagenes de backend, que llevan un jar. Las excepciones
+# son las dos superficies web (ADR-044): el sitio y el backoffice tienen imagen propia
+# y necesitan su fuente en el contexto. Se reincluye el codigo y se dejan afuera sus
+# artefactos. La app Flutter no tiene imagen: va a las tiendas.
 apps
 !apps/web
+!apps/backoffice
 # Los manifiestos de TODOS los espacios de trabajo: `yarn install --immutable` los
-# exige aunque no se construyan, porque el lockfile los nombra. Sin ellos yarn
-# concluye que el lockfile cambio y se niega, que es exactamente lo que queremos que
-# haga — pero por el motivo equivocado.
+# exige aunque no se construyan, porque el lockfile los nombra.
 !apps/*/package.json
 apps/web/dist
-apps/web/.astro
+apps/backoffice/dist
+apps/*/.angular
+apps/*/node_modules
+# Los clientes generados: el Angular entra (lo importan las dos apps web); el Dart no.
 clientes
+!clientes/angular
+packages/*/node_modules
+packages/*/generado
+node_modules
 **/src/test
 **/build
 **/.gradle

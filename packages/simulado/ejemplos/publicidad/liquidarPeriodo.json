@@ -1,0 +1,66 @@
+{
+  "servicio": "publicidad",
+  "operacion": "liquidarPeriodo",
+  "metodo": "post",
+  "ruta": "/publicidad/cuentas/{cuentaId}/liquidaciones",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "facturaPublicidadId": "d601644d-2264-44c3-8b9a-3f72f8660910",
+        "montoTotal": "4.44",
+        "moneda": "BOB",
+        "estado": "GENERADA",
+        "cuentaPorCobrarId": "ab0652ec-555d-4d3a-81a4-c02a0063c026"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "facturaPublicidadId": "d601644d-2264-44c3-8b9a-3f72f8660910",
+        "montoTotal": "0.00",
+        "moneda": "BOB",
+        "estado": "GENERADA",
+        "cuentaPorCobrarId": "ab0652ec-555d-4d3a-81a4-c02a0063c026"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "facturaPublicidadId": "d601644d-2264-44c3-8b9a-3f72f8660910",
+        "montoTotal": "4.44",
+        "moneda": "BOB",
+        "estado": "GENERADA",
+        "cuentaPorCobrarId": "ab0652ec-555d-4d3a-81a4-c02a0063c026"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "facturaPublicidadId": "d601644d-2264-44c3-8b9a-3f72f8660910",
+        "montoTotal": "4.44",
+        "moneda": "BOB",
+        "estado": "GENERADA",
+        "cuentaPorCobrarId": "ab0652ec-555d-4d3a-81a4-c02a0063c026"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

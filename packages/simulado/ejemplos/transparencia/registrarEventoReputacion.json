@@ -1,0 +1,57 @@
+{
+  "servicio": "transparencia",
+  "operacion": "registrarEventoReputacion",
+  "metodo": "post",
+  "ruta": "/reputacion/eventos",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "eventoId": "7bdfb948-17fd-4576-8c22-ec3e93dd0ebe",
+        "impacto": "4.44",
+        "factorAfectado": "factorAfectado",
+        "esNuevo": true
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "eventoId": "7bdfb948-17fd-4576-8c22-ec3e93dd0ebe",
+        "impacto": "0.00",
+        "factorAfectado": "factorAfectado",
+        "esNuevo": false
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "eventoId": "7bdfb948-17fd-4576-8c22-ec3e93dd0ebe",
+        "impacto": "4.44",
+        "factorAfectado": "factorAfectado",
+        "esNuevo": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "eventoId": "7bdfb948-17fd-4576-8c22-ec3e93dd0ebe",
+        "impacto": "4.44",
+        "factorAfectado": "factorAfectado",
+        "esNuevo": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": null
+    }
+  }
+}

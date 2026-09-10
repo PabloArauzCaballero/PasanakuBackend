@@ -38,7 +38,7 @@ fecha_revision: 2026-08-18
 | --- | --- | --- |
 | [[Prompt general de desarrollo]] | Temperatura 0, KISS, composición atómica, nombres, errores, pruebas, seguridad | `codigo-limpio` · `arquitectura-atomica` · `glosario-dominio` |
 | [[Prompt de backend]] | Frontera transaccional, garantías en la base, idempotencia, bordes externos | `frontera-transaccional` · `back-spring` · `datos-jooq` · `servicios-y-sagas` |
-| [[Prompt de frontend]] | Átomos visuales, tokens, estados obligatorios, dominio separado de la vista | `disenar-frontend` · `movil-expo` · `web-backoffice` |
+| [[Prompt de frontend]] | Átomos visuales, tokens, estados obligatorios, dominio separado de la vista | `disenar-frontend` · `movil-flutter` · `web-angular` · `web-backoffice` |
 
 **El general manda.** El especializado añade; si alguna vez contradice al general,
 gana el general. Y si cualquiera de los tres contradice un ADR vigente de este

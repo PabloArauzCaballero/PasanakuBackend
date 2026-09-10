@@ -1,0 +1,45 @@
+{
+  "servicio": "transparencia",
+  "operacion": "tomarSnapshotReputacion",
+  "metodo": "post",
+  "ruta": "/reputacion/snapshots",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "snapshotId": "f1ad9c22-a7e8-459c-8645-19be999621be"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "snapshotId": "f1ad9c22-a7e8-459c-8645-19be999621be"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "snapshotId": "f1ad9c22-a7e8-459c-8645-19be999621be"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "snapshotId": "f1ad9c22-a7e8-459c-8645-19be999621be"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": null
+    }
+  }
+}

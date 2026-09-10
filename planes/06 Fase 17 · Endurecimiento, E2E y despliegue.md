@@ -317,7 +317,7 @@ No es omisión: es alcance declarado, para que nadie lo descubra tarde.
 | Pendiente | Por qué queda fuera | Cuándo se retoma |
 | --- | --- | --- |
 | **Object storage con *object lock*** | ADR-017 eligió el puerto `AlmacenArchivos` con adaptador local como transitorio. La evidencia regulatoria (reportes UIF, respaldos de reclamo, extractos) pide inmutabilidad real | Antes de operar con licencia otorgada |
-| **`apps/movil` y `apps/backoffice`** | Este plan es del backend. El cliente `clientes/typescript` generado de los contratos ya los habilita | Plan de frontend aparte |
+| **`apps/movil`, `apps/backoffice` y `apps/web`** | Este plan es del backend. Los clientes `clientes/angular` y `clientes/dart` generados de los contratos ya los habilitan | Plan de frontend aparte |
 | **Integraciones reales** (pasarela QR, SIAT, WhatsApp, KYC) | Se implementan los adaptadores y se prueban con simuladores; la integración real exige contratos comerciales | Cuando existan los convenios |
 | **Confirmación legal de los catálogos provisionales** | Límites, impuestos y umbrales UIF están sembrados como borrador con su advertencia | Antes de producción |
 | **Spring Boot + jOOQ** | [[Stack]] deja registrado que la decisión se revierte si el objetivo real es integrarse con core bancario | Si aparece ese objetivo |

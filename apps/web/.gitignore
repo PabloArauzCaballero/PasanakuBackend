@@ -1,2 +1,6 @@
+# Generado por scripts/contenido.mjs antes del build
+src/generado/
+public/robots.txt
+public/*.md
 dist/
-.astro/
+.angular/

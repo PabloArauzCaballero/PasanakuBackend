@@ -57,25 +57,66 @@ val generarServidor = tasks.register<GenerateTask>("generarServidorOpenApi") {
 
 // clientes/typescript/ es GENERADO y no se edita a mano: el CI regenera y falla si
 // hay diff. Un tipo escrito ahi es una divergencia esperando a ocurrir.
-tasks.register<GenerateTask>("generarClienteTypescript") {
+// Dos clientes desde el mismo contrato (ADR-044): uno para Angular (backoffice y sitio)
+// y otro para Flutter (la app). Los importes quedan como `String` en los dos porque el
+// contrato los declara `type: string, format: decimal`; la prueba `importes-son-cadena`
+// del CI lo verifica en cada regeneracion.
+val clienteAngular = rootProject.layout.projectDirectory.dir("clientes/angular/$servicio")
+val clienteDart = rootProject.layout.projectDirectory.dir("clientes/dart/$servicio")
+
+val generarClienteAngular = tasks.register<GenerateTask>("generarClienteAngular") {
     group = "build"
-    description = "Cliente TypeScript de $servicio para apps/movil y apps/backoffice"
-    generatorName.set("typescript-fetch")
+    description = "Cliente Angular de $servicio para apps/backoffice y apps/web"
+    generatorName.set("typescript-angular")
     inputSpec.set(rutaDelContrato)
-    outputDir.set(clienteTs.asFile.absolutePath)
+    outputDir.set(clienteAngular.asFile.absolutePath)
     configOptions.set(
         mapOf(
+            "providedInRoot" to "true",
+            "stringEnums" to "true",
+            "withInterfaces" to "true",
+            "modelPropertyNaming" to "original",
             "supportsES6" to "true",
-            // Con las comprobaciones de runtime encendidas, los modelos importan
-            // `mapValues` de un runtime.ts que el generador no siempre exporta, y el
-            // cliente no compila. Sin ellas quedan interfaces puras, que es lo que la
-            // app necesita: la entrada la valida el servidor con `strict()`, no el
-            // cliente (contrato de implementacion §3 bis).
-            "withoutRuntimeChecks" to "true",
-            "typescriptThreePlus" to "true",
+            "ngVersion" to "20.0.0",
         ),
     )
     onlyIf { tieneOperaciones() }
+}
+
+val generarClienteDart = tasks.register<GenerateTask>("generarClienteDart") {
+    group = "build"
+    description = "Cliente Dart (dio) de $servicio para apps/movil"
+    generatorName.set("dart-dio")
+    inputSpec.set(rutaDelContrato)
+    outputDir.set(clienteDart.asFile.absolutePath)
+    additionalProperties.set(
+        mapOf(
+            "pubName" to "aportaya_cliente_${paquete}",
+            "pubLibrary" to "aportaya_cliente_${paquete}",
+        ),
+    )
+    configOptions.set(
+        mapOf(
+            "serializationLibrary" to "json_serializable",
+            "useEnumExtension" to "true",
+        ),
+    )
+    onlyIf { tieneOperaciones() }
+    // El generador escribe `sdk: '>=3.5.0'`, pero json_serializable 6.9 emite elementos
+    // null-aware (`?instance.x`), que son Dart 3.8. Sin esto build_runner no compila
+    // el `.g.dart` de ningun modelo con campos opcionales.
+    doLast {
+        val pubspec = clienteDart.file("pubspec.yaml").asFile
+        if (pubspec.isFile) {
+            pubspec.writeText(pubspec.readText().replace("sdk: '>=3.5.0 <4.0.0'", "sdk: '>=3.8.0 <4.0.0'"))
+        }
+    }
+}
+
+tasks.register("generarClientes") {
+    group = "build"
+    description = "Los dos clientes de $servicio: Angular y Dart"
+    dependsOn(generarClienteAngular, generarClienteDart)
 }
 
 sourceSets["main"].java.srcDir(servidor.map { it.dir("src/main/java") })

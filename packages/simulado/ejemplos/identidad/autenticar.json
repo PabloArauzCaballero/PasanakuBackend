@@ -1,0 +1,66 @@
+{
+  "servicio": "identidad",
+  "operacion": "autenticar",
+  "metodo": "post",
+  "ruta": "/sesiones",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "sesionId": "b9281df9-a2a4-496f-8b8c-94965bcca768",
+        "expiraEn": "2026-01-15T10:30:00Z",
+        "requiereFactorAdicional": true,
+        "dispositivoConfiable": true,
+        "tokenAcceso": "tokenAcceso"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "sesionId": "b9281df9-a2a4-496f-8b8c-94965bcca768",
+        "expiraEn": "2026-01-15T10:30:00Z",
+        "requiereFactorAdicional": false,
+        "dispositivoConfiable": false,
+        "tokenAcceso": "tokenAcceso"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "sesionId": "b9281df9-a2a4-496f-8b8c-94965bcca768",
+        "expiraEn": "2026-01-15T10:30:00Z",
+        "requiereFactorAdicional": true,
+        "dispositivoConfiable": true,
+        "tokenAcceso": "tokenAcceso"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "sesionId": "b9281df9-a2a4-496f-8b8c-94965bcca768",
+        "expiraEn": "2026-01-15T10:30:00Z",
+        "requiereFactorAdicional": true,
+        "dispositivoConfiable": true,
+        "tokenAcceso": "tokenAcceso"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

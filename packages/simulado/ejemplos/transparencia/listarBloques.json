@@ -1,0 +1,40 @@
+{
+  "servicio": "transparencia",
+  "operacion": "listarBloques",
+  "metodo": "get",
+  "ruta": "/publico/grupos/{grupoId}/bloques",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "numeroBloque": 1,
+          "hashAnterior": "hashAnterior-hashAnterior-hashAnterior-hashAnterior-hashAnterior",
+          "raizMerkle": "raizMerkle-raizMerkle-raizMerkle-raizMerkle-raizMerkle-raizMerkl",
+          "hashBloque": "hashBloque-hashBloque-hashBloque-hashBloque-hashBloque-hashBloqu",
+          "desde": "2026-01-15T10:30:00Z",
+          "hasta": "2026-01-15T10:30:00Z",
+          "cantidadEventos": 0
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "numeroBloque": 1,
+          "hashAnterior": "hashAnterior-hashAnterior-hashAnterior-hashAnterior-hashAnterior",
+          "raizMerkle": "raizMerkle-raizMerkle-raizMerkle-raizMerkle-raizMerkle-raizMerkl",
+          "hashBloque": "hashBloque-hashBloque-hashBloque-hashBloque-hashBloque-hashBloqu",
+          "desde": "2026-01-15T10:30:00Z",
+          "hasta": "2026-01-15T10:30:00Z",
+          "cantidadEventos": 0
+        }
+      ]
+    }
+  }
+}

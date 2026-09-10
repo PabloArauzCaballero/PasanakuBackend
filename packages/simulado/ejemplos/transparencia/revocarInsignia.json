@@ -1,0 +1,65 @@
+{
+  "servicio": "transparencia",
+  "operacion": "revocarInsignia",
+  "metodo": "post",
+  "ruta": "/reputacion/insignias/{otorgadaId}/revocacion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "otorgadaId": "f9c44e2f-09f1-4295-8fca-834603b580c4",
+        "insigniaCodigo": "insigniaCodigo",
+        "otorgadaEn": "2026-01-15T10:30:00Z",
+        "motivoLegible": "motivoLegible",
+        "revocada": true,
+        "esNueva": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "otorgadaId": "f9c44e2f-09f1-4295-8fca-834603b580c4",
+        "insigniaCodigo": "insigniaCodigo",
+        "otorgadaEn": "2026-01-15T10:30:00Z",
+        "motivoLegible": "motivoLegible",
+        "revocada": false,
+        "esNueva": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "otorgadaId": "f9c44e2f-09f1-4295-8fca-834603b580c4",
+        "insigniaCodigo": "insigniaCodigo",
+        "otorgadaEn": "2026-01-15T10:30:00Z",
+        "motivoLegible": "motivoLegible",
+        "revocada": true,
+        "esNueva": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "otorgadaId": "f9c44e2f-09f1-4295-8fca-834603b580c4",
+        "insigniaCodigo": "insigniaCodigo",
+        "otorgadaEn": "2026-01-15T10:30:00Z",
+        "motivoLegible": "motivoLegible",
+        "revocada": true,
+        "esNueva": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": null
+    }
+  }
+}

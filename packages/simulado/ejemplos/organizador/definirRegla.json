@@ -1,0 +1,62 @@
+{
+  "servicio": "organizador",
+  "operacion": "definirRegla",
+  "metodo": "post",
+  "ruta": "/automatizacion/reglas",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "reglaId": "d61e3df4-7728-49fa-85ec-99bf24d4697e",
+        "codigo": "codigo",
+        "activa": true,
+        "requiereConfirmacionHumana": true
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "reglaId": "d61e3df4-7728-49fa-85ec-99bf24d4697e",
+        "codigo": "codigo",
+        "activa": false,
+        "requiereConfirmacionHumana": false
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "reglaId": "d61e3df4-7728-49fa-85ec-99bf24d4697e",
+        "codigo": "codigo",
+        "activa": true,
+        "requiereConfirmacionHumana": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "reglaId": "d61e3df4-7728-49fa-85ec-99bf24d4697e",
+        "codigo": "codigo",
+        "activa": true,
+        "requiereConfirmacionHumana": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

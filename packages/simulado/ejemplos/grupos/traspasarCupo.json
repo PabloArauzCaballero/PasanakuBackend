@@ -1,0 +1,50 @@
+{
+  "servicio": "grupos",
+  "operacion": "traspasarCupo",
+  "metodo": "post",
+  "ruta": "/grupos/{grupoId}/cupos/{cupoId}/traspasos",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "traspasoId": "ae0661ac-a993-423a-8795-23965799a3e6"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "traspasoId": "ae0661ac-a993-423a-8795-23965799a3e6"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "traspasoId": "ae0661ac-a993-423a-8795-23965799a3e6"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "traspasoId": "ae0661ac-a993-423a-8795-23965799a3e6"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

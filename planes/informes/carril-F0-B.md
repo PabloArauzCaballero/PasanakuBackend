@@ -96,3 +96,31 @@ una pantalla no toca ningún archivo compartido.**
 
 [[11 Fases F0 y F1 · Cimientos y sistema de diseño]] · [[16 Carriles de frontend]] ·
 [[carril-F0-M]] · [[13 Fases F6 a F8 · Backoffice]]
+
+---
+
+## Rehecho en el tramo TF (2026-09-09) — [[ADR-044 Frontend en Angular y Flutter]]
+
+> Lo de arriba es historia del stack anterior. Esta sección es lo vigente.
+
+| Entregable | Evidencia | Estado |
+| --- | --- | :-: |
+| Angular 22 *standalone*, **zoneless**, `withComponentInputBinding`, `HttpClient` con cuatro interceptores en `nucleo/` | `src/app/app.config.ts` | ✅ |
+| **Enchufe por dominio** en `app.routes.ts` con cinco `<dominio>.routes.ts` (operación con su primera ruta; los otros vacíos) | `src/app/enchufe-de-rutas.spec.ts` | ✅ |
+| Token del operador **solo en memoria**; refresh por cookie `HttpOnly`; `401 → un refresh → un reintento` | `nucleo/sesion.ts` · `nucleo/sesion.interceptor.ts` | ✅ |
+| Clave de idempotencia por `HttpContextToken`, **UUID** | `nucleo/idempotencia.interceptor.ts` | ✅ |
+| `@aportaya/ui`: `Monto` (reexporta la referencia de `@aportaya/tokens`), `EstadoDePantalla` sobre `ResourceRef`, `BandaDeProposito` («Para qué sirve») | `packages/ui/src/` · `src/app/layout/` | ✅ |
+| `PantallaDeBilletera` (CU-13) con `cuentaId` en la URL, `httpResource`, contra los ejemplos del contrato | `pantalla-de-billetera.spec.ts` · 7 pruebas | ✅ |
+| axe sin violaciones en éxito, error y vacío | `pantalla-de-billetera.a11y.spec.ts` | ✅ |
+| `noindex` en la meta **y** en `X-Robots-Tag` de NGINX; CSP, HSTS, `nosniff` | `src/index.html` · `docker/nginx.conf` | ✅ |
+| Presupuesto: 264,9 kB crudos · **72,9 kB comprimidos** | `ng build` | ✅ |
+
+```
+ng lint                    All files pass linting
+tsc (app y spec)           sin errores
+ng test                    15 pruebas · 0 falladas
+ng build                   Initial total 264.86 kB · 72.91 kB transfer
+python3 scripts/verificar_frontend.py backoffice   TODO OK
+```
+
+**Supuestos declarados.** (1) `TablaDeDatos` no se hizo: es de `F6`. (2) `@aportaya/ui` se consume por alias de `tsconfig`; `ng-packagr` entra en F1-W. (3) Sin Angular Testing Library: las pruebas usan `TestBed` y consultas al DOM por nombre accesible.

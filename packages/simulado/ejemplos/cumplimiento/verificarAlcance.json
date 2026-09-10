@@ -1,0 +1,53 @@
+{
+  "servicio": "cumplimiento",
+  "operacion": "verificarAlcance",
+  "metodo": "get",
+  "ruta": "/licencia/alcance",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "habilitado": true,
+        "via": "LICENCIA",
+        "limitesSandbox": {
+          "usuarios": 1,
+          "montoOperacion": "\\d\\O\\dd"
+        },
+        "motivo": "motivo"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "habilitado": false,
+        "via": "LICENCIA",
+        "limitesSandbox": {
+          "usuarios": 0,
+          "montoOperacion": "\\d\\ \\dd"
+        },
+        "motivo": "motivo"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "habilitado": true,
+        "via": "LICENCIA",
+        "limitesSandbox": {
+          "usuarios": 1,
+          "montoOperacion": "\\d\\O\\dd"
+        },
+        "motivo": "motivo"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

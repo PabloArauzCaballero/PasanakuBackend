@@ -1,0 +1,70 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "solicitarCierreBilletera",
+  "metodo": "post",
+  "ruta": "/billetera/cierres",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "solicitudId": "b782e7d7-11af-4eeb-859d-2c6c4c932c6c",
+        "estado": "SOLICITADA",
+        "saldoAlSolicitar": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "solicitudId": "b782e7d7-11af-4eeb-859d-2c6c4c932c6c",
+        "estado": "SOLICITADA",
+        "saldoAlSolicitar": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "solicitudId": "b782e7d7-11af-4eeb-859d-2c6c4c932c6c",
+        "estado": "SOLICITADA",
+        "saldoAlSolicitar": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "solicitudId": "b782e7d7-11af-4eeb-859d-2c6c4c932c6c",
+        "estado": "SOLICITADA",
+        "saldoAlSolicitar": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

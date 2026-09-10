@@ -21,8 +21,25 @@ habilita: [F12]
 > que en ningún lado la **regla cero**: en un sitio público de finanzas, una
 > afirmación inventada no es un bug — es publicidad engañosa.
 
-**Producto:** `apps/web`, Astro 5 + islas React (ADR-037).
+**Producto:** `apps/web`, **Angular con `@angular/ssr` y rutas híbridas**
+([[ADR-041 Sitio público · el tercer producto]] decide *qué* es;
+[[ADR-044 Frontend en Angular y Flutter]] decide *con qué*).
 **Es la única superficie indexable de AportaYa.**
+
+> [!important] Cómo Angular cumple lo que ADR-041 pedía de Astro
+>
+> | ADR-041 decía | En Angular es |
+> | --- | --- |
+> | Estático por omisión | `RenderMode.Prerender` en `app.routes.server.ts` para toda ruta que no diga lo contrario; **hay una prueba que enumera las que no** |
+> | SSR solo donde el contenido depende de un servicio en vivo | `RenderMode.Server` en `/verificar/*`, `/publico/*`, `/tarifas`, `/contrato-de-adhesion`, con `headers` y `status` por ruta |
+> | Islas, no páginas de JavaScript | **Hidratación incremental**: los cuatro verificadores van en `@defer (hydrate on viewport)`; el resto se sirve como HTML y se hidrata solo el marco |
+> | Documentos regulatorios como *content collections* | Markdown con *frontmatter* validado en `apps/web/contenido/`, procesado por `scripts/contenido.mjs` **antes** del build |
+> | Comparte el monorepo y el simulado | Mismo `tsconfig.base.json`, mismo `@aportaya/ui`, mismo Prism, mismo cliente generado |
+>
+> Lo que cuesta: el runtime de Angular viaja en cada página. El presupuesto bloqueante
+> es **≤ 150 KB comprimidos de JavaScript inicial** ([[19 Contrato de carril · conflicto cero, skills y calidad verificada]] §6),
+> y las páginas de contenido **no cargan ningún cliente de API**: cero JS de dominio fuera
+> de los verificadores.
 
 ---
 
@@ -70,29 +87,28 @@ legible por máquina. Es exactamente lo que este proyecto prohíbe.
 
 ## F9.1 · Mapa del sitio
 
-| Ruta | Qué es | Render | Indexación | Obligación |
+| Ruta | Qué es | `RenderMode` | Indexación | Obligación |
 | --- | --- | --- | :-: | --- |
-| `/` | Qué es AportaYa, para quién, cómo empieza | estático | index | — |
-| `/como-funciona` | El pasanaku digital paso a paso | estático | index | — |
-| `/seguridad` | Custodia, encaje, qué pasa con tu plata | estático | index | Transparencia |
-| `/tarifas` | **Tarifario vigente, con impuestos** | ISR | index | **CU-34**, `R-TAR-08` |
-| `/contrato-de-adhesion` | Versión vigente y anteriores, con hash | ISR | index | **CU-05**, `R-CON-06` |
-| `/reclamos` | Puntos de reclamo, plazos, segunda instancia ASFI | estático | index | **CU-52/53**, ASFI L4 T1 |
-| `/privacidad` | Tratamiento de datos y cómo ejercer derechos | estático | index | **CU-07** |
-| `/transparencia` | Cómo se sella y verifica la cadena | estático | index | CU-72/73 |
-| `/preguntas` | FAQ | estático | index | — |
-| `/legal/estado-regulatorio` | **Estado real de la licencia** | ISR | index | Regla 2 |
-| `/descargar` | Enlaces a tiendas | estático | index | — |
-| `/verificar/[codigo]` | Certificado de reputación | SSR | **noindex** | CU-75 |
-| `/publico/grupos/[codigo]` | Cadena de transparencia | SSR | **noindex** | CU-72/73 |
-| `/publico/sorteos/[id]` | Verificación del sorteo, con paquete JSON | SSR | **noindex** | CU-61 |
-| `/catalogo` | Catálogo del sistema de diseño | estático | **noindex** | interno |
+| `/` | Qué es AportaYa, para quién, cómo empieza | `Prerender` | index | — |
+| `/como-funciona` | El pasanaku digital paso a paso | `Prerender` | index | — |
+| `/seguridad` | Custodia, encaje, qué pasa con tu plata | `Prerender` | index | Transparencia |
+| `/tarifas` | **Tarifario vigente, con impuestos** | `Server` + caché NGINX 10 min | index | **CU-34**, `R-TAR-08` |
+| `/contrato-de-adhesion` | Versión vigente y anteriores, con hash | `Server` + caché NGINX 10 min | index | **CU-05**, `R-CON-06` |
+| `/reclamos` | Puntos de reclamo, plazos, segunda instancia ASFI | `Prerender` | index | **CU-52/53**, ASFI L4 T1 |
+| `/privacidad` | Tratamiento de datos y cómo ejercer derechos | `Prerender` | index | **CU-07** |
+| `/transparencia` | Cómo se sella y verifica la cadena | `Prerender` | index | CU-72/73 |
+| `/preguntas` | FAQ | `Prerender` | index | — |
+| `/legal/estado-regulatorio` | **Estado real de la licencia** | `Server` + caché NGINX 10 min | index | Regla 2 |
+| `/descargar` | Enlaces a tiendas | `Prerender` | index | — |
+| `/verificar/:codigo` | Certificado de reputación | `Server` + `X-Robots-Tag` | **noindex** | CU-75 |
+| `/publico/grupos/:codigo` | Cadena de transparencia | `Server` + `X-Robots-Tag` | **noindex** | CU-72/73 |
+| `/publico/sorteos/:id` | Verificación del sorteo, con paquete JSON | `Server` + `X-Robots-Tag` | **noindex** | CU-61 |
+| `/catalogo` | Catálogo del sistema de diseño (`@aportaya/ui`) | `Prerender` | **noindex** | interno |
 
 ## F9.2 · Contenido como datos, no como marcado
 
-Los documentos regulatorios van en **content collections** de Astro
-(`src/content/legal/`, `src/content/faq/`, `src/content/tarifas/`), en Markdown con
-frontmatter validado por esquema:
+Los documentos regulatorios van en **Markdown con *frontmatter* validado** en
+`apps/web/contenido/{paginas,legal,faq,tarifas}/`:
 
 ```yaml
 ---
@@ -105,21 +121,46 @@ actualizado: 2026-08-14
 ---
 ```
 
-> **El tarifario y el contrato no se escriben a mano en el sitio.** Se traen del
-> backend (`documento_publicado`, `tarifario`), con su hash y su vigencia. Si el sitio
-> muestra un tarifario distinto del que cobra la API, eso es un incumplimiento de
-> transparencia, no una inconsistencia de contenido.
+`scripts/contenido.mjs` corre **antes** de `ng build` y produce, desde esos archivos:
 
-## F9.3 · Las islas React
-
-Solo cuatro fragmentos necesitan JavaScript. Todo lo demás es HTML estático:
-
-| Isla | Dónde | Por qué |
+| Salida | Para qué | Carril |
 | --- | --- | --- |
-| `VerificadorDeCertificado` | `/verificar/[codigo]` | Consulta la API |
-| `VerificadorDeCadena` | `/publico/grupos/[codigo]` | Recomputa hashes en el navegador |
-| `VerificadorDeSorteo` | `/publico/sorteos/[id]` | Recomputa el orden con `barajarDeterminista` |
-| `SimuladorDeCostos` | `/tarifas` | Cotiza contra CU-30 |
+| `src/generado/contenido.json` | Lo que las páginas Angular renderizan en *prerender*, tipado con un esquema (`zod`) que falla si falta un campo del *frontmatter* | F9 |
+| `public/<ruta>.md` | El espejo Markdown de cada página indexable | F11 |
+| `public/llms.txt` · `public/llms-full.txt` | El índice para modelos | F11 |
+| `public/sitemap.xml` | Solo rutas `index`, con `lastmod` real del `actualizado` | F10 |
+| La lista de rutas para `getPrerenderParams` | Para que Angular prerenderice cada página de contenido | F9 |
+
+> **El tarifario y el contrato no se escriben a mano en el sitio.** Se traen del
+> backend (`documento_publicado`, `tarifario`) en `RenderMode.Server`, con su hash y su
+> vigencia, y NGINX los cachea diez minutos. Si el sitio muestra un tarifario distinto
+> del que cobra la API, eso es un incumplimiento de transparencia, no una inconsistencia
+> de contenido.
+
+## F9.3 · Los cuatro verificadores — hidratación incremental
+
+Solo cuatro fragmentos necesitan JavaScript de dominio. Todo lo demás es HTML
+prerenderizado que hidrata únicamente el marco de Angular:
+
+| Verificador | Dónde | Por qué | Cómo se difiere |
+| --- | --- | --- | --- |
+| `VerificadorDeCertificado` | `/verificar/:codigo` | Consulta la API | `@defer (hydrate on viewport)` |
+| `VerificadorDeCadena` | `/publico/grupos/:codigo` | Recomputa hashes en el navegador | `@defer (hydrate on viewport)` |
+| `VerificadorDeSorteo` | `/publico/sorteos/:id` | Recomputa el orden con `barajarDeterminista` | `@defer (hydrate on viewport)` |
+| `SimuladorDeCostos` | `/tarifas` | Cotiza contra CU-30 | `@defer (hydrate on interaction)` |
+
+```ts
+// apps/web/src/app/app.routes.server.ts — la prueba `rutas-de-servidor.spec.ts` enumera estas y exige que sean exactamente estas
+export const serverRoutes: ServerRoute[] = [
+  { path: 'verificar/:codigo',      renderMode: RenderMode.Server, headers: { 'X-Robots-Tag': 'noindex, nofollow' } },
+  { path: 'publico/grupos/:codigo', renderMode: RenderMode.Server, headers: { 'X-Robots-Tag': 'noindex, nofollow' } },
+  { path: 'publico/sorteos/:id',    renderMode: RenderMode.Server, headers: { 'X-Robots-Tag': 'noindex, nofollow' } },
+  { path: 'tarifas',                renderMode: RenderMode.Server, headers: { 'Cache-Control': 'public, s-maxage=600' } },
+  { path: 'contrato-de-adhesion',   renderMode: RenderMode.Server, headers: { 'Cache-Control': 'public, s-maxage=600' } },
+  { path: 'legal/estado-regulatorio', renderMode: RenderMode.Server, headers: { 'Cache-Control': 'public, s-maxage=600' } },
+  { path: '**',                     renderMode: RenderMode.Prerender },
+]
+```
 
 > **Los verificadores recomputan en el cliente, no le creen al servidor.** Ese es el
 > punto entero de CU-61 y CU-73: un tercero tiene que poder auditar *sin depender de
@@ -129,16 +170,21 @@ Solo cuatro fragmentos necesitan JavaScript. Todo lo demás es HTML estático:
 
 > **Cómo se garantiza que coinciden byte a byte con el backend: vectores dorados.** La
 > prueba Java de esos mismos átomos **genera un JSON de casos** (entrada → salida
-> esperada) que se **versiona** en `packages/dominio-cliente`; la prueba TypeScript lo
-> **consume** y exige que su reimplementación produzca exactamente esas salidas. Sin
-> ese JSON compartido, la afirmación del gate «el cliente recomputa y coincide» no es
-> verificable — sería confiar en que dos implementaciones independientes coinciden por
-> casualidad ([[20 Saneamiento del plan · huecos de la migración a microservicios]] §3).
+> esperada) que se **versiona** en `packages/dominio-cliente/vectores/`; la prueba
+> TypeScript lo **consume** y exige que su reimplementación produzca exactamente esas
+> salidas ([[20 Saneamiento del plan · huecos de la migración a microservicios]] §3).
+
+> **Cuando el servicio está caído, la página no cae.** Las rutas `Server` capturan el
+> error del gateway y responden `200` con el organismo `EstadoError` y reintento, no un
+> `503` en blanco: quien desconfía leería la caída como conveniente (ADR-041).
 
 ## Gate de salida F9
 
-- [ ] Gate común de §10 del plan maestro del frontend
+- [ ] Gate común de §11 del plan maestro del frontend
 - [ ] Las 15 rutas existen con contenido real
+- [ ] `rutas-de-servidor.spec.ts` enumera **exactamente** las seis rutas `Server`; todo
+      lo demás es `Prerender` (verificado en la salida de `ng build`)
+- [ ] Las páginas de contenido **no cargan ningún cliente de API** (verificado en `dist/`)
 - [ ] El tarifario y el contrato se traen del backend, con hash y vigencia visibles
 - [ ] Los tres verificadores **recomputan en el cliente** y coinciden con el servidor
 - [ ] `/verificar/*` y `/publico/*` responden `noindex` en meta **y** en `X-Robots-Tag`
@@ -155,8 +201,10 @@ Solo cuatro fragmentos necesitan JavaScript. Todo lo demás es HTML estático:
 
 ## F10.1 · Metadatos por página
 
-Un componente `<Meta>` en `src/seo/` recibe los datos y emite todo. **Ninguna página
-escribe una etiqueta `<meta>` a mano.**
+Un `ServicioMeta` en `src/app/seo/` recibe los datos de la página (por `data` de la
+ruta) y emite todo con `Meta` y `Title` de Angular más un `JsonLd` en el `<head>`.
+**Ninguna página escribe una etiqueta `<meta>` a mano.** Lo que F11 necesita
+(`alternateMarkdown`) llega **por el `data` de la ruta**, no editando el servicio.
 
 ```html
 <title>Tarifas y comisiones · AportaYa</title>          <!-- ≤ 60 caracteres, única -->
@@ -263,24 +311,23 @@ muestra**; si no coincide, es *structured data spam* y se penaliza.
 
 ## F10.3 · `sitemap.xml` y `robots.txt`
 
-- Generados por Astro. **Solo las páginas `index`.**
+- Generados por `scripts/contenido.mjs`. **Solo las páginas `index`.**
 - `lastmod` real, tomado del `actualizado` del contenido, no de la fecha del build.
 - Nunca `/verificar/`, `/publico/`, `/catalogo`.
 - `robots.txt` con la política de IA de la Fase F11 y la referencia al sitemap.
 
 ## F10.4 · Core Web Vitals — señal directa de posicionamiento
 
-| Métrica | Objetivo | Cómo se logra en Astro |
+| Métrica | Objetivo | Cómo se logra en Angular |
 | --- | :-: | --- |
-| **LCP** | < 2.0 s | HTML estático, sin JS bloqueante, imagen del héroe con `priority` |
-| **INP** | < 200 ms | Solo cuatro islas hidratadas; el resto es HTML |
-| **CLS** | < 0.05 | Dimensiones explícitas en imágenes y fuentes con `size-adjust` |
-| Peso de JS | **objetivo** < 50 KB en páginas de contenido | `client:visible`, nunca `client:load` sin motivo |
+| **LCP** | < 2.0 s | HTML prerenderizado, `NgOptimizedImage` con `priority` en el héroe, fuentes con `size-adjust` y `preload` |
+| **INP** | < 200 ms | *zoneless* + hidratación incremental: solo el verificador visible se hidrata; *event replay* activado |
+| **CLS** | < 0.05 | Dimensiones explícitas en imágenes, `@defer` con `@placeholder` del mismo tamaño |
+| Peso de JS inicial | **≤ 150 KB comprimidos** (gate) · **≤ 90 KB** en páginas de contenido (objetivo) | `@defer` en todo lo que no sea el primer pintado; cero cliente de API en contenido; `budgets` en `angular.json` |
 
-LCP, INP y CLS se miden con Lighthouse CI en cada PR, **bloqueantes**. El peso de JS de
-50 KB es un **objetivo** de las páginas de contenido, no un gate: el presupuesto
-bloqueante en CI es el de [[19 Contrato de carril · conflicto cero, skills y calidad verificada]] §6
-(**≤ 150 KB de JS inicial del sitio**).
+LCP, INP y CLS se miden con Lighthouse CI en cada PR, **bloqueantes**. Los `budgets` de
+`angular.json` rompen el build si el *bundle* inicial pasa el gate: no hace falta esperar
+a Lighthouse para enterarse.
 
 ## F10.5 · YMYL y E-E-A-T
 
@@ -308,7 +355,7 @@ npx lighthouse-ci autorun              # CWV bloqueante
 - [ ] Cero `Review`/`AggregateRating`; cero `FinancialService` mientras no haya licencia
 - [ ] `sitemap.xml` **sin** rutas `noindex`; `lastmod` real
 - [ ] CWV en verde en las páginas de contenido
-- [ ] JS bajo el **objetivo** de < 50 KB en páginas de contenido (el gate bloqueante es el de `19 §6`: **≤ 150 KB**)
+- [ ] JS inicial ≤ 150 KB comprimidos (gate, `19 §6`); objetivo ≤ 90 KB en páginas de contenido
 - [ ] Pie con identidad legal, NIT, dirección y estado regulatorio
 - [ ] `X-Robots-Tag: noindex` verificado con `curl` en `/verificar/`, `/publico/`, `/catalogo`
 
@@ -440,8 +487,10 @@ Y se declara en el `<head>`:
 ```
 
 > **Un modelo que recibe Markdown limpio extrae mejor que uno que tiene que atravesar
-> `<div>` anidados, menús y banners.** En Astro sale gratis: el contenido ya vive en
-> Markdown; el `.md` es la fuente sin la capa de presentación.
+> `<div>` anidados, menús y banners.** El contenido ya vive en Markdown en
+> `apps/web/contenido/`; `scripts/contenido.mjs` copia el `.md` sin la capa de
+> presentación a `public/`, y `ServicioMeta` emite el `<link rel="alternate">` con lo
+> que F11 le pasa por el `data` de la ruta.
 
 ## F11.4 · Cómo se escribe para que una IA cite bien
 
@@ -457,7 +506,8 @@ Y se declara en el `<head>`:
 | **Sin ambigüedad de sujeto** | «AportaYa cobra…», no «nosotros cobramos…» | Un fragmento extraído pierde el antecedente |
 | **`dateModified` visible** | En la página, no solo en el JSON-LD | Los motores priorizan lo fresco |
 
-**Lo que arruina el GEO:** contenido detrás de JavaScript (el rastreador no lo ve),
+**Lo que arruina el GEO:** contenido detrás de JavaScript (el rastreador no lo ve — por
+eso el contenido va prerenderizado y nunca dentro de un `@defer`),
 información clave solo en una imagen, respuestas que empiezan con tres párrafos de
 preámbulo, y cifras sin fecha.
 
@@ -500,7 +550,7 @@ curl -s https://…/tarifas.md | head                  # espejo markdown
 - [ ] Gate común
 - [ ] `robots.txt` refleja ADR-038, con los ocho bots nombrados explícitamente
 - [ ] `/verificar/`, `/publico/`, `/catalogo` y `/api/` bloqueados para **todos**
-- [ ] `llms.txt` y `llms-full.txt` **generados en el build**, no escritos a mano
+- [ ] `llms.txt` y `llms-full.txt` **generados por `scripts/contenido.mjs`**, no escritos a mano
 - [ ] Cada página indexable tiene su `.md` y su `<link rel="alternate">`
 - [ ] Las diez preguntas tienen su sección, respondida **en la primera oración**
 - [ ] Toda cifra publicada lleva **fuente y fecha**
@@ -509,4 +559,4 @@ curl -s https://…/tarifas.md | head                  # espejo markdown
 
 ## Ver también
 
-[[00c Recetario · implementar un caso de uso]] · [[16 Carriles de frontend]] · [[10 Plan maestro del frontend]] · [[10b Estándar de ejecución del frontend]] · [[15 Fase F12 · Endurecimiento, E2E y publicación]] · [[Cumplimiento]] · [[AportaYa-Identidad]]
+[[00c Recetario · implementar un caso de uso]] · [[16 Carriles de frontend]] · [[10 Plan maestro del frontend]] · [[10b Estándar de ejecución del frontend]] · [[15 Fase F12 · Endurecimiento, E2E y publicación]] · [[ADR-041 Sitio público · el tercer producto]] · [[ADR-044 Frontend en Angular y Flutter]] · [[Cumplimiento]] · [[AportaYa-Identidad]]

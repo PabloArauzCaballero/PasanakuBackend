@@ -1,46 +1,46 @@
 {
-  "extends": "astro/tsconfigs/strict",
+  "compileOnSave": false,
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "jsxImportSource": "react",
-    "types": [
-      "vitest/globals",
-      "@testing-library/jest-dom"
-    ],
-    "baseUrl": "../..",
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve",
     "paths": {
-      "@/*": [
-        "apps/web/src/*"
+      "@aportaya/ui/*": [
+        "./../../packages/ui/src/*"
+      ],
+      "@aportaya/tokens/*": [
+        "./../../packages/tokens/*"
       ],
       "@aportaya/simulado": [
-        "packages/simulado/src/index.ts"
+        "./../../packages/simulado/src/index.ts"
       ],
-      "@aportaya/simulado/*": [
-        "packages/simulado/src/*"
-      ],
-      "@aportaya/ui": [
-        "packages/ui/src/index.ts"
-      ],
-      "@aportaya/ui/nativo": [
-        "packages/ui/src/nativo/index.ts"
-      ],
-      "@aportaya/ui/web": [
-        "packages/ui/src/web/index.ts"
-      ],
-      "clientes/typescript/*": [
-        "clientes/typescript/*"
+      "clientes/angular/*": [
+        "./../../clientes/angular/*"
       ]
-    }
+    },
+    "resolveJsonModule": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true
   },
-  "include": [
-    ".astro/types.d.ts",
-    "src/**/*",
-    "pruebas/**/*",
-    "*.mjs",
-    "*.ts"
-  ],
-  "exclude": [
-    "dist",
-    "node_modules"
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
   ]
 }

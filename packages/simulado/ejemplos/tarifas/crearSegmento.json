@@ -1,0 +1,58 @@
+{
+  "servicio": "tarifas",
+  "operacion": "crearSegmento",
+  "metodo": "post",
+  "ruta": "/tarifas/segmentos",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "segmentoId": "f11c52c2-f585-4dda-8499-af18e6a2509c",
+        "codigo": "codigo",
+        "prioridad": 1
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "segmentoId": "f11c52c2-f585-4dda-8499-af18e6a2509c",
+        "codigo": "codigo",
+        "prioridad": 0
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "segmentoId": "f11c52c2-f585-4dda-8499-af18e6a2509c",
+        "codigo": "codigo",
+        "prioridad": 1
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "segmentoId": "f11c52c2-f585-4dda-8499-af18e6a2509c",
+        "codigo": "codigo",
+        "prioridad": 1
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

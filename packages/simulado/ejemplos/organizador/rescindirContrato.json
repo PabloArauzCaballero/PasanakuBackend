@@ -1,0 +1,58 @@
+{
+  "servicio": "organizador",
+  "operacion": "rescindirContrato",
+  "metodo": "post",
+  "ruta": "/organizadores/contratos/{contratoId}/rescision",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "contratoId": "9097a113-e088-44cf-801f-c5dc712005e2",
+        "rescindidoEn": "2026-01-15T10:30:00Z",
+        "estadoDelOrganizador": "estadoDelOrganizador"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "contratoId": "9097a113-e088-44cf-801f-c5dc712005e2",
+        "rescindidoEn": "2026-01-15T10:30:00Z",
+        "estadoDelOrganizador": "estadoDelOrganizador"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "contratoId": "9097a113-e088-44cf-801f-c5dc712005e2",
+        "rescindidoEn": "2026-01-15T10:30:00Z",
+        "estadoDelOrganizador": "estadoDelOrganizador"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "contratoId": "9097a113-e088-44cf-801f-c5dc712005e2",
+        "rescindidoEn": "2026-01-15T10:30:00Z",
+        "estadoDelOrganizador": "estadoDelOrganizador"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

@@ -1,51 +1,46 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "compileOnSave": false,
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
-    "types": [
-      "vite/client",
-      "vitest/globals",
-      "@testing-library/jest-dom"
-    ],
-    "baseUrl": "../..",
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve",
     "paths": {
-      "@/*": [
-        "apps/backoffice/src/*"
+      "@aportaya/ui/*": [
+        "./../../packages/ui/src/*"
+      ],
+      "@aportaya/tokens/*": [
+        "./../../packages/tokens/*"
       ],
       "@aportaya/simulado": [
-        "packages/simulado/src/index.ts"
+        "./../../packages/simulado/src/index.ts"
       ],
-      "@aportaya/simulado/*": [
-        "packages/simulado/src/*"
-      ],
-      "@aportaya/ui": [
-        "packages/ui/src/index.ts"
-      ],
-      "@aportaya/ui/nativo": [
-        "packages/ui/src/nativo/index.ts"
-      ],
-      "@aportaya/ui/web": [
-        "packages/ui/src/web/index.ts"
-      ],
-      "clientes/typescript/*": [
-        "clientes/typescript/*"
+      "clientes/angular/*": [
+        "./../../clientes/angular/*"
       ]
-    }
+    },
+    "resolveJsonModule": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "pruebas/**/*.ts",
-    "pruebas/**/*.tsx",
-    "*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
   ]
 }

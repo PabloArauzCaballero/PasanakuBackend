@@ -1,0 +1,74 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "transferirSaldo",
+  "metodo": "post",
+  "ruta": "/billetera/transferencias",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "transaccionId": "62edf3c9-a4db-45c7-839c-939f207c9299",
+        "saldoDespues": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "destinatarioId": "33178219-ecd5-47d7-8203-d2a321fecd9f",
+        "obligacionSaldada": true
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "transaccionId": "62edf3c9-a4db-45c7-839c-939f207c9299",
+        "saldoDespues": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "destinatarioId": "33178219-ecd5-47d7-8203-d2a321fecd9f",
+        "obligacionSaldada": false
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "transaccionId": "62edf3c9-a4db-45c7-839c-939f207c9299",
+        "saldoDespues": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "destinatarioId": "33178219-ecd5-47d7-8203-d2a321fecd9f",
+        "obligacionSaldada": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "transaccionId": "62edf3c9-a4db-45c7-839c-939f207c9299",
+        "saldoDespues": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "destinatarioId": "33178219-ecd5-47d7-8203-d2a321fecd9f",
+        "obligacionSaldada": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

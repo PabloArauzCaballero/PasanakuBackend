@@ -1,0 +1,66 @@
+{
+  "servicio": "erp",
+  "operacion": "depreciarActivo",
+  "metodo": "post",
+  "ruta": "/erp/activos/{activoId}/depreciaciones",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "activoFijoId": "a2ffae30-8299-4e64-8066-205425993c94",
+        "depreciacionId": "3a6813cc-fce0-46ea-8397-71ada37490ab",
+        "monto": "4.44",
+        "valorEnLibros": "4.44",
+        "totalmenteDepreciado": true
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "activoFijoId": "a2ffae30-8299-4e64-8066-205425993c94",
+        "depreciacionId": "3a6813cc-fce0-46ea-8397-71ada37490ab",
+        "monto": "0.00",
+        "valorEnLibros": "0.00",
+        "totalmenteDepreciado": false
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "activoFijoId": "a2ffae30-8299-4e64-8066-205425993c94",
+        "depreciacionId": "3a6813cc-fce0-46ea-8397-71ada37490ab",
+        "monto": "4.44",
+        "valorEnLibros": "4.44",
+        "totalmenteDepreciado": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "activoFijoId": "a2ffae30-8299-4e64-8066-205425993c94",
+        "depreciacionId": "3a6813cc-fce0-46ea-8397-71ada37490ab",
+        "monto": "4.44",
+        "valorEnLibros": "4.44",
+        "totalmenteDepreciado": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

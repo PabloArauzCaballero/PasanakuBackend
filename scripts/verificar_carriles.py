@@ -8,7 +8,7 @@ Con cinco máquinas concurrentes y un solo revisor, lo que no se verifica se
 desalinea solo. Este script comprueba cinco cosas que ninguna persona sostiene a
 mano:
 
-  1 · COBERTURA DE SKILLS   las 65 skills están asignadas a algún carril, y
+  1 · COBERTURA DE SKILLS   las 66 skills están asignadas a algún carril, y
                             ningún carril nombra una skill que no existe
   2 · FICHAS COMPLETAS      todo carril del índice tiene ficha y fila en la
                             matriz normativa de skills
@@ -60,7 +60,7 @@ def indice_de_fichas():
     fichas = {}
     patron = r"\|\s*\[`([^`]+)`\][^|]*\|\s*(P\d)\s*\|\s*([^|]+?)\s*\|[^|]*\|[^|]*\|\s*([●○]+)\s*\|"
     for m in re.finditer(patron, idx):
-        tramos = set(re.findall(r"T\d+", m.group(3)))
+        tramos = set(re.findall(r"T[F\d]+", m.group(3)))
         fichas[m.group(1)] = (m.group(2), tramos, m.group(4).count("●"))
     return fichas
 
@@ -75,14 +75,14 @@ def asignacion_en_coordinacion():
     asignado = {}
     tramo = None
     for linea in P17.read_text(encoding="utf-8").splitlines():
-        cabecera = re.match(r"###\s+(T\d+)\s+·", linea)
+        cabecera = re.match(r"###\s+(T[F\d]+)\s+·", linea)
         if cabecera:
             tramo = cabecera.group(1)
             continue
         fila = re.match(r"\|\s*\*\*(P\d)\*\*[^|]*\|(.*)", linea)
         if not (fila and tramo):
             continue
-        for lane in re.findall(r"\b(T\d|[1-5][A-Z]|F\d{1,2}|F0-[MBW])\b", fila.group(2)):
+        for lane in re.findall(r"(?<![\w.-])(T\d|[1-5][A-Z]|B5|F0\.T|F1-[WM]|F0-[MBW]|F\d{1,2})(?![\w.-])", fila.group(2)):
             asignado.setdefault(lane, set()).add((fila.group(1), tramo))
     return asignado
 
@@ -90,7 +90,7 @@ def asignacion_en_coordinacion():
 def pares_en_serie():
     """Los `X → Y` que planes/17 declara: dos carriles seguidos en un mismo puesto."""
     serie = set()
-    for a, b in re.findall(r"`?\*?\*?([A-Z0-9]{2,3})\*?\*?`?\s*→\s*`?\*?\*?([A-Z0-9]{2,3})\*?\*?`?",
+    for a, b in re.findall(r"`?\*?\*?([A-Z0-9][A-Z0-9.-]{1,3})\*?\*?`?\s*→\s*`?\*?\*?([A-Z0-9][A-Z0-9.-]{1,3})\*?\*?`?",
                            P17.read_text(encoding="utf-8")):
         serie.add(frozenset((a, b)))
     return serie
@@ -186,7 +186,8 @@ def main():
     print("  peso por tramo (● de la escala de tamaño) — el número que importa:")
     print("  tramo  " + " ".join(f"{p:>4}" for p in puestos) + "   max/min  ocupados")
     desparejos = []
-    for tr in sorted(por_tramo, key=lambda x: int(x[1:])):
+    # TF es el tramo de transición del frontend (ADR-044): se inserta entre T2 y T3.
+    for tr in sorted(por_tramo, key=lambda x: 2.5 if x == "TF" else int(x[1:])):
         fila = [por_tramo[tr].get(p, 0) for p in puestos]
         ocupados = [v for v in fila if v]
         razon = max(ocupados) / min(ocupados) if len(ocupados) > 1 else 1.0
@@ -200,7 +201,8 @@ def main():
     # declarados en serie ("X → Y") en el plan de coordinación.
     print("\n  concurrencia por puesto y tramo:")
     solapados = []
-    for tr in sorted(por_tramo, key=lambda x: int(x[1:])):
+    # TF es el tramo de transición del frontend (ADR-044): se inserta entre T2 y T3.
+    for tr in sorted(por_tramo, key=lambda x: 2.5 if x == "TF" else int(x[1:])):
         for puesto in puestos:
             juntos = sorted(l for l, (p, trs, _) in fichas.items() if p == puesto and tr in trs)
             if len(juntos) > 1 and frozenset(juntos) not in serie:

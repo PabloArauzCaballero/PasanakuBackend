@@ -74,7 +74,7 @@ Pasanaku/
 │   ├── comun-pruebas/           Testcontainers, fixtures, ArchUnit, barridos
 │   └── gateway/                 Spring Cloud Gateway
 ├── servicios/                   ← vacío en la Fase 0, salvo el de ejemplo
-├── clientes/typescript/         generado — no se edita
+├── clientes/{angular,dart}/     generados — no se editan (ADR-044)
 ├── apps/movil · apps/backoffice
 ├── despliegue/
 │   ├── Dockerfile               plantilla ÚNICA, parametrizada por servicio

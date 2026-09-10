@@ -1,16 +1,18 @@
 {
   "name": "aportaya",
   "private": true,
+  "type": "module",
   "packageManager": "yarn@4.18.0",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
-    "//": "Los tres `dev:*` construyen antes el sistema de diseño: `generado/tokens.css` es un artefacto, y sin él el sitio y el backoffice arrancan sin tokens.",
-    "dev:movil": "yarn workspace @aportaya/movil start",
-    "dev:backoffice": "yarn workspace @aportaya/ui build && yarn workspace @aportaya/backoffice dev",
-    "dev:web": "yarn workspace @aportaya/ui build && yarn workspace @aportaya/web dev",
+    "//": "Frontend en Flutter (app) y Angular (backoffice y sitio), ADR-044. `apps/movil` es un envoltorio: sus tareas llaman a flutter. Los tres `dev:*` generan antes los tokens: tokens.css y tokens.dart son artefactos, y sin ellos nada arranca con tema.",
+    "dev:mock": "yarn workspace @aportaya/simulado mock",
+    "dev:movil": "yarn workspace @aportaya/tokens build && yarn workspace @aportaya/movil dev",
+    "dev:backoffice": "yarn workspace @aportaya/tokens build && yarn workspace @aportaya/backoffice start",
+    "dev:web": "yarn workspace @aportaya/tokens build && yarn workspace @aportaya/web start",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test:front": "turbo run test:front",

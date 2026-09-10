@@ -1,0 +1,66 @@
+{
+  "servicio": "auditoria",
+  "operacion": "ejecutarReporte",
+  "metodo": "post",
+  "ruta": "/reportes/{definicionId}/ejecuciones",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "ejecucionId": "26fef49e-b3ff-4a12-86af-e2174dafe1eb",
+        "estado": "COMPLETADA",
+        "filasGeneradas": 1,
+        "hashResultado": "hashResultado-hashResultado-hashResultado-hashResultado-hashResu",
+        "exportacionId": "7e4edb89-91ec-4e03-8105-d1a76103b198"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "ejecucionId": "26fef49e-b3ff-4a12-86af-e2174dafe1eb",
+        "estado": "COMPLETADA",
+        "filasGeneradas": 0,
+        "hashResultado": "hashResultado-hashResultado-hashResultado-hashResultado-hashResu",
+        "exportacionId": "7e4edb89-91ec-4e03-8105-d1a76103b198"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "ejecucionId": "26fef49e-b3ff-4a12-86af-e2174dafe1eb",
+        "estado": "COMPLETADA",
+        "filasGeneradas": 1,
+        "hashResultado": "hashResultado-hashResultado-hashResultado-hashResultado-hashResu",
+        "exportacionId": "7e4edb89-91ec-4e03-8105-d1a76103b198"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "ejecucionId": "26fef49e-b3ff-4a12-86af-e2174dafe1eb",
+        "estado": "COMPLETADA",
+        "filasGeneradas": 1,
+        "hashResultado": "hashResultado-hashResultado-hashResultado-hashResultado-hashResu",
+        "exportacionId": "7e4edb89-91ec-4e03-8105-d1a76103b198"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

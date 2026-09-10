@@ -1,0 +1,32 @@
+{
+  "servicio": "garantia",
+  "operacion": "consultarRestriccion",
+  "metodo": "get",
+  "ruta": "/cobranza/restricciones/vigentes/{usuarioId}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "vigente": true,
+        "nivel": "nivel",
+        "montoQueLaLevanta": "4.44"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "vigente": false,
+        "nivel": "nivel",
+        "montoQueLaLevanta": "0.00"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "vigente": true,
+        "nivel": "nivel",
+        "montoQueLaLevanta": "4.44"
+      }
+    }
+  }
+}

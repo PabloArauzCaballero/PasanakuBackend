@@ -7,7 +7,7 @@ tags:
   - backoffice
 titulo: "Flujo de pantallas · backoffice administrador"
 fecha: 2026-08-19
-alcance: apps/backoffice (React + Vite) · el recorrido de [[Flujo funcional · usuario administrador]] pantalla por pantalla
+alcance: apps/backoffice (Angular) · el recorrido de [[Flujo funcional · usuario administrador]] pantalla por pantalla
 ---
 
 # Flujo de pantallas · backoffice administrador
@@ -18,21 +18,24 @@ alcance: apps/backoffice (React + Vite) · el recorrido de [[Flujo funcional · 
 > ruta se monta según el permiso del token (default-deny); el CRUD "borra" con soft delete.
 
 > **Qué es este documento.** El recorrido de [[Flujo funcional · usuario administrador]]
-> traducido a **pantallas concretas** de `apps/backoffice` (React 19 + Vite, TanStack Router
-> file-based, TanStack Query). Espejo, del lado de operación, de
+> traducido a **pantallas concretas** de `apps/backoffice` (Angular, carga perezosa por
+> dominio, `httpResource`). Espejo, del lado de operación, de
 > [[Flujo de pantallas · app del participante]]. Cada pantalla dice su ruta, qué organismos de
 > `packages/ui` compone, sus estados, el **permiso** que la habilita, el AF/CU que sirve, el
 > endpoint del gateway y **qué carril** la construye (`planes/16 · Carriles de frontend`).
 >
 > **Stack.** Front = **monorepo yarn workspaces orquestado con Turborepo**. El backoffice es
-> **React + Vite** con **TanStack Router** (una ruta = un archivo, sin router central) y
-> **TanStack Query** para el estado de servidor. Va **detrás de login y `noindex`**. Habla con
+> **Angular** (*standalone*, *zoneless*, señales) con **un enchufe de rutas por dominio** (una
+> ruta = un componente en `rutas/<dominio>/`, registrado en el `<dominio>.routes.ts` de ese
+> dominio; el shell no se toca) y `httpResource` para el estado de servidor —
+> [[ADR-044 Frontend en Angular y Flutter]]. Va **detrás de login y `noindex`**. Habla con
 > los microservicios **Spring Boot** por el gateway, vía el cliente generado
-> `clientes/typescript`.
+> `clientes/angular`. **El mapa pantalla por pantalla, con su ruta Angular y el delta de la
+> maqueta que la fija, está en `planes/22 Mapa de la maqueta · pantalla, carril y mundo.md` §3.**
 
 ## 0 · Reglas que valen para toda pantalla del backoffice
 
-1. **Pantallas densas, no la app estirada** ([[ADR-004 Frontend]]): escritorio, tablas
+1. **Pantallas densas, no la app estirada** ([[ADR-044 Frontend en Angular y Flutter]]): escritorio, tablas
    grandes, filtros y exportación. El organismo de trabajo es **`TablaDeDatos`** (toolbar con
    búsqueda y filtros, orden por columna, selección múltiple, paginación y **virtualización**).
 2. **Los cuatro estados, siempre**: cargando (esqueleto) · vacío · error (con `sinConexion`) ·
@@ -125,7 +128,7 @@ flowchart TD
 
 ---
 
-## 2.0 · Acceso · carril **B** (F6) · `apps/backoffice/src/rutas/acceso/`
+## 2.0 · Acceso · carril **B** (F6) · `apps/backoffice/src/app/rutas/acceso/`
 
 > Las únicas rutas **públicas** del backoffice. Todo lo demás exige token con permiso; estas
 > exigen lo contrario: **no** se montan con sesión viva. Implementan
@@ -195,7 +198,7 @@ flowchart TD
 
 ---
 
-## 2 · Shell y tablero · carril **B** (F6) · `apps/backoffice/src/{layout,proveedores}/`
+## 2 · Shell y tablero · carril **B** (F6) · `apps/backoffice/src/app/{layout,nucleo}/`
 
 - **`layout/`**: navegación lateral que se arma **según los permisos del token** (un rol de
   cumplimiento no ve el menú de contabilidad). Cabecera con el rol activo y cierre de sesión.
@@ -213,7 +216,7 @@ flowchart TD
 
 ---
 
-## 3 · Operación · carril **B1** (F7) · `apps/backoffice/src/rutas/operacion/`
+## 3 · Operación · carril **B1** (F7) · `apps/backoffice/src/app/rutas/operacion/`
 
 ### 3.1 · `operacion/conciliacion` — Conciliar custodia y encaje (AF-09 · [[CU-50 Conciliar la custodia y verificar el encaje]])
 - **Permiso:** TESORERIA. **Compone:** `TablaDeDatos` (movimientos vs extracto) +
@@ -331,7 +334,7 @@ flowchart TD
 
 ---
 
-## 4 · Cumplimiento · carril **B2** (F8) · `apps/backoffice/src/rutas/cumplimiento/`
+## 4 · Cumplimiento · carril **B2** (F8) · `apps/backoffice/src/app/rutas/cumplimiento/`
 
 ### 4.0 · `cumplimiento/verificaciones` — Revisar y aceptar/rechazar (AF-02c · [[CU-01 Registro y apertura de billetera]] · [[CU-02 Elevar nivel de debida diligencia]])
 - **Permiso:** ANALISTA/OFICIAL_CUMPLIMIENTO. **Compone:** `TablaDeDatos` (cola de casos
@@ -367,7 +370,7 @@ flowchart TD
 
 ---
 
-## 5 · Contabilidad y ERP · carril **B3** (F13) · `apps/backoffice/src/rutas/contabilidad/`
+## 5 · Contabilidad y ERP · carril **B3** (F13) · `apps/backoffice/src/app/rutas/contabilidad/`
 
 | Ruta | AF · CU | Organismos | Endpoint |
 | --- | --- | --- | --- |
@@ -383,7 +386,7 @@ una factura lo ejecuta **Tesorería**, no quien la registró.
 
 ---
 
-## 6 · Publicidad · carril **B4** (F14) · `apps/backoffice/src/rutas/publicidad/`
+## 6 · Publicidad · carril **B4** (F14) · `apps/backoffice/src/app/rutas/publicidad/`
 
 | Ruta | AF · CU | Organismos | Endpoint |
 | --- | --- | --- | --- |
@@ -397,7 +400,7 @@ una factura lo ejecuta **Tesorería**, no quien la registró.
 
 ## 7 · Organismos que el backoffice suma al sistema de diseño
 
-Los construye **F1** (`packages/ui`) o el shell **B** (F6, `TablaDeDatos`), y los carriles
+Los construye **F1-W** (`packages/ui`, biblioteca Angular) o el shell **B** (F6, `TablaDeDatos`), y los carriles
 B1–B4 solo los componen. Entra al alcance de `planes/11 · Fases F0 y F1`:
 
 | Organismo | Área | Carril |

@@ -1,0 +1,56 @@
+{
+  "servicio": "grupos",
+  "operacion": "consultarPaqueteDelSorteo",
+  "metodo": "get",
+  "ruta": "/grupos/sorteos/{sorteoId}/paquete",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "sorteoId": "ff806af7-9233-4171-8db3-2b8691b3ac68",
+        "hashComprometido": "hashComprometido",
+        "semillaRevelada": "semillaRevelada",
+        "entropias": [
+          "entropias[0]"
+        ],
+        "metodo": "metodo",
+        "cuposEnOrdenOriginal": [
+          1
+        ],
+        "ordenPublicado": [
+          1
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "sorteoId": "ff806af7-9233-4171-8db3-2b8691b3ac68",
+        "hashComprometido": "hashComprometido",
+        "semillaRevelada": "semillaRevelada",
+        "entropias": [],
+        "metodo": "metodo",
+        "cuposEnOrdenOriginal": [],
+        "ordenPublicado": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "sorteoId": "ff806af7-9233-4171-8db3-2b8691b3ac68",
+        "hashComprometido": "hashComprometido",
+        "semillaRevelada": "semillaRevelada",
+        "entropias": [
+          "entropias[0]"
+        ],
+        "metodo": "metodo",
+        "cuposEnOrdenOriginal": [
+          1
+        ],
+        "ordenPublicado": [
+          1
+        ]
+      }
+    }
+  }
+}

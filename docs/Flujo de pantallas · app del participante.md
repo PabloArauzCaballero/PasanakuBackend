@@ -6,7 +6,7 @@ tags:
   - pantallas
 titulo: "Flujo de pantallas · app del participante"
 fecha: 2026-08-18
-alcance: apps/movil (Expo/React Native) · el recorrido de [[Flujo funcional · recorrido del usuario]] pantalla por pantalla
+alcance: apps/movil (Flutter) · el recorrido de [[Flujo funcional · recorrido del usuario]] pantalla por pantalla
 ---
 
 # Flujo de pantallas · app del participante
@@ -16,18 +16,19 @@ alcance: apps/movil (Expo/React Native) · el recorrido de [[Flujo funcional · 
 > solo existe lo listado acá o en una fuente de verdad; lo demás es **hueco**, no relleno.
 
 > **Qué es este documento.** El recorrido de [[Flujo funcional · recorrido del usuario]]
-> traducido a **pantallas concretas** de `apps/movil` (Expo / React Native, Expo Router
-> file-based). Cada pantalla dice: su ruta, qué organismos de `packages/ui` compone, sus
+> traducido a **pantallas concretas** de `apps/movil` (Flutter, `go_router` con un enchufe
+> de rutas por dominio). Cada pantalla dice: su ruta, qué organismos de `packages/diseno_flutter` compone, sus
 > cuatro estados, a dónde navega, qué RF/CU sirve, contra qué endpoint habla y **qué carril
 > la construye** (`planes/16 · Carriles de frontend`).
 >
 > **Stack.** Front = **monorepo yarn workspaces orquestado con Turborepo** (yarn es el único
-> gestor del proyecto; Turborepo corre y cachea `build`/`lint`/`test`); la app es
-> **React Native (Expo SDK 54)** con
-> **Expo Router** (una pantalla = un archivo, sin router central). Backend = microservicios
-> **Spring Boot**, consumidos por el gateway a través del cliente generado `clientes/typescript`
+> gestor del proyecto; Turborepo corre y cachea `build`/`lint`/`test`, también sobre el
+> envoltorio de la app); la app es **Flutter** con **`go_router`** (una pantalla = un archivo
+> en `pantallas/<dominio>/` + una entrada en el `rutas.dart` de ese dominio; el shell no se
+> toca) — [[ADR-044 Frontend en Angular y Flutter]]. Backend = microservicios
+> **Spring Boot**, consumidos por el gateway a través del cliente generado `clientes/dart`
 > (nadie lo edita a mano). Ninguna pantalla habla con un servicio directo: todo pasa por la
-> capa de dominio (`apps/movil/src/dominio/`) sobre el contrato OpenAPI.
+> capa de dominio (`apps/movil/lib/dominio/`) sobre el contrato OpenAPI.
 
 ## 0 · Reglas que valen para toda pantalla
 
@@ -120,7 +121,7 @@ flowchart TD
 
 ---
 
-## 2 · Pila de identidad · carril **M1** (F3) · `apps/movil/src/pantallas/identidad/`
+## 2 · Pila de identidad · carril **M1** (F3) · `apps/movil/lib/pantallas/identidad/`
 
 Sirve los RF-01, RF-02, RF-04, RF-14, RF-15, RF-16. CU 01–09.
 
@@ -137,7 +138,7 @@ Sirve los RF-01, RF-02, RF-04, RF-14, RF-15, RF-16. CU 01–09.
 - **Endpoint:** `POST /usuarios` (servicio `identidad`). **Navega a:** `verificacion-basica`.
 
 ### 2.3 · `identidad/verificacion-basica` — Verificación básica (RF-01 · [[CU-01 Registro y apertura de billetera]])
-- **Compone:** organismo `CapturaDocumento` (usa `expo-camera`: anverso, reverso, selfie de
+- **Compone:** organismo `CapturaDocumento` (usa puerto `Camara`: anverso, reverso, selfie de
   vivacidad; `ChipEstado` del progreso de cada captura).
 - **Estados:** cargando (subiendo/validando) · error (documento ilegible → reintento) · éxito
   (nivel **básico** otorgado).
@@ -160,7 +161,7 @@ Sirve los RF-01, RF-02, RF-04, RF-14, RF-15, RF-16. CU 01–09.
 - **Navega a:** `dispositivo` (primer login) o shell.
 
 ### 2.7 · `identidad/dispositivos` — Dispositivos de confianza (CRUD · RF-02)
-- **Registrar** — organismo `RegistroDispositivo` (`expo-local-authentication`; `Boton`
+- **Registrar** — organismo `RegistroDispositivo` (puerto `Biometria`; `Boton`
   "Activar biometría"). `POST /sesion/dispositivos`.
 - **Listar/ver** — `ListaDispositivos` (nombre, último acceso, actual). `GET /sesion/dispositivos`.
 - **Editar** — renombrar el dispositivo. `PATCH /sesion/dispositivos/{id}`.
@@ -186,20 +187,20 @@ Sirve los RF-01, RF-02, RF-04, RF-14, RF-15, RF-16. CU 01–09.
 
 ---
 
-## 3 · Shell de navegación · carril **M** (F2) · `apps/movil/src/navegacion/`
+## 3 · Shell de navegación · carril **M** (F2) · `apps/movil/lib/navegacion/`
 
 - **Tab bar** con cuatro destinos y **solo cuatro**: **Inicio**, **Grupos**, **Movimientos**,
   **Perfil** (átomo/organismo `BarraPestanas`). **Avisos no es una pestaña**: se llega por la
   **campana** de la cabecera, con punto de color cuando hay algo sin leer. Una quinta pestaña
   para la bandeja le quitaría peso a las cuatro que sostienen el producto.
-- **`ProveedorSesion`**: guarda el token en `expo-secure-store`, adjunta el bearer, ejecuta el
+- **`proveedorSesion`**: guarda el token en `flutter_secure_storage`, adjunta el bearer, ejecuta el
   `401 → refresh → reintento`, y expone el **nivel de verificación** para el gating de la UI.
-- **Deep links** de Expo Router para invitaciones (`aportaya://unirse/{codigo}`) y para abrir
+- **Deep links** (`app_links` + `go_router`) para invitaciones (`aportaya://unirse/{codigo}`) y para abrir
   una notificación en su pantalla.
 
 ---
 
-## 4 · Billetera · carril **M2** (F4) · `apps/movil/src/pantallas/billetera/`
+## 4 · Billetera · carril **M2** (F4) · `apps/movil/lib/pantallas/billetera/`
 
 Sirve RF-07, RF-08, RF-09, RF-12. CU 10–19, 21.
 
@@ -314,7 +315,7 @@ Sirve RF-07, RF-08, RF-09, RF-12. CU 10–19, 21.
 
 ---
 
-## 5 · Pasanaku / grupos · carril **M3** (F5) · `apps/movil/src/pantallas/pasanaku/`
+## 5 · Pasanaku / grupos · carril **M3** (F5) · `apps/movil/lib/pantallas/pasanaku/`
 
 Sirve RF-03, RF-05, RF-06, RF-10, RF-13. CU 20–29, 60, 61, 68–76, 90.
 
@@ -388,7 +389,7 @@ Sirve RF-03, RF-05, RF-06, RF-10, RF-13. CU 20–29, 60, 61, 68–76, 90.
 
 ---
 
-## 6 · Notificaciones · carril **M** (shell) · `apps/movil/src/pantallas/notificaciones/`
+## 6 · Notificaciones · carril **M** (shell) · `apps/movil/lib/pantallas/notificaciones/`
 
 Sirve RF-11, RF-12. CU 80, 81.
 
@@ -412,7 +413,7 @@ Sirve RF-11, RF-12. CU 80, 81.
 
 ---
 
-## 6b · Reclamos y denuncias · carril **M3** (F5) · `apps/movil/src/pantallas/pasanaku/`
+## 6b · Reclamos y denuncias · carril **M3** (F5) · `apps/movil/lib/pantallas/pasanaku/`
 
 Sirve RF-17, RF-18. CU 52, 53, 76. El participante **abre** el caso que después atiende el
 backoffice ([[Flujo de pantallas · backoffice administrador]] §3.4).
@@ -453,18 +454,18 @@ lo financiero (append-only):
 
 ## 7 · Inventario de organismos que el sistema de diseño debe entregar
 
-Estos organismos los **construye F1** en `packages/ui` (los transversales) o los shells de cada
+Estos organismos los **construye F1-M** en `packages/diseno_flutter` (los transversales) o los shells de cada
 dominio (los específicos), y los carriles M1/M2/M3 solo los **componen**. Entra al alcance de
 `planes/11 · Fases F0 y F1`.
 
 | Organismo | Dominio | Carril que lo consume | Átomos/moléculas clave |
 | --- | --- | --- | --- |
-| `PanelBienvenida`, `FormularioRegistro`, `CapturaDocumento`, `VisorContrato` | identidad | M1 (F3) | `Boton`, `Campo*`, `ChipEstado`, `expo-camera` |
-| `FormularioLogin`, `CampoOTP`, `RegistroDispositivo` | identidad | M1 (F3) | `TecladoNumerico`, `expo-local-authentication` |
+| `PanelBienvenida`, `FormularioRegistro`, `CapturaDocumento`, `VisorContrato` | identidad | M1 (F3) | `Boton`, `Campo*`, `ChipEstado`, puerto `Camara` |
+| `FormularioLogin`, `CampoOTP`, `RegistroDispositivo` | identidad | M1 (F3) | `TecladoNumerico`, puerto `Biometria` |
 | `FormularioKYCReforzado`, `DeclaracionPEP` | identidad | M1 (F3) | `Campo*`, toggles condicionales |
 | `FormularioPerfil`, `FormularioCambioContrasena`, `AsistenteBaja` | identidad | M1 (F3) | `Campo*`, doble confirmación |
 | `TarjetaSaldo`, `AccesosRapidos`, `ListaMovimientos` (`FilaMovimiento`) | billetera | M2 (F4) | `Monto`, `ChipEstado` |
-| `CampoMonto`, `ResumenRecarga`, `PantallaQR` | billetera | M2 (F4) | `TecladoNumerico`, `expo-camera` |
+| `CampoMonto`, `ResumenRecarga`, `PantallaQR` | billetera | M2 (F4) | `TecladoNumerico`, puerto `Camara` |
 | `FormularioCuentaBancaria`, `ListaCuentasBancarias`, `SelectorCuentaBancaria` | billetera | M2 (F4) | `Campo*` |
 | `RegistroDispositivo`, `ListaDispositivos` | identidad | M1 (F3) | biometría |
 | `FormularioAporte` (`FilaAporte`), `PantallaResultado` | billetera | M2 (F4) | `Monto` |
@@ -478,13 +479,15 @@ dominio (los específicos), y los carriles M1/M2/M3 solo los **componen**. Entra
 | `FichaTurno` (quién ocupa el turno, su estado y la bolsa) | pasanaku | M3 (F5) | `Avatar`, `ChipEstado` |
 | `NotificacionEmergente` (push de dinero recibido) | shell | M (F2) | — |
 
-**Regla de subida** (`planes/10 · Plan maestro del frontend` §"lo que sirve a dos productos sube a
-`packages/ui`"): los átomos y las moléculas transversales (`Boton`, `Campo*`, `Monto`,
-`ChipEstado`, `TecladoNumerico`, `CampoOTP`, `EstrellasCalificacion`, `ChipEstado`) viven en
-`packages/ui`; lo que depende de una API nativa (cámara, biometría) se queda en `apps/movil`.
+**Regla de subida** (`planes/10 · Plan maestro del frontend` §4): los átomos y las moléculas
+transversales (`Boton`, `Campo*`, `Monto`, `ChipEstado`, `TecladoNumerico`, `CampoOTP`,
+`EstrellasCalificacion`) viven en `packages/diseno_flutter`; lo que depende de una API nativa
+(cámara, biometría) se queda en `apps/movil`, detrás de un puerto. **El mapa pantalla por
+pantalla, con su ruta de `go_router` y el delta de la maqueta que la fija, está en
+`planes/22 Mapa de la maqueta · pantalla, carril y mundo.md` §2.**
 
 ## Ver también
 
 [[Flujo funcional · recorrido del usuario]] · `planes/16 · Carriles de frontend` ·
 `planes/11 · Fases F0 y F1` · `planes/10 · Plan maestro del frontend` ·
-[[ADR-004 Frontend]] · `disenar-frontend` · `movil-expo` · `arquitectura-atomica`
+[[ADR-044 Frontend en Angular y Flutter]] · `disenar-frontend` · `movil-flutter` · `arquitectura-atomica`

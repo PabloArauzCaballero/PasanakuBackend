@@ -1,0 +1,66 @@
+{
+  "servicio": "entregas",
+  "operacion": "anotarRespuestaDesembolso",
+  "metodo": "post",
+  "ruta": "/desembolsos/{ordenId}/respuesta",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "ordenId": "8a15cc26-357d-4a94-8409-7094ebf9306b",
+        "estado": "estado",
+        "numeroIntento": 0,
+        "reintentableEn": "2026-01-15T10:30:00Z",
+        "esNuevo": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "ordenId": "8a15cc26-357d-4a94-8409-7094ebf9306b",
+        "estado": "estado",
+        "numeroIntento": 0,
+        "reintentableEn": "2026-01-15T10:30:00Z",
+        "esNuevo": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "ordenId": "8a15cc26-357d-4a94-8409-7094ebf9306b",
+        "estado": "estado",
+        "numeroIntento": 0,
+        "reintentableEn": "2026-01-15T10:30:00Z",
+        "esNuevo": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "ordenId": "8a15cc26-357d-4a94-8409-7094ebf9306b",
+        "estado": "estado",
+        "numeroIntento": 0,
+        "reintentableEn": "2026-01-15T10:30:00Z",
+        "esNuevo": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

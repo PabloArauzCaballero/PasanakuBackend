@@ -1,0 +1,58 @@
+{
+  "servicio": "cumplimiento",
+  "operacion": "declararPep",
+  "metodo": "post",
+  "ruta": "/cumplimiento/usuarios/{usuarioId}/pep",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "declaracionId": "e102dda2-7cdd-44aa-8622-056f85de0524",
+        "exigeDiligenciaReforzada": true,
+        "nivelRiesgo": "BAJO"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "declaracionId": "e102dda2-7cdd-44aa-8622-056f85de0524",
+        "exigeDiligenciaReforzada": false,
+        "nivelRiesgo": "BAJO"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "declaracionId": "e102dda2-7cdd-44aa-8622-056f85de0524",
+        "exigeDiligenciaReforzada": true,
+        "nivelRiesgo": "BAJO"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "declaracionId": "e102dda2-7cdd-44aa-8622-056f85de0524",
+        "exigeDiligenciaReforzada": true,
+        "nivelRiesgo": "BAJO"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

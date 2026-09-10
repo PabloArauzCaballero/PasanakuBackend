@@ -1,3 +1,0 @@
-# `tokens.css` es un artefacto: lo emite `scripts/tokens-a-css.mjs` desde `src/tokens/`.
-# Versionarlo es tener dos fuentes de verdad y descubrir la divergencia en produccion.
-generado/

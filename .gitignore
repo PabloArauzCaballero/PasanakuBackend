@@ -14,24 +14,30 @@ __pycache__/
 .vscode/
 .claude/launch.json
 
-# apps/ vuelve al repositorio: `apps/movil` es codigo de verdad desde el carril
-# F0-M, que es la condicion que este archivo pedia para reintroducirlo.
-
-# --- frontend: dependencias y artefactos, nunca versionados ---
+# --- frontend (ADR-044: Flutter + Angular): dependencias y artefactos, nunca versionados ---
 node_modules/
 .yarn/*
 !.yarn/patches
 !.yarn/releases
 .pnp.*
-.expo/
 .turbo/
 coverage/
 apps/*/dist/
-apps/*/android/
-apps/*/ios/
+.angular/
+# Flutter: android/ e ios/ SI se versionan (son el proyecto nativo). Lo que no, es lo que Flutter genera.
+apps/movil/.dart_tool/
+apps/movil/build/
+apps/movil/.flutter-plugins-dependencies
+apps/movil/*.iml
+apps/movil/ios/Pods/
+apps/movil/ios/.symlinks/
+apps/movil/android/.gradle/
+apps/movil/android/local.properties
+packages/diseno_flutter/.dart_tool/
+packages/diseno_flutter/build/
 
-# Contratos en JSON para Metro y Jest: se generan del .yaml de cada servicio con
-# `yarn workspace @aportaya/simulado contratos`. Versionarlos crea dos verdades.
+# Generados: tokens.css/tokens.dart, contratos en JSON, ejemplos inyectados. El gate es la generacion.
+packages/tokens/generado/
 packages/simulado/generado/
 
 # --- generado por el build: el gate es la compilacion, no un diff (ADR-016) ---
@@ -39,7 +45,8 @@ build/
 .gradle/
 servicios/*/build/
 plataforma/*/build/
-clientes/typescript/
+clientes/angular/
+clientes/dart/
 despliegue/k8s/generado/
 # El perfil `todo` del compose: lo genera scripts/generar_compose.py leyendo que
 # variables exige cada servicio. Versionarlo seria versionar una copia que se
@@ -60,3 +67,6 @@ despliegue/compose/servicios.yml
 
 # Override local de puerto (conflicto de host, no del proyecto)
 despliegue/compose/base.local.yml
+
+# salida de Playwright (trazas y contextos de error); las capturas del catalogo si se versionan
+.playwright/

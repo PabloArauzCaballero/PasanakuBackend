@@ -1,6 +1,6 @@
 {
-  "//": "Base de los tres productos. Cada app extiende y agrega lo suyo (jsx, lib, tipos).",
-  "//2": "`clientes/typescript` es GENERADO: se referencia por alias y no se edita a mano.",
+  "//": "Base de los paquetes TypeScript. Cada app Angular extiende y agrega lo suyo; apps/movil es Dart y no lo usa.",
+  "//2": "`clientes/angular` es GENERADO: se referencia por alias y no se edita a mano.",
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
@@ -18,10 +18,10 @@
     "paths": {
       "@aportaya/simulado": ["packages/simulado/src/index.ts"],
       "@aportaya/simulado/*": ["packages/simulado/src/*"],
-      "@aportaya/ui": ["packages/ui/src/index.ts"],
+      "@aportaya/tokens/*": ["packages/tokens/*"],
       "@aportaya/ui/*": ["packages/ui/src/*"],
-      "clientes/typescript/*": ["clientes/typescript/*"]
+      "clientes/angular/*": ["clientes/angular/*"]
     }
   },
-  "exclude": ["node_modules", "**/build", "**/dist", "**/.expo"]
+  "exclude": ["node_modules", "**/build", "**/dist"]
 }

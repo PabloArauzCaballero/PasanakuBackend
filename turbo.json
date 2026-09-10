@@ -10,7 +10,6 @@
       "outputs": [
         "dist/**",
         "build/**",
-        ".expo/**",
         "generado/**"
       ]
     },
@@ -38,6 +37,13 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "test:e2e": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [],
+      "cache": false
     }
   }
 }

@@ -1,0 +1,58 @@
+{
+  "servicio": "organizador",
+  "operacion": "resolverApelacion",
+  "metodo": "post",
+  "ruta": "/organizadores/sanciones/{sancionId}/resolucion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "apelacionId": "50f2c126-f50c-4cb6-85a0-1127045feedd",
+        "estadoDeLaApelacion": "ACEPTADA",
+        "estadoDeLaSancion": "REVOCADA"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "apelacionId": "50f2c126-f50c-4cb6-85a0-1127045feedd",
+        "estadoDeLaApelacion": "ACEPTADA",
+        "estadoDeLaSancion": "REVOCADA"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "apelacionId": "50f2c126-f50c-4cb6-85a0-1127045feedd",
+        "estadoDeLaApelacion": "ACEPTADA",
+        "estadoDeLaSancion": "REVOCADA"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "apelacionId": "50f2c126-f50c-4cb6-85a0-1127045feedd",
+        "estadoDeLaApelacion": "ACEPTADA",
+        "estadoDeLaSancion": "REVOCADA"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

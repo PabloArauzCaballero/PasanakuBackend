@@ -1,0 +1,37 @@
+{
+  "servicio": "transparencia",
+  "operacion": "revocarCertificado",
+  "metodo": "post",
+  "ruta": "/reputacion/certificados/{codigo}/revocacion",
+  "escenarios": {
+    "ok": {
+      "estado": 204,
+      "cuerpo": null
+    },
+    "vacio": {
+      "estado": 204,
+      "cuerpo": null
+    },
+    "adverso": {
+      "estado": 204,
+      "cuerpo": null
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": null
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": null
+    }
+  }
+}

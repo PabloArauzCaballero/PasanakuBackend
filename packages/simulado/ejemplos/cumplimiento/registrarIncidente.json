@@ -1,0 +1,74 @@
+{
+  "servicio": "cumplimiento",
+  "operacion": "registrarIncidente",
+  "metodo": "post",
+  "ruta": "/cumplimiento/seguridad/incidentes",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "incidenteId": "8cf8bc24-ecf4-4d98-800c-c1bc79ed39bc",
+        "codigo": "codigo",
+        "plazoReporte": "2026-01-15T10:30:00Z",
+        "requiereNotificarTitulares": true,
+        "plazoNotificacion": "2026-01-15T10:30:00Z",
+        "contratoTerceroId": "2552c491-1c61-428f-8933-f61e41b3f720",
+        "registradoEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "incidenteId": "8cf8bc24-ecf4-4d98-800c-c1bc79ed39bc",
+        "codigo": "codigo",
+        "plazoReporte": "2026-01-15T10:30:00Z",
+        "requiereNotificarTitulares": false,
+        "plazoNotificacion": "2026-01-15T10:30:00Z",
+        "contratoTerceroId": "2552c491-1c61-428f-8933-f61e41b3f720",
+        "registradoEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "incidenteId": "8cf8bc24-ecf4-4d98-800c-c1bc79ed39bc",
+        "codigo": "codigo",
+        "plazoReporte": "2026-01-15T10:30:00Z",
+        "requiereNotificarTitulares": true,
+        "plazoNotificacion": "2026-01-15T10:30:00Z",
+        "contratoTerceroId": "2552c491-1c61-428f-8933-f61e41b3f720",
+        "registradoEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "incidenteId": "8cf8bc24-ecf4-4d98-800c-c1bc79ed39bc",
+        "codigo": "codigo",
+        "plazoReporte": "2026-01-15T10:30:00Z",
+        "requiereNotificarTitulares": true,
+        "plazoNotificacion": "2026-01-15T10:30:00Z",
+        "contratoTerceroId": "2552c491-1c61-428f-8933-f61e41b3f720",
+        "registradoEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

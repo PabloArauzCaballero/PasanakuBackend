@@ -1,0 +1,66 @@
+{
+  "servicio": "erp",
+  "operacion": "generarEstadoFinanciero",
+  "metodo": "post",
+  "ruta": "/erp/periodos/{periodoId}/estados-financieros",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "estadoFinancieroId": "521f530d-3977-4c59-8b68-ef548b970f66",
+        "tipo": "BALANCE_GENERAL",
+        "cuadra": true,
+        "hashContenido": "hashContenido",
+        "generadoEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "estadoFinancieroId": "521f530d-3977-4c59-8b68-ef548b970f66",
+        "tipo": "BALANCE_GENERAL",
+        "cuadra": false,
+        "hashContenido": "hashContenido",
+        "generadoEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "estadoFinancieroId": "521f530d-3977-4c59-8b68-ef548b970f66",
+        "tipo": "BALANCE_GENERAL",
+        "cuadra": true,
+        "hashContenido": "hashContenido",
+        "generadoEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "estadoFinancieroId": "521f530d-3977-4c59-8b68-ef548b970f66",
+        "tipo": "BALANCE_GENERAL",
+        "cuadra": true,
+        "hashContenido": "hashContenido",
+        "generadoEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

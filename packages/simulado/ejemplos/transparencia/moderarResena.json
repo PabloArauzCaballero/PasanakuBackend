@@ -1,0 +1,67 @@
+{
+  "servicio": "transparencia",
+  "operacion": "moderarResena",
+  "metodo": "post",
+  "ruta": "/reputacion/resenas/{resenaId}/moderacion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "resenaId": "324d57de-8729-454a-84a9-b5d6cb9774d2",
+        "estadoModeracion": "PENDIENTE",
+        "pesoEnReputacion": "pesoEnReputacion",
+        "motivoModeracion": "motivoModeracion",
+        "marcas": [
+          "TELEFONO"
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "resenaId": "324d57de-8729-454a-84a9-b5d6cb9774d2",
+        "estadoModeracion": "PENDIENTE",
+        "pesoEnReputacion": "pesoEnReputacion",
+        "motivoModeracion": "motivoModeracion",
+        "marcas": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "resenaId": "324d57de-8729-454a-84a9-b5d6cb9774d2",
+        "estadoModeracion": "PENDIENTE",
+        "pesoEnReputacion": "pesoEnReputacion",
+        "motivoModeracion": "motivoModeracion",
+        "marcas": [
+          "TELEFONO"
+        ]
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "resenaId": "324d57de-8729-454a-84a9-b5d6cb9774d2",
+        "estadoModeracion": "PENDIENTE",
+        "pesoEnReputacion": "pesoEnReputacion",
+        "motivoModeracion": "motivoModeracion",
+        "marcas": [
+          "TELEFONO"
+        ]
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": null
+    }
+  }
+}

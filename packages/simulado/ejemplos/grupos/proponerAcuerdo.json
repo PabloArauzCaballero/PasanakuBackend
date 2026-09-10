@@ -1,0 +1,54 @@
+{
+  "servicio": "grupos",
+  "operacion": "proponerAcuerdo",
+  "metodo": "post",
+  "ruta": "/acuerdos",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "acuerdoId": "88f16fba-6c8d-4c48-81b8-3dc0ef57ebc0",
+        "estado": "estado"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "acuerdoId": "88f16fba-6c8d-4c48-81b8-3dc0ef57ebc0",
+        "estado": "estado"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "acuerdoId": "88f16fba-6c8d-4c48-81b8-3dc0ef57ebc0",
+        "estado": "estado"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "acuerdoId": "88f16fba-6c8d-4c48-81b8-3dc0ef57ebc0",
+        "estado": "estado"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

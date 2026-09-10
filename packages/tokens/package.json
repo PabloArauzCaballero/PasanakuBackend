@@ -1,0 +1,28 @@
+{
+  "name": "@aportaya/tokens",
+  "version": "0.0.0",
+  "private": true,
+  "description": "La única fuente de valores de diseño (tokens.json), sus dos generados (tokens.css para Angular, tokens.dart para Flutter) y los vectores del formato de dinero que los dos mundos tienen que reproducir.",
+  "type": "module",
+  "exports": {
+    "./tokens.json": "./tokens.json",
+    "./tokens.css": "./generado/tokens.css",
+    "./dinero": "./dinero/formatear.ts",
+    "./vectores/monto.json": "./vectores/monto.json"
+  },
+  "scripts": {
+    "build": "node scripts/a-css.mjs && node scripts/a-dart.mjs && node scripts/vectores.mjs",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "test:front": "vitest run",
+    "test:a11y": "echo 'tokens: sin pruebas de a11y (no renderiza)'"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@types/node": "^22.10.0",
+    "eslint": "^9.39.0",
+    "typescript": "~5.9.2",
+    "typescript-eslint": "^8.68.0",
+    "vitest": "^4.1.0"
+  }
+}

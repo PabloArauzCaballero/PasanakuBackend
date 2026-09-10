@@ -1,29 +1,19 @@
 /**
- * Los estados que una pantalla tiene que saber mostrar, elegibles por operacion.
+ * Los escenarios que toda pantalla tiene que saber mostrar, y cómo se eligen.
  *
- * No es un adorno de desarrollo: `movil-expo` exige cargando, vacio, error y
- * exito en toda pantalla con datos. Si el simulado solo sabe responder que si,
- * los otros tres estados se escriben de memoria y nadie los ve nunca.
+ * En Prism el escenario se elige por petición con la cabecera `Prefer`: el ejemplo va
+ * por nombre y, cuando el escenario responde con otro código que el 2xx, también el
+ * código (`Prefer: code=401, example=rechazo`). En las pruebas de componente y widget
+ * se elige cargando el ejemplo con ese nombre del archivo
+ * `ejemplos/<servicio>/<operationId>.json`. Es el mismo JSON en los dos casos: lo que ve
+ * la pantalla en desarrollo es lo que prueba el test.
  */
-export type Escenario =
-  | { tipo: 'exito' }
-  | { tipo: 'vacio' }
-  | { tipo: 'error'; estado?: number }
-  | { tipo: 'demora'; ms: number }
-  | { tipo: 'sinRed' }
+export const ESCENARIOS = ['ok', 'vacio', 'aceptado', 'intermitente', 'rechazo', 'adverso'] as const
+export type Escenario = (typeof ESCENARIOS)[number]
 
-const elegidos = new Map<string, Escenario>()
-
-/** `operacion` es el `operationId` del contrato, que es el nombre del caso de uso. */
-export function fijarEscenario(operacion: string, escenario: Escenario): void {
-  elegidos.set(operacion, escenario)
-}
-
-export function escenarioDe(operacion: string): Escenario {
-  return elegidos.get(operacion) ?? { tipo: 'exito' }
-}
-
-/** Entre pruebas se reinicia: un escenario que sobrevive contamina la siguiente. */
-export function reiniciarEscenarios(): void {
-  elegidos.clear()
+/** La cabecera que Prism entiende. `estado` es el del ejemplo (sale del archivo de ejemplos). */
+export function cabeceraDeEscenario(escenario: Escenario, estado?: number): Record<string, string> {
+  const partes = [`example=${escenario}`]
+  if (estado !== undefined && (estado < 200 || estado >= 300)) partes.unshift(`code=${estado}`)
+  return { Prefer: partes.join(', ') }
 }

@@ -1,0 +1,78 @@
+{
+  "servicio": "garantia",
+  "operacion": "ejecutarAval",
+  "metodo": "post",
+  "ruta": "/incumplimientos/{expedienteId}/aval/ejecucion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "ejecucionId": "741f5f22-0631-43cc-822e-4cee7a5072ee",
+        "subrogacionId": "edecfdf5-2e0e-4827-83c1-dba2e1bfbb61",
+        "montoEjecutado": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "avalistaUsuarioId": "9dc88646-cf83-400c-824b-864a6d4b8652",
+        "esNueva": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "ejecucionId": "741f5f22-0631-43cc-822e-4cee7a5072ee",
+        "subrogacionId": "edecfdf5-2e0e-4827-83c1-dba2e1bfbb61",
+        "montoEjecutado": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "avalistaUsuarioId": "9dc88646-cf83-400c-824b-864a6d4b8652",
+        "esNueva": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "ejecucionId": "741f5f22-0631-43cc-822e-4cee7a5072ee",
+        "subrogacionId": "edecfdf5-2e0e-4827-83c1-dba2e1bfbb61",
+        "montoEjecutado": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "avalistaUsuarioId": "9dc88646-cf83-400c-824b-864a6d4b8652",
+        "esNueva": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "ejecucionId": "741f5f22-0631-43cc-822e-4cee7a5072ee",
+        "subrogacionId": "edecfdf5-2e0e-4827-83c1-dba2e1bfbb61",
+        "montoEjecutado": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "avalistaUsuarioId": "9dc88646-cf83-400c-824b-864a6d4b8652",
+        "esNueva": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

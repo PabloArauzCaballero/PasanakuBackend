@@ -1,0 +1,78 @@
+{
+  "servicio": "tarifas",
+  "operacion": "devolverComision",
+  "metodo": "post",
+  "ruta": "/comisiones/{devengoId}/devoluciones",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "devolucionId": "e45a501e-59aa-49a6-8420-fd6483e04c9c",
+        "notaCreditoId": "4164bea0-0eef-4f88-8f8b-51285054ae28",
+        "cuf": "cuf",
+        "devolucionTotal": true,
+        "disponibleRestante": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "devolucionId": "e45a501e-59aa-49a6-8420-fd6483e04c9c",
+        "notaCreditoId": "4164bea0-0eef-4f88-8f8b-51285054ae28",
+        "cuf": "cuf",
+        "devolucionTotal": false,
+        "disponibleRestante": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "devolucionId": "e45a501e-59aa-49a6-8420-fd6483e04c9c",
+        "notaCreditoId": "4164bea0-0eef-4f88-8f8b-51285054ae28",
+        "cuf": "cuf",
+        "devolucionTotal": true,
+        "disponibleRestante": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "devolucionId": "e45a501e-59aa-49a6-8420-fd6483e04c9c",
+        "notaCreditoId": "4164bea0-0eef-4f88-8f8b-51285054ae28",
+        "cuf": "cuf",
+        "devolucionTotal": true,
+        "disponibleRestante": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+/* Base mínima de @aportaya/ui: consume los tokens generados; no declara ningún literal. */
+@import '@aportaya/tokens/tokens.css';
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-b); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+h1, h2, h3 { font-family: var(--font-d); letter-spacing: -0.02em; line-height: 1.15; margin: 0; }
+:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }

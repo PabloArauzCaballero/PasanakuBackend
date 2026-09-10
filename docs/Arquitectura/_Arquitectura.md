@@ -28,8 +28,8 @@ contradecirlas**: solo elige con qué herramientas se sostienen.
 ## La decisión en una línea
 
 > **Java 21 y Spring Boot 3 en catorce servicios, uno por módulo de la bóveda, sobre
-> un único PostgreSQL 16 con un esquema por servicio; Expo para la app y React + Vite
-> para el backoffice.**
+> un único PostgreSQL 16 con un esquema por servicio; Flutter para la app y Angular
+> para el backoffice y el sitio público.**
 
 El razonamiento completo —incluidas las alternativas evaluadas y por qué perdieron—
 está en [[Stack]]. El motivo por el que son catorce y no uno está en
@@ -53,7 +53,7 @@ está en [[Stack]]. El motivo por el que son catorce y no uno está en
 | [[ADR-016 Acceso a datos con jOOQ\|016]] | Cómo habla el código con las 306 tablas | jOOQ generado desde la base viva · **JPA prohibido** | 002 |
 | [[ADR-017 Propiedad de datos por servicio\|017]] | Si se parte la base y cómo | Un clúster, un esquema y un rol por servicio; FK cruzadas conservadas | — |
 | [[ADR-018 Outbox transaccional y mensajería\|018]] | Efectos externos, eventos entre servicios y cron | Outbox en PostgreSQL · relevo a Kafka · ShedLock | 003 |
-| [[ADR-004 Frontend\|004]] | App del participante y backoffice | Expo + React/Vite | — |
+| [[ADR-004 Frontend\|004]] | App del participante y backoffice | Expo + React/Vite · **superada por 044** | 044 |
 | [[ADR-019 Dinero con BigDecimal\|019]] | Cómo viaja un importe por el sistema | `BigDecimal` dentro de `Dinero`; cadena decimal en JSON | 005 |
 | [[ADR-020 Contratos OpenAPI primero\|020]] | Contrato entre servicios y con los clientes | OpenAPI escrito primero; servidor y clientes generados | 006 |
 | [[ADR-021 Sesión, RLS y pooling\|021]] | Identidad de la sesión hasta la base, con catorce pools | `SET LOCAL` en la transacción · el token del usuario cruza la red | 007 |
@@ -77,8 +77,10 @@ está en [[Stack]]. El motivo por el que son catorce y no uno está en
 | [[ADR-038 Acceso administrativo · segundo factor y recuperación asistida\|038]] | Cómo entra un operador al backoffice y cómo recupera el acceso si lo pierde | Dos factores en todo acceso · TOTP, nunca SMS · recuperación aprobada por otra identidad · lo hace cumplir la base | — |
 | [[ADR-039 Sin efectivo · la plataforma no opera dinero físico\|039]] | Si la plataforma opera dinero en efectivo por corresponsales | No: solo ingreso electrónico y salida a cuenta bancaria · `CU-57` obsoleto · dos tablas retiradas | — |
 | [[ADR-040 Fronteras de transparencia, reputación y riesgo\|040]] | Cómo cruzan la frontera de servicio la transparencia, la reputación y el riesgo | Proyección local por eventos en vez de llamadas · el átomo del sorteo baja a `plataforma` con su protocolo público · `CU-97` se parte en dos servicios · la restricción efectiva vive en `identidad` | — |
-| [[ADR-041 Sitio público · el tercer producto\|041]] | Si existe una tercera superficie sin sesión y con qué se construye | Sí: Astro con islas de React y adaptador de Node · **estático por omisión**, SSR declarado página por página · enmienda ADR-004 | — |
+| [[ADR-041 Sitio público · el tercer producto\|041]] | Si existe una tercera superficie sin sesión y con qué se construye | Sí, tercer producto · **estático por omisión**, SSR declarado página por página · enmienda ADR-004 · el *con qué* lo enmienda 044 | — |
 | [[ADR-042 Política de rastreadores de IA\|042]] | Qué agentes automáticos pueden leer el sitio y para qué | Búsqueda sí, entrenamiento no · `/verificar/` y `/publico/` fuera del índice para todos · `robots.txt` generado y con prueba | — |
+| [[ADR-043 Capa web probada con MockMvc\|043]] | Cómo se prueba la capa web, y quién hace cumplir `@Permiso` | Corte MVC (`@WebMvcTest`) con dobles del caso de uso, en el corredor `webTest` y **sin Docker** · sábana de seguridad por servicio · `GuardiaDePermiso` autoriza en tiempo de petición · extiende ADR-026 | — |
+| [[ADR-044 Frontend en Angular y Flutter\|044]] | Con qué se escriben la app, el backoffice y el sitio | **Flutter** para la app · **Angular** para las dos superficies web (SSR híbrido en el sitio) · tokens y clientes **generados** para los dos mundos · Prism como único simulado · Shorebird para parches · supera 004, enmienda 041 | 004 |
 
 ## Decisiones superadas
 
@@ -119,7 +121,7 @@ Se conservan como expediente. **Ninguna manda**; se leen para entender qué camb
    hasta que alguien escriba uno nuevo que lo supere. **Si el ADR está marcado como
    superado, no manda: manda el que lo superó.**
 4. Usa la skill de la tecnología correspondiente: `back-spring`, `datos-jooq`,
-   `trabajos-outbox`, `movil-expo`, `web-backoffice`.
+   `trabajos-outbox`, `movil-flutter`, `web-angular`, `web-backoffice`.
 5. Las reglas que valen para todas: `arquitectura-atomica`, `codigo-limpio`,
    `contratos-api`, `dinero-decimal`, `pruebas-cu`, `entorno-monorepo`, y
    `revision-codigo` antes de fusionar.

@@ -8,7 +8,7 @@ ola: F1
 fase: F1
 modulo: packages/ui
 rama: dev
-estado: en curso
+estado: rehecho en Angular y Flutter · pendiente TF.3
 ---
 
 # Carril F1 — sistema de diseño
@@ -146,3 +146,44 @@ andamiaje de F0 borrado de los tres productos, y `build`, `lint`, `test:front` y
 
 [[11 Fases F0 y F1 · Cimientos y sistema de diseño]] · [[16 Carriles de frontend]] ·
 [[10 Plan maestro del frontend]] · [[carril-F0-M]] · [[carril-F0-B]] · [[carril-F0-W]]
+
+## Rehecho el 2026-09-10 · TF.2 en Angular y Flutter
+
+Todo lo de arriba describía el sistema de diseño en React. Con [[ADR-044 Frontend en Angular y Flutter]] se rehizo entero, en dos paquetes.
+
+### Qué quedó, con lo que lo prueba
+
+| Entregable | Evidencia | Estado |
+| --- | --- | :-: |
+| **F1-M** `packages/diseno_flutter` (`aportaya_diseno`): tema desde `tokens.dart` (`Tokens` como `ThemeExtension`), 94 archivos, una pieza por archivo en `atomos/`, `moleculas/`, `organismos/`, `moviles/` | `flutter test`: **44 en verde** (unidad, 7 widget de comportamiento, 14 a11y con `textContrastGuideline` + `androidTapTargetGuideline` + `labeledTapTargetGuideline`, 14 goldens claro/oscuro) · `flutter analyze --fatal-infos` limpio · `dart format` sin cambios | ✅ |
+| Widgetbook | `lib/catalogo/catalogo.dart` + `muestras.dart`; se corre con `flutter run -t lib/catalogo.dart` desde `apps/movil` | ✅ |
+| **F1-W** `packages/ui` (`@aportaya/ui`): 60 carpetas, `src/<pieza>/<pieza>.ts`, signals, OnPush, cero literales | `ng lint` limpio · `tsc` en verde · `verificar_frontend.py ui` en verde | ✅ |
+| Piezas de [[22 Mapa de la maqueta · pantalla, carril y mundo]] §6, con ese nombre, en los dos mundos | `catalogo.spec.ts` (Angular) las enumera y falla si falta una; el barrido Flutter exige archivo = pieza | ✅ |
+| `Monto` con los 5.006 vectores | Angular `monto.spec.ts` · Flutter `formatear_monto_test.dart` | ✅ |
+| Catálogo vivo `/catalogo` en `apps/web` | Prerenderizado (`Prerendered 2 static routes`), `meta robots noindex` + `RUTAS_NO_INDEXABLES` | ✅ |
+| axe sobre el catálogo entero, claro y oscuro | `catalogo.a11y.spec.ts`: 3 en verde. Corrigió tres defectos reales: `header` dentro de `region`, pestañas con `aria-controls` a un panel inexistente, dos regiones con el mismo nombre | ✅ |
+| Playwright contra el build SSR | `apps/web/pruebas/e2e/`: **6 en verde**; capturas `apps/web/capturas/catalogo-{light,dark}-{escritorio,telefono}.png`; sin desplazamiento horizontal a 400 px; **todo control ≥ 44 px** (la prueba encontró 21 chicos: botón `sm`, ojo de contraseña, borrar búsqueda, segmentos, orden de tabla, enlaces del shell; todos corregidos) | ✅ |
+| `BandaDeProposito` sube del backoffice a `@aportaya/ui` | `apps/backoffice/src/app/layout/` desaparece; la billetera la importa del paquete; 12 pruebas del backoffice en verde | ✅ |
+| Raíz | `yarn lint` 7/7 · `yarn typecheck` 10/10 · `yarn test:front` 10/10 · `yarn test:a11y` 10/10 | ✅ |
+
+### Revisión lado a lado, primera pasada
+
+Se compararon las capturas de `/catalogo` con los goldens de Flutter y con la maqueta. Los goldens se pintan con la fuente Ahem (bloques): comparan **geometría y color**, no tipografía. Diferencias encontradas y qué se hizo:
+
+| Diferencia | Resolución |
+| --- | --- |
+| Segmento elegido: Flutter ya iba con relleno de marca; Angular partió con fondo sutil | Angular pasa a `--verde-solido` en el elegido (regla 3) |
+| «Retirar» sobre la tarjeta verde: Flutter tiene `BotonVariante.sobreVerde`; Angular no la tenía | Se agrega `variante="sobreVerde"` con borde y texto `--sobre-verde-solido` |
+| Área táctil: Flutter exige 48 dp (`SelectorSegmentado`, `ChipElegible`); Angular usaba 44 px y varios controles quedaban en 32–36 | Angular queda en `--area-tactil` (44, el mínimo web de `tokens.json`) en **todo** lo tocable; se conserva la diferencia 44/48 por mundo, que ya está en los tokens |
+| `ChipEstado`: Flutter usa punto o ícono + borde al 35 %; Angular igual, con `color-mix` | Sin cambio |
+| Calendario de cuotas: solo Flutter (§6 lo marca «—» en Angular) | Sin cambio |
+| Tipografía real, sombras y `hover` | No comparables por golden; queda para la mirada humana de TF.3 |
+
+### Qué queda abierto
+
+| Qué | De quién | Cuándo |
+| --- | --- | --- |
+| Mirada humana sobre las capturas y los goldens, y congelar los dos paquetes | **P1** | TF.3 |
+| `custom_lint` (Flutter) y reglas propias de `angular-eslint` que reemplacen el barrido de texto | F1 (micro-PR) | cuando el barrido moleste |
+| Empaquetar `@aportaya/ui` con `ng-packagr` (hoy se consume por alias) | F1 (micro-PR) | cuando haya que publicarlo |
+| Capturas de Widgetbook en dispositivo (hoy los goldens son la evidencia) | **P3** | TF.3 |

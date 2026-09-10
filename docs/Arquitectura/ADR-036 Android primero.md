@@ -9,9 +9,12 @@ fecha: 2026-08-19
 
 # ADR-036 — Android primero, iOS por paridad
 
-> Complementa a [[ADR-004 Frontend]], que eligió Expo / React Native. Aquel ADR no
-> dijo **en qué orden** se construyen las dos plataformas, y sin ese orden escrito
-> cada pantalla se termina "a medias en las dos".
+> Complementa a [[ADR-004 Frontend]] —hoy superado por
+> [[ADR-044 Frontend en Angular y Flutter]], que eligió **Flutter**—. Ni aquel ADR ni el
+> nuevo dicen **en qué orden** se construyen las dos plataformas, y sin ese orden escrito
+> cada pantalla se termina "a medias en las dos". **Esta decisión no cambia con el
+> stack**: donde dice `Platform.OS` léase `Platform.isIOS`; donde dice `expo-secure-store`,
+> `flutter_secure_storage`; donde dice EAS Update, Shorebird.
 
 ## Contexto
 
@@ -47,8 +50,8 @@ Misma regla que en el backend ([[ADR-033 Puertos y adaptadores]]), aplicada a la
 app. Nada de `Platform.OS` repartido por las pantallas:
 
 ```
-apps/movil/src/
-├── dominio/puertos/          Biometria · AvisosPush · Camara · AlmacenSeguro · Haptica
+apps/movil/lib/
+├── dominio/puertos/          Biometria · AvisosPush · Camara · AlmacenSeguro · Haptica · Conectividad · ProteccionPantalla
 └── infraestructura/
     ├── android/              implementación Android
     └── ios/                  implementación iOS  ← el pase de paridad vive acá
@@ -133,7 +136,7 @@ como pase, no se descubre como sorpresa.
 
 ## Cómo se verifica
 
-- [ ] `grep -r "Platform.OS" apps/movil/src` no devuelve nada fuera de
+- [ ] `grep -r "Platform.is" apps/movil/lib` no devuelve nada fuera de
       `infraestructura/android/` e `infraestructura/ios/`.
 - [ ] Toda pantalla del bloque tiene humo de Android en verde, con evidencia.
 - [ ] Toda pantalla que entra al pase tiene su ficha de paridad escrita.
@@ -145,4 +148,4 @@ como pase, no se descubre como sorpresa.
 
 [[ADR-004 Frontend]] · [[ADR-033 Puertos y adaptadores]] ·
 [[ADR-035 Canales por defecto]] · [[Procedimiento de desarrollo]] ·
-`movil-expo` · `disenar-frontend` · `definicion-de-terminado`
+`movil-flutter` · `disenar-frontend` · `definicion-de-terminado`

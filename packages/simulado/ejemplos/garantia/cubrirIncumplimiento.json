@@ -1,0 +1,82 @@
+{
+  "servicio": "garantia",
+  "operacion": "cubrirIncumplimiento",
+  "metodo": "post",
+  "ruta": "/incumplimientos/{expedienteId}/cobertura",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "coberturaId": "ce13bbd1-5563-48f5-8648-f1cdc237714c",
+        "deudaId": "05cc0809-d110-4b9b-82b2-37c6ed6dc93a",
+        "montoCubierto": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "limiteQueMando": "PORCENTAJE_DEL_APORTE",
+        "requiereAprobacion": true,
+        "esNueva": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "coberturaId": "ce13bbd1-5563-48f5-8648-f1cdc237714c",
+        "deudaId": "05cc0809-d110-4b9b-82b2-37c6ed6dc93a",
+        "montoCubierto": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "limiteQueMando": "PORCENTAJE_DEL_APORTE",
+        "requiereAprobacion": false,
+        "esNueva": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "coberturaId": "ce13bbd1-5563-48f5-8648-f1cdc237714c",
+        "deudaId": "05cc0809-d110-4b9b-82b2-37c6ed6dc93a",
+        "montoCubierto": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "limiteQueMando": "PORCENTAJE_DEL_APORTE",
+        "requiereAprobacion": true,
+        "esNueva": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "coberturaId": "ce13bbd1-5563-48f5-8648-f1cdc237714c",
+        "deudaId": "05cc0809-d110-4b9b-82b2-37c6ed6dc93a",
+        "montoCubierto": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "limiteQueMando": "PORCENTAJE_DEL_APORTE",
+        "requiereAprobacion": true,
+        "esNueva": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

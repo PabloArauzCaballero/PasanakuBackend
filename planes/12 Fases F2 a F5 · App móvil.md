@@ -3,7 +3,7 @@ tags:
   - plan
   - fase
   - frontend
-titulo: "Fases F2 a F5 — App móvil (Expo)"
+titulo: "Fases F2 a F5 — App móvil (Flutter)"
 fases: [F2, F3, F4, F5]
 depende_de: [F0, F1]
 habilita: [F12]
@@ -20,9 +20,19 @@ habilita: [F12]
 
 > [!tip] La maqueta manda sobre el cómo
 > [[20 Maqueta de referencia · deltas del frontend]] fija la referencia visual y de
-> comportamiento de estas cuatro fases. Los deltas **D-1** (alta de ocho pasos),
+> comportamiento de estas cuatro fases, y [[22 Mapa de la maqueta · pantalla, carril y mundo]] §2
+> dice, pantalla por pantalla, la ruta de `go_router`, los organismos de `diseno_flutter` y el
+> delta que la fija. **Se lee antes que este documento.** Los deltas **D-1** (alta de ocho pasos),
 > **D-4** (aportes pendientes), **D-5** (sorteo como evento), **D-6** (perfil público
 > e insignias) y **D-7** (publicidad) ya están aplicados abajo.
+
+> [!important] Stack: Flutter ([[ADR-044 Frontend en Angular y Flutter]])
+> La app se escribe en **Flutter** con `go_router`, Riverpod, `dio` sobre el cliente
+> generado `clientes/dart`, y el paquete de diseño `packages/diseno_flutter`. La skill
+> que manda la estructura y el comportamiento es `movil-flutter`; la que manda lo visual,
+> `disenar-frontend`. **Android primero, iOS por pase** ([[ADR-036 Android primero]]):
+> una pantalla se termina en Android, con sus cuatro estados y su humo, y recién ahí
+> entra al pase de iOS.
 
 **Contexto real de uso, que manda sobre todo lo demás:** Android de gama baja, datos
 móviles intermitentes, en la calle, con una persona que quizá nunca usó una billetera
@@ -38,17 +48,47 @@ digital. Si la abuela no lo entiende, se rehace.
 
 ## Alcance
 
-| Pieza | Qué resuelve |
-| --- | --- |
-| **Expo Router** con tab bar de 3–5 destinos | Enrutamiento por archivos: cada carril agrega pantallas sin tocar un registro común |
-| `ProveedorSesion` | Token en `expo-secure-store`, refresco rotado (`R-SEG-09`), cierre de sesión, expiración |
-| `ProveedorTema` | Claro/oscuro + preferencia del sistema |
-| `usarBiometria()` | `expo-local-authentication` para confirmar operaciones de dinero |
-| `usarDispositivo()` | Identificador de dispositivo de confianza (CU-04) |
-| `ProveedorConexion` | Estado de red; bloquea operaciones cuando no hay |
-| `LimiteDeError` | Captura, muestra en voz de marca y ofrece reintento |
-| `usarIdempotencia()` | Genera la clave al abrir un formulario y **la reenvía igual** en el reintento |
-| EAS Update | Canal por entorno; correcciones sin pasar por tienda |
+| Pieza | Qué resuelve | Con qué |
+| --- | --- | --- |
+| **Navegación** con tab bar de 3–5 destinos y **un enchufe por dominio** | Cada carril agrega pantallas en su `rutas.dart` sin tocar el shell | `go_router` + `go_router_builder` (rutas tipadas) · `StatefulShellRoute` para la tab bar · `app_links` para *deep links* (`aportaya://unirse/{codigo}`) |
+| `proveedorSesion` | Token en el almacén seguro, refresco rotado (`R-SEG-09`), cierre de sesión, expiración, **nivel de verificación** para el gating | Riverpod `Notifier` + `flutter_secure_storage` (Keystore / Keychain, con bloqueo biométrico donde la plataforma lo permita) |
+| `proveedorTema` | Claro/oscuro + preferencia del sistema | `ThemeMode.system` + los dos `ThemeData` construidos desde `tokens.dart` |
+| `puertoBiometria` | Confirmar operaciones de dinero con huella o rostro | `local_auth`, detrás del puerto `Biometria` con adaptador Android e iOS |
+| `puertoDispositivo` | Identificador de dispositivo de confianza (CU-04) | identificador estable **generado y guardado en el almacén seguro**; nunca el IMEI ni el `androidId` |
+| `proveedorConexion` | Estado de red; bloquea operaciones cuando no hay | `connectivity_plus` + una sonda real al gateway (estar «conectado a wifi» no es tener internet) |
+| `LimiteDeError` | Captura, muestra en voz de marca y ofrece reintento | `ErrorWidget.builder` + `runZonedGuarded`; el error se traduce por catálogo |
+| `proveedorIdempotencia` | Genera la clave al abrir un formulario y **la reenvía igual** en el reintento | `Notifier` por `formularioId`; el interceptor de `dio` la adjunta como `Idempotency-Key` |
+| Interceptores de `dio` | `x-request-id` · bearer · `401 → un refresh → un reintento` · traducción `AP-CU<NN>-<nn>` · redacción de cabeceras en trazas | En `dominio/cliente.dart`; **ninguna pantalla ve un `401`** |
+| `puertoAvisosPush` | Registrar el token FCM/APNs, abrir la pantalla correcta al tocar | `firebase_messaging`; la bandeja de la app es la fuente ([[ADR-035 Canales por defecto]]) |
+| Bloqueo de captura | Las vistas con saldo y datos personales no se capturan | `screen_protector` (`FLAG_SECURE`) activado por ruta desde `go_router` |
+| **Shorebird** | Correcciones de la capa Dart sin pasar por tienda | Canal por entorno (`desarrollo`, `ensayo`, `produccion`); lo nativo pasa por tienda |
+| Verificación de contrato al iniciar | Si el contrato compilado es incompatible con el del gateway, pide actualizar | `GET /version` del gateway contra la versión que el cliente generado trae |
+
+### La estructura que F2 deja lista y congela
+
+```
+apps/movil/lib/
+├── navegacion/
+│   ├── rutas.dart              [...rutasIdentidad, ...rutasBilletera, ...rutasAlianzas, ...rutasPasanaku, ...rutasSoporte, ...rutasNotificaciones]
+│   ├── shell.dart              StatefulShellRoute con la tab bar
+│   └── guardias.dart           sesión, nivel de verificación, soyOrg — se COMPONEN desde cada rutas.dart, no se editan
+├── proveedores/                sesion · tema · conexion · idempotencia · biometria · dispositivo
+├── dominio/
+│   ├── cliente.dart            dio + interceptores — la única salida a la red
+│   ├── errores.dart            catálogo AP-CU<NN>-<nn> → voz de marca
+│   ├── validacion.dart         validadores generados del contrato
+│   └── puertos/                Biometria · AvisosPush · Camara · AlmacenSeguro · Haptica · Conectividad · ProteccionPantalla
+├── infraestructura/
+│   ├── android/                implementación Android — se escribe primero
+│   └── ios/                    implementación iOS — el pase de paridad vive acá
+└── pantallas/
+    ├── identidad/rutas.dart    (vacío; lo llena M1)
+    ├── billetera/rutas.dart    (vacío; lo llena M2)
+    ├── alianzas/rutas.dart     (vacío; lo llena M2)
+    ├── pasanaku/rutas.dart     (vacío; lo llena M3)
+    ├── soporte/rutas.dart      (vacío; lo llena M3)
+    └── notificaciones/         bandeja — la hace F2
+```
 
 ## Las tres reglas del shell
 
@@ -56,19 +96,26 @@ digital. Si la abuela no lo entiende, se rehace.
    operación de dinero para «cuando vuelva» — eso duplica aportes.
 2. **La biometría confirma, no autentica.** Autentica el servidor; la huella solo
    desbloquea el envío.
-3. **Nada sensible en `AsyncStorage`.** Token, PIN y datos personales van a
-   `expo-secure-store`. Las vistas con saldo bloquean captura de pantalla.
+3. **Nada sensible en `SharedPreferences`.** Token, PIN y datos personales van a
+   `flutter_secure_storage`. Las vistas con saldo bloquean captura de pantalla.
+4. **`Platform.isIOS` no aparece en una vista.** Lo que difiere por plataforma vive en
+   `infraestructura/`, detrás de un puerto ([[ADR-036 Android primero]]).
 
 ## Gate de salida F2
 
-- [ ] Gate común de §10 del plan maestro del frontend
+- [ ] Gate común de §11 del plan maestro del frontend
 - [ ] Sesión expirada ⇒ vuelve a login **sin perder el formulario en curso**
 - [ ] Toda notificación queda en la bandeja aunque el push no llegue, y varias
       seguidas se encolan en vez de pisarse
 - [ ] **Ninguna pantalla ni evento de LGI/FT produce aviso** para el investigado
 - [ ] Modo avión ⇒ último estado visible y botones de dinero deshabilitados con motivo
-- [ ] Una pantalla nueva se registra **solo creando el archivo**
+- [ ] Una pantalla nueva se registra **solo dentro del directorio de su dominio**: su
+      archivo y una línea en el `rutas.dart` de ese dominio; nada del shell cambia
 - [ ] Token y PIN **no** aparecen en ningún log ni traza (revisado con caso real)
+- [ ] `grep -r "Platform.is" lib/` vacío fuera de `infraestructura/`
+- [ ] Un *deep link* `aportaya://unirse/{codigo}` abre la pantalla correcta con la app
+      cerrada y con la app abierta (probado con `adb shell am start`)
+- [ ] Shorebird publica un parche en el canal `desarrollo` y la app lo toma al reiniciar
 
 ---
 
@@ -112,7 +159,8 @@ digital. Si la abuela no lo entiende, se rehace.
 - [ ] Al terminar el alta se acredita el **bono de bienvenida** y la app abre en el
       estado de cuenta nueva, no en el de alguien con historial
 - [ ] Cada lista vacía dice **qué hacer**, no «no hay resultados»
-- [ ] Alta completa de **ocho pasos** con cámara, probada en Android de gama baja
+- [ ] Alta completa de **ocho pasos** con cámara (`MarcoDeCamara` sobre el puerto
+      `Camara`), probada en Android de gama baja
 - [ ] El cotejo campo a campo se ve y **la diferencia se puede corregir** antes de seguir
 - [ ] Prueba de vida bajo el umbral ⇒ reintento con motivo, y a los 3 intentos pasa a
       revisión asistida (probado)
@@ -197,7 +245,10 @@ de billetera sino de la maqueta:
 - [ ] Ningún `toFixed`, `Intl.NumberFormat` ni aritmética sobre importes (lint)
 - [ ] El costo con impuestos aparece **antes** del botón de confirmar, en las tres
       operaciones con comisión
-- [ ] Lista de movimientos virtualizada y paginada, probada con 5 000 filas en gama baja
+- [ ] Lista de movimientos perezosa (`SliverList` / `ListView.builder`) y paginada del
+      servidor, probada con 5 000 filas en gama baja **sin *jank*** (`flutter run --profile`)
+- [ ] El QR se lee con `mobile_scanner` detrás del puerto `Camara`; con permiso denegado
+      se ofrece escribir el código a mano
 - [ ] Movimientos con cabecera de período y **un saldo por día**, no uno por línea: en
       una lista de celular el saldo corrido en cada fila es ruido, no información
 - [ ] **Ninguna barra de filtros se desliza en horizontal**: los chips se acomodan en
@@ -369,8 +420,10 @@ de cliente: existían solo del lado del operador.
       **los cinco factores con su umbral** (D-20)
 - [ ] Por debajo del puntaje mínimo, el mercado **no se abre y explica por qué**, con
       enlace a *Tu nivel* — nunca un «no disponible» seco
-- [ ] Las 32 pantallas tienen sus cuatro estados
+- [ ] Las 32 pantallas tienen sus cuatro estados, **vía `EstadoDePantalla`**
+- [ ] Cada bloque (grupo, turno, aporte, entrega, transparencia, reclamo) cerró con su
+      ficha de paridad iOS escrita ([[ADR-036 Android primero]])
 
 ## Ver también
 
-[[00c Recetario · implementar un caso de uso]] · [[16 Carriles de frontend]] · [[10 Plan maestro del frontend]] · [[10b Estándar de ejecución del frontend]] · [[13 Fases F6 a F8 · Backoffice]] · [[_CasosDeUso]]
+[[00c Recetario · implementar un caso de uso]] · [[16 Carriles de frontend]] · [[10 Plan maestro del frontend]] · [[10b Estándar de ejecución del frontend]] · [[13 Fases F6 a F8 · Backoffice]] · [[ADR-044 Frontend en Angular y Flutter]] · [[ADR-036 Android primero]] · [[_CasosDeUso]]

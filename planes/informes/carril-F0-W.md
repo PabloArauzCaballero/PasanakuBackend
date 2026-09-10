@@ -100,3 +100,29 @@ dinámicas sin que nadie lo decida.**
 [[11 Fases F0 y F1 · Cimientos y sistema de diseño]] · [[16 Carriles de frontend]] ·
 [[carril-F0-M]] · [[carril-F0-B]] · [[ADR-041 Sitio público · el tercer producto]] ·
 [[ADR-042 Política de rastreadores de IA]]
+
+---
+
+## Rehecho en el tramo TF (2026-09-09) — [[ADR-044 Frontend en Angular y Flutter]]
+
+> Lo de arriba es historia del stack anterior. Esta sección es lo vigente.
+
+| Entregable | Evidencia | Estado |
+| --- | --- | :-: |
+| Angular 22 con `@angular/ssr`: **`Prerender` por omisión**, `Server` solo en `/plazos` con `Cache-Control` | `app.routes.server.ts` · `rutas-de-servidor.spec.ts` enumera exactamente una | ✅ |
+| Hidratación incremental y *event replay*; la calculadora en `@defer (hydrate on viewport)` | `app.config.ts` · `paginas/plazos/plazos.ts` | ✅ |
+| Contenido en Markdown con *frontmatter* validado → `contenido.json`, espejo `.md`, `robots.txt`, rutas indexables | `scripts/contenido.mjs` · `contenido/paginas/inicio.md` | ✅ |
+| `robots.txt` conforme a ADR-042, con prueba | `geo/robots.spec.ts` | ✅ |
+| `CalculadoraDePlazo` (CU-59) con sus cuatro estados contra el ejemplo del contrato, axe limpio | `calculadora-de-plazo.spec.ts` | ✅ |
+| Una carpeta por página; agregar una no toca nada salvo `app.routes.ts` | `enchufe-de-paginas.spec.ts` | ✅ |
+| Presupuesto: 307 kB crudos · **85,3 kB comprimidos** (gate ≤ 150 KB) | `ng build` | ✅ |
+| `Dockerfile.web`: Node sin root detrás de NGINX | `docker/Dockerfile.web` | ver abajo |
+
+```
+ng lint                    All files pass linting
+ng test                    11 pruebas · 0 falladas
+node scripts/contenido.mjs 1 página · 1 indexable · robots.txt generado
+ng build                   Prerendered 1 static route · Initial total 307.18 kB · 85.25 kB transfer
+```
+
+**Supuestos declarados.** (1) `/tarifas`, `/contrato-de-adhesion` y las rutas de verificación no tienen contrato todavía: `/plazos` es la rebanada real, como en la versión anterior. (2) `ServicioMeta` y JSON-LD son de F10; hoy cada ruta lleva solo `title`.

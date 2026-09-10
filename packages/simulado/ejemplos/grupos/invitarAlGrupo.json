@@ -1,0 +1,54 @@
+{
+  "servicio": "grupos",
+  "operacion": "invitarAlGrupo",
+  "metodo": "post",
+  "ruta": "/grupos/{grupoId}/invitaciones",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "invitacionId": "e76a4be2-a636-4a24-815c-c1c68da0d606",
+        "mensaje": "mensaje"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "invitacionId": "e76a4be2-a636-4a24-815c-c1c68da0d606",
+        "mensaje": "mensaje"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "invitacionId": "e76a4be2-a636-4a24-815c-c1c68da0d606",
+        "mensaje": "mensaje"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "invitacionId": "e76a4be2-a636-4a24-815c-c1c68da0d606",
+        "mensaje": "mensaje"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

@@ -61,8 +61,9 @@ La bóveda (`docs/`) dice **qué** hay que construir. Las skills dicen **cómo**
 | Skill | Cuándo |
 | --- | --- |
 | `disenar-frontend` | Al crear o modificar cualquier pantalla |
-| `movil-expo` | Al trabajar en la app |
-| `web-backoffice` | Al trabajar en el backoffice |
+| `movil-flutter` | Al trabajar en la app (Flutter) o en `packages/diseno_flutter` |
+| `web-angular` | Al trabajar en el backoffice, el sitio público o `packages/ui` (Angular) |
+| `web-backoffice` | El comportamiento del backoffice: tablas, expedientes, plazos, permisos |
 
 ## Dominio
 

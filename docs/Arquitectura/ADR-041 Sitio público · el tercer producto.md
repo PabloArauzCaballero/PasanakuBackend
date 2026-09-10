@@ -11,6 +11,14 @@ fecha: 2026-08-26
 
 # ADR-041 — Sitio público: el tercer producto
 
+> [!note] Enmendada el 2026-09-09 por [[ADR-044 Frontend en Angular y Flutter]]
+> Lo que este ADR decide sobre **qué** es el sitio —tercer producto, estático por
+> omisión, SSR solo en verificación, islas y no páginas de JavaScript, documentos
+> regulatorios como contenido versionado— **sigue vigente**. Lo que cambia es el **con
+> qué**: Angular con `@angular/ssr`, `RenderMode.Prerender` por omisión, hidratación
+> incremental para los verificadores y Markdown procesado en el build, en vez de Astro.
+> La tabla de equivalencias está en `planes/14 Fases F9 a F11 · Sitio público, SEO y GEO.md`.
+
 > Reconoce que AportaYa tiene **tres** superficies y no dos, y elige con qué se
 > construye la tercera. Enmienda [[ADR-004 Frontend]], que descartó Next.js **como
 > billetera** — no como sitio público, que entonces no existía.

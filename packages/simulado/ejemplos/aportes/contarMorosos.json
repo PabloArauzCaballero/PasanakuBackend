@@ -1,0 +1,29 @@
+{
+  "servicio": "aportes",
+  "operacion": "contarMorosos",
+  "metodo": "get",
+  "ruta": "/aportes/grupos/{grupoId}/morosos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "grupoId": "22222222-2222-4222-8222-222222222222",
+        "morosos": 1
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "grupoId": "22222222-2222-4222-8222-222222222222",
+        "morosos": 0
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "grupoId": "22222222-2222-4222-8222-222222222222",
+        "morosos": 1
+      }
+    }
+  }
+}

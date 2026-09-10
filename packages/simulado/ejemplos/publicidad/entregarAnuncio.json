@@ -1,0 +1,62 @@
+{
+  "servicio": "publicidad",
+  "operacion": "entregarAnuncio",
+  "metodo": "post",
+  "ruta": "/publicidad/espacios/{espacioId}/entrega",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "anuncioId": "9c76cf32-7457-4c70-817d-edcbe10cebba",
+        "impresionId": "795293f5-8ab6-454b-8c1b-39420408e940",
+        "costo": "4.4444",
+        "motivo": "SIN_ANUNCIO_ELEGIBLE"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "anuncioId": "9c76cf32-7457-4c70-817d-edcbe10cebba",
+        "impresionId": "795293f5-8ab6-454b-8c1b-39420408e940",
+        "costo": "0.0000",
+        "motivo": "SIN_ANUNCIO_ELEGIBLE"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "anuncioId": "9c76cf32-7457-4c70-817d-edcbe10cebba",
+        "impresionId": "795293f5-8ab6-454b-8c1b-39420408e940",
+        "costo": "4.4444",
+        "motivo": "SIN_ANUNCIO_ELEGIBLE"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "anuncioId": "9c76cf32-7457-4c70-817d-edcbe10cebba",
+        "impresionId": "795293f5-8ab6-454b-8c1b-39420408e940",
+        "costo": "4.4444",
+        "motivo": "SIN_ANUNCIO_ELEGIBLE"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

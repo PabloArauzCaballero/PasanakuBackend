@@ -1,31 +1,36 @@
-// Configuracion plana. `jsx-a11y` va como ERROR, no como advertencia: una
-// advertencia de accesibilidad es una advertencia que nadie lee (planes/11 F0.4).
-import js from '@eslint/js'
+// @ts-check
+import eslint from '@eslint/js'
 import tseslint from 'typescript-eslint'
-import a11y from 'eslint-plugin-jsx-a11y'
-import ganchos from 'eslint-plugin-react-hooks'
+import angular from 'angular-eslint'
 
 export default tseslint.config(
-  { ignores: ['dist/**', 'node_modules/**', 'src/arbolDeRutas.gen.ts'] },
-  js.configs.recommended,
-  ...tseslint.configs.recommended,
+  { ignores: ['dist/**', '.angular/**', 'node_modules/**'] },
   {
-    files: ['**/*.{ts,tsx}'],
-    plugins: { 'jsx-a11y': a11y, 'react-hooks': ganchos },
+    files: ['**/*.ts'],
+    extends: [eslint.configs.recommended, ...tseslint.configs.recommended, ...angular.configs.tsRecommended],
+    processor: angular.processInlineTemplates,
     rules: {
-      ...a11y.flatConfigs.recommended.rules,
-      ...ganchos.configs.recommended.rules,
-      // La red vive en src/dominio. Un `fetch` en un componente es el antipatron
-      // que hace imposible probar una pantalla sin levantar medio sistema.
-      'no-restricted-globals': [
-        'error',
-        { name: 'fetch', message: 'La red vive en src/dominio (usá llamar()). Ningún componente hace fetch.' },
-      ],
-      'no-restricted-properties': [
-        'error',
-        { object: 'Math', property: 'random', message: 'Usá nuevoIdentificador(): el azar es criptográfico.' },
-      ],
+      '@angular-eslint/directive-selector': ['error', { type: 'attribute', prefix: 'ap', style: 'camelCase' }],
+      '@angular-eslint/component-selector': ['error', { type: 'element', prefix: ['ap', 'app'], style: 'kebab-case' }],
+      // Invariante 1: la red vive en nucleo/ y dominio/. Se refuerza con verificar_frontend.py.
+      'no-restricted-globals': ['error', { name: 'fetch', message: 'La red pasa por HttpClient en nucleo/ y dominio/.' }],
+      'no-console': 'error',
     },
   },
-  { files: ['src/dominio/**/*.ts', 'pruebas/**/*.{ts,tsx}'], rules: { 'no-restricted-globals': 'off' } },
+  {
+    // El arranque y el servidor de SSR reportan por consola: no hay otro canal antes de que exista la app.
+    files: ['src/main.ts', 'src/server.ts', 'src/main.server.ts'],
+    rules: { 'no-console': 'off' },
+  },
+  {
+    files: ['**/*.html'],
+    extends: [...angular.configs.templateRecommended, ...angular.configs.templateAccessibility],
+    rules: {
+      // Accesibilidad como ERROR: una advertencia de accesibilidad es una advertencia que nadie lee.
+      '@angular-eslint/template/click-events-have-key-events': 'error',
+      '@angular-eslint/template/interactive-supports-focus': 'error',
+      '@angular-eslint/template/label-has-associated-control': 'error',
+      '@angular-eslint/template/alt-text': 'error',
+    },
+  },
 )

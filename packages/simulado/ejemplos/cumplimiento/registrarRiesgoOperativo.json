@@ -1,0 +1,66 @@
+{
+  "servicio": "cumplimiento",
+  "operacion": "registrarRiesgoOperativo",
+  "metodo": "post",
+  "ruta": "/cumplimiento/riesgos/eventos",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "eventoId": "3e843569-70a7-435f-8e23-6636af2b88c8",
+        "codigo": "codigo",
+        "perdidaNeta": "4.44",
+        "moneda": "BOB",
+        "planAccionId": "2ea53caa-59a1-4e18-8704-f2b288470ac2"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "eventoId": "3e843569-70a7-435f-8e23-6636af2b88c8",
+        "codigo": "codigo",
+        "perdidaNeta": "0.00",
+        "moneda": "BOB",
+        "planAccionId": "2ea53caa-59a1-4e18-8704-f2b288470ac2"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "eventoId": "3e843569-70a7-435f-8e23-6636af2b88c8",
+        "codigo": "codigo",
+        "perdidaNeta": "4.44",
+        "moneda": "BOB",
+        "planAccionId": "2ea53caa-59a1-4e18-8704-f2b288470ac2"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "eventoId": "3e843569-70a7-435f-8e23-6636af2b88c8",
+        "codigo": "codigo",
+        "perdidaNeta": "4.44",
+        "moneda": "BOB",
+        "planAccionId": "2ea53caa-59a1-4e18-8704-f2b288470ac2"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

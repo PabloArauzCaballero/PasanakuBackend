@@ -1,0 +1,32 @@
+{
+  "servicio": "transparencia",
+  "operacion": "consultarPuntaje",
+  "metodo": "get",
+  "ruta": "/reputacion/{usuarioId}/puntaje",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "tieneHistorial": true,
+        "puntaje": "puntaje",
+        "nivelDeConfianza": "nivelDeConfianza"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "tieneHistorial": false,
+        "puntaje": "puntaje",
+        "nivelDeConfianza": "nivelDeConfianza"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "tieneHistorial": true,
+        "puntaje": "puntaje",
+        "nivelDeConfianza": "nivelDeConfianza"
+      }
+    }
+  }
+}

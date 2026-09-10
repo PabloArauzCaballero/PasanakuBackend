@@ -1,0 +1,16 @@
+{
+  "name": "@aportaya/diseno-flutter",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Envoltorio del paquete Dart aportaya_diseno para que turbo lo orqueste. Cada script llama a flutter.",
+  "scripts": {
+    "build": "cp ../tokens/generado/tokens.dart lib/tokens/tokens.dart && dart format lib/tokens/tokens.dart && flutter pub get",
+    "typecheck": "dart analyze --fatal-infos",
+    "lint": "dart format --output=none --set-exit-if-changed lib test && python3 ../../scripts/verificar_frontend.py diseno",
+    "test:front": "flutter test test/unidad test/widget test/goldens --timeout 60s",
+    "test:a11y": "flutter test test/a11y --timeout 60s"
+  },
+  "devDependencies": {
+    "@aportaya/tokens": "workspace:*"
+  }
+}

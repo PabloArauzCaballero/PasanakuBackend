@@ -1,0 +1,62 @@
+{
+  "servicio": "aportes",
+  "operacion": "aprobarReembolso",
+  "metodo": "post",
+  "ruta": "/pagos/reembolsos/{reembolsoId}/aprobacion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "reembolsoId": "adfb1c6b-178b-4ec1-8458-f6d56c586ab2",
+        "estado": "EJECUTADO",
+        "obligacionId": "f19e3fea-b4f8-4766-8566-488ca696b750",
+        "estadoObligacion": "estadoObligacion"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "reembolsoId": "adfb1c6b-178b-4ec1-8458-f6d56c586ab2",
+        "estado": "EJECUTADO",
+        "obligacionId": "f19e3fea-b4f8-4766-8566-488ca696b750",
+        "estadoObligacion": "estadoObligacion"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "reembolsoId": "adfb1c6b-178b-4ec1-8458-f6d56c586ab2",
+        "estado": "EJECUTADO",
+        "obligacionId": "f19e3fea-b4f8-4766-8566-488ca696b750",
+        "estadoObligacion": "estadoObligacion"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "reembolsoId": "adfb1c6b-178b-4ec1-8458-f6d56c586ab2",
+        "estado": "EJECUTADO",
+        "obligacionId": "f19e3fea-b4f8-4766-8566-488ca696b750",
+        "estadoObligacion": "estadoObligacion"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

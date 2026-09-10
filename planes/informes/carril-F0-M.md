@@ -151,3 +151,35 @@ compartido.**
 
 [[11 Fases F0 y F1 · Cimientos y sistema de diseño]] · [[16 Carriles de frontend]] ·
 [[18 Fichas de carril · las 38 unidades de trabajo]] · [[10 Plan maestro del frontend]]
+
+---
+
+## Rehecho en el tramo TF (2026-09-09) — [[ADR-044 Frontend en Angular y Flutter]]
+
+> Lo de arriba es historia del stack anterior. Esta sección es lo vigente.
+
+**Puesto** ejecutado desde el Mac (P1) por decisión del operador; la ficha lo asigna a P3.
+
+| Entregable | Evidencia | Estado |
+| --- | --- | :-: |
+| Flutter 3.44.8 · Dart 3.12 · `go_router` 17 · Riverpod 3 · `dio` 5 · `flutter_secure_storage` 10 | `pubspec.yaml` · `flutter pub get` | ✅ |
+| **Enchufe por dominio** en `lib/navegacion/rutas.dart` con seis `rutas.dart` vacíos | `test/unidad/enchufe_de_rutas_test.dart`: agregar una pantalla no cambia nada fuera de su dominio | ✅ |
+| Cliente HTTP con `x-request-id`, bearer, `401 → un refresh → un reintento`, traducción de errores | `lib/dominio/cliente.dart` · `test/unidad/cliente_test.dart` | ✅ |
+| Puertos `AlmacenSeguro` y `Conectividad`, adaptadores Android e iOS, `Platform.is*` solo en `infraestructura/` | barrido `verificar_frontend.py movil` | ✅ |
+| `Monto` sobre el formateo puro de cadenas, **contra los 5.006 vectores de `packages/tokens`** | `test/unidad/formatear_monto_test.dart` | ✅ |
+| `EstadoDePantalla` como único camino a los cuatro estados, con los tres motivos de vacío | `lib/organismos/estado_de_pantalla.dart` | ✅ |
+| `PantallaDeSaldo` (CU-13) contra los ejemplos del contrato: cargando, éxito, vacío, error con traza, sin red, 403 opaco, reintento que relee | `test/widget/pantalla_de_saldo_test.dart` · 7 pruebas | ✅ |
+| Contrato: el ejemplo de Prism encaja en el tipo generado `SaldoBilletera` | `test/contrato/consultar_saldo_test.dart` | ✅ |
+| Accesibilidad: `androidTapTargetGuideline`, `labeledTapTargetGuideline`, `textContrastGuideline` en éxito y en error | `test/a11y/` | ✅ |
+| Goldens en claro y oscuro | `test/goldens/imagenes/pantalla_de_saldo_{claro,oscuro}.png` | ✅ |
+| Riverpod **sin reintentos automáticos** | `ProviderScope(retry: (_, __) => null)` en `main.dart` y en las pruebas | ✅ |
+| Abierta en Android físico o emulador | **no ejecutado**: esta máquina no tiene `cmdline-tools` del SDK ni dispositivo conectado | 🟡 |
+
+```
+flutter analyze --fatal-infos          No issues found
+dart format --set-exit-if-changed      0 changed
+flutter test                           22 pruebas · 0 falladas
+python3 scripts/verificar_frontend.py movil   TODO OK
+```
+
+**Supuestos declarados.** (1) Sin `riverpod_generator` ni `go_router_builder` en F0: proveedores y rutas escritos a mano; el codegen entra con F2, y los `.g.dart` del cliente sí se generan (`build_runner`). (2) Las reglas propias corren como barrido de texto hasta que F1-M escriba `custom_lint`. (3) `custom_lint` y Patrol no están instalados todavía.
