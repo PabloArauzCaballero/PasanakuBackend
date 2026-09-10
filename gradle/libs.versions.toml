@@ -72,6 +72,14 @@ testcontainers-postgres = { module = "org.testcontainers:postgresql" }
 testcontainers-kafka   = { module = "org.testcontainers:kafka" }
 archunit               = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
 mockito                = { module = "org.mockito:mockito-core" }
+# La extension oficial de Mockito para Jupiter: inicializa los dobles y aplica
+# stubbing estricto, que es lo que convierte un `when(...)` que sobro en un fallo y
+# no en una prueba que ya no prueba lo que dice (ADR-041).
+mockito-junit          = { module = "org.mockito:mockito-junit-jupiter" }
+# Los postprocesadores de MockMvc que fabrican una sesion sin llamar a identidad.
+# Sin esto, probar «autenticado sin permiso -> 403» exige firmar un JWT de verdad,
+# y entonces la prueba de la capa web depende del emisor de otro servicio.
+spring-security-test   = { module = "org.springframework.security:spring-security-test" }
 jqwik                  = { module = "net.jqwik:jqwik", version.ref = "jqwik" }
 
 [bundles]
@@ -86,6 +94,8 @@ pruebas = [
     "testcontainers-postgres",
     "archunit",
     "mockito",
+    "mockito-junit",
+    "spring-security-test",
 ]
 
 [plugins]

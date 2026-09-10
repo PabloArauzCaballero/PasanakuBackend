@@ -5,6 +5,7 @@ import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.SinContextoDeSesion;
 import bo.aportaya.plataforma.web.idempotencia.OperacionRepetida;
 import bo.aportaya.plataforma.web.traza.Traza;
+import jakarta.validation.ConstraintViolationException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -17,7 +18,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
@@ -118,6 +119,21 @@ public class ManejadorGlobalDeErrores {
      * como {@code 500}: se descubrio corriendo la coleccion de humo, mandando una
      * {@code fechaNacimiento} invalida al registro.
      *
+     * <p>Se atrapa tambien {@link ConstraintViolationException}: cuando un parametro de
+     * consulta o de ruta viola su restriccion del contrato —un {@code pattern}, un
+     * {@code minimum}—, la validacion NO llega como excepcion de Spring MVC sino como
+     * la de Jakarta, porque la lanza el proxy de {@code @Validated} de la interfaz
+     * generada. Sin este caso salia {@code 500}: un fallo del servidor por un
+     * {@code periodo} mal escrito, en todo endpoint con parametros restringidos.
+     *
+     * <p>Se atrapa {@link ServletRequestBindingException} y no solo el parametro que
+     * falta: de ahi cuelga tambien la <b>cabecera</b> que falta, y ese caso salia como
+     * {@code 500}. No era teorico — {@code Idempotency-Key} es obligatoria en toda
+     * operacion con efecto, y olvidarla es el error mas facil de cometer contra esta
+     * API. Devolvia un fallo del servidor por algo que el cliente puede arreglar solo,
+     * y encima escribia ERROR en la bitacora, que es como una alerta real se pierde
+     * entre el ruido.
+     *
      * <p>Importa por tres cosas distintas. Al cliente le decimos que se equivoco el, no
      * nosotros. La bitacora deja de llenarse de ERROR por peticiones malformadas, que
      * es como una alerta real se pierde entre el ruido. Y cualquiera que mande basura a
@@ -130,7 +146,8 @@ public class ManejadorGlobalDeErrores {
     @ExceptionHandler({
         HttpMessageNotReadableException.class,
         MethodArgumentTypeMismatchException.class,
-        MissingServletRequestParameterException.class,
+        ServletRequestBindingException.class,
+        ConstraintViolationException.class,
         HandlerMethodValidationException.class
     })
     public ResponseEntity<ErrorApi> entradaMalFormada(Exception e) {

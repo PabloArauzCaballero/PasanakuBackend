@@ -24,23 +24,24 @@ agregar("spotlessCheck", "Formato unico en todo el monorepo")
 agregar("spotlessApply", "Aplica el formato unico")
 agregar("check", "Compilacion, formato, ArchUnit y las reglas propias")
 agregar("test", "Atomos de dominio · sin infraestructura")
+agregar("webTest", "Contrato HTTP de los controladores · MockMvc, sin contenedor")
 agregar("integrationTest", "Casos de uso y repositorios contra PostgreSQL real")
 agregar("contractTest", "Contratos entre pares de servicios")
 agregar("sagaTest", "Sagas con dobles de los servicios participantes")
 agregar("e2eTest", "Punta a punta sobre compose --profile todo")
 agregar("generateJooq", "Clases de jOOQ de cada esquema, desde la base viva", servicios)
-agregar("generateOpenApiClients", "Cliente TypeScript desde los OpenAPI · clientes/typescript", emptyList())
+agregar("generateOpenApiClients", "Clientes Angular y Dart desde los OpenAPI · clientes/{angular,dart}", emptyList())
 agregar("erroresCatalogo", "constraint_name -> R-XXX-nn, desde sql/", listOf(project(":plataforma:comun-web")))
 
 tasks.named("generateOpenApiClients") {
     group = "build"
-    dependsOn(servicios.map { "${it.path}:generarClienteTypescript" })
+    dependsOn(servicios.map { "${it.path}:generarClientes" })
 }
 
 tasks.register("verificar") {
     group = "verification"
     description = "Lo mismo que corre el CI, en un solo comando"
-    dependsOn("spotlessCheck", "check", "test", "integrationTest", "contractTest", "sagaTest")
+    dependsOn("spotlessCheck", "check", "test", "webTest", "integrationTest", "contractTest", "sagaTest")
 }
 
 // -------------------------------------------------------------- generadores --

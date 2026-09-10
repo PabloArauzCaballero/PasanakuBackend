@@ -90,7 +90,7 @@ Cada fila dice **la regla**, **quién la hace cumplir** y **cómo se verifica**.
 | Cabeceras: `Content-Security-Policy`, `Strict-Transport-Security`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` | NGINX + servicio | gate (prueba de humo HTTP) |
 | CORS por lista blanca; nunca `*` con credenciales | NGINX | gate |
 | Backoffice: cookie `httpOnly` + `Secure` + `SameSite` estricto + CSRF | Servicio | revisión + prueba |
-| App: bearer en almacenamiento seguro del dispositivo, nunca en `localStorage` de una vista web | App | revisión (`movil-expo`) |
+| App: bearer en almacenamiento seguro del dispositivo (`flutter_secure_storage`), nunca en `localStorage` de una vista web | App | revisión (`movil-flutter`) |
 | Tope de tamaño de cuerpo y de profundidad de JSON | Framework | gate |
 | Rate limit por usuario **y** por origen en login, recuperación, MFA y dinero | Borde | gate + prueba |
 | Ningún token en URL, en log ni en mensaje de error | Aplicación | gate (patrón prohibido) |

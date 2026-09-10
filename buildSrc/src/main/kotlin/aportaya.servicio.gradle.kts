@@ -17,6 +17,14 @@ val catalogo = extensions.getByType<VersionCatalogsExtension>().named("libs")
 // propiedad del BOM de Spring Boot, que es donde vive la decision.
 extra["jooq.version"] = catalogo.findVersion("jooq").get().requiredVersion
 
+// El arnes de la capa web llega por la convencion y no por catorce lineas iguales en
+// catorce build.gradle.kts: ese es el archivo que un carril edita y que despues choca
+// con los otros cuatro. Un servicio nuevo tiene MockMvc, la sabana de seguridad y la
+// fabrica de sesiones sin escribir nada.
+dependencies {
+    "testImplementation"(testFixtures(project(":plataforma:comun-web")))
+}
+
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
     // Capas de Spring Boot: un cambio de codigo no empuja 200 MB de dependencias.
     layered { enabled.set(true) }

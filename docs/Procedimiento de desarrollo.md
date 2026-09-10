@@ -42,7 +42,7 @@ solo aparece cuando hay pantalla.
 | **5** | **Moléculas**: repositorios, clientes de pares, adaptadores | Ninguna abre transacción | `datos-jooq` |
 | **6** | **Organismo**: el caso de uso, único `@Transactional` | Los criterios de aceptación pasan | `back-spring`, `pruebas-cu` |
 | **7** | **Página**: el controlador que implementa lo generado | Sin una sola condición de negocio | `back-spring` |
-| **8** | **Pantalla Android**: los cuatro estados, con el cliente generado | Humo de pantalla en verde en emulador | `disenar-frontend`, `movil-expo` |
+| **8** | **Pantalla Android**: los cuatro estados, con el cliente generado | Humo de pantalla en verde en emulador | `disenar-frontend`, `movil-flutter` |
 | **9** | **Humo del flujo**: la escalera completa, H0 a H4 | Evidencia adjunta al PR | `definicion-de-terminado` |
 | **10** | **Descriptor**: si el carril cierra un servicio, su `descriptor.yml` declara **nivel** y por qué | `python3 scripts/generar_k8s.py` pasa | `despliegue-contenedores` |
 

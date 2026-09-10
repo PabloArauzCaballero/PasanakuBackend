@@ -111,6 +111,10 @@ tasks.named<Test>("test") {
         "**/*SagaTest.class",
         "**/*E2ETest.class",
         "**/*BarridoTest.class",
+        // La capa web tiene su corredor: no porque sea lenta —no levanta contenedor—
+        // sino porque cargar el contexto MVC no entra en los 5s de un atomo, y el
+        // sintoma seria «timeout» en la primera clase de cada modulo.
+        "**/*WebTest.class",
     )
     systemProperty("junit.jupiter.execution.timeout.default", "5s")
     testLogging { events("failed") }
@@ -122,7 +126,16 @@ tasks.named<Test>("test") {
 val pruebas = the<SourceSetContainer>()["test"]
 
 
-fun corredor(nombre: String, descripcion: String, patrones: List<String>, tiempo: String) =
+fun corredor(
+    nombre: String,
+    descripcion: String,
+    patrones: List<String>,
+    tiempo: String,
+    // Los corredores que levantan PostgreSQL comparten el limite; los que no, no
+    // tienen por que hacer cola detras de ellos. La capa web es el caso: sin esto,
+    // el corredor mas rapido del repositorio esperaria a los mas lentos.
+    conContenedor: Boolean = true,
+) =
     tasks.register<Test>(nombre) {
         group = "verification"
         description = descripcion
@@ -142,7 +155,7 @@ fun corredor(nombre: String, descripcion: String, patrones: List<String>, tiempo
         // Se separa en vez de subir el limite de las pruebas: el gate que dice
         // «ningun caso de uso tarda mas de 120s» sigue intacto, que es el que importa.
         systemProperty("junit.jupiter.execution.timeout.beforeall.method.default", "600s")
-        usesService(limiteDeContenedores)
+        if (conContenedor) usesService(limiteDeContenedores)
         testLogging { events("failed") }
     }
 
@@ -156,6 +169,26 @@ corredor(
     listOf("**/CU*Test.class", "**/*RepositorioTest.class", "**/Aislamiento*Test.class", "**/Arranque*Test.class"),
     "120s",
 )
+// La capa web (ADR-043): el corte MVC con dobles del caso de uso. Sin contenedor y
+// sin base, asi que corre en la maquina de cualquiera y en cada guardado. Es donde se
+// prueban el estado HTTP, el JSON, la validacion del contrato, el manejador de errores
+// y —lo que ninguna prueba de integracion ve— que la guardia niegue con 403 al
+// autenticado sin permiso y con 401 al que no trae sesion.
+corredor(
+    "webTest",
+    "Contrato HTTP de los controladores · MockMvc, sin contenedor",
+    listOf("**/*WebTest.class"),
+    // 30s y no 5s: lo que tarda es cargar el contexto MVC la primera vez, no la
+    // prueba. Bajarlo convierte el arranque de Spring en un fallo de la primera
+    // clase de cada modulo, que es el peor mensaje de error posible.
+    "30s",
+    conContenedor = false,
+)
+
+// La capa web entra en `check`: es la suite rapida, y una suite rapida que hay que
+// acordarse de correr no la corre nadie.
+tasks.named("check") { dependsOn("webTest") }
+
 corredor("contractTest", "Contratos entre pares de servicios", listOf("**/*ContratoTest.class"), "60s")
 corredor("sagaTest", "Sagas con dobles de los servicios participantes", listOf("**/*SagaTest.class"), "120s")
 corredor("e2eTest", "Punta a punta sobre compose --profile todo", listOf("**/*E2ETest.class"), "300s")
@@ -163,12 +196,56 @@ corredor("e2eTest", "Punta a punta sobre compose --profile todo", listOf("**/*E2
 // Cobertura como PISO, no como meta. No se excluye codigo dificil para subir el
 // numero: la pregunta de ADR-026 es «que del dinero no esta probado», y un porcentaje
 // alto conseguido excluyendo lo dificil la contesta al reves.
-// El modulo lo declara con `extra["pisoDeCobertura"] = 0.95`; sin declaracion, no
-// hay piso todavia y la tarea no corre.
-fun piso(): Double = (project.findProperty("pisoDeCobertura") as? Number)?.toDouble() ?: 0.0
+//
+// ADR-026 fija tres pisos distintos, y por eso hay tres propiedades y no una:
+//
+//   extra["pisoDeCobertura"] = 0.80   // lineas del modulo entero
+//   extra["pisoDeRamas"]     = 0.70   // ramas del modulo entero
+//   extra["pisoDelDominio"]  = 0.95   // lineas Y ramas de dominio/, en los de dinero
+//
+// Sin declaracion no hay piso todavia, y la regla no corre. Una regla que no corre es
+// preferible a una que corre sobre nada: la segunda deja el build verde diciendo que
+// midio.
+fun piso(clave: String): Double = (project.findProperty(clave) as? Number)?.toDouble() ?: 0.0
+
+// -------------------------------------------------------- datos de ejecucion --
+//
+// El informe se arma con lo que ejecutaron TODOS los corredores, no solo `test`.
+// Con el cableado por omision del plugin, la cobertura se mide contra los atomos
+// solamente: los casos de uso corren en `integrationTest` y el contrato HTTP en
+// `webTest`, asi que un servicio con veinte pruebas de caso de uso aparecia con la
+// cobertura de sus tres atomos. Ese numero no medía lo que la suite prueba, medía
+// que corredor se habia elegido — y con un piso encima, habria obligado a bajar el
+// piso hasta volverlo inutil.
+//
+// `mustRunAfter` y no `dependsOn`: quien corre `cobertura` decide que suites correr.
+// Atarlo a `integrationTest` obligaria a tener Docker para medir la cobertura de un
+// modulo que no toca la base.
+val corredoresDeCobertura = listOf("test", "webTest", "integrationTest", "contractTest", "sagaTest")
+
+val ejecuciones = files(corredoresDeCobertura.map { layout.buildDirectory.file("jacoco/$it.exec") })
+
+// Lo GENERADO no cuenta, ni a favor ni en contra. jOOQ produce ~110 clases por
+// servicio y el generador de OpenAPI otras tantas; con ellas adentro, la cobertura de
+// `aportes` daba 12 % teniendo su dominio al 84 %. Un numero asi no mide nada: mide
+// cuantas tablas tiene el esquema.
+//
+// Es la unica exclusion, y es la que ADR-026 nombra. NO se excluye codigo dificil para
+// subir el porcentaje: services, controllers, validadores, calculo financiero y manejo
+// de errores cuentan enteros.
+val soloEscritoAMano: (org.gradle.api.file.FileTree) -> org.gradle.api.file.FileTree = { arbol ->
+    arbol.matching { exclude("**/generado/**", "**/generated/**") }
+}
 
 tasks.named<JacocoReport>("jacocoTestReport") {
     dependsOn("test")
+    // Nunca leer un .exec que un corredor todavia esta escribiendo. Sin esto, correr
+    // `verificar` —que lanza los corredores en paralelo— hacia que JaCoCo midiera un
+    // archivo a medio escribir y el piso fallara por una carrera y no por cobertura.
+    // `mustRunAfter` y no `dependsOn`: quien mide decide que suites correr.
+    mustRunAfter(corredoresDeCobertura)
+    executionData.setFrom(ejecuciones.filter { it.exists() })
+    classDirectories.setFrom(files(classDirectories.files.map { soloEscritoAMano(fileTree(it)) }))
     reports {
         xml.required.set(true)
         html.required.set(true)
@@ -180,18 +257,48 @@ tasks.named<JacocoReport>("jacocoTestReport") {
 // saltea sola — verde, y sin haber medido nada.
 tasks.named<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
     dependsOn("test")
-    onlyIf { piso() > 0.0 }
+    mustRunAfter(corredoresDeCobertura)
+    executionData.setFrom(ejecuciones.filter { it.exists() })
+    classDirectories.setFrom(files(classDirectories.files.map { soloEscritoAMano(fileTree(it)) }))
+    onlyIf { piso("pisoDeCobertura") > 0.0 || piso("pisoDelDominio") > 0.0 }
     violationRules {
-        rule {
-            limit {
-                counter = "LINE"
-                minimum = piso().toBigDecimal()
+        if (piso("pisoDeCobertura") > 0.0) {
+            rule {
+                limit {
+                    counter = "LINE"
+                    minimum = piso("pisoDeCobertura").toBigDecimal()
+                }
             }
         }
-        rule {
-            limit {
-                counter = "BRANCH"
-                minimum = piso().toBigDecimal()
+        if (piso("pisoDeRamas") > 0.0) {
+            rule {
+                limit {
+                    counter = "BRANCH"
+                    minimum = piso("pisoDeRamas").toBigDecimal()
+                }
+            }
+        }
+        // El piso alto va sobre `dominio/` y no sobre el modulo: ahi viven el calculo
+        // del dinero, los plazos y las transiciones de estado, que es lo que ADR-026
+        // manda cubrir al 95 %. Exigirle lo mismo al modulo entero obligaria a probar
+        // el mapeo de un DTO con el mismo celo que una comision, y el resultado seria
+        // aflojar el numero para todos.
+        if (piso("pisoDelDominio") > 0.0) {
+            rule {
+                element = "PACKAGE"
+                // Solo `dominio`, sin sus subpaquetes. La regla de JaCoCo se aplica
+                // paquete por paquete, y `dominio.puertos` son INTERFACES: cero lineas
+                // ejecutables y por lo tanto cero por ciento, siempre. Exigirles el piso
+                // del calculo del dinero seria exigirle cobertura a una declaracion.
+                includes = listOf("*.dominio")
+                limit {
+                    counter = "LINE"
+                    minimum = piso("pisoDelDominio").toBigDecimal()
+                }
+                limit {
+                    counter = "BRANCH"
+                    minimum = piso("pisoDelDominio").toBigDecimal()
+                }
             }
         }
     }
