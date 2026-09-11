@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 // Procesa contenido/**/*.md ANTES de `ng build`: produce src/generado/contenido.json (lo que
 // las paginas renderizan en prerender), public/<ruta>.md (espejo para modelos, F11),
-// public/robots.txt (ADR-042) y la lista de rutas indexables para el sitemap (F10).
+// public/robots.txt (ADR-042), public/llms.txt y public/llms-full.txt (indice para
+// modelos, F11) y la lista de rutas indexables para el sitemap (F10).
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { marked } from 'marked'
 import { parse } from 'yaml'
 import { robotsTxt } from '../src/app/geo/robots.mjs'
+import { generarLlmsFullTxt, generarLlmsTxt } from '../src/app/geo/llms.mjs'
 import { generarSitemap } from '../src/app/seo/sitemap.mjs'
 
 const AQUI = dirname(fileURLToPath(import.meta.url))
@@ -55,4 +57,8 @@ writeFileSync(join(GENERADO, 'rutas-indexables.json'), `${JSON.stringify(indexab
 // F10: el sitemap sale de las mismas rutas indexables, con /verificar/* y /publico/* excluidas
 // sin importar lo que diga el frontmatter (defensa en profundidad, ver seo/sitemap.mjs).
 writeFileSync(join(PUBLIC, 'sitemap.xml'), generarSitemap(indexables, 'https://aportaya.bo'), 'utf8')
-console.log(`contenido: ${Object.keys(paginas).length} páginas · ${indexables.length} indexables · robots.txt y sitemap.xml generados`)
+// F11: llms.txt y llms-full.txt salen de las MISMAS páginas indexables, nunca a mano.
+const paginasParaLlms = Object.values(paginas).map((p) => ({ ruta: p.ruta, titulo: p.titulo, bajada: p.bajada, indexable: p.indexable, actualizado: p.actualizado, markdown: p.markdown }))
+writeFileSync(join(PUBLIC, 'llms.txt'), generarLlmsTxt(paginasParaLlms, 'https://aportaya.bo'), 'utf8')
+writeFileSync(join(PUBLIC, 'llms-full.txt'), generarLlmsFullTxt(paginasParaLlms, 'https://aportaya.bo'), 'utf8')
+console.log(`contenido: ${Object.keys(paginas).length} páginas · ${indexables.length} indexables · robots.txt, sitemap.xml, llms.txt y llms-full.txt generados`)
