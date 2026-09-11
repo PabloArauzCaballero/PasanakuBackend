@@ -21,7 +21,7 @@ class PasoCelular extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(TextosIdentidad.codigoEnviado),
+          const Text(TextosIdentidad.codigoEnviado),
           const SizedBox(height: Espacio.s4),
           CampoOTP(
             onCompleto: (_) =>

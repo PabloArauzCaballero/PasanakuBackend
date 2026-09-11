@@ -42,14 +42,14 @@ class _PantallaDeVerificacionProfundaState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(TextosIdentidad.preguntaPep),
+              const Text(TextosIdentidad.preguntaPep),
               const SizedBox(height: Espacio.s3),
               SegmentedButton<bool>(
                 segments: const [
                   ButtonSegment(value: false, label: Text('No')),
                   ButtonSegment(value: true, label: Text('Sí')),
                 ],
-                selected: {if (_esPep != null) _esPep!},
+                selected: {?_esPep},
                 emptySelectionAllowed: true,
                 onSelectionChanged: (v) =>
                     setState(() => _esPep = v.isEmpty ? null : v.first),

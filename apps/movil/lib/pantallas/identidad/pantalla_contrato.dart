@@ -58,8 +58,8 @@ class _PantallaDeContratoState extends ConsumerState<PantallaDeContrato> {
         child: Column(
           children: [
             if (!estado.leidoHastaElFinal)
-              Padding(
-                padding: const EdgeInsets.all(Espacio.s3),
+              const Padding(
+                padding: EdgeInsets.all(Espacio.s3),
                 child: Text(TextosIdentidad.avisoLeerContrato),
               ),
             Expanded(

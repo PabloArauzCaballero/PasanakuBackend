@@ -1,4 +1,5 @@
 import 'package:aportaya_diseno/atomos/campo_o_t_p.dart';
+import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -17,7 +18,7 @@ class PantallaDeMfa extends ConsumerWidget {
       appBar: AppBar(title: const Text(TextosIdentidad.tituloMfa)),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(Espacio.s4),
           child: CampoOTP(
             onCompleto: (codigo) {
               ref.read(sesionIdentidadProvider.notifier).completarMfa(codigo);

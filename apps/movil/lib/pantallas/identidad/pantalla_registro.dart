@@ -1,4 +1,5 @@
 import 'package:aportaya_diseno/moleculas/barra_de_pasos.dart';
+import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -106,7 +107,7 @@ class _PasoContrato extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(Espacio.s4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
