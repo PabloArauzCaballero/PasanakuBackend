@@ -24,6 +24,16 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Deep links del esquema propio (aportaya://unirse/{codigo}, etc.):
+                 el shell (carril F2) los traduce a rutas internas en
+                 lib/navegacion/enlaces_profundos.dart. Flutter reenvía la URI
+                 recibida por el canal de sistema flutter/navigation, sin plugin. -->
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="aportaya"/>
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
