@@ -9,4 +9,22 @@ abstract final class TextosBilletera {
       'Todavía no tenés movimientos. Cuando recargues saldo van a aparecer acá.';
   static const alCorteDe = 'Actualizado';
   static const recargar = 'Recargar';
+  static const retirar = 'Retirar';
+  static const transferir = 'Transferir';
+  static const extracto = 'Extracto';
+  static const monto = 'Monto';
+  static const recargaPendiente =
+      'Tu recarga quedó en camino. Te avisamos cuando el banco la confirme.';
+  static const retiroInstruido =
+      'Tu retiro quedó instruido. El saldo retenido se libera cuando el banco confirma el pago.';
+  static const transferenciaHecha = 'Transferencia hecha';
+  static const cuentaDestino = 'Cuenta de destino';
+  static const alias = 'Alias';
+  static const concepto = 'Concepto';
+  static const enviarConMfa = 'Confirmar con tu segundo factor';
+  static const factorMfa = 'Código de tu segundo factor';
+  static const desde = 'Desde';
+  static const hasta = 'Hasta';
+  static const generarExtracto = 'Generar extracto';
+  static const sinExtracto = 'Todavía no generaste ningún extracto.';
 }
