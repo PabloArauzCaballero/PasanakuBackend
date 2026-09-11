@@ -54,8 +54,8 @@ reportes ASFI/UIF) tienen usuarios, ritmos y requisitos distintos.
 
 > **Java 21 + Spring Boot 3 en catorce servicios, uno por módulo de la bóveda, con
 > jOOQ sobre un único PostgreSQL 16 con un esquema por servicio; outbox en la base y
-> Kafka como transporte; Expo para la app de AportaYa y React + Vite para el
-> backoffice.**
+> Kafka como transporte; Flutter para la app de AportaYa y Angular para el
+> backoffice y el sitio público.**
 
 El detalle y el motivo de cada pieza está en [[_Arquitectura]], una decisión por
 documento.
@@ -71,8 +71,8 @@ documento.
 | Contratos | **OpenAPI 3.1 escrito primero**; servidor y clientes generados | El contrato existe antes que la implementación · [[ADR-020 Contratos OpenAPI primero]] |
 | Sesión y RLS | `SET LOCAL` en la transacción; el token del usuario cruza la red | Sin contexto no hay política de fila · [[ADR-021 Sesión, RLS y pooling]] |
 | Entre servicios | Gateway sin lógica · **Resilience4j** · **saga orquestada** | El fallo parcial es explícito · [[ADR-022 Comunicación entre servicios]] |
-| App del participante | **Expo / React Native** | QR, biometría, dispositivo de confianza y correcciones OTA · [[ADR-004 Frontend]] |
-| Backoffice | **React + Vite**, TanStack Query/Router | Pantallas densas de cumplimiento · [[ADR-004 Frontend]] |
+| App del participante | **Flutter** | QR, biometría, dispositivo de confianza y correcciones OTA · [[ADR-004 Frontend]] |
+| Backoffice y sitio | **Angular** (zoneless, signals; SSR híbrido en el sitio) | Pantallas densas de cumplimiento · [[ADR-004 Frontend]] |
 | Pruebas | **JUnit 5 + Testcontainers** con PostgreSQL 16 real | Los criterios de aceptación, uno a uno · [[ADR-026 Pruebas de un sistema distribuido]] |
 
 ### Por qué esta y no otra
@@ -220,8 +220,8 @@ demostrar los flujos de la bóveda funcionando, sin producto.
 
 ## Frontend — dos productos, y por qué no cambia
 
-El backend cambió de lenguaje; el frontend **no**. Sigue siendo **Expo para la app y
-React + Vite para el backoffice** ([[ADR-004 Frontend]]).
+El frontend también cambió: **Flutter para la app y Angular para el backoffice y el
+sitio** ([[ADR-044 Frontend en Angular y Flutter]], que reemplaza a ADR-004).
 
 Lo único que cambia es de dónde salen los tipos: antes se importaban del paquete de
 contratos compartido; ahora **se generan desde la especificación OpenAPI** de cada

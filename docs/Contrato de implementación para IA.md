@@ -73,8 +73,9 @@ no tiene está **equivocado**: gana el `.puml`, y reportás el error del flujo.
 - **No inventar campos ni pantallas de UI.** Solo los organismos y campos que el flujo lista.
 - **No “mejorar” el modelo sobre la marcha.** Cambiar el modelo es un **ADR + regeneración**
   (`boveda-modelo`), nunca una decisión de implementación.
-- **No mezclar stacks.** Back = **Java 21 + Spring Boot** en microservicios; front = **React
-  Native (Expo) + Turborepo** en monorepo yarn. Nada de TypeScript en el back ni Java en el front.
+- **No mezclar stacks.** Back = **Java 21 + Spring Boot** en microservicios; front = **Flutter** para la
+  app y **Angular** para backoffice y sitio, en monorepo yarn con Turborepo ([[ADR-044 Frontend en Angular y Flutter]]).
+  Nada de Java en el front, ni de TypeScript o Dart en el back.
 - **No leer el esquema ajeno.** Un servicio solo ve su esquema + `catalogo` (lectura) + su
   infraestructura ([[ADR-017 Propiedad de datos por servicio]]).
 - **No elegir proveedor dentro de un caso de uso.** Ni un `if proveedor == …`, ni un

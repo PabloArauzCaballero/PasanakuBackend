@@ -154,7 +154,7 @@ OpenAPI y se prueba con dobles.
 **Si sos carril de frontend**, tu bloque es otro y no necesita Docker
 (`planes/16 Carriles de frontend.md` §8): `yarn install --immutable`,
 `./gradlew generateOpenApiClients`, `yarn dev:mock` (Prism), y según el mundo
-`fvm flutter pub get && yarn dev:movil` (Flutter, skill `movil-flutter`) o
+`flutter pub get && yarn dev:movil` (Flutter 3.44.8, la de `.fvmrc`; con `fvm` o en el PATH — skill `movil-flutter`) o
 `yarn dev:backoffice` / `yarn dev:web` (Angular, skill `web-angular`). Tu gate es
 `yarn lint && yarn typecheck && yarn test:front && yarn test:a11y`.
 

@@ -33,7 +33,7 @@ apps/web/                    igual, más:
     ├── app.routes.server.ts RenderMode por ruta: Prerender por omisión, Server donde hay datos vivos
     ├── paginas/ · verificadores/ · seo/ (W1) · geo/ (W2)
 
-packages/ui/                 biblioteca @aportaya/ui — una entrada secundaria por componente (@aportaya/ui/boton), sin barril
+packages/ui/                 biblioteca @aportaya/ui — una entrada secundaria por componente (@aportaya/ui/boton/boton), sin barril
 packages/tokens/generado/tokens.css   GENERADO — el único lugar con literales
 clientes/angular/<servicio>/          GENERADO desde el OpenAPI — servicios inyectables; no se edita
 ```

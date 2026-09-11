@@ -70,3 +70,6 @@ despliegue/compose/base.local.yml
 
 # salida de Playwright (trazas y contextos de error); las capturas del catalogo si se versionan
 .playwright/
+
+# fvm instala el SDK en .fvm/; .fvmrc si se versiona
+.fvm/

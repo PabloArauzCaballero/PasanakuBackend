@@ -115,14 +115,15 @@ Lo mecánico no se discute en revisión: lo resuelve la herramienta.
 - Una supresión (`@SuppressWarnings`, exclusión de ArchUnit) sin comentario que
   explique el porqué se rechaza en revisión.
 
-**En el frontend (Expo y backoffice, TypeScript)** — `yarn lint`:
+**En el frontend (Flutter y Angular)** — `yarn lint && yarn typecheck`:
 
-- Prettier y ESLint con la configuración del repo; el CI falla si no pasa.
-- TypeScript en modo estricto; `any` requiere justificación escrita.
-- Reglas de lint propias: prohibición de `number` en dinero (`dinero-decimal`),
-  límite de dependencias entre niveles, y `Platform.OS` fuera de las vistas
-  ([[ADR-036 Android primero]]).
-- Un `eslint-disable` sin comentario que explique el porqué se rechaza en revisión.
+- Angular: angular-eslint con la configuración del repo, TypeScript estricto; `any`
+  requiere justificación escrita. Flutter: `dart format` y `flutter analyze --fatal-infos`.
+- Reglas propias, verificadas por `scripts/verificar_frontend.py` en el `lint` de cada
+  paquete: sin red en la vista, sin literal de diseño, sin formato de dinero fuera de
+  `Monto`, sin `Platform.is*` fuera de `infraestructura/` ([[ADR-036 Android primero]]),
+  sin `print`/`console`, y ningún archivo de más de 200 líneas.
+- Un `eslint-disable` o `// ignore:` sin comentario que explique el porqué se rechaza en revisión.
 
 ## Antes de abrir el PR
 

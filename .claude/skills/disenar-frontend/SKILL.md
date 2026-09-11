@@ -23,7 +23,7 @@ Sistema de diseño atómico para la app **móvil** y la **web** de AportaYa. Est
 |---|---|---|
 | 1 | `packages/tokens/tokens.json` → `generado/tokens.css` · `generado/tokens.dart` | **Tokens** (color/espacio/radio/borde/tipografía/tema), la única fuente. En Dart: `Paleta`, `Espacio`, `Radios`, `Borde`, `Fuente`, `Tactil` y `Tokens.of(context)`; en CSS: `var(--…)`. Jamás un hex, un `px` ni un `Color(0x…)` suelto. Verificados contra `docs/Views/Sistema-Diseno/estilos.css` por prueba |
 | 2 | `packages/diseno_flutter/lib/{atomos,moleculas,organismos,moviles}/` | **Sistema de diseño de la app** (Flutter, paquete `aportaya_diseno`). Imitá la forma de `Boton`, `Campo`, `Monto`, `ChipEstado`, `TecladoNumerico` para piezas nuevas |
-| 3 | `packages/ui/<componente>/` | **Sistema de diseño web** (biblioteca Angular `@aportaya/ui`, una entrada secundaria por componente). Mismos nombres que en Flutter |
+| 3 | `packages/ui/src/<componente>/<componente>.ts` | **Sistema de diseño web** (biblioteca Angular `@aportaya/ui`, una entrada secundaria por componente). Mismos nombres que en Flutter |
 | 4 | `docs/Views/AportaYa-Maqueta.html` + `planes/22 Mapa de la maqueta · pantalla, carril y mundo.md` | **La maqueta es el criterio de aceptación visual.** Cada pantalla se compara contra la suya, en los dos escenarios, y el mapa dice en qué mundo y carril va |
 | 5 | `docs/Views/Sistema-Diseno/` | **Catálogo visual** por nivel (HTML navegable + notas .md) con todos los hex |
 | 6 | `planes/20 Maqueta de referencia · deltas del frontend.md` §2 | Las piezas que la maqueta sumó al inventario, y las cuatro reglas de estilo que fijó |

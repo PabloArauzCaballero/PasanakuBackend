@@ -260,8 +260,8 @@ flowchart TD
 > corre con verificación básica.
 
 > **El detalle de pantallas.** Cada RF de este recorrido se traduce a pantallas concretas de
-> la app móvil en [[Flujo de pantallas · app del participante]] — ruta de Expo Router,
-> organismos de `packages/ui`, los cuatro estados, navegación y el carril que la construye.
+> la app móvil en [[Flujo de pantallas · app del participante]] — ruta de `go_router`,
+> organismos de `packages/diseno_flutter`, los cuatro estados, navegación y el carril que la construye.
 
 ## Ver también
 
