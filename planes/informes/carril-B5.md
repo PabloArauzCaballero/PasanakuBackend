@@ -45,6 +45,51 @@ sistemas **dentro de mi carpeta** (`rutas/sistemas/menu/shell-sistemas.ts`), sin
 ni tocar ningún `layout/` — sigue cumpliendo la regla no negociable "nunca comparte
 menú con el financiero" porque no hay ningún menú compartido que pudiera tocar.
 
+### Reconciliación posterior (mismo día)
+
+El coordinador fusionó el `dev` correcto (con el carril B — shell backoffice, F6 —
+fusionado) dentro de esta rama (commit `8bec722 merge: dev (M/B/W ya fusionados) para
+reconciliar contra la infraestructura real`), sin conflicto de archivo. Con la base
+correcta aparecieron piezas reales que no existían cuando arranqué:
+
+- `apps/backoffice/src/app/layout/shell-financiero.ts` — el shell financiero real, con
+  su propio menú por `Sesion.puede(permiso)`.
+- `apps/backoffice/src/app/layout/sistemas/` — **vacío a propósito, con un
+  `README.md`** que decía textualmente: *"el shell de sistemas (menú y cabecera para
+  PLATAFORMA/SEGURIDAD) se dibuja ahí, no en F6 (...) Mientras tanto, la ruta `sistemas`
+  reutiliza `ShellFinanciero` desde `app.routes.ts`."* Es decir: F6 sí me había dejado el
+  lugar correcto, tal como decía la ficha original — mi supuesto de arriba quedó
+  superado por la base real.
+- `apps/backoffice/src/app/nucleo/permisos.ts` con `requierePermiso(permiso): CanMatchFn`
+  (patrón `canMatch` genérico por permiso, ya usado por `app.routes.ts` para las otras
+  rutas) y su prueba `permisos.spec.ts`.
+- `apps/backoffice/src/app/app.routes.ts` (frozen, de F6) ya envuelve la ruta `sistemas`
+  con `canMatch: [requierePermiso('ver:sistemas')]` — una primera barrera de permiso que
+  no tenía cuando escribí el `sistemas.routes.ts` original.
+- `apps/backoffice/src/app/nucleo/tabla/tabla-de-datos-virtualizada.ts` (paginación de
+  **servidor**, vía `CargadorDePagina`), `nucleo/filtros/barra-de-filtros.ts`,
+  `nucleo/evidencia/panel-de-evidencia.ts`, `nucleo/exportador.ts`.
+
+**Corrección aplicada:** moví `rutas/sistemas/menu/shell-sistemas.ts` a
+`layout/sistemas/shell-sistemas.ts` (el lugar real, `git mv`), borré el
+`layout/sistemas/README.md` que marcaba el hueco (ya lo llené) y ajusté el único import
+que cambiaba (`sistemas.routes.ts` ahora carga el shell desde `../../layout/sistemas/
+shell-sistemas`). `rutas/sistemas/` volvió a ser solo pantallas + rutas + dominio, como
+corresponde.
+
+**Sobre el guard de roles:** mantuve `soloRolesDeSistemas` (mi `canMatch` propio, ya
+probado) como **segunda barrera** además de la que ya pone `app.routes.ts` con
+`requierePermiso('ver:sistemas')`. Revisé `nucleo/permisos.ts`: `requierePermiso` es
+genérico por **permiso** (`Sesion.puede(permiso)`), no por **rol** — no cubre por sí
+solo la exigencia de la ficha de que `layout/sistemas/` sea "propio de roles PLATAFORMA
+y SEGURIDAD" (un permiso `ver:sistemas` mal otorgado a otro rol pasaría igual). Por eso
+NO reemplacé mi guard por `requierePermiso`: lo dejé como una barrera adicional, más
+estricta, sobre `Sesion.rol()` — que es exactamente la misma clase `Sesion` real (sin
+diff contra la que ya usaba: `git diff b5d5d5e 8bec722 -- .../nucleo/sesion.ts` vacío).
+`TablaDeDatosVirtualizada` no se adoptó: pagina contra un `CargadorDePagina` de
+servidor, y mis 9 pantallas no tienen servidor (hueco de contrato, ver abajo) — queda
+como decisión abierta para cuando el contrato exista.
+
 ## Hueco crítico declarado: no existe contrato de "indicadores"/"tablero" para sistemas
 
 Busqué en `servicios/erp/src/main/resources/openapi/erp.yaml` y en
@@ -78,10 +123,13 @@ no asignado hoy a nadie en `planes/16`.
 | Accesos | `/sistemas/accesos` | Accesos (venía de F7/F8, dominio de sistemas) | `TablaDeDatos` | estático | simulados | ✅ |
 | Incidentes | `/sistemas/incidentes` | Incidentes (ídem) | `TablaDeDatos`, `ChipEstado` | estático | simulados | ✅ |
 
-Las 9 pantallas comparten `menu/shell-sistemas.ts` como enchufe propio (nav + `router-
-outlet`); `sistemas.routes.ts` es la única ruta padre y lleva `canMatch: [
-soloRolesDeSistemas]`, así que **ninguna** de las 9 carga su chunk si el rol no es
-PLATAFORMA ni SEGURIDAD.
+Las 9 pantallas comparten `layout/sistemas/shell-sistemas.ts` como enchufe propio (nav +
+`router-outlet`) — el lugar que F6 dejó preparado para B5, no una carpeta dentro de
+`rutas/`. `sistemas.routes.ts` es la única ruta padre y lleva `canMatch: [
+soloRolesDeSistemas]` como **segunda** barrera, detrás de la primera que ya pone
+`app.routes.ts` (`canMatch: [requierePermiso('ver:sistemas')]`, frozen, de F6). Así que
+**ninguna** de las 9 carga su chunk si el rol no es PLATAFORMA ni SEGURIDAD, ni si falta
+el permiso `ver:sistemas`.
 
 **Columna "Estados" en n/4:** con datos simulados y sin `httpResource` no hay un estado
 de red que probar por pantalla (no hay `isLoading`/`error` reales — ese es justamente el
@@ -95,7 +143,7 @@ igual que `pantalla-de-billetera.spec.ts` de operación. **Esto queda abierto.**
 | --- | --- | --- | --- |
 | `soloRolesDeSistemas` (canMatch) | molécula (guardia de ruta) | `rutas/sistemas/guardia-rol-sistemas.ts` | hecho, probado |
 | `restauracionVencida`, `puedeConfirmar` | átomo (función pura) | `rutas/sistemas/dominio/datos-simulados.ts` | hecho, probado |
-| `ShellSistemas` | organismo (shell propio) | `rutas/sistemas/menu/shell-sistemas.ts` | hecho |
+| `ShellSistemas` | organismo (shell propio) | `layout/sistemas/shell-sistemas.ts` | hecho, migrado a su lugar real |
 | 9 `Pantalla*` | página | `rutas/sistemas/<area>/pantalla-*.ts` | hecho |
 | Datos simulados de plataforma | dato de arranque, no contrato | `rutas/sistemas/dominio/datos-simulados.ts` | hecho, declarado como hueco |
 
@@ -142,20 +190,28 @@ proposito`, `monto`. No hizo falta ningún micro-PR al paquete de diseño.
 | Restauración vencida > 30 días | marcada VENCIDA con datos de ejemplo | `datos-simulados.spec.ts` (4 pruebas) + `pantalla-respaldos.a11y.spec.ts` | ✅ |
 | Interruptor de dinero, doble persona | la interfaz impide confirmarlo solo/a | `pantalla-despliegues.spec.ts` (4 pruebas) + `puedeConfirmar` (3 pruebas) | ✅ |
 | Cola de descartados visible con motivo | columna "Motivo" en la tabla, sin detalle escondido | `pantalla-outbox.ts` + `pantalla-outbox.a11y.spec.ts` | ✅ |
-| Menú propio, sin compartir con financiero | `shell-sistemas.ts` no importa nada de otro dominio; ningún otro dominio importa `rutas/sistemas` | `grep -rl "shell-sistemas\|rutas/sistemas" rutas/{operacion,cumplimiento,contabilidad,publicidad,tablero}` → vacío | ✅ |
+| Menú propio, sin compartir con financiero | `layout/sistemas/shell-sistemas.ts` no importa nada de `layout/shell-financiero.ts` ni viceversa | imports listados arriba, ambos limpios | ✅ |
 | Entrega | lint, tipos, pruebas, build | salida citada abajo | ✅ |
 
-## Gate propio — salida real de cada comando
+## Gate propio — salida real de cada comando (post-reconciliación, commit de merge `8bec722` ya incorporado)
 
 ### `yarn workspace @aportaya/backoffice build`
 ```
-Application bundle generation complete. [2.043 seconds]
-Initial total 294.41 kB | 80.72 kB transferido
-Lazy chunks: pantalla-despliegues, shell-sistemas, pantalla-outbox, pantalla-respaldos,
-pantalla-servicios, sistemas-routes, pantalla-proveedores, pantalla-webhooks,
-pantalla-incidentes, pantalla-base-datos, y 6 más.
+Application bundle generation complete. [1.563 seconds]
+Initial total 321.16 kB | 87.68 kB transferido
+Lazy chunks incluyen: pantalla-de-estado, pantalla-despliegues, pantalla-de-billetera,
+tablero, shell-sistemas, pantalla-outbox, pantalla-respaldos, pantalla-servicios,
+sistemas-routes, pantalla-proveedores, pantalla-webhooks, y 9 más.
+
+⚠ WARNING: bundle initial exceeded maximum budget. Budget 300.00 kB was not met by
+21.16 kB con un total de 321.16 kB.
 Output location: apps/backoffice/dist/backoffice
 ```
+El build **compila y termina en verde**; el único aviso es un *warning* de presupuesto
+de bundle inicial (no un error), y es preexistente a este carril — `shell-sistemas` es
+un *lazy chunk* de 2.56 kB, no entra en el bundle inicial; el crecimiento viene de lo ya
+fusionado de B1/B2/F6/M/W. No lo puedo resolver desde `rutas/sistemas/` ni
+`layout/sistemas/` sin tocar código de otro carril.
 
 ### `yarn workspace @aportaya/backoffice lint`
 ```
@@ -172,39 +228,56 @@ TODO OK
 ```
 
 ### `yarn workspace @aportaya/backoffice typecheck`
-Sin salida (sin errores) — verificado también filtrando por `sistemas`: cero
-coincidencias.
+Sin salida (sin errores).
 
 ### `yarn workspace @aportaya/backoffice test:front`
 ```
- Test Files  6 passed (6)
-      Tests  27 passed (27)
+ Test Files  11 passed (11)
+      Tests  45 passed (45)
 ```
-Incluye: `guardia-rol-sistemas.spec.ts` (4), `datos-simulados.spec.ts` (7),
-`pantalla-despliegues.spec.ts` (4), más los 12 preexistentes de operación (`enchufe-de-
-rutas`, `pantalla-de-billetera`).
+Incluye los míos (`guardia-rol-sistemas.spec.ts` 4, `datos-simulados.spec.ts` 7,
+`pantalla-despliegues.spec.ts` 4 — 15 en total) más los ya fusionados de B1/B2/F6 tras
+la reconciliación (`permisos.spec.ts`, `enchufe-de-rutas.spec.ts`, `pantalla-de-
+billetera.spec.ts`, `tabla-de-datos-virtualizada.spec.ts`, `navegacion-por-
+teclado.spec.ts`, `barra-de-filtros.spec.ts`, etc.).
 
 ### `yarn workspace @aportaya/backoffice test:a11y`
 ```
- Test Files  4 passed (4)
-      Tests  6 passed (6)
+ Test Files  5 passed (5)
+      Tests  7 passed (7)
 ```
 Incluye `pantalla-servicios.a11y.spec.ts`, `pantalla-respaldos.a11y.spec.ts`,
-`pantalla-outbox.a11y.spec.ts` sin violaciones serias (axe), más el preexistente de
-`pantalla-de-billetera`.
+`pantalla-outbox.a11y.spec.ts` (mías, sin violaciones serias vía axe) más el
+preexistente de `pantalla-de-billetera` y uno nuevo llegado con la reconciliación.
 
-**Nota honesta:** no hay una prueba `.a11y.spec.ts` para las 6 pantallas restantes
+**Nota honesta:** sigue sin haber `.a11y.spec.ts` para las 6 pantallas restantes
 (despliegues, base-de-datos, proveedores, webhooks, accesos, incidentes) — mismo patrón
-de componente que las 3 cubiertas, riesgo bajo, pero **queda abierto** por presupuesto
-de esta sesión. Ver "Qué queda abierto".
+de componente que las 3 cubiertas, riesgo bajo, pero **queda abierto**. Ver "Qué queda
+abierto".
 
-### Verificación de aislamiento del menú (delta D-2)
+### Verificación de aislamiento del menú (delta D-2), contra el `layout/` real
+
 ```
-$ grep -rl "shell-sistemas\|rutas/sistemas" apps/backoffice/src/app/rutas/{operacion,cumplimiento,contabilidad,publicidad,tablero}
-(sin salida)
+$ grep -n "^import" apps/backoffice/src/app/layout/shell-financiero.ts
+1:import { ChangeDetectionStrategy, Component, inject } from '@angular/core'
+2:import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router'
+3:import { Sesion } from '../nucleo/sesion'
+
+$ grep -n "^import" apps/backoffice/src/app/layout/sistemas/shell-sistemas.ts
+1:import { ChangeDetectionStrategy, Component } from '@angular/core'
+2:import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router'
+3:import { textosSistemas } from '../../rutas/sistemas/textos'
 ```
-Ningún dominio financiero importa nada de sistemas, y `shell-sistemas.ts` no importa
-nada de `layout/` ni de otro dominio (no existe `layout/` en este repo, ver desvío).
+`shell-financiero.ts` no importa nada de `layout/sistemas/`; `shell-sistemas.ts` no
+importa nada de `shell-financiero.ts` ni de ningún dominio financiero — cada uno importa
+solo `@angular/core`, `@angular/router` y su propio dominio (`Sesion` es núcleo
+compartido de infraestructura, no menú). Verificado también en texto libre (comentarios,
+strings) por si hubiera una referencia oculta:
+```
+$ grep -rn "shell-financiero\|financiero" apps/backoffice/src/app/layout/sistemas apps/backoffice/src/app/rutas/sistemas
+(solo apariciones en comentarios/strings propios que EXPLICAN el aislamiento — ver
+arriba — ninguna es un import)
+```
 
 ## Qué queda abierto
 
@@ -220,3 +293,12 @@ nada de `layout/` ni de otro dominio (no existe `layout/` en este repo, ver desv
 5. `packages/simulado/ejemplos/<servicio>/` no se usó (no hay servicio real del que
    generar ejemplos) — se declaró en su lugar `dominio/datos-simulados.ts`, documentado
    con la razón en el propio archivo.
+6. `nucleo/tabla/tabla-de-datos-virtualizada.ts` (paginación de servidor vía
+   `CargadorDePagina`, virtualización CDK) llegó con la reconciliación y no se adoptó:
+   mis 9 pantallas no tienen un servidor del que paginar (mismo hueco de contrato). Con
+   `TablaDeDatos` simple alcanza para las filas de ejemplo actuales. Cuando exista el
+   contrato de indicadores, conviene revisar si outbox/webhooks/accesos —que en
+   producción pueden crecer mucho— deberían pasar a la versión virtualizada.
+7. El warning de presupuesto de bundle inicial (`build`, +21.16 kB sobre 300 kB) es
+   preexistente a este carril (ver Gate propio) — no se puede resolver sin tocar código
+   fuera de `rutas/sistemas/` y `layout/sistemas/`.

@@ -3,17 +3,21 @@ import { soloRolesDeSistemas } from './guardia-rol-sistemas'
 
 /**
  * Las rutas del dominio sistemas (F8.D). **Este archivo lo posee el carril B5**; el
- * shell (`app.routes.ts`) solo lo carga por `loadChildren` y no cambia.
+ * shell (`app.routes.ts`, congelado por F6) solo lo carga por `loadChildren`, ya detrás
+ * de `canMatch: [requierePermiso('ver:sistemas')]` puesto en la ruta padre `sistemas`.
  *
- * Backoffice aparte del financiero: `canMatch: [soloRolesDeSistemas]` en la ruta padre
- * corta ANTES de cargar cualquier chunk si el rol no es PLATAFORMA ni SEGURIDAD (delta
- * D-2, doble barrera de interfaz — la de servidor la simula cada pantalla).
+ * Acá se agrega una SEGUNDA barrera, más estricta que un permiso suelto: `canMatch: [
+ * soloRolesDeSistemas]` exige además que el `rol` de la sesión sea PLATAFORMA o
+ * SEGURIDAD — nunca un rol financiero, aunque por error tuviera el permiso
+ * `ver:sistemas`. Ninguna pantalla de acá carga su chunk si cualquiera de las dos
+ * barreras corta (delta D-2, doble barrera de interfaz — la de servidor la simula cada
+ * pantalla, ver el hueco de contrato en `planes/informes/carril-B5.md`).
  */
 export const rutasSistemas: Routes = [
   {
     path: '',
     canMatch: [soloRolesDeSistemas],
-    loadComponent: () => import('./menu/shell-sistemas').then((m) => m.ShellSistemas),
+    loadComponent: () => import('../../layout/sistemas/shell-sistemas').then((m) => m.ShellSistemas),
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'servicios' },
       { path: 'servicios', loadComponent: () => import('./servicios/pantalla-servicios').then((m) => m.PantallaServicios), title: 'Servicios y SLO · Sistemas · AportaYa' },

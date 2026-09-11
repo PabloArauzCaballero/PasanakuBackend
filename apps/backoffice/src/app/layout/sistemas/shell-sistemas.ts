@@ -1,13 +1,14 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core'
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router'
-import { textosSistemas } from '../textos'
+import { textosSistemas } from '../../rutas/sistemas/textos'
 
 /**
- * El shell propio del backoffice de sistemas. **No importa nada de `layout/` ni de
- * ningún otro dominio** (delta D-2: dos productos, dos shells, dos roles) — el
- * backoffice financiero no importa nada de acá tampoco. Si `apps/backoffice/src/app/
- * layout/` existiera algún día con un menú compartido, este componente seguiría sin
- * usarlo: el menú de sistemas es de PLATAFORMA y SEGURIDAD, nunca de un rol financiero.
+ * El shell propio del backoffice de sistemas — el que `F6` dejó preparado, vacío, en
+ * `layout/sistemas/` para que `B5` lo llenara. **No importa nada de `layout/shell-
+ * financiero.ts` ni de ningún otro dominio** (delta D-2: dos productos, dos shells, dos
+ * roles) — y `shell-financiero.ts` no importa nada de acá tampoco (verificado por
+ * `grep`, ver el informe del carril). El menú de sistemas es de PLATAFORMA y SEGURIDAD,
+ * nunca de un rol financiero.
  */
 @Component({
   selector: 'ap-shell-sistemas',
