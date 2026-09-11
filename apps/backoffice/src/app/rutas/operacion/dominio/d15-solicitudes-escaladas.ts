@@ -1,6 +1,8 @@
-import { httpResource } from '@angular/common/http'
+import { httpResource, HttpClient } from '@angular/common/http'
 import { inject } from '@angular/core'
+import { firstValueFrom } from 'rxjs'
 import { GATEWAY } from '../../../nucleo/gateway'
+import type { CargadorDePagina, PaginaServidor } from '../../../nucleo/tabla/tipos'
 
 /**
  * D-15 · «F7 suma la vista de solicitudes escaladas cuando el organizador deja vencer
@@ -39,4 +41,30 @@ export function colaDeSolicitudesEscaladas() {
 
 export function ordenadasPorVencimiento(solicitudes: readonly SolicitudEscalada[]): SolicitudEscalada[] {
   return [...solicitudes].sort((a, b) => new Date(a.fechaLimiteOrganizador).getTime() - new Date(b.fechaLimiteOrganizador).getTime())
+}
+
+/**
+ * El `cargador` de `TablaDeDatosVirtualizada` (`nucleo/tabla/`, del shell) — misma
+ * salvedad que `cargarReclamos`: pagina/ordena en el adaptador porque el endpoint
+ * asumido todavía no lo hace del lado del servidor.
+ */
+export function cargarSolicitudesEscaladas(http: HttpClient, gateway: string): CargadorDePagina<SolicitudEscalada> {
+  return async (pedido) => {
+    const todas = await firstValueFrom(http.get<SolicitudEscalada[]>(`${gateway}/grupos/solicitudes-escaladas`))
+    const ordenadas = pedido.orden
+      ? [...todas].sort((a, b) => {
+          const clave = pedido.orden!.clave as keyof SolicitudEscalada
+          const [va, vb] = [String(a[clave] ?? ''), String(b[clave] ?? '')]
+          return pedido.orden!.sentido === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va)
+        })
+      : ordenadasPorVencimiento(todas)
+    const inicio = (pedido.pagina - 1) * pedido.tamano
+    const pagina: PaginaServidor<SolicitudEscalada> = { filas: ordenadas.slice(inicio, inicio + pedido.tamano), total: ordenadas.length }
+    return pagina
+  }
+}
+
+/** Ídem `cargadorDeReclamos`: fábrica en contexto de inyección, sin `HttpClient` en `rutas/`. */
+export function cargadorDeSolicitudesEscaladas(): CargadorDePagina<SolicitudEscalada> {
+  return cargarSolicitudesEscaladas(inject(HttpClient), inject(GATEWAY))
 }

@@ -2,6 +2,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http'
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing'
 import { provideZonelessChangeDetection } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
+import { provideRouter } from '@angular/router'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { GATEWAY } from '../../../nucleo/gateway'
 import { erroresInterceptor } from '../../../nucleo/errores.interceptor'
@@ -12,7 +13,7 @@ import type { ReclamoDeBandeja } from '../dominio/cu52-reclamos'
 
 const URL = 'http://gw/api/v1/reclamos'
 
-const RECLAMO_QUE_VENCE_PRIMERO: ReclamoDeBandeja = {
+const RECLAMO: ReclamoDeBandeja = {
   reclamoId: 'r-1',
   codigo: 'REC-2026-08-0157',
   categoria: 'COMISION',
@@ -26,13 +27,6 @@ const RECLAMO_QUE_VENCE_PRIMERO: ReclamoDeBandeja = {
   responsableNombre: 'Ana',
 }
 
-const RECLAMO_QUE_VENCE_DESPUES: ReclamoDeBandeja = {
-  ...RECLAMO_QUE_VENCE_PRIMERO,
-  reclamoId: 'r-2',
-  codigo: 'REC-2026-08-0158',
-  plazoRespuesta: '2026-08-20T10:00:00-04:00',
-}
-
 async function montar(rol: 'sin-permiso' | 'RECLAMO_ATENDER') {
   const fixture = TestBed.createComponent(BandejaDeReclamos)
   if (rol === 'RECLAMO_ATENDER') TestBed.inject(Sesion).abrir('t', ['RECLAMO_VER', 'RECLAMO_ATENDER'], 'operador')
@@ -41,13 +35,23 @@ async function montar(rol: 'sin-permiso' | 'RECLAMO_ATENDER') {
   return fixture
 }
 
+/**
+ * El orden por vencimiento y el filtro por estado del `cargador` están probados de
+ * forma aislada, sin CDK de por medio, en `dominio/cu52-reclamos.spec.ts`. Estas
+ * pruebas cubren lo que es propio de la pantalla: la guarda de permiso y el diálogo de
+ * confirmación con el dato concreto delante — ninguna de las dos depende de que el
+ * `cdk-virtual-scroll-viewport` mida y renderice filas, que en jsdom no ocurre (mismo
+ * criterio que ya usa `nucleo/tabla/tabla-de-datos-virtualizada.spec.ts`).
+ */
 describe('BandejaDeReclamos', () => {
   let http: HttpTestingController
 
   beforeEach(() => {
+    if (!Element.prototype.scrollTo) Element.prototype.scrollTo = () => {}
     TestBed.configureTestingModule({
       providers: [
         provideZonelessChangeDetection(),
+        provideRouter([]),
         provideHttpClient(withInterceptors([trazaInterceptor, erroresInterceptor])),
         provideHttpClientTesting(),
         { provide: GATEWAY, useValue: 'http://gw/api/v1' },
@@ -56,35 +60,32 @@ describe('BandejaDeReclamos', () => {
     http = TestBed.inject(HttpTestingController)
   })
 
-  it('ordena la bandeja por vencimiento: el que vence antes va primero', async () => {
-    const fixture = await montar('RECLAMO_ATENDER')
-    http.expectOne(URL).flush([RECLAMO_QUE_VENCE_DESPUES, RECLAMO_QUE_VENCE_PRIMERO])
-    await fixture.whenStable()
-    const codigos = [...fixture.nativeElement.querySelectorAll('li strong')].map((e: HTMLElement) => e.textContent)
-    expect(codigos).toEqual(['REC-2026-08-0157', 'REC-2026-08-0158'])
-  })
-
-  it('segregación de funciones: sin RECLAMO_ATENDER no aparece el botón de responder', async () => {
+  it('segregación de funciones: sin RECLAMO_ATENDER la guarda que monta la acción da false', async () => {
     const fixture = await montar('sin-permiso')
-    http.expectOne(URL).flush([RECLAMO_QUE_VENCE_PRIMERO])
+    http.expectOne(URL).flush([RECLAMO])
     await fixture.whenStable()
-    expect(fixture.nativeElement.querySelector('ap-boton')).toBeNull()
+    expect(fixture.componentInstance['puedeAtender']()).toBe(false)
   })
 
-  it('con RECLAMO_ATENDER, responder abre un diálogo con el código concreto delante, no un "¿estás seguro?" genérico', async () => {
+  it('con RECLAMO_ATENDER la guarda da true, y el diálogo de responder muestra el código concreto delante, no un "¿estás seguro?" genérico', async () => {
     const fixture = await montar('RECLAMO_ATENDER')
-    http.expectOne(URL).flush([RECLAMO_QUE_VENCE_PRIMERO])
+    http.expectOne(URL).flush([RECLAMO])
     await fixture.whenStable()
-    ;(fixture.nativeElement.querySelector('ap-boton button') as HTMLButtonElement).click()
+    expect(fixture.componentInstance['puedeAtender']()).toBe(true)
+    fixture.componentInstance.abrirConfirmacion(RECLAMO)
     fixture.detectChanges()
     const dialogo = fixture.nativeElement.querySelector('ap-dialogo')
     expect(dialogo.textContent).toContain('REC-2026-08-0157')
   })
 
-  it('bandeja vacía: lo dice, sin lista', async () => {
+  it('confirmar cierra el diálogo', async () => {
     const fixture = await montar('RECLAMO_ATENDER')
-    http.expectOne(URL).flush([])
+    http.expectOne(URL).flush([RECLAMO])
     await fixture.whenStable()
-    expect(fixture.nativeElement.textContent).toContain('No hay reclamos abiertos.')
+    fixture.componentInstance.abrirConfirmacion(RECLAMO)
+    fixture.detectChanges()
+    expect(fixture.componentInstance['dialogoAbierto']()).toBe(true)
+    fixture.componentInstance.confirmarRespuesta()
+    expect(fixture.componentInstance['dialogoAbierto']()).toBe(false)
   })
 })

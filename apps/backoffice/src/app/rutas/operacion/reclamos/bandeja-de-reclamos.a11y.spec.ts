@@ -2,6 +2,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http'
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing'
 import { provideZonelessChangeDetection } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
+import { provideRouter } from '@angular/router'
 import { axe } from 'vitest-axe'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { GATEWAY } from '../../../nucleo/gateway'
@@ -27,8 +28,9 @@ const RECLAMO: ReclamoDeBandeja = {
 describe('BandejaDeReclamos · accesibilidad', () => {
   let http: HttpTestingController
   beforeEach(() => {
+    if (!Element.prototype.scrollTo) Element.prototype.scrollTo = () => {}
     TestBed.configureTestingModule({
-      providers: [provideZonelessChangeDetection(), provideHttpClient(withInterceptors([erroresInterceptor])), provideHttpClientTesting(), { provide: GATEWAY, useValue: 'http://gw/api/v1' }],
+      providers: [provideZonelessChangeDetection(), provideRouter([]), provideHttpClient(withInterceptors([erroresInterceptor])), provideHttpClientTesting(), { provide: GATEWAY, useValue: 'http://gw/api/v1' }],
     })
     http = TestBed.inject(HttpTestingController)
   })

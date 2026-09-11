@@ -1,19 +1,29 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core'
-import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
 import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
 import { RelojDePlazo } from '@aportaya/ui/reloj-de-plazo/reloj-de-plazo'
-import { Fecha } from '@aportaya/ui/fecha/fecha'
 import { Boton } from '@aportaya/ui/boton/boton'
 import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
 import { Campo } from '@aportaya/ui/campo/campo'
 import { Sesion } from '../../../nucleo/sesion'
-import { colaDeSolicitudesEscaladas, ordenadasPorVencimiento, type SolicitudEscalada } from '../dominio/d15-solicitudes-escaladas'
+import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
+import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
+import { cargadorDeSolicitudesEscaladas, type SolicitudEscalada } from '../dominio/d15-solicitudes-escaladas'
 import { textosOperacion } from '../textos'
 
 type Accion = 'ACEPTAR' | 'RECHAZAR'
 
+const COLUMNAS: ColumnaVirtual<SolicitudEscalada>[] = [
+  { clave: 'usuarioNombre', titulo: 'Postulante', ordenable: true },
+  { clave: 'grupoCodigo', titulo: 'Grupo' },
+  { clave: 'factores', titulo: 'Puntaje descompuesto', ancho: '2' },
+  { clave: 'fechaLimiteOrganizador', titulo: 'Vencía para el organizador', ordenable: true },
+  { clave: 'solicitudId', titulo: 'Acciones' },
+]
+
 /**
- * D-15 · La cola de solicitudes de ingreso que el organizador dejó vencer (48 horas).
+ * D-15 · La cola de solicitudes de ingreso que el organizador dejó vencer (48 horas),
+ * sobre `TablaDeDatosVirtualizada` (del shell, no se duplica) ordenada por
+ * `fechaLimiteOrganizador` desde el `cargador` (`cargarSolicitudesEscaladas`, dominio).
  * Segregación de funciones: quien **registró** la postulación (el propio postulante o
  * el organizador que la generó) nunca es quien resuelve acá — esta cola solo existe
  * porque el organizador *no* resolvió; solo `SOLICITUD_INGRESO_RESOLVER` monta las
@@ -23,44 +33,38 @@ type Accion = 'ACEPTAR' | 'RECHAZAR'
 @Component({
   selector: 'ap-cola-de-solicitudes-escaladas',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [EstadoDePantalla, BandaDeProposito, RelojDePlazo, Fecha, Boton, Dialogo, Campo],
+  imports: [BandaDeProposito, RelojDePlazo, Boton, Dialogo, Campo, TablaDeDatosVirtualizada],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
     <main>
       <h1>{{ t.titulo }}</h1>
-      <ap-estado-de-pantalla
-        [recurso]="solicitudes"
-        [vacio]="esVacio"
-        [mensajeVacio]="t.sinSolicitudes"
-        [etiquetaDeCarga]="t.cargando"
-        (reintentar)="solicitudes.reload()"
-      >
-        @if (solicitudes.hasValue()) {
-          <ul class="lista">
-            @for (s of ordenadas(); track s.solicitudId) {
-              <li>
-                <div class="cabecera">
-                  <strong>{{ s.usuarioNombre }}</strong>
-                  <span class="grupo">{{ s.grupoCodigo }}</span>
-                </div>
-                <ul class="factores">
-                  @for (f of s.factores; track f.motivo) {
-                    <li [class.favor]="f.aFavor" [class.contra]="!f.aFavor">{{ f.aFavor ? t.aFavor : t.enContra }}: {{ f.motivo }}</li>
-                  }
-                </ul>
-                <p class="escalada">{{ t.escaladaEl }} <ap-fecha [iso]="s.escaladaEn" [conHora]="false" /></p>
-                <ap-reloj-de-plazo [etiqueta]="t.plazoOrganizador" [venceIso]="s.fechaLimiteOrganizador" [ahoraIso]="ahoraIso" />
-                @if (puedeResolver()) {
-                  <div class="acciones">
-                    <ap-boton (pulsado)="abrir(s, 'ACEPTAR')">{{ t.aceptar }}</ap-boton>
-                    <ap-boton variante="fantasma" (pulsado)="abrir(s, 'RECHAZAR')">{{ t.rechazar }}</ap-boton>
-                  </div>
+      <ap-tabla-de-datos-virtualizada [titulo]="t.titulo" [columnas]="COLUMNAS" [cargador]="cargador" [ordenPermitido]="['fechaLimiteOrganizador', 'usuarioNombre']" [identidad]="identidad">
+        <ng-template #celda let-s let-columna="columna">
+          @switch (columna.clave) {
+            @case ('factores') {
+              <ul class="factores">
+                @for (f of s.factores; track f.motivo) {
+                  <li [class.favor]="f.aFavor" [class.contra]="!f.aFavor">{{ f.aFavor ? t.aFavor : t.enContra }}: {{ f.motivo }}</li>
                 }
-              </li>
+              </ul>
             }
-          </ul>
-        }
-      </ap-estado-de-pantalla>
+            @case ('fechaLimiteOrganizador') {
+              <ap-reloj-de-plazo [etiqueta]="t.plazoOrganizador" [venceIso]="s.fechaLimiteOrganizador" [ahoraIso]="ahoraIso" />
+            }
+            @case ('solicitudId') {
+              @if (puedeResolver()) {
+                <div class="acciones">
+                  <ap-boton (pulsado)="abrir(s, 'ACEPTAR')">{{ t.aceptar }}</ap-boton>
+                  <ap-boton variante="fantasma" (pulsado)="abrir(s, 'RECHAZAR')">{{ t.rechazar }}</ap-boton>
+                </div>
+              }
+            }
+            @default {
+              {{ s[columna.clave] }}
+            }
+          }
+        </ng-template>
+      </ap-tabla-de-datos-virtualizada>
     </main>
 
     @if (seleccionada(); as s) {
@@ -81,13 +85,9 @@ type Accion = 'ACEPTAR' | 'RECHAZAR'
     }
   `,
   styles: `
-    main { padding: var(--s5); max-width: 52rem; }
-    h1 { margin-bottom: var(--s4); }
-    .lista { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s3); }
-    li { padding: var(--s4); background: var(--surface); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); display: grid; gap: var(--s2); }
-    .cabecera { display: flex; justify-content: space-between; align-items: baseline; }
-    .grupo { color: var(--text-2); }
-    .factores { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s1); font-size: .9em; }
+    main { padding: var(--s5); max-width: 68rem; display: grid; gap: var(--s4); }
+    h1 { margin: 0; }
+    .factores { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s1); font-size: .9em; white-space: normal; }
     .factores .favor { color: var(--ok); }
     .factores .contra { color: var(--err); }
     .acciones { display: flex; gap: var(--s2); }
@@ -96,8 +96,10 @@ type Accion = 'ACEPTAR' | 'RECHAZAR'
 export class ColaDeSolicitudesEscaladas {
   private readonly sesion = inject(Sesion)
   protected readonly t = textosOperacion.solicitudesEscaladas
-  protected readonly solicitudes = colaDeSolicitudesEscaladas()
   protected readonly ahoraIso = new Date().toISOString()
+  protected readonly COLUMNAS = COLUMNAS
+  protected readonly identidad = (s: SolicitudEscalada) => s.solicitudId
+  protected readonly cargador = cargadorDeSolicitudesEscaladas()
   protected readonly puedeResolver = computed(() => this.sesion.puede('SOLICITUD_INGRESO_RESOLVER'))
 
   protected readonly seleccionada = signal<SolicitudEscalada | null>(null)
@@ -106,9 +108,6 @@ export class ColaDeSolicitudesEscaladas {
   protected readonly motivo = signal('')
   protected readonly intentoConfirmar = signal(false)
   protected readonly motivoVacio = computed(() => this.intentoConfirmar() && this.accion() === 'RECHAZAR' && this.motivo().trim().length === 0)
-
-  protected readonly ordenadas = computed(() => (this.solicitudes.hasValue() ? ordenadasPorVencimiento(this.solicitudes.value()!) : []))
-  protected readonly esVacio = (lista: SolicitudEscalada[]) => lista.length === 0
 
   abrir(s: SolicitudEscalada, accion: Accion): void {
     this.seleccionada.set(s)
@@ -131,6 +130,5 @@ export class ColaDeSolicitudesEscaladas {
     // El envío real queda pendiente del contrato de resolución (ver el supuesto
     // declarado en dominio/d15-solicitudes-escaladas.ts).
     this.cerrar()
-    this.solicitudes.reload()
   }
 }

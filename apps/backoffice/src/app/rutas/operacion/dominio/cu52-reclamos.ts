@@ -1,6 +1,8 @@
-import { httpResource } from '@angular/common/http'
+import { httpResource, HttpClient } from '@angular/common/http'
 import { inject } from '@angular/core'
+import { firstValueFrom } from 'rxjs'
 import { GATEWAY } from '../../../nucleo/gateway'
+import type { CargadorDePagina, PaginaServidor } from '../../../nucleo/tabla/tipos'
 
 /**
  * CU-52 · Atender un reclamo en plazo (D-18: el Punto de Reclamo tiene puerta en la
@@ -43,4 +45,41 @@ export const vencido = (r: ReclamoDeBandeja, ahoraIso: string): boolean =>
 /** Ordena por plazo de vencimiento ascendente: el que vence antes va primero. */
 export function ordenadosPorVencimiento(reclamos: readonly ReclamoDeBandeja[]): ReclamoDeBandeja[] {
   return [...reclamos].sort((a, b) => new Date(a.plazoRespuesta).getTime() - new Date(b.plazoRespuesta).getTime())
+}
+
+/**
+ * El `cargador` que pide `TablaDeDatosVirtualizada` (`nucleo/tabla/`, del shell): la
+ * tabla es la única pieza de grilla del backoffice, no se duplica.
+ *
+ * **Supuesto adicional declarado**: como `GET /reclamos` (ver arriba) todavía no pagina
+ * ni ordena del lado del servidor, esta función pide la lista completa una vez y
+ * pagina/ordena/filtra en el adaptador — **no** dentro de la tabla, que sigue sin saber
+ * de HTTP ni de memoria. Cuando el backend publique paginación real, este adaptador es
+ * el único lugar que cambia.
+ */
+export function cargarReclamos(http: HttpClient, gateway: string): CargadorDePagina<ReclamoDeBandeja> {
+  return async (pedido) => {
+    const todos = await firstValueFrom(http.get<ReclamoDeBandeja[]>(`${gateway}/reclamos`))
+    const filtrados = pedido.filtros['estado'] ? todos.filter((r) => r.estado === pedido.filtros['estado']) : todos
+    const ordenados = pedido.orden
+      ? [...filtrados].sort((a, b) => {
+          const clave = pedido.orden!.clave as keyof ReclamoDeBandeja
+          const [va, vb] = [String(a[clave] ?? ''), String(b[clave] ?? '')]
+          return pedido.orden!.sentido === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va)
+        })
+      : ordenadosPorVencimiento(filtrados)
+    const inicio = (pedido.pagina - 1) * pedido.tamano
+    const pagina: PaginaServidor<ReclamoDeBandeja> = { filas: ordenados.slice(inicio, inicio + pedido.tamano), total: ordenados.length }
+    return pagina
+  }
+}
+
+/**
+ * Fábrica en contexto de inyección: la pantalla la llama en un inicializador de campo
+ * (contexto de inyección válido) y así **no importa `HttpClient` en `rutas/`** — el
+ * checker `sin red en vista` de `scripts/verificar_frontend.py` lo exige fuera de
+ * `dominio/` y `nucleo/`.
+ */
+export function cargadorDeReclamos(): CargadorDePagina<ReclamoDeBandeja> {
+  return cargarReclamos(inject(HttpClient), inject(GATEWAY))
 }

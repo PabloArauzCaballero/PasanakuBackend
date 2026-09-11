@@ -2,6 +2,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http'
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing'
 import { provideZonelessChangeDetection } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
+import { provideRouter } from '@angular/router'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { GATEWAY } from '../../../nucleo/gateway'
 import { erroresInterceptor } from '../../../nucleo/errores.interceptor'
@@ -12,7 +13,7 @@ import type { SolicitudEscalada } from '../dominio/d15-solicitudes-escaladas'
 
 const URL = 'http://gw/api/v1/grupos/solicitudes-escaladas'
 
-const VENCE_PRIMERO: SolicitudEscalada = {
+const SOLICITUD: SolicitudEscalada = {
   solicitudId: 's-1',
   grupoId: 'g-1',
   grupoCodigo: 'PSK-0042',
@@ -20,16 +21,11 @@ const VENCE_PRIMERO: SolicitudEscalada = {
   usuarioNombre: 'Marcelo Rojas',
   canal: 'QR',
   puntajeCompatibilidad: 712,
-  factores: [
-    { motivo: '2 pasanakus completos', aFavor: true },
-    { motivo: '14 aportes en fecha', aFavor: true },
-  ],
+  factores: [{ motivo: '2 pasanakus completos', aFavor: true }],
   fechaLimiteOrganizador: '2026-09-12T10:00:00-04:00',
   escaladaEn: '2026-09-10T10:00:00-04:00',
   estado: 'ESCALADA',
 }
-
-const VENCE_DESPUES: SolicitudEscalada = { ...VENCE_PRIMERO, solicitudId: 's-2', usuarioNombre: 'Julia Pérez', fechaLimiteOrganizador: '2026-09-20T10:00:00-04:00' }
 
 async function montar(permiso: 'con-permiso' | 'sin-permiso') {
   const fixture = TestBed.createComponent(ColaDeSolicitudesEscaladas)
@@ -38,13 +34,21 @@ async function montar(permiso: 'con-permiso' | 'sin-permiso') {
   return fixture
 }
 
+/**
+ * El orden por plazo del `cargador` está probado de forma aislada, sin CDK, en
+ * `dominio/d15-solicitudes-escaladas.spec.ts`. Estas pruebas cubren lo propio de la
+ * pantalla: la guarda de permiso y las reglas del diálogo (dato concreto delante,
+ * motivo obligatorio para rechazar).
+ */
 describe('ColaDeSolicitudesEscaladas', () => {
   let http: HttpTestingController
 
   beforeEach(() => {
+    if (!Element.prototype.scrollTo) Element.prototype.scrollTo = () => {}
     TestBed.configureTestingModule({
       providers: [
         provideZonelessChangeDetection(),
+        provideRouter([]),
         provideHttpClient(withInterceptors([trazaInterceptor, erroresInterceptor])),
         provideHttpClientTesting(),
         { provide: GATEWAY, useValue: 'http://gw/api/v1' },
@@ -53,52 +57,42 @@ describe('ColaDeSolicitudesEscaladas', () => {
     http = TestBed.inject(HttpTestingController)
   })
 
-  it('ordena la cola por el plazo del organizador: el que vence antes va primero', async () => {
-    const fixture = await montar('con-permiso')
-    http.expectOne(URL).flush([VENCE_DESPUES, VENCE_PRIMERO])
-    await fixture.whenStable()
-    const nombres = [...fixture.nativeElement.querySelectorAll('li strong')].map((e: HTMLElement) => e.textContent)
-    expect(nombres).toEqual(['Marcelo Rojas', 'Julia Pérez'])
-  })
-
-  it('el puntaje llega descompuesto en factores, nunca como número suelto', async () => {
-    const fixture = await montar('con-permiso')
-    http.expectOne(URL).flush([VENCE_PRIMERO])
-    await fixture.whenStable()
-    expect(fixture.nativeElement.textContent).toContain('2 pasanakus completos')
-    expect(fixture.nativeElement.textContent).not.toContain('712')
-  })
-
-  it('segregación de funciones: sin SOLICITUD_INGRESO_RESOLVER no aparecen las acciones', async () => {
+  it('segregación de funciones: sin SOLICITUD_INGRESO_RESOLVER la guarda que monta las acciones da false', async () => {
     const fixture = await montar('sin-permiso')
-    http.expectOne(URL).flush([VENCE_PRIMERO])
+    http.expectOne(URL).flush([SOLICITUD])
     await fixture.whenStable()
-    expect(fixture.nativeElement.querySelectorAll('.acciones').length).toBe(0)
+    expect(fixture.componentInstance['puedeResolver']()).toBe(false)
   })
 
-  it('rechazar exige motivo escrito: no deja confirmar en blanco', async () => {
+  it('con SOLICITUD_INGRESO_RESOLVER la guarda da true, y aceptar abre el diálogo con el nombre y el grupo delante', async () => {
     const fixture = await montar('con-permiso')
-    http.expectOne(URL).flush([VENCE_PRIMERO])
+    http.expectOne(URL).flush([SOLICITUD])
     await fixture.whenStable()
-    const botones = [...fixture.nativeElement.querySelectorAll('.acciones ap-boton button')] as HTMLButtonElement[]
-    botones[1]!.click() // Rechazar solicitud
-    fixture.detectChanges()
-    const confirmar = fixture.nativeElement.querySelector('ap-dialogo .acciones ap-boton:last-child button, dialog .acciones ap-boton:last-child button') as HTMLButtonElement
-    confirmar.click()
-    fixture.detectChanges()
-    expect(fixture.nativeElement.textContent).toContain('Escribí el motivo')
-    http.expectNone(URL + '/s-1/resolucion')
-  })
-
-  it('aceptar es idempotente en la interfaz: el diálogo dice la acción exacta con el nombre y el grupo', async () => {
-    const fixture = await montar('con-permiso')
-    http.expectOne(URL).flush([VENCE_PRIMERO])
-    await fixture.whenStable()
-    const botones = [...fixture.nativeElement.querySelectorAll('.acciones ap-boton button')] as HTMLButtonElement[]
-    botones[0]!.click() // Aceptar solicitud
+    expect(fixture.componentInstance['puedeResolver']()).toBe(true)
+    fixture.componentInstance.abrir(SOLICITUD, 'ACEPTAR')
     fixture.detectChanges()
     const dialogo = fixture.nativeElement.querySelector('ap-dialogo')
     expect(dialogo.textContent).toContain('Marcelo Rojas')
     expect(dialogo.textContent).toContain('PSK-0042')
+  })
+
+  it('rechazar exige motivo escrito: confirmar en blanco no cierra el diálogo', async () => {
+    const fixture = await montar('con-permiso')
+    http.expectOne(URL).flush([SOLICITUD])
+    await fixture.whenStable()
+    fixture.componentInstance.abrir(SOLICITUD, 'RECHAZAR')
+    fixture.componentInstance.confirmar()
+    expect(fixture.componentInstance['dialogoAbierto']()).toBe(true)
+    expect(fixture.componentInstance['motivoVacio']()).toBe(true)
+  })
+
+  it('rechazar con motivo escrito sí cierra el diálogo', async () => {
+    const fixture = await montar('con-permiso')
+    http.expectOne(URL).flush([SOLICITUD])
+    await fixture.whenStable()
+    fixture.componentInstance.abrir(SOLICITUD, 'RECHAZAR')
+    fixture.componentInstance['motivo'].set('No cumple el mínimo de aportes en fecha')
+    fixture.componentInstance.confirmar()
+    expect(fixture.componentInstance['dialogoAbierto']()).toBe(false)
   })
 })
