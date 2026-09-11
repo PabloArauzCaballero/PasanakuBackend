@@ -37,4 +37,12 @@ export const rutasOperacion: Routes = [
     title: 'Solicitudes escaladas · AportaYa',
     canMatch: [tienePermiso('SOLICITUD_INGRESO_VER')],
   },
+  // `estado/` es de F6 (ficha F6, estructura congelada): la ficha se lo asigna al shell
+  // aunque viva dentro del dominio `operacion` que B1 posee. Es la única entrada de esta
+  // lista que F6 agrega; el resto de `operacion.routes.ts` lo llena B1.
+  {
+    path: 'estado',
+    loadComponent: () => import('./estado/pantalla-de-estado').then((m) => m.PantallaDeEstado),
+    title: 'Arquitectura y estado · AportaYa',
+  },
 ]

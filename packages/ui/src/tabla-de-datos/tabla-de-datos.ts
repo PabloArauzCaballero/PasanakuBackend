@@ -53,7 +53,7 @@ export type Orden = { clave: string; sentido: 'asc' | 'desc' }
     th { color: var(--text-2); font-size: .9em; background: var(--surface-2); }
     .numerica { text-align: right; font-variant-numeric: tabular-nums; }
     .marca { width: var(--s7); }
-    tr.marcada td { background: var(--g100); }
+    tr.marcada td { background: var(--brand-bg); }
     button { display: inline-flex; align-items: center; gap: var(--s1); min-height: var(--area-tactil); margin: calc(var(--s2) * -1) 0; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; font-weight: 600; cursor: pointer; }
     button:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); border-radius: var(--r-sm); }
     .oculto { position: absolute; width: var(--borde-fino); height: var(--borde-fino); overflow: hidden; clip: rect(0 0 0 0); }

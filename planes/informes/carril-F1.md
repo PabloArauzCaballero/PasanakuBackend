@@ -8,7 +8,7 @@ ola: F1
 fase: F1
 modulo: packages/ui
 rama: dev
-estado: rehecho en Angular y Flutter · pendiente TF.3
+estado: TF.3 cerrado · packages/ui y packages/diseno_flutter congelados
 ---
 
 # Carril F1 — sistema de diseño
@@ -187,3 +187,61 @@ Se compararon las capturas de `/catalogo` con los goldens de Flutter y con la ma
 | `custom_lint` (Flutter) y reglas propias de `angular-eslint` que reemplacen el barrido de texto | F1 (micro-PR) | cuando el barrido moleste |
 | Empaquetar `@aportaya/ui` con `ng-packagr` (hoy se consume por alias) | F1 (micro-PR) | cuando haya que publicarlo |
 | Capturas de Widgetbook en dispositivo (hoy los goldens son la evidencia) | **P3** | TF.3 |
+
+## TF.3 · Mirada humana y congelamiento — 2026-09-11
+
+La mirada humana pendiente encontró **un defecto real de contraste en oscuro**, no una
+diferencia cosmética. Se corrigió antes de congelar.
+
+### El defecto
+
+Seis piezas de `packages/ui` y dos de `packages/diseno_flutter` combinaban un **tono
+crudo de paleta** (`--g100` / `Paleta.g100`, que no tiene versión oscura) con un **rol
+de tema** (`--brand-ink` / `t.brandTexto`, que sí la tiene). En claro, casualidad: los
+dos venían claros y contrastaban bien. En oscuro, `--brand-ink` se invierte a un verde
+casi blanco (`#EAF3ED`) pero `--g100` se queda en `#E7F2EB` — **texto claro sobre fondo
+claro**, invisible. Se vio primero en las capturas de `/catalogo` en tema oscuro:
+`Avatar`, los íconos de `FilaDeMovimiento`, la fila marcada de `TablaDeDatos`, el
+contador de `Pestanas`, `BandaDeProposito` y el resalte de `EscaleraDeEtapas` en
+Angular; `AccionesRapidas` y el indicador de `BarraPestanas` en Flutter — todos con el
+mismo patrón, la misma causa. Es justo lo que dice el comentario del propio
+`tokens.json`: *«un componente no pide un tono crudo: pide un rol»*; estas ocho piezas
+lo rompían.
+
+### La corrección
+
+Se agregó el rol que faltaba — `brandBg` / `--brand-bg` — a `packages/tokens/tokens.json`
+(claro: `g100`, igual que antes; oscuro: `g700`, para que `brand-ink` siga en AA sobre
+él) y se regeneraron `tokens.css` y `tokens.dart`. Las ocho piezas pasan a pedir el rol,
+no el tono. Sin cambio visible en claro (mismo valor); en oscuro, fondo y texto se
+invierten juntos.
+
+### Evidencia
+
+| Paso | Salida |
+| --- | --- |
+| `./gradlew generateOpenApiClients` | sin diff en `clientes/angular` ni `clientes/dart` |
+| `yarn lint` · `yarn typecheck` | 7/7 y 10/10 |
+| `yarn test:front` | 10/10 — incluye los 14 goldens de `diseno_flutter` (2 actualizados: `moleculas_oscuro`, `moviles_oscuro`, revisados a mano contra el diff antes de aceptar) y los 5 de `movil` |
+| `yarn test:a11y` | 10/10 — axe (Angular) y `meetsGuideline` (Flutter), claro y oscuro |
+| `yarn workspace @aportaya/backoffice build` · `@aportaya/web build` | ambas bajo presupuesto, `noindex` presente |
+| `yarn workspace @aportaya/web test:e2e` | 6/6, capturas nuevas revisadas a ojo: `Avatar`, `FilaDeMovimiento`, `BandaDeProposito` y la fila marcada de `TablaDeDatos` ahora legibles en oscuro |
+| `grep` de Expo/React/Vite/Astro/MSW/Maestro en `apps/`, `packages/`, `package.json` | vacío |
+| `clientes/typescript/` | no existe |
+
+### Gate del tramo TF — cierre
+
+- [x] Gate de salida F0 y los dos gates de F1, ejecutados
+- [x] Ninguna referencia a Expo, React, Vite, Astro, MSW ni Maestro
+- [x] `clientes/typescript/` no existe; `clientes/angular/` y `clientes/dart/` regenerados sin diff
+- [x] Revisión visual conjunta ejecutada — encontró y corrigió el defecto de arriba
+- [x] **`packages/ui` y `packages/diseno_flutter` quedan congelados.** Un átomo nuevo,
+      un token nuevo o un rol nuevo entra por micro-PR (§6 de
+      [[16 Carriles de frontend]]), nunca en rama de carril de pantallas
+
+### Lo que queda abierto, sin bloquear el congelamiento
+
+| Qué | De quién | Cuándo |
+| --- | --- | --- |
+| Capturas de Widgetbook en dispositivo físico (hoy los goldens son la evidencia) | **P3** | cuando F1-M tenga su primer usuario en F5 |
+| `custom_lint` / reglas propias de `angular-eslint` que reemplacen el barrido de texto | F1 (micro-PR) | cuando el barrido moleste |
