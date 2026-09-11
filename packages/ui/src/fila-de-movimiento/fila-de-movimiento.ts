@@ -25,7 +25,7 @@ export type Movimiento = { id: string; tipo: TipoDeMovimiento; concepto: string;
   `,
   styles: `
     :host { display: flex; align-items: center; gap: var(--s3); min-height: calc(var(--s7) + var(--s2)); padding: var(--s2) 0; border-bottom: var(--borde-fino) solid var(--border); }
-    .icono { display: inline-flex; align-items: center; justify-content: center; width: calc(var(--s6) + var(--s2)); height: calc(var(--s6) + var(--s2)); flex: none; border-radius: var(--r-pill); background: var(--g100); color: var(--brand-ink); }
+    .icono { display: inline-flex; align-items: center; justify-content: center; width: calc(var(--s6) + var(--s2)); height: calc(var(--s6) + var(--s2)); flex: none; border-radius: var(--r-pill); background: var(--brand-bg); color: var(--brand-ink); }
     :host(.negativo) .icono { background: var(--surface-2); color: var(--text-2); }
     .cuerpo { flex: 1; min-width: 0; display: flex; flex-direction: column; }
     .concepto { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

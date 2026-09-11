@@ -18,6 +18,8 @@
     "paths": {
       "@aportaya/simulado": ["packages/simulado/src/index.ts"],
       "@aportaya/simulado/*": ["packages/simulado/src/*"],
+      "@aportaya/dominio-cliente": ["packages/dominio-cliente/src/index.ts"],
+      "@aportaya/dominio-cliente/*": ["packages/dominio-cliente/src/*"],
       "@aportaya/tokens/*": ["packages/tokens/*"],
       "@aportaya/ui/*": ["packages/ui/src/*"],
       "clientes/angular/*": ["clientes/angular/*"]

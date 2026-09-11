@@ -29,7 +29,7 @@ export type Etapa = { nombre: string; desdeIso?: string; descripcion: string }
     li:last-child::before { display: none; }
     .marca { width: var(--s5); height: var(--s5); flex: none; border-radius: var(--r-pill); border: var(--borde-desfase) solid var(--border); background: var(--surface); }
     .pasada .marca { background: var(--ok); border-color: var(--ok); }
-    .actual .marca { background: var(--verde-solido); border-color: var(--verde-solido); box-shadow: 0 0 0 var(--borde-foco) var(--g100); }
+    .actual .marca { background: var(--verde-solido); border-color: var(--verde-solido); box-shadow: 0 0 0 var(--borde-foco) var(--brand-bg); }
     .actual { color: var(--text); }
     .pasada { color: var(--text-2); }
     p { margin: 0; }

@@ -28,7 +28,7 @@ class BarraPestanas extends StatelessWidget {
       selectedIndex: actual,
       onDestinationSelected: onChanged,
       backgroundColor: t.surface,
-      indicatorColor: Paleta.g100,
+      indicatorColor: t.brandBg,
       height: Tactil.minimo + Espacio.s5,
       destinations: [
         for (final d in destinos)
