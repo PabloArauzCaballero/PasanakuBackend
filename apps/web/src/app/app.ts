@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core'
 import { RouterLink, RouterOutlet } from '@angular/router'
+import { ServicioMeta } from './seo/servicio-meta'
 
 @Component({
   selector: 'app-root',
@@ -20,4 +21,10 @@ import { RouterLink, RouterOutlet } from '@angular/router'
     nav a:hover { background: var(--surface-2); }
   `,
 })
-export class App {}
+export class App {
+  private readonly servicioMeta = inject(ServicioMeta)
+
+  constructor() {
+    this.servicioMeta.observar()
+  }
+}

@@ -1,6 +1,7 @@
 # Generado por scripts/contenido.mjs antes del build
 src/generado/
 public/robots.txt
+public/sitemap.xml
 public/*.md
 dist/
 .angular/
