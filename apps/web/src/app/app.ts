@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core'
 import { RouterLink, RouterOutlet } from '@angular/router'
+import { ServicioMeta } from './seo/servicio-meta'
 
 @Component({
   selector: 'app-root',
@@ -40,4 +41,10 @@ import { RouterLink, RouterOutlet } from '@angular/router'
     .identidad { color: var(--text-3); font-size: 0.85rem; margin-top: var(--s3); }
   `,
 })
-export class App {}
+export class App {
+  private readonly servicioMeta = inject(ServicioMeta)
+
+  constructor() {
+    this.servicioMeta.observar()
+  }
+}

@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url'
 import { marked } from 'marked'
 import { parse } from 'yaml'
 import { robotsTxt } from '../src/app/geo/robots.mjs'
+import { generarSitemap } from '../src/app/seo/sitemap.mjs'
 
 const AQUI = dirname(fileURLToPath(import.meta.url))
 const RAIZ = join(AQUI, '..')
@@ -51,4 +52,7 @@ writeFileSync(join(GENERADO, 'contenido.json'), `${JSON.stringify({ paginas }, n
 writeFileSync(join(PUBLIC, 'robots.txt'), robotsTxt('https://aportaya.bo'), 'utf8')
 const indexables = Object.values(paginas).filter((p) => p.indexable).map((p) => ({ ruta: p.ruta, actualizado: p.actualizado }))
 writeFileSync(join(GENERADO, 'rutas-indexables.json'), `${JSON.stringify(indexables, null, 2)}\n`, 'utf8')
-console.log(`contenido: ${Object.keys(paginas).length} páginas · ${indexables.length} indexables · robots.txt generado`)
+// F10: el sitemap sale de las mismas rutas indexables, con /verificar/* y /publico/* excluidas
+// sin importar lo que diga el frontmatter (defensa en profundidad, ver seo/sitemap.mjs).
+writeFileSync(join(PUBLIC, 'sitemap.xml'), generarSitemap(indexables, 'https://aportaya.bo'), 'utf8')
+console.log(`contenido: ${Object.keys(paginas).length} páginas · ${indexables.length} indexables · robots.txt y sitemap.xml generados`)
