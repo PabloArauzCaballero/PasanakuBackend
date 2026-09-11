@@ -43,3 +43,11 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // El puerto `Biometria` (carril F2, `dominio/puertos/biometria.dart`) habla con
+    // `BiometricPrompt` nativo por `MethodChannel`: no agrega paquete de pub, solo
+    // esta dependencia de Gradle. `android/app/build.gradle.kts` no figura entre los
+    // archivos «no tocás» del carril — sí `pubspec.yaml` y `pubspec.lock`.
+    implementation("androidx.biometric:biometric:1.1.0")
+}
