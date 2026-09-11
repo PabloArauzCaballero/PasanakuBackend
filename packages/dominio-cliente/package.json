@@ -1,0 +1,25 @@
+{
+  "name": "@aportaya/dominio-cliente",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Reimplementacion en TypeScript de los atomos verificables del backend (CU-61, CU-72, CU-73): barajarDeterminista, verificarCompromiso, serializarCanonico y hashDeBloque. Corren en el navegador para que un tercero audite sin confiar en nosotros (planes/14 F9.3).",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint src",
+    "test:front": "vitest run",
+    "test:a11y": "echo 'dominio-cliente: sin pruebas de a11y (no renderiza)'"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "eslint": "^9.39.0",
+    "typescript": "~5.9.2",
+    "typescript-eslint": "^8.68.0",
+    "vitest": "^4.1.0"
+  }
+}

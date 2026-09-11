@@ -35,7 +35,7 @@ export type TamanoDeBoton = 'sm' | 'base' | 'lg'
     :host(.v-secundario) button { background: var(--verde-solido); color: var(--sobre-verde-solido); }
     :host(.v-secundario) button:hover:not(:disabled) { background: var(--brand-ink); }
     :host(.v-fantasma) button { background: transparent; color: var(--brand-texto); border-color: var(--brand); }
-    :host(.v-fantasma) button:hover:not(:disabled) { background: var(--g100); }
+    :host(.v-fantasma) button:hover:not(:disabled) { background: var(--brand-bg); }
     :host(.v-peligro) button { background: var(--rojo-solido); color: var(--sobre-rojo-solido); }
     :host(.v-enlace) button { background: transparent; color: var(--brand-texto); padding: 0 var(--s2); text-decoration: underline; text-underline-offset: .2em; }
     :host(.v-sobreVerde) button { background: transparent; color: var(--sobre-verde-solido); border-color: var(--sobre-verde-solido); }

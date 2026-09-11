@@ -43,6 +43,7 @@ for (const carpeta of readdirSync(CONTENIDO)) {
     if (pagina.indexable) {
       // El espejo Markdown: el mismo contenido sin la capa de presentacion (F11).
       const espejo = pagina.ruta === '/' ? 'index.md' : `${pagina.ruta.replace(/^\//, '')}.md`
+      mkdirSync(dirname(join(PUBLIC, espejo)), { recursive: true })
       writeFileSync(join(PUBLIC, espejo), `# ${pagina.titulo}\n\n> ${pagina.bajada}\n\n${pagina.markdown}\n\nActualizado: ${pagina.actualizado}\n`, 'utf8')
     }
   }

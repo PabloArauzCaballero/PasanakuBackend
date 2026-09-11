@@ -11,7 +11,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core'
   host: { role: 'note' },
   template: `<p>{{ texto() }}</p>`,
   styles: `
-    :host { display: block; padding: var(--s3) var(--s5); background: var(--g100); color: var(--brand-ink); border-bottom: var(--borde-fino) solid var(--border); }
+    :host { display: block; padding: var(--s3) var(--s5); background: var(--brand-bg); color: var(--brand-ink); border-bottom: var(--borde-fino) solid var(--border); }
     p { margin: 0; max-width: 70ch; }
   `,
 })

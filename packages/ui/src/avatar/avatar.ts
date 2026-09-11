@@ -7,7 +7,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
   host: { '[class]': '"t-" + tamano()', '[attr.aria-label]': 'nombre()', role: 'img' },
   template: `@if (imagen()) { <img [src]="imagen()" alt="" /> } @else { <span aria-hidden="true">{{ iniciales() }}</span> }`,
   styles: `
-    :host { display: inline-flex; align-items: center; justify-content: center; flex: none; width: var(--tamano); height: var(--tamano); border-radius: var(--r-pill); background: var(--g100); color: var(--brand-ink); font-family: var(--font-d); font-weight: 600; overflow: hidden; }
+    :host { display: inline-flex; align-items: center; justify-content: center; flex: none; width: var(--tamano); height: var(--tamano); border-radius: var(--r-pill); background: var(--brand-bg); color: var(--brand-ink); font-family: var(--font-d); font-weight: 600; overflow: hidden; }
     :host(.t-sm) { --tamano: var(--s5); font-size: .6em; }
     :host(.t-md) { --tamano: var(--s6); font-size: .8em; }
     :host(.t-lg) { --tamano: calc(var(--s6) + var(--s2)); font-size: .95em; }

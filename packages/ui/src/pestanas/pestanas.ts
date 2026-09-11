@@ -20,7 +20,7 @@ export type Pestana = { valor: string; texto: string; cuenta?: number }
     button[aria-selected="true"] { color: var(--brand-texto); border-bottom-color: var(--brand); }
     button:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: calc(var(--borde-desfase) * -1); }
     .cuenta { padding: 0 var(--s2); border-radius: var(--r-pill); background: var(--surface-2); color: var(--text-2); font-size: .8em; }
-    button[aria-selected="true"] .cuenta { background: var(--g100); color: var(--brand-ink); }
+    button[aria-selected="true"] .cuenta { background: var(--brand-bg); color: var(--brand-ink); }
   `,
 })
 export class Pestanas {
