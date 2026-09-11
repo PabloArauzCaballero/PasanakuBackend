@@ -468,6 +468,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@aportaya/dominio-cliente@workspace:packages/dominio-cliente":
+  version: 0.0.0-use.local
+  resolution: "@aportaya/dominio-cliente@workspace:packages/dominio-cliente"
+  dependencies:
+    "@types/node": "npm:^22.10.0"
+    eslint: "npm:^9.39.0"
+    typescript: "npm:~5.9.2"
+    typescript-eslint: "npm:^8.68.0"
+    vitest: "npm:^4.1.0"
+  languageName: unknown
+  linkType: soft
+
 "@aportaya/movil@workspace:apps/movil":
   version: 0.0.0-use.local
   resolution: "@aportaya/movil@workspace:apps/movil"
