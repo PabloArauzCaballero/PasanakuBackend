@@ -466,19 +466,25 @@ de la primera pantalla de negocio, que es el momento más barato que va a tener.
 | TF.1 · `F0-W` | ✅ | Angular SSR híbrido, `/` prerenderizada y `/plazos` en servidor con `CalculadoraDePlazo`: 11 pruebas (robots, rutas de servidor, páginas, calculadora), contenido en Markdown procesado en el build |
 | TF.2 · `F1-M` | ✅ | `packages/diseno_flutter`: 94 archivos, una pieza por archivo en `atomos/`, `moleculas/`, `organismos/`, `moviles/`; Widgetbook en `lib/catalogo/`; 44 pruebas (unidad, widget, a11y con `meetsGuideline`, 14 goldens claro/oscuro); `flutter analyze --fatal-infos` limpio; barrido `diseno` en verde (cero `Colors.`/`Color(`/`EdgeInsets` numérico, ningún archivo > 200 líneas) |
 | TF.2 · `F1-W` | ✅ | `packages/ui`: 60 carpetas, una pieza por carpeta, todas las de [[22 Mapa de la maqueta · pantalla, carril y mundo]] §6 columna Angular; `/catalogo` en `apps/web` prerenderizado y `noindex` (meta + robots); 37 unitarias + 3 de axe sobre el catálogo entero en claro y oscuro; 6 e2e de Playwright con capturas en `apps/web/capturas/` y control de área táctil ≥ 44 px; barrido `ui` en verde |
-| TF.3 | 🟡 | Revisión lado a lado hecha sobre las capturas de `/catalogo` y los goldens de Flutter (detalle en `carril-F1.md` §Rehecho). Los goldens usan la fuente Ahem: comparan geometría y color, no tipografía. Falta la mirada humana y el congelamiento formal |
+| TF.3 | ✅ | Mirada humana ejecutada 2026-09-11: encontró un defecto real de contraste en oscuro (ocho piezas mezclaban un tono crudo de paleta sin versión oscura con un rol que sí la tenía — texto claro sobre fondo claro). Corregido con el rol `brandBg`/`--brand-bg` en `packages/tokens`, goldens actualizados y revisados a mano, `packages/ui` y `packages/diseno_flutter` **congelados**. Detalle en `carril-F1.md` §TF.3 |
 
 Detalle en `planes/informes/carril-F0-M.md`, `carril-F0-B.md`, `carril-F0-W.md` y `carril-F1.md`, sección «Rehecho».
 
 ### 12.3 · Gate del tramo TF
 
 - [x] Gate de salida F0 y gate de salida F1 (para F1-W **y** F1-M), ejecutados (2026-09-10; el contraste pieza por pieza queda medido por captura, no por axe: jsdom no lo calcula)
-- [ ] Ninguna referencia a Expo, React, Vite, Astro, MSW ni Maestro en `apps/`, `packages/`
-      ni en `package.json` (`grep` en el CI, como barrido)
-- [ ] `clientes/typescript/` no existe; `clientes/angular/` y `clientes/dart/` regenerados sin diff
+- [x] Ninguna referencia a Expo, React, Vite, Astro, MSW ni Maestro en `apps/`, `packages/`
+      ni en `package.json` (`grep` en el CI, como barrido — 2026-09-11, vacío)
+- [x] `clientes/typescript/` no existe; `clientes/angular/` y `clientes/dart/` regenerados sin diff (2026-09-11)
 - [x] Los informes de F0-M, F0-B, F0-W y F1 tienen su sección «Rehecho»
 - [x] `docs/Arquitectura/Estructura del repositorio.md` actualizado
-- [ ] La revisión visual conjunta ejecutada y registrada
+- [x] La revisión visual conjunta ejecutada y registrada (2026-09-11, `carril-F1.md` §TF.3) —
+      encontró y corrigió un defecto real de contraste en oscuro antes de congelar
+
+**Tramo TF cerrado.** `packages/ui` y `packages/diseno_flutter` quedan **congelados**:
+un átomo, un token o un rol nuevo entra por micro-PR (§6), nunca en rama de carril de
+pantallas. Quedan libres los carriles de la Ola F1 · shells: `F2` (móvil), `F6`
+(backoffice) y `F9` (sitio público, deuda de T3).
 
 ## Ver también
 

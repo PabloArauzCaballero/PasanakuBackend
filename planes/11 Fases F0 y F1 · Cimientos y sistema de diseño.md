@@ -593,15 +593,16 @@ temas.
 - [x] Los cuatro grupos de piezas implementados y catalogados (`/catalogo` · Widgetbook)
 - [x] **Cero literales de diseño** en todo el paquete (lint del mundo correspondiente)
 - [x] `Monto` pasa los 5.000 vectores de `packages/tokens/vectores/monto.json`
-- [~] Contraste AA verificado **pieza por pieza**, en claro y en oscuro — Flutter: `textContrastGuideline` sobre todo el catálogo; Angular: axe en jsdom no mide contraste, quedan las capturas de `/catalogo` para la revisión humana
+- [x] Contraste AA verificado **pieza por pieza**, en claro y en oscuro — Flutter: `textContrastGuideline` sobre todo el catálogo; Angular: axe en jsdom no mide contraste, así que la mirada humana de TF.3 revisó las capturas de `/catalogo` y encontró un defecto real (texto claro sobre fondo claro en oscuro, ocho piezas), corregido — `carril-F1.md` §TF.3
 - [x] Área táctil ≥ 48 dp en todas las piezas móviles (`androidTapTargetGuideline`)
 - [x] `prefers-reduced-motion` / `disableAnimations` respetados
 - [x] El catálogo Angular va `noindex`
-- [~] **Revisión visual conjunta ejecutada** (primera pasada 2026-09-10, ver `carril-F1.md`; falta la mirada humana): golden contra captura, con la lista de
+- [x] **Revisión visual conjunta ejecutada** (primera pasada 2026-09-10, mirada humana y
+      cierre 2026-09-11, ver `carril-F1.md` §TF.3): golden contra captura, con la lista de
       diferencias y su resolución en el informe
 - [x] **Las piezas de F1.9 existen** en el paquete del mundo que corresponde, con ese nombre,
       y cada una tiene su caso en el catálogo (`/catalogo` · Widgetbook) en los dos temas
-- [~] Cada pieza del catálogo se comparó **contra la maqueta** (`docs/Views/AportaYa-Maqueta.html`)
+- [x] Cada pieza del catálogo se comparó **contra la maqueta** (`docs/Views/AportaYa-Maqueta.html`)
       y la diferencia, si la hay, está justificada en el informe
 
 ## Ver también
