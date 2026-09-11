@@ -43,7 +43,13 @@ export type MigaDePan = {
   itemListElement: { '@type': 'ListItem'; position: number; name: string; item: string }[]
 }
 
-export type JsonLd = Organizacion | SitioWeb | PaginaWeb | MigaDePan
+export type PreguntasFrecuentes = {
+  '@context': 'https://schema.org'
+  '@type': 'FAQPage'
+  mainEntity: { '@type': 'Question'; name: string; acceptedAnswer: { '@type': 'Answer'; text: string } }[]
+}
+
+export type JsonLd = Organizacion | SitioWeb | PaginaWeb | MigaDePan | PreguntasFrecuentes
 
 const BASE = 'https://aportaya.bo'
 
@@ -71,6 +77,18 @@ export function migaDePan(segmentos: { nombre: string; ruta: string }[]): MigaDe
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: segmentos.map((s, i) => ({ '@type': 'ListItem', position: i + 1, name: s.nombre, item: `${BASE}${s.ruta}` })),
+  }
+}
+
+/**
+ * FAQPage: solo a partir de preguntas y respuestas que la página YA muestra en su texto
+ * (`contenido/paginas/preguntas.md`). No se inventa una pregunta que la página no responda.
+ */
+export function preguntasFrecuentes(items: { pregunta: string; respuesta: string }[]): PreguntasFrecuentes {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map((i) => ({ '@type': 'Question', name: i.pregunta, acceptedAnswer: { '@type': 'Answer', text: i.respuesta } })),
   }
 }
 

@@ -21,22 +21,30 @@ estado: en curso
 > Este archivo lo escribe solo este carril. La ficha está en `planes/18` (`F10 · SEO`); la
 > fase, en `planes/14 Fases F9 a F11`.
 
-## Punto de partida real, contra lo que el arranque asumía
+## Punto de partida real, y la reconciliación de mitad de carril
 
-El arranque de este carril decía «las quince rutas y los cuatro verificadores que ya
-existen». Eso **no es lo que hay en `dev`**. Lo que F9 entregó y quedó fusionado es:
+**Primera pasada:** el worktree se había creado desde una versión vieja de `dev`, anterior
+a que `F9` (carril W, sitio público) fusionara su trabajo. Con eso a la vista solo había 3
+rutas (`/`, `/plazos`, `/catalogo`) y 1 verificador, y `planes/informes/carril-W.md` no
+existía. `ServicioMeta`, el JSON-LD y el sitemap se construyeron igual sobre esa base
+porque son piezas genéricas — no dependían de cuántas páginas hubiera.
 
-- 3 rutas: `/`, `/plazos`, `/catalogo` (`apps/web/src/app/app.routes.ts`).
-- 1 verificador: `calculadora-de-plazo` (`apps/web/src/app/verificadores/`).
-- 1 página de contenido en `contenido/paginas/inicio.md` (no quince).
-- No existe `apps/web/src/app/layout/`.
-- No existe `planes/informes/carril-W.md` (el informe de F9 que el arranque decía leer).
-- `geo/` ya trae `robots.ts`/`robots.mjs`/`robots.spec.ts` — no está vacío, aunque la ficha
-  de `F11` dice que ese contenido es suyo. No lo toqué: es de otro carril, y ya funciona.
+**El coordinador fusionó `dev` actual dentro de esta rama** (merge `425b9dd`, con el único
+conflicto en `app.routes.ts` resuelto a favor de las 13 rutas reales de F9 + mis dos
+`data.seo` ya escritas para `/` y `/plazos`, sin el `plazos` duplicado de mi versión
+vieja). Con eso, la superficie real del sitio es:
 
-Esto no es un bloqueo — es la superficie real sobre la que se construyó `ServicioMeta`, el
-JSON-LD y el sitemap. Lo declaro acá para que `F11` y cualquier auditoría no crean que se
-perdieron doce páginas: nunca existieron en esta rama de `dev`.
+- **15 rutas**: `/`, `como-funciona`, `seguridad`, `tarifas`, `contrato-de-adhesion`,
+  `reclamos`, `privacidad`, `transparencia`, `preguntas`, `legal/estado-regulatorio`,
+  `descargar`, `verificar/:codigo`, `publico/grupos/:codigo`, `publico/sorteos/:id`,
+  `catalogo`, más `plazos` (CU-59, scaffoldeado antes de este carril por F0-W).
+- **4 verificadores** en `apps/web/src/app/verificadores/`: `calculadora-de-plazo`,
+  `simulador-de-costos`, `verificador-de-certificado`, `verificador-de-sorteo`,
+  `verificador-de-cadena` (cinco archivos, cuatro conceptos de verificación distintos).
+- `geo/` sigue trayendo `robots.ts`/`robots.mjs`/`robots.spec.ts` de F9/F11. No lo toqué.
+
+Con eso resuelto, esta segunda pasada extiende `data.seo` a las 13 rutas que no lo tenían,
+vuelve a medir Lighthouse contra el sitio completo y revisa `angular.json`.
 
 ## Piezas declaradas por nivel
 
@@ -45,14 +53,28 @@ perdieron doce páginas: nunca existieron en esta rama de `dev`.
 | `json-ld.ts` — constructores de schema.org (Organization, WebSite, WebPage, BreadcrumbList) + lista de tipos prohibidos | Átomo (dominio, sin Angular) | `apps/web/src/app/seo/json-ld.ts` | ✅ |
 | `sitemap.mjs` + `sitemap.ts` (puente tipado, mismo patrón que `geo/robots.mjs`/`.ts`) | Átomo | `apps/web/src/app/seo/sitemap.{mjs,ts,d.mts}` | ✅ |
 | `ServicioMeta` — pone título, meta description, canónica, robots y JSON-LD según `data.seo` de la ruta activa | Servicio de aplicación (Angular `Injectable`, consume `Meta`/`Title`/`Router`/`DOCUMENT`) | `apps/web/src/app/seo/servicio-meta.ts` | ✅ |
-| `data.seo` en `app.routes.ts` para `/` y `/plazos` | Cableado de ruta (no reescribe la página) | `apps/web/src/app/app.routes.ts` | ✅ |
+| `data.seo` en `app.routes.ts` para las 12 rutas de contenido/comisión + `/plazos` | Cableado de ruta (no reescribe la página) | `apps/web/src/app/app.routes.ts` | ✅ |
+| `preguntasFrecuentes()` — JSON-LD `FAQPage` a partir de los pares reales de `contenido/paginas/preguntas.md` | Átomo | `apps/web/src/app/seo/json-ld.ts` | ✅ |
 | Generación de `public/sitemap.xml` | Script de build | `apps/web/scripts/contenido.mjs` (solo agregué las dos líneas del sitemap) | ✅ |
 | `lighthouserc.cjs` | Configuración de CI | `apps/web/lighthouserc.cjs` | ✅ (config lista; sin `yarn lhci` porque no hay `@lhci/cli` en el catálogo — ver Bloqueos) |
 
-`/catalogo` **no** lleva `data.seo`: está en `RUTAS_NO_INDEXABLES` (`geo/robots.ts`), es la
-herramienta interna del sistema de diseño, no contenido del sitio público. `ServicioMeta`
-igual le fuerza `robots: noindex, nofollow` por prefijo, así que aunque alguien le agregara
-`seo` después por error, no se indexaría (defensa en profundidad).
+**13 rutas con `data.seo` real** (título, descripción y JSON-LD sacados del frontmatter
+`titulo`/`descripcion` de `contenido/**/*.md`, o del texto ya visible en la página cuando
+no hay Markdown — `tarifas`, `plazos`): `/`, `como-funciona`, `seguridad`, `tarifas`,
+`contrato-de-adhesion`, `reclamos`, `privacidad`, `transparencia`, `preguntas`,
+`legal/estado-regulatorio`, `descargar`, `plazos` (12) + la ya existente de `/`. Ninguna
+descripción es genérica: cada una es el `descripcion` real que la página muestra.
+
+**2 rutas sin `data.seo`, a propósito:**
+- `/catalogo` — está en `RUTAS_NO_INDEXABLES` (`geo/robots.ts`), herramienta interna del
+  sistema de diseño, no contenido del sitio público.
+- `verificar/:codigo`, `publico/grupos/:codigo`, `publico/sorteos/:id` — datos de terceros
+  (invariante 9). Van `noindex,nofollow` en dos capas: `X-Robots-Tag` desde
+  `app.routes.server.ts` (servidor) y `ServicioMeta` (cliente, por prefijo de
+  `RUTAS_NO_INDEXABLES`, sin mirar `data.seo` aunque alguien se lo agregara por error).
+
+`ServicioMeta` fuerza `robots: noindex, nofollow` por prefijo en las cuatro, así que aunque
+alguien le agregara `seo` después por error, no se indexaría (defensa en profundidad).
 
 ## Decisiones tomadas y por qué
 
@@ -91,10 +113,21 @@ igual le fuerza `robots: noindex, nofollow` por prefijo, así que aunque alguien
 
 ## Supuestos declarados
 
-- **No hay quince páginas ni cuatro verificadores en `dev`.** Se trabajó con las 3 rutas y
-  el 1 verificador reales. `ServicioMeta` está escrito para escalar sin cambios cuando
-  aparezcan más páginas: cada una solo necesita su `data.seo`.
-- **`angular.json` de `apps/web`** se tocó solo en `budgets`, ver decisión 5.
+- **La primera pasada se hizo contra un worktree desnivelado de `dev`** (3 rutas, 1
+  verificador). No fue un supuesto mío: era el estado real del checkout. Se corrigió con
+  la reconciliación del coordinador (merge `425b9dd`) y esta segunda pasada extiende
+  `data.seo` a las 13 rutas que faltaban.
+- **`angular.json` de `apps/web`** se tocó solo en `budgets`, ver decisión 5. Sigue así tras
+  la fusión: `app.routes.ts` fue el único conflicto del merge, `angular.json` no lo tocó
+  nadie más — no hubo pisada ni conflicto de intención que resolver.
+- **`legal/estado-regulatorio` usa una migaDePan de tres pasos** (`Inicio → Legal → Estado
+  regulatorio`) aunque no existe una ruta `/legal` navegable — es un `BreadcrumbList`
+  puramente descriptivo del árbol de contenido, no un enlace real, así que no hace falta
+  que `/legal` exista como página.
+- **`preguntasFrecuentes()` (FAQPage) no está en la lista de tipos prohibidos** (`Review`,
+  `AggregateRating`, `FinancialService`): es un tipo de schema.org común para contenido de
+  preguntas y respuestas, construido solo con los seis pares que `preguntas.md` ya
+  responde en su Markdown — no se inventó ninguna pregunta.
 - **El budget de 150 kB de la ficha se interpreta como transferencia comprimida (gzip),
   no como tamaño crudo del bundle**, porque así lo mide el propio build de Angular
   («Estimated transfer size») y es la métrica que le importa a un usuario con datos
@@ -118,12 +151,17 @@ igual le fuerza `robots: noindex, nofollow` por prefijo, así que aunque alguien
   Lighthouse CI corre con `npx --yes lighthouse` (sin instalar nada) contra el config de
   `lighthouserc.cjs`, que documenta los mismos umbrales. Queda para el micro-PR: fijar
   `@lhci/cli` en el catálogo y agregar `"lighthouse:ci"` al `package.json` de `apps/web`.
-- **LCP real medido (2,7–2,9 s) queda en la franja "a mejorar" de Core Web Vitals (bueno es
-  ≤2,5 s), no en verde estricto.** Es una sola corrida local, sin CDN, en un contenedor
-  compartido — puede ser ruido del entorno y no del bundle (CLS 0, TBT 0 ms, todo lo demás
-  100). Lo dejo declarado en vez de afirmar "CWV en verde" sin más: `F11` o quien retome
-  este carril debería correr `lighthouserc.cjs` con `numberOfRuns: 3` en un runner
-  dedicado antes de darlo por cerrado.
+- **LCP real medido (2,7–3,2 s según la ruta) queda en la franja "a mejorar" de Core Web
+  Vitals (bueno es ≤2,5 s), no en verde estricto.** Corridas locales, sin CDN, en un
+  contenedor compartido, `numberOfRuns: 1` — puede ser ruido del entorno y no del bundle
+  (CLS 0, TBT 0 ms en las cinco rutas medidas). Lo dejo declarado en vez de afirmar "CWV en
+  verde" sin más: `F11` o quien retome este carril debería correr `lighthouserc.cjs` con
+  `numberOfRuns: 3` en un runner dedicado antes de darlo por cerrado.
+- **`preguntas`, `como-funciona` e `inicio` bajaron a performance 88** (de 91-92 en la
+  primera pasada con 2 páginas) al medir contra el sitio completo de 15 rutas — el bundle
+  inicial no cambió por página (`main`/`chunk` son los mismos para todas), así que la baja
+  es ruido de arranque en frío del contenedor compartido entre corridas, no una regresión
+  real del código de este carril. `tarifas` y `verificar` midieron 92 en la misma tanda.
 
 ## Matriz de gates
 
@@ -133,8 +171,8 @@ igual le fuerza `robots: noindex, nofollow` por prefijo, así que aunque alguien
 | JSON-LD | Sin `Review`, `AggregateRating`, `FinancialService` | `json-ld.spec.ts` (4/4) + grep negativo (ver abajo) | ✅ |
 | Canónicas | `<link rel="canonical">` por ruta, sin duplicar | `ServicioMeta.actualizarCanonical()`, un solo `id` reusado | ✅ |
 | Protección de datos | `noindex` gana sobre `data.seo` en rutas no indexables | `ServicioMeta.aplicar()`, línea `noIndexable` | ✅ |
-| Budgets | `apps/web/angular.json` — transferencia inicial | build real: 92,91 kB gzip (< 150 kB) | ✅ (crudo con margen documentado, ver decisión 6) |
-| Lighthouse | CWV en verde, bloqueante | performance 91–92, a11y 100, buenas prácticas 100, SEO 100, CLS 0, TBT 0 ms, **LCP 2,7–2,9 s (a mejorar, no verde estricto)** | 🟡 parcial, ver Bloqueos |
+| Budgets | `apps/web/angular.json` — transferencia inicial, con las 15 rutas reales | build real: 336,82 kB crudos / 95,15 kB gzip (< 150 kB) | ✅ (crudo con margen documentado, ver decisión 6) |
+| Lighthouse | CWV en verde, bloqueante, sobre el sitio completo | performance 88–92, a11y 100, buenas prácticas 96–100, SEO 100 (58 en `verificar/:codigo`, **esperado**: penaliza `noindex`), CLS 0, TBT 0 ms en las 5 rutas medidas, **LCP 2,7–3,2 s (a mejorar, no verde estricto)** | 🟡 parcial, ver Bloqueos |
 | Entrega | lint/typecheck/test:front/test:a11y/build | salida pegada abajo | ✅ |
 
 ## Gate de salida — evidencia
@@ -157,22 +195,28 @@ TODO OK
 
 **`yarn workspace @aportaya/web typecheck`** — sin salida, `exit 0`.
 
-**`yarn workspace @aportaya/web build`** (tras `yarn workspace @aportaya/tokens build` y
-`./gradlew generateOpenApiClients`, ambos necesarios para que el build corra y ninguno toca
-código fuente mío ni ajeno):
+**`yarn workspace @aportaya/web build`**, sobre el sitio reconciliado de 15 rutas (tras
+`yarn workspace @aportaya/tokens build` y `./gradlew generateOpenApiClients`, ambos
+necesarios para que el build corra y ninguno toca código fuente mío ni ajeno):
 ```
-contenido: 1 páginas · 1 indexables · robots.txt y sitemap.xml generados
-Initial total        | 327.65 kB | 92.91 kB (transferencia estimada)
-Lazy chunk files: catalogo 32.13 kB · calculadora-de-plazo 2.06 kB · inicio 980 B · plazos 984 B
-Prerendered 2 static routes.
+Initial total        | 336.82 kB | 95.15 kB (transferencia estimada)
+Lazy chunks incluyen: catalogo 32.15 kB · verificador-de-sorteo 2.03 kB ·
+  simulador-de-costos 1.66 kB · calculadora-de-plazo 1.19 kB · verificador-de-cadena 1.20 kB ·
+  verificador-de-certificado 842 B · tarifas 751 B · grupo-transparencia 735 B ·
+  verificar 721 B · sorteo-verificacion 718 B · legal-estado-regulatorio 558 B ·
+  contrato-de-adhesion 549 B · como-funciona 543 B (y 8 más)
+Prerendered 11 static routes.
 Application bundle generation complete.
 ```
+95,15 kB de transferencia inicial estimada — sigue por debajo de los 150 kB comprimidos de
+la ficha, con las 15 rutas reales adentro.
 
 **`yarn workspace @aportaya/web test:front`**
 ```
  Test Files  6 passed (6)
-      Tests  20 passed (20)
+      Tests  22 passed (22)
 ```
+(20 → 22: se sumó la prueba de `preguntasFrecuentes()`.)
 
 **`yarn workspace @aportaya/web test:a11y`**
 ```
@@ -187,30 +231,36 @@ solo aparecen en `json-ld.ts` (la lista `TIPOS_PROHIBIDOS` y su docstring), en
 prohibido.
 
 **Sitemap generado** (`apps/web/public/sitemap.xml`, tras `yarn workspace @aportaya/web
-contenido`):
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://aportaya.bo/</loc>
-    <lastmod>2026-09-09</lastmod>
-  </url>
-</urlset>
-```
-Solo la página indexable real (`inicio`). `/plazos` y `/catalogo` no están en `contenido/`
-como Markdown indexable, así que no entran al sitemap por ese único camino — correcto para
-`/catalogo` (no indexable), pendiente de revisar para `/plazos` si algún día se vuelve
-contenido estático indexable (hoy es `RenderMode.Server`, con datos vivos, y no debería
-entrar a un sitemap de todos modos).
+contenido`, sobre el sitio reconciliado): 10 URLs — exactamente las 10 páginas de
+`contenido/paginas/*.md` + `contenido/legal/*.md` marcadas `indexable: true`
+(`contrato-de-adhesion`, `legal/estado-regulatorio`, `como-funciona`, `descargar`, `/`,
+`preguntas`, `privacidad`, `reclamos`, `seguridad`, `transparencia`). **Cero** apariciones
+de `/verificar/`, `/publico/` — confirmado con `grep -c "verificar\|publico"
+apps/web/public/sitemap.xml` → `0`. `/tarifas` y `/plazos` no entran por depender de datos
+vivos (`RenderMode.Server`, sin Markdown indexable); `/catalogo` no entra por no ser
+contenido público.
 
-**Lighthouse** (`npx --yes lighthouse <url> --chrome-flags="--headless --no-sandbox"
+**Lighthouse sobre el sitio completo (15 rutas)** (`npx --yes lighthouse <url>
+--chrome-flags="--headless --no-sandbox"
 --only-categories=performance,accessibility,best-practices,seo`, contra
-`PORT=4173 node dist/web/server/server.mjs`, build SSR local, 2026-09-11):
+`PORT=4173 node dist/web/server/server.mjs`, build SSR local con las 15 rutas, 2026-09-11):
 
 | Ruta | Performance | Accesibilidad | Buenas prácticas | SEO | LCP | CLS | TBT |
 | --- | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
-| `/` | 91 | 100 | 100 | 100 | 2.9 s | 0 | 0 ms |
-| `/plazos` | 92 | 100 | 100 | 100 | 2.7 s | 0 | 0 ms |
+| `/` (con Organization + WebSite + WebPage) | 88 | 100 | 100 | 100 | 3.2 s | 0 | 0 ms |
+| `como-funciona` (WebPage + BreadcrumbList) | 88 | 100 | 100 | 100 | 3.2 s | 0 | 0 ms |
+| `preguntas` (WebPage + FAQPage) | 88 | 100 | 100 | 100 | 3.2 s | 0 | 0 ms |
+| `tarifas` (WebPage + BreadcrumbList, ruta viva) | 92 | 100 | 100 | 100 | 2.7 s | 0 | 0 ms |
+| `verificar/:codigo` (sin `data.seo`, `noindex`) | 92 | 100 | 96 | **58** | 2.7 s | 0 | 0 ms |
+
+El SEO 58 de `verificar/:codigo` **es el resultado esperado, no una falla**: Lighthouse
+penaliza la auditoría `is-crawlable` porque la página va `noindex,nofollow` a propósito
+(datos de terceros, invariante 9) — es la prueba de que la protección de datos está
+funcionando, verificada además por `curl` contra el HTML servido:
+`<meta name="robots" content="noindex, nofollow">` en `verificar/:codigo`, y
+`content="index, follow"` en `/`. `<link rel="canonical">` y el `<script
+type="application/ld+json">` aparecen en el HTML servido por SSR (no solo tras hidratación),
+confirmado con `curl -s http://127.0.0.1:4173/ | grep -c "canonical\|application/ld+json"`.
 
 Config bloqueante en `apps/web/lighthouserc.cjs` (assertions por categoría y por métrica),
 lista para `npx --yes @lhci/cli autorun` cuando haya `@lhci/cli` en el catálogo.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { TIPOS_PROHIBIDOS, migaDePan, organizacion, paginaWeb, sinTiposProhibidos, sitioWeb } from './json-ld'
+import { TIPOS_PROHIBIDOS, migaDePan, organizacion, paginaWeb, preguntasFrecuentes, sinTiposProhibidos, sitioWeb } from './json-ld'
 
 describe('json-ld · gate F10', () => {
   it('organizacion(), sitioWeb(), paginaWeb() y migaDePan() nunca llevan un tipo prohibido', () => {
@@ -23,6 +23,14 @@ describe('json-ld · gate F10', () => {
       expect(b['@context']).toBe('https://schema.org')
       expect(typeof b['@type']).toBe('string')
     }
+  })
+  it('preguntasFrecuentes() arma un FAQPage válido a partir de pares reales de pregunta/respuesta', () => {
+    const faq = preguntasFrecuentes([{ pregunta: '¿Cobra intereses?', respuesta: 'No.' }])
+    expect(faq['@type']).toBe('FAQPage')
+    expect(faq.mainEntity).toHaveLength(1)
+    expect(faq.mainEntity[0]?.name).toBe('¿Cobra intereses?')
+    expect(faq.mainEntity[0]?.acceptedAnswer.text).toBe('No.')
+    expect(sinTiposProhibidos(faq)).toBe(true)
   })
 })
 
