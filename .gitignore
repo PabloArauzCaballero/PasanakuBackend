@@ -13,6 +13,7 @@ __pycache__/
 # Editor / IDE: estado local, no del proyecto
 .vscode/
 .claude/launch.json
+.claude/worktrees/
 
 # --- frontend (ADR-044: Flutter + Angular): dependencias y artefactos, nunca versionados ---
 node_modules/
