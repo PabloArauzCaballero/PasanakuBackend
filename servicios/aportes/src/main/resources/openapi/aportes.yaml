@@ -379,7 +379,9 @@ components:
         yaIntentados:
           type: array
           items: { type: string }
-          default: []
+          description: Ausente equivale a lista vacía. Sin `default` a propósito — el generador
+            Dart (dart-dio) emite el valor por omisión sin `const`, y una lista no-const
+            no es una expresión constante válida (rompe la compilación del cliente).
         saludObservada:
           type: object
           additionalProperties: { type: integer, minimum: 0, maximum: 100 }

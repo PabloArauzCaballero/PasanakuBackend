@@ -5,10 +5,10 @@
   "description": "Envoltorio de la app Flutter para que turbo la orqueste con los mismos nombres de tarea que el resto del monorepo. No es un paquete de Node: cada script llama a flutter.",
   "scripts": {
     "dev": "flutter run --dart-define=API=http://localhost:4010/api/v1",
-    "build": "flutter pub get && cd ../../clientes/dart/nucleo-financiero && dart pub get && dart run build_runner build --delete-conflicting-outputs",
+    "build": "flutter pub get && bash scripts/generar-clientes.sh",
     "typecheck": "dart analyze --fatal-infos",
     "lint": "dart format --output=none --set-exit-if-changed lib test && python3 ../../scripts/verificar_frontend.py movil",
-    "test:front": "flutter test test/unidad test/widget test/contrato test/goldens --timeout 60s",
+    "test:front": "flutter test test/unidad test/widget test/contrato test/goldens test/identidad test/pasanaku --timeout 60s",
     "test:a11y": "flutter test test/a11y --timeout 60s",
     "test:e2e": "echo 'patrol test — solo en P3 con emulador o dispositivo'"
   },
