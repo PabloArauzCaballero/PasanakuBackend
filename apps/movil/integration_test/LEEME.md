@@ -1,41 +1,46 @@
-# `integration_test/` — F12.1, andamiaje sin ejecutar
+# `integration_test/` — micro-PR aplicado, ejecución real bloqueada por el JDK del sandbox
 
-**Bloqueo real, no de este carril**: correr cualquiera de estos archivos requiere dos
-paquetes que hoy no están en `apps/movil/pubspec.yaml` — `integration_test` (viene con
-el SDK de Flutter) y `patrol` (paquete externo). `pubspec.yaml` está fuera de mi
-alcance (`arrancar-carril` §3: "NO TOCÁS … pubspec.yaml pubspec.lock"; agregar una
-dependencia nueva es un micro-PR al catálogo, §7, no una decisión de este carril).
+**Actualización posterior a F12 (troncal, mismo día).** El micro-PR que este archivo
+pedía ya se hizo: `integration_test` y `patrol: ^3.15.0` están en
+`apps/movil/pubspec.yaml`, `flutter pub get` resuelve limpio y `flutter analyze
+--fatal-infos` da **"No issues found!"** sobre los siete archivos — dos bugs reales que
+solo aparecían al compilar contra el paquete real se corrigieron en el mismo micro-PR:
+imports faltantes de `flutter_test` y `flutter/material.dart` en varios archivos, y en
+`notificacion_test.dart` la API real de Patrol 3.20.0 es `tap(Selector)` y
+`getNativeViews` devuelve `Future<List<NativeView>>` (hay que `await`), no
+`openNotification(index:)` como decía el borrador original.
 
-**Lo que hace falta, exacto, para que esto compile y corra:**
+**Lo que queda bloqueado, ahora sí de infraestructura real, no de permiso sobre
+archivos**: `patrol bootstrap` no existe en `patrol_cli` 4.x (el comando se eliminó);
+con la versión compatible con `patrol` 3.20.0 según la tabla oficial (`patrol_cli`
+3.11.0), `patrol test` sí arranca — compila la app, levanta Gradle — pero el Gradle
+interno de esa versión de `patrol_cli` falla con:
 
-```yaml
-# apps/movil/pubspec.yaml, bajo dev_dependencies:
-  integration_test:
-    sdk: flutter
-  patrol: ^3.15.0   # o la versión vigente en pub.dev al momento del micro-PR
+```
+BUG! exception in phase 'semantic analysis' in source unit '_BuildScript_'
+Unsupported class file major version 70
 ```
 
-y en la raíz del proyecto Flutter, generar `patrol.yaml` con
-`dart run patrol_cli:main bootstrap` (agrega hooks nativos en `android/` e `ios/` que
-tampoco son míos: `arrancar-carril` no me da propiedad sobre esas carpetas).
+Es JDK 26 (instalado en esta Mac) contra una herramienta que no lo soporta todavía
+(major version 70 = Java 26; el Gradle que trae `patrol_cli` 3.11.0 espera JDK 17 o 21,
+como el propio `patrol doctor` advierte: *"You are using Java 26.0.2 which can cause
+issues on Android"*). No es un bug del proyecto: es una versión de JDK del sistema más
+nueva que la herramienta de terceros soporta. Bajar el JDK por defecto de todo el Mac
+para esto es un cambio de infraestructura ancho, fuera de lo que corresponde arreglar
+acá — lo resuelve quien mantenga el parque de máquinas, instalando un JDK 17/21 y
+apuntando `patrol_cli` a él (`JAVA_HOME` específico para esta herramienta, sin tocar el
+JDK global).
 
-**Qué SÍ hice**: los siete archivos de este directorio son el recorrido completo — con
-las claves (`Key(...)`), rutas (`go_router`) y pasos reales que existen hoy en
-`apps/movil/lib/` — pero usan `patrolTest(...)` y `$` (el binding de Patrol) que no
-resuelven sin el paquete. Compilarlos hoy da `Target of URI doesn't exist: 'package:patrol/patrol.dart'`.
-Quien haga el micro-PR de pubspec puede correrlos tal cual, o soy yo en una vuelta
-siguiente si me dan permiso sobre `pubspec.yaml` puntualmente para esto.
-
-**Comandos que correrían, una vez resuelto lo anterior:**
+**Comandos que correrían, con un JDK 17 o 21 disponible:**
 
 ```bash
-flutter test integration_test/alta_y_billetera_test.dart -d emulator-5554   # P3, emulador acelerado
-flutter test integration_test/                                              # todo el directorio
-patrol test --target integration_test/sin_conexion_test.dart -d <dispositivo-fisico-gama-baja>
+export JAVA_HOME=<ruta a un JDK 17 o 21>
+dart pub global activate patrol_cli 3.11.0
+patrol test --target integration_test/sin_conexion_test.dart -d <dispositivo>
 ```
 
-**Lo que sí corrí en este sandbox**: hay un emulador Android real disponible
-(`emulator-5554`, Android 17/API 37, ver `flutter devices`). No es "gama baja" — es la
-imagen de referencia del SDK, sin las limitaciones de CPU/RAM del parque real de
-Bolivia que pide F12.3 — así que aunque compilara, correr ahí NO sustituye la medición
-en dispositivo físico de gama baja que pide el gate. Ver `planes/informes/carril-F12.md`.
+Hay un emulador Android real disponible en este Mac (`Pixel_4`, API 37) y funcionando
+—se usó para confirmar el bloqueo real de JDK, no uno inventado— pero, aunque
+compilara, correr ahí **no sustituye** la medición en un dispositivo físico de gama
+baja que pide F12.3: es la imagen de referencia del SDK, no el parque real de Bolivia.
+Ver `planes/informes/carril-F12.md`.

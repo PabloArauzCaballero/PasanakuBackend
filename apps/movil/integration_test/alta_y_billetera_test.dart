@@ -2,6 +2,7 @@
 // NO EJECUTABLE EN ESTE SANDBOX: falta `patrol` e `integration_test` en
 // apps/movil/pubspec.yaml (ver integration_test/LEEME.md). Andamiaje listo para
 // correr en cuanto ese micro-PR exista.
+import 'package:flutter/material.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:patrol/patrol.dart';
 
@@ -14,7 +15,9 @@ void main() {
     await arrancarApp($);
 
     // El punto de entrada real es la billetera (initialLocation de crearEnrutador).
-    await $('Perfil').tap(); // navega a /identidad, donde arranca el alta si no hay sesión.
+    await $(
+      'Perfil',
+    ).tap(); // navega a /identidad, donde arranca el alta si no hay sesión.
     await $('Empezar mi registro').tap();
 
     // Patrol acepta el diálogo NATIVO de permiso de cámara — esto es exactamente lo

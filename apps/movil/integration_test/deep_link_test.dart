@@ -13,7 +13,9 @@ import '_soporte.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  patrolTest('deep link con la app cerrada abre la pantalla de unirse', ($) async {
+  patrolTest('deep link con la app cerrada abre la pantalla de unirse', (
+    $,
+  ) async {
     await $.native.openApp(); // instala/lanza en frío, sin estado previo.
     await $.native.openUrl('aportaya://unirse/AB12CD');
 

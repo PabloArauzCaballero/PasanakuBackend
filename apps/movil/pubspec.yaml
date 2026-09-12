@@ -47,6 +47,11 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
   http_mock_adapter: ^0.6.1
+  # F12: el andamiaje de integration_test/ (7 recorridos) lo necesita. Micro-PR al
+  # troncal (planes/16 §6) — hueco declarado por el carril F12 en su informe.
+  integration_test:
+    sdk: flutter
+  patrol: ^3.15.0
 
 flutter:
   uses-material-design: true

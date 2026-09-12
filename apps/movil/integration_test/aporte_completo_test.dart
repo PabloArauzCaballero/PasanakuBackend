@@ -11,7 +11,9 @@ void main() {
   patrolTest('pagar mi aporte con saldo de billetera', ($) async {
     await arrancarApp($);
 
-    await $('Grupos').tap(); // rama /pasanaku de la tab bar (navegacion/shell.dart)
+    await $(
+      'Grupos',
+    ).tap(); // rama /pasanaku de la tab bar (navegacion/shell.dart)
     await $('Mi aporte').tap();
     await $('Pagar con saldo').tap();
     await $('Confirmar').tap();

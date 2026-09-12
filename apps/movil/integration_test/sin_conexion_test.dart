@@ -10,7 +10,9 @@ import '_soporte.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  patrolTest('sin red: último estado visible y operaciones bloqueadas', ($) async {
+  patrolTest('sin red: último estado visible y operaciones bloqueadas', (
+    $,
+  ) async {
     await arrancarApp($);
     await $('Recargar saldo').waitUntilVisible();
 
@@ -22,7 +24,9 @@ void main() {
     // quedarse sin red (planes/15 §F12.4, "sin datos perdidos").
     await $('Recargar saldo').waitUntilVisible();
     await $('Recargar saldo').tap();
-    await $('Sin conexión. Reintentar cuando vuelva la red.').waitUntilVisible();
+    await $(
+      'Sin conexión. Reintentar cuando vuelva la red.',
+    ).waitUntilVisible();
 
     await $.native.enableWifi();
     await $.native.enableCellular();

@@ -5,6 +5,8 @@
 // bloqueado en TODA operación de dinero". Este archivo lo ejercita para recarga y
 // aporte; agregar el resto de operaciones de dinero (retiro, pago de mora) es
 // extender esta misma tabla, no un archivo nuevo.
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:patrol/patrol.dart';
 
@@ -14,12 +16,16 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   for (final operacion in ['Recargar saldo', 'Pagar con saldo']) {
-    patrolTest('doble toque en "$operacion" produce un único movimiento', ($) async {
+    patrolTest('doble toque en "$operacion" produce un único movimiento', (
+      $,
+    ) async {
       await arrancarApp($);
 
       await $(operacion).tap();
       await $('Confirmar').tap();
-      await $('Confirmar').tap(); // segundo toque antes de que responda el servidor
+      await $(
+        'Confirmar',
+      ).tap(); // segundo toque antes de que responda el servidor
 
       await $('Ver movimientos').tap();
       // Un solo movimiento con esa causa — no dos.
