@@ -53,7 +53,9 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(find.text('Recargar'), findsOneWidget);
+      expect(find.text('Ver aportes pendientes'), findsOneWidget);
+      expect(find.text('Movimientos'), findsOneWidget);
+      expect(find.textContaining('Banco Unión'), findsOneWidget);
     },
   );
 

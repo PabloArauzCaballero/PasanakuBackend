@@ -4,7 +4,7 @@ import android.view.WindowManager
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
@@ -14,7 +14,12 @@ import io.flutter.plugin.common.MethodChannel
 /// `flutter_secure_storage`/`connectivity_plus` ya resuelven todo del lado Dart.
 /// `AvisosPush` no tiene receptor nativo todavía: es el hueco declarado del informe
 /// del carril (pide el SDK de Firebase, decisión que no es de este carril).
-class MainActivity : FlutterActivity() {
+///
+/// `FlutterFragmentActivity`, no `FlutterActivity`: `BiometricPrompt` exige una
+/// `FragmentActivity` para alojar su propio `DialogFragment` interno — con
+/// `FlutterActivity` (que extiende `Activity` a secas) `BiometricPrompt(this, …)` ni
+/// compila. Hallazgo real, encontrado al compilar de verdad para Android.
+class MainActivity : FlutterFragmentActivity() {
     private val canalBiometria = "bo.aportaya/biometria"
     private val canalProteccionPantalla = "bo.aportaya/proteccion_pantalla"
     private val canalCamara = "bo.aportaya/camara"

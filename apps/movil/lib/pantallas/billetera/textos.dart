@@ -5,6 +5,11 @@ abstract final class TextosBilletera {
   static const cargandoSaldo = 'Cargando tu saldo';
   static const saldoDisponible = 'Saldo disponible';
   static const saldoRetenido = 'Retenido';
+  static const nadaTrabado = 'Nada trabado';
+  static const custodia =
+      'En custodia en Banco Unión, separado del dinero de la empresa';
+  static const verAportesPendientes = 'Ver aportes pendientes';
+  static const movimientos = 'Movimientos';
   static const sinMovimientos =
       'Todavía no tenés movimientos. Cuando recargues saldo van a aparecer acá.';
   static const alCorteDe = 'Actualizado';

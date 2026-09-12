@@ -9,8 +9,16 @@ import 'package:aportaya_diseno/atomos/monto.dart';
 import 'package:aportaya_diseno/organismos/estado_de_pantalla.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 
-/// La pantalla real de la fase F0: compone organismos, sin lógica. Sus cuatro estados
-/// los pinta `EstadoDePantalla`; el importe lo pinta `Monto`.
+/// Pantalla de inicio de la billetera (`docs/Views/AportaYa-Maqueta.html`, función
+/// `pintarSaldo`): el saldo disponible con su nota de custodia, dos acciones
+/// (aportes pendientes primero, movimientos después) y el desglose de retenido.
+///
+/// **Supuesto declarado.** La maqueta también desglosa «Puesto en pasanakus» (lo
+/// aportado a un grupo que todavía no se cobró). Ese número sale de cruzar
+/// `grupos`/`aportes` con el turno de cada uno — no es un campo de
+/// `GET /billetera/{id}/saldo` (`SaldoBilletera` solo trae `disponible`, `retenido`,
+/// `alCorteDe`). Mostrarlo acá sería inventarlo. Se deja pedido al carril que posea
+/// esa agregación cruzada (M3, `pasanaku.miEstado`, donde el dato sí existe).
 class PantallaDeSaldo extends ConsumerWidget {
   const PantallaDeSaldo({super.key, required this.cuentaId});
 
@@ -41,6 +49,7 @@ class _TarjetaSaldo extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
     final texto = Theme.of(context).textTheme;
+    final hayRetenido = saldo.retenido.monto != '0.00';
     return Padding(
       padding: const EdgeInsets.all(Espacio.s4),
       child: Container(
@@ -53,9 +62,19 @@ class _TarjetaSaldo extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              TextosBilletera.saldoDisponible,
-              style: texto.labelLarge?.copyWith(color: t.sobreVerdeSolido),
+            Row(
+              children: [
+                Icon(
+                  Icons.shield_outlined,
+                  color: t.sobreVerdeSolido,
+                  size: 18,
+                ),
+                const SizedBox(width: Espacio.s1),
+                Text(
+                  TextosBilletera.saldoDisponible,
+                  style: texto.labelLarge?.copyWith(color: t.sobreVerdeSolido),
+                ),
+              ],
             ),
             const SizedBox(height: Espacio.s2),
             Monto(
@@ -67,7 +86,41 @@ class _TarjetaSaldo extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: Espacio.s3),
+            const SizedBox(height: Espacio.s2),
+            Text(
+              TextosBilletera.custodia,
+              style: texto.bodySmall?.copyWith(color: t.sobreVerdeSolido),
+            ),
+            const SizedBox(height: Espacio.s4),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () => context.pushNamed('pasanaku.miEstado'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: t.accent,
+                      foregroundColor: t.accentInk,
+                    ),
+                    child: const Text(TextosBilletera.verAportesPendientes),
+                  ),
+                ),
+                const SizedBox(width: Espacio.s2),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => context.pushNamed(
+                      'billetera.extracto',
+                      queryParameters: {'cuenta': saldo.cuentaId},
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: t.sobreVerdeSolido,
+                      side: BorderSide(color: t.sobreVerdeSolido),
+                    ),
+                    child: const Text(TextosBilletera.movimientos),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: Espacio.s4),
             Row(
               children: [
                 Text(
@@ -80,22 +133,16 @@ class _TarjetaSaldo extends StatelessWidget {
                   etiqueta: TextosBilletera.saldoRetenido,
                   estilo: texto.bodySmall?.copyWith(color: t.sobreVerdeSolido),
                 ),
+                if (!hayRetenido) ...[
+                  const SizedBox(width: Espacio.s2),
+                  Text(
+                    '· ${TextosBilletera.nadaTrabado}',
+                    style: texto.bodySmall?.copyWith(
+                      color: t.sobreVerdeSolido.withValues(alpha: 0.8),
+                    ),
+                  ),
+                ],
               ],
-            ),
-            const SizedBox(height: Espacio.s4),
-            SizedBox(
-              height: Tactil.minimo,
-              child: FilledButton(
-                onPressed: () => context.pushNamed(
-                  'billetera.recargar',
-                  queryParameters: {'cuenta': saldo.cuentaId},
-                ),
-                style: FilledButton.styleFrom(
-                  backgroundColor: t.accent,
-                  foregroundColor: t.accentInk,
-                ),
-                child: const Text(TextosBilletera.recargar),
-              ),
             ),
           ],
         ),
