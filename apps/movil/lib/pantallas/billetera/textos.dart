@@ -14,7 +14,11 @@ abstract final class TextosBilletera {
       'Todavía no tenés movimientos. Cuando recargues saldo van a aparecer acá.';
   static const alCorteDe = 'Actualizado';
   static const recargar = 'Recargar';
+  static const aportar = 'Aportar';
   static const retirar = 'Retirar';
+  static const vales = 'Vales';
+  static const valesNoDisponible =
+      'Los vales de alianzas todavía no están disponibles en la app.';
   static const transferir = 'Transferir';
   static const extracto = 'Extracto';
   static const monto = 'Monto';

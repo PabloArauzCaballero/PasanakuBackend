@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -10,6 +12,27 @@ const ruta = '/billetera/$cuenta/saldo';
 /// Los cuatro estados de la pantalla real de F0, contra los ejemplos del contrato:
 /// los mismos JSON que Prism sirve en desarrollo. Una pantalla probada solo en su
 /// camino feliz es una pantalla que en la calle se queda en blanco.
+/// La pantalla ahora abre con los accesos rápidos + la tarjeta de saldo — más alta
+/// que el viewport de prueba por omisión (800×600 lógicos). Un teléfono real (~800×
+/// 1700 lógicos) la muestra entera sin scroll; se agranda la superficie de prueba a
+/// ese tamaño para que las aserciones de semántica no dependan de qué decidió pintar
+/// la Sliver list como "en pantalla" — es lo que un dispositivo real hace de todas
+/// formas, no un ajuste artificial para hacer pasar el test.
+Future<void> conSuperficieDeTelefono(
+  WidgetTester tester,
+  Future<void> Function() cuerpo,
+) async {
+  final original = tester.view.physicalSize;
+  final pixelRatioOriginal = tester.view.devicePixelRatio;
+  tester.view.physicalSize = const Size(1080, 2280);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(() {
+    tester.view.physicalSize = original;
+    tester.view.devicePixelRatio = pixelRatioOriginal;
+  });
+  await cuerpo();
+}
+
 void main() {
   testWidgets('cargando: lo dice mientras espera, sin pantalla en blanco', (
     tester,
@@ -42,20 +65,26 @@ void main() {
           ejemplo('nucleo-financiero', 'consultarSaldo', 'ok')['cuerpo'],
         ),
       );
-      await tester.pumpWidget(
-        conApp(const PantallaDeSaldo(cuentaId: cuenta), dio: dio),
-      );
-      await asentar(tester);
-      // El importe se presenta como la maqueta —`Bs 1.240,00`— y se anuncia con su concepto.
-      expect(
-        find.bySemanticsLabel(
-          RegExp(r'^Saldo disponible: (Bs|USD) -?[\d.]+,\d{2}$'),
-        ),
-        findsOneWidget,
-      );
-      expect(find.text('Ver aportes pendientes'), findsOneWidget);
-      expect(find.text('Movimientos'), findsOneWidget);
-      expect(find.textContaining('Banco Unión'), findsOneWidget);
+      await conSuperficieDeTelefono(tester, () async {
+        await tester.pumpWidget(
+          conApp(const PantallaDeSaldo(cuentaId: cuenta), dio: dio),
+        );
+        await asentar(tester);
+        // El importe se presenta como la maqueta —`Bs 1.240,00`— y se anuncia con su concepto.
+        expect(
+          find.bySemanticsLabel(
+            RegExp(r'^Saldo disponible: (Bs|USD) -?[\d.]+,\d{2}$'),
+          ),
+          findsOneWidget,
+        );
+        expect(find.text('Ver aportes pendientes'), findsOneWidget);
+        expect(find.text('Movimientos'), findsOneWidget);
+        expect(find.textContaining('Banco Unión'), findsOneWidget);
+        expect(find.text('Recargar'), findsOneWidget);
+        expect(find.text('Aportar'), findsOneWidget);
+        expect(find.text('Retirar'), findsOneWidget);
+        expect(find.text('Vales'), findsOneWidget);
+      });
     },
   );
 
@@ -153,36 +182,38 @@ void main() {
   testWidgets(
     'reintentar vuelve a pedir el saldo al servidor: nunca se ajusta en memoria',
     (tester) async {
-      final (:dio, :adaptador) = dioSimulado();
-      // Primero el gateway falla; después responde. Registrar la ruta de nuevo
-      // reemplaza la respuesta anterior.
-      adaptador.onGet(
-        ruta,
-        (s) => s.reply(503, {
-          'codigo': 'AP-GW-503',
-          'mensaje': '',
-          'trazaId': 't',
-        }),
-      );
-      await tester.pumpWidget(
-        conApp(const PantallaDeSaldo(cuentaId: cuenta), dio: dio),
-      );
-      await asentar(tester);
-      expect(find.text('Volver a intentar'), findsOneWidget);
-      adaptador.onGet(
-        ruta,
-        (s) => s.reply(
-          200,
-          ejemplo('nucleo-financiero', 'consultarSaldo', 'ok')['cuerpo'],
-        ),
-      );
-      await tester.tap(find.text('Volver a intentar'));
-      await asentar(tester);
-      expect(
-        find.bySemanticsLabel(RegExp(r'^Saldo disponible: ')),
-        findsOneWidget,
-      );
-      expect(find.text('Volver a intentar'), findsNothing);
+      await conSuperficieDeTelefono(tester, () async {
+        final (:dio, :adaptador) = dioSimulado();
+        // Primero el gateway falla; después responde. Registrar la ruta de nuevo
+        // reemplaza la respuesta anterior.
+        adaptador.onGet(
+          ruta,
+          (s) => s.reply(503, {
+            'codigo': 'AP-GW-503',
+            'mensaje': '',
+            'trazaId': 't',
+          }),
+        );
+        await tester.pumpWidget(
+          conApp(const PantallaDeSaldo(cuentaId: cuenta), dio: dio),
+        );
+        await asentar(tester);
+        expect(find.text('Volver a intentar'), findsOneWidget);
+        adaptador.onGet(
+          ruta,
+          (s) => s.reply(
+            200,
+            ejemplo('nucleo-financiero', 'consultarSaldo', 'ok')['cuerpo'],
+          ),
+        );
+        await tester.tap(find.text('Volver a intentar'));
+        await asentar(tester);
+        expect(
+          find.bySemanticsLabel(RegExp(r'^Saldo disponible: ')),
+          findsOneWidget,
+        );
+        expect(find.text('Volver a intentar'), findsNothing);
+      });
     },
   );
 }

@@ -4,21 +4,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../dominio/cu13_consultar_saldo.dart';
+import '../../pantallas/billetera/tarjeta_de_saldo.dart';
 import '../../pantallas/billetera/textos.dart';
-import 'package:aportaya_diseno/atomos/monto.dart';
+import 'package:aportaya_diseno/moleculas/acciones_rapidas.dart';
 import 'package:aportaya_diseno/organismos/estado_de_pantalla.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 
 /// Pantalla de inicio de la billetera (`docs/Views/AportaYa-Maqueta.html`, función
-/// `pintarSaldo`): el saldo disponible con su nota de custodia, dos acciones
-/// (aportes pendientes primero, movimientos después) y el desglose de retenido.
+/// `pintarSaldo`): la fila de accesos rápidos y la tarjeta de saldo (`tarjeta_de_saldo.dart`).
 ///
-/// **Supuesto declarado.** La maqueta también desglosa «Puesto en pasanakus» (lo
-/// aportado a un grupo que todavía no se cobró). Ese número sale de cruzar
-/// `grupos`/`aportes` con el turno de cada uno — no es un campo de
-/// `GET /billetera/{id}/saldo` (`SaldoBilletera` solo trae `disponible`, `retenido`,
-/// `alCorteDe`). Mostrarlo acá sería inventarlo. Se deja pedido al carril que posea
-/// esa agregación cruzada (M3, `pasanaku.miEstado`, donde el dato sí existe).
+/// **Supuesto declarado — «Vales».** La maqueta muestra un cuarto acceso rápido,
+/// «Vales», que carril-M2.md (§ huecos 2 y 3) ya declaró bloqueado: ni
+/// `mobile_scanner` está en `pubspec.yaml` ni existe un CU de «vale» localizado en el
+/// rango de este carril. El acceso se muestra deshabilitado con su motivo, no se
+/// inventa una pantalla.
 class PantallaDeSaldo extends ConsumerWidget {
   const PantallaDeSaldo({super.key, required this.cuentaId});
 
@@ -35,118 +34,58 @@ class PantallaDeSaldo extends ConsumerWidget {
         vacio: saldoEnCero,
         mensajeVacio: TextosBilletera.sinMovimientos,
         reintentar: () => ref.invalidate(saldoProvider(cuentaId)),
-        exito: (s) => _TarjetaSaldo(saldo: s),
+        exito: (s) => _CuerpoSaldo(saldo: s),
       ),
     );
   }
 }
 
-class _TarjetaSaldo extends StatelessWidget {
-  const _TarjetaSaldo({required this.saldo});
+class _CuerpoSaldo extends StatelessWidget {
+  const _CuerpoSaldo({required this.saldo});
   final SaldoBilletera saldo;
 
   @override
   Widget build(BuildContext context) {
-    final t = Tokens.of(context);
-    final texto = Theme.of(context).textTheme;
-    final hayRetenido = saldo.retenido.monto != '0.00';
-    return Padding(
+    return ListView(
       padding: const EdgeInsets.all(Espacio.s4),
-      child: Container(
-        padding: const EdgeInsets.all(Espacio.s5),
-        decoration: BoxDecoration(
-          color: t.verdeSolido,
-          borderRadius: BorderRadius.circular(Radios.lg),
-          boxShadow: [t.sombra2],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.shield_outlined,
-                  color: t.sobreVerdeSolido,
-                  size: 18,
-                ),
-                const SizedBox(width: Espacio.s1),
-                Text(
-                  TextosBilletera.saldoDisponible,
-                  style: texto.labelLarge?.copyWith(color: t.sobreVerdeSolido),
-                ),
-              ],
-            ),
-            const SizedBox(height: Espacio.s2),
-            Monto(
-              monto: saldo.disponible.monto,
-              moneda: saldo.disponible.moneda.value,
-              etiqueta: TextosBilletera.saldoDisponible,
-              estilo: texto.headlineMedium?.copyWith(
-                color: t.sobreVerdeSolido,
-                fontWeight: FontWeight.w700,
+      children: [
+        AccionesRapidas(
+          acciones: [
+            (
+              texto: TextosBilletera.recargar,
+              icono: Icons.file_download_outlined,
+              onTap: () => context.pushNamed(
+                'billetera.recargar',
+                queryParameters: {'cuenta': saldo.cuentaId},
               ),
             ),
-            const SizedBox(height: Espacio.s2),
-            Text(
-              TextosBilletera.custodia,
-              style: texto.bodySmall?.copyWith(color: t.sobreVerdeSolido),
+            (
+              texto: TextosBilletera.aportar,
+              icono: Icons.file_upload_outlined,
+              onTap: () => context.pushNamed('pasanaku.miEstado'),
             ),
-            const SizedBox(height: Espacio.s4),
-            Row(
-              children: [
-                Expanded(
-                  child: FilledButton(
-                    onPressed: () => context.pushNamed('pasanaku.miEstado'),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: t.accent,
-                      foregroundColor: t.accentInk,
-                    ),
-                    child: const Text(TextosBilletera.verAportesPendientes),
-                  ),
-                ),
-                const SizedBox(width: Espacio.s2),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => context.pushNamed(
-                      'billetera.extracto',
-                      queryParameters: {'cuenta': saldo.cuentaId},
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: t.sobreVerdeSolido,
-                      side: BorderSide(color: t.sobreVerdeSolido),
-                    ),
-                    child: const Text(TextosBilletera.movimientos),
-                  ),
-                ),
-              ],
+            (
+              texto: TextosBilletera.retirar,
+              icono: Icons.account_balance_outlined,
+              onTap: () => context.pushNamed(
+                'billetera.retirar',
+                queryParameters: {'cuenta': saldo.cuentaId},
+              ),
             ),
-            const SizedBox(height: Espacio.s4),
-            Row(
-              children: [
-                Text(
-                  '${TextosBilletera.saldoRetenido} ',
-                  style: texto.bodySmall?.copyWith(color: t.sobreVerdeSolido),
+            (
+              texto: TextosBilletera.vales,
+              icono: Icons.confirmation_number_outlined,
+              onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(TextosBilletera.valesNoDisponible),
                 ),
-                Monto(
-                  monto: saldo.retenido.monto,
-                  moneda: saldo.retenido.moneda.value,
-                  etiqueta: TextosBilletera.saldoRetenido,
-                  estilo: texto.bodySmall?.copyWith(color: t.sobreVerdeSolido),
-                ),
-                if (!hayRetenido) ...[
-                  const SizedBox(width: Espacio.s2),
-                  Text(
-                    '· ${TextosBilletera.nadaTrabado}',
-                    style: texto.bodySmall?.copyWith(
-                      color: t.sobreVerdeSolido.withValues(alpha: 0.8),
-                    ),
-                  ),
-                ],
-              ],
+              ),
             ),
           ],
         ),
-      ),
+        const SizedBox(height: Espacio.s4),
+        TarjetaDeSaldo(saldo: saldo),
+      ],
     );
   }
 }
