@@ -6,6 +6,7 @@ import { defineConfig } from '@playwright/test'
  */
 export default defineConfig({
   testDir: 'pruebas/e2e',
+  testMatch: [/.*\.spec\.ts/, /.*\.e2e\.ts/],
   outputDir: '../../.playwright/web',
   reporter: [['list']],
   use: { baseURL: 'http://127.0.0.1:4173', colorScheme: 'light' },
