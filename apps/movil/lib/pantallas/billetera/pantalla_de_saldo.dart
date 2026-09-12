@@ -1,6 +1,7 @@
 import 'package:aportaya_cliente_nucleofinanciero/aportaya_cliente_nucleofinanciero.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../dominio/cu13_consultar_saldo.dart';
 import '../../pantallas/billetera/textos.dart';
@@ -85,7 +86,10 @@ class _TarjetaSaldo extends StatelessWidget {
             SizedBox(
               height: Tactil.minimo,
               child: FilledButton(
-                onPressed: () {},
+                onPressed: () => context.pushNamed(
+                  'billetera.recargar',
+                  queryParameters: {'cuenta': saldo.cuentaId},
+                ),
                 style: FilledButton.styleFrom(
                   backgroundColor: t.accent,
                   foregroundColor: t.accentInk,
