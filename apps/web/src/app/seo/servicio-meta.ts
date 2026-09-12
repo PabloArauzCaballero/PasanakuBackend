@@ -10,6 +10,17 @@ import { RUTAS_NO_INDEXABLES } from '../geo/robots'
 const BASE = 'https://aportaya.bo'
 const ID_SCRIPT_JSONLD = 'ap-json-ld'
 const ID_CANONICAL = 'ap-canonical'
+const ID_ALTERNATE_MARKDOWN = 'ap-alternate-markdown'
+
+/**
+ * El mismo patrón que `scripts/contenido.mjs` usa para escribir el espejo: `/` → `/index.md`,
+ * cualquier otra ruta → `/<ruta-sin-la-barra-inicial>.md`. Es el valor por omisión que
+ * `ServicioMeta` emite como `<link rel="alternate">`; `seo.alternateMarkdown` lo pisa cuando
+ * una página necesita otra cosa (micro-PR de F11, no de este archivo).
+ */
+export function espejoMarkdownDe(ruta: string): string {
+  return ruta === '/' ? '/index.md' : `/${ruta.replace(/^\//, '')}.md`
+}
 
 /**
  * Metadatos de una ruta indexable. F11 (GEO) agrega `alternateMarkdown` acá — es el
@@ -64,6 +75,7 @@ export class ServicioMeta {
     this.meta.updateTag({ name: 'robots', content: noIndexable ? 'noindex, nofollow' : 'index, follow' })
 
     this.actualizarCanonical(`${BASE}${rutaActual === '/' ? '' : rutaActual}`)
+    this.actualizarAlternateMarkdown(noIndexable ? null : (seo?.alternateMarkdown ?? espejoMarkdownDe(rutaActual)))
 
     if (seo?.jsonLd?.length && !noIndexable) {
       const bloques = seo.jsonLd.filter((j) => sinTiposProhibidos(j))
@@ -71,6 +83,23 @@ export class ServicioMeta {
     } else {
       this.actualizarJsonLd([])
     }
+  }
+
+  private actualizarAlternateMarkdown(rutaMarkdown: string | null): void {
+    const existente = this.documento.getElementById(ID_ALTERNATE_MARKDOWN) as HTMLLinkElement | null
+    if (!rutaMarkdown) {
+      existente?.remove()
+      return
+    }
+    let enlace = existente
+    if (!enlace) {
+      enlace = this.documento.createElement('link')
+      enlace.setAttribute('id', ID_ALTERNATE_MARKDOWN)
+      enlace.setAttribute('rel', 'alternate')
+      enlace.setAttribute('type', 'text/markdown')
+      this.documento.head.appendChild(enlace)
+    }
+    enlace.setAttribute('href', `${BASE}${rutaMarkdown}`)
   }
 
   private actualizarCanonical(href: string): void {

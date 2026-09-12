@@ -14,11 +14,33 @@ dependencies:
   dio: ^5.7.0
   flutter_secure_storage: ^10.0.0
   connectivity_plus: ^7.0.0
-  # El sistema de diseño (packages/diseno_flutter) y el cliente GENERADO desde el OpenAPI (clientes/dart). No se editan en un carril de pantallas.
+  mobile_scanner: ^7.1.2
+  # El sistema de diseño (packages/diseno_flutter) y los clientes GENERADOS desde el OpenAPI
+  # (clientes/dart). No se editan en un carril de pantallas — micro-PR al troncal (planes/16 §6).
+  # Se declaran los catorce servicios de una vez para no repetir este micro-PR por cada carril
+  # de pantallas que llegue a necesitar uno nuevo (M1 pidió identidad, M2 pidió tarifas).
   aportaya_diseno:
     path: ../../packages/diseno_flutter
+  aportaya_cliente_identidad:
+    path: ../../clientes/dart/identidad
   aportaya_cliente_nucleofinanciero:
     path: ../../clientes/dart/nucleo-financiero
+  aportaya_cliente_tarifas:
+    path: ../../clientes/dart/tarifas
+  aportaya_cliente_grupos:
+    path: ../../clientes/dart/grupos
+  aportaya_cliente_aportes:
+    path: ../../clientes/dart/aportes
+  aportaya_cliente_transparencia:
+    path: ../../clientes/dart/transparencia
+  aportaya_cliente_entregas:
+    path: ../../clientes/dart/entregas
+  aportaya_cliente_garantia:
+    path: ../../clientes/dart/garantia
+  aportaya_cliente_organizador:
+    path: ../../clientes/dart/organizador
+  aportaya_cliente_notificaciones:
+    path: ../../clientes/dart/notificaciones
 
 dev_dependencies:
   flutter_test:
