@@ -9,6 +9,8 @@ COPY apps/movil/package.json apps/movil/
 COPY packages/tokens packages/tokens
 COPY packages/ui packages/ui
 COPY packages/simulado/package.json packages/simulado/
+COPY packages/diseno_flutter/package.json packages/diseno_flutter/
+COPY packages/dominio-cliente/package.json packages/dominio-cliente/
 COPY clientes/angular clientes/angular
 RUN corepack enable && yarn install --immutable
 COPY apps/backoffice apps/backoffice
