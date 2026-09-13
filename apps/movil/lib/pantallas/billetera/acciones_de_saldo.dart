@@ -25,6 +25,7 @@ class AccionesDeSaldo extends StatelessWidget {
           Expanded(
             child: Boton(
               texto: TextosBilletera.aportar,
+              icono: Icons.arrow_outward,
               variante: BotonVariante.primario,
               expandido: true,
               maxLineas: 1,
@@ -35,6 +36,7 @@ class AccionesDeSaldo extends StatelessWidget {
           Expanded(
             child: Boton(
               texto: TextosBilletera.recargar,
+              icono: Icons.add,
               variante: BotonVariante.fantasma,
               expandido: true,
               maxLineas: 1,
@@ -48,6 +50,7 @@ class AccionesDeSaldo extends StatelessWidget {
           Expanded(
             child: Boton(
               texto: TextosBilletera.retirar,
+              icono: Icons.account_balance_outlined,
               variante: BotonVariante.fantasma,
               expandido: true,
               maxLineas: 1,

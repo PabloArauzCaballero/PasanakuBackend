@@ -33,6 +33,11 @@ GoRouter crearEnrutador({String inicial = '/billetera/inicio'}) => GoRouter(
       branches: [
         StatefulShellBranch(routes: rutasBilletera),
         StatefulShellBranch(
+          // Sin esto, la rama arranca en su primera ruta declarada. Para `identidad`
+          // esa primera ruta es `/identidad`, que es **iniciar sesión**: tocar
+          // «Perfil» dejaba a alguien ya identificado frente a un formulario de login.
+          // Cada rama dice explícitamente cuál es su casa.
+          initialLocation: '/pasanaku/mi-estado',
           routes: [
             ...rutasPasanaku,
             // Marcador del shell hasta que el carril M3 llene `pasanaku/rutas.dart`
@@ -47,6 +52,7 @@ GoRouter crearEnrutador({String inicial = '/billetera/inicio'}) => GoRouter(
           ],
         ),
         StatefulShellBranch(
+          initialLocation: '/identidad/perfil',
           routes: [
             ...rutasIdentidad,
             // idem, para `identidad/rutas.dart` (carril M1, ficha `F3`).

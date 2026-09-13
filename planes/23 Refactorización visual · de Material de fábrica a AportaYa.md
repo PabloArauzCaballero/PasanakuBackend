@@ -23,8 +23,33 @@ estado: en curso · V0 y V1 implementados, V2 con dos pantallas piloto
 > estructura y el naranja acción; lo que cambió es la tipografía (Bricolage Grotesque
 > + Instrument Sans, empaquetadas), la escala, el tema de componentes y la composición.
 >
+> **También hecho (V1.3, movimiento):** apertura de marca al arrancar (el isotipo se
+> escribe y se acerca, estilo Netflix), importes y puntajes que cuentan hacia arriba,
+> hundido más háptica al tocar un botón, transición al cambiar de pestaña, e íconos en
+> las acciones del saldo.
+>
 > **Falta:** el resto de V2 (las otras 38 pantallas), V3 (verificación automática) y
 > V4 (Angular).
+
+---
+
+## 2.4 · Movimiento — la regla que lo gobierna todo
+
+> Esta app muestra el dinero de personas que en muchos casos no confían del todo en
+> que una app tenga su plata. **Toda animación se diseña contra el peor malentendido
+> que puede provocar**, no contra lo bonita que se ve.
+
+| Animación | Qué aporta | Qué podía salir mal | Cómo se evita |
+| --- | --- | --- | --- |
+| **Apertura de marca** (`AperturaDeMarca`) | Da identidad al arranque | Que alguien no pueda entrar a su billetera porque el logo se colgó | Va **encima** de la app ya armada (no la demora); dura 1,4 s; se salta tocando; temporizador de respaldo a los 2 s; con «reducir movimiento» no aparece |
+| **Importe que sube** (`MontoQueSube`) | El saldo se siente vivo | Ver «Bs 0,00» y creer que perdió la plata | Termina exacto; el reposo es siempre el importe real; refrescar el mismo saldo no reanima; al cambiar, cuenta **desde el anterior**, nunca desde cero; el lector de pantalla anuncia el final desde el primer frame; 650 ms; respeta «reducir movimiento». Ocho pruebas, una por forma de fallar |
+| **Puntaje que sube** (`NumeroQueSube`) | Se ve que subió | Que un puntaje no numérico rompa la pantalla | Si el contrato trae algo que no es entero, se muestra tal cual: el adorno nunca tapa el dato |
+| **Hundido al tocar** (`HundidoAlTocar`) | El botón acusa recibo | Que se coma el toque | `Listener`, no `GestureDetector`: no compite en la arena de gestos |
+| **Cambio de pestaña** | Se entiende que uno se movió | Demorar la navegación | 180 ms, menos que sacar el dedo |
+
+La aritmética de los importes va **siempre en centavos enteros** (`centavosDe`,
+`montoDesdeCentavos`): interpolar en coma flotante haría aparecer un
+`Bs 2.000,0000000002` a mitad de la cuenta.
 
 # Refactorización visual · de Material de fábrica a AportaYa
 

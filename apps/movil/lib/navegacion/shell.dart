@@ -36,7 +36,7 @@ class ShellPrincipal extends ConsumerWidget {
       icono: Icons.donut_large_outlined,
       iconoActivo: Icons.donut_large,
       rama: 1,
-      ruta: '/pasanaku',
+      ruta: '/pasanaku/mi-estado',
     ),
     (
       texto: 'Movimientos',
@@ -50,7 +50,7 @@ class ShellPrincipal extends ConsumerWidget {
       icono: Icons.person_outline,
       iconoActivo: Icons.person,
       rama: 2,
-      ruta: '/identidad',
+      ruta: '/identidad/perfil',
     ),
   ];
 
@@ -59,7 +59,15 @@ class ShellPrincipal extends ConsumerWidget {
     final ubicacion = GoRouterState.of(context).uri.toString();
     final actual = _indiceVisibleDesde(navigationShell.currentIndex, ubicacion);
     return Scaffold(
-      body: navigationShell,
+      // El `indexedStack` cambia de rama sin transición: la pantalla nueva aparece de
+      // golpe y no queda claro que uno se movió. Un fundido con un empujón corto hacia
+      // arriba lo cuenta sin hacer esperar —180 ms, menos que el tiempo de sacar el
+      // dedo—. La clave es el índice de rama: sin ella, Flutter reusa el mismo
+      // elemento y no hay nada que fundir.
+      body: _RamaConTransicion(
+        indice: navigationShell.currentIndex,
+        child: navigationShell,
+      ),
       bottomNavigationBar: BarraPestanas(
         destinos: [
           for (final d in _destinos)
@@ -93,4 +101,62 @@ class ShellPrincipal extends ConsumerWidget {
     2 => 3,
     _ => ubicacion.startsWith('/billetera/extracto') ? 2 : 0,
   };
+}
+
+/// Funde y empuja apenas la rama que entra.
+///
+/// **Una sola copia del shell, siempre.** Un `AnimatedSwitcher` mantiene vivo al hijo
+/// que sale mientras entra el nuevo, y el shell de `go_router` lleva un `GlobalKey`:
+/// dos copias a la vez son la misma clave dos veces, y Flutter responde truncando
+/// parte del árbol —una pantalla en blanco al cambiar de pestaña—. Acá el widget es
+/// uno solo; lo que se anima es cómo aparece, no cuántos hay.
+class _RamaConTransicion extends StatefulWidget {
+  const _RamaConTransicion({required this.indice, required this.child});
+
+  final int indice;
+  final Widget child;
+
+  @override
+  State<_RamaConTransicion> createState() => _RamaConTransicionState();
+}
+
+class _RamaConTransicionState extends State<_RamaConTransicion>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _control = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 180),
+    value: 1,
+  );
+
+  @override
+  void didUpdateWidget(_RamaConTransicion anterior) {
+    super.didUpdateWidget(anterior);
+    if (anterior.indice == widget.indice) return;
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _control.value = 1;
+      return;
+    }
+    _control.forward(from: 0);
+  }
+
+  @override
+  void dispose() {
+    _control.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final curva = CurvedAnimation(parent: _control, curve: Curves.easeOut);
+    return FadeTransition(
+      opacity: curva,
+      child: SlideTransition(
+        position: Tween(
+          begin: const Offset(0, 0.012),
+          end: Offset.zero,
+        ).animate(curva),
+        child: widget.child,
+      ),
+    );
+  }
 }

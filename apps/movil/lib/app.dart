@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'dominio/verificacion_contrato.dart';
 import 'navegacion/rutas.dart';
+import 'package:aportaya_diseno/moviles/apertura_de_marca.dart';
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 
@@ -25,7 +28,8 @@ class AppAportaYa extends ConsumerWidget {
       themeMode: ThemeMode.system,
       routerConfig: _enrutador,
       debugShowCheckedModeBanner: false,
-      builder: (context, child) => _AvisoDeContrato(child: child),
+      builder: (context, child) =>
+          _ConApertura(child: _AvisoDeContrato(child: child)),
     );
   }
 }
@@ -62,4 +66,57 @@ class _AvisoDeContrato extends ConsumerWidget {
       ],
     );
   }
+}
+
+/// La apertura de marca por encima de la app, una sola vez por arranque.
+///
+/// Va acá arriba y no como una ruta: así la app **ya está armada y pidiendo el saldo**
+/// detrás de la animación, en vez de empezar a cargar recién cuando la apertura
+/// termina. La animación tapa el arranque; no lo demora.
+class _ConApertura extends StatefulWidget {
+  const _ConApertura({required this.child});
+  final Widget child;
+
+  @override
+  State<_ConApertura> createState() => _ConAperturaState();
+}
+
+class _ConAperturaState extends State<_ConApertura> {
+  bool _mostrando = true;
+  Timer? _respaldo;
+
+  @override
+  void initState() {
+    super.initState();
+    // El cinturón de seguridad: si la animación no llamara a su final —un ticker que
+    // no arranca, un frame que no llega—, a los dos segundos la apertura se va igual.
+    // Nadie se queda mirando un logo sin poder entrar a su plata.
+    _respaldo = Timer(const Duration(seconds: 2), _ocultar);
+  }
+
+  void _ocultar() {
+    _respaldo?.cancel();
+    if (!mounted || !_mostrando) return;
+    // Con «reducir movimiento», la apertura pide cerrarse mientras se está
+    // construyendo el árbol, y ahí `setState` sobre un ancestro es un error de
+    // Flutter. Se difiere al frame siguiente, que además es cuando corresponde.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_mostrando) return;
+      setState(() => _mostrando = false);
+    });
+  }
+
+  @override
+  void dispose() {
+    _respaldo?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Stack(
+    children: [
+      widget.child,
+      if (_mostrando) Positioned.fill(child: AperturaDeMarca(alTerminar: _ocultar)),
+    ],
+  );
 }

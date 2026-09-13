@@ -23,7 +23,9 @@ import '../atomos/fecha.dart';
 import '../atomos/girador.dart';
 import '../atomos/grupo_radio.dart';
 import '../atomos/interruptor.dart';
+import '../atomos/marca.dart';
 import '../atomos/monto.dart';
+import '../atomos/numero_que_sube.dart';
 import '../atomos/progreso.dart';
 import '../atomos/punto.dart';
 import '../atomos/rueda.dart';
@@ -363,6 +365,11 @@ final List<({String grupo, List<Muestra> muestras})> catalogo = [
           moneda: 'BOB',
           etiqueta: 'Saldo disponible',
         ),
+      ),
+      (nombre: 'Marca', widget: () => const Marca(tamano: 72)),
+      (
+        nombre: 'Puntaje que sube',
+        widget: () => const NumeroQueSube(valor: 720, etiqueta: 'Tu puntaje'),
       ),
       (
         nombre: 'Rueda · en una lista',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../atomos/monto.dart';
+import '../atomos/monto_que_sube.dart';
 import '../tokens/tokens.dart';
 
 /// El saldo, como la cifra más grande de la pantalla, en tinta sobre el fondo.
@@ -56,7 +57,7 @@ class EncabezadoDeSaldo extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: Espacio.s1),
-                Monto(
+                MontoQueSube(
                   monto: monto,
                   moneda: moneda,
                   etiqueta: etiquetaHablada ?? etiqueta,

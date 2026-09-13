@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../atomos/boton_tamano.dart';
+import '../atomos/hundido_al_tocar.dart';
 import '../atomos/boton_variante.dart';
 import '../tokens/tokens.dart';
 
@@ -67,10 +69,12 @@ class Boton extends StatelessWidget {
       overlayColor: WidgetStatePropertyAll(frente.withValues(alpha: 0.08)),
       minimumSize: WidgetStatePropertyAll(Size(Tactil.minimo, alto)),
       // La bóveda le da al botón 18px de aire a los costados (`.btn`); s4 es el token
-      // más cercano. Con s5 —lo que había— tres botones en una fila de teléfono se
-      // quedaban sin ancho para su propia palabra y la cortaban con puntos suspensivos.
-      padding: const WidgetStatePropertyAll(
-        EdgeInsets.symmetric(horizontal: Espacio.s4),
+      // más cercano. Pero a un botón `expandido` el ancho se lo da el padre, así que
+      // ese relleno deja de ser aire y pasa a ser espacio que le falta a su propia
+      // palabra: tres botones con ícono en una fila de teléfono cortaban «Recargar»
+      // en «Recar…». Expandido, el relleno es apenas un mínimo de cortesía.
+      padding: WidgetStatePropertyAll(
+        EdgeInsets.symmetric(horizontal: expandido ? Espacio.s2 : Espacio.s4),
       ),
       shape: WidgetStatePropertyAll(
         RoundedRectangleBorder(
@@ -100,8 +104,10 @@ class Boton extends StatelessWidget {
           ),
           const SizedBox(width: Espacio.s2),
         ] else if (icono != null) ...[
-          Icon(icono, size: Espacio.s5),
-          const SizedBox(width: Espacio.s2),
+          // Un ícono de 20 y un respiro de s1: con s5/s2 —lo que había— un botón
+          // expandido de una fila de tres se quedaba sin ancho para su palabra.
+          Icon(icono, size: Espacio.s5 - Espacio.s1),
+          const SizedBox(width: Espacio.s1 + 2),
         ],
         Flexible(
           child: Text(
@@ -117,10 +123,21 @@ class Boton extends StatelessWidget {
       button: true,
       enabled: _habilitado,
       label: cargando ? '$texto, enviando' : null,
-      child: FilledButton(
-        onPressed: _habilitado ? onPressed : null,
-        style: estilo,
-        child: hijo,
+      child: HundidoAlTocar(
+        activo: _habilitado,
+        child: FilledButton(
+          onPressed: _habilitado
+              ? () {
+                  // El golpecito llega en el momento del toque, no cuando la pantalla
+                  // siguiente terminó de dibujarse: es lo que confirma que el botón
+                  // entendió, sobre todo en un teléfono lento.
+                  HapticFeedback.lightImpact();
+                  onPressed!();
+                }
+              : null,
+          style: estilo,
+          child: hijo,
+        ),
       ),
     );
   }
