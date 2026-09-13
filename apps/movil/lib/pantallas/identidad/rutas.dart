@@ -7,13 +7,19 @@ import 'pantalla_contrato.dart';
 import 'pantalla_dispositivos.dart';
 import 'pantalla_mfa.dart';
 import 'pantalla_perfil.dart';
+import 'pantalla_portada.dart';
 import 'pantalla_registro.dart';
 import 'pantalla_sesion.dart';
 import 'pantalla_verificacion_profunda.dart';
 
 /// Las rutas del dominio identidad — carril M1 (ficha F3). Las once pantallas de
-/// `docs/Views/AportaYa-Maqueta.html` §2.1, y **solo** ellas: `grep -c "identidad\."`
-/// sobre este archivo debe dar 11.
+/// `docs/Views/AportaYa-Maqueta.html` §2.1, y **solo** ellas: `rutasIdentidad` tiene
+/// once `GoRoute` y ninguna más.
+///
+/// A eso se suma [rutasDeEntrada], que son otras dos (`/portada` y `/ingreso`) y van
+/// aparte a propósito: no cuelgan de `/identidad/` ni viven dentro del shell, porque
+/// son lo que se ve **antes** de tener sesión. Por eso el viejo `grep -c "identidad\."`
+/// sobre este archivo ahora da 13 y no 11.
 final List<RouteBase> rutasIdentidad = [
   GoRoute(
     path: '/identidad',
@@ -76,5 +82,29 @@ final List<RouteBase> rutasIdentidad = [
     path: '/identidad/baja',
     name: 'identidad.baja',
     builder: (context, state) => const PantallaDeBaja(),
+  ),
+];
+
+/// **Las rutas de entrada, fuera de la barra de pestañas.**
+///
+/// Portada e ingreso son las dos pantallas que alguien ve *antes* de tener sesión, y
+/// por eso no pueden vivir dentro del shell: una barra de pestañas con «Inicio ·
+/// Grupos · Movimientos · Perfil» debajo de un formulario de acceso ofrece cuatro
+/// destinos a los que todavía no se puede ir. `crearEnrutador` las registra al lado
+/// de alianzas y soporte, encima del shell.
+///
+/// `/ingreso` es además el destino del guardia de sesión, que antes apuntaba a
+/// `/identidad/ingreso` — una ruta que nunca existió: quien perdía la sesión no
+/// llegaba al login sino a «ruta no encontrada».
+final List<RouteBase> rutasDeEntrada = [
+  GoRoute(
+    path: '/portada',
+    name: 'identidad.portada',
+    builder: (context, state) => const PantallaDePortada(),
+  ),
+  GoRoute(
+    path: '/ingreso',
+    name: 'identidad.ingreso',
+    builder: (context, state) => const PantallaDeSesion(),
   ),
 ];

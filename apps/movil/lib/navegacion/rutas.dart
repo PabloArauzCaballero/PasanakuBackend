@@ -20,7 +20,11 @@ import 'shell.dart';
 /// (billetera, pasanaku, identidad — la maqueta §2.2). `alianzas`, `soporte` y
 /// `notificaciones` se navegan por encima, con `push`, como el resto de la app: no
 /// son destinos de la barra.
-GoRouter crearEnrutador({String inicial = '/billetera/inicio'}) => GoRouter(
+/// [inicial] por defecto es la **portada**: quien abre la app por primera vez tiene
+/// que encontrarse con qué es AportaYa y cómo entrar, no con el tablero de una cuenta
+/// que todavía no es suya. Las pruebas que van directo a una pantalla de adentro pasan
+/// su ruta explícitamente.
+GoRouter crearEnrutador({String inicial = '/portada'}) => GoRouter(
   initialLocation: inicial,
   redirect: (context, state) {
     final interna = rutaInternaDesde(state.uri);
@@ -65,6 +69,10 @@ GoRouter crearEnrutador({String inicial = '/billetera/inicio'}) => GoRouter(
         ),
       ],
     ),
+    // Portada e ingreso van acá arriba, fuera del shell: son lo que se ve **antes**
+    // de tener sesión, y una barra de pestañas debajo de un formulario de acceso
+    // ofrece cuatro destinos a los que todavía no se puede ir.
+    ...rutasDeEntrada,
     ...rutasAlianzas,
     ...rutasSoporte,
     ...rutasNotificaciones,

@@ -23,7 +23,7 @@ void main() {
   testWidgets('«Perfil» abre el perfil, nunca la pantalla de iniciar sesión', (
     tester,
   ) async {
-    final router = crearEnrutador();
+    final router = crearEnrutador(inicial: '/billetera/inicio');
     await tester.pumpWidget(appCon(router));
     await tester.pumpAndSettle();
 
@@ -41,7 +41,7 @@ void main() {
   testWidgets('«Grupos» abre el estado de los pasanakus, no el marcador vacío', (
     tester,
   ) async {
-    final router = crearEnrutador();
+    final router = crearEnrutador(inicial: '/billetera/inicio');
     await tester.pumpWidget(appCon(router));
     await tester.pumpAndSettle();
 
@@ -54,7 +54,7 @@ void main() {
   testWidgets('«Inicio» y «Movimientos» comparten rama y cada uno va a lo suyo', (
     tester,
   ) async {
-    final router = crearEnrutador();
+    final router = crearEnrutador(inicial: '/billetera/inicio');
     await tester.pumpWidget(appCon(router));
     await tester.pumpAndSettle();
 

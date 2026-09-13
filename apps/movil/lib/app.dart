@@ -11,8 +11,14 @@ import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 
 class AppAportaYa extends ConsumerWidget {
-  AppAportaYa({super.key, String inicial = '/billetera/inicio'})
-    : _enrutador = crearEnrutador(inicial: inicial);
+  /// [inicial] nulo significa «la que diga el enrutador». Antes esta clase repetía su
+  /// propia ruta de arranque, y cuando la del enrutador cambió a la portada, esta
+  /// copia siguió mandando a la billetera: la app abría adentro igual. Un valor por
+  /// defecto en dos lugares es un valor por defecto que va a divergir.
+  AppAportaYa({super.key, String? inicial})
+    : _enrutador = inicial == null
+          ? crearEnrutador()
+          : crearEnrutador(inicial: inicial);
 
   final GoRouter _enrutador;
 

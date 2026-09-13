@@ -16,7 +16,9 @@ class Guardias {
     final token = await sesion.tokenDeAcceso();
     if (token != null) return null;
     final vuelta = Uri.encodeComponent(estado.uri.toString());
-    return '/identidad/ingreso?volver=$vuelta';
+    // `/ingreso`, no `/identidad/ingreso`: esa ruta nunca existió y quien perdía la
+    // sesión terminaba en «ruta no encontrada» en vez de en el login.
+    return '/ingreso?volver=$vuelta';
   }
 
   /// Nivel de verificación insuficiente (CU-02, CU-40): a la pantalla que explica

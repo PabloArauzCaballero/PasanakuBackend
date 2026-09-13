@@ -2,6 +2,7 @@ import 'package:aportaya_diseno/atomos/campo.dart';
 import 'package:aportaya_diseno/atomos/campo_contrasena.dart';
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
+import 'package:aportaya_diseno/moleculas/cabecera.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,13 +37,14 @@ class _PantallaDeSesionState extends ConsumerState<PantallaDeSesion> {
     final valido =
         errorTelefono(_telefono.text) == null && _contrasena.text.isNotEmpty;
     return Scaffold(
-      appBar: AppBar(title: const Text(TextosIdentidad.tituloSesion)),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(Espacio.s4),
+          padding: const EdgeInsets.symmetric(horizontal: Espacio.s4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const CabeceraDeSeccion(titulo: TextosIdentidad.tituloSesion),
+              const SizedBox(height: Espacio.s4),
               Campo(
                 etiqueta: TextosIdentidad.telefono,
                 controlador: _telefono,

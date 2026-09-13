@@ -33,6 +33,32 @@ estado: en curso · V0 y V1 implementados, V2 con dos pantallas piloto
 
 ---
 
+## 2.3 bis · La entrada — portada, ingreso y shell
+
+La app arrancaba en `/billetera/inicio`: quien la abría por primera vez caía en el
+tablero de una cuenta que no era suya, con un saldo ya puesto, sin saber qué era esto
+ni cómo entrar. Ahora hay tres capas bien separadas:
+
+| Capa | Rutas | Dónde vive | Por qué |
+| --- | --- | --- | --- |
+| **Entrada** | `/portada`, `/ingreso` | **Fuera** del shell (`rutasDeEntrada`) | Sin sesión no hay nada que ofrecer en una barra de pestañas: cuatro destinos a los que todavía no se puede ir |
+| **Alta** | `/identidad/registro` y sus pasos | Dentro de la rama de identidad | Es un flujo con pasos, no un destino |
+| **App** | las tres ramas del shell | Dentro del shell | Solo con sesión |
+
+La **portada** (`PantallaDePortada`) explica el producto en los términos en que la
+gente ya lo conoce —el pasanaku de toda la vida— y responde la única pregunta que
+importa antes de pedir datos: *¿por qué te daría mi plata?* Tres promesas, ninguna de
+rendimiento: **tu rueda a la vista**, **el orden se sortea y se verifica**, **la plata
+la custodia el banco, no la empresa**. La `Rueda` es el héroe, no un ícono: quien ya
+hizo un pasanaku la reconoce antes de leer una palabra.
+
+**Bug de raíz que esto destapó:** `Guardias.exigirSesion` redirigía a
+`/identidad/ingreso`, una ruta **que nunca existió**. Quien perdía la sesión no
+llegaba al login sino a «ruta no encontrada». Ahora apunta a `/ingreso`, que existe y
+está fuera del shell.
+
+---
+
 ## 2.4 · Movimiento — la regla que lo gobierna todo
 
 > Esta app muestra el dinero de personas que en muchos casos no confían del todo en

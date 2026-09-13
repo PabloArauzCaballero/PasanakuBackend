@@ -6,6 +6,24 @@ class TextosIdentidad {
   static const tituloBienvenida = 'Bienvenido a AportaYa';
   static const cargando = 'Un momento…';
 
+  // Portada: lo primero que ve alguien que abre la app. Explica el producto en los
+  // términos en que la gente ya lo conoce —el pasanaku de toda la vida— y dice qué
+  // cambia acá, sin jerga financiera ni promesas de rendimiento.
+  static const portadaTitular = 'El pasanaku de siempre,\ncon las cuentas claras';
+  static const portadaBajada =
+      'Armá una rueda con tu gente, poné lo mismo cada turno y cobrá cuando te toca. '
+      'Sin confiar de memoria.';
+  static const portadaRuedaTitulo = 'Tu rueda, a la vista';
+  static const portadaRuedaDetalle = 'Quién puso, quién cobró y a quién le toca.';
+  static const portadaSorteoTitulo = 'El turno no se arregla';
+  static const portadaSorteoDetalle =
+      'Se sortea, y cualquiera del grupo puede comprobarlo.';
+  static const portadaCustodiaTitulo = 'La plata no la tenemos nosotros';
+  static const portadaCustodiaDetalle =
+      'Queda en Banco Unión, aparte del dinero de la empresa.';
+  static const portadaCrearCuenta = 'Crear mi cuenta';
+  static const portadaYaTengoCuenta = 'Ya tengo cuenta';
+
   // Alta (CU-01), ocho pasos.
   static const pasoDatos = 'Tus datos';
   static const pasoCelular = 'Confirmar celular';
