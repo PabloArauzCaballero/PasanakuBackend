@@ -1,5 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'cu01_registrar.dart';
+import 'datos_del_alta.dart';
+
+export 'datos_del_alta.dart' show DatosLeidosDelDocumento, DatosPersonales;
+import 'estado_contrato.dart';
+import 'estado_sesion.dart' show mensajeDeError;
+
 /// Los ocho pasos del alta (CU-01, delta D-1 de la maqueta). Un paso = un
 /// organismo; ninguno conoce a los demás, solo al notifier.
 enum PasoAlta {
@@ -11,53 +18,6 @@ enum PasoAlta {
   cotejo,
   perfilTransaccional,
   contrato,
-}
-
-class DatosPersonales {
-  const DatosPersonales({
-    this.nombres = '',
-    this.apellidos = '',
-    this.fechaNacimiento,
-    this.telefono = '',
-    this.tipoDocumento = 'CI',
-    this.numeroDocumento = '',
-  });
-  final String nombres;
-  final String apellidos;
-  final DateTime? fechaNacimiento;
-  final String telefono;
-  final String tipoDocumento;
-  final String numeroDocumento;
-
-  DatosPersonales copiarCon({
-    String? nombres,
-    String? apellidos,
-    DateTime? fechaNacimiento,
-    String? telefono,
-    String? tipoDocumento,
-    String? numeroDocumento,
-  }) => DatosPersonales(
-    nombres: nombres ?? this.nombres,
-    apellidos: apellidos ?? this.apellidos,
-    fechaNacimiento: fechaNacimiento ?? this.fechaNacimiento,
-    telefono: telefono ?? this.telefono,
-    tipoDocumento: tipoDocumento ?? this.tipoDocumento,
-    numeroDocumento: numeroDocumento ?? this.numeroDocumento,
-  );
-}
-
-/// Lo leído del documento por el proveedor de KYC (CU-01 flujo 3). Sin cliente de
-/// identidad generado (§ hueco H-CLIENTE del informe), esto queda como el shape que
-/// consumirá `FilaDeCotejo`, poblado por el propio usuario mientras no haya OCR.
-class DatosLeidosDelDocumento {
-  const DatosLeidosDelDocumento({
-    this.nombres = '',
-    this.apellidos = '',
-    this.numeroDocumento = '',
-  });
-  final String nombres;
-  final String apellidos;
-  final String numeroDocumento;
 }
 
 class EstadoAlta {
@@ -122,10 +82,8 @@ class EstadoAlta {
   );
 }
 
-/// Sabe en qué paso está el alta, y nada más: ni pinta, ni llama a la red. Enviar el
-/// alta completa a `POST /usuarios` queda pendiente del cliente Dart de identidad
-/// (hueco declarado en el informe del carril) — `enviarAlServidor` se deja como
-/// punto de extensión explícito en vez de simular una llamada.
+/// Sabe en qué paso está el alta y lo manda al servidor al cerrarlo. No pinta: eso
+/// es de los organismos de cada paso, y la petición la arma [Registro].
 class AltaNotifier extends Notifier<EstadoAlta> {
   @override
   EstadoAlta build() => const EstadoAlta();
@@ -166,12 +124,39 @@ class AltaNotifier extends Notifier<EstadoAlta> {
     if (i > 0) state = state.copiarCon(paso: orden[i - 1]);
   }
 
-  /// Punto de extensión: lo completa quien conecte el cliente de `identidad`.
-  Future<void> enviarAlServidor() {
-    throw UnimplementedError(
-      'CU-01: falta el cliente Dart de identidad (clientes/dart) — hueco '
-      'declarado en planes/informes/carril-M1.md §3.',
-    );
+  /// CU-01 · `POST /usuarios`. Manda el alta completa en una sola petición, que es
+  /// como la define el contrato: los ocho pasos juntan datos, y recién al final —con
+  /// los contratos aceptados— se crea la persona.
+  ///
+  /// Devuelve el id de la cuenta de billetera que el backend abre junto al usuario,
+  /// o `null` si el alta quedó pendiente de verificación sin billetera todavía.
+  Future<String?> enviarAlServidor() async {
+    if (state.enviando) return null;
+    final d = state.datos;
+    final nacimiento = d.fechaNacimiento;
+    if (nacimiento == null) {
+      state = state.copiarCon(error: 'Falta tu fecha de nacimiento.');
+      return null;
+    }
+    state = state.copiarCon(enviando: true);
+    try {
+      final r = await ref
+          .read(registroProvider)
+          .crear(
+            telefonoE164: d.telefono,
+            nombres: d.nombres,
+            apellidos: d.apellidos,
+            fechaNacimiento: nacimiento,
+            tipoDocumento: d.tipoDocumento,
+            numeroDocumento: d.numeroDocumento,
+            contratosAceptados: ref.read(contratoProvider).aceptados,
+          );
+      state = state.copiarCon();
+      return r;
+    } on Object catch (e) {
+      state = state.copiarCon(error: mensajeDeError(e));
+      return null;
+    }
   }
 }
 

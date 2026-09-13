@@ -43,3 +43,8 @@ Camara camaraDeLaPlataforma() => CamaraAndroid();
 
 ProteccionPantalla proteccionPantallaDeLaPlataforma() =>
     ProteccionPantallaAndroid();
+
+/// `IOS` o `ANDROID`, con los nombres que usa el contrato de identidad. Está acá y no
+/// en el caso de uso porque `Platform.is*` fuera de `infraestructura/` es un rechazo
+/// del gate (ADR-036).
+String nombreDePlataforma() => Platform.isIOS ? 'IOS' : 'ANDROID';

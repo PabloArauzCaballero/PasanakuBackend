@@ -74,3 +74,6 @@ despliegue/compose/base.local.yml
 
 # fvm instala el SDK en .fvm/; .fvmrc si se versiona
 .fvm/
+
+# Puntos de entrada temporales para verificación visual en el simulador.
+apps/movil/ver_*_tmp.dart

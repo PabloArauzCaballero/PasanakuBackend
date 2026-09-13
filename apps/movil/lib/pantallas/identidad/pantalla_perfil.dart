@@ -1,12 +1,14 @@
 import 'package:aportaya_diseno/atomos/campo.dart';
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
+import 'package:aportaya_diseno/moleculas/cabecera.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'dominio/estado_cuenta.dart';
+import 'dominio/estado_sesion.dart';
 import 'textos.dart';
 
 /// CU-07 — ejercer derechos sobre datos personales: ver y corregir el correo de
@@ -31,13 +33,14 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(TextosIdentidad.tituloPerfil)),
       body: SafeArea(
+        bottom: false,
         child: Padding(
-          padding: const EdgeInsets.all(Espacio.s4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          padding: const EdgeInsets.symmetric(horizontal: Espacio.s4),
+          child: ListView(
             children: [
+              const CabeceraDeInicio(titulo: TextosIdentidad.tituloPerfil),
+              const SizedBox(height: Espacio.s4),
               Campo(
                 etiqueta: 'Correo',
                 controlador: _correo,
@@ -58,6 +61,22 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
                 variante: BotonVariante.fantasma,
                 expandido: true,
                 onPressed: () => context.push('/identidad/contrasena'),
+              ),
+              const SizedBox(height: Espacio.s3),
+              // Cerrar sesión no estaba en ningún lado: se podía entrar y no salir.
+              // Va antes de «dar de baja» y con otra variante, porque son cosas muy
+              // distintas —una se deshace volviendo a ingresar, la otra no— y en una
+              // app de dinero no pueden parecerse.
+              Boton(
+                texto: TextosIdentidad.cerrarSesion,
+                variante: BotonVariante.fantasma,
+                expandido: true,
+                onPressed: () async {
+                  await ref
+                      .read(sesionIdentidadProvider.notifier)
+                      .cerrarSesion();
+                  if (context.mounted) context.go('/portada');
+                },
               ),
               const SizedBox(height: Espacio.s3),
               Boton(

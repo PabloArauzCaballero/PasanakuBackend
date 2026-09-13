@@ -57,6 +57,25 @@ hizo un pasanaku la reconoce antes de leer una palabra.
 llegaba al login sino a «ruta no encontrada». Ahora apunta a `/ingreso`, que existe y
 está fuera del shell.
 
+### El ingreso habla con el backend (CU-04)
+
+El login era una fachada: guardaba el teléfono en memoria, navegaba a MFA, y el MFA
+aceptaba cualquier código. Se podía «entrar» a AportaYa sin que la cuenta existiera.
+El cliente Dart de identidad estaba generado y en el `pubspec` desde el principio —
+solo que nadie lo llamaba.
+
+Ahora `cu04_autenticar.dart` hace `POST /sesiones` de verdad:
+
+| Regla | Por qué |
+| --- | --- |
+| **El servidor decide si hace falta MFA**, nunca la pantalla | Invariante 7. El mismo endpoint atiende los dos pasos, así el backend puede pedir un factor cuando quiera —dispositivo nuevo, monto alto— sin que la app lo adivine |
+| **Sin token no hay sesión** | Si el servidor responde «no hace falta otro factor» pero no manda `tokenAcceso`, es un error, no un ingreso. Entrar a medias es peor que no entrar |
+| **La app no muestra el mensaje del backend** | El texto que lee una persona sale del catálogo de `dominio/errores.dart`, en voz de marca |
+| **`huellaDispositivo` es de la instalación, no de la persona** | Se genera al azar y vive en el almacén seguro. No sale de un IMEI ni de nada que siga a alguien entre apps, y muere al desinstalar. Es estable entre intentos, que es lo que permite «confiar en este dispositivo» |
+| **El arranque pregunta por la sesión una sola vez** | Mientras la marca se acerca. Preguntarlo en cada navegación sería tocar el llavero del teléfono a cada paso. Si leer el llavero falla, se va a la portada: se pide ingresar de nuevo, nunca al revés |
+
+Y se agregó **cerrar sesión** al perfil, que no existía: se podía entrar y no salir.
+
 ---
 
 ## 2.4 · Movimiento — la regla que lo gobierna todo

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import 'dominio/verificacion_contrato.dart';
 import 'navegacion/rutas.dart';
+import 'proveedores/sesion.dart';
 import 'package:aportaya_diseno/moviles/apertura_de_marca.dart';
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
@@ -34,8 +35,10 @@ class AppAportaYa extends ConsumerWidget {
       themeMode: ThemeMode.system,
       routerConfig: _enrutador,
       debugShowCheckedModeBanner: false,
-      builder: (context, child) =>
-          _ConApertura(child: _AvisoDeContrato(child: child)),
+      builder: (context, child) => _ConApertura(
+        enrutador: _enrutador,
+        child: _AvisoDeContrato(child: child),
+      ),
     );
   }
 }
@@ -79,25 +82,47 @@ class _AvisoDeContrato extends ConsumerWidget {
 /// Va acá arriba y no como una ruta: así la app **ya está armada y pidiendo el saldo**
 /// detrás de la animación, en vez de empezar a cargar recién cuando la apertura
 /// termina. La animación tapa el arranque; no lo demora.
-class _ConApertura extends StatefulWidget {
-  const _ConApertura({required this.child});
+/// También es el momento en que se decide **a dónde entrar**: mientras la marca se
+/// acerca, se lee el almacén seguro. Si hay una sesión guardada, la app abre en la
+/// billetera; si no, se queda en la portada. Es el único lugar donde esa pregunta se
+/// hace, y se hace una sola vez por arranque: preguntarla en cada navegación sería
+/// tocar el llavero del teléfono a cada paso.
+class _ConApertura extends ConsumerStatefulWidget {
+  const _ConApertura({required this.child, required this.enrutador});
   final Widget child;
+  final GoRouter enrutador;
 
   @override
-  State<_ConApertura> createState() => _ConAperturaState();
+  ConsumerState<_ConApertura> createState() => _ConAperturaState();
 }
 
-class _ConAperturaState extends State<_ConApertura> {
+class _ConAperturaState extends ConsumerState<_ConApertura> {
   bool _mostrando = true;
   Timer? _respaldo;
 
   @override
   void initState() {
     super.initState();
+    _decidirDondeEntrar();
     // El cinturón de seguridad: si la animación no llamara a su final —un ticker que
     // no arranca, un frame que no llega—, a los dos segundos la apertura se va igual.
     // Nadie se queda mirando un logo sin poder entrar a su plata.
     _respaldo = Timer(const Duration(seconds: 2), _ocultar);
+  }
+
+  Future<void> _decidirDondeEntrar() async {
+    // Si leer el llavero falla —teléfono con el almacén bloqueado, un permiso raro—,
+    // lo seguro es la portada: se pide ingresar de nuevo. Nunca al revés.
+    String? token;
+    try {
+      token = await ref.read(sesionProvider).tokenDeAcceso();
+    } on Object {
+      token = null;
+    }
+    if (!mounted || token == null || token.isEmpty) return;
+    if (widget.enrutador.state.uri.toString() == '/portada') {
+      widget.enrutador.go('/billetera/inicio');
+    }
   }
 
   void _ocultar() {

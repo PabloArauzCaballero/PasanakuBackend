@@ -48,8 +48,9 @@ class PerfilNotifier extends Notifier<EstadoPerfil> {
 
   Future<void> guardar() {
     throw UnimplementedError(
-      'CU-07: falta el cliente Dart de identidad — hueco declarado en '
-      'planes/informes/carril-M1.md §3.',
+      'CU-07: el contrato de identidad todavía no expone una operación para '
+      'corregir el correo. El cliente Dart está generado y en uso (CU-01 y CU-04 '
+      'ya lo llaman): lo que falta es el endpoint, no el cliente.',
     );
   }
 }
@@ -93,8 +94,9 @@ class ContrasenaNotifier extends Notifier<EstadoContrasena> {
 
   Future<void> confirmar() {
     throw UnimplementedError(
-      'CU-09: falta el cliente Dart de identidad — hueco declarado en '
-      'planes/informes/carril-M1.md §3.',
+      'CU-09: el contrato de identidad todavía no expone esta operación. El '
+      'cliente Dart está generado y en uso (CU-01 y CU-04 ya lo llaman): lo que '
+      'falta es el endpoint, no el cliente.',
     );
   }
 }
@@ -112,8 +114,9 @@ class BajaNotifier extends Notifier<bool> {
 
   Future<void> confirmarBaja() {
     throw UnimplementedError(
-      'CU-09: falta el cliente Dart de identidad — hueco declarado en '
-      'planes/informes/carril-M1.md §3.',
+      'CU-09: el contrato de identidad todavía no expone esta operación. El '
+      'cliente Dart está generado y en uso (CU-01 y CU-04 ya lo llaman): lo que '
+      'falta es el endpoint, no el cliente.',
     );
   }
 }

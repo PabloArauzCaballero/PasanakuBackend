@@ -17,6 +17,16 @@ class EstadoContratoAdhesion {
   final bool aceptaTarifario;
   final bool aceptaTratamientoDatos;
 
+  /// Los códigos que el alta manda al servidor como `aceptaContratos`. Son los tres
+  /// consentimientos por separado a propósito: aceptar el contrato no es lo mismo que
+  /// aceptar el tarifario ni que autorizar el tratamiento de datos, y el registro de
+  /// cuál se dio tiene que poder auditarse uno por uno.
+  List<String> get aceptados => [
+    if (aceptaContrato) 'ADHESION',
+    if (aceptaTarifario) 'TARIFARIO',
+    if (aceptaTratamientoDatos) 'TRATAMIENTO_DATOS',
+  ];
+
   bool get puedeAceptar =>
       leidoHastaElFinal &&
       aceptaContrato &&
