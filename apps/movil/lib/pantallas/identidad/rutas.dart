@@ -31,11 +31,6 @@ final List<RouteBase> rutasIdentidad = [
     name: 'identidad.bienvenida',
     builder: (context, state) => const PantallaDeBienvenida(),
   ),
-  GoRoute(
-    path: '/identidad/registro',
-    name: 'identidad.registro',
-    builder: (context, state) => const PantallaDeRegistro(),
-  ),
   // La maqueta separa "registro" (datos) de "verificacion-basica" (celular +
   // documento + prueba de vida + cotejo), pero ambas son pasos del mismo asistente
   // de ocho pasos que gobierna `AltaNotifier` (§ pantalla_registro.dart) — dos
@@ -93,6 +88,11 @@ final List<RouteBase> rutasIdentidad = [
 /// destinos a los que todavía no se puede ir. `crearEnrutador` las registra al lado
 /// de alianzas y soporte, encima del shell.
 ///
+/// `/registro` está acá y no bajo `/identidad/` por la misma razón, y por una peor:
+/// vivía dentro del shell, así que tocar «Crear mi cuenta» montaba la barra de
+/// pestañas con Inicio · Grupos · Movimientos · Perfil. La app parecía haber
+/// iniciado sesión sola, con una cuenta que todavía no existía.
+///
 /// `/ingreso` es además el destino del guardia de sesión, que antes apuntaba a
 /// `/identidad/ingreso` — una ruta que nunca existió: quien perdía la sesión no
 /// llegaba al login sino a «ruta no encontrada».
@@ -106,5 +106,10 @@ final List<RouteBase> rutasDeEntrada = [
     path: '/ingreso',
     name: 'identidad.ingreso',
     builder: (context, state) => const PantallaDeSesion(),
+  ),
+  GoRoute(
+    path: '/registro',
+    name: 'identidad.registro',
+    builder: (context, state) => const PantallaDeRegistro(),
   ),
 ];

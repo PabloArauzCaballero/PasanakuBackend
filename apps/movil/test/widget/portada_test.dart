@@ -1,3 +1,4 @@
+import 'package:aportaya_diseno/atomos/barra_de_puntos.dart';
 import 'package:aportaya_diseno/moviles/barra_pestanas.dart';
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
@@ -68,7 +69,7 @@ void main() {
     await tester.tap(find.text('Crear mi cuenta'));
     await tester.pumpAndSettle();
 
-    expect(router.state.uri.toString(), '/identidad/registro');
+    expect(router.state.uri.toString(), '/registro');
   });
 
   testWidgets(
@@ -91,11 +92,8 @@ void main() {
   );
 
   testWidgets(
-    'entra entera en un teléfono: la promesa de la custodia se lee sin desplazar',
+    'se puede crear cuenta sin terminar el tour: las acciones no son un peaje',
     (tester) async {
-      // Un teléfono chico de verdad. La tercera promesa —«la plata no la tenemos
-      // nosotros»— es la que responde «¿y mi dinero?»: si queda cortada contra la
-      // barra de acciones, la portada falla justo en lo que vino a hacer.
       tester.view.physicalSize = const Size(1170, 2532); // iPhone 13/14, 3x
       tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.reset);
@@ -104,15 +102,30 @@ void main() {
       await tester.pumpWidget(appCon(router));
       await tester.pumpAndSettle();
 
-      final custodia = find.text('La plata no la tenemos nosotros');
-      expect(custodia, findsOneWidget);
+      // Sin deslizar ni una lámina, las dos salidas ya están a la vista.
+      expect(find.text('Crear mi cuenta'), findsOneWidget);
+      expect(find.text('Ya tengo cuenta'), findsOneWidget);
+    },
+  );
 
-      final caja = tester.getRect(custodia);
-      final botonera = tester.getRect(find.text('Crear mi cuenta'));
+  testWidgets(
+    '«Crear mi cuenta» NO monta la barra de pestañas: sin sesión no hay app',
+    (tester) async {
+      // El alta vivía dentro del shell, así que abrirla montaba Inicio · Grupos ·
+      // Movimientos · Perfil y la app parecía haber iniciado sesión sola, con una
+      // cuenta que todavía no existía.
+      final router = crearEnrutador();
+      await tester.pumpWidget(appCon(router));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Crear mi cuenta'));
+      await tester.pumpAndSettle();
+
+      expect(router.state.uri.toString(), '/registro');
       expect(
-        caja.bottom,
-        lessThan(botonera.top),
-        reason: 'la tercera promesa queda tapada por la barra de acciones',
+        find.byType(BarraPestanas),
+        findsNothing,
+        reason: 'el alta no puede traer la barra de pestañas de la app',
       );
     },
   );
@@ -123,9 +136,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('pasanaku'), findsWidgets);
-    // Las tres promesas, que son lo que responde «¿por qué te daría mi plata?».
-    expect(find.text('Tu rueda, a la vista'), findsOneWidget);
-    expect(find.text('El turno no se arregla'), findsOneWidget);
-    expect(find.text('La plata no la tenemos nosotros'), findsOneWidget);
+    // Cuatro láminas, una idea por lámina (D-8 de la maqueta).
+    expect(find.byType(PageView), findsOneWidget);
+    expect(find.byType(BarraDePuntos), findsOneWidget);
+    final puntos = tester.widget<BarraDePuntos>(find.byType(BarraDePuntos));
+    expect(puntos.total, 4);
   });
 }

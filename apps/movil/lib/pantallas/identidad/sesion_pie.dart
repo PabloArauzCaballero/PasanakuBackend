@@ -36,15 +36,19 @@ class SesionSinCuenta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    // `Wrap` y no `Row`: una fila con dos textos que no pueden achicarse se desborda
+    // en cuanto alguien sube el tamaño de letra del sistema, y el desbordamiento
+    // recorta justo el enlace de salida. Acá pasa a dos líneas y se sigue leyendo.
+    return Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text(
           TextosIdentidad.sesionSinCuenta,
           style: Tipo.cuerpoChico.copyWith(color: t.text2),
         ),
         TextButton(
-          onPressed: () => context.push('/identidad/registro'),
+          onPressed: () => context.push('/registro'),
           child: const Text(TextosIdentidad.portadaCrearCuenta),
         ),
       ],

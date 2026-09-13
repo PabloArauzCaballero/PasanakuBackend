@@ -21,6 +21,24 @@ class TextosIdentidad {
   static const portadaCustodiaTitulo = 'La plata no la tenemos nosotros';
   static const portadaCustodiaDetalle =
       'Queda en Banco Unión, aparte del dinero de la empresa.';
+  static const portadaSaltar = 'Saltar';
+  // Las cuatro láminas del tour (D-8 de la maqueta): qué es, qué se ve, cómo se
+  // decide el orden, y dónde queda la plata. Una idea por lámina.
+  static const tour1Titulo = 'El pasanaku de siempre,\ncon las cuentas claras';
+  static const tour1Texto =
+      'Armá una rueda con tu gente, poné lo mismo cada turno y cobrá cuando te toca.';
+  static const tour2Titulo = 'Tu rueda, a la vista';
+  static const tour2Texto =
+      'Quién puso, quién cobró y a quién le toca. Sin confiar de memoria ni llevar '
+      'la cuenta en un cuaderno.';
+  static const tour3Titulo = 'El turno no se arregla';
+  static const tour3Texto =
+      'El orden sale sorteado, y cualquiera del grupo puede comprobar que el sorteo '
+      'fue limpio.';
+  static const tour4Titulo = 'La plata no la tenemos nosotros';
+  static const tour4Texto =
+      'Queda en custodia en Banco Unión, separada del dinero de la empresa. Aunque '
+      'a AportaYa le vaya mal, tu plata sigue siendo tuya.';
   static const portadaCrearCuenta = 'Crear mi cuenta';
   static const portadaYaTengoCuenta = 'Ya tengo cuenta';
 

@@ -1,104 +1,74 @@
+import 'package:aportaya_diseno/atomos/barra_de_puntos.dart';
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/marca.dart';
-import 'package:aportaya_diseno/atomos/rueda.dart';
-import 'package:aportaya_diseno/moleculas/aparicion_escalonada.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'portada_promesa.dart';
+import 'laminas_del_tour.dart';
 import 'textos.dart';
 
-/// **Lo primero que ve alguien que abre AportaYa.**
+/// **Lo primero que ve alguien que abre AportaYa**: el tour de cuatro láminas que
+/// declara D-8 de la maqueta, saltable.
 ///
-/// Antes la app arrancaba dentro de la billetera, con un saldo ya puesto: quien la
-/// abría por primera vez caía en el tablero de una cuenta que no era suya, sin saber
-/// qué era esto ni cómo entrar. Esta pantalla es la puerta: dice qué es un pasanaku
-/// acá, por qué las cuentas quedan claras, y ofrece las dos únicas salidas posibles
-/// —crear cuenta o ingresar—.
+/// Antes la app arrancaba dentro de la billetera, con un saldo ya puesto, y quien la
+/// abría por primera vez caía en el tablero de una cuenta que no era suya. Después
+/// fue una sola pantalla que decía todo junto. Ahora es lo que la maqueta pedía: una
+/// idea por lámina, pasando con el dedo.
 ///
-/// La rueda es el héroe, no un ícono decorativo: es el objeto del que habla el
-/// producto, y quien ya hizo un pasanaku la reconoce antes de leer una palabra.
-class PantallaDePortada extends StatelessWidget {
+/// **Las dos acciones están siempre abajo, fuera del carrusel.** Quien ya sabe qué es
+/// AportaYa no tiene que deslizar cuatro veces para poder entrar: el tour se cuenta
+/// para quien lo quiere, no se cobra como peaje.
+class PantallaDePortada extends StatefulWidget {
   const PantallaDePortada({super.key});
+
+  @override
+  State<PantallaDePortada> createState() => _PantallaDePortadaState();
+}
+
+class _PantallaDePortadaState extends State<PantallaDePortada> {
+  final _paginas = PageController();
+  int _actual = 0;
+
+  @override
+  void dispose() {
+    _paginas.dispose();
+    super.dispose();
+  }
+
+  void _saltar(int total) => _paginas.animateToPage(
+    total - 1,
+    duration: const Duration(milliseconds: 320),
+    curve: Curves.easeOutCubic,
+  );
 
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
+    final laminas = laminasDelTour(t);
+    final enLaUltima = _actual == laminas.length - 1;
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
+            _Encabezado(
+              t: t,
+              mostrarSaltar: !enLaUltima,
+              onSaltar: () => _saltar(laminas.length),
+            ),
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(
-                  Espacio.s4,
-                  Espacio.s3,
-                  Espacio.s4,
-                  Espacio.s3,
-                ),
-                children: [
-                  AparicionEscalonada(
-                    children: [
-                      Row(
-                        children: [
-                          const Marca(tamano: 34),
-                          const SizedBox(width: Espacio.s2),
-                          Text.rich(
-                            TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: 'Aporta',
-                                  style: TextStyle(color: t.text),
-                                ),
-                                TextSpan(
-                                  text: 'Ya',
-                                  style: TextStyle(color: t.accentTexto),
-                                ),
-                              ],
-                            ),
-                            style: Tipo.titulo2,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: Espacio.s5),
-                      // El tamaño lo manda el alto del teléfono, no el gusto: la portada
-                      // tiene que entrar entera sin desplazarse, y con la rueda más grande
-                      // la tercera promesa —la de la custodia, la que responde «¿y mi
-                      // plata?»— quedaba cortada a media frase contra la barra de
-                      // acciones. `portada_test.dart` lo mide en un teléfono chico.
-                      const Center(
-                        child: Rueda(
-                          turnos: 10,
-                          cobrados: 4,
-                          miTurno: 6,
-                          turnoActual: 4,
-                          diametro: 104,
-                          etiqueta: TextosIdentidad.portadaRuedaTitulo,
-                        ),
-                      ),
-                      const SizedBox(height: Espacio.s5),
-                      Semantics(
-                        header: true,
-                        child: Text(
-                          TextosIdentidad.portadaTitular,
-                          style: Tipo.titulo1.copyWith(color: t.text),
-                        ),
-                      ),
-                      const SizedBox(height: Espacio.s3),
-                      Text(
-                        TextosIdentidad.portadaBajada,
-                        style: Tipo.cuerpo.copyWith(color: t.text2),
-                      ),
-                      const SizedBox(height: Espacio.s5),
-                      const PortadaPromesas(),
-                    ],
-                  ),
-                ],
+              child: PageView(
+                controller: _paginas,
+                onPageChanged: (i) => setState(() => _actual = i),
+                children: laminas,
               ),
             ),
-            _Salidas(),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: Espacio.s4),
+              child: BarraDePuntos(total: laminas.length, actual: _actual),
+            ),
+            const _Salidas(),
           ],
         ),
       ),
@@ -106,18 +76,58 @@ class PantallaDePortada extends StatelessWidget {
   }
 }
 
-/// Las dos salidas, ancladas abajo: se ven sin desplazarse, que es lo que hay que
-/// poder hacer en la primera pantalla de una app.
+class _Encabezado extends StatelessWidget {
+  const _Encabezado({
+    required this.t,
+    required this.mostrarSaltar,
+    required this.onSaltar,
+  });
+
+  final Tokens t;
+  final bool mostrarSaltar;
+  final VoidCallback onSaltar;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(Espacio.s4, Espacio.s3, Espacio.s2, 0),
+    child: Row(
+      children: [
+        const Marca(tamano: 30),
+        const SizedBox(width: Espacio.s2),
+        Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(text: 'Aporta', style: TextStyle(color: t.text)),
+              TextSpan(text: 'Ya', style: TextStyle(color: t.accentTexto)),
+            ],
+          ),
+          style: Tipo.titulo2,
+        ),
+        const Spacer(),
+        // Desaparece en la última lámina, no se deshabilita: un botón apagado en una
+        // esquina es ruido que nadie puede usar.
+        if (mostrarSaltar)
+          TextButton(
+            onPressed: onSaltar,
+            child: const Text(TextosIdentidad.portadaSaltar),
+          ),
+      ],
+    ),
+  );
+}
+
+/// Las dos salidas, ancladas abajo: se ven sin desplazarse y sin terminar el tour,
+/// que es lo que hay que poder hacer en la primera pantalla de una app.
 class _Salidas extends StatelessWidget {
+  const _Salidas();
+
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
     return Container(
       decoration: BoxDecoration(
         color: t.surface,
-        border: Border(
-          top: BorderSide(color: t.border, width: Borde.fino),
-        ),
+        border: Border(top: BorderSide(color: t.border, width: Borde.fino)),
       ),
       padding: const EdgeInsets.fromLTRB(
         Espacio.s4,
@@ -132,7 +142,7 @@ class _Salidas extends StatelessWidget {
             texto: TextosIdentidad.portadaCrearCuenta,
             variante: BotonVariante.primario,
             expandido: true,
-            onPressed: () => context.push('/identidad/registro'),
+            onPressed: () => context.push('/registro'),
           ),
           const SizedBox(height: Espacio.s2),
           Boton(
