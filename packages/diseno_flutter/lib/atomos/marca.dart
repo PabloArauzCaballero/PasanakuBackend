@@ -10,7 +10,13 @@ import 'pintor_de_marca.dart';
 /// punto (el `symbol #ay-marca` de la maqueta). Se dibuja, no se importa como imagen,
 /// para que siga el tema y escale sin pixelarse.
 class Marca extends StatelessWidget {
-  const Marca({super.key, this.tamano = 40, this.colorDelTrazo, this.avance = 1});
+  const Marca({
+    super.key,
+    this.tamano = 40,
+    this.colorDelTrazo,
+    this.avance = 1,
+    this.volumen = false,
+  });
 
   final double tamano;
 
@@ -21,6 +27,10 @@ class Marca extends StatelessWidget {
   /// Cuánto del trazo está dibujado, de 0 a 1. Lo usa la apertura para que la marca
   /// se escriba sola.
   final double avance;
+
+  /// Degradado en cada trazo, para cuando la marca se ve en grande. Ver
+  /// [PintorDeMarca.volumen].
+  final bool volumen;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +45,7 @@ class Marca extends StatelessWidget {
             trazo: colorDelTrazo ?? t.brand,
             acento: t.accent,
             avance: avance,
+            volumen: volumen,
           ),
         ),
       ),

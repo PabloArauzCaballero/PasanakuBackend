@@ -66,6 +66,8 @@ class Rueda extends StatelessWidget {
 
   String get _frase {
     final vuelta = 'Rueda de $turnos turnos, $cobrados ya cobrados';
-    return miTurno == null ? '$vuelta.' : '$vuelta. Tu turno es el ${miTurno! + 1}.';
+    return miTurno == null
+        ? '$vuelta.'
+        : '$vuelta. Tu turno es el ${miTurno! + 1}.';
   }
 }

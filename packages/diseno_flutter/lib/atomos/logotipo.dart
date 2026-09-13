@@ -22,6 +22,7 @@ class Logotipo extends StatelessWidget {
     this.colorDeLaPalabra,
     this.avance = 1,
     this.opacidadDeLaPalabra = 1,
+    this.volumen = false,
   });
 
   /// El lado del isotipo. La palabra se dimensiona en proporción a esto.
@@ -40,10 +41,13 @@ class Logotipo extends StatelessWidget {
   /// Para que la palabra entre después que el isotipo, sin mover nada de lugar.
   final double opacidadDeLaPalabra;
 
+  /// Degradado en los trazos del isotipo. Ver [PintorDeMarca.volumen].
+  final bool volumen;
+
   /// El ancho de la palabra respecto del isotipo. En el SVG el isotipo mide 134 de
   /// ancho y «AportaYa» 390; apilada, esa relación la deja desbordada, así que se
   /// recorta a poco más del doble.
-  static const _anchoDeLaPalabra = 2.1;
+  static const _anchoDeLaPalabra = 1.9;
 
   @override
   Widget build(BuildContext context) => Semantics(
@@ -53,7 +57,12 @@ class Logotipo extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Marca(tamano: tamano, colorDelTrazo: colorDelTrazo, avance: avance),
+          Marca(
+            tamano: tamano,
+            colorDelTrazo: colorDelTrazo,
+            avance: avance,
+            volumen: volumen,
+          ),
           SizedBox(height: tamano * 0.14),
           Opacity(
             opacity: opacidadDeLaPalabra.clamp(0.0, 1.0),

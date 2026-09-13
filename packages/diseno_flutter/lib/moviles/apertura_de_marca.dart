@@ -27,12 +27,11 @@ class AperturaDeMarca extends StatefulWidget {
 
 class _AperturaDeMarcaState extends State<AperturaDeMarca>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _control = AnimationController(
-    vsync: this,
-    duration: widget.duracion,
-  )..addStatusListener((estado) {
-    if (estado == AnimationStatus.completed) _terminar();
-  });
+  late final AnimationController _control =
+      AnimationController(vsync: this, duration: widget.duracion)
+        ..addStatusListener((estado) {
+          if (estado == AnimationStatus.completed) _terminar();
+        });
 
   bool _terminado = false;
 
@@ -129,8 +128,14 @@ class _Nombre extends StatelessWidget {
     child: Text.rich(
       TextSpan(
         children: [
-          TextSpan(text: 'Aporta', style: TextStyle(color: t.text)),
-          TextSpan(text: 'Ya', style: TextStyle(color: t.accentTexto)),
+          TextSpan(
+            text: 'Aporta',
+            style: TextStyle(color: t.text),
+          ),
+          TextSpan(
+            text: 'Ya',
+            style: TextStyle(color: t.accentTexto),
+          ),
         ],
       ),
       style: Tipo.titulo1,

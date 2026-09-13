@@ -41,13 +41,13 @@ void main() {
 
     await tester.tap(find.text('Ya tengo cuenta'));
     // `pump()` sin duración arranca la transición; los siguientes la detienen en cada
-    // tiempo del zoom. Los milisegundos son acumulados: 150, 600, 950 y 1200 de los
-    // 1250 que dura.
+    // tiempo del zoom. Los milisegundos son acumulados: 200, 720, 1150 y 1400 de los
+    // 1450 que dura.
     await tester.pump();
     for (final (nombre, avance) in [
-      ('sello', 150),
-      ('marca', 450),
-      ('atraviesa', 350),
+      ('sello', 200),
+      ('marca', 520),
+      ('atraviesa', 430),
       ('llega', 250),
     ]) {
       await tester.pump(Duration(milliseconds: avance));

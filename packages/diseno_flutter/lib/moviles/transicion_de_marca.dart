@@ -4,22 +4,28 @@ import 'package:flutter/material.dart';
 
 import '../atomos/logotipo.dart';
 import '../tokens/tokens.dart';
+import 'panel_de_marca.dart';
 
 /// **El zoom de marca, estilo Netflix**, al salir de la bienvenida hacia cualquiera de
 /// sus tres destinos: el tour, el ingreso y el alta de cuenta.
 ///
-/// Cuatro tiempos, en poco más de un segundo:
+/// Cuatro tiempos, en un segundo y medio:
 /// 1. El sello verde crece desde el centro hasta llenar la pantalla.
-/// 2. Aparece el logotipo **entero** —isotipo y palabra— y se queda grande: es el
-///    momento de verlo. Antes acá iba solo el isotipo, y en grande tres trazos
-///    abiertos sin la palabra no se leen como el logo de nadie.
+/// 2. Aparece el logotipo entero —isotipo y palabra—, lo cruza un destello y se queda
+///    grande: es el momento de verlo.
 /// 3. El logotipo se lanza hacia la cámara y se lo atraviesa.
-/// 4. Del otro lado aparece la pantalla nueva, asentándose desde apenas más grande.
+/// 4. Del otro lado ya está la pantalla nueva, asentándose desde apenas más grande.
+///
+/// **La pantalla nueva termina de aparecer antes de que el panel se vaya** (opaca al
+/// 76 %, el panel recién empieza a irse al 88 %). Al revés —que era como estaba— hay
+/// un tramo en que el panel ya se fue, la pantalla nueva todavía está a media opacidad
+/// y abajo se sigue viendo la vieja: las dos superpuestas, turbio, como un error de
+/// dibujo. El panel es opaco justamente para que ese cambio no se vea.
 ///
 /// Al volver no se repite el espectáculo: un fundido corto. La marca se presenta al
 /// entrar, no cada vez que alguien retrocede. Con «reducir movimiento», nada.
 abstract final class TransicionDeMarca {
-  static const duracion = Duration(milliseconds: 1250);
+  static const duracion = Duration(milliseconds: 1450);
   static const duracionDeVuelta = Duration(milliseconds: 280);
 
   /// Firma de `transitionsBuilder` de `CustomTransitionPage` (go_router) y de
@@ -44,10 +50,13 @@ class _Zoom extends StatelessWidget {
   /// El tamaño del sello de la bienvenida, del que arranca el panel.
   static const _sello = 72.0;
 
-  /// Cuánto de la pantalla ocupa el isotipo cuando está quieto en el medio. Con 0,46
-  /// el logotipo entero —isotipo, aire y palabra— ocupa poco más de medio alto: se ve
-  /// grande sin tocar los bordes.
-  static const _parteDeLaPantalla = 0.44;
+  /// Cuánto de la pantalla ocupa el isotipo cuando está quieto en el medio.
+  ///
+  /// El tope lo pone la palabra, que es más ancha que el isotipo y encima sigue
+  /// creciendo durante la pausa: con 0,44 llegaba a medir más que la pantalla y
+  /// «AportaYa» se cortaba en las dos puntas justo en el cuadro que se quiere mirar.
+  /// 0,42 × 1,9 de palabra × 1,12 de empuje = 89 % del ancho, con aire a los costados.
+  static const _parteDeLaPantalla = 0.42;
 
   static double _tramo(double v, double desde, double hasta) =>
       ((v - desde) / (hasta - desde)).clamp(0.0, 1.0);
@@ -72,45 +81,47 @@ class _Zoom extends StatelessWidget {
           );
         }
 
-        final expandir = Curves.easeInOutCubic.transform(_tramo(v, 0, 0.30));
-        final crecer = Curves.easeOutCubic.transform(_tramo(v, 0, 0.36));
-        final mirar = Curves.easeInOut.transform(_tramo(v, 0.36, 0.64));
-        final atravesar = Curves.easeInCubic.transform(_tramo(v, 0.64, 0.88));
-        final aparece = Curves.easeOutCubic.transform(_tramo(v, 0.70, 1));
+        final expandir = Curves.easeInOutCubic.transform(_tramo(v, 0, 0.28));
+        final crecer = Curves.easeOutCubic.transform(_tramo(v, 0, 0.34));
+        final mirar = Curves.easeInOut.transform(_tramo(v, 0.34, 0.66));
+        final atravesar = Curves.easeInCubic.transform(_tramo(v, 0.66, 0.90));
+        final destino = Curves.easeOutCubic.transform(_tramo(v, 0.50, 0.76));
+        final asiento = Curves.easeOutCubic.transform(_tramo(v, 0.66, 1));
 
-        // De la medida del sello a la medida grande, y de ahí a la cámara.
+        // Del tamaño del sello al tamaño grande, y de ahí a la cámara.
         final escala =
             lerpDouble(_sello * 0.55 / lado, 1, crecer)! +
-            0.16 * mirar +
-            21 * atravesar;
+            0.12 * mirar +
+            20 * atravesar;
 
         return Stack(
           fit: StackFit.expand,
           children: [
             Opacity(
-              opacity: aparece,
-              child: Transform.scale(scale: 1.08 - 0.08 * aparece, child: hijo),
+              opacity: destino,
+              child: Transform.scale(scale: 1.09 - 0.09 * asiento, child: hijo),
             ),
             IgnorePointer(
               child: ExcludeSemantics(
                 child: Opacity(
                   opacity:
-                      _tramo(v, 0, 0.04) *
-                      (1 - Curves.easeOut.transform(_tramo(v, 0.84, 1))),
-                  child: _Panel(
-                    t: t,
+                      _tramo(v, 0, 0.035) *
+                      (1 - Curves.easeOut.transform(_tramo(v, 0.88, 1))),
+                  child: PanelDeMarca(
                     ancho: lerpDouble(_sello, medida.width, expandir)!,
                     alto: lerpDouble(_sello, medida.height, expandir)!,
                     radio: lerpDouble(Radios.lg + Espacio.s1, 0, expandir)!,
                     resplandor: expandir,
-                    child: Opacity(
-                      opacity: 1 - _tramo(v, 0.78, 0.90),
+                    destello: _tramo(v, 0.36, 0.70),
+                    hijo: Opacity(
+                      opacity: 1 - _tramo(v, 0.80, 0.92),
                       child: Transform.scale(
                         scale: escala,
                         child: Logotipo(
                           tamano: lado,
                           colorDelTrazo: t.sobreVerdeSolido,
-                          opacidadDeLaPalabra: _tramo(v, 0.24, 0.42),
+                          opacidadDeLaPalabra: _tramo(v, 0.22, 0.42),
+                          volumen: true,
                         ),
                       ),
                     ),
@@ -123,68 +134,4 @@ class _Zoom extends StatelessWidget {
       },
     );
   }
-}
-
-/// El sello que se convierte en pantalla: verde de marca con un degradado hacia el
-/// verde tinta abajo, y un resplandor detrás del logotipo que aparece recién cuando el
-/// panel es grande —en 72 px no se vería, y ahí solo ensuciaría el borde.
-class _Panel extends StatelessWidget {
-  const _Panel({
-    required this.t,
-    required this.ancho,
-    required this.alto,
-    required this.radio,
-    required this.resplandor,
-    required this.child,
-  });
-
-  final Tokens t;
-  final double ancho;
-  final double alto;
-  final double radio;
-  final double resplandor;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) => Center(
-    child: Container(
-      width: ancho,
-      height: alto,
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(radio),
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [t.verdeSolido, t.brandInk],
-        ),
-      ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                colors: [
-                  t.brand.withValues(alpha: 0.55 * resplandor),
-                  t.brand.withValues(alpha: 0),
-                ],
-              ),
-            ),
-            child: const SizedBox.expand(),
-          ),
-          // El logotipo se mide siempre en grande y se escala; sin esto lo aprieta el
-          // panel, que arranca de 72 px, y en el primer cuadro sale la barra amarilla
-          // de desborde.
-          OverflowBox(
-            minWidth: 0,
-            maxWidth: double.infinity,
-            minHeight: 0,
-            maxHeight: double.infinity,
-            child: child,
-          ),
-        ],
-      ),
-    ),
-  );
 }
