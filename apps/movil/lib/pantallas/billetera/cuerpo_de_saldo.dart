@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'acciones_de_saldo.dart';
 import 'textos.dart';
+import 'package:aportaya_diseno/moleculas/aparicion_escalonada.dart';
 import 'package:aportaya_diseno/moleculas/seccion.dart';
 import 'package:aportaya_diseno/organismos/encabezado_de_saldo.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
@@ -25,51 +26,55 @@ class CuerpoDeSaldo extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.only(top: Espacio.s4, bottom: Espacio.s6),
       children: [
-        EncabezadoDeSaldo(
-          etiqueta: TextosBilletera.disponible,
-          etiquetaHablada: TextosBilletera.saldoDisponible,
-          monto: saldo.disponible.monto,
-          moneda: saldo.disponible.moneda.value,
-          cifras: [
-            (
-              etiqueta: TextosBilletera.saldoRetenido,
-              monto: saldo.retenido.monto,
+        AparicionEscalonada(
+          children: [
+            EncabezadoDeSaldo(
+              etiqueta: TextosBilletera.disponible,
+              etiquetaHablada: TextosBilletera.saldoDisponible,
+              monto: saldo.disponible.monto,
+              moneda: saldo.disponible.moneda.value,
+              cifras: [
+                (
+                  etiqueta: TextosBilletera.saldoRetenido,
+                  monto: saldo.retenido.monto,
+                ),
+              ],
+              acciones: AccionesDeSaldo(cuentaId: saldo.cuentaId),
+            ),
+            const SizedBox(height: Espacio.s5),
+            const TituloDeSeccion(titulo: TextosBilletera.tusPasanakus),
+            Panel(
+              hijo: Text(
+                TextosBilletera.sinPasanakus,
+                style: Tipo.cuerpoChico.copyWith(color: t.text2),
+              ),
+            ),
+            const SizedBox(height: Espacio.s5),
+            TituloDeSeccion(
+              titulo: TextosBilletera.movimientos,
+              accion: TextosBilletera.todos,
+              alTocarAccion: () => context.pushNamed(
+                'billetera.extracto',
+                queryParameters: {'cuenta': saldo.cuentaId},
+              ),
+            ),
+            Panel(
+              hijo: Text(
+                TextosBilletera.sinMovimientos,
+                style: Tipo.cuerpoChico.copyWith(color: t.text2),
+              ),
+            ),
+            const SizedBox(height: Espacio.s5),
+            // La custodia va acá abajo, en voz baja: tranquiliza cuando alguien la busca y
+            // no le compite a la cifra cuando no. Antes vivía bajo el título «Movimientos»,
+            // donde no es ni un movimiento ni nada que ese título anuncie.
+            Text(
+              hayRetenido
+                  ? TextosBilletera.custodia
+                  : '${TextosBilletera.custodia}. ${TextosBilletera.nadaTrabado}.',
+              style: Tipo.ayuda.copyWith(color: t.text3),
             ),
           ],
-          acciones: AccionesDeSaldo(cuentaId: saldo.cuentaId),
-        ),
-        const SizedBox(height: Espacio.s5),
-        const TituloDeSeccion(titulo: TextosBilletera.tusPasanakus),
-        Panel(
-          hijo: Text(
-            TextosBilletera.sinPasanakus,
-            style: Tipo.cuerpoChico.copyWith(color: t.text2),
-          ),
-        ),
-        const SizedBox(height: Espacio.s5),
-        TituloDeSeccion(
-          titulo: TextosBilletera.movimientos,
-          accion: TextosBilletera.todos,
-          alTocarAccion: () => context.pushNamed(
-            'billetera.extracto',
-            queryParameters: {'cuenta': saldo.cuentaId},
-          ),
-        ),
-        Panel(
-          hijo: Text(
-            TextosBilletera.sinMovimientos,
-            style: Tipo.cuerpoChico.copyWith(color: t.text2),
-          ),
-        ),
-        const SizedBox(height: Espacio.s5),
-        // La custodia va acá abajo, en voz baja: tranquiliza cuando alguien la busca y
-        // no le compite a la cifra cuando no. Antes vivía bajo el título «Movimientos»,
-        // donde no es ni un movimiento ni nada que ese título anuncie.
-        Text(
-          hayRetenido
-              ? TextosBilletera.custodia
-              : '${TextosBilletera.custodia}. ${TextosBilletera.nadaTrabado}.',
-          style: Tipo.ayuda.copyWith(color: t.text3),
         ),
       ],
     );

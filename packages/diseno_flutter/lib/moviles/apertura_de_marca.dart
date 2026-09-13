@@ -79,7 +79,11 @@ class _AperturaDeMarcaState extends State<AperturaDeMarca>
       child: GestureDetector(
         onTap: _terminar,
         behavior: HitTestBehavior.opaque,
-        child: ColoredBox(
+        // `Material` y no `ColoredBox`: esta pantalla va por encima de todo, fuera
+        // del `Scaffold` de cualquier ruta, y un `Text` sin un `Material` arriba sale
+        // con el subrayado amarillo de depuración de Flutter. Se veía en el video del
+        // arranque, no en los goldens —ahí el texto son cajas—.
+        child: Material(
           color: t.bg,
           child: Center(
             child: AnimatedBuilder(

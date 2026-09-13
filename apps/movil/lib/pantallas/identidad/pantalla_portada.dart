@@ -2,6 +2,7 @@ import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/marca.dart';
 import 'package:aportaya_diseno/atomos/rueda.dart';
+import 'package:aportaya_diseno/moleculas/aparicion_escalonada.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -38,58 +39,62 @@ class PantallaDePortada extends StatelessWidget {
                   Espacio.s3,
                 ),
                 children: [
-                  Row(
+                  AparicionEscalonada(
                     children: [
-                      const Marca(tamano: 34),
-                      const SizedBox(width: Espacio.s2),
-                      Text.rich(
-                        TextSpan(
-                          children: [
+                      Row(
+                        children: [
+                          const Marca(tamano: 34),
+                          const SizedBox(width: Espacio.s2),
+                          Text.rich(
                             TextSpan(
-                              text: 'Aporta',
-                              style: TextStyle(color: t.text),
+                              children: [
+                                TextSpan(
+                                  text: 'Aporta',
+                                  style: TextStyle(color: t.text),
+                                ),
+                                TextSpan(
+                                  text: 'Ya',
+                                  style: TextStyle(color: t.accentTexto),
+                                ),
+                              ],
                             ),
-                            TextSpan(
-                              text: 'Ya',
-                              style: TextStyle(color: t.accentTexto),
-                            ),
-                          ],
-                        ),
-                        style: Tipo.titulo2,
+                            style: Tipo.titulo2,
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: Espacio.s5),
+                      // El tamaño lo manda el alto del teléfono, no el gusto: la portada
+                      // tiene que entrar entera sin desplazarse, y con la rueda más grande
+                      // la tercera promesa —la de la custodia, la que responde «¿y mi
+                      // plata?»— quedaba cortada a media frase contra la barra de
+                      // acciones. `portada_test.dart` lo mide en un teléfono chico.
+                      const Center(
+                        child: Rueda(
+                          turnos: 10,
+                          cobrados: 4,
+                          miTurno: 6,
+                          turnoActual: 4,
+                          diametro: 104,
+                          etiqueta: TextosIdentidad.portadaRuedaTitulo,
+                        ),
+                      ),
+                      const SizedBox(height: Espacio.s5),
+                      Semantics(
+                        header: true,
+                        child: Text(
+                          TextosIdentidad.portadaTitular,
+                          style: Tipo.titulo1.copyWith(color: t.text),
+                        ),
+                      ),
+                      const SizedBox(height: Espacio.s3),
+                      Text(
+                        TextosIdentidad.portadaBajada,
+                        style: Tipo.cuerpo.copyWith(color: t.text2),
+                      ),
+                      const SizedBox(height: Espacio.s5),
+                      const PortadaPromesas(),
                     ],
                   ),
-                  const SizedBox(height: Espacio.s5),
-                  // El tamaño lo manda el alto del teléfono, no el gusto: la portada
-                  // tiene que entrar entera sin desplazarse, y con la rueda más grande
-                  // la tercera promesa —la de la custodia, la que responde «¿y mi
-                  // plata?»— quedaba cortada a media frase contra la barra de
-                  // acciones. `portada_test.dart` lo mide en un teléfono chico.
-                  const Center(
-                    child: Rueda(
-                      turnos: 10,
-                      cobrados: 4,
-                      miTurno: 6,
-                      turnoActual: 4,
-                      diametro: 104,
-                      etiqueta: TextosIdentidad.portadaRuedaTitulo,
-                    ),
-                  ),
-                  const SizedBox(height: Espacio.s5),
-                  Semantics(
-                    header: true,
-                    child: Text(
-                      TextosIdentidad.portadaTitular,
-                      style: Tipo.titulo1.copyWith(color: t.text),
-                    ),
-                  ),
-                  const SizedBox(height: Espacio.s3),
-                  Text(
-                    TextosIdentidad.portadaBajada,
-                    style: Tipo.cuerpo.copyWith(color: t.text2),
-                  ),
-                  const SizedBox(height: Espacio.s5),
-                  const PortadaPromesas(),
                 ],
               ),
             ),
@@ -110,7 +115,9 @@ class _Salidas extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: t.surface,
-        border: Border(top: BorderSide(color: t.border, width: Borde.fino)),
+        border: Border(
+          top: BorderSide(color: t.border, width: Borde.fino),
+        ),
       ),
       padding: const EdgeInsets.fromLTRB(
         Espacio.s4,

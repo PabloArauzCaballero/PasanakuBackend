@@ -35,6 +35,7 @@ import '../errores.dart';
 import '../moleculas/acciones_rapidas.dart';
 import '../moleculas/acordeon.dart';
 import '../moleculas/alerta.dart';
+import '../moleculas/aparicion_escalonada.dart';
 import '../moleculas/barra_de_pasos.dart';
 import '../moleculas/chips_de_filtro.dart';
 import '../moleculas/desglose_de_cobro.dart';
@@ -920,6 +921,18 @@ final List<({String grupo, List<Muestra> muestras})> catalogo = [
   (
     grupo: 'Móviles',
     muestras: [
+      (
+        nombre: 'Aparición escalonada',
+        widget: () => const AparicionEscalonada(
+          children: [
+            Text('La pantalla se arma de arriba hacia abajo,'),
+            SizedBox(height: Espacio.s2),
+            Text('que es el orden en que se lee.'),
+            SizedBox(height: Espacio.s2),
+            Text('45 ms entre líneas: se percibe, no se espera.'),
+          ],
+        ),
+      ),
       (
         nombre: 'Tab bar',
         widget: () => BarraPestanas(

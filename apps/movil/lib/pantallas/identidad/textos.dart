@@ -71,6 +71,18 @@ class TextosIdentidad {
 
   // CU-04, sesión.
   static const tituloSesion = 'Ingresar';
+  static const sesionSaludo = 'Hola de nuevo';
+  static const sesionTitular = 'Entrá a tu billetera';
+  static const sesionCelularAyuda = 'El mismo con el que abriste tu cuenta';
+  static const sesionOlvide = '¿Olvidaste tu contraseña?';
+  // Sin número ni canal inventado: cuál es el de AportaYa es dato de producto, y
+  // poner uno falso acá lo copiaría alguien.
+  static const sesionOlvideAyuda =
+      'Todavía no se puede recuperar desde la app. Comunicate con soporte de '
+      'AportaYa y te ayudamos a entrar.';
+  static const sesionSinCuenta = '¿Todavía no tenés cuenta?';
+  static const sesionCustodia =
+      'Tu plata queda en custodia en Banco Unión, separada del dinero de la empresa.';
   static const contrasena = 'Contraseña';
   static const ingresar = 'Ingresar';
   static const tituloMfa = 'Verificación en dos pasos';
