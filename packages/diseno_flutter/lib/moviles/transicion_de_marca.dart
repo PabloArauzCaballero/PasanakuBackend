@@ -54,7 +54,13 @@ class _Zoom extends StatelessWidget {
       builder: (context, hijo) {
         final v = animacion.value;
         if (animacion.status == AnimationStatus.reverse) {
-          return Opacity(opacity: v, child: hijo);
+          // Al volver, la pantalla se achica y se apaga rápido: un fundido parejo deja
+          // las dos pantallas superpuestas a media opacidad y se lee sucio.
+          final queda = Curves.easeInCubic.transform(v);
+          return Opacity(
+            opacity: queda,
+            child: Transform.scale(scale: 0.92 + 0.08 * queda, child: hijo),
+          );
         }
 
         final expandir = Curves.easeInOutCubic.transform(_tramo(v, 0, 0.34));
