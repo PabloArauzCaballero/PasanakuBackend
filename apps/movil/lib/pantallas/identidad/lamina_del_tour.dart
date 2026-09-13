@@ -1,4 +1,5 @@
 import 'package:aportaya_diseno/ilustraciones/lienzo.dart';
+import 'package:aportaya_diseno/ilustraciones/pedestal.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 
@@ -43,15 +44,18 @@ class LaminaDelTour extends StatelessWidget {
               scale: 0.86 + 0.14 * cerca,
               child: Opacity(
                 opacity: (0.25 + 0.75 * cerca).clamp(0.0, 1.0),
-                child: Ilustracion(
-                  pintor: lamina.arte,
-                  etiqueta: lamina.etiqueta,
-                  tamano: 230,
+                child: Pedestal(
+                  tamano: 200,
+                  hijo: Ilustracion(
+                    pintor: lamina.arte,
+                    etiqueta: lamina.etiqueta,
+                    tamano: 200,
+                  ),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: Espacio.s6),
+          const SizedBox(height: Espacio.s5),
           Transform.translate(
             offset: Offset(d * ancho * 0.18, 0),
             child: Opacity(

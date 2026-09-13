@@ -10,12 +10,17 @@ import '../comun.dart';
 
 /// **Las transiciones, congeladas a mitad de camino.**
 ///
-/// Una animación de navegación no se revisa mirándola pasar: en el teléfono dura
-/// 300 ms y a esa velocidad cualquier cosa «parece que anda». Acá se detiene el reloj
-/// en tres momentos del empujón de iOS —recién arrancando, a mitad, casi llegando— y
-/// queda como imagen. Si un día alguien cambia la curva, lo saca el diff.
+/// Una animación de navegación no se revisa mirándola pasar: dura poco más de un
+/// segundo y a esa velocidad cualquier cosa «parece que anda». Acá se detiene el reloj
+/// en los cuatro tiempos del zoom de marca —el sello creciendo, el logotipo grande y
+/// quieto, el logotipo yéndose hacia la cámara, la pantalla nueva asentándose— y cada
+/// uno queda como imagen. Si un día alguien cambia la curva, lo saca el diff.
+///
+/// El segundo cuadro es el que importa: ahí tiene que estar el logotipo **entero**,
+/// isotipo y palabra, ocupando media pantalla. Si vuelve a aparecer solo el isotipo
+/// chiquito, esta prueba lo muestra sin que nadie tenga que grabar un video.
 void main() {
-  testWidgets('portada → ingreso: el empujón de iOS, cuadro por cuadro', (
+  testWidgets('portada → ingreso: el zoom de marca, cuadro por cuadro', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(1170, 2532);
@@ -35,13 +40,15 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Ya tengo cuenta'));
-    // `pump()` sin duración arranca la transición; los tres siguientes la detienen
-    // en el punto donde se ve de qué lado entra la pantalla nueva.
+    // `pump()` sin duración arranca la transición; los siguientes la detienen en cada
+    // tiempo del zoom. Los milisegundos son acumulados: 150, 600, 950 y 1200 de los
+    // 1250 que dura.
     await tester.pump();
     for (final (nombre, avance) in [
-      ('inicio', 60),
-      ('medio', 90),
-      ('final', 90),
+      ('sello', 150),
+      ('marca', 450),
+      ('atraviesa', 350),
+      ('llega', 250),
     ]) {
       await tester.pump(Duration(milliseconds: avance));
       await expectLater(

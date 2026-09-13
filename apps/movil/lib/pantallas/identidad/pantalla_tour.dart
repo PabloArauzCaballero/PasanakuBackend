@@ -2,6 +2,7 @@ import 'package:aportaya_diseno/atomos/barra_de_puntos.dart';
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/moleculas/cabecera.dart';
+import 'package:aportaya_diseno/moviles/fondo_de_marca.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -53,110 +54,112 @@ class _PantallaDeTourState extends State<PantallaDeTour> {
     );
   }
 
-  void _volver() =>
-      context.canPop() ? context.pop() : context.go('/portada');
+  void _volver() => context.canPop() ? context.pop() : context.go('/portada');
 
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                Espacio.s4,
-                Espacio.s2,
-                Espacio.s2,
-                0,
-              ),
-              child: Row(
-                children: [
-                  BotonDeCabecera(
-                    icono: Icons.arrow_back,
-                    etiqueta: 'Volver',
-                    onTap: _volver,
-                  ),
-                  const Spacer(),
-                  // Se desvanece en la última lámina en vez de desaparecer de
-                  // golpe: la cabecera no salta mientras el dedo todavía está.
-                  AnimatedOpacity(
-                    opacity: _enLaUltima ? 0 : 1,
-                    duration: const Duration(milliseconds: 220),
-                    child: TextButton(
-                      onPressed: _enLaUltima
-                          ? null
-                          : () => context.push('/registro'),
-                      child: const Text(TextosIdentidad.portadaSaltar),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: PageView.builder(
-                controller: _paginas,
-                physics: const PageScrollPhysics(
-                  parent: BouncingScrollPhysics(),
+    return FondoDeMarca(
+      hijo: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  Espacio.s4,
+                  Espacio.s2,
+                  Espacio.s2,
+                  0,
                 ),
-                itemCount: laminasDelTour.length,
-                onPageChanged: (i) {
-                  HapticFeedback.selectionClick();
-                  setState(() => _actual = i);
-                },
-                itemBuilder: (context, i) => AnimatedBuilder(
-                  animation: _paginas,
-                  builder: (context, _) => LaminaDelTour(
-                    lamina: laminasDelTour[i],
-                    desplazamiento: _pagina - i,
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                Espacio.s4,
-                Espacio.s3,
-                Espacio.s4,
-                Espacio.s4,
-              ),
-              child: AnimatedSize(
-                duration: const Duration(milliseconds: 260),
-                curve: Curves.easeOutCubic,
-                alignment: Alignment.topCenter,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                child: Row(
                   children: [
-                    BarraDePuntos(
-                      total: laminasDelTour.length,
-                      actual: _actual,
+                    BotonDeCabecera(
+                      icono: Icons.arrow_back,
+                      etiqueta: 'Volver',
+                      onTap: _volver,
                     ),
-                    const SizedBox(height: Espacio.s5),
-                    Boton(
-                      texto: _enLaUltima
-                          ? TextosIdentidad.portadaCrearCuenta
-                          : TextosIdentidad.tourSiguiente,
-                      icono: _enLaUltima ? null : Icons.arrow_forward,
-                      variante: BotonVariante.primario,
-                      expandido: true,
-                      onPressed: _siguiente,
-                    ),
-                    if (_enLaUltima)
-                      Padding(
-                        padding: const EdgeInsets.only(top: Espacio.s2),
-                        child: TextButton(
-                          onPressed: () => context.push('/ingreso'),
-                          child: Text(
-                            TextosIdentidad.portadaYaTengoCuenta,
-                            style: Tipo.boton.copyWith(color: t.brandTexto),
-                          ),
-                        ),
+                    const Spacer(),
+                    // Se desvanece en la última lámina en vez de desaparecer de
+                    // golpe: la cabecera no salta mientras el dedo todavía está.
+                    AnimatedOpacity(
+                      opacity: _enLaUltima ? 0 : 1,
+                      duration: const Duration(milliseconds: 220),
+                      child: TextButton(
+                        onPressed: _enLaUltima
+                            ? null
+                            : () => context.push('/registro'),
+                        child: const Text(TextosIdentidad.portadaSaltar),
                       ),
+                    ),
                   ],
                 ),
               ),
-            ),
-          ],
+              Expanded(
+                child: PageView.builder(
+                  controller: _paginas,
+                  physics: const PageScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
+                  itemCount: laminasDelTour.length,
+                  onPageChanged: (i) {
+                    HapticFeedback.selectionClick();
+                    setState(() => _actual = i);
+                  },
+                  itemBuilder: (context, i) => AnimatedBuilder(
+                    animation: _paginas,
+                    builder: (context, _) => LaminaDelTour(
+                      lamina: laminasDelTour[i],
+                      desplazamiento: _pagina - i,
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  Espacio.s4,
+                  Espacio.s3,
+                  Espacio.s4,
+                  Espacio.s4,
+                ),
+                child: AnimatedSize(
+                  duration: const Duration(milliseconds: 260),
+                  curve: Curves.easeOutCubic,
+                  alignment: Alignment.topCenter,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      BarraDePuntos(
+                        total: laminasDelTour.length,
+                        actual: _actual,
+                      ),
+                      const SizedBox(height: Espacio.s5),
+                      Boton(
+                        texto: _enLaUltima
+                            ? TextosIdentidad.portadaCrearCuenta
+                            : TextosIdentidad.tourSiguiente,
+                        icono: _enLaUltima ? null : Icons.arrow_forward,
+                        variante: BotonVariante.primario,
+                        expandido: true,
+                        onPressed: _siguiente,
+                      ),
+                      if (_enLaUltima)
+                        Padding(
+                          padding: const EdgeInsets.only(top: Espacio.s2),
+                          child: TextButton(
+                            onPressed: () => context.push('/ingreso'),
+                            child: Text(
+                              TextosIdentidad.portadaYaTengoCuenta,
+                              style: Tipo.boton.copyWith(color: t.brandTexto),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

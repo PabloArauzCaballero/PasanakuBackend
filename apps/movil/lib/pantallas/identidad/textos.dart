@@ -55,7 +55,17 @@ class TextosIdentidad {
   static const portadaCrearCuenta = 'Crear mi cuenta';
   static const portadaYaTengoCuenta = 'Ya tengo cuenta';
 
+  // Las garantías de la bienvenida: las mismas tres ideas de las láminas 2, 1 y 3 del
+  // tour, para quien decide sin abrirlo.
+  static const portadaGarantiaCustodia = 'Plata en custodia';
+  static const portadaGarantiaRegistro = 'Todo queda registrado';
+  static const portadaGarantiaTurno = 'Tu turno a la vista';
+
   // Alta (CU-01), ocho pasos.
+  static const registroTitulo = 'Crear cuenta';
+  static const registroIntro =
+      'Con estos datos abrimos tu billetera. Tienen que coincidir con tu '
+      'documento: si no coinciden, la verificación se frena.';
   static const pasoDatos = 'Tus datos';
   static const pasoCelular = 'Confirmar celular';
   static const pasoAnverso = 'Documento (anverso)';

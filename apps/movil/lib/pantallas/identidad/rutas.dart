@@ -105,8 +105,11 @@ final List<RouteBase> rutasDeEntrada = [
     name: 'identidad.portada',
     builder: (context, state) => const PantallaDePortada(),
   ),
-  // Las dos salidas de la bienvenida llegan con el zoom de marca: el sello verde
-  // llena la pantalla, la marca se ve en grande y se la atraviesa.
+  // Las tres salidas de la bienvenida llegan con el zoom de marca: el sello verde
+  // llena la pantalla, el logotipo se ve en grande y se lo atraviesa. `/registro`
+  // estaba afuera y se notaba: quien tocaba «Saltar», o «Crear mi cuenta» en la
+  // última lámina, caía en el formulario sin que pasara nada — justo el destino que
+  // más se usa.
   GoRoute(
     path: '/tour',
     name: 'identidad.tour',
@@ -122,7 +125,8 @@ final List<RouteBase> rutasDeEntrada = [
   GoRoute(
     path: '/registro',
     name: 'identidad.registro',
-    builder: (context, state) => const PantallaDeRegistro(),
+    pageBuilder: (context, state) =>
+        _conZoomDeMarca(state, const PantallaDeRegistro()),
   ),
 ];
 

@@ -1,3 +1,5 @@
+import 'package:aportaya_diseno/atomos/boton.dart';
+import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/moleculas/barra_de_pasos.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
@@ -74,8 +76,13 @@ class PantallaDeRegistro extends ConsumerWidget {
       ),
     };
 
+    final t = Tokens.of(context);
     return Scaffold(
       appBar: AppBar(
+        // Sin título, la pantalla arrancaba con una flecha suelta sobre una barra de
+        // pasos: quien llega acá desde «Crear mi cuenta» no leía en ningún lado que
+        // está creando una cuenta.
+        title: const Text(TextosIdentidad.registroTitulo),
         leading: estado.numeroDePaso > 1
             ? BackButton(onPressed: notifier.atras)
             : null,
@@ -85,11 +92,26 @@ class PantallaDeRegistro extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: BarraDePasos(
-                total: estado.totalDePasos,
-                actual: estado.numeroDePaso,
-                nombre: _nombreDePaso[estado.paso]!,
+              padding: const EdgeInsets.symmetric(horizontal: Espacio.s4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  BarraDePasos(
+                    total: estado.totalDePasos,
+                    actual: estado.numeroDePaso,
+                    nombre: _nombreDePaso[estado.paso]!,
+                  ),
+                  // La advertencia va en el primer paso y no en todos: es sobre estos
+                  // campos, y repetirla ocho veces la vuelve ruido.
+                  if (estado.paso == PasoAlta.datos)
+                    Padding(
+                      padding: const EdgeInsets.only(top: Espacio.s3),
+                      child: Text(
+                        TextosIdentidad.registroIntro,
+                        style: Tipo.cuerpoChico.copyWith(color: t.text2),
+                      ),
+                    ),
+                ],
               ),
             ),
             Expanded(child: SingleChildScrollView(child: cuerpo())),
@@ -115,10 +137,12 @@ class _PasoContrato extends StatelessWidget {
             'Último paso: leer y aceptar el contrato de adhesión y el '
             'tarifario vigente.',
           ),
-          const SizedBox(height: 16),
-          FilledButton(
+          const SizedBox(height: Espacio.s4),
+          Boton(
+            texto: TextosIdentidad.continuar,
+            variante: BotonVariante.primario,
+            expandido: true,
             onPressed: onIrAlContrato,
-            child: const Text(TextosIdentidad.continuar),
           ),
         ],
       ),
