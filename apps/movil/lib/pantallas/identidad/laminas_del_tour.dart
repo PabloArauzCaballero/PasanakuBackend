@@ -1,4 +1,8 @@
-import 'package:aportaya_diseno/atomos/rueda.dart';
+import 'package:aportaya_diseno/ilustraciones/cuentas_a_la_vista.dart';
+import 'package:aportaya_diseno/ilustraciones/lienzo.dart';
+import 'package:aportaya_diseno/ilustraciones/plata_en_custodia.dart';
+import 'package:aportaya_diseno/ilustraciones/rueda_de_gente.dart';
+import 'package:aportaya_diseno/ilustraciones/sorteo_limpio.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 
@@ -27,7 +31,7 @@ class Lamina extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 150, child: Center(child: ilustracion)),
+          Center(child: ilustracion),
           const SizedBox(height: Espacio.s6),
           Semantics(
             header: true,
@@ -46,48 +50,39 @@ class Lamina extends StatelessWidget {
 /// mi plata**. La última es la que más pesa y por eso va al final, cuando ya hay
 /// suficiente contexto para que signifique algo.
 ///
-/// La rueda protagoniza las tres primeras y va cambiando de estado: vacía, con turnos
-/// cobrados, y con el turno propio marcado. No es decoración repetida — es la misma
-/// rueda contando su historia.
-List<Widget> laminasDelTour(Tokens t) => [
-  const Lamina(
-    ilustracion: Rueda(
-      turnos: 10,
-      cobrados: 0,
-      diametro: 136,
-      etiqueta: 'Una rueda de diez turnos, recién empezada',
+/// Cada una tiene su propio dibujo, hecho para ella: la rueda de gente, el cuaderno
+/// abierto con la lupa, la ruleta con su sello de verificación, y el banco con la
+/// plata aparte de la empresa. Son vectores —nítidos a cualquier tamaño, con los
+/// colores del tema— y no imágenes importadas.
+const List<Widget> laminasDelTour = [
+  Lamina(
+    ilustracion: Ilustracion(
+      pintor: RuedaDeGente.new,
+      etiqueta: 'Ocho personas alrededor de una rueda, con el pozo en el centro',
     ),
     titulo: TextosIdentidad.tour1Titulo,
     texto: TextosIdentidad.tour1Texto,
   ),
-  const Lamina(
-    ilustracion: Rueda(
-      turnos: 10,
-      cobrados: 4,
-      miTurno: 6,
-      diametro: 136,
-      etiqueta: 'La misma rueda: cuatro ya cobraron, tu turno es el sexto',
+  Lamina(
+    ilustracion: Ilustracion(
+      pintor: CuentasALaVista.new,
+      etiqueta: 'Una lista de quién puso y quién cobró, con una lupa encima',
     ),
     titulo: TextosIdentidad.tour2Titulo,
     texto: TextosIdentidad.tour2Texto,
   ),
-  const Lamina(
-    ilustracion: Rueda(
-      turnos: 10,
-      cobrados: 4,
-      miTurno: 6,
-      turnoActual: 4,
-      diametro: 136,
-      etiqueta: 'El turno que se está cobrando ahora, sorteado',
+  Lamina(
+    ilustracion: Ilustracion(
+      pintor: SorteoLimpio.new,
+      etiqueta: 'Una ruleta con la aguja en el turno sorteado y un sello de verificación',
     ),
     titulo: TextosIdentidad.tour3Titulo,
     texto: TextosIdentidad.tour3Texto,
   ),
   Lamina(
-    ilustracion: Icon(
-      Icons.account_balance_outlined,
-      size: 104,
-      color: t.brandTexto,
+    ilustracion: Ilustracion(
+      pintor: PlataEnCustodia.new,
+      etiqueta: 'Un banco con tu plata, separado del edificio vacío de la empresa',
     ),
     titulo: TextosIdentidad.tour4Titulo,
     texto: TextosIdentidad.tour4Texto,

@@ -32,6 +32,11 @@ import '../atomos/rueda.dart';
 import '../atomos/selector_segmentado.dart';
 import '../atomos/tono.dart';
 import '../errores.dart';
+import '../ilustraciones/cuentas_a_la_vista.dart';
+import '../ilustraciones/lienzo.dart';
+import '../ilustraciones/plata_en_custodia.dart';
+import '../ilustraciones/rueda_de_gente.dart';
+import '../ilustraciones/sorteo_limpio.dart';
 import '../moleculas/acciones_rapidas.dart';
 import '../moleculas/acordeon.dart';
 import '../moleculas/alerta.dart';
@@ -921,6 +926,34 @@ final List<({String grupo, List<Muestra> muestras})> catalogo = [
   (
     grupo: 'Móviles',
     muestras: [
+      (
+        nombre: 'Ilustración · rueda de gente',
+        widget: () => const Ilustracion(
+          pintor: RuedaDeGente.new,
+          etiqueta: 'Ocho personas alrededor de una rueda',
+        ),
+      ),
+      (
+        nombre: 'Ilustración · cuentas a la vista',
+        widget: () => const Ilustracion(
+          pintor: CuentasALaVista.new,
+          etiqueta: 'Quién puso y quién cobró, con una lupa',
+        ),
+      ),
+      (
+        nombre: 'Ilustración · sorteo limpio',
+        widget: () => const Ilustracion(
+          pintor: SorteoLimpio.new,
+          etiqueta: 'La ruleta con su sello de verificación',
+        ),
+      ),
+      (
+        nombre: 'Ilustración · plata en custodia',
+        widget: () => const Ilustracion(
+          pintor: PlataEnCustodia.new,
+          etiqueta: 'El banco con tu plata, aparte de la empresa',
+        ),
+      ),
       (
         nombre: 'Aparición escalonada',
         widget: () => const AparicionEscalonada(

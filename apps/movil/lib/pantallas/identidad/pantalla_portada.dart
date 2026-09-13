@@ -46,7 +46,7 @@ class _PantallaDePortadaState extends State<PantallaDePortada> {
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
-    final laminas = laminasDelTour(t);
+    const laminas = laminasDelTour;
     final enLaUltima = _actual == laminas.length - 1;
     return Scaffold(
       body: SafeArea(
