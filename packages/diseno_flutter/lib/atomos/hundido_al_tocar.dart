@@ -1,12 +1,15 @@
+import 'package:flutter/physics.dart';
 import 'package:flutter/material.dart';
 
-/// Hunde apenas lo que envuelve mientras el dedo está encima, y lo suelta al levantarlo.
+/// Hunde lo que envuelve mientras el dedo está encima, y al soltar lo devuelve con un
+/// **resorte**: pasa apenas de su tamaño y se asienta, como los botones de iOS.
 ///
-/// Es la respuesta que una pantalla táctil le debe a un dedo: sin ella, entre el toque
-/// y lo que pasa después hay un hueco en el que la persona no sabe si el botón la
-/// escuchó, y vuelve a tocar. Un 3 % alcanza; más se siente un juguete.
+/// La versión anterior achicaba un 3 % con una curva lineal y no se notaba — que es
+/// peor que no tenerlo, porque el botón igual se siente muerto. Un 4,5 % con rebote se
+/// ve y se siente en la mano, sin llegar a juguete.
 ///
-/// No se traga los gestos: sigue tocando su hijo y respeta «reducir movimiento».
+/// `Listener` y no `GestureDetector`: no compite en la arena de gestos, así que el
+/// botón de adentro sigue recibiendo su toque tal cual. Respeta «reducir movimiento».
 class HundidoAlTocar extends StatefulWidget {
   const HundidoAlTocar({super.key, required this.child, this.activo = true});
 
@@ -17,28 +20,53 @@ class HundidoAlTocar extends StatefulWidget {
   State<HundidoAlTocar> createState() => _HundidoAlTocarState();
 }
 
-class _HundidoAlTocarState extends State<HundidoAlTocar> {
-  bool _apretado = false;
+class _HundidoAlTocarState extends State<HundidoAlTocar>
+    with SingleTickerProviderStateMixin {
+  // Sin límites: el resorte tiene que poder pasarse por debajo de cero, que es el
+  // instante en que el botón queda un poco más grande que su tamaño antes de asentarse.
+  late final AnimationController _control = AnimationController.unbounded(
+    vsync: this,
+  );
 
-  void _marcar(bool valor) {
-    if (!widget.activo || _apretado == valor) return;
-    setState(() => _apretado = valor);
+  static const _hundido = 0.045;
+  static const _resorte = SpringDescription(
+    mass: 1,
+    stiffness: 520,
+    damping: 17,
+  );
+
+  void _apretar() {
+    if (!widget.activo) return;
+    _control.animateTo(
+      1,
+      duration: const Duration(milliseconds: 110),
+      curve: Curves.easeOut,
+    );
+  }
+
+  void _soltar() {
+    if (!widget.activo) return;
+    _control.animateWith(SpringSimulation(_resorte, _control.value, 0, -3));
+  }
+
+  @override
+  void dispose() {
+    _control.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final sinMovimiento = MediaQuery.disableAnimationsOf(context);
+    if (MediaQuery.disableAnimationsOf(context)) return widget.child;
     return Listener(
-      // `Listener` y no `GestureDetector`: no compite en la arena de gestos, así que
-      // el botón de adentro sigue recibiendo su toque tal cual.
-      onPointerDown: (_) => _marcar(true),
-      onPointerUp: (_) => _marcar(false),
-      onPointerCancel: (_) => _marcar(false),
-      child: AnimatedScale(
-        scale: _apretado && !sinMovimiento ? 0.97 : 1,
-        duration: const Duration(milliseconds: 90),
-        curve: Curves.easeOut,
+      onPointerDown: (_) => _apretar(),
+      onPointerUp: (_) => _soltar(),
+      onPointerCancel: (_) => _soltar(),
+      child: AnimatedBuilder(
+        animation: _control,
         child: widget.child,
+        builder: (context, hijo) =>
+            Transform.scale(scale: 1 - _hundido * _control.value, child: hijo),
       ),
     );
   }

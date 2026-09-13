@@ -1,3 +1,5 @@
+import 'package:aportaya_diseno/moviles/transicion_de_marca.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import 'pantalla_baja.dart';
@@ -103,15 +105,19 @@ final List<RouteBase> rutasDeEntrada = [
     name: 'identidad.portada',
     builder: (context, state) => const PantallaDePortada(),
   ),
+  // Las dos salidas de la bienvenida llegan con el zoom de marca: el sello verde
+  // llena la pantalla, la marca se ve en grande y se la atraviesa.
   GoRoute(
     path: '/tour',
     name: 'identidad.tour',
-    builder: (context, state) => const PantallaDeTour(),
+    pageBuilder: (context, state) =>
+        _conZoomDeMarca(state, const PantallaDeTour()),
   ),
   GoRoute(
     path: '/ingreso',
     name: 'identidad.ingreso',
-    builder: (context, state) => const PantallaDeSesion(),
+    pageBuilder: (context, state) =>
+        _conZoomDeMarca(state, const PantallaDeSesion()),
   ),
   GoRoute(
     path: '/registro',
@@ -119,3 +125,12 @@ final List<RouteBase> rutasDeEntrada = [
     builder: (context, state) => const PantallaDeRegistro(),
   ),
 ];
+
+Page<void> _conZoomDeMarca(GoRouterState state, Widget pantalla) =>
+    CustomTransitionPage<void>(
+      key: state.pageKey,
+      child: pantalla,
+      transitionDuration: TransicionDeMarca.duracion,
+      reverseTransitionDuration: TransicionDeMarca.duracionDeVuelta,
+      transitionsBuilder: TransicionDeMarca.construir,
+    );
