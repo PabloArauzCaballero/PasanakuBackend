@@ -17,6 +17,7 @@ class Boton extends StatelessWidget {
     this.cargando = false,
     this.icono,
     this.expandido = false,
+    this.maxLineas = 2,
   });
 
   final String texto;
@@ -26,6 +27,11 @@ class Boton extends StatelessWidget {
   final bool cargando;
   final IconData? icono;
   final bool expandido;
+
+  /// Cuántas líneas puede ocupar el texto antes de cortarse. Dos por defecto: una
+  /// etiqueta honesta como «Ver aportes pendientes» no entra en una sola dentro de
+  /// media pantalla, y cortarla con puntos suspensivos esconde justamente el verbo.
+  final int maxLineas;
 
   bool get _habilitado => onPressed != null && !cargando;
 
@@ -49,28 +55,35 @@ class Boton extends StatelessWidget {
       BotonTamano.base => Tactil.minimo,
       BotonTamano.lg => Tactil.minimo + Espacio.s2,
     };
+    // Deshabilitado no es «el mismo botón, más pálido»: es otro color. Bajarle la
+    // opacidad al naranja da un naranja claro que sigue leyéndose como acción y deja a
+    // la persona tocando algo que no responde. Apagado se ve apagado.
+    final apagado = !_habilitado && !cargando;
     final estilo = ButtonStyle(
-      backgroundColor: WidgetStatePropertyAll(fondo),
-      foregroundColor: WidgetStatePropertyAll(frente),
+      backgroundColor: WidgetStatePropertyAll(
+        apagado ? (fondo == Colors.transparent ? fondo : t.surface2) : fondo,
+      ),
+      foregroundColor: WidgetStatePropertyAll(apagado ? t.text3 : frente),
       overlayColor: WidgetStatePropertyAll(frente.withValues(alpha: 0.08)),
       minimumSize: WidgetStatePropertyAll(Size(Tactil.minimo, alto)),
+      // La bóveda le da al botón 18px de aire a los costados (`.btn`); s4 es el token
+      // más cercano. Con s5 —lo que había— tres botones en una fila de teléfono se
+      // quedaban sin ancho para su propia palabra y la cortaban con puntos suspensivos.
       padding: const WidgetStatePropertyAll(
-        EdgeInsets.symmetric(horizontal: Espacio.s5),
+        EdgeInsets.symmetric(horizontal: Espacio.s4),
       ),
       shape: WidgetStatePropertyAll(
         RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Radios.md),
           side: borde == null
               ? BorderSide.none
-              : BorderSide(color: borde, width: Borde.fino),
+              : BorderSide(
+                  color: apagado ? t.border : borde,
+                  width: Borde.fino,
+                ),
         ),
       ),
-      textStyle: WidgetStatePropertyAll(
-        Theme.of(context).textTheme.labelLarge?.copyWith(
-          fontFamily: Fuente.display,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
+      textStyle: const WidgetStatePropertyAll(Tipo.boton),
     );
     final hijo = Row(
       mainAxisSize: expandido ? MainAxisSize.max : MainAxisSize.min,
@@ -91,7 +104,12 @@ class Boton extends StatelessWidget {
           const SizedBox(width: Espacio.s2),
         ],
         Flexible(
-          child: Text(texto, overflow: TextOverflow.ellipsis, maxLines: 1),
+          child: Text(
+            texto,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            maxLines: maxLineas,
+          ),
         ),
       ],
     );
@@ -99,13 +117,10 @@ class Boton extends StatelessWidget {
       button: true,
       enabled: _habilitado,
       label: cargando ? '$texto, enviando' : null,
-      child: Opacity(
-        opacity: _habilitado || cargando ? 1 : 0.5,
-        child: FilledButton(
-          onPressed: _habilitado ? onPressed : null,
-          style: estilo,
-          child: hijo,
-        ),
+      child: FilledButton(
+        onPressed: _habilitado ? onPressed : null,
+        style: estilo,
+        child: hijo,
       ),
     );
   }

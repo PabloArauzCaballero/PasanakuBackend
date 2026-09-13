@@ -23,6 +23,26 @@ String _agruparMiles(String enteros) {
   return salida.toString();
 }
 
+/// `('200.00', 10)` → `'2000.00'`: el importe por la cantidad de veces, **en
+/// centavos enteros**, sin pasar por `double` ni una sola vez.
+///
+/// Sirve para adelantarle a la persona la consecuencia de lo que está escribiendo
+/// («con 10 personas, cada turno junta…»). Un `200.00 * 10` en coma flotante da
+/// `2000.0000000000002`, y una billetera que muestra eso pierde la confianza que
+/// tarda meses en ganar. Devuelve la forma del contrato, lista para [formatearMonto].
+String multiplicarMonto({required String monto, required int veces}) {
+  if (!_formaDelContrato.hasMatch(monto)) {
+    throw FormatException('Importe fuera del contrato: "$monto".');
+  }
+  if (veces < 0) throw ArgumentError.value(veces, 'veces', 'no puede ser negativo');
+  final negativo = monto.startsWith('-');
+  final sinSigno = negativo ? monto.substring(1) : monto;
+  final centavos = int.parse(sinSigno.replaceFirst('.', '')) * veces;
+  final enteros = centavos ~/ 100;
+  final resto = (centavos % 100).toString().padLeft(2, '0');
+  return '${negativo && centavos > 0 ? '-' : ''}$enteros.$resto';
+}
+
 /// `('1240.00', 'BOB')` → `'Bs 1.240,00'`. Lanza si el importe no tiene la forma
 /// del contrato: mostrarlo a medias en una billetera es peor que fallar.
 String formatearMonto({required String monto, required String moneda}) {

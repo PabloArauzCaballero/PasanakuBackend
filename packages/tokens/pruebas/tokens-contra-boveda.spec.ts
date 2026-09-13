@@ -86,6 +86,26 @@ describe('los tokens salen de la bóveda, no de la memoria de nadie', () => {
     })
   })
 
+  it('la escala tipográfica, rol por rol', () => {
+    const tipos = tokens.primitivas.tipo as Record<string, { familia: string; tamano: number; peso: number; alto: number; track: number }>
+    const aKebab = (n: string) => n.replace(/[A-Z]/g, (l) => `-${l.toLowerCase()}`).replace(/([a-z])(\d)/g, '$1-$2')
+    const esperado: Record<string, string> = {}
+    for (const [nombre, t] of Object.entries(tipos)) {
+      if (nombre.startsWith('//')) continue
+      const familia = `var(--font-${t.familia === 'display' ? 'd' : 'b'})`
+      esperado[`--t-${aKebab(nombre)}`] = `${t.peso} ${t.tamano}px/${t.alto} ${familia}`
+      esperado[`--t-${aKebab(nombre)}-track`] = `${t.track}em`
+    }
+    comparar(raiz, esperado)
+  })
+
+  it('ninguna pantalla necesita un tamaño que la escala no tenga', () => {
+    const tipos = Object.keys(tokens.primitivas.tipo).filter((k) => !k.startsWith('//'))
+    for (const imprescindible of ['cifraGrande', 'titulo1', 'boton', 'cuerpo', 'campoEtiqueta', 'ayuda']) {
+      expect(tipos, `falta el rol ${imprescindible}`).toContain(imprescindible)
+    }
+  })
+
   for (const [tema, declaraciones] of [['claro', raiz], ['oscuro', escuro]] as const) {
     it(`los roles del tema ${tema}`, () => {
       const roles = tokens.roles[tema] as Record<string, string>

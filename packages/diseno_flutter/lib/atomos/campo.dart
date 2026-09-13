@@ -65,8 +65,13 @@ class Campo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(etiqueta, style: texto.labelLarge?.copyWith(color: t.text2)),
-        const SizedBox(height: Espacio.s1),
+        // Una etiqueta vacía significa que quien compone ya la puso afuera —el bloque
+        // `Pregunta` de un formulario, por ejemplo—. Sin esto, el `Text` vacío deja
+        // igual su renglón y abre un hueco entre la pregunta y su campo.
+        if (etiqueta.isNotEmpty) ...[
+          Text(etiqueta, style: texto.labelLarge?.copyWith(color: t.text2)),
+          const SizedBox(height: Espacio.s1),
+        ],
         TextField(
           controller: controlador,
           enabled: habilitado,

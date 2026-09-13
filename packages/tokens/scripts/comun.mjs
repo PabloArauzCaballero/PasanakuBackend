@@ -17,3 +17,12 @@ export const aKebab = (nombre) =>
   nombre.replace(/[A-Z]/g, (l) => `-${l.toLowerCase()}`).replace(/([a-z])(\d)/g, '$1-$2')
 
 export const ROLES = Object.keys(tokens.roles.claro)
+
+/** Los roles tipográficos, sin las claves de comentario (`//...`) del JSON. */
+export const TIPOS = Object.entries(tokens.primitivas.tipo).filter(([k]) => !k.startsWith('//'))
+
+/** `display` → `--font-d`, `cuerpo` → `--font-b`: cómo nombra el CSS cada familia. */
+export const varDeFamilia = (familia) => `var(--font-${familia === 'display' ? 'd' : 'b'})`
+
+/** El `font` abreviado de CSS para un rol: `peso tamaño/alto familia`. */
+export const aFontCss = (t) => `${t.peso} ${t.tamano}px/${t.alto} ${varDeFamilia(t.familia)}`

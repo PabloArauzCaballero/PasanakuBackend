@@ -1,22 +1,23 @@
 import 'package:aportaya_diseno/moviles/barra_pestanas.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../pantallas/notificaciones/proveedor_bandeja.dart';
-
-/// La tab bar de la maqueta (§2.2): Inicio · Grupos · Movimientos · Perfil, con la
-/// campana de avisos aparte, en el `AppBar` de cada pantalla de nivel superior — no
-/// es un quinto destino, es una acción que abre `/notificaciones/bandeja`.
+/// La tab bar de la app: Inicio · Grupos · Movimientos · Perfil.
 ///
-/// **Supuesto declarado:** `Inicio` y `Movimientos` son las dos entradas de la
-/// maqueta hacia el dominio `billetera` (`/billetera/inicio` y `/billetera/extracto`).
+/// **El shell no dibuja cabecera.** Antes ponía una barra con «AportaYa» y la campana,
+/// y encima cada pantalla ponía su propio título: dos cabeceras apiladas para una sola
+/// pantalla, con el nombre de la app ocupando el renglón más valioso cada vez. Ahora
+/// cada pantalla trae la suya —saludo y título en las de nivel superior, volver y
+/// título en las interiores— y la campana viaja con ella ([AccionDeAvisos]).
+///
+/// **Supuesto declarado:** `Inicio` y `Movimientos` son las dos entradas de la maqueta
+/// hacia el dominio `billetera` (`/billetera/inicio` y `/billetera/extracto`).
 /// `StatefulShellRoute.indexedStack` da una pila propia por **rama**, y las dos
 /// comparten rama porque son el mismo dominio (mismo `rutas.dart`, que este shell no
 /// edita): tocar `Movimientos` navega dentro de la rama de `billetera` en vez de
-/// cambiar de rama. `/billetera/extracto` la agrega el carril `M2`; hasta entonces
-/// el `errorBuilder` de `crearEnrutador` muestra el estado «no disponible todavía»,
-/// nunca una pantalla en blanco.
+/// cambiar de rama.
 class ShellPrincipal extends ConsumerWidget {
   const ShellPrincipal({super.key, required this.navigationShell});
 
@@ -32,8 +33,8 @@ class ShellPrincipal extends ConsumerWidget {
     ),
     (
       texto: 'Grupos',
-      icono: Icons.groups_outlined,
-      iconoActivo: Icons.groups,
+      icono: Icons.donut_large_outlined,
+      iconoActivo: Icons.donut_large,
       rama: 1,
       ruta: '/pasanaku',
     ),
@@ -55,27 +56,9 @@ class ShellPrincipal extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sinLeer = ref.watch(noLeidasProvider);
     final ubicacion = GoRouterState.of(context).uri.toString();
     final actual = _indiceVisibleDesde(navigationShell.currentIndex, ubicacion);
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text('AportaYa'),
-        actions: [
-          Badge(
-            isLabelVisible: sinLeer > 0,
-            label: Text('$sinLeer'),
-            child: IconButton(
-              icon: const Icon(Icons.notifications_outlined),
-              tooltip: sinLeer > 0
-                  ? 'Notificaciones, $sinLeer sin leer'
-                  : 'Notificaciones',
-              onPressed: () => context.push('/notificaciones/bandeja'),
-            ),
-          ),
-        ],
-      ),
       body: navigationShell,
       bottomNavigationBar: BarraPestanas(
         destinos: [
@@ -90,6 +73,9 @@ class ShellPrincipal extends ConsumerWidget {
         actual: actual,
         onChanged: (i) {
           final d = _destinos[i];
+          // El mismo golpecito que da el sistema al cambiar de pestaña: confirma el
+          // toque sin esperar a que la pantalla nueva termine de dibujarse.
+          HapticFeedback.selectionClick();
           if (d.rama == navigationShell.currentIndex) {
             context.go(d.ruta);
           } else {

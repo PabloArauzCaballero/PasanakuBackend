@@ -12,9 +12,25 @@
   --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;
   --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:24px;--r-pill:999px;
   --sh-1:0 1px 2px rgba(16,35,26,.06);--sh-2:0 4px 16px rgba(16,35,26,.08);--sh-3:0 18px 44px rgba(16,35,26,.16);
-  --font-d:"Poppins","Sora",system-ui,"Segoe UI",Roboto,Arial,sans-serif;
-  --font-b:"Inter",system-ui,"Segoe UI",Roboto,Arial,sans-serif;
+  --font-d:"Bricolage","Bricolage Grotesque",system-ui,"Segoe UI",Roboto,Arial,sans-serif;
+  --font-b:"Instrument","Instrument Sans",system-ui,"Segoe UI",Roboto,Arial,sans-serif;
   --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  /* ===== Tipografía: un rol por uso, no un tamaño suelto =====
+     Cada rol es un `font` abreviado (peso tamaño/alto familia) más su tracking
+     aparte, porque el abreviado de CSS no lo lleva. La app Flutter genera de acá
+     un TextStyle por rol: los dos mundos miden la misma letra. */
+  --t-cifra-grande:700 40px/1 var(--font-d);   --t-cifra-grande-track:-0.035em;
+  --t-cifra:700 22px/1.1 var(--font-d);        --t-cifra-track:-0.02em;
+  --t-titulo-1:700 26px/1.15 var(--font-d);    --t-titulo-1-track:-0.02em;
+  --t-titulo-2:700 19px/1.2 var(--font-d);     --t-titulo-2-track:-0.015em;
+  --t-titulo-3:700 17px/1.25 var(--font-d);    --t-titulo-3-track:-0.01em;
+  --t-boton:600 15px/1 var(--font-d);          --t-boton-track:0em;
+  --t-etiqueta:600 12px/1.2 var(--font-d);     --t-etiqueta-track:0.06em;
+  --t-cuerpo:400 15px/1.5 var(--font-b);       --t-cuerpo-track:0em;
+  --t-cuerpo-fuerte:600 15px/1.4 var(--font-b);--t-cuerpo-fuerte-track:0em;
+  --t-cuerpo-chico:400 13px/1.45 var(--font-b);--t-cuerpo-chico-track:0em;
+  --t-campo-etiqueta:600 13px/1.3 var(--font-b);--t-campo-etiqueta-track:0em;
+  --t-ayuda:400 12px/1.4 var(--font-b);        --t-ayuda-track:0em;
   /* ===== Tema claro ===== */
   --bg:var(--crema);--surface:var(--white);--surface-2:var(--cloud);
   --text:var(--ink);--text-2:var(--slate);--border:var(--line);

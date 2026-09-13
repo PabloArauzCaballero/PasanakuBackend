@@ -77,13 +77,18 @@ void main() {
           ),
           findsOneWidget,
         );
-        expect(find.text('Ver aportes pendientes'), findsOneWidget);
-        expect(find.text('Movimientos'), findsOneWidget);
-        expect(find.textContaining('Banco Unión'), findsOneWidget);
-        expect(find.text('Recargar'), findsOneWidget);
+        // Las tres acciones del saldo, con **una sola** principal: la fila de cuatro
+        // íconos (incluido «Vales», que nunca tuvo pantalla) se reemplazó por
+        // Aportar/Recargar/Retirar, y «Ver aportes pendientes» pasó a la sección de
+        // pasanakus, que es donde vive ese dato.
         expect(find.text('Aportar'), findsOneWidget);
+        expect(find.text('Recargar'), findsOneWidget);
         expect(find.text('Retirar'), findsOneWidget);
-        expect(find.text('Vales'), findsOneWidget);
+        // Las dos secciones que dan contexto debajo de la cifra.
+        expect(find.text('Tus pasanakus'), findsOneWidget);
+        expect(find.text('Movimientos'), findsOneWidget);
+        // La custodia sigue estando: es lo que responde «¿dónde está mi plata?».
+        expect(find.textContaining('Banco Unión'), findsOneWidget);
       });
     },
   );

@@ -1,11 +1,20 @@
 import 'package:aportaya_cliente_grupos/aportaya_cliente_grupos.dart';
+import 'package:aportaya_diseno/moleculas/cabecera.dart';
 import 'package:aportaya_diseno/organismos/estado_de_pantalla.dart';
+import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'dominio/cu20_crear_grupo.dart';
+import 'no_habilitado.dart';
 import 'organismos_crear_grupo.dart';
 import 'textos.dart';
+
+/// Cuántas personas se asumen al crear el grupo mientras el formulario no pregunte la
+/// cantidad. Está acá arriba, y no escondido en el estado, porque la ayuda del monto lo
+/// usa para adelantar cuánto junta cada turno: el número que se muestra y el que se
+/// envía tienen que ser el mismo.
+const cuposPorDefecto = 10;
 
 /// El contrato que `organismos_crear_grupo.dart` necesita del estado del formulario,
 /// sin exponer el `State` completo (arquitectura atómica: la pantalla es dueña del
@@ -45,7 +54,7 @@ class _PantallaCrearGrupoState extends ConsumerState<PantallaCrearGrupo>
   String periodicidad = 'MENSUAL';
   @override
   String modalidad = 'SORTEO_ALEATORIO';
-  final int _cupos = 10;
+  final int _cupos = cuposPorDefecto;
   final int _diaCobro = 5;
   @override
   DateTime? fechaDeInicio;
@@ -71,9 +80,8 @@ class _PantallaCrearGrupoState extends ConsumerState<PantallaCrearGrupo>
       final habilitacion = ref.watch(
         habilitacionOrganizadorProvider(widget.organizadorId!),
       );
-      return Scaffold(
-        appBar: AppBar(title: const Text(TextosPasanaku.tituloCrearGrupo)),
-        body: EstadoDePantalla(
+      return _ConCabecera(
+        hijo: EstadoDePantalla(
           valor: habilitacion,
           etiquetaDeCarga: TextosPasanaku.cargando,
           mensajeVacio: TextosPasanaku.requisitosAyuda,
@@ -95,9 +103,8 @@ class _PantallaCrearGrupoState extends ConsumerState<PantallaCrearGrupo>
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(title: const Text(TextosPasanaku.tituloCrearGrupo)),
-      body: FormularioCrearGrupo(
+    return _ConCabecera(
+      hijo: FormularioCrearGrupo(
         estado: estado,
         resultado: resultado,
         onEnviar: _enviar,
@@ -126,4 +133,32 @@ class _PantallaCrearGrupoState extends ConsumerState<PantallaCrearGrupo>
           permitePermutaDeTurnos: permitePermutas,
         );
   }
+}
+
+/// Cabecera propia de la pantalla, en vez del `AppBar` con título centrado: la acción
+/// de la pantalla queda anclada abajo, así que el `Scaffold` no lleva barra arriba.
+class _ConCabecera extends StatelessWidget {
+  const _ConCabecera({required this.hijo});
+
+  final Widget hijo;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    body: SafeArea(
+      bottom: false,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: Espacio.s4),
+            child: CabeceraDeSeccion(titulo: TextosPasanaku.tituloCrearGrupo),
+          ),
+          // El margen lateral lo pone cada parte, no este contenedor: la barra de
+          // acción tiene que llegar a los dos bordes de la pantalla para leerse como
+          // el piso de la vista, y no como un panel flotando con fondo a los costados.
+          Expanded(child: hijo),
+        ],
+      ),
+    ),
+  );
 }

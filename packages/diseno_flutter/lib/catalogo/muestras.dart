@@ -26,6 +26,7 @@ import '../atomos/interruptor.dart';
 import '../atomos/monto.dart';
 import '../atomos/progreso.dart';
 import '../atomos/punto.dart';
+import '../atomos/rueda.dart';
 import '../atomos/selector_segmentado.dart';
 import '../atomos/tono.dart';
 import '../errores.dart';
@@ -362,6 +363,24 @@ final List<({String grupo, List<Muestra> muestras})> catalogo = [
           moneda: 'BOB',
           etiqueta: 'Saldo disponible',
         ),
+      ),
+      (
+        nombre: 'Rueda · en una lista',
+        widget: () => const Rueda(turnos: 10, cobrados: 3, miTurno: 5),
+      ),
+      (
+        nombre: 'Rueda · en la pantalla del grupo',
+        widget: () => const Rueda(
+          turnos: 10,
+          cobrados: 3,
+          miTurno: 5,
+          turnoActual: 3,
+          diametro: 200,
+        ),
+      ),
+      (
+        nombre: 'Rueda · completa',
+        widget: () => const Rueda(turnos: 8, cobrados: 8, miTurno: 1),
       ),
     ],
   ),

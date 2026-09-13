@@ -55,3 +55,26 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  # Las fuentes viven en `packages/diseno_flutter/lib/fuentes/` y se declaran acá
+  # además de allá a propósito: una familia declarada solo por el paquete se registra
+  # como `packages/aportaya_diseno/Bricolage`, y `Tipo` la pide por su nombre pelado.
+  # Declararla también acá hace que `Bricolage` resuelva en la app, en vez de caer sin
+  # aviso en la fuente del sistema —que es lo que venía pasando con Poppins e Inter,
+  # nombradas en los tokens y nunca empaquetadas.
+  fonts:
+    - family: Bricolage
+      fonts:
+        - asset: packages/aportaya_diseno/fuentes/Bricolage-600.ttf
+          weight: 600
+        - asset: packages/aportaya_diseno/fuentes/Bricolage-700.ttf
+          weight: 700
+        - asset: packages/aportaya_diseno/fuentes/Bricolage-800.ttf
+          weight: 800
+    - family: Instrument
+      fonts:
+        - asset: packages/aportaya_diseno/fuentes/Instrument-400.ttf
+          weight: 400
+        - asset: packages/aportaya_diseno/fuentes/Instrument-500.ttf
+          weight: 500
+        - asset: packages/aportaya_diseno/fuentes/Instrument-600.ttf
+          weight: 600

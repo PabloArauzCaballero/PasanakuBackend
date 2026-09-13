@@ -21,3 +21,24 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  # Empaquetadas, no por red: una billetera tiene que ser legible sin señal, y una
+  # fuente que llega tarde mueve el saldo de sitio delante de quien lo está leyendo.
+  # Instancias estáticas (fontTools) de las variables de Google Fonts, para que
+  # `fontWeight` funcione igual en las dos plataformas. Licencias OFL en la carpeta.
+  fonts:
+    - family: Bricolage
+      fonts:
+        - asset: lib/fuentes/Bricolage-600.ttf
+          weight: 600
+        - asset: lib/fuentes/Bricolage-700.ttf
+          weight: 700
+        - asset: lib/fuentes/Bricolage-800.ttf
+          weight: 800
+    - family: Instrument
+      fonts:
+        - asset: lib/fuentes/Instrument-400.ttf
+          weight: 400
+        - asset: lib/fuentes/Instrument-500.ttf
+          weight: 500
+        - asset: lib/fuentes/Instrument-600.ttf
+          weight: 600

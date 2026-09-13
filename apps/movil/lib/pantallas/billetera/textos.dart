@@ -2,6 +2,13 @@
 /// archivo global de textos (conflicto nº 3 de planes/16).
 abstract final class TextosBilletera {
   static const titulo = 'Tu billetera';
+  static const disponible = 'Disponible';
+  static const enPasanakus = 'En pasanakus';
+  static const tusPasanakus = 'Tus pasanakus';
+  static const verTodos = 'Ver todos';
+  static const todos = 'Todos';
+  static const sinPasanakus =
+      'Todavía no estás en ningún pasanaku. Cuando entres a uno, tu rueda aparece acá.';
   static const cargandoSaldo = 'Cargando tu saldo';
   static const saldoDisponible = 'Saldo disponible';
   static const saldoRetenido = 'Retenido';

@@ -2,7 +2,7 @@
 // Emite generado/tokens.css desde tokens.json. No se versiona ni se edita.
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { RAIZ, ROLES, aKebab, resolverRol, tokens } from './comun.mjs'
+import { RAIZ, ROLES, TIPOS, aFontCss, aKebab, resolverRol, tokens } from './comun.mjs'
 
 const { color, espacio, radio, fuente, tactil, borde } = tokens.primitivas
 const linea = (nombre, valor) => `  --${nombre}: ${valor};`
@@ -21,6 +21,12 @@ const primitivas = [
   linea('font-d', fuente.display),
   linea('font-b', fuente.cuerpo),
   linea('mono', fuente.mono),
+  '',
+  '  /* Tipografía — un rol por uso. El tracking va aparte: el `font` abreviado no lo lleva. */',
+  ...TIPOS.flatMap(([nombre, t]) => [
+    linea(`t-${aKebab(nombre)}`, aFontCss(t)),
+    linea(`t-${aKebab(nombre)}-track`, `${t.track}em`),
+  ]),
 ]
 
 const roles = (tema) => ROLES.map((rol) => linea(aKebab(rol), resolverRol(tokens.roles[tema][rol])))

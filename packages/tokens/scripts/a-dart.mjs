@@ -4,7 +4,7 @@
 // consume via Tokens.of(context). No se versiona ni se edita.
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { RAIZ, ROLES, resolverRol, tokens } from './comun.mjs'
+import { RAIZ, ROLES, TIPOS, resolverRol, tokens } from './comun.mjs'
 
 const { color, espacio, radio, fuente, tactil, borde } = tokens.primitivas
 
@@ -23,6 +23,21 @@ function aSombraDart(valor) {
   if (!m) throw new Error(`no se como convertir a BoxShadow: ${valor}`)
   return `BoxShadow(offset: Offset(${m[1]}, ${m[2]}), blurRadius: ${m[3]}, color: ${aColorDart(m[4])})`
 }
+
+/** El tracking va en em en la bóveda; Flutter lo quiere en píxeles del tamaño. */
+const aLetterSpacing = (t) => Number((t.track * t.tamano).toFixed(3))
+
+const estilosDeTipo = TIPOS.map(([nombre, t]) => {
+  const familia = t.familia === 'display' ? 'Fuente.display' : 'Fuente.cuerpo'
+  const partes = [
+    `fontFamily: ${familia}`,
+    `fontSize: ${t.tamano}`,
+    `fontWeight: FontWeight.w${t.peso}`,
+    `height: ${t.alto}`,
+    `letterSpacing: ${aLetterSpacing(t)}`,
+  ]
+  return `  static const ${nombre} = TextStyle(\n    ${partes.join(',\n    ')},\n  );`
+}).join('\n\n')
 
 const esSombra = (rol) => rol.startsWith('sombra')
 const campos = ROLES.map((rol) => `  final ${esSombra(rol) ? 'BoxShadow' : 'Color'} ${rol};`).join('\n')
@@ -65,6 +80,12 @@ ${Object.entries(borde).map(([k, v]) => `  static const double ${k} = ${v};`).jo
 abstract final class Fuente {
   static const display = '${fuente.displayFamilia}';
   static const cuerpo = '${fuente.cuerpoFamilia}';
+}
+
+/// Un estilo por uso, no un tamaño suelto. Una pantalla pide \`Tipo.titulo1\`; si le
+/// hace falta un tamaño que no está acá, falta un rol en la bóveda, no un número.
+abstract final class Tipo {
+${estilosDeTipo}
 }
 
 abstract final class Tactil {
