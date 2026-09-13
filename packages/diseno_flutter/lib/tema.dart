@@ -1,9 +1,9 @@
-import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 
 import 'tokens/tokens.dart';
 import 'tema_de_campos.dart';
 import 'tema_de_controles.dart';
+import 'moviles/transicion_con_zoom.dart';
 
 /// Los dos temas se construyen desde `tokens.dart` (generado). Ningún `Colors.*`.
 /// La app los usa tal cual: `theme: temaDesde(Tokens.claro, Brightness.light)`.
@@ -53,11 +53,15 @@ ThemeData temaDesde(Tokens t, Brightness brillo) {
       centerTitle: false,
       titleTextStyle: Tipo.titulo2.copyWith(color: t.text),
     ),
+    // El mismo gesto en las dos plataformas: acercarse. El empujón lateral de iOS y
+    // el desvanecido de Android son lo que trae Flutter de fábrica; esto es una
+    // decisión de marca, y una app que se siente igual en los dos teléfonos es una
+    // app, no dos.
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
-        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-        TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-        TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
+        TargetPlatform.iOS: TransicionConZoom(),
+        TargetPlatform.macOS: TransicionConZoom(),
+        TargetPlatform.android: TransicionConZoom(),
       },
     ),
     inputDecorationTheme: campoDesde(t),
