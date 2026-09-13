@@ -1,8 +1,8 @@
-import 'package:aportaya_diseno/ilustraciones/cuentas_a_la_vista.dart';
+import 'package:aportaya_diseno/ilustraciones/arte_en_custodia.dart';
+import 'package:aportaya_diseno/ilustraciones/arte_fondo_de_garantia.dart';
+import 'package:aportaya_diseno/ilustraciones/arte_sin_cuaderno.dart';
+import 'package:aportaya_diseno/ilustraciones/arte_sorteo_a_la_vista.dart';
 import 'package:aportaya_diseno/ilustraciones/lienzo.dart';
-import 'package:aportaya_diseno/ilustraciones/plata_en_custodia.dart';
-import 'package:aportaya_diseno/ilustraciones/rueda_de_gente.dart';
-import 'package:aportaya_diseno/ilustraciones/sorteo_limpio.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,10 +16,10 @@ import '../comun.dart';
 /// borrón al tamaño que le toque mañana.
 void main() {
   final pintores = <String, CustomPainter Function(Tokens)>{
-    'rueda_de_gente': RuedaDeGente.new,
-    'cuentas_a_la_vista': CuentasALaVista.new,
-    'sorteo_limpio': SorteoLimpio.new,
-    'plata_en_custodia': PlataEnCustodia.new,
+    'sin_cuaderno': ArteSinCuaderno.new,
+    'en_custodia': ArteEnCustodia.new,
+    'sorteo_a_la_vista': ArteSorteoALaVista.new,
+    'fondo_de_garantia': ArteFondoDeGarantia.new,
   };
 
   for (final (tema, brillo) in [

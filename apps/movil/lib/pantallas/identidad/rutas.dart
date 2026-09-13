@@ -10,6 +10,7 @@ import 'pantalla_perfil.dart';
 import 'pantalla_portada.dart';
 import 'pantalla_registro.dart';
 import 'pantalla_sesion.dart';
+import 'pantalla_tour.dart';
 import 'pantalla_verificacion_profunda.dart';
 
 /// Las rutas del dominio identidad — carril M1 (ficha F3). Las once pantallas de
@@ -101,6 +102,11 @@ final List<RouteBase> rutasDeEntrada = [
     path: '/portada',
     name: 'identidad.portada',
     builder: (context, state) => const PantallaDePortada(),
+  ),
+  GoRoute(
+    path: '/tour',
+    name: 'identidad.tour',
+    builder: (context, state) => const PantallaDeTour(),
   ),
   GoRoute(
     path: '/ingreso',

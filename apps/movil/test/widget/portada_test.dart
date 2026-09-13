@@ -4,17 +4,18 @@ import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_movil/app.dart';
 import 'package:aportaya_movil/navegacion/rutas.dart';
+import 'package:aportaya_movil/pantallas/identidad/textos.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
-/// **La puerta de entrada.**
+/// **La entrada, como la maqueta**: bienvenida → tour de cuatro láminas → alta.
 ///
-/// La app arrancaba dentro de la billetera, con un saldo ya puesto: quien la abría por
-/// primera vez caía en el tablero de una cuenta que no era suya, sin saber qué era
-/// esto ni cómo entrar. Ahora abre en la portada, que explica el producto y ofrece las
-/// dos únicas salidas que tiene sentido ofrecer sin sesión.
+/// La app arrancaba dentro de una billetera ajena; después, en una sola pantalla con
+/// todo junto y alineada a la izquierda. La maqueta (`identidad/bienvenida` y
+/// `identidad/tour`) pide otra cosa, y la skill `disenar-frontend` lo fija: el
+/// onboarding va **centrado**, con símbolo, título, texto y puntos.
 void main() {
   Widget appCon(GoRouter router) => ProviderScope(
     child: MaterialApp.router(
@@ -23,123 +24,107 @@ void main() {
     ),
   );
 
-  testWidgets('la app abre en la portada, no adentro de la billetera', (
-    tester,
-  ) async {
+  Future<GoRouter> abrir(WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1170, 2532); // iPhone 13/14, 3x
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
     final router = crearEnrutador();
     await tester.pumpWidget(appCon(router));
     await tester.pumpAndSettle();
+    return router;
+  }
 
+  Future<void> abrirTour(WidgetTester tester) async {
+    await tester.tap(find.text(TextosIdentidad.portadaCrearCuenta));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('la app abre en la bienvenida, no adentro de la billetera', (
+    tester,
+  ) async {
+    final router = await abrir(tester);
     expect(router.state.uri.toString(), '/portada');
-    expect(find.text('Crear mi cuenta'), findsOneWidget);
-    expect(find.text('Ya tengo cuenta'), findsOneWidget);
+    expect(find.text(TextosIdentidad.portadaCrearCuenta), findsOneWidget);
+    expect(find.text(TextosIdentidad.portadaYaTengoCuenta), findsOneWidget);
+    expect(find.byType(BarraPestanas), findsNothing);
+  });
+
+  testWidgets('la bienvenida está centrada', (tester) async {
+    await abrir(tester);
+    for (final texto in [
+      TextosIdentidad.bienvenidaTitulo,
+      TextosIdentidad.bienvenidaTexto,
+    ]) {
+      expect(tester.widget<Text>(find.text(texto)).textAlign, TextAlign.center);
+    }
   });
 
   testWidgets(
-    'sin sesión no hay barra de pestañas: no se ofrecen destinos a los que '
-    'todavía no se puede ir',
+    'arrancando la app de verdad —no solo el enrutador— se llega a la bienvenida',
     (tester) async {
-      final router = crearEnrutador();
-      await tester.pumpWidget(appCon(router));
+      await tester.pumpWidget(ProviderScope(child: AppAportaYa()));
       await tester.pumpAndSettle();
-
-      expect(find.byType(BarraPestanas), findsNothing);
+      expect(find.text(TextosIdentidad.portadaCrearCuenta), findsOneWidget);
+      expect(find.text('Tu billetera'), findsNothing);
     },
   );
 
-  testWidgets('«Ya tengo cuenta» lleva al ingreso, y el ingreso tampoco trae pestañas', (
+  testWidgets('«Ya tengo cuenta» lleva al ingreso, sin barra de pestañas', (
     tester,
   ) async {
-    final router = crearEnrutador();
-    await tester.pumpWidget(appCon(router));
+    final router = await abrir(tester);
+    await tester.tap(find.text(TextosIdentidad.portadaYaTengoCuenta));
     await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Ya tengo cuenta'));
-    await tester.pumpAndSettle();
-
     expect(router.state.uri.toString(), '/ingreso');
     expect(find.byType(BarraPestanas), findsNothing);
   });
 
-  testWidgets('«Crear mi cuenta» lleva al alta', (tester) async {
-    final router = crearEnrutador();
-    await tester.pumpWidget(appCon(router));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Crear mi cuenta'));
-    await tester.pumpAndSettle();
-
-    expect(router.state.uri.toString(), '/registro');
+  testWidgets('«Crear mi cuenta» abre el tour de cuatro láminas', (
+    tester,
+  ) async {
+    final router = await abrir(tester);
+    await abrirTour(tester);
+    expect(router.state.uri.toString(), '/tour');
+    expect(find.byType(PageView), findsOneWidget);
+    expect(tester.widget<BarraDePuntos>(find.byType(BarraDePuntos)).total, 4);
+    expect(find.byType(BarraPestanas), findsNothing);
   });
 
   testWidgets(
-    'arrancando la app de verdad —no solo el enrutador— se llega a la portada',
+    '«Siguiente» recorre las láminas, y en la última el botón abre el alta',
     (tester) async {
-      // Esta es la prueba que faltaba. `AppAportaYa` repetía su propia ruta por
-      // defecto; cuando la del enrutador pasó a ser la portada, esa copia siguió
-      // mandando a la billetera y la app abría adentro igual, con las pruebas del
-      // enrutador en verde. Acá se monta la app entera, apertura incluida.
-      await tester.pumpWidget(ProviderScope(child: AppAportaYa()));
-      await tester.pumpAndSettle();
+      final router = await abrir(tester);
+      await abrirTour(tester);
 
-      expect(find.text('Crear mi cuenta'), findsOneWidget);
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(find.text(TextosIdentidad.tourSiguiente));
+        await tester.pumpAndSettle();
+      }
       expect(
-        find.text('Tu billetera'),
-        findsNothing,
-        reason: 'la app no puede abrir dentro de una cuenta que todavía no es de nadie',
+        tester.widget<BarraDePuntos>(find.byType(BarraDePuntos)).actual,
+        3,
       );
-    },
-  );
+      expect(find.text(TextosIdentidad.tourSiguiente), findsNothing);
 
-  testWidgets(
-    'se puede crear cuenta sin terminar el tour: las acciones no son un peaje',
-    (tester) async {
-      tester.view.physicalSize = const Size(1170, 2532); // iPhone 13/14, 3x
-      tester.view.devicePixelRatio = 3;
-      addTearDown(tester.view.reset);
-
-      final router = crearEnrutador();
-      await tester.pumpWidget(appCon(router));
+      await tester.tap(find.text(TextosIdentidad.portadaCrearCuenta));
       await tester.pumpAndSettle();
-
-      // Sin deslizar ni una lámina, las dos salidas ya están a la vista.
-      expect(find.text('Crear mi cuenta'), findsOneWidget);
-      expect(find.text('Ya tengo cuenta'), findsOneWidget);
-    },
-  );
-
-  testWidgets(
-    '«Crear mi cuenta» NO monta la barra de pestañas: sin sesión no hay app',
-    (tester) async {
-      // El alta vivía dentro del shell, así que abrirla montaba Inicio · Grupos ·
-      // Movimientos · Perfil y la app parecía haber iniciado sesión sola, con una
-      // cuenta que todavía no existía.
-      final router = crearEnrutador();
-      await tester.pumpWidget(appCon(router));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Crear mi cuenta'));
-      await tester.pumpAndSettle();
-
       expect(router.state.uri.toString(), '/registro');
-      expect(
-        find.byType(BarraPestanas),
-        findsNothing,
-        reason: 'el alta no puede traer la barra de pestañas de la app',
-      );
+      expect(find.byType(BarraPestanas), findsNothing);
     },
   );
 
-  testWidgets('la portada dice qué es esto antes de pedir nada', (tester) async {
-    final router = crearEnrutador();
-    await tester.pumpWidget(appCon(router));
+  testWidgets('«Saltar» va directo al alta, sin barra de pestañas', (
+    tester,
+  ) async {
+    final router = await abrir(tester);
+    await abrirTour(tester);
+    await tester.tap(find.text(TextosIdentidad.portadaSaltar));
     await tester.pumpAndSettle();
-
-    expect(find.textContaining('pasanaku'), findsWidgets);
-    // Cuatro láminas, una idea por lámina (D-8 de la maqueta).
-    expect(find.byType(PageView), findsOneWidget);
-    expect(find.byType(BarraDePuntos), findsOneWidget);
-    final puntos = tester.widget<BarraDePuntos>(find.byType(BarraDePuntos));
-    expect(puntos.total, 4);
+    expect(router.state.uri.toString(), '/registro');
+    expect(
+      find.byType(BarraPestanas),
+      findsNothing,
+      reason: 'el alta no puede traer la barra de pestañas de la app',
+    );
   });
 }

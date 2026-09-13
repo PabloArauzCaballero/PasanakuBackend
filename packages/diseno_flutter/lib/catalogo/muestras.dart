@@ -32,11 +32,11 @@ import '../atomos/rueda.dart';
 import '../atomos/selector_segmentado.dart';
 import '../atomos/tono.dart';
 import '../errores.dart';
-import '../ilustraciones/cuentas_a_la_vista.dart';
+import '../ilustraciones/arte_en_custodia.dart';
+import '../ilustraciones/arte_fondo_de_garantia.dart';
+import '../ilustraciones/arte_sin_cuaderno.dart';
+import '../ilustraciones/arte_sorteo_a_la_vista.dart';
 import '../ilustraciones/lienzo.dart';
-import '../ilustraciones/plata_en_custodia.dart';
-import '../ilustraciones/rueda_de_gente.dart';
-import '../ilustraciones/sorteo_limpio.dart';
 import '../moleculas/acciones_rapidas.dart';
 import '../moleculas/acordeon.dart';
 import '../moleculas/alerta.dart';
@@ -927,31 +927,31 @@ final List<({String grupo, List<Muestra> muestras})> catalogo = [
     grupo: 'Móviles',
     muestras: [
       (
-        nombre: 'Ilustración · rueda de gente',
+        nombre: 'Tour · sin el cuaderno',
         widget: () => const Ilustracion(
-          pintor: RuedaDeGente.new,
-          etiqueta: 'Ocho personas alrededor de una rueda',
+          pintor: ArteSinCuaderno.new,
+          etiqueta: 'Tres personas y el aporte en común',
         ),
       ),
       (
-        nombre: 'Ilustración · cuentas a la vista',
+        nombre: 'Tour · en custodia',
         widget: () => const Ilustracion(
-          pintor: CuentasALaVista.new,
-          etiqueta: 'Quién puso y quién cobró, con una lupa',
+          pintor: ArteEnCustodia.new,
+          etiqueta: 'Un extracto con comprobante y el escudo de la custodia',
         ),
       ),
       (
-        nombre: 'Ilustración · sorteo limpio',
+        nombre: 'Tour · sorteo a la vista',
         widget: () => const Ilustracion(
-          pintor: SorteoLimpio.new,
-          etiqueta: 'La ruleta con su sello de verificación',
+          pintor: ArteSorteoALaVista.new,
+          etiqueta: 'La rueda del sorteo y su marca de inicio',
         ),
       ),
       (
-        nombre: 'Ilustración · plata en custodia',
+        nombre: 'Tour · fondo de garantía',
         widget: () => const Ilustracion(
-          pintor: PlataEnCustodia.new,
-          etiqueta: 'El banco con tu plata, aparte de la empresa',
+          pintor: ArteFondoDeGarantia.new,
+          etiqueta: 'Un paraguas cubriendo la moneda de la cuota',
         ),
       ),
       (

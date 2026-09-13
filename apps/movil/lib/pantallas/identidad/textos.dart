@@ -22,23 +22,36 @@ class TextosIdentidad {
   static const portadaCustodiaDetalle =
       'Queda en Banco Unión, aparte del dinero de la empresa.';
   static const portadaSaltar = 'Saltar';
-  // Las cuatro láminas del tour (D-8 de la maqueta): qué es, qué se ve, cómo se
-  // decide el orden, y dónde queda la plata. Una idea por lámina.
-  static const tour1Titulo = 'El pasanaku de siempre,\ncon las cuentas claras';
+  static const tourSiguiente = 'Siguiente';
+  // La bienvenida y las cuatro láminas del tour, con el texto exacto de la maqueta
+  // (`docs/Views/AportaYa-Maqueta.html`: `bienvenida` y `const TOUR`). La segunda
+  // línea de cada título es la que se destaca en verde.
+  static const bienvenidaTitulo = 'El pasanaku de siempre,\ncon la plata segura';
+  static const bienvenidaTexto =
+      'Aportá, cobrá tu turno y mirá el estado del grupo desde el celular. '
+      'Cada movimiento queda registrado.';
+  static const tour1Titulo = 'El pasanaku de siempre,';
+  static const tour1Destacado = 'sin el cuaderno';
   static const tour1Texto =
-      'Armá una rueda con tu gente, poné lo mismo cada turno y cobrá cuando te toca.';
-  static const tour2Titulo = 'Tu rueda, a la vista';
+      'Los mismos turnos, la misma confianza. Lo que cambia es que ya nadie tiene '
+      'que juntar, guardar ni acordarse de nada.';
+  static const tour2Titulo = 'Tu plata está';
+  static const tour2Destacado = 'en custodia';
   static const tour2Texto =
-      'Quién puso, quién cobró y a quién le toca. Sin confiar de memoria ni llevar '
-      'la cuenta en un cuaderno.';
-  static const tour3Titulo = 'El turno no se arregla';
+      'No la guarda un vecino ni la empresa: vive en una cuenta bancaria separada. '
+      'Cada movimiento queda con su comprobante, y podés bajar el extracto cuando '
+      'quieras.';
+  static const tour3Titulo = 'El turno se sortea';
+  static const tour3Destacado = 'a la vista de todos';
   static const tour3Texto =
-      'El orden sale sorteado, y cualquiera del grupo puede comprobar que el sorteo '
-      'fue limpio.';
-  static const tour4Titulo = 'La plata no la tenemos nosotros';
+      'El orden no lo decide nadie. Sale de una semilla pública que se toma después '
+      'de cerrar la lista, y cualquiera puede repetir el sorteo y llegar al mismo '
+      'resultado.';
+  static const tour4Titulo = 'Si alguien no aporta,';
+  static const tour4Destacado = 'el grupo no se frena';
   static const tour4Texto =
-      'Queda en custodia en Banco Unión, separada del dinero de la empresa. Aunque '
-      'a AportaYa le vaya mal, tu plata sigue siendo tuya.';
+      'Hay un fondo de garantía que cubre la cuota para que el turno se entregue '
+      'igual. La deuda no se perdona: queda viva y el fondo pasa a ser el acreedor.';
   static const portadaCrearCuenta = 'Crear mi cuenta';
   static const portadaYaTengoCuenta = 'Ya tengo cuenta';
 
