@@ -387,3 +387,36 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA comun GRANT SELECT ON TABLES TO rol_auditor;
 -- 6) El catalogo solo lo escribe la migracion, al sembrar.
 ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
   GRANT INSERT, UPDATE ON TABLES TO rol_migracion;
+
+-- 7) SOLO EN DESARROLLO: que los roles de servicio puedan conectarse.
+--
+-- Los catorce `svc_*` nacen NOLOGIN, que es lo correcto: en un despliegue real la
+-- credencial la entrega el gestor de secretos y nunca vive en un archivo del
+-- repositorio. Pero en la maquina de desarrollo eso dejaba a los catorce servicios
+-- sin poder abrir una sola conexion —PgBouncer respondia «no such user» y cada
+-- peticion moria en 500—, asi que el stack local no servia para nada.
+--
+-- La clave es la misma que ya traen `despliegue/compose/base.yml` y el `BD_CLAVE` de
+-- cada servicio: no es un secreto nuevo, es el literal de desarrollo que ya estaba.
+-- Y esto solo corre sobre una base marcada `app.entorno = 'dev'`, la misma guarda
+-- que protege las semillas de prueba.
+DO $desarrollo$
+DECLARE
+  rol   text;
+  clave text := nullif(current_setting('app.clave_dev', true), '');
+BEGIN
+  IF current_setting('app.entorno', true) IS DISTINCT FROM 'dev' THEN
+    RETURN;
+  END IF;
+  IF clave IS NULL THEN
+    -- Sin clave NO se toca nada: un `PASSWORD NULL` deja al rol conectandose sin
+    -- credencial, que es peor que dejarlo NOLOGIN.
+    RAISE NOTICE 'Entorno dev sin app.clave_dev: los roles svc_* siguen NOLOGIN. '
+                 'La pone despliegue/compose/init/00-arranque.sql.';
+    RETURN;
+  END IF;
+  FOR rol IN SELECT rolname FROM pg_roles WHERE rolname LIKE 'svc\_%' LOOP
+    EXECUTE format('ALTER ROLE %I LOGIN PASSWORD %L', rol, clave);
+  END LOOP;
+  RAISE NOTICE 'Entorno dev: los roles svc_* pueden iniciar sesion.';
+END $desarrollo$;

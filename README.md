@@ -47,9 +47,41 @@ docker compose -f despliegue/compose/base.yml --profile base up -d --wait
 
 # 4 · el stack entero en contenedores
 python3 scripts/generar_compose.py
+python3 scripts/generar_gateway.py     # las rutas de la entrada publica, desde PREFIJOS
+docker buildx create --name aportaya --driver docker-container \
+  --driver-opt network=aportaya-interna --use    # una sola vez
+for s in identidad grupos aportes nucleo-financiero garantia organizador transparencia; do
+  docker buildx build --load --allow network.host --network=host \
+    -f despliegue/Dockerfile --build-arg SERVICIO="$s" -t "aportaya/${s}:local" .
+done
 docker compose -f despliegue/compose/base.yml -f despliegue/compose/servicios.yml \
-  --profile todo up -d --wait
+  --profile todo up -d --no-build --wait
 ```
+
+El constructor va atado a `aportaya-interna` porque las clases de jOOQ se generan
+introspeccionando la base **viva** y `.dockerignore` deja `**/build` afuera: la
+construccion tiene que alcanzar a PostgreSQL. Sin eso, `compileJava` falla con
+«package bo.aportaya.&lt;servicio&gt;.generado does not exist» y no hay imagen posible.
+Y se construye de a uno: catorce Gradle en paralelo se pelean por el mismo lock del
+cache y la corrida muere a los cuatro minutos.
+
+### Entrar con una cuenta de prueba
+
+Las cuentas de `sql/61_dev/` se siembran **sin contrasena en claro** —el repositorio no
+guarda credenciales— asi que hay que ponerle una a la base local:
+
+```bash
+CLAVE_DEV='la-que-quieras' python3 scripts/clave_dev.py --huella <32 hex de la app>
+```
+
+Eso pone la misma contrasena a las once cuentas de prueba (`+59171000001`…`009`,
+`+59171000090` participante y `+59171000091` backoffice) y marca ese dispositivo como
+de confianza. Lo segundo importa: `ExigeSegundoFactor` pide MFA a todo dispositivo
+desconocido, y las cuentas de prueba no tienen factor enrolado, asi que sin eso el
+ingreso no termina. La huella la genera la app al instalarse.
+
+La app apunta por omision a `http://localhost/api/v1`, que es NGINX. Para el simulado:
+`--dart-define=API=http://localhost:4010/api/v1`.
 
 Los cuatro verificadores de la boveda corren solos y no necesitan nada levantado:
 

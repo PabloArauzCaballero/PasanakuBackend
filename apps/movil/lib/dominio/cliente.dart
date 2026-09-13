@@ -7,10 +7,19 @@ import '../dominio/errores.dart';
 import '../proveedores/sesion.dart';
 
 /// **Una sola base URL: el gateway.** El prefijo enruta al servicio; la app no
-/// conoce catorce direcciones. En desarrollo apunta a Prism (`yarn dev:mock`).
+/// conoce catorce direcciones.
+///
+/// Por omisión apunta al **backend de verdad** en la máquina de desarrollo: NGINX
+/// publica el 80, y el gateway enruta `/api/v1/<prefijo>` al servicio que reservó ese
+/// prefijo. Antes apuntaba a Prism, el simulado, y con eso la app «funcionaba» sin
+/// que existiera un backend detrás: cualquier celular y cualquier contraseña entraban.
+///
+/// El simulado sigue disponible para pruebas de contrato, pero hay que pedirlo:
+/// `--dart-define=API=http://localhost:4010/api/v1`. Desde el emulador de Android la
+/// máquina es `10.0.2.2`; desde un teléfono real, la IP de la red local.
 const String baseDelGateway = String.fromEnvironment(
   'API',
-  defaultValue: 'http://localhost:4010/api/v1',
+  defaultValue: 'http://localhost/api/v1',
 );
 
 /// La única salida a la red de la app. Ningún widget crea un `Dio`.

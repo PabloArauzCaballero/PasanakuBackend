@@ -4,13 +4,21 @@
 spring:
   application:
     name: gateway
+  # Las rutas de verdad, generadas desde PREFIJOS por scripts/generar_gateway.py.
+  # Hasta que este archivo existio, el gateway levantaba sin una sola ruta: todo lo
+  # que entraba por NGINX daba 404, y la app contra el backend real no llegaba a
+  # ningun lado.
+  config:
+    import: classpath:rutas.yml
   cloud:
     gateway:
-      httpclient:
-        connect-timeout: 2000
-        response-timeout: 10s
-      default-filters:
-        - DedupeResponseHeader=Access-Control-Allow-Origin
+      server:
+        webflux:
+          httpclient:
+            connect-timeout: 2000
+            response-timeout: 10s
+          default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Origin
 
 server:
   port: 8080

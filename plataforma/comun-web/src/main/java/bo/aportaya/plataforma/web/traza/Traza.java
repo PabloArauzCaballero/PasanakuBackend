@@ -26,9 +26,34 @@ public final class Traza {
     }
 
     static void fijar(String valor) {
-        MDC.put(
-                CLAVE,
-                valor != null && !valor.isBlank() ? valor : UUID.randomUUID().toString());
+        MDC.put(CLAVE, normalizar(valor));
+    }
+
+    /**
+     * La traza siempre queda como UUID canonico.
+     *
+     * <p>NGINX propaga {@code X-Request-Id} con su {@code $request_id}, que son 32
+     * digitos hexadecimales SIN guiones. Media docena de casos de uso hacen
+     * {@code UUID.fromString(ctx.traza().id())} para guardar la traza en el outbox, y
+     * con ese formato reventaban con {@code Invalid UUID string} — todo lo que
+     * entraba por la entrada publica terminaba en 500, incluido el ingreso. Se
+     * normaliza aca, en el borde, y no en cada caso de uso: un formato invalido que
+     * se arregla en seis lugares se olvida en el septimo.
+     */
+    private static String normalizar(String valor) {
+        if (valor == null || valor.isBlank()) {
+            return UUID.randomUUID().toString();
+        }
+        String limpio = valor.trim();
+        if (limpio.length() == 32 && limpio.chars().allMatch(c -> Character.digit(c, 16) >= 0)) {
+            return new StringBuilder(limpio)
+                    .insert(20, '-')
+                    .insert(16, '-')
+                    .insert(12, '-')
+                    .insert(8, '-')
+                    .toString();
+        }
+        return limpio;
     }
 
     /** Lo que hace que una traza de produccion lleve al caso de uso sin herramientas. */

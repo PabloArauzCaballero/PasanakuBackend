@@ -69,4 +69,12 @@ val generateJooq = tasks.register("generateJooq") {
     }
 }
 
-tasks.named<JavaCompile>("compileJava") { mustRunAfter(generateJooq) }
+// `dependsOn` y no `mustRunAfter`: con `mustRunAfter`, `bootJar` no arrastraba la
+// generacion, y en una copia limpia —la imagen de Docker, donde `.dockerignore` deja
+// `**/build` afuera— compilar fallaba con «package bo.aportaya.<servicio>.generado
+// does not exist». Ninguna imagen de servicio se podia construir.
+//
+// La regla de arriba se mantiene y se refuerza: las clases salen de la base viva en
+// cada compilacion, asi que el codigo nunca compila contra un esquema que ya no es.
+// Los modulos que no aplican este plugin —el gateway, por ejemplo— no se enteran.
+tasks.named<JavaCompile>("compileJava") { dependsOn(generateJooq) }

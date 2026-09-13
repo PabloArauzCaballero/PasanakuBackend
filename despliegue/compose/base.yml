@@ -70,6 +70,11 @@ services:
       DB_PORT: "5432"
       DB_USER: pasanaku
       DB_PASSWORD: pasanaku
+      # 6432 es el puerto de pgbouncer, y es el que los catorce servicios traen en su
+      # BD_URL. La imagen escucha en 5432 por omision, asi que el pool quedaba sano
+      # en un puerto al que no llamaba nadie y cada servicio moria con «Connection to
+      # pgbouncer:6432 refused».
+      LISTEN_PORT: "6432"
       # Modo transaccion: es lo que hace que SET LOCAL sea la unica forma valida de
       # fijar el contexto de RLS (invariante 3). Un SET plano se filtraria a la
       # siguiente transaccion de otro usuario.
@@ -78,8 +83,14 @@ services:
       DEFAULT_POOL_SIZE: "40"
       AUTH_TYPE: scram-sha-256
       ADMIN_USERS: pasanaku
+      # Sin `auth_query`, PgBouncer solo conoce a los usuarios de su propio archivo
+      # —que aca no existe— y a los catorce `svc_*` los rechazaba con «no such
+      # user». Con esto los verifica contra el catalogo de PostgreSQL, que es donde
+      # ya estan: una sola lista de usuarios y no dos.
+      AUTH_USER: pasanaku
+      AUTH_QUERY: "SELECT usename, passwd FROM pg_shadow WHERE usename = $1"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U pasanaku"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 6432 -U pasanaku"]
       interval: 5s
       timeout: 3s
       retries: 20
