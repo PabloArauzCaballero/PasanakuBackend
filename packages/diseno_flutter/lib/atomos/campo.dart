@@ -25,6 +25,9 @@ class Campo extends StatelessWidget {
     this.onChanged,
     this.onSubmitted,
     this.autofocus = false,
+    this.soloLectura = false,
+    this.onTap,
+    this.foco,
   });
 
   final String etiqueta;
@@ -48,6 +51,15 @@ class Campo extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
   final bool autofocus;
+
+  /// El valor no se escribe: se elige. Un campo de fecha se ve como cualquier otro
+  /// —misma caja, mismo borde, mismo error— pero abre un calendario en vez del
+  /// teclado. Deshabilitarlo lo pintaria de gris, que es mentir: el campo funciona.
+  final bool soloLectura;
+  final VoidCallback? onTap;
+
+  /// Para que el formulario pueda llevar el foco al primer campo con error.
+  final FocusNode? foco;
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +86,9 @@ class Campo extends StatelessWidget {
         ],
         TextField(
           controller: controlador,
+          focusNode: foco,
+          readOnly: soloLectura,
+          onTap: onTap,
           enabled: habilitado,
           obscureText: oculto,
           keyboardType: tipoDeTeclado,
@@ -86,16 +101,39 @@ class Campo extends StatelessWidget {
           decoration: InputDecoration(
             filled: true,
             fillColor: habilitado ? t.field : t.surface2,
-            prefixIcon: icono == null ? null : Icon(icono, color: t.text3),
-            prefixText: prefijo == null ? null : '$prefijo ',
-            prefixStyle: texto.bodyLarge?.copyWith(
-              color: t.text2,
-              fontFamily: Fuente.display,
-            ),
+            // El prefijo va DENTRO del adorno, no en `prefixText`: Flutter esconde
+            // `prefixText` hasta que el campo tiene foco, y un `+591` que aparece
+            // recien al tocar no le sirve a nadie — quien no lo ve lo escribe a mano
+            // y termina con `+591+59171000090`.
+            prefixIcon: (icono == null && prefijo == null)
+                ? null
+                : Padding(
+                    padding: const EdgeInsets.only(
+                      left: Espacio.s4,
+                      right: Espacio.s2,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (icono != null) Icon(icono, color: t.text3),
+                        if (prefijo != null) ...[
+                          if (icono != null) const SizedBox(width: Espacio.s2),
+                          Text(
+                            prefijo!,
+                            style: texto.bodyLarge?.copyWith(
+                              color: t.text2,
+                              fontFamily: Fuente.display,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+            prefixIconConstraints: const BoxConstraints(minWidth: 0),
             suffixIcon: sufijo,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: Espacio.s4,
-              vertical: Espacio.s3,
+              vertical: Espacio.s4,
             ),
             enabledBorder: borde(colorBorde, Borde.fino),
             focusedBorder: borde(

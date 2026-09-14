@@ -63,6 +63,13 @@ class TextosIdentidad {
 
   // Alta (CU-01), ocho pasos.
   static const registroTitulo = 'Crear cuenta';
+  static const telefonoAyuda = 'Ocho dígitos, sin el código de país.';
+  static const documentoAyuda = 'Tu cédula de identidad, sin puntos ni guiones.';
+  static const fechaNacimientoAyuda =
+      'Para abrir una billetera hay que ser mayor de edad.';
+  static const registroPie =
+      'Al continuar guardamos estos datos para abrir tu cuenta. '
+      'Todavía no se envía nada al banco.';
   static const registroIntro =
       'Con estos datos abrimos tu billetera. Tienen que coincidir con tu '
       'documento: si no coinciden, la verificación se frena.';

@@ -52,7 +52,10 @@ void main() {
     expect(recibido, '1240.50');
     await tester.enterText(find.byType(TextField), '12,345');
     expect(recibido, isNull);
-    expect(find.text('Bs '), findsOneWidget);
+    // Sin el espacio de antes: el prefijo dejo de ser `prefixText` —que Flutter
+    // esconde hasta que el campo tiene foco— y pasa a ser un `Text` en el adorno,
+    // visible siempre.
+    expect(find.text('Bs'), findsOneWidget);
   });
 
   testWidgets('CampoOTP avanza solo y emite al completar los seis dígitos', (

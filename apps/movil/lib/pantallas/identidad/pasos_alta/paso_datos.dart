@@ -1,4 +1,3 @@
-import 'package:aportaya_diseno/atomos/campo.dart';
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
@@ -8,9 +7,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../dominio/estado_alta.dart';
 import '../dominio/validaciones.dart';
 import '../textos.dart';
+import 'campos_del_alta.dart';
 
 /// Paso 1 de 8 — datos personales (CU-01). Un organismo puro: lee y escribe en el
 /// notifier, no llama a la red.
+///
+/// **«Continuar» siempre se puede tocar.** Antes el botón nacía apagado y se
+/// encendía solo con el formulario entero válido, sin decir nunca qué faltaba: quien
+/// escribía su celular como `71000090` veía un botón muerto y no tenía forma de
+/// saber por qué. Ahora el toque siempre hace algo — o avanza, o muestra los errores
+/// y lleva el foco al primer campo que falla.
+///
+/// Los errores no aparecen mientras se escribe por primera vez: un formulario que te
+/// grita «escribí al menos dos letras» cuando llevás una sola letra escrita está
+/// retando a alguien que todavía no terminó.
 class PasoDatos extends ConsumerStatefulWidget {
   const PasoDatos({super.key});
 
@@ -19,116 +29,126 @@ class PasoDatos extends ConsumerStatefulWidget {
 }
 
 class _PasoDatosState extends ConsumerState<PasoDatos> {
-  late final _nombres = TextEditingController(
-    text: ref.read(altaProvider).datos.nombres,
+  static const _prefijoBolivia = '+591';
+
+  late final _nombres = _campo(ref.read(altaProvider).datos.nombres);
+  late final _apellidos = _campo(ref.read(altaProvider).datos.apellidos);
+  late final _telefono = _campo(
+    ref.read(altaProvider).datos.telefono.replaceFirst(_prefijoBolivia, ''),
   );
-  late final _apellidos = TextEditingController(
-    text: ref.read(altaProvider).datos.apellidos,
-  );
-  late final _telefono = TextEditingController(
-    text: ref.read(altaProvider).datos.telefono,
-  );
-  late final _documento = TextEditingController(
-    text: ref.read(altaProvider).datos.numeroDocumento,
-  );
+  late final _documento = _campo(ref.read(altaProvider).datos.numeroDocumento);
+
+  final _focos = List.generate(4, (_) => FocusNode());
+  final _focoFecha = FocusNode();
   DateTime? _fechaNacimiento;
+  final _tocados = <String>{};
+  var _intentado = false;
+
+  TextEditingController _campo(String valor) =>
+      TextEditingController(text: valor);
 
   @override
   void dispose() {
-    _nombres.dispose();
-    _apellidos.dispose();
-    _telefono.dispose();
-    _documento.dispose();
+    for (final c in [_nombres, _apellidos, _telefono, _documento]) {
+      c.dispose();
+    }
+    for (final f in [..._focos, _focoFecha]) {
+      f.dispose();
+    }
     super.dispose();
   }
 
-  void _sincronizar() {
-    ref
-        .read(altaProvider.notifier)
-        .actualizarDatos(
-          ref
-              .read(altaProvider)
-              .datos
-              .copiarCon(
-                nombres: _nombres.text,
-                apellidos: _apellidos.text,
-                telefono: _telefono.text,
-                numeroDocumento: _documento.text,
-                fechaNacimiento: _fechaNacimiento,
-              ),
-        );
+  String get _telefonoCompleto =>
+      _telefono.text.isEmpty ? '' : '$_prefijoBolivia${_telefono.text}';
+
+  void _sincronizar(String cual) {
+    _tocados.add(cual);
+    setState(() {
+      ref
+          .read(altaProvider.notifier)
+          .actualizarDatos(
+            ref
+                .read(altaProvider)
+                .datos
+                .copiarCon(
+                  nombres: _nombres.text,
+                  apellidos: _apellidos.text,
+                  telefono: _telefonoCompleto,
+                  numeroDocumento: _documento.text,
+                  fechaNacimiento: _fechaNacimiento,
+                ),
+          );
+    });
   }
 
-  bool get _valido =>
-      errorNombre(_nombres.text) == null &&
-      errorNombre(_apellidos.text) == null &&
-      errorTelefono(_telefono.text) == null &&
-      errorDocumento(_documento.text) == null &&
-      errorFechaNacimiento(_fechaNacimiento) == null;
+  /// El error de un campo, o `null` mientras no lo hayan tocado ni se haya intentado
+  /// continuar.
+  String? _error(String cual, String? Function() calcular) =>
+      _tocados.contains(cual) || _intentado ? calcular() : null;
+
+  Map<String, String?> get _errores => {
+    'nombres': _error('nombres', () => errorNombre(_nombres.text)),
+    'apellidos': _error('apellidos', () => errorNombre(_apellidos.text)),
+    'telefono': _error('telefono', () => errorTelefono(_telefonoCompleto)),
+    'documento': _error('documento', () => errorDocumento(_documento.text)),
+    'fecha': _error('fecha', () => errorFechaNacimiento(_fechaNacimiento)),
+  };
+
+  void _continuar() {
+    setState(() => _intentado = true);
+    final fallan = _errores.entries.where((e) => e.value != null).toList();
+    if (fallan.isEmpty) {
+      ref.read(altaProvider.notifier).siguiente();
+      return;
+    }
+    // Al primer campo que falla, para no dejar a nadie buscando cuál era.
+    const orden = ['nombres', 'apellidos', 'telefono', 'documento', 'fecha'];
+    final primero = orden.indexOf(fallan.first.key);
+    (primero == 4 ? _focoFecha : _focos[primero]).requestFocus();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final t = Tokens.of(context);
     _fechaNacimiento ??= ref.read(altaProvider).datos.fechaNacimiento;
+    final errores = _errores;
     return Padding(
-      padding: const EdgeInsets.all(Espacio.s4),
+      padding: const EdgeInsets.fromLTRB(
+        Espacio.s4,
+        Espacio.s4,
+        Espacio.s4,
+        Espacio.s6,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Campo(
-            etiqueta: TextosIdentidad.nombres,
-            controlador: _nombres,
-            onChanged: (_) => setState(_sincronizar),
-          ),
-          const SizedBox(height: Espacio.s3),
-          Campo(
-            etiqueta: TextosIdentidad.apellidos,
-            controlador: _apellidos,
-            onChanged: (_) => setState(_sincronizar),
-          ),
-          const SizedBox(height: Espacio.s3),
-          Campo(
-            etiqueta: TextosIdentidad.telefono,
-            controlador: _telefono,
-            tipoDeTeclado: TextInputType.phone,
-            onChanged: (_) => setState(_sincronizar),
-          ),
-          const SizedBox(height: Espacio.s3),
-          Campo(
-            etiqueta: TextosIdentidad.numeroDocumento,
-            controlador: _documento,
-            onChanged: (_) => setState(_sincronizar),
-          ),
-          const SizedBox(height: Espacio.s3),
-          OutlinedButton(
-            onPressed: () async {
-              final elegida = await showDatePicker(
-                context: context,
-                initialDate: DateTime(2000),
-                firstDate: DateTime(1900),
-                lastDate: DateTime.now(),
-              );
-              if (elegida != null) {
-                setState(() {
-                  _fechaNacimiento = elegida;
-                  _sincronizar();
-                });
-              }
+          CamposDelAlta(
+            controladores: [_nombres, _apellidos, _telefono, _documento],
+            focos: _focos,
+            focoFecha: _focoFecha,
+            errores: errores,
+            tocados: _tocados,
+            prefijo: _prefijoBolivia,
+            fecha: _fechaNacimiento,
+            onCambio: _sincronizar,
+            onFecha: (f) {
+              _fechaNacimiento = f;
+              _sincronizar('fecha');
             },
-            child: Text(
-              _fechaNacimiento == null
-                  ? TextosIdentidad.fechaNacimiento
-                  : '${TextosIdentidad.fechaNacimiento}: '
-                        '${_fechaNacimiento!.day}/${_fechaNacimiento!.month}/${_fechaNacimiento!.year}',
-            ),
           ),
           const SizedBox(height: Espacio.s5),
           Boton(
             texto: TextosIdentidad.continuar,
+            icono: Icons.arrow_forward,
             variante: BotonVariante.primario,
             expandido: true,
-            onPressed: _valido
-                ? () => ref.read(altaProvider.notifier).siguiente()
-                : null,
+            onPressed: _continuar,
+          ),
+          const SizedBox(height: Espacio.s3),
+          Text(
+            TextosIdentidad.registroPie,
+            textAlign: TextAlign.center,
+            style: Tipo.ayuda.copyWith(color: t.text3),
           ),
         ],
       ),
