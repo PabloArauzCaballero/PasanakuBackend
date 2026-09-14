@@ -11,7 +11,12 @@ import { Routes } from '@angular/router'
  * ejemplo a partir del id — el día que el contrato exista, solo el contenedor cambia.
  */
 export const rutasCumplimiento: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'alertas/11111111-1111-4111-8111-111111111111' },
+  { path: '', pathMatch: 'full', redirectTo: 'verificaciones' },
+  {
+    path: 'verificaciones',
+    loadComponent: () => import('./verificaciones/pantalla-de-expedientes').then((m) => m.PantallaDeExpedientes),
+    title: 'Verificación de identidad · AportaYa',
+  },
   {
     path: 'alertas/:alertaId',
     loadComponent: () => import('./alertas/contenedor-de-alerta').then((m) => m.ContenedorDeAlerta),

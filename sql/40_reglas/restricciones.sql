@@ -1200,6 +1200,22 @@ CREATE OR REPLACE FUNCTION fn_seg_rol_privilegiado() RETURNS BOOLEAN AS $$
          IN ('BACKOFFICE','CUMPLIMIENTO','AUDITOR');
 $$ LANGUAGE sql STABLE;
 
+-- El contexto del propio backend, el que usan el ingreso, el alta, los trabajos
+-- programados y los consumidores de Kafka (`ContextoSesion.deSistema`).
+--
+-- Sin esto, las dos operaciones por las que se entra al sistema eran imposibles: el
+-- ingreso corre SIN sesion previa —no hay usuario todavia que pueda ser titular de
+-- nada— y lo primero que hace es escribir su propia fila en `intento_autenticacion`,
+-- que caia en el regimen de denegar por omision. La peticion moria con «new row
+-- violates row-level security policy» y devolvia 500.
+--
+-- `app.rol` solo lo fija el backend con SET LOCAL dentro de su transaccion
+-- (`Datos.conContexto`); no llega nunca de una peticion, asi que un cliente no puede
+-- pedir este contexto. Es el mismo mecanismo que ya usan los otros tres roles.
+CREATE OR REPLACE FUNCTION fn_seg_es_sistema() RETURNS BOOLEAN AS $$
+  SELECT COALESCE(current_setting('app.rol', true), '') = 'sistema';
+$$ LANGUAGE sql STABLE;
+
 -- La cobertura NO se escribe a mano. Una lista de tablas escrita a mano se
 -- desactualiza en el primer módulo nuevo, y una tabla olvidada no falla: queda
 -- abierta en silencio, que es la peor forma de fallar. El recorrido va sobre el
@@ -1219,6 +1235,12 @@ DECLARE
   visibles_por_titular TEXT[] := ARRAY[
       'documento_identidad','direccion_usuario','perfil_financiero',
       'credencial_acceso','historial_credencial','factor_mfa','dispositivo',
+      -- Los roles propios son dato propio. Sin esto, emitir un token leia las
+      -- asignaciones del titular BAJO EL CONTEXTO DEL TITULAR y no veia ninguna:
+      -- todo token salia con `permisos: []`, asi que ningun operador podia hacer
+      -- nada en el backoffice. Se leen, no se escriben: asignar un rol sigue
+      -- siendo cosa de CU-08, con su permiso.
+      'asignacion_rol',
       'sesion','token_verificacion','consentimiento','preferencia_notificacion',
       'referencia_personal','solicitud_baja','verificacion_kyc',
       'reputacion_usuario','cuenta_billetera','cuenta_bancaria_beneficiario',
@@ -1248,13 +1270,13 @@ BEGIN
                         AND a.attname IN ('usuario_id','cuenta_billetera_id'))
   LOOP
     IF NOT (r.t = ANY (visibles_por_titular)) THEN
-      cond := 'fn_seg_rol_privilegiado()';          -- denegar por omisión
+      cond := 'fn_seg_rol_privilegiado() OR fn_seg_es_sistema()';  -- denegar por omisión
     ELSIF r.por_usuario THEN
-      cond := 'usuario_id = fn_seg_usuario_actual() OR fn_seg_rol_privilegiado()';
+      cond := 'usuario_id = fn_seg_usuario_actual() OR fn_seg_rol_privilegiado() OR fn_seg_es_sistema()';
     ELSE
       -- La billetera vive en nucleo_financiero, no en el esquema de la tabla que la
       -- referencia: la subconsulta se califica o no resuelve.
-      cond := format('fn_seg_rol_privilegiado() OR EXISTS ('
+      cond := format('fn_seg_rol_privilegiado() OR fn_seg_es_sistema() OR EXISTS ('
                      'SELECT 1 FROM nucleo_financiero.cuenta_billetera c '
                      'WHERE c.id = %I.%I.cuenta_billetera_id '
                      'AND c.usuario_id = fn_seg_usuario_actual())', r.esq, r.t);
@@ -1277,8 +1299,8 @@ ALTER TABLE usuario FORCE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS pol_usuario_titular ON usuario;
 CREATE POLICY pol_usuario_titular ON usuario
   FOR ALL TO rol_aplicacion
-  USING (id = fn_seg_usuario_actual() OR fn_seg_rol_privilegiado())
-  WITH CHECK (id = fn_seg_usuario_actual() OR fn_seg_rol_privilegiado());
+  USING (id = fn_seg_usuario_actual() OR fn_seg_rol_privilegiado() OR fn_seg_es_sistema())
+  WITH CHECK (id = fn_seg_usuario_actual() OR fn_seg_rol_privilegiado() OR fn_seg_es_sistema());
 
 -- Las tablas de cumplimiento que NO llevan usuario_id quedan igualmente fuera
 -- del alcance de la aplicación: sólo cumplimiento y auditoría las leen.

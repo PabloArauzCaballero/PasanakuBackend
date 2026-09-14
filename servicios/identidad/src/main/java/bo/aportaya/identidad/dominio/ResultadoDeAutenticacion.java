@@ -22,6 +22,15 @@ public record ResultadoDeAutenticacion(
         Optional<OffsetDateTime> expiraEn,
         boolean requiereFactorAdicional,
         boolean dispositivoConfiable,
+        /**
+         * Si quien entra tiene algun rol de ambito GLOBAL.
+         *
+         * <p>Lo necesita quien emite el token para ponerle el rol que corresponde. Sin
+         * esto la sesion de un operador salia con rol de participante, y las politicas
+         * de fila —que miran `app.rol`— no le dejaban ver nada que no fuera suyo: el
+         * backoffice entero devolvia listas vacias sin un solo error.
+         */
+        boolean esOperador,
         Optional<CodigoError> codigo,
         String mensaje) {
 
@@ -33,7 +42,7 @@ public record ResultadoDeAutenticacion(
      * entrar: preguntar dos veces abre la ventana para que las dos respuestas difieran.
      */
     public static ResultadoDeAutenticacion sesionAbierta(
-            UUID usuarioId, UUID sesionId, OffsetDateTime expiraEn, boolean dispositivoConfiable) {
+            UUID usuarioId, UUID sesionId, OffsetDateTime expiraEn, boolean dispositivoConfiable, boolean esOperador) {
         return new ResultadoDeAutenticacion(
                 true,
                 Optional.of(usuarioId),
@@ -41,6 +50,7 @@ public record ResultadoDeAutenticacion(
                 Optional.of(expiraEn),
                 false,
                 dispositivoConfiable,
+                esOperador,
                 Optional.empty(),
                 "");
     }
@@ -53,6 +63,7 @@ public record ResultadoDeAutenticacion(
                 Optional.empty(),
                 true,
                 dispositivoConfiable,
+                false,
                 Optional.of(CodigoError.de(4, 3)),
                 "Confirma el codigo que te enviamos para terminar de entrar.");
     }
@@ -63,6 +74,7 @@ public record ResultadoDeAutenticacion(
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
+                false,
                 false,
                 false,
                 Optional.of(codigo),

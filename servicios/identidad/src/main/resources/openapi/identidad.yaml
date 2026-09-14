@@ -82,6 +82,80 @@ paths:
           # AP-CU04-05 DEMASIADOS_INTENTOS · AP-CU04-06 FACTOR_NO_ENROLADO
           # AP-CU04-07 FACTOR_NO_ADMISIBLE (R-SEG-10)
 
+  /identidad/verificaciones:
+    get:
+      operationId: listarVerificaciones
+      summary: La cola de expedientes esperando una decision humana
+      description: >-
+        El portal de riesgo. Devuelve quien espera, desde cuando y que fotos tiene
+        cargadas — nunca las fotos en si, que se piden una por una y quedan en la
+        bitacora como cualquier lectura de dato personal.
+      parameters:
+        - name: estado
+          in: query
+          required: false
+          schema: { type: string, enum: [PENDIENTE, EN_REVISION, APROBADA, RECHAZADA] }
+      responses:
+        '200':
+          description: Los expedientes
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ExpedienteEnRevision' }
+
+  /identidad/verificaciones/{verificacionId}/fotos/{cara}:
+    get:
+      operationId: verFotoDelExpediente
+      summary: Un enlace de vigencia corta para mirar una foto del expediente
+      description: >-
+        Devuelve una URL temporal, no el binario: asi el servidor no proxea megabytes
+        y el enlace muere solo. Cada llamada es una lectura de dato personal y queda
+        registrada.
+      parameters:
+        - name: verificacionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: cara
+          in: path
+          required: true
+          schema: { type: string, enum: [ANVERSO, REVERSO, SELFIE] }
+      responses:
+        '200':
+          description: El enlace
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EnlaceDeFoto' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /identidad/verificaciones/{verificacionId}/decision:
+    post:
+      operationId: resolverVerificacion
+      summary: Aprobar o rechazar la verificacion, a mano
+      description: >-
+        La decision es de una persona y queda con su nombre: `revisada_por` guarda
+        quien decidio y `motivo_rechazo` por que. Rechazar sin motivo no se admite —
+        a quien le rechazan la cuenta tiene derecho a saber por que.
+      parameters:
+        - name: verificacionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DecisionDeVerificacion' }
+      responses:
+        '200':
+          description: Resuelta
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExpedienteEnRevision' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
   /usuarios/{usuarioId}/documentos:
     post:
       operationId: subirDocumento
@@ -307,6 +381,37 @@ components:
             El JWT firmado con RS256 que los otros trece servicios validan contra el
             JWKS de identidad (ADR-024). Ausente cuando la respuesta pide un segundo
             factor: recien se emite con la sesion abierta.
+    ExpedienteEnRevision:
+      type: object
+      additionalProperties: false
+      required: [verificacionId, usuarioId, nombreCompleto, estado, iniciadaEn, fotos]
+      properties:
+        verificacionId: { type: string, format: uuid }
+        usuarioId:      { type: string, format: uuid }
+        nombreCompleto: { type: string }
+        documento:      { type: string, description: 'Tipo y lugar de expedicion; el numero NUNCA viaja.' }
+        estado:         { type: string, enum: [PENDIENTE, EN_REVISION, APROBADA, RECHAZADA] }
+        iniciadaEn:     { type: string, format: date-time }
+        resueltaEn:     { type: string, format: date-time }
+        motivoRechazo:  { type: string }
+        fotos:
+          type: array
+          description: Que caras tiene cargadas. Un expediente sin las tres no se puede aprobar.
+          items: { type: string, enum: [ANVERSO, REVERSO, SELFIE] }
+    EnlaceDeFoto:
+      type: object
+      additionalProperties: false
+      required: [url, vigenteHasta]
+      properties:
+        url:          { type: string }
+        vigenteHasta: { type: string, format: date-time }
+    DecisionDeVerificacion:
+      type: object
+      additionalProperties: false
+      required: [decision]
+      properties:
+        decision: { type: string, enum: [APROBAR, RECHAZAR] }
+        motivo:   { type: string, maxLength: 160, description: 'Obligatorio al rechazar.' }
     ArchivoDelExpediente:
       type: object
       additionalProperties: false

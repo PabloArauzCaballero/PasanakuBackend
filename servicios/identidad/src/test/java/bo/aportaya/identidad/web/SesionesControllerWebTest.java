@@ -78,8 +78,13 @@ class SesionesControllerWebTest {
     private EmitirAcceso emitirAcceso;
 
     private static ResultadoDeAutenticacion abierta() {
+        return abierta(false);
+    }
+
+    /** `esOperador` decide con que rol se emite el token, y con eso que ve en la base. */
+    private static ResultadoDeAutenticacion abierta(boolean esOperador) {
         return ResultadoDeAutenticacion.sesionAbierta(
-                USUARIO, SESION, OffsetDateTime.of(2026, 4, 1, 12, 0, 0, 0, ZoneOffset.UTC), true);
+                USUARIO, SESION, OffsetDateTime.of(2026, 4, 1, 12, 0, 0, 0, ZoneOffset.UTC), true, esOperador);
     }
 
     @Test

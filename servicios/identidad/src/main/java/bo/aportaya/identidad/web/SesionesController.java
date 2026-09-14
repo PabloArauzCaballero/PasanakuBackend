@@ -37,6 +37,21 @@ public class SesionesController implements SesionesApi {
      */
     private static final String ROL_DE_PARTICIPANTE = "PARTICIPANTE";
 
+    /**
+     * El rol con el que abre sesion un operador, a efectos de politicas de fila.
+     *
+     * <p>Es el que `fn_seg_rol_privilegiado()` reconoce. Sin esto, la sesion de un
+     * operador salia con rol de participante y las politicas —que miran `app.rol`— no
+     * le dejaban ver mas que lo suyo: el backoffice devolvia listas vacias, sin un
+     * solo error, y parecia que no habia datos.
+     *
+     * <p>Es un solo rol para los tres ambitos privilegiados a proposito: distinguir
+     * BACKOFFICE de CUMPLIMIENTO y AUDITOR en la fila es un refinamiento con su
+     * propio ADR. Lo que autoriza cada operacion sigue siendo el permiso del token,
+     * que se calcula de las asignaciones vigentes y es distinto para cada persona.
+     */
+    private static final String ROL_DE_OPERADOR = "BACKOFFICE";
+
     /** El nivel de diligencia lo actualiza cumplimiento; al abrir sesion se parte del piso. */
     private static final String NIVEL_POR_OMISION = "SIMPLIFICADA";
 
@@ -105,7 +120,11 @@ public class SesionesController implements SesionesApi {
         if (!resultado.requiereFactorAdicional()) {
             resultado
                     .usuarioId()
-                    .map(usuario -> acceso.ejecutar(usuario, ROL_DE_PARTICIPANTE, NIVEL_POR_OMISION, null))
+                    .map(usuario -> acceso.ejecutar(
+                            usuario,
+                            resultado.esOperador() ? ROL_DE_OPERADOR : ROL_DE_PARTICIPANTE,
+                            NIVEL_POR_OMISION,
+                            null))
                     .ifPresent(emitido -> salida.setTokenAcceso(emitido.token()));
         }
         return salida;

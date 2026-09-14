@@ -1,5 +1,22 @@
 /** Los textos del dominio cumplimiento y gobierno, en voz de marca. Un archivo por dominio. */
 export const textosCumplimiento = {
+  verificaciones: {
+    titulo: 'Verificación de identidad',
+    proposito:
+      'Mirar el documento y la cara de quien abre una cuenta, y decidir. La decisión es de una persona y queda con su nombre.',
+    cargando: 'Cargando los expedientes',
+    filtrar: 'Filtrar por estado',
+    sinPendientes: 'No hay expedientes esperando. Cuando alguien termine su alta, aparece acá.',
+    sinDocumento: 'Sin documento cargado',
+    fotos: 'Fotos',
+    fotoDe: 'Foto del expediente de',
+    faltante: '(falta)',
+    expedienteIncompleto: 'Faltan fotos. No se aprueba un expediente que no se puede mirar entero.',
+    motivo: 'Motivo',
+    motivoAyuda: 'Obligatorio para rechazar. Quien recibe el rechazo tiene derecho a saber por qué.',
+    aprobar: 'Aprobar',
+    rechazar: 'Rechazar',
+  },
   alertas: {
     titulo: 'Alertas de riesgo temprano',
     proposito: 'Ver por qué el modelo sugiere acompañar a un grupo, antes de que incumpla — nunca una condena.',
