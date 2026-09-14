@@ -28,6 +28,8 @@ class Registro {
     required String tipoDocumento,
     required String numeroDocumento,
     required String? lugarExpedicion,
+    required String correo,
+    required String canalVerificacion,
     required List<String> contratosAceptados,
   }) async {
     try {
@@ -40,6 +42,9 @@ class Registro {
           nombres: nombres,
           apellidos: apellidos,
           fechaNacimiento: fechaNacimiento,
+          correo: correo.isEmpty ? null : correo,
+          canalVerificacion: EntradaRegistroCanalVerificacionEnum.values
+              .firstWhere((e) => e.value == canalVerificacion),
           documento: Documento(
             tipo: _tipo(tipoDocumento),
             numero: numeroDocumento,

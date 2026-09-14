@@ -56,3 +56,14 @@ String? errorLugarExpedicion(String? valor) {
   }
   return null;
 }
+
+/// Validación de ayuda, no de garantía: un correo solo se comprueba mandándole algo.
+/// Acá se atajan los errores de tipeo, que son casi todos.
+String? errorCorreo(String valor) {
+  final v = valor.trim();
+  if (v.isEmpty) return 'Escribí tu correo.';
+  if (!RegExp(r'^[^@\s]+@[^@\s.]+\.[^@\s]+$').hasMatch(v)) {
+    return 'Revisá el correo: le falta el arroba o el punto.';
+  }
+  return null;
+}

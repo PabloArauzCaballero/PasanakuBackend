@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'cu01_registrar.dart';
-import 'cu02_subir_foto.dart';
+import 'subida_del_expediente.dart';
 import 'datos_del_alta.dart';
 
 export 'datos_del_alta.dart' show DatosLeidosDelDocumento, DatosPersonales;
@@ -125,32 +125,6 @@ class AltaNotifier extends Notifier<EstadoAlta> {
     if (i > 0) state = state.copiarCon(paso: orden[i - 1]);
   }
 
-  /// Sube al servidor de archivos las fotos que se sacaron durante el alta.
-  Future<void> _subirFotos(String usuarioId) async {
-    final subida = ref.read(subidaDeFotosProvider);
-    final pendientes = <CaraDelExpediente, String?>{
-      CaraDelExpediente.anverso: state.rutaAnverso,
-      CaraDelExpediente.reverso: state.rutaReverso,
-      CaraDelExpediente.selfie: state.rutaSelfie,
-    };
-    for (final entrada in pendientes.entries) {
-      final ruta = entrada.value;
-      if (ruta == null || ruta.isEmpty) continue;
-      try {
-        await subida.subir(
-          usuarioId: usuarioId,
-          cara: entrada.key,
-          rutaLocal: ruta,
-          formularioId: 'alta-${entrada.key.name}',
-        );
-      } on Object {
-        // Una foto que no sube no frena el alta. Queda como expediente incompleto y
-        // el backoffice lo ve; decirle a alguien «volvé a empezar» porque se corto
-        // la red al subir la tercera foto seria peor.
-      }
-    }
-  }
-
   /// CU-01 · `POST /usuarios`. Manda el alta completa en una sola petición, que es
   /// como la define el contrato: los ocho pasos juntan datos, y recién al final —con
   /// los contratos aceptados— se crea la persona.
@@ -177,6 +151,8 @@ class AltaNotifier extends Notifier<EstadoAlta> {
             tipoDocumento: d.tipoDocumento,
             numeroDocumento: d.numeroDocumento,
             lugarExpedicion: d.lugarExpedicion,
+            correo: d.correo,
+            canalVerificacion: d.canalVerificacion,
             contratosAceptados: ref.read(contratoProvider).aceptados,
           );
       // Las tres fotos se sacaron antes de que la persona existiera: recien ahora
@@ -184,7 +160,7 @@ class AltaNotifier extends Notifier<EstadoAlta> {
       // cuenta ya esta creada y quien revisa en el backoffice ve el expediente
       // incompleto, que es recuperable; perder el alta entera no lo es.
       if (r.usuarioId != null) {
-        await _subirFotos(r.usuarioId!);
+        await subirFotosDelExpediente(ref, state, r.usuarioId!);
       }
       state = state.copiarCon();
       return r.cuentaBilleteraId;

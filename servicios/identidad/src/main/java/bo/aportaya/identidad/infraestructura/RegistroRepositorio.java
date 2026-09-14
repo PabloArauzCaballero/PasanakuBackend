@@ -45,6 +45,7 @@ public class RegistroRepositorio {
             String nombres,
             String apellidos,
             String telefono,
+            String correo,
             LocalDate fechaNacimiento,
             String estado,
             OffsetDateTime ahora) {
@@ -53,6 +54,7 @@ public class RegistroRepositorio {
                 .set(USUARIO.NOMBRES, nombres)
                 .set(USUARIO.APELLIDOS, apellidos)
                 .set(USUARIO.TELEFONO_E164, telefono)
+                .set(USUARIO.CORREO, correo)
                 .set(USUARIO.FECHA_NACIMIENTO, fechaNacimiento)
                 .set(USUARIO.ESTADO, estado)
                 .set(USUARIO.NIVEL_KYC, "NINGUNO")

@@ -50,9 +50,14 @@ python3 scripts/generar_compose.py
 python3 scripts/generar_gateway.py     # las rutas de la entrada publica, desde PREFIJOS
 docker buildx create --name aportaya --driver docker-container \
   --driver-opt network=aportaya-interna --use    # una sola vez
+# La construccion tiene que ALCANZAR la base para generar las clases de jOOQ, y el
+# paso RUN de buildkit no usa el DNS de Docker: se le pasa la IP del contenedor.
+IP=$(docker inspect aportaya-postgres --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
 for s in identidad grupos aportes nucleo-financiero garantia organizador transparencia; do
   docker buildx build --load --allow network.host --network=host \
-    -f despliegue/Dockerfile --build-arg SERVICIO="$s" -t "aportaya/${s}:local" .
+    -f despliegue/Dockerfile --build-arg SERVICIO="$s" \
+    --build-arg BD_URL_ADMIN="jdbc:postgresql://$IP:5432/pasanaku" \
+    -t "aportaya/${s}:local" .
 done
 docker compose -f despliegue/compose/base.yml -f despliegue/compose/servicios.yml \
   --profile todo up -d --no-build --wait

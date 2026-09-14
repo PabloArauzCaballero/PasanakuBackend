@@ -1,3 +1,4 @@
+import 'package:aportaya_diseno/atomos/selector_segmentado.dart';
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_movil/pantallas/identidad/dominio/estado_alta.dart';
@@ -58,9 +59,26 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Revisá el número de documento.'), findsOneWidget);
+    expect(find.text('Escribí tu correo.'), findsOneWidget);
     expect(find.text('Elegí dónde te expidieron el carnet.'), findsOneWidget);
     expect(find.text('Elegí una fecha.'), findsOneWidget);
   });
+
+  testWidgets(
+    'el canal arranca en SMS: el código va al teléfono que se declaró',
+    (tester) async {
+      await abrir(tester);
+      final contenedor = ProviderScope.containerOf(
+        tester.element(find.byType(PasoDatos)),
+      );
+      expect(contenedor.read(altaProvider).datos.canalVerificacion, 'SMS');
+
+      final selector = tester.widget<SelectorSegmentado<String>>(
+        find.byType(SelectorSegmentado<String>),
+      );
+      expect(selector.valor, 'SMS');
+    },
+  );
 
   testWidgets('el celular lleva el prefijo puesto: se escriben ocho dígitos', (
     tester,
@@ -96,7 +114,11 @@ void main() {
     await tester.enterText(find.byType(TextField).at(0), 'Ana');
     await tester.enterText(find.byType(TextField).at(1), 'Quispe Mamani');
     await tester.enterText(find.byType(TextField).at(2), '71000090');
-    await tester.enterText(find.byType(TextField).at(3), '9876543');
+    // El orden en pantalla: nombres, apellidos, celular, correo, documento. El
+    // correo va junto al celular porque los dos son contactos, y de ahi sale por
+    // cual de los dos llega la verificacion.
+    await tester.enterText(find.byType(TextField).at(3), 'ana@correo.com');
+    await tester.enterText(find.byType(TextField).at(4), '9876543');
     // La extensión del carnet se elige en un select, en la misma línea que el
     // número: el de CI se repite entre departamentos y sin esto el alta no
     // distingue a dos personas.

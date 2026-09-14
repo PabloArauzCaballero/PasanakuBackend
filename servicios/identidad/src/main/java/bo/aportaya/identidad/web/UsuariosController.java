@@ -5,6 +5,7 @@ import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
+import bo.aportaya.identidad.dominio.CanalDeVerificacion;
 import bo.aportaya.identidad.dominio.DocumentoDeIdentidad;
 import bo.aportaya.identidad.web.generado.UsuariosApi;
 import bo.aportaya.identidad.web.generado.modelo.ArchivoDelExpediente;
@@ -187,6 +188,13 @@ public class UsuariosController implements UsuariosApi {
                 cuerpo.getNombres(),
                 cuerpo.getApellidos(),
                 cuerpo.getFechaNacimiento(),
+                cuerpo.getCorreo(),
+                // El contrato le pone SMS por omision: quien no elige, recibe el
+                // codigo en el telefono que acaba de declarar.
+                cuerpo.getCanalVerificacion() == null
+                        ? CanalDeVerificacion.SMS
+                        : CanalDeVerificacion.valueOf(
+                                cuerpo.getCanalVerificacion().getValue()),
                 documento,
                 // El cifrado real lo hace el adaptador de archivos; aca la frontera.
                 "cifrado:" + documento.hashNumero(),

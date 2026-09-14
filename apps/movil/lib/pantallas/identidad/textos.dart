@@ -72,6 +72,14 @@ class TextosIdentidad {
   static const lugarExpedicion = 'Expedido en';
   static const lugarExpedicionAyuda = 'El departamento del carnet.';
   static const lugarExpedicionVacio = 'Elegir';
+  static const correo = 'Correo electrónico';
+  static const correoAyuda = 'Acá te mandamos los comprobantes y el extracto.';
+  static const canalVerificacion = '¿Por dónde te mandamos el código?';
+  static const canalSms = 'SMS al celular';
+  static const canalCorreo = 'Correo electrónico';
+  static const canalAyuda =
+      'Elegí cuál de tus dos contactos confirmás primero. Podés confirmar el otro '
+      'más adelante desde tu perfil.';
   static const lugarExpedicionFalta = 'Elegí dónde te expidieron el carnet.';
   static const fechaNacimientoAyuda =
       'Para abrir una billetera hay que ser mayor de edad.';
@@ -96,7 +104,10 @@ class TextosIdentidad {
   static const telefono = 'Celular';
   static const tipoDocumento = 'Tipo de documento';
   static const numeroDocumento = 'Número de documento';
-  static const codigoEnviado = 'Te enviamos un código por SMS';
+  static const codigoPorSms = 'Te enviamos un código por SMS al';
+  static const codigoPorCorreo = 'Te enviamos un código al correo';
+  static const codigoNoLlega =
+      '¿No te llega? Volvé al paso anterior y cambiá por dónde querés recibirlo.';
   static const capturarAnverso = 'Fotografiá el frente de tu documento';
   static const capturarReverso = 'Fotografiá el reverso de tu documento';
   static const capturarSelfie = 'Mirá a la cámara y no te muevas';
@@ -106,6 +117,10 @@ class TextosIdentidad {
       'Hay poca luz para una foto nítida. Podés reintentar o escribir los datos.';
   static const reintentarCaptura = 'Reintentar';
   static const escribirAMano = 'Escribir a mano';
+  static const elegirDeLasFotos = 'Elegir de mis fotos';
+  static const sinCamara =
+      'Este dispositivo no tiene cámara disponible. Podés elegir una foto que ya '
+      'tengas, o escribir los datos a mano.';
   static const origenDeFondos = 'Origen de los fondos';
   static const actividadEconomica = 'Actividad económica';
   static const montoMensualEstimado = 'Monto mensual estimado (Bs)';

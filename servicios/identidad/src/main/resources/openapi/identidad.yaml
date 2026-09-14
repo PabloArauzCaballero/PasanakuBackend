@@ -453,6 +453,25 @@ components:
         nombres:         { type: string, minLength: 2, maxLength: 60 }
         apellidos:       { type: string, minLength: 2, maxLength: 60 }
         fechaNacimiento: { type: string, format: date }
+        correo:
+          type: string
+          format: email
+          maxLength: 150
+          description: >-
+            Opcional en el contrato y pedido por la app. Una billetera manda extractos
+            y comprobantes, y ese es su destino; ademas es lo que permite elegir el
+            correo como canal de verificacion en vez del SMS.
+        canalVerificacion:
+          type: string
+          enum: [SMS, CORREO]
+          # Sin `default`: el generador de Dart lo traduce a instanciar un enum, que
+          # no es Dart valido y rompe el cliente. La ausencia la resuelve el servicio,
+          # que trata `null` como SMS — y asi hay un solo lugar que decide.
+          description: >-
+            Por donde quiere recibir la verificacion quien se registra. No son dos
+            formas de lo mismo: `SMS` verifica el TELEFONO y `CORREO` verifica el
+            CORREO —dos propositos distintos del catalogo de tokens, con su propia
+            vigencia y sus propios canales permitidos—. Elegir `CORREO` exige `correo`.
         documento:       { $ref: '#/components/schemas/Documento' }
         aceptaContratos:
           type: array

@@ -50,6 +50,9 @@ COPY ${MODULO}/${SERVICIO} ${MODULO}/${SERVICIO}
 #
 # Sin esto, `compileJava` fallaba con «package bo.aportaya.<servicio>.generado does
 # not exist» y ninguna imagen de servicio se podia construir.
+# El nombre `postgres` lo resuelve el DNS de Docker, que el paso RUN de buildkit NO
+# usa aunque el constructor este en la red: se le pasa la IP del contenedor por
+# --build-arg (ver README). El nombre queda como omision util para otros entornos.
 ARG BD_URL_ADMIN=jdbc:postgresql://postgres:5432/pasanaku
 ARG BD_USUARIO_ADMIN=pasanaku
 ARG BD_CLAVE_ADMIN=pasanaku

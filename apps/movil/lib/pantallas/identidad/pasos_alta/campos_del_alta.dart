@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../textos.dart';
+import 'canal_de_verificacion.dart';
 
 /// Los cinco campos del primer paso del alta, con su ícono y su ayuda.
 ///
@@ -27,6 +28,8 @@ class CamposDelAlta extends StatelessWidget {
     required this.onCambio,
     required this.onFecha,
     required this.onLugar,
+    required this.canal,
+    required this.onCanal,
   });
 
   /// En orden: nombres, apellidos, celular, documento.
@@ -45,6 +48,10 @@ class CamposDelAlta extends StatelessWidget {
   final ValueChanged<String> onCambio;
   final ValueChanged<DateTime> onFecha;
   final ValueChanged<String> onLugar;
+
+  /// `SMS` o `CORREO`.
+  final String canal;
+  final ValueChanged<String> onCanal;
 
   /// Los nueve departamentos, con la sigla que lleva el carnet.
   static const departamentos = <({String sigla, String nombre})>[
@@ -110,6 +117,18 @@ class CamposDelAlta extends StatelessWidget {
           onChanged: (_) => onCambio('telefono'),
         ),
         const SizedBox(height: Espacio.s3),
+        Campo(
+          etiqueta: TextosIdentidad.correo,
+          controlador: controladores[4],
+          foco: focos[4],
+          icono: Icons.alternate_email,
+          ayuda: TextosIdentidad.correoAyuda,
+          error: errores['correo'],
+          exito: _listo('correo'),
+          tipoDeTeclado: TextInputType.emailAddress,
+          onChanged: (_) => onCambio('correo'),
+        ),
+        const SizedBox(height: Espacio.s3),
         // El número y su extensión van en **un renglón**, como están en el carnet:
         // `5551234 LP`. Separarlos sugiere que son dos datos sueltos, y no lo son —
         // el número solo no identifica a nadie.
@@ -160,6 +179,8 @@ class CamposDelAlta extends StatelessWidget {
           error: errores['fecha'],
           onElegida: onFecha,
         ),
+        const SizedBox(height: Espacio.s4),
+        CanalDeVerificacion(valor: canal, onElegido: onCanal),
       ],
     );
   }

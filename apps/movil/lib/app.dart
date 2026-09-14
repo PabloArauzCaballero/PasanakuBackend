@@ -147,7 +147,8 @@ class _ConAperturaState extends ConsumerState<_ConApertura> {
   Widget build(BuildContext context) => Stack(
     children: [
       widget.child,
-      if (_mostrando) Positioned.fill(child: AperturaDeMarca(alTerminar: _ocultar)),
+      if (_mostrando)
+        Positioned.fill(child: AperturaDeMarca(alTerminar: _ocultar)),
     ],
   );
 }

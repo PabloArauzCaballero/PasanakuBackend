@@ -37,12 +37,14 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
     ref.read(altaProvider).datos.telefono.replaceFirst(_prefijoBolivia, ''),
   );
   late final _documento = _campo(ref.read(altaProvider).datos.numeroDocumento);
+  late final _correo = _campo(ref.read(altaProvider).datos.correo);
 
-  final _focos = List.generate(4, (_) => FocusNode());
+  final _focos = List.generate(5, (_) => FocusNode());
   final _focoFecha = FocusNode();
   final _focoLugar = FocusNode();
   DateTime? _fechaNacimiento;
   String? _lugarExpedicion;
+  String? _canal;
   final _tocados = <String>{};
   var _intentado = false;
 
@@ -51,7 +53,7 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
 
   @override
   void dispose() {
-    for (final c in [_nombres, _apellidos, _telefono, _documento]) {
+    for (final c in [_nombres, _apellidos, _telefono, _documento, _correo]) {
       c.dispose();
     }
     for (final f in [..._focos, _focoFecha, _focoLugar]) {
@@ -77,6 +79,8 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
                   apellidos: _apellidos.text,
                   telefono: _telefonoCompleto,
                   numeroDocumento: _documento.text,
+                  correo: _correo.text,
+                  canalVerificacion: _canal,
                   lugarExpedicion: _lugarExpedicion,
                   fechaNacimiento: _fechaNacimiento,
                 ),
@@ -94,6 +98,9 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
     'apellidos': _error('apellidos', () => errorNombre(_apellidos.text)),
     'telefono': _error('telefono', () => errorTelefono(_telefonoCompleto)),
     'documento': _error('documento', () => errorDocumento(_documento.text)),
+    // El correo se exige siempre: una billetera manda extractos y comprobantes, y
+    // sin correo no tienen adonde ir. Ademas es lo que habilita elegirlo como canal.
+    'correo': _error('correo', () => errorCorreo(_correo.text)),
     'lugar': _error('lugar', () => errorLugarExpedicion(_lugarExpedicion)),
     'fecha': _error('fecha', () => errorFechaNacimiento(_fechaNacimiento)),
   };
@@ -111,13 +118,14 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
       'apellidos',
       'telefono',
       'documento',
+      'correo',
       'lugar',
       'fecha',
     ];
     final primero = orden.indexOf(fallan.first.key);
     (switch (primero) {
-      4 => _focoLugar,
-      5 => _focoFecha,
+      5 => _focoLugar,
+      6 => _focoFecha,
       _ => _focos[primero],
     }).requestFocus();
   }
@@ -127,6 +135,7 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
     final t = Tokens.of(context);
     _fechaNacimiento ??= ref.read(altaProvider).datos.fechaNacimiento;
     _lugarExpedicion ??= ref.read(altaProvider).datos.lugarExpedicion;
+    _canal ??= ref.read(altaProvider).datos.canalVerificacion;
     final errores = _errores;
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -139,7 +148,13 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           CamposDelAlta(
-            controladores: [_nombres, _apellidos, _telefono, _documento],
+            controladores: [
+              _nombres,
+              _apellidos,
+              _telefono,
+              _documento,
+              _correo,
+            ],
             focos: _focos,
             focoFecha: _focoFecha,
             focoLugar: _focoLugar,
@@ -149,6 +164,11 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
             fecha: _fechaNacimiento,
             lugar: _lugarExpedicion,
             onCambio: _sincronizar,
+            canal: _canal!,
+            onCanal: (c) {
+              _canal = c;
+              _sincronizar('canal');
+            },
             onLugar: (l) {
               _lugarExpedicion = l;
               _sincronizar('lugar');

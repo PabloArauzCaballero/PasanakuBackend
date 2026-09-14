@@ -9,6 +9,8 @@ class DatosPersonales {
     this.tipoDocumento = 'CI',
     this.numeroDocumento = '',
     this.lugarExpedicion,
+    this.correo = '',
+    this.canalVerificacion = 'SMS',
   });
   final String nombres;
   final String apellidos;
@@ -22,6 +24,14 @@ class DatosPersonales {
   /// documento y la segunda no puede abrir cuenta.
   final String? lugarExpedicion;
 
+  /// Adonde van los comprobantes y el extracto, y el destino posible de la
+  /// verificación si se elige el correo en vez del SMS.
+  final String correo;
+
+  /// `SMS` o `CORREO`. No son dos formas de lo mismo: cada uno confirma un contacto
+  /// distinto, con su propio propósito en el catálogo de tokens.
+  final String canalVerificacion;
+
   DatosPersonales copiarCon({
     String? nombres,
     String? apellidos,
@@ -30,6 +40,8 @@ class DatosPersonales {
     String? tipoDocumento,
     String? numeroDocumento,
     String? lugarExpedicion,
+    String? correo,
+    String? canalVerificacion,
   }) => DatosPersonales(
     nombres: nombres ?? this.nombres,
     apellidos: apellidos ?? this.apellidos,
@@ -38,6 +50,8 @@ class DatosPersonales {
     tipoDocumento: tipoDocumento ?? this.tipoDocumento,
     numeroDocumento: numeroDocumento ?? this.numeroDocumento,
     lugarExpedicion: lugarExpedicion ?? this.lugarExpedicion,
+    correo: correo ?? this.correo,
+    canalVerificacion: canalVerificacion ?? this.canalVerificacion,
   );
 }
 

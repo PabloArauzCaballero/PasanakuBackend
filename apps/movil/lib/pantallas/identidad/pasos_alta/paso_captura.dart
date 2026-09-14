@@ -49,6 +49,17 @@ class _PasoCapturaState extends ConsumerState<PasoCaptura> {
     widget.onCapturado(ruta);
   }
 
+  /// La foto que ya está en el teléfono. Siempre visible, no solo cuando la cámara
+  /// falla: mucha gente ya tiene la foto de su carnet, y hay teléfonos con la cámara
+  /// rota. En el simulador de iOS —que no tiene cámara ni puede usar la del Mac— es
+  /// además la única forma de recorrer el alta entera.
+  Future<void> _elegir() async {
+    final ruta = await ref.read(camaraProvider).elegirDeLasFotos();
+    if (ruta == null) return;
+    setState(() => _fallo = false);
+    widget.onCapturado(ruta);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -59,12 +70,7 @@ class _PasoCapturaState extends ConsumerState<PasoCaptura> {
           Text(widget.titulo),
           const SizedBox(height: Espacio.s4),
           if (_fallo && !_aMano)
-            Alerta(
-              titulo: widget.esDocumento
-                  ? TextosIdentidad.camaraPocaLuz
-                  : TextosIdentidad.camaraSinPermiso,
-              tono: Tono.aviso,
-            ),
+            const Alerta(titulo: TextosIdentidad.sinCamara, tono: Tono.aviso),
           if (widget.rutaActual != null && !_fallo)
             Container(
               height: 160,
@@ -76,13 +82,23 @@ class _PasoCapturaState extends ConsumerState<PasoCaptura> {
               child: const Icon(Icons.check_circle_outline, size: 40),
             ),
           const SizedBox(height: Espacio.s4),
-          if (!_aMano)
+          if (!_aMano) ...[
             Boton(
               texto: _fallo ? TextosIdentidad.reintentarCaptura : 'Tomar foto',
+              icono: Icons.photo_camera_outlined,
               variante: BotonVariante.primario,
               expandido: true,
               onPressed: _capturar,
             ),
+            const SizedBox(height: Espacio.s2),
+            Boton(
+              texto: TextosIdentidad.elegirDeLasFotos,
+              icono: Icons.photo_library_outlined,
+              variante: BotonVariante.fantasma,
+              expandido: true,
+              onPressed: _elegir,
+            ),
+          ],
           if (_fallo && widget.permitirEscribirAMano) ...[
             const SizedBox(height: Espacio.s3),
             Boton(

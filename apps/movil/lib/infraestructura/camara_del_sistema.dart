@@ -17,7 +17,8 @@ import '../dominio/puertos/camara.dart';
 /// puerto promete eso, y la pantalla ya tiene el camino alternativo listo. Un permiso
 /// denegado no es una excepción que mate el alta; es alguien que dijo que no.
 class CamaraDelSistema implements Camara {
-  CamaraDelSistema([ImagePicker? selector]) : _selector = selector ?? ImagePicker();
+  CamaraDelSistema([ImagePicker? selector])
+    : _selector = selector ?? ImagePicker();
 
   final ImagePicker _selector;
 
@@ -42,6 +43,21 @@ class CamaraDelSistema implements Camara {
     } on Object {
       // Permiso denegado, cámara ocupada o simulador sin cámara. El puerto promete
       // `null`, y arriba eso ya significa «ofrecé reintentar o escribir a mano».
+      return null;
+    }
+  }
+
+  @override
+  Future<String?> elegirDeLasFotos() async {
+    try {
+      final foto = await _selector.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: _ladoMaximo,
+        maxHeight: _ladoMaximo,
+        imageQuality: _calidad,
+      );
+      return foto?.path;
+    } on Object {
       return null;
     }
   }

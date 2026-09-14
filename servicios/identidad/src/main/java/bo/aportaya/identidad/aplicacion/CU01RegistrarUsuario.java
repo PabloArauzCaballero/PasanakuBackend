@@ -1,6 +1,7 @@
 package bo.aportaya.identidad.aplicacion;
 
 import bo.aportaya.identidad.dominio.AperturaDeCuenta;
+import bo.aportaya.identidad.dominio.CanalDeVerificacion;
 import bo.aportaya.identidad.dominio.DocumentoDeIdentidad;
 import bo.aportaya.identidad.infraestructura.RegistroRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
@@ -98,12 +99,17 @@ public class CU01RegistrarUsuario {
                 throw new ErrorDeNegocio(CodigoError.de(1, 5), "El servicio no esta habilitado en este momento.");
             }
 
+            // Elegir el correo sin dar un correo dejaria a la persona esperando algo
+            // que nunca se envio.
+            entrada.canalVerificacion().exigirDestino(entrada.correo());
+
             UUID usuario = registros.crearUsuario(
                     dsl,
                     codigoPublico(),
                     entrada.nombres(),
                     entrada.apellidos(),
                     entrada.telefonoE164(),
+                    entrada.correo(),
                     entrada.fechaNacimiento(),
                     AperturaDeCuenta.PENDIENTE_VERIFICACION.name(),
                     ahora);
@@ -138,6 +144,8 @@ public class CU01RegistrarUsuario {
             String nombres,
             String apellidos,
             LocalDate fechaNacimiento,
+            String correo,
+            CanalDeVerificacion canalVerificacion,
             DocumentoDeIdentidad documento,
             String numeroCifrado,
             String hashDelArchivo,
