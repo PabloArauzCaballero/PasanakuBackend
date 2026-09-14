@@ -38,8 +38,7 @@ public class VerificarTitularidad {
     public boolean coincide(UUID usuarioId, String nombreDeclarado, String documentoDeclarado, ContextoSesion ctx) {
         // El hash se calcula sobre el NUMERO, que es lo unico que se declara aca: el
         // cotejo de titularidad compara numeros, no extensiones.
-        String hashDeclarado = DocumentoDeIdentidad
-                .hashDeNumero(documentoDeclarado, pimienta);
+        String hashDeclarado = DocumentoDeIdentidad.hashDeNumero(documentoDeclarado, pimienta);
 
         return datos.conContexto(ctx, dsl -> {
             var fila = dsl.select(

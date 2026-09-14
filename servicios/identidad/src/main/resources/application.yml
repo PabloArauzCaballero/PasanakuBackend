@@ -1,6 +1,12 @@
 # identidad — generado por scripts/nuevo_servicio.py
 # Si falta una clave, el proceso NO levanta y dice cual.
 spring:
+  servlet:
+    multipart:
+      # El mismo tope que declara AmbitoArchivo.IDENTIDAD. Se pone tambien aca porque
+      # rechazar en el borde evita leer ocho megas para despues decir que no.
+      max-file-size: 8MB
+      max-request-size: 10MB
   application:
     name: identidad
   threads:
@@ -33,6 +39,13 @@ aportaya:
     # Fuera de la base a proposito: filtrar la tabla de credenciales no alcanza si
     # la pimienta no esta ahi. Si falta la variable, el proceso NO levanta.
     pimienta: ${SEGURIDAD_PIMIENTA}
+  # El servidor de archivos. En la columna va la clave del objeto, nunca una URL
+  # publica: el binario lo entrega este servicio, con sesion y permisos (ADR-034).
+  archivos:
+    url: ${ARCHIVOS_URL}
+    usuario: ${ARCHIVOS_USUARIO}
+    clave: ${ARCHIVOS_CLAVE}
+    bucket: ${ARCHIVOS_BUCKET:aportaya-archivos}
   acceso:
     # Del catalogo cuando exista umbral_operativo; por ahora, configuracion — nunca
     # una constante dentro del codigo (invariante 10).

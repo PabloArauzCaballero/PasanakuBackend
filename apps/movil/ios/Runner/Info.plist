@@ -66,5 +66,12 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<!-- El texto que muestra iOS al pedir el permiso. Sin esta clave la app no
+	     pide nada: se cierra en el acto al tocar la camara. Dice para que se usa y
+	     que pasa si se dice que no, porque un permiso sin motivo se deniega. -->
+	<key>NSCameraUsageDescription</key>
+	<string>AportaYa usa la camara para fotografiar tu documento y tu cara, que es como se verifica tu identidad al abrir la cuenta. Si preferis que no, podes cargar tus datos a mano.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>AportaYa guarda la foto de tu documento solo si elegis tomarla desde tus fotos en lugar de usar la camara.</string>
 </dict>
 </plist>

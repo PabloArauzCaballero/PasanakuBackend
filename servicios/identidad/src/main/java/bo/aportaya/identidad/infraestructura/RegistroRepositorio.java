@@ -33,9 +33,10 @@ public class RegistroRepositorio {
     public boolean documentoYaRegistrado(DSLContext dsl, String hashNumero, String lugarExpedicion) {
         return dsl.fetchExists(dsl.selectFrom(DOCUMENTO_IDENTIDAD)
                 .where(DOCUMENTO_IDENTIDAD.HASH_NUMERO.eq(hashNumero))
-                .and(lugarExpedicion == null
-                        ? DOCUMENTO_IDENTIDAD.LUGAR_EXPEDICION.isNull()
-                        : DOCUMENTO_IDENTIDAD.LUGAR_EXPEDICION.eq(lugarExpedicion)));
+                .and(
+                        lugarExpedicion == null
+                                ? DOCUMENTO_IDENTIDAD.LUGAR_EXPEDICION.isNull()
+                                : DOCUMENTO_IDENTIDAD.LUGAR_EXPEDICION.eq(lugarExpedicion)));
     }
 
     public UUID crearUsuario(

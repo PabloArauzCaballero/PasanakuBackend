@@ -82,6 +82,46 @@ paths:
           # AP-CU04-05 DEMASIADOS_INTENTOS · AP-CU04-06 FACTOR_NO_ENROLADO
           # AP-CU04-07 FACTOR_NO_ADMISIBLE (R-SEG-10)
 
+  /usuarios/{usuarioId}/documentos:
+    post:
+      operationId: subirDocumento
+      summary: Sube una foto del documento o la prueba de vida
+      description: >-
+        La foto NO se guarda en el disco del servicio: va al servidor de archivos y en
+        la fila queda una clave de objeto (ADR-034). El tipo se decide leyendo los
+        primeros bytes, no por la extension ni por el Content-Type que manda el
+        cliente. Devuelve la clave y el SHA-256 para que el expediente quede trazable.
+      parameters:
+        - name: usuarioId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [cara, archivo]
+              properties:
+                cara:
+                  type: string
+                  enum: [ANVERSO, REVERSO, SELFIE]
+                  description: Que parte del expediente es esta foto.
+                archivo:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Guardada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ArchivoDelExpediente' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
   /usuarios/{usuarioId}/titularidad/verificacion:
     post:
       operationId: verificarTitularidad
@@ -267,6 +307,19 @@ components:
             El JWT firmado con RS256 que los otros trece servicios validan contra el
             JWKS de identidad (ADR-024). Ausente cuando la respuesta pide un segundo
             factor: recien se emite con la sesion abierta.
+    ArchivoDelExpediente:
+      type: object
+      additionalProperties: false
+      required: [cara, claveObjeto, hashArchivo]
+      description: >-
+        Lo que queda del archivo: donde esta y como comprobar que es el mismo. Nunca
+        una URL publica — el binario lo entrega el servicio, con sesion y permisos.
+      properties:
+        cara:        { type: string, enum: [ANVERSO, REVERSO, SELFIE] }
+        claveObjeto: { type: string, example: 's3://identidad/2026/09/9f2c1e4a.jpg' }
+        hashArchivo: { type: string, minLength: 64, maxLength: 64 }
+        tipoMime:    { type: string }
+        bytes:       { type: integer, format: int64 }
     Documento:
       type: object
       additionalProperties: false

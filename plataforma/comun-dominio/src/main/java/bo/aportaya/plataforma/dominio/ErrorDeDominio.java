@@ -13,4 +13,13 @@ public class ErrorDeDominio extends RuntimeException {
     public ErrorDeDominio(String mensaje) {
         super(mensaje);
     }
+
+    /**
+     * Con la causa. La necesita el borde con el mundo —guardar un archivo, hablar con
+     * el almacen—: el mensaje sigue siendo para quien usa la app, y la causa queda en
+     * la bitacora para quien opera. Perderla obliga a adivinar por que fallo.
+     */
+    public ErrorDeDominio(String mensaje, Throwable causa) {
+        super(mensaje, causa);
+    }
 }

@@ -12,6 +12,7 @@
 spring-boot        = "3.5.6"
 spring-dep-mgmt    = "1.1.7"
 spring-cloud       = "2025.0.0"
+minio              = "8.5.17"
 shedlock           = "6.9.0"       # bloqueo de trabajos programados entre replicas
 resilience4j       = "2.3.0"       # timeout y cortacircuitos en cada cliente
 argon2             = "2.12"        # contrasenas y PIN (nunca un hash rapido)
@@ -36,6 +37,13 @@ spring-boot-bom        = { module = "org.springframework.boot:spring-boot-depend
 # — Spring Cloud (solo el gateway) —
 spring-cloud-bom     = { module = "org.springframework.cloud:spring-cloud-dependencies", version.ref = "spring-cloud" }
 spring-cloud-gateway = { module = "org.springframework.cloud:spring-cloud-starter-gateway" }
+# Cliente S3 del servidor de archivos. MinIO habla S3, asi que el dia que el
+# almacenamiento se mude a otro proveedor S3 cambia la URL, no el codigo.
+minio                = { module = "io.minio:minio", version.ref = "minio" }
+# El jar de MinIO referencia anotaciones de SpotBugs que no trae. Sin esto el
+# compilador avisa que no las encuentra y `-Werror` tumba el build por un aviso
+# sobre codigo que no escribimos nosotros.
+spotbugs-anotaciones = { module = "com.github.spotbugs:spotbugs-annotations", version = "4.9.6" }
 
 # — Datos —
 jooq       = { module = "org.jooq:jooq", version.ref = "jooq" }

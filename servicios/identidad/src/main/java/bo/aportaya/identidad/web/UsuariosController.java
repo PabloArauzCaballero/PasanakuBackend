@@ -2,10 +2,12 @@ package bo.aportaya.identidad.web;
 
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
+import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
 import bo.aportaya.identidad.dominio.DocumentoDeIdentidad;
 import bo.aportaya.identidad.web.generado.UsuariosApi;
+import bo.aportaya.identidad.web.generado.modelo.ArchivoDelExpediente;
 import bo.aportaya.identidad.web.generado.modelo.EntradaRegistro;
 import bo.aportaya.identidad.web.generado.modelo.EntradaTitularidad;
 import bo.aportaya.identidad.web.generado.modelo.EntradaTokenDeInvitacion;
@@ -25,6 +27,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * La pagina de CU-01: traduce y delega, sin logica.
@@ -41,6 +44,7 @@ public class UsuariosController implements UsuariosApi {
 
     private final CU01RegistrarUsuario cu01;
     private final VerificarTitularidad titularidad;
+    private final CU02GuardarFotoDelExpediente fotos;
     private final EmitirTokenDeInvitacion tokens;
     private final BuscarPorTelefono busqueda;
     private final SesionDeLaPeticion sesion;
@@ -50,6 +54,7 @@ public class UsuariosController implements UsuariosApi {
     public UsuariosController(
             CU01RegistrarUsuario cu01,
             VerificarTitularidad titularidad,
+            CU02GuardarFotoDelExpediente fotos,
             EmitirTokenDeInvitacion tokens,
             BuscarPorTelefono busqueda,
             SesionDeLaPeticion sesion,
@@ -57,6 +62,7 @@ public class UsuariosController implements UsuariosApi {
             @Value("${aportaya.seguridad.pimienta}") String pimienta) {
         this.cu01 = cu01;
         this.titularidad = titularidad;
+        this.fotos = fotos;
         this.tokens = tokens;
         this.busqueda = busqueda;
         this.sesion = sesion;
@@ -107,6 +113,39 @@ public class UsuariosController implements UsuariosApi {
         respuesta.setCoincide(
                 titularidad.coincide(usuarioId, cuerpo.getNombreCompleto(), cuerpo.getDocumento(), sesion.actual()));
         return ResponseEntity.ok(respuesta);
+    }
+
+    /**
+     * La foto del documento o la prueba de vida. Va al servidor de archivos y en la
+     * fila queda la clave del objeto: el binario nunca se sirve directo ni se guarda
+     * en el disco del contenedor, que se reemplaza — y la evidencia legal no.
+     *
+     * <p>Publica por el mismo motivo que el alta: estas fotos se sacan durante el
+     * registro, cuando todavia no hay sesion que presentar.
+     */
+    @Override
+    @Publico("CU-02: las fotos del expediente se sacan durante el alta, sin sesion")
+    public ResponseEntity<ArchivoDelExpediente> subirDocumento(
+            UUID usuarioId, UUID idempotencyKey, String cara, MultipartFile archivo) {
+        try {
+            var guardado = fotos.ejecutar(
+                    usuarioId,
+                    CU02GuardarFotoDelExpediente.Cara.valueOf(cara),
+                    archivo.getInputStream(),
+                    archivo.getSize(),
+                    archivo.getOriginalFilename(),
+                    Traza.actual());
+            var salida = new ArchivoDelExpediente()
+                    .cara(ArchivoDelExpediente.CaraEnum.fromValue(cara))
+                    .claveObjeto(guardado.clave().toString())
+                    .hashArchivo(guardado.hashSha256())
+                    .tipoMime(guardado.tipoMime())
+                    .bytes(guardado.bytes());
+            return ResponseEntity.status(201).body(salida);
+        } catch (java.io.IOException e) {
+            throw new bo.aportaya.plataforma.dominio.ErrorDeDominio(
+                    "Se corto la subida de la foto. Probá de nuevo.", e);
+        }
     }
 
     @Override

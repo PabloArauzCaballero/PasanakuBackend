@@ -131,12 +131,27 @@ class CU01Test extends BaseDeCU01 {
     void rechazaRSEG01() {
         // El numero del documento no se guarda en claro: se indexa su hash, y el
         // hash tiene 64 caracteres o no es un hash.
-        assertThatThrownBy(() -> new DocumentoDeIdentidad(DocumentoDeIdentidad.Tipo.CI, "corto", "BO"))
+        assertThatThrownBy(() -> new DocumentoDeIdentidad(DocumentoDeIdentidad.Tipo.CI, "corto", "BO", "LP"))
                 .isInstanceOf(ErrorDeDominio.class);
         assertThat(DocumentoDeIdentidad.de(DocumentoDeIdentidad.Tipo.CI, "1234567", "pimienta", "BO", "LP")
                         .hashNumero())
                 .hasSize(64)
                 .doesNotContain("1234567");
+    }
+
+    @Test
+    @DisplayName("el carnet boliviano no se construye sin su lugar de expedicion")
+    void exigeLugarDeExpedicion() {
+        // El numero de CI se repite entre departamentos: sin la extension, dos
+        // personas distintas comparten documento y la segunda no puede abrir cuenta.
+        assertThatThrownBy(() -> DocumentoDeIdentidad.de(DocumentoDeIdentidad.Tipo.CI, "1234567", "pim", "BO", null))
+                .isInstanceOf(ErrorDeDominio.class);
+        assertThatThrownBy(() -> DocumentoDeIdentidad.de(DocumentoDeIdentidad.Tipo.CI, "1234567", "pim", "BO", "XX"))
+                .isInstanceOf(ErrorDeDominio.class);
+        // Un pasaporte ya es unico por numero; una extension ahi solo confunde.
+        assertThatThrownBy(() ->
+                        DocumentoDeIdentidad.de(DocumentoDeIdentidad.Tipo.PASAPORTE, "AB123456", "pim", "BO", "LP"))
+                .isInstanceOf(ErrorDeDominio.class);
     }
 
     @Test

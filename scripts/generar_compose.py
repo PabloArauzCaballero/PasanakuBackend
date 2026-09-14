@@ -43,6 +43,13 @@ COMUNES = {
 # de aca. Ahi los pone el almacen de secretos, y el servicio no levanta sin ellos.
 DE_DESARROLLO = {
     "SEGURIDAD_PIMIENTA": "pimienta-local-no-es-la-de-produccion",
+    # El servidor de archivos (ADR-034). La cedula, la selfie y los comprobantes van
+    # ahi, no al disco del contenedor: un contenedor se reemplaza y la evidencia
+    # legal no. En la columna queda una clave de objeto, nunca una URL publica.
+    "ARCHIVOS_URL": "http://minio:9000",
+    "ARCHIVOS_USUARIO": "aportaya",
+    "ARCHIVOS_CLAVE": "aportaya-local",
+    "ARCHIVOS_BUCKET": "aportaya-archivos",
     "WEBHOOK_SECRETO": "secreto-local-no-es-el-de-produccion",
     "CERTIFICADOS_CLAVE_FIRMA": "clave-local-no-es-la-de-produccion",
     "CUENTA_PUENTE_CUSTODIA": "00000000-0000-0000-0000-0000000000c0",

@@ -22,6 +22,9 @@ aportaya {
 dependencies {
     implementation(project(":plataforma:comun-dominio"))
     implementation(project(":plataforma:comun-datos"))
+    // El puerto de archivos: la cedula y la selfie van al servidor de archivos,
+    // no al disco del contenedor (ADR-034).
+    implementation(project(":plataforma:comun-archivos"))
     implementation(project(":plataforma:comun-web"))
     implementation(libs.spring.boot.oauth2)  // identidad FIRMA: necesita nimbus-jose, no solo verificar
     implementation(project(":plataforma:comun-mensajeria"))

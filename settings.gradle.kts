@@ -36,6 +36,10 @@ listOf(
     "comun-datos",
     "comun-web",
     "comun-mensajeria",
+    // El puerto de archivos y su adaptador. Es troncal y no de un carril: trece
+    // tablas del modelo guardan un archivo (ADR-034), y si cada servicio lo resuelve
+    // aparte, dos de ellos van a poner una URL publica en la columna.
+    "comun-archivos",
     "comun-pruebas",
     "gateway",
 ).forEach { include(":plataforma:$it") }

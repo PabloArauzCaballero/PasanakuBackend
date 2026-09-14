@@ -41,6 +41,7 @@ dependencies:
     path: ../../clientes/dart/organizador
   aportaya_cliente_notificaciones:
     path: ../../clientes/dart/notificaciones
+  image_picker: ^1.2.3
 
 dev_dependencies:
   flutter_test:

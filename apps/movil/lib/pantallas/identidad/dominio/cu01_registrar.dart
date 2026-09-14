@@ -20,7 +20,7 @@ class Registro {
   /// alta y no crea dos personas con el mismo documento.
   static const formularioId = 'cu01-alta';
 
-  Future<String?> crear({
+  Future<AltaCreada> crear({
     required String telefonoE164,
     required String nombres,
     required String apellidos,
@@ -52,7 +52,12 @@ class Registro {
           aceptaContratos: contratosAceptados,
         ),
       );
-      return r.data?.cuentaBilleteraId;
+      // El `usuarioId` es lo que permite subir las fotos del expediente: se sacan
+      // antes, cuando la persona todavia no existe, y se mandan recien ahora.
+      return AltaCreada(
+        usuarioId: r.data?.usuarioId.toString(),
+        cuentaBilleteraId: r.data?.cuentaBilleteraId?.toString(),
+      );
     } on DioException catch (e) {
       throw errorDeDominio(e);
     }
@@ -63,6 +68,14 @@ class Registro {
     'PASAPORTE' => DocumentoTipoEnum.PASAPORTE,
     _ => DocumentoTipoEnum.CI,
   };
+}
+
+/// Lo que vuelve del alta. La billetera puede no existir todavia —el alta responde
+/// 202 y la abre otro servicio al consumir el evento—, pero el usuario si.
+class AltaCreada {
+  const AltaCreada({required this.usuarioId, required this.cuentaBilleteraId});
+  final String? usuarioId;
+  final String? cuentaBilleteraId;
 }
 
 final registroProvider = Provider<Registro>(Registro.new);

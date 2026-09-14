@@ -14,6 +14,8 @@ networks:
 volumes:
   datos_pg:
     name: aportaya-datos-pg
+  datos_minio:
+    name: aportaya-datos-minio
 
 services:
   postgres:
@@ -94,6 +96,55 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+
+  # El servidor de archivos. Las cedulas, las selfies y los comprobantes NO viven en
+  # el disco del contenedor del servicio: un contenedor se reemplaza y la evidencia
+  # legal no. En la columna nunca va una URL publica, va una clave de objeto
+  # (ADR-034), y el binario lo entrega el servicio dueño, con sesion y permisos.
+  minio:
+    # quay.io y no Docker Hub: MinIO dejo de publicar ahi.
+    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+    container_name: aportaya-minio
+    profiles: [base, dinero, todo]
+    networks: [interna]
+    command: server /datos --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: aportaya
+      MINIO_ROOT_PASSWORD: aportaya-local
+    ports:
+      # Solo en loopback y solo la consola: para mirar los objetos mientras se
+      # desarrolla. La API la consumen los servicios por la red interna.
+      # 9011 y no 9001: en una maquina de desarrollo es normal que ya haya otro
+      # MinIO de otro proyecto ocupando el puerto de siempre.
+      - "127.0.0.1:9011:9001"
+    volumes:
+      - datos_minio:/datos
+    healthcheck:
+      test: ["CMD-SHELL", "mc ready local || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Crea el bucket una vez y se apaga. Versionado encendido: el ADR dice que los
+  # objetos no se sobrescriben ni se borran, y el versionado lo hace cumplir aunque
+  # alguien se equivoque.
+  minio_bucket:
+    image: quay.io/minio/mc:latest
+    container_name: aportaya-minio-bucket
+    profiles: [base, dinero, todo]
+    networks: [interna]
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set aportaya http://minio:9000 aportaya aportaya-local &&
+      mc mb --ignore-existing aportaya/aportaya-archivos &&
+      mc version enable aportaya/aportaya-archivos &&
+      mc anonymous set none aportaya/aportaya-archivos &&
+      echo 'bucket listo'
+      "
+    restart: "no"
 
   kafka:
     image: confluentinc/cp-kafka:7.7.1

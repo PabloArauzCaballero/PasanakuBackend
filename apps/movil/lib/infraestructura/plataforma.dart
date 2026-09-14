@@ -10,11 +10,11 @@ import '../dominio/puertos/proteccion_pantalla.dart';
 import 'android/almacen_seguro_android.dart';
 import 'android/avisos_push_android.dart';
 import 'android/biometria_android.dart';
-import 'android/camara_android.dart';
 import 'android/conectividad_android.dart';
 import 'android/haptica_android.dart';
 import 'android/proteccion_pantalla_android.dart';
 import 'ios/almacen_seguro_ios.dart';
+import 'camara_del_sistema.dart';
 import 'ios/haptica_ios.dart';
 
 /// **El ÚNICO lugar donde se pregunta por la plataforma** (ADR-036). `Platform.is*`
@@ -39,7 +39,11 @@ Biometria biometriaDeLaPlataforma() => BiometriaAndroid();
 
 AvisosPush avisosPushDeLaPlataforma() => AvisosPushAndroid();
 
-Camara camaraDeLaPlataforma() => CamaraAndroid();
+/// La cámara es la MISMA en las dos plataformas: la del sistema, con su permiso.
+/// No hay nada exclusivo de Android ni de iOS que justifique dos adaptadores, y el
+/// que había —un `MethodChannel` a un plugin que nunca existió— devolvía `null`
+/// siempre, así que no se podía sacar una foto en ninguna de las dos.
+Camara camaraDeLaPlataforma() => CamaraDelSistema();
 
 ProteccionPantalla proteccionPantallaDeLaPlataforma() =>
     ProteccionPantallaAndroid();
