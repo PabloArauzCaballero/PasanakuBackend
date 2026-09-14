@@ -88,6 +88,38 @@ ingreso no termina. La huella la genera la app al instalarse.
 La app apunta por omision a `http://localhost/api/v1`, que es NGINX. Para el simulado:
 `--dart-define=API=http://localhost:4010/api/v1`.
 
+### Camara en el simulador
+
+El simulador de iOS **no tiene camara y no puede usar la del Mac**: no expone ningun
+`AVCaptureDevice`, asi que `image_picker` con `ImageSource.camera` devuelve nada. Es
+de Apple, no del codigo — Apple lista la camara entre el hardware que el simulador no
+simula. Hay dos formas de recorrer igual el alta:
+
+**1 · Prestarle la camara del Mac** (gratis, en este repositorio):
+
+```bash
+python3 scripts/camara_del_mac.py                      # queda escuchando en 8899
+flutter run --dart-define=CAMARA_DEV=http://localhost:8899/foto
+```
+
+La primera vez macOS pide permiso de camara para la terminal. Hay que aceptarlo una
+vez, o la captura se queda esperando el dialogo; para provocarlo a mano:
+
+```bash
+ffmpeg -f avfoundation -framerate 30 -i "0" -frames:v 1 -y /tmp/prueba.jpg
+```
+
+La foto es real y sale de la camara del Mac; lo unico que falta es el visor. Sin la
+bandera `CAMARA_DEV` este camino no existe en el binario.
+
+**2 · SimCam** (de Software Mansion, 19 USD por unica vez, con prueba gratuita):
+https://simcam.swmansion.com — se abre ANTES que la app, hace de camara virtual y da
+visor de verdad. Su autor confirma que funciona con `image_picker`. No hay que tocar
+la app. Tiene un tope conocido de 480x640 en la resolucion entregada.
+
+Y siempre, sin nada de lo anterior: **«Elegir de mis fotos»**. Se le carga una imagen
+a la fototeca del simulador con `xcrun simctl addmedia booted foto.jpg`.
+
 Los cuatro verificadores de la boveda corren solos y no necesitan nada levantado:
 
 ```bash

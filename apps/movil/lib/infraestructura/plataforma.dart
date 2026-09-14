@@ -15,6 +15,7 @@ import 'android/haptica_android.dart';
 import 'android/proteccion_pantalla_android.dart';
 import 'ios/almacen_seguro_ios.dart';
 import 'camara_del_sistema.dart';
+import 'camara_prestada.dart';
 import 'ios/haptica_ios.dart';
 
 /// **El ÚNICO lugar donde se pregunta por la plataforma** (ADR-036). `Platform.is*`
@@ -43,7 +44,15 @@ AvisosPush avisosPushDeLaPlataforma() => AvisosPushAndroid();
 /// No hay nada exclusivo de Android ni de iOS que justifique dos adaptadores, y el
 /// que había —un `MethodChannel` a un plugin que nunca existió— devolvía `null`
 /// siempre, así que no se podía sacar una foto en ninguna de las dos.
-Camara camaraDeLaPlataforma() => CamaraDelSistema();
+/// Con `--dart-define=CAMARA_DEV=<url>` la foto la saca la camara del Mac a traves
+/// de `scripts/camara_del_mac.py`. Es la unica forma de recorrer el alta en el
+/// simulador de iOS, que no tiene camara ni puede usar la del Mac. Sin la bandera
+/// —o sea, en cualquier build que no sea de desarrollo— esta rama no existe.
+const _camaraDeDesarrollo = String.fromEnvironment('CAMARA_DEV');
+
+Camara camaraDeLaPlataforma() => _camaraDeDesarrollo.isEmpty
+    ? CamaraDelSistema()
+    : CamaraPrestada(_camaraDeDesarrollo, CamaraDelSistema());
 
 ProteccionPantalla proteccionPantallaDeLaPlataforma() =>
     ProteccionPantallaAndroid();
