@@ -152,7 +152,7 @@ CREATE INDEX IF NOT EXISTS ix_envio_regulatorio_fecha_envio
   ON cumplimiento.envio_regulatorio (fecha_envio);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_envio_regulatorio_numero_constancia
-  ON cumplimiento.envio_regulatorio (numero_constancia);
+  ON cumplimiento.envio_regulatorio (numero_constancia) NULLS NOT DISTINCT;
 
 CREATE INDEX IF NOT EXISTS ix_envio_regulatorio_estado
   ON cumplimiento.envio_regulatorio (estado);
@@ -299,7 +299,7 @@ CREATE INDEX IF NOT EXISTS ix_licencia_regulatoria_organismo
   ON catalogo.licencia_regulatoria (organismo);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_licencia_regulatoria_numero_resolucion
-  ON catalogo.licencia_regulatoria (numero_resolucion);
+  ON catalogo.licencia_regulatoria (numero_resolucion) NULLS NOT DISTINCT;
 
 CREATE INDEX IF NOT EXISTS ix_licencia_regulatoria_estado
   ON catalogo.licencia_regulatoria (estado);

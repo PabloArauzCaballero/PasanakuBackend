@@ -84,7 +84,8 @@ public class CU01RegistrarUsuario {
                 throw new ErrorDeNegocio(
                         CodigoError.de(1, 3), "Ya hay una cuenta con ese telefono. Podes recuperar el acceso.");
             }
-            if (registros.documentoYaRegistrado(dsl, entrada.documento().hashNumero())) {
+            if (registros.documentoYaRegistrado(
+                    dsl, entrada.documento().hashNumero(), entrada.documento().lugarExpedicion())) {
                 throw new ErrorDeNegocio(
                         CodigoError.de(1, 3), "Ya hay una cuenta con ese documento. Podes recuperar el acceso.");
             }

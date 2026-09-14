@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../textos.dart';
+import 'lugar_de_expedicion.dart';
 
 /// Los cinco campos del primer paso del alta, con su ícono y su ayuda.
 ///
@@ -21,8 +22,10 @@ class CamposDelAlta extends StatelessWidget {
     required this.tocados,
     required this.prefijo,
     required this.fecha,
+    required this.lugar,
     required this.onCambio,
     required this.onFecha,
+    required this.onLugar,
   });
 
   /// En orden: nombres, apellidos, celular, documento.
@@ -36,8 +39,10 @@ class CamposDelAlta extends StatelessWidget {
 
   final String prefijo;
   final DateTime? fecha;
+  final String? lugar;
   final ValueChanged<String> onCambio;
   final ValueChanged<DateTime> onFecha;
+  final ValueChanged<String> onLugar;
 
   /// El tilde verde solo después de tocar el campo: un formulario recién abierto no
   /// tiene nada que festejar.
@@ -99,6 +104,12 @@ class CamposDelAlta extends StatelessWidget {
           error: errores['documento'],
           exito: _listo('documento'),
           onChanged: (_) => onCambio('documento'),
+        ),
+        const SizedBox(height: Espacio.s3),
+        LugarDeExpedicion(
+          valor: lugar,
+          error: errores['lugar'],
+          onElegido: onLugar,
         ),
         const SizedBox(height: Espacio.s3),
         CampoDeFecha(

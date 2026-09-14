@@ -41,6 +41,7 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
   final _focos = List.generate(4, (_) => FocusNode());
   final _focoFecha = FocusNode();
   DateTime? _fechaNacimiento;
+  String? _lugarExpedicion;
   final _tocados = <String>{};
   var _intentado = false;
 
@@ -75,6 +76,7 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
                   apellidos: _apellidos.text,
                   telefono: _telefonoCompleto,
                   numeroDocumento: _documento.text,
+                  lugarExpedicion: _lugarExpedicion,
                   fechaNacimiento: _fechaNacimiento,
                 ),
           );
@@ -91,6 +93,7 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
     'apellidos': _error('apellidos', () => errorNombre(_apellidos.text)),
     'telefono': _error('telefono', () => errorTelefono(_telefonoCompleto)),
     'documento': _error('documento', () => errorDocumento(_documento.text)),
+    'lugar': _error('lugar', () => errorLugarExpedicion(_lugarExpedicion)),
     'fecha': _error('fecha', () => errorFechaNacimiento(_fechaNacimiento)),
   };
 
@@ -102,15 +105,25 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
       return;
     }
     // Al primer campo que falla, para no dejar a nadie buscando cuál era.
-    const orden = ['nombres', 'apellidos', 'telefono', 'documento', 'fecha'];
+    const orden = [
+      'nombres',
+      'apellidos',
+      'telefono',
+      'documento',
+      'lugar',
+      'fecha',
+    ];
     final primero = orden.indexOf(fallan.first.key);
-    (primero == 4 ? _focoFecha : _focos[primero]).requestFocus();
+    // El lugar de expedicion son chips, no un campo con foco: se lleva al ultimo
+    // campo con foco anterior y el error queda a la vista.
+    (primero >= 4 ? _focoFecha : _focos[primero]).requestFocus();
   }
 
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
     _fechaNacimiento ??= ref.read(altaProvider).datos.fechaNacimiento;
+    _lugarExpedicion ??= ref.read(altaProvider).datos.lugarExpedicion;
     final errores = _errores;
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -130,7 +143,12 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
             tocados: _tocados,
             prefijo: _prefijoBolivia,
             fecha: _fechaNacimiento,
+            lugar: _lugarExpedicion,
             onCambio: _sincronizar,
+            onLugar: (l) {
+              _lugarExpedicion = l;
+              _sincronizar('lugar');
+            },
             onFecha: (f) {
               _fechaNacimiento = f;
               _sincronizar('fecha');

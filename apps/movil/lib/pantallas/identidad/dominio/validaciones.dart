@@ -46,3 +46,13 @@ double fortalezaContrasena(String valor) {
   if (RegExp(r'[^A-Za-z0-9]').hasMatch(valor)) puntos += 1;
   return puntos / 5;
 }
+
+/// El número de CI boliviano NO es único: se repite entre departamentos. Lo que lo
+/// desambigua es la extensión, y sin ella el servidor no puede distinguir a dos
+/// personas distintas con el mismo número.
+String? errorLugarExpedicion(String? valor) {
+  if (valor == null || valor.isEmpty) {
+    return 'Elegí dónde te expidieron el carnet.';
+  }
+  return null;
+}

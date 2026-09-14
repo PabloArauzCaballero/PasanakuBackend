@@ -447,6 +447,7 @@ package "Verificacion de Identidad (KYC)" {
     - usuarioId: UUID
     - tipo: String <<CI | PASAPORTE | CARNET_EXTRANJERIA>>
     - numero: String
+    - lugarExpedicion: String <<LP|SC|CB|OR|PT|TJ|CH|BE|PD — extension del CI>>
     - complemento: String
     - paisEmision: String
     - fechaEmision: Date
@@ -929,7 +930,8 @@ entity "documento_identidad" as docid {
   tipo : VARCHAR(25) <<CK>>
   numero_cifrado : VARCHAR(255)
   version_llave : SMALLINT
-  hash_numero : VARCHAR(64) <<UQ, busqueda sin descifrar>>
+  hash_numero : VARCHAR(64) <<UQ+lugar_expedicion, busqueda sin descifrar>>
+  lugar_expedicion : VARCHAR(2) <<NULL, CK>>
   complemento : VARCHAR(10) <<NULL>>
   pais_emision : CHAR(2)
   fecha_emision : DATE <<NULL>>

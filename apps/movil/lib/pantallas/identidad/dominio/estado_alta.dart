@@ -149,6 +149,7 @@ class AltaNotifier extends Notifier<EstadoAlta> {
             fechaNacimiento: nacimiento,
             tipoDocumento: d.tipoDocumento,
             numeroDocumento: d.numeroDocumento,
+            lugarExpedicion: d.lugarExpedicion,
             contratosAceptados: ref.read(contratoProvider).aceptados,
           );
       state = state.copiarCon();

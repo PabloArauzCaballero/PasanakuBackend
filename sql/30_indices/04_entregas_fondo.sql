@@ -32,7 +32,7 @@ CREATE INDEX IF NOT EXISTS ix_orden_desembolso_estado
   ON entregas.orden_desembolso (estado);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_orden_desembolso_referencia_proveedor
-  ON entregas.orden_desembolso (referencia_proveedor);
+  ON entregas.orden_desembolso (referencia_proveedor) NULLS NOT DISTINCT;
 
 CREATE INDEX IF NOT EXISTS ix_intento_desembolso_orden_desembolso_id
   ON entregas.intento_desembolso (orden_desembolso_id);

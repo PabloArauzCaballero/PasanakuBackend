@@ -13,9 +13,15 @@ import 'package:flutter_test/flutter_test.dart';
 /// —sin el prefijo del país— veía un botón muerto y no tenía forma de enterarse.
 /// Estas pruebas fijan lo contrario: el toque siempre hace algo.
 void main() {
-  Future<void> abrir(WidgetTester tester) async {
+  Future<void> abrir(
+    WidgetTester tester, {
+    ProviderContainer? contenedor,
+  }) async {
+    final scope = contenedor ?? ProviderContainer();
+    addTearDown(scope.dispose);
     await tester.pumpWidget(
-      ProviderScope(
+      UncontrolledProviderScope(
+        container: scope,
         child: MaterialApp(
           theme: temaDesde(Tokens.claro, Brightness.light),
           home: const Scaffold(body: SingleChildScrollView(child: PasoDatos())),
@@ -38,6 +44,10 @@ void main() {
     tester,
   ) async {
     await abrir(tester);
+    // Con el selector de departamento el formulario no entra en la ventana de
+    // prueba: sin esto el toque cae fuera de pantalla y no pasa nada.
+    await tester.ensureVisible(find.text('Continuar'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Continuar'));
     await tester.pumpAndSettle();
 
@@ -48,6 +58,7 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Revisá el número de documento.'), findsOneWidget);
+    expect(find.text('Elegí dónde te expidieron el carnet.'), findsOneWidget);
     expect(find.text('Elegí una fecha.'), findsOneWidget);
   });
 
@@ -68,15 +79,10 @@ void main() {
   });
 
   testWidgets('con todo completo, «Continuar» avanza de paso', (tester) async {
-    await abrir(tester);
-    final contenedor = ProviderScope.containerOf(
-      tester.element(find.byType(PasoDatos)),
-    );
-
-    await tester.enterText(find.byType(TextField).at(0), 'Ana');
-    await tester.enterText(find.byType(TextField).at(1), 'Quispe Mamani');
-    await tester.enterText(find.byType(TextField).at(2), '71000090');
-    await tester.enterText(find.byType(TextField).at(3), '9876543');
+    // La fecha se deja puesta ANTES de abrir: el paso lee el proveedor al construirse
+    // y no lo observa, asi que inyectarla despues no llegaria al formulario. Elegirla
+    // a mano seria abrir el calendario de Material, que no es lo que prueba esto.
+    final contenedor = ProviderContainer();
     contenedor
         .read(altaProvider.notifier)
         .actualizarDatos(
@@ -85,9 +91,26 @@ void main() {
               .datos
               .copiarCon(fechaNacimiento: DateTime(1995, 4, 12)),
         );
+    await abrir(tester, contenedor: contenedor);
+
+    await tester.enterText(find.byType(TextField).at(0), 'Ana');
+    await tester.enterText(find.byType(TextField).at(1), 'Quispe Mamani');
+    await tester.enterText(find.byType(TextField).at(2), '71000090');
+    await tester.enterText(find.byType(TextField).at(3), '9876543');
+    // La extension del carnet se elige con un chip: el numero de CI se repite entre
+    // departamentos y sin esto el alta no distingue a dos personas.
+    await tester.ensureVisible(find.text('La Paz'));
     await tester.pumpAndSettle();
+    await tester.tap(find.text('La Paz'));
+    await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
+    expect(contenedor.read(altaProvider).datos.lugarExpedicion, 'LP');
 
     expect(contenedor.read(altaProvider).paso, PasoAlta.datos);
+    // Con el selector de departamento el formulario no entra en la ventana de
+    // prueba: sin esto el toque cae fuera de pantalla y no pasa nada.
+    await tester.ensureVisible(find.text('Continuar'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Continuar'));
     await tester.pumpAndSettle();
     expect(contenedor.read(altaProvider).paso, PasoAlta.celular);

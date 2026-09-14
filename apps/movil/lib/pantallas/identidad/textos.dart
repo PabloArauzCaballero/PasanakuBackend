@@ -9,12 +9,14 @@ class TextosIdentidad {
   // Portada: lo primero que ve alguien que abre la app. Explica el producto en los
   // términos en que la gente ya lo conoce —el pasanaku de toda la vida— y dice qué
   // cambia acá, sin jerga financiera ni promesas de rendimiento.
-  static const portadaTitular = 'El pasanaku de siempre,\ncon las cuentas claras';
+  static const portadaTitular =
+      'El pasanaku de siempre,\ncon las cuentas claras';
   static const portadaBajada =
       'Armá una rueda con tu gente, poné lo mismo cada turno y cobrá cuando te toca. '
       'Sin confiar de memoria.';
   static const portadaRuedaTitulo = 'Tu rueda, a la vista';
-  static const portadaRuedaDetalle = 'Quién puso, quién cobró y a quién le toca.';
+  static const portadaRuedaDetalle =
+      'Quién puso, quién cobró y a quién le toca.';
   static const portadaSorteoTitulo = 'El turno no se arregla';
   static const portadaSorteoDetalle =
       'Se sortea, y cualquiera del grupo puede comprobarlo.';
@@ -26,7 +28,8 @@ class TextosIdentidad {
   // La bienvenida y las cuatro láminas del tour, con el texto exacto de la maqueta
   // (`docs/Views/AportaYa-Maqueta.html`: `bienvenida` y `const TOUR`). La segunda
   // línea de cada título es la que se destaca en verde.
-  static const bienvenidaTitulo = 'El pasanaku de siempre,\ncon la plata segura';
+  static const bienvenidaTitulo =
+      'El pasanaku de siempre,\ncon la plata segura';
   static const bienvenidaTexto =
       'Aportá, cobrá tu turno y mirá el estado del grupo desde el celular. '
       'Cada movimiento queda registrado.';
@@ -64,7 +67,13 @@ class TextosIdentidad {
   // Alta (CU-01), ocho pasos.
   static const registroTitulo = 'Crear cuenta';
   static const telefonoAyuda = 'Ocho dígitos, sin el código de país.';
-  static const documentoAyuda = 'Tu cédula de identidad, sin puntos ni guiones.';
+  static const documentoAyuda =
+      'Tu cédula de identidad, sin puntos ni guiones.';
+  static const lugarExpedicion = 'Expedido en';
+  static const lugarExpedicionAyuda =
+      'El departamento del carnet. El mismo número existe en dos departamentos, '
+      'y esto los distingue.';
+  static const lugarExpedicionFalta = 'Elegí dónde te expidieron el carnet.';
   static const fechaNacimientoAyuda =
       'Para abrir una billetera hay que ser mayor de edad.';
   static const registroPie =

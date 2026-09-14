@@ -2,7 +2,7 @@
 -- Generado por scripts/generar_ddl.py — no editar a mano.
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_fondo_garantia_grupo_id
-  ON garantia.fondo_garantia (grupo_id);
+  ON garantia.fondo_garantia (grupo_id) NULLS NOT DISTINCT;
 
 CREATE INDEX IF NOT EXISTS ix_movimiento_fondo_fondo_id
   ON garantia.movimiento_fondo (fondo_id);
@@ -32,7 +32,7 @@ CREATE INDEX IF NOT EXISTS ix_registro_incumplimiento_grupo_id
   ON garantia.registro_incumplimiento (grupo_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_registro_incumplimiento_obligacion_id
-  ON garantia.registro_incumplimiento (obligacion_id);
+  ON garantia.registro_incumplimiento (obligacion_id) NULLS NOT DISTINCT;
 
 CREATE INDEX IF NOT EXISTS ix_registro_incumplimiento_tipo
   ON garantia.registro_incumplimiento (tipo);
@@ -131,7 +131,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_deuda_participante_registro_id
   ON garantia.deuda_participante (registro_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_deuda_participante_cobertura_id
-  ON garantia.deuda_participante (cobertura_id);
+  ON garantia.deuda_participante (cobertura_id) NULLS NOT DISTINCT;
 
 CREATE INDEX IF NOT EXISTS ix_deuda_participante_saldo_actual
   ON garantia.deuda_participante (saldo_actual);

@@ -8,6 +8,7 @@ class DatosPersonales {
     this.telefono = '',
     this.tipoDocumento = 'CI',
     this.numeroDocumento = '',
+    this.lugarExpedicion,
   });
   final String nombres;
   final String apellidos;
@@ -16,6 +17,11 @@ class DatosPersonales {
   final String tipoDocumento;
   final String numeroDocumento;
 
+  /// La extension del carnet: el departamento que lo emitio. El numero de CI se
+  /// repite entre departamentos, asi que sin esto dos personas distintas comparten
+  /// documento y la segunda no puede abrir cuenta.
+  final String? lugarExpedicion;
+
   DatosPersonales copiarCon({
     String? nombres,
     String? apellidos,
@@ -23,6 +29,7 @@ class DatosPersonales {
     String? telefono,
     String? tipoDocumento,
     String? numeroDocumento,
+    String? lugarExpedicion,
   }) => DatosPersonales(
     nombres: nombres ?? this.nombres,
     apellidos: apellidos ?? this.apellidos,
@@ -30,6 +37,7 @@ class DatosPersonales {
     telefono: telefono ?? this.telefono,
     tipoDocumento: tipoDocumento ?? this.tipoDocumento,
     numeroDocumento: numeroDocumento ?? this.numeroDocumento,
+    lugarExpedicion: lugarExpedicion ?? this.lugarExpedicion,
   );
 }
 

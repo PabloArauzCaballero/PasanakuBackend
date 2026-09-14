@@ -54,6 +54,11 @@ MAX_IDENT = 63
 # algo que se resuelva con search_path.
 TABLA_ESQUEMA = {}
 
+# Tabla -> columnas opcionales. Lo llena generar() al recorrer el modelo, y lo lee
+# el emisor de índices únicos: un UNIQUE que incluye una columna opcional necesita
+# NULLS NOT DISTINCT o no impide el duplicado.
+OPCIONALES = {}
+
 # search_path para la sesion que APLICA el esquema y siembra: ve todos los
 # esquemas. Los roles de servicio tienen el suyo, mucho mas estrecho (02_esquemas).
 SEARCH_PATH_SQL = ("SET search_path TO "
@@ -145,6 +150,14 @@ VALORES = {
     ("requerimiento_autoridad", "estado"):
         ["RECIBIDO", "EN_PROCESO", "RESPONDIDO", "VENCIDO", "ARCHIVADO"],
     ("tipo_cambio", "fuente"): ["BCB", "PROVEEDOR", "MANUAL"],
+
+    # --- la extension del carnet boliviano -------------------------------------
+    # El numero de CI NO es unico por si solo: se repite entre departamentos, y lo
+    # que lo desambigua es el lugar de expedicion. Sin esta columna, la segunda
+    # persona con el mismo numero —de otro departamento— chocaba contra el UNIQUE
+    # de `hash_numero` y no podia abrir cuenta.
+    ("documento_identidad", "lugar_expedicion"):
+        ["LP", "SC", "CB", "OR", "PT", "TJ", "CH", "BE", "PD"],
 
     # --- gobernanza, reputación y notificaciones (CU-60..82) ---
     ("sorteo_turnos", "estado"): ["COMPROMETIDO", "REVELADO", "ANULADO"],
@@ -468,6 +481,12 @@ def generar():
                     else:
                         pendientes.append(f"{tabla}.{n}")
 
+                # Qué columnas son opcionales: lo necesita el emisor de índices
+                # únicos para decidir si el compuesto lleva NULLS NOT DISTINCT.
+                OPCIONALES.setdefault(tabla, set())
+                if col["nulo"]:
+                    OPCIONALES[tabla].add(n)
+
                 if col["anot"]:
                     comentarios.append((n, col["anot"]))
 
@@ -594,8 +613,16 @@ def generar():
             vistos.add(clave)
             lista = ", ".join(cols)
             if tipo == "UQ":
+                # `NULLS NOT DISTINCT` cuando alguna columna del compuesto es
+                # opcional. Por omision PostgreSQL considera distintos dos nulos, asi
+                # que un UNIQUE con una columna nula no impide el duplicado: es
+                # exactamente el caso de `documento_identidad`, donde el lugar de
+                # expedicion existe para el CI y no para un pasaporte — sin esto, dos
+                # pasaportes con el mismo numero entraban los dos.
+                opcional = any(c in OPCIONALES.get(tabla, set()) for c in cols)
+                sufijo = " NULLS NOT DISTINCT" if opcional else ""
                 L.append(f"CREATE UNIQUE INDEX IF NOT EXISTS {ident('uq', tabla, *cols)}")
-                L.append(f"  ON {q(tabla)} ({lista});")
+                L.append(f"  ON {q(tabla)} ({lista}){sufijo};")
             else:
                 L.append(f"CREATE INDEX IF NOT EXISTS {ident('ix', tabla, *cols)}")
                 L.append(f"  ON {q(tabla)} ({lista});")
@@ -748,9 +775,42 @@ def escribir_esquemas():
     L.append(f"ALTER DEFAULT PRIVILEGES IN SCHEMA {ESQUEMA_CATALOGO}")
     L.append("  GRANT INSERT, UPDATE ON TABLES TO rol_migracion;")
     L.append("")
+    L.append(LOGIN_DE_DESARROLLO)
 
     (OUT / "00_base" / "02_esquemas.sql").write_text("\n".join(L), encoding="utf-8")
 
+
+LOGIN_DE_DESARROLLO = """-- 7) SOLO EN DESARROLLO: que los roles de servicio puedan conectarse.
+--
+-- Los catorce `svc_*` nacen NOLOGIN, que es lo correcto: en un despliegue real la
+-- credencial la entrega el gestor de secretos y nunca vive en un archivo del
+-- repositorio. Pero en la maquina de desarrollo eso dejaba a los catorce servicios
+-- sin poder abrir una sola conexion —PgBouncer respondia «no such user» y cada
+-- peticion moria en 500—, asi que el stack local no servia para nada.
+--
+-- Solo corre sobre una base marcada `app.entorno = 'dev'`, la misma guarda que
+-- protege las semillas de prueba, y solo si `app.clave_dev` esta puesta: la pone
+-- despliegue/compose/init/00-arranque.sql, que en produccion no existe.
+DO $desarrollo$
+DECLARE
+  rol   text;
+  clave text := nullif(current_setting('app.clave_dev', true), '');
+BEGIN
+  IF current_setting('app.entorno', true) IS DISTINCT FROM 'dev' THEN
+    RETURN;
+  END IF;
+  IF clave IS NULL THEN
+    -- Sin clave NO se toca nada: un `PASSWORD NULL` deja al rol conectandose sin
+    -- credencial, que es peor que dejarlo NOLOGIN.
+    RAISE NOTICE 'Entorno dev sin app.clave_dev: los roles svc_* siguen NOLOGIN.';
+    RETURN;
+  END IF;
+  FOR rol IN SELECT rolname FROM pg_roles WHERE rolname LIKE 'svc\\_%' LOOP
+    EXECUTE format('ALTER ROLE %I LOGIN PASSWORD %L', rol, clave);
+  END LOOP;
+  RAISE NOTICE 'Entorno dev: los roles svc_* pueden iniciar sesion.';
+END $desarrollo$;
+"""
 
 def escribir_permisos_finales():
     """GRANT sobre las tablas YA creadas.

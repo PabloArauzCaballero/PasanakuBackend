@@ -71,7 +71,7 @@ CREATE INDEX IF NOT EXISTS ix_solicitud_permuta_turno_origen_id
   ON grupos.solicitud_permuta (turno_origen_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_dia_no_habil_alcance_grupo_id_fecha
-  ON catalogo.dia_no_habil (alcance, grupo_id, fecha);
+  ON catalogo.dia_no_habil (alcance, grupo_id, fecha) NULLS NOT DISTINCT;
 
 CREATE INDEX IF NOT EXISTS ix_postulacion_emparejamiento_usuario_id
   ON grupos.postulacion_emparejamiento (usuario_id);

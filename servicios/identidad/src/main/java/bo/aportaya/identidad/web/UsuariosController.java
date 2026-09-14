@@ -137,7 +137,12 @@ public class UsuariosController implements UsuariosApi {
                         tipoDelModelo(cuerpo.getDocumento().getTipo().getValue())),
                 cuerpo.getDocumento().getNumero(),
                 pimienta,
-                "BO");
+                "BO",
+                // La extension solo la lleva el CI; el contrato la deja opcional
+                // porque depende del tipo, y el dominio es el que la exige.
+                cuerpo.getDocumento().getLugarExpedicion() == null
+                        ? null
+                        : cuerpo.getDocumento().getLugarExpedicion().getValue());
         return new CU01RegistrarUsuario.EntradaRegistro(
                 cuerpo.getTelefonoE164(),
                 cuerpo.getNombres(),

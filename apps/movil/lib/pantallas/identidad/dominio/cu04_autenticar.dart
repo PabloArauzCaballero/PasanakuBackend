@@ -29,10 +29,7 @@ class Autenticacion {
   Future<ResultadoDeAutenticacion> conCredenciales({
     required String telefonoE164,
     required String credencial,
-  }) => _pedir(
-    telefonoE164: telefonoE164,
-    credencial: credencial,
-  );
+  }) => _pedir(telefonoE164: telefonoE164, credencial: credencial);
 
   /// Paso 2: el código del segundo factor. Se manda la credencial de nuevo porque el
   /// contrato la sigue pidiendo: la sesión no está abierta hasta que el factor pasa.
@@ -43,10 +40,7 @@ class Autenticacion {
   }) => _pedir(
     telefonoE164: telefonoE164,
     credencial: credencial,
-    factor: FactorPresentado(
-      tipo: FactorPresentadoTipoEnum.OTP,
-      valor: codigo,
-    ),
+    factor: FactorPresentado(tipo: FactorPresentadoTipoEnum.OTP, valor: codigo),
   );
 
   Future<ResultadoDeAutenticacion> _pedir({
@@ -83,10 +77,9 @@ class Autenticacion {
       }
       // El contrato de CU-04 entrega un solo token. `sesionId` es lo que identifica
       // la sesión para renovarla, así que es lo que se guarda como refresco.
-      await _ref.read(sesionProvider).guardar(
-        acceso: token,
-        refresco: salida.sesionId ?? token,
-      );
+      await _ref
+          .read(sesionProvider)
+          .guardar(acceso: token, refresco: salida.sesionId ?? token);
       return ResultadoDeAutenticacion.entro;
     } on DioException catch (e) {
       throw errorDeDominio(e);

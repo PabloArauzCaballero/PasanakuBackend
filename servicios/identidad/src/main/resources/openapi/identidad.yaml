@@ -271,9 +271,21 @@ components:
       type: object
       additionalProperties: false
       required: [tipo, numero]
+      description: >-
+        El numero de la cedula boliviana NO es unico por si solo: se repite entre
+        departamentos, y lo que lo desambigua es el lugar de expedicion. Sin el, la
+        segunda persona con el mismo numero —de otro departamento— chocaba contra la
+        unicidad del documento y no podia abrir cuenta.
       properties:
         tipo:   { type: string, enum: [CI, CEX, PASAPORTE] }
         numero: { type: string, minLength: 5, maxLength: 20 }
+        lugarExpedicion:
+          type: string
+          enum: [LP, SC, CB, OR, PT, TJ, CH, BE, PD]
+          description: >-
+            La extension del carnet: el departamento que lo emitio. Obligatoria para
+            `CI` —el servicio la exige— y sin sentido para un pasaporte, que ya es
+            unico por numero. No se declara `required` aca porque depende del tipo.
     EntradaRegistro:
       type: object
       additionalProperties: false      # strict(): lista blanca, no lista negra

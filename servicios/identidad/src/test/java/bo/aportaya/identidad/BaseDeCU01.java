@@ -64,7 +64,7 @@ abstract class BaseDeCU01 {
                 "Ana",
                 "Quispe",
                 LocalDate.of(1990, 1, 1),
-                DocumentoDeIdentidad.de(DocumentoDeIdentidad.Tipo.CI, documento, "pimienta-de-prueba", "BO"),
+                DocumentoDeIdentidad.de(DocumentoDeIdentidad.Tipo.CI, documento, "pimienta-de-prueba", "BO", "LP"),
                 "cifrado:" + documento,
                 "0".repeat(64),
                 conContrato ? List.of(UUID.randomUUID()) : List.of(),

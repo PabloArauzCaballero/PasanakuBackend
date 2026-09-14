@@ -27,6 +27,7 @@ class Registro {
     required DateTime fechaNacimiento,
     required String tipoDocumento,
     required String numeroDocumento,
+    required String? lugarExpedicion,
     required List<String> contratosAceptados,
   }) async {
     try {
@@ -42,6 +43,11 @@ class Registro {
           documento: Documento(
             tipo: _tipo(tipoDocumento),
             numero: numeroDocumento,
+            lugarExpedicion: lugarExpedicion == null
+                ? null
+                : DocumentoLugarExpedicionEnum.values.firstWhere(
+                    (e) => e.name == lugarExpedicion,
+                  ),
           ),
           aceptaContratos: contratosAceptados,
         ),

@@ -25,9 +25,17 @@ public class RegistroRepositorio {
                 .and(USUARIO.ELIMINADO_EN.isNull()));
     }
 
-    public boolean documentoYaRegistrado(DSLContext dsl, String hashNumero) {
-        return dsl.fetchExists(
-                dsl.selectFrom(DOCUMENTO_IDENTIDAD).where(DOCUMENTO_IDENTIDAD.HASH_NUMERO.eq(hashNumero)));
+    /**
+     * El duplicado se mide por numero Y lugar de expedicion: el mismo numero de CI
+     * existe en dos departamentos y pertenece a dos personas distintas. Preguntar
+     * solo por el numero le negaba la cuenta a la segunda.
+     */
+    public boolean documentoYaRegistrado(DSLContext dsl, String hashNumero, String lugarExpedicion) {
+        return dsl.fetchExists(dsl.selectFrom(DOCUMENTO_IDENTIDAD)
+                .where(DOCUMENTO_IDENTIDAD.HASH_NUMERO.eq(hashNumero))
+                .and(lugarExpedicion == null
+                        ? DOCUMENTO_IDENTIDAD.LUGAR_EXPEDICION.isNull()
+                        : DOCUMENTO_IDENTIDAD.LUGAR_EXPEDICION.eq(lugarExpedicion)));
     }
 
     public UUID crearUsuario(
@@ -63,6 +71,7 @@ public class RegistroRepositorio {
                 .set(DOCUMENTO_IDENTIDAD.NUMERO_CIFRADO, numeroCifrado)
                 .set(DOCUMENTO_IDENTIDAD.VERSION_LLAVE, (short) 1)
                 .set(DOCUMENTO_IDENTIDAD.HASH_NUMERO, documento.hashNumero())
+                .set(DOCUMENTO_IDENTIDAD.LUGAR_EXPEDICION, documento.lugarExpedicion())
                 .set(DOCUMENTO_IDENTIDAD.PAIS_EMISION, documento.paisEmision())
                 // Clave de objeto local, nunca una URL publica (ADR-034).
                 .set(DOCUMENTO_IDENTIDAD.URL_ANVERSO, "local://documentos/" + usuarioId + "/anverso")

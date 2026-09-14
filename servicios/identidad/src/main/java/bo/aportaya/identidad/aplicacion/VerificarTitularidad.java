@@ -36,8 +36,10 @@ public class VerificarTitularidad {
 
     @Transactional(readOnly = true)
     public boolean coincide(UUID usuarioId, String nombreDeclarado, String documentoDeclarado, ContextoSesion ctx) {
-        String hashDeclarado = DocumentoDeIdentidad.de(DocumentoDeIdentidad.Tipo.CI, documentoDeclarado, pimienta, "BO")
-                .hashNumero();
+        // El hash se calcula sobre el NUMERO, que es lo unico que se declara aca: el
+        // cotejo de titularidad compara numeros, no extensiones.
+        String hashDeclarado = DocumentoDeIdentidad
+                .hashDeNumero(documentoDeclarado, pimienta);
 
         return datos.conContexto(ctx, dsl -> {
             var fila = dsl.select(

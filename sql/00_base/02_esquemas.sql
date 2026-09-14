@@ -396,10 +396,9 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
 -- sin poder abrir una sola conexion —PgBouncer respondia «no such user» y cada
 -- peticion moria en 500—, asi que el stack local no servia para nada.
 --
--- La clave es la misma que ya traen `despliegue/compose/base.yml` y el `BD_CLAVE` de
--- cada servicio: no es un secreto nuevo, es el literal de desarrollo que ya estaba.
--- Y esto solo corre sobre una base marcada `app.entorno = 'dev'`, la misma guarda
--- que protege las semillas de prueba.
+-- Solo corre sobre una base marcada `app.entorno = 'dev'`, la misma guarda que
+-- protege las semillas de prueba, y solo si `app.clave_dev` esta puesta: la pone
+-- despliegue/compose/init/00-arranque.sql, que en produccion no existe.
 DO $desarrollo$
 DECLARE
   rol   text;
@@ -411,8 +410,7 @@ BEGIN
   IF clave IS NULL THEN
     -- Sin clave NO se toca nada: un `PASSWORD NULL` deja al rol conectandose sin
     -- credencial, que es peor que dejarlo NOLOGIN.
-    RAISE NOTICE 'Entorno dev sin app.clave_dev: los roles svc_* siguen NOLOGIN. '
-                 'La pone despliegue/compose/init/00-arranque.sql.';
+    RAISE NOTICE 'Entorno dev sin app.clave_dev: los roles svc_* siguen NOLOGIN.';
     RETURN;
   END IF;
   FOR rol IN SELECT rolname FROM pg_roles WHERE rolname LIKE 'svc\_%' LOOP

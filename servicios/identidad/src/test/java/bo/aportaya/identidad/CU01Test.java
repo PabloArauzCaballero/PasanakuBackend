@@ -133,7 +133,7 @@ class CU01Test extends BaseDeCU01 {
         // hash tiene 64 caracteres o no es un hash.
         assertThatThrownBy(() -> new DocumentoDeIdentidad(DocumentoDeIdentidad.Tipo.CI, "corto", "BO"))
                 .isInstanceOf(ErrorDeDominio.class);
-        assertThat(DocumentoDeIdentidad.de(DocumentoDeIdentidad.Tipo.CI, "1234567", "pimienta", "BO")
+        assertThat(DocumentoDeIdentidad.de(DocumentoDeIdentidad.Tipo.CI, "1234567", "pimienta", "BO", "LP")
                         .hashNumero())
                 .hasSize(64)
                 .doesNotContain("1234567");

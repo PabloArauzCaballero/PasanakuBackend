@@ -71,7 +71,7 @@ CREATE INDEX IF NOT EXISTS ix_indicador_kpi_definicion_indicador_id
   ON auditoria.indicador_kpi (definicion_indicador_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_indicador_kpi_dimension_dimension_id_periodo_defini_d9c645
-  ON auditoria.indicador_kpi (dimension, dimension_id, periodo, definicion_indicador_id, codigo);
+  ON auditoria.indicador_kpi (dimension, dimension_id, periodo, definicion_indicador_id, codigo) NULLS NOT DISTINCT;
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_regla_cumplimiento_codigo
   ON auditoria.regla_cumplimiento (codigo);
@@ -95,7 +95,7 @@ CREATE INDEX IF NOT EXISTS ix_reporte_operacion_sospechosa_usuario_id
   ON auditoria.reporte_operacion_sospechosa (usuario_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_reporte_operacion_sospechosa_numero_radicado
-  ON auditoria.reporte_operacion_sospechosa (numero_radicado);
+  ON auditoria.reporte_operacion_sospechosa (numero_radicado) NULLS NOT DISTINCT;
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_lista_restrictiva_externa_version_nombre_lista
   ON auditoria.lista_restrictiva_externa (version, nombre_lista);

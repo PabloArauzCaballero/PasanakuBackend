@@ -65,7 +65,7 @@ CREATE INDEX IF NOT EXISTS ix_reverso_transaccion_transaccion_original_id
   ON nucleo_financiero.reverso_transaccion (transaccion_original_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_reverso_transaccion_transaccion_reverso_id
-  ON nucleo_financiero.reverso_transaccion (transaccion_reverso_id);
+  ON nucleo_financiero.reverso_transaccion (transaccion_reverso_id) NULLS NOT DISTINCT;
 
 CREATE INDEX IF NOT EXISTS ix_instrumento_fondeo_usuario_id
   ON nucleo_financiero.instrumento_fondeo (usuario_id);
@@ -83,7 +83,7 @@ CREATE INDEX IF NOT EXISTS ix_orden_retiro_cuenta_billetera_id
   ON nucleo_financiero.orden_retiro (cuenta_billetera_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_orden_retiro_retencion_id
-  ON nucleo_financiero.orden_retiro (retencion_id);
+  ON nucleo_financiero.orden_retiro (retencion_id) NULLS NOT DISTINCT;
 
 CREATE INDEX IF NOT EXISTS ix_orden_retiro_solicitada_por
   ON nucleo_financiero.orden_retiro (solicitada_por);
@@ -92,7 +92,7 @@ CREATE INDEX IF NOT EXISTS ix_orden_retiro_estado
   ON nucleo_financiero.orden_retiro (estado);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_orden_retiro_referencia_proveedor
-  ON nucleo_financiero.orden_retiro (referencia_proveedor);
+  ON nucleo_financiero.orden_retiro (referencia_proveedor) NULLS NOT DISTINCT;
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_transferencia_p2p_transaccion_id
   ON nucleo_financiero.transferencia_p2p (transaccion_id);
@@ -107,7 +107,7 @@ CREATE INDEX IF NOT EXISTS ix_movimiento_custodia_cuenta_custodia_id
   ON nucleo_financiero.movimiento_custodia (cuenta_custodia_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_movimiento_custodia_movimiento_bancario_id
-  ON nucleo_financiero.movimiento_custodia (movimiento_bancario_id);
+  ON nucleo_financiero.movimiento_custodia (movimiento_bancario_id) NULLS NOT DISTINCT;
 
 CREATE INDEX IF NOT EXISTS ix_movimiento_custodia_fecha_valor
   ON nucleo_financiero.movimiento_custodia (fecha_valor);

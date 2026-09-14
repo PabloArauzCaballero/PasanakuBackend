@@ -131,11 +131,7 @@ class _PantallaDeSesionState extends ConsumerState<PantallaDeSesion> {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.lock_outline,
-                            size: 16,
-                            color: t.text3,
-                          ),
+                          Icon(Icons.lock_outline, size: 16, color: t.text3),
                           const SizedBox(width: Espacio.s2),
                           Expanded(
                             child: Text(
