@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../tokens/tokens.dart';
+import 'decoracion_de_campo.dart';
 
 /// Los estados de un campo: normal, foco, error, éxito, deshabilitado. El error va
 /// **en el campo**, diciendo cómo corregir, y se anuncia.
@@ -65,15 +66,6 @@ class Campo extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
     final texto = Theme.of(context).textTheme;
-    final colorBorde = error != null
-        ? t.err
-        : exito
-        ? t.ok
-        : t.fieldBorder;
-    OutlineInputBorder borde(Color color, double ancho) => OutlineInputBorder(
-      borderRadius: BorderRadius.circular(Radios.md),
-      borderSide: BorderSide(color: color, width: ancho),
-    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -98,54 +90,15 @@ class Campo extends StatelessWidget {
           onSubmitted: onSubmitted,
           autofocus: autofocus,
           style: texto.bodyLarge?.copyWith(color: t.text),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: habilitado ? t.field : t.surface2,
-            // El prefijo va DENTRO del adorno, no en `prefixText`: Flutter esconde
-            // `prefixText` hasta que el campo tiene foco, y un `+591` que aparece
-            // recien al tocar no le sirve a nadie — quien no lo ve lo escribe a mano
-            // y termina con `+591+59171000090`.
-            prefixIcon: (icono == null && prefijo == null)
-                ? null
-                : Padding(
-                    padding: const EdgeInsets.only(
-                      left: Espacio.s4,
-                      right: Espacio.s2,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (icono != null) Icon(icono, color: t.text3),
-                        if (prefijo != null) ...[
-                          if (icono != null) const SizedBox(width: Espacio.s2),
-                          Text(
-                            prefijo!,
-                            style: texto.bodyLarge?.copyWith(
-                              color: t.text2,
-                              fontFamily: Fuente.display,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-            prefixIconConstraints: const BoxConstraints(minWidth: 0),
-            suffixIcon: sufijo,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: Espacio.s4,
-              vertical: Espacio.s4,
-            ),
-            enabledBorder: borde(colorBorde, Borde.fino),
-            focusedBorder: borde(
-              error != null ? t.err : t.brand,
-              Borde.foco - Borde.fino,
-            ),
-            disabledBorder: borde(t.border, Borde.fino),
-            errorText: error,
-            errorStyle: texto.bodySmall?.copyWith(color: t.errTexto),
-            helperText: error == null ? ayuda : null,
-            helperStyle: texto.bodySmall?.copyWith(color: t.text3),
-            errorMaxLines: 3,
+          decoration: DecoracionDeCampo.de(
+            context,
+            ayuda: ayuda,
+            error: error,
+            exito: exito,
+            habilitado: habilitado,
+            icono: icono,
+            prefijo: prefijo,
+            sufijo: sufijo,
           ),
         ),
       ],

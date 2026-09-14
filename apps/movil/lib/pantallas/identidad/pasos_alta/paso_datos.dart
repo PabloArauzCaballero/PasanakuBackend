@@ -40,6 +40,7 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
 
   final _focos = List.generate(4, (_) => FocusNode());
   final _focoFecha = FocusNode();
+  final _focoLugar = FocusNode();
   DateTime? _fechaNacimiento;
   String? _lugarExpedicion;
   final _tocados = <String>{};
@@ -53,7 +54,7 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
     for (final c in [_nombres, _apellidos, _telefono, _documento]) {
       c.dispose();
     }
-    for (final f in [..._focos, _focoFecha]) {
+    for (final f in [..._focos, _focoFecha, _focoLugar]) {
       f.dispose();
     }
     super.dispose();
@@ -114,9 +115,11 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
       'fecha',
     ];
     final primero = orden.indexOf(fallan.first.key);
-    // El lugar de expedicion son chips, no un campo con foco: se lleva al ultimo
-    // campo con foco anterior y el error queda a la vista.
-    (primero >= 4 ? _focoFecha : _focos[primero]).requestFocus();
+    (switch (primero) {
+      4 => _focoLugar,
+      5 => _focoFecha,
+      _ => _focos[primero],
+    }).requestFocus();
   }
 
   @override
@@ -139,6 +142,7 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
             controladores: [_nombres, _apellidos, _telefono, _documento],
             focos: _focos,
             focoFecha: _focoFecha,
+            focoLugar: _focoLugar,
             errores: errores,
             tocados: _tocados,
             prefijo: _prefijoBolivia,

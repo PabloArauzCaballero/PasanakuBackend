@@ -97,11 +97,14 @@ void main() {
     await tester.enterText(find.byType(TextField).at(1), 'Quispe Mamani');
     await tester.enterText(find.byType(TextField).at(2), '71000090');
     await tester.enterText(find.byType(TextField).at(3), '9876543');
-    // La extension del carnet se elige con un chip: el numero de CI se repite entre
-    // departamentos y sin esto el alta no distingue a dos personas.
-    await tester.ensureVisible(find.text('La Paz'));
+    // La extensión del carnet se elige en un select, en la misma línea que el
+    // número: el de CI se repite entre departamentos y sin esto el alta no
+    // distingue a dos personas.
+    await tester.ensureVisible(find.byType(DropdownButtonFormField<String>));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('La Paz'));
+    await tester.tap(find.byType(DropdownButtonFormField<String>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('La Paz').last);
     await tester.pumpAndSettle();
     await tester.pumpAndSettle();
     expect(contenedor.read(altaProvider).datos.lugarExpedicion, 'LP');

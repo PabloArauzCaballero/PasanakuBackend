@@ -70,9 +70,8 @@ class TextosIdentidad {
   static const documentoAyuda =
       'Tu cédula de identidad, sin puntos ni guiones.';
   static const lugarExpedicion = 'Expedido en';
-  static const lugarExpedicionAyuda =
-      'El departamento del carnet. El mismo número existe en dos departamentos, '
-      'y esto los distingue.';
+  static const lugarExpedicionAyuda = 'El departamento del carnet.';
+  static const lugarExpedicionVacio = 'Elegir';
   static const lugarExpedicionFalta = 'Elegí dónde te expidieron el carnet.';
   static const fechaNacimientoAyuda =
       'Para abrir una billetera hay que ser mayor de edad.';

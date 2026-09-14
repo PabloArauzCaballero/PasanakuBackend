@@ -1,11 +1,11 @@
 import 'package:aportaya_diseno/atomos/campo.dart';
+import 'package:aportaya_diseno/atomos/campo_de_seleccion.dart';
 import 'package:aportaya_diseno/moleculas/campo_de_fecha.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../textos.dart';
-import 'lugar_de_expedicion.dart';
 
 /// Los cinco campos del primer paso del alta, con su ícono y su ayuda.
 ///
@@ -18,6 +18,7 @@ class CamposDelAlta extends StatelessWidget {
     required this.controladores,
     required this.focos,
     required this.focoFecha,
+    required this.focoLugar,
     required this.errores,
     required this.tocados,
     required this.prefijo,
@@ -32,6 +33,7 @@ class CamposDelAlta extends StatelessWidget {
   final List<TextEditingController> controladores;
   final List<FocusNode> focos;
   final FocusNode focoFecha;
+  final FocusNode focoLugar;
 
   /// Por clave: `nombres`, `apellidos`, `telefono`, `documento`, `fecha`.
   final Map<String, String?> errores;
@@ -43,6 +45,19 @@ class CamposDelAlta extends StatelessWidget {
   final ValueChanged<String> onCambio;
   final ValueChanged<DateTime> onFecha;
   final ValueChanged<String> onLugar;
+
+  /// Los nueve departamentos, con la sigla que lleva el carnet.
+  static const departamentos = <({String sigla, String nombre})>[
+    (sigla: 'LP', nombre: 'La Paz'),
+    (sigla: 'SC', nombre: 'Santa Cruz'),
+    (sigla: 'CB', nombre: 'Cochabamba'),
+    (sigla: 'OR', nombre: 'Oruro'),
+    (sigla: 'PT', nombre: 'Potosí'),
+    (sigla: 'CH', nombre: 'Chuquisaca'),
+    (sigla: 'TJ', nombre: 'Tarija'),
+    (sigla: 'BE', nombre: 'Beni'),
+    (sigla: 'PD', nombre: 'Pando'),
+  ];
 
   /// El tilde verde solo después de tocar el campo: un formulario recién abierto no
   /// tiene nada que festejar.
@@ -95,21 +110,44 @@ class CamposDelAlta extends StatelessWidget {
           onChanged: (_) => onCambio('telefono'),
         ),
         const SizedBox(height: Espacio.s3),
-        Campo(
-          etiqueta: TextosIdentidad.numeroDocumento,
-          controlador: controladores[3],
-          foco: focos[3],
-          icono: Icons.credit_card_outlined,
-          ayuda: TextosIdentidad.documentoAyuda,
-          error: errores['documento'],
-          exito: _listo('documento'),
-          onChanged: (_) => onCambio('documento'),
-        ),
-        const SizedBox(height: Espacio.s3),
-        LugarDeExpedicion(
-          valor: lugar,
-          error: errores['lugar'],
-          onElegido: onLugar,
+        // El número y su extensión van en **un renglón**, como están en el carnet:
+        // `5551234 LP`. Separarlos sugiere que son dos datos sueltos, y no lo son —
+        // el número solo no identifica a nadie.
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 3,
+              child: Campo(
+                etiqueta: TextosIdentidad.numeroDocumento,
+                controlador: controladores[3],
+                foco: focos[3],
+                icono: Icons.credit_card_outlined,
+                ayuda: TextosIdentidad.documentoAyuda,
+                error: errores['documento'],
+                exito: _listo('documento'),
+                onChanged: (_) => onCambio('documento'),
+              ),
+            ),
+            const SizedBox(width: Espacio.s3),
+            Expanded(
+              flex: 2,
+              child: CampoDeSeleccion<String>(
+                etiqueta: TextosIdentidad.lugarExpedicion,
+                valor: lugar,
+                textoVacio: TextosIdentidad.lugarExpedicionVacio,
+                ayuda: TextosIdentidad.lugarExpedicionAyuda,
+                error: errores['lugar'],
+                exito: _listo('lugar'),
+                foco: focoLugar,
+                opciones: [
+                  for (final d in departamentos)
+                    (valor: d.sigla, texto: d.nombre),
+                ],
+                onElegida: onLugar,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: Espacio.s3),
         CampoDeFecha(
