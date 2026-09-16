@@ -4,11 +4,16 @@ Un despliegue de la rama `test` para probar con datos reales, en el VPS
 `161.97.85.216`, sobre el mismo Coolify donde vive el TEST de Atlas.
 
 ```
-http://aportaya.161.97.85.216.sslip.io             el sitio público
-http://backoffice.aportaya.161.97.85.216.sslip.io  el portal de operación
-http://app.aportaya.161.97.85.216.sslip.io         la app móvil, en el navegador
-http://api.aportaya.161.97.85.216.sslip.io         el gateway
+https://aportaya.161.97.85.216.sslip.io             el sitio público
+https://backoffice.aportaya.161.97.85.216.sslip.io  el portal de operación
+https://app.aportaya.161.97.85.216.sslip.io         la app móvil, en el navegador
+https://api.aportaya.161.97.85.216.sslip.io         el gateway
 ```
+
+HTTPS con certificado de Let's Encrypt, y `http://` redirige. Tiene que ser HTTPS: los
+navegadores prueban `https://` primero y, con el certificado por defecto de Traefik,
+bloqueaban la página antes de llegar a la app. Y la cámara —las fotos del carnet— solo
+funciona en un contexto seguro.
 
 ## Qué corre dónde, y por qué
 
@@ -69,5 +74,5 @@ deja de ser cierto.
 
 ## Lo que este entorno NO es
 
-No es producción ni se le parece: HTTP sin TLS, una réplica por servicio, sin respaldo
+No es producción ni se le parece: una réplica por servicio, sin respaldo
 automático de la base y con el segundo factor de desarrollo encendido.
