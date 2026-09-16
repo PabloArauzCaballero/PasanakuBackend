@@ -5,6 +5,12 @@
 export type ErrorTraducido = { mensaje: string; trazaId?: string; codigo?: string; estado?: number; sinConexion?: boolean }
 
 const CATALOGO: Readonly<Record<string, string>> = {
+  'AP-CU04-01': 'El teléfono o la contraseña no coinciden.',
+  'AP-CU04-02': 'La cuenta está bloqueada por intentos fallidos. Esperá o pedí que la desbloqueen.',
+  'AP-CU04-03': 'Ingresá el código de verificación para terminar de entrar.',
+  'AP-CU04-04': 'El código venció. Pedí uno nuevo.',
+  'AP-CU04-05': 'Demasiados intentos. Esperá unos minutos antes de volver a probar.',
+  'AP-CU04-07': 'Ese segundo factor no está permitido para operadores.',
   'AP-CU04-06': 'Tu segundo factor no está enrolado. Pedí el enrolamiento a otra persona con permiso.',
   'AP-CU14-02': 'Quien autoriza un reverso no puede ejecutarlo. Es otra persona.',
   'AP-CU52-03': 'Un reclamo favorable no se cierra sin registrar la reparación.',

@@ -15,3 +15,15 @@ export function requierePermiso(permiso: string): CanMatchFn {
     return router.parseUrl('/tablero')
   }
 }
+
+/**
+ * `canMatch` del shell: sin sesión abierta no monta NINGUNA ruta del backoffice y se va
+ * al ingreso. Antes el shell montaba siempre y un visitante sin cuenta llegaba a un
+ * tablero vacío, sin forma de entrar.
+ */
+export function requiereSesion(): CanMatchFn {
+  return () => {
+    if (inject(Sesion).abierta()) return true
+    return inject(Router).parseUrl('/ingreso')
+  }
+}

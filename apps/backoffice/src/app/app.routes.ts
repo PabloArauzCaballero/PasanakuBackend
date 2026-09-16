@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router'
 import { ShellFinanciero } from './layout/shell-financiero'
-import { requierePermiso } from './nucleo/permisos'
+import { requierePermiso, requiereSesion } from './nucleo/permisos'
 
 /**
  * **El enchufe por dominio.** Lo escribe el shell (F6) UNA vez y se congela: cada
@@ -12,9 +12,16 @@ import { requierePermiso } from './nucleo/permisos'
  * vacío, y cambiarlo no toca este archivo.
  */
 export const routes: Routes = [
+  // CU-04 · Fuera del shell: sin sesión no hay menú que mostrar.
+  {
+    path: 'ingreso',
+    loadComponent: () => import('./rutas/ingreso/pantalla-de-ingreso').then((m) => m.PantallaDeIngreso),
+    title: 'Ingresar · AportaYa',
+  },
   {
     path: '',
     component: ShellFinanciero,
+    canMatch: [requiereSesion()],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'tablero' },
       { path: 'tablero', loadComponent: () => import('./rutas/tablero/tablero').then((m) => m.Tablero), title: 'Tablero · AportaYa' },

@@ -107,13 +107,13 @@ import { textosCumplimiento } from '../textos'
     main { padding: var(--s5); max-width: 52rem; display: flex; flex-direction: column; gap: var(--s4); }
     .filtros { display: flex; gap: var(--s2); flex-wrap: wrap; }
     .cola { list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--s4); }
-    .cola li { border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--s4); display: flex; flex-direction: column; gap: var(--s3); }
+    .cola li { border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); padding: var(--s4); display: flex; flex-direction: column; gap: var(--s3); }
     header { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s3); }
     h2 { margin: 0; font-size: 1.05rem; }
     .doc { margin: 0; color: var(--text-2); font-size: .875rem; }
     .fotos { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; margin: 0; color: var(--text-2); font-size: .875rem; }
     .falta { color: var(--text-3); }
-    img { max-width: 100%; border-radius: var(--r-md); border: 1px solid var(--border); }
+    img { max-width: 100%; border-radius: var(--r-md); border: var(--borde-fino) solid var(--border); }
     .aviso { margin: 0; color: var(--aviso-texto); font-size: .875rem; }
     .acciones { display: flex; gap: var(--s2); flex-wrap: wrap; }
   `,
