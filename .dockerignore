@@ -17,10 +17,18 @@ scripts
 # `apps/` sigue fuera de las imagenes de backend, que llevan un jar. Las excepciones
 # son las dos superficies web (ADR-044): el sitio y el backoffice tienen imagen propia
 # y necesitan su fuente en el contexto. Se reincluye el codigo y se dejan afuera sus
-# artefactos. La app Flutter no tiene imagen: va a las tiendas.
+# artefactos. La app Flutter va a las tiendas, y ademas tiene imagen web para
+# probarla desde un navegador (apps/movil/docker): entra su codigo, no sus
+# proyectos nativos ni lo que compila la maquina.
 apps
 !apps/web
 !apps/backoffice
+!apps/movil
+apps/movil/android
+apps/movil/ios
+apps/movil/build
+apps/movil/.dart_tool
+apps/movil/integration_test
 # Los manifiestos de TODOS los espacios de trabajo: `yarn install --immutable` los
 # exige aunque no se construyan, porque el lockfile los nombra.
 !apps/*/package.json
