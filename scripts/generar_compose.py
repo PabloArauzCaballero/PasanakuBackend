@@ -160,41 +160,39 @@ BLOQUE = """  {nombre}:
 
 CABECERA_DESPLEGADO = """# El stack desplegado — GENERADO por `python3 scripts/generar_compose.py --coolify`.
 #
-# Es el mismo barrido de servicios/ que el perfil `todo`, con tres diferencias, y
-# cada una tiene un motivo:
+# Es el mismo barrido de servicios/ que el perfil `todo`, con estas diferencias, y
+# cada una tiene un motivo medido en el primer despliegue de TEST:
 #
 #   1 · los valores no son literales de desarrollo, son variables del entorno;
-#   2 · la construccion lleva `network: host` — buildkit NO admite redes propias
-#       («network mode not supported by buildkit») y la generacion de las clases
-#       de jOOQ tiene que llegar a la base VIVA para introspeccionarla;
-#   3 · postgres, pgbouncer, minio y kafka NO estan aca: viven fuera de Coolify,
-#       en /opt/aportaya/, porque Coolify recrea la aplicacion entera en cada
-#       despliegue y el pool, el almacen de archivos y el broker no pueden
-#       reiniciarse cada vez que alguien empuja codigo.
+#   2 · NO construye: arranca imagenes `aportaya/*:test` ya construidas en el host
+#       por /opt/aportaya/bin/construir-todo.sh, UNA POR UNA. Construir desde Coolify
+#       lanzo las quince a la vez —Coolify reescribe los Dockerfile para inyectar sus
+#       ARG, asi que no reusa la cache—, y con `org.gradle.jvmargs=-Xmx3g` eso fueron
+#       16 JVM, carga 49 y la maquina entera (Atlas incluido) camino al OOM.
+#       `pull_policy: never` porque Coolify intenta bajar del registro hasta las
+#       imagenes locales;
+#   3 · postgres, pgbouncer, minio y kafka NO estan aca: viven fuera de Coolify, en
+#       /opt/aportaya/, porque Coolify recrea la aplicacion entera en cada despliegue.
 #
-# La red `aportaya-interna` es externa y ya existe: ahi los nombres `postgres`,
-# `pgbouncer`, `minio` y `kafka` resuelven igual que en la maquina de desarrollo.
+# La red `aportaya-interna` es externa y ya existe: ahi `postgres`, `pgbouncer`,
+# `minio`, `kafka` y `gateway` resuelven igual que en la maquina de desarrollo.
 name: aportaya
 
 networks:
   interna:
     external: true
     name: aportaya-interna
-  # Solo la usa el gateway, que es la unica entrada publica: es la red por la que
-  # Traefik llega a publicarlo.
+  # La red por la que Traefik llega a lo que se publica: el gateway y los dos fronts.
   publica:
     external: true
     name: coolify
 
 services:
-  # El esquema viaja con el despliegue y no a mano. Termina antes de que arranque
-  # un solo servicio, y si falla no arranca ninguno: un servicio contra una base a
-  # medias levanta sano y muere recien al tocar la tabla que falto.
+  # El esquema viaja con el despliegue. Termina antes de que arranque un solo
+  # servicio, y si falla no arranca ninguno.
   esquema:
-    build:
-      context: .
-      dockerfile: despliegue/Dockerfile.esquema
     image: aportaya/esquema:test
+    pull_policy: never
     restart: "no"
     environment:
       PGHOST: postgres
@@ -204,20 +202,10 @@ services:
       PGPASSWORD: ${BD_CLAVE_ADMIN}
     networks: [interna]
 
-  # El gateway: la unica entrada publica (ADR-025). No tiene logica de negocio ni
-  # toca la base — si algun dia la toca, es el monolito volviendo por atras.
+  # El gateway: la unica entrada a la API (ADR-025).
   gateway:
-    build:
-      context: .
-      dockerfile: despliegue/Dockerfile
-      network: host
-      args:
-        SERVICIO: gateway
-        MODULO: plataforma
-        BD_URL_ADMIN: ${BD_URL_ADMIN}
-        BD_USUARIO_ADMIN: ${BD_USUARIO_ADMIN}
-        BD_CLAVE_ADMIN: ${BD_CLAVE_ADMIN}
     image: aportaya/gateway:test
+    pull_policy: never
     restart: unless-stopped
     environment:
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
@@ -229,19 +217,33 @@ services:
       start_period: 30s
     networks: [interna, publica]
 
+  # El portal de operacion. Su nginx inyecta el meta del gateway y reenvia /api/ al
+  # gateway por el MISMO origen: la CSP dice `connect-src 'self'`.
+  backoffice:
+    image: aportaya/backoffice:test
+    pull_policy: never
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+    networks: [interna, publica]
+
+  # El sitio publico, con render en servidor.
+  web:
+    image: aportaya/web:test
+    pull_policy: never
+    restart: unless-stopped
+    environment:
+      APORTAYA_GATEWAY: http://gateway:8080/api/v1
+    networks: [interna, publica]
+
 """
 
 BLOQUE_DESPLEGADO = """  {nombre}:
-    build:
-      context: .
-      dockerfile: despliegue/Dockerfile
-      network: host
-      args:
-        SERVICIO: {nombre}
-        BD_URL_ADMIN: ${{BD_URL_ADMIN}}
-        BD_USUARIO_ADMIN: ${{BD_USUARIO_ADMIN}}
-        BD_CLAVE_ADMIN: ${{BD_CLAVE_ADMIN}}
     image: aportaya/{nombre}:test
+    pull_policy: never
     restart: unless-stopped
     depends_on:
       esquema:
