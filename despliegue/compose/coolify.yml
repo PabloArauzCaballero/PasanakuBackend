@@ -1,0 +1,502 @@
+# El stack desplegado — GENERADO por `python3 scripts/generar_compose.py --coolify`.
+#
+# Es el mismo barrido de servicios/ que el perfil `todo`, con tres diferencias, y
+# cada una tiene un motivo:
+#
+#   1 · los valores no son literales de desarrollo, son variables del entorno;
+#   2 · la construccion lleva `network: host` — buildkit NO admite redes propias
+#       («network mode not supported by buildkit») y la generacion de las clases
+#       de jOOQ tiene que llegar a la base VIVA para introspeccionarla;
+#   3 · postgres, pgbouncer, minio y kafka NO estan aca: viven fuera de Coolify,
+#       en /opt/aportaya/, porque Coolify recrea la aplicacion entera en cada
+#       despliegue y el pool, el almacen de archivos y el broker no pueden
+#       reiniciarse cada vez que alguien empuja codigo.
+#
+# La red `aportaya-interna` es externa y ya existe: ahi los nombres `postgres`,
+# `pgbouncer`, `minio` y `kafka` resuelven igual que en la maquina de desarrollo.
+name: aportaya
+
+networks:
+  interna:
+    external: true
+    name: aportaya-interna
+  # Solo la usa el gateway, que es la unica entrada publica: es la red por la que
+  # Traefik llega a publicarlo.
+  publica:
+    external: true
+    name: coolify
+
+services:
+  # El esquema viaja con el despliegue y no a mano. Termina antes de que arranque
+  # un solo servicio, y si falla no arranca ninguno: un servicio contra una base a
+  # medias levanta sano y muere recien al tocar la tabla que falto.
+  esquema:
+    build:
+      context: ../..
+      dockerfile: despliegue/Dockerfile.esquema
+    image: aportaya/esquema:test
+    restart: "no"
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGDATABASE: pasanaku
+      PGUSER: ${BD_USUARIO_ADMIN}
+      PGPASSWORD: ${BD_CLAVE_ADMIN}
+    networks: [interna]
+
+  # El gateway: la unica entrada publica (ADR-025). No tiene logica de negocio ni
+  # toca la base — si algun dia la toca, es el monolito volviendo por atras.
+  gateway:
+    build:
+      context: ../..
+      dockerfile: despliegue/Dockerfile
+      network: host
+      args:
+        SERVICIO: gateway
+        MODULO: plataforma
+        BD_URL_ADMIN: ${BD_URL_ADMIN}
+        BD_USUARIO_ADMIN: ${BD_USUARIO_ADMIN}
+        BD_CLAVE_ADMIN: ${BD_CLAVE_ADMIN}
+    image: aportaya/gateway:test
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/liveness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 30s
+    networks: [interna, publica]
+
+  aportes:
+    build:
+      context: ../..
+      dockerfile: despliegue/Dockerfile
+      network: host
+      args:
+        SERVICIO: aportes
+        BD_URL_ADMIN: ${BD_URL_ADMIN}
+        BD_USUARIO_ADMIN: ${BD_USUARIO_ADMIN}
+        BD_CLAVE_ADMIN: ${BD_CLAVE_ADMIN}
+    image: aportaya/aportes:test
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  auditoria:
+    build:
+      context: ../..
+      dockerfile: despliegue/Dockerfile
+      network: host
+      args:
+        SERVICIO: auditoria
+        BD_URL_ADMIN: ${BD_URL_ADMIN}
+        BD_USUARIO_ADMIN: ${BD_USUARIO_ADMIN}
+        BD_CLAVE_ADMIN: ${BD_CLAVE_ADMIN}
+    image: aportaya/auditoria:test
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  cumplimiento:
+    build:
+      context: ../..
+      dockerfile: despliegue/Dockerfile
+      network: host
+      args:
+        SERVICIO: cumplimiento
+        BD_URL_ADMIN: ${BD_URL_ADMIN}
+        BD_USUARIO_ADMIN: ${BD_USUARIO_ADMIN}
+        BD_CLAVE_ADMIN: ${BD_CLAVE_ADMIN}
+    image: aportaya/cumplimiento:test
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+    environment:
+      BASE_URL_PUBLICA: ${BASE_URL_PUBLICA}
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  entregas:
+    build:
+      context: ../..
+      dockerfile: despliegue/Dockerfile
+      network: host
+      args:
+        SERVICIO: entregas
+        BD_URL_ADMIN: ${BD_URL_ADMIN}
+        BD_USUARIO_ADMIN: ${BD_USUARIO_ADMIN}
+        BD_CLAVE_ADMIN: ${BD_CLAVE_ADMIN}
+    image: aportaya/entregas:test
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      SEGURIDAD_PIMIENTA: ${SEGURIDAD_PIMIENTA}
+      URL_IDENTIDAD: http://identidad:8080
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  erp:
+    build:
+      context: ../..
+      dockerfile: despliegue/Dockerfile
+      network: host
+      args:
+        SERVICIO: erp
+        BD_URL_ADMIN: ${BD_URL_ADMIN}
+        BD_USUARIO_ADMIN: ${BD_USUARIO_ADMIN}
+        BD_CLAVE_ADMIN: ${BD_CLAVE_ADMIN}
+    image: aportaya/erp:test
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  garantia:
+    build:
+      context: ../..
+      dockerfile: despliegue/Dockerfile
+      network: host
+      args:
+        SERVICIO: garantia
+        BD_URL_ADMIN: ${BD_URL_ADMIN}
+        BD_USUARIO_ADMIN: ${BD_USUARIO_ADMIN}
+        BD_CLAVE_ADMIN: ${BD_CLAVE_ADMIN}
+    image: aportaya/garantia:test
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  grupos:
+    build:
+      context: ../..
+      dockerfile: despliegue/Dockerfile
+      network: host
+      args:
+        SERVICIO: grupos
+        BD_URL_ADMIN: ${BD_URL_ADMIN}
+        BD_USUARIO_ADMIN: ${BD_USUARIO_ADMIN}
+        BD_CLAVE_ADMIN: ${BD_CLAVE_ADMIN}
+    image: aportaya/grupos:test
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      URL_APORTES: http://aportes:8080
+      URL_CUMPLIMIENTO: http://cumplimiento:8080
+      URL_GARANTIA: http://garantia:8080
+      URL_IDENTIDAD: http://identidad:8080
+      URL_NOTIFICACIONES: http://notificaciones:8080
+      URL_ORGANIZADOR: http://organizador:8080
+      URL_TARIFAS: http://tarifas:8080
+      URL_TRANSPARENCIA: http://transparencia:8080
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  identidad:
+    build:
+      context: ../..
+      dockerfile: despliegue/Dockerfile
+      network: host
+      args:
+        SERVICIO: identidad
+        BD_URL_ADMIN: ${BD_URL_ADMIN}
+        BD_USUARIO_ADMIN: ${BD_USUARIO_ADMIN}
+        BD_CLAVE_ADMIN: ${BD_CLAVE_ADMIN}
+    image: aportaya/identidad:test
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+    environment:
+      ARCHIVOS_BUCKET: aportaya-archivos
+      ARCHIVOS_CLAVE: ${ARCHIVOS_CLAVE}
+      ARCHIVOS_URL: http://minio:9000
+      ARCHIVOS_USUARIO: ${ARCHIVOS_USUARIO}
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      JWT_CLAVE_FIRMA: ${JWT_CLAVE_FIRMA}
+      KAFKA_URL: kafka:9092
+      SEGURIDAD_PIMIENTA: ${SEGURIDAD_PIMIENTA}
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  notificaciones:
+    build:
+      context: ../..
+      dockerfile: despliegue/Dockerfile
+      network: host
+      args:
+        SERVICIO: notificaciones
+        BD_URL_ADMIN: ${BD_URL_ADMIN}
+        BD_USUARIO_ADMIN: ${BD_USUARIO_ADMIN}
+        BD_CLAVE_ADMIN: ${BD_CLAVE_ADMIN}
+    image: aportaya/notificaciones:test
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      WEBHOOK_SECRETO: ${WEBHOOK_SECRETO}
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  nucleo-financiero:
+    build:
+      context: ../..
+      dockerfile: despliegue/Dockerfile
+      network: host
+      args:
+        SERVICIO: nucleo-financiero
+        BD_URL_ADMIN: ${BD_URL_ADMIN}
+        BD_USUARIO_ADMIN: ${BD_USUARIO_ADMIN}
+        BD_CLAVE_ADMIN: ${BD_CLAVE_ADMIN}
+    image: aportaya/nucleo-financiero:test
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      CUENTA_PUENTE_CUSTODIA: ${CUENTA_PUENTE_CUSTODIA}
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      URL_APORTES: http://aportes:8080
+      URL_GRUPOS: http://grupos:8080
+      URL_TARIFAS: http://tarifas:8080
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  organizador:
+    build:
+      context: ../..
+      dockerfile: despliegue/Dockerfile
+      network: host
+      args:
+        SERVICIO: organizador
+        BD_URL_ADMIN: ${BD_URL_ADMIN}
+        BD_USUARIO_ADMIN: ${BD_USUARIO_ADMIN}
+        BD_CLAVE_ADMIN: ${BD_CLAVE_ADMIN}
+    image: aportaya/organizador:test
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  publicidad:
+    build:
+      context: ../..
+      dockerfile: despliegue/Dockerfile
+      network: host
+      args:
+        SERVICIO: publicidad
+        BD_URL_ADMIN: ${BD_URL_ADMIN}
+        BD_USUARIO_ADMIN: ${BD_USUARIO_ADMIN}
+        BD_CLAVE_ADMIN: ${BD_CLAVE_ADMIN}
+    image: aportaya/publicidad:test
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  tarifas:
+    build:
+      context: ../..
+      dockerfile: despliegue/Dockerfile
+      network: host
+      args:
+        SERVICIO: tarifas
+        BD_URL_ADMIN: ${BD_URL_ADMIN}
+        BD_USUARIO_ADMIN: ${BD_USUARIO_ADMIN}
+        BD_CLAVE_ADMIN: ${BD_CLAVE_ADMIN}
+    image: aportaya/tarifas:test
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      SIN_NIT_EMISOR: ${SIN_NIT_EMISOR}
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  transparencia:
+    build:
+      context: ../..
+      dockerfile: despliegue/Dockerfile
+      network: host
+      args:
+        SERVICIO: transparencia
+        BD_URL_ADMIN: ${BD_URL_ADMIN}
+        BD_USUARIO_ADMIN: ${BD_USUARIO_ADMIN}
+        BD_CLAVE_ADMIN: ${BD_CLAVE_ADMIN}
+    image: aportaya/transparencia:test
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+    environment:
+      BASE_URL_PUBLICA: ${BASE_URL_PUBLICA}
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      CERTIFICADOS_CLAVE_FIRMA: ${CERTIFICADOS_CLAVE_FIRMA}
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      URL_GRUPOS: http://grupos:8080
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]

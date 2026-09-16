@@ -29,6 +29,7 @@ import sys
 RAIZ = pathlib.Path(__file__).resolve().parent.parent
 SERVICIOS = RAIZ / "servicios"
 SALIDA = RAIZ / "despliegue/compose/servicios.yml"
+SALIDA_DESPLEGADO = RAIZ / "despliegue/compose/coolify.yml"
 
 # Lo que vale igual para los catorce. Un valor por variable, y aca se ve entero.
 COMUNES = {
@@ -61,6 +62,39 @@ DE_DESARROLLO = {
     # este archivo (ADR-037).
     "JWT_CLAVE_FIRMA": "",
 }
+
+# ── El mismo cuadro, para un entorno DESPLEGADO (Coolify) ───────────────────
+#
+# Misma fuente y mismo barrido: lo unico que cambia es de donde sale cada valor.
+# Aca ninguno es un literal de desarrollo — los secretos llegan como variables del
+# entorno, que en Coolify se editan en la interfaz y no viven en el repositorio.
+# Un `${...}` que Coolify no conozca lo crea el solo al leer el compose.
+COMUNES_DESPLEGADO = {
+    "BD_URL": "jdbc:postgresql://pgbouncer:6432/pasanaku",
+    "BD_CLAVE": "${BD_CLAVE}",
+    "KAFKA_URL": "kafka:9092",
+    "JWKS_URI": "http://identidad:8080/.well-known/jwks.json",
+}
+
+DE_ENTORNO = {
+    # El nombre del host es el mismo que en desarrollo porque los contenedores
+    # viven en la red `aportaya-interna`, igual que el compose local.
+    "ARCHIVOS_URL": "http://minio:9000",
+    "ARCHIVOS_BUCKET": "aportaya-archivos",
+    "ARCHIVOS_USUARIO": "${ARCHIVOS_USUARIO}",
+    "ARCHIVOS_CLAVE": "${ARCHIVOS_CLAVE}",
+    "SEGURIDAD_PIMIENTA": "${SEGURIDAD_PIMIENTA}",
+    "WEBHOOK_SECRETO": "${WEBHOOK_SECRETO}",
+    "CERTIFICADOS_CLAVE_FIRMA": "${CERTIFICADOS_CLAVE_FIRMA}",
+    "CUENTA_PUENTE_CUSTODIA": "${CUENTA_PUENTE_CUSTODIA}",
+    "BASE_URL_PUBLICA": "${BASE_URL_PUBLICA}",
+    "SIN_NIT_EMISOR": "${SIN_NIT_EMISOR}",
+    # Con una sola replica la clave generada en memoria alcanza, pero aca se deja
+    # inyectable: el dia que haya dos, cada una firmaria distinto y los tokens de
+    # una los rechazaria la otra (ADR-037).
+    "JWT_CLAVE_FIRMA": "${JWT_CLAVE_FIRMA}",
+}
+
 
 def url_de_servicio(variable: str, servicios: list[str]) -> str | None:
     """`URL_GRUPOS` -> `http://grupos:8080`, si `grupos` existe.
@@ -120,6 +154,106 @@ BLOQUE = """  {nombre}:
 """
 
 
+CABECERA_DESPLEGADO = """# El stack desplegado — GENERADO por `python3 scripts/generar_compose.py --coolify`.
+#
+# Es el mismo barrido de servicios/ que el perfil `todo`, con tres diferencias, y
+# cada una tiene un motivo:
+#
+#   1 · los valores no son literales de desarrollo, son variables del entorno;
+#   2 · la construccion lleva `network: host` — buildkit NO admite redes propias
+#       («network mode not supported by buildkit») y la generacion de las clases
+#       de jOOQ tiene que llegar a la base VIVA para introspeccionarla;
+#   3 · postgres, pgbouncer, minio y kafka NO estan aca: viven fuera de Coolify,
+#       en /opt/aportaya/, porque Coolify recrea la aplicacion entera en cada
+#       despliegue y el pool, el almacen de archivos y el broker no pueden
+#       reiniciarse cada vez que alguien empuja codigo.
+#
+# La red `aportaya-interna` es externa y ya existe: ahi los nombres `postgres`,
+# `pgbouncer`, `minio` y `kafka` resuelven igual que en la maquina de desarrollo.
+name: aportaya
+
+networks:
+  interna:
+    external: true
+    name: aportaya-interna
+  # Solo la usa el gateway, que es la unica entrada publica: es la red por la que
+  # Traefik llega a publicarlo.
+  publica:
+    external: true
+    name: coolify
+
+services:
+  # El esquema viaja con el despliegue y no a mano. Termina antes de que arranque
+  # un solo servicio, y si falla no arranca ninguno: un servicio contra una base a
+  # medias levanta sano y muere recien al tocar la tabla que falto.
+  esquema:
+    build:
+      context: ../..
+      dockerfile: despliegue/Dockerfile.esquema
+    image: aportaya/esquema:test
+    restart: "no"
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGDATABASE: pasanaku
+      PGUSER: ${BD_USUARIO_ADMIN}
+      PGPASSWORD: ${BD_CLAVE_ADMIN}
+    networks: [interna]
+
+  # El gateway: la unica entrada publica (ADR-025). No tiene logica de negocio ni
+  # toca la base — si algun dia la toca, es el monolito volviendo por atras.
+  gateway:
+    build:
+      context: ../..
+      dockerfile: despliegue/Dockerfile
+      network: host
+      args:
+        SERVICIO: gateway
+        MODULO: plataforma
+        BD_URL_ADMIN: ${BD_URL_ADMIN}
+        BD_USUARIO_ADMIN: ${BD_USUARIO_ADMIN}
+        BD_CLAVE_ADMIN: ${BD_CLAVE_ADMIN}
+    image: aportaya/gateway:test
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/liveness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 30s
+    networks: [interna, publica]
+
+"""
+
+BLOQUE_DESPLEGADO = """  {nombre}:
+    build:
+      context: ../..
+      dockerfile: despliegue/Dockerfile
+      network: host
+      args:
+        SERVICIO: {nombre}
+        BD_URL_ADMIN: ${{BD_URL_ADMIN}}
+        BD_USUARIO_ADMIN: ${{BD_USUARIO_ADMIN}}
+        BD_CLAVE_ADMIN: ${{BD_CLAVE_ADMIN}}
+    image: aportaya/{nombre}:test
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+    environment:
+{ambiente}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+"""
+
+
 def variables_de(servicio):
     """Las variables que este servicio exige, leidas de su propia configuracion."""
     config = SERVICIOS / servicio / "src/main/resources/application.yml"
@@ -130,6 +264,11 @@ def variables_de(servicio):
 
 
 def main():
+    # Un solo barrido y un solo cuadro de variables para los dos destinos: si el
+    # desplegado tuviera su propio generador, divergirian, y la divergencia
+    # aparece recien cuando el entorno de pruebas no arranca.
+    desplegado = "--coolify" in sys.argv[1:]
+
     servicios = sorted(
         d.name for d in SERVICIOS.iterdir() if (d / "descriptor.yml").is_file()
     )
@@ -144,19 +283,31 @@ def main():
         for variable in variables_de(servicio):
             # Con `is not None` y no con `or`: una cadena vacia es un valor legitimo
             # —la clave de firma que se genera sola— y `or` la trataria como ausente.
-            valor = COMUNES.get(variable)
-            if valor is None:
-                valor = DE_DESARROLLO.get(variable)
+            if desplegado:
+                valor = COMUNES_DESPLEGADO.get(variable)
+                if valor is None:
+                    valor = DE_ENTORNO.get(variable)
+            else:
+                valor = COMUNES.get(variable)
+                if valor is None:
+                    valor = DE_DESARROLLO.get(variable)
             if valor is None:
                 valor = url_de_servicio(variable, servicios)
             if valor is None:
                 sin_valor.append(f"{servicio}: {variable}")
                 continue
             lineas.append(f"      {variable}: {valor}")
-        # El perfil `local` enciende el simulador de pagos y la mensajeria simulada,
-        # que son los defaults ya elegidos por el contrato de implementacion.
-        lineas.append("      SPRING_PROFILES_ACTIVE: local")
-        bloques.append(BLOQUE.format(nombre=servicio, ambiente="\n".join(lineas)))
+        if desplegado:
+            # Cual perfil corre lo decide el entorno y no este archivo: `local`
+            # trae el segundo factor de desarrollo —codigo fijo— y esa es
+            # exactamente la clase de decision que no se hornea en el repositorio.
+            lineas.append("      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}")
+            bloques.append(BLOQUE_DESPLEGADO.format(nombre=servicio, ambiente="\n".join(lineas)))
+        else:
+            # El perfil `local` enciende el simulador de pagos y la mensajeria
+            # simulada, que son los defaults del contrato de implementacion.
+            lineas.append("      SPRING_PROFILES_ACTIVE: local")
+            bloques.append(BLOQUE.format(nombre=servicio, ambiente="\n".join(lineas)))
 
     if sin_valor:
         print("Variables que ningun valor cubre; agregalas al script antes de generar:")
@@ -164,9 +315,12 @@ def main():
             print(f"  {falta}")
         return 1
 
-    SALIDA.parent.mkdir(parents=True, exist_ok=True)
-    SALIDA.write_text(CABECERA + "\n".join(bloques), encoding="utf-8")
-    print(f"compose del perfil `todo`: {len(servicios)} servicios -> {SALIDA.relative_to(RAIZ)}")
+    salida = SALIDA_DESPLEGADO if desplegado else SALIDA
+    cabecera = CABECERA_DESPLEGADO if desplegado else CABECERA
+    etiqueta = "desplegado (Coolify)" if desplegado else "perfil `todo`"
+    salida.parent.mkdir(parents=True, exist_ok=True)
+    salida.write_text(cabecera + "\n".join(bloques), encoding="utf-8")
+    print(f"compose {etiqueta}: {len(servicios)} servicios -> {salida.relative_to(RAIZ)}")
     return 0
 
 
