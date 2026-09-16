@@ -37,6 +37,11 @@ COPY clientes/dart clientes/dart
 COPY apps/movil apps/movil
 RUN dart format packages/diseno_flutter/lib/tokens/tokens.dart >/dev/null
 
+# Los `*.g.dart` de json_serializable NO los produce el generador de OpenAPI: salen de
+# build_runner, con el mismo guion que usa la maquina de desarrollo. Sin este paso la
+# compilacion muere con «Method not found: '_$UsuarioEncontradoFromJson'».
+RUN bash apps/movil/scripts/generar-clientes.sh
+
 WORKDIR /construccion/apps/movil
 # `--enforce-lockfile`: se compila con las versiones del pubspec.lock versionado, no con
 # las que resuelva el día del build.
