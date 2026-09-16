@@ -61,7 +61,7 @@ assets/
   css/fuentes.css     ← @font-face locales
   css/style.css       ← el sistema: base → átomos → moléculas → organismos
   js/main.js          ← tema, entradas, teléfono ligado al scroll, sección activa
-  fonts/*.woff2       ← Poppins e Inter vendorizadas
+  fonts/*.woff2       ← Bricolage e Instrument vendorizadas (las de la app)
   img/                ← símbolo, logotipo horizontal, favicon
 verificar/            ← las mediciones, no la página (ver § Cómo se verifica)
 ```
@@ -125,9 +125,10 @@ repositorio](../README.md). Si cambia el modelo, cambian acá.
 
 - **Sin framework.** Es una landing: HTML, CSS y un JS. Subir de nivel solo si aparece estado
   o rutas.
-- **Fuentes vendorizadas.** Cero peticiones a `fonts.googleapis.com` en runtime. Se bajan solo
-  los subconjuntos `latin` y `latin-ext`; en español la primera carga son ~63 KB de fuente.
-  Inter es variable: un archivo cubre 400–600.
+- **Fuentes vendorizadas.** Cero peticiones a `fonts.googleapis.com` en runtime. Son las
+  mismas que empaqueta la app (Bricolage e Instrument, de `packages/diseno_flutter/lib/fuentes`),
+  convertidas a woff2: la landing tiene que verse como el producto, no como una versión anterior.
+  Se precargan solo las dos que pinta la primera pantalla.
 - **`backdrop-filter` solo en escritorio con puntero.** Es de lo más caro que hay en scroll:
   en móvil la barra va con fondo sólido y se ve casi igual.
 - **Nav en móvil que se desliza, no que desaparece.** Con `display:none` el visitante de

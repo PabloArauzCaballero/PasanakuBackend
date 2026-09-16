@@ -363,13 +363,6 @@ img,svg{max-width:100%}
 .barra nav a[aria-current="true"],.barra nav a[aria-current="page"]{background:rgba(var(--brand-rgb),.12);color:var(--brand-texto)}
 .barra .acciones{display:flex;align-items:center;gap:var(--s2);margin-left:auto}
 .barra nav+.acciones{margin-left:var(--s3)}
-.tema-btn{
-  width:2.5rem;height:2.5rem;border:0.0625rem solid var(--border);background:var(--surface);color:var(--text-2);
-  border-radius:var(--r-pill);cursor:pointer;display:grid;place-items:center;font-size:0.9375rem;flex:none;
-  transition:background var(--t-fast) var(--glide),transform var(--t-fast) var(--pop);
-}
-.tema-btn:hover{background:var(--surface-2);color:var(--text)}
-.tema-btn:active{transform:scale(.92)}
 
 /* El desenfoque de fondo obliga a releer el fondo en cada cuadro de scroll:
    solo donde sobra potencia, nunca en teléfonos. */
@@ -504,7 +497,6 @@ img,svg{max-width:100%}
 .estado-barra{display:flex;justify-content:space-between;align-items:center;
   padding:0.8125rem 0.25rem 0.5rem;flex:none;color:var(--sobre-verde)}
 .estado-barra .hora{font-family:var(--font-d);font-size:0.8125rem;font-weight:600;letter-spacing:-.01em}
-.estado-barra .iconos-sistema{display:flex;align-items:center;gap:0.3125rem}
 .cabecera-verde{background:linear-gradient(160deg,var(--g600),var(--g700));
   color:var(--sobre-verde);padding:0 1.125rem 1.375rem}
 .cabecera-verde .saludo{font-size:0.8125rem;opacity:.82}
@@ -567,7 +559,6 @@ img,svg{max-width:100%}
 .banda p{color:rgba(var(--sobre-verde-rgb),.82);margin:var(--s3) auto 0;max-width:52ch;font-size:var(--fs-bajada);position:relative}
 .banda .acciones{display:flex;gap:var(--s3);justify-content:center;flex-wrap:wrap;
   margin-top:var(--s6);position:relative;z-index:1}
-.banda .trama{position:absolute;inset:auto 0 0 0;height:7.5rem;opacity:.14;pointer-events:none}
 .banda .nota{font-size:0.8438rem;color:rgba(var(--sobre-verde-rgb),.7);margin-top:var(--s5);position:relative}
 
 /* --- Banda normativa: la credibilidad institucional no se declara con
@@ -700,3 +691,14 @@ dl .cifra dd{margin:0}
 .prosa th,.prosa td{text-align:left;padding:var(--s2) var(--s3);border-bottom:0.0625rem solid var(--border)}
 .prosa blockquote{margin-left:0;padding:var(--s3) var(--s4);border-left:0.1875rem solid var(--o400);background:var(--surface);border-radius:0 var(--r-md) var(--r-md) 0}
 .cuerpo-pagina .fecha{margin-top:var(--s7);color:var(--text-3);font-size:.875rem}
+.acciones--descarga{margin-bottom:var(--s6)}
+
+/* ---- Área táctil de 44px en todo lo que se toca ----
+   La landing venía con enlaces de pie de 17px de alto y navegación de 40: en un teléfono
+   eso se falla al tocar. `catalogo.spec.ts` lo mide y bloquea. El aspecto no cambia: se
+   alinea al centro y se reparte el aire con el interlineado. */
+.barra .marca,.pie .marca{min-height:var(--area-tactil)}
+.barra nav a,.barra .acciones .boton{min-height:var(--area-tactil)}
+.pie ul a{display:inline-flex;align-items:center;min-height:var(--area-tactil)}
+.pie ul li+li{margin-top:0}
+.saltar{min-height:var(--area-tactil)}

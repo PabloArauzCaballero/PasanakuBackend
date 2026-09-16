@@ -1,20 +1,22 @@
 ---
 ruta: /descargar
-titulo: "Descargar la app"
-bajada: "AportaYa está disponible para Android. iOS llega en una etapa posterior."
-descripcion: "Dónde descargar la app de AportaYa."
+titulo: "Usar AportaYa"
+bajada: "Hoy AportaYa se usa desde el navegador, en el celular o en la computadora, sin instalar nada. Las tiendas de Android y iOS llegan después."
+descripcion: "Cómo usar la app de AportaYa: desde el navegador hoy, y en Android e iOS cuando esté publicada en las tiendas."
 indexable: true
-actualizado: 2026-09-09
+actualizado: 2026-09-16
 ---
 
-## Android
+## Desde el navegador, hoy
 
-AportaYa se distribuye para Android. El enlace de descarga se publica acá en cuanto la app esté disponible en la tienda — **supuesto declarado:** al momento de escribir esta página todavía no existe una URL pública de Play Store para enlazar (hueco: pedir al carril móvil/publicación la URL definitiva antes de indexar este enlace).
+La app de AportaYa funciona en el navegador del celular y de la computadora: es la misma app, con la misma billetera, los mismos grupos y el mismo acceso. No hace falta instalar nada, y para las fotos del carnet usa la cámara del dispositivo.
 
-## iOS
+La primera vez tarda unos segundos en cargar; las siguientes, casi nada.
 
-La versión para iOS llega en una etapa posterior, después de la paridad con Android.
+## Android e iOS
 
-## Por qué empezamos por Android
+La app se publica en Play Store y en App Store cuando esté aprobada en las tiendas. Cuando eso pase, el enlace aparece en esta página. Mientras tanto, lo que hagas desde el navegador queda en tu cuenta y lo ves igual en la app instalada.
 
-Es la plataforma con mayor alcance entre quienes hoy organizan pasanakus en Bolivia.
+## Aún en construcción
+
+Operar con dinero electrónico del público requiere autorización previa de ASFI. Hasta obtenerla, AportaYa no custodia fondos de terceros.

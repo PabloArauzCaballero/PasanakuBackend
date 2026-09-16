@@ -83,17 +83,29 @@ if (gatewayInterno) {
   });
 }
 
-const META_GATEWAY = '<meta name="aportaya-gateway" content="/api/v1">';
+/**
+ * Las etiquetas que el servidor agrega a cada página HTML, según el entorno:
+ *   · `aportaya-gateway` — a dónde llama el código del navegador (con APORTAYA_GATEWAY_INTERNO);
+ *   · `aportaya-app`     — dónde abrir la app en el navegador (con APORTAYA_URL_APP).
+ * Por entorno y no en el código: son direcciones de un despliegue, no del producto.
+ */
+const urlDeLaApp = process.env['APORTAYA_URL_APP'];
+const METAS = [
+  gatewayInterno ? '<meta name="aportaya-gateway" content="/api/v1">' : '',
+  urlDeLaApp && /^https?:\/\/[\w.-]+(:\d+)?\/?$/.test(urlDeLaApp)
+    ? `<meta name="aportaya-app" content="${urlDeLaApp}">`
+    : '',
+].join('');
 
 app.use((req, res, next) => {
   angularApp
     .handle(req)
     .then(async (response) => {
       if (!response) return next();
-      if (!gatewayInterno || !response.headers.get('content-type')?.includes('text/html')) {
+      if (!METAS || !response.headers.get('content-type')?.includes('text/html')) {
         return writeResponseToNodeResponse(response, res);
       }
-      const html = (await response.text()).replace('</head>', `${META_GATEWAY}</head>`);
+      const html = (await response.text()).replace('</head>', `${METAS}</head>`);
       const cabeceras = new Headers(response.headers);
       cabeceras.delete('content-length');
       return writeResponseToNodeResponse(

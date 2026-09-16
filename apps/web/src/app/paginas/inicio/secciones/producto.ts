@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core'
 import { Icono } from '../../../layout/icono'
 import { NombreDeTrazo } from '../../../layout/trazos'
 
-type Bloque = { icono: NombreDeTrazo; titulo: string; texto: string; naranja?: boolean }
+type Bloque = { icono: NombreDeTrazo; titulo: string; texto: string; naranja?: boolean; custodia?: boolean }
 
 /** Cómo funciona y la billetera: los dos bloques que explican el producto. */
 @Component({
@@ -46,6 +46,13 @@ type Bloque = { icono: NombreDeTrazo; titulo: string; texto: string; naranja?: b
               <div class="icono" [class.icono--naranja]="b.naranja"><ap-icono [nombre]="b.icono" [tamano]="22" /></div>
               <h3>{{ b.titulo }}</h3>
               <p>{{ b.texto }}</p>
+              @if (b.custodia) {
+                <div class="diagrama-custodia" role="img" aria-label="Las cuentas de los participantes y la cuenta de la plataforma están separadas, sin mezclarse.">
+                  <div class="dc-caja dc-caja--tuyo"><ap-icono nombre="persona" [tamano]="18" />Cuentas de participantes</div>
+                  <div class="dc-muro" aria-hidden="true"></div>
+                  <div class="dc-caja"><ap-icono nombre="banco" [tamano]="18" />Cuenta de la plataforma</div>
+                </div>
+              }
             </article>
           }
         </div>
@@ -64,7 +71,7 @@ export class Producto {
     { icono: 'billetera', titulo: 'Recargá y retirá', texto: 'Recargás por QR, transferencia o efectivo, y retirás a tu cuenta bancaria cuando quieras. Retirar es un derecho, no un favor.' },
     { icono: 'qr', titulo: 'Aportá con QR', texto: 'Escaneás y aportás en segundos. El pago se concilia contra el extracto del banco, no contra una captura de pantalla en el grupo.', naranja: true },
     { icono: 'mensaje', titulo: 'Te avisamos a tiempo', texto: 'Recordatorio antes del vencimiento y confirmación cuando el aporte entra, por WhatsApp o notificación. Vos elegís qué te llega.' },
-    { icono: 'candado', titulo: 'Custodia separada', texto: 'El dinero de los participantes no se mezcla con el de la plataforma. El encaje se verifica todos los días: si no cuadra, salta.' },
+    { icono: 'candado', titulo: 'Custodia separada', texto: 'El dinero de los participantes no se mezcla con el de la plataforma. El encaje se verifica todos los días: si no cuadra, salta.', custodia: true },
     { icono: 'escudoCheck', titulo: 'Fondo de garantía', texto: 'Si alguien no aporta, el fondo cubre la entrega de quien tenía el turno. El grupo no se cae por uno, y la deuda se gestiona aparte.' },
     { icono: 'engranaje', titulo: 'Organizador automático', texto: 'Los cobros, los recordatorios y el cierre de cada período los hace el sistema. Si preferís un organizador de carne y hueso, no cobra comisión.' },
   ]

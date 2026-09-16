@@ -248,6 +248,9 @@ services:
       # Traefik agrega X-Forwarded-*: sin confiar en ellos, SSR arma las URL con el
       # host y el esquema internos.
       NG_TRUST_PROXY_HEADERS: x-forwarded-for,x-forwarded-host,x-forwarded-port,x-forwarded-proto,x-forwarded-server
+      # Dónde abrir la app en el navegador (el botón de /descargar). Del entorno: es una
+      # dirección de este despliegue, no del producto.
+      APORTAYA_URL_APP: ${URL_APP}
     networks: [interna, publica]
 
   # La app movil compilada para la web: se prueba desde un navegador, sin APK ni
@@ -270,8 +273,7 @@ BLOQUE_DESPLEGADO = """  {nombre}:
     pull_policy: never
     restart: unless-stopped
     depends_on:
-      esquema:
-        condition: service_completed_successfully
+{dependencias}
     environment:
 {ambiente}
     healthcheck:
@@ -282,6 +284,30 @@ BLOQUE_DESPLEGADO = """  {nombre}:
       start_period: 60s
     networks: [interna]
 """
+
+
+# Arranque en OLAS de a cuatro, no los catorce a la vez. Arrancar una JVM de Spring es
+# CPU pura durante un par de minutos, y catorce juntas llevaron la carga de la máquina a
+# 73 —una máquina que además sostiene otro proyecto—. En olas, cada una espera a que la
+# anterior esté SANA: el despliegue tarda un poco más y nadie se queda sin CPU.
+# `identidad` va en la primera ola porque los demás validan tokens contra su JWKS.
+TAMANO_DE_OLA = 4
+
+
+def olas(servicios):
+    orden = ["identidad"] + [s for s in servicios if s != "identidad"]
+    return [orden[i:i + TAMANO_DE_OLA] for i in range(0, len(orden), TAMANO_DE_OLA)]
+
+
+def dependencias_de(servicio, servicios):
+    """El bloque depends_on: el esquema siempre, y la ola anterior sana si la hay."""
+    lineas = ["      esquema:", "        condition: service_completed_successfully"]
+    todas = olas(servicios)
+    indice = next(i for i, ola in enumerate(todas) if servicio in ola)
+    if indice > 0:
+        for previo in todas[indice - 1]:
+            lineas += [f"      {previo}:", "        condition: service_healthy"]
+    return "\n".join(lineas)
 
 
 def variables_de(servicio):
@@ -332,7 +358,8 @@ def main():
             # trae el segundo factor de desarrollo —codigo fijo— y esa es
             # exactamente la clase de decision que no se hornea en el repositorio.
             lineas.append("      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}")
-            bloques.append(BLOQUE_DESPLEGADO.format(nombre=servicio, ambiente="\n".join(lineas)))
+            bloques.append(BLOQUE_DESPLEGADO.format(
+                nombre=servicio, ambiente="\n".join(lineas), dependencias=dependencias_de(servicio, servicios)))
         else:
             # El perfil `local` enciende el simulador de pagos y la mensajeria
             # simulada, que son los defaults del contrato de implementacion.

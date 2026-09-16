@@ -88,6 +88,9 @@ services:
       # Traefik agrega X-Forwarded-*: sin confiar en ellos, SSR arma las URL con el
       # host y el esquema internos.
       NG_TRUST_PROXY_HEADERS: x-forwarded-for,x-forwarded-host,x-forwarded-port,x-forwarded-proto,x-forwarded-server
+      # Dónde abrir la app en el navegador (el botón de /descargar). Del entorno: es una
+      # dirección de este despliegue, no del producto.
+      APORTAYA_URL_APP: ${URL_APP}
     networks: [interna, publica]
 
   # La app movil compilada para la web: se prueba desde un navegador, sin APK ni
@@ -174,6 +177,14 @@ services:
     depends_on:
       esquema:
         condition: service_completed_successfully
+      identidad:
+        condition: service_healthy
+      aportes:
+        condition: service_healthy
+      auditoria:
+        condition: service_healthy
+      cumplimiento:
+        condition: service_healthy
     environment:
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
@@ -197,6 +208,14 @@ services:
     depends_on:
       esquema:
         condition: service_completed_successfully
+      identidad:
+        condition: service_healthy
+      aportes:
+        condition: service_healthy
+      auditoria:
+        condition: service_healthy
+      cumplimiento:
+        condition: service_healthy
     environment:
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
@@ -218,6 +237,14 @@ services:
     depends_on:
       esquema:
         condition: service_completed_successfully
+      identidad:
+        condition: service_healthy
+      aportes:
+        condition: service_healthy
+      auditoria:
+        condition: service_healthy
+      cumplimiento:
+        condition: service_healthy
     environment:
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
@@ -239,6 +266,14 @@ services:
     depends_on:
       esquema:
         condition: service_completed_successfully
+      identidad:
+        condition: service_healthy
+      aportes:
+        condition: service_healthy
+      auditoria:
+        condition: service_healthy
+      cumplimiento:
+        condition: service_healthy
     environment:
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
@@ -295,6 +330,14 @@ services:
     depends_on:
       esquema:
         condition: service_completed_successfully
+      entregas:
+        condition: service_healthy
+      erp:
+        condition: service_healthy
+      garantia:
+        condition: service_healthy
+      grupos:
+        condition: service_healthy
     environment:
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
@@ -317,6 +360,14 @@ services:
     depends_on:
       esquema:
         condition: service_completed_successfully
+      entregas:
+        condition: service_healthy
+      erp:
+        condition: service_healthy
+      garantia:
+        condition: service_healthy
+      grupos:
+        condition: service_healthy
     environment:
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
@@ -342,6 +393,14 @@ services:
     depends_on:
       esquema:
         condition: service_completed_successfully
+      entregas:
+        condition: service_healthy
+      erp:
+        condition: service_healthy
+      garantia:
+        condition: service_healthy
+      grupos:
+        condition: service_healthy
     environment:
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
@@ -363,6 +422,14 @@ services:
     depends_on:
       esquema:
         condition: service_completed_successfully
+      entregas:
+        condition: service_healthy
+      erp:
+        condition: service_healthy
+      garantia:
+        condition: service_healthy
+      grupos:
+        condition: service_healthy
     environment:
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
@@ -384,6 +451,14 @@ services:
     depends_on:
       esquema:
         condition: service_completed_successfully
+      notificaciones:
+        condition: service_healthy
+      nucleo-financiero:
+        condition: service_healthy
+      organizador:
+        condition: service_healthy
+      publicidad:
+        condition: service_healthy
     environment:
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
@@ -406,6 +481,14 @@ services:
     depends_on:
       esquema:
         condition: service_completed_successfully
+      notificaciones:
+        condition: service_healthy
+      nucleo-financiero:
+        condition: service_healthy
+      organizador:
+        condition: service_healthy
+      publicidad:
+        condition: service_healthy
     environment:
       BASE_URL_PUBLICA: ${BASE_URL_PUBLICA}
       BD_CLAVE: ${BD_CLAVE}

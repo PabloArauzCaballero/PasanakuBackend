@@ -41,7 +41,7 @@ export class Pie {
       { ruta: '/como-funciona', texto: 'Cómo funciona' },
       { ruta: '/tarifas', texto: 'Tarifas' },
       { ruta: '/preguntas', texto: 'Preguntas frecuentes' },
-      { ruta: '/descargar', texto: 'Descargar la app' },
+      { ruta: '/descargar', texto: 'Usar la app' },
     ] },
     { titulo: 'Confianza', enlaces: [
       { ruta: '/transparencia', texto: 'Transparencia verificable' },

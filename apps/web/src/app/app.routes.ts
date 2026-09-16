@@ -124,11 +124,11 @@ const seoEstadoRegulatorio: MetaDeRuta = {
 }
 
 const seoDescargar: MetaDeRuta = {
-  titulo: 'Descargar la app',
+  titulo: 'Usar AportaYa',
   descripcion: 'Dónde descargar la app de AportaYa.',
   actualizado: '2026-09-09',
   jsonLd: [
-    paginaWeb({ titulo: 'Descargar la app', descripcion: 'AportaYa está disponible para Android. iOS llega en una etapa posterior.', ruta: '/descargar', actualizado: '2026-09-09' }),
+    paginaWeb({ titulo: 'Usar AportaYa', descripcion: 'Hoy AportaYa se usa desde el navegador, sin instalar nada; las tiendas de Android e iOS llegan después.', ruta: '/descargar', actualizado: '2026-09-16' }),
     migaDePan([INICIO, { nombre: 'Descargar', ruta: '/descargar' }]),
   ],
 }
@@ -158,7 +158,7 @@ export const routes: Routes = [
   { path: 'transparencia', loadComponent: () => import('./paginas/transparencia/transparencia').then((m) => m.Transparencia), title: 'Transparencia · AportaYa', data: { seo: seoTransparencia } },
   { path: 'preguntas', loadComponent: () => import('./paginas/preguntas/preguntas').then((m) => m.Preguntas), title: 'Preguntas frecuentes · AportaYa', data: { seo: seoPreguntas } },
   { path: 'legal/estado-regulatorio', loadComponent: () => import('./paginas/legal-estado-regulatorio/legal-estado-regulatorio').then((m) => m.LegalEstadoRegulatorio), title: 'Estado regulatorio · AportaYa', data: { seo: seoEstadoRegulatorio } },
-  { path: 'descargar', loadComponent: () => import('./paginas/descargar/descargar').then((m) => m.Descargar), title: 'Descargar la app · AportaYa', data: { seo: seoDescargar } },
+  { path: 'descargar', loadComponent: () => import('./paginas/descargar/descargar').then((m) => m.Descargar), title: 'Usar AportaYa · AportaYa', data: { seo: seoDescargar } },
   // Datos de terceros: sin `data.seo`, y noindex reforzado también en app.routes.server.ts.
   { path: 'verificar/:codigo', loadComponent: () => import('./paginas/verificar/verificar').then((m) => m.Verificar), title: 'Verificar certificado · AportaYa' },
   { path: 'publico/grupos/:codigo', loadComponent: () => import('./paginas/publico-grupos/grupo-transparencia').then((m) => m.GrupoTransparencia), title: 'Verificar cadena de transparencia · AportaYa' },

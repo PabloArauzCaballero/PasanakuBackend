@@ -59,6 +59,7 @@ export class ShellFinanciero {
     { ruta: 'tablero', texto: 'Tablero', permiso: 'ver:tablero' },
     { ruta: 'operacion', texto: 'Operación', permiso: 'ver:operacion' },
     { ruta: 'cumplimiento', texto: 'Cumplimiento', permiso: 'ver:cumplimiento' },
+    { ruta: 'sistemas', texto: 'Sistemas', permiso: 'ver:sistemas' },
     { ruta: 'contabilidad', texto: 'Contabilidad', permiso: 'ver:contabilidad' },
     { ruta: 'publicidad', texto: 'Publicidad', permiso: 'ver:publicidad' },
   ]

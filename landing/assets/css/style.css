@@ -642,3 +642,14 @@ img,svg{max-width:100%}
   .boton:hover,.boton:active{transform:none}
   .telefono{transform:none!important}
 }
+
+/* ---- Móvil: el botón de la barra a la derecha y el hero sin 132px vacíos ----
+   `.barra nav+.acciones` le pisaba el margin-left:auto, y la barra es sticky: ese aire
+   arriba del hero solo empujaba el titular fuera de la primera pantalla.
+   Mismo arreglo que el sitio público (apps/web/src/sitio/sitio.css). */
+@media (max-width:900px){
+  .barra nav+.acciones{margin-left:auto}
+}
+@media (max-width:600px){
+  .hero{padding-top:var(--s6)}
+}
