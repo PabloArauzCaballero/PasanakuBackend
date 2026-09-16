@@ -32,7 +32,7 @@ services:
   # medias levanta sano y muere recien al tocar la tabla que falto.
   esquema:
     build:
-      context: ../..
+      context: .
       dockerfile: despliegue/Dockerfile.esquema
     image: aportaya/esquema:test
     restart: "no"
@@ -48,7 +48,7 @@ services:
   # toca la base — si algun dia la toca, es el monolito volviendo por atras.
   gateway:
     build:
-      context: ../..
+      context: .
       dockerfile: despliegue/Dockerfile
       network: host
       args:
@@ -71,7 +71,7 @@ services:
 
   aportes:
     build:
-      context: ../..
+      context: .
       dockerfile: despliegue/Dockerfile
       network: host
       args:
@@ -100,7 +100,7 @@ services:
 
   auditoria:
     build:
-      context: ../..
+      context: .
       dockerfile: despliegue/Dockerfile
       network: host
       args:
@@ -129,7 +129,7 @@ services:
 
   cumplimiento:
     build:
-      context: ../..
+      context: .
       dockerfile: despliegue/Dockerfile
       network: host
       args:
@@ -159,7 +159,7 @@ services:
 
   entregas:
     build:
-      context: ../..
+      context: .
       dockerfile: despliegue/Dockerfile
       network: host
       args:
@@ -190,7 +190,7 @@ services:
 
   erp:
     build:
-      context: ../..
+      context: .
       dockerfile: despliegue/Dockerfile
       network: host
       args:
@@ -219,7 +219,7 @@ services:
 
   garantia:
     build:
-      context: ../..
+      context: .
       dockerfile: despliegue/Dockerfile
       network: host
       args:
@@ -248,7 +248,7 @@ services:
 
   grupos:
     build:
-      context: ../..
+      context: .
       dockerfile: despliegue/Dockerfile
       network: host
       args:
@@ -285,7 +285,7 @@ services:
 
   identidad:
     build:
-      context: ../..
+      context: .
       dockerfile: despliegue/Dockerfile
       network: host
       args:
@@ -320,7 +320,7 @@ services:
 
   notificaciones:
     build:
-      context: ../..
+      context: .
       dockerfile: despliegue/Dockerfile
       network: host
       args:
@@ -350,7 +350,7 @@ services:
 
   nucleo-financiero:
     build:
-      context: ../..
+      context: .
       dockerfile: despliegue/Dockerfile
       network: host
       args:
@@ -383,7 +383,7 @@ services:
 
   organizador:
     build:
-      context: ../..
+      context: .
       dockerfile: despliegue/Dockerfile
       network: host
       args:
@@ -412,7 +412,7 @@ services:
 
   publicidad:
     build:
-      context: ../..
+      context: .
       dockerfile: despliegue/Dockerfile
       network: host
       args:
@@ -441,7 +441,7 @@ services:
 
   tarifas:
     build:
-      context: ../..
+      context: .
       dockerfile: despliegue/Dockerfile
       network: host
       args:
@@ -471,7 +471,7 @@ services:
 
   transparencia:
     build:
-      context: ../..
+      context: .
       dockerfile: despliegue/Dockerfile
       network: host
       args:

@@ -29,7 +29,11 @@ import sys
 RAIZ = pathlib.Path(__file__).resolve().parent.parent
 SERVICIOS = RAIZ / "servicios"
 SALIDA = RAIZ / "despliegue/compose/servicios.yml"
-SALIDA_DESPLEGADO = RAIZ / "despliegue/compose/coolify.yml"
+# En la RAIZ y no junto a los otros: Coolify ejecuta el compose con
+# `--project-directory` en la raiz del clon, y las rutas relativas se resuelven
+# desde ahi — con el archivo en despliegue/compose/, `context: ../..` terminaba en
+# `/` y la construccion moria con «lstat /despliegue: no such file or directory».
+SALIDA_DESPLEGADO = RAIZ / "docker-compose.coolify.yml"
 
 # Lo que vale igual para los catorce. Un valor por variable, y aca se ve entero.
 COMUNES = {
@@ -188,7 +192,7 @@ services:
   # medias levanta sano y muere recien al tocar la tabla que falto.
   esquema:
     build:
-      context: ../..
+      context: .
       dockerfile: despliegue/Dockerfile.esquema
     image: aportaya/esquema:test
     restart: "no"
@@ -204,7 +208,7 @@ services:
   # toca la base — si algun dia la toca, es el monolito volviendo por atras.
   gateway:
     build:
-      context: ../..
+      context: .
       dockerfile: despliegue/Dockerfile
       network: host
       args:
@@ -229,7 +233,7 @@ services:
 
 BLOQUE_DESPLEGADO = """  {nombre}:
     build:
-      context: ../..
+      context: .
       dockerfile: despliegue/Dockerfile
       network: host
       args:
