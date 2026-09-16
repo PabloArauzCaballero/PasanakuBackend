@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 import '../dominio/puertos/almacen_seguro.dart';
 import '../dominio/puertos/avisos_push.dart';
 import '../dominio/puertos/biometria.dart';
@@ -29,12 +31,12 @@ import 'ios/haptica_ios.dart';
 /// (ADR-036 · «Android primero, iOS por pase»), y hoy caen al mismo `MethodChannel`
 /// que Android sin un receptor nativo iOS — devuelven el valor seguro por omisión.
 AlmacenSeguro almacenSeguroDeLaPlataforma() =>
-    Platform.isIOS ? AlmacenSeguroIos() : AlmacenSeguroAndroid();
+    !kIsWeb && Platform.isIOS ? AlmacenSeguroIos() : AlmacenSeguroAndroid();
 
 Conectividad conectividadDeLaPlataforma() => ConectividadAndroid();
 
 Haptica hapticaDeLaPlataforma() =>
-    Platform.isIOS ? HapticaIos() : HapticaAndroid();
+    !kIsWeb && Platform.isIOS ? HapticaIos() : HapticaAndroid();
 
 Biometria biometriaDeLaPlataforma() => BiometriaAndroid();
 
@@ -60,4 +62,5 @@ ProteccionPantalla proteccionPantallaDeLaPlataforma() =>
 /// `IOS` o `ANDROID`, con los nombres que usa el contrato de identidad. Está acá y no
 /// en el caso de uso porque `Platform.is*` fuera de `infraestructura/` es un rechazo
 /// del gate (ADR-036).
-String nombreDePlataforma() => Platform.isIOS ? 'IOS' : 'ANDROID';
+String nombreDePlataforma() =>
+    kIsWeb ? 'WEB' : (Platform.isIOS ? 'IOS' : 'ANDROID');

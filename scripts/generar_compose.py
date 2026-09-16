@@ -250,6 +250,19 @@ services:
       NG_TRUST_PROXY_HEADERS: x-forwarded-for,x-forwarded-host,x-forwarded-port,x-forwarded-proto,x-forwarded-server
     networks: [interna, publica]
 
+  # La app movil compilada para la web: se prueba desde un navegador, sin APK ni
+  # TestFlight. Su nginx reenvia /api/ al gateway por el mismo origen.
+  movil:
+    image: aportaya/movil-web:test
+    pull_policy: never
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+    networks: [interna, publica]
+
 """
 
 BLOQUE_DESPLEGADO = """  {nombre}:

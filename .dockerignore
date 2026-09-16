@@ -28,9 +28,11 @@ apps/web/dist
 apps/backoffice/dist
 apps/*/.angular
 apps/*/node_modules
-# Los clientes generados: el Angular entra (lo importan las dos apps web); el Dart no.
+# Los clientes generados: el Angular entra (lo importan las dos apps web) y el Dart
+# tambien, porque la app movil se compila para la web (apps/movil/docker).
 clientes
 !clientes/angular
+!clientes/dart
 packages/*/node_modules
 packages/*/generado
 node_modules

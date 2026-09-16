@@ -1,6 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 
+import '../../dominio/cliente.dart' show baseDelGateway;
 import '../../dominio/puertos/conectividad.dart';
 
 /// Estar «conectado a wifi» no es tener internet (regla del shell): además del
@@ -29,7 +30,10 @@ class ConectividadAndroid implements Conectividad {
     final estado = await _sistema.checkConnectivity();
     if (estado.contains(ConnectivityResult.none)) return false;
     try {
-      final r = await _sonda.get<void>('http://localhost:4010/api/v1/version');
+      // El mismo gateway contra el que habla la app (--dart-define=API). Con la URL
+      // del Prism de desarrollo escrita aca, en un telefono o en la web `localhost`
+      // es la propia maquina del usuario y la app se creia siempre sin conexion.
+      final r = await _sonda.get<void>('$baseDelGateway/version');
       return r.statusCode != null && r.statusCode! < 500;
     } catch (_) {
       // Sin respuesta del gateway: se toma como sin conexión útil, aunque el
