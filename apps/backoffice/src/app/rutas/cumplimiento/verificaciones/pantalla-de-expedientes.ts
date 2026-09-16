@@ -149,9 +149,9 @@ export class PantallaDeExpedientes {
     )
   }
 
-  protected tonoDe(e: ExpedienteEnRevision): 'ok' | 'err' | 'aviso' | 'neutro' {
+  protected tonoDe(e: ExpedienteEnRevision): 'ok' | 'error' | 'aviso' | 'neutro' {
     if (e.estado === ExpedienteEnRevisionEstadoEnum.Aprobada) return 'ok'
-    if (e.estado === ExpedienteEnRevisionEstadoEnum.Rechazada) return 'err'
+    if (e.estado === ExpedienteEnRevisionEstadoEnum.Rechazada) return 'error'
     return e.estado === ExpedienteEnRevisionEstadoEnum.EnRevision ? 'aviso' : 'neutro'
   }
 
