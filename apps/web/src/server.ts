@@ -38,10 +38,66 @@ app.use(
 /**
  * Handle all other requests by rendering the Angular application.
  */
+/**
+ * En un entorno desplegado la API sale por el MISMO origen que el sitio.
+ *
+ * Sin esto el codigo del navegador no tiene a quien llamar: `gatewayPorDefecto()`
+ * lee `<meta name="aportaya-gateway">`, y si falta cae a http://localhost:4010 —el
+ * Prism de desarrollo—, que en el navegador de un visitante es su propia maquina.
+ *
+ * Solo se enciende con APORTAYA_GATEWAY_INTERNO (p. ej. http://gateway:8080): en
+ * desarrollo no existe y el sitio se comporta como siempre.
+ */
+const gatewayInterno = process.env['APORTAYA_GATEWAY_INTERNO'];
+
+if (gatewayInterno) {
+  const SIN_REENVIO = new Set(['host', 'connection', 'content-length', 'transfer-encoding']);
+
+  app.use('/api', async (req, res, next) => {
+    try {
+      const cabeceras = new Headers();
+      for (const [clave, valor] of Object.entries(req.headers)) {
+        if (valor === undefined || SIN_REENVIO.has(clave)) continue;
+        cabeceras.set(clave, Array.isArray(valor) ? valor.join(', ') : valor);
+      }
+      const conCuerpo = req.method !== 'GET' && req.method !== 'HEAD';
+      const respuesta = await fetch(gatewayInterno + req.originalUrl, {
+        method: req.method,
+        headers: cabeceras,
+        body: conCuerpo ? (req as unknown as ReadableStream) : undefined,
+        // Obligatorio en Node al mandar un cuerpo en flujo.
+        ...(conCuerpo ? { duplex: 'half' } : {}),
+        redirect: 'manual',
+      } as RequestInit);
+      // fetch ya descomprimio el cuerpo: reenviar content-encoding haria que el
+      // navegador intente descomprimir texto plano.
+      respuesta.headers.delete('content-encoding');
+      respuesta.headers.delete('content-length');
+      await writeResponseToNodeResponse(respuesta, res);
+    } catch (error) {
+      next(error);
+    }
+  });
+}
+
+const META_GATEWAY = '<meta name="aportaya-gateway" content="/api/v1">';
+
 app.use((req, res, next) => {
   angularApp
     .handle(req)
-    .then((response) => (response ? writeResponseToNodeResponse(response, res) : next()))
+    .then(async (response) => {
+      if (!response) return next();
+      if (!gatewayInterno || !response.headers.get('content-type')?.includes('text/html')) {
+        return writeResponseToNodeResponse(response, res);
+      }
+      const html = (await response.text()).replace('</head>', `${META_GATEWAY}</head>`);
+      const cabeceras = new Headers(response.headers);
+      cabeceras.delete('content-length');
+      return writeResponseToNodeResponse(
+        new Response(html, { status: response.status, headers: cabeceras }),
+        res,
+      );
+    })
     .catch(next);
 });
 

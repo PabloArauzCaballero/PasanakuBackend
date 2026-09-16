@@ -236,7 +236,11 @@ services:
     pull_policy: never
     restart: unless-stopped
     environment:
+      # El render en servidor llama al gateway por la red interna...
       APORTAYA_GATEWAY: http://gateway:8080/api/v1
+      # ...y el navegador por el mismo origen: server.ts reenvia /api y le
+      # inyecta el meta del gateway a la pagina.
+      APORTAYA_GATEWAY_INTERNO: http://gateway:8080
     networks: [interna, publica]
 
 """
