@@ -81,6 +81,13 @@ services:
       # ...y el navegador por el mismo origen: server.ts reenvia /api y le
       # inyecta el meta del gateway a la pagina.
       APORTAYA_GATEWAY_INTERNO: http://gateway:8080
+      # Angular SSR rechaza con 400 todo host que no este en su lista (defensa contra
+      # SSRF): angular.json solo trae aportaya.bo y localhost, asi que el dominio del
+      # entorno llega por variable, sin reconstruir la imagen.
+      NG_ALLOWED_HOSTS: ${WEB_HOSTS_PERMITIDOS}
+      # Traefik agrega X-Forwarded-*: sin confiar en ellos, SSR arma las URL con el
+      # host y el esquema internos.
+      NG_TRUST_PROXY_HEADERS: x-forwarded-for,x-forwarded-host,x-forwarded-port,x-forwarded-proto,x-forwarded-server
     networks: [interna, publica]
 
   aportes:
