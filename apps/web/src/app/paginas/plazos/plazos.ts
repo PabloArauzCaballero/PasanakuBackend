@@ -1,3 +1,4 @@
+import { CabeceraDePagina } from '../../layout/cabecera-de-pagina'
 import { ChangeDetectionStrategy, Component } from '@angular/core'
 import { CalculadoraDePlazo } from '../../verificadores/calculadora-de-plazo'
 
@@ -5,18 +6,19 @@ import { CalculadoraDePlazo } from '../../verificadores/calculadora-de-plazo'
 @Component({
   selector: 'ap-plazos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CalculadoraDePlazo],
+  imports: [CabeceraDePagina, CalculadoraDePlazo],
   template: `
-    <main>
-      <h1>¿Cuándo vence un plazo de 5 días hábiles?</h1>
-      <p>Los plazos de reclamo y de descargo se cuentan en días hábiles administrativos de Bolivia: los feriados no cuentan. Esta calculadora usa el mismo calendario que la plataforma.</p>
-      @defer (hydrate on viewport) {
-        <ap-calculadora-de-plazo />
-      } @placeholder {
-        <p role="status">Cargando la calculadora…</p>
-      }
+    <main id="contenido">
+      <ap-cabecera-de-pagina etiqueta="Plazos" titulo="¿Cuándo vence un plazo de 5 días hábiles?" />
+      <div class="contenedor contenedor--angosto cuerpo-pagina">
+        <p class="texto-guia">Los plazos de reclamo y de descargo se cuentan en días hábiles administrativos de Bolivia: los feriados no cuentan. Esta calculadora usa el mismo calendario que la plataforma.</p>
+        @defer (hydrate on viewport) {
+          <ap-calculadora-de-plazo />
+        } @placeholder {
+          <p role="status">Cargando la calculadora…</p>
+        }
+      </div>
     </main>
   `,
-  styles: `main { max-width: 70ch; margin: 0 auto; padding: var(--s6) var(--s5); }`,
 })
 export class Plazos {}

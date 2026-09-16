@@ -1,3 +1,4 @@
+import { CabeceraDePagina } from '../../layout/cabecera-de-pagina'
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core'
 import { Meta } from '@angular/platform-browser'
 import { VerificadorDeCadena } from '../../verificadores/verificador-de-cadena'
@@ -7,22 +8,19 @@ import { VerificadorDeCadena } from '../../verificadores/verificador-de-cadena'
   selector: 'ap-grupo-transparencia',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'pagina' },
-  imports: [VerificadorDeCadena],
+  imports: [CabeceraDePagina, VerificadorDeCadena],
   template: `
-    <main>
-      <h1>Cadena de transparencia del grupo</h1>
-      <p class="bajada">Código de grupo: <strong>{{ codigo() }}</strong></p>
-      @defer (hydrate on viewport) {
-        <ap-verificador-de-cadena [codigoGrupo]="codigo()" />
-      } @placeholder {
-        <p role="status">Cargando el verificador…</p>
-      }
+    <main id="contenido">
+      <ap-cabecera-de-pagina etiqueta="Transparencia verificable" titulo="Cadena de transparencia del grupo" />
+      <div class="contenedor contenedor--angosto cuerpo-pagina">
+        <p class="texto-guia">Código de grupo: <strong>{{ codigo() }}</strong></p>
+        @defer (hydrate on viewport) {
+          <ap-verificador-de-cadena [codigoGrupo]="codigo()" />
+        } @placeholder {
+          <p role="status">Cargando el verificador…</p>
+        }
+      </div>
     </main>
-  `,
-  styles: `
-    main { max-width: 70ch; margin: 0 auto; padding: var(--s6) var(--s5); }
-    h1 { font-size: 1.75rem; margin-bottom: var(--s3); }
-    .bajada { color: var(--text-2); margin-bottom: var(--s5); }
   `,
 })
 export class GrupoTransparencia {

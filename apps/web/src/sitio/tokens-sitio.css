@@ -1,0 +1,68 @@
+/* GENERADO desde landing/assets/css/tokens.css por el portado del sitio.
+   Solo las variables que usa la hoja del sitio y el sistema de diseño no define
+   (sombras, escalas tipográficas, tintas, curvas de movimiento). Los colores y las
+   fuentes vienen de @aportaya/tokens: acá no se redefine ninguno. */
+:root {
+  --okbg: #E7F5EC;
+  --warnbg: #FEF4DA;
+  --g600-rgb: 28,90,58;
+  --g300-rgb: 124,190,156;
+  --o500-rgb: 229,133,43;
+  --ink-rgb: 16,35,26;
+  --blanco-rgb: 255,255,255;
+  --sobre-verde-rgb: 234,247,239;
+  --sh-1: 0 0.0625rem 0.125rem rgba(16,35,26,.06);
+  --sh-2: 0 0.25rem 1rem rgba(16,35,26,.08);
+  --sh-3: 0 1.125rem 2.75rem rgba(16,35,26,.16);
+  --fs-h1: clamp(2.3rem,5.9vw,4.25rem);
+  --fs-h2: clamp(1.75rem,3.6vw,2.85rem);
+  --fs-h3: 1.1875rem;
+  --fs-bajada: clamp(1.05rem,1.5vw,1.16rem);
+  --fs-cifra: clamp(2rem,3.8vw,3rem);
+  --pad-seccion: clamp(2.75rem,5vw,4.25rem);
+  --spring: linear(0,.006,.025 2.8%,.101 6.1%,.539 18.9%,.721 25.3%,.849 31.5%,
+    .937 38.1%,.968 41.8%,.991 45.7%,1.006 50.1%,1.015 55%,1.017 63.9%,1.001 100%);
+  --pop: linear(0,.009,.035 2.1%,.141,.281 6.7%,.723 12.9%,.938 16.7%,1.017,
+    1.077 21%,1.121,1.149 26.6%,1.155,1.153 30.8%,1.129 33.8%,1.052 40%,
+    1.007 44.4%,.981 50.7%,.98 59.4%,1.002 78.5%,1);
+  --glide: cubic-bezier(.32,.72,0,1);
+  --t-fast: .28s;
+  --t-base: .55s;
+  --sobre-verde: #EAF7EF;
+  --brand-rgb: var(--g600-rgb);
+  --accent-rgb: var(--o500-rgb);
+  --tinta-900: #081A11;
+  --tinta-800: #0C2418;
+  --tinta-700: #123420;
+  --sobre-tinta: #EAF7EF;
+  --sobre-tinta-2: #9FC2AC;
+  --sobre-tinta-3: #6E9179;
+  --tinta-linea: #1E3D2A;
+  --grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --brand-rgb: 60,147,102;
+    --accent-rgb: 239,158,78;
+    --okbg: rgba(31,157,87,.14);
+    --warnbg: rgba(240,180,41,.14);
+    --sh-1: 0 0.0625rem 0.125rem rgba(0,0,0,.3);
+    --sh-2: 0 0.375rem 1.25rem rgba(0,0,0,.32);
+    --sh-3: 0 1.25rem 2.875rem rgba(0,0,0,.4);
+  }
+}
+:root[data-theme='light'] {
+  --brand-rgb: 28,90,58;
+  --accent-rgb: 229,133,43;
+  --okbg: #E7F5EC;
+  --warnbg: #FEF4DA;
+}
+:root[data-theme='dark'] {
+  --brand-rgb: 60,147,102;
+  --accent-rgb: 239,158,78;
+  --okbg: rgba(31,157,87,.14);
+  --warnbg: rgba(240,180,41,.14);
+  --sh-1: 0 0.0625rem 0.125rem rgba(0,0,0,.3);
+  --sh-2: 0 0.375rem 1.25rem rgba(0,0,0,.32);
+  --sh-3: 0 1.25rem 2.875rem rgba(0,0,0,.4);
+}

@@ -1,0 +1,13 @@
+/* Las fuentes de la marca — las MISMAS que empaqueta la app (packages/diseno_flutter/lib/fuentes),
+   convertidas a woff2. Hasta ahora el sitio no declaraba ningún @font-face: los tokens pedían
+   Bricolage e Instrument, el navegador no las tenía, y todo caía a la fuente del sistema.
+   Esa era la mitad de por qué el sitio se veía genérico.
+
+   Autoalojadas, sin CDN: un visitante no le cuenta a un tercero que entró a una billetera.
+   `font-display: swap` para que el texto se lea antes de que llegue la fuente. */
+@font-face { font-family: "Bricolage"; src: url("/fuentes/bricolage-600.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Bricolage"; src: url("/fuentes/bricolage-700.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Bricolage"; src: url("/fuentes/bricolage-800.woff2") format("woff2"); font-weight: 800; font-style: normal; font-display: swap; }
+@font-face { font-family: "Instrument"; src: url("/fuentes/instrument-400.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Instrument"; src: url("/fuentes/instrument-500.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Instrument"; src: url("/fuentes/instrument-600.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }

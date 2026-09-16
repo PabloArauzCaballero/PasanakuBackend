@@ -1,3 +1,4 @@
+import { CabeceraDePagina } from '../../layout/cabecera-de-pagina'
 import { ChangeDetectionStrategy, Component } from '@angular/core'
 import { SimuladorDeCostos } from '../../verificadores/simulador-de-costos'
 
@@ -20,26 +21,19 @@ import { SimuladorDeCostos } from '../../verificadores/simulador-de-costos'
   selector: 'ap-tarifas',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'pagina' },
-  imports: [SimuladorDeCostos],
+  imports: [CabeceraDePagina, SimuladorDeCostos],
   template: `
-    <main>
-      <h1>Tarifas y comisiones</h1>
-      <p class="bajada">
-        Cotizá cuánto cobra AportaYa por una operación, con impuestos incluidos, antes de hacerla. El tarifario completo
-        está sujeto a preaviso cuando sube (CU-34): si cambia, se te avisa con anticipación y con la fecha desde la que rige.
-      </p>
-      @defer (hydrate on interaction) {
-        <ap-simulador-de-costos />
-      } @placeholder {
-        <button type="button">Cotizar una comisión</button>
-      }
+    <main id="contenido">
+      <ap-cabecera-de-pagina etiqueta="Tarifas" titulo="Tarifas y comisiones" />
+      <div class="contenedor contenedor--angosto cuerpo-pagina">
+        <p class="texto-guia">Cotizá cuánto cobra AportaYa por una operación, con impuestos incluidos, antes de hacerla. El tarifario completo está sujeto a preaviso cuando sube (CU-34): si cambia, se te avisa con anticipación y con la fecha desde la que rige.</p>
+        @defer (hydrate on interaction) {
+          <ap-simulador-de-costos />
+        } @placeholder {
+          <button type="button" class="boton boton--principal">Cotizar una comisión</button>
+        }
+      </div>
     </main>
-  `,
-  styles: `
-    main { max-width: 70ch; margin: 0 auto; padding: var(--s6) var(--s5); }
-    h1 { font-size: 2.25rem; margin-bottom: var(--s3); }
-    .bajada { color: var(--text-2); font-size: 1.125rem; margin-bottom: var(--s5); }
-    button { min-height: var(--area-tactil); padding: 0 var(--s5); border: 0; border-radius: var(--r-md); background: var(--accent); color: var(--accent-ink); font: inherit; font-weight: 600; }
   `,
 })
 export class Tarifas {}

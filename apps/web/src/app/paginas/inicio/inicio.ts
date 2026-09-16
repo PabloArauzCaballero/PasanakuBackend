@@ -1,26 +1,27 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core'
-import contenido from '../../../generado/contenido.json'
+import { Cierre } from './secciones/cierre'
+import { Confianza } from './secciones/confianza'
+import { Hero } from './secciones/hero'
+import { Producto } from './secciones/producto'
+import { TransparenciaInicio } from './secciones/transparencia'
 
-/** Página de contenido: se prerenderiza y no carga ningún cliente de API. */
+/**
+ * El inicio del sitio: la estética y el recorrido de la landing, sobre los tokens y las
+ * fuentes de la app. Se prerenderiza y no carga ningún cliente de API. Todo el contenido
+ * está en el HTML desde el servidor: nada aparece recién al hacer scroll.
+ */
 @Component({
   selector: 'ap-inicio',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'pagina' },
+  imports: [Hero, Producto, TransparenciaInicio, Confianza, Cierre],
   template: `
-    <main>
-      <h1>{{ inicio.titulo }}</h1>
-      <p class="bajada">{{ inicio.bajada }}</p>
-      <article [innerHTML]="inicio.html"></article>
-      <p class="fecha">Actualizado el <time [attr.datetime]="inicio.actualizado">{{ inicio.actualizado }}</time></p>
+    <main id="contenido">
+      <ap-hero />
+      <ap-producto />
+      <ap-transparencia-inicio />
+      <ap-confianza />
+      <ap-cierre />
     </main>
   `,
-  styles: `
-    main { max-width: 70ch; margin: 0 auto; padding: var(--s6) var(--s5); }
-    h1 { font-size: 2.25rem; margin-bottom: var(--s3); }
-    .bajada { color: var(--text-2); font-size: 1.125rem; }
-    .fecha { color: var(--text-3); margin-top: var(--s6); }
-  `,
 })
-export class Inicio {
-  protected readonly inicio = contenido.paginas['inicio']!
-}
+export class Inicio {}

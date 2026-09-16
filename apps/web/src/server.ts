@@ -61,6 +61,9 @@ if (gatewayInterno) {
         cabeceras.set(clave, Array.isArray(valor) ? valor.join(', ') : valor);
       }
       const conCuerpo = req.method !== 'GET' && req.method !== 'HEAD';
+      // `fetch` y no HttpClient: esto no es una vista sino el servidor Node reenviando la
+      // petición al gateway. La regla existe para que ningún componente haga red.
+      // eslint-disable-next-line no-restricted-globals
       const respuesta = await fetch(gatewayInterno + req.originalUrl, {
         method: req.method,
         headers: cabeceras,
