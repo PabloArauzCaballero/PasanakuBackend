@@ -35,6 +35,13 @@ Si avanzó, `/opt/aportaya/bin/reconstruir-si-cambio.sh` reconstruye **solo lo q
 commit toca** —de a una imagen— y recién entonces dispara el despliegue en Coolify por su
 webhook. El registro está en `/opt/aportaya/logs/autodespliegue.log`.
 
+El autodespliegue propio de Coolify está **apagado a propósito**, y esa es la única
+manera de que el orden sea correcto: encendido, el webhook de GitHub encolaba el
+despliegue al instante —con las imágenes VIEJAS, porque Coolify no construye— y cuando
+la reconstrucción terminaba, el disparo llegaba tarde y Coolify lo descartaba con
+«Deployment already queued for this commit». Se midió con el commit `858bdaf`. El
+disparador es uno solo: primero se construye, después se despliega.
+
 Un cambio en `plataforma/`, en el Dockerfile o en Gradle rehace los quince servicios;
 uno en `servicios/x/` rehace solo esa imagen; uno en `sql/` rehace la imagen del esquema.
 
