@@ -73,7 +73,11 @@ def check(cond, bien, mal):
 # fuera a propósito: un documento que EXPLICA por qué `Math.random` está prohibido
 # tiene que poder escribir `Math.random`.
 EXT_CODIGO = {".java", ".kt", ".kts", ".ts", ".tsx", ".js", ".jsx", ".py", ".sh", ".sql"}
+# `.dart_tool` y `.angular` son lo que compila la maquina, no codigo del proyecto:
+# el bundle de Flutter trae su propio Math.random y hacia fallar el gate a quien
+# hubiera compilado la app en local — un rojo que en el CI no existia.
 EXCLUIDOS = {".git", "node_modules", "build", "dist", "__pycache__", ".gradle",
+             ".dart_tool", ".angular", ".playwright-mcp",
              "docs", "planes", ".claude", "landing"}
 
 

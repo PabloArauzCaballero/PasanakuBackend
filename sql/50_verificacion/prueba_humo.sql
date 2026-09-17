@@ -10,6 +10,13 @@
 --
 --  Este archivo está escrito a mano (el resto de sql/ es generado).
 -- =====================================================================
+
+-- El search_path va ACA y no se hereda: este archivo corre en su propia sesion de
+-- psql y nombra las tablas sin su esquema. Sin esta linea, en una base que no lo
+-- traiga puesto por ALTER DATABASE —el CI— todo sale FALLA por «relation does not exist».
+SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, grupos,
+    identidad, notificaciones, nucleo_financiero, organizador, publicidad, tarifas,
+    transparencia, catalogo, comun, public;
 \set QUIET on
 \set ON_ERROR_STOP off
 \pset tuples_only on

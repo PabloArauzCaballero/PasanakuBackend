@@ -11,7 +11,7 @@ CREATE INDEX IF NOT EXISTS ix_usuario_telefono_e164
   ON identidad.usuario (telefono_e164);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_usuario_correo
-  ON identidad.usuario (correo) NULLS NOT DISTINCT;
+  ON identidad.usuario (correo);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_direccion_usuario_usuario_id
   ON identidad.direccion_usuario (usuario_id);

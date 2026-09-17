@@ -619,7 +619,14 @@ def generar():
                 # exactamente el caso de `documento_identidad`, donde el lugar de
                 # expedicion existe para el CI y no para un pasaporte — sin esto, dos
                 # pasaportes con el mismo numero entraban los dos.
-                opcional = any(c in OPCIONALES.get(tabla, set()) for c in cols)
+                # Solo en claves COMPUESTAS. En un unico de UNA columna opcional,
+                # `NULLS NOT DISTINCT` significa «a lo sumo una fila sin ese dato», que
+                # no es una regla de negocio de ningun caso: `pago.intento_pago_id` es
+                # nulo en todo pago manual, y con el sufijo el segundo pago manual de la
+                # historia era rechazado por duplicado. Con una sola columna opcional lo
+                # correcto es el comportamiento por omision: a lo sumo uno por valor, y
+                # los nulos no compiten entre si.
+                opcional = len(cols) > 1 and any(c in OPCIONALES.get(tabla, set()) for c in cols)
                 sufijo = " NULLS NOT DISTINCT" if opcional else ""
                 L.append(f"CREATE UNIQUE INDEX IF NOT EXISTS {ident('uq', tabla, *cols)}")
                 L.append(f"  ON {q(tabla)} ({lista}){sufijo};")

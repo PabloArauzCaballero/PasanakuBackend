@@ -59,7 +59,7 @@ CREATE INDEX IF NOT EXISTS ix_devengo_comision_tarifario_id
   ON tarifas.devengo_comision (tarifario_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_devengo_comision_cotizacion_id
-  ON tarifas.devengo_comision (cotizacion_id) NULLS NOT DISTINCT;
+  ON tarifas.devengo_comision (cotizacion_id);
 
 CREATE INDEX IF NOT EXISTS ix_devengo_comision_grupo_id
   ON tarifas.devengo_comision (grupo_id);
@@ -140,7 +140,7 @@ CREATE INDEX IF NOT EXISTS ix_lote_envio_sin_fecha_envio
   ON tarifas.lote_envio_sin (fecha_envio);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_lote_envio_sin_codigo_recepcion
-  ON tarifas.lote_envio_sin (codigo_recepcion) NULLS NOT DISTINCT;
+  ON tarifas.lote_envio_sin (codigo_recepcion);
 
 CREATE INDEX IF NOT EXISTS ix_lote_envio_sin_estado
   ON tarifas.lote_envio_sin (estado);
@@ -155,7 +155,7 @@ CREATE INDEX IF NOT EXISTS ix_evento_significativo_sin_plazo_registro
   ON tarifas.evento_significativo_sin (plazo_registro);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_evento_significativo_sin_codigo_recepcion_evento
-  ON tarifas.evento_significativo_sin (codigo_recepcion_evento) NULLS NOT DISTINCT;
+  ON tarifas.evento_significativo_sin (codigo_recepcion_evento);
 
 CREATE INDEX IF NOT EXISTS ix_evento_significativo_sin_estado
   ON tarifas.evento_significativo_sin (estado);

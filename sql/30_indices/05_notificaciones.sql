@@ -65,7 +65,7 @@ CREATE INDEX IF NOT EXISTS ix_envio_notificacion_estado
   ON notificaciones.envio_notificacion (estado);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_envio_notificacion_id_mensaje_proveedor
-  ON notificaciones.envio_notificacion (id_mensaje_proveedor) NULLS NOT DISTINCT;
+  ON notificaciones.envio_notificacion (id_mensaje_proveedor);
 
 CREATE INDEX IF NOT EXISTS ix_envio_notificacion_proximo_reintento_en
   ON notificaciones.envio_notificacion (proximo_reintento_en);

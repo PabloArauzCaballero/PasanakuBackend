@@ -30,8 +30,26 @@ jobs:
   codigo:
     name: Formato, reglas propias y compilacion
     runs-on: ubuntu-latest
+    # Con base: `check` y `compileJava` generan las clases de jOOQ introspeccionando la
+    # base VIVA, asi que sin PostgreSQL este trabajo fallaba SIEMPRE con «Connection to
+    # localhost:5432 refused» — no el dia que alguien rompiera el formato o una regla.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: pasanaku
+          POSTGRES_USER: pasanaku
+          POSTGRES_PASSWORD: pasanaku
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U pasanaku -d pasanaku"
+          --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - uses: actions/checkout@v4
+      - name: 0 · el esquema, que es lo que jOOQ introspecciona
+        env:
+          PGPASSWORD: pasanaku
+        run: cd sql && psql -v ON_ERROR_STOP=1 -h localhost -U pasanaku -d pasanaku -q -f aplicar.sql
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -86,8 +104,13 @@ jobs:
       - name: 6d · verificar_criterios.py — cada gherkin con su prueba
         run: python3 scripts/verificar_criterios.py
 
+      # `verificar_pruebas_web.py` lee los contratos con PyYAML, que el runner no trae:
+      # el paso moria con ModuleNotFoundError antes de verificar nada. El workflow de la
+      # boveda ya lo instalaba; este no.
       - name: 6f · verificar_pruebas_web.py — la capa web cubierta (ADR-043)
-        run: python3 scripts/verificar_pruebas_web.py
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 scripts/verificar_pruebas_web.py
 
       - name: 6e · generar_k8s.py — los descriptores cierran contra el pool
         run: python3 scripts/generar_k8s.py

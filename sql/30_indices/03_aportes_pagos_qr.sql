@@ -56,7 +56,7 @@ CREATE INDEX IF NOT EXISTS ix_pago_obligacion_id
   ON aportes.pago (obligacion_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_pago_intento_pago_id
-  ON aportes.pago (intento_pago_id) NULLS NOT DISTINCT;
+  ON aportes.pago (intento_pago_id);
 
 CREATE INDEX IF NOT EXISTS ix_pago_proveedor_id
   ON aportes.pago (proveedor_id);
@@ -104,7 +104,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_conciliacion_pago_id
   ON aportes.conciliacion (pago_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_conciliacion_movimiento_bancario_id
-  ON aportes.conciliacion (movimiento_bancario_id) NULLS NOT DISTINCT;
+  ON aportes.conciliacion (movimiento_bancario_id);
 
 CREATE INDEX IF NOT EXISTS ix_conciliacion_estado
   ON aportes.conciliacion (estado);

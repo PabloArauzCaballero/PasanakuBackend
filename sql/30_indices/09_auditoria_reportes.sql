@@ -95,7 +95,7 @@ CREATE INDEX IF NOT EXISTS ix_reporte_operacion_sospechosa_usuario_id
   ON auditoria.reporte_operacion_sospechosa (usuario_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_reporte_operacion_sospechosa_numero_radicado
-  ON auditoria.reporte_operacion_sospechosa (numero_radicado) NULLS NOT DISTINCT;
+  ON auditoria.reporte_operacion_sospechosa (numero_radicado);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_lista_restrictiva_externa_version_nombre_lista
   ON auditoria.lista_restrictiva_externa (version, nombre_lista);

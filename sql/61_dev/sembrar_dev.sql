@@ -2,7 +2,13 @@
 --   psql -d pasanaku -v ON_ERROR_STOP=1 -f sql/61_dev/sembrar_dev.sql
 -- GENERADO desde seeders/ — no editar a mano.
 
+--
+-- El search_path va ACA y no se hereda: este archivo corre en su propia sesion
+-- de psql y nombra las tablas sin su esquema. Sin esta linea depende de que la
+-- base lo traiga puesto (ALTER DATABASE) o de que quien lo invoque lo pase por
+-- la conexion, y falla con «relation does not exist» donde no sea asi.
 \set ON_ERROR_STOP on
+SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, grupos, identidad, notificaciones, nucleo_financiero, organizador, publicidad, tarifas, transparencia, catalogo, comun, public;
 BEGIN;
 
 -- GUARDA 1 — sin esto, estas semillas no entran a ninguna base.

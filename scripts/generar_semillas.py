@@ -47,6 +47,9 @@ import shutil
 
 import sys
 
+sys.path.insert(0, str(pathlib.Path(__file__).parent))
+from generar_ddl import SEARCH_PATH_SQL  # noqa: E402 — UNA sola definicion del search_path
+
 # Estos informes se imprimen con acentos y flechas. En Windows la consola entrega
 # stdout en cp1252 y el generador muere con UnicodeEncodeError despues de haber
 # escrito los archivos — en tres de las cinco maquinas del parque.
@@ -356,7 +359,14 @@ def procesar(entorno):
     L = [f"-- {titulo}",
          f"--   psql -d pasanaku -v ON_ERROR_STOP=1 -f {destino.as_posix()}/{orquestador}",
          "-- GENERADO desde seeders/ — no editar a mano.", "",
-         "\\set ON_ERROR_STOP on", "BEGIN;", ""]
+         "--",
+         "-- El search_path va ACA y no se hereda: este archivo corre en su propia sesion",
+         "-- de psql y nombra las tablas sin su esquema. Sin esta linea depende de que la",
+         "-- base lo traiga puesto (ALTER DATABASE) o de que quien lo invoque lo pase por",
+         "-- la conexion, y falla con «relation does not exist» donde no sea asi.",
+         "\\set ON_ERROR_STOP on",
+         SEARCH_PATH_SQL,
+         "BEGIN;", ""]
     if entorno == "dev":
         if "marca" not in manifiesto:
             raise SystemExit(

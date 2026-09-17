@@ -3,6 +3,7 @@ package bo.aportaya.identidad;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario.EntradaRegistro;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario.SalidaRegistro;
+import bo.aportaya.identidad.dominio.CanalDeVerificacion;
 import bo.aportaya.identidad.dominio.DocumentoDeIdentidad;
 import bo.aportaya.identidad.infraestructura.RegistroRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
@@ -64,6 +65,11 @@ abstract class BaseDeCU01 {
                 "Ana",
                 "Quispe",
                 LocalDate.of(1990, 1, 1),
+                // El alta pide correo y canal desde que la verificacion puede llegar por
+                // correo o por SMS: sin estos dos, esta base no compilaba y toda la suite
+                // de identidad se caia antes de correr una sola prueba.
+                null,
+                CanalDeVerificacion.SMS,
                 DocumentoDeIdentidad.de(DocumentoDeIdentidad.Tipo.CI, documento, "pimienta-de-prueba", "BO", "LP"),
                 "cifrado:" + documento,
                 "0".repeat(64),
