@@ -17,6 +17,7 @@ networks:
     name: coolify
 
 services:
+
   # El portal de operacion. Su nginx inyecta el meta del gateway y reenvia /api/ al
   # gateway por el MISMO origen: la CSP dice `connect-src 'self'`.
   backoffice:

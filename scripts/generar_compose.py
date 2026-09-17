@@ -217,6 +217,23 @@ services:
       start_period: 30s
     networks: [interna, publica]
 
+"""
+
+# Un compose por front, ADEMAS del principal. La duplicacion es aparente: los tres
+# bloques se recortan del MISMO texto que genera el compose del backend, asi que no
+# pueden divergir — si alguien cambia el front en un lado, cambia en los dos.
+#
+# Existen porque en Coolify una aplicacion de tipo compose es UN recurso en la lista: con
+# los tres fronts dentro del compose del backend, el panel muestra «aportaya-api» y nada
+# mas. Separados, cada uno es su recurso, con su dominio y su boton de desplegar.
+#
+# Ya NO estan en el compose del backend: cada front es su propia aplicacion en Coolify y se
+# despliega solo. El orden en que se hizo el cambio importa y costo caro aprenderlo — la
+# primera vez se sacaron del principal ANTES de crear los recursos, el autodespliegue los
+# borro como huerfanos y los tres enlaces se cayeron. Primero los destinos, despues mover.
+SALIDA_FRONTS = RAIZ / "despliegue/coolify"
+
+TEXTO_DE_LOS_FRONTS = """
   # El portal de operacion. Su nginx inyecta el meta del gateway y reenvia /api/ al
   # gateway por el MISMO origen: la CSP dice `connect-src 'self'`.
   backoffice:
@@ -272,20 +289,6 @@ services:
 
 """
 
-# Un compose por front, ADEMAS del principal. La duplicacion es aparente: los tres
-# bloques se recortan del MISMO texto que genera el compose del backend, asi que no
-# pueden divergir — si alguien cambia el front en un lado, cambia en los dos.
-#
-# Existen porque en Coolify una aplicacion de tipo compose es UN recurso en la lista: con
-# los tres fronts dentro del compose del backend, el panel muestra «aportaya-api» y nada
-# mas. Separados, cada uno es su recurso, con su dominio y su boton de desplegar.
-#
-# Mientras el compose del backend siga trayendo los fronts, LO VIVO ES ESE. Estos archivos
-# estan para que Coolify pueda leerlos al crear los tres recursos; recien cuando existan y
-# esten desplegados se sacan los fronts del principal. El orden importa: la vez que se hizo
-# al reves, el autodespliegue los borro como huerfanos y los tres enlaces se cayeron.
-SALIDA_FRONTS = RAIZ / "despliegue/coolify"
-
 FRONTS = {
     "backoffice": "El portal de operacion",
     "web": "El sitio publico",
@@ -315,15 +318,17 @@ services:
 
 
 def bloque_del_front(nombre):
-    """Recorta el bloque de un servicio del compose desplegado, con su comentario."""
+    """Recorta el bloque de un servicio del texto de los fronts, con su comentario."""
     marca = f"\n  {nombre}:\n"
-    i = CABECERA_DESPLEGADO.index(marca)
+    i = TEXTO_DE_LOS_FRONTS.index(marca)
     # el comentario que lo precede es parte del bloque: explica por que ese front es asi
-    inicio = CABECERA_DESPLEGADO.rindex("\n\n", 0, i) + 2
-    fin = CABECERA_DESPLEGADO.find("\n\n", i)
+    corte = TEXTO_DE_LOS_FRONTS.rfind("\n\n", 0, i)
+    # el primero del texto no tiene nada antes: empieza en cero
+    inicio = 0 if corte == -1 else corte + 2
+    fin = TEXTO_DE_LOS_FRONTS.find("\n\n", i)
     if fin == -1:
-        fin = len(CABECERA_DESPLEGADO)
-    return CABECERA_DESPLEGADO[inicio:fin].rstrip("\n") + "\n"
+        fin = len(TEXTO_DE_LOS_FRONTS)
+    return TEXTO_DE_LOS_FRONTS[inicio:fin].rstrip("\n") + "\n"
 
 
 BLOQUE_DESPLEGADO = """  {nombre}:
