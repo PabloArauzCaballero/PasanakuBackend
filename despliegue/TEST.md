@@ -33,6 +33,24 @@ el host, de a una. Construyendo desde Coolify se lanzaban los quince servicios a
 `org.gradle.jvmargs=-Xmx3g` eso son 45 GB de heap pedidos en una máquina de 23 GB que
 además sostiene otro proyecto. Medido: 16 JVM, carga 49, rumbo al OOM.
 
+## Dos cosas de Coolify que cuestan caro
+
+**No pongas `fqdn` en esta aplicación.** Es de tipo compose, y sus cuatro dominios viven
+en `docker_compose_domains`, uno por servicio. Si además se le llena el campo `fqdn` —por
+ejemplo para que la columna *Domain* de la lista deje de mostrar `-`—, Coolify genera las
+etiquetas de Traefik **solo para un servicio** y los otros tres quedan sin ruta: los
+contenedores sanos y el navegador recibiendo `503 no available server`. Medido: con
+`fqdn` puesto, 16 etiquetas de Traefik en el compose generado; con `fqdn` en nulo, 64 y
+un router por servicio.
+
+Que la lista muestre `-` es el precio de tener los cuatro dominios en un solo recurso.
+
+**Sacar un servicio del compose le borra su dominio.** Al desplegar un compose donde un
+servicio ya no está, Coolify poda su entrada de `docker_compose_domains`. Volver a
+agregarlo al compose **no** devuelve el dominio: hay que reponerlo a mano. Pasó separando
+los fronts en aplicaciones propias antes de crearlas — el orden correcto es crear primero
+los destinos y mover después.
+
 ## Un push a `test`
 
 El temporizador `aportaya-autodespliegue.timer` mira cada dos minutos si la rama avanzó.
