@@ -62,8 +62,11 @@ jobs:
       - name: 2 · formato
         run: ./gradlew spotlessCheck
 
+      # Sin `jacocoTestCoverageVerification`: este trabajo excluye `test` a proposito, y
+      # verificar cobertura sin haber ejecutado una sola prueba da 0 % y falla siempre.
+      # La cobertura se mide donde se corren las pruebas — el trabajo `pruebas`.
       - name: 3 · analisis estatico y las reglas propias
-        run: ./gradlew check -x test
+        run: ./gradlew check -x test -x jacocoTestCoverageVerification -x jacocoTestReport
 
       - name: 3b · testBarrido — las reglas propias sobre cada modulo
         run: ./gradlew testBarrido
@@ -152,20 +155,22 @@ jobs:
           $PSQL -f sql/60_semillas/sembrar.sql
           $PSQL -f sql/60_semillas/sembrar.sql
 
+      # La marca la lee la GUARDA dentro del SQL, y la guarda mira la base, no el
+      # entorno del proceso: con `APORTAYA_ENTORNO` este paso no podia pasar nunca, y el
+      # 10 «probaba» un rechazo que habria ocurrido igual sin guarda alguna.
       - name: 9 · semillas de prueba DOS veces (entorno no productivo)
-        env:
-          APORTAYA_ENTORNO: dev
         run: |
+          $PSQL -c "ALTER DATABASE pasanaku SET app.entorno = 'dev'"
           $PSQL -f sql/61_dev/sembrar_dev.sql
           $PSQL -f sql/61_dev/sembrar_dev.sql
 
       - name: 10 · rechazo — las semillas de prueba FALLAN si el entorno es produccion
-        env:
-          APORTAYA_ENTORNO: produccion
         run: |
+          $PSQL -c "ALTER DATABASE pasanaku SET app.entorno = 'produccion'"
           if $PSQL -f sql/61_dev/sembrar_dev.sql; then
             echo "Las semillas de dev entraron en un entorno de produccion"; exit 1
           fi
+          $PSQL -c "ALTER DATABASE pasanaku RESET app.entorno" 
 
       - name: 11 · permisos — cada svc_* solo ve su esquema (invariante 11)
         run: $PSQL -f sql/50_verificacion/verificaciones.sql

@@ -167,7 +167,14 @@ public abstract class SabanaDeSeguridadWeb {
             // condicion `consumes` del mapeo devuelve 415 ANTES de que corra la
             // guardia, y la sabana estaria comprobando que un endpoint protegido
             // rechaza texto plano — no que niega a quien no tiene permiso.
-            peticion.contentType(MediaType.APPLICATION_JSON).content("{}");
+            if (endpoint.recibeArchivo()) {
+                // Un endpoint que recibe un archivo responde 415 a cualquier JSON, y la
+                // sabana terminaba comprobando que rechaza el tipo equivocado en vez de
+                // que exige la clave de idempotencia. Se le habla en su tipo.
+                peticion.contentType(MediaType.MULTIPART_FORM_DATA).content(new byte[0]);
+            } else {
+                peticion.contentType(MediaType.APPLICATION_JSON).content("{}");
+            }
         }
         if (sesion != null) {
             peticion.with(sesion);

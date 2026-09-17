@@ -127,11 +127,11 @@ class VerificacionesControllerWebTest {
         }
 
         @Test
-        @DisplayName("CU-02 · una cara que no existe la rechaza el contrato, no el caso de uso")
+        @DisplayName("CU-02 · una cara que no existe se rechaza en el borde, no con un 500")
         void caraFueraDelContrato() throws Exception {
             mvc.perform(get("/identidad/verificaciones/{id}/fotos/{cara}", VERIFICACION, "PERFIL")
                             .with(Sesiones.como("BACKOFFICE", "VERIFICACION_RESOLVER")))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isUnprocessableEntity());
             verifyNoInteractions(revision);
         }
     }
@@ -141,7 +141,7 @@ class VerificacionesControllerWebTest {
     class Decision {
 
         private static final String APRUEBA = """
-                {"decision": "APROBADA"}
+                {"decision": "APROBAR"}
                 """;
 
         @Test
@@ -167,7 +167,7 @@ class VerificacionesControllerWebTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.estado").value("APROBADA"));
 
-            verify(revision).resolver(eq(VERIFICACION), eq("APROBADA"), eq(null), any());
+            verify(revision).resolver(eq(VERIFICACION), eq("APROBAR"), eq(null), any());
         }
 
         @Test

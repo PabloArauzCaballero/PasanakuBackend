@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
+import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
 import bo.aportaya.identidad.dominio.AperturaDeCuenta;
@@ -58,13 +59,18 @@ class UsuariosControllerWebTest {
               "nombres": "Pablo",
               "apellidos": "Arauz",
               "fechaNacimiento": "1995-06-15",
-              "documento": {"tipo": "CI", "numero": "1234567", "expedidoEn": "SC"},
+              "documento": {"tipo": "CI", "numero": "1234567", "lugarExpedicion": "SC"},
               "aceptaContratos": ["dddddddd-0000-4000-8000-000000000002"]
             }
             """;
 
     @Autowired
     private MockMvc mvc;
+
+    // La subida de la foto del expediente es dependencia de UsuariosController desde
+    // que existe el portal de riesgo: sin doblarla, el contexto de esta prueba no levanta.
+    @MockitoBean
+    private CU02GuardarFotoDelExpediente guardarFoto;
 
     @MockitoBean
     private CU01RegistrarUsuario cu01;

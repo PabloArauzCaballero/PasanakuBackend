@@ -23,7 +23,15 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  * @param publico si declara {@link Publico}
  * @param exigeClave si declara {@code Idempotency-Key} como cabecera obligatoria
  */
-public record Endpoint(String metodo, String patron, String ruta, String permiso, boolean publico, boolean exigeClave) {
+public record Endpoint(
+        String metodo,
+        String patron,
+        String ruta,
+        String permiso,
+        boolean publico,
+        boolean exigeClave,
+        /** Recibe un archivo: la sabana tiene que hablarle multipart o come un 415. */
+        boolean recibeArchivo) {
 
     /** Un valor que sirve para {@code UUID}, para {@code String} y para el comparador de rutas. */
     private static final String RELLENO = "00000000-0000-4000-8000-000000000000";
@@ -55,7 +63,10 @@ public record Endpoint(String metodo, String patron, String ruta, String permiso
                             rellenar(patron),
                             permisoDe(manejador),
                             esPublico(manejador),
-                            exigeClaveDeIdempotencia(manejador)));
+                            exigeClaveDeIdempotencia(manejador),
+                            info.getConsumesCondition().getConsumableMediaTypes().stream()
+                                    .anyMatch(
+                                            t -> t.includes(org.springframework.http.MediaType.MULTIPART_FORM_DATA))));
                 }
             }
         });

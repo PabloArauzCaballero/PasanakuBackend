@@ -2,6 +2,8 @@ package bo.aportaya.identidad.web;
 
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
+import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
+import bo.aportaya.identidad.aplicacion.CU02RevisarExpediente;
 import bo.aportaya.identidad.aplicacion.CU04Autenticar;
 import bo.aportaya.identidad.aplicacion.EmitirAcceso;
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
@@ -30,6 +32,16 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
             "aportaya.seguridad.pimienta=pimienta-de-prueba-no-es-la-de-produccion",
         })
 class SeguridadWebTest extends SabanaDeSeguridadWeb {
+
+    // La subida de la foto del expediente es dependencia de UsuariosController desde
+    // que existe el portal de riesgo: sin doblarla, el contexto de esta prueba no levanta.
+    // El portal de riesgo tambien cuelga de la sabana de seguridad: sus rutas son las
+    // que miran cedulas ajenas.
+    @MockitoBean
+    private CU02RevisarExpediente revisarExpediente;
+
+    @MockitoBean
+    private CU02GuardarFotoDelExpediente guardarFoto;
 
     @MockitoBean
     private BuscarPorTelefono buscarPorTelefono;

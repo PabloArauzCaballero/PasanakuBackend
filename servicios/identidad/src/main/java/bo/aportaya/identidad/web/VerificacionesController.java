@@ -6,9 +6,11 @@ import bo.aportaya.identidad.web.generado.IdentidadApi;
 import bo.aportaya.identidad.web.generado.modelo.DecisionDeVerificacion;
 import bo.aportaya.identidad.web.generado.modelo.EnlaceDeFoto;
 import bo.aportaya.identidad.web.generado.modelo.ExpedienteEnRevision;
+import bo.aportaya.plataforma.dominio.ErrorDeDominio;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,9 +48,18 @@ public class VerificacionesController implements IdentidadApi {
         return ResponseEntity.ok(cola);
     }
 
+    /** Las tres caras que el contrato declara; cualquier otra no existe. */
+    private static final Set<String> CARAS = Set.of("ANVERSO", "REVERSO", "SELFIE");
+
     @Override
     @Permiso("VERIFICACION_RESOLVER")
     public ResponseEntity<EnlaceDeFoto> verFotoDelExpediente(UUID verificacionId, String cara) {
+        // El contrato declara el enum, pero la interfaz generada lo entrega como texto: sin
+        // esta guarda una cara inventada llegaba hasta la consulta y salia un 500 —un dato
+        // que el borde tenia que rechazar, convertido en error del servidor—.
+        if (!CARAS.contains(cara)) {
+            throw new ErrorDeDominio("La cara del documento no existe: " + cara);
+        }
         var enlace = revision.foto(verificacionId, cara, sesion.actual());
         return ResponseEntity.ok(new EnlaceDeFoto().url(enlace.url()).vigenteHasta(enlace.vigenteHasta()));
     }
