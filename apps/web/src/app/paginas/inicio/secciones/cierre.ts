@@ -62,7 +62,7 @@ export class Cierre {
   protected readonly cifras = [
     { valor: '99', clave: 'casos de uso especificados' },
     { valor: '305', clave: 'tablas en el modelo' },
-    { valor: '181', clave: 'reglas de negocio en la base' },
+    { valor: '141', clave: 'restricciones en la base' },
     { valor: '14', clave: 'servicios independientes' },
   ]
   protected readonly preguntas = [

@@ -10,35 +10,44 @@ python3 -m http.server 8899     # o servido, si querés medir con el navegador
 
 ## Dónde está publicado
 
-> **https://pabloarauzcaballero.github.io/aportayaDoc/**
+> **https://pabloarauzcaballero.github.io/PasanakuBackend/**
 
-Esa es la única URL válida. Anotala: el repositorio se renombró de `aportaya` a
-`aportayaDoc`, y **GitHub Pages no redirige las URLs viejas de *project page***. La
-anterior devuelve 404 para siempre:
+Esa es la única URL válida, y es la del **nombre actual del repositorio**. Se renombró
+dos veces (`aportaya` → `aportayaDoc` → `PasanakuBackend`) y **GitHub Pages no redirige
+las URLs viejas de *project page***: las dos anteriores dan 404 para siempre.
 
 | URL | Resultado |
 | --- | :-: |
-| `https://pabloarauzcaballero.github.io/aportayaDoc/` | **200** ✅ |
-| `https://pabloarauzcaballero.github.io/aportaya/` | 404 — nombre viejo |
+| `https://pabloarauzcaballero.github.io/PasanakuBackend/` | la buena |
+| `https://pabloarauzcaballero.github.io/aportayaDoc/` | 404 — nombre viejo |
+| `https://pabloarauzcaballero.github.io/aportaya/` | 404 — nombre más viejo |
 | `https://pabloarauzcaballero.github.io/` | 404 — es la página de *usuario*, que no existe |
 
-Como este repo se sirve bajo un subdirectorio (`/aportayaDoc/`), **todas las rutas del
+Hoy **todavía no está publicado**: ver § Despliegue.
+
+Como este repo se sirve bajo un subdirectorio (`/PasanakuBackend/`), **todas las rutas del
 HTML son relativas** (`assets/…`, `verificar/…`). Una ruta absoluta tipo `/assets/…`
 apuntaría a la raíz del dominio y daría 404. La excepción son `canonical`, `og:url`,
 `og:image` y `twitter:image`, que **deben** ser absolutas porque los rastreadores
 sociales no resuelven rutas relativas.
 
 > **Si el repositorio se vuelve a renombrar**, hay que actualizar esas cuatro etiquetas
-> en `index.html` y esta sección. Es el único lugar donde el nombre está cableado.
+> en `index.html` y esta sección. Es el único lugar donde el nombre está cableado, y ya
+> quedó desactualizado una vez: apuntaba a `aportayaDoc` después del último renombre.
 
 ## Despliegue en GitHub Pages
 
 `.github/workflows/pages-landing.yml` publica esta carpeta (y nada más — es el artefacto
-completo, no un subdirectorio del sitio) en cada push a `main` **o `dev`** que toque
-`landing/`, y también se puede disparar a mano desde la pestaña **Actions**.
+completo, no un subdirectorio del sitio) en cada push a **`main`** que toque `landing/`, y
+también se puede disparar a mano desde la pestaña **Actions**.
 
-Escucha las dos ramas a propósito: `dev` es donde se integra el trabajo de este repo y
-`main` va varios merges atrás, así que un workflow que solo mirara `main` no correría nunca.
+**Solo `main`, y todavía no se publicó nada.** Escuchaba `dev` también, y no podía
+funcionar: el entorno `github-pages` tiene una política de ramas que admite `main` y nada
+más, así que cada push a `dev` moría con «Branch 'dev' is not allowed to deploy to
+github-pages». La política se dejó como está a propósito, porque la tabla § Reemplazar
+antes de publicar sigue sin resolverse: publicar en una URL pública un nombre de persona
+inventado, montos de ejemplo y una casilla de correo que no existe es una decisión de
+negocio. Para publicar: merge a `main`, o disparo manual con `main` seleccionada.
 
 El paso `configure-pages` corre con `enablement: true`, así que **activa Pages por su
 cuenta** usando el token del propio workflow (permiso `pages: write`). No hace falta que
@@ -117,9 +126,20 @@ Todo lo de esta tabla es **placeholder**. Nada de esto está confirmado por nadi
 | Preguntas · costo | «comisión pequeña por juego», organizador humano sin comisión | Tarifario aprobado. Es decisión de negocio, no técnica |
 | Todo el sitio | No hay analítica ni formulario: los CTA son `mailto:` | Definir formulario y su tratamiento de datos personales |
 
-Las cifras de la sección **«Lo que hay debajo»** (87 casos de uso, 274 tablas, 119
-restricciones, 12 módulos) **sí son reales**: salen del [README del
-repositorio](../README.md). Si cambia el modelo, cambian acá.
+Las cifras de la sección **«Lo que hay debajo»** (99 casos de uso, 305 tablas, 141
+restricciones, 14 servicios) **sí son reales**, y cada una se cuenta con un comando:
+
+| Cifra | Cómo se cuenta |
+| --- | --- |
+| 99 casos de uso | `ls docs/CasosDeUso/CU-*.md \| wc -l` |
+| 305 tablas | `find sql/10_tablas -name '*.sql' \| wc -l` — una tabla por archivo |
+| 141 restricciones | filas de la tabla de [`docs/Restricciones.md`](../docs/Restricciones.md) |
+| 14 servicios | `ls -d servicios/*/ \| wc -l` |
+
+Estaban desactualizadas: decían 87, 274, 119 y «12 módulos de dominio», los números de
+varios meses atrás. **Si cambia el modelo, cambian acá** — y son las mismas cuatro que
+muestra el cierre del sitio público (`apps/web`), que también decía 181 restricciones
+sin que ese número saliera de ningún lado.
 
 ## Decisiones
 

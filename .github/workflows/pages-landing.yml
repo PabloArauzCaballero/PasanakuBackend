@@ -12,11 +12,20 @@ name: Publicar landing en GitHub Pages
 # landing/README.md documenta qué hay en el sitio y qué placeholders reemplazar
 # antes de considerarlo publicable de verdad.
 
+# Solo `main`, y a mano. Escuchaba `dev` tambien —«es la rama activa»— y eso no podia
+# funcionar: el entorno `github-pages` tiene una politica de ramas que admite `main` y
+# nada mas, asi que cada push a `dev` que tocaba landing/ moria con «Branch 'dev' is not
+# allowed to deploy to github-pages». Un rojo garantizado que no medía nada.
+#
+# Se arregla del lado del workflow y no abriendo la politica a `dev` a proposito: la
+# tabla «Reemplazar antes de publicar» de landing/README.md sigue llena de datos de
+# ejemplo —un nombre de persona, montos inventados, una casilla de correo que no existe
+# y una lista de espera sin confirmar—. Publicar eso en una URL publica es una decision
+# de negocio, no un paso de integracion. Cuando esté para publicar: merge a `main`, o
+# disparar a mano desde Actions con `main` seleccionada.
 on:
   push:
-    # `dev` es la rama activa del repo (main va varios merges atrás), así que
-    # el despliegue tiene que escuchar ahí para llegar a correr alguna vez.
-    branches: [main, dev]
+    branches: [main]
     paths:
       - "landing/**"
       - ".github/workflows/pages-landing.yml"
