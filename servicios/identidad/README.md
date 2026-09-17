@@ -17,14 +17,11 @@ Modulo 01 de la boveda — Identidad, Usuarios y Seguridad.
 
 | CU | Nombre | Estado |
 | --- | --- | --- |
-| CU-04 | Autenticar con MFA y registrar dispositivo | ⬜ sin implementar |
-
-| CU-08 | Asignar y revocar roles de operador | ⬜ sin implementar |
-
-| CU-09 | Cambiar credenciales y solicitar la baja | ⬜ sin implementar |
-
-| CU-01 | Registro y apertura de billetera | ⬜ sin implementar |
-
+| CU-01 | Registro y apertura de billetera | **Implementado** |
+| CU-02 | Revisar el expediente de identidad | **Implementado** |
+| CU-04 | Autenticar con MFA y registrar dispositivo | **Implementado** |
+| CU-08 | Asignar y revocar roles de operador | **Implementado** |
+| CU-09 | Cambiar credenciales y solicitar la baja | **Implementado** |
 | CU-05 | Aceptar contrato de adhesión y tarifario | ⬜ sin implementar |
 
 ## Eventos que emite
