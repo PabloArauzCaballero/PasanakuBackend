@@ -13,6 +13,12 @@ describe('@aportaya/ui · accesibilidad del catálogo', () => {
   beforeEach(() => TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection()] }))
 
   for (const tema of ['light', 'dark'] as const) {
+    // Treinta segundos, no los cinco de vitest por omision: esta prueba monta el catalogo
+    // ENTERO —cada pieza con todas sus variantes— y le pasa axe por encima. Medido en esta
+    // maquina: 9,9 s. Con el limite por omision no fallaba por una violacion de
+    // accesibilidad sino por el cronometro, que es la peor forma de tener un gate rojo.
+    // Las otras veinticuatro pruebas de axe montan UNA pantalla y tardan menos de tres
+    // segundos: no necesitan esto y se quedan con el limite corto.
     it(`sin violaciones en tema ${tema}`, async () => {
       document.documentElement.setAttribute('data-theme', tema)
       const fixture = TestBed.createComponent(Catalogo)
@@ -20,7 +26,7 @@ describe('@aportaya/ui · accesibilidad del catálogo', () => {
       await fixture.whenStable()
       const resultado = await axe(fixture.nativeElement, { rules: { 'color-contrast': { enabled: false } } })
       expect(resultado).toHaveNoViolations()
-    })
+    }, 30_000)
   }
 
   it('todo lo que se toca mide al menos el área táctil (min-height declarado en el estilo)', () => {

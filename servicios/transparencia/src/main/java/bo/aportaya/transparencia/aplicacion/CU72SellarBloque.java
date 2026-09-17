@@ -106,6 +106,10 @@ public class CU72SellarBloque {
                 // AP-CU72-03 · uq_bloque_grupo_numero. Dos sellados a la vez leen el
                 // mismo predecesor y quieren el mismo numero; gana uno. El otro no
                 // reintenta a ciegas: el llamador vuelve a leer la punta de la cadena.
+                // El detalle lleva la restriccion que la base nombro, no solo la que este
+                // catch supone. Sin eso, `ck_bloque_genesis` o cualquier otra se reportaban
+                // como «ya existe el bloque N» y mandaban a buscar un duplicado que no
+                // existia.
                 throw new ErrorDeNegocio(
                         CodigoError.de(72, 3),
                         "Ya existe el bloque " + numero + " para ese grupo (R-REP-04).",
@@ -113,7 +117,9 @@ public class CU72SellarBloque {
                                 "numeroBloque",
                                 numero,
                                 "grupoId",
-                                entrada.grupoId().toString()));
+                                entrada.grupoId().toString(),
+                                "restriccion",
+                                raizDe(e)));
             } catch (org.jooq.exception.DataAccessException | org.springframework.dao.DataAccessException e) {
                 // AP-CU72-02 · tg_bloque_encadenado. Si la base dice que el eslabon no
                 // encaja, la cadena esta rota y **el sellado se detiene**. Insistir

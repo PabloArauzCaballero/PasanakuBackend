@@ -117,7 +117,16 @@ tasks.named<Test>("test") {
         "**/*WebTest.class",
     )
     systemProperty("junit.jupiter.execution.timeout.default", "5s")
-    testLogging { events("failed") }
+    testLogging {
+            events("failed")
+            // Con solo `events("failed")`, el CI imprime el NOMBRE de la prueba caida y
+            // nada mas: ni el mensaje ni la causa. Cada rojo obligaba a reproducirlo en
+            // otra maquina para enterarse de que decia — y cuando el rojo solo aparece en
+            // Linux, eso es media hora por intento. El motivo va en el log.
+            exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+            showCauses = true
+            showStackTraces = true
+        }
 }
 
 // El source set se toma FUERA del bloque de configuracion: dentro, `the<...>()`
@@ -156,7 +165,16 @@ fun corredor(
         // «ningun caso de uso tarda mas de 120s» sigue intacto, que es el que importa.
         systemProperty("junit.jupiter.execution.timeout.beforeall.method.default", "600s")
         if (conContenedor) usesService(limiteDeContenedores)
-        testLogging { events("failed") }
+        testLogging {
+            events("failed")
+            // Con solo `events("failed")`, el CI imprime el NOMBRE de la prueba caida y
+            // nada mas: ni el mensaje ni la causa. Cada rojo obligaba a reproducirlo en
+            // otra maquina para enterarse de que decia — y cuando el rojo solo aparece en
+            // Linux, eso es media hora por intento. El motivo va en el log.
+            exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+            showCauses = true
+            showStackTraces = true
+        }
     }
 
 corredor(
