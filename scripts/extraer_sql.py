@@ -29,6 +29,9 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
 
+sys.path.insert(0, str(pathlib.Path(__file__).parent))
+from generar_ddl import SEARCH_PATH_SQL  # noqa: E402 — UNA sola definicion del search_path
+
 ORIGEN = pathlib.Path("docs/Restricciones.md")
 DESTINO = pathlib.Path("sql/40_reglas/restricciones.sql")
 DESTINO_VERIF = pathlib.Path("sql/50_verificacion/verificaciones.sql")
@@ -81,7 +84,13 @@ def main() -> int:
         "-- Consultas de control: TODAS deben devolver cero filas.\n"
         "-- GENERADO desde docs/Restricciones.md — no editar a mano.\n"
         "-- Se ejecutan en cada despliegue y en el control diario,\n"
-        "-- no forman parte de sql/aplicar.sql.\n\n"
+        "-- no forman parte de sql/aplicar.sql.\n"
+        "--\n"
+        "-- El search_path va ACA y no se hereda: estas consultas nombran las tablas sin\n"
+        "-- su esquema, y corren en su propia sesion de psql. Sin esta linea fallan con\n"
+        "-- «relation \"transaccion_billetera\" does not exist» en cualquier base que no\n"
+        "-- traiga el search_path puesto por ALTER DATABASE — el CI, por ejemplo.\n"
+        + SEARCH_PATH_SQL + "\n\n"
         + "\n\n".join(q for _, q in verif) + "\n", encoding="utf-8")
 
     DESTINO.parent.mkdir(parents=True, exist_ok=True)

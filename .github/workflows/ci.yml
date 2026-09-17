@@ -328,4 +328,11 @@ jobs:
           distribution: temurin
           java-version: "21"
       - uses: gradle/actions/setup-gradle@v4
-      - run: ./gradlew dependencies --configuration runtimeClasspath > /dev/null
+      # El proyecto RAIZ no tiene `runtimeClasspath` —no tiene codigo—, asi que pedirle
+      # el arbol de dependencias fallaba siempre con «configuration not found». El arbol
+      # que importa es el de lo que se despliega: el gateway y los catorce servicios.
+      - run: |
+          set -e
+          modulos="$(./gradlew -q projects | grep -oE "servicios:[a-z-]+|plataforma:gateway" | sort -u)"
+          for m in $modulos; do ./gradlew -q ":$m:dependencies" --configuration runtimeClasspath > /dev/null; done
+          echo "arbol de dependencias resuelto en $(echo "$modulos" | wc -w) modulos" 

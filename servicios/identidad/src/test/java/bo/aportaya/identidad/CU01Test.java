@@ -140,7 +140,7 @@ class CU01Test extends BaseDeCU01 {
     }
 
     @Test
-    @DisplayName("el carnet boliviano no se construye sin su lugar de expedicion")
+    @DisplayName("rechaza un carnet boliviano sin su lugar de expedicion")
     void exigeLugarDeExpedicion() {
         // El numero de CI se repite entre departamentos: sin la extension, dos
         // personas distintas comparten documento y la segunda no puede abrir cuenta.

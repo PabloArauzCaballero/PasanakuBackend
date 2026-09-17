@@ -31,10 +31,8 @@ public class Version {
 
     @Bean
     public RouterFunction<ServerResponse> rutaDeVersion() {
-        return route(
-                GET("/api/v1/version"),
-                peticion -> ServerResponse.ok()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .bodyValue(Map.of("servicio", "gateway", "estado", "en linea")));
+        return route(GET("/api/v1/version"), peticion -> ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("servicio", "gateway", "estado", "en linea")));
     }
 }

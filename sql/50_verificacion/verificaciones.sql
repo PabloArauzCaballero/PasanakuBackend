@@ -2,6 +2,12 @@
 -- GENERADO desde docs/Restricciones.md — no editar a mano.
 -- Se ejecutan en cada despliegue y en el control diario,
 -- no forman parte de sql/aplicar.sql.
+--
+-- El search_path va ACA y no se hereda: estas consultas nombran las tablas sin
+-- su esquema, y corren en su propia sesion de psql. Sin esta linea fallan con
+-- «relation "transaccion_billetera" does not exist» en cualquier base que no
+-- traiga el search_path puesto por ALTER DATABASE — el CI, por ejemplo.
+SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, grupos, identidad, notificaciones, nucleo_financiero, organizador, publicidad, tarifas, transparencia, catalogo, comun, public;
 
 -- 1) Transacciones descuadradas
 SELECT t.id FROM transaccion_billetera t
