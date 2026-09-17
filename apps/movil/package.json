@@ -9,7 +9,8 @@
     "build": "flutter pub get && bash scripts/generar-clientes.sh",
     "typecheck": "dart analyze --fatal-infos",
     "lint": "dart format --output=none --set-exit-if-changed lib test && python3 ../../scripts/verificar_frontend.py movil",
-    "test:front": "flutter test test/unidad test/widget test/contrato test/goldens test/identidad test/pasanaku --timeout 60s",
+    "test:front": "flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku --timeout 60s",
+    "test:goldens": "flutter test test/goldens --timeout 60s",
     "test:a11y": "flutter test test/a11y --timeout 60s",
     "test:e2e": "echo 'patrol test — solo en P3 con emulador o dispositivo'"
   },
