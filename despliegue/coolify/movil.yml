@@ -1,0 +1,31 @@
+# La app movil en el navegador — GENERADO por `python3 scripts/generar_compose.py --coolify`.
+#
+# Recortado del compose del backend, que es la unica fuente. Comparte con el sus dos redes
+# externas: `aportaya-interna` es donde `gateway` resuelve por nombre —Docker resuelve el
+# alias de servicio entre proyectos distintos mientras compartan la red— y `coolify` es por
+# donde entra Traefik.
+#
+# No construye: la imagen la arma /opt/aportaya/bin/construir-fronts.sh en el host.
+name: aportaya-movil
+
+networks:
+  interna:
+    external: true
+    name: aportaya-interna
+  publica:
+    external: true
+    name: coolify
+
+services:
+  # La app movil compilada para la web: se prueba desde un navegador, sin APK ni
+  # TestFlight. Su nginx reenvia /api/ al gateway por el mismo origen.
+  movil:
+    image: aportaya/movil-web:test
+    pull_policy: never
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+    networks: [interna, publica]

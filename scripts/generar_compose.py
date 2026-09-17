@@ -272,6 +272,60 @@ services:
 
 """
 
+# Un compose por front, ADEMAS del principal. La duplicacion es aparente: los tres
+# bloques se recortan del MISMO texto que genera el compose del backend, asi que no
+# pueden divergir — si alguien cambia el front en un lado, cambia en los dos.
+#
+# Existen porque en Coolify una aplicacion de tipo compose es UN recurso en la lista: con
+# los tres fronts dentro del compose del backend, el panel muestra «aportaya-api» y nada
+# mas. Separados, cada uno es su recurso, con su dominio y su boton de desplegar.
+#
+# Mientras el compose del backend siga trayendo los fronts, LO VIVO ES ESE. Estos archivos
+# estan para que Coolify pueda leerlos al crear los tres recursos; recien cuando existan y
+# esten desplegados se sacan los fronts del principal. El orden importa: la vez que se hizo
+# al reves, el autodespliegue los borro como huerfanos y los tres enlaces se cayeron.
+SALIDA_FRONTS = RAIZ / "despliegue/coolify"
+
+FRONTS = {
+    "backoffice": "El portal de operacion",
+    "web": "El sitio publico",
+    "movil": "La app movil en el navegador",
+}
+
+CABECERA_FRONT = """# {titulo} — GENERADO por `python3 scripts/generar_compose.py --coolify`.
+#
+# Recortado del compose del backend, que es la unica fuente. Comparte con el sus dos redes
+# externas: `aportaya-interna` es donde `gateway` resuelve por nombre —Docker resuelve el
+# alias de servicio entre proyectos distintos mientras compartan la red— y `coolify` es por
+# donde entra Traefik.
+#
+# No construye: la imagen la arma /opt/aportaya/bin/construir-fronts.sh en el host.
+name: aportaya-{nombre}
+
+networks:
+  interna:
+    external: true
+    name: aportaya-interna
+  publica:
+    external: true
+    name: coolify
+
+services:
+"""
+
+
+def bloque_del_front(nombre):
+    """Recorta el bloque de un servicio del compose desplegado, con su comentario."""
+    marca = f"\n  {nombre}:\n"
+    i = CABECERA_DESPLEGADO.index(marca)
+    # el comentario que lo precede es parte del bloque: explica por que ese front es asi
+    inicio = CABECERA_DESPLEGADO.rindex("\n\n", 0, i) + 2
+    fin = CABECERA_DESPLEGADO.find("\n\n", i)
+    if fin == -1:
+        fin = len(CABECERA_DESPLEGADO)
+    return CABECERA_DESPLEGADO[inicio:fin].rstrip("\n") + "\n"
+
+
 BLOQUE_DESPLEGADO = """  {nombre}:
     image: aportaya/{nombre}:test
     pull_policy: never
@@ -382,6 +436,15 @@ def main():
     salida.parent.mkdir(parents=True, exist_ok=True)
     salida.write_text(cabecera + "\n".join(bloques), encoding="utf-8")
     print(f"compose {etiqueta}: {len(servicios)} servicios -> {salida.relative_to(RAIZ)}")
+
+    if desplegado:
+        SALIDA_FRONTS.mkdir(parents=True, exist_ok=True)
+        for nombre, titulo in FRONTS.items():
+            destino = SALIDA_FRONTS / f"{nombre}.yml"
+            destino.write_text(
+                CABECERA_FRONT.format(titulo=titulo, nombre=nombre) + bloque_del_front(nombre),
+                encoding="utf-8")
+            print(f"  front {nombre} -> {destino.relative_to(RAIZ)}")
     return 0
 
 
