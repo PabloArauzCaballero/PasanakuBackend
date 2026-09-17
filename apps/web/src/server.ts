@@ -72,11 +72,18 @@ if (gatewayInterno) {
         ...(conCuerpo ? { duplex: 'half' } : {}),
         redirect: 'manual',
       } as RequestInit);
-      // fetch ya descomprimio el cuerpo: reenviar content-encoding haria que el
-      // navegador intente descomprimir texto plano.
-      respuesta.headers.delete('content-encoding');
-      respuesta.headers.delete('content-length');
-      await writeResponseToNodeResponse(respuesta, res);
+      // Las cabeceras de una respuesta de `fetch` son INMUTABLES: borrarlas ahí lanza
+      // `TypeError: immutable` y el reenvío entero se cae —el servidor quedaba sin poder
+      // consultar la API y la página se renderizaba en su esqueleto—. Se copian y se
+      // ajusta la copia. Se quitan compresión y tamaño: `fetch` ya descomprimió el
+      // cuerpo, y reenviarlas haría que el navegador intente descomprimir texto plano.
+      const deVuelta = new Headers(respuesta.headers);
+      deVuelta.delete('content-encoding');
+      deVuelta.delete('content-length');
+      await writeResponseToNodeResponse(
+        new Response(respuesta.body, { status: respuesta.status, headers: deVuelta }),
+        res,
+      );
     } catch (error) {
       next(error);
     }

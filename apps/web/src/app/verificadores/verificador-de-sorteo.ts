@@ -1,5 +1,5 @@
 import { httpResource } from '@angular/common/http'
-import { ChangeDetectionStrategy, Component, computed, inject, input, resource } from '@angular/core'
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, inject, input, resource, signal } from '@angular/core'
 import type { SalidaVerificacionSorteo } from 'clientes/angular/transparencia'
 import { barajarDeterminista, verificarCompromiso } from '@aportaya/dominio-cliente'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
@@ -79,8 +79,25 @@ export class VerificadorDeSorteo {
     return p ? JSON.stringify(p.paquete, null, 2) : ''
   })
 
+  /**
+   * El recómputo corre SOLO en el navegador, y no por optimizar: la promesa de CU-61 es
+   * que el visitante lo compruebe por su cuenta, y un recómputo hecho en el servidor no
+   * prueba nada —es la misma parte que ya dio el veredicto—.
+   *
+   * Además arreglaba un fallo real: al renderizar en el servidor, el bloque salía con el
+   * resultado ya calculado y al hidratar el navegador volvía a empezar, con lo que el DOM
+   * dejaba de coincidir (NG0502) y la página se quedaba para siempre en el esqueleto de
+   * carga. Se enciende después del primer pintado, así el primer render del navegador es
+   * idéntico al del servidor.
+   */
+  private readonly enElNavegador = signal(false)
+
+  constructor() {
+    afterNextRender(() => this.enElNavegador.set(true))
+  }
+
   protected readonly veredictoCliente = resource({
-    params: () => this.paquete.value(),
+    params: () => (this.enElNavegador() ? this.paquete.value() : undefined),
     loader: async ({ params }) => {
       if (!params) return undefined
       const { semilla, entropias, cupos } = params.paquete

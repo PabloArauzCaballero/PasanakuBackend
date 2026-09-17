@@ -18,18 +18,18 @@ import { expect, test } from '@playwright/test'
  * puede probar de verdad para la cadena hasta que ese carril (transparencia/backend)
  * publique la referencia.
  *
- * HALLAZGO 2 — bug real encontrado por este E2E, en `apps/web/src/app/paginas/publico-sorteos/sorteo-verificacion.ts`
- * y `apps/web/src/app/verificadores/verificador-de-sorteo.ts` (dueño: el carril que
- * escribió `@defer (hydrate on viewport)` ahí — no F12): al hidratar en el cliente,
- * Angular tira `ERROR NG0502` ("hydration mismatch" en `<section>`) y
- * `TypeError: Cannot read properties of null (reading 'nextSibling')`, visible en la
- * consola del navegador real (reproducido con Playwright contra el build de
- * producción, `yarn build` + `node dist/web/server/server.mjs`, y contra
- * `yarn dev:mock`). El bloque nunca sale del esqueleto de carga: el usuario ve
- * "Consultando el paquete del sorteo" para siempre y jamás el veredicto ni el
- * recómputo — la promesa central de CU-61 ("no hace falta creernos") no se cumple
- * en un navegador real. Esta prueba queda en rojo a propósito, como evidencia: no se
- * fuerza a verde ni se esconde (política del carril, `definicion-de-terminado`).
+ * HALLAZGO 2 — RESUELTO el 2026-09-16. Al hidratar, Angular tiraba `NG0502` y la página
+ * se quedaba para siempre en el esqueleto: nunca se veía el veredicto ni el recómputo, y
+ * la promesa de CU-61 («no hace falta creernos») no se cumplía en un navegador real.
+ * Dos causas, las dos arregladas:
+ *   · el bloque usaba `@defer (hydrate on viewport)`, así que se hidrataba DESPUÉS de que
+ *     Angular descarta la caché que transfiere el servidor: volvía a pedir los datos y el
+ *     DOM dejaba de coincidir. Acá el verificador es el contenido de la página y está en
+ *     la primera pantalla, así que va `hydrate on immediate`;
+ *   · el recómputo corría también en el servidor, y al rehacerse en el navegador cambiaba
+ *     el DOM. Ahora corre solo en el navegador, que además es lo que el caso de uso
+ *     promete: el servidor ya dio su veredicto, el punto es comprobarlo por fuera.
+ * Esta prueba ya NO está en rojo: si vuelve a estarlo, el bug volvió.
  */
 test.describe('verificación pública recomputada en el cliente', () => {
   test('el sorteo público muestra el veredicto del servidor y lo recomputa en el navegador', async ({ page }) => {

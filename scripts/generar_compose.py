@@ -236,8 +236,12 @@ services:
     pull_policy: never
     restart: unless-stopped
     environment:
-      # El render en servidor llama al gateway por la red interna...
-      APORTAYA_GATEWAY: http://gateway:8080/api/v1
+      # La MISMA dirección relativa que usa el navegador, a propósito: el servidor la
+      # resuelve contra sí mismo y sale por su propio reenvío de /api (abajo). Con una
+      # URL distinta en cada lado, la caché que el servidor transfiere —indexada por
+      # URL— no la encuentra el navegador al hidratar, vuelve a pedir los datos y el DOM
+      # deja de coincidir: las páginas de verificación pública se quedaban en blanco.
+      APORTAYA_GATEWAY: /api/v1
       # ...y el navegador por el mismo origen: server.ts reenvia /api y le
       # inyecta el meta del gateway a la pagina.
       APORTAYA_GATEWAY_INTERNO: http://gateway:8080
