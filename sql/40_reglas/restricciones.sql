@@ -298,10 +298,20 @@ CREATE INDEX IF NOT EXISTS ix_respuesta_idem_expiradas ON respuesta_idempotente 
 -- el control de saldo no negativo pasa a evaluarse contra un saldo falso: dos
 -- retiros simultáneos sobregiran la cuenta. Tomar el bloqueo ANTES de leer
 -- obliga a la segunda transacción a releer el libro ya completo.
+--
+-- `FOR NO KEY UPDATE` y no `FOR UPDATE`, por lo mismo que en `fn_ctb_recalcular_saldo`:
+-- esta función escribe `saldo_*` y `version`, ninguna de ellas clave, así que `FOR UPDATE`
+-- pide un nivel más alto del que el `UPDATE` de abajo toma solo — y esa diferencia de
+-- nivel bloquea la fila DOS veces en la misma transacción, con lo que dos movimientos
+-- simultáneos sobre la misma cuenta se pueden esperar en círculo. Con el nivel parejo la
+-- exclusión es la misma (la segunda transacción sigue esperando su turno para releer el
+-- libro completo) y el interbloqueo desaparece. El gemelo contable fallaba cinco de cinco
+-- veces en una máquina con varios núcleos; acá no hay una prueba de concurrencia que lo
+-- haya cazado todavía, y es el camino del dinero.
 CREATE OR REPLACE FUNCTION fn_bil_recalcular_saldos(p_cuenta UUID) RETURNS VOID AS $$
 DECLARE v_movimientos NUMERIC(16,2); v_retenido NUMERIC(16,2);
 BEGIN
-  PERFORM 1 FROM cuenta_billetera WHERE id = p_cuenta FOR UPDATE;
+  PERFORM 1 FROM cuenta_billetera WHERE id = p_cuenta FOR NO KEY UPDATE;
 
   SELECT COALESCE(SUM(CASE WHEN sentido = 'CREDITO' THEN monto ELSE -monto END), 0)
     INTO v_movimientos
@@ -2552,11 +2562,26 @@ ALTER TABLE linea_plantilla_asiento
 -- El bloqueo de fila se toma ANTES de leer, por el mismo motivo que
 -- `fn_bil_recalcular_saldos`: dos asientos simultáneos sobre la misma cuenta que
 -- leyeran el libro a la vez calcularían ambos sobre un mayor incompleto.
+--
+-- Y se toma `FOR NO KEY UPDATE`, no `FOR UPDATE`. La diferencia no es cosmética: era un
+-- INTERBLOQUEO. `FOR UPDATE` es más fuerte de lo que esta función necesita —solo escribe
+-- `saldo`, que no es clave—, y al ser más fuerte que el lock que el `UPDATE` de abajo
+-- toma por su cuenta, la fila se bloquea DOS veces en la misma transacción. Con eso, dos
+-- asientos simultáneos sobre la misma cuenta se esperan en círculo: la primera toma la
+-- fila, la segunda se encola en el *tuple lock* esperándola, y entonces la primera pide
+-- ese mismo tuple lock para su `UPDATE` y queda esperando a la segunda.
+--
+-- Medido: la prueba de concurrencia de CU-24 fallaba cinco de cinco veces con «deadlock
+-- detected» en una máquina con varios núcleos, y pasaba en el CI solo porque ahí los dos
+-- hilos casi no coinciden. El registro de PostgreSQL lo mostró sin lugar a dudas: los dos
+-- procesos insertando el movimiento de la MISMA cuenta, los dos dentro de este
+-- `FOR UPDATE`. Con `FOR NO KEY UPDATE` el `UPDATE` no tiene que subir de nivel, se
+-- bloquea una sola vez, y la segunda transacción simplemente espera su turno.
 CREATE OR REPLACE FUNCTION fn_ctb_recalcular_saldo(p_cuenta UUID) RETURNS VOID AS $$
 DECLARE v_saldo NUMERIC(16,2); v_naturaleza TEXT;
 BEGIN
   SELECT naturaleza INTO v_naturaleza
-    FROM cuenta_contable WHERE id = p_cuenta FOR UPDATE;
+    FROM cuenta_contable WHERE id = p_cuenta FOR NO KEY UPDATE;
 
   SELECT COALESCE(SUM(
            CASE WHEN v_naturaleza = 'DEUDORA' THEN debe - haber

@@ -1,5 +1,6 @@
 package bo.aportaya.publicidad.infraestructura;
 
+import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.publicidad.dominio.SubastaDelEspacio.Candidato;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -72,22 +73,54 @@ public class EntregaRepositorio {
                 gastadoHoy(dsl, f.get("conjunto_id", UUID.class), dia)));
     }
 
-    /** Lo que un conjunto gasto hoy: la suma de sus impresiones y sus clics. */
+    /**
+     * Lo que un conjunto gasto hoy: la suma de sus impresiones y sus clics.
+     *
+     * <p>Los dos bordes del dia viajan como instantes ya calculados en la zona del negocio
+     * ({@link Reloj#ZONA}), no como {@code ?::date}. Con {@code ?::date} la frontera la
+     * decidia la ZONA DE LA SESION, y la sesion la fija el driver JDBC con la zona de la
+     * JVM: el mismo codigo partia el dia en un lugar distinto segun donde corriera. Con la
+     * JVM en La Paz y el dia calculado en UTC daban cuatro horas de desfase, y entre las
+     * 20:00 y la medianoche la consulta no veia NINGUNA impresion del dia — el presupuesto
+     * diario se reiniciaba y la campana podia gastarlo dos veces. La prueba de CU-113 lo
+     * caza; en el CI pasaba porque ahi la JVM es UTC.
+     *
+     * <p>Las impresiones y los clics se suman por separado a proposito: con un
+     * {@code LEFT JOIN} y las dos sumas en la misma consulta, una impresion con dos clics
+     * se contaba dos veces.
+     */
     private BigDecimal gastadoHoy(DSLContext dsl, UUID conjuntoId, LocalDate dia) {
-        return dsl.resultQuery(
+        OffsetDateTime desde = dia.atStartOfDay(Reloj.ZONA).toOffsetDateTime();
+        OffsetDateTime hasta = dia.plusDays(1).atStartOfDay(Reloj.ZONA).toOffsetDateTime();
+
+        BigDecimal impresiones = dsl.resultQuery(
                         """
-                        SELECT COALESCE(SUM(i.costo), 0) + COALESCE(SUM(cl.costo), 0) AS gastado
+                        SELECT COALESCE(SUM(i.costo), 0) AS gastado
                           FROM publicidad.impresion_anuncio i
                           JOIN publicidad.anuncio a ON a.id = i.anuncio_id
-                          LEFT JOIN publicidad.clic_anuncio cl ON cl.impresion_id = i.id
                          WHERE a.conjunto_anuncios_id = ?
-                           AND i.mostrada_en >= ?::date
-                           AND i.mostrada_en <  ?::date + 1
+                           AND i.mostrada_en >= ?::timestamptz AND i.mostrada_en < ?::timestamptz
                         """,
                         conjuntoId,
-                        dia.toString(),
-                        dia.toString())
+                        desde,
+                        hasta)
                 .fetchOne(f -> f.get("gastado", BigDecimal.class));
+
+        BigDecimal clics = dsl.resultQuery(
+                        """
+                        SELECT COALESCE(SUM(cl.costo), 0) AS gastado
+                          FROM publicidad.clic_anuncio cl
+                          JOIN publicidad.impresion_anuncio i ON i.id = cl.impresion_id
+                          JOIN publicidad.anuncio a ON a.id = i.anuncio_id
+                         WHERE a.conjunto_anuncios_id = ?
+                           AND i.mostrada_en >= ?::timestamptz AND i.mostrada_en < ?::timestamptz
+                        """,
+                        conjuntoId,
+                        desde,
+                        hasta)
+                .fetchOne(f -> f.get("gastado", BigDecimal.class));
+
+        return impresiones.add(clics);
     }
 
     /** Cuantos anuncios estan ocupando el espacio ahora mismo. */

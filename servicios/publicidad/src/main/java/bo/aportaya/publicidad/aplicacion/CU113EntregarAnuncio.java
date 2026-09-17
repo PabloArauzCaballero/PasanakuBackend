@@ -72,7 +72,11 @@ public class CU113EntregarAnuncio {
                         "El espacio %s ya esta en su capacidad maxima.".formatted(espacio.codigo()));
             }
 
-            var candidatos = entregas.candidatos(dsl, espacio.id(), ahora.toLocalDate());
+            // `reloj.hoy()` y no `ahora.toLocalDate()`: el presupuesto DIARIO de un
+            // anunciante boliviano se agota con el dia boliviano. `ahora` esta en UTC, asi
+            // que entre las 20:00 y la medianoche de La Paz daba el dia siguiente y el
+            // presupuesto del dia arrancaba de cero cuatro horas antes de tiempo.
+            var candidatos = entregas.candidatos(dsl, espacio.id(), reloj.hoy());
             var ganador = SubastaDelEspacio.ganador(candidatos);
             if (ganador.isEmpty()) {
                 // AP-CU113-01 · no es un error de cliente: el espacio no muestra nada.

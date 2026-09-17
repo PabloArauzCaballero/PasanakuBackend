@@ -1,8 +1,10 @@
 package bo.aportaya.publicidad.infraestructura;
 
+import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.publicidad.dominio.ConsumoDelPeriodo;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.time.YearMonth;
 import java.util.Optional;
 import java.util.UUID;
 import org.jooq.DSLContext;
@@ -18,12 +20,25 @@ public class FacturacionRepositorio {
     /**
      * Lo que la cuenta consumio en el mes, separado por origen.
      *
-     * <p>El periodo llega como {@code YYYY-MM} y se compara contra la marca de tiempo
-     * del hecho. Se usa {@code to_char} y no un rango calculado en Java porque la
-     * frontera del mes la tiene que decidir la base, que es la que sabe en que zona
-     * estan guardadas esas marcas.
+     * <p>El periodo llega como {@code YYYY-MM} y se traduce a los dos instantes que lo
+     * limitan, en la zona del negocio ({@link Reloj#ZONA}).
+     *
+     * <p>Antes se comparaba con {@code to_char(marca, 'YYYY-MM')}, con el argumento de que
+     * «la frontera del mes la tiene que decidir la base, que es la que sabe en que zona
+     * estan guardadas esas marcas». Eso es justamente el malentendido: un
+     * {@code TIMESTAMPTZ} no guarda ninguna zona —es un instante— y {@code to_char} lo
+     * dibuja en la zona de la SESION, que el driver JDBC fija con la de la JVM. El mes de
+     * una factura lo terminaba decidiendo la maquina donde corriera el servicio: un clic
+     * del 30 de septiembre a las 21:00 en La Paz se facturaba en octubre si esa JVM estaba
+     * en UTC. El gemelo diario de este error dejaba gastar el presupuesto del dia dos
+     * veces (EntregaRepositorio).
      */
     public ConsumoDelPeriodo consumo(DSLContext dsl, UUID cuentaId, String periodo) {
+        YearMonth mes = YearMonth.parse(periodo);
+        OffsetDateTime desde = mes.atDay(1).atStartOfDay(Reloj.ZONA).toOffsetDateTime();
+        OffsetDateTime hasta =
+                mes.plusMonths(1).atDay(1).atStartOfDay(Reloj.ZONA).toOffsetDateTime();
+
         BigDecimal impresiones = dsl.resultQuery(
                         """
                         SELECT COALESCE(SUM(i.costo), 0) AS total
@@ -32,10 +47,11 @@ public class FacturacionRepositorio {
                           JOIN publicidad.conjunto_anuncios cj ON cj.id = a.conjunto_anuncios_id
                           JOIN publicidad.campana_publicitaria c ON c.id = cj.campana_publicitaria_id
                          WHERE c.cuenta_publicitaria_id = ?
-                           AND to_char(i.mostrada_en, 'YYYY-MM') = ?
+                           AND i.mostrada_en >= ?::timestamptz AND i.mostrada_en < ?::timestamptz
                         """,
                         cuentaId,
-                        periodo)
+                        desde,
+                        hasta)
                 .fetchOne(f -> f.get("total", BigDecimal.class));
 
         BigDecimal clics = dsl.resultQuery(
@@ -47,10 +63,11 @@ public class FacturacionRepositorio {
                           JOIN publicidad.conjunto_anuncios cj ON cj.id = a.conjunto_anuncios_id
                           JOIN publicidad.campana_publicitaria c ON c.id = cj.campana_publicitaria_id
                          WHERE c.cuenta_publicitaria_id = ?
-                           AND to_char(cl.clic_en, 'YYYY-MM') = ?
+                           AND cl.clic_en >= ?::timestamptz AND cl.clic_en < ?::timestamptz
                         """,
                         cuentaId,
-                        periodo)
+                        desde,
+                        hasta)
                 .fetchOne(f -> f.get("total", BigDecimal.class));
 
         return new ConsumoDelPeriodo(impresiones, clics);
