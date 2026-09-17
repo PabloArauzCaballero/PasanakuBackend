@@ -245,4 +245,42 @@ class CU72Test extends BaseDeTransparencia {
         var bueno = transaccion.execute(t -> bloqueCU.sellar(entrada(grupo, 0, 1), sistema()));
         assertThat(bueno.numeroBloque()).isEqualTo(CadenaDeBloques.PRIMER_NUMERO);
     }
+
+    @Test
+    @DisplayName("cuadre: lo que se firma es exactamente lo que la base guarda, hasta el microsegundo")
+    void selladoConNanosegundos() {
+        // El reloj de Linux da NANOsegundos y `TIMESTAMPTZ` guarda microsegundos. Lo que
+        // hacia invalido al bloque no era perder precision sino perderla de dos maneras
+        // distintas: PostgreSQL REDONDEA para llegar a microsegundos y Java trunca, asi
+        // que un .123456789 se firmaba como .123456 y se guardaba como .123457. Verificar
+        // la cadena devolvia HASH_BLOQUE en todos los bloques, y solo en Linux — en macOS
+        // el reloj ya da microsegundos y no hay nada que redondear.
+        //
+        // El .789 final no es adorno: es lo que obliga a redondear hacia arriba.
+        UUID grupo = fixtura.grupo();
+        OffsetDateTime hasta = OffsetDateTime.parse("2026-03-06T12:00:00.123456789Z");
+        var hechos = List.of(new Hecho("PAGO", UUID.randomUUID(), Map.of("monto", "500.00"), hasta));
+
+        var salida = transaccion.execute(t -> bloqueCU.sellar(
+                new EntradaBloque(grupo, "CIERRE_PERIODO", hechos, hasta.minusDays(30), hasta, 0), sistema()));
+
+        var fila = dsl.fetchOne(
+                """
+                SELECT numero_bloque, hash_bloque_anterior, raiz_merkle, hash_bloque,
+                       periodo_cubierto_desde, periodo_cubierto_hasta
+                  FROM transparencia.bloque_transparencia WHERE id = ?
+                """,
+                salida.bloqueId());
+        String recomputado = CadenaDeBloques.hashDelBloque(
+                fila.get("numero_bloque", Long.class),
+                fila.get("hash_bloque_anterior", String.class),
+                fila.get("raiz_merkle", String.class),
+                ContenidoCanonico.instante(fila.get("periodo_cubierto_desde", OffsetDateTime.class)),
+                ContenidoCanonico.instante(fila.get("periodo_cubierto_hasta", OffsetDateTime.class)));
+
+        assertThat(recomputado).isEqualTo(fila.get("hash_bloque", String.class));
+        // Y lo guardado es exactamente lo firmado: microsegundos truncados, no redondeados.
+        assertThat(fila.get("periodo_cubierto_hasta", OffsetDateTime.class).toInstant())
+                .isEqualTo(OffsetDateTime.parse("2026-03-06T12:00:00.123456Z").toInstant());
+    }
 }

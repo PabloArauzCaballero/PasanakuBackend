@@ -12,6 +12,7 @@ import bo.aportaya.transparencia.dominio.ContenidoCanonico;
 import bo.aportaya.transparencia.infraestructura.CadenaRepositorio;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +66,23 @@ public class CU72SellarBloque {
                             + " excepciones de conciliacion abiertas: un bloque con datos provisorios miente con firma.");
         }
 
+        // Los bordes del periodo se normalizan ANTES de firmarlos y de guardarlos, y con
+        // eso queda dicho todo: lo que se firma es exactamente lo que la base va a tener.
+        //
+        // Sin esto el bloque nacia invalido. `TIMESTAMPTZ` guarda microsegundos y
+        // PostgreSQL REDONDEA para llegar ahi, mientras que Java trunca: un instante
+        // .123456789 se firmaba como .123456 y se guardaba como .123457. Verificar la
+        // cadena —recomputar el hash desde lo guardado, que es lo que promete CU-73—
+        // devolvia HASH_BLOQUE en todos los bloques. Medido en PostgreSQL 16:
+        //
+        //   enviado .123456789  ->  guardado .123457   (redondea)
+        //   Java truncatedTo(MICROS) ->      .123456   (trunca)
+        //
+        // Y pasaba solo en Linux, donde el reloj da nanosegundos; en macOS ya da
+        // microsegundos y no habia nada que redondear.
+        OffsetDateTime desde = entrada.desde().truncatedTo(ChronoUnit.MICROS);
+        OffsetDateTime hasta = entrada.hasta().truncatedTo(ChronoUnit.MICROS);
+
         return datos.conContexto(ctx, dsl -> {
             var ultimo = cadenas.ultimoBloque(dsl, entrada.grupoId());
             long numero = ultimo.map(u -> u.numero() + 1).orElse(CadenaDeBloques.PRIMER_NUMERO);
@@ -85,8 +103,8 @@ public class CU72SellarBloque {
                     numero,
                     hashAnterior,
                     raizMerkle,
-                    ContenidoCanonico.instante(entrada.desde()),
-                    ContenidoCanonico.instante(entrada.hasta()));
+                    ContenidoCanonico.instante(desde),
+                    ContenidoCanonico.instante(hasta));
 
             UUID bloqueId;
             try {
@@ -98,8 +116,8 @@ public class CU72SellarBloque {
                         raizMerkle,
                         hashBloque,
                         entrada.hechos().size(),
-                        entrada.desde(),
-                        entrada.hasta(),
+                        desde,
+                        hasta,
                         ahora);
             } catch (org.jooq.exception.IntegrityConstraintViolationException
                     | org.springframework.dao.DataIntegrityViolationException e) {
@@ -139,7 +157,7 @@ public class CU72SellarBloque {
                         hecho.entidadId(),
                         hojas.get(i),
                         resumenes.get(i),
-                        hecho.ocurridoEn());
+                        hecho.ocurridoEn().truncatedTo(ChronoUnit.MICROS));
             }
 
             outbox.emitir(
