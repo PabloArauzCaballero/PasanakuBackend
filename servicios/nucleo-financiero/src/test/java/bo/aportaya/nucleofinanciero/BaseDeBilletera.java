@@ -231,4 +231,19 @@ abstract class BaseDeBilletera {
             return String.valueOf(raiz.getMessage());
         }
     }
+
+    /**
+     * Un codigo de cuenta corto y distinto en cada llamada.
+     *
+     * <p>Salia de {@code String.valueOf(System.nanoTime()).substring(8, 14)} y eso
+     * reventaba con {@code StringIndexOutOfBoundsException}: {@code nanoTime()} cuenta
+     * desde un origen arbitrario —tipicamente el arranque de la maquina—, asi que en un
+     * runner del CI recien encendido tiene ONCE digitos y pedirle el caracter 14 se va
+     * del final. En una laptop con dias de encendida tiene dieciseis y nunca fallo, que
+     * es exactamente la clase de prueba que rompe el CI y a nadie le falla en su
+     * maquina. Un UUID mide siempre lo mismo.
+     */
+    protected String codigoCorto() {
+        return UUID.randomUUID().toString().substring(0, 6);
+    }
 }

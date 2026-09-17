@@ -1,8 +1,22 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "//": "Orquesta las tareas del frontend respetando el grafo apps/* <- packages/*. Quien resuelve las dependencias es yarn; turbo solo decide orden y cache.",
+  "//": "Orquesta las tareas del frontend respetando el grafo apps/* <- packages/*. Quien resuelve las dependencias es yarn; turbo solo decide orden y cache. · La tarea `contenido` esta primero por una razon: los .md de apps/web/contenido se vuelven src/generado/contenido.json, y ese archivo esta en .gitignore y lo generaba SOLO `build`. Asi que existia en la maquina de quien ya habia construido una vez y no en el CI, donde `typecheck` moria con nueve «Cannot find module '../../../generado/contenido.json'». Un artefacto generado que no esta en el grafo de tareas es una bomba de tiempo; ahora todo lo que compila TypeScript depende de el. Ojo: turbo solo acepta la clave `//` en la raiz, no dentro de una tarea.",
   "ui": "stream",
   "tasks": {
+    "contenido": {
+      "inputs": [
+        "contenido/**",
+        "scripts/contenido.mjs"
+      ],
+      "outputs": [
+        "src/generado/**",
+        "public/robots.txt",
+        "public/sitemap.xml",
+        "public/llms.txt",
+        "public/llms-full.txt",
+        "public/*.md"
+      ]
+    },
     "build": {
       "dependsOn": [
         "^build"
@@ -15,22 +29,28 @@
     },
     "typecheck": {
       "dependsOn": [
-        "^build"
+        "^build",
+        "contenido"
       ],
       "outputs": []
     },
     "lint": {
+      "dependsOn": [
+        "contenido"
+      ],
       "outputs": []
     },
     "test:front": {
       "dependsOn": [
-        "^build"
+        "^build",
+        "contenido"
       ],
       "outputs": []
     },
     "test:a11y": {
       "dependsOn": [
-        "^build"
+        "^build",
+        "contenido"
       ],
       "outputs": []
     },
@@ -40,7 +60,8 @@
     },
     "test:e2e": {
       "dependsOn": [
-        "^build"
+        "^build",
+        "contenido"
       ],
       "outputs": [],
       "cache": false

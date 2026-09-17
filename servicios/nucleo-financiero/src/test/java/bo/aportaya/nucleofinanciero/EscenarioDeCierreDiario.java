@@ -83,8 +83,4 @@ abstract class EscenarioDeCierreDiario extends BaseDeBilletera {
                 contrapartida);
         return asientoId;
     }
-
-    protected String codigoCorto() {
-        return String.valueOf(System.nanoTime()).substring(8, 14);
-    }
 }

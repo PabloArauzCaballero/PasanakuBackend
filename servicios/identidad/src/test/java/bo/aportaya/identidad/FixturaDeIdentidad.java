@@ -2,6 +2,7 @@ package bo.aportaya.identidad;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import org.jooq.DSLContext;
 
 /**
@@ -68,7 +69,12 @@ final class FixturaDeIdentidad {
 
     UUID otorgante() {
         if (otorgante == null) {
-            otorgante = usuario("+59179" + String.valueOf(System.nanoTime()).substring(0, 6));
+            // Los seis digitos salian de System.nanoTime(), y ahi el telefono se
+            // repetia: con dias de encendido, los primeros seis digitos de nanoTime
+            // cambian cada diez segundos, y uq_usuario_telefono_e164 no perdona dos
+            // otorgantes con el mismo numero. Un aleatorio de seis digitos es lo que
+            // esto necesitaba desde el principio: un numero distinto, no un reloj.
+            otorgante = usuario("+59179" + ThreadLocalRandom.current().nextInt(100_000, 1_000_000));
         }
         return otorgante;
     }

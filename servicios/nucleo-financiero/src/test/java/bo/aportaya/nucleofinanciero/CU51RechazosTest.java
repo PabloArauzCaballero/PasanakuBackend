@@ -52,8 +52,7 @@ class CU51RechazosTest extends BaseDeBilletera {
         UUID usuario = fixtura.usuario();
         fixtura.billetera(usuario, ESTANDAR, BigDecimal.ZERO);
         ContextoSesion ctx = contextoDe(usuario);
-        UUID cuenta =
-                contable.cuentaDeMovimiento(String.valueOf(System.nanoTime()).substring(8, 14), "ACTIVO", "DEUDORA");
+        UUID cuenta = contable.cuentaDeMovimiento(codigoCorto(), "ACTIVO", "DEUDORA");
         UUID asiento = UUID.randomUUID();
         dsl.execute(
                 """
