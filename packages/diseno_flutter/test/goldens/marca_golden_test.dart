@@ -32,10 +32,7 @@ void main() {
   testWidgets('la apertura, cuadro por cuadro', (tester) async {
     pantallaChica(tester);
     await tester.pumpWidget(
-      conTema(
-        AperturaDeMarca(alTerminar: () {}),
-        pantallaEntera: true,
-      ),
+      conTema(AperturaDeMarca(alTerminar: () {}), pantallaEntera: true),
     );
     // Los tres momentos que cuentan: la marca escribiéndose, el acercamiento a media
     // altura, y el final ya casi transparente. Los milisegundos son **incrementos**:

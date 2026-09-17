@@ -44,7 +44,9 @@ class OpcionSeleccionable extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(Radios.md),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: Tactil.minimo + Espacio.s4),
+            constraints: const BoxConstraints(
+              minHeight: Tactil.minimo + Espacio.s4,
+            ),
             child: Padding(
               padding: const EdgeInsets.all(Espacio.s3),
               child: Row(

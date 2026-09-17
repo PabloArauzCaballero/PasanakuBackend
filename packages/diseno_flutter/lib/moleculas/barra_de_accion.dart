@@ -8,11 +8,7 @@ import '../tokens/tokens.dart';
 /// existe, y en un teléfono chico queda debajo del teclado. Acá vive fuera del scroll,
 /// sobre la superficie, respetando el área segura del teléfono.
 class BarraDeAccion extends StatelessWidget {
-  const BarraDeAccion({
-    super.key,
-    required this.hijo,
-    this.nota,
-  });
+  const BarraDeAccion({super.key, required this.hijo, this.nota});
 
   final Widget hijo;
 
@@ -25,7 +21,9 @@ class BarraDeAccion extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: t.surface,
-        border: Border(top: BorderSide(color: t.border, width: Borde.fino)),
+        border: Border(
+          top: BorderSide(color: t.border, width: Borde.fino),
+        ),
       ),
       child: SafeArea(
         top: false,

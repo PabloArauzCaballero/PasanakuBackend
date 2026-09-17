@@ -38,10 +38,7 @@ class TituloDeSeccion extends StatelessWidget {
           ),
           ?alCostado,
           if (accion != null)
-            TextButton(
-              onPressed: alTocarAccion,
-              child: Text(accion!),
-            ),
+            TextButton(onPressed: alTocarAccion, child: Text(accion!)),
         ],
       ),
     );
@@ -94,8 +91,7 @@ class FilasDePanel extends StatelessWidget {
     return Column(
       children: [
         for (var i = 0; i < filas.length; i++) ...[
-          if (i > 0)
-            Divider(height: Espacio.s4, thickness: 1, color: t.border),
+          if (i > 0) Divider(height: Espacio.s4, thickness: 1, color: t.border),
           filas[i],
         ],
       ],

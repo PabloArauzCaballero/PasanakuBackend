@@ -42,7 +42,11 @@ void main() {
       // A mitad de la animación ya subió, y al asentar llega al total.
       await tester.pump(const Duration(milliseconds: 325));
       final aMitad = visible(tester);
-      expect(aMitad, isNot('Bs 0,00'), reason: 'se quedó trabado en el arranque');
+      expect(
+        aMitad,
+        isNot('Bs 0,00'),
+        reason: 'se quedó trabado en el arranque',
+      );
       await tester.pumpAndSettle();
       expect(visible(tester), 'Bs 1.240,00');
     },
@@ -83,42 +87,42 @@ void main() {
     expect(visible(tester), 'Bs 1.240,00');
   });
 
-  testWidgets(
-    'refrescar con el mismo importe no lo manda de vuelta a cero',
-    (tester) async {
-      await tester.pumpWidget(
-        conTema(const MontoQueSube(monto: saldo, moneda: 'BOB')),
-      );
-      await tester.pumpAndSettle();
-      // Mismo saldo otra vez, como tras un «tirar para refrescar» que no cambió nada.
-      await tester.pumpWidget(
-        conTema(const MontoQueSube(monto: saldo, moneda: 'BOB')),
-      );
-      await tester.pump();
-      expect(visible(tester), 'Bs 1.240,00');
-    },
-  );
-
-  testWidgets('cuando el saldo cambia, cuenta desde el anterior y no desde cero', (
+  testWidgets('refrescar con el mismo importe no lo manda de vuelta a cero', (
     tester,
   ) async {
     await tester.pumpWidget(
       conTema(const MontoQueSube(monto: saldo, moneda: 'BOB')),
     );
     await tester.pumpAndSettle();
+    // Mismo saldo otra vez, como tras un «tirar para refrescar» que no cambió nada.
     await tester.pumpWidget(
-      conTema(const MontoQueSube(monto: '1500.00', moneda: 'BOB')),
+      conTema(const MontoQueSube(monto: saldo, moneda: 'BOB')),
     );
-    await tester.pump(const Duration(milliseconds: 80));
-    final enCamino = visible(tester);
-    expect(
-      enCamino,
-      isNot('Bs 0,00'),
-      reason: 'un cambio de saldo no puede pasar por cero',
-    );
-    await tester.pumpAndSettle();
-    expect(visible(tester), 'Bs 1.500,00');
+    await tester.pump();
+    expect(visible(tester), 'Bs 1.240,00');
   });
+
+  testWidgets(
+    'cuando el saldo cambia, cuenta desde el anterior y no desde cero',
+    (tester) async {
+      await tester.pumpWidget(
+        conTema(const MontoQueSube(monto: saldo, moneda: 'BOB')),
+      );
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(
+        conTema(const MontoQueSube(monto: '1500.00', moneda: 'BOB')),
+      );
+      await tester.pump(const Duration(milliseconds: 80));
+      final enCamino = visible(tester);
+      expect(
+        enCamino,
+        isNot('Bs 0,00'),
+        reason: 'un cambio de saldo no puede pasar por cero',
+      );
+      await tester.pumpAndSettle();
+      expect(visible(tester), 'Bs 1.500,00');
+    },
+  );
 
   testWidgets('un saldo en cero se muestra en cero, sin dar vueltas', (
     tester,
@@ -130,13 +134,14 @@ void main() {
     expect(visible(tester), 'Bs 0,00');
   });
 
-  testWidgets('la cuenta no dura más de lo que alguien tolera esperando su saldo', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      conTema(const MontoQueSube(monto: saldo, moneda: 'BOB')),
-    );
-    await tester.pump(const Duration(milliseconds: 700));
-    expect(visible(tester), 'Bs 1.240,00');
-  });
+  testWidgets(
+    'la cuenta no dura más de lo que alguien tolera esperando su saldo',
+    (tester) async {
+      await tester.pumpWidget(
+        conTema(const MontoQueSube(monto: saldo, moneda: 'BOB')),
+      );
+      await tester.pump(const Duration(milliseconds: 700));
+      expect(visible(tester), 'Bs 1.240,00');
+    },
+  );
 }

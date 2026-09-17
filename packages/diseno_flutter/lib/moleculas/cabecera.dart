@@ -149,7 +149,10 @@ class BotonDeCabecera extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: t.accent,
                         shape: BoxShape.circle,
-                        border: Border.all(color: t.surface, width: Borde.desfase),
+                        border: Border.all(
+                          color: t.surface,
+                          width: Borde.desfase,
+                        ),
                       ),
                     ),
                   ),

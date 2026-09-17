@@ -5,9 +5,7 @@ import 'tokens/tokens.dart';
 /// Los tres botones de Material, con el mismo alto de toque y la misma forma que la
 /// bóveda le da a `.btn`. Separado de `tema.dart` por el barrido de 200 líneas.
 ButtonStyle _base(Tokens t) => ButtonStyle(
-  minimumSize: const WidgetStatePropertyAll(
-    Size(0, Tactil.minimo),
-  ),
+  minimumSize: const WidgetStatePropertyAll(Size(0, Tactil.minimo)),
   padding: const WidgetStatePropertyAll(
     EdgeInsets.symmetric(horizontal: Espacio.s4),
   ),
