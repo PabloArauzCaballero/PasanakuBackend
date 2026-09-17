@@ -34,6 +34,8 @@ SALIDA = RAIZ / "despliegue/compose/servicios.yml"
 # desde ahi — con el archivo en despliegue/compose/, `context: ../..` terminaba en
 # `/` y la construccion moria con «lstat /despliegue: no such file or directory».
 SALIDA_DESPLEGADO = RAIZ / "docker-compose.coolify.yml"
+# Un archivo por front: cada uno es su propia aplicacion en Coolify.
+SALIDA_FRONTS = RAIZ / "despliegue/coolify"
 
 # Lo que vale igual para los catorce. Un valor por variable, y aca se ve entero.
 COMUNES = {
@@ -217,7 +219,10 @@ services:
       start_period: 30s
     networks: [interna, publica]
 
-  # El portal de operacion. Su nginx inyecta el meta del gateway y reenvia /api/ al
+"""
+
+FRONTS = {
+    "backoffice": ("El portal de operacion", """  # El portal de operacion. Su nginx inyecta el meta del gateway y reenvia /api/ al
   # gateway por el MISMO origen: la CSP dice `connect-src 'self'`.
   backoffice:
     image: aportaya/backoffice:test
@@ -229,8 +234,8 @@ services:
       timeout: 3s
       retries: 5
     networks: [interna, publica]
-
-  # El sitio publico, con render en servidor.
+"""),
+    "web": ("El sitio publico", """  # El sitio publico, con render en servidor.
   web:
     image: aportaya/web:test
     pull_policy: never
@@ -256,8 +261,8 @@ services:
       # dirección de este despliegue, no del producto.
       APORTAYA_URL_APP: ${URL_APP}
     networks: [interna, publica]
-
-  # La app movil compilada para la web: se prueba desde un navegador, sin APK ni
+"""),
+    "movil": ("La app movil en el navegador", """  # La app movil compilada para la web: se prueba desde un navegador, sin APK ni
   # TestFlight. Su nginx reenvia /api/ al gateway por el mismo origen.
   movil:
     image: aportaya/movil-web:test
@@ -269,8 +274,36 @@ services:
       timeout: 3s
       retries: 5
     networks: [interna, publica]
+"""),
+}
 
+
+CABECERA_FRONT = """# {titulo} — GENERADO por `python3 scripts/generar_compose.py --coolify`.
+#
+# Un compose por front, y no los tres dentro del compose del backend, por una razon que
+# no es tecnica: en Coolify una aplicacion de tipo compose es UN recurso en la lista,
+# asi que con todo junto el panel mostraba «aportaya-api» y nada mas — los fronts
+# estaban desplegados y respondiendo, pero no se VEIAN. Separados, cada uno es su
+# recurso, con su dominio y su boton de desplegar.
+#
+# Comparten las dos redes externas con el backend: `aportaya-interna` es donde
+# `gateway` resuelve por nombre —Docker resuelve el alias de servicio entre proyectos
+# distintos mientras compartan la red— y `coolify` es por donde entra Traefik.
+#
+# No construyen: la imagen la arma /opt/aportaya/bin/construir-fronts.sh en el host.
+name: aportaya-{nombre}
+
+networks:
+  interna:
+    external: true
+    name: aportaya-interna
+  publica:
+    external: true
+    name: coolify
+
+services:
 """
+
 
 BLOQUE_DESPLEGADO = """  {nombre}:
     image: aportaya/{nombre}:test
@@ -382,6 +415,18 @@ def main():
     salida.parent.mkdir(parents=True, exist_ok=True)
     salida.write_text(cabecera + "\n".join(bloques), encoding="utf-8")
     print(f"compose {etiqueta}: {len(servicios)} servicios -> {salida.relative_to(RAIZ)}")
+
+    if desplegado:
+        # Un compose por front. Van aparte del backend porque en Coolify una aplicacion
+        # de tipo compose es UN recurso: con todo junto, el panel mostraba «aportaya-api»
+        # y ningun front.
+        SALIDA_FRONTS.mkdir(parents=True, exist_ok=True)
+        for nombre, (titulo, bloque) in FRONTS.items():
+            destino = SALIDA_FRONTS / f"{nombre}.yml"
+            destino.write_text(
+                CABECERA_FRONT.format(titulo=titulo, nombre=nombre) + bloque,
+                encoding="utf-8")
+            print(f"  front {nombre} -> {destino.relative_to(RAIZ)}")
     return 0
 
 
