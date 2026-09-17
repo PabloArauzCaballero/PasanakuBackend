@@ -41,6 +41,12 @@ class ArranqueTest {
         registro.add("spring.kafka.bootstrap-servers", () -> "localhost:9092");
         registro.add("aportaya.jwt.jwks-uri", () -> "http://identidad:8080/.well-known/jwks.json");
         registro.add("SEGURIDAD_PIMIENTA", () -> "pimienta-de-prueba");
+        // El servidor de archivos: desde que el alta sube la foto del carnet, el contexto
+        // no levanta sin estas tres. Apuntan a un MinIO que no existe a proposito — esta
+        // prueba comprueba que el contexto ARRANCA, no que se pueda guardar un archivo.
+        registro.add("ARCHIVOS_URL", () -> "http://archivos-de-prueba:9000");
+        registro.add("ARCHIVOS_USUARIO", () -> "prueba");
+        registro.add("ARCHIVOS_CLAVE", () -> "prueba");
     }
 
     @Autowired
