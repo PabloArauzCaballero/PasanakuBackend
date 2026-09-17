@@ -72,5 +72,13 @@ class IdentificadoresTest {
         assertThat(Reloj.fijo(momento).ahora()).isEqualTo(momento);
         assertThat(Reloj.fijo(momento).hoy()).isEqualTo(LocalDate.of(2026, 3, 6));
         assertThat(Reloj.delSistema().ahora()).isNotNull();
+
+        // Y la precision es la de la base. `timestamptz` guarda microsegundos; el reloj
+        // del sistema en Linux da nanosegundos y en macOS microsegundos, asi que sin
+        // truncar aca la diferencia aparece recien en el viaje a PostgreSQL, como cuatro
+        // pruebas que fallan solo en algunas maquinas. Ya paso una vez.
+        assertThat(Reloj.fijo(Instant.parse("2026-03-06T12:00:00.123456789Z")).ahora())
+                .isEqualTo(Instant.parse("2026-03-06T12:00:00.123456Z"));
+        assertThat(Reloj.delSistema().ahora().getNano() % 1000).isZero();
     }
 }
