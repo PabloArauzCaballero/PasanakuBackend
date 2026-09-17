@@ -57,6 +57,59 @@ services:
       start_period: 30s
     networks: [interna, publica]
 
+  # El portal de operacion. Su nginx inyecta el meta del gateway y reenvia /api/ al
+  # gateway por el MISMO origen: la CSP dice `connect-src 'self'`.
+  backoffice:
+    image: aportaya/backoffice:test
+    pull_policy: never
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+    networks: [interna, publica]
+
+  # El sitio publico, con render en servidor.
+  web:
+    image: aportaya/web:test
+    pull_policy: never
+    restart: unless-stopped
+    environment:
+      # La MISMA dirección relativa que usa el navegador, a propósito: el servidor la
+      # resuelve contra sí mismo y sale por su propio reenvío de /api (abajo). Con una
+      # URL distinta en cada lado, la caché que el servidor transfiere —indexada por
+      # URL— no la encuentra el navegador al hidratar, vuelve a pedir los datos y el DOM
+      # deja de coincidir: las páginas de verificación pública se quedaban en blanco.
+      APORTAYA_GATEWAY: /api/v1
+      # ...y el navegador por el mismo origen: server.ts reenvia /api y le
+      # inyecta el meta del gateway a la pagina.
+      APORTAYA_GATEWAY_INTERNO: http://gateway:8080
+      # Angular SSR rechaza con 400 todo host que no este en su lista (defensa contra
+      # SSRF): angular.json solo trae aportaya.bo y localhost, asi que el dominio del
+      # entorno llega por variable, sin reconstruir la imagen.
+      NG_ALLOWED_HOSTS: ${WEB_HOSTS_PERMITIDOS}
+      # Traefik agrega X-Forwarded-*: sin confiar en ellos, SSR arma las URL con el
+      # host y el esquema internos.
+      NG_TRUST_PROXY_HEADERS: x-forwarded-for,x-forwarded-host,x-forwarded-port,x-forwarded-proto,x-forwarded-server
+      # Dónde abrir la app en el navegador (el botón de /descargar). Del entorno: es una
+      # dirección de este despliegue, no del producto.
+      APORTAYA_URL_APP: ${URL_APP}
+    networks: [interna, publica]
+
+  # La app movil compilada para la web: se prueba desde un navegador, sin APK ni
+  # TestFlight. Su nginx reenvia /api/ al gateway por el mismo origen.
+  movil:
+    image: aportaya/movil-web:test
+    pull_policy: never
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+    networks: [interna, publica]
+
   aportes:
     image: aportaya/aportes:test
     pull_policy: never
