@@ -8,6 +8,7 @@ import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Traza;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -43,8 +44,7 @@ class CU45RechazosTest extends BaseDeCumplimiento {
     void rechazaRAUD08() {
         // El oficio y su hash se conservan: son la prueba de por que se entregaron los
         // datos de alguien, y borrarlos dejaria la entrega sin justificacion.
-        var salida = transaccion.execute(t ->
-                oficioCU.registrar(oficio(OffsetDateTime.now(ZoneOffset.UTC).plusDays(5)), ctx));
+        var salida = transaccion.execute(t -> oficioCU.registrar(oficio(enCincoDias()), ctx));
 
         assertThat(contar(
                         """
@@ -62,8 +62,7 @@ class CU45RechazosTest extends BaseDeCumplimiento {
         // Un oficio, un bloqueo. El bloqueo lo escribe el nucleo financiero; aca se ata
         // al oficio que lo ordeno, y sin esa atadura nadie puede decir por que se
         // congelo el saldo de alguien.
-        var salida = transaccion.execute(t ->
-                oficioCU.registrar(oficio(OffsetDateTime.now(ZoneOffset.UTC).plusDays(5)), ctx));
+        var salida = transaccion.execute(t -> oficioCU.registrar(oficio(enCincoDias()), ctx));
 
         assertThat(rechazaLaBase(
                         """
@@ -91,8 +90,7 @@ class CU45RechazosTest extends BaseDeCumplimiento {
         // Todo acceso a datos sensibles queda registrado CON justificacion. La bitacora
         // vive en auditoria; lo que este servicio garantiza es que el evento salga con
         // el numero de oficio, que es la justificacion que la norma pide.
-        transaccion.execute(t ->
-                oficioCU.registrar(oficio(OffsetDateTime.now(ZoneOffset.UTC).plusDays(5)), ctx));
+        transaccion.execute(t -> oficioCU.registrar(oficio(enCincoDias()), ctx));
 
         assertThat(contar(
                         """
@@ -108,7 +106,7 @@ class CU45RechazosTest extends BaseDeCumplimiento {
                         new EntradaRequerimiento(
                                 "FISCALIA",
                                 "OTRO-" + oficio,
-                                OffsetDateTime.now(ZoneOffset.UTC).plusDays(5),
+                                enCincoDias(),
                                 afectado,
                                 "todo",
                                 "https://x",
@@ -123,7 +121,7 @@ class CU45RechazosTest extends BaseDeCumplimiento {
     void rechazaRUIF08() {
         // Todo requerimiento tiene plazo guardado. Se responde dentro o fuera de el,
         // pero nunca sin saber cual era.
-        OffsetDateTime plazo = OffsetDateTime.now(ZoneOffset.UTC).plusDays(5);
+        OffsetDateTime plazo = enCincoDias();
         var salida = transaccion.execute(t -> oficioCU.registrar(oficio(plazo), ctx));
 
         var guardado = dsl.fetchOne(
@@ -135,5 +133,18 @@ class CU45RechazosTest extends BaseDeCumplimiento {
                         "SELECT count(*)::int FROM cumplimiento.requerimiento_autoridad WHERE id = ? AND plazo_respuesta > fecha_recepcion",
                         salida.requerimientoId()))
                 .isEqualTo(1);
+    }
+
+    /**
+     * Un plazo a cinco dias, con la precision que la base tiene.
+     *
+     * <p>El truncado a microsegundos no es adorno: {@code plazo_respuesta} es un
+     * {@code timestamptz} —microsegundos— y estas pruebas comparan lo que mandaron con lo
+     * que quedo escrito. En Linux {@code now()} da nanosegundos y en macOS microsegundos,
+     * asi que sin esto la prueba pasa en la laptop y falla en el CI por menos de un
+     * microsegundo. Es la misma regla que aplica {@code Reloj.delSistema()}.
+     */
+    private static OffsetDateTime enCincoDias() {
+        return OffsetDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.MICROS).plusDays(5);
     }
 }

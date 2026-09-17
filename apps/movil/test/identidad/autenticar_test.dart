@@ -55,32 +55,37 @@ void main() {
     },
   );
 
-  test('cuando no hace falta segundo factor, el token queda guardado', () async {
-    final (:dio, :adaptador) = dioSimulado();
-    adaptador.onPost(
-      ruta,
-      (s) => s.reply(200, ejemplo('identidad', 'autenticar', 'vacio')['cuerpo']),
-      data: Matchers.any,
-    );
-    final c = contenedorCon(dio);
-    addTearDown(c.dispose);
+  test(
+    'cuando no hace falta segundo factor, el token queda guardado',
+    () async {
+      final (:dio, :adaptador) = dioSimulado();
+      adaptador.onPost(
+        ruta,
+        (s) =>
+            s.reply(200, ejemplo('identidad', 'autenticar', 'vacio')['cuerpo']),
+        data: Matchers.any,
+      );
+      final c = contenedorCon(dio);
+      addTearDown(c.dispose);
 
-    final r = await c
-        .read(autenticacionProvider)
-        .conCredenciales(
-          telefonoE164: '+59178123456',
-          credencial: 'Secreta123',
-        );
+      final r = await c
+          .read(autenticacionProvider)
+          .conCredenciales(
+            telefonoE164: '+59178123456',
+            credencial: 'Secreta123',
+          );
 
-    expect(r, ResultadoDeAutenticacion.entro);
-    expect(await c.read(sesionProvider).tokenDeAcceso(), 'tokenAcceso');
-  });
+      expect(r, ResultadoDeAutenticacion.entro);
+      expect(await c.read(sesionProvider).tokenDeAcceso(), 'tokenAcceso');
+    },
+  );
 
   test('el segundo factor abre la sesión', () async {
     final (:dio, :adaptador) = dioSimulado();
     adaptador.onPost(
       ruta,
-      (s) => s.reply(200, ejemplo('identidad', 'autenticar', 'vacio')['cuerpo']),
+      (s) =>
+          s.reply(200, ejemplo('identidad', 'autenticar', 'vacio')['cuerpo']),
       data: Matchers.any,
     );
     final c = contenedorCon(dio);
@@ -98,43 +103,47 @@ void main() {
     expect(await c.read(sesionProvider).tokenDeAcceso(), 'tokenAcceso');
   });
 
-  test('un rechazo del servidor no abre sesión y se cuenta en voz de marca', () async {
-    final (:dio, :adaptador) = dioSimulado();
-    adaptador.onPost(
-      ruta,
-      (s) => s.reply(422, {
-        'codigo': 'AP-CU04-01',
-        'mensaje': 'mensaje',
-        'trazaId': 't',
-      }),
-      data: Matchers.any,
-    );
-    final c = contenedorCon(dio);
-    addTearDown(c.dispose);
+  test(
+    'un rechazo del servidor no abre sesión y se cuenta en voz de marca',
+    () async {
+      final (:dio, :adaptador) = dioSimulado();
+      adaptador.onPost(
+        ruta,
+        (s) => s.reply(422, {
+          'codigo': 'AP-CU04-01',
+          'mensaje': 'mensaje',
+          'trazaId': 't',
+        }),
+        data: Matchers.any,
+      );
+      final c = contenedorCon(dio);
+      addTearDown(c.dispose);
 
-    final n = c.read(sesionIdentidadProvider.notifier);
-    n.actualizarCredenciales(
-      telefono: '+59178123456',
-      contrasena: 'Secreta123',
-    );
-    final avanzo = await n.enviarCredenciales();
+      final n = c.read(sesionIdentidadProvider.notifier);
+      n.actualizarCredenciales(
+        telefono: '+59178123456',
+        contrasena: 'Secreta123',
+      );
+      final avanzo = await n.enviarCredenciales();
 
-    expect(avanzo, isFalse);
-    expect(await c.read(sesionProvider).tokenDeAcceso(), isNull);
-    expect(
-      c.read(sesionIdentidadProvider).error,
-      'El código no coincide. Revisalo e intentá de nuevo.',
-      reason: 'la app no muestra el mensaje crudo del backend',
-    );
-    expect(c.read(sesionIdentidadProvider).enviando, isFalse);
-  });
+      expect(avanzo, isFalse);
+      expect(await c.read(sesionProvider).tokenDeAcceso(), isNull);
+      expect(
+        c.read(sesionIdentidadProvider).error,
+        'El código no coincide. Revisalo e intentá de nuevo.',
+        reason: 'la app no muestra el mensaje crudo del backend',
+      );
+      expect(c.read(sesionIdentidadProvider).enviando, isFalse);
+    },
+  );
 
   test('la huella de dispositivo es estable entre intentos', () async {
     final (:dio, :adaptador) = dioSimulado();
     final enviadas = <String>[];
     adaptador.onPost(
       ruta,
-      (s) => s.reply(200, ejemplo('identidad', 'autenticar', 'vacio')['cuerpo']),
+      (s) =>
+          s.reply(200, ejemplo('identidad', 'autenticar', 'vacio')['cuerpo']),
       data: Matchers.any,
     );
     final c = contenedorCon(dio);
@@ -166,7 +175,8 @@ void main() {
     expect(
       huella.firstMatch(enviadas[0])!.group(1),
       huella.firstMatch(enviadas[1])!.group(1),
-      reason: 'una huella distinta por intento haría que el teléfono nunca sea de confianza',
+      reason:
+          'una huella distinta por intento haría que el teléfono nunca sea de confianza',
     );
   });
 }

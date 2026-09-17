@@ -29,7 +29,9 @@ void main() {
     final router = crearEnrutador();
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [almacenSeguroProvider.overrideWithValue(AlmacenEnMemoria())],
+        overrides: [
+          almacenSeguroProvider.overrideWithValue(AlmacenEnMemoria()),
+        ],
         child: MaterialApp.router(
           theme: temaDesde(Tokens.claro, Brightness.light),
           routerConfig: router,

@@ -38,32 +38,34 @@ void main() {
     );
   });
 
-  testWidgets('«Grupos» abre el estado de los pasanakus, no el marcador vacío', (
-    tester,
-  ) async {
-    final router = crearEnrutador(inicial: '/billetera/inicio');
-    await tester.pumpWidget(appCon(router));
-    await tester.pumpAndSettle();
+  testWidgets(
+    '«Grupos» abre el estado de los pasanakus, no el marcador vacío',
+    (tester) async {
+      final router = crearEnrutador(inicial: '/billetera/inicio');
+      await tester.pumpWidget(appCon(router));
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Grupos'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Grupos'));
+      await tester.pumpAndSettle();
 
-    expect(router.state.uri.toString(), '/pasanaku/mi-estado');
-  });
+      expect(router.state.uri.toString(), '/pasanaku/mi-estado');
+    },
+  );
 
-  testWidgets('«Inicio» y «Movimientos» comparten rama y cada uno va a lo suyo', (
-    tester,
-  ) async {
-    final router = crearEnrutador(inicial: '/billetera/inicio');
-    await tester.pumpWidget(appCon(router));
-    await tester.pumpAndSettle();
+  testWidgets(
+    '«Inicio» y «Movimientos» comparten rama y cada uno va a lo suyo',
+    (tester) async {
+      final router = crearEnrutador(inicial: '/billetera/inicio');
+      await tester.pumpWidget(appCon(router));
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Movimientos'));
-    await tester.pumpAndSettle();
-    expect(router.state.uri.toString(), startsWith('/billetera/extracto'));
+      await tester.tap(find.text('Movimientos'));
+      await tester.pumpAndSettle();
+      expect(router.state.uri.toString(), startsWith('/billetera/extracto'));
 
-    await tester.tap(find.text('Inicio'));
-    await tester.pumpAndSettle();
-    expect(router.state.uri.toString(), '/billetera/inicio');
-  });
+      await tester.tap(find.text('Inicio'));
+      await tester.pumpAndSettle();
+      expect(router.state.uri.toString(), '/billetera/inicio');
+    },
+  );
 }

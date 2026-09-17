@@ -9,6 +9,7 @@ import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Traza;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -43,7 +44,7 @@ class CU45Test extends BaseDeCumplimiento {
     @DisplayName(
             "Dado un oficio con plazo de 5 días · Cuando se registra · Entonces plazo_respuesta queda guardado y no se recalcula después")
     void criterio1() {
-        OffsetDateTime plazo = OffsetDateTime.now(ZoneOffset.UTC).plusDays(5);
+        OffsetDateTime plazo = enCincoDias();
 
         var salida = transaccion.execute(t -> oficioCU.registrar(oficio(plazo), ctx));
 
@@ -64,8 +65,7 @@ class CU45Test extends BaseDeCumplimiento {
     @DisplayName(
             "Dada la extracción de información para el oficio · Cuando un operador consulta los datos del afectado · Entonces existe un registro_acceso_datos con el número de oficio como justificación")
     void criterio2() {
-        transaccion.execute(t ->
-                oficioCU.registrar(oficio(OffsetDateTime.now(ZoneOffset.UTC).plusDays(5)), ctx));
+        transaccion.execute(t -> oficioCU.registrar(oficio(enCincoDias()), ctx));
 
         // La bitacora de accesos vive en el esquema de auditoria y no se escribe desde
         // aca (invariante 11): el evento lleva la justificacion para que quien la posee
@@ -105,7 +105,7 @@ class CU45Test extends BaseDeCumplimiento {
     @Test
     @DisplayName("reintento: la misma clave de idempotencia dos veces devuelve la misma respuesta y un solo efecto")
     void reintento() {
-        var entrada = oficio(OffsetDateTime.now(ZoneOffset.UTC).plusDays(5));
+        var entrada = oficio(enCincoDias());
         transaccion.execute(t -> oficioCU.registrar(entrada, ctx));
 
         // Un oficio, un registro. Registrar dos veces el mismo numero abriria dos
@@ -121,7 +121,7 @@ class CU45Test extends BaseDeCumplimiento {
     @Test
     @DisplayName("concurrencia: dos transacciones sobre el mismo agregado, una gana y nunca hay doble efecto")
     void concurrencia() throws Exception {
-        var entrada = oficio(OffsetDateTime.now(ZoneOffset.UTC).plusDays(5));
+        var entrada = oficio(enCincoDias());
 
         var barrera = new java.util.concurrent.CyclicBarrier(2);
         var errores = java.util.Collections.synchronizedList(new java.util.ArrayList<Throwable>());
@@ -150,8 +150,7 @@ class CU45Test extends BaseDeCumplimiento {
     @Test
     @DisplayName("cuadre: la suma de debitos iguala la de creditos, al centavo")
     void cuadre() {
-        var salida = transaccion.execute(t ->
-                oficioCU.registrar(oficio(OffsetDateTime.now(ZoneOffset.UTC).plusDays(5)), ctx));
+        var salida = transaccion.execute(t -> oficioCU.registrar(oficio(enCincoDias()), ctx));
 
         // El cuadre de un oficio es que el documento y su hash queden juntos: sin el
         // hash, cualquiera podria cambiar el PDF despues y nadie lo notaria.
@@ -167,7 +166,7 @@ class CU45Test extends BaseDeCumplimiento {
     @Test
     @DisplayName("evento duplicado y fuera de orden: un solo efecto")
     void eventoDuplicadoYFueraDeOrden() {
-        OffsetDateTime plazo = OffsetDateTime.now(ZoneOffset.UTC).plusDays(5);
+        OffsetDateTime plazo = enCincoDias();
         var salida = transaccion.execute(t -> oficioCU.registrar(oficio(plazo), ctx));
         var respuesta = new EntradaRespuesta(salida.requerimientoId(), oficio, plazo, "https://oficios.bo/r/1");
 
@@ -187,7 +186,7 @@ class CU45Test extends BaseDeCumplimiento {
     @Test
     @DisplayName("compensacion: se fuerza el fallo de cada paso y el sistema queda cuadrado")
     void compensacion() {
-        OffsetDateTime plazo = OffsetDateTime.now(ZoneOffset.UTC).plusDays(5);
+        OffsetDateTime plazo = enCincoDias();
 
         // Paso fallido: sin documento ni hash no se actua.
         assertThatThrownBy(() -> transaccion.execute(t -> oficioCU.registrar(
@@ -210,5 +209,18 @@ class CU45Test extends BaseDeCumplimiento {
         // Con el documento y un alcance concreto, el mismo camino cierra.
         var buena = transaccion.execute(t -> oficioCU.registrar(oficio(plazo), ctx));
         assertThat(buena.requerimientoId()).isNotNull();
+    }
+
+    /**
+     * Un plazo a cinco dias, con la precision que la base tiene.
+     *
+     * <p>El truncado a microsegundos no es adorno: {@code plazo_respuesta} es un
+     * {@code timestamptz} —microsegundos— y estas pruebas comparan lo que mandaron con lo
+     * que quedo escrito. En Linux {@code now()} da nanosegundos y en macOS microsegundos,
+     * asi que sin esto la prueba pasa en la laptop y falla en el CI por menos de un
+     * microsegundo. Es la misma regla que aplica {@code Reloj.delSistema()}.
+     */
+    private static OffsetDateTime enCincoDias() {
+        return OffsetDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.MICROS).plusDays(5);
     }
 }

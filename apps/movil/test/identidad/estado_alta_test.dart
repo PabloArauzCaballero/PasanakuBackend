@@ -27,73 +27,85 @@ void main() {
     expect(contenedor.read(altaProvider).paso, PasoAlta.perfilTransaccional);
   });
 
-  test('el alta manda todo junto a POST /usuarios, con los contratos aceptados', () async {
-    final (:dio, :adaptador) = dioSimulado();
-    late String cuerpo;
-    adaptador.onPost(
-      '/usuarios',
-      (s) => s.reply(
-        202,
-        ejemplo('identidad', 'registrarUsuario', 'ok')['cuerpo'],
-      ),
-      data: Matchers.any,
-    );
-    dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (o, h) {
-          if (o.path.contains('usuarios')) cuerpo = '${o.data}';
-          h.next(o);
-        },
-      ),
-    );
-    final c = ProviderContainer(
-      retry: (retryCount, error) => null,
-      overrides: [
-        almacenSeguroProvider.overrideWithValue(AlmacenEnMemoria()),
-        dioProvider.overrideWithValue(dio),
-      ],
-    );
-    addTearDown(c.dispose);
+  test(
+    'el alta manda todo junto a POST /usuarios, con los contratos aceptados',
+    () async {
+      final (:dio, :adaptador) = dioSimulado();
+      late String cuerpo;
+      adaptador.onPost(
+        '/usuarios',
+        (s) => s.reply(
+          202,
+          ejemplo('identidad', 'registrarUsuario', 'ok')['cuerpo'],
+        ),
+        data: Matchers.any,
+      );
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (o, h) {
+            if (o.path.contains('usuarios')) cuerpo = '${o.data}';
+            h.next(o);
+          },
+        ),
+      );
+      final c = ProviderContainer(
+        retry: (retryCount, error) => null,
+        overrides: [
+          almacenSeguroProvider.overrideWithValue(AlmacenEnMemoria()),
+          dioProvider.overrideWithValue(dio),
+        ],
+      );
+      addTearDown(c.dispose);
 
-    c.read(altaProvider.notifier).actualizarDatos(
-      DatosPersonales(
-        nombres: 'Rosa',
-        apellidos: 'Quispe',
-        fechaNacimiento: DateTime.utc(1990, 5, 20),
-        telefono: '+59178123456',
-        numeroDocumento: '1234567',
-      ),
-    );
-    c.read(contratoProvider.notifier)
-      ..alternarContrato(true)
-      ..alternarTarifario(true)
-      ..alternarTratamientoDatos(true);
+      c
+          .read(altaProvider.notifier)
+          .actualizarDatos(
+            DatosPersonales(
+              nombres: 'Rosa',
+              apellidos: 'Quispe',
+              fechaNacimiento: DateTime.utc(1990, 5, 20),
+              telefono: '+59178123456',
+              numeroDocumento: '1234567',
+            ),
+          );
+      c.read(contratoProvider.notifier)
+        ..alternarContrato(true)
+        ..alternarTarifario(true)
+        ..alternarTratamientoDatos(true);
 
-    final billetera = await c.read(altaProvider.notifier).enviarAlServidor();
+      final billetera = await c.read(altaProvider.notifier).enviarAlServidor();
 
-    expect(billetera, isNotNull, reason: 'el alta abre la billetera');
-    // Los tres consentimientos viajan por separado: aceptar el contrato no es lo
-    // mismo que aceptar el tarifario, y cuál se dio tiene que poder auditarse.
-    expect(cuerpo, contains('ADHESION'));
-    expect(cuerpo, contains('TARIFARIO'));
-    expect(cuerpo, contains('TRATAMIENTO_DATOS'));
-  });
+      expect(billetera, isNotNull, reason: 'el alta abre la billetera');
+      // Los tres consentimientos viajan por separado: aceptar el contrato no es lo
+      // mismo que aceptar el tarifario, y cuál se dio tiene que poder auditarse.
+      expect(cuerpo, contains('ADHESION'));
+      expect(cuerpo, contains('TARIFARIO'));
+      expect(cuerpo, contains('TRATAMIENTO_DATOS'));
+    },
+  );
 
-  test('sin fecha de nacimiento no se manda nada y se dice qué falta', () async {
-    final (:dio, :adaptador) = dioSimulado();
-    adaptador.onPost('/usuarios', (s) => s.reply(202, {}), data: Matchers.any);
-    final c = ProviderContainer(
-      retry: (retryCount, error) => null,
-      overrides: [
-        almacenSeguroProvider.overrideWithValue(AlmacenEnMemoria()),
-        dioProvider.overrideWithValue(dio),
-      ],
-    );
-    addTearDown(c.dispose);
+  test(
+    'sin fecha de nacimiento no se manda nada y se dice qué falta',
+    () async {
+      final (:dio, :adaptador) = dioSimulado();
+      adaptador.onPost(
+        '/usuarios',
+        (s) => s.reply(202, {}),
+        data: Matchers.any,
+      );
+      final c = ProviderContainer(
+        retry: (retryCount, error) => null,
+        overrides: [
+          almacenSeguroProvider.overrideWithValue(AlmacenEnMemoria()),
+          dioProvider.overrideWithValue(dio),
+        ],
+      );
+      addTearDown(c.dispose);
 
-    final r = await c.read(altaProvider.notifier).enviarAlServidor();
+      final r = await c.read(altaProvider.notifier).enviarAlServidor();
 
-    expect(r, isNull);
-    expect(c.read(altaProvider).error, 'Falta tu fecha de nacimiento.');
-  });
+      expect(r, isNull);
+      expect(c.read(altaProvider).error, 'Falta tu fecha de nacimiento.');
+    },
+  );
 }
