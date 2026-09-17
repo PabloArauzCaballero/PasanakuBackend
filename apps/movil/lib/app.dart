@@ -8,6 +8,7 @@ import 'dominio/verificacion_contrato.dart';
 import 'navegacion/rutas.dart';
 import 'proveedores/sesion.dart';
 import 'package:aportaya_diseno/moviles/apertura_de_marca.dart';
+import 'package:aportaya_diseno/moviles/como_en_un_telefono.dart';
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 
@@ -35,9 +36,11 @@ class AppAportaYa extends ConsumerWidget {
       themeMode: ThemeMode.system,
       routerConfig: _enrutador,
       debugShowCheckedModeBanner: false,
-      builder: (context, child) => _ConApertura(
-        enrutador: _enrutador,
-        child: _AvisoDeContrato(child: child),
+      builder: (context, child) => ComoEnUnTelefono(
+        child: _ConApertura(
+          enrutador: _enrutador,
+          child: _AvisoDeContrato(child: child),
+        ),
       ),
     );
   }
