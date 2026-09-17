@@ -267,6 +267,19 @@ jobs:
     name: Los cinco corredores
     runs-on: ubuntu-latest
     needs: [codigo]
+    # jOOQ se genera introspeccionando la base VIVA: sin PostgreSQL, `bootJar` y `test`
+    # fallan SIEMPRE con «Connection refused», y el rojo no dice nada del codigo.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: pasanaku
+          POSTGRES_USER: pasanaku
+          POSTGRES_PASSWORD: pasanaku
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U pasanaku -d pasanaku"
+          --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -274,6 +287,11 @@ jobs:
           distribution: temurin
           java-version: "21"
       - uses: gradle/actions/setup-gradle@v4
+
+      - name: 0 · el esquema, que es lo que jOOQ introspecciona
+        env:
+          PGPASSWORD: pasanaku
+        run: cd sql && psql -v ON_ERROR_STOP=1 -h localhost -U pasanaku -d pasanaku -q -f aplicar.sql
 
       - name: 13 · test
         run: ./gradlew test
@@ -297,6 +315,19 @@ jobs:
     name: bootJar y docker build, multietapa y sin root
     runs-on: ubuntu-latest
     needs: [codigo]
+    # jOOQ se genera introspeccionando la base VIVA: sin PostgreSQL, `bootJar` y `test`
+    # fallan SIEMPRE con «Connection refused», y el rojo no dice nada del codigo.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: pasanaku
+          POSTGRES_USER: pasanaku
+          POSTGRES_PASSWORD: pasanaku
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U pasanaku -d pasanaku"
+          --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -305,10 +336,21 @@ jobs:
           java-version: "21"
       - uses: gradle/actions/setup-gradle@v4
 
+      - name: 0 · el esquema, que es lo que jOOQ introspecciona
+        env:
+          PGPASSWORD: pasanaku
+        run: cd sql && psql -v ON_ERROR_STOP=1 -h localhost -U pasanaku -d pasanaku -q -f aplicar.sql
+
       - name: 17 · una imagen de muestra
         run: |
           ./gradlew :servicios:identidad:bootJar
-          docker build -f despliegue/Dockerfile --build-arg SERVICIO=identidad -t aportaya/identidad:ci .
+          # --network=host y la URL del runner: el paso RUN del build genera jOOQ contra
+          # la base viva, y desde el sandbox del build no existe ningun `postgres`.
+          docker build --network=host -f despliegue/Dockerfile \
+            --build-arg SERVICIO=identidad \
+            --build-arg BD_URL_ADMIN=jdbc:postgresql://localhost:5432/pasanaku \
+            --build-arg BD_USUARIO_ADMIN=pasanaku --build-arg BD_CLAVE_ADMIN=pasanaku \
+            -t aportaya/identidad:ci .
           test "$(docker image inspect aportaya/identidad:ci --format '{{.Config.User}}')" = "app" \
             || { echo "La imagen corre como root"; exit 1; }
 

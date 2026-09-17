@@ -1,0 +1,48 @@
+{
+  "servicio": "identidad",
+  "operacion": "listarVerificaciones",
+  "metodo": "get",
+  "ruta": "/identidad/verificaciones",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "verificacionId": "f7746587-4b07-4171-8438-c6b0a427c56f",
+          "usuarioId": "d0514e2b-d534-4977-8565-675ca58577a2",
+          "nombreCompleto": "nombreCompleto",
+          "documento": "documento",
+          "estado": "PENDIENTE",
+          "iniciadaEn": "2026-01-15T10:30:00Z",
+          "resueltaEn": "2026-01-15T10:30:00Z",
+          "motivoRechazo": "motivoRechazo",
+          "fotos": [
+            "ANVERSO"
+          ]
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "verificacionId": "f7746587-4b07-4171-8438-c6b0a427c56f",
+          "usuarioId": "d0514e2b-d534-4977-8565-675ca58577a2",
+          "nombreCompleto": "nombreCompleto",
+          "documento": "documento",
+          "estado": "PENDIENTE",
+          "iniciadaEn": "2026-01-15T10:30:00Z",
+          "resueltaEn": "2026-01-15T10:30:00Z",
+          "motivoRechazo": "motivoRechazo",
+          "fotos": [
+            "ANVERSO"
+          ]
+        }
+      ]
+    }
+  }
+}

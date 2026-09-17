@@ -1,0 +1,38 @@
+{
+  "servicio": "identidad",
+  "operacion": "verFotoDelExpediente",
+  "metodo": "get",
+  "ruta": "/identidad/verificaciones/{verificacionId}/fotos/{cara}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "url": "url",
+        "vigenteHasta": "2026-01-15T10:30:00Z"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "url": "url",
+        "vigenteHasta": "2026-01-15T10:30:00Z"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "url": "url",
+        "vigenteHasta": "2026-01-15T10:30:00Z"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

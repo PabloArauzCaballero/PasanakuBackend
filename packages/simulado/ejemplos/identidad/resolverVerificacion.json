@@ -1,0 +1,88 @@
+{
+  "servicio": "identidad",
+  "operacion": "resolverVerificacion",
+  "metodo": "post",
+  "ruta": "/identidad/verificaciones/{verificacionId}/decision",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "verificacionId": "44b54eee-9c70-4ad2-8273-a5bc4e12639c",
+        "usuarioId": "5a1c528c-0c53-47ca-864f-4546666f6a56",
+        "nombreCompleto": "nombreCompleto",
+        "documento": "documento",
+        "estado": "PENDIENTE",
+        "iniciadaEn": "2026-01-15T10:30:00Z",
+        "resueltaEn": "2026-01-15T10:30:00Z",
+        "motivoRechazo": "motivoRechazo",
+        "fotos": [
+          "ANVERSO"
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "verificacionId": "44b54eee-9c70-4ad2-8273-a5bc4e12639c",
+        "usuarioId": "5a1c528c-0c53-47ca-864f-4546666f6a56",
+        "nombreCompleto": "nombreCompleto",
+        "documento": "documento",
+        "estado": "PENDIENTE",
+        "iniciadaEn": "2026-01-15T10:30:00Z",
+        "resueltaEn": "2026-01-15T10:30:00Z",
+        "motivoRechazo": "motivoRechazo",
+        "fotos": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "verificacionId": "44b54eee-9c70-4ad2-8273-a5bc4e12639c",
+        "usuarioId": "5a1c528c-0c53-47ca-864f-4546666f6a56",
+        "nombreCompleto": "nombreCompleto",
+        "documento": "documento",
+        "estado": "PENDIENTE",
+        "iniciadaEn": "2026-01-15T10:30:00Z",
+        "resueltaEn": "2026-01-15T10:30:00Z",
+        "motivoRechazo": "motivoRechazo",
+        "fotos": [
+          "ANVERSO"
+        ]
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "verificacionId": "44b54eee-9c70-4ad2-8273-a5bc4e12639c",
+        "usuarioId": "5a1c528c-0c53-47ca-864f-4546666f6a56",
+        "nombreCompleto": "nombreCompleto",
+        "documento": "documento",
+        "estado": "PENDIENTE",
+        "iniciadaEn": "2026-01-15T10:30:00Z",
+        "resueltaEn": "2026-01-15T10:30:00Z",
+        "motivoRechazo": "motivoRechazo",
+        "fotos": [
+          "ANVERSO"
+        ]
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

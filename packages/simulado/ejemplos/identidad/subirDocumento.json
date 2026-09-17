@@ -1,0 +1,66 @@
+{
+  "servicio": "identidad",
+  "operacion": "subirDocumento",
+  "metodo": "post",
+  "ruta": "/usuarios/{usuarioId}/documentos",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "cara": "ANVERSO",
+        "claveObjeto": "s3://identidad/2026/09/9f2c1e4a.jpg",
+        "hashArchivo": "hashArchivo-hashArchivo-hashArchivo-hashArchivo-hashArchivo-hash",
+        "tipoMime": "tipoMime",
+        "bytes": 1
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "cara": "ANVERSO",
+        "claveObjeto": "s3://identidad/2026/09/9f2c1e4a.jpg",
+        "hashArchivo": "hashArchivo-hashArchivo-hashArchivo-hashArchivo-hashArchivo-hash",
+        "tipoMime": "tipoMime",
+        "bytes": 0
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "cara": "ANVERSO",
+        "claveObjeto": "s3://identidad/2026/09/9f2c1e4a.jpg",
+        "hashArchivo": "hashArchivo-hashArchivo-hashArchivo-hashArchivo-hashArchivo-hash",
+        "tipoMime": "tipoMime",
+        "bytes": 1
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "cara": "ANVERSO",
+        "claveObjeto": "s3://identidad/2026/09/9f2c1e4a.jpg",
+        "hashArchivo": "hashArchivo-hashArchivo-hashArchivo-hashArchivo-hashArchivo-hash",
+        "tipoMime": "tipoMime",
+        "bytes": 1
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}
