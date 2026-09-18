@@ -90,6 +90,43 @@ SMS ni correo de verdad, y es una decisión consciente para un entorno de prueba
 que haya un canal real, se cambia la variable `PERFIL_SPRING` en Coolify y este párrafo
 deja de ser cierto.
 
+## El corpus de identidad
+
+TEST se usa además para juntar un corpus de verificación de identidad: por cada persona
+que se da de alta, las tres fotos —anverso, reverso y prueba de vida— y la decisión que
+tomó una persona sobre ellas.
+
+**Una carpeta por usuario.** Las fotos van a MinIO, al bucket de archivos, bajo:
+
+```
+identidad/<usuarioId>/anverso-<uuid>.jpg
+identidad/<usuarioId>/reverso-<uuid>.jpg
+identidad/<usuarioId>/selfie-<uuid>.jpg
+```
+
+La carpeta es el `usuarioId` —un UUID opaco, nunca un nombre ni un número de documento:
+la ruta no lleva datos personales adentro (ADR-034)— y el nombre empieza por la cara, así
+que el expediente de alguien se ve listando una carpeta. El UUID del final está porque los
+objetos **no se sobrescriben**: sacarse la foto de nuevo agrega una al lado de la anterior,
+y la última es la que apunta la fila. La carpeta de cada expediente se muestra en el
+backoffice, arriba de las fotos.
+
+**Todo lo decide una persona.** No hay proveedor biométrico, ni puntaje, ni regla que
+apruebe sola: el alta abre la verificación en `EN_REVISION` y lo único que la resuelve es
+`POST /identidad/verificaciones/{id}/decision`, que exige el permiso
+`VERIFICACION_RESOLVER` y guarda en `revisada_por` quién decidió. Rechazar sin motivo no
+se admite. Eso es exactamente lo que hace útil al corpus: cada expediente queda con una
+etiqueta puesta por alguien con nombre.
+
+Se trabaja en **Cumplimiento → Verificación de identidad** del backoffice. La pantalla abre
+en la cola **Por decidir** —los dos estados sin resolver, `PENDIENTE` y `EN_REVISION`— y al
+abrir un expediente muestra las tres fotos juntas, porque cotejar la cara contra el
+documento es mirarlas a la vez. Los enlaces son temporales (diez minutos) y cada uno se
+pide al abrir, no al listar: cada lectura de una cédula queda registrada.
+
+Un expediente al que le falta una foto **no se puede aprobar**, y la pantalla dice cuál
+falta. Pasa cuando la cámara del teléfono falla y el alta sigue por la salida manual.
+
 ## Lo que este entorno NO es
 
 No es producción ni se le parece: una réplica por servicio, sin respaldo

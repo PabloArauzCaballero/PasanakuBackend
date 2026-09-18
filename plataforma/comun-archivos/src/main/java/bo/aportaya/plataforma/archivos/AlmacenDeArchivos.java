@@ -13,8 +13,22 @@ import java.time.Duration;
  */
 public interface AlmacenDeArchivos {
 
-    /** Guarda y devuelve la clave y el hash. Valida tamaño y tipo contra el ambito. */
-    ArchivoGuardado guardar(ContenidoEntrante contenido, AmbitoArchivo ambito);
+    /**
+     * Guarda y devuelve la clave y el hash. Valida tamaño y tipo contra el ambito.
+     *
+     * <p>El {@link DestinoDeObjeto} decide en que carpeta cae: para el expediente de
+     * identidad, una carpeta por persona, para que las tres fotos de alguien esten
+     * juntas y se puedan listar sin leer la base.
+     */
+    ArchivoGuardado guardar(ContenidoEntrante contenido, AmbitoArchivo ambito, DestinoDeObjeto destino);
+
+    /** Para lo que no pertenece a nadie en particular: reparto por fecha. */
+    default ArchivoGuardado guardar(ContenidoEntrante contenido, AmbitoArchivo ambito) {
+        return guardar(contenido, ambito, DestinoDeObjeto.porFecha());
+    }
+
+    /** Lo que hay guardado en la carpeta de alguien, para revisar un expediente entero. */
+    java.util.List<ClaveObjeto> listar(AmbitoArchivo ambito, String carpeta);
 
     /** El binario, para que el servicio dueño lo entregue con sus reglas. */
     ContenidoAlmacenado leer(ClaveObjeto clave);

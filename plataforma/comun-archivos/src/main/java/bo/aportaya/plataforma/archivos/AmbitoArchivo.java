@@ -35,7 +35,11 @@ public enum AmbitoArchivo {
         return tiposAdmitidos;
     }
 
-    /** El prefijo de la ruta logica: un objeto se ubica por su ambito, no por quien lo subio. */
+    /**
+     * El primer tramo de la ruta logica. Debajo va la carpeta del
+     * {@link DestinoDeObjeto}: el ambito dice de que tramite es el archivo, y la
+     * carpeta, de que expediente.
+     */
     public String prefijo() {
         return name().toLowerCase(java.util.Locale.ROOT);
     }

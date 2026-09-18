@@ -4,6 +4,7 @@ import bo.aportaya.plataforma.archivos.AlmacenDeArchivos;
 import bo.aportaya.plataforma.archivos.AmbitoArchivo;
 import bo.aportaya.plataforma.archivos.ArchivoGuardado;
 import bo.aportaya.plataforma.archivos.ContenidoEntrante;
+import bo.aportaya.plataforma.archivos.DestinoDeObjeto;
 import java.io.InputStream;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,11 @@ import org.springframework.stereotype.Service;
  *
  * <p>Si el almacen guarda y la base falla, queda un objeto huerfano: eso es
  * recuperable (el barrido de retencion lo encuentra sin referencia) y una fila rota no.
+ *
+ * <p><b>Una carpeta por persona.</b> Las tres fotos caen en
+ * {@code identidad/<usuarioId>/} con el nombre de la cara adelante
+ * ({@code anverso-…}, {@code reverso-…}, {@code selfie-…}): el expediente de alguien
+ * se ve listando una carpeta, sin leer dos tablas para juntar tres claves sueltas.
  */
 @Service
 public class CU02GuardarFotoDelExpediente {
@@ -34,8 +40,10 @@ public class CU02GuardarFotoDelExpediente {
 
     public ArchivoGuardado ejecutar(
             UUID usuarioId, Cara cara, InputStream contenido, long bytes, String nombre, String trazaId) {
-        ArchivoGuardado guardado =
-                almacen.guardar(new ContenidoEntrante(contenido, bytes, nombre), AmbitoArchivo.IDENTIDAD);
+        ArchivoGuardado guardado = almacen.guardar(
+                new ContenidoEntrante(contenido, bytes, nombre),
+                AmbitoArchivo.IDENTIDAD,
+                DestinoDeObjeto.deExpediente(usuarioId, cara.name()));
         anotar.ejecutar(usuarioId, cara, guardado, trazaId);
         return guardado;
     }
@@ -45,5 +53,10 @@ public class CU02GuardarFotoDelExpediente {
         ANVERSO,
         REVERSO,
         SELFIE
+    }
+
+    /** La carpeta del expediente de alguien, para listarla o para nombrarla. */
+    public static String carpetaDe(UUID usuarioId) {
+        return AmbitoArchivo.IDENTIDAD.prefijo() + "/" + usuarioId + "/";
     }
 }

@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
  * Lo que se guarda en la columna. **Nunca una URL publica** (ADR-034).
  *
  * <pre>
- *   s3://identidad/2026/09/9f2c1e4a-….jpg
+ *   s3://identidad/<usuarioId>/anverso-9f2c1e4a-….jpg
  * </pre>
  *
  * <p>El esquema dice <b>que adaptador</b> la escribio; el resto es la ruta logica.

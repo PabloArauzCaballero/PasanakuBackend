@@ -14,7 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.HexFormat;
 import java.util.Map;
 import java.util.UUID;
@@ -43,13 +42,13 @@ public class AlmacenS3Adaptador implements AlmacenDeArchivos {
     }
 
     @Override
-    public ArchivoGuardado guardar(ContenidoEntrante contenido, AmbitoArchivo ambito) {
+    public ArchivoGuardado guardar(ContenidoEntrante contenido, AmbitoArchivo ambito, DestinoDeObjeto destino) {
         byte[] datos = leerTodo(contenido.datos(), ambito);
         ambito.exigirQueQuepa(datos.length);
         String tipo = TipoPorContenido.detectar(datos);
         ambito.exigirTipoAdmitido(tipo);
 
-        ClaveObjeto clave = nuevaClave(ambito, tipo);
+        ClaveObjeto clave = nuevaClave(ambito, destino, tipo);
         try (InputStream flujo = new ByteArrayInputStream(datos)) {
             cliente.putObject(PutObjectArgs.builder().bucket(bucket).object(clave.nombreEnBucket()).stream(
                             flujo, datos.length, -1)
@@ -94,6 +93,28 @@ public class AlmacenS3Adaptador implements AlmacenDeArchivos {
         }
     }
 
+    /**
+     * Lo que hay en la carpeta de alguien. Sirve para comprobar que el expediente
+     * esta completo sin abrir ninguna foto — listar nombres no es mirar cedulas.
+     */
+    @Override
+    public java.util.List<ClaveObjeto> listar(AmbitoArchivo ambito, String carpeta) {
+        String prefijo = ambito.prefijo() + "/" + DestinoDeObjeto.carpetaValida(carpeta) + "/";
+        var claves = new java.util.ArrayList<ClaveObjeto>();
+        try {
+            for (var resultado : cliente.listObjects(io.minio.ListObjectsArgs.builder()
+                    .bucket(bucket)
+                    .prefix(prefijo)
+                    .recursive(true)
+                    .build())) {
+                claves.add(new ClaveObjeto(ESQUEMA, resultado.get().objectName()));
+            }
+        } catch (Exception e) {
+            throw new ErrorDeDominio("No pudimos listar los archivos de esa carpeta", e);
+        }
+        return java.util.List.copyOf(claves);
+    }
+
     @Override
     public void marcarDeBaja(ClaveObjeto clave, String motivo) {
         // Baja LOGICA: el objeto no se borra. Se le pone una etiqueta y el barrido de
@@ -109,11 +130,19 @@ public class AlmacenS3Adaptador implements AlmacenDeArchivos {
         }
     }
 
-    /** `identidad/2026/09/<uuid>.jpg` — la fecha agrupa y el UUID evita colisiones. */
-    private static ClaveObjeto nuevaClave(AmbitoArchivo ambito, String tipo) {
-        LocalDate hoy = LocalDate.now();
-        String ruta = "%s/%04d/%02d/%s%s"
-                .formatted(ambito.prefijo(), hoy.getYear(), hoy.getMonthValue(), UUID.randomUUID(), extension(tipo));
+    /**
+     * `identidad/<usuarioId>/anverso-<uuid>.jpg` — la carpeta agrupa el expediente de
+     * una persona y el UUID del final evita pisar la foto anterior: los objetos no se
+     * sobrescriben (ADR-034), sacarse la foto de nuevo agrega una al lado.
+     */
+    private static ClaveObjeto nuevaClave(AmbitoArchivo ambito, DestinoDeObjeto destino, String tipo) {
+        String ruta = "%s/%s/%s-%s%s"
+                .formatted(
+                        ambito.prefijo(),
+                        destino.carpeta(),
+                        destino.etiqueta(),
+                        UUID.randomUUID(),
+                        extension(tipo));
         return new ClaveObjeto(ESQUEMA, ruta);
     }
 

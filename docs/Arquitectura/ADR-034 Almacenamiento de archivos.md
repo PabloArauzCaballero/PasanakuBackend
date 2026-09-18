@@ -55,18 +55,23 @@ como opcional. En la columna nunca va una URL pública: va una clave de objeto.*
 
 ```java
 public interface AlmacenDeArchivos {
-    ClaveObjeto guardar(ContenidoEntrante contenido, AmbitoArchivo ambito);
+    ArchivoGuardado guardar(ContenidoEntrante contenido, AmbitoArchivo ambito, DestinoDeObjeto destino);
+    ArchivoGuardado guardar(ContenidoEntrante contenido, AmbitoArchivo ambito); // reparto por fecha
+    List<ClaveObjeto> listar(AmbitoArchivo ambito, String carpeta);
     ContenidoAlmacenado leer(ClaveObjeto clave);
-    UrlTemporal urlTemporal(ClaveObjeto clave, Duration vigencia);
+    String urlTemporal(ClaveObjeto clave, Duration vigencia);
     void marcarDeBaja(ClaveObjeto clave, String motivo);
 }
 ```
 
+Devuelve `ArchivoGuardado` —clave, SHA-256, tipo detectado y bytes— y no solo la clave:
+la regla 5 exige el hash al guardar, y devolverlo aparte obligaba a recalcularlo.
+
 **La clave de objeto, y por qué no es una URL**
 
 ```
-local://identidad/2026/08/9f2c1e4a-….jpg
-  s3://identidad/2026/08/9f2c1e4a-….jpg
+local://identidad/<usuarioId>/anverso-9f2c1e4a-….jpg
+  s3://identidad/<usuarioId>/anverso-9f2c1e4a-….jpg
 ```
 
 El esquema dice **qué adaptador** la escribió; el resto es la ruta lógica. Cambiar de
@@ -97,7 +102,8 @@ lectura de dato personal ([[ADR-031 Lecturas, réplica y rol auditor]]).
    `spring.servlet.multipart.max-file-size`.
 4. **El nombre original nunca es la ruta.** Se guarda como metadato; la ruta la
    genera el adaptador con un UUID. Así no hay `../` ni colisiones ni nombres con
-   datos personales adentro.
+   datos personales adentro. La carpeta tampoco los lleva: es un identificador
+   opaco, nunca un nombre ni un número de documento (ver la enmienda de abajo).
 5. **SHA-256 obligatorio** al guardar, y va a `hash_archivo` en las siete tablas
    que la tienen. En las que no —avatar, certificado, factura, pieza creativa— el
    hash igual se calcula y viaja en la respuesta, pero **no se inventa columna**.
@@ -193,9 +199,44 @@ la política de la tabla dueña.
 - [ ] Prueba de rechazo: extensión `.jpg` con contenido ejecutable → rechazado por
       contenido, no por extensión.
 - [ ] Prueba de rechazo: nombre con `../` → la ruta generada queda bajo la raíz.
+- [ ] Prueba de rechazo: carpeta con `/` o con `..` → rechazada, no saneada.
+- [ ] Las tres fotos de un mismo expediente caen bajo `identidad/<usuarioId>/`.
 - [ ] Prueba: pedir un archivo ajeno con otra sesión → 403 y queda en la bitácora.
 - [ ] Arranque con perfil de producción y `adaptadores.archivos = local` → **falla**.
 - [ ] La suite de contrato de puerto pasa igual con el adaptador local y con MinIO.
+
+## Enmienda 2026-09-17 — una carpeta por expediente
+
+**Qué cambia:** la forma de la ruta lógica dentro del ámbito. La decisión de este ADR
+—clave de objeto y nunca una URL, el binario lo sirve el servicio dueño— no se toca.
+
+**Antes:** `identidad/2026/09/<uuid>.jpg`, todos los archivos del mes mezclados.
+**Ahora:** `identidad/<usuarioId>/<cara>-<uuid>.jpg`.
+
+**Por qué.** El expediente de identidad de una persona son tres archivos —anverso,
+reverso y prueba de vida— y con el reparto por fecha juntarlos exigía leer tres
+columnas de dos tablas (`documento_identidad.url_anverso`, `url_reverso` y
+`verificacion_kyc.url_selfie`). Con la carpeta, el expediente se ve listando un
+prefijo. Eso es lo que hace posible revisarlo, entregarlo cuando alguien lo pide por
+[[CU-07 Ejercer derechos sobre datos personales]] y juntar el corpus de verificación
+de TEST (`despliegue/TEST.md`).
+
+**Lo que la carpeta NO puede ser.** Un identificador opaco —el `usuarioId`, un UUID— y
+nunca un nombre, un teléfono ni un número de documento: la regla 4 vale para la ruta
+entera, no solo para el nombre del archivo. `DestinoDeObjeto` valida cada tramo contra
+`^[a-z0-9][a-z0-9-]{0,63}$` y **rechaza** lo que no cumple en vez de sanearlo: sanear
+una ruta inválida esconde el error y deja el archivo donde nadie lo pidió.
+
+**El UUID del final se queda.** Por la regla 7: los objetos no se sobrescriben, así que
+sacarse la foto de nuevo agrega un objeto al lado del anterior y la fila apunta al
+nuevo. Sin el UUID, `anverso.jpg` pisaría evidencia legal.
+
+**Las claves viejas siguen resolviendo.** La columna guarda la clave completa, no un
+patrón: lo subido antes de esta enmienda se lee igual. La forma nueva aplica a lo que
+se sube desde ahora, y no hay migración que hacer.
+
+Además se agrega `listar(ambito, carpeta)` al puerto, para comprobar que un expediente
+está completo sin abrir ninguna foto — listar nombres no es mirar cédulas.
 
 ## Ver también
 
