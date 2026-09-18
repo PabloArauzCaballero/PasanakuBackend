@@ -23,8 +23,10 @@ class PantallaDeBienvenida extends StatelessWidget {
           nombre: datos.nombres.isEmpty ? 'nueva cuenta' : datos.nombres,
           // Hueco: el monto del bono lo define el catálogo del backend
           // (`servicios/identidad` o promociones); no está en la bóveda de
-          // pantallas todavía. Se declara `—` en vez de inventar una cifra.
-          bono: '—',
+          // pantallas todavía. Va `null` —la frase del bono no se muestra— en vez
+          // de un `'—'`, que no es un importe del contrato `Dinero` y hacía que la
+          // pantalla entera reventara al construirse.
+          bono: null,
           moneda: 'BOB',
           pasos: [
             (

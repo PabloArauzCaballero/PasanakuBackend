@@ -16,23 +16,21 @@ import 'pantalla_tour.dart';
 import 'pantalla_verificacion_profunda.dart';
 
 /// Las rutas del dominio identidad — carril M1 (ficha F3). Las once pantallas de
-/// `docs/Views/AportaYa-Maqueta.html` §2.1, y **solo** ellas: `rutasIdentidad` tiene
-/// once `GoRoute` y ninguna más.
+/// `docs/Views/AportaYa-Maqueta.html` §2.1 siguen estando todas; lo que cambió es
+/// **dónde** vive cada una.
 ///
-/// A eso se suma [rutasDeEntrada], que son otras dos (`/portada` y `/ingreso`) y van
-/// aparte a propósito: no cuelgan de `/identidad/` ni viven dentro del shell, porque
-/// son lo que se ve **antes** de tener sesión. Por eso el viejo `grep -c "identidad\."`
-/// sobre este archivo ahora da 13 y no 11.
+/// [rutasIdentidad] son las que van **dentro** del shell: pantallas de alguien que ya
+/// tiene sesión y que por lo tanto pueden tener debajo la barra de Inicio · Grupos ·
+/// Movimientos · Perfil.
+///
+/// [rutasDeEntrada] son las que van **encima** del shell, sin barra de pestañas,
+/// porque se ven antes de tener sesión: portada, tour, ingreso, alta, contrato y
+/// bienvenida.
 final List<RouteBase> rutasIdentidad = [
   GoRoute(
     path: '/identidad',
     name: 'identidad.sesion',
     builder: (context, state) => const PantallaDeSesion(),
-  ),
-  GoRoute(
-    path: '/identidad/bienvenida',
-    name: 'identidad.bienvenida',
-    builder: (context, state) => const PantallaDeBienvenida(),
   ),
   // La maqueta separa "registro" (datos) de "verificacion-basica" (celular +
   // documento + prueba de vida + cotejo), pero ambas son pasos del mismo asistente
@@ -45,11 +43,6 @@ final List<RouteBase> rutasIdentidad = [
     path: '/identidad/verificacion-basica',
     name: 'identidad.verificacion-basica',
     builder: (context, state) => const PantallaDeRegistro(),
-  ),
-  GoRoute(
-    path: '/identidad/contrato',
-    name: 'identidad.contrato',
-    builder: (context, state) => const PantallaDeContrato(),
   ),
   GoRoute(
     path: '/identidad/mfa',
@@ -116,17 +109,40 @@ final List<RouteBase> rutasDeEntrada = [
     pageBuilder: (context, state) =>
         _conZoomDeMarca(state, const PantallaDeTour()),
   ),
+  // `?alta=lista` es lo que deja el último paso del alta para que el login pueda
+  // decir «tu cuenta quedó creada, ahora entrá». Sin eso, terminar ocho pasos y
+  // aparecer en un formulario de acceso se lee como un error.
   GoRoute(
     path: '/ingreso',
     name: 'identidad.ingreso',
-    pageBuilder: (context, state) =>
-        _conZoomDeMarca(state, const PantallaDeSesion()),
+    pageBuilder: (context, state) => _conZoomDeMarca(
+      state,
+      PantallaDeSesion(
+        cuentaRecienCreada: state.uri.queryParameters['alta'] == 'lista',
+      ),
+    ),
   ),
   GoRoute(
     path: '/registro',
     name: 'identidad.registro',
     pageBuilder: (context, state) =>
         _conZoomDeMarca(state, const PantallaDeRegistro()),
+  ),
+  // El contrato es el octavo paso del alta, y el alta pasa **antes** de que exista la
+  // cuenta. Vivía dentro del shell, así que el último paso de crear una cuenta se leía
+  // con la barra de pestañas debajo y «Perfil» encendido: la app decía que había una
+  // sesión —y un perfil— mientras todavía se estaba pidiendo abrir la cuenta.
+  GoRoute(
+    path: '/identidad/contrato',
+    name: 'identidad.contrato',
+    builder: (context, state) => const PantallaDeContrato(),
+  ),
+  // Idem: la bienvenida es lo que se ve al cerrar el alta, cuando todavía no se
+  // ingresó.
+  GoRoute(
+    path: '/identidad/bienvenida',
+    name: 'identidad.bienvenida',
+    builder: (context, state) => const PantallaDeBienvenida(),
   ),
 ];
 

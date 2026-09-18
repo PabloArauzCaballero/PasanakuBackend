@@ -4,6 +4,7 @@ import 'package:aportaya_movil/navegacion/rutas.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:aportaya_diseno/moviles/barra_pestanas.dart';
 import 'package:go_router/go_router.dart';
 
 /// **Cada pestaña abre su pantalla, no la primera ruta que encuentra.**
@@ -68,4 +69,38 @@ void main() {
       expect(router.state.uri.toString(), '/billetera/inicio');
     },
   );
+
+  /// **Las pantallas de antes de tener sesión no llevan barra de pestañas.**
+  ///
+  /// El contrato de adhesión es el octavo paso de crear una cuenta, y vivía dentro del
+  /// shell: se leía con «Inicio · Grupos · Movimientos · Perfil» debajo y «Perfil»
+  /// encendido, como si ya hubiera una sesión y un perfil que mirar. Lo mismo la
+  /// bienvenida, que se ve cuando la cuenta recién se pidió.
+  for (final ruta in [
+    '/portada',
+    '/tour',
+    '/ingreso',
+    '/registro',
+    '/identidad/contrato',
+    '/identidad/bienvenida',
+  ]) {
+    testWidgets('$ruta se ve sin la barra de pestañas', (tester) async {
+      // Un teléfono de verdad, no los 800×600 de fábrica del entorno de pruebas:
+      // estas pantallas se maquetan para un celular y medirlas en una ventana que no
+      // existe reporta desbordes que nadie ve nunca.
+      tester.view.physicalSize = const Size(1290, 2796);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      final router = crearEnrutador(inicial: ruta);
+      await tester.pumpWidget(appCon(router));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byType(BarraPestanas),
+        findsNothing,
+        reason:
+            'ahí todavía no hay sesión: la barra ofrece destinos que no existen',
+      );
+    });
+  }
 }
