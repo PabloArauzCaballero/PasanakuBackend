@@ -33,7 +33,7 @@
         "description": "Paso 1 del recorrido. Servicio `identidad`, operacion `registrarUsuario`.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"nombres\": \"nombres-de-prueba\",\n  \"apellidos\": \"apellidos-de-prueba\",\n  \"fechaNacimiento\": \"{{fecha_hoy}}\",\n  \"documento\": {\n    \"tipo\": \"CI\",\n    \"numero\": \"numero-de-prueba\"\n  },\n  \"aceptaContratos\": [\n    \"{{aceptaContratos}}\"\n  ]\n}",
+          "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"nombres\": \"nombres-de-prueba\",\n  \"apellidos\": \"apellidos-de-prueba\",\n  \"fechaNacimiento\": \"{{fecha_hoy}}\",\n  \"contrasena\": \"contrasena-de-prueba\",\n  \"correo\": \"correo-de-prueba\",\n  \"canalVerificacion\": \"SMS\",\n  \"documento\": {\n    \"tipo\": \"CI\",\n    \"numero\": \"numero-de-prueba\",\n    \"lugarExpedicion\": \"LP\"\n  },\n  \"aceptaContratos\": [\n    \"{{aceptaContratos}}\"\n  ]\n}",
           "options": {
             "raw": {
               "language": "json"

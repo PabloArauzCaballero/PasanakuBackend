@@ -5,6 +5,7 @@ import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario.EntradaRegistro;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario.SalidaRegistro;
 import bo.aportaya.identidad.dominio.CanalDeVerificacion;
 import bo.aportaya.identidad.dominio.DocumentoDeIdentidad;
+import bo.aportaya.identidad.infraestructura.Argon2Hasheador;
 import bo.aportaya.identidad.infraestructura.RegistroRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
@@ -46,7 +47,17 @@ abstract class BaseDeCU01 {
         dsl = DSL.using(new TransactionAwareDataSourceProxy(fuente), SQLDialect.POSTGRES);
         transaccion = new TransactionTemplate(new DataSourceTransactionManager(fuente));
         registrarUsuario = new CU01RegistrarUsuario(
-                new Datos(dsl), new RegistroRepositorio(), new Outbox("identidad"), Reloj.delSistema(), Ids.seguros());
+                new Datos(dsl),
+                new RegistroRepositorio(),
+                new Outbox("identidad"),
+                Reloj.delSistema(),
+                Ids.seguros(),
+                // Argon2 de verdad y no un doble: el alta guarda la credencial, y lo que
+                // hay que poder afirmar es que quedo guardada con el mismo hasheador con
+                // el que despues la verifica el ingreso.
+                new Argon2Hasheador("pimienta-de-prueba"),
+                8,
+                5);
         dobles = new DoblesDeLaCoreografia(DSL.using(fuente, SQLDialect.POSTGRES));
         consumidos = new Consumidos("identidad");
         eventosAlEmpezar = contarEventos("identidad.usuario_registrado");
@@ -73,10 +84,52 @@ abstract class BaseDeCU01 {
                 DocumentoDeIdentidad.de(DocumentoDeIdentidad.Tipo.CI, documento, "pimienta-de-prueba", "BO", "LP"),
                 "cifrado:" + documento,
                 "0".repeat(64),
+                // Ni el telefono ni el documento adentro: la politica rechaza las claves
+                // derivadas de datos personales, y una prueba que las usa falla por eso
+                // y no por lo que quiere probar.
+                "clave-de-prueba-2026".toCharArray(),
                 conContrato ? List.of(UUID.randomUUID()) : List.of(),
                 conLicencia,
                 "127.0.0.1",
                 "prueba");
+    }
+
+    /** La misma entrada, con otra clave: para las pruebas de la politica de claves. */
+    protected EntradaRegistro entradaConClave(String telefono, String documento, char[] clave) {
+        var base = entrada(telefono, documento, true, true);
+        return new EntradaRegistro(
+                base.telefonoE164(),
+                base.nombres(),
+                base.apellidos(),
+                base.fechaNacimiento(),
+                base.correo(),
+                base.canalVerificacion(),
+                base.documento(),
+                base.numeroCifrado(),
+                base.hashDelArchivo(),
+                clave,
+                base.aceptaContratos(),
+                base.licenciaHabilitaBilletera(),
+                base.ip(),
+                base.agente());
+    }
+
+    protected SalidaRegistro registrarConClave(String telefono, String documento, char[] clave) {
+        return transaccion.execute(
+                e -> registrarUsuario.ejecutar(entradaConClave(telefono, documento, clave), contexto()));
+    }
+
+    /** El hash guardado, o vacio si el alta no dejo credencial. */
+    protected java.util.Optional<String> hashDeLaCredencial(UUID usuarioId) {
+        return java.util.Optional.ofNullable(dsl.fetchOne(
+                        "SELECT hash_contrasena FROM identidad.credencial_acceso WHERE usuario_id = ?", usuarioId))
+                .map(f -> (String) f.get(0));
+    }
+
+    protected String algoritmoDeLaCredencial(UUID usuarioId) {
+        return (String)
+                dsl.fetchOne("SELECT algoritmo FROM identidad.credencial_acceso WHERE usuario_id = ?", usuarioId)
+                        .get(0);
     }
 
     protected SalidaRegistro registrar(String telefono, String documento) {

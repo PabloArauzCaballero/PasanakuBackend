@@ -1,6 +1,7 @@
 package bo.aportaya.identidad.infraestructura;
 
 import static bo.aportaya.identidad.generado.Tables.CONSENTIMIENTO;
+import static bo.aportaya.identidad.generado.Tables.CREDENCIAL_ACCESO;
 import static bo.aportaya.identidad.generado.Tables.DOCUMENTO_IDENTIDAD;
 import static bo.aportaya.identidad.generado.Tables.USUARIO;
 import static bo.aportaya.identidad.generado.Tables.VERIFICACION_KYC;
@@ -63,6 +64,33 @@ public class RegistroRepositorio {
                 .set(USUARIO.FECHA_REGISTRO, ahora)
                 .returning(USUARIO.ID)
                 .fetchOne(USUARIO.ID);
+    }
+
+    /**
+     * La credencial con la que se va a ingresar, en la misma transaccion del alta.
+     *
+     * <p>Antes no existia: CU-01 creaba la persona y nadie creaba su credencial, asi
+     * que terminar los ocho pasos dejaba una cuenta a la que no se podia entrar. Los
+     * parametros del KDF se guardan junto al hash porque endurecerlos maniana tiene
+     * que poder hacerse sin invalidar los hashes de ayer: se sabe con cuales se
+     * calculo cada uno.
+     */
+    public UUID guardarCredencial(
+            DSLContext dsl,
+            UUID usuarioId,
+            String hashContrasena,
+            String algoritmo,
+            String parametrosKdf,
+            OffsetDateTime ahora) {
+        return dsl.insertInto(CREDENCIAL_ACCESO)
+                .set(CREDENCIAL_ACCESO.USUARIO_ID, usuarioId)
+                .set(CREDENCIAL_ACCESO.HASH_CONTRASENA, hashContrasena)
+                .set(CREDENCIAL_ACCESO.ALGORITMO, algoritmo)
+                .set(CREDENCIAL_ACCESO.PARAMETROS_KDF, org.jooq.JSONB.valueOf(parametrosKdf))
+                .set(CREDENCIAL_ACCESO.REQUIERE_CAMBIO, false)
+                .set(CREDENCIAL_ACCESO.CAMBIADA_EN, ahora)
+                .returning(CREDENCIAL_ACCESO.ID)
+                .fetchOne(CREDENCIAL_ACCESO.ID);
     }
 
     /** El numero va cifrado; lo que se indexa es su hash. Nunca el numero en claro. */

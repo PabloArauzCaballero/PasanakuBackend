@@ -447,12 +447,25 @@ components:
     EntradaRegistro:
       type: object
       additionalProperties: false      # strict(): lista blanca, no lista negra
-      required: [telefonoE164, nombres, apellidos, fechaNacimiento, documento, aceptaContratos]
+      required: [telefonoE164, nombres, apellidos, fechaNacimiento, documento, aceptaContratos, contrasena]
       properties:
         telefonoE164:    { type: string, pattern: '^\+591\d{8}$' }
         nombres:         { type: string, minLength: 2, maxLength: 60 }
         apellidos:       { type: string, minLength: 2, maxLength: 60 }
         fechaNacimiento: { type: string, format: date }
+        contrasena:
+          type: string
+          format: password
+          writeOnly: true
+          minLength: 8
+          maxLength: 128
+          description: >-
+            La clave con la que se va a ingresar. Es obligatoria: el alta no creaba
+            credencial y despues no habia con que entrar — se completaban los ocho
+            pasos y el formulario de ingreso pedia una contrasena que nunca se eligio.
+            El minimo de ocho es el de `PoliticaDeClave`; el resto de la politica
+            —no derivada del telefono ni del documento— la aplica el servicio, que es
+            el unico que puede.
         correo:
           type: string
           format: email

@@ -17,4 +17,14 @@ public interface HasheadorDeCredencial {
      * adivinar de a un caracter.
      */
     boolean coincide(char[] credencial, String hashGuardado);
+
+    /**
+     * Con que se calculo el hash. Se guarda junto a el porque endurecer el KDF maniana
+     * —mas memoria, mas iteraciones— no puede invalidar los hashes de ayer: hay que
+     * poder saber con que parametros se calculo cada uno para migrarlos al verificar.
+     */
+    Parametros parametros();
+
+    /** {@code comoJson} entra tal cual en {@code credencial_acceso.parametros_kdf}. */
+    record Parametros(String algoritmo, String comoJson) {}
 }

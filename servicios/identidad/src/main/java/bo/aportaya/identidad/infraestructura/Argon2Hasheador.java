@@ -29,6 +29,14 @@ public class Argon2Hasheador implements HasheadorDeCredencial {
     }
 
     @Override
+    public Parametros parametros() {
+        return new Parametros(
+                "ARGON2ID",
+                "{\"iteraciones\":%d,\"memoriaKiB\":%d,\"paralelismo\":%d}"
+                        .formatted(ITERACIONES, MEMORIA_KIB, PARALELISMO));
+    }
+
+    @Override
     public String hashear(char[] credencial) {
         char[] conPimienta = sazonar(credencial);
         try {

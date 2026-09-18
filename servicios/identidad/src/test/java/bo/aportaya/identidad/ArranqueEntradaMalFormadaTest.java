@@ -78,6 +78,7 @@ class ArranqueEntradaMalFormadaTest {
                 {"telefonoE164":"+59178123456","nombres":"Rosa","apellidos":"Mamani",
                  "fechaNacimiento":"no-soy-una-fecha",
                  "documento":{"tipo":"CI","numero":"9988776"},
+                 "contrasena":"clave-de-prueba-2026",
                  "aceptaContratos":["00000000-0000-0000-0000-000000000001"]}
                 """);
 
@@ -100,6 +101,7 @@ class ArranqueEntradaMalFormadaTest {
                 {"telefonoE164":"+59178123456","nombres":"Rosa","apellidos":"Mamani",
                  "fechaNacimiento":"1990-05-12",
                  "documento":{"tipo":"CI","numero":"9988776"},
+                 "contrasena":"clave-de-prueba-2026",
                  "aceptaContratos":["no-soy-un-uuid"]}
                 """);
 

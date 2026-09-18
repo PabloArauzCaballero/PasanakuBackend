@@ -199,6 +199,10 @@ public class UsuariosController implements UsuariosApi {
                 // El cifrado real lo hace el adaptador de archivos; aca la frontera.
                 "cifrado:" + documento.hashNumero(),
                 "0".repeat(64),
+                // `char[]` y no `String`: una `String` de clave queda en el pool hasta
+                // que el recolector pase, y no hay forma de borrarla antes. El caso de
+                // uso limpia este arreglo apenas la hashea.
+                cuerpo.getContrasena().toCharArray(),
                 cuerpo.getAceptaContratos(),
                 true,
                 Optional.ofNullable(peticion.getRemoteAddr()).orElse("0.0.0.0"),

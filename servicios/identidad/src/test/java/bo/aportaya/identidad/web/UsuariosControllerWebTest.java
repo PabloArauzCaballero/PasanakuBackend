@@ -60,6 +60,7 @@ class UsuariosControllerWebTest {
               "apellidos": "Arauz",
               "fechaNacimiento": "1995-06-15",
               "documento": {"tipo": "CI", "numero": "1234567", "lugarExpedicion": "SC"},
+              "contrasena": "clave-de-prueba-2026",
               "aceptaContratos": ["dddddddd-0000-4000-8000-000000000002"]
             }
             """;

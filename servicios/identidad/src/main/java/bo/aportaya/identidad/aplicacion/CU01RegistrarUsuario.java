@@ -3,6 +3,8 @@ package bo.aportaya.identidad.aplicacion;
 import bo.aportaya.identidad.dominio.AperturaDeCuenta;
 import bo.aportaya.identidad.dominio.CanalDeVerificacion;
 import bo.aportaya.identidad.dominio.DocumentoDeIdentidad;
+import bo.aportaya.identidad.dominio.PoliticaDeClave;
+import bo.aportaya.identidad.dominio.puertos.HasheadorDeCredencial;
 import bo.aportaya.identidad.infraestructura.RegistroRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -16,9 +18,11 @@ import bo.aportaya.plataforma.mensajeria.Outbox;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,13 +71,29 @@ public class CU01RegistrarUsuario {
     private final Outbox outbox;
     private final Reloj reloj;
     private final Ids ids;
+    private final HasheadorDeCredencial hasheador;
+    private final PoliticaDeClave politica;
 
-    public CU01RegistrarUsuario(Datos datos, RegistroRepositorio registros, Outbox outbox, Reloj reloj, Ids ids) {
+    public CU01RegistrarUsuario(
+            Datos datos,
+            RegistroRepositorio registros,
+            Outbox outbox,
+            Reloj reloj,
+            Ids ids,
+            HasheadorDeCredencial hasheador,
+            // De configuracion y no de una constante: el largo minimo es politica, y la
+            // politica se cambia sin recompilar (invariante 10). `clavesQueNoSeRepiten`
+            // no tiene efecto en el alta —no hay historial todavia— pero la politica es
+            // una sola para toda la vida de la cuenta y se construye igual.
+            @Value("${identidad.clave.largo-minimo:8}") int largoMinimoDeClave,
+            @Value("${identidad.clave.no-se-repiten:5}") int clavesQueNoSeRepiten) {
         this.datos = datos;
         this.registros = registros;
         this.outbox = outbox;
         this.reloj = reloj;
         this.ids = ids;
+        this.hasheador = hasheador;
+        this.politica = new PoliticaDeClave(largoMinimoDeClave, clavesQueNoSeRepiten);
     }
 
     @Transactional
@@ -92,6 +112,18 @@ public class CU01RegistrarUsuario {
             }
             if (entrada.aceptaContratos().isEmpty()) {
                 throw new ErrorDeNegocio(CodigoError.de(1, 4), "Hace falta aceptar el contrato para abrir la cuenta.");
+            }
+            // La clave se evalua ANTES de crear a la persona: rechazarla despues dejaria
+            // un usuario sin credencial, que es exactamente el estado que este caso de
+            // uso existe para no producir.
+            var rechazo = politica.evaluar(
+                    entrada.contrasena(),
+                    List.of(),
+                    hasheador::coincide,
+                    entrada.telefonoE164(),
+                    entrada.documento().hashNumero());
+            if (rechazo.isPresent()) {
+                throw new ErrorDeNegocio(CodigoError.de(1, 6), mensajeDe(rechazo.get()));
             }
             if (!entrada.licenciaHabilitaBilletera()) {
                 // Denegar por omision: sin licencia vigente que habilite el servicio,
@@ -114,6 +146,16 @@ public class CU01RegistrarUsuario {
                     AperturaDeCuenta.PENDIENTE_VERIFICACION.name(),
                     ahora);
 
+            // En la MISMA transaccion que el usuario. Si quedara afuera habria un
+            // instante —o un fallo— con la persona creada y sin con que entrar, y
+            // recuperarse de eso exige intervencion manual sobre la cuenta de alguien.
+            var kdf = hasheador.parametros();
+            registros.guardarCredencial(
+                    dsl, usuario, hasheador.hashear(entrada.contrasena()), kdf.algoritmo(), kdf.comoJson(), ahora);
+            // La clave en claro no sobrevive a la transaccion: el arreglo se borra en
+            // cuanto dejo de hacer falta. Un `char[]` existe justamente para esto.
+            Arrays.fill(entrada.contrasena(), '\0');
+
             UUID documento = registros.guardarDocumento(
                     dsl, usuario, entrada.documento(), entrada.numeroCifrado(), entrada.hashDelArchivo());
             registros.iniciarVerificacion(dsl, usuario, documento, "BASICO", ahora);
@@ -135,6 +177,16 @@ public class CU01RegistrarUsuario {
         });
     }
 
+    private String mensajeDe(PoliticaDeClave.MotivoDeRechazo motivo) {
+        return switch (motivo) {
+            case DEMASIADO_CORTA -> "Esa contrasena es demasiado corta.";
+            case DERIVADA_DE_DATOS_PERSONALES -> "No uses tu telefono ni tu documento dentro de la contrasena.";
+            // Inalcanzable en el alta —no hay historial—, pero el switch es exhaustivo
+            // a proposito: si maniana la politica crece, el compilador avisa aca.
+            case REUTILIZADA -> "Elegi una contrasena distinta.";
+        };
+    }
+
     private String codigoPublico() {
         return "AY-" + ids.nuevo().toString().substring(0, 8).toUpperCase(java.util.Locale.ROOT);
     }
@@ -149,6 +201,8 @@ public class CU01RegistrarUsuario {
             DocumentoDeIdentidad documento,
             String numeroCifrado,
             String hashDelArchivo,
+            /** En claro y como {@code char[]}: se borra en cuanto se hashea. */
+            char[] contrasena,
             List<UUID> aceptaContratos,
             boolean licenciaHabilitaBilletera,
             String ip,
