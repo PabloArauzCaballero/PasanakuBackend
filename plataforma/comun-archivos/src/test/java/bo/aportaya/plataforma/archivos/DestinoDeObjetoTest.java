@@ -42,6 +42,18 @@ class DestinoDeObjetoTest {
     }
 
     @Test
+    @DisplayName("La carpeta del expediente es la que se usa para saber si una clave es una foto de verdad")
+    void carpetaDelExpediente() {
+        String carpeta = DestinoDeObjeto.carpetaDeExpediente(USUARIO);
+        assertThat(carpeta).isEqualTo("identidad/" + USUARIO + "/");
+        // Lo que sube el uploader cae adentro…
+        assertThat("s3://identidad/" + USUARIO + "/anverso-" + UUID.randomUUID() + ".jpg")
+                .contains(carpeta);
+        // …y el relleno que el alta escribe para poder insertar la fila, no.
+        assertThat("local://documentos/" + USUARIO + "/anverso").doesNotContain(carpeta);
+    }
+
+    @Test
     @DisplayName("La ruta del objeto es legible: identidad/<usuarioId>/anverso-…")
     void claveLegible() {
         var destino = DestinoDeObjeto.deExpediente(USUARIO, "ANVERSO");

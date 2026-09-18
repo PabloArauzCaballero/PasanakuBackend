@@ -55,8 +55,4 @@ public class CU02GuardarFotoDelExpediente {
         SELFIE
     }
 
-    /** La carpeta del expediente de alguien, para listarla o para nombrarla. */
-    public static String carpetaDe(UUID usuarioId) {
-        return AmbitoArchivo.IDENTIDAD.prefijo() + "/" + usuarioId + "/";
-    }
 }

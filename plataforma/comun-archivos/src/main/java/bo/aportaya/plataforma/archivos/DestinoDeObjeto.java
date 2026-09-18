@@ -43,6 +43,17 @@ public record DestinoDeObjeto(String carpeta, String etiqueta) {
         return new DestinoDeObjeto(usuarioId.toString(), cara);
     }
 
+    /**
+     * La carpeta del expediente de alguien: {@code identidad/<usuarioId>/}.
+     *
+     * <p>Vive aca, con el resto de la convencion de rutas, y no en un caso de uso: la
+     * usa tanto quien sube una foto como quien despues quiere saber si una clave
+     * guardada apunta de verdad a una foto subida o a un relleno.
+     */
+    public static String carpetaDeExpediente(java.util.UUID usuarioId) {
+        return AmbitoArchivo.IDENTIDAD.prefijo() + "/" + deExpediente(usuarioId, "x").carpeta() + "/";
+    }
+
     /** El reparto viejo por fecha, para lo que no pertenece a nadie en particular. */
     public static DestinoDeObjeto porFecha() {
         var hoy = java.time.LocalDate.now();

@@ -5,6 +5,7 @@ import static bo.aportaya.identidad.generado.Tables.USUARIO;
 import static bo.aportaya.identidad.generado.Tables.VERIFICACION_KYC;
 
 import bo.aportaya.identidad.dominio.ExpedienteDeIdentidad;
+import bo.aportaya.plataforma.archivos.DestinoDeObjeto;
 import bo.aportaya.plataforma.dominio.ErrorDeDominio;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -46,15 +47,35 @@ public class RevisionRepositorio {
         return filas.map(RevisionRepositorio::aExpedienteDeIdentidad);
     }
 
+    /**
+     * Una foto esta cargada cuando su clave apunta <b>a la carpeta del expediente</b>
+     * — {@code identidad/<usuarioId>/} —, que es donde el unico que sube fotos las
+     * pone (ADR-034, enmienda del 2026-09-17).
+     *
+     * <p>No alcanza con «la columna no es nula». {@code documento_identidad.url_anverso}
+     * es {@code NOT NULL} en el modelo, y el alta ocurre <b>antes</b> de que exista
+     * ninguna foto, asi que el registro escribe una clave de relleno para poder
+     * insertar la fila. Contarla como foto hacia que la cola dijera que <b>todo el
+     * mundo</b> tiene anverso: el operador veia «ANVERSO» y una imagen rota, y un
+     * corpus donde «tiene anverso» y «se registro» son lo mismo no sirve para nada.
+     *
+     * <p>Esto tapa el sintoma donde se ve. El arreglo de fondo es que la columna admita
+     * nulos y que el alta no invente una clave — cambio de modelo, con su ADR.
+     */
+    private static boolean estaCargada(String clave, UUID usuarioId) {
+        return clave != null && clave.contains(DestinoDeObjeto.carpetaDeExpediente(usuarioId));
+    }
+
     private static ExpedienteDeIdentidad aExpedienteDeIdentidad(Record f) {
+        UUID usuario = f.get(VERIFICACION_KYC.USUARIO_ID);
         List<String> fotos = new ArrayList<>();
-        if (f.get(DOCUMENTO_IDENTIDAD.URL_ANVERSO) != null) {
+        if (estaCargada(f.get(DOCUMENTO_IDENTIDAD.URL_ANVERSO), usuario)) {
             fotos.add("ANVERSO");
         }
-        if (f.get(DOCUMENTO_IDENTIDAD.URL_REVERSO) != null) {
+        if (estaCargada(f.get(DOCUMENTO_IDENTIDAD.URL_REVERSO), usuario)) {
             fotos.add("REVERSO");
         }
-        if (f.get(VERIFICACION_KYC.URL_SELFIE) != null) {
+        if (estaCargada(f.get(VERIFICACION_KYC.URL_SELFIE), usuario)) {
             fotos.add("SELFIE");
         }
         String tipo = f.get(DOCUMENTO_IDENTIDAD.TIPO);
@@ -99,7 +120,10 @@ public class RevisionRepositorio {
                                 .fetchOne(DOCUMENTO_IDENTIDAD.URL_REVERSO);
                     default -> throw new ErrorDeDominio("Esa cara no existe: " + cara);
                 };
-        if (clave == null) {
+        // La misma regla que la cola: una clave de relleno no es una foto. Sin esto se
+        // le pedia al almacen un objeto que nunca existio y salia un error de almacen
+        // donde correspondia decir «todavia no esta cargada».
+        if (!estaCargada(clave, usuario)) {
             throw new ErrorDeDominio("Esa foto todavia no esta cargada");
         }
         return clave;
