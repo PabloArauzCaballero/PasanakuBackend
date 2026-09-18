@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import bo.aportaya.identidad.aplicacion.CU02RevisarExpediente;
@@ -130,6 +131,46 @@ class VerificacionesControllerWebTest {
         @DisplayName("CU-02 · una cara que no existe se rechaza en el borde, no con un 500")
         void caraFueraDelContrato() throws Exception {
             mvc.perform(get("/identidad/verificaciones/{id}/fotos/{cara}", VERIFICACION, "PERFIL")
+                            .with(Sesiones.como("BACKOFFICE", "VERIFICACION_RESOLVER")))
+                    .andExpect(status().isUnprocessableEntity());
+            verifyNoInteractions(revision);
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /identidad/verificaciones/{id}/fotos/{cara}/contenido — los bytes")
+    class Contenido {
+
+        private static final byte[] PNG = {(byte) 0x89, 'P', 'N', 'G', 13, 10, 26, 10};
+
+        @Test
+        @DisplayName("CU-02 · los sirve el servicio dueno, con su tipo y sin dejarlos en cache")
+        void contenidoConPermiso() throws Exception {
+            when(revision.contenido(eq(VERIFICACION), eq("ANVERSO"), any()))
+                    .thenReturn(new bo.aportaya.plataforma.archivos.ContenidoAlmacenado(
+                            new java.io.ByteArrayInputStream(PNG), PNG.length, "image/png"));
+
+            mvc.perform(get("/identidad/verificaciones/{id}/fotos/{cara}/contenido", VERIFICACION, "ANVERSO")
+                            .with(Sesiones.como("BACKOFFICE", "VERIFICACION_RESOLVER")))
+                    .andExpect(status().isOk())
+                    .andExpect(header().string("Content-Type", "image/png"))
+                    // Una cedula no se queda en la cache del navegador ni en la de nadie.
+                    .andExpect(header().string("Cache-Control", "no-store"));
+        }
+
+        @Test
+        @DisplayName("CU-02 · sin el permiso no se leen los bytes, y no se toca el almacen")
+        void contenidoSinPermiso() throws Exception {
+            mvc.perform(get("/identidad/verificaciones/{id}/fotos/{cara}/contenido", VERIFICACION, "ANVERSO")
+                            .with(Sesiones.como("BACKOFFICE", "AUDITORIA_LEER")))
+                    .andExpect(status().isForbidden());
+            verifyNoInteractions(revision);
+        }
+
+        @Test
+        @DisplayName("CU-02 · una cara inventada se rechaza en el borde, igual que en el enlace")
+        void caraFueraDelContrato() throws Exception {
+            mvc.perform(get("/identidad/verificaciones/{id}/fotos/{cara}/contenido", VERIFICACION, "PERFIL")
                             .with(Sesiones.como("BACKOFFICE", "VERIFICACION_RESOLVER")))
                     .andExpect(status().isUnprocessableEntity());
             verifyNoInteractions(revision);

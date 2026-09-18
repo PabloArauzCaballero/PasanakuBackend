@@ -64,6 +64,29 @@ public class VerificacionesController implements IdentidadApi {
         return ResponseEntity.ok(new EnlaceDeFoto().url(enlace.url()).vigenteHasta(enlace.vigenteHasta()));
     }
 
+    /**
+     * Los bytes, no el enlace. El almacen no es publico —red interna, sin puerto ni
+     * dominio— asi que la URL prefirmada de arriba sirve entre servicios y es
+     * inservible en un navegador. Aca la sirve el servicio dueno, despues de validar
+     * sesion y permiso, que es lo que manda el ADR-034.
+     */
+    @Override
+    @Permiso("VERIFICACION_RESOLVER")
+    public ResponseEntity<org.springframework.core.io.Resource> verContenidoDeFoto(UUID verificacionId, String cara) {
+        if (!CARAS.contains(cara)) {
+            throw new ErrorDeDominio("La cara del documento no existe: " + cara);
+        }
+        var contenido = revision.contenido(verificacionId, cara, sesion.actual());
+        return ResponseEntity.ok()
+                .contentType(org.springframework.http.MediaType.parseMediaType(
+                        contenido.tipoMime() == null ? "application/octet-stream" : contenido.tipoMime()))
+                .contentLength(contenido.bytes())
+                // `no-store`: una cedula no se queda en la cache del navegador ni en la
+                // de ningun intermediario. El enlace muere con la respuesta.
+                .header("Cache-Control", "no-store")
+                .body(new org.springframework.core.io.InputStreamResource(contenido.datos()));
+    }
+
     @Override
     @Permiso("VERIFICACION_RESOLVER")
     public ResponseEntity<ExpedienteEnRevision> resolverVerificacion(

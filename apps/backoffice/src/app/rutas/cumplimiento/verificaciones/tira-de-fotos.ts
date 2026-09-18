@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, signal } from '@angular/core'
 import { Boton } from '@aportaya/ui/boton/boton'
 import { ExpedienteEnRevisionFotosEnum, type ExpedienteEnRevision } from 'clientes/angular/identidad'
-import { carpetaDelExpediente, crearPedirFoto } from '../dominio/cu02-expedientes'
+import { carpetaDelExpediente, crearPedirContenido } from '../dominio/cu02-expedientes'
 import { textosCumplimiento } from '../textos'
 
 /**
@@ -12,9 +12,15 @@ import { textosCumplimiento } from '../textos'
  * mirar las dos a la vez. Antes cada foto reemplazaba a la anterior en el mismo
  * hueco, así que la decisión se tomaba de memoria.
  *
- * Los enlaces se piden **al abrir**, nunca al listar: cada foto de una cédula es un
- * dato personal sensible y cada lectura queda registrada. Una grilla que precarga
- * todas las caras de toda la cola es una filtración cómoda.
+ * Las fotos se piden **al abrir**, nunca al listar: cada foto de una cédula es un dato
+ * personal sensible y cada lectura queda registrada. Una grilla que precarga todas las
+ * caras de toda la cola es una filtración cómoda.
+ *
+ * Se piden como **binario**, no como enlace. El almacén no es público —red interna, sin
+ * puerto ni dominio (ADR-034)— así que la URL prefirmada apunta a `minio:9000`, que el
+ * navegador no resuelve: las tres fotos salían rotas. Los bytes los sirve el servicio
+ * dueño tras validar permiso, y acá se vuelven un `blob:` que se revoca al salir —si no,
+ * cada apertura deja una cédula viva en la memoria de la pestaña.
  */
 @Component({
   selector: 'ap-tira-de-fotos',
@@ -81,7 +87,20 @@ export class TiraDeFotos {
   protected readonly url = signal<Partial<Record<ExpedienteEnRevisionFotosEnum, string>>>({})
   protected readonly carpeta = computed(() => carpetaDelExpediente(this.expediente().usuarioId))
 
-  private readonly pedirFoto = crearPedirFoto()
+  private readonly pedirContenido = crearPedirContenido()
+
+  constructor() {
+    // Un `blob:` vive hasta que se lo revoca, aunque la pantalla ya no esté: sin esto,
+    // recorrer la cola deja una cédula por foto abierta en la memoria de la pestaña.
+    inject(DestroyRef).onDestroy(() => this.soltar())
+  }
+
+  private soltar(): void {
+    for (const url of Object.values(this.url())) {
+      if (url) URL.revokeObjectURL(url)
+    }
+    this.url.set({})
+  }
 
   /**
    * Al abrir pide **solo las caras que existen**: pedir una que no está cargada
@@ -90,12 +109,16 @@ export class TiraDeFotos {
   protected alternar(): void {
     const seAbre = !this.abierto()
     this.abierto.set(seAbre)
-    if (!seAbre) return
+    // Al cerrar se sueltan: una foto que ya no se mira no tiene por qué seguir en memoria.
+    if (!seAbre) {
+      this.soltar()
+      return
+    }
     const e = this.expediente()
     for (const cara of this.caras) {
       if (!e.fotos.includes(cara) || this.url()[cara]) continue
-      this.pedirFoto(e.verificacionId, cara).subscribe((enlace) => {
-        this.url.update((actual) => ({ ...actual, [cara]: enlace.url }))
+      this.pedirContenido(e.verificacionId, cara).subscribe((bytes) => {
+        this.url.update((actual) => ({ ...actual, [cara]: URL.createObjectURL(bytes) }))
       })
     }
   }

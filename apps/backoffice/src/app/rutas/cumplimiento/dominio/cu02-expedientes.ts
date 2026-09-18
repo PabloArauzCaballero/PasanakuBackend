@@ -80,6 +80,26 @@ export function crearPedirFoto(): (verificacionId: string, cara: string) => Obse
 }
 
 /**
+ * Los **bytes** de una foto, no un enlace.
+ *
+ * `verFotoDelExpediente` devuelve una URL prefirmada contra el almacén, y el almacén
+ * no es público: vive en la red interna, sin puerto publicado ni dominio (ADR-034).
+ * Esa URL sirve entre servicios y es inservible acá — el navegador no resuelve
+ * `minio:9000` y la imagen queda rota.
+ *
+ * Se pide como `blob` por `HttpClient` para que el interceptor le ponga el token: un
+ * `<img src>` no manda cabeceras, y este binario exige permiso.
+ */
+export function crearPedirContenido(): (verificacionId: string, cara: string) => Observable<Blob> {
+  const http = inject(HttpClient)
+  const gateway = inject(GATEWAY)
+  return (verificacionId: string, cara: string) =>
+    http.get(`${gateway}/identidad/verificaciones/${verificacionId}/fotos/${cara}/contenido`, {
+      responseType: 'blob',
+    })
+}
+
+/**
  * La decisión, a mano. Clave de idempotencia nueva por intento (invariante 7): una
  * decisión que se reenvía por un doble clic no puede resolverse dos veces.
  */

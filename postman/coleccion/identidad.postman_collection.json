@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AportaYa · identidad",
-    "description": "# AportaYa · identidad\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**9 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · identidad\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**10 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -268,6 +268,87 @@
           ]
         },
         "description": "## Un enlace de vigencia corta para mirar una foto del expediente\n\nDevuelve una URL temporal, no el binario: asi el servidor no proxea megabytes y el enlace muere solo. Cada llamada es una lectura de dato personal y queda registrada.\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `verFotoDelExpediente` |\n| **Ruta** | `GET /api/v1/identidad/verificaciones/{verificacionId}/fotos/{cara}` |\n| **Permiso** | `VERIFICACION_RESOLVER` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "verContenidoDeFoto · Los bytes de una foto del expediente, servidos por el servicio dueno",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/identidad/verificaciones/:verificacionId/fotos/:cara/contenido",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "identidad",
+            "verificaciones",
+            ":verificacionId",
+            "fotos",
+            ":cara",
+            "contenido"
+          ],
+          "variable": [
+            {
+              "key": "verificacionId",
+              "value": "{{verificacionId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            },
+            {
+              "key": "cara",
+              "value": "{{cara}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Los bytes de una foto del expediente, servidos por el servicio dueno\n\nEl binario, no un enlace. `verFotoDelExpediente` devuelve una URL prefirmada contra el almacen, y el almacen NO es publico: vive en la red interna, sin puerto publicado ni dominio, que es como lo quiere el ADR-034 —«el binario no se sirve nunca directo»—. Esa URL sirve entre servicios y es inservible en un navegador, que no resuelve `minio:9000`.\nAca lo entrega el servicio dueno de la tabla, que valida sesion y permiso antes de leer un solo byte, y la lectura queda en la bitacora como cualquier otra lectura de dato personal. Son fotos de cedula de a una, no megabytes de video: proxearlas cuesta menos que abrir el almacen al mundo.\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `verContenidoDeFoto` |\n| **Ruta** | `GET /api/v1/identidad/verificaciones/{verificacionId}/fotos/{cara}/contenido` |\n| **Permiso** | `VERIFICACION_RESOLVER` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [

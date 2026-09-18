@@ -129,6 +129,38 @@ paths:
               schema: { $ref: '#/components/schemas/EnlaceDeFoto' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
+  /identidad/verificaciones/{verificacionId}/fotos/{cara}/contenido:
+    get:
+      operationId: verContenidoDeFoto
+      summary: Los bytes de una foto del expediente, servidos por el servicio dueno
+      description: >-
+        El binario, no un enlace. `verFotoDelExpediente` devuelve una URL prefirmada
+        contra el almacen, y el almacen NO es publico: vive en la red interna, sin
+        puerto publicado ni dominio, que es como lo quiere el ADR-034 —«el binario no
+        se sirve nunca directo»—. Esa URL sirve entre servicios y es inservible en un
+        navegador, que no resuelve `minio:9000`.
+
+        Aca lo entrega el servicio dueno de la tabla, que valida sesion y permiso
+        antes de leer un solo byte, y la lectura queda en la bitacora como cualquier
+        otra lectura de dato personal. Son fotos de cedula de a una, no megabytes de
+        video: proxearlas cuesta menos que abrir el almacen al mundo.
+      parameters:
+        - name: verificacionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: cara
+          in: path
+          required: true
+          schema: { type: string, enum: [ANVERSO, REVERSO, SELFIE] }
+      responses:
+        '200':
+          description: La foto
+          content:
+            application/octet-stream:
+              schema: { type: string, format: binary }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
   /identidad/verificaciones/{verificacionId}/decision:
     post:
       operationId: resolverVerificacion

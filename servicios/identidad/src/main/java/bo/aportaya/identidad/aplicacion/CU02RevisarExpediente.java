@@ -4,6 +4,7 @@ import bo.aportaya.identidad.dominio.ExpedienteDeIdentidad;
 import bo.aportaya.identidad.infraestructura.RevisionRepositorio;
 import bo.aportaya.plataforma.archivos.AlmacenDeArchivos;
 import bo.aportaya.plataforma.archivos.ClaveObjeto;
+import bo.aportaya.plataforma.archivos.ContenidoAlmacenado;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeDominio;
@@ -45,6 +46,20 @@ public class CU02RevisarExpediente {
     @Transactional(readOnly = true)
     public List<ExpedienteDeIdentidad> cola(String estado, ContextoSesion ctx) {
         return datos.conContexto(ctx, dsl -> revisiones.enEstado(dsl, estado));
+    }
+
+    /**
+     * Los bytes de una foto, para que los sirva el servicio dueno.
+     *
+     * <p>El enlace prefirmado de {@link #foto} se firma contra el almacen, y el
+     * almacen vive en la red interna: sirve entre servicios y es inservible en un
+     * navegador, que no resuelve {@code minio:9000}. Abrir el almacen al mundo para
+     * que cargue una imagen seria exactamente lo que el ADR-034 prohibe.
+     */
+    @Transactional(readOnly = true)
+    public ContenidoAlmacenado contenido(UUID verificacionId, String cara, ContextoSesion ctx) {
+        String clave = datos.conContexto(ctx, dsl -> revisiones.claveDeFoto(dsl, verificacionId, cara));
+        return almacen.leer(ClaveObjeto.de(clave));
     }
 
     @Transactional(readOnly = true)
