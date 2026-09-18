@@ -90,6 +90,7 @@ class TextosIdentidad {
       'Con estos datos abrimos tu billetera. Tienen que coincidir con tu '
       'documento: si no coinciden, la verificación se frena.';
   static const pasoDatos = 'Tus datos';
+  static const pasoContrasena = 'Tu contraseña';
   static const pasoCelular = 'Confirmar celular';
   static const pasoAnverso = 'Documento (anverso)';
   static const pasoReverso = 'Documento (reverso)';
@@ -121,9 +122,6 @@ class TextosIdentidad {
   static const sinCamara =
       'Este dispositivo no tiene cámara disponible. Podés elegir una foto que ya '
       'tengas, o escribir los datos a mano.';
-  static const origenDeFondos = 'Origen de los fondos';
-  static const actividadEconomica = 'Actividad económica';
-  static const montoMensualEstimado = 'Monto mensual estimado (Bs)';
 
   // CU-03, declaración PEP.
   static const preguntaPep =
@@ -133,14 +131,14 @@ class TextosIdentidad {
 
   // CU-05, contrato de adhesión.
   static const tituloContrato = 'Contrato de adhesión y tarifario';
-  static const avisoLeerContrato = 'Deslizá hasta el final para poder aceptar.';
-  static const aceptoContrato = 'Acepto el contrato de adhesión';
-  static const aceptoTarifario = 'Acepto el tarifario vigente';
-  static const aceptoTratamientoDatos =
-      'Acepto el tratamiento de mis datos personales';
-  static const aceptarYContinuar = 'Aceptar y continuar';
 
   // CU-04, sesión.
+  static const altaListaTitulo = 'Tu cuenta quedó creada';
+  // Sin «la contraseña que elegiste»: el alta de ocho pasos **no** pide contraseña
+  // en ningún momento. Prometerla acá dejaría a alguien buscando una que nunca creó.
+  static const altaListaDetalle =
+      'Ingresá con tu celular para entrar a tu billetera. Si tu verificación '
+      'sigue en curso, te avisamos por correo cuando termine.';
   static const tituloSesion = 'Ingresar';
   static const sesionSaludo = 'Hola de nuevo';
   static const sesionTitular = 'Entrá a tu billetera';

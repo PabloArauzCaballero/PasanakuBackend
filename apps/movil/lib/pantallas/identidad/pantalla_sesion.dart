@@ -26,7 +26,12 @@ import 'textos.dart';
 /// «AportaYa te reconoce» y «formulario de acceso» hay una diferencia de confianza
 /// que en una billetera se paga.
 class PantallaDeSesion extends ConsumerStatefulWidget {
-  const PantallaDeSesion({super.key});
+  const PantallaDeSesion({super.key, this.cuentaRecienCreada = false});
+
+  /// Se llega acá desde el último paso del alta. Sin decirlo, el salto del contrato
+  /// aceptado a un formulario de acceso se lee como que algo falló: se completaron
+  /// ocho pasos y la app pide entrar de nuevo, sin explicar que la cuenta quedó hecha.
+  final bool cuentaRecienCreada;
 
   @override
   ConsumerState<PantallaDeSesion> createState() => _PantallaDeSesionState();
@@ -104,6 +109,15 @@ class _PantallaDeSesionState extends ConsumerState<PantallaDeSesion> {
                         ),
                       ),
                       const SizedBox(height: Espacio.s5),
+                      if (widget.cuentaRecienCreada &&
+                          estado.error == null) ...[
+                        const Alerta(
+                          tono: Tono.ok,
+                          titulo: TextosIdentidad.altaListaTitulo,
+                          detalle: TextosIdentidad.altaListaDetalle,
+                        ),
+                        const SizedBox(height: Espacio.s4),
+                      ],
                       if (estado.error != null) ...[
                         Alerta(tono: Tono.error, titulo: estado.error!),
                         const SizedBox(height: Espacio.s4),

@@ -138,6 +138,6 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Continuar'));
     await tester.pumpAndSettle();
-    expect(contenedor.read(altaProvider).paso, PasoAlta.celular);
+    expect(contenedor.read(altaProvider).paso, PasoAlta.contrasena);
   });
 }

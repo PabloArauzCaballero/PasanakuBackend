@@ -1,3 +1,4 @@
+import 'package:aportaya_cliente_cumplimiento/aportaya_cliente_cumplimiento.dart';
 import 'package:aportaya_movil/dominio/cliente.dart';
 import 'package:aportaya_movil/pantallas/identidad/dominio/estado_alta.dart';
 import 'package:aportaya_movil/pantallas/identidad/dominio/estado_contrato.dart';
@@ -10,7 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../comun.dart';
 
 void main() {
-  test('el alta avanza y retrocede por los ocho pasos, en orden', () {
+  test('el alta avanza y retrocede por sus pasos, en orden', () {
     final contenedor = ProviderContainer();
     addTearDown(contenedor.dispose);
     final notifier = contenedor.read(altaProvider.notifier);
@@ -68,7 +69,13 @@ void main() {
               numeroDocumento: '1234567',
             ),
           );
+      c.read(altaProvider.notifier).elegirContrasena('una-clave-larga-2026');
+      // Los ids salen de `GET /cumplimiento/contratos/vigentes`: son UUID, uno por
+      // entorno. Antes esto mandaba los códigos 'ADHESION' y 'TARIFARIO', inventados
+      // en la app, y el servidor los rechazaba al deserializar.
+      final vigentes = contratosVigentesDePrueba();
       c.read(contratoProvider.notifier)
+        ..fijarVigentes([for (final v in vigentes) ContratoVigente.fromJson(v)])
         ..alternarContrato(true)
         ..alternarTarifario(true)
         ..alternarTratamientoDatos(true);
@@ -78,9 +85,12 @@ void main() {
       expect(billetera, isNotNull, reason: 'el alta abre la billetera');
       // Los tres consentimientos viajan por separado: aceptar el contrato no es lo
       // mismo que aceptar el tarifario, y cuál se dio tiene que poder auditarse.
-      expect(cuerpo, contains('ADHESION'));
-      expect(cuerpo, contains('TARIFARIO'));
-      expect(cuerpo, contains('TRATAMIENTO_DATOS'));
+      for (final v in vigentes) {
+        expect(cuerpo, contains(v['id']));
+      }
+      // Y la contraseña va en la misma petición: sin ella la cuenta nace sin
+      // credencial y no se puede entrar.
+      expect(cuerpo, contains('una-clave-larga-2026'));
     },
   );
 

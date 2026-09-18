@@ -30,6 +30,7 @@ class Registro {
     required String? lugarExpedicion,
     required String correo,
     required String canalVerificacion,
+    required String contrasena,
     required List<String> contratosAceptados,
   }) async {
     try {
@@ -54,6 +55,7 @@ class Registro {
                     (e) => e.name == lugarExpedicion,
                   ),
           ),
+          contrasena: contrasena,
           aceptaContratos: contratosAceptados,
         ),
       );

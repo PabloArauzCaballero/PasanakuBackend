@@ -1,5 +1,7 @@
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
+import 'package:aportaya_diseno/atomos/tono.dart';
+import 'package:aportaya_diseno/moleculas/alerta.dart';
 import 'package:aportaya_diseno/moleculas/barra_de_pasos.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
@@ -7,12 +9,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'dominio/estado_alta.dart';
+import 'dominio/estado_contrato.dart';
 import 'pasos_alta/paso_captura.dart';
+import 'pasos_alta/paso_contrasena.dart';
 import 'pasos_alta/paso_celular.dart';
 import 'pasos_alta/paso_cotejo.dart';
 import 'pasos_alta/paso_datos.dart';
 import 'pasos_alta/paso_perfil_transaccional.dart';
 import 'textos.dart';
+import 'textos_del_alta.dart';
 
 /// CU-01, el alta en ocho pasos (D-1 de la maqueta). Un solo `Notifier`
 /// (`AltaNotifier`) sabe en qué paso está; esta pantalla solo elige qué organismo
@@ -23,6 +28,7 @@ class PantallaDeRegistro extends ConsumerWidget {
 
   static const _nombreDePaso = {
     PasoAlta.datos: TextosIdentidad.pasoDatos,
+    PasoAlta.contrasena: TextosIdentidad.pasoContrasena,
     PasoAlta.celular: TextosIdentidad.pasoCelular,
     PasoAlta.anverso: TextosIdentidad.pasoAnverso,
     PasoAlta.reverso: TextosIdentidad.pasoReverso,
@@ -39,6 +45,7 @@ class PantallaDeRegistro extends ConsumerWidget {
 
     Widget cuerpo() => switch (estado.paso) {
       PasoAlta.datos => const PasoDatos(),
+      PasoAlta.contrasena => const PasoContrasena(),
       PasoAlta.celular => const PasoCelular(),
       PasoAlta.anverso => PasoCaptura(
         titulo: TextosIdentidad.capturarAnverso,
@@ -67,11 +74,34 @@ class PantallaDeRegistro extends ConsumerWidget {
       PasoAlta.cotejo => const PasoCotejo(),
       PasoAlta.perfilTransaccional => const PasoPerfilTransaccional(),
       PasoAlta.contrato => _PasoContrato(
+        enviando: estado.enviando,
+        error: estado.error,
         onIrAlContrato: () async {
           final aceptado = await context.push<bool>('/identidad/contrato');
-          if (aceptado == true && context.mounted) {
-            context.go('/identidad/bienvenida');
-          }
+          if (aceptado != true || !context.mounted) return;
+
+          // **Acá se crea la cuenta de verdad.** `POST /usuarios`, con los tres ids de
+          // contrato que devolvió el servidor y la contraseña del paso 2. Antes este
+          // método existía y no lo llamaba nadie: el alta terminaba sin que el backend
+          // se enterara, y la app mandaba a la billetera de una cuenta inexistente.
+          await notifier.enviarAlServidor();
+          if (!context.mounted) return;
+          // Si falló, se queda acá y lo dice: el contrato ya está aceptado y volver a
+          // tocar «Continuar» reintenta el mismo alta, con la misma clave de
+          // idempotencia, así que no crea dos personas.
+          if (ref.read(altaProvider).error != null) return;
+
+          // **Al login, no a la app.** Terminar el alta no es tener sesión: se pidió
+          // abrir una cuenta y todavía no se entró a ninguna. Antes esto iba a la
+          // bienvenida, que está dentro del shell, así que el alta desembocaba en la
+          // billetera con la barra de pestañas puesta y sin token — y la primera
+          // pantalla que se veía era «Tu sesión venció. Volvé a ingresar.»
+          //
+          // El asistente se vacía al salir: si no, volver a «Crear mi cuenta» retoma
+          // el formulario anterior a mitad de camino, con los datos de otra persona.
+          notifier.reiniciar();
+          ref.read(contratoProvider.notifier).reiniciar();
+          context.go('/ingreso?alta=lista');
         },
       ),
     };
@@ -123,8 +153,17 @@ class PantallaDeRegistro extends ConsumerWidget {
 }
 
 class _PasoContrato extends StatelessWidget {
-  const _PasoContrato({required this.onIrAlContrato});
+  const _PasoContrato({
+    required this.onIrAlContrato,
+    required this.enviando,
+    required this.error,
+  });
   final VoidCallback onIrAlContrato;
+  final bool enviando;
+
+  /// Lo que devolvió `POST /usuarios` si falló. Se muestra acá y no en un cartel que
+  /// se va solo: el alta quedó a un toque de completarse y hay que poder reintentarla.
+  final String? error;
 
   @override
   Widget build(BuildContext context) {
@@ -137,12 +176,19 @@ class _PasoContrato extends StatelessWidget {
             'Último paso: leer y aceptar el contrato de adhesión y el '
             'tarifario vigente.',
           ),
+          if (error != null) ...[
+            const SizedBox(height: Espacio.s4),
+            Alerta(tono: Tono.error, titulo: error!),
+          ],
           const SizedBox(height: Espacio.s4),
           Boton(
-            texto: TextosIdentidad.continuar,
+            texto: enviando
+                ? TextosDelAlta.altaEnviando
+                : TextosIdentidad.continuar,
             variante: BotonVariante.primario,
             expandido: true,
-            onPressed: onIrAlContrato,
+            cargando: enviando,
+            onPressed: enviando ? null : onIrAlContrato,
           ),
         ],
       ),

@@ -60,9 +60,14 @@ def movil():
     barrer("sin plataforma en vista", raiz, {".dart"}, r"Platform\.is[A-Z]",
            lambda p: "/infraestructura/" in p.as_posix())
     barrer("sin print", raiz, {".dart"}, r"\b(print|debugPrint)\(", lambda p: False)
-    grandes = [f"{p.relative_to(R)} ({len(p.read_text().splitlines())})" for p in archivos(raiz, {".dart"}, ("tokens.dart",))
+    # `texto_del_contrato.dart` queda fuera por lo mismo que `tokens.dart`: es DATO, no
+    # código. Es el contrato de adhesión y el tarifario que se le muestran a la persona,
+    # y su largo lo decide lo que el contrato tiene que decir. La regla existe para que
+    # no haya widgets de 600 líneas, no para acortar una cláusula.
+    grandes = [f"{p.relative_to(R)} ({len(p.read_text().splitlines())})"
+               for p in archivos(raiz, {".dart"}, ("tokens.dart", "texto_del_contrato.dart"))
                if len(p.read_text().splitlines()) > 200]
-    check(not grandes, f"ningún archivo de más de 200 líneas {grandes or ''}")
+    check(not grandes, f"ningún archivo de más de 200 líneas (texto_del_contrato.dart es dato y queda fuera) {grandes or ''}")
     for shell in ("navegacion/rutas.dart", "dominio/cliente.dart", "proveedores/sesion.dart"):
         check((raiz / shell).exists(), f"el shell tiene {shell}")
 
@@ -80,6 +85,7 @@ def angular(app):
     grandes = [f"{p.relative_to(R)} ({len(p.read_text().splitlines())})" for p in archivos(raiz, {".ts", ".html"})
                if len(p.read_text().splitlines()) > 200]
     check(not grandes, f"ningún archivo de más de 200 líneas {grandes or ''}")
+    tutoriales()
     ui = R / "packages/ui/src"
     if ui.exists():
         barrer("sin literal de diseño en @aportaya/ui", ui, {".ts", ".html", ".css"}, r"(#[0-9a-fA-F]{3,6}\b|(?<![\w-])\d+px\b|font-family:(?!\s*var\())", lambda p: False)
@@ -117,12 +123,37 @@ def ui():
     check(not sin_archivo, f"cada pieza tiene su archivo con el mismo nombre {sin_archivo or ''}")
 
 
+def tutoriales():
+    """El motor de tutoriales que comparten el backoffice y el sitio (packages/tutoriales).
+
+    Vive fuera de `src/app`, así que ni `ng lint` ni el barrido de las apps lo alcanzan:
+    las mismas reglas se aplican acá a mano.
+    """
+    raiz = R / "packages/tutoriales/src"
+    # Lo barren las dos apps que lo consumen; con barrerlo una vez alcanza.
+    if not raiz.exists() or tutoriales.ya:
+        return
+    tutoriales.ya = True
+    print("=== packages/tutoriales (Angular) ===")
+    barrer("sin red fuera del puerto", raiz, {".ts"}, r"(HttpClient\b|fetch\(|XMLHttpRequest)", lambda p: False)
+    barrer("sin literal de diseño", raiz, {".ts", ".html", ".css"}, r"(#[0-9a-fA-F]{3,6}\b|(?<![\w-])\d+px\b|font-family:(?!\s*var\())", lambda p: False)
+    barrer("sin console", raiz, {".ts"}, r"console\.(log|warn|error)\(", lambda p: False)
+    grandes = [f"{p.relative_to(R)} ({len(p.read_text().splitlines())})" for p in archivos(raiz, {".ts"})
+               if len(p.read_text().splitlines()) > 200]
+    check(not grandes, f"ningún archivo de más de 200 líneas {grandes or ''}")
+
+
+tutoriales.ya = False
+
+
 def main():
     que = sys.argv[1] if len(sys.argv) > 1 else "todo"
     if que in ("diseno", "todo"):
         diseno()
     if que in ("ui", "todo"):
         ui()
+    if que in ("tutoriales", "todo"):
+        tutoriales()
     if que in ("movil", "todo"):
         movil()
     if que in ("backoffice", "todo"):

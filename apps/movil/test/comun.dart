@@ -38,6 +38,34 @@ class AlmacenEnMemoria implements AlmacenSeguro {
   return (dio: dio, adaptador: adaptador);
 }
 
+/// Los tres contratos vigentes que devuelve `GET /cumplimiento/contratos/vigentes`.
+///
+/// Toda pantalla del alta que llegue al contrato los necesita: sin ellos las tres
+/// casillas no tienen ids que mandar y «Aceptar y continuar» queda apagado con razón.
+List<Map<String, dynamic>> contratosVigentesDePrueba() => [
+  for (final (tipo, codigo) in [
+    ('BILLETERA', 'CTO-BILLETERA'),
+    ('TARIFAS', 'CTO-TARIFAS'),
+    ('TRATAMIENTO_DATOS', 'CTO-DATOS'),
+  ])
+    {
+      'id':
+          '00000000-0000-4000-8000-0000000000${tipo.length.toString().padLeft(2, '0')}',
+      'codigo': codigo,
+      'version': 1,
+      'tipo': tipo,
+      'urlDocumento': 'https://aportaya.bo/legal/$codigo.pdf',
+      'hashDocumento': 'a' * 64,
+      'vigenteDesde': '2026-01-01T00:00:00Z',
+    },
+];
+
+/// Deja el adaptador listo para responder esa consulta.
+void conContratosVigentes(DioAdapter adaptador) => adaptador.onGet(
+  '/cumplimiento/contratos/vigentes',
+  (s) => s.reply(200, contratosVigentesDePrueba()),
+);
+
 /// El ejemplo del contrato, leído del MISMO archivo que Prism sirve y que Vitest usa.
 Map<String, dynamic> ejemplo(
   String servicio,

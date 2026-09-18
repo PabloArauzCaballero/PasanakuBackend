@@ -16,6 +16,13 @@ packages:
       relative: true
     source: path
     version: "1.0.0"
+  aportaya_cliente_cumplimiento:
+    dependency: "direct main"
+    description:
+      path: "../../clientes/dart/cumplimiento"
+      relative: true
+    source: path
+    version: "1.0.0"
   aportaya_cliente_entregas:
     dependency: "direct main"
     description:

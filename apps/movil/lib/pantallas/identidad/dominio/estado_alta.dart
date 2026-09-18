@@ -1,17 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'cu01_registrar.dart';
-import 'subida_del_expediente.dart';
 import 'datos_del_alta.dart';
+import 'envio_del_alta.dart';
 
 export 'datos_del_alta.dart' show DatosLeidosDelDocumento, DatosPersonales;
-import 'estado_contrato.dart';
-import 'estado_sesion.dart' show mensajeDeError;
 
 /// Los ocho pasos del alta (CU-01, delta D-1 de la maqueta). Un paso = un
 /// organismo; ninguno conoce a los demás, solo al notifier.
 enum PasoAlta {
   datos,
+  // Va segundo, antes de las fotos. Quien abandona el alta en el paso del documento
+  // —que es donde más gente la abandona— ya eligió con qué va a entrar cuando vuelva;
+  // al final del formulario nadie lee una regla de contraseña.
+  contrasena,
   celular,
   anverso,
   reverso,
@@ -25,12 +26,14 @@ class EstadoAlta {
   const EstadoAlta({
     this.paso = PasoAlta.datos,
     this.datos = const DatosPersonales(),
+    this.contrasena = '',
     this.codigoConfirmado = false,
     this.rutaAnverso,
     this.rutaReverso,
     this.rutaSelfie,
     this.leido = const DatosLeidosDelDocumento(),
     this.origenDeFondos = '',
+    this.detalleDelOrigen = '',
     this.actividadEconomica = '',
     this.montoMensualEstimado,
     this.enviando = false,
@@ -39,12 +42,26 @@ class EstadoAlta {
 
   final PasoAlta paso;
   final DatosPersonales datos;
+
+  /// La clave elegida, en memoria y solo mientras dura el alta. No se persiste en
+  /// ningún lado del teléfono: viaja en la petición de CU-01 y el estado se vacía al
+  /// terminar. Guardarla en el almacén seguro sería guardar una credencial que el
+  /// servidor ya tiene hasheada.
+  final String contrasena;
   final bool codigoConfirmado;
   final String? rutaAnverso;
   final String? rutaReverso;
   final String? rutaSelfie;
   final DatosLeidosDelDocumento leido;
+
+  /// El código de la lista cerrada (`catalogo_del_perfil.dart`), no texto libre.
   final String origenDeFondos;
+
+  /// Lo que se escribió a mano cuando el origen es `OTRO`. Vacío en cualquier otro
+  /// caso: una lista cerrada con detalle pegado atrás deja de ser una lista cerrada.
+  final String detalleDelOrigen;
+
+  /// La sección CIIU elegida, también de la lista cerrada.
   final String actividadEconomica;
   final double? montoMensualEstimado;
   final bool enviando;
@@ -57,12 +74,14 @@ class EstadoAlta {
   EstadoAlta copiarCon({
     PasoAlta? paso,
     DatosPersonales? datos,
+    String? contrasena,
     bool? codigoConfirmado,
     String? rutaAnverso,
     String? rutaReverso,
     String? rutaSelfie,
     DatosLeidosDelDocumento? leido,
     String? origenDeFondos,
+    String? detalleDelOrigen,
     String? actividadEconomica,
     double? montoMensualEstimado,
     bool? enviando,
@@ -70,12 +89,14 @@ class EstadoAlta {
   }) => EstadoAlta(
     paso: paso ?? this.paso,
     datos: datos ?? this.datos,
+    contrasena: contrasena ?? this.contrasena,
     codigoConfirmado: codigoConfirmado ?? this.codigoConfirmado,
     rutaAnverso: rutaAnverso ?? this.rutaAnverso,
     rutaReverso: rutaReverso ?? this.rutaReverso,
     rutaSelfie: rutaSelfie ?? this.rutaSelfie,
     leido: leido ?? this.leido,
     origenDeFondos: origenDeFondos ?? this.origenDeFondos,
+    detalleDelOrigen: detalleDelOrigen ?? this.detalleDelOrigen,
     actividadEconomica: actividadEconomica ?? this.actividadEconomica,
     montoMensualEstimado: montoMensualEstimado ?? this.montoMensualEstimado,
     enviando: enviando ?? false,
@@ -92,6 +113,9 @@ class AltaNotifier extends Notifier<EstadoAlta> {
   void actualizarDatos(DatosPersonales datos) =>
       state = state.copiarCon(datos: datos);
 
+  void elegirContrasena(String clave) =>
+      state = state.copiarCon(contrasena: clave);
+
   void confirmarCelular() => state = state.copiarCon(codigoConfirmado: true);
 
   void capturarAnverso(String? ruta) =>
@@ -105,13 +129,20 @@ class AltaNotifier extends Notifier<EstadoAlta> {
 
   void actualizarPerfilTransaccional({
     required String origen,
+    required String detalleDelOrigen,
     required String actividad,
     required double? monto,
   }) => state = state.copiarCon(
     origenDeFondos: origen,
+    detalleDelOrigen: detalleDelOrigen,
     actividadEconomica: actividad,
     montoMensualEstimado: monto,
   );
+
+  /// Vacía el asistente. Se llama al cerrar el alta: el estado de un formulario de
+  /// ocho pasos que sobrevive al final del formulario hace que el siguiente empiece
+  /// con los datos del anterior.
+  void reiniciar() => state = const EstadoAlta();
 
   void siguiente() {
     const orden = PasoAlta.values;
@@ -125,49 +156,14 @@ class AltaNotifier extends Notifier<EstadoAlta> {
     if (i > 0) state = state.copiarCon(paso: orden[i - 1]);
   }
 
-  /// CU-01 · `POST /usuarios`. Manda el alta completa en una sola petición, que es
-  /// como la define el contrato: los ocho pasos juntan datos, y recién al final —con
-  /// los contratos aceptados— se crea la persona.
-  ///
-  /// Devuelve el id de la cuenta de billetera que el backend abre junto al usuario,
-  /// o `null` si el alta quedó pendiente de verificación sin billetera todavía.
+  /// CU-01 · `POST /usuarios`. La petición la arma [enviarElAlta]; acá solo vive el
+  /// estado —«enviando», «falló y por qué»—, que es lo único que mira la pantalla.
   Future<String?> enviarAlServidor() async {
     if (state.enviando) return null;
-    final d = state.datos;
-    final nacimiento = d.fechaNacimiento;
-    if (nacimiento == null) {
-      state = state.copiarCon(error: 'Falta tu fecha de nacimiento.');
-      return null;
-    }
     state = state.copiarCon(enviando: true);
-    try {
-      final r = await ref
-          .read(registroProvider)
-          .crear(
-            telefonoE164: d.telefono,
-            nombres: d.nombres,
-            apellidos: d.apellidos,
-            fechaNacimiento: nacimiento,
-            tipoDocumento: d.tipoDocumento,
-            numeroDocumento: d.numeroDocumento,
-            lugarExpedicion: d.lugarExpedicion,
-            correo: d.correo,
-            canalVerificacion: d.canalVerificacion,
-            contratosAceptados: ref.read(contratoProvider).aceptados,
-          );
-      // Las tres fotos se sacaron antes de que la persona existiera: recien ahora
-      // hay un `usuarioId` al que atarlas. Si una falla, el alta NO se deshace — la
-      // cuenta ya esta creada y quien revisa en el backoffice ve el expediente
-      // incompleto, que es recuperable; perder el alta entera no lo es.
-      if (r.usuarioId != null) {
-        await subirFotosDelExpediente(ref, state, r.usuarioId!);
-      }
-      state = state.copiarCon();
-      return r.cuentaBilleteraId;
-    } on Object catch (e) {
-      state = state.copiarCon(error: mensajeDeError(e));
-      return null;
-    }
+    final r = await enviarElAlta(ref, state);
+    state = state.copiarCon(error: r.error);
+    return r.cuentaBilleteraId;
   }
 }
 

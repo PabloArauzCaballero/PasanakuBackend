@@ -41,6 +41,10 @@ dependencies:
     path: ../../clientes/dart/organizador
   aportaya_cliente_notificaciones:
     path: ../../clientes/dart/notificaciones
+  # El alta lo necesita: `aceptaContratos` de CU-01 son UUID, y los ids de los
+  # contratos vigentes solo se pueden preguntar (`GET /cumplimiento/contratos/vigentes`).
+  aportaya_cliente_cumplimiento:
+    path: ../../clientes/dart/cumplimiento
   image_picker: ^1.2.3
   path_provider: ^2.1.6
 
