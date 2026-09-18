@@ -81,6 +81,7 @@ está en [[Stack]]. El motivo por el que son catorce y no uno está en
 | [[ADR-042 Política de rastreadores de IA\|042]] | Qué agentes automáticos pueden leer el sitio y para qué | Búsqueda sí, entrenamiento no · `/verificar/` y `/publico/` fuera del índice para todos · `robots.txt` generado y con prueba | — |
 | [[ADR-043 Capa web probada con MockMvc\|043]] | Cómo se prueba la capa web, y quién hace cumplir `@Permiso` | Corte MVC (`@WebMvcTest`) con dobles del caso de uso, en el corredor `webTest` y **sin Docker** · sábana de seguridad por servicio · `GuardiaDePermiso` autoriza en tiempo de petición · extiende ADR-026 | — |
 | [[ADR-044 Frontend en Angular y Flutter\|044]] | Con qué se escriben la app, el backoffice y el sitio | **Flutter** para la app · **Angular** para las dos superficies web (SSR híbrido en el sitio) · tokens y clientes **generados** para los dos mundos · Prism como único simulado · Shorebird para parches · supera 004, enmienda 041 | 004 |
+| [[ADR-045 Tutoriales interactivos como datos\|045]] | Cómo se enseña a usar AportaYa desde adentro de AportaYa | Los tutoriales son **datos**, no código · un motor compartido por las dos superficies web (`packages/tutoriales`) y otro en la app, con el mismo modelo · el elemento se marca con `data-tutorial-id` · el progreso detrás del puerto `AlmacenDeProgreso` · el motor viaja perezoso | — |
 
 ## Decisiones superadas
 
