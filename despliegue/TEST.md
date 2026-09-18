@@ -127,6 +127,58 @@ pide al abrir, no al listar: cada lectura de una cédula queda registrada.
 Un expediente al que le falta una foto **no se puede aprobar**, y la pantalla dice cuál
 falta. Pasa cuando la cámara del teléfono falla y el alta sigue por la salida manual.
 
+## La imagen del esquema tiene que existir SIEMPRE (2026-09-17)
+
+El compose pide `aportaya/esquema:test` con `pull_policy: never`, y **los quince
+servicios dependen de ella** con `condition: service_completed_successfully`. Si el tag
+no está en el host, Coolify para los contenedores viejos, no puede crear los nuevos
+—`No such image: aportaya/esquema:test`— y **el backend queda en cero**. Los tres
+fronts siguen arriba, así que desde afuera parece que solo «no carga nada».
+
+`reconstruir-si-cambio.sh` solo la rehacía cuando el commit tocaba `sql/`,
+`despliegue/aplicar-esquema.sh` o `despliegue/Dockerfile.esquema`. Con el tag perdido
+—una poda, un build que lo deja colgando— ningún commit la reconstruía, así que el
+despliegue fallaba para siempre y el motivo no estaba a la vista: hay que ir a leer el
+log del despliegue fallido en la base de Coolify.
+
+Medido el 2026-09-17: pasó de verdad y dejó TEST sin backend media hora.
+
+**El arreglo**, en `/opt/aportaya/bin/reconstruir-si-cambio.sh` (el guión vive en el
+VPS, no en el repositorio) — reemplazar:
+
+```bash
+echo "$CAMBIOS" | grep -qE '^(sql/|despliegue/aplicar-esquema.sh|despliegue/Dockerfile.esquema)' && \
+  construir docker build -f despliegue/Dockerfile.esquema -t aportaya/esquema:test .
+```
+
+por:
+
+```bash
+if echo "$CAMBIOS" | grep -qE '^(sql/|despliegue/aplicar-esquema.sh|despliegue/Dockerfile.esquema)' \
+   || ! docker image inspect aportaya/esquema:test >/dev/null 2>&1; then
+  construir docker build -f despliegue/Dockerfile.esquema -t aportaya/esquema:test .
+fi
+```
+
+Y para levantarlo a mano cuando ya pasó:
+
+```bash
+cd /opt/aportaya/repo && docker build -f despliegue/Dockerfile.esquema -t aportaya/esquema:test .
+/opt/aportaya/bin/disparar-despliegue.sh
+```
+
+**Cómo se ve el síntoma.** `docker ps` muestra solo `backoffice-*`, `web-*` y `movil-*`,
+y ningún contenedor con el uuid de la aplicación del backend. El motivo está en el log
+del despliegue, no en los logs de Docker:
+
+```bash
+docker exec coolify php artisan tinker --execute='$d=\App\Models\ApplicationDeploymentQueue::where("application_id",13)->orderByDesc("id")->first(); echo $d->status;'
+```
+
+> Ojo con `disparar-despliegue.sh`: su salida pasa por `tail -2`, así que el registro
+> solo muestra las dos últimas aplicaciones encoladas. Que `aportaya-api` no aparezca
+> en el log **no** significa que no se encoló.
+
 ## Lo que este entorno NO es
 
 No es producción ni se le parece: una réplica por servicio, sin respaldo
