@@ -52,15 +52,13 @@ public class RevisionRepositorio {
      * — {@code identidad/<usuarioId>/} —, que es donde el unico que sube fotos las
      * pone (ADR-034, enmienda del 2026-09-17).
      *
-     * <p>No alcanza con «la columna no es nula». {@code documento_identidad.url_anverso}
-     * es {@code NOT NULL} en el modelo, y el alta ocurre <b>antes</b> de que exista
-     * ninguna foto, asi que el registro escribe una clave de relleno para poder
-     * insertar la fila. Contarla como foto hacia que la cola dijera que <b>todo el
-     * mundo</b> tiene anverso: el operador veia «ANVERSO» y una imagen rota, y un
-     * corpus donde «tiene anverso» y «se registro» son lo mismo no sirve para nada.
-     *
-     * <p>Esto tapa el sintoma donde se ve. El arreglo de fondo es que la columna admita
-     * nulos y que el alta no invente una clave — cambio de modelo, con su ADR.
+     * <p>Desde que {@code url_anverso} y {@code hash_archivo} admiten nulos, el alta ya
+     * no inventa nada y una columna nula alcanzaria. La comprobacion se queda igual por
+     * las filas viejas: las que se escribieron mientras las columnas eran
+     * {@code NOT NULL} llevan una clave de relleno —{@code local://documentos/…}— que
+     * apunta a un objeto que nunca existio, y contarla como foto hacia que la cola
+     * dijera que <b>todo el mundo</b> tiene anverso. Mirar la carpeta las descarta sin
+     * tener que migrar datos.
      */
     private static boolean estaCargada(String clave, UUID usuarioId) {
         return clave != null && clave.contains(DestinoDeObjeto.carpetaDeExpediente(usuarioId));

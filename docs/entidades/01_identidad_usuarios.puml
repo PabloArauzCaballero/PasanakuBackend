@@ -452,9 +452,9 @@ package "Verificacion de Identidad (KYC)" {
     - paisEmision: String
     - fechaEmision: Date
     - fechaExpiracion: Date
-    - urlAnverso: String <<almacenamiento cifrado>>
+    - urlAnverso: String <<almacenamiento cifrado; vacio hasta que la foto se sube>>
     - urlReverso: String
-    - hashArchivo: String
+    - hashArchivo: String <<del anverso; vacio hasta que la foto se sube>>
     - estado: EstadoVerificacion
     --
     + estaVigente(): Boolean
@@ -936,9 +936,9 @@ entity "documento_identidad" as docid {
   pais_emision : CHAR(2)
   fecha_emision : DATE <<NULL>>
   fecha_expiracion : DATE <<NULL>>
-  url_anverso : VARCHAR(255)
+  url_anverso : VARCHAR(255) <<NULL, llega con la foto, no con el alta>>
   url_reverso : VARCHAR(255) <<NULL>>
-  hash_archivo : VARCHAR(64)
+  hash_archivo : VARCHAR(64) <<NULL, es el hash del anverso>>
   estado : VARCHAR(20) <<CK>>
 }
 

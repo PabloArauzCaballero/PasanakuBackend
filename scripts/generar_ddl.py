@@ -429,6 +429,7 @@ def generar():
             shutil.rmtree(OUT / sub)
 
     pendientes = []
+    opcionales = []          # (esquema.tabla, columna) que el modelo declara NULL
     total_tablas = total_fks = total_indices = total_checks = 0
 
     for k, d in sorted(mods.items()):
@@ -461,6 +462,8 @@ def generar():
                         partes.append("DEFAULT gen_random_uuid()")
                     if not col["nulo"] and not col["generated"]:
                         partes.append("NOT NULL")
+                    elif col["nulo"] and not col["generated"] and not col["pk"]:
+                        opcionales.append((f'{TABLA_ESQUEMA[tabla]}.{tabla}', n))
 
                 lineas.append(" ".join(partes))
 
@@ -643,6 +646,7 @@ def generar():
     escribir_infra_mensajeria()
     escribir_permisos_finales()
     escribir_append_only()
+    escribir_convergencia(opcionales)
     escribir_orquestador(mods)
 
     # El catálogo de restricciones se extrae de docs/Restricciones.md: se
@@ -1005,6 +1009,51 @@ def escribir_append_only():
     (d / "append_only.sql").write_text("\n".join(L), encoding="utf-8")
 
 
+def escribir_convergencia(opcionales):
+    """Pone al dia la nulabilidad de una base que YA existe.
+
+    Las tablas se crean con `CREATE TABLE IF NOT EXISTS`, asi que sobre una base ya
+    creada un cambio en el `.puml` no llega nunca: el esquema se aplica entero, no
+    pasa nada, y el modelo y la base quedan diciendo cosas distintas sin que nadie se
+    entere hasta que un INSERT falla en produccion.
+
+    Esto NO es un sistema de migraciones y no hay que confundirlo con uno. Hace UNA
+    sola cosa y en UNA sola direccion: **aflojar** el `NOT NULL` de las columnas que el
+    modelo declara opcionales. No agrega columnas, no cambia tipos, no aprieta nada y
+    no borra nada, asi que no puede perder datos ni fallar por datos existentes —
+    `DROP NOT NULL` sobre una columna que ya admite nulos es un no-op—. Todo lo demas
+    (una columna nueva, un tipo distinto, un NOT NULL que se quiere imponer) sigue
+    necesitando decidirse a mano, y con datos de por medio eso es un trabajo aparte.
+
+    Va DESPUES de las tablas y ANTES de las claves y los indices, que es donde un
+    `NOT NULL` de mas podria estorbar.
+    """
+    L = ["-- Nulabilidad al dia sobre una base que ya existe.",
+         "-- Generado por scripts/generar_ddl.py — no editar a mano.",
+         "--",
+         "-- Solo AFLOJA: cada columna que el modelo declara opcional deja de ser",
+         "-- NOT NULL. No agrega columnas, no cambia tipos, no aprieta ni borra nada.",
+         "-- Sobre una base recien creada no hace nada: ya nacen asi.",
+         "--",
+         "-- Existe porque las tablas se crean con CREATE TABLE IF NOT EXISTS: sin esto,",
+         "-- un cambio de nulabilidad en el .puml no llega nunca a una base ya creada, y",
+         "-- el modelo y la base quedan diciendo cosas distintas hasta que algo falla.",
+         "--",
+         "-- OJO EN PRODUCCION: aplicar.sql corre todo en UNA transaccion, y cada ALTER",
+         "-- toma un ACCESS EXCLUSIVE sobre su tabla. Son cambios de catalogo —no",
+         "-- reescriben la tabla, asi que son instantaneos— pero mientras dure la",
+         "-- transaccion nadie mas toca esas tablas. Con trafico encima, esto se aplica",
+         "-- en una ventana, no a media tarde.",
+         ""]
+    for tabla, columna in sorted(set(opcionales)):
+        L.append(f"ALTER TABLE {tabla} ALTER COLUMN {columna} DROP NOT NULL;")
+    L.append("")
+    d = OUT / "15_infra"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "nulabilidad.sql").write_text("\n".join(L), encoding="utf-8")
+    return len(set(opcionales))
+
+
 def escribir_orquestador(mods):
     L = ["-- Aplica el esquema completo en orden.",
          "--   psql -v ON_ERROR_STOP=1 -f sql/aplicar.sql",
@@ -1034,6 +1083,10 @@ def escribir_orquestador(mods):
             L.append(f"\\ir 10_tablas/{carpeta}/{d['entidades'][alias]['tabla']}.sql")
     L += ["", "-- 2b) Infraestructura de mensajería por esquema (ADR-027)",
           "\\ir 15_infra/mensajeria.sql"]
+    L += ["", "-- 2c) Nulabilidad al día sobre una base que ya existe.",
+          "--     Solo afloja lo que el modelo declara opcional; no es un sistema de",
+          "--     migraciones. Sobre una base recién creada no hace nada.",
+          "\\ir 15_infra/nulabilidad.sql"]
     L += ["", "-- 3) Claves foráneas (después de todas las tablas)"]
     for k in sorted(mods):
         L.append(f"\\ir 20_claves/{k}_{MODULOS[k][1].split('_', 1)[1]}.sql")

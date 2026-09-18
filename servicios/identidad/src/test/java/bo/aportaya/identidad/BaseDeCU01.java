@@ -83,7 +83,6 @@ abstract class BaseDeCU01 {
                 CanalDeVerificacion.SMS,
                 DocumentoDeIdentidad.de(DocumentoDeIdentidad.Tipo.CI, documento, "pimienta-de-prueba", "BO", "LP"),
                 "cifrado:" + documento,
-                "0".repeat(64),
                 // Ni el telefono ni el documento adentro: la politica rechaza las claves
                 // derivadas de datos personales, y una prueba que las usa falla por eso
                 // y no por lo que quiere probar.
@@ -106,7 +105,6 @@ abstract class BaseDeCU01 {
                 base.canalVerificacion(),
                 base.documento(),
                 base.numeroCifrado(),
-                base.hashDelArchivo(),
                 clave,
                 base.aceptaContratos(),
                 base.licenciaHabilitaBilletera(),

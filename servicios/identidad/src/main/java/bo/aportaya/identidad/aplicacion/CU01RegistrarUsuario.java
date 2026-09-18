@@ -157,7 +157,7 @@ public class CU01RegistrarUsuario {
             Arrays.fill(entrada.contrasena(), '\0');
 
             UUID documento = registros.guardarDocumento(
-                    dsl, usuario, entrada.documento(), entrada.numeroCifrado(), entrada.hashDelArchivo());
+                    dsl, usuario, entrada.documento(), entrada.numeroCifrado());
             registros.iniciarVerificacion(dsl, usuario, documento, "BASICO", ahora);
             registros.registrarConsentimientos(dsl, usuario, FINALIDADES, entrada.ip(), entrada.agente(), ahora);
 
@@ -200,7 +200,6 @@ public class CU01RegistrarUsuario {
             CanalDeVerificacion canalVerificacion,
             DocumentoDeIdentidad documento,
             String numeroCifrado,
-            String hashDelArchivo,
             /** En claro y como {@code char[]}: se borra en cuanto se hashea. */
             char[] contrasena,
             List<UUID> aceptaContratos,

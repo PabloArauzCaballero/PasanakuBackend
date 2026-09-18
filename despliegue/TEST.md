@@ -229,6 +229,32 @@ contestan**.
 >   | grep -i n3wymuuo
 > ```
 
+## El esquema sólo se crea; la nulabilidad ahora converge (2026-09-18)
+
+`sql/aplicar.sql` levanta las tablas con `CREATE TABLE IF NOT EXISTS`. Sobre una base
+**ya creada** —como la de TEST— eso significa que un cambio en el `.puml` no llega
+nunca: el esquema se aplica entero, no pasa nada, y el modelo y la base quedan diciendo
+cosas distintas hasta que un `INSERT` falla.
+
+Desde ahora, `sql/15_infra/nulabilidad.sql` —generado— corre en cada aplicación y
+**afloja** el `NOT NULL` de toda columna que el modelo declara opcional. Sobre una base
+recién creada no hace nada.
+
+**No es un sistema de migraciones.** Hace una sola cosa y en una sola dirección. No
+agrega columnas, no cambia tipos, no aprieta nada y no borra nada, así que no puede
+perder datos ni fallar por datos existentes. Todo lo demás —una columna nueva, un tipo
+distinto, un `NOT NULL` que se quiere imponer— sigue necesitando decidirse a mano, y con
+datos de por medio eso es un trabajo aparte.
+
+Probado sobre PostgreSQL 16: base limpia → esquema → prueba de humo **166 OK, 0 FALLA**;
+después se le devolvió el `NOT NULL` a mano para imitar a TEST, se reaplicó el esquema y
+las columnas volvieron a admitir nulos.
+
+> **En producción va en ventana.** `aplicar.sql` corre todo en una transacción y cada
+> `ALTER` toma un `ACCESS EXCLUSIVE` sobre su tabla. Son cambios de catálogo —no
+> reescriben la tabla, son instantáneos— pero mientras dure la transacción nadie más
+> toca esas tablas.
+
 ## Lo que este entorno NO es
 
 No es producción ni se le parece: una réplica por servicio, sin respaldo

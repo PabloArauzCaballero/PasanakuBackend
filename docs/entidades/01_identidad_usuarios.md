@@ -502,6 +502,17 @@ de esquivar.
 (pgcrypto/KMS); las imágenes en almacenamiento cifrado; `hash_archivo` para
 detectar que dos usuarios subieron literalmente la misma foto.
 
+**`url_anverso` y `hash_archivo` admiten nulos, y tienen que admitirlos.** La fila
+del documento nace en el alta, con los datos que la persona escribe; las fotos
+llegan **después**, en un paso aparte que puede cortarse, reintentarse o quedar a
+medias. Mientras fueron `NOT NULL`, el registro tuvo que inventar una clave de
+objeto que apuntaba a nada y un hash de sesenta y cuatro ceros sólo para poder
+insertar la fila — y entonces la cola de verificación leía «la columna no es nula»
+y anunciaba que **todo el mundo** tenía anverso cargado. Una columna obligatoria
+que se llena con relleno no hace cumplir nada: sólo convierte «no sé» en una
+mentira que el resto del sistema lee como verdad. Nulo significa «todavía no
+llegó», y el expediente incompleto se ve como lo que es.
+
 ---
 
 ### `VerificacionKYC` / `verificacion_kyc`

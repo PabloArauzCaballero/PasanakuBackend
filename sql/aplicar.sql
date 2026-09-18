@@ -342,6 +342,11 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 -- 2b) Infraestructura de mensajería por esquema (ADR-027)
 \ir 15_infra/mensajeria.sql
 
+-- 2c) Nulabilidad al día sobre una base que ya existe.
+--     Solo afloja lo que el modelo declara opcional; no es un sistema de
+--     migraciones. Sobre una base recién creada no hace nada.
+\ir 15_infra/nulabilidad.sql
+
 -- 3) Claves foráneas (después de todas las tablas)
 \ir 20_claves/01_identidad_usuarios.sql
 \ir 20_claves/02_grupos_turnos.sql

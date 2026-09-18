@@ -93,9 +93,18 @@ public class RegistroRepositorio {
                 .fetchOne(CREDENCIAL_ACCESO.ID);
     }
 
-    /** El numero va cifrado; lo que se indexa es su hash. Nunca el numero en claro. */
+    /**
+     * El numero va cifrado; lo que se indexa es su hash. Nunca el numero en claro.
+     *
+     * <p><b>Sin foto y sin hash de archivo.</b> Esta fila nace con lo que la persona
+     * escribio; el anverso llega despues, por {@code CU02GuardarFotoDelExpediente}, que
+     * es quien escribe {@code url_anverso} y {@code hash_archivo} con el objeto ya
+     * subido. Mientras esas columnas fueron {@code NOT NULL} aca se inventaba una clave
+     * que apuntaba a nada y un hash de sesenta y cuatro ceros solo para poder insertar,
+     * y la cola de verificacion leia eso como «tiene anverso».
+     */
     public UUID guardarDocumento(
-            DSLContext dsl, UUID usuarioId, DocumentoDeIdentidad documento, String numeroCifrado, String hashArchivo) {
+            DSLContext dsl, UUID usuarioId, DocumentoDeIdentidad documento, String numeroCifrado) {
         return dsl.insertInto(DOCUMENTO_IDENTIDAD)
                 .set(DOCUMENTO_IDENTIDAD.USUARIO_ID, usuarioId)
                 .set(DOCUMENTO_IDENTIDAD.TIPO, documento.tipo().name())
@@ -104,9 +113,6 @@ public class RegistroRepositorio {
                 .set(DOCUMENTO_IDENTIDAD.HASH_NUMERO, documento.hashNumero())
                 .set(DOCUMENTO_IDENTIDAD.LUGAR_EXPEDICION, documento.lugarExpedicion())
                 .set(DOCUMENTO_IDENTIDAD.PAIS_EMISION, documento.paisEmision())
-                // Clave de objeto local, nunca una URL publica (ADR-034).
-                .set(DOCUMENTO_IDENTIDAD.URL_ANVERSO, "local://documentos/" + usuarioId + "/anverso")
-                .set(DOCUMENTO_IDENTIDAD.HASH_ARCHIVO, hashArchivo)
                 .set(DOCUMENTO_IDENTIDAD.ESTADO, "EN_REVISION")
                 .returning(DOCUMENTO_IDENTIDAD.ID)
                 .fetchOne(DOCUMENTO_IDENTIDAD.ID);

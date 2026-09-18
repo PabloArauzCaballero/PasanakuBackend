@@ -14,9 +14,9 @@ CREATE TABLE IF NOT EXISTS identidad.documento_identidad (
   pais_emision                       CHAR(2) NOT NULL,
   fecha_emision                      DATE,
   fecha_expiracion                   DATE,
-  url_anverso                        VARCHAR(255) NOT NULL,
+  url_anverso                        VARCHAR(255),
   url_reverso                        VARCHAR(255),
-  hash_archivo                       VARCHAR(64) NOT NULL,
+  hash_archivo                       VARCHAR(64),
   estado                             VARCHAR(20) NOT NULL,
   CONSTRAINT pk_documento_identidad PRIMARY KEY (id),
   CONSTRAINT ck_documento_identidad_tipo CHECK (tipo IN ('CARNET_EXTRANJERIA', 'CI', 'PASAPORTE')),
@@ -33,5 +33,7 @@ COMMENT ON COLUMN identidad.documento_identidad.lugar_expedicion IS 'NULL, CK';
 COMMENT ON COLUMN identidad.documento_identidad.complemento IS 'NULL';
 COMMENT ON COLUMN identidad.documento_identidad.fecha_emision IS 'NULL';
 COMMENT ON COLUMN identidad.documento_identidad.fecha_expiracion IS 'NULL';
+COMMENT ON COLUMN identidad.documento_identidad.url_anverso IS 'NULL, llega con la foto, no con el alta';
 COMMENT ON COLUMN identidad.documento_identidad.url_reverso IS 'NULL';
+COMMENT ON COLUMN identidad.documento_identidad.hash_archivo IS 'NULL, es el hash del anverso';
 COMMENT ON COLUMN identidad.documento_identidad.estado IS 'CK';

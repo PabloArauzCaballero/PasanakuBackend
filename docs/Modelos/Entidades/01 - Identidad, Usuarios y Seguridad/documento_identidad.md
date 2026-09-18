@@ -6,7 +6,7 @@ tabla: documento_identidad
 clase: DocumentoIdentidad
 modulo: "01 — Identidad, Usuarios y Seguridad"
 clave_primaria: [id]
-columnas: 14
+columnas: 15
 fk_salientes: 1
 fk_entrantes: 1
 append_only: false
@@ -25,14 +25,15 @@ append_only: false
 | `tipo` | VARCHAR(25) | — | no | CK |
 | `numero_cifrado` | VARCHAR(255) | — | no | — |
 | `version_llave` | SMALLINT | — | no | — |
-| `hash_numero` | VARCHAR(64) | UQ | no | UQ, busqueda sin descifrar |
+| `hash_numero` | VARCHAR(64) | UQ | no | UQ+lugar_expedicion, busqueda sin descifrar |
+| `lugar_expedicion` | VARCHAR(2) | — | sí | NULL, CK |
 | `complemento` | VARCHAR(10) | — | sí | NULL |
 | `pais_emision` | CHAR(2) | — | no | — |
 | `fecha_emision` | DATE | — | sí | NULL |
 | `fecha_expiracion` | DATE | — | sí | NULL |
-| `url_anverso` | VARCHAR(255) | — | no | — |
+| `url_anverso` | VARCHAR(255) | — | sí | NULL, llega con la foto, no con el alta |
 | `url_reverso` | VARCHAR(255) | — | sí | NULL |
-| `hash_archivo` | VARCHAR(64) | — | no | — |
+| `hash_archivo` | VARCHAR(64) | — | sí | NULL, es el hash del anverso |
 | `estado` | VARCHAR(20) | — | no | CK |
 
 ## Reglas del catálogo
