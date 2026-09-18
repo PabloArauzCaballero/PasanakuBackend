@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import bo.aportaya.cumplimiento.aplicacion.CU02ElevarDiligencia;
 import bo.aportaya.cumplimiento.aplicacion.CU03DeclararPep;
 import bo.aportaya.cumplimiento.aplicacion.CU05AceptarContrato;
+import bo.aportaya.cumplimiento.aplicacion.CU05ConsultarContratosVigentes;
 import bo.aportaya.cumplimiento.aplicacion.CU54RegistrarRiesgoOperativo;
 import bo.aportaya.cumplimiento.aplicacion.CU55GestionarIncidente;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
@@ -61,6 +62,9 @@ class CumplimientoControllerWebTest {
 
     @MockitoBean
     private CU05AceptarContrato cu05;
+
+    @MockitoBean
+    private CU05ConsultarContratosVigentes contratosVigentes;
 
     @MockitoBean
     private CU54RegistrarRiesgoOperativo cu54;

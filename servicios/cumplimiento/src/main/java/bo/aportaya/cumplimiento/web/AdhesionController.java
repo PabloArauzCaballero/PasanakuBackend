@@ -3,7 +3,9 @@ package bo.aportaya.cumplimiento.web;
 import bo.aportaya.cumplimiento.aplicacion.CU02ElevarDiligencia;
 import bo.aportaya.cumplimiento.aplicacion.CU03DeclararPep;
 import bo.aportaya.cumplimiento.aplicacion.CU05AceptarContrato;
+import bo.aportaya.cumplimiento.aplicacion.CU05ConsultarContratosVigentes;
 import bo.aportaya.cumplimiento.dominio.ClasificacionPep;
+import bo.aportaya.cumplimiento.web.generado.modelo.ContratoVigente;
 import bo.aportaya.cumplimiento.web.generado.modelo.EntradaAceptacion;
 import bo.aportaya.cumplimiento.web.generado.modelo.EntradaDiligencia;
 import bo.aportaya.cumplimiento.web.generado.modelo.EntradaPep;
@@ -12,9 +14,11 @@ import bo.aportaya.cumplimiento.web.generado.modelo.SalidaDiligencia;
 import bo.aportaya.cumplimiento.web.generado.modelo.SalidaDiligenciaLimitesNuevosInner;
 import bo.aportaya.cumplimiento.web.generado.modelo.SalidaPep;
 import bo.aportaya.plataforma.dominio.ClaveIdempotencia;
+import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
@@ -33,20 +37,56 @@ final class AdhesionController {
     private final CU02ElevarDiligencia cu02;
     private final CU03DeclararPep cu03;
     private final CU05AceptarContrato cu05;
+    private final CU05ConsultarContratosVigentes vigentes;
     private final SesionDeLaPeticion sesion;
     private final HttpServletRequest peticion;
+
+    /**
+     * El proceso con el que corre la consulta publica de contratos. Es el mismo patron
+     * que el alta en identidad: una ruta sin sesion necesita igual un contexto, porque
+     * sin el no hay politicas de fila que aplicar — y «sin contexto» no puede
+     * significar «sin politicas».
+     */
+    private static final UUID PROCESO_DE_CONSULTA_PUBLICA = UUID.fromString("00000000-0000-4000-8000-000000000005");
 
     AdhesionController(
             CU02ElevarDiligencia cu02,
             CU03DeclararPep cu03,
             CU05AceptarContrato cu05,
+            CU05ConsultarContratosVigentes vigentes,
             SesionDeLaPeticion sesion,
             HttpServletRequest peticion) {
         this.cu02 = cu02;
         this.cu03 = cu03;
         this.cu05 = cu05;
+        this.vigentes = vigentes;
         this.sesion = sesion;
         this.peticion = peticion;
+    }
+
+    ResponseEntity<List<ContratoVigente>> listarContratosVigentes() {
+        Traza.marcarCasoDeUso("CU-05", "contratos-vigentes");
+
+        var publicados = vigentes.ejecutar(ContextoSesion.deSistema(
+                PROCESO_DE_CONSULTA_PUBLICA, new bo.aportaya.plataforma.dominio.Traza(Traza.actual())));
+
+        return ResponseEntity.ok(publicados.stream()
+                .map(c -> {
+                    var salida = new ContratoVigente();
+                    salida.setId(c.id());
+                    salida.setCodigo(c.codigo());
+                    salida.setVersion((int) c.version());
+                    salida.setTipo(ContratoVigente.TipoEnum.fromValue(c.tipo()));
+                    salida.setUrlDocumento(c.urlDocumento());
+                    salida.setHashDocumento(c.hashDocumento());
+                    salida.setVigenteDesde(c.vigenteDesde());
+                    // Ausentes mientras el registro ante ASFI no se haya obtenido: un
+                    // numero de registro inventado es peor que no tenerlo.
+                    c.numeroRegistro().ifPresent(salida::setNumeroRegistro);
+                    c.fechaRegistro().ifPresent(salida::setFechaRegistro);
+                    return salida;
+                })
+                .toList());
     }
 
     ResponseEntity<SalidaAceptacion> aceptarContrato(UUID contratoId, EntradaAceptacion cuerpo) {

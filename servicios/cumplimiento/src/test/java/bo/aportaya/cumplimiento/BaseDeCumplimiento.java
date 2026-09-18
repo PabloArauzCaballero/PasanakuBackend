@@ -3,6 +3,7 @@ package bo.aportaya.cumplimiento;
 import bo.aportaya.cumplimiento.aplicacion.CU02ElevarDiligencia;
 import bo.aportaya.cumplimiento.aplicacion.CU03DeclararPep;
 import bo.aportaya.cumplimiento.aplicacion.CU05AceptarContrato;
+import bo.aportaya.cumplimiento.aplicacion.CU05ConsultarContratosVigentes;
 import bo.aportaya.cumplimiento.aplicacion.CU06RevisarConocimiento;
 import bo.aportaya.cumplimiento.aplicacion.CU41RegistrarPcc01;
 import bo.aportaya.cumplimiento.aplicacion.CU42RegistrarRog;
@@ -70,6 +71,7 @@ abstract class BaseDeCumplimiento {
     protected static Consumidos consumidos;
     protected static CU46VerificarAlcance alcanceCU;
     protected static CU05AceptarContrato contratoCU;
+    protected static CU05ConsultarContratosVigentes contratosVigentesCU;
     protected static CU03DeclararPep pepCU;
     protected static CU02ElevarDiligencia diligenciaCU;
     protected static CU06RevisarConocimiento revisionCU;
@@ -154,6 +156,7 @@ abstract class BaseDeCumplimiento {
                 new AceptacionRepositorio(),
                 new Outbox("cumplimiento"),
                 Reloj.delSistema());
+        contratosVigentesCU = new CU05ConsultarContratosVigentes(new Datos(dsl), new ContratoRepositorio());
         pepCU = new CU03DeclararPep(
                 new Datos(dsl),
                 new DeclaracionPepRepositorio(),

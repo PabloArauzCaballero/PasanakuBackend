@@ -8,8 +8,10 @@ import bo.aportaya.cumplimiento.web.generado.modelo.EntradaRiesgoOperativo;
 import bo.aportaya.cumplimiento.web.generado.modelo.SalidaIncidente;
 import bo.aportaya.cumplimiento.web.generado.modelo.SalidaRiesgoOperativo;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
+import bo.aportaya.plataforma.web.seguridad.Publico;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
@@ -42,12 +44,21 @@ public class CumplimientoController implements CumplimientoApi {
             bo.aportaya.cumplimiento.aplicacion.CU02ElevarDiligencia cu02,
             bo.aportaya.cumplimiento.aplicacion.CU03DeclararPep cu03,
             bo.aportaya.cumplimiento.aplicacion.CU05AceptarContrato cu05,
+            bo.aportaya.cumplimiento.aplicacion.CU05ConsultarContratosVigentes vigentes,
             SesionDeLaPeticion sesion,
             jakarta.servlet.http.HttpServletRequest peticion) {
         this.cu54 = cu54;
         this.cu55 = cu55;
         this.sesion = sesion;
-        this.adhesion = new AdhesionController(cu02, cu03, cu05, sesion, peticion);
+        this.adhesion = new AdhesionController(cu02, cu03, cu05, vigentes, sesion, peticion);
+    }
+
+    @Override
+    @Publico("CU-05: se consulta durante el alta, cuando todavia no hay sesion; devuelve"
+            + " lo mismo que ya esta publicado en el sitio web y ningun dato de nadie")
+    public ResponseEntity<List<bo.aportaya.cumplimiento.web.generado.modelo.ContratoVigente>>
+            listarContratosVigentes() {
+        return adhesion.listarContratosVigentes();
     }
 
     @Override

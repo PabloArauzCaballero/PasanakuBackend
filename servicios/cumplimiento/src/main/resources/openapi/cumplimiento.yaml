@@ -168,6 +168,27 @@ paths:
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU03-01 DECLARACION_INCOMPLETA - AP-CU03-02 BENEFICIARIO_SIN_DOCUMENTO
 
+  /cumplimiento/contratos/vigentes:
+    get:
+      operationId: listarContratosVigentes   # CU-05
+      summary: Los contratos de adhesion que rigen hoy
+      description: >-
+        **Ruta publica, y tiene que serlo.** Se consulta durante el alta, cuando por
+        definicion todavia no hay sesion: quien se registra tiene que poder leer que
+        contrato esta aceptando ANTES de existir como usuario. Lo que devuelve es lo
+        mismo que ya esta publicado en el sitio web —codigo, version, url del documento
+        y su hash—; no hay dato de nadie aca.
+        Sin esto la app no puede armar `aceptaContratos` de CU-01, que son UUID: los
+        ids son `gen_random_uuid()` por entorno y no se pueden cablear.
+      responses:
+        '200':
+          description: Los contratos vigentes, uno por tipo
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ContratoVigente' }
+
   /cumplimiento/contratos/{contratoId}/aceptaciones:
     post:
       operationId: aceptarContrato           # CU-05
@@ -583,6 +604,33 @@ components:
         declaracionId:            { type: string, format: uuid }
         exigeDiligenciaReforzada: { type: boolean }
         nivelRiesgo:              { type: string, enum: [BAJO, MEDIO, ALTO] }
+    ContratoVigente:
+      type: object
+      additionalProperties: false
+      required: [id, codigo, version, tipo, urlDocumento, hashDocumento, vigenteDesde]
+      properties:
+        id:            { type: string, format: uuid }
+        codigo:        { type: string, maxLength: 30 }
+        version:       { type: integer }
+        tipo:
+          type: string
+          enum: [BILLETERA, GRUPO_PASANAKU, TARIFAS, TRATAMIENTO_DATOS]
+        urlDocumento:  { type: string, maxLength: 255 }
+        hashDocumento:
+          type: string
+          minLength: 64
+          maxLength: 64
+          description: >-
+            SHA-256 del documento publicado. Es lo que permite comprobar que el texto
+            que se leyo en la app es el mismo que quedo registrado en la aceptacion.
+        vigenteDesde:  { type: string, format: date-time }
+        numeroRegistro:
+          type: string
+          maxLength: 60
+          description: >-
+            El numero con el que ASFI registro el contrato de adhesion. Ausente
+            mientras el registro no se haya obtenido: no se inventa.
+        fechaRegistro: { type: string, format: date }
     EntradaAceptacion:
       type: object
       additionalProperties: false

@@ -3,6 +3,7 @@ package bo.aportaya.cumplimiento.web;
 import bo.aportaya.cumplimiento.aplicacion.CU02ElevarDiligencia;
 import bo.aportaya.cumplimiento.aplicacion.CU03DeclararPep;
 import bo.aportaya.cumplimiento.aplicacion.CU05AceptarContrato;
+import bo.aportaya.cumplimiento.aplicacion.CU05ConsultarContratosVigentes;
 import bo.aportaya.cumplimiento.aplicacion.CU46VerificarAlcance;
 import bo.aportaya.cumplimiento.aplicacion.CU54RegistrarRiesgoOperativo;
 import bo.aportaya.cumplimiento.aplicacion.CU55GestionarIncidente;
@@ -33,6 +34,9 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private CU05AceptarContrato cu05AceptarContrato;
+
+    @MockitoBean
+    private CU05ConsultarContratosVigentes cu05ConsultarContratosVigentes;
 
     @MockitoBean
     private CU46VerificarAlcance cu46VerificarAlcance;

@@ -1,7 +1,10 @@
 package bo.aportaya.cumplimiento.infraestructura;
 
+import bo.aportaya.cumplimiento.dominio.ContratoPublicado;
 import bo.aportaya.cumplimiento.dominio.VersionAceptable;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.jooq.DSLContext;
@@ -34,6 +37,53 @@ public class ContratoRepositorio {
                         f.get("version", Short.class),
                         f.get("estado", String.class),
                         f.get("hash_documento", String.class)));
+    }
+
+    /**
+     * Todos los contratos que rigen hoy, uno por tipo, con lo que hace falta para
+     * mostrarlos y para poder aceptarlos.
+     *
+     * <p>Uno por tipo y no todos los vigentes: si la base dejo pasar dos VIGENTE del
+     * mismo tipo, gana la version mas alta —la misma regla que {@link
+     * #vigentePorTipo}—. Devolver los dos obligaria a quien consulta a elegir, y esa
+     * eleccion no es suya.
+     */
+    public List<ContratoPublicado> vigentes(DSLContext dsl) {
+        var t = DSL.table(DSL.name("cumplimiento", "contrato_adhesion"));
+        var tipo = DSL.field("tipo", String.class);
+        var version = DSL.field("version", Short.class);
+        return dsl.select(
+                        DSL.field("id", UUID.class),
+                        DSL.field("codigo", String.class),
+                        version,
+                        tipo,
+                        DSL.field("url_documento", String.class),
+                        DSL.field("hash_documento", String.class),
+                        DSL.field("vigente_desde", OffsetDateTime.class),
+                        DSL.field("numero_registro", String.class),
+                        DSL.field("fecha_registro", LocalDate.class))
+                .from(t)
+                .where(DSL.field("estado").eq("VIGENTE"))
+                // DISTINCT ON (tipo) con el orden de abajo: uno por tipo, el de version
+                // mas alta. Se resuelve en la base y no en Java para no traer versiones
+                // que despues se descartan.
+                .and(version.eq(DSL.select(DSL.max(DSL.field("version", Short.class)))
+                        .from(t.as("mas_nuevo"))
+                        .where(DSL.field(DSL.name("mas_nuevo", "tipo"), String.class)
+                                .eq(tipo))
+                        .and(DSL.field(DSL.name("mas_nuevo", "estado"), String.class)
+                                .eq("VIGENTE"))))
+                .orderBy(tipo)
+                .fetch(f -> new ContratoPublicado(
+                        f.get("id", UUID.class),
+                        f.get("codigo", String.class),
+                        f.get("version", Short.class),
+                        f.get("tipo", String.class),
+                        f.get("url_documento", String.class),
+                        f.get("hash_documento", String.class),
+                        f.get("vigente_desde", OffsetDateTime.class),
+                        Optional.ofNullable(f.get("numero_registro", String.class)),
+                        Optional.ofNullable(f.get("fecha_registro", LocalDate.class))));
     }
 
     public Optional<Contrato> porId(DSLContext dsl, UUID contratoId) {
