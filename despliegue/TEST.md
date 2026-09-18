@@ -179,6 +179,39 @@ docker exec coolify php artisan tinker --execute='$d=\App\Models\ApplicationDepl
 > solo muestra las dos últimas aplicaciones encoladas. Que `aportaya-api` no aparezca
 > en el log **no** significa que no se encoló.
 
+## La API en 504 con todo sano: el proxy no está en la red del backend (2026-09-18)
+
+Síntoma engañoso: los quince contenedores `healthy`, el backoffice y el sitio en 200, y
+**toda** ruta de `https://api.aportaya…` devolviendo `504` a los 31 segundos. Parece el
+backend caído y no lo está.
+
+Coolify le pone al gateway la etiqueta `traefik.docker.network =
+n3wymuuo076w9prwo5i293bx` —la red del compose— pero **`coolify-proxy` solo está en la red
+`coolify`**. Traefik entonces marca hacia la IP de esa red (10.0.26.x), nadie contesta, y
+a los 30 s corta con 504.
+
+Cómo se prueba en diez segundos, desde el propio proxy:
+
+```bash
+docker exec coolify-proxy wget -qO- --timeout=8 http://10.0.26.4:8080/api/v1/sesiones   # agota el tiempo
+docker exec coolify-proxy wget -qO- --timeout=8 http://10.0.1.31:8080/api/v1/sesiones   # 401 al instante
+```
+
+Las dos IP son del **mismo** contenedor: la primera es su red de compose y la segunda la
+red `coolify`. Que la segunda conteste es la prueba de que el backend está bien y de que
+el problema es por dónde lo busca Traefik.
+
+**El arreglo** —aditivo, sin reiniciar nada:
+
+```bash
+docker network connect n3wymuuo076w9prwo5i293bx coolify-proxy
+```
+
+Si Traefik no lo toma solo con el evento de Docker: `docker restart coolify-proxy`.
+
+Hay que rehacerlo si la red del compose se recrea con otro nombre (cambia con el uuid del
+recurso, no con el despliegue).
+
 ## Lo que este entorno NO es
 
 No es producción ni se le parece: una réplica por servicio, sin respaldo
