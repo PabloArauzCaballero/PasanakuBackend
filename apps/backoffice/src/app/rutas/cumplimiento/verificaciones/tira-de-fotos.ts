@@ -52,6 +52,10 @@ import { textosCumplimiento } from '../textos'
             <figcaption>{{ cara }}</figcaption>
             @if (url()[cara]; as u) {
               <img [src]="u" [alt]="t.fotoDe + ' ' + expediente().nombreCompleto + ' — ' + cara" />
+            } @else if (fallo()[cara]) {
+              <!-- Una foto que no llega lo dice y ofrece reintentar. Quedarse «cargando»
+                   para siempre hace que quien revisa espere por algo que nunca va a venir. -->
+              <button type="button" class="hueco fallo" (click)="pedir(cara)">{{ t.fotoFallo }}</button>
             } @else if (expediente().fotos.includes(cara)) {
               <p class="hueco">{{ t.cargandoFoto }}</p>
             } @else {
@@ -75,6 +79,8 @@ import { textosCumplimiento } from '../textos'
     figcaption { font-size: .75rem; color: var(--text-2); letter-spacing: .04em; }
     .hueco { margin: 0; padding: var(--s4); text-align: center; color: var(--text-3); font-size: .8125rem;
              border: var(--borde-fino) dashed var(--border); border-radius: var(--r-md); }
+    .fallo { width: 100%; font: inherit; color: var(--aviso-texto); background: none; cursor: pointer; }
+    .fallo:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
     img { width: 100%; border-radius: var(--r-md); border: var(--borde-fino) solid var(--border); }
   `,
 })
@@ -85,6 +91,7 @@ export class TiraDeFotos {
   protected readonly caras = Object.values(ExpedienteEnRevisionFotosEnum)
   protected readonly abierto = signal(false)
   protected readonly url = signal<Partial<Record<ExpedienteEnRevisionFotosEnum, string>>>({})
+  protected readonly fallo = signal<Partial<Record<ExpedienteEnRevisionFotosEnum, boolean>>>({})
   protected readonly carpeta = computed(() => carpetaDelExpediente(this.expediente().usuarioId))
 
   private readonly pedirContenido = crearPedirContenido()
@@ -100,6 +107,7 @@ export class TiraDeFotos {
       if (url) URL.revokeObjectURL(url)
     }
     this.url.set({})
+    this.fallo.set({})
   }
 
   /**
@@ -114,12 +122,17 @@ export class TiraDeFotos {
       this.soltar()
       return
     }
-    const e = this.expediente()
     for (const cara of this.caras) {
-      if (!e.fotos.includes(cara) || this.url()[cara]) continue
-      this.pedirContenido(e.verificacionId, cara).subscribe((bytes) => {
-        this.url.update((actual) => ({ ...actual, [cara]: URL.createObjectURL(bytes) }))
-      })
+      if (!this.expediente().fotos.includes(cara) || this.url()[cara]) continue
+      this.pedir(cara)
     }
+  }
+
+  protected pedir(cara: ExpedienteEnRevisionFotosEnum): void {
+    this.fallo.update((actual) => ({ ...actual, [cara]: false }))
+    this.pedirContenido(this.expediente().verificacionId, cara).subscribe({
+      next: (bytes) => this.url.update((actual) => ({ ...actual, [cara]: URL.createObjectURL(bytes) })),
+      error: () => this.fallo.update((actual) => ({ ...actual, [cara]: true })),
+    })
   }
 }
