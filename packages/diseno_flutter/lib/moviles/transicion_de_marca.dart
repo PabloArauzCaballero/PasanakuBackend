@@ -6,15 +6,25 @@ import '../atomos/logotipo.dart';
 import '../tokens/tokens.dart';
 import 'panel_de_marca.dart';
 
-/// **El zoom de marca, estilo Netflix**, al salir de la bienvenida hacia cualquiera de
-/// sus tres destinos: el tour, el ingreso y el alta de cuenta.
+/// **El zoom de marca, estilo Netflix**, al salir de la portada o la bienvenida hacia
+/// cualquiera de sus destinos: el tour, el ingreso y el alta de cuenta.
 ///
 /// Cuatro tiempos, en un segundo y medio:
-/// 1. El sello verde crece desde el centro hasta llenar la pantalla.
+/// 1. El panel verde cubre la pantalla entera y se acerca: aparece ya a pantalla
+///    completa, apenas más grande, y se asienta.
 /// 2. Aparece el logotipo entero —isotipo y palabra—, lo cruza un destello y se queda
 ///    grande: es el momento de verlo.
 /// 3. El logotipo se lanza hacia la cámara y se lo atraviesa.
 /// 4. Del otro lado ya está la pantalla nueva, asentándose desde apenas más grande.
+///
+/// **El panel no crece desde un sello de 72 px.** Así estaba, y era el bug que se veía
+/// en la web: un rectángulo verde chico se materializaba en el medio de la pantalla
+/// anterior —que seguía entera y a la vista detrás— con el logotipo asomando cortado
+/// por sus bordes, porque el panel recorta y el logotipo se mide en grande. Parecía una
+/// calcomanía pegada encima, o un error de dibujo. El sello del que supuestamente
+/// crecía solo existe en la bienvenida; desde la portada, y desde cualquier otro lado,
+/// arrancaba de la nada. Un panel que cubre desde el primer cuadro no depende de qué
+/// había debajo y no tiene bordes contra los que recortar nada.
 ///
 /// **La pantalla nueva termina de aparecer antes de que el panel se vaya** (opaca al
 /// 76 %, el panel recién empieza a irse al 88 %). Al revés —que era como estaba— hay
@@ -47,9 +57,6 @@ class _Zoom extends StatelessWidget {
   final Animation<double> animacion;
   final Widget pantalla;
 
-  /// El tamaño del sello de la bienvenida, del que arranca el panel.
-  static const _sello = 72.0;
-
   /// Cuánto de la pantalla ocupa el isotipo cuando está quieto en el medio.
   ///
   /// El tope lo pone la palabra, que es más ancha que el isotipo y encima sigue
@@ -57,6 +64,10 @@ class _Zoom extends StatelessWidget {
   /// «AportaYa» se cortaba en las dos puntas justo en el cuadro que se quiere mirar.
   /// 0,42 × 1,9 de palabra × 1,12 de empuje = 89 % del ancho, con aire a los costados.
   static const _parteDeLaPantalla = 0.42;
+
+  /// De cuánto arranca el logotipo. Por debajo de esto el isotipo es una mancha y la
+  /// palabra todavía no se lee; el tramo que sobra no cuenta nada.
+  static const _logoDesde = 0.55;
 
   static double _tramo(double v, double desde, double hasta) =>
       ((v - desde) / (hasta - desde)).clamp(0.0, 1.0);
@@ -81,18 +92,18 @@ class _Zoom extends StatelessWidget {
           );
         }
 
-        final expandir = Curves.easeInOutCubic.transform(_tramo(v, 0, 0.28));
-        final crecer = Curves.easeOutCubic.transform(_tramo(v, 0, 0.34));
-        final mirar = Curves.easeInOut.transform(_tramo(v, 0.34, 0.66));
+        // El panel entra a pantalla completa: se acerca y se asienta, no crece desde
+        // un sello. `cubrir` es lo único que pasa en el primer tramo.
+        final cubrir = Curves.easeOutCubic.transform(_tramo(v, 0, 0.14));
+        final crecer = Curves.easeOutCubic.transform(_tramo(v, 0.10, 0.36));
+        final mirar = Curves.easeInOut.transform(_tramo(v, 0.36, 0.66));
         final atravesar = Curves.easeInCubic.transform(_tramo(v, 0.66, 0.90));
         final destino = Curves.easeOutCubic.transform(_tramo(v, 0.50, 0.76));
         final asiento = Curves.easeOutCubic.transform(_tramo(v, 0.66, 1));
 
-        // Del tamaño del sello al tamaño grande, y de ahí a la cámara.
+        // Del tamaño de entrada al tamaño grande, y de ahí a la cámara.
         final escala =
-            lerpDouble(_sello * 0.55 / lado, 1, crecer)! +
-            0.12 * mirar +
-            20 * atravesar;
+            lerpDouble(_logoDesde, 1, crecer)! + 0.12 * mirar + 20 * atravesar;
 
         return Stack(
           fit: StackFit.expand,
@@ -105,23 +116,29 @@ class _Zoom extends StatelessWidget {
               child: ExcludeSemantics(
                 child: Opacity(
                   opacity:
-                      _tramo(v, 0, 0.035) *
+                      cubrir *
                       (1 - Curves.easeOut.transform(_tramo(v, 0.88, 1))),
-                  child: PanelDeMarca(
-                    ancho: lerpDouble(_sello, medida.width, expandir)!,
-                    alto: lerpDouble(_sello, medida.height, expandir)!,
-                    radio: lerpDouble(Radios.lg + Espacio.s1, 0, expandir)!,
-                    resplandor: expandir,
-                    destello: _tramo(v, 0.36, 0.70),
-                    hijo: Opacity(
-                      opacity: 1 - _tramo(v, 0.80, 0.92),
-                      child: Transform.scale(
-                        scale: escala,
-                        child: Logotipo(
-                          tamano: lado,
-                          colorDelTrazo: t.sobreVerdeSolido,
-                          opacidadDeLaPalabra: _tramo(v, 0.22, 0.42),
-                          volumen: true,
+                  // El panel es siempre la pantalla entera. Lo que se mueve es el
+                  // acercamiento: entra al 108 % y se asienta al 100 %.
+                  child: Transform.scale(
+                    scale: 1.08 - 0.08 * cubrir,
+                    child: PanelDeMarca(
+                      ancho: medida.width,
+                      alto: medida.height,
+                      radio: 0,
+                      resplandor: cubrir,
+                      destello: _tramo(v, 0.38, 0.70),
+                      hijo: Opacity(
+                        opacity:
+                            _tramo(v, 0.08, 0.18) * (1 - _tramo(v, 0.80, 0.92)),
+                        child: Transform.scale(
+                          scale: escala,
+                          child: Logotipo(
+                            tamano: lado,
+                            colorDelTrazo: t.sobreVerdeSolido,
+                            opacidadDeLaPalabra: _tramo(v, 0.24, 0.44),
+                            volumen: true,
+                          ),
                         ),
                       ),
                     ),

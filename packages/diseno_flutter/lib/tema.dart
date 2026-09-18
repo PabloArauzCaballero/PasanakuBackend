@@ -53,15 +53,22 @@ ThemeData temaDesde(Tokens t, Brightness brillo) {
       centerTitle: false,
       titleTextStyle: Tipo.titulo2.copyWith(color: t.text),
     ),
-    // El mismo gesto en las dos plataformas: acercarse. El empujón lateral de iOS y
+    // El mismo gesto en todas las plataformas: acercarse. El empujón lateral de iOS y
     // el desvanecido de Android son lo que trae Flutter de fábrica; esto es una
     // decisión de marca, y una app que se siente igual en los dos teléfonos es una
     // app, no dos.
+    // Están las seis y no solo las tres de los teléfonos: en la web
+    // `defaultTargetPlatform` lo decide el navegador —Chrome en Windows dice
+    // `windows`, en Linux `linux`—, y sin esas dos la app abierta desde una
+    // computadora caía en la transición de fábrica de Flutter.
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
         TargetPlatform.iOS: TransicionConZoom(),
         TargetPlatform.macOS: TransicionConZoom(),
         TargetPlatform.android: TransicionConZoom(),
+        TargetPlatform.windows: TransicionConZoom(),
+        TargetPlatform.linux: TransicionConZoom(),
+        TargetPlatform.fuchsia: TransicionConZoom(),
       },
     ),
     inputDecorationTheme: campoDesde(t),

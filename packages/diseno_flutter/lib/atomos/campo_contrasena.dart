@@ -9,6 +9,7 @@ class CampoContrasena extends StatefulWidget {
     super.key,
     required this.etiqueta,
     this.controlador,
+    this.ayuda,
     this.error,
     this.fortaleza,
     this.onChanged,
@@ -16,6 +17,10 @@ class CampoContrasena extends StatefulWidget {
 
   final String etiqueta;
   final TextEditingController? controlador;
+
+  /// La regla, en el campo y no en un párrafo aparte: una contraseña que se está
+  /// eligiendo se escribe mirando el campo, no el texto de arriba.
+  final String? ayuda;
   final String? error;
 
   /// 0..1; `null` no muestra medidor.
@@ -38,6 +43,7 @@ class _CampoContrasenaState extends State<CampoContrasena> {
         Campo(
           etiqueta: widget.etiqueta,
           controlador: widget.controlador,
+          ayuda: widget.ayuda,
           error: widget.error,
           oculto: !_visible,
           onChanged: widget.onChanged,
