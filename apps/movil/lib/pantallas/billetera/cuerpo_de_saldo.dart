@@ -8,6 +8,7 @@ import 'package:aportaya_diseno/moleculas/aparicion_escalonada.dart';
 import 'package:aportaya_diseno/moleculas/seccion.dart';
 import 'package:aportaya_diseno/organismos/encabezado_de_saldo.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
+import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 
 /// Lo que se ve cuando hay saldo: la cifra arriba, sus tres acciones, y debajo las
 /// secciones que dan contexto.
@@ -28,18 +29,24 @@ class CuerpoDeSaldo extends StatelessWidget {
       children: [
         AparicionEscalonada(
           children: [
-            EncabezadoDeSaldo(
-              etiqueta: TextosBilletera.disponible,
-              etiquetaHablada: TextosBilletera.saldoDisponible,
-              monto: saldo.disponible.monto,
-              moneda: saldo.disponible.moneda.value,
-              cifras: [
-                (
-                  etiqueta: TextosBilletera.saldoRetenido,
-                  monto: saldo.retenido.monto,
+            MarcaDeTutorial(
+              id: 'billetera.saldo',
+              hijo: EncabezadoDeSaldo(
+                etiqueta: TextosBilletera.disponible,
+                etiquetaHablada: TextosBilletera.saldoDisponible,
+                monto: saldo.disponible.monto,
+                moneda: saldo.disponible.moneda.value,
+                cifras: [
+                  (
+                    etiqueta: TextosBilletera.saldoRetenido,
+                    monto: saldo.retenido.monto,
+                  ),
+                ],
+                acciones: MarcaDeTutorial(
+                  id: 'billetera.acciones',
+                  hijo: AccionesDeSaldo(cuentaId: saldo.cuentaId),
                 ),
-              ],
-              acciones: AccionesDeSaldo(cuentaId: saldo.cuentaId),
+              ),
             ),
             const SizedBox(height: Espacio.s5),
             const TituloDeSeccion(titulo: TextosBilletera.tusPasanakus),

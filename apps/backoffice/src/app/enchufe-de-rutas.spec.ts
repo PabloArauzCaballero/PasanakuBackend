@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest'
  * vez y se congela.
  */
 const APP = __dirname
-const DOMINIOS = ['operacion', 'cumplimiento', 'sistemas', 'contabilidad', 'publicidad']
+const DOMINIOS = ['operacion', 'cumplimiento', 'sistemas', 'contabilidad', 'publicidad', 'ayuda']
 const archivosDe = (c: string): string[] =>
   readdirSync(c).flatMap((e) => (statSync(join(c, e)).isDirectory() ? archivosDe(join(c, e)) : [join(c, e)]))
 
@@ -30,7 +30,10 @@ describe('el enchufe por dominio', () => {
     writeFileSync(nueva, 'export const andamiaje = true\n', 'utf8')
     writeFileSync(rutas, rutasAntes.replace('= []', "= [{ path: 'andamiaje', loadComponent: () => import('./andamiaje').then((m) => m.andamiaje as never) }]"), 'utf8')
     try {
-      for (const [archivo, contenido] of antes) expect(huella().get(archivo)).toBe(contenido)
+      // La huella se toma UNA vez: recalcularla dentro del bucle leía el árbol entero
+      // por cada archivo, y con el árbol de hoy eso se pasa del plazo de la prueba.
+      const despues = huella()
+      for (const [archivo, contenido] of antes) expect(despues.get(archivo)).toBe(contenido)
     } finally {
       rmSync(nueva, { force: true })
       writeFileSync(rutas, rutasAntes, 'utf8')

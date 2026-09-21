@@ -12,6 +12,9 @@
     "target": "ES2022",
     "module": "preserve",
     "paths": {
+      "@aportaya/tutoriales/*": [
+        "./../../packages/tutoriales/src/*"
+      ],
       "@aportaya/ui/*": [
         "./../../packages/ui/src/*"
       ],

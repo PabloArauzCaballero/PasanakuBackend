@@ -6,8 +6,10 @@ import 'package:go_router/go_router.dart';
 
 import 'dominio/verificacion_contrato.dart';
 import 'navegacion/rutas.dart';
+import 'pantallas/soporte/capa_de_tutorial.dart';
 import 'proveedores/sesion.dart';
 import 'package:aportaya_diseno/moviles/apertura_de_marca.dart';
+import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 import 'package:aportaya_diseno/moviles/como_en_un_telefono.dart';
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
@@ -36,10 +38,18 @@ class AppAportaYa extends ConsumerWidget {
       themeMode: ThemeMode.system,
       routerConfig: _enrutador,
       debugShowCheckedModeBanner: false,
+      // El registro de anclas y la capa del tutorial envuelven a TODA la app: un
+      // recorrido cruza pantallas, así que no puede vivir dentro de una. Con el
+      // tutorial apagado, las dos piezas no dibujan ni escuchan nada.
       builder: (context, child) => ComoEnUnTelefono(
-        child: _ConApertura(
-          enrutador: _enrutador,
-          child: _AvisoDeContrato(child: child),
+        child: ProveedorDeAnclas(
+          hijo: CapaDeTutorial(
+            enrutador: _enrutador,
+            hijo: _ConApertura(
+              enrutador: _enrutador,
+              child: _AvisoDeContrato(child: child),
+            ),
+          ),
         ),
       ),
     );

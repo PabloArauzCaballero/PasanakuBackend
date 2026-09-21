@@ -18,8 +18,9 @@ import { textosOperacion } from '../textos'
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
     <main>
-      <h1>{{ t.titulo }}</h1>
+      <h1 data-tutorial-id="operacion-billetera">{{ t.titulo }}</h1>
       <ap-estado-de-pantalla
+        data-tutorial-id="operacion-saldo"
         [recurso]="saldo"
         [vacio]="enCero"
         [mensajeVacio]="t.enCero"

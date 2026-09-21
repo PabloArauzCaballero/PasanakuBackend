@@ -19,6 +19,15 @@ import type { MetaDeRuta } from './seo/servicio-meta'
 /** El primer segmento de cualquier miga de pan del sitio: siempre "Inicio" → "/". */
 const INICIO = { nombre: 'Inicio', ruta: '/' }
 
+const seoTutoriales: MetaDeRuta = {
+  titulo: 'Guía interactiva de AportaYa',
+  descripcion: 'Recorridos guiados sobre el sitio de AportaYa: qué es un pasanaku digital, cuánto cobra, cómo se calcula un plazo y cómo se verifica un sorteo.',
+  jsonLd: [
+    paginaWeb({ titulo: 'Guía interactiva', descripcion: 'Aprender a usar AportaYa, sobre las páginas de verdad.', ruta: '/tutoriales' }),
+    migaDePan([INICIO, { nombre: 'Guía', ruta: '/tutoriales' }]),
+  ],
+}
+
 const seoInicio: MetaDeRuta = {
   titulo: 'AportaYa · el pasanaku de siempre, sin el cuaderno',
   tituloCompleto: true,
@@ -163,6 +172,11 @@ export const routes: Routes = [
   { path: 'verificar/:codigo', loadComponent: () => import('./paginas/verificar/verificar').then((m) => m.Verificar), title: 'Verificar certificado · AportaYa' },
   { path: 'publico/grupos/:codigo', loadComponent: () => import('./paginas/publico-grupos/grupo-transparencia').then((m) => m.GrupoTransparencia), title: 'Verificar cadena de transparencia · AportaYa' },
   { path: 'publico/sorteos/:id', loadComponent: () => import('./paginas/publico-sorteos/sorteo-verificacion').then((m) => m.SorteoVerificacion), title: 'Verificar sorteo · AportaYa' },
+  {
+    path: 'tutoriales',
+    loadChildren: () => import('./tutoriales/tutoriales.routes').then((m) => m.rutasDeTutoriales),
+    data: { seo: seoTutoriales },
+  },
   { path: 'catalogo', loadComponent: () => import('./paginas/catalogo/catalogo').then((m) => m.PaginaCatalogo), title: 'Catálogo de diseño · AportaYa' },
   { path: 'plazos', loadComponent: () => import('./paginas/plazos/plazos').then((m) => m.Plazos), title: 'Calcular un plazo hábil · AportaYa', data: { seo: seoPlazos } },
 ]

@@ -19,7 +19,7 @@ const TONO: Record<EstadoServicio['estado'], 'ok' | 'aviso' | 'error'> = { opera
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
     <main>
-      <h1>{{ t.titulo }}</h1>
+      <h1 data-tutorial-id="sistemas-servicios">{{ t.titulo }}</h1>
       <ap-tabla-de-datos [titulo]="t.titulo" [columnas]="columnas" [filas]="filas">
         <ng-template #celda let-fila let-columna="columna">
           @if (columna.clave === 'estado') {

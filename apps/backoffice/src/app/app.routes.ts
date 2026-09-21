@@ -46,6 +46,12 @@ export const routes: Routes = [
         loadChildren: () => import('./rutas/contabilidad/contabilidad.routes').then((m) => m.rutasContabilidad),
       },
       {
+        // El centro de tutoriales. Sin `canMatch` de sección: `ver:ayuda` lo tiene toda
+        // sesión abierta, y el catálogo de adentro se filtra por permiso.
+        path: 'ayuda',
+        loadChildren: () => import('./rutas/ayuda/ayuda.routes').then((m) => m.rutasAyuda),
+      },
+      {
         path: 'publicidad',
         canMatch: [requierePermiso('ver:publicidad')],
         loadChildren: () => import('./rutas/publicidad/publicidad.routes').then((m) => m.rutasPublicidad),

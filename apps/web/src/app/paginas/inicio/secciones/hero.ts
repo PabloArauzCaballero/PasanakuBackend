@@ -16,7 +16,7 @@ import { Telefono } from './telefono'
             <span class="ic"><ap-icono nombre="check" [tamano]="12" [grosor]="3" /></span>
             <span>Billetera de pasanaku · Bolivia</span>
           </div>
-          <h1 id="titulo-hero">El pasanaku,<br />en tu bolsillo<span class="ya">.</span></h1>
+          <h1 id="titulo-hero" data-tutorial-id="sitio-que-hace">El pasanaku,<br />en tu bolsillo<span class="ya">.</span></h1>
           <p class="bajada">
             Armá tu grupo, aportá desde el celular y recibí tu turno completo. Sin cuadernos que se pierden,
             sin planillas de WhatsApp y sin que alguien tenga que “guardar la plata”.

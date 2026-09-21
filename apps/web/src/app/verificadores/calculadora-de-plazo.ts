@@ -15,7 +15,7 @@ import { GATEWAY } from '../nucleo/gateway'
       <input id="desde" type="date" [value]="desde()" (input)="desde.set(($any($event.target)).value)" />
       <label for="dias">Días hábiles</label>
       <input id="dias" type="number" min="1" max="60" [value]="dias()" (input)="dias.set(+($any($event.target)).value)" />
-      <button type="submit">Calcular</button>
+      <button type="submit" data-tutorial-id="plazos-calcular">Calcular</button>
     </form>
     <ap-estado-de-pantalla [recurso]="plazo" mensajeVacio="Elegí una fecha para calcular." etiquetaDeCarga="Calculando el plazo" (reintentar)="plazo.reload()">
       @if (plazo.hasValue() && plazo.value(); as p) {

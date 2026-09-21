@@ -10,7 +10,7 @@ import { CabeceraDePagina } from '../../layout/cabecera-de-pagina'
   imports: [CabeceraDePagina],
   template: `
     <main id="contenido">
-      <ap-cabecera-de-pagina etiqueta="Transparencia verificable" [titulo]="pagina.titulo" [bajada]="pagina.bajada" />
+      <ap-cabecera-de-pagina data-tutorial-id="transparencia-titulo" etiqueta="Transparencia verificable" [titulo]="pagina.titulo" [bajada]="pagina.bajada" />
       <div class="contenedor contenedor--angosto cuerpo-pagina">
         <article class="prosa" [innerHTML]="pagina.html"></article>
         <p class="fecha">Actualizado el <time [attr.datetime]="pagina.actualizado">{{ pagina.actualizado }}</time></p>

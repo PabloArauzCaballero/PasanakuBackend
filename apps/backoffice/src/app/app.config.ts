@@ -8,6 +8,7 @@ import { registroDeAccesoInterceptor } from './nucleo/registro-de-acceso.interce
 import { sesionInterceptor } from './nucleo/sesion.interceptor'
 import { trazaInterceptor } from './nucleo/traza.interceptor'
 import { GATEWAY, gatewayPorDefecto } from './nucleo/gateway'
+import { proveerTutoriales } from './rutas/ayuda/catalogo/proveer'
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -20,5 +21,7 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([trazaInterceptor, sesionInterceptor, idempotenciaInterceptor, registroDeAccesoInterceptor, erroresInterceptor]),
     ),
     { provide: GATEWAY, useValue: gatewayPorDefecto() },
+    // El motor de tutoriales: catálogo, rutas válidas, almacén de progreso y bitácora.
+    ...proveerTutoriales(),
   ],
 }

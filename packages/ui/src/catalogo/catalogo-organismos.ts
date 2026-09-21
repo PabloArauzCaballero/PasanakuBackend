@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core'
 import { BandaDeProposito } from '../banda-de-proposito/banda-de-proposito'
 import { Boton } from '../boton/boton'
 import { Dialogo } from '../dialogo/dialogo'
+import { FocoDeTutorial, type RecuadroResaltado } from '../foco-de-tutorial/foco-de-tutorial'
+import { GloboDeTutorial } from '../globo-de-tutorial/globo-de-tutorial'
 import { ListaDeMovimientos } from '../lista-de-movimientos/lista-de-movimientos'
 import { ListaDeRequisitos } from '../lista-de-requisitos/lista-de-requisitos'
 import { PanelDeFactores } from '../panel-de-factores/panel-de-factores'
@@ -18,7 +20,7 @@ import { FACTORES, FILAS_DE_TABLA, FilaDeTabla, HOY, MOVIMIENTOS, PASOS_DE_SORTE
 @Component({
   selector: 'ap-catalogo-organismos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, Boton, Dialogo, ListaDeMovimientos, ListaDeRequisitos, PanelDeFactores, SeccionDeExpediente, TablaDeDatos, TarjetaDeOferta, TarjetaDeSolicitud, Vale, VerificadorDeSorteo, SeccionDeCatalogo],
+  imports: [BandaDeProposito, Boton, Dialogo, FocoDeTutorial, GloboDeTutorial, ListaDeMovimientos, ListaDeRequisitos, PanelDeFactores, SeccionDeExpediente, TablaDeDatos, TarjetaDeOferta, TarjetaDeSolicitud, Vale, VerificadorDeSorteo, SeccionDeCatalogo],
   template: `
     <ap-seccion-de-catalogo nombre="Organismos" ancla="organismos">
       <ap-banda-de-proposito texto="Acá se ve la plata de una persona y se decide si un movimiento raro se congela o se deja pasar." style="width: 100%" />
@@ -34,10 +36,32 @@ import { FACTORES, FILAS_DE_TABLA, FilaDeTabla, HOY, MOVIMIENTOS, PASOS_DE_SORTE
       <ap-verificador-de-sorteo [pasos]="pasos" [coincide]="true" [conReproducir]="true" enlacePublico="/verificar/sorteo/abc" style="width: 100%; max-width: calc(var(--s7) * 9)" />
       <ap-boton variante="secundario" (pulsado)="dialogo.set(true)">Abrir un diálogo</ap-boton>
       <ap-dialogo titulo="¿Confirmás el aporte?" textoDeConfirmar="Confirmar aporte de Bs 250" [(abierto)]="dialogo">Se debita de tu saldo ahora mismo.</ap-dialogo>
+
+      <ap-boton variante="secundario" (pulsado)="tutorial.set(!tutorial())">{{ tutorial() ? 'Cerrar' : 'Ver' }} el paso de un tutorial</ap-boton>
+      @if (tutorial()) {
+        <ap-foco-de-tutorial [recuadro]="recuadro" [bloquea]="false" />
+        <ap-globo-de-tutorial
+          titulo="Este es el menú"
+          descripcion="Cada entrada abre un dominio completo. Se vuelve al tablero desde cualquier lado."
+          [indice]="0"
+          [total]="4"
+          [recuadro]="recuadro"
+          posicion="abajo"
+          [ventana]="ventana"
+          (cerrar)="tutorial.set(false)"
+          (omitir)="tutorial.set(false)"
+          (avanzar)="tutorial.set(false)"
+        />
+      }
     </ap-seccion-de-catalogo>
   `,
 })
 export class CatalogoOrganismos {
+  readonly tutorial = signal(false)
+  /** Un recuadro de mentira, para mostrar el velo y el globo sin motor detrás. */
+  readonly recuadro: RecuadroResaltado = { x: 40, y: 120, ancho: 220, alto: 48 }
+  /** El catálogo se prerrenderiza en el sitio: sin ventana, se asume una de escritorio. */
+  readonly ventana = typeof window === 'undefined' ? { ancho: 1280, alto: 900 } : { ancho: window.innerWidth, alto: window.innerHeight }
   readonly hoy = HOY
   readonly movimientos = MOVIMIENTOS
   readonly requisitos = REQUISITOS

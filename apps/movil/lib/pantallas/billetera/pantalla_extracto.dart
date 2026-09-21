@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../dominio/cu15_emitir_extracto.dart';
 import '../../dominio/proteccion_de_pantalla_dinero.dart';
 import 'textos.dart';
+import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 
 /// CU-15 — extracto y certificado de saldo del período elegido. El importe final se
 /// pinta con el átomo `Monto`, nunca formateado a mano.
@@ -35,18 +36,21 @@ class _PantallaExtractoState extends ConsumerState<PantallaExtracto>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Boton(
-                texto: TextosBilletera.generarExtracto,
-                variante: BotonVariante.secundario,
-                onPressed: () async {
-                  final ahora = DateTime.now();
-                  final elegido = await showDateRangePicker(
-                    context: context,
-                    firstDate: ahora.subtract(const Duration(days: 365)),
-                    lastDate: ahora,
-                  );
-                  if (elegido != null) setState(() => _rango = elegido);
-                },
+              MarcaDeTutorial(
+                id: 'billetera.extracto',
+                hijo: Boton(
+                  texto: TextosBilletera.generarExtracto,
+                  variante: BotonVariante.secundario,
+                  onPressed: () async {
+                    final ahora = DateTime.now();
+                    final elegido = await showDateRangePicker(
+                      context: context,
+                      firstDate: ahora.subtract(const Duration(days: 365)),
+                      lastDate: ahora,
+                    );
+                    if (elegido != null) setState(() => _rango = elegido);
+                  },
+                ),
               ),
               const SizedBox(height: Espacio.s4),
               Expanded(

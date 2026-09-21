@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'dominio/estado_de_mora.dart';
 import 'textos.dart';
+import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 
 /// Estado del aporte y restricción vigente, **solo con hechos guardados**. Ni
 /// `EstadoDelParticipante` ni `RestriccionVigente` traen días de mora ni fecha
@@ -37,14 +38,17 @@ class PantallaMiEstado extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              EstadoDePantalla<EstadoDelParticipante>(
-                valor: estado,
-                etiquetaDeCarga: TextosPasanaku.cargando,
-                mensajeVacio: TextosPasanaku.alDia,
-                reintentar: () => ref.invalidate(
-                  estadoDelParticipanteProvider(participanteId),
+              MarcaDeTutorial(
+                id: 'pasanaku.mi-estado',
+                hijo: EstadoDePantalla<EstadoDelParticipante>(
+                  valor: estado,
+                  etiquetaDeCarga: TextosPasanaku.cargando,
+                  mensajeVacio: TextosPasanaku.alDia,
+                  reintentar: () => ref.invalidate(
+                    estadoDelParticipanteProvider(participanteId),
+                  ),
+                  exito: (e) => _Aportes(e: e),
                 ),
-                exito: (e) => _Aportes(e: e),
               ),
               const SizedBox(height: Espacio.s5),
               EstadoDePantalla(

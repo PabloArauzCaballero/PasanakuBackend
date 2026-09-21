@@ -37,12 +37,12 @@ const COLUMNAS: ColumnaVirtual<Campana>[] = [
     <ap-banda-de-proposito [texto]="t.propositoGestion" />
     <main>
       <header>
-        <h1>{{ t.tituloGestion }}</h1>
+        <h1 data-tutorial-id="publicidad-campanas">{{ t.tituloGestion }}</h1>
         @if (puedeGestionar()) {
-          <ap-boton (pulsado)="abrir()">{{ t.nuevaCampana }}</ap-boton>
+          <ap-boton data-tutorial-id="publicidad-nueva-campana" (pulsado)="abrir()">{{ t.nuevaCampana }}</ap-boton>
         }
       </header>
-      <ap-tabla-de-datos-virtualizada [titulo]="t.tituloGestion" [columnas]="COLUMNAS" [cargador]="cargador" [ordenPermitido]="['nombre']" [identidad]="identidad">
+      <ap-tabla-de-datos-virtualizada data-tutorial-id="publicidad-tabla-campanas" [titulo]="t.tituloGestion" [columnas]="COLUMNAS" [cargador]="cargador" [ordenPermitido]="['nombre']" [identidad]="identidad">
         <ng-template #celda let-c let-columna="columna">
           @switch (columna.clave) {
             @case ('estado') {
@@ -60,7 +60,7 @@ const COLUMNAS: ColumnaVirtual<Campana>[] = [
     </main>
 
     <ap-dialogo [titulo]="t.nuevaCampana" [textoDeConfirmar]="t.guardar" [abierto]="dialogoAbierto()" [cargando]="guardando()" (abiertoChange)="dialogoAbierto.set($event)" (confirmar)="guardar()" (cancelar)="cerrar()">
-      <div class="formulario">
+      <div class="formulario" data-tutorial-id="publicidad-formulario-campana">
         <ap-campo [etiqueta]="t.nombre" [(valor)]="nombre" [error]="intentoGuardar() && !nombre() ? 'Obligatorio' : undefined" />
         <ap-campo-monto [etiqueta]="t.presupuestoTotal" [(valor)]="presupuesto" [error]="intentoGuardar() && !presupuesto() ? 'Obligatorio' : undefined" />
       </div>

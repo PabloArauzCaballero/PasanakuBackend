@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import 'proveedor_bandeja.dart';
 import 'textos.dart';
+import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 
 /// `/notificaciones/bandeja`. Compone `ItemDeNotificacion` por cada aviso; la lista
 /// vive en Riverpod, no en la pantalla (regla del organismo/molécula: sin lógica).
@@ -20,24 +21,27 @@ class PantallaDeBandeja extends ConsumerWidget {
       appBar: AppBar(title: const Text(TextosNotificaciones.titulo)),
       body: avisos.isEmpty
           ? const EstadoVacio(mensaje: TextosNotificaciones.sinAvisos)
-          : ListView.separated(
-              itemCount: avisos.length,
-              separatorBuilder: (_, _) => const Divider(height: 1),
-              itemBuilder: (context, i) {
-                final a = avisos[i];
-                return ItemDeNotificacion(
-                  titulo: a.titulo,
-                  detalle: a.detalle,
-                  cuando: _cuandoLegible(a.cuando),
-                  tono: _tonoDesde(a.tono),
-                  leida: a.leida,
-                  onTap: () {
-                    ref.read(bandejaProvider.notifier).marcarLeida(a.id);
-                    final ruta = a.ruta;
-                    if (ruta != null) context.push(ruta);
-                  },
-                );
-              },
+          : MarcaDeTutorial(
+              id: 'notificaciones.bandeja',
+              hijo: ListView.separated(
+                itemCount: avisos.length,
+                separatorBuilder: (_, _) => const Divider(height: 1),
+                itemBuilder: (context, i) {
+                  final a = avisos[i];
+                  return ItemDeNotificacion(
+                    titulo: a.titulo,
+                    detalle: a.detalle,
+                    cuando: _cuandoLegible(a.cuando),
+                    tono: _tonoDesde(a.tono),
+                    leida: a.leida,
+                    onTap: () {
+                      ref.read(bandejaProvider.notifier).marcarLeida(a.id);
+                      final ruta = a.ruta;
+                      if (ruta != null) context.push(ruta);
+                    },
+                  );
+                },
+              ),
             ),
     );
   }

@@ -11,6 +11,12 @@ export class Sesion {
   private readonly acceso = signal<string | null>(null)
   readonly permisos = signal<readonly string[]>([])
   readonly rol = signal<string | null>(null)
+  /**
+   * El `sub` del token: quién es, para el servidor. No se muestra en pantalla; lo usa
+   * `AlmacenLocal` para que dos operadores en la misma máquina no compartan el avance
+   * de los tutoriales, y viaja siempre por una huella, nunca en claro.
+   */
+  readonly sujeto = signal<string | null>(null)
 
   /** Hay operador con sesión: es lo que separa el login del resto del backoffice. */
   readonly abierta = computed(() => this.acceso() !== null)
@@ -19,16 +25,18 @@ export class Sesion {
     return this.acceso()
   }
 
-  abrir(acceso: string, permisos: readonly string[], rol: string): void {
+  abrir(acceso: string, permisos: readonly string[], rol: string, sujeto: string | null = null): void {
     this.acceso.set(acceso)
     this.permisos.set(permisos)
     this.rol.set(rol)
+    this.sujeto.set(sujeto)
   }
 
   cerrar(): void {
     this.acceso.set(null)
     this.permisos.set([])
     this.rol.set(null)
+    this.sujeto.set(null)
   }
 
   /**
@@ -40,7 +48,8 @@ export class Sesion {
     const claims = leerClaims(tokenAcceso)
     const permisos = Array.isArray(claims['permisos']) ? (claims['permisos'] as unknown[]).filter((p): p is string => typeof p === 'string') : []
     const rol = typeof claims['rol'] === 'string' ? claims['rol'] : ''
-    this.abrir(tokenAcceso, permisos, rol)
+    const sujeto = typeof claims['sub'] === 'string' ? claims['sub'] : null
+    this.abrir(tokenAcceso, permisos, rol, sujeto)
   }
 
   puede(permiso: string): boolean {

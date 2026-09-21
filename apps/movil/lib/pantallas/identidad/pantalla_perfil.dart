@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'dominio/estado_cuenta.dart';
 import 'dominio/estado_sesion.dart';
 import 'textos.dart';
+import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 
 /// CU-07 — ejercer derechos sobre datos personales: ver y corregir el correo de
 /// contacto. La identidad verificada (nombre, documento) no se edita acá; para eso
@@ -39,7 +40,10 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
           padding: const EdgeInsets.symmetric(horizontal: Espacio.s4),
           child: ListView(
             children: [
-              const CabeceraDeInicio(titulo: TextosIdentidad.tituloPerfil),
+              const MarcaDeTutorial(
+                id: 'identidad.perfil',
+                hijo: CabeceraDeInicio(titulo: TextosIdentidad.tituloPerfil),
+              ),
               const SizedBox(height: Espacio.s4),
               Campo(
                 etiqueta: 'Correo',

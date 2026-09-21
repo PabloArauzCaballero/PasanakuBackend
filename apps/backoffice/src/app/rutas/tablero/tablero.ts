@@ -21,11 +21,11 @@ type Acceso = { ruta: string; texto: string; permiso: string; descripcion: strin
     <ap-banda-de-proposito texto="Punto de entrada del backoffice: a qué sección podés entrar con tu rol." />
     <main>
       <h1>Tablero</h1>
-      <ul class="accesos">
+      <ul class="accesos" data-tutorial-id="tablero-accesos">
         @for (a of accesos; track a.ruta) {
           @if (sesion.puede(a.permiso)) {
             <li>
-              <a [routerLink]="['/', a.ruta]">
+              <a [routerLink]="['/', a.ruta]" [attr.data-tutorial-id]="'tablero-' + a.ruta">
                 <span class="texto">{{ a.texto }}</span>
                 <span class="descripcion">{{ a.descripcion }}</span>
               </a>

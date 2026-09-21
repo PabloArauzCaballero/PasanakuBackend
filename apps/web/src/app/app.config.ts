@@ -6,6 +6,7 @@ import { routes } from './app.routes'
 import { erroresInterceptor } from './nucleo/errores.interceptor'
 import { trazaInterceptor } from './nucleo/traza.interceptor'
 import { GATEWAY, gatewayPorDefecto } from './nucleo/gateway'
+import { proveerTutorialesDelSitio } from './tutoriales/proveer'
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,5 +17,7 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay(), withIncrementalHydration()),
     provideHttpClient(withFetch(), withInterceptors([trazaInterceptor, erroresInterceptor])),
     { provide: GATEWAY, useValue: gatewayPorDefecto() },
+    // La guía interactiva: catálogo perezoso, avance por navegador y visitante anónimo.
+    ...proveerTutorialesDelSitio(),
   ],
 }

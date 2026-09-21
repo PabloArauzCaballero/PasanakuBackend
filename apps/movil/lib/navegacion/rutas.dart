@@ -67,14 +67,20 @@ GoRouter crearEnrutador({String inicial = '/portada'}) => GoRouter(
             ),
           ],
         ),
+        // La quinta rama: el centro de ayuda. Tiene pila propia a propósito — se entra
+        // a buscar cómo se hace algo y se vuelve a lo que uno estaba haciendo, sin
+        // perder el lugar.
+        StatefulShellBranch(
+          initialLocation: '/soporte/ayuda',
+          routes: rutasSoporte,
+        ),
       ],
     ),
     // Portada e ingreso van acá arriba, fuera del shell: son lo que se ve **antes**
     // de tener sesión, y una barra de pestañas debajo de un formulario de acceso
-    // ofrece cuatro destinos a los que todavía no se puede ir.
+    // ofrece destinos a los que todavía no se puede ir.
     ...rutasDeEntrada,
     ...rutasAlianzas,
-    ...rutasSoporte,
     ...rutasNotificaciones,
   ],
   errorBuilder: (context, state) => Scaffold(

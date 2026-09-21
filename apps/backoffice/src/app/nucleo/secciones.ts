@@ -47,6 +47,11 @@ export function alcanza(permiso: string, reales: readonly string[], sesionAbiert
   if (!sesionAbierta) return false
   if (reales.includes(permiso)) return true
   if (permiso === 'ver:tablero') return true
+  // El centro de ayuda lo tiene toda sesión abierta, como el tablero: aprender a usar
+  // el backoffice no es un privilegio. Lo que se muestra ADENTRO sí se filtra por rol
+  // (`RegistroDeTutoriales`), así que nadie ve el tutorial de una sección que no puede
+  // abrir.
+  if (permiso === 'ver:ayuda') return true
   if (permiso.startsWith('ver:')) {
     const requeridos = PERMISOS_POR_SECCION[permiso]
     return requeridos !== undefined && requeridos.some((codigo) => reales.includes(codigo))

@@ -26,12 +26,14 @@ import { SimuladorDeCostos } from '../../verificadores/simulador-de-costos'
     <main id="contenido">
       <ap-cabecera-de-pagina etiqueta="Tarifas" titulo="Tarifas y comisiones" />
       <div class="contenedor contenedor--angosto cuerpo-pagina">
-        <p class="texto-guia">Cotizá cuánto cobra AportaYa por una operación, con impuestos incluidos, antes de hacerla. El tarifario completo está sujeto a preaviso cuando sube (CU-34): si cambia, se te avisa con anticipación y con la fecha desde la que rige.</p>
-        @defer (hydrate on interaction) {
-          <ap-simulador-de-costos />
-        } @placeholder {
-          <button type="button" class="boton boton--principal">Cotizar una comisión</button>
-        }
+        <p class="texto-guia" data-tutorial-id="tarifas-preaviso">Cotizá cuánto cobra AportaYa por una operación, con impuestos incluidos, antes de hacerla. El tarifario completo está sujeto a preaviso cuando sube (CU-34): si cambia, se te avisa con anticipación y con la fecha desde la que rige.</p>
+        <div data-tutorial-id="tarifas-cotizador">
+          @defer (hydrate on interaction) {
+            <ap-simulador-de-costos />
+          } @placeholder {
+            <button type="button" class="boton boton--principal">Cotizar una comisión</button>
+          }
+        </div>
       </div>
     </main>
   `,

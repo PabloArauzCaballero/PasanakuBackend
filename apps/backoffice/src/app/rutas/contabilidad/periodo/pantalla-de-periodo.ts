@@ -35,7 +35,7 @@ import { textosContabilidad } from '../textos'
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
     <main>
-      <h1>{{ t.titulo }}</h1>
+      <h1 data-tutorial-id="contabilidad-periodo">{{ t.titulo }}</h1>
       <p class="aviso">{{ t.cerrarIrreversible }}</p>
       <ap-estado-de-pantalla
         [recurso]="periodos"

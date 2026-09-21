@@ -47,7 +47,7 @@ const COLUMNAS: ColumnaVirtual<ReclamoDeBandeja>[] = [
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
     <main>
-      <h1>{{ t.titulo }}</h1>
+      <h1 data-tutorial-id="operacion-reclamos">{{ t.titulo }}</h1>
       <ap-barra-de-filtros etiqueta="Estado" [incluirBusqueda]="false" [definiciones]="filtrosDeEstado" />
       <ap-tabla-de-datos-virtualizada
         [titulo]="t.titulo"

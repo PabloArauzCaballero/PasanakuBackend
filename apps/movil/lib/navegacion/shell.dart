@@ -1,3 +1,4 @@
+import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 import 'package:aportaya_diseno/moviles/barra_pestanas.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -52,6 +53,13 @@ class ShellPrincipal extends ConsumerWidget {
       rama: 2,
       ruta: '/identidad/perfil',
     ),
+    (
+      texto: 'Ayuda',
+      icono: Icons.help_outline,
+      iconoActivo: Icons.help,
+      rama: 3,
+      ruta: '/soporte/ayuda',
+    ),
   ];
 
   @override
@@ -68,28 +76,31 @@ class ShellPrincipal extends ConsumerWidget {
         indice: navigationShell.currentIndex,
         child: navigationShell,
       ),
-      bottomNavigationBar: BarraPestanas(
-        destinos: [
-          for (final d in _destinos)
-            (
-              texto: d.texto,
-              icono: d.icono,
-              iconoActivo: d.iconoActivo,
-              novedades: 0,
-            ),
-        ],
-        actual: actual,
-        onChanged: (i) {
-          final d = _destinos[i];
-          // El mismo golpecito que da el sistema al cambiar de pestaña: confirma el
-          // toque sin esperar a que la pantalla nueva termine de dibujarse.
-          HapticFeedback.selectionClick();
-          if (d.rama == navigationShell.currentIndex) {
-            context.go(d.ruta);
-          } else {
-            navigationShell.goBranch(d.rama, initialLocation: true);
-          }
-        },
+      bottomNavigationBar: MarcaDeTutorial(
+        id: 'shell.pestanas',
+        hijo: BarraPestanas(
+          destinos: [
+            for (final d in _destinos)
+              (
+                texto: d.texto,
+                icono: d.icono,
+                iconoActivo: d.iconoActivo,
+                novedades: 0,
+              ),
+          ],
+          actual: actual,
+          onChanged: (i) {
+            final d = _destinos[i];
+            // El mismo golpecito que da el sistema al cambiar de pestaña: confirma el
+            // toque sin esperar a que la pantalla nueva termine de dibujarse.
+            HapticFeedback.selectionClick();
+            if (d.rama == navigationShell.currentIndex) {
+              context.go(d.ruta);
+            } else {
+              navigationShell.goBranch(d.rama, initialLocation: true);
+            }
+          },
+        ),
       ),
     );
   }
@@ -99,6 +110,7 @@ class ShellPrincipal extends ConsumerWidget {
   int _indiceVisibleDesde(int rama, String ubicacion) => switch (rama) {
     1 => 1,
     2 => 3,
+    3 => 4,
     _ => ubicacion.startsWith('/billetera/extracto') ? 2 : 0,
   };
 }

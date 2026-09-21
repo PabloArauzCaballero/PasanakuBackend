@@ -1,0 +1,34 @@
+{
+  "name": "@aportaya/tutoriales",
+  "version": "0.0.0",
+  "private": true,
+  "description": "El motor de tutoriales interactivos de las superficies web de AportaYa: modelo, validación, registro, motor, velo y globo, y el centro de tutoriales. Lo consumen el backoffice y el sitio público por alias de tsconfig (@aportaya/tutoriales/<pieza>), sin barril. Lo que cambia por producto —el catálogo, quién mira y dónde se guarda el avance— entra por token.",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*"
+  },
+  "peerDependencies": {
+    "@angular/common": "^22.1.0",
+    "@angular/core": "^22.1.0",
+    "@angular/router": "^22.1.0"
+  },
+  "dependencies": {
+    "@aportaya/ui": "workspace:*"
+  },
+  "scripts": {
+    "lint": "eslint src && python3 ../../scripts/verificar_frontend.py tutoriales",
+    "typecheck": "echo 'lo typechequean las dos apps que lo consumen (backoffice y web)'"
+  },
+  "devDependencies": {
+    "@angular/common": "^22.1.0",
+    "@angular/compiler": "^22.1.0",
+    "@angular/core": "^22.1.0",
+    "@angular/router": "^22.1.0",
+    "@eslint/js": "^9.39.0",
+    "angular-eslint": "^22.5.0",
+    "eslint": "^9.39.0",
+    "rxjs": "~7.8.0",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.68.0"
+  }
+}
