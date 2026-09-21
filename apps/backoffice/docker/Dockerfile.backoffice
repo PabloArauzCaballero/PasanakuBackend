@@ -8,6 +8,7 @@ COPY apps/web/package.json apps/web/
 COPY apps/movil/package.json apps/movil/
 COPY packages/tokens packages/tokens
 COPY packages/ui packages/ui
+COPY packages/tutoriales packages/tutoriales
 COPY packages/simulado/package.json packages/simulado/
 COPY packages/diseno_flutter/package.json packages/diseno_flutter/
 COPY packages/dominio-cliente/package.json packages/dominio-cliente/
