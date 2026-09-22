@@ -1,0 +1,22 @@
+# H2.S5.M1. Dueños reales de cada área sensible (regla 90.1 — controles obligatorios
+# en cambios sensibles). Los cinco puestos del turno de esta noche son Richard,
+# Justin, Leo, Marcelo y Pablo, pero solo Pablo (@PabloArauzCaballero) y Richard
+# (@richardparra99) tienen commits reales en este repo hasta ahora (`git log
+# --all --format='%an <%ae>'`, 2026-09-21): son los únicos usuarios de GitHub
+# verificados. Justin, Leo y Marcelo todavía no aparecen con un handle real
+# — asignarles uno inventado violaría la regla 00 (anti-invención) y podría
+# enrutar una revisión de un área de dinero al usuario equivocado.
+#
+# Hasta que el equipo confirme los tres handles que faltan (DECISION_REQUIRED,
+# ver docs/auditoria-produccion/carriles/PR5-ci-operacion.md), Pablo queda como
+# dueño provisional de TODO lo sensible: es peor que el dueño real, pero mejor
+# que un nombre que no existe (CODEOWNERS con un usuario inválido rompe la
+# validación por completo, no solo esa fila).
+
+/sql/                         @PabloArauzCaballero
+/servicios/nucleo-financiero/ @PabloArauzCaballero
+/servicios/identidad/         @PabloArauzCaballero
+/servicios/cumplimiento/      @PabloArauzCaballero
+/plataforma/comun-web/        @PabloArauzCaballero
+/plataforma/comun-mensajeria/ @PabloArauzCaballero
+/.github/workflows/           @PabloArauzCaballero
