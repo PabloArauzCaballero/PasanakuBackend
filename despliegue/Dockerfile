@@ -12,7 +12,11 @@ ARG SERVICIO
 ARG MODULO=servicios
 
 # ---------------------------------------------------------------- construccion --
-FROM eclipse-temurin:21-jdk AS construccion
+# Fijada por digest (H2.S4.M2): un retag de `21-jdk` no puede cambiar lo que
+# construye el CI sin que alguien lo note. Digest real, obtenido con
+# `docker inspect eclipse-temurin:21-jdk` el 2026-09-21; se actualiza a mano
+# cuando Dependabot/Renovate lo proponga, no a ciegas.
+FROM eclipse-temurin@sha256:92a2a4d7a928d057e7bd999c418d66c26a34eb9a0442f3ab67721c3f88110b2d AS construccion
 ARG SERVICIO
 ARG MODULO
 WORKDIR /construccion
@@ -71,7 +75,8 @@ RUN mkdir -p /capas && cd /capas \
 # compilada contra glibc. Sobre musl fallaba con «Error loading shared library
 # ld-linux-aarch64.so.1» en la primera peticion de ingreso: el servicio levantaba
 # sano y despues devolvia 500 al intentar verificar la contrasena.
-FROM eclipse-temurin:21-jre-noble AS runtime
+# Fijada por digest (H2.S4.M2), mismo criterio que la etapa de construccion.
+FROM eclipse-temurin@sha256:7739f0ffce786528961eea6bf46d9610ee968ac6127c9b2e93494757bdecce9f AS runtime
 ARG SERVICIO
 ENV SERVICIO=${SERVICIO}
 

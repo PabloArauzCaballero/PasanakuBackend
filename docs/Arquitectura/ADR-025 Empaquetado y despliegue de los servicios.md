@@ -174,6 +174,22 @@ propio del servicio.
       falla si la base no está.
 - [ ] Los cuatro presupuestos, medidos en la máquina de medición y no declarados.
 
+## Decisión adicional — `wget` en la imagen de runtime (2026-09-21, H2.S4.M4)
+
+`eclipse-temurin:21-jre-noble` no trae `curl` ni `wget`. El `HEALTHCHECK` del
+`Dockerfile` los necesita para pegarle a `/actuator/health/readiness` desde dentro
+del contenedor, así que la imagen de runtime instala `wget` (`apt-get install -y
+--no-install-recommends wget`), la única herramienta que se agrega fuera del JRE.
+
+Se evaluó reemplazarlo por un chequeo en Java puro (`HttpClient` del propio JDK,
+sin proceso nuevo), que sacaría la única herramienta extra de la imagen. Se decide
+**mantener `wget`** por ahora: escribir y probar un healthcheck en Java es trabajo
+nuevo fuera del alcance de este turno (CI y operación, no código de aplicación), y
+`wget` sin `--no-install-recommends` de más queda acotado a lo mínimo. Trivy
+(H2.S4.M1) escanea la imagen final: si `wget` trae una CVE HIGH/CRITICAL sin
+parche, el propio gate lo bloquea y esta decisión se revisita ahí, con evidencia,
+no a priori.
+
 ## Ver también
 
 [[ADR-012 Empaquetado y despliegue]] · [[ADR-014 Arquitectura de servicios]] · [[ADR-022 Comunicación entre servicios]] · [[ADR-017 Propiedad de datos por servicio]] · [[Entornos y despliegue]] · [[_Arquitectura]]
