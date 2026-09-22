@@ -9,6 +9,7 @@ import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
 import bo.aportaya.nucleofinanciero.dominio.puertos.CotizadorDeComision;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
 import bo.aportaya.nucleofinanciero.web.generado.BilleteraApi;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaAprobacionRetiro;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaBloqueo;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaCierre;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaCierreRetencion;
@@ -19,6 +20,7 @@ import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaReverso;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaTransferencia;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SaldoBilletera;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaAcreditacion;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaAprobacionRetiro;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaBloqueo;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaCierreBilletera;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaCierreRetencion;
@@ -167,6 +169,10 @@ public class BilleteraController implements BilleteraApi {
      */
     @Override
     @Permiso("BILLETERA_OPERAR")
+    // H2.S2.M5: getFactorMfa() esta @Deprecated a proposito (el contrato lo retira
+    // el 2026-12-31) — seguir aceptandolo mientras tanto es la compatibilidad que
+    // el propio contrato promete, no un descuido.
+    @SuppressWarnings("deprecation")
     public ResponseEntity<SalidaRetiro> solicitarRetiro(UUID idempotencyKey, EntradaRetiro cuerpo) {
         Traza.marcarCasoDeUso("CU-11", cuerpo.getCuentaBilleteraId().toString());
 
@@ -176,6 +182,13 @@ public class BilleteraController implements BilleteraApi {
                 .orElseThrow(() -> new ErrorDeNegocio(
                         CodigoError.de(11, 1), "No se pudo cotizar el costo del retiro: intentalo de nuevo."));
 
+        // H2.S2.M5: evidenciaMfa es el campo nuevo (JWT de step-up); factorMfa se
+        // acepta hasta 2026-12-31 por compatibilidad con clientes viejos. Si vino
+        // cualquiera de los dos, se intenta verificar ESE; MFA_REQUERIDO es solo
+        // para cuando no vino NINGUNO.
+        String evidencia = cuerpo.getEvidenciaMfa() != null ? cuerpo.getEvidenciaMfa() : cuerpo.getFactorMfa();
+        boolean evidenciaProvista = evidencia != null && !evidencia.isBlank();
+
         var salida = cu11.solicitar(
                 new CU11RetirarSaldo.EntradaRetiro(
                         idempotencyKey.toString(),
@@ -183,7 +196,8 @@ public class BilleteraController implements BilleteraApi {
                         monto,
                         costo,
                         cuerpo.getInstrumentoDestinoId(),
-                        segundoFactor.verificado(sesion.actual().usuarioId(), cuerpo.getFactorMfa()),
+                        segundoFactor.verificado(sesion.actual().usuarioId(), evidencia),
+                        evidenciaProvista,
                         monto.monto().compareTo(desdeCuandoSonDosFirmas) >= 0),
                 sesion.actual());
 
@@ -194,6 +208,31 @@ public class BilleteraController implements BilleteraApi {
         respuesta.setMontoNeto(MapeoDeBilletera.dinero(salida.montoNeto()));
         respuesta.setRetencionId(salida.retencionId());
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+    }
+
+    /**
+     * H3.S2 (ADR-049) · aprobar o rechazar un retiro EN_REVISION.
+     *
+     * <p>{@code @Permiso("RETIRO_APROBAR")} es la primera linea de defensa
+     * (403 si falta); la segregacion solicitante != aprobador es la SEGUNDA, y vive
+     * en {@code CU11.aprobar}/{@code rechazarRevision} — no en el controlador, porque
+     * la base la exige igual y las dos tienen que decir lo mismo.
+     */
+    @Override
+    @Permiso("RETIRO_APROBAR")
+    public ResponseEntity<SalidaAprobacionRetiro> aprobarRetiro(
+            UUID ordenId, UUID idempotencyKey, EntradaAprobacionRetiro cuerpo) {
+        Traza.marcarCasoDeUso("CU-11", ordenId.toString());
+
+        var salida = cuerpo.getDesenlace() == EntradaAprobacionRetiro.DesenlaceEnum.AUTORIZADA
+                ? cu11.aprobar(ordenId, sesion.actual())
+                : cu11.rechazarRevision(ordenId, sesion.actual());
+
+        var respuesta = new SalidaAprobacionRetiro();
+        respuesta.setOrdenRetiroId(salida.ordenRetiroId());
+        respuesta.setEstado(SalidaAprobacionRetiro.EstadoEnum.fromValue(salida.estado()));
+        respuesta.setAprobadaPor(salida.aprobadaPor());
+        return ResponseEntity.ok(respuesta);
     }
 
     @Override

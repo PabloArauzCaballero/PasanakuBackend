@@ -23,6 +23,11 @@ public final class CondicionesDeRetiro {
     /** Lo que hay que saber para decidir. Todo llega resuelto: este atomo no consulta. */
     public record Situacion(
             boolean mfaVerificado,
+            // H2: distingue "no mando nada" de "mando algo que no paso" — son dos
+            // experiencias de usuario y dos codigos de error distintos
+            // (MFA_REQUERIDO vs MFA_INVALIDO), aunque las dos dejen mfaVerificado en
+            // false.
+            boolean evidenciaMfaProvista,
             Dinero disponible,
             Dinero solicitado,
             boolean instrumentoDelTitular,
@@ -44,6 +49,12 @@ public final class CondicionesDeRetiro {
 
     public static Veredicto evaluar(Situacion s, OffsetDateTime ahora) {
         if (!s.mfaVerificado()) {
+            if (s.evidenciaMfaProvista()) {
+                return Veredicto.no(
+                        "MFA_INVALIDO",
+                        "La evidencia de segundo factor no es valida: vencio, la firma no corresponde, o no"
+                                + " es para este retiro.");
+            }
             return Veredicto.no("MFA_REQUERIDO", "Falta el segundo factor para autorizar el retiro.");
         }
         if (s.solicitado().esMayorQue(s.disponible())) {

@@ -96,17 +96,19 @@ export const ErroresCU11 = {
   TITULAR_NO_COINCIDE: 'AP-CU11-04',
   BLOQUEO_DE_AUTORIDAD: 'AP-CU11-05',
   ENCAJE_INCUMPLIDO: 'AP-CU11-06',
+  MFA_INVALIDO: 'AP-CU11-07',
 } as const
 ```
 
 | Error | Cuándo se devuelve |
 | --- | --- |
 | `SALDO_INSUFICIENTE` | El disponible no cubre monto más costo (R-BIL-02) |
-| `MFA_REQUERIDO` | Falta el segundo factor o es inválido (R-BIL-09) |
+| `MFA_REQUERIDO` | No se envió evidencia de segundo factor (R-BIL-09) |
 | `INSTRUMENTO_EN_ENFRIAMIENTO` | El destino se agregó dentro de la ventana de enfriamiento |
 | `TITULAR_NO_COINCIDE` | El instrumento no es del titular |
 | `BLOQUEO_DE_AUTORIDAD` | Hay saldo inmovilizado por oficio |
 | `ENCAJE_INCUMPLIDO` | El sistema está en modo restringido (R-BIL-11) |
+| `MFA_INVALIDO` | Se envió evidencia de segundo factor, pero la firma, el vencimiento, el propósito o el `jti` no son válidos (R-BIL-09, H2) |
 
 ## Descomposición atómica
 
@@ -162,6 +164,14 @@ Y el saldo_disponible vuelve a su valor original
 Dado un instrumento de fondeo agregado hace una hora
 Cuando el usuario intenta retirar hacia él
 Entonces la operación se rechaza por período de enfriamiento
+
+Dado un retiro por encima del umbral de doble aprobacion
+Cuando se solicita
+Entonces la orden nace EN_REVISION, no AUTORIZADA
+
+Dado un retiro EN_REVISION
+Cuando un aprobador DISTINTO del solicitante lo aprueba
+Entonces la orden pasa a AUTORIZADA con aprobada_por igual al aprobador
 ```
 
 ## Ver también
