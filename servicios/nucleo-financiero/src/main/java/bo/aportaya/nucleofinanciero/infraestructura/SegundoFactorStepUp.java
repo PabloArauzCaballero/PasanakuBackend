@@ -1,6 +1,7 @@
 package bo.aportaya.nucleofinanciero.infraestructura;
 
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -71,6 +72,17 @@ public class SegundoFactorStepUp implements SegundoFactor {
             // Nunca el JWT en el log: es evidencia de identidad, dato sensible
             // (regla 90/`data-privacy-financial`). Solo el motivo de rechazo.
             BITACORA.warn("Evidencia MFA rechazada: {}", firmaOVigenciaInvalida.getMessage());
+            return false;
+        }
+
+        // El JwtDecoder comun aplica el skew de reloj de ADR-024 (PT60S,
+        // aportaya.jwt.tolerancia) pensado para el token de ACCESO. La evidencia
+        // step-up es prueba de un instante, no una sesion larga: el contrato fija el
+        // limite exacto en `exp` sin margen (exp=+1s acepta, exp=-1s rechaza), asi
+        // que se revalida a mano, mas estricto que lo que el decodificador ya dejo
+        // pasar.
+        if (jwt.getExpiresAt() == null || !jwt.getExpiresAt().isAfter(Instant.now())) {
+            BITACORA.warn("Evidencia MFA rechazada: vencida (fuera del margen de step-up, no del de sesion)");
             return false;
         }
 
