@@ -42,10 +42,13 @@ services:
     # existe por una razon concreta: `generateJooq` introspecciona la base VIVA
     # desde el build, que corre fuera de Docker. 5433 evita chocar con cualquier
     # PostgreSQL que la maquina ya tenga en el 5432.
+    # Configurable via APORTAYA_PG_PORT para la maquina que ya tenga OTRO Postgres
+    # propio (no de este repo) en 5433: no se toca el contenedor ajeno, se cambia
+    # el puerto publicado del lado de aportaya-postgres. Default sin cambios: 5433.
     # Los que no publican puerto son los servicios de aplicacion: la unica entrada
     # publica sigue siendo NGINX.
     ports:
-      - "127.0.0.1:5433:5432"
+      - "127.0.0.1:${APORTAYA_PG_PORT:-5433}:5432"
     volumes:
       - datos_pg:/var/lib/postgresql/data
       # El repositorio, de solo lectura: `bd:aplicar` corre psql DENTRO del
