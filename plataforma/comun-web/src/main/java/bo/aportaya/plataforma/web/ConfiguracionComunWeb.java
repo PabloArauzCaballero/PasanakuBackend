@@ -2,6 +2,7 @@ package bo.aportaya.plataforma.web;
 
 import bo.aportaya.plataforma.dominio.Ids;
 import bo.aportaya.plataforma.dominio.Reloj;
+import bo.aportaya.plataforma.mensajeria.ConfiguracionMensajeria;
 import bo.aportaya.plataforma.mensajeria.Consumidos;
 import bo.aportaya.plataforma.mensajeria.Outbox;
 import bo.aportaya.plataforma.web.errores.TraduccionDeRestricciones;
@@ -12,6 +13,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * Lo que un servicio da por sentado, cableado de una vez.
@@ -19,9 +21,15 @@ import org.springframework.context.annotation.Configuration;
  * <p>No hay ningun archivo donde registrar el servicio: cada uno es un proceso y
  * nadie lo anota en una lista. Es el conflicto numero uno del plan de carriles,
  * eliminado por construccion.
+ *
+ * <p>{@code @Import(ConfiguracionMensajeria.class)} (H2.S1.M2) porque el relevo del
+ * outbox vive en {@code comun-mensajeria}, un modulo sin Spring propio a proposito
+ * (igual que {@code comun-dominio}): el cableado de {@code @EnableScheduling} y el
+ * {@code LockProvider} vive donde ya vive todo el cableado.
  */
 @Configuration
 @ComponentScan("bo.aportaya.plataforma.web")
+@Import(ConfiguracionMensajeria.class)
 public class ConfiguracionComunWeb {
 
     @Bean
