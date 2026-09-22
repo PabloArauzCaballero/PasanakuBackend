@@ -48,6 +48,29 @@ jobs:
       - name: Verificar los carriles — skills, alineación y balance
         run: python3 scripts/verificar_carriles.py
 
+      # H2.S6.M3: pasos de Marcelo (carril PR4, seguridad transversal). Su script
+      # todavía no existe en `dev` al momento de escribir esto (verificado: ningún
+      # `scripts/inventario_endpoints.py` ni `scripts/verificar_contratos_limites.py`
+      # en el árbol). El encargo pide dejarlos "preparados y declarado", no
+      # inventar su lógica (regla 00 §1): el guard de existencia deja el paso listo
+      # para activarse solo cuando su script aterrice, sin romper este workflow
+      # mientras tanto y sin taparlo en silencio (::warning:: visible, no `|| true`).
+      - name: Inventario de endpoints — Marcelo, PR4 (H2.S6.M3)
+        run: |
+          if [ -f scripts/inventario_endpoints.py ]; then
+            python3 scripts/inventario_endpoints.py --check
+          else
+            echo "::warning::scripts/inventario_endpoints.py no existe todavía en dev (carril PR4). Paso preparado, sin ejecutar."
+          fi
+
+      - name: Verificar contratos y límites — Marcelo, PR4 (H2.S6.M3)
+        run: |
+          if [ -f scripts/verificar_contratos_limites.py ]; then
+            python3 scripts/verificar_contratos_limites.py
+          else
+            echo "::warning::scripts/verificar_contratos_limites.py no existe todavía en dev (carril PR4). Paso preparado, sin ejecutar."
+          fi
+
       - name: Generar los manifiestos — valida las reglas de disponibilidad
         run: python3 scripts/generar_k8s.py
 

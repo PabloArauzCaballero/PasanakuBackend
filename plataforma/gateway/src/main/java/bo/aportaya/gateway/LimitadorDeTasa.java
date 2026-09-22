@@ -1,5 +1,6 @@
 package bo.aportaya.gateway;
 
+import java.net.InetSocketAddress;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,8 +8,6 @@ import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
-import java.net.InetSocketAddress;
 
 /**
  * H3.S1 (AMB-6): la clave del limitador para las rutas sensibles ({@code
@@ -89,7 +88,8 @@ public class LimitadorDeTasa {
         }
 
         @Override
-        public Mono<Void> filter(ServerWebExchange exchange, org.springframework.cloud.gateway.filter.GatewayFilterChain cadena) {
+        public Mono<Void> filter(
+                ServerWebExchange exchange, org.springframework.cloud.gateway.filter.GatewayFilterChain cadena) {
             exchange.getResponse().beforeCommit(() -> {
                 if (exchange.getResponse().getStatusCode() == HttpStatus.TOO_MANY_REQUESTS) {
                     String tasa = exchange.getResponse().getHeaders().getFirst("X-RateLimit-Replenish-Rate");
@@ -110,7 +110,8 @@ public class LimitadorDeTasa {
         }
 
         @Override
-        public Mono<Void> filter(ServerWebExchange exchange, org.springframework.cloud.gateway.filter.GatewayFilterChain cadena) {
+        public Mono<Void> filter(
+                ServerWebExchange exchange, org.springframework.cloud.gateway.filter.GatewayFilterChain cadena) {
             String restantes = exchange.getResponse().getHeaders().getFirst("X-RateLimit-Remaining");
             if ("-1".equals(restantes)) {
                 exchange.getResponse().setStatusCode(HttpStatus.SERVICE_UNAVAILABLE);
@@ -129,6 +130,8 @@ public class LimitadorDeTasa {
 
     private String ip(ServerWebExchange exchange) {
         InetSocketAddress remoto = exchange.getRequest().getRemoteAddress();
-        return remoto == null || remoto.getAddress() == null ? "desconocido" : remoto.getAddress().getHostAddress();
+        return remoto == null || remoto.getAddress() == null
+                ? "desconocido"
+                : remoto.getAddress().getHostAddress();
     }
 }
