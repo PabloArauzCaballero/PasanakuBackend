@@ -1,0 +1,44 @@
+=== 1 · EL ESTÁNDAR ES COHERENTE ===
+  OK    · el estándar tiene sus nueve secciones
+  OK    · los 51 controles declaran cómo se verifican
+  OK    · las 12 restricciones citadas existen en el catálogo
+  OK    · las 9 brechas declaradas están numeradas sin huecos
+  OK    · la cifra de restricciones del estándar está al día (142)
+
+=== 2 · ACCESO ADMINISTRATIVO ===
+  OK    · ADR-038 registrado
+  OK    · ADR-038 vigente
+  OK    · R-SEG-10 está en la bóveda y llegó al SQL generado
+  OK    · R-SEG-11 está en la bóveda y llegó al SQL generado
+  OK    · R-SEG-12 está en la bóveda y llegó al SQL generado
+  OK    · los disparadores de operador no dependen de una función que el search_path puede no ver
+  OK    · los 33 permisos sembrados respetan R-SEG-12
+  OK    · el permiso SEGURIDAD_ACCESO_RESTABLECER está sembrado
+  OK    · el permiso SEGURIDAD_FACTOR_REINSCRIBIR está sembrado
+  OK    · los 4 operadores de dev tienen TOTP y pueden entrar
+
+=== 3 · PATRONES PROHIBIDOS ===
+  OK    · 2239 archivos de código sin patrones prohibidos
+
+=== 3b · RUTAS ABIERTAS, ENUMERADAS ===
+  OK    · el permiso de acceso abierto vive en un solo archivo
+  OK    · las 5 rutas abiertas son las declaradas y ninguna mas
+
+=== 4 · SECRETOS ===
+  OK    · ningún secreto versionado
+  OK    · ningún archivo .env en el árbol de trabajo
+  OK    · .gitignore excluye los archivos de entorno
+
+=== 5 · EL CICLO ESTÁ CABLEADO ===
+  OK    · la skill seguridad-aplicacion existe
+  OK    · la skill está en el índice de skills
+  OK    · el contrato de implementación exige este gate
+  OK    · el contrato de implementación remite al estándar de seguridad
+  OK    · el CI ejecuta el gate de seguridad
+
+=== 6 · CATÁLOGO COHERENTE CON LA ESPECIFICACIÓN ===
+  AVISO · S-8 · 24 permisos que un CU exige y el catálogo no tiene: AUTOMATIZACION_ADMINISTRAR, BACKOFFICE, CALENDARIO_ADMINISTRAR, COBRANZA_GESTIONAR, CUMPLIMIENTO_ADMINISTRAR, CUMPLIMIENTO_EVALUAR…
+  AVISO · S-9 · 3 propósitos de token sin canal activo (INICIO_SESION_SIN_CONTRASENA, VERIFICACION_TELEFONO, CAMBIO_CORREO): un flujo trabado invita a encender SMS
+
+TODO OK · 2 aviso(s)
+exit=0
