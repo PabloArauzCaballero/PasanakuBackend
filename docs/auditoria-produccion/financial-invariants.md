@@ -77,12 +77,10 @@ comparten cuello de botella entre sí.
 `LibroBenchmarkTest` (`@Tag("benchmark")`, ya reservado en el corredor
 `integrationTest` pero EXCLUIDO de la ejecución automática — ver
 `buildSrc/src/main/kotlin/aportaya.base.gradle.kts`, cambio troncal de este carril).
-**Estado: TODO.** No se construyó en esta corrida por presupuesto de tiempo: el
-entorno Docker Desktop compartido con otros carriles en la misma máquina estuvo
-inestable la mayor parte del turno (ver
-`docs/auditoria-produccion/evidencia/H1-entorno-docker.md`), y se priorizó dejar H1
-(idempotencia + webhook) y H2 (inventario + contratos) completamente verificados
-antes de abrir un benchmark de carga que necesita el mismo recurso compartido.
+**Estado: en construcción en esta misma sesión** — el bloqueo de
+Docker-fuera-de-Docker que impedía correr Testcontainers se resolvió a mitad de
+turno (JDK 21 nativo instalado en el host). Resultado y las 6 métricas, cuando
+terminen de correr, van en `evidencia/H3-benchmark-hashchain.txt`.
 
 **H3.S2.M3 — decisión (Q-03, ya DECIDIDA 2026-09-21):** se **mantiene** el advisory
 lock global. Este carril no propone alternativa: la medición que la justificaría
@@ -90,20 +88,50 @@ lock global. Este carril no propone alternativa: la medición que la justificar�
 botella, la alternativa (p. ej. cadena por cuenta con hash de raíz diario) exige ADR
 y queda `DECISION_REQUIRED`, nunca implementada de hecho.
 
+## Actualización — 10 de los 11 escenarios verificados contra PostgreSQL real
+
+Con JDK 21 nativo disponible a mitad de turno (se resolvió el bloqueo de
+Docker-fuera-de-Docker de `evidencia/H1-entorno-docker.md`), se construyó
+`servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/LibroInvariantesTest.java`
+(nombre reservado, Q-05) con 10 de los 11 escenarios:
+
+```text
+$ ./gradlew :servicios:nucleo-financiero:integrationTest --tests '*LibroInvariantesTest*'
+BUILD SUCCESSFUL in 1m 7s
+```
+
+```text
+<testsuite name="bo.aportaya.nucleofinanciero.LibroInvariantesTest" tests="10" skipped="0" failures="0" errors="0" .../>
+```
+
+| # | Escenario | Estado |
+|---|---|---|
+| 1 | Transferencia OK | PASS |
+| 2 | Saldo insuficiente | PASS |
+| 3 | Moneda distinta | PASS |
+| 4 | Cuenta bloqueada | PASS |
+| 5 | P2P no permitido | PASS |
+| 6 | 100 hilos sobre una cuenta | PASS |
+| 7 | Dos opuestas simultáneas | PASS |
+| 8 | Replay bajo concurrencia exacta | PASS — con hallazgo real, ver abajo |
+| 9 | Rollback | PASS |
+| 10 | Excepción tras débito dentro de `Datos.conContexto` | **TODO** — no construido en esta corrida |
+| 11 | 50 transferencias cruzadas sin deadlock | PASS |
+
+**Hallazgo real para Justin (PR2, nucleo-financiero) del escenario 8**:
+`CU12TransferirSaldo` tiene una ventana TOCTOU real bajo concurrencia EXACTA de la
+misma clave de idempotencia — el `SELECT` de `porClaveIdempotencia` de las dos
+transacciones corre antes de que cualquiera haga commit, y la perdedora de la
+carrera de `INSERT` recibe `IntegrityConstraintViolationException` (violación de
+`uq_tx_idem`) en vez de la respuesta idempotente de la ganadora. El invariante
+financiero (un solo efecto, nunca doble débito) se mantiene siempre — es lo que el
+test verifica y pasa — pero el contrato de la petición perdedora no está resuelto.
+No se edita `nucleo-financiero`: queda como hallazgo, declarado con archivo y línea
+en el propio test.
+
 ## Pendiente (declarado, no oculto)
 
-- [ ] H3.S1.M2 — Escenarios 1–5 contra PostgreSQL real con la consulta de cuadre.
-- [ ] H3.S1.M3 — Escenarios 6–8 (100 hilos, opuestas simultáneas, replay).
-- [ ] H3.S1.M4 — Escenarios 9–11 (rollback, excepción tras débito, deadlock cruzado ×50).
-- [ ] H3.S2.M2 — Benchmark real de 200 transferencias × 3 corridas con las 6 métricas.
-- [ ] `LibroInvariantesTest`/`LibroBenchmarkTest` (nombres reservados): archivos
-      todavía no creados en `servicios/nucleo-financiero/src/test/`.
-
-**Siguiente paso concreto** para quien retome: crear
-`servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/LibroInvariantesTest.java`
-extendiendo `BaseDeBilletera` (mismo patrón que `CU10ConcurrenciaTest`), con los 11
-escenarios del plan madre §H8.S2; y
-`servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/LibroBenchmarkTest.java`
-con `@Tag("benchmark")`, un `ExecutorService` de 200 hilos y las consultas de
-`pg_stat_activity`/`pg_locks`/`pg_stat_database.deadlocks` ya usadas como referencia
-en el plan madre (`docs/auditoria-produccion/PLAN.md` H8.S2.M3, H8.S3.M2).
+- [ ] H3.S1.M4 (parcial) — Escenario 10 (excepción tras débito dentro de
+      `Datos.conContexto`): no construido en esta corrida.
+- [ ] H3.S2.M2 — `LibroBenchmarkTest`: en construcción en esta misma sesión (ver
+      arriba).
