@@ -236,9 +236,9 @@ completo, con la evidencia literal de cada corrida.
 
 ## H4 — RLS, grants, append-only, esquema desde cero
 
-**Estado: A MEDIAS** (mejoró: los tests parametrizados por servicio y
-`AppendOnlyTest` ya corrieron contra PostgreSQL real, con JDK 21 nativo, esta
-misma sesión — no quedan sólo como hallazgos de lectura de código).
+**Estado: HECHO.** Los tests parametrizados por servicio, `AppendOnlyTest` y el
+esquema desde cero (H4.S2) corrieron contra PostgreSQL real, con JDK 21
+nativo — no quedan como hallazgos de lectura de código.
 
 **Evidencia literal, corrida real, 2026-09-22:**
 
