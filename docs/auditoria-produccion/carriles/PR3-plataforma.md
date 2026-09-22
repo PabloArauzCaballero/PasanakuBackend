@@ -1,14 +1,11 @@
 # Carril PR3 — Plataforma/Infra (Leo, turno noche 2026-09-21)
 
-> **AVANCE: 11 / 49 — 22,4 %.**
-> **Estado:** `IN_PROGRESS`. PRs [#4](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/4),
-> [#9](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/9),
-> [#10](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/10),
-> [#12](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/12) **mergeados** (ninguno
-> bloqueado por el clasificador de permisos), todos espejados a `test`. **H1 cerrado salvo
-> H1.S2.M3**, que queda `TODO` con un hallazgo real registrado (no es un simple "falta hacerlo":
-> un gap en cómo `restricciones.sql` aplica sus `CHECK` cuando la misma tabla vive en más de un
-> esquema — ver §Hallazgo H1.S2.M3). Pasando a H2 (outbox/Relevo).
+> **AVANCE: 16 / 49 — 32,7 %.**
+> **Estado:** `IN_PROGRESS`. PRs #4, #9, #10, #12, #13, [#14](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/14)
+> **mergeados** (ninguno bloqueado por el clasificador de permisos), todos espejados a `test`.
+> **H1 cerrado salvo H1.S2.M3** (hallazgo real, no bloqueante — ver §Hallazgo H1.S2.M3).
+> **H2.S1 (Relevo como bean, lock distribuido) cerrado.** Siguiente: H2.S2 (punta a punta con
+> Kafka de Testcontainers).
 
 Encargo: [repartos/2026-09-21/PromptNoche/Backend/Leo/PR3-Plataforma.Infra/OutboxQuePublicaYGuardasComunes.md](../../../../../PasanakuPromptManager/repartos/2026-09-21/PromptNoche/Backend/Leo/PR3-Plataforma.Infra/OutboxQuePublicaYGuardasComunes.md)
 (repo `PasanakuPromptManager`, no este). Daily en el repo del estándar:
@@ -25,10 +22,10 @@ Ya hecha en el commit `2d2da96` (previo a esta sesión): `.claude/hooks`, `.clau
 | Hito | Microtareas | HECHO | Estado |
 |---|---:|---:|---|
 | H1 — Idempotencia | 12 | 10 | EN CURSO — solo H1.S2.M3 TODO (hallazgo real, no bloqueante) |
-| H2 — Outbox/Relevo | 20 | 0 | TODO |
+| H2 — Outbox/Relevo | 20 | 5 | EN CURSO — H2.S1 (M1–M5) cerrado; H2.S2/S3/S4 TODO |
 | H3 — Guardas comunes | 9 | 1 | EN CURSO — H3.S3.M1 mergeado; resto TODO |
 | H4 — Barridos/Dinero/logs/probes | 8 | 0 | TODO |
-| **TOTAL** | **49** | **11** | |
+| **TOTAL** | **49** | **16** | |
 
 ## H1 — resumen
 
@@ -212,6 +209,52 @@ y `servicios/organizador/.../AutomatizacionRepositorio.java:87`. Puede ser inten
 podrían tener su propio diseño de unicidad de `clave_idempotencia`, distinto del helper
 `Idempotencia`/`respuesta_idempotente` de este carril) — no lo investigué a fondo porque
 `servicios/**` está fuera de mi alcance. Registrado para sus dueños.
+
+## H2.S1 — resumen (Relevo existe como bean, con lock distribuido)
+
+| ID | Qué se hizo | Resultado |
+|---|---|---|
+| H2.S1.M1 | `RelevoConfiguracionTest` (3 casos: bean `Relevo`, `LockProvider`, `ScheduledAnnotationBeanPostProcessor`) | Rojo genuino (error de compilación: `ConfiguracionMensajeria` no existía) |
+| H2.S1.M2 | `ConfiguracionMensajeria`: `@EnableScheduling` + `@EnableSchedulerLock(defaultLockAtMostFor="PT30S")`; `LockProvider` = `JdbcTemplateLockProvider` sobre `<esquema>.shedlock` (tabla ya generada en `sql/15_infra/mensajeria.sql`, sin SQL nuevo); importada desde `ConfiguracionComunWeb` vía `@Import` | **PASS** — API de ShedLock 6.9.0 verificada con `javap` contra el jar real antes de escribir (no adivinada, por indicación explícita del encargo) |
+| H2.S1.M3 | Bean `Relevo` condicionado a `@ConditionalOnBean(KafkaTemplate.class)` + `aportaya.outbox.habilitado` (default `true`) | **PASS** — `webTest` de `comun-web` (sin Kafka) sigue verde |
+| H2.S1.M4 | `cumplimiento/Aplicacion.java:20` con `@EnableScheduling` duplicado — no se toca (otro módulo) | Hallazgo registrado abajo |
+| H2.S1.M5 | Permisos de `svc_*` sobre su `shedlock` | **PASS** — verificado en vivo: `SET ROLE svc_aportes; INSERT/UPDATE/SELECT` sobre `aportes.shedlock` funcionan (la `GRANT ... ON ALL TABLES IN SCHEMA` de `03_permisos.sql` ya cubre `shedlock`, porque corre después de que `15_infra/mensajeria.sql` la crea); `DELETE` da `permission denied` — irrelevante, `JdbcTemplateLockProvider` nunca hace `DELETE` |
+
+### Dos hallazgos de dependencias corregidos en el camino
+
+- `comun-mensajeria` tenía `spring-boot-jdbc` solo en `testImplementation`; `ConfiguracionMensajeria`
+  (producción) necesita `JdbcTemplate` y las `@ConditionalOn...` de `spring-boot-autoconfigure` —
+  promovido a `implementation`.
+- `libs.shedlock` estaba en `implementation`; `comun-web` (que ahora importa
+  `ConfiguracionMensajeria`) fallaba `compileJava` bajo `-Werror`
+  (`Cannot find annotation method 'defaultLockAtMostFor()' in type 'EnableSchedulerLock'`) porque
+  esa anotación no estaba en su classpath de compilación — promovido a `api`.
+
+### Hallazgo H2.S1.M4 — no se toca, se anota
+
+`servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/Aplicacion.java:20` declara su
+propio `@EnableScheduling`. Ahora que `ConfiguracionComunWeb` (heredada por todo servicio vía
+`comun-web`) ya trae `@EnableScheduling` a través de `ConfiguracionMensajeria`, esa anotación en
+`cumplimiento` es redundante — Spring tolera `@EnableScheduling` duplicado sin error, así que no
+rompe nada, pero conviene que su dueño la retire cuando la vea. No la toco: `servicios/**` está
+fuera de mi alcance.
+
+### Evidencia real
+
+```
+./gradlew :plataforma:comun-mensajeria:test --tests '*RelevoConfiguracionTest*'
+BUILD SUCCESSFUL (3/3 PASS, tras el ciclo rojo→verde)
+
+./gradlew :plataforma:comun-mensajeria:spotlessApply :plataforma:comun-web:spotlessApply \
+  :plataforma:comun-mensajeria:test :plataforma:comun-mensajeria:webTest \
+  :plataforma:comun-web:test :plataforma:comun-web:webTest :plataforma:comun-web:integrationTest \
+  :plataforma:comun-mensajeria:spotlessCheck :plataforma:comun-web:spotlessCheck
+BUILD SUCCESSFUL in 1m 3s
+
+# ArranqueTest x14 (dos intentos se cayeron por "Gradle build daemon has been stopped: stop
+# command received" -- otra sesion en la maquina compartida, no un fallo real)
+BUILD SUCCESSFUL in 19m 41s
+```
 
 ## H3 — resumen
 
