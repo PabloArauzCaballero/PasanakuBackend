@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core'
+import { NgTemplateOutlet } from '@angular/common'
+import { ChangeDetectionStrategy, Component, computed, contentChild, input, output, TemplateRef } from '@angular/core'
 import type { ResourceRef } from '@angular/core'
 
 export type MotivoVacio = 'sinDatos' | 'porFiltro' | 'porPermiso'
@@ -17,20 +18,29 @@ export type ErrorTraducido = { mensaje: string; trazaId?: string; sinConexion?: 
 @Component({
   selector: 'ap-estado-de-pantalla',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [NgTemplateOutlet],
   template: `
     @if (recurso().isLoading()) {
-      <div class="esqueleto" role="status" [attr.aria-label]="etiquetaDeCarga()">
+      <div class="esqueleto" role="status" aria-live="polite" [attr.aria-label]="etiquetaDeCarga()">
         <span></span><span></span><span></span>
       </div>
     } @else if (recurso().error()) {
-      <section class="error" role="alert">
-        <p class="mensaje">{{ error().mensaje }}</p>
-        @if (error().trazaId) { <p class="traza">Código de seguimiento: {{ error().trazaId }}</p> }
-        <button type="button" (click)="reintentar.emit()">Volver a intentar</button>
+      <section class="error" role="alert" aria-live="assertive">
+        @if (plantillaError(); as tpl) {
+          <ng-container *ngTemplateOutlet="tpl; context: { $implicit: error() }" />
+        } @else {
+          <p class="mensaje">{{ error().mensaje }}</p>
+          @if (error().trazaId) { <p class="traza">Código de seguimiento: {{ error().trazaId }}</p> }
+          <button type="button" (click)="reintentar.emit()">Volver a intentar</button>
+        }
       </section>
     } @else if (estaVacio()) {
-      <section class="vacio" [class]="'vacio motivo-' + motivoVacio()">
-        <p>{{ mensajeVacio() }}</p>
+      <section class="vacio" role="status" aria-live="polite" [class]="'vacio motivo-' + motivoVacio()">
+        @if (plantillaVacio(); as tpl) {
+          <ng-container *ngTemplateOutlet="tpl; context: { $implicit: motivoVacio() }" />
+        } @else {
+          <p>{{ mensajeVacio() }}</p>
+        }
       </section>
     } @else {
       <ng-content />
@@ -55,6 +65,15 @@ export class EstadoDePantalla<T> {
   readonly motivoVacio = input<MotivoVacio>('sinDatos')
   readonly etiquetaDeCarga = input('Cargando')
   readonly reintentar = output<void>()
+  /**
+   * H2.S1.M1: el contenido de cada rama lo aporta el consumidor por plantilla con contexto
+   * tipado. Opcional — si no se proyecta `<ng-template #plantillaVacio let-motivo>`, la rama
+   * vacía sigue mostrando `mensajeVacio()` exactamente como antes (cero cambio de apariencia
+   * para los 11 consumidores reales que no la usan).
+   */
+  readonly plantillaVacio = contentChild<TemplateRef<{ $implicit: MotivoVacio }>, TemplateRef<{ $implicit: MotivoVacio }>>('plantillaVacio', { read: TemplateRef })
+  /** Ídem para la rama de error; contexto tipado = `ErrorTraducido` completo (nunca el error crudo del backend). */
+  readonly plantillaError = contentChild<TemplateRef<{ $implicit: ErrorTraducido }>, TemplateRef<{ $implicit: ErrorTraducido }>>('plantillaError', { read: TemplateRef })
 
   readonly estaVacio = computed(() => {
     const r = this.recurso()
