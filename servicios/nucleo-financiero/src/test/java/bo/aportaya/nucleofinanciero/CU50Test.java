@@ -103,7 +103,7 @@ class CU50Test extends BaseDeBilletera {
         ContextoSesion ctx = contextoDe(usuario);
 
         assertThatThrownBy(() -> transaccion.execute(t -> retiroCU.solicitar(
-                        new EntradaRetiro("ret-encaje", cuenta, bob("100.00"), bob("5.00"), instrumento, true, false),
+                        new EntradaRetiro("ret-encaje", cuenta, bob("100.00"), bob("5.00"), instrumento, true, true, false),
                         ctx)))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("suspendidos temporalmente");

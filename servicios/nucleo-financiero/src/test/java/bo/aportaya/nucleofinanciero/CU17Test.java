@@ -93,7 +93,7 @@ class CU17Test extends BaseDeBilletera {
         // habria fallado por «insuficiente» y la prueba pasaria por otra razon.
         assertThatThrownBy(() -> transaccion.execute(t -> retiroCU.solicitar(
                         new EntradaRetiro(
-                                "ret-bloq", c.cuenta(), bob("1000.00"), bob("5.00"), instrumento, true, false),
+                                "ret-bloq", c.cuenta(), bob("1000.00"), bob("5.00"), instrumento, true, true, false),
                         c.ctx())))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("orden de autoridad");

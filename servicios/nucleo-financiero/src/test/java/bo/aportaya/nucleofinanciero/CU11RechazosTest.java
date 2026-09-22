@@ -50,7 +50,7 @@ class CU11RechazosTest extends BaseDeBilletera {
 
     private SalidaRetiro pedir(Escenario e, String monto, String clave) {
         return transaccion.execute(t -> retiroCU.solicitar(
-                new EntradaRetiro(clave, e.cuenta(), bob(monto), bob("5.00"), e.instrumento(), true, false), e.ctx()));
+                new EntradaRetiro(clave, e.cuenta(), bob(monto), bob("5.00"), e.instrumento(), true, true, false), e.ctx()));
     }
 
     @Test
@@ -58,6 +58,7 @@ class CU11RechazosTest extends BaseDeBilletera {
     void rechazaRAUD01() {
         Escenario e = escenario("500.00");
         SalidaRetiro s = pedir(e, "100.00", "r-aud01");
+        transaccion.execute(t -> retiroCU.instruirPago(s.ordenRetiroId(), e.ctx()));
         transaccion.execute(t -> retiroCU.confirmarPago(s.ordenRetiroId(), e.ctx()));
 
         assertThat(rechazaLaBase("DELETE FROM nucleo_financiero.movimiento_billetera"))
@@ -71,6 +72,7 @@ class CU11RechazosTest extends BaseDeBilletera {
         // faltar, o la cadena deja de poder verificarse.
         Escenario e = escenario("500.00");
         SalidaRetiro s = pedir(e, "100.00", "r-aud03");
+        transaccion.execute(t -> retiroCU.instruirPago(s.ordenRetiroId(), e.ctx()));
         var pago = transaccion.execute(t -> retiroCU.confirmarPago(s.ordenRetiroId(), e.ctx()));
 
         assertThat(contar(
@@ -195,7 +197,7 @@ class CU11RechazosTest extends BaseDeBilletera {
         ContextoSesion ctx = contextoDe(usuario);
 
         assertThatThrownBy(() -> transaccion.execute(t -> retiroCU.solicitar(
-                        new EntradaRetiro("r-bil11", cuenta, bob("50.00"), bob("5.00"), instrumento, true, false),
+                        new EntradaRetiro("r-bil11", cuenta, bob("50.00"), bob("5.00"), instrumento, true, true, false),
                         ctx)))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("suspendidos temporalmente");
@@ -235,7 +237,7 @@ class CU11RechazosTest extends BaseDeBilletera {
         ContextoSesion ctx = contextoDe(usuario);
 
         assertThatThrownBy(() -> transaccion.execute(t -> retiroCU.solicitar(
-                        new EntradaRetiro("r-lim01", cuenta, bob("50.00"), bob("5.00"), instrumento, true, false),
+                        new EntradaRetiro("r-lim01", cuenta, bob("50.00"), bob("5.00"), instrumento, true, true, false),
                         ctx)))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("deniega por omision");
@@ -266,5 +268,35 @@ class CU11RechazosTest extends BaseDeBilletera {
     void rechazaRUIF02() {
         assertThat(contar("SELECT count(*)::int FROM pg_proc WHERE proname = ?", "fn_uif_registrar_operacion"))
                 .isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("rechaza por fallo del proveedor tras autorizar (H4.S1): la orden pasa a RECHAZADA y libera la retencion")
+    void elProveedorRechazaTrasAutorizar() {
+        // ProveedorDeRetiroLocal reserva 666.66 de neto para forzar el RECHAZADO: monto
+        // 671.66 menos costo 5.00 = neto 666.66 exacto.
+        Escenario e = escenario("2000.00");
+        SalidaRetiro s = pedir(e, "671.66", "r-proveedor-rechaza");
+        assertThat(s.estado()).isEqualTo("AUTORIZADA");
+
+        var instruccion = transaccion.execute(t -> retiroCU.instruirPago(s.ordenRetiroId(), e.ctx()));
+
+        assertThat(instruccion.estado()).isEqualTo("RECHAZADA");
+        assertThat(contar(
+                        "SELECT count(*)::int FROM nucleo_financiero.orden_retiro WHERE id = ? AND estado ="
+                                + " 'RECHAZADA'",
+                        s.ordenRetiroId()))
+                .isEqualTo(1);
+        assertThat(contar(
+                        "SELECT count(*)::int FROM nucleo_financiero.retencion_saldo WHERE id = ? AND estado ="
+                                + " 'LIBERADA'",
+                        s.retencionId()))
+                .isEqualTo(1);
+        // El saldo vuelve a estar disponible: el rechazo del proveedor no puede dejar
+        // plata retenida sin destino.
+        assertThat(contar(
+                        "SELECT saldo_disponible::int FROM nucleo_financiero.cuenta_billetera WHERE id = ?",
+                        e.cuenta()))
+                .isEqualTo(2000);
     }
 }

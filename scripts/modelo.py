@@ -282,6 +282,9 @@ APPEND_ONLY = {
     "asiento_contable", "movimiento_contable",
     "transaccion_billetera", "movimiento_billetera", "movimiento_custodia",
     "saldo_diario_billetera", "devengo_comision",
+    # H2.S2.M2 (carril PR2): el jti de la evidencia step-up se consume una sola vez
+    # (INSERT ... ON CONFLICT DO NOTHING); un UPDATE la convertiria en reusable.
+    "evidencia_mfa_consumida",
     "registro_operacion_relevante", "evento_riesgo_operativo",
     "acta_comite",
     # --- M13: contabilidad financiera y ERP ---

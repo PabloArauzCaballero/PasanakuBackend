@@ -1,0 +1,7 @@
+# nucleo-financiero — perfil production — H2.S1.M1
+# Unicamente lo que varia por entorno. El resto esta en application.yml (comun).
+aportaya:
+  entorno:
+    productivo: true         # H2: fuera de local/test, fail closed
+  cors:
+    origenes: ${APORTAYA_CORS_ORIGENES}  # OBLIGATORIO: sin default y nunca *.

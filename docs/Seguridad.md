@@ -317,6 +317,7 @@ declaradas es lo que las distingue de un descuido: ninguna es «se nos pasó», 
 [[Procedimiento de desarrollo]] · [[Auditoria-Robustez]] ·
 [[ADR-024 Autenticación y sesión distribuida]] ·
 [[ADR-038 Acceso administrativo · segundo factor y recuperación asistida]] ·
+[[ADR-049 Doble aprobación de retiros]] ·
 [[CU-04 Autenticar con MFA y registrar dispositivo]] ·
 [[CU-08 Asignar y revocar roles de operador]] ·
 [[CU-09 Cambiar credenciales y solicitar la baja]] ·

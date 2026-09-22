@@ -34,6 +34,11 @@ dependencies {
     implementation(libs.shedlock)
     implementation(libs.resilience4j)
     implementation(libs.micrometer)
+    // H2.S2: SegundoFactorStepUp valida el JWT de evidencia step-up con el mismo
+    // JwtDecoder (Nimbus) que usa comun-web para el token de acceso (ADR-024). Ya
+    // esta en el catalogo (comun-web la trae como `implementation`, no transitiva) —
+    // no es un troncal nuevo, es usar acá lo que ya existe en libs.versions.toml.
+    implementation(libs.spring.boot.oauth2)
 
     testImplementation(project(":plataforma:comun-pruebas"))
     testImplementation(libs.bundles.pruebas)   // JUnit 5, AssertJ, Testcontainers, ArchUnit

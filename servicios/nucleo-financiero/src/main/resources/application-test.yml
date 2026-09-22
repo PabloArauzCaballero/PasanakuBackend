@@ -1,0 +1,9 @@
+# nucleo-financiero — perfil test — H2.S1.M1
+# Unicamente lo que varia por entorno. El resto esta en application.yml (comun).
+aportaya:
+  entorno:
+    productivo: false        # test: los adaptadores de desarrollo pueden existir
+  cors:
+    origenes: "http://localhost"   # solo lo que usan webTest/integrationTest
+  mfa:
+    doble-local: false       # cada prueba de MFA fija esto explicitamente

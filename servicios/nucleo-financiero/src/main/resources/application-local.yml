@@ -1,0 +1,12 @@
+# nucleo-financiero — perfil local — H2.S1.M1
+# Unicamente lo que varia por entorno. El resto esta en application.yml (comun).
+aportaya:
+  entorno:
+    productivo: false        # local: los adaptadores de desarrollo pueden existir
+  cors:
+    origenes: "http://localhost:5173,http://localhost:3000"  # front local; nunca *
+  mfa:
+    # Solo tiene efecto en local/test (SegundoFactorLocal lo lee bajo @Profile).
+    # false = cualquier sesion autenticada con el campo presente alcanza; el valor
+    # por omision sigue siendo exigirlo incluso en local, a proposito.
+    doble-local: false

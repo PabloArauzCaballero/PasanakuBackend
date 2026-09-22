@@ -1431,10 +1431,15 @@ ALTER TABLE reporte_regulatorio
 -- sin segregación exigible: `requiere_doble_aprobacion` existía sin ninguna
 -- restricción que lo hiciera valer, y la tabla ni siquiera guardaba quién había
 -- solicitado la orden, así que no había con qué comparar al aprobador.
+--
+-- H3.S1 (carril PR2): EN_REVISION se agrega a la lista de "todavía sin
+-- aprobar" — es el estado explícito que la aplicación usa mientras espera al
+-- segundo aprobador (antes de H3 esa espera se confundía con PENDIENTE, el
+-- mismo estado que usa un retiro que ni siquiera necesita doble aprobación).
 ALTER TABLE orden_retiro
   ADD CONSTRAINT ck_retiro_doble_aprobacion CHECK (
       NOT requiere_doble_aprobacion
-   OR estado IN ('BORRADOR','PENDIENTE','RECHAZADA')
+   OR estado IN ('BORRADOR','PENDIENTE','EN_REVISION','RECHAZADA')
    OR (aprobada_por IS NOT NULL AND aprobada_por <> solicitada_por)
   );
 

@@ -93,6 +93,7 @@ REVOKE UPDATE, DELETE ON tarifas.devengo_comision FROM svc_tarifas;
 REVOKE UPDATE, DELETE ON erp.estado_financiero_generado FROM svc_erp;
 REVOKE UPDATE, DELETE ON transparencia.evento_reputacion FROM svc_transparencia;
 REVOKE UPDATE, DELETE ON cumplimiento.evento_riesgo_operativo FROM svc_cumplimiento;
+REVOKE UPDATE, DELETE ON nucleo_financiero.evidencia_mfa_consumida FROM svc_nucleo_financiero;
 REVOKE UPDATE, DELETE ON erp.factura_proveedor FROM svc_erp;
 REVOKE UPDATE, DELETE ON publicidad.factura_publicidad FROM svc_publicidad;
 REVOKE UPDATE, DELETE ON garantia.historial_estado_incumplimiento FROM svc_garantia;

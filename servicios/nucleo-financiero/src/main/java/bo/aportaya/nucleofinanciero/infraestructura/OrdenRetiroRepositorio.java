@@ -35,6 +35,12 @@ public class OrdenRetiroRepositorio {
             boolean requiereDobleAprobacion,
             Optional<OffsetDateTime> enfriamientoHasta,
             String claveIdempotencia,
+            // H3.S1: el estado inicial lo decide el CU (PENDIENTE si nadie mas la
+            // toca todavia — hoy no pasa, pero la firma no lo prohibe — AUTORIZADA
+            // automatica bajo el umbral, EN_REVISION si necesita doble aprobacion),
+            // nunca hardcodeado aca: esta clase es infraestructura, no la maquina de
+            // estados.
+            String estadoInicial,
             OffsetDateTime ahora) {
 
         UUID id = UUID.randomUUID();
@@ -48,7 +54,7 @@ public class OrdenRetiroRepositorio {
                 .set(DSL.field("costo_retiro", BigDecimal.class), costo.monto())
                 .set(DSL.field("monto_neto", BigDecimal.class), neto.monto())
                 .set(DSL.field("moneda", String.class), solicitado.moneda().name())
-                .set(DSL.field("estado", String.class), "PENDIENTE")
+                .set(DSL.field("estado", String.class), estadoInicial)
                 .set(DSL.field("mfa_verificado", Boolean.class), mfaVerificado)
                 .set(DSL.field("requiere_doble_aprobacion", Boolean.class), requiereDobleAprobacion)
                 .set(DSL.field("ventana_enfriamiento_hasta", OffsetDateTime.class), enfriamientoHasta.orElse(null))
@@ -112,6 +118,56 @@ public class OrdenRetiroRepositorio {
                 .set(DSL.field("pagada_en", OffsetDateTime.class), pagadaEn);
         return paso.where(DSL.field("id", UUID.class).eq(ordenId))
                         .and(DSL.field("estado").eq(desde))
+                        .execute()
+                > 0;
+    }
+
+    /**
+     * EN_REVISION → AUTORIZADA (H3.S2): un aprobador DISTINTO del solicitante.
+     *
+     * <p>{@code aprobada_por <> solicitada_por} se repite aca aunque
+     * {@code ck_retiro_doble_aprobacion} ya lo exige en la base: la base rechaza con
+     * un error generico de restriccion, y {@code CU11.aprobar} necesita distinguir
+     * "ya no esta en revision" (alguien mas la resolvio primero) de "sos el mismo que
+     * la pidio" para dar el codigo de error correcto — R-SEG-04 no perdona, pero el
+     * mensaje si puede ser util.
+     */
+    public boolean pasarAAutorizadaPorAprobacion(DSLContext dsl, UUID ordenId, UUID aprobadaPor) {
+        return dsl.update(DSL.table(DSL.name("nucleo_financiero", "orden_retiro")))
+                        .set(DSL.field("estado", String.class), "AUTORIZADA")
+                        .set(DSL.field("aprobada_por", UUID.class), aprobadaPor)
+                        .where(DSL.field("id", UUID.class).eq(ordenId))
+                        .and(DSL.field("estado").eq("EN_REVISION"))
+                        .and(DSL.field("solicitada_por", UUID.class).ne(aprobadaPor))
+                        .execute()
+                > 0;
+    }
+
+    /** EN_REVISION → RECHAZADA (H3.S2): el aprobador la rechaza, sin llegar a AUTORIZADA. */
+    public boolean pasarARechazadaPorAprobacion(DSLContext dsl, UUID ordenId, UUID aprobadaPor) {
+        return dsl.update(DSL.table(DSL.name("nucleo_financiero", "orden_retiro")))
+                        .set(DSL.field("estado", String.class), "RECHAZADA")
+                        .set(DSL.field("aprobada_por", UUID.class), aprobadaPor)
+                        .where(DSL.field("id", UUID.class).eq(ordenId))
+                        .and(DSL.field("estado").eq("EN_REVISION"))
+                        .and(DSL.field("solicitada_por", UUID.class).ne(aprobadaPor))
+                        .execute()
+                > 0;
+    }
+
+    /**
+     * AUTORIZADA → EN_PROCESO (H3.S1.M3/H4.S2): guarda la referencia del proveedor.
+     *
+     * <p>Separado de {@link #pasarA} porque esa fija {@code pagada_en} — aca no hay
+     * pago todavia, solo la instruccion enviada. Poner una fecha de pago antes de que
+     * el proveedor confirme seria mentir sobre cuando salio la plata.
+     */
+    public boolean pasarAEnProceso(DSLContext dsl, UUID ordenId, String referenciaProveedor) {
+        return dsl.update(DSL.table(DSL.name("nucleo_financiero", "orden_retiro")))
+                        .set(DSL.field("estado", String.class), "EN_PROCESO")
+                        .set(DSL.field("referencia_proveedor", String.class), referenciaProveedor)
+                        .where(DSL.field("id", UUID.class).eq(ordenId))
+                        .and(DSL.field("estado").eq("AUTORIZADA"))
                         .execute()
                 > 0;
     }

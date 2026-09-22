@@ -1,6 +1,7 @@
 package bo.aportaya.nucleofinanciero.web;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -248,6 +249,106 @@ class BilleteraControllerWebTest {
             mvc.perform(get("/billetera/{id}/extracto", CUENTA).with(Sesiones.como("PARTICIPANTE", "BILLETERA_VER")))
                     .andExpect(status().isBadRequest());
             verifyNoInteractions(cu15);
+        }
+    }
+
+    /**
+     * H3.S2 (ADR-049) · POST /billetera/retiros/{ordenId}/aprobacion.
+     *
+     * <p>Aca solo se comprueba el contrato HTTP: el permiso {@code RETIRO_APROBAR}
+     * cierra el paso a nivel de filtro, y el {@code desenlace} del cuerpo decide si el
+     * controlador llama a {@code aprobar} o a {@code rechazarRevision}. La segregacion
+     * solicitante-distinto-de-aprobador NO se prueba aca — vive en
+     * {@code CU11AprobacionTest}, contra la base real, que es donde la base y la
+     * aplicacion realmente coinciden (o no).
+     */
+    @Nested
+    @DisplayName("POST /billetera/retiros/{ordenId}/aprobacion")
+    class Aprobacion {
+        private static final UUID ORDEN = UUID.fromString("eeeeeeee-0000-4000-8000-000000000005");
+        private static final UUID APROBADOR = UUID.fromString("eeeeeeee-0000-4000-8000-000000000006");
+
+        @Test
+        @DisplayName("403: sin RETIRO_APROBAR, ni siquiera llega al caso de uso")
+        void sinElPermisoNoAprueba() throws Exception {
+            mvc.perform(post("/billetera/retiros/{id}/aprobacion", ORDEN)
+                            .with(Sesiones.como("PARTICIPANTE", "BILLETERA_OPERAR"))
+                            .header("Idempotency-Key", CLAVE)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("""
+                                    {"desenlace":"AUTORIZADA"}
+                                    """))
+                    .andExpect(status().isForbidden());
+            verifyNoInteractions(cu11);
+        }
+
+        @Test
+        @DisplayName("200 AUTORIZADA: desenlace AUTORIZADA llama a cu11.aprobar, no a rechazarRevision")
+        void aprueba() throws Exception {
+            when(cu11.aprobar(any(), any()))
+                    .thenReturn(new CU11RetirarSaldo.SalidaAprobacion(ORDEN, "AUTORIZADA", APROBADOR));
+            mvc.perform(post("/billetera/retiros/{id}/aprobacion", ORDEN)
+                            .with(Sesiones.como("TESORERIA", "RETIRO_APROBAR"))
+                            .header("Idempotency-Key", CLAVE)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("""
+                                    {"desenlace":"AUTORIZADA"}
+                                    """))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.ordenRetiroId").value(ORDEN.toString()))
+                    .andExpect(jsonPath("$.estado").value("AUTORIZADA"))
+                    .andExpect(jsonPath("$.aprobadaPor").value(APROBADOR.toString()));
+            verify(cu11).aprobar(eq(ORDEN), any());
+            verify(cu11, org.mockito.Mockito.never()).rechazarRevision(any(), any());
+        }
+
+        @Test
+        @DisplayName("200 RECHAZADA: desenlace RECHAZADA llama a cu11.rechazarRevision, no a aprobar")
+        void rechaza() throws Exception {
+            when(cu11.rechazarRevision(any(), any()))
+                    .thenReturn(new CU11RetirarSaldo.SalidaAprobacion(ORDEN, "RECHAZADA", APROBADOR));
+            mvc.perform(post("/billetera/retiros/{id}/aprobacion", ORDEN)
+                            .with(Sesiones.como("TESORERIA", "RETIRO_APROBAR"))
+                            .header("Idempotency-Key", CLAVE)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(
+                                    """
+                                    {"desenlace":"RECHAZADA","motivo":"Documentacion insuficiente"}
+                                    """))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.estado").value("RECHAZADA"));
+            verify(cu11).rechazarRevision(eq(ORDEN), any());
+            verify(cu11, org.mockito.Mockito.never()).aprobar(any(), any());
+        }
+
+        @Test
+        @DisplayName("422: el caso de uso rechaza la auto-aprobacion, el controlador no la esconde")
+        void propagaElErrorDeNegocio() throws Exception {
+            when(cu11.aprobar(any(), any()))
+                    .thenThrow(new bo.aportaya.plataforma.dominio.ErrorDeNegocio(
+                            bo.aportaya.plataforma.dominio.CodigoError.de(11, 10),
+                            "Quien solicito el retiro no puede aprobar su propia solicitud."));
+            mvc.perform(post("/billetera/retiros/{id}/aprobacion", ORDEN)
+                            .with(Sesiones.como("TESORERIA", "RETIRO_APROBAR"))
+                            .header("Idempotency-Key", CLAVE)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("""
+                                    {"desenlace":"AUTORIZADA"}
+                                    """))
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU11-10"));
+        }
+
+        @Test
+        @DisplayName("400: desenlace ausente, que el contrato exige")
+        void faltaElDesenlace() throws Exception {
+            mvc.perform(post("/billetera/retiros/{id}/aprobacion", ORDEN)
+                            .with(Sesiones.como("TESORERIA", "RETIRO_APROBAR"))
+                            .header("Idempotency-Key", CLAVE)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{}"))
+                    .andExpect(status().isBadRequest());
+            verifyNoInteractions(cu11);
         }
     }
 }
