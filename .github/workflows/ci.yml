@@ -19,6 +19,11 @@ concurrency:
 
 permissions:
   contents: read
+  # OSV-Scanner (reusable workflow) sube resultados a Security > Code Scanning y
+  # necesita leer el estado de otras Actions para el resumen. Verificado contra
+  # google.github.io/osv-scanner/github-action/ el 2026-09-21.
+  security-events: write
+  actions: read
 
 env:
   BD_URL_ADMIN: jdbc:postgresql://localhost:5432/pasanaku
@@ -392,17 +397,26 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 19c · dependencias vulnerables
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "21"
-      - uses: gradle/actions/setup-gradle@v4
-      # El proyecto RAIZ no tiene `runtimeClasspath` —no tiene codigo—, asi que pedirle
-      # el arbol de dependencias fallaba siempre con «configuration not found». El arbol
-      # que importa es el de lo que se despliega: el gateway y los catorce servicios.
-      - run: |
-          set -e
-          modulos="$(./gradlew -q projects | grep -oE "servicios:[a-z-]+|plataforma:gateway" | sort -u)"
-          for m in $modulos; do ./gradlew -q ":$m:dependencies" --configuration runtimeClasspath > /dev/null; done
-          echo "arbol de dependencias resuelto en $(echo "$modulos" | wc -w) modulos" 
+  # 19c · dependencias vulnerables. Job aparte porque el workflow reusable de
+  # OSV-Scanner solo se puede invocar con `uses:` a nivel de job, no como step
+  # (google.github.io/osv-scanner/github-action/, verificado 2026-09-21). Escanea
+  # los `gradle.lockfile` de los 15 modulos desplegables (H2.S2.M1).
+  #
+  # AMB-9 (HIGH/CRITICAL bloquean, MEDIUM reporta): OSV-Scanner v2.6.0 no tiene
+  # umbral de severidad nativo (verificado; no existe --min-severity ni config
+  # equivalente). `fail-on-vuln: true` bloquea ante CUALQUIER hallazgo no
+  # ignorado en `.github/osv-scanner.toml` — mas estricto que "solo HIGH/CRITICAL",
+  # nunca menos. Una excepcion MEDIUM/LOW se agrega ahi, una por una, con motivo y
+  # fecha (<= 30 dias).
+  dependencias:
+    name: Dependencias vulnerables (OSV-Scanner)
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.6.0"
+    with:
+      scan-args: |-
+        --config=.github/osv-scanner.toml
+        --recursive
+        ./
