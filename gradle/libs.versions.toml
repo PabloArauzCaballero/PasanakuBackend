@@ -22,6 +22,8 @@ spotless           = "7.0.4"
 openapi-generator  = "7.14.0"
 jooq               = "3.20.5"      # generador Y libreria: separarlos genera codigo que no compila
 driver-postgresql  = "42.7.7"      # solo para el generador y los contenedores
+cyclonedx          = "3.4.1"       # SBOM por modulo desplegable (H2.S3), verificado contra
+                                    # github.com/CycloneDX/cyclonedx-gradle-plugin el 2026-09-21
 
 [libraries]
 # — Spring Boot (version del BOM) —
@@ -111,3 +113,4 @@ spring-boot       = { id = "org.springframework.boot", version.ref = "spring-boo
 spring-dep-mgmt   = { id = "io.spring.dependency-management", version.ref = "spring-dep-mgmt" }
 spotless          = { id = "com.diffplug.spotless", version.ref = "spotless" }
 openapi-generator = { id = "org.openapi.generator", version.ref = "openapi-generator" }
+cyclonedx         = { id = "org.cyclonedx.bom", version.ref = "cyclonedx" }
