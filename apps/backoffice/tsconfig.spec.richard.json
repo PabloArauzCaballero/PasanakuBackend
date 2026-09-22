@@ -1,0 +1,17 @@
+{
+  "//": "Programa de TypeScript acotado a la pantalla piloto de PR6-SmartPresentational (cumplimiento/casos). Mismo motivo que el tsconfig homónimo del carril hermano PR11: tsconfig.spec.json incluye TODOS los *.spec.ts de src/, y dev@a23bcb1 ya trae errores de tipos preexistentes en otros dominios (ver entregables/decision-doble-clientes-angular.md de PR11) que no son de este carril. Se borra cuando este carril se integra a `dev` en una revisión de conjunto.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": [
+      "vitest/globals",
+      "node"
+    ]
+  },
+  "include": [
+    "src/app/rutas/cumplimiento/casos/**/*.ts",
+    "src/app/rutas/cumplimiento/dominio/cu44-caso.ts",
+    "src/app/rutas/cumplimiento/textos.ts",
+    "src/app/nucleo/borrador.ts",
+    "pruebas/**/*.ts"
+  ]
+}

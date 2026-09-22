@@ -1,0 +1,6 @@
+a23bcb117effe7ce66d069a97ebd2c25c8390306
+ M packages/tokens/vectores/monto.json
+?? .claude/hooks/
+?? .claude/rules/
+?? .claude/settings.json
+?? evidencia/
