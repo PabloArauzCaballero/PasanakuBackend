@@ -9,7 +9,7 @@ fecha: 2026-09-22
 
 # ADR-049 — Doble aprobación de retiros
 
-> Carril PR2 ([[../auditoria-produccion/carriles/PR2-nucleo-financiero|PR2-nucleo-financiero]]), hito
+> Carril PR2 ([[PR2-nucleo-financiero|PR2-nucleo-financiero]]), hito
 > H3. Referencia CU-11 y `R-SEG-04`.
 
 ## Contexto

@@ -120,4 +120,4 @@ docker exec aportaya-postgres psql -U pasanaku -d pasanaku -c \
 
 ## Ver también
 
-[[provider-timeout]] · [[../Arquitectura/ADR-049 Doble aprobación de retiros]] · [[outbox-backlog]]
+[[provider-timeout]] · [[ADR-049 Doble aprobación de retiros]] · [[outbox-backlog]]

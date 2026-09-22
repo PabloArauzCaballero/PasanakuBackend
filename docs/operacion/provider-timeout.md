@@ -1,6 +1,6 @@
 # Runbook — Timeout del proveedor de retiros
 
-> Carril PR2 (`nucleo-financiero`), H4.S2. Ver [[../Arquitectura/ADR-049 Doble aprobación de retiros|ADR-049]] y `withdrawal-reconciliation` para lo que pasa DESPUÉS de un timeout, no durante.
+> Carril PR2 (`nucleo-financiero`), H4.S2. Ver [[ADR-049 Doble aprobación de retiros|ADR-049]] y `withdrawal-reconciliation` para lo que pasa DESPUÉS de un timeout, no durante.
 
 ## Síntomas
 
@@ -120,4 +120,4 @@ Repetir cada pocos minutos — una baja sostenida, no un número único.
 
 ## Ver también
 
-[[withdrawal-reconciliation]] · [[../Arquitectura/ADR-049 Doble aprobación de retiros]] · [[outbox-backlog]] · [[postgres-down]]
+[[withdrawal-reconciliation]] · [[ADR-049 Doble aprobación de retiros]] · [[outbox-backlog]] · [[postgres-down]]
