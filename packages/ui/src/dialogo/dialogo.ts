@@ -2,20 +2,39 @@ import { ChangeDetectionStrategy, Component, ElementRef, effect, input, model, o
 import { Boton } from '../boton/boton'
 
 /**
- * Confirmación modal sobre `<dialog>` nativo: foco atrapado, Escape cierra, fondo
- * inerte. El botón de confirmar **dice la acción exacta** («Confirmar aporte de Bs 250»);
- * si es destructiva va en peligro.
+ * Confirmación modal sobre `<dialog>` nativo: foco atrapado y restaurado al elemento que
+ * lo abrió (comportamiento nativo de `showModal`/`close`, HTML Standard §4.11.4 — no hay
+ * que reimplementarlo). El botón de confirmar **dice la acción exacta** («Confirmar aporte
+ * de Bs 250»); si es destructiva va en peligro.
+ *
+ * **Política de descarte única (H3.S2):** las tres rutas de cierre —botón, `Escape` y clic
+ * en el fondo— pasan por el mismo punto: `intentarCerrar()`. Si el consumidor pasa
+ * `[puedeDescartar]` y devuelve `false` (borrador sucio), el cierre se cancela en las tres
+ * por igual: en `Escape` con `event.preventDefault()` sobre el evento nativo `cancel`
+ * (cancelable, HTML Standard), en el fondo sin invocar `close()`, y en el botón sin tocar
+ * `abierto`. Ninguna ruta interna puede saltear el predicado porque las tres llaman a la
+ * misma función.
  */
 @Component({
   selector: 'ap-dialogo',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [Boton],
   template: `
-    <dialog #caja [attr.aria-labelledby]="id + '-titulo'" (close)="abierto.set(false)" (cancel)="cancelar.emit()">
+    <!--
+      El clic es un cierre suplementario del fondo, no el único camino: Escape (evento
+      cancel nativo, manejado en onCancelNativo) ya hace exactamente lo mismo por teclado,
+      y el botón "Cancelar" también. WCAG 2.1.1 exige que la funcionalidad esté disponible por
+      teclado, no que cada gesto de mouse tenga un evento de teclado calcado — acá ya lo está,
+      dos veces. El propio dialog no es, ni debe ser, un control enfocable: es el contenedor
+      modal (ya atrapa el foco de forma nativa); agregarle tabindex para conformar al lint
+      sería peor accesibilidad, no mejor.
+    -->
+    <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+    <dialog #caja [attr.aria-labelledby]="id + '-titulo'" (close)="abierto.set(false)" (cancel)="onCancelNativo($event)" (click)="onClickEnFondo($event)">
       <h2 [id]="id + '-titulo'">{{ titulo() }}</h2>
       <div class="cuerpo"><ng-content /></div>
       <div class="acciones">
-        <ap-boton variante="fantasma" (pulsado)="cerrar()">{{ textoDeCancelar() }}</ap-boton>
+        <ap-boton variante="fantasma" (pulsado)="intentarCerrar()">{{ textoDeCancelar() }}</ap-boton>
         <ap-boton [variante]="destructivo() ? 'peligro' : 'primario'" [cargando]="cargando()" (pulsado)="confirmar.emit()">{{ textoDeConfirmar() }}</ap-boton>
       </div>
     </dialog>
@@ -36,6 +55,13 @@ export class Dialogo {
   readonly textoDeCancelar = input('Cancelar')
   readonly destructivo = input(false)
   readonly cargando = input(false)
+  /**
+   * Predicado de la política de descarte. Devuelve `true` si se puede cerrar sin
+   * preguntar (borrador limpio o sin borrador) y `false` si el cierre debe cancelarse
+   * (típicamente porque ya preguntó al usuario y este eligió quedarse). Por omisión
+   * siempre permite cerrar: un diálogo sin formulario no necesita protección.
+   */
+  readonly puedeDescartar = input<() => boolean>(() => true)
   readonly abierto = model(false)
   readonly confirmar = output<void>()
   readonly cancelar = output<void>()
@@ -45,15 +71,39 @@ export class Dialogo {
     effect(() => {
       const d = this.caja().nativeElement
       if (this.abierto() && !d.open) {
-        // jsdom no implementa showModal: en pruebas se abre como atributo.
+        // jsdom (28.1.0, la instalada) no implementa `showModal`/`close` de `HTMLDialogElement`
+        // — confirmado corriendo `new JSDOM('<dialog></dialog>')` y leyendo `typeof`, no
+        // supuesto: en pruebas el diálogo se abre y se cierra por el atributo `open`, sin el
+        // foco atrapado real (eso se verifica en E2E con navegador de verdad, no acá).
         if (typeof d.showModal === 'function') d.showModal()
         else d.setAttribute('open', '')
       }
-      if (!this.abierto() && d.open) d.close()
+      if (!this.abierto() && d.open) {
+        if (typeof d.close === 'function') d.close()
+        else d.removeAttribute('open')
+      }
     })
   }
-  cerrar(): void {
+
+  /** Punto único de las tres rutas de cierre. No lo llames dos veces por el mismo gesto. */
+  intentarCerrar(): void {
+    if (!this.puedeDescartar()()) return
     this.abierto.set(false)
     this.cancelar.emit()
+  }
+
+  /** `Escape` dispara `cancel` (cancelable) y luego, si no se cancela, `close`. */
+  onCancelNativo(evento: Event): void {
+    if (!this.puedeDescartar()()) {
+      evento.preventDefault()
+      return
+    }
+    this.cancelar.emit()
+  }
+
+  /** El backdrop nativo no cierra `<dialog>` por sí solo: un clic sobre `dialog` (no sobre
+   * `.cuerpo`/`.acciones`, que son hijos) es un clic en el fondo. */
+  onClickEnFondo(evento: MouseEvent): void {
+    if (evento.target === this.caja().nativeElement) this.intentarCerrar()
   }
 }
