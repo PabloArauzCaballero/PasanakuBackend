@@ -30,8 +30,12 @@ import org.jooq.impl.DSL;
  */
 public final class Idempotencia {
 
-    /** Vigencia por omision de una reserva. TODO(H1.S2.M1): mover a {@code aportaya.idempotencia.vigencia}. */
-    private static final Duration VIGENCIA = Duration.ofDays(1);
+    /**
+     * Vigencia por omision, para quien construye sin pasar la propia (pruebas, sobre todo).
+     * En produccion la fija {@code ConfiguracionComunWeb} desde {@code
+     * aportaya.idempotencia.vigencia} (default {@code PT24H} en la plantilla) — H1.S2.M1.
+     */
+    private static final Duration VIGENCIA_POR_DEFECTO = Duration.ofDays(1);
 
     /** El valor de reserva, antes de que {@link #guardarRespuesta} escriba la respuesta real. */
     private static final short CODIGO_RESERVA = 202;
@@ -43,14 +47,20 @@ public final class Idempotencia {
 
     private final String esquema;
     private final Reloj reloj;
+    private final Duration vigencia;
 
     public Idempotencia(String esquema) {
-        this(esquema, Reloj.delSistema());
+        this(esquema, Reloj.delSistema(), VIGENCIA_POR_DEFECTO);
     }
 
     public Idempotencia(String esquema, Reloj reloj) {
+        this(esquema, reloj, VIGENCIA_POR_DEFECTO);
+    }
+
+    public Idempotencia(String esquema, Reloj reloj, Duration vigencia) {
         this.esquema = Objects.requireNonNull(esquema, "esquema");
         this.reloj = Objects.requireNonNull(reloj, "reloj");
+        this.vigencia = Objects.requireNonNull(vigencia, "vigencia");
     }
 
     /**
@@ -173,7 +183,7 @@ public final class Idempotencia {
     }
 
     private OffsetDateTime vencimientoDesde(Instant ahora) {
-        return OffsetDateTime.ofInstant(ahora.plus(VIGENCIA), Reloj.ZONA);
+        return OffsetDateTime.ofInstant(ahora.plus(vigencia), Reloj.ZONA);
     }
 
     /**

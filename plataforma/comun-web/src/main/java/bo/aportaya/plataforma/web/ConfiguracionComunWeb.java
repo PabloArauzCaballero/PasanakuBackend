@@ -6,6 +6,7 @@ import bo.aportaya.plataforma.mensajeria.Consumidos;
 import bo.aportaya.plataforma.mensajeria.Outbox;
 import bo.aportaya.plataforma.web.errores.TraduccionDeRestricciones;
 import bo.aportaya.plataforma.web.idempotencia.Idempotencia;
+import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -34,11 +35,20 @@ public class ConfiguracionComunWeb {
      * permite que {@code IdempotenciaRepositorioTest} pare el tiempo para probar
      * "expirada" sin un {@code Thread.sleep}, y lo mismo en cualquier prueba que declare
      * el suyo (gana por {@code @ConditionalOnMissingBean}, ver mas abajo).
+     *
+     * <p>{@code aportaya.idempotencia.vigencia} (default {@code PT24H}, H1.S2.M1): cuanto
+     * dura una reserva antes de poder reemplazarse como si no existiera. Es config y no una
+     * constante en {@code Idempotencia} porque el plazo razonable no es el mismo para un
+     * pago que para un sorteo de turnos, y cambiar una circular no puede exigir desplegar
+     * codigo nuevo (invariante 10, la misma razon de {@code SinUmbralLiteral}).
      */
     @Bean
     @ConditionalOnMissingBean
-    public Idempotencia idempotencia(@Value("${aportaya.esquema}") String esquema, Reloj reloj) {
-        return new Idempotencia(esquema, reloj);
+    public Idempotencia idempotencia(
+            @Value("${aportaya.esquema}") String esquema,
+            Reloj reloj,
+            @Value("${aportaya.idempotencia.vigencia:PT24H}") Duration vigencia) {
+        return new Idempotencia(esquema, reloj, vigencia);
     }
 
     /**
