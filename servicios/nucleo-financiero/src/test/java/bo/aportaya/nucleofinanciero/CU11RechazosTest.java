@@ -50,7 +50,8 @@ class CU11RechazosTest extends BaseDeBilletera {
 
     private SalidaRetiro pedir(Escenario e, String monto, String clave) {
         return transaccion.execute(t -> retiroCU.solicitar(
-                new EntradaRetiro(clave, e.cuenta(), bob(monto), bob("5.00"), e.instrumento(), true, true, false), e.ctx()));
+                new EntradaRetiro(clave, e.cuenta(), bob(monto), bob("5.00"), e.instrumento(), true, true, false),
+                e.ctx()));
     }
 
     @Test
@@ -271,7 +272,8 @@ class CU11RechazosTest extends BaseDeBilletera {
     }
 
     @Test
-    @DisplayName("rechaza por fallo del proveedor tras autorizar (H4.S1): la orden pasa a RECHAZADA y libera la retencion")
+    @DisplayName(
+            "rechaza por fallo del proveedor tras autorizar (H4.S1): la orden pasa a RECHAZADA y libera la retencion")
     void elProveedorRechazaTrasAutorizar() {
         // ProveedorDeRetiroLocal reserva 666.66 de neto para forzar el RECHAZADO: monto
         // 671.66 menos costo 5.00 = neto 666.66 exacto.

@@ -213,6 +213,18 @@ corredor(
         // contenedor. Micro-PR de una linea, generalizable a cualquier
         // SegundoFactor*Test futuro.
         "**/SegundoFactor*Test.class",
+        // H4.S2.M3 (carril PR2, nucleo-financiero): mismo motivo exacto que
+        // SegundoFactor*Test arriba — ReconciliacionDeRetirosTest tambien extiende
+        // BaseDeBilletera y tampoco calza con CU/Repositorio/Arranque.
+        "**/Reconciliacion*Test.class",
+        // H4.S2.M4 (carril PR2, nucleo-financiero): pruebas de resiliencia
+        // (@Retry/@CircuitBreaker) que arrancan el contexto completo — mismo motivo,
+        // generalizable a cualquier *ResilienciaTest futuro de cualquier servicio.
+        "**/*ResilienciaTest.class",
+        // H4.S2.M5 (carril PR2, nucleo-financiero): IDOR contra PostgreSQL real
+        // (RLS) — mismo motivo, generalizable a cualquier AutorizacionNegativaTest
+        // futuro de cualquier servicio.
+        "**/AutorizacionNegativaTest.class",
     ),
     "120s",
 )

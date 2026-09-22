@@ -42,6 +42,13 @@ spring-boot-validation = { module = "org.springframework.boot:spring-boot-starte
 spring-boot-jdbc       = { module = "org.springframework.boot:spring-boot-starter-jdbc" }
 spring-boot-security   = { module = "org.springframework.boot:spring-boot-starter-security" }
 spring-boot-oauth2     = { module = "org.springframework.boot:spring-boot-starter-oauth2-resource-server" }
+# H4.S2.M4 (carril PR2, nucleo-financiero): resilience4j-spring-boot3 declara
+# @Retry/@CircuitBreaker pero NO trae Spring AOP por transitividad — sin este
+# starter (que si trae spring-aop + aspectjweaver) las anotaciones quedan
+# inertes: el metodo se ejecuta derecho, sin aspecto que lo envuelva, y una
+# falla real nunca activa un reintento. Version del BOM, mismo criterio que el
+# resto de arriba.
+spring-boot-aop        = { module = "org.springframework.boot:spring-boot-starter-aop" }
 # Redis reactivo para el RequestRateLimiter del gateway (H3.S1, AMB-6). Version
 # del BOM, mismo criterio que el resto de arriba; verificado que el artifact
 # existe contra la doc de Spring Boot el 2026-09-21.

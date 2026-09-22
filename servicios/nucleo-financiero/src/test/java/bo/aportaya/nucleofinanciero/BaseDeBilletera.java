@@ -73,6 +73,9 @@ abstract class BaseDeBilletera {
     protected static CU50ConciliarCustodia conciliacionCU;
     protected static CU51EjecutarCierreDiario cierreDiarioCU;
     protected static ConciliacionRepositorio conciliaciones;
+    protected static ProveedorDeRetiroLocal proveedorDeRetiro;
+    protected static bo.aportaya.nucleofinanciero.trabajos.ReconciliacionDeRetiros reconciliacionCU;
+    protected static io.micrometer.core.instrument.simple.SimpleMeterRegistry metricas;
 
     /** La cuenta puente: el otro lado de todo ingreso. Una sola para toda la corrida. */
     protected static UUID puente;
@@ -114,17 +117,23 @@ abstract class BaseDeBilletera {
                 Reloj.delSistema(),
                 java.time.Duration.ofMinutes(30),
                 puente);
+        proveedorDeRetiro = new ProveedorDeRetiroLocal();
+        var ordenRetiroRepo = new OrdenRetiroRepositorio();
+        metricas = new io.micrometer.core.instrument.simple.SimpleMeterRegistry();
         retiroCU = new CU11RetirarSaldo(
                 new Datos(dsl),
                 new CuentaBilleteraRepositorio(),
-                new OrdenRetiroRepositorio(),
+                ordenRetiroRepo,
                 retencionCU,
                 limitesCU,
                 new LibroDeBilletera(),
                 new Outbox("nucleo_financiero"),
                 Reloj.delSistema(),
                 puente,
-                new ProveedorDeRetiroLocal());
+                proveedorDeRetiro,
+                metricas);
+        reconciliacionCU =
+                new bo.aportaya.nucleofinanciero.trabajos.ReconciliacionDeRetiros(proveedorDeRetiro, retiroCU);
         transferenciaCU = new CU12TransferirSaldo(
                 new Datos(dsl),
                 new CuentaBilleteraRepositorio(),

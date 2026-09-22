@@ -271,11 +271,13 @@ class BilleteraControllerWebTest {
         @Test
         @DisplayName("403: sin RETIRO_APROBAR, ni siquiera llega al caso de uso")
         void sinElPermisoNoAprueba() throws Exception {
-            mvc.perform(post("/billetera/retiros/{id}/aprobacion", ORDEN)
-                            .with(Sesiones.como("PARTICIPANTE", "BILLETERA_OPERAR"))
-                            .header("Idempotency-Key", CLAVE)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("""
+            mvc.perform(
+                            post("/billetera/retiros/{id}/aprobacion", ORDEN)
+                                    .with(Sesiones.como("PARTICIPANTE", "BILLETERA_OPERAR"))
+                                    .header("Idempotency-Key", CLAVE)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(
+                                            """
                                     {"desenlace":"AUTORIZADA"}
                                     """))
                     .andExpect(status().isForbidden());
@@ -287,11 +289,13 @@ class BilleteraControllerWebTest {
         void aprueba() throws Exception {
             when(cu11.aprobar(any(), any()))
                     .thenReturn(new CU11RetirarSaldo.SalidaAprobacion(ORDEN, "AUTORIZADA", APROBADOR));
-            mvc.perform(post("/billetera/retiros/{id}/aprobacion", ORDEN)
-                            .with(Sesiones.como("TESORERIA", "RETIRO_APROBAR"))
-                            .header("Idempotency-Key", CLAVE)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("""
+            mvc.perform(
+                            post("/billetera/retiros/{id}/aprobacion", ORDEN)
+                                    .with(Sesiones.como("TESORERIA", "RETIRO_APROBAR"))
+                                    .header("Idempotency-Key", CLAVE)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(
+                                            """
                                     {"desenlace":"AUTORIZADA"}
                                     """))
                     .andExpect(status().isOk())
@@ -307,12 +311,13 @@ class BilleteraControllerWebTest {
         void rechaza() throws Exception {
             when(cu11.rechazarRevision(any(), any()))
                     .thenReturn(new CU11RetirarSaldo.SalidaAprobacion(ORDEN, "RECHAZADA", APROBADOR));
-            mvc.perform(post("/billetera/retiros/{id}/aprobacion", ORDEN)
-                            .with(Sesiones.como("TESORERIA", "RETIRO_APROBAR"))
-                            .header("Idempotency-Key", CLAVE)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(
-                                    """
+            mvc.perform(
+                            post("/billetera/retiros/{id}/aprobacion", ORDEN)
+                                    .with(Sesiones.como("TESORERIA", "RETIRO_APROBAR"))
+                                    .header("Idempotency-Key", CLAVE)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(
+                                            """
                                     {"desenlace":"RECHAZADA","motivo":"Documentacion insuficiente"}
                                     """))
                     .andExpect(status().isOk())
@@ -328,11 +333,13 @@ class BilleteraControllerWebTest {
                     .thenThrow(new bo.aportaya.plataforma.dominio.ErrorDeNegocio(
                             bo.aportaya.plataforma.dominio.CodigoError.de(11, 10),
                             "Quien solicito el retiro no puede aprobar su propia solicitud."));
-            mvc.perform(post("/billetera/retiros/{id}/aprobacion", ORDEN)
-                            .with(Sesiones.como("TESORERIA", "RETIRO_APROBAR"))
-                            .header("Idempotency-Key", CLAVE)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("""
+            mvc.perform(
+                            post("/billetera/retiros/{id}/aprobacion", ORDEN)
+                                    .with(Sesiones.como("TESORERIA", "RETIRO_APROBAR"))
+                                    .header("Idempotency-Key", CLAVE)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(
+                                            """
                                     {"desenlace":"AUTORIZADA"}
                                     """))
                     .andExpect(status().isUnprocessableEntity())
