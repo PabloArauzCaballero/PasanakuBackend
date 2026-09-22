@@ -77,6 +77,7 @@ public class CU10RecargarSaldo {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
         return datos.conContexto(ctx, dsl -> {
+            ordenes.bloquearIdempotencia(dsl, entrada.cuentaBilleteraId(), entrada.claveIdempotencia());
             // La clave se valida ANTES de escribir (invariante 7). Repetir el pedido
             // devuelve la misma orden, no una segunda.
             var yaExiste = ordenes.porClaveIdempotencia(dsl, entrada.cuentaBilleteraId(), entrada.claveIdempotencia());
