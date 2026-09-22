@@ -1,3 +1,4 @@
+import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 
 /// Lo que ve quien abre la app cuando `resultadoGateway.valida` (ver
@@ -18,27 +19,27 @@ class PantallaConfiguracionInvalida extends StatelessWidget {
         body: SafeArea(
           child: Center(
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(Espacio.s5),
               child: Semantics(
                 liveRegion: true,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.error_outline, size: 48),
-                    const SizedBox(height: 16),
+                    const Icon(Icons.error_outline, size: Espacio.s7),
+                    const SizedBox(height: Espacio.s4),
                     Text(
                       'AportaYa no puede arrancar',
                       style: Theme.of(context).textTheme.titleLarge,
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: Espacio.s2),
                     Text(
                       'Esta instalación no tiene una configuración válida. '
                       'No se hizo ninguna petición a ningún servidor.',
                       style: Theme.of(context).textTheme.bodyMedium,
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: Espacio.s2),
                     Text(
                       'Si sos parte del equipo, avisá a la persona de guardia de '
                       'infraestructura con la hora y la versión instalada.',

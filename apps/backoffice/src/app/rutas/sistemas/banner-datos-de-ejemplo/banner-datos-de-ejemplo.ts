@@ -23,9 +23,9 @@ import { ES_FUENTE_SIMULADA } from '../dominio/proveedor-fuentes'
     .banner {
       display: flex; flex-wrap: wrap; gap: var(--s2);
       padding: var(--s3) var(--s4);
-      background: var(--amarillo-100, #fef3c7);
-      color: var(--amarillo-900, #78350f);
-      border-bottom: var(--borde-fino) solid var(--amarillo-300, #fcd34d);
+      background: var(--warn-bg);
+      color: var(--aviso-texto);
+      border-bottom: var(--borde-fino) solid var(--aviso-texto);
     }
     strong { font-weight: 700; }
   `,
