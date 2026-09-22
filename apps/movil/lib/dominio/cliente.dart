@@ -39,16 +39,57 @@ final dioProvider = Provider<Dio>((ref) {
 /// Los mismos interceptores en la app y en las pruebas: lo que se prueba es la
 /// traducción de errores y la traza reales, no un doble.
 void instalarInterceptores(Dio dio, Sesion sesion) {
-  dio.interceptors.add(_TrazaYSesion(sesion, dio));
+  // Mismo transporte (adaptador) que `dio` — así las pruebas que instalan un
+  // adaptador simulado en `dio` también cubren el refresco — pero SIN sus
+  // interceptores: `_TrazaYSesion` no debe reentrar sobre su propio refresco.
+  final dioDeRefresco = Dio(BaseOptions(baseUrl: dio.options.baseUrl))
+    ..httpClientAdapter = dio.httpClientAdapter;
+  final refrescador = Refrescador(sesion, dioDeRefresco);
+  dio.interceptors.add(_TrazaYSesion(sesion, dio, refrescador));
   dio.interceptors.add(_TraduccionDeErrores());
 }
 
+/// Un solo refresco en vuelo por vez: N peticiones que reciben `401` a la vez
+/// comparten el mismo `Future` en vez de disparar un `POST /sesion/refrescar` cada
+/// una. Sale por un `Dio` propio, sin los interceptores de la app: si pasara por
+/// `_TrazaYSesion`, un `401` del propio refresco reentraría a este mismo mecanismo.
+class Refrescador {
+  Refrescador(this._sesion, this._dioSinInterceptores);
+  final Sesion _sesion;
+  final Dio _dioSinInterceptores;
+  Future<bool>? _enVuelo;
+
+  Future<bool> refrescar() => _enVuelo ??= _hacerRefresco().whenComplete(() {
+    _enVuelo = null;
+  });
+
+  Future<bool> _hacerRefresco() async {
+    final refresco = await _sesion.tokenDeRefresco();
+    if (refresco == null) return false;
+    try {
+      final r = await _dioSinInterceptores.post<Map<String, dynamic>>(
+        '/sesion/refrescar',
+        data: {'refresco': refresco},
+      );
+      final acceso = r.data?['acceso'] as String?;
+      final nuevo = r.data?['refresco'] as String?;
+      if (acceso == null || nuevo == null) return false;
+      await _sesion.guardar(acceso: acceso, refresco: nuevo);
+      return true;
+    } on DioException {
+      return false;
+    }
+  }
+}
+
 /// `x-request-id` en cada petición, bearer desde el almacén seguro, y **un** refresco
-/// con **un** reintento ante `401`. Si falla, sesión cerrada, no bucle.
+/// compartido (single-flight, `Refrescador`) con **un** reintento por petición. Si
+/// falla, sesión cerrada, no bucle.
 class _TrazaYSesion extends Interceptor {
-  _TrazaYSesion(this._sesion, this._dio);
+  _TrazaYSesion(this._sesion, this._dio, this._refrescador);
   final Sesion _sesion;
   final Dio _dio;
+  final Refrescador _refrescador;
 
   @override
   Future<void> onRequest(
@@ -70,7 +111,7 @@ class _TrazaYSesion extends Interceptor {
     if (err.response?.statusCode != 401 || yaReintentada) {
       return handler.next(err);
     }
-    final refrescada = await _refrescar();
+    final refrescada = await _refrescador.refrescar();
     if (!refrescada) {
       await _sesion.cerrar();
       return handler.next(err);
@@ -83,25 +124,6 @@ class _TrazaYSesion extends Interceptor {
         await _sesion.cerrar();
       }
       handler.next(e);
-    }
-  }
-
-  Future<bool> _refrescar() async {
-    final refresco = await _sesion.tokenDeRefresco();
-    if (refresco == null) return false;
-    try {
-      final r = await _dio.post<Map<String, dynamic>>(
-        '/sesion/refrescar',
-        data: {'refresco': refresco},
-        options: Options(extra: {'reintentada': true}),
-      );
-      final acceso = r.data?['acceso'] as String?;
-      final nuevo = r.data?['refresco'] as String?;
-      if (acceso == null || nuevo == null) return false;
-      await _sesion.guardar(acceso: acceso, refresco: nuevo);
-      return true;
-    } on DioException {
-      return false;
     }
   }
 }
