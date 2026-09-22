@@ -131,6 +131,14 @@ aportaya:
   zona-horaria: America/La_Paz      # plazos habiles
 
 management:
+  endpoints:
+    web:
+      exposure:
+        # F-05 (hallazgo de Pablo, carril PR5): ninguno de los catorce exponia
+        # /actuator/prometheus, asi que las anotaciones prometheus.io/scrape de
+        # generar_k8s.py no tenian nada que scrapear. /actuator entero esta
+        # bloqueado en el borde publico (NGINX, PR5.H3.S3.M1); esto es lo interno.
+        include: health,prometheus,info
   endpoint:
     health:
       probes:
