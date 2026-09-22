@@ -19,6 +19,7 @@ dependencies {
     implementation("org.cyclonedx.bom:org.cyclonedx.bom.gradle.plugin:3.4.1")
     implementation(libs.codegen.jooq)
     implementation(libs.driver.postgresql)
+    implementation(plugin(libs.plugins.pitest))
 }
 
 fun plugin(dependencia: Provider<PluginDependency>): Provider<String> =
