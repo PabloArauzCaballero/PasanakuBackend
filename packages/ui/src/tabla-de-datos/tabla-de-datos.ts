@@ -142,8 +142,8 @@ export type EstadoColeccion<T> =
 
     /* Colapso a tarjetas en móvil estrecho: ninguna columna ni acción del escritorio se
      * pierde, solo se reordenan como pares etiqueta/valor dentro de una tarjeta por fila.
-     * Los `role` explícitos de arriba sostienen la semántica de tabla aunque el layout deje
-     * de ser `table` visualmente (WAI-ARIA Authoring Practices, "responsive tables"). */
+     * Los role explícitos de arriba sostienen la semántica de tabla aunque el layout deje
+     * de ser table visualmente (WAI-ARIA Authoring Practices, "responsive tables"). */
     @media (max-width: 640px) {
       .marco { overflow-x: visible; border: 0; background: transparent; }
       table, thead, tbody, tr, th, td { display: block; width: 100%; }
