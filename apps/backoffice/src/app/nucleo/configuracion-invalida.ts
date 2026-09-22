@@ -11,10 +11,14 @@ import { ChangeDetectionStrategy, Component } from '@angular/core'
   selector: 'ap-configuracion-invalida',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <main role="alert" aria-labelledby="ci-titulo">
-      <h1 id="ci-titulo">El backoffice no puede arrancar</h1>
-      <p>La configuración de este despliegue no es válida. No se hizo ninguna petición a ningún servidor.</p>
-      <p>Avisá a la persona de guardia de infraestructura (Leo, plataforma) con la hora y el ambiente. No hay nada para intentar desde este navegador.</p>
+    <main aria-labelledby="ci-titulo">
+      <!-- "alert" no es un rol permitido en <main> (axe: aria-allowed-role) — <main> se
+           queda como landmark simple y el div interno lleva la semántica de alerta. -->
+      <div role="alert">
+        <h1 id="ci-titulo">El backoffice no puede arrancar</h1>
+        <p>La configuración de este despliegue no es válida. No se hizo ninguna petición a ningún servidor.</p>
+        <p>Avisá a la persona de guardia de infraestructura (Leo, plataforma) con la hora y el ambiente. No hay nada para intentar desde este navegador.</p>
+      </div>
     </main>
   `,
   styles: `
