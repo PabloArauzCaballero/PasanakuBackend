@@ -6,6 +6,8 @@ import bo.aportaya.nucleofinanciero.dominio.CondicionesDeRetiro;
 import bo.aportaya.nucleofinanciero.dominio.CondicionesDeRetiro.Situacion;
 import bo.aportaya.nucleofinanciero.dominio.CondicionesDeRetiro.Veredicto;
 import bo.aportaya.nucleofinanciero.dominio.CostoDeOperacion;
+import bo.aportaya.nucleofinanciero.dominio.EstadoDeRetiro;
+import bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRetiro;
 import bo.aportaya.nucleofinanciero.infraestructura.CuentaBilleteraRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera;
 import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera.Pata;
@@ -55,6 +57,7 @@ public class CU11RetirarSaldo {
     private final Outbox outbox;
     private final Reloj reloj;
     private final UUID cuentaPuenteDeCustodia;
+    private final ProveedorDeRetiro proveedor;
 
     public CU11RetirarSaldo(
             Datos datos,
@@ -65,7 +68,8 @@ public class CU11RetirarSaldo {
             LibroDeBilletera libro,
             Outbox outbox,
             Reloj reloj,
-            @Value("${aportaya.custodia.cuenta-puente}") UUID cuentaPuenteDeCustodia) {
+            @Value("${aportaya.custodia.cuenta-puente}") UUID cuentaPuenteDeCustodia,
+            ProveedorDeRetiro proveedor) {
         this.datos = datos;
         this.cuentas = cuentas;
         this.ordenes = ordenes;
@@ -75,6 +79,7 @@ public class CU11RetirarSaldo {
         this.outbox = outbox;
         this.reloj = reloj;
         this.cuentaPuenteDeCustodia = cuentaPuenteDeCustodia;
+        this.proveedor = proveedor;
     }
 
     @Transactional
@@ -107,6 +112,7 @@ public class CU11RetirarSaldo {
             Veredicto veredicto = CondicionesDeRetiro.evaluar(
                     new Situacion(
                             entrada.mfaVerificado(),
+                            entrada.evidenciaMfaProvista(),
                             cuenta.disponible(),
                             entrada.monto(),
                             instrumento.usuarioId().equals(cuenta.usuarioId()) && instrumento.titularCoincide(),
@@ -122,6 +128,12 @@ public class CU11RetirarSaldo {
             limites.exigirDentroDe(dsl, new EntradaLimites(cuenta.id(), CONCEPTO, entrada.monto()), ctx);
 
             Dinero neto = CostoDeOperacion.netoDeRetiro(entrada.monto(), entrada.costo());
+
+            // H3.S1.M2 (AMB-5, Q-02): por debajo del umbral, AUTORIZADA automatica en
+            // la MISMA transaccion de creacion — nunca PENDIENTE→PAGADA directo. Por
+            // encima, EN_REVISION hasta que un segundo aprobador (H3.S2) la mueva.
+            EstadoDeRetiro estadoInicial =
+                    entrada.requiereDobleAprobacion() ? EstadoDeRetiro.EN_REVISION : EstadoDeRetiro.AUTORIZADA;
 
             // El orden importa: la retencion ANTES de la orden. Al reves, entre una y
             // otra la persona podria gastar el mismo saldo en otra operacion.
@@ -150,6 +162,7 @@ public class CU11RetirarSaldo {
                     entrada.requiereDobleAprobacion(),
                     instrumento.bloqueadoHasta(),
                     entrada.claveIdempotencia(),
+                    estadoInicial.name(),
                     ahora);
 
             outbox.emitir(
@@ -164,8 +177,46 @@ public class CU11RetirarSaldo {
                                     "neto", neto.toString()),
                             UUID.fromString(ctx.traza().id())));
 
-            return new SalidaRetiro(ordenId, "PENDIENTE", entrada.costo(), neto, retencion.retencionId());
+            return new SalidaRetiro(ordenId, estadoInicial.name(), entrada.costo(), neto, retencion.retencionId());
         });
+    }
+
+    /**
+     * AUTORIZADA → EN_PROCESO: instruye al proveedor (H3.S1.M3, base de H4.S2).
+     *
+     * <p>Fuera de la transaccion (invariante 6): la lectura del estado y la escritura
+     * de {@code EN_PROCESO} son dos transacciones CORTAS separadas por la llamada de
+     * red al proveedor en el medio, igual que {@code cotizador}/{@code segundoFactor}
+     * se llaman desde fuera del caso de uso que abre la transaccion larga.
+     */
+    public SalidaInstruccion instruirPago(UUID ordenId, ContextoSesion ctx) {
+        var orden = datos.conContexto(ctx, dsl -> ordenes.ver(dsl, ordenId))
+                .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(11, 1), "Esa orden no existe."));
+        if (!EstadoDeRetiro.AUTORIZADA.name().equals(orden.estado())) {
+            throw new ErrorDeNegocio(
+                    CodigoError.de(11, 8),
+                    "Esa orden esta " + orden.estado() + ": solo se instruye una orden AUTORIZADA.");
+        }
+
+        var resultado = proveedor.instruir(ordenId, orden.neto());
+
+        return switch (resultado.estado()) {
+            case ACEPTADO, TIMEOUT -> {
+                // TIMEOUT tambien queda EN_PROCESO: no se sabe todavia, y el job de
+                // reconciliacion (H4.S2.M3) es quien lo resuelve mas tarde — nunca se
+                // asume un rechazo que nadie confirmo.
+                boolean ok = datos.conContexto(ctx, dsl -> ordenes.pasarAEnProceso(dsl, ordenId, resultado.referencia()));
+                if (!ok) {
+                    throw new ErrorDeNegocio(
+                            CodigoError.de(11, 8), "Esa orden ya no esta AUTORIZADA: otra instruccion la adelanto.");
+                }
+                yield new SalidaInstruccion(ordenId, EstadoDeRetiro.EN_PROCESO.name(), resultado.referencia());
+            }
+            case RECHAZADO -> {
+                var salidaRechazo = rechazar(ordenId, "Proveedor rechazo la instruccion en firme.", ctx);
+                yield new SalidaInstruccion(salidaRechazo.ordenRetiroId(), "RECHAZADA", resultado.referencia());
+            }
+        };
     }
 
     /**
@@ -182,9 +233,13 @@ public class CU11RetirarSaldo {
             var orden = ordenes.ver(dsl, ordenId)
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(11, 1), "Esa orden no existe."));
 
-            if (!ordenes.pasarA(dsl, ordenId, "PENDIENTE", "PAGADA", ahora)) {
+            // H3.S1.M3: EN_PROCESO, no PENDIENTE — el pago solo se confirma DESPUES
+            // de que instruirPago mando la orden al proveedor.
+            if (!ordenes.pasarA(dsl, ordenId, EstadoDeRetiro.EN_PROCESO.name(), "PAGADA", ahora)) {
                 throw new ErrorDeNegocio(
-                        CodigoError.de(11, 1), "Esa orden ya no esta pendiente: no se puede pagar dos veces.");
+                        CodigoError.de(11, 9),
+                        "Esa orden esta " + orden.estado()
+                                + ": solo se puede confirmar el pago de una orden EN_PROCESO.");
             }
 
             orden.retencionId().ifPresent(id -> retenciones.ejecutarDentroDe(dsl, id, ctx));
@@ -236,8 +291,14 @@ public class CU11RetirarSaldo {
             var orden = ordenes.ver(dsl, ordenId)
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(11, 1), "Esa orden no existe."));
 
-            if (!ordenes.pasarA(dsl, ordenId, "PENDIENTE", "RECHAZADA", ahora)) {
-                throw new ErrorDeNegocio(CodigoError.de(11, 1), "Esa orden ya no esta pendiente.");
+            // H3.S1.M3: RECHAZADA es alcanzable desde AUTORIZADA (el proveedor
+            // rechazo apenas se le instruyo) o desde EN_PROCESO (rechazo firme
+            // resuelto mas tarde, via reconciliacion) — nunca desde PAGADA.
+            boolean rechazada = ordenes.pasarA(dsl, ordenId, EstadoDeRetiro.AUTORIZADA.name(), "RECHAZADA", ahora)
+                    || ordenes.pasarA(dsl, ordenId, EstadoDeRetiro.EN_PROCESO.name(), "RECHAZADA", ahora);
+            if (!rechazada) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(11, 1), "Esa orden esta " + orden.estado() + ": no se puede rechazar.");
             }
             orden.retencionId().ifPresent(id -> retenciones.liberarDentroDe(dsl, id, ctx));
 
@@ -255,6 +316,69 @@ public class CU11RetirarSaldo {
         });
     }
 
+    /**
+     * EN_REVISION → AUTORIZADA (H3.S2): un aprobador con {@code RETIRO_APROBAR}
+     * DISTINTO de quien pidio el retiro.
+     *
+     * <p>El chequeo de auto-aprobacion se hace ANTES de intentar el {@code UPDATE} a
+     * proposito: si se dejara que la base lo rechazara sola (que tambien lo hace,
+     * {@code ck_retiro_doble_aprobacion}), no habria forma de distinguir "sos el
+     * mismo que la pidio" de "otro aprobador ya la resolvio" — dos codigos de error
+     * distintos que la persona necesita distinguir.
+     */
+    @Transactional
+    public SalidaAprobacion aprobar(UUID ordenId, ContextoSesion ctx) {
+        return resolverAprobacion(ordenId, ctx, true);
+    }
+
+    /** EN_REVISION → RECHAZADA (H3.S2): el aprobador la rechaza sin autorizarla. */
+    @Transactional
+    public SalidaAprobacion rechazarRevision(UUID ordenId, ContextoSesion ctx) {
+        return resolverAprobacion(ordenId, ctx, false);
+    }
+
+    private SalidaAprobacion resolverAprobacion(UUID ordenId, ContextoSesion ctx, boolean autorizar) {
+        return datos.conContexto(ctx, dsl -> {
+            var orden = ordenes.ver(dsl, ordenId)
+                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(11, 1), "Esa orden no existe."));
+
+            if (orden.solicitadaPor().equals(ctx.usuarioId())) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(11, 10),
+                        "Quien solicito el retiro no puede aprobar (ni rechazar) su propia solicitud.");
+            }
+
+            boolean resuelta = autorizar
+                    ? ordenes.pasarAAutorizadaPorAprobacion(dsl, ordenId, ctx.usuarioId())
+                    : ordenes.pasarARechazadaPorAprobacion(dsl, ordenId, ctx.usuarioId());
+            if (!resuelta) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(11, 11),
+                        "Esa orden ya no esta en revision: alguien mas la resolvio, o ya no esta pendiente de"
+                                + " aprobacion.");
+            }
+
+            String estadoFinal = autorizar ? "AUTORIZADA" : "RECHAZADA";
+            if (!autorizar) {
+                orden.retencionId().ifPresent(id -> retenciones.liberarDentroDe(dsl, id, ctx));
+            }
+
+            outbox.emitir(
+                    dsl,
+                    new EventoDominio(
+                            autorizar ? "nucleo_financiero.retiro_autorizado" : "nucleo_financiero.retiro_rechazado",
+                            "orden_retiro",
+                            orden.id(),
+                            Map.of(
+                                    "cuentaBilleteraId", orden.cuentaId().toString(),
+                                    "aprobadaPor", ctx.usuarioId().toString(),
+                                    "solicitadaPor", orden.solicitadaPor().toString()),
+                            UUID.fromString(ctx.traza().id())));
+
+            return new SalidaAprobacion(orden.id(), estadoFinal, ctx.usuarioId());
+        });
+    }
+
     private CodigoError codigoDe(String codigo) {
         return switch (codigo) {
             case "SALDO_INSUFICIENTE" -> CodigoError.de(11, 1);
@@ -262,7 +386,8 @@ public class CU11RetirarSaldo {
             case "INSTRUMENTO_EN_ENFRIAMIENTO" -> CodigoError.de(11, 3);
             case "TITULAR_NO_COINCIDE" -> CodigoError.de(11, 4);
             case "BLOQUEO_DE_AUTORIDAD" -> CodigoError.de(11, 5);
-            default -> CodigoError.de(11, 6); // ENCAJE_INCUMPLIDO
+            case "ENCAJE_INCUMPLIDO" -> CodigoError.de(11, 6);
+            default -> CodigoError.de(11, 7); // MFA_INVALIDO
         };
     }
 
@@ -273,6 +398,10 @@ public class CU11RetirarSaldo {
             Dinero costo,
             UUID instrumentoDestinoId,
             boolean mfaVerificado,
+            // H2: si vino ALGO en evidenciaMfa/factorMfa, aunque no haya pasado la
+            // verificacion — es lo que separa MFA_REQUERIDO (nada) de MFA_INVALIDO
+            // (algo, pero no vale).
+            boolean evidenciaMfaProvista,
             boolean requiereDobleAprobacion) {}
 
     public record SalidaRetiro(
@@ -281,4 +410,8 @@ public class CU11RetirarSaldo {
     public record SalidaPago(UUID ordenRetiroId, UUID transaccionId, Dinero saldoDespues) {}
 
     public record SalidaRechazo(UUID ordenRetiroId, String motivo, Dinero saldoDespues) {}
+
+    public record SalidaInstruccion(UUID ordenRetiroId, String estado, String referenciaProveedor) {}
+
+    public record SalidaAprobacion(UUID ordenRetiroId, String estado, UUID aprobadaPor) {}
 }

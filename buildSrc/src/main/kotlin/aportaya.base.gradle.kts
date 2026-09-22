@@ -206,6 +206,13 @@ corredor(
         "**/Libro*Test.class",
         "**/AppendOnlyTest.class",
         "**/AuditoriaCriticaTest.class",
+        // H2 (carril PR2, nucleo-financiero): SegundoFactorStepUpTest extiende
+        // BaseDeBilletera (Testcontainers) pero no es un CU/Repositorio/Arranque —
+        // sin este patron cae en `test`, cuyo timeout de 5s por metodo (linea ~119)
+        // es para pruebas puras y no le alcanza a un @BeforeAll que arma un
+        // contenedor. Micro-PR de una linea, generalizable a cualquier
+        // SegundoFactor*Test futuro.
+        "**/SegundoFactor*Test.class",
     ),
     "120s",
 )

@@ -303,6 +303,13 @@
           "requiere_mfa": false
         },
         {
+          "codigo": "RETIRO_APROBAR",
+          "descripcion": "Aprobar o rechazar un retiro que necesita doble aprobación (H3, ADR-049)",
+          "recurso": "orden_retiro",
+          "accion": "APROBAR",
+          "requiere_mfa": true
+        },
+        {
           "codigo": "REVERSO_AUTORIZAR",
           "descripcion": "Autorizar el reverso de una transacción",
           "recurso": "transaccion_billetera",
@@ -586,6 +593,16 @@
           "permiso_id": {
             "$ref": "permiso",
             "codigo": "SEGURIDAD_FACTOR_REINSCRIBIR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "TESORERIA"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "RETIRO_APROBAR"
           }
         },
         {

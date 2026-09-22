@@ -114,6 +114,11 @@ ALTER TABLE nucleo_financiero.evaluacion_antifraude
   ADD CONSTRAINT fk_evaluacion_antifraude_transaccion_id
   FOREIGN KEY (transaccion_id) REFERENCES nucleo_financiero.transaccion_billetera (id) ON DELETE SET NULL ON UPDATE CASCADE;
 
+ALTER TABLE nucleo_financiero.evidencia_mfa_consumida DROP CONSTRAINT IF EXISTS fk_evidencia_mfa_consumida_usuario_id;
+ALTER TABLE nucleo_financiero.evidencia_mfa_consumida
+  ADD CONSTRAINT fk_evidencia_mfa_consumida_usuario_id
+  FOREIGN KEY (usuario_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
 ALTER TABLE nucleo_financiero.instrumento_fondeo DROP CONSTRAINT IF EXISTS fk_instrumento_fondeo_usuario_id;
 ALTER TABLE nucleo_financiero.instrumento_fondeo
   ADD CONSTRAINT fk_instrumento_fondeo_usuario_id

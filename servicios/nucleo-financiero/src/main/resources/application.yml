@@ -18,10 +18,10 @@ spring:
     bootstrap-servers: ${KAFKA_URL}
 
 aportaya:
-  mfa:
-    # Si el segundo factor es obligatorio. Es un interruptor de riesgo: se apa
-    # ga solo en un incidente del proveedor de MFA, y con eso registrado.
-    exigido: true
+  # H2.S1: aportaya.mfa.doble-local vive SOLO en application-{local,test}.yml —
+  # declararla aca (comun a todo perfil) la haria "tener efecto" en produccion si
+  # alguien la copia sin pensar. Fuera de local/test no hay SegundoFactorLocal que
+  # la lea (@Profile), asi que ni siquiera hace falta declararla ausente.
   esquema: nucleo_financiero
   outbox:
     intervalo: PT1S                 # relevo: lee el outbox y publica DESPUES del commit

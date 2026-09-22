@@ -208,6 +208,48 @@ paths:
           # AP-CU11-01 SALDO_INSUFICIENTE          · AP-CU11-02 MFA_REQUERIDO
           # AP-CU11-03 INSTRUMENTO_EN_ENFRIAMIENTO · AP-CU11-04 TITULAR_NO_COINCIDE
           # AP-CU11-05 BLOQUEO_DE_AUTORIDAD        · AP-CU11-06 ENCAJE_INCUMPLIDO
+          # AP-CU11-07 MFA_INVALIDO (H2: evidencia provista pero no valida)
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/retiros/{ordenId}/aprobacion:
+    post:
+      operationId: aprobarRetiro                # CU-11 (H3.S2, ADR-049)
+      summary: Aprueba o rechaza un retiro que necesita doble aprobacion
+      description: >-
+        Solo alguien con RETIRO_APROBAR, DISTINTO de quien solicito el retiro
+        (R-SEG-04): la segregacion la exige la aplicacion Y la base
+        (ck_retiro_doble_aprobacion), dos capas independientes. Dos aprobadores
+        simultaneos producen una sola transicion: el segundo recibe 409, nunca
+        un doble efecto.
+      parameters:
+        - name: ordenId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaAprobacionRetiro' }
+      responses:
+        '200':
+          description: Orden autorizada o rechazada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaAprobacionRetiro' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU11-10 RETIRO_AUTOAPROBACION_PROHIBIDA
+        '404':
+          description: Esa orden no existe
+        '409':
+          description: >-
+            La orden ya no esta en revision — otro aprobador la resolvio primero, o
+            no requiere doble aprobacion.
+        '403':
+          description: Sin el permiso RETIRO_APROBAR
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
@@ -488,12 +530,19 @@ components:
     EntradaRetiro:
       type: object
       additionalProperties: false
-      required: [cuentaBilleteraId, monto, instrumentoDestinoId, factorMfa]
+      required: [cuentaBilleteraId, monto, instrumentoDestinoId]
       properties:
         cuentaBilleteraId:    { type: string, format: uuid }
         monto:                { $ref: '#/components/schemas/Dinero' }
         instrumentoDestinoId: { type: string, format: uuid }
-        factorMfa:            { type: string, minLength: 6, maxLength: 8 }
+        # H2.S2.M5: evidenciaMfa reemplaza a factorMfa (JWT de evidencia step-up de
+        # `identidad`, no un OTP corto). factorMfa se acepta hasta 2026-12-31 por
+        # compatibilidad — ninguno de los dos es "required" a nivel de esquema
+        # porque el rechazo por ausencia (MFA_REQUERIDO) lo decide el caso de uso,
+        # no el contrato: es el mismo AP-CU11-02 tanto si falta el campo como si
+        # llega vacio.
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096 }
+        factorMfa:    { type: string, minLength: 6, maxLength: 8, deprecated: true }
     SalidaRetiro:
       type: object
       additionalProperties: false
@@ -504,6 +553,26 @@ components:
         costoRetiro:   { $ref: '#/components/schemas/Dinero' }
         montoNeto:     { $ref: '#/components/schemas/Dinero' }
         retencionId:   { type: string, format: uuid }
+    EntradaAprobacionRetiro:
+      type: object
+      additionalProperties: false
+      required: [desenlace]
+      properties:
+        desenlace:
+          type: string
+          enum: [AUTORIZADA, RECHAZADA]
+          description: >-
+            AUTORIZADA mueve la orden hacia el proveedor; RECHAZADA libera la
+            retencion sin pagar. Son los dos unicos finales de una revision.
+        motivo: { type: string, maxLength: 500 }
+    SalidaAprobacionRetiro:
+      type: object
+      additionalProperties: false
+      required: [ordenRetiroId, estado, aprobadaPor]
+      properties:
+        ordenRetiroId: { type: string, format: uuid }
+        estado:        { type: string, enum: [AUTORIZADA, RECHAZADA] }
+        aprobadaPor:   { type: string, format: uuid }
     EntradaRecarga:
       type: object
       additionalProperties: false

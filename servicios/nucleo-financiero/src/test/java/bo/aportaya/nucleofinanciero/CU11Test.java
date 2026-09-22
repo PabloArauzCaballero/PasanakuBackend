@@ -61,7 +61,7 @@ class CU11Test extends BaseDeBilletera {
 
     private SalidaRetiro pedir(Escenario e, String monto, String clave) {
         return transaccion.execute(t -> retiroCU.solicitar(
-                new EntradaRetiro(clave, e.cuenta(), bob(monto), bob("5.00"), e.instrumento(), true, false), e.ctx()));
+                new EntradaRetiro(clave, e.cuenta(), bob(monto), bob("5.00"), e.instrumento(), true, true, false), e.ctx()));
     }
 
     @Test
@@ -72,7 +72,10 @@ class CU11Test extends BaseDeBilletera {
 
         SalidaRetiro salida = pedir(e, "400.00", "ret-1");
 
-        assertThat(salida.estado()).isEqualTo("PENDIENTE");
+        // H3.S1/Q-02: por debajo del umbral de doble aprobación, la orden nace
+        // AUTORIZADA en la misma transacción — nunca PENDIENTE (ese estado ya no lo usa
+        // ninguna orden nueva; solo se agrega EN_REVISION cuando el monto lo exige).
+        assertThat(salida.estado()).isEqualTo("AUTORIZADA");
         assertThat(salida.montoNeto()).isEqualByComparingTo(bob("395.00"));
         assertThat(contar(
                         "SELECT count(*)::int FROM nucleo_financiero.retencion_saldo WHERE id = ? AND estado = 'VIGENTE'",
@@ -93,6 +96,7 @@ class CU11Test extends BaseDeBilletera {
     void criterio2() {
         Escenario e = escenario("1000.00", null);
         SalidaRetiro salida = pedir(e, "400.00", "ret-2");
+        transaccion.execute(t -> retiroCU.instruirPago(salida.ordenRetiroId(), e.ctx()));
 
         transaccion.execute(t -> retiroCU.rechazar(salida.ordenRetiroId(), "PROVEEDOR_RECHAZO", e.ctx()));
 
@@ -168,12 +172,12 @@ class CU11Test extends BaseDeBilletera {
         Escenario e = escenario("1000.00", null);
 
         SalidaRetiro primera = transaccion.execute(t -> retiroCU.solicitar(
-                new EntradaRetiro("ret-costo", e.cuenta(), bob("200.00"), bob("5.00"), e.instrumento(), true, false),
+                new EntradaRetiro("ret-costo", e.cuenta(), bob("200.00"), bob("5.00"), e.instrumento(), true, true, false),
                 e.ctx()));
         // Mismo clave, misma cuenta, pero con un costo DISTINTO en la entrada: si el
         // caso de uso recotizara en el replay, este segundo costo se filtraria.
         SalidaRetiro segunda = transaccion.execute(t -> retiroCU.solicitar(
-                new EntradaRetiro("ret-costo", e.cuenta(), bob("200.00"), bob("99.00"), e.instrumento(), true, false),
+                new EntradaRetiro("ret-costo", e.cuenta(), bob("200.00"), bob("99.00"), e.instrumento(), true, true, false),
                 e.ctx()));
 
         assertThat(segunda.ordenRetiroId()).isEqualTo(primera.ordenRetiroId());
@@ -186,6 +190,7 @@ class CU11Test extends BaseDeBilletera {
         // Pagar y rechazar la misma orden: la decide el WHERE estado = 'PENDIENTE'.
         Escenario e = escenario("1000.00", null);
         SalidaRetiro salida = pedir(e, "300.00", "ret-carrera");
+        transaccion.execute(t -> retiroCU.instruirPago(salida.ordenRetiroId(), e.ctx()));
 
         transaccion.execute(t -> retiroCU.confirmarPago(salida.ordenRetiroId(), e.ctx()));
 
@@ -204,6 +209,7 @@ class CU11Test extends BaseDeBilletera {
         // COMPLETO: el costo lo paga quien retira, no se cobra aparte.
         Escenario e = escenario("1000.00", null);
         SalidaRetiro salida = pedir(e, "400.00", "ret-cuadre");
+        transaccion.execute(t -> retiroCU.instruirPago(salida.ordenRetiroId(), e.ctx()));
 
         var pago = transaccion.execute(t -> retiroCU.confirmarPago(salida.ordenRetiroId(), e.ctx()));
 
@@ -261,10 +267,38 @@ class CU11Test extends BaseDeBilletera {
 
         assertThatThrownBy(() -> transaccion.execute(t -> retiroCU.solicitar(
                         new EntradaRetiro(
-                                "ret-sinmfa", e.cuenta(), bob("100.00"), bob("5.00"), e.instrumento(), false, false),
+                                "ret-sinmfa", e.cuenta(), bob("100.00"), bob("5.00"), e.instrumento(), false, false, false),
                         e.ctx())))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("segundo factor");
+    }
+
+    @Test
+    @DisplayName(
+            "rechaza con MFA_INVALIDO (no MFA_REQUERIDO, H2.S2.M5) cuando SI se mando evidencia pero no paso la verificacion")
+    void rechazaMfaInvalido() {
+        // La diferencia con rechazaSinMfa() de arriba es exactamente el tercer
+        // booleano: aca SI se proveyo evidencia (evidenciaMfaProvista=true), solo
+        // que no fue valida — es la distincion que separa MFA_REQUERIDO de
+        // MFA_INVALIDO, y sin ella el mensaje le diria a la persona "falta" cuando
+        // en realidad "lo que mandaste no sirve".
+        Escenario e = escenario("1000.00", null);
+
+        assertThatThrownBy(() -> transaccion.execute(t -> retiroCU.solicitar(
+                        new EntradaRetiro(
+                                "ret-mfa-invalido",
+                                e.cuenta(),
+                                bob("100.00"),
+                                bob("5.00"),
+                                e.instrumento(),
+                                false,
+                                true,
+                                false),
+                        e.ctx())))
+                .isInstanceOf(ErrorDeNegocio.class)
+                .hasMessageContaining("no es valida");
+        assertThat(contar("SELECT count(*)::int FROM nucleo_financiero.orden_retiro"))
+                .isZero();
     }
 
     @Test
@@ -295,14 +329,14 @@ class CU11Test extends BaseDeBilletera {
     void rechazaEncajeRoto() {
         // Registrar que el encaje no se cumple y seguir pagando es el escenario
         // clasico de la corrida: cobran los primeros y no queda para los demas.
-        var conEncaje = new Situacion(true, bob("1000.00"), bob("100.00"), true, true, Optional.empty(), false, true);
-        var sinEncaje = new Situacion(true, bob("1000.00"), bob("100.00"), true, true, Optional.empty(), false, false);
+        var conEncaje = new Situacion(true, true, bob("1000.00"), bob("100.00"), true, true, Optional.empty(), false, true);
+        var sinEncaje = new Situacion(true, true, bob("1000.00"), bob("100.00"), true, true, Optional.empty(), false, false);
         OffsetDateTime ahora = OffsetDateTime.of(2026, 8, 27, 12, 0, 0, 0, ZoneOffset.UTC);
 
         assertThat(CondicionesDeRetiro.evaluar(conEncaje, ahora).permitido()).isTrue();
         assertThat(CondicionesDeRetiro.evaluar(sinEncaje, ahora).codigo()).isEqualTo("ENCAJE_INCUMPLIDO");
         // Y el bloqueo de autoridad pesa mas que el saldo: se mira antes del encaje.
-        var conOficio = new Situacion(true, bob("1000.00"), bob("100.00"), true, true, Optional.empty(), true, true);
+        var conOficio = new Situacion(true, true, bob("1000.00"), bob("100.00"), true, true, Optional.empty(), true, true);
         assertThat(CondicionesDeRetiro.evaluar(conOficio, ahora).codigo()).isEqualTo("BLOQUEO_DE_AUTORIDAD");
     }
 }
