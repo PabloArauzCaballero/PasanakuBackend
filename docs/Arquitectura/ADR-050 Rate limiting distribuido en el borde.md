@@ -28,6 +28,16 @@ El hallazgo previo H (planes/00 §87) ya marcaba esto: "CI rojo en Spotless"
 tapaba todo lo demás, pero el borde nunca tuvo limitador real, solo la
 promesa de uno (AMB-6 del plan madre).
 
+## Motivo
+
+Un límite de tasa que no cuenta igual en todas las réplicas es un límite que
+un atacante rodea repartiendo peticiones. Las cuatro rutas que hoy se cortan
+(login, registro, retiro, transferencia) son, sin excepción, las de mayor
+costo si alguien las fuerza: una cuenta comprometida por fuerza bruta o una
+transferencia repetida en bucle. El costo de sumar Redis es bajo (una imagen
+más, sin datos que respaldar) frente al de no tener un límite real en la
+única puerta de entrada del sistema.
+
 ## Decisión
 
 **Redis entra al stack** (`despliegue/compose/base.yml`, y
@@ -113,6 +123,24 @@ apagado): [evidencia/H3-S1-M4-redis-caido-fail-closed.txt](../auditoria-producci
   deniega no es un gateway caído), pero su comportamiento de seguridad sí.
 - Cuatro de las ocho rutas pedidas quedan sin cubrir hasta que el carril de
   identidad publique sus endpoints — registrado como hallazgo, no oculto.
+
+## Cómo se verifica
+
+- [x] Preflight/petición real con un origen fuera de `RUTAS_SENSIBLES` no se
+      toca: sin `X-RateLimit-*`, sin este filtro de por medio.
+- [x] Una ráfaga de más de `burstCapacity` contra una ruta sensible devuelve
+      `429` con `Retry-After` — [[#Los números]], evidencia
+      `H3-S1-M4-rate-limit-429.txt`.
+- [x] Con Redis apagado de verdad, la misma ruta devuelve `503`, nunca un
+      `2xx` ni el `500` normal de backend inalcanzable — evidencia
+      `H3-S1-M4-redis-caido-fail-closed.txt`.
+- [x] `ArranqueRateLimitGatewayTest` (`plataforma/gateway`, `integrationTest`)
+      corre contra un Redis real de Testcontainers, no un doble: 3/3 PASS,
+      evidencia `H3-S1-RateLimitGatewayTest-PASS.txt`.
+- [ ] Los números (`replenishRate`/`burstCapacity`) confirmados por negocio —
+      `DECISION_REQUIRED`, sin fecha todavía.
+- [ ] Las cuatro rutas que faltan (refresh, reset, MFA, OTP), cuando el carril
+      de identidad publique sus endpoints.
 
 ## Ver también
 
