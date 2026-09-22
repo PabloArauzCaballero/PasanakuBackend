@@ -6,25 +6,40 @@
 -- Outbox del servicio: se escribe en la MISMA transaccion del caso
 -- de uso; el relevo lo publica (UPDATE de estado, ADR-027/018).
 CREATE TABLE IF NOT EXISTS aportes.evento_dominio (
-  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  tipo           VARCHAR(60) NOT NULL,
-  version        VARCHAR(10) NOT NULL DEFAULT '1',
-  agregado       VARCHAR(40) NOT NULL,
-  agregado_id    UUID        NOT NULL,
-  payload        JSONB       NOT NULL,
-  metadatos      JSONB       NOT NULL DEFAULT '{}'::jsonb,
-  correlation_id UUID        NOT NULL,
-  causation_id   UUID,
-  ocurrido_en    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  publicado_en   TIMESTAMPTZ,
-  estado         VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
+  id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  tipo                VARCHAR(60) NOT NULL,
+  version             VARCHAR(10) NOT NULL DEFAULT '1',
+  agregado            VARCHAR(40) NOT NULL,
+  agregado_id         UUID        NOT NULL,
+  payload             JSONB       NOT NULL,
+  metadatos           JSONB       NOT NULL DEFAULT '{}'::jsonb,
+  correlation_id      UUID        NOT NULL,
+  causation_id        UUID,
+  ocurrido_en         TIMESTAMPTZ NOT NULL DEFAULT now(),
+  publicado_en        TIMESTAMPTZ,
+  estado              VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
     CONSTRAINT ck_aportes_evtdom_estado
-    CHECK (estado IN ('PENDIENTE', 'PUBLICADO', 'FALLIDO')),
-  intentos       SMALLINT    NOT NULL DEFAULT 0
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO')),
+  intentos            SMALLINT    NOT NULL DEFAULT 0,
+  -- H2.S3.M1: tomar-publicar-marcar en transacciones cortas, sin la red
+  -- adentro (ADR-018). tomado_en/tomado_por identifican QUE relevo tomo la
+  -- fila (recuperacion de un TOMADO huerfano si el proceso muere entre las
+  -- dos transacciones cortas); ultimo_error y proximo_intento_en son el
+  -- backoff exponencial con jitter (Q-02: base PT1S, tope PT5M, +-20 por
+  -- ciento), config en aportaya.outbox.*, nunca literal en el codigo.
+  tomado_en           TIMESTAMPTZ,
+  tomado_por          VARCHAR(100),
+  ultimo_error        TEXT,
+  proximo_intento_en  TIMESTAMPTZ
 );
--- Indice parcial de despacho: el relevo solo mira lo PENDIENTE.
+-- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
+-- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_aportes_evtdom_despacho
   ON aportes.evento_dominio (ocurrido_en) WHERE estado = 'PENDIENTE';
+-- Recuperacion de un TOMADO huerfano (el relevo que lo tomo murio antes
+-- de marcar PUBLICADO/backoff): el siguiente relevo lo vuelve a tomar.
+CREATE INDEX IF NOT EXISTS ix_aportes_evtdom_tomado
+  ON aportes.evento_dominio (tomado_en) WHERE estado = 'TOMADO';
 COMMENT ON TABLE aportes.evento_dominio IS 'Outbox transaccional del servicio (ADR-027).';
 
 -- Idempotencia de consumo: (id_evento, consumidor). Append-only de facto.
@@ -68,25 +83,40 @@ COMMENT ON TABLE aportes.estado_saga IS 'Estado de saga orquestada por este serv
 -- Outbox del servicio: se escribe en la MISMA transaccion del caso
 -- de uso; el relevo lo publica (UPDATE de estado, ADR-027/018).
 CREATE TABLE IF NOT EXISTS auditoria.evento_dominio (
-  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  tipo           VARCHAR(60) NOT NULL,
-  version        VARCHAR(10) NOT NULL DEFAULT '1',
-  agregado       VARCHAR(40) NOT NULL,
-  agregado_id    UUID        NOT NULL,
-  payload        JSONB       NOT NULL,
-  metadatos      JSONB       NOT NULL DEFAULT '{}'::jsonb,
-  correlation_id UUID        NOT NULL,
-  causation_id   UUID,
-  ocurrido_en    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  publicado_en   TIMESTAMPTZ,
-  estado         VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
+  id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  tipo                VARCHAR(60) NOT NULL,
+  version             VARCHAR(10) NOT NULL DEFAULT '1',
+  agregado            VARCHAR(40) NOT NULL,
+  agregado_id         UUID        NOT NULL,
+  payload             JSONB       NOT NULL,
+  metadatos           JSONB       NOT NULL DEFAULT '{}'::jsonb,
+  correlation_id      UUID        NOT NULL,
+  causation_id        UUID,
+  ocurrido_en         TIMESTAMPTZ NOT NULL DEFAULT now(),
+  publicado_en        TIMESTAMPTZ,
+  estado              VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
     CONSTRAINT ck_auditoria_evtdom_estado
-    CHECK (estado IN ('PENDIENTE', 'PUBLICADO', 'FALLIDO')),
-  intentos       SMALLINT    NOT NULL DEFAULT 0
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO')),
+  intentos            SMALLINT    NOT NULL DEFAULT 0,
+  -- H2.S3.M1: tomar-publicar-marcar en transacciones cortas, sin la red
+  -- adentro (ADR-018). tomado_en/tomado_por identifican QUE relevo tomo la
+  -- fila (recuperacion de un TOMADO huerfano si el proceso muere entre las
+  -- dos transacciones cortas); ultimo_error y proximo_intento_en son el
+  -- backoff exponencial con jitter (Q-02: base PT1S, tope PT5M, +-20 por
+  -- ciento), config en aportaya.outbox.*, nunca literal en el codigo.
+  tomado_en           TIMESTAMPTZ,
+  tomado_por          VARCHAR(100),
+  ultimo_error        TEXT,
+  proximo_intento_en  TIMESTAMPTZ
 );
--- Indice parcial de despacho: el relevo solo mira lo PENDIENTE.
+-- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
+-- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_auditoria_evtdom_despacho
   ON auditoria.evento_dominio (ocurrido_en) WHERE estado = 'PENDIENTE';
+-- Recuperacion de un TOMADO huerfano (el relevo que lo tomo murio antes
+-- de marcar PUBLICADO/backoff): el siguiente relevo lo vuelve a tomar.
+CREATE INDEX IF NOT EXISTS ix_auditoria_evtdom_tomado
+  ON auditoria.evento_dominio (tomado_en) WHERE estado = 'TOMADO';
 COMMENT ON TABLE auditoria.evento_dominio IS 'Outbox transaccional del servicio (ADR-027).';
 
 -- Idempotencia de consumo: (id_evento, consumidor). Append-only de facto.
@@ -111,25 +141,40 @@ COMMENT ON TABLE auditoria.shedlock IS 'Bloqueo de trabajos programados entre re
 -- Outbox del servicio: se escribe en la MISMA transaccion del caso
 -- de uso; el relevo lo publica (UPDATE de estado, ADR-027/018).
 CREATE TABLE IF NOT EXISTS cumplimiento.evento_dominio (
-  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  tipo           VARCHAR(60) NOT NULL,
-  version        VARCHAR(10) NOT NULL DEFAULT '1',
-  agregado       VARCHAR(40) NOT NULL,
-  agregado_id    UUID        NOT NULL,
-  payload        JSONB       NOT NULL,
-  metadatos      JSONB       NOT NULL DEFAULT '{}'::jsonb,
-  correlation_id UUID        NOT NULL,
-  causation_id   UUID,
-  ocurrido_en    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  publicado_en   TIMESTAMPTZ,
-  estado         VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
+  id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  tipo                VARCHAR(60) NOT NULL,
+  version             VARCHAR(10) NOT NULL DEFAULT '1',
+  agregado            VARCHAR(40) NOT NULL,
+  agregado_id         UUID        NOT NULL,
+  payload             JSONB       NOT NULL,
+  metadatos           JSONB       NOT NULL DEFAULT '{}'::jsonb,
+  correlation_id      UUID        NOT NULL,
+  causation_id        UUID,
+  ocurrido_en         TIMESTAMPTZ NOT NULL DEFAULT now(),
+  publicado_en        TIMESTAMPTZ,
+  estado              VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
     CONSTRAINT ck_cumplimiento_evtdom_estado
-    CHECK (estado IN ('PENDIENTE', 'PUBLICADO', 'FALLIDO')),
-  intentos       SMALLINT    NOT NULL DEFAULT 0
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO')),
+  intentos            SMALLINT    NOT NULL DEFAULT 0,
+  -- H2.S3.M1: tomar-publicar-marcar en transacciones cortas, sin la red
+  -- adentro (ADR-018). tomado_en/tomado_por identifican QUE relevo tomo la
+  -- fila (recuperacion de un TOMADO huerfano si el proceso muere entre las
+  -- dos transacciones cortas); ultimo_error y proximo_intento_en son el
+  -- backoff exponencial con jitter (Q-02: base PT1S, tope PT5M, +-20 por
+  -- ciento), config en aportaya.outbox.*, nunca literal en el codigo.
+  tomado_en           TIMESTAMPTZ,
+  tomado_por          VARCHAR(100),
+  ultimo_error        TEXT,
+  proximo_intento_en  TIMESTAMPTZ
 );
--- Indice parcial de despacho: el relevo solo mira lo PENDIENTE.
+-- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
+-- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_cumplimiento_evtdom_despacho
   ON cumplimiento.evento_dominio (ocurrido_en) WHERE estado = 'PENDIENTE';
+-- Recuperacion de un TOMADO huerfano (el relevo que lo tomo murio antes
+-- de marcar PUBLICADO/backoff): el siguiente relevo lo vuelve a tomar.
+CREATE INDEX IF NOT EXISTS ix_cumplimiento_evtdom_tomado
+  ON cumplimiento.evento_dominio (tomado_en) WHERE estado = 'TOMADO';
 COMMENT ON TABLE cumplimiento.evento_dominio IS 'Outbox transaccional del servicio (ADR-027).';
 
 -- Idempotencia de consumo: (id_evento, consumidor). Append-only de facto.
@@ -154,25 +199,40 @@ COMMENT ON TABLE cumplimiento.shedlock IS 'Bloqueo de trabajos programados entre
 -- Outbox del servicio: se escribe en la MISMA transaccion del caso
 -- de uso; el relevo lo publica (UPDATE de estado, ADR-027/018).
 CREATE TABLE IF NOT EXISTS entregas.evento_dominio (
-  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  tipo           VARCHAR(60) NOT NULL,
-  version        VARCHAR(10) NOT NULL DEFAULT '1',
-  agregado       VARCHAR(40) NOT NULL,
-  agregado_id    UUID        NOT NULL,
-  payload        JSONB       NOT NULL,
-  metadatos      JSONB       NOT NULL DEFAULT '{}'::jsonb,
-  correlation_id UUID        NOT NULL,
-  causation_id   UUID,
-  ocurrido_en    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  publicado_en   TIMESTAMPTZ,
-  estado         VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
+  id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  tipo                VARCHAR(60) NOT NULL,
+  version             VARCHAR(10) NOT NULL DEFAULT '1',
+  agregado            VARCHAR(40) NOT NULL,
+  agregado_id         UUID        NOT NULL,
+  payload             JSONB       NOT NULL,
+  metadatos           JSONB       NOT NULL DEFAULT '{}'::jsonb,
+  correlation_id      UUID        NOT NULL,
+  causation_id        UUID,
+  ocurrido_en         TIMESTAMPTZ NOT NULL DEFAULT now(),
+  publicado_en        TIMESTAMPTZ,
+  estado              VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
     CONSTRAINT ck_entregas_evtdom_estado
-    CHECK (estado IN ('PENDIENTE', 'PUBLICADO', 'FALLIDO')),
-  intentos       SMALLINT    NOT NULL DEFAULT 0
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO')),
+  intentos            SMALLINT    NOT NULL DEFAULT 0,
+  -- H2.S3.M1: tomar-publicar-marcar en transacciones cortas, sin la red
+  -- adentro (ADR-018). tomado_en/tomado_por identifican QUE relevo tomo la
+  -- fila (recuperacion de un TOMADO huerfano si el proceso muere entre las
+  -- dos transacciones cortas); ultimo_error y proximo_intento_en son el
+  -- backoff exponencial con jitter (Q-02: base PT1S, tope PT5M, +-20 por
+  -- ciento), config en aportaya.outbox.*, nunca literal en el codigo.
+  tomado_en           TIMESTAMPTZ,
+  tomado_por          VARCHAR(100),
+  ultimo_error        TEXT,
+  proximo_intento_en  TIMESTAMPTZ
 );
--- Indice parcial de despacho: el relevo solo mira lo PENDIENTE.
+-- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
+-- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_entregas_evtdom_despacho
   ON entregas.evento_dominio (ocurrido_en) WHERE estado = 'PENDIENTE';
+-- Recuperacion de un TOMADO huerfano (el relevo que lo tomo murio antes
+-- de marcar PUBLICADO/backoff): el siguiente relevo lo vuelve a tomar.
+CREATE INDEX IF NOT EXISTS ix_entregas_evtdom_tomado
+  ON entregas.evento_dominio (tomado_en) WHERE estado = 'TOMADO';
 COMMENT ON TABLE entregas.evento_dominio IS 'Outbox transaccional del servicio (ADR-027).';
 
 -- Idempotencia de consumo: (id_evento, consumidor). Append-only de facto.
@@ -216,25 +276,40 @@ COMMENT ON TABLE entregas.estado_saga IS 'Estado de saga orquestada por este ser
 -- Outbox del servicio: se escribe en la MISMA transaccion del caso
 -- de uso; el relevo lo publica (UPDATE de estado, ADR-027/018).
 CREATE TABLE IF NOT EXISTS erp.evento_dominio (
-  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  tipo           VARCHAR(60) NOT NULL,
-  version        VARCHAR(10) NOT NULL DEFAULT '1',
-  agregado       VARCHAR(40) NOT NULL,
-  agregado_id    UUID        NOT NULL,
-  payload        JSONB       NOT NULL,
-  metadatos      JSONB       NOT NULL DEFAULT '{}'::jsonb,
-  correlation_id UUID        NOT NULL,
-  causation_id   UUID,
-  ocurrido_en    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  publicado_en   TIMESTAMPTZ,
-  estado         VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
+  id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  tipo                VARCHAR(60) NOT NULL,
+  version             VARCHAR(10) NOT NULL DEFAULT '1',
+  agregado            VARCHAR(40) NOT NULL,
+  agregado_id         UUID        NOT NULL,
+  payload             JSONB       NOT NULL,
+  metadatos           JSONB       NOT NULL DEFAULT '{}'::jsonb,
+  correlation_id      UUID        NOT NULL,
+  causation_id        UUID,
+  ocurrido_en         TIMESTAMPTZ NOT NULL DEFAULT now(),
+  publicado_en        TIMESTAMPTZ,
+  estado              VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
     CONSTRAINT ck_erp_evtdom_estado
-    CHECK (estado IN ('PENDIENTE', 'PUBLICADO', 'FALLIDO')),
-  intentos       SMALLINT    NOT NULL DEFAULT 0
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO')),
+  intentos            SMALLINT    NOT NULL DEFAULT 0,
+  -- H2.S3.M1: tomar-publicar-marcar en transacciones cortas, sin la red
+  -- adentro (ADR-018). tomado_en/tomado_por identifican QUE relevo tomo la
+  -- fila (recuperacion de un TOMADO huerfano si el proceso muere entre las
+  -- dos transacciones cortas); ultimo_error y proximo_intento_en son el
+  -- backoff exponencial con jitter (Q-02: base PT1S, tope PT5M, +-20 por
+  -- ciento), config en aportaya.outbox.*, nunca literal en el codigo.
+  tomado_en           TIMESTAMPTZ,
+  tomado_por          VARCHAR(100),
+  ultimo_error        TEXT,
+  proximo_intento_en  TIMESTAMPTZ
 );
--- Indice parcial de despacho: el relevo solo mira lo PENDIENTE.
+-- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
+-- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_erp_evtdom_despacho
   ON erp.evento_dominio (ocurrido_en) WHERE estado = 'PENDIENTE';
+-- Recuperacion de un TOMADO huerfano (el relevo que lo tomo murio antes
+-- de marcar PUBLICADO/backoff): el siguiente relevo lo vuelve a tomar.
+CREATE INDEX IF NOT EXISTS ix_erp_evtdom_tomado
+  ON erp.evento_dominio (tomado_en) WHERE estado = 'TOMADO';
 COMMENT ON TABLE erp.evento_dominio IS 'Outbox transaccional del servicio (ADR-027).';
 
 -- Idempotencia de consumo: (id_evento, consumidor). Append-only de facto.
@@ -259,25 +334,40 @@ COMMENT ON TABLE erp.shedlock IS 'Bloqueo de trabajos programados entre replicas
 -- Outbox del servicio: se escribe en la MISMA transaccion del caso
 -- de uso; el relevo lo publica (UPDATE de estado, ADR-027/018).
 CREATE TABLE IF NOT EXISTS garantia.evento_dominio (
-  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  tipo           VARCHAR(60) NOT NULL,
-  version        VARCHAR(10) NOT NULL DEFAULT '1',
-  agregado       VARCHAR(40) NOT NULL,
-  agregado_id    UUID        NOT NULL,
-  payload        JSONB       NOT NULL,
-  metadatos      JSONB       NOT NULL DEFAULT '{}'::jsonb,
-  correlation_id UUID        NOT NULL,
-  causation_id   UUID,
-  ocurrido_en    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  publicado_en   TIMESTAMPTZ,
-  estado         VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
+  id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  tipo                VARCHAR(60) NOT NULL,
+  version             VARCHAR(10) NOT NULL DEFAULT '1',
+  agregado            VARCHAR(40) NOT NULL,
+  agregado_id         UUID        NOT NULL,
+  payload             JSONB       NOT NULL,
+  metadatos           JSONB       NOT NULL DEFAULT '{}'::jsonb,
+  correlation_id      UUID        NOT NULL,
+  causation_id        UUID,
+  ocurrido_en         TIMESTAMPTZ NOT NULL DEFAULT now(),
+  publicado_en        TIMESTAMPTZ,
+  estado              VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
     CONSTRAINT ck_garantia_evtdom_estado
-    CHECK (estado IN ('PENDIENTE', 'PUBLICADO', 'FALLIDO')),
-  intentos       SMALLINT    NOT NULL DEFAULT 0
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO')),
+  intentos            SMALLINT    NOT NULL DEFAULT 0,
+  -- H2.S3.M1: tomar-publicar-marcar en transacciones cortas, sin la red
+  -- adentro (ADR-018). tomado_en/tomado_por identifican QUE relevo tomo la
+  -- fila (recuperacion de un TOMADO huerfano si el proceso muere entre las
+  -- dos transacciones cortas); ultimo_error y proximo_intento_en son el
+  -- backoff exponencial con jitter (Q-02: base PT1S, tope PT5M, +-20 por
+  -- ciento), config en aportaya.outbox.*, nunca literal en el codigo.
+  tomado_en           TIMESTAMPTZ,
+  tomado_por          VARCHAR(100),
+  ultimo_error        TEXT,
+  proximo_intento_en  TIMESTAMPTZ
 );
--- Indice parcial de despacho: el relevo solo mira lo PENDIENTE.
+-- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
+-- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_garantia_evtdom_despacho
   ON garantia.evento_dominio (ocurrido_en) WHERE estado = 'PENDIENTE';
+-- Recuperacion de un TOMADO huerfano (el relevo que lo tomo murio antes
+-- de marcar PUBLICADO/backoff): el siguiente relevo lo vuelve a tomar.
+CREATE INDEX IF NOT EXISTS ix_garantia_evtdom_tomado
+  ON garantia.evento_dominio (tomado_en) WHERE estado = 'TOMADO';
 COMMENT ON TABLE garantia.evento_dominio IS 'Outbox transaccional del servicio (ADR-027).';
 
 -- Idempotencia de consumo: (id_evento, consumidor). Append-only de facto.
@@ -321,25 +411,40 @@ COMMENT ON TABLE garantia.estado_saga IS 'Estado de saga orquestada por este ser
 -- Outbox del servicio: se escribe en la MISMA transaccion del caso
 -- de uso; el relevo lo publica (UPDATE de estado, ADR-027/018).
 CREATE TABLE IF NOT EXISTS grupos.evento_dominio (
-  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  tipo           VARCHAR(60) NOT NULL,
-  version        VARCHAR(10) NOT NULL DEFAULT '1',
-  agregado       VARCHAR(40) NOT NULL,
-  agregado_id    UUID        NOT NULL,
-  payload        JSONB       NOT NULL,
-  metadatos      JSONB       NOT NULL DEFAULT '{}'::jsonb,
-  correlation_id UUID        NOT NULL,
-  causation_id   UUID,
-  ocurrido_en    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  publicado_en   TIMESTAMPTZ,
-  estado         VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
+  id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  tipo                VARCHAR(60) NOT NULL,
+  version             VARCHAR(10) NOT NULL DEFAULT '1',
+  agregado            VARCHAR(40) NOT NULL,
+  agregado_id         UUID        NOT NULL,
+  payload             JSONB       NOT NULL,
+  metadatos           JSONB       NOT NULL DEFAULT '{}'::jsonb,
+  correlation_id      UUID        NOT NULL,
+  causation_id        UUID,
+  ocurrido_en         TIMESTAMPTZ NOT NULL DEFAULT now(),
+  publicado_en        TIMESTAMPTZ,
+  estado              VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
     CONSTRAINT ck_grupos_evtdom_estado
-    CHECK (estado IN ('PENDIENTE', 'PUBLICADO', 'FALLIDO')),
-  intentos       SMALLINT    NOT NULL DEFAULT 0
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO')),
+  intentos            SMALLINT    NOT NULL DEFAULT 0,
+  -- H2.S3.M1: tomar-publicar-marcar en transacciones cortas, sin la red
+  -- adentro (ADR-018). tomado_en/tomado_por identifican QUE relevo tomo la
+  -- fila (recuperacion de un TOMADO huerfano si el proceso muere entre las
+  -- dos transacciones cortas); ultimo_error y proximo_intento_en son el
+  -- backoff exponencial con jitter (Q-02: base PT1S, tope PT5M, +-20 por
+  -- ciento), config en aportaya.outbox.*, nunca literal en el codigo.
+  tomado_en           TIMESTAMPTZ,
+  tomado_por          VARCHAR(100),
+  ultimo_error        TEXT,
+  proximo_intento_en  TIMESTAMPTZ
 );
--- Indice parcial de despacho: el relevo solo mira lo PENDIENTE.
+-- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
+-- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_grupos_evtdom_despacho
   ON grupos.evento_dominio (ocurrido_en) WHERE estado = 'PENDIENTE';
+-- Recuperacion de un TOMADO huerfano (el relevo que lo tomo murio antes
+-- de marcar PUBLICADO/backoff): el siguiente relevo lo vuelve a tomar.
+CREATE INDEX IF NOT EXISTS ix_grupos_evtdom_tomado
+  ON grupos.evento_dominio (tomado_en) WHERE estado = 'TOMADO';
 COMMENT ON TABLE grupos.evento_dominio IS 'Outbox transaccional del servicio (ADR-027).';
 
 -- Idempotencia de consumo: (id_evento, consumidor). Append-only de facto.
@@ -364,25 +469,40 @@ COMMENT ON TABLE grupos.shedlock IS 'Bloqueo de trabajos programados entre repli
 -- Outbox del servicio: se escribe en la MISMA transaccion del caso
 -- de uso; el relevo lo publica (UPDATE de estado, ADR-027/018).
 CREATE TABLE IF NOT EXISTS identidad.evento_dominio (
-  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  tipo           VARCHAR(60) NOT NULL,
-  version        VARCHAR(10) NOT NULL DEFAULT '1',
-  agregado       VARCHAR(40) NOT NULL,
-  agregado_id    UUID        NOT NULL,
-  payload        JSONB       NOT NULL,
-  metadatos      JSONB       NOT NULL DEFAULT '{}'::jsonb,
-  correlation_id UUID        NOT NULL,
-  causation_id   UUID,
-  ocurrido_en    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  publicado_en   TIMESTAMPTZ,
-  estado         VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
+  id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  tipo                VARCHAR(60) NOT NULL,
+  version             VARCHAR(10) NOT NULL DEFAULT '1',
+  agregado            VARCHAR(40) NOT NULL,
+  agregado_id         UUID        NOT NULL,
+  payload             JSONB       NOT NULL,
+  metadatos           JSONB       NOT NULL DEFAULT '{}'::jsonb,
+  correlation_id      UUID        NOT NULL,
+  causation_id        UUID,
+  ocurrido_en         TIMESTAMPTZ NOT NULL DEFAULT now(),
+  publicado_en        TIMESTAMPTZ,
+  estado              VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
     CONSTRAINT ck_identidad_evtdom_estado
-    CHECK (estado IN ('PENDIENTE', 'PUBLICADO', 'FALLIDO')),
-  intentos       SMALLINT    NOT NULL DEFAULT 0
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO')),
+  intentos            SMALLINT    NOT NULL DEFAULT 0,
+  -- H2.S3.M1: tomar-publicar-marcar en transacciones cortas, sin la red
+  -- adentro (ADR-018). tomado_en/tomado_por identifican QUE relevo tomo la
+  -- fila (recuperacion de un TOMADO huerfano si el proceso muere entre las
+  -- dos transacciones cortas); ultimo_error y proximo_intento_en son el
+  -- backoff exponencial con jitter (Q-02: base PT1S, tope PT5M, +-20 por
+  -- ciento), config en aportaya.outbox.*, nunca literal en el codigo.
+  tomado_en           TIMESTAMPTZ,
+  tomado_por          VARCHAR(100),
+  ultimo_error        TEXT,
+  proximo_intento_en  TIMESTAMPTZ
 );
--- Indice parcial de despacho: el relevo solo mira lo PENDIENTE.
+-- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
+-- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_identidad_evtdom_despacho
   ON identidad.evento_dominio (ocurrido_en) WHERE estado = 'PENDIENTE';
+-- Recuperacion de un TOMADO huerfano (el relevo que lo tomo murio antes
+-- de marcar PUBLICADO/backoff): el siguiente relevo lo vuelve a tomar.
+CREATE INDEX IF NOT EXISTS ix_identidad_evtdom_tomado
+  ON identidad.evento_dominio (tomado_en) WHERE estado = 'TOMADO';
 COMMENT ON TABLE identidad.evento_dominio IS 'Outbox transaccional del servicio (ADR-027).';
 
 -- Idempotencia de consumo: (id_evento, consumidor). Append-only de facto.
@@ -407,25 +527,40 @@ COMMENT ON TABLE identidad.shedlock IS 'Bloqueo de trabajos programados entre re
 -- Outbox del servicio: se escribe en la MISMA transaccion del caso
 -- de uso; el relevo lo publica (UPDATE de estado, ADR-027/018).
 CREATE TABLE IF NOT EXISTS notificaciones.evento_dominio (
-  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  tipo           VARCHAR(60) NOT NULL,
-  version        VARCHAR(10) NOT NULL DEFAULT '1',
-  agregado       VARCHAR(40) NOT NULL,
-  agregado_id    UUID        NOT NULL,
-  payload        JSONB       NOT NULL,
-  metadatos      JSONB       NOT NULL DEFAULT '{}'::jsonb,
-  correlation_id UUID        NOT NULL,
-  causation_id   UUID,
-  ocurrido_en    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  publicado_en   TIMESTAMPTZ,
-  estado         VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
+  id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  tipo                VARCHAR(60) NOT NULL,
+  version             VARCHAR(10) NOT NULL DEFAULT '1',
+  agregado            VARCHAR(40) NOT NULL,
+  agregado_id         UUID        NOT NULL,
+  payload             JSONB       NOT NULL,
+  metadatos           JSONB       NOT NULL DEFAULT '{}'::jsonb,
+  correlation_id      UUID        NOT NULL,
+  causation_id        UUID,
+  ocurrido_en         TIMESTAMPTZ NOT NULL DEFAULT now(),
+  publicado_en        TIMESTAMPTZ,
+  estado              VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
     CONSTRAINT ck_notificaciones_evtdom_estado
-    CHECK (estado IN ('PENDIENTE', 'PUBLICADO', 'FALLIDO')),
-  intentos       SMALLINT    NOT NULL DEFAULT 0
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO')),
+  intentos            SMALLINT    NOT NULL DEFAULT 0,
+  -- H2.S3.M1: tomar-publicar-marcar en transacciones cortas, sin la red
+  -- adentro (ADR-018). tomado_en/tomado_por identifican QUE relevo tomo la
+  -- fila (recuperacion de un TOMADO huerfano si el proceso muere entre las
+  -- dos transacciones cortas); ultimo_error y proximo_intento_en son el
+  -- backoff exponencial con jitter (Q-02: base PT1S, tope PT5M, +-20 por
+  -- ciento), config en aportaya.outbox.*, nunca literal en el codigo.
+  tomado_en           TIMESTAMPTZ,
+  tomado_por          VARCHAR(100),
+  ultimo_error        TEXT,
+  proximo_intento_en  TIMESTAMPTZ
 );
--- Indice parcial de despacho: el relevo solo mira lo PENDIENTE.
+-- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
+-- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_notificaciones_evtdom_despacho
   ON notificaciones.evento_dominio (ocurrido_en) WHERE estado = 'PENDIENTE';
+-- Recuperacion de un TOMADO huerfano (el relevo que lo tomo murio antes
+-- de marcar PUBLICADO/backoff): el siguiente relevo lo vuelve a tomar.
+CREATE INDEX IF NOT EXISTS ix_notificaciones_evtdom_tomado
+  ON notificaciones.evento_dominio (tomado_en) WHERE estado = 'TOMADO';
 COMMENT ON TABLE notificaciones.evento_dominio IS 'Outbox transaccional del servicio (ADR-027).';
 
 -- Idempotencia de consumo: (id_evento, consumidor). Append-only de facto.
@@ -450,25 +585,40 @@ COMMENT ON TABLE notificaciones.shedlock IS 'Bloqueo de trabajos programados ent
 -- Outbox del servicio: se escribe en la MISMA transaccion del caso
 -- de uso; el relevo lo publica (UPDATE de estado, ADR-027/018).
 CREATE TABLE IF NOT EXISTS nucleo_financiero.evento_dominio (
-  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  tipo           VARCHAR(60) NOT NULL,
-  version        VARCHAR(10) NOT NULL DEFAULT '1',
-  agregado       VARCHAR(40) NOT NULL,
-  agregado_id    UUID        NOT NULL,
-  payload        JSONB       NOT NULL,
-  metadatos      JSONB       NOT NULL DEFAULT '{}'::jsonb,
-  correlation_id UUID        NOT NULL,
-  causation_id   UUID,
-  ocurrido_en    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  publicado_en   TIMESTAMPTZ,
-  estado         VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
+  id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  tipo                VARCHAR(60) NOT NULL,
+  version             VARCHAR(10) NOT NULL DEFAULT '1',
+  agregado            VARCHAR(40) NOT NULL,
+  agregado_id         UUID        NOT NULL,
+  payload             JSONB       NOT NULL,
+  metadatos           JSONB       NOT NULL DEFAULT '{}'::jsonb,
+  correlation_id      UUID        NOT NULL,
+  causation_id        UUID,
+  ocurrido_en         TIMESTAMPTZ NOT NULL DEFAULT now(),
+  publicado_en        TIMESTAMPTZ,
+  estado              VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
     CONSTRAINT ck_nucleo_financiero_evtdom_estado
-    CHECK (estado IN ('PENDIENTE', 'PUBLICADO', 'FALLIDO')),
-  intentos       SMALLINT    NOT NULL DEFAULT 0
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO')),
+  intentos            SMALLINT    NOT NULL DEFAULT 0,
+  -- H2.S3.M1: tomar-publicar-marcar en transacciones cortas, sin la red
+  -- adentro (ADR-018). tomado_en/tomado_por identifican QUE relevo tomo la
+  -- fila (recuperacion de un TOMADO huerfano si el proceso muere entre las
+  -- dos transacciones cortas); ultimo_error y proximo_intento_en son el
+  -- backoff exponencial con jitter (Q-02: base PT1S, tope PT5M, +-20 por
+  -- ciento), config en aportaya.outbox.*, nunca literal en el codigo.
+  tomado_en           TIMESTAMPTZ,
+  tomado_por          VARCHAR(100),
+  ultimo_error        TEXT,
+  proximo_intento_en  TIMESTAMPTZ
 );
--- Indice parcial de despacho: el relevo solo mira lo PENDIENTE.
+-- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
+-- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_nucleo_financiero_evtdom_despacho
   ON nucleo_financiero.evento_dominio (ocurrido_en) WHERE estado = 'PENDIENTE';
+-- Recuperacion de un TOMADO huerfano (el relevo que lo tomo murio antes
+-- de marcar PUBLICADO/backoff): el siguiente relevo lo vuelve a tomar.
+CREATE INDEX IF NOT EXISTS ix_nucleo_financiero_evtdom_tomado
+  ON nucleo_financiero.evento_dominio (tomado_en) WHERE estado = 'TOMADO';
 COMMENT ON TABLE nucleo_financiero.evento_dominio IS 'Outbox transaccional del servicio (ADR-027).';
 
 -- Idempotencia de consumo: (id_evento, consumidor). Append-only de facto.
@@ -493,25 +643,40 @@ COMMENT ON TABLE nucleo_financiero.shedlock IS 'Bloqueo de trabajos programados 
 -- Outbox del servicio: se escribe en la MISMA transaccion del caso
 -- de uso; el relevo lo publica (UPDATE de estado, ADR-027/018).
 CREATE TABLE IF NOT EXISTS organizador.evento_dominio (
-  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  tipo           VARCHAR(60) NOT NULL,
-  version        VARCHAR(10) NOT NULL DEFAULT '1',
-  agregado       VARCHAR(40) NOT NULL,
-  agregado_id    UUID        NOT NULL,
-  payload        JSONB       NOT NULL,
-  metadatos      JSONB       NOT NULL DEFAULT '{}'::jsonb,
-  correlation_id UUID        NOT NULL,
-  causation_id   UUID,
-  ocurrido_en    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  publicado_en   TIMESTAMPTZ,
-  estado         VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
+  id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  tipo                VARCHAR(60) NOT NULL,
+  version             VARCHAR(10) NOT NULL DEFAULT '1',
+  agregado            VARCHAR(40) NOT NULL,
+  agregado_id         UUID        NOT NULL,
+  payload             JSONB       NOT NULL,
+  metadatos           JSONB       NOT NULL DEFAULT '{}'::jsonb,
+  correlation_id      UUID        NOT NULL,
+  causation_id        UUID,
+  ocurrido_en         TIMESTAMPTZ NOT NULL DEFAULT now(),
+  publicado_en        TIMESTAMPTZ,
+  estado              VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
     CONSTRAINT ck_organizador_evtdom_estado
-    CHECK (estado IN ('PENDIENTE', 'PUBLICADO', 'FALLIDO')),
-  intentos       SMALLINT    NOT NULL DEFAULT 0
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO')),
+  intentos            SMALLINT    NOT NULL DEFAULT 0,
+  -- H2.S3.M1: tomar-publicar-marcar en transacciones cortas, sin la red
+  -- adentro (ADR-018). tomado_en/tomado_por identifican QUE relevo tomo la
+  -- fila (recuperacion de un TOMADO huerfano si el proceso muere entre las
+  -- dos transacciones cortas); ultimo_error y proximo_intento_en son el
+  -- backoff exponencial con jitter (Q-02: base PT1S, tope PT5M, +-20 por
+  -- ciento), config en aportaya.outbox.*, nunca literal en el codigo.
+  tomado_en           TIMESTAMPTZ,
+  tomado_por          VARCHAR(100),
+  ultimo_error        TEXT,
+  proximo_intento_en  TIMESTAMPTZ
 );
--- Indice parcial de despacho: el relevo solo mira lo PENDIENTE.
+-- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
+-- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_organizador_evtdom_despacho
   ON organizador.evento_dominio (ocurrido_en) WHERE estado = 'PENDIENTE';
+-- Recuperacion de un TOMADO huerfano (el relevo que lo tomo murio antes
+-- de marcar PUBLICADO/backoff): el siguiente relevo lo vuelve a tomar.
+CREATE INDEX IF NOT EXISTS ix_organizador_evtdom_tomado
+  ON organizador.evento_dominio (tomado_en) WHERE estado = 'TOMADO';
 COMMENT ON TABLE organizador.evento_dominio IS 'Outbox transaccional del servicio (ADR-027).';
 
 -- Idempotencia de consumo: (id_evento, consumidor). Append-only de facto.
@@ -536,25 +701,40 @@ COMMENT ON TABLE organizador.shedlock IS 'Bloqueo de trabajos programados entre 
 -- Outbox del servicio: se escribe en la MISMA transaccion del caso
 -- de uso; el relevo lo publica (UPDATE de estado, ADR-027/018).
 CREATE TABLE IF NOT EXISTS publicidad.evento_dominio (
-  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  tipo           VARCHAR(60) NOT NULL,
-  version        VARCHAR(10) NOT NULL DEFAULT '1',
-  agregado       VARCHAR(40) NOT NULL,
-  agregado_id    UUID        NOT NULL,
-  payload        JSONB       NOT NULL,
-  metadatos      JSONB       NOT NULL DEFAULT '{}'::jsonb,
-  correlation_id UUID        NOT NULL,
-  causation_id   UUID,
-  ocurrido_en    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  publicado_en   TIMESTAMPTZ,
-  estado         VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
+  id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  tipo                VARCHAR(60) NOT NULL,
+  version             VARCHAR(10) NOT NULL DEFAULT '1',
+  agregado            VARCHAR(40) NOT NULL,
+  agregado_id         UUID        NOT NULL,
+  payload             JSONB       NOT NULL,
+  metadatos           JSONB       NOT NULL DEFAULT '{}'::jsonb,
+  correlation_id      UUID        NOT NULL,
+  causation_id        UUID,
+  ocurrido_en         TIMESTAMPTZ NOT NULL DEFAULT now(),
+  publicado_en        TIMESTAMPTZ,
+  estado              VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
     CONSTRAINT ck_publicidad_evtdom_estado
-    CHECK (estado IN ('PENDIENTE', 'PUBLICADO', 'FALLIDO')),
-  intentos       SMALLINT    NOT NULL DEFAULT 0
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO')),
+  intentos            SMALLINT    NOT NULL DEFAULT 0,
+  -- H2.S3.M1: tomar-publicar-marcar en transacciones cortas, sin la red
+  -- adentro (ADR-018). tomado_en/tomado_por identifican QUE relevo tomo la
+  -- fila (recuperacion de un TOMADO huerfano si el proceso muere entre las
+  -- dos transacciones cortas); ultimo_error y proximo_intento_en son el
+  -- backoff exponencial con jitter (Q-02: base PT1S, tope PT5M, +-20 por
+  -- ciento), config en aportaya.outbox.*, nunca literal en el codigo.
+  tomado_en           TIMESTAMPTZ,
+  tomado_por          VARCHAR(100),
+  ultimo_error        TEXT,
+  proximo_intento_en  TIMESTAMPTZ
 );
--- Indice parcial de despacho: el relevo solo mira lo PENDIENTE.
+-- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
+-- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_publicidad_evtdom_despacho
   ON publicidad.evento_dominio (ocurrido_en) WHERE estado = 'PENDIENTE';
+-- Recuperacion de un TOMADO huerfano (el relevo que lo tomo murio antes
+-- de marcar PUBLICADO/backoff): el siguiente relevo lo vuelve a tomar.
+CREATE INDEX IF NOT EXISTS ix_publicidad_evtdom_tomado
+  ON publicidad.evento_dominio (tomado_en) WHERE estado = 'TOMADO';
 COMMENT ON TABLE publicidad.evento_dominio IS 'Outbox transaccional del servicio (ADR-027).';
 
 -- Idempotencia de consumo: (id_evento, consumidor). Append-only de facto.
@@ -579,25 +759,40 @@ COMMENT ON TABLE publicidad.shedlock IS 'Bloqueo de trabajos programados entre r
 -- Outbox del servicio: se escribe en la MISMA transaccion del caso
 -- de uso; el relevo lo publica (UPDATE de estado, ADR-027/018).
 CREATE TABLE IF NOT EXISTS tarifas.evento_dominio (
-  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  tipo           VARCHAR(60) NOT NULL,
-  version        VARCHAR(10) NOT NULL DEFAULT '1',
-  agregado       VARCHAR(40) NOT NULL,
-  agregado_id    UUID        NOT NULL,
-  payload        JSONB       NOT NULL,
-  metadatos      JSONB       NOT NULL DEFAULT '{}'::jsonb,
-  correlation_id UUID        NOT NULL,
-  causation_id   UUID,
-  ocurrido_en    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  publicado_en   TIMESTAMPTZ,
-  estado         VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
+  id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  tipo                VARCHAR(60) NOT NULL,
+  version             VARCHAR(10) NOT NULL DEFAULT '1',
+  agregado            VARCHAR(40) NOT NULL,
+  agregado_id         UUID        NOT NULL,
+  payload             JSONB       NOT NULL,
+  metadatos           JSONB       NOT NULL DEFAULT '{}'::jsonb,
+  correlation_id      UUID        NOT NULL,
+  causation_id        UUID,
+  ocurrido_en         TIMESTAMPTZ NOT NULL DEFAULT now(),
+  publicado_en        TIMESTAMPTZ,
+  estado              VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
     CONSTRAINT ck_tarifas_evtdom_estado
-    CHECK (estado IN ('PENDIENTE', 'PUBLICADO', 'FALLIDO')),
-  intentos       SMALLINT    NOT NULL DEFAULT 0
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO')),
+  intentos            SMALLINT    NOT NULL DEFAULT 0,
+  -- H2.S3.M1: tomar-publicar-marcar en transacciones cortas, sin la red
+  -- adentro (ADR-018). tomado_en/tomado_por identifican QUE relevo tomo la
+  -- fila (recuperacion de un TOMADO huerfano si el proceso muere entre las
+  -- dos transacciones cortas); ultimo_error y proximo_intento_en son el
+  -- backoff exponencial con jitter (Q-02: base PT1S, tope PT5M, +-20 por
+  -- ciento), config en aportaya.outbox.*, nunca literal en el codigo.
+  tomado_en           TIMESTAMPTZ,
+  tomado_por          VARCHAR(100),
+  ultimo_error        TEXT,
+  proximo_intento_en  TIMESTAMPTZ
 );
--- Indice parcial de despacho: el relevo solo mira lo PENDIENTE.
+-- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
+-- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_tarifas_evtdom_despacho
   ON tarifas.evento_dominio (ocurrido_en) WHERE estado = 'PENDIENTE';
+-- Recuperacion de un TOMADO huerfano (el relevo que lo tomo murio antes
+-- de marcar PUBLICADO/backoff): el siguiente relevo lo vuelve a tomar.
+CREATE INDEX IF NOT EXISTS ix_tarifas_evtdom_tomado
+  ON tarifas.evento_dominio (tomado_en) WHERE estado = 'TOMADO';
 COMMENT ON TABLE tarifas.evento_dominio IS 'Outbox transaccional del servicio (ADR-027).';
 
 -- Idempotencia de consumo: (id_evento, consumidor). Append-only de facto.
@@ -641,25 +836,40 @@ COMMENT ON TABLE tarifas.estado_saga IS 'Estado de saga orquestada por este serv
 -- Outbox del servicio: se escribe en la MISMA transaccion del caso
 -- de uso; el relevo lo publica (UPDATE de estado, ADR-027/018).
 CREATE TABLE IF NOT EXISTS transparencia.evento_dominio (
-  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  tipo           VARCHAR(60) NOT NULL,
-  version        VARCHAR(10) NOT NULL DEFAULT '1',
-  agregado       VARCHAR(40) NOT NULL,
-  agregado_id    UUID        NOT NULL,
-  payload        JSONB       NOT NULL,
-  metadatos      JSONB       NOT NULL DEFAULT '{}'::jsonb,
-  correlation_id UUID        NOT NULL,
-  causation_id   UUID,
-  ocurrido_en    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  publicado_en   TIMESTAMPTZ,
-  estado         VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
+  id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  tipo                VARCHAR(60) NOT NULL,
+  version             VARCHAR(10) NOT NULL DEFAULT '1',
+  agregado            VARCHAR(40) NOT NULL,
+  agregado_id         UUID        NOT NULL,
+  payload             JSONB       NOT NULL,
+  metadatos           JSONB       NOT NULL DEFAULT '{}'::jsonb,
+  correlation_id      UUID        NOT NULL,
+  causation_id        UUID,
+  ocurrido_en         TIMESTAMPTZ NOT NULL DEFAULT now(),
+  publicado_en        TIMESTAMPTZ,
+  estado              VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
     CONSTRAINT ck_transparencia_evtdom_estado
-    CHECK (estado IN ('PENDIENTE', 'PUBLICADO', 'FALLIDO')),
-  intentos       SMALLINT    NOT NULL DEFAULT 0
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO')),
+  intentos            SMALLINT    NOT NULL DEFAULT 0,
+  -- H2.S3.M1: tomar-publicar-marcar en transacciones cortas, sin la red
+  -- adentro (ADR-018). tomado_en/tomado_por identifican QUE relevo tomo la
+  -- fila (recuperacion de un TOMADO huerfano si el proceso muere entre las
+  -- dos transacciones cortas); ultimo_error y proximo_intento_en son el
+  -- backoff exponencial con jitter (Q-02: base PT1S, tope PT5M, +-20 por
+  -- ciento), config en aportaya.outbox.*, nunca literal en el codigo.
+  tomado_en           TIMESTAMPTZ,
+  tomado_por          VARCHAR(100),
+  ultimo_error        TEXT,
+  proximo_intento_en  TIMESTAMPTZ
 );
--- Indice parcial de despacho: el relevo solo mira lo PENDIENTE.
+-- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
+-- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_transparencia_evtdom_despacho
   ON transparencia.evento_dominio (ocurrido_en) WHERE estado = 'PENDIENTE';
+-- Recuperacion de un TOMADO huerfano (el relevo que lo tomo murio antes
+-- de marcar PUBLICADO/backoff): el siguiente relevo lo vuelve a tomar.
+CREATE INDEX IF NOT EXISTS ix_transparencia_evtdom_tomado
+  ON transparencia.evento_dominio (tomado_en) WHERE estado = 'TOMADO';
 COMMENT ON TABLE transparencia.evento_dominio IS 'Outbox transaccional del servicio (ADR-027).';
 
 -- Idempotencia de consumo: (id_evento, consumidor). Append-only de facto.

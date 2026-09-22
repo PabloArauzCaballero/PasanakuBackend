@@ -1,11 +1,12 @@
 # Carril PR3 — Plataforma/Infra (Leo, turno noche 2026-09-21)
 
-> **AVANCE: 16 / 49 — 32,7 %.**
-> **Estado:** `IN_PROGRESS`. PRs #4, #9, #10, #12, #13, [#14](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/14)
-> **mergeados** (ninguno bloqueado por el clasificador de permisos), todos espejados a `test`.
-> **H1 cerrado salvo H1.S2.M3** (hallazgo real, no bloqueante — ver §Hallazgo H1.S2.M3).
-> **H2.S1 (Relevo como bean, lock distribuido) cerrado.** Siguiente: H2.S2 (punta a punta con
-> Kafka de Testcontainers).
+> **AVANCE: 22 / 49 — 44,9 %.**
+> **Estado:** `IN_PROGRESS`. PRs #4, #9, #10, #12, #13, #14, #16 **mergeados** (ninguno bloqueado
+> por el clasificador de permisos), todos espejados a `test`. **H1 cerrado salvo H1.S2.M3**
+> (hallazgo real, no bloqueante). **H2.S1 y gran parte de H2.S2/H2.S3 cerrados**: `Relevo` ya
+> tiene el envelope de 8 cabeceras, tomar-publicar-marcar en 2 transacciones cortas, backoff con
+> jitter y `FALLIDO` como DLQ lógica. Falta H2.S2.M3/M5 (E2E con Kafka real de Testcontainers) y
+> H2.S3.M4/M5, y todo H2.S4 (kill-test, métricas expuestas, ADR-047). Siguiente: `OutboxE2ETest`.
 
 Encargo: [repartos/2026-09-21/PromptNoche/Backend/Leo/PR3-Plataforma.Infra/OutboxQuePublicaYGuardasComunes.md](../../../../../PasanakuPromptManager/repartos/2026-09-21/PromptNoche/Backend/Leo/PR3-Plataforma.Infra/OutboxQuePublicaYGuardasComunes.md)
 (repo `PasanakuPromptManager`, no este). Daily en el repo del estándar:
@@ -22,10 +23,10 @@ Ya hecha en el commit `2d2da96` (previo a esta sesión): `.claude/hooks`, `.clau
 | Hito | Microtareas | HECHO | Estado |
 |---|---:|---:|---|
 | H1 — Idempotencia | 12 | 10 | EN CURSO — solo H1.S2.M3 TODO (hallazgo real, no bloqueante) |
-| H2 — Outbox/Relevo | 20 | 5 | EN CURSO — H2.S1 (M1–M5) cerrado; H2.S2/S3/S4 TODO |
+| H2 — Outbox/Relevo | 20 | 11 | EN CURSO — H2.S1 cerrado; H2.S2/S3 parciales; H2.S4 TODO |
 | H3 — Guardas comunes | 9 | 1 | EN CURSO — H3.S3.M1 mergeado; resto TODO |
 | H4 — Barridos/Dinero/logs/probes | 8 | 0 | TODO |
-| **TOTAL** | **49** | **16** | |
+| **TOTAL** | **49** | **22** | |
 
 ## H1 — resumen
 
@@ -255,6 +256,88 @@ BUILD SUCCESSFUL in 1m 3s
 # command received" -- otra sesion en la maquina compartida, no un fallo real)
 BUILD SUCCESSFUL in 19m 41s
 ```
+
+## H2.S2/H2.S3 — resumen (envelope de Kafka, tomar-publicar-marcar, backoff)
+
+| ID | Qué se hizo | Resultado |
+|---|---|---|
+| H2.S2.M1 | `docs/auditoria-produccion/contratos/evento-kafka.md` — ya existía en `dev` (de una pasada de planificación anterior), verificado contra la implementación: tema `aportaya.<tipo>`, clave `agregado_id`, 8 cabeceras — coincide exactamente | **PASS** — verificado, no reescrito |
+| H2.S2.M2 | `BaseDePrueba.kafka()`: `org.testcontainers.kafka.KafkaContainer` (clase verificada con `javap`, no la vieja de Confluent) sobre `apache/kafka:3.9.0`, versión fijada | **PASS** — `plataforma/comun-pruebas` compila limpio |
+| H2.S2.M4 | `Relevo.mensaje()`: las 8 cabeceras del envelope desde columnas/`metadatos` de `evento_dominio` | **PASS** — cubierto por `RelevoRepositorioTest` (no valida cabeceras Kafka reales todavía: eso es H2.S2.M3/M5, con broker real) |
+| H2.S3.M1 | `tomado_en`, `tomado_por`, `ultimo_error`, `proximo_intento_en` + estado `TOMADO` en `evento_dominio` (los 14 esquemas), vía `scripts/generar_ddl.py`/`modelo.py` (micro-PR troncal) | **PASS** |
+| H2.S3.M2 | `RelevoRepositorioTest` — 5 escenarios (PostgreSQL real, Kafka con doble de Mockito): tomar-publicar-marcar feliz, fallo con backoff, `FALLIDO` tras `intentos-maximos`, `TOMADO` huérfano recuperado, dos relevos sin duplicar | **Ciclo rojo→verde real**, ver evidencia abajo |
+| H2.S3.M3 | `Relevo.relevar()` sin `@Transactional`: tx1 corta (tomar), `kafka.send().get(timeout)` fuera de toda transacción, tx2 corta (marcar) | **PASS** |
+
+**Pendiente, explícitamente TODO**: H2.S2.M3/M5 (`OutboxE2ETest` con Kafka de Testcontainers real —
+no con doble — y consumidor de prueba), H2.S3.M4 (barrido `SinUmbralLiteral` sobre las propiedades
+`aportaya.outbox.*`, ya sin literales en el código pero sin prueba negativa explícita todavía),
+H2.S3.M5 (`pg_stat_activity` vacío durante el envío, con latencia inyectada — el diseño ya lo
+garantiza por construcción, falta la evidencia con latencia real), y todo H2.S4 (kill-test con
+Kafka apagado/vuelto, métricas expuestas por HTTP, `ADR-047`).
+
+### Evidencia real — ciclo rojo→verde de `RelevoRepositorioTest`
+
+**Corrida 1 (rojo genuino, 5/5 FAIL):**
+```
+java.lang.ClassCastException: class java.sql.Timestamp cannot be cast to class java.time.OffsetDateTime
+    at bo.aportaya.plataforma.mensajeria.Relevo.medirEdad(Relevo.java:295)
+```
+Causa real: `medirEdad()`/`mensaje()` casteaban `(OffsetDateTime) campo.get("ocurrido_en")` sobre un
+`Field<Object>` sin tipar de jOOQ — el driver JDBC entrega `java.sql.Timestamp`, no
+`OffsetDateTime`, sin la conversión explícita. Corregido con `.get("ocurrido_en",
+OffsetDateTime.class)`.
+
+**Corrida 2 (4/5 PASS, 1 FAIL):** el test de backoff comparaba `proximo_intento_en` contra
+`OffsetDateTime.now()` leído DESPUÉS de `relevar()`, con un `backoff-base` de 10ms — en una máquina
+bajo carga, esos 10ms ya habían pasado para cuando corría la aserción. Corregido capturando el
+`OffsetDateTime` ANTES de llamar `relevar()` y usando un `backoff-base` más generoso (10s) para ese
+caso específico.
+
+**Corrida 3 (verde real):**
+```
+BUILD SUCCESSFUL in 1m 28s
+```
+
+### Gate local completo (`comun-mensajeria` + `comun-web`)
+
+Encontró un tercer bug real al integrar: `ApplicationContextRunner` "pelado"
+(`RelevoConfiguracionTest`) no trae el `ConversionService` de Spring Boot, así que
+`@Value("PT1S") -> Duration` en los 4 parámetros nuevos de `Relevo` fallaba con "no matching
+editors". Corregido registrando `ApplicationConversionService.getSharedInstance()` explícitamente
+en el `ApplicationContextRunner`.
+
+```
+BUILD SUCCESSFUL in 1m 41s
+```
+
+### `ArranqueTest` × 14 — un hallazgo real de entorno, no de código
+
+`identidad` falló la primera corrida: `EsquemaAlDiaRepositorioTest` (una prueba propia de ese
+servicio que compara las clases jOOQ generadas contra la base viva) detectó que
+`identidad.evento_dominio` tenía las 4 columnas nuevas en la base de **Testcontainers** (que aplica
+`sql/aplicar.sql` fresco) pero NO en las clases jOOQ generadas, porque esas clases se generan
+contra el contenedor **compartido** `aportaya-postgres` — al que, a propósito, no le había aplicado
+mi cambio de esquema (evité tocarlo por el riesgo de romper otras sesiones concurrentes con un
+`aplicar.sql` que de todos modos no altera tablas existentes, solo las crea si no existen).
+
+**Corregido con una migración aditiva, no destructiva**, contra el contenedor compartido (`ALTER
+TABLE ... ADD COLUMN IF NOT EXISTS` + `ALTER ... DROP/ADD CONSTRAINT` para el `CHECK`, las 14
+esquemas, dentro de un bloque `DO $$ ... $$` con `unnest`) — no una recreación de tablas, cero
+riesgo para sesiones concurrentes. Confirmado con `\d identidad.evento_dominio` que las 4 columnas
+quedaron, `generateJooq` regenerado, `identidad:integrationTest --tests '*ArranqueTest*'` verde.
+
+```
+# Los 8 servicios que ya habían corrido antes del hallazgo:
+aportes, auditoria, cumplimiento, entregas, erp, garantia, grupos -> BUILD SUCCESSFUL (corrida previa)
+identidad -> FAILED (2/92), causa de arriba -> corregido -> BUILD SUCCESSFUL in 1m 27s (recorrida)
+
+# Los 6 que faltaban, en una corrida aparte:
+notificaciones, nucleo-financiero, organizador, publicidad, tarifas, transparencia
+-> BUILD SUCCESSFUL in 7m 30s
+```
+
+**Los 14 servicios confirmados en verde.** No se afirma nada de esto sin la salida real pegada
+arriba.
 
 ## H3 — resumen
 

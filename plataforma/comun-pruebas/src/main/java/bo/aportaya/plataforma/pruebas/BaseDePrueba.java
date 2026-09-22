@@ -8,6 +8,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.kafka.KafkaContainer;
 
 /**
  * La PostgreSQL real de las pruebas de integracion, con el esquema de {@code sql/}
@@ -26,7 +27,15 @@ public final class BaseDePrueba {
     private static final String IMAGEN = "postgres:16";
     private static final String NOMBRE = "pasanaku";
 
+    // H2.S2.M2: version fijada, no "latest" — la clase org.testcontainers.kafka.KafkaContainer
+    // (no la org.testcontainers.containers.KafkaContainer vieja, basada en Confluent) se
+    // verifico con javap contra el jar real de testcontainers:kafka:1.21.3 antes de escribir,
+    // por indicacion explicita del encargo. La imagen es la oficial de Apache (no Confluent):
+    // publicada por el propio proyecto Kafka desde la serie 3.7.
+    private static final String IMAGEN_KAFKA = "apache/kafka:3.9.0";
+
     private static PostgreSQLContainer<?> contenedor;
+    private static KafkaContainer kafka;
 
     private BaseDePrueba() {}
 
@@ -36,6 +45,19 @@ public final class BaseDePrueba {
             contenedor = arrancar();
         }
         return contenedor;
+    }
+
+    /**
+     * El broker de Kafka compartido, real (no mockeado): H2 exige apagarlo a proposito para
+     * probar backoff/reinicio, y eso solo se puede hacer contra un broker de verdad
+     * (microservices-testing). Un solo contenedor por JVM, igual que {@link #contenedor()}.
+     */
+    public static synchronized KafkaContainer kafka() {
+        if (kafka == null) {
+            kafka = new KafkaContainer(IMAGEN_KAFKA);
+            kafka.start();
+        }
+        return kafka;
     }
 
     /** Una conexion como el rol dueno de la base. */

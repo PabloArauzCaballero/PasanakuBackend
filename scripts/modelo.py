@@ -141,7 +141,12 @@ ESQUEMAS_ORQUESTADORES = {"aportes", "entregas", "garantia", "tarifas"}
 # Tablas de infraestructura -> lista de columnas de estado sobre las que el
 # svc_* propio recibe UPDATE (vacia = sin UPDATE, solo SELECT/INSERT).
 INFRA_MENSAJERIA = {
-    "evento_dominio":   ["publicado_en", "estado", "intentos"],
+    # H2.S3.M1: tomado_en/tomado_por/ultimo_error/proximo_intento_en son las
+    # columnas del tomar-publicar-marcar en transacciones cortas (ADR-018).
+    "evento_dominio":   [
+        "publicado_en", "estado", "intentos",
+        "tomado_en", "tomado_por", "ultimo_error", "proximo_intento_en",
+    ],
     "evento_consumido": [],
     "shedlock":         ["lock_until", "locked_at", "locked_by"],
 }

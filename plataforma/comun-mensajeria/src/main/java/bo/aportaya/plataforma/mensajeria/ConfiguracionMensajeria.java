@@ -1,6 +1,7 @@
 package bo.aportaya.plataforma.mensajeria;
 
 import io.micrometer.core.instrument.MeterRegistry;
+import java.time.Duration;
 import javax.sql.DataSource;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.provider.jdbctemplate.JdbcTemplateLockProvider;
@@ -59,7 +60,11 @@ public class ConfiguracionMensajeria {
             @Value("${aportaya.esquema}") String esquema,
             DSLContext dsl,
             KafkaTemplate<String, String> kafka,
-            MeterRegistry metricas) {
-        return new Relevo(esquema, dsl, kafka, metricas);
+            MeterRegistry metricas,
+            @Value("${aportaya.outbox.intentos-maximos:10}") int intentosMaximos,
+            @Value("${aportaya.outbox.backoff-base:PT1S}") Duration backoffBase,
+            @Value("${aportaya.outbox.backoff-tope:PT5M}") Duration backoffTope,
+            @Value("${aportaya.outbox.timeout-publicacion:PT10S}") Duration timeoutPublicacion) {
+        return new Relevo(esquema, dsl, kafka, metricas, intentosMaximos, backoffBase, backoffTope, timeoutPublicacion);
     }
 }
