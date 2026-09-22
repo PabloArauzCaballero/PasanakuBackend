@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { puedeConfirmar, restauracionVencida, type Respaldo } from './datos-simulados'
+import { puedeConfirmar, restauracionVencida } from './datos-simulados'
+import type { Respaldo } from './puertos'
 
 const base = (probada: string | null): Respaldo => ({ id: 'r', origen: 'x', tomadoEl: '2026-09-11 02:00', ultimaRestauracionProbadaEl: probada })
 

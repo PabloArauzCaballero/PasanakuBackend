@@ -65,7 +65,30 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/app/rutas/sistemas/dominio/proveedor-fuentes.ts",
+                  "with": "src/app/rutas/sistemas/dominio/proveedor-fuentes.demo.ts"
+                }
+              ]
+            },
+            "demo": {
+              "outputHashing": "all",
+              "optimization": {
+                "scripts": true,
+                "fonts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                }
+              },
+              "fileReplacements": [
+                {
+                  "replace": "src/app/rutas/sistemas/dominio/proveedor-fuentes.ts",
+                  "with": "src/app/rutas/sistemas/dominio/proveedor-fuentes.demo.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"

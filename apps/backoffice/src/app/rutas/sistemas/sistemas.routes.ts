@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router'
+import { detectarModoFuentesDeSistemas, provideFuentesDeSistemas } from './dominio/proveedor-fuentes'
 import { soloRolesDeSistemas } from './guardia-rol-sistemas'
 
 /**
@@ -12,11 +13,19 @@ import { soloRolesDeSistemas } from './guardia-rol-sistemas'
  * `ver:sistemas`. Ninguna pantalla de acá carga su chunk si cualquiera de las dos
  * barreras corta (delta D-2, doble barrera de interfaz — la de servidor la simula cada
  * pantalla, ver el hueco de contrato en `planes/informes/carril-B5.md`).
+ *
+ * `providers` en la ruta padre (H2.S2.M1): acá, y no en `app.config.ts`, es donde se
+ * resuelve la fuente de las nueve pantallas — este archivo es de este carril,
+ * `app.config.ts` no lo es. `provideFuentesDeSistemas` viene de
+ * `dominio/proveedor-fuentes` (la versión SEGURA, la que compila `production`);
+ * `fileReplacements` (`angular.json`) la cambia por `proveedor-fuentes.demo.ts` solo en
+ * las configuraciones `development` y `demo`.
  */
 export const rutasSistemas: Routes = [
   {
     path: '',
     canMatch: [soloRolesDeSistemas],
+    providers: [...provideFuentesDeSistemas(detectarModoFuentesDeSistemas())],
     loadComponent: () => import('../../layout/sistemas/shell-sistemas').then((m) => m.ShellSistemas),
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'servicios' },
