@@ -5,6 +5,7 @@ import { map } from 'rxjs'
 import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
 import { Boton } from '@aportaya/ui/boton/boton'
 import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
+import { confirmarDescarteSiSucio } from '@aportaya/ui/dialogo/politica-de-descarte'
 import { Campo } from '@aportaya/ui/campo/campo'
 import { accionesDeCampana } from '../dominio/cu111-campanas'
 import { textosPublicidad } from '../textos'
@@ -39,6 +40,7 @@ type Decision = 'APROBAR' | 'RECHAZAR'
         [destructivo]="decision() === 'RECHAZAR'"
         [abierto]="dialogoAbierto()"
         [cargando]="enviando()"
+        [puedeDescartar]="puedeDescartar"
         (abiertoChange)="dialogoAbierto.set($event)"
         (confirmar)="confirmar()"
         (cancelar)="cerrar()"
@@ -68,6 +70,9 @@ export class PanelDeAprobacionDeCampana {
   protected readonly intentoConfirmar = signal(false)
   protected readonly enviando = signal(false)
   protected readonly motivoVacio = () => this.intentoConfirmar() && this.decision() === 'RECHAZAR' && this.motivo().trim().length === 0
+  /** Borrador sucio: solo el rechazo tiene campo, y solo cuenta si ya se escribió algo. */
+  protected readonly sucio = () => this.decision() === 'RECHAZAR' && this.motivo().trim().length > 0
+  protected readonly puedeDescartar = confirmarDescarteSiSucio(this.sucio)
 
   abrir(decision: Decision): void {
     this.decision.set(decision)

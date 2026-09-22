@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core'
 import { CampoMonto } from '@aportaya/ui/campo-monto/campo-monto'
 import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
+import { confirmarDescarteSiSucio } from '@aportaya/ui/dialogo/politica-de-descarte'
 import { GrupoRadio } from '@aportaya/ui/grupo-radio/grupo-radio'
 import { Monto } from '@aportaya/ui/monto/monto'
 import { cobroExcedeElSaldo, crearCobro, type CuentaPorCobrar, type FormaDeCobro } from '../dominio/cu104-cobros'
@@ -21,6 +22,7 @@ import { textosContabilidad } from '../textos'
       [textoDeConfirmar]="t.cobrar + ' de ' + cuenta().terceroRazonSocial"
       [cargando]="enviando()"
       [abierto]="abierto()"
+      [puedeDescartar]="puedeDescartar"
       (abiertoChange)="cambiarApertura($event)"
       (confirmar)="confirmar()"
       (cancelar)="cambiarApertura(false)"
@@ -53,6 +55,10 @@ export class FichaDeCobro {
     { valor: 'EFECTIVO', texto: 'Efectivo' },
   ]
   private readonly enviarCobro = crearCobro()
+
+  /** Borrador sucio: se tocó el monto o se cambió la forma de cobro del valor inicial. */
+  protected readonly sucio = computed(() => this.monto().trim() !== '' || this.forma() !== 'TRANSFERENCIA')
+  protected readonly puedeDescartar = confirmarDescarteSiSucio(this.sucio)
 
   protected readonly errorDeMonto = computed(() =>
     this.monto() && cobroExcedeElSaldo(this.cuenta(), this.monto()) ? 'El cobro no puede exceder el saldo pendiente de la cuenta.' : undefined,
