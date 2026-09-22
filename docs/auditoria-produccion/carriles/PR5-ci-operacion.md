@@ -1,7 +1,7 @@
 # Carril PR5 — CI y operación (Pablo, turno noche 2026-09-21)
 
-> **AVANCE: 36 / 54 — 66,7 %.** (+ 1 BLOQUEADO con causa autorizada por el encargo, + 1 BLOQUEADO
-> por decisión de negocio pendiente — H2.S5.M3 —, + 1 A MEDIAS)
+> **AVANCE: 41 / 54 — 75,9 %.** (+ 1 BLOQUEADO con causa autorizada por el encargo, + 1 BLOQUEADO
+> por decisión de negocio pendiente — H2.S5.M3 —, + 2 A MEDIAS: H2.S1.M2, H2.S6.M2)
 > **Estado:** `IN_PROGRESS`. PRs abiertos: [#1](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/1)
 > (estándar + spotless), [#2](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/2)
 > (micro-PR troncal: catálogo CycloneDX + Redis). Ninguno mergeado todavía — el clasificador de
@@ -26,11 +26,11 @@ Encargo: [repartos/2026-09-21/PromptNoche/Backend/Pablo/PR5-Ci.Operacion/CiRealS
 | Hito | Microtareas | HECHO | Estado |
 |---|---:|---:|---|
 | H1 — Baseline global | 12 | 8 | EN CURSO (1 BLOQUEADO con causa) |
-| H2 — CI verde sin trampas | 20 | 11 | EN CURSO (1 A MEDIAS, 1 BLOQUEADO, 2 TODO en S2, S6 sin empezar) |
+| H2 — CI verde sin trampas | 20 | 16 | EN CURSO (2 A MEDIAS: S1.M2, S6.M2; 1 BLOQUEADO: S5.M3; S6.M5 bloqueado por F-04/F-06/F-07, fuera de mi alcance) |
 | H3 — Borde | 7 | 7 | **HECHO** — rate limiting, CORS y bloqueo de `/actuator` con evidencia real |
 | H4 — Carga medida | 3 | 3 | **HECHO** — 6 escenarios k6 reales, `transferencia.js` con baseline ×3 completo |
 | H5 — Runbooks, cierre | 12 | 7 | EN CURSO (S3.M3/M4 y S4 completo sin empezar) |
-| **TOTAL** | **54** | **36** | |
+| **TOTAL** | **54** | **41** | |
 
 ## H3.S1 — resumen (rate limiting real con Redis)
 
@@ -110,6 +110,46 @@ reverificados, no solo señalados:**
 Detalle completo: [evidencia/H5-S3-M1-revision-diff.md](../evidencia/H5-S3-M1-revision-diff.md),
 [evidencia/H5-S3-M1-gateway-suite-completa.txt](../evidencia/H5-S3-M1-gateway-suite-completa.txt).
 
+## H2.S6 — resumen (verificarProduccion, e2e-financiero, boveda, dependabot)
+
+| ID | Qué se logró | Resultado |
+|---|---|---|
+| H2.S2.M4 | `.github/dependabot.yml`: gradle + github-actions, semanal, agrupado (esquema verificado contra la doc oficial) | PASS — YAML válido, `python3 -c "import yaml; ..."` |
+| H2.S6.M1 | Job `e2e-financiero` en `ci.yml`: `postgres:16` + `confluentinc/cp-kafka:7.7.1` (no `apache/kafka` del encargo — no es la imagen real de este repo, regla 00 §1.4), `if: dev \|\| workflow_dispatch`, corre `:servicios:nucleo-financiero:e2eTest :plataforma:comun-mensajeria:e2eTest` | **PASS real, verificado dos veces**: en el PR salió `SKIPPED` (correcto — `github.ref` de un `pull_request` no es `refs/heads/dev`); agregado `workflow_dispatch` a `ci.yml` (faltaba, sin él el `if` nunca podía dispararse) y disparado a mano: Postgres + Kafka (KRaft) arrancaron sanos, `BUILD SUCCESSFUL in 2m 24s`, los dos módulos en `NO-SOURCE` (Justin/Leo todavía no escriben esos E2E) — [evidencia/H2-S6-M1-e2e-financiero-ci-real.txt](../evidencia/H2-S6-M1-e2e-financiero-ci-real.txt) |
+| H2.S6.M2 | Tarea raíz `verificarProduccion` (`build.gradle.kts`) | **A MEDIAS** — ver abajo |
+| H2.S6.M3 | Pasos de Marcelo (`inventario_endpoints.py --check`, `verificar_contratos_limites.py`) cableados con guard de existencia en `boveda-y-esquema.yml` | **PASS con evidencia de CI real**: job `boveda` verde, `::warning::` visible confirmando que ninguno de los dos scripts existe todavía — [evidencia/H2-S6-M3-boveda-ci-real.txt](../evidencia/H2-S6-M3-boveda-ci-real.txt) |
+| H2.S6.M4 | Grep de trampas (`\|\| true`, `ignoreFailures`, `skipTests`, `continue-on-error`) en `.github/workflows` y `buildSrc` | **PASS, 0 trampas reales** (los 3 `\|\| true` son el idiom legítimo para que `grep -c`/`-q` sin match no mate el script; el único `-x test` ya lo justifica el propio encargo) — [evidencia/H2-S6-M4-grep-trampas.txt](../evidencia/H2-S6-M4-grep-trampas.txt) |
+
+### H2.S6.M2 — A MEDIAS
+
+- **Qué anda:** la tarea `verificarProduccion` existe, compila, y su grafo de dependencias
+  (`verificar`, `testBarrido`, `cyclonedxBom`, `erroresCatalogo`, `verificarBoveda`,
+  `verificarSeguridad`) resuelve sin errores — confirmado con `--dry-run` (todas las tareas por
+  módulo, incluidos `:plataforma:gateway:cyclonedxBom` y `:plataforma:comun-web:testBarrido`,
+  aparecen en el grafo) y con ejecución real parcial: `verificarSeguridad` corrió de punta a punta
+  dentro de `verificarProduccion` (`TODO OK · 2 aviso(s)`).
+- **Qué no anda:** `./gradlew verificarProduccion` no llega a exit 0 todavía. Con `--continue`
+  (para catalogar TODO en una sola corrida, no solo el primer rojo) aparecieron 3 fallas reales:
+  1. `:plataforma:comun-web:jacocoTestCoverageVerification` — branches 0.46 < 0.47 exigido.
+  2. `:servicios:identidad:jacocoTestCoverageVerification` — lines 0.72 < 0.79, branches 0.54 < 0.63.
+  3. `:servicios:nucleo-financiero:integrationTest` (`CU24Test`, la invariante contable
+     SUM(debe)=SUM(haber)) — **clasificado como `ENVIRONMENT`, no `PRODUCT_BUG`** (regla 80.4,
+     con reproducción, no intuición): la causa real es
+     `java.net.BindException: Address already in use` al abrir la conexión JDBC, no un fallo de
+     la aserción contable. Reproducido en aislamiento
+     (`./gradlew :servicios:nucleo-financiero:integrationTest --tests '*CU24Test*'`) → **PASS**,
+     `BUILD SUCCESSFUL en 17s`. La causa es contención de puertos efímeros en esta máquina
+     compartida (15 módulos con pools JDBC reales corriendo en la misma corrida, más ~20
+     contenedores Docker de otros proyectos activos) — no una regresión de código.
+- **Qué falta exactamente:** los hallazgos 1 y 2 son reales y deterministas, pero **fuera de mi
+  alcance**: `plataforma/comun-web` y `servicios/identidad` están explícitamente OUT en el encargo
+  (§3, "servicios/\*\* y plataforma/comun-\* (los otros cuatro)"). No les subo cobertura yo — eso
+  es escribir tests de un módulo ajeno, prohibido de paso (regla 00 §3). Lo que falta es que el
+  dueño de cada módulo suba la cobertura (o el hallazgo se registre como excepción fechada, decisión
+  que no es mía). El hallazgo 3 no bloquea nada: era ambiental, ya reclasificado con evidencia.
+- **Dónde quedó:** `build.gradle.kts` commiteado y pusheado (`b6c2625`); evidencia completa en
+  [evidencia/H2-S6-M2-verificarProduccion-continue.txt](../evidencia/H2-S6-M2-verificarProduccion-continue.txt).
+
 ## H2 — resumen (detalle de evidencia en los commits de la rama)
 
 | ID | Qué se logró | Resultado |
@@ -118,7 +158,7 @@ Detalle completo: [evidencia/H5-S3-M1-revision-diff.md](../evidencia/H5-S3-M1-re
 | H2.S1.M2 | Commit, PR #1 abierto | **A MEDIAS** — falta el merge (humano, bloqueado por el clasificador) |
 | H2.S2.M1 | Dependency locking + 15 `gradle.lockfile` commiteados | PASS local |
 | H2.S2.M2 | Job real `dependencias` (OSV-Scanner v2.6.0, reusable workflow) reemplaza el paso falso 19c | **Corrida real en CI**: escaneó, encontró vulnerabilidades reales, falló correctamente (`fail-on-vuln`) |
-| H2.S2.M3 | Prueba negativa en rama temporal | **TODO** — no se hizo |
+| H2.S2.M3 | Prueba negativa (**desvío declarado**: evidencia real en vez de sintética — ver [evidencia/H2-S2-M3-osv-negativo.txt](../evidencia/H2-S2-M3-osv-negativo.txt)) | **PASS** — 1122 vulnerabilidades reales detectadas, job en rojo por diseño (`fail-on-vuln=true`) |
 | H2.S2.M4 | `.github/dependabot.yml` | **TODO** — no se hizo |
 | H2.S3.M1/M2 | SBOM CycloneDX por módulo (plugin con versión literal, ver commit `8c6bc4d`), job + `upload-artifact` | PASS local (200 componentes, CycloneDX 1.6 válido); pendiente de una corrida de CI completa desde el fix |
 | H2.S4.M1 | Trivy real sobre `identidad:ci` (`aquasecurity/trivy-action@v0.36.0`) | Wireado; **encontró CRITICAL reales sin parche** (hallazgo F-04, bloqueante) |
@@ -194,6 +234,25 @@ ninguna otra vía que rodee la revisión (seria ir en contra de la intención de
 | F-02 | `docker compose -f despliegue/compose/base.yml --profile base up -d --wait` devuelve exit 1 aunque **todos** los servicios queden `Healthy`, por el job de un solo uso `minio_bucket` (`restart: "no"`, exit 0); `bd:levantar` (tarea Gradle, `bd/build.gradle.kts`) hereda el fallo y rompe `bd:aplicar`/`bd:reset` en cualquier máquina con Docker Compose ≥ v5.3.1. Reproducido dos veces (volumen limpio y volumen con datos) | `plataforma/infra` (Leo, `bd/build.gradle.kts` no está en mi alcance) | ABIERTO |
 | F-03 | El puerto host de `aportaya-postgres` estaba fijo en `5433` (`despliegue/compose/base.yml`); en una máquina compartida con otro Postgres ajeno en ese puerto, el perfil `base` nunca levanta. Corregido en este turno (dentro de mi alcance): puerto configurable vía `APORTAYA_PG_PORT`, default sin cambios | — (ya corregido, informativo para los otros 4 carriles si les pasa lo mismo en sus máquinas) | CORREGIDO |
 | F-05 | Ninguno de los 14 servicios expone `prometheus` en `management.endpoints.web.exposure.include` (verificado: 0/14). Las anotaciones `prometheus.io/scrape` que agregué en `generar_k8s.py` (H3.S3) no sirven hasta que esto se corrija en la plantilla | `plataforma/infra` (Leo — es la plantilla compartida, `servicios/**` está OUT en mi encargo) | ABIERTO |
+| F-06 | `plataforma/comun-web` no pasa su propio gate de cobertura: branches 0.46 < 0.47 exigido (`jacocoTestCoverageVerification`). Encontrado al correr `verificarProduccion` (H2.S6.M2) completo por primera vez — hasta ahora el baseline (H1.S2.M2) excluía jacoco a propósito (`-x jacocoTestCoverageVerification`), así que nadie lo había corrido de punta a punta. Evidencia: [evidencia/H2-S6-M2-verificarProduccion-continue.txt](../evidencia/H2-S6-M2-verificarProduccion-continue.txt) | `plataforma/comun-*` está OUT en mi encargo — dueño sin asignar todavía entre los otros cuatro carriles | ABIERTO — bloquea `verificarProduccion` en verde |
+| F-07 | `servicios/identidad` no pasa su propio gate de cobertura: lines 0.72 < 0.79, branches 0.54 < 0.63 exigidos. Mismo motivo que F-06 (primera corrida real de jacoco). Evidencia: mismo archivo que F-06 | Richard (carril de identidad) — `servicios/**` está OUT en mi encargo | ABIERTO — bloquea `verificarProduccion` en verde |
+
+**Dos hallazgos encontrados y corregidos disparando el CI de verdad con `workflow_dispatch`
+(no solo con el PR), ambos dentro de mi alcance:**
+
+1. `e2e-financiero` salía `SKIPPED` en el PR real — no es un hallazgo en sí (el `if` evaluó
+   correctamente que `github.ref` de un `pull_request` no es `refs/heads/dev`), pero exponía que
+   `ci.yml` no tenía `workflow_dispatch` en su `on:`, así que la otra mitad de la condición del
+   job nunca podía dispararse — la única forma de probarlo de verdad antes de llegar a `dev`.
+   Agregado el trigger; re-disparado a mano; el job corrió Postgres + Kafka reales y terminó
+   `BUILD SUCCESSFUL`.
+2. El paso `19b · escaneo de secretos` (`gitleaks-action`) del job `imagenes` salía rojo por los
+   mismos 4 hallazgos que H5.S3.M2 ya había clasificado como falso positivo (UUID de ejemplo
+   repetido en un fixture de datos simulados, `packages/simulado/ejemplos/…json`, preexistente,
+   no tocado por mí) — sin un `.gitleaksignore`, ese paso queda rojo para siempre, sin importar
+   qué se corrija en mi carril. Agregado `.gitleaksignore` en la raíz con los 4 fingerprints
+   exactos (formato verificado contra la documentación oficial de gitleaks), cada uno con su
+   motivo y fecha, igual que `.trivyignore` para Trivy/OSV.
 
 ## No cubierto
 
