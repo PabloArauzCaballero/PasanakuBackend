@@ -31,7 +31,7 @@ sobre `BigDecimal` desnudo. `dividir`/`por` exigen `RoundingMode` explícito
 
 | # | Invariante | Dónde vive (SQL) | Dónde vive (Java) | Test que la demuestra |
 |---|---|---|---|---|
-| 1 | **balances** — `saldo_disponible` nunca negativo | `ck_cuenta_saldo_no_negativo` (`sql/40_reglas/restricciones.sql`) | `CU10RecargarSaldo`/`CU11RetirarSaldo` | `CU10ConcurrenciaTest` (parcial, 2 hilos); **11 escenarios de `LibroInvariantesTest`: TODO** |
+| 1 | **balances** — `saldo_disponible` nunca negativo | `ck_cuenta_saldo_no_negativo` (`sql/40_reglas/restricciones.sql`) | `CU10RecargarSaldo`/`CU11RetirarSaldo` | `CU10ConcurrenciaTest` (parcial, 2 hilos); **11/11 escenarios de `LibroInvariantesTest`: PASS contra PostgreSQL real** |
 | 2 | **ledger (double-entry)** — `SUM(debe) = SUM(haber)` por asiento | `fn_bil_recalcular_saldos`, `asiento_contable`/`partida_contable` | `CuadrarPartidas.verificar` (dominio puro) | `CuadrarPartidasTest` (5 casos, unitario) + `CuadrarPartidasPropiedadTest` (jqwik, 1000 tries) — **ambos YA EXISTEN, sin tocar este carril**; el cuadre CONTRA POSTGRESQL REAL (`SELECT transaccion_id, SUM(CASE sentido…)`) es H3.S1.M2: **TODO** |
 | 3 | **transfer** — CU-12 mueve entre dos cuentas sin perder ni duplicar | `uq_tx_idem`, `ck_cuenta_saldo_no_negativo` | `CU12TransferirSaldo` | Existe `CU12Test`/`CU12RechazosTest` (fuera de este carril); escenarios 6–9 de concurrencia real (100 hilos, opuestas simultáneas, deadlock cruzado): **TODO** |
 | 4 | **withdrawal** — retiro con doble aprobación y MFA | `ck_retiro_doble_aprobacion`, `orden_retiro` | `CU11RetirarSaldo` | Fuera de este carril (PR2, Justin) |
@@ -74,34 +74,61 @@ esta única cadena. El mismo patrón existe para `bitacora_evento`
 comparten cuello de botella entre sí.
 
 **H3.S2.M2 — benchmark de 200 transferencias concurrentes, 3 corridas:**
-`LibroBenchmarkTest` (`@Tag("benchmark")`, ya reservado en el corredor
-`integrationTest` pero EXCLUIDO de la ejecución automática — ver
-`buildSrc/src/main/kotlin/aportaya.base.gradle.kts`, cambio troncal de este carril).
-**Estado: en construcción en esta misma sesión** — el bloqueo de
-Docker-fuera-de-Docker que impedía correr Testcontainers se resolvió a mitad de
-turno (JDK 21 nativo instalado en el host). Resultado y las 6 métricas, cuando
-terminen de correr, van en `evidencia/H3-benchmark-hashchain.txt`.
+`LibroBenchmarkTest` (`@Tag("benchmark")`, reservado en el corredor
+`integrationTest` pero excluido de la ejecución automática salvo con
+`-PcorrerBenchmarks` — ver `buildSrc/src/main/kotlin/aportaya.base.gradle.kts`,
+cambio troncal de este carril). **Estado: CORRIDO contra PostgreSQL real** una vez
+resuelto el bloqueo de Docker-fuera-de-Docker (JDK 21 nativo). Comando:
+`./gradlew :servicios:nucleo-financiero:integrationTest --tests '*LibroBenchmarkTest*' -PcorrerBenchmarks`.
+Resultado completo (literal, generado por el propio test) en
+`evidencia/H3-benchmark-hashchain.txt`. Resumen de las 6 métricas del encargo:
 
-**H3.S2.M3 — decisión (Q-03, ya DECIDIDA 2026-09-21):** se **mantiene** el advisory
-lock global. Este carril no propone alternativa: la medición que la justificaría
-(H3.S2.M2) no se corrió. Si una medición futura muestra el lock como cuello de
-botella, la alternativa (p. ej. cadena por cuenta con hash de raíz diario) exige ADR
-y queda `DECISION_REQUIRED`, nunca implementada de hecho.
+| Corrida | Throughput | p50 | p95 | p99 | Conexiones (máx) | Esperando el lock (máx) | Deadlocks antes/después |
+|---|---|---|---|---|---|---|---|
+| 1 | 2,96 tx/s | 15121,26 ms | 20569,76 ms | 22306,38 ms | 51 | 49 | 0 / 0 |
+| 2 | 8,01 tx/s | 5751,97 ms | 8928,21 ms | 9700,88 ms | 51 | 48 | 0 / 0 |
+| 3 | 17,16 tx/s | 2556,68 ms | 3743,02 ms | 4139,21 ms | 51 | 49 | 0 / 0 |
 
-## Actualización — 10 de los 11 escenarios verificados contra PostgreSQL real
+Lectura de la medición: **cero deadlocks en las tres corridas** — el
+`pg_advisory_xact_lock` global serializa correctamente sin interbloqueos, incluso
+a 50 hilos concurrentes contra un único advisory lock. Pero la contención es alta:
+hasta 49 de 51 conexiones activas esperando el mismo lock (`wait_event =
+'advisory'`) al mismo tiempo, y la latencia p50 de la corrida 1 (15,1 s) muestra
+que con 200 transferencias simultáneas cada una espera, en promedio, a que casi
+todas las demás terminen primero — es un lock estrictamente serial, no hay
+paralelismo real en la escritura de `transaccion_billetera` una vez que hay más de
+un puñado de transferencias en vuelo. La mejora corrida-a-corrida (67,5 s → 25,0 s
+→ 11,7 s de duración total) es consistente con warmup de JIT/pool de conexiones y
+no cambia la conclusión estructural: el cuello de botella es el propio diseño del
+lock, no un efecto de arranque en frío.
+
+**H3.S2.M3 — decisión (Q-03, ya DECIDIDA 2026-09-21, NO se reabre):** se
+**mantiene** el advisory lock global. La medición de H3.S2.M2 ya está disponible
+y, a diferencia de lo que decía la nota anterior de este documento, sí muestra
+contención medible (hasta 49/51 conexiones esperando el lock) — pero también
+muestra CERO deadlocks en las tres corridas, que era la preocupación original que
+motivó la decisión. Este carril no propone ni implementa una alternativa: los
+números de arriba son evidencia a favor de abrir un ADR que compare el costo de
+la serialización total (contención alta, throughput bajo bajo carga alta) contra
+el costo/riesgo de una alternativa (p. ej. cadena por cuenta con hash de raíz
+diario), pero esa comparación y cualquier cambio de diseño quedan
+`DECISION_REQUIRED` para un ADR futuro, nunca implementados de hecho en este
+turno.
+
+## Actualización — los 11 escenarios verificados contra PostgreSQL real
 
 Con JDK 21 nativo disponible a mitad de turno (se resolvió el bloqueo de
 Docker-fuera-de-Docker de `evidencia/H1-entorno-docker.md`), se construyó
 `servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/LibroInvariantesTest.java`
-(nombre reservado, Q-05) con 10 de los 11 escenarios:
+(nombre reservado, Q-05) con los 11 escenarios:
 
 ```text
 $ ./gradlew :servicios:nucleo-financiero:integrationTest --tests '*LibroInvariantesTest*'
-BUILD SUCCESSFUL in 1m 7s
+BUILD SUCCESSFUL in 46s
 ```
 
 ```text
-<testsuite name="bo.aportaya.nucleofinanciero.LibroInvariantesTest" tests="10" skipped="0" failures="0" errors="0" .../>
+<testsuite name="bo.aportaya.nucleofinanciero.LibroInvariantesTest" tests="11" skipped="0" failures="0" errors="0" .../>
 ```
 
 | # | Escenario | Estado |
@@ -114,9 +141,23 @@ BUILD SUCCESSFUL in 1m 7s
 | 6 | 100 hilos sobre una cuenta | PASS |
 | 7 | Dos opuestas simultáneas | PASS |
 | 8 | Replay bajo concurrencia exacta | PASS — con hallazgo real, ver abajo |
-| 9 | Rollback | PASS |
-| 10 | Excepción tras débito dentro de `Datos.conContexto` | **TODO** — no construido en esta corrida |
+| 9 | Rollback (explícito, `setRollbackOnly`) | PASS |
+| 10 | Excepción tras débito dentro de `Datos.conContexto` | PASS — ver nota abajo |
 | 11 | 50 transferencias cruzadas sin deadlock | PASS |
+
+**Cómo se construyó el escenario 10** (sin tocar código de producción ni usar un
+doble): se aprovecha una violación REAL de
+`fk_transferencia_p2p_grupo_id` (`sql/20_claves/10_billetera_custodia.sql:302-305`)
+pasando un `grupoId` que no existe. Esa comprobación de integridad referencial la
+hace PostgreSQL en `TransferenciaRepositorio.registrar`, que en
+`CU12TransferirSaldo.ejecutar` (`CU12TransferirSaldo.java:132`) corre DESPUÉS de
+`libro.registrar` (línea 118, el que aplica el débito y el crédito y escribe la
+cabecera de `transaccion_billetera`) — exactamente el orden que pide el
+escenario: excepción tras el débito, misma transacción, dentro del mismo
+`datos.conContexto(...)`. El resultado confirma que `conContexto` no abre su
+propia transacción: corre dentro de la `@Transactional` de Spring del método, así
+que la excepción de la FK revierte TODO, débito incluido — ni el saldo cambia ni
+sobrevive la cabecera de la transacción.
 
 **Hallazgo real para Justin (PR2, nucleo-financiero) del escenario 8**:
 `CU12TransferirSaldo` tiene una ventana TOCTOU real bajo concurrencia EXACTA de la
@@ -131,7 +172,8 @@ en el propio test.
 
 ## Pendiente (declarado, no oculto)
 
-- [ ] H3.S1.M4 (parcial) — Escenario 10 (excepción tras débito dentro de
-      `Datos.conContexto`): no construido en esta corrida.
-- [ ] H3.S2.M2 — `LibroBenchmarkTest`: en construcción en esta misma sesión (ver
-      arriba).
+- [x] H3.S1.M4 — los 11 escenarios de `LibroInvariantesTest`, incluido el 10
+      (excepción tras débito dentro de `Datos.conContexto`), corridos contra
+      PostgreSQL real. Ver tabla arriba.
+- [x] H3.S2.M2 — `LibroBenchmarkTest`: CORRIDO contra PostgreSQL real (200 tx x 3
+      corridas), ver tabla arriba y `evidencia/H3-benchmark-hashchain.txt`.

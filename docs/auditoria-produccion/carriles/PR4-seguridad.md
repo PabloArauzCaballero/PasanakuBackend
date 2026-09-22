@@ -87,20 +87,18 @@ la ligera.
 - `ArquitecturaTest` (ArchUnit): **5/5 PASS** — las clases nuevas respetan la
   dirección de dependencia del servicio.
 - `CU100WebhookTest`/`AuditoriaCriticaTest`/el nuevo caso de `CU21Test`
-  (Testcontainers, PostgreSQL real): `BLOCKED` — no por el mismo problema de E/S
-  de antes (ese se resolvió, ver `evidencia/H1-entorno-docker.md` §4), sino por
-  una limitación DISTINTA de Docker-fuera-de-Docker: Testcontainers no puede
-  bind-montar `sql/` en el contenedor Postgres que levanta, porque la ruta que
-  calcula solo existe dentro del contenedor de Gradle, no en el daemon de Docker
-  Desktop. Causa exacta, intentos (incl. instalar un JDK nativo) y siguiente
-  paso: `evidencia/H1-entorno-docker.md` §5.
+  (Testcontainers, PostgreSQL real): `TESTED` — el bloqueo de
+  Docker-fuera-de-Docker se resolvió con JDK 21 nativo (`evidencia/H1-entorno-docker.md`
+  §5). Corrida real: `./gradlew :servicios:aportes:integrationTest --tests
+  '*AuditoriaCriticaTest*' --tests '*CU21Test*' --tests '*CU100WebhookTest*'` →
+  `BUILD SUCCESSFUL`, `AuditoriaCriticaTest` 1/1 PASS, `CU21Test` 11/11 PASS,
+  `CU100WebhookTest` 8/8 PASS.
 
-**Estado:** A MEDIAS — código completo, 33 de 49 tests nuevos/tocados con
-ejecución real verificada (16 del webhook a nivel unitario+web, 25 del webTest
-completo incluyendo el bugfix que encontraron); los que necesitan PostgreSQL
-real (`CU21Test`, `CU100WebhookTest`, `AuditoriaCriticaTest`, 3 clases) quedan
-bloqueados por el entorno, con causa raíz identificada y siguiente paso
-concreto declarado.
+**Estado:** HECHO — código completo, con ejecución real verificada en los
+cuatro niveles: unitario (`VerificadorDeFirmaWebhookTest` 8/8), web (`webTest`
+25/25), arquitectura (`ArquitecturaTest` 5/5) e integración contra PostgreSQL
+real (`AuditoriaCriticaTest`, `CU21Test`, `CU100WebhookTest`, los tres en
+verde).
 
 ## H2 — Inventario de endpoints y endurecimiento de entrada
 
@@ -202,8 +200,8 @@ concreto declarado.
 
 ## H3 — Invariantes del libro y benchmark del advisory lock
 
-**Estado: A MEDIAS.** Ver `docs/auditoria-produccion/financial-invariants.md`
-completo. Lo real y verificado sin necesitar el build Java:
+**Estado: HECHO.** Ver `docs/auditoria-produccion/financial-invariants.md`
+completo, con la evidencia literal de cada corrida.
 
 - H3.S1.M1 (grep de `double`/`float`) — **HECHO**, comando y salida pegados: 0
   ocurrencias reales (las 2 que aparecen son comentarios que EXPLICAN por qué no se
@@ -212,22 +210,52 @@ completo. Lo real y verificado sin necesitar el build Java:
   `sql/40_reglas/restricciones.sql:56`, `pg_advisory_xact_lock(hashtext('cadena_transaccion_billetera'))`
   — lock GLOBAL (clave fija, no por cuenta), serializa TODA inserción en
   `transaccion_billetera` de cualquier cuenta.
-- H3.S1.M2–M4 (11 escenarios contra PostgreSQL real) y H3.S2.M2 (benchmark de 200
-  transferencias × 3 corridas) — **TODO**: `LibroInvariantesTest`/`LibroBenchmarkTest`
-  no se crearon en esta corrida (nombres reservados, sin archivo todavía). Bloqueado
-  por presupuesto de tiempo, no por falta de plan — el "siguiente paso concreto" está
-  en `financial-invariants.md` §Pendiente.
-- **Micro-PR al troncal ya aplicado** (necesario para que estos dos test, cuando se
-  escriban, corran bajo el corredor correcto): `buildSrc/src/main/kotlin/aportaya.base.gradle.kts`
-  ahora incluye `**/Libro*Test.class`, `**/AppendOnlyTest.class`,
-  `**/AuditoriaCriticaTest.class` en `integrationTest` (y los excluye de `test`), y
-  excluye la etiqueta JUnit `benchmark` de la ejecución automática de
-  `integrationTest`. Cambio puramente aditivo, sin tocar ningún patrón existente.
+- H3.S1.M2–M4 (11 escenarios contra PostgreSQL real) — **HECHO**: los 11
+  escenarios de `LibroInvariantesTest` PASS (`./gradlew
+  :servicios:nucleo-financiero:integrationTest --tests '*LibroInvariantesTest*'`
+  → `BUILD SUCCESSFUL`, `tests="11" failures="0" errors="0"`), incluido el
+  escenario 10 (excepción tras débito dentro de `Datos.conContexto`, forzada con
+  una violación real de `fk_transferencia_p2p_grupo_id`, sin tocar código de
+  producción). Hallazgo real en el escenario 8 (TOCTOU de `CU12TransferirSaldo`
+  bajo replay exactamente concurrente), documentado para Justin (PR2), no
+  editado.
+- H3.S2.M2 (benchmark de 200 transferencias × 3 corridas) — **HECHO**:
+  `LibroBenchmarkTest` corrido contra PostgreSQL real. 0 deadlocks en las 3
+  corridas; contención alta del advisory lock (hasta 49/51 conexiones
+  esperando). Evidencia en `evidencia/H3-benchmark-hashchain.txt`.
+- H3.S2.M3 (decisión Q-03) — **HECHO**: se mantiene el advisory lock global, no
+  se reabre; los números del benchmark quedan documentados como insumo para un
+  ADR futuro.
+- **Micro-PR al troncal ya aplicado**: `buildSrc/src/main/kotlin/aportaya.base.gradle.kts`
+  incluye `**/Libro*Test.class`, `**/AppendOnlyTest.class`,
+  `**/AuditoriaCriticaTest.class` en `integrationTest` (y los excluye de `test`),
+  y solo corre la etiqueta JUnit `benchmark` con `-PcorrerBenchmarks`. Cambio
+  puramente aditivo, sin tocar ningún patrón existente.
 
 ## H4 — RLS, grants, append-only, esquema desde cero
 
-**Estado: A MEDIAS.** Hallazgos reales, sin construir todavía los tests
-parametrizados por servicio (H4.S1.M2).
+**Estado: HECHO.** Los tests parametrizados por servicio, `AppendOnlyTest` y el
+esquema desde cero (H4.S2) corrieron contra PostgreSQL real, con JDK 21
+nativo — no quedan como hallazgos de lectura de código.
+
+**Evidencia literal, corrida real, 2026-09-22:**
+
+```
+$ ./gradlew :plataforma:comun-pruebas:integrationTest --tests '*AislamientoEsquemaTest*'
+TEST-bo.aportaya.plataforma.pruebas.AislamientoEsquemaTest.xml → tests="15" failures="0" errors="0"
+  (14 parametrizados: ningunServicioLeeElEsquemaAjeno × cada uno de los 14 servicios
+   + 1: soloElNucleoEscribeElLibro)
+
+$ ./gradlew :servicios:aportes:integrationTest --tests '*AislamientoEsquemaTest*'
+  (BD_URL_ADMIN=jdbc:postgresql://localhost:5543/pasanaku)
+TEST-bo.aportaya.aportes.AislamientoEsquemaTest.xml → tests="2" failures="0" errors="0"
+  (svcAportesNoSalteaLaPoliticaDeFila, rolAuditorNoEsMiembroDeRolAplicacion)
+
+$ ./gradlew :servicios:nucleo-financiero:integrationTest --tests '*AppendOnlyTest*'
+TEST-bo.aportaya.nucleofinanciero.AppendOnlyTest.xml → tests="8" failures="0" errors="0"
+```
+
+Total H4: **25/25 PASS** contra PostgreSQL real (Testcontainers, no simulado).
 
 - **RLS real y extensa, más allá de lo que `AislamientoEsquemaTest` cubre hoy**:
   `sql/40_reglas/restricciones.sql:1260-1296` aplica `ENABLE`/`FORCE ROW LEVEL
@@ -255,26 +283,42 @@ parametrizados por servicio (H4.S1.M2).
   contable (nucleo_financiero). NO cubre: `FORCE RLS` en sí (que el dueño de una
   tabla no pueda saltarla), `rol_auditor` en la práctica (arriba), ni "migración con
   privilegios limitados".
-- H4.S2.M1–M2 (esquema desde cero, re-aplicación con datos) — **TODO**:
-  `aportaya-postgres` (compose) está arriba y sano, pero el esquema no se aplicó
-  todavía en esta corrida (bloqueado por el mismo presupuesto de tiempo consumido en
-  estabilizar el entorno Docker, ver `evidencia/H1-entorno-docker.md`).
+- H4.S2.M1–M2 (esquema desde cero, re-aplicación con datos) — **HECHO**: corrido
+  contra un contenedor PostgreSQL 16 aislado y descartable (NUNCA contra
+  `aportaya-postgres`, el compose compartido con los demás carriles), destruido
+  al terminar. `sql/aplicar.sql` sobre base vacía → `EXIT=0`, 401 tablas.
+  Sembrado `60_semillas/sembrar.sql` + `61_dev/sembrar_dev.sql` + una fila
+  sintética propia (`identidad.usuario` con `codigo_publico='H4SINT0001'`) → 401
+  tablas, 1543 filas totales (conteo exacto, tabla por tabla). Re-aplicado
+  `aplicar.sql` completo sobre esa misma base ya poblada → `EXIT=0`, **1543
+  filas totales, sin una sola diferencia** (`diff` de los dos snapshots exactos,
+  byte a byte), fila sintética incluida. Confirma en la práctica que la política
+  aditiva de Q-01/AMB-7 no es solo una intención: re-aplicar el DDL completo no
+  pierde ni una fila. Evidencia completa:
+  `evidencia/H4-esquema-desde-cero.md`.
 - H4.S2.M3 (documento de migraciones) — **HECHO**: `docs/operacion/schema-changes.md`.
-- H4.S2.M4 (guarda de semillas dev) — **REFERENCIADO, no reproducido**: el paso
-  existe en `ci.yml` job `base`; no se corrió localmente en esta corrida.
+- H4.S2.M4 (guarda de semillas dev) — **HECHO**: la guarda es real y se ejercitó
+  de verdad en H4.S2.M2 — `sembrar_dev.sql` exige `app.entorno = 'dev'` a nivel
+  de base de datos (`ALTER DATABASE ... SET app.entorno = 'dev'`) o aborta con
+  `RAISE EXCEPTION`; sin ese `ALTER DATABASE` explícito, las semillas de
+  desarrollo NO entran a ninguna base (confirmado corriéndolo con y sin la
+  variable puesta). El paso equivalente en CI (`ci.yml`, job `base`) queda como
+  referencia adicional, no como la única evidencia.
 
 ## H5 — Auditoría append-only y matriz de seguridad
 
-**Estado: A MEDIAS.** Ver `docs/auditoria-produccion/security-matrix.md` completo.
+**Estado: HECHO.** Ver `docs/auditoria-produccion/security-matrix.md` completo.
 
 - H5.S1.M1 (localizar la bitácora + tabla de qué CU la usan) — **HECHO**: hallazgo
   real y significativo — `comun.bitacora_evento` (cadena de hash, desde antes de
   este carril) tenía CERO escritores en código de producción, en NINGÚN servicio.
-- H5.S1.M2 — **A MEDIAS**: `aportes` corregido (`AuditoriaRepositorio` +
-  `CU19ReembolsarPago.aprobar` escriben la bitácora en la aprobación de reembolso;
-  test `AuditoriaCriticaTest`, verificación contra PostgreSQL real pendiente de esta
-  corrida). `identidad`/`nucleo-financiero`/`cumplimiento`: hallazgo entregado,
-  ningún archivo ajeno editado.
+- H5.S1.M2 — **HECHO**: `aportes` corregido (`AuditoriaRepositorio` +
+  `CU19ReembolsarPago.aprobar` escriben la bitácora en la aprobación de reembolso).
+  `AuditoriaCriticaTest.aprobarReembolsoQuedaAuditado` corrido contra PostgreSQL
+  real: `./gradlew :servicios:aportes:integrationTest --tests
+  '*AuditoriaCriticaTest*'` → `BUILD SUCCESSFUL`, 1/1 PASS.
+  `identidad`/`nucleo-financiero`/`cumplimiento`: hallazgo entregado, ningún
+  archivo ajeno editado (H-M5 en el daily).
 - H5.S1.M3 (matriz OWASP) — **HECHO**: 10 categorías + la tabla de bitácora por CU
   crítico.
 
@@ -282,7 +326,15 @@ parametrizados por servicio (H4.S1.M2).
 
 **Estado: A MEDIAS.**
 
-- H6.S1 (PIT) — **TODO**, declarado con la razón exacta y el siguiente paso en
+- H6.S1 (PIT) — **HECHO**, en un micro-PR SEPARADO
+  (`marcelo/chore/pitest-plugin`, PR #17 contra `dev`, no en esta rama) porque
+  toca `buildSrc/`+`gradle/libs.versions.toml` — el propio catálogo se declara
+  "MICRO-PR, nunca una rama de carril". `info.solidsoft.pitest` 1.19.0 +
+  `pitest-junit5-plugin` 1.2.3, corrido de verdad contra Gradle 9.7.1 (dos
+  incompatibilidades reales encontradas y corregidas — accessor tipado no
+  generado en un plugin de convención, y un `strictly` de PIT sobre
+  `junit-platform-launcher` que chocaba con el BOM de Spring Boot). Resultado:
+  `VerificadorDeFirmaWebhook` 12/12 mutantes matados (100%). Detalle completo en
   `docs/auditoria-produccion/mutation-testing.md`.
 - H6.S2.M1 (inventario `TODO`/`FIXME`) — **HECHO**:
 

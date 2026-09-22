@@ -1,0 +1,39 @@
+Benchmark del advisory lock global — cadena de hash de transaccion_billetera
+sql/40_reglas/restricciones.sql:56 — pg_advisory_xact_lock(hashtext('cadena_transaccion_billetera'))
+Generado por LibroBenchmarkTest, 2026-09-22T16:01:24.145745100Z
+
+200 transferencias concurrentes x 3 corridas, cada una entre un par de cuentas DISTINTO
+
+== Corrida 1 ==
+Transferencias:      200
+Duracion total:      67,481 s
+Throughput:          2,96 transferencias/s
+Latencia p50:        15121,26 ms
+Latencia p95:        20569,76 ms
+Latencia p99:        22306,38 ms
+Conexiones activas (maximo muestreado): 51
+Sesiones esperando el advisory lock (maximo muestreado): 49
+Deadlocks (pg_stat_database) antes/despues: 0 / 0
+
+== Corrida 2 ==
+Transferencias:      200
+Duracion total:      24,970 s
+Throughput:          8,01 transferencias/s
+Latencia p50:        5751,97 ms
+Latencia p95:        8928,21 ms
+Latencia p99:        9700,88 ms
+Conexiones activas (maximo muestreado): 51
+Sesiones esperando el advisory lock (maximo muestreado): 48
+Deadlocks (pg_stat_database) antes/despues: 0 / 0
+
+== Corrida 3 ==
+Transferencias:      200
+Duracion total:      11,653 s
+Throughput:          17,16 transferencias/s
+Latencia p50:        2556,68 ms
+Latencia p95:        3743,02 ms
+Latencia p99:        4139,21 ms
+Conexiones activas (maximo muestreado): 51
+Sesiones esperando el advisory lock (maximo muestreado): 49
+Deadlocks (pg_stat_database) antes/despues: 0 / 0
+

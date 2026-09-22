@@ -223,7 +223,15 @@ corredor(
 // con `./gradlew :servicios:nucleo-financiero:integrationTest --tests
 // '*LibroBenchmarkTest*'`.
 tasks.named<Test>("integrationTest") {
-    useJUnitPlatform { excludeTags("benchmark") }
+    // `-PcorrerBenchmarks` es la unica forma de que la etiqueta "benchmark" corra:
+    // sin la propiedad, queda excluida (el gate normal); con ella, un humano pidio
+    // explicitamente medir. `./gradlew :servicios:nucleo-financiero:integrationTest
+    // --tests '*LibroBenchmarkTest*' -PcorrerBenchmarks`.
+    if (!project.hasProperty("correrBenchmarks")) {
+        useJUnitPlatform { excludeTags("benchmark") }
+    } else {
+        useJUnitPlatform()
+    }
 }
 // La capa web (ADR-043): el corte MVC con dobles del caso de uso. Sin contenedor y
 // sin base, asi que corre en la maquina de cualquiera y en cada guardado. Es donde se
