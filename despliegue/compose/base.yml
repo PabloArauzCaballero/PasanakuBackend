@@ -149,6 +149,22 @@ services:
       "
     restart: "no"
 
+  # H3.S1 (AMB-6): RequestRateLimiter del gateway necesita un almacen
+  # compartido entre replicas — Redis, no memoria local. Sin puerto publicado:
+  # solo el gateway le habla, por la red interna. Con Redis caido, las rutas
+  # sensibles deniegan (fail closed, ver RateLimitGatewayTest).
+  redis:
+    image: redis:7.4.2-alpine
+    container_name: aportaya-redis
+    profiles: [base, dinero, todo]
+    networks: [interna]
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
   kafka:
     image: confluentinc/cp-kafka:7.7.1
     container_name: aportaya-kafka
@@ -198,6 +214,8 @@ services:
       - /tmp
     environment:
       SPRING_PROFILES_ACTIVE: local
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: "6379"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/liveness || exit 1"]
       interval: 10s
