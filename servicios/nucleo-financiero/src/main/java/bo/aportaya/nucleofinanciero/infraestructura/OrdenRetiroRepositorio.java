@@ -93,6 +93,10 @@ public class OrdenRetiroRepositorio {
      * que coincidan en la clave comparten orden: el segundo recibe el retiro del
      * primero en vez del suyo.
      */
+    public void bloquearIdempotencia(DSLContext dsl, UUID cuentaId, String clave) {
+        BloqueoDeIdempotencia.tomar(dsl, "orden_retiro", cuentaId.toString(), clave);
+    }
+
     public Optional<UUID> porClaveIdempotencia(DSLContext dsl, UUID cuentaId, String clave) {
         return Optional.ofNullable(dsl.select(DSL.field("id", UUID.class))
                 .from(DSL.table(DSL.name("nucleo_financiero", "orden_retiro")))

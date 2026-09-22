@@ -82,6 +82,7 @@ public class CU11RetirarSaldo {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
         return datos.conContexto(ctx, dsl -> {
+            ordenes.bloquearIdempotencia(dsl, entrada.cuentaBilleteraId(), entrada.claveIdempotencia());
             var yaExiste = ordenes.porClaveIdempotencia(dsl, entrada.cuentaBilleteraId(), entrada.claveIdempotencia());
             if (yaExiste.isPresent()) {
                 // El replay devuelve el costo ALMACENADO en la orden, no el que trae la
