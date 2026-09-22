@@ -202,8 +202,8 @@ concreto declarado.
 
 ## H3 — Invariantes del libro y benchmark del advisory lock
 
-**Estado: A MEDIAS.** Ver `docs/auditoria-produccion/financial-invariants.md`
-completo. Lo real y verificado sin necesitar el build Java:
+**Estado: HECHO.** Ver `docs/auditoria-produccion/financial-invariants.md`
+completo, con la evidencia literal de cada corrida.
 
 - H3.S1.M1 (grep de `double`/`float`) — **HECHO**, comando y salida pegados: 0
   ocurrencias reales (las 2 que aparecen son comentarios que EXPLICAN por qué no se
@@ -212,17 +212,27 @@ completo. Lo real y verificado sin necesitar el build Java:
   `sql/40_reglas/restricciones.sql:56`, `pg_advisory_xact_lock(hashtext('cadena_transaccion_billetera'))`
   — lock GLOBAL (clave fija, no por cuenta), serializa TODA inserción en
   `transaccion_billetera` de cualquier cuenta.
-- H3.S1.M2–M4 (11 escenarios contra PostgreSQL real) y H3.S2.M2 (benchmark de 200
-  transferencias × 3 corridas) — **TODO**: `LibroInvariantesTest`/`LibroBenchmarkTest`
-  no se crearon en esta corrida (nombres reservados, sin archivo todavía). Bloqueado
-  por presupuesto de tiempo, no por falta de plan — el "siguiente paso concreto" está
-  en `financial-invariants.md` §Pendiente.
-- **Micro-PR al troncal ya aplicado** (necesario para que estos dos test, cuando se
-  escriban, corran bajo el corredor correcto): `buildSrc/src/main/kotlin/aportaya.base.gradle.kts`
-  ahora incluye `**/Libro*Test.class`, `**/AppendOnlyTest.class`,
-  `**/AuditoriaCriticaTest.class` en `integrationTest` (y los excluye de `test`), y
-  excluye la etiqueta JUnit `benchmark` de la ejecución automática de
-  `integrationTest`. Cambio puramente aditivo, sin tocar ningún patrón existente.
+- H3.S1.M2–M4 (11 escenarios contra PostgreSQL real) — **HECHO**: los 11
+  escenarios de `LibroInvariantesTest` PASS (`./gradlew
+  :servicios:nucleo-financiero:integrationTest --tests '*LibroInvariantesTest*'`
+  → `BUILD SUCCESSFUL`, `tests="11" failures="0" errors="0"`), incluido el
+  escenario 10 (excepción tras débito dentro de `Datos.conContexto`, forzada con
+  una violación real de `fk_transferencia_p2p_grupo_id`, sin tocar código de
+  producción). Hallazgo real en el escenario 8 (TOCTOU de `CU12TransferirSaldo`
+  bajo replay exactamente concurrente), documentado para Justin (PR2), no
+  editado.
+- H3.S2.M2 (benchmark de 200 transferencias × 3 corridas) — **HECHO**:
+  `LibroBenchmarkTest` corrido contra PostgreSQL real. 0 deadlocks en las 3
+  corridas; contención alta del advisory lock (hasta 49/51 conexiones
+  esperando). Evidencia en `evidencia/H3-benchmark-hashchain.txt`.
+- H3.S2.M3 (decisión Q-03) — **HECHO**: se mantiene el advisory lock global, no
+  se reabre; los números del benchmark quedan documentados como insumo para un
+  ADR futuro.
+- **Micro-PR al troncal ya aplicado**: `buildSrc/src/main/kotlin/aportaya.base.gradle.kts`
+  incluye `**/Libro*Test.class`, `**/AppendOnlyTest.class`,
+  `**/AuditoriaCriticaTest.class` en `integrationTest` (y los excluye de `test`),
+  y solo corre la etiqueta JUnit `benchmark` con `-PcorrerBenchmarks`. Cambio
+  puramente aditivo, sin tocar ningún patrón existente.
 
 ## H4 — RLS, grants, append-only, esquema desde cero
 

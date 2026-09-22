@@ -31,7 +31,7 @@ sobre `BigDecimal` desnudo. `dividir`/`por` exigen `RoundingMode` explícito
 
 | # | Invariante | Dónde vive (SQL) | Dónde vive (Java) | Test que la demuestra |
 |---|---|---|---|---|
-| 1 | **balances** — `saldo_disponible` nunca negativo | `ck_cuenta_saldo_no_negativo` (`sql/40_reglas/restricciones.sql`) | `CU10RecargarSaldo`/`CU11RetirarSaldo` | `CU10ConcurrenciaTest` (parcial, 2 hilos); **11 escenarios de `LibroInvariantesTest`: TODO** |
+| 1 | **balances** — `saldo_disponible` nunca negativo | `ck_cuenta_saldo_no_negativo` (`sql/40_reglas/restricciones.sql`) | `CU10RecargarSaldo`/`CU11RetirarSaldo` | `CU10ConcurrenciaTest` (parcial, 2 hilos); **11/11 escenarios de `LibroInvariantesTest`: PASS contra PostgreSQL real** |
 | 2 | **ledger (double-entry)** — `SUM(debe) = SUM(haber)` por asiento | `fn_bil_recalcular_saldos`, `asiento_contable`/`partida_contable` | `CuadrarPartidas.verificar` (dominio puro) | `CuadrarPartidasTest` (5 casos, unitario) + `CuadrarPartidasPropiedadTest` (jqwik, 1000 tries) — **ambos YA EXISTEN, sin tocar este carril**; el cuadre CONTRA POSTGRESQL REAL (`SELECT transaccion_id, SUM(CASE sentido…)`) es H3.S1.M2: **TODO** |
 | 3 | **transfer** — CU-12 mueve entre dos cuentas sin perder ni duplicar | `uq_tx_idem`, `ck_cuenta_saldo_no_negativo` | `CU12TransferirSaldo` | Existe `CU12Test`/`CU12RechazosTest` (fuera de este carril); escenarios 6–9 de concurrencia real (100 hilos, opuestas simultáneas, deadlock cruzado): **TODO** |
 | 4 | **withdrawal** — retiro con doble aprobación y MFA | `ck_retiro_doble_aprobacion`, `orden_retiro` | `CU11RetirarSaldo` | Fuera de este carril (PR2, Justin) |
@@ -115,20 +115,20 @@ diario), pero esa comparación y cualquier cambio de diseño quedan
 `DECISION_REQUIRED` para un ADR futuro, nunca implementados de hecho en este
 turno.
 
-## Actualización — 10 de los 11 escenarios verificados contra PostgreSQL real
+## Actualización — los 11 escenarios verificados contra PostgreSQL real
 
 Con JDK 21 nativo disponible a mitad de turno (se resolvió el bloqueo de
 Docker-fuera-de-Docker de `evidencia/H1-entorno-docker.md`), se construyó
 `servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/LibroInvariantesTest.java`
-(nombre reservado, Q-05) con 10 de los 11 escenarios:
+(nombre reservado, Q-05) con los 11 escenarios:
 
 ```text
 $ ./gradlew :servicios:nucleo-financiero:integrationTest --tests '*LibroInvariantesTest*'
-BUILD SUCCESSFUL in 1m 7s
+BUILD SUCCESSFUL in 46s
 ```
 
 ```text
-<testsuite name="bo.aportaya.nucleofinanciero.LibroInvariantesTest" tests="10" skipped="0" failures="0" errors="0" .../>
+<testsuite name="bo.aportaya.nucleofinanciero.LibroInvariantesTest" tests="11" skipped="0" failures="0" errors="0" .../>
 ```
 
 | # | Escenario | Estado |
@@ -141,9 +141,23 @@ BUILD SUCCESSFUL in 1m 7s
 | 6 | 100 hilos sobre una cuenta | PASS |
 | 7 | Dos opuestas simultáneas | PASS |
 | 8 | Replay bajo concurrencia exacta | PASS — con hallazgo real, ver abajo |
-| 9 | Rollback | PASS |
-| 10 | Excepción tras débito dentro de `Datos.conContexto` | **TODO** — no construido en esta corrida |
+| 9 | Rollback (explícito, `setRollbackOnly`) | PASS |
+| 10 | Excepción tras débito dentro de `Datos.conContexto` | PASS — ver nota abajo |
 | 11 | 50 transferencias cruzadas sin deadlock | PASS |
+
+**Cómo se construyó el escenario 10** (sin tocar código de producción ni usar un
+doble): se aprovecha una violación REAL de
+`fk_transferencia_p2p_grupo_id` (`sql/20_claves/10_billetera_custodia.sql:302-305`)
+pasando un `grupoId` que no existe. Esa comprobación de integridad referencial la
+hace PostgreSQL en `TransferenciaRepositorio.registrar`, que en
+`CU12TransferirSaldo.ejecutar` (`CU12TransferirSaldo.java:132`) corre DESPUÉS de
+`libro.registrar` (línea 118, el que aplica el débito y el crédito y escribe la
+cabecera de `transaccion_billetera`) — exactamente el orden que pide el
+escenario: excepción tras el débito, misma transacción, dentro del mismo
+`datos.conContexto(...)`. El resultado confirma que `conContexto` no abre su
+propia transacción: corre dentro de la `@Transactional` de Spring del método, así
+que la excepción de la FK revierte TODO, débito incluido — ni el saldo cambia ni
+sobrevive la cabecera de la transacción.
 
 **Hallazgo real para Justin (PR2, nucleo-financiero) del escenario 8**:
 `CU12TransferirSaldo` tiene una ventana TOCTOU real bajo concurrencia EXACTA de la
@@ -158,7 +172,8 @@ en el propio test.
 
 ## Pendiente (declarado, no oculto)
 
-- [ ] H3.S1.M4 (parcial) — Escenario 10 (excepción tras débito dentro de
-      `Datos.conContexto`): no construido todavía.
+- [x] H3.S1.M4 — los 11 escenarios de `LibroInvariantesTest`, incluido el 10
+      (excepción tras débito dentro de `Datos.conContexto`), corridos contra
+      PostgreSQL real. Ver tabla arriba.
 - [x] H3.S2.M2 — `LibroBenchmarkTest`: CORRIDO contra PostgreSQL real (200 tx x 3
       corridas), ver tabla arriba y `evidencia/H3-benchmark-hashchain.txt`.
