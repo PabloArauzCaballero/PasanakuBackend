@@ -1,0 +1,32 @@
+# CODEOWNERS — H5.S4.M1 (madre H8.S4.M1), PR13-Ci.Frontend.
+#
+# GitHub usa el ÚLTIMO patrón que matchea, no el más específico ni el primero: por
+# eso las reglas más generales van ARRIBA y las más específicas ABAJO. Cubre las
+# cinco áreas que el encargo pide (sesión, configuración del gateway, dinero,
+# workflows y despliegue). Los nombres son los mismos que ya usan los commits y
+# dailies de este reparto (Pablo, Justin, Marcelo, Richard) — no se inventan
+# usuarios de GitHub que no se confirmaron; donde no hay un @usuario de GitHub
+# confirmado, se deja el archivo sin línea en vez de adivinar un handle (regla 00).
+
+# Sesión / autenticación en los dos front (backoffice y sitio).
+apps/backoffice/src/app/nucleo/gateway.ts
+apps/web/src/app/nucleo/gateway.ts
+
+# Workflows de CI/CD — este carril es dueño único de ci.yml mientras dura el
+# turno (ver encargo §3), pero el archivo de CODEOWNERS sobrevive al turno: quien
+# founder el repo (Pablo) queda como aprobador permanente de cualquier cambio a
+# los workflows, sin importar qué carril esté activo.
+/.github/workflows/
+
+# Despliegue (nginx, Docker, k8s generado).
+/despliegue/
+apps/backoffice/docker/
+apps/web/docker/
+
+# Nota: "dinero" (aportes, garantía, ERP) y "configuración del gateway" en el
+# BACKEND (plataforma/gateway, servicios/nucleo-financiero, servicios/aportes,
+# servicios/garantia) son del área backend, fuera de las rutas que este carril
+# edita o conoce en detalle — no se listan acá con un dueño inventado. Pedir a
+# Pablo (dueño del repo) que complete esas líneas con los handles reales de
+# quienes tocan esas rutas es explícitamente parte de lo que este archivo deja
+# pendiente, no un olvido.

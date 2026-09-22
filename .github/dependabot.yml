@@ -1,0 +1,53 @@
+# H5.S4.M3 (madre H8.S4.M3), PR13-Ci.Frontend.
+# Actualizaciones automáticas de dependencias, semanales y AGRUPADAS (una sola PR
+# por ecosistema y semana, no una PR por paquete -- eso satura de PRs un repo con
+# 14 servicios + monorepo de frontend).
+version: 2
+updates:
+  # El monorepo de Yarn (raíz, apps/*, packages/*) -- un solo ecosistema npm.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      frontend-monorepo:
+        patterns:
+          - "*"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+
+  # La app Flutter -- ecosistema separado (pub.dev), agrupado igual.
+  - package-ecosystem: "pub"
+    directory: "/apps/movil"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      app-movil:
+        patterns:
+          - "*"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+
+  # Las GitHub Actions que usa ci.yml, boveda-y-esquema.yml y pages-landing.yml.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(ci)"
+
+  # NOTA: el backend Java/Gradle (servicios/*, gradle/libs.versions.toml) usa un
+  # catálogo de versiones de Gradle, no un ecosistema que Dependabot soporte de
+  # forma nativa hoy (no hay `package-ecosystem: gradle` con soporte de catálogos
+  # de versiones equivalente al de npm/pub) -- fuera de mi alcance de todos modos
+  # (área backend). Se deja como hallazgo, no como entrada inventada.
