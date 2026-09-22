@@ -40,7 +40,16 @@ public class ConfiguracionCors {
     @Bean
     public CorsWebFilter corsWebFilter(Environment entorno) {
         List<String> origenes = origenes();
-        boolean produccion = !entorno.acceptsProfiles(org.springframework.core.env.Profiles.of("local", "test"));
+        // Lista de PERMITIDOS (staging/production), no de excluidos: negar
+        // "todo lo que no sea local/test" tambien atrapaba el caso de NINGUN
+        // perfil activo (el default de Spring cuando nadie fija
+        // spring.profiles.active), que es exactamente lo que le pasaba a
+        // ArranqueRateLimitGatewayTest — un test que no le importa CORS,
+        // pero que arranca el MISMO Aplicacion.class y por lo tanto el
+        // MISMO bean. Regresion real, encontrada corriendo la suite entera
+        // de integrationTest junta despues de agregar este archivo (H3.S2),
+        // no solo la prueba nueva en aislamiento.
+        boolean produccion = entorno.acceptsProfiles(org.springframework.core.env.Profiles.of("staging", "production"));
 
         if (produccion && (origenes.isEmpty() || origenes.contains("*"))) {
             // Fail closed (regla 89/98): un gateway que arranca en un perfil
