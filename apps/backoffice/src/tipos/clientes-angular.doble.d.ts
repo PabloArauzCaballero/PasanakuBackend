@@ -21,19 +21,15 @@
  *
  * Se borra cuando el carril de contratos de Pablo publique `clientes/angular` real. Ver
  * `entregables/decision-doble-clientes-angular.md`.
+ *
+ * Los módulos que el código real importa como VALOR en runtime (enums usados con
+ * `.Miembro`, no solo `import type`) NO están acá: un `.d.ts` ambiental solo satisface al
+ * type-checker, y el bundler de Vite necesita un archivo real para ejecutar los tests
+ * ("Failed to resolve import" en runtime, aunque TypeScript ya compile). Esos viven como
+ * archivos `.ts` reales en `clientes/angular/identidad.ts` y
+ * `clientes/angular/publicidad/model/{entradaAnunciante,entradaCampana,salidaCampana,
+ * entradaRevision}.ts` — mismo doble, mismo motivo, forma distinta.
  */
-
-declare module 'clientes/angular/identidad' {
-  export type EntradaAutenticacion = any
-  export type SalidaAutenticacion = any
-  export type ExpedienteEnRevision = any
-  export type DecisionDeVerificacion = any
-  export type EnlaceDeFoto = any
-  export const EntradaAutenticacionPlataformaEnum: any
-  export const FactorPresentadoTipoEnum: any
-  export const ExpedienteEnRevisionEstadoEnum: any
-  export const ExpedienteEnRevisionFotosEnum: any
-}
 
 declare module 'clientes/angular/organizador' {
   export type Habilitacion = any
@@ -48,34 +44,12 @@ declare module 'clientes/angular/erp' {
   export type SalidaEstadoFinanciero = any
 }
 
-declare module 'clientes/angular/publicidad/model/entradaAnunciante' {
-  export type EntradaAnunciante = any
-  export const EntradaAnuncianteMonedaEnum: any
-  export const EntradaAnuncianteTipoEnum: any
-}
-
 declare module 'clientes/angular/publicidad/model/salidaAnunciante' {
   export type SalidaAnunciante = any
 }
 
-declare module 'clientes/angular/publicidad/model/entradaCampana' {
-  export type EntradaCampana = any
-  export const EntradaCampanaMonedaEnum: any
-  export const EntradaCampanaObjetivoEnum: any
-}
-
-declare module 'clientes/angular/publicidad/model/salidaCampana' {
-  export type SalidaCampana = any
-  export const SalidaCampanaEstadoEnum: any
-}
-
 declare module 'clientes/angular/publicidad/model/entradaRechazo' {
   export type EntradaRechazo = any
-}
-
-declare module 'clientes/angular/publicidad/model/entradaRevision' {
-  export type EntradaRevision = any
-  export const EntradaRevisionDecisionEnum: any
 }
 
 declare module 'clientes/angular/publicidad/model/salidaRevision' {

@@ -1,45 +1,53 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
 /**
  * F12.1 — humo del shell contra el mock de Prism (`yarn dev:mock`).
  *
- * HALLAZGO (carril F12, ver `planes/informes/carril-F12.md`): no existe ninguna
- * pantalla de inicio de sesión en `apps/backoffice` — `Sesion.abrir()`
- * (`apps/backoffice/src/app/nucleo/sesion.ts`) solo se invoca desde specs unitarios y
- * desde el reintento de refresco en `nucleo/sesion.interceptor.ts:35`, nunca desde un
- * componente de login ni desde un `APP_INITIALIZER` en `app.config.ts`. Por lo tanto,
- * en una carga real del backoffice `Sesion.permisos()` empieza vacío y **todas** las
- * rutas con `canMatch: [requierePermiso(...)]` (`operacion`, `cumplimiento`, `sistemas`,
- * `contabilidad`, `publicidad` — ver `app.routes.ts`) redirigen silenciosamente a
- * `/tablero`. Los recorridos `backoffice-cobranza.e2e.ts`, `backoffice-cumplimiento.e2e.ts`
- * y `backoffice-doble-control.e2e.ts` que pide `planes/15` §F12.1 ("Login por rol")
- * no se pueden escribir contra código que no existe: se documentan acá como
- * bloqueados, no se inventa una pantalla de login (fuera de mi alcance: no soy dueño
- * de pantallas de negocio, solo de `e2e/`).
+ * **Actualizado (PR11-Sesion.Frontend, H3, 2026-09-22):** el hallazgo original de F12
+ * ("no existe ninguna pantalla de login ni un `APP_INITIALIZER`") ya no es cierto —
+ * `pantalla-de-ingreso.ts` y `provideAppInitializer(inicializarSesion())` existen. Ahora
+ * TODA carga del backoffice intenta `POST /sesion/refrescar` antes de montar cualquier
+ * ruta. Ese endpoint no está en el contrato real de `identidad`
+ * (`servicios/identidad/src/main/resources/openapi/identidad.yaml` solo define
+ * `/sesiones`, nunca `/sesion/refrescar` — verificado, no supuesto) ni en el mock de
+ * Prism generado desde ese mismo contrato, así que sin interceptarlo el arranque
+ * termina en `ERROR` (identidad no responde con nada reconocible) y va a `/arranque`,
+ * no a `/ingreso`. Estos tests interceptan el refresco con un `401` limpio (la cookie
+ * no existe: es exactamente lo que pasa en un navegador sin sesión) para ejercitar el
+ * camino `ANONYMOUS` real que describe el CA de H3, en vez del camino `ERROR` que es un
+ * artefacto de que el backend simulado no tiene el endpoint todavía (regla 65: se aísla
+ * el contrato que falta, no se prueba contra el hueco).
  */
+async function sinCookieDeSesion(page: Page): Promise<void> {
+  await page.route('**/sesion/refrescar', (route) => route.fulfill({ status: 401, json: {} }))
+}
+
 test.describe('tablero — punto de entrada', () => {
   test('carga, tiene un único h1 y no ofrece secciones sin permiso', async ({ page }) => {
+    await sinCookieDeSesion(page)
     const r = await page.goto('/tablero')
     expect(r?.status()).toBe(200)
-    await expect(page).toHaveTitle(/Tablero/)
-    await expect(page.locator('h1')).toHaveText('Tablero')
-    // Sin sesión abierta, ningún acceso a dominio protegido debe listarse.
-    await expect(page.locator('ul.accesos li')).toHaveCount(0)
+    await expect(page).toHaveURL(/\/ingreso/)
   })
 
-  test('la redirección "/" cae en /tablero', async ({ page }) => {
+  test('la redirección "/" cae en /ingreso cuando no hay sesión', async ({ page }) => {
+    await sinCookieDeSesion(page)
     await page.goto('/')
-    await expect(page).toHaveURL(/\/tablero$/)
+    await expect(page).toHaveURL(/\/ingreso/)
   })
 
   for (const ruta of ['operacion', 'cumplimiento', 'sistemas', 'contabilidad', 'publicidad']) {
-    test(`sin sesión, /${ruta} redirige a /tablero (canMatch, "el rol oculta, no protege")`, async ({ page }) => {
+    test(`sin sesión, /${ruta} redirige a /ingreso preservando la ruta pedida`, async ({ page }) => {
+      await sinCookieDeSesion(page)
       await page.goto(`/${ruta}`)
-      await expect(page).toHaveURL(/\/tablero$/)
+      await expect(page).toHaveURL(new RegExp(`/ingreso\\?volverA=%2F${ruta}`))
     })
   }
 
-  test('el meta robots noindex está presente (defensa en profundidad; NGINX repite la cabecera en producción, docker/nginx.conf)', async ({ page }) => {
+  test('el meta robots noindex está presente (defensa en profundidad; NGINX repite la cabecera en producción, docker/nginx.conf)', async ({
+    page,
+  }) => {
+    await sinCookieDeSesion(page)
     await page.goto('/tablero')
     const robots = await page.locator('meta[name="robots"]').getAttribute('content')
     expect(robots).toContain('noindex')

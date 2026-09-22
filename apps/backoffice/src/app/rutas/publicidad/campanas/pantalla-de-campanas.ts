@@ -81,7 +81,10 @@ export class PantallaDeCampanas {
   protected readonly identidad = (c: Campana) => c.campanaPublicitariaId
   protected readonly cargador = cargadorDeCampanas()
   protected readonly puedeGestionar = () => this.sesion.puede('PUBLICIDAD_ANUNCIANTES')
-  protected readonly textoDeEstado = (estado: Campana['estado']) => this.t.estados[estado]
+  // `estado` sale de `SalidaCampana` (doble ambiental, regla 65: `clientes/angular` no
+  // existe todavía) sin forma cerrada de literales — la aserción es sobre el ÍNDICE, no
+  // sobre el contrato real, y no cambia qué pasa si el valor no está en `t.estados`.
+  protected readonly textoDeEstado = (estado: Campana['estado']) => this.t.estados[estado as keyof typeof this.t.estados]
 
   protected readonly dialogoAbierto = signal(false)
   protected readonly guardando = signal(false)
