@@ -32,10 +32,13 @@ import org.junit.jupiter.api.Test;
  */
 class AuditoriaCriticaTest extends BaseDeAportes {
 
+    // `comun.bitacora_evento` es APPEND-ONLY de verdad (R-AUD-01, disparador
+    // `fn_aud_bloquear_mutacion`): un `DELETE` la rechaza, tal como tiene que
+    // hacerlo — encontrado corriendo este test contra PostgreSQL real. No se
+    // limpia entre pruebas a proposito; cada caso usa UUIDs propios (el
+    // `entidad_id` es el `reembolsoId`, siempre nuevo) asi que no hay colision.
     @AfterEach
     void limpiar() {
-        dsl.deleteFrom(org.jooq.impl.DSL.table(org.jooq.impl.DSL.name("comun", "bitacora_evento")))
-                .execute();
         fixtura.limpiar();
     }
 

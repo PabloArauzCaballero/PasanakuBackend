@@ -136,14 +136,41 @@ class CU21Test extends BaseDeAportes {
         // instante para dos participantes) no son la misma operacion. Antes del fix,
         // `porClaveIdempotencia` filtraba SOLO por la clave y el segundo pago devolvia
         // el pagoId de la primera obligacion — la persona equivocada.
+        // La referencia del proveedor es del proveedor, no de nuestra clave: dos
+        // obligaciones distintas SIEMPRE traen una referencia distinta en la vida
+        // real (`uq_pago_proveedor_id_referencia_proveedor`, hallazgo real
+        // encontrado corriendo este test contra PostgreSQL real). Lo unico que se
+        // comparte a proposito, para probar el scope, es la CLAVE DE IDEMPOTENCIA.
         UUID usuario1 = fixtura.usuario();
         UUID usuario2 = fixtura.usuario();
         var obligacion1 = fixtura.obligacion(usuario1, "500.00", 10);
         var obligacion2 = fixtura.obligacion(usuario2, "500.00", 10);
         String claveCompartida = "cob-colision-scope";
 
-        SalidaCobro a = cobrar(obligacion1.id(), "500.00", claveCompartida, contextoDe(usuario1));
-        SalidaCobro b = cobrar(obligacion2.id(), "500.00", claveCompartida, contextoDe(usuario2));
+        SalidaCobro a = transaccion.execute(t -> cobroCU.acreditar(
+                new EntradaCobro(
+                        claveCompartida,
+                        obligacion1.id(),
+                        bob("500.00"),
+                        bob("0.00"),
+                        "BILLETERA_MOVIL",
+                        "ref-colision-scope-1",
+                        Optional.empty(),
+                        false,
+                        true),
+                contextoDe(usuario1)));
+        SalidaCobro b = transaccion.execute(t -> cobroCU.acreditar(
+                new EntradaCobro(
+                        claveCompartida,
+                        obligacion2.id(),
+                        bob("500.00"),
+                        bob("0.00"),
+                        "BILLETERA_MOVIL",
+                        "ref-colision-scope-2",
+                        Optional.empty(),
+                        false,
+                        true),
+                contextoDe(usuario2)));
 
         assertThat(a.pagoId()).isNotEqualTo(b.pagoId());
         assertThat(a.esNuevo()).isTrue();
