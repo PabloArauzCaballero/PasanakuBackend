@@ -1,5 +1,6 @@
 package bo.aportaya.aportes.web;
 
+import bo.aportaya.aportes.aplicacion.CU100RecibirWebhookPasarela;
 import bo.aportaya.aportes.aplicacion.CU19ReembolsarPago;
 import bo.aportaya.aportes.aplicacion.CU21CobrarAporte;
 import bo.aportaya.aportes.aplicacion.CU99EnrutarProveedor;
@@ -34,4 +35,7 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private ConsultarEstadoDelParticipante consultarEstadoDelParticipante;
+
+    @MockitoBean
+    private CU100RecibirWebhookPasarela cu100RecibirWebhookPasarela;
 }
