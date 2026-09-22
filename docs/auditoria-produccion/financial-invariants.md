@@ -74,19 +74,46 @@ esta única cadena. El mismo patrón existe para `bitacora_evento`
 comparten cuello de botella entre sí.
 
 **H3.S2.M2 — benchmark de 200 transferencias concurrentes, 3 corridas:**
-`LibroBenchmarkTest` (`@Tag("benchmark")`, ya reservado en el corredor
-`integrationTest` pero EXCLUIDO de la ejecución automática — ver
-`buildSrc/src/main/kotlin/aportaya.base.gradle.kts`, cambio troncal de este carril).
-**Estado: en construcción en esta misma sesión** — el bloqueo de
-Docker-fuera-de-Docker que impedía correr Testcontainers se resolvió a mitad de
-turno (JDK 21 nativo instalado en el host). Resultado y las 6 métricas, cuando
-terminen de correr, van en `evidencia/H3-benchmark-hashchain.txt`.
+`LibroBenchmarkTest` (`@Tag("benchmark")`, reservado en el corredor
+`integrationTest` pero excluido de la ejecución automática salvo con
+`-PcorrerBenchmarks` — ver `buildSrc/src/main/kotlin/aportaya.base.gradle.kts`,
+cambio troncal de este carril). **Estado: CORRIDO contra PostgreSQL real** una vez
+resuelto el bloqueo de Docker-fuera-de-Docker (JDK 21 nativo). Comando:
+`./gradlew :servicios:nucleo-financiero:integrationTest --tests '*LibroBenchmarkTest*' -PcorrerBenchmarks`.
+Resultado completo (literal, generado por el propio test) en
+`evidencia/H3-benchmark-hashchain.txt`. Resumen de las 6 métricas del encargo:
 
-**H3.S2.M3 — decisión (Q-03, ya DECIDIDA 2026-09-21):** se **mantiene** el advisory
-lock global. Este carril no propone alternativa: la medición que la justificaría
-(H3.S2.M2) no se corrió. Si una medición futura muestra el lock como cuello de
-botella, la alternativa (p. ej. cadena por cuenta con hash de raíz diario) exige ADR
-y queda `DECISION_REQUIRED`, nunca implementada de hecho.
+| Corrida | Throughput | p50 | p95 | p99 | Conexiones (máx) | Esperando el lock (máx) | Deadlocks antes/después |
+|---|---|---|---|---|---|---|---|
+| 1 | 2,96 tx/s | 15121,26 ms | 20569,76 ms | 22306,38 ms | 51 | 49 | 0 / 0 |
+| 2 | 8,01 tx/s | 5751,97 ms | 8928,21 ms | 9700,88 ms | 51 | 48 | 0 / 0 |
+| 3 | 17,16 tx/s | 2556,68 ms | 3743,02 ms | 4139,21 ms | 51 | 49 | 0 / 0 |
+
+Lectura de la medición: **cero deadlocks en las tres corridas** — el
+`pg_advisory_xact_lock` global serializa correctamente sin interbloqueos, incluso
+a 50 hilos concurrentes contra un único advisory lock. Pero la contención es alta:
+hasta 49 de 51 conexiones activas esperando el mismo lock (`wait_event =
+'advisory'`) al mismo tiempo, y la latencia p50 de la corrida 1 (15,1 s) muestra
+que con 200 transferencias simultáneas cada una espera, en promedio, a que casi
+todas las demás terminen primero — es un lock estrictamente serial, no hay
+paralelismo real en la escritura de `transaccion_billetera` una vez que hay más de
+un puñado de transferencias en vuelo. La mejora corrida-a-corrida (67,5 s → 25,0 s
+→ 11,7 s de duración total) es consistente con warmup de JIT/pool de conexiones y
+no cambia la conclusión estructural: el cuello de botella es el propio diseño del
+lock, no un efecto de arranque en frío.
+
+**H3.S2.M3 — decisión (Q-03, ya DECIDIDA 2026-09-21, NO se reabre):** se
+**mantiene** el advisory lock global. La medición de H3.S2.M2 ya está disponible
+y, a diferencia de lo que decía la nota anterior de este documento, sí muestra
+contención medible (hasta 49/51 conexiones esperando el lock) — pero también
+muestra CERO deadlocks en las tres corridas, que era la preocupación original que
+motivó la decisión. Este carril no propone ni implementa una alternativa: los
+números de arriba son evidencia a favor de abrir un ADR que compare el costo de
+la serialización total (contención alta, throughput bajo bajo carga alta) contra
+el costo/riesgo de una alternativa (p. ej. cadena por cuenta con hash de raíz
+diario), pero esa comparación y cualquier cambio de diseño quedan
+`DECISION_REQUIRED` para un ADR futuro, nunca implementados de hecho en este
+turno.
 
 ## Actualización — 10 de los 11 escenarios verificados contra PostgreSQL real
 
