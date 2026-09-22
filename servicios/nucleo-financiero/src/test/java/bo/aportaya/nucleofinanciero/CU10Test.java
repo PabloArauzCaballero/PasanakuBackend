@@ -36,6 +36,16 @@ class CU10Test extends BaseDeBilletera {
     private UUID billeteraConLimite() {
         fixtura.tipoDeCambioDeHoy();
         fixtura.limite("RECARGA", ESTANDAR, "MES", new BigDecimal("10000.00"), null);
+        return otraBilletera();
+    }
+
+    /**
+     * Una segunda billetera SIN repetir el tipo de cambio ni el limite del catalogo:
+     * llamarlos dos veces en el mismo metodo de prueba choca con
+     * {@code ex_limite_vigencia}. {@code billeteraConLimite()} configura eso una sola
+     * vez; esto es lo que queda para una segunda cuenta dentro de la MISMA prueba.
+     */
+    private UUID otraBilletera() {
         return fixtura.billetera(fixtura.usuario(), ESTANDAR, BigDecimal.ZERO);
     }
 
@@ -180,6 +190,26 @@ class CU10Test extends BaseDeBilletera {
 
         assertThat(segunda.ordenRecargaId()).isEqualTo(primera.ordenRecargaId());
         assertThat(segunda.estado()).isEqualTo("PENDIENTE");
+    }
+
+    @Test
+    @DisplayName(
+            "kill-test H1: misma clave de idempotencia, dos cuentas distintas · Cuando cada una recarga · Entonces cada una recibe su PROPIA orden, nunca la de la otra")
+    void mismaClaveDistintaCuenta() {
+        UUID cuentaA = billeteraConLimite();
+        UUID cuentaB = otraBilletera();
+        ContextoSesion ctxA = contextoDe(fixtura.usuario());
+        ContextoSesion ctxB = contextoDe(fixtura.usuario());
+
+        SalidaSolicitud solicitudA = solicitar(cuentaA, "150.00", "rec-compartida", ctxA);
+        SalidaSolicitud solicitudB = solicitar(cuentaB, "150.00", "rec-compartida", ctxB);
+
+        assertThat(solicitudB.ordenRecargaId()).isNotEqualTo(solicitudA.ordenRecargaId());
+        assertThat(contar(
+                        "SELECT count(*)::int FROM nucleo_financiero.orden_recarga WHERE cuenta_billetera_id = ? AND clave_idempotencia = ?",
+                        cuentaB,
+                        "rec-compartida"))
+                .isEqualTo(1);
     }
 
     @Test

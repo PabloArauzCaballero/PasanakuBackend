@@ -69,7 +69,8 @@ public class CU12TransferirSaldo {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
         return datos.conContexto(ctx, dsl -> {
-            var yaExiste = libro.porClaveIdempotencia(dsl, entrada.claveIdempotencia());
+            var yaExiste = libro.porClaveIdempotencia(
+                    dsl, Optional.of(ctx.usuarioId()), "TRANSFERENCIA_P2P", entrada.claveIdempotencia());
             if (yaExiste.isPresent()) {
                 var saldo = cuentas.ver(dsl, entrada.cuentaOrigenId()).orElseThrow();
                 return new SalidaTransferencia(yaExiste.get(), saldo.disponible(), entrada.destinoId(), false);

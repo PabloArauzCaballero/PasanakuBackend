@@ -40,6 +40,16 @@ class CU11Test extends BaseDeBilletera {
         fixtura.tipoDeCambioDeHoy();
         custodia.cumpleEncaje();
         fixtura.limite("RETIRO", ESTANDAR, "MES", new BigDecimal("100000.00"), null);
+        return otroEscenario(saldo, horasDeBloqueo);
+    }
+
+    /**
+     * Un segundo escenario SIN repetir el tipo de cambio, el encaje ni el limite del
+     * catalogo: llamarlos dos veces en el mismo metodo de prueba choca con
+     * {@code ex_limite_vigencia}. {@code escenario()} configura eso una sola vez; esto
+     * es lo que queda para una segunda cuenta dentro de la MISMA prueba.
+     */
+    private Escenario otroEscenario(String saldo, Integer horasDeBloqueo) {
         UUID usuario = fixtura.usuario();
         UUID cuenta = fixtura.billetera(usuario, ESTANDAR, BigDecimal.ZERO);
         fixtura.acreditar(cuenta, new BigDecimal(saldo));
@@ -134,6 +144,40 @@ class CU11Test extends BaseDeBilletera {
         assertThat(contar(
                         "SELECT saldo_retenido::int FROM nucleo_financiero.cuenta_billetera WHERE id = ?", e.cuenta()))
                 .isEqualTo(200);
+    }
+
+    @Test
+    @DisplayName(
+            "kill-test H1: misma clave de idempotencia, dos cuentas distintas · Cuando cada una retira · Entonces cada una recibe su PROPIA orden, nunca la de la otra")
+    void mismaClaveDistintaCuenta() {
+        Escenario a = escenario("1000.00", null);
+        Escenario b = otroEscenario("1000.00", null);
+
+        SalidaRetiro salidaA = pedir(a, "300.00", "ret-compartida");
+        SalidaRetiro salidaB = pedir(b, "300.00", "ret-compartida");
+
+        assertThat(salidaB.ordenRetiroId()).isNotEqualTo(salidaA.ordenRetiroId());
+        assertThat(contar(
+                        "SELECT saldo_retenido::int FROM nucleo_financiero.cuenta_billetera WHERE id = ?", b.cuenta()))
+                .isEqualTo(300);
+    }
+
+    @Test
+    @DisplayName("replay: la clave repetida devuelve el costo ALMACENADO en la orden, nunca el de la entrada repetida")
+    void replayDevuelveCostoAlmacenado() {
+        Escenario e = escenario("1000.00", null);
+
+        SalidaRetiro primera = transaccion.execute(t -> retiroCU.solicitar(
+                new EntradaRetiro("ret-costo", e.cuenta(), bob("200.00"), bob("5.00"), e.instrumento(), true, false),
+                e.ctx()));
+        // Mismo clave, misma cuenta, pero con un costo DISTINTO en la entrada: si el
+        // caso de uso recotizara en el replay, este segundo costo se filtraria.
+        SalidaRetiro segunda = transaccion.execute(t -> retiroCU.solicitar(
+                new EntradaRetiro("ret-costo", e.cuenta(), bob("200.00"), bob("99.00"), e.instrumento(), true, false),
+                e.ctx()));
+
+        assertThat(segunda.ordenRetiroId()).isEqualTo(primera.ordenRetiroId());
+        assertThat(segunda.costoRetiro()).isEqualByComparingTo(bob("5.00"));
     }
 
     @Test
