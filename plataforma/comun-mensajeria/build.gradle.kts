@@ -9,12 +9,22 @@ dependencies {
     implementation(libs.micrometer)
     compileOnly(libs.jakarta.xml.bind)
     implementation(libs.kafka)
-    implementation(libs.shedlock)
+    // api y no implementation: ConfiguracionMensajeria (H2.S1.M2) es publica y lleva
+    // @EnableSchedulerLock y devuelve LockProvider -- quien la importa (comun-web,
+    // via @Import) necesita esas clases en SU classpath de compilacion tambien.
+    // Con implementation, comun-web fallaba en compileJava: "Cannot find annotation
+    // method 'defaultLockAtMostFor()' in type 'EnableSchedulerLock'" bajo -Werror.
+    api(libs.shedlock)
     implementation(libs.shedlock.jdbc)
+    // H2.S1.M2: ConfiguracionMensajeria (produccion, no prueba) usa JdbcTemplate y las
+    // anotaciones @ConditionalOn... de spring-boot-autoconfigure -- ambas llegan
+    // transitivamente con el starter de JDBC. Antes solo estaba en testImplementation,
+    // que alcanzaba para RelevoTest pero no para que el propio modulo compilara su
+    // configuracion de Spring.
+    implementation(libs.spring.boot.jdbc)
 
     testImplementation(project(":plataforma:comun-pruebas"))
     testImplementation(libs.bundles.pruebas)
-    testImplementation(libs.spring.boot.jdbc)
     testImplementation(libs.testcontainers.kafka)
     testRuntimeOnly(libs.junit.platform.launcher)
 }
