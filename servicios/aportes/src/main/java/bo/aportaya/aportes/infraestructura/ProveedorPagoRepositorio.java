@@ -18,6 +18,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProveedorPagoRepositorio {
 
+    /** El proveedor activo que declara soportar webhook, por su codigo publico. */
+    public java.util.Optional<Activo> activoConWebhook(DSLContext dsl, String codigo) {
+        org.jooq.Record fila = dsl.select(DSL.field("id", UUID.class))
+                .from(DSL.table(DSL.name("aportes", "proveedor_pago")))
+                .where(DSL.field("codigo", String.class).eq(codigo))
+                .and(DSL.field("activo", Boolean.class).isTrue())
+                .and(DSL.field("soporta_webhook", Boolean.class).isTrue())
+                .fetchOne();
+        return java.util.Optional.ofNullable(fila).map(f -> new Activo(f.get("id", UUID.class)));
+    }
+
+    public record Activo(UUID id) {}
+
     public boolean existeCodigo(DSLContext dsl, String codigo) {
         return dsl.fetchCount(
                         DSL.table(DSL.name("aportes", "proveedor_pago")),

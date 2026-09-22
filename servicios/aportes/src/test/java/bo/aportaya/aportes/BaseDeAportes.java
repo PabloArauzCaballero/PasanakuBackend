@@ -1,11 +1,15 @@
 package bo.aportaya.aportes;
 
+import bo.aportaya.aportes.aplicacion.CU100RecibirWebhookPasarela;
 import bo.aportaya.aportes.aplicacion.CU19ReembolsarPago;
 import bo.aportaya.aportes.aplicacion.CU21CobrarAporte;
 import bo.aportaya.aportes.aplicacion.CU99EnrutarProveedor;
+import bo.aportaya.aportes.dominio.ProveedorDeSecretoWebhook;
+import bo.aportaya.aportes.infraestructura.AuditoriaRepositorio;
 import bo.aportaya.aportes.infraestructura.ObligacionRepositorio;
 import bo.aportaya.aportes.infraestructura.PagoRepositorio;
 import bo.aportaya.aportes.infraestructura.ProveedorPagoRepositorio;
+import bo.aportaya.aportes.infraestructura.WebhookRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Reloj;
@@ -13,7 +17,9 @@ import bo.aportaya.plataforma.dominio.Traza;
 import bo.aportaya.plataforma.mensajeria.Consumidos;
 import bo.aportaya.plataforma.mensajeria.Outbox;
 import bo.aportaya.plataforma.pruebas.BaseDePrueba;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
+import java.util.Optional;
 import java.util.UUID;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
@@ -39,6 +45,10 @@ abstract class BaseDeAportes {
     protected static CU21CobrarAporte cobroCU;
     protected static CU19ReembolsarPago reembolsoCU;
     protected static CU99EnrutarProveedor proveedorCU;
+    protected static CU100RecibirWebhookPasarela webhookCU;
+
+    /** El mismo secreto que firma el doble de la pasarela en los tests (Q-02). */
+    protected static final String SECRETO_DE_PRUEBA = "secreto-webhook-de-prueba-para-tests";
 
     @BeforeAll
     static void armar() {
@@ -58,9 +68,26 @@ abstract class BaseDeAportes {
 
         cobroCU = new CU21CobrarAporte(datos, obligaciones, pagos, outbox, Reloj.delSistema());
         reembolsoCU = new CU19ReembolsarPago(
-                datos, pagos, obligaciones, consumidos, outbox, Reloj.delSistema(), Duration.ofDays(7));
+                datos,
+                pagos,
+                obligaciones,
+                consumidos,
+                outbox,
+                new AuditoriaRepositorio(),
+                Reloj.delSistema(),
+                Duration.ofDays(7));
         proveedorCU = new CU99EnrutarProveedor(
                 datos, new ProveedorPagoRepositorio(), outbox, Reloj.delSistema(), UMBRAL_DE_SALUD);
+
+        ProveedorDeSecretoWebhook secretoFijo = codigo -> Optional.of(SECRETO_DE_PRUEBA);
+        webhookCU = new CU100RecibirWebhookPasarela(
+                datos,
+                new ProveedorPagoRepositorio(),
+                new WebhookRepositorio(),
+                pagos,
+                secretoFijo,
+                Reloj.delSistema(),
+                new ObjectMapper());
     }
 
     protected ContextoSesion contextoDe(UUID usuarioId) {
