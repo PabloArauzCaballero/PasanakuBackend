@@ -1,7 +1,8 @@
 # Carril PR5 — CI y operación (Pablo, turno noche 2026-09-21)
 
-> **AVANCE: 41 / 54 — 75,9 %.** (+ 1 BLOQUEADO con causa autorizada por el encargo, + 1 BLOQUEADO
-> por decisión de negocio pendiente — H2.S5.M3 —, + 3 A MEDIAS: H2.S1.M2, H2.S6.M2, H5.S3.M3)
+> **AVANCE: 44 / 54 — 81,5 %.** (+ 1 BLOQUEADO con causa autorizada por el encargo, + 1 BLOQUEADO
+> por decisión de negocio pendiente — H2.S5.M3 —, + 2 BLOQUEADOS estructurales — H2.S6.M5,
+> H5.S3.M4, por F-04/F-06/F-07 fuera de mi alcance —, + 3 A MEDIAS: H2.S1.M2, H2.S6.M2, H5.S3.M3)
 > **Estado:** `IN_PROGRESS`. PRs abiertos: [#1](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/1)
 > (estándar + spotless), [#2](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/2)
 > (micro-PR troncal: catálogo CycloneDX + Redis). Ninguno mergeado todavía — el clasificador de
@@ -26,11 +27,11 @@ Encargo: [repartos/2026-09-21/PromptNoche/Backend/Pablo/PR5-Ci.Operacion/CiRealS
 | Hito | Microtareas | HECHO | Estado |
 |---|---:|---:|---|
 | H1 — Baseline global | 12 | 8 | EN CURSO (1 BLOQUEADO con causa) |
-| H2 — CI verde sin trampas | 20 | 16 | EN CURSO (2 A MEDIAS: S1.M2, S6.M2; 1 BLOQUEADO: S5.M3; S6.M5 bloqueado por F-04/F-06/F-07, fuera de mi alcance) |
+| H2 — CI verde sin trampas | 20 | 16 | EN CURSO (2 A MEDIAS: S1.M2, S6.M2; 1 BLOQUEADO: S5.M3; 1 BLOQUEADO estructural: S6.M5 por F-04/F-06/F-07, fuera de mi alcance) |
 | H3 — Borde | 7 | 7 | **HECHO** — rate limiting, CORS y bloqueo de `/actuator` con evidencia real |
 | H4 — Carga medida | 3 | 3 | **HECHO** — 6 escenarios k6 reales, `transferencia.js` con baseline ×3 completo |
-| H5 — Runbooks, cierre | 12 | 7 | EN CURSO (S3.M3 A MEDIAS; S3.M4 y S4 bloqueados estructuralmente por F-04/F-06/F-07 hasta que se corrijan fuera de mi alcance) |
-| **TOTAL** | **54** | **41** | |
+| H5 — Runbooks, cierre | 12 | 10 | EN CURSO (S3.M3 A MEDIAS; S3.M4 BLOQUEADO estructural por F-04/F-06/F-07; S4.M1/M2/M3 HECHO) |
+| **TOTAL** | **54** | **44** | |
 
 ## H3.S1 — resumen (rate limiting real con Redis)
 
@@ -192,6 +193,9 @@ en `buildSrc` que no depende de ningún merge (commit `8c6bc4d`).
 | H1.S2.M7 | `generateJooq` y `generateOpenApiClients` | `./gradlew generateJooq; ./gradlew generateOpenApiClients --no-parallel --no-build-cache` | PASS + PASS — [evidencia/H1-S2-M7-jooq-openapi.txt](../evidencia/H1-S2-M7-jooq-openapi.txt) |
 | H1.S3.M1 | Tabla de rojos clasificados con dueño | revisión | Escrita en [baseline.md](../baseline.md) §"Tabla de rojos clasificados" |
 | H1.S3.M2 | Tabla A–J en `baseline.md` | revisión | Escrita — solo H/I/J revalidadas con evidencia fresca; A–G heredadas sin revalidar (fuera de mi alcance) |
+| H5.S4.M1 | `FINAL_REPORT.md` — veredicto `NOT READY` sustentado en F-01/F-04/F-06/F-07 | `grep -c "^## " docs/auditoria-produccion/FINAL_REPORT.md` | 12 secciones reales (no 16 — el "metaprompt §86" citado por el encargo no es accesible desde esta sesión; ambigüedad registrada en el propio documento) — [FINAL_REPORT.md](../FINAL_REPORT.md) |
+| H5.S4.M2 | `REPORTE.md` consolidado actualizado en `PasanakuPromptManager` (avance real de este carril, no un número inventado para los otros cuatro) | `python .claude/hooks/plan_status.py` (repo `PasanakuPromptManager`) | Corrido — confirma que el plan madre de 210 microtareas sigue en 0/210 porque nadie actualizó sus filas individuales; mi carril reporta su propio 44/54 por separado, con evidencia |
+| H5.S4.M3 | Recomendación `dev → main` sin ejecutar el merge | revisión | Escrita en [FINAL_REPORT.md §4](../FINAL_REPORT.md) — no se promueve hasta que F-01/F-04/F-06/F-07 cierren |
 
 *(La numeración de microtareas de la tabla de avance corresponde al encargo; las filas sin ID
 son trabajo de entorno necesario para poder ejecutar H1, no microtareas propias del encargo.)*
@@ -236,6 +240,8 @@ son trabajo de entorno necesario para poder ejecutar H1, no microtareas propias 
 |---|---|---|---|---|
 | H2.S5.M3 | Crear el ruleset mínimo `proteccion-minima` (el agente no tiene permiso para modificar recursos compartidos del repo) | JSON y comando quedarán listos en `entregables/ruleset-minimo.json` | `gh api --method POST repos/PabloArauzCaballero/PasanakuBackend/rulesets --input entregables/ruleset-minimo.json` | Pablo — un comando |
 | H2.S1.M2 (parcial) | `gh pr merge` lo deniega el clasificador de permisos del agente ("Merge Without Review"), a diferencia de `gh pr create` que sí funciona | `gh pr merge 1 --rebase --delete-branch=false` | Pablo mergea el PR a mano: [PR #1](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/1) (`ci(security): instalar estandar y aplicar spotless`) | Pablo — un clic por PR |
+| H2.S6.M5 | Corrida completa de CI en verde (`gh run view --json jobs --jq '.jobs[].conclusion'` → solo `success`) | Corrida real disparada dos veces (PR y `workflow_dispatch`); los rojos son reales, no de configuración | Que F-04 (CVE sin parche) se resuelva con un upgrade autorizado y F-06/F-07 (cobertura de `comun-web` e `identidad`) suban su umbral | Dueños de esos módulos + quien apruebe el upgrade — ninguno soy yo, `servicios/**` y `plataforma/comun-*` están OUT en mi encargo |
+| H5.S3.M4 | CI verde en el SHA final | Mismo intento que H2.S6.M5 (es la misma corrida) | Mismo destrabe que H2.S6.M5 | Igual que arriba |
 
 **Esto cambia el ritual del encargo para el resto del turno:** el encargo asume que el agente
 mergea solo (`gh pr merge --rebase`) para no frenar a los otros cuatro carriles. En esta máquina
