@@ -1,6 +1,6 @@
 # Carril PR5 — CI y operación (Pablo, turno noche 2026-09-21)
 
-> **AVANCE: 29 / 54 — 53,7 %.** (+ 1 BLOQUEADO con causa autorizada por el encargo, + 1 BLOQUEADO
+> **AVANCE: 36 / 54 — 66,7 %.** (+ 1 BLOQUEADO con causa autorizada por el encargo, + 1 BLOQUEADO
 > por decisión de negocio pendiente — H2.S5.M3 —, + 1 A MEDIAS)
 > **Estado:** `IN_PROGRESS`. PRs abiertos: [#1](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/1)
 > (estándar + spotless), [#2](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/2)
@@ -29,8 +29,8 @@ Encargo: [repartos/2026-09-21/PromptNoche/Backend/Pablo/PR5-Ci.Operacion/CiRealS
 | H2 — CI verde sin trampas | 20 | 11 | EN CURSO (1 A MEDIAS, 1 BLOQUEADO, 2 TODO en S2, S6 sin empezar) |
 | H3 — Borde | 7 | 7 | **HECHO** — rate limiting, CORS y bloqueo de `/actuator` con evidencia real |
 | H4 — Carga medida | 3 | 3 | **HECHO** — 6 escenarios k6 reales, `transferencia.js` con baseline ×3 completo |
-| H5 — Runbooks, cierre | 12 | 0 | TODO |
-| **TOTAL** | **54** | **29** | |
+| H5 — Runbooks, cierre | 12 | 7 | EN CURSO (S3.M3/M4 y S4 completo sin empezar) |
+| **TOTAL** | **54** | **36** | |
 
 ## H3.S1 — resumen (rate limiting real con Redis)
 
@@ -72,6 +72,43 @@ de los dos por diseño — y el contexto de Spring no levantaba. Excluido en
 → vacío). Es la plantilla compartida de cada servicio, fuera de mi alcance (`servicios/**` está OUT
 en mi encargo) — las anotaciones `prometheus.io/scrape` que agregué en `generar_k8s.py` no sirven de
 nada hasta que esto se corrija.
+
+## H5.S1/S2/S3 — resumen (runbooks, backup, gate de promoción, revisión independiente)
+
+| ID | Qué se logró | Resultado |
+|---|---|---|
+| H5.S1.M1 | 4 runbooks propios (`outbox-backlog`, `kafka-down`, `postgres-down`, `secret-rotation`), 8 secciones cada uno | PASS — `grep -c "^## "` → 8 en los 4 |
+| H5.S1.M2 | `backup-recovery.md` (8 secciones, RPO/RTO `DECISION_REQUIRED`) + restore real ejecutado (`pg_dump`/`pg_restore` formato custom) | **PASS con evidencia real**: 401/401 tablas coinciden — [evidencia/H5-restore.txt](../evidencia/H5-restore.txt) |
+| H5.S1.M3 | `README.md` §Perfiles agregada; `docs/Arquitectura/Entornos y despliegue.md` y `docs/Pruebas.md` (preexistentes, verificados vigentes) | PASS — `verificar_boveda.py` exit 0 (evidencia H1) |
+| H5.S2.M1 | Verificación de los 11 documentos del gate: solo ADR-050 y lo mío existen; los 8 restantes (ADR-046…049, `endpoints`, `security-matrix`, `financial-invariants`, `mutation-testing`) no existen todavía — declarado, no inventado | PASS — tabla en [promotion-gate.md](../promotion-gate.md) |
+| H5.S2.M2 | `promotion-gate.md` con los 17 checks + los de este carril, cada `[x]` con enlace a `evidencia/` o `carriles/` | PASS — `grep -n "\[x\]" docs/auditoria-produccion/promotion-gate.md \| grep -v "evidencia/\|carriles/"` → vacío |
+| H5.S3.M1 | Revisión independiente del diff completo (`git diff origin/dev...HEAD`, 112 archivos) por un agente Explore de solo lectura (regla 70.4.8) | **PASS con dos hallazgos reales, ambos corregidos y verificados** — ver abajo |
+| H5.S3.M2 | `gitleaks detect --source . --no-git` y `verificar_seguridad.py` en el SHA final | PASS ×2 — [evidencia/H5-gitleaks.txt](../evidencia/H5-gitleaks.txt), [evidencia/H5-verificar-seguridad.txt](../evidencia/H5-verificar-seguridad.txt) |
+
+**Dos hallazgos reales de la revisión independiente (H5.S3.M1), los dos corregidos y
+reverificados, no solo señalados:**
+
+1. **NGINX no bloqueaba `/actuator` sin barra final.** `location /actuator/ { return 404; }` es
+   un match literal sobre el string con barra; `/actuator` (sin barra) caía por `location /` y
+   llegaba al documento de descubrimiento del gateway. Reproducido con `curl` real (200 antes),
+   corregido a `location ^~ /actuator` (prefijo), verificado 404 en `/actuator`, `/actuator/` y
+   `/actuator/prometheus`.
+2. **Regresión real en `ConfiguracionCors` (H3.S2), encontrada por mí al intentar cerrar la
+   sugerencia del revisor de agregar test de CORS**, no por el revisor directamente: al correr la
+   suite **completa** de `integrationTest` (no solo el test nuevo aislado), los 3 tests de
+   `ArranqueRateLimitGatewayTest` —verdes desde H3.S1— rompieron. La guarda trataba "ningún perfil
+   Spring activo" (el caso de esa prueba) igual que "perfil de producción" y exigía
+   `APORTAYA_CORS_ORIGENES` para arrancar. Es exactamente la regla 30.4: un cambio posterior
+   invalida el peldaño `VERIFIED` del área tocada. Corregido pasando de lista de excluidos
+   (`!accepts(local,test)`) a lista de permitidos (`accepts(staging,production)`); reverificado en
+   tres frentes (`docker run` production sin origen sigue cortando el arranque; `docker run`
+   production con origen real arranca; `:plataforma:gateway:integrationTest` completo vuelve a
+   pasar, 3/3). El test nuevo de CORS específico se descartó después (`PortInUseException` al
+   correr junto a los demás, sin causa raíz resuelta a tiempo) — la guarda ya quedó corregida y
+   verificada por otras vías; queda declarada como deuda de cobertura, no como guarda rota.
+
+Detalle completo: [evidencia/H5-S3-M1-revision-diff.md](../evidencia/H5-S3-M1-revision-diff.md),
+[evidencia/H5-S3-M1-gateway-suite-completa.txt](../evidencia/H5-S3-M1-gateway-suite-completa.txt).
 
 ## H2 — resumen (detalle de evidencia en los commits de la rama)
 
@@ -161,6 +198,15 @@ ninguna otra vía que rodee la revisión (seria ir en contra de la intención de
 ## No cubierto
 
 - Los baselines por módulo de los otros cuatro carriles (no existen todavía).
+- **Deuda declarada (H5.S3.M1):** la guarda `ConfiguracionCors` no tiene un test automatizado
+  propio en el corredor `integrationTest` — solo verificación manual real (`evidencia/H3-S2-cors.txt`)
+  y la re-verificación de H5.S3.M1 (`docker run` ×2 + suite completa). El intento de agregar
+  `ArranqueCorsGatewayTest` se descartó por `PortInUseException` al correr junto a los tests de
+  rate limiting en la misma JVM, sin causa raíz resuelta dentro de este turno (regla 80.5.1: no se
+  deja un test que rompe la suite para poder cerrar). Falta: un test de arranque de
+  `ConfiguracionCors` en un módulo o JVM aislado del resto.
+- H5.S3.M3 (checkout limpio en worktree) y H5.S3.M4 (CI verde en el SHA final) sin ejercitar
+  todavía.
 
 ## Ambigüedades que arrastro
 
