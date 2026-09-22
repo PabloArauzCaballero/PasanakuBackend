@@ -215,6 +215,12 @@ describe('ap-tabla-de-datos', () => {
       expect(fuente.toLowerCase()).not.toContain(nombre.toLowerCase())
     }
   })
+
+  it('el caso negativo de acceso a celda documentado sigue existiendo como función (H2.S1.M3)', () => {
+    // Referenciarla mantiene viva la comprobación de tipos de `@ts-expect-error` de acá abajo;
+    // no se llama porque su valor de retorno no importa, solo que compile con el error esperado.
+    expect(typeof _casoNegativoQueNoCompila).toBe('function')
+  })
 })
 
 /** Caso negativo documentado (H2.S1.M3): una clave de columna que no existe en `T` no compila. */
