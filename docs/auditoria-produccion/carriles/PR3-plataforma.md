@@ -1,16 +1,21 @@
 # Carril PR3 — Plataforma/Infra (Leo, turno noche 2026-09-21)
 
-> **AVANCE: 23 / 49 — 46,9 %.**
+> **AVANCE: 25 / 49 — 51,0 %.**
 > **Estado:** `IN_PROGRESS`. PRs #4, #9, #10, #12, #13, #14, #16 **mergeados** (ninguno bloqueado
 > por el clasificador de permisos), todos espejados a `test`. **PR #22 abierto y verde, bloqueado
 > por el clasificador de permisos** (`Merge Without Review`) — necesita merge humano; contenido
 > verificado, no es un `BLOQUEADO` real de trabajo. **H1 cerrado salvo H1.S2.M3**
-> (hallazgo real, no bloqueante). **H2.S1 y gran parte de H2.S2/H2.S3 cerrados**: `Relevo` ya
-> tiene el envelope de 8 cabeceras (ahora en `EnvelopeDeEvento.java`, separado por tamaño),
-> tomar-publicar-marcar en 2 transacciones cortas, backoff con jitter y `FALLIDO` como DLQ
-> lógica. H2.S3.M4 cerrado (ver evidencia). Falta H2.S2.M3/M5 (E2E con Kafka real de
-> Testcontainers) y H2.S3.M5, y todo H2.S4 (kill-test, métricas expuestas, ADR-047).
-> Siguiente: `OutboxE2ETest`.
+> (hallazgo real, no bloqueante). **H2.S1 cerrado; H2.S2 y H2.S3 cerrados salvo la CA de punta a
+> punta**: `Relevo` ya tiene el envelope de 8 cabeceras (ahora en `EnvelopeDeEvento.java`,
+> separado por tamaño), tomar-publicar-marcar en 2 transacciones cortas, backoff con jitter y
+> `FALLIDO` como DLQ lógica; `Consumidos.registrar` probado contra PostgreSQL real (H2.S2.M5,
+> verde); `OutboxE2ETest` escrito con Kafka real de Testcontainers (H2.S2.M3, rojo real — su
+> propio DoD). **Hallazgo nuevo F-Leo-06: `BaseDePrueba.kafka()` no arranca en esta máquina**
+> (Docker Desktop/Windows/npipe + `testcontainers-kafka` 1.21.3, `advertised.listeners` calcula
+> `0.0.0.0`) — tres intentos reales de solución sin éxito, registrado, no fabricado un verde.
+> Falta H2.S3.M5, todo H2.S4 (kill-test, métricas expuestas, ADR-047), y cerrar `OutboxE2ETest`
+> en verde cuando F-Leo-06 se resuelva. Siguiente: H2.S3.M5 o H3 (guardas comunes, sin depender
+> de Kafka real).
 
 Encargo: [repartos/2026-09-21/PromptNoche/Backend/Leo/PR3-Plataforma.Infra/OutboxQuePublicaYGuardasComunes.md](../../../../../PasanakuPromptManager/repartos/2026-09-21/PromptNoche/Backend/Leo/PR3-Plataforma.Infra/OutboxQuePublicaYGuardasComunes.md)
 (repo `PasanakuPromptManager`, no este). Daily en el repo del estándar:
@@ -27,10 +32,10 @@ Ya hecha en el commit `2d2da96` (previo a esta sesión): `.claude/hooks`, `.clau
 | Hito | Microtareas | HECHO | Estado |
 |---|---:|---:|---|
 | H1 — Idempotencia | 12 | 10 | EN CURSO — solo H1.S2.M3 TODO (hallazgo real, no bloqueante) |
-| H2 — Outbox/Relevo | 20 | 12 | EN CURSO — H2.S1 cerrado; H2.S3.M4 cerrado; H2.S2.M3/M5, H2.S3.M5, H2.S4 TODO |
+| H2 — Outbox/Relevo | 20 | 14 | EN CURSO — H2.S1/S2/S3 cerrados salvo H2.S3.M5 y el verde de `OutboxE2ETest` (F-Leo-06); H2.S4 TODO |
 | H3 — Guardas comunes | 9 | 1 | EN CURSO — H3.S3.M1 mergeado; resto TODO |
 | H4 — Barridos/Dinero/logs/probes | 8 | 0 | TODO |
-| **TOTAL** | **49** | **23** | |
+| **TOTAL** | **49** | **25** | |
 
 ## H1 — resumen
 
@@ -266,15 +271,17 @@ BUILD SUCCESSFUL in 19m 41s
 | ID | Qué se hizo | Resultado |
 |---|---|---|
 | H2.S2.M1 | `docs/auditoria-produccion/contratos/evento-kafka.md` — ya existía en `dev` (de una pasada de planificación anterior), verificado contra la implementación: tema `aportaya.<tipo>`, clave `agregado_id`, 8 cabeceras — coincide exactamente | **PASS** — verificado, no reescrito |
-| H2.S2.M2 | `BaseDePrueba.kafka()`: `org.testcontainers.kafka.KafkaContainer` (clase verificada con `javap`, no la vieja de Confluent) sobre `apache/kafka:3.9.0`, versión fijada | **PASS** — `plataforma/comun-pruebas` compila limpio |
-| H2.S2.M4 | `Relevo.mensaje()`: las 8 cabeceras del envelope desde columnas/`metadatos` de `evento_dominio` | **PASS** — cubierto por `RelevoRepositorioTest` (no valida cabeceras Kafka reales todavía: eso es H2.S2.M3/M5, con broker real) |
+| H2.S2.M2 | `BaseDePrueba.kafka()`: `org.testcontainers.kafka.KafkaContainer` (clase verificada con `javap`, no la vieja de Confluent) sobre `apache/kafka:3.9.0`, versión fijada | **CORREGIDO** — ver nota abajo: el "PASS" original solo verificó que compilaba, no que el contenedor arrancara. Ahora se sabe que en esta máquina NO arranca (F-Leo-06) |
+| H2.S2.M3 | `OutboxE2ETest` en rojo: emisor de prueba escribe la fila, espera por condición (`Espera.hasta`, sin `sleep` fijo) a `PUBLICADO`, consume con `KafkaConsumer` real | **Rojo real, DoD de esta microtarea es exactamente ese rojo** ("comando → FAIL"), ver evidencia abajo y F-Leo-06 |
+| H2.S2.M4 | `Relevo.mensaje()` (ahora `EnvelopeDeEvento.construir`): las 8 cabeceras del envelope desde columnas/`metadatos` de `evento_dominio` | **PASS** — cubierto por `RelevoRepositorioTest`; `OutboxE2ETest` ya tiene las aserciones de las 8 cabeceras contra un broker real escritas, pendientes de correr en verde (bloqueado por F-Leo-06) |
+| H2.S2.M5 | `Consumidos.registrar` (ya existía) probado con PostgreSQL real: primera vez registra, entrega doble no repite el efecto, dos consumidores del mismo evento son independientes | **PASS real**, ver evidencia abajo. Nombrado `ConsumidosRepositorioTest` (no `ConsumidosTest` literal del encargo) para caer en `integrationTest` — mismo ajuste que ya hizo falta para `Relevo` |
 | H2.S3.M1 | `tomado_en`, `tomado_por`, `ultimo_error`, `proximo_intento_en` + estado `TOMADO` en `evento_dominio` (los 14 esquemas), vía `scripts/generar_ddl.py`/`modelo.py` (micro-PR troncal) | **PASS** |
 | H2.S3.M2 | `RelevoRepositorioTest` — 5 escenarios (PostgreSQL real, Kafka con doble de Mockito): tomar-publicar-marcar feliz, fallo con backoff, `FALLIDO` tras `intentos-maximos`, `TOMADO` huérfano recuperado, dos relevos sin duplicar | **Ciclo rojo→verde real**, ver evidencia abajo |
 | H2.S3.M3 | `Relevo.relevar()` sin `@Transactional`: tx1 corta (tomar), `kafka.send().get(timeout)` fuera de toda transacción, tx2 corta (marcar) | **PASS** |
 | H2.S3.M4 | `comun-mensajeria` no tenía `BarridoTest`. Al agregarlo, `sin-umbral-literal` ya daba verde (las propiedades `aportaya.outbox.*` viajan por `@Value` con defaults desde H2.S1.M2/H2.S3.M3), pero `tamano-archivo` dio rojo real: `Relevo.java` en 306 líneas (límite 300). Se separó `mensaje()`/`trazaDe()` (el envelope de 8 cabeceras) a `EnvelopeDeEvento.java` — `Relevo.java` queda en 250 líneas, `EnvelopeDeEvento.java` en 73 | **Ciclo rojo→verde real**, ver evidencia abajo. PR #22 |
 
-**Pendiente, explícitamente TODO**: H2.S2.M3/M5 (`OutboxE2ETest` con Kafka de Testcontainers real —
-no con doble — y consumidor de prueba),
+**Pendiente, explícitamente TODO**: cerrar `OutboxE2ETest` en verde (bloqueado por F-Leo-06, no es
+mío resolver un incompatibilidad de Testcontainers/Docker Desktop en esta máquina compartida),
 H2.S3.M5 (`pg_stat_activity` vacío durante el envío, con latencia inyectada — el diseño ya lo
 garantiza por construcción, falta la evidencia con latencia real), y todo H2.S4 (kill-test con
 Kafka apagado/vuelto, métricas expuestas por HTTP, `ADR-047`).
@@ -407,6 +414,87 @@ SUCCESSFUL` en conjunto antes de pushear.
 intentar `gh pr merge` (con y sin `--admin`) — mismo tipo de bloqueo ya documentado antes en este
 carril, no un `BLOQUEADO` de trabajo real. Queda listo para merge humano.
 
+### Evidencia real — H2.S2.M5, `ConsumidosRepositorioTest` (verde real, PostgreSQL real)
+
+Tres escenarios contra el broker de idempotencia de consumo (`Consumidos.registrar`, ya existía
+de una pasada anterior): primera vez registra, entrega doble no repite el efecto, dos
+consumidores del mismo evento son independientes.
+
+```
+> Task :plataforma:comun-mensajeria:integrationTest
+BUILD SUCCESSFUL in 40s
+```
+
+(incluye `RelevoRepositorioTest` + `ConsumidosRepositorioTest`, ambos en el mismo corredor —
+ningún test individual imprimió `FAILED`, `testLogging` solo muestra fallos.)
+
+### Evidencia real — H2.S2.M3, `OutboxE2ETest` (rojo real, bloqueado por entorno — F-Leo-06)
+
+Escrito con Kafka REAL de `BaseDePrueba.kafka()` (no un doble): `Relevo` real publicando a un
+`KafkaTemplate` real contra el broker de Testcontainers, un `KafkaConsumer` real leyendo el
+mensaje y verificando las 8 cabeceras del contrato. Al intentar levantar el contenedor por
+primera vez en esta sesión (las pasadas anteriores solo habían *compilado* `BaseDePrueba.kafka()`,
+nunca lo habían arrancado de verdad — H2.S2.M2 estaba marcado PASS sin esa verificación, corregido
+arriba):
+
+```
+OutboxE2ETest > fila PENDIENTE -> Kafka real -> consumidor recibe las 8 cabeceras -> PUBLICADO FAILED
+    org.testcontainers.containers.ContainerLaunchException: Container startup failed for image apache/kafka:3.9.0
+        ...
+        Caused by:
+        java.lang.IllegalStateException: Wait strategy failed. Container exited with code 1
+            Caused by:
+            org.testcontainers.containers.ContainerLaunchException: Timed out waiting for log output
+            matching '.*Transitioning from RECOVERY to RUNNING.*'
+
+1 test completed, 1 failed
+BUILD FAILED in 1m 21s
+```
+
+Diagnosticado hasta la causa real (no un timeout mudo): con `TESTCONTAINERS_RYUK_DISABLED=true` y
+un `.withLogConsumer(...)` temporal (`DiagnosticoKafkaTest`, borrado después de usarlo — no forma
+parte del carril) se capturó el log real del contenedor, con la excepción real de Kafka mismo:
+
+```
+Exception in thread "main" java.lang.IllegalArgumentException: requirement failed:
+advertised.listeners cannot use the nonroutable meta-address 0.0.0.0. Use a routable IP address.
+    at kafka.server.KafkaConfig.validateValues(KafkaConfig.scala:1022)
+    at kafka.tools.StorageTool$.execute(StorageTool.scala:79)
+    at kafka.docker.KafkaDockerWrapper.main(KafkaDockerWrapper.scala)
+```
+
+Confirmado que la imagen en sí funciona en esta máquina (`docker run apache/kafka:3.9.0` sin
+Testcontainers arranca limpio en ~8s, llega a "Transitioning from RECOVERY to RUNNING"). El
+defecto es específico de cómo `org.testcontainers.kafka.KafkaContainer` (v1.21.3) calcula
+`KAFKA_ADVERTISED_LISTENERS` contra este Docker Desktop/Windows con estrategia `npipe`
+(`docker context ls` confirma `desktop-linux` vía `npipe:////./pipe/dockerDesktopLinuxEngine`).
+Tres intentos reales de solución, los tres sin efecto (mismo error idéntico cada vez):
+
+1. `TESTCONTAINERS_HOST_OVERRIDE=localhost` (el mecanismo documentado exactamente para este
+   síntoma) — sin cambio.
+2. Reinicio del daemon de Gradle (`./gradlew --stop`) antes de reintentar, por si la variable de
+   entorno no llegaba a un daemon ya vivo — sin cambio.
+3. `org.testcontainers.kafka.KafkaContainer.withListener(String)` existe (verificado con `javap`
+   contra el jar real `kafka-1.21.3.jar`, no adivinado) pero no se probó a fondo: su semántica
+   documentada es para *listeners adicionales* entre contenedores de una misma red Docker, no
+   para reemplazar el listener por defecto orientado al host — no hay evidencia de que resuelva
+   este caso, y forzarlo sin verificar hubiera sido exactamente el tipo de "PASS" fabricado que
+   este carril no hace.
+
+**Este es el DoD literal de H2.S2.M3** ("`OutboxE2ETest` en rojo... comando → FAIL") — la
+microtarea, tal como está escrita en el encargo, pide ese rojo, no un verde. Lo que queda
+pendiente es la parte verde de H2.S2 (la CA de punta a punta completa), bloqueada por F-Leo-06 —
+no es una microtarea numerada en sí, es el objetivo del hito.
+
+**F-Leo-06 (hallazgo nuevo, registrado en §6):** `org.testcontainers.kafka.KafkaContainer` no
+arranca en esta máquina compartida (Docker Desktop + Windows + npipe) por un defecto de cómputo
+de `advertised.listeners` en la versión 1.21.3 del módulo — no reproduce el error en un `docker
+run` directo de la misma imagen, así que la imagen está sana. Cualquier prueba que dependa de
+`BaseDePrueba.kafka()` en esta máquina (mía o de otro carril) va a fallar con el mismo síntoma
+hasta que se actualice `testcontainers-kafka` a una versión que lo corrija, o se encuentre una
+configuración de Docker Desktop que sí resuelva el host correctamente. No es un defecto de código
+del carril — se registra en vez de fabricar un verde.
+
 ## H3 — resumen
 
 | ID | Qué se hizo | Resultado |
@@ -429,6 +517,23 @@ carril, no un `BLOQUEADO` de trabajo real. Queda listo para merge humano.
   trabajando sus carriles a la vez). No es un defecto de código: es contención de recursos del
   entorno compartido. Se registra para que no se lea como una regresión real de `comun-datos`
   (fuera de mi alcance de todos modos).
+- **F-Leo-06: `BaseDePrueba.kafka()` (mi propio archivo, H2.S2.M2) no arranca en esta máquina.**
+  `org.testcontainers.kafka.KafkaContainer` (`testcontainers-kafka` 1.21.3) falla con
+  `ContainerLaunchException: Timed out waiting for log output matching '.*Transitioning from
+  RECOVERY to RUNNING.*'`. Diagnosticado hasta la causa real (con `TESTCONTAINERS_RYUK_DISABLED`
+  y un `.withLogConsumer` temporal): el propio Kafka, adentro del contenedor, aborta con
+  `IllegalArgumentException: advertised.listeners cannot use the nonroutable meta-address
+  0.0.0.0`. La imagen en sí está sana (`docker run apache/kafka:3.9.0` arranca limpio en ~8s sin
+  Testcontainers); el defecto es de cómo el módulo calcula el listener anunciado contra este
+  Docker Desktop/Windows con `npipe`. Tres intentos reales sin éxito:
+  `TESTCONTAINERS_HOST_OVERRIDE=localhost` (el mecanismo documentado para este síntoma exacto),
+  reinicio del daemon de Gradle antes de reintentar, y verificación (sin aplicar, por falta de
+  evidencia de que resuelva este caso) de `KafkaContainer.withListener(String)` vía `javap`
+  contra el jar real. **Afecta a cualquiera que use `BaseDePrueba.kafka()` en esta máquina, no
+  solo a mi carril.** No es mío de resolver (requiere subir `testcontainers-kafka` de versión o
+  reconfigurar Docker Desktop, ninguna de las dos una decisión de un solo carril) — registrado,
+  no fabricado un verde. `OutboxE2ETest` (H2.S2.M3) queda en rojo real, que es exactamente lo que
+  esa microtarea pide como DoD.
 
 ## Ambigüedades (arrastradas del encargo, §5 — no se resuelven por conveniencia)
 
@@ -437,38 +542,48 @@ Ninguna ambigüedad nueva registrada todavía.
 
 ## Cómo retomar si esta sesión se corta acá
 
-**Estado real al cortar (última actualización): AVANCE 23/49 (46,9 %).**
+**Estado real al cortar (última actualización): AVANCE 25/49 (51,0 %).**
 
 1. `git log --oneline -3` en el worktree `PasanakuBackend-leo` (rama
-   `leo/feature/carril-PR3-plataforma`) debe mostrar `933f8dc` (merge commit del fix H2.S3.M4) como
-   HEAD, o más nuevo. Ese commit ya está pusheado a `origin/leo/feature/carril-PR3-plataforma`.
+   `leo/feature/carril-PR3-plataforma`) debe mostrar el commit de `OutboxE2ETest` +
+   `ConsumidosRepositorioTest` (H2.S2.M3/M5) como HEAD, o más nuevo. Pusheado a
+   `origin/leo/feature/carril-PR3-plataforma`.
 2. **PR #22 abierto** (`fix(comun-mensajeria): separar EnvelopeDeEvento de Relevo (H2.S3.M4)`,
    base `dev`), verde, **bloqueado por el clasificador de permisos** (`Merge Without Review`, tanto
    `gh pr merge 22 --merge` como con `--admin`). No reintentar con force ni bypass — es un bloqueo
    legítimo, no un fallo de trabajo. Si hay acceso humano: `gh pr merge 22 --merge`, después
-   `git fetch origin && git push origin origin/dev:test` para espejar.
-3. Siguiente microtarea: H2.S2.M3/M5 — `OutboxE2ETest` con Kafka real de Testcontainers (no
-   doble), rojo primero, después consumidor de prueba (`ConsumidosTest`). Después H2.S3.M5
-   (`pg_stat_activity` sin "idle in transaction" durante el envío, con latencia inyectada) y H2.S4
-   completo (kill-test Kafka abajo/arriba, huérfano `TOMADO` al reiniciar, métricas por
-   `/actuator/prometheus`, `ADR-047`).
-4. Recordar para cualquier `generateJooq`/`ArranqueTest`: exportar
+   `git fetch origin && git push origin origin/dev:test` para espejar. Revisar también si hay un
+   PR más nuevo para H2.S2.M3/M5 con el mismo bloqueo.
+3. **F-Leo-06 sigue sin resolver**: `BaseDePrueba.kafka()` no arranca en esta máquina
+   (Testcontainers/Docker Desktop npipe, ver Hallazgos). Antes de reintentar `OutboxE2ETest` en
+   verde, probar primero si alguien subió `testcontainers-kafka` de versión en `dev`, o si hay una
+   `~/.testcontainers.properties`/config de Docker Desktop nueva. No repetir los mismos tres
+   intentos ya documentados (host-override, reinicio de daemon, `withListener` sin verificar) sin
+   evidencia nueva.
+4. Siguiente microtarea recomendada: H2.S3.M5 (`pg_stat_activity` sin "idle in transaction"
+   durante el envío — no depende de Kafka real, se puede inyectar latencia con un `KafkaTemplate`
+   de prueba que duerme antes de confirmar) o arrancar H3 (guardas comunes: decodificador JWT,
+   `GuardiaDeProduccion` — tampoco depende de Kafka real, y Richard/Justin/Pablo estaban
+   originalmente bloqueados en H3, aunque el perfil base H3.S3.M1 ya se mergeó). H2.S4 completo
+   (kill-test Kafka abajo/arriba, huérfano `TOMADO` al reiniciar, métricas por
+   `/actuator/prometheus`, `ADR-047`) queda bloqueado por F-Leo-06 igual que `OutboxE2ETest`.
+5. Recordar para cualquier `generateJooq`/`ArranqueTest`: exportar
    `BD_URL_ADMIN=jdbc:postgresql://127.0.0.1:5543/pasanaku BD_USUARIO_ADMIN=pasanaku
    BD_CLAVE_ADMIN=pasanaku` (verificar con `docker port aportaya-postgres` por si el contenedor se
    reinició en otro puerto) — el default de `aportaya.jooq.gradle.kts` apunta al puerto 5433 de
    OTRO proyecto en esta máquina y falla con "password authentication failed", no "connection
    refused" (fácil de confundir con un problema real).
-5. Recordar que `spotlessApply` sin acotar a un módulo reformatea TODO el repo incluyendo
+6. Recordar que `spotlessApply` sin acotar a un módulo reformatea TODO el repo incluyendo
    `servicios/**` — correrlo acotado o revisar `git status` y `git checkout -- servicios/` antes de
    commitear.
-6. Si un `git rebase origin/dev` (o contra la propia rama remota) produce conflicto por historia
+7. Si un `git rebase origin/dev` (o contra la propia rama remota) produce conflicto por historia
    con squash-merges: usar `git merge origin/<rama> --no-edit` (nunca force-push, está bloqueado
    por el clasificador). Si el merge produce un conflicto en un archivo que uno mismo acaba de
    escribir y verificar, comparar primero con `git diff origin/<rama>..HEAD -- <archivo>` para
    confirmar que el delta es exactamente el propio cambio, y solo entonces resolver con
    `git checkout --ours -- <archivo>` — no confiar ciegamente en el auto-merge de 3 vías cuando hay
    rebases de por medio (produjo una duplicación de línea real esta sesión, detectada a tiempo).
-7. H1 sigue cerrado salvo H1.S2.M3 (bloqueado, no mío — `restricciones.sql`/`extraer_sql.py`,
+8. H1 sigue cerrado salvo H1.S2.M3 (bloqueado, no mío — `restricciones.sql`/`extraer_sql.py`,
    ver Hallazgos F-Leo-01). H3 (8/9 microtareas) y H4 (8/8) siguen TODO — no arrancados esta
    sesión salvo H3.S3.M1 (perfiles `application-{local,test,staging,production}.yml`, ya
    mergeado).
