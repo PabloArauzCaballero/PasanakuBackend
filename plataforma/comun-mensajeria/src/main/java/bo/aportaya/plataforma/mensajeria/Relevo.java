@@ -1,7 +1,5 @@
 package bo.aportaya.plataforma.mensajeria;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Duration;
@@ -23,9 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.annotation.Scheduled;
 
 /**
@@ -53,7 +48,6 @@ public class Relevo {
 
     private static final Logger BITACORA = LoggerFactory.getLogger(Relevo.class);
     private static final int POR_TANDA = 100;
-    private static final ObjectMapper JSON = new ObjectMapper();
 
     /** Identifica QUE instancia tomo una fila — para diagnosticar un {@code TOMADO} huerfano. */
     private final String identidad = "relevo-" + UUID.randomUUID();
@@ -155,9 +149,9 @@ public class Relevo {
     /** Kafka, fuera de cualquier transaccion de PostgreSQL; despues, tx2 corta para marcar. */
     private void publicarYMarcar(Record evento) {
         UUID id = (UUID) evento.get("id");
-        String tipo = String.valueOf(evento.get("tipo"));
         try {
-            kafka.send(mensaje(evento)).get(timeoutPublicacion.toMillis(), TimeUnit.MILLISECONDS);
+            kafka.send(EnvelopeDeEvento.construir(evento, esquema))
+                    .get(timeoutPublicacion.toMillis(), TimeUnit.MILLISECONDS);
             marcarPublicado(id);
             publicacionesOk.increment();
         } catch (InterruptedException e) {
@@ -171,56 +165,6 @@ public class Relevo {
 
     private Throwable causaDe(Exception e) {
         return e.getCause() != null ? e.getCause() : e;
-    }
-
-    /**
-     * El envelope: 8 cabeceras desde las columnas y {@code metadatos} de {@code evento_dominio}
-     * (H2.S2.M4, contrato en {@code docs/auditoria-produccion/contratos/evento-kafka.md}).
-     */
-    private Message<String> mensaje(Record evento) {
-        UUID id = (UUID) evento.get("id");
-        String tipo = String.valueOf(evento.get("tipo"));
-        UUID agregadoId = (UUID) evento.get("agregado_id");
-        String payload = String.valueOf(evento.get("payload"));
-        UUID correlationId = (UUID) evento.get("correlation_id");
-        UUID causationId = (UUID) evento.get("causation_id");
-        OffsetDateTime ocurridoEn = evento.get("ocurrido_en", OffsetDateTime.class);
-        String metadatos = String.valueOf(evento.get("metadatos"));
-
-        var builder = MessageBuilder.withPayload(payload)
-                .setHeader(KafkaHeaders.TOPIC, "aportaya." + tipo)
-                // La clave de particion es el agregado: lo de un mismo agregado llega en orden.
-                .setHeader(KafkaHeaders.KEY, agregadoId.toString())
-                .setHeader("event_id", id.toString())
-                .setHeader("type", tipo)
-                .setHeader("version", "1")
-                .setHeader("occurred_at", ocurridoEn.toInstant().toString())
-                .setHeader("producer", esquema)
-                .setHeader("correlation_id", correlationId.toString())
-                .setHeader("trace_id", trazaDe(metadatos, correlationId));
-        if (causationId != null) {
-            builder.setHeader("causation_id", causationId.toString());
-        }
-        return builder.build();
-    }
-
-    /**
-     * {@code trace_id} sale del MDC de {@code Traza} al momento de publicar — pero el relevo
-     * corre en un hilo programado, sin peticion en curso, asi que ahi nunca hay nada. Se lee de
-     * {@code metadatos.trace_id} (lo que la peticion original guardo al emitir, H4.S2.M2) y, a
-     * falta de eso todavia (el emisor no lo escribe hasta H4), se usa {@code correlation_id}: la
-     * cabecera nunca falta, aunque la traza real de punta a punta se cierre recien en H4.
-     */
-    private String trazaDe(String metadatosJson, UUID correlationId) {
-        try {
-            JsonNode nodo = JSON.readTree(metadatosJson).get("trace_id");
-            if (nodo != null && !nodo.isNull()) {
-                return nodo.asText();
-            }
-        } catch (Exception e) {
-            BITACORA.debug("metadatos sin trace_id parseable, se usa correlation_id", e);
-        }
-        return correlationId.toString();
     }
 
     private void marcarPublicado(UUID id) {
