@@ -56,7 +56,15 @@ class RelevoConfiguracionTest {
         }
     }
 
+    // Un ApplicationContextRunner "pelado" no trae el ConversionService de Spring Boot
+    // (ApplicationConversionService), asi que un @Value("PT1S") -> Duration fallaba con
+    // "no matching editors or conversion strategy found" — no en produccion (ahi Boot lo
+    // registra solo), pero si aca, donde el contexto se arma a mano (H2.S3, con las
+    // propiedades nuevas de aportaya.outbox.*).
     private final ApplicationContextRunner contexto = new ApplicationContextRunner()
+            .withInitializer(ctx -> ctx.getBeanFactory()
+                    .setConversionService(
+                            org.springframework.boot.convert.ApplicationConversionService.getSharedInstance()))
             .withPropertyValues("aportaya.esquema=aportes")
             .withUserConfiguration(Dependencias.class, ConfiguracionMensajeria.class);
 
