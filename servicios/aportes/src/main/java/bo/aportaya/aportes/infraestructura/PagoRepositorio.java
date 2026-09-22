@@ -50,12 +50,58 @@ public class PagoRepositorio {
         return id;
     }
 
-    public Optional<UUID> porClaveIdempotencia(DSLContext dsl, String clave) {
+    /**
+     * Busca el pago por la MISMA identidad que ampara {@code uq_pago_idem
+     * (obligacion_id, clave_idempotencia)}.
+     *
+     * <p>Filtrar solo por {@code clave_idempotencia} (como hacia antes) es mas ancho
+     * que el indice: dos obligaciones distintas que por coincidencia usan la misma
+     * clave (una app movil que reusa un UUID de plantilla, dos participantes que piden
+     * el mismo instante) colisionaban en Java aunque la base las tenia por separado, y
+     * el segundo pago devolvia el {@code pagoId} del primero — la persona equivocada
+     * (hallazgo H1.S1, PLAN.md hallazgo C).
+     */
+    public Optional<UUID> porClaveIdempotencia(DSLContext dsl, UUID obligacionId, String clave) {
         return Optional.ofNullable(dsl.select(DSL.field("id", UUID.class))
                 .from(DSL.table(DSL.name("aportes", "pago")))
-                .where(DSL.field("clave_idempotencia").eq(clave))
+                .where(DSL.field("obligacion_id", UUID.class).eq(obligacionId))
+                .and(DSL.field("clave_idempotencia").eq(clave))
                 .fetchOne(DSL.field("id", UUID.class)));
     }
+
+    /**
+     * El pago que la pasarela dice haber confirmado, por la referencia que ella misma
+     * asigno (`CU21CobrarAporte.registrar` la guarda en el mismo INSERT).
+     *
+     * <p><b>Simplificacion declarada</b> (ver {@code idempotencia-scope.md} y
+     * {@code carriles/PR4-seguridad.md} §H1.S2): el modelo completo de
+     * {@code orden_cobro → intento_pago → webhook_pasarela → pago} que describe la
+     * skill de pagos QR no esta implementado en Java todavia — {@code CU21CobrarAporte}
+     * acredita en la misma llamada, sin esperar confirmacion async. Esta lectura conecta
+     * el webhook con el pago YA registrado por su referencia de proveedor, que es el
+     * unico eslabon que existe hoy; no reemplaza construir la cadena completa, que
+     * queda fuera de este carril de seguridad transversal (hallazgo de alcance, no de
+     * seguridad).
+     */
+    public Optional<PagoParaConciliar> porReferenciaProveedor(DSLContext dsl, String referenciaProveedor) {
+        Record fila = dsl.select(
+                        DSL.field("id", UUID.class),
+                        DSL.field("monto", BigDecimal.class),
+                        DSL.field("moneda", String.class),
+                        DSL.field("estado", String.class))
+                .from(DSL.table(DSL.name("aportes", "pago")))
+                .where(DSL.field("referencia_proveedor", String.class).eq(referenciaProveedor))
+                .orderBy(DSL.field("fecha_hora_pago").desc())
+                .limit(1)
+                .fetchOne();
+        return Optional.ofNullable(fila)
+                .map(f -> new PagoParaConciliar(
+                        f.get("id", UUID.class),
+                        Dinero.de(f.get("monto", BigDecimal.class), Moneda.valueOf(f.get("moneda", String.class))),
+                        f.get("estado", String.class)));
+    }
+
+    public record PagoParaConciliar(UUID id, Dinero monto, String estado) {}
 
     public Optional<Pago> ver(DSLContext dsl, UUID pagoId) {
         Record fila = dsl.select(
@@ -79,6 +125,8 @@ public class PagoRepositorio {
 
     /** Lo ya reembolsado de un pago: es contra lo que se compara el nuevo pedido. */
     public Dinero reembolsadoDe(DSLContext dsl, UUID pagoId, Moneda moneda) {
+        // SQL-SEGURO: literal de texto (bloque triple-comillas), `?` con bind real —
+        // revisado en H2.S2.M2 del carril PR4-seguridad, sin entrada interpolada.
         BigDecimal total = (BigDecimal) dsl.fetchOne(
                         """
                         SELECT COALESCE(SUM(monto), 0) FROM aportes.reembolso

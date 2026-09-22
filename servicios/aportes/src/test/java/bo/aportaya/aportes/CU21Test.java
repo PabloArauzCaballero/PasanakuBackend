@@ -128,6 +128,59 @@ class CU21Test extends BaseDeAportes {
     }
 
     @Test
+    @DisplayName(
+            "idempotencia con el scope del indice: la misma clave en OTRA obligacion es un pago distinto (H1.S1, hallazgo C)")
+    void mismaClaveOtraObligacionEsOtroPago() {
+        // uq_pago_idem ampara (obligacion_id, clave_idempotencia): dos obligaciones que
+        // por coincidencia comparten clave (una plantilla de la app movil, un mismo
+        // instante para dos participantes) no son la misma operacion. Antes del fix,
+        // `porClaveIdempotencia` filtraba SOLO por la clave y el segundo pago devolvia
+        // el pagoId de la primera obligacion — la persona equivocada.
+        // La referencia del proveedor es del proveedor, no de nuestra clave: dos
+        // obligaciones distintas SIEMPRE traen una referencia distinta en la vida
+        // real (`uq_pago_proveedor_id_referencia_proveedor`, hallazgo real
+        // encontrado corriendo este test contra PostgreSQL real). Lo unico que se
+        // comparte a proposito, para probar el scope, es la CLAVE DE IDEMPOTENCIA.
+        UUID usuario1 = fixtura.usuario();
+        UUID usuario2 = fixtura.usuario();
+        var obligacion1 = fixtura.obligacion(usuario1, "500.00", 10);
+        var obligacion2 = fixtura.obligacion(usuario2, "500.00", 10);
+        String claveCompartida = "cob-colision-scope";
+
+        SalidaCobro a = transaccion.execute(t -> cobroCU.acreditar(
+                new EntradaCobro(
+                        claveCompartida,
+                        obligacion1.id(),
+                        bob("500.00"),
+                        bob("0.00"),
+                        "BILLETERA_MOVIL",
+                        "ref-colision-scope-1",
+                        Optional.empty(),
+                        false,
+                        true),
+                contextoDe(usuario1)));
+        SalidaCobro b = transaccion.execute(t -> cobroCU.acreditar(
+                new EntradaCobro(
+                        claveCompartida,
+                        obligacion2.id(),
+                        bob("500.00"),
+                        bob("0.00"),
+                        "BILLETERA_MOVIL",
+                        "ref-colision-scope-2",
+                        Optional.empty(),
+                        false,
+                        true),
+                contextoDe(usuario2)));
+
+        assertThat(a.pagoId()).isNotEqualTo(b.pagoId());
+        assertThat(a.esNuevo()).isTrue();
+        assertThat(b.esNuevo()).isTrue();
+        assertThat(b.obligacionId()).isEqualTo(obligacion2.id());
+        assertThat(contar("SELECT count(*)::int FROM aportes.pago WHERE clave_idempotencia = ?", claveCompartida))
+                .isEqualTo(2);
+    }
+
+    @Test
     @DisplayName("concurrencia: dos transacciones sobre el mismo agregado, una gana y nunca hay doble efecto")
     void concurrencia() {
         // La version optimista es la barrera: dos pagos que leyeron la misma version

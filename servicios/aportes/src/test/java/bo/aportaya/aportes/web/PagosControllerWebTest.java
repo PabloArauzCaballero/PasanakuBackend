@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import bo.aportaya.aportes.aplicacion.CU100RecibirWebhookPasarela;
 import bo.aportaya.aportes.aplicacion.CU19ReembolsarPago;
 import bo.aportaya.aportes.aplicacion.CU99EnrutarProveedor;
 import bo.aportaya.plataforma.dominio.Dinero;
@@ -63,6 +64,9 @@ class PagosControllerWebTest {
 
     @MockitoBean
     private CU99EnrutarProveedor cu99;
+
+    @MockitoBean
+    private CU100RecibirWebhookPasarela cu100;
 
     private static Dinero bob(String monto) {
         return Dinero.de(monto, Moneda.BOB);

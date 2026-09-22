@@ -60,7 +60,7 @@ public class CU21CobrarAporte {
         return datos.conContexto(ctx, dsl -> {
             // La clave se valida ANTES de escribir (invariante 7): el webhook del
             // proveedor llega dos veces mas seguido de lo que uno cree.
-            var yaPagado = pagos.porClaveIdempotencia(dsl, entrada.claveIdempotencia());
+            var yaPagado = pagos.porClaveIdempotencia(dsl, entrada.obligacionId(), entrada.claveIdempotencia());
             if (yaPagado.isPresent()) {
                 var pago = pagos.ver(dsl, yaPagado.get()).orElseThrow();
                 var obligacion = obligaciones.ver(dsl, pago.obligacionId()).orElseThrow();
