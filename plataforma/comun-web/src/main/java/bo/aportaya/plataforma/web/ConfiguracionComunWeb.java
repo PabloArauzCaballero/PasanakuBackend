@@ -29,10 +29,16 @@ public class ConfiguracionComunWeb {
         return TraduccionDeRestricciones.cargar();
     }
 
+    /**
+     * El {@link Reloj} inyectado (no {@code OffsetDateTime.now()} adentro): es lo que
+     * permite que {@code IdempotenciaRepositorioTest} pare el tiempo para probar
+     * "expirada" sin un {@code Thread.sleep}, y lo mismo en cualquier prueba que declare
+     * el suyo (gana por {@code @ConditionalOnMissingBean}, ver mas abajo).
+     */
     @Bean
     @ConditionalOnMissingBean
-    public Idempotencia idempotencia(@Value("${aportaya.esquema}") String esquema) {
-        return new Idempotencia(esquema);
+    public Idempotencia idempotencia(@Value("${aportaya.esquema}") String esquema, Reloj reloj) {
+        return new Idempotencia(esquema, reloj);
     }
 
     /**

@@ -51,7 +51,8 @@ public record DestinoDeObjeto(String carpeta, String etiqueta) {
      * guardada apunta de verdad a una foto subida o a un relleno.
      */
     public static String carpetaDeExpediente(java.util.UUID usuarioId) {
-        return AmbitoArchivo.IDENTIDAD.prefijo() + "/" + deExpediente(usuarioId, "x").carpeta() + "/";
+        return AmbitoArchivo.IDENTIDAD.prefijo() + "/"
+                + deExpediente(usuarioId, "x").carpeta() + "/";
     }
 
     /** El reparto viejo por fecha, para lo que no pertenece a nadie en particular. */
