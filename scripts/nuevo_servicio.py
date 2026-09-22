@@ -93,6 +93,10 @@ def application_yml(servicio, esquema):
     pool = POOL.get(servicio, 5)
     return f"""# {servicio} — generado por scripts/nuevo_servicio.py
 # Si falta una clave, el proceso NO levanta y dice cual.
+# Config comun a todo perfil. Lo que varia por entorno (aportaya.entorno.productivo,
+# aportaya.cors.origenes) vive en application-{{local,test,staging,production}}.yml
+# (H3.S3.M1) — nunca acá, para que un service.yml no pueda "olvidarse" de activar
+# la guarda de produccion.
 spring:
   application:
     name: {servicio}
@@ -112,17 +116,63 @@ spring:
 
 aportaya:
   esquema: {esquema}
-  outbox:
+  outbox:                           # Q-02 (encargo PR3 §5): decidido, no literal en codigo
+    habilitado: true
     intervalo: PT1S                 # relevo: lee el outbox y publica DESPUES del commit
+    intentos-maximos: 10
+    backoff-base: PT1S
+    backoff-tope: PT5M
+    timeout-publicacion: PT10S
   jwt:
     jwks-uri: ${{JWKS_URI}}           # ADR-024: cada servicio valida la firma el mismo
+    emisor: aportaya-identidad      # Q-05: iss unico
+    audiencia: aportaya             # Q-05: aud del token de acceso (global)
+    tolerancia: PT60S               # skew aceptado por JwtTimestampValidator
   zona-horaria: America/La_Paz      # plazos habiles
 
 management:
+  endpoints:
+    web:
+      exposure:
+        # F-05 (hallazgo de Pablo, carril PR5): ninguno de los catorce exponia
+        # /actuator/prometheus, asi que las anotaciones prometheus.io/scrape de
+        # generar_k8s.py no tenian nada que scrapear. /actuator entero esta
+        # bloqueado en el borde publico (NGINX, PR5.H3.S3.M1); esto es lo interno.
+        include: health,prometheus,info
   endpoint:
     health:
       probes:
         enabled: true               # readiness mira base y Kafka; liveness solo el proceso
+"""
+
+
+# Perfiles del Q-04 (encargo PR3 §5, = AMB-12): aportaya.entorno.productivo=true para
+# todo perfil que NO sea local/test (fail closed). GuardiaDeProduccion (H3.S2) exige
+# esta propiedad para decidir si aplica sus guardas.
+PERFILES = ("local", "test", "staging", "production")
+
+
+def application_yml_perfil(servicio, esquema, perfil):
+    productivo = "false" if perfil in ("local", "test") else "true"
+    if perfil == "local":
+        cors = '"http://localhost:5173,http://localhost:3000"'
+        nota_cors = "  # front local; nunca * (GuardiaDeProduccion lo rechazaria de todos modos si productivo)"
+    elif perfil == "test":
+        cors = '"http://localhost"'
+        nota_cors = "  # solo lo que usan webTest/integrationTest"
+    else:
+        cors = "${APORTAYA_CORS_ORIGENES}"
+        nota_cors = (
+            "  # OBLIGATORIO en staging/production: sin default y nunca *."
+            " GuardiaDeProduccion falla el arranque si falta o es *."
+        )
+    return f"""# {servicio} — perfil {perfil} — generado por scripts/nuevo_servicio.py
+# Unicamente lo que varia por entorno. El resto esta en application.yml (comun).
+aportaya:
+  entorno:
+    productivo: {productivo}        # Q-04: true fuera de local/test
+  cors:
+    origenes: {cors}{nota_cors}
 """
 
 
@@ -470,6 +520,10 @@ def crear(servicio, forzar=False):
         base / "src/test/java" / ruta_pkg / "ArquitecturaTest.java": arquitectura_test(servicio, pkg),
         base / "src/test/java" / ruta_pkg / "BarridoTest.java": barrido_test(servicio, pkg),
     }
+    for perfil in PERFILES:
+        escribir[base / f"src/main/resources/application-{perfil}.yml"] = (
+            application_yml_perfil(servicio, esquema, perfil)
+        )
     # CURADOS: el carril los llena y --forzar NO los pisa. Regenerar borro una vez
     # el nivel de criticidad de los catorce descriptores y otra vez los tres
     # contratos de la Fase 0; un generador que destruye decisiones es peor que no

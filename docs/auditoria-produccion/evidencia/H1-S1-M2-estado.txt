@@ -1,0 +1,35 @@
+=== git log -1 ===
+5d7948eeddba3fa68ee7389984772689bfb977f1 2026-09-21 18:30:42 -0400 docs(auditoria): plan dev → production ready, contratos entre carriles y decisiones
+
+=== gradle --version ===
+
+------------------------------------------------------------
+Gradle 9.7.1
+------------------------------------------------------------
+
+Build time:    2026-08-19 14:16:09 UTC
+Revision:      92f0512e7f06d84621afba191f75e265363890cf
+
+Kotlin:        2.4.0
+Groovy:        4.0.32
+Ant:           Apache Ant(TM) version 1.10.17 compiled on April 6 2026
+Launcher JVM:  21.0.12.1 (Eclipse Adoptium 21.0.12.1+1-LTS)
+Daemon JVM:    Compatible with Java 21, any vendor, nativeImageCapable=false (from gradle/gradle-daemon-jvm.properties)
+OS:            Windows 11 10.0 amd64
+
+
+=== docker --version ===
+Docker version 29.6.2, build dfc4efb
+
+=== docker exec aportaya-postgres postgres --version ===
+postgres (PostgreSQL) 16.15 (Debian 16.15-1.pgdg13+2)
+
+=== versiones catalogo ===
+spring-boot        = "3.5.6"
+shedlock           = "6.9.0"       # bloqueo de trabajos programados entre replicas
+resilience4j       = "2.3.0"       # timeout y cortacircuitos en cada cliente
+jooq               = "3.20.5"      # generador Y libreria: separarlos genera codigo que no compila
+jooq       = { module = "org.jooq:jooq", version.ref = "jooq" }
+shedlock             = { module = "net.javacrumbs.shedlock:shedlock-spring", version.ref = "shedlock" }
+resilience4j        = { module = "io.github.resilience4j:resilience4j-spring-boot3", version.ref = "resilience4j" }
+spring-boot       = { id = "org.springframework.boot", version.ref = "spring-boot" }

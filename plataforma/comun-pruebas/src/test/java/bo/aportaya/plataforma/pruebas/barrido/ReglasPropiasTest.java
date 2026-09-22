@@ -75,6 +75,46 @@ class ReglasPropiasTest {
         assertThat(SinUmbralLiteral.revisar(raiz)).isEmpty();
     }
 
+    @Test
+    @DisplayName("clave-idempotencia-suelta: .where(clave_idempotencia) sin .and() en la sentencia, se detecta")
+    void claveIdempotenciaSueltaSeDetecta() throws IOException {
+        // Se arma por partes: escrita entera, esta regla se dispararia sobre este mismo
+        // archivo de prueba — el mismo motivo de CIFRA/DECIMAL mas arriba.
+        String metodo = ".where(DSL.field(\"clave_idempotencia\")";
+        escribir(
+                "Suelto.java",
+                "class Suelto {\n"
+                        + "    void buscar() {\n"
+                        + "        dsl.select().from(tabla)\n"
+                        + "                " + metodo + ".eq(clave))\n"
+                        + "                .fetchAny();\n"
+                        + "    }\n"
+                        + "}\n");
+
+        assertThat(ClaveIdempotenciaSuelta.revisar(raiz)).singleElement().satisfies(h -> {
+            assertThat(h.archivo().getFileName()).hasToString("Suelto.java");
+            assertThat(h.linea()).isEqualTo(4);
+        });
+    }
+
+    @Test
+    @DisplayName("clave-idempotencia-suelta: con .and() en la misma sentencia (la identidad completa), no grita")
+    void claveIdempotenciaSueltaNoGritaConAnd() throws IOException {
+        String metodo = ".where(DSL.field(\"clave_idempotencia\")";
+        escribir(
+                "Completo.java",
+                "class Completo {\n"
+                        + "    void buscar() {\n"
+                        + "        dsl.select().from(tabla)\n"
+                        + "                " + metodo + ".eq(clave))\n"
+                        + "                .and(DSL.field(\"usuario_id\").eq(usuarioId))\n"
+                        + "                .fetchAny();\n"
+                        + "    }\n"
+                        + "}\n");
+
+        assertThat(ClaveIdempotenciaSuelta.revisar(raiz)).isEmpty();
+    }
+
     private void escribir(String nombre, String contenido) throws IOException {
         Files.writeString(raiz.resolve(nombre), contenido);
     }

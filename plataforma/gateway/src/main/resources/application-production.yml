@@ -1,0 +1,10 @@
+# H3.S2: DECISION_REQUIRED — mismo motivo que application-staging.yml: no hay
+# dominio de produccion declarado todavia en el repo. Sin default: si la
+# variable no esta seteada, `CorsOrigenes.origenes()` devuelve una lista vacia
+# y la guarda propia de este archivo (LimitadorDeTasa no; ver
+# GuardiaDeCorsEnProduccion en Aplicacion.java) tumba el arranque en vez de
+# levantar con CORS abierto por accidente.
+aportaya:
+  cors:
+    # Default vacio a proposito: ver el comentario en application-staging.yml.
+    origenes: ${APORTAYA_CORS_ORIGENES:}

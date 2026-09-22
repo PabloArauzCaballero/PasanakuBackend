@@ -6,6 +6,11 @@
 #
 # `StripPrefix=2` saca `/api/v1`: el contrato lo declara y el servicio sirve en la
 # raiz, asi que el prefijo lo pone y lo saca la entrada publica.
+#
+# Las rutas de scripts/modelo.py -> RUTAS_SENSIBLES van PRIMERO y con
+# `RequestRateLimiter` (H3.S1, ADR-050): Spring Cloud Gateway evalua las rutas en
+# orden y usa la primera que matchea, asi que si fueran despues de la ruta general
+# del servicio nunca se alcanzarian.
 
 spring:
   cloud:
@@ -13,6 +18,50 @@ spring:
       server:
         webflux:
           routes:
+            - id: identidad-sensible-sesiones
+              uri: http://identidad:8080
+              predicates:
+                - Path=/api/v1/sesiones/**
+              filters:
+                - StripPrefix=2
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 5
+                    redis-rate-limiter.burstCapacity: 10
+                    key-resolver: "#{@ipYUsuarioKeyResolver}"
+            - id: identidad-sensible-usuarios
+              uri: http://identidad:8080
+              predicates:
+                - Path=/api/v1/usuarios/**
+              filters:
+                - StripPrefix=2
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 5
+                    redis-rate-limiter.burstCapacity: 10
+                    key-resolver: "#{@ipYUsuarioKeyResolver}"
+            - id: nucleo_financiero-sensible-billetera-retiros
+              uri: http://nucleo-financiero:8080
+              predicates:
+                - Path=/api/v1/billetera/retiros/**
+              filters:
+                - StripPrefix=2
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 5
+                    redis-rate-limiter.burstCapacity: 10
+                    key-resolver: "#{@ipYUsuarioKeyResolver}"
+            - id: nucleo_financiero-sensible-billetera-transferencias
+              uri: http://nucleo-financiero:8080
+              predicates:
+                - Path=/api/v1/billetera/transferencias/**
+              filters:
+                - StripPrefix=2
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 5
+                    redis-rate-limiter.burstCapacity: 10
+                    key-resolver: "#{@ipYUsuarioKeyResolver}"
             - id: aportes
               uri: http://aportes:8080
               predicates:

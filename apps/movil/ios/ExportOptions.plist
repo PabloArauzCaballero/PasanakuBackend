@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!--
+    H3.S1.M3/M4 (PR13-Ci.Frontend). Usado por `flutter build ipa --export-options-plist`
+    en el job `release-ios` de `.github/workflows/ci.yml`, SOLO en el paso de firma
+    (condicionado a los cinco secretos de entregables/secretos-ios.md). Sin secretos,
+    el build sin firmar (`--no-codesign`) no lo necesita.
+
+    `teamID` y `PRODUCT_BUNDLE_IDENTIFIER` (implícito en el proyecto) son los mismos
+    que ya declara `Runner.xcodeproj/project.pbxproj` -- no se inventaron acá.
+  -->
+  <key>method</key>
+  <string>app-store-connect</string>
+  <key>teamID</key>
+  <string>7A42TVN3Y6</string>
+  <key>signingStyle</key>
+  <string>manual</string>
+  <key>uploadSymbols</key>
+  <true/>
+  <key>uploadBitcode</key>
+  <false/>
+</dict>
+</plist>

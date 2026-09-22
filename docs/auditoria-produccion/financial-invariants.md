@@ -159,6 +159,6 @@ en el propio test.
 ## Pendiente (declarado, no oculto)
 
 - [ ] H3.S1.M4 (parcial) — Escenario 10 (excepción tras débito dentro de
-      `Datos.conContexto`): no construido en esta corrida.
-- [ ] H3.S2.M2 — `LibroBenchmarkTest`: en construcción en esta misma sesión (ver
-      arriba).
+      `Datos.conContexto`): no construido todavía.
+- [x] H3.S2.M2 — `LibroBenchmarkTest`: CORRIDO contra PostgreSQL real (200 tx x 3
+      corridas), ver tabla arriba y `evidencia/H3-benchmark-hashchain.txt`.

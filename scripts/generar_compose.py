@@ -147,6 +147,12 @@ BLOQUE = """  {nombre}:
     container_name: aportaya-{nombre}
     profiles: [todo]
     networks: [interna]
+    # H2.S4.M3: sin escritura salvo /tmp. La JVM escribe ahi (java.io.tmpdir) y
+    # Spring Boot no necesita mas para arrancar; un runtime que no puede escribir
+    # su propio filesystem no puede dejar un webshell aunque lo comprometan.
+    read_only: true
+    tmpfs:
+      - /tmp
     environment:
 {ambiente}
     healthcheck:
@@ -335,6 +341,9 @@ BLOQUE_DESPLEGADO = """  {nombre}:
     image: aportaya/{nombre}:test
     pull_policy: never
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
     depends_on:
 {dependencias}
     environment:

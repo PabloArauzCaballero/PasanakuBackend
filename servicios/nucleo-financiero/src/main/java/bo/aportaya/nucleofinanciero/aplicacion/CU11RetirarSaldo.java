@@ -82,13 +82,17 @@ public class CU11RetirarSaldo {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
         return datos.conContexto(ctx, dsl -> {
-            var yaExiste = ordenes.porClaveIdempotencia(dsl, entrada.claveIdempotencia());
+            ordenes.bloquearIdempotencia(dsl, entrada.cuentaBilleteraId(), entrada.claveIdempotencia());
+            var yaExiste = ordenes.porClaveIdempotencia(dsl, entrada.cuentaBilleteraId(), entrada.claveIdempotencia());
             if (yaExiste.isPresent()) {
+                // El replay devuelve el costo ALMACENADO en la orden, no el que trae la
+                // entrada repetida: si el cotizador cambio entretanto, recotizar en el
+                // replay le mostraria a la persona un costo distinto del que se le cobro.
                 var orden = ordenes.ver(dsl, yaExiste.get()).orElseThrow();
                 return new SalidaRetiro(
                         orden.id(),
                         orden.estado(),
-                        entrada.costo(),
+                        orden.costo(),
                         orden.neto(),
                         orden.retencionId().orElse(null));
             }
