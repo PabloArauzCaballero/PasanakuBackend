@@ -88,7 +88,94 @@ docker run --rm -v pasanaku-src:/work -v pasanaku-gradle-cache:/root/.gradle \
 Si se editaron archivos después de la copia, hay que repetir el `docker cp` de la
 carpeta tocada antes del siguiente build — el volumen no se sincroniza solo.
 
-## 5. Qué queda con evidencia real pese a esto
+## 5. Actualización — `webTest` VERDE, `integrationTest` bloqueado por un límite distinto (Docker-fuera-de-Docker)
+
+Con la receta de §4 (volumen `pasanaku-src` + `docker cp`), el build **arrancó
+limpio, sin ningún `Input/output error`**. Confirmado:
+
+```text
+$ docker run --rm --network aportaya-interna \
+    -e BD_URL_ADMIN=jdbc:postgresql://aportaya-postgres:5432/pasanaku \
+    -e BD_USUARIO_ADMIN=pasanaku -e BD_CLAVE_ADMIN=pasanaku \
+    -v pasanaku-src:/work -v pasanaku-gradle-cache:/root/.gradle \
+    -w /work eclipse-temurin:21-jdk \
+    bash -lc "apt-get install -y -qq python3 >/dev/null 2>&1; ./gradlew :servicios:aportes:webTest --console=plain --no-daemon"
+...
+BUILD SUCCESSFUL in 2m 43s
+32 actionable tasks: 2 executed, 30 up-to-date
+GRADLE_EXIT=0
+```
+
+Conteo exacto de los XML de JUnit (`build/test-results/webTest/*.xml`):
+
+```text
+<testsuite name="POST /aportes/obligaciones/{id}/pagos — cobrar" tests="7" skipped="0" failures="0" errors="0" .../>
+<testsuite name="GET — lo que este servicio le contesta a los otros" tests="4" skipped="0" failures="0" errors="0" .../>
+<testsuite name="POST /pagos/{id}/disputas — es de soporte, y es idempotente" tests="3" skipped="0" failures="0" errors="0" .../>
+<testsuite name="Pedir un reembolso y aprobarlo son dos actos de dos personas" tests="4" skipped="0" failures="0" errors="0" .../>
+<testsuite name="bo.aportaya.aportes.web.PagosControllerWebTest" tests="1" skipped="0" failures="0" errors="0" .../>
+<testsuite name="bo.aportaya.aportes.web.SeguridadWebTest" tests="6" skipped="0" failures="0" errors="0" .../>
+```
+
+**25/25 tests, 0 failures, 0 skipped.** En el camino, `webTest` encontró un bug real
+de compatibilidad que este mismo carril introdujo: `PagosControllerWebTest` y
+`SeguridadWebTest` mockean `CU19ReembolsarPago`/`CU99EnrutarProveedor` pero no
+`CU100RecibirWebhookPasarela` (nuevo parámetro del constructor de
+`PagosController`) — el contexto Spring fallaba con `NoSuchBeanDefinitionException`
+al arrancar. Corregido agregando `@MockitoBean CU100RecibirWebhookPasarela` a
+ambos archivos.
+
+**`integrationTest` sigue bloqueado, por una causa DISTINTA y más profunda**:
+Testcontainers (usado por `BaseDePrueba.contenedor()`) necesita bind-montar
+`sql/` dentro del contenedor PostgreSQL que levanta
+(`withFileSystemBind(raizDelRepositorio().resolve("sql"), "/repo/sql", READ_ONLY)`).
+Esto funciona cuando Gradle corre DIRECTO en el host (el mismo proceso que pide el
+bind-mount es el que ve el path real). Acá Gradle corre DENTRO de un contenedor que
+comparte el socket de Docker con el host (Docker-fuera-de-Docker): Testcontainers
+calcula la ruta desde SU PROPIO punto de vista (`/work/sql`, que en mi contenedor es
+el volumen nombrado `pasanaku-src`) y se la pide al daemon de Docker Desktop — que
+no tiene ningún `/work` en su propio sistema de archivos (esa ruta solo existe
+DENTRO de mi contenedor, invisible para el daemon). Resultado:
+
+```text
+AuditoriaCriticaTest > initializationError FAILED
+    java.lang.IllegalStateException: psql -f /repo/sql/aplicar.sql:
+    psql: error: /repo/sql/aplicar.sql: No such file or directory
+```
+
+Se confirmó que Testcontainers SÍ logra levantar el contenedor PostgreSQL en sí
+(el socket compartido funciona para *crear* contenedores hermanos) — el problema es
+específicamente el bind-mount de un directorio de archivos, que exige una ruta
+válida para el DAEMON, no para el proceso que la pide. Es la limitación conocida de
+"Docker-outside-of-Docker + bind mounts de archivos", distinta de la limitación de
+§1-§4 (que era sobre el propio *bind mount de Windows para Gradle*, ya resuelta).
+
+**Qué se intentó para destrabarlo, y por qué no alcanzó en esta sesión**:
+1. Montar además el directorio real de Windows en el contenedor externo
+   (`-v "C:/...:/mnt/winrepo:ro"`) — no resuelve nada por sí solo: el daemon seguiría
+   sin saber traducir esa ruta cuando la pide un contenedor hermano.
+2. Instalar un JDK 21 nativo en el host Windows (`winget install
+   EclipseAdoptium.Temurin.21.JDK`) para correr Gradle DIRECTO, sin contenedor —
+   sortearía el problema de raíz. El instalador quedó colgado 15+ minutos sin
+   producir salida (probablemente esperando una elevación que un proceso no
+   interactivo no puede resolver) y se terminó (`taskkill`) para no seguir gastando
+   el presupuesto del turno.
+
+**Siguiente paso concreto para quien retome** (en orden de preferencia):
+1. Instalar JDK 21 en el host con permisos interactivos (o `choco`/descarga directa
+   del `.zip` de Temurin sin instalador MSI) y correr `./gradlew` nativo — resuelve
+   TODOS los problemas de Docker-fuera-de-Docker de una vez.
+2. Si tiene que seguir en contenedor: correr el contenedor de Gradle con
+   `--privileged` y el MISMO bind mount de Windows que usa el host
+   (`-v "C:/...:/work"`) en vez de un volumen nombrado, aceptando el riesgo de
+   inestabilidad de E/S de §1-§4 (mitigado si en ese momento la máquina no está tan
+   cargada por los otros carriles).
+3. Parametrizar `BaseDePrueba.raizDelRepositorio()` (o el bind-mount) con una
+   variable de entorno que permita indicar la ruta REAL del host cuando se corre
+   dockerizado — cambio de `plataforma/comun-pruebas`, coordinar con Leo (Q-05 lo
+   permite para los 5 tests reservados, pero esta clase base no es uno de ellos).
+
+## 6. Qué queda con evidencia real pese a esto
 
 Ningún script de Python se vio afectado (corren directo sobre el host, sin Docker):
 `verificar_seguridad.py`, `inventario_endpoints.py`, `verificar_contratos_limites.py`
