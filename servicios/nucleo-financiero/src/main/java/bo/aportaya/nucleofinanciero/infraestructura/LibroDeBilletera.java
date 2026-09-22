@@ -107,6 +107,15 @@ public class LibroDeBilletera {
      */
     private static final UUID CENTINELA_SIN_USUARIO = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
+    public void bloquearIdempotencia(DSLContext dsl, Optional<UUID> iniciadaPor, String origenTipo, String clave) {
+        BloqueoDeIdempotencia.tomar(
+                dsl,
+                "transaccion_billetera",
+                iniciadaPor.orElse(CENTINELA_SIN_USUARIO).toString(),
+                origenTipo,
+                clave);
+    }
+
     public Optional<UUID> porClaveIdempotencia(
             DSLContext dsl, Optional<UUID> iniciadaPor, String origenTipo, String clave) {
         return Optional.ofNullable(dsl.select(DSL.field("id", UUID.class))
