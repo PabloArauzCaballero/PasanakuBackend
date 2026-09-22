@@ -12,6 +12,12 @@ on:
     branches: [main, dev]
   pull_request:
     branches: [main, dev]
+  # H2.S6.M1: el job e2e-financiero declara `if: ... || github.event_name ==
+  # 'workflow_dispatch'`, pero sin este trigger arriba ese `if` nunca puede
+  # ser verdad — es la unica forma de correrlo a demanda mientras la rama
+  # todavia no es `dev` (el merge esta bloqueado, regla 65). Encontrado
+  # revisando por que el job salia SKIPPED incluso corriendo su `if`.
+  workflow_dispatch: {}
 
 concurrency:
   group: ci-${{ github.ref }}
