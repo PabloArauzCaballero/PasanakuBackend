@@ -1,26 +1,19 @@
 import { expect, test, type Page } from '@playwright/test'
+import { sesionDeOperador } from './sesion-de-operador'
 
 /**
- * Recorrido completo del motor de tutoriales, contra `ng serve` + el mock de Prism
- * (`yarn dev:mock`), igual que el resto de `e2e/`.
+ * Recorrido completo del motor de tutoriales, contra `ng serve` + el mock de Prism,
+ * igual que el resto de `e2e/`.
  *
- * Entra por la pantalla de ingreso real (CU-04) porque el token vive **solo en
- * memoria**: no hay forma de sembrar una sesión desde afuera, y eso es a propósito.
- *
- * **Por qué la cabecera `Prefer`.** El escenario por omisión de
- * `packages/simulado/ejemplos/identidad/autenticar.json` (`ok`) devuelve siempre
- * `requiereFactorAdicional: true`, también cuando la petición ya trae el factor: contra
- * ese escenario la pantalla vuelve a pedir el código en bucle y **nunca se abre
- * sesión**. Prism elige escenario con `Prefer: example=<nombre>`, y `vacio` es el que
- * responde con la sesión ya abierta. No se cambia el ejemplo `ok` porque es el que usan
- * las pruebas de contrato de la app (`apps/movil/test/identidad/autenticar_test.dart`).
+ * Entra con `sesionDeOperador` (H5.S1.M2, `./sesion-de-operador.ts`) por la pantalla
+ * de ingreso real (CU-04) porque el token vive **solo en memoria**: no hay forma de
+ * sembrar una sesión desde afuera, y eso es a propósito.
  *
  * Ese token de mentira no trae claims, así que la sesión queda **sin permisos de
  * sección**: se ven los cuatro tutoriales que no piden ninguno, que son justo los que
  * este recorrido necesita. El filtrado por permiso se prueba en
  * `src/app/nucleo/tutoriales/registro.spec.ts`.
  */
-test.use({ extraHTTPHeaders: { Prefer: 'example=vacio' } })
 
 /**
  * Dentro del backoffice se navega **por el menú**, nunca con `page.goto`: una recarga
@@ -32,17 +25,9 @@ async function irAAyuda(page: Page): Promise<void> {
   await expect(page).toHaveURL(/\/ayuda/)
 }
 
-async function entrar(page: Page): Promise<void> {
-  await page.goto('/ingreso')
-  await page.getByRole('textbox', { name: 'Teléfono' }).fill('71234567')
-  await page.getByRole('textbox', { name: 'Contraseña' }).fill('una-contrasena-larga')
-  await page.getByRole('button', { name: 'Continuar' }).click()
-  await expect(page).toHaveURL(/\/tablero$/)
-}
-
 test.describe('centro de tutoriales', () => {
   test('se llega desde el menú y lista los tutoriales con su avance', async ({ page }) => {
-    await entrar(page)
+    await sesionDeOperador(page)
     await irAAyuda(page)
     await expect(page.locator('h1')).toHaveText('Centro de tutoriales')
     await expect(page.locator('[data-tutorial-id="ayuda-avance"]')).toContainText('tutoriales completados')
@@ -50,14 +35,14 @@ test.describe('centro de tutoriales', () => {
   })
 
   test('el buscador recorta la lista y el vacío explica por qué', async ({ page }) => {
-    await entrar(page)
+    await sesionDeOperador(page)
     await irAAyuda(page)
     await page.locator('[data-tutorial-id="ayuda-buscador"] input').fill('zzzzzz')
     await expect(page.getByText('Ningún tutorial coincide')).toBeVisible()
   })
 
   test('comenzar un tutorial abre el globo sobre la pantalla real y el teclado lo recorre', async ({ page }) => {
-    await entrar(page)
+    await sesionDeOperador(page)
     await irAAyuda(page)
     await page.getByRole('button', { name: 'Comenzar' }).first().click()
 
@@ -73,7 +58,7 @@ test.describe('centro de tutoriales', () => {
   })
 
   test('Escape en el primer paso cierra; a la mitad pregunta antes de abandonar', async ({ page }) => {
-    await entrar(page)
+    await sesionDeOperador(page)
     await irAAyuda(page)
     await page.getByRole('button', { name: 'Comenzar' }).first().click()
     await expect(page.locator('ap-globo-de-tutorial')).toContainText('Paso 1 de')
@@ -91,14 +76,14 @@ test.describe('centro de tutoriales', () => {
   })
 
   test('el tour contextual aparece en la cabecera de una pantalla con tutorial', async ({ page }) => {
-    await entrar(page)
+    await sesionDeOperador(page)
     await expect(page.locator('[data-tutorial-id="lanzador-de-tutorial"]')).toContainText('Cómo funciona esta pantalla')
     await page.locator('[data-tutorial-id="lanzador-de-tutorial"] button').click()
     await expect(page.locator('ap-globo-de-tutorial')).toBeVisible()
   })
 
   test('lo dejado a medias se retoma donde quedó', async ({ page }) => {
-    await entrar(page)
+    await sesionDeOperador(page)
     await irAAyuda(page)
     await page.getByRole('button', { name: 'Comenzar' }).first().click()
     // Se espera al globo antes de tocar el teclado: el anfitrión llega por `@defer` y
