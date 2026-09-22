@@ -397,6 +397,25 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: 19d · SBOM CycloneDX por modulo desplegable (H2.S3)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@v4
+      - run: |
+          set -e
+          modulos="$(./gradlew -q projects | grep -oE "servicios:[a-z-]+|plataforma:gateway" | sort -u)"
+          for m in $modulos; do ./gradlew ":$m:cyclonedxBom"; done
+          echo "SBOM generado en $(echo "$modulos" | wc -w) modulos"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ github.sha }}
+          path: |
+            servicios/*/build/reports/sbom/*-bom.json
+            plataforma/gateway/build/reports/sbom/*-bom.json
+          if-no-files-found: error
+
   # 19c · dependencias vulnerables. Job aparte porque el workflow reusable de
   # OSV-Scanner solo se puede invocar con `uses:` a nivel de job, no como step
   # (google.github.io/osv-scanner/github-action/, verificado 2026-09-21). Escanea

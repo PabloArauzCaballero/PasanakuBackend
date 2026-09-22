@@ -9,6 +9,7 @@ dependencies {
     implementation(plugin(libs.plugins.spring.dep.mgmt))
     implementation(plugin(libs.plugins.spotless))
     implementation(plugin(libs.plugins.openapi.generator))
+    implementation(plugin(libs.plugins.cyclonedx))
     implementation(libs.codegen.jooq)
     implementation(libs.driver.postgresql)
 }
