@@ -1,7 +1,11 @@
 # Carril PR5 — CI y operación (Pablo, turno noche 2026-09-21)
 
-> **AVANCE: 8 / 54 — 14,8 %.** (+ 1 BLOQUEADO con causa explícitamente autorizada por el encargo)
-> **Estado:** `IN_PROGRESS`.
+> **AVANCE: 19 / 54 — 35,2 %.** (+ 1 BLOQUEADO con causa autorizada por el encargo, + 1 BLOQUEADO
+> por decisión de negocio pendiente — H2.S5.M3 —, + 1 A MEDIAS)
+> **Estado:** `IN_PROGRESS`. PRs abiertos: [#1](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/1)
+> (estándar + spotless), [#2](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/2)
+> (micro-PR troncal: catálogo CycloneDX). Ninguno mergeado todavía — el clasificador de permisos
+> deniega `gh pr merge`; sigo trabajando sin esperar (regla 65), cada PR queda listo para un clic.
 
 Encargo: [repartos/2026-09-21/PromptNoche/Backend/Pablo/PR5-Ci.Operacion/CiRealSupplyChainBordeYCierre.md](../../../../../PasanakuPromptManager/repartos/2026-09-21/PromptNoche/Backend/Pablo/PR5-Ci.Operacion/CiRealSupplyChainBordeYCierre.md)
 (en el repo `PasanakuPromptManager`, no en este). Daily en el repo del estándar:
@@ -20,12 +24,38 @@ Encargo: [repartos/2026-09-21/PromptNoche/Backend/Pablo/PR5-Ci.Operacion/CiRealS
 
 | Hito | Microtareas | HECHO | Estado |
 |---|---:|---:|---|
-| H1 — Baseline global | 12 | 8 | EN CURSO |
-| H2 — CI verde sin trampas | 20 | 0 | TODO |
+| H1 — Baseline global | 12 | 8 | EN CURSO (1 BLOQUEADO con causa) |
+| H2 — CI verde sin trampas | 20 | 11 | EN CURSO (1 A MEDIAS, 1 BLOQUEADO, 2 TODO en S2, S6 sin empezar) |
 | H3 — Borde | 7 | 0 | TODO |
 | H4 — Carga medida | 3 | 0 | TODO |
 | H5 — Runbooks, cierre | 12 | 0 | TODO |
-| **TOTAL** | **54** | **4** | |
+| **TOTAL** | **54** | **19** | |
+
+## H2 — resumen (detalle de evidencia en los commits de la rama)
+
+| ID | Qué se logró | Resultado |
+|---|---|---|
+| H2.S1.M1 | `spotlessApply`, diff revisado a mano (7 archivos, solo formato) | PASS |
+| H2.S1.M2 | Commit, PR #1 abierto | **A MEDIAS** — falta el merge (humano, bloqueado por el clasificador) |
+| H2.S2.M1 | Dependency locking + 15 `gradle.lockfile` commiteados | PASS local |
+| H2.S2.M2 | Job real `dependencias` (OSV-Scanner v2.6.0, reusable workflow) reemplaza el paso falso 19c | **Corrida real en CI**: escaneó, encontró vulnerabilidades reales, falló correctamente (`fail-on-vuln`) |
+| H2.S2.M3 | Prueba negativa en rama temporal | **TODO** — no se hizo |
+| H2.S2.M4 | `.github/dependabot.yml` | **TODO** — no se hizo |
+| H2.S3.M1/M2 | SBOM CycloneDX por módulo (plugin con versión literal, ver commit `8c6bc4d`), job + `upload-artifact` | PASS local (200 componentes, CycloneDX 1.6 válido); pendiente de una corrida de CI completa desde el fix |
+| H2.S4.M1 | Trivy real sobre `identidad:ci` (`aquasecurity/trivy-action@v0.36.0`) | Wireado; **encontró CRITICAL reales sin parche** (hallazgo F-04, bloqueante) |
+| H2.S4.M2 | Dockerfile por digest (2/2 etapas) | PASS (`grep -c "@sha256"` → 2) |
+| H2.S4.M3 | `read_only: true` + `tmpfs: [/tmp]` en los 15 servicios + gateway | **PASS con evidencia real**: gateway arrancó `Healthy` con filesystem de solo lectura |
+| H2.S4.M4 | Decisión `wget` vs Java puro, en ADR-025 | PASS |
+| H2.S5.M1 | `.github/CODEOWNERS` (provisional: solo 2 de 5 handles reales verificados) | PASS — `codeowners/errors` → `{"errors":[]}` real |
+| H2.S5.M2 | `docs/operacion/branch-protection.md` + 3 rulesets JSON, checks con nombre exacto (verificado contra una corrida real) | PASS |
+| H2.S5.M3 | Aplicar el ruleset mínimo | **BLOQUEADO — decisión/acción de Pablo**, un comando, ya documentado |
+| H2.S6 | E2E financiero, `verificarProduccion`, cablear boveda, grep de trampas, corrida completa verde | **TODO** — no se empezó |
+
+**Bug que introduje y corregí en el camino:** el primer intento de H2.S3 (commit `c679c8e`)
+rompía la compilación de **todo** el monorepo (referenciaba una entrada del catálogo que solo
+existe en el PR #2, sin mergear). Lo encontré porque corrí la corrida REAL de CI de esta rama
+(no me quedé con la verificación local), lo diagnostiqué, y lo corregí con una versión literal
+en `buildSrc` que no depende de ningún merge (commit `8c6bc4d`).
 
 ## Microtareas HECHO (con evidencia)
 
