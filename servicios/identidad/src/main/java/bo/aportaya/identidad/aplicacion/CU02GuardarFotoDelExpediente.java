@@ -54,5 +54,4 @@ public class CU02GuardarFotoDelExpediente {
         REVERSO,
         SELFIE
     }
-
 }
