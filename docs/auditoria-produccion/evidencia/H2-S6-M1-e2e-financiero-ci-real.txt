@@ -1,0 +1,116 @@
+H2.S6.M1 -- e2e-financiero, corrida real de CI (workflow_dispatch)
+run: https://github.com/PabloArauzCaballero/PasanakuBackend/actions/runs/35692294587/job/106632815899
+Fecha: 2026-09-22
+
+##[group]Run ./gradlew :servicios:nucleo-financiero:e2eTest :plataforma:comun-mensajeria:e2eTest
+[36;1m./gradlew :servicios:nucleo-financiero:e2eTest :plataforma:comun-mensajeria:e2eTest[0m
+shell: /usr/bin/bash -e {0}
+env:
+  BD_URL_ADMIN: jdbc:postgresql://localhost:5432/pasanaku
+  BD_USUARIO_ADMIN: pasanaku
+  BD_CLAVE_ADMIN: pasanaku
+  JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.12-1/x64
+  JAVA_HOME_21_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.12-1/x64
+  GRADLE_ACTION_ID: gradle/actions/setup-gradle
+  GRADLE_USER_HOME: /home/runner/.gradle
+  GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
+  GRADLE_BUILD_ACTION_CACHE_RESTORED: true
+  DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
+  DEVELOCITY_INJECTION_CUSTOM_VALUE: gradle-actions
+  GITHUB_DEPENDENCY_GRAPH_ENABLED: false
+##[endgroup]
+Fetching distribution.
+Downloading https://services.gradle.org/distributions/gradle-9.7.1-bin.zip
+..............10%..............20%...............30%..............40%...............50%..............60%...............70%..............80%..............90%...............100%
+
+Welcome to Gradle 9.7.1!
+
+Here are the highlights of this release:
+ - Isolated Projects graduates to incubating
+ - Broader Configuration Cache compatibility
+ - Resilient Sync helps you fix broken builds
+ - More source locations in problem reports
+
+For more details see https://docs.gradle.org/9.7.1/release-notes.html
+
+Starting a Gradle Daemon (subsequent builds will be faster)
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins
+> Task :buildSrc:generateScriptPluginAdapters
+> Task :buildSrc:pluginDescriptors
+> Task :buildSrc:processResources
+> Task :buildSrc:compilePluginsBlocks
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors
+> Task :buildSrc:compileKotlin
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:classes
+> Task :buildSrc:jar
+> Task :plataforma:comun-mensajeria:processResources NO-SOURCE
+> Task :plataforma:comun-datos:processResources
+> Task :plataforma:comun-pruebas:processResources
+> Task :plataforma:comun-mensajeria:processTestResources NO-SOURCE
+
+> Task :plataforma:comun-web:erroresCatalogo
+catalogo de errores: 190 restricciones -> 113 reglas · errores-restricciones.properties
+mensajes de regla: 141 · errores-reglas.properties
+  AVISO: 1 reglas con restriccion y sin fila en la boveda: R-UIF-13
+
+> Task :plataforma:comun-web:processResources
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-dominio:compileJava
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes
+> Task :plataforma:comun-dominio:jar
+
+> Task :servicios:nucleo-financiero:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+Failed to get the schema name: null
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /home/runner/work/PasanakuBackend/PasanakuBackend/servicios/nucleo-financiero/build/generated/openapi
+
+> Task :servicios:nucleo-financiero:generateJooq
+Version mismatch         : Database version is older than what dialect POSTGRES supports: 16.15 (Debian 16.15-1.pgdg13+2). Consider https://www.jooq.org/download/support-matrix to see what jOOQ version and edition supports which RDBMS versions.
+Ambiguous key name       : The one-to-many key nucleo_financiero.fk_asiento_contable_asiento_reversa_id generates an inbound key method name asientoContable on table nucleo_financiero.asiento_contable which conflicts with the previously generated key method name for key nucleo_financiero.fk_asiento_contable_asiento_reversa_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+Ambiguous key name       : The one-to-many key nucleo_financiero.fk_cuenta_contable_cuenta_padre_id generates an inbound key method name cuentaContable on table nucleo_financiero.cuenta_contable which conflicts with the previously generated key method name for key nucleo_financiero.fk_cuenta_contable_cuenta_padre_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+
+> Task :servicios:nucleo-financiero:processResources
+> Task :servicios:nucleo-financiero:processTestResources
+> Task :plataforma:comun-datos:compileJava
+> Task :plataforma:comun-datos:classes
+> Task :plataforma:comun-datos:jar
+> Task :plataforma:comun-pruebas:compileJava
+> Task :plataforma:comun-pruebas:classes
+> Task :plataforma:comun-pruebas:jar
+> Task :plataforma:comun-mensajeria:compileJava
+> Task :plataforma:comun-mensajeria:classes
+> Task :plataforma:comun-mensajeria:jar
+> Task :plataforma:comun-mensajeria:compileTestJava
+> Task :plataforma:comun-mensajeria:testClasses
+> Task :plataforma:comun-mensajeria:e2eTest NO-SOURCE
+> Task :plataforma:comun-web:compileJava
+> Task :plataforma:comun-web:classes
+> Task :plataforma:comun-web:jar
+> Task :plataforma:comun-web:compileTestFixturesJava
+> Task :plataforma:comun-web:testFixturesClasses
+> Task :plataforma:comun-web:testFixturesJar
+> Task :servicios:nucleo-financiero:compileJava
+> Task :servicios:nucleo-financiero:classes
+> Task :servicios:nucleo-financiero:compileTestJava
+> Task :servicios:nucleo-financiero:testClasses
+> Task :servicios:nucleo-financiero:e2eTest NO-SOURCE
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_2-1790056636741.json
+
+BUILD SUCCESSFUL in 2m 24s
