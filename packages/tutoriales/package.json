@@ -17,7 +17,9 @@
   },
   "scripts": {
     "lint": "eslint src && python3 ../../scripts/verificar_frontend.py tutoriales",
-    "typecheck": "echo 'lo typechequean las dos apps que lo consumen (backoffice y web)'"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test:front": "vitest run",
+    "test:a11y": "echo 'tutoriales: sin pruebas de a11y propias -- no renderiza fuera de Angular; lo cubren backoffice y web (H5.S3.M4)'"
   },
   "devDependencies": {
     "@angular/common": "^22.1.0",
@@ -25,10 +27,12 @@
     "@angular/core": "^22.1.0",
     "@angular/router": "^22.1.0",
     "@eslint/js": "^9.39.0",
+    "@types/node": "^22.10.0",
     "angular-eslint": "^22.5.0",
     "eslint": "^9.39.0",
     "rxjs": "~7.8.0",
     "typescript": "~6.0.2",
-    "typescript-eslint": "^8.68.0"
+    "typescript-eslint": "^8.68.0",
+    "vitest": "^4.1.0"
   }
 }

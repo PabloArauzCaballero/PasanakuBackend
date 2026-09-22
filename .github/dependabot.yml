@@ -1,11 +1,28 @@
-# H2.S2.M4 (AMB-9, regla 90.4.3): actualizaciones semanales, agrupadas para no
-# saturar de PRs individuales — cada uno lo revisa un humano, no se automerge.
+# Unión de H2.S2.M4 / AMB-9 (dev) y H5.S4.M3 / PR13-Ci.Frontend (leo/frontend/ci).
+# Actualizaciones semanales y AGRUPADAS (una sola PR por ecosistema y semana, no
+# una PR por paquete: eso satura de PRs un repo con 14 servicios + el monorepo de
+# frontend). Cada PR la revisa un humano, no se automergea (regla 90.4.3).
+#
 # Esquema verificado contra docs.github.com/en/code-security/dependabot/
 # dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 # el 2026-09-22 (regla 00 §1.3, API de terceros).
+#
+# NOTA DE LA RESOLUCIÓN DEL MERGE (2026-09-22): las dos ramas cubrían ecosistemas
+# distintos y complementarios — `dev` traía gradle, `leo/frontend/ci` traía npm y
+# pub — salvo `github-actions` en "/", que ambas declaraban. Dependabot NO admite
+# dos entradas con el mismo package-ecosystem y el mismo directory, así que quedó
+# UNA sola entrada de github-actions, conservando los atributos de los dos lados
+# (`update-types` de dev, más `open-pull-requests-limit` y `commit-message` de
+# leo). Los cuatro directorios se verificaron existentes en el árbol mergeado:
+# package.json, apps/movil/pubspec.yaml, gradle/libs.versions.toml, .github/workflows/.
+#
+# La nota de `leo` decía que el backend Gradle no tenía ecosistema soportado y lo
+# dejaba como hallazgo; `dev` sí lo implementó y verificó contra la documentación.
+# Se conserva la entrada de `dev`.
 version: 2
 
 updates:
+  # Backend Java/Gradle: servicios/*, plataforma/*, gradle/libs.versions.toml.
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
@@ -15,11 +32,44 @@ updates:
         patterns: ["*"]
         update-types: ["major", "minor", "patch"]
 
+  # El monorepo de Yarn (raíz, apps/*, packages/*) — un solo ecosistema npm.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      frontend-monorepo:
+        patterns: ["*"]
+        update-types: ["major", "minor", "patch"]
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+
+  # La app Flutter — ecosistema separado (pub.dev), agrupado igual.
+  - package-ecosystem: "pub"
+    directory: "/apps/movil"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      app-movil:
+        patterns: ["*"]
+        update-types: ["major", "minor", "patch"]
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+
+  # Las GitHub Actions que usan ci.yml, boveda-y-esquema.yml y pages-landing.yml.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
     groups:
       acciones-github:
         patterns: ["*"]
         update-types: ["major", "minor", "patch"]
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(ci)"

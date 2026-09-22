@@ -12,7 +12,7 @@
     "test:front": "flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku --timeout 60s",
     "test:goldens": "flutter test test/goldens --timeout 60s",
     "test:a11y": "flutter test test/a11y --timeout 60s",
-    "test:e2e": "echo 'patrol test — solo en P3 con emulador o dispositivo'"
+    "test:e2e": "dart pub global activate patrol_cli 3.11.0 && patrol test --target integration_test"
   },
   "devDependencies": {
     "@aportaya/diseno-flutter": "workspace:*",

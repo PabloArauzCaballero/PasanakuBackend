@@ -234,6 +234,24 @@ jobs:
       - name: f0b · el plan coincide con la maqueta
         run: python3 scripts/verificar_maqueta.py
 
+      # H5.S6.M5 -- mismo patrón que "5 · generar_ddl.py deja diff vacio" del job
+      # `boveda`: postman/ (coleccion, humo y entornos) es SALIDA de los catorce
+      # contratos (`scripts/generar_postman.py`, ver su cabecera: "No se escriben a
+      # mano... la coleccion es su salida, igual que el cliente de TypeScript y las
+      # clases de jOOQ"), y SÍ está commiteado -- a diferencia de `clientes/`, que
+      # está en `.gitignore` y se regenera entero en cada corrida (paso f0 de acá
+      # arriba), así que ahí no hay nada que diverja para diffear. Si alguien cambia
+      # un contrato y no vuelve a generar postman/, este paso lo nota ANTES de que
+      # nadie note que la colección de humo prueba una API que ya no existe.
+      - name: f0e · clientes al dia -- postman regenerado no diverge del commiteado
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 scripts/generar_postman.py
+          git diff --exit-code -- postman/ || {
+            echo "postman/ quedo desactualizado: alguien cambio un contrato y no corrio scripts/generar_postman.py"
+            exit 1
+          }
+
       - name: f0c · yarn install (nunca npm ni pnpm)
         run: |
           corepack enable
@@ -251,11 +269,31 @@ jobs:
           yarn lint
           yarn typecheck
 
-      - name: f2 · test:front — vitest (unidad, componente, contrato) + flutter test (unidad, widget, contrato, goldens)
+      - name: f2 · test:front — vitest (unidad, componente, contrato) + flutter test (unidad, widget, contrato)
         run: yarn test:front
 
       - name: f3 · test:a11y — vitest-axe + meetsGuideline
         run: yarn test:a11y
+
+      # H5.S2.M1 -- la app Flutter tenía sus cuatro verificaciones ESCONDIDAS dentro
+      # de f1/f2/f3 de arriba (que corren `turbo run` sobre TODOS los workspaces a la
+      # vez): si `dart format` fallaba, el paso que se ponía rojo era "f1", y nadie
+      # podía saber sin abrir el log si fue Angular o Flutter. Estos cuatro pasos son
+      # SOLO `@aportaya/movil`, con su propio nombre y su propio resultado -- no
+      # reemplazan a f1/f2/f3 (que siguen cubriendo Angular y los packages), son la
+      # granularidad que le faltaba a la app.
+      - name: app · formato (dart format)
+        working-directory: apps/movil
+        run: dart format --output=none --set-exit-if-changed lib test
+
+      - name: app · analisis estatico (dart analyze --fatal-infos)
+        run: yarn workspace @aportaya/movil typecheck
+
+      - name: app · pruebas (unidad, widget, contrato, identidad, pasanaku)
+        run: yarn workspace @aportaya/movil test:front
+
+      - name: app · accesibilidad
+        run: yarn workspace @aportaya/movil test:a11y
 
       - name: f4 · las dos apps Angular compilan bajo presupuesto
         run: |
@@ -272,6 +310,296 @@ jobs:
         with:
           name: catalogo-capturas
           path: apps/web/capturas/*.png
+
+      # H5.S1.M3 (madre H8.S1.M3) -- el kill-test #2 de este carril: antes de esto,
+      # el job `frontend` no corria NINGUN E2E del backoffice, y su
+      # `playwright.config.ts` decia que el servidor "se levanta a mano" -- algo que
+      # el CI, que no tiene manos, nunca podia hacer. `test:e2e` ahora levanta el
+      # mock (`@aportaya/simulado`) y `ng serve` el mismo desde `webServer` de
+      # Playwright (regla 70: un solo worker, ya fijado en el config), asi que este
+      # paso no necesita levantar nada por su cuenta.
+      - name: f6 · e2e del backoffice — el mock y el servidor los levanta Playwright, un worker
+        run: |
+          yarn workspace @aportaya/backoffice playwright install --with-deps chromium
+          yarn workspace @aportaya/backoffice test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: backoffice-e2e-reporte
+          path: .playwright/backoffice/**
+
+      # H4.S1.M3 -- el humo (`postman/humo/`, contra un backend real en
+      # `localhost:8080`) todavia no tiene, en NINGUN job de este workflow, un
+      # backend real vivo y expuesto: `frontend` no levanta Postgres ni `bootRun`
+      # (eso es del job `codigo`/`pruebas`, que es del area backend y esta fuera de
+      # mi alcance en este carril), y contra el mock de Prism daria rojos que no son
+      # del sistema -- Prism no aplica autorizacion real, y media colección de humo
+      # verifica justamente eso ("sin sesion no se pasa"). Este paso corre `yarn
+      # humo` DE VERDAD si hay algo respondiendo en `HUMO_BASE_URL` (por variable de
+      # repositorio; nunca localhost por default en CI), y si no lo hay, lo SALTEA
+      # con un mensaje explicito -- nunca fingiendo que corrio (mismo patron que la
+      # firma de iOS sin secretos, H3.S1.M4). Registrado como hallazgo para el area
+      # backend: cablear esto a un job con el backend real vivo es suyo, no mio.
+      - name: f7 · humo (postman/newman) contra un backend real, si hay uno vivo
+        run: |
+          if ! curl -fsS --max-time 3 http://localhost:8080/version > /dev/null 2>&1; then
+            echo "No hay nada respondiendo en localhost:8080 dentro de este job."
+            echo "Paso SALTEADO explicitamente -- no se finge que el humo corrio. Ver H4.S1.M3:"
+            echo "el humo prueba el backend REAL, y este job (frontend) no lo levanta -- eso"
+            echo "es del area backend (job codigo/pruebas), fuera de mi alcance en este carril."
+            exit 0
+          fi
+          node scripts/humo.mjs
+
+  # -------------------------------------------------------------- app-goldens --
+  # H5.S2.M2 (madre H8.S2.M2), decision D-A4. Las goldens de Flutter comparan
+  # pixeles; las lineas base de este repo estan hechas en macOS (`turbo.json`
+  # ya lo documentaba: "el CI es Linux, ahi medían el rasterizador, no el
+  # diseño" -- por eso `test:goldens` NUNCA corria en ningun lado). Este job es
+  # el que le da un lugar real donde correr, en la MISMA plataforma que genero
+  # las imagenes de referencia.
+  app-goldens:
+    name: App — goldens (macOS)
+    runs-on: macos-latest
+    needs: [frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.8
+          channel: stable
+          cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: goldens · tokens y clientes Dart (para que la app compile)
+        run: |
+          corepack enable
+          yarn install --immutable
+          yarn workspace @aportaya/tokens build
+          yarn workspace @aportaya/diseno-flutter build
+          yarn workspace @aportaya/movil build
+
+      - name: goldens · diseno_flutter
+        run: yarn workspace @aportaya/diseno-flutter test:goldens
+
+      - name: goldens · la app
+        run: yarn workspace @aportaya/movil test:goldens
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: goldens-diferencias
+          path: |
+            packages/diseno_flutter/test/goldens/**/*.png
+            apps/movil/test/goldens/**/*.png
+
+  # ---------------------------------------------------------- app-integracion --
+  # H5.S2.M3 (madre H8.S2.M3). Las siete pruebas de `integration_test/` (ver
+  # `apps/movil/integration_test/LEEME.md` para el historial completo: el
+  # micro-PR de `patrol`/`integration_test` ya esta aplicado y
+  # `flutter analyze --fatal-infos` ya daba limpio sobre los siete archivos;
+  # lo que faltaba de infraestructura real -- un JDK compatible con
+  # `patrol_cli` 3.11.0 -- se resuelve ACA fijando JDK 21 explicito, en vez de
+  # depender del JDK que traiga el runner por default (el bloqueo documentado
+  # en el LEEME era JDK 26 en una Mac de desarrollo puntual, no una limitacion
+  # de este job).
+  app-integracion:
+    name: App — integración en simulador iOS (macOS)
+    runs-on: macos-latest
+    needs: [frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.8
+          channel: stable
+          cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: integracion · tokens y clientes Dart
+        run: |
+          corepack enable
+          yarn install --immutable
+          yarn workspace @aportaya/tokens build
+          yarn workspace @aportaya/diseno-flutter build
+          yarn workspace @aportaya/movil build
+
+      - name: integracion · elegir y arrancar un simulador de iPhone
+        run: |
+          set -e
+          UDID=$(xcrun simctl list devices available | grep -m1 "iPhone" | grep -oE '[0-9A-F-]{36}')
+          echo "SIMULADOR_UDID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+
+      - name: integracion · patrol_cli 3.11.0 (compatible con patrol 3.20.0, ver LEEME.md)
+        run: dart pub global activate patrol_cli 3.11.0
+
+      # Las siete pruebas reales, con foco explícito en enlace profundo y doble
+      # envío (H3.S1.M2 las pide correr también en el gate de release).
+      - name: integracion · las siete pruebas de integración
+        working-directory: apps/movil
+        run: |
+          for archivo in integration_test/*_test.dart; do
+            echo "=== $archivo ==="
+            patrol test --target "$archivo" -d "$SIMULADOR_UDID"
+          done
+
+  # -------------------------------------------------------------- release-ios --
+  # H3 completo (madre H6.S3, decision D-A5). Gate de capabilities ANTES de
+  # compilar; simulador con las pruebas de enlace profundo y doble envio;
+  # build de IPA con el numero de corrida; firma y subida CONDICIONADAS a que
+  # existan los cinco secretos (entregables/secretos-ios.md) -- sin ellos, paso
+  # salteado con mensaje explicito, nunca fingiendo que subio (Q-L2).
+  release-ios:
+    name: Release iOS (macOS)
+    runs-on: macos-latest
+    needs: [frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.8
+          channel: stable
+          cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: release-ios · tokens y clientes Dart
+        run: |
+          corepack enable
+          yarn install --immutable
+          yarn workspace @aportaya/tokens build
+          yarn workspace @aportaya/diseno-flutter build
+          yarn workspace @aportaya/movil build
+
+      # El gate corre ANTES que cualquier paso de compilacion (H3.S1.M1): si el
+      # almacen seguro o la proteccion de pantalla no estan soportados en esta
+      # version del codigo, el job falla ACA y nunca llega a `flutter build ipa`.
+      # `capacidades_test.dart` ya prueba esto con plataforma forzada; este paso
+      # corre ESE archivo puntual como gate explicito del release, con su
+      # nombre propio en el log (no escondido dentro de un `flutter test` mas
+      # grande).
+      - name: release-ios · gate de capabilities (antes de compilar)
+        working-directory: apps/movil
+        run: flutter test test/unidad/capacidades_test.dart --timeout 60s
+
+      - name: release-ios · elegir y arrancar un simulador de iPhone
+        run: |
+          set -e
+          UDID=$(xcrun simctl list devices available | grep -m1 "iPhone" | grep -oE '[0-9A-F-]{36}')
+          echo "SIMULADOR_UDID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+
+      - name: release-ios · patrol_cli 3.11.0
+        run: dart pub global activate patrol_cli 3.11.0
+
+      # Las dos pruebas de integracion que el encargo pide explicitamente para
+      # el gate de release (deep link y doble envio) -- las otras cinco ya
+      # corren en `app-integracion`; repetirlas todas acá solo duplicaría
+      # minutos de macOS sin agregar señal nueva (Q-L1).
+      - name: release-ios · deep link y doble envío (simulador)
+        working-directory: apps/movil
+        run: |
+          patrol test --target integration_test/deep_link_test.dart -d "$SIMULADOR_UDID"
+          patrol test --target integration_test/doble_envio_test.dart -d "$SIMULADOR_UDID"
+
+      # El IPA de release, con el numero de corrida y los defines desde
+      # variables del repositorio (nunca hardcodeados). `--no-codesign`: sin
+      # los secretos, ni siquiera se intenta firmar con lo que haya en el
+      # keychain del runner -- eso es exactamente lo que decide el paso
+      # siguiente, explícitamente.
+      - name: release-ios · build IPA (release, sin firmar)
+        working-directory: apps/movil
+        run: |
+          flutter build ipa --release --no-codesign \
+            --build-number="${{ github.run_number }}" \
+            --dart-define=API="${{ vars.APORTAYA_API_URL || 'https://api.aportaya.bo/api/v1' }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aportaya-release-ios-${{ github.run_number }}
+          path: apps/movil/build/ios/archive/Runner.xcarchive
+          if-no-files-found: error
+
+      # Firma y subida CONDICIONADAS a los cinco secretos (entregables/secretos-ios.md).
+      # `secrets.IOS_CERTIFICADO_DISTRIBUCION_P12` es el primero de los cinco: si
+      # falta ese, faltan todos (se cargan juntos) -- gatear por uno solo evita
+      # repetir la misma condicion cinco veces.
+      #
+      # ESCRITO PERO NO PROBADO DE PUNTA A PUNTA (Q-L2): ninguno de los cinco
+      # secretos existe en este entorno, así que este paso nunca corrió en una
+      # corrida real todavía. Es la secuencia estándar (keychain temporal +
+      # certificado + perfil + export firmado + subida por la API de App Store
+      # Connect) escrita con buena fe a partir de la documentación de Apple, no
+      # inventada al azar -- pero "escrita correctamente" y "probada" son cosas
+      # distintas, y acá solo se puede declarar la primera.
+      - name: release-ios · firmar y subir a TestFlight (solo si los 5 secretos existen)
+        if: ${{ env.IOS_TIENE_SECRETOS == 'true' }}
+        env:
+          IOS_TIENE_SECRETOS: ${{ secrets.IOS_CERTIFICADO_DISTRIBUCION_P12 != '' }}
+          IOS_CERTIFICADO_DISTRIBUCION_P12: ${{ secrets.IOS_CERTIFICADO_DISTRIBUCION_P12 }}
+          IOS_CERTIFICADO_CLAVE: ${{ secrets.IOS_CERTIFICADO_CLAVE }}
+          IOS_PERFIL_APROVISIONAMIENTO: ${{ secrets.IOS_PERFIL_APROVISIONAMIENTO }}
+          IOS_KEYCHAIN_CLAVE: ${{ secrets.IOS_KEYCHAIN_CLAVE }}
+          APPSTORE_CONNECT_API_KEY: ${{ secrets.APPSTORE_CONNECT_API_KEY }}
+          APPSTORE_CONNECT_API_ISSUER_ID: ${{ secrets.APPSTORE_CONNECT_API_ISSUER_ID }}
+          APPSTORE_CONNECT_API_KEY_ID: ${{ secrets.APPSTORE_CONNECT_API_KEY_ID }}
+        run: |
+          set -e
+          KEYCHAIN="release-ios-$GITHUB_RUN_ID.keychain-db"
+          security create-keychain -p "$IOS_KEYCHAIN_CLAVE" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$IOS_KEYCHAIN_CLAVE" "$KEYCHAIN"
+
+          echo "$IOS_CERTIFICADO_DISTRIBUCION_P12" | base64 --decode > certificado.p12
+          security import certificado.p12 -k "$KEYCHAIN" -P "$IOS_CERTIFICADO_CLAVE" \
+            -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$IOS_KEYCHAIN_CLAVE" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr -d '"')
+
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo "$IOS_PERFIL_APROVISIONAMIENTO" | base64 --decode \
+            > ~/Library/MobileDevice/Provisioning\ Profiles/aportaya.mobileprovision
+
+          mkdir -p ~/private_keys
+          echo "$APPSTORE_CONNECT_API_KEY" > ~/private_keys/AuthKey_${APPSTORE_CONNECT_API_KEY_ID}.p8
+
+          cd apps/movil
+          flutter build ipa --release \
+            --build-number="${{ github.run_number }}" \
+            --export-options-plist=ios/ExportOptions.plist
+
+          xcrun altool --upload-app --type ios \
+            --file build/ios/ipa/*.ipa \
+            --apiKey "$APPSTORE_CONNECT_API_KEY_ID" \
+            --apiIssuer "$APPSTORE_CONNECT_API_ISSUER_ID"
+
+          security delete-keychain "$KEYCHAIN"
+          rm -f certificado.p12
+
+      - name: release-ios · sin secretos de firma -- paso salteado, declarado (Q-L2)
+        if: ${{ env.IOS_TIENE_SECRETOS != 'true' }}
+        env:
+          IOS_TIENE_SECRETOS: ${{ secrets.IOS_CERTIFICADO_DISTRIBUCION_P12 != '' }}
+        run: |
+          echo "Sin los cinco secretos de firma de iOS cargados (ver entregables/secretos-ios.md)."
+          echo "El IPA de esta corrida quedo SIN FIRMAR, publicado como artefacto para inspeccionar."
+          echo "Paso de firma/subida SALTEADO explicitamente -- NUNCA se finge que se subio (Q-L2)."
 
   # ----------------------------------------------------------------- pruebas --
   pruebas:
