@@ -51,6 +51,7 @@ public class ConsumoDeEvidenciaMfa {
         ContextoSesion sistema = ContextoSesion.deSistema(usuarioId, new Traza(jti.toString()));
         return datos.conContexto(
                 sistema,
-                dsl -> consumos.consumir(dsl, jti, usuarioId, proposito, reloj.ahora().atOffset(ZoneOffset.UTC)));
+                dsl -> consumos.consumir(
+                        dsl, jti, usuarioId, proposito, reloj.ahora().atOffset(ZoneOffset.UTC)));
     }
 }

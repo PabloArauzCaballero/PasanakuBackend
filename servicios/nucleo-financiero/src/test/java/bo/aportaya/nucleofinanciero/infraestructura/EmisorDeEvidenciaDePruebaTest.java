@@ -3,7 +3,6 @@ package bo.aportaya.nucleofinanciero.infraestructura;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.nimbusds.jwt.SignedJWT;
-import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -36,9 +35,7 @@ class EmisorDeEvidenciaDePruebaTest {
     @DisplayName("el JWKS se sirve por HTTP y publica la clave con el kid esperado")
     void sirveElJwks() throws Exception {
         HttpResponse<String> respuesta = HttpClient.newHttpClient()
-                .send(
-                        HttpRequest.newBuilder(emisor.jwksUri()).GET().build(),
-                        HttpResponse.BodyHandlers.ofString());
+                .send(HttpRequest.newBuilder(emisor.jwksUri()).GET().build(), HttpResponse.BodyHandlers.ofString());
 
         assertThat(respuesta.statusCode()).isEqualTo(200);
         assertThat(respuesta.body()).contains("\"kid\":\"" + EmisorDeEvidenciaDePrueba.KID + "\"");
@@ -105,9 +102,13 @@ class EmisorDeEvidenciaDePruebaTest {
 
         assertThat(SignedJWT.parse(emisor.otroSujeto()).getJWTClaimsSet().getSubject())
                 .isNotEqualTo(usuario.toString());
-        assertThat(SignedJWT.parse(emisor.otroProposito(usuario)).getJWTClaimsSet().getStringClaim("proposito"))
+        assertThat(SignedJWT.parse(emisor.otroProposito(usuario))
+                        .getJWTClaimsSet()
+                        .getStringClaim("proposito"))
                 .isEqualTo("ADMIN");
-        assertThat(SignedJWT.parse(emisor.otraAudiencia(usuario)).getJWTClaimsSet().getAudience())
+        assertThat(SignedJWT.parse(emisor.otraAudiencia(usuario))
+                        .getJWTClaimsSet()
+                        .getAudience())
                 .doesNotContain(EmisorDeEvidenciaDePrueba.AUD);
         assertThat(SignedJWT.parse(emisor.sinAcrMfa(usuario)).getJWTClaimsSet().getStringClaim("acr"))
                 .isNull();
