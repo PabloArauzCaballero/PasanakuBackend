@@ -30,8 +30,10 @@ class SegundoFactorStepUpTest extends BaseDeBilletera {
     @BeforeEach
     void armar() {
         emisor = new EmisorDeEvidenciaDePrueba();
-        var decodificador = NimbusJwtDecoder.withJwkSetUri(emisor.jwksUri().toString()).build();
-        var consumo = new ConsumoDeEvidenciaMfa(new Datos(dsl), new EvidenciaMfaConsumidaRepositorio(), Reloj.delSistema());
+        var decodificador =
+                NimbusJwtDecoder.withJwkSetUri(emisor.jwksUri().toString()).build();
+        var consumo =
+                new ConsumoDeEvidenciaMfa(new Datos(dsl), new EvidenciaMfaConsumidaRepositorio(), Reloj.delSistema());
         segundoFactor = new SegundoFactorStepUp(decodificador, consumo);
     }
 
@@ -104,8 +106,7 @@ class SegundoFactorStepUpTest extends BaseDeBilletera {
 
         assertThat(verificar(usuario, evidencia)).isTrue();
         assertThat(verificar(usuario, evidencia)).isFalse();
-        assertThat(contar(
-                        "SELECT count(*)::int FROM nucleo_financiero.evidencia_mfa_consumida WHERE jti = ?", jti))
+        assertThat(contar("SELECT count(*)::int FROM nucleo_financiero.evidencia_mfa_consumida WHERE jti = ?", jti))
                 .isEqualTo(1);
     }
 
