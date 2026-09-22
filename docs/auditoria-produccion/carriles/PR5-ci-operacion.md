@@ -1,11 +1,12 @@
 # Carril PR5 — CI y operación (Pablo, turno noche 2026-09-21)
 
-> **AVANCE: 19 / 54 — 35,2 %.** (+ 1 BLOQUEADO con causa autorizada por el encargo, + 1 BLOQUEADO
+> **AVANCE: 23 / 54 — 42,6 %.** (+ 1 BLOQUEADO con causa autorizada por el encargo, + 1 BLOQUEADO
 > por decisión de negocio pendiente — H2.S5.M3 —, + 1 A MEDIAS)
 > **Estado:** `IN_PROGRESS`. PRs abiertos: [#1](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/1)
 > (estándar + spotless), [#2](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/2)
-> (micro-PR troncal: catálogo CycloneDX). Ninguno mergeado todavía — el clasificador de permisos
-> deniega `gh pr merge`; sigo trabajando sin esperar (regla 65), cada PR queda listo para un clic.
+> (micro-PR troncal: catálogo CycloneDX + Redis). Ninguno mergeado todavía — el clasificador de
+> permisos deniega `gh pr merge`; sigo trabajando sin esperar (regla 65), cada PR queda listo para
+> un clic.
 
 Encargo: [repartos/2026-09-21/PromptNoche/Backend/Pablo/PR5-Ci.Operacion/CiRealSupplyChainBordeYCierre.md](../../../../../PasanakuPromptManager/repartos/2026-09-21/PromptNoche/Backend/Pablo/PR5-Ci.Operacion/CiRealSupplyChainBordeYCierre.md)
 (en el repo `PasanakuPromptManager`, no en este). Daily en el repo del estándar:
@@ -26,10 +27,37 @@ Encargo: [repartos/2026-09-21/PromptNoche/Backend/Pablo/PR5-Ci.Operacion/CiRealS
 |---|---:|---:|---|
 | H1 — Baseline global | 12 | 8 | EN CURSO (1 BLOQUEADO con causa) |
 | H2 — CI verde sin trampas | 20 | 11 | EN CURSO (1 A MEDIAS, 1 BLOQUEADO, 2 TODO en S2, S6 sin empezar) |
-| H3 — Borde | 7 | 0 | TODO |
+| H3 — Borde | 7 | 4 | EN CURSO (S1 completo con evidencia real; S2 CORS y S3 métricas sin empezar) |
 | H4 — Carga medida | 3 | 0 | TODO |
 | H5 — Runbooks, cierre | 12 | 0 | TODO |
-| **TOTAL** | **54** | **19** | |
+| **TOTAL** | **54** | **23** | |
+
+## H3.S1 — resumen (rate limiting real con Redis)
+
+| ID | Qué se logró | Resultado |
+|---|---|---|
+| H3.S1.M1 | ADR-050 + Redis en `despliegue/compose/base.yml` | PASS — contenedor real, sano |
+| H3.S1.M2 | `RUTAS_SENSIBLES` en `scripts/modelo.py`: 4 rutas reales (login, registro, retiro, transferencia); refresh/reset/MFA/OTP no tienen endpoint todavía (carril de identidad, esta noche) | PASS, con el hueco declarado, no oculto |
+| H3.S1.M3 | `generar_gateway.py` emite `RequestRateLimiter` con `KeyResolver` propio, antes de la ruta general | PASS |
+| H3.S1.M4 | `RateLimitGatewayTest` (nombrada `ArranqueRateLimitGatewayTest` por el corredor compartido) | **PASS real, 3/3, con Redis de Testcontainers** — [evidencia/H3-S1-RateLimitGatewayTest-PASS.txt](../evidencia/H3-S1-RateLimitGatewayTest-PASS.txt) |
+
+**Dos bugs de seguridad reales encontrados y corregidos, verificados contra el gateway
+corriendo de verdad (no contra la documentación):**
+
+1. `RedisRateLimiter` de Spring Cloud Gateway no manda `Retry-After` en el 429 — el kill-test del
+   encargo lo pide. Corregido con un `GlobalFilter` propio (`LimitadorDeTasa.retryAfterEnRateLimit`).
+2. **`RedisRateLimiter` falla ABIERTO por defecto** con Redis caído (verificado contra su código
+   fuente: comentario literal *"we don't want a hard dependency on Redis to allow traffic"*),
+   exactamente lo contrario de lo que pide el encargo. Reproducido apagando Redis de verdad: la
+   petición pasaba igual. Corregido con `LimitadorDeTasa.denegarSiRedisNoResponde`, que corta la
+   cadena antes de que el backend vea la petición. Evidencia:
+   [evidencia/H3-S1-M4-redis-caido-fail-closed.txt](../evidencia/H3-S1-M4-redis-caido-fail-closed.txt).
+
+**Hallazgo de infraestructura compartida corregido en el camino:** `testImplementation(testFixtures(
+project(":plataforma:comun-web")))` (de `aportaya.servicio`, aplicado a TODO servicio) traía Spring
+MVC y Spring Security de verdad al classpath de prueba de gateway — un módulo reactivo sin ninguno
+de los dos por diseño — y el contexto de Spring no levantaba. Excluido en
+`plataforma/gateway/build.gradle.kts` (dentro de mi alcance), con el motivo documentado ahí.
 
 ## H2 — resumen (detalle de evidencia en los commits de la rama)
 
