@@ -1,0 +1,108 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: /scripts/outbox.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 15 max VUs, 50s max duration (incl. graceful stop):
+              * outbox: 15 looping VUs for 20s (gracefulStop: 30s)
+
+
+running (01.0s), 15/15 VUs, 116 complete and 0 interrupted iterations
+outbox   [   5% ] 15 VUs  01.0s/20s
+
+running (02.0s), 15/15 VUs, 116 complete and 0 interrupted iterations
+outbox   [  10% ] 15 VUs  02.0s/20s
+
+running (03.0s), 15/15 VUs, 929 complete and 0 interrupted iterations
+outbox   [  15% ] 15 VUs  03.0s/20s
+
+running (04.0s), 15/15 VUs, 1113 complete and 0 interrupted iterations
+outbox   [  20% ] 15 VUs  04.0s/20s
+
+running (05.0s), 15/15 VUs, 1113 complete and 0 interrupted iterations
+outbox   [  25% ] 15 VUs  05.0s/20s
+
+running (06.0s), 15/15 VUs, 2856 complete and 0 interrupted iterations
+outbox   [  30% ] 15 VUs  06.0s/20s
+
+running (07.0s), 15/15 VUs, 3047 complete and 0 interrupted iterations
+outbox   [  35% ] 15 VUs  07.0s/20s
+
+running (08.0s), 15/15 VUs, 3431 complete and 0 interrupted iterations
+outbox   [  40% ] 15 VUs  08.0s/20s
+
+running (09.0s), 15/15 VUs, 5656 complete and 0 interrupted iterations
+outbox   [  45% ] 15 VUs  09.0s/20s
+
+running (10.0s), 15/15 VUs, 5806 complete and 0 interrupted iterations
+outbox   [  50% ] 15 VUs  10.0s/20s
+
+running (11.0s), 15/15 VUs, 9206 complete and 0 interrupted iterations
+outbox   [  55% ] 15 VUs  11.0s/20s
+
+running (12.0s), 15/15 VUs, 12265 complete and 0 interrupted iterations
+outbox   [  60% ] 15 VUs  12.0s/20s
+
+running (13.0s), 15/15 VUs, 14042 complete and 0 interrupted iterations
+outbox   [  65% ] 15 VUs  13.0s/20s
+
+running (14.0s), 15/15 VUs, 19723 complete and 0 interrupted iterations
+outbox   [  70% ] 15 VUs  14.0s/20s
+
+running (15.0s), 15/15 VUs, 23658 complete and 0 interrupted iterations
+outbox   [  75% ] 15 VUs  15.0s/20s
+
+running (16.0s), 15/15 VUs, 26749 complete and 0 interrupted iterations
+outbox   [  80% ] 15 VUs  16.0s/20s
+
+running (17.0s), 15/15 VUs, 32352 complete and 0 interrupted iterations
+outbox   [  85% ] 15 VUs  17.0s/20s
+
+running (18.0s), 15/15 VUs, 36225 complete and 0 interrupted iterations
+outbox   [  90% ] 15 VUs  18.0s/20s
+
+running (19.0s), 15/15 VUs, 39020 complete and 0 interrupted iterations
+outbox   [  95% ] 15 VUs  19.0s/20s
+
+running (20.0s), 15/15 VUs, 44959 complete and 0 interrupted iterations
+outbox   [ 100% ] 15 VUs  20.0s/20s
+
+running (21.0s), 05/15 VUs, 44993 complete and 0 interrupted iterations
+outbox ↓ [ 100% ] 15 VUs  20s
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 44998   2081.632169/s
+    checks_succeeded...: 100.00% 44998 out of 44998
+    checks_failed......: 0.00%   0 out of 44998
+
+    ✓ responde (no cae la ruta)
+
+    HTTP
+    http_req_duration....: avg=6.64ms min=33.6µs  med=1.57ms max=2.56s p(90)=2.24ms p(95)=2.52ms
+    http_req_failed......: 100.00% 44998 out of 44998
+    http_reqs............: 44998   2081.632169/s
+
+    EXECUTION
+    iteration_duration...: avg=6.83ms min=792.7µs med=1.75ms max=2.56s p(90)=2.49ms p(95)=2.79ms
+    iterations...........: 44998   2081.632169/s
+    vus..................: 5       min=5              max=15
+    vus_max..............: 15      min=15             max=15
+
+    NETWORK
+    data_received........: 17 MB   794 kB/s
+    data_sent............: 18 MB   810 kB/s
+
+
+
+
+running (21.6s), 00/15 VUs, 44998 complete and 0 interrupted iterations
+outbox ✓ [ 100% ] 15 VUs  20s
