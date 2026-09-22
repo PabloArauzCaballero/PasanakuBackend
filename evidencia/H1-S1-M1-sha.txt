@@ -1,0 +1,6 @@
+a23bcb117effe7ce66d069a97ebd2c25c8390306
+?? .claude/hooks/
+?? .claude/rules/
+?? .claude/settings.json
+?? evidencia/
+richard/frontend/sesion
