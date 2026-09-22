@@ -10,6 +10,15 @@ plugins {
 
 extensions.create<AportayaExtension>("aportaya")
 
+// H2.S2 (regla 90/98): el escaneo de dependencias real (OSV-Scanner) necesita un
+// lockfile por modulo desplegable para saber exactamente que version resolvio el
+// build, no solo el rango declarado en el catalogo. Se regenera con
+// `./gradlew dependencies --write-locks` y se commitea (docs.gradle.org/current/
+// userguide/dependency_locking.html, verificado contra Gradle 9.7 instalado).
+dependencyLocking {
+    lockAllConfigurations()
+}
+
 val catalogo = extensions.getByType<VersionCatalogsExtension>().named("libs")
 // El generador y la libreria de jOOQ tienen que ser la MISMA version: el codigo
 // generado por 3.20 llama a metodos que el runtime del BOM (3.19) no tiene, y el
