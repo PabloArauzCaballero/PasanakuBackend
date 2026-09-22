@@ -58,7 +58,8 @@ class DestinoDeObjetoTest {
     void claveLegible() {
         var destino = DestinoDeObjeto.deExpediente(USUARIO, "ANVERSO");
         var clave = ClaveObjeto.de("s3://%s/%s/%s-%s.jpg"
-                .formatted(AmbitoArchivo.IDENTIDAD.prefijo(), destino.carpeta(), destino.etiqueta(), UUID.randomUUID()));
+                .formatted(
+                        AmbitoArchivo.IDENTIDAD.prefijo(), destino.carpeta(), destino.etiqueta(), UUID.randomUUID()));
         assertThat(clave.ruta()).startsWith("identidad/" + USUARIO + "/anverso-");
     }
 }
