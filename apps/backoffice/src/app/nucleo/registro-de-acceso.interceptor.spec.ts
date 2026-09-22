@@ -90,14 +90,18 @@ describe('registroDeAccesoInterceptor · con la bandera prendida', () => {
     backend.verify()
   })
 
-  it('nivel inválido: si el registro falla, se reporta a consola y se avisa en pantalla — la lectura ya se mostró', async () => {
+  it('nivel inválido: si el registro falla, se avisa en pantalla con la correlación — la lectura ya se mostró', async () => {
     const http = TestBed.inject(HttpClient)
     const backend = TestBed.inject(HttpTestingController)
     const avisos = TestBed.inject(Avisos)
     const mostrar = vi.spyOn(avisos, 'mostrar')
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    const promesa = firstValueFrom(http.get('/expedientes/9', { context: new HttpContext().set(ACCESO_A_DATOS, { recurso: 'expediente', id: '9' }) }))
+    const promesa = firstValueFrom(
+      http.get('/expedientes/9', {
+        context: new HttpContext().set(ACCESO_A_DATOS, { recurso: 'expediente', id: '9' }),
+        headers: { 'x-request-id': 'corr-inv-1' },
+      }),
+    )
     backend.expectOne('/expedientes/9').flush({ ok: true })
     const resultado = await promesa
     expect(resultado).toEqual({ ok: true })
@@ -107,8 +111,7 @@ describe('registroDeAccesoInterceptor · con la bandera prendida', () => {
 
     expect(mostrar).toHaveBeenCalledTimes(1)
     expect(mostrar.mock.calls[0]?.[1]).toBe('error')
-    expect(consoleError).toHaveBeenCalledTimes(1)
-    consoleError.mockRestore()
+    expect(mostrar.mock.calls[0]?.[0]).toContain('corr-inv-1')
     backend.verify()
   })
 })

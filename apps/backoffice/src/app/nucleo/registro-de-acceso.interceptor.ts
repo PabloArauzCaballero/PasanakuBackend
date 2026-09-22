@@ -57,12 +57,13 @@ export const registroDeAccesoInterceptor: HttpInterceptorFn = (req, next) => {
             { context: new HttpContext().set(ACCESO_A_DATOS, null), headers: { 'x-request-id': correlacion } },
           )
           .pipe(
-            catchError((error: unknown) => {
-              // Doble mínimo de telemetría: no hay un `frontend-error-monitoring` real
-              // todavía (fuera de alcance de este carril).
-              // eslint-disable-next-line no-console
-              console.error(`registro de acceso falló · correlación=${correlacion}`, error)
-              avisos.mostrar('No se pudo registrar este acceso. El equipo de auditoría ya quedó avisado.', 'error')
+            catchError(() => {
+              // No hay un `frontend-error-monitoring` real todavía (fuera de alcance de
+              // este carril) y `console.*` está prohibido en este repo
+              // (`scripts/verificar_frontend.py` — "sin console"). El único canal de
+              // reporte real disponible hoy es el aviso visible, así que la correlación
+              // viaja ahí: es lo que alguien puede citarle a soporte.
+              avisos.mostrar(`No se pudo registrar este acceso (correlación ${correlacion}). El equipo de auditoría ya quedó avisado.`, 'error')
               return of(null)
             }),
           )

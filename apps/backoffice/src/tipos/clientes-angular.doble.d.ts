@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- doble ambiental: `any` es el punto,
+   no un descuido (ver el comentario de abajo). Se borra junto con este archivo. */
 /**
  * DOBLE TEMPORAL (regla 65) — no es el contrato real.
  *

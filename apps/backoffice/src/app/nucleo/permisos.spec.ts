@@ -1,10 +1,15 @@
-import { provideRouter, Router } from '@angular/router'
+import { provideRouter, Router, UrlTree } from '@angular/router'
 import { provideZonelessChangeDetection } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
 import { describe, expect, it } from 'vitest'
-import { firstValueFrom } from 'rxjs'
+import { firstValueFrom, Observable } from 'rxjs'
 import { Sesion } from './sesion'
 import { requierePermiso, requiereSesion } from './permisos'
+
+/** `requiereSesion()` siempre devuelve un `Observable`; acá solo se espera ese caso. */
+function resolverGuard(resultado: unknown): Promise<boolean | UrlTree> {
+  return firstValueFrom(resultado as Observable<boolean | UrlTree>)
+}
 
 describe('requierePermiso · canMatch', () => {
   it('con el permiso, la ruta monta', () => {
@@ -39,7 +44,7 @@ describe('requiereSesion · canMatch', () => {
     TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection(), provideRouter([])] })
     const sesion = TestBed.inject(Sesion)
     sesion.abrir('t', [], 'oficial')
-    const resultado = await TestBed.runInInjectionContext(() => firstValueFrom(requiereSesion()({} as never, segmentos('/tablero'), {} as never) as any))
+    const resultado = await TestBed.runInInjectionContext(() => resolverGuard(requiereSesion()({} as never, segmentos('/tablero'), {} as never)))
     expect(resultado).toBe(true)
   })
 
@@ -50,7 +55,7 @@ describe('requiereSesion · canMatch', () => {
     sesion.anonima()
     const router = TestBed.inject(Router)
     const resultado = await TestBed.runInInjectionContext(() =>
-      firstValueFrom(requiereSesion()({} as never, segmentos('/operacion/reclamos'), {} as never) as any),
+      resolverGuard(requiereSesion()({} as never, segmentos('/operacion/reclamos'), {} as never)),
     )
     expect(resultado).toEqual(router.createUrlTree(['/ingreso'], { queryParams: { volverA: '/operacion/reclamos' } }))
   })
@@ -62,7 +67,7 @@ describe('requiereSesion · canMatch', () => {
     sesion.fallo()
     const router = TestBed.inject(Router)
     const resultado = await TestBed.runInInjectionContext(() =>
-      firstValueFrom(requiereSesion()({} as never, segmentos('/cumplimiento/verificaciones'), {} as never) as any),
+      resolverGuard(requiereSesion()({} as never, segmentos('/cumplimiento/verificaciones'), {} as never)),
     )
     expect(resultado).toEqual(router.createUrlTree(['/arranque'], { queryParams: { volverA: '/cumplimiento/verificaciones' } }))
   })
@@ -74,7 +79,7 @@ describe('requiereSesion · canMatch', () => {
 
     let emitio = false
     const promesa = TestBed.runInInjectionContext(() =>
-      firstValueFrom(requiereSesion()({} as never, segmentos('/tablero'), {} as never) as any),
+      resolverGuard(requiereSesion()({} as never, segmentos('/tablero'), {} as never)),
     ).then((v) => {
       emitio = true
       return v
