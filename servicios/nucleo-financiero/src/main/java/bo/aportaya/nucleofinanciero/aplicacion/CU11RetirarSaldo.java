@@ -20,6 +20,8 @@ import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.mensajeria.EventoDominio;
 import bo.aportaya.plataforma.mensajeria.Outbox;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -59,6 +61,14 @@ public class CU11RetirarSaldo {
     private final UUID cuentaPuenteDeCustodia;
     private final ProveedorDeRetiro proveedor;
 
+    // H4.S2.M6 · metricas de negocio, no tecnicas: cuantos retiros se piden, se
+    // autorizan (automatico o por aprobacion) y se rechazan (en cualquiera de sus
+    // motivos). `withdrawal_*_total`, tageadas por `desenlace` para no multiplicar
+    // contadores — un dashboard suma o separa segun le convenga, sin tocar el codigo.
+    private final Counter retirosSolicitados;
+    private final Counter retirosAutorizados;
+    private final Counter retirosRechazados;
+
     public CU11RetirarSaldo(
             Datos datos,
             CuentaBilleteraRepositorio cuentas,
@@ -69,7 +79,8 @@ public class CU11RetirarSaldo {
             Outbox outbox,
             Reloj reloj,
             @Value("${aportaya.custodia.cuenta-puente}") UUID cuentaPuenteDeCustodia,
-            ProveedorDeRetiro proveedor) {
+            ProveedorDeRetiro proveedor,
+            MeterRegistry metricas) {
         this.datos = datos;
         this.cuentas = cuentas;
         this.ordenes = ordenes;
@@ -80,6 +91,15 @@ public class CU11RetirarSaldo {
         this.reloj = reloj;
         this.cuentaPuenteDeCustodia = cuentaPuenteDeCustodia;
         this.proveedor = proveedor;
+        this.retirosSolicitados = Counter.builder("withdrawal_requested_total")
+                .description("Retiros solicitados, cualquiera sea su estado inicial")
+                .register(metricas);
+        this.retirosAutorizados = Counter.builder("withdrawal_approved_total")
+                .description("Retiros que llegaron a AUTORIZADA, automatico o por aprobacion")
+                .register(metricas);
+        this.retirosRechazados = Counter.builder("withdrawal_failed_total")
+                .description("Retiros rechazados: MFA, limites, proveedor, revision o aprobador")
+                .register(metricas);
     }
 
     @Transactional
@@ -122,6 +142,7 @@ public class CU11RetirarSaldo {
                             ordenes.encajeCumplido(dsl, cuenta.moneda().name())),
                     ahora);
             if (!veredicto.permitido()) {
+                retirosRechazados.increment();
                 throw new ErrorDeNegocio(codigoDe(veredicto.codigo()), veredicto.motivo());
             }
 
@@ -177,6 +198,11 @@ public class CU11RetirarSaldo {
                                     "neto", neto.toString()),
                             UUID.fromString(ctx.traza().id())));
 
+            retirosSolicitados.increment();
+            if (estadoInicial == EstadoDeRetiro.AUTORIZADA) {
+                retirosAutorizados.increment();
+            }
+
             return new SalidaRetiro(ordenId, estadoInicial.name(), entrada.costo(), neto, retencion.retencionId());
         });
     }
@@ -189,6 +215,18 @@ public class CU11RetirarSaldo {
      * red al proveedor en el medio, igual que {@code cotizador}/{@code segundoFactor}
      * se llaman desde fuera del caso de uso que abre la transaccion larga.
      */
+    /**
+     * H4.S2.M3 · las ordenes {@code EN_PROCESO} que {@code ReconciliacionDeRetiros}
+     * recorre. {@code @Transactional} a proposito, a diferencia de
+     * {@code instruirPago}: esta SI es una unidad de trabajo completa en si misma —
+     * una lectura, sin llamada de red en el medio — asi que no hay invariante 6 que
+     * respetar dividiendola.
+     */
+    @Transactional(readOnly = true)
+    public java.util.List<OrdenRetiroRepositorio.Orden> ordenesEnProceso(ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> ordenes.enProceso(dsl));
+    }
+
     public SalidaInstruccion instruirPago(UUID ordenId, ContextoSesion ctx) {
         var orden = datos.conContexto(ctx, dsl -> ordenes.ver(dsl, ordenId))
                 .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(11, 1), "Esa orden no existe."));
@@ -205,7 +243,8 @@ public class CU11RetirarSaldo {
                 // TIMEOUT tambien queda EN_PROCESO: no se sabe todavia, y el job de
                 // reconciliacion (H4.S2.M3) es quien lo resuelve mas tarde — nunca se
                 // asume un rechazo que nadie confirmo.
-                boolean ok = datos.conContexto(ctx, dsl -> ordenes.pasarAEnProceso(dsl, ordenId, resultado.referencia()));
+                boolean ok =
+                        datos.conContexto(ctx, dsl -> ordenes.pasarAEnProceso(dsl, ordenId, resultado.referencia()));
                 if (!ok) {
                     throw new ErrorDeNegocio(
                             CodigoError.de(11, 8), "Esa orden ya no esta AUTORIZADA: otra instruccion la adelanto.");
@@ -244,15 +283,21 @@ public class CU11RetirarSaldo {
 
             orden.retencionId().ifPresent(id -> retenciones.ejecutarDentroDe(dsl, id, ctx));
 
+            // H4.S2.M3: confirmarPago tambien lo llama ReconciliacionDeRetiros con un
+            // ContextoSesion.deSistema(...) — su usuarioId es un identificador de
+            // PROCESO, no una fila real de identidad.usuario, asi que escribirlo en
+            // iniciada_por (FK a identidad.usuario) violaria la restriccion. Mismo
+            // patron que CU24RegistrarAsiento.iniciadaPor: sistema -> sin autor humano,
+            // no un autor inventado. El canal tambien lo delata: BATCH, no API.
             UUID transaccionId = libro.registrar(
                     dsl,
                     "RETIRO",
                     "ORDEN_RETIRO",
                     orden.id(),
-                    "API",
+                    ctx.esSistema() ? "BATCH" : "API",
                     orden.solicitado(),
                     "retiro:" + orden.id(),
-                    Optional.of(ctx.usuarioId()),
+                    ctx.esSistema() ? Optional.empty() : Optional.of(ctx.usuarioId()),
                     List.of(
                             Pata.debito(orden.cuentaId(), orden.solicitado(), "Retiro pagado"),
                             Pata.credito(cuentaPuenteDeCustodia, orden.solicitado(), "Salida hacia custodia")),
@@ -310,6 +355,8 @@ public class CU11RetirarSaldo {
                             orden.id(),
                             Map.of("cuentaBilleteraId", orden.cuentaId().toString(), "motivo", motivo),
                             UUID.fromString(ctx.traza().id())));
+
+            retirosRechazados.increment();
 
             var despues = cuentas.ver(dsl, orden.cuentaId()).orElseThrow();
             return new SalidaRechazo(orden.id(), motivo, despues.disponible());
@@ -374,6 +421,12 @@ public class CU11RetirarSaldo {
                                     "aprobadaPor", ctx.usuarioId().toString(),
                                     "solicitadaPor", orden.solicitadaPor().toString()),
                             UUID.fromString(ctx.traza().id())));
+
+            if (autorizar) {
+                retirosAutorizados.increment();
+            } else {
+                retirosRechazados.increment();
+            }
 
             return new SalidaAprobacion(orden.id(), estadoFinal, ctx.usuarioId());
         });

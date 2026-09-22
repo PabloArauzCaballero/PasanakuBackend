@@ -172,6 +172,14 @@ Entonces la orden nace EN_REVISION, no AUTORIZADA
 Dado un retiro EN_REVISION
 Cuando un aprobador DISTINTO del solicitante lo aprueba
 Entonces la orden pasa a AUTORIZADA con aprobada_por igual al aprobador
+
+Dado un retiro bajo el umbral
+Cuando se solicita y queda AUTORIZADA
+Entonces las metricas withdrawal_requested_total y withdrawal_approved_total suman, y withdrawal_failed_total no
+
+Dado un retiro que no pasa una condicion dura
+Cuando se rechaza antes de crear la orden
+Entonces solo suma la metrica withdrawal_failed_total, nunca requested ni approved
 ```
 
 ## Ver también

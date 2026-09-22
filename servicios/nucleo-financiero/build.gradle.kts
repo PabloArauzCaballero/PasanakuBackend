@@ -33,6 +33,9 @@ dependencies {
     implementation(libs.kafka)
     implementation(libs.shedlock)
     implementation(libs.resilience4j)
+    // H4.S2.M4: sin esto, @Retry/@CircuitBreaker de CotizadorPorHttp no hacen nada —
+    // ver el comentario en gradle/libs.versions.toml.
+    implementation(libs.spring.boot.aop)
     implementation(libs.micrometer)
     // H2.S2: SegundoFactorStepUp valida el JWT de evidencia step-up con el mismo
     // JwtDecoder (Nimbus) que usa comun-web para el token de acceso (ADR-024). Ya

@@ -25,6 +25,15 @@ public interface ProveedorDeRetiro {
     /** Instruye el pago. Nunca lanza por un rechazo de negocio: ESO es un {@link Resultado}. */
     Resultado instruir(UUID ordenRetiroId, Dinero monto);
 
+    /**
+     * Pregunta por una instruccion ya enviada (H4.S2.M3): lo que
+     * {@code ReconciliacionDeRetiros} usa para resolver una orden que quedo
+     * {@code EN_PROCESO} con un {@link Estado#TIMEOUT}. Puede seguir devolviendo
+     * {@code TIMEOUT} — significa que el proveedor tampoco lo sabe todavia, no que la
+     * pregunta fallo.
+     */
+    Estado consultar(String referencia);
+
     /** Los tres estados posibles de una instruccion ya enviada. */
     enum Estado {
         ACEPTADO,

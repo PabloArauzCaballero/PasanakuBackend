@@ -74,22 +74,47 @@ public class OrdenRetiroRepositorio {
                         DSL.field("monto_neto", BigDecimal.class),
                         DSL.field("moneda", String.class),
                         DSL.field("estado", String.class),
-                        DSL.field("solicitada_por", UUID.class))
+                        DSL.field("solicitada_por", UUID.class),
+                        DSL.field("referencia_proveedor", String.class))
                 .from(DSL.table(DSL.name("nucleo_financiero", "orden_retiro")))
                 .where(DSL.field("id", UUID.class).eq(ordenId))
                 .fetchOne();
-        return Optional.ofNullable(fila).map(f -> {
-            Moneda moneda = Moneda.valueOf(f.get("moneda", String.class));
-            return new Orden(
-                    f.get("id", UUID.class),
-                    f.get("cuenta_billetera_id", UUID.class),
-                    Optional.ofNullable(f.get("retencion_id", UUID.class)),
-                    Dinero.de(f.get("monto_solicitado", BigDecimal.class), moneda),
-                    Dinero.de(f.get("costo_retiro", BigDecimal.class), moneda),
-                    Dinero.de(f.get("monto_neto", BigDecimal.class), moneda),
-                    f.get("estado", String.class),
-                    f.get("solicitada_por", UUID.class));
-        });
+        return Optional.ofNullable(fila).map(OrdenRetiroRepositorio::aOrden);
+    }
+
+    /**
+     * Ordenes {@code EN_PROCESO} (H4.S2.M3): lo que {@code ReconciliacionDeRetiros}
+     * recorre para preguntarle al proveedor que paso de verdad con cada una.
+     */
+    public java.util.List<Orden> enProceso(DSLContext dsl) {
+        return dsl.select(
+                        DSL.field("id", UUID.class),
+                        DSL.field("cuenta_billetera_id", UUID.class),
+                        DSL.field("retencion_id", UUID.class),
+                        DSL.field("monto_solicitado", BigDecimal.class),
+                        DSL.field("costo_retiro", BigDecimal.class),
+                        DSL.field("monto_neto", BigDecimal.class),
+                        DSL.field("moneda", String.class),
+                        DSL.field("estado", String.class),
+                        DSL.field("solicitada_por", UUID.class),
+                        DSL.field("referencia_proveedor", String.class))
+                .from(DSL.table(DSL.name("nucleo_financiero", "orden_retiro")))
+                .where(DSL.field("estado", String.class).eq("EN_PROCESO"))
+                .fetch(OrdenRetiroRepositorio::aOrden);
+    }
+
+    private static Orden aOrden(Record f) {
+        Moneda moneda = Moneda.valueOf(f.get("moneda", String.class));
+        return new Orden(
+                f.get("id", UUID.class),
+                f.get("cuenta_billetera_id", UUID.class),
+                Optional.ofNullable(f.get("retencion_id", UUID.class)),
+                Dinero.de(f.get("monto_solicitado", BigDecimal.class), moneda),
+                Dinero.de(f.get("costo_retiro", BigDecimal.class), moneda),
+                Dinero.de(f.get("monto_neto", BigDecimal.class), moneda),
+                f.get("estado", String.class),
+                f.get("solicitada_por", UUID.class),
+                Optional.ofNullable(f.get("referencia_proveedor", String.class)));
     }
 
     /**
@@ -230,7 +255,8 @@ public class OrdenRetiroRepositorio {
             Dinero costo,
             Dinero neto,
             String estado,
-            UUID solicitadaPor) {}
+            UUID solicitadaPor,
+            Optional<String> referenciaProveedor) {}
 
     public record Instrumento(
             UUID usuarioId, boolean verificado, boolean titularCoincide, Optional<OffsetDateTime> bloqueadoHasta) {}

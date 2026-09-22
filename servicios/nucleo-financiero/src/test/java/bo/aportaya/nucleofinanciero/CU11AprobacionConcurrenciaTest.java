@@ -121,7 +121,8 @@ class CU11AprobacionConcurrenciaTest extends BaseDeBilletera {
     }
 
     @Test
-    @DisplayName("concurrencia: un aprobador aprueba y otro rechaza a la vez, gana el primero que llega y nunca los dos")
+    @DisplayName(
+            "concurrencia: un aprobador aprueba y otro rechaza a la vez, gana el primero que llega y nunca los dos")
     void aprobarYRechazarALaVezGanaUnoSolo() throws Exception {
         UUID ordenId = ordenEnRevision("ret-aprob-carrera-2");
         ContextoSesion queAprueba = contextoDe(fixtura.usuario());

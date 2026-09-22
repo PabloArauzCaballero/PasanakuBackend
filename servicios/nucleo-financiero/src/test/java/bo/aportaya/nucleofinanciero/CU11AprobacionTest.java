@@ -52,15 +52,13 @@ class CU11AprobacionTest extends BaseDeBilletera {
 
     private SalidaRetiro pedirGrande(Escenario e, String clave) {
         return transaccion.execute(t -> retiroCU.solicitar(
-                new EntradaRetiro(
-                        clave, e.cuenta(), bob("6000.00"), bob("5.00"), e.instrumento(), true, true, true),
+                new EntradaRetiro(clave, e.cuenta(), bob("6000.00"), bob("5.00"), e.instrumento(), true, true, true),
                 e.ctxSolicitante()));
     }
 
     @Test
-    @DisplayName(
-            "Dado un retiro por encima del umbral de doble aprobacion · Cuando se solicita · Entonces la orden"
-                    + " nace EN_REVISION, no AUTORIZADA")
+    @DisplayName("Dado un retiro por encima del umbral de doble aprobacion · Cuando se solicita · Entonces la orden"
+            + " nace EN_REVISION, no AUTORIZADA")
     void solicitudGrandeQuedaEnRevision() {
         Escenario e = escenarioGrande();
         SalidaRetiro salida = pedirGrande(e, "ret-grande-1");
@@ -68,16 +66,14 @@ class CU11AprobacionTest extends BaseDeBilletera {
     }
 
     @Test
-    @DisplayName(
-            "Dado un retiro EN_REVISION · Cuando un aprobador DISTINTO del solicitante lo aprueba · Entonces la"
-                    + " orden pasa a AUTORIZADA con aprobada_por igual al aprobador")
+    @DisplayName("Dado un retiro EN_REVISION · Cuando un aprobador DISTINTO del solicitante lo aprueba · Entonces la"
+            + " orden pasa a AUTORIZADA con aprobada_por igual al aprobador")
     void aprueba() {
         Escenario e = escenarioGrande();
         SalidaRetiro salida = pedirGrande(e, "ret-grande-2");
         ContextoSesion aprobador = contextoDe(fixtura.usuario());
 
-        SalidaAprobacion resultado =
-                transaccion.execute(t -> retiroCU.aprobar(salida.ordenRetiroId(), aprobador));
+        SalidaAprobacion resultado = transaccion.execute(t -> retiroCU.aprobar(salida.ordenRetiroId(), aprobador));
 
         assertThat(resultado.estado()).isEqualTo("AUTORIZADA");
         assertThat(resultado.aprobadaPor()).isEqualTo(aprobador.usuarioId());
@@ -117,8 +113,7 @@ class CU11AprobacionTest extends BaseDeBilletera {
         Escenario e = escenarioGrande();
         SalidaRetiro salida = pedirGrande(e, "ret-grande-4");
 
-        assertThatThrownBy(() -> transaccion.execute(
-                        t -> retiroCU.aprobar(salida.ordenRetiroId(), e.ctxSolicitante())))
+        assertThatThrownBy(() -> transaccion.execute(t -> retiroCU.aprobar(salida.ordenRetiroId(), e.ctxSolicitante())))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("propia solicitud");
         assertThat(contar(
@@ -131,8 +126,8 @@ class CU11AprobacionTest extends BaseDeBilletera {
     @Test
     @DisplayName("rechaza por orden inexistente: 404 de negocio")
     void ordenInexistente() {
-        assertThatThrownBy(() -> transaccion.execute(
-                        t -> retiroCU.aprobar(UUID.randomUUID(), contextoDe(fixtura.usuario()))))
+        assertThatThrownBy(() ->
+                        transaccion.execute(t -> retiroCU.aprobar(UUID.randomUUID(), contextoDe(fixtura.usuario()))))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("no existe");
     }
@@ -147,8 +142,7 @@ class CU11AprobacionTest extends BaseDeBilletera {
 
         transaccion.execute(t -> retiroCU.aprobar(salida.ordenRetiroId(), primerAprobador));
 
-        assertThatThrownBy(() -> transaccion.execute(
-                        t -> retiroCU.aprobar(salida.ordenRetiroId(), segundoAprobador)))
+        assertThatThrownBy(() -> transaccion.execute(t -> retiroCU.aprobar(salida.ordenRetiroId(), segundoAprobador)))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("ya no esta en revision");
         // Una sola orden AUTORIZADA, con el PRIMER aprobador — el segundo no la piso.

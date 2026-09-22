@@ -167,7 +167,13 @@ public class CU13RetenerSaldo {
                         CodigoError.de(13, 3),
                         "Esa retencion ya esta " + retencion.estado() + ": no admite mas operaciones.");
             }
-            if (!retenciones.cerrar(dsl, retencionId, estado, Optional.of(ctx.usuarioId()), ahora)) {
+            // H4.S2.M3: ReconciliacionDeRetiros (nucleo-financiero) cierra retenciones
+            // con un ContextoSesion.deSistema(...) cuyo usuarioId es un identificador
+            // de PROCESO, no una fila real de identidad.usuario — escribirlo en
+            // liberada_por (FK a identidad.usuario) violaria la restriccion. Mismo
+            // patron que CU24RegistrarAsiento.iniciadaPor: sistema, sin autor humano.
+            Optional<UUID> liberadaPor = ctx.esSistema() ? Optional.empty() : Optional.of(ctx.usuarioId());
+            if (!retenciones.cerrar(dsl, retencionId, estado, liberadaPor, ahora)) {
                 throw new ErrorDeNegocio(CodigoError.de(13, 3), "Otra operacion cerro esa retencion primero.");
             }
 
