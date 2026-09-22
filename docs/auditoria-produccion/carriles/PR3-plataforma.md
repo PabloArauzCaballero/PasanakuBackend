@@ -1,12 +1,14 @@
 # Carril PR3 — Plataforma/Infra (Leo, turno noche 2026-09-21)
 
-> **AVANCE: 8 / 49 — 16,3 %.**
-> **Estado:** `IN_PROGRESS`. PR [#4](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/4) y
-> [#9](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/9) **mergeados** (ambos, sin
-> bloqueo del clasificador de permisos), espejados a `test`. H1.S1 completo. H1.S2.M1/M2 cerrados;
-> H1.S2.M3 **TODO con hallazgo real registrado** (no es un simple "falta hacerlo": encontré un gap
-> en cómo `restricciones.sql` aplica sus `CHECK` cuando la misma tabla vive en más de un esquema —
-> ver §Hallazgos).
+> **AVANCE: 11 / 49 — 22,4 %.**
+> **Estado:** `IN_PROGRESS`. PRs [#4](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/4),
+> [#9](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/9),
+> [#10](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/10),
+> [#12](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/12) **mergeados** (ninguno
+> bloqueado por el clasificador de permisos), todos espejados a `test`. **H1 cerrado salvo
+> H1.S2.M3**, que queda `TODO` con un hallazgo real registrado (no es un simple "falta hacerlo":
+> un gap en cómo `restricciones.sql` aplica sus `CHECK` cuando la misma tabla vive en más de un
+> esquema — ver §Hallazgo H1.S2.M3). Pasando a H2 (outbox/Relevo).
 
 Encargo: [repartos/2026-09-21/PromptNoche/Backend/Leo/PR3-Plataforma.Infra/OutboxQuePublicaYGuardasComunes.md](../../../../../PasanakuPromptManager/repartos/2026-09-21/PromptNoche/Backend/Leo/PR3-Plataforma.Infra/OutboxQuePublicaYGuardasComunes.md)
 (repo `PasanakuPromptManager`, no este). Daily en el repo del estándar:
@@ -22,11 +24,11 @@ Ya hecha en el commit `2d2da96` (previo a esta sesión): `.claude/hooks`, `.clau
 
 | Hito | Microtareas | HECHO | Estado |
 |---|---:|---:|---|
-| H1 — Idempotencia | 12 | 7 | EN CURSO — H1.S1 (M1–M5) y H1.S2.M1/M2 cerrados; H1.S2.M3 TODO (hallazgo); H1.S3 TODO |
+| H1 — Idempotencia | 12 | 10 | EN CURSO — solo H1.S2.M3 TODO (hallazgo real, no bloqueante) |
 | H2 — Outbox/Relevo | 20 | 0 | TODO |
 | H3 — Guardas comunes | 9 | 1 | EN CURSO — H3.S3.M1 mergeado; resto TODO |
 | H4 — Barridos/Dinero/logs/probes | 8 | 0 | TODO |
-| **TOTAL** | **49** | **8** | |
+| **TOTAL** | **49** | **11** | |
 
 ## H1 — resumen
 
@@ -167,6 +169,49 @@ esquema que la tenga —o generar el bloque R-BIL-19 una vez por esquema en vez 
 Es un cambio al generador de restricciones, no a `generar_ddl.py`. Registrado acá y en mi daily
 §6 para quien tenga ese archivo (posiblemente Pablo, dueño de `docs/Restricciones.md` en el reparto
 original) — **no es un bloqueo del carril**: sigo con H1.S3 sin esperar.
+
+## H1.S3 — resumen
+
+| ID | Qué se hizo | Resultado |
+|---|---|---|
+| H1.S3.M1 | `ADR-046` enlazado en `docs/Arquitectura/_Arquitectura.md` (micro-PR troncal); `python3 scripts/verificar_boveda.py` encontró 3 FALLAs reales que mi propio ADR había introducido (secciones obligatorias faltantes, wikilink roto a un ADR-047 que todavía no existe, cifra de "46 ADR" desfasada en `planes/00 Plan maestro.md`) — las tres corregidas | **PASS** — `TODO OK` |
+| H1.S3.M2 | `ClaveIdempotenciaSuelta` en `comun-pruebas/barrido`: detecta `.where(DSL.field("clave_idempotencia")` sin `.and(...)` en la misma sentencia. **Opt-in por módulo** (no en la plantilla de `nuevo_servicio.py`): aplicarla a ciegas en todo el monorepo gritaría sobre columnas `clave_idempotencia` de otros servicios que no usan el helper `Idempotencia` y tienen su propio diseño de unicidad — la maquiné para correr solo donde `Idempotencia.java` vive, vía un `BarridoTest` nuevo en `comun-web` (que no existía: ver hallazgo abajo) | **PASS** — ver evidencia |
+
+### Evidencia H1.S3.M2 — negativo provocado y revertido
+
+`ReglasPropiasTest` (dos pruebas, no un provocar-y-revertir manual sobre código real): `claveIdempotenciaSueltaSeDetecta` escribe un `.where(clave_idempotencia)` sin `.and()` en un archivo temporal y confirma que `ClaveIdempotenciaSuelta.revisar(...)` lo encuentra con archivo y línea exactos; `claveIdempotenciaSueltaNoGritaConAnd` confirma que la misma clave CON `.and(usuario_id...)` no dispara nada. Corrida real:
+
+```
+./gradlew :plataforma:comun-pruebas:test :plataforma:comun-web:testBarrido ...
+BUILD SUCCESSFUL in 3m 25s
+```
+
+### Hallazgo — `comun-web` no tenía `BarridoTest` (encontrado al escribir H1.S3.M2)
+
+Al conectar la regla nueva descubrí que **ningún módulo de `plataforma/` tiene su propio
+`BarridoTest`** (la plantilla de `nuevo_servicio.py` genera uno por servicio, no por módulo de
+plataforma). Al agregar `plataforma/comun-web/src/test/java/bo/aportaya/plataforma/web/BarridoTest.java`
+por primera vez, correr las reglas EXISTENTES contra `comun-web` (nunca antes ejercidas ahí) encontró
+dos hallazgos reales de mi propio código de esta sesión, arreglados en el mismo commit:
+
+- **Falso positivo de `sin-umbral-literal` sobre mi propia constante**: `UMBRAL_TRANSITORIO = 500`
+  (un código HTTP, no dinero) matcheaba la regex de la regla por el prefijo `UMBRAL`. Renombrada a
+  `CODIGO_HTTP_SERVIDOR` — ningún umbral real, ninguna cifra regulatoria, solo una coincidencia de
+  nombre.
+- **`tamano-archivo`**: `IdempotenciaRepositorioTest.java` había crecido a 338 líneas (límite 300).
+  Partido en tres archivos, mismo patrón que `CU10Test`/`CU10ConcurrenciaTest` en
+  `nucleo-financiero`: `BaseIdempotenciaRepositorioTest` (helpers compartidos, 109 líneas),
+  `IdempotenciaRepositorioTest` (6 casos, 135 líneas) e `IdempotenciaConcurrenciaRepositorioTest`
+  (50 hilos + los 3 casos de recuperación, 132 líneas).
+
+**Hallazgo para otros carriles, no auto-detectado por esta regla** (porque `ClaveIdempotenciaSuelta`
+solo corre donde alguien la conecta, y no toco `servicios/**`): `grep` encontró
+`.where(DSL.field("clave_idempotencia")` **sin** `.and(...)` en la misma sentencia en
+`servicios/aportes/.../PagoRepositorio.java:56`, `servicios/notificaciones/.../EnvioRepositorio.java:66`
+y `servicios/organizador/.../AutomatizacionRepositorio.java:87`. Puede ser intencional (esas tablas
+podrían tener su propio diseño de unicidad de `clave_idempotencia`, distinto del helper
+`Idempotencia`/`respuesta_idempotente` de este carril) — no lo investigué a fondo porque
+`servicios/**` está fuera de mi alcance. Registrado para sus dueños.
 
 ## H3 — resumen
 
