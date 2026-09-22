@@ -57,7 +57,7 @@ Ola 0.
 
 ## 1 · Por qué esto se puede paralelizar
 
-Porque **el esquema ya está completo**. Las 306 tablas existen desde el primer día
+Porque **el esquema ya está completo**. Las 305 tablas existen desde el primer día
 (`sql/aplicar.sql`), con sus claves, índices, restricciones y RLS.
 
 Eso cambia todo: un carril **no espera** a que otro implemente su caso de uso para
@@ -206,7 +206,7 @@ entero de este documento.
 | `settings.gradle.kts` | Nadie: descubre `servicios/` por barrido |
 | `despliegue/Dockerfile`, `despliegue/k8s/**` | Ola 0 y Ola 5. Los manifiestos son **generados** |
 | `despliegue/compose/base.yml` | Ola 0 y Ola 5 |
-| `clientes/typescript/**` | Nadie: es generado |
+| `clientes/angular/**` · `clientes/dart/**` | Nadie: son generados (ADR-044) |
 | `.github/**` | Ola 0 y Ola 5 |
 | **`.claude/skills/**`** | **Micro-PR.** Las 65 skills son de todos: dos carriles ajustando la misma es el conflicto que este diseño evita |
 | **El OpenAPI de otro servicio** | Se **lee** para generar su cliente. **Nunca se edita**: es del carril dueño |

@@ -447,13 +447,14 @@ package "Verificacion de Identidad (KYC)" {
     - usuarioId: UUID
     - tipo: String <<CI | PASAPORTE | CARNET_EXTRANJERIA>>
     - numero: String
+    - lugarExpedicion: String <<LP|SC|CB|OR|PT|TJ|CH|BE|PD — extension del CI>>
     - complemento: String
     - paisEmision: String
     - fechaEmision: Date
     - fechaExpiracion: Date
-    - urlAnverso: String <<almacenamiento cifrado>>
+    - urlAnverso: String <<almacenamiento cifrado; vacio hasta que la foto se sube>>
     - urlReverso: String
-    - hashArchivo: String
+    - hashArchivo: String <<del anverso; vacio hasta que la foto se sube>>
     - estado: EstadoVerificacion
     --
     + estaVigente(): Boolean
@@ -929,14 +930,15 @@ entity "documento_identidad" as docid {
   tipo : VARCHAR(25) <<CK>>
   numero_cifrado : VARCHAR(255)
   version_llave : SMALLINT
-  hash_numero : VARCHAR(64) <<UQ, busqueda sin descifrar>>
+  hash_numero : VARCHAR(64) <<UQ+lugar_expedicion, busqueda sin descifrar>>
+  lugar_expedicion : VARCHAR(2) <<NULL, CK>>
   complemento : VARCHAR(10) <<NULL>>
   pais_emision : CHAR(2)
   fecha_emision : DATE <<NULL>>
   fecha_expiracion : DATE <<NULL>>
-  url_anverso : VARCHAR(255)
+  url_anverso : VARCHAR(255) <<NULL, llega con la foto, no con el alta>>
   url_reverso : VARCHAR(255) <<NULL>>
-  hash_archivo : VARCHAR(64)
+  hash_archivo : VARCHAR(64) <<NULL, es el hash del anverso>>
   estado : VARCHAR(20) <<CK>>
 }
 

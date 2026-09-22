@@ -1,0 +1,52 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve",
+    "paths": {
+      "@aportaya/tutoriales/*": [
+        "./../../packages/tutoriales/src/*"
+      ],
+      "@aportaya/ui/*": [
+        "./../../packages/ui/src/*"
+      ],
+      "@aportaya/tokens/*": [
+        "./../../packages/tokens/*"
+      ],
+      "@aportaya/simulado": [
+        "./../../packages/simulado/src/index.ts"
+      ],
+      "@aportaya/dominio-cliente": [
+        "./../../packages/dominio-cliente/src/index.ts"
+      ],
+      "clientes/angular/*": [
+        "./../../clientes/angular/*"
+      ]
+    },
+    "resolveJsonModule": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
+  ]
+}

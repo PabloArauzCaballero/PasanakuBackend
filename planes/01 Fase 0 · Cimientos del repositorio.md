@@ -12,7 +12,7 @@ habilita: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
 
 > **Objetivo.** Que `git clone && docker compose --profile base up -d && ./gradlew
 > bd:reset && ./gradlew :servicios:ejemplo:bootRun` deje corriendo un servicio Spring
-> Boot que responde `/actuator/health`, contra una PostgreSQL 16 con las 306 tablas
+> Boot que responde `/actuator/health`, contra una PostgreSQL 16 con las 305 tablas
 > aplicadas, los catorce esquemas creados y los 20 catálogos mínimos sembrados. Sin un
 > solo caso de uso todavía: esta fase construye el piso sobre el que se paran las
 > otras 17.
@@ -74,7 +74,7 @@ Pasanaku/
 │   ├── comun-pruebas/           Testcontainers, fixtures, ArchUnit, barridos
 │   └── gateway/                 Spring Cloud Gateway
 ├── servicios/                   ← vacío en la Fase 0, salvo el de ejemplo
-├── clientes/typescript/         generado — no se edita
+├── clientes/{angular,dart}/     generados — no se editan (ADR-044)
 ├── apps/movil · apps/backoffice
 ├── despliegue/
 │   ├── Dockerfile               plantilla ÚNICA, parametrizada por servicio
@@ -98,7 +98,7 @@ Pasanaku/
 | `./gradlew bd:levantar` | `docker compose --profile base up -d --wait` |
 | `./gradlew bd:aplicar` | `psql -v ON_ERROR_STOP=1 -f sql/aplicar.sql` |
 | `./gradlew bd:semillas` | `python3 scripts/generar_semillas.py` + `sembrar.sql` (**20 catálogos**) |
-| `./gradlew bd:prueba` | `sembrar_prueba.sql` (**14 archivos, nunca** en producción) |
+| `./gradlew bd:dev` | `sembrar_dev.sql` (**15 archivos, nunca** en producción) |
 | `./gradlew bd:reset` | volumen limpio → esquemas y roles → aplicar → semillas → prueba |
 | `./gradlew generateJooq` | genera las clases desde la base viva, **por esquema** |
 | `./gradlew generateOpenApiClients` | interfaces de servidor + cliente Java + cliente TypeScript |
@@ -115,7 +115,7 @@ Pasanaku/
 > [!warning] Todas las dependencias comunes se declaran **acá**
 > Los carriles concurrentes **no agregan dependencias**: una versión nueva en una rama
 > de carril produce conflicto en el catálogo con las otras cuatro máquinas. Se declara
-> ahora todo lo que las 21 fases van a necesitar (Spring Boot, jOOQ, Flyway, Kafka,
+> ahora todo lo que las 21 fases van a necesitar (Spring Boot, jOOQ, Kafka,
 > ShedLock, Resilience4j, Micrometer, JUnit 5, Testcontainers, Spring Cloud Contract,
 > ArchUnit, AssertJ, jqwik, Argon2). Lo que falte después entra por micro-PR
 > ([[07 Carriles de trabajo concurrente]] §6).
@@ -150,7 +150,7 @@ genera `scripts/generar_ddl.py` desde `scripts/modelo.py`, y
 Lo que la corrida deja verificado hoy:
 
 ```
-306 tablas con esquema asignado (modelo: 307)
+305 tablas con esquema asignado (modelo: 305)
 el libro contable entero en nucleo_financiero
 movimiento_billetera con el libro: partida doble en una transaccion
 325 claves foraneas cruzan esquemas y las verifica el motor
@@ -399,7 +399,7 @@ python3 scripts/verificar_boveda.py
 ```
 
 - [ ] Los trece puntos del gate común (§9 del [[00 Plan maestro]])
-- [ ] Las 306 tablas existen y las verificaciones de `sql/50_verificacion/` pasan
+- [ ] Las 305 tablas existen y las verificaciones de `sql/50_verificacion/` pasan
 - [ ] **Los catorce esquemas y los catorce roles existen**, y el `SELECT` cruzado entre
       cualquier par devuelve permiso denegado ← invariante 11
 - [ ] **Solo `svc_nucleo_financiero` escribe `asiento_contable`** ← invariante 12

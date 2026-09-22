@@ -1,0 +1,458 @@
+# El stack desplegado — GENERADO por `python3 scripts/generar_compose.py --coolify`.
+#
+# Es el mismo barrido de servicios/ que el perfil `todo`, con estas diferencias, y
+# cada una tiene un motivo medido en el primer despliegue de TEST:
+#
+#   1 · los valores no son literales de desarrollo, son variables del entorno;
+#   2 · NO construye: arranca imagenes `aportaya/*:test` ya construidas en el host
+#       por /opt/aportaya/bin/construir-todo.sh, UNA POR UNA. Construir desde Coolify
+#       lanzo las quince a la vez —Coolify reescribe los Dockerfile para inyectar sus
+#       ARG, asi que no reusa la cache—, y con `org.gradle.jvmargs=-Xmx3g` eso fueron
+#       16 JVM, carga 49 y la maquina entera (Atlas incluido) camino al OOM.
+#       `pull_policy: never` porque Coolify intenta bajar del registro hasta las
+#       imagenes locales;
+#   3 · postgres, pgbouncer, minio y kafka NO estan aca: viven fuera de Coolify, en
+#       /opt/aportaya/, porque Coolify recrea la aplicacion entera en cada despliegue.
+#
+# La red `aportaya-interna` es externa y ya existe: ahi `postgres`, `pgbouncer`,
+# `minio`, `kafka` y `gateway` resuelven igual que en la maquina de desarrollo.
+name: aportaya
+
+networks:
+  interna:
+    external: true
+    name: aportaya-interna
+  # La red por la que Traefik llega a lo que se publica: el gateway y los dos fronts.
+  publica:
+    external: true
+    name: coolify
+
+services:
+  # El esquema viaja con el despliegue. Termina antes de que arranque un solo
+  # servicio, y si falla no arranca ninguno.
+  esquema:
+    image: aportaya/esquema:test
+    pull_policy: never
+    restart: "no"
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGDATABASE: pasanaku
+      PGUSER: ${BD_USUARIO_ADMIN}
+      PGPASSWORD: ${BD_CLAVE_ADMIN}
+    networks: [interna]
+
+  # El gateway: la unica entrada a la API (ADR-025).
+  gateway:
+    image: aportaya/gateway:test
+    pull_policy: never
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/liveness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 30s
+    networks: [interna, publica]
+
+  aportes:
+    image: aportaya/aportes:test
+    pull_policy: never
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  auditoria:
+    image: aportaya/auditoria:test
+    pull_policy: never
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  cumplimiento:
+    image: aportaya/cumplimiento:test
+    pull_policy: never
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+    environment:
+      BASE_URL_PUBLICA: ${BASE_URL_PUBLICA}
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  entregas:
+    image: aportaya/entregas:test
+    pull_policy: never
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+      identidad:
+        condition: service_healthy
+      aportes:
+        condition: service_healthy
+      auditoria:
+        condition: service_healthy
+      cumplimiento:
+        condition: service_healthy
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      SEGURIDAD_PIMIENTA: ${SEGURIDAD_PIMIENTA}
+      URL_IDENTIDAD: http://identidad:8080
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  erp:
+    image: aportaya/erp:test
+    pull_policy: never
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+      identidad:
+        condition: service_healthy
+      aportes:
+        condition: service_healthy
+      auditoria:
+        condition: service_healthy
+      cumplimiento:
+        condition: service_healthy
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  garantia:
+    image: aportaya/garantia:test
+    pull_policy: never
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+      identidad:
+        condition: service_healthy
+      aportes:
+        condition: service_healthy
+      auditoria:
+        condition: service_healthy
+      cumplimiento:
+        condition: service_healthy
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  grupos:
+    image: aportaya/grupos:test
+    pull_policy: never
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+      identidad:
+        condition: service_healthy
+      aportes:
+        condition: service_healthy
+      auditoria:
+        condition: service_healthy
+      cumplimiento:
+        condition: service_healthy
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      URL_APORTES: http://aportes:8080
+      URL_CUMPLIMIENTO: http://cumplimiento:8080
+      URL_GARANTIA: http://garantia:8080
+      URL_IDENTIDAD: http://identidad:8080
+      URL_NOTIFICACIONES: http://notificaciones:8080
+      URL_ORGANIZADOR: http://organizador:8080
+      URL_TARIFAS: http://tarifas:8080
+      URL_TRANSPARENCIA: http://transparencia:8080
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  identidad:
+    image: aportaya/identidad:test
+    pull_policy: never
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+    environment:
+      ARCHIVOS_BUCKET: aportaya-archivos
+      ARCHIVOS_CLAVE: ${ARCHIVOS_CLAVE}
+      ARCHIVOS_URL: http://minio:9000
+      ARCHIVOS_USUARIO: ${ARCHIVOS_USUARIO}
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      JWT_CLAVE_FIRMA: ${JWT_CLAVE_FIRMA}
+      KAFKA_URL: kafka:9092
+      SEGURIDAD_PIMIENTA: ${SEGURIDAD_PIMIENTA}
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  notificaciones:
+    image: aportaya/notificaciones:test
+    pull_policy: never
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+      entregas:
+        condition: service_healthy
+      erp:
+        condition: service_healthy
+      garantia:
+        condition: service_healthy
+      grupos:
+        condition: service_healthy
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      WEBHOOK_SECRETO: ${WEBHOOK_SECRETO}
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  nucleo-financiero:
+    image: aportaya/nucleo-financiero:test
+    pull_policy: never
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+      entregas:
+        condition: service_healthy
+      erp:
+        condition: service_healthy
+      garantia:
+        condition: service_healthy
+      grupos:
+        condition: service_healthy
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      CUENTA_PUENTE_CUSTODIA: ${CUENTA_PUENTE_CUSTODIA}
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      URL_APORTES: http://aportes:8080
+      URL_GRUPOS: http://grupos:8080
+      URL_TARIFAS: http://tarifas:8080
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  organizador:
+    image: aportaya/organizador:test
+    pull_policy: never
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+      entregas:
+        condition: service_healthy
+      erp:
+        condition: service_healthy
+      garantia:
+        condition: service_healthy
+      grupos:
+        condition: service_healthy
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  publicidad:
+    image: aportaya/publicidad:test
+    pull_policy: never
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+      entregas:
+        condition: service_healthy
+      erp:
+        condition: service_healthy
+      garantia:
+        condition: service_healthy
+      grupos:
+        condition: service_healthy
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  tarifas:
+    image: aportaya/tarifas:test
+    pull_policy: never
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+      notificaciones:
+        condition: service_healthy
+      nucleo-financiero:
+        condition: service_healthy
+      organizador:
+        condition: service_healthy
+      publicidad:
+        condition: service_healthy
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      SIN_NIT_EMISOR: ${SIN_NIT_EMISOR}
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  transparencia:
+    image: aportaya/transparencia:test
+    pull_policy: never
+    restart: unless-stopped
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+      notificaciones:
+        condition: service_healthy
+      nucleo-financiero:
+        condition: service_healthy
+      organizador:
+        condition: service_healthy
+      publicidad:
+        condition: service_healthy
+    environment:
+      BASE_URL_PUBLICA: ${BASE_URL_PUBLICA}
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      CERTIFICADOS_CLAVE_FIRMA: ${CERTIFICADOS_CLAVE_FIRMA}
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      URL_GRUPOS: http://grupos:8080
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]

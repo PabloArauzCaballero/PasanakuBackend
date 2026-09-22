@@ -1,0 +1,62 @@
+{
+  "servicio": "notificaciones",
+  "operacion": "procesarRespuestaEntrante",
+  "metodo": "post",
+  "ruta": "/notificaciones/webhooks/{proveedor}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "respuestaId": "35cfe4f4-774d-4ad8-8282-8e2cad1d4fcc",
+        "intencion": "YA_PAGUE",
+        "accion": "PAGO_CONFIRMADO",
+        "referenciaId": "514e0fa0-4f37-4048-8e79-4fe8a0854fe8"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "respuestaId": "35cfe4f4-774d-4ad8-8282-8e2cad1d4fcc",
+        "intencion": "YA_PAGUE",
+        "accion": "PAGO_CONFIRMADO",
+        "referenciaId": "514e0fa0-4f37-4048-8e79-4fe8a0854fe8"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "respuestaId": "35cfe4f4-774d-4ad8-8282-8e2cad1d4fcc",
+        "intencion": "YA_PAGUE",
+        "accion": "PAGO_CONFIRMADO",
+        "referenciaId": "514e0fa0-4f37-4048-8e79-4fe8a0854fe8"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "respuestaId": "35cfe4f4-774d-4ad8-8282-8e2cad1d4fcc",
+        "intencion": "YA_PAGUE",
+        "accion": "PAGO_CONFIRMADO",
+        "referenciaId": "514e0fa0-4f37-4048-8e79-4fe8a0854fe8"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

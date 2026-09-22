@@ -2,9 +2,12 @@
 # SE ESCRIBE PRIMERO, antes que la implementacion (ADR-020). Es lo que permite que
 # otro carril genere el cliente y programe contra vos sin esperar a que termines.
 #
-# Prefijos reservados de este servicio: /identidad, /usuarios, /sesion, /roles
+# Prefijos reservados de este servicio: /identidad /usuarios /sesion /sesiones /roles
 #   Una ruta fuera de ellos es un rechazo automatico, no una discusion de diseno.
 #   Toda ruta exige sesion: 401 sin token, 403 con rol insuficiente.
+#
+# BORRADOR DE LA FASE 0 (planes/01 §0.8). El carril dueno lo amplia; NO puede
+# romperlo sin avisar, y la prueba de contrato falla en el CI del que rompe.
 openapi: 3.1.0
 info:
   title: identidad
@@ -16,23 +19,348 @@ info:
 servers:
   - url: /api/v1
 
-paths: {}
-  # Una operacion por caso de uso. Plantilla:
-  #
-  #   /identidad/…:
-  #     post:
-  #       operationId: <verboObjeto>          # CU-NN
-  #       parameters:
-  #         - name: Idempotency-Key
-  #           in: header
-  #           required: true                   # toda operacion con efecto
-  #           schema: { type: string, format: uuid }
-  #       responses:
-  #         '200': …
-  #         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+paths:
+  /usuarios:
+    post:
+      operationId: registrarUsuario          # CU-01
+      summary: Registro y apertura de billetera
+      description: >-
+        Una transaccion: usuario, KYC, debida diligencia, calificacion de riesgo,
+        expediente y cuenta de billetera. Ruta publica: es el unico momento en que
+        todavia no hay sesion.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaRegistro' }
+      responses:
+        '202':
+          description: >-
+            Alta aceptada. El usuario queda PENDIENTE_VERIFICACION y NO opera
+            todavia: la debida diligencia la hace `cumplimiento` y la billetera la
+            abre `nucleo-financiero` al consumir `identidad.usuario_registrado`.
+
+            Es 202 y no 201 a proposito. El caso de uso describe la salida con
+            `cuentaBilleteraId` y `nivelDiligencia`, pero esa cuenta todavia no
+            existe cuando esta operacion responde: prometerla seria decirle al
+            cliente que ya tiene algo que nadie abrio. Los dos campos viajan cuando
+            estan, no antes.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaRegistro' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU01-01 KYC_RECHAZADO · AP-CU01-02 COINCIDENCIA_EN_LISTA
+          # AP-CU01-03 CUENTA_YA_EXISTE (R-BIL-04) · AP-CU01-04 CONTRATO_NO_ACEPTADO
+          # AP-CU01-05 SERVICIO_NO_AUTORIZADO (R-LIC-01)
+
+  /sesiones:
+    post:
+      operationId: autenticar                 # CU-04
+      summary: Autenticar con MFA y registrar dispositivo
+      description: >-
+        Ruta publica: es el momento en que todavia no hay sesion. NO lleva
+        Idempotency-Key a proposito — cada intento es un hecho distinto y queda
+        registrado en intento_autenticacion, incluidos los fallidos.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaAutenticacion' }
+      responses:
+        '200':
+          description: Sesion abierta
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaAutenticacion' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU04-01 CREDENCIAL_INVALIDA · AP-CU04-02 CUENTA_BLOQUEADA
+          # AP-CU04-03 FACTOR_REQUERIDO   · AP-CU04-04 TOKEN_VENCIDO
+          # AP-CU04-05 DEMASIADOS_INTENTOS · AP-CU04-06 FACTOR_NO_ENROLADO
+          # AP-CU04-07 FACTOR_NO_ADMISIBLE (R-SEG-10)
+
+  /identidad/verificaciones:
+    get:
+      operationId: listarVerificaciones
+      summary: La cola de expedientes esperando una decision humana
+      description: >-
+        El portal de riesgo. Devuelve quien espera, desde cuando y que fotos tiene
+        cargadas — nunca las fotos en si, que se piden una por una y quedan en la
+        bitacora como cualquier lectura de dato personal.
+      parameters:
+        - name: estado
+          in: query
+          required: false
+          schema: { type: string, enum: [PENDIENTE, EN_REVISION, APROBADA, RECHAZADA] }
+      responses:
+        '200':
+          description: Los expedientes
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ExpedienteEnRevision' }
+
+  /identidad/verificaciones/{verificacionId}/fotos/{cara}:
+    get:
+      operationId: verFotoDelExpediente
+      summary: Un enlace de vigencia corta para mirar una foto del expediente
+      description: >-
+        Devuelve una URL temporal, no el binario: asi el servidor no proxea megabytes
+        y el enlace muere solo. Cada llamada es una lectura de dato personal y queda
+        registrada.
+      parameters:
+        - name: verificacionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: cara
+          in: path
+          required: true
+          schema: { type: string, enum: [ANVERSO, REVERSO, SELFIE] }
+      responses:
+        '200':
+          description: El enlace
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EnlaceDeFoto' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /identidad/verificaciones/{verificacionId}/fotos/{cara}/contenido:
+    get:
+      operationId: verContenidoDeFoto
+      summary: Los bytes de una foto del expediente, servidos por el servicio dueno
+      description: >-
+        El binario, no un enlace. `verFotoDelExpediente` devuelve una URL prefirmada
+        contra el almacen, y el almacen NO es publico: vive en la red interna, sin
+        puerto publicado ni dominio, que es como lo quiere el ADR-034 —«el binario no
+        se sirve nunca directo»—. Esa URL sirve entre servicios y es inservible en un
+        navegador, que no resuelve `minio:9000`.
+
+        Aca lo entrega el servicio dueno de la tabla, que valida sesion y permiso
+        antes de leer un solo byte, y la lectura queda en la bitacora como cualquier
+        otra lectura de dato personal. Son fotos de cedula de a una, no megabytes de
+        video: proxearlas cuesta menos que abrir el almacen al mundo.
+      parameters:
+        - name: verificacionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: cara
+          in: path
+          required: true
+          schema: { type: string, enum: [ANVERSO, REVERSO, SELFIE] }
+      responses:
+        '200':
+          description: La foto
+          content:
+            application/octet-stream:
+              schema: { type: string, format: binary }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /identidad/verificaciones/{verificacionId}/decision:
+    post:
+      operationId: resolverVerificacion
+      summary: Aprobar o rechazar la verificacion, a mano
+      description: >-
+        La decision es de una persona y queda con su nombre: `revisada_por` guarda
+        quien decidio y `motivo_rechazo` por que. Rechazar sin motivo no se admite —
+        a quien le rechazan la cuenta tiene derecho a saber por que.
+      parameters:
+        - name: verificacionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DecisionDeVerificacion' }
+      responses:
+        '200':
+          description: Resuelta
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExpedienteEnRevision' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /usuarios/{usuarioId}/documentos:
+    post:
+      operationId: subirDocumento
+      summary: Sube una foto del documento o la prueba de vida
+      description: >-
+        La foto NO se guarda en el disco del servicio: va al servidor de archivos y en
+        la fila queda una clave de objeto (ADR-034). El tipo se decide leyendo los
+        primeros bytes, no por la extension ni por el Content-Type que manda el
+        cliente. Devuelve la clave y el SHA-256 para que el expediente quede trazable.
+      parameters:
+        - name: usuarioId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [cara, archivo]
+              properties:
+                cara:
+                  type: string
+                  enum: [ANVERSO, REVERSO, SELFIE]
+                  description: Que parte del expediente es esta foto.
+                archivo:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Guardada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ArchivoDelExpediente' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+  /usuarios/{usuarioId}/titularidad/verificacion:
+    post:
+      operationId: verificarTitularidad
+      summary: Si el nombre y el documento declarados son los del titular
+      description: >-
+        Contesta si coinciden; NO dice cuales son. Devolver el nombre y el documento
+        guardados convertiria esta ruta en un directorio de clientes para cualquier
+        servicio comprometido. El documento ademas se guarda como hash con pimienta:
+        lo que se comparan son dos hashes, nunca dos numeros.
+
+        La usa `entregas` antes de registrar una cuenta bancaria — R-SEG-02 exige que
+        la cuenta sea de quien la registra, y ese dato vive aca.
+      parameters:
+        - name: usuarioId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaTitularidad' }
+      responses:
+        '200':
+          description: Si coincide o no
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaTitularidad' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
+  /usuarios/tokens/invitacion:
+    post:
+      operationId: emitirTokenDeInvitacion
+      summary: El enlace de un solo uso con el que se invita a alguien a un grupo
+      description: >-
+        `token_verificacion` es de identidad y su politica —vigencia, canales, cuantos
+        reenvios— esta sembrada bajo el proposito INVITACION_GRUPO. `grupos` no puede
+        escribir esa tabla (invariante 11): pide el token y guarda su identificador.
+
+        Se guarda el hash, nunca el token: quien tenga la base no puede reconstruir los
+        enlaces vivos. El valor en claro se devuelve una sola vez, a quien lo va a
+        enviar.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaTokenDeInvitacion' }
+      responses:
+        '201':
+          description: El token emitido, con su valor en claro por unica vez
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaTokenDeInvitacion' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
+  /usuarios/por-telefono:
+    get:
+      operationId: buscarPorTelefono
+      summary: Si ese telefono ya tiene cuenta
+      description: >-
+        La pregunta `grupos` antes de invitar (CU-69): invitar a quien ya es
+        participante es ruido, y para saberlo hay que poder ir del telefono al usuario.
+
+        Devuelve el identificador y nada mas —ni nombre, ni estado, ni cuando entro—.
+        Exige permiso: una ruta que dice si un telefono tiene cuenta es, sin permiso,
+        una forma de enumerar clientes.
+      parameters:
+        - name: telefono
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\+591\d{8}$' }
+      responses:
+        '200':
+          description: Si existe, con su identificador
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UsuarioEncontrado' }
 
 components:
+  parameters:
+    ClaveIdempotencia:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: >-
+        Toda operacion con efecto la exige. La red duplica; reintentar tiene que ser
+        seguro, y la clave se valida ANTES de escribir (invariante 7).
+      schema: { type: string, format: uuid }
   schemas:
+    UsuarioEncontrado:
+      type: object
+      additionalProperties: false
+      required: [existe]
+      properties:
+        existe:    { type: boolean }
+        usuarioId: { type: [string, 'null'], format: uuid }
+    EntradaTokenDeInvitacion:
+      type: object
+      additionalProperties: false
+      required: [canal, destinoEnmascarado]
+      properties:
+        canal: { type: string, enum: [ENLACE, SMS, WHATSAPP, CORREO] }
+        destinoEnmascarado:
+          type: string
+          maxLength: 60
+          description: >-
+            El destino YA enmascarado. Sin enmascarar seria un telefono en claro
+            viajando entre servicios y quedando en cada log del camino.
+    SalidaTokenDeInvitacion:
+      type: object
+      additionalProperties: false
+      required: [tokenId, token, expiraEn]
+      properties:
+        tokenId:  { type: string, format: uuid }
+        token:    { type: string }
+        expiraEn: { type: string, format: date-time }
+    EntradaTitularidad:
+      type: object
+      additionalProperties: false
+      required: [nombreCompleto, documento]
+      properties:
+        nombreCompleto: { type: string, minLength: 3, maxLength: 120 }
+        documento:      { type: string, minLength: 5, maxLength: 30 }
+    SalidaTitularidad:
+      type: object
+      additionalProperties: false
+      required: [coincide]
+      properties:
+        coincide: { type: boolean }
     Dinero:
       type: object
       additionalProperties: false
@@ -53,9 +381,181 @@ components:
         mensaje:  { type: string }
         detalle:  { type: object }
         trazaId:  { type: string }
+    FactorPresentado:
+      type: object
+      additionalProperties: false
+      required: [tipo, valor]
+      properties:
+        tipo:  { type: string, enum: [OTP, BIOMETRIA, TOTP] }
+        valor: { type: string, maxLength: 12 }
+    EntradaAutenticacion:
+      type: object
+      additionalProperties: false
+      required: [telefonoE164, huellaDispositivo]
+      properties:
+        telefonoE164:      { type: string, pattern: '^\+591\d{8}$' }
+        credencial:        { type: string, minLength: 8, maxLength: 128 }
+        huellaDispositivo: { type: string, maxLength: 128 }
+        plataforma:        { type: string, enum: [ANDROID, IOS, WEB] }
+        factor:            { $ref: '#/components/schemas/FactorPresentado' }
+    SalidaAutenticacion:
+      type: object
+      additionalProperties: false
+      required: [requiereFactorAdicional, dispositivoConfiable]
+      properties:
+        sesionId:                { type: string, format: uuid }
+        expiraEn:                { type: string, format: date-time }
+        requiereFactorAdicional: { type: boolean }
+        dispositivoConfiable:    { type: boolean }
+        tokenAcceso:
+          type: string
+          description: >-
+            El JWT firmado con RS256 que los otros trece servicios validan contra el
+            JWKS de identidad (ADR-024). Ausente cuando la respuesta pide un segundo
+            factor: recien se emite con la sesion abierta.
+    ExpedienteEnRevision:
+      type: object
+      additionalProperties: false
+      required: [verificacionId, usuarioId, nombreCompleto, estado, iniciadaEn, fotos]
+      properties:
+        verificacionId: { type: string, format: uuid }
+        usuarioId:      { type: string, format: uuid }
+        nombreCompleto: { type: string }
+        documento:      { type: string, description: 'Tipo y lugar de expedicion; el numero NUNCA viaja.' }
+        estado:         { type: string, enum: [PENDIENTE, EN_REVISION, APROBADA, RECHAZADA] }
+        iniciadaEn:     { type: string, format: date-time }
+        resueltaEn:     { type: string, format: date-time }
+        motivoRechazo:  { type: string }
+        fotos:
+          type: array
+          description: Que caras tiene cargadas. Un expediente sin las tres no se puede aprobar.
+          items: { type: string, enum: [ANVERSO, REVERSO, SELFIE] }
+    EnlaceDeFoto:
+      type: object
+      additionalProperties: false
+      required: [url, vigenteHasta]
+      properties:
+        url:          { type: string }
+        vigenteHasta: { type: string, format: date-time }
+    DecisionDeVerificacion:
+      type: object
+      additionalProperties: false
+      required: [decision]
+      properties:
+        decision: { type: string, enum: [APROBAR, RECHAZAR] }
+        motivo:   { type: string, maxLength: 160, description: 'Obligatorio al rechazar.' }
+    ArchivoDelExpediente:
+      type: object
+      additionalProperties: false
+      required: [cara, claveObjeto, hashArchivo]
+      description: >-
+        Lo que queda del archivo: donde esta y como comprobar que es el mismo. Nunca
+        una URL publica — el binario lo entrega el servicio, con sesion y permisos.
+      properties:
+        cara:        { type: string, enum: [ANVERSO, REVERSO, SELFIE] }
+        claveObjeto: { type: string, example: 's3://identidad/2026/09/9f2c1e4a.jpg' }
+        hashArchivo: { type: string, minLength: 64, maxLength: 64 }
+        tipoMime:    { type: string }
+        bytes:       { type: integer, format: int64 }
+    Documento:
+      type: object
+      additionalProperties: false
+      required: [tipo, numero]
+      description: >-
+        El numero de la cedula boliviana NO es unico por si solo: se repite entre
+        departamentos, y lo que lo desambigua es el lugar de expedicion. Sin el, la
+        segunda persona con el mismo numero —de otro departamento— chocaba contra la
+        unicidad del documento y no podia abrir cuenta.
+      properties:
+        tipo:   { type: string, enum: [CI, CEX, PASAPORTE] }
+        numero: { type: string, minLength: 5, maxLength: 20 }
+        lugarExpedicion:
+          type: string
+          enum: [LP, SC, CB, OR, PT, TJ, CH, BE, PD]
+          description: >-
+            La extension del carnet: el departamento que lo emitio. Obligatoria para
+            `CI` —el servicio la exige— y sin sentido para un pasaporte, que ya es
+            unico por numero. No se declara `required` aca porque depende del tipo.
+    EntradaRegistro:
+      type: object
+      additionalProperties: false      # strict(): lista blanca, no lista negra
+      required: [telefonoE164, nombres, apellidos, fechaNacimiento, documento, aceptaContratos, contrasena]
+      properties:
+        telefonoE164:    { type: string, pattern: '^\+591\d{8}$' }
+        nombres:         { type: string, minLength: 2, maxLength: 60 }
+        apellidos:       { type: string, minLength: 2, maxLength: 60 }
+        fechaNacimiento: { type: string, format: date }
+        contrasena:
+          type: string
+          format: password
+          writeOnly: true
+          minLength: 8
+          maxLength: 128
+          description: >-
+            La clave con la que se va a ingresar. Es obligatoria: el alta no creaba
+            credencial y despues no habia con que entrar — se completaban los ocho
+            pasos y el formulario de ingreso pedia una contrasena que nunca se eligio.
+            El minimo de ocho es el de `PoliticaDeClave`; el resto de la politica
+            —no derivada del telefono ni del documento— la aplica el servicio, que es
+            el unico que puede.
+        correo:
+          type: string
+          format: email
+          maxLength: 150
+          description: >-
+            Opcional en el contrato y pedido por la app. Una billetera manda extractos
+            y comprobantes, y ese es su destino; ademas es lo que permite elegir el
+            correo como canal de verificacion en vez del SMS.
+        canalVerificacion:
+          type: string
+          enum: [SMS, CORREO]
+          # Sin `default`: el generador de Dart lo traduce a instanciar un enum, que
+          # no es Dart valido y rompe el cliente. La ausencia la resuelve el servicio,
+          # que trata `null` como SMS — y asi hay un solo lugar que decide.
+          description: >-
+            Por donde quiere recibir la verificacion quien se registra. No son dos
+            formas de lo mismo: `SMS` verifica el TELEFONO y `CORREO` verifica el
+            CORREO —dos propositos distintos del catalogo de tokens, con su propia
+            vigencia y sus propios canales permitidos—. Elegir `CORREO` exige `correo`.
+        documento:       { $ref: '#/components/schemas/Documento' }
+        aceptaContratos:
+          type: array
+          minItems: 1
+          items: { type: string, format: uuid }
+    LimiteAplicable:
+      type: object
+      additionalProperties: false
+      required: [concepto, ventana, monto]
+      properties:
+        concepto: { type: string }
+        ventana:  { type: string }
+        monto:    { $ref: '#/components/schemas/Dinero' }
+    SalidaRegistro:
+      type: object
+      additionalProperties: false
+      # Solo `usuarioId` y `estado` son obligatorios: son lo unico que existe al
+      # responder. La cuenta y sus topes llegan cuando `nucleo-financiero` termina.
+      required: [usuarioId, estado]
+      properties:
+        usuarioId: { type: string, format: uuid }
+        estado:
+          type: string
+          enum: [PENDIENTE_VERIFICACION, ACTIVO]
+        cuentaBilleteraId: { type: string, format: uuid }
+        nivelDiligencia:
+          type: string
+          enum: [SIMPLIFICADA, ESTANDAR, AMPLIADA, REFORZADA]
+        limites:
+          type: array
+          items: { $ref: '#/components/schemas/LimiteAplicable' }
   responses:
     ReglaDeNegocio:
       description: Regla de negocio de la aplicacion (422, no 400)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NoAutenticado:
+      description: Sin sesion valida
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }

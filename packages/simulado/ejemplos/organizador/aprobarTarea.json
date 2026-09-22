@@ -1,0 +1,62 @@
+{
+  "servicio": "organizador",
+  "operacion": "aprobarTarea",
+  "metodo": "post",
+  "ruta": "/automatizacion/tareas/{tareaId}/aprobacion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "tareaId": "f374e9bb-1ecc-457f-8124-7633c12415f3",
+        "estado": "PROGRAMADA",
+        "claveIdempotencia": "claveIdempotencia",
+        "esNueva": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "tareaId": "f374e9bb-1ecc-457f-8124-7633c12415f3",
+        "estado": "PROGRAMADA",
+        "claveIdempotencia": "claveIdempotencia",
+        "esNueva": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "tareaId": "f374e9bb-1ecc-457f-8124-7633c12415f3",
+        "estado": "PROGRAMADA",
+        "claveIdempotencia": "claveIdempotencia",
+        "esNueva": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "tareaId": "f374e9bb-1ecc-457f-8124-7633c12415f3",
+        "estado": "PROGRAMADA",
+        "claveIdempotencia": "claveIdempotencia",
+        "esNueva": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

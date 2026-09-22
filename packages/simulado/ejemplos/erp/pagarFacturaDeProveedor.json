@@ -1,0 +1,70 @@
+{
+  "servicio": "erp",
+  "operacion": "pagarFacturaDeProveedor",
+  "metodo": "post",
+  "ruta": "/erp/facturas-de-proveedor/{facturaId}/pagos",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "facturaProveedorId": "35e79505-a7b7-4a39-86da-fd0c4dd9f4f3",
+        "estado": "REGISTRADA",
+        "monto": "4.44",
+        "montoPagado": "4.44",
+        "saldoPendiente": "4.44",
+        "asientoContableId": "4adbdfaa-f447-498c-8416-3d9da3f23d93"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "facturaProveedorId": "35e79505-a7b7-4a39-86da-fd0c4dd9f4f3",
+        "estado": "REGISTRADA",
+        "monto": "0.00",
+        "montoPagado": "0.00",
+        "saldoPendiente": "0.00",
+        "asientoContableId": "4adbdfaa-f447-498c-8416-3d9da3f23d93"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "facturaProveedorId": "35e79505-a7b7-4a39-86da-fd0c4dd9f4f3",
+        "estado": "REGISTRADA",
+        "monto": "4.44",
+        "montoPagado": "4.44",
+        "saldoPendiente": "4.44",
+        "asientoContableId": "4adbdfaa-f447-498c-8416-3d9da3f23d93"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "facturaProveedorId": "35e79505-a7b7-4a39-86da-fd0c4dd9f4f3",
+        "estado": "REGISTRADA",
+        "monto": "4.44",
+        "montoPagado": "4.44",
+        "saldoPendiente": "4.44",
+        "asientoContableId": "4adbdfaa-f447-498c-8416-3d9da3f23d93"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

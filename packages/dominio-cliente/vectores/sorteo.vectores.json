@@ -1,0 +1,146 @@
+[
+  {
+    "semilla": "semilla-real",
+    "entropias": [
+      "ana-7",
+      "beto-13",
+      "carla-42"
+    ],
+    "hashComprometido": "bfb8a0042ebe1c3e9d23188892a10518880789d26d7cf3e01f73439e0d1cc1d2",
+    "cupos": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "ordenEsperado": [
+      4,
+      12,
+      2,
+      9,
+      8,
+      11,
+      3,
+      1,
+      7,
+      6,
+      5,
+      10
+    ]
+  },
+  {
+    "semilla": "semilla-a",
+    "entropias": [
+      "ana-7",
+      "beto-13",
+      "carla-42"
+    ],
+    "hashComprometido": "c30c7dd2bcfdc7149d81a831934780c48999b983799d059f31dc7a43dbf670ae",
+    "cupos": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "ordenEsperado": [
+      5,
+      12,
+      2,
+      7,
+      3,
+      8,
+      9,
+      6,
+      10,
+      4,
+      11,
+      1
+    ]
+  },
+  {
+    "semilla": "semilla-b",
+    "entropias": [
+      "ana-7",
+      "beto-13",
+      "carla-42"
+    ],
+    "hashComprometido": "f3ef90ce9828567c8baad0335eb0f39df5aee35935bbf932574872115282c2e3",
+    "cupos": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "ordenEsperado": [
+      10,
+      1,
+      9,
+      12,
+      2,
+      8,
+      4,
+      11,
+      7,
+      3,
+      6,
+      5
+    ]
+  },
+  {
+    "semilla": "semilla-sin-entropias",
+    "entropias": [],
+    "hashComprometido": "0ef9df706b95255d8a322fee607276a3655d69548c829ea836d21af7ea741df9",
+    "cupos": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "ordenEsperado": [
+      2,
+      11,
+      10,
+      5,
+      6,
+      7,
+      8,
+      12,
+      1,
+      9,
+      3,
+      4
+    ]
+  }
+]

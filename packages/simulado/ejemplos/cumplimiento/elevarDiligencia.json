@@ -1,0 +1,86 @@
+{
+  "servicio": "cumplimiento",
+  "operacion": "elevarDiligencia",
+  "metodo": "post",
+  "ruta": "/cumplimiento/usuarios/{usuarioId}/diligencia",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "diligenciaId": "4a2b0be5-cbf8-4ea5-87e2-c1ac01623fa8",
+        "estado": "EN_PROCESO",
+        "faltantes": [
+          "faltantes[0]"
+        ],
+        "limitesNuevos": [
+          {
+            "concepto": "concepto",
+            "monto": "\\d\\O\\dd",
+            "ventana": "ventana"
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "diligenciaId": "4a2b0be5-cbf8-4ea5-87e2-c1ac01623fa8",
+        "estado": "EN_PROCESO",
+        "faltantes": [],
+        "limitesNuevos": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "diligenciaId": "4a2b0be5-cbf8-4ea5-87e2-c1ac01623fa8",
+        "estado": "EN_PROCESO",
+        "faltantes": [
+          "faltantes[0]"
+        ],
+        "limitesNuevos": [
+          {
+            "concepto": "concepto",
+            "monto": "\\d\\O\\dd",
+            "ventana": "ventana"
+          }
+        ]
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "diligenciaId": "4a2b0be5-cbf8-4ea5-87e2-c1ac01623fa8",
+        "estado": "EN_PROCESO",
+        "faltantes": [
+          "faltantes[0]"
+        ],
+        "limitesNuevos": [
+          {
+            "concepto": "concepto",
+            "monto": "\\d\\O\\dd",
+            "ventana": "ventana"
+          }
+        ]
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

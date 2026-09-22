@@ -2,6 +2,12 @@
 -- GENERADO desde docs/Restricciones.md — no editar a mano.
 -- Se ejecutan en cada despliegue y en el control diario,
 -- no forman parte de sql/aplicar.sql.
+--
+-- El search_path va ACA y no se hereda: estas consultas nombran las tablas sin
+-- su esquema, y corren en su propia sesion de psql. Sin esta linea fallan con
+-- «relation "transaccion_billetera" does not exist» en cualquier base que no
+-- traiga el search_path puesto por ALTER DATABASE — el CI, por ejemplo.
+SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, grupos, identidad, notificaciones, nucleo_financiero, organizador, publicidad, tarifas, transparencia, catalogo, comun, public;
 
 -- 1) Transacciones descuadradas
 SELECT t.id FROM transaccion_billetera t
@@ -78,10 +84,33 @@ SELECT t.id, t.moneda, c.moneda AS moneda_cuenta
  WHERE c.moneda <> t.moneda;
 
 -- 11) R-SEG-03 · tablas con datos de titular sin RLS forzada
-SELECT c.relname FROM pg_class c
+--     Recorre todos los esquemas de servicio. Filtraba por `public`, igual que la
+--     funcion que aplica RLS, asi que devolvia cero filas SIEMPRE: la verificacion
+--     que debia denunciar el agujero lo estaba tapando.
+SELECT n.nspname || '.' || c.relname FROM pg_class c
   JOIN pg_namespace n ON n.oid = c.relnamespace
- WHERE n.nspname = 'public' AND c.relkind = 'r'
+ WHERE n.nspname NOT IN ('pg_catalog','information_schema','pg_toast')
+   AND n.nspname NOT LIKE 'pg_temp%'
+   AND c.relkind = 'r'
    AND EXISTS (SELECT 1 FROM pg_attribute a
                 WHERE a.attrelid = c.oid AND a.attname = 'usuario_id'
                   AND NOT a.attisdropped)
    AND NOT c.relrowsecurity;
+
+-- 12) R-CTB-09 · saldo contable en caché que no coincide con el mayor
+--     El equivalente contable de la consulta 2: el saldo es caché, el libro es la
+--     verdad, y si difieren gana el libro y hay que explicar por qué.
+SELECT c.id, c.codigo, c.saldo AS cacheado, COALESCE(l.derivado, 0) AS derivado
+  FROM cuenta_contable c
+  LEFT JOIN LATERAL (
+        SELECT SUM(CASE WHEN c.naturaleza = 'DEUDORA' THEN m.debe - m.haber
+                        ELSE m.haber - m.debe END) AS derivado
+          FROM movimiento_contable m WHERE m.cuenta_id = c.id) l ON TRUE
+ WHERE c.saldo <> COALESCE(l.derivado, 0);
+
+-- 13) R-AUD-11 · asientos donde el estado y el enlace de reversa se contradicen
+--     La restricción lo impide al insertar; esta consulta detecta lo que hubiera
+--     entrado antes de que existiera.
+SELECT id, numero, estado, asiento_reversa_id
+  FROM asiento_contable
+ WHERE (estado = 'REVERSADO') <> (asiento_reversa_id IS NOT NULL);

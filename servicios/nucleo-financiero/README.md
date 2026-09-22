@@ -17,13 +17,45 @@ Modulo 10 de la boveda — Billetera, Custodia y Dinero Electrónico.
 
 | CU | Nombre | Estado |
 | --- | --- | --- |
-| | *(los llena `nuevo_cu.py`)* | |
+| [CU-24](../../docs/CasosDeUso/CU-24%20Registrar%20el%20asiento%20contable%20de%20una%20operación.md) | Registrar el asiento contable de una operación | **Implementado** (carril 1B) |
+| CU-40 | Evaluar límites antes de una operación | **Implementado** (carril 2A) |
+| CU-13 | Retener y liberar saldo | **Implementado** (carril 2A) |
+| CU-10 | Recargar saldo | **Implementado** (carril 2A) |
+| CU-11 | Retirar saldo | **Implementado** (carril 2A) |
+| CU-12 | Transferir saldo entre billeteras | **Implementado** (carril 2A) |
+| CU-14 | Reversar una transacción | **Implementado** (carril 2A) |
+| CU-15 | Emitir extracto y certificado de saldo | **Implementado** (carril 2A) |
+| CU-16 | Cerrar billetera y devolver saldo | **Implementado** (carril 2A) |
+| CU-17 | Bloquear saldo por orden de autoridad | **Implementado** (carril 2A) |
+| CU-50 | Conciliar la custodia y verificar el encaje | **Implementado** (carril 2A) |
+| CU-51 | Ejecutar el cierre diario | **Implementado** (carril 3A, mudado desde `aportes`) |
+| CU-57 | Operar un punto de atención | **Obsoleto**, número reservado (ADR-039) |
+
+**CU-40 vive acá y no en `cumplimiento`**, aunque planes/07 lo asigne al carril 1C:
+su tabla central `consumo_limite` está en este esquema, y su propia descomposición
+dice «se ejecuta dentro de la transacción de la operación» — que es esta.
+
+**CU-57 no se implementa.** [[ADR-039]] retiró el efectivo del alcance el 20-08-2026;
+el único ingreso de fondos es electrónico.
+
+**CU-24 no tiene endpoint.** Lo invoca otro caso de uso —el que registra el hecho
+económico— pasándole el `DSLContext` de **su** transacción, que es lo que hace que el
+débito y su asiento confirmen juntos (invariante 12). Quien lo llame:
+
+```java
+// dentro del @Transactional + conContexto del organismo que mueve el dinero
+cu24.ejecutar(dsl, new EntradaAsiento(OrigenAsiento.PAGO, pagoId, partidas, glosa), ctx);
+```
+
+Y para corregir, nunca editar: `cu24.reversar(dsl, asientoId, motivo, ctx)` crea el
+asiento inverso enlazado por `asiento_reversa_id` (R-AUD-06).
 
 ## Eventos que emite
 
 | Tema | Cuando |
 | --- | --- |
-| | |
+| `aportaya.nucleo_financiero.asiento_registrado` | Se confirmó un asiento cuadrado (CU-24) |
+| `aportaya.nucleo_financiero.asiento_reversado` | Se corrigió un asiento con su inverso (CU-24) |
 
 ## Eventos que consume
 

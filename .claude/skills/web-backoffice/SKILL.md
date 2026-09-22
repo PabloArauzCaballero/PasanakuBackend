@@ -1,6 +1,6 @@
 ---
 name: web-backoffice
-description: "Construir el backoffice web de AportaYa con React, Vite, TanStack Router y TanStack Query: composición atómica, tablas densas con filtros y exportación, pantallas de cumplimiento con plazos y evidencia, permisos y estados obligatorios. Úsala al crear o modificar cualquier pantalla de apps/backoffice."
+description: "El comportamiento del backoffice web de AportaYa, en Angular: tablas densas paginadas del servidor con estado en la URL y exportación auditada, pantallas de cumplimiento con plazos y evidencia, segregación de funciones visible, permisos que ocultan pero no protegen, y estados obligatorios. Úsala al crear o modificar cualquier pantalla de apps/backoffice, junto con web-angular, que manda la forma del código."
 ---
 
 # Backoffice web
@@ -9,23 +9,27 @@ Sus usuarios son el **oficial de cumplimiento, soporte y contabilidad**: gente
 experta, jornada completa, pantallas densas, decisiones con consecuencia legal. No es
 la app estirada.
 
-El diseño visual lo manda `disenar-frontend`; esta skill manda la estructura
-y el comportamiento.
+El diseño visual lo manda `disenar-frontend`; la **forma del código Angular** la manda
+`web-angular`; esta skill manda **el comportamiento del producto**: qué tiene que poder
+hacer un operador y qué no puede pasar nunca. Stack: [[ADR-044 Frontend en Angular y Flutter]].
 
 ## Estructura
 
 ```
-apps/backoffice/src/
-├── atomos/       Boton, Campo, Monto, ChipEstado, Badge
-├── moleculas/    FiltroDeRango, FilaDeAlerta, CeldaDeMonto, useAlertas
-├── organismos/   TablaDeAlertas, PanelDeReclamo, FormularioDeReporte
-├── pantallas/    ruta + composición, sin lógica
-├── dominio/      un cliente por caso de uso, tipado desde openapi/ del servicio
-└── tokens/       único lugar con valores literales de diseño
+apps/backoffice/src/app/
+├── nucleo/                  interceptores, sesión con rol y permisos, registro de acceso — del shell (F6)
+├── layout/                  shell financiero y shell de sistemas — del shell (F6)
+├── app.routes.ts            un `loadChildren` por dominio — del shell, congelado
+└── rutas/<dominio>/         operacion · cumplimiento · sistemas · contabilidad · publicidad
+    ├── <dominio>.routes.ts  las rutas del carril, con guardias `canMatch` por permiso
+    ├── dominio/             un archivo por caso de uso sobre clientes/angular (httpResource / mutaciones)
+    ├── textos.ts            textos del dominio, en voz de marca
+    └── <pagina>/            un componente por página: compone organismos de @aportaya/ui, sin lógica
 ```
 
-TanStack Router para rutas tipadas, TanStack Query para estado de servidor. Ningún
-componente hace `fetch`.
+Angular Router con carga perezosa por dominio; `httpResource` y señales para el estado
+de servidor; `TablaDeDatos` de `@aportaya/ui` sobre el CDK. Ningún componente inyecta
+`HttpClient`.
 
 ## Tablas: el organismo central
 
@@ -75,7 +79,8 @@ devolvió nada" son mensajes distintos y se distinguen.
 
 ## Formularios
 
-- Validación con los **tipos generados desde el OpenAPI del servicio**; nunca reglas reescritas a mano.
+- Signal Forms con los **tipos generados desde el OpenAPI del servicio** y validadores
+  derivados del contrato; nunca reglas reescritas a mano.
 - Errores por campo, en el campo, diciendo cómo corregir.
 - Clave de idempotencia en toda operación con efecto.
 - Los formularios largos (reportes, expedientes) guardan borrador local para no
@@ -99,5 +104,9 @@ devolvió nada" son mensajes distintos y se distinguen.
 
 ## Ver también
 
-`errores-api` · `observabilidad` · `glosario-dominio` · `disenar-frontend` · `arquitectura-atomica` · `contratos-api` · `revision-codigo` ·
-`docs/Arquitectura/ADR-004 Frontend.md` · `docs/Arquitectura/Prompts/Prompt de frontend.md`
+`web-angular` · `errores-api` · `observabilidad` · `glosario-dominio` · `disenar-frontend` · `arquitectura-atomica` · `contratos-api` · `revision-codigo` ·
+`seguridad-aplicacion` · [[Seguridad]] ·
+[[ADR-038 Acceso administrativo · segundo factor y recuperación asistida]] — el acceso al backoffice
+(ingreso, desafío TOTP, enrolamiento, recuperación, aprobaciones) está en
+[[Flujo de pantallas · backoffice administrador]] §2.0 ·
+[[ADR-044 Frontend en Angular y Flutter]] · `docs/Arquitectura/Prompts/Prompt de frontend.md`

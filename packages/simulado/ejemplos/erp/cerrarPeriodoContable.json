@@ -1,0 +1,70 @@
+{
+  "servicio": "erp",
+  "operacion": "cerrarPeriodoContable",
+  "metodo": "post",
+  "ruta": "/erp/periodos/{periodoId}/cierre",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "cierreId": "1f66a094-b362-4e64-853f-b3110d2c90ef",
+        "periodoId": "6ba86e52-9a88-4126-8edf-108c0630ef78",
+        "totalDebe": "4.44",
+        "totalHaber": "4.44",
+        "cerradoEn": "2026-01-15T10:30:00Z",
+        "ejercicioCerrado": true
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "cierreId": "1f66a094-b362-4e64-853f-b3110d2c90ef",
+        "periodoId": "6ba86e52-9a88-4126-8edf-108c0630ef78",
+        "totalDebe": "0.00",
+        "totalHaber": "0.00",
+        "cerradoEn": "2026-01-15T10:30:00Z",
+        "ejercicioCerrado": false
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "cierreId": "1f66a094-b362-4e64-853f-b3110d2c90ef",
+        "periodoId": "6ba86e52-9a88-4126-8edf-108c0630ef78",
+        "totalDebe": "4.44",
+        "totalHaber": "4.44",
+        "cerradoEn": "2026-01-15T10:30:00Z",
+        "ejercicioCerrado": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "cierreId": "1f66a094-b362-4e64-853f-b3110d2c90ef",
+        "periodoId": "6ba86e52-9a88-4126-8edf-108c0630ef78",
+        "totalDebe": "4.44",
+        "totalHaber": "4.44",
+        "cerradoEn": "2026-01-15T10:30:00Z",
+        "ejercicioCerrado": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

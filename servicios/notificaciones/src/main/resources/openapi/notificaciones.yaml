@@ -5,6 +5,9 @@
 # Prefijos reservados de este servicio: /notificaciones
 #   Una ruta fuera de ellos es un rechazo automatico, no una discusion de diseno.
 #   Toda ruta exige sesion: 401 sin token, 403 con rol insuficiente.
+#
+# BORRADOR DE LA FASE 0 (planes/01 §0.8). El carril dueno lo amplia; NO puede
+# romperlo sin avisar, y la prueba de contrato falla en el CI del que rompe.
 openapi: 3.1.0
 info:
   title: notificaciones
@@ -16,23 +19,154 @@ info:
 servers:
   - url: /api/v1
 
-paths: {}
-  # Una operacion por caso de uso. Plantilla:
+paths:
+  /notificaciones:
+    post:
+      operationId: emitirNotificacion
+      summary: Emite un aviso por los canales habilitados del destinatario
+      description: >-
+        Los canales por defecto son IN_APP, PUSH y CORREO (ADR-035). WhatsApp, SMS
+        y voz estan APAGADOS: no se usan en un flujo nuevo. El servicio decide el
+        canal segun consentimiento y supresion; el emisor no lo elige.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaNotificacion' }
+      responses:
+        '202':
+          description: Aceptada para envio
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaNotificacion' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /notificaciones/webhooks/{proveedor}:
+    post:
+      operationId: procesarRespuestaEntrante   # CU-82
+      summary: Procesar una respuesta entrante
+      description: >-
+        La unica puerta que abre alguien de afuera. Verifica la firma ANTES de
+        tocar la base, y no revela nada: un remitente desconocido recibe la misma
+        respuesta que un mensaje duplicado. Contestar «ese numero no existe»
+        convertiria este webhook en un directorio de clientes.
+      parameters:
+        - name: proveedor
+          in: path
+          required: true
+          schema: { type: string, maxLength: 40 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaRespuesta' }
+      responses:
+        '200':
+          description: Respuesta clasificada y accion despachada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaRespuesta' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU82-01 FIRMA_INVALIDA - AP-CU82-02 REMITENTE_DESCONOCIDO
+          # AP-CU82-03 MENSAJE_DUPLICADO
+
+  # Los otros tres casos de uso del carril NO tienen endpoint, y es a proposito:
   #
-  #   /notificaciones/…:
-  #     post:
-  #       operationId: <verboObjeto>          # CU-NN
-  #       parameters:
-  #         - name: Idempotency-Key
-  #           in: header
-  #           required: true                   # toda operacion con efecto
-  #           schema: { type: string, format: uuid }
-  #       responses:
-  #         '200': …
-  #         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+  #   CU-80 Despachar una notificacion — solo por evento de dominio. Dispararlo por
+  #         API seria una puerta para mandar mensajes a nombre de la entidad sin que
+  #         ningun hecho del dominio lo respalde. La ruta POST /notificaciones de
+  #         arriba viene de la Ola 0 y NO es CU-80: recibe un pedido y emite el
+  #         evento; el despacho lo hace el consumidor.
+  #         AP-CU80-01 SIN_PLANTILLA_APROBADA - AP-CU80-02 CANAL_NO_VERIFICADO
+  #         AP-CU80-03 DESTINATARIO_SUPRIMIDO - AP-CU80-04 EVENTO_RESERVADO
+  #
+  #   CU-81 Programar recordatorios — trabajo diario del planificador.
+  #         AP-CU81-01 PERIODO_NO_ABIERTO - AP-CU81-02 SIN_PROGRAMACION
+  #
+  #   CU-83 Enrutar el envio — trabajador de cola, con SKIP LOCKED entre replicas.
+  #         AP-CU83-01 SIN_PROVEEDOR_PARA_CANAL - AP-CU83-02 ENVIO_YA_PROCESADO
+  #         AP-CU83-03 RITMO_EXCEDIDO           - AP-CU83-04 PROVEEDOR_DEGRADADO
+  #         AP-CU83-05 AGOTADOS_LOS_REINTENTOS
+  #
+  # Sus codigos quedan declarados igual: el catalogo de errores es del contrato, no
+  # del transporte.
+
+  /notificaciones/supresion:
+    get:
+      operationId: consultarSupresion
+      summary: Si un destino pidio no recibir mas
+      description: >-
+        La pregunta CU-69 de `grupos` antes de invitar: a quien se dio de baja no se le
+        escribe, aunque quien invita no lo sepa. La lista de supresion es de este
+        servicio y nadie mas la puede leer (invariante 11).
+
+        Se mira en los tres canales encendidos y alcanza con que uno este suprimido:
+        quien pidio no recibir por el canal que usariamos, pidio no recibir.
+      parameters:
+        - name: identificador
+          in: query
+          required: true
+          schema: { type: string, maxLength: 120 }
+        - name: categoria
+          in: query
+          required: true
+          schema: { type: string, maxLength: 40 }
+      responses:
+        '200':
+          description: Si esta suprimido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Supresion' }
 
 components:
+  parameters:
+    ClaveIdempotencia:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: >-
+        Toda operacion con efecto la exige. La red duplica; reintentar tiene que ser
+        seguro, y la clave se valida ANTES de escribir (invariante 7).
+      schema: { type: string, format: uuid }
   schemas:
+    Supresion:
+      type: object
+      additionalProperties: false
+      required: [suprimido]
+      properties:
+        suprimido: { type: boolean }
+    EntradaRespuesta:
+      type: object
+      additionalProperties: false
+      required: [remitente, firma, cargaUtil, claveIdempotencia]
+      properties:
+        canal:      { type: string, enum: [IN_APP, CORREO, PUSH, WHATSAPP, SMS, LLAMADA_VOZ] }
+        remitente:  { type: string, maxLength: 200 }
+        firma:      { type: string }
+        cargaUtil:  { type: string }
+        contenido:  { type: string }
+        claveIdempotencia: { type: string, maxLength: 120 }
+        notificacionRelacionadaId: { type: string, format: uuid }
+    SalidaRespuesta:
+      type: object
+      additionalProperties: false
+      required: [intencion, accion]
+      properties:
+        respuestaId: { type: string, format: uuid, nullable: true }
+        intencion:
+          type: string
+          enum: [YA_PAGUE, NO_PUEDO, BAJA, CONSULTA, NO_RECONOZCO, DESCONOCIDA]
+        accion:
+          type: string
+          enum: [PAGO_CONFIRMADO, COMPROBANTE_SOLICITADO, PROMESA_REGISTRADA,
+                 SUPRESION_APLICADA, RECLAMO_ABIERTO, TICKET_ABIERTO]
+        referenciaId: { type: string, format: uuid, nullable: true }
     Dinero:
       type: object
       additionalProperties: false
@@ -53,9 +187,35 @@ components:
         mensaje:  { type: string }
         detalle:  { type: object }
         trazaId:  { type: string }
+    EntradaNotificacion:
+      type: object
+      additionalProperties: false
+      required: [destinatarioId, evento, datos]
+      properties:
+        destinatarioId: { type: string, format: uuid }
+        evento:
+          type: string
+          description: Codigo de evento_notificable; la plantilla la resuelve el servicio
+        datos:
+          type: object
+          description: Variables de la plantilla, ya resueltas por el emisor
+    SalidaNotificacion:
+      type: object
+      additionalProperties: false
+      required: [notificacionId, canales]
+      properties:
+        notificacionId: { type: string, format: uuid }
+        canales:
+          type: array
+          items: { type: string, enum: [IN_APP, PUSH, CORREO] }
   responses:
     ReglaDeNegocio:
       description: Regla de negocio de la aplicacion (422, no 400)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NoAutenticado:
+      description: Sin sesion valida
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }

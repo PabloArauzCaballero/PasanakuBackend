@@ -21,20 +21,26 @@ Sistema de diseño atómico para la app **móvil** y la **web** de AportaYa. Est
 
 | # | Archivo canónico | Qué es |
 |---|---|---|
-| 1 | `apps/movil/src/tokens/tokens.ts` | **Tokens** (color/espacio/tipografía/tema). Copiá de acá; jamás un hex suelto. |
-| 2 | `apps/movil/src/atomos/*` | **Átomos de referencia** ya implementados (Boton, Campo, Monto, ChipEstado, TecladoNumerico, Avatar). Imitá su forma para piezas nuevas. |
-| 3 | `apps/movil/src/moleculas/*` y `organismos/*` y `pantallas/*` | **Ejemplo vertical completo** (CampoMonto, FilaAporte, TarjetaSaldo → FormularioAporte → PantallaInicio). El patrón de composición a seguir. |
-| 4 | `docs/Views/Sistema-Diseno/` | **Catálogo visual** por nivel (HTML navegable + notas .md) con todos los hex. |
+| 1 | `packages/tokens/tokens.json` → `generado/tokens.css` · `generado/tokens.dart` | **Tokens** (color/espacio/radio/borde/tipografía/tema), la única fuente. En Dart: `Paleta`, `Espacio`, `Radios`, `Borde`, `Fuente`, `Tactil` y `Tokens.of(context)`; en CSS: `var(--…)`. Jamás un hex, un `px` ni un `Color(0x…)` suelto. Verificados contra `docs/Views/Sistema-Diseno/estilos.css` por prueba |
+| 2 | `packages/diseno_flutter/lib/{atomos,moleculas,organismos,moviles}/` | **Sistema de diseño de la app** (Flutter, paquete `aportaya_diseno`). Imitá la forma de `Boton`, `Campo`, `Monto`, `ChipEstado`, `TecladoNumerico` para piezas nuevas |
+| 3 | `packages/ui/src/<componente>/<componente>.ts` | **Sistema de diseño web** (biblioteca Angular `@aportaya/ui`, una entrada secundaria por componente). Mismos nombres que en Flutter |
+| 4 | `docs/Views/AportaYa-Maqueta.html` + `planes/22 Mapa de la maqueta · pantalla, carril y mundo.md` | **La maqueta es el criterio de aceptación visual.** Cada pantalla se compara contra la suya, en los dos escenarios, y el mapa dice en qué mundo y carril va |
+| 5 | `docs/Views/Sistema-Diseno/` | **Catálogo visual** por nivel (HTML navegable + notas .md) con todos los hex |
+| 6 | `planes/20 Maqueta de referencia · deltas del frontend.md` §2 | Las piezas que la maqueta sumó al inventario, y las cuatro reglas de estilo que fijó |
+
+**Stack:** Flutter para la app, Angular para el backoffice y el sitio
+([[ADR-044 Frontend en Angular y Flutter]]). La estructura del código la mandan
+`movil-flutter` y `web-angular`; el comportamiento del backoffice, `web-backoffice`. Esta
+skill manda **lo visual**, y lo visual es uno solo para los dos mundos.
 
 ### Flujo de trabajo (siempre)
 1. **Declará la descomposición** (átomos/moléculas/organismos) ANTES de escribir — ver skill `arquitectura-atomica`.
-2. **Reusá** tokens y átomos existentes. No dupliques hasta el 3er uso.
-3. **Un archivo = una pieza**, nombre = pieza, < 150 líneas.
-4. Consumí color/espacio vía `usarTema()`/`espacio`/`radio`; **cero literales**.
-5. Dinero: usá el átomo `Monto` (nunca recalcules importes en el cliente).
-6. Pasá el **checklist** (sección 6) antes de cerrar.
-
-> La web (backoffice/React) usa los MISMOS tokens y nombres; portá el CSS de `docs/Views/Sistema-Diseno/estilos.css` o los valores de `tokens.ts`.
+2. **Abrí la maqueta** en la pantalla que vas a hacer, en escenario optimista **y** adverso. Anotá qué reproducís, qué justificás distinto.
+3. **Reusá** tokens y átomos existentes. No dupliques hasta el 3er uso. Si el átomo existe en un mundo y no en el otro, es un micro-PR, no una copia local.
+4. **Un archivo = una pieza**, nombre = pieza, < 150 líneas (`build()` < 80 en Flutter).
+5. Consumí color/espacio vía `Tokens.of(context)` (Flutter) o `var(--…)` (Angular); **cero literales**.
+6. Dinero: usá el átomo `Monto` (nunca recalcules importes en el cliente). Los dos `Monto` pasan los mismos vectores.
+7. Pasá el **checklist** (sección 6) antes de cerrar, y adjuntá golden o captura **al lado** de la captura de la maqueta.
 
 ## Principio rector
 
@@ -145,8 +151,9 @@ Navbar web, **sidebar**, **formulario completo**, **tabla de datos** (toolbar co
 - **Tarjeta de saldo móvil**: encabezado verde con saldo + Recargar (naranja) / Retirar (fantasma).
 - **Onboarding**: slides con símbolo, título, texto, paginación por puntos.
 - **Estados obligatorios** (toda vista con datos remotos): `Cargando`, `EstadoVacio`, `EstadoError` (con `sinConexion`). Nunca dejes una pantalla sin su estado de carga/vacío/error.
-- **Tema**: envolvé con `ProveedorTema` (override manual + sistema); consumí siempre con `usarTema()`.
-- **Pantallas de referencia**: Home billetera, Detalle de pasanaku, Recargar/Retirar, Movimientos, Crear pasanaku.
+- **Tema**: `ThemeMode.system` con los dos `ThemeData` construidos desde `tokens.dart` (`ThemeExtension<Tokens>`); consumí siempre con `Tokens.of(context)`. Nunca `Colors.*` ni `ThemeData.light()`.
+- **Semántica**: todo átomo tocable lleva `Semantics(button: true, label: …)`; área táctil ≥ 48 dp.
+- **Pantallas de referencia**: las de `docs/Views/AportaYa-Maqueta.html`, mapeadas en `planes/22`. La portada abre con **racha, riel del turno y grupo en formación**; el saldo va en una línea arriba.
 
 ## 5 · Voz en la UI
 - ✅ "Listo, tu aporte de Bs 250 quedó guardado." ❌ "Transacción procesada exitosamente."
@@ -164,10 +171,23 @@ Navbar web, **sidebar**, **formulario completo**, **tabla de datos** (toolbar co
 - [ ] `prefers-reduced-motion` respetado.
 - [ ] Copy en voz de marca y vocabulario del `glosario-dominio` (grupo/cupo/turno/período/aporte/entrega).
 - [ ] Estados cubiertos: cargando / vacío / error / sin conexión.
-- [ ] Prueba unitaria de todo átomo con aritmética (ej: `dominio/dinero.spec.ts`).
+- [ ] Prueba unitaria de todo átomo con aritmética; `Monto` contra `packages/tokens/vectores/monto.json` en los dos mundos.
+- [ ] Golden (Flutter) o captura (Angular) al lado de la captura de la maqueta, en claro y oscuro.
+- [ ] El estado elegido de un segmentado o chip lleva **relleno de marca**, no depende de que dos fondos difieran.
+- [ ] Un color de estado en una celda chica lleva **relleno y borde**; la leyenda usa las mismas reglas.
+- [ ] El ícono de un movimiento dice **qué pasó**, no si sube o baja; los movimientos se agrupan por día.
+
+## 7 · Las piezas que la maqueta fija
+
+El inventario completo, con su nivel y **en qué mundo se implementa**, está en
+`planes/22 Mapa de la maqueta · pantalla, carril y mundo.md` §6. Las que más se olvidan:
+`SelectorSegmentado`, `ChipsDeFiltro` (en varias líneas, nunca carrusel), `ResumenDePeriodo`,
+`FilaDeMovimiento`, `RelojDePlazo`, `CalendarioDeCuotas`, `EstadoVacio` (por qué y qué hacer),
+`SeccionDeExpediente`, `BandaDeProposito` y **`EstadoDePantalla`**, que es el único que pinta
+los cuatro estados.
 
 ## Cómo usar
-1. Abrí el HTML de referencia para ver cada componente renderizado y copiar marcado/CSS.
-2. Pegá los tokens (sección 0) una sola vez.
-3. Construí de abajo hacia arriba: átomos → moléculas → organismos → pantalla (web o móvil).
+1. Abrí el HTML de referencia y **la maqueta** para ver cada componente y cada pantalla renderizados.
+2. Los tokens ya están generados (`packages/tokens`); no se pegan, se importan.
+3. Construí de abajo hacia arriba: átomos → moléculas → organismos → pantalla, en el mundo que el mapa indica.
 4. Pasá el checklist (sección 6).

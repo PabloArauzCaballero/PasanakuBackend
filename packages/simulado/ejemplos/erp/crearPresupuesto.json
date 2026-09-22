@@ -1,0 +1,58 @@
+{
+  "servicio": "erp",
+  "operacion": "crearPresupuesto",
+  "metodo": "post",
+  "ruta": "/erp/presupuestos",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "presupuestoId": "168513c8-03ac-4dca-8529-fe021a320192",
+        "estado": "BORRADOR",
+        "total": "4.44"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "presupuestoId": "168513c8-03ac-4dca-8529-fe021a320192",
+        "estado": "BORRADOR",
+        "total": "0.00"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "presupuestoId": "168513c8-03ac-4dca-8529-fe021a320192",
+        "estado": "BORRADOR",
+        "total": "4.44"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "presupuestoId": "168513c8-03ac-4dca-8529-fe021a320192",
+        "estado": "BORRADOR",
+        "total": "4.44"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

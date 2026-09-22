@@ -71,16 +71,13 @@ CREATE INDEX IF NOT EXISTS ix_metrica_grupo_grupo_id
   ON transparencia.metrica_grupo (grupo_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_metrica_grupo_grupo_id_periodo_id_codigo
-  ON transparencia.metrica_grupo (grupo_id, periodo_id, codigo);
+  ON transparencia.metrica_grupo (grupo_id, periodo_id, codigo) NULLS NOT DISTINCT;
 
 CREATE INDEX IF NOT EXISTS ix_metrica_grupo_en_alerta
   ON transparencia.metrica_grupo (en_alerta);
 
 CREATE INDEX IF NOT EXISTS ix_bloque_transparencia_grupo_id
   ON transparencia.bloque_transparencia (grupo_id);
-
-CREATE UNIQUE INDEX IF NOT EXISTS uq_bloque_transparencia_grupo_id_numero_bloque
-  ON transparencia.bloque_transparencia (grupo_id, numero_bloque);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_bloque_transparencia_hash_bloque
   ON transparencia.bloque_transparencia (hash_bloque);

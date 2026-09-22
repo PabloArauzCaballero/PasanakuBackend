@@ -1,0 +1,58 @@
+{
+  "servicio": "erp",
+  "operacion": "abrirEjercicioFiscal",
+  "metodo": "post",
+  "ruta": "/erp/ejercicios",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "ejercicioId": "cc4d8f0b-c657-4fe3-8a1a-70e892a58eee",
+        "anio": 1,
+        "periodos": 1
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "ejercicioId": "cc4d8f0b-c657-4fe3-8a1a-70e892a58eee",
+        "anio": 0,
+        "periodos": 0
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "ejercicioId": "cc4d8f0b-c657-4fe3-8a1a-70e892a58eee",
+        "anio": 1,
+        "periodos": 1
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "ejercicioId": "cc4d8f0b-c657-4fe3-8a1a-70e892a58eee",
+        "anio": 1,
+        "periodos": 1
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

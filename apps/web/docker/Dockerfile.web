@@ -1,0 +1,29 @@
+# Sitio público — Angular con SSR híbrido, servido por Node detrás de NGINX, sin root.
+#   docker build -f apps/web/docker/Dockerfile.web .   (contexto: la raíz del monorepo)
+FROM node:22-alpine AS construccion
+WORKDIR /construccion
+COPY package.json yarn.lock .yarnrc.yml tsconfig.base.json turbo.json ./
+COPY apps/backoffice/package.json apps/backoffice/
+COPY apps/web/package.json apps/web/
+COPY apps/movil/package.json apps/movil/
+COPY packages/tokens packages/tokens
+COPY packages/ui packages/ui
+COPY packages/tutoriales packages/tutoriales
+COPY packages/simulado/package.json packages/simulado/
+COPY packages/diseno_flutter/package.json packages/diseno_flutter/
+COPY packages/dominio-cliente packages/dominio-cliente
+COPY clientes/angular clientes/angular
+RUN corepack enable && yarn install --immutable
+COPY apps/web apps/web
+RUN yarn workspace @aportaya/tokens build && yarn workspace @aportaya/web build
+
+FROM node:22-alpine AS ejecucion
+WORKDIR /sitio
+ENV NODE_ENV=production PORT=4000
+USER node
+COPY --from=construccion --chown=node:node /construccion/apps/web/dist/web ./dist
+COPY --from=construccion --chown=node:node /construccion/node_modules ./node_modules
+EXPOSE 4000
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:'+process.env.PORT+'/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+CMD ["node", "./dist/server/server.mjs"]

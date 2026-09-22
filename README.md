@@ -30,6 +30,110 @@ reputación), el Parche A (organizador digital automatizado, organizador humano 
 comisión y fondo de garantía) y el **Parche B: billetera móvil con custodia,
 comisión de plataforma y cumplimiento regulatorio** (módulos 10 a 12).
 
+## Levantar el backend
+
+Los catorce servicios arrancan, sirven sus rutas y niegan sin token. Estos comandos
+estan ejecutados, no supuestos.
+
+```bash
+# 1 · la base, con las 305 tablas, los roles y los catalogos
+docker compose -f despliegue/compose/base.yml --profile base up -d --wait
+
+# 2 · el gate completo: formato, arquitectura, atomos, casos de uso, contratos y sagas
+./gradlew verificar
+
+# 3 · que los catorce LEVANTAN, no solo que compilan
+./gradlew integrationTest        # incluye ArranqueTest de cada servicio
+
+# 4 · el stack entero en contenedores
+python3 scripts/generar_compose.py
+python3 scripts/generar_gateway.py     # las rutas de la entrada publica, desde PREFIJOS
+docker buildx create --name aportaya --driver docker-container \
+  --driver-opt network=aportaya-interna --use    # una sola vez
+# La construccion tiene que ALCANZAR la base para generar las clases de jOOQ, y el
+# paso RUN de buildkit no usa el DNS de Docker: se le pasa la IP del contenedor.
+IP=$(docker inspect aportaya-postgres --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
+for s in identidad grupos aportes nucleo-financiero garantia organizador transparencia; do
+  docker buildx build --load --allow network.host --network=host \
+    -f despliegue/Dockerfile --build-arg SERVICIO="$s" \
+    --build-arg BD_URL_ADMIN="jdbc:postgresql://$IP:5432/pasanaku" \
+    -t "aportaya/${s}:local" .
+done
+docker compose -f despliegue/compose/base.yml -f despliegue/compose/servicios.yml \
+  --profile todo up -d --no-build --wait
+```
+
+El constructor va atado a `aportaya-interna` porque las clases de jOOQ se generan
+introspeccionando la base **viva** y `.dockerignore` deja `**/build` afuera: la
+construccion tiene que alcanzar a PostgreSQL. Sin eso, `compileJava` falla con
+«package bo.aportaya.&lt;servicio&gt;.generado does not exist» y no hay imagen posible.
+Y se construye de a uno: catorce Gradle en paralelo se pelean por el mismo lock del
+cache y la corrida muere a los cuatro minutos.
+
+### Entrar con una cuenta de prueba
+
+Las cuentas de `sql/61_dev/` se siembran **sin contrasena en claro** —el repositorio no
+guarda credenciales— asi que hay que ponerle una a la base local:
+
+```bash
+CLAVE_DEV='la-que-quieras' python3 scripts/clave_dev.py --huella <32 hex de la app>
+```
+
+Eso pone la misma contrasena a las once cuentas de prueba (`+59171000001`…`009`,
+`+59171000090` participante y `+59171000091` backoffice) y marca ese dispositivo como
+de confianza. Lo segundo importa: `ExigeSegundoFactor` pide MFA a todo dispositivo
+desconocido, y las cuentas de prueba no tienen factor enrolado, asi que sin eso el
+ingreso no termina. La huella la genera la app al instalarse.
+
+La app apunta por omision a `http://localhost/api/v1`, que es NGINX. Para el simulado:
+`--dart-define=API=http://localhost:4010/api/v1`.
+
+### Camara en el simulador
+
+El simulador de iOS **no tiene camara y no puede usar la del Mac**: no expone ningun
+`AVCaptureDevice`, asi que `image_picker` con `ImageSource.camera` devuelve nada. Es
+de Apple, no del codigo — Apple lista la camara entre el hardware que el simulador no
+simula. Hay dos formas de recorrer igual el alta:
+
+**1 · Prestarle la camara del Mac** (gratis, en este repositorio):
+
+```bash
+python3 scripts/camara_del_mac.py                      # queda escuchando en 8899
+flutter run --dart-define=CAMARA_DEV=http://localhost:8899/foto
+```
+
+La primera vez macOS pide permiso de camara para la terminal. Hay que aceptarlo una
+vez, o la captura se queda esperando el dialogo; para provocarlo a mano:
+
+```bash
+ffmpeg -f avfoundation -framerate 30 -i "0" -frames:v 1 -y /tmp/prueba.jpg
+```
+
+La foto es real y sale de la camara del Mac; lo unico que falta es el visor. Sin la
+bandera `CAMARA_DEV` este camino no existe en el binario.
+
+**2 · SimCam** (de Software Mansion, 19 USD por unica vez, con prueba gratuita):
+https://simcam.swmansion.com — se abre ANTES que la app, hace de camara virtual y da
+visor de verdad. Su autor confirma que funciona con `image_picker`. No hay que tocar
+la app. Tiene un tope conocido de 480x640 en la resolucion entregada.
+
+Y siempre, sin nada de lo anterior: **«Elegir de mis fotos»**. Se le carga una imagen
+a la fototeca del simulador con `xcrun simctl addmedia booted foto.jpg`.
+
+Los cuatro verificadores de la boveda corren solos y no necesitan nada levantado:
+
+```bash
+python3 scripts/verificar_boveda.py      # cifras, enlaces y cobertura de la boveda
+python3 scripts/verificar_carriles.py    # cada servicio con su dueno y su descriptor
+python3 scripts/verificar_criterios.py   # cada criterio de aceptacion, con su prueba
+python3 scripts/verificar_seguridad.py   # patrones prohibidos, secretos y rutas abiertas
+```
+
+**Que hay y que falta** esta en
+[`planes/informes/carril-T.md`](planes/informes/carril-T.md): 122 de las 138
+operaciones servidas, dieciseis declaradas como huecos de contrato entre carriles, y
+la lista de lo que la Fase 17 todavia debe.
+
 ## De la bóveda al código
 
 La carpeta `docs/` no es solo documentación: es la **especificación ejecutable**
@@ -39,7 +143,8 @@ del sistema, en cuatro capas encadenadas.
 | --- | --- | --- |
 | Norma | [`docs/Cumplimiento.md`](docs/Cumplimiento.md) | qué obliga ASFI, UIF, BCB, el SIN y las ISO |
 | Caso de uso | [`docs/CasosDeUso/`](docs/CasosDeUso/_CasosDeUso.md) | cómo se ejecuta cada flujo, paso a paso — 99 casos |
-| Restricción | [`docs/Restricciones.md`](docs/Restricciones.md) | qué impide, en la base, que se viole — 138 reglas |
+| Restricción | [`docs/Restricciones.md`](docs/Restricciones.md) | qué impide, en la base, que se viole — 141 reglas |
+| Seguridad | [`docs/Seguridad.md`](docs/Seguridad.md) | cómo se escribe el código para que resista un ataque, y con qué comando se comprueba cada control |
 | Modelo | [`docs/Modelos/`](docs/Modelos/Entidades/_Entidades.md) | dónde vive cada dato |
 | Esquema | [`sql/`](sql/README.md) | el DDL ejecutable, generado desde las tres capas anteriores |
 | Arquitectura | [`docs/Arquitectura/`](docs/Arquitectura/_Arquitectura.md) | con qué se implementa, y por qué así |
@@ -48,15 +153,18 @@ del sistema, en cuatro capas encadenadas.
 ```bash
 python3 scripts/generar_boveda.py   # notas del modelo (Obsidian) desde los .puml
 python3 scripts/generar_ddl.py      # esquema SQL completo desde los .puml + el catálogo
-psql -d aportaya -v ON_ERROR_STOP=1 -f sql/aplicar.sql
-psql -d aportaya -v ON_ERROR_STOP=1 -f sql/60_semillas/sembrar.sql
-psql -d aportaya -f sql/50_verificacion/prueba_humo.sql   # 152 comprobaciones
+
+./gradlew bd:aplicar                # esquema y reglas sobre la base de trabajo
+./gradlew bd:semillas               # los 20 catálogos mínimos
+./gradlew bd:humo                   # 165 comprobaciones, sobre una base DESECHABLE
 ```
 
-El esquema son **306 tablas en un archivo cada una**, con las claves foráneas y los
+El esquema son **305 tablas en un archivo cada una**, con las claves foráneas y los
 índices en pasadas aparte —el orden que necesita la introspección de tipos— más el
 sellado de las tablas append-only y el catálogo de restricciones. Verificado sobre
-PostgreSQL 16: aplica sin errores y la prueba de humo confirma que las restricciones
+PostgreSQL 16: aplica sin errores **las veces que haga falta** —cada objeto se borra
+si existe antes de crearse, porque `aplicar.sql` no es una migración sino el esquema
+entero— y la prueba de humo confirma que las restricciones
 rechazan lo que deben rechazar.
 
 La **arquitectura** está en [`docs/Arquitectura/`](docs/Arquitectura/_Arquitectura.md):

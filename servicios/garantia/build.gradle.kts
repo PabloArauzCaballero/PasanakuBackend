@@ -7,6 +7,14 @@ plugins {
     id("aportaya.openapi")           // interfaz de servidor + clientes
 }
 
+// Piso de cobertura — TRINQUETE, fijado con evidencia (ADR-026, ADR-043).
+// Medido con `./gradlew test webTest integrationTest && ./gradlew jacocoTestReport`,
+// redondeado hacia abajo y con dos puntos de margen: no puede bajar, y un
+// refactor legitimo no tumba el build. Para subirlo: `python3 scripts/cobertura.py`.
+extra["pisoDeCobertura"] = 0.91
+extra["pisoDeRamas"] = 0.69
+extra["pisoDelDominio"] = 0.73   // lineas Y ramas de dominio/
+
 aportaya {
     esquema.set("garantia")
     rol.set("svc_garantia")
@@ -28,6 +36,7 @@ dependencies {
     implementation(libs.micrometer)
 
     testImplementation(project(":plataforma:comun-pruebas"))
+    testImplementation(libs.spring.boot.jdbc)
     testImplementation(libs.bundles.pruebas)   // JUnit 5, AssertJ, Testcontainers, ArchUnit
 }
 

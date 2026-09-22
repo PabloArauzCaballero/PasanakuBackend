@@ -3,7 +3,7 @@ tags:
   - plan
   - fase
   - frontend
-titulo: "Fases F6 a F8 — Backoffice (React + Vite)"
+titulo: "Fases F6 a F8 — Backoffice (Angular)"
 fases: [F6, F7, F8]
 depende_de: [F0, F1]
 habilita: [F12]
@@ -16,11 +16,29 @@ habilita: [F12]
 
 > [!important] Antes de escribir la primera línea
 > [[10b Estándar de ejecución del frontend]] aplica en las tres fases. Cada pantalla
-> sale de la línea **«Backoffice:»** de la sección Interfaz de su caso de uso.
+> sale de la línea **«Backoffice:»** de la sección Interfaz de su caso de uso, y su forma
+> de [[AportaYa-Maqueta]]: [[22 Mapa de la maqueta · pantalla, carril y mundo]] §3 dice la
+> ruta Angular, los organismos de `@aportaya/ui` y el delta de cada una. Toda pantalla lleva
+> arriba la banda **«Para qué sirve»** (`BandaDeProposito`).
+
+> [!important] Stack: Angular ([[ADR-044 Frontend en Angular y Flutter]])
+> El backoffice es una **SPA de Angular** (*standalone*, *zoneless*, señales) servida
+> como estático detrás de NGINX, con `HttpClient` sobre el cliente generado
+> `clientes/angular`, Angular CDK para tablas, virtualización y accesibilidad, y la
+> biblioteca `@aportaya/ui`. La skill que manda la forma del código es `web-angular`;
+> la que manda el comportamiento del producto, `web-backoffice`.
 
 **Usuario distinto, producto distinto.** Escritorio, pantallas densas, jornada
-completa, usuario experto. **El backoffice no es la app estirada**: comparte
-componentes de dominio, no comparte layout (ADR-004).
+completa, usuario experto. **El backoffice no es la app estirada**: comparte tokens y
+vocabulario, no comparte layout ni componentes (ADR-044).
+
+> [!important] Son **dos** backoffices, no uno con más pestañas (delta D-2)
+> El **financiero** (F7, F8.A–C) y el **de sistemas** (F8.D) no comparten usuario, ni
+> rol, ni la pregunta que vienen a contestar: tesorería mira si el dinero cuadra;
+> plataforma mira si el sistema aguanta y si se puede restaurar. Comparten el **shell
+> de F6** y nada más: ni menú, ni layout de sección, ni permisos. Mezclarlos es lo que
+> termina dándole a un operador financiero permisos sobre la base de datos.
+> Ver [[20 Maqueta de referencia · deltas del frontend]].
 
 > **Todo el backoffice va `noindex, nofollow`**, con `X-Robots-Tag` en NGINX además
 > de la meta. Es una superficie con datos personales detrás de login: que aparezca en
@@ -36,15 +54,36 @@ componentes de dominio, no comparte layout (ADR-004).
 
 ## Alcance
 
-| Pieza | Qué resuelve |
-| --- | --- |
-| **TanStack Router** por archivos + **TanStack Query** | Cada carril agrega rutas sin tocar un registro común |
-| `ProveedorSesion` con **rol y permisos** | Del token; se muestran u ocultan secciones **por comodidad** — el servidor decide |
-| **`TablaDeDatos`** | Toolbar con búsqueda y filtros, orden por columna **con lista blanca**, selección múltiple, paginación del servidor, **virtualización** |
-| `BarraDeFiltros` | Chips de filtro con estado en la URL (compartible, sin datos sensibles) |
-| `Exportador` | CSV/XLSX **por el endpoint de CU-58**, nunca armado en el cliente |
-| `PanelDeEvidencia` | Bitácora, movimientos y trazas de un caso, reutilizado por reclamos, disputas y descargos |
-| `RegistroDeAcceso` | Toda vista de datos personales dispara el registro (CU-58, `R-SEG-02`) |
+| Pieza | Qué resuelve | Con qué |
+| --- | --- | --- |
+| **Enrutador con un enchufe por dominio** | Cada carril agrega rutas en su `<dominio>.routes.ts` sin tocar `app.routes.ts` | Angular Router, `loadChildren` por dominio, guardias funcionales `canMatch` por permiso |
+| `ServicioSesion` con **rol y permisos** | Del token; se muestran u ocultan secciones **por comodidad** — el servidor decide | token solo en memoria, refresh en cookie `HttpOnly`; señales `permisos()` y `rol()` |
+| Interceptores de `nucleo/` | `x-request-id` · bearer · `401 → un refresh → un reintento` · idempotencia por `HttpContextToken` · traducción de errores · registro de acceso | `provideHttpClient(withInterceptors([...]))`; **ningún componente inyecta `HttpClient`** |
+| **`TablaDeDatos`** | Toolbar con búsqueda y filtros, orden por columna **con lista blanca**, selección múltiple, paginación del servidor, **virtualización** | `cdk-table` + `cdk-virtual-scroll-viewport` + `SelectionModel`; el orden es una unión literal generada del contrato |
+| `BarraDeFiltros` | Chips de filtro con estado en la URL (compartible, sin datos sensibles) | `withComponentInputBinding()`: los *query params* son `input()` del componente |
+| `Exportador` | CSV/XLSX **por el endpoint de CU-58**, nunca armado en el cliente | llama al contrato; muestra permiso exigido, caducidad y tope antes de pedir |
+| `PanelDeEvidencia` | Bitácora, movimientos y trazas de un caso, reutilizado por reclamos, disputas y descargos | `LineaDeTiempo` de `@aportaya/ui` |
+| `RegistroDeAcceso` | Toda vista de datos personales dispara el registro (CU-58, `R-SEG-02`) | interceptor que marca las rutas con `HttpContextToken<accesoADatos>` |
+| **Acceso administrativo** | Ingreso, desafío TOTP, enrolamiento, recuperación asistida | [[ADR-038 Acceso administrativo · segundo factor y recuperación asistida]] · [[Flujo de pantallas · backoffice administrador]] §2.0 |
+| `EstadoDePantalla` | Los cuatro estados sobre un `ResourceRef`, más «vacío por permiso» y «vacío por filtro» como variantes distintas | directiva estructural de `@aportaya/ui` |
+| Borrador local | Los formularios largos guardan borrador cifrado | `IndexedDB` vía un `ServicioBorrador`; sin datos personales en claro |
+
+### La estructura que F6 deja lista y congela
+
+```
+apps/backoffice/src/app/
+├── app.config.ts            provideZonelessChangeDetection · provideRouter(rutas, withComponentInputBinding()) · provideHttpClient(withInterceptors)
+├── app.routes.ts            UN ENCHUFE POR DOMINIO: operacion · cumplimiento · sistemas · contabilidad · publicidad — se congela
+├── nucleo/                  interceptores · sesion · permisos · errores · idempotencia · conexion · registro-de-acceso · borrador
+├── layout/                  shell financiero y shell de sistemas (menú, cabecera, sección) — dos layouts, un shell
+└── rutas/
+    ├── operacion/operacion.routes.ts        (vacío; lo llena B1)
+    ├── cumplimiento/cumplimiento.routes.ts  (vacío; lo llena B2)
+    ├── sistemas/sistemas.routes.ts          (vacío; lo llena B5)
+    ├── contabilidad/contabilidad.routes.ts  (vacío; lo llena B3)
+    ├── publicidad/publicidad.routes.ts      (vacío; lo llena B4)
+    └── tablero/                             el tablero y `operacion/estado` — los hace F6
+```
 
 ## Las cuatro reglas del shell
 
@@ -59,12 +98,19 @@ componentes de dominio, no comparte layout (ADR-004).
 
 ## Gate de salida F6
 
-- [ ] Gate común de §10 del plan maestro del frontend
-- [ ] `TablaDeDatos` probada con 100 000 filas: virtualizada, sin bloquear la interfaz
+- [ ] Gate común de §11 del plan maestro del frontend
+- [ ] `TablaDeDatos` probada con 100 000 filas paginadas del servidor: virtualizada con
+      el CDK, sin bloquear la interfaz, **navegable por teclado** fila a fila
+- [ ] El estado de la tabla (página, orden, filtros) sobrevive a recargar la página y a
+      pegar la URL en otro navegador con sesión
 - [ ] Ordenar por un campo no permitido ⇒ rechazado, no ignorado en silencio
 - [ ] Toda exportación pasa por CU-58 (verificado: no hay generación en cliente)
 - [ ] `noindex, nofollow` + `X-Robots-Tag` verificados con `curl`
 - [ ] Rol sin permiso ⇒ la sección no se ve **y** el endpoint responde `403`
+- [ ] Una ruta nueva se registra **solo dentro del directorio de su dominio**; nada de
+      `app.routes.ts`, `nucleo/` ni `layout/` cambia (probado)
+- [ ] El paquete de producción no contiene `clientes/angular` de servicios que el
+      backoffice no consume (carga perezosa por dominio verificada en `dist/`)
 
 ---
 
@@ -75,7 +121,7 @@ componentes de dominio, no comparte layout (ADR-004).
 
 | Área | Pantallas que exige la bóveda |
 | --- | --- |
-| **Altas y accesos** | Cola de altas con **KYC observado** · auditoría de accesos con dispositivo e IP · ***Accesos***: matriz de usuarios por rol, con vigencia y **quién otorgó** · recuperaciones asistidas |
+| **Altas y accesos** | Cola de altas con **KYC observado** · auditoría de accesos con dispositivo e IP · recuperaciones asistidas. ***Accesos*** y ***Incidentes y riesgo*** se mudan al backoffice de sistemas (F8.D) |
 | **Billetera** | Monitor de recargas **por proveedor**, con tasa de acreditación y tiempo medio · cola de retiros con **puntaje antifraude y decisión del motor** · retenciones vigentes · **formulario de reverso con doble aprobación y motivo obligatorio** · alta de oficios **sin archivo no se ejecuta** · verificación de cuentas por comprobante |
 | **Cobranza y entregas** | Estado de cobranza por grupo y período **con la brecha para completar la bolsa** · tablero de entregas del día con **doble control** · cola de desembolsos por estado y antigüedad, con intentos · panel del fondo por grupo · lista interna con antigüedad, monto y causa |
 | **Cierre** | **Cierre diario con el detalle de lo que impide cuadrar** · panel del punto de atención con el **teórico en vivo** |
@@ -103,6 +149,11 @@ componentes de dominio, no comparte layout (ADR-004).
 - [ ] Reclamo favorable sin reparación ⇒ **no se puede cerrar** (probado)
 - [ ] Oficio sin archivo ⇒ no se ejecuta (probado)
 - [ ] El cierre diario lista las excepciones que lo bloquean
+- [ ] **Cola de solicitudes de ingreso escaladas** (D-15): cuando un organizador deja
+      vencer las 48 horas, el pedido llega acá. Sin esta cola, el plazo que la app le
+      promete al postulante no lo sostiene nadie
+- [ ] Los reclamos ahora **tienen puerta de entrada en la app** (D-18): el volumen deja
+      de ser hipotético, y el plazo se muestra **guardado**, no recalculado
 
 ---
 
@@ -115,11 +166,23 @@ Es la fase más grande del frontend. **Se parte en tres sub-fases con gate propi
 
 ## F8.A · UIF y monitoreo
 
-Bandeja de diligencias **con doble revisión obligatoria para PEP** · panel de PEP con
-próxima revisión · tablero de revisiones vencidas **ordenado por riesgo** · bandeja de
-formularios PCC-01 del período · consulta de ROG con exportación · **bandeja de
-alertas y casos, con plazo y decisión obligatoria** · **editor de reglas con simulador
-al lado** · bandeja de oficios con plazo, alcance y respuesta archivada.
+**Verificación de identidad como cola + expediente** (delta D-3), con sus nueve
+bloques: identidad declarada contra leída, autenticidad del documento, biometría con
+prueba de vida y búsqueda 1:N, listas restrictivas con puntaje de coincidencia
+difusa, perfil y origen de fondos, dispositivo y sesión del alta, composición del
+riesgo factor por factor, historial sin edición, y decisión con **causal del catálogo
+obligatoria** y segunda firma en riesgo alto · bandeja de diligencias **con doble
+revisión obligatoria para PEP** · panel de PEP con próxima revisión · tablero de
+revisiones vencidas **ordenado por riesgo** · bandeja de formularios PCC-01 del
+período · consulta de ROG con exportación · **bandeja de alertas y casos, con plazo y
+decisión obligatoria** · **editor de reglas con simulador al lado** · bandeja de
+oficios con plazo, alcance y respuesta archivada.
+
+> **Una fila con un botón de aprobar no alcanza.** El analista tiene que poder firmar
+> una decisión y defenderla seis meses después: por eso el expediente muestra la
+> evidencia entera y el riesgo se explica por sus factores, no por un número. Y por
+> eso **rechazar u observar sin causal del catálogo es imposible en la interfaz**: la
+> causal viaja en la notificación al titular, que tiene derecho a saber qué subsanar.
 
 > **Deber de reserva (CU-44).** El titular **no** ve nada de esto y la interfaz no
 > puede filtrarlo: ninguna pantalla del backoffice de LGI/FT genera un aviso, una
@@ -150,6 +213,23 @@ reglas de automatización con **vista previa en lenguaje llano** y confirmación
 que caduca · **tablero de indicadores** con meta, variación y lo provisorio marcado
 como tal.
 
+**Lo que suma D-16** ([[20 Maqueta de referencia · deltas del frontend]]). La habilitación
+de organizadores tenía una línea en la lista de arriba y pasa a tener pantalla propia,
+`cumplimiento/organizadores`, porque es **la respuesta institucional a quién autoriza a
+alguien a administrar plata ajena**: no otro participante, no el grupo, sino este
+escritorio.
+
+| Bloque | Qué muestra |
+| --- | --- |
+| Cola de postulaciones | Nivel pedido, **puntaje congelado al postular**, requisitos cumplidos sobre el total y el motivo del faltante |
+| Los cuatro niveles | Las 14 filas de `requisito_habilitacion` con sus umbrales, **traídas del contrato de `2E`** — nunca escritas en la pantalla |
+| **Lo que no puede pasar** | Aprobar sin firma · rechazar sin decir qué faltó · evaluar con requisitos posteriores a la postulación · dejar grupos huérfanos al suspender · habilitar con incumplimiento en curso |
+
+Y una regla que se lee antes de aprobar la primera: **la suspensión por capacitación
+vencida frena grupos nuevos pero no toca los vigentes.** Dejar grupos huérfanos es peor
+que tener un organizador con el curso vencido, y es contraintuitivo, así que va escrito
+en la pantalla y no en un instructivo.
+
 ## Las cuatro reglas de esta fase
 
 1. **Nada que dependa de una simulación se activa sin ella**: reglas de cumplimiento
@@ -169,11 +249,86 @@ como tal.
 - [ ] Ninguna regla, tarifario, segmento ni automatización se activa sin simulación
 - [ ] Cierre mensual y diario **no se confirman** si no cuadran (probado)
 - [ ] Ninguna pantalla de LGI/FT produce rastro visible para el investigado
+- [ ] Rechazar u observar una verificación **sin causal del catálogo** ⇒ imposible
+- [ ] Expediente de riesgo alto ⇒ la interfaz exige segunda firma **de otra persona**
+- [ ] Quien cargó los datos de un alta **no aparece** como revisor posible
 - [ ] Acta sin quórum ⇒ no se cierra; parte interesada ⇒ no puede votar
 - [ ] Indicador provisorio marcado como tal; indicador bajo el mínimo de casos,
       suprimido
 - [ ] Todo reporte muestra **el permiso que exige** antes de ejecutarse
+- [ ] **La habilitación de organizadores muestra la lista de requisitos evaluados**, no
+      un veredicto (D-16), y los umbrales **llegan del contrato de `2E`**: ninguno escrito
+      en la pantalla
+- [ ] Aprobar una habilitación **sin dejar firma es imposible**: lo impide
+      `ck_solicitud_ingreso_resuelta` en su equivalente de organizador, y la interfaz no
+      ofrece el camino
+- [ ] Rechazar una habilitación exige **motivo y fecha desde la que se puede volver a
+      postular** — un rechazo sin camino de vuelta es una expulsión encubierta
+- [ ] Un organizador **suspendido por capacitación vencida sigue administrando** sus
+      grupos vigentes, y la pantalla lo dice
+
+---
+
+# FASE F8.D — Backoffice de sistemas
+
+> **Objetivo.** Que plataforma y seguridad tengan **su propio producto**, con su
+> usuario y su rol, para contestar dos preguntas que el backoffice financiero no
+> contesta: *¿esto aguanta?* y *¿esto se puede restaurar?*
+
+**Usuario:** `PLATAFORMA` y `SEGURIDAD`. **Reutiliza** el shell de F6 completo.
+**No reutiliza** el menú ni el layout de sección del financiero.
+
+## Alcance
+
+| Sección | Pantallas |
+| --- | --- |
+| **Plataforma** | **Estado de servicios** con criticidad y qué se cae con qué · **Salud y SLO**: disponibilidad, p95/p99 y **presupuesto de error consumido** por servicio · **Despliegues**: versión por servicio, quién la puso, reversiones automáticas e **interruptores de funcionalidad** |
+| **Datos** | **Base y migraciones**: versión del esquema, migraciones pendientes, retraso de la réplica, conexiones del pool · **Respaldos y restauración**: RPO y RTO **objetivo contra medido**, y la **fecha de la última restauración probada** |
+| **Integraciones** | **Proveedores externos**: éxito, latencia, **costo real por operación** y reglas de conmutación escritas de antemano · **Outbox y trabajos**: colas con pendientes, fallidos y **descartados**, más los trabajos programados con su última corrida · **Webhooks entrantes**: duplicados, fuera de orden, firma inválida, y qué hace la plataforma con cada caso |
+| **Seguridad** | **Accesos y roles** (viene de F7) · **Incidentes y riesgo** con sus relojes de reporte (viene de F8.C) |
+
+## Las cinco reglas de esta fase
+
+1. **El presupuesto de error es una decisión, no un gráfico.** Cuando un servicio lo
+   agota, la pantalla lo dice y la regla escrita se aplica: se congela todo cambio que
+   no sea de estabilidad. Sin eso, el SLO es decoración.
+2. **Un respaldo que nunca se restauró no es un respaldo.** La pantalla muestra la
+   **fecha de la última restauración probada** y la marca vencida a los 30 días. El
+   número que importa es cuánto tardó, no que el trabajo corrió.
+3. **La conmutación de proveedor es automática pero nunca silenciosa.** Cambiar de
+   banco cambia el costo por operación: la pantalla muestra el costo real contra el
+   contratado, porque eso lo tiene que saber alguien de negocio.
+4. **Ningún mensaje se pierde, y ninguno se reintenta a ciegas.** Lo que agota sus
+   reintentos queda en la cola de descartados, visible, con su motivo. Reintentar un
+   desembolso sin mirar es como se paga dos veces.
+5. **Los interruptores que tocan dinero exigen dos personas.** La interfaz lo muestra
+   y lo impide, igual que un reverso.
+
+## Gate de salida F8.D
+
+- [ ] Gate común de §11 del plan maestro del frontend
+- [ ] Un rol financiero **no ve** este backoffice **y** sus endpoints responden `403`
+- [ ] Presupuesto de error agotado ⇒ la pantalla lo declara, no lo insinúa
+- [ ] Restauración probada hace más de 30 días ⇒ marcada como vencida
+- [ ] Cola de descartados visible con motivo por mensaje; reintentar exige confirmar
+- [ ] Interruptor que toca dinero ⇒ la interfaz rechaza que lo mueva una sola persona
+- [ ] Migración pendiente y retraso de réplica **se muestran en la pantalla que los
+      sufre**, no solo acá
+
+---
+
+# FASES F13 y F14 — Backoffice · contabilidad ERP y publicidad
+
+> **Carriles B3 y B4**, sobre el mismo shell y con los mismos organismos de F1-W. Sus
+> documentos de fase se escriben al abrir el carril (skills `plan-por-fases` y
+> `caso-de-uso`), con la plantilla de F7: tabla CU → pantalla → lo que el CU exige, las
+> reglas de la fase, el gate. Lo que ya está fijado:
+
+| Fase | Rutas | CU | Lo que no puede pasar |
+| :-: | --- | --- | --- |
+| **F13** | `rutas/contabilidad/`: período · presupuesto · compras/CxP · cobros · activos · estados | CU-100–106 | Un período cerrado **se ve cerrado** y la pantalla no ofrece asentar en él · el estado financiero se descarga con su hash · `Monto` es el único formateador, también acá |
+| **F14** | `rutas/publicidad/`: partners · anunciantes · campañas (aprobar) · moderación · liquidación | CU-110–114 | La cola de moderación es **previa** a la entrega · el desempeño mostrado cuadra con lo facturado en CU-114 · segregación gestionar **o** aprobar |
 
 ## Ver también
 
-[[00c Recetario · implementar un caso de uso]] · [[16 Carriles de frontend]] · [[10 Plan maestro del frontend]] · [[12 Fases F2 a F5 · App móvil]] · [[14 Fases F9 a F11 · Sitio público, SEO y GEO]] · [[Cumplimiento]]
+[[00c Recetario · implementar un caso de uso]] · [[16 Carriles de frontend]] · [[10 Plan maestro del frontend]] · [[12 Fases F2 a F5 · App móvil]] · [[14 Fases F9 a F11 · Sitio público, SEO y GEO]] · [[20 Maqueta de referencia · deltas del frontend]] · [[ADR-044 Frontend en Angular y Flutter]] · [[Cumplimiento]]

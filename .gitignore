@@ -13,15 +13,69 @@ __pycache__/
 # Editor / IDE: estado local, no del proyecto
 .vscode/
 .claude/launch.json
+.claude/worktrees/
 
-# Andamio vacío: apps/ se quitó del repo (commit 63ec074) y se reintroduce
-# cuando exista código de verdad, no como carpeta con solo un .gitignore
-apps/
+# --- frontend (ADR-044: Flutter + Angular): dependencias y artefactos, nunca versionados ---
+node_modules/
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+.pnp.*
+.turbo/
+coverage/
+apps/*/dist/
+.angular/
+# Flutter: android/ e ios/ SI se versionan (son el proyecto nativo). Lo que no, es lo que Flutter genera.
+apps/movil/.dart_tool/
+apps/movil/build/
+apps/movil/.flutter-plugins-dependencies
+apps/movil/*.iml
+apps/movil/ios/Pods/
+apps/movil/ios/.symlinks/
+apps/movil/android/.gradle/
+apps/movil/android/local.properties
+packages/diseno_flutter/.dart_tool/
+packages/diseno_flutter/build/
+
+# Generados: tokens.css/tokens.dart, contratos en JSON, ejemplos inyectados. El gate es la generacion.
+packages/tokens/generado/
+packages/simulado/generado/
 
 # --- generado por el build: el gate es la compilacion, no un diff (ADR-016) ---
 build/
 .gradle/
 servicios/*/build/
 plataforma/*/build/
-clientes/typescript/
+clientes/angular/
+clientes/dart/
 despliegue/k8s/generado/
+# El perfil `todo` del compose: lo genera scripts/generar_compose.py leyendo que
+# variables exige cada servicio. Versionarlo seria versionar una copia que se
+# desactualiza sola en cuanto alguien agregue una clave.
+despliegue/compose/servicios.yml
+
+# --- secretos: nunca versionados (docs/Seguridad.md §3.4, prohibición 1) ---
+.env
+.env.*
+!.env.ejemplo
+*.pem
+*.key
+*.p12
+*.jks
+
+# jqwik: base local de semillas de propiedades, no del proyecto
+.jqwik-database
+
+# Override local de puerto (conflicto de host, no del proyecto)
+despliegue/compose/base.local.yml
+
+# salida de Playwright (trazas y contextos de error); las capturas del catalogo si se versionan
+.playwright/
+# consolas y capturas que deja el servidor MCP de Playwright al verificar a mano
+.playwright-mcp/
+
+# fvm instala el SDK en .fvm/; .fvmrc si se versiona
+.fvm/
+
+# Puntos de entrada temporales para verificación visual en el simulador.
+apps/movil/ver_*_tmp.dart

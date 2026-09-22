@@ -7,6 +7,13 @@ plugins {
     id("aportaya.openapi")           // interfaz de servidor + clientes
 }
 
+// Piso de cobertura — TRINQUETE, fijado con evidencia (ADR-026, ADR-043).
+// Medido con `./gradlew test webTest integrationTest && ./gradlew jacocoTestReport`,
+// redondeado hacia abajo y con dos puntos de margen: no puede bajar, y un
+// refactor legitimo no tumba el build. Para subirlo: `python3 scripts/cobertura.py`.
+extra["pisoDeCobertura"] = 0.79
+extra["pisoDeRamas"] = 0.63
+
 aportaya {
     esquema.set("identidad")
     rol.set("svc_identidad")
@@ -15,7 +22,11 @@ aportaya {
 dependencies {
     implementation(project(":plataforma:comun-dominio"))
     implementation(project(":plataforma:comun-datos"))
+    // El puerto de archivos: la cedula y la selfie van al servidor de archivos,
+    // no al disco del contenedor (ADR-034).
+    implementation(project(":plataforma:comun-archivos"))
     implementation(project(":plataforma:comun-web"))
+    implementation(libs.spring.boot.oauth2)  // identidad FIRMA: necesita nimbus-jose, no solo verificar
     implementation(project(":plataforma:comun-mensajeria"))
 
     implementation(libs.spring.boot.web)
@@ -26,8 +37,11 @@ dependencies {
     implementation(libs.shedlock)
     implementation(libs.resilience4j)
     implementation(libs.micrometer)
+    implementation(libs.argon2)          // credenciales: hash lento con pimienta
+    implementation(libs.spring.boot.security)
 
     testImplementation(project(":plataforma:comun-pruebas"))
+    testImplementation(libs.spring.boot.jdbc)
     testImplementation(libs.bundles.pruebas)   // JUnit 5, AssertJ, Testcontainers, ArchUnit
 }
 

@@ -22,6 +22,6 @@ Página visual: `Moviles.html`. La billetera vive en el teléfono. Área táctil
 ## Pantallas de referencia
 Home billetera · Recargar (teclado) · Detalle + bottom sheet · PIN de seguridad · Onboarding.
 
-> Traducción a **Expo/React Native** siguiendo los skills `movil-expo` y `arquitectura-atomica`.
+> Traducción a **Flutter** (`packages/diseno_flutter`) siguiendo los skills `movil-flutter` y `arquitectura-atomica`.
 
 Anterior: [[Organismos]] · Volver: [[README]]

@@ -1,0 +1,99 @@
+# GENERADO por scripts/generar_gateway.py — no editar a mano.
+#
+# Una ruta por servicio, con los prefijos que reserva scripts/modelo.py -> PREFIJOS.
+# Una ruta que no cae en un prefijo real no existe: el gateway devuelve 404 y nadie
+# tiene que discutir de quien era.
+#
+# `StripPrefix=2` saca `/api/v1`: el contrato lo declara y el servicio sirve en la
+# raiz, asi que el prefijo lo pone y lo saca la entrada publica.
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: aportes
+              uri: http://aportes:8080
+              predicates:
+                - Path=/api/v1/aportes/**,/api/v1/conciliacion/**,/api/v1/pagos/**,/api/v1/qr/**
+              filters:
+                - StripPrefix=2
+            - id: auditoria
+              uri: http://auditoria:8080
+              predicates:
+                - Path=/api/v1/auditoria/**,/api/v1/indicadores/**,/api/v1/reportes/**
+              filters:
+                - StripPrefix=2
+            - id: cumplimiento
+              uri: http://cumplimiento:8080
+              predicates:
+                - Path=/api/v1/cumplimiento/**,/api/v1/licencia/**,/api/v1/reclamos/**,/api/v1/uif/**
+              filters:
+                - StripPrefix=2
+            - id: entregas
+              uri: http://entregas:8080
+              predicates:
+                - Path=/api/v1/cuentas-bancarias/**,/api/v1/desembolsos/**,/api/v1/entregas/**
+              filters:
+                - StripPrefix=2
+            - id: erp
+              uri: http://erp:8080
+              predicates:
+                - Path=/api/v1/erp/**
+              filters:
+                - StripPrefix=2
+            - id: garantia
+              uri: http://garantia:8080
+              predicates:
+                - Path=/api/v1/cobranza/**,/api/v1/garantia/**,/api/v1/incumplimientos/**
+              filters:
+                - StripPrefix=2
+            - id: grupos
+              uri: http://grupos:8080
+              predicates:
+                - Path=/api/v1/acuerdos/**,/api/v1/grupos/**,/api/v1/turnos/**
+              filters:
+                - StripPrefix=2
+            - id: identidad
+              uri: http://identidad:8080
+              predicates:
+                - Path=/api/v1/identidad/**,/api/v1/roles/**,/api/v1/sesion/**,/api/v1/sesiones/**,/api/v1/usuarios/**
+              filters:
+                - StripPrefix=2
+            - id: notificaciones
+              uri: http://notificaciones:8080
+              predicates:
+                - Path=/api/v1/notificaciones/**
+              filters:
+                - StripPrefix=2
+            - id: nucleo_financiero
+              uri: http://nucleo-financiero:8080
+              predicates:
+                - Path=/api/v1/billetera/**,/api/v1/contabilidad/**,/api/v1/custodia/**,/api/v1/puntos-atencion/**
+              filters:
+                - StripPrefix=2
+            - id: organizador
+              uri: http://organizador:8080
+              predicates:
+                - Path=/api/v1/automatizacion/**,/api/v1/organizadores/**
+              filters:
+                - StripPrefix=2
+            - id: publicidad
+              uri: http://publicidad:8080
+              predicates:
+                - Path=/api/v1/anunciantes/**,/api/v1/campanas/**,/api/v1/publicidad/**
+              filters:
+                - StripPrefix=2
+            - id: tarifas
+              uri: http://tarifas:8080
+              predicates:
+                - Path=/api/v1/comisiones/**,/api/v1/facturas/**,/api/v1/tarifas/**
+              filters:
+                - StripPrefix=2
+            - id: transparencia
+              uri: http://transparencia:8080
+              predicates:
+                - Path=/api/v1/publico/**,/api/v1/reputacion/**,/api/v1/verificar/**
+              filters:
+                - StripPrefix=2

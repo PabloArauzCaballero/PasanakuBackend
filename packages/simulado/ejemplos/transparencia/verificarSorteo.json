@@ -1,0 +1,68 @@
+{
+  "servicio": "transparencia",
+  "operacion": "verificarSorteo",
+  "metodo": "get",
+  "ruta": "/publico/sorteos/{sorteoId}/verificacion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "verifica": true,
+        "hashEsperado": "hashEsperado-hashEsperado-hashEsperado-hashEsperado-hashEsperado",
+        "hashRecomputado": "hashRecomputado-hashRecomputado-hashRecomputado-hashRecomputado-",
+        "ordenCoincide": true,
+        "primerCupoDiscrepante": 1,
+        "paquete": {
+          "semilla": "semilla-semilla-semilla-semilla-semilla-semilla-semilla-semilla-",
+          "entropias": [
+            "entropias[0]"
+          ],
+          "metodo": "metodo",
+          "cupos": [
+            1
+          ]
+        }
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "verifica": false,
+        "hashEsperado": "hashEsperado-hashEsperado-hashEsperado-hashEsperado-hashEsperado",
+        "hashRecomputado": "hashRecomputado-hashRecomputado-hashRecomputado-hashRecomputado-",
+        "ordenCoincide": false,
+        "primerCupoDiscrepante": 0,
+        "paquete": {
+          "semilla": "semilla-semilla-semilla-semilla-semilla-semilla-semilla-semilla-",
+          "entropias": [],
+          "metodo": "metodo",
+          "cupos": []
+        }
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "verifica": true,
+        "hashEsperado": "hashEsperado-hashEsperado-hashEsperado-hashEsperado-hashEsperado",
+        "hashRecomputado": "hashRecomputado-hashRecomputado-hashRecomputado-hashRecomputado-",
+        "ordenCoincide": true,
+        "primerCupoDiscrepante": 1,
+        "paquete": {
+          "semilla": "semilla-semilla-semilla-semilla-semilla-semilla-semilla-semilla-",
+          "entropias": [
+            "entropias[0]"
+          ],
+          "metodo": "metodo",
+          "cupos": [
+            1
+          ]
+        }
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": null
+    }
+  }
+}

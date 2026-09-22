@@ -1,0 +1,247 @@
+---
+tags:
+  - plan
+  - informe
+  - carril
+titulo: "Carril F1 — sistema de diseño"
+ola: F1
+fase: F1
+modulo: packages/ui
+rama: dev
+estado: TF.3 cerrado · packages/ui y packages/diseno_flutter congelados
+---
+
+# Carril F1 — sistema de diseño
+
+**Fase** F1 · **Casos de uso** ninguno de negocio · **Puesto** P3 · Legion
+
+> Tramo **T2** de [[17 Plan de acción secuencial · coordinación de cinco máquinas]].
+> Ficha en [[18 Fichas de carril · las 38 unidades de trabajo]] · `F1`.
+> Posee `packages/ui/**` y `apps/*/src/tokens/**`.
+
+> [!important] Esto es el piso de F1, no F1 cerrada
+> Entrega **F1.1 (tokens) completo** y el primer corte de F1.2 (átomos), que es lo que
+> los diez carriles siguientes necesitan para no volver a inventar un color. Las
+> moléculas, los organismos, las piezas móviles y el catálogo vivo siguen abiertos y
+> están listados abajo. **El carril no se congela todavía.**
+
+## Qué está hecho, con la salida que lo prueba
+
+| Entregable | Evidencia | Estado |
+| --- | --- | :-: |
+| `packages/ui` con tres puntos de entrada: universal, `/web` y `/nativo` | `yarn install` lo resuelve; los tres productos lo declaran como `workspace:*` | ✅ |
+| **F1.1 · Tokens completos**, portados de `docs/Views/Sistema-Diseno/estilos.css` | 42 primitivas + 29 roles por tema, claro y oscuro | ✅ |
+| **La prueba que impide inventar**: los tokens se comparan contra la bóveda | `tokens-contra-boveda.spec.ts` · 5 pruebas. **Verificada mutando `--g600` a `#1C5A3B`: señaló el token y el rol `--brand` que lo consume** | ✅ |
+| `generado/tokens.css` **emitido** desde `src/tokens/`, no escrito a mano | `scripts/tokens-a-css.mjs` → 189 líneas · `:root`, `prefers-color-scheme` y los dos `data-theme` | ✅ |
+| **`Monto` deja de estar duplicado** | Había **dos** implementaciones —`apps/movil` y `apps/backoffice`— y ninguna con el formato de la maqueta. Ahora hay una, y las dos apps la reexportan | ✅ |
+| El importe se formatea **sin pasar por `Number`** | `Bs 1.240,00` desde la cadena del contrato. **Prueba de propiedad: 5.000 importes deterministas de hasta 19 dígitos, ida y vuelta exacta** | ✅ |
+| Átomos DOM: `Monto`, `Boton` (7 estados), `ChipEstado` | 6 pruebas de componente + 1 de accesibilidad | ✅ |
+| Átomos nativos: `Monto`, `Boton` | Tipados por `apps/movil`. **Verificado**: se metió una propiedad inexistente en el `StyleSheet` y el `typecheck` de la app la señaló | ✅ |
+| **El andamiaje de F0 desaparece** de los tres productos | `apps/movil/src/tokens/andamiaje.ts` y los dos `andamiaje.css` borrados; cero literales de diseño en `apps/` | ✅ |
+| `yarn dev:backoffice` y `yarn dev:web`, que el gate de F0 pide y no existían | Agregados a la raíz; construyen el sistema antes de levantar | ✅ |
+| El catálogo vivo en `/catalogo` | **No se hizo.** Es F1.6 y necesita las moléculas y los organismos que este corte no trae. Adelantar una ruta vacía no cataloga nada | — |
+
+### Evidencia, con el comando y su resultado
+
+```
+yarn build                     4 tareas, 4 exitosas  (ui, simulado, backoffice, web)
+yarn lint                      5 tareas, 5 exitosas
+yarn test:front                6 tareas, 6 exitosas · 16 (ui) + 21 (movil) + 19 (backoffice) + 15 (web)
+yarn test:a11y                 6 tareas, 6 exitosas
+yarn workspace @aportaya/ui build          generado/tokens.css · 189 lineas
+yarn workspace @aportaya/ui typecheck      sin errores
+yarn workspace @aportaya/web typecheck     18 archivos · 0 errores
+```
+
+**Pruebas del paquete, por corredor**
+
+| Corredor | Pruebas | Falladas | Qué cubre |
+| --- | :-: | :-: | --- |
+| `unidad` | 12 | 0 | formateo de dinero (incluida la prueba de propiedad) y los tokens contra la bóveda |
+| `componente` | 4 | 0 | `Monto` con su etiqueta, el signo legible, el doble envío bloqueado, `type="button"` |
+| `a11y` | 1 | 0 | `jest-axe` sobre los cinco átomos juntos, sin violaciones |
+
+Ninguna prueba desactivada ni saltada.
+
+## Decisiones tomadas, y por qué
+
+| Decisión | Por qué |
+| --- | --- |
+| **Dos renderizadores, un solo contrato** — `@aportaya/ui/web` y `@aportaya/ui/nativo` | Compartir el componente entero pide `react-native-web`, que mete el runtime de React Native en el paquete del sitio público, justo lo que `F0-W` cuidó al dejar el simulado afuera. Y ADR-004 ya lo dice: «compartir componentes de dominio sí, compartir layout no». Lo que de verdad es uno solo —tokens y formateo de dinero— vive una vez |
+| El importe **no pasa por `Number` en ningún punto** | El contrato lo define como cadena y explica por qué: «un `number` JSON es un doble». Convertir para volver a texto reintroduce el error que el contrato evita |
+| `formatearMonto` **lanza** ante un importe deforme | Un importe fuera de `^-?\d+\.\d{2}$` significa que la respuesta no encaja en su esquema. Mostrarlo a medias en una billetera es peor que fallar, y la capa de dominio ya valida antes |
+| `USD` y no `$us` para el dólar | En una pantalla de dinero un símbolo ambiguo es un riesgo, no un ahorro. `Bs` sí, porque es lo que usa la maqueta y lo que se dice |
+| El signo va **delante del prefijo**: `-Bs 80,00` | Es lo primero que se lee. Y el `-` está en el texto, no solo en el color: quien no distingue rojo de verde tiene que leer la dirección igual |
+| `--ok-bg` en vez del `--okbg` de la bóveda | Una sola regla de nombres (`camelCase` en TS → guiones en CSS) en vez de una lista de excepciones. La prueba contra la bóveda compara **valores** con el mapeo explícito, así que el rename no afloja la verificación |
+| `generado/tokens.css` **no se versiona** | Dos fuentes de verdad divergen y la divergencia aparece en producción. Es la misma regla que ya seguían `src/arbolDeRutas.gen.ts` y `packages/simulado/generado/` |
+| Los alias `--color-fondo`, `tokens.color.acento` se mantienen | Sostienen las pantallas que F0 ya escribió sin reescribirlas en el mismo commit que trae los tokens. **Son alias sobre roles reales, no literales**: cada carril los migra al rol y cuando no quede ninguno se borran |
+| `cargando` deshabilita el botón, en las dos plataformas | Invariante 6. En una billetera el doble envío no es una molestia: es un cobro repetido. Hay prueba de que el segundo clic no llama al manejador |
+
+## Correcciones al troncal encontradas al ejecutar
+
+Dos defectos que detienen a cualquier máquina con el árbol recién clonado, y que no son
+de este carril:
+
+1. **`@aportaya/simulado` no tenía tarea `build`.** Sus contratos en JSON son un
+   artefacto ignorado por git, y sin una tarea con ese nombre el `^build` de `turbo`
+   nunca los producía: `yarn build` del backoffice moría con cuatro
+   `UNRESOLVED_IMPORT`. Ahora `build` corre el mismo generador que `contratos`.
+2. **`turbo.json` no declaraba `generado/**` como salida.** Turbo avisaba «no output
+   files found» y no cacheaba nada de lo emitido.
+
+Y una tercera, menor: **`apps/web` declaraba `typecheck` pero le faltaba
+`@astrojs/check`**, así que el comando abría un diálogo interactivo en vez de
+verificar. Agregado: 18 archivos, 0 errores.
+
+## Supuestos declarados
+
+Regla cero: ninguno silencioso.
+
+1. **Este corte no cierra F1.** La ficha pide tokens, átomos, moléculas, organismos,
+   piezas móviles y el catálogo vivo. Entrego F1.1 completo y el primer corte de F1.2.
+   **El carril no se congela**, y los carriles de pantalla que dependen de F1 congelado
+   (`F2`, `F6`) todavía no pueden arrancar.
+2. **El tema oscuro está en los tokens y verificado contra la bóveda, pero ninguna app
+   lo enciende todavía.** En web queda listo por `prefers-color-scheme`; en la app
+   `temaDe()` espera al `ProveedorTema` de F2, que no es de este carril. Fijarlo acá
+   sería inventar un proveedor ajeno.
+3. **El contraste AA está tomado de la bóveda, no vuelto a medir.** Los derivados de
+   texto (`--text-3`, `--accent-texto`, `--ok-texto`…) traen su ratio anotado en
+   `estilos.css` y se copiaron con él. Medir pieza por pieza, en los dos temas, es el
+   gate de F1 completo y necesita el catálogo.
+4. **`prefers-reduced-motion` está respetado en el CSS de los átomos.** En React Native
+   todavía no: eso pide `AccessibilityInfo.isReduceMotionEnabled`, y la única animación
+   nativa hoy es el `ActivityIndicator` del botón.
+
+## Huecos encontrados, no completados con una suposición
+
+| Hueco | Dónde | Por qué importa |
+| --- | --- | --- |
+| **`clientes/typescript` no existe en un árbol recién clonado y no se puede generar sin Java** | `apps/movil` y `apps/backoffice` | Es un artefacto de `generateOpenApiClients` (Gradle), ignorado por git. **Esta máquina no tiene JVM**, así que `yarn typecheck` de esas dos apps queda en rojo con 8 errores, **todos** por ese módulo ausente —los dos `TS7006` incluidos, que son el `any` implícito que deja el tipo faltante—. **No es de este carril y no se tapó**: escribir esos tipos a mano viola el invariante 2. `packages/ui` y `apps/web`, que no lo importan, están en verde |
+| El catálogo `/catalogo` con contraste medido pieza por pieza | F1.6 | Es el gate de F1 y la base de las pruebas visuales. Necesita las moléculas y los organismos que faltan |
+
+## Lo que queda abierto, y de quién es
+
+| Qué | De quién | Cuándo |
+| --- | --- | --- |
+| El resto de F1.2: campos, selección, indicadores | **este carril** | T2 |
+| F1.3 moléculas · F1.4 organismos (`TablaDeDatos` incluida) | **este carril** | T2 |
+| F1.5 piezas móviles: tab bar, bottom sheet, teclado numérico, PIN/OTP | **este carril** | T2 |
+| F1.6 catálogo vivo en `/catalogo`, `noindex`, con captura visual en ambos temas | **este carril** | T2 |
+| Las nueve piezas que suma [[20 Maqueta de referencia · deltas del frontend]] | **este carril** | T2, antes de que los carriles compongan |
+| `ProveedorTema` que encienda el oscuro en la app | **`F2`** | T3 |
+| Migrar los alias `--color-*` al rol correspondiente | cada carril de pantalla | al tocar cada pantalla |
+| Generar `clientes/typescript` en una máquina con JVM | **P1** | antes de cerrar el tramo |
+
+## Frases prohibidas sin evidencia
+
+No se dice «está listo». Lo que hay es: **21 pruebas en verde en tres corredores del
+paquete, una prueba que se verificó fallando cuando se altera un solo dígito de un
+color, un formateo de dinero comprobado sobre 5.000 importes de hasta 19 dígitos sin
+tocar un `Number`, dos implementaciones duplicadas de `Monto` reducidas a una, el
+andamiaje de F0 borrado de los tres productos, y `build`, `lint`, `test:front` y
+`test:a11y` en verde en los cinco espacios de trabajo.**
+
+## Ver también
+
+[[11 Fases F0 y F1 · Cimientos y sistema de diseño]] · [[16 Carriles de frontend]] ·
+[[10 Plan maestro del frontend]] · [[carril-F0-M]] · [[carril-F0-B]] · [[carril-F0-W]]
+
+## Rehecho el 2026-09-10 · TF.2 en Angular y Flutter
+
+Todo lo de arriba describía el sistema de diseño en React. Con [[ADR-044 Frontend en Angular y Flutter]] se rehizo entero, en dos paquetes.
+
+### Qué quedó, con lo que lo prueba
+
+| Entregable | Evidencia | Estado |
+| --- | --- | :-: |
+| **F1-M** `packages/diseno_flutter` (`aportaya_diseno`): tema desde `tokens.dart` (`Tokens` como `ThemeExtension`), 94 archivos, una pieza por archivo en `atomos/`, `moleculas/`, `organismos/`, `moviles/` | `flutter test`: **44 en verde** (unidad, 7 widget de comportamiento, 14 a11y con `textContrastGuideline` + `androidTapTargetGuideline` + `labeledTapTargetGuideline`, 14 goldens claro/oscuro) · `flutter analyze --fatal-infos` limpio · `dart format` sin cambios | ✅ |
+| Widgetbook | `lib/catalogo/catalogo.dart` + `muestras.dart`; se corre con `flutter run -t lib/catalogo.dart` desde `apps/movil` | ✅ |
+| **F1-W** `packages/ui` (`@aportaya/ui`): 60 carpetas, `src/<pieza>/<pieza>.ts`, signals, OnPush, cero literales | `ng lint` limpio · `tsc` en verde · `verificar_frontend.py ui` en verde | ✅ |
+| Piezas de [[22 Mapa de la maqueta · pantalla, carril y mundo]] §6, con ese nombre, en los dos mundos | `catalogo.spec.ts` (Angular) las enumera y falla si falta una; el barrido Flutter exige archivo = pieza | ✅ |
+| `Monto` con los 5.006 vectores | Angular `monto.spec.ts` · Flutter `formatear_monto_test.dart` | ✅ |
+| Catálogo vivo `/catalogo` en `apps/web` | Prerenderizado (`Prerendered 2 static routes`), `meta robots noindex` + `RUTAS_NO_INDEXABLES` | ✅ |
+| axe sobre el catálogo entero, claro y oscuro | `catalogo.a11y.spec.ts`: 3 en verde. Corrigió tres defectos reales: `header` dentro de `region`, pestañas con `aria-controls` a un panel inexistente, dos regiones con el mismo nombre | ✅ |
+| Playwright contra el build SSR | `apps/web/pruebas/e2e/`: **6 en verde**; capturas `apps/web/capturas/catalogo-{light,dark}-{escritorio,telefono}.png`; sin desplazamiento horizontal a 400 px; **todo control ≥ 44 px** (la prueba encontró 21 chicos: botón `sm`, ojo de contraseña, borrar búsqueda, segmentos, orden de tabla, enlaces del shell; todos corregidos) | ✅ |
+| `BandaDeProposito` sube del backoffice a `@aportaya/ui` | `apps/backoffice/src/app/layout/` desaparece; la billetera la importa del paquete; 12 pruebas del backoffice en verde | ✅ |
+| Raíz | `yarn lint` 7/7 · `yarn typecheck` 10/10 · `yarn test:front` 10/10 · `yarn test:a11y` 10/10 | ✅ |
+
+### Revisión lado a lado, primera pasada
+
+Se compararon las capturas de `/catalogo` con los goldens de Flutter y con la maqueta. Los goldens se pintan con la fuente Ahem (bloques): comparan **geometría y color**, no tipografía. Diferencias encontradas y qué se hizo:
+
+| Diferencia | Resolución |
+| --- | --- |
+| Segmento elegido: Flutter ya iba con relleno de marca; Angular partió con fondo sutil | Angular pasa a `--verde-solido` en el elegido (regla 3) |
+| «Retirar» sobre la tarjeta verde: Flutter tiene `BotonVariante.sobreVerde`; Angular no la tenía | Se agrega `variante="sobreVerde"` con borde y texto `--sobre-verde-solido` |
+| Área táctil: Flutter exige 48 dp (`SelectorSegmentado`, `ChipElegible`); Angular usaba 44 px y varios controles quedaban en 32–36 | Angular queda en `--area-tactil` (44, el mínimo web de `tokens.json`) en **todo** lo tocable; se conserva la diferencia 44/48 por mundo, que ya está en los tokens |
+| `ChipEstado`: Flutter usa punto o ícono + borde al 35 %; Angular igual, con `color-mix` | Sin cambio |
+| Calendario de cuotas: solo Flutter (§6 lo marca «—» en Angular) | Sin cambio |
+| Tipografía real, sombras y `hover` | No comparables por golden; queda para la mirada humana de TF.3 |
+
+### Qué queda abierto
+
+| Qué | De quién | Cuándo |
+| --- | --- | --- |
+| Mirada humana sobre las capturas y los goldens, y congelar los dos paquetes | **P1** | TF.3 |
+| `custom_lint` (Flutter) y reglas propias de `angular-eslint` que reemplacen el barrido de texto | F1 (micro-PR) | cuando el barrido moleste |
+| Empaquetar `@aportaya/ui` con `ng-packagr` (hoy se consume por alias) | F1 (micro-PR) | cuando haya que publicarlo |
+| Capturas de Widgetbook en dispositivo (hoy los goldens son la evidencia) | **P3** | TF.3 |
+
+## TF.3 · Mirada humana y congelamiento — 2026-09-11
+
+La mirada humana pendiente encontró **un defecto real de contraste en oscuro**, no una
+diferencia cosmética. Se corrigió antes de congelar.
+
+### El defecto
+
+Seis piezas de `packages/ui` y dos de `packages/diseno_flutter` combinaban un **tono
+crudo de paleta** (`--g100` / `Paleta.g100`, que no tiene versión oscura) con un **rol
+de tema** (`--brand-ink` / `t.brandTexto`, que sí la tiene). En claro, casualidad: los
+dos venían claros y contrastaban bien. En oscuro, `--brand-ink` se invierte a un verde
+casi blanco (`#EAF3ED`) pero `--g100` se queda en `#E7F2EB` — **texto claro sobre fondo
+claro**, invisible. Se vio primero en las capturas de `/catalogo` en tema oscuro:
+`Avatar`, los íconos de `FilaDeMovimiento`, la fila marcada de `TablaDeDatos`, el
+contador de `Pestanas`, `BandaDeProposito` y el resalte de `EscaleraDeEtapas` en
+Angular; `AccionesRapidas` y el indicador de `BarraPestanas` en Flutter — todos con el
+mismo patrón, la misma causa. Es justo lo que dice el comentario del propio
+`tokens.json`: *«un componente no pide un tono crudo: pide un rol»*; estas ocho piezas
+lo rompían.
+
+### La corrección
+
+Se agregó el rol que faltaba — `brandBg` / `--brand-bg` — a `packages/tokens/tokens.json`
+(claro: `g100`, igual que antes; oscuro: `g700`, para que `brand-ink` siga en AA sobre
+él) y se regeneraron `tokens.css` y `tokens.dart`. Las ocho piezas pasan a pedir el rol,
+no el tono. Sin cambio visible en claro (mismo valor); en oscuro, fondo y texto se
+invierten juntos.
+
+### Evidencia
+
+| Paso | Salida |
+| --- | --- |
+| `./gradlew generateOpenApiClients` | sin diff en `clientes/angular` ni `clientes/dart` |
+| `yarn lint` · `yarn typecheck` | 7/7 y 10/10 |
+| `yarn test:front` | 10/10 — incluye los 14 goldens de `diseno_flutter` (2 actualizados: `moleculas_oscuro`, `moviles_oscuro`, revisados a mano contra el diff antes de aceptar) y los 5 de `movil` |
+| `yarn test:a11y` | 10/10 — axe (Angular) y `meetsGuideline` (Flutter), claro y oscuro |
+| `yarn workspace @aportaya/backoffice build` · `@aportaya/web build` | ambas bajo presupuesto, `noindex` presente |
+| `yarn workspace @aportaya/web test:e2e` | 6/6, capturas nuevas revisadas a ojo: `Avatar`, `FilaDeMovimiento`, `BandaDeProposito` y la fila marcada de `TablaDeDatos` ahora legibles en oscuro |
+| `grep` de Expo/React/Vite/Astro/MSW/Maestro en `apps/`, `packages/`, `package.json` | vacío |
+| `clientes/typescript/` | no existe |
+
+### Gate del tramo TF — cierre
+
+- [x] Gate de salida F0 y los dos gates de F1, ejecutados
+- [x] Ninguna referencia a Expo, React, Vite, Astro, MSW ni Maestro
+- [x] `clientes/typescript/` no existe; `clientes/angular/` y `clientes/dart/` regenerados sin diff
+- [x] Revisión visual conjunta ejecutada — encontró y corrigió el defecto de arriba
+- [x] **`packages/ui` y `packages/diseno_flutter` quedan congelados.** Un átomo nuevo,
+      un token nuevo o un rol nuevo entra por micro-PR (§6 de
+      [[16 Carriles de frontend]]), nunca en rama de carril de pantallas
+
+### Lo que queda abierto, sin bloquear el congelamiento
+
+| Qué | De quién | Cuándo |
+| --- | --- | --- |
+| Capturas de Widgetbook en dispositivo físico (hoy los goldens son la evidencia) | **P3** | cuando F1-M tenga su primer usuario en F5 |
+| `custom_lint` / reglas propias de `angular-eslint` que reemplacen el barrido de texto | F1 (micro-PR) | cuando el barrido moleste |

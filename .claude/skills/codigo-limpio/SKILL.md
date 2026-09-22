@@ -102,12 +102,28 @@ simplifica: degrada**.
 
 Lo mecánico no se discute en revisión: lo resuelve la herramienta.
 
-- Prettier y ESLint con la configuración del repo; el CI falla si no pasa.
-- TypeScript en modo estricto; `any` requiere justificación escrita.
-- Reglas de lint propias del proyecto: prohibición de `number` en dinero
-  (`dinero-decimal`), prohibición de consultas fuera de `conContexto`, límite de
-  dependencias entre niveles.
-- Un `eslint-disable` sin comentario que explique el porqué se rechaza en revisión.
+**En el backend (Java 21 · Spring Boot)** — `./gradlew spotlessCheck check`:
+
+- **Spotless** con un único formato; el CI falla si no pasa.
+- **ArchUnit** verifica la dirección de dependencia entre capas, que `@Transactional`
+  solo viva en `aplicacion/`, y que nadie fuera de `infraestructura/adaptadores/`
+  implemente un puerto ([[ADR-023 Composición atómica en Java]],
+  [[ADR-033 Puertos y adaptadores]]).
+- Prohibiciones verificadas: `double`/`float` en dinero (`dinero-decimal`), JPA e
+  Hibernate ([[ADR-016 Acceso a datos con jOOQ]]), consultas fuera de `conContexto`,
+  e importar otro servicio.
+- Una supresión (`@SuppressWarnings`, exclusión de ArchUnit) sin comentario que
+  explique el porqué se rechaza en revisión.
+
+**En el frontend (Flutter y Angular)** — `yarn lint && yarn typecheck`:
+
+- Angular: angular-eslint con la configuración del repo, TypeScript estricto; `any`
+  requiere justificación escrita. Flutter: `dart format` y `flutter analyze --fatal-infos`.
+- Reglas propias, verificadas por `scripts/verificar_frontend.py` en el `lint` de cada
+  paquete: sin red en la vista, sin literal de diseño, sin formato de dinero fuera de
+  `Monto`, sin `Platform.is*` fuera de `infraestructura/` ([[ADR-036 Android primero]]),
+  sin `print`/`console`, y ningún archivo de más de 200 líneas.
+- Un `eslint-disable` o `// ignore:` sin comentario que explique el porqué se rechaza en revisión.
 
 ## Antes de abrir el PR
 

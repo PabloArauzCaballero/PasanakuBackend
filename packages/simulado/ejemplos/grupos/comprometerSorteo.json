@@ -1,0 +1,58 @@
+{
+  "servicio": "grupos",
+  "operacion": "comprometerSorteo",
+  "metodo": "post",
+  "ruta": "/grupos/{grupoId}/sorteo",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "sorteoId": "14c83a2c-f858-4384-8136-f76580d20edb",
+        "hashSemilla": "hashSemilla-hashSemilla-hashSemilla-hashSemilla-hashSemilla-hash",
+        "algoritmo": "FISHER_YATES_SHA256"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "sorteoId": "14c83a2c-f858-4384-8136-f76580d20edb",
+        "hashSemilla": "hashSemilla-hashSemilla-hashSemilla-hashSemilla-hashSemilla-hash",
+        "algoritmo": "FISHER_YATES_SHA256"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "sorteoId": "14c83a2c-f858-4384-8136-f76580d20edb",
+        "hashSemilla": "hashSemilla-hashSemilla-hashSemilla-hashSemilla-hashSemilla-hash",
+        "algoritmo": "FISHER_YATES_SHA256"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "sorteoId": "14c83a2c-f858-4384-8136-f76580d20edb",
+        "hashSemilla": "hashSemilla-hashSemilla-hashSemilla-hashSemilla-hashSemilla-hash",
+        "algoritmo": "FISHER_YATES_SHA256"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

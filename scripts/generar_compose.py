@@ -1,0 +1,457 @@
+#!/usr/bin/env python3
+"""
+Genera el perfil `todo` del compose: los catorce servicios y sus dependencias.
+
+    python3 scripts/generar_compose.py
+
+Lee
+    servicios/*/descriptor.yml               que servicios hay
+    servicios/*/src/main/resources/*.yml     que variables exige cada uno
+Escribe
+    despliegue/compose/servicios.yml         un servicio por carpeta, perfil `todo`
+
+La salida es DERIVADA y no se edita a mano. Catorce bloques escritos a mano
+divergen, y la divergencia aparece cuando alguien levanta el stack completo y un
+servicio no arranca porque le falta una variable que los otros trece si tienen.
+
+Las variables que cada servicio exige NO se inventan: salen de leer su
+`application.yml` y buscar los `${...}`. Si alguien agrega una clave nueva y no la
+declara aca, este script la incluye sola en la proxima corrida.
+
+Ningun servicio publica puerto: la unica entrada publica sigue siendo NGINX
+(ADR-025). Y ninguno arranca antes de que la base este lista y migrada.
+"""
+
+import pathlib
+import re
+import sys
+
+RAIZ = pathlib.Path(__file__).resolve().parent.parent
+SERVICIOS = RAIZ / "servicios"
+SALIDA = RAIZ / "despliegue/compose/servicios.yml"
+# En la RAIZ y no junto a los otros: Coolify ejecuta el compose con
+# `--project-directory` en la raiz del clon, y las rutas relativas se resuelven
+# desde ahi — con el archivo en despliegue/compose/, `context: ../..` terminaba en
+# `/` y la construccion moria con «lstat /despliegue: no such file or directory».
+SALIDA_DESPLEGADO = RAIZ / "docker-compose.coolify.yml"
+
+# Lo que vale igual para los catorce. Un valor por variable, y aca se ve entero.
+COMUNES = {
+    "BD_URL": "jdbc:postgresql://pgbouncer:6432/pasanaku",
+    "BD_CLAVE": "pasanaku",
+    "KAFKA_URL": "kafka:9092",
+    "JWKS_URI": "http://identidad:8080/.well-known/jwks.json",
+}
+
+# Secretos y datos del entorno. En el compose local son valores de desarrollo y
+# estan a la vista a proposito: lo que NO puede pasar es que en produccion salgan
+# de aca. Ahi los pone el almacen de secretos, y el servicio no levanta sin ellos.
+DE_DESARROLLO = {
+    "SEGURIDAD_PIMIENTA": "pimienta-local-no-es-la-de-produccion",
+    # El servidor de archivos (ADR-034). La cedula, la selfie y los comprobantes van
+    # ahi, no al disco del contenedor: un contenedor se reemplaza y la evidencia
+    # legal no. En la columna queda una clave de objeto, nunca una URL publica.
+    "ARCHIVOS_URL": "http://minio:9000",
+    "ARCHIVOS_USUARIO": "aportaya",
+    "ARCHIVOS_CLAVE": "aportaya-local",
+    "ARCHIVOS_BUCKET": "aportaya-archivos",
+    "WEBHOOK_SECRETO": "secreto-local-no-es-el-de-produccion",
+    "CERTIFICADOS_CLAVE_FIRMA": "clave-local-no-es-la-de-produccion",
+    "CUENTA_PUENTE_CUSTODIA": "00000000-0000-0000-0000-0000000000c0",
+    "BASE_URL_PUBLICA": "http://localhost",
+    "SIN_NIT_EMISOR": "1234567890",
+    # Vacia a proposito: el compose levanta UNA replica de identidad, y con una sola
+    # la clave generada en memoria alcanza. El arranque avisa que lo hizo. En
+    # cualquier entorno con dos replicas esto lo inyecta el almacen de secretos, y no
+    # este archivo (ADR-037).
+    "JWT_CLAVE_FIRMA": "",
+}
+
+# ── El mismo cuadro, para un entorno DESPLEGADO (Coolify) ───────────────────
+#
+# Misma fuente y mismo barrido: lo unico que cambia es de donde sale cada valor.
+# Aca ninguno es un literal de desarrollo — los secretos llegan como variables del
+# entorno, que en Coolify se editan en la interfaz y no viven en el repositorio.
+# Un `${...}` que Coolify no conozca lo crea el solo al leer el compose.
+COMUNES_DESPLEGADO = {
+    "BD_URL": "jdbc:postgresql://pgbouncer:6432/pasanaku",
+    "BD_CLAVE": "${BD_CLAVE}",
+    "KAFKA_URL": "kafka:9092",
+    "JWKS_URI": "http://identidad:8080/.well-known/jwks.json",
+}
+
+DE_ENTORNO = {
+    # El nombre del host es el mismo que en desarrollo porque los contenedores
+    # viven en la red `aportaya-interna`, igual que el compose local.
+    "ARCHIVOS_URL": "http://minio:9000",
+    "ARCHIVOS_BUCKET": "aportaya-archivos",
+    "ARCHIVOS_USUARIO": "${ARCHIVOS_USUARIO}",
+    "ARCHIVOS_CLAVE": "${ARCHIVOS_CLAVE}",
+    "SEGURIDAD_PIMIENTA": "${SEGURIDAD_PIMIENTA}",
+    "WEBHOOK_SECRETO": "${WEBHOOK_SECRETO}",
+    "CERTIFICADOS_CLAVE_FIRMA": "${CERTIFICADOS_CLAVE_FIRMA}",
+    "CUENTA_PUENTE_CUSTODIA": "${CUENTA_PUENTE_CUSTODIA}",
+    "BASE_URL_PUBLICA": "${BASE_URL_PUBLICA}",
+    "SIN_NIT_EMISOR": "${SIN_NIT_EMISOR}",
+    # Con una sola replica la clave generada en memoria alcanza, pero aca se deja
+    # inyectable: el dia que haya dos, cada una firmaria distinto y los tokens de
+    # una los rechazaria la otra (ADR-037).
+    "JWT_CLAVE_FIRMA": "${JWT_CLAVE_FIRMA}",
+}
+
+
+def url_de_servicio(variable: str, servicios: list[str]) -> str | None:
+    """`URL_GRUPOS` -> `http://grupos:8080`, si `grupos` existe.
+
+    No se escribe una tabla de catorce entradas: **se deriva del nombre del servicio**,
+    que es la unica fuente. Una tabla a mano se olvida el dia que alguien agrega un
+    adaptador nuevo, y el fallo aparece recien al levantar el stack entero.
+
+    Se comprueba que el servicio exista de verdad: `URL_LOQUESEA` no se convierte en
+    `http://loquesea:8080` en silencio, se declara como variable sin valor.
+    """
+    if not variable.startswith("URL_"):
+        return None
+    destino = variable.removeprefix("URL_").lower().replace("_", "-")
+    return f"http://{destino}:8080" if destino in servicios else None
+
+
+CABECERA = """# Perfil `todo`: los catorce servicios, GENERADO por scripts/generar_compose.py.
+#
+#   docker compose -f despliegue/compose/base.yml -f despliegue/compose/servicios.yml \\
+#     --profile todo up -d --wait
+#
+# NO se edita a mano. Un bloque distinto de los otros trece es una divergencia que
+# aparece recien cuando alguien levanta el stack entero (ADR-025).
+#
+# Ninguno publica puerto: la unica entrada publica es NGINX. Y ninguno arranca antes
+# de que la base este lista — el orden del despliegue no es negociable.
+name: aportaya
+
+# La red la declara base.yml, que es el archivo que siempre se combina con este.
+# Repetirla aca con `external: true` haria que un `up` de este solo no la creara.
+networks:
+  interna:
+    name: aportaya-interna
+
+services:
+"""
+
+BLOQUE = """  {nombre}:
+    build:
+      context: ../..
+      dockerfile: despliegue/Dockerfile
+      args:
+        SERVICIO: {nombre}
+    image: aportaya/{nombre}:local
+    container_name: aportaya-{nombre}
+    profiles: [todo]
+    networks: [interna]
+    environment:
+{ambiente}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+"""
+
+
+CABECERA_DESPLEGADO = """# El stack desplegado — GENERADO por `python3 scripts/generar_compose.py --coolify`.
+#
+# Es el mismo barrido de servicios/ que el perfil `todo`, con estas diferencias, y
+# cada una tiene un motivo medido en el primer despliegue de TEST:
+#
+#   1 · los valores no son literales de desarrollo, son variables del entorno;
+#   2 · NO construye: arranca imagenes `aportaya/*:test` ya construidas en el host
+#       por /opt/aportaya/bin/construir-todo.sh, UNA POR UNA. Construir desde Coolify
+#       lanzo las quince a la vez —Coolify reescribe los Dockerfile para inyectar sus
+#       ARG, asi que no reusa la cache—, y con `org.gradle.jvmargs=-Xmx3g` eso fueron
+#       16 JVM, carga 49 y la maquina entera (Atlas incluido) camino al OOM.
+#       `pull_policy: never` porque Coolify intenta bajar del registro hasta las
+#       imagenes locales;
+#   3 · postgres, pgbouncer, minio y kafka NO estan aca: viven fuera de Coolify, en
+#       /opt/aportaya/, porque Coolify recrea la aplicacion entera en cada despliegue.
+#
+# La red `aportaya-interna` es externa y ya existe: ahi `postgres`, `pgbouncer`,
+# `minio`, `kafka` y `gateway` resuelven igual que en la maquina de desarrollo.
+name: aportaya
+
+networks:
+  interna:
+    external: true
+    name: aportaya-interna
+  # La red por la que Traefik llega a lo que se publica: el gateway y los dos fronts.
+  publica:
+    external: true
+    name: coolify
+
+services:
+  # El esquema viaja con el despliegue. Termina antes de que arranque un solo
+  # servicio, y si falla no arranca ninguno.
+  esquema:
+    image: aportaya/esquema:test
+    pull_policy: never
+    restart: "no"
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGDATABASE: pasanaku
+      PGUSER: ${BD_USUARIO_ADMIN}
+      PGPASSWORD: ${BD_CLAVE_ADMIN}
+    networks: [interna]
+
+  # El gateway: la unica entrada a la API (ADR-025).
+  gateway:
+    image: aportaya/gateway:test
+    pull_policy: never
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/liveness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 30s
+    networks: [interna, publica]
+
+"""
+
+# Un compose por front, ADEMAS del principal. La duplicacion es aparente: los tres
+# bloques se recortan del MISMO texto que genera el compose del backend, asi que no
+# pueden divergir — si alguien cambia el front en un lado, cambia en los dos.
+#
+# Existen porque en Coolify una aplicacion de tipo compose es UN recurso en la lista: con
+# los tres fronts dentro del compose del backend, el panel muestra «aportaya-api» y nada
+# mas. Separados, cada uno es su recurso, con su dominio y su boton de desplegar.
+#
+# Ya NO estan en el compose del backend: cada front es su propia aplicacion en Coolify y se
+# despliega solo. El orden en que se hizo el cambio importa y costo caro aprenderlo — la
+# primera vez se sacaron del principal ANTES de crear los recursos, el autodespliegue los
+# borro como huerfanos y los tres enlaces se cayeron. Primero los destinos, despues mover.
+SALIDA_FRONTS = RAIZ / "despliegue/coolify"
+
+TEXTO_DE_LOS_FRONTS = """
+  # El portal de operacion. Su nginx inyecta el meta del gateway y reenvia /api/ al
+  # gateway por el MISMO origen: la CSP dice `connect-src 'self'`.
+  backoffice:
+    image: aportaya/backoffice:test
+    pull_policy: never
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+    networks: [interna, publica]
+
+  # El sitio publico, con render en servidor.
+  web:
+    image: aportaya/web:test
+    pull_policy: never
+    restart: unless-stopped
+    environment:
+      # La MISMA dirección relativa que usa el navegador, a propósito: el servidor la
+      # resuelve contra sí mismo y sale por su propio reenvío de /api (abajo). Con una
+      # URL distinta en cada lado, la caché que el servidor transfiere —indexada por
+      # URL— no la encuentra el navegador al hidratar, vuelve a pedir los datos y el DOM
+      # deja de coincidir: las páginas de verificación pública se quedaban en blanco.
+      APORTAYA_GATEWAY: /api/v1
+      # ...y el navegador por el mismo origen: server.ts reenvia /api y le
+      # inyecta el meta del gateway a la pagina.
+      APORTAYA_GATEWAY_INTERNO: http://gateway:8080
+      # Angular SSR rechaza con 400 todo host que no este en su lista (defensa contra
+      # SSRF): angular.json solo trae aportaya.bo y localhost, asi que el dominio del
+      # entorno llega por variable, sin reconstruir la imagen.
+      NG_ALLOWED_HOSTS: ${WEB_HOSTS_PERMITIDOS}
+      # Traefik agrega X-Forwarded-*: sin confiar en ellos, SSR arma las URL con el
+      # host y el esquema internos.
+      NG_TRUST_PROXY_HEADERS: x-forwarded-for,x-forwarded-host,x-forwarded-port,x-forwarded-proto,x-forwarded-server
+      # Dónde abrir la app en el navegador (el botón de /descargar). Del entorno: es una
+      # dirección de este despliegue, no del producto.
+      APORTAYA_URL_APP: ${URL_APP}
+    networks: [interna, publica]
+
+  # La app movil compilada para la web: se prueba desde un navegador, sin APK ni
+  # TestFlight. Su nginx reenvia /api/ al gateway por el mismo origen.
+  movil:
+    image: aportaya/movil-web:test
+    pull_policy: never
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+    networks: [interna, publica]
+
+"""
+
+FRONTS = {
+    "backoffice": "El portal de operacion",
+    "web": "El sitio publico",
+    "movil": "La app movil en el navegador",
+}
+
+CABECERA_FRONT = """# {titulo} — GENERADO por `python3 scripts/generar_compose.py --coolify`.
+#
+# Recortado del compose del backend, que es la unica fuente. Comparte con el sus dos redes
+# externas: `aportaya-interna` es donde `gateway` resuelve por nombre —Docker resuelve el
+# alias de servicio entre proyectos distintos mientras compartan la red— y `coolify` es por
+# donde entra Traefik.
+#
+# No construye: la imagen la arma /opt/aportaya/bin/construir-fronts.sh en el host.
+name: aportaya-{nombre}
+
+networks:
+  interna:
+    external: true
+    name: aportaya-interna
+  publica:
+    external: true
+    name: coolify
+
+services:
+"""
+
+
+def bloque_del_front(nombre):
+    """Recorta el bloque de un servicio del texto de los fronts, con su comentario."""
+    marca = f"\n  {nombre}:\n"
+    i = TEXTO_DE_LOS_FRONTS.index(marca)
+    # el comentario que lo precede es parte del bloque: explica por que ese front es asi
+    corte = TEXTO_DE_LOS_FRONTS.rfind("\n\n", 0, i)
+    # el primero del texto no tiene nada antes: empieza en cero
+    inicio = 0 if corte == -1 else corte + 2
+    fin = TEXTO_DE_LOS_FRONTS.find("\n\n", i)
+    if fin == -1:
+        fin = len(TEXTO_DE_LOS_FRONTS)
+    return TEXTO_DE_LOS_FRONTS[inicio:fin].rstrip("\n") + "\n"
+
+
+BLOQUE_DESPLEGADO = """  {nombre}:
+    image: aportaya/{nombre}:test
+    pull_policy: never
+    restart: unless-stopped
+    depends_on:
+{dependencias}
+    environment:
+{ambiente}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+"""
+
+
+# Arranque en OLAS de a cuatro, no los catorce a la vez. Arrancar una JVM de Spring es
+# CPU pura durante un par de minutos, y catorce juntas llevaron la carga de la máquina a
+# 73 —una máquina que además sostiene otro proyecto—. En olas, cada una espera a que la
+# anterior esté SANA: el despliegue tarda un poco más y nadie se queda sin CPU.
+# `identidad` va en la primera ola porque los demás validan tokens contra su JWKS.
+TAMANO_DE_OLA = 4
+
+
+def olas(servicios):
+    orden = ["identidad"] + [s for s in servicios if s != "identidad"]
+    return [orden[i:i + TAMANO_DE_OLA] for i in range(0, len(orden), TAMANO_DE_OLA)]
+
+
+def dependencias_de(servicio, servicios):
+    """El bloque depends_on: el esquema siempre, y la ola anterior sana si la hay."""
+    lineas = ["      esquema:", "        condition: service_completed_successfully"]
+    todas = olas(servicios)
+    indice = next(i for i, ola in enumerate(todas) if servicio in ola)
+    if indice > 0:
+        for previo in todas[indice - 1]:
+            lineas += [f"      {previo}:", "        condition: service_healthy"]
+    return "\n".join(lineas)
+
+
+def variables_de(servicio):
+    """Las variables que este servicio exige, leidas de su propia configuracion."""
+    config = SERVICIOS / servicio / "src/main/resources/application.yml"
+    if not config.is_file():
+        return []
+    texto = config.read_text(encoding="utf-8")
+    return sorted(set(re.findall(r"\$\{([A-Z_]+)[:}]", texto)))
+
+
+def main():
+    # Un solo barrido y un solo cuadro de variables para los dos destinos: si el
+    # desplegado tuviera su propio generador, divergirian, y la divergencia
+    # aparece recien cuando el entorno de pruebas no arranca.
+    desplegado = "--coolify" in sys.argv[1:]
+
+    servicios = sorted(
+        d.name for d in SERVICIOS.iterdir() if (d / "descriptor.yml").is_file()
+    )
+    if not servicios:
+        print("no hay servicios con descriptor: nada que generar")
+        return 1
+
+    sin_valor = []
+    bloques = []
+    for servicio in servicios:
+        lineas = []
+        for variable in variables_de(servicio):
+            # Con `is not None` y no con `or`: una cadena vacia es un valor legitimo
+            # —la clave de firma que se genera sola— y `or` la trataria como ausente.
+            if desplegado:
+                valor = COMUNES_DESPLEGADO.get(variable)
+                if valor is None:
+                    valor = DE_ENTORNO.get(variable)
+            else:
+                valor = COMUNES.get(variable)
+                if valor is None:
+                    valor = DE_DESARROLLO.get(variable)
+            if valor is None:
+                valor = url_de_servicio(variable, servicios)
+            if valor is None:
+                sin_valor.append(f"{servicio}: {variable}")
+                continue
+            lineas.append(f"      {variable}: {valor}")
+        if desplegado:
+            # Cual perfil corre lo decide el entorno y no este archivo: `local`
+            # trae el segundo factor de desarrollo —codigo fijo— y esa es
+            # exactamente la clase de decision que no se hornea en el repositorio.
+            lineas.append("      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}")
+            bloques.append(BLOQUE_DESPLEGADO.format(
+                nombre=servicio, ambiente="\n".join(lineas), dependencias=dependencias_de(servicio, servicios)))
+        else:
+            # El perfil `local` enciende el simulador de pagos y la mensajeria
+            # simulada, que son los defaults del contrato de implementacion.
+            lineas.append("      SPRING_PROFILES_ACTIVE: local")
+            bloques.append(BLOQUE.format(nombre=servicio, ambiente="\n".join(lineas)))
+
+    if sin_valor:
+        print("Variables que ningun valor cubre; agregalas al script antes de generar:")
+        for falta in sin_valor:
+            print(f"  {falta}")
+        return 1
+
+    salida = SALIDA_DESPLEGADO if desplegado else SALIDA
+    cabecera = CABECERA_DESPLEGADO if desplegado else CABECERA
+    etiqueta = "desplegado (Coolify)" if desplegado else "perfil `todo`"
+    salida.parent.mkdir(parents=True, exist_ok=True)
+    salida.write_text(cabecera + "\n".join(bloques), encoding="utf-8")
+    print(f"compose {etiqueta}: {len(servicios)} servicios -> {salida.relative_to(RAIZ)}")
+
+    if desplegado:
+        SALIDA_FRONTS.mkdir(parents=True, exist_ok=True)
+        for nombre, titulo in FRONTS.items():
+            destino = SALIDA_FRONTS / f"{nombre}.yml"
+            destino.write_text(
+                CABECERA_FRONT.format(titulo=titulo, nombre=nombre) + bloque_del_front(nombre),
+                encoding="utf-8")
+            print(f"  front {nombre} -> {destino.relative_to(RAIZ)}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

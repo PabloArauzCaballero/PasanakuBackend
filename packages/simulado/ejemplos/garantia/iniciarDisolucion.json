@@ -1,0 +1,170 @@
+{
+  "servicio": "garantia",
+  "operacion": "iniciarDisolucion",
+  "metodo": "post",
+  "ruta": "/garantia/grupos/{grupoId}/disolucion",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "disolucionId": "b2272ede-205c-46e6-86d8-487c8d28385c",
+        "estado": "estado",
+        "masaARepartir": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "totalADevolver": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "totalACobrar": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "liquidaciones": [
+          {
+            "participanteId": "136642bb-e0d2-4ea5-8c4b-b3e2f4385160",
+            "aportado": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "recibido": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "aDevolver": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "aCobrarle": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ],
+        "esNueva": true
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "disolucionId": "b2272ede-205c-46e6-86d8-487c8d28385c",
+        "estado": "estado",
+        "masaARepartir": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "totalADevolver": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "totalACobrar": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "liquidaciones": [],
+        "esNueva": false
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "disolucionId": "b2272ede-205c-46e6-86d8-487c8d28385c",
+        "estado": "estado",
+        "masaARepartir": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "totalADevolver": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "totalACobrar": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "liquidaciones": [
+          {
+            "participanteId": "136642bb-e0d2-4ea5-8c4b-b3e2f4385160",
+            "aportado": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "recibido": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "aDevolver": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "aCobrarle": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ],
+        "esNueva": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "disolucionId": "b2272ede-205c-46e6-86d8-487c8d28385c",
+        "estado": "estado",
+        "masaARepartir": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "totalADevolver": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "totalACobrar": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "liquidaciones": [
+          {
+            "participanteId": "136642bb-e0d2-4ea5-8c4b-b3e2f4385160",
+            "aportado": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "recibido": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "aDevolver": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "aCobrarle": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ],
+        "esNueva": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "servicio": "erp",
+  "operacion": "registrarCobro",
+  "metodo": "post",
+  "ruta": "/erp/cuentas-por-cobrar/{cuentaId}/cobros",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "cobroId": "f93f0ab8-bb55-4fd0-826a-6568b4947a88",
+        "cuentaPorCobrarId": "3d728f5f-1668-44f7-8b1a-dba853dae456",
+        "estado": "PENDIENTE",
+        "cobrado": "4.44",
+        "saldoPendiente": "4.44"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "cobroId": "f93f0ab8-bb55-4fd0-826a-6568b4947a88",
+        "cuentaPorCobrarId": "3d728f5f-1668-44f7-8b1a-dba853dae456",
+        "estado": "PENDIENTE",
+        "cobrado": "0.00",
+        "saldoPendiente": "0.00"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "cobroId": "f93f0ab8-bb55-4fd0-826a-6568b4947a88",
+        "cuentaPorCobrarId": "3d728f5f-1668-44f7-8b1a-dba853dae456",
+        "estado": "PENDIENTE",
+        "cobrado": "4.44",
+        "saldoPendiente": "4.44"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "cobroId": "f93f0ab8-bb55-4fd0-826a-6568b4947a88",
+        "cuentaPorCobrarId": "3d728f5f-1668-44f7-8b1a-dba853dae456",
+        "estado": "PENDIENTE",
+        "cobrado": "4.44",
+        "saldoPendiente": "4.44"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

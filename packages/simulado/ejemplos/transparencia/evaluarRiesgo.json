@@ -1,0 +1,108 @@
+{
+  "servicio": "transparencia",
+  "operacion": "evaluarRiesgo",
+  "metodo": "post",
+  "ruta": "/reputacion/riesgo/evaluacion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "alertas": [
+          {
+            "alertaId": "ab26be42-8bcc-4078-80ea-8e3a36f2eeba",
+            "codigo": "CAIDA_ABRUPTA_SCORE",
+            "severidad": "BAJA",
+            "descripcion": "descripcion",
+            "accionSugerida": "accionSugerida",
+            "mensajeAlUsuario": "mensajeAlUsuario"
+          }
+        ],
+        "nivelRiesgo": "BAJO",
+        "versionModelo": "versionModelo",
+        "metricasEnAlerta": [
+          {
+            "codigo": "codigo",
+            "valor": "valor",
+            "unidad": "unidad",
+            "umbral": "umbral",
+            "mayorEsPeor": true
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "alertas": [],
+        "nivelRiesgo": "BAJO",
+        "versionModelo": "versionModelo",
+        "metricasEnAlerta": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "alertas": [
+          {
+            "alertaId": "ab26be42-8bcc-4078-80ea-8e3a36f2eeba",
+            "codigo": "CAIDA_ABRUPTA_SCORE",
+            "severidad": "BAJA",
+            "descripcion": "descripcion",
+            "accionSugerida": "accionSugerida",
+            "mensajeAlUsuario": "mensajeAlUsuario"
+          }
+        ],
+        "nivelRiesgo": "BAJO",
+        "versionModelo": "versionModelo",
+        "metricasEnAlerta": [
+          {
+            "codigo": "codigo",
+            "valor": "valor",
+            "unidad": "unidad",
+            "umbral": "umbral",
+            "mayorEsPeor": true
+          }
+        ]
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "alertas": [
+          {
+            "alertaId": "ab26be42-8bcc-4078-80ea-8e3a36f2eeba",
+            "codigo": "CAIDA_ABRUPTA_SCORE",
+            "severidad": "BAJA",
+            "descripcion": "descripcion",
+            "accionSugerida": "accionSugerida",
+            "mensajeAlUsuario": "mensajeAlUsuario"
+          }
+        ],
+        "nivelRiesgo": "BAJO",
+        "versionModelo": "versionModelo",
+        "metricasEnAlerta": [
+          {
+            "codigo": "codigo",
+            "valor": "valor",
+            "unidad": "unidad",
+            "umbral": "umbral",
+            "mayorEsPeor": true
+          }
+        ]
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": null
+    }
+  }
+}

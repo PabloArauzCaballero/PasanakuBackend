@@ -1,0 +1,62 @@
+{
+  "servicio": "entregas",
+  "operacion": "registrarCuentaDestino",
+  "metodo": "post",
+  "ruta": "/cuentas-bancarias",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "cuentaId": "5b448b0e-23b3-41ec-88f7-dae27ef7dcfa",
+        "numeroEnmascarado": "numeroEnmascarado",
+        "estado": "PENDIENTE",
+        "esNueva": true
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "cuentaId": "5b448b0e-23b3-41ec-88f7-dae27ef7dcfa",
+        "numeroEnmascarado": "numeroEnmascarado",
+        "estado": "PENDIENTE",
+        "esNueva": false
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "cuentaId": "5b448b0e-23b3-41ec-88f7-dae27ef7dcfa",
+        "numeroEnmascarado": "numeroEnmascarado",
+        "estado": "PENDIENTE",
+        "esNueva": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "cuentaId": "5b448b0e-23b3-41ec-88f7-dae27ef7dcfa",
+        "numeroEnmascarado": "numeroEnmascarado",
+        "estado": "PENDIENTE",
+        "esNueva": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

@@ -1,0 +1,80 @@
+import bo.aportaya.gradle.AportayaExtension
+
+// Las clases de jOOQ se generan por INTROSPECCION de la base viva, y solo del
+// esquema propio: es el invariante 11 hecho build. Si el esquema cambio y nadie
+// regenero, el codigo no compila — que es exactamente lo que tiene que pasar.
+plugins {
+    id("aportaya.base")
+}
+
+val aportaya = extensions.findByType<AportayaExtension>()
+    ?: extensions.create<AportayaExtension>("aportaya")
+
+val generado = layout.buildDirectory.dir("generated/jooq")
+
+sourceSets["main"].java.srcDir(generado)
+
+val generateJooq = tasks.register("generateJooq") {
+    group = "build"
+    description = "Genera las clases de jOOQ del esquema propio desde la base viva"
+    val esquema = aportaya.esquema
+    val salida = generado
+    val url = providers.environmentVariable("BD_URL_ADMIN").orElse("jdbc:postgresql://127.0.0.1:5433/pasanaku")
+    val usuario = providers.environmentVariable("BD_USUARIO_ADMIN").orElse("pasanaku")
+    val clave = providers.environmentVariable("BD_CLAVE_ADMIN").orElse("pasanaku")
+    outputs.dir(salida)
+    doLast {
+        val nombre = esquema.get()
+        val configuracion = org.jooq.meta.jaxb.Configuration()
+            .withJdbc(
+                org.jooq.meta.jaxb.Jdbc()
+                    .withDriver("org.postgresql.Driver")
+                    .withUrl(url.get())
+                    .withUser(usuario.get())
+                    .withPassword(clave.get()),
+            )
+            .withGenerator(
+                org.jooq.meta.jaxb.Generator()
+                    .withDatabase(
+                        org.jooq.meta.jaxb.Database()
+                            .withName("org.jooq.meta.postgres.PostgresDatabase")
+                            .withIncludes(".*")
+                            .withInputSchema(nombre),
+                    )
+                    .withGenerate(
+                        org.jooq.meta.jaxb.Generate()
+                            .withDeprecated(false)
+                            // Una columna de tipo que jOOQ no conoce (inet, por
+                            // ejemplo) sale marcada como obsoleta, y con -Werror eso
+                            // rompe la compilacion de codigo que nadie escribio. No
+                            // es una desactivacion del gate: el gate sigue siendo
+                            // -Werror sobre el codigo que si se escribe.
+                            .withDeprecationOnUnknownTypes(false)
+                            .withJavaTimeTypes(true)
+                            .withPojos(false)
+                            .withDaos(false),
+                    )
+                    .withTarget(
+                        org.jooq.meta.jaxb.Target()
+                            // El paquete Java no lleva guion bajo aunque el esquema lo
+                            // tenga (nucleo_financiero): scripts/nuevo_servicio.py arma
+                            // el paquete del servicio pegando las palabras
+                            // (bo.aportaya.nucleofinanciero), y si el generado no
+                            // coincide, ArchUnit lo ve como un import a otro servicio.
+                            .withPackageName("bo.aportaya.${nombre.replace("_", "")}.generado")
+                            .withDirectory(salida.get().asFile.absolutePath),
+                    ),
+            )
+        org.jooq.codegen.GenerationTool.generate(configuracion)
+    }
+}
+
+// `dependsOn` y no `mustRunAfter`: con `mustRunAfter`, `bootJar` no arrastraba la
+// generacion, y en una copia limpia —la imagen de Docker, donde `.dockerignore` deja
+// `**/build` afuera— compilar fallaba con «package bo.aportaya.<servicio>.generado
+// does not exist». Ninguna imagen de servicio se podia construir.
+//
+// La regla de arriba se mantiene y se refuerza: las clases salen de la base viva en
+// cada compilacion, asi que el codigo nunca compila contra un esquema que ya no es.
+// Los modulos que no aplican este plugin —el gateway, por ejemplo— no se enteran.
+tasks.named<JavaCompile>("compileJava") { dependsOn(generateJooq) }

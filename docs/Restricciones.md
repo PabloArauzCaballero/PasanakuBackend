@@ -80,6 +80,7 @@ fn_<dominio>_<accion>  función
 | R-AUD-08 | Nada se depura antes de su fecha de conservación | Ley 393 (10 años) | [[CU-07 Ejercer derechos sobre datos personales]] |
 | R-AUD-09 | Los hashes de la bitácora los calcula la base, no la aplicación | ASFI · prueba ante el regulador | [[CU-73 Verificar la cadena de transparencia]] |
 | R-AUD-10 | Las cadenas se verifican en el control diario, no sólo al auditar | ASFI Seguridad de la Información | [[CU-73 Verificar la cadena de transparencia]] |
+| R-AUD-11 | El asiento que reversa se marca `REVERSADO` y apunta al original; y también tiene que cuadrar | Contabilidad · Ley 393 | [[CU-24 Registrar el asiento contable de una operación]] |
 
 ```sql
 -- R-AUD-01 · append-only por privilegios, no por convención
@@ -189,16 +190,35 @@ BEGIN
   RETURN NEW;
 END $$ LANGUAGE plpgsql;
 
+-- El cuadre se le exige a los DOS estados que dejan un asiento en firme. Con la
+-- condición puesta solo en 'CONFIRMADO', un asiento marcado 'REVERSADO' entraba sin
+-- que nadie verificara su partida doble: la corrección de un error contable era
+-- justamente el único movimiento que podía descuadrar impunemente.
 CREATE CONSTRAINT TRIGGER tg_asiento_cuadrado
   AFTER INSERT OR UPDATE ON asiento_contable
   DEFERRABLE INITIALLY DEFERRED
-  FOR EACH ROW WHEN (NEW.estado = 'CONFIRMADO')
+  FOR EACH ROW WHEN (NEW.estado IN ('CONFIRMADO', 'REVERSADO'))
   EXECUTE FUNCTION fn_aud_asiento_cuadrado();
 
 -- R-AUD-06 · la reversa apunta a un asiento distinto y confirmado
 ALTER TABLE asiento_contable
   ADD CONSTRAINT ck_asiento_reversa_distinta
   CHECK (asiento_reversa_id IS NULL OR asiento_reversa_id <> id);
+
+-- R-AUD-11 · qué asiento lleva el estado REVERSADO
+--
+-- El CHECK de `estado` admitía 'REVERSADO' y ningún caso de uso decía a cuál de los
+-- dos asientos le tocaba. La lectura natural —marcar el ORIGINAL— es imposible:
+-- `asiento_contable` es append-only (R-AUD-01), así que su estado no se puede
+-- cambiar después. De modo que 'REVERSADO' solo puede escribirse al insertar, y el
+-- único asiento que se inserta sabiendo que es una corrección es el inverso.
+--
+-- Queda entonces una equivalencia, y se hace cumplir en las dos direcciones: un
+-- asiento está REVERSADO si y solo si apunta al que corrige. Sin esto, "reversado"
+-- era una palabra que cada carril iba a interpretar a su manera.
+ALTER TABLE asiento_contable
+  ADD CONSTRAINT ck_asiento_reversado_enlazado CHECK (
+        (estado = 'REVERSADO') = (asiento_reversa_id IS NOT NULL));
 
 -- R-AUD-07 · un cierre de saldo por cuenta y día
 ALTER TABLE saldo_diario_billetera
@@ -233,7 +253,6 @@ ALTER TABLE expediente_cliente
 | R-BIL-14 | Un oficio, un bloqueo | Trazabilidad legal | [[CU-17 Bloquear saldo por orden de autoridad]] |
 | R-BIL-15 | Una transacción se reversa una sola vez | Integridad | [[CU-14 Reversar una transacción]] |
 | R-BIL-17 | Una cuenta de destino por titular y número, y una sola principal | ASFI seguridad · UIF titularidad | [[CU-18 Registrar y verificar una cuenta bancaria de destino]] |
-| R-BIL-18 | Un arqueo por punto y fecha, y toda diferencia se justifica | ASFI puntos de atención | [[CU-57 Operar un punto de atención y arquear el efectivo]] |
 | R-BIL-19 | El reintento devuelve la primera respuesta, no un error de unicidad | Idempotencia extremo a extremo | [[CU-10 Recargar saldo]] |
 | R-BIL-20 | La partida doble también cuadra en moneda | Integridad del dinero | [[CU-12 Transferir saldo entre billeteras]] |
 
@@ -357,10 +376,20 @@ CREATE INDEX ix_respuesta_idem_expiradas ON respuesta_idempotente (expira_en);
 -- el control de saldo no negativo pasa a evaluarse contra un saldo falso: dos
 -- retiros simultáneos sobregiran la cuenta. Tomar el bloqueo ANTES de leer
 -- obliga a la segunda transacción a releer el libro ya completo.
+--
+-- `FOR NO KEY UPDATE` y no `FOR UPDATE`, por lo mismo que en `fn_ctb_recalcular_saldo`:
+-- esta función escribe `saldo_*` y `version`, ninguna de ellas clave, así que `FOR UPDATE`
+-- pide un nivel más alto del que el `UPDATE` de abajo toma solo — y esa diferencia de
+-- nivel bloquea la fila DOS veces en la misma transacción, con lo que dos movimientos
+-- simultáneos sobre la misma cuenta se pueden esperar en círculo. Con el nivel parejo la
+-- exclusión es la misma (la segunda transacción sigue esperando su turno para releer el
+-- libro completo) y el interbloqueo desaparece. El gemelo contable fallaba cinco de cinco
+-- veces en una máquina con varios núcleos; acá no hay una prueba de concurrencia que lo
+-- haya cazado todavía, y es el camino del dinero.
 CREATE OR REPLACE FUNCTION fn_bil_recalcular_saldos(p_cuenta UUID) RETURNS VOID AS $$
 DECLARE v_movimientos NUMERIC(16,2); v_retenido NUMERIC(16,2);
 BEGIN
-  PERFORM 1 FROM cuenta_billetera WHERE id = p_cuenta FOR UPDATE;
+  PERFORM 1 FROM cuenta_billetera WHERE id = p_cuenta FOR NO KEY UPDATE;
 
   SELECT COALESCE(SUM(CASE WHEN sentido = 'CREDITO' THEN monto ELSE -monto END), 0)
     INTO v_movimientos
@@ -570,16 +599,6 @@ ALTER TABLE cuenta_bancaria_beneficiario
 CREATE UNIQUE INDEX uq_cuenta_benef_principal
   ON cuenta_bancaria_beneficiario (usuario_id)
   WHERE (es_principal);
-
--- R-BIL-18 · arqueo único por punto y fecha; diferencia justificada al cerrar
-ALTER TABLE arqueo_punto_atencion
-  ADD CONSTRAINT uq_arqueo_punto_fecha UNIQUE (punto_atencion_id, fecha),
-  ADD CONSTRAINT ck_arqueo_diferencia_justificada CHECK (
-        cerrado_en IS NULL
-     OR diferencia = 0
-     OR (observaciones IS NOT NULL AND length(btrim(observaciones)) >= 10)),
-  ADD CONSTRAINT ck_arqueo_contado_al_cerrar CHECK (
-        cerrado_en IS NULL OR saldo_contado IS NOT NULL);
 ```
 
 ---
@@ -1174,6 +1193,9 @@ ALTER TABLE estado_cuenta_billetera
 | R-SEG-07 | Nadie se otorga a sí mismo un rol | Segregación de funciones | [[CU-08 Asignar y revocar roles de operador]] |
 | R-SEG-08 | Una sola asignación vigente por usuario, rol y ámbito | Control de accesos | [[CU-08 Asignar y revocar roles de operador]] |
 | R-SEG-09 | El refresco se rota, y reusarlo revoca la familia y sus sesiones | ASFI Seguridad · toma de cuenta | [[CU-04 Autenticar con MFA y registrar dispositivo]] |
+| R-SEG-10 | Un operador no abre sesión sin segundo factor confirmado, y su factor nunca es SMS ni WhatsApp | ASFI Seguridad · ISO 27001 A.5.17, A.8.2, A.8.5 | [[CU-04 Autenticar con MFA y registrar dispositivo]] |
+| R-SEG-11 | Cambiar la credencial de un operador no deja sesión viva, dispositivo confiable ni refresco emitido | ASFI Seguridad · toma de cuenta privilegiada | [[CU-09 Cambiar credenciales y solicitar la baja]] |
+| R-SEG-12 | Toda acción de decisión irreversible o de lectura de terceros exige segundo factor | ISO 27001 A.8.2 · segregación de funciones | [[CU-08 Asignar y revocar roles de operador]] |
 
 ```sql
 -- R-SEG-01 · solo hash, token y enmascarado
@@ -1263,6 +1285,22 @@ CREATE OR REPLACE FUNCTION fn_seg_rol_privilegiado() RETURNS BOOLEAN AS $$
          IN ('BACKOFFICE','CUMPLIMIENTO','AUDITOR');
 $$ LANGUAGE sql STABLE;
 
+-- El contexto del propio backend, el que usan el ingreso, el alta, los trabajos
+-- programados y los consumidores de Kafka (`ContextoSesion.deSistema`).
+--
+-- Sin esto, las dos operaciones por las que se entra al sistema eran imposibles: el
+-- ingreso corre SIN sesion previa —no hay usuario todavia que pueda ser titular de
+-- nada— y lo primero que hace es escribir su propia fila en `intento_autenticacion`,
+-- que caia en el regimen de denegar por omision. La peticion moria con «new row
+-- violates row-level security policy» y devolvia 500.
+--
+-- `app.rol` solo lo fija el backend con SET LOCAL dentro de su transaccion
+-- (`Datos.conContexto`); no llega nunca de una peticion, asi que un cliente no puede
+-- pedir este contexto. Es el mismo mecanismo que ya usan los otros tres roles.
+CREATE OR REPLACE FUNCTION fn_seg_es_sistema() RETURNS BOOLEAN AS $$
+  SELECT COALESCE(current_setting('app.rol', true), '') = 'sistema';
+$$ LANGUAGE sql STABLE;
+
 -- La cobertura NO se escribe a mano. Una lista de tablas escrita a mano se
 -- desactualiza en el primer módulo nuevo, y una tabla olvidada no falla: queda
 -- abierta en silencio, que es la peor forma de fallar. El recorrido va sobre el
@@ -1282,6 +1320,12 @@ DECLARE
   visibles_por_titular TEXT[] := ARRAY[
       'documento_identidad','direccion_usuario','perfil_financiero',
       'credencial_acceso','historial_credencial','factor_mfa','dispositivo',
+      -- Los roles propios son dato propio. Sin esto, emitir un token leia las
+      -- asignaciones del titular BAJO EL CONTEXTO DEL TITULAR y no veia ninguna:
+      -- todo token salia con `permisos: []`, asi que ningun operador podia hacer
+      -- nada en el backoffice. Se leen, no se escriben: asignar un rol sigue
+      -- siendo cosa de CU-08, con su permiso.
+      'asignacion_rol',
       'sesion','token_verificacion','consentimiento','preferencia_notificacion',
       'referencia_personal','solicitud_baja','verificacion_kyc',
       'reputacion_usuario','cuenta_billetera','cuenta_bancaria_beneficiario',
@@ -1291,33 +1335,44 @@ DECLARE
       'certificado_reputacion','insignia_otorgada','declaracion_origen_fondos'];
   cond TEXT;
 BEGIN
+  -- Se recorren TODOS los esquemas de servicio, no `public`. Decia
+  -- `n.nspname = 'public'` y se escribio antes de que ADR-017 partiera el modelo en
+  -- catorce esquemas: desde entonces no encontraba ni una tabla, y las 86 que
+  -- llevan usuario_id o cuenta_billetera_id quedaban SIN politica de fila. No
+  -- fallaba nada: el invariante 3 simplemente no estaba en vigor.
   FOR r IN
-      SELECT c.relname AS t,
+      SELECT n.nspname AS esq,
+             c.relname AS t,
              EXISTS (SELECT 1 FROM pg_attribute a
                       WHERE a.attrelid = c.oid AND a.attname = 'usuario_id'
                         AND NOT a.attisdropped) AS por_usuario
         FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
-       WHERE n.nspname = 'public' AND c.relkind IN ('r','p')
+       WHERE n.nspname NOT IN ('pg_catalog','information_schema','pg_toast')
+         AND n.nspname NOT LIKE 'pg_temp%'
+         AND c.relkind IN ('r','p')
          AND EXISTS (SELECT 1 FROM pg_attribute a
                       WHERE a.attrelid = c.oid AND NOT a.attisdropped
                         AND a.attname IN ('usuario_id','cuenta_billetera_id'))
   LOOP
     IF NOT (r.t = ANY (visibles_por_titular)) THEN
-      cond := 'fn_seg_rol_privilegiado()';          -- denegar por omisión
+      cond := 'fn_seg_rol_privilegiado() OR fn_seg_es_sistema()';  -- denegar por omisión
     ELSIF r.por_usuario THEN
-      cond := 'usuario_id = fn_seg_usuario_actual() OR fn_seg_rol_privilegiado()';
+      cond := 'usuario_id = fn_seg_usuario_actual() OR fn_seg_rol_privilegiado() OR fn_seg_es_sistema()';
     ELSE
-      cond := format('fn_seg_rol_privilegiado() OR EXISTS ('
-                     'SELECT 1 FROM cuenta_billetera c WHERE c.id = %I.cuenta_billetera_id '
-                     'AND c.usuario_id = fn_seg_usuario_actual())', r.t);
+      -- La billetera vive en nucleo_financiero, no en el esquema de la tabla que la
+      -- referencia: la subconsulta se califica o no resuelve.
+      cond := format('fn_seg_rol_privilegiado() OR fn_seg_es_sistema() OR EXISTS ('
+                     'SELECT 1 FROM nucleo_financiero.cuenta_billetera c '
+                     'WHERE c.id = %I.%I.cuenta_billetera_id '
+                     'AND c.usuario_id = fn_seg_usuario_actual())', r.esq, r.t);
     END IF;
 
-    EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', r.t);
-    EXECUTE format('ALTER TABLE %I FORCE ROW LEVEL SECURITY', r.t);
-    EXECUTE format('DROP POLICY IF EXISTS pol_%s_titular ON %I', r.t, r.t);
+    EXECUTE format('ALTER TABLE %I.%I ENABLE ROW LEVEL SECURITY', r.esq, r.t);
+    EXECUTE format('ALTER TABLE %I.%I FORCE ROW LEVEL SECURITY', r.esq, r.t);
+    EXECUTE format('DROP POLICY IF EXISTS pol_%s_titular ON %I.%I', r.t, r.esq, r.t);
     EXECUTE format(
-      'CREATE POLICY pol_%s_titular ON %I FOR ALL TO rol_aplicacion '
-      'USING (%s) WITH CHECK (%s)', r.t, r.t, cond, cond);
+      'CREATE POLICY pol_%s_titular ON %I.%I FOR ALL TO rol_aplicacion '
+      'USING (%s) WITH CHECK (%s)', r.t, r.esq, r.t, cond, cond);
   END LOOP;
 END $$ LANGUAGE plpgsql;
 
@@ -1328,8 +1383,8 @@ ALTER TABLE usuario ENABLE ROW LEVEL SECURITY;
 ALTER TABLE usuario FORCE ROW LEVEL SECURITY;
 CREATE POLICY pol_usuario_titular ON usuario
   FOR ALL TO rol_aplicacion
-  USING (id = fn_seg_usuario_actual() OR fn_seg_rol_privilegiado())
-  WITH CHECK (id = fn_seg_usuario_actual() OR fn_seg_rol_privilegiado());
+  USING (id = fn_seg_usuario_actual() OR fn_seg_rol_privilegiado() OR fn_seg_es_sistema())
+  WITH CHECK (id = fn_seg_usuario_actual() OR fn_seg_rol_privilegiado() OR fn_seg_es_sistema());
 
 -- Las tablas de cumplimiento que NO llevan usuario_id quedan igualmente fuera
 -- del alcance de la aplicación: sólo cumplimiento y auditoría las leen.
@@ -1346,6 +1401,11 @@ BEGIN
       'registro_acceso_datos','requerimiento_autoridad'] LOOP
     EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t);
     EXECUTE format('ALTER TABLE %I FORCE ROW LEVEL SECURITY', t);
+    -- Igual que el recorrido de arriba: el esquema se reaplica sobre bases que
+    -- ya lo tienen, y PostgreSQL no ofrece CREATE POLICY IF NOT EXISTS. Acá la
+    -- guarda se escribe a mano porque la política se arma con SQL dinámico:
+    -- scripts/idempotencia.py no mira —ni debe mirar— dentro de un literal.
+    EXECUTE format('DROP POLICY IF EXISTS pol_%s_reservado ON %I', t, t);
     EXECUTE format(
       'CREATE POLICY pol_%s_reservado ON %I FOR ALL TO rol_aplicacion '
       'USING (fn_seg_rol_privilegiado()) WITH CHECK (fn_seg_rol_privilegiado())',
@@ -1468,6 +1528,138 @@ CREATE UNIQUE INDEX uq_asignacion_vigente
 CREATE INDEX ix_asignacion_por_vencer
   ON asignacion_rol (vigente_hasta)
   WHERE (revocada_en IS NULL AND vigente_hasta IS NOT NULL);
+
+-- R-SEG-10 · el operador entra con dos factores, siempre, y el segundo no es un mensaje
+--
+-- CU-04 exime del segundo factor al dispositivo ya confiable. Para el participante
+-- es una comodidad razonable: lo que arriesga es lo suyo. Para quien tiene un rol de
+-- ámbito GLOBAL —cumplimiento, tesorería, contabilidad, soporte, administración— esa
+-- exención convierte el robo del equipo en el robo del rol, y el rol da acceso a la
+-- plata y a los datos de terceros. Por eso acá no hay dispositivo de confianza que
+-- valga: sin factor confirmado, no hay sesión ([[ADR-038 Acceso administrativo · segundo factor y recuperación asistida]]).
+--
+-- El criterio es el ámbito del ROL, no el de la asignación: una asignación mal
+-- cargada no puede convertir a un participante en operador ni al revés.
+--
+-- Y el factor tiene que ser TOTP. SMS y WhatsApp son canales apagados
+-- ([[ADR-035 Canales por defecto]]) y el intercambio de SIM es el ataque barato
+-- contra una cuenta privilegiada; `RESPALDO` acompaña al TOTP, no lo reemplaza.
+-- La condición «es operador» va copiada en los tres disparadores en vez de
+-- factorizada en una función. No es descuido: una función auxiliar se crea en el
+-- primer esquema del `search_path` de quien aplica el archivo, y el disparador la
+-- resolvería en tiempo de ejecución contra el `search_path` del servicio que
+-- escribe —que no tiene por qué incluir ese esquema—. Una restricción que depende
+-- de la configuración de la conexión no es una restricción.
+CREATE OR REPLACE FUNCTION fn_seg_sesion_operador_exige_mfa() RETURNS trigger AS $$
+BEGIN
+  IF NOT EXISTS (
+        SELECT 1
+          FROM asignacion_rol ar
+          JOIN rol r ON r.id = ar.rol_id
+         WHERE ar.usuario_id = NEW.usuario_id
+           AND ar.revocada_en IS NULL
+           AND (ar.vigente_hasta IS NULL OR ar.vigente_hasta > now())
+           AND r.ambito = 'GLOBAL') THEN
+    RETURN NEW;
+  END IF;
+  IF NOT EXISTS (
+        SELECT 1 FROM factor_mfa f
+         WHERE f.usuario_id = NEW.usuario_id
+           AND f.tipo = 'TOTP'
+           AND f.activo
+           AND f.confirmado_en IS NOT NULL) THEN
+    RAISE EXCEPTION
+      'R-SEG-10: el usuario % tiene rol operativo y no tiene segundo factor TOTP confirmado; no se abre sesión',
+      NEW.usuario_id;
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tg_sesion_operador_mfa
+  BEFORE INSERT ON sesion
+  FOR EACH ROW EXECUTE FUNCTION fn_seg_sesion_operador_exige_mfa();
+
+CREATE OR REPLACE FUNCTION fn_seg_factor_operador_valido() RETURNS trigger AS $$
+BEGIN
+  IF NEW.tipo IN ('SMS', 'WHATSAPP') AND EXISTS (
+        SELECT 1
+          FROM asignacion_rol ar
+          JOIN rol r ON r.id = ar.rol_id
+         WHERE ar.usuario_id = NEW.usuario_id
+           AND ar.revocada_en IS NULL
+           AND (ar.vigente_hasta IS NULL OR ar.vigente_hasta > now())
+           AND r.ambito = 'GLOBAL') THEN
+    RAISE EXCEPTION
+      'R-SEG-10: % no es un segundo factor admisible para un usuario con rol operativo; use TOTP',
+      NEW.tipo;
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tg_factor_operador_valido
+  BEFORE INSERT OR UPDATE ON factor_mfa
+  FOR EACH ROW EXECUTE FUNCTION fn_seg_factor_operador_valido();
+
+-- R-SEG-11 · cambiar la clave de un operador no deja nada vivo detrás
+--
+-- CU-09 conserva la sesión que hizo el cambio, y para el titular de una billetera
+-- eso está bien: acaba de probar que es él. Para un operador no alcanza, porque el
+-- caso que importa es el contrario —el atacante cambió la clave— y ahí la sesión
+-- conservada es la del atacante. Se cae todo: sesiones, confianza de los
+-- dispositivos y refrescos emitidos. Volver a entrar cuesta un TOTP; no volver a
+-- entrar le cuesta a la plataforma la base de clientes.
+CREATE OR REPLACE FUNCTION fn_seg_credencial_operador_corta_sesiones() RETURNS trigger AS $$
+BEGIN
+  IF NEW.hash_contrasena = OLD.hash_contrasena THEN
+    RETURN NEW;
+  END IF;
+  IF NOT EXISTS (
+        SELECT 1
+          FROM asignacion_rol ar
+          JOIN rol r ON r.id = ar.rol_id
+         WHERE ar.usuario_id = NEW.usuario_id
+           AND ar.revocada_en IS NULL
+           AND (ar.vigente_hasta IS NULL OR ar.vigente_hasta > now())
+           AND r.ambito = 'GLOBAL') THEN
+    RETURN NEW;
+  END IF;
+
+  UPDATE sesion
+     SET revocada_en = now(),
+         motivo_revocacion = 'R-SEG-11: credencial de operador cambiada'
+   WHERE usuario_id = NEW.usuario_id AND revocada_en IS NULL;
+
+  UPDATE dispositivo
+     SET es_confiable = false
+   WHERE usuario_id = NEW.usuario_id AND es_confiable;
+
+  UPDATE token_verificacion
+     SET estado = 'INVALIDADO', invalidado_en = now(),
+         motivo_invalidacion = 'R-SEG-11: credencial de operador cambiada'
+   WHERE usuario_id = NEW.usuario_id
+     AND tipo_token = 'REFRESCO' AND estado = 'EMITIDO';
+
+  RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tg_credencial_operador_corta_sesiones
+  AFTER UPDATE OF hash_contrasena ON credencial_acceso
+  FOR EACH ROW EXECUTE FUNCTION fn_seg_credencial_operador_corta_sesiones();
+
+-- R-SEG-12 · lo irreversible se confirma con el segundo factor
+--
+-- `permiso.requiere_mfa` existía y nadie garantizaba que estuviera puesto donde
+-- corresponde: aprobar una campaña publicitaria —que compromete gasto y publica
+-- contenido— estaba marcado en `false`. La regla no exige factor para todo lo que
+-- escribe: exigirlo en cada acción del día produce fatiga y la fatiga produce el
+-- clic automático. Lo exige donde la decisión no se deshace o donde se leen datos
+-- de un tercero.
+ALTER TABLE permiso
+  ADD CONSTRAINT ck_permiso_decision_exige_mfa CHECK (
+      requiere_mfa
+   OR accion NOT IN ('AUTORIZAR', 'APROBAR', 'EJECUTAR', 'REVERSAR',
+                     'PUBLICAR', 'ENVIAR', 'CERRAR', 'LEER_TERCEROS')
+  );
 ```
 
 ---
@@ -2248,6 +2440,7 @@ ALTER TABLE ejecucion_tarea
 | R-CTB-06 | Una cuenta por cobrar no se cobra por encima de su saldo | NIIF | [[CU-104 Cobrar una cuenta por cobrar]] |
 | R-CTB-07 | Una depreciación por activo y período | NIIF | [[CU-105 Depreciar un activo fijo]] |
 | R-CTB-08 | Un estado financiero por período y tipo | NIIF · Ley 393 | [[CU-106 Generar el estado financiero del período]] |
+| R-CTB-09 | El saldo de una cuenta contable se deriva del libro, no lo escribe la aplicación | NIIF · partida doble | [[CU-24 Registrar el asiento contable de una operación]] |
 
 ```sql
 -- R-CTB-01 · un período por ejercicio y mes, y nada se asienta en uno cerrado
@@ -2389,6 +2582,63 @@ ALTER TABLE estado_financiero_generado
 
 ALTER TABLE linea_plantilla_asiento
   ADD CONSTRAINT uq_linea_plantilla_orden UNIQUE (plantilla_id, orden);
+
+-- R-CTB-09 · el saldo contable se deriva del libro, igual que el de billetera
+--
+-- `cuenta_billetera.saldo_*` lo deriva el motor desde R-BIL-16; `cuenta_contable.saldo`
+-- no tenía equivalente, y quedaba en manos de la aplicación hacer el
+-- `UPDATE ... SET saldo = saldo + delta` en la misma transacción. Eso convierte en
+-- promesa lo que en la billetera es garantía: basta un caso de uso nuevo que inserte
+-- en `movimiento_contable` y se olvide del saldo para que el mayor deje de reflejar
+-- la posición, y nada lo impida.
+--
+-- El signo lo da la NATURALEZA de la cuenta y no el lado del movimiento: en una
+-- cuenta deudora (activo, egreso) el debe suma; en una acreedora (pasivo,
+-- patrimonio, ingreso) suma el haber. Escribirlo en la base es lo que evita que
+-- catorce servicios repitan esa tabla de signos, cada uno con su criterio.
+--
+-- El bloqueo de fila se toma ANTES de leer, por el mismo motivo que
+-- `fn_bil_recalcular_saldos`: dos asientos simultáneos sobre la misma cuenta que
+-- leyeran el libro a la vez calcularían ambos sobre un mayor incompleto.
+--
+-- Y se toma `FOR NO KEY UPDATE`, no `FOR UPDATE`. La diferencia no es cosmética: era un
+-- INTERBLOQUEO. `FOR UPDATE` es más fuerte de lo que esta función necesita —solo escribe
+-- `saldo`, que no es clave—, y al ser más fuerte que el lock que el `UPDATE` de abajo
+-- toma por su cuenta, la fila se bloquea DOS veces en la misma transacción. Con eso, dos
+-- asientos simultáneos sobre la misma cuenta se esperan en círculo: la primera toma la
+-- fila, la segunda se encola en el *tuple lock* esperándola, y entonces la primera pide
+-- ese mismo tuple lock para su `UPDATE` y queda esperando a la segunda.
+--
+-- Medido: la prueba de concurrencia de CU-24 fallaba cinco de cinco veces con «deadlock
+-- detected» en una máquina con varios núcleos, y pasaba en el CI solo porque ahí los dos
+-- hilos casi no coinciden. El registro de PostgreSQL lo mostró sin lugar a dudas: los dos
+-- procesos insertando el movimiento de la MISMA cuenta, los dos dentro de este
+-- `FOR UPDATE`. Con `FOR NO KEY UPDATE` el `UPDATE` no tiene que subir de nivel, se
+-- bloquea una sola vez, y la segunda transacción simplemente espera su turno.
+CREATE OR REPLACE FUNCTION fn_ctb_recalcular_saldo(p_cuenta UUID) RETURNS VOID AS $$
+DECLARE v_saldo NUMERIC(16,2); v_naturaleza TEXT;
+BEGIN
+  SELECT naturaleza INTO v_naturaleza
+    FROM cuenta_contable WHERE id = p_cuenta FOR NO KEY UPDATE;
+
+  SELECT COALESCE(SUM(
+           CASE WHEN v_naturaleza = 'DEUDORA' THEN debe - haber
+                ELSE haber - debe END), 0)
+    INTO v_saldo
+    FROM movimiento_contable WHERE cuenta_id = p_cuenta;
+
+  UPDATE cuenta_contable SET saldo = v_saldo WHERE id = p_cuenta;
+END $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION fn_ctb_sincronizar_saldo() RETURNS trigger AS $$
+BEGIN
+  PERFORM fn_ctb_recalcular_saldo(NEW.cuenta_id);
+  RETURN NULL;
+END $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tg_movimiento_contable_sincroniza_saldo
+  AFTER INSERT ON movimiento_contable
+  FOR EACH ROW EXECUTE FUNCTION fn_ctb_sincronizar_saldo();
 ```
 
 ---
@@ -2669,13 +2919,36 @@ SELECT t.id, t.moneda, c.moneda AS moneda_cuenta
  WHERE c.moneda <> t.moneda;
 
 -- 11) R-SEG-03 · tablas con datos de titular sin RLS forzada
-SELECT c.relname FROM pg_class c
+--     Recorre todos los esquemas de servicio. Filtraba por `public`, igual que la
+--     funcion que aplica RLS, asi que devolvia cero filas SIEMPRE: la verificacion
+--     que debia denunciar el agujero lo estaba tapando.
+SELECT n.nspname || '.' || c.relname FROM pg_class c
   JOIN pg_namespace n ON n.oid = c.relnamespace
- WHERE n.nspname = 'public' AND c.relkind = 'r'
+ WHERE n.nspname NOT IN ('pg_catalog','information_schema','pg_toast')
+   AND n.nspname NOT LIKE 'pg_temp%'
+   AND c.relkind = 'r'
    AND EXISTS (SELECT 1 FROM pg_attribute a
                 WHERE a.attrelid = c.oid AND a.attname = 'usuario_id'
                   AND NOT a.attisdropped)
    AND NOT c.relrowsecurity;
+
+-- 12) R-CTB-09 · saldo contable en caché que no coincide con el mayor
+--     El equivalente contable de la consulta 2: el saldo es caché, el libro es la
+--     verdad, y si difieren gana el libro y hay que explicar por qué.
+SELECT c.id, c.codigo, c.saldo AS cacheado, COALESCE(l.derivado, 0) AS derivado
+  FROM cuenta_contable c
+  LEFT JOIN LATERAL (
+        SELECT SUM(CASE WHEN c.naturaleza = 'DEUDORA' THEN m.debe - m.haber
+                        ELSE m.haber - m.debe END) AS derivado
+          FROM movimiento_contable m WHERE m.cuenta_id = c.id) l ON TRUE
+ WHERE c.saldo <> COALESCE(l.derivado, 0);
+
+-- 13) R-AUD-11 · asientos donde el estado y el enlace de reversa se contradicen
+--     La restricción lo impide al insertar; esta consulta detecta lo que hubiera
+--     entrado antes de que existiera.
+SELECT id, numero, estado, asiento_reversa_id
+  FROM asiento_contable
+ WHERE (estado = 'REVERSADO') <> (asiento_reversa_id IS NOT NULL);
 ```
 
 ## Cómo se aplica

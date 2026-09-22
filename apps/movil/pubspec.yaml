@@ -1,0 +1,86 @@
+name: aportaya_movil
+description: "App del participante de AportaYa (Flutter). ADR-044."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.0.0
+  go_router: ^17.0.0
+  dio: ^5.7.0
+  flutter_secure_storage: ^10.0.0
+  connectivity_plus: ^7.0.0
+  mobile_scanner: ^7.1.2
+  # El sistema de diseño (packages/diseno_flutter) y los clientes GENERADOS desde el OpenAPI
+  # (clientes/dart). No se editan en un carril de pantallas — micro-PR al troncal (planes/16 §6).
+  # Se declaran los catorce servicios de una vez para no repetir este micro-PR por cada carril
+  # de pantallas que llegue a necesitar uno nuevo (M1 pidió identidad, M2 pidió tarifas).
+  aportaya_diseno:
+    path: ../../packages/diseno_flutter
+  aportaya_cliente_identidad:
+    path: ../../clientes/dart/identidad
+  aportaya_cliente_nucleofinanciero:
+    path: ../../clientes/dart/nucleo-financiero
+  aportaya_cliente_tarifas:
+    path: ../../clientes/dart/tarifas
+  aportaya_cliente_grupos:
+    path: ../../clientes/dart/grupos
+  aportaya_cliente_aportes:
+    path: ../../clientes/dart/aportes
+  aportaya_cliente_transparencia:
+    path: ../../clientes/dart/transparencia
+  aportaya_cliente_entregas:
+    path: ../../clientes/dart/entregas
+  aportaya_cliente_garantia:
+    path: ../../clientes/dart/garantia
+  aportaya_cliente_organizador:
+    path: ../../clientes/dart/organizador
+  aportaya_cliente_notificaciones:
+    path: ../../clientes/dart/notificaciones
+  # El alta lo necesita: `aceptaContratos` de CU-01 son UUID, y los ids de los
+  # contratos vigentes solo se pueden preguntar (`GET /cumplimiento/contratos/vigentes`).
+  aportaya_cliente_cumplimiento:
+    path: ../../clientes/dart/cumplimiento
+  image_picker: ^1.2.3
+  path_provider: ^2.1.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  http_mock_adapter: ^0.6.1
+  # F12: el andamiaje de integration_test/ (7 recorridos) lo necesita. Micro-PR al
+  # troncal (planes/16 §6) — hueco declarado por el carril F12 en su informe.
+  integration_test:
+    sdk: flutter
+  patrol: ^3.15.0
+
+flutter:
+  uses-material-design: true
+  # Las fuentes viven en `packages/diseno_flutter/lib/fuentes/` y se declaran acá
+  # además de allá a propósito: una familia declarada solo por el paquete se registra
+  # como `packages/aportaya_diseno/Bricolage`, y `Tipo` la pide por su nombre pelado.
+  # Declararla también acá hace que `Bricolage` resuelva en la app, en vez de caer sin
+  # aviso en la fuente del sistema —que es lo que venía pasando con Poppins e Inter,
+  # nombradas en los tokens y nunca empaquetadas.
+  fonts:
+    - family: Bricolage
+      fonts:
+        - asset: packages/aportaya_diseno/fuentes/Bricolage-600.ttf
+          weight: 600
+        - asset: packages/aportaya_diseno/fuentes/Bricolage-700.ttf
+          weight: 700
+        - asset: packages/aportaya_diseno/fuentes/Bricolage-800.ttf
+          weight: 800
+    - family: Instrument
+      fonts:
+        - asset: packages/aportaya_diseno/fuentes/Instrument-400.ttf
+          weight: 400
+        - asset: packages/aportaya_diseno/fuentes/Instrument-500.ttf
+          weight: 500
+        - asset: packages/aportaya_diseno/fuentes/Instrument-600.ttf
+          weight: 600

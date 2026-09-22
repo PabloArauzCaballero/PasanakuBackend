@@ -1,0 +1,66 @@
+{
+  "servicio": "organizador",
+  "operacion": "evaluarDesempeno",
+  "metodo": "post",
+  "ruta": "/organizadores/{organizadorId}/evaluaciones",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "evaluacionId": "8627e5c9-fbdd-4959-8dfa-bc9082053f22",
+        "nivelActual": "APRENDIZ",
+        "nivelSugerido": "APRENDIZ",
+        "puntaje": "4.44",
+        "esNueva": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "evaluacionId": "8627e5c9-fbdd-4959-8dfa-bc9082053f22",
+        "nivelActual": "APRENDIZ",
+        "nivelSugerido": "APRENDIZ",
+        "puntaje": "0.00",
+        "esNueva": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "evaluacionId": "8627e5c9-fbdd-4959-8dfa-bc9082053f22",
+        "nivelActual": "APRENDIZ",
+        "nivelSugerido": "APRENDIZ",
+        "puntaje": "4.44",
+        "esNueva": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "evaluacionId": "8627e5c9-fbdd-4959-8dfa-bc9082053f22",
+        "nivelActual": "APRENDIZ",
+        "nivelSugerido": "APRENDIZ",
+        "puntaje": "4.44",
+        "esNueva": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

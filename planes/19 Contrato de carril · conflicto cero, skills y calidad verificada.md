@@ -38,7 +38,7 @@ nombre dice lo que la cosa es, y si la frontera transaccional es la correcta.
 
 ## 1 · Arranque de máquina — las skills
 
-Las **65 skills** del proyecto están versionadas en `.claude/skills/`: **viajan con el
+Las **66 skills** del proyecto están versionadas en `.claude/skills/`: **viajan con el
 clon**. Pero «viajan» no es «llegaron», y una máquina que arranca un carril sin las
 skills de su dominio va a inventar exactamente lo que las skills existen para evitar.
 
@@ -49,11 +49,11 @@ skills de su dominio va a inventar exactamente lo que las skills existen para ev
 ls .claude/skills | grep -v README | wc -l          # tiene que dar 65
 
 # 2 · el índice coincide con las carpetas
-python3 scripts/verificar_boveda.py                 # "índice de skills completo (65 skills)"
+python3 scripts/verificar_boveda.py                 # "índice de skills completo (66 skills)"
                                                     # + "frontmatter de cada skill coincide con su carpeta"
 
 # 3 · las ve la sesión
-#    en el chat del puesto: /skills  → tienen que aparecer las 65 del proyecto
+#    en el chat del puesto: /skills  → tienen que aparecer las 66 del proyecto
 ```
 
 **Si falta alguna: no se copia a mano.** Se restaura desde el repositorio:
@@ -85,7 +85,13 @@ todos.
 
 Un carril **lee sus skills antes de escribir el primer archivo**, no cuando se traba.
 
-### Las diecinueve de todo carril de backend
+### La que carga **todo** carril, sea del tipo que sea
+
+| Skill | Cuándo | Por qué es aparte |
+| --- | --- | --- |
+| `arrancar-carril` | **Antes de leer ningún plan y antes del primer archivo** | Es el contrato operativo del puesto: qué posee, qué no toca, en qué orden lee. No está en la tabla de abajo porque no depende del carril: se carga siempre |
+
+### Las veinte de todo carril de backend
 
 Se cargan siempre, en este orden. Son el idioma común: sin ellas, cinco carriles
 producen cinco estilos.
@@ -95,17 +101,18 @@ producen cinco estilos.
 | **Método** (4) | `frontera-transaccional` · `implementar-desde-boveda` · `caso-de-uso` · `revision-codigo` |
 | **Forma del código** (5) | `arquitectura-atomica` · `codigo-limpio` · `back-spring` · `servicios-y-sagas` · `glosario-dominio` |
 | **Datos y dinero** (3) | `datos-jooq` · `dinero-decimal` · `contratos-api` |
-| **Corrección** (4) | `errores-api` · `idempotencia-reintentos` · `seguridad-sesion-rls` · `pruebas-cu` |
+| **Corrección** (5) | `errores-api` · `idempotencia-reintentos` · `seguridad-sesion-rls` · `seguridad-aplicacion` · `pruebas-cu` |
 | **Cierre** (3) | `observabilidad` · `git-flujo` · `definicion-de-terminado` |
 
-### Las once de todo carril de frontend
+### Las doce de todo carril de frontend
 
 | Grupo | Skills |
 | --- | --- |
-| **Producto** (1) | `movil-expo` **o** `web-backoffice`, según el carril |
+| **Producto** (1–2) | `movil-flutter` (carriles `M*`, `F0-M`, `F1-M`) **o** `web-angular` (carriles `B*`, `W*`, `F0-B`, `F0-W`, `F1-W`); los `B*` cargan **además** `web-backoffice` |
 | **Diseño** (2) | `disenar-frontend` · `arquitectura-atomica` |
 | **Forma** (3) | `codigo-limpio` · `glosario-dominio` · `contratos-api` *(de lectura: los contratos son del backend)* |
 | **Dinero** (1) | `dinero-decimal` |
+| **Seguridad** (1) | `seguridad-aplicacion` |
 | **Cierre** (4) | `revision-codigo` · `git-flujo` · `definicion-de-terminado` · `observabilidad` |
 
 ### Y las propias de cada carril
@@ -120,7 +127,7 @@ suyas está trabajando de memoria.
 | `1B` contable | `contabilidad-partida-doble` |
 | `1C` habilitación | `kyc-onboarding` · `cumplimiento-uif` · `norma-nueva` · `motor-de-reglas` |
 | `1D` notificaciones | `notificaciones-consentimiento` · `trabajos-outbox` · `proveedores-externos` |
-| `2A` billetera | `contabilidad-partida-doble` · `efectivo-puntos-atencion` · `cumplimiento-uif` · `motor-de-reglas` · `resiliencia-rendimiento` |
+| `2A` billetera | `contabilidad-partida-doble` · `cumplimiento-uif` · `motor-de-reglas` · `resiliencia-rendimiento` |
 | `2B` tarifas | `facturacion-sin` · `semillas-catalogos` · `reembolsos-disputas` |
 | `2C` grupos | `gobernanza-grupo` · `sorteo-transparencia` · `plazos-habiles` · `emparejamiento-ingreso` |
 | `2D` auditoría | `extraccion-de-datos` · `indicadores-tablero` · `lecturas-proyecciones` |
@@ -131,18 +138,20 @@ suyas está trabajando de memoria.
 | `3D` cuenta bancaria | `desembolsos-payouts` |
 | `4A` entregas | `desembolsos-payouts` · `contabilidad-partida-doble` |
 | `4B` garantía | `garantia-mora-cobranza` · `debido-proceso` · `plazos-habiles` |
-| `5T` convergencia | `resiliencia-rendimiento` · `respaldos-restauracion` · `despliegue-contenedores` · `ci-calidad` · `documentacion-entregables` |
+| `5T` convergencia | `resiliencia-rendimiento` · `respaldos-restauracion` · `despliegue-contenedores` · `ci-calidad` · `documentacion-entregables` · `observabilidad` |
 | `5A` ERP ★ | `contabilidad-partida-doble` · `facturacion-sin` · `plan-por-fases` · `caso-de-uso` |
 | `5B` publicidad ★ | `facturacion-sin` · `motor-de-reglas` · `proveedores-externos` |
-| `F0-*` andamiajes | `decisiones-adr` · `ci-calidad` |
-| `F1` sistema de diseño | `disenar-frontend` **completa**, con `docs/Views/Sistema-Diseno/` |
-| `F2` shell móvil | `movil-expo` · `autenticacion-jwt` *(de lectura: el `ProveedorSesion`, refresh y `401`)* · `resiliencia-rendimiento` *(offline e intermitencia)* |
+| `F0.T` troncal del frontend | `entorno-monorepo` · `contratos-api` · `ci-calidad` · `decisiones-adr` |
+| `F0-M` `F0-B` `F0-W` andamiajes | `decisiones-adr` · `ci-calidad` · `entorno-monorepo` |
+| `F1-W` `F1-M` sistemas de diseño | `disenar-frontend` **completa**, con `docs/Views/Sistema-Diseno/` · y la del mundo (`web-angular` / `movil-flutter`) |
+| `F2` shell móvil | `movil-flutter` · `autenticacion-jwt` *(de lectura: `proveedorSesion`, refresh y `401`)* · `resiliencia-rendimiento` *(offline e intermitencia)* · `proveedores-externos` *(Shorebird, FCM)* |
 | `F3` móvil identidad | `kyc-onboarding` · `autenticacion-jwt` |
 | `F4` móvil billetera | `qr-pagos` · `dinero-decimal` |
 | `F5` móvil pasanaku | `gobernanza-grupo` · `alertas-riesgo-temprano` · `reclamos-consumidor` |
-| `F6` shell backoffice | `web-backoffice` · `roles-y-accesos` *(navegación y tabla según rol)* |
+| `F6` shell backoffice | `web-angular` · `web-backoffice` · `roles-y-accesos` *(navegación y tabla según rol)* |
 | `F7` backoffice operación | `roles-y-accesos` · `extraccion-de-datos` |
 | `F8` backoffice cumplimiento | `cumplimiento-uif` · `debido-proceso` · `gobierno-comites` |
+| `B5` backoffice de sistemas | `observabilidad` · `respaldos-restauracion` · `despliegue-contenedores` · `proveedores-externos` · `trabajos-outbox` *(de lectura: lo que la pantalla muestra)* |
 | `F9` sitio público | `sorteo-transparencia` · `reputacion-social` · `reclamos-consumidor` |
 | `F10` `F11` SEO y GEO | `documentacion-entregables` |
 | `F12` publicación | `definicion-de-terminado` · `despliegue-contenedores` |
@@ -289,7 +298,7 @@ cuatro divergencias reales:**
 | Los planes decían | Es | Dónde importaba |
 | :-: | :-: | --- |
 | `87 casos de uso` | **99** | el conteo del informe y el alcance de los carriles |
-| `306 tablas` | **307** | **el gate de salida de la Fase 0**, que verifica ese número |
+| `305 tablas` | **305** | **el gate de salida de la Fase 0**, que verifica ese número |
 | `566 relaciones` | **633** | la descripción del modelo |
 | `124 restricciones` | **138** | el gate de la fase 17: «cada restricción con prueba de rechazo» |
 
@@ -351,12 +360,16 @@ puede evaluar dentro de un servicio.** Corren en el CI de integración y en la O
 
 ### El que corre sobre el **frontend**
 
-Vive en el CI de frontend (`test:front`), no en el de servicios, y cubre el único
-recurso compartido que quedó entre carriles de interfaz: los mocks de MSW.
+Vive en el CI de frontend (`test:front`), no en el de servicios, y cubre los dos
+recursos compartidos que quedaron entre carriles de interfaz: los ejemplos del contrato
+que sirve Prism, y los enchufes de ruta de los shells.
 
 | # | Barrido | Qué afirma | Preocupación |
 | :-: | --- | --- | --- |
-| 17 | **Mocks sin duplicar** | En `pruebas/mocks/`, **ningún CU tiene dos handlers**: el primer carril que necesita un CU crea su handler y el segundo lo importa ([[20 Saneamiento del plan · huecos de la migración a microservicios]] §6.3) | conflicto |
+| 17 | **Un CU, un archivo de ejemplos** | En `packages/simulado/ejemplos/`, **ningún CU tiene dos archivos**, y cada ejemplo **valida contra el esquema** de su operación (lo consumen Vitest y `flutter_test` por igual) | conflicto · corrección |
+| 18 | **El shell no se toca** | Ningún commit de un carril de pantallas modifica `navegacion/rutas.dart`, `app.routes.ts`, `nucleo/`, `layout/` ni `proveedores/`; las rutas nuevas aparecen solo en el `rutas.dart` / `<dominio>.routes.ts` del directorio del carril | conflicto |
+| 19 | **Sin restos del stack anterior** | `apps/`, `packages/` y `package.json` no contienen `expo`, `react`, `vite`, `astro`, `msw` ni `maestro` (desde el tramo TF) | corrección |
+| 20 | **El plan coincide con la maqueta** | `scripts/verificar_maqueta.py`: toda ruta de [[AportaYa-Maqueta]] tiene su fila en [[22 Mapa de la maqueta · pantalla, carril y mundo]], toda pieza de planes/20 §2 está en planes/22 §6 y en el alcance F1.9 de planes/11, y cada pieza tiene mundo | corrección |
 
 > **El barrido 13 es el que reemplaza a una garantía que se perdió.** Con un solo
 > proceso, dos rutas iguales rompían el arranque y alguien lo veía en el acto. Con
@@ -384,8 +397,9 @@ ninguno, porque entonces «va lento» es una opinión.
 | Respuesta con el proveedor externo caído | ≤ 2 s | barrido 10 | sí |
 | Arranque del proceso hasta `/salud/listo` | ≤ 5 s | compose | sí |
 | Tamaño de la imagen de runtime | ≤ 300 MB | `docker build` | advierte |
-| JS inicial del sitio público | ≤ 150 KB | Lighthouse CI | sí |
-| Arranque de la app en Android de gama baja | ≤ 3 s | `F12` | sí |
+| JS inicial del sitio público | ≤ 150 KB **comprimidos** (`budgets` de `angular.json` + Lighthouse CI) | Lighthouse CI en P5 | sí |
+| Arranque en frío de la app en Android de gama baja | ≤ 3 s | `flutter run --profile --trace-startup` en P3 | sí |
+| *Jank* en la lista de 5.000 movimientos | 0 cuadros perdidos al desplazar | DevTools en dispositivo real | sí |
 | Tamaño de archivo | 220 advierte · 260 revisión · **300 bloquea** | lint | sí |
 | Cobertura | los pisos de §6 del [[00 Plan maestro]] | CI | sí |
 | Dependencias nuevas en rama de carril | **0** | `gradle/libs.versions.toml` sin diff | sí |
@@ -460,6 +474,9 @@ derecha es la que importa: si está vacía, la de la izquierda es una intención
 | **Webhook duplicado y fuera de orden** absorbidos | prueba obligatoria en `3A` y en todo carril con proveedor |
 | **Apagado controlado**: `SIGTERM` termina el request en curso y cierra el pool | prueba de integración del proceso |
 | **Reverso, nunca `UPDATE`**, para corregir dinero | lint `sin-update-append-only` + prueba de rechazo |
+| **`descriptor.yml` con `nivel` y `nivel_porque`** — nunca una réplica | `python3 scripts/generar_k8s.py` (falla si no cierra) |
+| **`replicas.max` que cabe en el pool**: `Σ (max × pool) ≤ pgbouncer` | el mismo generador, regla 3 de [[ADR-037 Alta disponibilidad y balanceo]] |
+| **Degradación declarada**: qué se apaga primero si el servicio presiona | revisión de cierre de carril |
 
 > **La regla que resume el bloque:** la red duplica, reordena y se cae. El diseño lo
 > absorbe; no lo denuncia. Un carril que responde «eso no debería pasar» a un webhook
@@ -481,9 +498,11 @@ derecha es la que importa: si está vacía, la de la izquierda es una intención
 ## 8 · Qué se agrega al pipeline
 
 Los 19 pasos de §6 del [[00 Plan maestro]] siguen igual y en el mismo orden. Se agregan
-cuatro pasos de **backend**, **todos bloqueantes**:
+seis pasos de **backend**, **todos bloqueantes**:
 
 ```
+ 0b  python3 scripts/verificar_carriles.py     66 skills asignadas · puestos alineados 17↔18 · balance
+ 0c  python3 scripts/generar_k8s.py            ningún servicio con 1 réplica · el escalado cabe en el pool
  6b  python3 scripts/verificar_criterios.py    criterios gherkin ↔ prueba  ·  R-XXX ↔ prueba de rechazo
 12b  ./gradlew testAislamiento                 barrido 15: ningún rol lee un esquema ajeno
 16b  ./gradlew testBarrido                     los 12 barridos locales de §5
@@ -500,11 +519,14 @@ Y una guarda sobre las guardas:
 Y los pasos de **frontend**, que corren en los carriles `F*`, todos **bloqueantes**:
 
 ```
- f1  yarn lint && yarn typecheck               capas, tokens, tipos del contrato
- f2  yarn test:front                           unitarias, componente (MSW) y contrato · incluye el barrido 17 (mocks sin duplicar)
- f3  yarn test:a11y                            jest-axe / axe-core: cero violaciones serias
- f4  npx lighthouse-ci autorun                 CWV y presupuesto de JS del sitio (§6: ≤ 150 KB) — corre en P5
+ f0  ./gradlew generateOpenApiClients          clientes/angular y clientes/dart sin diff
+ f0b python3 scripts/verificar_maqueta.py      toda pantalla de la maqueta tiene fila en planes/22 · toda pieza está en F1 · sin restos del stack anterior
+ f1  yarn lint && yarn typecheck               angular-eslint + flutter analyze + custom_lint: capas, tokens, tipos del contrato
+ f2  yarn test:front                           vitest (unidad, componente, contrato) + flutter test (unidad, widget, contrato, goldens) · barridos 17, 18 y 19
+ f3  yarn test:a11y                            vitest-axe + meetsGuideline: cero violaciones serias
+ f4  npx lighthouse-ci autorun                 CWV y presupuesto de JS del sitio (§6: ≤ 150 KB comprimidos) — corre en P5
  f5  yarn seo:validar                          metadatos, canonical, hreflang, JSON-LD (solo `apps/web`)
+ f6  patrol test                               E2E móvil — solo en P3 y en la máquina con Android físico (F12)
 ```
 
 > **Lighthouse y la medición de frontend corren en P5**, la máquina que trabaja el
@@ -602,20 +624,24 @@ cada carril pega la que le corresponde.
 - [ ] Piezas declaradas por nivel (átomo/molécula/organismo/pantalla) antes de escribir, con visto bueno
 
 **Verificado por máquina** — salida pegada abajo
-- [ ] `yarn lint && yarn typecheck` en verde   → capas, tokens, tipos del contrato
-- [ ] `yarn test:front` en verde                → unitarias, componente (MSW) y contrato · incluye el barrido 17 (mocks sin duplicar)
-- [ ] `yarn test:a11y` en verde                 → cero violaciones serias
-- [ ] `npx lighthouse-ci autorun` en verde (solo `apps/web`) → CWV y **JS ≤ 150 KB** (§6) · corrido en P5
+- [ ] `./gradlew generateOpenApiClients` sin diff → los clientes son los del contrato
+- [ ] `python3 scripts/verificar_maqueta.py` en verde → tus pantallas están en el mapa, con su mundo
+- [ ] `yarn lint && yarn typecheck` en verde   → capas, tokens, tipos del contrato, en Dart y en TypeScript
+- [ ] `yarn test:front` en verde                → unitarias, componente/widget, contrato, goldens · barridos 17, 18 y 19
+- [ ] `yarn test:a11y` en verde                 → cero violaciones serias (`vitest-axe` / `meetsGuideline`)
+- [ ] `npx lighthouse-ci autorun` en verde (solo `apps/web`) → CWV y **JS ≤ 150 KB comprimidos** (§6) · corrido en P5
 - [ ] `yarn seo:validar` en verde (solo `apps/web`)  → metadatos, canonical, hreflang, JSON-LD
+- [ ] `patrol test` en verde (solo carriles móviles, en P3) → el flujo del carril en dispositivo
+- [ ] Goldens / capturas actualizados **en un commit propio, con la imagen en el PR**
 
 **Presupuestos (§6)**
-- [ ] JS inicial del sitio ≤ 150 KB (gate) · objetivo < 50 KB en páginas de contenido
+- [ ] JS inicial del sitio ≤ 150 KB comprimidos (gate) · objetivo ≤ 90 KB en páginas de contenido
 - [ ] Tamaño de archivo bajo el límite · arranque de la app ≤ 3 s en Android de gama baja (F12)
 
 **Invariantes del frontend**
 - [ ] Los cuatro estados en toda pantalla con datos: cargando, vacío, error, éxito
 - [ ] Cero literales de diseño fuera de tokens (lint) · ningún importe formateado fuera de `Monto`
-- [ ] Ningún `fetch` en un componente · ningún tipo reescrito a mano (viene de `clientes/typescript`)
+- [ ] Ninguna llamada de red en un componente o widget · ningún tipo reescrito a mano (viene de `clientes/angular` o `clientes/dart`)
 - [ ] Doble envío bloqueado en operaciones de dinero, con la misma clave de idempotencia
 - [ ] Contraste AA, foco visible, navegación por teclado · claro y oscuro probados
 
@@ -625,6 +651,80 @@ cada carril pega la que le corresponde.
 - [ ] ¿Qué supuse que no estaba en la bóveda?
 - [ ] ¿Qué dejé peor de como lo encontré?
 ```
+
+---
+
+## 11 · Balance de carga entre los cinco puestos
+
+El cuello de botella del proyecto es la atención, no el cómputo. Un puesto que carga
+mucho más que otro **en el mismo tramo** no va "un poco más lento": es el que retrasa
+la ola siguiente, mientras otra máquina espera.
+
+### La unidad y el número que importa
+
+La unidad es la **superficie** del carril —la escala de ● a ●●●●● de
+[[18 Fichas de carril · las 38 unidades de trabajo]]—. No son horas: es cuánto hay que
+sostener en la cabeza a la vez.
+
+> **Se mide por tramo, no por proyecto.** El acumulado del proyecto no es
+> accionable: las máquinas trabajan en paralelo dentro de un tramo, no compiten por
+> un total. Lo que atrasa una ola es que en **ese** tramo alguien cargue el cuádruple
+> que su vecino.
+
+`python3 scripts/verificar_carriles.py` imprime las dos vistas y **avisa a partir de
+4x** dentro de un tramo:
+
+```
+  tramo    P1   P2   P3   P4   P5   max/min  ocupados
+     T3      4    4    4    2    3   2.0x     5/5
+  !! T5      4    1    3    3    3   4.0x     5/5
+```
+
+### Las tres reglas
+
+1. **Un carril por puesto y por tramo.** Dos a la vez solo valen si el plan de
+   coordinación los declara **en serie** con `X → Y` (`T1 → T2` en la Ola 0,
+   `F2 → F6` en T3, `4A → F4` si alguna vez hiciera falta). Lo verifica el script:
+   dos carriles simultáneos sin declarar es **falla**, no aviso.
+2. **Un tramo desparejo se corrige moviendo una deuda declarada**, que es trabajo ya
+   identificado y sin dueño de tramo — nunca partiendo un carril.
+3. **El que cierra temprano toma la deuda declarada de su tramo.** Es el único
+   mecanismo de balanceo que funciona con la ocupación llena: `planes/17` ya lleva la
+   lista de deudas por tramo, y esa lista es la cola de trabajo del que se libera.
+
+### Por qué el acumulado NO se rebalancea
+
+```
+acumulado: 107 unidades · media 21.4
+!! P1: 31  +45%      P2: 12  -44%      P3: 23  +7%   P4: 24  +12%   P5: 17  -21%
+```
+
+La primera lectura de esta tabla lleva a una conclusión equivocada —"moverle un carril
+de P1 a P2"— y hay que decir por qué no se hace:
+
+- **La ocupación ya está llena.** Salvo en los extremos (T0, T9, T10), cada máquina
+  tiene exactamente un carril por tramo. Sacarle `F4` a P1 no lo alivia: **lo deja
+  parado en T5**, y como `F5` depende de `F4`, tampoco puede adelantarlo. Se cambia un
+  desbalance por una máquina ociosa y una dependencia cruzada nueva.
+- **La diferencia es de tamaño de carril, no de reparto.** `identidad`, `grupos` y la
+  app móvil son intrínsecamente más grandes que `contabilidad` o `entregas`. Igualar
+  el total exigiría partir un carril, que es lo que la regla 1 prohíbe por ser la
+  única fuente real de conflicto.
+- **La Ola 0 no es reasignable.** Las 9 unidades de `T0` `T1` `T2` bloquean a todos y
+  las tiene que hacer una sola máquina, en serie.
+
+**Entonces el acumulado se reporta como contexto y no como falla.** El riesgo real que
+señala no es "P1 trabaja de más": es que **los tramos de P1 duran más que los de los
+demás**. Eso se administra con la regla 3 y con prioridad de revisión para P1, no
+moviendo carriles.
+
+### Qué NO cuenta como rebalanceo
+
+- **Partir un carril entre dos máquinas.** Rompe la propiedad exclusiva del
+  desplegable, que es lo único que hace imposible el conflicto (§3).
+- **Mover un carril a mitad de tramo.** El puesto que lo recibe empieza sin contexto:
+  lo que se ahorra en superficie se paga en lectura.
+- **Bajar la escala de tamaño de una ficha** para que cierre el promedio.
 
 ---
 

@@ -107,9 +107,16 @@
       ],
       "filas": [
         {
-          "codigo": "BILLETERA_VER",
-          "descripcion": "Ver saldo y movimientos propios",
-          "recurso": "billetera",
+          "codigo": "ACCESOS_ADMINISTRAR",
+          "descripcion": "Asignar y revocar roles de operador (CU-08); nadie se lo aplica a sí mismo (R-SEG-07)",
+          "recurso": "asignacion_rol",
+          "accion": "ADMINISTRAR",
+          "requiere_mfa": true
+        },
+        {
+          "codigo": "AUDITORIA_LEER",
+          "descripcion": "Consultar la bitácora y los registros de acceso",
+          "recurso": "bitacora_evento",
           "accion": "LEER",
           "requiere_mfa": false
         },
@@ -121,80 +128,17 @@
           "requiere_mfa": true
         },
         {
+          "codigo": "BILLETERA_VER",
+          "descripcion": "Ver saldo y movimientos propios",
+          "recurso": "billetera",
+          "accion": "LEER",
+          "requiere_mfa": false
+        },
+        {
           "codigo": "BILLETERA_VER_TERCEROS",
           "descripcion": "Ver billeteras de terceros (backoffice)",
           "recurso": "billetera",
           "accion": "LEER_TERCEROS",
-          "requiere_mfa": true
-        },
-        {
-          "codigo": "GRUPO_CREAR",
-          "descripcion": "Crear un grupo de pasanaku",
-          "recurso": "grupo",
-          "accion": "CREAR",
-          "requiere_mfa": false
-        },
-        {
-          "codigo": "GRUPO_ADMINISTRAR",
-          "descripcion": "Administrar un grupo",
-          "recurso": "grupo",
-          "accion": "ADMINISTRAR",
-          "requiere_mfa": false
-        },
-        {
-          "codigo": "ENTREGA_AUTORIZAR",
-          "descripcion": "Autorizar una entrega de fondo",
-          "recurso": "entrega_fondo",
-          "accion": "AUTORIZAR",
-          "requiere_mfa": true
-        },
-        {
-          "codigo": "ENTREGA_EJECUTAR",
-          "descripcion": "Ejecutar una entrega de fondo",
-          "recurso": "entrega_fondo",
-          "accion": "EJECUTAR",
-          "requiere_mfa": true
-        },
-        {
-          "codigo": "REVERSO_AUTORIZAR",
-          "descripcion": "Autorizar el reverso de una transacción",
-          "recurso": "transaccion_billetera",
-          "accion": "REVERSAR",
-          "requiere_mfa": true
-        },
-        {
-          "codigo": "CUMPLIMIENTO_ALERTAS",
-          "descripcion": "Ver y tratar alertas de monitoreo",
-          "recurso": "alerta_monitoreo_lft",
-          "accion": "GESTIONAR",
-          "requiere_mfa": false
-        },
-        {
-          "codigo": "CUMPLIMIENTO_CASOS",
-          "descripcion": "Abrir y decidir casos de investigación",
-          "recurso": "caso_investigacion_lft",
-          "accion": "GESTIONAR",
-          "requiere_mfa": false
-        },
-        {
-          "codigo": "CUMPLIMIENTO_REPORTAR",
-          "descripcion": "Generar y enviar reportes regulatorios",
-          "recurso": "reporte_regulatorio",
-          "accion": "ENVIAR",
-          "requiere_mfa": true
-        },
-        {
-          "codigo": "RECLAMO_ATENDER",
-          "descripcion": "Atender y responder reclamos",
-          "recurso": "reclamo_cliente",
-          "accion": "GESTIONAR",
-          "requiere_mfa": false
-        },
-        {
-          "codigo": "TARIFARIO_PUBLICAR",
-          "descripcion": "Publicar un tarifario nuevo",
-          "recurso": "tarifario",
-          "accion": "PUBLICAR",
           "requiere_mfa": true
         },
         {
@@ -205,18 +149,11 @@
           "requiere_mfa": true
         },
         {
-          "codigo": "AUDITORIA_LEER",
-          "descripcion": "Consultar la bitácora y los registros de acceso",
-          "recurso": "bitacora_evento",
-          "accion": "LEER",
+          "codigo": "CONTABILIDAD_ERP_ACTIVOS_FIJOS",
+          "descripcion": "Dar de alta y de baja activos fijos",
+          "recurso": "activo_fijo",
+          "accion": "GESTIONAR",
           "requiere_mfa": false
-        },
-        {
-          "codigo": "DATOS_SENSIBLES_LEER",
-          "descripcion": "Consultar documentos y cuentas de clientes",
-          "recurso": "documento_identidad",
-          "accion": "LEER",
-          "requiere_mfa": true
         },
         {
           "codigo": "CONTABILIDAD_ERP_CERRAR",
@@ -226,11 +163,11 @@
           "requiere_mfa": true
         },
         {
-          "codigo": "CONTABILIDAD_ERP_PRESUPUESTO",
-          "descripcion": "Crear y aprobar presupuestos por centro de costo",
-          "recurso": "presupuesto",
+          "codigo": "CONTABILIDAD_ERP_COBRAR",
+          "descripcion": "Registrar cobros de cuentas por cobrar",
+          "recurso": "cuenta_por_cobrar",
           "accion": "GESTIONAR",
-          "requiere_mfa": false
+          "requiere_mfa": true
         },
         {
           "codigo": "CONTABILIDAD_ERP_COMPRAS",
@@ -254,16 +191,9 @@
           "requiere_mfa": true
         },
         {
-          "codigo": "CONTABILIDAD_ERP_COBRAR",
-          "descripcion": "Registrar cobros de cuentas por cobrar",
-          "recurso": "cuenta_por_cobrar",
-          "accion": "GESTIONAR",
-          "requiere_mfa": true
-        },
-        {
-          "codigo": "CONTABILIDAD_ERP_ACTIVOS_FIJOS",
-          "descripcion": "Dar de alta y de baja activos fijos",
-          "recurso": "activo_fijo",
+          "codigo": "CONTABILIDAD_ERP_PRESUPUESTO",
+          "descripcion": "Crear y aprobar presupuestos por centro de costo",
+          "recurso": "presupuesto",
           "accion": "GESTIONAR",
           "requiere_mfa": false
         },
@@ -275,11 +205,74 @@
           "requiere_mfa": false
         },
         {
+          "codigo": "CUMPLIMIENTO_ALERTAS",
+          "descripcion": "Ver y tratar alertas de monitoreo",
+          "recurso": "alerta_monitoreo_lft",
+          "accion": "GESTIONAR",
+          "requiere_mfa": false
+        },
+        {
+          "codigo": "CUMPLIMIENTO_CASOS",
+          "descripcion": "Abrir y decidir casos de investigación",
+          "recurso": "caso_investigacion_lft",
+          "accion": "GESTIONAR",
+          "requiere_mfa": false
+        },
+        {
+          "codigo": "CUMPLIMIENTO_REPORTAR",
+          "descripcion": "Generar y enviar reportes regulatorios",
+          "recurso": "reporte_regulatorio",
+          "accion": "ENVIAR",
+          "requiere_mfa": true
+        },
+        {
+          "codigo": "DATOS_SENSIBLES_LEER",
+          "descripcion": "Consultar documentos y cuentas de clientes",
+          "recurso": "documento_identidad",
+          "accion": "LEER",
+          "requiere_mfa": true
+        },
+        {
+          "codigo": "ENTREGA_AUTORIZAR",
+          "descripcion": "Autorizar una entrega de fondo",
+          "recurso": "entrega_fondo",
+          "accion": "AUTORIZAR",
+          "requiere_mfa": true
+        },
+        {
+          "codigo": "ENTREGA_EJECUTAR",
+          "descripcion": "Ejecutar una entrega de fondo",
+          "recurso": "entrega_fondo",
+          "accion": "EJECUTAR",
+          "requiere_mfa": true
+        },
+        {
+          "codigo": "GRUPO_ADMINISTRAR",
+          "descripcion": "Administrar un grupo",
+          "recurso": "grupo",
+          "accion": "ADMINISTRAR",
+          "requiere_mfa": false
+        },
+        {
+          "codigo": "GRUPO_CREAR",
+          "descripcion": "Crear un grupo de pasanaku",
+          "recurso": "grupo",
+          "accion": "CREAR",
+          "requiere_mfa": false
+        },
+        {
           "codigo": "PUBLICIDAD_ANUNCIANTES",
           "descripcion": "Dar de alta y verificar anunciantes y socios comerciales",
           "recurso": "anunciante",
           "accion": "GESTIONAR",
           "requiere_mfa": false
+        },
+        {
+          "codigo": "PUBLICIDAD_APROBAR_CAMPANA",
+          "descripcion": "Aprobar o rechazar una campaña publicitaria",
+          "recurso": "campana_publicitaria",
+          "accion": "APROBAR",
+          "requiere_mfa": true
         },
         {
           "codigo": "PUBLICIDAD_CAMPANA_GESTIONAR",
@@ -289,11 +282,11 @@
           "requiere_mfa": false
         },
         {
-          "codigo": "PUBLICIDAD_APROBAR_CAMPANA",
-          "descripcion": "Aprobar o rechazar una campaña publicitaria",
-          "recurso": "campana_publicitaria",
-          "accion": "APROBAR",
-          "requiere_mfa": false
+          "codigo": "PUBLICIDAD_LIQUIDAR",
+          "descripcion": "Liquidar y facturar el gasto publicitario",
+          "recurso": "factura_publicidad",
+          "accion": "GESTIONAR",
+          "requiere_mfa": true
         },
         {
           "codigo": "PUBLICIDAD_MODERAR",
@@ -303,10 +296,45 @@
           "requiere_mfa": false
         },
         {
-          "codigo": "PUBLICIDAD_LIQUIDAR",
-          "descripcion": "Liquidar y facturar el gasto publicitario",
-          "recurso": "factura_publicidad",
+          "codigo": "RECLAMO_ATENDER",
+          "descripcion": "Atender y responder reclamos",
+          "recurso": "reclamo_cliente",
           "accion": "GESTIONAR",
+          "requiere_mfa": false
+        },
+        {
+          "codigo": "REVERSO_AUTORIZAR",
+          "descripcion": "Autorizar el reverso de una transacción",
+          "recurso": "transaccion_billetera",
+          "accion": "REVERSAR",
+          "requiere_mfa": true
+        },
+        {
+          "codigo": "SEGURIDAD_ACCESO_RESTABLECER",
+          "descripcion": "Aprobar el restablecimiento de la credencial de un operador (ADR-038, R-SEG-11)",
+          "recurso": "acceso_operador",
+          "accion": "APROBAR",
+          "requiere_mfa": true
+        },
+        {
+          "codigo": "SEGURIDAD_FACTOR_REINSCRIBIR",
+          "descripcion": "Dar de baja y volver a enrolar el segundo factor de un operador (ADR-038)",
+          "recurso": "factor_mfa",
+          "accion": "EJECUTAR",
+          "requiere_mfa": true
+        },
+        {
+          "codigo": "TARIFARIO_PUBLICAR",
+          "descripcion": "Publicar un tarifario nuevo",
+          "recurso": "tarifario",
+          "accion": "PUBLICAR",
+          "requiere_mfa": true
+        },
+        {
+          "codigo": "VERIFICACION_RESOLVER",
+          "descripcion": "Aprobar o rechazar la verificación de identidad de una persona",
+          "recurso": "verificacion_kyc",
+          "accion": "RESOLVER",
           "requiere_mfa": true
         }
       ],
@@ -328,6 +356,16 @@
           "permiso_id": {
             "$ref": "permiso",
             "codigo": "CATALOGO_EDITAR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "ADMIN_PLATAFORMA"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "ACCESOS_ADMINISTRAR"
           }
         },
         {
@@ -508,6 +546,46 @@
           "permiso_id": {
             "$ref": "permiso",
             "codigo": "AUDITORIA_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "RESPONSABLE_SEGURIDAD"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "SEGURIDAD_ACCESO_RESTABLECER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "RESPONSABLE_SEGURIDAD"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "SEGURIDAD_FACTOR_REINSCRIBIR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "ADMIN_PLATAFORMA"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "SEGURIDAD_ACCESO_RESTABLECER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "ADMIN_PLATAFORMA"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "SEGURIDAD_FACTOR_REINSCRIBIR"
           }
         },
         {
@@ -808,6 +886,36 @@
           "permiso_id": {
             "$ref": "permiso",
             "codigo": "PUBLICIDAD_CAMPANA_GESTIONAR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "ADMIN_PLATAFORMA"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "VERIFICACION_RESOLVER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "OFICIAL_CUMPLIMIENTO"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "VERIFICACION_RESOLVER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "ANALISTA_CUMPLIMIENTO"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "VERIFICACION_RESOLVER"
           }
         }
       ]

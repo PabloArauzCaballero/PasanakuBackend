@@ -1,0 +1,58 @@
+{
+  "servicio": "publicidad",
+  "operacion": "crearCampana",
+  "metodo": "post",
+  "ruta": "/publicidad/campanas",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "campanaPublicitariaId": "653f0bb5-e369-4931-879a-9fd7c48a814e",
+        "estado": "BORRADOR",
+        "presupuestoTotal": "4.44"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "campanaPublicitariaId": "653f0bb5-e369-4931-879a-9fd7c48a814e",
+        "estado": "BORRADOR",
+        "presupuestoTotal": "0.00"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "campanaPublicitariaId": "653f0bb5-e369-4931-879a-9fd7c48a814e",
+        "estado": "BORRADOR",
+        "presupuestoTotal": "4.44"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "campanaPublicitariaId": "653f0bb5-e369-4931-879a-9fd7c48a814e",
+        "estado": "BORRADOR",
+        "presupuestoTotal": "4.44"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

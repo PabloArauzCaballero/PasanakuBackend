@@ -1,0 +1,29 @@
+{
+  "servicio": "tarifas",
+  "operacion": "consultarTarifarioVigente",
+  "metodo": "get",
+  "ruta": "/tarifas/vigentes/{codigo}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "vigente": true,
+        "tarifarioId": "1471747b-ae10-4d41-8459-e96c6c28191b"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "vigente": false,
+        "tarifarioId": "1471747b-ae10-4d41-8459-e96c6c28191b"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "vigente": true,
+        "tarifarioId": "1471747b-ae10-4d41-8459-e96c6c28191b"
+      }
+    }
+  }
+}

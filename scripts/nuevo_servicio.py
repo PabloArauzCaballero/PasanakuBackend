@@ -22,8 +22,15 @@ import argparse
 import pathlib
 import sys
 
+# Estos informes se imprimen con acentos y flechas. En Windows la consola entrega
+# stdout en cp1252 y el generador muere con UnicodeEncodeError despues de haber
+# escrito los archivos — en tres de las cinco maquinas del parque.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from modelo import (ESQUEMA, ESQUEMA_CATALOGO, ESQUEMA_COMUN, MODULOS,  # noqa: E402
+
                     PREFIJOS, RUTAS_PUBLICAS, paquete_de, rol_de, servicio_de)
 
 R = pathlib.Path(__file__).resolve().parent.parent
@@ -158,6 +165,15 @@ paths: {{}}
   #         '422': {{ $ref: '#/components/responses/ReglaDeNegocio' }}
 
 components:
+  parameters:
+    ClaveIdempotencia:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: >-
+        Toda operacion con efecto la exige. La red duplica; reintentar tiene que ser
+        seguro, y la clave se valida ANTES de escribir (invariante 7).
+      schema: {{ type: string, format: uuid }}
   schemas:
     Dinero:
       type: object
@@ -188,12 +204,47 @@ components:
 """
 
 
+# Nivel de criticidad por servicio — ADR-037 §1. NO lo elige el dueno del servicio:
+# lo impone su peor dependiente sincronico. Vive aca y no dentro de cada descriptor
+# para que regenerar no borre una decision de arquitectura, que es justo lo que pasa
+# cuando la plantilla no la conoce.
+NIVEL = {
+    "aportes": ("N1", "Cobrar el aporte, el flujo que el usuario hace todos los períodos", 4, 10, 10),
+    "auditoria": ("N3", "Consultas y exportes: se difieren sin consecuencia externa", 2, 2, 5),
+    "cumplimiento": ("N3", "Los límites se leen de `catalogo` (ADR-029); monitorear y alertar llega por evento", 2, 2, 5),
+    "entregas": ("N2", "La entrega tiene fecha, no instante: tolera minutos", 3, 6, 8),
+    "erp": ("N3", "Contabilidad de gestión: trabaja sobre períodos cerrados", 2, 2, 5),
+    "garantia": ("N2", "La cobertura se aplica en el barrido, no en línea", 3, 6, 8),
+    "grupos": ("N2", "Gobernanza del grupo: se atrasa un acuerdo, no se pierde plata", 3, 6, 8),
+    "identidad": ("N1", "Autenticar y autorizar: sin esto nadie entra", 4, 10, 10),
+    "notificaciones": ("N2", "El outbox retiene: una caída se vuelve atraso, no aviso perdido", 3, 6, 8),
+    "nucleo-financiero": ("N1", "El libro contable y la billetera: sin esto no se mueve plata", 4, 10, 10),
+    "organizador": ("N2", "Habilitación y automatización: nada de esto es de camino crítico", 3, 6, 8),
+    "publicidad": ("N3", "Lo primero que se apaga en degradación controlada (ADR-037 §7)", 2, 2, 5),
+    "tarifas": ("N1", "ADR-022 pone «¿cuánto es la comisión?» entre las llamadas sincrónicas del cobro", 4, 10, 10),
+    "transparencia": ("N3", "Reputación y certificados: nadie afuera nota diez minutos", 2, 2, 5),
+}
+
+
 def descriptor(servicio):
+    nivel, porque, minimo, maximo, hikari = NIVEL[servicio]
     return f"""# Despliegue de {servicio} — genera el manifiesto de Kubernetes.
 # Los manifiestos NO se escriben a mano: catorce copias divergen y la divergencia
-# se descubre en produccion (ADR-025).
+# se descubre en produccion (ADR-025). Los numeros de disponibilidad salen del
+# nivel (ADR-037): este archivo declara el nivel, no los recalcula.
 servicio: {servicio}
-replicas: {REPLICAS.get(servicio, 1)}
+
+# Nivel de criticidad — ADR-037 §1. NO lo elige el dueno del servicio: lo impone
+# su peor dependiente sincronico. Cambiarlo exige actualizar el cuadro del ADR.
+nivel: {nivel}
+nivel_porque: "{porque}"
+
+replicas:
+  min: {minimo}                    # piso del nivel — nunca 1 (ADR-037 §2)
+  max: {maximo}                    # tope atado al pool de conexiones (ADR-037 §3)
+pool:
+  hikari_por_replica: {hikari}     # replicas_max x esto tiene que caber en pgbouncer
+
 recursos:
   memoria: 512Mi                 # presupuesto de ADR-025
   cpu: 500m
@@ -202,7 +253,10 @@ sondas:
   liveness:  /actuator/health/liveness    # solo el proceso
 despliegue:
   estrategia: RollingUpdate
-  maxUnavailable: {0 if servicio in REPLICAS else 1}
+  maxUnavailable: 0
+disponibilidad:
+  objetivo_mensual: 99.9        # presupuesto de error: al agotarlo se congela lo nuevo
+  latencia_p95_ms: 400
 puerto_publicado: false          # solo el gateway publica puerto
 """
 
@@ -214,6 +268,8 @@ import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideOutsideOfPackages;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 /**
@@ -238,13 +294,15 @@ class ArquitecturaTest {{
         noClasses().that().resideOutsideOfPackage("..aplicacion..")
             .should().beAnnotatedWith("org.springframework.transaction.annotation.Transactional");
 
+    // Invariante 11: se depende del propio servicio y de plataforma/. De ningun
+    // otro. El predicado va COMPUESTO y no en dos `should` encadenados: encadenados,
+    // java.lang.Object alcanza para que cualquier clase viole la regla.
     @ArchTest
     static final ArchRule ningunImportCruzado =
         noClasses().that().resideInAPackage("{pkg}..")
-            .should().dependOnClassesThat()
-            .resideInAnyPackage("bo.aportaya..")
-            .andShould().dependOnClassesThat()
-            .resideOutsideOfPackages("{pkg}..", "bo.aportaya.plataforma..");
+            .should().dependOnClassesThat(
+                resideInAPackage("bo.aportaya..")
+                    .and(resideOutsideOfPackages("{pkg}..", "bo.aportaya.plataforma..")));
 
     @ArchTest
     static final ArchRule jpaProhibido =
@@ -320,6 +378,66 @@ Skills: `arrancar-carril` primero, despues las diecinueve de todo carril de back
 """
 
 
+
+def aplicacion_java(servicio, pkg):
+    clase = "Aplicacion"
+    return f"""package {pkg};
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+
+/**
+ * El punto de arranque de {servicio}. No tiene logica: si aparece un if sobre una
+ * regla del pasanaku aca, esta mal ubicado — va a aplicacion/.
+ *
+ * La configuracion se valida al arrancar: si falta una clave, el proceso NO levanta
+ * y dice cual (planes/01 §0.7).
+ */
+@SpringBootApplication
+@ConfigurationPropertiesScan
+public class {clase} {{
+
+    public static void main(String[] argumentos) {{
+        SpringApplication.run({clase}.class, argumentos);
+    }}
+}}
+"""
+
+
+
+def barrido_test(servicio, pkg):
+    return f"""package {pkg};
+
+import bo.aportaya.plataforma.pruebas.barrido.Barrido;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+/**
+ * Las reglas propias de planes/00 §6 aplicadas a las fuentes de este servicio.
+ *
+ * <p>La implementacion vive en plataforma/comun-pruebas: ningun servicio puede
+ * desactivarlas, y el que agrega la regla numero trece la agrega una sola vez.
+ */
+class BarridoTest {{
+
+    private final Barrido barrido = Barrido.delModulo();
+
+    @Test
+    @DisplayName("tamano-archivo: ningun archivo llega a 300 lineas")
+    void ningunArchivoBloquea() {{
+        barrido.ningunArchivoBloquea();
+    }}
+
+    @Test
+    @DisplayName("sin-umbral-literal: ninguna cifra regulatoria dentro del codigo")
+    void ningunUmbralEnElCodigo() {{
+        barrido.ningunUmbralEnElCodigo();
+    }}
+}}
+"""
+
+
 def crear(servicio, forzar=False):
     esquema = servicio.replace("-", "_")
     if esquema not in set(ESQUEMA.values()):
@@ -348,9 +466,22 @@ def crear(servicio, forzar=False):
         base / "README.md": readme(servicio, esquema),
         base / "src/main/resources/application.yml": application_yml(servicio, esquema),
         base / f"src/main/resources/openapi/{servicio}.yaml": openapi(servicio, esquema),
+        base / "src/main/java" / ruta_pkg / "Aplicacion.java": aplicacion_java(servicio, pkg),
         base / "src/test/java" / ruta_pkg / "ArquitecturaTest.java": arquitectura_test(servicio, pkg),
+        base / "src/test/java" / ruta_pkg / "BarridoTest.java": barrido_test(servicio, pkg),
+    }
+    # CURADOS: el carril los llena y --forzar NO los pisa. Regenerar borro una vez
+    # el nivel de criticidad de los catorce descriptores y otra vez los tres
+    # contratos de la Fase 0; un generador que destruye decisiones es peor que no
+    # tenerlo. Se escriben solo si faltan.
+    curados = {
+        base / "descriptor.yml",
+        base / "README.md",
+        base / f"src/main/resources/openapi/{servicio}.yaml",
     }
     for ruta, contenido in escribir.items():
+        if ruta in curados and ruta.exists():
+            continue
         ruta.write_text(contenido, encoding="utf-8")
     print(f"  creado: servicios/{servicio}/  ({esquema} · {rol_de(esquema)} · {pkg})")
     return 0

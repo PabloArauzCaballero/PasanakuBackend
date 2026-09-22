@@ -1,0 +1,16 @@
+{
+  "//": "Programa de TypeScript acotado al carril de Richard (PR11-Sesion.Frontend). El tsconfig.spec.json compartido incluye TODOS los *.spec.ts de src/, y el bundler de @angular/build:unit-test aborta si cualquiera de ellos no compila. Al 2026-09-21, dev@a23bcb1 ya trae errores de tipos preexistentes fuera de este carril (contabilidad, cumplimiento, publicidad) que no son míos de arreglar (regla 00 §3, alcance). Este tsconfig acota el programa a lo que este carril toca y verifica, para no depender de que el resto del monorepo compile. Se borra cuando este carril se integra a `dev` y ese trabajo pasa a correr contra `tsconfig.spec.json` real, en la revisión de conjunto que le toca al integrador.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": [
+      "vitest/globals",
+      "node"
+    ]
+  },
+  "include": [
+    "src/tipos/**/*.d.ts",
+    "src/app/nucleo/**/*.ts",
+    "src/app/rutas/ingreso/**/*.ts",
+    "pruebas/**/*.ts"
+  ]
+}

@@ -46,6 +46,7 @@ La bóveda (`docs/`) dice **qué** hay que construir. Las skills dicen **cómo**
 | `trabajos-outbox` | Al disparar efectos fuera de la transacción |
 | `errores-api` | Al devolver o traducir un error |
 | `idempotencia-reintentos` | En todo endpoint con efecto y todo webhook |
+| `seguridad-aplicacion` | **Antes de escribir cualquier endpoint, consulta, adaptador, Dockerfile o pantalla**, y al revisar un PR |
 | `autenticacion-jwt` | Al crear un endpoint o tocar login, refresh y permisos |
 | `roles-y-accesos` | Al decidir qué permiso exige algo, o dar de alta a un operador |
 | `seguridad-sesion-rls` | En toda consulta con políticas de fila |
@@ -60,8 +61,9 @@ La bóveda (`docs/`) dice **qué** hay que construir. Las skills dicen **cómo**
 | Skill | Cuándo |
 | --- | --- |
 | `disenar-frontend` | Al crear o modificar cualquier pantalla |
-| `movil-expo` | Al trabajar en la app |
-| `web-backoffice` | Al trabajar en el backoffice |
+| `movil-flutter` | Al trabajar en la app (Flutter) o en `packages/diseno_flutter` |
+| `web-angular` | Al trabajar en el backoffice, el sitio público o `packages/ui` (Angular) |
+| `web-backoffice` | El comportamiento del backoffice: tablas, expedientes, plazos, permisos |
 
 ## Dominio
 
@@ -72,7 +74,6 @@ La bóveda (`docs/`) dice **qué** hay que construir. Las skills dicen **cómo**
 | `qr-pagos` | Cobro con QR, pasarelas y conciliación bancaria |
 | `desembolsos-payouts` | Cualquier salida de dinero: retiro, entrega, devolución |
 | `reembolsos-disputas` | Devolver un cobro o responder un contracargo |
-| `efectivo-puntos-atencion` | Recarga y retiro en efectivo por corresponsal |
 | `proveedores-externos` | Al integrar, enrutar o dar de baja un proveedor |
 | `facturacion-sin` | Comisiones, tarifario, impuestos y factura |
 | `gobernanza-grupo` | Ciclo del grupo, cupos, turnos y acuerdos |

@@ -1,0 +1,41 @@
+{
+  "servicio": "publicidad",
+  "operacion": "consumoDelPeriodo",
+  "metodo": "get",
+  "ruta": "/publicidad/cuentas/{cuentaId}/consumo",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "cuentaPublicitariaId": "4992945c-cca0-4c62-87ac-d97c2163390b",
+        "periodo": "4444-44",
+        "total": "4.44"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "cuentaPublicitariaId": "4992945c-cca0-4c62-87ac-d97c2163390b",
+        "periodo": "0000-00",
+        "total": "0.00"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "cuentaPublicitariaId": "4992945c-cca0-4c62-87ac-d97c2163390b",
+        "periodo": "4444-44",
+        "total": "4.44"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

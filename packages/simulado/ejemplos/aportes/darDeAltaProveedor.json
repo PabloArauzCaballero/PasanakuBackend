@@ -1,0 +1,58 @@
+{
+  "servicio": "aportes",
+  "operacion": "darDeAltaProveedor",
+  "metodo": "post",
+  "ruta": "/pagos/proveedores",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "proveedorId": "623acb9b-3000-44ef-823a-2f74923bb08a",
+        "codigo": "codigo",
+        "activo": true
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "proveedorId": "623acb9b-3000-44ef-823a-2f74923bb08a",
+        "codigo": "codigo",
+        "activo": false
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "proveedorId": "623acb9b-3000-44ef-823a-2f74923bb08a",
+        "codigo": "codigo",
+        "activo": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "proveedorId": "623acb9b-3000-44ef-823a-2f74923bb08a",
+        "codigo": "codigo",
+        "activo": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

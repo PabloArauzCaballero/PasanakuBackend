@@ -166,6 +166,22 @@ Y queda una coincidencia_lista en estado CONFIRMADA
 Dado un usuario que ya tiene cuenta ACTIVA en BOB
 Cuando intenta abrir otra cuenta USUARIO en BOB
 Entonces la operación falla por violación de unicidad (R-BIL-04)
+
+Dado un alta válida
+Cuando se registra
+Entonces queda una credencial con la que se puede entrar
+
+Dado un alta válida
+Cuando se registra
+Entonces la credencial guarda con qué KDF se calculó
+
+Dada una clave más corta que la política
+Cuando se registra
+Entonces no se crea el usuario
+
+Dada una clave que contiene el teléfono
+Cuando se registra
+Entonces se rechaza
 ```
 
 ## Ver también

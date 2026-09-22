@@ -1,0 +1,26 @@
+{
+  "entorno": "dev",
+  "descripcion": "Datos de desarrollo y QA. NO aplicar en producción: el orquestador aborta si la base no está marcada con app.entorno = 'dev'.",
+  "marca": {
+    "tabla": "usuario",
+    "donde": "codigo_publico = 'USR000001'",
+    "por_que": "Sembrar dos veces la demo duplicaba filas en las 113 tablas sin clave natural, y el primer subselect que esperaba una fila fallaba con «more than one row». Esta marca se lee UNA vez al empezar y decide si el archivo entero inserta o no inserta nada. Es una fila de la propia demo: si alguien la borra, volver a sembrar funciona."
+  },
+  "orden": [
+    "01-entorno-tecnico.json",
+    "02-usuarios-y-billeteras.json",
+    "03-grupo-demo.json",
+    "04-fondo-y-cuenta-del-grupo.json",
+    "05-personal-interno-y-gobierno.json",
+    "06-instrumentos-y-recargas.json",
+    "07-aportes-y-entrega.json",
+    "08-cobros-qr-y-conciliacion.json",
+    "09-mora-cobertura-y-cobranza.json",
+    "10-notificaciones-cierre-y-reclamos.json",
+    "11-contabilidad-y-saldos.json",
+    "12-retiro-y-controles.json",
+    "13-cumplimiento-uif.json",
+    "14-identidad-y-sesiones.json",
+    "15-usuarios-dev.json"
+  ]
+}

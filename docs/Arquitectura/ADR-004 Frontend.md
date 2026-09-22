@@ -3,11 +3,19 @@ tags:
   - arquitectura
   - adr
 titulo: "ADR-004 — Frontend: app del participante y backoffice"
-estado: aceptada
+estado: superada por ADR-044
 fecha: 2026-08-12
 ---
 
 # ADR-004 — Frontend: app del participante y backoffice
+
+> [!warning] Decisión superada el 2026-09-09
+> La reemplaza [[ADR-044 Frontend en Angular y Flutter]]: la app pasa a **Flutter** y el
+> backoffice a **Angular**. Se conserva porque el motivo por el que se decidió lo que se
+> decidió es parte del expediente: los requisitos de producto que este ADR enumera —una
+> billetera tiene que ser app, las correcciones tienen que llegar sin pasar por tienda,
+> el backoffice no es la app estirada— siguen vigentes y son los que ADR-044 vuelve a
+> satisfacer con otras herramientas.
 
 ## Contexto
 

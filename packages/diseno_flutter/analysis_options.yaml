@@ -1,0 +1,21 @@
+# flutter_lints como piso. Las nueve reglas propias del frontend (sin red en vista, sin
+# literal de diseño, sin formato de dinero fuera de Monto, sin Platform.is en vista…)
+# corren como barrido en scripts/verificar_frontend.py hasta que F1-M las escriba como
+# custom_lint (planes/10 §6).
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - lib/tokens/tokens.dart   # generado desde packages/tokens
+    - build/**
+  errors:
+    missing_required_param: error
+    missing_return: error
+
+linter:
+  rules:
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    avoid_print: true
+    always_declare_return_types: true
+    prefer_single_quotes: true

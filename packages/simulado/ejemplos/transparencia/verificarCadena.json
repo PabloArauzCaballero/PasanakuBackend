@@ -1,0 +1,42 @@
+{
+  "servicio": "transparencia",
+  "operacion": "verificarCadena",
+  "metodo": "get",
+  "ruta": "/publico/grupos/{grupoId}/verificacion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "integra": true,
+        "bloquesVerificados": 0,
+        "primerBloqueFallido": 1,
+        "componenteFallido": "HASH_CONTENIDO",
+        "ultimoSellado": "2026-01-15T10:30:00Z"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "integra": false,
+        "bloquesVerificados": 0,
+        "primerBloqueFallido": 0,
+        "componenteFallido": "HASH_CONTENIDO",
+        "ultimoSellado": "2026-01-15T10:30:00Z"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "integra": true,
+        "bloquesVerificados": 0,
+        "primerBloqueFallido": 1,
+        "componenteFallido": "HASH_CONTENIDO",
+        "ultimoSellado": "2026-01-15T10:30:00Z"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": null
+    }
+  }
+}

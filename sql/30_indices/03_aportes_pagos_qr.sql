@@ -68,7 +68,7 @@ CREATE INDEX IF NOT EXISTS ix_pago_fecha_hora_pago
   ON aportes.pago (fecha_hora_pago);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_pago_proveedor_id_referencia_proveedor
-  ON aportes.pago (proveedor_id, referencia_proveedor);
+  ON aportes.pago (proveedor_id, referencia_proveedor) NULLS NOT DISTINCT;
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_comprobante_manual_pago_id
   ON aportes.comprobante_manual (pago_id);

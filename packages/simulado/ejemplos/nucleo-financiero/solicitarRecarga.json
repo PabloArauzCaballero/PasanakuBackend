@@ -1,0 +1,74 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "solicitarRecarga",
+  "metodo": "post",
+  "ruta": "/billetera/recargas",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "ordenRecargaId": "9b3e8dff-d7e2-4c41-8cdc-b1be7320ca40",
+        "estado": "estado",
+        "expiraEn": "2026-01-15T10:30:00Z",
+        "acreditara": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "ordenRecargaId": "9b3e8dff-d7e2-4c41-8cdc-b1be7320ca40",
+        "estado": "estado",
+        "expiraEn": "2026-01-15T10:30:00Z",
+        "acreditara": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "ordenRecargaId": "9b3e8dff-d7e2-4c41-8cdc-b1be7320ca40",
+        "estado": "estado",
+        "expiraEn": "2026-01-15T10:30:00Z",
+        "acreditara": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "ordenRecargaId": "9b3e8dff-d7e2-4c41-8cdc-b1be7320ca40",
+        "estado": "estado",
+        "expiraEn": "2026-01-15T10:30:00Z",
+        "acreditara": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

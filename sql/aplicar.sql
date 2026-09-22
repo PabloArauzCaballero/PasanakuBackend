@@ -191,6 +191,7 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/09_auditoria_reportes/ejecucion_reporte.sql
 \ir 10_tablas/09_auditoria_reportes/exportacion_reporte.sql
 \ir 10_tablas/09_auditoria_reportes/programacion_reporte.sql
+\ir 10_tablas/09_auditoria_reportes/definicion_indicador.sql
 \ir 10_tablas/09_auditoria_reportes/indicador_kpi.sql
 \ir 10_tablas/09_auditoria_reportes/regla_cumplimiento.sql
 \ir 10_tablas/09_auditoria_reportes/alerta_cumplimiento.sql
@@ -211,8 +212,6 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/10_billetera_custodia/retencion_saldo.sql
 \ir 10_tablas/10_billetera_custodia/reverso_transaccion.sql
 \ir 10_tablas/10_billetera_custodia/instrumento_fondeo.sql
-\ir 10_tablas/10_billetera_custodia/punto_atencion.sql
-\ir 10_tablas/10_billetera_custodia/arqueo_punto_atencion.sql
 \ir 10_tablas/10_billetera_custodia/orden_recarga.sql
 \ir 10_tablas/10_billetera_custodia/orden_retiro.sql
 \ir 10_tablas/10_billetera_custodia/transferencia_p2p.sql
@@ -342,6 +341,11 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 
 -- 2b) Infraestructura de mensajería por esquema (ADR-027)
 \ir 15_infra/mensajeria.sql
+
+-- 2c) Nulabilidad al día sobre una base que ya existe.
+--     Solo afloja lo que el modelo declara opcional; no es un sistema de
+--     migraciones. Sobre una base recién creada no hace nada.
+\ir 15_infra/nulabilidad.sql
 
 -- 3) Claves foráneas (después de todas las tablas)
 \ir 20_claves/01_identidad_usuarios.sql

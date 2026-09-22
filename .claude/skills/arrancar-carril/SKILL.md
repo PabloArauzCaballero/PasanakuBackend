@@ -27,6 +27,15 @@ Se completan **antes** de cualquier otra cosa. Si falta uno, se pregunta y se pa
 | `OLA` · `CARRIL` | `planes/07` §3 | `2` · `B` |
 | `RAMA` | fórmula fija | `<usuario>/feature/carril-2B-tarifas` |
 
+**Si sos carril de frontend**, los datos son otros y salen de `planes/16` §2 y de tu ficha en `planes/18`:
+
+| Dato | De dónde sale | Ejemplo |
+| --- | --- | --- |
+| `MUNDO` | la ficha | `Flutter` (carriles `M*`, `F0-M`, `F1-M`) · `Angular` (`B*`, `W*`, `F0-B`, `F0-W`, `F1-W`) |
+| `DOMINIO` | `planes/16` §2 | `billetera` → `apps/movil/lib/pantallas/billetera/` · `operacion` → `apps/backoffice/src/app/rutas/operacion/` |
+| `PANTALLAS` | `planes/22` §2 o §3, tu bloque | la lista con ruta, organismos y delta |
+| `CU` · `CARRIL` · `RAMA` | igual que arriba | `10–19, 30–33, 57` · `M2` · `<usuario>/feature/carril-M2-billetera` |
+
 ---
 
 ## 2 · Orden de lectura — exacto, y nada más
@@ -35,6 +44,7 @@ Se completan **antes** de cualquier otra cosa. Si falta uno, se pregunta y se pa
 
 | # | Qué | Cuánto | Para qué |
 | :-: | --- | --- | --- |
+| 0 | `docs/Contrato de implementación para IA.md`, **entero** | ~2 min | Qué no se puede inventar, y los defaults ya elegidos |
 | 1 | Esta skill, completa | — | El contrato |
 | 2 | `docs/CasosDeUso/CU-<NN> *.md` — **todos los del carril, enteros** | todo | Es la especificación. **No se resume ni se saltea** |
 | 3 | `docs/Restricciones.md` — **solo** los `R-XXX-nn` que citan esos CU | grep | Qué rechaza la base |
@@ -68,6 +78,18 @@ despliegue/compose/<SERVICIO>.yml    solo si necesitás un auxiliar
 **No hay ningún archivo fuera de ahí que necesites tocar para entregar un caso de uso
 completo.** Si creés que sí, la respuesta está en §7.
 
+**Carril de frontend:**
+
+```
+apps/<producto>/…/<DOMINIO>/**       tus pantallas, tu rutas.dart / <dominio>.routes.ts, tu dominio/, tu textos.*, pruebas y goldens
+packages/simulado/ejemplos/<servicio>/CU-NN.json   solo los CU cuyo ejemplo creás primero
+planes/informes/carril-<CARRIL>.md   tu informe (plantilla: planes/informes/_plantilla-frontend.md)
+```
+
+No tocás `packages/tokens`, `packages/ui`, `packages/diseno_flutter`, `clientes/angular`,
+`clientes/dart`, los shells (`navegacion/`, `proveedores/`, `infraestructura/`, `nucleo/`,
+`layout/`, `app.routes.ts`), `pubspec.*`, `angular.json`. Detalle en `planes/16` §4.
+
 ### Solo lectura — tocarlo es un rechazo automático
 
 | Ruta | Quién la cambia |
@@ -77,7 +99,7 @@ completo.** Si creés que sí, la respuesta está en §7.
 | `gradle/libs.versions.toml` | Micro-PR. **Nunca** una dependencia en tu rama |
 | `settings.gradle.kts` | Nadie: descubre por barrido |
 | `despliegue/Dockerfile` `despliegue/k8s/` | Ola 0 y Ola 5 |
-| `clientes/typescript/` | Generado |
+| `clientes/angular/` `clientes/dart/` | Generados |
 | `.claude/skills/**` | Micro-PR |
 | **El `openapi/` de otro servicio** | **Se lee** para generar su cliente. Nunca se edita |
 
@@ -85,17 +107,22 @@ completo.** Si creés que sí, la respuesta está en §7.
 
 ## 4 · Qué skills cargás
 
-**Las diecinueve de todo carril de backend**, en este orden:
+**Las veinte de todo carril de backend**, en este orden:
 
 | Grupo | Skills |
 | --- | --- |
 | Método (4) | `frontera-transaccional` · `implementar-desde-boveda` · `caso-de-uso` · `revision-codigo` |
 | Forma (5) | `arquitectura-atomica` · `codigo-limpio` · `back-spring` · `servicios-y-sagas` · `glosario-dominio` |
 | Datos y dinero (3) | `datos-jooq` · `dinero-decimal` · `contratos-api` |
-| Corrección (4) | `errores-api` · `idempotencia-reintentos` · `seguridad-sesion-rls` · `pruebas-cu` |
+| Corrección (5) | `errores-api` · `idempotencia-reintentos` · `seguridad-sesion-rls` · `seguridad-aplicacion` · `pruebas-cu` |
 | Cierre (3) | `observabilidad` · `git-flujo` · `definicion-de-terminado` |
 
-**Más las propias del carril**, según la tabla normativa de `planes/19` §2.
+**Más las propias del carril**, según la tabla normativa de `planes/19` §2. Y esta
+skill, `arrancar-carril`, que la carga **todo** carril antes que ninguna otra.
+
+Si sos carril de backend, tu servicio tiene un `descriptor.yml` y vos lo poseés:
+declarás su **nivel** de criticidad y **por qué**, y nunca menos de dos réplicas
+([[ADR-037 Alta disponibilidad y balanceo]]).
 
 > Un carril que no cargó las suyas está trabajando de memoria, y va a inventar
 > exactamente lo que las skills existen para evitar.
@@ -113,14 +140,23 @@ docker compose --profile base up -d --wait        # postgres + pgbouncer + kafka
 ./gradlew :servicios:<SERVICIO>:generateJooq       # clases de TU esquema
 ./gradlew :servicios:<SERVICIO>:build
 
-ls .claude/skills | grep -v README | wc -l         # 65
+ls .claude/skills | grep -v README | wc -l         # 66
 python3 scripts/verificar_boveda.py                # TODO OK
+python3 scripts/verificar_carriles.py              # tu puesto dice lo mismo en los dos planes
+python3 scripts/generar_k8s.py                     # tu descriptor cierra contra el pool
 
 ./gradlew :servicios:<SERVICIO>:bootRun            # tu servicio, solo el tuyo
 ```
 
 **No se levantan los quince procesos.** Contra los otros trece se programa por su
 OpenAPI y se prueba con dobles.
+
+**Si sos carril de frontend**, tu bloque es otro y no necesita Docker
+(`planes/16 Carriles de frontend.md` §8): `yarn install --immutable`,
+`./gradlew generateOpenApiClients`, `yarn dev:mock` (Prism), y según el mundo
+`flutter pub get && yarn dev:movil` (Flutter 3.44.8, la de `.fvmrc`; con `fvm` o en el PATH — skill `movil-flutter`) o
+`yarn dev:backoffice` / `yarn dev:web` (Angular, skill `web-angular`). Tu gate es
+`yarn lint && yarn typecheck && yarn test:front && yarn test:a11y`.
 
 Si algo de esto falla, **no es problema tuyo**: `main` está roto. Avisá antes de
 seguir.
@@ -136,6 +172,7 @@ Para cada `CU-<NN>`, en este orden. **Cada paso tiene una salida verificable.**
 | 0 | Declarar piezas por nivel + responder las **6 preguntas** de `frontera-transaccional` | Texto, esperando visto bueno | — |
 | 1 | Generar el esqueleto | Archivos + pruebas **fallando** | `./gradlew nuevoCu -Pcu=<NN>` |
 | 2 | Escribir el contrato en `openapi/<SERVICIO>.yaml` | Operación con entrada, salida y `AP-CU<NN>-<nn>` | `./gradlew generateOpenApiClients` |
+| 2b | ¿Toca algo fuera del proceso? Puerto en `dominio/puertos/` + **adaptador local primero** | Interfaz + adaptador por omisión | `./gradlew test` |
 | 3 | Átomos en `dominio/` | Cálculo puro, sin Spring ni jOOQ | `./gradlew test` |
 | 4 | Moléculas en `infraestructura/` | Repositorios y clientes, sin lógica | `./gradlew integrationTest` |
 | 5 | Organismo en `aplicacion/` | `@Transactional` + `conContexto` | `./gradlew integrationTest` |
@@ -144,6 +181,13 @@ Para cada `CU-<NN>`, en este orden. **Cada paso tiene una salida verificable.**
 
 **El paso 0 no se saltea.** Es donde se decide bien o mal, y cuesta cien veces menos
 que descubrirlo en el paso 6.
+
+**Los defaults no se eligen: ya están elegidos.** Archivos → adaptador local en disco.
+Mensajería → bandeja interna y correo, con push como aviso; WhatsApp y SMS apagados.
+Pagos y facturación → simulador. Móvil → Android, y iOS por pase de paridad. Semillas
+→ `minimos/` para producción, `dev/` para todo lo demás, y el generador rechaza que se
+crucen. Apartarse de cualquiera de esos es un ADR, no una decisión de implementación
+(`docs/Contrato de implementación para IA.md` §7).
 
 ---
 
@@ -221,7 +265,7 @@ afirmación** (`definicion-de-terminado`).
 ```markdown
 ### Cierre del carril <CARRIL> — servicio <SERVICIO>
 
-- [ ] Las 19 skills + las propias estaban cargadas antes del primer archivo
+- [ ] Las 20 skills + las propias estaban cargadas antes del primer archivo
 - [ ] Piezas declaradas por nivel y las 6 preguntas respondidas, por CU
 
 **Generado, no escrito a mano**

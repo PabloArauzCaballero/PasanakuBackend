@@ -1,0 +1,76 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "//": "Orquesta las tareas del frontend respetando el grafo apps/* <- packages/*. Quien resuelve las dependencias es yarn; turbo solo decide orden y cache. · La tarea `contenido` esta primero por una razon: los .md de apps/web/contenido se vuelven src/generado/contenido.json, y ese archivo esta en .gitignore y lo generaba SOLO `build`. Asi que existia en la maquina de quien ya habia construido una vez y no en el CI, donde `typecheck` moria con nueve «Cannot find module '../../../generado/contenido.json'». Un artefacto generado que no esta en el grafo de tareas es una bomba de tiempo; ahora todo lo que compila TypeScript depende de el. Ojo: turbo solo acepta la clave `//` en la raiz, no dentro de una tarea. · `test:goldens` esta separada de `test:front` y NO corre en el CI: las goldens de Flutter comparan pixeles y no son portables entre plataformas —las lineas base estan hechas en macOS y el CI es Linux—, asi que ahi medían el rasterizador, no el diseño.",
+  "ui": "stream",
+  "tasks": {
+    "contenido": {
+      "inputs": [
+        "contenido/**",
+        "scripts/contenido.mjs"
+      ],
+      "outputs": [
+        "src/generado/**",
+        "public/robots.txt",
+        "public/sitemap.xml",
+        "public/llms.txt",
+        "public/llms-full.txt",
+        "public/*.md"
+      ]
+    },
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**",
+        "build/**",
+        "generado/**"
+      ]
+    },
+    "typecheck": {
+      "dependsOn": [
+        "^build",
+        "contenido"
+      ],
+      "outputs": []
+    },
+    "lint": {
+      "dependsOn": [
+        "contenido"
+      ],
+      "outputs": []
+    },
+    "test:front": {
+      "dependsOn": [
+        "^build",
+        "contenido"
+      ],
+      "outputs": []
+    },
+    "test:goldens": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": []
+    },
+    "test:a11y": {
+      "dependsOn": [
+        "^build",
+        "contenido"
+      ],
+      "outputs": []
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "test:e2e": {
+      "dependsOn": [
+        "^build",
+        "contenido"
+      ],
+      "outputs": [],
+      "cache": false
+    }
+  }
+}

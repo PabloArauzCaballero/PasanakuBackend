@@ -1,0 +1,29 @@
+{
+  "servicio": "grupos",
+  "operacion": "resolverAlias",
+  "metodo": "get",
+  "ruta": "/grupos/participantes/alias/{alias}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "existe": true,
+        "usuarioId": "cf0f5e82-20ea-4c88-8101-a3df6eff9fb0"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "existe": false,
+        "usuarioId": "cf0f5e82-20ea-4c88-8101-a3df6eff9fb0"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "existe": true,
+        "usuarioId": "cf0f5e82-20ea-4c88-8101-a3df6eff9fb0"
+      }
+    }
+  }
+}

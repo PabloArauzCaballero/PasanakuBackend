@@ -27,10 +27,17 @@ import re
 import pathlib
 import shutil
 import sys
+
+# Estos informes se imprimen con acentos y flechas. En Windows la consola entrega
+# stdout en cp1252 y el generador muere con UnicodeEncodeError despues de haber
+# escrito los archivos — en tres de las cinco maquinas del parque.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
 from collections import defaultdict
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from modelo import (MODULOS, FOCO, APPEND_ONLY, PARTICIONADAS,  # noqa: E402
+
                     ESQUEMA, ESQUEMA_CATALOGO, CATALOGO, CATALOGO_ESCRITOR,
                     LIBRO_CONTABLE,
                     ESQUEMA_COMUN, COMPARTIDAS_ESCRITURA,
@@ -46,6 +53,11 @@ MAX_IDENT = 63
 # el que emita SQL: una tabla sin esquema conocido es un error del generador, no
 # algo que se resuelva con search_path.
 TABLA_ESQUEMA = {}
+
+# Tabla -> columnas opcionales. Lo llena generar() al recorrer el modelo, y lo lee
+# el emisor de índices únicos: un UNIQUE que incluye una columna opcional necesita
+# NULLS NOT DISTINCT o no impide el duplicado.
+OPCIONALES = {}
 
 # search_path para la sesion que APLICA el esquema y siembra: ve todos los
 # esquemas. Los roles de servicio tienen el suyo, mucho mas estrecho (02_esquemas).
@@ -138,6 +150,14 @@ VALORES = {
     ("requerimiento_autoridad", "estado"):
         ["RECIBIDO", "EN_PROCESO", "RESPONDIDO", "VENCIDO", "ARCHIVADO"],
     ("tipo_cambio", "fuente"): ["BCB", "PROVEEDOR", "MANUAL"],
+
+    # --- la extension del carnet boliviano -------------------------------------
+    # El numero de CI NO es unico por si solo: se repite entre departamentos, y lo
+    # que lo desambigua es el lugar de expedicion. Sin esta columna, la segunda
+    # persona con el mismo numero —de otro departamento— chocaba contra el UNIQUE
+    # de `hash_numero` y no podia abrir cuenta.
+    ("documento_identidad", "lugar_expedicion"):
+        ["LP", "SC", "CB", "OR", "PT", "TJ", "CH", "BE", "PD"],
 
     # --- gobernanza, reputación y notificaciones (CU-60..82) ---
     ("sorteo_turnos", "estado"): ["COMPROMETIDO", "REVELADO", "ANULADO"],
@@ -404,11 +424,12 @@ def generar():
     # Solo se borra lo que este script genera: 50_verificacion/prueba_humo.sql
     # está escrito a mano y no debe perderse.
     for sub in ("00_base", "10_tablas", "15_infra", "20_claves", "30_indices",
-                "35_append_only", "60_semillas", "61_prueba"):
+                "35_append_only", "60_semillas", "61_dev"):
         if (OUT / sub).exists():
             shutil.rmtree(OUT / sub)
 
     pendientes = []
+    opcionales = []          # (esquema.tabla, columna) que el modelo declara NULL
     total_tablas = total_fks = total_indices = total_checks = 0
 
     for k, d in sorted(mods.items()):
@@ -441,6 +462,8 @@ def generar():
                         partes.append("DEFAULT gen_random_uuid()")
                     if not col["nulo"] and not col["generated"]:
                         partes.append("NOT NULL")
+                    elif col["nulo"] and not col["generated"] and not col["pk"]:
+                        opcionales.append((f'{TABLA_ESQUEMA[tabla]}.{tabla}', n))
 
                 lineas.append(" ".join(partes))
 
@@ -460,6 +483,12 @@ def generar():
                         checks.append((ident("ck", tabla, n), f"{n} IN ({lista})"))
                     else:
                         pendientes.append(f"{tabla}.{n}")
+
+                # Qué columnas son opcionales: lo necesita el emisor de índices
+                # únicos para decidir si el compuesto lleva NULLS NOT DISTINCT.
+                OPCIONALES.setdefault(tabla, set())
+                if col["nulo"]:
+                    OPCIONALES[tabla].add(n)
 
                 if col["anot"]:
                     comentarios.append((n, col["anot"]))
@@ -546,9 +575,17 @@ def generar():
         L = [f"-- Claves foráneas del módulo {k} — {MODULOS[k][0]}",
              "-- Generado por scripts/generar_ddl.py — no editar a mano.",
              "-- Se aplican después de crear todas las tablas: el modelo tiene",
-             "-- referencias circulares entre módulos.", ""]
+             "-- referencias circulares entre módulos.",
+             "--",
+             "-- Cada una se borra si existe antes de crearse: PostgreSQL no tiene",
+             "-- ADD CONSTRAINT IF NOT EXISTS, y sql/aplicar.sql se aplica también",
+             "-- sobre una base que ya lo tiene. Borrar y volver a crear —en vez de",
+             "-- saltear si ya está— es lo que hace que un ON DELETE cambiado en el",
+             "-- modelo quede corregido al reaplicar.", ""]
         for tabla, col, destino, nulo in sorted(set(fks_mod)):
             accion = "ON DELETE SET NULL" if nulo else "ON DELETE RESTRICT"
+            L.append(f"ALTER TABLE {q(tabla)} "
+                     f"DROP CONSTRAINT IF EXISTS {ident('fk', tabla, col)};")
             L.append(f"ALTER TABLE {q(tabla)}")
             L.append(f"  ADD CONSTRAINT {ident('fk', tabla, col)}")
             L.append(f"  FOREIGN KEY ({col}) REFERENCES {q(destino)} (id) "
@@ -579,8 +616,23 @@ def generar():
             vistos.add(clave)
             lista = ", ".join(cols)
             if tipo == "UQ":
+                # `NULLS NOT DISTINCT` cuando alguna columna del compuesto es
+                # opcional. Por omision PostgreSQL considera distintos dos nulos, asi
+                # que un UNIQUE con una columna nula no impide el duplicado: es
+                # exactamente el caso de `documento_identidad`, donde el lugar de
+                # expedicion existe para el CI y no para un pasaporte — sin esto, dos
+                # pasaportes con el mismo numero entraban los dos.
+                # Solo en claves COMPUESTAS. En un unico de UNA columna opcional,
+                # `NULLS NOT DISTINCT` significa «a lo sumo una fila sin ese dato», que
+                # no es una regla de negocio de ningun caso: `pago.intento_pago_id` es
+                # nulo en todo pago manual, y con el sufijo el segundo pago manual de la
+                # historia era rechazado por duplicado. Con una sola columna opcional lo
+                # correcto es el comportamiento por omision: a lo sumo uno por valor, y
+                # los nulos no compiten entre si.
+                opcional = len(cols) > 1 and any(c in OPCIONALES.get(tabla, set()) for c in cols)
+                sufijo = " NULLS NOT DISTINCT" if opcional else ""
                 L.append(f"CREATE UNIQUE INDEX IF NOT EXISTS {ident('uq', tabla, *cols)}")
-                L.append(f"  ON {q(tabla)} ({lista});")
+                L.append(f"  ON {q(tabla)} ({lista}){sufijo};")
             else:
                 L.append(f"CREATE INDEX IF NOT EXISTS {ident('ix', tabla, *cols)}")
                 L.append(f"  ON {q(tabla)} ({lista});")
@@ -594,12 +646,14 @@ def generar():
     escribir_infra_mensajeria()
     escribir_permisos_finales()
     escribir_append_only()
+    escribir_convergencia(opcionales)
     escribir_orquestador(mods)
 
     # El catálogo de restricciones se extrae de docs/Restricciones.md: se
     # regenera acá para que una sola corrida deje sql/ completo y aplicable.
     import extraer_sql
-    extraer_sql.main()
+    if extraer_sql.main() != 0:
+        return 1
 
     # Las semillas viven en seeders/*.json y se emiten como SQL aplicable.
     import generar_semillas
@@ -698,7 +752,13 @@ def escribir_esquemas():
               f"-- outbox y bitacoras: INSERTA, y nada mas. No lee el rastro ajeno.",
               f"GRANT USAGE ON SCHEMA {ESQUEMA_COMUN} TO {r};",
               f"ALTER DEFAULT PRIVILEGES IN SCHEMA {ESQUEMA_COMUN}",
-              f"  GRANT INSERT ON TABLES TO {r};", ""]
+              f"  GRANT INSERT ON TABLES TO {r};",
+              f"-- Las politicas de fila se escriben FOR ALL TO rol_aplicacion",
+              f"-- (sql/40_reglas). Sin esta membresia no le aplican a {r}, y una",
+              f"-- politica que no aplica no protege: la tabla queda abierta o",
+              f"-- cerrada por accidente, nunca por diseno. rol_aplicacion no otorga",
+              f"-- ningun privilegio propio; es la marca que hace aplicar RLS.",
+              f"GRANT rol_aplicacion TO {r};", ""]
 
     L.append("-- 4) search_path por rol: cada servicio ve SU esquema y el catalogo.")
     L.append("--    Refuerza el GRANT: una consulta a una tabla ajena no solo es")
@@ -726,9 +786,42 @@ def escribir_esquemas():
     L.append(f"ALTER DEFAULT PRIVILEGES IN SCHEMA {ESQUEMA_CATALOGO}")
     L.append("  GRANT INSERT, UPDATE ON TABLES TO rol_migracion;")
     L.append("")
+    L.append(LOGIN_DE_DESARROLLO)
 
     (OUT / "00_base" / "02_esquemas.sql").write_text("\n".join(L), encoding="utf-8")
 
+
+LOGIN_DE_DESARROLLO = """-- 7) SOLO EN DESARROLLO: que los roles de servicio puedan conectarse.
+--
+-- Los catorce `svc_*` nacen NOLOGIN, que es lo correcto: en un despliegue real la
+-- credencial la entrega el gestor de secretos y nunca vive en un archivo del
+-- repositorio. Pero en la maquina de desarrollo eso dejaba a los catorce servicios
+-- sin poder abrir una sola conexion —PgBouncer respondia «no such user» y cada
+-- peticion moria en 500—, asi que el stack local no servia para nada.
+--
+-- Solo corre sobre una base marcada `app.entorno = 'dev'`, la misma guarda que
+-- protege las semillas de prueba, y solo si `app.clave_dev` esta puesta: la pone
+-- despliegue/compose/init/00-arranque.sql, que en produccion no existe.
+DO $desarrollo$
+DECLARE
+  rol   text;
+  clave text := nullif(current_setting('app.clave_dev', true), '');
+BEGIN
+  IF current_setting('app.entorno', true) IS DISTINCT FROM 'dev' THEN
+    RETURN;
+  END IF;
+  IF clave IS NULL THEN
+    -- Sin clave NO se toca nada: un `PASSWORD NULL` deja al rol conectandose sin
+    -- credencial, que es peor que dejarlo NOLOGIN.
+    RAISE NOTICE 'Entorno dev sin app.clave_dev: los roles svc_* siguen NOLOGIN.';
+    RETURN;
+  END IF;
+  FOR rol IN SELECT rolname FROM pg_roles WHERE rolname LIKE 'svc\\_%' LOOP
+    EXECUTE format('ALTER ROLE %I LOGIN PASSWORD %L', rol, clave);
+  END LOOP;
+  RAISE NOTICE 'Entorno dev: los roles svc_* pueden iniciar sesion.';
+END $desarrollo$;
+"""
 
 def escribir_permisos_finales():
     """GRANT sobre las tablas YA creadas.
@@ -916,6 +1009,51 @@ def escribir_append_only():
     (d / "append_only.sql").write_text("\n".join(L), encoding="utf-8")
 
 
+def escribir_convergencia(opcionales):
+    """Pone al dia la nulabilidad de una base que YA existe.
+
+    Las tablas se crean con `CREATE TABLE IF NOT EXISTS`, asi que sobre una base ya
+    creada un cambio en el `.puml` no llega nunca: el esquema se aplica entero, no
+    pasa nada, y el modelo y la base quedan diciendo cosas distintas sin que nadie se
+    entere hasta que un INSERT falla en produccion.
+
+    Esto NO es un sistema de migraciones y no hay que confundirlo con uno. Hace UNA
+    sola cosa y en UNA sola direccion: **aflojar** el `NOT NULL` de las columnas que el
+    modelo declara opcionales. No agrega columnas, no cambia tipos, no aprieta nada y
+    no borra nada, asi que no puede perder datos ni fallar por datos existentes —
+    `DROP NOT NULL` sobre una columna que ya admite nulos es un no-op—. Todo lo demas
+    (una columna nueva, un tipo distinto, un NOT NULL que se quiere imponer) sigue
+    necesitando decidirse a mano, y con datos de por medio eso es un trabajo aparte.
+
+    Va DESPUES de las tablas y ANTES de las claves y los indices, que es donde un
+    `NOT NULL` de mas podria estorbar.
+    """
+    L = ["-- Nulabilidad al dia sobre una base que ya existe.",
+         "-- Generado por scripts/generar_ddl.py — no editar a mano.",
+         "--",
+         "-- Solo AFLOJA: cada columna que el modelo declara opcional deja de ser",
+         "-- NOT NULL. No agrega columnas, no cambia tipos, no aprieta ni borra nada.",
+         "-- Sobre una base recien creada no hace nada: ya nacen asi.",
+         "--",
+         "-- Existe porque las tablas se crean con CREATE TABLE IF NOT EXISTS: sin esto,",
+         "-- un cambio de nulabilidad en el .puml no llega nunca a una base ya creada, y",
+         "-- el modelo y la base quedan diciendo cosas distintas hasta que algo falla.",
+         "--",
+         "-- OJO EN PRODUCCION: aplicar.sql corre todo en UNA transaccion, y cada ALTER",
+         "-- toma un ACCESS EXCLUSIVE sobre su tabla. Son cambios de catalogo —no",
+         "-- reescriben la tabla, asi que son instantaneos— pero mientras dure la",
+         "-- transaccion nadie mas toca esas tablas. Con trafico encima, esto se aplica",
+         "-- en una ventana, no a media tarde.",
+         ""]
+    for tabla, columna in sorted(set(opcionales)):
+        L.append(f"ALTER TABLE {tabla} ALTER COLUMN {columna} DROP NOT NULL;")
+    L.append("")
+    d = OUT / "15_infra"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "nulabilidad.sql").write_text("\n".join(L), encoding="utf-8")
+    return len(set(opcionales))
+
+
 def escribir_orquestador(mods):
     L = ["-- Aplica el esquema completo en orden.",
          "--   psql -v ON_ERROR_STOP=1 -f sql/aplicar.sql",
@@ -945,6 +1083,10 @@ def escribir_orquestador(mods):
             L.append(f"\\ir 10_tablas/{carpeta}/{d['entidades'][alias]['tabla']}.sql")
     L += ["", "-- 2b) Infraestructura de mensajería por esquema (ADR-027)",
           "\\ir 15_infra/mensajeria.sql"]
+    L += ["", "-- 2c) Nulabilidad al día sobre una base que ya existe.",
+          "--     Solo afloja lo que el modelo declara opcional; no es un sistema de",
+          "--     migraciones. Sobre una base recién creada no hace nada.",
+          "\\ir 15_infra/nulabilidad.sql"]
     L += ["", "-- 3) Claves foráneas (después de todas las tablas)"]
     for k in sorted(mods):
         L.append(f"\\ir 20_claves/{k}_{MODULOS[k][1].split('_', 1)[1]}.sql")

@@ -42,8 +42,8 @@
   --sh-3:0 18px 44px rgba(16,35,26,.16);
 
   /* ===== Tipografía ===== */
-  --font-d:"Poppins","Sora",system-ui,"Segoe UI",Roboto,Arial,sans-serif;
-  --font-b:"Inter",system-ui,"Segoe UI",Roboto,Arial,sans-serif;
+  --font-d:"Bricolage","Bricolage Grotesque",system-ui,"Segoe UI",Roboto,Arial,sans-serif;
+  --font-b:"Instrument","Instrument Sans",system-ui,"Segoe UI",Roboto,Arial,sans-serif;
   --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
 
   /* Escala fluida: clamp(mínimo, preferido, máximo) */

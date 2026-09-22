@@ -1,0 +1,65 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "emitirExtracto",
+  "metodo": "get",
+  "ruta": "/billetera/{cuentaId}/extracto",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "cuentaBilleteraId": "d49474e2-9dd8-402a-894c-04c8726ce50c",
+        "desde": "2026-01-15",
+        "hasta": "2026-01-15",
+        "saldoFinal": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "cantidadMovimientos": 1,
+        "hashArchivo": "hashArchivo-hashArchivo-hashArchivo-hashArchivo-hashArchivo-hash",
+        "emitido": true,
+        "motivoDelBloqueo": "motivoDelBloqueo"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "cuentaBilleteraId": "d49474e2-9dd8-402a-894c-04c8726ce50c",
+        "desde": "2026-01-15",
+        "hasta": "2026-01-15",
+        "saldoFinal": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "cantidadMovimientos": 0,
+        "hashArchivo": "hashArchivo-hashArchivo-hashArchivo-hashArchivo-hashArchivo-hash",
+        "emitido": false,
+        "motivoDelBloqueo": "motivoDelBloqueo"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "cuentaBilleteraId": "d49474e2-9dd8-402a-894c-04c8726ce50c",
+        "desde": "2026-01-15",
+        "hasta": "2026-01-15",
+        "saldoFinal": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "cantidadMovimientos": 1,
+        "hashArchivo": "hashArchivo-hashArchivo-hashArchivo-hashArchivo-hashArchivo-hash",
+        "emitido": true,
+        "motivoDelBloqueo": "motivoDelBloqueo"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

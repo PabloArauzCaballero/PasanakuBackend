@@ -1,0 +1,93 @@
+{
+  "servicio": "identidad",
+  "operacion": "registrarUsuario",
+  "metodo": "post",
+  "ruta": "/usuarios",
+  "escenarios": {
+    "ok": {
+      "estado": 202,
+      "cuerpo": {
+        "usuarioId": "78b01aa9-9b11-4f55-81c5-e8a0413c189f",
+        "estado": "PENDIENTE_VERIFICACION",
+        "cuentaBilleteraId": "cc4c1e4f-5b7d-428d-868c-e733e27c9b0d",
+        "nivelDiligencia": "SIMPLIFICADA",
+        "limites": [
+          {
+            "concepto": "concepto",
+            "ventana": "ventana",
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 202,
+      "cuerpo": {
+        "usuarioId": "78b01aa9-9b11-4f55-81c5-e8a0413c189f",
+        "estado": "PENDIENTE_VERIFICACION",
+        "cuentaBilleteraId": "cc4c1e4f-5b7d-428d-868c-e733e27c9b0d",
+        "nivelDiligencia": "SIMPLIFICADA",
+        "limites": []
+      }
+    },
+    "adverso": {
+      "estado": 202,
+      "cuerpo": {
+        "usuarioId": "78b01aa9-9b11-4f55-81c5-e8a0413c189f",
+        "estado": "PENDIENTE_VERIFICACION",
+        "cuentaBilleteraId": "cc4c1e4f-5b7d-428d-868c-e733e27c9b0d",
+        "nivelDiligencia": "SIMPLIFICADA",
+        "limites": [
+          {
+            "concepto": "concepto",
+            "ventana": "ventana",
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ]
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "usuarioId": "78b01aa9-9b11-4f55-81c5-e8a0413c189f",
+        "estado": "PENDIENTE_VERIFICACION",
+        "cuentaBilleteraId": "cc4c1e4f-5b7d-428d-868c-e733e27c9b0d",
+        "nivelDiligencia": "SIMPLIFICADA",
+        "limites": [
+          {
+            "concepto": "concepto",
+            "ventana": "ventana",
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ]
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

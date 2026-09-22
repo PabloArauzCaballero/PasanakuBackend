@@ -1,0 +1,45 @@
+{
+  "name": "@aportaya/backoffice",
+  "version": "0.0.0",
+  "scripts": {
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.spec.json --noEmit",
+    "lint": "ng lint && python3 ../../scripts/verificar_frontend.py backoffice",
+    "test:front": "ng test --include='src/**/*.spec.ts' --exclude='src/**/*.a11y.spec.ts'",
+    "test:a11y": "ng test --include='src/**/*.a11y.spec.ts'",
+    "test:e2e": "playwright test"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/cdk": "^22.1.0",
+    "@angular/common": "^22.1.0",
+    "@angular/compiler": "^22.1.0",
+    "@angular/core": "^22.1.0",
+    "@angular/forms": "^22.1.0",
+    "@angular/platform-browser": "^22.1.0",
+    "@angular/router": "^22.1.0",
+    "@aportaya/tokens": "workspace:*",
+    "@aportaya/tutoriales": "workspace:*",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^22.1.5",
+    "@angular/cli": "^22.1.5",
+    "@angular/compiler-cli": "^22.1.0",
+    "@aportaya/simulado": "workspace:*",
+    "@playwright/test": "^1.58.0",
+    "angular-eslint": "^22.5.0",
+    "axe-core": "^4.10.0",
+    "eslint": "^9.39.0",
+    "eslint-plugin-boundaries": "^5.0.0",
+    "jsdom": "^28.0.0",
+    "prettier": "^3.8.1",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.68.0",
+    "vitest": "^4.0.8",
+    "vitest-axe": "^0.1.0"
+  }
+}

@@ -85,8 +85,8 @@ CREATE INDEX IF NOT EXISTS ix_restriccion_usuario_usuario_id
 CREATE INDEX IF NOT EXISTS ix_documento_identidad_usuario_id
   ON identidad.documento_identidad (usuario_id);
 
-CREATE UNIQUE INDEX IF NOT EXISTS uq_documento_identidad_hash_numero
-  ON identidad.documento_identidad (hash_numero);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_documento_identidad_lugar_expedicion_hash_numero
+  ON identidad.documento_identidad (lugar_expedicion, hash_numero) NULLS NOT DISTINCT;
 
 CREATE INDEX IF NOT EXISTS ix_verificacion_kyc_usuario_id
   ON identidad.verificacion_kyc (usuario_id);

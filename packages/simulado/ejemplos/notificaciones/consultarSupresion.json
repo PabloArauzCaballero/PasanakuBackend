@@ -1,0 +1,26 @@
+{
+  "servicio": "notificaciones",
+  "operacion": "consultarSupresion",
+  "metodo": "get",
+  "ruta": "/notificaciones/supresion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "suprimido": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "suprimido": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "suprimido": true
+      }
+    }
+  }
+}

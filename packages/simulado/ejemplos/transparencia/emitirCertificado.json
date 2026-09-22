@@ -1,0 +1,69 @@
+{
+  "servicio": "transparencia",
+  "operacion": "emitirCertificado",
+  "metodo": "post",
+  "ruta": "/reputacion/certificados",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "certificadoId": "d06a704f-f2d8-4009-82b2-6046c3428058",
+        "codigoVerificacion": "codigoVerificacion",
+        "urlPublica": "urlPublica",
+        "hashContenido": "hashContenido-hashContenido-hashContenido-hashContenido-hashCont",
+        "emitidoEn": "2026-01-15T10:30:00Z",
+        "expiraEn": "2026-01-15T10:30:00Z",
+        "contenido": {}
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "certificadoId": "d06a704f-f2d8-4009-82b2-6046c3428058",
+        "codigoVerificacion": "codigoVerificacion",
+        "urlPublica": "urlPublica",
+        "hashContenido": "hashContenido-hashContenido-hashContenido-hashContenido-hashCont",
+        "emitidoEn": "2026-01-15T10:30:00Z",
+        "expiraEn": "2026-01-15T10:30:00Z",
+        "contenido": {}
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "certificadoId": "d06a704f-f2d8-4009-82b2-6046c3428058",
+        "codigoVerificacion": "codigoVerificacion",
+        "urlPublica": "urlPublica",
+        "hashContenido": "hashContenido-hashContenido-hashContenido-hashContenido-hashCont",
+        "emitidoEn": "2026-01-15T10:30:00Z",
+        "expiraEn": "2026-01-15T10:30:00Z",
+        "contenido": {}
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "certificadoId": "d06a704f-f2d8-4009-82b2-6046c3428058",
+        "codigoVerificacion": "codigoVerificacion",
+        "urlPublica": "urlPublica",
+        "hashContenido": "hashContenido-hashContenido-hashContenido-hashContenido-hashCont",
+        "emitidoEn": "2026-01-15T10:30:00Z",
+        "expiraEn": "2026-01-15T10:30:00Z",
+        "contenido": {}
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": null
+    }
+  }
+}

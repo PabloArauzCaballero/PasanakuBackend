@@ -2,9 +2,21 @@
 # SE ESCRIBE PRIMERO, antes que la implementacion (ADR-020). Es lo que permite que
 # otro carril genere el cliente y programe contra vos sin esperar a que termines.
 #
-# Prefijos reservados de este servicio: /billetera, /custodia, /puntos-atencion, /contabilidad
+# Prefijos reservados de este servicio: /billetera /custodia /puntos-atencion /contabilidad
 #   Una ruta fuera de ellos es un rechazo automatico, no una discusion de diseno.
 #   Toda ruta exige sesion: 401 sin token, 403 con rol insuficiente.
+#
+# BORRADOR DE LA FASE 0 (planes/01 §0.8). El carril dueno lo amplia; NO puede
+# romperlo sin avisar, y la prueba de contrato falla en el CI del que rompe.
+#
+# CU-24 · Registrar el asiento contable de una operacion — NO tiene endpoint (lo
+# dispara otro caso de uso, en su misma transaccion). Sus codigos de error viven
+# igual en este contrato, porque scripts/verificar_criterios.py los busca aca sin
+# importar si hay una ruta HTTP que los use:
+#   AP-CU24-01  ASIENTO_DESCUADRADO  · debe y haber no coinciden (R-AUD-05)
+#   AP-CU24-02  CUENTA_INEXISTENTE   · el codigo de cuenta no esta en el plan
+#   AP-CU24-03  PERIODO_CERRADO      · pendiente: periodo_contable es de M13 (ERP),
+#                                      que todavia no existe en este carril
 openapi: 3.1.0
 info:
   title: nucleo-financiero
@@ -16,23 +28,552 @@ info:
 servers:
   - url: /api/v1
 
-paths: {}
-  # Una operacion por caso de uso. Plantilla:
+paths:
+  /billetera/{cuentaId}/saldo:
+    get:
+      operationId: consultarSaldo
+      summary: Saldo de una cuenta de billetera
+      description: >-
+        El saldo NO se guarda: se deriva del libro. Esta operacion existe en el
+        borrador porque los trece servicios necesitan saber que la forma del saldo
+        es Dinero, no un number.
+      parameters:
+        - name: cuentaId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Saldo disponible y retenido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SaldoBilletera' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/recargas:
+    post:
+      operationId: solicitarRecarga           # CU-10
+      summary: Abre una orden de recarga y devuelve cuanto se va a acreditar
+      description: >-
+        [CONTRATO] Derivada de la implementacion del carril 2A, que llego antes que
+        su contrato.
+
+        La orden NO acredita: reserva la intencion y vence. Acreditar es el paso
+        siguiente y ocurre cuando el proveedor confirma, porque acreditar contra una
+        promesa es acreditar plata que puede no llegar.
+
+        `acreditara` viaja en la respuesta ya calculado: el cliente **no** resta el
+        costo del proveedor por su cuenta. Un cliente que recalcula produce un numero
+        que no es el del libro contable.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaRecarga' }
+      responses:
+        '201':
+          description: Orden abierta, con su vencimiento
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaRecarga' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU10-01 LIMITE_EXCEDIDO           · AP-CU10-02 SALDO_MAXIMO_ALCANZADO
+          # AP-CU10-03 INSTRUMENTO_NO_VERIFICADO · AP-CU10-04 CUENTA_NO_OPERATIVA
+          # AP-CU10-05 ORDEN_EXPIRADA
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/recargas/{ordenId}/acreditacion:
+    post:
+      operationId: acreditarRecarga           # CU-10
+      summary: Acredita una orden que el proveedor confirmo
+      description: >-
+        [CONTRATO] La confirmacion del proveedor. Es idempotente por la orden: si dos
+        confirmaciones llegan juntas, una acredita y la otra encuentra la orden ya
+        acreditada — la red duplica, y eso no puede duplicar el saldo.
+      parameters:
+        - name: ordenId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      responses:
+        '200':
+          description: Acreditada, con el saldo resultante
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaAcreditacion' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU10-05 ORDEN_EXPIRADA
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/retenciones:
+    post:
+      operationId: retenerSaldo               # CU-13
+      summary: Aparta saldo sin sacarlo de la cuenta
+      description: >-
+        [CONTRATO] Retener no es debitar: el dinero sigue siendo del titular y por eso
+        se ve como retenido y no desaparece. Lo que cambia es que deja de estar
+        disponible mientras dure el motivo.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaRetencion' }
+      responses:
+        '201':
+          description: Retenido, con el saldo disponible y el retenido despues
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaRetencion' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU13-01 SALDO_INSUFICIENTE · AP-CU13-02 VENCIMIENTO_REQUERIDO
+          # AP-CU13-03 RETENCION_YA_EJECUTADA
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/retenciones/{retencionId}/cierre:
+    post:
+      operationId: cerrarRetencion            # CU-13
+      summary: Libera o ejecuta una retencion
+      description: >-
+        [CONTRATO] Una retencion se cierra una sola vez. Si otra operacion la cerro
+        primero, la segunda no la vuelve a cerrar: se responde
+        `RETENCION_YA_EJECUTADA`, que no es una falla sino concurrencia sana.
+      parameters:
+        - name: retencionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaCierreRetencion' }
+      responses:
+        '200':
+          description: Cerrada, con el saldo resultante
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaCierreRetencion' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU13-03 RETENCION_YA_EJECUTADA
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  # CU-40 Evaluar limites NO tiene endpoint propio: corre DENTRO de la transaccion
+  # de la operacion que evalua. Exponerlo dejaria que alguien consulte el limite,
+  # vea que entra, y opere despues contra un acumulado ya cambiado.
+  #   AP-CU40-01 SIN_LIMITE_CONFIGURADO · AP-CU40-02 LIMITE_EXCEDIDO
+  #   AP-CU40-03 CANTIDAD_EXCEDIDA
   #
-  #   /billetera/…:
-  #     post:
-  #       operationId: <verboObjeto>          # CU-NN
-  #       parameters:
-  #         - name: Idempotency-Key
-  #           in: header
-  #           required: true                   # toda operacion con efecto
-  #           schema: { type: string, format: uuid }
-  #       responses:
-  #         '200': …
-  #         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+  # CU-57 Operar un punto de atencion quedo OBSOLETO con su numero reservado:
+  # ADR-039 retiro el efectivo del alcance el 20-08-2026.
+
+  /billetera/retiros:
+    post:
+      operationId: solicitarRetiro             # CU-11
+      summary: Solicitar un retiro hacia una cuenta de destino
+      description: >-
+        Retencion primero, pago despues, nunca al reves. Si se instruyera el pago
+        antes de retener, entre las dos cosas la persona podria gastar el mismo
+        saldo en otra operacion y el retiro saldria contra un disponible que ya no
+        existe. El proveedor se instruye FUERA de la transaccion (invariante 6).
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaRetiro' }
+      responses:
+        '201':
+          description: Orden creada y saldo ya retenido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaRetiro' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU11-01 SALDO_INSUFICIENTE          · AP-CU11-02 MFA_REQUERIDO
+          # AP-CU11-03 INSTRUMENTO_EN_ENFRIAMIENTO · AP-CU11-04 TITULAR_NO_COINCIDE
+          # AP-CU11-05 BLOQUEO_DE_AUTORIDAD        · AP-CU11-06 ENCAJE_INCUMPLIDO
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/transferencias:
+    post:
+      operationId: transferirSaldo             # CU-12
+      summary: Transferir saldo entre billeteras
+      description: >-
+        La unica operacion donde el dinero no entra ni sale del sistema: cambia de
+        bolsillo, y el saldo total permanece constante. Las dos cuentas se bloquean
+        en orden de identificador — dos transferencias cruzadas que bloqueen cada
+        una primero la suya se esperan para siempre.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaTransferencia' }
+      responses:
+        '201':
+          description: Transferencia ejecutada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaTransferencia' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU12-01 SALDO_INSUFICIENTE          · AP-CU12-02 DESTINO_INEXISTENTE
+          # AP-CU12-03 CUENTA_DESTINO_NO_OPERATIVA · AP-CU12-04 LIMITE_EXCEDIDO
+          # AP-CU12-05 P2P_NO_HABILITADO
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/reversos:
+    post:
+      operationId: reversarTransaccion         # CU-14
+      summary: Reversar una transaccion aplicada
+      description: >-
+        Reversar es escribir el espejo, no borrar el original. El libro es
+        append-only y la transaccion original conserva sus movimientos sin un solo
+        cambio: el extracto tiene que poder contar la historia completa —el cobro y
+        su devolucion—, no un cobro que se desvanecio.
+        Cuatro ojos: quien autoriza no puede ser quien solicita.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaReverso' }
+      responses:
+        '201':
+          description: Reverso ejecutado, o restitucion generada si el saldo no alcanza
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaReverso' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU14-01 TRANSACCION_NO_REVERSABLE · AP-CU14-02 FALTA_AUTORIZACION
+          # AP-CU14-03 SALDO_INSUFICIENTE_PARA_REVERSO
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/{cuentaId}/extracto:
+    get:
+      operationId: emitirExtracto              # CU-15
+      summary: Emitir el extracto de un periodo
+      description: >-
+        Si el extracto no cuadra con el cierre diario, NO se emite: uno con una
+        cifra que no coincide es peor que no tenerlo — la persona lo usa para un
+        tramite, se lo rechazan, y descubre el error cuando ya le costo algo. El
+        descuadre queda registrado igual, que es lo que pide el criterio.
+      parameters:
+        - name: cuentaId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: desde
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - name: hasta
+          in: query
+          required: true
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Extracto emitido, o bloqueado con su motivo
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaExtracto' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU15-01 PERIODO_SIN_CIERRES · AP-CU15-02 EXTRACTO_NO_CUADRA
+          # AP-CU15-03 SIN_PERMISO_SOBRE_LA_CUENTA
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/cierres:
+    post:
+      operationId: solicitarCierreBilletera    # CU-16
+      summary: Solicitar el cierre de la billetera
+      description: >-
+        Cerrar NO borra: la cuenta queda CERRADA y sus movimientos siguen
+        disponibles todo el plazo de conservacion. Cuatro puertas la frenan, y las
+        cuatro protegen a terceros antes que a la empresa — un cierre que deje un
+        aporte sin pagar traslada la perdida a los otros del pasanaku.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaCierre' }
+      responses:
+        '201':
+          description: Solicitud registrada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaCierreBilletera' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU16-01 OBLIGACIONES_ABIERTAS · AP-CU16-02 GRUPO_ACTIVO
+          # AP-CU16-03 RETENCION_VIGENTE     · AP-CU16-04 BLOQUEO_DE_AUTORIDAD
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/bloqueos:
+    post:
+      operationId: bloquearPorAutoridad        # CU-17
+      summary: Registrar un bloqueo por orden de autoridad
+      description: >-
+        El unico caso en que una retencion no tiene fecha de fin: la levanta la
+        misma autoridad que la puso, y ponerle vencimiento propio seria decidir por
+        un juez cuando se acaba su orden. El documento de respaldo es obligatorio —
+        inmovilizar la plata de alguien sin poder mostrar el papel es indefendible.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaBloqueo' }
+      responses:
+        '201':
+          description: Bloqueo vigente y saldo inmovilizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaBloqueo' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU17-01 OFICIO_DUPLICADO · AP-CU17-02 CUENTA_INEXISTENTE
+          # AP-CU17-03 SIN_DOCUMENTO_DE_RESPALDO
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  # CU-50 Conciliar la custodia NO tiene endpoint: corre como cierre diario. Con el
+  # encaje roto no SALE dinero, pero SI entra — dejar entrar plata mejora el encaje y
+  # frenarla lo empeoraria justo cuando hace falta lo contrario.
+  #   AP-CU50-01 SIN_CIERRES_DIARIOS · AP-CU50-02 SIN_EXTRACTO_BANCARIO
+  #   AP-CU50-03 CONCILIACION_DUPLICADA
+
+  # CU-51 Ejecutar el cierre diario tampoco tiene endpoint: lo dispara el trabajo de
+  # medianoche. Sus codigos viven aca —y no en openapi/aportes.yaml, como dice la
+  # cabecera del caso de uso— porque `cierre_diario`, `asiento_contable` y
+  # `saldo_diario_billetera` son tablas de este esquema, y ponerlo en aportes obligaria
+  # a escribir un esquema ajeno (invariante 11). La divergencia esta declarada en
+  # planes/informes/carril-3A.md.
+  #   AP-CU51-01 EXCEPCIONES_ABIERTAS   · el dia no cierra con excepciones vivas
+  #   AP-CU51-02 CUSTODIA_DESCUADRADA   · el encaje no da; cerrar seria firmarlo igual
+  #   AP-CU51-03 ASIENTOS_SIN_CONFIRMAR · queda un asiento en BORRADOR con esa fecha
+  #   AP-CU51-04 DIA_YA_CERRADO         · reintento sobre un dia ya cerrado
 
 components:
+  parameters:
+    ClaveIdempotencia:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: >-
+        Toda operacion con efecto la exige. La red duplica; reintentar tiene que ser
+        seguro, y la clave se valida ANTES de escribir (invariante 7).
+      schema: { type: string, format: uuid }
   schemas:
+    SalidaExtracto:
+      type: object
+      additionalProperties: false
+      required: [cuentaBilleteraId, desde, hasta, saldoFinal, emitido]
+      properties:
+        cuentaBilleteraId: { type: string, format: uuid }
+        desde: { type: string, format: date }
+        hasta: { type: string, format: date }
+        saldoFinal: { $ref: '#/components/schemas/Dinero' }
+        cantidadMovimientos: { type: integer }
+        hashArchivo: { type: string, minLength: 64, maxLength: 64, nullable: true }
+        emitido: { type: boolean }
+        motivoDelBloqueo: { type: string, nullable: true }
+    EntradaCierre:
+      type: object
+      additionalProperties: false
+      required: [cuentaBilleteraId, motivo, destinoSaldo]
+      properties:
+        cuentaBilleteraId: { type: string, format: uuid }
+        motivo: { type: string, maxLength: 200 }
+        destinoSaldo: { type: string, enum: [RETIRO, TRANSFERENCIA] }
+    SalidaCierreBilletera:
+      type: object
+      additionalProperties: false
+      required: [solicitudId, estado, saldoAlSolicitar]
+      properties:
+        solicitudId: { type: string, format: uuid }
+        estado: { type: string, enum: [SOLICITADA, EN_VALIDACION, APROBADA, EJECUTADA, RECHAZADA] }
+        saldoAlSolicitar: { $ref: '#/components/schemas/Dinero' }
+    EntradaBloqueo:
+      type: object
+      additionalProperties: false
+      required: [cuentaBilleteraId, autoridad, tipoOrden, numeroOficio, alcance, documentoUrl, hashDocumento]
+      properties:
+        cuentaBilleteraId: { type: string, format: uuid }
+        autoridad: { type: string, enum: [ASFI, BCB, FISCALIA, JUZGADO, UIF, INTERNO] }
+        tipoOrden: { type: string, enum: [CONGELAMIENTO, EMBARGO, INFORMATIVO, INMOVILIZACION, RETENCION] }
+        numeroOficio: { type: string, maxLength: 60 }
+        montoBloqueado: { $ref: '#/components/schemas/Dinero' }
+        alcance: { type: string, enum: [PARCIAL, TOTAL] }
+        documentoUrl: { type: string, format: uri }
+        hashDocumento: { type: string, minLength: 64, maxLength: 64 }
+    SalidaBloqueo:
+      type: object
+      additionalProperties: false
+      required: [bloqueoId, retencionId, montoBloqueado, saldoDisponible]
+      properties:
+        bloqueoId: { type: string, format: uuid }
+        retencionId: { type: string, format: uuid }
+        montoBloqueado: { $ref: '#/components/schemas/Dinero' }
+        saldoDisponible: { $ref: '#/components/schemas/Dinero' }
+    EntradaReverso:
+      type: object
+      additionalProperties: false
+      required: [transaccionOriginalId, tipo, motivo, autorizadaPor]
+      properties:
+        transaccionOriginalId: { type: string, format: uuid }
+        tipo:   { type: string, enum: [ANULACION, CONTRACARGO, ERROR_OPERATIVO, ORDEN_AUTORIDAD] }
+        motivo: { type: string, minLength: 20, maxLength: 300 }
+        autorizadaPor: { type: string, format: uuid }
+    SalidaReverso:
+      type: object
+      additionalProperties: false
+      required: [reversoId, generaObligacionDeRestitucion]
+      properties:
+        reversoId:            { type: string, format: uuid }
+        transaccionReversoId: { type: string, format: uuid, nullable: true }
+        generaObligacionDeRestitucion: { type: boolean }
+    EntradaTransferencia:
+      type: object
+      additionalProperties: false
+      required: [cuentaOrigenId, destino, monto, concepto]
+      properties:
+        cuentaOrigenId: { type: string, format: uuid }
+        destino:
+          type: object
+          additionalProperties: false
+          required: [tipo, valor]
+          properties:
+            tipo:  { type: string, enum: [ALIAS, GRUPO] }
+            valor: { type: string }
+        monto:        { $ref: '#/components/schemas/Dinero' }
+        concepto:     { type: string, maxLength: 140 }
+        obligacionId: { type: string, format: uuid }
+    SalidaTransferencia:
+      type: object
+      additionalProperties: false
+      required: [transaccionId, saldoDespues, obligacionSaldada]
+      properties:
+        transaccionId: { type: string, format: uuid }
+        saldoDespues:  { $ref: '#/components/schemas/Dinero' }
+        destinatarioId: { type: string, format: uuid }
+        obligacionSaldada: { type: boolean }
+    EntradaRetiro:
+      type: object
+      additionalProperties: false
+      required: [cuentaBilleteraId, monto, instrumentoDestinoId, factorMfa]
+      properties:
+        cuentaBilleteraId:    { type: string, format: uuid }
+        monto:                { $ref: '#/components/schemas/Dinero' }
+        instrumentoDestinoId: { type: string, format: uuid }
+        factorMfa:            { type: string, minLength: 6, maxLength: 8 }
+    SalidaRetiro:
+      type: object
+      additionalProperties: false
+      required: [ordenRetiroId, estado, costoRetiro, montoNeto, retencionId]
+      properties:
+        ordenRetiroId: { type: string, format: uuid }
+        estado:        { type: string, enum: [PENDIENTE, EN_REVISION, AUTORIZADA, PAGADA, RECHAZADA] }
+        costoRetiro:   { $ref: '#/components/schemas/Dinero' }
+        montoNeto:     { $ref: '#/components/schemas/Dinero' }
+        retencionId:   { type: string, format: uuid }
+    EntradaRecarga:
+      type: object
+      additionalProperties: false
+      required: [cuentaBilleteraId, monto, medio]
+      properties:
+        cuentaBilleteraId: { type: string, format: uuid }
+        monto: { $ref: '#/components/schemas/Dinero' }
+        costoProveedor: { $ref: '#/components/schemas/Dinero' }
+        medio: { type: string, maxLength: 30 }
+        instrumentoFondeoId: { type: string, format: uuid }
+    SalidaRecarga:
+      type: object
+      additionalProperties: false
+      required: [ordenRecargaId, estado, expiraEn, acreditara]
+      properties:
+        ordenRecargaId: { type: string, format: uuid }
+        estado: { type: string, maxLength: 20 }
+        expiraEn: { type: string, format: date-time }
+        acreditara:
+          $ref: '#/components/schemas/Dinero'
+    SalidaAcreditacion:
+      type: object
+      additionalProperties: false
+      required: [ordenRecargaId, transaccionId, saldoDespues]
+      properties:
+        ordenRecargaId: { type: string, format: uuid }
+        transaccionId:  { type: string, format: uuid }
+        saldoDespues:   { $ref: '#/components/schemas/Dinero' }
+
+    EntradaRetencion:
+      type: object
+      additionalProperties: false
+      required: [cuentaBilleteraId, monto, motivo]
+      properties:
+        cuentaBilleteraId: { type: string, format: uuid }
+        monto:  { $ref: '#/components/schemas/Dinero' }
+        motivo: { type: string, maxLength: 40 }
+        transaccionOrigenId: { type: string, format: uuid }
+        referenciaTipo: { type: string, maxLength: 30 }
+        referenciaId:   { type: string, format: uuid }
+        expiraEn:       { type: string, format: date-time }
+    SalidaRetencion:
+      type: object
+      additionalProperties: false
+      required: [retencionId, saldoDisponible, saldoRetenido]
+      properties:
+        retencionId:     { type: string, format: uuid }
+        saldoDisponible: { $ref: '#/components/schemas/Dinero' }
+        saldoRetenido:   { $ref: '#/components/schemas/Dinero' }
+        expiraEn:        { type: string, format: date-time }
+    EntradaCierreRetencion:
+      type: object
+      additionalProperties: false
+      required: [desenlace]
+      properties:
+        desenlace:
+          type: string
+          enum: [LIBERADA, EJECUTADA]
+          description: >-
+            Liberar devuelve el saldo a disponible; ejecutar lo convierte en un
+            movimiento del libro. Son dos finales distintos y el llamador dice cual.
+    SalidaCierreRetencion:
+      type: object
+      additionalProperties: false
+      required: [retencionId, estado, saldoDisponible, saldoRetenido]
+      properties:
+        retencionId:     { type: string, format: uuid }
+        estado:          { type: string, maxLength: 20 }
+        saldoDisponible: { $ref: '#/components/schemas/Dinero' }
+        saldoRetenido:   { $ref: '#/components/schemas/Dinero' }
     Dinero:
       type: object
       additionalProperties: false
@@ -53,9 +594,23 @@ components:
         mensaje:  { type: string }
         detalle:  { type: object }
         trazaId:  { type: string }
+    SaldoBilletera:
+      type: object
+      additionalProperties: false
+      required: [cuentaId, disponible, retenido, alCorteDe]
+      properties:
+        cuentaId:   { type: string, format: uuid }
+        disponible: { $ref: '#/components/schemas/Dinero' }
+        retenido:   { $ref: '#/components/schemas/Dinero' }
+        alCorteDe:  { type: string, format: date-time }
   responses:
     ReglaDeNegocio:
       description: Regla de negocio de la aplicacion (422, no 400)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NoAutenticado:
+      description: Sin sesion valida
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }

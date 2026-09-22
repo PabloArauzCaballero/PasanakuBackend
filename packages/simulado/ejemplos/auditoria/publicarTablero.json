@@ -1,0 +1,93 @@
+{
+  "servicio": "auditoria",
+  "operacion": "publicarTablero",
+  "metodo": "get",
+  "ruta": "/indicadores",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "periodo": "periodo",
+        "provisorio": true,
+        "dimension": "GLOBAL",
+        "dimensionId": "d0f5d1b9-5604-4bf9-8790-e65c026fa1db",
+        "indicadores": [
+          {
+            "codigo": "codigo",
+            "nombre": "nombre",
+            "valor": "valor",
+            "unidad": "unidad",
+            "meta": "meta",
+            "cumpleMeta": true,
+            "variacionPeriodoAnterior": "variacionPeriodoAnterior",
+            "serie": [
+              {
+                "periodo": "periodo",
+                "valor": "valor"
+              }
+            ],
+            "familia": "NEGOCIO",
+            "duenoFamilia": "duenoFamilia",
+            "definicionVersion": "definicionVersion",
+            "suprimidoPorPrivacidad": true,
+            "casos": 1,
+            "minimoCasos": 1,
+            "calculadoEn": "2026-01-15T10:30:00Z"
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "periodo": "periodo",
+        "provisorio": false,
+        "dimension": "GLOBAL",
+        "dimensionId": "d0f5d1b9-5604-4bf9-8790-e65c026fa1db",
+        "indicadores": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "periodo": "periodo",
+        "provisorio": true,
+        "dimension": "GLOBAL",
+        "dimensionId": "d0f5d1b9-5604-4bf9-8790-e65c026fa1db",
+        "indicadores": [
+          {
+            "codigo": "codigo",
+            "nombre": "nombre",
+            "valor": "valor",
+            "unidad": "unidad",
+            "meta": "meta",
+            "cumpleMeta": true,
+            "variacionPeriodoAnterior": "variacionPeriodoAnterior",
+            "serie": [
+              {
+                "periodo": "periodo",
+                "valor": "valor"
+              }
+            ],
+            "familia": "NEGOCIO",
+            "duenoFamilia": "duenoFamilia",
+            "definicionVersion": "definicionVersion",
+            "suprimidoPorPrivacidad": true,
+            "casos": 1,
+            "minimoCasos": 1,
+            "calculadoEn": "2026-01-15T10:30:00Z"
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

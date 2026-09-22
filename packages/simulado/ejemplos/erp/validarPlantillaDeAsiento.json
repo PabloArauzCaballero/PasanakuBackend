@@ -1,0 +1,44 @@
+{
+  "servicio": "erp",
+  "operacion": "validarPlantillaDeAsiento",
+  "metodo": "get",
+  "ruta": "/erp/plantillas-de-asiento/{plantillaId}/validacion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "plantillaId": "163be69f-1218-4769-8423-91f628545e08",
+        "lineas": 1,
+        "debes": 1,
+        "haberes": 1
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "plantillaId": "163be69f-1218-4769-8423-91f628545e08",
+        "lineas": 0,
+        "debes": 0,
+        "haberes": 0
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "plantillaId": "163be69f-1218-4769-8423-91f628545e08",
+        "lineas": 1,
+        "debes": 1,
+        "haberes": 1
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

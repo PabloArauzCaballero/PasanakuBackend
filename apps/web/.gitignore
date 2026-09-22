@@ -1,0 +1,9 @@
+# Generado por scripts/contenido.mjs antes del build
+src/generado/
+public/robots.txt
+public/sitemap.xml
+public/llms.txt
+public/llms-full.txt
+public/*.md
+dist/
+.angular/

@@ -54,8 +54,8 @@ reportes ASFI/UIF) tienen usuarios, ritmos y requisitos distintos.
 
 > **Java 21 + Spring Boot 3 en catorce servicios, uno por módulo de la bóveda, con
 > jOOQ sobre un único PostgreSQL 16 con un esquema por servicio; outbox en la base y
-> Kafka como transporte; Expo para la app de AportaYa y React + Vite para el
-> backoffice.**
+> Kafka como transporte; Flutter para la app de AportaYa y Angular para el
+> backoffice y el sitio público.**
 
 El detalle y el motivo de cada pieza está en [[_Arquitectura]], una decisión por
 documento.
@@ -71,8 +71,8 @@ documento.
 | Contratos | **OpenAPI 3.1 escrito primero**; servidor y clientes generados | El contrato existe antes que la implementación · [[ADR-020 Contratos OpenAPI primero]] |
 | Sesión y RLS | `SET LOCAL` en la transacción; el token del usuario cruza la red | Sin contexto no hay política de fila · [[ADR-021 Sesión, RLS y pooling]] |
 | Entre servicios | Gateway sin lógica · **Resilience4j** · **saga orquestada** | El fallo parcial es explícito · [[ADR-022 Comunicación entre servicios]] |
-| App del participante | **Expo / React Native** | QR, biometría, dispositivo de confianza y correcciones OTA · [[ADR-004 Frontend]] |
-| Backoffice | **React + Vite**, TanStack Query/Router | Pantallas densas de cumplimiento · [[ADR-004 Frontend]] |
+| App del participante | **Flutter** | QR, biometría, dispositivo de confianza y correcciones OTA · [[ADR-004 Frontend]] |
+| Backoffice y sitio | **Angular** (zoneless, signals; SSR híbrido en el sitio) | Pantallas densas de cumplimiento · [[ADR-004 Frontend]] |
 | Pruebas | **JUnit 5 + Testcontainers** con PostgreSQL 16 real | Los criterios de aceptación, uno a uno · [[ADR-026 Pruebas de un sistema distribuido]] |
 
 ### Por qué esta y no otra
@@ -143,7 +143,7 @@ Spring Boot: el código de dominio no cambia, cambian el empaquetado y el despli
 | Runtime / framework | JDK 21 + **Spring Boot 3** (MVC con hilos virtuales) |
 | Acceso a datos | **jOOQ**, generado desde la base viva. Nada de JPA/Hibernate |
 | Dinero | `BigDecimal` nativo |
-| Migraciones | **Flyway** aplicando los artefactos de `sql/` |
+| Migraciones | **`psql -f sql/aplicar.sql`** como `Job` de despliegue; sin herramienta de migración |
 | Cola / outbox / cron | Outbox en PostgreSQL + Kafka; **ShedLock** para el cron |
 | Contratos | **OpenAPI 3.1** escrito primero, servidor y clientes generados |
 | Pruebas | JUnit 5 + Testcontainers + Spring Cloud Contract |
@@ -220,8 +220,8 @@ demostrar los flujos de la bóveda funcionando, sin producto.
 
 ## Frontend — dos productos, y por qué no cambia
 
-El backend cambió de lenguaje; el frontend **no**. Sigue siendo **Expo para la app y
-React + Vite para el backoffice** ([[ADR-004 Frontend]]).
+El frontend también cambió: **Flutter para la app y Angular para el backoffice y el
+sitio** ([[ADR-044 Frontend en Angular y Flutter]], que reemplaza a ADR-004).
 
 Lo único que cambia es de dónde salen los tipos: antes se importaban del paquete de
 contratos compartido; ahora **se generan desde la especificación OpenAPI** de cada
@@ -240,7 +240,7 @@ resuelve ningún problema real del proyecto.
 | --- | --- | --- |
 | Base de datos | **PostgreSQL 16** gestionada, con réplica y PITR | Ya verificado; el modelo usa `btree_gist`, `EXCLUDE`, RLS |
 | Pooling | HikariCP por servicio + **PgBouncer** en modo *transaction*, y **solo `SET LOCAL`** | `SET` plano filtra el contexto RLS entre peticiones |
-| Migraciones | **Flyway** aplicando los artefactos de `sql/`, nunca migraciones de ORM | La fuente de verdad son los `.puml` + el catálogo |
+| Migraciones | **`psql -f sql/aplicar.sql`** como `Job`; ni Flyway ni migraciones de ORM ([[ADR-032 Aplicación del esquema]]) | La fuente de verdad son los `.puml` + el catálogo, y `sql/` se regenera: un checksum inmutable no aplica |
 | Mensajería | **Kafka**, alimentado por el outbox | Retención: una auditoría puede pedir reproducir eventos de un período cerrado |
 | Cron | **ShedLock** sobre PostgreSQL | El cierre diario no puede correr dos veces |
 | Idempotencia | Clave del cliente/proveedor validada antes de escribir | Regla del borde, no del framework |

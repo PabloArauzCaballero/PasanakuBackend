@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es-BO">
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="El pasanaku de siempre, sin el cuaderno.">
+  <meta name="theme-color" content="#164A30">
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="AportaYa">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>AportaYa</title>
+  <link rel="manifest" href="manifest.json">
+  <!--
+    La pantalla de carga. La primera visita baja el motor de Flutter (canvaskit, ~7 MB,
+    desde gstatic) y main.dart.js antes de pintar el primer cuadro: sin esto son 10-14 s
+    de página en blanco, que se leen como «la app no funciona». Se quita sola con el
+    evento `flutter-first-frame`. Colores de tokens.json: crema y g700.
+  -->
+  <style>
+    #cargando { position: fixed; inset: 0; display: grid; place-content: center; gap: 16px;
+      background: #F6F4EC; color: #164A30; font: 600 18px/1.4 system-ui, -apple-system, sans-serif;
+      text-align: center; transition: opacity .25s ease; }
+    #cargando .anillo { width: 36px; height: 36px; margin: 0 auto; border-radius: 50%;
+      border: 3px solid #164A3033; border-top-color: #164A30; animation: girar 0.9s linear infinite; }
+    #cargando small { display: block; font-weight: 400; font-size: 14px; color: #164A30B3; }
+    @keyframes girar { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { #cargando .anillo { animation: none; } }
+  </style>
+</head>
+<body>
+  <div id="cargando" role="status" aria-live="polite">
+    <div class="anillo" aria-hidden="true"></div>
+    <div>AportaYa<small>Cargando la app…</small></div>
+  </div>
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      var c = document.getElementById('cargando');
+      if (!c) return;
+      c.style.opacity = '0';
+      setTimeout(function () { c.remove(); }, 300);
+    });
+  </script>
+  <!--
+    You can customize the "flutter_bootstrap.js" script.
+    This is useful to provide a custom configuration to the Flutter loader
+    or to give the user feedback during the initialization process.
+
+    For more details:
+    * https://docs.flutter.dev/platform-integration/web/initialization
+  -->
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

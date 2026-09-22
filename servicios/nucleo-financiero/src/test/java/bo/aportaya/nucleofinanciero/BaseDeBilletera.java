@@ -1,0 +1,249 @@
+package bo.aportaya.nucleofinanciero;
+
+import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo;
+import bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo;
+import bo.aportaya.nucleofinanciero.aplicacion.CU12TransferirSaldo;
+import bo.aportaya.nucleofinanciero.aplicacion.CU13RetenerSaldo;
+import bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion;
+import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto;
+import bo.aportaya.nucleofinanciero.aplicacion.CU16CerrarBilletera;
+import bo.aportaya.nucleofinanciero.aplicacion.CU17BloquearPorAutoridad;
+import bo.aportaya.nucleofinanciero.aplicacion.CU40EvaluarLimites;
+import bo.aportaya.nucleofinanciero.aplicacion.CU50ConciliarCustodia;
+import bo.aportaya.nucleofinanciero.aplicacion.CU51EjecutarCierreDiario;
+import bo.aportaya.nucleofinanciero.infraestructura.BloqueoRepositorio;
+import bo.aportaya.nucleofinanciero.infraestructura.CierreDiarioRepositorio;
+import bo.aportaya.nucleofinanciero.infraestructura.CierreRepositorio;
+import bo.aportaya.nucleofinanciero.infraestructura.ConciliacionRepositorio;
+import bo.aportaya.nucleofinanciero.infraestructura.CuentaBilleteraRepositorio;
+import bo.aportaya.nucleofinanciero.infraestructura.ExtractoRepositorio;
+import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera;
+import bo.aportaya.nucleofinanciero.infraestructura.LimiteRepositorio;
+import bo.aportaya.nucleofinanciero.infraestructura.OrdenRecargaRepositorio;
+import bo.aportaya.nucleofinanciero.infraestructura.OrdenRetiroRepositorio;
+import bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio;
+import bo.aportaya.nucleofinanciero.infraestructura.ReversoRepositorio;
+import bo.aportaya.nucleofinanciero.infraestructura.TransferenciaRepositorio;
+import bo.aportaya.plataforma.datos.Datos;
+import bo.aportaya.plataforma.dominio.ContextoSesion;
+import bo.aportaya.plataforma.dominio.Reloj;
+import bo.aportaya.plataforma.dominio.Traza;
+import bo.aportaya.plataforma.mensajeria.Consumidos;
+import bo.aportaya.plataforma.mensajeria.Outbox;
+import bo.aportaya.plataforma.pruebas.BaseDePrueba;
+import java.util.UUID;
+import javax.sql.DataSource;
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.junit.jupiter.api.BeforeAll;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
+import org.springframework.transaction.support.TransactionTemplate;
+
+/** El armado de los casos de uso de la billetera, con las piezas construidas a mano. */
+abstract class BaseDeBilletera {
+
+    protected static DSLContext dsl;
+    protected static DSLContext dslFixtura;
+    protected static TransactionTemplate transaccion;
+    protected static FixturaDeBilletera fixtura;
+
+    /** La contable: el retiro escribe asientos, y esos necesitan cuentas. */
+    protected static FixturaDeNucleoFinanciero contable;
+
+    /** La cadena de grupo que una obligacion de aporte necesita para existir. */
+    protected static FixturaDeObligacion obligaciones;
+
+    /** La cuenta de destino y la custodia: lo que la billetera toca de afuera. */
+    protected static FixturaDeCustodia custodia;
+
+    protected static Consumidos consumidos;
+    protected static CU40EvaluarLimites limitesCU;
+    protected static CU13RetenerSaldo retencionCU;
+    protected static CU10RecargarSaldo recargaCU;
+    protected static CU11RetirarSaldo retiroCU;
+    protected static CU12TransferirSaldo transferenciaCU;
+    protected static CU14ReversarTransaccion reversoCU;
+    protected static CU15EmitirExtracto extractoCU;
+    protected static CU16CerrarBilletera cierreCU;
+    protected static CU17BloquearPorAutoridad bloqueoCU;
+    protected static CU50ConciliarCustodia conciliacionCU;
+    protected static CU51EjecutarCierreDiario cierreDiarioCU;
+    protected static ConciliacionRepositorio conciliaciones;
+
+    /** La cuenta puente: el otro lado de todo ingreso. Una sola para toda la corrida. */
+    protected static UUID puente;
+
+    @BeforeAll
+    static void armarBilletera() {
+        var contenedor = BaseDePrueba.contenedor();
+        DataSource fuente = new DriverManagerDataSource(
+                contenedor.getJdbcUrl(), contenedor.getUsername(), contenedor.getPassword());
+        dsl = DSL.using(new TransactionAwareDataSourceProxy(fuente), SQLDialect.POSTGRES);
+        dslFixtura = DSL.using(fuente, SQLDialect.POSTGRES);
+        transaccion = new TransactionTemplate(new DataSourceTransactionManager(fuente));
+        fixtura = new FixturaDeBilletera(dslFixtura);
+        contable = new FixturaDeNucleoFinanciero(dslFixtura);
+        obligaciones = new FixturaDeObligacion(dslFixtura);
+        custodia = new FixturaDeCustodia(dslFixtura);
+        consumidos = new Consumidos("nucleo_financiero");
+
+        limitesCU = new CU40EvaluarLimites(
+                new Datos(dsl),
+                new CuentaBilleteraRepositorio(),
+                new LimiteRepositorio(),
+                new Outbox("nucleo_financiero"),
+                Reloj.delSistema());
+        retencionCU = new CU13RetenerSaldo(
+                new Datos(dsl),
+                new CuentaBilleteraRepositorio(),
+                new RetencionRepositorio(),
+                new Outbox("nucleo_financiero"),
+                Reloj.delSistema());
+        puente = fixtura.puenteDeCustodia();
+        recargaCU = new CU10RecargarSaldo(
+                new Datos(dsl),
+                new CuentaBilleteraRepositorio(),
+                new OrdenRecargaRepositorio(),
+                new LibroDeBilletera(),
+                limitesCU,
+                new Outbox("nucleo_financiero"),
+                Reloj.delSistema(),
+                java.time.Duration.ofMinutes(30),
+                puente);
+        retiroCU = new CU11RetirarSaldo(
+                new Datos(dsl),
+                new CuentaBilleteraRepositorio(),
+                new OrdenRetiroRepositorio(),
+                retencionCU,
+                limitesCU,
+                new LibroDeBilletera(),
+                new Outbox("nucleo_financiero"),
+                Reloj.delSistema(),
+                puente);
+        transferenciaCU = new CU12TransferirSaldo(
+                new Datos(dsl),
+                new CuentaBilleteraRepositorio(),
+                new TransferenciaRepositorio(),
+                new LibroDeBilletera(),
+                limitesCU,
+                new Outbox("nucleo_financiero"),
+                Reloj.delSistema());
+        reversoCU = new CU14ReversarTransaccion(
+                new Datos(dsl),
+                new ReversoRepositorio(),
+                new CuentaBilleteraRepositorio(),
+                new LibroDeBilletera(),
+                new Outbox("nucleo_financiero"),
+                Reloj.delSistema());
+        conciliaciones = new ConciliacionRepositorio();
+        extractoCU = new CU15EmitirExtracto(
+                new Datos(dsl),
+                new ExtractoRepositorio(),
+                new CuentaBilleteraRepositorio(),
+                new Outbox("nucleo_financiero"),
+                Reloj.delSistema());
+        bloqueoCU = new CU17BloquearPorAutoridad(
+                new Datos(dsl),
+                new BloqueoRepositorio(),
+                new CuentaBilleteraRepositorio(),
+                retencionCU,
+                new Outbox("nucleo_financiero"),
+                Reloj.delSistema());
+        cierreCU = new CU16CerrarBilletera(
+                new Datos(dsl),
+                new CuentaBilleteraRepositorio(),
+                new CierreRepositorio(),
+                new BloqueoRepositorio(),
+                new Outbox("nucleo_financiero"),
+                Reloj.delSistema());
+        conciliacionCU = new CU50ConciliarCustodia(
+                new Datos(dsl), conciliaciones, new Outbox("nucleo_financiero"), Reloj.delSistema());
+        cierreDiarioCU = new CU51EjecutarCierreDiario(
+                new Datos(dsl),
+                new CierreDiarioRepositorio(),
+                conciliaciones,
+                new CuentaBilleteraRepositorio(),
+                new Outbox("nucleo_financiero"),
+                Reloj.delSistema());
+    }
+
+    protected ContextoSesion contextoDe(UUID usuarioId) {
+        return ContextoSesion.de(
+                usuarioId, "PARTICIPANTE", new Traza(UUID.randomUUID().toString()));
+    }
+
+    protected int contar(String consulta, Object... parametros) {
+        return ((Number) dsl.fetchOne(consulta, parametros).get(0)).intValue();
+    }
+
+    /**
+     * Igual que {@link #rechazaLaBase}, pero para restricciones DIFERIDAS.
+     *
+     * <p>Un {@code CONSTRAINT TRIGGER ... INITIALLY DEFERRED} solo dispara al COMMIT,
+     * y estas pruebas revierten a proposito para no ensuciar el contenedor. Sin
+     * adelantarlo, la prueba veria que el INSERT «paso» y daria por buena una fila
+     * que en produccion nunca se habria confirmado. {@code SET CONSTRAINTS ALL
+     * IMMEDIATE} lo hace disparar donde se lo puede observar.
+     */
+    /** El mensaje del fondo de la cadena: lo de arriba suele ser «JDBC commit failed». */
+    protected String raizDe(Throwable e) {
+        Throwable raiz = e;
+        while (raiz.getCause() != null && raiz.getCause() != raiz) {
+            raiz = raiz.getCause();
+        }
+        return String.valueOf(raiz.getMessage());
+    }
+
+    protected String rechazaLaBaseAlCerrar(String sql) {
+        try {
+            transaccion.execute(estado -> {
+                dsl.execute("SET CONSTRAINTS ALL IMMEDIATE");
+                dsl.execute(sql);
+                estado.setRollbackOnly();
+                return null;
+            });
+            return "";
+        } catch (RuntimeException e) {
+            Throwable raiz = e;
+            while (raiz.getCause() != null && raiz.getCause() != raiz) {
+                raiz = raiz.getCause();
+            }
+            return String.valueOf(raiz.getMessage());
+        }
+    }
+
+    protected String rechazaLaBase(String sql) {
+        try {
+            transaccion.execute(estado -> {
+                dsl.execute(sql);
+                estado.setRollbackOnly();
+                return null;
+            });
+            return "";
+        } catch (RuntimeException e) {
+            Throwable raiz = e;
+            while (raiz.getCause() != null && raiz.getCause() != raiz) {
+                raiz = raiz.getCause();
+            }
+            return String.valueOf(raiz.getMessage());
+        }
+    }
+
+    /**
+     * Un codigo de cuenta corto y distinto en cada llamada.
+     *
+     * <p>Salia de {@code String.valueOf(System.nanoTime()).substring(8, 14)} y eso
+     * reventaba con {@code StringIndexOutOfBoundsException}: {@code nanoTime()} cuenta
+     * desde un origen arbitrario —tipicamente el arranque de la maquina—, asi que en un
+     * runner del CI recien encendido tiene ONCE digitos y pedirle el caracter 14 se va
+     * del final. En una laptop con dias de encendida tiene dieciseis y nunca fallo, que
+     * es exactamente la clase de prueba que rompe el CI y a nadie le falla en su
+     * maquina. Un UUID mide siempre lo mismo.
+     */
+    protected String codigoCorto() {
+        return UUID.randomUUID().toString().substring(0, 6);
+    }
+}

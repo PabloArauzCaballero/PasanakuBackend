@@ -1,0 +1,64 @@
+{
+  "servicio": "grupos",
+  "operacion": "postularAlGrupo",
+  "metodo": "post",
+  "ruta": "/grupos/{grupoId}/postulaciones",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "solicitudId": "42a562bf-863b-46ed-83b6-1fbaec8e0c9a",
+        "puntaje": "puntaje",
+        "motivos": [
+          "motivos[0]"
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "solicitudId": "42a562bf-863b-46ed-83b6-1fbaec8e0c9a",
+        "puntaje": "puntaje",
+        "motivos": []
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "solicitudId": "42a562bf-863b-46ed-83b6-1fbaec8e0c9a",
+        "puntaje": "puntaje",
+        "motivos": [
+          "motivos[0]"
+        ]
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "solicitudId": "42a562bf-863b-46ed-83b6-1fbaec8e0c9a",
+        "puntaje": "puntaje",
+        "motivos": [
+          "motivos[0]"
+        ]
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

@@ -171,7 +171,7 @@ package "Libro de movimientos (append-only)" {
     - grupoId: UUID
     - origenTipo: String <<polimorfico>>
     - origenId: UUID
-    - canal: String <<APP | WEB | API | BATCH | AGENTE>>
+    - canal: String <<APP | WEB | API | BATCH>>
     - sesionId: UUID <<M1>>
     - dispositivoId: UUID <<M1>>
     - ipOrigen: String
@@ -242,7 +242,7 @@ package "Entrada y salida de dinero" {
   class InstrumentoFondeo {
     - id: UUID
     - usuarioId: UUID
-    - tipo: String <<CUENTA_BANCARIA | TARJETA | QR_BANCARIO | AGENTE | EFECTIVO>>
+    - tipo: String <<CUENTA_BANCARIA | TARJETA | QR_BANCARIO>>
     - entidadFinanciera: String
     - tokenProveedor: String <<nunca el PAN ni el numero completo>>
     - hashIdentificador: String
@@ -261,7 +261,6 @@ package "Entrada y salida de dinero" {
     - cuentaBilleteraId: UUID
     - instrumentoFondeoId: UUID
     - proveedorId: UUID <<M3>>
-    - puntoAtencionId: UUID
     - montoBruto: Decimal
     - costoProveedor: Decimal
     - montoAcreditado: Decimal
@@ -310,36 +309,6 @@ package "Entrada y salida de dinero" {
     + ejecutar(): TransaccionBilletera
   }
 
-  class PuntoAtencion {
-    - id: UUID
-    - codigo: String
-    - tipo: String <<AGENCIA_PROPIA | AGENTE_CORRESPONSAL | CAJERO>>
-    - razonSocial: String
-    - nit: String
-    - municipio: String
-    - responsableUsuarioId: UUID
-    - limiteEfectivoDiario: Decimal
-    - estado: String
-    --
-    + puedeOperar(monto): Boolean
-  }
-
-  class ArqueoPuntoAtencion {
-    - id: UUID
-    - puntoAtencionId: UUID
-    - fecha: Date
-    - saldoInicial: Decimal
-    - totalRecargas: Decimal
-    - totalRetiros: Decimal
-    - saldoTeorico: Decimal
-    - saldoContado: Decimal
-    - diferencia: Decimal
-    - estado: String
-    --
-    + cuadra(): Boolean
-  }
-
-  PuntoAtencion "1" o-- "0..*" ArqueoPuntoAtencion
   InstrumentoFondeo "1" o-- "0..*" OrdenRecarga
   InstrumentoFondeo "1" o-- "0..*" OrdenRetiro
 }
@@ -637,7 +606,7 @@ entity "cuenta_billetera" as ctabill {
   estado : VARCHAR(25) <<CK, IDX>>
   nivel_debida_diligencia : VARCHAR(15) <<CK>>
   saldo_disponible : DECIMAL(16,2)
-  saldo_retenido : DECIMAL(16,2) <<CK: >= 0>>
+  saldo_retenido : DECIMAL(16,2)
   saldo_total : DECIMAL(16,2) <<GENERATED>>
   permite_saldo_negativo : BOOLEAN
   fecha_apertura : TIMESTAMPTZ
@@ -649,7 +618,7 @@ entity "saldo_diario_billetera" as saldodia {
   * id : UUID <<PK>>
   --
   # cuenta_billetera_id : UUID <<FK, IDX>>
-  fecha : DATE <<UQ+cuenta_billetera_id>>
+  fecha : DATE
   saldo_disponible : DECIMAL(16,2)
   saldo_retenido : DECIMAL(16,2)
   cantidad_movimientos : INTEGER
@@ -746,46 +715,12 @@ entity "instrumento_fondeo" as instr {
   bloqueado_hasta : TIMESTAMPTZ <<NULL>>
 }
 
-entity "punto_atencion" as punto {
-  * id : UUID <<PK>>
-  --
-  codigo : VARCHAR(20) <<UQ>>
-  tipo : VARCHAR(25) <<CK>>
-  razon_social : VARCHAR(120)
-  nit : VARCHAR(20) <<NULL>>
-  departamento : VARCHAR(30)
-  municipio : VARCHAR(60)
-  direccion : VARCHAR(200)
-  # responsable_usuario_id : UUID <<FK, NULL>>
-  limite_efectivo_diario : DECIMAL(16,2)
-  estado : VARCHAR(15) <<CK, IDX>>
-  habilitado_desde : DATE
-}
-
-entity "arqueo_punto_atencion" as arqueo {
-  * id : UUID <<PK>>
-  --
-  # punto_atencion_id : UUID <<FK, IDX>>
-  # arqueado_por : UUID <<FK>>
-  fecha : DATE <<UQ+punto_atencion_id>>
-  saldo_inicial : DECIMAL(16,2)
-  total_recargas : DECIMAL(16,2)
-  total_retiros : DECIMAL(16,2)
-  saldo_teorico : DECIMAL(16,2)
-  saldo_contado : DECIMAL(16,2)
-  diferencia : DECIMAL(16,2) <<GENERATED>>
-  estado : VARCHAR(15) <<CK>>
-  observaciones : VARCHAR(300) <<NULL>>
-  cerrado_en : TIMESTAMPTZ <<NULL>>
-}
-
 entity "orden_recarga" as orecarga {
   * id : UUID <<PK>>
   --
   # cuenta_billetera_id : UUID <<FK, IDX>>
   # instrumento_fondeo_id : UUID <<FK, NULL>>
   # proveedor_id : UUID <<FK, NULL, M3>>
-  # punto_atencion_id : UUID <<FK, NULL>>
   # pago_id : UUID <<FK, NULL, M3>>
   # transaccion_id : UUID <<FK, NULL>>
   monto_bruto : DECIMAL(16,2) <<CK: > 0>>
@@ -793,7 +728,7 @@ entity "orden_recarga" as orecarga {
   monto_acreditado : DECIMAL(16,2)
   moneda : CHAR(3)
   estado : VARCHAR(15) <<CK, IDX>>
-  referencia_externa : VARCHAR(80) <<UQ, NULL>>
+  referencia_externa : VARCHAR(80) <<NULL>>
   clave_idempotencia : VARCHAR(100)
   solicitada_en : TIMESTAMPTZ
   acreditada_en : TIMESTAMPTZ <<NULL>>
@@ -878,7 +813,7 @@ entity "conciliacion_custodia" as concust {
   # cuenta_custodia_id : UUID <<FK, IDX>>
   # cierre_diario_id : UUID <<FK, NULL, M3>>
   # ejecutada_por : UUID <<FK, NULL>>
-  fecha : DATE <<UQ+cuenta_custodia_id>>
+  fecha : DATE
   saldo_dinero_electronico : DECIMAL(18,2)
   saldo_custodia : DECIMAL(18,2)
   saldo_en_transito : DECIMAL(18,2)
@@ -908,7 +843,7 @@ entity "descuadre_custodia" as descuadre {
 entity "limite_operativo_billetera" as limite {
   * id : UUID <<PK>>
   --
-  concepto : VARCHAR(25) <<CK, UQ+nivel_debida_diligencia+ventana>>
+  concepto : VARCHAR(25) <<CK>>
   nivel_debida_diligencia : VARCHAR(15) <<CK>>
   ventana : VARCHAR(10) <<CK>>
   monto_maximo : DECIMAL(16,2) <<NULL>>
@@ -925,7 +860,7 @@ entity "consumo_limite" as consumo {
   --
   # cuenta_billetera_id : UUID <<FK, IDX>>
   # limite_id : UUID <<FK, IDX>>
-  ventana_inicio : TIMESTAMPTZ <<UQ+cuenta_billetera_id+limite_id>>
+  ventana_inicio : TIMESTAMPTZ
   ventana_fin : TIMESTAMPTZ
   monto_acumulado : DECIMAL(16,2)
   cantidad_acumulada : INTEGER
@@ -982,7 +917,7 @@ entity "bloqueo_saldo" as bloqsaldo {
   # levantada_por : UUID <<FK, NULL>>
   autoridad : VARCHAR(20) <<CK>>
   tipo_orden : VARCHAR(30) <<CK>>
-  numero_oficio : VARCHAR(60) <<UQ>>
+  numero_oficio : VARCHAR(60)
   monto_bloqueado : DECIMAL(16,2) <<NULL>>
   alcance : VARCHAR(10) <<CK>>
   documento_url : VARCHAR(255)
@@ -1056,8 +991,6 @@ txbill ||--o| p2p : "materializa"
 txbill ||--o{ evalfraude : "se evalua en"
 instr ||--o{ orecarga : "acredita desde"
 instr ||--o{ oretiro : "paga hacia"
-punto ||--o{ orecarga : "atiende"
-punto ||--o{ arqueo : "cuadra en"
 ctacust ||--o{ movcust : "registra"
 ctacust ||--o{ concust : "se concilia en"
 concust ||--o{ descuadre : "levanta"

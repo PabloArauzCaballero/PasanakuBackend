@@ -28,6 +28,13 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from modelo import escenarios_gherkin  # noqa: E402  — UNA sola definicion
 
+# Estos informes se imprimen con acentos, flechas y el punto medio. En Windows la
+# consola entrega stdout en cp1252 y el gate muere con UnicodeEncodeError antes de
+# decir si algo falla — en tres de las cinco maquinas del parque.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
+
 R = pathlib.Path(__file__).resolve().parent.parent
 CU_DIR = R / "docs/CasosDeUso"
 SERVICIOS = R / "servicios"
@@ -61,8 +68,20 @@ def pruebas_de(servicio, nn):
     if not archivos:
         return None, [], ""
     texto = "\n".join(f.read_text(encoding="utf-8") for f in archivos)
-    nombres = re.findall(r'@DisplayName\("([^"]+)"\)', texto)
-    return archivos, nombres, texto
+    return archivos, nombres_de_display(texto), texto
+
+
+# El formateador parte `@DisplayName("texto muy largo")` en varias lineas y a veces
+# concatena literales. Sin tolerarlo, el gate de formato y el de criterios se
+# contradicen: nuevo_cu.py genera la prueba, spotless la reformatea, y este
+# verificador la da por ausente. Le habria pasado a los cinco carriles el primer dia.
+RE_DISPLAY = re.compile(r'@DisplayName\(\s*((?:"(?:[^"\\]|\\.)*"\s*\+?\s*)+)\)')
+RE_LITERAL = re.compile(r'"((?:[^"\\]|\\.)*)"')
+
+
+def nombres_de_display(texto):
+    """Los @DisplayName del archivo, ya rearmados si venian partidos."""
+    return ["".join(RE_LITERAL.findall(bloque)) for bloque in RE_DISPLAY.findall(texto)]
 
 
 def clase_de_aplicacion(servicio, nn):

@@ -1,0 +1,58 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "reversarTransaccion",
+  "metodo": "post",
+  "ruta": "/billetera/reversos",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "reversoId": "1482bff8-5c90-4c2c-8812-f3d471130c24",
+        "transaccionReversoId": "0a5f5a3b-69d1-402d-838e-0a167430aa68",
+        "generaObligacionDeRestitucion": true
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "reversoId": "1482bff8-5c90-4c2c-8812-f3d471130c24",
+        "transaccionReversoId": "0a5f5a3b-69d1-402d-838e-0a167430aa68",
+        "generaObligacionDeRestitucion": false
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "reversoId": "1482bff8-5c90-4c2c-8812-f3d471130c24",
+        "transaccionReversoId": "0a5f5a3b-69d1-402d-838e-0a167430aa68",
+        "generaObligacionDeRestitucion": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "reversoId": "1482bff8-5c90-4c2c-8812-f3d471130c24",
+        "transaccionReversoId": "0a5f5a3b-69d1-402d-838e-0a167430aa68",
+        "generaObligacionDeRestitucion": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

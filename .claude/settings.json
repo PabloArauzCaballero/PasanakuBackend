@@ -1,0 +1,39 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR}/.claude/hooks/plan_gate.py\"",
+            "timeout": 20,
+            "statusMessage": "Regla 20: verificando que exista PLAN.md"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR}/.claude/hooks/report_gate.py\"",
+            "timeout": 20,
+            "statusMessage": "Regla 40: verificando REPORTE.md"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR}/.claude/hooks/blocker_gate.py\"",
+            "timeout": 20,
+            "statusMessage": "Regla 65: verificando que no queden bloqueantes sin simular"
+          }
+        ]
+      }
+    ]
+  }
+}

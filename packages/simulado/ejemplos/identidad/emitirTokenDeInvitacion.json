@@ -1,0 +1,58 @@
+{
+  "servicio": "identidad",
+  "operacion": "emitirTokenDeInvitacion",
+  "metodo": "post",
+  "ruta": "/usuarios/tokens/invitacion",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "tokenId": "2db8db74-4ca6-4bf6-811e-60827a5f976a",
+        "token": "token",
+        "expiraEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "tokenId": "2db8db74-4ca6-4bf6-811e-60827a5f976a",
+        "token": "token",
+        "expiraEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "tokenId": "2db8db74-4ca6-4bf6-811e-60827a5f976a",
+        "token": "token",
+        "expiraEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "tokenId": "2db8db74-4ca6-4bf6-811e-60827a5f976a",
+        "token": "token",
+        "expiraEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

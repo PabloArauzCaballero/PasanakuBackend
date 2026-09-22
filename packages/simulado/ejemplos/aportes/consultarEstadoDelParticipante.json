@@ -1,0 +1,41 @@
+{
+  "servicio": "aportes",
+  "operacion": "consultarEstadoDelParticipante",
+  "metodo": "get",
+  "ruta": "/aportes/participantes/{participanteId}/estado",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "alDia": true,
+        "totalAportado": "4.44",
+        "deudaVigente": "4.44",
+        "porAportar": "4.44",
+        "obligacionesAbiertas": 1,
+        "moneda": "BOB"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "alDia": false,
+        "totalAportado": "0.00",
+        "deudaVigente": "0.00",
+        "porAportar": "0.00",
+        "obligacionesAbiertas": 0,
+        "moneda": "BOB"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "alDia": true,
+        "totalAportado": "4.44",
+        "deudaVigente": "4.44",
+        "porAportar": "4.44",
+        "obligacionesAbiertas": 1,
+        "moneda": "BOB"
+      }
+    }
+  }
+}

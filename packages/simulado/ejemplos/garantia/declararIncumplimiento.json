@@ -1,0 +1,66 @@
+{
+  "servicio": "garantia",
+  "operacion": "declararIncumplimiento",
+  "metodo": "post",
+  "ruta": "/incumplimientos",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "expedienteId": "0bdad69b-dcd1-4a9d-828f-463fae8ac213",
+        "codigoExpediente": "codigoExpediente",
+        "estado": "estado",
+        "puedeDescargarHasta": "2026-01-15T10:30:00Z",
+        "esNuevo": true
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "expedienteId": "0bdad69b-dcd1-4a9d-828f-463fae8ac213",
+        "codigoExpediente": "codigoExpediente",
+        "estado": "estado",
+        "puedeDescargarHasta": "2026-01-15T10:30:00Z",
+        "esNuevo": false
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "expedienteId": "0bdad69b-dcd1-4a9d-828f-463fae8ac213",
+        "codigoExpediente": "codigoExpediente",
+        "estado": "estado",
+        "puedeDescargarHasta": "2026-01-15T10:30:00Z",
+        "esNuevo": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "expedienteId": "0bdad69b-dcd1-4a9d-828f-463fae8ac213",
+        "codigoExpediente": "codigoExpediente",
+        "estado": "estado",
+        "puedeDescargarHasta": "2026-01-15T10:30:00Z",
+        "esNuevo": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

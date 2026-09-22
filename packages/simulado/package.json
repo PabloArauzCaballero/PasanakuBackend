@@ -1,0 +1,39 @@
+{
+  "name": "@aportaya/simulado",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Servidor simulado derivado de los contratos OpenAPI, servido por Prism. Un solo mock para Dart y TypeScript: ejemplos por caso de uso y por escenario, validados contra el esquema.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./ejemplos/*": "./ejemplos/*"
+  },
+  "scripts": {
+    "contratos": "node scripts/contratos-a-json.mjs",
+    "ejemplos": "node scripts/generar-ejemplos.mjs",
+    "inyectar": "node scripts/inyectar-ejemplos.mjs",
+    "build": "node scripts/contratos-a-json.mjs && node scripts/generar-ejemplos.mjs && node scripts/inyectar-ejemplos.mjs",
+    "mock": "node scripts/contratos-a-json.mjs && node scripts/generar-ejemplos.mjs && node scripts/inyectar-ejemplos.mjs && prism mock --errors --port 4010 --host 0.0.0.0 generado/prism/todos.yaml",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint src scripts",
+    "test:front": "vitest run",
+    "test:a11y": "echo 'simulado: sin pruebas de a11y (no renderiza)'"
+  },
+  "dependencies": {
+    "randexp": "^0.5.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@stoplight/prism-cli": "^5.16.0",
+    "@types/node": "^22.10.0",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "eslint": "^9.39.0",
+    "typescript": "~5.9.2",
+    "typescript-eslint": "^8.68.0",
+    "vitest": "^4.1.0",
+    "yaml": "^2.9.0"
+  }
+}

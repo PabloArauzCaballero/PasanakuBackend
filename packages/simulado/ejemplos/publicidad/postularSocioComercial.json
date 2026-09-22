@@ -1,0 +1,54 @@
+{
+  "servicio": "publicidad",
+  "operacion": "postularSocioComercial",
+  "metodo": "post",
+  "ruta": "/publicidad/socios-comerciales",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "socioComercialId": "29c2a6c9-3dd1-4ca1-8413-1a686794636a",
+        "estado": "POSTULADO"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "socioComercialId": "29c2a6c9-3dd1-4ca1-8413-1a686794636a",
+        "estado": "POSTULADO"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "socioComercialId": "29c2a6c9-3dd1-4ca1-8413-1a686794636a",
+        "estado": "POSTULADO"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "socioComercialId": "29c2a6c9-3dd1-4ca1-8413-1a686794636a",
+        "estado": "POSTULADO"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

@@ -45,7 +45,7 @@ alcance: backend + frontend, ejecutados a la vez sobre el parque real de máquin
 | 1 | **El pico real es de 8 carriles, no de 5.** Backend Ola 2 (5 carriles) corre a la vez que frontend Ola F1 (3). Cada documento contaba solo su mitad | [[07 Carriles de trabajo concurrente]] §3 · [[16 Carriles de frontend]] §2 | La unidad de planificación deja de ser la **ola** y pasa a ser el **tramo** (§5): cinco casillas fijas, siempre llenas, que pueden mezclar carriles de dos olas |
 | 2 | **Las máquinas figuran como intercambiables** | ambos | §2 y §3: cinco **puestos** con máquina asignada y capacidad declarada. Solo el Mac compila iOS; solo la Legion tiene emulador Android acelerado; solo Ubuntu tiene Docker nativo |
 | 3 | **Dos convenciones de rama incompatibles** | 07 §8 usa `<usuario>/feature/…`, 16 §8 usa `carril/f…` | Manda `git-flujo`: `<usuario>/feature/carril-<id>`. Delta 3 |
-| 4 | **La Ola 0 deja cuatro máquinas paradas**, y la Ola F0 no puede arrancar porque su gate pide el cliente `clientes/typescript`, que nace en la Fase 2 | [[01 Fase 0 · Cimientos del repositorio]] · [[11 Fases F0 y F1 · Cimientos y sistema de diseño]] gate de entrada | Deltas 1 y 2: los tres contratos OpenAPI base con CU-01 y su cliente `clientes/typescript` generado se adelantan al cierre de la Fase 0, y la Ola F0 se parte en tres andamiajes concurrentes |
+| 4 | **La Ola 0 deja cuatro máquinas paradas**, y la Ola F0 no puede arrancar porque su gate pide el cliente generado, que nace en la Fase 2 | [[01 Fase 0 · Cimientos del repositorio]] · [[11 Fases F0 y F1 · Cimientos y sistema de diseño]] gate de entrada | Deltas 1 y 2: los tres contratos OpenAPI base con CU-01 y sus clientes generados se adelantan al cierre de la Fase 0, y la Ola F0 se parte en tres andamiajes concurrentes |
 | 5 | **Doce casos de uso no tienen carril.** `13_contabilidad_erp` (CU-100–106) y `14_publicidad_campanas` (CU-110–114) existen en `docs/entidades/` y en `docs/CasosDeUso/`, pero **ninguna ola, ninguna fase y ningún carril los nombra** | los tres documentos de plan, que siguen contando **87** casos de uso cuando son **99** | Fases **18** y **19** de backend y **F13** y **F14** de frontend — 18 en **T5** (adelantada: condición de licencia), 19 en T9, F13 en T9 y F14 en T10 (§5). Y una tarea explícita: **escribir los cuatro documentos de fase que faltan** (§11) |
 
 ### El número que hay que tener en la cabeza
@@ -87,12 +87,13 @@ ninguna termine trabajo que después se tira por un conflicto.
 
 | Capacidad | Mac M5 | Ubuntu | Legion | Dell A | Dell B |
 | --- | :-: | :-: | :-: | :-: | :-: |
-| Compilar iOS · simulador · EAS · App Store | **única** | ✗ | ✗ | ✗ | ✗ |
-| Emulador Android acelerado · Maestro | lento | ✗ | **sí** | ✗ | ✗ |
+| Compilar iOS · simulador · Xcode · App Store | **única** | ✗ | ✗ | ✗ | ✗ |
+| Emulador Android acelerado · Patrol | lento | ✗ | **sí** | ✗ | ✗ |
 | Docker nativo · Testcontainers sin VM | VM | **sí** | WSL2 | WSL2 | WSL2 |
 | `docker compose` completo + `test:e2e` | sí | **sí** | ajustado | ✗ | ✗ |
-| Vite · Astro · MSW · Playwright (sin Docker) | sí | sí | sí | **sí** | **sí** |
-| Expo Go sobre Android físico de gama baja | sí | sí | sí | **sí** | **sí** |
+| Angular CLI · Prism · Playwright (sin Docker) | sí | sí | sí | **sí** | **sí** |
+| `flutter run` sobre Android físico de gama baja | sí | sí | sí | **sí** | **sí** |
+| Compilar iOS con Flutter (Xcode) | **única** | ✗ | ✗ | ✗ | ✗ |
 
 ### La topología: un asiento y cuatro obreros
 
@@ -121,7 +122,7 @@ desde una y las otras cuatro corren sin pantalla.
 
 **Las tres consecuencias que ordenan todo el plan:**
 
-1. **Los carriles de frontend no necesitan Docker.** Trabajan contra MSW
+1. **Los carriles de frontend no necesitan Docker.** Trabajan contra Prism
    ([[16 Carriles de frontend]] §8). Son el trabajo natural de las Dell.
 2. **Los carriles de backend necesitan Postgres real** por Testcontainers
    ([[ADR-008 Pruebas]]). Son el trabajo natural de Ubuntu, Legion y Mac.
@@ -145,7 +146,7 @@ desde una y las otras cuatro corren sin pantalla.
 | **P2 · Núcleo de dinero** | **Ubuntu** | contable → billetera → aportes → entregas → convergencia | Docker nativo: es el carril que más pruebas de integración corre. Además **el mismo hilo mental** recorre toda la cadena del dinero, sin cambiar de máquina |
 | **P3 · Dominio del pasanaku** | **Legion** | sistema de diseño → grupos → transparencia → garantía → backoffice de operación → E2E Android | Segunda en potencia, y única con emulador acelerado para cerrar el ciclo móvil |
 | **P4 · Identidad y cumplimiento** | **Dell A** | habilitación → auditoría → entregas parcial → cumplimiento → backoffice de cumplimiento | Mucha regla y mucho CRUD, carga de Docker moderada |
-| **P5 · Periferia y web** | **Dell B** | notificaciones → tarifas → organizador → sitio público → SEO → GEO | Los carriles que menos infraestructura piden. Astro y MSW no necesitan Docker |
+| **P5 · Periferia y web** | **Dell B** | notificaciones → tarifas → organizador → sitio público → SEO → GEO | Los carriles que menos infraestructura piden. Angular y Prism no necesitan Docker |
 
 **El identificador de un carril pasa a ser `<puesto>·<carril>`**, por ejemplo
 `P2·2A`. El informe de carril arranca declarando puesto y máquina, para que un gate
@@ -160,15 +161,15 @@ Nada de esto se aplica en silencio. Cada delta es un cambio explícito a
 
 | # | Delta | Documento que cambia | Por qué |
 | :-: | --- | --- | --- |
-| **1** | **los tres contratos OpenAPI base se adelantan al cierre de la Fase 0 y su cliente TS generado se publica en `dev`**, en vez de nacer en la Fase 2 | [[01 Fase 0 · Cimientos del repositorio]] §0.6 | Es un archivo de contrato por servicio cuya forma ya fija el [[00c Recetario · implementar un caso de uso]], más el cliente `clientes/typescript` que se genera de él. Desbloquea la Ola F0 **un tramo entero antes**, y el cliente generado existe igual para todos los carriles |
-| **2** | **La Ola F0 se parte en tres andamiajes concurrentes**: móvil, backoffice y web, un puesto cada uno | [[16 Carriles de frontend]] §2 | Son **tres directorios nuevos**: colisión cero. Lo único compartido son lint y CI, y de eso se encarga P1 por micro-PR. `packages/ui` (F1) **sigue siendo de un solo puesto**: partirlo es partir el sistema de diseño |
+| **1** | **los tres contratos OpenAPI base se adelantan al cierre de la Fase 0 y sus clientes generados se publican en `dev`**, en vez de nacer en la Fase 2 | [[01 Fase 0 · Cimientos del repositorio]] §0.6 | Es un archivo de contrato por servicio cuya forma ya fija el [[00c Recetario · implementar un caso de uso]], más los clientes `clientes/angular` y `clientes/dart` que se generan de él (ADR-044). Desbloquea la Ola F0 **un tramo entero antes**, y el cliente generado existe igual para todos los carriles |
+| **2** | **La Ola F0 se parte en un paso troncal y tres andamiajes concurrentes**: móvil, backoffice y web, un puesto cada uno | [[16 Carriles de frontend]] §2 | Son **tres directorios nuevos**: colisión cero. Lo compartido —tokens, generadores, Prism, CI— lo hace P1 primero, como `F0.T`. **Corregido por ADR-044:** F1 ya **se puede partir** en `F1-W` (Angular) y `F1-M` (Flutter), porque son dos bases de código sobre un mismo `tokens.json` generado |
 | **3** | **Una sola convención de rama**: `<usuario>/feature/carril-<id>` | [[16 Carriles de frontend]] §8, que decía `carril/f<ola>-<id>` | Manda `git-flujo`. Dos convenciones conviviendo son dos filtros de CI y dos formas de perder un PR |
 | **4** | **La unidad de planificación es el tramo, no la ola** | [[07 Carriles de trabajo concurrente]] §3 y §7 | Un tramo puede mezclar carriles de dos olas mientras las dependencias estén fusionadas en `dev`. El §10 de 07 ya lo permitía para un carril adelantado; acá se vuelve la regla. El punto de sincronización sigue existiendo: pasa a ser **por tramo** |
 | **5** | **La deuda de tramo se declara, no se arrastra** | nuevo | Cuando un tramo tiene más carriles listos que casillas, los que no entran se anotan como **deuda** en el informe, con el tramo donde se pagan. Un carril que "quedó pendiente" sin fecha es un carril que no se hace |
 
 ---
 
-## 5 · El plan secuencial · once tramos
+## 5 · El plan secuencial · once tramos, más el de transición
 
 **Cómo se lee.** Cada fila es un tramo. Cada tramo llena las cinco casillas. Un tramo
 cierra con el ritual de §6, y recién entonces empieza el siguiente. Los tramos **no
@@ -178,9 +179,9 @@ son semanas**: duran lo que dure su carril más lento.
 
 | Puesto | Atención | Trabajo | Entregable |
 | :-: | :-: | --- | --- |
-| **P1** Mac | **primer plano** | **Backend Fase 0** — monorepo, Docker, ADR de desviación, lint, corredores de JUnit, esqueletos, CI · **+ Delta 1**: los tres contratos OpenAPI base (con `CU-01`) y su cliente `clientes/typescript` generado, publicados en `dev` | Gate de salida de la Fase 0, ejecutado |
+| **P1** Mac | **primer plano** | **Backend Fase 0** — monorepo, Docker, ADR de desviación, lint, corredores de JUnit, esqueletos, CI · **+ Delta 1**: los tres contratos OpenAPI base (con `CU-01`) y sus clientes generados, publicados en `dev` | Gate de salida de la Fase 0, ejecutado |
 | **P2** Ubuntu | segundo plano | **Verificación independiente del gate de P1** sobre su propia máquina, y afinado de Postgres para desarrollo | El gate pasa en **dos** máquinas, no en una |
-| **P3** Legion | segundo plano | Preparación de carril: leer los CU de grupos y transparencia, declarar las piezas por nivel | `informes/carril-P3.md` con la declaración |
+| **P3** Legion | segundo plano | Preparación de carril: leer los CU de **transparencia (`3B`) y garantía (`4B`)** —los dos que la ficha le asigna—, declarar las piezas por nivel | `informes/carril-P3.md` con la declaración |
 | **P4** Dell A | segundo plano | Preparación de carril: CU de habilitación y auditoría | `informes/carril-P4.md` |
 | **P5** Dell B | segundo plano | `landing/` + preparación: CU de notificaciones y tarifas | `informes/carril-P5.md` |
 
@@ -200,11 +201,11 @@ son semanas**: duran lo que dure su carril más lento.
 
 | Puesto | Trabajo |
 | :-: | --- |
-| **P1** Mac | **Backend Fases 1 y 2** — capa de datos generada, `comun/`, worker, outbox. **Congela `packages/datos/src/entidades/`** |
+| **P1** Mac | **Backend Fases 1 y 2** — carriles **`T1` → `T2`** en serie: capa de datos generada, después `comun/`, worker y outbox. **Congela `packages/datos/src/entidades/`** |
 | **P2** Ubuntu | Acompaña el troncal: segunda ejecución de los gates de las Fases 1 y 2, convenciones de `pruebas/fixtures/`, script de reseteo rápido de base |
-| **P3** Legion | **F0 · andamiaje móvil** + `clientes/typescript` (generado) + MSW *(Delta 2)* |
-| **P4** Dell A | **F0 · andamiaje backoffice** *(Delta 2)* |
-| **P5** Dell B | **F0 · andamiaje web** (Astro) *(Delta 2)* |
+| **P3** Legion | **F0 · andamiaje móvil** *(Delta 2)* — **ejecutado con Expo; se rehace en Flutter en TF** |
+| **P4** Dell A | **F0 · andamiaje backoffice** *(Delta 2)* — **ejecutado con React + Vite; se rehace en Angular en TF** |
+| **P5** Dell B | **F0 · andamiaje web** *(Delta 2)* — **ejecutado con Astro; se rehace en Angular SSR en TF** |
 
 **Cierra con:** gate de la Fase 2 **y** gate de salida F0. Desde acá, el esquema y las
 entidades no se regeneran más: cualquier cambio de modelo para todo el proyecto
@@ -216,7 +217,7 @@ entidades no se regeneran más: cualquier cambio de modelo para todo el proyecto
 | :-: | :-: | :-: | --- |
 | **P1** Mac | 1A | 3 | `identidad` · CU-01, 04, 05, 08, 09 |
 | **P2** Ubuntu | 1B | 5 | `nucleo-financiero` (libro contable) · CU-24 |
-| **P3** Legion | — | **F1** | **`packages/ui`** — tokens, átomos, moléculas, organismos, catálogo. **Se congela al cerrar** |
+| **P3** Legion | — | **F1** | **`packages/ui`** — tokens y primer corte de átomos, **ejecutado con React; se rehace en TF en dos carriles paralelos, uno Angular y otro Flutter**. Los tokens y la prueba contra la bóveda sobreviven tal cual |
 | **P4** Dell A | 1C | 4 | `cumplimiento` (parcial) · CU-02, 03, 06, 40, 46 |
 | **P5** Dell B | 1D | 12 | `notificaciones` · CU-80–83 |
 
@@ -224,13 +225,44 @@ entidades no se regeneran más: cualquier cambio de modelo para todo el proyecto
 jOOQ + RLS + outbox) antes de que T3 abra tres servicios sobre él
 ([[20 Saneamiento del plan · huecos de la migración a microservicios]] §5).
 
+### TF · Transición de stack del frontend — **se inserta donde el proyecto está hoy**
+
+> [[ADR-044 Frontend en Angular y Flutter]], 2026-09-09. Los andamiajes de F0 y el
+> primer corte de F1 se hicieron con Expo, React + Vite y Astro. **Se rehacen en
+> Flutter y Angular antes de la primera pantalla de negocio**, que es el momento más
+> barato. Detalle en [[16 Carriles de frontend]] §12 y en las fichas `F0.T`, `F0-M`,
+> `F0-B`, `F0-W`, `F1-W`, `F1-M` de [[18 Fichas de carril · las 38 unidades de trabajo]].
+
+| Paso | Puesto | Carril | Alcance |
+| :-: | :-: | :-: | --- |
+| **TF.0** | **P1** Mac | **F0.T** | `packages/tokens` (tokens.json → css + dart, vectores de `Monto`), `generarClienteAngular` y `generarClienteDart` en Gradle, borrar `clientes/typescript`, Prism con ejemplos por CU, tareas de raíz, job `frontend` del CI. **Bloquea TF.1** |
+| **TF.1** | **P3** Legion | **F0-M** | Andamiaje Flutter con enchufe por dominio, `custom_lint`, `PantallaDeSaldo` contra Prism |
+| **TF.1** | **P4** Dell A | **F0-B** | Andamiaje Angular del backoffice, interceptores, `PantallaDeBilletera`, `noindex` |
+| **TF.1** | **P5** Dell B | **F0-W** | Andamiaje Angular SSR, `rutas-de-servidor.spec.ts`, `robots.txt` generado, `Dockerfile.web` |
+| **TF.2** | **P3** Legion | **F1-M** | `packages/diseno_flutter` completo, goldens, Widgetbook |
+| **TF.2** | **P4** Dell A | **F1-W** | `packages/ui` (Angular) completo, `/catalogo`, capturas |
+| **TF.2** | **P5** Dell B | — | Toma el primer carril de backend de la deuda declarada, o **2B** si todavía no cerró |
+| **TF.3** | **P1** Mac | — | **Revisión visual conjunta** golden ↔ captura · congelar `packages/ui` y `packages/diseno_flutter` · cerrar el tramo |
+| todo TF | **P2** Ubuntu | — | **No toca frontend.** Sigue con el carril de backend que tenga en curso |
+
+**En serie dentro del tramo:** en P3, `F0-M → F1-M`; en P4, `F0-B → F1-W`. El andamiaje
+cierra antes de que su sistema de diseño empiece.
+
+**Cierra con:** gate de salida F0 **y** los dos gates de F1 ejecutados, la revisión
+visual conjunta registrada, y el barrido «ninguna referencia a Expo, React, Vite, Astro,
+MSW ni Maestro en `apps/`, `packages/` ni `package.json`» en verde.
+
+**Costo declarado.** Los carriles de backend que P3, P4 y P5 tenían asignados en el
+tramo en que TF se inserta **se corren un tramo**, y se anotan como deuda declarada
+(delta 5). P1 y P2 no se detienen. Es un tramo de tres puestos, pagado una sola vez.
+
 ### T3 · Ola 2 de backend ∥ los shells
 
 | Puesto | Carril | Fase | Alcance |
 | :-: | :-: | :-: | --- |
 | **P1** Mac | 2C | 8 | `grupos` · CU-20, 59, 60, 62–65, 68, 69 |
 | **P2** Ubuntu | 2A | 6 | `nucleo-financiero` (billetera) · CU-10–17, 50, 57 |
-| **P3** Legion | — | **F2 → F6** | shell móvil, después shell backoffice (los dos son chicos: van en serie) |
+| **P3** Legion | — | **F2 → F6** | shell móvil (Flutter), después shell backoffice (Angular): los dos son chicos y van en serie en la misma máquina |
 | **P4** Dell A | 2D | 15 | `auditoria` · CU-07, 54, 55, 58, 98 |
 | **P5** Dell B | 2B | 7 | `tarifas` · CU-30–36 |
 
@@ -260,21 +292,28 @@ jOOQ + RLS + outbox) antes de que T3 abra tres servicios sobre él
 
 | Puesto | Carril | Fase | Alcance |
 | :-: | :-: | :-: | --- |
-| **P1** Mac | — | **F4** | móvil · billetera — CU-10–19, 30–33, 57 |
+| **P1** Mac | — | **F4** | móvil · billetera — CU-10–19, 30–33, 57 · **+ pase de iOS del bloque de identidad (F3)** al abrir el tramo |
 | **P2** Ubuntu | 4A | 10b | `entregas` · CU-22, 28 |
 | **P3** Legion | 4B | 11 | `garantia` · CU-23, 25–27, 29, 66, 67 |
 | **P4** Dell A | **5A** | **18** | **`erp` · CU-100–106** *(adelantado: condición de licencia — decisión del 2026-08-18)* |
-| **P5** Dell B | — | **F9** | sitio público (Astro) *(deuda de T3)* |
+| **P5** Dell B | — | **F9** | sitio público (Angular SSR) *(deuda de T3)* |
 
 **Deuda declarada:** carril 3C (cumplimiento ASFI, fase 16) → **T6**.
+
+> **El pase de iOS va por bloque y en P1**, que es la única máquina con Xcode
+> ([[ADR-036 Android primero]]). Cada bloque de pantallas cierra en Android en su
+> tramo y entra al pase **al abrir el tramo siguiente**, antes de la primera pantalla
+> nueva: F3 se pasa al abrir T5, F4 al abrir T6, y los bloques de F5 a medida que
+> cierran en T6 y T7. Así ninguna pantalla llega a F12 sin su ficha de paridad, y el
+> Mac no acumula un pase de cuarenta pantallas al final.
 
 ### T6 · Convergencia de backend ∥ frontend a fondo
 
 | Puesto | Carril | Fase | Alcance |
 | :-: | :-: | :-: | --- |
-| **P1** Mac | — | **F5** | móvil · pasanaku — CU-20–29, 52, 53, 59–76. **Es la fase más grande del frontend**: se extiende a T7 |
+| **P1** Mac | — | **F5** | móvil · pasanaku — CU-20–29, 52, 53, 59–76. **Es la fase más grande del frontend**: se extiende a T7 · **+ pase de iOS del bloque de billetera (F4)** al abrir el tramo |
 | **P2** Ubuntu | T | **17** | E2E, rendimiento, resiliencia, ensayo de restauración, seguridad, despliegue |
-| **P3** Legion | — | **F7** | backoffice · operación (26 CU) |
+| **P3** Legion | — | **F7** | backoffice · operación (26 CU, Angular) |
 | **P4** Dell A | **3C** | **16** | `cumplimiento` · CU-41–45, 47–49, 52, 53, 56, 94 *(deuda de T5)* |
 | **P5** Dell B | — | **F10** | SEO — `<Meta>`, JSON-LD, sitemap |
 
@@ -290,9 +329,9 @@ fase 17 cierra su E2E **después** de que 3C fusiona, dentro del mismo tramo.
 
 | Puesto | Trabajo |
 | :-: | --- |
-| **P1** Mac | **F5** continúa hasta cerrar |
+| **P1** Mac | **F5** continúa hasta cerrar · **pase de iOS de cada bloque de F5** a medida que cierra (grupo, turno, aporte, entrega, transparencia, reclamo) |
 | **P2** Ubuntu | Corrección de lo que aparezca en la fase 17 · **autorización a desplegar el backend** |
-| **P3** Legion | **F7** continúa · arma el E2E móvil con **Maestro sobre emulador Android** |
+| **P3** Legion | **F7 → B5**: F7 continúa y, al cerrar, B5 backoffice de sistemas · arma el E2E móvil con **Patrol sobre emulador Android** |
 | **P4** Dell A | **F8** — backoffice · cumplimiento y gobierno (38 CU). Arranca acá con los contratos de 3C ya en `dev`; **se extiende a T8** |
 | **P5** Dell B | **F11** — GEO: `robots.txt`, `llms.txt`, espejos `.md`, primera medición en los cuatro motores |
 
@@ -300,9 +339,9 @@ fase 17 cierra su E2E **después** de que 3C fusiona, dentro del mismo tramo.
 
 | Puesto | Carril | Fase | Alcance |
 | :-: | :-: | :-: | --- |
-| **P1** Mac | — | **F12** | E2E, accesibilidad, rendimiento, seguridad · **EAS build y envío a App Store y Play**. No es transferible. **Riesgo declarado:** su cierre y la publicación ocurren al final del tramo, después de que F8 fusiona |
+| **P1** Mac | — | **F12** | E2E, accesibilidad, rendimiento, seguridad · **`flutter build ipa` y envío a App Store; `appbundle` a Play; Shorebird en `produccion`**. El `ipa` no es transferible. **Riesgo declarado:** su cierre y la publicación ocurren al final del tramo, después de que F8 fusiona |
 | **P2** Ubuntu | T | 17 (cola) | Despliegue del backend en el entorno **`ensayo`** y real, sondas, respaldos, ensayo de restauración |
-| **P3** Legion | — | E2E móvil | **Maestro contra `ensayo`** — el ciclo móvil completo que F12 necesita |
+| **P3** Legion | — | E2E móvil | **Patrol contra `ensayo`** — el ciclo móvil completo que F12 necesita, en emulador y en Android físico |
 | **P4** Dell A | — | F8 (cola) | backoffice · cumplimiento y gobierno, hasta cerrar |
 | **P5** Dell B | — | F11 (cola) | Publicación del sitio · primera medición GEO en los cuatro motores |
 
@@ -333,18 +372,21 @@ fase 17 cierra su E2E **después** de que 3C fusiona, dentro del mismo tramo.
 ```
           P1 Mac         P2 Ubuntu      P3 Legion     P4 Dell A     P5 Dell B
 T0   ┃  BE F0+contratos  verifica       preparación   preparación   landing
-T1   ┃  BE F1+F2         acompaña       FE-F0 móvil   FE-F0 backof  FE-F0 web
-T2   ┃  1A identidad     1B contable    FE-F1 ui      1C habilit.   1D notif.
-T3   ┃  2C grupos        2A billetera   FE-F2→F6      2D auditoría  2B tarifas
+T1   ┃  BE F1+F2         acompaña       FE-F0 móvil   FE-F0 backof  FE-F0 web      (stack anterior)
+T2   ┃  1A identidad     1B contable    FE-F1 ui      1C habilit.   1D notif.      (stack anterior)
+TF   ┃  FE-F0.T →ADR     2A/4A siguen   F0-M → F1-M   F0-B → F1-W   F0-W          ◆ transición Flutter/Angular
+T3   ┃  2C grupos        2A billetera   FE-F2 móvil   FE-F6 backof  2B tarifas
 T4   ┃  FE-F3 móvil ▼    3A aportes     3B transp.    3D entregas   2E organiz.
 T5   ┃  FE-F4 móvil      4A entregas    4B garantía   5A ERP ★▲     FE-F9 web
 T6   ┃  FE-F5 móvil      BE fase 17     FE-F7 backof  3C cumplim.   FE-F10 SEO
 T7   ┃  FE-F5 (sigue)    despliegue     FE-F7 + E2E   FE-F8 backof  FE-F11 GEO
-T8   ┃  FE-F12 tiendas   ensayo+prod    E2E Maestro   FE-F8 (cola)  publicación
+T8   ┃  FE-F12 tiendas   ensayo+prod    E2E Patrol    FE-F8 (cola)  publicación
 T9   ┃  correcciones     operación      FE-F13 ERP ★  5B publi. ★   medición GEO
 T10  ┃  OTA              operación      FE-F13 cola   FE-F14 pub ★  medición GEO
           ▲ desde T4 el Mac es móvil y nada más
           ★ carriles nuevos · defecto 5   ▲ 5A adelantado: condición de licencia
+          ◆ TF se inserta en el punto en que el proyecto está al 2026-09-09: el backend sigue su ola; los tres
+            puestos de frontend rehacen F0 y F1 y los carriles de backend que tenían se corren un tramo
 ```
 
 ---
@@ -425,8 +467,8 @@ En una máquina de 16 GB, un carril de backend en marcha ya consume:
 suman donde antes había un proceso de Node. De ahí, **cinco** reglas duras:
 
 1. **En una Dell: o el emulador Android, o Docker. Nunca los dos.** El emulador pide
-   4–6 GB. Para probar en móvil, las Dell usan **Expo Go sobre un Android físico de
-   gama baja** — que además es el parque real en Bolivia.
+   4–6 GB. Para probar en móvil, las Dell usan **`flutter run -d <dispositivo>` sobre un
+   Android físico de gama baja** por USB — que además es el parque real en Bolivia.
 2. **`TESTCONTAINERS_REUSE_ENABLE=true`** y **un** contenedor de Postgres por
    máquina, no uno por suite. Levantar Postgres por corrida de prueba es la mitad del
    tiempo perdido de un carril de backend.
@@ -447,7 +489,7 @@ suman donde antes había un proceso de Node. De ahí, **cinco** reglas duras:
 | --- | --- |
 | **Mac M5** | Es **arm64**. Si una imagen no tiene `arm64`, corre emulada: **un gate corrido bajo emulación no se declara verde** — se repite en P2. Único punto de publicación iOS: si el Mac cae, la publicación se detiene (riesgo declarado en §8) |
 | **Ubuntu** | Docker nativo ⇒ es la **máquina de integración y de medición**. Los números de rendimiento de la fase 17 salen de acá y de ningún otro lado |
-| **Legion** | Emulador Android acelerado ⇒ **Maestro corre acá**. Si es Windows: el clon del repositorio va **dentro del sistema de archivos de WSL2**, nunca en `/mnt/c` — los volúmenes montados sobre NTFS destruyen el tiempo de compilación de Gradle y de Testcontainers |
+| **Legion** | Emulador Android acelerado ⇒ **Patrol corre acá**. Si es Windows: el clon del repositorio va **dentro del sistema de archivos de WSL2**, nunca en `/mnt/c` — los volúmenes montados sobre NTFS destruyen el tiempo de compilación de Gradle y de Testcontainers |
 | **Dell A y B** | Carriles sin Docker pesado por diseño. Misma regla de WSL2 que la Legion. Un Android físico de gama baja por máquina |
 
 ---
@@ -613,7 +655,7 @@ En este orden, y nada de esto es opcional:
 
 1. **Montar la topología de §2**: red privada, SSH por clave, `tmux` por puesto, WSL2
    en las tres Windows. Sin esto no hay cinco máquinas: hay cinco laptops.
-2. **Verificar las 65 skills en cada máquina** y cargar las obligatorias de cada
+2. **Verificar las 66 skills en cada máquina** y cargar las obligatorias de cada
    carril — [[19 Contrato de carril · conflicto cero, skills y calidad verificada]] §1
    y §2. Un carril que trabaja de memoria inventa lo que las skills evitan.
 3. **Escribir los cuatro documentos de fase que faltan** — fase 18

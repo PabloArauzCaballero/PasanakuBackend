@@ -1,0 +1,19 @@
+# syntax=docker/dockerfile:1.7
+#
+# El trabajo de esquema: aplica sql/ sobre la base del entorno y se apaga.
+#
+# Existe para que un cambio de esquema viaje con el despliegue y no a mano. Los 305
+# CREATE TABLE son IF NOT EXISTS y las restricciones se recrean con DROP IF EXISTS
+# antes de cada CREATE, asi que correrlo en cada despliegue es seguro.
+#
+# Las semillas que carga son las MINIMAS —los mismos catalogos que van a
+# produccion—. Las de sql/61_dev/ no: la guarda de sembrar_dev.sql exige que la base
+# este marcada `app.entorno = 'dev'`, y un entorno de pruebas con datos reales no lo
+# esta.
+FROM postgres:16
+
+COPY sql /sql
+COPY despliegue/aplicar-esquema.sh /aplicar-esquema.sh
+
+USER postgres
+ENTRYPOINT ["/aplicar-esquema.sh"]

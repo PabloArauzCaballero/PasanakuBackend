@@ -23,6 +23,10 @@ Tinta `#10231A` · Pizarra `#38473F` · Musgo `#6C7B72` · Línea `#DCE4DE` · B
 ## Escalas
 - Espaciado (base 4): 4 · 8 · 12 · 16 · 24 · 32 · 48
 - Radio: 8 (chip) · 12 (campo/botón) · 16 (tarjeta) · 24 (bottom sheet) · 999 (pill)
-- Tipografía: **Poppins** (display/cifras) + **Inter** (cuerpo). Dinero con `tabular-nums` → `Bs 1.240,00`
+- Tipografía: **Bricolage Grotesque** (display/cifras) + **Instrument Sans** (cuerpo), las dos OFL y **empaquetadas** en la app y en el sitio —nunca por CDN: una billetera tiene que ser legible sin señal. Dinero con `tabular-nums` → `Bs 1.240,00`
+- Escala tipográfica: un rol por uso (`--t-cifra-grande`, `--t-titulo-1`, `--t-boton`, `--t-cuerpo`, `--t-campo-etiqueta`, `--t-ayuda`…), no un tamaño suelto. De acá se genera la clase `Tipo` de Flutter: los dos mundos miden la misma letra
+
+## Colores de turno
+Para distinguir **personas** dentro de una rueda de pasanaku, y solo para eso: nunca un botón ni un fondo. Salen de la misma paleta, en un orden que evita que dos vecinos compartan tono. El color nunca es la única señal — el turno propio lleva además un punto.
 
 Siguiente: [[Atomos]]

@@ -1,0 +1,62 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "consultarSaldo",
+  "metodo": "get",
+  "ruta": "/billetera/{cuentaId}/saldo",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "cuentaId": "11111111-1111-4111-8111-111111111111",
+        "disponible": {
+          "monto": "1240.00",
+          "moneda": "BOB"
+        },
+        "retenido": {
+          "monto": "150.00",
+          "moneda": "BOB"
+        },
+        "alCorteDe": "2026-09-09T14:30:00Z"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "cuentaId": "11111111-1111-4111-8111-111111111111",
+        "disponible": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "retenido": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "alCorteDe": "2026-09-09T14:30:00Z"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "cuentaId": "11111111-1111-4111-8111-111111111111",
+        "disponible": {
+          "monto": "35.50",
+          "moneda": "BOB"
+        },
+        "retenido": {
+          "monto": "400.00",
+          "moneda": "BOB"
+        },
+        "alCorteDe": "2026-09-09T14:30:00Z"
+      }
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

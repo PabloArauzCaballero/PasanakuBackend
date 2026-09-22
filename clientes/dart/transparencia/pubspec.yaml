@@ -1,0 +1,10 @@
+name: aportaya_cliente_transparencia
+description: >
+  DOBLE TEMPORAL (regla 65) — no es el cliente generado real. El carril de contratos
+  (Pablo) todavía no publicó clientes/dart/transparencia. Este paquete existe solo para que
+  `flutter pub get` resuelva el grafo de dependencias de apps/movil; no declara ningún
+  símbolo real del servicio transparencia. Se borra cuando el cliente real se genere.
+version: 0.0.0
+publish_to: 'none'
+environment:
+  sdk: ^3.12.2

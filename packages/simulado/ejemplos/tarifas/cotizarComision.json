@@ -1,0 +1,137 @@
+{
+  "servicio": "tarifas",
+  "operacion": "cotizarComision",
+  "metodo": "post",
+  "ruta": "/comisiones/cotizaciones",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "cotizacionId": "809e926a-88ad-4bc4-8833-49ae094c6e2e",
+        "montoComision": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "montoImpuesto": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "montoTotal": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "desglose": [
+          {
+            "concepto": "concepto",
+            "detalle": "detalle",
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ],
+        "validaHasta": "2026-01-15T10:30:00Z",
+        "esNueva": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "cotizacionId": "809e926a-88ad-4bc4-8833-49ae094c6e2e",
+        "montoComision": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "montoImpuesto": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "montoTotal": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "desglose": [],
+        "validaHasta": "2026-01-15T10:30:00Z",
+        "esNueva": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "cotizacionId": "809e926a-88ad-4bc4-8833-49ae094c6e2e",
+        "montoComision": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "montoImpuesto": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "montoTotal": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "desglose": [
+          {
+            "concepto": "concepto",
+            "detalle": "detalle",
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ],
+        "validaHasta": "2026-01-15T10:30:00Z",
+        "esNueva": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "cotizacionId": "809e926a-88ad-4bc4-8833-49ae094c6e2e",
+        "montoComision": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "montoImpuesto": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "montoTotal": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "desglose": [
+          {
+            "concepto": "concepto",
+            "detalle": "detalle",
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ],
+        "validaHasta": "2026-01-15T10:30:00Z",
+        "esNueva": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

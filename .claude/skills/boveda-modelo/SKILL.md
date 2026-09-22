@@ -85,7 +85,7 @@ python3 scripts/verificar_boveda.py  # coherencia: casos, restricciones e índic
 ```
 
 `generar_ddl.py` encadena `extraer_sql.py` (restricciones del catálogo) y
-`generar_semillas.py` (`seeders/*.json` → `sql/60_semillas/` y `sql/61_prueba/`).
+`generar_semillas.py` (`seeders/*.json` → `sql/60_semillas/` y `sql/61_dev/`).
 Una columna nueva en el modelo puede romper una semilla: el generador de semillas
 valida cada columna contra el modelo y falla si no existe. Eso es deseable.
 
@@ -109,8 +109,8 @@ Y después, contra una base real:
 ```bash
 docker run --rm -d --name pg-aportaya -e POSTGRES_PASSWORD=x -e POSTGRES_DB=aportaya \
   -v "$PWD/sql:/sql:ro" postgres:16 && sleep 10
-docker exec pg-aportaya psql -U postgres -d aportaya -v ON_ERROR_STOP=1 -f /sql/aplicar.sql
-docker exec pg-aportaya psql -U postgres -d aportaya -f /sql/50_verificacion/prueba_humo.sql
+docker exec -i aportaya-postgres psql -U pasanaku -d pasanaku -v ON_ERROR_STOP=1 -f /sql/aplicar.sql
+docker exec -i aportaya-postgres psql -U pasanaku -d pasanaku -f /sql/50_verificacion/prueba_humo.sql
 ```
 
 La prueba de humo tiene que dar **todo OK**. Requiere base recién creada.

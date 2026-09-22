@@ -1,0 +1,50 @@
+{
+  "servicio": "erp",
+  "operacion": "darDeAltaTercero",
+  "metodo": "post",
+  "ruta": "/erp/terceros",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "terceroComercialId": "9b9e5178-2db7-49ec-849d-6376cc955eb6"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "terceroComercialId": "9b9e5178-2db7-49ec-849d-6376cc955eb6"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "terceroComercialId": "9b9e5178-2db7-49ec-849d-6376cc955eb6"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "terceroComercialId": "9b9e5178-2db7-49ec-849d-6376cc955eb6"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "servicio": "garantia",
+  "operacion": "devolverFondo",
+  "metodo": "post",
+  "ruta": "/garantia/fondos/{grupoId}/devolucion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "fondoId": "5042b923-226d-44cd-822f-edee72b00df0",
+        "totalAportado": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "totalDevuelto": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "consumidoPorCoberturas": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "devoluciones": [
+          {
+            "participanteId": "888de013-0189-44c3-876f-b0b308a16f4d",
+            "aportado": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "aDevolver": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "fondoId": "5042b923-226d-44cd-822f-edee72b00df0",
+        "totalAportado": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "totalDevuelto": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "consumidoPorCoberturas": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "devoluciones": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "fondoId": "5042b923-226d-44cd-822f-edee72b00df0",
+        "totalAportado": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "totalDevuelto": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "consumidoPorCoberturas": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "devoluciones": [
+          {
+            "participanteId": "888de013-0189-44c3-876f-b0b308a16f4d",
+            "aportado": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "aDevolver": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ]
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "fondoId": "5042b923-226d-44cd-822f-edee72b00df0",
+        "totalAportado": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "totalDevuelto": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "consumidoPorCoberturas": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "devoluciones": [
+          {
+            "participanteId": "888de013-0189-44c3-876f-b0b308a16f4d",
+            "aportado": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "aDevolver": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ]
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

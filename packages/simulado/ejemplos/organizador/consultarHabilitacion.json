@@ -1,0 +1,38 @@
+{
+  "servicio": "organizador",
+  "operacion": "consultarHabilitacion",
+  "metodo": "get",
+  "ruta": "/organizadores/{organizadorId}/habilitacion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "habilitado": true,
+        "nivel": "nivel",
+        "limiteDeGrupos": 1,
+        "limiteDeMonto": "4.44",
+        "gruposActivos": 1
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "habilitado": false,
+        "nivel": "nivel",
+        "limiteDeGrupos": 0,
+        "limiteDeMonto": "0.00",
+        "gruposActivos": 0
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "habilitado": true,
+        "nivel": "nivel",
+        "limiteDeGrupos": 1,
+        "limiteDeMonto": "4.44",
+        "gruposActivos": 1
+      }
+    }
+  }
+}

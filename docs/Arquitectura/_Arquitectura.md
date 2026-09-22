@@ -28,8 +28,8 @@ contradecirlas**: solo elige con qué herramientas se sostienen.
 ## La decisión en una línea
 
 > **Java 21 y Spring Boot 3 en catorce servicios, uno por módulo de la bóveda, sobre
-> un único PostgreSQL 16 con un esquema por servicio; Expo para la app y React + Vite
-> para el backoffice.**
+> un único PostgreSQL 16 con un esquema por servicio; Flutter para la app y Angular
+> para el backoffice y el sitio público.**
 
 El razonamiento completo —incluidas las alternativas evaluadas y por qué perdieron—
 está en [[Stack]]. El motivo por el que son catorce y no uno está en
@@ -53,7 +53,7 @@ está en [[Stack]]. El motivo por el que son catorce y no uno está en
 | [[ADR-016 Acceso a datos con jOOQ\|016]] | Cómo habla el código con las 306 tablas | jOOQ generado desde la base viva · **JPA prohibido** | 002 |
 | [[ADR-017 Propiedad de datos por servicio\|017]] | Si se parte la base y cómo | Un clúster, un esquema y un rol por servicio; FK cruzadas conservadas | — |
 | [[ADR-018 Outbox transaccional y mensajería\|018]] | Efectos externos, eventos entre servicios y cron | Outbox en PostgreSQL · relevo a Kafka · ShedLock | 003 |
-| [[ADR-004 Frontend\|004]] | App del participante y backoffice | Expo + React/Vite | — |
+| [[ADR-004 Frontend\|004]] | App del participante y backoffice | Expo + React/Vite · **superada por 044** | 044 |
 | [[ADR-019 Dinero con BigDecimal\|019]] | Cómo viaja un importe por el sistema | `BigDecimal` dentro de `Dinero`; cadena decimal en JSON | 005 |
 | [[ADR-020 Contratos OpenAPI primero\|020]] | Contrato entre servicios y con los clientes | OpenAPI escrito primero; servidor y clientes generados | 006 |
 | [[ADR-021 Sesión, RLS y pooling\|021]] | Identidad de la sesión hasta la base, con catorce pools | `SET LOCAL` en la transacción · el token del usuario cruza la red | 007 |
@@ -69,6 +69,19 @@ está en [[Stack]]. El motivo por el que son catorce y no uno está en
 | [[ADR-025 Empaquetado y despliegue de los servicios\|025]] | Cómo se empaqueta y se pone en producción | Una imagen por servicio · manifiestos generados · migración como trabajo aparte | 012 |
 | [[ADR-026 Pruebas de un sistema distribuido\|026]] | Qué se considera probado | JUnit 5 + Testcontainers · contrato entre servicios · prueba de saga | 008 |
 | [[ADR-013 Respaldo y continuidad\|013]] | Qué se respalda y cómo se prueba que sirve | Punto en el tiempo + ensayo de restauración obligatorio | — |
+| [[ADR-033 Puertos y adaptadores\|033]] | Dónde vive lo que está afuera y cómo se elige su implementación | Puerto en `dominio/puertos/` · adaptadores en `infraestructura/adaptadores/` · el local por omisión | — |
+| [[ADR-034 Almacenamiento de archivos\|034]] | Dónde van los archivos y qué se guarda en la columna | Adaptador local en disco · clave de objeto, nunca una URL pública | — |
+| [[ADR-035 Canales por defecto\|035]] | Por qué canal avisa la plataforma mientras no haya contrato | Bandeja interna + correo, con push como aviso · WhatsApp y SMS apagados | — |
+| [[ADR-036 Android primero\|036]] | En qué orden se construyen las dos plataformas móviles | Android primero · iOS por pase de paridad, por bloque de pantallas | — |
+| [[ADR-037 Alta disponibilidad y balanceo\|037]] | Cuántas réplicas, qué se replica abajo y cómo se reparte la carga | Tres niveles de criticidad · ninguno con menos de 2 réplicas · el tope de escalado atado al pool | — |
+| [[ADR-038 Acceso administrativo · segundo factor y recuperación asistida\|038]] | Cómo entra un operador al backoffice y cómo recupera el acceso si lo pierde | Dos factores en todo acceso · TOTP, nunca SMS · recuperación aprobada por otra identidad · lo hace cumplir la base | — |
+| [[ADR-039 Sin efectivo · la plataforma no opera dinero físico\|039]] | Si la plataforma opera dinero en efectivo por corresponsales | No: solo ingreso electrónico y salida a cuenta bancaria · `CU-57` obsoleto · dos tablas retiradas | — |
+| [[ADR-040 Fronteras de transparencia, reputación y riesgo\|040]] | Cómo cruzan la frontera de servicio la transparencia, la reputación y el riesgo | Proyección local por eventos en vez de llamadas · el átomo del sorteo baja a `plataforma` con su protocolo público · `CU-97` se parte en dos servicios · la restricción efectiva vive en `identidad` | — |
+| [[ADR-041 Sitio público · el tercer producto\|041]] | Si existe una tercera superficie sin sesión y con qué se construye | Sí, tercer producto · **estático por omisión**, SSR declarado página por página · enmienda ADR-004 · el *con qué* lo enmienda 044 | — |
+| [[ADR-042 Política de rastreadores de IA\|042]] | Qué agentes automáticos pueden leer el sitio y para qué | Búsqueda sí, entrenamiento no · `/verificar/` y `/publico/` fuera del índice para todos · `robots.txt` generado y con prueba | — |
+| [[ADR-043 Capa web probada con MockMvc\|043]] | Cómo se prueba la capa web, y quién hace cumplir `@Permiso` | Corte MVC (`@WebMvcTest`) con dobles del caso de uso, en el corredor `webTest` y **sin Docker** · sábana de seguridad por servicio · `GuardiaDePermiso` autoriza en tiempo de petición · extiende ADR-026 | — |
+| [[ADR-044 Frontend en Angular y Flutter\|044]] | Con qué se escriben la app, el backoffice y el sitio | **Flutter** para la app · **Angular** para las dos superficies web (SSR híbrido en el sitio) · tokens y clientes **generados** para los dos mundos · Prism como único simulado · Shorebird para parches · supera 004, enmienda 041 | 004 |
+| [[ADR-045 Tutoriales interactivos como datos\|045]] | Cómo se enseña a usar AportaYa desde adentro de AportaYa | Los tutoriales son **datos**, no código · un motor compartido por las dos superficies web (`packages/tutoriales`) y otro en la app, con el mismo modelo · el elemento se marca con `data-tutorial-id` · el progreso detrás del puerto `AlmacenDeProgreso` · el motor viaja perezoso | — |
 
 ## Decisiones superadas
 
@@ -98,6 +111,8 @@ Se conservan como expediente. **Ninguna manda**; se leen para entender qué camb
 | [[Entornos y despliegue]] | Cómo se aplica el esquema, se siembra y se opera |
 | [[Prompts/_Prompts\|Prompts generalistas]] | Los tres prompts —general, backend, frontend— que imponen la composición atómica |
 | [[Lineamientos adoptados y descartados]] | Qué se tomó de los lineamientos externos y qué se eliminó por contradecir la bóveda |
+| [[Procedimiento de desarrollo]] | Cómo se construye un flujo entero —contrato, backend, app, humo— y qué lo cierra |
+| [[Contrato de implementación para IA]] | Las reglas duras contra la invención: fuentes de verdad, prohibiciones y defaults |
 
 ## Cómo se usa esta carpeta al programar
 
@@ -107,7 +122,7 @@ Se conservan como expediente. **Ninguna manda**; se leen para entender qué camb
    hasta que alguien escriba uno nuevo que lo supere. **Si el ADR está marcado como
    superado, no manda: manda el que lo superó.**
 4. Usa la skill de la tecnología correspondiente: `back-spring`, `datos-jooq`,
-   `trabajos-outbox`, `movil-expo`, `web-backoffice`.
+   `trabajos-outbox`, `movil-flutter`, `web-angular`, `web-backoffice`.
 5. Las reglas que valen para todas: `arquitectura-atomica`, `codigo-limpio`,
    `contratos-api`, `dinero-decimal`, `pruebas-cu`, `entorno-monorepo`, y
    `revision-codigo` antes de fusionar.

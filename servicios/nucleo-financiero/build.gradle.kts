@@ -7,6 +7,14 @@ plugins {
     id("aportaya.openapi")           // interfaz de servidor + clientes
 }
 
+// Piso de cobertura — TRINQUETE, fijado con evidencia (ADR-026, ADR-043).
+// Medido con `./gradlew test webTest integrationTest && ./gradlew jacocoTestReport`,
+// redondeado hacia abajo y con dos puntos de margen: no puede bajar, y un
+// refactor legitimo no tumba el build. Para subirlo: `python3 scripts/cobertura.py`.
+extra["pisoDeCobertura"] = 0.85
+extra["pisoDeRamas"] = 0.74
+extra["pisoDelDominio"] = 0.75   // lineas Y ramas de dominio/
+
 aportaya {
     esquema.set("nucleo_financiero")
     rol.set("svc_nucleo_financiero")
@@ -29,6 +37,7 @@ dependencies {
 
     testImplementation(project(":plataforma:comun-pruebas"))
     testImplementation(libs.bundles.pruebas)   // JUnit 5, AssertJ, Testcontainers, ArchUnit
+    testImplementation(libs.spring.boot.jdbc)  // DriverManagerDataSource, DataSourceTransactionManager
 }
 
 // JPA esta PROHIBIDO (ADR-016): compite con sql/ por la propiedad del esquema y

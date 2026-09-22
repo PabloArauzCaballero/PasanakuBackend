@@ -1,0 +1,68 @@
+{
+  "servicio": "grupos",
+  "operacion": "revelarSorteo",
+  "metodo": "post",
+  "ruta": "/grupos/{grupoId}/sorteo/revelacion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "sorteoId": "af7ea973-ef5d-49a5-8023-90d69edbe318",
+        "verificado": true,
+        "semilla": "semilla",
+        "cuposEnOrden": [
+          "00bef0ad-a683-435b-859c-24c0aa742340"
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "sorteoId": "af7ea973-ef5d-49a5-8023-90d69edbe318",
+        "verificado": false,
+        "semilla": "semilla",
+        "cuposEnOrden": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "sorteoId": "af7ea973-ef5d-49a5-8023-90d69edbe318",
+        "verificado": true,
+        "semilla": "semilla",
+        "cuposEnOrden": [
+          "00bef0ad-a683-435b-859c-24c0aa742340"
+        ]
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "sorteoId": "af7ea973-ef5d-49a5-8023-90d69edbe318",
+        "verificado": true,
+        "semilla": "semilla",
+        "cuposEnOrden": [
+          "00bef0ad-a683-435b-859c-24c0aa742340"
+        ]
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "servicio": "tarifas",
+  "operacion": "anotarCobroDeComision",
+  "metodo": "post",
+  "ruta": "/comisiones/devengos/{devengoId}/cobros",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "cargoId": "da7ad794-110a-413a-8348-f7952eb8528c",
+        "estadoDelCargo": "COBRADO",
+        "estadoDelDevengo": "estadoDelDevengo",
+        "cuentaPorCobrarId": "63a5a41c-10a8-49d2-830d-adce744dadee"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "cargoId": "da7ad794-110a-413a-8348-f7952eb8528c",
+        "estadoDelCargo": "COBRADO",
+        "estadoDelDevengo": "estadoDelDevengo",
+        "cuentaPorCobrarId": "63a5a41c-10a8-49d2-830d-adce744dadee"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "cargoId": "da7ad794-110a-413a-8348-f7952eb8528c",
+        "estadoDelCargo": "COBRADO",
+        "estadoDelDevengo": "estadoDelDevengo",
+        "cuentaPorCobrarId": "63a5a41c-10a8-49d2-830d-adce744dadee"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "cargoId": "da7ad794-110a-413a-8348-f7952eb8528c",
+        "estadoDelCargo": "COBRADO",
+        "estadoDelDevengo": "estadoDelDevengo",
+        "cuentaPorCobrarId": "63a5a41c-10a8-49d2-830d-adce744dadee"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

@@ -7,8 +7,8 @@ clase: OrdenRecarga
 modulo: "10 — Billetera, Custodia y Dinero Electrónico"
 estereotipo: Raíz de agregado
 clave_primaria: [id]
-columnas: 17
-fk_salientes: 6
+columnas: 16
+fk_salientes: 5
 fk_entrantes: 0
 append_only: false
 ---
@@ -25,7 +25,6 @@ append_only: false
 | `cuenta_billetera_id` | UUID | FK IDX | no | FK, IDX |
 | `instrumento_fondeo_id` | UUID | FK | sí | FK, NULL |
 | `proveedor_id` | UUID | FK | sí | FK, NULL, M3 |
-| `punto_atencion_id` | UUID | FK | sí | FK, NULL |
 | `pago_id` | UUID | FK | sí | FK, NULL, M3 |
 | `transaccion_id` | UUID | FK | sí | FK, NULL |
 | `monto_bruto` | DECIMAL(16,2) | — | no | CK: > 0 |
@@ -33,11 +32,20 @@ append_only: false
 | `monto_acreditado` | DECIMAL(16,2) | — | no | — |
 | `moneda` | CHAR(3) | — | no | — |
 | `estado` | VARCHAR(15) | IDX | no | CK, IDX |
-| `referencia_externa` | VARCHAR(80) | UQ | sí | UQ, NULL |
+| `referencia_externa` | VARCHAR(80) | UQ | sí | NULL |
 | `clave_idempotencia` | VARCHAR(100) | — | no | — |
 | `solicitada_en` | TIMESTAMPTZ | — | no | — |
 | `acreditada_en` | TIMESTAMPTZ | — | sí | NULL |
 | `expira_en` | TIMESTAMPTZ | — | sí | NULL |
+
+## Reglas del catálogo
+
+> Declaradas en [[Restricciones]], no en el modelo. El nombre es el que devuelve la base al rechazar.
+
+| Regla | Tipo | Columnas |
+| --- | :-: | --- |
+| `uq_recarga_idem` | UNIQUE | `cuenta_billetera_id`, `clave_idempotencia` |
+| `uq_recarga_referencia` | UNIQUE | `referencia_externa` |
 
 ## Claves foráneas salientes
 
@@ -47,12 +55,11 @@ append_only: false
 | `instrumento_fondeo_id` | [[instrumento_fondeo]] | 10 | sí | [[orden_recarga.instrumento_fondeo_id → instrumento_fondeo]] |
 | `pago_id` | [[pago]] | ↗ 03 | sí | [[orden_recarga.pago_id → pago]] |
 | `proveedor_id` | [[proveedor_pago]] | ↗ 03 | sí | [[orden_recarga.proveedor_id → proveedor_pago]] |
-| `punto_atencion_id` | [[punto_atencion]] | 10 | sí | [[orden_recarga.punto_atencion_id → punto_atencion]] |
 | `transaccion_id` | [[transaccion_billetera]] | 10 | sí | [[orden_recarga.transaccion_id → transaccion_billetera]] |
 
 ## Entidades vecinas
 
-[[cuenta_billetera]] · [[instrumento_fondeo]] · [[pago]] · [[proveedor_pago]] · [[punto_atencion]] · [[transaccion_billetera]]
+[[cuenta_billetera]] · [[instrumento_fondeo]] · [[pago]] · [[proveedor_pago]] · [[transaccion_billetera]]
 
 ## Ver también
 

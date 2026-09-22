@@ -1,0 +1,58 @@
+{
+  "servicio": "tarifas",
+  "operacion": "resolverPrecio",
+  "metodo": "post",
+  "ruta": "/tarifas/precios/resolver",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "codigo": "codigo",
+        "motivo": "motivo",
+        "evaluable": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "codigo": "codigo",
+        "motivo": "motivo",
+        "evaluable": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "codigo": "codigo",
+        "motivo": "motivo",
+        "evaluable": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "codigo": "codigo",
+        "motivo": "motivo",
+        "evaluable": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

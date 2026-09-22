@@ -1,0 +1,5 @@
+@import '@aportaya/ui/estilos.css';
+/* El sitio público lleva la estética de la landing y de la app, no la de un documento. */
+@import './sitio/fuentes.css';
+@import './sitio/tokens-sitio.css';
+@import './sitio/sitio.css';

@@ -1,0 +1,6 @@
+.dart_tool/
+build/
+*.iml
+# GENERADO desde packages/tokens/tokens.json por `yarn workspace @aportaya/diseno-flutter build`
+lib/tokens/tokens.dart
+test/**/failures/

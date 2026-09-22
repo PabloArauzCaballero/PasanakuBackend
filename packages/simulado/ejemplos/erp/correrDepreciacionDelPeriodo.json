@@ -1,0 +1,90 @@
+{
+  "servicio": "erp",
+  "operacion": "correrDepreciacionDelPeriodo",
+  "metodo": "post",
+  "ruta": "/erp/periodos/{periodoId}/depreciaciones",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "periodoId": "f0b5f6ba-f9b9-41da-890c-6760ea6f8894",
+        "depreciaciones": [
+          {
+            "activoFijoId": "e816b3e2-a78e-47e4-8f98-74068fa57bc6",
+            "depreciacionId": "61e07fc2-e263-446a-87c7-c04584444042",
+            "monto": "4.44",
+            "valorEnLibros": "4.44",
+            "totalmenteDepreciado": true
+          }
+        ],
+        "totalDepreciado": "4.44",
+        "yaCorridos": 1,
+        "totalmenteDepreciados": 1
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "periodoId": "f0b5f6ba-f9b9-41da-890c-6760ea6f8894",
+        "depreciaciones": [],
+        "totalDepreciado": "0.00",
+        "yaCorridos": 0,
+        "totalmenteDepreciados": 0
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "periodoId": "f0b5f6ba-f9b9-41da-890c-6760ea6f8894",
+        "depreciaciones": [
+          {
+            "activoFijoId": "e816b3e2-a78e-47e4-8f98-74068fa57bc6",
+            "depreciacionId": "61e07fc2-e263-446a-87c7-c04584444042",
+            "monto": "4.44",
+            "valorEnLibros": "4.44",
+            "totalmenteDepreciado": true
+          }
+        ],
+        "totalDepreciado": "4.44",
+        "yaCorridos": 1,
+        "totalmenteDepreciados": 1
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "periodoId": "f0b5f6ba-f9b9-41da-890c-6760ea6f8894",
+        "depreciaciones": [
+          {
+            "activoFijoId": "e816b3e2-a78e-47e4-8f98-74068fa57bc6",
+            "depreciacionId": "61e07fc2-e263-446a-87c7-c04584444042",
+            "monto": "4.44",
+            "valorEnLibros": "4.44",
+            "totalmenteDepreciado": true
+          }
+        ],
+        "totalDepreciado": "4.44",
+        "yaCorridos": 1,
+        "totalmenteDepreciados": 1
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

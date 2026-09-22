@@ -1,0 +1,54 @@
+{
+  "servicio": "publicidad",
+  "operacion": "registrarClic",
+  "metodo": "post",
+  "ruta": "/publicidad/impresiones/{impresionId}/clic",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "clicId": "4eb5a9b0-6a7b-4014-84ce-69a4b93169c4",
+        "costo": "4.4444"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "clicId": "4eb5a9b0-6a7b-4014-84ce-69a4b93169c4",
+        "costo": "0.0000"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "clicId": "4eb5a9b0-6a7b-4014-84ce-69a4b93169c4",
+        "costo": "4.4444"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "clicId": "4eb5a9b0-6a7b-4014-84ce-69a4b93169c4",
+        "costo": "4.4444"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

@@ -14,7 +14,7 @@ Las **25 tablas** de este módulo. Justificación de negocio en [[01_identidad_u
 
 | Tabla | Columnas | FK sal. | FK ent. |
 | --- | --: | --: | --: |
-| [[usuario]] | 18 | 0 | 211 |
+| [[usuario]] | 18 | 0 | 209 |
 | [[direccion_usuario]] | 8 | 1 | 0 |
 | [[perfil_financiero]] | 8 | 1 | 0 |
 | [[credencial_acceso]] | 8 | 1 | 0 |
@@ -28,7 +28,7 @@ Las **25 tablas** de este módulo. Justificación de negocio en [[01_identidad_u
 | [[intento_autenticacion]] | 10 | 1 | 0 |
 | [[bloqueo_cuenta]] | 7 | 2 | 0 |
 | [[restriccion_usuario]] | 10 | 2 | 0 |
-| [[documento_identidad]] | 14 | 1 | 1 |
+| [[documento_identidad]] | 15 | 1 | 1 |
 | [[verificacion_kyc]] | 14 | 3 | 2 |
 | [[referencia_personal]] | 8 | 1 | 0 |
 | [[rol]] | 5 | 0 | 2 |

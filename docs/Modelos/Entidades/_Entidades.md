@@ -2,12 +2,12 @@
 tags:
   - moc
   - indice
-entidades: 306
+entidades: 305
 ---
 
 # Índice de entidades
 
-Las **306 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son claves foráneas salientes y entrantes.
+Las **305 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son claves foráneas salientes y entrantes.
 
 [[Index|← Índice general]] · [[_Relaciones|Relaciones →]]
 
@@ -17,7 +17,7 @@ Las **306 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 
 | Tabla | Columnas | Sal. | Ent. | Notas |
 | --- | --: | --: | --: | --- |
-| [[usuario]] | 18 | 0 | 211 | muy conectada |
+| [[usuario]] | 18 | 0 | 209 | muy conectada |
 | [[direccion_usuario]] | 8 | 1 | 0 | — |
 | [[perfil_financiero]] | 8 | 1 | 0 | — |
 | [[credencial_acceso]] | 8 | 1 | 0 | — |
@@ -31,7 +31,7 @@ Las **306 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[intento_autenticacion]] | 10 | 1 | 0 | — |
 | [[bloqueo_cuenta]] | 7 | 2 | 0 | — |
 | [[restriccion_usuario]] | 10 | 2 | 0 | — |
-| [[documento_identidad]] | 14 | 1 | 1 | — |
+| [[documento_identidad]] | 15 | 1 | 1 | — |
 | [[verificacion_kyc]] | 14 | 3 | 2 | — |
 | [[referencia_personal]] | 8 | 1 | 0 | — |
 | [[rol]] | 5 | 0 | 2 | — |
@@ -236,7 +236,8 @@ Las **306 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[ejecucion_reporte]] | 12 | 3 | 1 | — |
 | [[exportacion_reporte]] | 11 | 1 | 0 | — |
 | [[programacion_reporte]] | 10 | 1 | 0 | — |
-| [[indicador_kpi]] | 11 | 0 | 0 | — |
+| [[definicion_indicador]] | 11 | 0 | 1 | — |
+| [[indicador_kpi]] | 14 | 1 | 0 | — |
 | [[regla_cumplimiento]] | 10 | 0 | 1 | — |
 | [[alerta_cumplimiento]] | 15 | 5 | 0 | — |
 | [[reporte_operacion_sospechosa]] | 10 | 2 | 2 | — |
@@ -262,9 +263,7 @@ Las **306 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[retencion_saldo]] | 12 | 3 | 2 | — |
 | [[reverso_transaccion]] | 10 | 3 | 0 | — |
 | [[instrumento_fondeo]] | 16 | 1 | 2 | — |
-| [[punto_atencion]] | 12 | 1 | 2 | — |
-| [[arqueo_punto_atencion]] | 13 | 2 | 0 | — |
-| [[orden_recarga]] | 17 | 6 | 0 | — |
+| [[orden_recarga]] | 16 | 5 | 0 | — |
 | [[orden_retiro]] | 20 | 7 | 1 | muy conectada |
 | [[transferencia_p2p]] | 11 | 5 | 0 | — |
 | [[cuenta_custodia]] | 14 | 0 | 2 | — |

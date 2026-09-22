@@ -1,0 +1,29 @@
+{
+  "servicio": "identidad",
+  "operacion": "buscarPorTelefono",
+  "metodo": "get",
+  "ruta": "/usuarios/por-telefono",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "existe": true,
+        "usuarioId": "53a15f29-a60f-49e3-8a51-d936f9b0d90c"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "existe": false,
+        "usuarioId": "53a15f29-a60f-49e3-8a51-d936f9b0d90c"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "existe": true,
+        "usuarioId": "53a15f29-a60f-49e3-8a51-d936f9b0d90c"
+      }
+    }
+  }
+}
