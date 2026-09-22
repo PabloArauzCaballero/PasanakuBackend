@@ -55,11 +55,10 @@ public class ConfiguracionCors {
             // Fail closed (regla 89/98): un gateway que arranca en un perfil
             // productivo sin origenes reales, o con "*", es un CORS abierto a
             // cualquiera. No se levanta con eso — se corta el arranque.
-            throw new IllegalStateException(
-                    "aportaya.cors.origenes vacío o con '*' en un perfil no local/test ("
-                            + Arrays.toString(entorno.getActiveProfiles())
-                            + "). AMB-12/DECISION_REQUIRED: falta la variable APORTAYA_CORS_ORIGENES"
-                            + " con el dominio real. No se arranca con CORS abierto.");
+            throw new IllegalStateException("aportaya.cors.origenes vacío o con '*' en un perfil no local/test ("
+                    + Arrays.toString(entorno.getActiveProfiles())
+                    + "). AMB-12/DECISION_REQUIRED: falta la variable APORTAYA_CORS_ORIGENES"
+                    + " con el dominio real. No se arranca con CORS abierto.");
         }
 
         CorsConfiguration configuracion = new CorsConfiguration();
@@ -80,7 +79,10 @@ public class ConfiguracionCors {
         if (origenesCrudos == null || origenesCrudos.isBlank()) {
             return List.of();
         }
-        return Arrays.stream(origenesCrudos.split(",")).map(String::trim).filter(s -> !s.isBlank()).toList();
+        return Arrays.stream(origenesCrudos.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .toList();
     }
 
     /** Deja constancia en el log de arranque de qué orígenes quedaron activos — nada más. */

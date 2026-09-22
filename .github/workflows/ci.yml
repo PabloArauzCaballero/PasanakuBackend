@@ -381,6 +381,72 @@ jobs:
         with:
           sarif_file: trivy-results.sarif
 
+  # ------------------------------------------------------------ e2e-financiero --
+  # H2.S6.M1: nucleo-financiero y comun-mensajeria (outbox) son los dos modulos
+  # con logica de dinero de verdad; corren en cada push a `dev` (no solo en main,
+  # a diferencia del `e2e` de abajo) y tambien a demanda. `apache/kafka` (el que
+  # pide el encargo) no es la imagen que corre en este repo: `confluentinc/cp-kafka:7.7.1`
+  # en modo KRaft es la que ya esta verificada y funcionando en
+  # despliegue/compose/base.yml:169 — se sigue el patron real, no el sugerido sin
+  # verificar (regla 00 §1.4). KAFKA_ADVERTISED_LISTENERS usa `localhost`, no
+  # `kafka`: a diferencia de compose (red docker con ese hostname), un `services:`
+  # de GitHub Actions se alcanza desde los pasos del job por `localhost:<puerto>`.
+  # Los tests de nucleo-financiero y comun-mensajeria puede que todavia no existan
+  # (los escriben Justin y Leo): los corredores tienen failOnNoDiscoveredTests=false,
+  # asi que el job queda cableado y corre lo que haya, sin frenarse por eso.
+  e2e-financiero:
+    name: Punta a punta financiero — nucleo-financiero y outbox
+    runs-on: ubuntu-latest
+    needs: [codigo]
+    if: github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: pasanaku
+          POSTGRES_USER: pasanaku
+          POSTGRES_PASSWORD: pasanaku
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U pasanaku -d pasanaku"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+      kafka:
+        image: confluentinc/cp-kafka:7.7.1
+        env:
+          CLUSTER_ID: aportaya-ci-e2e-financiero
+          KAFKA_NODE_ID: "1"
+          KAFKA_PROCESS_ROLES: broker,controller
+          KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+          KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+          KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+          KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+          KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+          KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+          KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: "0"
+          KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+        ports: ["9092:9092"]
+        options: >-
+          --health-cmd "kafka-broker-api-versions --bootstrap-server localhost:9092"
+          --health-interval 10s --health-timeout 10s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: 0 · el esquema, que es lo que jOOQ introspecciona
+        env:
+          PGPASSWORD: pasanaku
+        run: cd sql && psql -v ON_ERROR_STOP=1 -h localhost -U pasanaku -d pasanaku -q -f aplicar.sql
+
+      - name: 18b · e2eTest — nucleo-financiero y comun-mensajeria
+        run: ./gradlew :servicios:nucleo-financiero:e2eTest :plataforma:comun-mensajeria:e2eTest
+
   # --------------------------------------------------------------------- e2e --
   e2e:
     name: Punta a punta — solo en main

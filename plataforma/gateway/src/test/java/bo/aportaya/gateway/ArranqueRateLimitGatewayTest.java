@@ -3,7 +3,6 @@ package bo.aportaya.gateway;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.redis.testcontainers.RedisContainer;
-import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -44,8 +43,7 @@ import org.testcontainers.utility.DockerImageName;
 @AutoConfigureWebTestClient(timeout = "PT30S")
 class ArranqueRateLimitGatewayTest {
 
-    private static final RedisContainer REDIS =
-            new RedisContainer(DockerImageName.parse("redis:7.4.2-alpine"));
+    private static final RedisContainer REDIS = new RedisContainer(DockerImageName.parse("redis:7.4.2-alpine"));
 
     static {
         REDIS.start();
@@ -80,11 +78,12 @@ class ArranqueRateLimitGatewayTest {
 
         for (int i = 0; i < peticiones; i++) {
             new Thread(() -> {
-                if (estadoDe("/api/v1/sesiones").value() == HttpStatus.TOO_MANY_REQUESTS.value()) {
-                    con429.incrementAndGet();
-                }
-                listo.countDown();
-            }).start();
+                        if (estadoDe("/api/v1/sesiones").value() == HttpStatus.TOO_MANY_REQUESTS.value()) {
+                            con429.incrementAndGet();
+                        }
+                        listo.countDown();
+                    })
+                    .start();
         }
 
         assertThat(listo.await(30, TimeUnit.SECONDS)).isTrue();
@@ -106,9 +105,10 @@ class ArranqueRateLimitGatewayTest {
         CountDownLatch listas = new CountDownLatch(10);
         for (int i = 0; i < 10; i++) {
             new Thread(() -> {
-                cliente.get().uri("/api/v1/usuarios").exchange();
-                listas.countDown();
-            }).start();
+                        cliente.get().uri("/api/v1/usuarios").exchange();
+                        listas.countDown();
+                    })
+                    .start();
         }
         assertThat(listas.await(10, TimeUnit.SECONDS)).isTrue();
 
@@ -130,6 +130,8 @@ class ArranqueRateLimitGatewayTest {
         int estado = estadoDe("/api/v1/billetera/retiros").value();
         List<Integer> prohibidos =
                 List.of(HttpStatus.OK.value(), HttpStatus.CREATED.value(), HttpStatus.ACCEPTED.value());
-        assertThat(prohibidos).as("Redis caido no puede resultar en una respuesta 2xx silenciosa").doesNotContain(estado);
+        assertThat(prohibidos)
+                .as("Redis caido no puede resultar en una respuesta 2xx silenciosa")
+                .doesNotContain(estado);
     }
 }
