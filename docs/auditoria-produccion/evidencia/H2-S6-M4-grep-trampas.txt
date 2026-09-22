@@ -1,0 +1,50 @@
+H2.S6.M4 — grep -rn "|| true\|ignoreFailures\|skipTests\|continue-on-error" .github/workflows buildSrc
+Fecha: 2026-09-22
+
+$ grep -rn "|| true\|ignoreFailures\|skipTests\|continue-on-error" .github/workflows buildSrc
+.github/workflows/ci.yml:155:          grep -q "FALLA" humo.txt && exit 1 || true
+.github/workflows/boveda-y-esquema.yml:57:      # mientras tanto y sin taparlo en silencio (::warning:: visible, no `|| true`).
+.github/workflows/boveda-y-esquema.yml:145:          fallas=$(grep -c 'FALLA' /tmp/humo.txt || true)
+.github/workflows/boveda-y-esquema.yml:146:          oks=$(grep -c 'OK' /tmp/humo.txt || true)
+
+Clasificación de cada match (regla 80.4 — no se clasifica sin evidencia):
+
+1. ci.yml:155 — `grep -q "FALLA" humo.txt && exit 1 || true`
+   Bajo `set -e` (default de GitHub Actions para pasos `run:` en bash), si `grep -q`
+   encuentra "FALLA", `exit 1` termina el paso ahí mismo — el `|| true` nunca llega
+   a evaluarse en ese camino. Si NO encuentra "FALLA", `grep -q` devuelve 1 (sin
+   match) y el `&&` corta antes de `exit 1`; el `|| true` solo evita que ESE exit
+   code (ausencia de "FALLA", que es el caso BUENO) tire abajo el step. No tapa
+   ningún fallo real: el fallo real (`FALLA` presente) sigue matando el step.
+   LEGÍTIMO — no es una trampa.
+
+2. boveda-y-esquema.yml:145-146 — mismo patrón: `grep -c ... || true` para poder
+   capturar un conteo de 0 sin que `set -e` mate el script por el exit code de
+   "no match" de `grep -c`. El fallo real se decide después, explícitamente, con
+   `if [ "$fallas" -ne 0 ]; then ... exit 1; fi` (línea 147 en adelante) — no está
+   escondido detrás del `|| true`. LEGÍTIMO — no es una trampa.
+
+3. boveda-y-esquema.yml:57 — no es código: es la propia explicación en comentario
+   de por qué el paso de H2.S6.M3 NO usa `|| true` (contiene el string literal
+   entre backticks como ejemplo). Falso positivo del grep sobre un comentario.
+
+`-x` (exclusión de tareas de Gradle) en workflows:
+
+$ grep -n "gradlew.*-x " .github/workflows/*.yml
+.github/workflows/ci.yml:74:        run: ./gradlew check -x test -x jacocoTestCoverageVerification -x jacocoTestReport
+
+Único uso: job `codigo` (línea 74). Exactamente el caso que el propio encargo
+pre-justifica: el job `pruebas` (ci.yml:271-316) corre `./gradlew test` (línea 302)
+por separado — `codigo` es la capa estática (formato, ArchUnit, compilación) y
+`pruebas` es la capa de comportamiento; separarlas no es una trampa, es la
+arquitectura de corredores documentada en el propio `ci.yml` ("Los 19 pasos de
+planes/00 §6, en ese orden"). LEGÍTIMO — confirmado que el job que sí corre `test`
+existe y corre de verdad (no es una promesa vacía).
+
+`buildSrc/`: sin resultados — 0 ocurrencias de `|| true`, `ignoreFailures`,
+`skipTests` ni `continue-on-error` en todo `buildSrc/`.
+
+Veredicto: 0 trampas reales encontradas. Los 3 `|| true` de código son el idiom
+estándar para que `grep -c`/`grep -q` con "0 matches" (que es un resultado válido,
+no un fallo) no tire abajo un script con `set -e` — en los tres casos la condición
+de fallo real se evalúa después, explícitamente, sin que el `|| true` la enmascare.

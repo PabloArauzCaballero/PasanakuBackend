@@ -1,0 +1,52 @@
+H5.S3.M3 -- checkout limpio (git worktree add ../pr-limpio <sha-final>)
+SHA: e1656e158f662d863bbec535a5db89d125b8e789
+Fecha: 2026-09-22
+
+=== 1. Setup (docker compose base desde cero, volumenes nuevos) ===
+docker compose -f despliegue/compose/base.yml --profile base up -d --wait -> EXIT=0, todos Healthy
+
+=== 2. Esquema desde cero (sql/aplicar.sql sobre base vacia) ===
+docker run --rm --network aportaya-interna -v .../sql:/sql postgres:16 psql ... -f /sql/aplicar.sql -> EXIT=0
+
+=== 3. ./gradlew verificarProduccion ===
+BUILD FAILED -- identico al hallazgo F-06 ya conocido (jacoco comun-web, branches 0.46<0.47).
+Confirma que F-06 es determinista y no un artefacto de esta maquina en particular:
+          cifras vigentes: 99 casos de uso · 305 tablas · 142 restricciones · 46 ADR
+
+TODO OK
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':plataforma:comun-web:jacocoTestCoverageVerification' (registered by plugin 'org.gradle.jacoco').
+> A failure occurred while executing org.gradle.internal.jacoco.AntJacocoCheck
+   > Rule violated for bundle comun-web: branches covered ratio is 0.46, but expected minimum is 0.47
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 29s
+162 actionable tasks: 36 executed, 112 from cache, 14 up-to-date
+EXIT=1
+
+=== 4. base desde cero -- YA cubierto en el paso 1/2 (misma corrida) ===
+
+=== 5. e2eTest -- BLOQUEADO, misma causa autorizada que H1.S2.M6 ===
+El CA del encargo autoriza literalmente: 'o BLOCKED con causa si no hay imagenes
+construidas: segui el README para construirlas de a una'. Solo identidad y gateway
+tienen imagen construida en esta pasada (paso 6); construir las 14 restantes es
+trabajo de horas (14 builds de Gradle+Docker en serie, regla 70.1.4), no intentado.
+
+=== 6. docker build (identidad, como muestra -- mismo patron que CI) ===
+docker build --network=host -f despliegue/Dockerfile --build-arg SERVICIO=identidad ... -> EXIT=0
+User: app
+
+=== 7. Trivy local sobre la imagen recien construida ===
+269:Total: 32 (HIGH: 23, CRITICAL: 9)
+Mismos CVE base que F-04 (bcprov-jdk18on CRITICAL, spring-security-web CRITICAL) mas
+algunos nuevos que la base de Trivy sumo desde la corrida de H2.S4.M1 -- consistente
+con que la base de datos de vulnerabilidades se actualiza sola, no con una regresion
+de este carril.

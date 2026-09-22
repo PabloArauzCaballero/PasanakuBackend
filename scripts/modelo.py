@@ -204,6 +204,24 @@ PREFIJOS = {
 # de una lista que crece sola.
 RUTAS_PUBLICAS = ["/publico", "/verificar"]
 
+# H3.S1 (AMB-6): las rutas de dinero e identidad que se cortan por tasa en el
+# gateway (RequestRateLimiter + Redis), ademas de lo que ya autoriza cada
+# servicio. Un solo intento fallido de login no rompe nada; mil por segundo
+# contra la misma cuenta si.
+#
+# El encargo original pide ocho: login, refresh, reset, MFA/desafios, retiro,
+# transferencia, registro, OTP. Solo CUATRO existen hoy en un contrato OpenAPI
+# real (verificado contra servicios/identidad/.../openapi/identidad.yaml y
+# servicios/nucleo-financiero/.../openapi/nucleo-financiero.yaml el
+# 2026-09-21): refresh, reset, el desafio de MFA y OTP todavia no tienen
+# endpoint — los esta escribiendo el carril de identidad (PR1, Richard) esta
+# misma noche. Agregar las cuatro que faltan a esta lista cuando existan es
+# una linea; inventarles una ruta ahora violaria la regla 00 (anti-invencion).
+RUTAS_SENSIBLES = {
+    "identidad":         ["/sesiones", "/usuarios"],          # login, registro
+    "nucleo_financiero": ["/billetera/retiros", "/billetera/transferencias"],
+}
+
 
 def escenarios_gherkin(texto_cu):
     """Escenarios del bloque gherkin de un caso de uso.

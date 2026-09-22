@@ -1,0 +1,5 @@
+# H3.S2: `test` es espejo de `dev` (AMB-R1) — mismo origen local que desarrollo,
+# porque los dos corren contra la misma maquina/CI, no contra un dominio propio.
+aportaya:
+  cors:
+    origenes: http://localhost:4200

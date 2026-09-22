@@ -59,7 +59,12 @@ val erroresCatalogo = tasks.register<Exec>("erroresCatalogo") {
     group = "generadores"
     description = "Catalogo de errores: constraint_name -> R-XXX-nn, desde sql/"
     workingDir = rootDir
-    executable = "python3"
+    // "python3" no resuelve en Windows sin el launcher de la Microsoft Store: el alias
+    // de ejecucion de apps intercepta el nombre y no ejecuta nada (exit 9009), incluso
+    // con Python real instalado y en el PATH como "python". Se vio en el baseline de
+    // H1.S1.M1: TODO comun-web quedaba rojo antes de compilar una sola clase, porque
+    // erroresCatalogo bloquea processResources. En Linux/macOS "python3" si existe.
+    executable = if (org.gradle.internal.os.OperatingSystem.current().isWindows) "python" else "python3"
     val salida = catalogoDeErrores.map { it.file("errores-restricciones.properties") }
     outputs.file(salida)
     inputs.files(

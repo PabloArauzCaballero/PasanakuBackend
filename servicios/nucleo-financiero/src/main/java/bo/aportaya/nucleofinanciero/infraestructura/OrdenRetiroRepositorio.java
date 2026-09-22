@@ -64,6 +64,7 @@ public class OrdenRetiroRepositorio {
                         DSL.field("cuenta_billetera_id", UUID.class),
                         DSL.field("retencion_id", UUID.class),
                         DSL.field("monto_solicitado", BigDecimal.class),
+                        DSL.field("costo_retiro", BigDecimal.class),
                         DSL.field("monto_neto", BigDecimal.class),
                         DSL.field("moneda", String.class),
                         DSL.field("estado", String.class),
@@ -78,16 +79,29 @@ public class OrdenRetiroRepositorio {
                     f.get("cuenta_billetera_id", UUID.class),
                     Optional.ofNullable(f.get("retencion_id", UUID.class)),
                     Dinero.de(f.get("monto_solicitado", BigDecimal.class), moneda),
+                    Dinero.de(f.get("costo_retiro", BigDecimal.class), moneda),
                     Dinero.de(f.get("monto_neto", BigDecimal.class), moneda),
                     f.get("estado", String.class),
                     f.get("solicitada_por", UUID.class));
         });
     }
 
-    public Optional<UUID> porClaveIdempotencia(DSLContext dsl, String clave) {
+    /**
+     * R-BIL-06, scope de {@code uq_retiro_idem (cuenta_billetera_id, clave_idempotencia)}.
+     *
+     * <p>Sin el {@code cuenta_billetera_id} en el {@code WHERE}, dos titulares distintos
+     * que coincidan en la clave comparten orden: el segundo recibe el retiro del
+     * primero en vez del suyo.
+     */
+    public void bloquearIdempotencia(DSLContext dsl, UUID cuentaId, String clave) {
+        BloqueoDeIdempotencia.tomar(dsl, "orden_retiro", cuentaId.toString(), clave);
+    }
+
+    public Optional<UUID> porClaveIdempotencia(DSLContext dsl, UUID cuentaId, String clave) {
         return Optional.ofNullable(dsl.select(DSL.field("id", UUID.class))
                 .from(DSL.table(DSL.name("nucleo_financiero", "orden_retiro")))
-                .where(DSL.field("clave_idempotencia").eq(clave))
+                .where(DSL.field("cuenta_billetera_id", UUID.class).eq(cuentaId))
+                .and(DSL.field("clave_idempotencia").eq(clave))
                 .fetchOne(DSL.field("id", UUID.class)));
     }
 
@@ -157,6 +171,7 @@ public class OrdenRetiroRepositorio {
             UUID cuentaId,
             Optional<UUID> retencionId,
             Dinero solicitado,
+            Dinero costo,
             Dinero neto,
             String estado,
             UUID solicitadaPor) {}

@@ -6,9 +6,30 @@ plugins {
     id("aportaya.base")
     id("org.springframework.boot")
     id("io.spring.dependency-management")
+    id("org.cyclonedx.bom")
 }
 
 extensions.create<AportayaExtension>("aportaya")
+
+// H2.S2 (regla 90/98): el escaneo de dependencias real (OSV-Scanner) necesita un
+// lockfile por modulo desplegable para saber exactamente que version resolvio el
+// build, no solo el rango declarado en el catalogo. Se regenera con
+// `./gradlew dependencies --write-locks` y se commitea (docs.gradle.org/current/
+// userguide/dependency_locking.html, verificado contra Gradle 9.7 instalado).
+dependencyLocking {
+    lockAllConfigurations()
+}
+
+// H2.S3: SBOM CycloneDX por modulo desplegable, como artifact del CI. DSL
+// verificada contra el README de CycloneDX/cyclonedx-gradle-plugin ("Custom
+// task output", 2026-09-21): `jsonOutput` es un RegularFileProperty, no un
+// nombre — hay que darle la ruta completa. Sin esto el default es
+// build/reports/sbom/bom.json igual en los quince modulos, y el paso de CI que
+// junta los artifacts pisaria uno con otro.
+tasks.cyclonedxBom {
+    jsonOutput = layout.buildDirectory.file("reports/sbom/${project.name}-bom.json")
+    xmlOutput.convention(null as org.gradle.api.file.RegularFile?)
+}
 
 val catalogo = extensions.getByType<VersionCatalogsExtension>().named("libs")
 // El generador y la libreria de jOOQ tienen que ser la MISMA version: el codigo

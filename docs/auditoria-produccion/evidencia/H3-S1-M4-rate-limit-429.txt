@@ -1,0 +1,12 @@
+--2026-09-22 04:12:04--  http://127.0.0.1:8080/api/v1/sesiones
+Connecting to 127.0.0.1:8080... connected.
+HTTP request sent, awaiting response... 
+  HTTP/1.1 429 Too Many Requests
+  X-RateLimit-Remaining: 0
+  X-RateLimit-Requested-Tokens: 1
+  X-RateLimit-Burst-Capacity: 10
+  X-RateLimit-Replenish-Rate: 5
+  Retry-After: 1
+  content-length: 0
+2026-09-22 04:12:04 ERROR 429: Too Many Requests.
+

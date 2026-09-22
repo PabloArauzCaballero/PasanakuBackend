@@ -35,6 +35,17 @@ class CU12Test extends BaseDeBilletera {
     private Par par(String saldoOrigen) {
         fixtura.tipoDeCambioDeHoy();
         fixtura.limite("TRANSFERENCIA", ESTANDAR, "MES", new BigDecimal("100000.00"), null);
+        return otroPar(saldoOrigen);
+    }
+
+    /**
+     * Un segundo par de cuentas, SIN repetir el tipo de cambio ni el limite del
+     * catalogo: llamar a {@code fixtura.limite(...)} dos veces en el mismo metodo de
+     * prueba choca con {@code ex_limite_vigencia} (misma vigencia, mismo concepto).
+     * {@code par()} configura eso una sola vez; esto es lo que queda para un segundo
+     * titular dentro de la MISMA prueba.
+     */
+    private Par otroPar(String saldoOrigen) {
         UUID quienPaga = fixtura.usuario();
         UUID origen = fixtura.billetera(quienPaga, ESTANDAR, BigDecimal.ZERO);
         fixtura.acreditar(origen, new BigDecimal(saldoOrigen));
@@ -132,6 +143,23 @@ class CU12Test extends BaseDeBilletera {
                         "SELECT saldo_disponible::int FROM nucleo_financiero.cuenta_billetera WHERE id = ?",
                         p.origen()))
                 .isEqualTo(800);
+    }
+
+    @Test
+    @DisplayName(
+            "kill-test H1: misma clave de idempotencia, dos titulares distintos · Cuando cada uno transfiere · Entonces cada uno recibe su PROPIA transaccion, nunca la del otro")
+    void mismaClaveDistintoTitular() {
+        Par a = par("1000.00");
+        Par b = otroPar("1000.00");
+
+        SalidaTransferencia salidaA = transferir(a, "100.00", "tr-compartida", Optional.empty());
+        SalidaTransferencia salidaB = transferir(b, "100.00", "tr-compartida", Optional.empty());
+
+        assertThat(salidaB.transaccionId()).isNotEqualTo(salidaA.transaccionId());
+        assertThat(contar(
+                        "SELECT saldo_disponible::int FROM nucleo_financiero.cuenta_billetera WHERE id = ?",
+                        b.origen()))
+                .isEqualTo(900);
     }
 
     @Test

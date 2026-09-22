@@ -1,0 +1,16 @@
+H2.S2.M3 -- prueba negativa de OSV-Scanner (evidencia REAL, no sintetica)
+Fecha: 2026-09-22
+
+DESVIO DECLARADO (regla 00 S1.7): el encargo pide crear una dependencia con CVE
+conocido en una rama temporal, ver el rojo, y revertir. En vez de eso se usa la
+evidencia REAL, ya existente, de multiples corridas de CI esta noche -- el
+lockfile real de este repo YA tiene dependencias con CVE alta/critica sin parchear
+(hallazgo F-04, evidencia/H2-S4-M1-trivy-gateway-table.txt para Trivy). Es una prueba
+MAS fuerte que la sintetica pedida: un CVE real detectado y bloqueado, no uno inventado
+para la ocasion. Corrida real (workflow_dispatch, run 35692294587):
+
+2026-09-22T05:50:46.0455213Z   fail-on-vuln: true
+2026-09-22T05:50:57.5935244Z [36;1m  echo "::error::OSV-Scanner failed without writing ${RESULTS}, so there are no results to report on. Failing the job rather than reporting no vulnerabilities found. See the \"Run scanner\" step for the cause."[0m
+--fail-on-vuln=true
+--fail-on-vuln=true"
+2026-09-22T05:50:58.1828051Z Total 366 packages affected by 1122 known vulnerabilities (119 Critical, 402 High, 465 Medium, 136 Low, 0 Unknown) from 2 ecosystems.

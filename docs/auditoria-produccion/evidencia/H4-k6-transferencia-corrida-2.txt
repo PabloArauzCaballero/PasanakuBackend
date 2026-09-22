@@ -1,0 +1,144 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: /scripts/transferencia.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 5 max VUs, 1m0s max duration (incl. graceful stop):
+              * transferencia: 5 looping VUs for 30s (gracefulStop: 30s)
+
+
+running (0m01.0s), 5/5 VUs, 0 complete and 0 interrupted iterations
+transferencia   [   3% ] 5 VUs  01.0s/30s
+
+running (0m02.0s), 5/5 VUs, 0 complete and 0 interrupted iterations
+transferencia   [   7% ] 5 VUs  02.0s/30s
+
+running (0m03.0s), 5/5 VUs, 5 complete and 0 interrupted iterations
+transferencia   [  10% ] 5 VUs  03.0s/30s
+
+running (0m04.0s), 5/5 VUs, 5 complete and 0 interrupted iterations
+transferencia   [  13% ] 5 VUs  04.0s/30s
+
+running (0m05.0s), 5/5 VUs, 5 complete and 0 interrupted iterations
+transferencia   [  17% ] 5 VUs  05.0s/30s
+
+running (0m06.0s), 5/5 VUs, 10 complete and 0 interrupted iterations
+transferencia   [  20% ] 5 VUs  06.0s/30s
+
+running (0m07.0s), 5/5 VUs, 10 complete and 0 interrupted iterations
+transferencia   [  23% ] 5 VUs  07.0s/30s
+
+running (0m08.0s), 5/5 VUs, 15 complete and 0 interrupted iterations
+transferencia   [  27% ] 5 VUs  08.0s/30s
+
+running (0m09.0s), 5/5 VUs, 15 complete and 0 interrupted iterations
+transferencia   [  30% ] 5 VUs  09.0s/30s
+
+running (0m10.0s), 5/5 VUs, 15 complete and 0 interrupted iterations
+transferencia   [  33% ] 5 VUs  10.0s/30s
+
+running (0m11.0s), 5/5 VUs, 20 complete and 0 interrupted iterations
+transferencia   [  37% ] 5 VUs  11.0s/30s
+
+running (0m12.0s), 5/5 VUs, 20 complete and 0 interrupted iterations
+transferencia   [  40% ] 5 VUs  12.0s/30s
+
+running (0m13.0s), 5/5 VUs, 25 complete and 0 interrupted iterations
+transferencia   [  43% ] 5 VUs  13.0s/30s
+
+running (0m14.0s), 5/5 VUs, 25 complete and 0 interrupted iterations
+transferencia   [  47% ] 5 VUs  14.0s/30s
+
+running (0m15.0s), 5/5 VUs, 25 complete and 0 interrupted iterations
+transferencia   [  50% ] 5 VUs  15.0s/30s
+
+running (0m16.0s), 5/5 VUs, 30 complete and 0 interrupted iterations
+transferencia   [  53% ] 5 VUs  16.0s/30s
+
+running (0m17.0s), 5/5 VUs, 30 complete and 0 interrupted iterations
+transferencia   [  57% ] 5 VUs  17.0s/30s
+
+running (0m18.0s), 5/5 VUs, 35 complete and 0 interrupted iterations
+transferencia   [  60% ] 5 VUs  18.0s/30s
+
+running (0m19.0s), 5/5 VUs, 35 complete and 0 interrupted iterations
+transferencia   [  63% ] 5 VUs  19.0s/30s
+
+running (0m20.0s), 5/5 VUs, 35 complete and 0 interrupted iterations
+transferencia   [  67% ] 5 VUs  20.0s/30s
+
+running (0m21.0s), 5/5 VUs, 40 complete and 0 interrupted iterations
+transferencia   [  70% ] 5 VUs  21.0s/30s
+
+running (0m22.0s), 5/5 VUs, 40 complete and 0 interrupted iterations
+transferencia   [  73% ] 5 VUs  22.0s/30s
+
+running (0m23.0s), 5/5 VUs, 45 complete and 0 interrupted iterations
+transferencia   [  77% ] 5 VUs  23.0s/30s
+
+running (0m24.0s), 5/5 VUs, 45 complete and 0 interrupted iterations
+transferencia   [  80% ] 5 VUs  24.0s/30s
+
+running (0m25.0s), 5/5 VUs, 45 complete and 0 interrupted iterations
+transferencia   [  83% ] 5 VUs  25.0s/30s
+
+running (0m26.0s), 5/5 VUs, 50 complete and 0 interrupted iterations
+transferencia   [  87% ] 5 VUs  26.0s/30s
+
+running (0m27.0s), 5/5 VUs, 50 complete and 0 interrupted iterations
+transferencia   [  90% ] 5 VUs  27.0s/30s
+
+running (0m28.0s), 5/5 VUs, 50 complete and 0 interrupted iterations
+transferencia   [  93% ] 5 VUs  28.0s/30s
+
+running (0m29.0s), 5/5 VUs, 55 complete and 0 interrupted iterations
+transferencia   [  97% ] 5 VUs  29.0s/30s
+
+running (0m30.0s), 5/5 VUs, 55 complete and 0 interrupted iterations
+transferencia   [ 100% ] 5 VUs  30.0s/30s
+
+
+  █ THRESHOLDS 
+
+    http_req_duration
+    ✗ 'p(95)<600' p(95)=2.58s
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 120    3.927945/s
+    checks_succeeded...: 50.00% 60 out of 120
+    checks_failed......: 50.00% 60 out of 120
+
+    ✓ responde (no cae la ruta)
+    ✗ no es 5xx
+      ↳  0% — ✓ 0 / ✗ 60
+
+    HTTP
+    http_req_duration....: avg=2.54s min=2.52s med=2.53s max=2.58s p(90)=2.56s p(95)=2.58s
+    http_req_failed......: 100.00% 60 out of 60
+    http_reqs............: 60      1.963972/s
+
+    EXECUTION
+    iteration_duration...: avg=2.54s min=2.52s med=2.54s max=2.59s p(90)=2.56s p(95)=2.58s
+    iterations...........: 60      1.963972/s
+    vus..................: 5       min=5        max=5
+    vus_max..............: 5       min=5        max=5
+
+    NETWORK
+    data_received........: 34 kB   1.1 kB/s
+    data_sent............: 23 kB   744 B/s
+
+
+
+
+running (0m30.6s), 0/5 VUs, 60 complete and 0 interrupted iterations
+transferencia ✓ [ 100% ] 5 VUs  30s
+time="2026-09-22T04:53:38Z" level=error msg="thresholds on metrics 'http_req_duration' have been crossed"

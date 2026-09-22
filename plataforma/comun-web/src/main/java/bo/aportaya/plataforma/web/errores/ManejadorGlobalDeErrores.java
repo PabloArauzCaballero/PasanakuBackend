@@ -3,6 +3,8 @@ package bo.aportaya.plataforma.web.errores;
 import bo.aportaya.plataforma.dominio.ErrorDeDominio;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.SinContextoDeSesion;
+import bo.aportaya.plataforma.web.idempotencia.IdempotenciaConflicto;
+import bo.aportaya.plataforma.web.idempotencia.IdempotenciaEnProceso;
 import bo.aportaya.plataforma.web.idempotencia.OperacionRepetida;
 import bo.aportaya.plataforma.web.traza.Traza;
 import jakarta.validation.ConstraintViolationException;
@@ -67,6 +69,25 @@ public class ManejadorGlobalDeErrores {
         return ResponseEntity.status(e.codigoHttp())
                 .header("Content-Type", "application/json")
                 .body(e.cuerpo());
+    }
+
+    /**
+     * Misma clave e igual operacion, otro cuerpo: {@code 409}, no {@code 200} y no el
+     * {@code 422} generico de {@link ErrorDeNegocio} — mas especifico que
+     * {@code reglaDeNegocio}, Spring lo prioriza por tipo (H1.S1.M4).
+     */
+    @ExceptionHandler(IdempotenciaConflicto.class)
+    public ResponseEntity<ErrorApi> conflictoDeIdempotencia(IdempotenciaConflicto e) {
+        BITACORA.info("idempotencia: {} con otro cuerpo", e.codigo());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ErrorApi.de(e.codigo().valor(), e.getMessage(), Traza.actual()));
+    }
+
+    /** Hay una carrera (misma identidad reservada, sin respuesta final todavia): {@code 409}. */
+    @ExceptionHandler(IdempotenciaEnProceso.class)
+    public ResponseEntity<ErrorApi> idempotenciaEnProceso(IdempotenciaEnProceso e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ErrorApi.de("AP-CU00-02", e.getMessage(), Traza.actual()));
     }
 
     @ExceptionHandler(SinContextoDeSesion.class)

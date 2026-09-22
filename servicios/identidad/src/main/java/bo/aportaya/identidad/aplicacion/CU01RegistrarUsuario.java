@@ -156,8 +156,7 @@ public class CU01RegistrarUsuario {
             // cuanto dejo de hacer falta. Un `char[]` existe justamente para esto.
             Arrays.fill(entrada.contrasena(), '\0');
 
-            UUID documento = registros.guardarDocumento(
-                    dsl, usuario, entrada.documento(), entrada.numeroCifrado());
+            UUID documento = registros.guardarDocumento(dsl, usuario, entrada.documento(), entrada.numeroCifrado());
             registros.iniciarVerificacion(dsl, usuario, documento, "BASICO", ahora);
             registros.registrarConsentimientos(dsl, usuario, FINALIDADES, entrada.ip(), entrada.agente(), ahora);
 
