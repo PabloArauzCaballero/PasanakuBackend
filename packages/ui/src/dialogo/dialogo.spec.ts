@@ -144,7 +144,7 @@ describe('Dialogo · una sola política de descarte (H3.S2.M2)', () => {
     const llamadasDeEstaCaja = agregar.mock.calls.filter((_, i) => agregar.mock.instances[i] === caja)
     // Antes de destruir: una escucha agregada, ninguna sacada todavía.
     expect(llamadasDeEstaCaja).toHaveLength(1)
-    expect(llamadasDeEstaCaja[0][0]).toBe('click')
+    expect(llamadasDeEstaCaja[0]?.[0]).toBe('click')
     const quitar = vi.spyOn(caja, 'removeEventListener')
     expect(quitar).not.toHaveBeenCalled()
     fixture.destroy()
