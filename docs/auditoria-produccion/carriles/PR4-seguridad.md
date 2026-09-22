@@ -312,7 +312,15 @@ Total H4: **25/25 PASS** contra PostgreSQL real (Testcontainers, no simulado).
 
 **Estado: A MEDIAS.**
 
-- H6.S1 (PIT) — **TODO**, declarado con la razón exacta y el siguiente paso en
+- H6.S1 (PIT) — **HECHO**, en un micro-PR SEPARADO
+  (`marcelo/chore/pitest-plugin`, PR #17 contra `dev`, no en esta rama) porque
+  toca `buildSrc/`+`gradle/libs.versions.toml` — el propio catálogo se declara
+  "MICRO-PR, nunca una rama de carril". `info.solidsoft.pitest` 1.19.0 +
+  `pitest-junit5-plugin` 1.2.3, corrido de verdad contra Gradle 9.7.1 (dos
+  incompatibilidades reales encontradas y corregidas — accessor tipado no
+  generado en un plugin de convención, y un `strictly` de PIT sobre
+  `junit-platform-launcher` que chocaba con el BOM de Spring Boot). Resultado:
+  `VerificadorDeFirmaWebhook` 12/12 mutantes matados (100%). Detalle completo en
   `docs/auditoria-produccion/mutation-testing.md`.
 - H6.S2.M1 (inventario `TODO`/`FIXME`) — **HECHO**:
 
