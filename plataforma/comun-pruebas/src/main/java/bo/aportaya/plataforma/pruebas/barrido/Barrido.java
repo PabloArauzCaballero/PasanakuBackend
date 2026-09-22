@@ -53,6 +53,21 @@ public final class Barrido {
                 .isEmpty();
     }
 
+    /**
+     * clave-idempotencia-suelta (ADR-046): {@code .where(DSL.field("clave_idempotencia")}
+     * sin {@code .and(...)} en la misma sentencia. Opt-in, no forma parte de la plantilla
+     * de {@code nuevo_servicio.py}: cada servicio tiene su propio diseño de
+     * {@code clave_idempotencia} (columnas, tabla, unicidad), y esta regla es especifica
+     * del helper {@code Idempotencia} de {@code comun-web} — aplicarla a ciegas en todo el
+     * monorepo gritaria sobre columnas de otros servicios que no tienen nada que ver.
+     */
+    public void ningunaClaveIdempotenciaSuelta() {
+        assertThat(describir(ClaveIdempotenciaSuelta.revisar(soloProduccion())))
+                .as("clave-idempotencia-suelta (ADR-046): la identidad es (usuario_id, operacion,"
+                        + " clave_idempotencia), nunca la clave sola")
+                .isEmpty();
+    }
+
     private List<String> describir(List<Hallazgo> hallazgos) {
         return hallazgos.stream().map(h -> h.describir(raiz)).toList();
     }

@@ -155,8 +155,9 @@ protegiendo el error contra la corrección.
       `IdempotenciaEnProceso` → `409 AP-CU00-02`.
 - [x] `aportaya.idempotencia.vigencia` (default `PT24H`) reemplaza el literal fijo
       (H1.S2.M1).
-- [ ] `./gradlew testBarrido` con la regla de `clave_idempotencia` sin otra condición
-      en la misma cadena (H1.S3.M2).
+- [x] `./gradlew testBarrido` con la regla `clave-idempotencia-suelta` (H1.S3.M2):
+      `.where(clave_idempotencia)` sin `.and(...)` en la misma sentencia, opt-in por
+      módulo (conectada en `comun-web`, donde vive `Idempotencia`).
 
 ## Ver también
 

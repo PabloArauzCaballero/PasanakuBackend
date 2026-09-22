@@ -43,7 +43,7 @@ public final class Idempotencia {
     private static final String CUERPO_RESERVA = "{}";
 
     /** Una respuesta guardada con este codigo o mas no se repite: no es un exito que replayar. */
-    private static final short UMBRAL_TRANSITORIO = 500;
+    private static final short CODIGO_HTTP_SERVIDOR = 500;
 
     private final String esquema;
     private final Reloj reloj;
@@ -132,7 +132,7 @@ public final class Idempotencia {
             Record previa) {
         boolean expirada = previa.get(3, OffsetDateTime.class).toInstant().isBefore(ahora);
         short codigoPrevio = previa.get(1, Short.class);
-        boolean transitoria = codigoPrevio >= UMBRAL_TRANSITORIO;
+        boolean transitoria = codigoPrevio >= CODIGO_HTTP_SERVIDOR;
 
         if (expirada || transitoria) {
             // Se reutiliza la fila: misma identidad, nueva vigencia. No es un INSERT nuevo
