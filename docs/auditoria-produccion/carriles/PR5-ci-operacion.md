@@ -1,7 +1,7 @@
 # Carril PR5 — CI y operación (Pablo, turno noche 2026-09-21)
 
 > **AVANCE: 41 / 54 — 75,9 %.** (+ 1 BLOQUEADO con causa autorizada por el encargo, + 1 BLOQUEADO
-> por decisión de negocio pendiente — H2.S5.M3 —, + 2 A MEDIAS: H2.S1.M2, H2.S6.M2)
+> por decisión de negocio pendiente — H2.S5.M3 —, + 3 A MEDIAS: H2.S1.M2, H2.S6.M2, H5.S3.M3)
 > **Estado:** `IN_PROGRESS`. PRs abiertos: [#1](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/1)
 > (estándar + spotless), [#2](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/2)
 > (micro-PR troncal: catálogo CycloneDX + Redis). Ninguno mergeado todavía — el clasificador de
@@ -29,7 +29,7 @@ Encargo: [repartos/2026-09-21/PromptNoche/Backend/Pablo/PR5-Ci.Operacion/CiRealS
 | H2 — CI verde sin trampas | 20 | 16 | EN CURSO (2 A MEDIAS: S1.M2, S6.M2; 1 BLOQUEADO: S5.M3; S6.M5 bloqueado por F-04/F-06/F-07, fuera de mi alcance) |
 | H3 — Borde | 7 | 7 | **HECHO** — rate limiting, CORS y bloqueo de `/actuator` con evidencia real |
 | H4 — Carga medida | 3 | 3 | **HECHO** — 6 escenarios k6 reales, `transferencia.js` con baseline ×3 completo |
-| H5 — Runbooks, cierre | 12 | 7 | EN CURSO (S3.M3/M4 y S4 completo sin empezar) |
+| H5 — Runbooks, cierre | 12 | 7 | EN CURSO (S3.M3 A MEDIAS; S3.M4 y S4 bloqueados estructuralmente por F-04/F-06/F-07 hasta que se corrijan fuera de mi alcance) |
 | **TOTAL** | **54** | **41** | |
 
 ## H3.S1 — resumen (rate limiting real con Redis)
@@ -182,7 +182,7 @@ en `buildSrc` que no depende de ningún merge (commit `8c6bc4d`).
 |---|---|---|---|
 | H1.S1.M1 | `docs/auditoria-produccion/{PLAN.md,carriles,contratos,evidencia}` ya existían (copiados en el reparto) | `test -f docs/auditoria-produccion/PLAN.md && ls docs/auditoria-produccion` | PASS |
 | H1.S1.M2 | `baseline.md` §Estado con las 8 líneas; `auditar_backend.py --json` guardado | ver [baseline.md](../baseline.md), [evidencia/H1-S1-M2-estado.txt](../evidencia/H1-S1-M2-estado.txt), [evidencia/H1-auditar-backend-inicial.json](../evidencia/H1-auditar-backend-inicial.json) | PASS, exit=0 |
-| — | Base compose (`postgres`, `pgbouncer`, `minio`, `kafka`, `nginx`, `gateway`) arriba con override local de puerto | `docker compose -f despliegue/compose/base.yml -f despliegue/compose/local-override.postgres.yml --profile base up -d --wait` | Todos `Healthy` salvo `minio-bucket` (job, exit 0) |
+| — | Base compose (`postgres`, `pgbouncer`, `minio`, `kafka`, `nginx`, `gateway`) arriba con el puerto de Postgres configurable (F-03) | `APORTAYA_PG_PORT=5435 docker compose -f despliegue/compose/base.yml --profile base up -d --wait` (corrección: el fix real de F-03 quedó como variable de entorno inline en `base.yml` línea 51, no como archivo de override aparte — esa referencia era una nota vieja) | Todos `Healthy` salvo `minio-bucket` (job, exit 0) |
 | — | `verificar_boveda.py` corregido tras instalar el estándar (índice de skills) | `python3 scripts/verificar_boveda.py` | exit=0, `TODO OK` — [evidencia/H1-verificar-boveda.txt](../evidencia/H1-verificar-boveda.txt) |
 | H1.S2.M1 | `spotlessCheck` con la lista de archivos que fallan (rojo real, hoy en `dev`) | `./gradlew spotlessCheck` | FAIL documentado — [evidencia/H1-S2-M1-spotless.txt](../evidencia/H1-S2-M1-spotless.txt); corregido aparte en H2.S1 (commit `ff85331`, PR #1, sin mergear) |
 | H1.S2.M2 | `check -x test` (estático, ArchUnit, `sinJpa`) | `./gradlew check -x test -x jacocoTestCoverageVerification -x jacocoTestReport` | PASS tras aplicar esquema y regenerar jOOQ — [evidencia/H1-S2-M2-check.txt](../evidencia/H1-S2-M2-check.txt) |
@@ -198,8 +198,6 @@ son trabajo de entorno necesario para poder ejecutar H1, no microtareas propias 
 
 ## A medias
 
-Ninguna todavía.
-
 ### H1.S2.M6 — `e2eTest` (BLOQUEADO, con causa explícitamente autorizada por el encargo)
 
 - **Qué anda:** el CA del encargo autoriza literalmente este resultado: "o `BLOCKED` con causa si
@@ -210,6 +208,27 @@ Ninguna todavía.
 - **Qué falta exactamente:** correr `docker build` por servicio siguiendo el README, luego
   `./gradlew e2eTest` contra `compose --profile todo`.
 - **Dónde quedó:** nada escrito en disco para esto todavía; es la microtarea H1.S2.M6 sin tocar.
+
+### H5.S3.M3 — checkout limpio en worktree
+
+- **Qué anda:** `git worktree add ../pr-limpio e1656e1` (SHA final al momento de correrlo);
+  `docker compose --profile base up -d --wait` desde cero (volúmenes nuevos) → todos `Healthy`;
+  `sql/aplicar.sql` sobre base vacía → exit 0; `docker build` de `identidad` desde el worktree con
+  el mismo patrón que usa `ci.yml` → exit 0, `User: app` confirmado; Trivy local contra esa imagen
+  recién construida → corrió de punta a punta (32 hallazgos, 9 CRITICAL/23 HIGH — mismos CVE base
+  que F-04, más algunos nuevos por la base de datos de Trivy actualizándose sola, no por nada de
+  este carril).
+- **Qué no anda:** `./gradlew verificarProduccion` reprodujo el mismo `FAILED` que F-06
+  (`comun-web` jacoco) en un ambiente completamente limpio — confirma que el hallazgo es
+  determinista, no un artefacto de esta máquina en particular. `e2eTest` no se ejecutó: mismo
+  motivo ya autorizado en H1.S2.M6 (construir las 14 imágenes de servicio restantes es trabajo de
+  horas, no intentado en esta pasada).
+- **Qué falta exactamente:** que `plataforma/comun-web` (F-06) y `servicios/identidad` (F-07)
+  suban su cobertura para que `verificarProduccion` llegue a exit 0; construir las 14 imágenes de
+  servicio restantes para poder correr `e2eTest` de verdad.
+- **Dónde quedó:** worktree en `../pr-limpio` (fuera del repo principal, no comiteado — es
+  descartable); imagen `aportaya/identidad:checkout-limpio` en el Docker local. Evidencia completa
+  en [evidencia/H5-S3-M3-checkout-limpio.txt](../evidencia/H5-S3-M3-checkout-limpio.txt).
 
 ## Bloqueado
 
