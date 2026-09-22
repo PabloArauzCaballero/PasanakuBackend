@@ -86,7 +86,9 @@ export class PantallaDeEstadosFinancieros {
   private readonly enviarGeneracion = crearGeneracion()
   private readonly pedirDocumento = crearDescarga()
 
-  protected etiquetaDeTipo = (tipo: TipoDeEstadoFinanciero) => this.t.tipos[tipo]
+  // Aserción sobre el ÍNDICE, no sobre el contrato: `t.tipos` es un diccionario local de
+  // traducción con claves literales; esto no cambia el comportamiento si `tipo` no está.
+  protected etiquetaDeTipo = (tipo: TipoDeEstadoFinanciero) => this.t.tipos[tipo as keyof typeof this.t.tipos]
 
   /** El hash viaja tal cual llegó del backend: acá solo se lo nombra y se lo muestra. */
   protected datosDe(g: EstadoFinancieroGenerado) {

@@ -1,0 +1,40 @@
+❯ Building...
+✔ Building...
+Initial chunk files | Names                         |  Raw size | Estimated transfer size
+chunk-4dxwDcql.js   | -                             | 181.75 kB |                52.97 kB
+main-ZWP3D6SR.js    | main                          | 135.05 kB |                36.68 kB
+chunk-BnPjHVjq.js   | -                             |  14.84 kB |                 4.67 kB
+styles-LU4JCQML.css | styles                        |   5.34 kB |                 1.24 kB
+chunk-31URoned.js   | -                             |   1.83 kB |               678 bytes
+
+                    | Initial total                 | 338.81 kB |                96.24 kB
+
+Lazy chunk files    | Names                         |  Raw size | Estimated transfer size
+chunk-DbCv3m4V2.js  | -                             |  37.45 kB |                10.20 kB
+chunk-Bbxr2Bbg.js   | pantalla-centro-de-ayuda      |  17.34 kB |                 4.81 kB
+chunk-Bekan9g4.js   | pantalla-de-compras           |  14.80 kB |                 4.51 kB
+chunk-ChqxwLEF.js   | catalogo                      |  14.37 kB |                 4.20 kB
+chunk-on1RoGpN.js   | pantalla-de-expedientes       |  10.91 kB |                 3.52 kB
+chunk-B-bJU_Kb.js   | pantalla-de-ingreso           |   9.40 kB |                 3.24 kB
+chunk-Ub9H6z8j.js   | -                             |   9.12 kB |                 3.14 kB
+chunk-JJIN3VT82.js  | pantalla-de-caso              |   8.99 kB |                 2.88 kB
+chunk-WnxuW6Cd.js   | pantalla-de-cobros            |   7.96 kB |                 2.92 kB
+chunk-Bs6vefnS2.js  | globo-de-tutorial             |   7.61 kB |                 2.56 kB
+chunk-DmnOkzbh.js   | pantalla-despliegues          |   7.21 kB |                 2.53 kB
+chunk-Cl2591k02.js  | -                             |   6.80 kB |                 2.30 kB
+chunk-BE7LlyUQ.js   | pantalla-de-periodo           |   6.46 kB |                 2.33 kB
+chunk-D1hv64aI.js   | cola-de-solicitudes-escaladas |   6.11 kB |                 2.27 kB
+chunk-C79biCT72.js  | pantalla-de-estado            |   6.05 kB |                 2.40 kB
+...and 66 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [9.804 seconds] - 2026-09-22T13:52:28.917Z
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8102: NG8102: The left side of this nullish coalescing operation does not include 'null' or 'undefined' in its type, therefore the '??' operator can be safely removed. Find more at https://v22.angular.dev/extended-diagnostics/NG8102[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/cumplimiento/verificaciones/pantalla-de-expedientes.ts:67:38:
+[37m      67 │ ...            <p class="doc">{{ [32me.documento ?? t.sinDocumento[37m }}</p>
+         ╵                                  [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+Output location: C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-richard-pr6\apps\backoffice\dist\backoffice
+
