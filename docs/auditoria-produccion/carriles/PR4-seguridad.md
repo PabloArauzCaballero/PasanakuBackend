@@ -226,8 +226,28 @@ completo. Lo real y verificado sin necesitar el build Java:
 
 ## H4 — RLS, grants, append-only, esquema desde cero
 
-**Estado: A MEDIAS.** Hallazgos reales, sin construir todavía los tests
-parametrizados por servicio (H4.S1.M2).
+**Estado: A MEDIAS** (mejoró: los tests parametrizados por servicio y
+`AppendOnlyTest` ya corrieron contra PostgreSQL real, con JDK 21 nativo, esta
+misma sesión — no quedan sólo como hallazgos de lectura de código).
+
+**Evidencia literal, corrida real, 2026-09-22:**
+
+```
+$ ./gradlew :plataforma:comun-pruebas:integrationTest --tests '*AislamientoEsquemaTest*'
+TEST-bo.aportaya.plataforma.pruebas.AislamientoEsquemaTest.xml → tests="15" failures="0" errors="0"
+  (14 parametrizados: ningunServicioLeeElEsquemaAjeno × cada uno de los 14 servicios
+   + 1: soloElNucleoEscribeElLibro)
+
+$ ./gradlew :servicios:aportes:integrationTest --tests '*AislamientoEsquemaTest*'
+  (BD_URL_ADMIN=jdbc:postgresql://localhost:5543/pasanaku)
+TEST-bo.aportaya.aportes.AislamientoEsquemaTest.xml → tests="2" failures="0" errors="0"
+  (svcAportesNoSalteaLaPoliticaDeFila, rolAuditorNoEsMiembroDeRolAplicacion)
+
+$ ./gradlew :servicios:nucleo-financiero:integrationTest --tests '*AppendOnlyTest*'
+TEST-bo.aportaya.nucleofinanciero.AppendOnlyTest.xml → tests="8" failures="0" errors="0"
+```
+
+Total H4: **25/25 PASS** contra PostgreSQL real (Testcontainers, no simulado).
 
 - **RLS real y extensa, más allá de lo que `AislamientoEsquemaTest` cubre hoy**:
   `sql/40_reglas/restricciones.sql:1260-1296` aplica `ENABLE`/`FORCE ROW LEVEL
