@@ -95,6 +95,40 @@ describe('FormularioDeCaso · contrato de vista', () => {
     expect(fixture.nativeElement.textContent).toContain('Elegí una causal')
   })
 
+  it('no muta los arreglos que recibe (etapas, causales) al interactuar', () => {
+    const etapas = [{ nombre: 'Causal', descripcion: 'd' }]
+    const causales = [{ valor: 'X', texto: 'X' }]
+    const etapasOriginal = JSON.stringify(etapas)
+    const causalesOriginal = JSON.stringify(causales)
+
+    TestBed.resetTestingModule()
+    TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection()] })
+    const fixture = TestBed.createComponent(FormularioDeCaso)
+    fixture.componentRef.setInput('etapas', etapas)
+    fixture.componentRef.setInput('etapaActual', 0)
+    fixture.componentRef.setInput('causales', causales)
+    fixture.componentRef.setInput('causalElegida', null)
+    fixture.componentRef.setInput('narrativa', '')
+    fixture.componentRef.setInput('borradorRecuperado', false)
+    fixture.componentRef.setInput('puedeConfirmar', false)
+    fixture.componentRef.setInput('textoCausal', 'Causal')
+    fixture.componentRef.setInput('textoSinCausal', 'Elegí una causal')
+    fixture.componentRef.setInput('textoBorradorRecuperado', 'Se recuperó un borrador')
+    fixture.componentRef.setInput('textoConfirmar', 'Confirmar')
+    fixture.detectChanges()
+
+    const radio = fixture.nativeElement.querySelector('input[type="radio"]') as HTMLInputElement
+    radio.click()
+    fixture.detectChanges()
+    const area = fixture.nativeElement.querySelector('textarea') as HTMLTextAreaElement
+    area.value = 'x'
+    area.dispatchEvent(new Event('input'))
+    fixture.detectChanges()
+
+    expect(JSON.stringify(etapas)).toBe(etapasOriginal)
+    expect(JSON.stringify(causales)).toBe(causalesOriginal)
+  })
+
   it('muestra el aviso de borrador recuperado solo cuando el input lo indica', () => {
     const sinAviso = montar({ borradorRecuperado: false })
     expect(sinAviso.nativeElement.textContent).not.toContain('Se recuperó un borrador')

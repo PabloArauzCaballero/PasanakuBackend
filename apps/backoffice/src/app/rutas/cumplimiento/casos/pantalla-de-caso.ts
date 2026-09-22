@@ -56,17 +56,30 @@ export class PantallaDeCaso implements OnInit {
   protected readonly CATALOGO_DE_CAUSALES = CATALOGO_DE_CAUSALES
 
   readonly casoId = input.required<string>()
-  readonly caso = input<CasoDeCumplimiento>({
-    id: 'demo',
-    causal: null,
-    notificadoEn: null,
-    plazoVenceEn: null,
-    descargo: null,
-    decisionMotivada: null,
-    apelacionResueltaPor: null,
-  })
+  /**
+   * HALLAZGO (E2E real, `caso-de-cumplimiento.e2e.ts`): `withComponentInputBinding()`
+   * deja este input en `undefined` cuando se llega por una navegación real (no por
+   * `TestBed.createComponent` sin setear el input, que sí respeta el valor por defecto
+   * de `input()`) — el router no tiene de dónde sacar un `caso` real todavía (`Q-R1` del
+   * carril madre) y el binding automático pisa el default en vez de dejarlo. Por eso el
+   * "valor por omisión" se resuelve con un `computed()` (`casoResuelto`), no con el
+   * argumento de `input()`, que demostró no ser confiable contra el router real.
+   */
+  readonly caso = input<CasoDeCumplimiento | undefined>(undefined)
+  private readonly casoResuelto = computed<CasoDeCumplimiento>(
+    () =>
+      this.caso() ?? {
+        id: 'demo',
+        causal: null,
+        notificadoEn: null,
+        plazoVenceEn: null,
+        descargo: null,
+        decisionMotivada: null,
+        apelacionResueltaPor: null,
+      },
+  )
 
-  protected readonly progreso = computed(() => etapasDelCaso(this.caso()))
+  protected readonly progreso = computed(() => etapasDelCaso(this.casoResuelto()))
   protected readonly causal = signal<string | null>(null)
   protected readonly narrativa = signal('')
   protected readonly borradorRecuperado = signal(false)
