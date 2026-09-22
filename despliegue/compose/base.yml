@@ -192,6 +192,10 @@ services:
     container_name: aportaya-gateway
     profiles: [base, dinero, todo]
     networks: [interna]
+    # H2.S4.M3: mismo endurecimiento que los 14 servicios (generar_compose.py).
+    read_only: true
+    tmpfs:
+      - /tmp
     environment:
       SPRING_PROFILES_ACTIVE: local
     healthcheck:
