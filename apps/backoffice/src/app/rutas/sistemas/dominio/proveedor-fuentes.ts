@@ -21,6 +21,11 @@ export { ES_FUENTE_SIMULADA, detectarModoFuentesDeSistemas, type ModoFuentesDeSi
  * `yarn workspace @aportaya/backoffice build`, ver `defaultConfiguration`) no tiene
  * ningún `fileReplacements` para este archivo: se queda con este, el seguro.
  */
-export function provideFuentesDeSistemas(_modo: ModoFuentesDeSistemas): Provider[] {
+export function provideFuentesDeSistemas(modo: ModoFuentesDeSistemas): Provider[] {
+  // El parámetro se ignora a propósito: esta versión es segura pase lo que pase en
+  // `modo` (ver el comentario de arriba). Se mantiene en la firma para que sea
+  // intercambiable con `proveedor-fuentes.demo.ts` por `fileReplacements` sin que el
+  // punto de llamada (`sistemas.routes.ts`) tenga que saber cuál de las dos está.
+  void modo
   return proveedoresFuenteNoDisponible()
 }
