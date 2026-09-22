@@ -10,9 +10,9 @@ fecha: 2026-09-22
 # ADR-046 — Alcance de la idempotencia
 
 > Carril PR3-plataforma (Leo), H1. Extiende [[ADR-024 Autenticación y sesión distribuida]]
-> (de ahí sale `ContextoSesion.usuarioId()`) y precede a
-> [[ADR-047 Semántica de entrega del outbox.md|ADR-047]] (H2), que es el otro lado del
-> mismo problema: publicar sin publicar dos veces.
+> (de ahí sale `ContextoSesion.usuarioId()`) y precede al ADR de H2 (Relevo/outbox, todavía
+> sin escribir a la fecha de este documento), que es el otro lado del mismo problema:
+> publicar sin publicar dos veces.
 
 ## Contexto
 
@@ -86,15 +86,28 @@ resultado), y `CU09` emite una credencial nueva (irreversible: la vieja queda in
 Los resuelve Marcelo en su barrido de código muerto, con esta decisión como base — este
 carril no toca `servicios/**`.
 
+## Motivo
+
+**Porque una reserva sin identidad completa no es una reserva de nadie en particular.**
+El índice único del que este ADR parte —`(usuario_id, clave_idempotencia, operacion)`—
+ya existía en `sql/`; el código simplemente no lo reflejaba, y el hueco entre "lo que
+la base exige" y "lo que el código pregunta" es exactamente donde vivía el defecto (1)
+y (2) del contexto.
+
+**Porque replayar una falla transitoria es peor que no tener idempotencia.** Un `503`
+guardado y repetido para siempre convierte un problema de un instante en uno
+permanente para ese cliente — la clave que debía proteger contra la red termina
+protegiendo el error contra la corrección.
+
 ## Qué NO se decidió acá
 
-- **La vigencia (`aportaya.idempotencia.vigencia`, hoy `Duration.ofDays(1)` fijo en
-  código) todavía no sale a configuración.** Es H1.S2.M1, con su propia prueba de
-  `testBarrido` (`SinUmbralLiteral`). Este ADR ya deja el `Reloj` inyectado
-  (`Idempotencia(esquema, reloj)`), que es el prerequisito.
 - **Qué esquemas además de `nucleo_financiero` tienen `respuesta_idempotente`.** Es
-  H1.S2.M3, vía `scripts/generar_ddl.py` y micro-PR al troncal, una vez que Marcelo
-  aplique la lista de arriba a los CU reales.
+  H1.S2.M3, vía `scripts/generar_ddl.py` y micro-PR al troncal. **Bloqueado por un
+  hallazgo real** (no solo pendiente): `sql/40_reglas/restricciones.sql` aplica los
+  `CHECK` de esta tabla con `ALTER TABLE respuesta_idempotente` sin calificar esquema,
+  bajo un `search_path` compartido por los 14 esquemas — con la tabla en más de uno,
+  el `CHECK` solo alcanzaría al primero del `search_path`. Ver
+  `docs/auditoria-produccion/carriles/PR3-plataforma.md` §Hallazgo H1.S2.M3.
 
 ## Alternativas descartadas
 
@@ -105,6 +118,34 @@ carril no toca `servicios/**`.
 | Repetir también las respuestas `5xx` | Convierte una falla transitoria del servidor en una falla permanente para el cliente: reintentar jamás progresa hasta que la fila expira. |
 | DELETE + INSERT para reutilizar una reserva vencida/transitoria, en vez de UPDATE in situ | Mismo resultado, pero dos sentencias contra el índice único en vez de una, sin ninguna ventaja: se prefiere el UPDATE porque es una sola operación atómica. |
 
+## Consecuencias
+
+**A favor**
+
+- Dos usuarios (o dos operaciones) nunca vuelven a compartir la respuesta del otro por
+  reusar una `Idempotency-Key` — el defecto (1)/(2) del contexto es estructuralmente
+  imposible ahora, no solo "corregido en el caso que se probó".
+- Una falla transitoria del backend ya no le cierra la puerta al cliente: un `503`
+  guardado no bloquea el reintento.
+- `aportaya.idempotencia.vigencia` es config (H1.S2.M1): un plazo que hoy es correcto
+  puede cambiar sin desplegar código nuevo.
+
+**En contra, y hay que asumirlo**
+
+- **Cuatro excepciones en vez de una.** `OperacionRepetida`, `IdempotenciaEnProceso`,
+  `IdempotenciaConflicto` y el `ErrorDeNegocio` genérico son cuatro caminos donde antes
+  había uno solo (siempre `OperacionRepetida`). Quien integra el helper tiene que saber
+  cuál corresponde a cada caso — documentado en la tabla de "Decisión", no es intuible
+  del nombre del método.
+- **`respuesta_idempotente` en más de un esquema expone el hallazgo de
+  `restricciones.sql`** (ver "Qué NO se decidió acá"): hasta que se corrija el
+  generador, cada esquema nuevo que adopte el helper es, en los hechos, un esquema sin
+  los `CHECK` de integridad de la tabla — un riesgo real, no solo teórico, que este ADR
+  no resuelve por sí mismo.
+- **`CU00` no es un caso de uso real.** Es una convención (ya usada por `AP-SES-01` /
+  `AP-SEG-01` / `AP-VAL-0n`) para infraestructura transversal; alguien que busque "CU 0"
+  en `docs/CasosDeUso/` no lo va a encontrar, y eso hay que saberlo de antemano.
+
 ## Cómo se verifica
 
 - [x] `IdempotenciaRepositorioTest` — 10 casos (Testcontainers PostgreSQL, esquema
@@ -112,9 +153,11 @@ carril no toca `servicios/**`.
       hilos, expirada, rollback, fallo tras reservar, reintento tras error transitorio.
 - [x] `ManejadorGlobalDeErroresWebTest` — `IdempotenciaConflicto` → `409 AP-CU00-01`,
       `IdempotenciaEnProceso` → `409 AP-CU00-02`.
+- [x] `aportaya.idempotencia.vigencia` (default `PT24H`) reemplaza el literal fijo
+      (H1.S2.M1).
 - [ ] `./gradlew testBarrido` con la regla de `clave_idempotencia` sin otra condición
       en la misma cadena (H1.S3.M2).
 
 ## Ver también
 
-[[ADR-024 Autenticación y sesión distribuida]] · [[ADR-047 Semántica de entrega del outbox.md|ADR-047 Semántica de entrega del outbox]] · `docs/auditoria-produccion/carriles/PR3-plataforma.md`
+[[ADR-024 Autenticación y sesión distribuida]] · `docs/auditoria-produccion/carriles/PR3-plataforma.md`
