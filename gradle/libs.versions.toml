@@ -24,6 +24,15 @@ jooq               = "3.20.5"      # generador Y libreria: separarlos genera cod
 driver-postgresql  = "42.7.7"      # solo para el generador y los contenedores
 cyclonedx          = "3.4.1"       # SBOM por modulo desplegable (H2.S3), verificado contra
                                     # github.com/CycloneDX/cyclonedx-gradle-plugin el 2026-09-21
+pitest             = "1.19.0"      # mutation testing (H6.S1). Verificado contra
+                                    # github.com/szpak/gradle-pitest-plugin el 2026-09-22: la doc
+                                    # publicada solo confirma smoke test hasta Gradle 7.4.2 (no hay
+                                    # confirmacion oficial de Gradle 9.x); se aplica como convencion
+                                    # OPCIONAL (aportaya.mutacion), nunca en el build por omision,
+                                    # y se corrio de verdad contra Gradle 9.7.1 antes de este commit
+                                    # (ver docs/auditoria-produccion/mutation-testing.md).
+pitest-junit5      = "1.2.3"       # pitest-junit5-plugin: version para JUnit Jupiter 5.11+ (Spring
+                                    # Boot 3.5.6 BOM), segun la propia doc de gradle-pitest-plugin.
 
 [libraries]
 # — Spring Boot (version del BOM) —
@@ -118,3 +127,4 @@ spring-dep-mgmt   = { id = "io.spring.dependency-management", version.ref = "spr
 spotless          = { id = "com.diffplug.spotless", version.ref = "spotless" }
 openapi-generator = { id = "org.openapi.generator", version.ref = "openapi-generator" }
 cyclonedx         = { id = "org.cyclonedx.bom", version.ref = "cyclonedx" }
+pitest            = { id = "info.solidsoft.pitest", version.ref = "pitest" }
