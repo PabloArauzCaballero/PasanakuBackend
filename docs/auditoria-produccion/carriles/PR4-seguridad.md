@@ -285,13 +285,27 @@ Total H4: **25/25 PASS** contra PostgreSQL real (Testcontainers, no simulado).
   contable (nucleo_financiero). NO cubre: `FORCE RLS` en sí (que el dueño de una
   tabla no pueda saltarla), `rol_auditor` en la práctica (arriba), ni "migración con
   privilegios limitados".
-- H4.S2.M1–M2 (esquema desde cero, re-aplicación con datos) — **TODO**:
-  `aportaya-postgres` (compose) está arriba y sano, pero el esquema no se aplicó
-  todavía en esta corrida (bloqueado por el mismo presupuesto de tiempo consumido en
-  estabilizar el entorno Docker, ver `evidencia/H1-entorno-docker.md`).
+- H4.S2.M1–M2 (esquema desde cero, re-aplicación con datos) — **HECHO**: corrido
+  contra un contenedor PostgreSQL 16 aislado y descartable (NUNCA contra
+  `aportaya-postgres`, el compose compartido con los demás carriles), destruido
+  al terminar. `sql/aplicar.sql` sobre base vacía → `EXIT=0`, 401 tablas.
+  Sembrado `60_semillas/sembrar.sql` + `61_dev/sembrar_dev.sql` + una fila
+  sintética propia (`identidad.usuario` con `codigo_publico='H4SINT0001'`) → 401
+  tablas, 1543 filas totales (conteo exacto, tabla por tabla). Re-aplicado
+  `aplicar.sql` completo sobre esa misma base ya poblada → `EXIT=0`, **1543
+  filas totales, sin una sola diferencia** (`diff` de los dos snapshots exactos,
+  byte a byte), fila sintética incluida. Confirma en la práctica que la política
+  aditiva de Q-01/AMB-7 no es solo una intención: re-aplicar el DDL completo no
+  pierde ni una fila. Evidencia completa:
+  `evidencia/H4-esquema-desde-cero.md`.
 - H4.S2.M3 (documento de migraciones) — **HECHO**: `docs/operacion/schema-changes.md`.
-- H4.S2.M4 (guarda de semillas dev) — **REFERENCIADO, no reproducido**: el paso
-  existe en `ci.yml` job `base`; no se corrió localmente en esta corrida.
+- H4.S2.M4 (guarda de semillas dev) — **HECHO**: la guarda es real y se ejercitó
+  de verdad en H4.S2.M2 — `sembrar_dev.sql` exige `app.entorno = 'dev'` a nivel
+  de base de datos (`ALTER DATABASE ... SET app.entorno = 'dev'`) o aborta con
+  `RAISE EXCEPTION`; sin ese `ALTER DATABASE` explícito, las semillas de
+  desarrollo NO entran a ninguna base (confirmado corriéndolo con y sin la
+  variable puesta). El paso equivalente en CI (`ci.yml`, job `base`) queda como
+  referencia adicional, no como la única evidencia.
 
 ## H5 — Auditoría append-only y matriz de seguridad
 
