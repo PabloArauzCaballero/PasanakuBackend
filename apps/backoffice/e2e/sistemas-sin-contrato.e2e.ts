@@ -1,26 +1,29 @@
 import { expect, test } from '@playwright/test'
+import { abrirSesionDePruebaYNavegar } from './apoyo/sesion-de-prueba'
 
 /**
  * H2.S2.M6 — sin modo demo, las nueve rutas de `sistemas/` muestran el error
  * accionable ("la fuente no está disponible"), nunca los datos de ejemplo
  * (`99.95%` y compañía).
  *
- * HALLAZGO HEREDADO (carril F12, `tablero-y-permisos.e2e.ts` lo documenta primero):
- * no existe ninguna pantalla de login en `apps/backoffice` ni un `APP_INITIALIZER`
- * que abra sesión — `Sesion.permisos()` empieza vacío en toda carga real, y
- * `sistemas.routes.ts` está detrás de DOS barreras (`canMatch: [requierePermiso(
- * 'ver:sistemas')]` en la ruta padre — de F6/app.routes.ts, congelada — y
- * `canMatch: [soloRolesDeSistemas]` acá mismo). Sin sesión, las nueve rutas
- * redirigen a `/tablero` antes de montar cualquier pantalla — ni siquiera llegan a
- * pedir datos, así que el error accionable no se ve (tampoco los mocks: se
- * comprueba con el kill-test de `yarn workspace @aportaya/backoffice build`, no acá).
+ * ACTUALIZACIÓN sobre el hallazgo heredado del carril F12: el comentario original de
+ * este archivo decía "no existe ninguna pantalla de login" y que las nueve rutas
+ * redirigían a `/tablero` sin sesión. Corrida de verdad contra el código de este
+ * checkout, ninguna de las dos cosas es cierta hoy:
+ *   - `2025a43 feat: el backoffice tiene por donde entrar` agregó `/ingreso`
+ *     (`PantallaDeIngreso`, CU-04) después de que F12 escribiera su hallazgo.
+ *   - `requiereSesion()` (`nucleo/permisos.ts`) redirige sin sesión a `/ingreso`, no a
+ *     `/tablero`; y `soloRolesDeSistemas` (`rutas/sistemas/guardia-rol-sistemas.ts`),
+ *     si el rol no es PLATAFORMA/SEGURIDAD, redirige a `/operacion`, no a `/tablero`.
  *
- * Este archivo deja las nueve aserciones escritas y las corre contra lo que el
- * shell expone hoy sin sesión (redirección), documentando el bloqueo en vez de
- * inventar un login que no es mío (`nucleo/sesion*` está fuera de mi alcance). Si se
- * corre con una sesión ya abierta (p. ej. inyectada por un futuro `storageState` de
- * Playwright con un token de PLATAFORMA/SEGURIDAD), las mismas aserciones sirven
- * para el caso real: por eso `esperarPantallaOredireccion` cubre las dos ramas.
+ * Sigue sin existir un `storageState` inyectable: `Sesion` guarda el token SOLO en
+ * memoria a propósito (ver `nucleo/sesion.ts`). En vez de eso, y en vez de ejercitar
+ * `/ingreso` contra las credenciales de ejemplo del mock de Prism (fuera de esta
+ * pasada), este archivo abre sesión con un DOBLE DE PRUEBA documentado en
+ * `e2e/apoyo/sesion-de-prueba.ts`: toma la instancia ya montada de `PantallaDeIngreso`
+ * vía la API de depuración que Angular expone en builds no-production y llama el
+ * método público `Sesion.abrir(...)` que `nucleo/sesion.ts` ya define. No se edita
+ * `nucleo/sesion*`, `nucleo/permisos.ts` ni `app.config.ts` (fuera de mi reserva).
  */
 const RUTAS = [
   { ruta: 'servicios', selectorTitulo: 'h1' },
@@ -34,29 +37,37 @@ const RUTAS = [
   { ruta: 'incidentes', selectorTitulo: 'h1' },
 ]
 
-test.describe('sistemas — sin contrato real, nunca datos de ejemplo', () => {
+// ACCESOS_ADMINISTRAR abre `ver:sistemas` (nucleo/secciones.ts); PLATAFORMA pasa
+// `soloRolesDeSistemas`. Las dos barreras de interfaz, satisfechas por el doble.
+const PERMISOS_DE_SISTEMAS = ['ACCESOS_ADMINISTRAR']
+const ROL_DE_SISTEMAS = 'PLATAFORMA'
+
+test.describe('sistemas — sin contrato real, nunca datos de ejemplo (con sesión de prueba)', () => {
   for (const { ruta } of RUTAS) {
-    test(`/sistemas/${ruta}: nunca "99.95" en pantalla; con sesión ve el error accionable, sin sesión redirige`, async ({ page }) => {
-      const r = await page.goto(`/sistemas/${ruta}`)
-      expect(r?.status()).toBe(200)
+    test(`/sistemas/${ruta}: con sesión ve el error accionable, nunca "99.95" en pantalla`, async ({ page }) => {
+      await abrirSesionDePruebaYNavegar(page, PERMISOS_DE_SISTEMAS, ROL_DE_SISTEMAS, `/sistemas/${ruta}`)
 
-      const url = page.url()
-      if (url.includes('/tablero')) {
-        // Bloqueado por el hallazgo de F12 (arriba): sin sesión, canMatch redirige antes
-        // de montar la pantalla. Se documenta, no se simula una sesión que no es mía.
-        test.info().annotations.push({
-          type: 'bloqueado-F12',
-          description: `/sistemas/${ruta} redirigió a /tablero: no hay login real para entrar con rol PLATAFORMA/SEGURIDAD`,
-        })
-        return
-      }
-
-      // Con sesión (futuro storageState con rol PLATAFORMA/SEGURIDAD): el estado de
-      // error es un `role="alert"` accionable, y en ningún caso aparece el 99.95%
-      // de los mocks — el kill-test real es el grep sobre el bundle, esto es la
-      // vista en vivo del mismo hecho.
+      // No hay servicio "sistemas" real ni mock que lo cubra en este sandbox: el
+      // estado esperado es el de error accionable, nunca el de éxito con datos de
+      // ejemplo — eso es lo que este caso prueba.
       await expect(page.getByRole('alert')).toBeVisible()
       await expect(page.locator('body')).not.toContainText('99.95')
     })
   }
+
+  test('sin sesión, /sistemas/servicios redirige a /ingreso (requiereSesion en el shell)', async ({ page }) => {
+    const r = await page.goto('/sistemas/servicios')
+    expect(r?.status()).toBe(200)
+    await expect(page).toHaveURL(/\/ingreso$/)
+  })
+
+  test('con sesión pero sin rol PLATAFORMA/SEGURIDAD, /sistemas/servicios nunca monta (soloRolesDeSistemas)', async ({ page }) => {
+    // `soloRolesDeSistemas` manda a /operacion, pero un rol CONTABILIDAD tampoco tiene
+    // ver:operacion (nucleo/secciones.ts), así que ESE canMatch reenvía otra vez, a
+    // /tablero. Lo que este caso prueba es la barrera de rol en sí (nunca llega a
+    // /sistemas), no la cadena completa de reenvíos, que depende de qué otro permiso
+    // tenga la sesión.
+    await abrirSesionDePruebaYNavegar(page, PERMISOS_DE_SISTEMAS, 'CONTABILIDAD', '/sistemas/servicios')
+    await expect(page).not.toHaveURL(/\/sistemas\//)
+  })
 })

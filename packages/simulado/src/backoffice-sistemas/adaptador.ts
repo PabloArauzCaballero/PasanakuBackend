@@ -10,7 +10,7 @@ import {
   respaldosSimulados,
   serviciosSimulados,
   webhooksSimulados,
-} from './datos'
+} from './datos.ts'
 
 /**
  * El adaptador simulado de las nueve pantallas de `sistemas/` (H2.S1.M3): resuelve con
