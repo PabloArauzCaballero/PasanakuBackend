@@ -1,6 +1,6 @@
 # Carril PR5 — CI y operación (Pablo, turno noche 2026-09-21)
 
-> **AVANCE: 26 / 54 — 48,1 %.** (+ 1 BLOQUEADO con causa autorizada por el encargo, + 1 BLOQUEADO
+> **AVANCE: 29 / 54 — 53,7 %.** (+ 1 BLOQUEADO con causa autorizada por el encargo, + 1 BLOQUEADO
 > por decisión de negocio pendiente — H2.S5.M3 —, + 1 A MEDIAS)
 > **Estado:** `IN_PROGRESS`. PRs abiertos: [#1](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/1)
 > (estándar + spotless), [#2](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/2)
@@ -28,9 +28,9 @@ Encargo: [repartos/2026-09-21/PromptNoche/Backend/Pablo/PR5-Ci.Operacion/CiRealS
 | H1 — Baseline global | 12 | 8 | EN CURSO (1 BLOQUEADO con causa) |
 | H2 — CI verde sin trampas | 20 | 11 | EN CURSO (1 A MEDIAS, 1 BLOQUEADO, 2 TODO en S2, S6 sin empezar) |
 | H3 — Borde | 7 | 7 | **HECHO** — rate limiting, CORS y bloqueo de `/actuator` con evidencia real |
-| H4 — Carga medida | 3 | 0 | TODO |
+| H4 — Carga medida | 3 | 3 | **HECHO** — 6 escenarios k6 reales, `transferencia.js` con baseline ×3 completo |
 | H5 — Runbooks, cierre | 12 | 0 | TODO |
-| **TOTAL** | **54** | **26** | |
+| **TOTAL** | **54** | **29** | |
 
 ## H3.S1 — resumen (rate limiting real con Redis)
 
