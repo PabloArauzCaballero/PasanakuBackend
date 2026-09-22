@@ -134,24 +134,24 @@ describe('Dialogo · una sola política de descarte (H3.S2.M2)', () => {
     expect((fixture.componentInstance as AnfitrionDePrueba).confirmaciones()).toBe(1)
   })
 
-  it('conteo de escuchas antes/después: se agrega UNA vez al montar la vista y se saca UNA vez al destruir (H3.S1.M4)', () => {
-    // `addEventListener` se espía en el prototipo (el elemento todavía no existe antes de montar);
-    // como `isolate: false` corre varios archivos de spec en el mismo realm de jsdom, se filtran
-    // las llamadas a SOLO esta instancia de `<dialog>` por `this` (`mock.instances`), no por conteo
-    // global — otros dialogos de otros specs del mismo proceso no deben contaminar el número.
-    const agregar = vi.spyOn(HTMLDialogElement.prototype, 'addEventListener')
+  it('mientras está montado, el backdrop SÍ reacciona (hay algo real que limpiar más adelante, H3.S1.M4)', () => {
+    confirmSpy.mockReturnValue(true)
     const { fixture, caja } = montar()
-    const llamadasDeEstaCaja = agregar.mock.calls.filter((_, i) => agregar.mock.instances[i] === caja)
-    // Antes de destruir: una escucha agregada, ninguna sacada todavía.
-    expect(llamadasDeEstaCaja).toHaveLength(1)
-    expect(llamadasDeEstaCaja[0]?.[0]).toBe('click')
-    const quitar = vi.spyOn(caja, 'removeEventListener')
-    expect(quitar).not.toHaveBeenCalled()
+    ;(fixture.componentInstance as AnfitrionDePrueba).sucio.set(true)
+    fixture.detectChanges()
+    caja.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    expect(confirmSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('al destruir, el backdrop deja de reaccionar de verdad — no es una promesa vacía de limpieza (H3.S1.M4)', () => {
+    confirmSpy.mockReturnValue(true)
+    const { fixture, caja } = montar()
+    // Con borrador sucio, si la escucha SIGUIERA activa, este clic dispararía `confirm()`.
+    ;(fixture.componentInstance as AnfitrionDePrueba).sucio.set(true)
+    fixture.detectChanges()
     fixture.destroy()
-    // Después de destruir: la misma (y única) escucha, sacada.
-    expect(quitar).toHaveBeenCalledTimes(1)
-    expect(quitar).toHaveBeenCalledWith('click', expect.any(Function))
-    agregar.mockRestore()
+    caja.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    expect(confirmSpy).not.toHaveBeenCalled()
   })
 
   it('100 aperturas/cierres seguidas no acumulan preguntas de más ni dejan el diálogo en un estado inconsistente (H3.S1.M4, sin fugas)', () => {
