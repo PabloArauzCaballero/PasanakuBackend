@@ -87,20 +87,18 @@ la ligera.
 - `ArquitecturaTest` (ArchUnit): **5/5 PASS** — las clases nuevas respetan la
   dirección de dependencia del servicio.
 - `CU100WebhookTest`/`AuditoriaCriticaTest`/el nuevo caso de `CU21Test`
-  (Testcontainers, PostgreSQL real): `BLOCKED` — no por el mismo problema de E/S
-  de antes (ese se resolvió, ver `evidencia/H1-entorno-docker.md` §4), sino por
-  una limitación DISTINTA de Docker-fuera-de-Docker: Testcontainers no puede
-  bind-montar `sql/` en el contenedor Postgres que levanta, porque la ruta que
-  calcula solo existe dentro del contenedor de Gradle, no en el daemon de Docker
-  Desktop. Causa exacta, intentos (incl. instalar un JDK nativo) y siguiente
-  paso: `evidencia/H1-entorno-docker.md` §5.
+  (Testcontainers, PostgreSQL real): `TESTED` — el bloqueo de
+  Docker-fuera-de-Docker se resolvió con JDK 21 nativo (`evidencia/H1-entorno-docker.md`
+  §5). Corrida real: `./gradlew :servicios:aportes:integrationTest --tests
+  '*AuditoriaCriticaTest*' --tests '*CU21Test*' --tests '*CU100WebhookTest*'` →
+  `BUILD SUCCESSFUL`, `AuditoriaCriticaTest` 1/1 PASS, `CU21Test` 11/11 PASS,
+  `CU100WebhookTest` 8/8 PASS.
 
-**Estado:** A MEDIAS — código completo, 33 de 49 tests nuevos/tocados con
-ejecución real verificada (16 del webhook a nivel unitario+web, 25 del webTest
-completo incluyendo el bugfix que encontraron); los que necesitan PostgreSQL
-real (`CU21Test`, `CU100WebhookTest`, `AuditoriaCriticaTest`, 3 clases) quedan
-bloqueados por el entorno, con causa raíz identificada y siguiente paso
-concreto declarado.
+**Estado:** HECHO — código completo, con ejecución real verificada en los
+cuatro niveles: unitario (`VerificadorDeFirmaWebhookTest` 8/8), web (`webTest`
+25/25), arquitectura (`ArquitecturaTest` 5/5) e integración contra PostgreSQL
+real (`AuditoriaCriticaTest`, `CU21Test`, `CU100WebhookTest`, los tres en
+verde).
 
 ## H2 — Inventario de endpoints y endurecimiento de entrada
 
@@ -309,16 +307,18 @@ Total H4: **25/25 PASS** contra PostgreSQL real (Testcontainers, no simulado).
 
 ## H5 — Auditoría append-only y matriz de seguridad
 
-**Estado: A MEDIAS.** Ver `docs/auditoria-produccion/security-matrix.md` completo.
+**Estado: HECHO.** Ver `docs/auditoria-produccion/security-matrix.md` completo.
 
 - H5.S1.M1 (localizar la bitácora + tabla de qué CU la usan) — **HECHO**: hallazgo
   real y significativo — `comun.bitacora_evento` (cadena de hash, desde antes de
   este carril) tenía CERO escritores en código de producción, en NINGÚN servicio.
-- H5.S1.M2 — **A MEDIAS**: `aportes` corregido (`AuditoriaRepositorio` +
-  `CU19ReembolsarPago.aprobar` escriben la bitácora en la aprobación de reembolso;
-  test `AuditoriaCriticaTest`, verificación contra PostgreSQL real pendiente de esta
-  corrida). `identidad`/`nucleo-financiero`/`cumplimiento`: hallazgo entregado,
-  ningún archivo ajeno editado.
+- H5.S1.M2 — **HECHO**: `aportes` corregido (`AuditoriaRepositorio` +
+  `CU19ReembolsarPago.aprobar` escriben la bitácora en la aprobación de reembolso).
+  `AuditoriaCriticaTest.aprobarReembolsoQuedaAuditado` corrido contra PostgreSQL
+  real: `./gradlew :servicios:aportes:integrationTest --tests
+  '*AuditoriaCriticaTest*'` → `BUILD SUCCESSFUL`, 1/1 PASS.
+  `identidad`/`nucleo-financiero`/`cumplimiento`: hallazgo entregado, ningún
+  archivo ajeno editado (H-M5 en el daily).
 - H5.S1.M3 (matriz OWASP) — **HECHO**: 10 categorías + la tabla de bitácora por CU
   crítico.
 
