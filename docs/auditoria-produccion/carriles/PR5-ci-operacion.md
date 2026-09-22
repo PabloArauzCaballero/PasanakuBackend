@@ -1,6 +1,6 @@
 # Carril PR5 — CI y operación (Pablo, turno noche 2026-09-21)
 
-> **AVANCE: 23 / 54 — 42,6 %.** (+ 1 BLOQUEADO con causa autorizada por el encargo, + 1 BLOQUEADO
+> **AVANCE: 26 / 54 — 48,1 %.** (+ 1 BLOQUEADO con causa autorizada por el encargo, + 1 BLOQUEADO
 > por decisión de negocio pendiente — H2.S5.M3 —, + 1 A MEDIAS)
 > **Estado:** `IN_PROGRESS`. PRs abiertos: [#1](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/1)
 > (estándar + spotless), [#2](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/2)
@@ -27,10 +27,10 @@ Encargo: [repartos/2026-09-21/PromptNoche/Backend/Pablo/PR5-Ci.Operacion/CiRealS
 |---|---:|---:|---|
 | H1 — Baseline global | 12 | 8 | EN CURSO (1 BLOQUEADO con causa) |
 | H2 — CI verde sin trampas | 20 | 11 | EN CURSO (1 A MEDIAS, 1 BLOQUEADO, 2 TODO en S2, S6 sin empezar) |
-| H3 — Borde | 7 | 4 | EN CURSO (S1 completo con evidencia real; S2 CORS y S3 métricas sin empezar) |
+| H3 — Borde | 7 | 7 | **HECHO** — rate limiting, CORS y bloqueo de `/actuator` con evidencia real |
 | H4 — Carga medida | 3 | 0 | TODO |
 | H5 — Runbooks, cierre | 12 | 0 | TODO |
-| **TOTAL** | **54** | **23** | |
+| **TOTAL** | **54** | **26** | |
 
 ## H3.S1 — resumen (rate limiting real con Redis)
 
@@ -58,6 +58,20 @@ project(":plataforma:comun-web")))` (de `aportaya.servicio`, aplicado a TODO ser
 MVC y Spring Security de verdad al classpath de prueba de gateway — un módulo reactivo sin ninguno
 de los dos por diseño — y el contexto de Spring no levantaba. Excluido en
 `plataforma/gateway/build.gradle.kts` (dentro de mi alcance), con el motivo documentado ahí.
+
+## H3.S2/S3 — resumen (CORS por perfil, `/actuator` solo interno)
+
+| ID | Qué se logró | Resultado |
+|---|---|---|
+| H3.S2.M1 | CORS por perfil (`aportaya.cors.origenes`), `ConfiguracionCors.java` con `CorsWebFilter` real + guarda fail-closed en producción | **PASS con evidencia real**: preflight permitido (200), preflight de otro origen (403), arranque cortado sin `APORTAYA_CORS_ORIGENES` en `production`, arranque normal con un origen real — [evidencia/H3-S2-cors.txt](../evidencia/H3-S2-cors.txt) |
+| H3.S2.M2 | NGINX: `Cache-Control: no-store`; HSTS **no** agregado (TLS termina en el Traefik de Coolify, no en este NGINX — verificado, no adivinado) | PASS — [evidencia/H3-S2-nginx-headers.txt](../evidencia/H3-S2-nginx-headers.txt) |
+| H3.S3.M1 | `/actuator` bloqueado (404) en NGINX; `prometheus.io/scrape` en `generar_k8s.py` (gateway + 14 servicios) | **PASS con hallazgo real**: antes del fix, `/actuator/prometheus` del gateway respondía 200 por la entrada pública a cualquiera |
+
+**Hallazgo F-05 para Leo (plataforma-infra):** 0 de los 14 servicios exponen `prometheus` en
+`management.endpoints.web.exposure.include` (verificado, `grep -rl exposure servicios/*/.../application.yml`
+→ vacío). Es la plantilla compartida de cada servicio, fuera de mi alcance (`servicios/**` está OUT
+en mi encargo) — las anotaciones `prometheus.io/scrape` que agregué en `generar_k8s.py` no sirven de
+nada hasta que esto se corrija.
 
 ## H2 — resumen (detalle de evidencia en los commits de la rama)
 
@@ -142,6 +156,7 @@ ninguna otra vía que rodee la revisión (seria ir en contra de la intención de
 | F-01 | `docs/auditoria-produccion/carriles/` y `evidencia/` estaban vacíos al arrancar: Richard, Justin, Leo y Marcelo todavía no publicaron su bitácora ni su baseline por módulo | H1.S3 (enlaces), H5.S4 (`FINAL_REPORT.md`) | ABIERTO |
 | F-02 | `docker compose -f despliegue/compose/base.yml --profile base up -d --wait` devuelve exit 1 aunque **todos** los servicios queden `Healthy`, por el job de un solo uso `minio_bucket` (`restart: "no"`, exit 0); `bd:levantar` (tarea Gradle, `bd/build.gradle.kts`) hereda el fallo y rompe `bd:aplicar`/`bd:reset` en cualquier máquina con Docker Compose ≥ v5.3.1. Reproducido dos veces (volumen limpio y volumen con datos) | `plataforma/infra` (Leo, `bd/build.gradle.kts` no está en mi alcance) | ABIERTO |
 | F-03 | El puerto host de `aportaya-postgres` estaba fijo en `5433` (`despliegue/compose/base.yml`); en una máquina compartida con otro Postgres ajeno en ese puerto, el perfil `base` nunca levanta. Corregido en este turno (dentro de mi alcance): puerto configurable vía `APORTAYA_PG_PORT`, default sin cambios | — (ya corregido, informativo para los otros 4 carriles si les pasa lo mismo en sus máquinas) | CORREGIDO |
+| F-05 | Ninguno de los 14 servicios expone `prometheus` en `management.endpoints.web.exposure.include` (verificado: 0/14). Las anotaciones `prometheus.io/scrape` que agregué en `generar_k8s.py` (H3.S3) no sirven hasta que esto se corrija en la plantilla | `plataforma/infra` (Leo — es la plantilla compartida, `servicios/**` está OUT en mi encargo) | ABIERTO |
 
 ## No cubierto
 
