@@ -1,5 +1,5 @@
 {
-  "//": "Programa de TypeScript acotado a la pantalla piloto de PR6-SmartPresentational (cumplimiento/casos). Mismo motivo que el tsconfig homónimo del carril hermano PR11: tsconfig.spec.json incluye TODOS los *.spec.ts de src/, y dev@a23bcb1 ya trae errores de tipos preexistentes en otros dominios (ver entregables/decision-doble-clientes-angular.md de PR11) que no son de este carril. Se borra cuando este carril se integra a `dev` en una revisión de conjunto.",
+  "//": "Programa de TypeScript acotado a los carriles de Richard: PR11-Sesion.Frontend (núcleo de sesión/permisos, ingreso) y PR6-SmartPresentational (pantalla piloto de cumplimiento/casos). El tsconfig.spec.json compartido incluye TODOS los *.spec.ts de src/, y el bundler de @angular/build:unit-test aborta si cualquiera de ellos no compila. Al 2026-09-22, dev@a23bcb1 ya trae errores de tipos preexistentes fuera de estos carriles (contabilidad, publicidad) que no son de arreglar acá (regla 00 §3, alcance). Este tsconfig acota el programa a lo que estos carriles tocan y verifican, para no depender de que el resto del monorepo compile. Se borra cuando ambos carriles se integran a `dev` y ese trabajo pasa a correr contra `tsconfig.spec.json` real, en la revisión de conjunto que le toca al integrador.",
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "types": [
@@ -8,6 +8,9 @@
     ]
   },
   "include": [
+    "src/tipos/**/*.d.ts",
+    "src/app/nucleo/**/*.ts",
+    "src/app/rutas/ingreso/**/*.ts",
     "src/app/rutas/cumplimiento/casos/**/*.ts",
     "src/app/rutas/cumplimiento/dominio/cu44-caso.ts",
     "src/app/rutas/cumplimiento/textos.ts",

@@ -1,0 +1,32 @@
+
+Linting "backoffice"...
+(node:39804) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-richard-pr11/apps/backoffice/eslint.config.js?mtime=1790047254948 is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-richard-pr11\apps\backoffice\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+All files pass linting.
+
+=== apps/backoffice (Angular) ===
+  OK    · sin red en vista 
+  OK    · sin literal de diseño 
+  OK    · sin formato de dinero 
+  OK    · sin console 
+Traceback (most recent call last):
+  File "C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-richard-pr11\scripts\verificar_frontend.py", line 172, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-richard-pr11\scripts\verificar_frontend.py", line 160, in main
+    angular("backoffice")
+    ~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-richard-pr11\scripts\verificar_frontend.py", line 86, in angular
+    if len(p.read_text().splitlines()) > 200]
+           ~~~~~~~~~~~^^
+  File "C:\Users\Usuario\AppData\Local\Python\pythoncore-3.14-64\Lib\pathlib\__init__.py", line 788, in read_text
+    return f.read()
+           ~~~~~~^^
+  File "C:\Users\Usuario\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 23, in decode
+    return codecs.charmap_decode(input,self.errors,decoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'charmap' codec can't decode byte 0x81 in position 1132: character maps to <undefined>
+command not found: python3

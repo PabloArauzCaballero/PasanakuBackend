@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core'
-import { Router } from '@angular/router'
+import { ActivatedRoute, Router } from '@angular/router'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
 import { Boton } from '@aportaya/ui/boton/boton'
 import { Campo } from '@aportaya/ui/campo/campo'
@@ -80,6 +80,7 @@ export class PantallaDeIngreso {
   private readonly autenticar = crearAutenticar()
   private readonly sesion = inject(Sesion)
   private readonly router = inject(Router)
+  private readonly route = inject(ActivatedRoute)
   private readonly huella = huellaDeEstaPestana()
 
   protected readonly paso = signal<Paso>('credencial')
@@ -126,7 +127,7 @@ export class PantallaDeIngreso {
         this.sesion.abrirConToken(salida.tokenAcceso)
         this.credencial.set('')
         this.codigo.set('')
-        void this.router.navigateByUrl('/tablero')
+        void this.router.navigateByUrl(this.destinoTrasIngreso())
       },
       error: (e: ErrorTraducido) => {
         this.enviando.set(false)
@@ -150,5 +151,11 @@ export class PantallaDeIngreso {
   private pedirCodigo(): void {
     this.codigo.set('')
     this.paso.set('codigo')
+  }
+
+  /** `volverA` solo si es una ruta interna real (regla `frontend-security`: nunca una URL externa). */
+  private destinoTrasIngreso(): string {
+    const volverA = this.route.snapshot.queryParamMap.get('volverA')
+    return volverA && volverA.startsWith('/') && !volverA.startsWith('//') ? volverA : '/tablero'
   }
 }
