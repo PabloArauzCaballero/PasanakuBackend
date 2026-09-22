@@ -185,7 +185,7 @@ export class TablaDeDatos<T extends object> {
   })
   readonly ocultarTabla = computed(() => {
     const e = this.estado()
-    return e !== null && e.tipo === 'cargando'
+    return e !== null && (e.tipo === 'cargando' || e.tipo === 'error')
   })
   readonly todasMarcadas = computed(
     () => this.filasVisibles().length > 0 && this.filasVisibles().every((f) => this.elegidas().includes(this.identidad()(f))),

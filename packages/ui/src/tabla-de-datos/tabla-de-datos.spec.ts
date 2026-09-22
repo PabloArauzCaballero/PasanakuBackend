@@ -1,5 +1,7 @@
 import { provideZonelessChangeDetection } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { TablaDeDatos, type Columna, type EstadoColeccion } from './tabla-de-datos'
 
@@ -57,8 +59,15 @@ describe('ap-tabla-de-datos', () => {
       ])
       fixture.detectChanges()
       expect(fixture.componentInstance.elegidas()).toEqual(['b'])
+      // La celda incluye además la etiqueta oculta de tarjeta móvil (`.etiqueta-movil`, H2.S1.M2
+      // + colapso a tarjetas): se aísla el nodo de texto del valor para no acoplar el test a esa marca.
       const filaMarcada = fixture.nativeElement.querySelector('tr.marcada td:nth-child(2)') as HTMLElement
-      expect(filaMarcada.textContent?.trim()).toBe('B')
+      const textoValor = Array.from(filaMarcada.childNodes)
+        .filter((n) => n.nodeType === Node.TEXT_NODE)
+        .map((n) => n.textContent)
+        .join('')
+        .trim()
+      expect(textoValor).toBe('B')
     })
 
     it('la identidad por omisión usa el campo `id`, nunca la posición en el arreglo', () => {
@@ -209,7 +218,7 @@ describe('ap-tabla-de-datos', () => {
   })
 
   it('no hay ningún nombre de pantalla dentro del organismo (H3.S1.M3)', async () => {
-    const fuente = await import('fs/promises').then((fs) => fs.readFile(new URL('./tabla-de-datos.ts', import.meta.url), 'utf-8'))
+    const fuente = readFileSync(join(__dirname, 'tabla-de-datos.ts'), 'utf8')
     const nombresDePantalla = ['estado-de-estado', 'PantallaDeEstado', 'PantallaDeAnunciantes', 'anunciantes', 'webhooks', 'operacion/estado']
     for (const nombre of nombresDePantalla) {
       expect(fuente.toLowerCase()).not.toContain(nombre.toLowerCase())

@@ -1,7 +1,7 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http'
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing'
 import { provideZonelessChangeDetection } from '@angular/core'
-import { TestBed } from '@angular/core/testing'
+import { TestBed, type ComponentFixture } from '@angular/core/testing'
 import { provideRouter } from '@angular/router'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { GATEWAY } from '../../../nucleo/gateway'
@@ -12,6 +12,18 @@ import { PantallaDeAnunciantes } from './pantalla-de-anunciantes'
 import type { Anunciante } from '../dominio/cu110-anunciantes'
 
 const URL = 'http://gw/api/v1/publicidad/anunciantes'
+
+/**
+ * Deja correr la cola de microtareas (el `await` encadenado de `cargar`, HTTP incluido) sin
+ * usar `whenStable()`: con una petición deliberadamente sin resolver — como en la prueba de
+ * la #H2.S2.M3 — `whenStable()` no resuelve nunca, porque `HttpClient` la mantiene como tarea
+ * pendiente para la app zoneless hasta que se resuelve. Un `setTimeout` de macrotarea garantiza
+ * que toda la cola de microtareas ya corrió antes de seguir.
+ */
+async function esperarMicrotareas(fixture: ComponentFixture<unknown>): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, 0))
+  fixture.detectChanges()
+}
 
 function anunciante(parcial: Partial<Anunciante>): Anunciante {
   return {
@@ -72,22 +84,29 @@ describe('PantallaDeAnunciantes', () => {
     const fixture = TestBed.createComponent(PantallaDeAnunciantes)
     fixture.detectChanges()
 
-    // Petición #1 (página 1): queda pendiente, todavía no se resuelve.
+    // Petición #1 (pedido inicial): queda pendiente, todavía no se resuelve.
     const primera = http.expectOne(URL)
 
-    // Cambia de página antes de que la #1 responda: se emite la petición #2 (página 2).
-    fixture.componentInstance['pagina'].set(2)
-    await fixture.whenStable()
+    // Cambia el orden antes de que la #1 responda: se emite la petición #2 con un pedido
+    // distinto. Se usa `orden` y no `pagina` porque `cargarAnunciantes` trae la lista COMPLETA
+    // en cada petición y pagina en memoria (JSDoc de la pantalla): mockear una "página 2" con
+    // una lista de un solo elemento cortaría vacío por aritmética de `slice`, no por el defecto
+    // que esta prueba busca cubrir. No se usa `whenStable()` acá: mientras la #1 sigue sin
+    // resolver, HttpClient la mantiene como tarea pendiente (para que la app zoneless no se dé
+    // por estable con una petición en vuelo) y `whenStable()` nunca resolvería.
+    // `esperarMicrotareas` avanza la cola sin depender de esa estabilidad global.
+    fixture.componentInstance['orden'].set({ clave: 'razonSocialFacturacion', sentido: 'asc' })
+    await esperarMicrotareas(fixture)
     const segunda = http.expectOne(URL)
 
     // La #2 (más nueva) responde primero.
     segunda.flush([anunciante({ anuncianteId: 'b-1', razonSocialFacturacion: 'Segundo SA' })])
-    await fixture.whenStable()
+    await esperarMicrotareas(fixture)
     expect(fixture.nativeElement.textContent).toContain('Segundo SA')
 
     // La #1 (más vieja) responde tarde: no debe pisar el resultado de la #2 ya aplicado.
     primera.flush([anunciante({ anuncianteId: 'a-1', razonSocialFacturacion: 'Primero SA' })])
-    await fixture.whenStable()
+    await esperarMicrotareas(fixture)
     expect(fixture.nativeElement.textContent).toContain('Segundo SA')
     expect(fixture.nativeElement.textContent).not.toContain('Primero SA')
   })

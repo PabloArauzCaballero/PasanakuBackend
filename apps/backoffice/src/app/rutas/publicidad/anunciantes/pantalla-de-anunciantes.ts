@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, inject, signal, untracked } from '@angular/core'
+import { ChangeDetectionStrategy, Component, PendingTasks, effect, inject, signal, untracked } from '@angular/core'
 import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
 import { Boton } from '@aportaya/ui/boton/boton'
 import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
@@ -97,6 +97,7 @@ export class PantallaDeAnunciantes {
   private readonly sesion = inject(Sesion)
   private readonly acciones = accionesDeAnunciante()
   private readonly cargador = cargadorDeAnunciantes()
+  private readonly tareasPendientes = inject(PendingTasks)
   protected readonly t = textosPublicidad.anunciantes
   protected readonly COLUMNAS = COLUMNAS
   protected readonly tamanoDePagina = TAMANO_DE_PAGINA
@@ -118,7 +119,13 @@ export class PantallaDeAnunciantes {
   constructor() {
     effect(() => {
       const pedido = { pagina: this.pagina(), tamano: this.tamanoDePagina, orden: this.orden(), filtros: {} }
-      untracked(() => this.cargar(pedido))
+      // `cargar` resuelve por `firstValueFrom` fuera de la petición HTTP misma: sin registrarla
+      // como tarea pendiente, `ApplicationRef.isStable()` (zoneless) da por estable la app en
+      // cuanto el interceptor de HTTP libera SU tarea (`finalize` sobre el observable), antes de
+      // que este `await` termine de escribir `estado`. `whenStable()` de un test entonces
+      // resuelve mudo, con la tabla todavía en 'cargando'. `PendingTasks.run` mantiene la app
+      // inestable hasta que la promesa completa — HTTP incluido — termina de verdad.
+      untracked(() => this.tareasPendientes.run(() => this.cargar(pedido)))
     })
   }
 
@@ -139,7 +146,8 @@ export class PantallaDeAnunciantes {
 
   /** Vuelve a pedir la página vigente desde cero (tras dar de alta un anunciante); `cargar` ya descarta lo atrasado por su cuenta. */
   private recargar(): void {
-    void this.cargar({ pagina: this.pagina(), tamano: this.tamanoDePagina, orden: this.orden(), filtros: {} })
+    const pedido = { pagina: this.pagina(), tamano: this.tamanoDePagina, orden: this.orden(), filtros: {} }
+    this.tareasPendientes.run(() => this.cargar(pedido))
   }
 
   abrir(): void {
