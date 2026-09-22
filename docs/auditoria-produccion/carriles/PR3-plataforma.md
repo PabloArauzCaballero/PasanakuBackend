@@ -1,9 +1,12 @@
 # Carril PR3 — Plataforma/Infra (Leo, turno noche 2026-09-21)
 
-> **AVANCE: 6 / 49 — 12,2 %.**
-> **Estado:** `IN_PROGRESS`. PR [#4](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/4)
-> (plantilla de perfiles, H3.S3.M1) **mergeado**. H1.S1 completo (M1–M5) con ciclo rojo→verde real
-> y `ArranqueTest` × 14 en verde — ver evidencia abajo. Commit `ee60ed7` listo para PR.
+> **AVANCE: 8 / 49 — 16,3 %.**
+> **Estado:** `IN_PROGRESS`. PR [#4](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/4) y
+> [#9](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/9) **mergeados** (ambos, sin
+> bloqueo del clasificador de permisos), espejados a `test`. H1.S1 completo. H1.S2.M1/M2 cerrados;
+> H1.S2.M3 **TODO con hallazgo real registrado** (no es un simple "falta hacerlo": encontré un gap
+> en cómo `restricciones.sql` aplica sus `CHECK` cuando la misma tabla vive en más de un esquema —
+> ver §Hallazgos).
 
 Encargo: [repartos/2026-09-21/PromptNoche/Backend/Leo/PR3-Plataforma.Infra/OutboxQuePublicaYGuardasComunes.md](../../../../../PasanakuPromptManager/repartos/2026-09-21/PromptNoche/Backend/Leo/PR3-Plataforma.Infra/OutboxQuePublicaYGuardasComunes.md)
 (repo `PasanakuPromptManager`, no este). Daily en el repo del estándar:
@@ -19,11 +22,11 @@ Ya hecha en el commit `2d2da96` (previo a esta sesión): `.claude/hooks`, `.clau
 
 | Hito | Microtareas | HECHO | Estado |
 |---|---:|---:|---|
-| H1 — Idempotencia | 12 | 5 | EN CURSO — H1.S1 (M1–M5) cerrado con evidencia; H1.S2/S3 TODO |
+| H1 — Idempotencia | 12 | 7 | EN CURSO — H1.S1 (M1–M5) y H1.S2.M1/M2 cerrados; H1.S2.M3 TODO (hallazgo); H1.S3 TODO |
 | H2 — Outbox/Relevo | 20 | 0 | TODO |
 | H3 — Guardas comunes | 9 | 1 | EN CURSO — H3.S3.M1 mergeado; resto TODO |
 | H4 — Barridos/Dinero/logs/probes | 8 | 0 | TODO |
-| **TOTAL** | **49** | **6** | |
+| **TOTAL** | **49** | **8** | |
 
 ## H1 — resumen
 
@@ -115,6 +118,55 @@ BUILD SUCCESSFUL in 41m 10s
 
 Los 14 servicios arrancan con el bean `idempotencia()` exigiendo ahora un `Reloj` — ninguno se
 rompió.
+
+## H1.S2 — resumen
+
+| ID | Qué se hizo | Resultado |
+|---|---|---|
+| H1.S2.M1 | `aportaya.idempotencia.vigencia` (default `PT24H`) externalizada: `Idempotencia(esquema, reloj, vigencia)`, bean en `ConfiguracionComunWeb` con `@Value("${aportaya.idempotencia.vigencia:PT24H}")`. La constante `Duration.ofDays(1)` queda solo como default de los constructores de conveniencia (pruebas) | **PASS** — gate local completo (`spotlessApply`+`test`+`webTest`+`integrationTest`+`spotlessCheck` de `comun-web`), `BUILD SUCCESSFUL in 8m 44s` |
+| H1.S2.M2 | "Reserva en proceso → 409" y "50 hilos → 1 efecto, 49×409" | **Ya cubierto** por `IdempotenciaRepositorioTest` (H1.S1.M2): `falloTrasReservarReintentoPosible` y `cincuentaHilosUnaReserva`, ambos PASS en la corrida 3 de H1.S1. No hizo falta código nuevo |
+| H1.S2.M3 | `respuesta_idempotente` en `grupos` e `identidad` (los esquemas que adoptan el helper per ADR-046) vía `.puml` → `generar_ddl.py` | **TODO — hallazgo real, no un simple pendiente** (ver abajo) |
+
+### Hallazgo H1.S2.M3 — `restricciones.sql` no escala a una tabla en más de un esquema
+
+Agregué el entity `respuesta_idempotente` a `docs/entidades/01_identidad_usuarios.puml` y
+`docs/entidades/02_grupos_turnos.puml` (mismo shape que `10_billetera_custodia.puml`) y corrí
+`python scripts/generar_ddl.py` — generó limpio: `sql/ generado: 307 tablas · 632 claves foráneas
+· 676 índices · 421 CHECK`, sin errores.
+
+Pero **antes de commitear** revisé `sql/40_reglas/restricciones.sql` (generado por
+`scripts/extraer_sql.py` desde `docs/Restricciones.md`, un pipeline **distinto** al de
+`generar_ddl.py`) y encontré que R-BIL-19 aplica sus tres `CHECK` así:
+
+```sql
+ALTER TABLE respuesta_idempotente
+  ADD CONSTRAINT ck_respuesta_idem_hash CHECK (length(hash_solicitud) = 64),
+  ADD CONSTRAINT ck_respuesta_idem_expira CHECK (expira_en > registrada_en),
+  ADD CONSTRAINT ck_respuesta_idem_http CHECK (codigo_http BETWEEN 100 AND 599);
+```
+
+**Sin calificar el esquema.** `sql/aplicar.sql` corre este archivo una sola vez con
+`SET search_path TO aportes, auditoria, ..., grupos, identidad, ..., nucleo_financiero, ...`
+— en Postgres, una referencia de tabla sin esquema resuelve contra el **primer** esquema del
+`search_path` que la tenga. Con solo `nucleo_financiero.respuesta_idempotente` (como hoy) esto no
+se nota. En cuanto agregué las de `grupos` e `identidad` (que preceden a `nucleo_financiero` en el
+`search_path`), la sentencia de arriba pasaría a aplicar los tres `CHECK` **solo a
+`grupos.respuesta_idempotente`**, dejando `identidad.respuesta_idempotente` y
+`nucleo_financiero.respuesta_idempotente` sin la validación de hash/vencimiento/rango HTTP —
+silenciosamente, sin ningún error en `generar_ddl.py` ni en `verificar_boveda.py` (ninguno de los
+dos sabe de esta ambigüedad de `search_path`).
+
+**Revertido `sql/` y `docs/entidades/*.puml`** (`git checkout --`) para no dejar un estado a medio
+arreglar en el troncal: mergear esto tal cual habría sido peor que no tocarlo — un defecto real y
+silencioso en datos de producción (una tabla de idempotencia sin sus checks de integridad).
+
+**Lo que hace falta para cerrar H1.S2.M3 de verdad** (no lo hago yo: `docs/Restricciones.md` y
+`scripts/extraer_sql.py` no están en mis reservas de este carril): calificar
+`ALTER TABLE respuesta_idempotente` como `ALTER TABLE <esquema>.respuesta_idempotente` para cada
+esquema que la tenga —o generar el bloque R-BIL-19 una vez por esquema en vez de una sola vez—.
+Es un cambio al generador de restricciones, no a `generar_ddl.py`. Registrado acá y en mi daily
+§6 para quien tenga ese archivo (posiblemente Pablo, dueño de `docs/Restricciones.md` en el reparto
+original) — **no es un bloqueo del carril**: sigo con H1.S3 sin esperar.
 
 ## H3 — resumen
 
