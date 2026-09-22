@@ -1,0 +1,26 @@
+=== pg_locks ===
+ count 
+-------
+     2
+(1 row)
+
+=== outbox_pending (nucleo_financiero.evento_dominio) ===
+ count 
+-------
+     0
+(1 row)
+
+=== docker stats ===
+CONTAINER ID   NAME                CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O        PIDS
+a68597129203   aportaya-gateway    0.18%     623.1MiB / 7.616GiB   7.99%     43.6MB / 45.9MB   10.7MB / 0B      103
+f2ba09e508c7   aportaya-postgres   0.43%     61.16MiB / 7.616GiB   0.78%     8.05kB / 126B     26.6MB / 651kB   6
+90520adb8c11   aportaya-redis      3.55%     10.26MiB / 7.616GiB   0.13%     16.9MB / 3.14MB   10.1MB / 0B      6
+=== heap gateway ===
+(vacio arriba: /actuator/metrics/jvm.memory.used -> 404. Solo "health,info,prometheus"
+estan en management.endpoints.web.exposure.include del gateway -- "metrics" no.
+Se lee el mismo dato desde /actuator/prometheus, que si esta expuesto:)
+
+$ wget -qO- http://127.0.0.1:8080/actuator/prometheus | grep jvm_memory_used_bytes | grep 'area="heap"'
+jvm_memory_used_bytes{area="heap",id="G1 Eden Space"} 9.2274688E7
+jvm_memory_used_bytes{area="heap",id="G1 Old Gen"} 4.2216728E7
+jvm_memory_used_bytes{area="heap",id="G1 Survivor Space"} 4790432.0
