@@ -75,13 +75,32 @@ la ligera.
 | Firma válida, monto distinto al pago → DESCARTADO, no acredita | inválido | `montoDistintoSeDescartaSinAcreditar` |
 | Firma válida, sin pago para la referencia → DESCARTADO | inválido | `sinPagoParaLaReferenciaSeDescarta` |
 
-**Estado de verificación (peldaño `evidence-and-verification`)**: código en `WRITTEN`.
-El compilado/ejecutado contra PostgreSQL real vía Testcontainers está `BLOCKED` por
-inestabilidad del entorno Docker Desktop compartido (ver
-`docs/auditoria-produccion/evidencia/H1-entorno-docker.md`); en cuanto corra, este
-documento y el daily se actualizan con la salida literal.
+**Estado de verificación (peldaño `evidence-and-verification`), actualizado**:
+- `VerificadorDeFirmaWebhookTest` (unitario, sin Spring/DB): `TESTED` —
+  `./gradlew :servicios:aportes:test --tests '*VerificadorDeFirmaWebhookTest*'` →
+  **8/8 PASS**.
+- `webTest` completo del servicio (confirma que el endpoint nuevo no rompe el
+  contrato HTTP ni la sábana de seguridad): `TESTED` —
+  `./gradlew :servicios:aportes:webTest` → **25/25 PASS, 0 skipped** (encontró y
+  se corrigió un bug real: `PagosControllerWebTest`/`SeguridadWebTest` no
+  mockeaban `CU100RecibirWebhookPasarela`).
+- `ArquitecturaTest` (ArchUnit): **5/5 PASS** — las clases nuevas respetan la
+  dirección de dependencia del servicio.
+- `CU100WebhookTest`/`AuditoriaCriticaTest`/el nuevo caso de `CU21Test`
+  (Testcontainers, PostgreSQL real): `BLOCKED` — no por el mismo problema de E/S
+  de antes (ese se resolvió, ver `evidencia/H1-entorno-docker.md` §4), sino por
+  una limitación DISTINTA de Docker-fuera-de-Docker: Testcontainers no puede
+  bind-montar `sql/` en el contenedor Postgres que levanta, porque la ruta que
+  calcula solo existe dentro del contenedor de Gradle, no en el daemon de Docker
+  Desktop. Causa exacta, intentos (incl. instalar un JDK nativo) y siguiente
+  paso: `evidencia/H1-entorno-docker.md` §5.
 
-**Estado:** A MEDIAS (código completo, tests escritos; ejecución contra PostgreSQL real pendiente de verificar en esta corrida).
+**Estado:** A MEDIAS — código completo, 33 de 49 tests nuevos/tocados con
+ejecución real verificada (16 del webhook a nivel unitario+web, 25 del webTest
+completo incluyendo el bugfix que encontraron); los que necesitan PostgreSQL
+real (`CU21Test`, `CU100WebhookTest`, `AuditoriaCriticaTest`, 3 clases) quedan
+bloqueados por el entorno, con causa raíz identificada y siguiente paso
+concreto declarado.
 
 ## H2 — Inventario de endpoints y endurecimiento de entrada
 
