@@ -4,20 +4,21 @@
 > carril. Este documento es el inventario y las decisiones; los parches/minors con
 > CVE aplicables en `aportes` se hacen uno por commit (H6.S2.M5).
 
-## Estado de esta corrida
+## Estado: HECHO (árbol real corrido, con JDK 21 nativo)
 
-**`./gradlew :aportes:dependencies` no se ejecutó todavía en esta sesión**: el
-entorno Docker Desktop compartido con los demás carriles estuvo severamente
-inestable durante buena parte del turno (ver
-`docs/auditoria-produccion/evidencia/H1-entorno-docker.md` — errores de E/S
-reproducibles del propio Gradle al escribir su caché, y una copia de ~200 MB del
-repositorio a través del bind mount de Windows tardando más de 25 minutos por
-contención de disco con otros procesos del mismo host). Se priorizó dejar H1
-(idempotencia + webhook) y H2 (inventario + contratos) con evidencia real de
-ejecución antes de abrir un análisis de dependencias que necesita el mismo build
-completo.
+`./gradlew :servicios:aportes:dependencies --configuration runtimeClasspath`
+corrido de verdad (`EXIT=0`, árbol completo de 406 líneas). Las dos hipótesis
+de esta corrida se **confirmaron**, no quedaron como candidatos:
 
-Lo que SÍ se relevó sin necesitar el build (lectura directa del catálogo):
+```text
+$ grep -rn "resilience4j\|@CircuitBreaker\|@Retry\|@RateLimiter\|@Bulkhead\|@TimeLimiter" \
+    servicios/aportes/src/main --include=*.java
+(sin resultados)
+
+$ grep -rn "SchedulerLock\|shedlock\|LockProvider\|@Scheduled" \
+    servicios/aportes/src/main --include=*.java
+(sin resultados)
+```
 
 ## Catálogo de versiones (`gradle/libs.versions.toml`) — lo que `aportes` usa
 
@@ -31,8 +32,8 @@ directamente, de (según `servicios/aportes/build.gradle.kts`):
 | `spring.boot.validation` | Bean Validation en el contrato generado | — |
 | `jooq` | Acceso a datos | Versión fijada junto con el plugin generador (`aportaya.libreria.gradle.kts` exige que coincidan) |
 | `kafka` | Cliente para el outbox | `aportes` no tiene consumidor propio, solo productor vía `Outbox` |
-| `shedlock` | Locks distribuidos para tareas programadas | `CU21CobrarAporte.generarRecargos` es el candidato natural — no confirmado si ya tiene `@SchedulerLock` (fuera del foco de este carril) |
-| `resilience4j` | Circuit breaker / retry | `aportes` no tiene clientes HTTP salientes (ver `security-matrix.md` §API7): dependencia declarada, uso real no confirmado — **candidato a hallazgo de "declarada pero sin uso"**, pendiente de `./gradlew :aportes:dependencies` para confirmarlo con el árbol real |
+| `shedlock` | Locks distribuidos para tareas programadas | **HALLAZGO CONFIRMADO: declarada, CERO uso.** Ni `@SchedulerLock`, ni `LockProvider`, ni siquiera un `@Scheduled` en todo `servicios/aportes/src/main` — no hay ningún job programado en este servicio hoy, así que la dependencia no tiene nada que proteger todavía. |
+| `resilience4j` | Circuit breaker / retry | **HALLAZGO CONFIRMADO: declarada, CERO uso.** `aportes` no tiene clientes HTTP salientes propios (ver `security-matrix.md` §API7) y no hay una sola anotación `@CircuitBreaker`/`@Retry`/`@RateLimiter`/`@Bulkhead`/`@TimeLimiter` en el módulo. |
 | `micrometer` | Métricas | — |
 | `bundles.pruebas` (test) | JUnit 5, AssertJ, Testcontainers, ArchUnit | — |
 
@@ -44,9 +45,22 @@ verificar la firma). No es una dependencia nueva en el catálogo — no se tocó
 
 ## Sin uso / obsoletas / duplicadas / transitivas innecesarias
 
-**TODO** — exige `./gradlew :servicios:aportes:dependencies --configuration
-runtimeClasspath` real, no inferencia. Candidato principal a investigar primero:
-`resilience4j` en `aportes` (ver tabla de arriba).
+**Confirmado con el árbol real y con grep del código fuente** (no inferencia):
+`shedlock` y `resilience4j` están declaradas en `servicios/aportes/build.gradle.kts`
+pero **ninguna de las dos tiene un solo punto de uso** en `servicios/aportes/src/main`.
+
+**No se retiran en este carril** (regla 00, no se resuelve por conveniencia):
+quitar una dependencia de otro servicio o del propio `aportes` sin que el dueño
+del servicio lo confirme es un cambio de superficie, no de higiene — ambas
+podrían estar ahí a propósito, para un trabajo programado a corto plazo
+(`shedlock`) o como defensa preventiva declarada pero no cableada todavía
+(`resilience4j`). Queda como hallazgo con la evidencia exacta (comando + cero
+resultados), para que quien tenga el contexto de producto decida si se
+retiran o se activan.
+
+No se detectaron duplicados de versión ni transitivas conflictivas en el árbol
+de `runtimeClasspath` de `aportes` (sin líneas `-> ` de resolución forzada por
+conflicto salvo las ya conocidas y gestionadas por el BOM de Spring Boot).
 
 ## CVE con parche/minor disponible
 
@@ -55,15 +69,15 @@ versiones fijadas en `gradle/libs.versions.toml`. El script real de esto es
 responsabilidad de Pablo (`ci(security): add OSV scanner`, H6.S2 del plan madre,
 fuera de este carril salvo aplicar el parche puntual una vez que exista el reporte).
 
-## Siguiente paso concreto para quien retome
+## Cómo se corrió (para quien quiera reproducirlo)
 
 ```bash
-MSYS_NO_PATHCONV=1 docker run --rm \
-  -v pasanaku-src:/work -v pasanaku-gradle-cache:/root/.gradle \
-  -w /work eclipse-temurin:21-jdk \
-  bash -lc "./gradlew :servicios:aportes:dependencies --configuration runtimeClasspath > /work/deps-aportes.txt; cat /work/deps-aportes.txt"
+export BD_URL_ADMIN="jdbc:postgresql://localhost:5543/pasanaku"
+export BD_USUARIO_ADMIN="pasanaku"
+export BD_CLAVE_ADMIN="pasanaku"
+./gradlew :servicios:aportes:dependencies --configuration runtimeClasspath
 ```
 
-(el volumen `pasanaku-src` ya tiene una copia de las fuentes hecha con `docker cp`
-en vez de bind mount — mucho más estable en este host bajo carga; ver
-`evidencia/H1-entorno-docker.md` §3 para por qué)
+(con JDK 21 nativo en el host — ya no hace falta Docker-fuera-de-Docker para
+esto, ver `evidencia/H1-entorno-docker.md` §5 para el contexto de por qué antes
+sí)

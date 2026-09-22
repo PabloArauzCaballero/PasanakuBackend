@@ -368,10 +368,17 @@ Total H4: **25/25 PASS** contra PostgreSQL real (Testcontainers, no simulado).
   Los archivos son de `grupos` (sin dueño este turno) e `identidad` (Richard, PR1):
   no se editan. Este carril NO adopta `idempotencia.exigirNueva` por decisión propia
   (Q-04/regla 00) — la tabla de arriba es el hallazgo, no una resolución.
-- H6.S2.M4 (dependencias.md) — **A MEDIAS**: catálogo relevado sin el build
-  (`docs/auditoria-produccion/dependencias.md`); árbol real de
-  `./gradlew :aportes:dependencies` pendiente.
-- H6.S2.M5 (parches CVE) — **TODO**: depende de H6.S2.M4.
+- H6.S2.M4 (dependencias.md) — **HECHO**: árbol real corrido
+  (`./gradlew :servicios:aportes:dependencies --configuration runtimeClasspath`,
+  `EXIT=0`). Confirmadas con grep del código fuente (no inferencia) las dos
+  dependencias declaradas y sin uso que el catálogo ya sospechaba:
+  `shedlock` y `resilience4j` — cero anotaciones, cero imports, en todo
+  `servicios/aportes/src/main`. No se retiran (regla 00: decisión de producto,
+  no de higiene); quedan como hallazgo con la evidencia exacta en
+  `docs/auditoria-produccion/dependencias.md`.
+- H6.S2.M5 (parches CVE) — **TODO**: exige el scanner OSV real (H2.S3 del plan
+  madre, responsabilidad de Pablo) contra las versiones fijadas — no hay CVE
+  que aplicar sin ese reporte primero.
 - H6.S2.M6 (cierre, merge, espejo `test`) — **BLOQUEADO por la restricción de la
   plataforma**: no se ejecuta `gh pr merge` ni `git push origin origin/dev:test` sin
   aprobación humana (impuesto por la herramienta, no por el encargo). El PR queda
