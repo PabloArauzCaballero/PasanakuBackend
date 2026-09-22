@@ -14,10 +14,10 @@ import {
 
 /**
  * El adaptador simulado de las nueve pantallas de `sistemas/` (H2.S1.M3): resuelve con
- * los datos de ejemplo tras un retardo **determinista** (nunca `Math.random()`: un
- * retardo aleatorio en un test es un test que a veces tarda y a veces no) y nunca
- * falla — para eso está el otro adaptador, `adaptadorFuenteNoDisponible`, del lado de
- * `apps/backoffice`.
+ * los datos de ejemplo tras un retardo **determinista** (nunca un generador
+ * pseudoaleatorio no criptográfico: un retardo aleatorio en un test es un test que a
+ * veces tarda y a veces no) y nunca falla — para eso está el otro adaptador,
+ * `adaptadorFuenteNoDisponible`, del lado de `apps/backoffice`.
  *
  * Solo se importa desde el backoffice por import dinámico y en una rama que el build
  * de producción no incluye (`proveedor-fuentes.demo.ts`, reemplazado por
