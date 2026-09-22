@@ -17,7 +17,7 @@ Salida: plataforma/gateway/src/main/resources/rutas.yml, que application.yml imp
 
 from pathlib import Path
 
-from modelo import PREFIJOS
+from modelo import PREFIJOS, RUTAS_SENSIBLES
 
 RAIZ = Path(__file__).resolve().parent.parent
 SALIDA = RAIZ / "plataforma/gateway/src/main/resources/rutas.yml"
@@ -40,11 +40,42 @@ CABECERA = """# GENERADO por scripts/generar_gateway.py — no editar a mano.
 #
 # `StripPrefix=2` saca `/api/v1`: el contrato lo declara y el servicio sirve en la
 # raiz, asi que el prefijo lo pone y lo saca la entrada publica.
+#
+# Las rutas de scripts/modelo.py -> RUTAS_SENSIBLES van PRIMERO y con
+# `RequestRateLimiter` (H3.S1, ADR-050): Spring Cloud Gateway evalua las rutas en
+# orden y usa la primera que matchea, asi que si fueran despues de la ruta general
+# del servicio nunca se alcanzarian.
 """
+
+# H3.S1: valores por defecto del limitador, DECISION_REQUIRED para el numero
+# final (nadie lo fijo en el encargo). 5 req/s sostenidos, rafaga de 10: alcanza
+# para un reintento humano normal y corta un ataque de fuerza bruta. Se declara
+# ACA, no se adivina por endpoint.
+REPLENISH_RATE_SENSIBLE = 5
+BURST_CAPACITY_SENSIBLE = 10
 
 
 def rutas() -> str:
     lineas = [CABECERA, "spring:", "  cloud:", "    gateway:", "      server:", "        webflux:", "          routes:"]
+
+    for servicio in sorted(RUTAS_SENSIBLES):
+        anfitrion = ANFITRION.get(servicio, servicio)
+        for ruta in sorted(RUTAS_SENSIBLES[servicio]):
+            id_ruta = f"{servicio}-sensible-{ruta.strip('/').replace('/', '-')}"
+            lineas += [
+                f"            - id: {id_ruta}",
+                f"              uri: http://{anfitrion}:8080",
+                "              predicates:",
+                f"                - Path={PREFIJO_PUBLICO}{ruta}/**",
+                "              filters:",
+                f"                - StripPrefix={SEGMENTOS_A_SACAR}",
+                "                - name: RequestRateLimiter",
+                "                  args:",
+                f"                    redis-rate-limiter.replenishRate: {REPLENISH_RATE_SENSIBLE}",
+                f"                    redis-rate-limiter.burstCapacity: {BURST_CAPACITY_SENSIBLE}",
+                '                    key-resolver: "#{@ipYUsuarioKeyResolver}"',
+            ]
+
     for servicio in sorted(PREFIJOS):
         anfitrion = ANFITRION.get(servicio, servicio)
         caminos = ",".join(f"{PREFIJO_PUBLICO}{p}/**" for p in sorted(PREFIJOS[servicio]))
@@ -62,7 +93,8 @@ def rutas() -> str:
 def main() -> None:
     SALIDA.parent.mkdir(parents=True, exist_ok=True)
     SALIDA.write_text(rutas(), encoding="utf-8")
-    print(f"{SALIDA.relative_to(RAIZ)} — {len(PREFIJOS)} servicios")
+    total_sensibles = sum(len(v) for v in RUTAS_SENSIBLES.values())
+    print(f"{SALIDA.relative_to(RAIZ)} — {len(PREFIJOS)} servicios, {total_sensibles} rutas sensibles")
 
 
 if __name__ == "__main__":

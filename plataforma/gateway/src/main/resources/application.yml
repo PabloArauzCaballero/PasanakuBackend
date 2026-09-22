@@ -19,6 +19,13 @@ spring:
             response-timeout: 10s
           default-filters:
             - DedupeResponseHeader=Access-Control-Allow-Origin
+  # H3.S1: sin host/puerto explicitos — SPRING_DATA_REDIS_HOST/PORT llegan por
+  # variable de entorno (despliegue/compose/base.yml y docker-compose.coolify.yml),
+  # igual que el resto de la infraestructura compartida.
+  data:
+    redis:
+      timeout: 1s
+      connect-timeout: 1s
 
 server:
   port: 8080
