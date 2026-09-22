@@ -42,7 +42,7 @@ class ArranqueProduccionTest {
 
     /** Caso 1 · production, sin nada mas: arranca, y el bean es el real. */
     @Nested
-    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
     @ActiveProfiles("production")
     class ConAdaptadorReal {
 
@@ -63,7 +63,7 @@ class ArranqueProduccionTest {
      */
     @Nested
     @SpringBootTest(
-            webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+            webEnvironment = SpringBootTest.WebEnvironment.NONE,
             properties = "aportaya.mfa.doble-local=true")
     @ActiveProfiles("production")
     class ConDobleLocalForzado {
