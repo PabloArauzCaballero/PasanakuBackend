@@ -33,6 +33,10 @@ spring-boot-validation = { module = "org.springframework.boot:spring-boot-starte
 spring-boot-jdbc       = { module = "org.springframework.boot:spring-boot-starter-jdbc" }
 spring-boot-security   = { module = "org.springframework.boot:spring-boot-starter-security" }
 spring-boot-oauth2     = { module = "org.springframework.boot:spring-boot-starter-oauth2-resource-server" }
+# Redis reactivo para el RequestRateLimiter del gateway (H3.S1, AMB-6). Version
+# del BOM, mismo criterio que el resto de arriba; verificado que el artifact
+# existe contra la doc de Spring Boot el 2026-09-21.
+spring-boot-redis      = { module = "org.springframework.boot:spring-boot-starter-data-redis-reactive" }
 spring-boot-test       = { module = "org.springframework.boot:spring-boot-starter-test" }
 spring-boot-bom        = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
 
