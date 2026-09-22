@@ -7,6 +7,10 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   exclude:
     - lib/tokens/tokens.dart   # generado desde packages/tokens
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
   errors:
     missing_required_param: error
     missing_return: error

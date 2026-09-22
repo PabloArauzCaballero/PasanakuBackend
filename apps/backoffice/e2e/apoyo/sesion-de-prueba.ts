@@ -52,5 +52,10 @@ export async function abrirSesionDePruebaYNavegar(page: Page, permisos: readonly
     { permisos, rol, ruta },
   )
 
-  await page.waitForURL((url) => url.pathname === ruta || url.pathname.startsWith(`${ruta}/`))
+  // No se espera específicamente `ruta`: un `canMatch` (p. ej. `soloRolesDeSistemas`)
+  // puede reenviar a otro lado, y ESE es precisamente el caso que algunos tests
+  // prueban (ver `sistemas-sin-contrato.e2e.ts`, "sin rol PLATAFORMA/SEGURIDAD").
+  // Alcanza con esperar a que el router deje `/ingreso`; la aserción sobre a dónde
+  // llegó de verdad es responsabilidad de cada test.
+  await page.waitForURL((url) => url.pathname !== '/ingreso')
 }
