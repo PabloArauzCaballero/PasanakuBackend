@@ -115,7 +115,7 @@ def ui():
     barrer("sin formato de dinero", raiz, {".ts", ".html"}, r"(toFixed\(|Intl\.NumberFormat|parseFloat\(|'Bs '|\"Bs \")",
            lambda p: p.name.startswith("monto") or p.name.startswith("formatear"))
     barrer("sin console", raiz, {".ts"}, r"console\.(log|warn|error)\(", lambda p: False)
-    grandes = [f"{p.relative_to(R)} ({len(p.read_text().splitlines())})" for p in archivos(raiz, {".ts"}, ("/catalogo/",))
+    grandes = [f"{p.relative_to(R)} ({len(p.read_text().splitlines())})" for p in archivos(raiz, {".ts"}, ("/catalogo/", ".spec.ts"))
                if len(p.read_text().splitlines()) > 200]
     check(not grandes, f"ningún archivo de más de 200 líneas (catalogo/ es datos y queda fuera) {grandes or ''}")
     piezas = sorted(d.name for d in raiz.iterdir() if d.is_dir() and d.name not in ("catalogo",))

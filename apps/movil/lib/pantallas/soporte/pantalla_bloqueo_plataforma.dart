@@ -1,3 +1,4 @@
+import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 
 /// Se muestra en vez de la app entera cuando, en un RELEASE de iOS, el almacén
@@ -20,18 +21,18 @@ class PantallaBloqueoPlataforma extends StatelessWidget {
       body: SafeArea(
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(Espacio.s5),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.lock_outline, size: 48),
-                const SizedBox(height: 16),
+                const Icon(Icons.lock_outline, size: Espacio.s7),
+                const SizedBox(height: Espacio.s4),
                 Text(
                   'AportaYa no puede abrir en este dispositivo',
                   style: Theme.of(context).textTheme.titleLarge,
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: Espacio.s2),
                 Text(
                   'Esta versión no puede proteger tu sesión ni tu saldo en este '
                   'teléfono todavía. Actualizá la app cuando haya una versión '

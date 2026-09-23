@@ -32,7 +32,7 @@ export default defineConfig({
       timeout: 180_000,
     },
     {
-      command: 'yarn workspace @aportaya/backoffice start --port 4300',
+      command: 'yarn workspace @aportaya/backoffice start --port 4300 --host 127.0.0.1 --proxy-config proxy.e2e.json',
       url: 'http://127.0.0.1:4300/tablero',
       reuseExistingServer: !process.env.CI,
       timeout: 180_000,

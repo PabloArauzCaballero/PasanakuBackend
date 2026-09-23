@@ -31,12 +31,14 @@ class BotonSegunCapacidad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final boton = Semantics(
-      hint: _soportado ? null : motivoSiNoSoportado,
-      child: FilledButton.icon(
-        onPressed: _soportado ? alPresionar : null,
-        icon: icono == null ? const SizedBox.shrink() : Icon(icono),
-        label: Text(etiqueta),
+    final boton = MergeSemantics(
+      child: Semantics(
+        hint: _soportado ? null : motivoSiNoSoportado,
+        child: FilledButton.icon(
+          onPressed: _soportado ? alPresionar : null,
+          icon: icono == null ? const SizedBox.shrink() : Icon(icono),
+          label: Text(etiqueta),
+        ),
       ),
     );
     if (_soportado) return boton;

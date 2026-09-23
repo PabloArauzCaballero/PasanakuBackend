@@ -17,7 +17,23 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { ejecutarHumo } from './humo.mjs';
+import { ejecutarHumo, resultadoFinal, clasificar, INFORMATIVAS } from './humo.mjs';
+
+test('el veredicto puro conserva los nombres de las colecciones obligatorias fallidas', () => {
+  assert.deepEqual(resultadoFinal([
+    { nombreDeArchivo: 'aportes.humo.postman_collection.json', ok: false },
+    { nombreDeArchivo: 'grupos.humo.postman_collection.json', ok: true },
+  ]), {
+    exitoso: false,
+    obligatoriasRotas: ['aportes.humo.postman_collection.json'],
+    informativasRotas: [],
+  });
+});
+
+test('sin excepciones registradas, cada colección se clasifica como obligatoria', () => {
+  assert.equal(INFORMATIVAS.size, 0);
+  assert.equal(clasificar('identidad.humo.postman_collection.json'), 'obligatoria');
+});
 
 test('las tres colecciones sanas -> exit 0, ninguna caída', async () => {
   const runner = async () => ({ ok: true, codigo: 0 });

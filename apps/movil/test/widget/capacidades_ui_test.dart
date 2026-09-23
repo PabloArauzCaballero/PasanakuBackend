@@ -12,9 +12,9 @@ import 'package:flutter_test/flutter_test.dart';
 /// pantalla como por un lector (`Semantics.hint`).
 void main() {
   Widget envolver(Widget child) => MaterialApp(
-        theme: temaDesde(Tokens.claro, Brightness.light),
-        home: Scaffold(body: Center(child: child)),
-      );
+    theme: temaDesde(Tokens.claro, Brightness.light),
+    home: Scaffold(body: Center(child: child)),
+  );
 
   testWidgets(
     'no soportado: el botón está deshabilitado y el motivo se lee en pantalla',
@@ -33,10 +33,16 @@ void main() {
       );
 
       final boton = tester.widget<FilledButton>(find.byType(FilledButton));
-      expect(boton.onPressed, isNull, reason: 'un puerto no soportado no puede llamarse');
+      expect(
+        boton.onPressed,
+        isNull,
+        reason: 'un puerto no soportado no puede llamarse',
+      );
 
       expect(
-        find.text('Tu teléfono no tiene biometría disponible en esta versión de la app.'),
+        find.text(
+          'Tu teléfono no tiene biometría disponible en esta versión de la app.',
+        ),
         findsOneWidget,
       );
 

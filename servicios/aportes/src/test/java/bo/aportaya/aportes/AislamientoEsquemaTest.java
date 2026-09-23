@@ -64,7 +64,8 @@ class AislamientoEsquemaTest {
             // PostgreSQL rechaza el ALTER TABLE de un no-dueño con "must be owner
             // of table", no con "permission denied" (esa frase es de
             // SELECT/INSERT/UPDATE/DELETE) — encontrado corriendo esto de verdad.
-            assertThatThrownBy(() -> sentencia.execute("ALTER TABLE aportes.obligacion_aporte NO FORCE ROW LEVEL SECURITY"))
+            assertThatThrownBy(() ->
+                            sentencia.execute("ALTER TABLE aportes.obligacion_aporte NO FORCE ROW LEVEL SECURITY"))
                     .as("svc_aportes pudo desactivar FORCE RLS — no es el dueño de la tabla, no deberia poder")
                     .isInstanceOf(SQLException.class)
                     .hasMessageContaining("must be owner");
@@ -85,7 +86,8 @@ class AislamientoEsquemaTest {
      * `rol_auditor` es necesario pero, hoy, **no alcanza**.
      */
     @Test
-    @DisplayName("hallazgo: rol_auditor no ve filas en tablas con RLS forzada, ni con app.rol='AUDITOR' — no es miembro de rol_aplicacion")
+    @DisplayName(
+            "hallazgo: rol_auditor no ve filas en tablas con RLS forzada, ni con app.rol='AUDITOR' — no es miembro de rol_aplicacion")
     void rolAuditorNoEsMiembroDeRolAplicacion() throws SQLException {
         UUID usuario = UUID.randomUUID();
         try (Connection admin = BaseDePrueba.conexion();
@@ -125,7 +127,9 @@ class AislamientoEsquemaTest {
             var filas = sentencia.executeQuery(
                     "SELECT count(*)::int AS n FROM identidad.usuario WHERE id = '%s'".formatted(usuario));
             filas.next();
-            assertThat(filas.getInt("n")).as("rol_auditor sin app.rol ve la fila").isZero();
+            assertThat(filas.getInt("n"))
+                    .as("rol_auditor sin app.rol ve la fila")
+                    .isZero();
         }
 
         // rol_auditor, CON app.rol='AUDITOR' fijado a nivel de SESION (no de
@@ -139,11 +143,10 @@ class AislamientoEsquemaTest {
                     "SELECT count(*)::int AS n FROM identidad.usuario WHERE id = '%s'".formatted(usuario));
             filas.next();
             assertThat(filas.getInt("n"))
-                    .as(
-                            "rol_auditor CON app.rol='AUDITOR' en sesion sigue sin ver la fila — confirma que la causa "
-                                    + "es que rol_auditor no es miembro de rol_aplicacion (las politicas son TO "
-                                    + "rol_aplicacion), no la variable app.rol. Si esto da 1, alguien ya agrego la "
-                                    + "membresia y esta nota quedo vieja: hay que actualizarla")
+                    .as("rol_auditor CON app.rol='AUDITOR' en sesion sigue sin ver la fila — confirma que la causa "
+                            + "es que rol_auditor no es miembro de rol_aplicacion (las politicas son TO "
+                            + "rol_aplicacion), no la variable app.rol. Si esto da 1, alguien ya agrego la "
+                            + "membresia y esta nota quedo vieja: hay que actualizarla")
                     .isZero();
         }
 
