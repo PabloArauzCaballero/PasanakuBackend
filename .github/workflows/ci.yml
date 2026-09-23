@@ -720,6 +720,14 @@ jobs:
         with:
           sarif_file: trivy-results.sarif
 
+      - name: 17d · conservar el informe de Trivy aunque el gate falle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-results-${{ github.sha }}
+          path: trivy-results.sarif
+          if-no-files-found: warn
+
   # ------------------------------------------------------------ e2e-financiero --
   # H2.S6.M1: nucleo-financiero y comun-mensajeria (outbox) son los dos modulos
   # con logica de dinero de verdad; corren en cada push a `dev` (no solo en main,
