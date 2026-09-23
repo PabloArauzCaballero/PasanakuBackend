@@ -13,7 +13,7 @@ function recursoFalso(config: { cargando?: boolean; error?: unknown; valor?: unk
     error: () => config.error,
     hasValue: () => config.valor !== undefined,
     value: () => config.valor,
-    status: () => config.status ?? 'resolved',
+    status: () => config.status ?? (config.cargando ? 'loading' : config.error ? 'error' : config.valor !== undefined ? 'resolved' : 'idle'),
   } as unknown as ResourceRef<unknown>
 }
 

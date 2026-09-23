@@ -9,8 +9,8 @@ import { sesionDeOperador } from './sesion-de-operador'
  * de ingreso real (CU-04) porque el token vive **solo en memoria**: no hay forma de
  * sembrar una sesión desde afuera, y eso es a propósito.
  *
- * Ese token de mentira no trae claims, así que la sesión queda **sin permisos de
- * sección**: se ven los cuatro tutoriales que no piden ninguno, que son justo los que
+ * La sesión de prueba pide una lista vacía de permisos de sección: se ven los
+ * cuatro tutoriales que no piden ninguno, que son justo los que
  * este recorrido necesita. El filtrado por permiso se prueba en
  * `src/app/nucleo/tutoriales/registro.spec.ts`.
  */

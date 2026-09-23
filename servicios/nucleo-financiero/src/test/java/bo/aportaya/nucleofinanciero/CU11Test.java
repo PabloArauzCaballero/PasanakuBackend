@@ -153,7 +153,7 @@ class CU11Test extends BaseDeBilletera {
 
     @Test
     @DisplayName(
-            "kill-test H1: misma clave de idempotencia, dos cuentas distintas · Cuando cada una retira · Entonces cada una recibe su PROPIA orden, nunca la de la otra")
+            "Dadas dos cuentas con la misma clave de idempotencia · Cuando cada una solicita un retiro · Entonces cada una recibe una orden distinta")
     void mismaClaveDistintaCuenta() {
         Escenario a = escenario("1000.00", null);
         Escenario b = otroEscenario("1000.00", null);
@@ -168,7 +168,8 @@ class CU11Test extends BaseDeBilletera {
     }
 
     @Test
-    @DisplayName("replay: la clave repetida devuelve el costo ALMACENADO en la orden, nunca el de la entrada repetida")
+    @DisplayName(
+            "Dada una orden de retiro con costo registrado · Cuando se reintenta con la misma clave y otro costo · Entonces se devuelve el costo registrado")
     void replayDevuelveCostoAlmacenado() {
         Escenario e = escenario("1000.00", null);
 

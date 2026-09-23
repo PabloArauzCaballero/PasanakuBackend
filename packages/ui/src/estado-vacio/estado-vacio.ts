@@ -13,7 +13,7 @@ import type { MotivoVacio } from '../estado-de-pantalla/estado-de-pantalla'
   host: { role: 'status' },
   template: `
     <p class="titulo">{{ titulo() }}</p>
-    <p class="porque">{{ porque() }}</p>
+    @if (porque()) { <p class="porque">{{ porque() }}</p> }
     @if (accion()) { <ap-boton [variante]="motivo() === 'porFiltro' ? 'fantasma' : 'secundario'" (pulsado)="actuar.emit()">{{ accion() }}</ap-boton> }
   `,
   styles: `
@@ -31,7 +31,9 @@ export class EstadoVacio {
   readonly accionPropia = input<string>()
   readonly explicacion = input<string>()
   readonly actuar = output<void>()
-  readonly porque = computed(() => this.explicacion() ?? PORQUE[this.motivo()])
+  /** `undefined` deduce el porqué del motivo; `''` explícito lo suprime a propósito
+   * (lo usa `EstadoDePantalla` para no duplicar el mensaje que ya pasó como título). */
+  readonly porque = computed(() => (this.explicacion() !== undefined ? this.explicacion() : PORQUE[this.motivo()]))
   readonly accion = computed(() => this.accionPropia() ?? ACCION[this.motivo()])
 }
 

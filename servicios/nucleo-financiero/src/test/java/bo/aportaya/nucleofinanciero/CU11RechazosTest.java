@@ -285,13 +285,17 @@ class CU11RechazosTest extends BaseDeBilletera {
 
         assertThat(instruccion.estado()).isEqualTo("RECHAZADA");
         assertThat(contar(
-                        "SELECT count(*)::int FROM nucleo_financiero.orden_retiro WHERE id = ? AND estado ="
-                                + " 'RECHAZADA'",
+                        """
+                        SELECT count(*)::int FROM nucleo_financiero.orden_retiro
+                        WHERE id = ? AND estado = 'RECHAZADA'
+                        """,
                         s.ordenRetiroId()))
                 .isEqualTo(1);
         assertThat(contar(
-                        "SELECT count(*)::int FROM nucleo_financiero.retencion_saldo WHERE id = ? AND estado ="
-                                + " 'LIBERADA'",
+                        """
+                        SELECT count(*)::int FROM nucleo_financiero.retencion_saldo
+                        WHERE id = ? AND estado = 'LIBERADA'
+                        """,
                         s.retencionId()))
                 .isEqualTo(1);
         // El saldo vuelve a estar disponible: el rechazo del proveedor no puede dejar

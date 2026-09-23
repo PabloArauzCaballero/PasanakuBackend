@@ -70,6 +70,7 @@ export class FichaDeCobro {
    * H4.S1 §3), el candidato mínimo y honesto es comparar contra los valores iniciales.
    */
   protected readonly hayCambiosSinGuardar = computed(() => this.monto() !== '' || this.forma() !== this.valorInicialDeForma)
+  protected readonly sucio = this.hayCambiosSinGuardar
 
   // Q-L1 (rama conservadora, sin decisión de producto): si `cuenta` cambia mientras hay un
   // borrador sucio, no se pierde en silencio ni se guarda contra la entidad vieja — se bloquea

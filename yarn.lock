@@ -443,6 +443,7 @@ __metadata:
     "@angular/forms": "npm:^22.1.0"
     "@angular/platform-browser": "npm:^22.1.0"
     "@angular/router": "npm:^22.1.0"
+    "@aportaya/dominio-cliente": "workspace:*"
     "@aportaya/simulado": "workspace:*"
     "@aportaya/tokens": "workspace:*"
     "@aportaya/tutoriales": "workspace:*"
@@ -470,7 +471,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@aportaya/dominio-cliente@workspace:packages/dominio-cliente":
+"@aportaya/dominio-cliente@workspace:*, @aportaya/dominio-cliente@workspace:packages/dominio-cliente":
   version: 0.0.0-use.local
   resolution: "@aportaya/dominio-cliente@workspace:packages/dominio-cliente"
   dependencies:
@@ -532,11 +533,13 @@ __metadata:
     "@angular/router": "npm:^22.1.0"
     "@aportaya/ui": "workspace:*"
     "@eslint/js": "npm:^9.39.0"
+    "@types/node": "npm:^22.10.0"
     angular-eslint: "npm:^22.5.0"
     eslint: "npm:^9.39.0"
     rxjs: "npm:~7.8.0"
     typescript: "npm:~6.0.2"
     typescript-eslint: "npm:^8.68.0"
+    vitest: "npm:^4.1.0"
   peerDependencies:
     "@angular/common": ^22.1.0
     "@angular/core": ^22.1.0
@@ -594,6 +597,7 @@ __metadata:
     "@angular/platform-server": "npm:^22.1.0"
     "@angular/router": "npm:^22.1.0"
     "@angular/ssr": "npm:^22.1.5"
+    "@aportaya/dominio-cliente": "workspace:*"
     "@aportaya/simulado": "workspace:*"
     "@aportaya/tokens": "workspace:*"
     "@aportaya/tutoriales": "workspace:*"

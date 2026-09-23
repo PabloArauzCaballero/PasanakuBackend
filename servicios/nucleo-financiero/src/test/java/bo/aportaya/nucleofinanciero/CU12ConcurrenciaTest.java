@@ -33,7 +33,8 @@ class CU12ConcurrenciaTest extends BaseDeBilletera {
     }
 
     @Test
-    @DisplayName("idempotencia concurrente: 50 reintentos devuelven una sola transferencia")
+    @DisplayName(
+            "Dada una transferencia con 50 reintentos simultáneos · Cuando se procesan · Entonces se registra una sola transferencia")
     void cincuentaReintentosCompartenElResultadoOriginal() throws Exception {
         fixtura.tipoDeCambioDeHoy();
         fixtura.limite("TRANSFERENCIA", ESTANDAR, "MES", new BigDecimal("100000.00"), null);

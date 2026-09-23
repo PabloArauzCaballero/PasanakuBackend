@@ -59,7 +59,6 @@ import org.junit.jupiter.api.Test;
 class AutorizacionNegativaTest extends BaseDeBilletera {
 
     private static final String ESTANDAR = "ESTANDAR";
-    private static final String ROL_APLICACION = "svc_nucleo_financiero";
 
     @AfterEach
     void limpiar() {
@@ -100,11 +99,17 @@ class AutorizacionNegativaTest extends BaseDeBilletera {
     private void comoUsuario(UUID usuarioId, ConsultaComoRol consulta) throws SQLException {
         try (Connection conexion = BaseDePrueba.conexion()) {
             conexion.setAutoCommit(false);
-            try (var st = conexion.createStatement()) {
-                st.execute("SET ROLE " + ROL_APLICACION);
-                st.execute("SELECT set_config('app.usuario_id', '" + usuarioId + "', true)");
-                st.execute("SELECT set_config('app.rol', 'PARTICIPANTE', true)");
-                st.execute("SELECT set_config('app.traza', '" + UUID.randomUUID() + "', true)");
+            try (var st = conexion.createStatement();
+                    var config = conexion.prepareStatement(
+                            """
+                            SELECT set_config('app.usuario_id', ?, true),
+                                   set_config('app.rol', 'PARTICIPANTE', true),
+                                   set_config('app.traza', ?, true)
+                            """)) {
+                st.execute("SET ROLE svc_nucleo_financiero");
+                config.setString(1, usuarioId.toString());
+                config.setString(2, UUID.randomUUID().toString());
+                config.execute();
             }
             consulta.ejecutar(conexion);
             conexion.rollback(); // nunca se confirma nada escrito por esta prueba
@@ -162,8 +167,11 @@ class AutorizacionNegativaTest extends BaseDeBilletera {
         int[] filasAfectadas = {-1};
         comoUsuario(b.usuario(), conexion -> {
             try (PreparedStatement ps = conexion.prepareStatement(
-                    "UPDATE nucleo_financiero.retencion_saldo SET estado = 'LIBERADA', liberada_en = now() "
-                            + "WHERE id = ? AND estado = 'VIGENTE'")) {
+                    """
+                    UPDATE nucleo_financiero.retencion_saldo
+                    SET estado = 'LIBERADA', liberada_en = now()
+                    WHERE id = ? AND estado = 'VIGENTE'
+                    """)) {
                 ps.setObject(1, retencion.retencionId());
                 filasAfectadas[0] = ps.executeUpdate();
             }
@@ -176,8 +184,10 @@ class AutorizacionNegativaTest extends BaseDeBilletera {
         // confirma que el cero de arriba es autorizacion y no "no existe de verdad"):
         // la retencion de A SIGUE VIGENTE, intacta.
         assertThat(contar(
-                        "SELECT count(*)::int FROM nucleo_financiero.retencion_saldo WHERE id = ? AND estado ="
-                                + " 'VIGENTE'",
+                        """
+                        SELECT count(*)::int FROM nucleo_financiero.retencion_saldo
+                        WHERE id = ? AND estado = 'VIGENTE'
+                        """,
                         retencion.retencionId()))
                 .isEqualTo(1);
     }

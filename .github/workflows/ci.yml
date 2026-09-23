@@ -30,6 +30,11 @@ permissions:
   # google.github.io/osv-scanner/github-action/ el 2026-09-21.
   security-events: write
   actions: read
+  # gitleaks-action@v2 lista los commits del PR (`GET .../pulls/:number/commits`) para decidir
+  # qué rango escanear; sin este permiso el paso 19b muere con 403 "Resource not accessible by
+  # integration" en TODO pull request, sin escanear nada — hallazgo real, confirmado en
+  # `gh run view <id> --log-failed` sobre el PR de dialogo-estados (PR8), no elegido a priori.
+  pull-requests: read
 
 env:
   BD_URL_ADMIN: jdbc:postgresql://localhost:5432/pasanaku

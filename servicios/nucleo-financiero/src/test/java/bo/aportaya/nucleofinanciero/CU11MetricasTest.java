@@ -50,9 +50,8 @@ class CU11MetricasTest extends BaseDeBilletera {
     }
 
     @Test
-    @DisplayName(
-            "Dado un retiro bajo el umbral · Cuando se solicita y queda AUTORIZADA · Entonces las metricas"
-                    + " withdrawal_requested_total y withdrawal_approved_total suman, y withdrawal_failed_total no")
+    @DisplayName("Dado un retiro bajo el umbral · Cuando se solicita y queda AUTORIZADA · Entonces las metricas"
+            + " withdrawal_requested_total y withdrawal_approved_total suman, y withdrawal_failed_total no")
     void retiroAutorizadoSumaRequestedYApproved() {
         double antesRequested = contador("withdrawal_requested_total");
         double antesApproved = contador("withdrawal_approved_total");
@@ -78,9 +77,8 @@ class CU11MetricasTest extends BaseDeBilletera {
     }
 
     @Test
-    @DisplayName(
-            "Dado un retiro que no pasa una condicion dura · Cuando se rechaza antes de crear la orden · Entonces"
-                    + " solo suma la metrica withdrawal_failed_total, nunca requested ni approved")
+    @DisplayName("Dado un retiro que no pasa una condicion dura · Cuando se rechaza antes de crear la orden · Entonces"
+            + " solo suma la metrica withdrawal_failed_total, nunca requested ni approved")
     void retiroRechazadoSumaSoloFailed() {
         double antesRequested = contador("withdrawal_requested_total");
         double antesApproved = contador("withdrawal_approved_total");

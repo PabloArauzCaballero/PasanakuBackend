@@ -268,6 +268,7 @@ pumls = sorted((R / 'docs/entidades').glob('*.puml'))
 CIFRAS = {
     'casos de uso': len(casos),
     'tablas':       sum(len(re.findall(r'^entity ', p.read_text(encoding="utf-8"), re.M)) for p in pumls),
+    'entidades':    len(ents),
     'restricciones': len(set(re.findall(r'\bR-[A-Z]{2,4}-\d{2}\b',
                                         (R / 'docs/Restricciones.md').read_text(encoding="utf-8")))),
     'ADR':          len(list((R / 'docs/Arquitectura').glob('ADR-*.md'))),
@@ -275,7 +276,8 @@ CIFRAS = {
 # Sinonimos con los que cada cifra aparece en la prosa de los planes.
 TERMINOS = {
     'casos de uso':  [r'casos de uso', r'CU\b'],
-    'tablas':        [r'tablas', r'entidades'],
+    'tablas':        [r'tablas'],
+    'entidades':     [r'entidades'],
     'restricciones': [r'restricciones'],
     'ADR':           [r'ADR'],
 }

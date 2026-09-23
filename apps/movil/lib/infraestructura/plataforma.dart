@@ -88,8 +88,8 @@ Camara camaraDeLaPlataforma() => _camaraDeDesarrollo.isEmpty
 /// (H2.S2.M3) en vez de dejar una pantalla de saldo sin protección de captura.
 ProteccionPantalla proteccionPantallaDeLaPlataforma() =>
     !kIsWeb && Platform.isIOS
-        ? const ProteccionPantallaIos()
-        : ProteccionPantallaAndroid();
+    ? const ProteccionPantallaIos()
+    : ProteccionPantallaAndroid();
 
 /// `IOS` o `ANDROID`, con los nombres que usa el contrato de identidad. Está acá y no
 /// en el caso de uso porque `Platform.is*` fuera de `infraestructura/` es un rechazo

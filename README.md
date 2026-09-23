@@ -36,7 +36,7 @@ Los catorce servicios arrancan, sirven sus rutas y niegan sin token. Estos coman
 estan ejecutados, no supuestos.
 
 ```bash
-# 1 · la base, con las 305 tablas, los roles y los catalogos
+# 1 · la base, con las 306 tablas, los roles y los catalogos
 docker compose -f despliegue/compose/base.yml --profile base up -d --wait
 
 # 2 · el gate completo: formato, arquitectura, atomos, casos de uso, contratos y sagas
@@ -177,7 +177,7 @@ python3 scripts/generar_ddl.py      # esquema SQL completo desde los .puml + el 
 ./gradlew bd:humo                   # 165 comprobaciones, sobre una base DESECHABLE
 ```
 
-El esquema son **305 tablas en un archivo cada una**, con las claves foráneas y los
+El esquema son **306 tablas en un archivo cada una**, con las claves foráneas y los
 índices en pasadas aparte —el orden que necesita la introspección de tipos— más el
 sellado de las tablas append-only y el catálogo de restricciones. Verificado sobre
 PostgreSQL 16: aplica sin errores **las veces que haga falta** —cada objeto se borra

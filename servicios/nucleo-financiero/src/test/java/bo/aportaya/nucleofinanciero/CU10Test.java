@@ -194,7 +194,7 @@ class CU10Test extends BaseDeBilletera {
 
     @Test
     @DisplayName(
-            "kill-test H1: misma clave de idempotencia, dos cuentas distintas · Cuando cada una recarga · Entonces cada una recibe su PROPIA orden, nunca la de la otra")
+            "Dadas dos cuentas con la misma clave de idempotencia · Cuando cada una solicita una recarga · Entonces cada una recibe una orden distinta")
     void mismaClaveDistintaCuenta() {
         UUID cuentaA = billeteraConLimite();
         UUID cuentaB = otraBilletera();

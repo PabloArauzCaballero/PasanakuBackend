@@ -154,10 +154,11 @@ $q$);
 -- módulos 13 y 14; 30 → 29 al bajar el outbox a infraestructura por esquema con
 -- UPDATE de estado, ADR-027: evento_dominio ya no está sellado; 29 → 30 al sellar
 -- indicador_kpi, que pasó a append-only para que un indicador recalculado no pise
--- la serie anterior).
-SELECT CASE WHEN count(*) = 30
-            THEN 'OK    · R-AUD-01 las 30 tablas append-only están selladas'
-            ELSE 'FALLA · R-AUD-01 ' || count(*) || ' de 30 tablas selladas' END
+-- la serie anterior; 30 → 31 al sellar evidencia_mfa_consumida para impedir
+-- que un jti de step-up ya consumido se vuelva reutilizable).
+SELECT CASE WHEN count(*) = 31
+            THEN 'OK    · R-AUD-01 las 31 tablas append-only están selladas'
+            ELSE 'FALLA · R-AUD-01 ' || count(*) || ' de 31 tablas selladas' END
   FROM pg_trigger tg
   JOIN pg_class c ON c.oid = tg.tgrelid
  WHERE NOT tg.tgisinternal AND tg.tgname LIKE '%append\_only'

@@ -1,0 +1,108 @@
+=== node scripts/humo.mjs — corrida real contra localhost:8080, Tue Sep 22 03:02:26     2026 ===
+(recortado: primeras 60 y últimas 40 líneas de 11525 totales; el log completo se descartó por tamaño)
+
+
+▶ aportes.humo.postman_collection.json (obligatoria)
+(node:24920) [DEP0176] DeprecationWarning: fs.F_OK is deprecated, use fs.constants.F_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+newman
+
+Humo · aportes
+
+□ 00 · sesion
+└ autenticar · conseguir el token
+  POST http://localhost:8080/sesiones [200 OK, 4.03kB, 103ms]
+  1. hay sesion para correr el humo
+
+□ cobrarAporte · Acreditar el pago de una obligacion de aporte
+└ 1 · valido
+  POST http://localhost:8080/aportes/obligaciones//pagos [200 OK, 4.03kB, 9ms]
+  √  acepta el caso valido
+  2. responde JSON
+  3. trae los campos que el contrato declara obligatorios
+  4. los importes son cadena, no numero
+  5⠄ JSONError in test-script
+
+└ 2 · limite
+  POST http://localhost:8080/aportes/obligaciones//pagos [200 OK, 4.03kB, 6ms]
+  √  el borde no revienta: contesta con un codigo declarado
+  √  si rechaza el borde, lo hace con un codigo de negocio y no con un 500
+  √  no devuelve un importe con mas de dos decimales
+
+└ 3 · error · sin sesion
+  POST http://localhost:8080/aportes/obligaciones//pagos [200 OK, 4.03kB, 29ms]
+  6. sin sesion no se pasa
+  √  el 401 no cuenta de mas
+
+└ 4 · error · cuerpo invalido
+  POST http://localhost:8080/aportes/obligaciones//pagos [200 OK, 4.03kB, 9ms]
+  7. rechaza el cuerpo invalido
+  √  dice que esta mal sin exponer como esta hecho por dentro
+
+□ solicitarReembolso · Solicitar el reembolso de un pago
+└ 1 · valido
+  POST http://localhost:8080/pagos//reembolsos [200 OK, 4.03kB, 23ms]
+  √  acepta el caso valido
+  8. responde JSON
+  9. trae los campos que el contrato declara obligatorios
+ 10. los importes son cadena, no numero
+ 11⠄ JSONError in test-script
+
+└ 2 · limite
+  POST http://localhost:8080/pagos//reembolsos [200 OK, 4.03kB, 9ms]
+  √  el borde no revienta: contesta con un codigo declarado
+  √  si rechaza el borde, lo hace con un codigo de negocio y no con un 500
+  √  no devuelve un importe con mas de dos decimales
+
+└ 3 · error · sin sesion
+  POST http://localhost:8080/pagos//reembolsos [200 OK, 4.03kB, 26ms]
+ 12. sin sesion no se pasa
+  √  el 401 no cuenta de mas
+
+└ 4 · error · cuerpo invalido
+  POST http://localhost:8080/pagos//reembolsos [200 OK, 4.03kB, 11ms]
+
+... [recortado] ...
+
+                       at assertion:0 in test-script
+                       inside "cerrarAlertaRiesgo · Cerrar una alerta con su desenlace / 3 · error · sin sesion"
+[90m      [39m[90m                [39m[90m                                                                                                                   [39m
+ 111.  AssertionError  rechaza el cuerpo invalido
+                       acepto un cuerpo que no valida contra su esquema: expected 200 to be one of [ 400, 422 ]
+                       at assertion:0 in test-script
+                       inside "cerrarAlertaRiesgo · Cerrar una alerta con su desenlace / 4 · error · cuerpo invalido"
+[90m      [39m[90m                [39m[90m                                                                                                                   [39m
+ 112.  AssertionError  responde JSON
+                       expected 'text/html;charset=UTF-8' to include 'json'
+                       at assertion:1 in test-script
+                       inside "consultarPuntaje · El puntaje de reputacion de alguien / 1 · valido"
+[90m      [39m[90m                [39m[90m                                                                                                                   [39m
+ 113.  JSONError       trae los campos que el contrato declara obligatorios
+                       Unexpected token '<' at 1:1
+                       <!DOCTYPE html>
+                       ^
+                       at assertion:2 in test-script
+                       inside "consultarPuntaje · El puntaje de reputacion de alguien / 1 · valido"
+[90m      [39m[90m                [39m[90m                                                                                                                   [39m
+ 114.  JSONError       los importes son cadena, no numero
+                       Unexpected token '<' at 1:1
+                       <!DOCTYPE html>
+                       ^
+                       at assertion:3 in test-script
+                       inside "consultarPuntaje · El puntaje de reputacion de alguien / 1 · valido"
+[90m      [39m[90m                [39m[90m                                                                                                                   [39m
+ 115.  JSONError
+                       Unexpected token '<' at 1:1
+                       <!DOCTYPE html>
+                       ^
+                       at test-script
+                       inside "consultarPuntaje · El puntaje de reputacion de alguien / 1 · valido"
+[90m      [39m[90m                [39m[90m                                                                                                                   [39m
+ 116.  AssertionError  sin sesion no se pasa
+                       una ruta con permiso contesto sin token: expected 200 to be one of [ 401, 403 ]
+                       at assertion:0 in test-script
+                       inside "consultarPuntaje · El puntaje de reputacion de alguien / 3 · error · sin sesion"
+
+✖ Humo obligatorio roto: aportes.humo.postman_collection.json, auditoria.humo.postman_collection.json, cumplimiento.humo.postman_collection.json, entregas.humo.postman_collection.json, erp.humo.postman_collection.json, garantia.humo.postman_collection.json, grupos.humo.postman_collection.json, identidad.humo.postman_collection.json, notificaciones.humo.postman_collection.json, nucleo-financiero.humo.postman_collection.json, organizador.humo.postman_collection.json, publicidad.humo.postman_collection.json, tarifas.humo.postman_collection.json, transparencia.humo.postman_collection.json
+
+EXIT=1 (confirmado, ver arriba)

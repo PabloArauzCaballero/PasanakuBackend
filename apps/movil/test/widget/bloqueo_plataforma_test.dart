@@ -20,7 +20,8 @@ const _capacidadesSinProteccion = Capacidades(
   biometria: GradoDeSoporte.noSoportado,
   avisosPush: GradoDeSoporte.noSoportado,
   camara: GradoDeSoporte.soportado,
-  proteccionPantalla: GradoDeSoporte.noSoportado, // la crítica que dispara el gate
+  proteccionPantalla:
+      GradoDeSoporte.noSoportado, // la crítica que dispara el gate
   haptica: GradoDeSoporte.soportado,
 );
 
@@ -41,7 +42,9 @@ void main() {
       var builderLlamado = false;
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [capacidadesProvider.overrideWithValue(_capacidadesSinProteccion)],
+          overrides: [
+            capacidadesProvider.overrideWithValue(_capacidadesSinProteccion),
+          ],
           child: MaterialApp(
             home: ArranqueSegunCapacidades(
               esRelease: true,
@@ -60,7 +63,8 @@ void main() {
       expect(
         builderLlamado,
         isFalse,
-        reason: 'si el builder se llamó, el cliente HTTP se creó sin protección',
+        reason:
+            'si el builder se llamó, el cliente HTTP se creó sin protección',
       );
     },
   );
@@ -71,7 +75,9 @@ void main() {
       var builderLlamado = false;
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [capacidadesProvider.overrideWithValue(_capacidadesPlenas)],
+          overrides: [
+            capacidadesProvider.overrideWithValue(_capacidadesPlenas),
+          ],
           child: MaterialApp(
             home: ArranqueSegunCapacidades(
               esRelease: true,
@@ -96,7 +102,9 @@ void main() {
     (tester) async {
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [capacidadesProvider.overrideWithValue(_capacidadesSinProteccion)],
+          overrides: [
+            capacidadesProvider.overrideWithValue(_capacidadesSinProteccion),
+          ],
           child: MaterialApp(
             home: ArranqueSegunCapacidades(
               esRelease: false,

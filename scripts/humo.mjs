@@ -41,6 +41,24 @@ export const COLECCIONES_INFORMATIVAS = Object.freeze({
   // 'ejemplo.humo': { motivo: '...', dueño: '...', desde: '2026-01-01' },
 });
 
+export const INFORMATIVAS = new Set(Object.keys(COLECCIONES_INFORMATIVAS));
+
+export function clasificar(nombreDeArchivo) {
+  const nombre = nombreDeArchivo.replace(/\.postman_collection\.json$/, '');
+  return INFORMATIVAS.has(nombre) ? 'informativa' : 'obligatoria';
+}
+
+export function resultadoFinal(resultados) {
+  const rotas = resultados.filter((resultado) => !resultado.ok);
+  const obligatoriasRotas = rotas.filter((resultado) => clasificar(resultado.nombreDeArchivo) === 'obligatoria');
+  const informativasRotas = rotas.filter((resultado) => clasificar(resultado.nombreDeArchivo) === 'informativa');
+  return {
+    exitoso: obligatoriasRotas.length === 0,
+    obligatoriasRotas: obligatoriasRotas.map((resultado) => resultado.nombreDeArchivo),
+    informativasRotas: informativasRotas.map((resultado) => resultado.nombreDeArchivo),
+  };
+}
+
 /**
  * Corre newman CLI real sobre un archivo de colección. Es el runner por default de
  * `ejecutarHumo`; las pruebas inyectan uno falso y nunca llegan acá.

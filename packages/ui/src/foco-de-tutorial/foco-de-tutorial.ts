@@ -14,22 +14,21 @@ export interface RecuadroResaltado {
  * se comunica solo con el oscurecimiento: hay un borde).
  *
  * El agujero **deja pasar el ratón** salvo que `bloquea` sea verdadero: un paso que
- * dice «pulsá este botón» tiene que dejar pulsarlo de verdad. Es un adorno, no una
- * barrera: va `aria-hidden` y quien usa lector de pantalla escucha el globo, no esto.
+ * dice «pulsá este botón» tiene que dejar pulsarlo de verdad. El halo es decorativo;
+ * cuando el paso bloquea la app, la cortina ofrece una salida accesible.
  */
 @Component({
   selector: 'ap-foco-de-tutorial',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { 'aria-hidden': 'true' },
   template: `
     @if (bloquea()) {
-      <div class="cortina" (click)="fueraDelFoco.emit()"></div>
+      <button type="button" class="cortina" aria-label="Salir del tutorial" (click)="fueraDelFoco.emit()"></button>
     }
-    <div class="halo" [class.sin-recuadro]="recuadro() === null" [style.left.px]="caja().x" [style.top.px]="caja().y" [style.width.px]="caja().ancho" [style.height.px]="caja().alto"></div>
+    <div class="halo" aria-hidden="true" [class.sin-recuadro]="recuadro() === null" [style.left.px]="caja().x" [style.top.px]="caja().y" [style.width.px]="caja().ancho" [style.height.px]="caja().alto"></div>
   `,
   styles: `
     :host { position: fixed; inset: 0; z-index: 40; pointer-events: none; }
-    .cortina { position: absolute; inset: 0; pointer-events: auto; }
+    .cortina { position: absolute; inset: 0; pointer-events: auto; border: 0; background: transparent; cursor: pointer; }
     .halo {
       position: absolute;
       border-radius: var(--r-lg);

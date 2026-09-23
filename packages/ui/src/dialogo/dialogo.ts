@@ -42,6 +42,8 @@ export class Dialogo implements AfterViewInit, OnDestroy {
   readonly destructivo = input(false)
   readonly cargando = input(false)
   readonly abierto = model(false)
+  /** El consumidor puede aplicar su propia política de descarte al cerrar. */
+  readonly puedeDescartar = input<() => boolean>(() => true)
   /**
    * El diálogo no conoce el dominio del formulario (regla de alcance): el consumidor calcula
    * si hay cambios sin guardar y lo pasa acá. Con esto en `true`, las TRES rutas de cierre
@@ -99,6 +101,7 @@ export class Dialogo implements AfterViewInit, OnDestroy {
   /** Única puerta de cierre. Botón, `Escape` y fondo llaman a este método — ninguna ruta cierra por otro camino. */
   intentarCerrar(): void {
     if (this.hayCambiosSinGuardar() && !this.confirmarDescarte(this.mensajeDeDescarte())) return
+    if (!this.puedeDescartar()()) return
     this.abierto.set(false)
     this.cancelar.emit()
   }
