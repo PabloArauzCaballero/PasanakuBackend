@@ -236,6 +236,13 @@ jobs:
       - name: f0 · clientes generados (Angular y Dart)
         run: ./gradlew generateOpenApiClients --no-parallel --no-build-cache -q
 
+      - name: f0a · compartir clientes Dart con los trabajos de macOS
+        uses: actions/upload-artifact@v4
+        with:
+          name: clientes-dart-${{ github.sha }}
+          path: clientes/dart/
+          if-no-files-found: error
+
       - name: f0b · el plan coincide con la maqueta
         run: python3 scripts/verificar_maqueta.py
 
@@ -369,6 +376,10 @@ jobs:
     needs: [frontend]
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: clientes-dart-${{ github.sha }}
+          path: clientes/dart/
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: 3.44.8
@@ -416,6 +427,10 @@ jobs:
     needs: [frontend]
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: clientes-dart-${{ github.sha }}
+          path: clientes/dart/
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -470,6 +485,10 @@ jobs:
     needs: [frontend]
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: clientes-dart-${{ github.sha }}
+          path: clientes/dart/
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
