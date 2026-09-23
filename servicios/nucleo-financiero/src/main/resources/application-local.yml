@@ -10,3 +10,6 @@ aportaya:
     # false = cualquier sesion autenticada con el campo presente alcanza; el valor
     # por omision sigue siendo exigirlo incluso en local, a proposito.
     doble-local: false
+  retiro-local:
+    monto-rechazado: 666.66
+    monto-en-timeout: 111.11
