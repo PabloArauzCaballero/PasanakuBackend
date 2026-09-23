@@ -9,9 +9,9 @@
 # desincronizarse entre si.
 
 [versions]
-spring-boot        = "3.5.6"
+spring-boot        = "3.5.16"
 spring-dep-mgmt    = "1.1.7"
-spring-cloud       = "2025.0.0"
+spring-cloud       = "2025.0.3"
 minio              = "8.5.17"
 shedlock           = "6.9.0"       # bloqueo de trabajos programados entre replicas
 resilience4j       = "2.3.0"       # timeout y cortacircuitos en cada cliente
