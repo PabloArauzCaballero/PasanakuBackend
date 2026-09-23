@@ -5,6 +5,7 @@ import bo.aportaya.plataforma.dominio.Dinero;
 import java.math.BigDecimal;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -12,8 +13,8 @@ import org.springframework.stereotype.Component;
  * El doble de {@code local}/{@code test} de {@link ProveedorDeRetiro} (H3.S1.M3,
  * completado a los tres niveles en H4.S2.M2).
  *
- * <p>Tres montos marca, sin flags nuevas ni configuracion — cada uno ejercita una rama
- * real del puerto:
+ * <p>Tres resultados posibles, con montos de simulacion definidos por el perfil
+ * local/test — cada uno ejercita una rama real del puerto:
  *
  * <ul>
  *   <li>Cualquier otro monto: {@code ACEPTADO} de una — el camino feliz.
@@ -37,21 +38,25 @@ import org.springframework.stereotype.Component;
 @Profile({"local", "test"})
 public class ProveedorDeRetiroLocal implements ProveedorDeRetiro {
 
-    /** Un monto exacto reservado para forzar el rechazo en una prueba, sin flags nuevas. */
-    private static final BigDecimal MONTO_QUE_RECHAZA = new BigDecimal("666.66");
-
-    /** Un monto exacto reservado para forzar un TIMEOUT — H4.S2.M2, tercer nivel. */
-    private static final BigDecimal MONTO_QUE_DEMORA = new BigDecimal("111.11");
+    private final BigDecimal montoQueRechaza;
+    private final BigDecimal montoQueDemora;
 
     private final ConcurrentHashMap<String, Estado> referencias = new ConcurrentHashMap<>();
+
+    public ProveedorDeRetiroLocal(
+            @Value("${aportaya.retiro-local.monto-rechazado}") BigDecimal montoQueRechaza,
+            @Value("${aportaya.retiro-local.monto-en-timeout}") BigDecimal montoQueDemora) {
+        this.montoQueRechaza = montoQueRechaza;
+        this.montoQueDemora = montoQueDemora;
+    }
 
     @Override
     public Resultado instruir(UUID ordenRetiroId, Dinero monto) {
         String referencia = "PROV-LOCAL-" + ordenRetiroId;
         Estado estado;
-        if (monto.monto().compareTo(MONTO_QUE_RECHAZA) == 0) {
+        if (monto.monto().compareTo(montoQueRechaza) == 0) {
             estado = Estado.RECHAZADO;
-        } else if (monto.monto().compareTo(MONTO_QUE_DEMORA) == 0) {
+        } else if (monto.monto().compareTo(montoQueDemora) == 0) {
             estado = Estado.TIMEOUT;
         } else {
             estado = Estado.ACEPTADO;

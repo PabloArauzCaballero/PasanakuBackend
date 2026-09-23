@@ -32,6 +32,7 @@ import bo.aportaya.plataforma.dominio.Traza;
 import bo.aportaya.plataforma.mensajeria.Consumidos;
 import bo.aportaya.plataforma.mensajeria.Outbox;
 import bo.aportaya.plataforma.pruebas.BaseDePrueba;
+import java.math.BigDecimal;
 import java.util.UUID;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
@@ -117,7 +118,7 @@ abstract class BaseDeBilletera {
                 Reloj.delSistema(),
                 java.time.Duration.ofMinutes(30),
                 puente);
-        proveedorDeRetiro = new ProveedorDeRetiroLocal();
+        proveedorDeRetiro = new ProveedorDeRetiroLocal(new BigDecimal("666.66"), new BigDecimal("111.11"));
         var ordenRetiroRepo = new OrdenRetiroRepositorio();
         metricas = new io.micrometer.core.instrument.simple.SimpleMeterRegistry();
         retiroCU = new CU11RetirarSaldo(
