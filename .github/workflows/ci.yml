@@ -698,21 +698,30 @@ jobs:
           test "$(docker image inspect aportaya/identidad:ci --format '{{.Config.User}}')" = "app" \
             || { echo "La imagen corre como root"; exit 1; }
 
-      # 17b · Trivy sobre la imagen (H2.S4.M1). Version pinneada verificada contra
-      # aquasecurity/trivy-action el 2026-09-21. HIGH/CRITICAL sin excepcion en
-      # .github/.trivyignore (motivo + fecha, misma disciplina que osv-scanner.toml,
-      # AMB-9) hacen fallar el job — de proposito: una CVE real no parcheada no es
-      # un detalle, es lo que este gate existe para atajar.
-      - name: 17b · Trivy — CRITICAL/HIGH sin parche bloquean
+      # Trivy incluye TODAS las severidades en SARIF aunque se indique
+      # severity: CRITICAL,HIGH. Con exit-code: 1 eso hacia fallar el job por
+      # hallazgos MEDIUM. Se conserva el informe completo y se ejecuta un
+      # segundo escaneo, limitado a CRITICAL/HIGH, para decidir el gate.
+      - name: 17b · Trivy — informe SARIF completo
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: aportaya/identidad:ci
           format: sarif
           output: trivy-results.sarif
+          exit-code: "0"
+          ignore-unfixed: true
+          trivyignores: .github/.trivyignore
+
+      - name: 17b2 · Trivy — CRITICAL/HIGH sin parche bloquean
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: aportaya/identidad:ci
+          format: table
           severity: CRITICAL,HIGH
           exit-code: "1"
           ignore-unfixed: true
           trivyignores: .github/.trivyignore
+          skip-setup-trivy: "true"
 
       - name: 17c · subir SARIF de Trivy a Security > Code Scanning
         if: always()
