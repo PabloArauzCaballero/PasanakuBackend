@@ -161,6 +161,14 @@ Cuando se procesa la respuesta
 Entonces la retención queda LIBERADA
 Y el saldo_disponible vuelve a su valor original
 
+Dadas dos cuentas con la misma clave de idempotencia
+Cuando cada una solicita un retiro
+Entonces cada una recibe una orden distinta
+
+Dada una orden de retiro con costo registrado
+Cuando se reintenta con la misma clave y otro costo
+Entonces se devuelve el costo registrado
+
 Dado un instrumento de fondeo agregado hace una hora
 Cuando el usuario intenta retirar hacia él
 Entonces la operación se rechaza por período de enfriamiento

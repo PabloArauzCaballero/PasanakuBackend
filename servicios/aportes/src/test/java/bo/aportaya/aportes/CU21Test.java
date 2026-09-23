@@ -129,7 +129,7 @@ class CU21Test extends BaseDeAportes {
 
     @Test
     @DisplayName(
-            "idempotencia con el scope del indice: la misma clave en OTRA obligacion es un pago distinto (H1.S1, hallazgo C)")
+            "Dadas dos obligaciones con la misma clave de idempotencia · Cuando se acredita cada pago · Entonces cada obligación recibe un pago distinto")
     void mismaClaveOtraObligacionEsOtroPago() {
         // uq_pago_idem ampara (obligacion_id, clave_idempotencia): dos obligaciones que
         // por coincidencia comparten clave (una plantilla de la app movil, un mismo

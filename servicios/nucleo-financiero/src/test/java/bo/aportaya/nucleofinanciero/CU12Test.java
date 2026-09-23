@@ -147,7 +147,7 @@ class CU12Test extends BaseDeBilletera {
 
     @Test
     @DisplayName(
-            "kill-test H1: misma clave de idempotencia, dos titulares distintos · Cuando cada uno transfiere · Entonces cada uno recibe su PROPIA transaccion, nunca la del otro")
+            "Dados dos titulares con la misma clave de idempotencia · Cuando cada uno transfiere · Entonces cada uno recibe una transacción distinta")
     void mismaClaveDistintoTitular() {
         Par a = par("1000.00");
         Par b = otroPar("1000.00");
