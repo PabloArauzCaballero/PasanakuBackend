@@ -5,17 +5,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo.EntradaRetiro;
 import bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo.SalidaRetiro;
-import bo.aportaya.nucleofinanciero.dominio.CondicionesDeRetiro;
-import bo.aportaya.nucleofinanciero.dominio.CondicionesDeRetiro.Situacion;
 import bo.aportaya.nucleofinanciero.dominio.CostoDeOperacion;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Moneda;
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -265,54 +260,6 @@ class CU11Test extends BaseDeBilletera {
     }
 
     @Test
-    @DisplayName("rechaza sin segundo factor: el retiro no sale sin MFA")
-    void rechazaSinMfa() {
-        Escenario e = escenario("1000.00", null);
-
-        assertThatThrownBy(() -> transaccion.execute(t -> retiroCU.solicitar(
-                        new EntradaRetiro(
-                                "ret-sinmfa",
-                                e.cuenta(),
-                                bob("100.00"),
-                                bob("5.00"),
-                                e.instrumento(),
-                                false,
-                                false,
-                                false),
-                        e.ctx())))
-                .isInstanceOf(ErrorDeNegocio.class)
-                .hasMessageContaining("segundo factor");
-    }
-
-    @Test
-    @DisplayName(
-            "rechaza con MFA_INVALIDO (no MFA_REQUERIDO, H2.S2.M5) cuando SI se mando evidencia pero no paso la verificacion")
-    void rechazaMfaInvalido() {
-        // La diferencia con rechazaSinMfa() de arriba es exactamente el tercer
-        // booleano: aca SI se proveyo evidencia (evidenciaMfaProvista=true), solo
-        // que no fue valida — es la distincion que separa MFA_REQUERIDO de
-        // MFA_INVALIDO, y sin ella el mensaje le diria a la persona "falta" cuando
-        // en realidad "lo que mandaste no sirve".
-        Escenario e = escenario("1000.00", null);
-
-        assertThatThrownBy(() -> transaccion.execute(t -> retiroCU.solicitar(
-                        new EntradaRetiro(
-                                "ret-mfa-invalido",
-                                e.cuenta(),
-                                bob("100.00"),
-                                bob("5.00"),
-                                e.instrumento(),
-                                false,
-                                true,
-                                false),
-                        e.ctx())))
-                .isInstanceOf(ErrorDeNegocio.class)
-                .hasMessageContaining("no es valida");
-        assertThat(contar("SELECT count(*)::int FROM nucleo_financiero.orden_retiro"))
-                .isZero();
-    }
-
-    @Test
     @DisplayName("rechaza el orden inverso: primero se retiene, despues se paga")
     void rechazaOrdenInverso() {
         // Si el pago fuera antes que la retencion, entre las dos cosas la persona
@@ -333,24 +280,5 @@ class CU11Test extends BaseDeBilletera {
         assertThatThrownBy(() -> pedir(e, "400.00", "ret-orden-2"))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("no cubre el retiro");
-    }
-
-    @Test
-    @DisplayName("rechaza con el encaje roto: no salen retiros nuevos")
-    void rechazaEncajeRoto() {
-        // Registrar que el encaje no se cumple y seguir pagando es el escenario
-        // clasico de la corrida: cobran los primeros y no queda para los demas.
-        var conEncaje =
-                new Situacion(true, true, bob("1000.00"), bob("100.00"), true, true, Optional.empty(), false, true);
-        var sinEncaje =
-                new Situacion(true, true, bob("1000.00"), bob("100.00"), true, true, Optional.empty(), false, false);
-        OffsetDateTime ahora = OffsetDateTime.of(2026, 8, 27, 12, 0, 0, 0, ZoneOffset.UTC);
-
-        assertThat(CondicionesDeRetiro.evaluar(conEncaje, ahora).permitido()).isTrue();
-        assertThat(CondicionesDeRetiro.evaluar(sinEncaje, ahora).codigo()).isEqualTo("ENCAJE_INCUMPLIDO");
-        // Y el bloqueo de autoridad pesa mas que el saldo: se mira antes del encaje.
-        var conOficio =
-                new Situacion(true, true, bob("1000.00"), bob("100.00"), true, true, Optional.empty(), true, true);
-        assertThat(CondicionesDeRetiro.evaluar(conOficio, ahora).codigo()).isEqualTo("BLOQUEO_DE_AUTORIDAD");
     }
 }

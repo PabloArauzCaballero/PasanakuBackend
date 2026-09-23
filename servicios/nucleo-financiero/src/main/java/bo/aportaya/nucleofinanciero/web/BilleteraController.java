@@ -30,8 +30,6 @@ import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaRetencion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaRetiro;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaReverso;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaTransferencia;
-import bo.aportaya.plataforma.dominio.CodigoError;
-import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
@@ -53,10 +51,8 @@ import org.springframework.web.bind.annotation.RestController;
  * llamadas de red, y una llamada de red dentro de la transaccion que mueve plata deja
  * el dinero bloqueado esperando a un tercero (invariante 6).
  *
- * <p>Cuando alguna de esas preguntas no obtiene respuesta, la operacion se rechaza. No
- * es prudencia de mas: cobrar cero porque {@code tarifas} no contesto es regalar plata,
- * y cerrar una billetera porque {@code aportes} no contesto traslada el aporte impago a
- * los otros del pasanaku.
+ * <p>Si alguna respuesta falta, la operacion se rechaza para evitar cobros o cierres
+ * con datos incompletos.
  */
 @RestController
 @Permiso("BILLETERA_OPERAR")
@@ -70,9 +66,7 @@ public class BilleteraController implements BilleteraApi {
     private final CU11RetirarSaldo cu11;
     private final MovimientosDeLaBilletera movimientos;
     private final ConsultarSaldo saldos;
-    private final CotizadorDeComision cotizador;
-    private final SegundoFactor segundoFactor;
-    private final BigDecimal desdeCuandoSonDosFirmas;
+    private final PreparacionDeRetiro preparacionDeRetiro;
     private final SesionDeLaPeticion sesion;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
@@ -97,9 +91,7 @@ public class BilleteraController implements BilleteraApi {
         this.cu11 = cu11;
         this.movimientos = movimientos;
         this.saldos = saldos;
-        this.cotizador = cotizador;
-        this.segundoFactor = segundoFactor;
-        this.desdeCuandoSonDosFirmas = desdeCuandoSonDosFirmas;
+        this.preparacionDeRetiro = new PreparacionDeRetiro(cotizador, segundoFactor, desdeCuandoSonDosFirmas);
         this.sesion = sesion;
     }
 
@@ -169,37 +161,12 @@ public class BilleteraController implements BilleteraApi {
      */
     @Override
     @Permiso("BILLETERA_OPERAR")
-    // H2.S2.M5: getFactorMfa() esta @Deprecated a proposito (el contrato lo retira
-    // el 2026-12-31) — seguir aceptandolo mientras tanto es la compatibilidad que
-    // el propio contrato promete, no un descuido.
-    @SuppressWarnings("deprecation")
     public ResponseEntity<SalidaRetiro> solicitarRetiro(UUID idempotencyKey, EntradaRetiro cuerpo) {
         Traza.marcarCasoDeUso("CU-11", cuerpo.getCuentaBilleteraId().toString());
 
-        var monto = MapeoDeBilletera.dinero(cuerpo.getMonto());
-        var costo = cotizador
-                .costoDe("RETIRO_ACREDITADO", cuerpo.getCuentaBilleteraId(), monto, idempotencyKey.toString())
-                .orElseThrow(() -> new ErrorDeNegocio(
-                        CodigoError.de(11, 1), "No se pudo cotizar el costo del retiro: intentalo de nuevo."));
-
-        // H2.S2.M5: evidenciaMfa es el campo nuevo (JWT de step-up); factorMfa se
-        // acepta hasta 2026-12-31 por compatibilidad con clientes viejos. Si vino
-        // cualquiera de los dos, se intenta verificar ESE; MFA_REQUERIDO es solo
-        // para cuando no vino NINGUNO.
-        String evidencia = cuerpo.getEvidenciaMfa() != null ? cuerpo.getEvidenciaMfa() : cuerpo.getFactorMfa();
-        boolean evidenciaProvista = evidencia != null && !evidencia.isBlank();
-
-        var salida = cu11.solicitar(
-                new CU11RetirarSaldo.EntradaRetiro(
-                        idempotencyKey.toString(),
-                        cuerpo.getCuentaBilleteraId(),
-                        monto,
-                        costo,
-                        cuerpo.getInstrumentoDestinoId(),
-                        segundoFactor.verificado(sesion.actual().usuarioId(), evidencia),
-                        evidenciaProvista,
-                        monto.monto().compareTo(desdeCuandoSonDosFirmas) >= 0),
-                sesion.actual());
+        var contexto = sesion.actual();
+        var entrada = preparacionDeRetiro.preparar(idempotencyKey, cuerpo, contexto);
+        var salida = cu11.solicitar(entrada, contexto);
 
         var respuesta = new SalidaRetiro();
         respuesta.setOrdenRetiroId(salida.ordenRetiroId());
