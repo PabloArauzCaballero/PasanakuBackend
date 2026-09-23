@@ -1,6 +1,3 @@
-a23bcb117effe7ce66d069a97ebd2c25c8390306
-?? .claude/hooks/
-?? .claude/rules/
-?? .claude/settings.json
-?? evidencia/
-richard/frontend/sesion
+9cdb7cfd62e65edd6234de5c97bd0a9cd648afce
+ M packages/tokens/vectores/monto.json
+richard/frontend/pantalla-piloto (merge con origin/main #18 richard/frontend/sesion — resolución de conflictos, HEAD antes del commit de merge)
