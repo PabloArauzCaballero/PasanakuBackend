@@ -80,7 +80,10 @@ class ArranqueRateLimitGatewayTest {
         for (int i = 0; i < peticiones; i++) {
             new Thread(() -> {
                         try {
-                            var respuesta = cliente.get().uri("/api/v1/sesiones").exchange().returnResult(Void.class);
+                            var respuesta = cliente.get()
+                                    .uri("/api/v1/sesiones")
+                                    .exchange()
+                                    .returnResult(Void.class);
                             if (respuesta.getStatus().value() == HttpStatus.TOO_MANY_REQUESTS.value()) {
                                 con429.incrementAndGet();
                                 if (respuesta.getResponseHeaders().containsKey(HttpHeaders.RETRY_AFTER)) {
