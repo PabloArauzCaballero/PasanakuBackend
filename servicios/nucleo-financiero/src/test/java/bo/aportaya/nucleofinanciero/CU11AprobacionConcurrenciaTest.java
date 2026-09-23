@@ -111,8 +111,10 @@ class CU11AprobacionConcurrenciaTest extends BaseDeBilletera {
             assertThat(ganadores).isEqualTo(1);
             assertThat(perdedores).isEqualTo(APROBADORES - 1);
             assertThat(contar(
-                            "SELECT count(*)::int FROM nucleo_financiero.orden_retiro WHERE id = ? AND estado ="
-                                    + " 'AUTORIZADA'",
+                            """
+                            SELECT count(*)::int FROM nucleo_financiero.orden_retiro
+                            WHERE id = ? AND estado = 'AUTORIZADA'
+                            """,
                             ordenId))
                     .isEqualTo(1);
         } finally {
@@ -162,8 +164,10 @@ class CU11AprobacionConcurrenciaTest extends BaseDeBilletera {
             // RECHAZADA, nunca "las dos cosas a la vez" ni un estado intermedio raro.
             assertThat(exitos).isEqualTo(1);
             assertThat(contar(
-                            "SELECT count(*)::int FROM nucleo_financiero.orden_retiro WHERE id = ? AND estado IN"
-                                    + " ('AUTORIZADA','RECHAZADA')",
+                            """
+                            SELECT count(*)::int FROM nucleo_financiero.orden_retiro
+                            WHERE id = ? AND estado IN ('AUTORIZADA','RECHAZADA')
+                            """,
                             ordenId))
                     .isEqualTo(1);
         } finally {

@@ -80,8 +80,10 @@ class ReconciliacionDeRetirosTest extends BaseDeBilletera {
         });
 
         assertThat(contar(
-                        "SELECT count(*)::int FROM nucleo_financiero.orden_retiro WHERE id = ? AND estado ="
-                                + " 'EN_PROCESO'",
+                        """
+                        SELECT count(*)::int FROM nucleo_financiero.orden_retiro
+                        WHERE id = ? AND estado = 'EN_PROCESO'
+                        """,
                         salida.ordenRetiroId()))
                 .isEqualTo(1);
     }
@@ -115,8 +117,10 @@ class ReconciliacionDeRetirosTest extends BaseDeBilletera {
         // La reconciliacion es un trabajo del SISTEMA: la transaccion que confirma el
         // pago no tiene un autor humano (H4.S2.M3, mismo patron que CU24RegistrarAsiento).
         assertThat(contar(
-                        "SELECT count(*)::int FROM nucleo_financiero.transaccion_billetera WHERE origen_id = ? AND"
-                                + " iniciada_por IS NULL AND canal = 'BATCH'",
+                        """
+                        SELECT count(*)::int FROM nucleo_financiero.transaccion_billetera
+                        WHERE origen_id = ? AND iniciada_por IS NULL AND canal = 'BATCH'
+                        """,
                         salida.ordenRetiroId()))
                 .isEqualTo(1);
     }
@@ -144,13 +148,17 @@ class ReconciliacionDeRetirosTest extends BaseDeBilletera {
         });
 
         assertThat(contar(
-                        "SELECT count(*)::int FROM nucleo_financiero.orden_retiro WHERE id = ? AND estado ="
-                                + " 'RECHAZADA'",
+                        """
+                        SELECT count(*)::int FROM nucleo_financiero.orden_retiro
+                        WHERE id = ? AND estado = 'RECHAZADA'
+                        """,
                         salida.ordenRetiroId()))
                 .isEqualTo(1);
         assertThat(contar(
-                        "SELECT count(*)::int FROM nucleo_financiero.retencion_saldo WHERE id = ? AND estado ="
-                                + " 'LIBERADA' AND liberada_por IS NULL",
+                        """
+                        SELECT count(*)::int FROM nucleo_financiero.retencion_saldo
+                        WHERE id = ? AND estado = 'LIBERADA' AND liberada_por IS NULL
+                        """,
                         salida.retencionId()))
                 .isEqualTo(1);
         assertThat(contar(

@@ -78,8 +78,10 @@ class CU11AprobacionTest extends BaseDeBilletera {
         assertThat(resultado.estado()).isEqualTo("AUTORIZADA");
         assertThat(resultado.aprobadaPor()).isEqualTo(aprobador.usuarioId());
         assertThat(contar(
-                        "SELECT count(*)::int FROM nucleo_financiero.orden_retiro WHERE id = ? AND estado ="
-                                + " 'AUTORIZADA' AND aprobada_por = ?",
+                        """
+                        SELECT count(*)::int FROM nucleo_financiero.orden_retiro
+                        WHERE id = ? AND estado = 'AUTORIZADA' AND aprobada_por = ?
+                        """,
                         salida.ordenRetiroId(),
                         aprobador.usuarioId()))
                 .isEqualTo(1);
@@ -97,8 +99,10 @@ class CU11AprobacionTest extends BaseDeBilletera {
 
         assertThat(resultado.estado()).isEqualTo("RECHAZADA");
         assertThat(contar(
-                        "SELECT count(*)::int FROM nucleo_financiero.retencion_saldo WHERE id = ? AND estado ="
-                                + " 'LIBERADA'",
+                        """
+                        SELECT count(*)::int FROM nucleo_financiero.retencion_saldo
+                        WHERE id = ? AND estado = 'LIBERADA'
+                        """,
                         salida.retencionId()))
                 .isEqualTo(1);
         assertThat(contar(
@@ -117,8 +121,10 @@ class CU11AprobacionTest extends BaseDeBilletera {
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("propia solicitud");
         assertThat(contar(
-                        "SELECT count(*)::int FROM nucleo_financiero.orden_retiro WHERE id = ? AND estado ="
-                                + " 'EN_REVISION'",
+                        """
+                        SELECT count(*)::int FROM nucleo_financiero.orden_retiro
+                        WHERE id = ? AND estado = 'EN_REVISION'
+                        """,
                         salida.ordenRetiroId()))
                 .isEqualTo(1);
     }

@@ -59,7 +59,8 @@ class LibroInvariantesTest extends BaseDeBilletera {
 
     private SalidaTransferencia transferir(Par p, String monto, String clave) {
         return transaccion.execute(t -> transferenciaCU.ejecutar(
-                new EntradaTransferencia(clave, p.origen(), p.destino(), bob(monto), "prueba", Optional.empty(), Optional.empty()),
+                new EntradaTransferencia(
+                        clave, p.origen(), p.destino(), bob(monto), "prueba", Optional.empty(), Optional.empty()),
                 p.ctx()));
     }
 
@@ -90,10 +91,7 @@ class LibroInvariantesTest extends BaseDeBilletera {
         assertThat(saldoTotalDelSistema()).isEqualTo(totalAntes);
         assertThat(contar("SELECT saldo_total::int FROM nucleo_financiero.cuenta_billetera WHERE id = ?", p.origen()))
                 .isEqualTo(500);
-        assertThat(
-                        contar(
-                                "SELECT saldo_total::int FROM nucleo_financiero.cuenta_billetera WHERE id = ?",
-                                p.destino()))
+        assertThat(contar("SELECT saldo_total::int FROM nucleo_financiero.cuenta_billetera WHERE id = ?", p.destino()))
                 .isEqualTo(500);
     }
 
@@ -177,7 +175,8 @@ class LibroInvariantesTest extends BaseDeBilletera {
 
     // ------------------------------------------------ 6 · 100 hilos, una cuenta --
     @Test
-    @DisplayName("escenario 6: 100 transferencias concurrentes desde la MISMA cuenta — sin saldo negativo, sin perdida, suma preservada")
+    @DisplayName(
+            "escenario 6: 100 transferencias concurrentes desde la MISMA cuenta — sin saldo negativo, sin perdida, suma preservada")
     void cienHilosSobreUnaCuenta() throws InterruptedException {
         fixtura.tipoDeCambioDeHoy();
         fixtura.limite("TRANSFERENCIA", ESTANDAR, "MES", new BigDecimal("1000000.00"), null);
@@ -199,7 +198,13 @@ class LibroInvariantesTest extends BaseDeBilletera {
                     try {
                         transaccion.execute(t -> transferenciaCU.ejecutar(
                                 new EntradaTransferencia(
-                                        clave, origen, destino, bob("50.00"), "concurrencia", Optional.empty(), Optional.empty()),
+                                        clave,
+                                        origen,
+                                        destino,
+                                        bob("50.00"),
+                                        "concurrencia",
+                                        Optional.empty(),
+                                        Optional.empty()),
                                 ctx));
                         exitosos.incrementAndGet();
                     } catch (RuntimeException ignorada) {
@@ -220,8 +225,12 @@ class LibroInvariantesTest extends BaseDeBilletera {
             pool.shutdown();
         }
 
-        assertThat(saldoTotalDelSistema()).as("la suma del sistema no puede cambiar: es un traspaso interno").isEqualTo(totalAntes);
-        assertThat(contar("SELECT count(*)::int FROM nucleo_financiero.cuenta_billetera WHERE id = ? AND saldo_total < 0", origen))
+        assertThat(saldoTotalDelSistema())
+                .as("la suma del sistema no puede cambiar: es un traspaso interno")
+                .isEqualTo(totalAntes);
+        assertThat(contar(
+                        "SELECT count(*)::int FROM nucleo_financiero.cuenta_billetera WHERE id = ? AND saldo_total < 0",
+                        origen))
                 .as("saldo negativo detectado")
                 .isZero();
         int esperado = 10000 - 50 * exitosos.get();
@@ -292,7 +301,8 @@ class LibroInvariantesTest extends BaseDeBilletera {
      * carril (Justin, PR2): no se edita el código de producción; queda como hallazgo.
      */
     @Test
-    @DisplayName("escenario 8: la misma clave, exactamente simultanea — un solo efecto financiero (el contrato de la perdedora es hallazgo para Justin)")
+    @DisplayName(
+            "escenario 8: la misma clave, exactamente simultanea — un solo efecto financiero (el contrato de la perdedora es hallazgo para Justin)")
     void replayIdempotente() throws InterruptedException {
         Par p = par("1000.00");
         int totalAntes = saldoTotalDelSistema();
@@ -321,7 +331,9 @@ class LibroInvariantesTest extends BaseDeBilletera {
 
         // El invariante que importa: pase lo que pase con la respuesta HTTP de la
         // perdedora, el EFECTO FINANCIERO es uno solo, nunca dos.
-        assertThat(exitos[0]).as("al menos una de las dos tiene que haber ganado la carrera").isGreaterThanOrEqualTo(1);
+        assertThat(exitos[0])
+                .as("al menos una de las dos tiene que haber ganado la carrera")
+                .isGreaterThanOrEqualTo(1);
         assertThat(saldoTotalDelSistema()).isEqualTo(totalAntes);
         assertThat(contar("SELECT saldo_total::int FROM nucleo_financiero.cuenta_billetera WHERE id = ?", p.origen()))
                 .as("un solo efecto: 1000 - 400, no 1000 - 800 — esto es lo que NUNCA puede fallar")
@@ -349,7 +361,8 @@ class LibroInvariantesTest extends BaseDeBilletera {
      * orden que el escenario pide: excepción tras el débito, misma transacción.
      */
     @Test
-    @DisplayName("escenario 10: excepcion despues del debito (FK invalida de grupoId) dentro de Datos.conContexto — revierte TODO, ni el debito sobrevive")
+    @DisplayName(
+            "escenario 10: excepcion despues del debito (FK invalida de grupoId) dentro de Datos.conContexto — revierte TODO, ni el debito sobrevive")
     void excepcionTrasElDebitoRevierteTodoDentroDeConContexto() {
         Par p = par("1000.00");
         int totalAntes = saldoTotalDelSistema();
@@ -368,12 +381,15 @@ class LibroInvariantesTest extends BaseDeBilletera {
                 .as("un grupoId inexistente tiene que violar fk_transferencia_p2p_grupo_id DESPUES del debito")
                 .isInstanceOf(RuntimeException.class);
 
-        assertThat(saldoTotalDelSistema()).as("el debito hecho antes de la excepcion tiene que revertirse entero").isEqualTo(totalAntes);
+        assertThat(saldoTotalDelSistema())
+                .as("el debito hecho antes de la excepcion tiene que revertirse entero")
+                .isEqualTo(totalAntes);
         assertThat(contar("SELECT saldo_total::int FROM nucleo_financiero.cuenta_billetera WHERE id = ?", p.origen()))
                 .as("la cuenta de origen queda exactamente como antes: el debito no sobrevive")
                 .isEqualTo(1000);
-        assertThat(contar(
-                        "SELECT count(*)::int FROM nucleo_financiero.transaccion_billetera WHERE clave_idempotencia = 'inv-10'"))
+        assertThat(
+                        contar(
+                                "SELECT count(*)::int FROM nucleo_financiero.transaccion_billetera WHERE clave_idempotencia = 'inv-10'"))
                 .as("ni la cabecera de la transaccion (escrita por libro.registrar, antes de la FK invalida) sobrevive")
                 .isZero();
     }
@@ -389,7 +405,13 @@ class LibroInvariantesTest extends BaseDeBilletera {
         transaccion.execute(t -> {
             SalidaTransferencia salida = transferenciaCU.ejecutar(
                     new EntradaTransferencia(
-                            "inv-9", p.origen(), p.destino(), bob("500.00"), "revertida", Optional.empty(), Optional.empty()),
+                            "inv-9",
+                            p.origen(),
+                            p.destino(),
+                            bob("500.00"),
+                            "revertida",
+                            Optional.empty(),
+                            Optional.empty()),
                     p.ctx());
             transaccionId[0] = salida.transaccionId();
             t.setRollbackOnly();
@@ -432,11 +454,23 @@ class LibroInvariantesTest extends BaseDeBilletera {
                 int n = i;
                 tareas.add(pool.submit(() -> transaccion.execute(t -> transferenciaCU.ejecutar(
                         new EntradaTransferencia(
-                                "inv-11-ab-" + n, cuentaA, cuentaB, bob("10.00"), "cruzada", Optional.empty(), Optional.empty()),
+                                "inv-11-ab-" + n,
+                                cuentaA,
+                                cuentaB,
+                                bob("10.00"),
+                                "cruzada",
+                                Optional.empty(),
+                                Optional.empty()),
                         ctxA))));
                 tareas.add(pool.submit(() -> transaccion.execute(t -> transferenciaCU.ejecutar(
                         new EntradaTransferencia(
-                                "inv-11-ba-" + n, cuentaB, cuentaA, bob("10.00"), "cruzada", Optional.empty(), Optional.empty()),
+                                "inv-11-ba-" + n,
+                                cuentaB,
+                                cuentaA,
+                                bob("10.00"),
+                                "cruzada",
+                                Optional.empty(),
+                                Optional.empty()),
                         ctxB))));
             }
             for (Future<?> t : tareas) {
@@ -450,9 +484,10 @@ class LibroInvariantesTest extends BaseDeBilletera {
             pool.shutdown();
         }
 
-        int deadlocksDespues =
-                contar("SELECT deadlocks::int FROM pg_stat_database WHERE datname = current_database()");
-        assertThat(deadlocksDespues).as("pg_stat_database.deadlocks no puede haber crecido").isEqualTo(deadlocksAntes);
+        int deadlocksDespues = contar("SELECT deadlocks::int FROM pg_stat_database WHERE datname = current_database()");
+        assertThat(deadlocksDespues)
+                .as("pg_stat_database.deadlocks no puede haber crecido")
+                .isEqualTo(deadlocksAntes);
         assertThat(saldoTotalDelSistema()).isEqualTo(totalAntes);
     }
 }

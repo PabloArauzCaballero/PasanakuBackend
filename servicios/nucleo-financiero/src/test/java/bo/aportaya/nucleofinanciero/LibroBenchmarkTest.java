@@ -74,11 +74,11 @@ class LibroBenchmarkTest extends BaseDeBilletera {
     void doscientasTransferenciasConcurrentesTresCorridas() throws IOException {
         StringBuilder informe = new StringBuilder();
         informe.append("Benchmark del advisory lock global — cadena de hash de transaccion_billetera\n");
-        informe.append("sql/40_reglas/restricciones.sql:56 — pg_advisory_xact_lock(hashtext('cadena_transaccion_billetera'))\n");
-        informe.append("Generado por LibroBenchmarkTest, %s\n\n".formatted(Instant.now()));
         informe.append(
-                "%d transferencias concurrentes x %d corridas, cada una entre un par de cuentas DISTINTO\n\n"
-                        .formatted(TRANSFERENCIAS_POR_CORRIDA, CORRIDAS));
+                "sql/40_reglas/restricciones.sql:56 — pg_advisory_xact_lock(hashtext('cadena_transaccion_billetera'))\n");
+        informe.append("Generado por LibroBenchmarkTest, %s\n\n".formatted(Instant.now()));
+        informe.append("%d transferencias concurrentes x %d corridas, cada una entre un par de cuentas DISTINTO\n\n"
+                .formatted(TRANSFERENCIAS_POR_CORRIDA, CORRIDAS));
 
         // Una sola vez para las 3 corridas: `ex_limite_vigencia` es una EXCLUSION
         // CONSTRAINT sobre (concepto, nivel, ventana, rango de vigencia) — pedirla
@@ -92,7 +92,12 @@ class LibroBenchmarkTest extends BaseDeBilletera {
 
         Path destino = raizDelRepositorio().resolve("docs/auditoria-produccion/evidencia/H3-benchmark-hashchain.txt");
         Files.createDirectories(destino.getParent());
-        Files.writeString(destino, informe.toString(), StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        Files.writeString(
+                destino,
+                informe.toString(),
+                StandardCharsets.UTF_8,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING);
 
         assertThat(Files.exists(destino)).isTrue();
     }
@@ -196,18 +201,18 @@ class LibroBenchmarkTest extends BaseDeBilletera {
                 Sesiones esperando el advisory lock (maximo muestreado): %d
                 Deadlocks (pg_stat_database) antes/despues: %d / %d
                 """
-                .formatted(
-                        numero,
-                        TRANSFERENCIAS_POR_CORRIDA,
-                        duracionTotalNanos / 1_000_000_000.0,
-                        throughputPorSegundo,
-                        percentilMs(ordenadas, 0.50),
-                        percentilMs(ordenadas, 0.95),
-                        percentilMs(ordenadas, 0.99),
-                        conexionesMaximas[0],
-                        muestrasDeEspera.getOrDefault("esperando_lock_max", 0),
-                        deadlocksAntes,
-                        deadlocksDespues)
+                        .formatted(
+                                numero,
+                                TRANSFERENCIAS_POR_CORRIDA,
+                                duracionTotalNanos / 1_000_000_000.0,
+                                throughputPorSegundo,
+                                percentilMs(ordenadas, 0.50),
+                                percentilMs(ordenadas, 0.95),
+                                percentilMs(ordenadas, 0.99),
+                                conexionesMaximas[0],
+                                muestrasDeEspera.getOrDefault("esperando_lock_max", 0),
+                                deadlocksAntes,
+                                deadlocksDespues)
                 + "\n";
     }
 
