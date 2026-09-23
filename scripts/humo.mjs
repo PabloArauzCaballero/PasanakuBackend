@@ -4,7 +4,7 @@
 // H4.S1.M1 (madre H7.S1.M1), PR13-Ci.Frontend.
 //
 // Reemplaza el bucle de shell que tenía `package.json` (raíz):
-//   "humo": "for c in postman/humo/*.json; do yarn newman run \"$c\" ... || true; done"
+//   "humo": "for c in postman/humo/*.json; do yarn exec postman collection run \"$c\" ... || true; done"
 // El `|| true` final hacía que `yarn humo` devolviera SIEMPRE código de salida 0,
 // sin importar cuántas colecciones fallaran -- kill-test #1 de este carril (ver
 // entregables/PR13-Ci.Frontend/evidencia/H1-S1-M4.txt: hoy ya fallan 1196
@@ -21,7 +21,7 @@
 //     termina en 0.
 //   - `ejecutarHumo` recibe el `runner` (y, para pruebas, `informativas`) por
 //     parámetro: así `humo.spec.mjs` prueba los tres escenarios (todo sano, una
-//     informativa cae, una obligatoria cae) sin depender de newman instalado ni de
+//     informativa cae, una obligatoria cae) sin depender del CLI instalado ni de
 //     una red real.
 
 import { readdirSync } from 'node:fs';
@@ -60,24 +60,24 @@ export function resultadoFinal(resultados) {
 }
 
 /**
- * Corre newman CLI real sobre un archivo de colección. Es el runner por default de
+ * Corre Postman CLI sobre un archivo de colección. Es el runner por default de
  * `ejecutarHumo`; las pruebas inyectan uno falso y nunca llegan acá.
  * @param {string} coleccionPath
  * @param {string} entornoPath
  * @returns {Promise<{ok: boolean, codigo: number}>}
  */
-export async function runnerNewmanReal(coleccionPath, entornoPath) {
+export async function runnerPostmanReal(coleccionPath, entornoPath) {
   const { spawnSync } = await import('node:child_process');
   const resultado = spawnSync(
     'yarn',
-    ['newman', 'run', coleccionPath, '-e', entornoPath, '--reporters', 'cli', '--color', 'off'],
+    ['exec', 'postman', 'collection', 'run', coleccionPath, '-e', entornoPath, '--reporters', 'cli', '--report-events=false'],
     { stdio: 'inherit', shell: process.platform === 'win32' },
   );
   return { ok: resultado.status === 0, codigo: resultado.status ?? 1 };
 }
 
 /**
- * El corazón testeable del script: sin filesystem, sin newman, sin red.
+ * El corazón testeable del script: sin filesystem, sin Postman CLI, sin red.
  * @param {object} opciones
  * @param {string[]} opciones.colecciones - nombres base (sin extensión) de las colecciones a correr.
  * @param {(nombre: string) => Promise<{ok: boolean, codigo: number}>} opciones.runner
@@ -126,7 +126,7 @@ async function main() {
   const colecciones = archivos.map((f) => f.replace(/\.postman_collection\.json$/, ''));
 
   const runner = (nombre) =>
-    runnerNewmanReal(path.join(dirColecciones, `${nombre}.postman_collection.json`), entornoPath);
+    runnerPostmanReal(path.join(dirColecciones, `${nombre}.postman_collection.json`), entornoPath);
 
   const { exitCode } = await ejecutarHumo({ colecciones, runner });
   process.exit(exitCode);

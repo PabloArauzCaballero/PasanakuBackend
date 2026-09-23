@@ -1,18 +1,11 @@
 // scripts/humo.spec.mjs
 //
-// H4.S1.M2 (madre H7.S1.M2), PR13-Ci.Frontend. Prueba los tres niveles con newman
-// INYECTADO (un runner falso) -- nunca necesita newman instalado ni red real.
+// H4.S1.M2 (madre H7.S1.M2), PR13-Ci.Frontend. Prueba los tres niveles con un
+// runner INYECTADO (falso) -- nunca necesita Postman CLI ni red real.
 //
-// Desviación registrada respecto del DoD literal del encargo (`yarn vitest run
-// scripts/humo.spec.mjs`): este repo no tiene `vitest` como dependencia de la raíz
-// (solo `newman`, `turbo`, `typescript` en package.json:20-24) y este entorno no
-// tiene `node_modules` instalado (no hay red de paquetes disponible en esta sesión
-// para correr `yarn install`), así que no hay forma de EJECUTAR vitest acá para
-// verificarlo de verdad. Se usa el test runner nativo de Node (`node:test`, sin
-// dependencias nuevas -- regla 90.4.2) en su lugar: corre de verdad en este entorno
-// con `node --test scripts/humo.spec.mjs`, y prueba exactamente los mismos tres
-// escenarios que pedía el DoD. Si el equipo decide más adelante que TODO el
-// frontend corre bajo vitest por consistencia, migrar este archivo es mecánico.
+// Usa el test runner nativo de Node (`node:test`), sin otra dependencia. Se corre
+// con `node --test scripts/humo.spec.mjs` y verifica los tres desenlaces y el
+// orden secuencial de las colecciones.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

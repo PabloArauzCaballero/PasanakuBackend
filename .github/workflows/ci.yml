@@ -345,7 +345,7 @@ jobs:
       # con un mensaje explicito -- nunca fingiendo que corrio (mismo patron que la
       # firma de iOS sin secretos, H3.S1.M4). Registrado como hallazgo para el area
       # backend: cablear esto a un job con el backend real vivo es suyo, no mio.
-      - name: f7 · humo (postman/newman) contra un backend real, si hay uno vivo
+      - name: f7 · humo (Postman CLI) contra un backend real, si hay uno vivo
         run: |
           if ! curl -fsS --max-time 3 http://localhost:8080/version > /dev/null 2>&1; then
             echo "No hay nada respondiendo en localhost:8080 dentro de este job."
