@@ -2,6 +2,7 @@ package bo.aportaya.nucleofinanciero;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRetiro;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
 import bo.aportaya.nucleofinanciero.infraestructura.SegundoFactorStepUp;
 import bo.aportaya.plataforma.pruebas.BaseDePrueba;
@@ -12,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 /**
  * H2.S1/H2.S3 · con perfil {@code production}, el proceso arranca CON
@@ -24,6 +26,10 @@ import org.springframework.test.context.DynamicPropertySource;
  * contrario —que el arranque FALLABA por falta de bean— y ese rojo intencional quedo
  * documentado en el historial de este carril: era la prueba de que la guardia hacia
  * lo que tenia que hacer antes de que el reemplazo apareciera.
+ *
+ * <p>Estas pruebas aislan el segundo factor con un doble de {@link ProveedorDeRetiro}
+ * solo en el contexto de prueba. En production real sigue sin haber proveedor de
+ * retiros y el arranque falla cerrado hasta integrar uno.
  */
 class ArranqueProduccionTest {
 
@@ -46,6 +52,9 @@ class ArranqueProduccionTest {
     @ActiveProfiles("production")
     class ConAdaptadorReal {
 
+        @MockitoBean
+        private ProveedorDeRetiro proveedorDeRetiro;
+
         @Autowired
         private SegundoFactor segundoFactor;
 
@@ -67,6 +76,9 @@ class ArranqueProduccionTest {
             properties = "aportaya.mfa.doble-local=true")
     @ActiveProfiles("production")
     class ConDobleLocalForzado {
+
+        @MockitoBean
+        private ProveedorDeRetiro proveedorDeRetiro;
 
         @Autowired
         private SegundoFactor segundoFactor;
