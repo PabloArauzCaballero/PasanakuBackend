@@ -749,7 +749,7 @@ jobs:
       # job del CI los corria (el paso 3 los excluye con `-x`). Aca se miden con los
       # `.exec` de los cinco corredores de ESTE job, que es lo que el piso promete.
       - name: 16b · cobertura — los pisos de ADR-026 con los cinco corredores
-        run: ./gradlew jacocoTestCoverageVerification
+        run: ./gradlew jacocoTestCoverageVerification --continue
 
   # ---------------------------------------------------------------- imagenes --
   imagenes:
