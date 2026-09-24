@@ -2,13 +2,13 @@
 
 Los siete archivos `*_test.dart` usan Patrol 3.20.0 y `patrol_cli` 3.11.0. En CI
 corren sobre macOS 15, Xcode 26.3 y un simulador iOS 26.2. El workflow arranca
-Prism en el puerto 4010 y compila la app con `API=http://127.0.0.1:4010/api/v1`.
+Scalar en el puerto 4010 y compila la app con `API=http://127.0.0.1:4010/api/v1`.
 El `pubspec.yaml` declara los identificadores nativos para que Patrol pueda abrir
 la app instalada. Para ejecutar los recorridos se usa `patrol test --target
 integration_test/<archivo>_test.dart`; `patrolTest` inicializa su propio binding.
 
 La corrida [36028937945](https://github.com/PabloArauzCaballero/PasanakuBackend/actions/runs/36028937945)
-confirmó que Prism y el runner nativo arrancan, descubren los casos y los ejecutan.
+confirmó que Scalar y el runner nativo arrancan, descubren los casos y los ejecutan.
 Los recorridos todavía no están en verde: `alta_y_billetera_test.dart` busca la
 pestaña «Perfil» al abrir la app, cuando la ruta inicial actual es `/portada` para
 quien no tiene sesión. `deep_link_test.dart` también espera la antigua pantalla
