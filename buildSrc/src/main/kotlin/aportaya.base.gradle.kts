@@ -120,6 +120,10 @@ tasks.named<Test>("test") {
         "**/Libro*Test.class",
         "**/AppendOnlyTest.class",
         "**/AuditoriaCriticaTest.class",
+        "**/SegundoFactor*Test.class",
+        "**/Reconciliacion*Test.class",
+        "**/*ResilienciaTest.class",
+        "**/AutorizacionNegativaTest.class",
     )
     systemProperty("junit.jupiter.execution.timeout.default", "5s")
     testLogging {

@@ -74,14 +74,25 @@ class ArranqueRateLimitGatewayTest {
     void agotaElBurstYCorta() throws InterruptedException {
         int peticiones = 15;
         AtomicInteger con429 = new AtomicInteger();
+        AtomicInteger conRetryAfter = new AtomicInteger();
         CountDownLatch listo = new CountDownLatch(peticiones);
 
         for (int i = 0; i < peticiones; i++) {
             new Thread(() -> {
-                        if (estadoDe("/api/v1/sesiones").value() == HttpStatus.TOO_MANY_REQUESTS.value()) {
-                            con429.incrementAndGet();
+                        try {
+                            var respuesta = cliente.get()
+                                    .uri("/api/v1/sesiones")
+                                    .exchange()
+                                    .returnResult(Void.class);
+                            if (respuesta.getStatus().value() == HttpStatus.TOO_MANY_REQUESTS.value()) {
+                                con429.incrementAndGet();
+                                if (respuesta.getResponseHeaders().containsKey(HttpHeaders.RETRY_AFTER)) {
+                                    conRetryAfter.incrementAndGet();
+                                }
+                            }
+                        } finally {
+                            listo.countDown();
                         }
-                        listo.countDown();
                     })
                     .start();
         }
@@ -92,29 +103,7 @@ class ArranqueRateLimitGatewayTest {
         // cuanto repuso el replenishRate mientras corrian, por eso >=1 y no un
         // numero fijo — lo que no puede pasar es que TODAS pasen.
         assertThat(con429.get()).isGreaterThan(0);
-    }
-
-    @Test
-    @DisplayName("un 429 real trae Retry-After, no solo las cabeceras X-RateLimit-*")
-    void el429TraeRetryAfter() throws InterruptedException {
-        // Vacia el burst primero, EN PARALELO: con replenishRate=5/s, 10
-        // peticiones secuenciales (con la latencia normal de cada una) le dan
-        // tiempo a Redis a reponer tokens antes de la ultima, y el burst nunca
-        // llega a agotarse. Descubierto corriendo la prueba: fallaba con 500
-        // (paso) en vez de 429 (cortado), no por un error de la asercion.
-        CountDownLatch listas = new CountDownLatch(10);
-        for (int i = 0; i < 10; i++) {
-            new Thread(() -> {
-                        cliente.get().uri("/api/v1/usuarios").exchange();
-                        listas.countDown();
-                    })
-                    .start();
-        }
-        assertThat(listas.await(10, TimeUnit.SECONDS)).isTrue();
-
-        var respuesta = cliente.get().uri("/api/v1/usuarios").exchange();
-        respuesta.expectStatus().isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
-        respuesta.expectHeader().exists(HttpHeaders.RETRY_AFTER);
+        assertThat(conRetryAfter.get()).isEqualTo(con429.get());
     }
 
     @Test

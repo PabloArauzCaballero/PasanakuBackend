@@ -8,6 +8,7 @@ import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Ids;
 import bo.aportaya.plataforma.dominio.Reloj;
+import bo.aportaya.plataforma.dominio.Traza;
 import bo.aportaya.plataforma.mensajeria.EventoDominio;
 import bo.aportaya.plataforma.mensajeria.Outbox;
 import java.time.Duration;
@@ -27,9 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
  * de ella a quien no tiene por que saberlo, y quien invita no necesita esa
  * informacion para nada.
  *
- * <p>El token es de un solo uso, y lo garantiza el {@code WHERE estado = 'ENVIADA'}
- * del {@code UPDATE}: la segunda aceptacion actualiza cero filas. Comprobarlo con un
- * {@code SELECT} previo dejaria pasar dos aceptaciones simultaneas.
+ * <p>La aceptacion de un solo uso y la creacion de la participacion viven juntas
+ * en {@link CU69Enlace}.
  */
 @Service
 public class CU69Invitar {
@@ -54,7 +54,11 @@ public class CU69Invitar {
     public Resultado invitar(EntradaInvitacion entrada, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
-        return datos.conContexto(ctx, dsl -> {
+        // La API autorizó GRUPO_ADMINISTRAR; la comprobación de pertenencia
+        // sigue abajo. La fila de participante está reservada por RLS al
+        // proceso interno incluso cuando pertenece al emisor.
+        ContextoSesion interno = ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
+        return datos.conContexto(interno, dsl -> {
             var impedimento = InvitacionAdmisible.impedimento(
                     invitaciones.hayCuposLibres(dsl, entrada.grupoId()),
                     entrada.destinatarioSuprimido(),
@@ -95,28 +99,7 @@ public class CU69Invitar {
                             Map.of("grupoId", entrada.grupoId().toString()),
                             UUID.fromString(ctx.traza().id())));
 
-            return new Resultado(Optional.of(invitacion), "Invitacion enviada.");
-        });
-    }
-
-    /** Aceptar consume el token: la segunda vez no queda nada que consumir. */
-    @Transactional
-    public void aceptar(UUID invitacionId, ContextoSesion ctx) {
-        OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
-
-        datos.conContexto(ctx, dsl -> {
-            if (invitaciones.aceptar(dsl, invitacionId, ahora) == 0) {
-                throw new ErrorDeNegocio(CodigoError.de(69, 5), "Esa invitacion ya no es valida.");
-            }
-            outbox.emitir(
-                    dsl,
-                    new EventoDominio(
-                            "grupos.invitacion_aceptada",
-                            "invitacion",
-                            invitacionId,
-                            Map.of("invitacionId", invitacionId.toString()),
-                            UUID.fromString(ctx.traza().id())));
-            return null;
+            return new Resultado(Optional.of(invitacion), "Invitación creada. Compartí el enlace con el contacto.");
         });
     }
 

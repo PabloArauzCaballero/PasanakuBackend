@@ -75,7 +75,7 @@ mismos `openapi/*.yaml`.**
 | Cliente de API | **generado** `dart-dio` → `clientes/dart/<servicio>` | **generado** `typescript-angular` → `clientes/angular/<servicio>` |
 | Diseño | `packages/diseno_flutter` (paquete Dart `aportaya_diseno`) | `packages/ui` (biblioteca Angular `@aportaya/ui`, una entrada secundaria por componente) |
 | Tokens | `packages/tokens/tokens.json` → `tokens.dart` **generado** | el mismo `tokens.json` → `tokens.css` **generado** |
-| Servidor simulado | **Prism** sobre los contratos, con ejemplos por CU y por escenario (`packages/simulado`) | el mismo Prism |
+| Servidor simulado | **Scalar** sobre los contratos, con ejemplos por CU y por escenario (`packages/simulado`) | el mismo Scalar |
 | Nativo | `local_auth`, `flutter_secure_storage`, `mobile_scanner`, `firebase_messaging`, `app_links`, `connectivity_plus`, detrás de **puertos** (ADR-036) | Angular CDK: *overlay*, *a11y*, *scrolling* (virtualización), *table* |
 | Correcciones sin tienda | **Shorebird** (*code push* de la capa Dart) | despliegue de contenedor |
 | Sitio público | — | `@angular/ssr` con **rutas híbridas**: *prerender* por omisión, servidor solo en verificación, **hidratación incremental** para los verificadores |
@@ -99,7 +99,7 @@ exige.**
 | Tokens de diseño | `packages/tokens/tokens.json` (verificado contra `docs/Views/Sistema-Diseno/estilos.css`) | `tokens.css` (Angular) · `tokens.dart` (Flutter) |
 | Formato de dinero | `packages/tokens/vectores/monto.json` — casos entrada → salida | la prueba TS y la prueba Dart consumen el mismo JSON; los dos `Monto` tienen que coincidir byte a byte |
 | Cliente de API | `servicios/*/src/main/resources/openapi/*.yaml` | `clientes/angular/` · `clientes/dart/` · el servidor Spring |
-| Ejemplos de respuesta | `packages/simulado/ejemplos/<servicio>/CU-NN.json`, derivados del esquema | Prism en desarrollo · fixtures de Vitest · fixtures de `flutter_test` |
+| Ejemplos de respuesta | `packages/simulado/ejemplos/<servicio>/CU-NN.json`, derivados del esquema | Scalar en desarrollo · fixtures de Vitest · fixtures de `flutter_test` |
 | Átomos del sorteo y la cadena | Java (`plataforma/`) con **vectores dorados** | `packages/dominio-cliente` en TypeScript, para los verificadores del sitio |
 
 > **Dos implementaciones del sistema de diseño, una especificación.** Lo que impide que

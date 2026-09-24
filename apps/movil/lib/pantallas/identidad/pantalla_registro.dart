@@ -18,6 +18,7 @@ import 'pasos_alta/paso_datos.dart';
 import 'pasos_alta/paso_perfil_transaccional.dart';
 import 'textos.dart';
 import 'textos_del_alta.dart';
+import '../../navegacion/retorno_de_invitacion.dart';
 
 /// CU-01, el alta en ocho pasos (D-1 de la maqueta). Un solo `Notifier`
 /// (`AltaNotifier`) sabe en qué paso está; esta pantalla solo elige qué organismo
@@ -101,7 +102,14 @@ class PantallaDeRegistro extends ConsumerWidget {
           // el formulario anterior a mitad de camino, con los datos de otra persona.
           notifier.reiniciar();
           ref.read(contratoProvider.notifier).reiniciar();
-          context.go('/ingreso?alta=lista');
+          final retorno = retornoDeInvitacion(
+            GoRouterState.of(context).uri.queryParameters['volver'],
+          );
+          context.go(
+            retorno == null
+                ? '/ingreso?alta=lista'
+                : '/ingreso?alta=lista&volver=${Uri.encodeComponent(retorno)}',
+          );
         },
       ),
     };

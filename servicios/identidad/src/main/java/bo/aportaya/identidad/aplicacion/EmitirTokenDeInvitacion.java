@@ -6,6 +6,7 @@ import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Ids;
 import bo.aportaya.plataforma.dominio.Reloj;
+import bo.aportaya.plataforma.dominio.Traza;
 import java.security.SecureRandom;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -45,14 +46,24 @@ public class EmitirTokenDeInvitacion {
     }
 
     @Transactional
-    public Emitido ejecutar(String canal, String destinoEnmascarado, ContextoSesion ctx) {
+    public Emitido ejecutar(
+            String canal,
+            String destinoEnmascarado,
+            UUID idempotencia,
+            String ipOrigen,
+            String agenteUsuario,
+            ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
         byte[] bytes = new byte[BYTES_DE_AZAR];
         azar.nextBytes(bytes);
         String enClaro = HexFormat.of().formatHex(bytes);
         UUID id = ids.nuevo();
 
-        return datos.conContexto(ctx, dsl -> {
+        // El enlace todavía no pertenece a un usuario: usuario_id es NULL y la
+        // política de fila no permite insertarlo como participante.
+        ContextoSesion interno =
+                ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
+        return datos.conContexto(interno, dsl -> {
             var politica = dsl.fetchOne(
                     "SELECT id, ttl_segundos FROM identidad.politica_token WHERE proposito = ?", PROPOSITO);
             if (politica == null) {
@@ -64,9 +75,11 @@ public class EmitirTokenDeInvitacion {
                     INSERT INTO identidad.token_verificacion
                         (id, politica_id, tipo_token, proposito, hash_token, algoritmo_hash,
                          canal_entrega, destino_enmascarado, estado, emitido_en, expira_en,
-                         intentos_fallidos, max_intentos, reenvios, uso_unico, clicks)
+                         intentos_fallidos, max_intentos, reenvios, uso_unico, clicks,
+                         ip_origen, agente_usuario, correlation_id, clave_idempotencia)
                     VALUES (?, ?, 'ENLACE', ?, encode(digest(?, 'sha256'), 'hex'), 'SHA-256',
-                            ?, ?, 'EMITIDO', ?, ?, 0, 1, 0, true, 0)
+                            ?, ?, 'EMITIDO', ?, ?, 0, 1, 0, true, 0,
+                            ?::inet, ?, ?, ?)
                     """,
                     id,
                     politica.get("id", UUID.class),
@@ -75,7 +88,11 @@ public class EmitirTokenDeInvitacion {
                     canal,
                     destinoEnmascarado,
                     ahora,
-                    ahora.plusSeconds(politica.get("ttl_segundos", Integer.class)));
+                    ahora.plusSeconds(politica.get("ttl_segundos", Integer.class)),
+                    ipOrigen,
+                    agenteUsuario,
+                    UUID.fromString(ctx.traza().id()),
+                    idempotencia.toString());
             return new Emitido(id, enClaro, ahora.plusSeconds(politica.get("ttl_segundos", Integer.class)));
         });
     }

@@ -17,6 +17,46 @@ import org.junit.jupiter.api.Test;
 class CU69Test extends BaseDeCU69 {
 
     @Test
+    void invitacionEIngresoFuncionanConRolRealDelServicio() {
+        UUID grupo = grupoConCupoLibre();
+        UUID emisor = participanteActivo(grupo);
+        UUID invitado = fixtura.usuario();
+        UUID tokenEmitido = fixtura.tokenDeInvitacion();
+
+        UUID invitacion = transaccion.execute(e -> {
+                    dsl.execute("SET LOCAL ROLE svc_grupos");
+                    return invitar.invitar(
+                                    new bo.aportaya.grupos.aplicacion.CU69Invitar.EntradaInvitacion(
+                                            grupo,
+                                            "+59176000042",
+                                            "Contacto",
+                                            "ENLACE",
+                                            false,
+                                            false,
+                                            3,
+                                            tokenEmitido),
+                                    contexto(emisor))
+                            .invitacionId()
+                            .orElseThrow();
+                });
+        UUID token = tokenDe(invitacion);
+        String hash = enlace.datosDe(token, contexto(invitado)).hashReglamento();
+
+        transaccion.execute(e -> {
+            dsl.execute("SET LOCAL ROLE svc_grupos");
+            enlace.aceptar(token, hash, "127.0.0.1", java.math.BigDecimal.ZERO, contexto(invitado));
+            return null;
+        });
+
+        assertThat(estadoDe(invitacion)).isEqualTo("ACEPTADA");
+        assertThat(contar(
+                        "SELECT count(*) FROM grupos.participante WHERE grupo_id = ? AND usuario_id = ?",
+                        grupo,
+                        invitado))
+                .isEqualTo(1);
+    }
+
+    @Test
     @DisplayName(
             "Dado un participante activo y un grupo con cupos libres · Cuando invita a un teléfono nuevo · Entonces existe una invitacion ENVIADA con token de un solo uso · Y el mensaje no contiene datos de los otros integrantes")
     void criterio1() {
@@ -43,17 +83,56 @@ class CU69Test extends BaseDeCU69 {
         UUID invitacion = invitar(grupo, emisor, "+59176000002", false, false)
                 .invitacionId()
                 .orElseThrow();
+        UUID invitado = fixtura.usuario();
+        UUID token = tokenDe(invitacion);
+        String hash = enlace.datosDe(token, contexto(invitado)).hashReglamento();
         transaccion.execute(e -> {
-            invitar.aceptar(invitacion, contexto(emisor));
+            enlace.aceptar(token, hash, "127.0.0.1", java.math.BigDecimal.ZERO, contexto(invitado));
             return null;
         });
 
+        assertThat(estadoDe(invitacion)).isEqualTo("ACEPTADA");
+        assertThat(cuposLibresDe(grupo)).isZero();
+        assertThat(contar(
+                        """
+                        SELECT count(*) FROM grupos.participante
+                         WHERE usuario_id = ? AND grupo_id = ? AND estado = 'ACTIVO'
+                        """,
+                        invitado,
+                        grupo))
+                .isEqualTo(1);
+        assertThat(contar(
+                        """
+                        SELECT count(*) FROM grupos.aceptacion_reglamento
+                         WHERE participante_id IN
+                           (SELECT id FROM grupos.participante WHERE usuario_id = ?)
+                        """,
+                        invitado))
+                .isEqualTo(1);
+
         assertThatThrownBy(() -> transaccion.execute(e -> {
-                    invitar.aceptar(invitacion, contexto(emisor));
+                    enlace.aceptar(token, hash, "127.0.0.1", java.math.BigDecimal.ZERO, contexto(invitado));
                     return null;
                 }))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("ya no es valida");
+    }
+
+    @Test
+    void reglamentoDistintoNoConsumeInvitacionNiOcupaCupo() {
+        UUID grupo = grupoConCupoLibre();
+        UUID invitacion = invitar(grupo, participanteActivo(grupo), "+59176000013", false, false)
+                .invitacionId()
+                .orElseThrow();
+        UUID token = tokenDe(invitacion);
+        UUID invitado = fixtura.usuario();
+
+        assertThatThrownBy(() -> transaccion.execute(e -> enlace.aceptar(
+                        token, "f".repeat(64), "127.0.0.1", java.math.BigDecimal.ZERO, contexto(invitado))))
+                .isInstanceOf(ErrorDeNegocio.class)
+                .hasMessageContaining("reglamento cambió");
+        assertThat(estadoDe(invitacion)).isEqualTo("ENVIADA");
+        assertThat(cuposLibresDe(grupo)).isEqualTo(1);
     }
 
     @Test
@@ -197,9 +276,12 @@ class CU69Test extends BaseDeCU69 {
         UUID invitacion = invitar(grupo, emisor, "+59176000012", false, false)
                 .invitacionId()
                 .orElseThrow();
+        UUID invitado = fixtura.usuario();
+        UUID token = tokenDe(invitacion);
+        String hash = enlace.datosDe(token, contexto(invitado)).hashReglamento();
 
         transaccion.execute(e -> {
-            invitar.aceptar(invitacion, contexto(emisor));
+            enlace.aceptar(token, hash, "127.0.0.1", java.math.BigDecimal.ZERO, contexto(invitado));
             return null;
         });
 

@@ -72,6 +72,10 @@ public final class BaseDePrueba {
                 .withDatabaseName(NOMBRE)
                 .withUsername(NOMBRE)
                 .withPassword(NOMBRE)
+                // CU12 prueba 50 reintentos simultaneos con conexiones directas; los
+                // contextos Spring del mismo corredor tambien mantienen conexiones.
+                // Es un maximo, no conexiones abiertas de antemano.
+                .withCommand("postgres", "-c", "max_connections=200")
                 .withFileSystemBind(repositorio.resolve("sql").toString(), "/repo/sql", BindMode.READ_ONLY)
                 // Cinco minutos para estar listo, no el minuto por omision. No es
                 // tolerancia a un contenedor lento: es que la maquina de desarrollo

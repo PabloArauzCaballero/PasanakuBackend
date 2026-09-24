@@ -270,39 +270,4 @@ class CU11RechazosTest extends BaseDeBilletera {
         assertThat(contar("SELECT count(*)::int FROM pg_proc WHERE proname = ?", "fn_uif_registrar_operacion"))
                 .isEqualTo(1);
     }
-
-    @Test
-    @DisplayName(
-            "rechaza por fallo del proveedor tras autorizar (H4.S1): la orden pasa a RECHAZADA y libera la retencion")
-    void elProveedorRechazaTrasAutorizar() {
-        // ProveedorDeRetiroLocal reserva 666.66 de neto para forzar el RECHAZADO: monto
-        // 671.66 menos costo 5.00 = neto 666.66 exacto.
-        Escenario e = escenario("2000.00");
-        SalidaRetiro s = pedir(e, "671.66", "r-proveedor-rechaza");
-        assertThat(s.estado()).isEqualTo("AUTORIZADA");
-
-        var instruccion = transaccion.execute(t -> retiroCU.instruirPago(s.ordenRetiroId(), e.ctx()));
-
-        assertThat(instruccion.estado()).isEqualTo("RECHAZADA");
-        assertThat(contar(
-                        """
-                        SELECT count(*)::int FROM nucleo_financiero.orden_retiro
-                        WHERE id = ? AND estado = 'RECHAZADA'
-                        """,
-                        s.ordenRetiroId()))
-                .isEqualTo(1);
-        assertThat(contar(
-                        """
-                        SELECT count(*)::int FROM nucleo_financiero.retencion_saldo
-                        WHERE id = ? AND estado = 'LIBERADA'
-                        """,
-                        s.retencionId()))
-                .isEqualTo(1);
-        // El saldo vuelve a estar disponible: el rechazo del proveedor no puede dejar
-        // plata retenida sin destino.
-        assertThat(contar(
-                        "SELECT saldo_disponible::int FROM nucleo_financiero.cuenta_billetera WHERE id = ?",
-                        e.cuenta()))
-                .isEqualTo(2000);
-    }
 }

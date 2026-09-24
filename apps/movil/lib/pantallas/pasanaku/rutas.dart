@@ -11,6 +11,7 @@ import 'pantalla_reclamo_pendiente.dart';
 import 'pantalla_retiro.dart';
 import 'pantalla_transparencia.dart';
 import 'pantalla_turno.dart';
+import 'pantalla_unirse.dart';
 import 'pantalla_verificar_sorteo.dart';
 
 /// Las rutas del dominio pasanaku. Sigue el mismo patrón que `billetera` (M2) e
@@ -110,5 +111,15 @@ final List<RouteBase> rutasPasanaku = [
     // CU-52/53: hueco de contrato declarado en el informe — `cumplimiento`
     // reserva /reclamos pero no publica ninguna operación bajo ese prefijo.
     builder: (context, state) => const PantallaReclamoPendiente(),
+  ),
+];
+
+/// El enlace llega también antes de iniciar sesión, por eso vive fuera del shell.
+final List<RouteBase> rutasDeInvitacion = [
+  GoRoute(
+    path: '/pasanaku/unirse/:codigo',
+    name: 'pasanaku.unirse',
+    builder: (context, state) =>
+        PantallaUnirse(codigo: state.pathParameters['codigo']!),
   ),
 ];

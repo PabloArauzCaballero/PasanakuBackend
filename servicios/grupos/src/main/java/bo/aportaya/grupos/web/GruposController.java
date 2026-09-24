@@ -5,14 +5,16 @@ import bo.aportaya.grupos.aplicacion.CU59CalcularPlazo;
 import bo.aportaya.grupos.aplicacion.CU64TraspasarCupo;
 import bo.aportaya.grupos.aplicacion.CU65Retirarse;
 import bo.aportaya.grupos.aplicacion.CU68Postular;
-import bo.aportaya.grupos.aplicacion.CU69Invitar;
 import bo.aportaya.grupos.aplicacion.Consultas;
 import bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios;
 import bo.aportaya.grupos.web.generado.GruposApi;
 import bo.aportaya.grupos.web.generado.modelo.ActividadEnGrupos;
 import bo.aportaya.grupos.web.generado.modelo.AliasResuelto;
 import bo.aportaya.grupos.web.generado.modelo.CompromisoDeSorteo;
+import bo.aportaya.grupos.web.generado.modelo.DetalleEnlaceInvitacion;
+import bo.aportaya.grupos.web.generado.modelo.EntradaAceptacionInvitacion;
 import bo.aportaya.grupos.web.generado.modelo.EntradaCompromiso;
+import bo.aportaya.grupos.web.generado.modelo.EntradaEnlaceInvitacion;
 import bo.aportaya.grupos.web.generado.modelo.EntradaGrupo;
 import bo.aportaya.grupos.web.generado.modelo.EntradaInvitacion;
 import bo.aportaya.grupos.web.generado.modelo.EntradaPostulacion;
@@ -21,6 +23,7 @@ import bo.aportaya.grupos.web.generado.modelo.EntradaRevelacion;
 import bo.aportaya.grupos.web.generado.modelo.EntradaTraspaso;
 import bo.aportaya.grupos.web.generado.modelo.PaqueteDelSorteo;
 import bo.aportaya.grupos.web.generado.modelo.RevelacionDeSorteo;
+import bo.aportaya.grupos.web.generado.modelo.SalidaAceptacionInvitacion;
 import bo.aportaya.grupos.web.generado.modelo.SalidaGrupo;
 import bo.aportaya.grupos.web.generado.modelo.SalidaInvitacion;
 import bo.aportaya.grupos.web.generado.modelo.SalidaPlazoHabil;
@@ -60,13 +63,12 @@ public class GruposController implements GruposApi {
     private final CU64TraspasarCupo cu64;
     private final CU65Retirarse cu65;
     private final CU68Postular cu68;
-    private final CU69Invitar cu69;
+    private final InvitacionesWeb invitaciones;
     private final Consultas consultas;
     private final HechosDeOtrosServicios afuera;
     private final SesionDeLaPeticion sesion;
     private final String codigoTarifario;
     private final String servicioDeLicencia;
-    private final int topeDeReenvios;
     private final java.math.BigDecimal afinidadNeutra;
     private final RespuestasAOtrosServicios respuestas;
     private final SorteoDelGrupo sorteo;
@@ -78,13 +80,12 @@ public class GruposController implements GruposApi {
             CU64TraspasarCupo cu64,
             CU65Retirarse cu65,
             CU68Postular cu68,
-            CU69Invitar cu69,
+            InvitacionesWeb invitaciones,
             Consultas consultas,
             HechosDeOtrosServicios afuera,
             SesionDeLaPeticion sesion,
             @Value("${aportaya.tarifas.codigo-tarifario}") String codigoTarifario,
             @Value("${aportaya.grupo.servicio-de-licencia}") String servicioDeLicencia,
-            @Value("${aportaya.grupo.tope-de-reenvios-de-invitacion}") int topeDeReenvios,
             @Value("${aportaya.grupo.afinidad-neutra}") java.math.BigDecimal afinidadNeutra,
             RespuestasAOtrosServicios respuestas,
             SorteoDelGrupo sorteo) {
@@ -93,13 +94,12 @@ public class GruposController implements GruposApi {
         this.cu64 = cu64;
         this.cu65 = cu65;
         this.cu68 = cu68;
-        this.cu69 = cu69;
+        this.invitaciones = invitaciones;
         this.consultas = consultas;
         this.afuera = afuera;
         this.sesion = sesion;
         this.codigoTarifario = codigoTarifario;
         this.servicioDeLicencia = servicioDeLicencia;
-        this.topeDeReenvios = topeDeReenvios;
         this.afinidadNeutra = afinidadNeutra;
         this.respuestas = respuestas;
         this.sorteo = sorteo;
@@ -234,36 +234,21 @@ public class GruposController implements GruposApi {
     @Permiso("GRUPO_ADMINISTRAR")
     public ResponseEntity<SalidaInvitacion> invitarAlGrupo(
             UUID grupoId, UUID idempotencyKey, EntradaInvitacion cuerpo) {
-        var ctx = sesion.actual();
         Traza.marcarCasoDeUso("CU-69", grupoId.toString());
+        return ResponseEntity.status(HttpStatus.CREATED).body(invitaciones.invitar(grupoId, cuerpo));
+    }
 
-        String telefono = cuerpo.getTelefonoInvitado();
-        boolean suprimido = afuera.contactoSuprimido(telefono, "INVITACION_GRUPO");
-        boolean yaEsta = afuera.usuarioDelTelefono(telefono)
-                .map(usuario -> consultas.yaEsParticipante(grupoId, usuario, ctx))
-                .orElse(false);
+    @Override
+    @Permiso("PARTICIPANTE")
+    public ResponseEntity<DetalleEnlaceInvitacion> consultarInvitacionPorEnlace(EntradaEnlaceInvitacion cuerpo) {
+        return ResponseEntity.ok(invitaciones.consultar(cuerpo));
+    }
 
-        var salida = cu69.invitar(
-                new CU69Invitar.EntradaInvitacion(
-                        grupoId,
-                        telefono,
-                        cuerpo.getNombreSugerido(),
-                        cuerpo.getCanal().getValue(),
-                        suprimido,
-                        yaEsta,
-                        topeDeReenvios,
-                        // El token se pide solo si hay algo que enviar: pedirlo para una
-                        // invitacion que no sale seria emitir un enlace vivo sin destino.
-                        suprimido || yaEsta
-                                ? null
-                                : afuera.tokenDeInvitacion(
-                                        cuerpo.getCanal().getValue(), MapeoDeGrupos.enmascarar(telefono))),
-                ctx);
-
-        var respuesta = new SalidaInvitacion();
-        salida.invitacionId().ifPresent(respuesta::setInvitacionId);
-        respuesta.setMensaje(salida.mensaje());
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+    @Override
+    @Permiso("PARTICIPANTE")
+    public ResponseEntity<SalidaAceptacionInvitacion> aceptarInvitacionPorEnlace(
+            UUID idempotencyKey, EntradaAceptacionInvitacion cuerpo) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(invitaciones.aceptar(cuerpo));
     }
 
     // ------------------------------------- lo que este servicio le contesta a otros --

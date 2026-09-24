@@ -99,7 +99,7 @@ TypeScript**; lo que cambia es la regla de lint que los verifica (§6).
 | Contratos | `servicios/*/src/main/resources/openapi/*.yaml` | Los escribe el backend, antes de implementar |
 | Clientes de API | **Generados** por `./gradlew generateOpenApiClients` | `clientes/angular/<servicio>` (`typescript-angular`) y `clientes/dart/<servicio>` (`dart-dio`). No se editan, **sin dueño de carril**, el CI regenera y falla si hay diferencia |
 | Tokens | **`packages/tokens/tokens.json`** — la única fuente | Genera `tokens.css` y `tokens.dart`. Verificado contra `docs/Views/Sistema-Diseno/estilos.css` por prueba |
-| Servidor simulado | **Prism** (`@stoplight/prism-cli`) sobre los contratos | `packages/simulado`: ejemplos por CU y por escenario en un documento fusionado, validación de petición y respuesta contra el esquema. El escenario se pide con `Prefer: code=<estado>, example=<escenario>`. Un solo mock para Dart y TypeScript |
+| Servidor simulado | **Scalar** (`@scalar/mock-server`) sobre los contratos | `packages/simulado`: ejemplos por CU y por escenario en un documento fusionado, validación de petición por el servidor y de los ejemplos de respuesta contra el esquema mediante `test:front`. El escenario se pide con `Prefer: code=<estado>, example=<escenario>`. Un solo mock para Dart y TypeScript |
 | Vectores compartidos | `packages/tokens/vectores/monto.json` · `packages/dominio-cliente/vectores/*.json` | Lo que dos lenguajes tienen que calcular igual se prueba contra el mismo JSON |
 | Logs de cliente | Sin PII, con `x-request-id` propagado al backend | En los dos mundos |
 | Empaquetado | Docker para backoffice y web; tiendas + Shorebird para la app | [[ADR-025 Empaquetado y despliegue de los servicios]] · [[ADR-044 Frontend en Angular y Flutter]] |

@@ -47,7 +47,10 @@ public interface HechosDeOtrosServicios {
     boolean contactoSuprimido(String identificador, String categoria);
 
     /** El enlace de un solo uso de una invitacion. Lo emite {@code identidad}. */
-    UUID tokenDeInvitacion(String canal, String destinoEnmascarado);
+    TokenDeInvitacion tokenDeInvitacion(String canal, String destinoEnmascarado);
+
+    /** Identidad coteja el secreto y el telefono con la sesion autenticada. */
+    boolean enlaceDeInvitacionValido(UUID tokenId, String token, String telefonoE164, String kycMinimo);
 
     /** Si ese telefono ya tiene cuenta. Lo dice {@code identidad}. */
     java.util.Optional<UUID> usuarioDelTelefono(String telefonoE164);
@@ -70,4 +73,6 @@ public interface HechosDeOtrosServicios {
     record Reputacion(boolean tieneHistorial, BigDecimal puntaje) {}
 
     record Restriccion(boolean vigente, BigDecimal montoQueLaLevanta) {}
+
+    record TokenDeInvitacion(UUID tokenId, String token) {}
 }

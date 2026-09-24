@@ -3,6 +3,7 @@ package bo.aportaya.identidad.aplicacion;
 import bo.aportaya.identidad.infraestructura.UsuarioRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
+import bo.aportaya.plataforma.dominio.Traza;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,10 @@ public class BuscarPorTelefono {
 
     @Transactional(readOnly = true)
     public Optional<UUID> ejecutar(String telefonoE164, ContextoSesion ctx) {
-        return datos.conContexto(ctx, dsl -> usuarios.porTelefono(dsl, telefonoE164));
+        // El organizador tiene permiso para esta consulta, pero la fila de la
+        // persona invitada no es suya. La API expone solo el UUID, nunca la fila.
+        ContextoSesion interno =
+                ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
+        return datos.conContexto(interno, dsl -> usuarios.porTelefono(dsl, telefonoE164));
     }
 }

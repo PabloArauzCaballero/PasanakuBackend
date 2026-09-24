@@ -1,16 +1,13 @@
 // F12.1 — Una notificación push abre la pantalla correcta y NO muestra el monto en
-// la bandeja del sistema. NO EJECUTABLE EN ESTE SANDBOX (ver integration_test/LEEME.md).
+// la bandeja del sistema. Estado de ejecución: integration_test/LEEME.md.
 // El panel de notificaciones del sistema operativo está fuera del árbol de Flutter:
 // por eso esto necesita Patrol, no alcanza con `integration_test` solo.
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:patrol/patrol.dart';
 
 import '_soporte.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
   patrolTest('push de aporte recibido abre la pantalla y no expone el monto', (
     $,
   ) async {

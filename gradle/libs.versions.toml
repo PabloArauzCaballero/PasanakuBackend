@@ -9,10 +9,10 @@
 # desincronizarse entre si.
 
 [versions]
-spring-boot        = "3.5.6"
+spring-boot        = "3.5.16"
 spring-dep-mgmt    = "1.1.7"
-spring-cloud       = "2025.0.0"
-minio              = "8.5.17"
+spring-cloud       = "2025.0.3"
+minio              = "8.6.0"
 shedlock           = "6.9.0"       # bloqueo de trabajos programados entre replicas
 resilience4j       = "2.3.0"       # timeout y cortacircuitos en cada cliente
 argon2             = "2.12"        # contrasenas y PIN (nunca un hash rapido)
@@ -21,7 +21,7 @@ jqwik              = "1.9.3"       # propiedades: cuadre de dinero
 spotless           = "7.0.4"
 openapi-generator  = "7.14.0"
 jooq               = "3.20.5"      # generador Y libreria: separarlos genera codigo que no compila
-driver-postgresql  = "42.7.7"      # solo para el generador y los contenedores
+driver-postgresql  = "42.7.12"     # solo para el generador y los contenedores
 cyclonedx          = "3.4.1"       # SBOM por modulo desplegable (H2.S3), verificado contra
                                     # github.com/CycloneDX/cyclonedx-gradle-plugin el 2026-09-21
 pitest             = "1.19.0"      # mutation testing (H6.S1). Verificado contra

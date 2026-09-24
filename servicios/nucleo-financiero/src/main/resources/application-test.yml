@@ -7,3 +7,6 @@ aportaya:
     origenes: "http://localhost"   # solo lo que usan webTest/integrationTest
   mfa:
     doble-local: false       # cada prueba de MFA fija esto explicitamente
+  retiro-local:
+    monto-rechazado: 666.66
+    monto-en-timeout: 111.11
