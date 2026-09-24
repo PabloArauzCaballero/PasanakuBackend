@@ -27,7 +27,8 @@ class CU69RolRealTest extends BaseDeCU69 {
                     .orElseThrow();
         });
         UUID token = tokenDe(invitacion);
-        String hash = enlace.datosDe(token, contexto(invitado)).hashReglamento();
+        String hash = transaccion.execute(
+                e -> enlace.datosDe(token, contexto(invitado)).hashReglamento());
 
         transaccion.execute(e -> {
             dsl.execute("SET LOCAL ROLE svc_grupos");
