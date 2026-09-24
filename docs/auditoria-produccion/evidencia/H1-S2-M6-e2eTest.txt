@@ -50,3 +50,12 @@ TEST-bo.aportaya.plataforma.mensajeria.OutboxE2ETest.xml -> tests="1" skipped="0
 $ ./gradlew :plataforma:comun-pruebas:spotlessCheck :plataforma:comun-mensajeria:integrationTest :plataforma:comun-mensajeria:test   (regresion del modulo)
 BUILD SUCCESSFUL in 20s
 EXIT=0
+
+## CI despues del fix (job e2e-financiero, workflow_dispatch run 36044781095, SHA 1a3faa2, runner Linux)
+##[group]Run ./gradlew :servicios:nucleo-financiero:e2eTest :plataforma:comun-mensajeria:e2eTest
+> Task :servicios:nucleo-financiero:e2eTest NO-SOURCE
+> Task :plataforma:comun-mensajeria:e2eTest
+BUILD SUCCESSFUL in 2m 37s
+
+Veredicto H1.S2.M6: PASS. e2eTest ejecuta todo lo que existe (1 prueba: OutboxE2ETest; nucleo-financiero NO-SOURCE).
+No cubierto: la raiz ./gradlew e2eTest local sobre los 14 servicios (compilar servicios exige el esquema aplicado en la base local; esa accion fue denegada en esta sesion). Ningun servicio tiene *E2ETest hoy.
