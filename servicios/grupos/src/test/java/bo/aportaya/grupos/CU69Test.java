@@ -24,21 +24,14 @@ class CU69Test extends BaseDeCU69 {
         UUID tokenEmitido = fixtura.tokenDeInvitacion();
 
         UUID invitacion = transaccion.execute(e -> {
-                    dsl.execute("SET LOCAL ROLE svc_grupos");
-                    return invitar.invitar(
-                                    new bo.aportaya.grupos.aplicacion.CU69Invitar.EntradaInvitacion(
-                                            grupo,
-                                            "+59176000042",
-                                            "Contacto",
-                                            "ENLACE",
-                                            false,
-                                            false,
-                                            3,
-                                            tokenEmitido),
-                                    contexto(emisor))
-                            .invitacionId()
-                            .orElseThrow();
-                });
+            dsl.execute("SET LOCAL ROLE svc_grupos");
+            return invitar.invitar(
+                            new bo.aportaya.grupos.aplicacion.CU69Invitar.EntradaInvitacion(
+                                    grupo, "+59176000042", "Contacto", "ENLACE", false, false, 3, tokenEmitido),
+                            contexto(emisor))
+                    .invitacionId()
+                    .orElseThrow();
+        });
         UUID token = tokenDe(invitacion);
         String hash = enlace.datosDe(token, contexto(invitado)).hashReglamento();
 
