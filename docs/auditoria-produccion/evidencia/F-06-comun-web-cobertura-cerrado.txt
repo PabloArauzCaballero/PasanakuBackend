@@ -1,0 +1,22 @@
+# F-06 -- plataforma/comun-web: piso de cobertura, re-medido 2026-09-24
+# SHA medido: 7819f57 (origin/dev), worktree limpio; pisos en plataforma/comun-web/build.gradle.kts:17-18 (lineas 0.57, ramas 0.47)
+
+$ ./gradlew :plataforma:comun-web:test :plataforma:comun-web:webTest :plataforma:comun-web:integrationTest :plataforma:comun-web:contractTest :plataforma:comun-web:sagaTest :plataforma:comun-web:jacocoTestReport :plataforma:comun-web:jacocoTestCoverageVerification --continue
+> Task :plataforma:comun-web:testFixturesClasses
+> Task :plataforma:comun-web:testFixturesJar
+> Task :plataforma:comun-web:testClasses
+> Task :plataforma:comun-web:test
+> Task :plataforma:comun-web:webTest
+> Task :plataforma:comun-web:integrationTest
+> Task :plataforma:comun-web:contractTest NO-SOURCE
+> Task :plataforma:comun-web:sagaTest NO-SOURCE
+> Task :plataforma:comun-web:jacocoTestCoverageVerification
+> Task :plataforma:comun-web:jacocoTestReport
+BUILD SUCCESSFUL in 1m 10s
+EXIT=0
+
+$ (totales del informe XML de JaCoCo, plataforma/comun-web/build/reports/jacoco/test/jacocoTestReport.xml)
+LINE    0.7441 covered=317 missed=109   (piso 0.57) -> PASA
+BRANCH  0.5411 covered=79 missed=67     (piso 0.47) -> PASA
+
+Veredicto: PASS. F-06 (0.46 < 0.47 el 2026-09-22) queda CERRADO por las pruebas que los carriles PR3/PR4 agregaron a comun-web desde entonces; no hizo falta escribir pruebas nuevas.
