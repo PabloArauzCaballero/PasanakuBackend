@@ -3,14 +3,11 @@
 // apps/movil/pubspec.yaml (ver integration_test/LEEME.md). Andamiaje listo para
 // correr en cuanto ese micro-PR exista.
 import 'package:flutter/material.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:patrol/patrol.dart';
 
 import '_soporte.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
   patrolTest('registro con cámara, contrato, recarga y movimientos', ($) async {
     await arrancarApp($);
 

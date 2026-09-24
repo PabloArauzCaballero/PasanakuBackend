@@ -5,14 +5,11 @@
 // `enlaces_profundos.dart` (la función pura que traduce el URI a ruta interna) sin
 // SO real. Este archivo es el complemento con Patrol: abre el deep link como lo haría
 // Android/iOS de verdad, con la app cerrada.
-import 'package:integration_test/integration_test.dart';
 import 'package:patrol/patrol.dart';
 
 import '_soporte.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
   patrolTest('deep link con la app cerrada abre la pantalla de unirse', (
     $,
   ) async {

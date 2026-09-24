@@ -1,13 +1,10 @@
 // F12.1 — Cobrar mi turno → deducciones → neto → línea de tiempo.
 // NO EJECUTABLE EN ESTE SANDBOX (ver integration_test/LEEME.md).
-import 'package:integration_test/integration_test.dart';
 import 'package:patrol/patrol.dart';
 
 import '_soporte.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
   patrolTest('cobrar mi turno muestra deducciones y neto', ($) async {
     await arrancarApp($);
 

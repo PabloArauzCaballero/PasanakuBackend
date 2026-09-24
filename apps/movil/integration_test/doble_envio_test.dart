@@ -7,14 +7,11 @@
 // extender esta misma tabla, no un archivo nuevo.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:patrol/patrol.dart';
 
 import '_soporte.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
   for (final operacion in ['Recargar saldo', 'Pagar con saldo']) {
     patrolTest('doble toque en "$operacion" produce un único movimiento', (
       $,

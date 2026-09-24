@@ -1,13 +1,10 @@
 // F12.1 — Entrar al grupo → Mi aporte → pagar con saldo → ver el movimiento.
 // NO EJECUTABLE EN ESTE SANDBOX (ver integration_test/LEEME.md).
-import 'package:integration_test/integration_test.dart';
 import 'package:patrol/patrol.dart';
 
 import '_soporte.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
   patrolTest('pagar mi aporte con saldo de billetera', ($) async {
     await arrancarApp($);
 
