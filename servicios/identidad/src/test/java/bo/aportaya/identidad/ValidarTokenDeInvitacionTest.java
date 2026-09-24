@@ -65,8 +65,9 @@ class ValidarTokenDeInvitacionTest {
         assertThat(verificar(token, secreto, TELEFONO, titular)).isTrue();
         var ctx = ContextoSesion.de(
                 titular, "PARTICIPANTE", new Traza(UUID.randomUUID().toString()));
-        assertThat(transaccion.execute(estado -> validar.ejecutar(token, secreto, TELEFONO, "COMPLETO", ctx)))
-                .isFalse();
+        boolean kycInsuficiente =
+                transaccion.execute(estado -> validar.ejecutar(token, secreto, TELEFONO, "COMPLETO", ctx));
+        assertThat(kycInsuficiente).isFalse();
         assertThat(verificar(token, "f".repeat(64), TELEFONO, titular)).isFalse();
         assertThat(verificar(token, secreto, TELEFONO, tercero)).isFalse();
         assertThat(verificar(token, secreto, "+59176543211", titular)).isFalse();
