@@ -4,6 +4,7 @@ import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
+import bo.aportaya.identidad.aplicacion.ValidarTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
 import bo.aportaya.identidad.dominio.CanalDeVerificacion;
 import bo.aportaya.identidad.dominio.DocumentoDeIdentidad;
@@ -12,9 +13,11 @@ import bo.aportaya.identidad.web.generado.modelo.ArchivoDelExpediente;
 import bo.aportaya.identidad.web.generado.modelo.EntradaRegistro;
 import bo.aportaya.identidad.web.generado.modelo.EntradaTitularidad;
 import bo.aportaya.identidad.web.generado.modelo.EntradaTokenDeInvitacion;
+import bo.aportaya.identidad.web.generado.modelo.EntradaValidacionInvitacion;
 import bo.aportaya.identidad.web.generado.modelo.SalidaRegistro;
 import bo.aportaya.identidad.web.generado.modelo.SalidaTitularidad;
 import bo.aportaya.identidad.web.generado.modelo.SalidaTokenDeInvitacion;
+import bo.aportaya.identidad.web.generado.modelo.SalidaValidacionInvitacion;
 import bo.aportaya.identidad.web.generado.modelo.UsuarioEncontrado;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
@@ -47,6 +50,7 @@ public class UsuariosController implements UsuariosApi {
     private final VerificarTitularidad titularidad;
     private final CU02GuardarFotoDelExpediente fotos;
     private final EmitirTokenDeInvitacion tokens;
+    private final ValidarTokenDeInvitacion validacionDeInvitacion;
     private final BuscarPorTelefono busqueda;
     private final SesionDeLaPeticion sesion;
     private final HttpServletRequest peticion;
@@ -57,6 +61,7 @@ public class UsuariosController implements UsuariosApi {
             VerificarTitularidad titularidad,
             CU02GuardarFotoDelExpediente fotos,
             EmitirTokenDeInvitacion tokens,
+            ValidarTokenDeInvitacion validacionDeInvitacion,
             BuscarPorTelefono busqueda,
             SesionDeLaPeticion sesion,
             HttpServletRequest peticion,
@@ -65,6 +70,7 @@ public class UsuariosController implements UsuariosApi {
         this.titularidad = titularidad;
         this.fotos = fotos;
         this.tokens = tokens;
+        this.validacionDeInvitacion = validacionDeInvitacion;
         this.busqueda = busqueda;
         this.sesion = sesion;
         this.peticion = peticion;
@@ -95,14 +101,34 @@ public class UsuariosController implements UsuariosApi {
     public ResponseEntity<SalidaTokenDeInvitacion> emitirTokenDeInvitacion(
             UUID idempotencyKey, EntradaTokenDeInvitacion cuerpo) {
         Traza.marcarCasoDeUso("CU-69", cuerpo.getCanal().getValue());
+        String agente = Optional.ofNullable(peticion.getHeader("User-Agent")).orElse("grupos");
 
-        var emitido = tokens.ejecutar(cuerpo.getCanal().getValue(), cuerpo.getDestinoEnmascarado(), sesion.actual());
+        var emitido = tokens.ejecutar(
+                cuerpo.getCanal().getValue(),
+                cuerpo.getDestinoEnmascarado(),
+                idempotencyKey,
+                Optional.ofNullable(peticion.getRemoteAddr()).orElse("0.0.0.0"),
+                agente.substring(0, Math.min(255, agente.length())),
+                sesion.actual());
 
         var respuesta = new SalidaTokenDeInvitacion();
         respuesta.setTokenId(emitido.tokenId());
         respuesta.setToken(emitido.token());
         respuesta.setExpiraEn(emitido.expiraEn());
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+    }
+
+    @Override
+    @Permiso("PARTICIPANTE")
+    public ResponseEntity<SalidaValidacionInvitacion> validarTokenDeInvitacion(EntradaValidacionInvitacion cuerpo) {
+        Traza.marcarCasoDeUso("CU-69", "validar-enlace");
+        boolean valido = validacionDeInvitacion.ejecutar(
+                cuerpo.getTokenId(),
+                cuerpo.getToken(),
+                cuerpo.getTelefonoE164(),
+                cuerpo.getKycMinimo().getValue(),
+                sesion.actual());
+        return ResponseEntity.ok(new SalidaValidacionInvitacion().valido(valido));
     }
 
     @Override

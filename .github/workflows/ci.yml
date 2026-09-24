@@ -422,7 +422,7 @@ jobs:
   # en el LEEME era JDK 26 en una Mac de desarrollo puntual, no una limitacion
   # de este job).
   app-integracion:
-    name: App — integración en simulador iOS (macOS)
+    name: App — navegación en simulador iOS (macOS)
     # macOS 26 + Xcode 26.6 no expone iPhones a xcodebuild en test-without-building.
     # La imagen macOS 15 trae Xcode 26.3 y el runtime iOS 26.2 correspondiente.
     runs-on: macos-15
@@ -468,38 +468,25 @@ jobs:
       - name: integracion · patrol_cli 3.11.0 (compatible con patrol 3.20.0, ver LEEME.md)
         run: dart pub global activate patrol_cli 3.11.0
 
-      - name: integracion · arrancar Prism para los recorridos
+      - name: integracion · arrancar Scalar para los recorridos
         run: |
-          nohup yarn workspace @aportaya/simulado mock > "$RUNNER_TEMP/prism.log" 2>&1 &
+          nohup yarn workspace @aportaya/simulado mock > "$RUNNER_TEMP/simulado.log" 2>&1 &
           for intento in {1..60}; do
             if curl --silent --output /dev/null --max-time 2 http://127.0.0.1:4010/api/v1/; then
               exit 0
             fi
             sleep 2
           done
-          cat "$RUNNER_TEMP/prism.log"
+          cat "$RUNNER_TEMP/simulado.log"
           exit 1
 
-      # Las siete pruebas reales, con foco explícito en enlace profundo y doble
-      # envío (H3.S1.M2 las pide correr también en el gate de release).
-      # Xcode no debe clonar el simulador para RunnerUITests; el esquema lo marca
-      # no paralelo. El primer test tiene su propio plazo para detectar atascos.
-      - name: integracion · primer test en simulador
+      # Este smoke verifica la entrada real sin sesión. Los recorridos F12.1 que
+      # requieren grupo, cámara y API real van en su gate de dispositivo físico;
+      # correr sus guiones incompletos aquí daría una señal falsa.
+      - name: integracion · portada, tour y registro en simulador
         timeout-minutes: 20
         working-directory: apps/movil
-        run: patrol test --target integration_test/alta_y_billetera_test.dart -d "$SIMULADOR_UDID" --dart-define=API=http://127.0.0.1:4010/api/v1 --verbose
-
-      - name: integracion · las otras seis pruebas de integración
-        timeout-minutes: 50
-        working-directory: apps/movil
-        run: |
-          for archivo in integration_test/*_test.dart; do
-            if [[ "$archivo" == "integration_test/alta_y_billetera_test.dart" ]]; then
-              continue
-            fi
-            echo "=== $archivo ==="
-            patrol test --target "$archivo" -d "$SIMULADOR_UDID" --dart-define=API=http://127.0.0.1:4010/api/v1 --verbose
-          done
+        run: patrol test --target integration_test/arranque_y_registro_test.dart -d "$SIMULADOR_UDID" --dart-define=API=http://127.0.0.1:4010/api/v1 --verbose
 
       - name: integracion · diagnostico de Xcode si falla Patrol
         if: failure() || cancelled()
@@ -575,31 +562,30 @@ jobs:
       - name: release-ios · patrol_cli 3.11.0
         run: dart pub global activate patrol_cli 3.11.0
 
-      - name: release-ios · arrancar Prism para los recorridos
+      - name: release-ios · arrancar Scalar para los recorridos
         run: |
-          nohup yarn workspace @aportaya/simulado mock > "$RUNNER_TEMP/prism.log" 2>&1 &
+          nohup yarn workspace @aportaya/simulado mock > "$RUNNER_TEMP/simulado.log" 2>&1 &
           for intento in {1..60}; do
             if curl --silent --output /dev/null --max-time 2 http://127.0.0.1:4010/api/v1/; then
               exit 0
             fi
             sleep 2
           done
-          cat "$RUNNER_TEMP/prism.log"
+          cat "$RUNNER_TEMP/simulado.log"
           exit 1
 
-      # Las dos pruebas de integracion que el encargo pide explicitamente para
-      # el gate de release (deep link y doble envio) -- las otras cinco ya
-      # corren en `app-integracion`; repetirlas todas acá solo duplicaría
-      # minutos de macOS sin agregar señal nueva (Q-L1).
+      # El enlace profundo se verifica con el sistema operativo iOS; el doble
+      # envío se verifica con la prueba widget que comprueba una sola petición y
+      # la misma clave de idempotencia. La suite F12.1 completa requiere Android
+      # físico y una API real de ensayo, fuera de este simulador con Scalar.
       - name: release-ios · deep link (simulador)
         timeout-minutes: 20
         working-directory: apps/movil
         run: patrol test --target integration_test/deep_link_test.dart -d "$SIMULADOR_UDID" --dart-define=API=http://127.0.0.1:4010/api/v1 --verbose
 
-      - name: release-ios · doble envío (simulador)
-        timeout-minutes: 20
+      - name: release-ios · doble envío de recarga (widget, misma clave)
         working-directory: apps/movil
-        run: patrol test --target integration_test/doble_envio_test.dart -d "$SIMULADOR_UDID" --dart-define=API=http://127.0.0.1:4010/api/v1 --verbose
+        run: flutter test test/widget/pantalla_recargar_test.dart --timeout 60s
 
       - name: release-ios · diagnostico de Xcode si falla Patrol
         if: failure() || cancelled()

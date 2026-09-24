@@ -287,6 +287,26 @@ paths:
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
 
+  /usuarios/tokens/invitacion/validar:
+    post:
+      operationId: validarTokenDeInvitacion
+      summary: Verificar un enlace para el titular de la sesión
+      description: >-
+        Responde solo si el token emitido sigue vigente y el teléfono indicado
+        pertenece al usuario autenticado. No consume el token: grupos hace la
+        aceptación de un solo uso en su propia transacción.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaValidacionInvitacion' }
+      responses:
+        '200':
+          description: Resultado sin datos personales
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaValidacionInvitacion' }
+
   /usuarios/por-telefono:
     get:
       operationId: buscarPorTelefono
@@ -348,6 +368,21 @@ components:
         tokenId:  { type: string, format: uuid }
         token:    { type: string }
         expiraEn: { type: string, format: date-time }
+    EntradaValidacionInvitacion:
+      type: object
+      additionalProperties: false
+      required: [tokenId, token, telefonoE164, kycMinimo]
+      properties:
+        tokenId: { type: string, format: uuid }
+        token: { type: string, pattern: '^[0-9a-f]{64}$' }
+        telefonoE164: { type: string, pattern: '^\+591\d{8}$' }
+        kycMinimo: { type: string, enum: [NINGUNO, BASICO, INTERMEDIO, COMPLETO] }
+    SalidaValidacionInvitacion:
+      type: object
+      additionalProperties: false
+      required: [valido]
+      properties:
+        valido: { type: boolean }
     EntradaTitularidad:
       type: object
       additionalProperties: false

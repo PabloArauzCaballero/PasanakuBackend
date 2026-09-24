@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import 'dominio/estado_sesion.dart';
 import 'textos.dart';
+import '../../navegacion/retorno_de_invitacion.dart';
 
 /// CU-04, paso 2: el segundo factor. Seis dígitos, el mismo átomo del celular en
 /// el alta — es a propósito, es el mismo patrón (`CampoOTP`).
@@ -36,7 +37,10 @@ class PantallaDeMfa extends ConsumerWidget {
                       .read(sesionIdentidadProvider.notifier)
                       .completarMfa(codigo);
                   if (!ok || !context.mounted) return;
-                  context.go('/billetera/inicio');
+                  final retorno = retornoDeInvitacion(
+                    GoRouterState.of(context).uri.queryParameters['volver'],
+                  );
+                  context.go(retorno ?? '/billetera/inicio');
                 },
               ),
             ],

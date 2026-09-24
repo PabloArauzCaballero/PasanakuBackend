@@ -1860,6 +1860,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_invitacion_activa
   ON invitacion (grupo_id, telefono_invitado)
   WHERE (estado = 'ENVIADA');
 
+-- La aceptación del enlace no puede crear dos membresías vigentes del mismo
+-- usuario, aun si otra ruta de ingreso llega en paralelo.
+CREATE UNIQUE INDEX IF NOT EXISTS uq_participante_vigente_grupo_usuario
+  ON participante (grupo_id, usuario_id)
+  WHERE estado NOT IN ('RETIRADO', 'EXPULSADO', 'REEMPLAZADO');
+
 -- R-GRP-16 · calendario de días no hábiles sin duplicados ni ámbitos incompletos
 ALTER TABLE dia_no_habil DROP CONSTRAINT IF EXISTS ck_dia_no_habil_ambito;
 ALTER TABLE dia_no_habil
@@ -2810,4 +2816,3 @@ CREATE INDEX IF NOT EXISTS ix_operelev_periodo ON registro_operacion_relevante (
   WHERE NOT exento;
 CREATE INDEX IF NOT EXISTS ix_operelev_usuario_fecha
   ON registro_operacion_relevante (usuario_id, fecha_operacion DESC);
-

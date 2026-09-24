@@ -1,5 +1,6 @@
 package bo.aportaya.grupos;
 
+import bo.aportaya.grupos.aplicacion.CU69Enlace;
 import bo.aportaya.grupos.aplicacion.CU69Invitar;
 import bo.aportaya.grupos.aplicacion.CU69Invitar.EntradaInvitacion;
 import bo.aportaya.grupos.aplicacion.CU69Invitar.Resultado;
@@ -30,6 +31,7 @@ abstract class BaseDeCU69 {
     protected static DSLContext dslFixtura;
     protected static TransactionTemplate transaccion;
     protected static CU69Invitar invitar;
+    protected static CU69Enlace enlace;
     protected static FixturaDeGrupos fixtura;
     protected static Consumidos consumidos;
 
@@ -43,6 +45,7 @@ abstract class BaseDeCU69 {
         transaccion = new TransactionTemplate(new DataSourceTransactionManager(fuente));
         invitar = new CU69Invitar(
                 new Datos(dsl), new InvitacionRepositorio(), new Outbox("grupos"), Reloj.delSistema(), Ids.seguros());
+        enlace = new CU69Enlace(new Datos(dsl), new Outbox("grupos"));
         fixtura = new FixturaDeGrupos(dslFixtura);
         consumidos = new Consumidos("grupos");
     }
@@ -58,11 +61,37 @@ abstract class BaseDeCU69 {
         fixtura.participantesConCupo(grupo, 3);
         dslFixtura.execute(
                 """
+                UPDATE grupos.participante SET estado = 'RETIRADO', fecha_salida = now()
+                 WHERE id = (SELECT participante_id FROM grupos.cupo
+                              WHERE grupo_id = ? ORDER BY numero DESC LIMIT 1)
+                """,
+                grupo);
+        dslFixtura.execute(
+                """
                 UPDATE grupos.cupo SET estado = 'LIBRE', participante_id = NULL
                  WHERE id = (SELECT id FROM grupos.cupo WHERE grupo_id = ? ORDER BY numero DESC LIMIT 1)
                 """,
                 grupo);
+        dslFixtura.execute("UPDATE grupos.grupo SET cupos_ocupados = cupos_ocupados - 1 WHERE id = ?", grupo);
+        UUID redactor = participanteActivo(grupo);
+        dslFixtura.execute(
+                """
+                INSERT INTO grupos.reglamento_grupo
+                  (grupo_id, version, contenido, hash_contenido, clausulas_mora,
+                   clausulas_abandono, vigente_desde, redactado_por)
+                VALUES (?, 1, 'Reglamento de prueba',
+                  encode(digest('Reglamento de prueba', 'sha256'), 'hex'),
+                  'Mora', 'Abandono', now(), ?)
+                """,
+                grupo,
+                redactor);
         return grupo;
+    }
+
+    protected UUID tokenDe(UUID invitacionId) {
+        return dslFixtura
+                .fetchOne("SELECT token_id FROM grupos.invitacion WHERE id = ?", invitacionId)
+                .get("token_id", UUID.class);
     }
 
     /** El usuario de un participante activo del grupo: quien puede invitar. */

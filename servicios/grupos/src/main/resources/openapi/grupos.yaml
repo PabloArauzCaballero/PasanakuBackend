@@ -325,6 +325,44 @@ paths:
           # AP-CU69-05 TOKEN_INVALIDO     · AP-CU69-06 REFERENCIA_DUPLICADA
           # AP-CU69-07 EMISOR_NO_HABILITADO
 
+  /grupos/invitaciones/enlace/consultar:
+    post:
+      operationId: consultarInvitacionPorEnlace
+      summary: Ver grupo y reglamento de una invitación válida para mi teléfono
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaEnlaceInvitacion' }
+      responses:
+        '200':
+          description: Datos necesarios para decidir si aceptar
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DetalleEnlaceInvitacion' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
+  /grupos/invitaciones/enlace/aceptar:
+    post:
+      operationId: aceptarInvitacionPorEnlace
+      summary: Firmar el reglamento y ocupar un cupo usando el enlace una sola vez
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaAceptacionInvitacion' }
+      responses:
+        '201':
+          description: Participación y cupo creados
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaAceptacionInvitacion' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
   /grupos/{grupoId}/postulaciones:
     post:
       operationId: postularAlGrupo             # CU-68
@@ -614,6 +652,42 @@ components:
       properties:
         invitacionId: { type: [string, 'null'], format: uuid }
         mensaje:      { type: string }
+        enlace:       { type: [string, 'null'], description: Enlace para compartir por el canal elegido }
+    EntradaEnlaceInvitacion:
+      type: object
+      additionalProperties: false
+      required: [tokenId, token]
+      properties:
+        tokenId: { type: string, format: uuid }
+        token: { type: string, pattern: '^[0-9a-f]{64}$' }
+    EntradaAceptacionInvitacion:
+      type: object
+      additionalProperties: false
+      required: [tokenId, token, hashReglamento, aceptaReglamento]
+      properties:
+        tokenId: { type: string, format: uuid }
+        token: { type: string, pattern: '^[0-9a-f]{64}$' }
+        hashReglamento: { type: string, pattern: '^[0-9a-f]{64}$' }
+        aceptaReglamento: { type: boolean }
+    DetalleEnlaceInvitacion:
+      type: object
+      additionalProperties: false
+      required: [grupoId, nombre, montoAporte, moneda, periodicidad, reglamento, hashReglamento]
+      properties:
+        grupoId: { type: string, format: uuid }
+        nombre: { type: string }
+        montoAporte: { type: string }
+        moneda: { type: string }
+        periodicidad: { type: string }
+        reglamento: { type: string }
+        hashReglamento: { type: string }
+    SalidaAceptacionInvitacion:
+      type: object
+      additionalProperties: false
+      required: [grupoId, participanteId]
+      properties:
+        grupoId: { type: string, format: uuid }
+        participanteId: { type: string, format: uuid }
     EntradaPostulacion:
       type: object
       additionalProperties: false

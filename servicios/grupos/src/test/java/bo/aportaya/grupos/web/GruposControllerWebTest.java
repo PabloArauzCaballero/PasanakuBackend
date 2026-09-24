@@ -14,6 +14,7 @@ import bo.aportaya.grupos.aplicacion.CU59CalcularPlazo;
 import bo.aportaya.grupos.aplicacion.CU64TraspasarCupo;
 import bo.aportaya.grupos.aplicacion.CU65Retirarse;
 import bo.aportaya.grupos.aplicacion.CU68Postular;
+import bo.aportaya.grupos.aplicacion.CU69Enlace;
 import bo.aportaya.grupos.aplicacion.CU69Invitar;
 import bo.aportaya.grupos.aplicacion.Consultas;
 import bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios;
@@ -90,6 +91,9 @@ class GruposControllerWebTest {
 
     @MockitoBean
     private CU69Invitar cu69;
+
+    @MockitoBean
+    private CU69Enlace enlaces;
 
     @MockitoBean
     private Consultas consultas;
