@@ -4,6 +4,7 @@ import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
+import bo.aportaya.plataforma.dominio.Traza;
 import bo.aportaya.plataforma.mensajeria.EventoDominio;
 import bo.aportaya.plataforma.mensajeria.Outbox;
 import java.math.BigDecimal;
@@ -32,7 +33,11 @@ public class CU69Enlace {
 
     @Transactional
     public Aceptada aceptar(UUID tokenId, String hashReglamento, String ip, BigDecimal reputacion, ContextoSesion ctx) {
-        return datos.conContexto(ctx, dsl -> {
+        // La API ya validó secreto, teléfono, KYC y restricciones. La política
+        // de participante reserva las filas del grupo al proceso interno; la
+        // sesión del invitado no puede ver al emisor ni insertar su membresía.
+        ContextoSesion interno = ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
+        return datos.conContexto(interno, dsl -> {
             // Todas las aceptaciones del mismo grupo toman primero esta fila. Dos
             // invitaciones distintas no pueden ocupar el último cupo a la vez.
             Record grupo = dsl.fetchOne(

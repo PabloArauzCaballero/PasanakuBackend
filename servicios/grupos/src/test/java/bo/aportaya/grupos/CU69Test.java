@@ -17,6 +17,46 @@ import org.junit.jupiter.api.Test;
 class CU69Test extends BaseDeCU69 {
 
     @Test
+    void invitacionEIngresoFuncionanConRolRealDelServicio() {
+        UUID grupo = grupoConCupoLibre();
+        UUID emisor = participanteActivo(grupo);
+        UUID invitado = fixtura.usuario();
+        UUID tokenEmitido = fixtura.tokenDeInvitacion();
+
+        UUID invitacion = transaccion.execute(e -> {
+                    dsl.execute("SET LOCAL ROLE svc_grupos");
+                    return invitar.invitar(
+                                    new bo.aportaya.grupos.aplicacion.CU69Invitar.EntradaInvitacion(
+                                            grupo,
+                                            "+59176000042",
+                                            "Contacto",
+                                            "ENLACE",
+                                            false,
+                                            false,
+                                            3,
+                                            tokenEmitido),
+                                    contexto(emisor))
+                            .invitacionId()
+                            .orElseThrow();
+                });
+        UUID token = tokenDe(invitacion);
+        String hash = enlace.datosDe(token, contexto(invitado)).hashReglamento();
+
+        transaccion.execute(e -> {
+            dsl.execute("SET LOCAL ROLE svc_grupos");
+            enlace.aceptar(token, hash, "127.0.0.1", java.math.BigDecimal.ZERO, contexto(invitado));
+            return null;
+        });
+
+        assertThat(estadoDe(invitacion)).isEqualTo("ACEPTADA");
+        assertThat(contar(
+                        "SELECT count(*) FROM grupos.participante WHERE grupo_id = ? AND usuario_id = ?",
+                        grupo,
+                        invitado))
+                .isEqualTo(1);
+    }
+
+    @Test
     @DisplayName(
             "Dado un participante activo y un grupo con cupos libres · Cuando invita a un teléfono nuevo · Entonces existe una invitacion ENVIADA con token de un solo uso · Y el mensaje no contiene datos de los otros integrantes")
     void criterio1() {

@@ -5,6 +5,7 @@ import bo.aportaya.grupos.dominio.PoliticaDelGrupo;
 import bo.aportaya.grupos.infraestructura.ConsultasRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
+import bo.aportaya.plataforma.dominio.Traza;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -55,7 +56,10 @@ public class Consultas {
 
     @Transactional(readOnly = true)
     public boolean yaEsParticipante(UUID grupoId, UUID usuarioId, ContextoSesion ctx) {
-        return datos.conContexto(ctx, dsl -> consultas.yaEsParticipante(dsl, grupoId, usuarioId));
+        // El organizador no ve las filas ajenas de participante por RLS.
+        // Esta consulta sólo devuelve un booleano a la emisión de invitaciones.
+        ContextoSesion interno = ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
+        return datos.conContexto(interno, dsl -> consultas.yaEsParticipante(dsl, grupoId, usuarioId));
     }
 
     @Transactional(readOnly = true)

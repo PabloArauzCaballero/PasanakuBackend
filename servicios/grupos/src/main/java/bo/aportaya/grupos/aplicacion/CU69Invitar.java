@@ -8,6 +8,7 @@ import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Ids;
 import bo.aportaya.plataforma.dominio.Reloj;
+import bo.aportaya.plataforma.dominio.Traza;
 import bo.aportaya.plataforma.mensajeria.EventoDominio;
 import bo.aportaya.plataforma.mensajeria.Outbox;
 import java.time.Duration;
@@ -53,7 +54,11 @@ public class CU69Invitar {
     public Resultado invitar(EntradaInvitacion entrada, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
-        return datos.conContexto(ctx, dsl -> {
+        // La API autorizó GRUPO_ADMINISTRAR; la comprobación de pertenencia
+        // sigue abajo. La fila de participante está reservada por RLS al
+        // proceso interno incluso cuando pertenece al emisor.
+        ContextoSesion interno = ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
+        return datos.conContexto(interno, dsl -> {
             var impedimento = InvitacionAdmisible.impedimento(
                     invitaciones.hayCuposLibres(dsl, entrada.grupoId()),
                     entrada.destinatarioSuprimido(),
