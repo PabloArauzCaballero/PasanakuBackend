@@ -454,8 +454,8 @@ jobs:
 
       - name: integracion · elegir y arrancar un simulador de iPhone
         run: |
-          set -e
-          UDID=$(xcrun simctl list devices available | grep -m1 "iPhone" | grep -oE '[0-9A-F-]{36}')
+          set -euo pipefail
+          UDID=$(xcrun simctl list -j devices available | python3 scripts/seleccionar_simulador_ios.py)
           echo "SIMULADOR_UDID=$UDID" >> "$GITHUB_ENV"
           xcrun simctl boot "$UDID" || true
           xcrun simctl bootstatus "$UDID" -b
@@ -532,8 +532,8 @@ jobs:
 
       - name: release-ios · elegir y arrancar un simulador de iPhone
         run: |
-          set -e
-          UDID=$(xcrun simctl list devices available | grep -m1 "iPhone" | grep -oE '[0-9A-F-]{36}')
+          set -euo pipefail
+          UDID=$(xcrun simctl list -j devices available | python3 scripts/seleccionar_simulador_ios.py)
           echo "SIMULADOR_UDID=$UDID" >> "$GITHUB_ENV"
           xcrun simctl boot "$UDID" || true
           xcrun simctl bootstatus "$UDID" -b
