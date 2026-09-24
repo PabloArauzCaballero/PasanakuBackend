@@ -730,6 +730,13 @@ jobs:
       - name: 16 · sagaTest
         run: ./gradlew sagaTest
 
+      # H2.S6.M2/F-06/F-07: los pisos de ADR-026 (`pisoDeCobertura`, `pisoDeRamas`,
+      # `pisoDelDominio`) solo se verificaban en `verificarProduccion` local — ningun
+      # job del CI los corria (el paso 3 los excluye con `-x`). Aca se miden con los
+      # `.exec` de los cinco corredores de ESTE job, que es lo que el piso promete.
+      - name: 16b · cobertura — los pisos de ADR-026 con los cinco corredores
+        run: ./gradlew jacocoTestCoverageVerification --continue
+
   # ---------------------------------------------------------------- imagenes --
   imagenes:
     name: bootJar y docker build, multietapa y sin root

@@ -1,0 +1,40 @@
+# H2.S6.M2 / F-07 / F-09 -- pisos de ADR-026 medidos en CI por primera vez (paso 16b, job 'Los cinco corredores')
+# workflow_dispatch run 36044781095, SHA 1a3faa2 (rama pablo/feature/carril-PR5-cierre, apilada sobre #26), runner Linux
+# Los .exec son los de test + webTest + integrationTest + contractTest + sagaTest del MISMO job (pasos 13-16, todos success).
+
+$ ./gradlew jacocoTestCoverageVerification --continue
+[ant:jacocoReport] Rule violated for bundle comun-pruebas: lines covered ratio is 0.61, but expected minimum is 0.64
+[ant:jacocoReport] Rule violated for bundle comun-pruebas: branches covered ratio is 0.62, but expected minimum is 0.64
+[ant:jacocoReport] Rule violated for bundle aportes: branches covered ratio is 0.68, but expected minimum is 0.69
+[ant:jacocoReport] Rule violated for bundle identidad: lines covered ratio is 0.72, but expected minimum is 0.79
+[ant:jacocoReport] Rule violated for bundle identidad: branches covered ratio is 0.54, but expected minimum is 0.63
+BUILD FAILED in 6s
+
+Resumen: 19 modulos medidos (comun-archivos y gateway SKIPPED: sin piso declarado); 3 bajo su piso:
+- comun-pruebas 0.61/0.62 < 0.64/0.64 -> F-08, CORREGIDO en esta rama (EsperaTest, ver F-08-comun-pruebas-cobertura.txt); el run es anterior al commit del fix.
+- aportes ramas 0.68 < 0.69 -> F-09 (nuevo), ABIERTO
+- identidad lineas 0.72 < 0.79, ramas 0.54 < 0.63 -> F-07, ABIERTO (mismos valores que el 2026-09-22)
+comun-web pasa (F-06 cerrado, ver F-06-comun-web-cobertura-cerrado.txt).
+
+## Tareas (orden del log)
+> Task :plataforma:comun-archivos:jacocoTestCoverageVerification SKIPPED
+> Task :plataforma:comun-datos:jacocoTestCoverageVerification
+> Task :plataforma:comun-mensajeria:jacocoTestCoverageVerification
+> Task :plataforma:comun-dominio:jacocoTestCoverageVerification
+> Task :plataforma:comun-pruebas:jacocoTestCoverageVerification FAILED
+> Task :plataforma:gateway:jacocoTestCoverageVerification SKIPPED
+> Task :plataforma:comun-web:jacocoTestCoverageVerification
+> Task :servicios:entregas:jacocoTestCoverageVerification
+> Task :servicios:auditoria:jacocoTestCoverageVerification
+> Task :servicios:aportes:jacocoTestCoverageVerification FAILED
+> Task :servicios:cumplimiento:jacocoTestCoverageVerification
+> Task :servicios:garantia:jacocoTestCoverageVerification
+> Task :servicios:grupos:jacocoTestCoverageVerification
+> Task :servicios:erp:jacocoTestCoverageVerification
+> Task :servicios:identidad:jacocoTestCoverageVerification FAILED
+> Task :servicios:notificaciones:jacocoTestCoverageVerification
+> Task :servicios:organizador:jacocoTestCoverageVerification
+> Task :servicios:publicidad:jacocoTestCoverageVerification
+> Task :servicios:nucleo-financiero:jacocoTestCoverageVerification
+> Task :servicios:tarifas:jacocoTestCoverageVerification
+> Task :servicios:transparencia:jacocoTestCoverageVerification

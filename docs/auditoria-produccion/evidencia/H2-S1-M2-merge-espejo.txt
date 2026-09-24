@@ -1,0 +1,25 @@
+$ gh pr view 1 --json state,mergedAt,mergeCommit,baseRefName
+{"base":"dev","merge":"31991f9caffb7a3b9ded13395b85c14362cfb356","mergedAt":"2026-09-22T14:55:08Z","state":"MERGED"}
+
+$ git branch -r --contains 31991f9 | grep -E "origin/(dev|test)$"
+  origin/dev
+  origin/test
+
+$ gh run view 35923629830 --json jobs --jq (job codigo, pasos)
+success	Set up job
+success	Initialize containers
+success	Run actions/checkout@v4
+success	0 · el esquema, que es lo que jOOQ introspecciona
+success	Run actions/setup-java@v4
+success	Run gradle/actions/setup-gradle@v4
+success	1 · toolchain Java 21
+success	2 · formato
+failure	3 · analisis estatico y las reglas propias
+skipped	3b · testBarrido — las reglas propias sobre cada modulo
+skipped	4 · compileJava (invariante 1)
+skipped	4b · erroresCatalogo — constraint_name -> R-XXX-nn desde sql/
+success	Post Run gradle/actions/setup-gradle@v4
+success	Post Run actions/setup-java@v4
+success	Post Run actions/checkout@v4
+success	Stop containers
+success	Complete job

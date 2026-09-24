@@ -32,7 +32,15 @@ public final class BaseDePrueba {
     // verifico con javap contra el jar real de testcontainers:kafka:1.21.3 antes de escribir,
     // por indicacion explicita del encargo. La imagen es la oficial de Apache (no Confluent):
     // publicada por el propio proyecto Kafka desde la serie 3.7.
-    private static final String IMAGEN_KAFKA = "apache/kafka:3.9.0";
+    //
+    // F-Leo-06 (2026-09-24): 3.8.1 y no 3.9.0. Kafka 3.9.0 exige (observado, ver abajo) que el listener
+    // CONTROLLER este anunciado cuando el nodo es broker+controller; KafkaContainer de
+    // testcontainers 1.21.x solo anuncia PLAINTEXT y BROKER, asi que 3.9.0 aborta al
+    // formatear ("advertised.listeners cannot use the nonroutable meta-address 0.0.0.0").
+    // Reproducido en Windows/Docker Desktop y en el runner Linux del CI (run 36042014583),
+    // y aislado con `docker run` a mano: la misma configuracion arranca en cuanto se
+    // anuncia CONTROLLER. No era un problema de la maquina.
+    private static final String IMAGEN_KAFKA = "apache/kafka:3.8.1";
 
     private static PostgreSQLContainer<?> contenedor;
     private static KafkaContainer kafka;
