@@ -470,22 +470,36 @@ jobs:
 
       # Las siete pruebas reales, con foco explícito en enlace profundo y doble
       # envío (H3.S1.M2 las pide correr también en el gate de release).
-      - name: integracion · las siete pruebas de integración
+      # Xcode no debe clonar el simulador para RunnerUITests; el esquema lo marca
+      # no paralelo. El primer test tiene su propio plazo para detectar atascos.
+      - name: integracion · primer test en simulador
+        timeout-minutes: 20
+        working-directory: apps/movil
+        run: patrol test --target integration_test/alta_y_billetera_test.dart -d "$SIMULADOR_UDID" --verbose
+
+      - name: integracion · las otras seis pruebas de integración
+        timeout-minutes: 50
         working-directory: apps/movil
         run: |
           for archivo in integration_test/*_test.dart; do
+            if [[ "$archivo" == "integration_test/alta_y_billetera_test.dart" ]]; then
+              continue
+            fi
             echo "=== $archivo ==="
             patrol test --target "$archivo" -d "$SIMULADOR_UDID" --verbose
           done
 
       - name: integracion · diagnostico de Xcode si falla Patrol
-        if: failure()
+        if: failure() || cancelled()
         run: |
           xcodebuild -version
+          xcrun simctl list devices booted
           for resultado in apps/movil/build/ios_results_*.xcresult; do
             test -e "$resultado" || continue
             xcrun xcresulttool get test-results summary --path "$resultado" || true
           done
+          xcrun simctl spawn "$SIMULADOR_UDID" log show --last 15m --style compact \
+            --predicate 'process == "RunnerUITests-Runner" OR process == "Runner"' | tail -100 || true
 
   # -------------------------------------------------------------- release-ios --
   # H3 completo (madre H6.S3, decision D-A5). Gate de capabilities ANTES de
@@ -553,20 +567,27 @@ jobs:
       # el gate de release (deep link y doble envio) -- las otras cinco ya
       # corren en `app-integracion`; repetirlas todas acá solo duplicaría
       # minutos de macOS sin agregar señal nueva (Q-L1).
-      - name: release-ios · deep link y doble envío (simulador)
+      - name: release-ios · deep link (simulador)
+        timeout-minutes: 20
         working-directory: apps/movil
-        run: |
-          patrol test --target integration_test/deep_link_test.dart -d "$SIMULADOR_UDID" --verbose
-          patrol test --target integration_test/doble_envio_test.dart -d "$SIMULADOR_UDID" --verbose
+        run: patrol test --target integration_test/deep_link_test.dart -d "$SIMULADOR_UDID" --verbose
+
+      - name: release-ios · doble envío (simulador)
+        timeout-minutes: 20
+        working-directory: apps/movil
+        run: patrol test --target integration_test/doble_envio_test.dart -d "$SIMULADOR_UDID" --verbose
 
       - name: release-ios · diagnostico de Xcode si falla Patrol
-        if: failure()
+        if: failure() || cancelled()
         run: |
           xcodebuild -version
+          xcrun simctl list devices booted
           for resultado in apps/movil/build/ios_results_*.xcresult; do
             test -e "$resultado" || continue
             xcrun xcresulttool get test-results summary --path "$resultado" || true
           done
+          xcrun simctl spawn "$SIMULADOR_UDID" log show --last 15m --style compact \
+            --predicate 'process == "RunnerUITests-Runner" OR process == "Runner"' | tail -100 || true
 
       # El IPA de release, con el numero de corrida y los defines desde
       # variables del repositorio (nunca hardcodeados). `--no-codesign`: sin
