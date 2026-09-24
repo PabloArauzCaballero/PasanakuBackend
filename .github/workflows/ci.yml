@@ -423,8 +423,12 @@ jobs:
   # de este job).
   app-integracion:
     name: App — integración en simulador iOS (macOS)
-    runs-on: macos-latest
+    # macOS 26 + Xcode 26.6 no expone iPhones a xcodebuild en test-without-building.
+    # La imagen macOS 15 trae Xcode 26.3 y el runtime iOS 26.2 correspondiente.
+    runs-on: macos-15-arm64
     needs: [frontend]
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -455,6 +459,7 @@ jobs:
       - name: integracion · elegir y arrancar un simulador de iPhone
         run: |
           set -euo pipefail
+          xcodebuild -version
           UDID=$(xcrun simctl list -j devices available | python3 scripts/seleccionar_simulador_ios.py)
           echo "SIMULADOR_UDID=$UDID" >> "$GITHUB_ENV"
           xcrun simctl boot "$UDID" || true
@@ -490,8 +495,10 @@ jobs:
   # salteado con mensaje explicito, nunca fingiendo que subio (Q-L2).
   release-ios:
     name: Release iOS (macOS)
-    runs-on: macos-latest
+    runs-on: macos-15-arm64
     needs: [frontend]
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -533,6 +540,7 @@ jobs:
       - name: release-ios · elegir y arrancar un simulador de iPhone
         run: |
           set -euo pipefail
+          xcodebuild -version
           UDID=$(xcrun simctl list -j devices available | python3 scripts/seleccionar_simulador_ios.py)
           echo "SIMULADOR_UDID=$UDID" >> "$GITHUB_ENV"
           xcrun simctl boot "$UDID" || true
