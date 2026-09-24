@@ -1,0 +1,52 @@
+# H1.S2.M6 -- e2eTest, 2026-09-24
+# Unico *E2ETest del repo: plataforma/comun-mensajeria/.../OutboxE2ETest.java (Testcontainers: PostgreSQL + apache/kafka:3.9.0)
+$ git ls-tree -r --name-only origin/dev | grep -iE "E2ETest\.java"
+plataforma/comun-mensajeria/src/test/java/bo/aportaya/plataforma/mensajeria/OutboxE2ETest.java
+
+## Local (Windows 11 + Docker Desktop, npipe)
+$ ./gradlew :plataforma:comun-mensajeria:e2eTest (+ los demas modulos de plataforma, NO-SOURCE)
+> Task :plataforma:comun-dominio:e2eTest NO-SOURCE
+> Task :plataforma:comun-web:e2eTest NO-SOURCE
+> Task :plataforma:comun-archivos:e2eTest NO-SOURCE
+> Task :plataforma:comun-pruebas:e2eTest NO-SOURCE
+> Task :plataforma:comun-datos:e2eTest NO-SOURCE
+> Task :plataforma:gateway:e2eTest NO-SOURCE
+> Task :plataforma:comun-mensajeria:e2eTest
+OutboxE2ETest > fila PENDIENTE -> Kafka real -> consumidor recibe las 8 cabeceras -> PUBLICADO FAILED
+    org.testcontainers.containers.ContainerLaunchException: Container startup failed for image apache/kafka:3.9.0
+            org.testcontainers.containers.ContainerLaunchException: Could not create/start container
+                    org.testcontainers.containers.ContainerLaunchException: Timed out waiting for log output matching '.*Transitioning from RECOVERY to RUNNING.*'
+> Task :plataforma:comun-mensajeria:e2eTest FAILED
+Log del contenedor que fallo:
+  Exception in thread "main" java.lang.IllegalArgumentException: requirement failed: advertised.listeners cannot use the nonroutable meta-address 0.0.0.0. Use a routable IP address.
+
+Primera hipotesis (ENVIRONMENT, Windows/Docker Desktop, la misma que F-Leo-06) DESCARTADA: el job
+e2e-financiero del CI (runner Linux, run 36042014583) falla IDENTICO.
+Los servicios (:servicios:*:e2eTest) no se compilaron localmente: requieren generateJooq contra la base viva con el esquema aplicado, y aplicar el esquema en esta sesion fue denegado por el clasificador de permisos (ver carril).
+
+## CI (Linux, job e2e-financiero, workflow_dispatch run 36042014583, antes del fix)
+$ ./gradlew :servicios:nucleo-financiero:e2eTest :plataforma:comun-mensajeria:e2eTest
+> Task :servicios:nucleo-financiero:e2eTest NO-SOURCE
+OutboxE2ETest > fila PENDIENTE -> Kafka real -> consumidor recibe las 8 cabeceras -> PUBLICADO FAILED
+    org.testcontainers.containers.ContainerLaunchException: Container startup failed for image apache/kafka:3.9.0
+BUILD FAILED in 2m 52s
+
+## Causa raiz (aislada a mano con docker run, misma config que KafkaHelper de testcontainers 1.21.3)
+- KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092,BROKER://kafka:9093              -> mismo error (advertised 0.0.0.0)
+- KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092,BROKER://kafka:9093,CONTROLLER://kafka:9094
+  -> "[BrokerLifecycleManager id=1] The broker has been unfenced. Transitioning from RECOVERY to RUNNING."
+Kafka 3.9.0 exige (observado arriba, no tomado de la doc) anunciar CONTROLLER en modo broker+controller; KafkaContainer de
+testcontainers 1.21.x solo anuncia PLAINTEXT y BROKER. Clase: TEST_BUG (imagen de prueba incompatible
+con la version de testcontainers), no ENVIRONMENT. Un intento previo con hostname explicito
+(withCreateContainerCmdModifier) NO lo resolvio y se revirtio.
+
+## Fix: BaseDePrueba.IMAGEN_KAFKA = apache/kafka:3.8.1 (plataforma/comun-pruebas, fuera de mi carril: declarado)
+$ ./gradlew :plataforma:comun-mensajeria:e2eTest
+> Task :plataforma:comun-mensajeria:e2eTest
+BUILD SUCCESSFUL in 36s
+EXIT=0
+TEST-bo.aportaya.plataforma.mensajeria.OutboxE2ETest.xml -> tests="1" skipped="0" failures="0" errors="0" time="33.108"
+
+$ ./gradlew :plataforma:comun-pruebas:spotlessCheck :plataforma:comun-mensajeria:integrationTest :plataforma:comun-mensajeria:test   (regresion del modulo)
+BUILD SUCCESSFUL in 20s
+EXIT=0
