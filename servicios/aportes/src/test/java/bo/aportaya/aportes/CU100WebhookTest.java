@@ -2,13 +2,20 @@ package bo.aportaya.aportes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import bo.aportaya.aportes.aplicacion.CU100RecibirWebhookPasarela;
 import bo.aportaya.aportes.aplicacion.CU100RecibirWebhookPasarela.Entrada;
 import bo.aportaya.aportes.aplicacion.CU100RecibirWebhookPasarela.Resultado;
 import bo.aportaya.aportes.aplicacion.CU21CobrarAporte.EntradaCobro;
 import bo.aportaya.aportes.dominio.VerificadorDeFirmaWebhook;
+import bo.aportaya.aportes.infraestructura.PagoRepositorio;
+import bo.aportaya.aportes.infraestructura.ProveedorPagoRepositorio;
+import bo.aportaya.aportes.infraestructura.WebhookRepositorio;
+import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
+import bo.aportaya.plataforma.dominio.Reloj;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,6 +34,8 @@ import org.junit.jupiter.api.Test;
  * real contra una firma real, no contra un mock que "siempre dice que si".
  */
 class CU100WebhookTest extends BaseDeAportes {
+
+    private static final Instant AHORA_DE_BORDE = Instant.parse("2026-09-23T12:00:00Z");
 
     @AfterEach
     void limpiar() {
@@ -67,6 +76,20 @@ class CU100WebhookTest extends BaseDeAportes {
     private Resultado recibir(String proveedorCodigo, String cuerpo, String firma, long timestampEpochSegundos) {
         return transaccion.execute(t ->
                 webhookCU.recibir(new Entrada(proveedorCodigo, cuerpo, firma, String.valueOf(timestampEpochSegundos))));
+    }
+
+    private Resultado recibirEnInstanteFijo(
+            String proveedorCodigo, String cuerpo, String firma, long timestampEpochSegundos) {
+        var casoDeUso = new CU100RecibirWebhookPasarela(
+                new Datos(dsl),
+                new ProveedorPagoRepositorio(),
+                new WebhookRepositorio(),
+                new PagoRepositorio(),
+                codigo -> Optional.of(SECRETO_DE_PRUEBA),
+                Reloj.fijo(AHORA_DE_BORDE),
+                new ObjectMapper());
+        return transaccion.execute(t ->
+                casoDeUso.recibir(new Entrada(proveedorCodigo, cuerpo, firma, String.valueOf(timestampEpochSegundos))));
     }
 
     // ---------------------------------------------------------------- correcto --
@@ -117,9 +140,9 @@ class CU100WebhookTest extends BaseDeAportes {
         pagoConReferencia("ref-borde-ok", "150.00");
         String cuerpo = cuerpo("evt-borde-ok", "ref-borde-ok", "150.00", "BOB");
         String firma = VerificadorDeFirmaWebhook.firmar(cuerpo, SECRETO_DE_PRUEBA);
-        long ts = Instant.now().minusSeconds(4 * 60 + 59).getEpochSecond();
+        long ts = AHORA_DE_BORDE.minusSeconds(4 * 60 + 59).getEpochSecond();
 
-        Resultado r = recibir("QR_TEST", cuerpo, firma, ts);
+        Resultado r = recibirEnInstanteFijo("QR_TEST", cuerpo, firma, ts);
 
         assertThat(r.estado()).isEqualTo(Resultado.Estado.PROCESADO);
     }
@@ -131,9 +154,9 @@ class CU100WebhookTest extends BaseDeAportes {
         pagoConReferencia("ref-borde-mal", "150.00");
         String cuerpo = cuerpo("evt-borde-mal", "ref-borde-mal", "150.00", "BOB");
         String firma = VerificadorDeFirmaWebhook.firmar(cuerpo, SECRETO_DE_PRUEBA);
-        long ts = Instant.now().minusSeconds(5 * 60 + 1).getEpochSecond();
+        long ts = AHORA_DE_BORDE.minusSeconds(5 * 60 + 1).getEpochSecond();
 
-        Resultado r = recibir("QR_TEST", cuerpo, firma, ts);
+        Resultado r = recibirEnInstanteFijo("QR_TEST", cuerpo, firma, ts);
 
         assertThat(r.estado()).isEqualTo(Resultado.Estado.FIRMA_INVALIDA);
         assertThat(
