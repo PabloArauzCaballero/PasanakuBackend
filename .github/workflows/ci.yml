@@ -737,6 +737,20 @@ jobs:
       - name: 16b · cobertura — los pisos de ADR-026 con los cinco corredores
         run: ./gradlew jacocoTestCoverageVerification --continue
 
+      # Si un piso falla, el porcentaje agregado no dice que clases necesitan
+      # pruebas. Publicar el XML permite corregir cobertura sin aflojar el gate.
+      - name: 16c · informe de cobertura para diagnosticar un piso rojo
+        if: failure()
+        run: ./gradlew jacocoTestReport --continue
+
+      - name: 16d · publicar desglose de cobertura si falla
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura-java-${{ github.sha }}
+          path: '**/build/reports/jacoco/test/jacocoTestReport.xml'
+          if-no-files-found: warn
+
   # ---------------------------------------------------------------- imagenes --
   imagenes:
     name: bootJar y docker build, multietapa y sin root
