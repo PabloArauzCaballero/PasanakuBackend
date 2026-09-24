@@ -22,7 +22,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 import org.springframework.transaction.support.TransactionTemplate;
 
-class ValidarTokenDeInvitacionTest {
+class CU69ValidarTokenDeInvitacionTest {
     private static final String TELEFONO = "+59176543210";
     private static DSLContext dsl;
     private static TransactionTemplate transaccion;
