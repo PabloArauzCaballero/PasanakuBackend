@@ -425,7 +425,7 @@ jobs:
     name: App — integración en simulador iOS (macOS)
     # macOS 26 + Xcode 26.6 no expone iPhones a xcodebuild en test-without-building.
     # La imagen macOS 15 trae Xcode 26.3 y el runtime iOS 26.2 correspondiente.
-    runs-on: macos-15-arm64
+    runs-on: macos-15
     needs: [frontend]
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
@@ -495,7 +495,7 @@ jobs:
   # salteado con mensaje explicito, nunca fingiendo que subio (Q-L2).
   release-ios:
     name: Release iOS (macOS)
-    runs-on: macos-15-arm64
+    runs-on: macos-15
     needs: [frontend]
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
