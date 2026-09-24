@@ -184,7 +184,7 @@ class CU02RevisionTest {
                     """,
                     documento,
                     usuario,
-                    UUID.randomUUID().toString());
+                    UUID.randomUUID().toString().replace("-", "").repeat(2));
         }
         dsl.execute(
                 """
