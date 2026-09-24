@@ -1860,8 +1860,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_invitacion_activa
   ON invitacion (grupo_id, telefono_invitado)
   WHERE (estado = 'ENVIADA');
 
--- La aceptación del enlace no puede crear dos membresías vigentes del mismo
--- usuario, aun si otra ruta de ingreso llega en paralelo.
+-- Dos rutas de ingreso simultáneas no pueden crear dos membresías vigentes.
 CREATE UNIQUE INDEX IF NOT EXISTS uq_participante_vigente_grupo_usuario
   ON participante (grupo_id, usuario_id)
   WHERE estado NOT IN ('RETIRADO', 'EXPULSADO', 'REEMPLAZADO');

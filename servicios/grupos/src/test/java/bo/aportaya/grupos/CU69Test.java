@@ -53,11 +53,21 @@ class CU69Test extends BaseDeCU69 {
 
         assertThat(estadoDe(invitacion)).isEqualTo("ACEPTADA");
         assertThat(cuposLibresDe(grupo)).isZero();
-        assertThat(contar("SELECT count(*) FROM grupos.participante WHERE usuario_id = '" + invitado
-                        + "' AND grupo_id = '" + grupo + "' AND estado = 'ACTIVO' "))
+        assertThat(contar(
+                        """
+                        SELECT count(*) FROM grupos.participante
+                         WHERE usuario_id = ? AND grupo_id = ? AND estado = 'ACTIVO'
+                        """,
+                        invitado,
+                        grupo))
                 .isEqualTo(1);
-        assertThat(contar("SELECT count(*) FROM grupos.aceptacion_reglamento WHERE participante_id IN "
-                        + "(SELECT id FROM grupos.participante WHERE usuario_id = '" + invitado + "')"))
+        assertThat(contar(
+                        """
+                        SELECT count(*) FROM grupos.aceptacion_reglamento
+                         WHERE participante_id IN
+                           (SELECT id FROM grupos.participante WHERE usuario_id = ?)
+                        """,
+                        invitado))
                 .isEqualTo(1);
 
         assertThatThrownBy(() -> transaccion.execute(e -> {

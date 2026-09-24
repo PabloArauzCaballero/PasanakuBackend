@@ -1919,6 +1919,11 @@ CREATE UNIQUE INDEX uq_invitacion_activa
   ON invitacion (grupo_id, telefono_invitado)
   WHERE (estado = 'ENVIADA');
 
+-- Dos rutas de ingreso simultáneas no pueden crear dos membresías vigentes.
+CREATE UNIQUE INDEX uq_participante_vigente_grupo_usuario
+  ON participante (grupo_id, usuario_id)
+  WHERE estado NOT IN ('RETIRADO', 'EXPULSADO', 'REEMPLAZADO');
+
 -- R-GRP-16 · calendario de días no hábiles sin duplicados ni ámbitos incompletos
 ALTER TABLE dia_no_habil
   ADD CONSTRAINT ck_dia_no_habil_ambito CHECK (

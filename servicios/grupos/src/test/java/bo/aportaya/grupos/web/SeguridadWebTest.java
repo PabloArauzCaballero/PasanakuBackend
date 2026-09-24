@@ -7,8 +7,6 @@ import bo.aportaya.grupos.aplicacion.CU63Acordar;
 import bo.aportaya.grupos.aplicacion.CU64TraspasarCupo;
 import bo.aportaya.grupos.aplicacion.CU65Retirarse;
 import bo.aportaya.grupos.aplicacion.CU68Postular;
-import bo.aportaya.grupos.aplicacion.CU69Enlace;
-import bo.aportaya.grupos.aplicacion.CU69Invitar;
 import bo.aportaya.grupos.aplicacion.Consultas;
 import bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
@@ -58,10 +56,7 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private CU68Postular cu68Postular;
 
     @MockitoBean
-    private CU69Invitar cu69Invitar;
-
-    @MockitoBean
-    private CU69Enlace enlaces;
+    private InvitacionesWeb invitaciones;
 
     @MockitoBean
     private Consultas consultas;

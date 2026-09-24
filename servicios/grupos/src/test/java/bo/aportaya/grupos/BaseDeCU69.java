@@ -133,8 +133,8 @@ abstract class BaseDeCU69 {
                 DSL.field("grupo_id").eq(grupo).and(DSL.field("estado").eq("LIBRE")));
     }
 
-    protected int contar(String consulta) {
-        return ((Number) dsl.fetchOne(consulta).get(0)).intValue();
+    protected int contar(String consulta, Object... parametros) {
+        return ((Number) dsl.fetchOne(consulta, parametros).get(0)).intValue();
     }
 
     protected String rechazaLaBase(String sql) {

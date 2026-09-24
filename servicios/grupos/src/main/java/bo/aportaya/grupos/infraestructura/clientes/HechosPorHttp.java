@@ -138,7 +138,7 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
                 .body(Map.of("canal", canal, "destinoEnmascarado", destinoEnmascarado))
                 .retrieve()
                 .body(Token.class);
-        if (emitido == null) {
+        if (emitido == null || emitido.tokenId() == null || emitido.token() == null) {
             // Sin token no hay enlace, y sin enlace no hay invitacion que enviar.
             throw new IllegalStateException("identidad no emitio el token de invitacion");
         }
