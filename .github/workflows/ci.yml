@@ -468,6 +468,18 @@ jobs:
       - name: integracion · patrol_cli 3.11.0 (compatible con patrol 3.20.0, ver LEEME.md)
         run: dart pub global activate patrol_cli 3.11.0
 
+      - name: integracion · arrancar Prism para los recorridos
+        run: |
+          nohup yarn workspace @aportaya/simulado mock > "$RUNNER_TEMP/prism.log" 2>&1 &
+          for intento in {1..60}; do
+            if curl --silent --output /dev/null --max-time 2 http://127.0.0.1:4010/api/v1/; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat "$RUNNER_TEMP/prism.log"
+          exit 1
+
       # Las siete pruebas reales, con foco explícito en enlace profundo y doble
       # envío (H3.S1.M2 las pide correr también en el gate de release).
       # Xcode no debe clonar el simulador para RunnerUITests; el esquema lo marca
@@ -475,7 +487,7 @@ jobs:
       - name: integracion · primer test en simulador
         timeout-minutes: 20
         working-directory: apps/movil
-        run: patrol test --target integration_test/alta_y_billetera_test.dart -d "$SIMULADOR_UDID" --verbose
+        run: patrol test --target integration_test/alta_y_billetera_test.dart -d "$SIMULADOR_UDID" --dart-define=API=http://127.0.0.1:4010/api/v1 --verbose
 
       - name: integracion · las otras seis pruebas de integración
         timeout-minutes: 50
@@ -486,7 +498,7 @@ jobs:
               continue
             fi
             echo "=== $archivo ==="
-            patrol test --target "$archivo" -d "$SIMULADOR_UDID" --verbose
+            patrol test --target "$archivo" -d "$SIMULADOR_UDID" --dart-define=API=http://127.0.0.1:4010/api/v1 --verbose
           done
 
       - name: integracion · diagnostico de Xcode si falla Patrol
@@ -563,6 +575,18 @@ jobs:
       - name: release-ios · patrol_cli 3.11.0
         run: dart pub global activate patrol_cli 3.11.0
 
+      - name: release-ios · arrancar Prism para los recorridos
+        run: |
+          nohup yarn workspace @aportaya/simulado mock > "$RUNNER_TEMP/prism.log" 2>&1 &
+          for intento in {1..60}; do
+            if curl --silent --output /dev/null --max-time 2 http://127.0.0.1:4010/api/v1/; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat "$RUNNER_TEMP/prism.log"
+          exit 1
+
       # Las dos pruebas de integracion que el encargo pide explicitamente para
       # el gate de release (deep link y doble envio) -- las otras cinco ya
       # corren en `app-integracion`; repetirlas todas acá solo duplicaría
@@ -570,12 +594,12 @@ jobs:
       - name: release-ios · deep link (simulador)
         timeout-minutes: 20
         working-directory: apps/movil
-        run: patrol test --target integration_test/deep_link_test.dart -d "$SIMULADOR_UDID" --verbose
+        run: patrol test --target integration_test/deep_link_test.dart -d "$SIMULADOR_UDID" --dart-define=API=http://127.0.0.1:4010/api/v1 --verbose
 
       - name: release-ios · doble envío (simulador)
         timeout-minutes: 20
         working-directory: apps/movil
-        run: patrol test --target integration_test/doble_envio_test.dart -d "$SIMULADOR_UDID" --verbose
+        run: patrol test --target integration_test/doble_envio_test.dart -d "$SIMULADOR_UDID" --dart-define=API=http://127.0.0.1:4010/api/v1 --verbose
 
       - name: release-ios · diagnostico de Xcode si falla Patrol
         if: failure() || cancelled()
