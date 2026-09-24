@@ -1,7 +1,5 @@
 // F12.1 — CU de alta con cámara → contrato → recarga → movimientos.
-// NO EJECUTABLE EN ESTE SANDBOX: falta `patrol` e `integration_test` en
-// apps/movil/pubspec.yaml (ver integration_test/LEEME.md). Andamiaje listo para
-// correr en cuanto ese micro-PR exista.
+// Estado de ejecución y límites: integration_test/LEEME.md.
 import 'package:flutter/material.dart';
 import 'package:patrol/patrol.dart';
 

@@ -1,5 +1,5 @@
 // F12.1 — Cobrar mi turno → deducciones → neto → línea de tiempo.
-// NO EJECUTABLE EN ESTE SANDBOX (ver integration_test/LEEME.md).
+// Estado de ejecución y límites: integration_test/LEEME.md.
 import 'package:patrol/patrol.dart';
 
 import '_soporte.dart';

@@ -1,5 +1,5 @@
 // F12.1 — `aportaya://unirse/{codigo}` con la app cerrada y abierta.
-// NO EJECUTABLE EN ESTE SANDBOX (ver integration_test/LEEME.md).
+// Estado de ejecución y límites: integration_test/LEEME.md.
 //
 // Nota: existe `apps/movil/test/widget/deep_link_test.dart`, que prueba
 // `enlaces_profundos.dart` (la función pura que traduce el URI a ruta interna) sin

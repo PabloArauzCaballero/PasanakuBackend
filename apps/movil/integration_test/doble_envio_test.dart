@@ -1,5 +1,5 @@
 // F12.1 — Dos toques rápidos en cada operación de dinero ⇒ UN efecto, misma
-// Idempotency-Key. NO EJECUTABLE EN ESTE SANDBOX (ver integration_test/LEEME.md).
+// Idempotency-Key. Estado de ejecución: integration_test/LEEME.md.
 //
 // Ver el invariante 6 del frontend (planes/15, gate de salida): "doble envío
 // bloqueado en TODA operación de dinero". Este archivo lo ejercita para recarga y

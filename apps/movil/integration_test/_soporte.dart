@@ -1,5 +1,4 @@
-// Helpers compartidos por los siete recorridos de F12.1. Sin `patrol` en pubspec.yaml
-// (ver LEEME.md) esto no compila: es andamiaje, no código ejecutable en este sandbox.
+// Helpers compartidos por los siete recorridos de F12.1. Estado: LEEME.md.
 import 'package:aportaya_movil/app.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:patrol/patrol.dart';

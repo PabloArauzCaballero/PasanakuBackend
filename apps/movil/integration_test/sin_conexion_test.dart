@@ -1,5 +1,5 @@
 // F12.1 — Patrol apaga la red del dispositivo: último estado visible, operaciones
-// bloqueadas. NO EJECUTABLE EN ESTE SANDBOX (ver integration_test/LEEME.md). Esto es
+// bloqueadas. Estado de ejecución: integration_test/LEEME.md. Esto es
 // exactamente lo que `integration_test` solo no puede tocar: el modo avión es fuera
 // del árbol de Flutter.
 import 'package:patrol/patrol.dart';
