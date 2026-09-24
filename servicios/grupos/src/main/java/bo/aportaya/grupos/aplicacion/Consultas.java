@@ -58,7 +58,8 @@ public class Consultas {
     public boolean yaEsParticipante(UUID grupoId, UUID usuarioId, ContextoSesion ctx) {
         // El organizador no ve las filas ajenas de participante por RLS.
         // Esta consulta sólo devuelve un booleano a la emisión de invitaciones.
-        ContextoSesion interno = ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
+        ContextoSesion interno =
+                ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
         return datos.conContexto(interno, dsl -> consultas.yaEsParticipante(dsl, grupoId, usuarioId));
     }
 

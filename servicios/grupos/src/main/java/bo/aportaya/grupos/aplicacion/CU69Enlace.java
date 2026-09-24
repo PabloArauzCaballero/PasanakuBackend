@@ -36,7 +36,8 @@ public class CU69Enlace {
         // La API ya validó secreto, teléfono, KYC y restricciones. La política
         // de participante reserva las filas del grupo al proceso interno; la
         // sesión del invitado no puede ver al emisor ni insertar su membresía.
-        ContextoSesion interno = ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
+        ContextoSesion interno =
+                ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
         return datos.conContexto(interno, dsl -> {
             // Todas las aceptaciones del mismo grupo toman primero esta fila. Dos
             // invitaciones distintas no pueden ocupar el último cupo a la vez.
