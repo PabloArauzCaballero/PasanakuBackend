@@ -86,7 +86,7 @@ fi
 # Todo workspace nuevo del monorepo se agrega ACA y en los dos Dockerfile: si falta en
 # el Dockerfile, `yarn install --immutable` se cae en getWorkspaceByDescriptor; si falta
 # aca, un commit que toque solo ese paquete no reconstruye ningun front.
-FRONT_ANGULAR='^(packages/ui/|packages/tokens/|packages/tutoriales/|clientes/angular/)'
+FRONT_ANGULAR='^(packages/ui/|packages/tokens/|packages/tutoriales/|packages/simulado/|packages/dominio-cliente/|clientes/angular/)'
 echo "$CAMBIOS" | grep -qE "^apps/backoffice/|$FRONT_ANGULAR" && \
   construir docker build -f apps/backoffice/docker/Dockerfile.backoffice --build-arg CONF_NGINX=apps/backoffice/docker/nginx.desplegado.conf -t aportaya/backoffice:test .
 echo "$CAMBIOS" | grep -qE "^apps/web/|$FRONT_ANGULAR" && \
