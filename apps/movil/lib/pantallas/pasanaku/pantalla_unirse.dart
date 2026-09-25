@@ -1,3 +1,4 @@
+import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -131,14 +132,14 @@ class _PantallaUnirseState extends ConsumerState<PantallaUnirse> {
       appBar: AppBar(title: const Text('Invitación al grupo')),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(Espacio.s5),
           children: [
             if (_cargando) const Center(child: CircularProgressIndicator()),
             if (_necesitaIngreso) ...[
               const Text(
                 'Ingresá con el teléfono que recibió la invitación para ver el grupo.',
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: Espacio.s4),
               ElevatedButton(
                 onPressed: () => context.go('/ingreso?volver=$retorno'),
                 child: const Text('Ingresar'),
@@ -153,13 +154,13 @@ class _PantallaUnirseState extends ConsumerState<PantallaUnirse> {
                 detalle['nombre'] as String? ?? '',
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: Espacio.s3),
               Text(
                 '${detalle['montoAporte']} ${detalle['moneda']} por período · ${detalle['periodicidad']}',
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: Espacio.s5),
               const Text('Reglamento del grupo'),
-              const SizedBox(height: 8),
+              const SizedBox(height: Espacio.s2),
               Text(detalle['reglamento'] as String? ?? ''),
               CheckboxListTile(
                 value: _aceptaReglamento,

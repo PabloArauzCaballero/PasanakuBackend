@@ -81,25 +81,13 @@ class PantallaDeRegistro extends ConsumerWidget {
           final aceptado = await context.push<bool>('/identidad/contrato');
           if (aceptado != true || !context.mounted) return;
 
-          // **Acá se crea la cuenta de verdad.** `POST /usuarios`, con los tres ids de
-          // contrato que devolvió el servidor y la contraseña del paso 2. Antes este
-          // método existía y no lo llamaba nadie: el alta terminaba sin que el backend
-          // se enterara, y la app mandaba a la billetera de una cuenta inexistente.
+          // Crea la cuenta con el contrato aceptado y la contraseña del paso 2.
           await notifier.enviarAlServidor();
           if (!context.mounted) return;
-          // Si falló, se queda acá y lo dice: el contrato ya está aceptado y volver a
-          // tocar «Continuar» reintenta el mismo alta, con la misma clave de
-          // idempotencia, así que no crea dos personas.
+          // Si falló, reintentar conserva la misma clave de idempotencia.
           if (ref.read(altaProvider).error != null) return;
 
-          // **Al login, no a la app.** Terminar el alta no es tener sesión: se pidió
-          // abrir una cuenta y todavía no se entró a ninguna. Antes esto iba a la
-          // bienvenida, que está dentro del shell, así que el alta desembocaba en la
-          // billetera con la barra de pestañas puesta y sin token — y la primera
-          // pantalla que se veía era «Tu sesión venció. Volvé a ingresar.»
-          //
-          // El asistente se vacía al salir: si no, volver a «Crear mi cuenta» retoma
-          // el formulario anterior a mitad de camino, con los datos de otra persona.
+          // El alta no abre sesión. Vacia el asistente antes de ir al login.
           notifier.reiniciar();
           ref.read(contratoProvider.notifier).reiniciar();
           final retorno = retornoDeInvitacion(

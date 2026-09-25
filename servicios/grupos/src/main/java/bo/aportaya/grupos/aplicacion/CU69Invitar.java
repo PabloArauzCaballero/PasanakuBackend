@@ -57,7 +57,8 @@ public class CU69Invitar {
         // La API autorizó GRUPO_ADMINISTRAR; la comprobación de pertenencia
         // sigue abajo. La fila de participante está reservada por RLS al
         // proceso interno incluso cuando pertenece al emisor.
-        ContextoSesion interno = ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
+        ContextoSesion interno =
+                ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
         return datos.conContexto(interno, dsl -> {
             var impedimento = InvitacionAdmisible.impedimento(
                     invitaciones.hayCuposLibres(dsl, entrada.grupoId()),
