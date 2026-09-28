@@ -32,6 +32,18 @@ CREATE TABLE IF NOT EXISTS aportes.evento_dominio (
   ultimo_error        TEXT,
   proximo_intento_en  TIMESTAMPTZ
 );
+-- Evolucion (#20): una base creada antes de tomar-publicar-marcar tiene la
+-- tabla sin estas columnas y con el CHECK sin 'TOMADO', y el CREATE de
+-- arriba la saltea. Aditivo e idempotente: columnas nulables y un CHECK
+-- que solo se amplia, asi que ninguna fila existente queda invalida.
+ALTER TABLE aportes.evento_dominio
+  ADD COLUMN IF NOT EXISTS tomado_en           TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS tomado_por          VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS ultimo_error        TEXT,
+  ADD COLUMN IF NOT EXISTS proximo_intento_en  TIMESTAMPTZ,
+  DROP CONSTRAINT IF EXISTS ck_aportes_evtdom_estado,
+  ADD CONSTRAINT ck_aportes_evtdom_estado
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO'));
 -- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
 -- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_aportes_evtdom_despacho
@@ -109,6 +121,18 @@ CREATE TABLE IF NOT EXISTS auditoria.evento_dominio (
   ultimo_error        TEXT,
   proximo_intento_en  TIMESTAMPTZ
 );
+-- Evolucion (#20): una base creada antes de tomar-publicar-marcar tiene la
+-- tabla sin estas columnas y con el CHECK sin 'TOMADO', y el CREATE de
+-- arriba la saltea. Aditivo e idempotente: columnas nulables y un CHECK
+-- que solo se amplia, asi que ninguna fila existente queda invalida.
+ALTER TABLE auditoria.evento_dominio
+  ADD COLUMN IF NOT EXISTS tomado_en           TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS tomado_por          VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS ultimo_error        TEXT,
+  ADD COLUMN IF NOT EXISTS proximo_intento_en  TIMESTAMPTZ,
+  DROP CONSTRAINT IF EXISTS ck_auditoria_evtdom_estado,
+  ADD CONSTRAINT ck_auditoria_evtdom_estado
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO'));
 -- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
 -- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_auditoria_evtdom_despacho
@@ -167,6 +191,18 @@ CREATE TABLE IF NOT EXISTS cumplimiento.evento_dominio (
   ultimo_error        TEXT,
   proximo_intento_en  TIMESTAMPTZ
 );
+-- Evolucion (#20): una base creada antes de tomar-publicar-marcar tiene la
+-- tabla sin estas columnas y con el CHECK sin 'TOMADO', y el CREATE de
+-- arriba la saltea. Aditivo e idempotente: columnas nulables y un CHECK
+-- que solo se amplia, asi que ninguna fila existente queda invalida.
+ALTER TABLE cumplimiento.evento_dominio
+  ADD COLUMN IF NOT EXISTS tomado_en           TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS tomado_por          VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS ultimo_error        TEXT,
+  ADD COLUMN IF NOT EXISTS proximo_intento_en  TIMESTAMPTZ,
+  DROP CONSTRAINT IF EXISTS ck_cumplimiento_evtdom_estado,
+  ADD CONSTRAINT ck_cumplimiento_evtdom_estado
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO'));
 -- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
 -- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_cumplimiento_evtdom_despacho
@@ -225,6 +261,18 @@ CREATE TABLE IF NOT EXISTS entregas.evento_dominio (
   ultimo_error        TEXT,
   proximo_intento_en  TIMESTAMPTZ
 );
+-- Evolucion (#20): una base creada antes de tomar-publicar-marcar tiene la
+-- tabla sin estas columnas y con el CHECK sin 'TOMADO', y el CREATE de
+-- arriba la saltea. Aditivo e idempotente: columnas nulables y un CHECK
+-- que solo se amplia, asi que ninguna fila existente queda invalida.
+ALTER TABLE entregas.evento_dominio
+  ADD COLUMN IF NOT EXISTS tomado_en           TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS tomado_por          VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS ultimo_error        TEXT,
+  ADD COLUMN IF NOT EXISTS proximo_intento_en  TIMESTAMPTZ,
+  DROP CONSTRAINT IF EXISTS ck_entregas_evtdom_estado,
+  ADD CONSTRAINT ck_entregas_evtdom_estado
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO'));
 -- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
 -- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_entregas_evtdom_despacho
@@ -302,6 +350,18 @@ CREATE TABLE IF NOT EXISTS erp.evento_dominio (
   ultimo_error        TEXT,
   proximo_intento_en  TIMESTAMPTZ
 );
+-- Evolucion (#20): una base creada antes de tomar-publicar-marcar tiene la
+-- tabla sin estas columnas y con el CHECK sin 'TOMADO', y el CREATE de
+-- arriba la saltea. Aditivo e idempotente: columnas nulables y un CHECK
+-- que solo se amplia, asi que ninguna fila existente queda invalida.
+ALTER TABLE erp.evento_dominio
+  ADD COLUMN IF NOT EXISTS tomado_en           TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS tomado_por          VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS ultimo_error        TEXT,
+  ADD COLUMN IF NOT EXISTS proximo_intento_en  TIMESTAMPTZ,
+  DROP CONSTRAINT IF EXISTS ck_erp_evtdom_estado,
+  ADD CONSTRAINT ck_erp_evtdom_estado
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO'));
 -- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
 -- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_erp_evtdom_despacho
@@ -360,6 +420,18 @@ CREATE TABLE IF NOT EXISTS garantia.evento_dominio (
   ultimo_error        TEXT,
   proximo_intento_en  TIMESTAMPTZ
 );
+-- Evolucion (#20): una base creada antes de tomar-publicar-marcar tiene la
+-- tabla sin estas columnas y con el CHECK sin 'TOMADO', y el CREATE de
+-- arriba la saltea. Aditivo e idempotente: columnas nulables y un CHECK
+-- que solo se amplia, asi que ninguna fila existente queda invalida.
+ALTER TABLE garantia.evento_dominio
+  ADD COLUMN IF NOT EXISTS tomado_en           TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS tomado_por          VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS ultimo_error        TEXT,
+  ADD COLUMN IF NOT EXISTS proximo_intento_en  TIMESTAMPTZ,
+  DROP CONSTRAINT IF EXISTS ck_garantia_evtdom_estado,
+  ADD CONSTRAINT ck_garantia_evtdom_estado
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO'));
 -- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
 -- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_garantia_evtdom_despacho
@@ -437,6 +509,18 @@ CREATE TABLE IF NOT EXISTS grupos.evento_dominio (
   ultimo_error        TEXT,
   proximo_intento_en  TIMESTAMPTZ
 );
+-- Evolucion (#20): una base creada antes de tomar-publicar-marcar tiene la
+-- tabla sin estas columnas y con el CHECK sin 'TOMADO', y el CREATE de
+-- arriba la saltea. Aditivo e idempotente: columnas nulables y un CHECK
+-- que solo se amplia, asi que ninguna fila existente queda invalida.
+ALTER TABLE grupos.evento_dominio
+  ADD COLUMN IF NOT EXISTS tomado_en           TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS tomado_por          VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS ultimo_error        TEXT,
+  ADD COLUMN IF NOT EXISTS proximo_intento_en  TIMESTAMPTZ,
+  DROP CONSTRAINT IF EXISTS ck_grupos_evtdom_estado,
+  ADD CONSTRAINT ck_grupos_evtdom_estado
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO'));
 -- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
 -- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_grupos_evtdom_despacho
@@ -495,6 +579,18 @@ CREATE TABLE IF NOT EXISTS identidad.evento_dominio (
   ultimo_error        TEXT,
   proximo_intento_en  TIMESTAMPTZ
 );
+-- Evolucion (#20): una base creada antes de tomar-publicar-marcar tiene la
+-- tabla sin estas columnas y con el CHECK sin 'TOMADO', y el CREATE de
+-- arriba la saltea. Aditivo e idempotente: columnas nulables y un CHECK
+-- que solo se amplia, asi que ninguna fila existente queda invalida.
+ALTER TABLE identidad.evento_dominio
+  ADD COLUMN IF NOT EXISTS tomado_en           TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS tomado_por          VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS ultimo_error        TEXT,
+  ADD COLUMN IF NOT EXISTS proximo_intento_en  TIMESTAMPTZ,
+  DROP CONSTRAINT IF EXISTS ck_identidad_evtdom_estado,
+  ADD CONSTRAINT ck_identidad_evtdom_estado
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO'));
 -- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
 -- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_identidad_evtdom_despacho
@@ -553,6 +649,18 @@ CREATE TABLE IF NOT EXISTS notificaciones.evento_dominio (
   ultimo_error        TEXT,
   proximo_intento_en  TIMESTAMPTZ
 );
+-- Evolucion (#20): una base creada antes de tomar-publicar-marcar tiene la
+-- tabla sin estas columnas y con el CHECK sin 'TOMADO', y el CREATE de
+-- arriba la saltea. Aditivo e idempotente: columnas nulables y un CHECK
+-- que solo se amplia, asi que ninguna fila existente queda invalida.
+ALTER TABLE notificaciones.evento_dominio
+  ADD COLUMN IF NOT EXISTS tomado_en           TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS tomado_por          VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS ultimo_error        TEXT,
+  ADD COLUMN IF NOT EXISTS proximo_intento_en  TIMESTAMPTZ,
+  DROP CONSTRAINT IF EXISTS ck_notificaciones_evtdom_estado,
+  ADD CONSTRAINT ck_notificaciones_evtdom_estado
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO'));
 -- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
 -- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_notificaciones_evtdom_despacho
@@ -611,6 +719,18 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.evento_dominio (
   ultimo_error        TEXT,
   proximo_intento_en  TIMESTAMPTZ
 );
+-- Evolucion (#20): una base creada antes de tomar-publicar-marcar tiene la
+-- tabla sin estas columnas y con el CHECK sin 'TOMADO', y el CREATE de
+-- arriba la saltea. Aditivo e idempotente: columnas nulables y un CHECK
+-- que solo se amplia, asi que ninguna fila existente queda invalida.
+ALTER TABLE nucleo_financiero.evento_dominio
+  ADD COLUMN IF NOT EXISTS tomado_en           TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS tomado_por          VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS ultimo_error        TEXT,
+  ADD COLUMN IF NOT EXISTS proximo_intento_en  TIMESTAMPTZ,
+  DROP CONSTRAINT IF EXISTS ck_nucleo_financiero_evtdom_estado,
+  ADD CONSTRAINT ck_nucleo_financiero_evtdom_estado
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO'));
 -- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
 -- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_nucleo_financiero_evtdom_despacho
@@ -669,6 +789,18 @@ CREATE TABLE IF NOT EXISTS organizador.evento_dominio (
   ultimo_error        TEXT,
   proximo_intento_en  TIMESTAMPTZ
 );
+-- Evolucion (#20): una base creada antes de tomar-publicar-marcar tiene la
+-- tabla sin estas columnas y con el CHECK sin 'TOMADO', y el CREATE de
+-- arriba la saltea. Aditivo e idempotente: columnas nulables y un CHECK
+-- que solo se amplia, asi que ninguna fila existente queda invalida.
+ALTER TABLE organizador.evento_dominio
+  ADD COLUMN IF NOT EXISTS tomado_en           TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS tomado_por          VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS ultimo_error        TEXT,
+  ADD COLUMN IF NOT EXISTS proximo_intento_en  TIMESTAMPTZ,
+  DROP CONSTRAINT IF EXISTS ck_organizador_evtdom_estado,
+  ADD CONSTRAINT ck_organizador_evtdom_estado
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO'));
 -- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
 -- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_organizador_evtdom_despacho
@@ -727,6 +859,18 @@ CREATE TABLE IF NOT EXISTS publicidad.evento_dominio (
   ultimo_error        TEXT,
   proximo_intento_en  TIMESTAMPTZ
 );
+-- Evolucion (#20): una base creada antes de tomar-publicar-marcar tiene la
+-- tabla sin estas columnas y con el CHECK sin 'TOMADO', y el CREATE de
+-- arriba la saltea. Aditivo e idempotente: columnas nulables y un CHECK
+-- que solo se amplia, asi que ninguna fila existente queda invalida.
+ALTER TABLE publicidad.evento_dominio
+  ADD COLUMN IF NOT EXISTS tomado_en           TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS tomado_por          VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS ultimo_error        TEXT,
+  ADD COLUMN IF NOT EXISTS proximo_intento_en  TIMESTAMPTZ,
+  DROP CONSTRAINT IF EXISTS ck_publicidad_evtdom_estado,
+  ADD CONSTRAINT ck_publicidad_evtdom_estado
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO'));
 -- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
 -- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_publicidad_evtdom_despacho
@@ -785,6 +929,18 @@ CREATE TABLE IF NOT EXISTS tarifas.evento_dominio (
   ultimo_error        TEXT,
   proximo_intento_en  TIMESTAMPTZ
 );
+-- Evolucion (#20): una base creada antes de tomar-publicar-marcar tiene la
+-- tabla sin estas columnas y con el CHECK sin 'TOMADO', y el CREATE de
+-- arriba la saltea. Aditivo e idempotente: columnas nulables y un CHECK
+-- que solo se amplia, asi que ninguna fila existente queda invalida.
+ALTER TABLE tarifas.evento_dominio
+  ADD COLUMN IF NOT EXISTS tomado_en           TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS tomado_por          VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS ultimo_error        TEXT,
+  ADD COLUMN IF NOT EXISTS proximo_intento_en  TIMESTAMPTZ,
+  DROP CONSTRAINT IF EXISTS ck_tarifas_evtdom_estado,
+  ADD CONSTRAINT ck_tarifas_evtdom_estado
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO'));
 -- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
 -- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_tarifas_evtdom_despacho
@@ -862,6 +1018,18 @@ CREATE TABLE IF NOT EXISTS transparencia.evento_dominio (
   ultimo_error        TEXT,
   proximo_intento_en  TIMESTAMPTZ
 );
+-- Evolucion (#20): una base creada antes de tomar-publicar-marcar tiene la
+-- tabla sin estas columnas y con el CHECK sin 'TOMADO', y el CREATE de
+-- arriba la saltea. Aditivo e idempotente: columnas nulables y un CHECK
+-- que solo se amplia, asi que ninguna fila existente queda invalida.
+ALTER TABLE transparencia.evento_dominio
+  ADD COLUMN IF NOT EXISTS tomado_en           TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS tomado_por          VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS ultimo_error        TEXT,
+  ADD COLUMN IF NOT EXISTS proximo_intento_en  TIMESTAMPTZ,
+  DROP CONSTRAINT IF EXISTS ck_transparencia_evtdom_estado,
+  ADD CONSTRAINT ck_transparencia_evtdom_estado
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO'));
 -- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
 -- reintentar (proximo_intento_en nulo o ya paso).
 CREATE INDEX IF NOT EXISTS ix_transparencia_evtdom_despacho
