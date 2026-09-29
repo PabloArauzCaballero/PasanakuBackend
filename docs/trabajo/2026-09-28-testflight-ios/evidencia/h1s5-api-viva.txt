@@ -1,0 +1,4 @@
+sanos=15 (despliegue d603ffe, 2026-09-28T17:49)
+POST /identidad/autenticacion {} -> 401
+POST /cumplimiento/contratos/vigentes {} -> 401
+GET  /cumplimiento/contratos/vigentes -> 200

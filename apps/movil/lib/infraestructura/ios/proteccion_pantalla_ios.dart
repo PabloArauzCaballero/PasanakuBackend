@@ -1,23 +1,39 @@
+import 'package:flutter/services.dart';
+
 import '../../dominio/puertos/proteccion_pantalla.dart';
 
-/// **No soportado en iOS, explícito** (H2.S1.M2, madre H6.S1.M2).
+/// El mismo canal que Android (`bo.aportaya/proteccion_pantalla`), atendido en
+/// iOS por `AppDelegate.swift`: la capa de la ventana cuelga del lienzo seguro de
+/// un `UITextField`, y `isSecureTextEntry` tapa el contenido en capturas y
+/// grabaciones mientras la ruta lo pide.
 ///
-/// `FLAG_SECURE` es una API de Android; no existe un equivalente registrado por
-/// `MethodChannel` en este carril. `activar()`/`desactivar()` son no-ops SIN abrir
-/// ningún canal -- antes caían en `ProteccionPantallaAndroid`, que sí abre
-/// `bo.aportaya/proteccion_pantalla`, sin receptor nativo de iOS detrás.
+/// Grado `degradado`, no `soportado` (`capacidades.dart`): iOS no tiene un
+/// `FLAG_SECURE`; lo que se usa es un comportamiento de UIKit que Apple no
+/// documenta como API de privacidad y podría cambiar en una versión futura.
 ///
-/// Es una capability CRÍTICA de seguridad (`Capacidades.seguridadCriticaSoportada`):
-/// una pantalla de saldo sin bloqueo de captura en iOS no debe mostrarse en release
-/// sin que la app lo sepa. La responsabilidad de bloquear el arranque cuando esto
-/// falta es de `app.dart` (H2.S2.M3), no de este adaptador -- este solo declara la
-/// verdad de la plataforma, sin fingir que protege lo que no puede proteger.
+/// Antes de esto era un no-op y `app.dart` bloqueaba el arranque en todo iPhone
+/// release (H2.S2.M3): la pantalla «AportaYa no puede abrir en este dispositivo».
 class ProteccionPantallaIos implements ProteccionPantalla {
-  const ProteccionPantallaIos();
+  ProteccionPantallaIos([MethodChannel? canal])
+    : _canal = canal ?? const MethodChannel('bo.aportaya/proteccion_pantalla');
+
+  final MethodChannel _canal;
 
   @override
-  Future<void> activar() async {}
+  Future<void> activar() async {
+    try {
+      await _canal.invokeMethod<void>('activar');
+    } on MissingPluginException {
+      // No hay plataforma detrás (prueba de widget): sin efecto, no falla.
+    }
+  }
 
   @override
-  Future<void> desactivar() async {}
+  Future<void> desactivar() async {
+    try {
+      await _canal.invokeMethod<void>('desactivar');
+    } on MissingPluginException {
+      // idem
+    }
+  }
 }
