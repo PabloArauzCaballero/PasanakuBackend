@@ -50,7 +50,8 @@ class CU11RechazosTest extends BaseDeBilletera {
 
     private SalidaRetiro pedir(Escenario e, String monto, String clave) {
         return transaccion.execute(t -> retiroCU.solicitar(
-                new EntradaRetiro(clave, e.cuenta(), bob(monto), bob("5.00"), e.instrumento(), true, false), e.ctx()));
+                new EntradaRetiro(clave, e.cuenta(), bob(monto), bob("5.00"), e.instrumento(), true, true, false),
+                e.ctx()));
     }
 
     @Test
@@ -58,6 +59,7 @@ class CU11RechazosTest extends BaseDeBilletera {
     void rechazaRAUD01() {
         Escenario e = escenario("500.00");
         SalidaRetiro s = pedir(e, "100.00", "r-aud01");
+        transaccion.execute(t -> retiroCU.instruirPago(s.ordenRetiroId(), e.ctx()));
         transaccion.execute(t -> retiroCU.confirmarPago(s.ordenRetiroId(), e.ctx()));
 
         assertThat(rechazaLaBase("DELETE FROM nucleo_financiero.movimiento_billetera"))
@@ -71,6 +73,7 @@ class CU11RechazosTest extends BaseDeBilletera {
         // faltar, o la cadena deja de poder verificarse.
         Escenario e = escenario("500.00");
         SalidaRetiro s = pedir(e, "100.00", "r-aud03");
+        transaccion.execute(t -> retiroCU.instruirPago(s.ordenRetiroId(), e.ctx()));
         var pago = transaccion.execute(t -> retiroCU.confirmarPago(s.ordenRetiroId(), e.ctx()));
 
         assertThat(contar(
@@ -195,7 +198,7 @@ class CU11RechazosTest extends BaseDeBilletera {
         ContextoSesion ctx = contextoDe(usuario);
 
         assertThatThrownBy(() -> transaccion.execute(t -> retiroCU.solicitar(
-                        new EntradaRetiro("r-bil11", cuenta, bob("50.00"), bob("5.00"), instrumento, true, false),
+                        new EntradaRetiro("r-bil11", cuenta, bob("50.00"), bob("5.00"), instrumento, true, true, false),
                         ctx)))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("suspendidos temporalmente");
@@ -235,7 +238,7 @@ class CU11RechazosTest extends BaseDeBilletera {
         ContextoSesion ctx = contextoDe(usuario);
 
         assertThatThrownBy(() -> transaccion.execute(t -> retiroCU.solicitar(
-                        new EntradaRetiro("r-lim01", cuenta, bob("50.00"), bob("5.00"), instrumento, true, false),
+                        new EntradaRetiro("r-lim01", cuenta, bob("50.00"), bob("5.00"), instrumento, true, true, false),
                         ctx)))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("deniega por omision");

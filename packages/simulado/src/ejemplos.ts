@@ -34,7 +34,7 @@ function raizDelRepositorio(): string {
 const RAIZ = resolve(raizDelRepositorio(), 'packages/simulado')
 
 /**
- * El ejemplo de una operación y un escenario, leído del mismo archivo que Prism sirve.
+ * El ejemplo de una operación y un escenario, leído del mismo archivo que sirve el simulado.
  * Lo consumen las pruebas de Angular (por import) y las de Flutter (por ruta, el mismo
  * JSON): un CU, un archivo, dos lenguajes.
  */

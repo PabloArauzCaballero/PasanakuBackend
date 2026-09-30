@@ -108,7 +108,7 @@ def main() -> int:
             print(f"{ORIGEN} · sección «{seccion}»: {e}")
             return 1
 
-    DESTINO.write_text("\n".join(partes) + "\n", encoding="utf-8")
+    DESTINO.write_text("\n".join(partes).rstrip() + "\n", encoding="utf-8")
 
     codigos = sorted(set(re.findall(r"\bR-[A-Z]{3}-\d{2}\b", texto)))
     print(f"{DESTINO}: {len(bloques)} bloques SQL, {len(codigos)} restricciones · "

@@ -162,6 +162,10 @@ Cuando se procesan
 Entonces existe una sola transaccion_billetera
 Y el saldo no cambia después del primer procesamiento
 
+Dadas dos cuentas con la misma clave de idempotencia
+Cuando cada una solicita una recarga
+Entonces cada una recibe una orden distinta
+
 Dado que el usuario acumula USD 1.000 en cargas en 3 días calendario
 Cuando se acredita la última
 Entonces existe un registro_operacion_relevante con formulario PCC-01

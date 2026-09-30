@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AportaYa · aportes",
-    "description": "# AportaYa · aportes\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**8 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · aportes\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**9 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -517,6 +517,79 @@
       ]
     },
     {
+      "name": "recibirWebhookPasarela · Recibir la confirmacion de la pasarela de pagos",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/pagos/webhooks/:proveedorCodigo",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "pagos",
+            "webhooks",
+            ":proveedorCodigo"
+          ],
+          "variable": [
+            {
+              "key": "proveedorCodigo",
+              "value": "{{proveedorCodigo}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Recibir la confirmacion de la pasarela de pagos\n\nRuta PUBLICA (sin sesion de usuario, Q-02 DECIDIDA 2026-09-21): la pasarela no tiene un JWT nuestro. La autenticacion es HMAC-SHA256 sobre el cuerpo CRUDO con `X-Firma`, mas `X-Timestamp` dentro de una ventana de +-5 minutos (invariante de la firma: se verifica ANTES de leer una sola linea del payload).\nEvento repetido por `(proveedor_id, clave)` (`uq_webhook_idem`, invariante 7): mismo resultado, sin reprocesar ni duplicar el efecto financiero.\nEl cuerpo se declara `text/plain` a proposito, no `application/json`: la firma exige el byte exacto que mando la pasarela, y con `application/json` el conversor de Jackson reformatea el cuerpo antes de que se pueda verificar la firma sobre el original.\n\n| | |\n| --- | --- |\n| **Servicio** | `aportes` |\n| **Operacion** | `recibirWebhookPasarela` |\n| **Ruta** | `POST /api/v1/pagos/webhooks/{proveedorCodigo}` |\n| **Permiso** | _no declarado en el codigo_ |\n| **Respuestas** | `200`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "consultarEstadoDelParticipante · Si esta al dia, cuanto aporto y cuanto debe",
       "request": {
         "method": "GET",
@@ -711,6 +784,10 @@
     },
     {
       "key": "prefijo_api",
+      "value": ""
+    },
+    {
+      "key": "proveedorCodigo",
       "value": ""
     },
     {

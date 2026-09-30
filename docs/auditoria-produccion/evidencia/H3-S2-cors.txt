@@ -1,0 +1,22 @@
+=== H3.S2 — CORS real, verificado contra el gateway corriendo ===
+
+1) Preflight con origen permitido (local: http://localhost:4200):
+$ wget --header="Origin: http://localhost:4200" --header="Access-Control-Request-Method: GET" --method=OPTIONS http://127.0.0.1:8080/api/v1/grupos
+  HTTP/1.1 200 OK
+  Access-Control-Allow-Origin: http://localhost:4200
+  Access-Control-Allow-Methods: GET,POST,PUT,PATCH,DELETE
+
+2) Preflight con origen NO listado (http://evil.example.com):
+$ wget --header="Origin: http://evil.example.com" ... --method=OPTIONS http://127.0.0.1:8080/api/v1/grupos
+  HTTP/1.1 403 Forbidden
+
+3) Perfil production SIN APORTAYA_CORS_ORIGENES: arranque cortado (fail closed)
+$ docker run -e SPRING_PROFILES_ACTIVE=production aportaya/gateway:local
+  java.lang.IllegalStateException: aportaya.cors.origenes vacío o con '*' en un
+  perfil no local/test ([production]). AMB-12/DECISION_REQUIRED: falta la
+  variable APORTAYA_CORS_ORIGENES con el dominio real. No se arranca con CORS
+  abierto.
+
+4) Perfil production CON APORTAYA_CORS_ORIGENES=https://app.aportaya.example: arranca normal
+$ docker run -e SPRING_PROFILES_ACTIVE=production -e APORTAYA_CORS_ORIGENES=https://app.aportaya.example aportaya/gateway:local
+  Started Aplicacion in 3.658 seconds

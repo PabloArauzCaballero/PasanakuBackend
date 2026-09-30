@@ -1,0 +1,17 @@
+=== gh run list --limit 5 ===
+completed	success	refactor(table): tabla canonica extendida y dos consumidores migrados (PR7)	Bóveda, esquema, semillas y despliegue	justin/frontend/tabla-datos	pull_request	35697486440	42s	2026-09-22T07:00:48Z
+completed	failure	refactor(table): tabla canonica extendida y dos consumidores migrados (PR7)	CI	justin/frontend/tabla-datos	pull_request	35697486431	1m14s	2026-09-22T07:00:48Z
+completed	success	feat(dialogo): contrato de estado, política de descarte única y dos modales migrados	Bóveda, esquema, semillas y despliegue	leo/frontend/dialogo-estados	pull_request	35696987370	43s	2026-09-22T06:54:35Z
+completed	failure	feat(dialogo): contrato de estado, política de descarte única y dos modales migrados	CI	leo/frontend/dialogo-estados	pull_request	35696987369	1m40s	2026-09-22T06:54:35Z
+completed	failure	fix(security): datos simulados fuera del bundle de producción y gateway fail-fast (web, backoffice, app)	Bóveda, esquema, semillas y despliegue	justin/frontend/config	pull_request	35692867533	40s	2026-09-22T05:59:22Z
+
+=== gh run view 35665699474 --json jobs ===
+{"conclusion":"failure","name":"Formato, reglas propias y compilacion","status":"completed"}
+{"conclusion":"success","name":"Dependencias, secretos e imagen","status":"completed"}
+{"conclusion":"success","name":"Base efimera, semillas y permisos","status":"completed"}
+{"conclusion":"success","name":"La boveda y el esquema no divergen","status":"completed"}
+{"conclusion":"skipped","name":"Los cinco corredores","status":"completed"}
+{"conclusion":"skipped","name":"Frontend — Flutter y Angular (ADR-044)","status":"completed"}
+{"conclusion":"skipped","name":"Punta a punta — solo en main","status":"completed"}
+{"conclusion":"skipped","name":"bootJar y docker build, multietapa y sin root","status":"completed"}
+{"conclusion":"skipped","name":"Contratos y clientes generados","status":"completed"}

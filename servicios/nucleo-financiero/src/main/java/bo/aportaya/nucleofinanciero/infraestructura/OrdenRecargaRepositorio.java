@@ -67,10 +67,22 @@ public class OrdenRecargaRepositorio {
         });
     }
 
-    public Optional<UUID> porClaveIdempotencia(DSLContext dsl, String clave) {
+    /**
+     * R-BIL-06, scope de {@code uq_recarga_idem (cuenta_billetera_id, clave_idempotencia)}.
+     *
+     * <p>Sin el {@code cuenta_billetera_id} en el {@code WHERE}, dos titulares distintos
+     * que coincidan en la clave comparten orden: el segundo recibe la recarga del
+     * primero en vez de la suya.
+     */
+    public void bloquearIdempotencia(DSLContext dsl, UUID cuentaId, String clave) {
+        BloqueoDeIdempotencia.tomar(dsl, "orden_recarga", cuentaId.toString(), clave);
+    }
+
+    public Optional<UUID> porClaveIdempotencia(DSLContext dsl, UUID cuentaId, String clave) {
         return Optional.ofNullable(dsl.select(DSL.field("id", UUID.class))
                 .from(DSL.table(DSL.name("nucleo_financiero", "orden_recarga")))
-                .where(DSL.field("clave_idempotencia").eq(clave))
+                .where(DSL.field("cuenta_billetera_id", UUID.class).eq(cuentaId))
+                .and(DSL.field("clave_idempotencia").eq(clave))
                 .fetchOne(DSL.field("id", UUID.class)));
     }
 

@@ -1,0 +1,10 @@
+# nucleo-financiero — perfil staging — H2.S1.M1
+# Unicamente lo que varia por entorno. El resto esta en application.yml (comun).
+# NO se declara aportaya.mfa.doble-local aca: fuera de local/test la propiedad no
+# tiene efecto (SegundoFactorLocal directamente no existe como bean, H2.S1.M2/M3),
+# asi que declararla seria prometer un interruptor que nadie lee.
+aportaya:
+  entorno:
+    productivo: true         # H2: fuera de local/test, fail closed
+  cors:
+    origenes: ${APORTAYA_CORS_ORIGENES}  # OBLIGATORIO: sin default y nunca *.

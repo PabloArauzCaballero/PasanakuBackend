@@ -1,0 +1,6 @@
+bomFormat: CycloneDX | specVersion: 1.6 | componentes: 200
+ - pkg:maven/aopalliance/aopalliance@1.0?type=jar
+ - pkg:maven/bo.aportaya/comun-archivos@1.0.0?project_path=%3Aplataforma%3Acomun-archivos
+ - pkg:maven/bo.aportaya/comun-datos@1.0.0?project_path=%3Aplataforma%3Acomun-datos
+ - pkg:maven/bo.aportaya/comun-dominio@1.0.0?project_path=%3Aplataforma%3Acomun-dominio
+ - pkg:maven/bo.aportaya/comun-mensajeria@1.0.0?project_path=%3Aplataforma%3Acomun-mensajeria

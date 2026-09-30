@@ -78,6 +78,11 @@ CREATE TRIGGER tg_evento_riesgo_operativo_append_only
   BEFORE UPDATE OR DELETE ON cumplimiento.evento_riesgo_operativo
   FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
 
+DROP TRIGGER IF EXISTS tg_evidencia_mfa_consumida_append_only ON nucleo_financiero.evidencia_mfa_consumida;
+CREATE TRIGGER tg_evidencia_mfa_consumida_append_only
+  BEFORE UPDATE OR DELETE ON nucleo_financiero.evidencia_mfa_consumida
+  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
+
 DROP TRIGGER IF EXISTS tg_factura_proveedor_append_only ON erp.factura_proveedor;
 CREATE TRIGGER tg_factura_proveedor_append_only
   BEFORE UPDATE OR DELETE ON erp.factura_proveedor

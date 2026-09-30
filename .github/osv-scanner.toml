@@ -1,0 +1,16 @@
+# Config de OSV-Scanner (google/osv-scanner-action@v2.6.0). Formato TOML verificado
+# contra google.github.io/osv-scanner/configuration/ el 2026-09-21.
+#
+# AMB-9 (decidida): HIGH y CRITICAL bloquean el CI; MEDIUM se reporta sin bloquear.
+# OSV-Scanner v2.6.0 NO tiene un flag nativo de umbral de severidad (verificado
+# contra la doc de configuracion y de uso: no existe --min-severity ni una clave
+# de config equivalente). Por eso el job `dependencias` de ci.yml usa
+# `fail-on-vuln: true` (bloquea ante CUALQUIER hallazgo no ignorado aca), que es
+# MAS estricto que "solo HIGH/CRITICAL", nunca menos: nada de MEDIUM/LOW se cuela
+# en silencio. Una vulnerabilidad MEDIUM o LOW que el equipo decide no bloquear
+# se excepciona ACA, una por una, con motivo y fecha de revision — nunca a ciegas.
+#
+# [[IgnoredVulns]]
+# id = "GHSA-xxxx-xxxx-xxxx"
+# ignoreUntil = 2026-10-21   # <= 30 dias desde que se registra (AMB-9)
+# reason = "MEDIUM, sin ruta de explotacion en este monorepo: <detalle>. Revisar antes de la fecha."

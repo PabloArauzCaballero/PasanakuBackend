@@ -45,14 +45,22 @@ test.describe('verificación pública recomputada en el cliente', () => {
     // `@defer (hydrate on viewport)`: el SSR manda el contenido completo, pero al
     // hidratar el cliente vuelve a mostrar el placeholder hasta que el bloque entra
     // en el viewport y se hidrata de verdad.
+    //
+    // H4.S2.M2 (PR13-Ci.Frontend): antes esto era `await page.waitForTimeout(2000)`
+    // -- un reloj, no una condición (regla 80.5/H4.S2). Se espera la CONDICIÓN real
+    // (el encabezado que solo aparece una vez hidratado el bloque `@defer`) antes de
+    // mirar la consola: es más rápido cuando hidrata ligero y no flakea cuando
+    // hidrata lento, que es justo lo que un número fijo no puede garantizar en las
+    // dos direcciones a la vez.
     await page.mouse.wheel(0, 200)
-    await page.waitForTimeout(2000)
+    await expect(page.getByRole('heading', { name: 'Recómputo en este navegador' })).toBeVisible({
+      timeout: 10_000,
+    })
 
     // Ver HALLAZGO 2: hoy esto SÍ aparece, y es el bug.
     expect(erroresDeConsola.join('\n'), 'consola sin errores de hidratación (NG0502)').not.toMatch(/NG0502/)
 
     await expect(page.getByRole('heading', { name: 'Veredicto del servidor' })).toBeVisible({ timeout: 10_000 })
-    await expect(page.getByRole('heading', { name: 'Recómputo en este navegador' })).toBeVisible()
     await expect(page.locator('.orden li').first()).toBeVisible({ timeout: 10_000 })
   })
 

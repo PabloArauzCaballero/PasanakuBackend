@@ -141,7 +141,12 @@ ESQUEMAS_ORQUESTADORES = {"aportes", "entregas", "garantia", "tarifas"}
 # Tablas de infraestructura -> lista de columnas de estado sobre las que el
 # svc_* propio recibe UPDATE (vacia = sin UPDATE, solo SELECT/INSERT).
 INFRA_MENSAJERIA = {
-    "evento_dominio":   ["publicado_en", "estado", "intentos"],
+    # H2.S3.M1: tomado_en/tomado_por/ultimo_error/proximo_intento_en son las
+    # columnas del tomar-publicar-marcar en transacciones cortas (ADR-018).
+    "evento_dominio":   [
+        "publicado_en", "estado", "intentos",
+        "tomado_en", "tomado_por", "ultimo_error", "proximo_intento_en",
+    ],
     "evento_consumido": [],
     "shedlock":         ["lock_until", "locked_at", "locked_by"],
 }
@@ -204,6 +209,24 @@ PREFIJOS = {
 # de una lista que crece sola.
 RUTAS_PUBLICAS = ["/publico", "/verificar"]
 
+# H3.S1 (AMB-6): las rutas de dinero e identidad que se cortan por tasa en el
+# gateway (RequestRateLimiter + Redis), ademas de lo que ya autoriza cada
+# servicio. Un solo intento fallido de login no rompe nada; mil por segundo
+# contra la misma cuenta si.
+#
+# El encargo original pide ocho: login, refresh, reset, MFA/desafios, retiro,
+# transferencia, registro, OTP. Solo CUATRO existen hoy en un contrato OpenAPI
+# real (verificado contra servicios/identidad/.../openapi/identidad.yaml y
+# servicios/nucleo-financiero/.../openapi/nucleo-financiero.yaml el
+# 2026-09-21): refresh, reset, el desafio de MFA y OTP todavia no tienen
+# endpoint — los esta escribiendo el carril de identidad (PR1, Richard) esta
+# misma noche. Agregar las cuatro que faltan a esta lista cuando existan es
+# una linea; inventarles una ruta ahora violaria la regla 00 (anti-invencion).
+RUTAS_SENSIBLES = {
+    "identidad":         ["/sesiones", "/usuarios"],          # login, registro
+    "nucleo_financiero": ["/billetera/retiros", "/billetera/transferencias"],
+}
+
 
 def escenarios_gherkin(texto_cu):
     """Escenarios del bloque gherkin de un caso de uso.
@@ -264,6 +287,9 @@ APPEND_ONLY = {
     "asiento_contable", "movimiento_contable",
     "transaccion_billetera", "movimiento_billetera", "movimiento_custodia",
     "saldo_diario_billetera", "devengo_comision",
+    # H2.S2.M2 (carril PR2): el jti de la evidencia step-up se consume una sola vez
+    # (INSERT ... ON CONFLICT DO NOTHING); un UPDATE la convertiria en reusable.
+    "evidencia_mfa_consumida",
     "registro_operacion_relevante", "evento_riesgo_operativo",
     "acta_comite",
     # --- M13: contabilidad financiera y ERP ---

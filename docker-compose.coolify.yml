@@ -61,6 +61,9 @@ services:
     image: aportaya/aportes:test
     pull_policy: never
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
     depends_on:
       esquema:
         condition: service_completed_successfully
@@ -82,6 +85,9 @@ services:
     image: aportaya/auditoria:test
     pull_policy: never
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
     depends_on:
       esquema:
         condition: service_completed_successfully
@@ -103,6 +109,9 @@ services:
     image: aportaya/cumplimiento:test
     pull_policy: never
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
     depends_on:
       esquema:
         condition: service_completed_successfully
@@ -125,6 +134,9 @@ services:
     image: aportaya/entregas:test
     pull_policy: never
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
     depends_on:
       esquema:
         condition: service_completed_successfully
@@ -156,6 +168,9 @@ services:
     image: aportaya/erp:test
     pull_policy: never
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
     depends_on:
       esquema:
         condition: service_completed_successfully
@@ -185,6 +200,9 @@ services:
     image: aportaya/garantia:test
     pull_policy: never
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
     depends_on:
       esquema:
         condition: service_completed_successfully
@@ -214,6 +232,9 @@ services:
     image: aportaya/grupos:test
     pull_policy: never
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
     depends_on:
       esquema:
         condition: service_completed_successfully
@@ -251,6 +272,9 @@ services:
     image: aportaya/identidad:test
     pull_policy: never
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
     depends_on:
       esquema:
         condition: service_completed_successfully
@@ -278,6 +302,9 @@ services:
     image: aportaya/notificaciones:test
     pull_policy: never
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
     depends_on:
       esquema:
         condition: service_completed_successfully
@@ -308,6 +335,9 @@ services:
     image: aportaya/nucleo-financiero:test
     pull_policy: never
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
     depends_on:
       esquema:
         condition: service_completed_successfully
@@ -341,6 +371,9 @@ services:
     image: aportaya/organizador:test
     pull_policy: never
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
     depends_on:
       esquema:
         condition: service_completed_successfully
@@ -370,6 +403,9 @@ services:
     image: aportaya/publicidad:test
     pull_policy: never
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
     depends_on:
       esquema:
         condition: service_completed_successfully
@@ -399,6 +435,9 @@ services:
     image: aportaya/tarifas:test
     pull_policy: never
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
     depends_on:
       esquema:
         condition: service_completed_successfully
@@ -429,6 +468,9 @@ services:
     image: aportaya/transparencia:test
     pull_policy: never
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
     depends_on:
       esquema:
         condition: service_completed_successfully

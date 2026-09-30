@@ -205,6 +205,27 @@ class ManejadorGlobalDeErroresWebTest {
         }
 
         @Test
+        @DisplayName(
+                "409: misma clave de idempotencia con otro cuerpo — IdempotenciaConflicto, no 422 ni 200 (H1.S1.M4)")
+        void idempotenciaConflicto() throws Exception {
+            mvc.perform(get("/ensayo/idempotencia-conflicto")
+                            .with(Sesiones.como("PARTICIPANTE", CON_PERMISO_DE_LECTURA)))
+                    .andExpect(status().isConflict())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU00-01"))
+                    .andExpect(jsonPath("$.trazaId").exists());
+        }
+
+        @Test
+        @DisplayName("409: reserva de idempotencia sin respuesta final todavia — IdempotenciaEnProceso")
+        void idempotenciaEnProceso() throws Exception {
+            mvc.perform(get("/ensayo/idempotencia-en-proceso")
+                            .with(Sesiones.como("PARTICIPANTE", CON_PERMISO_DE_LECTURA)))
+                    .andExpect(status().isConflict())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU00-02"))
+                    .andExpect(jsonPath("$.trazaId").exists());
+        }
+
+        @Test
         @DisplayName("500: una restriccion que el catalogo NO conoce no se disfraza de mensaje amable")
         void restriccionSinTraduccion() throws Exception {
             // Improvisar aca un 409 con un texto generico esconderia un caso que nadie

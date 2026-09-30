@@ -5,8 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'dominio/verificacion_contrato.dart';
+import 'navegacion/abridor_de_avisos.dart';
 import 'navegacion/rutas.dart';
+import 'pantallas/soporte/arranque_segun_capacidades.dart';
 import 'pantallas/soporte/capa_de_tutorial.dart';
+import 'proveedores/avisos_push.dart';
 import 'proveedores/sesion.dart';
 import 'package:aportaya_diseno/moviles/apertura_de_marca.dart';
 import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
@@ -28,6 +31,23 @@ class AppAportaYa extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // H2.S2.M3 (madre H6.S2.M3): en un release de iOS sin almacén seguro ni
+    // protección de pantalla soportados, `builder` de acá abajo NUNCA se llama --
+    // ni `verificacionContratoProvider` ni el cliente HTTP que crea se tocan.
+    return ArranqueSegunCapacidades(
+      builder: (context) => _AppAportaYaReal(enrutador: _enrutador, ref: ref),
+    );
+  }
+}
+
+class _AppAportaYaReal extends StatelessWidget {
+  const _AppAportaYaReal({required this.enrutador, required this.ref});
+
+  final GoRouter enrutador;
+  final WidgetRef ref;
+
+  @override
+  Widget build(BuildContext context) {
     // Se dispara al construir el árbol, sin bloquear el primer frame: si el
     // gateway está caído al iniciar, el arranque no se cuelga esperándolo.
     ref.watch(verificacionContratoProvider);
@@ -36,7 +56,7 @@ class AppAportaYa extends ConsumerWidget {
       theme: temaDesde(Tokens.claro, Brightness.light),
       darkTheme: temaDesde(Tokens.oscuro, Brightness.dark),
       themeMode: ThemeMode.system,
-      routerConfig: _enrutador,
+      routerConfig: enrutador,
       debugShowCheckedModeBanner: false,
       // El registro de anclas y la capa del tutorial envuelven a TODA la app: un
       // recorrido cruza pantallas, así que no puede vivir dentro de una. Con el
@@ -44,9 +64,9 @@ class AppAportaYa extends ConsumerWidget {
       builder: (context, child) => ComoEnUnTelefono(
         child: ProveedorDeAnclas(
           hijo: CapaDeTutorial(
-            enrutador: _enrutador,
+            enrutador: enrutador,
             hijo: _ConApertura(
-              enrutador: _enrutador,
+              enrutador: enrutador,
               child: _AvisoDeContrato(child: child),
             ),
           ),
@@ -112,11 +132,19 @@ class _ConApertura extends ConsumerStatefulWidget {
 class _ConAperturaState extends ConsumerState<_ConApertura> {
   bool _mostrando = true;
   Timer? _respaldo;
+  AbridorDeAvisos? _avisos;
 
   @override
   void initState() {
     super.initState();
     _decidirDondeEntrar();
+    // Tocar un aviso push abre su pantalla. Sin SDK push todavía el flujo no emite
+    // nada (hueco declarado en `infraestructura/*/avisos_push_*.dart`), pero la
+    // escucha ya está lista y probada para cuando el dispositivo lo entregue.
+    _avisos = AbridorDeAvisos(
+      toques: ref.read(avisosPushProvider).toques,
+      abrir: (ruta) => widget.enrutador.push(ruta),
+    )..iniciar();
     // El cinturón de seguridad: si la animación no llamara a su final —un ticker que
     // no arranca, un frame que no llega—, a los dos segundos la apertura se va igual.
     // Nadie se queda mirando un logo sin poder entrar a su plata.
@@ -153,6 +181,7 @@ class _ConAperturaState extends ConsumerState<_ConApertura> {
   @override
   void dispose() {
     _respaldo?.cancel();
+    _avisos?.detener();
     super.dispose();
   }
 

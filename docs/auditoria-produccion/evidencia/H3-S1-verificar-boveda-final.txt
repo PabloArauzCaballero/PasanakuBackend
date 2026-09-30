@@ -1,0 +1,58 @@
+
+=== CASOS DE USO ===
+  OK    · 99 casos de uso encontrados
+  OK    · todos con las 13 secciones de la plantilla 
+  OK    · todos con tabla de errores 
+  OK    · códigos de error correlativos 
+  OK    · cada código con su fila y su CU 
+  OK    · ≥3 escenarios Gherkin por caso 
+  OK    · ≥4 flujos alternativos por caso 
+  OK    · "Ver también" recíproco 
+
+=== COBERTURA DEL MODELO ===
+  OK    · 305 entidades en el modelo
+  OK    · toda entidad tiene al menos un caso de uso 
+
+=== RESTRICCIONES ===
+  OK    · 142 restricciones definidas
+  OK    · toda restricción citada existe 
+  OK    · toda restricción está citada por un caso 
+
+=== ÍNDICES ===
+  OK    · índice de casos completo (sobran [], faltan [])
+  OK    · total_casos: 99 en el frontmatter
+  OK    · índice de skills completo (260 skills)
+  OK    · frontmatter de cada skill coincide con su carpeta
+
+=== ARQUITECTURA ===
+  OK    · 46 decisiones registradas
+  OK    · toda decisión está en el índice 
+  OK    · toda decisión tiene las 6 secciones obligatorias 
+  OK    · toda decisión declara estado válido 
+  OK    · sin números de ADR repetidos 
+
+=== ESQUEMAS POR SERVICIO ===
+  OK    · 305 tablas con esquema asignado (modelo: 305)
+  OK    · todo esquema es uno de los declarados 
+  OK    · el libro contable entero en nucleo_financiero 
+  OK    · movimiento_billetera con el libro: partida doble en una transaccion
+  OK    · bitacoras en el esquema comun 
+  OK    · el outbox salio de comun (ADR-027)
+  OK    · outbox por esquema en 15_infra 
+  OK    · estado_saga en los esquemas orquestadores 
+  OK    · el esquema de cada tabla coincide con su modulo 
+  OK    · 335 claves foraneas cruzan esquemas y las verifica el motor
+  OK    · 14 roles de servicio creados
+  OK    · cada rol con permiso sobre su esquema 
+  OK    · ningun servicio LEE el rastro ajeno 
+
+=== ENLACES ===
+  OK    · ningún wikilink roto en la bóveda 
+  OK    · ningún wikilink roto en las skills 
+
+=== CIFRAS CITADAS ===
+  OK    · ninguna cifra desfasada en los planes 
+          cifras vigentes: 99 casos de uso · 305 tablas · 142 restricciones · 46 ADR
+
+TODO OK
+exit=0

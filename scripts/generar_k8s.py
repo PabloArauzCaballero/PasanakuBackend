@@ -193,6 +193,13 @@ spec:
   template:
     metadata:
       labels: {{app: {s}, nivel: {d['nivel']}}}
+      annotations:
+        # H3.S3: scrape interno — el Prometheus del clúster (mismo namespace,
+        # nunca la entrada pública) lee esto directo del pod. `/actuator/prometheus`
+        # no pasa por el gateway ni por NGINX (bloqueado ahí explícitamente).
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "8080"
     spec:
 {afinidad}
 {reparto}      securityContext: {{runAsNonRoot: true, runAsUser: 1000, fsGroup: 1000}}
@@ -312,7 +319,12 @@ spec:
     rollingUpdate: {{maxUnavailable: 0, maxSurge: 1}}
   selector: {{matchLabels: {{app: gateway}}}}
   template:
-    metadata: {{labels: {{app: gateway, nivel: {g['nivel']}}}}}
+    metadata:
+      labels: {{app: gateway, nivel: {g['nivel']}}}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "8080"
     spec:
       affinity:
         podAntiAffinity:

@@ -133,6 +133,10 @@ Cuando el participante paga con saldo
 Entonces monto_pagado es 500 y estado es PAGADO
 Y la cuenta del grupo aumentó Bs 500
 
+Dadas dos obligaciones con la misma clave de idempotencia
+Cuando se acredita cada pago
+Entonces cada obligación recibe un pago distinto
+
 Dado un pago no conciliado con el extracto
 Cuando se intenta cerrar el día
 Entonces el cierre_diario no puede marcarse cuadrado

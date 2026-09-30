@@ -12,6 +12,7 @@ import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
+import bo.aportaya.identidad.aplicacion.ValidarTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
 import bo.aportaya.identidad.dominio.AperturaDeCuenta;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
@@ -81,6 +82,9 @@ class UsuariosControllerWebTest {
 
     @MockitoBean
     private EmitirTokenDeInvitacion tokens;
+
+    @MockitoBean
+    private ValidarTokenDeInvitacion validacionDeInvitacion;
 
     @MockitoBean
     private VerificarTitularidad titularidad;

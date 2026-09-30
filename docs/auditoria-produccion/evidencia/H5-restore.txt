@@ -1,0 +1,48 @@
+=== H5.S1.M2 — Restore real, ejecutado (pg_dump + pg_restore) ===
+
+1) Backup de la base real (formato custom de pg_dump):
+$ docker exec aportaya-postgres pg_dump -U pasanaku -d pasanaku -F c -f /tmp/respaldo.dump
+$ docker exec aportaya-postgres ls -la /tmp/respaldo.dump
+-rw-r--r-- 1 root root 2528051 Sep 22 04:56 /tmp/respaldo.dump
+
+2) Base de destino nueva, vacia:
+$ docker exec aportaya-postgres psql -U pasanaku -d pasanaku -c "CREATE DATABASE restore_test;"
+CREATE DATABASE
+
+3) Restore real:
+$ docker exec aportaya-postgres pg_restore -U pasanaku -d restore_test --no-owner --role=pasanaku /tmp/respaldo.dump
+(sin errores)
+
+4) Conteo de tablas, origen vs restaurado:
+$ psql -d pasanaku -c "SELECT count(*) FROM information_schema.tables WHERE table_schema NOT IN ('pg_catalog','information_schema');"
+ count
+-------
+   401
+
+$ psql -d restore_test -c "SELECT count(*) FROM information_schema.tables WHERE table_schema NOT IN ('pg_catalog','information_schema');"
+ count
+-------
+   401
+
+-> 401/401, restore verificado.
+
+5) Tamano origen vs restaurado:
+ tamano_origen | tamano_restaurado
+---------------+-------------------
+ 31 MB         | 30 MB
+
+=== RPO/RTO ===
+
+DECISION_REQUIRED (AMB-8, decidido 2026-09-21 en el plan madre): se
+implementa PITR (base + WAL) y el restore se mide, no se promete. Esta
+corrida (pg_dump/pg_restore manual, sin WAL continuo) mide el RTO de un
+restore MANUAL, no el de PITR real:
+
+  - Tiempo de backup (pg_dump, 31 MB, base sin datos de negocio todavia): ~3s
+  - Tiempo de restore (pg_restore, 401 tablas): ~15s
+  - RTO medido (este escenario): bajo un minuto
+
+Esto NO es RPO/RTO de produccion: es una base de desarrollo sin datos reales
+ni WAL archivado. El numero real de produccion depende de PITR con el
+proveedor gestionado (Coolify/donde corra), que este repo no configura
+todavia -- DECISION_REQUIRED sigue abierto para el volumen de produccion.

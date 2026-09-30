@@ -1,0 +1,116 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.7.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders FROM-CACHE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins
+> Task :buildSrc:generateScriptPluginAdapters
+> Task :buildSrc:pluginDescriptors
+> Task :buildSrc:processResources
+> Task :buildSrc:compilePluginsBlocks
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors
+> Task :buildSrc:compileKotlin
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:classes
+> Task :buildSrc:jar
+> Task :spotlessInternalRegisterDependencies
+> Task :plataforma:gateway:spotlessJava
+> Task :plataforma:gateway:spotlessJavaCheck
+> Task :plataforma:gateway:spotlessKotlinGradle
+> Task :plataforma:gateway:spotlessKotlinGradleCheck
+> Task :plataforma:gateway:spotlessCheck
+> Task :plataforma:comun-mensajeria:spotlessJava
+> Task :plataforma:comun-mensajeria:spotlessJavaCheck
+> Task :plataforma:comun-datos:spotlessJava
+> Task :plataforma:comun-datos:spotlessJavaCheck
+> Task :plataforma:comun-datos:spotlessKotlinGradle
+> Task :plataforma:comun-datos:spotlessKotlinGradleCheck
+> Task :plataforma:comun-datos:spotlessCheck
+> Task :plataforma:comun-mensajeria:spotlessKotlinGradle
+> Task :plataforma:comun-mensajeria:spotlessKotlinGradleCheck
+> Task :plataforma:comun-mensajeria:spotlessCheck
+> Task :plataforma:comun-pruebas:spotlessJava
+> Task :plataforma:comun-pruebas:spotlessJavaCheck
+> Task :plataforma:comun-pruebas:spotlessKotlinGradle
+> Task :plataforma:comun-pruebas:spotlessKotlinGradleCheck
+> Task :plataforma:comun-pruebas:spotlessCheck
+> Task :plataforma:comun-archivos:spotlessJava
+> Task :plataforma:comun-dominio:spotlessJava
+> Task :plataforma:comun-dominio:spotlessJavaCheck
+> Task :plataforma:comun-dominio:spotlessKotlinGradle
+> Task :plataforma:comun-dominio:spotlessKotlinGradleCheck
+> Task :plataforma:comun-dominio:spotlessCheck
+> Task :plataforma:comun-archivos:spotlessJavaCheck FAILED
+> Task :plataforma:comun-web:spotlessJava
+> Task :plataforma:comun-web:spotlessJavaCheck
+> Task :plataforma:comun-web:spotlessKotlinGradle
+> Task :plataforma:comun-web:spotlessKotlinGradleCheck
+> Task :plataforma:comun-web:spotlessCheck
+> Task :servicios:auditoria:spotlessJava
+> Task :servicios:aportes:spotlessJava
+> Task :servicios:entregas:spotlessJava
+> Task :servicios:notificaciones:spotlessJava
+> Task :servicios:publicidad:spotlessJava
+> Task :servicios:organizador:spotlessJava
+> Task :servicios:erp:spotlessJava
+> Task :servicios:identidad:spotlessJava
+> Task :servicios:garantia:spotlessJava
+> Task :servicios:grupos:spotlessJava
+> Task :servicios:transparencia:spotlessJava
+> Task :servicios:tarifas:spotlessJava
+> Task :servicios:nucleo-financiero:spotlessJava
+> Task :servicios:cumplimiento:spotlessJava
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':plataforma:comun-archivos:spotlessJavaCheck' (registered by plugin 'aportaya.base').
+> The following files had format violations:
+      src\main\java\bo\aportaya\plataforma\archivos\AlmacenS3Adaptador.java
+          @@ -137,12 +137,7 @@
+           ·····*/
+           ····private·static·ClaveObjeto·nuevaClave(AmbitoArchivo·ambito,·DestinoDeObjeto·destino,·String·tipo)·{
+           ········String·ruta·=·"%s/%s/%s-%s%s"
+          -················.formatted(
+          -························ambito.prefijo(),
+          -························destino.carpeta(),
+          -························destino.etiqueta(),
+          -························UUID.randomUUID(),
+          -························extension(tipo));
+          +················.formatted(ambito.prefijo(),·destino.carpeta(),·destino.etiqueta(),·UUID.randomUUID(),·extension(tipo));
+           ········return·new·ClaveObjeto(ESQUEMA,·ruta);
+           ····}
+           
+      src\main\java\bo\aportaya\plataforma\archivos\DestinoDeObjeto.java
+          @@ -51,7 +51,8 @@
+           ·····*·guardada·apunta·de·verdad·a·una·foto·subida·o·a·un·relleno.
+           ·····*/
+           ····public·static·String·carpetaDeExpediente(java.util.UUID·usuarioId)·{
+          -········return·AmbitoArchivo.IDENTIDAD.prefijo()·+·"/"·+·deExpediente(usuarioId,·"x").carpeta()·+·"/";
+          +········return·AmbitoArchivo.IDENTIDAD.prefijo()·+·"/"
+          +················+·deExpediente(usuarioId,·"x").carpeta()·+·"/";
+           ····}
+           
+           ····/**·El·reparto·viejo·por·fecha,·para·lo·que·no·pertenece·a·nadie·en·particular.·*/
+      src\test\java\bo\aportaya\plataforma\archivos\DestinoDeObjetoTest.java
+          @@ -58,7 +58,8 @@
+           ····void·claveLegible()·{
+           ········var·destino·=·DestinoDeObjeto.deExpediente(USUARIO,·"ANVERSO");
+           ········var·clave·=·ClaveObjeto.de("s3://%s/%s/%s-%s.jpg"
+          -················.formatted(AmbitoArchivo.IDENTIDAD.prefijo(),·destino.carpeta(),·destino.etiqueta(),·UUID.randomUUID()));
+          +················.formatted(
+          +························AmbitoArchivo.IDENTIDAD.prefijo(),·destino.carpeta(),·destino.etiqueta(),·UUID.randomUUID()));
+           ········assertThat(clave.ruta()).startsWith("identidad/"·+·USUARIO·+·"/anverso-");
+           ····}
+           }
+  Run 'gradlew.bat :plataforma:comun-archivos:spotlessApply' to fix these violations.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1m 19s
+50 actionable tasks: 49 executed, 1 from cache
+exit=1

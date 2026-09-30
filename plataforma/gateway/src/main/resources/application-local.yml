@@ -1,0 +1,11 @@
+# H3.S2: origenes de CORS para desarrollo local.
+#
+# `ng serve` (apps/web y apps/backoffice, package.json) no fija un --port
+# distinto para cada uno: los dos usan el default de Angular CLI, 4200. Solo
+# uno corre a la vez en una maquina de desarrollo normal, asi que un unico
+# origen local alcanza. Si el equipo decide correr los dos juntos, hace falta
+# fijarles puertos distintos en angular.json — eso es un cambio de los
+# carriles de frontend, no de este.
+aportaya:
+  cors:
+    origenes: http://localhost:4200

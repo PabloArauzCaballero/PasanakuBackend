@@ -1,0 +1,29 @@
+{
+  "servicio": "identidad",
+  "operacion": "verContenidoDeFoto",
+  "metodo": "get",
+  "ruta": "/identidad/verificaciones/{verificacionId}/fotos/{cara}/contenido",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": null
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": null
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": null
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

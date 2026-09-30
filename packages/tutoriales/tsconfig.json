@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM"],
+    "types": ["node", "vitest/globals"],
+    // Sin `rootDir`: a diferencia de `dominio-cliente`, este package importa
+    // `@aportaya/ui/*` por alias (`tsconfig.base.json`) hacia `packages/ui/src/`, que
+    // queda FUERA de cualquier `rootDir` fijado a `.`. Con `noEmit: true` (heredado
+    // de la base) `rootDir` no cumple ningún rol para un typecheck puro -- solo
+    // ordena la salida de un build que acá no existe.
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
+    // `tsconfig.base.json` (raíz, fuera de mi alcance en este carril) declara
+    // `baseUrl`, que TypeScript 6 marca deprecado (TS5101). Este package es el
+    // primero en typechequearse SOLO con `typescript: ~6.0.2` (antes lo hacían
+    // backoffice/web, que arrastran esta misma base) -- se silencia acá, sin tocar
+    // el archivo compartido, hasta que alguien migre `paths`/`baseUrl` del repo
+    // entero a rutas relativas o a `imports` del `package.json`.
+    "ignoreDeprecations": "6.0"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}

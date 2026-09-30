@@ -115,6 +115,65 @@ producen cinco estilos.
 | **Seguridad** (1) | `seguridad-aplicacion` |
 | **Cierre** (4) | `revision-codigo` · `git-flujo` · `definicion-de-terminado` · `observabilidad` |
 
+### Las 194 del estándar de la casa (transversales, cualquier carril)
+
+Se suman a las de arriba el 2026-09-21, al instalar `.claude/hooks` + `.claude/rules` +
+`.claude/skills` del repo `PasanakuPromptManager` (regla 10 de ese repo, "instalación del
+estándar", primer paso del encargo `PR5-Ci.Operacion`). No son de un carril: son generales
+(testing, seguridad, frontend, observabilidad, gestión del propio trabajo) y **cualquier**
+carril las carga si su tarea coincide, igual que `arrancar-carril`. El detalle de cada una
+está en `.claude/skills/README.md` § "Estándar de la casa".
+
+`accessibility-testing` · `accounting-double-entry` · `agent-orchestration` · `agent-resource-control` · `aml-sanctions-screening` · `angular-development` · `angular-forms` · `angular-signals-state`
+
+`angular-ssr-hydration` · `angular-testing` · `anti-hallucination-guard` · `api-gateway-bff` · `api-openapi-docs` · `api-pentest` · `api-testing` · `astro-development`
+
+`async-messaging-events` · `atomic-design-components` · `audit-trail-history` · `auth-session-pentest` · `authn-identity` · `authz-access-control` · `backend-development` · `backend-observability`
+
+`background-jobs-scheduling` · `backup-restore-dr` · `bug-reporting-standard` · `caching-strategy` · `ci-cd-pipeline` · `claude-md-authoring` · `clean-code` · `code-complexity-metrics`
+
+`code-efficiency` · `code-quality-audit` · `code-quality-gates` · `code-review-standard` · `collections-delinquency` · `color-systems` · `component-architecture-solid` · `concurrency-and-locking`
+
+`consent-management` · `content-moderation-abuse` · `context-thrift` · `contribution-calendar` · `coolify-databases-backups` · `coolify-deployment` · `coolify-operations` · `css-architecture`
+
+`dashboard-data-ui` · `data-modeling-plantuml` · `data-privacy-financial` · `data-quality-validation` · `database-design` · `dead-code-duplication` · `dependency-management` · `deployment-verification-smoke`
+
+`disbursement-payouts` · `dispute-resolution` · `distributed-data-integrity` · `distributed-tracing-correlation` · `docker-local-stack` · `dockerfile-production` · `e2e-failure-triage` · `e2e-playwright`
+
+`edge-case-data-catalog` · `environment-secrets-config` · `error-handling-contract` · `eventual-consistency-read-models` · `evidence-and-verification` · `exploratory-testing` · `factual-discovery` · `file-uploads-media`
+
+`financial-close-reporting` · `finish-your-turn` · `flutter-development` · `flutter-state-architecture` · `flutter-testing` · `flutter-theming` · `frontend-accessibility` · `frontend-beautiful-ui`
+
+`frontend-data-access` · `frontend-data-tables` · `frontend-design-system` · `frontend-error-monitoring` · `frontend-forms-ux` · `frontend-i18n-l10n` · `frontend-motion` · `frontend-navigation-ia`
+
+`frontend-performance` · `frontend-responsive-layout` · `frontend-security` · `frontend-ui-design` · `frontend-ux-states` · `git-workflow-multirepo` · `github-actions-ci` · `github-branch-protection-rulesets`
+
+`github-cli-automation` · `github-issues-projects` · `github-multirepo-coordination` · `github-pull-requests` · `github-releases-versioning` · `github-repo-standards` · `github-security-features` · `group-discovery-matching`
+
+`guarantee-fund-workflows` · `hooks-and-guardrails` · `iconography-imagery` · `incident-response-postmortem` · `integrity-testing` · `kyc-identity-verification` · `lane-authoring` · `maps-geolocation`
+
+`microservices-architecture` · `microservices-deployment` · `microservices-testing` · `mikroorm-patterns` · `milestone-planning` · `mobile-offline-sync` · `mobile-release-security` · `mobile-ux-design`
+
+`model-driven-schema` · `money-movement-safety` · `multi-tenancy` · `native-code-patterns` · `nestjs-development` · `notifications-delivery` · `outcome-first` · `payment-reconciliation`
+
+`payments-qr-integration` · `pentest-methodology` · `pentest-recon-mapping` · `pentest-reporting-remediation` · `performance-load-testing` · `postgresql-advanced` · `progress-reporting` · `prompt-engineering`
+
+`prompt-evals` · `prompt-governance-versioning` · `python-tooling-standards` · `qa-evidence-reporting` · `qa-orchestration` · `qa-strategy` · `rationalization-guard` · `realtime-websockets`
+
+`refactoring-safely` · `regression-suite-management` · `regulatory-compliance-mapping` · `release-and-rollback` · `requirements-and-acceptance` · `resilience-patterns` · `root-cause-debugging` · `rosca-group-lifecycle`
+
+`saga-distributed-transactions` · `scope-discipline` · `search-and-filtering` · `secure-code-review` · `security-guardrails` · `security-testing` · `seed-data-catalogs` · `seo-public-pages`
+
+`server-hardening` · `service-communication-patterns` · `service-contracts-versioning` · `service-to-service-security` · `skill-authoring` · `skills-router` · `smart-dumb-components` · `solid-principles`
+
+`state-machines-workflows` · `static-analysis-linting` · `subagent-design` · `synthetic-test-data-generation` · `technical-debt-management` · `technical-docs-and-adr` · `terminology-value-sets` · `test-case-design-techniques`
+
+`test-data-management` · `test-plan-authoring` · `threat-modeling` · `transparency-reputation` · `typescript-standards` · `typography-systems` · `uat-acceptance-signoff` · `ui-quality-review`
+
+`unit-testing` · `ux-clarity-usability` · `ux-writing-microcopy` · `vertical-slicing` · `visual-hierarchy-composition` · `visual-proof` · `visual-regression-testing` · `web-app-pentest`
+
+`windows-dev-environment` · `work-report-md`
+
 ### Y las propias de cada carril
 
 Se suman a las anteriores. **Esta tabla es normativa**: un carril que no cargó las

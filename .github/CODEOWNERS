@@ -1,0 +1,49 @@
+# CODEOWNERS — unión de H2.S5.M1 (dev) y H5.S4.M1 / PR13-Ci.Frontend (leo/frontend/ci).
+#
+# Dueños reales de cada área sensible (regla 90.1 — controles obligatorios en
+# cambios sensibles). Los cinco puestos del turno son Richard, Justin, Leo,
+# Marcelo y Pablo, pero solo Pablo (@PabloArauzCaballero) y Richard
+# (@richardparra99) tienen commits reales en este repo hasta ahora (`git log
+# --all --format='%an <%ae>'`, 2026-09-21): son los únicos usuarios de GitHub
+# verificados. Justin, Leo y Marcelo todavía no aparecen con un handle real
+# — asignarles uno inventado violaría la regla 00 (anti-invención) y podría
+# enrutar una revisión de un área de dinero al usuario equivocado.
+#
+# Hasta que el equipo confirme los tres handles que faltan (DECISION_REQUIRED,
+# ver docs/auditoria-produccion/carriles/PR5-ci-operacion.md), Pablo queda como
+# dueño provisional de TODO lo sensible: es peor que el dueño real, pero mejor
+# que un nombre que no existe (CODEOWNERS con un usuario inválido rompe la
+# validación por completo, no solo esa fila).
+#
+# ORDEN: GitHub usa el ÚLTIMO patrón que matchea, no el más específico ni el
+# primero. Por eso las reglas generales van ARRIBA y las específicas ABAJO.
+#
+# NOTA DE LA RESOLUCIÓN DEL MERGE (2026-09-22): la rama `leo/frontend/ci` traía
+# las rutas de frontend y despliegue SIN dueño. Una línea sin dueño es sintaxis
+# válida y significa "esta ruta no requiere revisión de nadie", de modo que su
+# versión de `/.github/workflows/`, al quedar después, habría BORRADO el dueño
+# que `dev` puso sobre los workflows. Se conservó una sola línea de workflows,
+# la de `dev`, con dueño; y a las rutas de frontend de `leo` se les aplicó el
+# mismo criterio de dueño provisional que `dev` ya documenta arriba, en vez de
+# dejarlas sin dueño. Ninguna regla de ninguno de los dos lados se perdió.
+
+# --- Backend sensible (dev) ---
+/sql/                         @PabloArauzCaballero
+/servicios/nucleo-financiero/ @PabloArauzCaballero
+/servicios/identidad/         @PabloArauzCaballero
+/servicios/cumplimiento/      @PabloArauzCaballero
+/plataforma/comun-web/        @PabloArauzCaballero
+/plataforma/comun-mensajeria/ @PabloArauzCaballero
+
+# --- Sesión / autenticación en los dos front (leo/frontend/ci) ---
+apps/backoffice/src/app/nucleo/gateway.ts @PabloArauzCaballero
+apps/web/src/app/nucleo/gateway.ts        @PabloArauzCaballero
+
+# --- Despliegue: nginx, Docker, k8s generado (leo/frontend/ci) ---
+/despliegue/              @PabloArauzCaballero
+apps/backoffice/docker/   @PabloArauzCaballero
+apps/web/docker/          @PabloArauzCaballero
+
+# --- Workflows de CI/CD: quien fundó el repo (Pablo) es aprobador permanente
+# de cualquier cambio a los workflows, sin importar qué carril esté activo. ---
+/.github/workflows/       @PabloArauzCaballero

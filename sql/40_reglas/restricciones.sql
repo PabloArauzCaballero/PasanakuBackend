@@ -1257,7 +1257,18 @@ DECLARE
       'instrumento_fondeo','respuesta_idempotente','reclamo_cliente',
       'solicitud_datos_personales','notificacion','aceptacion_contrato',
       'datos_facturacion','canal_vinculado','bandeja_entrada',
-      'certificado_reputacion','insignia_otorgada','declaracion_origen_fondos'];
+      'certificado_reputacion','insignia_otorgada','declaracion_origen_fondos',
+      -- H4.S2.M5 (carril PR2, nucleo-financiero) · hallazgo critico verificado
+      -- contra PostgreSQL real con el rol de produccion (svc_nucleo_financiero,
+      -- NO el rol dueño que usan las pruebas — ese bypasea RLS siempre y por
+      -- eso esto quedo invisible hasta ahora): sin estas dos, CU-10 y CU-11
+      -- (recargar y retirar saldo, las dos operaciones centrales del servicio)
+      -- no podian ni CREAR su propia orden bajo una sesion PARTICIPANTE real —
+      -- "denegar por omision" les aplicaba TAMBIEN al titular, no solo a un
+      -- tercero. `AutorizacionNegativaTest` (SET ROLE svc_nucleo_financiero +
+      -- app.usuario_id real) lo confirma: sin este cambio, ni el ATACANTE ni
+      -- el DUEÑO ven la orden. Con el cambio, el dueño si, el atacante no.
+      'orden_retiro','orden_recarga'];
   cond TEXT;
 BEGIN
   -- Se recorren TODOS los esquemas de servicio, no `public`. Decia
@@ -1360,11 +1371,16 @@ ALTER TABLE reporte_regulatorio
 -- sin segregación exigible: `requiere_doble_aprobacion` existía sin ninguna
 -- restricción que lo hiciera valer, y la tabla ni siquiera guardaba quién había
 -- solicitado la orden, así que no había con qué comparar al aprobador.
+--
+-- H3.S1 (carril PR2): EN_REVISION se agrega a la lista de "todavía sin
+-- aprobar" — es el estado explícito que la aplicación usa mientras espera al
+-- segundo aprobador (antes de H3 esa espera se confundía con PENDIENTE, el
+-- mismo estado que usa un retiro que ni siquiera necesita doble aprobación).
 ALTER TABLE orden_retiro DROP CONSTRAINT IF EXISTS ck_retiro_doble_aprobacion;
 ALTER TABLE orden_retiro
   ADD CONSTRAINT ck_retiro_doble_aprobacion CHECK (
       NOT requiere_doble_aprobacion
-   OR estado IN ('BORRADOR','PENDIENTE','RECHAZADA')
+   OR estado IN ('BORRADOR','PENDIENTE','EN_REVISION','RECHAZADA')
    OR (aprobada_por IS NOT NULL AND aprobada_por <> solicitada_por)
   );
 
@@ -1843,6 +1859,11 @@ ALTER TABLE invitacion
 CREATE UNIQUE INDEX IF NOT EXISTS uq_invitacion_activa
   ON invitacion (grupo_id, telefono_invitado)
   WHERE (estado = 'ENVIADA');
+
+-- Dos rutas de ingreso simultáneas no pueden crear dos membresías vigentes.
+CREATE UNIQUE INDEX IF NOT EXISTS uq_participante_vigente_grupo_usuario
+  ON participante (grupo_id, usuario_id)
+  WHERE estado NOT IN ('RETIRADO', 'EXPULSADO', 'REEMPLAZADO');
 
 -- R-GRP-16 · calendario de días no hábiles sin duplicados ni ámbitos incompletos
 ALTER TABLE dia_no_habil DROP CONSTRAINT IF EXISTS ck_dia_no_habil_ambito;
@@ -2794,4 +2815,3 @@ CREATE INDEX IF NOT EXISTS ix_operelev_periodo ON registro_operacion_relevante (
   WHERE NOT exento;
 CREATE INDEX IF NOT EXISTS ix_operelev_usuario_fecha
   ON registro_operacion_relevante (usuario_id, fecha_operacion DESC);
-

@@ -70,7 +70,7 @@ void main() {
           AlmacenDeProgresoSeguro(AlmacenEnMemoria()),
         ),
         registroDeTutorialesProvider.overrideWithValue(
-          RegistroDeTutoriales(const [_tutorial], const {}),
+          const RegistroDeTutoriales([_tutorial], {}),
         ),
       ],
     );

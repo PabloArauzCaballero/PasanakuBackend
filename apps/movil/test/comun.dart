@@ -25,11 +25,18 @@ class AlmacenEnMemoria implements AlmacenSeguro {
   Future<void> borrar(String clave) async => _datos.remove(clave);
 }
 
+/// La base para el Dio de pruebas — nunca `baseDelGateway`: en `flutter test` no hay
+/// `--dart-define=API=...`, así que `baseDelGateway` es `null` a propósito (H3.S3.M2:
+/// sin el define, no hay URL por omisión). El adaptador de acá abajo es simulado y
+/// nunca hace una petición real, así que el valor exacto no importa — solo que sea
+/// una URL válida para que `Dio` no se queje al construirse.
+const String _baseDePrueba = 'https://pruebas.aportaya.bo/api/v1';
+
 /// Un Dio con adaptador simulado y los MISMOS interceptores que la app real.
 ({Dio dio, DioAdapter adaptador}) dioSimulado() {
   final dio = Dio(
     BaseOptions(
-      baseUrl: baseDelGateway,
+      baseUrl: _baseDePrueba,
       headers: {'Accept': 'application/json'},
     ),
   );

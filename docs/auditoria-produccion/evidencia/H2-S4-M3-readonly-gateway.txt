@@ -1,0 +1,2 @@
+healthy readonly=true
+2026-09-22T03:33:33.887Z  INFO 1 --- [gateway] [           main] [                                                 ] i.n.util.internal.NativeLibraryLoader    : /tmp/libnetty_transport_native_epoll_x86_647907652184528897688.so exists but cannot be executed even when execute permissions set; check volume for "noexec" flag; use -Dio.netty.native.workdir=[path] to set native working directory separately.

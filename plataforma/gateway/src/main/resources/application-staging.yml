@@ -1,0 +1,15 @@
+# H3.S2: DECISION_REQUIRED — no existe todavia un dominio de staging declarado
+# en ningun documento del repo (verificado: ni despliegue/, ni docs/Arquitectura/).
+# Inventar uno violaria la regla 00 (anti-invencion). Se lee de una variable de
+# entorno sin default: GuardiaDeProduccion (H3.S2, Leo, carril PR3) tiene que
+# rechazar el arranque en `staging`/`production` si esto llega vacio o en "*" —
+# mismo criterio que AMB-12 (perfiles no locales = fail closed).
+aportaya:
+  cors:
+    # Default vacio (":" sin nada detras) a proposito: sin el, Spring falla en
+    # la RESOLUCION del placeholder con un error generico ("no se pudo
+    # resolver"), antes de que la guarda propia de ConfiguracionCors llegue a
+    # correr y explique QUE falta y por que no arranca. Con el default vacio,
+    # la guarda es la que corta el arranque, con el mensaje util. Verificado
+    # corriendo el contenedor sin la variable.
+    origenes: ${APORTAYA_CORS_ORIGENES:}

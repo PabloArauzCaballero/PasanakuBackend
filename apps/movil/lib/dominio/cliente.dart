@@ -1,32 +1,69 @@
 import 'dart:math';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../dominio/errores.dart';
 import '../proveedores/sesion.dart';
+import 'configuracion.dart';
 
 /// **Una sola base URL: el gateway.** El prefijo enruta al servicio; la app no
 /// conoce catorce direcciones.
 ///
-/// Por omisión apunta al **backend de verdad** en la máquina de desarrollo: NGINX
-/// publica el 80, y el gateway enruta `/api/v1/<prefijo>` al servicio que reservó ese
-/// prefijo. Antes apuntaba a Prism, el simulado, y con eso la app «funcionaba» sin
-/// que existiera un backend detrás: cualquier celular y cualquier contraseña entraban.
+/// **Ya no hay valor por omisión** (H3.S3.M2 / H5.S3.M2): tenía
+/// `http://localhost/api/v1`, y en un build de release sin
+/// `--dart-define=API=...` ese valor es **el propio teléfono de quien instaló la
+/// app** — el mismo hallazgo que los `gateway.ts` de backoffice y web. Ahora, sin el
+/// define, `resultadoGateway.valida` es `false` y no hay URL: `main.dart` muestra la
+/// pantalla de bloqueo (`pantallas/arranque/pantalla_configuracion_invalida.dart`) en
+/// vez de construir `AppAportaYa`, así que `dioProvider` nunca llega a leerse
+/// (Riverpod es perezoso: un provider que nadie lee, no se crea).
 ///
-/// El simulado sigue disponible para pruebas de contrato, pero hay que pedirlo:
+/// El simulado (Prism) sigue disponible para pruebas de contrato en debug/profile:
 /// `--dart-define=API=http://localhost:4010/api/v1`. Desde el emulador de Android la
-/// máquina es `10.0.2.2`; desde un teléfono real, la IP de la red local.
-const String baseDelGateway = String.fromEnvironment(
-  'API',
-  defaultValue: 'http://localhost/api/v1',
+/// máquina anfitriona es `10.0.2.2`; desde un teléfono real, la IP de la red local —
+/// ver `entregables/defines-por-plataforma.md`.
+const String _apiCruda = String.fromEnvironment('API');
+
+/// Los hosts propios compilados (D-A6, Q-J4): infra los carga en el despliegue con
+/// `--dart-define=HOSTS_PERMITIDOS=api.aportaya.bo,otro.host`. Vacío en debug: ahí
+/// `validarGateway` admite loopback sin necesitar la lista.
+const String _hostsPermitidosCrudo = String.fromEnvironment('HOSTS_PERMITIDOS');
+
+final List<String> hostsPermitidosGateway = _hostsPermitidosCrudo.isEmpty
+    ? const []
+    : _hostsPermitidosCrudo.split(',');
+
+/// El resultado completo de validar la configuración de arranque — `main.dart` lo lee
+/// antes de decidir si construye `AppAportaYa` o la pantalla de bloqueo.
+final ResultadoValidacionGateway resultadoGateway = validarGateway(
+  _apiCruda.isEmpty ? null : _apiCruda,
+  release: kReleaseMode,
+  hostsPermitidos: hostsPermitidosGateway,
 );
 
+/// `null` cuando la configuración es inválida — nunca un valor por omisión que apunte
+/// a algún host.
+String? get baseDelGateway => resultadoGateway.url;
+
 /// La única salida a la red de la app. Ningún widget crea un `Dio`.
+///
+/// Si `baseDelGateway` es `null` este provider no debería leerse nunca: `main.dart`
+/// ya cortó antes de construir el árbol que lo necesita. Si por algún camino nuevo
+/// se leyera igual, lanza en vez de crear un cliente apuntando a ningún lado —
+/// fail-fast, no un cliente roto en silencio.
 final dioProvider = Provider<Dio>((ref) {
+  final base = baseDelGateway;
+  if (base == null) {
+    throw StateError(
+      'dioProvider leído con configuración de gateway inválida '
+      '(${resultadoGateway.motivo}). No se crea el cliente HTTP.',
+    );
+  }
   final dio = Dio(
     BaseOptions(
-      baseUrl: baseDelGateway,
+      baseUrl: base,
       connectTimeout: const Duration(seconds: 8),
       receiveTimeout: const Duration(seconds: 12),
       headers: {'Accept': 'application/json'},

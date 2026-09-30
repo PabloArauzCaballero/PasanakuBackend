@@ -73,6 +73,12 @@ CREATE INDEX IF NOT EXISTS ix_instrumento_fondeo_usuario_id
 CREATE UNIQUE INDEX IF NOT EXISTS uq_instrumento_fondeo_usuario_id_hash_identificador
   ON nucleo_financiero.instrumento_fondeo (usuario_id, hash_identificador);
 
+CREATE UNIQUE INDEX IF NOT EXISTS uq_evidencia_mfa_consumida_jti
+  ON nucleo_financiero.evidencia_mfa_consumida (jti);
+
+CREATE INDEX IF NOT EXISTS ix_evidencia_mfa_consumida_usuario_id
+  ON nucleo_financiero.evidencia_mfa_consumida (usuario_id);
+
 CREATE INDEX IF NOT EXISTS ix_orden_recarga_cuenta_billetera_id
   ON nucleo_financiero.orden_recarga (cuenta_billetera_id);
 

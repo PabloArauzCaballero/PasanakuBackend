@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core'
 import { CampoMonto } from '@aportaya/ui/campo-monto/campo-monto'
 import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
 import { GrupoRadio } from '@aportaya/ui/grupo-radio/grupo-radio'
@@ -26,6 +26,7 @@ import { textosContabilidad } from '../textos'
       [textoDeConfirmar]="t.pagar + ' de ' + factura().numeroFactura"
       [cargando]="enviando()"
       [abierto]="abierto()"
+      [hayCambiosSinGuardar]="hayCambiosSinGuardar()"
       (abiertoChange)="cambiarApertura($event)"
       (confirmar)="confirmar()"
       (cancelar)="cambiarApertura(false)"
@@ -35,12 +36,16 @@ import { textosContabilidad } from '../textos'
         {{ t.saldoPendiente }}:
         <ap-monto [monto]="factura().saldoPendiente.monto" [moneda]="factura().saldoPendiente.moneda" [etiqueta]="t.saldoPendiente" />
       </p>
+      @if (entidadCambioConBorradorSucio()) {
+        <p class="aviso-entidad" role="alert">Esta factura cambió mientras editabas. Tu borrador no se perdió, pero no se puede guardar contra los datos anteriores: cerrá y volvé a abrir para continuar.</p>
+      }
       <ap-campo-monto [etiqueta]="'Monto a pagar'" [(valor)]="monto" [error]="errorDeMonto()" />
       <ap-grupo-radio nombre="forma-de-pago" etiqueta="Forma de pago" [opciones]="formas" [(elegido)]="forma" />
     </ap-dialogo>
   `,
   styles: `
     .saldo { display: flex; align-items: center; gap: var(--s2); color: var(--text-2); }
+    .aviso-entidad { color: var(--text); background: var(--surface-2); padding: var(--s3); border-radius: var(--r-md); }
   `,
 })
 export class FichaDeFactura {
@@ -58,10 +63,32 @@ export class FichaDeFactura {
     { valor: 'QR', texto: 'QR' },
   ]
   private readonly enviarPago = crearPagoDeFactura()
+  private readonly valorInicialDeForma = 'TRANSFERENCIA'
 
   protected readonly errorDeMonto = computed(() =>
     this.monto() && pagoExcedeElSaldo(this.factura(), this.monto()) ? 'El pago no puede exceder el saldo pendiente de la factura.' : undefined,
   )
+
+  /** Ver el mismo comentario en `ficha-de-cobro.ts`: candidato mínimo sin un `dirty` propio de campo. */
+  protected readonly hayCambiosSinGuardar = computed(() => this.monto() !== '' || this.forma() !== this.valorInicialDeForma)
+
+  // Q-L1 (rama conservadora, sin decisión de producto): ídem `ficha-de-cobro.ts`.
+  private readonly facturaAlAbrir = signal<FacturaDeProveedor | undefined>(undefined)
+  protected readonly entidadCambioConBorradorSucio = signal(false)
+
+  constructor() {
+    effect(() => {
+      const actual = this.factura()
+      const inicial = this.facturaAlAbrir()
+      if (inicial === undefined) {
+        this.facturaAlAbrir.set(actual)
+        return
+      }
+      if (actual.facturaProveedorId !== inicial.facturaProveedorId && this.hayCambiosSinGuardar()) {
+        this.entidadCambioConBorradorSucio.set(true)
+      }
+    })
+  }
 
   protected cambiarApertura(abierto: boolean): void {
     this.abierto.set(abierto)
@@ -69,7 +96,7 @@ export class FichaDeFactura {
   }
 
   protected confirmar(): void {
-    if (this.errorDeMonto() || !this.monto()) return
+    if (this.enviando() || this.entidadCambioConBorradorSucio() || this.errorDeMonto() || !this.monto()) return
     this.enviando.set(true)
     this.enviarPago(this.factura().facturaProveedorId, {
       monto: this.monto(),

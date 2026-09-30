@@ -115,6 +115,15 @@ tasks.named<Test>("test") {
         // sino porque cargar el contexto MVC no entra en los 5s de un atomo, y el
         // sintoma seria «timeout» en la primera clase de cada modulo.
         "**/*WebTest.class",
+        // troncal(corredores): nombres reservados del carril PR4-seguridad que
+        // tambien necesitan Testcontainers — ver el comentario en `integrationTest`.
+        "**/Libro*Test.class",
+        "**/AppendOnlyTest.class",
+        "**/AuditoriaCriticaTest.class",
+        "**/SegundoFactor*Test.class",
+        "**/Reconciliacion*Test.class",
+        "**/*ResilienciaTest.class",
+        "**/AutorizacionNegativaTest.class",
     )
     systemProperty("junit.jupiter.execution.timeout.default", "5s")
     testLogging {
@@ -184,9 +193,62 @@ corredor(
     // que el proceso ARRANCA —con su guardia, sus beans y su decodificador de token— y
     // no solo que las piezas compilan. Sin el, un servicio puede estar verde y no
     // levantar en el primer despliegue.
-    listOf("**/CU*Test.class", "**/*RepositorioTest.class", "**/Aislamiento*Test.class", "**/Arranque*Test.class"),
+    //
+    // troncal(corredores): los cuatro patrones de abajo son los nombres de test
+    // RESERVADOS del carril PR4-seguridad (Marcelo, Q-05 del encargo:
+    // `LibroInvariantesTest`, `LibroBenchmarkTest`, `AppendOnlyTest`,
+    // `AuditoriaCriticaTest` — `Aislamiento*Test` ya estaba). Sin esto ninguno corria
+    // bajo Testcontainers: `AuditoriaCriticaTest` caia en el corredor `test` (5s de
+    // timeout, sin contenedor) y fallaba por "timeout" sin que nada estuviera mal —
+    // exactamente el sintoma que este archivo ya documenta para el resto de los
+    // corredores. Cambio puramente aditivo: ningun patron existente se toca.
+    listOf(
+        "**/CU*Test.class",
+        "**/*RepositorioTest.class",
+        "**/Aislamiento*Test.class",
+        "**/Arranque*Test.class",
+        "**/Libro*Test.class",
+        "**/AppendOnlyTest.class",
+        "**/AuditoriaCriticaTest.class",
+        // H2 (carril PR2, nucleo-financiero): SegundoFactorStepUpTest extiende
+        // BaseDeBilletera (Testcontainers) pero no es un CU/Repositorio/Arranque —
+        // sin este patron cae en `test`, cuyo timeout de 5s por metodo (linea ~119)
+        // es para pruebas puras y no le alcanza a un @BeforeAll que arma un
+        // contenedor. Micro-PR de una linea, generalizable a cualquier
+        // SegundoFactor*Test futuro.
+        "**/SegundoFactor*Test.class",
+        // H4.S2.M3 (carril PR2, nucleo-financiero): mismo motivo exacto que
+        // SegundoFactor*Test arriba — ReconciliacionDeRetirosTest tambien extiende
+        // BaseDeBilletera y tampoco calza con CU/Repositorio/Arranque.
+        "**/Reconciliacion*Test.class",
+        // H4.S2.M4 (carril PR2, nucleo-financiero): pruebas de resiliencia
+        // (@Retry/@CircuitBreaker) que arrancan el contexto completo — mismo motivo,
+        // generalizable a cualquier *ResilienciaTest futuro de cualquier servicio.
+        "**/*ResilienciaTest.class",
+        // H4.S2.M5 (carril PR2, nucleo-financiero): IDOR contra PostgreSQL real
+        // (RLS) — mismo motivo, generalizable a cualquier AutorizacionNegativaTest
+        // futuro de cualquier servicio.
+        "**/AutorizacionNegativaTest.class",
+    ),
     "120s",
 )
+// `LibroBenchmarkTest` (H3.S2 del carril PR4-seguridad) mide, no verifica: 200
+// transferencias concurrentes en 3 corridas no tiene lugar en un gate que corre en
+// cada guardado. Se compila con el resto de `integrationTest` (para que un cambio
+// que lo rompa se note) pero se EXCLUYE de la ejecucion automatica; se corre a mano
+// con `./gradlew :servicios:nucleo-financiero:integrationTest --tests
+// '*LibroBenchmarkTest*'`.
+tasks.named<Test>("integrationTest") {
+    // `-PcorrerBenchmarks` es la unica forma de que la etiqueta "benchmark" corra:
+    // sin la propiedad, queda excluida (el gate normal); con ella, un humano pidio
+    // explicitamente medir. `./gradlew :servicios:nucleo-financiero:integrationTest
+    // --tests '*LibroBenchmarkTest*' -PcorrerBenchmarks`.
+    if (!project.hasProperty("correrBenchmarks")) {
+        useJUnitPlatform { excludeTags("benchmark") }
+    } else {
+        useJUnitPlatform()
+    }
+}
 // La capa web (ADR-043): el corte MVC con dobles del caso de uso. Sin contenedor y
 // sin base, asi que corre en la maquina de cualquiera y en cada guardado. Es donde se
 // prueban el estado HTTP, el JSON, la validacion del contrato, el manejador de errores

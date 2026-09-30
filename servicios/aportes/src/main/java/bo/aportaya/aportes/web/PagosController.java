@@ -1,5 +1,6 @@
 package bo.aportaya.aportes.web;
 
+import bo.aportaya.aportes.aplicacion.CU100RecibirWebhookPasarela;
 import bo.aportaya.aportes.aplicacion.CU19ReembolsarPago;
 import bo.aportaya.aportes.aplicacion.CU99EnrutarProveedor;
 import bo.aportaya.aportes.web.generado.PagosApi;
@@ -12,7 +13,9 @@ import bo.aportaya.aportes.web.generado.modelo.SalidaEjecucionReembolso;
 import bo.aportaya.aportes.web.generado.modelo.SalidaEnrutamiento;
 import bo.aportaya.aportes.web.generado.modelo.SalidaProveedor;
 import bo.aportaya.aportes.web.generado.modelo.SalidaReembolso;
+import bo.aportaya.aportes.web.generado.modelo.SalidaWebhook;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
+import bo.aportaya.plataforma.web.seguridad.Publico;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import java.math.BigDecimal;
@@ -21,17 +24,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Las paginas de {@code /pagos}: reembolsos, disputas y enrutado de proveedores. */
+/** Las paginas de {@code /pagos}: reembolsos, disputas, enrutado de proveedores y el webhook. */
 @RestController
 public class PagosController implements PagosApi {
 
     private final CU19ReembolsarPago cu19;
     private final CU99EnrutarProveedor cu99;
+    private final CU100RecibirWebhookPasarela cu100;
     private final SesionDeLaPeticion sesion;
 
-    public PagosController(CU19ReembolsarPago cu19, CU99EnrutarProveedor cu99, SesionDeLaPeticion sesion) {
+    public PagosController(
+            CU19ReembolsarPago cu19,
+            CU99EnrutarProveedor cu99,
+            CU100RecibirWebhookPasarela cu100,
+            SesionDeLaPeticion sesion) {
         this.cu19 = cu19;
         this.cu99 = cu99;
+        this.cu100 = cu100;
         this.sesion = sesion;
     }
 
@@ -136,6 +145,34 @@ public class PagosController implements PagosApi {
         respuesta.setClaveIdempotencia(salida.claveIdempotencia());
         respuesta.setEstadoAnteTimeout(SalidaEnrutamiento.EstadoAnteTimeoutEnum.fromValue(salida.estadoAnteTimeout()));
         respuesta.setPuedeConsultarEstado(salida.puedeConsultarEstado());
+        return ResponseEntity.ok(respuesta);
+    }
+
+    /**
+     * CU-100 · el webhook de la pasarela (Q-02, DECIDIDA 2026-09-21).
+     *
+     * <p>Publica a proposito: la pasarela no tiene una sesion nuestra. La firma
+     * HMAC-SHA256 y la ventana temporal son la autenticacion, y el caso de uso las
+     * verifica ANTES de leer una sola linea del cuerpo. Firma invalida, ventana
+     * vencida o proveedor sin soporte: {@code 401} generico, sin escribir nada.
+     */
+    @Override
+    @Publico("CU-100: la pasarela no tiene JWT nuestro; se autentica con HMAC-SHA256 + ventana (Q-02)")
+    public ResponseEntity<SalidaWebhook> recibirWebhookPasarela(
+            String proveedorCodigo, String xFirma, String xTimestamp, String body) {
+        var resultado =
+                cu100.recibir(new CU100RecibirWebhookPasarela.Entrada(proveedorCodigo, body, xFirma, xTimestamp));
+
+        if (resultado.estado() == CU100RecibirWebhookPasarela.Resultado.Estado.FIRMA_INVALIDA) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        var respuesta = new SalidaWebhook();
+        respuesta.setWebhookId(resultado.webhookId());
+        respuesta.setPagoId(resultado.pagoId());
+        respuesta.setMotivo(resultado.motivo());
+        respuesta.setEstado(
+                SalidaWebhook.EstadoEnum.fromValue(resultado.estado().name()));
         return ResponseEntity.ok(respuesta);
     }
 }

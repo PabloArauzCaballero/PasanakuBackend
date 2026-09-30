@@ -8,6 +8,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.kafka.KafkaContainer;
 
 /**
  * La PostgreSQL real de las pruebas de integracion, con el esquema de {@code sql/}
@@ -26,7 +27,23 @@ public final class BaseDePrueba {
     private static final String IMAGEN = "postgres:16";
     private static final String NOMBRE = "pasanaku";
 
+    // H2.S2.M2: version fijada, no "latest" — la clase org.testcontainers.kafka.KafkaContainer
+    // (no la org.testcontainers.containers.KafkaContainer vieja, basada en Confluent) se
+    // verifico con javap contra el jar real de testcontainers:kafka:1.21.3 antes de escribir,
+    // por indicacion explicita del encargo. La imagen es la oficial de Apache (no Confluent):
+    // publicada por el propio proyecto Kafka desde la serie 3.7.
+    //
+    // F-Leo-06 (2026-09-24): 3.8.1 y no 3.9.0. Kafka 3.9.0 exige (observado, ver abajo) que el listener
+    // CONTROLLER este anunciado cuando el nodo es broker+controller; KafkaContainer de
+    // testcontainers 1.21.x solo anuncia PLAINTEXT y BROKER, asi que 3.9.0 aborta al
+    // formatear ("advertised.listeners cannot use the nonroutable meta-address 0.0.0.0").
+    // Reproducido en Windows/Docker Desktop y en el runner Linux del CI (run 36042014583),
+    // y aislado con `docker run` a mano: la misma configuracion arranca en cuanto se
+    // anuncia CONTROLLER. No era un problema de la maquina.
+    private static final String IMAGEN_KAFKA = "apache/kafka:3.8.1";
+
     private static PostgreSQLContainer<?> contenedor;
+    private static KafkaContainer kafka;
 
     private BaseDePrueba() {}
 
@@ -36,6 +53,19 @@ public final class BaseDePrueba {
             contenedor = arrancar();
         }
         return contenedor;
+    }
+
+    /**
+     * El broker de Kafka compartido, real (no mockeado): H2 exige apagarlo a proposito para
+     * probar backoff/reinicio, y eso solo se puede hacer contra un broker de verdad
+     * (microservices-testing). Un solo contenedor por JVM, igual que {@link #contenedor()}.
+     */
+    public static synchronized KafkaContainer kafka() {
+        if (kafka == null) {
+            kafka = new KafkaContainer(IMAGEN_KAFKA);
+            kafka.start();
+        }
+        return kafka;
     }
 
     /** Una conexion como el rol dueno de la base. */
@@ -50,6 +80,10 @@ public final class BaseDePrueba {
                 .withDatabaseName(NOMBRE)
                 .withUsername(NOMBRE)
                 .withPassword(NOMBRE)
+                // CU12 prueba 50 reintentos simultaneos con conexiones directas; los
+                // contextos Spring del mismo corredor tambien mantienen conexiones.
+                // Es un maximo, no conexiones abiertas de antemano.
+                .withCommand("postgres", "-c", "max_connections=200")
                 .withFileSystemBind(repositorio.resolve("sql").toString(), "/repo/sql", BindMode.READ_ONLY)
                 // Cinco minutos para estar listo, no el minuto por omision. No es
                 // tolerancia a un contenedor lento: es que la maquina de desarrollo

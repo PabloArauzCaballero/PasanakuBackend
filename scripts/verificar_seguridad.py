@@ -25,6 +25,13 @@ Seis bloques:
   6 · CATÁLOGO vs ESPECIFICACIÓN permisos y canales que un CU exige y el catálogo no
                                  tiene todavía (AVISO: completarlos es decisión de
                                  seguridad, no de implementación)
+  7 · SQL CON ENTRADA DINÁMICA   `DSL.field`/`DSL.condition`/`.execute`/`String.format`
+                                 con SQL construido desde una variable, no un literal
+                                 (H2.S2.M2 del carril PR4-seguridad). Whitelist con el
+                                 comentario `// SQL-SEGURO: <por qué>` en la línea o la
+                                 anterior. FALLA en `servicios/aportes/**` y `scripts/`
+                                 (lo que este carril puede corregir); AVISO en el resto
+                                 (el fix es del dueño del servicio).
 """
 import argparse
 import pathlib
@@ -442,6 +449,69 @@ def bloque_6():
             ok("todo propósito de token tiene al menos un canal con adaptador activo")
 
 
+# --------------------------------------------------- 7 · SQL con entrada dinámica
+# `secure-code-review` §2: jOOQ es seguro mientras el SQL lo arma el DSL a partir de
+# METODOS tipados (`.eq()`, `.field("columna_literal", Tipo.class)`). El riesgo entra
+# cuando un fragmento de SQL crudo —un nombre de columna, una condición, una sentencia
+# completa— se arma con una VARIABLE en vez de un literal: si esa variable llega a
+# poder originarse en algo que el cliente mandó, es inyección; hoy o no, es el patrón
+# que un refactor descuidado convierte en inyección sin que nadie lo note.
+#
+# Solo `src/main/java`: un test que ejercita `rechazaLaBase(sql)` con SQL armado a
+# mano EXISTE para eso — provocar el rechazo de una restricción — y no es la entrada
+# de un usuario real (mismo criterio que `SinUmbralLiteral`, `sin-umbral-literal`).
+SQL_SEGURO = re.compile(r"//\s*SQL-SEGURO:")
+
+PATRONES_SQL_DINAMICO = [
+    # `DSL.field(` cuyo primer argumento NO es un literal entre comillas ni
+    # `DSL.name("...")` con literales: una variable ahí es un nombre de columna que
+    # decide el propio llamador, no el contrato del método.
+    (re.compile(r'DSL\.field\(\s*(?!")(?!DSL\.name\(\s*")[A-Za-z_]'), "DSL.field(variable) — nombre de columna dinámico"),
+    (re.compile(r"DSL\.condition\("), "DSL.condition(...) — condición SQL cruda"),
+    # `TransactionTemplate.execute(estado -> ...)`/`ExecutorService.execute(() -> ...)`
+    # NO son `dsl.execute(sql)`: son un callback (lambda), y de ahi la exclusion de
+    # `identificador ->` — encontrado corriendo esto contra el repo real
+    # (`TransaccionAparte.java:43`, un falso positivo real, no de un self-test).
+    (re.compile(r'\.execute\(\s*(?!\)|")(?!""")(?![A-Za-z_][A-Za-z0-9_]*\s*->)[A-Za-z_]'),
+     ".execute(variable) — sentencia SQL que no es un literal"),
+    (re.compile(r'String\.format\([^)]*\b(SELECT|INSERT|UPDATE|DELETE)\b', re.I), "String.format(...) construyendo SQL"),
+]
+
+
+def bloque_7():
+    print("\n=== 7 · SQL CON ENTRADA DINÁMICA (SQL-SEGURO) ===")
+    hallazgos = []
+    revisados = 0
+    for p in archivos({".java"}):
+        ruta_normalizada = str(p.relative_to(RAIZ)).replace("\\", "/")
+        if "/src/main/java/" not in ruta_normalizada:
+            continue
+        revisados += 1
+        lineas = p.read_text(encoding="utf-8", errors="ignore").splitlines()
+        for i, linea in enumerate(lineas):
+            for patron, motivo in PATRONES_SQL_DINAMICO:
+                if not patron.search(linea):
+                    continue
+                exenta = SQL_SEGURO.search(linea) or (i > 0 and SQL_SEGURO.search(lineas[i - 1]))
+                if exenta:
+                    continue
+                hallazgos.append((ruta_normalizada, i + 1, motivo))
+
+    bloquean = [h for h in hallazgos
+                if h[0].startswith("servicios/aportes/") or h[0].startswith("scripts/")]
+    pendientes = [h for h in hallazgos if h not in bloquean]
+
+    for ruta, linea, motivo in pendientes:
+        aviso(f"{ruta}:{linea} — {motivo} (fuera del alcance de este carril; dueño del servicio)")
+    for ruta, linea, motivo in bloquean:
+        falla(f"{ruta}:{linea} — {motivo} — agregá `// SQL-SEGURO: <por qué>` si es intencional")
+
+    if not hallazgos:
+        ok(f"{revisados} archivos de {' src/main/java'} sin SQL dinámico sin marcar")
+    else:
+        print(f"  ({revisados} archivos revisados; {len(bloquean)} bloquean, {len(pendientes)} son aviso)")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--estricto", action="store_true",
@@ -455,6 +525,7 @@ def main():
     bloque_4()
     bloque_5()
     bloque_6()
+    bloque_7()
 
     print()
     if errores:

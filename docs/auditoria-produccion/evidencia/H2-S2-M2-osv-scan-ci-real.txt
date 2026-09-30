@@ -1,0 +1,1 @@
+{"conclusion":"failure","html_url":"https://github.com/PabloArauzCaballero/PasanakuBackend/actions/runs/35684092440/job/106607124564","name":"Dependencias vulnerables (OSV-Scanner) / osv-scan"}

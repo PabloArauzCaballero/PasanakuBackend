@@ -80,6 +80,7 @@ GoRouter crearEnrutador({String inicial = '/portada'}) => GoRouter(
     // de tener sesión, y una barra de pestañas debajo de un formulario de acceso
     // ofrece destinos a los que todavía no se puede ir.
     ...rutasDeEntrada,
+    ...rutasDeInvitacion,
     ...rutasAlianzas,
     ...rutasNotificaciones,
   ],

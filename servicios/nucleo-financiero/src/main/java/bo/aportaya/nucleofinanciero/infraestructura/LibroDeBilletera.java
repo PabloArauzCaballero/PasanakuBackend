@@ -95,11 +95,35 @@ public class LibroDeBilletera {
         return id;
     }
 
-    /** R-BIL-06: la clave se ampara en el titular, nunca sola. */
-    public Optional<UUID> porClaveIdempotencia(DSLContext dsl, String clave) {
+    /**
+     * R-BIL-06: la clave se ampara en el titular, nunca sola.
+     *
+     * <p>El {@code WHERE} replica exactamente el {@code COALESCE} de {@code uq_tx_idem}
+     * (`sql/40_reglas/restricciones.sql:236-238`): la clave vive en el espacio de
+     * {@code (iniciada_por, origen_tipo)}, con el centinela para las operaciones sin
+     * usuario. Buscar solo por {@code clave_idempotencia} —como se hacia antes— hace que
+     * dos titulares distintos que coincidan en la clave compartan la misma transaccion:
+     * el segundo se queda con la orden del primero en vez de la suya.
+     */
+    private static final UUID CENTINELA_SIN_USUARIO = UUID.fromString("00000000-0000-0000-0000-000000000000");
+
+    public void bloquearIdempotencia(DSLContext dsl, Optional<UUID> iniciadaPor, String origenTipo, String clave) {
+        BloqueoDeIdempotencia.tomar(
+                dsl,
+                "transaccion_billetera",
+                iniciadaPor.orElse(CENTINELA_SIN_USUARIO).toString(),
+                origenTipo,
+                clave);
+    }
+
+    public Optional<UUID> porClaveIdempotencia(
+            DSLContext dsl, Optional<UUID> iniciadaPor, String origenTipo, String clave) {
         return Optional.ofNullable(dsl.select(DSL.field("id", UUID.class))
                 .from(DSL.table(DSL.name("nucleo_financiero", "transaccion_billetera")))
-                .where(DSL.field("clave_idempotencia").eq(clave))
+                .where(DSL.coalesce(DSL.field("iniciada_por", UUID.class), DSL.val(CENTINELA_SIN_USUARIO))
+                        .eq(iniciadaPor.orElse(CENTINELA_SIN_USUARIO)))
+                .and(DSL.field("origen_tipo", String.class).eq(origenTipo))
+                .and(DSL.field("clave_idempotencia").eq(clave))
                 .fetchOne(DSL.field("id", UUID.class)));
     }
 

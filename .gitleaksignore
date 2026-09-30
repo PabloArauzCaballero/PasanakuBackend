@@ -1,0 +1,23 @@
+# H2.S6.M1 (regla 90.3): sin este archivo, el paso "19b · escaneo de secretos"
+# de ci.yml (job imagenes) queda rojo para siempre por 4 hallazgos ya
+# clasificados como falsos positivos (evidencia/H5-gitleaks.txt, H1-S3): el
+# mismo UUID de ejemplo repetido en un fixture de datos simulados, no un
+# secreto real. Verificado leyendo el archivo: "token": "token" es literal, y
+# la ruta es packages/simulado/ejemplos/ (datos de muestra para documentar el
+# contrato, no credenciales). Formato de fingerprint verificado contra
+# github.com/gitleaks/gitleaks (commit-hash:file-path:rule-id:line) el
+# 2026-09-22. Encontrado en la corrida real de CI (workflow_dispatch,
+# run 35692294587) al ejercitar el job imagenes de punta a punta.
+f1130d9ebd8fec6b496e5a23cd143aeb87650a1a:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:10
+f1130d9ebd8fec6b496e5a23cd143aeb87650a1a:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:18
+f1130d9ebd8fec6b496e5a23cd143aeb87650a1a:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:26
+f1130d9ebd8fec6b496e5a23cd143aeb87650a1a:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:34
+# 2026-09-24 (carril PR5, cierre): el MISMO fixture y las mismas cuatro lineas,
+# reintroducido por el commit b2d91e7 (Richard/frontend/sesion, #18) al traer
+# main a dev. Mismo contenido literal ("tokenId": UUID de ejemplo, "token":
+# "token"), misma clasificacion: falso positivo. Encontrado en la corrida real
+# workflow_dispatch 36042014583 (paso 19b, 472 commits escaneados).
+b2d91e70e141cbbac48aa6e1e741be7127ef522b:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:10
+b2d91e70e141cbbac48aa6e1e741be7127ef522b:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:18
+b2d91e70e141cbbac48aa6e1e741be7127ef522b:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:26
+b2d91e70e141cbbac48aa6e1e741be7127ef522b:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:34

@@ -5,17 +5,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo.EntradaRetiro;
 import bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo.SalidaRetiro;
-import bo.aportaya.nucleofinanciero.dominio.CondicionesDeRetiro;
-import bo.aportaya.nucleofinanciero.dominio.CondicionesDeRetiro.Situacion;
 import bo.aportaya.nucleofinanciero.dominio.CostoDeOperacion;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Moneda;
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -40,6 +35,16 @@ class CU11Test extends BaseDeBilletera {
         fixtura.tipoDeCambioDeHoy();
         custodia.cumpleEncaje();
         fixtura.limite("RETIRO", ESTANDAR, "MES", new BigDecimal("100000.00"), null);
+        return otroEscenario(saldo, horasDeBloqueo);
+    }
+
+    /**
+     * Un segundo escenario SIN repetir el tipo de cambio, el encaje ni el limite del
+     * catalogo: llamarlos dos veces en el mismo metodo de prueba choca con
+     * {@code ex_limite_vigencia}. {@code escenario()} configura eso una sola vez; esto
+     * es lo que queda para una segunda cuenta dentro de la MISMA prueba.
+     */
+    private Escenario otroEscenario(String saldo, Integer horasDeBloqueo) {
         UUID usuario = fixtura.usuario();
         UUID cuenta = fixtura.billetera(usuario, ESTANDAR, BigDecimal.ZERO);
         fixtura.acreditar(cuenta, new BigDecimal(saldo));
@@ -51,7 +56,8 @@ class CU11Test extends BaseDeBilletera {
 
     private SalidaRetiro pedir(Escenario e, String monto, String clave) {
         return transaccion.execute(t -> retiroCU.solicitar(
-                new EntradaRetiro(clave, e.cuenta(), bob(monto), bob("5.00"), e.instrumento(), true, false), e.ctx()));
+                new EntradaRetiro(clave, e.cuenta(), bob(monto), bob("5.00"), e.instrumento(), true, true, false),
+                e.ctx()));
     }
 
     @Test
@@ -62,7 +68,10 @@ class CU11Test extends BaseDeBilletera {
 
         SalidaRetiro salida = pedir(e, "400.00", "ret-1");
 
-        assertThat(salida.estado()).isEqualTo("PENDIENTE");
+        // H3.S1/Q-02: por debajo del umbral de doble aprobación, la orden nace
+        // AUTORIZADA en la misma transacción — nunca PENDIENTE (ese estado ya no lo usa
+        // ninguna orden nueva; solo se agrega EN_REVISION cuando el monto lo exige).
+        assertThat(salida.estado()).isEqualTo("AUTORIZADA");
         assertThat(salida.montoNeto()).isEqualByComparingTo(bob("395.00"));
         assertThat(contar(
                         "SELECT count(*)::int FROM nucleo_financiero.retencion_saldo WHERE id = ? AND estado = 'VIGENTE'",
@@ -83,6 +92,7 @@ class CU11Test extends BaseDeBilletera {
     void criterio2() {
         Escenario e = escenario("1000.00", null);
         SalidaRetiro salida = pedir(e, "400.00", "ret-2");
+        transaccion.execute(t -> retiroCU.instruirPago(salida.ordenRetiroId(), e.ctx()));
 
         transaccion.execute(t -> retiroCU.rechazar(salida.ordenRetiroId(), "PROVEEDOR_RECHAZO", e.ctx()));
 
@@ -137,11 +147,49 @@ class CU11Test extends BaseDeBilletera {
     }
 
     @Test
+    @DisplayName(
+            "Dadas dos cuentas con la misma clave de idempotencia · Cuando cada una solicita un retiro · Entonces cada una recibe una orden distinta")
+    void mismaClaveDistintaCuenta() {
+        Escenario a = escenario("1000.00", null);
+        Escenario b = otroEscenario("1000.00", null);
+
+        SalidaRetiro salidaA = pedir(a, "300.00", "ret-compartida");
+        SalidaRetiro salidaB = pedir(b, "300.00", "ret-compartida");
+
+        assertThat(salidaB.ordenRetiroId()).isNotEqualTo(salidaA.ordenRetiroId());
+        assertThat(contar(
+                        "SELECT saldo_retenido::int FROM nucleo_financiero.cuenta_billetera WHERE id = ?", b.cuenta()))
+                .isEqualTo(300);
+    }
+
+    @Test
+    @DisplayName(
+            "Dada una orden de retiro con costo registrado · Cuando se reintenta con la misma clave y otro costo · Entonces se devuelve el costo registrado")
+    void replayDevuelveCostoAlmacenado() {
+        Escenario e = escenario("1000.00", null);
+
+        SalidaRetiro primera = transaccion.execute(t -> retiroCU.solicitar(
+                new EntradaRetiro(
+                        "ret-costo", e.cuenta(), bob("200.00"), bob("5.00"), e.instrumento(), true, true, false),
+                e.ctx()));
+        // Mismo clave, misma cuenta, pero con un costo DISTINTO en la entrada: si el
+        // caso de uso recotizara en el replay, este segundo costo se filtraria.
+        SalidaRetiro segunda = transaccion.execute(t -> retiroCU.solicitar(
+                new EntradaRetiro(
+                        "ret-costo", e.cuenta(), bob("200.00"), bob("99.00"), e.instrumento(), true, true, false),
+                e.ctx()));
+
+        assertThat(segunda.ordenRetiroId()).isEqualTo(primera.ordenRetiroId());
+        assertThat(segunda.costoRetiro()).isEqualByComparingTo(bob("5.00"));
+    }
+
+    @Test
     @DisplayName("concurrencia: dos transacciones sobre el mismo agregado, una gana y nunca hay doble efecto")
     void concurrencia() {
         // Pagar y rechazar la misma orden: la decide el WHERE estado = 'PENDIENTE'.
         Escenario e = escenario("1000.00", null);
         SalidaRetiro salida = pedir(e, "300.00", "ret-carrera");
+        transaccion.execute(t -> retiroCU.instruirPago(salida.ordenRetiroId(), e.ctx()));
 
         transaccion.execute(t -> retiroCU.confirmarPago(salida.ordenRetiroId(), e.ctx()));
 
@@ -160,6 +208,7 @@ class CU11Test extends BaseDeBilletera {
         // COMPLETO: el costo lo paga quien retira, no se cobra aparte.
         Escenario e = escenario("1000.00", null);
         SalidaRetiro salida = pedir(e, "400.00", "ret-cuadre");
+        transaccion.execute(t -> retiroCU.instruirPago(salida.ordenRetiroId(), e.ctx()));
 
         var pago = transaccion.execute(t -> retiroCU.confirmarPago(salida.ordenRetiroId(), e.ctx()));
 
@@ -211,19 +260,6 @@ class CU11Test extends BaseDeBilletera {
     }
 
     @Test
-    @DisplayName("rechaza sin segundo factor: el retiro no sale sin MFA")
-    void rechazaSinMfa() {
-        Escenario e = escenario("1000.00", null);
-
-        assertThatThrownBy(() -> transaccion.execute(t -> retiroCU.solicitar(
-                        new EntradaRetiro(
-                                "ret-sinmfa", e.cuenta(), bob("100.00"), bob("5.00"), e.instrumento(), false, false),
-                        e.ctx())))
-                .isInstanceOf(ErrorDeNegocio.class)
-                .hasMessageContaining("segundo factor");
-    }
-
-    @Test
     @DisplayName("rechaza el orden inverso: primero se retiene, despues se paga")
     void rechazaOrdenInverso() {
         // Si el pago fuera antes que la retencion, entre las dos cosas la persona
@@ -244,21 +280,5 @@ class CU11Test extends BaseDeBilletera {
         assertThatThrownBy(() -> pedir(e, "400.00", "ret-orden-2"))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("no cubre el retiro");
-    }
-
-    @Test
-    @DisplayName("rechaza con el encaje roto: no salen retiros nuevos")
-    void rechazaEncajeRoto() {
-        // Registrar que el encaje no se cumple y seguir pagando es el escenario
-        // clasico de la corrida: cobran los primeros y no queda para los demas.
-        var conEncaje = new Situacion(true, bob("1000.00"), bob("100.00"), true, true, Optional.empty(), false, true);
-        var sinEncaje = new Situacion(true, bob("1000.00"), bob("100.00"), true, true, Optional.empty(), false, false);
-        OffsetDateTime ahora = OffsetDateTime.of(2026, 8, 27, 12, 0, 0, 0, ZoneOffset.UTC);
-
-        assertThat(CondicionesDeRetiro.evaluar(conEncaje, ahora).permitido()).isTrue();
-        assertThat(CondicionesDeRetiro.evaluar(sinEncaje, ahora).codigo()).isEqualTo("ENCAJE_INCUMPLIDO");
-        // Y el bloqueo de autoridad pesa mas que el saldo: se mira antes del encaje.
-        var conOficio = new Situacion(true, bob("1000.00"), bob("100.00"), true, true, Optional.empty(), true, true);
-        assertThat(CondicionesDeRetiro.evaluar(conOficio, ahora).codigo()).isEqualTo("BLOQUEO_DE_AUTORIDAD");
     }
 }

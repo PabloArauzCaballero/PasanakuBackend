@@ -37,7 +37,8 @@
             ],
             "include": [
               "src/**/*.spec.ts"
-            ]
+            ],
+            "runnerConfig": true
           }
         },
         "lint": {

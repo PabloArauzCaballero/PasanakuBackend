@@ -6,9 +6,30 @@ plugins {
     id("aportaya.base")
     id("org.springframework.boot")
     id("io.spring.dependency-management")
+    id("org.cyclonedx.bom")
 }
 
 extensions.create<AportayaExtension>("aportaya")
+
+// H2.S2 (regla 90/98): el escaneo de dependencias real (OSV-Scanner) necesita un
+// lockfile por modulo desplegable para saber exactamente que version resolvio el
+// build, no solo el rango declarado en el catalogo. Se regenera con
+// `./gradlew dependencies --write-locks` y se commitea (docs.gradle.org/current/
+// userguide/dependency_locking.html, verificado contra Gradle 9.7 instalado).
+dependencyLocking {
+    lockAllConfigurations()
+}
+
+// H2.S3: SBOM CycloneDX por modulo desplegable, como artifact del CI. DSL
+// verificada contra el README de CycloneDX/cyclonedx-gradle-plugin ("Custom
+// task output", 2026-09-21): `jsonOutput` es un RegularFileProperty, no un
+// nombre — hay que darle la ruta completa. Sin esto el default es
+// build/reports/sbom/bom.json igual en los quince modulos, y el paso de CI que
+// junta los artifacts pisaria uno con otro.
+tasks.cyclonedxBom {
+    jsonOutput = layout.buildDirectory.file("reports/sbom/${project.name}-bom.json")
+    xmlOutput.convention(null as org.gradle.api.file.RegularFile?)
+}
 
 val catalogo = extensions.getByType<VersionCatalogsExtension>().named("libs")
 // El generador y la libreria de jOOQ tienen que ser la MISMA version: el codigo
@@ -16,6 +37,29 @@ val catalogo = extensions.getByType<VersionCatalogsExtension>().named("libs")
 // error aparece recien al compilar 300 clases generadas. Se sobrescribe la
 // propiedad del BOM de Spring Boot, que es donde vive la decision.
 extra["jooq.version"] = catalogo.findVersion("jooq").get().requiredVersion
+
+// Parches de seguridad posteriores al ultimo BOM OSS de Boot 3.5. Se mantienen
+// juntas las familias que Boot administra para no mezclar versiones incompatibles.
+extra["jackson-bom.version"] = "2.21.5"
+extra["tomcat.version"] = "10.1.60"
+extra["netty.version"] = "4.1.138.Final"
+extra["log4j2.version"] = "2.25.5"
+extra["postgresql.version"] = "42.7.12"
+extra["commons-lang3.version"] = "3.18.0"
+
+// Estas transitivas no las fija el BOM. Las restricciones no agregan paquetes a
+// modulos que no los usan; actualizan solamente los que ya llegan por otra via.
+dependencies {
+    constraints {
+        listOf("implementation", "testImplementation").forEach { alcance ->
+            add(alcance, "org.apache.commons:commons-compress:1.26.0")
+            add(alcance, "at.yawk.lz4:lz4-java:1.11.1")
+            add(alcance, "org.bouncycastle:bcprov-jdk18on:1.85.2")
+            add(alcance, "org.bouncycastle:bcpkix-jdk18on:1.85.2")
+            add(alcance, "org.bouncycastle:bcutil-jdk18on:1.85.2")
+        }
+    }
+}
 
 // El arnes de la capa web llega por la convencion y no por catorce lineas iguales en
 // catorce build.gradle.kts: ese es el archivo que un carril edita y que despues choca

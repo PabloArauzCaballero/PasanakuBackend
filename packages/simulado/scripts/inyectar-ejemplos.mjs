@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Escribe generado/prism/todos.yaml: los catorce contratos fusionados en UNO —Prism
-// sirve un documento por proceso— con los ejemplos de ejemplos/<servicio>/*.json
-// inyectados como `examples:` con nombre, que es lo que Prism sirve con
+// Escribe generado/prism/todos.yaml: los catorce contratos fusionados en UNO
+// para servirlos en un puerto, con los ejemplos de ejemplos/<servicio>/*.json
+// inyectados como `examples:` con nombre, que el simulado sirve con
 // `Prefer: example=<escenario>`. Los componentes se prefijan por servicio para que dos
 // `Error` no choquen. Un rechazo de 4xx entra como ejemplo de su codigo; `intermitente`
 // entra como 503 declarado en la copia (no en el contrato: el contrato no promete que el
@@ -39,8 +39,7 @@ const fusionado = { openapi: '3.1.0', info: { title: 'AportaYa · simulado', ver
 for (const archivo of readdirSync(GENERADO).filter((a) => a.endsWith('.json'))) {
   const servicio = archivo.replace(/\.json$/, '')
   const documento = JSON.parse(readFileSync(join(GENERADO, archivo), 'utf8'))
-  // Prism sirve en la raiz; el prefijo del gateway va en `servers` y Prism lo respeta
-  // si la peticion lo trae. Se deja el que declara el contrato.
+  // El prefijo del gateway se toma de `servers` en cada contrato.
   for (const operaciones of Object.values(documento.paths ?? {})) {
     for (const operacion of Object.values(operaciones)) {
       if (!operacion?.operationId) continue
@@ -68,8 +67,8 @@ for (const archivo of readdirSync(GENERADO).filter((a) => a.endsWith('.json'))) 
     }
   }
   const conPrefijo = prefijarRefs(documento, servicio)
-  // Prism no aplica un `servers.url` relativo: el prefijo del gateway (/api/v1) se
-  // escribe en cada ruta, y asi los tres clientes apuntan a http://localhost:4010/api/v1
+  // El prefijo del gateway (/api/v1) se escribe en cada ruta, y asi los tres clientes
+  // apuntan a http://localhost:4010/api/v1
   // igual que a produccion (una sola base URL, planes/10 §3).
   const prefijo = (conPrefijo.servers?.[0]?.url ?? '').replace(/\/$/, '')
   for (const [ruta, ops] of Object.entries(conPrefijo.paths ?? {})) {
@@ -84,4 +83,4 @@ for (const archivo of readdirSync(GENERADO).filter((a) => a.endsWith('.json'))) 
 }
 delete fusionado.servers
 writeFileSync(join(PRISM, 'todos.yaml'), stringify(fusionado), 'utf8')
-console.log(`prism: ${inyectados} ejemplos inyectados · ${Object.keys(fusionado.paths).length} rutas en generado/prism/todos.yaml`)
+console.log(`simulado: ${inyectados} ejemplos inyectados · ${Object.keys(fusionado.paths).length} rutas en generado/prism/todos.yaml`)

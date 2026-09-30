@@ -5,6 +5,8 @@ import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.ErrorDeDominio;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Moneda;
+import bo.aportaya.plataforma.web.idempotencia.IdempotenciaConflicto;
+import bo.aportaya.plataforma.web.idempotencia.IdempotenciaEnProceso;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.Publico;
 import jakarta.validation.Valid;
@@ -119,6 +121,18 @@ public class ControladorDeEnsayo {
     public Salida restriccionDesconocida() {
         throw new DataIntegrityViolationException(
                 "ERROR: null value in column \"columna_que_el_catalogo_no_conoce\" of relation \"tabla_secreta\"");
+    }
+
+    @GetMapping("/ensayo/idempotencia-conflicto")
+    @Permiso("BILLETERA_VER")
+    public Salida idempotenciaConflicto() {
+        throw new IdempotenciaConflicto();
+    }
+
+    @GetMapping("/ensayo/idempotencia-en-proceso")
+    @Permiso("BILLETERA_VER")
+    public Salida idempotenciaEnProceso() {
+        throw new IdempotenciaEnProceso();
     }
 
     @GetMapping("/ensayo/fallo-no-previsto")

@@ -9,6 +9,7 @@ import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
 import bo.aportaya.nucleofinanciero.dominio.puertos.CotizadorDeComision;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
 import bo.aportaya.nucleofinanciero.web.generado.BilleteraApi;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaAprobacionRetiro;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaBloqueo;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaCierre;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaCierreRetencion;
@@ -19,6 +20,7 @@ import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaReverso;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaTransferencia;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SaldoBilletera;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaAcreditacion;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaAprobacionRetiro;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaBloqueo;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaCierreBilletera;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaCierreRetencion;
@@ -28,8 +30,6 @@ import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaRetencion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaRetiro;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaReverso;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaTransferencia;
-import bo.aportaya.plataforma.dominio.CodigoError;
-import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
@@ -51,10 +51,8 @@ import org.springframework.web.bind.annotation.RestController;
  * llamadas de red, y una llamada de red dentro de la transaccion que mueve plata deja
  * el dinero bloqueado esperando a un tercero (invariante 6).
  *
- * <p>Cuando alguna de esas preguntas no obtiene respuesta, la operacion se rechaza. No
- * es prudencia de mas: cobrar cero porque {@code tarifas} no contesto es regalar plata,
- * y cerrar una billetera porque {@code aportes} no contesto traslada el aporte impago a
- * los otros del pasanaku.
+ * <p>Si alguna respuesta falta, la operacion se rechaza para evitar cobros o cierres
+ * con datos incompletos.
  */
 @RestController
 @Permiso("BILLETERA_OPERAR")
@@ -68,9 +66,7 @@ public class BilleteraController implements BilleteraApi {
     private final CU11RetirarSaldo cu11;
     private final MovimientosDeLaBilletera movimientos;
     private final ConsultarSaldo saldos;
-    private final CotizadorDeComision cotizador;
-    private final SegundoFactor segundoFactor;
-    private final BigDecimal desdeCuandoSonDosFirmas;
+    private final PreparacionDeRetiro preparacionDeRetiro;
     private final SesionDeLaPeticion sesion;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
@@ -95,9 +91,7 @@ public class BilleteraController implements BilleteraApi {
         this.cu11 = cu11;
         this.movimientos = movimientos;
         this.saldos = saldos;
-        this.cotizador = cotizador;
-        this.segundoFactor = segundoFactor;
-        this.desdeCuandoSonDosFirmas = desdeCuandoSonDosFirmas;
+        this.preparacionDeRetiro = new PreparacionDeRetiro(cotizador, segundoFactor, desdeCuandoSonDosFirmas);
         this.sesion = sesion;
     }
 
@@ -170,22 +164,9 @@ public class BilleteraController implements BilleteraApi {
     public ResponseEntity<SalidaRetiro> solicitarRetiro(UUID idempotencyKey, EntradaRetiro cuerpo) {
         Traza.marcarCasoDeUso("CU-11", cuerpo.getCuentaBilleteraId().toString());
 
-        var monto = MapeoDeBilletera.dinero(cuerpo.getMonto());
-        var costo = cotizador
-                .costoDe("RETIRO_ACREDITADO", cuerpo.getCuentaBilleteraId(), monto, idempotencyKey.toString())
-                .orElseThrow(() -> new ErrorDeNegocio(
-                        CodigoError.de(11, 1), "No se pudo cotizar el costo del retiro: intentalo de nuevo."));
-
-        var salida = cu11.solicitar(
-                new CU11RetirarSaldo.EntradaRetiro(
-                        idempotencyKey.toString(),
-                        cuerpo.getCuentaBilleteraId(),
-                        monto,
-                        costo,
-                        cuerpo.getInstrumentoDestinoId(),
-                        segundoFactor.verificado(sesion.actual().usuarioId(), cuerpo.getFactorMfa()),
-                        monto.monto().compareTo(desdeCuandoSonDosFirmas) >= 0),
-                sesion.actual());
+        var contexto = sesion.actual();
+        var entrada = preparacionDeRetiro.preparar(idempotencyKey, cuerpo, contexto);
+        var salida = cu11.solicitar(entrada, contexto);
 
         var respuesta = new SalidaRetiro();
         respuesta.setOrdenRetiroId(salida.ordenRetiroId());
@@ -194,6 +175,31 @@ public class BilleteraController implements BilleteraApi {
         respuesta.setMontoNeto(MapeoDeBilletera.dinero(salida.montoNeto()));
         respuesta.setRetencionId(salida.retencionId());
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+    }
+
+    /**
+     * H3.S2 (ADR-049) · aprobar o rechazar un retiro EN_REVISION.
+     *
+     * <p>{@code @Permiso("RETIRO_APROBAR")} es la primera linea de defensa
+     * (403 si falta); la segregacion solicitante != aprobador es la SEGUNDA, y vive
+     * en {@code CU11.aprobar}/{@code rechazarRevision} — no en el controlador, porque
+     * la base la exige igual y las dos tienen que decir lo mismo.
+     */
+    @Override
+    @Permiso("RETIRO_APROBAR")
+    public ResponseEntity<SalidaAprobacionRetiro> aprobarRetiro(
+            UUID ordenId, UUID idempotencyKey, EntradaAprobacionRetiro cuerpo) {
+        Traza.marcarCasoDeUso("CU-11", ordenId.toString());
+
+        var salida = cuerpo.getDesenlace() == EntradaAprobacionRetiro.DesenlaceEnum.AUTORIZADA
+                ? cu11.aprobar(ordenId, sesion.actual())
+                : cu11.rechazarRevision(ordenId, sesion.actual());
+
+        var respuesta = new SalidaAprobacionRetiro();
+        respuesta.setOrdenRetiroId(salida.ordenRetiroId());
+        respuesta.setEstado(SalidaAprobacionRetiro.EstadoEnum.fromValue(salida.estado()));
+        respuesta.setAprobadaPor(salida.aprobadaPor());
+        return ResponseEntity.ok(respuesta);
     }
 
     @Override

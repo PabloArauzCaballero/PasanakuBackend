@@ -1,0 +1,13 @@
+
+ RUN  v4.1.11 C:/Users/DELL/Documents/Github/Pasanaku/PasanakuFrontend
+
+(node:8564) [DEP0176] DeprecationWarning: fs.F_OK is deprecated, use fs.constants.F_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  02:56:07
+   Duration  119.25s (transform 247ms, setup 0ms, import 113.57s, tests 156ms, environment 2ms)
+
+
+[exited with code 0]

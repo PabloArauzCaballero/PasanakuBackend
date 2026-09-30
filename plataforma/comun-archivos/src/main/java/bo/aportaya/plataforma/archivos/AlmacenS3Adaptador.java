@@ -137,12 +137,7 @@ public class AlmacenS3Adaptador implements AlmacenDeArchivos {
      */
     private static ClaveObjeto nuevaClave(AmbitoArchivo ambito, DestinoDeObjeto destino, String tipo) {
         String ruta = "%s/%s/%s-%s%s"
-                .formatted(
-                        ambito.prefijo(),
-                        destino.carpeta(),
-                        destino.etiqueta(),
-                        UUID.randomUUID(),
-                        extension(tipo));
+                .formatted(ambito.prefijo(), destino.carpeta(), destino.etiqueta(), UUID.randomUUID(), extension(tipo));
         return new ClaveObjeto(ESQUEMA, ruta);
     }
 

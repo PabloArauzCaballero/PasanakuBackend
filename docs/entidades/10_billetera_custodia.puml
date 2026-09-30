@@ -256,6 +256,14 @@ package "Entrada y salida de dinero" {
     + puedeUsarse(): Boolean
   }
 
+  class EvidenciaMfaConsumida {
+    - id: UUID
+    - jti: UUID <<UQ, consumo de un solo uso del JWT de evidencia step-up>>
+    - usuarioId: UUID
+    - proposito: String <<RETIRO | CAMBIO_CUENTA | ADMIN>>
+    - consumidaEn: DateTime
+  }
+
   class OrdenRecarga <<AR>> {
     - id: UUID
     - cuentaBilleteraId: UUID
@@ -713,6 +721,15 @@ entity "instrumento_fondeo" as instr {
   metodo_verificacion : VARCHAR(20) <<NULL>>
   verificado_en : TIMESTAMPTZ <<NULL>>
   bloqueado_hasta : TIMESTAMPTZ <<NULL>>
+}
+
+entity "evidencia_mfa_consumida" as evidmfa {
+  * id : UUID <<PK>>
+  --
+  jti : UUID <<UQ, consumo de un solo uso>>
+  # usuario_id : UUID <<FK, IDX>>
+  proposito : VARCHAR(20) <<CK>>
+  consumida_en : TIMESTAMPTZ
 }
 
 entity "orden_recarga" as orecarga {

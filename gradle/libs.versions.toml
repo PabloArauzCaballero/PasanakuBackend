@@ -9,10 +9,10 @@
 # desincronizarse entre si.
 
 [versions]
-spring-boot        = "3.5.6"
+spring-boot        = "3.5.16"
 spring-dep-mgmt    = "1.1.7"
-spring-cloud       = "2025.0.0"
-minio              = "8.5.17"
+spring-cloud       = "2025.0.3"
+minio              = "8.6.0"
 shedlock           = "6.9.0"       # bloqueo de trabajos programados entre replicas
 resilience4j       = "2.3.0"       # timeout y cortacircuitos en cada cliente
 argon2             = "2.12"        # contrasenas y PIN (nunca un hash rapido)
@@ -21,7 +21,18 @@ jqwik              = "1.9.3"       # propiedades: cuadre de dinero
 spotless           = "7.0.4"
 openapi-generator  = "7.14.0"
 jooq               = "3.20.5"      # generador Y libreria: separarlos genera codigo que no compila
-driver-postgresql  = "42.7.7"      # solo para el generador y los contenedores
+driver-postgresql  = "42.7.12"     # solo para el generador y los contenedores
+cyclonedx          = "3.4.1"       # SBOM por modulo desplegable (H2.S3), verificado contra
+                                    # github.com/CycloneDX/cyclonedx-gradle-plugin el 2026-09-21
+pitest             = "1.19.0"      # mutation testing (H6.S1). Verificado contra
+                                    # github.com/szpak/gradle-pitest-plugin el 2026-09-22: la doc
+                                    # publicada solo confirma smoke test hasta Gradle 7.4.2 (no hay
+                                    # confirmacion oficial de Gradle 9.x); se aplica como convencion
+                                    # OPCIONAL (aportaya.mutacion), nunca en el build por omision,
+                                    # y se corrio de verdad contra Gradle 9.7.1 antes de este commit
+                                    # (ver docs/auditoria-produccion/mutation-testing.md).
+pitest-junit5      = "1.2.3"       # pitest-junit5-plugin: version para JUnit Jupiter 5.11+ (Spring
+                                    # Boot 3.5.6 BOM), segun la propia doc de gradle-pitest-plugin.
 
 [libraries]
 # — Spring Boot (version del BOM) —
@@ -31,6 +42,17 @@ spring-boot-validation = { module = "org.springframework.boot:spring-boot-starte
 spring-boot-jdbc       = { module = "org.springframework.boot:spring-boot-starter-jdbc" }
 spring-boot-security   = { module = "org.springframework.boot:spring-boot-starter-security" }
 spring-boot-oauth2     = { module = "org.springframework.boot:spring-boot-starter-oauth2-resource-server" }
+# H4.S2.M4 (carril PR2, nucleo-financiero): resilience4j-spring-boot3 declara
+# @Retry/@CircuitBreaker pero NO trae Spring AOP por transitividad — sin este
+# starter (que si trae spring-aop + aspectjweaver) las anotaciones quedan
+# inertes: el metodo se ejecuta derecho, sin aspecto que lo envuelva, y una
+# falla real nunca activa un reintento. Version del BOM, mismo criterio que el
+# resto de arriba.
+spring-boot-aop        = { module = "org.springframework.boot:spring-boot-starter-aop" }
+# Redis reactivo para el RequestRateLimiter del gateway (H3.S1, AMB-6). Version
+# del BOM, mismo criterio que el resto de arriba; verificado que el artifact
+# existe contra la doc de Spring Boot el 2026-09-21.
+spring-boot-redis      = { module = "org.springframework.boot:spring-boot-starter-data-redis-reactive" }
 spring-boot-test       = { module = "org.springframework.boot:spring-boot-starter-test" }
 spring-boot-bom        = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
 
@@ -111,3 +133,5 @@ spring-boot       = { id = "org.springframework.boot", version.ref = "spring-boo
 spring-dep-mgmt   = { id = "io.spring.dependency-management", version.ref = "spring-dep-mgmt" }
 spotless          = { id = "com.diffplug.spotless", version.ref = "spotless" }
 openapi-generator = { id = "org.openapi.generator", version.ref = "openapi-generator" }
+cyclonedx         = { id = "org.cyclonedx.bom", version.ref = "cyclonedx" }
+pitest            = { id = "info.solidsoft.pitest", version.ref = "pitest" }

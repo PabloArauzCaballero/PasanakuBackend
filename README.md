@@ -36,7 +36,7 @@ Los catorce servicios arrancan, sirven sus rutas y niegan sin token. Estos coman
 estan ejecutados, no supuestos.
 
 ```bash
-# 1 · la base, con las 305 tablas, los roles y los catalogos
+# 1 · la base, con las 306 tablas, los roles y los catalogos
 docker compose -f despliegue/compose/base.yml --profile base up -d --wait
 
 # 2 · el gate completo: formato, arquitectura, atomos, casos de uso, contratos y sagas
@@ -69,6 +69,24 @@ construccion tiene que alcanzar a PostgreSQL. Sin eso, `compileJava` falla con
 «package bo.aportaya.&lt;servicio&gt;.generado does not exist» y no hay imagen posible.
 Y se construye de a uno: catorce Gradle en paralelo se pelean por el mismo lock del
 cache y la corrida muere a los cuatro minutos.
+
+### Perfiles (H3.S2)
+
+El gateway (y, cuando cada servicio los adopte, el resto) usa
+`spring.profiles.active` para decidir su configuración: `local` (default en
+`despliegue/compose/base.yml`), `test` (espejo de `dev`), `staging` y
+`production`. Los dos últimos son **fail closed**: arrancan sin CORS
+configurado (`APORTAYA_CORS_ORIGENES` sin setear) y el proceso se niega a
+levantar — ver `plataforma/gateway/src/main/java/bo/aportaya/gateway/ConfiguracionCors.java`
+y [[ADR-050]].
+
+```bash
+# local (lo que trae el compose de desarrollo por omisión)
+SPRING_PROFILES_ACTIVE=local
+
+# production — exige el dominio real, no arranca sin él
+SPRING_PROFILES_ACTIVE=production APORTAYA_CORS_ORIGENES=https://app.aportaya.example
+```
 
 ### Entrar con una cuenta de prueba
 
@@ -159,7 +177,7 @@ python3 scripts/generar_ddl.py      # esquema SQL completo desde los .puml + el 
 ./gradlew bd:humo                   # 165 comprobaciones, sobre una base DESECHABLE
 ```
 
-El esquema son **305 tablas en un archivo cada una**, con las claves foráneas y los
+El esquema son **306 tablas en un archivo cada una**, con las claves foráneas y los
 índices en pasadas aparte —el orden que necesita la introspección de tipos— más el
 sellado de las tablas append-only y el catálogo de restricciones. Verificado sobre
 PostgreSQL 16: aplica sin errores **las veces que haga falta** —cada objeto se borra

@@ -167,6 +167,7 @@ class TextosIdentidad {
   static const contrasenaActual = 'Contraseña actual';
   static const contrasenaNueva = 'Contraseña nueva';
   static const cerrarSesion = 'Cerrar sesión';
+  static const verGuiaOtraVez = 'Ver la guía otra vez';
   static const tituloBaja = 'Dar de baja tu cuenta';
   static const avisoBaja =
       'Al confirmar, tu cuenta queda inhabilitada. Si tenés saldo o cupos '

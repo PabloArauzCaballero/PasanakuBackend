@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -24,8 +25,15 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  * resuelve la primera vez que llega un token, no al arrancar. Si algun dia arrancara
  * pidiendola, esta prueba lo diria — y seria un defecto, porque ataria el arranque de
  * los trece servicios al de identidad.
+ *
+ * <p>H2.S1: perfil {@code test} a proposito — {@code SegundoFactorLocal} vive detras
+ * de {@code @Profile({"local","test"})}, y sin un perfil activo que lo incluya el
+ * contexto no tiene ningun bean {@code SegundoFactor} para inyectar en
+ * {@code BilleteraController}. Esta es la prueba que TIENE que verlo: es la unica que
+ * arma el contexto completo, sin dobles.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 class ArranqueTest {
 
     /** Los prefijos reservados de este servicio (scripts/modelo.py). */

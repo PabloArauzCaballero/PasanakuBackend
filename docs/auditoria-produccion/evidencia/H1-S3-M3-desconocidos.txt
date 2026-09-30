@@ -1,0 +1,31 @@
+# H1.S3.M3 -- desconocidos §2.2 del plan madre, 2026-09-24 (SHA base 7819f57 / rama sobre #26)
+
+## 6. Formato del error y de los logs
+$ grep -n "record" plataforma/comun-web/src/main/java/bo/aportaya/plataforma/web/errores/ErrorApi.java
+14:public record ErrorApi(String codigo, String mensaje, Map<String, Object> detalle, String trazaId) {
+$ git grep -n "logging\.\(structured\|pattern\)\|logstash\|JsonEncoder" -- "*.yml" "*.xml" "*.kts" | wc -l
+0
+$ git ls-files | grep -icE "logback|log4j2"
+0
+
+## 7. Clientes HTTP y resilience4j
+$ git ls-files "servicios/*/src/main/*PorHttp.java"
+servicios/entregas/src/main/java/bo/aportaya/entregas/infraestructura/TitularPorHttp.java
+servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/clientes/HechosPorHttp.java
+servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/infraestructura/CotizadorPorHttp.java
+servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/infraestructura/clientes/HechosPorHttp.java
+servicios/transparencia/src/main/java/bo/aportaya/transparencia/infraestructura/clientes/PaquetePorHttp.java
+$ git grep -c "@Retry\|@CircuitBreaker" -- "servicios/*/src/main/*PorHttp.java"
+servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/infraestructura/CotizadorPorHttp.java:9
+
+## 8. identidad: refresh tokens
+$ git grep -n -i "refresh\|token_renov\|renovacion" -- sql servicios/identidad/src/main | wc -l
+0
+
+## 3. Esquema + semillas x2 + permisos (CI real en dev, run 35923629830, SHA 7819f57)
+$ gh run view 35923629830 --json jobs --jq (job "Base efimera, semillas y permisos", pasos numerados)
+success	7 · sql/aplicar.sql sobre base vacia + prueba de humo
+success	8 · semillas minimas DOS veces — mismo estado, sin duplicados
+success	9 · semillas de prueba DOS veces (entorno no productivo)
+success	10 · rechazo — las semillas de prueba FALLAN si el entorno es produccion
+success	11 · permisos — cada svc_* solo ve su esquema (invariante 11)

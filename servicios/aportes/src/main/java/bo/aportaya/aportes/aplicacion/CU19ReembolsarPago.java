@@ -3,6 +3,7 @@ package bo.aportaya.aportes.aplicacion;
 import bo.aportaya.aportes.dominio.MotivoDeReembolso;
 import bo.aportaya.aportes.dominio.SaldoDeLaObligacion;
 import bo.aportaya.aportes.dominio.TipoDeDisputa;
+import bo.aportaya.aportes.infraestructura.AuditoriaRepositorio;
 import bo.aportaya.aportes.infraestructura.ObligacionRepositorio;
 import bo.aportaya.aportes.infraestructura.PagoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
@@ -42,6 +43,7 @@ public class CU19ReembolsarPago {
     private final ObligacionRepositorio obligaciones;
     private final Consumidos consumidos;
     private final Outbox outbox;
+    private final AuditoriaRepositorio auditoria;
     private final Reloj reloj;
     private final Duration plazoDeDisputa;
 
@@ -51,6 +53,7 @@ public class CU19ReembolsarPago {
             ObligacionRepositorio obligaciones,
             Consumidos consumidos,
             Outbox outbox,
+            AuditoriaRepositorio auditoria,
             Reloj reloj,
             @Value("${aportaya.reembolso.plazo-de-disputa}") Duration plazoDeDisputa) {
         this.datos = datos;
@@ -58,6 +61,7 @@ public class CU19ReembolsarPago {
         this.obligaciones = obligaciones;
         this.consumidos = consumidos;
         this.outbox = outbox;
+        this.auditoria = auditoria;
         this.reloj = reloj;
         this.plazoDeDisputa = plazoDeDisputa;
     }
@@ -142,6 +146,23 @@ public class CU19ReembolsarPago {
             boolean vencida = obligacion.finDeGracia().isBefore(ahora.toLocalDate());
             String estadoNuevo = SaldoDeLaObligacion.estadoSegunSaldo(saldoDespues, vencida);
             obligaciones.revertirPago(dsl, obligacion.id(), reembolso.monto(), estadoNuevo);
+
+            // H5/H7.S6 (carril PR4-seguridad): la aprobacion de un reembolso es una
+            // operacion critica — deja rastro append-only con quien aprobo, sobre que
+            // reembolso, y el estado nuevo. Sin montos de terceros ni tokens: solo lo
+            // que un auditor necesita para reconstruir el hecho.
+            auditoria.registrar(
+                    dsl,
+                    "reembolso",
+                    reembolsoId,
+                    "APROBACION",
+                    ctx.usuarioId(),
+                    ctx.rol(),
+                    UUID.fromString(ctx.traza().id()),
+                    null,
+                    "{\"estado\":\"EJECUTADO\",\"obligacionId\":\"%s\"}".formatted(obligacion.id()),
+                    null,
+                    ahora);
 
             // El movimiento de dinero lo hace nucleo-financiero (invariante 12).
             outbox.emitir(

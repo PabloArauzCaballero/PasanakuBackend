@@ -1,0 +1,28 @@
+=== Hallazgo: RedisRateLimiter de Spring Cloud Gateway falla ABIERTO por defecto ===
+
+Fuente verificada (no documentacion, codigo real):
+https://github.com/spring-cloud/spring-cloud-gateway/blob/main/spring-cloud-gateway-server-webflux/src/main/java/org/springframework/cloud/gateway/filter/ratelimit/RedisRateLimiter.java
+catch final de isAllowed():
+    // We don't want a hard dependency on Redis to allow traffic. Make sure to set
+    // an alert so you know if this is happening too much. Stripe's observed
+    // failure rate is 0.01%.
+    log.error("Error determining if user allowed from redis", e);
+    ...
+    return Mono.just(new Response(true, getHeaders(routeConfig, -1L)));   // allowed=TRUE
+
+=== Reproducido con Redis real apagado (docker stop aportaya-redis) ===
+
+ANTES del fix (solo RequestRateLimiter, sin filtro propio):
+$ wget -S http://127.0.0.1:8080/api/v1/sesiones
+  HTTP/1.1 500 Internal Server Error      <- paso al backend (fail OPEN), no fail closed
+  X-RateLimit-Remaining: -1
+
+DESPUES del fix (FiltroDeCierreFalloDeRedis, bo.aportaya.gateway.LimitadorDeTasa):
+$ wget -S http://127.0.0.1:8080/api/v1/sesiones
+  HTTP/1.1 503 Service Unavailable        <- NUNCA llega al backend
+  X-RateLimit-Remaining: -1
+  Retry-After: 5
+
+Ruta NO sensible, mismo Redis caido (sin impacto, como debe ser):
+$ wget -S http://127.0.0.1:8080/api/v1/grupos
+  HTTP/1.1 500 Internal Server Error      <- el 500 normal de backend inalcanzable, sin X-RateLimit-*

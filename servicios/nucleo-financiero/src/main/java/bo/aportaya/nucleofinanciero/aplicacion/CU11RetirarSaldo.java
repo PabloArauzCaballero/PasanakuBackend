@@ -6,9 +6,10 @@ import bo.aportaya.nucleofinanciero.dominio.CondicionesDeRetiro;
 import bo.aportaya.nucleofinanciero.dominio.CondicionesDeRetiro.Situacion;
 import bo.aportaya.nucleofinanciero.dominio.CondicionesDeRetiro.Veredicto;
 import bo.aportaya.nucleofinanciero.dominio.CostoDeOperacion;
+import bo.aportaya.nucleofinanciero.dominio.EstadoDeRetiro;
+import bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRetiro;
 import bo.aportaya.nucleofinanciero.infraestructura.CuentaBilleteraRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera;
-import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera.Pata;
 import bo.aportaya.nucleofinanciero.infraestructura.OrdenRetiroRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -18,9 +19,10 @@ import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.mensajeria.EventoDominio;
 import bo.aportaya.plataforma.mensajeria.Outbox;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,10 +53,18 @@ public class CU11RetirarSaldo {
     private final OrdenRetiroRepositorio ordenes;
     private final CU13RetenerSaldo retenciones;
     private final CU40EvaluarLimites limites;
-    private final LibroDeBilletera libro;
     private final Outbox outbox;
     private final Reloj reloj;
-    private final UUID cuentaPuenteDeCustodia;
+    private final ProveedorDeRetiro proveedor;
+    private final ResolucionDeRetiro resolucion;
+
+    // H4.S2.M6 · metricas de negocio, no tecnicas: cuantos retiros se piden, se
+    // autorizan (automatico o por aprobacion) y se rechazan (en cualquiera de sus
+    // motivos). `withdrawal_*_total`, tageadas por `desenlace` para no multiplicar
+    // contadores — un dashboard suma o separa segun le convenga, sin tocar el codigo.
+    private final Counter retirosSolicitados;
+    private final Counter retirosAutorizados;
+    private final Counter retirosRechazados;
 
     public CU11RetirarSaldo(
             Datos datos,
@@ -65,16 +75,37 @@ public class CU11RetirarSaldo {
             LibroDeBilletera libro,
             Outbox outbox,
             Reloj reloj,
-            @Value("${aportaya.custodia.cuenta-puente}") UUID cuentaPuenteDeCustodia) {
+            @Value("${aportaya.custodia.cuenta-puente}") UUID cuentaPuenteDeCustodia,
+            ProveedorDeRetiro proveedor,
+            MeterRegistry metricas) {
         this.datos = datos;
         this.cuentas = cuentas;
         this.ordenes = ordenes;
         this.retenciones = retenciones;
         this.limites = limites;
-        this.libro = libro;
         this.outbox = outbox;
         this.reloj = reloj;
-        this.cuentaPuenteDeCustodia = cuentaPuenteDeCustodia;
+        this.proveedor = proveedor;
+        this.retirosSolicitados = Counter.builder("withdrawal_requested_total")
+                .description("Retiros solicitados, cualquiera sea su estado inicial")
+                .register(metricas);
+        this.retirosAutorizados = Counter.builder("withdrawal_approved_total")
+                .description("Retiros que llegaron a AUTORIZADA, automatico o por aprobacion")
+                .register(metricas);
+        this.retirosRechazados = Counter.builder("withdrawal_failed_total")
+                .description("Retiros rechazados: MFA, limites, proveedor, revision o aprobador")
+                .register(metricas);
+        this.resolucion = new ResolucionDeRetiro(
+                datos,
+                cuentas,
+                ordenes,
+                retenciones,
+                libro,
+                outbox,
+                reloj,
+                cuentaPuenteDeCustodia,
+                retirosAutorizados,
+                retirosRechazados);
     }
 
     @Transactional
@@ -82,13 +113,17 @@ public class CU11RetirarSaldo {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
         return datos.conContexto(ctx, dsl -> {
-            var yaExiste = ordenes.porClaveIdempotencia(dsl, entrada.claveIdempotencia());
+            ordenes.bloquearIdempotencia(dsl, entrada.cuentaBilleteraId(), entrada.claveIdempotencia());
+            var yaExiste = ordenes.porClaveIdempotencia(dsl, entrada.cuentaBilleteraId(), entrada.claveIdempotencia());
             if (yaExiste.isPresent()) {
+                // El replay devuelve el costo ALMACENADO en la orden, no el que trae la
+                // entrada repetida: si el cotizador cambio entretanto, recotizar en el
+                // replay le mostraria a la persona un costo distinto del que se le cobro.
                 var orden = ordenes.ver(dsl, yaExiste.get()).orElseThrow();
                 return new SalidaRetiro(
                         orden.id(),
                         orden.estado(),
-                        entrada.costo(),
+                        orden.costo(),
                         orden.neto(),
                         orden.retencionId().orElse(null));
             }
@@ -103,6 +138,7 @@ public class CU11RetirarSaldo {
             Veredicto veredicto = CondicionesDeRetiro.evaluar(
                     new Situacion(
                             entrada.mfaVerificado(),
+                            entrada.evidenciaMfaProvista(),
                             cuenta.disponible(),
                             entrada.monto(),
                             instrumento.usuarioId().equals(cuenta.usuarioId()) && instrumento.titularCoincide(),
@@ -112,12 +148,19 @@ public class CU11RetirarSaldo {
                             ordenes.encajeCumplido(dsl, cuenta.moneda().name())),
                     ahora);
             if (!veredicto.permitido()) {
-                throw new ErrorDeNegocio(codigoDe(veredicto.codigo()), veredicto.motivo());
+                retirosRechazados.increment();
+                throw new ErrorDeNegocio(CodigosDeRetiro.de(veredicto.codigo()), veredicto.motivo());
             }
 
             limites.exigirDentroDe(dsl, new EntradaLimites(cuenta.id(), CONCEPTO, entrada.monto()), ctx);
 
             Dinero neto = CostoDeOperacion.netoDeRetiro(entrada.monto(), entrada.costo());
+
+            // H3.S1.M2 (AMB-5, Q-02): por debajo del umbral, AUTORIZADA automatica en
+            // la MISMA transaccion de creacion — nunca PENDIENTE→PAGADA directo. Por
+            // encima, EN_REVISION hasta que un segundo aprobador (H3.S2) la mueva.
+            EstadoDeRetiro estadoInicial =
+                    entrada.requiereDobleAprobacion() ? EstadoDeRetiro.EN_REVISION : EstadoDeRetiro.AUTORIZADA;
 
             // El orden importa: la retencion ANTES de la orden. Al reves, entre una y
             // otra la persona podria gastar el mismo saldo en otra operacion.
@@ -146,6 +189,7 @@ public class CU11RetirarSaldo {
                     entrada.requiereDobleAprobacion(),
                     instrumento.bloqueadoHasta(),
                     entrada.claveIdempotencia(),
+                    estadoInicial.name(),
                     ahora);
 
             outbox.emitir(
@@ -160,106 +204,71 @@ public class CU11RetirarSaldo {
                                     "neto", neto.toString()),
                             UUID.fromString(ctx.traza().id())));
 
-            return new SalidaRetiro(ordenId, "PENDIENTE", entrada.costo(), neto, retencion.retencionId());
+            retirosSolicitados.increment();
+            if (estadoInicial == EstadoDeRetiro.AUTORIZADA) {
+                retirosAutorizados.increment();
+            }
+
+            return new SalidaRetiro(ordenId, estadoInicial.name(), entrada.costo(), neto, retencion.retencionId());
         });
     }
 
-    /**
-     * El proveedor pago: la retencion se **ejecuta** y el libro registra la salida.
-     *
-     * <p>Ejecutar y no liberar: el importe se consumio de verdad. Liberarlo devolveria
-     * al disponible una plata que ya salio del sistema.
-     */
+    /** Consulta las ordenes EN_PROCESO que recorre la reconciliacion. */
+    @Transactional(readOnly = true)
+    public java.util.List<OrdenRetiroRepositorio.Orden> ordenesEnProceso(ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> ordenes.enProceso(dsl));
+    }
+
+    /** Instruye al proveedor fuera de la transaccion que cambia el estado. */
+    public SalidaInstruccion instruirPago(UUID ordenId, ContextoSesion ctx) {
+        var orden = datos.conContexto(ctx, dsl -> ordenes.ver(dsl, ordenId))
+                .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(11, 1), "Esa orden no existe."));
+        if (!EstadoDeRetiro.AUTORIZADA.name().equals(orden.estado())) {
+            throw new ErrorDeNegocio(
+                    CodigoError.de(11, 8),
+                    "Esa orden esta " + orden.estado() + ": solo se instruye una orden AUTORIZADA.");
+        }
+
+        var resultado = proveedor.instruir(ordenId, orden.neto());
+
+        return switch (resultado.estado()) {
+            case ACEPTADO, TIMEOUT -> {
+                // TIMEOUT tambien queda EN_PROCESO: no se sabe todavia, y el job de
+                // reconciliacion (H4.S2.M3) es quien lo resuelve mas tarde — nunca se
+                // asume un rechazo que nadie confirmo.
+                boolean ok =
+                        datos.conContexto(ctx, dsl -> ordenes.pasarAEnProceso(dsl, ordenId, resultado.referencia()));
+                if (!ok) {
+                    throw new ErrorDeNegocio(
+                            CodigoError.de(11, 8), "Esa orden ya no esta AUTORIZADA: otra instruccion la adelanto.");
+                }
+                yield new SalidaInstruccion(ordenId, EstadoDeRetiro.EN_PROCESO.name(), resultado.referencia());
+            }
+            case RECHAZADO -> {
+                var salidaRechazo = rechazar(ordenId, "Proveedor rechazo la instruccion en firme.", ctx);
+                yield new SalidaInstruccion(salidaRechazo.ordenRetiroId(), "RECHAZADA", resultado.referencia());
+            }
+        };
+    }
+
     @Transactional
     public SalidaPago confirmarPago(UUID ordenId, ContextoSesion ctx) {
-        OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
-
-        return datos.conContexto(ctx, dsl -> {
-            var orden = ordenes.ver(dsl, ordenId)
-                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(11, 1), "Esa orden no existe."));
-
-            if (!ordenes.pasarA(dsl, ordenId, "PENDIENTE", "PAGADA", ahora)) {
-                throw new ErrorDeNegocio(
-                        CodigoError.de(11, 1), "Esa orden ya no esta pendiente: no se puede pagar dos veces.");
-            }
-
-            orden.retencionId().ifPresent(id -> retenciones.ejecutarDentroDe(dsl, id, ctx));
-
-            UUID transaccionId = libro.registrar(
-                    dsl,
-                    "RETIRO",
-                    "ORDEN_RETIRO",
-                    orden.id(),
-                    "API",
-                    orden.solicitado(),
-                    "retiro:" + orden.id(),
-                    Optional.of(ctx.usuarioId()),
-                    List.of(
-                            Pata.debito(orden.cuentaId(), orden.solicitado(), "Retiro pagado"),
-                            Pata.credito(cuentaPuenteDeCustodia, orden.solicitado(), "Salida hacia custodia")),
-                    ahora);
-
-            outbox.emitir(
-                    dsl,
-                    new EventoDominio(
-                            "nucleo_financiero.retiro_pagado",
-                            "orden_retiro",
-                            orden.id(),
-                            Map.of(
-                                    "cuentaBilleteraId",
-                                    orden.cuentaId().toString(),
-                                    "monto",
-                                    orden.solicitado().toString()),
-                            UUID.fromString(ctx.traza().id())));
-
-            var despues = cuentas.ver(dsl, orden.cuentaId()).orElseThrow();
-            return new SalidaPago(orden.id(), transaccionId, despues.disponible());
-        });
+        return resolucion.confirmarPago(ordenId, ctx);
     }
 
-    /**
-     * El proveedor rechazo en firme: la retencion se **libera** y el saldo vuelve.
-     *
-     * <p>No se escribe ningun movimiento: la plata nunca salio. Registrar un debito y
-     * su reverso por algo que no ocurrio ensuciaria el extracto de la persona con dos
-     * lineas que no explican nada.
-     */
     @Transactional
     public SalidaRechazo rechazar(UUID ordenId, String motivo, ContextoSesion ctx) {
-        OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
-
-        return datos.conContexto(ctx, dsl -> {
-            var orden = ordenes.ver(dsl, ordenId)
-                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(11, 1), "Esa orden no existe."));
-
-            if (!ordenes.pasarA(dsl, ordenId, "PENDIENTE", "RECHAZADA", ahora)) {
-                throw new ErrorDeNegocio(CodigoError.de(11, 1), "Esa orden ya no esta pendiente.");
-            }
-            orden.retencionId().ifPresent(id -> retenciones.liberarDentroDe(dsl, id, ctx));
-
-            outbox.emitir(
-                    dsl,
-                    new EventoDominio(
-                            "nucleo_financiero.retiro_rechazado",
-                            "orden_retiro",
-                            orden.id(),
-                            Map.of("cuentaBilleteraId", orden.cuentaId().toString(), "motivo", motivo),
-                            UUID.fromString(ctx.traza().id())));
-
-            var despues = cuentas.ver(dsl, orden.cuentaId()).orElseThrow();
-            return new SalidaRechazo(orden.id(), motivo, despues.disponible());
-        });
+        return resolucion.rechazar(ordenId, motivo, ctx);
     }
 
-    private CodigoError codigoDe(String codigo) {
-        return switch (codigo) {
-            case "SALDO_INSUFICIENTE" -> CodigoError.de(11, 1);
-            case "MFA_REQUERIDO" -> CodigoError.de(11, 2);
-            case "INSTRUMENTO_EN_ENFRIAMIENTO" -> CodigoError.de(11, 3);
-            case "TITULAR_NO_COINCIDE" -> CodigoError.de(11, 4);
-            case "BLOQUEO_DE_AUTORIDAD" -> CodigoError.de(11, 5);
-            default -> CodigoError.de(11, 6); // ENCAJE_INCUMPLIDO
-        };
+    @Transactional
+    public SalidaAprobacion aprobar(UUID ordenId, ContextoSesion ctx) {
+        return resolucion.aprobar(ordenId, ctx);
+    }
+
+    @Transactional
+    public SalidaAprobacion rechazarRevision(UUID ordenId, ContextoSesion ctx) {
+        return resolucion.rechazarRevision(ordenId, ctx);
     }
 
     public record EntradaRetiro(
@@ -269,6 +278,10 @@ public class CU11RetirarSaldo {
             Dinero costo,
             UUID instrumentoDestinoId,
             boolean mfaVerificado,
+            // H2: si vino ALGO en evidenciaMfa/factorMfa, aunque no haya pasado la
+            // verificacion — es lo que separa MFA_REQUERIDO (nada) de MFA_INVALIDO
+            // (algo, pero no vale).
+            boolean evidenciaMfaProvista,
             boolean requiereDobleAprobacion) {}
 
     public record SalidaRetiro(
@@ -277,4 +290,8 @@ public class CU11RetirarSaldo {
     public record SalidaPago(UUID ordenRetiroId, UUID transaccionId, Dinero saldoDespues) {}
 
     public record SalidaRechazo(UUID ordenRetiroId, String motivo, Dinero saldoDespues) {}
+
+    public record SalidaInstruccion(UUID ordenRetiroId, String estado, String referenciaProveedor) {}
+
+    public record SalidaAprobacion(UUID ordenRetiroId, String estado, UUID aprobadaPor) {}
 }

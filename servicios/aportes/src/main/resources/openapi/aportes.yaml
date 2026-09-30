@@ -33,6 +33,12 @@
 #   AP-CU99-04  SIN_COBERTURA         · ningun proveedor sano al que conmutar
 #   AP-CU99-05  CREDENCIAL_EN_TABLA   · ninguna clave entra a la fila, ni disfrazada
 #   AP-CU99-06  PROVEEDOR_DEGRADADO   · salud bajo el umbral: sale de la cola
+#
+# CU-100 · Recibir el webhook de la pasarela (carril PR4-seguridad, Q-02 DECIDIDA 2026-09-21)
+#   Sin codigos AP-CU100-xx: no lanza ErrorDeNegocio. Responde 401 (firma/ventana
+#   invalida, sin distinguir el motivo) o 200 con `estado` PROCESADO/DUPLICADO/
+#   DESCARTADO. Ver docs/auditoria-produccion/idempotencia-scope.md y
+#   docs/auditoria-produccion/carriles/PR4-seguridad.md §H1.S2.
 openapi: 3.1.0
 info:
   title: aportes
@@ -189,6 +195,58 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/SalidaEnrutamiento' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /pagos/webhooks/{proveedorCodigo}:
+    post:
+      operationId: recibirWebhookPasarela        # CU-100
+      summary: Recibir la confirmacion de la pasarela de pagos
+      description: >-
+        Ruta PUBLICA (sin sesion de usuario, Q-02 DECIDIDA 2026-09-21): la pasarela no
+        tiene un JWT nuestro. La autenticacion es HMAC-SHA256 sobre el cuerpo CRUDO con
+        `X-Firma`, mas `X-Timestamp` dentro de una ventana de +-5 minutos (invariante
+        de la firma: se verifica ANTES de leer una sola linea del payload).
+
+        Evento repetido por `(proveedor_id, clave)` (`uq_webhook_idem`, invariante 7):
+        mismo resultado, sin reprocesar ni duplicar el efecto financiero.
+
+        El cuerpo se declara `text/plain` a proposito, no `application/json`: la firma
+        exige el byte exacto que mando la pasarela, y con `application/json` el
+        conversor de Jackson reformatea el cuerpo antes de que se pueda verificar la
+        firma sobre el original.
+      parameters:
+        - name: proveedorCodigo
+          in: path
+          required: true
+          schema: { type: string, maxLength: 30 }
+        - name: X-Firma
+          in: header
+          required: true
+          description: HMAC-SHA256 del cuerpo crudo, en hexadecimal minuscula
+          schema: { type: string, minLength: 64, maxLength: 64 }
+        - name: X-Timestamp
+          in: header
+          required: true
+          description: segundos UNIX del momento en que la pasarela firmo, como cadena
+          schema: { type: string, pattern: '^\d{1,15}$' }
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema: { type: string, maxLength: 16384 }
+      responses:
+        '200':
+          description: >-
+            Evento recibido: PROCESADO (primera vez, pago conciliado), DUPLICADO
+            (mismo resultado que la primera entrega) o DESCARTADO (firma valida pero
+            la regla de negocio lo rechaza: pago no encontrado o monto distinto)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaWebhook' }
+        '401':
+          description: >-
+            Firma invalida, `X-Timestamp` fuera de la ventana de +-5 minutos, o
+            proveedor inexistente/sin soporte de webhook — un solo motivo por fuera,
+            para no darle a quien prueba una forma de distinguir el caso
 
   /aportes/participantes/{participanteId}/estado:
     get:
@@ -349,9 +407,10 @@ components:
         codigo:  { type: string, maxLength: 30 }
         nombre:  { type: string, maxLength: 120 }
         tipo:    { type: string, enum: [BANCO, BILLETERA, PASARELA] }
-        urlBase: { type: string, format: uri }
+        urlBase: { type: string, format: uri, maxLength: 2048 }
         referenciaCredenciales:
           type: string
+          maxLength: 255
           description: >-
             REFERENCIA al almacen de secretos (vault://...). Enviar la credencial en
             claro se rechaza con AP-CU99-05 antes de tocar la base.
@@ -375,13 +434,18 @@ components:
       additionalProperties: false
       required: [claveIdempotencia]
       properties:
-        claveIdempotencia: { type: string }
+        claveIdempotencia: { type: string, maxLength: 120 }
         yaIntentados:
           type: array
-          items: { type: string }
-          description: Ausente equivale a lista vacía. Sin `default` a propósito — el generador
+          maxItems: 20
+          items: { type: string, maxLength: 30 }
+          description: >-
+            Ausente equivale a lista vacía. Sin `default` a propósito — el generador
             Dart (dart-dio) emite el valor por omisión sin `const`, y una lista no-const
             no es una expresión constante válida (rompe la compilación del cliente).
+            El límite de 20 acota el reintento: más proveedores que eso no existen en
+            el catálogo y una lista sin techo es una forma barata de forzar
+            comparaciones de más en `enrutar`.
         saludObservada:
           type: object
           additionalProperties: { type: integer, minimum: 0, maximum: 100 }
@@ -403,6 +467,21 @@ components:
           type: string
           enum: [REINTENTABLE, EN_VERIFICACION]
         puedeConsultarEstado: { type: boolean }
+    SalidaWebhook:
+      type: object
+      additionalProperties: false
+      required: [estado]
+      properties:
+        estado:
+          type: string
+          enum: [PROCESADO, DUPLICADO, DESCARTADO]
+        webhookId: { type: string, format: uuid }
+        pagoId:
+          type: [string, 'null']
+          format: uuid
+        motivo:
+          type: [string, 'null']
+          description: por que se descarto; null cuando el estado no es DESCARTADO
     Dinero:
       type: object
       additionalProperties: false

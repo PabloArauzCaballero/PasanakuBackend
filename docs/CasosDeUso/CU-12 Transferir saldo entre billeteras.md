@@ -138,6 +138,14 @@ Cuando se ejecuta
 Entonces existen dos movimiento_billetera que suman cero
 Y el saldo total del sistema permanece constante
 
+Dados dos titulares con la misma clave de idempotencia
+Cuando cada uno transfiere
+Entonces cada uno recibe una transacción distinta
+
+Dada una transferencia con 50 reintentos simultáneos
+Cuando se procesan
+Entonces se registra una sola transferencia
+
 Dado un aporte con obligacion_id
 Cuando se acredita
 Entonces obligacion_aporte.monto_pagado aumenta en el importe

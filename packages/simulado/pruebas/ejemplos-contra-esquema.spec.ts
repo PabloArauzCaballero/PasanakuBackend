@@ -7,7 +7,7 @@ import { resolver } from '../src/referencias'
 import type { Contrato, Operacion } from '../src/tipos'
 
 /**
- * **La prueba de contrato del simulado**: cada ejemplo que Prism sirve —y que las
+ * **La prueba de contrato del simulado**: cada ejemplo que el servidor sirve —y que las
  * pruebas de Angular y Flutter consumen— valida contra el esquema de su respuesta. Un
  * ejemplo editado a mano que ya no encaja es una pantalla verde contra un mock roto.
  */

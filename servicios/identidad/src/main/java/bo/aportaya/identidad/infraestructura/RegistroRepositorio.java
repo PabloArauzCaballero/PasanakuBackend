@@ -103,8 +103,7 @@ public class RegistroRepositorio {
      * que apuntaba a nada y un hash de sesenta y cuatro ceros solo para poder insertar,
      * y la cola de verificacion leia eso como «tiene anverso».
      */
-    public UUID guardarDocumento(
-            DSLContext dsl, UUID usuarioId, DocumentoDeIdentidad documento, String numeroCifrado) {
+    public UUID guardarDocumento(DSLContext dsl, UUID usuarioId, DocumentoDeIdentidad documento, String numeroCifrado) {
         return dsl.insertInto(DOCUMENTO_IDENTIDAD)
                 .set(DOCUMENTO_IDENTIDAD.USUARIO_ID, usuarioId)
                 .set(DOCUMENTO_IDENTIDAD.TIPO, documento.tipo().name())

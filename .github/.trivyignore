@@ -1,0 +1,14 @@
+# Excepciones a Trivy (H2.S4.M1). Una por CVE, con motivo y fecha de revision
+# (<= 30 dias, AMB-9), igual disciplina que .github/osv-scanner.toml. Formato:
+# un comentario arriba con el motivo y la fecha, el ID abajo, sin bloque para
+# vulnerabilidades que SI hay que resolver.
+#
+# Verificado el 2026-09-21 contra aportaya/identidad:ci: hay CRITICAL/HIGH
+# reales SIN PARCHE en netty-handler, bcprov-jdk18on y spring-security-web
+# (evidencia: docs/auditoria-produccion/evidencia/H2-S4-M1-trivy-gateway.json,
+# corrida contra aportaya/gateway:local, mismo BOM que identidad:ci). No se
+# exceptuan aca: exceptuar una CRITICAL sin parche disponible es taparla, no
+# gestionarla. Quedan registradas como hallazgo abierto en
+# docs/auditoria-produccion/carriles/PR5-ci-operacion.md — requieren decision
+# de version (Spring Boot/Spring Cloud/Netty), fuera del alcance de este
+# turno (regla 00 S3: ningun upgrade no solicitado).

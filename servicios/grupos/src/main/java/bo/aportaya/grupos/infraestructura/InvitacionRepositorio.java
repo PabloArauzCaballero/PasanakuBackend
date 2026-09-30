@@ -69,22 +69,6 @@ public class InvitacionRepositorio {
                         fila.get(INVITACION.FECHA_EXPIRACION)));
     }
 
-    /**
-     * Acepta la invitacion, y solo si sigue {@code ENVIADA}.
-     *
-     * <p>El {@code WHERE estado = 'ENVIADA'} es lo que hace el token de un solo uso:
-     * la segunda vez actualiza cero filas. Comprobarlo antes con un {@code SELECT}
-     * dejaria pasar dos aceptaciones simultaneas.
-     */
-    public int aceptar(DSLContext dsl, UUID invitacionId, OffsetDateTime ahora) {
-        return dsl.update(INVITACION)
-                .set(INVITACION.ESTADO, "ACEPTADA")
-                .set(INVITACION.FECHA_RESPUESTA, ahora)
-                .where(INVITACION.ID.eq(invitacionId))
-                .and(INVITACION.ESTADO.eq("ENVIADA"))
-                .execute();
-    }
-
     public int reenviar(DSLContext dsl, UUID invitacionId) {
         return dsl.update(INVITACION)
                 .set(INVITACION.ENVIOS_REALIZADOS, INVITACION.ENVIOS_REALIZADOS.plus((short) 1))

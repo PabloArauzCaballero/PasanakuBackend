@@ -129,7 +129,7 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     }
 
     @Override
-    public UUID tokenDeInvitacion(String canal, String destinoEnmascarado) {
+    public TokenDeInvitacion tokenDeInvitacion(String canal, String destinoEnmascarado) {
         var emitido = identidad
                 .post()
                 .uri("/usuarios/tokens/invitacion")
@@ -138,11 +138,28 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
                 .body(Map.of("canal", canal, "destinoEnmascarado", destinoEnmascarado))
                 .retrieve()
                 .body(Token.class);
-        if (emitido == null) {
+        if (emitido == null || emitido.tokenId() == null || emitido.token() == null) {
             // Sin token no hay enlace, y sin enlace no hay invitacion que enviar.
             throw new IllegalStateException("identidad no emitio el token de invitacion");
         }
-        return emitido.tokenId();
+        return new TokenDeInvitacion(emitido.tokenId(), emitido.token());
+    }
+
+    @Override
+    public boolean enlaceDeInvitacionValido(UUID tokenId, String token, String telefonoE164, String kycMinimo) {
+        try {
+            var resultado = identidad
+                    .post()
+                    .uri("/usuarios/tokens/invitacion/validar")
+                    .headers(ClienteDeServicio::propagarElToken)
+                    .body(Map.of(
+                            "tokenId", tokenId, "token", token, "telefonoE164", telefonoE164, "kycMinimo", kycMinimo))
+                    .retrieve()
+                    .body(Validacion.class);
+            return resultado != null && resultado.valido();
+        } catch (RuntimeException noSePudoValidar) {
+            return false;
+        }
     }
 
     @Override
@@ -188,5 +205,7 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
 
     private record Suprimido(boolean suprimido) {}
 
-    private record Token(UUID tokenId) {}
+    private record Token(UUID tokenId, String token) {}
+
+    private record Validacion(boolean valido) {}
 }

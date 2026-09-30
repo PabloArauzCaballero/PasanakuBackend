@@ -6,6 +6,7 @@ import 'package:aportaya_diseno/atomos/selector_segmentado.dart';
 import 'package:aportaya_diseno/organismos/estado_error.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'dominio/cu69_invitar_al_grupo.dart';
@@ -43,7 +44,23 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
         child: Padding(
           padding: const EdgeInsets.all(Espacio.s4),
           child: resultado != null
-              ? Text(resultado.mensaje)
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(resultado.mensaje),
+                    if (resultado.enlace case final enlace?) ...[
+                      const SizedBox(height: Espacio.s4),
+                      SelectableText(enlace),
+                      const SizedBox(height: Espacio.s4),
+                      Boton(
+                        texto: 'Copiar enlace',
+                        variante: BotonVariante.primario,
+                        onPressed: () =>
+                            Clipboard.setData(ClipboardData(text: enlace)),
+                      ),
+                    ],
+                  ],
+                )
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [

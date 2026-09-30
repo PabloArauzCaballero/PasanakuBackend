@@ -1,0 +1,44 @@
+{
+  "name": "dev-produccion-ready",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": {
+      "include": ["refs/heads/dev"],
+      "exclude": []
+    }
+  },
+  "rules": [
+    {
+      "type": "pull_request",
+      "parameters": {
+        "required_approving_review_count": 1,
+        "dismiss_stale_reviews_on_push": true,
+        "require_code_owner_review": true,
+        "require_last_push_approval": false,
+        "required_review_thread_resolution": true
+      }
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": true,
+        "required_status_checks": [
+          { "context": "Formato, reglas propias y compilacion" },
+          { "context": "La boveda y el esquema no divergen" },
+          { "context": "Base efimera, semillas y permisos" },
+          { "context": "Contratos y clientes generados" },
+          { "context": "Frontend — Flutter y Angular (ADR-044)" },
+          { "context": "Los cinco corredores" },
+          { "context": "bootJar y docker build, multietapa y sin root" },
+          { "context": "Dependencias, secretos e imagen" },
+          { "context": "Dependencias vulnerables (OSV-Scanner) / osv-scan" },
+          { "context": "Bóveda, seguridad, carriles y despliegue coherentes" },
+          { "context": "Esquema, semillas y prueba de humo sobre PostgreSQL real" }
+        ]
+      }
+    },
+    { "type": "non_fast_forward" },
+    { "type": "deletion" }
+  ]
+}

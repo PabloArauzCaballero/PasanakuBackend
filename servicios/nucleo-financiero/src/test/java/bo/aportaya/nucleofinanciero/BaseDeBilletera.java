@@ -21,6 +21,7 @@ import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera;
 import bo.aportaya.nucleofinanciero.infraestructura.LimiteRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.OrdenRecargaRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.OrdenRetiroRepositorio;
+import bo.aportaya.nucleofinanciero.infraestructura.ProveedorDeRetiroLocal;
 import bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.ReversoRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.TransferenciaRepositorio;
@@ -31,6 +32,7 @@ import bo.aportaya.plataforma.dominio.Traza;
 import bo.aportaya.plataforma.mensajeria.Consumidos;
 import bo.aportaya.plataforma.mensajeria.Outbox;
 import bo.aportaya.plataforma.pruebas.BaseDePrueba;
+import java.math.BigDecimal;
 import java.util.UUID;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
@@ -72,6 +74,9 @@ abstract class BaseDeBilletera {
     protected static CU50ConciliarCustodia conciliacionCU;
     protected static CU51EjecutarCierreDiario cierreDiarioCU;
     protected static ConciliacionRepositorio conciliaciones;
+    protected static ProveedorDeRetiroLocal proveedorDeRetiro;
+    protected static bo.aportaya.nucleofinanciero.trabajos.ReconciliacionDeRetiros reconciliacionCU;
+    protected static io.micrometer.core.instrument.simple.SimpleMeterRegistry metricas;
 
     /** La cuenta puente: el otro lado de todo ingreso. Una sola para toda la corrida. */
     protected static UUID puente;
@@ -113,16 +118,23 @@ abstract class BaseDeBilletera {
                 Reloj.delSistema(),
                 java.time.Duration.ofMinutes(30),
                 puente);
+        proveedorDeRetiro = new ProveedorDeRetiroLocal(new BigDecimal("666.66"), new BigDecimal("111.11"));
+        var ordenRetiroRepo = new OrdenRetiroRepositorio();
+        metricas = new io.micrometer.core.instrument.simple.SimpleMeterRegistry();
         retiroCU = new CU11RetirarSaldo(
                 new Datos(dsl),
                 new CuentaBilleteraRepositorio(),
-                new OrdenRetiroRepositorio(),
+                ordenRetiroRepo,
                 retencionCU,
                 limitesCU,
                 new LibroDeBilletera(),
                 new Outbox("nucleo_financiero"),
                 Reloj.delSistema(),
-                puente);
+                puente,
+                proveedorDeRetiro,
+                metricas);
+        reconciliacionCU =
+                new bo.aportaya.nucleofinanciero.trabajos.ReconciliacionDeRetiros(proveedorDeRetiro, retiroCU);
         transferenciaCU = new CU12TransferirSaldo(
                 new Datos(dsl),
                 new CuentaBilleteraRepositorio(),

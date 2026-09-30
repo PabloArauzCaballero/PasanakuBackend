@@ -6,6 +6,21 @@ import { expect, test } from '@playwright/test'
  */
 const CAPTURAS = 'capturas'
 
+/**
+ * H4.S2.M2 (PR13-Ci.Frontend): reemplaza los `page.waitForTimeout(300)` que había
+ * acá -- un número fijo no es una condición, y ni garantiza que el repintado ya
+ * terminó en un runner lento ni evita perder 300ms de nada en uno rápido. Dos
+ * `requestAnimationFrame` encadenados SÍ son una condición: el navegador solo
+ * ejecuta el segundo callback después de haber pintado el frame donde se aplicó el
+ * primero, así que cuando esto resuelve, el cambio de tema (o de viewport) ya se
+ * reflejó en pantalla.
+ */
+async function esperarRepintado(page: import('@playwright/test').Page): Promise<void> {
+  await page.evaluate(
+    () => new Promise<void>((resolver) => requestAnimationFrame(() => requestAnimationFrame(() => resolver()))),
+  )
+}
+
 test.describe('catálogo de @aportaya/ui', () => {
   test('no se indexa y se prerenderiza con todas las secciones', async ({ page }) => {
     const respuesta = await page.goto('/catalogo')
@@ -20,10 +35,10 @@ test.describe('catálogo de @aportaya/ui', () => {
     test(`captura en tema ${tema}, escritorio y teléfono`, async ({ page }) => {
       await page.goto('/catalogo')
       await page.evaluate((t) => document.documentElement.setAttribute('data-theme', t), tema)
-      await page.waitForTimeout(300)
+      await esperarRepintado(page)
       await page.screenshot({ path: `${CAPTURAS}/catalogo-${tema}-escritorio.png`, fullPage: true })
       await page.setViewportSize({ width: 400, height: 860 })
-      await page.waitForTimeout(300)
+      await esperarRepintado(page)
       await page.screenshot({ path: `${CAPTURAS}/catalogo-${tema}-telefono.png`, fullPage: true })
       const anchoDelDocumento = await page.evaluate(() => document.documentElement.scrollWidth)
       expect(anchoDelDocumento, 'el cuerpo no desplaza en horizontal a 400px').toBeLessThanOrEqual(400)

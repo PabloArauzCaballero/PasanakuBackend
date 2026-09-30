@@ -144,6 +144,56 @@ como pase, no se descubre como sorpresa.
 - [ ] Un puerto del front no tiene una sola implementación: si Android e iOS no
       difieren en algo, ese algo no era un puerto.
 
+## Enmienda 2026-09-22 (PR13-Ci.Frontend, H2 — madre H6.S1/H6.S2)
+
+**Hallazgo:** "el pase de iOS todavía no llegó" y "el puerto finge soportar iOS" no
+son lo mismo, y hasta este carril el código no distinguía uno del otro.
+`infraestructura/plataforma.dart` resolvía `Conectividad`, `Biometria`, `AvisosPush`
+y `ProteccionPantalla` al adaptador de Android **sin mirar la plataforma real**. En
+iOS, tres de esos cuatro (todos menos `Conectividad`) abrían un `MethodChannel` sin
+ningún receptor nativo de iOS detrás; "andaban" solo porque cada adaptador atrapa
+`MissingPluginException` y devuelve su valor seguro — un accidente de manejo de
+errores, no la decisión de esta ADR.
+
+Esta ADR decía **"iOS por pase"**, que implícitamente asumía que hasta el pase el
+puerto "no está" — pero en el código, para cuatro de los siete puertos, el puerto SÍ
+estaba, apuntando al canal equivocado. Un puerto sin pase todavía tiene que declarar
+que no está soportado, no fingir que corre la implementación de otra plataforma.
+
+### La tabla puerto × plataforma × soporte
+
+`apps/movil/lib/infraestructura/capacidades.dart` (`GradoDeSoporte`: `soportado` ·
+`degradado` · `noSoportado` — equivalente a `SUPPORTED`/`UNSUPPORTED` en las tablas
+de compatibilidad por plataforma que usa pub.dev para sus plugins) es ahora la fuente
+de verdad, consultable en runtime vía `capacidadesProvider`. Al cerrar este carril:
+
+| Puerto             | Android      | iOS            | Por qué (iOS)                                                                                  |
+| ---                | ---          | ---            | ---                                                                                             |
+| `AlmacenSeguro`     | soportado    | soportado      | `flutter_secure_storage` ya trae Keychain real (`AlmacenSeguroIos`) — no era un hueco.          |
+| `Conectividad`      | soportado    | soportado      | `connectivity_plus` es un plugin FEDERADO con iOS real; la sonda al gateway es Dart puro. Un solo adaptador para las dos plataformas (no dos implementaciones que "no difieren en nada"). |
+| `Biometria`         | soportado    | **noSoportado**| Sin `local_auth` (ni equivalente) en `pubspec.yaml`. No se agrega sin decidirlo (regla 90.4.2) — deuda declarada, no un pase pendiente silencioso. |
+| `AvisosPush`        | soportado    | **noSoportado**| El canal habla FCM, no APNs. `/notificaciones/bandeja` sigue siendo la fuente de verdad (ADR-035): la app funciona sin push. |
+| `Camara`            | soportado    | soportado      | `image_picker` es multiplataforma real desde siempre; nunca fue un puerto con dos implementaciones. |
+| `ProteccionPantalla`| soportado    | **noSoportado**| `FLAG_SECURE` es de Android; no hay equivalente nativo por `MethodChannel` implementado en iOS todavía. **Crítica de seguridad**: en release, su ausencia bloquea el arranque antes de crear el cliente HTTP (`ArranqueSegunCapacidades`, H2.S2.M3). |
+| `Haptica`           | soportado    | soportado      | `HapticaIos` usa `HapticFeedback` del SDK de Flutter, no un canal propio — ya tenía su pase. |
+
+Los tres puertos marcados `noSoportado` son el pase de iOS que sigue pendiente en el
+sentido de esta ADR (biometría, avisos push, protección de pantalla); mientras no
+llega, la app lo declara — nunca lo finge. La UI deshabilita la acción con el motivo
+(`BotonSegunCapacidad`, H2.S2.M2) en vez de dejar que se llame a un canal que no
+existe.
+
+### Corrección al checklist "cómo se verifica"
+
+La primera verificación decía que `Platform.is*` fuera de `infraestructura/android/`
+e `infraestructura/ios/` no debía aparecer — pero `infraestructura/plataforma.dart`
+(el propio despachador por plataforma) y ahora `infraestructura/capacidades.dart`
+viven un nivel arriba de esos dos, a propósito: son el ÚNICO punto donde se decide
+cuál adaptador usar, y por eso concentran la pregunta. La regla real, ya explícita en
+el comentario de cabecera de `plataforma.dart`, es: **`Platform.is*` en cualquier
+archivo de `lib/` que NO sea `infraestructura/plataforma.dart` o
+`infraestructura/capacidades.dart` es un rechazo.**
+
 ## Ver también
 
 [[ADR-004 Frontend]] · [[ADR-033 Puertos y adaptadores]] ·

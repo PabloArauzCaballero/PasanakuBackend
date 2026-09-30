@@ -1,0 +1,50 @@
+FAILURE: Build completed with 3 failures.
+
+1: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':plataforma:comun-web:jacocoTestCoverageVerification' (registered by plugin 'org.gradle.jacoco').
+> A failure occurred while executing org.gradle.internal.jacoco.AntJacocoCheck
+   > Rule violated for bundle comun-web: branches covered ratio is 0.46, but expected minimum is 0.47
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+2: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:identidad:jacocoTestCoverageVerification' (registered by plugin 'org.gradle.jacoco').
+> A failure occurred while executing org.gradle.internal.jacoco.AntJacocoCheck
+   > Rule violated for bundle identidad: lines covered ratio is 0.72, but expected minimum is 0.79
+     Rule violated for bundle identidad: branches covered ratio is 0.54, but expected minimum is 0.63
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+3: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:nucleo-financiero:integrationTest'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend/servicios/nucleo-financiero/build/reports/tests/integrationTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+BUILD FAILED in 6m 43s
+
+--- Reproduccion aislada de CU24Test (clasificacion, regla 80.4) ---
+$ BD_URL_ADMIN="jdbc:postgresql://127.0.0.1:5435/pasanaku" ./gradlew :servicios:nucleo-financiero:integrationTest --tests "*CU24Test*"
+BUILD SUCCESSFUL in 17s -- CU24Test PASA aislado. La falla en verificarProduccion --continue fue
+java.net.BindException: Address already in use -- ENVIRONMENT (agotamiento de puertos/sockets
+efimeros en esta maquina, corriendo 15 modulos con pools de conexion reales en paralelo/serie
+rapida, mas ~20 contenedores Docker de otros proyectos activos), NO un bug de la invariante
+contable SUM(debe)=SUM(haber).

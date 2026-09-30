@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core'
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router'
+import { BannerDatosDeEjemplo } from '../../rutas/sistemas/banner-datos-de-ejemplo/banner-datos-de-ejemplo'
 import { textosSistemas } from '../../rutas/sistemas/textos'
 
 /**
@@ -13,8 +14,12 @@ import { textosSistemas } from '../../rutas/sistemas/textos'
 @Component({
   selector: 'ap-shell-sistemas',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, BannerDatosDeEjemplo],
   template: `
+    <!-- H2.S2.M3: el banner es del shell, no de cada pantalla — así se ve en las
+         nueve sin que cada una tenga que acordarse de ponerlo, y nunca tapa el nav
+         (va arriba de la grilla, no dentro de "contenido"). -->
+    <ap-banner-datos-de-ejemplo />
     <div class="marco">
       <nav aria-label="Menú de sistemas">
         <h1>{{ t.titulo }}</h1>

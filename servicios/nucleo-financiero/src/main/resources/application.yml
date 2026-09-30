@@ -18,10 +18,10 @@ spring:
     bootstrap-servers: ${KAFKA_URL}
 
 aportaya:
-  mfa:
-    # Si el segundo factor es obligatorio. Es un interruptor de riesgo: se apa
-    # ga solo en un incidente del proveedor de MFA, y con eso registrado.
-    exigido: true
+  # H2.S1: aportaya.mfa.doble-local vive SOLO en application-{local,test}.yml —
+  # declararla aca (comun a todo perfil) la haria "tener efecto" en produccion si
+  # alguien la copia sin pensar. Fuera de local/test no hay SegundoFactorLocal que
+  # la lea (@Profile), asi que ni siquiera hace falta declararla ausente.
   esquema: nucleo_financiero
   outbox:
     intervalo: PT1S                 # relevo: lee el outbox y publica DESPUES del commit
@@ -54,3 +54,23 @@ management:
     health:
       probes:
         enabled: true               # readiness mira base y Kafka; liveness solo el proceso
+
+# H4.S2.M4 · resilience4j: el cliente que le pregunta a `tarifas` (docs/operacion/provider-timeout.md).
+resilience4j:
+  retry:
+    instances:
+      cotizador:
+        max-attempts: 3              # el intento original + 2 reintentos, no mas: un
+                                      # retiro esperando la comision no puede colgarse
+        wait-duration: 200ms
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+  circuitbreaker:
+    instances:
+      cotizador:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50   # `tarifas` caido a medias no distingue de caido
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3

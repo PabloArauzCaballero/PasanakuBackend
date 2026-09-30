@@ -17,6 +17,7 @@ import 'dominio/estado_sesion.dart';
 import 'dominio/validaciones.dart';
 import 'sesion_pie.dart';
 import 'textos.dart';
+import '../../navegacion/retorno_de_invitacion.dart';
 
 /// CU-04, paso 1: teléfono y contraseña. El servidor decide si además pide MFA —
 /// esta pantalla nunca asume que no hace falta (invariante 7).
@@ -64,10 +65,17 @@ class _PantallaDeSesionState extends ConsumerState<PantallaDeSesion> {
     if (!avanzo || !mounted) return;
     // A dónde ir lo dijo el servidor, no esta pantalla.
     final paso = ref.read(sesionIdentidadProvider).paso;
+    final retorno = retornoDeInvitacion(
+      GoRouterState.of(context).uri.queryParameters['volver'],
+    );
     if (paso == PasoSesion.mfa) {
-      context.push('/identidad/mfa');
+      context.push(
+        retorno == null
+            ? '/identidad/mfa'
+            : '/identidad/mfa?volver=${Uri.encodeComponent(retorno)}',
+      );
     } else {
-      context.go('/billetera/inicio');
+      context.go(retorno ?? '/billetera/inicio');
     }
   }
 

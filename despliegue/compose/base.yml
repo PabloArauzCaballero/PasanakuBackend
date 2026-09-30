@@ -42,10 +42,13 @@ services:
     # existe por una razon concreta: `generateJooq` introspecciona la base VIVA
     # desde el build, que corre fuera de Docker. 5433 evita chocar con cualquier
     # PostgreSQL que la maquina ya tenga en el 5432.
+    # Configurable via APORTAYA_PG_PORT para la maquina que ya tenga OTRO Postgres
+    # propio (no de este repo) en 5433: no se toca el contenedor ajeno, se cambia
+    # el puerto publicado del lado de aportaya-postgres. Default sin cambios: 5433.
     # Los que no publican puerto son los servicios de aplicacion: la unica entrada
     # publica sigue siendo NGINX.
     ports:
-      - "127.0.0.1:5433:5432"
+      - "127.0.0.1:${APORTAYA_PG_PORT:-5433}:5432"
     volumes:
       - datos_pg:/var/lib/postgresql/data
       # El repositorio, de solo lectura: `bd:aplicar` corre psql DENTRO del
@@ -146,6 +149,22 @@ services:
       "
     restart: "no"
 
+  # H3.S1 (AMB-6): RequestRateLimiter del gateway necesita un almacen
+  # compartido entre replicas — Redis, no memoria local. Sin puerto publicado:
+  # solo el gateway le habla, por la red interna. Con Redis caido, las rutas
+  # sensibles deniegan (fail closed, ver RateLimitGatewayTest).
+  redis:
+    image: redis:7.4.2-alpine
+    container_name: aportaya-redis
+    profiles: [base, dinero, todo]
+    networks: [interna]
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
   kafka:
     image: confluentinc/cp-kafka:7.7.1
     container_name: aportaya-kafka
@@ -189,8 +208,14 @@ services:
     container_name: aportaya-gateway
     profiles: [base, dinero, todo]
     networks: [interna]
+    # H2.S4.M3: mismo endurecimiento que los 14 servicios (generar_compose.py).
+    read_only: true
+    tmpfs:
+      - /tmp
     environment:
       SPRING_PROFILES_ACTIVE: local
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: "6379"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/liveness || exit 1"]
       interval: 10s
