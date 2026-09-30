@@ -2,7 +2,7 @@
 
 > **AVANCE: 15 / 20 — 75,0 %.** (Sin cerrar: 1 `A MEDIAS` y 4 `BLOQUEADO` por decisión de negocio/infraestructura pendiente. Nada de esto se ejecutó en un dispositivo real.)
 
-- Fecha: 2026-09-30 · Plan: [PLAN.md](./PLAN.md) · Rama: `pablo/fix/docker-test-coolify-2026-09-25` (sin commitear)
+- Fecha: 2026-09-30 · Plan: [PLAN.md](./PLAN.md) · Rama: `pablo/fix/docker-test-coolify-2026-09-25` · mergeado a `main` en el PR #34 (2026-09-30 18:53 UTC) con el CI todavía corriendo: ningún check estaba en verde al mergear
 - Peldaño de evidencia alcanzado: **`TESTED`** para la lógica y las pantallas (tests dirigidos en verde, suite completa en verde, goldens mirados) y **`RUNS`** para el adaptador nativo (`flutter build ios --simulator` compila). **No se llegó a `VERIFIED`**: ninguna pieza se ejercitó con cámara real, push real ni la app contra el backend TEST.
 
 ## Qué se pidió y cómo se interpretó
@@ -61,6 +61,7 @@ Archivos en `evidencia/`: `h0-*`, `h1s1m1`, `h1s1m2`, `h2s1m1`, `h2s1m3`/`h3`, `
 - **Backend real**: ningún cambio de backend ni de OpenAPI; la ruta de invitación escaneada no se probó contra el servicio.
 
 ## Desvíos del plan
+0. **Merge a `main` (PR #34):** hubo un conflicto en `apps/backoffice/e2e/tablero-y-permisos.e2e.ts` (PR #18 de otra persona); se tomó la versión de `main`, con lo que la rama pierde ahí aserciones sobre título, h1 y cantidad de accesos. `cliente_refresco_test.dart` (de `main`) asumía `baseDelGateway` como `String`; se usó una URL de prueba fija. Tras el merge: `flutter analyze` limpio y `+262` en verde, con los clientes Dart regenerados localmente (`main` trackea paquetes stub en `clientes/dart/` que pisan los generados).
 1. **El QR se definió como la invitación a un grupo** (A6). Pasanaku no tenía consumidor para un QR; se reusó el único enlace con formato estricto ya validado.
 2. **No se agregó `permission_handler`** (H3): más invasivo en iOS, y el escáner ya informa `permissionDenied`. Se agregó `app_settings` para abrir Ajustes. No existe el estado «bloqueado permanente».
 3. **«Abrir ajustes» no llegó a la captura del alta**: exigiría cambiar el contrato del puerto `Camara` y los fakes de otros carriles.
@@ -75,7 +76,7 @@ Archivos en `evidencia/`: `h0-*`, `h1s1m1`, `h1s1m2`, `h2s1m1`, `h2s1m3`/`h3`, `
 - **`AvisosPushAndroid` figura como «soportado»** en `capacidades.dart` sin receptor nativo (hueco previo, no tocado): la app cree que hay push y no lo hay.
 - **`mobile_scanner` no probado en hardware**: permisos de cámara de iOS (`NSCameraUsageDescription`) y Android (declarado por el plugin) están, pero no se vio el diálogo.
 - **El puente de cámara de desarrollo (`CAMARA_DEV`) usa fotos reales del Mac**; no se verificó que el CI de release lo prohíba (preexistente, anotado).
-- **Cambios del trabajo TestFlight siguen sin commitear** en el mismo árbol (`apps/movil/ios`, `capacidades.dart`, `plataforma.dart`, etc.); `pubspec.lock` y `Podfile.lock` ahora incluyen además `app_settings`. Al commitear hay que separar los dos trabajos.
+- **Cambios del trabajo TestFlight siguen sin commitear** en el árbol local (no entraron al PR #34) (`apps/movil/ios`, `capacidades.dart`, `plataforma.dart`, etc.); `pubspec.lock` y `Podfile.lock` ahora incluyen además `app_settings`. Al commitear hay que separar los dos trabajos.
 
 ## Decisiones y ambigüedades
 - **A1** «Mismo comportamiento» = los 4 bloques, adaptados, no copia literal. → Pablo.
