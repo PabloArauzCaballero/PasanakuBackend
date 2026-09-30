@@ -12,9 +12,9 @@ dependencies:
   flutter_riverpod: ^3.0.0
   go_router: ^17.0.0
   dio: ^5.7.0
-  flutter_secure_storage: ^10.0.0
+  flutter_secure_storage: ^11.2.0
   connectivity_plus: ^7.0.0
-  mobile_scanner: ^7.1.2
+  mobile_scanner: ^7.4.2
   # El sistema de diseño (packages/diseno_flutter) y los clientes GENERADOS desde el OpenAPI
   # (clientes/dart). No se editan en un carril de pantallas — micro-PR al troncal (planes/16 §6).
   # Se declaran los catorce servicios de una vez para no repetir este micro-PR por cada carril
@@ -58,7 +58,7 @@ dev_dependencies:
   # troncal (planes/16 §6) — hueco declarado por el carril F12 en su informe.
   integration_test:
     sdk: flutter
-  patrol: ^3.15.0
+  patrol: ^4.10.0
 
 patrol:
   app_name: Aportaya Movil
