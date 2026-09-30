@@ -69,13 +69,14 @@ class _AdaptadorDeCarreraConFalloDeRefresco implements HttpClientAdapter {
     return _json(401, {});
   }
 
-  ResponseBody _json(int status, Map<String, dynamic> cuerpo) => ResponseBody.fromBytes(
-    utf8.encode(jsonEncode(cuerpo)),
-    status,
-    headers: {
-      Headers.contentTypeHeader: [Headers.jsonContentType],
-    },
-  );
+  ResponseBody _json(int status, Map<String, dynamic> cuerpo) =>
+      ResponseBody.fromBytes(
+        utf8.encode(jsonEncode(cuerpo)),
+        status,
+        headers: {
+          Headers.contentTypeHeader: [Headers.jsonContentType],
+        },
+      );
 
   @override
   void close({bool force = false}) {}
@@ -92,17 +93,23 @@ void main() {
       final sesion = Sesion(AlmacenEnMemoria());
       await sesion.guardar(acceso: 'viejo', refresco: 'r1');
 
-      final dio = Dio(BaseOptions(baseUrl: baseDelGateway));
+      final dio = Dio(
+        BaseOptions(baseUrl: 'https://pruebas.aportaya.bo/api/v1'),
+      );
       final adaptador = _AdaptadorDeCarrera();
       dio.httpClientAdapter = adaptador;
       instalarInterceptores(dio, sesion);
 
       final resultados = await Future.wait([
-        for (var i = 0; i < 10; i++) dio.get<Map<String, dynamic>>('/recurso-$i'),
+        for (var i = 0; i < 10; i++)
+          dio.get<Map<String, dynamic>>('/recurso-$i'),
       ]);
 
       expect(resultados, hasLength(10));
-      expect(resultados.map((r) => r.data?['ok']), containsAll(List.generate(10, (i) => i)));
+      expect(
+        resultados.map((r) => r.data?['ok']),
+        containsAll(List.generate(10, (i) => i)),
+      );
       expect(
         adaptador.refrescos,
         1,
@@ -117,20 +124,29 @@ void main() {
       final sesion = Sesion(AlmacenEnMemoria());
       await sesion.guardar(acceso: 'viejo', refresco: 'r1');
 
-      final dio = Dio(BaseOptions(baseUrl: baseDelGateway));
+      final dio = Dio(
+        BaseOptions(baseUrl: 'https://pruebas.aportaya.bo/api/v1'),
+      );
       final adaptador = _AdaptadorDeCarreraConFalloDeRefresco();
       dio.httpClientAdapter = adaptador;
       instalarInterceptores(dio, sesion);
 
       final resultados = await Future.wait([
         for (var i = 0; i < 4; i++)
-          dio.get<Map<String, dynamic>>('/recurso-$i').then<Object>((r) => r).catchError((Object e) => e),
+          dio
+              .get<Map<String, dynamic>>('/recurso-$i')
+              .then<Object>((r) => r)
+              .catchError((Object e) => e),
       ]);
 
       expect(adaptador.refrescos, 1, reason: 'cero segundos refresh');
       for (final r in resultados) {
         expect(r, isA<DioException>());
-        expect((r as DioException).response?.statusCode, 401, reason: 'error original, no el 500 del refresco');
+        expect(
+          (r as DioException).response?.statusCode,
+          401,
+          reason: 'error original, no el 500 del refresco',
+        );
       }
       expect(await sesion.tokenDeAcceso(), isNull, reason: 'sesión cerrada');
     },
