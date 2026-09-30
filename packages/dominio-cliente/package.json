@@ -17,10 +17,10 @@
     "test:a11y": "echo 'dominio-cliente: sin pruebas de a11y (no renderiza)'"
   },
   "devDependencies": {
-    "@types/node": "^22.10.0",
-    "eslint": "^9.39.0",
-    "typescript": "~5.9.2",
-    "typescript-eslint": "^8.68.0",
-    "vitest": "^4.1.0"
+    "@types/node": "^26.6.3",
+    "eslint": "^10.11.0",
+    "typescript": "~7.0.2",
+    "typescript-eslint": "^8.70.1",
+    "vitest": "^5.0.2"
   }
 }
