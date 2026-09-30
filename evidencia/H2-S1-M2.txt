@@ -1,0 +1,38 @@
+❯ Building...
+✔ Building...
+Application bundle generation complete. [2.557 seconds] - 2026-09-22T03:34:48.681Z
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90mC:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-richard-pr11/apps/backoffice[39m
+
+ [31m❯[39m [30m[42m backoffice [49m[39m src/app/nucleo/sesion.interceptor.spec.ts [2m([22m[2m2 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 36[2mms[22m[39m
+[31m     [31m×[31m diez peticiones con token vencido comparten un único refresh[39m[32m 11[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/nucleo/sesion.interceptor.spec.ts[2m > [22msesionInterceptor · diez 401 concurrentes → exactamente un refresh[2m > [22mdiez peticiones con token vencido comparten un único refresh
+[31m[1mAssertionError[22m: se esperaba 1 refresh, salieron 10: expected 10 to be 1 // Object.is equality[39m
+
+- Expected
++ Received
+
+- 1
++ 10
+
+[36m [2m❯[22m src/app/nucleo/sesion.interceptor.spec.ts:[2m67:99[22m[39m
+    [90m 65|[39m
+    [90m 66|[39m     const refrescosEnVuelo = backend.match(`${GATEWAY_TEST}/sesion/ref…
+    [90m 67|[39m     expect(refrescosEnVuelo.length, `se esperaba 1 refresh, salieron $…
+    [90m   |[39m                                                                                                   [31m^[39m
+    [90m 68|[39m     [35mconst[39m unicoRefresco [33m=[39m refrescosEnVuelo[33m.[39m[34mat[39m([34m0[39m)
+    [90m 69|[39m     [35mif[39m ([33m![39municoRefresco) [35mthrow[39m [35mnew[39m [33mError[39m([32m'no salió ningún refresh'[39m)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 23:34:49
+[2m   Duration [22m 1.63s[2m (transform 100ms, setup 425ms, import 43ms, tests 36ms, environment 918ms)[22m
+
+exit=1

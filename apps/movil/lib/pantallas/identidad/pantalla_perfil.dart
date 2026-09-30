@@ -11,6 +11,7 @@ import 'dominio/estado_cuenta.dart';
 import 'dominio/estado_sesion.dart';
 import 'textos.dart';
 import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
+import '../../proveedores/tutoriales.dart';
 
 /// CU-07 — ejercer derechos sobre datos personales: ver y corregir el correo de
 /// contacto. La identidad verificada (nombre, documento) no se edita acá; para eso
@@ -65,6 +66,14 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
                 variante: BotonVariante.fantasma,
                 expandido: true,
                 onPressed: () => context.push('/identidad/contrasena'),
+              ),
+              const SizedBox(height: Espacio.s3),
+              Boton(
+                texto: TextosIdentidad.verGuiaOtraVez,
+                variante: BotonVariante.fantasma,
+                expandido: true,
+                onPressed: () =>
+                    ref.read(verGuiaDeInicioOtraVezProvider)().ignore(),
               ),
               const SizedBox(height: Espacio.s3),
               // Cerrar sesión no estaba en ningún lado: se podía entrar y no salir.

@@ -11,6 +11,7 @@ import 'pantalla_reclamo_pendiente.dart';
 import 'pantalla_retiro.dart';
 import 'pantalla_transparencia.dart';
 import 'pantalla_turno.dart';
+import 'pantalla_escanear.dart';
 import 'pantalla_unirse.dart';
 import 'pantalla_verificar_sorteo.dart';
 
@@ -116,6 +117,11 @@ final List<RouteBase> rutasPasanaku = [
 
 /// El enlace llega también antes de iniciar sesión, por eso vive fuera del shell.
 final List<RouteBase> rutasDeInvitacion = [
+  GoRoute(
+    path: '/pasanaku/escanear',
+    name: 'pasanaku.escanear',
+    builder: (context, state) => const PantallaEscanear(),
+  ),
   GoRoute(
     path: '/pasanaku/unirse/:codigo',
     name: 'pasanaku.unirse',
