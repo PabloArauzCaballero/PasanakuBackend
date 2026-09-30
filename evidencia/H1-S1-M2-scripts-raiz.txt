@@ -1,0 +1,27 @@
+{
+  "//": "Frontend en Flutter (app) y Angular (backoffice y sitio), ADR-044. `apps/movil` es un envoltorio: sus tareas llaman a flutter. Los tres `dev:*` generan antes los tokens: tokens.css y tokens.dart son artefactos, y sin ellos nada arranca con tema.",
+  "dev:mock": "yarn workspace @aportaya/simulado mock",
+  "dev:movil": "yarn workspace @aportaya/tokens build && yarn workspace @aportaya/movil dev",
+  "dev:backoffice": "yarn workspace @aportaya/tokens build && yarn workspace @aportaya/backoffice start",
+  "dev:web": "yarn workspace @aportaya/tokens build && yarn workspace @aportaya/web start",
+  "lint": "turbo run lint",
+  "typecheck": "turbo run typecheck",
+  "test:front": "turbo run test:front",
+  "test:a11y": "turbo run test:a11y",
+  "build": "turbo run build",
+  "humo": "for c in postman/humo/*.json; do yarn newman run \"$c\" -e postman/entornos/local.postman_environment.json --reporters cli --color off || true; done",
+  "humo:recorrido": "yarn newman run postman/recorrido.postman_collection.json -e postman/entornos/ensayo-local.postman_environment.json",
+  "postman": "python3 scripts/generar_postman.py"
+}
+backoffice: {
+  "start": "ng serve",
+  "build": "ng build",
+  "watch": "ng build --watch --configuration development",
+  "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.spec.json --noEmit",
+  "lint": "ng lint && python3 ../../scripts/verificar_frontend.py backoffice",
+  "test:front": "ng test --include='src/**/*.spec.ts' --exclude='src/**/*.a11y.spec.ts'",
+  "test:a11y": "ng test --include='src/**/*.a11y.spec.ts'",
+  "test:e2e": "playwright test"
+}
+angular: 22.1.5
+typescript: 5.9.3
