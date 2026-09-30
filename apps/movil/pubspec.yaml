@@ -47,6 +47,7 @@ dependencies:
     path: ../../clientes/dart/cumplimiento
   image_picker: ^1.2.3
   path_provider: ^2.1.6
+  app_settings: ^9.0.0
 
 dev_dependencies:
   flutter_test:

@@ -1,0 +1,25 @@
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  mobile_scanner 7.4.1 (7.4.2 available)
+  nm 0.5.0 (0.6.0 available)
+  objective_c 9.5.0 (9.6.0 available)
+  patrol 3.20.0 (4.10.0 available)
+  patrol_finders 2.9.0 (3.6.0 available)
+  patrol_log 0.5.0 (0.10.1 available)
+  petitparser 7.0.2 (7.1.0 available)
+  qr 3.0.2 (4.0.0 available)
+  record_use 0.6.0 (1.1.1 available)
+  stack_trace 1.12.1 (1.12.2 available)
+  test_api 0.7.11 (0.7.14 available)
+  vector_math 2.2.0 (2.4.3 available)
+  xml 7.0.1 (7.1.0 available)
+Got dependencies!
+29 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/widget/tutoriales/autolanzamiento_inicio_test.dart
+00:00 +0: correcto: primera vez, arranca la guía y deja su avance
+00:00 +1: límite: montar el inicio dos veces no la lanza dos veces
+00:00 +2: límite: ya estaba EstadoDeProgreso.completado, no se vuelve a ofrecer
+00:00 +3: límite: ya estaba EstadoDeProgreso.omitido, no se vuelve a ofrecer
+00:00 +4: inválido: sin la guía en el catálogo no hace nada ni falla
+00:00 +5: All tests passed!

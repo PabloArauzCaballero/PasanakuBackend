@@ -1,0 +1,3 @@
+00:00 +0: loading /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/widget/acceso_escanear_test.dart
+00:00 +0: correcto: el ícono de la cabecera del inicio abre el escáner de invitaciones
+00:00 +1: All tests passed!

@@ -18,6 +18,12 @@ export const routes: Routes = [
     loadComponent: () => import('./rutas/ingreso/pantalla-de-ingreso').then((m) => m.PantallaDeIngreso),
     title: 'Ingresar · AportaYa',
   },
+  // H3 (PR11-Sesion) · Restauración de sesión al arrancar o al reintentar tras un ERROR.
+  {
+    path: 'arranque',
+    loadComponent: () => import('./nucleo/restaurando-sesion').then((m) => m.RestaurandoSesion),
+    title: 'Restaurando sesión · AportaYa',
+  },
   {
     path: '',
     component: ShellFinanciero,
