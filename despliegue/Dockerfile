@@ -69,6 +69,19 @@ RUN --mount=type=cache,target=/root/.gradle \
 RUN mkdir -p /capas && cd /capas \
     && java -Djarmode=tools -jar /construccion/${MODULO}/${SERVICIO}/build/libs/*.jar extract --layers --launcher --destination /capas
 
+# Los nativos de JNA (jnidispatch) y de argon2-jvm (libargon2), sacados de sus jars
+# ACA y no en runtime. El runtime es `read_only` con `/tmp` en tmpfs, que Docker monta
+# `noexec` (H2.S4.M3): JNA desempaquetaba en /tmp y el mmap fallaba con
+# «UnsatisfiedLinkError … failed to map segment from shared object», e `identidad`
+# no arrancaba. Vacio en los servicios que no usan JNA.
+RUN mkdir -p /nativo /tmp/nativo && cd /tmp/nativo \
+    && case "$(uname -m)" in x86_64) prefijo=linux-x86-64 ;; aarch64) prefijo=linux-aarch64 ;; *) prefijo=desconocido ;; esac \
+    && for j in /capas/dependencies/BOOT-INF/lib/jna-[0-9]*.jar; do \
+         [ -f "$j" ] && jar xf "$j" "com/sun/jna/${prefijo}/libjnidispatch.so" && cp "com/sun/jna/${prefijo}/libjnidispatch.so" /nativo/; done \
+    && for j in /capas/dependencies/BOOT-INF/lib/argon2-jvm-[0-9]*.jar; do \
+         [ -f "$j" ] && jar xf "$j" "${prefijo}/libargon2.so" && cp "${prefijo}/libargon2.so" /nativo/; done \
+    ; ls -l /nativo
+
 # --------------------------------------------------------------------- runtime --
 # glibc y no Alpine. Argon2 —lo unico admisible para una credencial— llega por
 # `argon2-jvm`, que carga su biblioteca nativa con JNA, y esa biblioteca esta
@@ -93,6 +106,7 @@ COPY --from=construccion --chown=app:app /capas/dependencies/ ./
 COPY --from=construccion --chown=app:app /capas/spring-boot-loader/ ./
 COPY --from=construccion --chown=app:app /capas/snapshot-dependencies/ ./
 COPY --from=construccion --chown=app:app /capas/application/ ./
+COPY --from=construccion /nativo/ /app/nativo/
 
 USER app
 EXPOSE 8080
@@ -103,4 +117,6 @@ HEALTHCHECK --interval=10s --timeout=3s --start-period=40s --retries=6 \
 
 ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-XX:+ExitOnOutOfMemoryError", \
             "-Djava.security.egd=file:/dev/urandom", \
+            "-Djna.boot.library.path=/app/nativo", "-Djna.library.path=/app/nativo", \
+            "-Djna.nounpack=true", \
             "org.springframework.boot.loader.launch.JarLauncher"]
