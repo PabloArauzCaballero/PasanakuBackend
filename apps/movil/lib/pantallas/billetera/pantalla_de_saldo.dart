@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../dominio/cu13_consultar_saldo.dart';
 import '../../navegacion/accion_de_avisos.dart';
+import '../../navegacion/accion_de_escanear.dart';
+import '../soporte/autolanzador_de_guia.dart';
 import 'cuerpo_de_saldo.dart';
 import 'textos.dart';
 import 'package:aportaya_diseno/moleculas/cabecera.dart';
@@ -19,30 +21,32 @@ class PantallaDeSaldo extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final saldo = ref.watch(saldoProvider(cuentaId));
-    return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Espacio.s4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const CabeceraDeInicio(
-                saludo: 'Hola',
-                titulo: TextosBilletera.titulo,
-                acciones: [AccionDeAvisos()],
-              ),
-              Expanded(
-                child: EstadoDePantalla<SaldoBilletera>(
-                  valor: saldo,
-                  etiquetaDeCarga: TextosBilletera.cargandoSaldo,
-                  vacio: saldoEnCero,
-                  mensajeVacio: TextosBilletera.sinMovimientos,
-                  reintentar: () => ref.invalidate(saldoProvider(cuentaId)),
-                  exito: (s) => CuerpoDeSaldo(saldo: s),
+    return AutolanzadorDeGuia(
+      hijo: Scaffold(
+        body: SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Espacio.s4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const CabeceraDeInicio(
+                  saludo: 'Hola',
+                  titulo: TextosBilletera.titulo,
+                  acciones: [AccionDeEscanear(), AccionDeAvisos()],
                 ),
-              ),
-            ],
+                Expanded(
+                  child: EstadoDePantalla<SaldoBilletera>(
+                    valor: saldo,
+                    etiquetaDeCarga: TextosBilletera.cargandoSaldo,
+                    vacio: saldoEnCero,
+                    mensajeVacio: TextosBilletera.sinMovimientos,
+                    reintentar: () => ref.invalidate(saldoProvider(cuentaId)),
+                    exito: (s) => CuerpoDeSaldo(saldo: s),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

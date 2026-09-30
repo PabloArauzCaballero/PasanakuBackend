@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../dominio/puertos/almacen_de_progreso.dart';
+import '../dominio/tutoriales/autolanzamiento.dart';
 import '../dominio/tutoriales/estado_del_motor.dart';
 import '../dominio/tutoriales/modelo.dart';
 import '../dominio/tutoriales/motor.dart';
@@ -85,3 +86,53 @@ final progresoDeTutorialesProvider =
 
 final motorDeTutorialesProvider =
     NotifierProvider<MotorDeTutoriales, EstadoDelMotor>(MotorDeTutoriales.new);
+
+/// Id del tutorial que se ofrece solo al entrar por primera vez al inicio.
+const String guiaDeInicioId = 'intro-app';
+
+/// **Lanza la guía de inicio si corresponde.** Espera a que estén listos los dos datos
+/// que deciden: las capacidades (qué tutoriales ve esta persona) y el avance guardado.
+/// Decidir antes de que termine la lectura relanzaría la guía a quien ya la hizo.
+///
+/// Corre a lo sumo una vez por arranque de la app aunque la pantalla se monte de nuevo,
+/// y nunca pisa un recorrido que ya está corriendo. Cualquier falla deja la app tal cual:
+/// la guía es una ayuda, no puede bloquear ni romper una tarea.
+final autolanzarGuiaDeInicioProvider = Provider<Future<bool> Function()>((ref) {
+  var intentada = false;
+  return () async {
+    if (intentada) return false;
+    intentada = true;
+    try {
+      await ref.read(capacidadesProvider.future);
+      await ref.read(progresoDeTutorialesProvider.notifier).cargar();
+      if (ref.read(motorDeTutorialesProvider).activo) return false;
+      final tutorial = ref
+          .read(registroDeTutorialesProvider)
+          .buscar(guiaDeInicioId);
+      final progreso = ref.read(progresoDeTutorialesProvider)[guiaDeInicioId];
+      if (!debeAutolanzar(tutorial, progreso)) return false;
+      await ref
+          .read(motorDeTutorialesProvider.notifier)
+          .iniciar(guiaDeInicioId);
+      return true;
+    } on Object {
+      return false;
+    }
+  };
+});
+
+/// **«Ver la guía otra vez»** desde Perfil: borra el avance de la guía de inicio y la
+/// arranca de cero. Es decisión de la persona, así que no pasa por [debeAutolanzar].
+/// Devuelve `false` si la guía no está disponible para quien mira.
+final verGuiaDeInicioOtraVezProvider = Provider<Future<bool> Function()>((ref) {
+  return () async {
+    if (ref.read(registroDeTutorialesProvider).buscar(guiaDeInicioId) == null) {
+      return false;
+    }
+    await ref
+        .read(progresoDeTutorialesProvider.notifier)
+        .reiniciar(guiaDeInicioId);
+    await ref.read(motorDeTutorialesProvider.notifier).iniciar(guiaDeInicioId);
+    return true;
+  };
+});
