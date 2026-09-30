@@ -100,7 +100,7 @@ const _capacidadesAndroid = Capacidades(
 /// | Biometria           | noSoportado | Sin `local_auth` (ni ningún paquete que resuelva `LocalAuthentication`) en `pubspec.yaml`: agregarlo sin decidirlo es una dependencia nueva sin justificar (regla 90.4.2, H2.S1.M5). Deuda declarada. |
 /// | AvisosPush          | noSoportado | El canal de Android no tiene receptor APNs; sin él, "soportado" sería fingir. `/notificaciones/bandeja` sigue siendo la fuente de verdad (ADR-035), así que la app funciona igual. |
 /// | Camara              | soportado   | `image_picker` es multiplataforma real; no hay ningún `MethodChannel` propio detrás. |
-/// | ProteccionPantalla  | noSoportado | `FLAG_SECURE` es una API de Android; iOS no tiene un equivalente por `MethodChannel` implementado hoy (bloquear captura en iOS pide una extensión nativa que no existe en este carril). Es CRÍTICA (`seguridadCriticaSoportada`). |
+/// | ProteccionPantalla  | degradado   | iOS no tiene `FLAG_SECURE`: `AppDelegate.swift` atiende `bo.aportaya/proteccion_pantalla` colgando la ventana del lienzo seguro de un `UITextField`, que tapa capturas y grabaciones. Degradado porque es un comportamiento de UIKit no documentado como API de privacidad. Es CRÍTICA (`seguridadCriticaSoportada`). |
 /// | Haptica             | soportado   | `HapticaIos` usa `HapticFeedback` del SDK de Flutter, no un canal propio. |
 const _capacidadesIos = Capacidades(
   almacenSeguro: GradoDeSoporte.soportado,
@@ -108,7 +108,7 @@ const _capacidadesIos = Capacidades(
   biometria: GradoDeSoporte.noSoportado,
   avisosPush: GradoDeSoporte.noSoportado,
   camara: GradoDeSoporte.soportado,
-  proteccionPantalla: GradoDeSoporte.noSoportado,
+  proteccionPantalla: GradoDeSoporte.degradado,
   haptica: GradoDeSoporte.soportado,
 );
 
