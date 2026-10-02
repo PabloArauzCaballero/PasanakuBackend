@@ -8,6 +8,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../dominio/cliente.dart';
 import '../../../proveedores/idempotencia.dart';
+import 'capturas_del_expediente.dart';
+
+export 'capturas_del_expediente.dart' show CaraDelCarril;
 
 /// CU-02 · sube una foto del expediente al **servidor de archivos**.
 ///
@@ -16,9 +19,8 @@ import '../../../proveedores/idempotencia.dart';
 /// objeto y su SHA-256 — nunca una URL pública (ADR-034).
 ///
 /// Va con `Idempotency-Key` porque una subida que se corta y se reintenta no puede
-/// dejar dos fotos del mismo momento en el expediente.
-enum CaraDelExpediente { anverso, reverso, selfie }
-
+/// dejar dos fotos del mismo momento en el expediente: «Reintentar» (mismo archivo)
+/// reusa la clave; «Repetir la foto» pide una nueva, igual que en Atlas.
 class FotoDelExpediente {
   const FotoDelExpediente({
     required this.claveObjeto,
@@ -32,57 +34,62 @@ class SubidaDeFotos {
   SubidaDeFotos(this._ref);
   final Ref _ref;
 
+  /// 45 s de base más el tiempo que tardaría a 100 KB/s — el mismo cálculo que usa
+  /// Atlas para decidir cuándo avisar «está tardando más de lo normal».
+  static Duration plazoDeSubidaMs(int bytes) =>
+      Duration(milliseconds: 45000 + (bytes / 100 * 1000).round());
+
   Future<FotoDelExpediente> subir({
     required String usuarioId,
-    required CaraDelExpediente cara,
+    required CaraDelCarril cara,
     required String rutaLocal,
     required String formularioId,
+    CancelToken? cancelToken,
   }) async {
     // Bytes y no `MultipartFile.fromFile`: en la web la camara devuelve una URL `blob:`,
     // no una ruta de disco, y `File` no existe. `XFile` lee las dos.
     final foto = XFile(rutaLocal);
+    final contenido = await foto.readAsBytes();
     final cuerpo = FormData.fromMap({
-      'cara': cara.name.toUpperCase(),
+      'cara': cara.valorApi,
       'archivo': MultipartFile.fromBytes(
-        await foto.readAsBytes(),
+        contenido,
         filename: _nombreDeArchivo(rutaLocal),
       ),
     });
-    try {
-      final r = await _ref
-          .read(dioProvider)
-          .post<Map<String, dynamic>>(
-            '/usuarios/$usuarioId/documentos',
-            data: cuerpo,
-            options: Options(
-              headers: {
-                'Idempotency-Key': _ref
-                    .read(idempotenciaProvider.notifier)
-                    .claveDe(formularioId),
-              },
-            ),
-          );
-      final datos = r.data!;
-      return FotoDelExpediente(
-        claveObjeto: datos['claveObjeto'] as String,
-        hashArchivo: datos['hashArchivo'] as String,
-      );
-    } on DioException catch (e) {
-      throw errorDeDominio(e);
-    } finally {
-      // La copia local se borra: la foto de una cédula en el carrete del teléfono es
-      // el mismo dato personal que se cuida en el servidor, sin ninguna de sus
-      // protecciones.
-      // En la web no hay copia en disco: el navegador libera el `blob:` solo.
-      if (!kIsWeb) {
-        final archivo = File(rutaLocal);
-        if (archivo.existsSync()) {
-          try {
-            await archivo.delete();
-          } on FileSystemException {
-            // Si el sistema no deja borrarla, no se frena el alta por eso.
-          }
-        }
+    final r = await _ref
+        .read(dioProvider)
+        .post<Map<String, dynamic>>(
+          '/usuarios/$usuarioId/documentos',
+          data: cuerpo,
+          cancelToken: cancelToken,
+          options: Options(
+            sendTimeout: plazoDeSubidaMs(contenido.length),
+            headers: {
+              'Idempotency-Key': _ref
+                  .read(idempotenciaProvider.notifier)
+                  .claveDe(formularioId),
+            },
+          ),
+        );
+    final datos = r.data!;
+    return FotoDelExpediente(
+      claveObjeto: datos['claveObjeto'] as String,
+      hashArchivo: datos['hashArchivo'] as String,
+    );
+  }
+
+  /// Se llama al aceptar el expediente completo (todas subidas) o al repetir una
+  /// foto puntual — nunca automáticamente al fallar: la copia local es lo único que
+  /// permite reintentar sin volver a la cámara.
+  Future<void> borrarCopiaLocal(String rutaLocal) async {
+    if (kIsWeb) return;
+    final archivo = File(rutaLocal);
+    if (archivo.existsSync()) {
+      try {
+        await archivo.delete();
+      } on FileSystemException {
+        // Si el sistema no deja borrarla, no es un error que frene nada.
       }
     }
   }

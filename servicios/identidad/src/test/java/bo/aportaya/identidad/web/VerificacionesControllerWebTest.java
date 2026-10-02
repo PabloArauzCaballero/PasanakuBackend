@@ -57,7 +57,7 @@ class VerificacionesControllerWebTest {
             CUANDO,
             null,
             null,
-            List.of("ANVERSO", "REVERSO", "SELFIE"));
+            List.of("ANVERSO", "REVERSO", "SELFIE", "PERFIL_IZQUIERDO", "PERFIL_DERECHO"));
 
     @Autowired
     private MockMvc mvc;
@@ -116,6 +116,19 @@ class VerificacionesControllerWebTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.url").value("https://almacen/interno/anverso?firma=xyz"))
                     .andExpect(jsonPath("$.vigenteHasta").exists());
+        }
+
+        @Test
+        @DisplayName("CU-02 · tambien devuelve un enlace para el perfil izquierdo, la cuarta cara")
+        void fotoDePerfilIzquierdo() throws Exception {
+            when(revision.foto(eq(VERIFICACION), eq("PERFIL_IZQUIERDO"), any()))
+                    .thenReturn(
+                            new CU02RevisarExpediente.Enlace("https://almacen/interno/perfil-izq?firma=xyz", CUANDO));
+
+            mvc.perform(get("/identidad/verificaciones/{id}/fotos/{cara}", VERIFICACION, "PERFIL_IZQUIERDO")
+                            .with(Sesiones.como("BACKOFFICE", "VERIFICACION_RESOLVER")))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.url").value("https://almacen/interno/perfil-izq?firma=xyz"));
         }
 
         @Test

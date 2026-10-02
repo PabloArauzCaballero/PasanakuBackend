@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../atomos/boton_tamano.dart';
 import '../atomos/hundido_al_tocar.dart';
 import '../atomos/boton_variante.dart';
+import '../atomos/superficie_viva.dart';
 import '../tokens/tokens.dart';
 
 /// El botón, con sus siete estados: normal, hover, presionado, foco, deshabilitado,
@@ -61,10 +62,19 @@ class Boton extends StatelessWidget {
     // opacidad al naranja da un naranja claro que sigue leyéndose como acción y deja a
     // la persona tocando algo que no responde. Apagado se ve apagado.
     final apagado = !_habilitado && !cargando;
+    // Con relleno y vivo: el color lo pinta `SuperficieViva` (degradado, sombra,
+    // brillo) y el `FilledButton` queda transparente encima, sólo para el toque, el
+    // foco y el teclado.
+    final vivo = !apagado && fondo != Colors.transparent;
     final estilo = ButtonStyle(
       backgroundColor: WidgetStatePropertyAll(
-        apagado ? (fondo == Colors.transparent ? fondo : t.surface2) : fondo,
+        vivo
+            ? Colors.transparent
+            : apagado
+            ? (fondo == Colors.transparent ? fondo : t.surface2)
+            : fondo,
       ),
+      elevation: const WidgetStatePropertyAll(0),
       foregroundColor: WidgetStatePropertyAll(apagado ? t.text3 : frente),
       overlayColor: WidgetStatePropertyAll(frente.withValues(alpha: 0.08)),
       minimumSize: WidgetStatePropertyAll(Size(Tactil.minimo, alto)),
@@ -119,26 +129,33 @@ class Boton extends StatelessWidget {
         ),
       ],
     );
+    final boton = FilledButton(
+      onPressed: _habilitado
+          ? () {
+              // El golpecito llega en el momento del toque, no cuando la pantalla
+              // siguiente terminó de dibujarse: es lo que confirma que el botón
+              // entendió, sobre todo en un teléfono lento.
+              HapticFeedback.lightImpact();
+              onPressed!();
+            }
+          : null,
+      style: estilo,
+      child: hijo,
+    );
     return Semantics(
       button: true,
       enabled: _habilitado,
       label: cargando ? '$texto, enviando' : null,
-      child: HundidoAlTocar(
-        activo: _habilitado,
-        child: FilledButton(
-          onPressed: _habilitado
-              ? () {
-                  // El golpecito llega en el momento del toque, no cuando la pantalla
-                  // siguiente terminó de dibujarse: es lo que confirma que el botón
-                  // entendió, sobre todo en un teléfono lento.
-                  HapticFeedback.lightImpact();
-                  onPressed!();
-                }
-              : null,
-          style: estilo,
-          child: hijo,
-        ),
-      ),
+      child: vivo
+          ? SuperficieViva(
+              color: fondo,
+              radio: Radios.md,
+              activo: _habilitado,
+              brilla: variante == BotonVariante.primario,
+              cargando: cargando,
+              child: boton,
+            )
+          : HundidoAlTocar(activo: _habilitado, child: boton),
     );
   }
 }

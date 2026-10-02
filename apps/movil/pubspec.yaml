@@ -48,6 +48,17 @@ dependencies:
   image_picker: ^1.2.3
   path_provider: ^2.1.6
   app_settings: ^9.0.0
+  # El visor en vivo del escáner de identidad (CU-02, comportamiento de Atlas):
+  # `image_picker` solo abría la cámara del sistema, sin guía de encuadre ni cámara
+  # frontal controlada. Plugin oficial de flutter.dev, Android minSdk 24.
+  camera: ^0.12.1
+  # Distingue "denegado" de "denegado para siempre" para el escáner — `camera` solo
+  # da el código de excepción, no el estado del permiso. Abrir Ajustes sigue siendo
+  # `AjustesDelSistema` (ya en el repo); esto solo decide CUÁNDO ofrecerlo.
+  permission_handler: ^13.0.2
+  # Ya era dependencia transitiva (pubspec.lock); se declara explícita porque el
+  # carrusel de capturas la importa para el adelanto de hash en cada foto.
+  crypto: ^3.0.6
 
 dev_dependencies:
   flutter_test:

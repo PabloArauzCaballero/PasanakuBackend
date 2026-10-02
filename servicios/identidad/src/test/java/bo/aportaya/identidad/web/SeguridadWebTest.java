@@ -2,6 +2,7 @@ package bo.aportaya.identidad.web;
 
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
+import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.CU02RevisarExpediente;
 import bo.aportaya.identidad.aplicacion.CU04Autenticar;
@@ -43,6 +44,11 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private CU02GuardarFotoDelExpediente guardarFoto;
+
+    // El estado publico de la verificacion cuelga de UsuariosController desde que
+    // existe esa ruta: sin doblarlo, el contexto de esta sabana no levanta.
+    @MockitoBean
+    private CU02ConsultarEstadoDeVerificacion estadoDeVerificacion;
 
     @MockitoBean
     private BuscarPorTelefono buscarPorTelefono;

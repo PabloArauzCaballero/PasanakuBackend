@@ -10,7 +10,8 @@ import 'package:go_router/go_router.dart';
 
 import 'dominio/estado_alta.dart';
 import 'dominio/estado_contrato.dart';
-import 'pasos_alta/paso_captura.dart';
+import 'dominio/seguimiento_del_alta.dart';
+import 'pasos_alta/paso_capturas.dart';
 import 'pasos_alta/paso_contrasena.dart';
 import 'pasos_alta/paso_celular.dart';
 import 'pasos_alta/paso_cotejo.dart';
@@ -31,9 +32,7 @@ class PantallaDeRegistro extends ConsumerWidget {
     PasoAlta.datos: TextosIdentidad.pasoDatos,
     PasoAlta.contrasena: TextosIdentidad.pasoContrasena,
     PasoAlta.celular: TextosIdentidad.pasoCelular,
-    PasoAlta.anverso: TextosIdentidad.pasoAnverso,
-    PasoAlta.reverso: TextosIdentidad.pasoReverso,
-    PasoAlta.pruebaDeVida: TextosIdentidad.pasoPruebaDeVida,
+    PasoAlta.capturas: TextosIdentidad.pasoCapturas,
     PasoAlta.cotejo: TextosIdentidad.pasoCotejo,
     PasoAlta.perfilTransaccional: TextosIdentidad.pasoPerfil,
     PasoAlta.contrato: TextosIdentidad.pasoContrato,
@@ -48,30 +47,7 @@ class PantallaDeRegistro extends ConsumerWidget {
       PasoAlta.datos => const PasoDatos(),
       PasoAlta.contrasena => const PasoContrasena(),
       PasoAlta.celular => const PasoCelular(),
-      PasoAlta.anverso => PasoCaptura(
-        titulo: TextosIdentidad.capturarAnverso,
-        esDocumento: true,
-        rutaActual: estado.rutaAnverso,
-        onCapturado: notifier.capturarAnverso,
-        onContinuar: notifier.siguiente,
-      ),
-      PasoAlta.reverso => PasoCaptura(
-        titulo: TextosIdentidad.capturarReverso,
-        esDocumento: true,
-        rutaActual: estado.rutaReverso,
-        onCapturado: notifier.capturarReverso,
-        onContinuar: notifier.siguiente,
-      ),
-      PasoAlta.pruebaDeVida => PasoCaptura(
-        titulo: TextosIdentidad.capturarSelfie,
-        esDocumento: false,
-        rutaActual: estado.rutaSelfie,
-        onCapturado: notifier.capturarSelfie,
-        onContinuar: notifier.siguiente,
-        // La prueba de vida no tiene alternativa manual: sin ella no hay forma
-        // de cotejar rostro contra documento (supuesto declarado en el informe).
-        permitirEscribirAMano: false,
-      ),
+      PasoAlta.capturas => PasoCapturas(onContinuar: notifier.siguiente),
       PasoAlta.cotejo => const PasoCotejo(),
       PasoAlta.perfilTransaccional => const PasoPerfilTransaccional(),
       PasoAlta.contrato => _PasoContrato(
@@ -82,12 +58,19 @@ class PantallaDeRegistro extends ConsumerWidget {
           if (aceptado != true || !context.mounted) return;
 
           // Crea la cuenta con el contrato aceptado y la contraseña del paso 2.
-          await notifier.enviarAlServidor();
+          final resultado = await notifier.enviarAlServidor();
           if (!context.mounted) return;
           // Si falló, reintentar conserva la misma clave de idempotencia.
-          if (ref.read(altaProvider).error != null) return;
+          final usuarioId = resultado.usuarioId;
+          if (resultado.error != null || usuarioId == null) return;
 
-          // El alta no abre sesión. Vacia el asistente antes de ir al login.
+          // El alta no abre sesión: las cinco fotos se suben con este `usuarioId`
+          // antes de llegar al login, igual que Atlas sube apenas captura — acá se
+          // sube en lote porque la persona no existe hasta este punto.
+          // Las capturas se copian ANTES de `reiniciar()`, que las vacía.
+          ref
+              .read(seguimientoDelAltaProvider.notifier)
+              .fijar(usuarioId, ref.read(altaProvider).capturas);
           notifier.reiniciar();
           ref.read(contratoProvider.notifier).reiniciar();
           final retorno = retornoDeInvitacion(
@@ -95,8 +78,8 @@ class PantallaDeRegistro extends ConsumerWidget {
           );
           context.go(
             retorno == null
-                ? '/ingreso?alta=lista'
-                : '/ingreso?alta=lista&volver=${Uri.encodeComponent(retorno)}',
+                ? '/registro/subida?usuario=$usuarioId'
+                : '/registro/subida?usuario=$usuarioId&volver=${Uri.encodeComponent(retorno)}',
           );
         },
       ),

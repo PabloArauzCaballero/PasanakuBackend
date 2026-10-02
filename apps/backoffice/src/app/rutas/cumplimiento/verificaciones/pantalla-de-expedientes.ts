@@ -6,9 +6,9 @@ import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
 import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
 import {
+  CaraDelExpediente,
   DecisionDeVerificacionDecisionEnum,
   ExpedienteEnRevisionEstadoEnum,
-  ExpedienteEnRevisionFotosEnum,
   type ExpedienteEnRevision,
 } from 'clientes/angular/identidad'
 import { colaVacia, crearResolver, expedientesEnEstado, POR_DECIDIR, recortar } from '../dominio/cu02-expedientes'
@@ -118,7 +118,7 @@ export class PantallaDeExpedientes {
    * paralela — dos listas de lo mismo divergen.
    */
   protected readonly estados: readonly string[] = [POR_DECIDIR, ...Object.values(ExpedienteEnRevisionEstadoEnum)]
-  protected readonly caras = Object.values(ExpedienteEnRevisionFotosEnum)
+  protected readonly caras = Object.values(CaraDelExpediente)
 
   protected readonly estado = signal<string>(POR_DECIDIR)
   protected readonly cola = expedientesEnEstado(this.estado)

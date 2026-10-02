@@ -19,10 +19,11 @@ import org.springframework.stereotype.Service;
  * <p>Si el almacen guarda y la base falla, queda un objeto huerfano: eso es
  * recuperable (el barrido de retencion lo encuentra sin referencia) y una fila rota no.
  *
- * <p><b>Una carpeta por persona.</b> Las tres fotos caen en
+ * <p><b>Una carpeta por persona.</b> Las cinco fotos caen en
  * {@code identidad/<usuarioId>/} con el nombre de la cara adelante
- * ({@code anverso-…}, {@code reverso-…}, {@code selfie-…}): el expediente de alguien
- * se ve listando una carpeta, sin leer dos tablas para juntar tres claves sueltas.
+ * ({@code anverso-…}, {@code reverso-…}, {@code selfie-…}, {@code perfil-izquierdo-…},
+ * {@code perfil-derecho-…}): el expediente de alguien se ve listando una carpeta, sin
+ * leer dos tablas para juntar cinco claves sueltas.
  */
 @Service
 public class CU02GuardarFotoDelExpediente {
@@ -43,15 +44,29 @@ public class CU02GuardarFotoDelExpediente {
         ArchivoGuardado guardado = almacen.guardar(
                 new ContenidoEntrante(contenido, bytes, nombre),
                 AmbitoArchivo.IDENTIDAD,
-                DestinoDeObjeto.deExpediente(usuarioId, cara.name()));
+                DestinoDeObjeto.deExpediente(usuarioId, cara.etiqueta()));
         anotar.ejecutar(usuarioId, cara, guardado, trazaId);
         return guardado;
     }
 
-    /** Las tres fotos del expediente. La selfie va a `verificacion_kyc`, no al documento. */
+    /**
+     * Las cinco fotos del expediente. El anverso y el reverso van a
+     * {@code documento_identidad}; la selfie y los dos perfiles van a
+     * {@code verificacion_kyc} — son la prueba de vida, no el papel.
+     */
     public enum Cara {
         ANVERSO,
         REVERSO,
-        SELFIE
+        SELFIE,
+        PERFIL_IZQUIERDO,
+        PERFIL_DERECHO;
+
+        /**
+         * El nombre como tramo de ruta: {@link DestinoDeObjeto} rechaza el guion
+         * bajo, asi que {@code PERFIL_IZQUIERDO} se escribe {@code perfil-izquierdo}.
+         */
+        public String etiqueta() {
+            return name().toLowerCase(java.util.Locale.ROOT).replace('_', '-');
+        }
     }
 }

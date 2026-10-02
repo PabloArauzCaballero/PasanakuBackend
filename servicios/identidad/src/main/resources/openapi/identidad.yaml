@@ -120,7 +120,7 @@ paths:
         - name: cara
           in: path
           required: true
-          schema: { type: string, enum: [ANVERSO, REVERSO, SELFIE] }
+          schema: { type: string, enum: [ANVERSO, REVERSO, SELFIE, PERFIL_IZQUIERDO, PERFIL_DERECHO] }
       responses:
         '200':
           description: El enlace
@@ -152,7 +152,7 @@ paths:
         - name: cara
           in: path
           required: true
-          schema: { type: string, enum: [ANVERSO, REVERSO, SELFIE] }
+          schema: { type: string, enum: [ANVERSO, REVERSO, SELFIE, PERFIL_IZQUIERDO, PERFIL_DERECHO] }
       responses:
         '200':
           description: La foto
@@ -216,7 +216,7 @@ paths:
               properties:
                 cara:
                   type: string
-                  enum: [ANVERSO, REVERSO, SELFIE]
+                  enum: [ANVERSO, REVERSO, SELFIE, PERFIL_IZQUIERDO, PERFIL_DERECHO]
                   description: Que parte del expediente es esta foto.
                 archivo:
                   type: string
@@ -228,6 +228,31 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/ArchivoDelExpediente' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+  /usuarios/{usuarioId}/verificacion:
+    get:
+      operationId: consultarEstadoDeVerificacion
+      summary: El estado de la verificacion de quien acaba de registrarse
+      description: >-
+        Ruta publica, igual que `subirDocumento`: quien recien se registro todavia
+        no puede abrir sesion (su dispositivo es nuevo y `ExigeSegundoFactor` le
+        pide un MFA que todavia no tiene enrolado), y necesita saber si su cuenta
+        quedo verificada sin esperar a poder ingresar. La respuesta es minima — ni
+        nombre ni documento — para que esta ruta no se convierta en un directorio
+        de clientes.
+      parameters:
+        - name: usuarioId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: El estado del expediente, sin datos personales
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadoDeVerificacion' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+          # AP-CU02-xx NO_HAY_EXPEDIENTE
+
   /usuarios/{usuarioId}/titularidad/verificacion:
     post:
       operationId: verificarTitularidad
@@ -448,6 +473,14 @@ components:
             El JWT firmado con RS256 que los otros trece servicios validan contra el
             JWKS de identidad (ADR-024). Ausente cuando la respuesta pide un segundo
             factor: recien se emite con la sesion abierta.
+    CaraDelExpediente:
+      type: string
+      description: >-
+        Que parte del expediente es esta foto. Es un schema propio -- y no un enum
+        repetido en cada lugar que lista fotos -- porque dos arreglos con el mismo
+        enum inline generaban una colision de nombres en el cliente Dart (el tipo
+        del campo no coincidia con la clase que el generador emitia).
+      enum: [ANVERSO, REVERSO, SELFIE, PERFIL_IZQUIERDO, PERFIL_DERECHO]
     ExpedienteEnRevision:
       type: object
       additionalProperties: false
@@ -463,8 +496,8 @@ components:
         motivoRechazo:  { type: string }
         fotos:
           type: array
-          description: Que caras tiene cargadas. Un expediente sin las tres no se puede aprobar.
-          items: { type: string, enum: [ANVERSO, REVERSO, SELFIE] }
+          description: Que caras tiene cargadas. Un expediente sin las cinco no se puede aprobar.
+          items: { $ref: '#/components/schemas/CaraDelExpediente' }
     EnlaceDeFoto:
       type: object
       additionalProperties: false
@@ -479,6 +512,22 @@ components:
       properties:
         decision: { type: string, enum: [APROBAR, RECHAZAR] }
         motivo:   { type: string, maxLength: 160, description: 'Obligatorio al rechazar.' }
+    EstadoDeVerificacion:
+      type: object
+      additionalProperties: false
+      required: [verificacionId, estado, fotos]
+      description: >-
+        El estado minimo que el propio participante puede consultar sin sesion.
+        A proposito no trae nombre, documento ni nada que identifique a otra
+        persona distinta de quien ya sabe su propio usuarioId.
+      properties:
+        verificacionId: { type: string, format: uuid }
+        estado:         { type: string, enum: [PENDIENTE, EN_REVISION, APROBADA, RECHAZADA] }
+        motivoRechazo:  { type: string, maxLength: 160 }
+        fotos:
+          type: array
+          description: Que caras tiene cargadas hasta ahora.
+          items: { $ref: '#/components/schemas/CaraDelExpediente' }
     ArchivoDelExpediente:
       type: object
       additionalProperties: false
@@ -487,7 +536,7 @@ components:
         Lo que queda del archivo: donde esta y como comprobar que es el mismo. Nunca
         una URL publica — el binario lo entrega el servicio, con sesion y permisos.
       properties:
-        cara:        { type: string, enum: [ANVERSO, REVERSO, SELFIE] }
+        cara:        { type: string, enum: [ANVERSO, REVERSO, SELFIE, PERFIL_IZQUIERDO, PERFIL_DERECHO] }
         claveObjeto: { type: string, example: 's3://identidad/2026/09/9f2c1e4a.jpg' }
         hashArchivo: { type: string, minLength: 64, maxLength: 64 }
         tipoMime:    { type: string }

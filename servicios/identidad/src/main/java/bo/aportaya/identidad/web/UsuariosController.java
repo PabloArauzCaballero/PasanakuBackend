@@ -2,6 +2,7 @@ package bo.aportaya.identidad.web;
 
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
+import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.ValidarTokenDeInvitacion;
@@ -14,6 +15,8 @@ import bo.aportaya.identidad.web.generado.modelo.EntradaRegistro;
 import bo.aportaya.identidad.web.generado.modelo.EntradaTitularidad;
 import bo.aportaya.identidad.web.generado.modelo.EntradaTokenDeInvitacion;
 import bo.aportaya.identidad.web.generado.modelo.EntradaValidacionInvitacion;
+import bo.aportaya.identidad.web.generado.modelo.CaraDelExpediente;
+import bo.aportaya.identidad.web.generado.modelo.EstadoDeVerificacion;
 import bo.aportaya.identidad.web.generado.modelo.SalidaRegistro;
 import bo.aportaya.identidad.web.generado.modelo.SalidaTitularidad;
 import bo.aportaya.identidad.web.generado.modelo.SalidaTokenDeInvitacion;
@@ -49,6 +52,7 @@ public class UsuariosController implements UsuariosApi {
     private final CU01RegistrarUsuario cu01;
     private final VerificarTitularidad titularidad;
     private final CU02GuardarFotoDelExpediente fotos;
+    private final CU02ConsultarEstadoDeVerificacion estadoDeVerificacion;
     private final EmitirTokenDeInvitacion tokens;
     private final ValidarTokenDeInvitacion validacionDeInvitacion;
     private final BuscarPorTelefono busqueda;
@@ -60,6 +64,7 @@ public class UsuariosController implements UsuariosApi {
             CU01RegistrarUsuario cu01,
             VerificarTitularidad titularidad,
             CU02GuardarFotoDelExpediente fotos,
+            CU02ConsultarEstadoDeVerificacion estadoDeVerificacion,
             EmitirTokenDeInvitacion tokens,
             ValidarTokenDeInvitacion validacionDeInvitacion,
             BuscarPorTelefono busqueda,
@@ -69,6 +74,7 @@ public class UsuariosController implements UsuariosApi {
         this.cu01 = cu01;
         this.titularidad = titularidad;
         this.fotos = fotos;
+        this.estadoDeVerificacion = estadoDeVerificacion;
         this.tokens = tokens;
         this.validacionDeInvitacion = validacionDeInvitacion;
         this.busqueda = busqueda;
@@ -173,6 +179,28 @@ public class UsuariosController implements UsuariosApi {
             throw new bo.aportaya.plataforma.dominio.ErrorDeDominio(
                     "Se corto la subida de la foto. Probá de nuevo.", e);
         }
+    }
+
+    /**
+     * El estado de la verificacion, para quien todavia no puede abrir sesion.
+     *
+     * <p>Publica por el mismo motivo que {@code subirDocumento}: el dispositivo de
+     * quien acaba de registrarse es nuevo y {@code ExigeSegundoFactor} le pide un MFA
+     * que todavia no tiene enrolado. La respuesta es minima — ni nombre ni documento —
+     * para que esta ruta no se convierta en un directorio de clientes.
+     */
+    @Override
+    @Publico("CU-02: quien acaba de registrarse todavia no puede abrir sesion y necesita saber su estado")
+    public ResponseEntity<EstadoDeVerificacion> consultarEstadoDeVerificacion(UUID usuarioId) {
+        Traza.marcarCasoDeUso("CU-02", usuarioId.toString());
+
+        var expediente = estadoDeVerificacion.ejecutar(usuarioId, Traza.actual());
+        var salida = new EstadoDeVerificacion()
+                .verificacionId(expediente.verificacionId())
+                .estado(EstadoDeVerificacion.EstadoEnum.fromValue(expediente.estado()))
+                .motivoRechazo(expediente.motivoRechazo());
+        expediente.fotos().forEach(f -> salida.addFotosItem(CaraDelExpediente.fromValue(f)));
+        return ResponseEntity.ok(salida);
     }
 
     @Override

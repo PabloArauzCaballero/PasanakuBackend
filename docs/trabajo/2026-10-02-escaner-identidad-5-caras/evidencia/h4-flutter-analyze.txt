@@ -1,0 +1,6 @@
+Analyzing movil...                                              
+
+   info - Angle brackets will be interpreted as HTML. Try using backticks around the content with angle brackets, or try replacing `<` with `&lt;` and `>` with `&gt;` - lib\pantallas\identidad\pantalla_estado_de_verificacion.dart:15:70 - unintended_html_in_doc_comment
+   info - Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const' - lib\pantallas\identidad\pasos_alta\paso_capturas.dart:108:5 - prefer_const_declarations
+
+2 issues found. (ran in 23.3s)

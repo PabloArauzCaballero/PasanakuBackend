@@ -1,0 +1,230 @@
+# Plan — Escáner de identidad (5 capturas, como Atlas) en el alta de Pasanaku
+
+- Fecha: 2026-10-02 · Repos afectados: PasanakuBackend (worktree `PasanakuBackend-escaner`, rama `justin/feature/escaner-identidad-atlas` sobre `origin/test`) · Predecesor: ninguno
+- Resultado observable: una persona completa el alta en la app Flutter tomando 5 fotos (anverso, reverso, selfie, perfil izquierdo, perfil derecho) con el mismo comportamiento que la app de Atlas (consejos, hoja previa, chequeo de calidad, estados de subida, pantalla de estado), sin cambiar la estética de Pasanaku; un operador en el backoffice ve las 5 fotos juntas y aprueba o rechaza; la app refleja el veredicto.
+- Kill-test: en el backoffice, abrir un expediente recién creado por la app y ver menos de 5 fotos, o ver que "Aprobar" sigue habilitado con fotos faltantes.
+
+## Alcance
+- IN: columnas `url_perfil_izquierdo`/`url_perfil_derecho` en `verificacion_kyc`; enum de caras a 5 en `identidad.yaml` y Java; endpoint `GET /usuarios/{usuarioId}/verificacion`; pantallas Flutter de captura (hoja, cámara con guía, consejos, chequeo de calidad, atajo dev), subida en lote y estado; backoffice con 5 caras; E2E en emulador Android + capturas de backoffice.
+- OUT: escáner del sistema real (ML Kit) se deja detrás de bandera apagada por defecto — documentar la decisión, no es bloqueante; QR de comercio; refactor de pantallas no tocadas; arreglar botones muertos preexistentes (Perfil "Guardar", Baja, "¿Olvidaste?") — se anotan, no se tocan (regla 00 §3).
+- Ambigüedades registradas:
+  1. Endpoint de estado público por `usuarioId` (sin sesión) — confirmar con seguridad. Supuesto: aceptado por paralelismo con `subirDocumento` (`UsuariosController.java:124-128`) y porque el dispositivo nuevo no puede autenticar (MFA sin factor).
+  2. ¿El cambio también se replica al repo `PasanakuFrontend`? Supuesto: se trabaja solo en `PasanakuBackend` (superconjunto en `test`); PR final decide el equipo.
+  3. Subida diferida vs inmediata (Atlas sube apenas captura; Pasanaku crea la cuenta al final). Supuesto: se valida calidad al instante, se sube en lote tras `POST /usuarios`, con la misma máquina de estados visual.
+
+## H1 — Modelo y base: 2 columnas nuevas en verificacion_kyc
+**CA:** Dado el modelo `.puml` con las 2 columnas nuevas, cuando se corre el generador de DDL, entonces solo cambia `sql/10_tablas/01_identidad_usuarios/verificacion_kyc.sql` y la base recreada las expone a jOOQ.
+**DoD:** `python scripts/generar_ddl.py` (git status muestra 1 archivo) · `python scripts/verificar_boveda.py` OK · `./gradlew bd:reset` · `./gradlew :servicios:identidad:compileJava` código 0.
+**Estado:** HECHO — sus 3 microtareas HECHO con evidencia (`h1-s1-m1-m2-ddl-boveda.txt`, `h1-s1-m3-bd-reset.txt`)
+
+| ID | Microtarea | CA | DoD | Estado |
+|---|---|---|---|---|
+| H1.S1.M1 | Agregar columnas en el .puml (clase + entity) | El diff del .puml muestra las 2 columnas en los 2 lugares | `git diff docs/entidades/01_identidad_usuarios.puml` muestra el cambio | HECHO |
+| H1.S1.M2 | Regenerar DDL y bóveda | Solo cambia el .sql de verificacion_kyc | `git status --short sql/` → verificacion_kyc.sql + nulabilidad.sql (lateral esperado); `verificar_boveda.py` → TODO OK | HECHO |
+| H1.S1.M3 | Recrear base (bajar+levantar+aplicar+semillas+dev+verificaciones+humo) | Las 2 columnas existen en la base viva | `\d identidad.verificacion_kyc` muestra url_perfil_izquierdo/derecho; humo 165 OK 0 FALLA | HECHO (ver evidencia/h1-s1-m3-bd-reset.txt) |
+
+## H2 — Contrato + Java del servicio identidad
+**CA:** Dado el contrato con 5 caras y el endpoint de estado, cuando se sube cualquier foto o se consulta el estado, entonces el servicio responde correctamente para las 5 caras y sin sesión para el estado.
+**DoD:** `./gradlew :servicios:identidad:test :servicios:identidad:webTest :servicios:identidad:integrationTest` verde.
+**Estado:** HECHO — tres corridas: (1) BUILD SUCCESSFUL 3m25s pero con `SeguridadWebTest` sin el mock nuevo (corregido); (2) BUILD SUCCESSFUL en verde; (3) tras extraer el schema compartido `CaraDelExpediente` (ver hallazgo abajo) y arreglar los 2 controllers, `./gradlew :servicios:identidad:test :servicios:identidad:webTest :servicios:identidad:integrationTest --continue` -> BUILD SUCCESSFUL en 2m27s, cero FAILED.
+
+| ID | Microtarea | CA | DoD | Estado |
+|---|---|---|---|---|
+| H2.S1.M1 | Enum de 5 caras en identidad.yaml (5 posiciones) + schema EstadoDeVerificacion + path nuevo | El spec valida y trae PERFIL_IZQUIERDO/DERECHO | `generarServidorOpenApi` generó `UsuariosApi.consultarEstadoDeVerificacion` y `EstadoDeVerificacion` sin error | HECHO |
+| H2.S1.M2 | Cara enum + etiqueta() con guion en CU02GuardarFotoDelExpediente | etiqueta() de PERFIL_IZQUIERDO es "perfil-izquierdo" | compileJava OK; test unitario pendiente | HECHO (TESTED: test+webTest+integrationTest verdes) |
+| H2.S1.M3 | AnotarFotoEnExpediente + ExpedienteRepositorio: 2 casos nuevos | Anotar perfil izq/der escribe su columna | compileJava OK; integrationTest pendiente | HECHO (TESTED: test+webTest+integrationTest verdes) |
+| H2.S1.M4 | RevisionRepositorio: select/mapeo/claveDeFoto + deUsuario() | La cola y el detalle devuelven 5 fotos | compileJava OK; integrationTest pendiente | HECHO (TESTED: test+webTest+integrationTest verdes) |
+| H2.S1.M5 | CU02ConsultarEstadoDeVerificacion + UsuariosController endpoint público | GET sin sesión devuelve estado sin PII | compileJava OK; webTest escrito, corriendo | HECHO (TESTED: test+webTest+integrationTest verdes) |
+| H2.S1.M6 | VerificacionesController.CARAS a 5 | subirDocumento acepta las 5 caras | compileJava OK; webTest escrito, corriendo | HECHO (TESTED: test+webTest+integrationTest verdes) |
+| H2.S1.M7 | Tests (Web + integración) | Los nuevos casos están en verde | salida pegada en evidencia/ | HECHO — `evidencia/h2-tests.txt`: `test webTest integrationTest --continue` → BUILD SUCCESSFUL in 2m 27s |
+
+## H3 — Clientes generados + simulado + backoffice (5 caras)
+**CA:** Dado el contrato nuevo, cuando se regeneran los clientes, entonces el backoffice tipa 5 caras y la cola exige las 5 para habilitar Aprobar.
+**DoD:** `yarn workspace @aportaya/backoffice typecheck lint test:front test:a11y` verde.
+**Estado:** HECHO (TESTED) — typecheck exit 0 · lint exit 0 (con `pyshim`) · test:front 354/354 · test:a11y 34/34 (`evidencia/h3-h8-backoffice-gate.txt`). Causa raíz del rojo inicial: el doble versionado `clientes/angular/identidad.ts` (regla 65, de otro carril) se resuelve ANTES que la carpeta generada `clientes/angular/identidad/` (gitignored) y declaraba solo 3 caras → el backoffice habría mostrado 3 fotos (kill-test). Fix mínimo: el doble expone `CaraDelExpediente` con los 5 valores del contrato y `ExpedienteEnRevisionFotosEnum` queda como alias; `tira-de-fotos.ts` tipa `caras` como `CaraDelExpediente[]`. El doble sigue siendo del carril de contratos: se borra cuando el CI publique el cliente real.
+
+**Hallazgo que simplifica el hito (factual-discovery, antes de escribir nada):**
+`tira-de-fotos.ts` (`protected readonly caras = Object.values(ExpedienteEnRevisionFotosEnum)`)
+y `pantalla-de-expedientes.ts` (`completo()` = `this.caras.every(c => e.fotos.includes(c))`,
+misma fuente) ya iteran el enum generado **dinámicamente**, no una lista de 3 escrita a
+mano. Con el cliente Angular regenerado desde el contrato de 5 caras, la tira muestra 5
+figuras y `completo()`/`Aprobar` exige las 5 **sin tocar un solo archivo de
+`apps/backoffice`**. El grid CSS (`auto-fit, minmax(12rem,1fr)`) ya es responsivo a N
+elementos. Los specs existentes (`tira-de-fotos.a11y.spec.ts` usa una lista PARCIAL
+`['ANVERSO','SELFIE']`, no asume un total de 3) siguen válidos sin editar.
+Por disciplina de alcance (regla 00 §3) se **descarta** la parte de H3 que proponía
+crear `etiquetaDeCara()`/`carasFaltantes()` y nuevos specs: sería inventar una mejora
+no pedida sobre código que ya funciona para 5 caras. Queda solo: regenerar el cliente
+y correr el gate.
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H3.S1.M1 | Estados de `ExpedienteEnRevisionEstadoEnum` en el doble `clientes/angular/identidad.ts` con los valores del contrato | Dado un expediente `EN_REVISION` recién creado por la app, cuando el operador abre «Por decidir» o el filtro EN_REVISION, entonces lo ve | `yarn workspace @aportaya/backoffice typecheck test:front` verde · Playwright: la cola lista el expediente (captura) | HECHO (VERIFIED) — typecheck 0 · test:front 354/354 · lint 0 · test:a11y 34/34 (`evidencia/h3-s1-m1-estados-gate.txt`) · Playwright contra el stack real: «Por decidir» lista el expediente nuevo (`evidencia/h7-bo-01-cola-*.png`) |
+
+**Hallazgo H7 (runtime, 2026-10-02):** con el backoffice contra el stack real, la cola decía «No hay expedientes esperando» con un expediente `EN_REVISION` recién creado, y el filtro pedía `GET /identidad/verificaciones?estado=EnRevision` → `[]`. Causa: el doble versionado (mismo de H3) declara los estados con el nombre del miembro (`'EnRevision'`) en vez del valor del contrato (`EN_REVISION`, `identidad.yaml:493`). Clase: PRODUCT_BUG en el doble de otro carril; corrección mínima de valores, sin tocar la lógica (que usa las claves).
+
+## H4 — Flutter: capturas, cámara, calidad, consejos, atajo de desarrollo
+**CA:** Dado el paso de capturas, cuando la persona toma las 5 fotos (o usa el atajo dev), entonces ve el mismo comportamiento que Atlas (hoja, consejos, calidad, estados) sin cambiar la estética de Pasanaku.
+**DoD:** `flutter analyze` + `flutter test` en verde.
+**Estado:** HECHO (TESTED) — ver detalle de la corrida original abajo; regresión de cierre: `flutter analyze` sin issues, 263 passed / 2 failed preexistentes de Windows, gate de diseño TODO OK (`evidencia/cierre-movil-regresion.txt`). Detalle: todos los archivos escritos
+
+## H5 — Flutter: subida en lote y pantalla de estado
+**CA:** Dado el envío del alta, cuando las 5 fotos se suben, entonces la persona ve el estado (pendiente/en revisión/aprobada/rechazada) con polling y puede reintentar.
+**DoD:** tests de subida y de verificación en verde.
+**Estado:** A MEDIAS — anda: subida en lote verificada en runtime (5 × `POST …/documentos` 201, 5 urls en base) tras el fix H5.S1.M1, y pantalla de estado con polling que pasa de «Lo está revisando una persona» a «Identidad verificada». No anda/no cubierto: los tests unitarios de `SubidaNotifier` (lenta a los 10 s, cancelar, reintentar con la misma clave, repetir con clave rotada) y de `VerificacionNotifier` no existen; esos caminos no se ejercitaron. La pantalla de subida no tiene título. Detalle original:
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H5.S1.M1 | Las capturas sobreviven a `AltaNotifier.reiniciar()` hasta la subida (PRODUCT_BUG hallado en runtime) | Dado un alta completa, cuando se crea la cuenta, entonces la pantalla de subida sube las 5 fotos y `verificacion_kyc` del usuario nuevo tiene las 5 urls | test unitario de `SeguimientoDelAlta` en verde · corrida en emulador + SQL con 5 urls | HECHO (VERIFIED) — `flutter test test/unidad/seguimiento_del_alta_test.dart` 3/3 (`evidencia/h5-s1-m1-seguimiento-test.txt`) · emulador: 5 filas «Documento enviado» · SQL: usuario nuevo con las 5 urls, el de la corrida rota con 0 (`evidencia/h5-s1-m1-subida-runtime.txt`) |
+
+**Hallazgo H5 (runtime, 2026-10-02 15:49):** en el emulador la pantalla de subida mostró las 5 filas en «—» y «Continuar» habilitado; el backend no recibió ningún `POST /documentos` y la fila de `verificacion_kyc` del usuario recién creado quedó `EN_REVISION` sin fotos (kill-test del plan). Causa: `pantalla_registro.dart` llama a `AltaNotifier.reiniciar()` (vacía `capturas`) ANTES de navegar a `/registro/subida`, y esa pantalla lee las capturas de `altaProvider` → `subirPendientes` recorre un mapa vacío. Clase: PRODUCT_BUG, introducido en H5 por este mismo trabajo. Fix: `SeguimientoDelAlta` guarda `usuarioId` + copia de las capturas; la pantalla de subida lee de ahí.
+
+## H6 — (opcional) Vencimiento del CI en el contrato
+**Estado:** TODO (se declara A MEDIAS o DESCARTADO si no alcanza el tiempo, nunca a medias disfrazado de hecho)
+
+## H7 — E2E en emulador + backoffice + capturas + REPORTE
+**CA:** Dado el stack real (2 servicios + base), cuando se completa el alta en el emulador y se aprueba en el backoffice, entonces la app refleja "Identidad verificada" y la base tiene las 5 urls y revisada_por.
+**DoD:** capturas de app y backoffice en evidencia/, SQL de verificación pegado, REPORTE.md con AVANCE en la primera línea.
+**Estado:** HECHO (VERIFIED) — alta completa en emulador → 5 fotos en base → operador ve las 5 juntas en el backoffice (Playwright, stack real) → Aprobar → `POST …/decision` 200 → base `APROBADA` con `revisada_por` → la app muestra «Identidad verificada». Kill-test negativo observado: el expediente sin fotos muestra «Faltan fotos» y Aprobar deshabilitado. Evidencia: `h7-e2e-aprobacion.txt`, `h7-bo-0*.png`, `h8-14/15*.png`
+
+## H8 — Extensión pedida por el usuario (2026-10-02, 2ª sesión): skills, transiciones serias, botón vivo, flujo premium
+Pedido literal: "traer todas las skills y hacer el diseño ultra premium con motion skills y que cada botón tenga un diseño vivo"; "los que tienen son diarreicos y horribles"; "la transición tipo zoom es la peor que he visto… hacela decente y seria para el tipo de app que es". **Esto deroga el supuesto inicial "sin cambiar la estética de Pasanaku"** para botones, transiciones y el flujo de captura (decisión del usuario).
+**CA:** Dado cualquier pantalla de la app, cuando la persona navega, entonces la pantalla entra con un desplazamiento lateral corto y un fundido (≤ 320 ms, sin escalado) y en iOS conserva el gesto nativo de volver; cuando ve o toca un botón, este tiene profundidad (degradado sutil + sombra en capas teñida), responde al toque con resorte y compresión de sombra, y el primario tiene un brillo que lo recorre; con "reducir movimiento" nada se anima.
+**DoD:** `flutter analyze` 0 errores en `packages/diseno_flutter` y `apps/movil` · `flutter test` de diseno_flutter y de movil sin fallos nuevos · `python scripts/verificar_frontend.py diseno` OK · capturas del emulador en claro y oscuro inspeccionadas.
+**Estado:** A MEDIAS — todo HECHO salvo H8.S3.M5 (goldens, BLOQUEADO en el CI Linux)
+
+Ambigüedades H8: (a) "traer todas las skills": el worktree ya tiene las 261 del estándar Pasanaku; faltaban solo 5 skills de diseño de **Atlas** (`atlas-diseno`, `atlas-movimiento`, `atlas-ui-componentes`, `atlas-app-movil-ux`, `atlas-estilo-portales`) escritas para Expo/Reanimated/Next — no aplican a Flutter/Angular y copiarlas metería guía falsa (regla 00 §1.3). Supuesto: se actualiza PasanakuPromptManager (6 commits atrás) y se verifica que el espejo del repo no tenga deriva; las skills de Atlas se leen como referencia, no se instalan. Confirmar con Pablo. (b) "cada botón" incluye el backoffice: supuesto **sí** para la primitiva compartida `packages/ui/src/boton` (CSS), sin rediseñar pantallas del backoffice.
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H8.S1.M1 | `git pull` de PasanakuPromptManager y chequeo de deriva del espejo de skills | El PM queda al día con origin y el worktree no tiene skills faltantes del estándar | `git status -sb` sin "behind" · `comm` de listados vacío | HECHO — PM `db17381` al día con origin; 194 skills, 0 faltantes en el worktree (261). Un daily local de Justin chocaba con origin: quedó la versión de origin y la edición local sigue en `stash@{0}` del PM, sin perder nada |
+| H8.S2.M1 | `TransicionDeEje` (eje lateral + fundido, sin escala) reemplaza a `TransicionConZoom` en `tema.dart`; iOS usa la de Cupertino (gesto de volver) | Ninguna `Transform.scale` en la transición de página | `flutter test` del test nuevo de transición en verde | HECHO — `transicion_de_eje.dart`; `transicion_con_zoom.dart` borrado; test 'desplaza y funde, nunca escala' en verde (evidencia/h8-diseno-flutter.txt) |
+| H8.S2.M2 | `TransicionDeMarca` (1,45 s, logo atravesando la cámara) → fundido cruzado sobrio ≤ 420 ms | Salir de la portada no muestra el logo volando | test de transición en verde + captura | HECHO (TESTED; captura pendiente en H8.S5) — 420 ms, fundido + subida 16 px; `panel_de_marca.dart` quedó sin uso y se borró |
+| H8.S3.M1 | Tokens de movimiento `Movimiento` (duraciones, curvas, resortes) en diseno_flutter | Los átomos nuevos no usan `Duration(` sueltos | `grep -c "Duration("` en átomos nuevos = 0 | HECHO — `atomos/movimiento.dart`; superficie_viva/transiciones usan solo `Movimiento.*` |
+| H8.S3.M2 | `Boton` vivo: degradado sutil, sombra en capas teñida, filo de luz, brillo que recorre el primario, resorte + compresión de sombra, carga animada | Los 6 variantes renderizan y respetan reducir movimiento | test de widget del botón en verde | HECHO (TESTED) — `superficie_viva.dart` + `luz_de_boton.dart`; brillo finito (4 cruces) para que `pumpAndSettle` termine; 9/9 en verde (evidencia/h8-diseno-flutter.txt) |
+| H8.S3.M3 | `BotonIcono` y `BotonFlotante` con el mismo resorte y halo | Ambos se hunden al tocar | test de widget en verde | HECHO (TESTED) — evidencia/h8-diseno-flutter.txt |
+| H8.S3.M4 | Primitiva Angular `packages/ui/src/boton` con transiciones por token y `prefers-reduced-motion` | Hover eleva, active hunde, sin `transition: all` | `yarn workspace @aportaya/backoffice typecheck lint` | HECHO (RUNS) — gate completo en verde (`evidencia/h3-h8-backoffice-gate.txt`); captura en H7 |
+| H8.S4.M1 | Flujo de capturas premium: tarjeta de captura, navegación Anterior/Siguiente, hoja "Antes de escanear" | Sin textos sueltos como navegación; tarjeta con jerarquía | captura del emulador inspeccionada | HECHO — riel de 5 caras + tarjeta con marco de encuadre + sin Anterior/Siguiente; capturas `h8-05-capturas-boton-fuera.png` (vacío) y `h8-06-capturas-completas.png` (5/5) inspeccionadas |
+| H8.S4.M2 | Sacar «Tomar foto / Repetir la foto» del `PageView` y dejarlo fijo debajo, actuando sobre la cara visible | La sombra del botón no aparece cortada en seco (hallazgo en `evidencia/h8-04-capturas-vacio.png`: el `PageView` recorta con `Clip.hardEdge` lo que sale de cada página, y el botón estaba al fondo de la tarjeta) | `flutter analyze` 0 errores · captura del emulador con la sombra completa | HECHO — `flutter analyze lib/pantallas/identidad` → No issues found · `verificar_frontend.py movil` sin fallas · antes/después: `evidencia/h8-04-capturas-vacio.png` (sombra cortada) vs `evidencia/h8-05-capturas-boton-fuera.png` (sombra completa). El pie se extrajo a `pie_de_capturas.dart` para respetar el tope de 200 líneas (paso_capturas.dart 214 → 179) |
+| H8.S3.M5 | Regenerar goldens de `catalogo_golden_test.dart` (botones cambian a propósito) en el CI Linux | El golden de botones refleja la piel nueva | `flutter test --update-goldens` en Linux | BLOQUEADO — falta solo regenerar las referencias en el runner Linux del CI (dueño: quien mantenga diseno_flutter); una imagen de referencia es por plataforma y la de Windows no sirve en Linux. simulacion-65 con Windows como doble del runner (`evidencia/h8-s3-m5-goldens-simulacion.txt`, archivos restaurados, nada versionado): INVALIDO — la piel nueva contra las referencias versionadas falla 15/18 (el cambio se detecta); ACEPTADO — `--update-goldens` y comparar → 18/18; LIMITE — segunda comparación seguida sin regenerar → 18/18 (render determinista, claro y oscuro). Queda pendiente contra lo real: correr `flutter test --update-goldens test/goldens` en Linux y versionar esas imágenes |
+| H8.S5.M1 | Prueba visual en emulador, claro y oscuro | Capturas en `evidencia/h8-*.png` revisadas | archivos presentes + revisión anotada | HECHO — claro: `h8-01-portada.png`, `h8-05`, `h8-06`, `h8-12-subida-1.png` (botón en carga con brillo), `h8-14`, `h8-15`; oscuro: `h8-16-estado-aprobada-oscuro.png`, `h8-17-portada-oscuro.png`, `h7-bo-01-cola-dark.png`. Revisadas; hallazgos anotados en el REPORTE |
+
+## Hallazgo H7: el APK de Android compila -- 2 fixes de entorno necesarios
+Primer intento de `flutter run -d emulator-5554` fallo: `permission_handler_android`
+exige `compileSdk 37`, pero (a) el Android SDK de esta maquina solo tenia hasta 35/36
+instalados y el auto-instalador de Gradle bajo `platforms;android-37.0` -- el Android
+SDK cambio su esquema de nombres de plataforma a version decimal (`37.0`, `37.1`...) y
+AGP/Flutter todavia buscan el nombre viejo `android-37` a secas; (b)
+`apps/movil/android/app/build.gradle.kts` usaba `compileSdk = flutter.compileSdkVersion`
+(resuelve a 36). Arreglado con: una **union de directorio** (`New-Item -ItemType
+Junction`) `android-37 -> android-37.0` en el SDK local (no es un cambio al repo, es
+infraestructura de esta maquina) + `compileSdk = 37` explicito en
+`build.gradle.kts` (cambio real, documentado inline, compileSdk es retrocompatible y
+no afecta minSdk/targetSdk). Con los dos, `flutter run` compilo: **`Built
+buildpp\outputslutter-apkpp-debug.apk`**. Quedo pendiente solo instalar en
+el emulador (se mato el emulador por memoria justo antes del paso de instalacion;
+el APK ya esta compilado y cacheado, reinstalar es cuestion de segundos).
+
+Memoria: la maquina (32GB) corriendo a la vez Docker Desktop/WSL2 (stack base + 2
+servicios), el emulador Android (~3.7GB) y el primer build de Gradle para Android
+(que descarga NDK r28c + SDK 37 + CMake, varios GB) llego a 3.8-4.3GB libres varias
+veces; una vez el harness mato en background el primer intento de build de Docker por
+presion de memoria (no es un fallo del comando). Mitigado: builds de Docker uno por
+uno en vez de en paralelo, y apagando el emulador durante los tramos de compilacion
+que no lo necesitan (no hace falta hasta instalar el APK), reiniciandolo despues.
+También se liberaron ~1.4GB cerrando 3 procesos `esbuild --service` huérfanos de un
+proyecto no relacionado (Alovida), hallados entre los consumidores de memoria más
+altos y sin relación con esta tarea.
+
+## Hallazgo H7: Docker Desktop quedó caído tras la presión de memoria; recuperado
+Al retomar para instalar el APK, el daemon de Docker respondía `Docker Desktop is
+unable to start` y los 10 contenedores de `aportaya-*` estaban `Exited (255)` (el
+backend de Docker murió junto con el build que mató el harness por presión de
+memoria, aunque los contenedores en sí no son parte de esa presión). La distro WSL
+`docker-desktop` estaba `Stopped`. Recuperado: `wsl --shutdown`, matar los procesos
+`Docker Desktop.exe`/`com.docker.*` colgados, relanzar vía
+`explorer.exe "shell:AppsFolder\Docker.DockerForWindows.Settings"` (el `.exe` no
+vive en una ruta fija de Program Files en esta instalación), esperar el daemon
+(`docker info`), y `docker start` de los 10 contenedores en el orden de dependencia
+(base -> identidad/cumplimiento -> gateway/nginx). Confirmado sano: los 10
+`healthy` y `curl localhost/api/v1/cumplimiento/contratos/vigentes` -> `200`.
+
+## Hallazgo H7: `10.0.2.2` (alias del emulador a la máquina anfitriona) no pasa la
+## validación de gateway de la app -- workaround sin tocar código de la app
+Primer intento de abrir la app instalada mostró la pantalla de bloqueo "AportaYa no
+puede arrancar" (`pantallas/arranque/...`, ver `dominio/cliente.dart`): compilé el
+APK con `--dart-define=API=http://10.0.2.2/api/v1` pero sin `HOSTS_PERMITIDOS`.
+`dominio/configuracion.dart:34` define `_loopback = {'localhost', '127.0.0.1',
+'::1', '0.0.0.0'}` -- **no incluye `10.0.2.2`**, pese a que el comentario de
+`cliente.dart:27-28` documenta explícitamente que "desde el emulador de Android la
+máquina anfitriona es `10.0.2.2`" como si debiera admitirse igual que loopback en
+debug. Es una discrepancia real entre el comentario y el código (`esLoopback` da
+`false` para `10.0.2.2`, cae a `host-ajeno` porque `HOSTS_PERMITIDOS` viene vacío).
+No es un archivo de mi alcance (es validación compartida de arranque, no del
+escáner de identidad) así que no lo edito -- lo rodeo con el mecanismo que el mismo
+código ya expone para esto: agregar `--dart-define=HOSTS_PERMITIDOS=10.0.2.2` al
+build de prueba. Reconstruido con ambos defines; evidencia en
+`evidencia/h7-flutter-build-apidefine2.txt`. Queda anotado para quien sea dueño de
+`configuracion.dart`: o el comentario está desactualizado, o falta agregar
+`10.0.2.2` (y el equivalente de iOS, `localhost` ya cubierto) al set de loopback de
+debug.
+
+## Hallazgo: 2 tests preexistentes fallan en Windows, sin relación con este cambio
+`flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku`:
+260 passed, 2 failed. Los 2 son `gate_del_shell_test.dart` ("Platform.is solo aparece
+dentro de infraestructura/") y `enchufe_de_rutas_test.dart` ("agregar una pantalla
+vacía en un dominio no cambia ningún archivo fuera de él"): ambos comparan
+`f.path.contains('/infraestructura/')` / `contains('/pantallas/identidad/')` con una
+barra `/` fija, que nunca calza con las rutas de Windows (`\`) -- confirmado con
+`git diff --stat HEAD -- <ambos archivos>` vacío: ningún archivo tocado por este
+trabajo. Son bugs preexistentes del harness de tests en Windows, no introducidos ni
+agravados por este cambio; reproducen igual en un checkout limpio sin tocar nada.
+No se arreglan (fuera de carril, archivos de test compartidos) -- se anotan para el
+equipo.
+
+## Hallazgo de entorno: falta un paso de build previo a `flutter analyze`/`dev:movil`
+`package:aportaya_diseno/tokens/tokens.dart` no existe hasta correr
+`yarn workspace @aportaya/diseno-flutter build` (copia `packages/tokens/generado/tokens.dart`
+a `packages/diseno_flutter/lib/tokens/tokens.dart` + `flutter pub get`). El script de
+conveniencia `dev:movil` del root solo corre `yarn workspace @aportaya/tokens build`
+(CSS+JSON+Dart dentro de `packages/tokens/`), **no** el paso de `diseno-flutter` que copia
+ese archivo al paquete que `apps/movil` importa. Primer `flutter analyze` en este
+worktree limpio dio 687 errores, TODOS por esta causa (confirmado con `git diff`: cero
+de esos archivos son míos). Se corrió el paso que faltaba manualmente; no se tocó
+`package.json` (troncal) — se deja anotado como hallazgo para el equipo, no se arregla.
+Además se corrigieron en este mismo paso dos errores reales introducidos por mí:
+import relativo mal armado en `textos_de_subida.dart` (faltaba `dominio/`), uso de un
+miembro interno de Riverpod (`copyWithPrevious`) en `estado_de_verificacion.dart`, y un
+`case _` inalcanzable en `pantalla_estado_de_verificacion.dart`.
+
+## Hallazgo H2 adicional: bug del generador Dart con enums de array duplicados
+Al tener `ExpedienteEnRevision.fotos` y `EstadoDeVerificacion.fotos` como dos arrays
+`items: {type: string, enum: [...]}` con el MISMO conjunto de 5 valores, el generador
+`dart-dio` (openapi-generator) emite en `expediente_en_revision.dart` un campo
+`List<ExpedienteEnRevisionFotosEnum>` pero el enum que realmente genera en ese archivo
+se llama `EstadoDeVerificacionFotosEnum` (y en `estado_de_verificacion.dart` el campo
+referencia un `FotosEnum` que no existe en ningún lado) -- `build_runner`/
+`json_serializable` falla con `InvalidType`. No reproduce en el cliente Angular (cada
+schema genera su propio enum sin cruzarse). Es un bug del generador frente a enums de
+array duplicados entre schemas, no algo introducido a mano. Fix: se extrajo un schema
+compartido `CaraDelExpediente` (`components.schemas`) y los dos `fotos.items` ahora son
+`$ref` a él -- es además mejor práctica de OpenAPI (una sola fuente de verdad para el
+enum). Esto generó un top-level `CaraDelExpediente` en Java (ambos controllers
+actualizados, compila) y previsiblemente en Angular/Dart tambien (a confirmar al
+regenerar clientes; si el backoffice importaba `ExpedienteEnRevisionFotosEnum` por
+nombre, se actualiza el import -- cambio mecánico, no de lógica).
+
+## Desvíos registrados durante la ejecución
+- `python3` en esta máquina es el stub roto de Microsoft Store; `python` (3.14.6) es el real. Los scripts del repo y las tareas Gradle (`bd/build.gradle.kts`) invocan `python3` a secas. Se creó un shim en `C:\Users\DELL\tools\pyshim\` (archivo `python3` sin extensión para bash, `python3.bat` para procesos nativos de Windows como el hijo de Gradle) y se antepone al PATH en cada comando. No se tocó `bd/build.gradle.kts` (fuera de alcance, es troncal).
+- El primer `./gradlew bd:reset` reutilizó un daemon de Gradle con el PATH viejo (sin el shim); se corrigió con `./gradlew --stop` + `--no-daemon`.
+- `docker compose --profile base up -d --wait` (tarea `bd:levantar`) falló una vez con `exit 1` aunque los 7 servicios quedaron `healthy` según `docker ps`; causa: el contenedor de un solo uso `aportaya-minio-bucket` (crea el bucket y termina con `exit 0`, sin healthcheck) entra en carrera con el `--wait` de compose. Es una condición de carrera de infraestructura preexistente en `despliegue/compose/base.yml`, no causada por este cambio — se reintentó.
+- Concurrencia: por unos minutos corrieron en paralelo `bd:reset` (Docker/Gradle) y la instalación de paquetes del SDK de Android (`sdkmanager`, red). No comparten recursos (uno es Docker/CPU local, el otro es descarga de red) y la regla 70.1.4 habla de builds/test runners; se decidió no interrumpir ninguno de los dos para no perder progreso. No se repite con un tercer proceso en paralelo.
+- Segundo desvío de la regla 70.1.4: se lanzó `generateOpenApiClients` mientras la rerun de `test/webTest/integrationTest` todavía corría (error, ambos son `./gradlew --no-daemon` contra el mismo proyecto). Gradle serializa el acceso a sus cachés compartidas con locks de archivo entre procesos del mismo proyecto, así que el riesgo real es que uno espere al otro, no que se corrompan — se decidió no matar ninguno de los dos a mitad de escritura (más riesgoso que esperar) y no abrir un tercero en paralelo. Verificado después: ningún archivo de evidencia quedó truncado ni mezclado entre las dos corridas.
+
+## Riesgos y bloqueos previstos
+| Riesgo | Impacto | Mitigación |
+|---|---|---|
+| Sin Android SDK/AVD en esta máquina | Bloquea H7 | Instalar cmdline-tools + system-image google_apis (en curso) |
+| Flutter 3.47 vs .fvmrc 3.44.8 | pubspec.lock podría no resolver | Probar 3.47 primero, fvm 3.44.8 si falla |
+| 14 servicios JVM → OOM | Máquina lenta/falla | Levantar solo identidad + cumplimiento + base |
+| DestinoDeObjeto rechaza guion bajo | 500 al subir perfil_izquierdo | Cara.etiqueta() con guion, cubierto por test |

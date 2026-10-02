@@ -40,18 +40,32 @@ export type EnlaceDeFoto = { cara: string; url: string }
 // y `FactorPresentado.tipo`) — Prism los valida y rechaza con 422 cualquier otro valor.
 export const EntradaAutenticacionPlataformaEnum = { Web: 'WEB', Android: 'ANDROID', Ios: 'IOS' } as const
 export const FactorPresentadoTipoEnum = { Totp: 'TOTP', Otp: 'OTP', Biometria: 'BIOMETRIA' } as const
+/**
+ * Valores del contrato (`identidad.yaml`, `ExpedienteEnRevision.estado`), no los nombres
+ * de miembro: con `'EnRevision'` la cola filtraba `?estado=EnRevision` (el servidor
+ * devuelve `[]`) y «Por decidir» nunca coincidía con lo que llega (`EN_REVISION`).
+ */
 export const ExpedienteEnRevisionEstadoEnum = {
-  Pendiente: 'Pendiente',
-  EnRevision: 'EnRevision',
-  Aprobada: 'Aprobada',
-  Rechazada: 'Rechazada',
+  Pendiente: 'PENDIENTE',
+  EnRevision: 'EN_REVISION',
+  Aprobada: 'APROBADA',
+  Rechazada: 'RECHAZADA',
 } as const
-/** Nombres tomados de la data de prueba ya presente en `tira-de-fotos.a11y.spec.ts`. */
-export const ExpedienteEnRevisionFotosEnum = {
+/**
+ * Contrato real, no un doble: copiado de `components.schemas.CaraDelExpediente` en
+ * identidad.yaml (5 caras desde el escáner de identidad, 2026-10-02) y de lo que emite
+ * el generador para ese schema. Mismos nombres de miembro que el enum generado.
+ */
+export const CaraDelExpediente = {
   Anverso: 'ANVERSO',
   Reverso: 'REVERSO',
   Selfie: 'SELFIE',
+  PerfilIzquierdo: 'PERFIL_IZQUIERDO',
+  PerfilDerecho: 'PERFIL_DERECHO',
 } as const
+export type CaraDelExpediente = (typeof CaraDelExpediente)[keyof typeof CaraDelExpediente]
+/** Nombre anterior del mismo enum, para el código que todavía lo importe. */
+export const ExpedienteEnRevisionFotosEnum = CaraDelExpediente
 /** CU del debido proceso de verificación: aprobar u observar (regla 91.4). */
 export const DecisionDeVerificacionDecisionEnum = {
   Aprobar: 'APROBAR',

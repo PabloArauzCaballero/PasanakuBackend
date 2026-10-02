@@ -1,0 +1,12 @@
+$ psql: expediente del usuario sintetico tras aprobar en el backoffice (id truncado)
+ usuario  |  estado  | revisada_por | resuelta_en | anverso | reverso | selfie | perfil_izq | perfil_der 
+----------+----------+--------------+-------------+---------+---------+--------+------------+------------
+ 83bba82f | APROBADA | t            | t           | t       | t       | t      | t          | t
+(1 row)
+
+$ backoffice (Playwright, stack real): imagenes de la tira + decision
+IMAGENES ANVERSO 1600x1009, REVERSO 1600x1009, SELFIE 1200x1600, PERFIL_IZQUIERDO 1200x1600, PERFIL_DERECHO 1200x1600
+APROBAR habilitado: true
+MUTACION 200 POST /api/v1/identidad/verificaciones/<id>/decision
+expediente roto (0 fotos): «Faltan fotos. No se aprueba un expediente que no se puede mirar entero.»
+$ app (emulador): «Actualizar estado» -> «Identidad verificada» (evidencia/h8-15-estado-aprobada.png)

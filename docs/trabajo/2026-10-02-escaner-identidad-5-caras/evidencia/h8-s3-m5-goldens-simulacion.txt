@@ -1,0 +1,10 @@
+# simulacion-65 de H8.S3.M5: goldens regenerados SOLO en Windows como doble del runner Linux; se restauran al final, no se versionan
+## INVALIDO: piel nueva contra las referencias versionadas (deben detectar el cambio)
+00:09 +3 -15: Some tests failed.
+## ACEPTADO: --update-goldens (Windows) y luego comparar
+00:05 +18: All tests passed!
+00:05 +18: All tests passed!
+## LIMITE: segunda comparacion seguida, sin regenerar (render determinista en claro y oscuro)
+00:04 +18: All tests passed!
+## restauracion
+(vacio = restaurado)

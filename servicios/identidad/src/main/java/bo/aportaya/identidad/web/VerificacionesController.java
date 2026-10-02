@@ -3,6 +3,7 @@ package bo.aportaya.identidad.web;
 import bo.aportaya.identidad.aplicacion.CU02RevisarExpediente;
 import bo.aportaya.identidad.dominio.ExpedienteDeIdentidad;
 import bo.aportaya.identidad.web.generado.IdentidadApi;
+import bo.aportaya.identidad.web.generado.modelo.CaraDelExpediente;
 import bo.aportaya.identidad.web.generado.modelo.DecisionDeVerificacion;
 import bo.aportaya.identidad.web.generado.modelo.EnlaceDeFoto;
 import bo.aportaya.identidad.web.generado.modelo.ExpedienteEnRevision;
@@ -48,8 +49,9 @@ public class VerificacionesController implements IdentidadApi {
         return ResponseEntity.ok(cola);
     }
 
-    /** Las tres caras que el contrato declara; cualquier otra no existe. */
-    private static final Set<String> CARAS = Set.of("ANVERSO", "REVERSO", "SELFIE");
+    /** Las cinco caras que el contrato declara; cualquier otra no existe. */
+    private static final Set<String> CARAS =
+            Set.of("ANVERSO", "REVERSO", "SELFIE", "PERFIL_IZQUIERDO", "PERFIL_DERECHO");
 
     @Override
     @Permiso("VERIFICACION_RESOLVER")
@@ -109,7 +111,7 @@ public class VerificacionesController implements IdentidadApi {
                 .iniciadaEn(e.iniciadaEn())
                 .resueltaEn(e.resueltaEn())
                 .motivoRechazo(e.motivoRechazo());
-        e.fotos().forEach(f -> salida.addFotosItem(ExpedienteEnRevision.FotosEnum.fromValue(f)));
+        e.fotos().forEach(f -> salida.addFotosItem(CaraDelExpediente.fromValue(f)));
         return salida;
     }
 }
