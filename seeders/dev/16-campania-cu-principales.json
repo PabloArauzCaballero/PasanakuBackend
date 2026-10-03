@@ -237,6 +237,82 @@
       ]
     },
     {
+      "tabla": "periodo",
+      "conflicto": [],
+      "comentario": "Un periodo por cupo: sin ellos el sorteo no puede repartir turnos (CU-60). Un grupo creado por CU-20 los trae.",
+      "filas": [
+        {
+          "grupo_id": {
+            "$ref": "grupo",
+            "codigo_publico": "GRP-DEMO-02"
+          },
+          "numero": 1,
+          "fecha_inicio": {
+            "$fecha": "20 days"
+          },
+          "fecha_limite_pago": {
+            "$fecha": "30 days"
+          },
+          "fecha_fin_gracia": {
+            "$fecha": "33 days"
+          },
+          "fecha_entrega_prevista": {
+            "$fecha": "35 days"
+          },
+          "estado": "PROGRAMADO",
+          "monto_objetivo": 300,
+          "monto_recaudado": 0,
+          "cupos_morosos": 0
+        },
+        {
+          "grupo_id": {
+            "$ref": "grupo",
+            "codigo_publico": "GRP-DEMO-02"
+          },
+          "numero": 2,
+          "fecha_inicio": {
+            "$fecha": "50 days"
+          },
+          "fecha_limite_pago": {
+            "$fecha": "60 days"
+          },
+          "fecha_fin_gracia": {
+            "$fecha": "63 days"
+          },
+          "fecha_entrega_prevista": {
+            "$fecha": "65 days"
+          },
+          "estado": "PROGRAMADO",
+          "monto_objetivo": 300,
+          "monto_recaudado": 0,
+          "cupos_morosos": 0
+        },
+        {
+          "grupo_id": {
+            "$ref": "grupo",
+            "codigo_publico": "GRP-DEMO-02"
+          },
+          "numero": 3,
+          "fecha_inicio": {
+            "$fecha": "80 days"
+          },
+          "fecha_limite_pago": {
+            "$fecha": "90 days"
+          },
+          "fecha_fin_gracia": {
+            "$fecha": "93 days"
+          },
+          "fecha_entrega_prevista": {
+            "$fecha": "95 days"
+          },
+          "estado": "PROGRAMADO",
+          "monto_objetivo": 300,
+          "monto_recaudado": 0,
+          "cupos_morosos": 0
+        }
+      ]
+    },
+    {
       "tabla": "obligacion_aporte",
       "conflicto": [],
       "comentario": "Destrabe 2: una obligación PENDIENTE para que CU-21 tenga qué cobrar.",

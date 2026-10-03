@@ -66,6 +66,18 @@ BEGIN
   END IF;
 END $siembra$;
 
+-- Un periodo por cupo: sin ellos el sorteo no puede repartir turnos (CU-60). Un grupo creado por CU-20 los trae.
+DO $siembra$
+BEGIN
+  IF current_setting('app.dev_sembrado', true) IS DISTINCT FROM 'si' THEN
+    INSERT INTO periodo (grupo_id, numero, fecha_inicio, fecha_limite_pago, fecha_fin_gracia, fecha_entrega_prevista, estado, monto_objetivo, monto_recaudado, cupos_morosos) VALUES
+      ((SELECT id FROM grupo WHERE codigo_publico = 'GRP-DEMO-02'), 1, (current_date + interval '20 days'), (current_date + interval '30 days'), (current_date + interval '33 days'), (current_date + interval '35 days'), 'PROGRAMADO', 300, 0, 0),
+      ((SELECT id FROM grupo WHERE codigo_publico = 'GRP-DEMO-02'), 2, (current_date + interval '50 days'), (current_date + interval '60 days'), (current_date + interval '63 days'), (current_date + interval '65 days'), 'PROGRAMADO', 300, 0, 0),
+      ((SELECT id FROM grupo WHERE codigo_publico = 'GRP-DEMO-02'), 3, (current_date + interval '80 days'), (current_date + interval '90 days'), (current_date + interval '93 days'), (current_date + interval '95 days'), 'PROGRAMADO', 300, 0, 0)
+    ON CONFLICT DO NOTHING;
+  END IF;
+END $siembra$;
+
 -- Destrabe 2: una obligación PENDIENTE para que CU-21 tenga qué cobrar.
 DO $siembra$
 BEGIN
