@@ -1,4 +1,4 @@
-> **AVANCE: 39 / 76 — 51,3 %.** En rojo: 26 microtareas BLOQUEADAS (22 por decisiones de autorización, modelo o contrato que quedan para el equipo; 4 por entorno), 7 A MEDIAS. **Ningún flujo de dinero de billetera se completa** (CU-10 acreditar, CU-12, CU-11). Sin una sola captura de la app en el emulador: el sistema detuvo dos veces el build del APK por memoria crítica.
+> **AVANCE: 44 / 89 — 49,4 %.** En rojo: 31 microtareas BLOQUEADAS (la mayoría por decisiones de autorización, modelo o contrato; el resto por entorno), 10 A MEDIAS. **CU-10, CU-12 y CU-20 siguen sin completarse**: la última capa (B28) son triggers que leen tablas de otros esquemas con el rol que los dispara. La app llegó a arrancar en el emulador, pero sin capturas de pantallas de uso: el sistema detuvo el emulador y el recompilado por memoria crítica.
 
 # Reporte — Campaña E2E de los casos de uso principales + correcciones (API real + backoffice real)
 
@@ -24,6 +24,29 @@ Con tu autorización se corrigieron, además de B6 y B7 (secuencias y `digest` d
 | B10 | La cotización del retiro enviaba `referenciaTipo: OPERACION`; ahora `ORDEN_RETIRO` | el retiro cotiza y pide el segundo factor |
 | B16 | `TRASPASO_CUPO` se vota como `ADMISION_REEMPLAZO` (decisión tuya) y CU-64 valida que el acuerdo exista, sea del grupo, del tipo y esté `APROBADO` | `proponerAcuerdo` → 201 |
 | B25 | `comprometerSorteo` devuelve la semilla (campo aditivo del contrato) | comprometer 201 → revelar 200 `verificado: true`, 3 turnos creados |
+
+## Ronda H6 — bloque RLS / libro / permuta / app (autorizada por el usuario)
+
+**Lo que se hizo y quedó verificado:**
+
+| Pieza | Qué es | Evidencia |
+|---|---|---|
+| B27 | Las 62 funciones de regla (esquema `aportes`) con `search_path` fijo y `USAGE` sobre `aportes` para todos los `svc_*` | `h6-b27-usage-aportes.txt`; 62 de 62 con `SET`; humo 165 OK |
+| B29 | `SYS-CUSTODIA` con el id fijo que el compose configura (`…0c0`); antes toda pata contra la custodia violaba la FK | SQL tras el reseteo |
+| B8 (parte) | Políticas de **solo lectura** para el titular en `organizador`, `participante` y `movimiento_billetera`; `solicitud_organizador` completa para el titular | `AutorizacionNegativaTest` con el rol real: el titular lee lo suyo, **no escribe el libro**; 7 de 7 PASS |
+| Libro | `Datos.comoSistema` (privilegio de sistema acotado al bloque, rol restaurado, error del trabajo sin enmascarar) usado por `LibroDeBilletera` | mismo test |
+| B20 | `acreditarRecarga` exige `TESORERIA` | runtime: titular y ajeno → 403 (`h6-dinero.txt`) |
+| B11 | Postular a organizador | runtime: 201 (antes 500) |
+| B13/B14 | Permuta: el solicitante es el participante del grupo del turno; solo el titular del turno de origen la pide | tests web e integración PASS; runtime: titular 201, ajeno 422 |
+
+**Lo que no se pudo cerrar:**
+- **B28 (arquitectura):** `fn_uif_acumulado` lee `registro_operacion_relevante` y `fn_org_validar_contrato_grupo` lee `contrato_organizador` con el rol que dispara el trigger, que no tiene acceso a esos esquemas. Con eso, ningún movimiento del libro ni ninguna creación de grupo completa con los roles reales. La salida propuesta (`SECURITY DEFINER` con `search_path` fijo en las funciones que cruzan esquemas) es una decisión de frontera de privilegios sobre unas 60 funciones: **no la apliqué por mi cuenta**.
+- **El sistema de permisos de Claude Code denegó dos lotes** pese a tu autorización en el chat: el que incluía hacer público `/grupos/sorteos/{id}/paquete` y leer los participantes con rol de sistema para resolver el alias (B26 y alias), y el del voto (B22). No los repetí por partes. Quedan diseñados en el PLAN (H6.S4.M1, H6.S5.M1, H6.S6.M2); para aplicarlos hace falta una regla de permiso en la configuración o que los aplique una persona.
+- **Web tests de B20** (`BilleteraControllerWebTest`, dos tests nuevos): escritos, **no ejecutados** (Gradle detenido por memoria).
+- **B15 y B5** (canal `aportes`→`grupos`): no empezados.
+- **La app en el emulador:** instalada y lanzada; la guardia de configuración rechaza `http://10.0.2.2` (preexistente), se recompiló con `HOSTS_PERMITIDOS=10.0.2.2`, y el sistema cerró el emulador antes de recorrer pantallas. Capturas disponibles: `app-00-arranque.png` (splash) y `app-01-inicio.png` (guardia de configuración). Pasos para retomar en H6.S9.M1 del PLAN.
+
+**Hallazgos nuevos:** B27 (corregido), B28 (abierto, decisión), B29 (corregido). El detalle está en el PLAN.
 
 ## Completado
 
