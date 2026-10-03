@@ -98,10 +98,10 @@ public class RenovarSesion {
                       FROM identidad.token_verificacion t
                       JOIN identidad.sesion s ON s.refresco_familia_id = t.familia_id
                      WHERE t.tipo_token = 'REFRESCO'
-                       AND t.hash_token = encode(digest(?, 'sha256'), 'hex')
+                       AND t.hash_token = ?
                        FOR UPDATE OF t, s
                     """,
-                    enClaro);
+                    sha256(enClaro));
             if (fila == null) {
                 return Renovacion.rechazada();
             }
@@ -179,7 +179,7 @@ public class RenovarSesion {
                      algoritmo_hash, canal_entrega, destino_enmascarado, estado, emitido_en, expira_en,
                      intentos_fallidos, max_intentos, reenvios, uso_unico, clicks, familia_id,
                      rotado_de_id, ip_origen, agente_usuario, correlation_id, clave_idempotencia)
-                SELECT ?, ?, ?, s.dispositivo_id, 'REFRESCO', ?, encode(digest(?, 'sha256'), 'hex'),
+                SELECT ?, ?, ?, s.dispositivo_id, 'REFRESCO', ?, ?,
                        'SHA-256', 'COOKIE_HTTPONLY', 'navegador', 'EMITIDO', ?::timestamptz, ?::timestamptz,
                        0, 1, 0, true, 0, ?, ?, ?::inet, ?, ?, ?
                   FROM identidad.sesion s
@@ -189,7 +189,7 @@ public class RenovarSesion {
                 usuarioId,
                 politica.get("id", UUID.class),
                 PROPOSITO,
-                enClaro,
+                sha256(enClaro),
                 ahora,
                 expira,
                 familia,
@@ -200,6 +200,22 @@ public class RenovarSesion {
                 id.toString(),
                 sesionId);
         return new Emitido(enClaro, expira);
+    }
+
+    /**
+     * El SHA-256 en hexadecimal, calculado aca y no con {@code digest()} de pgcrypto: la
+     * extension vive en {@code public}, que no esta en el {@code search_path} del rol del
+     * servicio ({@code svc_identidad}), y en runtime la funcion no existe para el. Mismo
+     * formato que {@code encode(digest(x, 'sha256'), 'hex')}.
+     */
+    static String sha256(String enClaro) {
+        try {
+            byte[] h = java.security.MessageDigest.getInstance("SHA-256")
+                    .digest(enClaro.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(h);
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 es obligatorio en toda JVM", e);
+        }
     }
 
     private static ContextoSesion contexto(String trazaId) {

@@ -1,0 +1,33 @@
+# H10.S3.M1 · renovación de sesión en el navegador real · base de esta rama (humo 165 OK) · identidad 74d18226 (SHA-256 en Java) · gateway reconstruido desde esta rama · 2026-10-03 19:04:18
+PASS 1 · ingreso: dentro de /cumplimiento/verificaciones
+PASS 2 · cookie aportaya_refresco presente (67cc665e…)
+PASS 2 · HttpOnly = true
+PASS 2 · Secure = true
+PASS 2 · SameSite = Strict
+PASS 2 · Path = /api/v1/sesion
+PASS 2 · document.cookie NO la ve (un XSS no se lleva la sesión): false
+PASS 3 · tras recargar sigue en /cumplimiento/verificaciones (refrescar → 401,200)
+PASS 3 · el refresh rotó: 67cc665e… → 2c954bb8…
+PASS 3 · segunda recarga: sigue dentro y rota otra vez (fef321a0…)
+PASS 4 · pestaña nueva: entra directo a /cumplimiento/verificaciones
+PASS 5 · reusar el refresh viejo → 401 (AP-SES-01)
+PASS 5 · tras el reuso, la sesión legítima quedó revocada: recargar lleva a /ingreso
+PASS 5 · y el último refresh legítimo tampoco sirve: 401
+
+RESUMEN: 14 PASS · 0 FAIL
+PREFIJOS {"c1":"67cc665e","c3":"fef321a0"}
+
+$ psql: la familia de refresh de la última sesión web del operador (hash truncado; el valor en claro nunca se guarda)
+   hash   |   estado   |         motivo_invalidacion          | emitido  | rotado 
+----------+------------+--------------------------------------+----------+--------
+ 6fc9e4cb | INVALIDADO | R-SEG-09: reuso de token de refresco | 19:04:20 | f
+ 9949cc0d | CONSUMIDO  |                                      | 19:04:20 | t
+ e173e244 | INVALIDADO | R-SEG-09: reuso de token de refresco | 19:04:22 | t
+ 38a6624b | INVALIDADO | R-SEG-09: reuso en la familia        | 19:04:23 | t
+(4 rows)
+
+  sesion  | revocada |          motivo_revocacion           
+----------+----------+--------------------------------------
+ 4383c4e3 | t        | R-SEG-09: reuso de token de refresco
+(1 row)
+

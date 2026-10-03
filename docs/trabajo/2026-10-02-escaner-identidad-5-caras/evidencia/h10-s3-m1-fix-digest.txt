@@ -1,0 +1,7 @@
+# H10 · fix pgcrypto/search_path: los tests corren con el search_path de svc_identidad
+$ integrationTest CU04Renovacion (con el arreglo)
+BUILD SUCCESSFUL in 2m 10s
+$ integrationTest CU04Renovacion (codigo del commit a52e9a2d, con digest)
+    SELECT ?, ?, ?, s.dispositivo_id, 'REFRESCO', ?, encode(digest(?, 'sha256'), 'hex'),
+    ]; ERROR: function digest(character varying, unknown) does not exist
+        org.postgresql.util.PSQLException: ERROR: function digest(character varying, unknown) does not exist

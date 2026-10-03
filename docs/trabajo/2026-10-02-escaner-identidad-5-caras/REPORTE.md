@@ -1,6 +1,6 @@
 # Reporte — Escáner de identidad (5 capturas, como Atlas) + botones vivos y transiciones (H8)
 
-> **AVANCE: 45 / 48 — 93,8 %.** Rojo abierto: H8.S3.M5 (goldens de `diseno_flutter` y de la app) BLOQUEADO — las referencias son de **macOS** y esta máquina es Windows. H10.S3.M1 TODO: la renovación de sesión está implementada y probada (165 tests de identidad en verde), pero falta verla en runtime porque el stack Docker compartido lo está usando la sesión de campania. H8.S3.M6 DESCARTADO (premisa equivocada, ver Desvíos). H6 opcional sin empezar.
+> **AVANCE: 46 / 48 — 95,8 %.** Rojo abierto: H8.S3.M5 (goldens de `diseno_flutter` y de la app) BLOQUEADO — las referencias son de **macOS** y esta máquina es Windows. H8.S3.M6 DESCARTADO (premisa equivocada, ver Desvíos). H6 opcional sin empezar. La renovación de sesión del backoffice (H10) quedó **verificada en el navegador real**.
 
 - Fecha: 2026-10-02 (cierre actualizado 2026-10-03, commit base `a28f3256`) · Plan: [PLAN.md](./PLAN.md) · Rama: `justin/feature/escaner-identidad-atlas` (worktree `PasanakuBackend-escaner`, sobre `origin/test`), sin commitear.
 - Peldaño de evidencia alcanzado:
@@ -54,13 +54,13 @@ Diseño de **ADR-010** sobre el modelo que ya estaba en la base (`token_verifica
 | H10.S2.M1 | `RenovarSesion`: emitir (familia nueva, SHA-256) y renovar (precondición en el UPDATE, rotación, gracia de 10 s para dos pestañas, reuso → el trigger revoca familia y sesión) | `integrationTest` `CU04RenovacionTest` | PASS — 7/7; con el UPDATE de reuso quitado o la gracia en 0 fallan los tests que corresponden |
 | H10.S2.M2 | Ingreso `WEB` con cookie `HttpOnly; Secure; SameSite=Strict; Path=/api/v1/sesion`; la app no recibe cookie; 401 borra la cookie | `webTest` | PASS — suite identidad: test 5, webTest 55, integrationTest 105, 0 fallos (`evidencia/h10-identidad-tests.txt`) |
 
-## A medias
+| H10.S3.M1 | **En el navegador real**, contra el stack de esta rama: entrar, recargar dos veces y abrir otra pestaña **sigue dentro**; la cookie rota en cada uso y `document.cookie` no la ve; reusar un refresh viejo → 401 y la sesión queda revocada | Playwright + SQL | PASS — 14/14 (`evidencia/h10-s3-m1-runtime.txt`, capturas `h10-01..04-*.png`); SQL: tokens y sesión con `R-SEG-09` |
 
-### H10.S3.M1 — Renovación de sesión en runtime
-- **Qué anda:** el código y el contrato, demostrados por 165 tests de identidad (PostgreSQL real para la rotación y el reuso).
-- **Qué no está verificado:** que en el navegador real el backoffice, al recargar, siga dentro (cookie a través de nginx → gateway → identidad).
-- **Qué falta exactamente:** cuando campania libere el stack: `bd:reset` desde esta rama (siembra `REFRESCO_SESION`), reconstruir `aportaya/identidad:local` con `--build-arg BD_URL_ADMIN=jdbc:postgresql://<ip de postgres>:5432/pasanaku`, levantar identidad, y con Playwright entrar → recargar → seguir en `/cumplimiento`; reusar un refresh viejo → 401 y sesión revocada (SQL).
-- **Dónde quedó:** commiteado en esta rama; compila y los tests pasan.
+Hallazgos del runtime, corregidos antes de cerrar:
+- **PRODUCT_BUG propio:** `digest()` de pgcrypto vive en `public`, que no está en el `search_path` del rol `svc_identidad`; en runtime el ingreso web daba 500 y los tests no lo veían, porque corrían como administrador. El SHA-256 se calcula en Java, y los tests ahora corren con el `search_path` del servicio: con el código anterior fallan (`evidencia/h10-s3-m1-fix-digest.txt`).
+- **ENVIRONMENT:** `aportaya/gateway:local` era una imagen del 22-09 que exigía Bearer en `/api/v1/sesiones` (401 en el ingreso). Se reconstruyó desde esta rama.
+
+## A medias
 
 
 ### H8 — Extensión de diseño
@@ -131,7 +131,7 @@ MUTACION 200 POST /api/v1/identidad/verificaciones/<id>/decision
 
 ## Riesgos residuales
 
-- Renovación de sesión (H10): probada con tests, falta verla en el navegador real. En producción la cookie exige HTTPS (`Secure`); en desarrollo funciona porque Chrome trata `localhost` como seguro. Si el backoffice y la API se sirven en dominios distintos, `SameSite=Strict` y `Path` deben revisarse con infraestructura.
+- Renovación de sesión (H10): verificada en el navegador real con `localhost`. En producción la cookie exige HTTPS (`Secure`); en desarrollo funciona porque Chrome trata `localhost` como seguro. Si el backoffice y la API se sirven en dominios distintos, `SameSite=Strict` y `Path` deben revisarse con infraestructura.
 - `packages/ui/src/monto/monto.spec.ts` vence a los 5000 ms también en la base `22c5e687` (preexistente, no tocado).
 
 - Los goldens de `diseno_flutter` y de la app van a fallar en el job `app-goldens` (macOS) hasta regenerarlos en una Mac.

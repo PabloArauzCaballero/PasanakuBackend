@@ -141,13 +141,24 @@ class CU04RenovacionTest extends BaseDeCU04 {
         assertThat(estadoDe(token)).isEqualTo("EMITIDO");
     }
 
+    // Con el search_path del rol del servicio (svc_identidad), no el del administrador de la
+    // prueba: sin esto el caso de uso usaba digest() de pgcrypto —que vive en `public`—, los
+    // tests pasaban y en runtime el ingreso web daba 500 (H10.S3.M1).
+    private static final String SEARCH_PATH_DEL_SERVICIO = "SET LOCAL search_path TO identidad, catalogo, comun";
+
     private String emitir(UUID usuario, UUID sesion) {
-        return transaccion.execute(e -> refresco.emitir(usuario, sesion, "127.0.0.1", "prueba", UUID.randomUUID().toString()))
+        return transaccion.execute(e -> {
+                    dsl.execute(SEARCH_PATH_DEL_SERVICIO);
+                    return refresco.emitir(usuario, sesion, "127.0.0.1", "prueba", UUID.randomUUID().toString());
+                })
                 .token();
     }
 
     private RenovarSesion.Renovacion renovar(String token) {
-        return transaccion.execute(e -> refresco.renovar(token, "127.0.0.1", "prueba", UUID.randomUUID().toString()));
+        return transaccion.execute(e -> {
+            dsl.execute(SEARCH_PATH_DEL_SERVICIO);
+            return refresco.renovar(token, "127.0.0.1", "prueba", UUID.randomUUID().toString());
+        });
     }
 
     private String estadoDe(String token) {
