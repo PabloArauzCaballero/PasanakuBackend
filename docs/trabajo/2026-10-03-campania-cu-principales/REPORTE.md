@@ -1,4 +1,4 @@
-> **AVANCE: 30 / 54 — 55,6 %.** En rojo: 16 microtareas BLOQUEADAS (13 por defectos de producto o de datos, 3 por entorno) y 3 A MEDIAS. De los 13 casos de uso probados, **solo CU-21 pasa de punta a punta**; CU-22 pasa a medias; ningún flujo de dinero de billetera (CU-10 acreditar, CU-12, CU-11) se completa. Sin evidencia de la app en el emulador.
+> **AVANCE: 31 / 54 — 57,4 %.** En rojo: 16 microtareas BLOQUEADAS (13 por defectos de producto o de datos, 3 por entorno) y 3 A MEDIAS. De los 13 casos de uso probados, **solo CU-21 pasa de punta a punta**; CU-22 pasa a medias; ningún flujo de dinero de billetera (CU-10 acreditar, CU-12, CU-11) se completa. Sin evidencia de la app en el emulador.
 
 # Reporte — Campaña E2E de los casos de uso principales (API real + backoffice real)
 
@@ -23,6 +23,7 @@
 | H3.S8.M1 | **CU-21 aportar:** 201, repetición con la misma clave → 200 con el mismo `pagoId`, 1 solo `pago`, billetera sin débito (brecha declarada) | `h3_grupos.py` | PASS — `h3-grupos-primera-pasada.txt` (¡pero ver B15!) |
 | H3.S11.M1 | **CU-74:** el resultado real (403 por SOPORTE) queda registrado | `h3_grupos.py` | PASS como registro; veredicto BRECHA — `h3-campania-final.txt` |
 | H4.S1.M1–M2, M4 | Compuertas Python en 0; humo del esquema sin fallas; capturas del backoffice | scripts + Playwright | PASS — `h4-gates-python.txt`, `h4-humo-esquema.txt`, `bo-*.png` |
+| H4.S2.M1–M2 | Reporte escrito y PR abierto contra `test`, sin merge | `gh pr create` | PASS — https://github.com/PabloArauzCaballero/PasanakuBackend/pull/45 |
 
 ## A medias
 
@@ -60,7 +61,6 @@
 | H3.S13.M1 | BLOQUEADO | B10: `tarifas` rechaza la cotización del retiro |
 | H3.S15.M2, M3 | BLOQUEADO (ENTORNO) | Liberar memoria y relanzar el build del APK; después el AVD `pasanaku` |
 | H4.S1.M3 | BLOQUEADO (ENTORNO) | Correr los tests de integración de Gradle con memoria libre |
-| H4.S2.M2 | TODO | Empujar la rama y abrir el PR a `test` (sin merge) |
 | H1.S1.M2, H1.S2.M1, H1.S2.M4–M5 | DESCARTADO | SOPORTE por datos no sirve (B1); sandbox retirado (rompía `R-LIC-01`); MFA no hacía falta; instrumento de USR90 innecesario |
 
 ## Matriz por caso de uso (canal × veredicto)

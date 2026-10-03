@@ -133,7 +133,7 @@ Cada fila deja evidencia en `evidencia/h3-<cu>-*` (captura, SQL, salida newman).
 | H4.S1.M3 | Tests de integración de los servicios tocados (privilegios y `digest` con el rol real) y `EsquemaAlDiaRepositorioTest` | Verdes | `./gradlew :servicios:nucleo-financiero:integrationTest :servicios:identidad:integrationTest` | BLOQUEADO — ENTORNO: el sistema ya detuvo un build por memoria crítica; no se lanza otro Gradle pesado sin que se libere memoria. Qué lo destraba: liberar memoria y correrlo; dueño: quien opere la máquina |
 | H4.S1.M4 | Prueba visual del backoffice en 3 viewports y 2 temas, con consola y red revisadas | Capturas inspeccionadas | `evidencia/bo-*.png` (30 imágenes: 4 pantallas × 3 viewports × 2 temas con USR000091 = 24, más la billetera con USR000008 = 6) y `bo-capturas-salida.txt`, `bo-capturas-tesoreria.txt` | HECHO |
 | H4.S2.M1 | `REPORTE.md` con matriz CU×canal×veredicto, gate de dinero, saltos entre servicios y No cubierto | `report_gate.py` no bloquea | `python .claude/hooks/plan_status.py` + el archivo → `REPORTE.md` escrito con las secciones obligatorias y el avance en la primera línea | HECHO |
-| H4.S2.M2 | Commits por tema y PR a `test` sin merge | Rama empujada y PR abierto | `gh pr view` | TODO |
+| H4.S2.M2 | Commits por tema y PR a `test` sin merge | Rama empujada y PR abierto | `gh pr view` → rama `justin/test/campania-cu-principales` empujada y PR https://github.com/PabloArauzCaballero/PasanakuBackend/pull/45 abierto contra `test`, sin merge | HECHO |
 
 ## Registro de hallazgos de producto (se consolida en el REPORTE)
 | # | CU | Clase (regla 80.4) | Hallazgo | Evidencia | Dueño sugerido |
