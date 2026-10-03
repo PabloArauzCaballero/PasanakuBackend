@@ -10,6 +10,8 @@ import bo.aportaya.plataforma.dominio.Traza;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,10 +62,13 @@ public class EmitirAcceso {
         // fila es lo que impide que emitir un token para otro sea posible por descuido.
         var ctx = ContextoSesion.de(usuarioId, rol, new Traza(UUID.randomUUID().toString()));
 
-        List<String> permisos = datos.conContexto(
-                ctx, dsl -> PermisosEfectivos.de(accesos.asignacionesDe(dsl, usuarioId), ahora).stream()
-                        .sorted()
-                        .toList());
+        List<String> permisos = datos.conContexto(ctx, dsl -> {
+            // Los permisos del catalogo y, ademas, el codigo de cada rol vigente: hay endpoints
+            // que exigen el rol por nombre.
+            Set<String> todos = new TreeSet<>(PermisosEfectivos.de(accesos.asignacionesDe(dsl, usuarioId), ahora));
+            todos.addAll(accesos.codigosDeRolesVigentes(dsl, usuarioId, ahora));
+            return List.copyOf(todos);
+        });
 
         var emitido = emisor.emitir(usuarioId, rol, permisos, nivelDiligencia, dispositivo);
         return new Acceso(emitido.token(), emitido.expiraEn());
