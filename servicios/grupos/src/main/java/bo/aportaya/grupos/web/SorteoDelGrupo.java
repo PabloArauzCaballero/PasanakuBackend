@@ -42,6 +42,7 @@ class SorteoDelGrupo {
         var respuesta = new CompromisoDeSorteo();
         respuesta.setSorteoId(compromiso.sorteoId());
         respuesta.setHashSemilla(compromiso.hashSemilla());
+        respuesta.setSemilla(compromiso.semilla());
         respuesta.setAlgoritmo(CompromisoDeSorteo.AlgoritmoEnum.FISHER_YATES_SHA256);
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }

@@ -739,11 +739,17 @@ components:
     CompromisoDeSorteo:
       type: object
       additionalProperties: false
-      required: [sorteoId, hashSemilla, algoritmo]
+      required: [sorteoId, hashSemilla, algoritmo, semilla]
       properties:
         sorteoId:    { type: string, format: uuid }
         hashSemilla: { type: string, minLength: 64, maxLength: 64 }
         algoritmo:   { type: string, enum: [FISHER_YATES_SHA256] }
+        semilla:
+          type: string
+          description: >-
+            La semilla se devuelve SOLO a quien dispara el sorteo, que es quien la tiene que
+            devolver al revelar. El servidor no la guarda entre las dos fases: guardarla
+            haria posible cambiarla, que es lo que el protocolo existe para impedir.
     RevelacionDeSorteo:
       type: object
       additionalProperties: false
