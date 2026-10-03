@@ -1,0 +1,13 @@
+$ git status --short sql scripts
+ M scripts/generar_ddl.py
+ M sql/00_base/02_esquemas.sql
+ M sql/00_base/03_permisos.sql
+ M sql/61_dev/sembrar_dev.sql
+?? sql/61_dev/16-campania-cu-principales.sql
+
+$ git diff --stat -- sql scripts
+ scripts/generar_ddl.py      | 10 +++++-
+ sql/00_base/02_esquemas.sql | 84 +++++++++++++++++++++++++++++++++++++++++++++
+ sql/00_base/03_permisos.sql | 28 +++++++++++++++
+ sql/61_dev/sembrar_dev.sql  |  1 +
+ 4 files changed, 122 insertions(+), 1 deletion(-)

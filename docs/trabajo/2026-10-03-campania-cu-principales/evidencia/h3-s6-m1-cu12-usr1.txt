@@ -1,0 +1,8 @@
+LOGIN USR1 (+591***01) -> 200 requiereFactor=False token=si
+LOGIN USR2 (+591***02) -> 200 requiereFactor=False token=si
+saldos antes: BOB-0000001 disponible=3589.50 · BOB-0000002 disponible=600.00
+-- resolver alias «Juan» con el token de USR1
+GET   /grupos/alias/Juan                                                               -> 404 AP-VAL-05
+POST  /billetera/transferencias                                                        -> 422 AP-CU12-02
+respuesta: {'codigo': 'AP-CU12-02', 'mensaje': 'Ese destino no existe.', 'detalle': {}, 'trazaId': '49eb8c45-c82a-4f5c-2c9a-0c96dcc4a8d1'}
+saldos después: BOB-0000001 disponible=3589.50 · BOB-0000002 disponible=600.00

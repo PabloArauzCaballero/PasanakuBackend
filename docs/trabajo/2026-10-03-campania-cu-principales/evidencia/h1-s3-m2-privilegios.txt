@@ -1,0 +1,10 @@
+$ USAGE sobre las secuencias, por rol
+svc_nucleo_financiero → transaccion_billetera_secuencia_seq = true
+svc_nucleo_financiero → asiento_contable_numero_seq = true
+$ todos los svc_* sobre comun.bitacora_evento_secuencia_seq (se espera 14 × true, 0 × false)
+14 true / 0 false
+$ aislamiento: un svc_* NO puede usar la secuencia de otro esquema (se espera false)
+svc_aportes → nucleo_financiero.transaccion_billetera_secuencia_seq = false
+
+$ datos tras el reset
+usuarios=11 grupos=2 sandboxes=5
