@@ -1,7 +1,5 @@
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
-import 'package:aportaya_diseno/atomos/tono.dart';
-import 'package:aportaya_diseno/moleculas/alerta.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'dominio/capturas_del_expediente.dart';
 import 'dominio/seguimiento_del_alta.dart';
 import 'dominio/subida_del_expediente.dart';
+import 'fila_de_subida.dart';
 import 'textos_de_subida.dart';
 
 /// La subida en lote de las cinco fotos ya validadas, con la misma máquina de
@@ -56,7 +55,14 @@ class _PantallaDeSubidaDelExpedienteState
     final subida = ref.watch(subidaProvider);
     final capturas = _capturas(ref.watch(seguimientoDelAltaProvider));
     return Scaffold(
-      appBar: AppBar(automaticallyImplyLeading: false),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Text(
+          subida.completa
+              ? TextosDeSubida.tituloEnviados
+              : TextosDeSubida.tituloSubiendo,
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(Espacio.s4),
@@ -67,7 +73,7 @@ class _PantallaDeSubidaDelExpedienteState
                 child: ListView(
                   children: [
                     for (final cara in CapturasDelExpediente.orden)
-                      _FilaDeSubida(
+                      FilaDeSubida(
                         cara: cara,
                         estado: subida.porCara[cara],
                         ruta: capturas.porCara[cara]?.ruta,
@@ -110,88 +116,3 @@ class _PantallaDeSubidaDelExpedienteState
 /// Sin seguimiento (p. ej. la app se reabrió en esta ruta) no hay nada que subir.
 CapturasDelExpediente _capturas(AltaEnSeguimiento? seguimiento) =>
     seguimiento?.capturas ?? const CapturasDelExpediente();
-
-class _FilaDeSubida extends StatelessWidget {
-  const _FilaDeSubida({
-    required this.cara,
-    required this.estado,
-    required this.ruta,
-    required this.onCancelar,
-    required this.onReintentar,
-    required this.onRepetir,
-  });
-
-  final CaraDelCarril cara;
-  final SubidaDeUnaCara? estado;
-  final String? ruta;
-  final VoidCallback onCancelar;
-  final VoidCallback onReintentar;
-  final VoidCallback onRepetir;
-
-  @override
-  Widget build(BuildContext context) {
-    final valor = estado?.estado ?? EstadoDeUnaSubida.pendiente;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: Espacio.s2),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            tituloDeCaptura(cara),
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-          const SizedBox(height: Espacio.s1),
-          switch (valor) {
-            EstadoDeUnaSubida.pendiente => const Text('—'),
-            EstadoDeUnaSubida.subiendo => _conDetalle(
-              TextosDeSubida.subiendo(cara),
-              TextosDeSubida.detalle,
-              onCancelar,
-            ),
-            EstadoDeUnaSubida.lenta => _conDetalle(
-              TextosDeSubida.subiendo(cara),
-              TextosDeSubida.lenta,
-              onCancelar,
-            ),
-            EstadoDeUnaSubida.subida => const Alerta(
-              titulo: TextosDeSubida.todoListo,
-              tono: Tono.ok,
-            ),
-            EstadoDeUnaSubida.fallida => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Alerta(titulo: estado?.error ?? '', tono: Tono.error),
-                const SizedBox(height: Espacio.s2),
-                Row(
-                  children: [
-                    TextButton(
-                      onPressed: onReintentar,
-                      child: const Text(TextosDeSubida.reintentar),
-                    ),
-                    TextButton(
-                      onPressed: onRepetir,
-                      child: const Text(TextosDeSubida.repetirLaFoto),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          },
-        ],
-      ),
-    );
-  }
-
-  Widget _conDetalle(String titulo, String detalle, VoidCallback onCancelar) =>
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(titulo),
-          Text(detalle, style: Tipo.ayuda),
-          TextButton(
-            onPressed: onCancelar,
-            child: const Text(TextosDeSubida.cancelarLaSubida),
-          ),
-        ],
-      );
-}

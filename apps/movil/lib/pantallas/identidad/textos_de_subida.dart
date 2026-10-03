@@ -14,6 +14,8 @@ class TextosDeSubida {
   static const repetirLaFoto = 'Repetir la foto';
   static const cancelarLaSubida = 'Cancelar la subida';
   static const todoListo = 'Documento enviado';
+  static const tituloSubiendo = 'Enviando tus documentos';
+  static const tituloEnviados = 'Tus documentos están enviados';
   static const continuar = 'Continuar';
 
   static String _nombreCorto(CaraDelCarril cara) => switch (cara) {

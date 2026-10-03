@@ -1,12 +1,13 @@
 # Reporte — Escáner de identidad (5 capturas, como Atlas) + botones vivos y transiciones (H8)
 
-> **AVANCE: 22 / 23 — 95,7 %.** Rojo abierto: H8.S3.M5 (goldens de `diseno_flutter`) BLOQUEADO hasta regenerarlos en el runner Linux del CI. Hitos A MEDIAS: H5 (faltan los tests unitarios de `SubidaNotifier` / `VerificacionNotifier`) y H8 (por H8.S3.M5). H6 opcional sin empezar.
+> **AVANCE: 25 / 27 — 92,6 %.** Rojo abierto: H8.S3.M5 (goldens de `diseno_flutter` y de la app) BLOQUEADO — las referencias son de **macOS** y esta máquina es Windows. H8.S3.M6 DESCARTADO (premisa equivocada, ver Desvíos). H6 opcional sin empezar.
 
-- Fecha: 2026-10-02 · Plan: [PLAN.md](./PLAN.md) · Rama: `justin/feature/escaner-identidad-atlas` (worktree `PasanakuBackend-escaner`, sobre `origin/test`), sin commitear.
+- Fecha: 2026-10-02 (cierre actualizado 2026-10-03, commit base `a28f3256`) · Plan: [PLAN.md](./PLAN.md) · Rama: `justin/feature/escaner-identidad-atlas` (worktree `PasanakuBackend-escaner`, sobre `origin/test`), sin commitear.
 - Peldaño de evidencia alcanzado:
   - Flujo alta → 5 fotos → backoffice → aprobar → app: **VERIFIED** (runtime real: emulador Android + 10 contenedores + backoffice con Playwright, persistencia comprobada con SQL, consola y red revisadas).
   - Botones vivos y transiciones (H8): **TESTED** + prueba visual en claro y oscuro. Los goldens quedan BLOQUEADOS.
-  - Peldaño del trabajo (el más bajo de sus áreas): **TESTED**. No es REGRESSION_VERIFIED por los goldens y por los caminos no cubiertos (ver abajo).
+  - Subida y estado (H5): **VERIFIED** en runtime (dos altas completas) + caminos de error cubiertos por tests unitarios con chequeo de mutación.
+  - Peldaño del trabajo (el más bajo de sus áreas): **TESTED**. No es REGRESSION_VERIFIED por los goldens (macOS) y por lo listado en No cubierto.
 
 ## Completado
 
@@ -16,6 +17,8 @@
 | H2.S1.M1–M7 | Contrato e identidad aceptan 5 caras; `GET /usuarios/{id}/verificacion` público sin datos personales | `./gradlew :servicios:identidad:test webTest integrationTest --continue` | PASS — BUILD SUCCESSFUL in 2m 27s (`evidencia/h2-tests.txt`) |
 | H3 / H3.S1.M1 | El backoffice tipa 5 caras y la cola muestra los expedientes `EN_REVISION` (doble del cliente con los valores del contrato) | backoffice `typecheck`, `lint`, `test:front`, `test:a11y` | PASS — exit 0 · lint OK · 354/354 · 34/34 (`evidencia/h3-s1-m1-estados-gate.txt`) |
 | H4 | Paso de capturas de 5 caras en Flutter (cámara, calidad, consejos, carnet de prueba) | `flutter analyze` · `flutter test …` · `verificar_frontend.py movil` | PASS — sin issues · 263 passed / 2 failed preexistentes de Windows · gate sin fallas (`evidencia/cierre-movil-regresion.txt`) |
+| H5.S2.M1–M2 | La máquina de estados de la subida (lenta a los 10 s, cancelar, fallo que no frena a las demás, reintentar con la misma clave, repetir con clave rotada) y el sondeo del estado (cada 2 s, corta en estado final, tope de 20, error) tienen tests | `flutter test test/unidad/subida_del_expediente_test.dart test/unidad/estado_de_verificacion_test.dart` | PASS — 13/13; con la alerta a 30 s o sin tope, fallan los tests que corresponden (`evidencia/h5-s2-notifiers-test.txt`) |
+| H5.S2.M3 | La pantalla de subida tiene título («Enviando tus documentos» / «Tus documentos están enviados») | `flutter analyze` · gate · emulador | PASS — `h8-18-subida-titulo-10.png`; segunda alta con 5 urls en base |
 | H5.S1.M1 | **Bug corregido:** las 5 fotos ahora se suben después de crear la cuenta | `flutter test test/unidad/seguimiento_del_alta_test.dart` + corrida en el emulador + SQL | PASS — 3/3 · 5 × `POST …/documentos` 201 · usuario nuevo con 5 urls (`evidencia/h5-s1-m1-*.txt`) |
 | H7 | E2E de punta a punta con el stack real | emulador + Playwright + SQL | PASS — `APROBADA`, `revisada_por` y 5 fotos en base; la app muestra «Identidad verificada» (`evidencia/h7-e2e-aprobacion.txt`, `h7-bo-0*.png`, `h8-14/15*.png`) |
 | H8.S1.M1 | PromptManager al día; espejo de skills sin deriva | `git status -sb` · `comm` | PASS (ver PLAN) |
@@ -27,23 +30,18 @@
 
 ## A medias
 
-### H5 — Subida en lote y pantalla de estado
-- **Qué anda:** después de corregir H5.S1.M1, la subida en lote funciona en runtime: 5 × `POST /api/v1/usuarios/<id>/documentos` → 201, y las 5 urls quedan en `verificacion_kyc` / `documento_identidad`. La pantalla de estado hace polling y pasa de «Lo está revisando una persona» a «Identidad verificada» tras la aprobación.
-- **Qué no anda / no está probado:** no existen tests unitarios de `SubidaNotifier` (aviso «está tardando» a los 10 s, cancelar, reintentar con la misma clave de idempotencia, repetir con la clave rotada) ni de `VerificacionNotifier`. Esos caminos no se ejercitaron en runtime: todas las subidas salieron bien al primer intento. La pantalla de subida no tiene título; arriba queda una barra vacía (`h8-12-subida-8.png`).
-- **Qué falta exactamente:** (1) `test/unidad/subida_del_expediente_test.dart` con `http_mock_adapter`: 201, demora mayor a 10 s → `lenta`, cancelar → `pendiente`, 5xx → `fallida` + reintentar con la misma clave, repetir → clave nueva; (2) lo mismo para el polling de `estado_de_verificacion.dart`; (3) un título en `PantallaDeSubidaDelExpediente` (texto en `textos_de_subida.dart`).
-- **Dónde quedó:** `apps/movil/lib/pantallas/identidad/{dominio/subida_del_expediente.dart, dominio/estado_de_verificacion.dart, pantalla_subida_del_expediente.dart}`. Compila y analyze no reporta issues.
-
 ### H8 — Extensión de diseño
 - **Qué anda:** todo menos H8.S3.M5 (ver Completado).
-- **Qué no anda:** las referencias golden de `packages/diseno_flutter/test/goldens/imagenes/` siguen siendo las de la piel vieja, así que en el CI esos goldens van a fallar hasta regenerarlos.
-- **Qué falta exactamente:** en el runner Linux, `cd packages/diseno_flutter && flutter test --update-goldens test/goldens`, y versionar las imágenes.
-- **Dónde quedó:** sin cambios en `test/goldens/` (la regeneración de prueba en Windows se restauró).
+- **Qué no anda:** las referencias golden de `packages/diseno_flutter/test/goldens/imagenes/` (18) y de `apps/movil/test/goldens/imagenes/` (9: transición de ingreso, saldo, escanear) siguen siendo las de la piel vieja; el job `app-goldens` del CI (`macos-latest`) va a fallar hasta regenerarlas.
+- **Qué falta exactamente:** en una Mac: `yarn workspace @aportaya/diseno-flutter test:goldens --update-goldens` y `yarn workspace @aportaya/movil test:goldens --update-goldens`, revisar las imágenes y versionarlas.
+- **Dónde quedó:** sin cambios en ningún `test/goldens/` (las regeneraciones de prueba en Windows se restauraron).
 
 ## Pendiente
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| H8.S3.M5 | BLOQUEADO | Regenerar los goldens en el runner Linux del CI (dueño: quien mantenga `diseno_flutter`). Simulado con Windows como doble en los tres niveles (simulacion-65): INVALIDO 15/18 fallan contra las referencias viejas (el cambio se detecta), ACEPTADO 18/18 tras regenerar, LIMITE 18/18 en una segunda corrida (render determinista). Evidencia: `evidencia/h8-s3-m5-goldens-simulacion.txt` |
+| H8.S3.M5 | BLOQUEADO | Regenerar los goldens en **macOS** (las referencias del repo son de macOS y el CI las compara en `macos-latest`, `ci.yml:373`). Dueño: quien tenga Mac / quien mantenga `diseno_flutter`. simulacion-65 con Windows como doble: ACEPTADO 18/18 y 9/9 tras regenerar, LIMITE 18/18 y 9/9 en segunda corrida (determinista); INVALIDO 15/18 y 9/9 fallan contra las referencias, pero ese nivel no distingue el cambio porque en Windows ya fallaban sin tocar nada. Evidencia: `evidencia/h8-s3-m5-goldens-simulacion.txt` |
+| H8.S3.M6 | DESCARTADO | Generarlos en un contenedor Linux: premisa equivocada (no coincidirían con macOS). Decidido en sesión, 2026-10-03. |
 | H6 | TODO (opcional) | Vencimiento del CI en el contrato: no se empezó. |
 
 ## Evidencia
@@ -72,7 +70,7 @@ MUTACION 200 POST /api/v1/identidad/verificaciones/<id>/decision
 
 ## No cubierto
 
-- Caminos de error de la subida (lenta, cancelar, reintentar, repetir) y del polling: solo se ejerció el camino feliz.
+- Caminos de error de la subida (lenta, cancelar, reintentar, repetir) y del sondeo: cubiertos por tests unitarios con un doble del puerto; **en runtime** solo se ejerció el camino feliz.
 - Rechazo desde el backoffice y su reflejo en la app («Rechazar» con motivo): no se ejercitó; solo se aprobó.
 - La cámara real del emulador y el chequeo de calidad con fotos reales: las 5 capturas del E2E salieron del **carnet de prueba sintético** (atajo de desarrollo).
 - iOS (gesto nativo de volver con `TransicionDeEje`): sin simulador en esta máquina.
@@ -81,6 +79,8 @@ MUTACION 200 POST /api/v1/identidad/verificaciones/<id>/decision
 - Regla 98.8 (caída del servicio dependido, traza con `correlationId`): no se ejercitó apagar identidad durante la subida.
 
 ## Desvíos del plan
+
+- **2026-10-03:** se agregaron H5.S2.M1–M3 (tests de la subida y del sondeo, título) y H8.S3.M6 (goldens en Linux), que se descartó al leer `ci.yml:366-373`: las referencias son de macOS.
 
 - **H5.S1.M1 (nuevo, PRODUCT_BUG propio):** `pantalla_registro.dart` vaciaba el estado del alta (`reiniciar()`) antes de navegar a la subida, y la pantalla de subida leía las capturas de ahí. La cuenta se creaba sin ninguna foto: es exactamente el kill-test del plan. Fix: `SeguimientoDelAlta` guarda `usuarioId` + una copia de las capturas, y la subida lee de ahí. Lo encontró el E2E en runtime, no los tests.
 - **H3.S1.M1 (nuevo):** el doble `clientes/angular/identidad.ts` (de otro carril, PR #18) declaraba los estados con el nombre del miembro (`'EnRevision'`) y no con el valor del contrato (`EN_REVISION`). La cola del backoffice nunca mostraba expedientes por decidir. Se corrigieron solo los valores.
@@ -92,7 +92,7 @@ MUTACION 200 POST /api/v1/identidad/verificaciones/<id>/decision
 
 ## Riesgos residuales
 
-- Los goldens de `diseno_flutter` van a fallar en el CI hasta regenerarlos en Linux.
+- Los goldens de `diseno_flutter` y de la app van a fallar en el job `app-goldens` (macOS) hasta regenerarlos en una Mac.
 - Endpoint público `GET /usuarios/{id}/verificacion` (regla 90.6):
   - **Amenaza:** consultar el estado KYC de otra persona sabiendo su UUID.
   - **Control:** `@Publico` declarado en `UsuariosController.java:193`; la respuesta (`EstadoDeVerificacion`, `identidad.yaml:524-527`) lleva `verificacionId`, `estado`, `motivoRechazo` y las caras presentes, sin nombre, documento ni urls; el gateway aplica rate limit a `/api/v1/usuarios/**` (`rutas.yml`, 5/s, ráfaga 10).
@@ -122,4 +122,4 @@ Hallazgos preexistentes **fuera de alcance**, anotados y no tocados:
 ## Procesos que quedan corriendo
 
 - Docker Desktop y los 10 contenedores `aportaya-*`: se dejan levantados a propósito, porque son el stack local de desarrollo.
-- El servidor del backoffice (`ng serve`, puerto 4200) y el emulador Android se cierran al terminar esta sesión.
+- El servidor del backoffice y el emulador Android se cierran al terminar la sesión.

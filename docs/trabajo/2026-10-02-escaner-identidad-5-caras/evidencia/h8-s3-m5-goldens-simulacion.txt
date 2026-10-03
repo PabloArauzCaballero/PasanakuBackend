@@ -8,3 +8,14 @@
 00:04 +18: All tests passed!
 ## restauracion
 (vacio = restaurado)
+
+# simulacion-65, apps/movil/test/goldens (transiciones, saldo, escanear) — mismo procedimiento, Windows como doble de macOS
+## INVALIDO: contra las referencias versionadas
+00:16 +0 -9: Some tests failed.
+## ACEPTADO: --update-goldens y comparar
+00:03 +9: All tests passed!
+00:03 +9: All tests passed!
+## LIMITE: segunda comparacion sin regenerar
+00:04 +9: All tests passed!
+## restauracion
+(vacio = restaurado)
