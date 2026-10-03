@@ -746,6 +746,10 @@ def escribir_esquemas():
         L += [f"GRANT USAGE ON SCHEMA {e} TO {r};",
               f"ALTER DEFAULT PRIVILEGES IN SCHEMA {e}",
               f"  GRANT SELECT, INSERT, UPDATE ON TABLES TO {r};",
+              f"-- Una columna con DEFAULT nextval() falla con 'permission denied for sequence'",
+              f"-- si el rol no puede usar la secuencia: sin esto no se registra un movimiento.",
+              f"ALTER DEFAULT PRIVILEGES IN SCHEMA {e}",
+              f"  GRANT USAGE ON SEQUENCES TO {r};",
               f"GRANT USAGE ON SCHEMA {ESQUEMA_CATALOGO} TO {r};",
               f"ALTER DEFAULT PRIVILEGES IN SCHEMA {ESQUEMA_CATALOGO}",
               f"  GRANT SELECT ON TABLES TO {r};",
@@ -753,6 +757,8 @@ def escribir_esquemas():
               f"GRANT USAGE ON SCHEMA {ESQUEMA_COMUN} TO {r};",
               f"ALTER DEFAULT PRIVILEGES IN SCHEMA {ESQUEMA_COMUN}",
               f"  GRANT INSERT ON TABLES TO {r};",
+              f"ALTER DEFAULT PRIVILEGES IN SCHEMA {ESQUEMA_COMUN}",
+              f"  GRANT USAGE ON SEQUENCES TO {r};",
               f"-- Las politicas de fila se escriben FOR ALL TO rol_aplicacion",
               f"-- (sql/40_reglas). Sin esta membresia no le aplican a {r}, y una",
               f"-- politica que no aplica no protege: la tabla queda abierta o",
@@ -841,7 +847,9 @@ def escribir_permisos_finales():
         r = rol_de(e)
         L += [f"GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA {e} TO {r};",
               f"GRANT SELECT ON ALL TABLES IN SCHEMA {ESQUEMA_CATALOGO} TO {r};",
-              f"GRANT INSERT ON ALL TABLES IN SCHEMA {ESQUEMA_COMUN} TO {r};"]
+              f"GRANT INSERT ON ALL TABLES IN SCHEMA {ESQUEMA_COMUN} TO {r};",
+              f"GRANT USAGE ON ALL SEQUENCES IN SCHEMA {e} TO {r};",
+              f"GRANT USAGE ON ALL SEQUENCES IN SCHEMA {ESQUEMA_COMUN} TO {r};"]
     L.append("")
     for e in esquemas:
         L.append(f"GRANT SELECT ON ALL TABLES IN SCHEMA {e} TO rol_auditor;")

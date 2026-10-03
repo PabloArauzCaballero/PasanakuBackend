@@ -75,6 +75,10 @@ END $$;
 GRANT USAGE ON SCHEMA aportes TO svc_aportes;
 ALTER DEFAULT PRIVILEGES IN SCHEMA aportes
   GRANT SELECT, INSERT, UPDATE ON TABLES TO svc_aportes;
+-- Una columna con DEFAULT nextval() falla con 'permission denied for sequence'
+-- si el rol no puede usar la secuencia: sin esto no se registra un movimiento.
+ALTER DEFAULT PRIVILEGES IN SCHEMA aportes
+  GRANT USAGE ON SEQUENCES TO svc_aportes;
 GRANT USAGE ON SCHEMA catalogo TO svc_aportes;
 ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
   GRANT SELECT ON TABLES TO svc_aportes;
@@ -82,6 +86,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
 GRANT USAGE ON SCHEMA comun TO svc_aportes;
 ALTER DEFAULT PRIVILEGES IN SCHEMA comun
   GRANT INSERT ON TABLES TO svc_aportes;
+ALTER DEFAULT PRIVILEGES IN SCHEMA comun
+  GRANT USAGE ON SEQUENCES TO svc_aportes;
 -- Las politicas de fila se escriben FOR ALL TO rol_aplicacion
 -- (sql/40_reglas). Sin esta membresia no le aplican a svc_aportes, y una
 -- politica que no aplica no protege: la tabla queda abierta o
@@ -92,6 +98,10 @@ GRANT rol_aplicacion TO svc_aportes;
 GRANT USAGE ON SCHEMA auditoria TO svc_auditoria;
 ALTER DEFAULT PRIVILEGES IN SCHEMA auditoria
   GRANT SELECT, INSERT, UPDATE ON TABLES TO svc_auditoria;
+-- Una columna con DEFAULT nextval() falla con 'permission denied for sequence'
+-- si el rol no puede usar la secuencia: sin esto no se registra un movimiento.
+ALTER DEFAULT PRIVILEGES IN SCHEMA auditoria
+  GRANT USAGE ON SEQUENCES TO svc_auditoria;
 GRANT USAGE ON SCHEMA catalogo TO svc_auditoria;
 ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
   GRANT SELECT ON TABLES TO svc_auditoria;
@@ -99,6 +109,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
 GRANT USAGE ON SCHEMA comun TO svc_auditoria;
 ALTER DEFAULT PRIVILEGES IN SCHEMA comun
   GRANT INSERT ON TABLES TO svc_auditoria;
+ALTER DEFAULT PRIVILEGES IN SCHEMA comun
+  GRANT USAGE ON SEQUENCES TO svc_auditoria;
 -- Las politicas de fila se escriben FOR ALL TO rol_aplicacion
 -- (sql/40_reglas). Sin esta membresia no le aplican a svc_auditoria, y una
 -- politica que no aplica no protege: la tabla queda abierta o
@@ -109,6 +121,10 @@ GRANT rol_aplicacion TO svc_auditoria;
 GRANT USAGE ON SCHEMA cumplimiento TO svc_cumplimiento;
 ALTER DEFAULT PRIVILEGES IN SCHEMA cumplimiento
   GRANT SELECT, INSERT, UPDATE ON TABLES TO svc_cumplimiento;
+-- Una columna con DEFAULT nextval() falla con 'permission denied for sequence'
+-- si el rol no puede usar la secuencia: sin esto no se registra un movimiento.
+ALTER DEFAULT PRIVILEGES IN SCHEMA cumplimiento
+  GRANT USAGE ON SEQUENCES TO svc_cumplimiento;
 GRANT USAGE ON SCHEMA catalogo TO svc_cumplimiento;
 ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
   GRANT SELECT ON TABLES TO svc_cumplimiento;
@@ -116,6 +132,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
 GRANT USAGE ON SCHEMA comun TO svc_cumplimiento;
 ALTER DEFAULT PRIVILEGES IN SCHEMA comun
   GRANT INSERT ON TABLES TO svc_cumplimiento;
+ALTER DEFAULT PRIVILEGES IN SCHEMA comun
+  GRANT USAGE ON SEQUENCES TO svc_cumplimiento;
 -- Las politicas de fila se escriben FOR ALL TO rol_aplicacion
 -- (sql/40_reglas). Sin esta membresia no le aplican a svc_cumplimiento, y una
 -- politica que no aplica no protege: la tabla queda abierta o
@@ -126,6 +144,10 @@ GRANT rol_aplicacion TO svc_cumplimiento;
 GRANT USAGE ON SCHEMA entregas TO svc_entregas;
 ALTER DEFAULT PRIVILEGES IN SCHEMA entregas
   GRANT SELECT, INSERT, UPDATE ON TABLES TO svc_entregas;
+-- Una columna con DEFAULT nextval() falla con 'permission denied for sequence'
+-- si el rol no puede usar la secuencia: sin esto no se registra un movimiento.
+ALTER DEFAULT PRIVILEGES IN SCHEMA entregas
+  GRANT USAGE ON SEQUENCES TO svc_entregas;
 GRANT USAGE ON SCHEMA catalogo TO svc_entregas;
 ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
   GRANT SELECT ON TABLES TO svc_entregas;
@@ -133,6 +155,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
 GRANT USAGE ON SCHEMA comun TO svc_entregas;
 ALTER DEFAULT PRIVILEGES IN SCHEMA comun
   GRANT INSERT ON TABLES TO svc_entregas;
+ALTER DEFAULT PRIVILEGES IN SCHEMA comun
+  GRANT USAGE ON SEQUENCES TO svc_entregas;
 -- Las politicas de fila se escriben FOR ALL TO rol_aplicacion
 -- (sql/40_reglas). Sin esta membresia no le aplican a svc_entregas, y una
 -- politica que no aplica no protege: la tabla queda abierta o
@@ -143,6 +167,10 @@ GRANT rol_aplicacion TO svc_entregas;
 GRANT USAGE ON SCHEMA erp TO svc_erp;
 ALTER DEFAULT PRIVILEGES IN SCHEMA erp
   GRANT SELECT, INSERT, UPDATE ON TABLES TO svc_erp;
+-- Una columna con DEFAULT nextval() falla con 'permission denied for sequence'
+-- si el rol no puede usar la secuencia: sin esto no se registra un movimiento.
+ALTER DEFAULT PRIVILEGES IN SCHEMA erp
+  GRANT USAGE ON SEQUENCES TO svc_erp;
 GRANT USAGE ON SCHEMA catalogo TO svc_erp;
 ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
   GRANT SELECT ON TABLES TO svc_erp;
@@ -150,6 +178,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
 GRANT USAGE ON SCHEMA comun TO svc_erp;
 ALTER DEFAULT PRIVILEGES IN SCHEMA comun
   GRANT INSERT ON TABLES TO svc_erp;
+ALTER DEFAULT PRIVILEGES IN SCHEMA comun
+  GRANT USAGE ON SEQUENCES TO svc_erp;
 -- Las politicas de fila se escriben FOR ALL TO rol_aplicacion
 -- (sql/40_reglas). Sin esta membresia no le aplican a svc_erp, y una
 -- politica que no aplica no protege: la tabla queda abierta o
@@ -160,6 +190,10 @@ GRANT rol_aplicacion TO svc_erp;
 GRANT USAGE ON SCHEMA garantia TO svc_garantia;
 ALTER DEFAULT PRIVILEGES IN SCHEMA garantia
   GRANT SELECT, INSERT, UPDATE ON TABLES TO svc_garantia;
+-- Una columna con DEFAULT nextval() falla con 'permission denied for sequence'
+-- si el rol no puede usar la secuencia: sin esto no se registra un movimiento.
+ALTER DEFAULT PRIVILEGES IN SCHEMA garantia
+  GRANT USAGE ON SEQUENCES TO svc_garantia;
 GRANT USAGE ON SCHEMA catalogo TO svc_garantia;
 ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
   GRANT SELECT ON TABLES TO svc_garantia;
@@ -167,6 +201,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
 GRANT USAGE ON SCHEMA comun TO svc_garantia;
 ALTER DEFAULT PRIVILEGES IN SCHEMA comun
   GRANT INSERT ON TABLES TO svc_garantia;
+ALTER DEFAULT PRIVILEGES IN SCHEMA comun
+  GRANT USAGE ON SEQUENCES TO svc_garantia;
 -- Las politicas de fila se escriben FOR ALL TO rol_aplicacion
 -- (sql/40_reglas). Sin esta membresia no le aplican a svc_garantia, y una
 -- politica que no aplica no protege: la tabla queda abierta o
@@ -177,6 +213,10 @@ GRANT rol_aplicacion TO svc_garantia;
 GRANT USAGE ON SCHEMA grupos TO svc_grupos;
 ALTER DEFAULT PRIVILEGES IN SCHEMA grupos
   GRANT SELECT, INSERT, UPDATE ON TABLES TO svc_grupos;
+-- Una columna con DEFAULT nextval() falla con 'permission denied for sequence'
+-- si el rol no puede usar la secuencia: sin esto no se registra un movimiento.
+ALTER DEFAULT PRIVILEGES IN SCHEMA grupos
+  GRANT USAGE ON SEQUENCES TO svc_grupos;
 GRANT USAGE ON SCHEMA catalogo TO svc_grupos;
 ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
   GRANT SELECT ON TABLES TO svc_grupos;
@@ -184,6 +224,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
 GRANT USAGE ON SCHEMA comun TO svc_grupos;
 ALTER DEFAULT PRIVILEGES IN SCHEMA comun
   GRANT INSERT ON TABLES TO svc_grupos;
+ALTER DEFAULT PRIVILEGES IN SCHEMA comun
+  GRANT USAGE ON SEQUENCES TO svc_grupos;
 -- Las politicas de fila se escriben FOR ALL TO rol_aplicacion
 -- (sql/40_reglas). Sin esta membresia no le aplican a svc_grupos, y una
 -- politica que no aplica no protege: la tabla queda abierta o
@@ -194,6 +236,10 @@ GRANT rol_aplicacion TO svc_grupos;
 GRANT USAGE ON SCHEMA identidad TO svc_identidad;
 ALTER DEFAULT PRIVILEGES IN SCHEMA identidad
   GRANT SELECT, INSERT, UPDATE ON TABLES TO svc_identidad;
+-- Una columna con DEFAULT nextval() falla con 'permission denied for sequence'
+-- si el rol no puede usar la secuencia: sin esto no se registra un movimiento.
+ALTER DEFAULT PRIVILEGES IN SCHEMA identidad
+  GRANT USAGE ON SEQUENCES TO svc_identidad;
 GRANT USAGE ON SCHEMA catalogo TO svc_identidad;
 ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
   GRANT SELECT ON TABLES TO svc_identidad;
@@ -201,6 +247,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
 GRANT USAGE ON SCHEMA comun TO svc_identidad;
 ALTER DEFAULT PRIVILEGES IN SCHEMA comun
   GRANT INSERT ON TABLES TO svc_identidad;
+ALTER DEFAULT PRIVILEGES IN SCHEMA comun
+  GRANT USAGE ON SEQUENCES TO svc_identidad;
 -- Las politicas de fila se escriben FOR ALL TO rol_aplicacion
 -- (sql/40_reglas). Sin esta membresia no le aplican a svc_identidad, y una
 -- politica que no aplica no protege: la tabla queda abierta o
@@ -211,6 +259,10 @@ GRANT rol_aplicacion TO svc_identidad;
 GRANT USAGE ON SCHEMA notificaciones TO svc_notificaciones;
 ALTER DEFAULT PRIVILEGES IN SCHEMA notificaciones
   GRANT SELECT, INSERT, UPDATE ON TABLES TO svc_notificaciones;
+-- Una columna con DEFAULT nextval() falla con 'permission denied for sequence'
+-- si el rol no puede usar la secuencia: sin esto no se registra un movimiento.
+ALTER DEFAULT PRIVILEGES IN SCHEMA notificaciones
+  GRANT USAGE ON SEQUENCES TO svc_notificaciones;
 GRANT USAGE ON SCHEMA catalogo TO svc_notificaciones;
 ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
   GRANT SELECT ON TABLES TO svc_notificaciones;
@@ -218,6 +270,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
 GRANT USAGE ON SCHEMA comun TO svc_notificaciones;
 ALTER DEFAULT PRIVILEGES IN SCHEMA comun
   GRANT INSERT ON TABLES TO svc_notificaciones;
+ALTER DEFAULT PRIVILEGES IN SCHEMA comun
+  GRANT USAGE ON SEQUENCES TO svc_notificaciones;
 -- Las politicas de fila se escriben FOR ALL TO rol_aplicacion
 -- (sql/40_reglas). Sin esta membresia no le aplican a svc_notificaciones, y una
 -- politica que no aplica no protege: la tabla queda abierta o
@@ -228,6 +282,10 @@ GRANT rol_aplicacion TO svc_notificaciones;
 GRANT USAGE ON SCHEMA nucleo_financiero TO svc_nucleo_financiero;
 ALTER DEFAULT PRIVILEGES IN SCHEMA nucleo_financiero
   GRANT SELECT, INSERT, UPDATE ON TABLES TO svc_nucleo_financiero;
+-- Una columna con DEFAULT nextval() falla con 'permission denied for sequence'
+-- si el rol no puede usar la secuencia: sin esto no se registra un movimiento.
+ALTER DEFAULT PRIVILEGES IN SCHEMA nucleo_financiero
+  GRANT USAGE ON SEQUENCES TO svc_nucleo_financiero;
 GRANT USAGE ON SCHEMA catalogo TO svc_nucleo_financiero;
 ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
   GRANT SELECT ON TABLES TO svc_nucleo_financiero;
@@ -235,6 +293,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
 GRANT USAGE ON SCHEMA comun TO svc_nucleo_financiero;
 ALTER DEFAULT PRIVILEGES IN SCHEMA comun
   GRANT INSERT ON TABLES TO svc_nucleo_financiero;
+ALTER DEFAULT PRIVILEGES IN SCHEMA comun
+  GRANT USAGE ON SEQUENCES TO svc_nucleo_financiero;
 -- Las politicas de fila se escriben FOR ALL TO rol_aplicacion
 -- (sql/40_reglas). Sin esta membresia no le aplican a svc_nucleo_financiero, y una
 -- politica que no aplica no protege: la tabla queda abierta o
@@ -245,6 +305,10 @@ GRANT rol_aplicacion TO svc_nucleo_financiero;
 GRANT USAGE ON SCHEMA organizador TO svc_organizador;
 ALTER DEFAULT PRIVILEGES IN SCHEMA organizador
   GRANT SELECT, INSERT, UPDATE ON TABLES TO svc_organizador;
+-- Una columna con DEFAULT nextval() falla con 'permission denied for sequence'
+-- si el rol no puede usar la secuencia: sin esto no se registra un movimiento.
+ALTER DEFAULT PRIVILEGES IN SCHEMA organizador
+  GRANT USAGE ON SEQUENCES TO svc_organizador;
 GRANT USAGE ON SCHEMA catalogo TO svc_organizador;
 ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
   GRANT SELECT ON TABLES TO svc_organizador;
@@ -252,6 +316,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
 GRANT USAGE ON SCHEMA comun TO svc_organizador;
 ALTER DEFAULT PRIVILEGES IN SCHEMA comun
   GRANT INSERT ON TABLES TO svc_organizador;
+ALTER DEFAULT PRIVILEGES IN SCHEMA comun
+  GRANT USAGE ON SEQUENCES TO svc_organizador;
 -- Las politicas de fila se escriben FOR ALL TO rol_aplicacion
 -- (sql/40_reglas). Sin esta membresia no le aplican a svc_organizador, y una
 -- politica que no aplica no protege: la tabla queda abierta o
@@ -262,6 +328,10 @@ GRANT rol_aplicacion TO svc_organizador;
 GRANT USAGE ON SCHEMA publicidad TO svc_publicidad;
 ALTER DEFAULT PRIVILEGES IN SCHEMA publicidad
   GRANT SELECT, INSERT, UPDATE ON TABLES TO svc_publicidad;
+-- Una columna con DEFAULT nextval() falla con 'permission denied for sequence'
+-- si el rol no puede usar la secuencia: sin esto no se registra un movimiento.
+ALTER DEFAULT PRIVILEGES IN SCHEMA publicidad
+  GRANT USAGE ON SEQUENCES TO svc_publicidad;
 GRANT USAGE ON SCHEMA catalogo TO svc_publicidad;
 ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
   GRANT SELECT ON TABLES TO svc_publicidad;
@@ -269,6 +339,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
 GRANT USAGE ON SCHEMA comun TO svc_publicidad;
 ALTER DEFAULT PRIVILEGES IN SCHEMA comun
   GRANT INSERT ON TABLES TO svc_publicidad;
+ALTER DEFAULT PRIVILEGES IN SCHEMA comun
+  GRANT USAGE ON SEQUENCES TO svc_publicidad;
 -- Las politicas de fila se escriben FOR ALL TO rol_aplicacion
 -- (sql/40_reglas). Sin esta membresia no le aplican a svc_publicidad, y una
 -- politica que no aplica no protege: la tabla queda abierta o
@@ -279,6 +351,10 @@ GRANT rol_aplicacion TO svc_publicidad;
 GRANT USAGE ON SCHEMA tarifas TO svc_tarifas;
 ALTER DEFAULT PRIVILEGES IN SCHEMA tarifas
   GRANT SELECT, INSERT, UPDATE ON TABLES TO svc_tarifas;
+-- Una columna con DEFAULT nextval() falla con 'permission denied for sequence'
+-- si el rol no puede usar la secuencia: sin esto no se registra un movimiento.
+ALTER DEFAULT PRIVILEGES IN SCHEMA tarifas
+  GRANT USAGE ON SEQUENCES TO svc_tarifas;
 GRANT USAGE ON SCHEMA catalogo TO svc_tarifas;
 ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
   GRANT SELECT ON TABLES TO svc_tarifas;
@@ -286,6 +362,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
 GRANT USAGE ON SCHEMA comun TO svc_tarifas;
 ALTER DEFAULT PRIVILEGES IN SCHEMA comun
   GRANT INSERT ON TABLES TO svc_tarifas;
+ALTER DEFAULT PRIVILEGES IN SCHEMA comun
+  GRANT USAGE ON SEQUENCES TO svc_tarifas;
 -- Las politicas de fila se escriben FOR ALL TO rol_aplicacion
 -- (sql/40_reglas). Sin esta membresia no le aplican a svc_tarifas, y una
 -- politica que no aplica no protege: la tabla queda abierta o
@@ -296,6 +374,10 @@ GRANT rol_aplicacion TO svc_tarifas;
 GRANT USAGE ON SCHEMA transparencia TO svc_transparencia;
 ALTER DEFAULT PRIVILEGES IN SCHEMA transparencia
   GRANT SELECT, INSERT, UPDATE ON TABLES TO svc_transparencia;
+-- Una columna con DEFAULT nextval() falla con 'permission denied for sequence'
+-- si el rol no puede usar la secuencia: sin esto no se registra un movimiento.
+ALTER DEFAULT PRIVILEGES IN SCHEMA transparencia
+  GRANT USAGE ON SEQUENCES TO svc_transparencia;
 GRANT USAGE ON SCHEMA catalogo TO svc_transparencia;
 ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
   GRANT SELECT ON TABLES TO svc_transparencia;
@@ -303,6 +385,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA catalogo
 GRANT USAGE ON SCHEMA comun TO svc_transparencia;
 ALTER DEFAULT PRIVILEGES IN SCHEMA comun
   GRANT INSERT ON TABLES TO svc_transparencia;
+ALTER DEFAULT PRIVILEGES IN SCHEMA comun
+  GRANT USAGE ON SEQUENCES TO svc_transparencia;
 -- Las politicas de fila se escriben FOR ALL TO rol_aplicacion
 -- (sql/40_reglas). Sin esta membresia no le aplican a svc_transparencia, y una
 -- politica que no aplica no protege: la tabla queda abierta o

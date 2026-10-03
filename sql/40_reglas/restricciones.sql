@@ -57,7 +57,7 @@ BEGIN
   SELECT hash_registro INTO v_anterior
     FROM transaccion_billetera ORDER BY secuencia DESC LIMIT 1;
   NEW.hash_anterior := v_anterior;
-  NEW.hash_registro := encode(digest(
+  NEW.hash_registro := encode(public.digest(
       NEW.id::text || COALESCE(NEW.secuencia::text,'') || NEW.tipo ||
       NEW.estado || NEW.moneda || NEW.monto_total::text ||
       COALESCE(NEW.origen_tipo,'') || COALESCE(NEW.origen_id::text,'') ||
@@ -94,7 +94,7 @@ BEGIN
   SELECT hash_registro INTO v_anterior
     FROM bitacora_evento ORDER BY secuencia DESC LIMIT 1;
   NEW.hash_anterior := COALESCE(v_anterior, repeat('0', 64));
-  NEW.hash_registro := encode(digest(
+  NEW.hash_registro := encode(public.digest(
       NEW.entidad || NEW.entidad_id::text || NEW.accion ||
       COALESCE(NEW.actor_usuario_id::text,'') || COALESCE(NEW.actor_rol,'') ||
       COALESCE(NEW.suplantando_a_usuario_id::text,'') || NEW.origen ||
