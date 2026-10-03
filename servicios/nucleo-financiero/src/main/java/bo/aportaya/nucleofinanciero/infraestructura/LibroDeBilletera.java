@@ -1,5 +1,6 @@
 package bo.aportaya.nucleofinanciero.infraestructura;
 
+import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.Dinero;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -45,6 +46,35 @@ public class LibroDeBilletera {
      * sobre los datos que no pueden cambiar sin cambiar el hecho.
      */
     public UUID registrar(
+            DSLContext dsl,
+            String tipo,
+            String origenTipo,
+            UUID origenId,
+            String canal,
+            Dinero montoTotal,
+            String claveIdempotencia,
+            Optional<UUID> iniciadaPor,
+            List<Pata> patas,
+            OffsetDateTime ahora) {
+        // El libro lo escribe el sistema, nunca el titular: las politicas de fila reservan
+        // `movimiento_billetera` y los saldos al sistema. El permiso para llegar hasta aca ya
+        // lo valido cada caso de uso; el rol de sistema dura solo lo que dura este bloque.
+        return Datos.comoSistema(
+                dsl,
+                () -> escribir(
+                        dsl,
+                        tipo,
+                        origenTipo,
+                        origenId,
+                        canal,
+                        montoTotal,
+                        claveIdempotencia,
+                        iniciadaPor,
+                        patas,
+                        ahora));
+    }
+
+    private UUID escribir(
             DSLContext dsl,
             String tipo,
             String origenTipo,
