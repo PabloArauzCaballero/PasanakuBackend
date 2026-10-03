@@ -1,0 +1,2 @@
+verificacion_kyc / usuario tras la aprobacion en el backoffice:
+APROBADA | t | PENDIENTE_VERIFICACION

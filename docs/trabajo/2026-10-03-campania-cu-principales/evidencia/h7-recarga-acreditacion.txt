@@ -1,0 +1,9 @@
+orden creada por la app (SQL):
+  0927387e | PENDIENTE | 50.00 | BOB
+saldo antes: 3589.50
+LOGIN USR8 (+591***08) -> 200 requiereFactor=False token=si
+acreditar #1 (misma Idempotency-Key) -> 500 {'codigo': 'AP-INT-01', 'mensaje': 'No pudimos completar la operacion. Volve a intentar.', 'trazaId': 'c729d85d-ec93-9539-a038-aec1f96258cb'}
+acreditar #2 (misma Idempotency-Key) -> 500 {'codigo': 'AP-INT-01', 'mensaje': 'No pudimos completar la operacion. Volve a intentar.', 'trazaId': 'c121e361-93c5-f258-f401-f941fbffb347'}
+saldo despues: 3589.50
+movimientos de la cuenta: 4
+cuadre del mayor (debe=haber, total debe): t | 17000.00

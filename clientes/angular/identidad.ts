@@ -40,11 +40,14 @@ export type EnlaceDeFoto = { cara: string; url: string }
 // y `FactorPresentado.tipo`) — Prism los valida y rechaza con 422 cualquier otro valor.
 export const EntradaAutenticacionPlataformaEnum = { Web: 'WEB', Android: 'ANDROID', Ios: 'IOS' } as const
 export const FactorPresentadoTipoEnum = { Totp: 'TOTP', Otp: 'OTP', Biometria: 'BIOMETRIA' } as const
+// Valores del contrato real (identidad.yaml: `estado` enum PENDIENTE|EN_REVISION|APROBADA|RECHAZADA).
+// Antes eran los nombres de los miembros ('EnRevision'): el backend los rechazaba como filtro y la cola
+// «Por decidir» salía vacía con expedientes esperando (hallazgo B30 de la campaña de CU principales).
 export const ExpedienteEnRevisionEstadoEnum = {
-  Pendiente: 'Pendiente',
-  EnRevision: 'EnRevision',
-  Aprobada: 'Aprobada',
-  Rechazada: 'Rechazada',
+  Pendiente: 'PENDIENTE',
+  EnRevision: 'EN_REVISION',
+  Aprobada: 'APROBADA',
+  Rechazada: 'RECHAZADA',
 } as const
 /** Nombres tomados de la data de prueba ya presente en `tira-de-fotos.a11y.spec.ts`. */
 export const ExpedienteEnRevisionFotosEnum = {
