@@ -47,7 +47,7 @@ public class CU63Acordar {
     @Transactional
     public UUID proponer(EntradaPropuesta entrada, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
-        TipoDeAcuerdo tipo = TipoDeAcuerdo.valueOf(entrada.tipo());
+        TipoDeAcuerdo tipo = TipoDeAcuerdo.deContrato(entrada.tipo());
 
         return datos.conContexto(ctx, dsl -> {
             // No se vota dos veces lo mismo en paralelo: dos votaciones abiertas

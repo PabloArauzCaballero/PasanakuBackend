@@ -7,45 +7,73 @@
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA aportes TO svc_aportes;
 GRANT SELECT ON ALL TABLES IN SCHEMA catalogo TO svc_aportes;
 GRANT INSERT ON ALL TABLES IN SCHEMA comun TO svc_aportes;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA aportes TO svc_aportes;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA comun TO svc_aportes;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA auditoria TO svc_auditoria;
 GRANT SELECT ON ALL TABLES IN SCHEMA catalogo TO svc_auditoria;
 GRANT INSERT ON ALL TABLES IN SCHEMA comun TO svc_auditoria;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA auditoria TO svc_auditoria;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA comun TO svc_auditoria;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA cumplimiento TO svc_cumplimiento;
 GRANT SELECT ON ALL TABLES IN SCHEMA catalogo TO svc_cumplimiento;
 GRANT INSERT ON ALL TABLES IN SCHEMA comun TO svc_cumplimiento;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA cumplimiento TO svc_cumplimiento;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA comun TO svc_cumplimiento;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA entregas TO svc_entregas;
 GRANT SELECT ON ALL TABLES IN SCHEMA catalogo TO svc_entregas;
 GRANT INSERT ON ALL TABLES IN SCHEMA comun TO svc_entregas;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA entregas TO svc_entregas;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA comun TO svc_entregas;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA erp TO svc_erp;
 GRANT SELECT ON ALL TABLES IN SCHEMA catalogo TO svc_erp;
 GRANT INSERT ON ALL TABLES IN SCHEMA comun TO svc_erp;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA erp TO svc_erp;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA comun TO svc_erp;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA garantia TO svc_garantia;
 GRANT SELECT ON ALL TABLES IN SCHEMA catalogo TO svc_garantia;
 GRANT INSERT ON ALL TABLES IN SCHEMA comun TO svc_garantia;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA garantia TO svc_garantia;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA comun TO svc_garantia;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA grupos TO svc_grupos;
 GRANT SELECT ON ALL TABLES IN SCHEMA catalogo TO svc_grupos;
 GRANT INSERT ON ALL TABLES IN SCHEMA comun TO svc_grupos;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA grupos TO svc_grupos;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA comun TO svc_grupos;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA identidad TO svc_identidad;
 GRANT SELECT ON ALL TABLES IN SCHEMA catalogo TO svc_identidad;
 GRANT INSERT ON ALL TABLES IN SCHEMA comun TO svc_identidad;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA identidad TO svc_identidad;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA comun TO svc_identidad;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA notificaciones TO svc_notificaciones;
 GRANT SELECT ON ALL TABLES IN SCHEMA catalogo TO svc_notificaciones;
 GRANT INSERT ON ALL TABLES IN SCHEMA comun TO svc_notificaciones;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA notificaciones TO svc_notificaciones;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA comun TO svc_notificaciones;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA nucleo_financiero TO svc_nucleo_financiero;
 GRANT SELECT ON ALL TABLES IN SCHEMA catalogo TO svc_nucleo_financiero;
 GRANT INSERT ON ALL TABLES IN SCHEMA comun TO svc_nucleo_financiero;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA nucleo_financiero TO svc_nucleo_financiero;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA comun TO svc_nucleo_financiero;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA organizador TO svc_organizador;
 GRANT SELECT ON ALL TABLES IN SCHEMA catalogo TO svc_organizador;
 GRANT INSERT ON ALL TABLES IN SCHEMA comun TO svc_organizador;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA organizador TO svc_organizador;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA comun TO svc_organizador;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA publicidad TO svc_publicidad;
 GRANT SELECT ON ALL TABLES IN SCHEMA catalogo TO svc_publicidad;
 GRANT INSERT ON ALL TABLES IN SCHEMA comun TO svc_publicidad;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA publicidad TO svc_publicidad;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA comun TO svc_publicidad;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA tarifas TO svc_tarifas;
 GRANT SELECT ON ALL TABLES IN SCHEMA catalogo TO svc_tarifas;
 GRANT INSERT ON ALL TABLES IN SCHEMA comun TO svc_tarifas;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA tarifas TO svc_tarifas;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA comun TO svc_tarifas;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA transparencia TO svc_transparencia;
 GRANT SELECT ON ALL TABLES IN SCHEMA catalogo TO svc_transparencia;
 GRANT INSERT ON ALL TABLES IN SCHEMA comun TO svc_transparencia;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA transparencia TO svc_transparencia;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA comun TO svc_transparencia;
 
 GRANT SELECT ON ALL TABLES IN SCHEMA aportes TO rol_auditor;
 GRANT SELECT ON ALL TABLES IN SCHEMA auditoria TO rol_auditor;
@@ -197,3 +225,20 @@ REVOKE INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA tarifas FROM rol_auditor;
 REVOKE INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA transparencia FROM rol_auditor;
 REVOKE INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA catalogo FROM rol_auditor;
 REVOKE INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA comun FROM rol_auditor;
+
+-- Las funciones de regla fijan su propio search_path. Viven todas en `aportes`, y una
+-- funcion sin `SET search_path` resuelve los nombres con el de QUIEN LA DISPARA: con el
+-- de un svc_* (su esquema, catalogo y comun) no encontraba ni las funciones hermanas ni
+-- digest() de pgcrypto, y ningun movimiento del libro se podia registrar. Fijarlo es
+-- ademas la defensa estandar contra el secuestro de search_path.
+DO $busqueda$
+DECLARE f RECORD; v_ruta TEXT;
+BEGIN
+  SELECT string_agg(quote_ident(nspname), ', ' ORDER BY nspname) INTO v_ruta
+    FROM pg_namespace WHERE nspname !~ '^pg_' AND nspname <> 'information_schema';
+  FOR f IN SELECT p.oid::regprocedure AS fn FROM pg_proc p
+             JOIN pg_namespace n ON n.oid = p.pronamespace
+            WHERE n.nspname = 'aportes' AND p.prokind = 'f' LOOP
+    EXECUTE format('ALTER FUNCTION %s SET search_path = %s', f.fn, v_ruta);
+  END LOOP;
+END $busqueda$;

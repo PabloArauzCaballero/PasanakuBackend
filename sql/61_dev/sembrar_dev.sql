@@ -51,5 +51,6 @@ END $$;
 \ir 13-cumplimiento-uif.sql
 \ir 14-identidad-y-sesiones.sql
 \ir 15-usuarios-dev.sql
+\ir 16-campania-cu-principales.sql
 
 COMMIT;

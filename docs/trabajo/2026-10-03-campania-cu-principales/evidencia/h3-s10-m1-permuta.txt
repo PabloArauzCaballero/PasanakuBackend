@@ -1,0 +1,8 @@
+LOGIN USR3 (+591***03) -> 200 requiereFactor=False token=si
+LOGIN USR5 (+591***05) -> 200 requiereFactor=False token=si
+-- negativo: USR5 (dueño del turno 5) intenta permutar los turnos 3 y 4 que no son suyos
+POST  /turnos/permutas                                                                 -> 500 AP-INT-01
+-- USR3 solicita la permuta de su turno 3 con el turno 4 de USR4
+POST  /turnos/permutas                                                                 -> 500 AP-INT-01
+respuesta: {'codigo': 'AP-INT-01', 'mensaje': 'No pudimos completar la operacion. Volve a intentar.', 'trazaId': '3b6f9143-9d09-65c9-1066-20bf49282277'}
+SQL permutas: 0

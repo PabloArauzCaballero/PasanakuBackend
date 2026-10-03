@@ -1,0 +1,113 @@
+ Container aportaya-gateway Removed 
+ Network aportaya-interna Removing 
+ Network aportaya-interna Resource is still in use 
+* What went wrong:
+Execution failed for task ':bd:levantar' (registered in build file 'bd\build.gradle.kts').
+> Process 'command 'docker'' finished with non-zero exit value 1
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 14s
+11 actionable tasks: 2 executed, 9 up-to-date
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+
+> Task :bd:aplicar
+ fn_seg_aplicar_rls 
+--------------------
+ 
+(1 row)
+
+
+> Task :bd:semillas
+
+> Task :bd:dev
+ ?column? 
+----------
+        1
+(1 row)
+
+ ?column? 
+----------
+        1
+(1 row)
+
+ ?column? 
+----------
+        1
+(1 row)
+
+
+> Task :bd:verificaciones
+ id 
+----
+(0 rows)
+
+ id | saldo_disponible | calculado 
+----+------------------+-----------
+(0 rows)
+
+ fecha | ratio_cobertura 
+-------+-----------------
+(0 rows)
+
+ codigo | periodo | fecha_limite 
+--------+---------+--------------
+(0 rows)
+
+ id 
+----
+(0 rows)
+
+ codigo 
+--------
+(0 rows)
+
+ id | secuencia | hash_anterior | esperado 
+----+-----------+---------------+----------
+(0 rows)
+
+ id | secuencia | hash_anterior | esperado 
+----+-----------+---------------+----------
+(0 rows)
+
+ movimiento_huerfano | transaccion_sin_patas 
+---------------------+-----------------------
+(0 rows)
+
+ id | moneda | moneda_cuenta 
+----+--------+---------------
+(0 rows)
+
+ ?column? 
+----------
+(0 rows)
+
+ id | codigo | cacheado | derivado 
+----+--------+----------+----------
+(0 rows)
+
+ id | numero | estado | asiento_reversa_id 
+----+--------+--------+--------------------
+(0 rows)
+
+
+BUILD SUCCESSFUL in 13s
+13 actionable tasks: 4 executed, 9 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+usuarios=11 grupos=2 cupos_libres_demo02=2 pendientes=1 sandboxes=5

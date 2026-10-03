@@ -1,6 +1,8 @@
 package bo.aportaya.grupos.aplicacion;
 
+import bo.aportaya.grupos.dominio.TipoDeAcuerdo;
 import bo.aportaya.grupos.dominio.TraspasoAdmisible;
+import bo.aportaya.grupos.infraestructura.AcuerdoRepositorio;
 import bo.aportaya.grupos.infraestructura.TraspasoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -35,12 +37,15 @@ public class CU64TraspasarCupo {
 
     private final Datos datos;
     private final TraspasoRepositorio traspasos;
+    private final AcuerdoRepositorio acuerdos;
     private final Outbox outbox;
     private final Reloj reloj;
 
-    public CU64TraspasarCupo(Datos datos, TraspasoRepositorio traspasos, Outbox outbox, Reloj reloj) {
+    public CU64TraspasarCupo(
+            Datos datos, TraspasoRepositorio traspasos, AcuerdoRepositorio acuerdos, Outbox outbox, Reloj reloj) {
         this.datos = datos;
         this.traspasos = traspasos;
+        this.acuerdos = acuerdos;
         this.outbox = outbox;
         this.reloj = reloj;
     }
@@ -54,6 +59,18 @@ public class CU64TraspasarCupo {
                     .estadoDelCupo(dsl, entrada.cupoId())
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(64, 1), "Ese cupo no existe."));
 
+            // Un id de acuerdo no es un acuerdo: si viene, tiene que existir, ser de este grupo,
+            // ser el voto de un traspaso y haber sido APROBADO. Si no viene, vale lo que diga quien
+            // llama sobre si el grupo lo exige.
+            boolean acuerdoValido = entrada.acuerdoId().isEmpty()
+                    ? entrada.hayAcuerdoSiSeExige()
+                    : entrada.acuerdoId()
+                            .flatMap(id -> acuerdos.porId(dsl, id))
+                            .filter(a -> a.grupoId().equals(cupo.grupoId()))
+                            .filter(a -> TipoDeAcuerdo.ADMISION_REEMPLAZO.name().equals(a.tipo()))
+                            .filter(a -> "APROBADO".equals(a.estado()))
+                            .isPresent();
+
             TraspasoAdmisible.impedimento(
                             cupo.estado(),
                             cupo.turnoCobrado(),
@@ -62,7 +79,7 @@ public class CU64TraspasarCupo {
                             entrada.kycMinimoDelGrupo(),
                             entrada.reputacionDelEntrante(),
                             entrada.reputacionMinimaDelGrupo(),
-                            entrada.hayAcuerdoSiSeExige())
+                            acuerdoValido)
                     .ifPresent(motivo -> {
                         throw new ErrorDeNegocio(CodigoError.de(64, motivo.numero()), motivo.mensaje());
                     });

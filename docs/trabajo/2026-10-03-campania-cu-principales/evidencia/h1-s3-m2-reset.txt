@@ -1,0 +1,17 @@
+== bajar
+ Network aportaya-interna Removing 
+ Network aportaya-interna Resource is still in use 
+== generar semillas
+total: 1468 filas de semilla Â· validadas contra el modelo
+== bd:reset (levantar falla por el one-shot de MinIO: se ignora)
+> Task :bd:levantar FAILED
+BUILD FAILED in 45s
+BUILD SUCCESSFUL in 17s
+== claves de dev
+Credenciales puestas en 11 cuentas de prueba.
+Dispositivo c4a1c4a1… marcado como de confianza.
+== subir servicios
+ Container aportaya-identidad Healthy 
+ Container aportaya-nucleo-financiero Healthy 
+rc_up=0
+1

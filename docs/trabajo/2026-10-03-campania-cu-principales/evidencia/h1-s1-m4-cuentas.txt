@@ -1,0 +1,8 @@
+ codigo_publico |              cuenta_id               | numero_cuenta | saldo_disponible | estado 
+----------------+--------------------------------------+---------------+------------------+--------
+ USR000001      | 904ddaf6-d0af-4f3f-883f-f0833002df77 | BOB-0000001   |          3589.50 | ACTIVA
+ USR000002      | 864b6e48-eab5-4903-a506-90d4b23b91fd | BOB-0000002   |           600.00 | ACTIVA
+ USR000003      | cdc115f2-b2f4-4a26-a503-ef24a17bf368 | BOB-0000003   |           600.00 | ACTIVA
+ USR000090      | b27622de-f2af-4ffa-8408-a048c56acfeb | BOB-0000090   |             0.00 | ACTIVA
+(4 rows)
+

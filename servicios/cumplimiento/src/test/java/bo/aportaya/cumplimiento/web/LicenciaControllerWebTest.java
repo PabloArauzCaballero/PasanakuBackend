@@ -44,7 +44,7 @@ class LicenciaControllerWebTest {
         return mvc.perform(get("/licencia/alcance")
                 .param("servicio", servicio)
                 .param("usuarioId", USUARIO.toString())
-                .with(Sesiones.como("SOPORTE")));
+                .with(Sesiones.como("PARTICIPANTE")));
     }
 
     @Test
@@ -113,7 +113,7 @@ class LicenciaControllerWebTest {
     @Test
     @DisplayName("CU-46 · 400: sin el servicio a verificar, que el contrato exige")
     void faltaElServicio() throws Exception {
-        mvc.perform(get("/licencia/alcance").with(Sesiones.como("SOPORTE"))).andExpect(status().isBadRequest());
+        mvc.perform(get("/licencia/alcance").with(Sesiones.como("PARTICIPANTE"))).andExpect(status().isBadRequest());
         verifyNoInteractions(cu46);
     }
 }

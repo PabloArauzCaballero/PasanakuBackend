@@ -94,20 +94,38 @@ class CU22Test extends BaseDeEntregas {
 
     @Test
     @DisplayName(
-            "Dado un turno con entrega ya ejecutada · Cuando se intenta crear otra entrega para el mismo turno · Entonces la base de datos lo rechaza (R-GRP-01)")
+            "Dado un turno ya liquidado · Cuando se repite la liquidación · Entonces devuelve la MISMA entrega y no crea otra · Y la base sigue rechazando una segunda entrega del turno (R-GRP-01)")
     void criterio2() {
         Caso c = caso();
-        transaccion.execute(t -> entregaCU.liquidar(entrada(c, "6000.00", "6000.00", deducciones()), c.ctx()));
+        SalidaLiquidacion primera =
+                transaccion.execute(t -> entregaCU.liquidar(entrada(c, "6000.00", "6000.00", deducciones()), c.ctx()));
 
-        // Dos entregas del mismo turno es pagar dos veces el mismo premio, y el grupo
-        // se queda sin fondo para el siguiente.
-        assertThatThrownBy(() -> transaccion.execute(
-                        t -> entregaCU.liquidar(entrada(c, "6000.00", "6000.00", deducciones()), c.ctx())))
-                .satisfies(e -> assertThat(raizDe(e)).contains("uq_entrega_turno"));
+        // Un reintento del cliente no es una segunda entrega: devuelve la misma.
+        SalidaLiquidacion repetida =
+                transaccion.execute(t -> entregaCU.liquidar(entrada(c, "6000.00", "6000.00", deducciones()), c.ctx()));
+        assertThat(repetida.entregaId()).isEqualTo(primera.entregaId());
         assertThat(contar(
                         "SELECT count(*)::int FROM entregas.entrega_fondo WHERE turno_id = ?",
                         c.escenario().turnoId()))
                 .isEqualTo(1);
+
+        // Dos entregas del mismo turno es pagar dos veces el mismo premio: aunque el caso de uso
+        // ya no lo intente, el indice unico sigue siendo el ultimo control.
+        assertThatThrownBy(() -> transaccion.execute(t -> dsl.execute(
+                        """
+                        INSERT INTO entregas.entrega_fondo
+                            (id, grupo_id, periodo_id, turno_id, cupo_id, beneficiario_participante_id,
+                             monto_bolsa_bruto, total_deducciones, monto_neto_a_entregar,
+                             monto_efectivamente_entregado, moneda, estado, metodo_desembolso,
+                             fecha_programada, version)
+                        SELECT gen_random_uuid(), grupo_id, periodo_id, turno_id, cupo_id,
+                               beneficiario_participante_id, monto_bolsa_bruto, total_deducciones,
+                               monto_neto_a_entregar, monto_efectivamente_entregado, moneda, estado,
+                               metodo_desembolso, fecha_programada, 0
+                          FROM entregas.entrega_fondo WHERE turno_id = ?
+                        """,
+                        c.escenario().turnoId())))
+                .satisfies(e -> assertThat(raizDe(e)).contains("uq_entrega_turno"));
     }
 
     @Test

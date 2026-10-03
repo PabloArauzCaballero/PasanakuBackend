@@ -55,6 +55,26 @@ public class AccesosRepositorio {
         return asignaciones;
     }
 
+    /**
+     * Los codigos de los roles VIGENTES del usuario.
+     *
+     * <p>Varios endpoints declaran el codigo de un rol como permiso ({@code ADMIN_PLATAFORMA},
+     * {@code SOPORTE}, {@code ORGANIZADOR}) y el token solo llevaba el rol de sesion
+     * ({@code PARTICIPANTE} o {@code BACKOFFICE}) y los permisos del catalogo: esos endpoints
+     * eran inalcanzables con un token real.
+     */
+    public Set<String> codigosDeRolesVigentes(DSLContext dsl, UUID usuarioId, OffsetDateTime enLaFecha) {
+        return new TreeSet<>(dsl.select(ROL.CODIGO)
+                .from(ASIGNACION_ROL)
+                .join(ROL)
+                .on(ROL.ID.eq(ASIGNACION_ROL.ROL_ID))
+                .where(ASIGNACION_ROL.USUARIO_ID.eq(usuarioId))
+                .and(ASIGNACION_ROL.OTORGADA_EN.le(enLaFecha))
+                .and(ASIGNACION_ROL.REVOCADA_EN.isNull())
+                .and(ASIGNACION_ROL.VIGENTE_HASTA.isNull().or(ASIGNACION_ROL.VIGENTE_HASTA.ge(enLaFecha)))
+                .fetch(ROL.CODIGO));
+    }
+
     public UUID asignar(
             DSLContext dsl,
             UUID usuarioId,

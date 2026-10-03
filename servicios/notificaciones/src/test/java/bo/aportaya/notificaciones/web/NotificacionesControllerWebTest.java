@@ -238,7 +238,7 @@ class NotificacionesControllerWebTest {
         String cuerpo = mvc.perform(get("/notificaciones/supresion")
                         .param("identificador", "+59171234567")
                         .param("categoria", "COMERCIAL")
-                        .with(Sesiones.como("SOPORTE")))
+                        .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.suprimido").value(true))
                 .andReturn()

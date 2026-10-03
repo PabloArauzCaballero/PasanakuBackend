@@ -44,21 +44,6 @@
           "permite_saldo_negativo": true
         },
         {
-          "numero_cuenta": "SYS-CUSTODIA",
-          "tipo": "PUENTE_CUSTODIA",
-          "moneda": "BOB",
-          "estado": "ACTIVA",
-          "nivel_debida_diligencia": "REFORZADA",
-          "fecha_apertura": {
-            "$sql": "now()"
-          },
-          "cuenta_contable_id": {
-            "$ref": "cuenta_contable",
-            "codigo": "1.1.01"
-          },
-          "permite_saldo_negativo": true
-        },
-        {
           "numero_cuenta": "SYS-SUSPENSO",
           "tipo": "SUSPENSO_NO_IDENTIFICADO",
           "moneda": "BOB",
@@ -70,6 +55,31 @@
           "cuenta_contable_id": {
             "$ref": "cuenta_contable",
             "codigo": "2.1.04"
+          },
+          "permite_saldo_negativo": true
+        }
+      ]
+    },
+    {
+      "tabla": "cuenta_billetera",
+      "conflicto": [
+        "numero_cuenta"
+      ],
+      "comentario": "La cuenta puente de custodia lleva el id fijo que el despliegue le da al servicio (CUENTA_PUENTE_CUSTODIA en despliegue/compose/servicios.yml): sin el mismo id, toda pata del libro contra la custodia violaba la clave foranea.",
+      "filas": [
+        {
+          "id": "00000000-0000-0000-0000-0000000000c0",
+          "numero_cuenta": "SYS-CUSTODIA",
+          "tipo": "PUENTE_CUSTODIA",
+          "moneda": "BOB",
+          "estado": "ACTIVA",
+          "nivel_debida_diligencia": "REFORZADA",
+          "fecha_apertura": {
+            "$sql": "now()"
+          },
+          "cuenta_contable_id": {
+            "$ref": "cuenta_contable",
+            "codigo": "1.1.01"
           },
           "permite_saldo_negativo": true
         }
