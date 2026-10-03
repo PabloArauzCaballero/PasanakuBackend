@@ -94,6 +94,10 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA comun
 -- cerrada por accidente, nunca por diseno. rol_aplicacion no otorga
 -- ningun privilegio propio; es la marca que hace aplicar RLS.
 GRANT rol_aplicacion TO svc_aportes;
+-- Las funciones de regla viven en `aportes`: sin USAGE sobre ese esquema un trigger no
+-- puede llamar a sus funciones hermanas ni a digest(). USAGE no da acceso a ninguna
+-- tabla: los privilegios de tabla de arriba siguen siendo solo del esquema propio.
+GRANT USAGE ON SCHEMA aportes TO svc_aportes;
 
 GRANT USAGE ON SCHEMA auditoria TO svc_auditoria;
 ALTER DEFAULT PRIVILEGES IN SCHEMA auditoria
@@ -117,6 +121,10 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA comun
 -- cerrada por accidente, nunca por diseno. rol_aplicacion no otorga
 -- ningun privilegio propio; es la marca que hace aplicar RLS.
 GRANT rol_aplicacion TO svc_auditoria;
+-- Las funciones de regla viven en `aportes`: sin USAGE sobre ese esquema un trigger no
+-- puede llamar a sus funciones hermanas ni a digest(). USAGE no da acceso a ninguna
+-- tabla: los privilegios de tabla de arriba siguen siendo solo del esquema propio.
+GRANT USAGE ON SCHEMA aportes TO svc_auditoria;
 
 GRANT USAGE ON SCHEMA cumplimiento TO svc_cumplimiento;
 ALTER DEFAULT PRIVILEGES IN SCHEMA cumplimiento
@@ -140,6 +148,10 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA comun
 -- cerrada por accidente, nunca por diseno. rol_aplicacion no otorga
 -- ningun privilegio propio; es la marca que hace aplicar RLS.
 GRANT rol_aplicacion TO svc_cumplimiento;
+-- Las funciones de regla viven en `aportes`: sin USAGE sobre ese esquema un trigger no
+-- puede llamar a sus funciones hermanas ni a digest(). USAGE no da acceso a ninguna
+-- tabla: los privilegios de tabla de arriba siguen siendo solo del esquema propio.
+GRANT USAGE ON SCHEMA aportes TO svc_cumplimiento;
 
 GRANT USAGE ON SCHEMA entregas TO svc_entregas;
 ALTER DEFAULT PRIVILEGES IN SCHEMA entregas
@@ -163,6 +175,10 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA comun
 -- cerrada por accidente, nunca por diseno. rol_aplicacion no otorga
 -- ningun privilegio propio; es la marca que hace aplicar RLS.
 GRANT rol_aplicacion TO svc_entregas;
+-- Las funciones de regla viven en `aportes`: sin USAGE sobre ese esquema un trigger no
+-- puede llamar a sus funciones hermanas ni a digest(). USAGE no da acceso a ninguna
+-- tabla: los privilegios de tabla de arriba siguen siendo solo del esquema propio.
+GRANT USAGE ON SCHEMA aportes TO svc_entregas;
 
 GRANT USAGE ON SCHEMA erp TO svc_erp;
 ALTER DEFAULT PRIVILEGES IN SCHEMA erp
@@ -186,6 +202,10 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA comun
 -- cerrada por accidente, nunca por diseno. rol_aplicacion no otorga
 -- ningun privilegio propio; es la marca que hace aplicar RLS.
 GRANT rol_aplicacion TO svc_erp;
+-- Las funciones de regla viven en `aportes`: sin USAGE sobre ese esquema un trigger no
+-- puede llamar a sus funciones hermanas ni a digest(). USAGE no da acceso a ninguna
+-- tabla: los privilegios de tabla de arriba siguen siendo solo del esquema propio.
+GRANT USAGE ON SCHEMA aportes TO svc_erp;
 
 GRANT USAGE ON SCHEMA garantia TO svc_garantia;
 ALTER DEFAULT PRIVILEGES IN SCHEMA garantia
@@ -209,6 +229,10 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA comun
 -- cerrada por accidente, nunca por diseno. rol_aplicacion no otorga
 -- ningun privilegio propio; es la marca que hace aplicar RLS.
 GRANT rol_aplicacion TO svc_garantia;
+-- Las funciones de regla viven en `aportes`: sin USAGE sobre ese esquema un trigger no
+-- puede llamar a sus funciones hermanas ni a digest(). USAGE no da acceso a ninguna
+-- tabla: los privilegios de tabla de arriba siguen siendo solo del esquema propio.
+GRANT USAGE ON SCHEMA aportes TO svc_garantia;
 
 GRANT USAGE ON SCHEMA grupos TO svc_grupos;
 ALTER DEFAULT PRIVILEGES IN SCHEMA grupos
@@ -232,6 +256,10 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA comun
 -- cerrada por accidente, nunca por diseno. rol_aplicacion no otorga
 -- ningun privilegio propio; es la marca que hace aplicar RLS.
 GRANT rol_aplicacion TO svc_grupos;
+-- Las funciones de regla viven en `aportes`: sin USAGE sobre ese esquema un trigger no
+-- puede llamar a sus funciones hermanas ni a digest(). USAGE no da acceso a ninguna
+-- tabla: los privilegios de tabla de arriba siguen siendo solo del esquema propio.
+GRANT USAGE ON SCHEMA aportes TO svc_grupos;
 
 GRANT USAGE ON SCHEMA identidad TO svc_identidad;
 ALTER DEFAULT PRIVILEGES IN SCHEMA identidad
@@ -255,6 +283,10 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA comun
 -- cerrada por accidente, nunca por diseno. rol_aplicacion no otorga
 -- ningun privilegio propio; es la marca que hace aplicar RLS.
 GRANT rol_aplicacion TO svc_identidad;
+-- Las funciones de regla viven en `aportes`: sin USAGE sobre ese esquema un trigger no
+-- puede llamar a sus funciones hermanas ni a digest(). USAGE no da acceso a ninguna
+-- tabla: los privilegios de tabla de arriba siguen siendo solo del esquema propio.
+GRANT USAGE ON SCHEMA aportes TO svc_identidad;
 
 GRANT USAGE ON SCHEMA notificaciones TO svc_notificaciones;
 ALTER DEFAULT PRIVILEGES IN SCHEMA notificaciones
@@ -278,6 +310,10 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA comun
 -- cerrada por accidente, nunca por diseno. rol_aplicacion no otorga
 -- ningun privilegio propio; es la marca que hace aplicar RLS.
 GRANT rol_aplicacion TO svc_notificaciones;
+-- Las funciones de regla viven en `aportes`: sin USAGE sobre ese esquema un trigger no
+-- puede llamar a sus funciones hermanas ni a digest(). USAGE no da acceso a ninguna
+-- tabla: los privilegios de tabla de arriba siguen siendo solo del esquema propio.
+GRANT USAGE ON SCHEMA aportes TO svc_notificaciones;
 
 GRANT USAGE ON SCHEMA nucleo_financiero TO svc_nucleo_financiero;
 ALTER DEFAULT PRIVILEGES IN SCHEMA nucleo_financiero
@@ -301,6 +337,10 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA comun
 -- cerrada por accidente, nunca por diseno. rol_aplicacion no otorga
 -- ningun privilegio propio; es la marca que hace aplicar RLS.
 GRANT rol_aplicacion TO svc_nucleo_financiero;
+-- Las funciones de regla viven en `aportes`: sin USAGE sobre ese esquema un trigger no
+-- puede llamar a sus funciones hermanas ni a digest(). USAGE no da acceso a ninguna
+-- tabla: los privilegios de tabla de arriba siguen siendo solo del esquema propio.
+GRANT USAGE ON SCHEMA aportes TO svc_nucleo_financiero;
 
 GRANT USAGE ON SCHEMA organizador TO svc_organizador;
 ALTER DEFAULT PRIVILEGES IN SCHEMA organizador
@@ -324,6 +364,10 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA comun
 -- cerrada por accidente, nunca por diseno. rol_aplicacion no otorga
 -- ningun privilegio propio; es la marca que hace aplicar RLS.
 GRANT rol_aplicacion TO svc_organizador;
+-- Las funciones de regla viven en `aportes`: sin USAGE sobre ese esquema un trigger no
+-- puede llamar a sus funciones hermanas ni a digest(). USAGE no da acceso a ninguna
+-- tabla: los privilegios de tabla de arriba siguen siendo solo del esquema propio.
+GRANT USAGE ON SCHEMA aportes TO svc_organizador;
 
 GRANT USAGE ON SCHEMA publicidad TO svc_publicidad;
 ALTER DEFAULT PRIVILEGES IN SCHEMA publicidad
@@ -347,6 +391,10 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA comun
 -- cerrada por accidente, nunca por diseno. rol_aplicacion no otorga
 -- ningun privilegio propio; es la marca que hace aplicar RLS.
 GRANT rol_aplicacion TO svc_publicidad;
+-- Las funciones de regla viven en `aportes`: sin USAGE sobre ese esquema un trigger no
+-- puede llamar a sus funciones hermanas ni a digest(). USAGE no da acceso a ninguna
+-- tabla: los privilegios de tabla de arriba siguen siendo solo del esquema propio.
+GRANT USAGE ON SCHEMA aportes TO svc_publicidad;
 
 GRANT USAGE ON SCHEMA tarifas TO svc_tarifas;
 ALTER DEFAULT PRIVILEGES IN SCHEMA tarifas
@@ -370,6 +418,10 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA comun
 -- cerrada por accidente, nunca por diseno. rol_aplicacion no otorga
 -- ningun privilegio propio; es la marca que hace aplicar RLS.
 GRANT rol_aplicacion TO svc_tarifas;
+-- Las funciones de regla viven en `aportes`: sin USAGE sobre ese esquema un trigger no
+-- puede llamar a sus funciones hermanas ni a digest(). USAGE no da acceso a ninguna
+-- tabla: los privilegios de tabla de arriba siguen siendo solo del esquema propio.
+GRANT USAGE ON SCHEMA aportes TO svc_tarifas;
 
 GRANT USAGE ON SCHEMA transparencia TO svc_transparencia;
 ALTER DEFAULT PRIVILEGES IN SCHEMA transparencia
@@ -393,6 +445,10 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA comun
 -- cerrada por accidente, nunca por diseno. rol_aplicacion no otorga
 -- ningun privilegio propio; es la marca que hace aplicar RLS.
 GRANT rol_aplicacion TO svc_transparencia;
+-- Las funciones de regla viven en `aportes`: sin USAGE sobre ese esquema un trigger no
+-- puede llamar a sus funciones hermanas ni a digest(). USAGE no da acceso a ninguna
+-- tabla: los privilegios de tabla de arriba siguen siendo solo del esquema propio.
+GRANT USAGE ON SCHEMA aportes TO svc_transparencia;
 
 -- 4) search_path por rol: cada servicio ve SU esquema y el catalogo.
 --    Refuerza el GRANT: una consulta a una tabla ajena no solo es

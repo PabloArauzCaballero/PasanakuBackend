@@ -225,3 +225,20 @@ REVOKE INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA tarifas FROM rol_auditor;
 REVOKE INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA transparencia FROM rol_auditor;
 REVOKE INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA catalogo FROM rol_auditor;
 REVOKE INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA comun FROM rol_auditor;
+
+-- Las funciones de regla fijan su propio search_path. Viven todas en `aportes`, y una
+-- funcion sin `SET search_path` resuelve los nombres con el de QUIEN LA DISPARA: con el
+-- de un svc_* (su esquema, catalogo y comun) no encontraba ni las funciones hermanas ni
+-- digest() de pgcrypto, y ningun movimiento del libro se podia registrar. Fijarlo es
+-- ademas la defensa estandar contra el secuestro de search_path.
+DO $busqueda$
+DECLARE f RECORD; v_ruta TEXT;
+BEGIN
+  SELECT string_agg(quote_ident(nspname), ', ' ORDER BY nspname) INTO v_ruta
+    FROM pg_namespace WHERE nspname !~ '^pg_' AND nspname <> 'information_schema';
+  FOR f IN SELECT p.oid::regprocedure AS fn FROM pg_proc p
+             JOIN pg_namespace n ON n.oid = p.pronamespace
+            WHERE n.nspname = 'aportes' AND p.prokind = 'f' LOOP
+    EXECUTE format('ALTER FUNCTION %s SET search_path = %s', f.fn, v_ruta);
+  END LOOP;
+END $busqueda$;

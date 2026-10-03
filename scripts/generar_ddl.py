@@ -764,7 +764,11 @@ def escribir_esquemas():
               f"-- politica que no aplica no protege: la tabla queda abierta o",
               f"-- cerrada por accidente, nunca por diseno. rol_aplicacion no otorga",
               f"-- ningun privilegio propio; es la marca que hace aplicar RLS.",
-              f"GRANT rol_aplicacion TO {r};", ""]
+              f"GRANT rol_aplicacion TO {r};",
+              f"-- Las funciones de regla viven en `aportes`: sin USAGE sobre ese esquema un trigger no",
+              f"-- puede llamar a sus funciones hermanas ni a digest(). USAGE no da acceso a ninguna",
+              f"-- tabla: los privilegios de tabla de arriba siguen siendo solo del esquema propio.",
+              f"GRANT USAGE ON SCHEMA aportes TO {r};", ""]
 
     L.append("-- 4) search_path por rol: cada servicio ve SU esquema y el catalogo.")
     L.append("--    Refuerza el GRANT: una consulta a una tabla ajena no solo es")
@@ -887,6 +891,23 @@ def escribir_permisos_finales():
     for e in esquemas:
         L.append(f"REVOKE INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA {e} FROM rol_auditor;")
     L.append("")
+    L += ["-- Las funciones de regla fijan su propio search_path. Viven todas en `aportes`, y una",
+          "-- funcion sin `SET search_path` resuelve los nombres con el de QUIEN LA DISPARA: con el",
+          "-- de un svc_* (su esquema, catalogo y comun) no encontraba ni las funciones hermanas ni",
+          "-- digest() de pgcrypto, y ningun movimiento del libro se podia registrar. Fijarlo es",
+          "-- ademas la defensa estandar contra el secuestro de search_path.",
+          "DO $busqueda$",
+          "DECLARE f RECORD; v_ruta TEXT;",
+          "BEGIN",
+          "  SELECT string_agg(quote_ident(nspname), ', ' ORDER BY nspname) INTO v_ruta",
+          "    FROM pg_namespace WHERE nspname !~ '^pg_' AND nspname <> 'information_schema';",
+          "  FOR f IN SELECT p.oid::regprocedure AS fn FROM pg_proc p",
+          "             JOIN pg_namespace n ON n.oid = p.pronamespace",
+          "            WHERE n.nspname = 'aportes' AND p.prokind = 'f' LOOP",
+          "    EXECUTE format('ALTER FUNCTION %s SET search_path = %s', f.fn, v_ruta);",
+          "  END LOOP;",
+          "END $busqueda$;",
+          ""]
     (OUT / "00_base" / "03_permisos.sql").write_text("\n".join(L), encoding="utf-8")
 
 
