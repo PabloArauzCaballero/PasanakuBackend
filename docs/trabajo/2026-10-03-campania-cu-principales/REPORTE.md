@@ -1,187 +1,172 @@
-> **AVANCE: 31 / 54 — 57,4 %.** En rojo: 16 microtareas BLOQUEADAS (13 por defectos de producto o de datos, 3 por entorno) y 3 A MEDIAS. De los 13 casos de uso probados, **solo CU-21 pasa de punta a punta**; CU-22 pasa a medias; ningún flujo de dinero de billetera (CU-10 acreditar, CU-12, CU-11) se completa. Sin evidencia de la app en el emulador.
+> **AVANCE: 39 / 76 — 51,3 %.** En rojo: 26 microtareas BLOQUEADAS (22 por decisiones de autorización, modelo o contrato que quedan para el equipo; 4 por entorno), 7 A MEDIAS. **Ningún flujo de dinero de billetera se completa** (CU-10 acreditar, CU-12, CU-11). Sin una sola captura de la app en el emulador: el sistema detuvo dos veces el build del APK por memoria crítica.
 
-# Reporte — Campaña E2E de los casos de uso principales (API real + backoffice real)
+# Reporte — Campaña E2E de los casos de uso principales + correcciones (API real + backoffice real)
 
-- Fecha: 2026-10-03 · Plan: [PLAN.md](./PLAN.md) · Rama: `justin/test/campania-cu-principales` (worktree `PasanakuBackend-campania`, desde `origin/test` 22c5e687).
-- Stack: 11 servicios + Postgres/PgBouncer/Redis/Kafka/MinIO/Gateway/Nginx en Docker, imágenes construidas desde esta rama; base recreada con `bd:reset`; usuarios sintéticos de `seeders/dev`.
+- Fecha: 2026-10-03 · Plan: [PLAN.md](./PLAN.md) · Rama: `justin/test/campania-cu-principales` (worktree `PasanakuBackend-campania`, desde `origin/test` 22c5e687) · PR: https://github.com/PabloArauzCaballero/PasanakuBackend/pull/45
+- Stack: 11 servicios + infraestructura en Docker con imágenes construidas desde esta rama; base recreada con `bd:reset`; usuarios sintéticos de `seeders/dev`.
 - Peldaños de evidencia por área (regla 30):
-  - **API / servicios (runtime real, base real, roles `svc_*` reales): VERIFIED** para lo ejercitado, con sus fallos declarados (matriz abajo).
-  - **Esquema (correcciones B6 y B7): TESTED** (`probar_humo.py`: 165 OK · 0 FALLA) y observado en runtime: tras la corrección el error de secuencia y el de `digest` desaparecen; el siguiente fallo es B8, ajeno a lo corregido. No se corrieron los tests de integración de Gradle (ENTORNO).
-  - **Backoffice: VERIFIED_FUNCTIONAL_ONLY → con prueba visual parcial.** 30 capturas (3 viewports × claro/oscuro) y consola/red registradas; se **inspeccionaron individualmente** las de escritorio-claro de las 4 pantallas y la de tesorería; las otras 24 no se miraron una por una.
-  - **App móvil: sin evidencia** (build del APK detenido por memoria; H3.S15 BLOQUEADO).
+  - **API / servicios: VERIFIED** para lo ejercitado (runtime real, base real, roles `svc_*` reales), con sus fallos declarados.
+  - **Correcciones de código: TESTED** — tests unitarios, web e integración (Testcontainers) de los servicios tocados en verde; además observadas en runtime.
+  - **Backoffice: prueba visual parcial** — 30 capturas (3 viewports × claro/oscuro), se inspeccionaron las de escritorio-claro y la de tesorería; las otras 24 no se miraron una por una. No se tocó código de backoffice.
+  - **App móvil: sin evidencia.**
   - **Peldaño del trabajo (el más bajo de sus áreas): TESTED.** No es REGRESSION_VERIFIED.
+
+## Qué cambió respecto del primer reporte
+
+Con tu autorización se corrigieron, además de B6 y B7 (secuencias y `digest` del libro), estos hallazgos. El efecto observado en runtime figura en la tabla.
+
+| # | Corrección | Observado en runtime |
+|---|---|---|
+| B1 | El token lleva los códigos de rol vigentes (`EmitirAcceso` + `AccesosRepositorio.codigosDeRolesVigentes`) | aprobar y habilitar organizador pasan el guardia (antes 403) |
+| B3 | `/licencia/alcance` → `PARTICIPANTE`; restricciones → `PARTICIPANTE` con control de objeto; supresión → `GRUPO_ADMINISTRAR` | licencia 200 a un participante; la «restricción vigente» falsa desapareció; invitar → 201 con enlace |
+| B23 | `public.digest` en los tokens de invitación (SQL de la aplicación) | invitar dejó de dar 500 |
+| B9 | `liquidarEntrega` idempotente por turno | repetir → 201 con la misma entrega (antes 500) |
+| B10 | La cotización del retiro enviaba `referenciaTipo: OPERACION`; ahora `ORDEN_RETIRO` | el retiro cotiza y pide el segundo factor |
+| B16 | `TRASPASO_CUPO` se vota como `ADMISION_REEMPLAZO` (decisión tuya) y CU-64 valida que el acuerdo exista, sea del grupo, del tipo y esté `APROBADO` | `proponerAcuerdo` → 201 |
+| B25 | `comprometerSorteo` devuelve la semilla (campo aditivo del contrato) | comprometer 201 → revelar 200 `verificado: true`, 3 turnos creados |
 
 ## Completado
 
 | ID | Qué se logró (observable) | Comando de verificación | Resultado |
 |---|---|---|---|
-| H0.S1.M1–M6 | Precondiciones, actores y destrabes de cada CU descubiertos y citados | `grep` dirigidos (ver PLAN) | DISCOVERED — hallazgos 1–11 del PLAN |
-| H1.S1.M3–M4 | Seeder dev idempotente (11/2/9/7/19 filas en la 1.ª y 2.ª corrida); claves de dev y dispositivo confiado | `bd:dev` dos veces + SQL | PASS — `evidencia/h1-idempotencia.txt`, `h1-s1-m4-*.txt` |
-| H1.S2.M2–M3, M6 | `GRP-DEMO-02` (3 cupos, 2 libres) y 1 obligación PENDIENTE sembrados con un solo reset | `generar_semillas.py` + `bd:reset` + SQL | PASS — `evidencia/h1-s2-m6-reset.txt` (1463 filas validadas contra el modelo) |
-| H1.S3.M1–M2, M4 | **B6 y B7 corregidos en la fuente:** `USAGE` sobre secuencias para los `svc_*` y `public.digest()` en los triggers de cadena | `generar_ddl.py`, `extraer_sql.py`, SQL de privilegios | PASS — `h1-s3-m1-diff.txt`, `h1-s3-m2-privilegios.txt` (14 true / 0 false; aislamiento entre servicios intacto) |
-| H2.S1.M1–M7 | Compose y gateway regenerados; 11 imágenes construidas en serie; 18 contenedores `healthy`; sondas de autorización | `docker ps`, scripts | PASS — `h2-s1-m2-*.txt`, `h2-s1-m4-docker-ps*.txt`, `h2-s1-m6-sondas.txt` |
-| H3.S8.M1 | **CU-21 aportar:** 201, repetición con la misma clave → 200 con el mismo `pagoId`, 1 solo `pago`, billetera sin débito (brecha declarada) | `h3_grupos.py` | PASS — `h3-grupos-primera-pasada.txt` (¡pero ver B15!) |
-| H3.S11.M1 | **CU-74:** el resultado real (403 por SOPORTE) queda registrado | `h3_grupos.py` | PASS como registro; veredicto BRECHA — `h3-campania-final.txt` |
-| H4.S1.M1–M2, M4 | Compuertas Python en 0; humo del esquema sin fallas; capturas del backoffice | scripts + Playwright | PASS — `h4-gates-python.txt`, `h4-humo-esquema.txt`, `bo-*.png` |
-| H4.S2.M1–M2 | Reporte escrito y PR abierto contra `test`, sin merge | `gh pr create` | PASS — https://github.com/PabloArauzCaballero/PasanakuBackend/pull/45 |
+| H0, H1, H2 | Descubrimiento, seeders idempotentes (1466 filas validadas), stack de 11 servicios + infraestructura `healthy`, sondas de autorización | ver PLAN | PASS — `evidencia/h1-*`, `h2-*` |
+| H1.S3 | B6 y B7 corregidos en la fuente (`generar_ddl.py`, `Restricciones.md`) | `probar_humo.py` | PASS — 165 OK · 0 FALLA (`h4-humo-esquema.txt`, `h5-humo-esquema.txt`) |
+| H5.S1.M1 | B1: códigos de rol en el token | `CU08CodigosDeRolVigentesTest` (integración) + sonda | PASS — `h5-tests-identidad-it.txt`, `h5-campania-final.txt` |
+| H5.S2.M1–M3 | B3: tres consultas entre servicios sin permisos de operador, con negativos de autorización | web tests de cumplimiento, garantía y notificaciones | PASS — `h5-tests-2.txt` |
+| H5.S4.M1 | B9: liquidación idempotente | `CU22Test.criterio2` reescrito + runtime | PASS — `h5-tests-it-grupos-entregas.txt` |
+| H5.S9.M1–M3 | B25 (semilla), B23 (`digest` en Java), períodos de `GRP-DEMO-02` en el seeder | `CU60Test`, web tests, gates de contrato, `h5_sorteo.py` | PASS — `h5-sorteo.txt`, `h5-gates-contrato.txt` |
+| H3.S3 (CU-69) | **Invitar → consultar → token ajeno rechazado (422 `AP-CU69-05`) → aceptar (201) → cupo OCUPADO 2 → 3** | `h3_grupos.py`, `h5_sorteo.py` | PASS — `h5-campania-final.txt` |
+| H3.S7 (CU-60) | **Comprometer (201) → revelar (200, `verificado: true`) → turnos 1, 2 y 3**; USR2 sin permiso → 403 | `h5_sorteo.py` | PASS — `h5-sorteo.txt` |
+| H3.S8 (CU-21) | Aportar 201; repetir con la misma clave → 200 y el mismo `pagoId`; 1 solo pago | `h3_grupos.py` | PASS parcial — ver B15 |
+| H3.S12 (CU-22) | Liquidar → autorizar (USR9) → ejecutar (USR8), con negativos de rol y de bolsa incompleta | `h3_resto.py` | PASS parcial — sin asiento ni crédito al beneficiario |
+| H4.S1, H4.S2 | Compuertas Python, humo, capturas del backoffice, reporte y PR | scripts + Playwright + `gh` | PASS — `h4-*`, PR #45 |
 
 ## A medias
 
+### H5.S4.M2 — B10, retiro (CU-11)
+- **Qué anda:** el retiro cotiza (`ORDEN_RETIRO`); responde `AP-CU11-02` «falta el segundo factor». Tests de nucleo-financiero PASS.
+- **Qué no anda:** no se ejercitó el retiro completo ni su aprobación y conciliación.
+- **Qué falta exactamente:** correr el retiro con la evidencia MFA y la aprobación de tesorería (USR8).
+- **Dónde quedó:** `CotizadorPorHttp.java`, compila.
+
+### H5.S4.M5 — B16, traspaso (CU-63/CU-64)
+- **Qué anda:** proponer el acuerdo (201), la traducción de tipos y la validación del acuerdo en CU-64, con tests.
+- **Qué no anda:** `votarAcuerdo` → 500 (B22: el voto inserta un id de usuario donde la FK pide un participante; resolverlo exige leer `participante`, reservada por RLS: B8).
+- **Qué falta exactamente:** la decisión de B8 y el voto; después el traspaso con el acuerdo aprobado. CU-64 además tiene B21.
+- **Dónde quedó:** `TipoDeAcuerdo`, `CU63Acordar`, `CU64TraspasarCupo`.
+
 ### H3.S5.M1 — CU-10 recargar
-- **Qué anda:** `solicitarRecarga` → 201 (orden PENDIENTE, `acreditara 200.00`); acreditar una orden ajena → 422 `AP-CU10-05`.
-- **Qué no anda:** `…/acreditacion` → 500 (B8: el insert en `movimiento_billetera` viola la RLS con el contexto del participante). No hay saldo, mayor ni idempotencia que demostrar.
-- **Qué falta exactamente:** decidir qué contexto acredita (webhook de sistema) y cambiarlo en nucleo-financiero; reejecutar `h3_dinero.py`.
-- **Dónde quedó:** código de servicios sin tocar; solo DDL/Restricciones corregidos (B6/B7).
+- **Qué anda:** solicitar (201); acreditar la orden ajena → 422.
+- **Qué no anda:** acreditar → 500 (B8: el insert del libro viola la RLS).
+- **Qué falta exactamente:** la decisión de B8 **y** B20 (la acreditación hoy es auto-servicio del titular); sin B20, corregir B8 imprimiría dinero.
 
-### H3.S12.M1 — CU-22 entrega del fondo
-- **Qué anda:** liquidar (USR8, 201, PROGRAMADA) → autorizar (USR9, 200, AUTORIZADA) → ejecutar (USR8, 200, ENTREGADA); USR9 liquida → 403; USR8 autoriza → 403; bruto > recaudado → 422 `AP-CU22-01`.
-- **Qué no anda:** repetir `liquidar` con la misma clave → 500 (B9; la base impidió la entrega doble con `uq_entrega_turno`); no se genera asiento ni se acredita al beneficiario (saldo 600.00 intacto); `ejecutar` aceptó `montoEntregado` 2989.50 con neto 3000.00 sin objeción (a confirmar si es diseño).
-- **Qué falta exactamente:** idempotencia por clave y asiento de la entrega (91.6).
-- **Dónde quedó:** sin cambios de código.
-
-### H3.S14.M1 — Negativos de autorización e idempotencia
-- **Qué anda:** 403 de permiso en CU-60, CU-64, CU-22, CU-74; 422 de objeto ajeno en CU-10; repetición idempotente OK en CU-21.
-- **Qué no anda:** pago de un tercero en CU-21 → 201 (B15); CU-22 repetición → 500 (B9); CU-10/12/11 no llegan a la repetición.
-- **Qué falta exactamente:** corregir B15 y B9 y reejecutar.
-- **Dónde quedó:** `evidencia/h3-campania-final.txt`.
+### H3.S12.M1, H3.S14.M1, H5.S6.M1, H5.S8.M1
+- Ver el PLAN: CU-22 sin asiento ni crédito; negativos con el defecto B15; la corrida final se reejecutó y lo que sigue en rojo depende de B8, B20 y B26; falta `EsquemaAlDiaRepositorioTest` y la suite completa de integración.
 
 ## Pendiente
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| H1.S3.M3 | BLOQUEADO | B8: acreditar con el rol real exige cambiar el contexto en nucleo-financiero (dueño: nucleo-financiero) |
-| H3.S1.M1, M2 | BLOQUEADO | B11 (RLS al postular) y B1 (rol del token): identidad/organizador |
-| H3.S2.M1 | BLOQUEADO | B2 (RLS de `organizador`) y B3 (`/licencia/alcance` exige SOPORTE) |
-| H3.S3.M1, M2 | BLOQUEADO | B3: `/notificaciones/supresion` exige SOPORTE y suprime la invitación |
-| H3.S4.M1 | BLOQUEADO | B3: `garantia /cobranza/restricciones/vigentes` exige GRUPO_ADMINISTRAR → «restricción vigente» falsa; además aceptar al miembro es BRECHA (stub) |
-| H3.S6.M1 | BLOQUEADO | B8: el alias no resuelve (RLS de `participante`) y el libro daría el mismo 500 |
-| H3.S7.M1, M2 | BLOQUEADO | H3.S3 (no se puede conformar el grupo) y B12 (sorteo sembrado sin semilla) |
-| H3.S9.M1 | BLOQUEADO | B16: `proponerAcuerdo` con `TRASPASO_CUPO` → 500 |
-| H3.S10.M1 | BLOQUEADO | B13/B14: FK de `solicitante_id` y falta de validación de titularidad |
-| H3.S13.M1 | BLOQUEADO | B10: `tarifas` rechaza la cotización del retiro |
-| H3.S15.M2, M3 | BLOQUEADO (ENTORNO) | Liberar memoria y relanzar el build del APK; después el AVD `pasanaku` |
-| H4.S1.M3 | BLOQUEADO (ENTORNO) | Correr los tests de integración de Gradle con memoria libre |
-| H1.S1.M2, H1.S2.M1, H1.S2.M4–M5 | DESCARTADO | SOPORTE por datos no sirve (B1); sandbox retirado (rompía `R-LIC-01`); MFA no hacía falta; instrumento de USR90 innecesario |
+| H5.S3.M1–M4 | BLOQUEADO (DECISION_REQUIRED) | **B8, B2, B11, B20:** contexto de sistema o cláusula del titular en las políticas RLS (propuesta en el PLAN). No autorizaste este bloque |
+| H5.S4.M3, M4, M6 | BLOQUEADO (DECISION_REQUIRED) | B13/B14 (permuta), B15 (pago ajeno) y B5 (período abierto) dependen de B8 y de un canal nuevo `aportes`→`grupos` (contrato, cliente y endpoint) |
+| H5.S5.M1 | BLOQUEADO (DECISION_REQUIRED) | B17/B18: elegir qué lado de la autorización se mueve en backoffice, o crear el permiso `SOLICITUD_INGRESO_VER` en el modelo |
+| H5.S9.M4 | BLOQUEADO (DECISION_REQUIRED) | **B26:** la verificación pública del sorteo llama a `/grupos/sorteos/{id}/paquete` sin sesión y ese endpoint exige `PARTICIPANTE`; hacerlo público o usar credencial de servicio |
+| H5.S7.M1, H3.S15.M2–M3 | BLOQUEADO (ENTORNO) | Liberar memoria y pedir expresamente que se relance el build del APK (pasos exactos en el PLAN) |
+| H4.S1.M3 | BLOQUEADO (ENTORNO) | Correr el resto de la integración de Gradle con memoria libre |
+| H3.S1, S2, S4, S6, S9, S10, S13 | BLOQUEADO | B1 (ya corregido; el siguiente fallo es B8), B2, B8, B11, B13, B14, B22 |
 
-## Matriz por caso de uso (canal × veredicto)
+## Matriz por caso de uso tras las correcciones
 
-| CU | Canal probado | Veredicto | Hallazgos |
-|---|---|---|---|
-| CU-90 postular | API | **FAIL** (500) | B11, B8 |
-| CU-90 aprobar/habilitar | API + backoffice (pantalla real) | **FAIL** (403; la pantalla muestra «No tenés acceso a esto») | B1 |
-| CU-20 crear grupo | API | **FAIL** (`AP-CU20-02`, y detrás `AP-CU20-04`) | B2, B3 |
-| CU-69 invitar / aceptar | API | **FAIL** (201 con `enlace: null`; aceptar imposible) | B3 |
-| CU-68 postular / aceptar | API | **FAIL** (restricción falsa); aceptar = **BRECHA** (stub) | B3 |
-| CU-10 recargar | API | solicitar **PASS** · acreditar **FAIL** | B8 |
-| CU-10 saldo en backoffice | backoffice | **FAIL** (403) | B17 |
-| CU-12 transferir | API | **FAIL** («Ese destino no existe») | B8 |
-| CU-60 sorteo | API | negativos **PASS**; positivo no alcanzable | B3 |
-| CU-61 verificar | API pública | **DATA** (`verifica:false`, sin semilla sembrada) | B12 |
-| CU-21 aportar | API | **PASS** (+ defecto de autorización) | B15 |
-| CU-64 traspasar | API | **FAIL** (el voto previo da 500) | B16 |
-| CU-62 permutar | API | **FAIL** (500); aceptar = **BRECHA** | B13, B14 |
-| CU-74 insignias | API | **BRECHA** (403) | B1 |
-| CU-22 entrega | API | **PASS parcial** (3 pasos) · repetición **FAIL** | B9 |
-| CU-11 retirar | API | **FAIL** (no cotiza) | B10 |
-| Solicitudes escaladas | backoffice | **BRECHA** (permiso inexistente, endpoint inexistente) | B18 |
+| CU | Veredicto | Observación |
+|---|---|---|
+| CU-69 invitar / aceptar | **PASS** | completo de punta a punta |
+| CU-60 sorteo | **PASS** | comprometer y revelar |
+| CU-61 verificar | **FAIL** | B26 (el paquete no es consultable sin sesión) |
+| CU-21 aportar | **PASS + defecto** | B15: un tercero puede marcar pagada la obligación ajena |
+| CU-22 entrega | **PASS parcial** | idempotente (B9 corregido); sin asientos ni crédito |
+| CU-90 aprobar / habilitar | **desbloqueado, sin completar** | pasa el guardia (B1); la postulación falla por B11/B8 |
+| CU-90 postular | **FAIL** | B11 (RLS) |
+| CU-20 crear grupo | **FAIL** | B2 (RLS del organizador); la licencia ya no es el problema (B3) |
+| CU-68 postular | **FAIL (DATA)** | `AP-CU68-03`: un usuario sin historial nunca puede postular (B24) |
+| CU-64 traspasar | **FAIL** | B22 (voto), B21 |
+| CU-62 permutar | **FAIL** | B13/B14 |
+| CU-10 recargar | solicitar **PASS** · acreditar **FAIL** | B8, B20 |
+| CU-12 transferir | **FAIL** | B8 (alias) |
+| CU-11 retirar | **A MEDIAS** | cotiza; falta el segundo factor y la aprobación |
+| CU-74 insignias | **BRECHA** | el permiso `SOPORTE` sigue sin estar asignado a ningún rol sembrado, y la evaluación no tiene pantalla |
+| Solicitudes escaladas (backoffice) | **BRECHA** | B18 |
 
-## Hallazgos de producto (resumen; detalle y evidencia en el PLAN)
+## Hallazgos de producto
 
-| # | Clase | Qué | Corregido aquí |
-|---|---|---|---|
-| B1 | PRODUCT_BUG | El `rol` del token es solo `PARTICIPANTE`/`BACKOFFICE`; `ADMIN_PLATAFORMA` y `SOPORTE` son inalcanzables (403 `AP-SEG-01`) | no |
-| B2 | PRODUCT_BUG | `GET /organizadores/{id}/habilitacion` da `INEXISTENTE` a un organizador HABILITADO (RLS) | no |
-| B3 | PRODUCT_BUG | `grupos` llama a otros servicios con el token del participante y el destino exige un permiso que no tiene; «denegar por omisión» lo disfraza | no |
-| B4 | DATA | El `UPDATE` documentado de la licencia afecta 0 filas (`LICENCIA_FUNCIONAMIENTO` vs `CERTIFICADO_ADECUACION`) | no |
-| B5 | PRODUCT_BUG | `cobrarAporte` fija `periodoAbierto=true` | no |
-| **B6** | PRODUCT_BUG | **Ningún `svc_*` podía usar las secuencias del libro y de la bitácora → 500 en todo movimiento** | **sí** |
-| **B7** | PRODUCT_BUG | **`digest()` sin calificar en los triggers de cadena (`search_path` sin `public`)** | **sí** |
-| B8 | PRODUCT_BUG (diseño) | 55 políticas RLS son «solo privilegiado o sistema»; varios caminos corren con contexto de usuario sobre ellas | no |
-| B9 | PRODUCT_BUG | `POST /entregas` repetido con la misma clave → 500 | no |
-| B10 | PRODUCT_BUG | Contrato nucleo-financiero↔tarifas: la cotización del retiro no se puede leer | no |
-| B11 | PRODUCT_BUG | Postular a organizador viola la RLS de `solicitud_organizador` | no |
-| B12 | DATA | Sorteo sembrado sin semilla ni entropías | no |
-| B13 | PRODUCT_BUG | `solicitarPermuta` viola la FK de `solicitante_id` | no |
-| B14 | PRODUCT_BUG | `CU62Permutar.solicitar` no valida que el solicitante sea titular del turno | no |
-| B15 | PRODUCT_BUG | **Cualquier participante puede marcar PAGADA la obligación de otro, sin dinero** | no |
-| B16 | PRODUCT_BUG | `TipoDeAcuerdo` no tiene `TRASPASO_CUPO` que el contrato lista → 500 | no |
-| B17 | PRODUCT_BUG | Backoffice «Billetera del titular»: el permiso de la ruta no coincide con el del endpoint | no |
-| B18 | PRODUCT_BUG | «Solicitudes escaladas»: permiso inexistente y endpoint inexistente | no |
-| B19 | UI menor | Pestañas «EnRevision» sin espacio | no |
+Detalle y evidencia de cada uno en el PLAN (tabla «Registro de hallazgos»), B1 a B26. Corregidos: **B1, B3, B6, B7, B9, B10, B16 (parcial), B23, B25**. Abiertos y graves: **B8** (RLS), **B20** (la acreditación de recarga es auto-servicio: cualquier titular puede acreditarse dinero, hoy tapado por B8), **B15** (pagar la obligación ajena sin dinero) y **B26**.
 
 ## Gates de la casa
 
 ### Dinero (regla 91.6) — **no cumplido**
-1. Asientos generados: **ninguno** (CU-10 y CU-12 no llegan al libro; CU-22 y CU-21 no los generan).
-2. Idempotencia ejecutada: CU-21 ✔ (mismo `pagoId`, 1 pago); CU-22 ✘ (500, B9); CU-10, CU-12, CU-11 no alcanzada.
-3. Cuadre contra el mayor: no ejercitado.
-4. Reversa: no ejercitada. 5. Redondeo: no ejercitado.
-Peldaño del dinero: **TESTED/VERIFIED a medias**, no VERIFIED.
+Sin asientos generados (CU-10 y CU-12 no llegan al libro). Idempotencia: CU-21 ✔, CU-22 ✔ (B9 corregido), CU-10/12/11 no alcanzada. Cuadre, reversa y redondeo: no ejercitados. **B20 es un riesgo de dinero abierto.**
 
 ### Seguridad (regla 90.6)
-- **Amenaza** B15 (pagar/marcar pagada la obligación ajena sin dinero), B14 (permutar turnos ajenos), B1/B3 (denegación disfrazada). **Control** esperado: validar titularidad del objeto (90.1.3) y verificar el pago con la pasarela (91.3). **Test que lo demuestra:** negativo de autorización en `h3-campania-final.txt`. **Riesgo residual:** abierto, sin corregir.
+- **Amenazas:** B20 (acreditarse dinero), B15 (marcar pagado sin dinero), B14 (permutar turnos ajenos), denegación disfrazada de negocio (B3, corregida).
+- **Controles agregados:** control de objeto en la consulta de restricción (lo propio, o `GRUPO_ADMINISTRAR`); validación del acuerdo en CU-64; permiso mínimo `GRUPO_ADMINISTRAR` (no `PARTICIPANTE`) en la consulta de supresión.
+- **Tests:** `CobranzaControllerWebTest` (propio → 200; ajeno → 403), `CU08CodigosDeRolVigentesTest`, `CU64Test`, y los negativos de `h5-campania-final.txt`.
+- **Riesgo residual:** B8, B15 y B20 sin corregir. B1 amplía lo que lleva el token: cualquier endpoint que exige un código de rol por nombre pasa a ser alcanzable por quien tenga ese rol (lo que se buscaba); conviene revisar que ninguno quede abierto por error.
 
 ### Microservicios (regla 98.8)
-1. **Saltos:** `grupos` → organizador, tarifas, cumplimiento, garantía, notificaciones, aportes; `nucleo-financiero` → tarifas, aportes, grupos; `entregas` → identidad.
-2. Pruebas de contrato productor/consumidor: **no corridas** (ENTORNO). Los desajustes B10 y B16 se vieron en runtime.
-3. Prueba de duplicado de mensaje: no aplica (no hay consumidores de eventos; verificado en la exploración).
-4. **Caída de un dependido ejercitada: no.** Lo más parecido: los 403 de servicio a servicio mostraron el «denegar por omisión» (B3).
-5. Traza con `correlationId`: los logs llevan `trazaId`; no se reconstruyó una traza cruzada.
-6. Qué queda inconsistente: una obligación PAGADA sin dinero (B15), una entrega ENTREGADA sin asiento ni crédito al beneficiario, una orden de recarga PENDIENTE.
+Saltos: `grupos` → organizador, tarifas, cumplimiento, garantía, notificaciones, aportes, transparencia, identidad; `nucleo-financiero` → tarifas, aportes, grupos; `entregas` → identidad; `transparencia` → grupos. Pruebas de contrato productor/consumidor: no corridas. **Caída de un dependido: no ejercitada.** Lo más parecido: los 403 servicio a servicio mostraron cómo «denegar por omisión» disfraza una falla de permisos de negocio (B3). Quedaron inconsistentes: una obligación PAGADA sin dinero (B15), una entrega ENTREGADA sin asiento ni crédito, una orden de recarga PENDIENTE y un acuerdo `EN_VOTACION` sin voto.
 
 ## Evidencia (índice de `evidencia/`)
 
-`h1-*` (licencia local, idempotencia, claves, privilegios, diff de la corrección), `h2-*` (build, `docker ps`, sondas), `h3-*` (CU-20, dinero, CU-12, grupos, permuta, traspaso, causas raíz de B2/B3/B8/B9/B10/B11/B13, corrida consolidada `h3-campania-final.txt`), `h4-*` (compuertas, humo), `bo-*.png` (30 capturas del backoffice) y `bo-capturas-*.txt`, y los scripts reproducibles `campania_lib.py`, `campania_todo.py`, `h3_*.py`, `bo_capturas.mjs`.
+`h1-*`, `h2-*`, `h3-*` (primera ronda), `h4-*`, `bo-*.png`, `bo-capturas-*.txt`, y la ronda de correcciones `h5-*`: `h5-campania-final.txt` (corrida consolidada), `h5-sorteo.txt`, `h5-tests-*.txt`, `h5-gates-contrato.txt`, `h5-build-imagenes.txt`, `h5-reset*.txt`, `h5-jooq-nucleo.txt`. Scripts reproducibles: `campania_lib.py`, `campania_todo.py`, `h3_*.py`, `h5_sorteo.py`, `bo_capturas.mjs`.
 
 ```text
-$ python scripts/probar_humo.py                      (con las correcciones B6 y B7)
-165 OK · 0 FALLA · 1 rechazos del motor (esperados en los casos negativos)
-
-$ SQL tras la corrección (h1-s3-m2-privilegios.txt)
-svc_nucleo_financiero → transaccion_billetera_secuencia_seq = true
-14 true / 0 false  (svc_* sobre comun.bitacora_evento_secuencia_seq)
-svc_aportes → nucleo_financiero.transaccion_billetera_secuencia_seq = false   (aislamiento intacto)
-
-$ CU-21 (h3-grupos-primera-pasada.txt)
-POST …/pagos -> 201   {'estadoObligacion': 'PAGADO', 'esNuevo': True}
-POST …/pagos (misma clave) -> 200   {'esNuevo': False}   mismo pagoId
+$ python campania_todo.py + h5_sorteo.py     (base limpia, imágenes reconstruidas desde esta rama)
+CU-69  invitar 201 · consultar 200 · aceptar con token ajeno 422 AP-CU69-05 · aceptar 201 · cupos OCUPADO=3
+CU-60  comprometer 201 (semilla en la respuesta) · revelar 200 verificado=True · turnos 1:PROGRAMADO 2:PROGRAMADO 3:PROGRAMADO
+CU-22  liquidar 201 · repetir 201 (misma entrega) · autorizar 200 · ejecutar 200
+CU-10  acreditar 500 AP-INT-01   <- B8/B20
+$ probar_humo.py            165 OK · 0 FALLA
+$ Gradle (unit + web + integración de los servicios tocados)   BUILD SUCCESSFUL
 ```
 
 ## No cubierto
 
-- **La app móvil en el emulador** (login, billetera, recarga, transferencia, grupos, aporte): no hay una sola captura (H3.S15).
-- Tests de integración de Gradle y `EsquemaAlDiaRepositorioTest` (deriva): no corridos.
-- El sandbox regulado se retiró **después** de la corrida consolidada; esa corrida lo tenía activo. No cambia ningún veredicto (CU-20 falla antes por B2/B3 y los demás CU no consultan licencia), pero no se reejecutó.
-- CU-60 y CU-61 con un caso positivo; CU-69 aceptar; CU-64 positivo; CU-62 aceptar; CU-11 aprobar y conciliación; CU-10 con saldo; reversas.
-- Caída deliberada de un servicio dependido; traza cruzada.
-- Backoffice en tablet/escritorio de las demás pantallas más allá de las inspeccionadas; lector de pantalla; teclado.
-- iOS.
-- CU-63 solo se tocó al proponer el acuerdo (falla por B16, no se llegó a votar); CU-65 a CU-67 (retirarse, reemplazar, disolver) no se probaron.
+- **La app móvil en el emulador:** ni una captura. Pasos para retomar: ver H5.S7.M1.
+- La suite completa de integración de Gradle y `EsquemaAlDiaRepositorioTest` (deriva de esquema).
+- Casos positivos de CU-61, CU-64, CU-68, CU-62, CU-10, CU-12, CU-11 (aprobación y conciliación) y CU-20; reversas.
+- Caída deliberada de un servicio; traza cruzada con `correlationId`.
+- Backoffice: 24 capturas no inspeccionadas una por una; lector de pantalla; teclado.
+- Corrección de B13, B14, B15, B5, B22, B26 y todo lo que depende de B8.
+- CU-65 a CU-67 y el voto de CU-63.
 
 ## Desvíos del plan
 
-- **Alcance ampliado con autorización:** B6 y B7 se corrigieron en `scripts/generar_ddl.py` y `docs/Restricciones.md` (y se regeneraron `sql/00_base/02_esquemas.sql`, `03_permisos.sql`, `sql/40_reglas/restricciones.sql`). Decisión del usuario («Corregirlo en esta rama»). B8 y los demás **no** se tocaron.
-- **Sandbox regulado:** aplicado a mano → sembrado → **retirado** por romper `R-LIC-01`.
-- **newman** no está instalado: driver Python con la librería estándar, sin dependencias nuevas.
-- **Windows:** `bd:levantar` (MinIO one-shot) y `bd:generarSemillas` (alias `python3`) fallan; se sortearon con `-x` y `python`.
-- Se restauraron `packages/tokens/vectores/monto.json` y `apps/movil/pubspec.lock`, que el build/`pub get` modificaron (ruido de fin de línea / versión de Flutter).
+- **Alcance ampliado con autorización:** primero B6 y B7; luego B1 y B3 (autorización expresa), B16 con `ADMISION_REEMPLAZO` (decisión tuya) y, por lectura de código, B9, B10, B23 y B25. **No** se tocó B2, B8, B11, B13, B14, B15, B20 ni B26.
+- **El clasificador de permisos de Claude Code denegó un cambio** (B1) hasta que lo autorizaste expresamente; se revirtió lo parcial y se reaplicó después.
+- Sandbox regulado: aplicado a mano → sembrado → retirado (rompía `R-LIC-01`). Con B3 corregido ya no hace falta para CU-20.
+- Los tests de integración de CU-22 (`criterio2`) se **reescribieron** al comportamiento corregido, conservando la comprobación de la restricción en la base con un `INSERT` directo; los de CU-64 no cambiaron porque el caso de uso conserva su contrato. No se borró ninguna aserción.
+- newman no está instalado: driver Python con la librería estándar.
+- Windows: `bd:levantar` y `bd:generarSemillas` fallan; se sortearon con `-x` y `python`. El `generarClientes` de Gradle reescribe archivos **versionados** de `clientes/` (cabeceras y tipos): no se agregaron a ningún commit.
+- Se restauraron `packages/tokens/vectores/monto.json` y `apps/movil/pubspec.lock` (ruido de fin de línea / versión de Flutter).
 
 ## Riesgos residuales y deuda
 
-- Con B6/B7 corregidos pero B8 abierto, el libro sigue sin poder registrarse desde un participante: **no hay manera de demostrar un solo saldo real**.
-- B15 permite marcar pagos sin dinero: gravedad alta.
-- El stack local queda con datos mutados por la campaña (obligación PAGADA, entrega ENTREGADA, órdenes de recarga PENDIENTE): reseteable con `bd:reset`.
+- **B20 + B8:** cualquier titular podría acreditarse dinero el día que se arregle B8 sin tocar B20. Deben decidirse juntos.
+- B15: marcar pagada una obligación ajena sin dinero.
+- El stack local queda con datos mutados por la campaña: reseteable con `bd:reset`.
+- La imagen de `grupos` ya devuelve la semilla del compromiso: los clientes generados (Dart y Angular) deben regenerarse.
 
 ## Decisiones y ambigüedades
 
-1. «Aceptar a otro miembro»: `CU68AceptarIngreso` es un stub y no hay endpoint; se tomó como BRECHA. **Confirmar con Pablo.**
-2. «Recibir insignia de pago»: solo hay `evaluarInsignias` (SOPORTE, inalcanzable); se probó como BRECHA. **Confirmar con producto.**
-3. «Vender cupo» = traspaso (CU-64), que ejecuta el organizador. **Confirmar con producto.**
-4. `ejecutarEntrega` acepta un `montoEntregado` menor que el neto: ¿es diseño? **Confirmar con tesorería.**
-5. Las 3 correcciones de DDL deben revisarse por quien mantenga `generar_ddl.py`/`Restricciones.md` (CI de otros carriles usa estos archivos).
-6. El PR no se replica a `PasanakuFrontend`: lo decide el equipo.
+1. B8, B2, B11, B13, B14, B20: elegir entre cláusula del titular generada desde el modelo o contexto de sistema; propuesta completa en el PLAN. **Confirmar con el equipo de plataforma.**
+2. B20: la acreditación de recarga debe ser del sistema (webhook firmado `CU100RecibirWebhookPasarela`), no del titular. **Confirmar con tesorería y seguridad.**
+3. B26: hacer público `/grupos/sorteos/{id}/paquete` (el paquete es público por diseño de CU-61) o usar credencial de servicio. **Confirmar con seguridad.**
+4. B24: un recién llegado no puede postular a ningún grupo (el criterio exige reputación aunque el grupo pida 0). **Confirmar con producto.**
+5. B17/B18: qué lado de la autorización se mueve en backoffice. **Confirmar con backoffice.**
+6. «Aceptar a otro miembro» = brecha (stub); «vender cupo» = traspaso; «insignia de pago» = brecha de UI. Supuestos de la primera ronda, **sin respuesta todavía**.
+7. `ejecutarEntrega` acepta un `montoEntregado` menor que el neto sin objeción: ¿es diseño? **Confirmar con tesorería.**
+8. El PR no se replica a `PasanakuFrontend`: lo decide el equipo.
 
 ## Procesos que quedan corriendo
 
-- Docker: 18 contenedores `aportaya-*` (11 servicios + infraestructura) y `buildx_buildkit_aportaya0` (~2,5 GiB). **Se dejan arriba** para que se pueda reproducir; para liberar memoria: `docker compose -f despliegue/compose/base.yml -f despliegue/compose/servicios.yml --profile todo down`.
-- No quedan servidores de desarrollo ni emuladores (el de `ng serve` se cerró; el AVD nunca se arrancó).
+- Docker: la infraestructura (gateway, kafka, minio, nginx, pgbouncer, postgres, redis) sigue arriba; los 11 servicios están **detenidos** y el builder de buildx también. Para volver a levantarlos: `docker compose -f despliegue/compose/base.yml -f despliegue/compose/servicios.yml --profile todo up -d --no-build`.
+- Los daemons de Gradle se cerraron. No quedan servidores de desarrollo ni emuladores (el AVD nunca se arrancó).
