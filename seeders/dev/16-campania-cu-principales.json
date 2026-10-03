@@ -1,0 +1,299 @@
+{
+  "descripcion": "Datos de desarrollo para la campaña E2E de los casos de uso principales (docs/trabajo/2026-10-03-campania-cu-principales). Todo es sintético y solo vive en seeders/dev: nada de esto va a producción.",
+  "entorno": "dev",
+  "nota": "Dos destrabes de datos, cada uno con su motivo. (1) GRP-DEMO-02: un grupo sin sorteo y con cupos libres, porque GRP-DEMO-01 está lleno y ya sorteado y CU-20 (crear grupo) no se puede ejercitar contra el backend real (ver PLAN, hallazgos B1-B3). (2) Una obligación PENDIENTE de USR000002 en el período 3 de GRP-DEMO-01: las 18 obligaciones sembradas están PAGADO o CUBIERTO y ningún código de main genera obligaciones (solo recargos), así que sin esta fila CU-21 no tiene qué cobrar. NO se siembra ningún entorno de prueba regulado ni licencia: la prueba de humo exige que, con los datos dev cargados, fn_lic_servicio_habilitado() sea FALSE (R-LIC-01), y seeders/README.md:68-76 prohíbe encender la licencia con un seeder.",
+  "reglas_que_permite_probar": [
+    "CU-69 invitar y aceptar por enlace (cupos LIBRE)",
+    "CU-60 sortear (grupo sin sorteo previo, R-GRP-05)",
+    "CU-21 cobrar un aporte (obligación PENDIENTE)"
+  ],
+  "bloques": [
+    {
+      "tabla": "grupo",
+      "conflicto": [
+        "codigo_publico"
+      ],
+      "filas": [
+        {
+          "codigo_publico": "GRP-DEMO-02",
+          "nombre": "Pasanaku de campania sintetico",
+          "moneda": "BOB",
+          "periodicidad": "MENSUAL",
+          "dia_cobro": 10,
+          "num_periodos": 3,
+          "cupos_totales": 3,
+          "cupos_ocupados": 1,
+          "monto_aporte": 100.0,
+          "fecha_inicio": {
+            "$fecha": "20 days"
+          },
+          "fecha_fin_estimada": {
+            "$fecha": "110 days"
+          },
+          "estado": "ABIERTO_A_INSCRIPCION",
+          "tipo_conformacion": "MANUAL_POR_INVITACION",
+          "modalidad_turnos": "SORTEO_ALEATORIO",
+          "visibilidad": "PRIVADO",
+          "requiere_kyc_minimo": "BASICO",
+          "reputacion_minima": 0,
+          "dias_gracia": 3,
+          "porcentaje_fondo_garantia": 5.0,
+          "quorum_decisiones": 0.667,
+          "organizador_id": {
+            "$ref": "organizador",
+            "usuario_id": {
+              "$ref": "usuario",
+              "codigo_publico": "USR000001"
+            }
+          },
+          "es_autogestionado": false,
+          "aplica_recargo_mora": true,
+          "usa_fondo_garantia": true
+        }
+      ]
+    },
+    {
+      "tabla": "configuracion_grupo",
+      "conflicto": [],
+      "filas": [
+        {
+          "grupo_id": {
+            "$ref": "grupo",
+            "codigo_publico": "GRP-DEMO-02"
+          },
+          "max_cupos_por_persona": 1,
+          "hora_limite_pago": "20:00:00",
+          "tolerancia_monto_parcial": 10.0,
+          "politica_mora_id": {
+            "$sql": "(SELECT id FROM politica_mora WHERE grupo_id IS NULL LIMIT 1)"
+          },
+          "permite_cupos_multiples": false,
+          "permite_permuta_turnos": true,
+          "requiere_avalista": false,
+          "permite_ingreso_tardio": false
+        }
+      ]
+    },
+    {
+      "tabla": "reglamento_grupo",
+      "conflicto": [],
+      "filas": [
+        {
+          "grupo_id": {
+            "$ref": "grupo",
+            "codigo_publico": "GRP-DEMO-02"
+          },
+          "version": 1,
+          "contenido": "Reglamento sintetico de la campania de pruebas. Aporte mensual de Bs 100 con vencimiento el dia 10. Tres dias de gracia. El orden de turnos se define por sorteo con semilla verificable.",
+          "hash_contenido": {
+            "$sql": "encode(digest('reglamento-grupo-demo-02-v1', 'sha256'), 'hex')"
+          },
+          "clausulas_mora": "Recargo sobre el aporte impago con tope del 100 % del aporte. La gracia es de 3 dias corridos desde el vencimiento.",
+          "clausulas_abandono": "El cupo se libera y se busca reemplazo. La deuda no se extingue con la salida del grupo.",
+          "vigente_desde": {
+            "$sql": "now() - interval '1 day'"
+          },
+          "redactado_por": {
+            "$ref": "usuario",
+            "codigo_publico": "USR000001"
+          }
+        }
+      ]
+    },
+    {
+      "tabla": "tarifa_congelada_grupo",
+      "conflicto": [
+        "grupo_id"
+      ],
+      "filas": [
+        {
+          "grupo_id": {
+            "$ref": "grupo",
+            "codigo_publico": "GRP-DEMO-02"
+          },
+          "tarifario_id": {
+            "$ref": "tarifario",
+            "codigo": "GENERAL",
+            "version": 1
+          },
+          "snapshot_conceptos": {
+            "COM_ENTREGA": {
+              "metodo": "PORCENTUAL",
+              "valor": 0.35,
+              "piso": 10,
+              "techo": 50,
+              "tramo": "0 a 3000"
+            }
+          },
+          "hash_snapshot": {
+            "$sql": "encode(digest('tarifa-congelada-grupo-demo-02-v1', 'sha256'), 'hex')"
+          },
+          "congelada_en": {
+            "$sql": "now() - interval '1 day'"
+          },
+          "vigente_hasta_ciclo_nro": 3
+        }
+      ]
+    },
+    {
+      "tabla": "participante",
+      "conflicto": [],
+      "filas": [
+        {
+          "grupo_id": {
+            "$ref": "grupo",
+            "codigo_publico": "GRP-DEMO-02"
+          },
+          "usuario_id": {
+            "$ref": "usuario",
+            "codigo_publico": "USR000001"
+          },
+          "alias": "Organizador demo",
+          "estado": "ACTIVO",
+          "reputacion_al_ingresar": 700,
+          "aportes_realizados": 0,
+          "aportes_en_mora": 0,
+          "fecha_ingreso": {
+            "$sql": "now() - interval '1 day'"
+          },
+          "es_organizador": true
+        }
+      ]
+    },
+    {
+      "tabla": "cupo",
+      "conflicto": [],
+      "filas": [
+        {
+          "grupo_id": {
+            "$ref": "grupo",
+            "codigo_publico": "GRP-DEMO-02"
+          },
+          "numero": 1,
+          "estado": "OCUPADO",
+          "fraccion": 1.0,
+          "asignado_en": {
+            "$sql": "now() - interval '1 day'"
+          },
+          "participante_id": {
+            "$ref": "participante",
+            "grupo_id": {
+              "$ref": "grupo",
+              "codigo_publico": "GRP-DEMO-02"
+            },
+            "usuario_id": {
+              "$ref": "usuario",
+              "codigo_publico": "USR000001"
+            }
+          }
+        },
+        {
+          "grupo_id": {
+            "$ref": "grupo",
+            "codigo_publico": "GRP-DEMO-02"
+          },
+          "numero": 2,
+          "estado": "LIBRE",
+          "fraccion": 1.0
+        },
+        {
+          "grupo_id": {
+            "$ref": "grupo",
+            "codigo_publico": "GRP-DEMO-02"
+          },
+          "numero": 3,
+          "estado": "LIBRE",
+          "fraccion": 1.0
+        }
+      ]
+    },
+    {
+      "tabla": "aceptacion_reglamento",
+      "conflicto": [],
+      "filas": [
+        {
+          "reglamento_id": {
+            "$sql": "(SELECT id FROM reglamento_grupo WHERE grupo_id = (SELECT id FROM grupo WHERE codigo_publico = 'GRP-DEMO-02') AND version = 1)"
+          },
+          "participante_id": {
+            "$ref": "participante",
+            "grupo_id": {
+              "$ref": "grupo",
+              "codigo_publico": "GRP-DEMO-02"
+            },
+            "usuario_id": {
+              "$ref": "usuario",
+              "codigo_publico": "USR000001"
+            }
+          },
+          "aceptado_en": {
+            "$sql": "now() - interval '1 day'"
+          },
+          "hash_firmado": {
+            "$sql": "encode(digest('reglamento-grupo-demo-02-v1', 'sha256'), 'hex')"
+          },
+          "ip_origen": "190.129.0.11"
+        }
+      ]
+    },
+    {
+      "tabla": "obligacion_aporte",
+      "conflicto": [],
+      "comentario": "Destrabe 2: una obligación PENDIENTE para que CU-21 tenga qué cobrar.",
+      "filas": [
+        {
+          "grupo_id": {
+            "$ref": "grupo",
+            "codigo_publico": "GRP-DEMO-01"
+          },
+          "periodo_id": {
+            "$ref": "periodo",
+            "grupo_id": {
+              "$ref": "grupo",
+              "codigo_publico": "GRP-DEMO-01"
+            },
+            "numero": 3
+          },
+          "cupo_id": {
+            "$ref": "cupo",
+            "grupo_id": {
+              "$ref": "grupo",
+              "codigo_publico": "GRP-DEMO-01"
+            },
+            "numero": 2
+          },
+          "participante_id": {
+            "$ref": "participante",
+            "grupo_id": {
+              "$ref": "grupo",
+              "codigo_publico": "GRP-DEMO-01"
+            },
+            "usuario_id": {
+              "$ref": "usuario",
+              "codigo_publico": "USR000002"
+            }
+          },
+          "tipo": "APORTE_PERIODICO",
+          "monto_esperado": 500.0,
+          "moneda": "BOB",
+          "monto_pagado": 0,
+          "monto_recargo": 0,
+          "monto_condonado": 0,
+          "monto_cubierto_garantia": 0,
+          "estado": "PENDIENTE",
+          "fecha_vencimiento": {
+            "$fecha": "25 days"
+          },
+          "fecha_fin_gracia": {
+            "$fecha": "28 days"
+          },
+          "dias_mora": 0,
+          "version": 1,
+          "politica_mora_id": {
+            "$sql": "(SELECT id FROM politica_mora WHERE grupo_id IS NULL LIMIT 1)"
+          }
+        }
+      ]
+    }
+  ]
+}
