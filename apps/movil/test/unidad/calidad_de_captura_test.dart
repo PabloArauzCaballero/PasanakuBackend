@@ -35,7 +35,11 @@ void main() {
 
   group('evaluarCalidad — selfie', () {
     test('solo mira el tamaño: una proporción cuadrada pasa', () {
-      final motivo = evaluarCalidad(ancho: 1600, alto: 1600, esDocumento: false);
+      final motivo = evaluarCalidad(
+        ancho: 1600,
+        alto: 1600,
+        esDocumento: false,
+      );
       expect(motivo, isNull);
     });
 

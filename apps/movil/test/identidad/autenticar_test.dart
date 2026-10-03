@@ -130,7 +130,9 @@ void main() {
       expect(await c.read(sesionProvider).tokenDeAcceso(), isNull);
       expect(
         c.read(sesionIdentidadProvider).error,
-        'El código no coincide. Revisalo e intentá de nuevo.',
+        // AP-CU04-01 es CREDENCIAL_INVALIDA (contrato): hablar de «código» con una
+        // contraseña mal escrita mandaba a la persona a buscar un SMS que no existe.
+        'El celular o la contraseña no coinciden.',
         reason: 'la app no muestra el mensaje crudo del backend',
       );
       expect(c.read(sesionIdentidadProvider).enviando, isFalse);

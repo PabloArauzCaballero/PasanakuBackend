@@ -24,6 +24,17 @@ void main() {
       expect(r.valida, isTrue);
     });
 
+    test('10.0.2.2 en debug, sin necesidad de lista (emulador de Android)', () {
+      final r = validarGateway('http://10.0.2.2/api/v1', release: false);
+      expect(r.valida, isTrue);
+    });
+
+    test('10.0.2.2 en release se rechaza, igual que localhost', () {
+      final r = validarGateway('http://10.0.2.2/api/v1', release: true);
+      expect(r.valida, isFalse);
+      expect(r.motivo, 'localhost-no-permitido');
+    });
+
     test('localhost en debug, sin necesidad de lista', () {
       final r = validarGateway('http://localhost:4010/api/v1', release: false);
       expect(r.valida, isTrue);

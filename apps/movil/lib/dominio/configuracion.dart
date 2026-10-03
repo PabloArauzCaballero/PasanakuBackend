@@ -31,7 +31,15 @@ class ResultadoValidacionGateway {
 }
 
 final RegExp _rutaVersionada = RegExp(r'/v\d+/?$');
-const Set<String> _loopback = {'localhost', '127.0.0.1', '::1', '0.0.0.0'};
+// `10.0.2.2` es la máquina anfitriona vista desde el emulador de Android: en debug es
+// tan local como `localhost` (lo dice `cliente.dart`), y en release se rechaza igual.
+const Set<String> _loopback = {
+  'localhost',
+  '127.0.0.1',
+  '::1',
+  '0.0.0.0',
+  '10.0.2.2',
+};
 
 /// Valida la URL del gateway para el build de la app.
 ///

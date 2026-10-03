@@ -83,8 +83,16 @@ void main() {
       final resultado = await c.read(altaProvider.notifier).enviarAlServidor();
 
       expect(resultado.error, isNull);
-      expect(resultado.usuarioId, isNotNull, reason: 'se puede subir el expediente');
-      expect(resultado.cuentaBilleteraId, isNotNull, reason: 'el alta abre la billetera');
+      expect(
+        resultado.usuarioId,
+        isNotNull,
+        reason: 'se puede subir el expediente',
+      );
+      expect(
+        resultado.cuentaBilleteraId,
+        isNotNull,
+        reason: 'el alta abre la billetera',
+      );
       // Los tres consentimientos viajan por separado: aceptar el contrato no es lo
       // mismo que aceptar el tarifario, y cuál se dio tiene que poder auditarse.
       for (final v in vigentes) {

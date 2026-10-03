@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -26,6 +27,27 @@ class DatosDelCarnetDePrueba {
 }
 
 const datosDelCarnetDePrueba = DatosDelCarnetDePrueba();
+
+/// Lo que «lee» el carnet de prueba, como haría el OCR de Atlas: el número y el lugar
+/// que la persona ya escribió en el paso 1, así el cotejo coincide. Si todavía no
+/// escribió nada, un número sintético al azar —nunca uno fijo: con `1234567` fijo la
+/// segunda alta de prueba contra la misma base chocaba con `AP-CU01-03`.
+DatosDelCarnetDePrueba leerCarnetDePrueba({
+  String numeroEscrito = '',
+  String lugarEscrito = '',
+  Random? azar,
+}) {
+  final numero = numeroEscrito.trim().isNotEmpty
+      ? numeroEscrito.trim()
+      : '${(azar ?? Random()).nextInt(9000000) + 1000000}';
+  final lugar = lugarEscrito.trim().isNotEmpty
+      ? lugarEscrito.trim()
+      : datosDelCarnetDePrueba.lugarExpedicion;
+  return DatosDelCarnetDePrueba(
+    numeroDocumento: numero,
+    lugarExpedicion: lugar,
+  );
+}
 
 /// Genera las cinco capturas sintéticas y las guarda en el directorio temporal.
 /// Nunca se llama en un build de release: el botón que la dispara ya está detrás

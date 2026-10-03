@@ -7,9 +7,15 @@ import 'package:aportaya_diseno/errores.dart';
 const Map<String, String> _catalogo = {
   'AP-CU01-01':
       'Todavía no podemos abrir tu cuenta: falta verificar tus datos.',
-  'AP-CU01-03': 'Ese celular ya tiene una cuenta. Si es tuyo, iniciá sesión.',
-  'AP-CU04-01': 'El código no coincide. Revisalo e intentá de nuevo.',
-  'AP-CU04-04': 'Demasiados intentos. Esperá una hora y volvé a probar.',
+  // El backend usa el mismo código para celular y para documento ya registrados
+  // (CU01RegistrarUsuario): el texto no puede elegir uno de los dos.
+  'AP-CU01-03':
+      'Ya hay una cuenta con ese celular o ese documento. Si es tuya, iniciá sesión.',
+  // Los AP-CU04-* siguen el contrato (identidad.yaml, POST /sesiones).
+  'AP-CU04-01': 'El celular o la contraseña no coinciden.',
+  'AP-CU04-04': 'Ese código no sirve: revisalo o pedí uno nuevo.',
+  'AP-CU04-05':
+      'Demasiados intentos. Esperá unos minutos antes de volver a probar.',
   'AP-CU04-06': 'Tu segundo factor no está activado. Pedí ayuda a soporte.',
   'AP-CU21-03': 'No pudimos cobrar. Revisá tu saldo e intentá de nuevo.',
   'AP-VAL-03': 'Este vale ya se usó. Cada vale se canjea una sola vez.',

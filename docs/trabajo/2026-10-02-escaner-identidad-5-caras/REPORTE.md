@@ -1,6 +1,6 @@
 # Reporte — Escáner de identidad (5 capturas, como Atlas) + botones vivos y transiciones (H8)
 
-> **AVANCE: 46 / 48 — 95,8 %.** Rojo abierto: H8.S3.M5 (goldens de `diseno_flutter` y de la app) BLOQUEADO — las referencias son de **macOS** y esta máquina es Windows. H8.S3.M6 DESCARTADO (premisa equivocada, ver Desvíos). H6 opcional sin empezar. La renovación de sesión del backoffice (H10) quedó **verificada en el navegador real**.
+> **AVANCE: 52 / 55 — 94,5 %.** Único rojo abierto: H8.S3.M5 (goldens de `diseno_flutter` y de la app) BLOQUEADO — las referencias son de **macOS** y esta máquina es Windows. DESCARTADOS con motivo: H8.S3.M6 (premisa equivocada) y H6 (vencimiento del CI: falta una decisión de producto, ver propuesta). Todas las suites en verde: móvil 283/283, diseño 49/49 (sin goldens), backoffice 359 + 34 a11y, ui 112/112, identidad 165.
 
 - Fecha: 2026-10-02 (cierre actualizado 2026-10-03, commit base `a28f3256`) · Plan: [PLAN.md](./PLAN.md) · Rama: `justin/feature/escaner-identidad-atlas` (worktree `PasanakuBackend-escaner`, sobre `origin/test`), sin commitear.
 - Peldaño de evidencia alcanzado:
@@ -60,6 +60,19 @@ Hallazgos del runtime, corregidos antes de cerrar:
 - **PRODUCT_BUG propio:** `digest()` de pgcrypto vive en `public`, que no está en el `search_path` del rol `svc_identidad`; en runtime el ingreso web daba 500 y los tests no lo veían, porque corrían como administrador. El SHA-256 se calcula en Java, y los tests ahora corren con el `search_path` del servicio: con el código anterior fallan (`evidencia/h10-s3-m1-fix-digest.txt`).
 - **ENVIRONMENT:** `aportaya/gateway:local` era una imagen del 22-09 que exigía Bearer en `/api/v1/sesiones` (401 en el ingreso). Se reconstruyó desde esta rama.
 
+### H11 — Hallazgos anotados que se pudieron cerrar (2026-10-03)
+
+| ID | Qué se cerró | Comando | Resultado |
+|---|---|---|---|
+| H11.S1.M1 | Los mensajes de error de la app siguen al contrato: `AP-CU04-01` (contraseña equivocada, antes decía «código»), `AP-CU04-04` (código equivocado, antes «demasiados intentos… una hora»), `AP-CU04-05` (bloqueo, faltaba), `AP-CU01-03` (celular **o** documento ya registrado) | `flutter test` | PASS — 283/283 (`evidencia/h11-movil.txt`); `autenticar_test` fijaba el texto equivocado y se corrigió |
+| H11.S1.M2 | `10.0.2.2` (emulador) vale como loopback en debug y se rechaza en release | `configuracion_test` | PASS (2 tests nuevos) |
+| H11.S1.M3 | El carnet de prueba «lee» el documento que la persona escribió (o uno sintético al azar): dos altas de prueba seguidas ya no chocan | `carnet_de_prueba_test` | PASS (3 tests) |
+| H11.S1.M4 | La fecha de nacimiento se muestra como se eligió (antes «14 oct» por «15 oct»: un día calendario se formateaba como instante UTC menos 4 h). El backend ya la recibía bien | `fecha_test` | PASS; diseno_flutter 49/49 (`evidencia/h11-diseno.txt`) |
+| H11.S1.M5 | Los 2 tests del móvil que fallaban en Windows (rutas con `/` fijo) pasan | `flutter test test/unidad` | PASS |
+| H11.S2.M1 | `monto.spec.ts` deja de vencer: de >5000 ms a 252 ms con `detectChanges()` sincrónico, misma aserción (con la expectativa alterada falla) | `yarn workspace @aportaya/ui test:front` | PASS — 112/112 (`evidencia/h11-monto.txt`) |
+
+**H6 — propuesta para decidir (DESCARTADO hasta entonces):** el modelo ya tiene `documento_identidad.fecha_expiracion` y el estado `VENCIDA`. Para cerrarlo falta decidir (1) de dónde sale la fecha: la escribe la persona en el paso 1 o se lee del carnet (OCR), y (2) qué hace el backoffice con un carnet vencido: bloquea «Aprobar», como con fotos faltantes, o solo avisa. Con esas dos respuestas es un cambio de contrato + app + tarjeta del backoffice del tamaño de H3. Dueño: producto/cumplimiento.
+
 ## A medias
 
 
@@ -75,7 +88,7 @@ Hallazgos del runtime, corregidos antes de cerrar:
 |---|---|---|
 | H8.S3.M5 | BLOQUEADO | Regenerar los goldens en **macOS** (las referencias del repo son de macOS y el CI las compara en `macos-latest`, `ci.yml:373`). Dueño: quien tenga Mac / quien mantenga `diseno_flutter`. simulacion-65 con Windows como doble: ACEPTADO 18/18 y 9/9 tras regenerar, LIMITE 18/18 y 9/9 en segunda corrida (determinista); INVALIDO 15/18 y 9/9 fallan contra las referencias, pero ese nivel no distingue el cambio porque en Windows ya fallaban sin tocar nada. Evidencia: `evidencia/h8-s3-m5-goldens-simulacion.txt` |
 | H8.S3.M6 | DESCARTADO | Generarlos en un contenedor Linux: premisa equivocada (no coincidirían con macOS). Decidido en sesión, 2026-10-03. |
-| H6 | TODO (opcional) | Vencimiento del CI en el contrato: no se empezó. |
+| H6 | DESCARTADO | Vencimiento del CI: falta decisión de producto (ver propuesta en Completado · H11). |
 
 ## Evidencia
 
@@ -132,7 +145,6 @@ MUTACION 200 POST /api/v1/identidad/verificaciones/<id>/decision
 ## Riesgos residuales
 
 - Renovación de sesión (H10): verificada en el navegador real con `localhost`. En producción la cookie exige HTTPS (`Secure`); en desarrollo funciona porque Chrome trata `localhost` como seguro. Si el backoffice y la API se sirven en dominios distintos, `SameSite=Strict` y `Path` deben revisarse con infraestructura.
-- `packages/ui/src/monto/monto.spec.ts` vence a los 5000 ms también en la base `22c5e687` (preexistente, no tocado).
 
 - Los goldens de `diseno_flutter` y de la app van a fallar en el job `app-goldens` (macOS) hasta regenerarlos en una Mac.
 - Endpoint público `GET /usuarios/{id}/verificacion` (regla 90.6):
@@ -140,7 +152,6 @@ MUTACION 200 POST /api/v1/identidad/verificaciones/<id>/decision
   - **Control:** `@Publico` declarado en `UsuariosController.java:193`; la respuesta (`EstadoDeVerificacion`, `identidad.yaml:524-527`) lleva `verificacionId`, `estado`, `motivoRechazo` y las caras presentes, sin nombre, documento ni urls; el gateway aplica rate limit a `/api/v1/usuarios/**` (`rutas.yml`, 5/s, ráfaga 10).
   - **Test:** `UsuariosControllerWebTest` «GET /usuarios/{id}/verificacion — publica, sin datos personales» y `SeguridadWebTest`, en verde (`h2-tests.txt`).
   - **Riesgo residual:** quien tenga el UUID ve el estado y el motivo de rechazo. Queda pendiente de confirmar con seguridad (ambigüedad 1).
-- El carnet de prueba fija el documento `1234567`: el atajo de desarrollo funciona **una sola vez por base** (la segunda alta choca con `AP-CU01-03`).
 
 ## Decisiones y ambigüedades
 
@@ -152,14 +163,11 @@ Supuestos tomados, cada uno con a quién confirmarlo:
 4. «Traer todas las skills»: se interpretó como poner al día el PromptManager y el espejo. Las 5 skills de Atlas (Expo/Next) no se instalaron. Confirmar con Pablo.
 5. «Cada botón» incluye el backoffice solo vía la primitiva `packages/ui/src/boton`.
 
-Hallazgos preexistentes **fuera de alcance**, anotados y no tocados:
+Hallazgos preexistentes: los de esta lista que se podían cerrar se cerraron en H11 (loopback del emulador, fecha corrida, mensaje de `AP-CU01-03`, mensajes `AP-CU04-*` del móvil, tests de Windows, `monto.spec`). Quedan abiertos, con su motivo:
 
-- `configuracion.dart`: `10.0.2.2` no está en el set de loopback, aunque el comentario de `cliente.dart` dice que sí (se rodeó con `HOSTS_PERMITIDOS`).
-- Selector de fecha del alta: se eligió el 15 de octubre y el campo muestra «14 oct 2001» (probable corrimiento de zona horaria).
-- El backend usa `AP-CU01-03` tanto para teléfono como para documento duplicado, y la app siempre dice «Ese celular ya tiene una cuenta».
-- El `index.html` del backoffice no trae el meta `aportaya-gateway`: en desarrollo solo funciona contra Prism.
-- La app móvil traduce `AP-CU04-04` como «Demasiados intentos…» (`apps/movil/lib/dominio/errores.dart:12`), igual de inexacto que el backoffice antes de H9.S3.M4.
-- 2 tests del móvil fallan en Windows por comparar rutas con `/` fijo.
+- El `index.html` del backoffice no trae el meta `aportaya-gateway`: en desarrollo solo funciona contra Prism (el arnés de prueba lo inyecta). Cómo se inyecta el meta en cada ambiente lo decide infraestructura; agregarlo fijo en el `index.html` podría pisar el que inyecta NGINX en producción.
+- `generar_postman.py` avisa que `aportes.recibirWebhookPasarela` no tiene `@Permiso` detectado: es de otro servicio (aportes) y fuera de este trabajo.
+- `EmitirTokenDeInvitacion`/`ValidarTokenDeInvitacion` usan `digest()` sin calificar y fallan en runtime igual que fallaba el refresh (pgcrypto en `public`, fuera del `search_path` de `svc_identidad`). Ya está corregido en la rama de campania (commit `ba43e798`, PR #45); no se duplica acá para no chocar en el merge.
 
 ## Procesos que quedan corriendo
 

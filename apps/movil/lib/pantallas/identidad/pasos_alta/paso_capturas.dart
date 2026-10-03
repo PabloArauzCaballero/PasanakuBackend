@@ -104,10 +104,14 @@ class _PasoCapturasState extends ConsumerState<PasoCapturas> {
       if (captura != null) notifier.registrarCaptura(cara, captura);
     }
     final datos = ref.read(altaProvider).datos;
+    final leidos = leerCarnetDePrueba(
+      numeroEscrito: datos.numeroDocumento,
+      lugarEscrito: datos.lugarExpedicion ?? '',
+    );
     notifier.actualizarDatos(
       datos.copiarCon(
-        numeroDocumento: datosDelCarnetDePrueba.numeroDocumento,
-        lugarExpedicion: datosDelCarnetDePrueba.lugarExpedicion,
+        numeroDocumento: leidos.numeroDocumento,
+        lugarExpedicion: leidos.lugarExpedicion,
       ),
     );
   }

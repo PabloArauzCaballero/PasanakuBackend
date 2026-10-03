@@ -49,8 +49,7 @@ class CampoDeFecha extends StatefulWidget {
 class _CampoDeFechaState extends State<CampoDeFecha> {
   final _controlador = TextEditingController();
 
-  static String _texto(DateTime f) =>
-      Fecha.formatear(f.toIso8601String(), conHora: false);
+  static String _texto(DateTime f) => Fecha.formatearDia(f);
 
   @override
   void initState() {

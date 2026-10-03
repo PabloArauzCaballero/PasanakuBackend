@@ -25,6 +25,12 @@ class Fecha extends StatelessWidget {
   ];
 
   /// `2026-09-09T14:30:00Z` → `9 sep 2026, 10:30 (La Paz)`.
+  /// Un día calendario (fecha de nacimiento, de emisión): sin hora y SIN zona. Pasarlo
+  /// por [formatear] lo trataba como un instante en UTC y le restaba cuatro horas: el 15
+  /// de octubre elegido en el calendario se mostraba como «14 oct».
+  static String formatearDia(DateTime dia) =>
+      '${dia.day} ${_meses[dia.month - 1]} ${dia.year}';
+
   static String formatear(String iso, {bool conHora = true}) {
     final utc = DateTime.parse(iso).toUtc();
     final laPaz = utc.subtract(const Duration(hours: 4));
