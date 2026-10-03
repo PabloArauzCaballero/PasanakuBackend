@@ -26,10 +26,12 @@ print("SQL solicitudes:", sql("select count(*) from organizador.solicitud_organi
 
 print("\n===== CU-69 · USR1 invita a USR90 a GRP-DEMO-02 (ENLACE)")
 e, inv = llamar("POST", f"/grupos/{G2}/invitaciones", t1, idem=True, cuerpo={"telefonoInvitado": "+59171000090", "canal": "ENLACE"})
-print("respuesta:", {k: (v if k != "token" else "<oculto>") for k, v in inv.items()} if isinstance(inv, dict) else inv)
-tok_id = (inv or {}).get("tokenId") if isinstance(inv, dict) else None
-tok = (inv or {}).get("token") if isinstance(inv, dict) else None
-print("SQL invitaciones:", sql("select count(*) from grupos.invitacion_grupo"))
+print("respuesta:", {k: ("<enlace oculto>" if k == "enlace" else v) for k, v in inv.items()} if isinstance(inv, dict) else inv)
+enlace = (inv or {}).get("enlace") if isinstance(inv, dict) else None
+tok_id = tok = None
+if enlace and "unirse/" in enlace:
+    tok_id, tok = enlace.split("unirse/", 1)[1].split(".", 1)  # aportaya://unirse/<tokenId>.<token>
+print("SQL invitaciones:", sql("select count(*) from grupos.invitacion"))
 if tok_id and tok:
     print("-- USR90 consulta la invitación")
     llamar("POST", "/grupos/invitaciones/enlace/consultar", t90, cuerpo={"tokenId": tok_id, "token": tok})
@@ -44,7 +46,7 @@ print("SQL cupos GRP-DEMO-02:", sql(f"select estado||'='||count(*) from grupos.c
 print("SQL participantes GRP-DEMO-02:", sql(f"select count(*) from grupos.participante where grupo_id='{G2}'"))
 
 print("\n===== CU-68 · USR3 postula a GRP-DEMO-02")
-llamar("POST", f"/grupos/{G2}/postulaciones", t3, idem=True, cuerpo={"cuposSolicitados": 1, "mensaje": "Campania sintetica"})
+llamar("POST", f"/grupos/{G2}/postulaciones", t2, idem=True, cuerpo={"cuposSolicitados": 1, "mensaje": "Campania sintetica"})
 print("SQL solicitudes de ingreso:", sql("select estado||'='||count(*) from grupos.solicitud_ingreso group by estado").replace("\n", " ; "))
 
 print("\n===== CU-60 · USR1 compromete el sorteo de GRP-DEMO-02 (grupo con cupos libres: se espera rechazo)")

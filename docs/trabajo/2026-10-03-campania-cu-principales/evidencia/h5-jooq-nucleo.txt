@@ -1,0 +1,27 @@
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+
+> Task :servicios:nucleo-financiero:generateJooq
+Ambiguous key name       : The one-to-many key nucleo_financiero.fk_asiento_contable_asiento_reversa_id generates an inbound key method name asientoContable on table nucleo_financiero.asiento_contable which conflicts with the previously generated key method name for key nucleo_financiero.fk_asiento_contable_asiento_reversa_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+Ambiguous key name       : The one-to-many key nucleo_financiero.fk_cuenta_contable_cuenta_padre_id generates an inbound key method name cuentaContable on table nucleo_financiero.cuenta_contable which conflicts with the previously generated key method name for key nucleo_financiero.fk_cuenta_contable_cuenta_padre_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+
+BUILD SUCCESSFUL in 5s
+10 actionable tasks: 1 executed, 9 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
