@@ -156,6 +156,27 @@ final class FixturaDeIdentidad {
         return id;
     }
 
+    /**
+     * Ingresos normales con segundo factor, ya terminados: cada uno deja el par que deja
+     * CU-04 en la vida real — primero {@code FACTOR_REQUERIDO} (no exitoso) y enseguida el
+     * exitoso con el codigo. Con {@code clock_timestamp()} (no {@code now()}, que es la hora de la
+     * transaccion) lo sembrado antes queda antes.
+     */
+    void ingresosConSegundoFactor(UUID usuarioId, int cuantos) {
+        for (int i = 0; i < cuantos; i++) {
+            for (var exitoso : new boolean[] {false, true}) {
+                dsl.execute(
+                        """
+                        INSERT INTO identidad.intento_autenticacion
+                            (id, usuario_id, identificador_usado, fecha_hora, exitoso, motivo_fallo,
+                             ip_origen, agente_usuario, puntaje_riesgo)
+                        VALUES (gen_random_uuid(), ?, 'prueba', clock_timestamp(), ?, ?, '127.0.0.1', 'prueba', 0)
+                        """,
+                        usuarioId, exitoso, exitoso ? null : "FACTOR_REQUERIDO");
+            }
+        }
+    }
+
     void intentosFallidos(UUID usuarioId, int cuantos) {
         for (int i = 0; i < cuantos; i++) {
             dsl.execute(
@@ -163,7 +184,7 @@ final class FixturaDeIdentidad {
                     INSERT INTO identidad.intento_autenticacion
                         (id, usuario_id, identificador_usado, fecha_hora, exitoso, motivo_fallo,
                          ip_origen, agente_usuario, puntaje_riesgo)
-                    VALUES (gen_random_uuid(), ?, 'prueba', now(), false, 'CREDENCIAL_INVALIDA',
+                    VALUES (gen_random_uuid(), ?, 'prueba', clock_timestamp(), false, 'CREDENCIAL_INVALIDA',
                             '127.0.0.1', 'prueba', 0)
                     """,
                     usuarioId);

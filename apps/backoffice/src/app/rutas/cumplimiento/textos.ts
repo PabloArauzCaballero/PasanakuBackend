@@ -22,6 +22,7 @@ export const textosCumplimiento = {
     motivoAyuda: 'Obligatorio para rechazar. Quien recibe el rechazo tiene derecho a saber por qué.',
     aprobar: 'Aprobar',
     rechazar: 'Rechazar',
+    decisionFallo: 'No se pudo guardar la decisión. Probá de nuevo; el expediente sigue sin decidir.',
   },
   alertas: {
     titulo: 'Alertas de riesgo temprano',

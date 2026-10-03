@@ -1,12 +1,13 @@
 # Reporte — Escáner de identidad (5 capturas, como Atlas) + botones vivos y transiciones (H8)
 
-> **AVANCE: 25 / 27 — 92,6 %.** Rojo abierto: H8.S3.M5 (goldens de `diseno_flutter` y de la app) BLOQUEADO — las referencias son de **macOS** y esta máquina es Windows. H8.S3.M6 DESCARTADO (premisa equivocada, ver Desvíos). H6 opcional sin empezar.
+> **AVANCE: 41 / 43 — 95,3 %.** Rojo abierto: H8.S3.M5 (goldens de `diseno_flutter` y de la app) BLOQUEADO — las referencias son de **macOS** y esta máquina es Windows. H8.S3.M6 DESCARTADO (premisa equivocada, ver Desvíos). H6 opcional sin empezar. Conocido sin resolver: recargar el backoffice cierra la sesión (`/sesion/refrescar` no existe en el backend; DECISION_REQUIRED de seguridad).
 
 - Fecha: 2026-10-02 (cierre actualizado 2026-10-03, commit base `a28f3256`) · Plan: [PLAN.md](./PLAN.md) · Rama: `justin/feature/escaner-identidad-atlas` (worktree `PasanakuBackend-escaner`, sobre `origin/test`), sin commitear.
 - Peldaño de evidencia alcanzado:
   - Flujo alta → 5 fotos → backoffice → aprobar → app: **VERIFIED** (runtime real: emulador Android + 10 contenedores + backoffice con Playwright, persistencia comprobada con SQL, consola y red revisadas).
   - Botones vivos y transiciones (H8): **TESTED** + prueba visual en claro y oscuro. Los goldens quedan BLOQUEADOS.
   - Subida y estado (H5): **VERIFIED** en runtime (dos altas completas) + caminos de error cubiertos por tests unitarios con chequeo de mutación.
+  - Backoffice probado como operador (H9): **VERIFIED** — 58/58 + 19/19 visual contra el stack real recreado desde esta rama, con el bundle limpio y la imagen de identidad corregida.
   - Peldaño del trabajo (el más bajo de sus áreas): **TESTED**. No es REGRESSION_VERIFIED por los goldens (macOS) y por lo listado en No cubierto.
 
 ## Completado
@@ -27,6 +28,20 @@
 | H8.S4.M1 | Flujo de capturas premium: riel de 5 caras, tarjeta con marco de encuadre, sin Anterior/Siguiente | capturas del emulador inspeccionadas | PASS — `h8-05-capturas-boton-fuera.png`, `h8-06-capturas-completas.png` |
 | H8.S4.M2 | La sombra de «Tomar foto» ya no aparece cortada | `flutter analyze` · gate de diseño · captura antes/después | PASS — `h8-04-capturas-vacio.png` (cortada) vs `h8-05-…` (completa) |
 | H8.S5.M1 | Prueba visual en claro y oscuro (app y backoffice) | capturas inspeccionadas | PASS — `h8-01`, `h8-12-subida-1` (botón en carga), `h8-16/17-*-oscuro`, `h7-bo-01-cola-dark.png` |
+
+### H9 — Backoffice probado como operador humano (2026-10-03)
+
+| ID | Qué se logró | Comando | Resultado |
+|---|---|---|---|
+| H9.S1.M1–M6, H9.S2.M1 | Un operador entra (con mensajes correctos ante contraseña o código equivocados), filtra la cola, mira las 5 fotos, rechaza con motivo y aprueba; la app lee el veredicto; todo con teclado; sin desborde en 390/768/1440 px, en claro y oscuro | `node bo-humano.cjs` (Playwright, stack real) | PASS — 58/58 + 19/19 visual (`evidencia/h9-bo-humano-corrida.txt`, capturas `h9-0*.png`) |
+| H9.S3.M1 | El motivo es de cada expediente (antes, lo escrito en una tarjeta aparecía en todas y habilitaba «Rechazar» en cualquiera) | spec `decision-de-expediente.spec.ts` + bo-humano | PASS — 5/5; con el defecto reintroducido fallan 2 |
+| H9.S3.M2 | Si la decisión falla, el aviso aparece en esa tarjeta (antes se callaba) | spec + 503 simulado | PASS |
+| H9.S3.M3 | El filtro activo se anuncia con `aria-pressed` (antes solo por color) | bo-humano | PASS |
+| H9.S3.M4 | Código equivocado: «Ese código no sirve…» (antes «El código venció») | bo-humano | PASS |
+| H9.S3.M5 | Móvil sin scroll horizontal (antes 39 px) | bo-humano visual | PASS |
+| H9.S3.M6 | **Bug de seguridad en identidad corregido:** el bloqueo contaba cada ingreso normal con segundo factor como fallido y no se reiniciaba con un ingreso correcto; un operador que entraba seguido quedaba bloqueado 30 min al primer error | `./gradlew :servicios:identidad:test webTest integrationTest` + runtime | PASS — antes del fix 2 tests fallan, después CU04 13/13; en runtime, tras 8 ingresos un tipeo equivocado no bloquea (`evidencia/h9-s3-m6-*.txt`) |
+| H9.S3.M7 | Los botones fantasma/enlace deshabilitados se ven deshabilitados (regresión de H8) | medición Playwright | PASS (`evidencia/h9-s3-m7-m8-contraste.txt`) |
+| H9.S3.M8 | Menú activo legible en oscuro: 2,86:1 → 9,02:1 | medición Playwright | PASS |
 
 ## A medias
 
@@ -80,6 +95,12 @@ MUTACION 200 POST /api/v1/identidad/verificaciones/<id>/decision
 
 ## Desvíos del plan
 
+- **2026-10-03 (H9):** otra sesión (worktree `PasanakuBackend-campania`) recreó el stack Docker compartido desde su rama y reconstruyó `aportaya/identidad:local` encima de la imagen de este trabajo. Por decisión del usuario se esperó a que terminara (su `REPORTE.md` escrito y 45 min sin cambios). Recién ahí se recreó la base desde esta rama (`bd:reset`, humo 165 OK; `bajar`/`levantar` se excluyeron por la carrera conocida de `minio-bucket`) y se reconstruyó la imagen (mismo id `cc418e08`: build reproducible).
+- Entorno: `bd/build.gradle.kts` invoca `python3` a secas, y el `ProcessBuilder` de Java en Windows solo busca `.exe`. Se creó `C:/Users/DELL/tools/py3venv` (venv con `--system-site-packages`, `python3.exe` = lanzador del venv). Es infraestructura de la máquina, no un cambio al repo.
+- El arnés de Playwright bloqueó dos veces la cuenta de operador de dev (5 fallidos en 15 min); eso destapó H9.S3.M6. Los casos negativos del ingreso quedaron detrás de `NEGATIVOS=1`.
+- `TaskStop` no mata el `node` de `ng serve`: dos veces quedó un huérfano en el 4200, cerrado a mano.
+- Una corrida intermedia del backoffice (45 PASS) no cuenta como evidencia: el servidor había fallado al recompilar (mezcla de mayúsculas `Dell`/`DELL` en la ruta) y no se puede afirmar qué bundle sirvió. Se reinició limpio y se repitió todo.
+
 - **2026-10-03:** se agregaron H5.S2.M1–M3 (tests de la subida y del sondeo, título) y H8.S3.M6 (goldens en Linux), que se descartó al leer `ci.yml:366-373`: las referencias son de macOS.
 
 - **H5.S1.M1 (nuevo, PRODUCT_BUG propio):** `pantalla_registro.dart` vaciaba el estado del alta (`reiniciar()`) antes de navegar a la subida, y la pantalla de subida leía las capturas de ahí. La cuenta se creaba sin ninguna foto: es exactamente el kill-test del plan. Fix: `SeguimientoDelAlta` guarda `usuarioId` + una copia de las capturas, y la subida lee de ahí. Lo encontró el E2E en runtime, no los tests.
@@ -91,6 +112,9 @@ MUTACION 200 POST /api/v1/identidad/verificaciones/<id>/decision
 - Se borraron 10 volcados `apps/movil/ui*.xml` que dejó la sesión anterior y se restauró `packages/tokens/vectores/monto.json`, que solo tenía cambios de fin de línea del build.
 
 ## Riesgos residuales
+
+- Backoffice: recargar la página cierra la sesión, porque `POST /sesion/refrescar` no existe en ningún contrato ni servicio (lo llama el front del PR #18). Hace falta diseñar la renovación de sesión con cookie (rotación, revocación, ADR): DECISION_REQUIRED de seguridad; dueño: identidad + quien lleve auth del backoffice.
+- `packages/ui/src/monto/monto.spec.ts` vence a los 5000 ms también en la base `22c5e687` (preexistente, no tocado).
 
 - Los goldens de `diseno_flutter` y de la app van a fallar en el job `app-goldens` (macOS) hasta regenerarlos en una Mac.
 - Endpoint público `GET /usuarios/{id}/verificacion` (regla 90.6):
@@ -116,7 +140,7 @@ Hallazgos preexistentes **fuera de alcance**, anotados y no tocados:
 - Selector de fecha del alta: se eligió el 15 de octubre y el campo muestra «14 oct 2001» (probable corrimiento de zona horaria).
 - El backend usa `AP-CU01-03` tanto para teléfono como para documento duplicado, y la app siempre dice «Ese celular ya tiene una cuenta».
 - El `index.html` del backoffice no trae el meta `aportaya-gateway`: en desarrollo solo funciona contra Prism.
-- Backoffice en oscuro: el ítem activo del menú lateral es una pastilla clara con texto verde claro, de bajo contraste (`h7-bo-01-cola-dark.png`).
+- La app móvil traduce `AP-CU04-04` como «Demasiados intentos…» (`apps/movil/lib/dominio/errores.dart:12`), igual de inexacto que el backoffice antes de H9.S3.M4.
 - 2 tests del móvil fallan en Windows por comparar rutas con `/` fijo.
 
 ## Procesos que quedan corriendo

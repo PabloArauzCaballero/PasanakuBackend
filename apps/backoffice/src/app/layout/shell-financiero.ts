@@ -61,11 +61,17 @@ type Seccion = { ruta: string; texto: string; permiso: string }
     .menu { grid-area: menu; border-right: var(--borde-fino) solid var(--border); background: var(--surface); padding: var(--s4); }
     .menu ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s1); }
     .menu a { display: block; min-height: var(--area-tactil); padding: var(--s2) var(--s3); border-radius: var(--r-md); color: var(--text-2); text-decoration: none; }
-    .menu a:hover, .menu a.activo { background: var(--g100); color: var(--brand-texto); font-weight: 600; }
+    /* Tokens de tema y no la paleta fija (--g100 + --brand-texto): en oscuro quedaba una
+       pastilla clara con texto verde claro, 2,9:1. Con --brand-bg + --text pasa AA en los dos. */
+    .menu a:hover, .menu a.activo { background: var(--brand-bg); color: var(--text); font-weight: 600; }
     .menu a:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
     main { grid-area: contenido; min-width: 0; }
     @media (max-width: 40rem) {
-      .shell { grid-template-columns: 1fr; grid-template-areas: 'cabecera' 'menu' 'contenido'; }
+      /* minmax(0, 1fr): con 1fr a secas la columna no bajaba del mínimo de la cabecera y
+         en 390 px la página entera desbordaba 39 px hacia el costado. */
+      .shell { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'cabecera' 'menu' 'contenido'; }
+      .cabecera { flex-wrap: wrap; gap: var(--s2); padding: var(--s3) var(--s4); }
+      .derecha { flex-wrap: wrap; }
       .menu ul { flex-direction: row; flex-wrap: wrap; }
     }
   `,

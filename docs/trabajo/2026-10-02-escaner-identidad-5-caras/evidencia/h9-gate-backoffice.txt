@@ -1,0 +1,33 @@
+# gates finales H9 · 2026-10-03 10:31:06
+$ yarn workspace @aportaya/backoffice typecheck
+exit=0
+$ yarn workspace @aportaya/backoffice lint
+All files pass linting.
+TODO OK
+exit=0
+$ yarn workspace @aportaya/backoffice test:front
+[2m Test Files [22m [1m[32m61 passed[39m[22m[90m (61)[39m
+[2m      Tests [22m [1m[32m359 passed[39m[22m[90m (359)[39m
+exit=0
+$ yarn workspace @aportaya/backoffice test:a11y
+[2m Test Files [22m [1m[32m27 passed[39m[22m[90m (27)[39m
+[2m      Tests [22m [1m[32m34 passed[39m[22m[90m (34)[39m
+exit=0
+$ yarn workspace @aportaya/ui typecheck
+exit=0
+$ yarn workspace @aportaya/ui lint
+All files pass linting.
+TODO OK
+exit=0
+$ yarn workspace @aportaya/ui test:front
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m19 passed[39m[22m[90m (20)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m111 passed[39m[22m[90m (112)[39m
+exit=1
+$ yarn workspace @aportaya/ui test:a11y
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+exit=0
+[31m     [31m×[31m pasa los mismos vectores que el Monto de Flutter[39m[33m 5052[2mms[22m[39m
+[41m[1m FAIL [22m[49m [30m[45m ui [49m[39m src/monto/monto.spec.ts[2m > [22map-monto[2m > [22mpasa los mismos vectores que el Monto de Flutter
+[31m[1mError[22m: Test timed out in 5000ms.

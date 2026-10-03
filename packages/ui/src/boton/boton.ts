@@ -15,7 +15,7 @@ export type TamanoDeBoton = 'sm' | 'base' | 'lg'
   imports: [Girador],
   host: { '[class]': '"v-" + variante() + " t-" + tamano()', '[class.ancho]': 'ancho()' },
   template: `
-    <button [type]="tipo()" [disabled]="deshabilitado() || cargando()" [attr.aria-busy]="cargando() || null" (click)="pulsado.emit()">
+    <button [type]="tipo()" [disabled]="deshabilitado() || cargando()" [attr.aria-busy]="cargando() || null" [attr.aria-pressed]="presionado() ?? null" (click)="pulsado.emit()">
       @if (cargando()) { <ap-girador etiqueta="Procesando" tamano="s4" /> }
       <span class="texto"><ng-content /></span>
     </button>
@@ -64,9 +64,12 @@ export type TamanoDeBoton = 'sm' | 'base' | 'lg'
     :host(.v-fantasma) button { background: transparent; color: var(--brand-texto); border-color: var(--brand); }
     :host(.v-fantasma) button:hover:not(:disabled) { background: var(--brand-bg); transform: translateY(calc(-1 * var(--borde-fino))); box-shadow: var(--sombra-1); }
     :host(.v-fantasma) button:active:not(:disabled) { transform: scale(.985); box-shadow: none; }
+    /* Sin esto el fantasma deshabilitado se pintaba igual que el habilitado: la regla de
+       la variante gana en especificidad a la de :disabled de arriba. */
+    :host(.v-fantasma) button:disabled:not([aria-busy]), :host(.v-sobreVerde) button:disabled:not([aria-busy]) { background: transparent; color: var(--text-3); border-color: var(--border); box-shadow: none; }
     :host(.v-enlace) button { background: transparent; color: var(--brand-texto); padding: 0 var(--s2); text-decoration: underline; text-decoration-thickness: var(--borde-fino); text-underline-offset: .2em; transition: text-underline-offset var(--mov-micro) ease-out, color var(--mov-micro) ease-out; }
     :host(.v-enlace) button:hover:not(:disabled) { text-underline-offset: .32em; }
-    :host(.v-enlace) button:disabled { background: transparent; border-color: transparent; }
+    :host(.v-enlace) button:disabled { background: transparent; border-color: transparent; color: var(--text-3); }
     :host(.v-sobreVerde) button { background: transparent; color: var(--sobre-verde-solido); border-color: var(--sobre-verde-solido); }
     :host(.v-sobreVerde) button:hover:not(:disabled) { background: color-mix(in oklab, var(--sobre-verde-solido) 12%, transparent); }
     :host(.v-sobreVerde) button:focus-visible { outline-color: var(--sobre-verde-solido); }
@@ -78,6 +81,8 @@ export class Boton {
   readonly tipo = input<'button' | 'submit'>('button')
   readonly deshabilitado = input(false)
   readonly cargando = input(false)
+  /** Botón de alternancia (un filtro, una pestaña de vista): anuncia cuál está activo sin depender del color. */
+  readonly presionado = input<boolean | undefined>(undefined)
   readonly ancho = input(false)
   readonly pulsado = output<void>()
 }

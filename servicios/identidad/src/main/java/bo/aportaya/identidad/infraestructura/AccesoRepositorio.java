@@ -65,14 +65,29 @@ public class AccesoRepositorio {
                 .execute();
     }
 
+    /**
+     * Fallos consecutivos de verdad: los posteriores al ultimo ingreso exitoso (si cae en la
+     * ventana), sin contar {@code FACTOR_REQUERIDO}. Ese no es un fallo: es el primer paso
+     * de todo ingreso con segundo factor. Contarlo —y no cortar en el exito— bloqueaba 30
+     * minutos al operador que entraba varias veces seguidas y despues tipeaba mal una vez.
+     * La contrasena equivocada y el codigo equivocado ({@code TOKEN_VENCIDO}) siguen sumando.
+     */
     public int fallidosConsecutivos(DSLContext dsl, UUID usuarioId, OffsetDateTime desde) {
+        OffsetDateTime ultimoExito = dsl.select(DSL.max(INTENTO_AUTENTICACION.FECHA_HORA))
+                .from(INTENTO_AUTENTICACION)
+                .where(INTENTO_AUTENTICACION.USUARIO_ID.eq(usuarioId).and(INTENTO_AUTENTICACION.EXITOSO.isTrue()))
+                .fetchOne(0, OffsetDateTime.class);
+        var desdeCuando = ultimoExito != null && ultimoExito.isAfter(desde)
+                ? INTENTO_AUTENTICACION.FECHA_HORA.gt(ultimoExito)
+                : INTENTO_AUTENTICACION.FECHA_HORA.ge(desde);
         return dsl.fetchCount(
                 INTENTO_AUTENTICACION,
                 INTENTO_AUTENTICACION
                         .USUARIO_ID
                         .eq(usuarioId)
                         .and(INTENTO_AUTENTICACION.EXITOSO.isFalse())
-                        .and(INTENTO_AUTENTICACION.FECHA_HORA.ge(desde)));
+                        .and(INTENTO_AUTENTICACION.MOTIVO_FALLO.isDistinctFrom("FACTOR_REQUERIDO"))
+                        .and(desdeCuando));
     }
 
     /** El dispositivo nuevo nace con {@code es_confiable = false}. Sin excepciones. */
