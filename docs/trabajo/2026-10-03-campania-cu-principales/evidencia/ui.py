@@ -50,6 +50,12 @@ def main():
         sys.exit(1)
     elif cmd == "escribir":
         adb("shell", "input", "text", args[0].replace(" ", "%s"))
+    elif cmd == "escribir_env":
+        import os
+        adb("shell", "input", "text", os.environ[args[0]].replace(" ", "%s"))
+        print("escrito desde la variable", args[0], "(sin imprimir)")
+    elif cmd == "pos":
+        adb("shell", "input", "tap", args[0], args[1])
     elif cmd == "foto":
         open(args[0], "wb").write(adb("exec-out", "screencap", "-p", binario=True))
         print("captura:", args[0])
