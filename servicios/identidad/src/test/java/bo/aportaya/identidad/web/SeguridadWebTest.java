@@ -8,10 +8,12 @@ import bo.aportaya.identidad.aplicacion.CU02RevisarExpediente;
 import bo.aportaya.identidad.aplicacion.CU04Autenticar;
 import bo.aportaya.identidad.aplicacion.EmitirAcceso;
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
+import bo.aportaya.identidad.aplicacion.RenovarSesion;
 import bo.aportaya.identidad.aplicacion.ValidarTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.SabanaDeSeguridadWeb;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 /**
@@ -33,7 +35,12 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
             "aportaya.acceso.vigencia-sesion=PT15M",
             "aportaya.seguridad.pimienta=pimienta-de-prueba-no-es-la-de-produccion",
         })
+@Import(CookieDeRefresco.class)
 class SeguridadWebTest extends SabanaDeSeguridadWeb {
+
+    // ADR-010: el ingreso web emite el refresh y /sesion/refrescar lo rota.
+    @MockitoBean
+    private RenovarSesion renovarSesion;
 
     // La subida de la foto del expediente es dependencia de UsuariosController desde
     // que existe el portal de riesgo: sin doblarla, el contexto de esta prueba no levanta.

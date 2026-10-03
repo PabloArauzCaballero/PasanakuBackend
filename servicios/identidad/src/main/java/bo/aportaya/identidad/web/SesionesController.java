@@ -3,6 +3,7 @@ package bo.aportaya.identidad.web;
 import bo.aportaya.identidad.aplicacion.CU04Autenticar;
 import bo.aportaya.identidad.aplicacion.EmitirAcceso;
 import bo.aportaya.identidad.aplicacion.EntradaAutenticacion;
+import bo.aportaya.identidad.aplicacion.RenovarSesion;
 import bo.aportaya.identidad.dominio.PoliticaDeIntentos;
 import bo.aportaya.identidad.dominio.ResultadoDeAutenticacion;
 import bo.aportaya.identidad.web.generado.SesionesApi;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,7 +37,7 @@ public class SesionesController implements SesionesApi {
      * del token, calculados de las asignaciones vigentes. Este es el piso —lo que
      * cualquiera con cuenta puede hacer— y por eso es fijo.
      */
-    private static final String ROL_DE_PARTICIPANTE = "PARTICIPANTE";
+    static final String ROL_DE_PARTICIPANTE = "PARTICIPANTE";
 
     /**
      * El rol con el que abre sesion un operador, a efectos de politicas de fila.
@@ -50,27 +52,33 @@ public class SesionesController implements SesionesApi {
      * propio ADR. Lo que autoriza cada operacion sigue siendo el permiso del token,
      * que se calcula de las asignaciones vigentes y es distinto para cada persona.
      */
-    private static final String ROL_DE_OPERADOR = "BACKOFFICE";
+    static final String ROL_DE_OPERADOR = "BACKOFFICE";
 
     /** El nivel de diligencia lo actualiza cumplimiento; al abrir sesion se parte del piso. */
-    private static final String NIVEL_POR_OMISION = "SIMPLIFICADA";
+    static final String NIVEL_POR_OMISION = "SIMPLIFICADA";
 
     private final CU04Autenticar cu04;
     private final EmitirAcceso acceso;
     private final PoliticaDeIntentos politica;
     private final Duration vigenciaDeSesion;
     private final HttpServletRequest peticion;
+    private final RenovarSesion refresco;
+    private final CookieDeRefresco cookie;
 
     public SesionesController(
             CU04Autenticar cu04,
             EmitirAcceso acceso,
             HttpServletRequest peticion,
+            RenovarSesion refresco,
+            CookieDeRefresco cookie,
             @Value("${aportaya.acceso.intentos-maximos}") int intentosMaximos,
             @Value("${aportaya.acceso.duracion-bloqueo}") Duration duracionDelBloqueo,
             @Value("${aportaya.acceso.vigencia-sesion}") Duration vigenciaDeSesion) {
         this.cu04 = cu04;
         this.acceso = acceso;
         this.peticion = peticion;
+        this.refresco = refresco;
+        this.cookie = cookie;
         this.politica = new PoliticaDeIntentos(intentosMaximos, duracionDelBloqueo);
         this.vigenciaDeSesion = vigenciaDeSesion;
     }
@@ -86,7 +94,21 @@ public class SesionesController implements SesionesApi {
         if (!resultado.exitoso()) {
             throw new ErrorDeNegocio(resultado.codigo().orElseThrow(), resultado.mensaje());
         }
-        return ResponseEntity.ok(mapear(resultado));
+        SalidaAutenticacion salida = mapear(resultado);
+        var respuesta = ResponseEntity.ok();
+        // ADR-010: el backoffice (WEB) recibe ademas el refresh en una cookie httpOnly. La
+        // app no: guarda el bearer en el almacen seguro del telefono.
+        boolean web = cuerpo.getPlataforma() != null && "WEB".equals(cuerpo.getPlataforma().getValue());
+        if (web && salida.getTokenAcceso() != null) {
+            var emitido = refresco.emitir(
+                    resultado.usuarioId().orElseThrow(),
+                    resultado.sesionId().orElseThrow(),
+                    Optional.ofNullable(peticion.getRemoteAddr()).orElse("0.0.0.0"),
+                    Optional.ofNullable(peticion.getHeader("User-Agent")).orElse("desconocido"),
+                    Traza.actual());
+            respuesta.header(HttpHeaders.SET_COOKIE, cookie.emitir(emitido.token(), emitido.expiraEn()));
+        }
+        return respuesta.body(salida);
     }
 
     private EntradaAutenticacion mapear(bo.aportaya.identidad.web.generado.modelo.EntradaAutenticacion cuerpo) {

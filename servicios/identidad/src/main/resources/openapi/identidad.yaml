@@ -81,6 +81,33 @@ paths:
           # AP-CU04-03 FACTOR_REQUERIDO   · AP-CU04-04 TOKEN_VENCIDO
           # AP-CU04-05 DEMASIADOS_INTENTOS · AP-CU04-06 FACTOR_NO_ENROLADO
           # AP-CU04-07 FACTOR_NO_ADMISIBLE (R-SEG-10)
+      # Con `plataforma: WEB` la respuesta 200 trae ademas `Set-Cookie: aportaya_refresco`
+      # (HttpOnly; Secure; SameSite=Strict; Path=/api/v1/sesion), el refresh de ADR-010.
+      # El valor en claro solo existe en esa cabecera: en la base se guarda su SHA-256.
+
+  /sesion/refrescar:
+    post:
+      operationId: renovarSesion              # CU-04 · ADR-010
+      summary: Renovar el acceso del backoffice con el refresh de la cookie
+      description: >-
+        Publica por token de acceso: la credencial es la cookie `aportaya_refresco`
+        (HttpOnly, Secure, SameSite=Strict), que el navegador manda solo a esta ruta.
+        Cada uso rota el refresh (cookie nueva en la respuesta). Reusar uno ya rotado
+        revoca la familia y la sesion (R-SEG-09); dos usos casi simultaneos del mismo
+        refresh (ventana de gracia corta) responden 401 sin revocar. Sin cookie, vencida,
+        revocada o reusada -> 401 y la cookie se borra.
+      responses:
+        '200':
+          description: Acceso renovado; la respuesta trae la cookie rotada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaRenovacion' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+          # AP-SES-01 sin refresh valido (sin cookie, vencido, revocado o reusado)
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU04-08 POLITICA_FALTANTE: no hay fila REFRESCO_SESION en politica_token
 
   /identidad/verificaciones:
     get:
@@ -473,6 +500,18 @@ components:
             El JWT firmado con RS256 que los otros trece servicios validan contra el
             JWKS de identidad (ADR-024). Ausente cuando la respuesta pide un segundo
             factor: recien se emite con la sesion abierta.
+    SalidaRenovacion:
+      type: object
+      additionalProperties: false
+      required: [acceso, rol, permisos]
+      properties:
+        acceso:
+          type: string
+          description: El JWT de acceso nuevo, igual al que emite `autenticar`.
+        rol:      { type: string }
+        permisos:
+          type: array
+          items: { type: string }
     CaraDelExpediente:
       type: string
       description: >-

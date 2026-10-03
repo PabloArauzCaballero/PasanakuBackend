@@ -1,16 +1,21 @@
 package bo.aportaya.identidad.web;
 
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import bo.aportaya.identidad.aplicacion.CU04Autenticar;
 import bo.aportaya.identidad.aplicacion.EmitirAcceso;
+import bo.aportaya.identidad.aplicacion.RenovarSesion;
 import bo.aportaya.identidad.dominio.ResultadoDeAutenticacion;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
@@ -51,6 +56,7 @@ import org.springframework.test.web.servlet.MockMvc;
             "aportaya.acceso.duracion-bloqueo=PT15M",
             "aportaya.acceso.vigencia-sesion=PT15M",
         })
+@org.springframework.context.annotation.Import(CookieDeRefresco.class)
 class SesionesControllerWebTest {
 
     private static final UUID USUARIO = UUID.fromString("cccccccc-0000-4000-8000-000000000001");
@@ -76,6 +82,9 @@ class SesionesControllerWebTest {
 
     @MockitoBean
     private EmitirAcceso emitirAcceso;
+
+    @MockitoBean
+    private RenovarSesion renovarSesion;
 
     private static ResultadoDeAutenticacion abierta() {
         return abierta(false);
@@ -193,5 +202,40 @@ class SesionesControllerWebTest {
         mvc.perform(post("/sesiones").contentType(MediaType.APPLICATION_JSON).content("{ roto"))
                 .andExpect(status().isBadRequest());
         verifyNoInteractions(cu04);
+    }
+
+    @Test
+    @DisplayName("ADR-010 · ingreso WEB: el refresh sale en una cookie HttpOnly, Secure, SameSite=Strict, solo para /api/v1/sesion")
+    void ingresoWebEmiteLaCookie() throws Exception {
+        when(cu04.ejecutar(any(), any())).thenReturn(abierta(true));
+        when(emitirAcceso.ejecutar(any(), any(), any(), any()))
+                .thenReturn(new EmitirAcceso.Acceso("un.token.firmado", Instant.parse("2026-04-01T12:00:00Z")));
+        when(renovarSesion.emitir(any(), any(), any(), any(), any()))
+                .thenReturn(new RenovarSesion.Emitido("a".repeat(64), OffsetDateTime.now(ZoneOffset.UTC).plusHours(12)));
+
+        mvc.perform(post("/sesiones")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(CUERPO.replace("ANDROID", "WEB")))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Set-Cookie", allOf(
+                        startsWith("aportaya_refresco=" + "a".repeat(64)),
+                        containsString("HttpOnly"),
+                        containsString("Secure"),
+                        containsString("SameSite=Strict"),
+                        containsString("Path=/api/v1/sesion"))));
+        verify(renovarSesion).emitir(any(), any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("ADR-010 · la app (ANDROID) no recibe cookie: guarda el bearer en su almacen seguro")
+    void ingresoAppSinCookie() throws Exception {
+        when(cu04.ejecutar(any(), any())).thenReturn(abierta());
+        when(emitirAcceso.ejecutar(any(), any(), any(), any()))
+                .thenReturn(new EmitirAcceso.Acceso("un.token.firmado", Instant.parse("2026-04-01T12:00:00Z")));
+
+        mvc.perform(post("/sesiones").contentType(MediaType.APPLICATION_JSON).content(CUERPO))
+                .andExpect(status().isOk())
+                .andExpect(header().doesNotExist("Set-Cookie"));
+        verify(renovarSesion, never()).emitir(any(), any(), any(), any(), any());
     }
 }

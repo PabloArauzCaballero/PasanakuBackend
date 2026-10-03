@@ -66,7 +66,7 @@ public class EmitirAcceso {
                         .toList());
 
         var emitido = emisor.emitir(usuarioId, rol, permisos, nivelDiligencia, dispositivo);
-        return new Acceso(emitido.token(), emitido.expiraEn());
+        return new Acceso(emitido.token(), emitido.expiraEn(), permisos);
     }
 
     /**
@@ -75,5 +75,10 @@ public class EmitirAcceso {
      * <p>Es de esta capa y no de infraestructura porque lo consume la pagina, y la pagina
      * no depende de infraestructura. El detalle de como se firmo se queda del otro lado.
      */
-    public record Acceso(String token, java.time.Instant expiraEn) {}
+    public record Acceso(String token, java.time.Instant expiraEn, List<String> permisos) {
+        /** Sin permisos a la vista: para quien solo necesita el token. */
+        public Acceso(String token, java.time.Instant expiraEn) {
+            this(token, expiraEn, List.of());
+        }
+    }
 }

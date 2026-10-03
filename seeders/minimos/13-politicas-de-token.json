@@ -192,6 +192,29 @@
           "vigente_desde": "2026-01-01T00:00:00-04:00"
         }
       ]
+    },
+    {
+      "tabla": "politica_token",
+      "conflicto": [
+        "proposito",
+        "vigente_desde"
+      ],
+      "comentario": "Refresh de sesión del backoffice (ADR-010): viaja en cookie httpOnly + Secure + SameSite estricto, se rota en cada uso y su reuso revoca la familia (trigger R-SEG-09). Vive lo mismo que la sesión (aportaya.acceso.vigencia-sesion, 12 h). Cada uso emite uno nuevo, por eso el tope diario es alto.",
+      "filas": [
+        {
+          "proposito": "REFRESCO_SESION",
+          "ttl_segundos": 43200,
+          "longitud_codigo": 64,
+          "max_intentos_validacion": 1,
+          "max_reenvios_por_hora": 0,
+          "cooldown_reenvio_segundos": 0,
+          "max_emisiones_por_dia": 200,
+          "canales_permitidos": "COOKIE_HTTPONLY",
+          "exige_dispositivo_conocido": false,
+          "invalida_anteriores": false,
+          "vigente_desde": "2026-01-01T00:00:00-04:00"
+        }
+      ]
     }
   ]
 }

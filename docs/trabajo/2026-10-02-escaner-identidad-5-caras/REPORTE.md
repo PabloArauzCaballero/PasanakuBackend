@@ -1,6 +1,6 @@
 # Reporte — Escáner de identidad (5 capturas, como Atlas) + botones vivos y transiciones (H8)
 
-> **AVANCE: 41 / 43 — 95,3 %.** Rojo abierto: H8.S3.M5 (goldens de `diseno_flutter` y de la app) BLOQUEADO — las referencias son de **macOS** y esta máquina es Windows. H8.S3.M6 DESCARTADO (premisa equivocada, ver Desvíos). H6 opcional sin empezar. Conocido sin resolver: recargar el backoffice cierra la sesión (`/sesion/refrescar` no existe en el backend; DECISION_REQUIRED de seguridad).
+> **AVANCE: 45 / 48 — 93,8 %.** Rojo abierto: H8.S3.M5 (goldens de `diseno_flutter` y de la app) BLOQUEADO — las referencias son de **macOS** y esta máquina es Windows. H10.S3.M1 TODO: la renovación de sesión está implementada y probada (165 tests de identidad en verde), pero falta verla en runtime porque el stack Docker compartido lo está usando la sesión de campania. H8.S3.M6 DESCARTADO (premisa equivocada, ver Desvíos). H6 opcional sin empezar.
 
 - Fecha: 2026-10-02 (cierre actualizado 2026-10-03, commit base `a28f3256`) · Plan: [PLAN.md](./PLAN.md) · Rama: `justin/feature/escaner-identidad-atlas` (worktree `PasanakuBackend-escaner`, sobre `origin/test`), sin commitear.
 - Peldaño de evidencia alcanzado:
@@ -43,7 +43,25 @@
 | H9.S3.M7 | Los botones fantasma/enlace deshabilitados se ven deshabilitados (regresión de H8) | medición Playwright | PASS (`evidencia/h9-s3-m7-m8-contraste.txt`) |
 | H9.S3.M8 | Menú activo legible en oscuro: 2,86:1 → 9,02:1 | medición Playwright | PASS |
 
+### H10 — Renovación de sesión del backoffice (2026-10-03)
+
+Diseño de **ADR-010** sobre el modelo que ya estaba en la base (`token_verificacion` tipo `REFRESCO` con familia, trigger R-SEG-09, `sesion.refresco_familia_id`). No se inventó nada: faltaban la política sembrada, el contrato y el código.
+
+| ID | Qué se logró | Comando | Resultado |
+|---|---|---|---|
+| H10.S1.M1 | Política `REFRESCO_SESION` en `seeders/minimos/13-politicas-de-token.json` (12 h, cookie httpOnly) | `generar_semillas.py` ×2 | PASS — SQL +5 líneas, idéntico en la segunda corrida |
+| H10.S1.M2 | `POST /sesion/refrescar` en `identidad.yaml` (público por cookie; 200 `{acceso, rol, permisos}`; 401 `AP-SES-01`) | `generarServidorOpenApi` | PASS |
+| H10.S2.M1 | `RenovarSesion`: emitir (familia nueva, SHA-256) y renovar (precondición en el UPDATE, rotación, gracia de 10 s para dos pestañas, reuso → el trigger revoca familia y sesión) | `integrationTest` `CU04RenovacionTest` | PASS — 7/7; con el UPDATE de reuso quitado o la gracia en 0 fallan los tests que corresponden |
+| H10.S2.M2 | Ingreso `WEB` con cookie `HttpOnly; Secure; SameSite=Strict; Path=/api/v1/sesion`; la app no recibe cookie; 401 borra la cookie | `webTest` | PASS — suite identidad: test 5, webTest 55, integrationTest 105, 0 fallos (`evidencia/h10-identidad-tests.txt`) |
+
 ## A medias
+
+### H10.S3.M1 — Renovación de sesión en runtime
+- **Qué anda:** el código y el contrato, demostrados por 165 tests de identidad (PostgreSQL real para la rotación y el reuso).
+- **Qué no está verificado:** que en el navegador real el backoffice, al recargar, siga dentro (cookie a través de nginx → gateway → identidad).
+- **Qué falta exactamente:** cuando campania libere el stack: `bd:reset` desde esta rama (siembra `REFRESCO_SESION`), reconstruir `aportaya/identidad:local` con `--build-arg BD_URL_ADMIN=jdbc:postgresql://<ip de postgres>:5432/pasanaku`, levantar identidad, y con Playwright entrar → recargar → seguir en `/cumplimiento`; reusar un refresh viejo → 401 y sesión revocada (SQL).
+- **Dónde quedó:** commiteado en esta rama; compila y los tests pasan.
+
 
 ### H8 — Extensión de diseño
 - **Qué anda:** todo menos H8.S3.M5 (ver Completado).
@@ -113,7 +131,7 @@ MUTACION 200 POST /api/v1/identidad/verificaciones/<id>/decision
 
 ## Riesgos residuales
 
-- Backoffice: recargar la página cierra la sesión, porque `POST /sesion/refrescar` no existe en ningún contrato ni servicio (lo llama el front del PR #18). Hace falta diseñar la renovación de sesión con cookie (rotación, revocación, ADR): DECISION_REQUIRED de seguridad; dueño: identidad + quien lleve auth del backoffice.
+- Renovación de sesión (H10): probada con tests, falta verla en el navegador real. En producción la cookie exige HTTPS (`Secure`); en desarrollo funciona porque Chrome trata `localhost` como seguro. Si el backoffice y la API se sirven en dominios distintos, `SameSite=Strict` y `Path` deben revisarse con infraestructura.
 - `packages/ui/src/monto/monto.spec.ts` vence a los 5000 ms también en la base `22c5e687` (preexistente, no tocado).
 
 - Los goldens de `diseno_flutter` y de la app van a fallar en el job `app-goldens` (macOS) hasta regenerarlos en una Mac.
