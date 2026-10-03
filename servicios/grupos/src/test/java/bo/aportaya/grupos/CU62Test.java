@@ -8,6 +8,7 @@ import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
+import org.jooq.impl.DSL;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -145,13 +146,40 @@ class CU62Test extends BaseDeCU62 {
             permutar.aceptar(primera, turnos.get(0), turnos.get(1), contexto());
             return null;
         });
-        UUID segunda = solicitar(turnos.get(0), turnos.get(1), participantes, true, true, true);
+        // Tras el primer intercambio el turno 0 es del otro participante: es quien lo pide de
+        // vuelta (solo el titular del turno de origen puede pedir permutarlo).
+        UUID segunda = solicitar(
+                turnos.get(0), turnos.get(1), List.of(participantes.get(1), participantes.get(0)), true, true, true);
         transaccion.execute(e -> {
             permutar.aceptar(segunda, turnos.get(0), turnos.get(1), contexto());
             return null;
         });
 
         assertThat(cupoDe(turnos.get(0))).isEqualTo(cupoOriginal);
+    }
+
+    @Test
+    @DisplayName(
+            "Dado el turno de otro participante · Cuando alguien que no es su titular pide permutarlo · Entonces se rechaza y no queda solicitud")
+    void soloElTitularPideLaPermuta() {
+        UUID grupo = fixtura.grupoConformado(4);
+        List<UUID> participantes = fixtura.participantesConCupo(grupo, 4);
+        List<UUID> periodos = fixtura.periodos(grupo, 4, new BigDecimal("2000.00"));
+        List<UUID> turnos = fixtura.turnos(grupo, periodos, cuposDe(grupo));
+        int antes = dsl.fetchCount(DSL.table("grupos.solicitud_permuta"));
+
+        // El participante 2 intenta permutar el turno 0, que es del participante 0.
+        assertThatThrownBy(() -> solicitar(
+                        turnos.get(0),
+                        turnos.get(1),
+                        List.of(participantes.get(2), participantes.get(1)),
+                        true,
+                        true,
+                        true))
+                .isInstanceOf(ErrorDeNegocio.class)
+                .hasMessageContaining("no es tuyo");
+
+        assertThat(dsl.fetchCount(DSL.table("grupos.solicitud_permuta"))).isEqualTo(antes);
     }
 
     @Test

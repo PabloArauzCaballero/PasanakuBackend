@@ -105,6 +105,12 @@ public class ConsultasRepositorio {
         return fila == null ? java.math.BigDecimal.ZERO : fila.get("estimado", java.math.BigDecimal.class);
     }
 
+    /** El grupo al que pertenece un turno. */
+    public Optional<UUID> grupoDelTurno(DSLContext dsl, UUID turnoId) {
+        var fila = dsl.fetchOne("SELECT grupo_id FROM grupos.turno WHERE id = ?", turnoId);
+        return fila == null ? Optional.empty() : Optional.ofNullable(fila.get("grupo_id", UUID.class));
+    }
+
     /** Si el reglamento del grupo de ese turno admite permutas. Sin dato, no admite. */
     public boolean permitePermuta(DSLContext dsl, UUID turnoId) {
         var fila = dsl.fetchOne(

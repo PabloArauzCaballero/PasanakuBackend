@@ -40,6 +40,11 @@ public class Consultas {
     }
 
     @Transactional(readOnly = true)
+    public Optional<UUID> grupoDelTurno(UUID turnoId, ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> consultas.grupoDelTurno(dsl, turnoId));
+    }
+
+    @Transactional(readOnly = true)
     public boolean permitePermuta(UUID turnoId, ContextoSesion ctx) {
         return datos.conContexto(ctx, dsl -> consultas.permitePermuta(dsl, turnoId));
     }
