@@ -135,6 +135,33 @@ Cada fila deja evidencia en `evidencia/h3-<cu>-*` (captura, SQL, salida newman).
 | H4.S2.M1 | `REPORTE.md` con matriz CU×canal×veredicto, gate de dinero, saltos entre servicios y No cubierto | `report_gate.py` no bloquea | `python .claude/hooks/plan_status.py` + el archivo → `REPORTE.md` escrito con las secciones obligatorias y el avance en la primera línea | HECHO |
 | H4.S2.M2 | Commits por tema y PR a `test` sin merge | Rama empujada y PR abierto | `gh pr view` → rama `justin/test/campania-cu-principales` empujada y PR https://github.com/PabloArauzCaballero/PasanakuBackend/pull/45 abierto contra `test`, sin merge | HECHO |
 
+## H5 — Correcciones de producto (autorizadas por el usuario el 2026-10-03: «hacelo todo y corregilo si hay problemas»)
+**CA:** Dado el stack reconstruido desde esta rama, cuando se reejecuta `campania_todo.py`, entonces los casos de uso que fallaban por los hallazgos B1–B19 completan su camino positivo (o el rechazo restante es el correcto por negocio) y los negativos de autorización siguen en 403/422.
+**DoD:** por corrección: cambio mínimo con patrón vecino + test de la unidad o del endpoint + reconstrucción de la imagen + el paso correspondiente de `campania_todo.py` en verde, con la salida pegada en `evidencia/h5-*`.
+**Estado:** TODO
+**Regla de trabajo:** una corrección por vez; un solo Gradle/Docker build a la vez; los servicios no probados se mantienen apagados para cuidar la memoria (el sistema ya detuvo un build por memoria crítica).
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H5.S1.M1 | B1: el token incluye el código de cada rol vigente en `permisos` (`AccesosRepositorio.asignacionesDe`) | USR91 recibe `ADMIN_PLATAFORMA`; USR1 recibe `ORGANIZADOR`; un participante no recibe roles ajenos | test de identidad + sonda `h2_s1_m6_sondas.py` → BLOQUEADO por decisión de permisos: el clasificador de permisos del arnés denegó el cambio en `EmitirAcceso` (que el token lleve el código de cada rol vigente como permiso, con un método nuevo `codigosDeRolesVigentes` en `AccesosRepositorio`). Es una decisión sobre qué otorga un token, que toca la autorización de todo el sistema. Se revirtió lo parcial (árbol limpio). Qué lo destraba: que el usuario lo autorice expresamente o elija otra salida (cambiar cada `@Permiso("ROL")` por un permiso del catálogo). No se rodea | BLOQUEADO |
+| H5.S2.M1 | B3: `/licencia/alcance` (cumplimiento) deja de exigir SOPORTE a una consulta de hecho servicio→servicio | Un participante obtiene 200 | sonda + test web → aflojar `@Permiso("SOPORTE")` de `/licencia/alcance` es un cambio de autorización del mismo orden que el que el clasificador de permisos denegó en H5.S1.M1; se espera la decisión del usuario | BLOQUEADO (DECISION_REQUIRED) |
+| H5.S2.M2 | B3: `garantia /cobranza/restricciones/vigentes/{usuarioId}` acepta al propio usuario (y a GRUPO_ADMINISTRAR para otros) | Un participante consulta lo suyo → 200; consulta el de otro → 403 | test web + CU-68 → igual que H5.S2.M1 (permiso de `garantia`) | BLOQUEADO (DECISION_REQUIRED) |
+| H5.S2.M3 | B3: `notificaciones /notificaciones/supresion` acepta a quien invita (GRUPO_ADMINISTRAR) | Invitar devuelve `enlace` | CU-69 → igual que H5.S2.M1 (permiso de `notificaciones`) | BLOQUEADO (DECISION_REQUIRED) |
+| H5.S3.M1 | B2: `ConsultarHabilitacion` lee con contexto de sistema tras validar la sesión | Un organizador HABILITADO figura habilitado | CU-20 → leer con contexto de sistema salta la política RLS: mismo orden de decisión que H5.S1.M1 | BLOQUEADO (DECISION_REQUIRED) |
+| H5.S3.M2 | B11: postular a organizador inserta con contexto de sistema tras validar | 201 y fila en `solicitud_organizador` | CU-90 → idem H5.S3.M1 | BLOQUEADO (DECISION_REQUIRED) |
+| H5.S3.M3 | B8: la resolución de alias (grupos) usa contexto de sistema | El alias de un compañero resuelve | CU-12 → idem H5.S3.M1 | BLOQUEADO (DECISION_REQUIRED) |
+| H5.S3.M4 | B8: el libro de billetera escribe con contexto de sistema y la acreditación de una recarga queda restringida a quien corresponde (no al propio titular) | Acreditar da 200 y deja movimientos; el titular no puede acreditarse a sí mismo | CU-10 + negativo → idem H5.S3.M1, y además cambia quién puede acreditar dinero | BLOQUEADO (DECISION_REQUIRED) |
+| H5.S4.M1 | B9: `liquidarEntrega` es idempotente por clave | Repetir → 200 con la misma entrega | CU-22 | TODO |
+| H5.S4.M2 | B10: contrato nucleo-financiero↔tarifas de la cotización del retiro | El retiro cotiza | CU-11 | TODO |
+| H5.S4.M3 | B13/B14: permuta con `participante` y validación de titularidad | Solicitar → 201; ajeno → 403/422 | CU-62 | TODO |
+| H5.S4.M4 | B15: pagar la obligación de otro se rechaza | Tercero → 403/422 | CU-21 | TODO |
+| H5.S4.M5 | B16: `TipoDeAcuerdo.TRASPASO_CUPO` | Proponer → 201; con voto → traspaso OK | CU-63/64 → el `.puml` (que manda sobre el contrato) no tiene un tipo de acuerdo para traspaso: `TipoDeAcuerdo` declara la divergencia con CU-63 (`TipoDeAcuerdo.java:5-11`); lo más cercano es `ADMISION_REEMPLAZO`. Elegir qué tipo del modelo representa el voto de un traspaso (o agregar uno al `.puml` y regenerar el DDL) es una decisión de modelo. Además `CU64TraspasarCupo` solo comprueba `acuerdoId != null` (`:65`, `GruposController.java:199`), no el tipo ni que esté aprobado: otro defecto a corregir con la misma decisión. Sin corregir por ahora | BLOQUEADO (DECISION_REQUIRED) |
+| H5.S4.M6 | B5: `periodoAbierto` decidido por grupos y no fijo | Período cerrado → `AP-CU21-04` | CU-21 | TODO |
+| H5.S5.M1 | B17/B18/B19 del backoffice | Pantallas coherentes con sus endpoints/permisos | capturas | TODO |
+| H5.S6.M1 | Reconstruir imágenes, reiniciar y correr `campania_todo.py` completo | Matriz CU actualizada | `evidencia/h5-campania-final.txt` | TODO |
+| H5.S7.M1 | App en el emulador (build del APK, AVD, capturas) con memoria liberada | Capturas de login, billetera, recarga, transferencia, grupos, aporte | `evidencia/app-*.png` | TODO |
+| H5.S8.M1 | Tests de Gradle de los servicios tocados y deriva de esquema | Verdes | salidas en `evidencia/h5-tests-*.txt` | TODO |
+
 ## Registro de hallazgos de producto (se consolida en el REPORTE)
 | # | CU | Clase (regla 80.4) | Hallazgo | Evidencia | Dueño sugerido |
 |---|---|---|---|---|---|
