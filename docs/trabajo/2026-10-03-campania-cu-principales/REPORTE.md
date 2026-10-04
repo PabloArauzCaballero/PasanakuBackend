@@ -1,4 +1,4 @@
-> **AVANCE: 54 / 101 — 53,5 %.** 0 respuestas 5xx. Pasan en runtime: CU-10, CU-11 (con el doble local de segundo factor), CU-12, CU-60/61, CU-62 (titular), CU-63 voto, CU-74, CU-21, CU-22, CU-69. Siguen sin pasar por decisión: CU-20 (licencia EN_TRAMITE), CU-64 positivo (CU-68 stub), B32, B36, B37, B15/B5.
+> **AVANCE: 57 / 105 — 54,3 %.** 0 respuestas 5xx en la corrida completa. Pasan en runtime: CU-10, CU-11 (doble local de segundo factor), CU-12, CU-21, CU-22, CU-60/61, CU-62 (titular), CU-63 voto, CU-69, CU-74. CU-68 (aceptar/rechazar solicitud) y la pestaña «Grupos» de la app están en peldaño TESTED (PostgreSQL real por Testcontainers + web tests), SIN runtime: el stack Docker lo tiene la sesión del escáner. Siguen por decisión de producto: CU-20 (licencia EN_TRAMITE), B32, B37; sin empezar: B15/B5.
 
 # Reporte — Campaña E2E de los casos de uso principales + correcciones (API real + backoffice real)
 
@@ -33,6 +33,13 @@ Con tu autorización se corrigieron, además de B6 y B7 (secuencias y `digest` d
 - **Evidencia nueva:** `h7-*`, `campania-todo-relanzada*.txt`, `h5-sorteo-relanzado.txt`, `bo_aprobar_cuenta.mjs`.
 - **No cubierto:** tests de integración contra base real de los cambios de `nucleo-financiero`/`grupos` (cubiertos en runtime), `ng test` del spec `cu02-expedientes`, modo claro/oscuro de las pantallas de la app, B15/B5, CU-11.
 - **Procesos que quedan corriendo:** stack Docker completo (todos los servicios + postgres/redis/kafka/minio), emulador `pasanaku` headless.
+
+## Ronda H9 — CU-68 aceptar/rechazar y B36 (2026-10-04)
+- **CU-68 (el organizador decide):** contrato `GET /grupos/{grupoId}/solicitudes` y `POST /grupos/solicitudes/{id}/decision`; `CU68AceptarIngreso` (aceptar = cupo `RESERVADO` + participante `ACEPTADO_PENDIENTE_FIRMA` + `cupos_ocupados`+1 + evento, en una transacción; rechazar exige motivo; repetir la misma decisión es inocuo; un organizador ajeno recibe «no existe»). Verificado: `integrationTest --tests *CU68AceptarIngresoTest` 7/7 contra PostgreSQL real (encontró `reputacion_al_ingresar NOT NULL`, corregido) y `webTest` de `grupos` en verde con `SeguridadWebTest`. **Peldaño: TESTED. Sin runtime** (stack ocupado por la sesión del escáner, base montada desde su worktree: no tiene mis seeders).
+- **B36:** `GET /grupos/participaciones` + `PantallaMiEstadoDeLaSesion` (id del usuario desde el `sub` del token). `flutter analyze` limpio, `flutter test` 19/19, 2 web tests nuevos. **Peldaño: TESTED. Sin captura en el emulador.**
+- **Traspaso (CU-64):** el entrante se resuelve con rol de sistema acotado (`participanteDeOtro`); el positivo end-to-end depende de correr CU-68 en runtime primero.
+- **Supuestos a confirmar con producto:** estados `ACEPTADO_PENDIENTE_FIRMA`/`RESERVADO` al aceptar; motivo de rechazo solo en el evento; la firma del reglamento (cupo → OCUPADO) es un caso posterior no hecho.
+- **Qué falta para cerrar en runtime (≈15 min con el stack libre):** `bd:reset` desde este worktree, reconstruir `grupos`, postular USR90 a GRP-DEMO-02, aceptar con USR1, comprobar SQL y repetir con la misma clave; abrir la pestaña Grupos en el emulador y capturarla.
 
 ## Ronda H6 — bloque RLS / libro / permuta / app (autorizada por el usuario)
 
