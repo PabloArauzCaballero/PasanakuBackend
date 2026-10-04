@@ -1,0 +1,6 @@
+Changed 3 dependencies!
+29 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+  cunning_document_scanner:
+  google_mlkit_commons:
+  google_mlkit_face_detection:

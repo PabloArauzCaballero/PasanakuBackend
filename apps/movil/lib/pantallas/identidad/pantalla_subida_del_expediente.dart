@@ -9,6 +9,7 @@ import 'dominio/capturas_del_expediente.dart';
 import 'dominio/seguimiento_del_alta.dart';
 import 'dominio/subida_del_expediente.dart';
 import 'fila_de_subida.dart';
+import 'pasos_alta/sacar_captura.dart';
 import 'textos_de_subida.dart';
 
 /// La subida en lote de las cinco fotos ya validadas, con la misma máquina de
@@ -40,8 +41,9 @@ class _PantallaDeSubidaDelExpedienteState
 
   Future<void> _repetir(CaraDelCarril cara) async {
     ref.read(subidaProvider.notifier).rotarClaveParaRepetir(cara);
-    final nueva = await context.push<Object?>('/registro/camara', extra: cara);
-    if (!mounted || nueva is! Captura) return;
+    final lograda = await sacarCaptura(context, cara, listas: {cara});
+    final nueva = lograda is Map<CaraDelCarril, Captura> ? lograda[cara] : null;
+    if (!mounted || nueva == null) return;
     ref
         .read(seguimientoDelAltaProvider.notifier)
         .reemplazarCaptura(cara, nueva);

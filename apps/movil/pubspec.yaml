@@ -59,6 +59,17 @@ dependencies:
   # Ya era dependencia transitiva (pubspec.lock); se declara explícita porque el
   # carrusel de capturas la importa para el adelanto de hash en cada foto.
   crypto: ^3.0.6
+  # Escáner de documentos del sistema para el anverso y el reverso (CU-02), el mismo
+  # que usa Atlas (`@dariyd/react-native-document-scanner`): VisionKit en iOS y el
+  # Document Scanner de ML Kit en Android. Encuentra los bordes del carnet y dispara
+  # solo. Android minSdk 24, iOS 13. Licencia MIT.
+  cunning_document_scanner: ^3.0.3
+  # Detección de rostro en el video para la prueba de vida automática (frente,
+  # izquierda, derecha): da el giro de la cabeza (`headEulerAngleY`). Atlas no lo
+  # tiene —sus selfies son manuales—; lo pidió el usuario el 2026-10-03. Corre en el
+  # teléfono, sin mandar la imagen a nadie. Plugin de google_ml_kit_flutter (MIT);
+  # exige iOS 15.5 (el Podfile y el proyecto se subieron de 15.0).
+  google_mlkit_face_detection: ^0.15.1
 
 dev_dependencies:
   flutter_test:

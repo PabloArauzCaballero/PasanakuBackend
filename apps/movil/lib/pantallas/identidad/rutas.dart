@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'dominio/capturas_del_expediente.dart';
 import 'pantalla_baja.dart';
 import 'pantalla_bienvenida.dart';
+import 'dominio/juez_de_pose.dart';
 import 'pantalla_camara.dart';
+import 'pantalla_prueba_de_vida.dart';
 import 'pantalla_contrasena.dart';
 import 'pantalla_contrato.dart';
 import 'pantalla_dispositivos.dart';
@@ -142,6 +144,14 @@ final List<RouteBase> rutasDeEntrada = [
     name: 'identidad.registro.camara',
     builder: (context, state) =>
         PantallaDeCamara(cara: state.extra! as CaraDelCarril),
+  ),
+  // La prueba de vida automática (frente, izquierda, derecha): pantalla completa
+  // como la cámara. Recibe las poses a pedir y devuelve las capturas logradas.
+  GoRoute(
+    path: '/registro/prueba-de-vida',
+    name: 'identidad.registro.pruebaDeVida',
+    builder: (context, state) =>
+        PantallaDePruebaDeVida(poses: state.extra! as List<PoseDeVida>),
   ),
   // La subida en lote de las cinco fotos, ya con el `usuarioId` que devolvió el
   // alta — Atlas sube apenas captura; acá se sube recién ahora porque la persona

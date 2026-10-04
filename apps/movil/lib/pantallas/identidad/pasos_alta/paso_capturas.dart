@@ -4,9 +4,7 @@ import 'package:aportaya_diseno/atomos/movimiento.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../infraestructura/escaner_de_documentos.dart';
 import '../dominio/capturas_del_expediente.dart';
 import '../dominio/carnet_de_prueba.dart';
 import '../dominio/estado_alta.dart';
@@ -14,6 +12,7 @@ import '../textos_de_captura.dart';
 import 'hoja_antes_de_escanear.dart';
 import 'pie_de_capturas.dart';
 import 'riel_de_capturas.dart';
+import 'sacar_captura.dart';
 import 'tarjeta_de_captura.dart';
 
 /// El paso de capturas del alta (CU-02), comportamiento de Atlas: carrusel de
@@ -64,33 +63,21 @@ class _PasoCapturasState extends ConsumerState<PasoCapturas> {
   }
 
   Future<void> _tomarFoto(CaraDelCarril cara) async {
-    if (cara.esDocumento && !_hojaMostrada.contains(cara)) {
-      _hojaMostrada.add(cara);
+    // La hoja de consejos, una vez por cara del carnet; el escáner, siempre.
+    if (cara.esDocumento && _hojaMostrada.add(cara)) {
       if (!await mostrarHojaAntesDeEscanear(context)) return;
-      if (!mounted) return;
-      final escaneo = await escanearDocumento();
-      if (escaneo is EscaneoCancelado) return;
-      if (escaneo is EscaneoCapturado) {
-        // El escáner del sistema ya entrega una ruta; la pantalla de cámara mide
-        // y valida, así que acá solo falta ese mismo paso para este camino.
-        // (Hito separado: el adaptador real todavía no está cableado — ver
-        // `infraestructura/escaner_de_documentos.dart`.)
-        return;
-      }
-      // `EscaneoNoDisponible`: cae a la cámara de la app, en silencio.
     }
     if (!mounted) return;
-    final resultado = await context.push<Object?>(
-      '/registro/camara',
-      extra: cara,
-    );
+    final listas = ref.read(altaProvider).capturas.porCara.keys.toSet();
+    final resultado = await sacarCaptura(context, cara, listas: listas);
     if (!mounted || resultado == null) return;
     if (resultado == 'prueba') {
       await _usarCarnetDePrueba();
       return;
     }
-    if (resultado is Captura) {
-      ref.read(altaProvider.notifier).registrarCaptura(cara, resultado);
+    if (resultado is Map<CaraDelCarril, Captura>) {
+      final notifier = ref.read(altaProvider.notifier);
+      resultado.forEach(notifier.registrarCaptura);
       final siguiente = ref.read(altaProvider).capturas.siguientePendiente;
       if (siguiente != null) _saltarA(siguiente);
     }

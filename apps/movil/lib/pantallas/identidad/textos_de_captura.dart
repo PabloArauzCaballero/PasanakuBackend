@@ -32,6 +32,15 @@ class TextosDeCaptura {
 
   static const enviarDocumento = 'Enviar documento';
 
+  // Prueba de vida automática: tres poses seguidas, la foto se saca sola.
+  static String deTres(int i, int total) => '$i de $total';
+  static const seSacaSola =
+      'La foto se saca sola cuando estés en posición. No hace falta tocar nada.';
+  static const preparando = 'Buscando tu cara…';
+  static const fotoFallida = 'No pudimos sacar la foto. Probá de nuevo.';
+  static const escaneoFallido =
+      'El escáner no pudo leer el carnet. Probá de nuevo o usá la cámara.';
+
   /// Lo que dice el riel debajo de cada cara: corto, porque son cinco en una fila.
   static String corto(String valorApi) => switch (valorApi) {
     'ANVERSO' => 'Frente',

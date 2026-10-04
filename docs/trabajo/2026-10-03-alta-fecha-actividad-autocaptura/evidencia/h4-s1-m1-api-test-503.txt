@@ -1,0 +1,13 @@
+Sun Oct  4 03:40:38 UTC 2026
+GET https://aportaya.161.97.85.216.sslip.io/ -> 200
+GET https://app.aportaya.161.97.85.216.sslip.io/ -> 200
+GET https://backoffice.aportaya.161.97.85.216.sslip.io/ -> 200
+GET https://api.aportaya.161.97.85.216.sslip.io/ -> 503
+POST /api/v1/usuarios {} ->
+no available server
+
+HTTP 503
+GET /api/v1/cumplimiento/contratos/vigentes ->
+no available server
+
+HTTP 503

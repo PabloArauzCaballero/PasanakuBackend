@@ -35,6 +35,7 @@ class EstadoAlta {
     this.origenDeFondos = '',
     this.detalleDelOrigen = '',
     this.actividadEconomica = '',
+    this.detalleDeLaActividad = '',
     this.montoMensualEstimado,
     this.enviando = false,
     this.error,
@@ -61,6 +62,9 @@ class EstadoAlta {
 
   /// La sección CIIU elegida, también de la lista cerrada.
   final String actividadEconomica;
+
+  /// Lo escrito en «¿Cuál?» cuando la actividad es `OTRA`; vacío en cualquier otra.
+  final String detalleDeLaActividad;
   final double? montoMensualEstimado;
   final bool enviando;
   final String? error;
@@ -79,6 +83,7 @@ class EstadoAlta {
     String? origenDeFondos,
     String? detalleDelOrigen,
     String? actividadEconomica,
+    String? detalleDeLaActividad,
     double? montoMensualEstimado,
     bool? enviando,
     String? error,
@@ -92,6 +97,7 @@ class EstadoAlta {
     origenDeFondos: origenDeFondos ?? this.origenDeFondos,
     detalleDelOrigen: detalleDelOrigen ?? this.detalleDelOrigen,
     actividadEconomica: actividadEconomica ?? this.actividadEconomica,
+    detalleDeLaActividad: detalleDeLaActividad ?? this.detalleDeLaActividad,
     montoMensualEstimado: montoMensualEstimado ?? this.montoMensualEstimado,
     enviando: enviando ?? false,
     error: error,
@@ -122,11 +128,13 @@ class AltaNotifier extends Notifier<EstadoAlta> {
     required String origen,
     required String detalleDelOrigen,
     required String actividad,
+    required String detalleDeLaActividad,
     required double? monto,
   }) => state = state.copiarCon(
     origenDeFondos: origen,
     detalleDelOrigen: detalleDelOrigen,
     actividadEconomica: actividad,
+    detalleDeLaActividad: detalleDeLaActividad,
     montoMensualEstimado: monto,
   );
 

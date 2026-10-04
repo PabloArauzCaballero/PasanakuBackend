@@ -36,6 +36,12 @@ String mensajeDe(String codigo, {int? estado}) {
     404 => 'No encontramos lo que buscabas.',
     409 =>
       'Esta operación ya se hizo o cambió mientras tanto. Revisá el estado antes de repetirla.',
+    // El gateway o el servicio no están (TEST respondió `503 no available server`
+    // a todo el 2026-10-03): no es la conexión ni los datos de la persona, y decirlo
+    // evita que corrija lo que estaba bien o desinstale la app.
+    502 || 503 || 504 =>
+      'El servicio no está disponible en este momento. No es tu conexión ni tus '
+          'datos: probá de nuevo en unos minutos.',
     _ => 'Algo salió mal de nuestro lado. Probá de nuevo en un momento.',
   };
 }
