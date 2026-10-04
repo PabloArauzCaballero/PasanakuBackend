@@ -1,5 +1,6 @@
 package bo.aportaya.aportes.web;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -65,6 +66,22 @@ class AportesControllerWebTest {
 
     @MockitoBean
     private ConsultarEstadoDelParticipante estados;
+
+    @MockitoBean
+    private bo.aportaya.aportes.aplicacion.HechosDeGrupos grupos;
+
+    private static final java.util.UUID DUENO = java.util.UUID.fromString("a2100000-0000-4000-8000-000000000001");
+    private static final java.util.UUID PERIODO = java.util.UUID.fromString("a2100000-0000-4000-8000-000000000002");
+
+    /** Por omision: la obligacion es de quien paga y el periodo esta abierto; cada caso cambia lo suyo. */
+    @org.junit.jupiter.api.BeforeEach
+    void admisible() {
+        when(cu21.contextoDe(any(), any()))
+                .thenReturn(java.util.Optional.of(new CU21CobrarAporte.ContextoDeObligacion(DUENO, PERIODO)));
+        when(grupos.admisibilidad(DUENO, PERIODO))
+                .thenReturn(java.util.Optional.of(
+                        new bo.aportaya.aportes.aplicacion.HechosDeGrupos.Admisibilidad(true, true)));
+    }
 
     private static Dinero bob(String monto) {
         return Dinero.de(monto, Moneda.BOB);
@@ -160,6 +177,57 @@ class AportesControllerWebTest {
                     """)
                     .andExpect(status().isBadRequest());
             verifyNoInteractions(cu21);
+        }
+
+        @Test
+        @DisplayName("B15 · 422: nadie paga la obligacion de otro, y no se registra nada")
+        void obligacionAjena() throws Exception {
+            when(grupos.admisibilidad(DUENO, PERIODO))
+                    .thenReturn(java.util.Optional.of(
+                            new bo.aportaya.aportes.aplicacion.HechosDeGrupos.Admisibilidad(false, true)));
+
+            cobrar(COBRO)
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU21-06"));
+            org.mockito.Mockito.verify(cu21, org.mockito.Mockito.never()).acreditar(any(), any());
+        }
+
+        @Test
+        @DisplayName("B15 · 422: si grupos no contesta no se asume que si, se rechaza (dinero)")
+        void gruposNoContesta() throws Exception {
+            when(grupos.admisibilidad(DUENO, PERIODO)).thenReturn(java.util.Optional.empty());
+
+            cobrar(COBRO)
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU21-07"));
+            org.mockito.Mockito.verify(cu21, org.mockito.Mockito.never()).acreditar(any(), any());
+        }
+
+        @Test
+        @DisplayName("B5 · el periodo cerrado llega al caso de uso como periodoAbierto=false (ya no es un true fijo)")
+        void periodoCerrado() throws Exception {
+            when(grupos.admisibilidad(DUENO, PERIODO))
+                    .thenReturn(java.util.Optional.of(
+                            new bo.aportaya.aportes.aplicacion.HechosDeGrupos.Admisibilidad(true, false)));
+            when(cu21.acreditar(any(), any()))
+                    .thenThrow(new ErrorDeNegocio(CodigoError.de(21, 4), "El periodo ya se cerro."));
+
+            cobrar(COBRO)
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU21-04"));
+            var entrada = org.mockito.ArgumentCaptor.forClass(CU21CobrarAporte.EntradaCobro.class);
+            org.mockito.Mockito.verify(cu21).acreditar(entrada.capture(), any());
+            assertThat(entrada.getValue().periodoAbierto()).isFalse();
+        }
+
+        @Test
+        @DisplayName("422: una obligacion que no existe (o que no es visible para quien paga)")
+        void obligacionInexistente() throws Exception {
+            when(cu21.contextoDe(any(), any())).thenReturn(java.util.Optional.empty());
+            cobrar(COBRO)
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU21-01"));
+            org.mockito.Mockito.verify(cu21, org.mockito.Mockito.never()).acreditar(any(), any());
         }
 
         @Test

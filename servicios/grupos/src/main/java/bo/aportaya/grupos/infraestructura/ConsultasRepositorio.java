@@ -206,6 +206,23 @@ public class ConsultasRepositorio {
                         r.get("grupo_id", UUID.class), r.get("id", UUID.class), r.get("estado", String.class)));
     }
 
+    /** Si ese participante es la persona de la sesion. */
+    public boolean esElParticipanteDe(DSLContext dsl, UUID participanteId, UUID usuarioId) {
+        return Boolean.TRUE.equals(dsl.fetchOne(
+                        "SELECT EXISTS (SELECT 1 FROM grupos.participante WHERE id = ? AND usuario_id = ?) AS si",
+                        participanteId,
+                        usuarioId)
+                .get("si", Boolean.class));
+    }
+
+    /** Un periodo admite pago salvo que este CERRADO, LIQUIDADO o CANCELADO (o no exista). */
+    public boolean periodoAdmitePago(DSLContext dsl, UUID periodoId) {
+        return Boolean.TRUE.equals(dsl.fetchOne(
+                        "SELECT EXISTS (SELECT 1 FROM grupos.periodo WHERE id = ? AND estado IN ('PROGRAMADO','ABIERTO','EN_GRACIA')) AS si",
+                        periodoId)
+                .get("si", Boolean.class));
+    }
+
     public record Politica(String kycMinimo, int reputacionMinima, java.math.BigDecimal quorum, int cuposLibres) {}
 
     /** Un jsonb de una sola dimension, como lista de textos. Vacio si no hay nada. */

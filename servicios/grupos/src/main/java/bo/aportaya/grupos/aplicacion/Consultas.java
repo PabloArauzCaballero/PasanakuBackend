@@ -100,6 +100,20 @@ public class Consultas {
 
     public record Participacion(UUID grupoId, UUID participanteId, String estado) {}
 
+    /** La admisibilidad de un pago: de quien es el participante y si el periodo sigue abierto. */
+    @Transactional(readOnly = true)
+    public Admisibilidad admisibilidadDePago(UUID participanteId, UUID periodoId, ContextoSesion ctx) {
+        boolean esMio =
+                datos.conContexto(ctx, dsl -> consultas.esElParticipanteDe(dsl, participanteId, ctx.usuarioId()));
+        // El estado del periodo no es dato de nadie: se lee con rol de sistema y solo sale un booleano.
+        ContextoSesion interno =
+                ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
+        boolean abierto = datos.conContexto(interno, dsl -> consultas.periodoAdmitePago(dsl, periodoId));
+        return new Admisibilidad(esMio, abierto);
+    }
+
+    public record Admisibilidad(boolean esDelUsuario, boolean periodoAbierto) {}
+
     /** Los periodos del grupo, en orden. Es contra ellos que el sorteo reparte turnos. */
     @Transactional(readOnly = true)
     public java.util.List<UUID> periodosDe(UUID grupoId, ContextoSesion ctx) {

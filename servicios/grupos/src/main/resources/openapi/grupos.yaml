@@ -363,6 +363,31 @@ paths:
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
 
+  /grupos/obligaciones/admisibilidad:
+    get:
+      operationId: consultarAdmisibilidadDePago   # CU-21
+      summary: Si quien pregunta puede pagar esa obligacion, y si el periodo sigue abierto
+      description: >-
+        Lo pregunta `aportes` ANTES de registrar un pago (B15/B5). `esDelUsuario` es si el
+        participante es la persona de la sesion: pagar la obligacion de otro no es un favor, es
+        un registro falso. `periodoAbierto` es falso para un periodo CERRADO, LIQUIDADO o
+        CANCELADO; PROGRAMADO y EN_GRACIA siguen admitiendo el pago.
+      parameters:
+        - name: participanteId
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+        - name: periodoId
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: La admisibilidad, sin datos de nadie mas
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdmisibilidadDePago' }
+
   /grupos/participaciones:
     get:
       operationId: listarMisParticipaciones      # CU-68
@@ -766,6 +791,13 @@ components:
       properties:
         cuposSolicitados: { type: integer, minimum: 1, maximum: 3 }
         mensaje:          { type: [string, 'null'], maxLength: 300 }
+    AdmisibilidadDePago:
+      type: object
+      additionalProperties: false
+      required: [esDelUsuario, periodoAbierto]
+      properties:
+        esDelUsuario:  { type: boolean }
+        periodoAbierto: { type: boolean }
     Participacion:
       type: object
       additionalProperties: false

@@ -9,6 +9,7 @@ import bo.aportaya.grupos.aplicacion.Consultas;
 import bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios;
 import bo.aportaya.grupos.web.generado.GruposApi;
 import bo.aportaya.grupos.web.generado.modelo.ActividadEnGrupos;
+import bo.aportaya.grupos.web.generado.modelo.AdmisibilidadDePago;
 import bo.aportaya.grupos.web.generado.modelo.AliasResuelto;
 import bo.aportaya.grupos.web.generado.modelo.CompromisoDeSorteo;
 import bo.aportaya.grupos.web.generado.modelo.DetalleEnlaceInvitacion;
@@ -221,6 +222,17 @@ public class GruposController implements GruposApi {
         var respuesta = new SalidaTraspaso();
         respuesta.setTraspasoId(traspasoId);
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+    }
+
+    @Override
+    @Permiso("PARTICIPANTE")
+    public ResponseEntity<AdmisibilidadDePago> consultarAdmisibilidadDePago(UUID participanteId, UUID periodoId) {
+        Traza.marcarCasoDeUso("CU-21", participanteId.toString());
+        var a = consultas.admisibilidadDePago(participanteId, periodoId, sesion.actual());
+        var salida = new AdmisibilidadDePago();
+        salida.setEsDelUsuario(a.esDelUsuario());
+        salida.setPeriodoAbierto(a.periodoAbierto());
+        return ResponseEntity.ok(salida);
     }
 
     @Override
