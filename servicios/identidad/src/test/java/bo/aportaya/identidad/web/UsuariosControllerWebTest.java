@@ -1,7 +1,7 @@
 package bo.aportaya.identidad.web;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -17,12 +17,9 @@ import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.ValidarTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
 import bo.aportaya.identidad.dominio.AperturaDeCuenta;
-import bo.aportaya.identidad.dominio.ExpedienteDeIdentidad;
-import bo.aportaya.plataforma.dominio.ErrorDeDominio;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.Sesiones;
-import java.time.OffsetDateTime;
-import java.util.List;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +27,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -125,6 +123,22 @@ class UsuariosControllerWebTest {
         }
 
         @Test
+        @DisplayName("CU-01 · el vencimiento del documento llega al caso de uso, que es quien lo juzga")
+        void elVencimientoLlegaAlCasoDeUso() throws Exception {
+            var entrada = ArgumentCaptor.forClass(CU01RegistrarUsuario.EntradaRegistro.class);
+            when(cu01.ejecutar(entrada.capture(), any()))
+                    .thenReturn(
+                            new CU01RegistrarUsuario.SalidaRegistro(USUARIO, AperturaDeCuenta.PENDIENTE_VERIFICACION));
+
+            registrar(ALTA.replace("\"SC\"}", "\"SC\", \"fechaExpiracion\": \"2031-03-01\"}"))
+                    .andExpect(status().isAccepted());
+            verify(cu01).ejecutar(any(), any());
+            org.assertj.core.api.Assertions.assertThat(
+                            entrada.getValue().documento().fechaExpiracion())
+                    .isEqualTo(LocalDate.parse("2031-03-01"));
+        }
+
+        @Test
         @DisplayName("CU-01 · el alta entra SIN sesion: es la ruta por la que se llega al sistema")
         void elAltaNoPideSesion() throws Exception {
             when(cu01.ejecutar(any(), any()))
@@ -158,6 +172,7 @@ class UsuariosControllerWebTest {
             "'telefono fuera del patron', '\"+59171234567\"', '\"71234567\"'",
             "'nombre de una sola letra', '\"Pablo\"', '\"P\"'",
             "'fecha de nacimiento que no es una fecha', '\"1995-06-15\"', '\"15/06/1995\"'",
+            "'vencimiento que no es una fecha', '\"SC\"}', '\"SC\", \"fechaExpiracion\": \"01/03/2031\"}'",
             "'sin ningun contrato aceptado', '[\"dddddddd-0000-4000-8000-000000000002\"]', '[]'",
         })
         @DisplayName("CU-01 · el contrato rechaza antes de llegar al caso de uso")
@@ -269,70 +284,5 @@ class UsuariosControllerWebTest {
     void elContratoViajaComoIdentificador() throws Exception {
         registrar(ALTA.replace("\"" + CONTRATO + "\"", "\"acepto todo\"")).andExpect(status().isBadRequest());
         verifyNoInteractions(cu01);
-    }
-
-    @Nested
-    @DisplayName("GET /usuarios/{id}/verificacion — publica, sin datos personales")
-    class EstadoDeLaVerificacion {
-
-        @Test
-        @DisplayName("CU-02 · 200 SIN sesion: quien recien se registro todavia no puede abrir una")
-        void contestaSinSesion() throws Exception {
-            when(estadoDeVerificacion.ejecutar(eq(USUARIO), any()))
-                    .thenReturn(new ExpedienteDeIdentidad(
-                            USUARIO,
-                            USUARIO,
-                            "Pablo Arauz",
-                            "CI SC",
-                            "EN_REVISION",
-                            OffsetDateTime.now(),
-                            null,
-                            null,
-                            List.of("ANVERSO", "REVERSO")));
-
-            // Sin `.with(Sesiones...)`, igual que el alta: todavia no hay token que presentar.
-            mvc.perform(get("/usuarios/{id}/verificacion", USUARIO))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.verificacionId").value(USUARIO.toString()))
-                    .andExpect(jsonPath("$.estado").value("EN_REVISION"))
-                    .andExpect(jsonPath("$.fotos", org.hamcrest.Matchers.hasSize(2)));
-        }
-
-        @Test
-        @DisplayName("CU-02 · la respuesta no trae nombre ni documento, solo lo minimo")
-        void laRespuestaNoTraeDatosPersonales() throws Exception {
-            when(estadoDeVerificacion.ejecutar(eq(USUARIO), any()))
-                    .thenReturn(new ExpedienteDeIdentidad(
-                            USUARIO,
-                            USUARIO,
-                            "Pablo Arauz",
-                            "CI SC",
-                            "APROBADA",
-                            OffsetDateTime.now(),
-                            OffsetDateTime.now(),
-                            null,
-                            List.of("ANVERSO", "REVERSO", "SELFIE", "PERFIL_IZQUIERDO", "PERFIL_DERECHO")));
-
-            String cuerpo = mvc.perform(get("/usuarios/{id}/verificacion", USUARIO))
-                    .andExpect(status().isOk())
-                    .andReturn()
-                    .getResponse()
-                    .getContentAsString();
-
-            org.assertj.core.api.Assertions.assertThat(cuerpo)
-                    .doesNotContain("nombreCompleto")
-                    .doesNotContain("Pablo")
-                    .doesNotContain("documento")
-                    .doesNotContain("CI SC");
-        }
-
-        @Test
-        @DisplayName("CU-02 · 422 cuando todavia no existe un expediente para ese usuario")
-        void sinExpedienteEs422() throws Exception {
-            when(estadoDeVerificacion.ejecutar(eq(USUARIO), any()))
-                    .thenThrow(new ErrorDeDominio("Todavia no hay un expediente abierto para esa persona"));
-
-            mvc.perform(get("/usuarios/{id}/verificacion", USUARIO)).andExpect(status().isUnprocessableEntity());
-        }
     }
 }

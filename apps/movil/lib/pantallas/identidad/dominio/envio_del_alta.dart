@@ -43,6 +43,7 @@ Future<ResultadoDelAlta> enviarElAlta(Ref ref, EstadoAlta estado) async {
           tipoDocumento: d.tipoDocumento,
           numeroDocumento: d.numeroDocumento,
           lugarExpedicion: d.lugarExpedicion,
+          fechaExpiracion: d.fechaExpiracion,
           correo: d.correo,
           canalVerificacion: d.canalVerificacion,
           contrasena: estado.contrasena,

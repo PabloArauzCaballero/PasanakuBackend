@@ -98,7 +98,8 @@ public class SesionesController implements SesionesApi {
         var respuesta = ResponseEntity.ok();
         // ADR-010: el backoffice (WEB) recibe ademas el refresh en una cookie httpOnly. La
         // app no: guarda el bearer en el almacen seguro del telefono.
-        boolean web = cuerpo.getPlataforma() != null && "WEB".equals(cuerpo.getPlataforma().getValue());
+        boolean web = cuerpo.getPlataforma() != null
+                && "WEB".equals(cuerpo.getPlataforma().getValue());
         if (web && salida.getTokenAcceso() != null) {
             var emitido = refresco.emitir(
                     resultado.usuarioId().orElseThrow(),

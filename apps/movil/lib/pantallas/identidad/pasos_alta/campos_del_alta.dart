@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 
 import '../textos.dart';
 import 'canal_de_verificacion.dart';
+import 'departamentos.dart';
 
 /// Los cinco campos del primer paso del alta, con su ícono y su ayuda.
 ///
@@ -20,14 +21,17 @@ class CamposDelAlta extends StatelessWidget {
     required this.focos,
     required this.focoFecha,
     required this.focoLugar,
+    required this.focoVence,
     required this.errores,
     required this.tocados,
     required this.prefijo,
     required this.fecha,
     required this.lugar,
+    required this.vence,
     required this.onCambio,
     required this.onFecha,
     required this.onLugar,
+    required this.onVence,
     required this.canal,
     required this.onCanal,
   });
@@ -37,34 +41,26 @@ class CamposDelAlta extends StatelessWidget {
   final List<FocusNode> focos;
   final FocusNode focoFecha;
   final FocusNode focoLugar;
+  final FocusNode focoVence;
 
-  /// Por clave: `nombres`, `apellidos`, `telefono`, `documento`, `fecha`.
+  /// Por clave: `nombres`, `apellidos`, `telefono`, `documento`, `lugar`, `vence`, `fecha`.
   final Map<String, String?> errores;
   final Set<String> tocados;
 
   final String prefijo;
   final DateTime? fecha;
   final String? lugar;
+
+  /// El vencimiento del carnet.
+  final DateTime? vence;
   final ValueChanged<String> onCambio;
   final ValueChanged<DateTime> onFecha;
   final ValueChanged<String> onLugar;
+  final ValueChanged<DateTime> onVence;
 
   /// `SMS` o `CORREO`.
   final String canal;
   final ValueChanged<String> onCanal;
-
-  /// Los nueve departamentos, con la sigla que lleva el carnet.
-  static const departamentos = <({String sigla, String nombre})>[
-    (sigla: 'LP', nombre: 'La Paz'),
-    (sigla: 'SC', nombre: 'Santa Cruz'),
-    (sigla: 'CB', nombre: 'Cochabamba'),
-    (sigla: 'OR', nombre: 'Oruro'),
-    (sigla: 'PT', nombre: 'Potosí'),
-    (sigla: 'CH', nombre: 'Chuquisaca'),
-    (sigla: 'TJ', nombre: 'Tarija'),
-    (sigla: 'BE', nombre: 'Beni'),
-    (sigla: 'PD', nombre: 'Pando'),
-  ];
 
   /// El tilde verde solo después de tocar el campo: un formulario recién abierto no
   /// tiene nada que festejar.
@@ -160,13 +156,28 @@ class CamposDelAlta extends StatelessWidget {
                 exito: _listo('lugar'),
                 foco: focoLugar,
                 opciones: [
-                  for (final d in departamentos)
+                  for (final d in departamentosDelCarnet)
                     (valor: d.sigla, texto: d.nombre),
                 ],
                 onElegida: onLugar,
               ),
             ),
           ],
+        ),
+        const SizedBox(height: Espacio.s3),
+        // Se escribe leyendo el carnet. El calendario arranca hoy: un documento que
+        // vencio ayer no sirve, y el servidor lo vuelve a comprobar con su reloj.
+        CampoDeFecha(
+          etiqueta: TextosIdentidad.fechaExpiracion,
+          valor: vence,
+          foco: focoVence,
+          icono: Icons.event_available_outlined,
+          primera: DateTime(hoy.year, hoy.month, hoy.day),
+          ultima: DateTime(hoy.year + 30, hoy.month, hoy.day),
+          inicial: DateTime(hoy.year + 1, hoy.month, hoy.day),
+          ayuda: TextosIdentidad.fechaExpiracionAyuda,
+          error: errores['vence'],
+          onElegida: onVence,
         ),
         const SizedBox(height: Espacio.s3),
         CampoDeFecha(

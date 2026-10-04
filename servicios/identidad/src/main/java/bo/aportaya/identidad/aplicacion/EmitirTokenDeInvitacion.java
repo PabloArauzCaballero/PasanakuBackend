@@ -77,7 +77,7 @@ public class EmitirTokenDeInvitacion {
                          canal_entrega, destino_enmascarado, estado, emitido_en, expira_en,
                          intentos_fallidos, max_intentos, reenvios, uso_unico, clicks,
                          ip_origen, agente_usuario, correlation_id, clave_idempotencia)
-                    VALUES (?, ?, 'ENLACE', ?, encode(digest(?, 'sha256'), 'hex'), 'SHA-256',
+                    VALUES (?, ?, 'ENLACE', ?, encode(public.digest(?, 'sha256'), 'hex'), 'SHA-256',
                             ?, ?, 'EMITIDO', ?::timestamptz, ?::timestamptz, 0, 1, 0, true, 0,
                             ?::inet, ?, ?, ?)
                     """,

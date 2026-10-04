@@ -1,0 +1,23 @@
+# H12 · gates de front — 2026-10-03 23:07:29
+## backoffice
+typecheck exit=0
+TODO OK
+ Test Files  63 passed (63)
+      Tests  373 passed (373)
+      Tests  35 passed (35)
+      Tests  35 passed (35)
+## ui
+typecheck exit=0
+TODO OK
+      Tests  114 passed (114)
+      Tests  3 passed (3)
+## movil
+Formatted 261 files (0 changed) in 3.63 seconds.
+  FALLA · ningún archivo de más de 200 líneas (texto_del_contrato.dart es dato y queda fuera) ['apps\\movil\\lib\\pantallas\\identidad\\pasos_alta\\campos_del_alta.dart (210)', 'apps\\movil\\lib\\pantallas\\identidad\\pasos_alta\\paso_datos.dart (214)']
+1 FALLAS
+lint exit=1
+## movil (tras separar archivos)
+No issues found! (ran in 53.5s)
+TODO OK
+flutter test (sin test/goldens: se comparan en macOS, ver H12.S1.M1):
+All tests passed! (+298, 0 fallos)

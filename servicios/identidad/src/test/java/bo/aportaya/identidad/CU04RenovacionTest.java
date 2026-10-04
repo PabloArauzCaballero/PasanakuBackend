@@ -39,7 +39,8 @@ class CU04RenovacionTest extends BaseDeCU04 {
     }
 
     @Test
-    @DisplayName("Dado un refresh vivo · Cuando se usa · Entonces entrega otro de la misma familia y el usado queda consumido")
+    @DisplayName(
+            "Dado un refresh vivo · Cuando se usa · Entonces entrega otro de la misma familia y el usado queda consumido")
     void rotacion() {
         UUID usuario = participanteConCredencial("+59171000021");
         UUID sesion = fixtura.sesionAbierta(usuario);
@@ -57,13 +58,13 @@ class CU04RenovacionTest extends BaseDeCU04 {
                         "SELECT count(DISTINCT familia_id) FROM identidad.token_verificacion WHERE usuario_id = ? AND tipo_token = 'REFRESCO'",
                         usuario))
                 .isEqualTo(1L);
-        assertThat(dsl.fetchValue(
-                        "SELECT refresco_familia_id IS NOT NULL FROM identidad.sesion WHERE id = ?", sesion))
+        assertThat(dsl.fetchValue("SELECT refresco_familia_id IS NOT NULL FROM identidad.sesion WHERE id = ?", sesion))
                 .isEqualTo(true);
     }
 
     @Test
-    @DisplayName("Dado un refresh ya rotado hace rato · Cuando alguien lo reusa · Entonces se revoca la familia y la sesion, y el refresh nuevo tampoco sirve")
+    @DisplayName(
+            "Dado un refresh ya rotado hace rato · Cuando alguien lo reusa · Entonces se revoca la familia y la sesion, y el refresh nuevo tampoco sirve")
     void reusoRevocaLaFamilia() {
         UUID usuario = participanteConCredencial("+59171000022");
         UUID sesion = fixtura.sesionAbierta(usuario);
@@ -83,7 +84,8 @@ class CU04RenovacionTest extends BaseDeCU04 {
     }
 
     @Test
-    @DisplayName("Dado dos usos casi simultaneos del mismo refresh (dos pestanas) · Entonces el segundo se rechaza SIN revocar la sesion")
+    @DisplayName(
+            "Dado dos usos casi simultaneos del mismo refresh (dos pestanas) · Entonces el segundo se rechaza SIN revocar la sesion")
     void graciaParaLaCarrera() {
         UUID usuario = participanteConCredencial("+59171000023");
         UUID sesion = fixtura.sesionAbierta(usuario);
@@ -99,7 +101,7 @@ class CU04RenovacionTest extends BaseDeCU04 {
     }
 
     @Test
-    @DisplayName("Sin cookie o con un valor que no es un refresh emitido · Entonces se rechaza")
+    @DisplayName("Dado una renovacion sin cookie o con un valor que no es un refresh emitido · Entonces se rechaza")
     void desconocidoOAusente() {
         assertThat(renovar(null).renovada()).isFalse();
         assertThat(renovar("").renovada()).isFalse();
@@ -124,19 +126,19 @@ class CU04RenovacionTest extends BaseDeCU04 {
         UUID usuario = participanteConCredencial("+59171000025");
         UUID sesion = fixtura.sesionAbierta(usuario);
         String token = emitir(usuario, sesion);
-        dsl.execute("UPDATE identidad.sesion SET revocada_en = now(), motivo_revocacion = 'prueba' WHERE id = ?", sesion);
+        dsl.execute(
+                "UPDATE identidad.sesion SET revocada_en = now(), motivo_revocacion = 'prueba' WHERE id = ?", sesion);
 
         assertThat(renovar(token).renovada()).isFalse();
     }
 
     @Test
-    @DisplayName("El refresh en claro no se guarda: en la base solo esta su SHA-256")
+    @DisplayName("Dado un refresh emitido · Entonces en la base solo queda su SHA-256 y nunca el valor en claro")
     void soloElHash() {
         UUID usuario = participanteConCredencial("+59171000026");
         String token = emitir(usuario, fixtura.sesionAbierta(usuario));
 
-        assertThat(dsl.fetchValue(
-                        "SELECT count(*) FROM identidad.token_verificacion WHERE hash_token = ?", token))
+        assertThat(dsl.fetchValue("SELECT count(*) FROM identidad.token_verificacion WHERE hash_token = ?", token))
                 .isEqualTo(0L);
         assertThat(estadoDe(token)).isEqualTo("EMITIDO");
     }
@@ -147,9 +149,15 @@ class CU04RenovacionTest extends BaseDeCU04 {
     private static final String SEARCH_PATH_DEL_SERVICIO = "SET LOCAL search_path TO identidad, catalogo, comun";
 
     private String emitir(UUID usuario, UUID sesion) {
-        return transaccion.execute(e -> {
+        return transaccion
+                .execute(e -> {
                     dsl.execute(SEARCH_PATH_DEL_SERVICIO);
-                    return refresco.emitir(usuario, sesion, "127.0.0.1", "prueba", UUID.randomUUID().toString());
+                    return refresco.emitir(
+                            usuario,
+                            sesion,
+                            "127.0.0.1",
+                            "prueba",
+                            UUID.randomUUID().toString());
                 })
                 .token();
     }
@@ -157,13 +165,15 @@ class CU04RenovacionTest extends BaseDeCU04 {
     private RenovarSesion.Renovacion renovar(String token) {
         return transaccion.execute(e -> {
             dsl.execute(SEARCH_PATH_DEL_SERVICIO);
-            return refresco.renovar(token, "127.0.0.1", "prueba", UUID.randomUUID().toString());
+            return refresco.renovar(
+                    token, "127.0.0.1", "prueba", UUID.randomUUID().toString());
         });
     }
 
     private String estadoDe(String token) {
         return dsl.fetchValue(
-                "SELECT estado FROM identidad.token_verificacion WHERE hash_token = encode(digest(?, 'sha256'), 'hex')",
-                token).toString();
+                        "SELECT estado FROM identidad.token_verificacion WHERE hash_token = encode(digest(?, 'sha256'), 'hex')",
+                        token)
+                .toString();
     }
 }

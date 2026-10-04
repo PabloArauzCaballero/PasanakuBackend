@@ -9,10 +9,11 @@ import {
   ExpedienteEnRevisionEstadoEnum,
   type ExpedienteEnRevision,
 } from 'clientes/angular/identidad'
-import { colaVacia, crearResolver, expedientesEnEstado, POR_DECIDIR, recortar } from '../dominio/cu02-expedientes'
+import { colaVacia, crearResolver, expedientesEnEstado, POR_DECIDIR, recortar, vencimientoDe } from '../dominio/cu02-expedientes'
 import type { ErrorTraducido } from '../../../nucleo/errores'
 import { textosCumplimiento } from '../textos'
 import { DecisionDeExpediente, type Decision } from './decision-de-expediente'
+import { VencimientoDelDocumento } from './vencimiento-del-documento'
 import { TiraDeFotos } from './tira-de-fotos'
 
 /**
@@ -27,7 +28,7 @@ import { TiraDeFotos } from './tira-de-fotos'
  * lectura queda registrada — una grilla que las precarga todas es una filtración
  * cómoda.
  *
- * Abierto un expediente, las tres se piden juntas y se muestran **una al lado de la
+ * Abierto un expediente, las cinco se piden juntas y se muestran **una al lado de la
  * otra**: la prueba de vida se decide cotejando la cara contra el documento, y
  * cotejar es mirar las dos a la vez. Antes cada foto pisaba a la anterior y había que
  * decidir de memoria.
@@ -35,7 +36,7 @@ import { TiraDeFotos } from './tira-de-fotos'
 @Component({
   selector: 'ap-pantalla-de-expedientes',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [EstadoDePantalla, BandaDeProposito, ChipEstado, Boton, FormsModule, TiraDeFotos, DecisionDeExpediente],
+  imports: [EstadoDePantalla, BandaDeProposito, ChipEstado, Boton, FormsModule, TiraDeFotos, DecisionDeExpediente, VencimientoDelDocumento],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
     <main>
@@ -65,6 +66,7 @@ import { TiraDeFotos } from './tira-de-fotos'
                   <div>
                     <h2>{{ e.nombreCompleto }}</h2>
                     <p class="doc">{{ e.documento ?? t.sinDocumento }}</p>
+                    <ap-vencimiento-del-documento [expediente]="e" />
                   </div>
                   <ap-chip-estado [tono]="tonoDe(e)">{{ e.estado }}</ap-chip-estado>
                 </header>
@@ -75,6 +77,7 @@ import { TiraDeFotos } from './tira-de-fotos'
                   <ap-decision-de-expediente
                     [verificacionId]="e.verificacionId"
                     [completo]="completo(e)"
+                    [vencimiento]="vencimientoDe(e)"
                     [ocupado]="resolviendo() !== null"
                     [enCurso]="resolviendo()?.id === e.verificacionId ? resolviendo()!.decision : null"
                     [error]="errores()[e.verificacionId]"
@@ -136,10 +139,13 @@ export class PantallaDeExpedientes {
 
   private readonly enviarDecision = crearResolver()
 
-  /** Sin las tres fotos no se aprueba: aprobar a ciegas es no revisar. */
+  /** Sin las cinco fotos no se aprueba: aprobar a ciegas es no revisar. */
   protected completo(e: ExpedienteEnRevision): boolean {
     return this.caras.every((c) => e.fotos.includes(c))
   }
+
+  /** Lo decide el servidor (`documentoVigente`), no el reloj de quien mira. */
+  protected readonly vencimientoDe = vencimientoDe
 
   /** Un expediente ya resuelto no se vuelve a decidir desde acá. */
   protected pendiente(e: ExpedienteEnRevision): boolean {

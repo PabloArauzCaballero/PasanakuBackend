@@ -11,6 +11,12 @@ const Map<String, String> _catalogo = {
   // (CU01RegistrarUsuario): el texto no puede elegir uno de los dos.
   'AP-CU01-03':
       'Ya hay una cuenta con ese celular o ese documento. Si es tuya, iniciá sesión.',
+  'AP-CU01-06':
+      'Esa contraseña no sirve: es muy corta o usa tu celular o tu documento. Elegí otra.',
+  // El servidor compara el vencimiento con su propio reloj (hora de Bolivia): el
+  // aviso del paso 1 es ayuda, esto es la regla.
+  'AP-CU01-07':
+      'Tu carnet está vencido. Para abrir la cuenta hace falta uno vigente.',
   // Los AP-CU04-* siguen el contrato (identidad.yaml, POST /sesiones).
   'AP-CU04-01': 'El celular o la contraseña no coinciden.',
   'AP-CU04-04': 'Ese código no sirve: revisalo o pedí uno nuevo.',

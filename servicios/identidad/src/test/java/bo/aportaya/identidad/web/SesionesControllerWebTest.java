@@ -205,24 +205,26 @@ class SesionesControllerWebTest {
     }
 
     @Test
-    @DisplayName("ADR-010 · ingreso WEB: el refresh sale en una cookie HttpOnly, Secure, SameSite=Strict, solo para /api/v1/sesion")
+    @DisplayName(
+            "ADR-010 · ingreso WEB: el refresh sale en una cookie HttpOnly, Secure, SameSite=Strict, solo para /api/v1/sesion")
     void ingresoWebEmiteLaCookie() throws Exception {
         when(cu04.ejecutar(any(), any())).thenReturn(abierta(true));
         when(emitirAcceso.ejecutar(any(), any(), any(), any()))
                 .thenReturn(new EmitirAcceso.Acceso("un.token.firmado", Instant.parse("2026-04-01T12:00:00Z")));
         when(renovarSesion.emitir(any(), any(), any(), any(), any()))
-                .thenReturn(new RenovarSesion.Emitido("a".repeat(64), OffsetDateTime.now(ZoneOffset.UTC).plusHours(12)));
+                .thenReturn(new RenovarSesion.Emitido(
+                        "a".repeat(64), OffsetDateTime.now(ZoneOffset.UTC).plusHours(12)));
 
-        mvc.perform(post("/sesiones")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(CUERPO.replace("ANDROID", "WEB")))
+        mvc.perform(post("/sesiones").contentType(MediaType.APPLICATION_JSON).content(CUERPO.replace("ANDROID", "WEB")))
                 .andExpect(status().isOk())
-                .andExpect(header().string("Set-Cookie", allOf(
-                        startsWith("aportaya_refresco=" + "a".repeat(64)),
-                        containsString("HttpOnly"),
-                        containsString("Secure"),
-                        containsString("SameSite=Strict"),
-                        containsString("Path=/api/v1/sesion"))));
+                .andExpect(header().string(
+                                "Set-Cookie",
+                                allOf(
+                                        startsWith("aportaya_refresco=" + "a".repeat(64)),
+                                        containsString("HttpOnly"),
+                                        containsString("Secure"),
+                                        containsString("SameSite=Strict"),
+                                        containsString("Path=/api/v1/sesion"))));
         verify(renovarSesion).emitir(any(), any(), any(), any(), any());
     }
 

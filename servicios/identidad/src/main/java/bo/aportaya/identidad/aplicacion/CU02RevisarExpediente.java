@@ -6,10 +6,13 @@ import bo.aportaya.plataforma.archivos.AlmacenDeArchivos;
 import bo.aportaya.plataforma.archivos.ClaveObjeto;
 import bo.aportaya.plataforma.archivos.ContenidoAlmacenado;
 import bo.aportaya.plataforma.datos.Datos;
+import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeDominio;
+import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Reloj;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -19,6 +22,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * CU-02 · el portal de riesgo: mirar el expediente y decidir **a mano**.
+ *
+ * <p>Traza en la boveda: es el flujo 4 de CU-01 (la verificacion KYC del alta, 4b
+ * «revision manual del expediente»), porque la decision fija {@code verificacion_kyc.estado}.
+ * El prefijo CU02 de esta familia de clases es historico; por eso sus rechazos son
+ * {@code AP-CU01-08..11} y no {@code AP-CU02-*}, que en la boveda son de CU-02 (elevar
+ * debida diligencia, servicio cumplimiento) y significan otra cosa.
  *
  * <p>Empieza siendo decision manual a proposito. Un motor automatico que rechaza sin
  * que nadie mire deja a alguien sin cuenta y sin explicacion, y el dia que se
@@ -79,7 +88,30 @@ public class CU02RevisarExpediente {
             throw new ErrorDeDominio("Para rechazar hay que decir por que");
         }
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
+        LocalDate hoy = reloj.hoy();
         datos.conContexto(ctx, dsl -> {
+            // Las reglas se aplican ACA, no solo en el backoffice: la interfaz nunca es
+            // una barrera (regla 95.6.1). Antes un APROBAR por API pasaba sin fotos.
+            ExpedienteDeIdentidad expediente = revisiones
+                    .paraDecidir(dsl, verificacionId)
+                    .orElseThrow(() -> new ErrorDeDominio("Ese expediente no existe"));
+            if (!expediente.esperaDecision()) {
+                throw new ErrorDeNegocio(CodigoError.de(1, 8), "Ese expediente ya fue resuelto.");
+            }
+            if (aprueba && !expediente.completo()) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(1, 9),
+                        "Faltan fotos: no se aprueba un expediente que no se puede mirar entero.");
+            }
+            if (aprueba && expediente.fechaExpiracionDocumento() == null) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(1, 10),
+                        "El documento no tiene fecha de vencimiento: no se puede comprobar que este vigente.");
+            }
+            if (aprueba && !expediente.documentoVigente(hoy)) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(1, 11), "El documento esta vencido: no se aprueba con un documento vencido.");
+            }
             revisiones.resolver(
                     dsl,
                     verificacionId,
@@ -89,6 +121,11 @@ public class CU02RevisarExpediente {
                     ahora);
             return null;
         });
+    }
+
+    /** Si el documento del expediente vale hoy (fecha de La Paz). Lo muestra la cola. */
+    public boolean documentoVigente(ExpedienteDeIdentidad expediente) {
+        return expediente.documentoVigente(reloj.hoy());
     }
 
     public record Enlace(String url, OffsetDateTime vigenteHasta) {}

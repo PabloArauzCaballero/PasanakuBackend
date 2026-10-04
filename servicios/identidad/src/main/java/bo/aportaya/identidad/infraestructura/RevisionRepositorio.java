@@ -6,7 +6,9 @@ import static bo.aportaya.identidad.generado.Tables.VERIFICACION_KYC;
 
 import bo.aportaya.identidad.dominio.ExpedienteDeIdentidad;
 import bo.aportaya.plataforma.archivos.DestinoDeObjeto;
+import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeDominio;
+import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,7 @@ public class RevisionRepositorio {
                         DOCUMENTO_IDENTIDAD.LUGAR_EXPEDICION,
                         DOCUMENTO_IDENTIDAD.URL_ANVERSO,
                         DOCUMENTO_IDENTIDAD.URL_REVERSO,
+                        DOCUMENTO_IDENTIDAD.FECHA_EXPIRACION,
                         VERIFICACION_KYC.URL_SELFIE,
                         VERIFICACION_KYC.URL_PERFIL_IZQUIERDO,
                         VERIFICACION_KYC.URL_PERFIL_DERECHO,
@@ -64,6 +67,7 @@ public class RevisionRepositorio {
                         DOCUMENTO_IDENTIDAD.LUGAR_EXPEDICION,
                         DOCUMENTO_IDENTIDAD.URL_ANVERSO,
                         DOCUMENTO_IDENTIDAD.URL_REVERSO,
+                        DOCUMENTO_IDENTIDAD.FECHA_EXPIRACION,
                         VERIFICACION_KYC.URL_SELFIE,
                         VERIFICACION_KYC.URL_PERFIL_IZQUIERDO,
                         VERIFICACION_KYC.URL_PERFIL_DERECHO,
@@ -128,7 +132,42 @@ public class RevisionRepositorio {
                 f.get(VERIFICACION_KYC.INICIADA_EN),
                 f.get(VERIFICACION_KYC.RESUELTA_EN),
                 f.get(VERIFICACION_KYC.MOTIVO_RECHAZO),
-                fotos);
+                fotos,
+                f.get(DOCUMENTO_IDENTIDAD.FECHA_EXPIRACION));
+    }
+
+    /**
+     * El expediente que se va a decidir, con su fila BLOQUEADA hasta el fin de la
+     * transaccion: dos operadores que deciden a la vez el mismo expediente se encolan
+     * en vez de pisarse.
+     */
+    public Optional<ExpedienteDeIdentidad> paraDecidir(DSLContext dsl, UUID verificacionId) {
+        return dsl.select(
+                        VERIFICACION_KYC.ID,
+                        VERIFICACION_KYC.USUARIO_ID,
+                        USUARIO.NOMBRES,
+                        USUARIO.APELLIDOS,
+                        DOCUMENTO_IDENTIDAD.TIPO,
+                        DOCUMENTO_IDENTIDAD.LUGAR_EXPEDICION,
+                        DOCUMENTO_IDENTIDAD.URL_ANVERSO,
+                        DOCUMENTO_IDENTIDAD.URL_REVERSO,
+                        DOCUMENTO_IDENTIDAD.FECHA_EXPIRACION,
+                        VERIFICACION_KYC.URL_SELFIE,
+                        VERIFICACION_KYC.URL_PERFIL_IZQUIERDO,
+                        VERIFICACION_KYC.URL_PERFIL_DERECHO,
+                        VERIFICACION_KYC.ESTADO,
+                        VERIFICACION_KYC.INICIADA_EN,
+                        VERIFICACION_KYC.RESUELTA_EN,
+                        VERIFICACION_KYC.MOTIVO_RECHAZO)
+                .from(VERIFICACION_KYC)
+                .join(USUARIO)
+                .on(USUARIO.ID.eq(VERIFICACION_KYC.USUARIO_ID))
+                .leftJoin(DOCUMENTO_IDENTIDAD)
+                .on(DOCUMENTO_IDENTIDAD.USUARIO_ID.eq(VERIFICACION_KYC.USUARIO_ID))
+                .where(VERIFICACION_KYC.ID.eq(verificacionId))
+                .forUpdate()
+                .of(VERIFICACION_KYC)
+                .fetchOptional(RevisionRepositorio::aExpedienteDeIdentidad);
     }
 
     /** La clave del objeto de una cara, para pedirle al almacen su enlace temporal. */
@@ -186,9 +225,12 @@ public class RevisionRepositorio {
                 .set(VERIFICACION_KYC.REVISADA_POR, revisor)
                 .set(VERIFICACION_KYC.RESUELTA_EN, ahora)
                 .where(VERIFICACION_KYC.ID.eq(verificacionId))
+                // La precondicion va en la escritura: un expediente ya resuelto no se
+                // vuelve a decidir — se pisaria quien lo reviso y cuando (trazabilidad).
+                .and(VERIFICACION_KYC.ESTADO.in("PENDIENTE", "EN_REVISION"))
                 .execute();
         if (filas == 0) {
-            throw new ErrorDeDominio("Ese expediente no existe");
+            throw new ErrorDeNegocio(CodigoError.de(1, 8), "Ese expediente ya fue resuelto.");
         }
     }
 }

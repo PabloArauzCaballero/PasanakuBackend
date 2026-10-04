@@ -1847,12 +1847,7 @@
           "name": "1 · valido",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{base_url}}{{prefijo_api}}/pagos/webhooks/:proveedorCodigo",
               "host": [
@@ -1933,12 +1928,7 @@
           "name": "2 · limite",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{base_url}}{{prefijo_api}}/pagos/webhooks/:proveedorCodigo",
               "host": [

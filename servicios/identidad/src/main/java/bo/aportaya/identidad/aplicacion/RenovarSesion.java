@@ -115,8 +115,7 @@ public class RenovarSesion {
                 }
                 // Reuso fuera de la ventana: se vuelve a consumir y el trigger R-SEG-09
                 // invalida la familia y revoca la sesion. Queda escrito con el COMMIT.
-                dsl.execute(
-                        "UPDATE identidad.token_verificacion SET estado = 'CONSUMIDO' WHERE id = ?", tokenId);
+                dsl.execute("UPDATE identidad.token_verificacion SET estado = 'CONSUMIDO' WHERE id = ?", tokenId);
                 return Renovacion.rechazada();
             }
 
@@ -143,7 +142,8 @@ public class RenovarSesion {
             }
             UUID usuarioId = fila.get("usuario_id", UUID.class);
             UUID sesionId = fila.get("sesion_id", UUID.class);
-            dsl.execute("UPDATE identidad.sesion SET ultima_actividad_en = ?::timestamptz WHERE id = ?", ahora, sesionId);
+            dsl.execute(
+                    "UPDATE identidad.sesion SET ultima_actividad_en = ?::timestamptz WHERE id = ?", ahora, sesionId);
             Emitido siguiente = insertar(
                     dsl, usuarioId, sesionId, fila.get("familia_id", UUID.class), tokenId, ip, agente, trazaId, ahora);
             boolean esOperador = usuarios.perfilDe(dsl, usuarioId).esOperador();
@@ -161,8 +161,8 @@ public class RenovarSesion {
             String agente,
             String trazaId,
             OffsetDateTime ahora) {
-        var politica = dsl.fetchOne(
-                "SELECT id, ttl_segundos FROM identidad.politica_token WHERE proposito = ?", PROPOSITO);
+        var politica =
+                dsl.fetchOne("SELECT id, ttl_segundos FROM identidad.politica_token WHERE proposito = ?", PROPOSITO);
         if (politica == null) {
             // Denegar por omision: sin politica sembrada no se inventa una vigencia.
             throw new ErrorDeNegocio(CodigoError.de(4, 8), "No hay politica de token para renovar la sesion.");

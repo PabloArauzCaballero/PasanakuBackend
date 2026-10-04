@@ -34,7 +34,10 @@ public class CookieDeRefresco {
     }
 
     String emitir(String token, OffsetDateTime expiraEn) {
-        long segundos = Math.max(0, Duration.between(OffsetDateTime.now(expiraEn.getOffset()), expiraEn).getSeconds());
+        long segundos = Math.max(
+                0,
+                Duration.between(OffsetDateTime.now(expiraEn.getOffset()), expiraEn)
+                        .getSeconds());
         return base(token).maxAge(segundos).build().toString();
     }
 
@@ -56,6 +59,10 @@ public class CookieDeRefresco {
     }
 
     private ResponseCookie.ResponseCookieBuilder base(String valor) {
-        return ResponseCookie.from(NOMBRE, valor).httpOnly(true).secure(true).sameSite("Strict").path(ruta);
+        return ResponseCookie.from(NOMBRE, valor)
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Strict")
+                .path(ruta);
     }
 }

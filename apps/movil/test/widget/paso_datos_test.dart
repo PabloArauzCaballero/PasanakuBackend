@@ -61,7 +61,33 @@ void main() {
     expect(find.text('Revisá el número de documento.'), findsOneWidget);
     expect(find.text('Escribí tu correo.'), findsOneWidget);
     expect(find.text('Elegí dónde te expidieron el carnet.'), findsOneWidget);
+    expect(find.text('Elegí hasta cuándo vale tu carnet.'), findsOneWidget);
     expect(find.text('Elegí una fecha.'), findsOneWidget);
+  });
+
+  testWidgets('un carnet vencido no deja seguir y dice por qué', (
+    tester,
+  ) async {
+    final contenedor = ProviderContainer();
+    final ayer = DateTime.now().subtract(const Duration(days: 1));
+    contenedor
+        .read(altaProvider.notifier)
+        .actualizarDatos(
+          contenedor.read(altaProvider).datos.copiarCon(fechaExpiracion: ayer),
+        );
+    await abrir(tester, contenedor: contenedor);
+    await tester.ensureVisible(find.text('Continuar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text(
+        'Tu carnet está vencido. Para abrir la cuenta hace falta uno vigente.',
+      ),
+      findsOneWidget,
+    );
+    expect(contenedor.read(altaProvider).paso, PasoAlta.datos);
   });
 
   testWidgets(
@@ -107,7 +133,10 @@ void main() {
           contenedor
               .read(altaProvider)
               .datos
-              .copiarCon(fechaNacimiento: DateTime(1995, 4, 12)),
+              .copiarCon(
+                fechaNacimiento: DateTime(1995, 4, 12),
+                fechaExpiracion: DateTime.now().add(const Duration(days: 400)),
+              ),
         );
     await abrir(tester, contenedor: contenedor);
 

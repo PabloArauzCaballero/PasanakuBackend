@@ -29,6 +29,13 @@ export type ExpedienteEnRevision = {
   // Campo concreto porque el código lo accede con notación de punto
   // (`noPropertyAccessFromIndexSignature` no lo permite si viniera solo del índice).
   motivoRechazo?: string
+  /** `format: date` del contrato («2027-05-10»), sin hora ni zona. Falta en altas viejas. */
+  fechaExpiracionDocumento?: string
+  /**
+   * Lo calcula el servidor con SU reloj (hora de Bolivia): la pantalla no decide si un
+   * documento esta vigente, y el servidor igual rechaza aprobar uno vencido (AP-CU01-11).
+   */
+  documentoVigente: boolean
   // Permisivo para cualquier otro campo que el código real lea de acá sin enumerarlo.
   [campo: string]: unknown
 }

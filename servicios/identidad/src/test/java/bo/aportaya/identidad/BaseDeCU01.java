@@ -130,6 +130,27 @@ abstract class BaseDeCU01 {
                         .get(0);
     }
 
+    /** La misma entrada, con la fecha de vencimiento del documento que escribe la persona. */
+    protected SalidaRegistro registrarConVencimiento(String telefono, String documento, LocalDate vence) {
+        var base = entrada(telefono, documento, true, true);
+        var conFecha = new EntradaRegistro(
+                base.telefonoE164(),
+                base.nombres(),
+                base.apellidos(),
+                base.fechaNacimiento(),
+                base.correo(),
+                base.canalVerificacion(),
+                DocumentoDeIdentidad.de(
+                        DocumentoDeIdentidad.Tipo.CI, documento, "pimienta-de-prueba", "BO", "LP", vence),
+                base.numeroCifrado(),
+                base.contrasena(),
+                base.aceptaContratos(),
+                base.licenciaHabilitaBilletera(),
+                base.ip(),
+                base.agente());
+        return transaccion.execute(e -> registrarUsuario.ejecutar(conFecha, contexto()));
+    }
+
     protected SalidaRegistro registrar(String telefono, String documento) {
         return transaccion.execute(
                 e -> registrarUsuario.ejecutar(entrada(telefono, documento, true, true), contexto()));

@@ -28,6 +28,7 @@ class Registro {
     required String tipoDocumento,
     required String numeroDocumento,
     required String? lugarExpedicion,
+    required DateTime? fechaExpiracion,
     required String correo,
     required String canalVerificacion,
     required String contrasena,
@@ -54,6 +55,7 @@ class Registro {
                 : DocumentoLugarExpedicionEnum.values.firstWhere(
                     (e) => e.name == lugarExpedicion,
                   ),
+            fechaExpiracion: fechaExpiracion,
           ),
           contrasena: contrasena,
           aceptaContratos: contratosAceptados,

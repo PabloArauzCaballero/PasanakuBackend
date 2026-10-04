@@ -109,7 +109,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"nombres\": \"nombres-de-prueba\",\n  \"apellidos\": \"apellidos-de-prueba\",\n  \"fechaNacimiento\": \"{{fecha_hoy}}\",\n  \"contrasena\": \"contrasena-de-prueba\",\n  \"correo\": \"correo-de-prueba\",\n  \"canalVerificacion\": \"SMS\",\n  \"documento\": {\n    \"tipo\": \"CI\",\n    \"numero\": \"numero-de-prueba\",\n    \"lugarExpedicion\": \"LP\"\n  },\n  \"aceptaContratos\": [\n    \"{{aceptaContratos}}\"\n  ]\n}",
+              "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"nombres\": \"nombres-de-prueba\",\n  \"apellidos\": \"apellidos-de-prueba\",\n  \"fechaNacimiento\": \"{{fecha_hoy}}\",\n  \"contrasena\": \"contrasena-de-prueba\",\n  \"correo\": \"correo-de-prueba\",\n  \"canalVerificacion\": \"SMS\",\n  \"documento\": {\n    \"tipo\": \"CI\",\n    \"numero\": \"numero-de-prueba\",\n    \"lugarExpedicion\": \"LP\",\n    \"fechaExpiracion\": \"{{fecha_hoy}}\"\n  },\n  \"aceptaContratos\": [\n    \"{{aceptaContratos}}\"\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -201,7 +201,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"nombres\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"apellidos\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"fechaNacimiento\": \"{{fecha_hoy}}\",\n  \"contrasena\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"correo\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"canalVerificacion\": \"CORREO\",\n  \"documento\": {\n    \"tipo\": \"PASAPORTE\",\n    \"numero\": \"LLLLLLLLLLLLLLLLLLLL\",\n    \"lugarExpedicion\": \"PD\"\n  },\n  \"aceptaContratos\": [\n    \"{{id}}\"\n  ]\n}",
+              "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"nombres\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"apellidos\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"fechaNacimiento\": \"{{fecha_hoy}}\",\n  \"contrasena\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"correo\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"canalVerificacion\": \"CORREO\",\n  \"documento\": {\n    \"tipo\": \"PASAPORTE\",\n    \"numero\": \"LLLLLLLLLLLLLLLLLLLL\",\n    \"lugarExpedicion\": \"PD\",\n    \"fechaExpiracion\": \"{{fecha_hoy}}\"\n  },\n  \"aceptaContratos\": [\n    \"{{id}}\"\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -263,7 +263,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombres\": \"nombres-de-prueba\",\n  \"apellidos\": \"apellidos-de-prueba\",\n  \"fechaNacimiento\": \"{{fecha_hoy}}\",\n  \"contrasena\": \"contrasena-de-prueba\",\n  \"correo\": \"correo-de-prueba\",\n  \"canalVerificacion\": \"SMS\",\n  \"documento\": {\n    \"tipo\": \"CI\",\n    \"numero\": \"numero-de-prueba\",\n    \"lugarExpedicion\": \"LP\"\n  },\n  \"aceptaContratos\": [\n    \"{{aceptaContratos}}\"\n  ],\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"nombres\": \"nombres-de-prueba\",\n  \"apellidos\": \"apellidos-de-prueba\",\n  \"fechaNacimiento\": \"{{fecha_hoy}}\",\n  \"contrasena\": \"contrasena-de-prueba\",\n  \"correo\": \"correo-de-prueba\",\n  \"canalVerificacion\": \"SMS\",\n  \"documento\": {\n    \"tipo\": \"CI\",\n    \"numero\": \"numero-de-prueba\",\n    \"lugarExpedicion\": \"LP\",\n    \"fechaExpiracion\": \"{{fecha_hoy}}\"\n  },\n  \"aceptaContratos\": [\n    \"{{aceptaContratos}}\"\n  ],\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1349,7 +1349,7 @@
                   "pm.test(\"trae los campos que el contrato declara obligatorios\", () => {",
                   "    if (pm.response.code >= 300 || pm.response.code === 204) return;",
                   "    const cuerpo = pm.response.json();",
-                  "    for (const campo of [\"verificacionId\", \"usuarioId\", \"nombreCompleto\", \"estado\", \"iniciadaEn\", \"fotos\"]) {",
+                  "    for (const campo of [\"verificacionId\", \"usuarioId\", \"nombreCompleto\", \"estado\", \"iniciadaEn\", \"fotos\", \"documentoVigente\"]) {",
                   "        pm.expect(cuerpo, \"falta \" + campo).to.have.property(campo);",
                   "    }",
                   "});",

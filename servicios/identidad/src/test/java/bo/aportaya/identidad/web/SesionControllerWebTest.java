@@ -56,7 +56,8 @@ class SesionControllerWebTest {
                 .thenReturn(new RenovarSesion.Renovacion(
                         Optional.of(OPERADOR),
                         true,
-                        Optional.of(new RenovarSesion.Emitido(NUEVO, OffsetDateTime.now(ZoneOffset.UTC).plusHours(12)))));
+                        Optional.of(new RenovarSesion.Emitido(
+                                NUEVO, OffsetDateTime.now(ZoneOffset.UTC).plusHours(12)))));
         when(emitirAcceso.ejecutar(eq(OPERADOR), eq("BACKOFFICE"), any(), isNull()))
                 .thenReturn(new EmitirAcceso.Acceso(
                         "acceso.nuevo", Instant.now().plusSeconds(900), List.of("ver:cumplimiento")));
@@ -66,12 +67,14 @@ class SesionControllerWebTest {
                 .andExpect(jsonPath("$.acceso").value("acceso.nuevo"))
                 .andExpect(jsonPath("$.rol").value("BACKOFFICE"))
                 .andExpect(jsonPath("$.permisos[0]").value("ver:cumplimiento"))
-                .andExpect(header().string("Set-Cookie", allOf(
-                        startsWith("aportaya_refresco=" + NUEVO),
-                        containsString("HttpOnly"),
-                        containsString("Secure"),
-                        containsString("SameSite=Strict"),
-                        containsString("Path=/api/v1/sesion"))));
+                .andExpect(header().string(
+                                "Set-Cookie",
+                                allOf(
+                                        startsWith("aportaya_refresco=" + NUEVO),
+                                        containsString("HttpOnly"),
+                                        containsString("Secure"),
+                                        containsString("SameSite=Strict"),
+                                        containsString("Path=/api/v1/sesion"))));
     }
 
     @Test
@@ -83,7 +86,8 @@ class SesionControllerWebTest {
         mvc.perform(post("/sesion/refrescar"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.codigo").value("AP-SES-01"))
-                .andExpect(header().string("Set-Cookie", allOf(startsWith("aportaya_refresco=;"), containsString("Max-Age=0"))));
+                .andExpect(header().string(
+                                "Set-Cookie", allOf(startsWith("aportaya_refresco=;"), containsString("Max-Age=0"))));
         verify(emitirAcceso, never()).ejecutar(any(), any(), any(), any());
     }
 

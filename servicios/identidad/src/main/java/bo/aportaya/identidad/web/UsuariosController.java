@@ -11,11 +11,11 @@ import bo.aportaya.identidad.dominio.CanalDeVerificacion;
 import bo.aportaya.identidad.dominio.DocumentoDeIdentidad;
 import bo.aportaya.identidad.web.generado.UsuariosApi;
 import bo.aportaya.identidad.web.generado.modelo.ArchivoDelExpediente;
+import bo.aportaya.identidad.web.generado.modelo.CaraDelExpediente;
 import bo.aportaya.identidad.web.generado.modelo.EntradaRegistro;
 import bo.aportaya.identidad.web.generado.modelo.EntradaTitularidad;
 import bo.aportaya.identidad.web.generado.modelo.EntradaTokenDeInvitacion;
 import bo.aportaya.identidad.web.generado.modelo.EntradaValidacionInvitacion;
-import bo.aportaya.identidad.web.generado.modelo.CaraDelExpediente;
 import bo.aportaya.identidad.web.generado.modelo.EstadoDeVerificacion;
 import bo.aportaya.identidad.web.generado.modelo.SalidaRegistro;
 import bo.aportaya.identidad.web.generado.modelo.SalidaTitularidad;
@@ -236,7 +236,8 @@ public class UsuariosController implements UsuariosApi {
                 // porque depende del tipo, y el dominio es el que la exige.
                 cuerpo.getDocumento().getLugarExpedicion() == null
                         ? null
-                        : cuerpo.getDocumento().getLugarExpedicion().getValue());
+                        : cuerpo.getDocumento().getLugarExpedicion().getValue(),
+                cuerpo.getDocumento().getFechaExpiracion());
         return new CU01RegistrarUsuario.EntradaRegistro(
                 cuerpo.getTelefonoE164(),
                 cuerpo.getNombres(),

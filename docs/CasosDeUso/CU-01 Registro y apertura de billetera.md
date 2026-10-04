@@ -64,6 +64,8 @@ normas: [ASFI Res. 540/2025, UIF EBR, ASFI Consumidor Financiero]
 
 | # | Situación | Resultado |
 | :-: | --- | --- |
+| 4 | El documento está vencido (`documento_identidad.fecha_expiracion` anterior a hoy en La Paz) | No se abre cuenta: `AP-CU01-07`. La persona escribe el vencimiento en el alta; el servidor lo compara con su propio reloj |
+| 4b | Revisión manual del expediente (sin proveedor de KYC contratado) | Una persona del portal de riesgo mira las cinco capturas y decide: `verificacion_kyc.estado` pasa a `APROBADA` o `RECHAZADA` con `revisada_por` y, si rechaza, `motivo_rechazo`. **El servidor** no aprueba un expediente ya resuelto (`AP-CU01-08`), sin las cinco fotos (`AP-CU01-09`), sin vencimiento del documento (`AP-CU01-10`) ni con el documento vencido (`AP-CU01-11`); rechazar sí se puede, con motivo. La fila se bloquea (`FOR UPDATE`) para que dos revisores no decidan el mismo expediente |
 | 4a | El proveedor de KYC rechaza el documento | `verificacion_kyc.estado='RECHAZADA'`; la cuenta no se crea; el usuario puede reintentar con límite de intentos ([[intento_validacion_token]]) |
 | 5a | Coincidencia en lista restrictiva confirmada | No se abre cuenta. Se abre [[caso_investigacion_lft]] con `origen='REVISION_PERIODICA'` y se evalúa reporte |
 | 6a | El usuario declara ser PEP | La apertura exige debida diligencia reforzada y aprobación de nivel superior antes de activar la cuenta |
@@ -85,7 +87,8 @@ export const EntradaCU01 = z.object({
   nombres:           z.string().min(2).max(60),
   apellidos:         z.string().min(2).max(60),
   fechaNacimiento:   z.string().date(),
-  documento:         z.object({ tipo: z.enum(['CI','CEX','PASAPORTE']), numero: z.string() }),
+  documento:         z.object({ tipo: z.enum(['CI','CEX','PASAPORTE']), numero: z.string(),
+                       fechaExpiracion: z.string().date().optional() }),
   aceptaContratos:   z.array(z.string().uuid()).min(1),
 }).strict()
 
@@ -102,6 +105,13 @@ export const ErroresCU01 = {
   CUENTA_YA_EXISTE: 'AP-CU01-03',
   CONTRATO_NO_ACEPTADO: 'AP-CU01-04',
   SERVICIO_NO_AUTORIZADO: 'AP-CU01-05',
+  CLAVE_RECHAZADA: 'AP-CU01-06',
+  DOCUMENTO_VENCIDO: 'AP-CU01-07',
+  // 4b · al decidir el expediente (POST /identidad/verificaciones/{id}/decision)
+  EXPEDIENTE_YA_RESUELTO: 'AP-CU01-08',
+  FOTOS_INCOMPLETAS: 'AP-CU01-09',
+  DOCUMENTO_SIN_VENCIMIENTO: 'AP-CU01-10',
+  DOCUMENTO_VENCIDO_AL_APROBAR: 'AP-CU01-11',
 } as const
 ```
 
@@ -112,6 +122,12 @@ export const ErroresCU01 = {
 | `CUENTA_YA_EXISTE` | Ya hay cuenta activa para ese titular y moneda (R-BIL-04) |
 | `CONTRATO_NO_ACEPTADO` | Falta aceptar el contrato de adhesión vigente (R-CON-06) |
 | `SERVICIO_NO_AUTORIZADO` | La licencia no habilita billetera (R-LIC-01) |
+| `CLAVE_RECHAZADA` | La contraseña no cumple la política: es corta o contiene el teléfono o el documento |
+| `DOCUMENTO_VENCIDO` | La fecha de vencimiento del documento ya pasó: no se abre cuenta |
+| `EXPEDIENTE_YA_RESUELTO` | Otra persona ya decidió ese expediente: no se decide dos veces |
+| `FOTOS_INCOMPLETAS` | Se intentó aprobar sin las cinco capturas |
+| `DOCUMENTO_SIN_VENCIMIENTO` | Se intentó aprobar sin fecha de vencimiento: no se puede comprobar la vigencia |
+| `DOCUMENTO_VENCIDO_AL_APROBAR` | Se intentó aprobar con el documento vencido a la fecha de la decisión |
 
 ## Descomposición atómica
 
@@ -182,6 +198,14 @@ Entonces no se crea el usuario
 Dada una clave que contiene el teléfono
 Cuando se registra
 Entonces se rechaza
+
+Dado un documento con fecha de vencimiento futura
+Cuando se registra
+Entonces la fecha queda guardada
+
+Dado un documento vencido
+Cuando se registra
+Entonces AP-CU01-07 y no se crea nada
 ```
 
 ## Ver también

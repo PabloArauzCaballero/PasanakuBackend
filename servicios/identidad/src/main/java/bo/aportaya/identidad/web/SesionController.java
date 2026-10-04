@@ -58,11 +58,10 @@ public class SesionController implements SesionApi {
             throw new SinContextoDeSesion("el refresh no es valido (ausente, vencido, revocado o reusado)");
         }
 
-        String rol = renovacion.esOperador()
-                ? SesionesController.ROL_DE_OPERADOR
-                : SesionesController.ROL_DE_PARTICIPANTE;
-        var emitido = acceso.ejecutar(
-                renovacion.usuarioId().orElseThrow(), rol, SesionesController.NIVEL_POR_OMISION, null);
+        String rol =
+                renovacion.esOperador() ? SesionesController.ROL_DE_OPERADOR : SesionesController.ROL_DE_PARTICIPANTE;
+        var emitido =
+                acceso.ejecutar(renovacion.usuarioId().orElseThrow(), rol, SesionesController.NIVEL_POR_OMISION, null);
         var siguiente = renovacion.siguiente().orElseThrow();
 
         SalidaRenovacion salida = new SalidaRenovacion();

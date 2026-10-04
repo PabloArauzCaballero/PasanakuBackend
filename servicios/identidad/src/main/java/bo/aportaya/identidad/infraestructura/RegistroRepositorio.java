@@ -110,6 +110,7 @@ public class RegistroRepositorio {
                 .set(DOCUMENTO_IDENTIDAD.NUMERO_CIFRADO, numeroCifrado)
                 .set(DOCUMENTO_IDENTIDAD.VERSION_LLAVE, (short) 1)
                 .set(DOCUMENTO_IDENTIDAD.HASH_NUMERO, documento.hashNumero())
+                .set(DOCUMENTO_IDENTIDAD.FECHA_EXPIRACION, documento.fechaExpiracion())
                 .set(DOCUMENTO_IDENTIDAD.LUGAR_EXPEDICION, documento.lugarExpedicion())
                 .set(DOCUMENTO_IDENTIDAD.PAIS_EMISION, documento.paisEmision())
                 .set(DOCUMENTO_IDENTIDAD.ESTADO, "EN_REVISION")

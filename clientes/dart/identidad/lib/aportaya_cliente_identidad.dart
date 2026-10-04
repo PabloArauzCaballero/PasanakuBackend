@@ -29,6 +29,7 @@ export 'package:aportaya_cliente_identidad/src/model/factor_presentado.dart';
 export 'package:aportaya_cliente_identidad/src/model/limite_aplicable.dart';
 export 'package:aportaya_cliente_identidad/src/model/salida_autenticacion.dart';
 export 'package:aportaya_cliente_identidad/src/model/salida_registro.dart';
+export 'package:aportaya_cliente_identidad/src/model/salida_renovacion.dart';
 export 'package:aportaya_cliente_identidad/src/model/salida_titularidad.dart';
 export 'package:aportaya_cliente_identidad/src/model/salida_token_de_invitacion.dart';
 export 'package:aportaya_cliente_identidad/src/model/salida_validacion_invitacion.dart';

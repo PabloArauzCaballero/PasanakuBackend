@@ -55,6 +55,8 @@ paths:
           # AP-CU01-01 KYC_RECHAZADO · AP-CU01-02 COINCIDENCIA_EN_LISTA
           # AP-CU01-03 CUENTA_YA_EXISTE (R-BIL-04) · AP-CU01-04 CONTRATO_NO_ACEPTADO
           # AP-CU01-05 SERVICIO_NO_AUTORIZADO (R-LIC-01)
+          # AP-CU01-06 CLAVE_RECHAZADA: corta, o derivada del telefono o del documento
+          # AP-CU01-07 DOCUMENTO_VENCIDO: la fecha de vencimiento ya paso
 
   /sesiones:
     post:
@@ -213,7 +215,12 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ExpedienteEnRevision' }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # Se valida en el servidor, no solo en la pantalla (la UI no es barrera):
+          # AP-CU01-08 EXPEDIENTE_YA_RESUELTO · AP-CU01-09 FOTOS_INCOMPLETAS (APROBAR)
+          # AP-CU01-10 DOCUMENTO_SIN_VENCIMIENTO (APROBAR) · AP-CU01-11 DOCUMENTO_VENCIDO (APROBAR)
+          # (CU-01 flujo 4b, revision manual del expediente: no AP-CU02-*, que es de cumplimiento)
 
   /usuarios/{usuarioId}/documentos:
     post:
@@ -523,7 +530,7 @@ components:
     ExpedienteEnRevision:
       type: object
       additionalProperties: false
-      required: [verificacionId, usuarioId, nombreCompleto, estado, iniciadaEn, fotos]
+      required: [verificacionId, usuarioId, nombreCompleto, estado, iniciadaEn, fotos, documentoVigente]
       properties:
         verificacionId: { type: string, format: uuid }
         usuarioId:      { type: string, format: uuid }
@@ -533,6 +540,15 @@ components:
         iniciadaEn:     { type: string, format: date-time }
         resueltaEn:     { type: string, format: date-time }
         motivoRechazo:  { type: string }
+        fechaExpiracionDocumento:
+          type: string
+          format: date
+          description: Hasta cuando vale el documento. Ausente si el alta no la trajo.
+        documentoVigente:
+          type: boolean
+          description: >-
+            Lo calcula el servidor con la fecha de hoy en La Paz. Falso si el documento
+            esta vencido o no tiene fecha: en los dos casos el expediente no se aprueba.
         fotos:
           type: array
           description: Que caras tiene cargadas. Un expediente sin las cinco no se puede aprobar.
@@ -599,6 +615,15 @@ components:
             La extension del carnet: el departamento que lo emitio. Obligatoria para
             `CI` —el servicio la exige— y sin sentido para un pasaporte, que ya es
             unico por numero. No se declara `required` aca porque depende del tipo.
+        fechaExpiracion:
+          type: string
+          format: date
+          description: >-
+            Hasta cuando vale el documento, tal como figura en el carnet (la escribe la
+            persona en el alta). Un documento ya vencido no abre cuenta (AP-CU01-07), y
+            sin esta fecha el expediente no se puede aprobar (AP-CU01-10): no hay forma de
+            comprobar que el documento este vigente. Opcional en el contrato solo por
+            compatibilidad con clientes anteriores; la app la exige.
     EntradaRegistro:
       type: object
       additionalProperties: false      # strict(): lista blanca, no lista negra

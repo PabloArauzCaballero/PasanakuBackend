@@ -9,6 +9,7 @@ class DatosPersonales {
     this.tipoDocumento = 'CI',
     this.numeroDocumento = '',
     this.lugarExpedicion,
+    this.fechaExpiracion,
     this.correo = '',
     this.canalVerificacion = 'SMS',
   });
@@ -23,6 +24,12 @@ class DatosPersonales {
   /// repite entre departamentos, asi que sin esto dos personas distintas comparten
   /// documento y la segunda no puede abrir cuenta.
   final String? lugarExpedicion;
+
+  /// Hasta cuando vale el documento, como lo escribe la persona leyendolo del carnet.
+  /// El servidor no abre cuenta con un documento vencido (AP-CU01-07) y el backoffice
+  /// no aprueba un expediente sin esta fecha (AP-CU01-10): sin ella nadie puede
+  /// comprobar que el documento seguia vigente al revisarlo.
+  final DateTime? fechaExpiracion;
 
   /// Adonde van los comprobantes y el extracto, y el destino posible de la
   /// verificación si se elige el correo en vez del SMS.
@@ -40,6 +47,7 @@ class DatosPersonales {
     String? tipoDocumento,
     String? numeroDocumento,
     String? lugarExpedicion,
+    DateTime? fechaExpiracion,
     String? correo,
     String? canalVerificacion,
   }) => DatosPersonales(
@@ -50,6 +58,7 @@ class DatosPersonales {
     tipoDocumento: tipoDocumento ?? this.tipoDocumento,
     numeroDocumento: numeroDocumento ?? this.numeroDocumento,
     lugarExpedicion: lugarExpedicion ?? this.lugarExpedicion,
+    fechaExpiracion: fechaExpiracion ?? this.fechaExpiracion,
     correo: correo ?? this.correo,
     canalVerificacion: canalVerificacion ?? this.canalVerificacion,
   );

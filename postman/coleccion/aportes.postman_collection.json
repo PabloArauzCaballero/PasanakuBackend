@@ -520,12 +520,7 @@
       "name": "recibirWebhookPasarela · Recibir la confirmacion de la pasarela de pagos",
       "request": {
         "method": "POST",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{token}}"
-          }
-        ],
+        "header": [],
         "url": {
           "raw": "{{base_url}}{{prefijo_api}}/pagos/webhooks/:proveedorCodigo",
           "host": [
@@ -544,7 +539,7 @@
             }
           ]
         },
-        "description": "## Recibir la confirmacion de la pasarela de pagos\n\nRuta PUBLICA (sin sesion de usuario, Q-02 DECIDIDA 2026-09-21): la pasarela no tiene un JWT nuestro. La autenticacion es HMAC-SHA256 sobre el cuerpo CRUDO con `X-Firma`, mas `X-Timestamp` dentro de una ventana de +-5 minutos (invariante de la firma: se verifica ANTES de leer una sola linea del payload).\nEvento repetido por `(proveedor_id, clave)` (`uq_webhook_idem`, invariante 7): mismo resultado, sin reprocesar ni duplicar el efecto financiero.\nEl cuerpo se declara `text/plain` a proposito, no `application/json`: la firma exige el byte exacto que mando la pasarela, y con `application/json` el conversor de Jackson reformatea el cuerpo antes de que se pueda verificar la firma sobre el original.\n\n| | |\n| --- | --- |\n| **Servicio** | `aportes` |\n| **Operacion** | `recibirWebhookPasarela` |\n| **Ruta** | `POST /api/v1/pagos/webhooks/{proveedorCodigo}` |\n| **Permiso** | _no declarado en el codigo_ |\n| **Respuestas** | `200`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+        "description": "## Recibir la confirmacion de la pasarela de pagos\n\nRuta PUBLICA (sin sesion de usuario, Q-02 DECIDIDA 2026-09-21): la pasarela no tiene un JWT nuestro. La autenticacion es HMAC-SHA256 sobre el cuerpo CRUDO con `X-Firma`, mas `X-Timestamp` dentro de una ventana de +-5 minutos (invariante de la firma: se verifica ANTES de leer una sola linea del payload).\nEvento repetido por `(proveedor_id, clave)` (`uq_webhook_idem`, invariante 7): mismo resultado, sin reprocesar ni duplicar el efecto financiero.\nEl cuerpo se declara `text/plain` a proposito, no `application/json`: la firma exige el byte exacto que mando la pasarela, y con `application/json` el conversor de Jackson reformatea el cuerpo antes de que se pueda verificar la firma sobre el original.\n\n| | |\n| --- | --- |\n| **Servicio** | `aportes` |\n| **Operacion** | `recibirWebhookPasarela` |\n| **Ruta** | `POST /api/v1/pagos/webhooks/{proveedorCodigo}` |\n| **Permiso** | **ruta publica, sin sesion** |\n| **Respuestas** | `200`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [

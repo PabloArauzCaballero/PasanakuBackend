@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
 import { Boton } from '@aportaya/ui/boton/boton'
 import { Campo } from '@aportaya/ui/campo/campo'
 import { DecisionDeVerificacionDecisionEnum } from 'clientes/angular/identidad'
+import type { Vencimiento } from '../dominio/cu02-expedientes'
 import { textosCumplimiento } from '../textos'
 
 export type Decision = { decision: DecisionDeVerificacionDecisionEnum; motivo?: string }
@@ -21,6 +22,11 @@ export type Decision = { decision: DecisionDeVerificacionDecisionEnum; motivo?: 
     @if (!completo()) {
       <p class="aviso">{{ t.expedienteIncompleto }}</p>
     }
+    @if (vencimiento() === 'vencido') {
+      <p class="aviso">{{ t.avisoVencido }}</p>
+    } @else if (vencimiento() === 'sin-fecha') {
+      <p class="aviso">{{ t.avisoSinVencimiento }}</p>
+    }
     <ap-campo [etiqueta]="t.motivo" [ayuda]="t.motivoAyuda" [(valor)]="motivo" [id]="'motivo-' + verificacionId()" />
     @if (error(); as e) {
       <ap-alerta tono="error">{{ e }}</ap-alerta>
@@ -28,7 +34,7 @@ export type Decision = { decision: DecisionDeVerificacionDecisionEnum; motivo?: 
     <div class="acciones">
       <ap-boton
         variante="primario"
-        [deshabilitado]="!completo() || ocupado()"
+        [deshabilitado]="!aprobable() || ocupado()"
         [cargando]="enCurso() === decisiones.Aprobar"
         (pulsado)="decidir.emit({ decision: decisiones.Aprobar })"
       >
@@ -57,6 +63,12 @@ export class DecisionDeExpediente {
   readonly verificacionId = input.required<string>()
   /** Sin las cinco fotos no se aprueba: aprobar a ciegas es no revisar. */
   readonly completo = input.required<boolean>()
+  /**
+   * Con el documento vencido o sin fecha de vencimiento no se aprueba. Es la misma
+   * regla que aplica el servidor (AP-CU01-10/11): el botón apagado es ayuda, no la
+   * barrera — si alguien lo esquiva, el servidor rechaza igual.
+   */
+  readonly vencimiento = input.required<Vencimiento>()
   /** Hay una decisión en vuelo (de este u otro expediente): no se dispara otra. */
   readonly ocupado = input(false)
   /** La decisión de ESTE expediente que está en vuelo, para mostrar su botón cargando. */
@@ -67,4 +79,5 @@ export class DecisionDeExpediente {
   readonly decidir = output<Decision>()
 
   protected readonly motivo = signal('')
+  protected readonly aprobable = computed(() => this.completo() && this.vencimiento() === 'vigente')
 }

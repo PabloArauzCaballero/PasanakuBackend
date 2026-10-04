@@ -172,7 +172,9 @@ final class FixturaDeIdentidad {
                              ip_origen, agente_usuario, puntaje_riesgo)
                         VALUES (gen_random_uuid(), ?, 'prueba', clock_timestamp(), ?, ?, '127.0.0.1', 'prueba', 0)
                         """,
-                        usuarioId, exitoso, exitoso ? null : "FACTOR_REQUERIDO");
+                        usuarioId,
+                        exitoso,
+                        exitoso ? null : "FACTOR_REQUERIDO");
             }
         }
     }

@@ -1,5 +1,9 @@
 package bo.aportaya.identidad;
 
+import static bo.aportaya.identidad.ExpedientesDePrueba.clave;
+import static bo.aportaya.identidad.ExpedientesDePrueba.contexto;
+import static bo.aportaya.identidad.ExpedientesDePrueba.expediente;
+import static bo.aportaya.identidad.ExpedientesDePrueba.usuario;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -14,8 +18,8 @@ import bo.aportaya.plataforma.archivos.ContenidoAlmacenado;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeDominio;
+import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Reloj;
-import bo.aportaya.plataforma.dominio.Traza;
 import bo.aportaya.plataforma.pruebas.BaseDePrueba;
 import java.io.ByteArrayInputStream;
 import java.time.Duration;
@@ -36,7 +40,6 @@ class CU02RevisionTest {
     private static DSLContext dsl;
     private static TransactionTemplate transaccion;
     private static RevisionRepositorio repositorio;
-    private static FixturaDeIdentidad fixtura;
 
     @BeforeAll
     static void armar() {
@@ -46,7 +49,7 @@ class CU02RevisionTest {
         dsl = DSL.using(new TransactionAwareDataSourceProxy(fuente), SQLDialect.POSTGRES);
         transaccion = new TransactionTemplate(new DataSourceTransactionManager(fuente));
         repositorio = new RevisionRepositorio();
-        fixtura = new FixturaDeIdentidad(dsl);
+        ExpedientesDePrueba.usar(dsl);
     }
 
     @Test
@@ -149,61 +152,22 @@ class CU02RevisionTest {
                         .get(0, UUID.class))
                 .isEqualTo(revisor);
 
-        transaccion.execute(estado -> {
-            caso.resolver(verificacion, "APROBAR", "Se ignora", contexto);
-            return null;
-        });
-        assertThat(dsl.fetchValue("SELECT motivo_rechazo FROM identidad.verificacion_kyc WHERE id = ?", verificacion))
-                .isNull();
+        // Antes este mismo expediente se APROBABA despues de rechazado, sin fotos y sin
+        // documento: el test fijaba justo lo que el contrato prohibe. Un expediente ya
+        // resuelto no se vuelve a decidir (se pisaria quien lo reviso y cuando).
+        assertThatThrownBy(() -> transaccion.execute(estado -> {
+                    caso.resolver(verificacion, "APROBAR", null, contexto);
+                    return null;
+                }))
+                .isInstanceOf(ErrorDeNegocio.class)
+                .hasMessageContaining("ya fue resuelto");
         assertThat(dsl.fetchValue("SELECT estado FROM identidad.verificacion_kyc WHERE id = ?", verificacion))
-                .isEqualTo("APROBADA");
+                .isEqualTo("RECHAZADA");
         assertThatThrownBy(() -> transaccion.execute(estado -> {
                     caso.resolver(UUID.randomUUID(), "APROBAR", null, contexto);
                     return null;
                 }))
                 .isInstanceOf(ErrorDeDominio.class)
                 .hasMessageContaining("expediente no existe");
-    }
-
-    private static UUID usuario() {
-        return fixtura.usuario(
-                "+59177" + String.format("%06d", Math.abs(UUID.randomUUID().hashCode() % 1_000_000)));
-    }
-
-    private static UUID expediente(UUID usuario, String estado, boolean conDocumento) {
-        UUID verificacion = UUID.randomUUID();
-        UUID documento = null;
-        if (conDocumento) {
-            documento = UUID.randomUUID();
-            dsl.execute(
-                    """
-                    INSERT INTO identidad.documento_identidad
-                      (id, usuario_id, tipo, numero_cifrado, version_llave, hash_numero,
-                       lugar_expedicion, pais_emision, estado)
-                    VALUES (?, ?, 'CI', 'cifrado', 1, ?, 'LP', 'BO', 'EN_REVISION')
-                    """,
-                    documento,
-                    usuario,
-                    UUID.randomUUID().toString().replace("-", "").repeat(2));
-        }
-        dsl.execute(
-                """
-                INSERT INTO identidad.verificacion_kyc
-                  (id, usuario_id, documento_id, nivel_solicitado, estado, iniciada_en)
-                VALUES (?, ?, ?, 'BASICO', ?, now())
-                """,
-                verificacion,
-                usuario,
-                documento,
-                estado);
-        return verificacion;
-    }
-
-    private static String clave(UUID usuario, String cara) {
-        return "s3://identidad/" + usuario + "/" + cara + "-" + UUID.randomUUID() + ".jpg";
-    }
-
-    private static ContextoSesion contexto(UUID revisor) {
-        return ContextoSesion.deSistema(revisor, new Traza(UUID.randomUUID().toString()));
     }
 }

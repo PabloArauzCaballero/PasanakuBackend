@@ -44,7 +44,7 @@ public class VerificacionesController implements IdentidadApi {
     @Permiso("VERIFICACION_RESOLVER")
     public ResponseEntity<List<ExpedienteEnRevision>> listarVerificaciones(String estado) {
         List<ExpedienteEnRevision> cola = revision.cola(estado, sesion.actual()).stream()
-                .map(VerificacionesController::aSalida)
+                .map(this::aSalida)
                 .toList();
         return ResponseEntity.ok(cola);
     }
@@ -101,7 +101,7 @@ public class VerificacionesController implements IdentidadApi {
         return ResponseEntity.ok(aSalida(resuelto));
     }
 
-    private static ExpedienteEnRevision aSalida(ExpedienteDeIdentidad e) {
+    private ExpedienteEnRevision aSalida(ExpedienteDeIdentidad e) {
         var salida = new ExpedienteEnRevision()
                 .verificacionId(e.verificacionId())
                 .usuarioId(e.usuarioId())
@@ -110,7 +110,9 @@ public class VerificacionesController implements IdentidadApi {
                 .estado(ExpedienteEnRevision.EstadoEnum.fromValue(e.estado()))
                 .iniciadaEn(e.iniciadaEn())
                 .resueltaEn(e.resueltaEn())
-                .motivoRechazo(e.motivoRechazo());
+                .motivoRechazo(e.motivoRechazo())
+                .fechaExpiracionDocumento(e.fechaExpiracionDocumento())
+                .documentoVigente(revision.documentoVigente(e));
         e.fotos().forEach(f -> salida.addFotosItem(CaraDelExpediente.fromValue(f)));
         return salida;
     }
