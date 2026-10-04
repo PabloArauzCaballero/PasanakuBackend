@@ -16,11 +16,11 @@ minio              = "9.0.3"
 shedlock           = "7.10.1"       # bloqueo de trabajos programados entre replicas
 resilience4j       = "2.4.0"       # timeout y cortacircuitos en cada cliente
 argon2             = "2.12"        # contrasenas y PIN (nunca un hash rapido)
-archunit           = "1.5.0"       # la direccion de dependencia se verifica
+archunit           = "1.5.1"       # la direccion de dependencia se verifica
 jqwik              = "1.10.1"       # propiedades: cuadre de dinero
-spotless           = "8.10.2"
+spotless           = "8.10.3"
 openapi-generator  = "7.25.0"
-jooq               = "3.21.8"      # generador Y libreria: separarlos genera codigo que no compila
+jooq               = "3.21.9"      # generador Y libreria: separarlos genera codigo que no compila
 driver-postgresql  = "42.7.13"     # solo para el generador y los contenedores
 cyclonedx          = "3.4.1"       # SBOM por modulo desplegable (H2.S3), verificado contra
                                     # github.com/CycloneDX/cyclonedx-gradle-plugin el 2026-09-21
