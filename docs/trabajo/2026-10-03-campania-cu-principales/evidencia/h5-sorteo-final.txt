@@ -3,24 +3,24 @@ LOGIN USR2 (+591***02) -> 200 requiereFactor=False token=si
 estado del grupo antes: ABIERTO_A_INSCRIPCION ocupados=2/3
 
 == invitar y aceptar al ultimo participante (USR2)
-POST  /grupos/f04571d1-d220-4b80-9c05-83e7d36cce6e/invitaciones                        -> 201
+POST  /grupos/7d043776-3ff7-4643-b58b-4cfd7deb5892/invitaciones                        -> 201
 POST  /grupos/invitaciones/enlace/aceptar                                              -> 201
-aceptar: {'grupoId': 'f04571d1-d220-4b80-9c05-83e7d36cce6e', 'participanteId': 'd070c1b2-8793-4db2-a39d-ef22680f1630'}
+aceptar: {'grupoId': '7d043776-3ff7-4643-b58b-4cfd7deb5892', 'participanteId': 'b757e927-01c9-4188-8336-6393a875ccb6'}
 estado del grupo despues: ABIERTO_A_INSCRIPCION ocupados=3/3
 cupos: OCUPADO=3
 
 == CU-60 comprometer el sorteo
 -- negativo: USR2 (sin GRUPO_ADMINISTRAR)
-POST  /grupos/f04571d1-d220-4b80-9c05-83e7d36cce6e/sorteo                              -> 403 AP-SEG-01
-POST  /grupos/f04571d1-d220-4b80-9c05-83e7d36cce6e/sorteo                              -> 201
-respuesta: {'sorteoId': '9ea3e433-c0eb-46fb-b763-27c0e6d1db4a', 'hashSemilla': '841171984e522ceeaca24c3f34e309f21d37bd0917bfd99fceac130632354d13', 'algoritmo': 'FISHER_YATES_SHA256', 'semilla': '<oculta>'}
+POST  /grupos/7d043776-3ff7-4643-b58b-4cfd7deb5892/sorteo                              -> 403 AP-SEG-01
+POST  /grupos/7d043776-3ff7-4643-b58b-4cfd7deb5892/sorteo                              -> 201
+respuesta: {'sorteoId': '9094451a-3185-4e8a-8085-5b97d489987d', 'hashSemilla': 'cd8e9e211464ed03898f962b75dd3fdb6fe11f3d4167181e3603ead2dc801779', 'algoritmo': 'FISHER_YATES_SHA256', 'semilla': '<oculta>'}
 SQL sorteo: COMPROMETIDO
 
 == CU-60 revelar el sorteo
-POST  /grupos/f04571d1-d220-4b80-9c05-83e7d36cce6e/sorteo/revelacion                   -> 200
-respuesta: {'sorteoId': '9ea3e433-c0eb-46fb-b763-27c0e6d1db4a', 'verificado': True, 'semilla': '4ecb04a0-d24a-42ba-8597-cab9900091e04e856d07-034e-4ffb-8824-324c8f63ce2f', 'cuposEnOrden': ['5db6c8c1-edb1-4995-8c62-b59d5e002b41', 'd122afa3-9f4b-4341-8ac7-b23a3b0413d4', 'ee8ee07b-46a3-47bf-8e76-12463fa6f8c5']}
+POST  /grupos/7d043776-3ff7-4643-b58b-4cfd7deb5892/sorteo/revelacion                   -> 200
+respuesta: {'sorteoId': '9094451a-3185-4e8a-8085-5b97d489987d', 'verificado': True, 'semilla': 'f1bbf3fb-1e02-44af-b923-46b17612c4182da4f06c-bf94-42f6-8588-4308cdeba7c5', 'cuposEnOrden': ['bad00d53-9cc7-4347-93e1-2f3138f8367d', 'c0d198bf-3f42-4a50-a33c-cfda02f94201', 'ac907712-fdb1-413c-a372-c1d638985c2b']}
 
 == CU-61 verificacion publica (sin sesion)
-GET   /publico/sorteos/9ea3e433-c0eb-46fb-b763-27c0e6d1db4a/verificacion               -> 200
-respuesta: {'verifica': True, 'hashEsperado': '841171984e522ceeaca24c3f34e309f21d37bd0917bfd99fceac130632354d13', 'hashRecomputado': '841171984e522ceeaca24c3f34e309f21d37bd0917bfd99fceac130632354d13', 'ordenCoincide': True, 'primerCupoDiscrepante': None}
+GET   /publico/sorteos/9094451a-3185-4e8a-8085-5b97d489987d/verificacion               -> 200
+respuesta: {'verifica': True, 'hashEsperado': 'cd8e9e211464ed03898f962b75dd3fdb6fe11f3d4167181e3603ead2dc801779', 'hashRecomputado': 'cd8e9e211464ed03898f962b75dd3fdb6fe11f3d4167181e3603ead2dc801779', 'ordenCoincide': True, 'primerCupoDiscrepante': None}
 turnos: 1:PROGRAMADO 2:PROGRAMADO 3:PROGRAMADO

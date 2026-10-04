@@ -15,6 +15,11 @@ llamar("POST", f"/grupos/{G2}/cupos/{CUPO1}/traspasos", t1, idem=True, cuerpo={"
 print("-- CU-63: USR1 propone el acuerdo; votan los tres participantes (B38: ningun voto cierra la votacion mientras el quorum sea alcanzable)")
 e, ac = llamar("POST", "/acuerdos", t1, idem=True, cuerpo={"grupoId": G2, "tipo": "TRASPASO_CUPO", "descripcion": "Traspaso sintetico del cupo de USR1 a USR2 para la campania de pruebas",
                                                          "referenciaAfectadaId": CUPO1, "diasVotacion": 1})
+if not isinstance(ac, dict) or "acuerdoId" not in ac:
+    # El recorrido anterior (h3_traspaso_g2) ya dejo UN acuerdo de traspaso ABIERTO para este cupo: con B38 ya no se cierra al
+    # primer voto. Se continua esa misma votacion (los votos repetidos dan 422 y se ignoran).
+    print("-- ya hay un acuerdo ABIERTO de ese tipo: se continua esa votacion")
+    ac = {"acuerdoId": uno(f"select id from grupos.acuerdo where grupo_id='{G2}' and tipo='ADMISION_REEMPLAZO' and estado='ABIERTO' limit 1")}
 aid = ac["acuerdoId"]
 for etiqueta, tok in (("USR90", t90), ("USR2", t2), ("USR1", t1)):
     ev, vt = llamar("POST", f"/acuerdos/{aid}/votos", tok, idem=True, cuerpo={"voto": "A_FAVOR"}); print(f"  voto de {etiqueta}:", vt)
