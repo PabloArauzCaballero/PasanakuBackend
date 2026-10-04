@@ -40,6 +40,11 @@ public class Consultas {
     }
 
     @Transactional(readOnly = true)
+    public Optional<UUID> grupoDelAcuerdo(UUID acuerdoId, ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> consultas.grupoDelAcuerdo(dsl, acuerdoId));
+    }
+
+    @Transactional(readOnly = true)
     public Optional<UUID> grupoDelTurno(UUID turnoId, ContextoSesion ctx) {
         return datos.conContexto(ctx, dsl -> consultas.grupoDelTurno(dsl, turnoId));
     }

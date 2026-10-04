@@ -33,6 +33,7 @@ import bo.aportaya.grupos.web.generado.modelo.SalidaTraspaso;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
+import bo.aportaya.plataforma.web.seguridad.Publico;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import java.time.LocalDate;
@@ -57,6 +58,9 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class GruposController implements GruposApi {
+
+    /** El proceso que atiende lo publico: fijo, para poder leerlo en la bitacora. */
+    private static final UUID PROCESO_PUBLICO = UUID.fromString("00000000-0000-0000-0000-0000000000f1");
 
     private final CU20CrearGrupo cu20;
     private final CU59CalcularPlazo cu59;
@@ -268,9 +272,13 @@ public class GruposController implements GruposApi {
     }
 
     @Override
-    @Permiso("PARTICIPANTE")
+    @Publico("CU-61: el paquete del sorteo es publico por diseno; poder recomputarlo desde afuera es su sentido")
     public ResponseEntity<PaqueteDelSorteo> consultarPaqueteDelSorteo(UUID sorteoId) {
         Traza.marcarCasoDeUso("CU-61", sorteoId.toString());
-        return respuestas.consultarPaqueteDelSorteo(sorteoId, sesion.actual());
+        // Sin sesion: lo atiende el proceso publico, con rol de sistema (lectura de un sorteo).
+        var contextoPublico = bo.aportaya.plataforma.dominio.ContextoSesion.deSistema(
+                PROCESO_PUBLICO,
+                new bo.aportaya.plataforma.dominio.Traza(UUID.randomUUID().toString()));
+        return respuestas.consultarPaqueteDelSorteo(sorteoId, contextoPublico);
     }
 }

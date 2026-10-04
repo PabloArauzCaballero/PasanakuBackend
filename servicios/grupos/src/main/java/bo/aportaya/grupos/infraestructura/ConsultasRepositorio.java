@@ -27,14 +27,19 @@ public class ConsultasRepositorio {
      * transfiere ya sabe a quien le manda; esta consulta no es un directorio.
      */
     public Optional<UUID> usuarioDelAlias(DSLContext dsl, String alias) {
-        var fila = dsl.fetchOne(
-                """
+        // Busca entre los participantes de OTROS: la politica de fila deja al titular ver solo
+        // lo suyo. La consulta devuelve unicamente un id de usuario, no la fila, y por eso es
+        // el unico lugar donde se lee con rol de sistema.
+        var fila = bo.aportaya.plataforma.datos.Datos.comoSistema(
+                dsl,
+                () -> dsl.fetchOne(
+                        """
                 SELECT p.usuario_id AS usuario
                   FROM grupos.participante p
                  WHERE p.alias = ? AND p.estado = 'ACTIVO'
                  LIMIT 1
                 """,
-                alias);
+                        alias));
         return fila == null ? Optional.empty() : Optional.ofNullable(fila.get("usuario", UUID.class));
     }
 
@@ -103,6 +108,12 @@ public class ConsultasRepositorio {
                 """,
                 grupoId);
         return fila == null ? java.math.BigDecimal.ZERO : fila.get("estimado", java.math.BigDecimal.class);
+    }
+
+    /** El grupo de un acuerdo. */
+    public Optional<UUID> grupoDelAcuerdo(DSLContext dsl, UUID acuerdoId) {
+        var fila = dsl.fetchOne("SELECT grupo_id FROM grupos.acuerdo WHERE id = ?", acuerdoId);
+        return fila == null ? Optional.empty() : Optional.ofNullable(fila.get("grupo_id", UUID.class));
     }
 
     /** El grupo al que pertenece un turno. */
