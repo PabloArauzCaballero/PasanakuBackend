@@ -5,7 +5,8 @@ DO $siembra$
 BEGIN
   IF current_setting('app.dev_sembrado', true) IS DISTINCT FROM 'si' THEN
     INSERT INTO grupo (codigo_publico, nombre, moneda, periodicidad, dia_cobro, num_periodos, cupos_totales, cupos_ocupados, monto_aporte, fecha_inicio, fecha_fin_estimada, estado, tipo_conformacion, modalidad_turnos, visibilidad, requiere_kyc_minimo, reputacion_minima, dias_gracia, porcentaje_fondo_garantia, quorum_decisiones, organizador_id, es_autogestionado, aplica_recargo_mora, usa_fondo_garantia) VALUES
-      ('GRP-DEMO-02', 'Pasanaku de campania sintetico', 'BOB', 'MENSUAL', 10, 3, 3, 1, 100.0, (current_date + interval '20 days'), (current_date + interval '110 days'), 'ABIERTO_A_INSCRIPCION', 'MANUAL_POR_INVITACION', 'SORTEO_ALEATORIO', 'PRIVADO', 'BASICO', 0, 3, 5.0, 0.667, (SELECT id FROM organizador WHERE usuario_id = (SELECT id FROM usuario WHERE codigo_publico = 'USR000001')), FALSE, TRUE, TRUE)
+      ('GRP-DEMO-02', 'Pasanaku de campania sintetico', 'BOB', 'MENSUAL', 10, 3, 3, 1, 100.0, (current_date + interval '20 days'), (current_date + interval '110 days'), 'ABIERTO_A_INSCRIPCION', 'MANUAL_POR_INVITACION', 'SORTEO_ALEATORIO', 'PRIVADO', 'BASICO', 0, 3, 5.0, 0.667, (SELECT id FROM organizador WHERE usuario_id = (SELECT id FROM usuario WHERE codigo_publico = 'USR000001')), FALSE, TRUE, TRUE),
+      ('GRP-DEMO-03', 'Pasanaku de campania para CU-68', 'BOB', 'MENSUAL', 10, 3, 3, 1, 100.0, (current_date + interval '20 days'), (current_date + interval '110 days'), 'ABIERTO_A_INSCRIPCION', 'MANUAL_POR_INVITACION', 'SORTEO_ALEATORIO', 'PRIVADO', 'BASICO', 0, 3, 5.0, 0.667, (SELECT id FROM organizador WHERE usuario_id = (SELECT id FROM usuario WHERE codigo_publico = 'USR000001')), FALSE, TRUE, TRUE)
     ON CONFLICT (codigo_publico) DO NOTHING;
   END IF;
 END $siembra$;
@@ -41,7 +42,8 @@ DO $siembra$
 BEGIN
   IF current_setting('app.dev_sembrado', true) IS DISTINCT FROM 'si' THEN
     INSERT INTO participante (grupo_id, usuario_id, alias, estado, reputacion_al_ingresar, aportes_realizados, aportes_en_mora, fecha_ingreso, es_organizador) VALUES
-      ((SELECT id FROM grupo WHERE codigo_publico = 'GRP-DEMO-02'), (SELECT id FROM usuario WHERE codigo_publico = 'USR000001'), 'Organizador demo', 'ACTIVO', 700, 0, 0, now() - interval '1 day', TRUE)
+      ((SELECT id FROM grupo WHERE codigo_publico = 'GRP-DEMO-02'), (SELECT id FROM usuario WHERE codigo_publico = 'USR000001'), 'Organizador demo', 'ACTIVO', 700, 0, 0, now() - interval '1 day', TRUE),
+      ((SELECT id FROM grupo WHERE codigo_publico = 'GRP-DEMO-03'), (SELECT id FROM usuario WHERE codigo_publico = 'USR000001'), 'Organizador demo 3', 'ACTIVO', 700, 0, 0, now() - interval '1 day', TRUE)
     ON CONFLICT DO NOTHING;
   END IF;
 END $siembra$;
@@ -52,7 +54,10 @@ BEGIN
     INSERT INTO cupo (grupo_id, numero, estado, fraccion, asignado_en, participante_id) VALUES
       ((SELECT id FROM grupo WHERE codigo_publico = 'GRP-DEMO-02'), 1, 'OCUPADO', 1.0, now() - interval '1 day', (SELECT id FROM participante WHERE grupo_id = (SELECT id FROM grupo WHERE codigo_publico = 'GRP-DEMO-02') AND usuario_id = (SELECT id FROM usuario WHERE codigo_publico = 'USR000001'))),
       ((SELECT id FROM grupo WHERE codigo_publico = 'GRP-DEMO-02'), 2, 'LIBRE', 1.0, NULL, NULL),
-      ((SELECT id FROM grupo WHERE codigo_publico = 'GRP-DEMO-02'), 3, 'LIBRE', 1.0, NULL, NULL)
+      ((SELECT id FROM grupo WHERE codigo_publico = 'GRP-DEMO-02'), 3, 'LIBRE', 1.0, NULL, NULL),
+      ((SELECT id FROM grupo WHERE codigo_publico = 'GRP-DEMO-03'), 1, 'OCUPADO', 1.0, now() - interval '1 day', (SELECT id FROM participante WHERE grupo_id = (SELECT id FROM grupo WHERE codigo_publico = 'GRP-DEMO-03') AND usuario_id = (SELECT id FROM usuario WHERE codigo_publico = 'USR000001'))),
+      ((SELECT id FROM grupo WHERE codigo_publico = 'GRP-DEMO-03'), 2, 'LIBRE', 1.0, NULL, NULL),
+      ((SELECT id FROM grupo WHERE codigo_publico = 'GRP-DEMO-03'), 3, 'LIBRE', 1.0, NULL, NULL)
     ON CONFLICT DO NOTHING;
   END IF;
 END $siembra$;

@@ -1351,8 +1351,9 @@ DECLARE
   -- esta habilitado), su fila de `participante` y los movimientos de su billetera, pero
   -- NO puede escribirlas: editar su propio `organizador` seria subirse los limites, y
   -- escribir `movimiento_billetera` seria fabricarse saldo. La escritura sigue siendo del
-  -- sistema y de los privilegiados (`WITH CHECK`).
-  lectura_por_titular TEXT[] := ARRAY['organizador','participante','movimiento_billetera'];
+  -- sistema y de los privilegiados (`WITH CHECK`). `solicitud_ingreso` (CU-68): el postulante ve las
+  -- suyas, pero no puede aprobarse a si mismo; el servicio la crea con rol de sistema.
+  lectura_por_titular TEXT[] := ARRAY['organizador','participante','movimiento_billetera','solicitud_ingreso'];
   cond TEXT;
   cond_escritura TEXT;
 BEGIN

@@ -56,7 +56,9 @@ public class EmparejamientoRepositorio {
             String mensaje,
             BigDecimal puntaje,
             OffsetDateTime ahora) {
-        return dsl.insertInto(SOLICITUD_INGRESO)
+        // La solicitud nace PENDIENTE por decision del sistema: el postulante la ve (politica de fila) pero
+        // no la escribe, porque quien puede escribirla puede aprobarse a si mismo (B8, CU-68).
+        return bo.aportaya.plataforma.datos.Datos.comoSistema(dsl, () -> dsl.insertInto(SOLICITUD_INGRESO)
                 .set(SOLICITUD_INGRESO.GRUPO_ID, grupoId)
                 .set(SOLICITUD_INGRESO.USUARIO_ID, usuarioId)
                 .set(SOLICITUD_INGRESO.CUPOS_SOLICITADOS, cupos)
@@ -65,7 +67,7 @@ public class EmparejamientoRepositorio {
                 .set(SOLICITUD_INGRESO.PUNTAJE_COMPATIBILIDAD, puntaje)
                 .set(SOLICITUD_INGRESO.FECHA_SOLICITUD, ahora)
                 .returning(SOLICITUD_INGRESO.ID)
-                .fetchOne(SOLICITUD_INGRESO.ID);
+                .fetchOne(SOLICITUD_INGRESO.ID));
     }
 
     public Optional<Propuesta> propuesta(DSLContext dsl, UUID propuestaId) {

@@ -1,7 +1,7 @@
 {
   "descripcion": "Datos de desarrollo para la campaña E2E de los casos de uso principales (docs/trabajo/2026-10-03-campania-cu-principales). Todo es sintético y solo vive en seeders/dev: nada de esto va a producción.",
   "entorno": "dev",
-  "nota": "Dos destrabes de datos, cada uno con su motivo. (1) GRP-DEMO-02: un grupo sin sorteo y con cupos libres, porque GRP-DEMO-01 está lleno y ya sorteado y CU-20 (crear grupo) no se puede ejercitar contra el backend real (ver PLAN, hallazgos B1-B3). (2) Una obligación PENDIENTE de USR000002 en el período 3 de GRP-DEMO-01: las 18 obligaciones sembradas están PAGADO o CUBIERTO y ningún código de main genera obligaciones (solo recargos), así que sin esta fila CU-21 no tiene qué cobrar. NO se siembra ningún entorno de prueba regulado ni licencia: la prueba de humo exige que, con los datos dev cargados, fn_lic_servicio_habilitado() sea FALSE (R-LIC-01), y seeders/README.md:68-76 prohíbe encender la licencia con un seeder.",
+  "nota": "Dos destrabes de datos, cada uno con su motivo. (1) GRP-DEMO-02: un grupo sin sorteo y con cupos libres, porque GRP-DEMO-01 está lleno y ya sorteado y CU-20 (crear grupo) no se puede ejercitar contra el backend real (ver PLAN, hallazgos B1-B3). (2) Una obligación PENDIENTE de USR000002 en el período 3 de GRP-DEMO-01: las 18 obligaciones sembradas están PAGADO o CUBIERTO y ningún código de main genera obligaciones (solo recargos), así que sin esta fila CU-21 no tiene qué cobrar. NO se siembra ningún entorno de prueba regulado ni licencia: la prueba de humo exige que, con los datos dev cargados, fn_lic_servicio_habilitado() sea FALSE (R-LIC-01), y seeders/README.md:68-76 prohíbe encender la licencia con un seeder. (3) GRP-DEMO-03: otro grupo abierto, solo para ejercitar CU-68 (aceptar/rechazar solicitudes) sin gastar los cupos de GRP-DEMO-02, que consume el recorrido de sorteo.",
   "reglas_que_permite_probar": [
     "CU-69 invitar y aceptar por enlace (cupos LIBRE)",
     "CU-60 sortear (grupo sin sorteo previo, R-GRP-05)",
@@ -17,6 +17,42 @@
         {
           "codigo_publico": "GRP-DEMO-02",
           "nombre": "Pasanaku de campania sintetico",
+          "moneda": "BOB",
+          "periodicidad": "MENSUAL",
+          "dia_cobro": 10,
+          "num_periodos": 3,
+          "cupos_totales": 3,
+          "cupos_ocupados": 1,
+          "monto_aporte": 100.0,
+          "fecha_inicio": {
+            "$fecha": "20 days"
+          },
+          "fecha_fin_estimada": {
+            "$fecha": "110 days"
+          },
+          "estado": "ABIERTO_A_INSCRIPCION",
+          "tipo_conformacion": "MANUAL_POR_INVITACION",
+          "modalidad_turnos": "SORTEO_ALEATORIO",
+          "visibilidad": "PRIVADO",
+          "requiere_kyc_minimo": "BASICO",
+          "reputacion_minima": 0,
+          "dias_gracia": 3,
+          "porcentaje_fondo_garantia": 5.0,
+          "quorum_decisiones": 0.667,
+          "organizador_id": {
+            "$ref": "organizador",
+            "usuario_id": {
+              "$ref": "usuario",
+              "codigo_publico": "USR000001"
+            }
+          },
+          "es_autogestionado": false,
+          "aplica_recargo_mora": true,
+          "usa_fondo_garantia": true
+        },
+        {
+          "codigo_publico": "GRP-DEMO-03",
+          "nombre": "Pasanaku de campania para CU-68",
           "moneda": "BOB",
           "periodicidad": "MENSUAL",
           "dia_cobro": 10,
@@ -157,6 +193,25 @@
             "$sql": "now() - interval '1 day'"
           },
           "es_organizador": true
+        },
+        {
+          "grupo_id": {
+            "$ref": "grupo",
+            "codigo_publico": "GRP-DEMO-03"
+          },
+          "usuario_id": {
+            "$ref": "usuario",
+            "codigo_publico": "USR000001"
+          },
+          "alias": "Organizador demo 3",
+          "estado": "ACTIVO",
+          "reputacion_al_ingresar": 700,
+          "aportes_realizados": 0,
+          "aportes_en_mora": 0,
+          "fecha_ingreso": {
+            "$sql": "now() - interval '1 day'"
+          },
+          "es_organizador": true
         }
       ]
     },
@@ -200,6 +255,47 @@
           "grupo_id": {
             "$ref": "grupo",
             "codigo_publico": "GRP-DEMO-02"
+          },
+          "numero": 3,
+          "estado": "LIBRE",
+          "fraccion": 1.0
+        },
+        {
+          "grupo_id": {
+            "$ref": "grupo",
+            "codigo_publico": "GRP-DEMO-03"
+          },
+          "numero": 1,
+          "estado": "OCUPADO",
+          "fraccion": 1.0,
+          "asignado_en": {
+            "$sql": "now() - interval '1 day'"
+          },
+          "participante_id": {
+            "$ref": "participante",
+            "grupo_id": {
+              "$ref": "grupo",
+              "codigo_publico": "GRP-DEMO-03"
+            },
+            "usuario_id": {
+              "$ref": "usuario",
+              "codigo_publico": "USR000001"
+            }
+          }
+        },
+        {
+          "grupo_id": {
+            "$ref": "grupo",
+            "codigo_publico": "GRP-DEMO-03"
+          },
+          "numero": 2,
+          "estado": "LIBRE",
+          "fraccion": 1.0
+        },
+        {
+          "grupo_id": {
+            "$ref": "grupo",
+            "codigo_publico": "GRP-DEMO-03"
           },
           "numero": 3,
           "estado": "LIBRE",

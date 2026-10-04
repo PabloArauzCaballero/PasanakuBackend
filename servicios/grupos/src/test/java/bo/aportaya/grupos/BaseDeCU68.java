@@ -100,6 +100,11 @@ abstract class BaseDeCU68 {
 
     protected SalidaPostulacion postular(
             UUID grupo, boolean restringido, boolean kycSuficiente, int reputacion, int morosos) {
+        return postular(grupo, restringido, kycSuficiente, reputacion, morosos, false);
+    }
+
+    protected SalidaPostulacion postular(
+            UUID grupo, boolean restringido, boolean kycSuficiente, int reputacion, int morosos, boolean sinHistorial) {
         return transaccion.execute(e -> postularCU.postular(
                 new EntradaPostulacion(
                         grupo,
@@ -113,7 +118,8 @@ abstract class BaseDeCU68 {
                         new BigDecimal("0.80"),
                         new BigDecimal("0.90"),
                         new BigDecimal("0.70"),
-                        new BigDecimal("0.10")),
+                        new BigDecimal("0.10"),
+                        sinHistorial),
                 contexto()));
     }
 
