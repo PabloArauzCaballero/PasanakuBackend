@@ -322,4 +322,29 @@ class GruposControllerWebTest {
             verifyNoInteractions(cu68Decision);
         }
     }
+
+    @Nested
+    @DisplayName("CU-68 · mis participaciones (lo que la app necesita para abrir sus pantallas)")
+    class MisParticipaciones {
+        @Test
+        @DisplayName("200: devuelve MIS participaciones, resueltas con la sesión y no con un id del cliente")
+        void lista() throws Exception {
+            var grupo = java.util.UUID.fromString("c6900000-0000-4000-8000-000000000001");
+            var participante = java.util.UUID.fromString("c6900000-0000-4000-8000-000000000002");
+            when(consultas.participacionesDe(any()))
+                    .thenReturn(java.util.List.of(
+                            new bo.aportaya.grupos.aplicacion.Consultas.Participacion(grupo, participante, "ACTIVO")));
+
+            mvc.perform(get("/grupos/participaciones").with(Sesiones.como("PARTICIPANTE")))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].participanteId").value(participante.toString()))
+                    .andExpect(jsonPath("$[0].estado").value("ACTIVO"));
+        }
+
+        @Test
+        @DisplayName("401: sin sesión")
+        void sinSesion() throws Exception {
+            mvc.perform(get("/grupos/participaciones")).andExpect(status().isUnauthorized());
+        }
+    }
 }

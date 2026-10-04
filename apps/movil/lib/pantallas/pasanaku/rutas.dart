@@ -73,9 +73,9 @@ final List<RouteBase> rutasPasanaku = [
   GoRoute(
     path: '/pasanaku/mi-estado',
     name: 'pasanaku.miEstado',
-    builder: (context, state) => PantallaMiEstado(
-      participanteId: state.uri.queryParameters['participante'] ?? '',
-      usuarioId: state.uri.queryParameters['usuario'] ?? '',
+    builder: (context, state) => PantallaMiEstadoDeLaSesion(
+      participanteId: state.uri.queryParameters['participante'],
+      usuarioId: state.uri.queryParameters['usuario'],
     ),
   ),
   GoRoute(

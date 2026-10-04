@@ -363,6 +363,23 @@ paths:
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
 
+  /grupos/participaciones:
+    get:
+      operationId: listarMisParticipaciones      # CU-68
+      summary: Los grupos en los que participo
+      description: >-
+        Lo que la app necesita para abrir sus pantallas (estado de aporte, retiro): el
+        identificador de MI participacion en cada grupo. Solo lo propio, nunca el de otros.
+      responses:
+        '200':
+          description: Mis participaciones vigentes, la mas reciente primero
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 50
+                items: { $ref: '#/components/schemas/Participacion' }
+
   /grupos/{grupoId}/solicitudes:
     get:
       operationId: listarSolicitudesDeIngreso   # CU-68
@@ -749,6 +766,14 @@ components:
       properties:
         cuposSolicitados: { type: integer, minimum: 1, maximum: 3 }
         mensaje:          { type: [string, 'null'], maxLength: 300 }
+    Participacion:
+      type: object
+      additionalProperties: false
+      required: [grupoId, participanteId, estado]
+      properties:
+        grupoId:        { type: string, format: uuid }
+        participanteId: { type: string, format: uuid }
+        estado:         { type: string, maxLength: 40 }
     SolicitudDeIngreso:
       type: object
       additionalProperties: false

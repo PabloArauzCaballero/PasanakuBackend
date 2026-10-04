@@ -1,5 +1,6 @@
 package bo.aportaya.grupos.infraestructura;
 
+import bo.aportaya.grupos.aplicacion.Consultas;
 import bo.aportaya.grupos.dominio.PaqueteDeSorteo;
 import bo.aportaya.grupos.dominio.PoliticaDelGrupo;
 import java.util.List;
@@ -189,6 +190,20 @@ public class ConsultasRepositorio {
                 grupoId,
                 usuarioId);
         return fila == null ? Optional.empty() : Optional.ofNullable(fila.get("id", UUID.class));
+    }
+
+    public List<Consultas.Participacion> participacionesDe(DSLContext dsl, UUID usuarioId) {
+        return dsl.fetch(
+                        """
+                        SELECT grupo_id, id, estado FROM grupos.participante
+                         WHERE usuario_id = ?
+                           AND estado NOT IN ('RETIRADO','EXPULSADO','REEMPLAZADO')
+                         ORDER BY fecha_ingreso DESC, id
+                         LIMIT 50
+                        """,
+                        usuarioId)
+                .map(r -> new Consultas.Participacion(
+                        r.get("grupo_id", UUID.class), r.get("id", UUID.class), r.get("estado", String.class)));
     }
 
     public record Politica(String kycMinimo, int reputacionMinima, java.math.BigDecimal quorum, int cuposLibres) {}

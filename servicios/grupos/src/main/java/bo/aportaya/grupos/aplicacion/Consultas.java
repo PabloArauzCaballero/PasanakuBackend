@@ -6,6 +6,7 @@ import bo.aportaya.grupos.infraestructura.ConsultasRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Traza;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -77,6 +78,27 @@ public class Consultas {
     public Optional<UUID> participanteDe(UUID grupoId, UUID usuarioId, ContextoSesion ctx) {
         return datos.conContexto(ctx, dsl -> consultas.participanteDe(dsl, grupoId, usuarioId));
     }
+
+    /**
+     * El participante ACTIVO de OTRA persona en un grupo, para quien administra (traspaso de cupo).
+     * La politica de fila deja a cada titular ver solo lo suyo, asi que se lee con rol de sistema y
+     * se devuelve unicamente un id, no la fila (B8). La autorizacion de quien pregunta ya la hizo el
+     * permiso del endpoint.
+     */
+    @Transactional(readOnly = true)
+    public Optional<UUID> participanteDeOtro(UUID grupoId, UUID usuarioId, ContextoSesion ctx) {
+        ContextoSesion interno =
+                ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
+        return datos.conContexto(interno, dsl -> consultas.participanteDe(dsl, grupoId, usuarioId));
+    }
+
+    /** Los grupos en los que participa quien pregunta: lo suyo, por su propia politica de fila. */
+    @Transactional(readOnly = true)
+    public List<Participacion> participacionesDe(ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> consultas.participacionesDe(dsl, ctx.usuarioId()));
+    }
+
+    public record Participacion(UUID grupoId, UUID participanteId, String estado) {}
 
     /** Los periodos del grupo, en orden. Es contra ellos que el sorteo reparte turnos. */
     @Transactional(readOnly = true)

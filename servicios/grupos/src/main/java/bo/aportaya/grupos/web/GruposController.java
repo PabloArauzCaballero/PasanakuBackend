@@ -23,6 +23,7 @@ import bo.aportaya.grupos.web.generado.modelo.EntradaRetiro;
 import bo.aportaya.grupos.web.generado.modelo.EntradaRevelacion;
 import bo.aportaya.grupos.web.generado.modelo.EntradaTraspaso;
 import bo.aportaya.grupos.web.generado.modelo.PaqueteDelSorteo;
+import bo.aportaya.grupos.web.generado.modelo.Participacion;
 import bo.aportaya.grupos.web.generado.modelo.RevelacionDeSorteo;
 import bo.aportaya.grupos.web.generado.modelo.SalidaAceptacionInvitacion;
 import bo.aportaya.grupos.web.generado.modelo.SalidaDecisionDeIngreso;
@@ -197,7 +198,7 @@ public class GruposController implements GruposApi {
         // La clave foranea del traspaso apunta a `participante`, no a `usuario` (B21): el entrante tiene
         // que ser participante del grupo. Si no lo es, se dice, en vez de responder 500.
         UUID entranteParticipante = consultas
-                .participanteDe(grupoId, cuerpo.getUsuarioEntranteId(), ctx)
+                .participanteDeOtro(grupoId, cuerpo.getUsuarioEntranteId(), ctx)
                 .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(64, 1), "Quien entra no participa de ese grupo."));
 
         UUID traspasoId = cu64.ejecutar(
@@ -220,6 +221,22 @@ public class GruposController implements GruposApi {
         var respuesta = new SalidaTraspaso();
         respuesta.setTraspasoId(traspasoId);
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+    }
+
+    @Override
+    @Permiso("PARTICIPANTE")
+    public ResponseEntity<java.util.List<Participacion>> listarMisParticipaciones() {
+        Traza.marcarCasoDeUso("CU-68", sesion.actual().usuarioId().toString());
+        var lista = consultas.participacionesDe(sesion.actual()).stream()
+                .map(p -> {
+                    var o = new Participacion();
+                    o.setGrupoId(p.grupoId());
+                    o.setParticipanteId(p.participanteId());
+                    o.setEstado(p.estado());
+                    return o;
+                })
+                .toList();
+        return ResponseEntity.ok(lista);
     }
 
     @Override
