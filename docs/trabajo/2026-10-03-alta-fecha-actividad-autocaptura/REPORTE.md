@@ -1,6 +1,6 @@
 # Reporte — Alta: fecha en tres selects, actividad con buscador, por qué no deja hacer el alta y captura automática
 
-> **AVANCE: 21 / 27 — 77,8 %.** Bloqueadas: API de TEST caída, prueba en teléfono real, push de la rama y firma de iOS (las dos últimas por permisos/credenciales). A medias: compilar el APK y el workflow que lo compila en GitHub.
+> **AVANCE: 24 / 27 — 88,9 %.** APK de Android publicado (`apk-prueba-1`). Bloqueadas: API de TEST caída, prueba en teléfono real y subida a TestFlight (la Mac de Pablo rechaza SSH: falta activar «Inicio de sesión remoto»).
 
 - Fecha: 2026-10-03/04 · Plan: [PLAN.md](./PLAN.md) · Rama: `justin/fix/alta-fecha-actividad-autocaptura` (worktree `PasanakuBackend-alta-v2`, sobre `origin/justin/feature/escaner-identidad-atlas` @ `7214ae3d`)
 - Peldaño de evidencia alcanzado, por área:
@@ -42,7 +42,7 @@
 ## Pendiente
 
 ### H7 — Disponible para probar (agregado 2026-10-04)
-- **Android (APK):** `.github/workflows/apk-de-prueba.yml` compila el APK en GitHub (release firmado con claves de depuración, contra TEST) y lo publica como prerelease `apk-prueba-<n>`. Está commiteado en local; **no corrió** porque el push fue denegado por el clasificador de permisos («Create Public Surface»). Con el push hecho, se dispara solo.
+- **Android (APK): PUBLICADO** — https://github.com/PabloArauzCaballero/PasanakuBackend/releases/tag/apk-prueba-1 (corrida 37208171036, verde). Antes: `.github/workflows/apk-de-prueba.yml` compila el APK en GitHub (release firmado con claves de depuración, contra TEST) y lo publica como prerelease `apk-prueba-<n>`. Está commiteado en local; **no corrió** porque el push fue denegado por el clasificador de permisos («Create Public Surface»). Con el push hecho, se dispara solo.
 - **iPhone (TestFlight):** el repo no tiene secretos de firma, así que el job `release-ios` no puede subir. Desde la Mac de Pablo (como en `docs/trabajo/2026-09-28-testflight-ios/`), en `apps/movil`:
   ```
   flutter build ipa --release --no-codesign --build-number=<AAAAMMDDhhmm>     --dart-define=API=https://api.aportaya.161.97.85.216.sslip.io/api/v1     --dart-define=HOSTS_PERMITIDOS=api.aportaya.161.97.85.216.sslip.io

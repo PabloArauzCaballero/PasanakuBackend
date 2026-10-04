@@ -75,7 +75,7 @@
 |---|---|---|---|---|
 | H5.S2.M1 | Dependencia de detección de rostro verificada (ML Kit, iOS + Android) | `flutter pub get` exit 0 | salida | HECHO — `evidencia/h5-dependencias-pub-get.txt` (google_mlkit_face_detection 0.15.1; iOS 15.0→15.5) |
 | H5.S2.M2 | Dominio puro: juez de pose (de frente / izquierda / derecha, rostro centrado y grande, sostenido N cuadros) | Secuencias de ángulos ⇒ dispara o no según la tabla | test unitario | HECHO — `evidencia/h5-s2-m2-juez-de-pose.txt` (9/9) |
-| H5.S2.M3 | Adaptador cámara → detector (stream NV21/BGRA → `InputImage`) | Compila en Android | `flutter build apk --debug` | A MEDIAS — `flutter analyze` limpio y la conversión verificada contra el código de los plugins; falta `flutter build apk --debug` (se esperó: 5,9 GB libres con Docker y el emulador de otra sesión) |
+| H5.S2.M3 | Adaptador cámara → detector (stream NV21/BGRA → `InputImage`) | Compila en Android | `flutter build apk --debug` | HECHO — `flutter build apk --release` en GitHub Actions (corrida 37208171036): `✓ Built … app-release.apk (106.7MB)`, `evidencia/h7-apk-github.txt`. Localmente la máquina no daba abasto de memoria |
 | H5.S2.M4 | Pantalla de prueba de vida guiada: tres poses seguidas, guarda las tres capturas | Con detector doble, la pantalla devuelve 3 capturas | test widget | HECHO — `evidencia/h5-s2-m4-m5-prueba-de-vida.txt` (5/5; mutación del signo → 4 fallan) |
 | H5.S2.M5 | Respaldo manual si no hay detector o pasan 20 s sin lograr la pose | Con detector que falla ⇒ aparece «Tomar foto» | test widget | HECHO — `evidencia/h5-s2-m4-m5-prueba-de-vida.txt` (sin detector y a los 20 s) |
 | H5.S2.M6 | Prueba en teléfono real | Las 5 capturas sin tocar «Tomar foto» en las selfies | captura/video del teléfono | BLOQUEADO — hace falta un teléfono real: el emulador no tiene escáner VisionKit/ML Kit de verdad ni una cara que gire, y el build de TestFlight se firma y sube desde la Mac (`docs/trabajo/2026-09-28-testflight-ios/PLAN.md:8`). Simulado en los tres niveles con dobles: correcto (tres poses → 3 capturas), límite (giro 28/27/71, 4 cuadros vs 3) e inválido (pose equivocada, dos caras, sin detector, 20 s). Lo destraba: probar el build en un teléfono Android y uno iPhone y confirmar el signo del giro |
@@ -83,12 +83,12 @@
 ## H7 — Disponible para probar (pedido del usuario, 2026-10-04: «subir a Expo Go y TestFlight»)
 **CA:** Dado el código de esta rama, cuando alguien del equipo quiere probarlo, entonces puede instalar la app en Android (APK) y en iPhone (TestFlight) apuntando a TEST.
 **DoD:** corrida de GitHub Actions verde con el APK publicado; build en App Store Connect.
-**Estado:** BLOQUEADO (push y firma de iOS)
+**Estado:** A MEDIAS — Android publicado; iOS bloqueado (la Mac de Pablo no tiene «Inicio de sesión remoto»)
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H7.S1.M1 | Workflow `apk-de-prueba.yml`: compila el APK en GitHub Actions (sin la memoria de esta máquina) contra TEST y lo publica como prerelease descargable | La corrida termina verde y el prerelease tiene el `.apk` | `gh run watch` + `gh release view` | A MEDIAS — workflow escrito y commiteado en local; no corrió porque la rama no se pudo subir (H7.S1.M2) |
-| H7.S1.M2 | Push de la rama | La rama existe en `origin` | `git push` | BLOQUEADO — el clasificador de permisos de Claude Code denegó `git push` («Create Public Surface»: el repo es público y el workflow publica un prerelease). Lo destraba: el usuario hace el push (`! git -C PasanakuBackend-alta-v2 push -u origin justin/fix/alta-fecha-actividad-autocaptura`) o agrega una regla de permiso |
+| H7.S1.M1 | Workflow `apk-de-prueba.yml`: compila el APK en GitHub Actions (sin la memoria de esta máquina) contra TEST y lo publica como prerelease descargable | La corrida termina verde y el prerelease tiene el `.apk` | `gh run watch` + `gh release view` | HECHO — prerelease `apk-prueba-1` con `aportaya-test-1.apk`, `evidencia/h7-apk-github.txt` |
+| H7.S1.M2 | Push de la rama | La rama existe en `origin` | `git push` | HECHO — push hecho por el usuario; PR #46 |
 | H7.S2.M1 | TestFlight | Build nuevo en App Store Connect | `Upload succeeded` | BLOQUEADO — el repo no tiene ningún secreto (`gh secret list` vacío, con permiso ADMIN), así que el job `release-ios` no puede firmar; la firma de distribución vive en la Mac de Pablo (equipo 7A42TVN3Y6). Lo destraba: subir desde esa Mac con los comandos del reporte, o cargar los 5 secretos de `release-ios` |
 
 ## H6 — Regresión y reporte

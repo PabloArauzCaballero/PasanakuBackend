@@ -1,0 +1,6 @@
+Compilar y publicar el APK	flutter build apk (release, contra TEST)	2026-10-04T14:21:02.1009634Z Running Gradle task 'assembleRelease'...                        
+Compilar y publicar el APK	flutter build apk (release, contra TEST)	2026-10-04T14:25:39.8625078Z Running Gradle task 'assembleRelease'...                          415.2s
+Compilar y publicar el APK	flutter build apk (release, contra TEST)	2026-10-04T14:25:41.4197741Z ✓ Built build/app/outputs/flutter-apk/app-release.apk (106.7MB)
+Compilar y publicar el APK	flutter build apk (release, contra TEST)	2026-10-04T14:25:41.4479274Z -rw-r--r-- 1 runner runner 106722066 Oct  4 14:25 build/aportaya-test-1.apk
+Compilar y publicar el APK	Run actions/upload-artifact@v4	2026-10-04T14:25:41.4591736Z   path: apps/movil/build/aportaya-test-1.apk
+conclusion: success · release https://github.com/PabloArauzCaballero/PasanakuBackend/releases/tag/apk-prueba-1 · aportaya-test-1.apk 106722066 bytes
