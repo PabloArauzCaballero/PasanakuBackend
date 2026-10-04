@@ -21,3 +21,5 @@ No issues found! (ran in 53.5s)
 TODO OK
 flutter test (sin test/goldens: se comparan en macOS, ver H12.S1.M1):
 All tests passed! (+298, 0 fallos)
+## backoffice e2e (Playwright + mock Prism, como el paso f6 del CI) — 2026-10-04 00:17:56
+80 passed (tras fijar en sistemas-sin-contrato.e2e.ts el 401 real de /sesion/refrescar sin cookie y el volverA de requiereSesion)

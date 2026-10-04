@@ -1,0 +1,74 @@
+{
+  "servicio": "grupos",
+  "operacion": "consultarInvitacionPorEnlace",
+  "metodo": "post",
+  "ruta": "/grupos/invitaciones/enlace/consultar",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "grupoId": "e7a47a37-2cd1-4771-8348-a92ba147591a",
+        "nombre": "nombre",
+        "montoAporte": "montoAporte",
+        "moneda": "moneda",
+        "periodicidad": "periodicidad",
+        "reglamento": "reglamento",
+        "hashReglamento": "hashReglamento"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "grupoId": "e7a47a37-2cd1-4771-8348-a92ba147591a",
+        "nombre": "nombre",
+        "montoAporte": "montoAporte",
+        "moneda": "moneda",
+        "periodicidad": "periodicidad",
+        "reglamento": "reglamento",
+        "hashReglamento": "hashReglamento"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "grupoId": "e7a47a37-2cd1-4771-8348-a92ba147591a",
+        "nombre": "nombre",
+        "montoAporte": "montoAporte",
+        "moneda": "moneda",
+        "periodicidad": "periodicidad",
+        "reglamento": "reglamento",
+        "hashReglamento": "hashReglamento"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "grupoId": "e7a47a37-2cd1-4771-8348-a92ba147591a",
+        "nombre": "nombre",
+        "montoAporte": "montoAporte",
+        "moneda": "moneda",
+        "periodicidad": "periodicidad",
+        "reglamento": "reglamento",
+        "hashReglamento": "hashReglamento"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
+        "detalle": {},
+        "trazaId": "trazaId"
+      }
+    }
+  }
+}

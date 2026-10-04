@@ -38,3 +38,14 @@ medium|CVE-2026-84933|yarn.lock|CVE-2026-84933: undici vulnerable to cross-user 
 medium|CVE-2026-85014|yarn.lock|CVE-2026-85014: undici vulnerable to Denial of Service via WebSocketStream unclean close
 medium|CVE-2026-85024|yarn.lock|CVE-2026-85024: undici vulnerable to Denial of Service via unhandled error in WebSocket permessage-deflate dec
 medium|CVE-2026-86472|yarn.lock|CVE-2026-86472: fast-uri vulnerable to inconsistent host case normalization via percent-encoded octets
+
+# Trivy (job 'bootJar y docker build', paso 17b2: CRITICAL/HIGH sin parche bloquean) sobre aportaya/identidad:ci:
+Total: 2 (HIGH: 2, CRITICAL: 0)
+│ libssl3t64 │ CVE-2026-84782 │ HIGH     │ fixed  │ 3.0.13-0ubuntu3.15 │ 3.0.13-0ubuntu3.16 │ openssl: compat-openssl: openssl: Information disclosure via │
+Total: 5 (HIGH: 5, CRITICAL: 0)
+│ com.fasterxml.jackson.core:jackson-core     │ CVE-2026-89407 │ HIGH     │ fixed  │ 2.21.5            │ 2.18.11, 2.21.7, 2.22.3 │ com.fasterxml.jackson/jackson-core:                    
+│                                             │ CVE-2026-89425 │          │        │                   │ 2.21.7, 2.22.3, 2.18.11 │ com.fasterxml.jackson.core/jackson-core: Jackson-core: 
+│ com.fasterxml.jackson.core:jackson-databind │ CVE-2026-68497 │          │        │                   │ 2.18.10, 2.21.6, 2.22.2 │ com.fasterxml.jackson.core/jackson-databind:           
+│                                             │ CVE-2026-91776 │          │        │                   │ 2.18.11, 2.21.7, 2.22.3 │ jackson-databind: com.fasterxml.jackson/jackson-core:  
+│                                             │ CVE-2026-91777 │          │        │                   │ 2.21.7, 2.18.11, 2.22.3 │ com.fasterxml.jackson.core/jackson-databind:           
+# Arreglo: jackson-core/jackson-databind 2.21.7 (BOM de Spring, todos los módulos y sus gradle.lockfile) y reconstruir la imagen base con libssl3t64 3.0.13-0ubuntu3.16. Cambio transversal al repositorio, no de esta rama.

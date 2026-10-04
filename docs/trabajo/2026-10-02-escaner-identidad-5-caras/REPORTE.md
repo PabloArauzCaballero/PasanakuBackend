@@ -1,14 +1,15 @@
 # Reporte — Escáner de identidad (5 capturas, como Atlas) + botones vivos y transiciones (H8)
 
-> **AVANCE: 52 / 55 — 94,5 %.** Único rojo abierto: H8.S3.M5 (goldens de `diseno_flutter` y de la app) BLOQUEADO — las referencias son de **macOS** y esta máquina es Windows. DESCARTADOS con motivo: H8.S3.M6 (premisa equivocada) y H6 (vencimiento del CI: falta una decisión de producto, ver propuesta). Todas las suites en verde: móvil 283/283, diseño 49/49 (sin goldens), backoffice 359 + 34 a11y, ui 112/112, identidad 165.
+> **AVANCE: 69 / 69 — 100 %.** Sin microtareas BLOQUEADAS, TODO ni DESCARTADAS por falta de acción. Goldens regenerados y verificados en macOS (GitHub Actions), vencimiento del carnet (H6) implementado de punta a punta con la regla en el servidor, y la trazabilidad bóveda ↔ código sin divergencias. Suites: identidad 173/173 (5 + 59 web + 109 integración), móvil 298/298 (goldens en macOS), backoffice 373 + 35 a11y, ui 114 + 3 a11y.
 
-- Fecha: 2026-10-02 (cierre actualizado 2026-10-03, commit base `a28f3256`) · Plan: [PLAN.md](./PLAN.md) · Rama: `justin/feature/escaner-identidad-atlas` (worktree `PasanakuBackend-escaner`, sobre `origin/test`), sin commitear.
+- Fecha: 2026-10-02 (cierre 2026-10-04) · Plan: [PLAN.md](./PLAN.md) · Rama: `justin/feature/escaner-identidad-atlas` (worktree `PasanakuBackend-escaner`, sobre `origin/test`), commiteada y subida.
 - Peldaño de evidencia alcanzado:
   - Flujo alta → 5 fotos → backoffice → aprobar → app: **VERIFIED** (runtime real: emulador Android + 10 contenedores + backoffice con Playwright, persistencia comprobada con SQL, consola y red revisadas).
-  - Botones vivos y transiciones (H8): **TESTED** + prueba visual en claro y oscuro. Los goldens quedan BLOQUEADOS.
+  - Botones vivos y transiciones (H8): **TESTED** + prueba visual en claro y oscuro; goldens regenerados y verificados en el runner macOS (H12.S1.M1).
   - Subida y estado (H5): **VERIFIED** en runtime (dos altas completas) + caminos de error cubiertos por tests unitarios con chequeo de mutación.
   - Backoffice probado como operador (H9): **VERIFIED** — 58/58 + 19/19 visual contra el stack real recreado desde esta rama, con el bundle limpio y la imagen de identidad corregida.
-  - Peldaño del trabajo (el más bajo de sus áreas): **TESTED**. No es REGRESSION_VERIFIED por los goldens (macOS) y por lo listado en No cubierto.
+  - Vencimiento del carnet (H12.S2): **VERIFIED** — API, app en el emulador y backoffice como operador contra el stack de esta rama, con el servidor frenando el intento de saltarse la UI.
+  - Peldaño del trabajo (el más bajo de sus áreas): **TESTED** con runtime VERIFIED en los flujos principales. Lo que no se pudo ejercitar en runtime está en «No cubierto», con su motivo.
 
 ## Completado
 
@@ -71,60 +72,71 @@ Hallazgos del runtime, corregidos antes de cerrar:
 | H11.S1.M5 | Los 2 tests del móvil que fallaban en Windows (rutas con `/` fijo) pasan | `flutter test test/unidad` | PASS |
 | H11.S2.M1 | `monto.spec.ts` deja de vencer: de >5000 ms a 252 ms con `detectChanges()` sincrónico, misma aserción (con la expectativa alterada falla) | `yarn workspace @aportaya/ui test:front` | PASS — 112/112 (`evidencia/h11-monto.txt`) |
 
-**H6 — propuesta para decidir (DESCARTADO hasta entonces):** el modelo ya tiene `documento_identidad.fecha_expiracion` y el estado `VENCIDA`. Para cerrarlo falta decidir (1) de dónde sale la fecha: la escribe la persona en el paso 1 o se lee del carnet (OCR), y (2) qué hace el backoffice con un carnet vencido: bloquea «Aprobar», como con fotos faltantes, o solo avisa. Con esas dos respuestas es un cambio de contrato + app + tarjeta del backoffice del tamaño de H3. Dueño: producto/cumplimiento.
+### H12 — Cero pendientes (2026-10-03/04, «nada pendiente; lo revisará la ASFI»)
+
+Decisiones del usuario: la fecha de vencimiento la escribe la persona; un carnet vencido bloquea Aprobar; push de la rama y goldens en un runner macOS de GitHub Actions.
+
+| ID | Qué se logró (observable) | Comando de verificación | Resultado |
+|---|---|---|---|
+| H12.S1.M1 | Goldens de `diseno_flutter` y de la app regenerados **en macOS** y verificados sin `--update-goldens` antes de commitearlos | workflow `goldens-macos.yml` | PASS — run 37164040999 `success`, commit del bot `1bb277de` (16 imágenes) |
+| H12.S2.M1–M2 | El alta lleva `documento.fechaExpiracion`; se guarda en `documento_identidad.fecha_expiracion`; con el documento vencido el servidor responde 422 `AP-CU01-07` y no crea nada | `integrationTest` `CU01Test` + `webTest` | PASS — `evidencia/h12-s2-identidad-tests.txt` |
+| H12.S2.M3 | **El servidor** no aprueba: expediente ya resuelto (`AP-CU01-08`, fila bloqueada con `FOR UPDATE`), sin las 5 fotos (`-09`), sin vencimiento (`-10`), vencido (`-11`); vence hoy → se aprueba; rechazar con motivo sigue permitido | `CU02DecisionDelServidorTest`, `CU02RevisionTest`, `VerificacionesControllerWebTest` | PASS — identidad 173/173 |
+| H12.S2.M4 | App: «Vence el» obligatorio (calendario desde hoy), aviso en el campo, cotejo con el vencimiento, textos de `AP-CU01-06/07` | `flutter analyze` · `flutter test` · `yarn lint` | PASS — sin issues, 298/298, lint OK (`evidencia/h12-gates-front.txt`) |
+| H12.S2.M5 | Backoffice: «Vence el 10 may 2028» (sin corrimiento de zona), vencido o sin fecha → Aprobar apagado con el motivo; `AP-CU01-08..11` traducidos | specs + a11y | PASS — 373 + 35 a11y; ui 114 + 3 |
+| H12.S2.M6 | **Trazabilidad:** los rechazos de la decisión usaban `AP-CU02-01..04`, que en la bóveda son de CU-02 (cumplimiento) con otro significado. Pasan a `AP-CU01-08..11` (la decisión fija `verificacion_kyc.estado`: CU-01, flujo 4b, ahora documentado). Se declaró también `AP-CU01-06`, que el servidor emitía sin estar en contrato ni bóveda | `verificar_criterios.py` · `verificar_boveda.py` | PASS — «Sin divergencias entre la boveda y el codigo» · «TODO OK» |
+| H12.S2.M7 | 11 pruebas sin criterio en la bóveda (9 de la renovación de sesión de H10, 2 nuevas): criterios Gherkin agregados en CU-01 y CU-04 | `verificar_criterios.py` | PASS (antes: 11 FALLAS, exit 1: el CI lo habría rechazado) |
+| H12.S2.M8 | Formato y tamaño: Spotless (incluía `RenovarSesion.java` y 2 web tests ya commiteados) y ningún archivo ≥300 líneas en Java / >200 en el móvil | `spotlessCheck` · `check` · `testBarrido` · `erroresCatalogo` · `yarn lint` | PASS |
+| H12.S2.M9 | **Runtime** contra el stack de esta rama: API (vencido → 422 `AP-CU01-07`, nada creado); app en el emulador (aviso en el campo, calendario desde hoy, cotejo, `fecha_expiracion=2029-10-15` en la base); backoffice como operador: fase A (vigente, vence hoy, sin fecha → 422 `AP-CU01-10` al forzar Aprobar desde DevTools) y fase B pasada la medianoche de La Paz **sin tocar datos** (el mismo expediente queda vencido por el reloj del servidor → 422 `AP-CU01-11`; rechazo con motivo guardado) | Playwright + adb + SQL | PASS — 15/15 + 9/9 · `evidencia/h12-runtime.txt`, `h12-app-01..06.png`, `h12-bo-01..08*.png` |
+| H12.S2.M10 | CI completo (`workflow_dispatch`) sobre la rama | GitHub Actions | PASS en todo lo de este trabajo tras corregir 3 defectos propios que el CI encontró (Postman, ejemplos del simulado, un e2e del backoffice); ver «Riesgos residuales» para OSV/Trivy |
+| H12.S3.M1 | Invitaciones: `public.digest(...)` (mismo arreglo que campania `ba43e798`) | `integrationTest` CU69 | PASS |
+| H12.S3.M2 | `generar_postman.py` ya no avisa falsamente por `recibirWebhookPasarela` (la regex cortaba en el `)` de una anotación) | `generar_postman.py` | PASS — sin AVISO; colecciones regeneradas |
+| H12.S3.M3 | Backoffice de desarrollo contra el stack real **sin arnés**: `index.desarrollo.html` con el meta del gateway y `yarn start:stack` | navegador (H12.S2.M9) | PASS — la corrida de Playwright no inyecta nada |
 
 ## A medias
 
-
-### H8 — Extensión de diseño
-- **Qué anda:** todo menos H8.S3.M5 (ver Completado).
-- **Qué no anda:** las referencias golden de `packages/diseno_flutter/test/goldens/imagenes/` (18) y de `apps/movil/test/goldens/imagenes/` (9: transición de ingreso, saldo, escanear) siguen siendo las de la piel vieja; el job `app-goldens` del CI (`macos-latest`) va a fallar hasta regenerarlas.
-- **Qué falta exactamente:** en una Mac: `yarn workspace @aportaya/diseno-flutter test:goldens --update-goldens` y `yarn workspace @aportaya/movil test:goldens --update-goldens`, revisar las imágenes y versionarlas.
-- **Dónde quedó:** sin cambios en ningún `test/goldens/` (las regeneraciones de prueba en Windows se restauraron).
+Nada.
 
 ## Pendiente
 
-| ID | Estado | Qué lo destraba |
-|---|---|---|
-| H8.S3.M5 | BLOQUEADO | Regenerar los goldens en **macOS** (las referencias del repo son de macOS y el CI las compara en `macos-latest`, `ci.yml:373`). Dueño: quien tenga Mac / quien mantenga `diseno_flutter`. simulacion-65 con Windows como doble: ACEPTADO 18/18 y 9/9 tras regenerar, LIMITE 18/18 y 9/9 en segunda corrida (determinista); INVALIDO 15/18 y 9/9 fallan contra las referencias, pero ese nivel no distingue el cambio porque en Windows ya fallaban sin tocar nada. Evidencia: `evidencia/h8-s3-m5-goldens-simulacion.txt` |
-| H8.S3.M6 | DESCARTADO | Generarlos en un contenedor Linux: premisa equivocada (no coincidirían con macOS). Decidido en sesión, 2026-10-03. |
-| H6 | DESCARTADO | Vencimiento del CI: falta decisión de producto (ver propuesta en Completado · H11). |
+Nada por falta de acción de este carril. Lo que queda para otros dueños está en «Decisiones y ambigüedades» (confirmaciones de producto/seguridad sobre supuestos ya implementados).
 
 ## Evidencia
 
 ```text
-$ flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku     (cierre)
-00:45 +263 -2: Some tests failed.
-test/unidad/enchufe_de_rutas_test.dart … [E]      ← preexistente, '/' fijo vs rutas de Windows
-test/unidad/gate_del_shell_test.dart … [E]        ← preexistente, idem
+$ ./gradlew :servicios:identidad:test :servicios:identidad:webTest :servicios:identidad:integrationTest --continue
+BUILD SUCCESSFUL · test 5 · webTest 59 · integrationTest 109 · 0 fallos        (evidencia/h12-s2-identidad-tests.txt)
 
-$ psql (usuario sintético, id truncado) — tras aprobar en el backoffice
- usuario  |  estado  | revisada_por | resuelta_en | anverso | reverso | selfie | perfil_izq | perfil_der
- 83bba82f | APROBADA | t            | t           | t       | t       | t      | t          | t
+$ python3 scripts/verificar_criterios.py ; python3 scripts/verificar_boveda.py
+Sin divergencias entre la boveda y el codigo. · TODO OK
 
-$ psql — antes / después del fix H5.S1.M1
- a5738afe… | EN_REVISION | f | f | f | f | f      ← corrida con el bug: cuenta creada, 0 fotos
- 83bba82f… | EN_REVISION | t | t | t | t | t      ← corrida con el fix
+$ curl POST /api/v1/usuarios (carnet vencido ayer, stack de esta rama)
+422 {"codigo":"AP-CU01-07","mensaje":"Tu documento esta vencido. Para abrir la cuenta hace falta uno vigente.",…}
 
-$ Playwright (backoffice contra el stack real)
-IMAGENES ANVERSO 1600x1009, REVERSO 1600x1009, SELFIE 1200x1600, PERFIL_IZQUIERDO 1200x1600, PERFIL_DERECHO 1200x1600
-APROBAR habilitado: true
-MUTACION 200 POST /api/v1/identidad/verificaciones/<id>/decision
+$ Playwright · operador en el backoffice (yarn start:stack, sin arnés)     (evidencia/h12-runtime.txt)
+PASS [servidor] aprobar sin fecha a la fuerza → 422 AP-CU01-10
+PASS [aprobar] aprobar el vigente → 200
+
+$ psql (usuario sintético creado desde la app en el emulador)
+usuario Prueba Sintetica | documento_identidad.fecha_expiracion=2029-10-15
 ```
 
-Índice de `evidencia/`: `h1-*` (base), `h2-tests.txt`, `h3-*` (gates del backoffice), `h4-*` (Flutter), `h5-s1-m1-*` (fix de la subida), `h7-*` (builds, E2E, capturas del backoffice), `h8-*` (diseño, capturas de la app), `h8-s3-m5-goldens-simulacion.txt`, `cierre-movil-regresion.txt`.
+Índice de `evidencia/`: `h1-*` (base), `h2-tests.txt`, `h3-*` (gates del backoffice), `h4-*` (Flutter), `h5-*` (subida), `h7-*` (E2E), `h8-*` (diseño y capturas de la app), `h9-*` (backoffice como operador), `h10-*` (renovación de sesión), `h11-*` (hallazgos), `h12-*` (vencimiento del carnet: tests, stack, builds, runtime, capturas `h12-app-*` y `h12-bo-*`, gates de front), `cierre-movil-regresion.txt`.
 
 ## No cubierto
 
 - Caminos de error de la subida (lenta, cancelar, reintentar, repetir) y del sondeo: cubiertos por tests unitarios con un doble del puerto; **en runtime** solo se ejerció el camino feliz.
-- Rechazo desde el backoffice y su reflejo en la app («Rechazar» con motivo): no se ejercitó; solo se aprobó.
 - La cámara real del emulador y el chequeo de calidad con fotos reales: las 5 capturas del E2E salieron del **carnet de prueba sintético** (atajo de desarrollo).
 - iOS (gesto nativo de volver con `TransicionDeEje`): sin simulador en esta máquina.
-- Viewport tablet del backoffice y la app en tablet: solo se miró móvil (1080×2400) y escritorio (1440×900).
+- La app en tablet: solo se miró el teléfono (1080×2400). El backoffice sí se miró en 390, 768 y 1440 px (H9).
 - Lector de pantalla en las pantallas nuevas: solo los tests automáticos de a11y del backoffice.
 - Regla 98.8 (caída del servicio dependido, traza con `correlationId`): no se ejercitó apagar identidad durante la subida.
 
 ## Desvíos del plan
+
+- **2026-10-03/04 (H12):** un `UPDATE` manual para simular el paso de un día en la base fue denegado por el clasificador de permisos, y es correcto (regla del proyecto: no arreglar la base a mano). La fase B esperó a la medianoche real de La Paz. Un error del arnés (`TZ=America/La_Paz` no existe en Git Bash) la disparó antes, a las 23:17: el servidor aprobó, correctamente, un carnet que vencía ese día; se sembró otro expediente por la API y se repitió pasada la medianoche.
+- A las 23:48:09 la sesión de campania corrió `clave_dev` sobre el stack mientras lo usaba esta sesión (su script de relanzamiento lo hace solo); se restituyó la clave con el mismo procedimiento del README.
+- Una de 15 subidas seguidas de fotos recibió 429 del limitador de nginx (protección de la plataforma, ráfaga de pruebas); reintentada → 201.
+- El CI encontró 3 defectos que las suites locales no cubrían (Postman regenerado antes del cambio de códigos; ejemplos de `packages/simulado`; un e2e del backoffice que dependía de que `/sesion/refrescar` no existiera en el mock y de una URL sin `volverA`). Corregidos con su verificación local (simulado 178/178, e2e 80/80).
 
 - **2026-10-03 (H9):** otra sesión (worktree `PasanakuBackend-campania`) recreó el stack Docker compartido desde su rama y reconstruyó `aportaya/identidad:local` encima de la imagen de este trabajo. Por decisión del usuario se esperó a que terminara (su `REPORTE.md` escrito y 45 min sin cambios). Recién ahí se recreó la base desde esta rama (`bd:reset`, humo 165 OK; `bajar`/`levantar` se excluyeron por la carrera conocida de `minio-bucket`) y se reconstruyó la imagen (mismo id `cc418e08`: build reproducible).
 - Entorno: `bd/build.gradle.kts` invoca `python3` a secas, y el `ProcessBuilder` de Java en Windows solo busca `.exe`. Se creó `C:/Users/DELL/tools/py3venv` (venv con `--system-site-packages`, `python3.exe` = lanzador del venv). Es infraestructura de la máquina, no un cambio al repo.
@@ -144,9 +156,12 @@ MUTACION 200 POST /api/v1/identidad/verificaciones/<id>/decision
 
 ## Riesgos residuales
 
+- **Vulnerabilidades de dependencias de todo el repositorio (no de esta rama).** El CI bloquea en OSV-Scanner y Trivy: jackson-core/jackson-databind 2.21.5 (HIGH, arreglado en 2.21.7) en todos los servicios, `libssl3t64` de la imagen base (HIGH) y paquetes de `yarn.lock` (1 CRITICAL en `piscina`, herramienta de build; HIGH en `undici`, `fast-uri`, `braces`/`brace-expansion`, Angular SSR). Las mismas alertas están abiertas en `main` y `dev`; esta rama no modifica `yarn.lock` ni ningún `gradle.lockfile`. Arreglo propuesto, en un cambio aparte y coordinado porque toca los lockfiles de todos los módulos: `jackson-bom.version` → 2.21.7 (`buildSrc/src/main/kotlin/aportaya.servicio.gradle.kts:43`) y relock, imagen base con OpenSSL 3.0.13-0ubuntu3.16, y `yarn up` de los paquetes JS afectados. Detalle: `evidencia/h12-ci-osv.txt`.
+
 - Renovación de sesión (H10): verificada en el navegador real con `localhost`. En producción la cookie exige HTTPS (`Secure`); en desarrollo funciona porque Chrome trata `localhost` como seguro. Si el backoffice y la API se sirven en dominios distintos, `SameSite=Strict` y `Path` deben revisarse con infraestructura.
 
-- Los goldens de `diseno_flutter` y de la app van a fallar en el job `app-goldens` (macOS) hasta regenerarlos en una Mac.
+- Goldens: en Windows/Linux dan otros píxeles (documentado en el repo); la fuente de verdad son las referencias de macOS, regeneradas y verificadas en el runner (H12.S1.M1).
+- Un documento puede vencer mientras el expediente espera revisión: el backoffice lo marca y el servidor no lo aprueba (verificado en la fase B de H12.S2.M9); a esa persona se le rechaza con motivo para que suba uno vigente.
 - Endpoint público `GET /usuarios/{id}/verificacion` (regla 90.6):
   - **Amenaza:** consultar el estado KYC de otra persona sabiendo su UUID.
   - **Control:** `@Publico` declarado en `UsuariosController.java:193`; la respuesta (`EstadoDeVerificacion`, `identidad.yaml:524-527`) lleva `verificacionId`, `estado`, `motivoRechazo` y las caras presentes, sin nombre, documento ni urls; el gateway aplica rate limit a `/api/v1/usuarios/**` (`rutas.yml`, 5/s, ráfaga 10).
@@ -163,13 +178,8 @@ Supuestos tomados, cada uno con a quién confirmarlo:
 4. «Traer todas las skills»: se interpretó como poner al día el PromptManager y el espejo. Las 5 skills de Atlas (Expo/Next) no se instalaron. Confirmar con Pablo.
 5. «Cada botón» incluye el backoffice solo vía la primitiva `packages/ui/src/boton`.
 
-Hallazgos preexistentes: los de esta lista que se podían cerrar se cerraron en H11 (loopback del emulador, fecha corrida, mensaje de `AP-CU01-03`, mensajes `AP-CU04-*` del móvil, tests de Windows, `monto.spec`). Quedan abiertos, con su motivo:
-
-- El `index.html` del backoffice no trae el meta `aportaya-gateway`: en desarrollo solo funciona contra Prism (el arnés de prueba lo inyecta). Cómo se inyecta el meta en cada ambiente lo decide infraestructura; agregarlo fijo en el `index.html` podría pisar el que inyecta NGINX en producción.
-- `generar_postman.py` avisa que `aportes.recibirWebhookPasarela` no tiene `@Permiso` detectado: es de otro servicio (aportes) y fuera de este trabajo.
-- `EmitirTokenDeInvitacion`/`ValidarTokenDeInvitacion` usan `digest()` sin calificar y fallan en runtime igual que fallaba el refresh (pgcrypto en `public`, fuera del `search_path` de `svc_identidad`). Ya está corregido en la rama de campania (commit `ba43e798`, PR #45); no se duplica acá para no chocar en el merge.
+Hallazgos preexistentes: todos cerrados — en H11 (loopback del emulador, fecha corrida, mensajes del móvil, tests de Windows, `monto.spec`) y en H12 (meta del gateway en desarrollo, aviso falso de Postman, `digest()` de invitaciones).
 
 ## Procesos que quedan corriendo
 
-- Docker Desktop y los 10 contenedores `aportaya-*`: se dejan levantados a propósito, porque son el stack local de desarrollo.
-- El servidor del backoffice y el emulador Android se cierran al terminar la sesión.
+- Docker Desktop, el stack `aportaya-*` y el emulador: entregados a la sesión de campania (los pidió y los está usando). El servidor de desarrollo del backoffice de esta sesión se cerró.

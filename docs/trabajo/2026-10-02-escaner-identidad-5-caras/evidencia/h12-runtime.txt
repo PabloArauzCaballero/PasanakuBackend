@@ -44,3 +44,32 @@ PASS [oscuro] en oscuro: sin fecha, Aprobar deshabilitado
 PASS [consola] sin errores de consola ni de página (los 422 esperados se excluyen)
 
 15/15 PASS
+
+## 5 · Corrida B temprana (error del arnés, se registra)
+La espera usó TZ=America/La_Paz, que Git Bash no reconoce (cae en UTC): la fase B corrió a las 23:17, ANTES de medianoche.
+El servidor hizo lo correcto: el carnet de VENCIDO vencía ese mismo día (todavía válido) y aprobarlo a la fuerza dio 200 → borde «vence hoy todavía vale» verificado en runtime.
+Consecuencia: ese expediente quedó APROBADO; para la fase B se sembró VENCIDO2 por la API (vence 2026-10-03, 5 fotos 201).
+FAIL [vencido] muestra «Vence el 3 oct 2026 · Documento vencido»
+FAIL [vencido] explica por qué no se aprueba
+FAIL [vencido] Aprobar deshabilitado
+FAIL [servidor] aprobar vencido a la fuerza → 200 undefined
+FAIL [servidor] la tarjeta dice el motivo: «»
+
+## 6 · Incidente de entorno 23:48:09
+Otra sesión corrió clave_dev sobre este stack (credencial_acceso.cambiada_en = 2026-10-03 23:48:09) y entró con varias cuentas de prueba; el primer intento de la fase B a las 00:00:36 recibió AP-CU04-01. Se restituyó la clave con scripts/clave_dev.py (procedimiento del README) y se repitió.
+
+## 7 · Backoffice como operador — FASE B (pasada la medianoche de La Paz; NINGÚN dato modificado: el mismo expediente pasa a vencido por el reloj del servidor)
+inicio fase B: 2026-10-04 00:03:10 hora local (La Paz)
+antes: Operador Prueba VENCIDO2 vence=2026-10-03 EN_REVISION
+PASS [dev] el backoffice de desarrollo habla con el gateway sin arnés (meta en index.desarrollo.html) → cola cargada en /cumplimiento/verificaciones
+PASS [vencido] muestra «Vence el 3 oct 2026 · Documento vencido»
+PASS [vencido] explica por qué no se aprueba
+PASS [vencido] Aprobar deshabilitado
+PASS [servidor] aprobar vencido a la fuerza → 422 AP-CU01-11
+PASS [servidor] la tarjeta dice el motivo: «El documento está vencido. No se aprueba con un documento vencido.»
+PASS [rechazo] rechazar el vencido con motivo → 200
+PASS [oscuro] en oscuro: sin fecha, Aprobar deshabilitado
+PASS [consola] sin errores de consola ni de página (los 422 esperados se excluyen)
+
+9/9 PASS
+despues: Operador Prueba VENCIDO2 RECHAZADA | motivo=El carnet está vencido: subí uno vigente. | revisada_por=df237ee4
