@@ -176,6 +176,24 @@ Desvío: las microtareas se escribieron en el plan después de los primeros camb
 | H11.S2.M1 | `monto.spec.ts` (ui) deja de vencer a los 5 s | Pasa | `yarn workspace @aportaya/ui test:front` | HECHO (TESTED) — de >5000 ms a 252 ms con `detectChanges()` sincrónico; misma aserción; mutación detectada; `@aportaya/ui` 112/112, typecheck y lint OK (`evidencia/h11-monto.txt`) |
 | H11.S3.M1 | H6 (vencimiento del CI) | Se decide | — | DESCARTADO — no se puede cerrar sin decisión de producto: el modelo ya tiene `documento_identidad.fecha_expiracion` y el estado `VENCIDA`, pero falta decidir de dónde sale la fecha (la escribe la persona u OCR) y qué hace un carnet vencido (bloquea la aprobación o solo avisa). DECISION_REQUIRED; dueño: producto/cumplimiento. Propuesta en el REPORTE |
 
+## H12 — Cero pendientes (pedido 2026-10-03: «nada pendiente»; lo revisará la ASFI)
+Decisiones del usuario (2026-10-03): (1) la fecha de vencimiento del carnet **la escribe la persona** en el alta; (2) un carnet vencido **bloquea Aprobar** en el backoffice; (3) autorizado el **push** de la rama y generar los goldens en un runner **macOS** de GitHub Actions.
+**CA:** No queda ninguna microtarea BLOQUEADA, TODO ni DESCARTADA por falta de acción de este carril; todo cambio con su test y su evidencia.
+**DoD:** suites en verde (identidad, backoffice, ui, móvil, diseño) · goldens regenerados y verificados en macOS · REPORTE sin pendientes.
+**Estado:** EN CURSO
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H12.S1.M1 | Workflow `goldens-macos.yml`: regenera en `macos-latest`, verifica sin `--update` y commitea en la rama | El run termina en verde y la rama trae las imágenes nuevas | run de Actions + `git log` | TODO |
+| H12.S2.M1 | Contrato: `documento.fechaExpiracion` (date) en el alta y `fechaExpiracionDocumento` en `ExpedienteEnRevision` | El spec valida y genera | `generarServidorOpenApi` | TODO |
+| H12.S2.M2 | Identidad persiste la fecha (`documento_identidad.fecha_expiracion`, columna ya existente) y la devuelve a la cola | Alta con fecha → la cola la trae | integrationTest | TODO |
+| H12.S2.M3 | **El servidor** rechaza APROBAR un expediente con el carnet vencido (la UI no es barrera, regla 95.6.1) | `POST decision APROBAR` con carnet vencido → 422 y el expediente sigue EN_REVISION | integrationTest + webTest | TODO |
+| H12.S2.M4 | App: campo «Vence el» obligatorio en el paso 1; un carnet ya vencido no deja avanzar | Validación con mensaje en el campo | `flutter test` | TODO |
+| H12.S2.M5 | Backoffice: la tarjeta muestra el vencimiento; vencido → «Aprobar» deshabilitado con el motivo | Ídem | spec + bo-humano | TODO |
+| H12.S3.M1 | Traer el fix de `digest()` de invitaciones (campania `ba43e798`) por cherry-pick | Invitaciones sin `digest` sin calificar | integrationTest identidad | TODO |
+| H12.S3.M2 | Aviso de Postman `recibirWebhookPasarela` sin `@Permiso` detectado | El generador no avisa | `generar_postman.py` sin AVISO | TODO |
+| H12.S3.M3 | Backoffice en desarrollo contra el stack real sin arnés (meta del gateway en dev) | `ng serve` de desarrollo resuelve el gateway | prueba en navegador | TODO |
+
 ## Hallazgo H7: el APK de Android compila -- 2 fixes de entorno necesarios
 Primer intento de `flutter run -d emulator-5554` fallo: `permission_handler_android`
 exige `compileSdk 37`, pero (a) el Android SDK de esta maquina solo tenia hasta 35/36
