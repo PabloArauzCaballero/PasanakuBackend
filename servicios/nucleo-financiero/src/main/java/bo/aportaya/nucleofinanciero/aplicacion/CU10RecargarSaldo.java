@@ -155,6 +155,16 @@ public class CU10RecargarSaldo {
             var orden = ordenes.ver(dsl, ordenId)
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(10, 5), "Esa orden no existe."));
 
+            // Repetir la confirmacion de una orden YA acreditada es un reintento, no un error: se devuelve
+            // la respuesta original (mismo id de transaccion) y no se mueve nada (B33, regla 91.6).
+            if ("ACREDITADA".equals(orden.estado())) {
+                var original = ordenes.transaccionDe(dsl, orden.id());
+                if (original.isPresent()) {
+                    var actual = cuentas.ver(dsl, orden.cuentaId()).orElseThrow();
+                    return new SalidaAcreditacion(orden.id(), original.get(), actual.disponible());
+                }
+            }
+
             // AP-CU10-05.
             if (!"PENDIENTE".equals(orden.estado())) {
                 throw new ErrorDeNegocio(CodigoError.de(10, 5), "Esa orden ya esta " + orden.estado() + ".");

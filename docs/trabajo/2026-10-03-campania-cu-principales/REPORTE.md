@@ -1,4 +1,4 @@
-> **AVANCE: 53 / 100 — 53,0 %.** 0 respuestas 5xx. Pasan en runtime: CU-10, CU-11 (con el doble local de segundo factor), CU-12, CU-60/61, CU-62 (titular), CU-63 voto, CU-74, CU-21, CU-22, CU-69. Siguen sin pasar por decisión: CU-20 (licencia EN_TRAMITE), CU-64 positivo (CU-68 stub), B32, B33, B36, B37, B15/B5.
+> **AVANCE: 54 / 101 — 53,5 %.** 0 respuestas 5xx. Pasan en runtime: CU-10, CU-11 (con el doble local de segundo factor), CU-12, CU-60/61, CU-62 (titular), CU-63 voto, CU-74, CU-21, CU-22, CU-69. Siguen sin pasar por decisión: CU-20 (licencia EN_TRAMITE), CU-64 positivo (CU-68 stub), B32, B36, B37, B15/B5.
 
 # Reporte — Campaña E2E de los casos de uso principales + correcciones (API real + backoffice real)
 
