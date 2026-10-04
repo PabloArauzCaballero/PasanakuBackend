@@ -6,6 +6,7 @@ import static bo.aportaya.identidad.generado.Tables.VERIFICACION_KYC;
 
 import bo.aportaya.identidad.dominio.ExpedienteDeIdentidad;
 import bo.aportaya.plataforma.archivos.DestinoDeObjeto;
+import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ErrorDeDominio;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -139,5 +140,28 @@ public class RevisionRepositorio {
         if (filas == 0) {
             throw new ErrorDeDominio("Ese expediente no existe");
         }
+        if ("APROBADA".equals(estado)) {
+            activarAlUsuarioDe(dsl, verificacionId);
+        }
+    }
+
+    /**
+     * La aprobacion humana del expediente ES la evaluacion que CU-01 dejo pendiente: sin esto el
+     * usuario quedaba para siempre en `PENDIENTE_VERIFICACION` aunque un operador lo hubiera
+     * aprobado (B32). Solo toca a quien sigue pendiente, y el nivel sale del expediente. Con rol de
+     * sistema: el operador de backoffice no es el titular de la fila.
+     */
+    private void activarAlUsuarioDe(DSLContext dsl, UUID verificacionId) {
+        Datos.comoSistema(
+                dsl,
+                () -> dsl.execute(
+                        """
+                UPDATE identidad.usuario u
+                   SET estado = 'ACTIVO',
+                       nivel_kyc = CASE v.nivel_solicitado WHEN 'AVANZADO' THEN 'COMPLETO' ELSE v.nivel_solicitado END
+                  FROM identidad.verificacion_kyc v
+                 WHERE v.id = ? AND u.id = v.usuario_id AND u.estado = 'PENDIENTE_VERIFICACION'
+                """,
+                        verificacionId));
     }
 }

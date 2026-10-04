@@ -1,4 +1,4 @@
-> **AVANCE: 57 / 105 — 54,3 %.** 0 respuestas 5xx en la corrida completa. Pasan en runtime: CU-10, CU-11 (doble local de segundo factor), CU-12, CU-21, CU-22, CU-60/61, CU-62 (titular), CU-63 voto, CU-69, CU-74. CU-68 (aceptar/rechazar solicitud) y la pestaña «Grupos» de la app están en peldaño TESTED (PostgreSQL real por Testcontainers + web tests), SIN runtime: el stack Docker lo tiene la sesión del escáner. Siguen por decisión de producto: CU-20 (licencia EN_TRAMITE), B32, B37; sin empezar: B15/B5.
+> **AVANCE: 58 / 106 — 54,7 %.** 0 respuestas 5xx en la corrida completa. Pasan en runtime: CU-10, CU-11 (doble local de segundo factor), CU-12, CU-21, CU-22, CU-60/61, CU-62 (titular), CU-63 voto, CU-69, CU-74. CU-68 (aceptar/rechazar solicitud) y la pestaña «Grupos» de la app están en peldaño TESTED (PostgreSQL real por Testcontainers + web tests), SIN runtime: el stack Docker lo tiene la sesión del escáner. Siguen por decisión de producto: CU-20 (licencia EN_TRAMITE), B37; B32 corregido en código (aprobar activa al usuario); sin empezar: B15/B5.
 
 # Reporte — Campaña E2E de los casos de uso principales + correcciones (API real + backoffice real)
 
