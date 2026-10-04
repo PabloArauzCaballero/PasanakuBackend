@@ -35,7 +35,8 @@
 ### H5.S2.M3 — Compilar el APK con los plugins nativos nuevos
 - Qué anda: `flutter analyze` sin issues y los tests de todo el flujo en verde; la conversión del video a `InputImage` sigue el ejemplo oficial de `google_mlkit_commons` y se verificó contra el código de `camera_android_camerax` 0.7.5+1 (NV21 de un plano, formato 17) y de `camera_avfoundation` 0.10.3+1.
 - Qué no anda / no se probó: no se compiló todavía (`flutter build apk --debug`), así que la integración nativa (Gradle, ML Kit, escáner) no está demostrada.
-- Qué falta exactamente: correr `flutter build apk --debug` en `apps/movil` y pegar el exit code. Se esperó porque la máquina tenía 5,9 GB libres con Docker y el emulador de otra sesión corriendo (antes el sistema mató procesos por memoria), y se le pidió permiso a esa sesión (`pasanaku-ef`).
+- Intentos (2026-10-04, con el OK de `pasanaku-ef`): el primero salió con `No Android SDK found` (el shell no tenía `ANDROID_HOME`; el SDK está en `C:/Users/DELL/tools/android-sdk`). El segundo, con `ANDROID_HOME` puesto, **lo detuvo Claude Code por memoria crítica** (Docker/WSL ~9,8 GB + emulador + Gradle). No es un fallo de la compilación; no se relanzó sin pedido del usuario.
+- Qué falta exactamente: con memoria libre (Docker y el emulador apagados), `ANDROID_HOME=C:/Users/DELL/tools/android-sdk flutter build apk --debug` en `apps/movil` y pegar el exit code. Se esperó porque la máquina tenía 5,9 GB libres con Docker y el emulador de otra sesión corriendo (antes el sistema mató procesos por memoria), y se le pidió permiso a esa sesión (`pasanaku-ef`).
 - Dónde quedó: rama `justin/fix/alta-fecha-actividad-autocaptura`, compila a nivel de Dart.
 
 ## Pendiente
