@@ -101,6 +101,43 @@ public class EmisorDeAcceso {
         }
     }
 
+    /**
+     * La evidencia step-up: prueba de que ESTE usuario paso un segundo factor AHORA, para UNA
+     * operacion (contrato docs/auditoria-produccion/contratos/step-up-jwt.md). Firmada con la
+     * misma clave que el token de acceso, pero con otra audiencia: un token de acceso no sirve como
+     * evidencia ni al reves.
+     *
+     * @param amr como se probo el factor (`totp`, `otp`, `biometria`); informativo.
+     */
+    public Emitido emitirEvidencia(
+            UUID usuarioId, String proposito, UUID desafioId, String amr, Duration vigencia, String audiencia) {
+        Instant ahora = Instant.now();
+        Instant vence = ahora.plus(vigencia);
+        var reclamos = new JWTClaimsSet.Builder()
+                .issuer("aportaya-identidad")
+                .audience(audiencia)
+                .subject(usuarioId.toString())
+                .jwtID(UUID.randomUUID().toString())
+                .issueTime(Date.from(ahora))
+                .expirationTime(Date.from(vence))
+                .claim("proposito", proposito)
+                .claim("desafio_id", desafioId.toString())
+                .claim("acr", "mfa")
+                .claim("amr", List.of(amr))
+                .build();
+        try {
+            var jwt = new SignedJWT(
+                    new JWSHeader.Builder(JWSAlgorithm.RS256)
+                            .keyID(clave.getKeyID())
+                            .build(),
+                    reclamos);
+            jwt.sign(new RSASSASigner(clave));
+            return new Emitido(jwt.serialize(), vence);
+        } catch (JOSEException imposible) {
+            throw new IllegalStateException("No se pudo firmar la evidencia step-up", imposible);
+        }
+    }
+
     /** Lo que se publica: la parte publica, y nada mas. */
     public Map<String, Object> jwks() {
         return new JWKSet(clave.toPublicJWK()).toJSONObject();

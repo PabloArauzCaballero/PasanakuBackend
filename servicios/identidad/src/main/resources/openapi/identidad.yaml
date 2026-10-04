@@ -82,6 +82,56 @@ paths:
           # AP-CU04-05 DEMASIADOS_INTENTOS · AP-CU04-06 FACTOR_NO_ENROLADO
           # AP-CU04-07 FACTOR_NO_ADMISIBLE (R-SEG-10)
 
+  /sesiones/desafios:
+    post:
+      operationId: abrirDesafioDeStepUp       # CU-04 (step-up)
+      summary: Abrir un desafio de segundo factor para una operacion sensible
+      description: >-
+        Paso 1 del step-up (docs/auditoria-produccion/contratos/step-up-jwt.md). Lleva
+        sesion: el desafio es de quien lo abre y de nadie mas.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDesafioDeStepUp' }
+      responses:
+        '201':
+          description: Desafio abierto
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDesafioDeStepUp' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+          # AP-CU04-06 FACTOR_NO_ENROLADO
+
+  /sesiones/desafios/{desafioId}/verificacion:
+    post:
+      operationId: verificarDesafioDeStepUp   # CU-04 (step-up)
+      summary: Presentar el factor y recibir la evidencia firmada
+      description: >-
+        Paso 2. El desafio queda consumido, acierte o no el codigo: reintentar sobre el
+        mismo es lo que la fuerza bruta necesita. La evidencia dura minutos y sirve para
+        UNA operacion del proposito pedido.
+      parameters:
+        - name: desafioId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaVerificacionDeStepUp' }
+      responses:
+        '200':
+          description: Evidencia step-up (JWT)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaEvidenciaDeStepUp' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+          # AP-CU04-04 CODIGO_INVALIDO · AP-CU04-08 DESAFIO_CONSUMIDO_O_INEXISTENTE
+
   /identidad/verificaciones:
     get:
       operationId: listarVerificaciones
@@ -416,6 +466,33 @@ components:
         mensaje:  { type: string }
         detalle:  { type: object }
         trazaId:  { type: string }
+    EntradaDesafioDeStepUp:
+      type: object
+      additionalProperties: false
+      required: [proposito]
+      properties:
+        proposito: { type: string, enum: [RETIRO, CAMBIO_CUENTA, ADMIN] }
+    SalidaDesafioDeStepUp:
+      type: object
+      additionalProperties: false
+      required: [desafioId, expiraEn]
+      properties:
+        desafioId: { type: string, format: uuid }
+        expiraEn:  { type: string, format: date-time }
+    EntradaVerificacionDeStepUp:
+      type: object
+      additionalProperties: false
+      required: [factor]
+      properties:
+        factor: { $ref: '#/components/schemas/FactorPresentado' }
+    SalidaEvidenciaDeStepUp:
+      type: object
+      additionalProperties: false
+      required: [evidencia, expiraEn, jti]
+      properties:
+        evidencia: { type: string, maxLength: 4096 }
+        expiraEn:  { type: string, format: date-time }
+        jti:       { type: string, format: uuid }
     FactorPresentado:
       type: object
       additionalProperties: false
