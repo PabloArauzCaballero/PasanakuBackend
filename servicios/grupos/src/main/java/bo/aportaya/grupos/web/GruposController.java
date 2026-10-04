@@ -14,6 +14,7 @@ import bo.aportaya.grupos.web.generado.modelo.CompromisoDeSorteo;
 import bo.aportaya.grupos.web.generado.modelo.DetalleEnlaceInvitacion;
 import bo.aportaya.grupos.web.generado.modelo.EntradaAceptacionInvitacion;
 import bo.aportaya.grupos.web.generado.modelo.EntradaCompromiso;
+import bo.aportaya.grupos.web.generado.modelo.EntradaDecisionDeIngreso;
 import bo.aportaya.grupos.web.generado.modelo.EntradaEnlaceInvitacion;
 import bo.aportaya.grupos.web.generado.modelo.EntradaGrupo;
 import bo.aportaya.grupos.web.generado.modelo.EntradaInvitacion;
@@ -24,12 +25,14 @@ import bo.aportaya.grupos.web.generado.modelo.EntradaTraspaso;
 import bo.aportaya.grupos.web.generado.modelo.PaqueteDelSorteo;
 import bo.aportaya.grupos.web.generado.modelo.RevelacionDeSorteo;
 import bo.aportaya.grupos.web.generado.modelo.SalidaAceptacionInvitacion;
+import bo.aportaya.grupos.web.generado.modelo.SalidaDecisionDeIngreso;
 import bo.aportaya.grupos.web.generado.modelo.SalidaGrupo;
 import bo.aportaya.grupos.web.generado.modelo.SalidaInvitacion;
 import bo.aportaya.grupos.web.generado.modelo.SalidaPlazoHabil;
 import bo.aportaya.grupos.web.generado.modelo.SalidaPostulacion;
 import bo.aportaya.grupos.web.generado.modelo.SalidaRetiro;
 import bo.aportaya.grupos.web.generado.modelo.SalidaTraspaso;
+import bo.aportaya.grupos.web.generado.modelo.SolicitudDeIngreso;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
@@ -67,6 +70,7 @@ public class GruposController implements GruposApi {
     private final CU64TraspasarCupo cu64;
     private final CU65Retirarse cu65;
     private final CU68Postular cu68;
+    private final bo.aportaya.grupos.aplicacion.CU68AceptarIngreso cu68Decision;
     private final InvitacionesWeb invitaciones;
     private final Consultas consultas;
     private final HechosDeOtrosServicios afuera;
@@ -84,6 +88,7 @@ public class GruposController implements GruposApi {
             CU64TraspasarCupo cu64,
             CU65Retirarse cu65,
             CU68Postular cu68,
+            bo.aportaya.grupos.aplicacion.CU68AceptarIngreso cu68Decision,
             InvitacionesWeb invitaciones,
             Consultas consultas,
             HechosDeOtrosServicios afuera,
@@ -98,6 +103,7 @@ public class GruposController implements GruposApi {
         this.cu64 = cu64;
         this.cu65 = cu65;
         this.cu68 = cu68;
+        this.cu68Decision = cu68Decision;
         this.invitaciones = invitaciones;
         this.consultas = consultas;
         this.afuera = afuera;
@@ -214,6 +220,50 @@ public class GruposController implements GruposApi {
         var respuesta = new SalidaTraspaso();
         respuesta.setTraspasoId(traspasoId);
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+    }
+
+    @Override
+    @Permiso("GRUPO_ADMINISTRAR")
+    public ResponseEntity<java.util.List<SolicitudDeIngreso>> listarSolicitudesDeIngreso(UUID grupoId) {
+        Traza.marcarCasoDeUso("CU-68", grupoId.toString());
+        var lista = cu68Decision.pendientes(grupoId, sesion.actual()).stream()
+                .map(s -> {
+                    var o = new SolicitudDeIngreso();
+                    o.setSolicitudId(s.id());
+                    o.setUsuarioId(s.usuarioId());
+                    o.setCuposSolicitados(s.cuposSolicitados());
+                    o.setMensaje(s.mensaje());
+                    o.setPuntaje(s.puntaje() == null ? null : s.puntaje().toPlainString());
+                    o.setEstado(SolicitudDeIngreso.EstadoEnum.fromValue(s.estado()));
+                    o.setFechaSolicitud(s.fecha());
+                    return o;
+                })
+                .toList();
+        return ResponseEntity.ok(lista);
+    }
+
+    @Override
+    @Permiso("GRUPO_ADMINISTRAR")
+    public ResponseEntity<SalidaDecisionDeIngreso> decidirSolicitudDeIngreso(
+            UUID solicitudId, UUID idempotencyKey, EntradaDecisionDeIngreso cuerpo) {
+        Traza.marcarCasoDeUso("CU-68", solicitudId.toString());
+        var ctx = sesion.actual();
+        // Primero se comprueba que quien decide es el organizador y se sabe quien pidio entrar; la
+        // reputacion se pregunta afuera, ANTES de abrir la transaccion de decidir (invariante 6).
+        var solicitante = cu68Decision.solicitante(solicitudId, ctx);
+        var reputacion = afuera.reputacion(solicitante).puntaje();
+        var r = cu68Decision.decidir(
+                solicitudId,
+                cuerpo.getDecision() == EntradaDecisionDeIngreso.DecisionEnum.ACEPTAR,
+                cuerpo.getMotivo(),
+                reputacion,
+                ctx);
+        var salida = new SalidaDecisionDeIngreso();
+        salida.setSolicitudId(r.solicitudId());
+        salida.setEstado(SalidaDecisionDeIngreso.EstadoEnum.fromValue(r.estado()));
+        salida.setParticipanteId(r.participanteId());
+        salida.setCupoId(r.cupoId());
+        return ResponseEntity.ok(salida);
     }
 
     @Override

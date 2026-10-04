@@ -363,6 +363,60 @@ paths:
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
 
+  /grupos/{grupoId}/solicitudes:
+    get:
+      operationId: listarSolicitudesDeIngreso   # CU-68
+      summary: Solicitudes de ingreso PENDIENTES de un grupo
+      description: >-
+        La cola del organizador: quien pidio entrar, con el puntaje y el motivo que
+        escribio. Solo las PENDIENTES; las resueltas quedan en el historial.
+      parameters:
+        - name: grupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Solicitudes pendientes, la mas antigua primero
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 200
+                items: { $ref: '#/components/schemas/SolicitudDeIngreso' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
+  /grupos/solicitudes/{solicitudId}/decision:
+    post:
+      operationId: decidirSolicitudDeIngreso    # CU-68
+      summary: Aceptar o rechazar una solicitud de ingreso
+      description: >-
+        Quien decide es el organizador del grupo. Aceptada, EN LA MISMA TRANSACCION:
+        se reserva un cupo libre, nace el participante pendiente de firmar el
+        reglamento y se emite el evento. Rechazada, queda el motivo en el evento.
+      parameters:
+        - name: solicitudId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDecisionDeIngreso' }
+      responses:
+        '200':
+          description: La solicitud resuelta
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDecisionDeIngreso' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU68-04 SIN_CUPOS_LIBRES · AP-CU68-08 SOLICITUD_NO_ENCONTRADA
+          # AP-CU68-09 SOLICITUD_YA_RESUELTA · AP-CU68-10 MOTIVO_REQUERIDO
+
   /grupos/{grupoId}/postulaciones:
     post:
       operationId: postularAlGrupo             # CU-68
@@ -695,6 +749,34 @@ components:
       properties:
         cuposSolicitados: { type: integer, minimum: 1, maximum: 3 }
         mensaje:          { type: [string, 'null'], maxLength: 300 }
+    SolicitudDeIngreso:
+      type: object
+      additionalProperties: false
+      required: [solicitudId, usuarioId, cuposSolicitados, estado, fechaSolicitud]
+      properties:
+        solicitudId:      { type: string, format: uuid }
+        usuarioId:        { type: string, format: uuid }
+        cuposSolicitados: { type: integer, minimum: 1 }
+        mensaje:          { type: [string, 'null'], maxLength: 500 }
+        puntaje:          { type: [string, 'null'] }
+        estado:           { type: string, enum: [PENDIENTE, APROBADA, RECHAZADA, EXPIRADA] }
+        fechaSolicitud:   { type: string, format: date-time }
+    EntradaDecisionDeIngreso:
+      type: object
+      additionalProperties: false
+      required: [decision]
+      properties:
+        decision: { type: string, enum: [ACEPTAR, RECHAZAR] }
+        motivo:   { type: [string, 'null'], minLength: 5, maxLength: 300 }
+    SalidaDecisionDeIngreso:
+      type: object
+      additionalProperties: false
+      required: [solicitudId, estado]
+      properties:
+        solicitudId:    { type: string, format: uuid }
+        estado:         { type: string, enum: [APROBADA, RECHAZADA] }
+        participanteId: { type: [string, 'null'], format: uuid }
+        cupoId:         { type: [string, 'null'], format: uuid }
     SalidaPostulacion:
       type: object
       additionalProperties: false

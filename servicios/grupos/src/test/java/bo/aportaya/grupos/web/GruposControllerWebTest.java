@@ -88,6 +88,9 @@ class GruposControllerWebTest {
     private CU68Postular cu68;
 
     @MockitoBean
+    private bo.aportaya.grupos.aplicacion.CU68AceptarIngreso cu68Decision;
+
+    @MockitoBean
     private InvitacionesWeb invitaciones;
 
     @MockitoBean
@@ -241,6 +244,82 @@ class GruposControllerWebTest {
                             .with(Sesiones.como("PARTICIPANTE")))
                     .andExpect(status().isBadRequest());
             verifyNoInteractions(cu59);
+        }
+    }
+
+    @Nested
+    @DisplayName("CU-68 · decisión del organizador sobre una solicitud de ingreso")
+    class DecisionDeIngreso {
+        private final java.util.UUID solicitud = java.util.UUID.fromString("c6800000-0000-4000-8000-000000000001");
+        private final java.util.UUID participante = java.util.UUID.fromString("c6800000-0000-4000-8000-000000000002");
+
+        @Test
+        @DisplayName("CU-68 · 200: el organizador acepta y el participante queda pendiente de firma")
+        void acepta() throws Exception {
+            when(cu68Decision.solicitante(org.mockito.ArgumentMatchers.eq(solicitud), any()))
+                    .thenReturn(java.util.UUID.randomUUID());
+            when(afuera.reputacion(any()))
+                    .thenReturn(new HechosDeOtrosServicios.Reputacion(true, new java.math.BigDecimal("700")));
+            when(cu68Decision.decidir(
+                            org.mockito.ArgumentMatchers.eq(solicitud),
+                            org.mockito.ArgumentMatchers.eq(true),
+                            any(),
+                            any(),
+                            any()))
+                    .thenReturn(new bo.aportaya.grupos.aplicacion.CU68AceptarIngreso.Resultado(
+                            solicitud, "APROBADA", participante, null));
+
+            mvc.perform(post("/grupos/solicitudes/{id}/decision", solicitud)
+                            .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR"))
+                            .header(
+                                    "Idempotency-Key",
+                                    java.util.UUID.randomUUID().toString())
+                            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                            .content("{\"decision\":\"ACEPTAR\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.estado").value("APROBADA"))
+                    .andExpect(jsonPath("$.participanteId").value(participante.toString()));
+        }
+
+        @Test
+        @DisplayName("CU-68 · 403: un participante, sin GRUPO_ADMINISTRAR, no decide")
+        void participanteNoDecide() throws Exception {
+            mvc.perform(post("/grupos/solicitudes/{id}/decision", solicitud)
+                            .with(Sesiones.como("PARTICIPANTE"))
+                            .header(
+                                    "Idempotency-Key",
+                                    java.util.UUID.randomUUID().toString())
+                            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                            .content("{\"decision\":\"ACEPTAR\"}"))
+                    .andExpect(status().isForbidden());
+            verifyNoInteractions(cu68Decision);
+        }
+
+        @Test
+        @DisplayName("CU-68 · 401: sin sesión")
+        void sinSesion() throws Exception {
+            mvc.perform(post("/grupos/solicitudes/{id}/decision", solicitud)
+                            .header(
+                                    "Idempotency-Key",
+                                    java.util.UUID.randomUUID().toString())
+                            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                            .content("{\"decision\":\"ACEPTAR\"}"))
+                    .andExpect(status().isUnauthorized());
+            verifyNoInteractions(cu68Decision);
+        }
+
+        @Test
+        @DisplayName("CU-68 · 400: una decisión que el contrato no enumera")
+        void decisionInvalida() throws Exception {
+            mvc.perform(post("/grupos/solicitudes/{id}/decision", solicitud)
+                            .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR"))
+                            .header(
+                                    "Idempotency-Key",
+                                    java.util.UUID.randomUUID().toString())
+                            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                            .content("{\"decision\":\"TAL_VEZ\"}"))
+                    .andExpect(status().isBadRequest());
+            verifyNoInteractions(cu68Decision);
         }
     }
 }
