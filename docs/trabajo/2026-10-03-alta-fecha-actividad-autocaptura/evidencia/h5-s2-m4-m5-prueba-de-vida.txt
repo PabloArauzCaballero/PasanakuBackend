@@ -1,0 +1,4 @@
+## mutación: perfil izquierdo con signo invertido
+00:08 +10 -4: Some tests failed.  (salida literal de la corrida mutada)
+## restaurado
+00:06 +20: All tests passed!

@@ -9,11 +9,15 @@ class CampoBusqueda extends StatelessWidget {
     required this.controlador,
     this.etiqueta = 'Buscar',
     this.onSubmitted,
+    this.teclado = TextInputType.text,
   });
 
   final TextEditingController controlador;
   final String etiqueta;
   final ValueChanged<String>? onSubmitted;
+
+  /// Numérico para buscar un año o un día; texto para todo lo demás.
+  final TextInputType teclado;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +25,7 @@ class CampoBusqueda extends StatelessWidget {
       etiqueta: etiqueta,
       controlador: controlador,
       icono: Icons.search,
-      tipoDeTeclado: TextInputType.text,
+      tipoDeTeclado: teclado,
       onSubmitted: onSubmitted,
       sufijo: ListenableBuilder(
         listenable: controlador,

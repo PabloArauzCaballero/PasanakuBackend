@@ -22,4 +22,16 @@ void main() {
   test('la clave rechazada dice qué cambiar', () {
     expect(mensajeDe('AP-CU01-06'), contains('Elegí otra'));
   });
+
+  for (final estado in [502, 503, 504]) {
+    test('$estado dice que el servicio no está, no que falló la persona', () {
+      final texto = mensajeDe('AP-DESCONOCIDO', estado: estado);
+      expect(texto, contains('no está disponible'));
+      expect(texto, isNot(generico));
+    });
+  }
+
+  test('un 500 sigue siendo «algo salió mal de nuestro lado»', () {
+    expect(mensajeDe('AP-DESCONOCIDO', estado: 500), generico);
+  });
 }

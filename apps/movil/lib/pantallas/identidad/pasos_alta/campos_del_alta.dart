@@ -54,9 +54,9 @@ class CamposDelAlta extends StatelessWidget {
   /// El vencimiento del carnet.
   final DateTime? vence;
   final ValueChanged<String> onCambio;
-  final ValueChanged<DateTime> onFecha;
+  final ValueChanged<DateTime?> onFecha;
   final ValueChanged<String> onLugar;
-  final ValueChanged<DateTime> onVence;
+  final ValueChanged<DateTime?> onVence;
 
   /// `SMS` o `CORREO`.
   final String canal;

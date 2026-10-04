@@ -1,11 +1,8 @@
-import 'dart:io';
-
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/moleculas/alerta.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
-import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../dominio/puertos/camara_en_vivo.dart';
 import '../../infraestructura/plataforma.dart';
 import '../../proveedores/ajustes_del_sistema.dart';
-import 'dominio/calidad_de_captura.dart' as calidad;
+import 'dominio/captura_desde_archivo.dart';
 import 'dominio/capturas_del_expediente.dart';
 import 'pasos_alta/aviso_de_permiso_camara.dart';
 import 'pasos_alta/cabecera_de_camara.dart';
@@ -70,30 +67,16 @@ class _PantallaDeCamaraState extends ConsumerState<PantallaDeCamara> {
       _rechazo = null;
     });
     final ruta = await _camara.tomarFoto();
-    final bytes = await File(ruta).readAsBytes();
-    final dimensiones = await calidad.medir(bytes);
-    final motivo = calidad.evaluarCalidad(
-      ancho: dimensiones.ancho,
-      alto: dimensiones.alto,
-      esDocumento: widget.cara.esDocumento,
-    );
+    final resultado = await capturaDesdeArchivo(ruta, recortadaAlCarnet: false);
     if (!mounted) return;
-    if (motivo != null) {
+    if (resultado is String) {
       setState(() {
         _tomando = false;
-        _rechazo = motivo;
+        _rechazo = resultado;
       });
       return;
     }
-    final captura = Captura(
-      ruta: ruta,
-      bytes: bytes.length,
-      ancho: dimensiones.ancho,
-      alto: dimensiones.alto,
-      sha256Corto: sha256.convert(bytes).toString().substring(0, 12),
-    );
-    if (!mounted) return;
-    Navigator.of(context).pop(captura);
+    Navigator.of(context).pop(resultado);
   }
 
   @override
