@@ -1,0 +1,15 @@
+== contratos vigentes (los que hay que aceptar)
+GET   /cumplimiento/contratos/vigentes                                                 -> 200
+   contratos: 4
+== alta (CU-01) de la cuenta desechable
+POST  /usuarios                                                                        -> 202
+   respuesta: {'estado': 'PENDIENTE_VERIFICACION', 'nivelDiligencia': None}
+== expediente: 3 fotos sinteticas
+POST  /usuarios/<id>/documentos (ANVERSO)  -> 201
+POST  /usuarios/<id>/documentos (REVERSO)  -> 201
+POST  /usuarios/<id>/documentos (SELFIE)  -> 201
+SQL verificacion: EN_REVISION · selfie=true
+ANTES  usuario: PENDIENTE_VERIFICACION nivel=NINGUNO · expediente: EN_REVISION
+LOGIN USR91 (+591***91) -> 200 requiereFactor=False token=si
+POST  /identidad/verificaciones/4271c6de-473a-42f5-b6fd-f566d0c0e934/decision          -> 200
+DESPUES usuario: ACTIVO nivel=BASICO · expediente: APROBADA revisor=true

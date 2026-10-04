@@ -59,6 +59,16 @@ public class CU64TraspasarCupo {
                     .estadoDelCupo(dsl, entrada.cupoId())
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(64, 1), "Ese cupo no existe."));
 
+            // Reintento: el MISMO acuerdo ya traspaso ESTE cupo a ESTE entrante. Se devuelve ese traspaso; sin
+            // esto repetir la peticion (la app, el usuario) creaba otro traspaso y movia el cupo de nuevo (B39).
+            if (entrada.acuerdoId().isPresent()) {
+                var previo = traspasos.yaTraspasado(
+                        dsl, entrada.cupoId(), entrada.acuerdoId().get(), entrada.entranteId());
+                if (previo.isPresent()) {
+                    return previo.get();
+                }
+            }
+
             // Un id de acuerdo no es un acuerdo: si viene, tiene que existir, ser de este grupo,
             // ser el voto de un traspaso y haber sido APROBADO. Si no viene, vale lo que diga quien
             // llama sobre si el grupo lo exige.
@@ -87,17 +97,24 @@ public class CU64TraspasarCupo {
             UUID saliente = cupo.participanteId()
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(64, 1), "Ese cupo no tiene titular."));
 
-            UUID traspaso = traspasos.registrar(
-                    dsl,
-                    entrada.cupoId(),
-                    saliente,
-                    entrada.entranteId(),
-                    MOTIVO_CODIFICADO,
-                    entrada.derechoDeCobroTransferido(),
-                    entrada.acuerdoId(),
-                    ahora);
+            // El traspaso mueve filas de OTROS participantes (el saliente, el cupo): la politica de fila deja a
+            // cada titular tocar solo lo suyo. La autorizacion (permiso, acuerdo aprobado, reglas de
+            // admision) ya se comprobo arriba, asi que la escritura va con rol de sistema (B8).
+            UUID traspaso = Datos.comoSistema(dsl, () -> {
+                UUID registrado = traspasos.registrar(
+                        dsl,
+                        entrada.cupoId(),
+                        saliente,
+                        entrada.entranteId(),
+                        MOTIVO_CODIFICADO,
+                        entrada.derechoDeCobroTransferido(),
+                        entrada.acuerdoId(),
+                        ahora);
 
-            traspasos.traspasar(dsl, entrada.cupoId(), entrada.entranteId(), saliente, MOTIVO_CODIFICADO, ahora);
+                traspasos.traspasar(dsl, entrada.cupoId(), entrada.entranteId(), saliente, MOTIVO_CODIFICADO, ahora);
+
+                return registrado;
+            });
 
             outbox.emitir(
                     dsl,

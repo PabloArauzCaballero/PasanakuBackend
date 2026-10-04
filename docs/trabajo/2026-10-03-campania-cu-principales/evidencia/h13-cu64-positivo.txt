@@ -1,0 +1,23 @@
+LOGIN USR1 (+591***01) -> 200 requiereFactor=False token=si
+LOGIN USR2 (+591***02) -> 200 requiereFactor=False token=si
+LOGIN USR90 (+591***90) -> 200 requiereFactor=False token=si
+SQL antes: OCUPADO titular=USR000001
+-- negativo: USR2 (sin GRUPO_ADMINISTRAR) intenta traspasar
+POST  /grupos/f04571d1-d220-4b80-9c05-83e7d36cce6e/cupos/d122afa3-9f4b-4341-8ac7-b23a3 -> 403 AP-SEG-01
+-- sin acuerdo: el grupo exige votacion
+POST  /grupos/f04571d1-d220-4b80-9c05-83e7d36cce6e/cupos/d122afa3-9f4b-4341-8ac7-b23a3 -> 422 AP-CU64-05
+-- CU-63: USR1 propone el acuerdo; votan los tres participantes (B38: ningun voto cierra la votacion mientras el quorum sea alcanzable)
+POST  /acuerdos                                                                        -> 201
+POST  /acuerdos/1bdbaee7-eac8-4be4-bbbb-164360142c3a/votos                             -> 201
+  voto de USR90: {'acuerdoId': '1bdbaee7-eac8-4be4-bbbb-164360142c3a', 'estado': 'EN_VOTACION'}
+POST  /acuerdos/1bdbaee7-eac8-4be4-bbbb-164360142c3a/votos                             -> 201
+  voto de USR2: {'acuerdoId': '1bdbaee7-eac8-4be4-bbbb-164360142c3a', 'estado': 'EN_VOTACION'}
+POST  /acuerdos/1bdbaee7-eac8-4be4-bbbb-164360142c3a/votos                             -> 201
+  voto de USR1: {'acuerdoId': '1bdbaee7-eac8-4be4-bbbb-164360142c3a', 'estado': 'APROBADO'}
+SQL acuerdo: APROBADO a_favor=3 en_contra=0
+-- USR1 traspasa con el acuerdo aprobado
+POST  /grupos/f04571d1-d220-4b80-9c05-83e7d36cce6e/cupos/d122afa3-9f4b-4341-8ac7-b23a3 -> 201
+-- repetir con la misma clave
+POST  /grupos/f04571d1-d220-4b80-9c05-83e7d36cce6e/cupos/d122afa3-9f4b-4341-8ac7-b23a3 -> 201
+SQL despues: OCUPADO titular=USR000002
+SQL traspasos: VENTA acuerdo=true x2

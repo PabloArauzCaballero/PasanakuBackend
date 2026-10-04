@@ -87,6 +87,23 @@ abstract class BaseDeCU64 {
                 contexto()));
     }
 
+    protected UUID ejecutarConAcuerdo(Escenario escenario, UUID acuerdo) {
+        return transaccion.execute(e -> traspasar.ejecutar(
+                new EntradaTraspaso(
+                        escenario.cupo(),
+                        escenario.entrante(),
+                        "RETIRO",
+                        true,
+                        "COMPLETO",
+                        kycMinimoDe(escenario.grupo()),
+                        100,
+                        0,
+                        true,
+                        true,
+                        Optional.of(acuerdo)),
+                contexto()));
+    }
+
     protected void exigirKyc(UUID grupo, String nivel) {
         dslFixtura.execute("UPDATE grupos.grupo SET requiere_kyc_minimo = ? WHERE id = ?", nivel, grupo);
     }

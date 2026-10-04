@@ -1,0 +1,54 @@
+LOGIN USR1 (+591***01) -> 200 requiereFactor=False token=si
+LOGIN USR2 (+591***02) -> 200 requiereFactor=False token=si
+LOGIN USR90 (+591***90) -> 200 requiereFactor=False token=si
+LOGIN USR91 (+591***91) -> 200 requiereFactor=False token=si
+LOGIN USR4 (+591***04) -> 200 requiereFactor=False token=si
+
+===== CU-68 · dos recien llegados (sin historial) postulan a GRP-DEMO-03 (B24)
+POST  /grupos/4f95ae8d-6abc-473e-85a0-30547f04fcaf/postulaciones                       -> 201
+POST  /grupos/4f95ae8d-6abc-473e-85a0-30547f04fcaf/postulaciones                       -> 201
+SQL pendientes: 2
+
+===== CU-68 · la cola del organizador
+GET   /grupos/4f95ae8d-6abc-473e-85a0-30547f04fcaf/solicitudes                         -> 200
+-- negativo: un participante sin GRUPO_ADMINISTRAR no ve la cola
+GET   /grupos/4f95ae8d-6abc-473e-85a0-30547f04fcaf/solicitudes                         -> 403 AP-SEG-01
+
+===== CU-68 · decidir
+-- negativo: USR2 intenta aceptar (sin permiso)
+POST  /grupos/solicitudes/6fa52b9a-3b06-4495-a38d-768f40f95409/decision                -> 403 AP-SEG-01
+-- el organizador (USR1) acepta a USR90
+POST  /grupos/solicitudes/6fa52b9a-3b06-4495-a38d-768f40f95409/decision                -> 200
+-- repetir la MISMA decision: devuelve lo ya resuelto
+POST  /grupos/solicitudes/6fa52b9a-3b06-4495-a38d-768f40f95409/decision                -> 200
+mismo participante: True
+-- decidir lo CONTRARIO de lo ya resuelto
+POST  /grupos/solicitudes/6fa52b9a-3b06-4495-a38d-768f40f95409/decision                -> 422 AP-CU68-09
+-- rechazar sin motivo
+POST  /grupos/solicitudes/5738b15d-25e8-4012-b29c-81cd64e175fb/decision                -> 422 AP-CU68-10
+-- rechazar con motivo
+POST  /grupos/solicitudes/5738b15d-25e8-4012-b29c-81cd64e175fb/decision                -> 200
+SQL solicitudes: APROBADA=1 ; RECHAZADA=1
+SQL participante aceptado: ACEPTADO_PENDIENTE_FIRMA
+SQL cupos: LIBRE=1 ; OCUPADO=1 ; RESERVADO=1 · cupos_ocupados: 2
+SQL revisor y fecha: true true
+SQL eventos: grupos.ingreso_aceptado=1 ; grupos.ingreso_rechazado=1 ; grupos.ingreso_solicitado=2
+
+===== B36 · mis participaciones (lo que usa la pestaña Grupos de la app)
+GET   /grupos/participaciones                                                          -> 200
+USR90 ve su participacion: ['ACEPTADO_PENDIENTE_FIRMA']
+GET   /grupos/participaciones                                                          -> 200
+USR1 ve las suyas: 3
+
+===== B37 · evidencia step-up (identidad firma, JWKS publico verifica)
+POST  /sesiones/desafios                                                               -> 201
+estado: 200 · claves de la respuesta: ['evidencia', 'expiraEn', 'jti']
+claims (sin el token): {'iss': 'aportaya-identidad', 'aud': 'aportaya-nucleo-financiero', 'proposito': 'RETIRO', 'acr': 'mfa', 'amr': ['totp']} · exp-iat = 300 s
+sub es USR1: True
+firma RS256 verifica con el JWKS publico de identidad: True
+-- el mismo desafio, segunda vez
+POST  /sesiones/desafios/4a0c2b59-c3a0-4298-86ff-a04b4268abcb/verificacion             -> 422 AP-CU04-08
+-- el desafio de USR1 presentado por USR2
+POST  /sesiones/desafios/dbe8d31a-2283-4593-8b54-b40585179641/verificacion             -> 422 AP-CU04-08
+-- sin sesion
+POST  /sesiones/desafios                                                               -> 401
