@@ -1,5 +1,6 @@
 package bo.aportaya.nucleofinanciero.infraestructura;
 
+import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
 import java.math.BigDecimal;
@@ -34,18 +35,22 @@ public class RetencionRepositorio {
             OffsetDateTime ahora) {
 
         UUID id = UUID.randomUUID();
-        dsl.insertInto(DSL.table(DSL.name("nucleo_financiero", "retencion_saldo")))
-                .set(DSL.field("id", UUID.class), id)
-                .set(DSL.field("cuenta_billetera_id", UUID.class), cuentaId)
-                .set(DSL.field("transaccion_origen_id", UUID.class), transaccionOrigenId.orElse(null))
-                .set(DSL.field("motivo", String.class), motivo)
-                .set(DSL.field("referencia_tipo", String.class), referenciaTipo.orElse(null))
-                .set(DSL.field("referencia_id", UUID.class), referenciaId.orElse(null))
-                .set(DSL.field("monto", BigDecimal.class), monto.monto())
-                .set(DSL.field("estado", String.class), "VIGENTE")
-                .set(DSL.field("expira_en", OffsetDateTime.class), expiraEn.orElse(null))
-                .set(DSL.field("creada_en", OffsetDateTime.class), ahora)
-                .execute();
+        // La retencion es parte del libro (R-BIL): la escribe el sistema, no el titular (B8).
+        Datos.comoSistema(dsl, () -> {
+            dsl.insertInto(DSL.table(DSL.name("nucleo_financiero", "retencion_saldo")))
+                    .set(DSL.field("id", UUID.class), id)
+                    .set(DSL.field("cuenta_billetera_id", UUID.class), cuentaId)
+                    .set(DSL.field("transaccion_origen_id", UUID.class), transaccionOrigenId.orElse(null))
+                    .set(DSL.field("motivo", String.class), motivo)
+                    .set(DSL.field("referencia_tipo", String.class), referenciaTipo.orElse(null))
+                    .set(DSL.field("referencia_id", UUID.class), referenciaId.orElse(null))
+                    .set(DSL.field("monto", BigDecimal.class), monto.monto())
+                    .set(DSL.field("estado", String.class), "VIGENTE")
+                    .set(DSL.field("expira_en", OffsetDateTime.class), expiraEn.orElse(null))
+                    .set(DSL.field("creada_en", OffsetDateTime.class), ahora)
+                    .execute();
+            return null;
+        });
         return id;
     }
 
@@ -79,13 +84,13 @@ public class RetencionRepositorio {
      */
     public boolean cerrar(
             DSLContext dsl, UUID retencionId, String nuevoEstado, Optional<UUID> liberadaPor, OffsetDateTime ahora) {
-        return dsl.update(DSL.table(DSL.name("nucleo_financiero", "retencion_saldo")))
+        return Datos.comoSistema(dsl, () -> dsl.update(DSL.table(DSL.name("nucleo_financiero", "retencion_saldo")))
                         .set(DSL.field("estado", String.class), nuevoEstado)
                         .set(DSL.field("liberada_por", UUID.class), liberadaPor.orElse(null))
                         .set(DSL.field("liberada_en", OffsetDateTime.class), ahora)
                         .where(DSL.field("id", UUID.class).eq(retencionId))
                         .and(DSL.field("estado").eq("VIGENTE"))
-                        .execute()
+                        .execute())
                 > 0;
     }
 

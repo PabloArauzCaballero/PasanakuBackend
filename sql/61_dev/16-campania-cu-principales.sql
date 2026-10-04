@@ -87,3 +87,13 @@ BEGIN
     ON CONFLICT DO NOTHING;
   END IF;
 END $siembra$;
+
+-- Destrabe de la campaña: CU-74 (evaluar insignias) exige el permiso SOPORTE y nadie lo tenía. Se le suma el rol SOPORTE al operador USR000091 (permisos = unión de roles, EmitirAcceso). Otorgado por USR000007 porque `ck_asignacion_no_autoasignada` impide el autootorgamiento. Dato sintético de desarrollo.
+DO $siembra$
+BEGIN
+  IF current_setting('app.dev_sembrado', true) IS DISTINCT FROM 'si' THEN
+    INSERT INTO asignacion_rol (usuario_id, rol_id, ambito, ambito_id, otorgada_por, otorgada_en, vigente_hasta) VALUES
+      ((SELECT id FROM usuario WHERE codigo_publico = 'USR000091'), (SELECT id FROM rol WHERE codigo = 'SOPORTE'), 'GLOBAL', NULL, (SELECT id FROM usuario WHERE codigo_publico = 'USR000007'), now() - interval '30 days', NULL)
+    ON CONFLICT DO NOTHING;
+  END IF;
+END $siembra$;

@@ -1,4 +1,4 @@
-> **AVANCE: 49 / 95 — 51,6 %.** En rojo: 29 microtareas BLOQUEADAS (decisiones de autorización, modelo o contrato; algunas de entorno), 13 A MEDIAS. Tras el parche B28 y el relanzamiento sobre base limpia: **0 respuestas 5xx** en `campania-todo-relanzada-3.txt`; CU-10 (acreditar), CU-12 (transferir y por alias), CU-60/61 (sorteo y verificación pública) y el voto de acuerdos pasan en runtime. Siguen sin pasar: CU-20 (licencia EN_TRAMITE), CU-64 positivo (CU-68 stub), CU-74 (nadie tiene SOPORTE), CU-11, B15/B5.
+> **AVANCE: 53 / 100 — 53,0 %.** 0 respuestas 5xx. Pasan en runtime: CU-10, CU-11 (con el doble local de segundo factor), CU-12, CU-60/61, CU-62 (titular), CU-63 voto, CU-74, CU-21, CU-22, CU-69. Siguen sin pasar por decisión: CU-20 (licencia EN_TRAMITE), CU-64 positivo (CU-68 stub), B32, B33, B36, B37, B15/B5.
 
 # Reporte — Campaña E2E de los casos de uso principales + correcciones (API real + backoffice real)
 

@@ -370,6 +370,33 @@
           }
         }
       ]
+    },
+    {
+      "tabla": "asignacion_rol",
+      "conflicto": [],
+      "comentario": "Destrabe de la campaña: CU-74 (evaluar insignias) exige el permiso SOPORTE y nadie lo tenía. Se le suma el rol SOPORTE al operador USR000091 (permisos = unión de roles, EmitirAcceso). Otorgado por USR000007 porque `ck_asignacion_no_autoasignada` impide el autootorgamiento. Dato sintético de desarrollo.",
+      "filas": [
+        {
+          "usuario_id": {
+            "$ref": "usuario",
+            "codigo_publico": "USR000091"
+          },
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "SOPORTE"
+          },
+          "ambito": "GLOBAL",
+          "ambito_id": null,
+          "otorgada_por": {
+            "$ref": "usuario",
+            "codigo_publico": "USR000007"
+          },
+          "otorgada_en": {
+            "$sql": "now() - interval '30 days'"
+          },
+          "vigente_hasta": null
+        }
+      ]
     }
   ]
 }
