@@ -119,6 +119,8 @@ class TextosPasanaku {
       : 'Tu aporte está a $dias día${dias == 1 ? '' : 's'} de su plazo, vencido el';
   static const comoRegularizar = 'Cómo regularizar';
   static const alDia = 'Estás al día con este grupo.';
+  static const sinParticipacion =
+      'Todavía no participás en ningún grupo. Cuando entres a uno, acá ves cómo vas con tus aportes.';
   static String deudaVigente(String monto) =>
       'Tenés una deuda vigente de $monto con el grupo.';
   static String porAportarAviso(String monto) =>

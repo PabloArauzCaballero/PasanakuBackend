@@ -86,6 +86,14 @@ public class OrdenRecargaRepositorio {
                 .fetchOne(DSL.field("id", UUID.class)));
     }
 
+    /** La transaccion que acredito la orden, si ya se acredito (para repetir la respuesta original). */
+    public Optional<UUID> transaccionDe(DSLContext dsl, UUID ordenId) {
+        return Optional.ofNullable(dsl.select(DSL.field("transaccion_id", UUID.class))
+                .from(DSL.table(DSL.name("nucleo_financiero", "orden_recarga")))
+                .where(DSL.field("id", UUID.class).eq(ordenId))
+                .fetchOne(DSL.field("transaccion_id", UUID.class)));
+    }
+
     /**
      * Acredita la orden, **solo si sigue pendiente**.
      *

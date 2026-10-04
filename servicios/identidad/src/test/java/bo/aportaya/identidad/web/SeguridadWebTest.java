@@ -54,6 +54,9 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private CU04Autenticar cu04Autenticar;
 
     @MockitoBean
+    private bo.aportaya.identidad.aplicacion.CU04StepUp cu04StepUp;
+
+    @MockitoBean
     private EmitirAcceso emitirAcceso;
 
     @MockitoBean

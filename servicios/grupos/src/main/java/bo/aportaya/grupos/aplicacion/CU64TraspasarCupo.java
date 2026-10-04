@@ -1,6 +1,8 @@
 package bo.aportaya.grupos.aplicacion;
 
+import bo.aportaya.grupos.dominio.TipoDeAcuerdo;
 import bo.aportaya.grupos.dominio.TraspasoAdmisible;
+import bo.aportaya.grupos.infraestructura.AcuerdoRepositorio;
 import bo.aportaya.grupos.infraestructura.TraspasoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -35,12 +37,15 @@ public class CU64TraspasarCupo {
 
     private final Datos datos;
     private final TraspasoRepositorio traspasos;
+    private final AcuerdoRepositorio acuerdos;
     private final Outbox outbox;
     private final Reloj reloj;
 
-    public CU64TraspasarCupo(Datos datos, TraspasoRepositorio traspasos, Outbox outbox, Reloj reloj) {
+    public CU64TraspasarCupo(
+            Datos datos, TraspasoRepositorio traspasos, AcuerdoRepositorio acuerdos, Outbox outbox, Reloj reloj) {
         this.datos = datos;
         this.traspasos = traspasos;
+        this.acuerdos = acuerdos;
         this.outbox = outbox;
         this.reloj = reloj;
     }
@@ -54,6 +59,28 @@ public class CU64TraspasarCupo {
                     .estadoDelCupo(dsl, entrada.cupoId())
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(64, 1), "Ese cupo no existe."));
 
+            // Reintento: el MISMO acuerdo ya traspaso ESTE cupo a ESTE entrante. Se devuelve ese traspaso; sin
+            // esto repetir la peticion (la app, el usuario) creaba otro traspaso y movia el cupo de nuevo (B39).
+            if (entrada.acuerdoId().isPresent()) {
+                var previo = traspasos.yaTraspasado(
+                        dsl, entrada.cupoId(), entrada.acuerdoId().get(), entrada.entranteId());
+                if (previo.isPresent()) {
+                    return previo.get();
+                }
+            }
+
+            // Un id de acuerdo no es un acuerdo: si viene, tiene que existir, ser de este grupo,
+            // ser el voto de un traspaso y haber sido APROBADO. Si no viene, vale lo que diga quien
+            // llama sobre si el grupo lo exige.
+            boolean acuerdoValido = entrada.acuerdoId().isEmpty()
+                    ? entrada.hayAcuerdoSiSeExige()
+                    : entrada.acuerdoId()
+                            .flatMap(id -> acuerdos.porId(dsl, id))
+                            .filter(a -> a.grupoId().equals(cupo.grupoId()))
+                            .filter(a -> TipoDeAcuerdo.ADMISION_REEMPLAZO.name().equals(a.tipo()))
+                            .filter(a -> "APROBADO".equals(a.estado()))
+                            .isPresent();
+
             TraspasoAdmisible.impedimento(
                             cupo.estado(),
                             cupo.turnoCobrado(),
@@ -62,7 +89,7 @@ public class CU64TraspasarCupo {
                             entrada.kycMinimoDelGrupo(),
                             entrada.reputacionDelEntrante(),
                             entrada.reputacionMinimaDelGrupo(),
-                            entrada.hayAcuerdoSiSeExige())
+                            acuerdoValido)
                     .ifPresent(motivo -> {
                         throw new ErrorDeNegocio(CodigoError.de(64, motivo.numero()), motivo.mensaje());
                     });
@@ -70,17 +97,24 @@ public class CU64TraspasarCupo {
             UUID saliente = cupo.participanteId()
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(64, 1), "Ese cupo no tiene titular."));
 
-            UUID traspaso = traspasos.registrar(
-                    dsl,
-                    entrada.cupoId(),
-                    saliente,
-                    entrada.entranteId(),
-                    entrada.motivo(),
-                    entrada.derechoDeCobroTransferido(),
-                    entrada.acuerdoId(),
-                    ahora);
+            // El traspaso mueve filas de OTROS participantes (el saliente, el cupo): la politica de fila deja a
+            // cada titular tocar solo lo suyo. La autorizacion (permiso, acuerdo aprobado, reglas de
+            // admision) ya se comprobo arriba, asi que la escritura va con rol de sistema (B8).
+            UUID traspaso = Datos.comoSistema(dsl, () -> {
+                UUID registrado = traspasos.registrar(
+                        dsl,
+                        entrada.cupoId(),
+                        saliente,
+                        entrada.entranteId(),
+                        MOTIVO_CODIFICADO,
+                        entrada.derechoDeCobroTransferido(),
+                        entrada.acuerdoId(),
+                        ahora);
 
-            traspasos.traspasar(dsl, entrada.cupoId(), entrada.entranteId(), saliente, entrada.motivo(), ahora);
+                traspasos.traspasar(dsl, entrada.cupoId(), entrada.entranteId(), saliente, MOTIVO_CODIFICADO, ahora);
+
+                return registrado;
+            });
 
             outbox.emitir(
                     dsl,
@@ -92,11 +126,21 @@ public class CU64TraspasarCupo {
                                     "grupoId",
                                     cupo.grupoId().toString(),
                                     "cupoId",
-                                    entrada.cupoId().toString()),
+                                    entrada.cupoId().toString(),
+                                    "motivo",
+                                    entrada.motivo()),
                             UUID.fromString(ctx.traza().id())));
             return traspaso;
         });
     }
+
+    /**
+     * La columna `traspaso_cupo.motivo` es un codigo cerrado (REEMPLAZO_POR_MORA | RETIRO | VENTA) y
+     * el contrato recibe texto libre de 10 a 300 caracteres: guardar el texto violaba el CHECK y
+     * respondia 500 (B21b). Este caso de uso es el traspaso/venta de un cupo, asi que el codigo es
+     * VENTA; el texto libre viaja en el evento. SUPUESTO a confirmar con producto (PLAN, B21b).
+     */
+    static final String MOTIVO_CODIFICADO = "VENTA";
 
     public record EntradaTraspaso(
             UUID cupoId,

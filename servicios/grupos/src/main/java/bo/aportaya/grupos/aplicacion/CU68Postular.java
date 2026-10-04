@@ -77,7 +77,9 @@ public class CU68Postular {
                     .orElseThrow(() ->
                             new ErrorDeNegocio(CodigoError.de(68, 5), "No hay criterio de emparejamiento vigente."));
 
-            if (!criterio.alcanzaLaReputacion(entrada.reputacion())) {
+            // CU-68 2a: «sin historial no se lo excluye por ser nuevo». La reputacion minima se exige a quien
+            // TIENE historial y no llega; el recien llegado entra a la cola del organizador (B24).
+            if (!entrada.sinHistorial() && !criterio.alcanzaLaReputacion(entrada.reputacion())) {
                 throw new ErrorDeNegocio(CodigoError.de(68, 3), "Tu reputacion todavia no alcanza para este grupo.");
             }
             if (!criterio.admiteOtroMoroso(entrada.morososDelGrupo())) {
@@ -178,7 +180,8 @@ public class CU68Postular {
             BigDecimal afinidadReputacion,
             BigDecimal afinidadMonto,
             BigDecimal afinidadGeografia,
-            BigDecimal afinidadHistorial) {}
+            BigDecimal afinidadHistorial,
+            boolean sinHistorial) {}
 
     public record SalidaPostulacion(UUID solicitudId, BigDecimal puntaje, List<String> motivos) {}
 

@@ -121,3 +121,45 @@ class _Restriccion extends StatelessWidget {
     );
   }
 }
+
+/// La pestaña «Grupos»: si la ruta no trae `participante` y `usuario` (deep link), se resuelven con la
+/// sesión. Sin esto la pantalla pedía ids vacíos y mostraba «no encontramos lo que buscabas» (B36).
+class PantallaMiEstadoDeLaSesion extends ConsumerWidget {
+  const PantallaMiEstadoDeLaSesion({
+    super.key,
+    this.participanteId,
+    this.usuarioId,
+  });
+  final String? participanteId;
+  final String? usuarioId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final p = participanteId;
+    final u = usuarioId;
+    if (p != null && p.isNotEmpty && u != null && u.isNotEmpty) {
+      return PantallaMiEstado(participanteId: p, usuarioId: u);
+    }
+    final mia = ref.watch(miParticipacionProvider);
+    final lista = mia.value;
+    if (lista != null && lista.participanteId.isNotEmpty) {
+      return PantallaMiEstado(
+        participanteId: lista.participanteId,
+        usuarioId: lista.usuarioId,
+      );
+    }
+    return Scaffold(
+      appBar: AppBar(title: const Text(TextosPasanaku.tituloMora)),
+      body: SafeArea(
+        child: EstadoDePantalla<MiParticipacion>(
+          valor: mia,
+          etiquetaDeCarga: TextosPasanaku.cargando,
+          mensajeVacio: TextosPasanaku.sinParticipacion,
+          vacio: (m) => m.participanteId.isEmpty,
+          reintentar: () => ref.invalidate(miParticipacionProvider),
+          exito: (m) => const SizedBox.shrink(),
+        ),
+      ),
+    );
+  }
+}

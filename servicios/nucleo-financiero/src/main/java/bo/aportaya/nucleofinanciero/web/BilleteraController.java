@@ -133,8 +133,10 @@ public class BilleteraController implements BilleteraApi {
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
 
+    // Acreditar es confirmar que la plata llego: no lo hace quien la pide (91.3). Hasta que
+    // exista el webhook de la pasarela para recargas, lo confirma tesoreria.
     @Override
-    @Permiso("BILLETERA_OPERAR")
+    @Permiso("TESORERIA")
     public ResponseEntity<SalidaAcreditacion> acreditarRecarga(UUID ordenId, UUID idempotencyKey) {
         Traza.marcarCasoDeUso("CU-10", ordenId.toString());
 

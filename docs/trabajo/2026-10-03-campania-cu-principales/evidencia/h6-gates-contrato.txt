@@ -1,0 +1,3 @@
+El inventario esta alineado: todo lo implementado tiene contrato y viceversa.
+TODO OK · 3 aviso(s)
+TODO OK

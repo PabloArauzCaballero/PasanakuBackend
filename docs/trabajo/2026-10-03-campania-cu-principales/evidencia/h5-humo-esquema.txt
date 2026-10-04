@@ -1,0 +1,174 @@
+Base desechable pasanaku_humo · configuración heredada: search_path, app.entorno, app.clave_dev
+  sql/aplicar.sql · esquema, claves, índices, reglas y permisos → ok
+  sql/60_semillas/sembrar.sql · los catálogos mínimos → ok
+  sql/61_dev/sembrar_dev.sql · los datos de desarrollo → ok
+
+OK    Â· alta de cuenta de plataforma
+OK    Â· alta de cuenta tÃ©cnica de custodia
+OK    Â· R-BIL-05 cuenta USUARIO sin titular â†’ rechazado
+OK    Â· R-BIL-02 saldo negativo â†’ rechazado
+OK    Â· CHECK de enumerado en estado â†’ rechazado
+OK    Â· R-BIL-03 escribir el saldo total â†’ rechazado
+OK    Â· R-BIL-01 transacciÃ³n descuadrada â†’ rechazada al COMMIT
+OK    Â· R-BIL-01 transacciÃ³n cuadrada aceptada
+OK    Â· R-AUD-03 hash encadenado calculado por la base
+OK    Â· R-BIL-06 clave de idempotencia repetida â†’ rechazado
+OK    Â· R-AUD-01 UPDATE sobre movimiento_billetera â†’ rechazado
+OK    Â· R-AUD-01 DELETE sobre transaccion_billetera â†’ rechazado
+OK    Â· R-AUD-01 las 31 tablas append-only estÃ¡n selladas
+OK    Â· R-BIL-08 retenciÃ³n sin vencimiento â†’ rechazado
+OK    Â· R-BIL-08 retenciÃ³n de autoridad sin vencimiento
+OK    Â· R-BIL-07/16 saldos derivados por trigger (100 = 90 + 10)
+OK    Â· R-BIL-16 la cuenta puente refleja el dÃ©bito del libro
+OK    Â· R-BIL-16 ninguna cachÃ© de saldo difiere del libro
+OK    Â· R-UIF-01 umbral sin cita normativa â†’ rechazado
+OK    Â· R-UIF-01 umbral con cita normativa
+OK    Â· R-UIF-01 vigencias solapadas del mismo umbral â†’ rechazado
+OK    Â· R-UIF-01 umbral acumulado sin ventana â†’ rechazado
+OK    Â· R-UIF-04 conversiÃ³n sin tipo de cambio cargado â†’ rechazado
+OK    Â· R-UIF-04 conversiÃ³n con tipo de cambio cargado
+OK    Â· R-UIF-06 reporte en cero con registros â†’ rechazado
+OK    Â· R-UIF-07 alerta descartada sin conclusiÃ³n â†’ rechazado
+OK    Â· R-LIM-01 concepto sin lÃ­mite configurado â†’ rechazado
+OK    Â· R-LIM-01 retiro que supera el techo del nivel â†’ rechazado
+OK    Â· R-LIC-01 sin licencia cargada, el servicio no se habilita
+OK    Â· alta de usuarios de prueba
+OK    Â· alta de cuenta contable de movimiento
+OK    Â· alta de categorÃ­a de activo fijo de prueba
+OK    Â· alta de ejercicio fiscal de prueba
+OK    Â· alta de perÃ­odo contable abierto
+OK    Â· alta de perÃ­odo contable cerrado
+OK    Â· R-CTB-01 perÃ­odo repetido en el mismo mes â†’ rechazado
+OK    Â· R-CTB-01 asiento contra perÃ­odo cerrado â†’ rechazado
+OK    Â· R-CTB-01 asiento contra perÃ­odo abierto aceptado
+OK    Â· alta de cuenta contable sumarizadora
+OK    Â· R-CTB-02 movimiento sobre cuenta sumarizadora â†’ rechazado
+OK    Â· R-CTB-02 movimiento sobre cuenta de movimiento aceptado
+OK    Â· R-CTB-02 cuenta contable padre de sÃ­ misma â†’ rechazado
+OK    Â· alta de tercero comercial de prueba
+OK    Â· R-CTB-04 factura con pagado mayor al monto â†’ rechazado
+OK    Â· R-CTB-04 factura que vence antes de emitirse â†’ rechazado
+OK    Â· alta de factura aprobada de prueba
+OK    Â· R-CTB-05 el aprobador autoriza su propio pago â†’ rechazado
+OK    Â· R-CTB-05 un pagador distinto sÃ­ puede pagar
+OK    Â· R-CTB-06 cuenta por cobrar sobrecobrada â†’ rechazado
+OK    Â· R-CTB-07 activo con residual mayor al costo â†’ rechazado
+OK    Â· R-CTB-08 cierre de perÃ­odo descuadrado â†’ rechazado
+OK    Â· R-PUB-01 anunciante sin ninguna referencia â†’ rechazado
+OK    Â· alta de socio comercial de prueba
+OK    Â· R-PUB-01 anunciante tipo ORGANIZADOR con socio comercial â†’ rechazado
+OK    Â· R-PUB-01 anunciante socio comercial bien formado
+OK    Â· alta de cuenta publicitaria
+OK    Â· R-PUB-02 segunda cuenta publicitaria del mismo anunciante â†’ rechazado
+OK    Â· R-PUB-02 consumo por encima del lÃ­mite mensual â†’ rechazado
+OK    Â· R-PUB-03 campaÃ±a con consumo sobre el presupuesto â†’ rechazado
+OK    Â· R-PUB-03 campaÃ±a ACTIVA sin aprobador â†’ rechazado
+OK    Â· alta de pieza creativa pendiente
+OK    Â· alta de campaÃ±a y conjunto para la prueba
+OK    Â· R-PUB-04 anuncio con pieza sin aprobar â†’ rechazado
+OK    Â· R-PUB-05 revisiÃ³n que rechaza sin motivo â†’ rechazado
+OK    Â· alta de factura de publicidad
+OK    Â· R-PUB-06 segunda factura del mismo perÃ­odo â†’ rechazado
+OK    Â· alta de actores de acceso administrativo
+OK    Â· R-SEG-10 sesiÃ³n de operador sin segundo factor â†’ rechazado
+OK    Â· R-SEG-10 factor SMS para un operador â†’ rechazado
+OK    Â· R-SEG-10 factor SMS para un participante
+OK    Â· alta del TOTP de la operadora
+OK    Â· R-SEG-10 con TOTP confirmado la sesiÃ³n abre
+OK    Â· R-SEG-11 cambio de credencial de la operadora
+OK    Â· R-SEG-11 ninguna sesiÃ³n del operador quedÃ³ viva
+OK    Â· R-SEG-11 ningÃºn dispositivo del operador quedÃ³ confiable
+OK    Â· R-SEG-12 permiso APROBAR sin segundo factor â†’ rechazado
+OK    Â· R-SEG-12 el mismo permiso con segundo factor entra
+OK    Â· R-AUD-05 tg_asiento_cuadrado presente
+OK    Â· R-AUD-07 uq_saldo_diario_cuenta_fecha presente
+OK    Â· R-BIL-11 uq_conciliacion_cuenta_fecha presente
+OK    Â· R-BIL-12 tg_cierre_diario_valido presente
+OK    Â· R-BIL-13 tg_cuenta_cierre_valido presente
+OK    Â· R-BIL-14 uq_bloqueo_oficio presente
+OK    Â· R-BIL-15 uq_reverso_original presente
+OK    Â· R-BIL-17 uq_cuenta_benef_hash presente
+OK    Â· R-BIL-17 uq_cuenta_benef_principal presente
+OK    Â· R-CON-01 ck_reclamo_plazo presente
+OK    Â· R-CON-02 ck_reclamo_prorroga presente
+OK    Â· R-CON-03 ck_reclamo_prorroga_extendida presente
+OK    Â· R-CON-04 ck_reclamo_reparacion presente
+OK    Â· R-CON-05 ck_reclamo_conservacion presente
+OK    Â· R-CTB-01 tg_asiento_periodo_abierto presente
+OK    Â· R-CTB-02 tg_movimiento_cuenta_de_movimiento presente
+OK    Â· R-CTB-03 uq_presupuesto_centro_ejercicio presente
+OK    Â· R-CTB-04 uq_factura_proveedor_numero presente
+OK    Â· R-CTB-05 tg_pago_proveedor_segregacion presente
+OK    Â· R-CTB-06 ck_cxc_cobrado presente
+OK    Â· R-CTB-07 uq_depreciacion_activo_periodo presente
+OK    Â· R-CTB-08 uq_estado_financiero_periodo_tipo presente
+OK    Â· R-DES-01 uq_orden_desembolso_clave presente
+OK    Â· R-DES-01 uq_orden_desembolso_entrega_viva presente
+OK    Â· R-DES-02 tg_orden_desembolso_cuenta_verificada presente
+OK    Â· R-GAR-01 ck_incumplimiento_plazo_guardado presente
+OK    Â· R-GAR-02 tg_evidencia_inmutable presente
+OK    Â· R-GAR-03 uq_ejecucion_aval_registro presente
+OK    Â· R-GAR-04 tg_ejecucion_aval_tope presente
+OK    Â· R-GAR-05 uq_restriccion_usuario_vigente presente
+OK    Â· R-GAR-06 ck_devolucion_cuadra presente
+OK    Â· R-GAR-07 uq_alerta_temprana_abierta presente
+OK    Â· R-GRP-01 uq_entrega_turno presente
+OK    Â· R-GRP-02 ck_entrega_neto presente
+OK    Â· R-GRP-02 ck_entrega_neto_no_negativo presente
+OK    Â· R-GRP-03 uq_obligacion_periodo_cupo presente
+OK    Â· R-GRP-04 tg_retiro_no_grupo presente
+OK    Â· R-GRP-14 uq_solicitud_ingreso_pendiente presente
+OK    Â· R-GRP-15 uq_invitacion_token presente
+OK    Â· R-GRP-16 uq_dia_no_habil presente
+OK    Â· R-LIC-02 ck_sandbox_limites presente
+OK    Â· R-LIC-03 ck_politica_acta presente
+OK    Â· R-LIC-04 ck_evaluacion_no_objecion presente
+OK    Â· R-LIM-02 uq_consumo_ventana presente
+OK    Â· R-LIM-03 ex_limite_vigencia presente
+OK    Â· R-ORG-01 uq_solicitud_organizador_pendiente presente
+OK    Â· R-ORG-02 ex_contrato_org_vigente presente
+OK    Â· R-ORG-02 tg_grupo_contrato_organizador presente
+OK    Â· R-ORG-03 tg_contrato_org_inmutable presente
+OK    Â· R-ORG-04 uq_evaluacion_org_periodo presente
+OK    Â· R-ORG-05 tg_apelacion_org_resolutor presente
+OK    Â· R-ORG-05 uq_apelacion_por_sancion presente
+OK    Â· R-ORG-06 ck_regla_confirmacion_humana presente
+OK    Â· R-ORG-07 uq_tarea_automatizada_clave presente
+OK    Â· R-PUB-01 ck_anunciante_tipo_exclusivo presente
+OK    Â· R-PUB-02 uq_cuenta_publicitaria_anunciante presente
+OK    Â· R-PUB-03 ck_campana_pub_consumo presente
+OK    Â· R-PUB-04 tg_anuncio_creativa_aprobada presente
+OK    Â· R-PUB-05 tg_revision_creativa_moderador presente
+OK    Â· R-PUB-06 uq_factura_publicidad_cuenta_periodo presente
+OK    Â· R-REP-05 uq_insignia_usuario presente
+OK    Â· R-REP-06 tg_resena_convivencia presente
+OK    Â· R-REP-06 uq_resena_autor_evaluado presente
+OK    Â· R-RIS-01 ck_evento_categoria presente
+OK    Â· R-RIS-03 ck_plan_objetivos presente
+OK    Â· R-SEG-01 ck_instrumento_sin_pan presente
+OK    Â· R-SEG-02 ck_acceso_justificacion presente
+OK    Â· R-SEG-04 ck_entrega_segregacion presente
+OK    Â· R-SEG-05 ck_incidente_plazo presente
+OK    Â· R-SEG-06 tg_anonimizacion_retencion presente
+OK    Â· R-SEG-07 ck_asignacion_no_autoasignada presente
+OK    Â· R-SEG-08 uq_asignacion_vigente presente
+OK    Â· R-SEG-10 tg_factor_operador_valido presente
+OK    Â· R-SEG-10 tg_sesion_operador_mfa presente
+OK    Â· R-SEG-11 tg_credencial_operador_corta_sesiones presente
+OK    Â· R-SEG-12 ck_permiso_decision_exige_mfa presente
+OK    Â· R-TAR-01 ex_tarifario_vigente presente
+OK    Â· R-TAR-04 uq_devengo_hecho presente
+OK    Â· R-TAR-06 uq_cargo_deduccion presente
+OK    Â· R-TAR-08 tg_tarifario_preaviso presente
+OK    Â· R-TAR-09 uq_factura_cuf presente
+OK    Â· R-TAR-10 tg_factura_inmutable presente
+OK    Â· R-TAR-11 tg_devolucion_maxima presente
+OK    Â· R-TAR-13 ck_factura_offline_evento presente
+OK    Â· R-UIF-10 tg_ddd_pep presente
+OK    Â· R-UIF-11 ex_calificacion_vigente presente
+OK    Â· R-UIF-12 uq_oficial_titular_activo presente
+OK    Â· R-UIF-13 uq_operelev_tx_umbral presente
+
+Prueba de humo terminada: toda lÃ­nea debe empezar con OK.
+
+165 OK · 0 FALLA · 1 rechazos del motor (esperados en los casos negativos)

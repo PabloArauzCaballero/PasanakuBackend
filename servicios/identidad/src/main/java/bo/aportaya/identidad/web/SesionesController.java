@@ -56,6 +56,8 @@ public class SesionesController implements SesionesApi {
     private static final String NIVEL_POR_OMISION = "SIMPLIFICADA";
 
     private final CU04Autenticar cu04;
+    private final bo.aportaya.identidad.aplicacion.CU04StepUp stepUp;
+    private final bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion sesion;
     private final EmitirAcceso acceso;
     private final PoliticaDeIntentos politica;
     private final Duration vigenciaDeSesion;
@@ -63,12 +65,16 @@ public class SesionesController implements SesionesApi {
 
     public SesionesController(
             CU04Autenticar cu04,
+            bo.aportaya.identidad.aplicacion.CU04StepUp stepUp,
+            bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion sesion,
             EmitirAcceso acceso,
             HttpServletRequest peticion,
             @Value("${aportaya.acceso.intentos-maximos}") int intentosMaximos,
             @Value("${aportaya.acceso.duracion-bloqueo}") Duration duracionDelBloqueo,
             @Value("${aportaya.acceso.vigencia-sesion}") Duration vigenciaDeSesion) {
         this.cu04 = cu04;
+        this.stepUp = stepUp;
+        this.sesion = sesion;
         this.acceso = acceso;
         this.peticion = peticion;
         this.politica = new PoliticaDeIntentos(intentosMaximos, duracionDelBloqueo);
@@ -87,6 +93,32 @@ public class SesionesController implements SesionesApi {
             throw new ErrorDeNegocio(resultado.codigo().orElseThrow(), resultado.mensaje());
         }
         return ResponseEntity.ok(mapear(resultado));
+    }
+
+    @Override
+    @bo.aportaya.plataforma.web.seguridad.Permiso("PARTICIPANTE")
+    public ResponseEntity<bo.aportaya.identidad.web.generado.modelo.SalidaDesafioDeStepUp> abrirDesafioDeStepUp(
+            java.util.UUID idempotencyKey, bo.aportaya.identidad.web.generado.modelo.EntradaDesafioDeStepUp cuerpo) {
+        Traza.marcarCasoDeUso("CU-04", cuerpo.getProposito().getValue());
+        var d = stepUp.abrir(cuerpo.getProposito().getValue(), sesion.actual());
+        var salida = new bo.aportaya.identidad.web.generado.modelo.SalidaDesafioDeStepUp();
+        salida.setDesafioId(d.id());
+        salida.setExpiraEn(d.expiraEn().atOffset(java.time.ZoneOffset.UTC));
+        return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED)
+                .body(salida);
+    }
+
+    @Override
+    @bo.aportaya.plataforma.web.seguridad.Permiso("PARTICIPANTE")
+    public ResponseEntity<bo.aportaya.identidad.web.generado.modelo.SalidaEvidenciaDeStepUp> verificarDesafioDeStepUp(
+            java.util.UUID desafioId, bo.aportaya.identidad.web.generado.modelo.EntradaVerificacionDeStepUp cuerpo) {
+        Traza.marcarCasoDeUso("CU-04", desafioId.toString());
+        var e = stepUp.verificar(desafioId, cuerpo.getFactor().getValor(), sesion.actual());
+        var salida = new bo.aportaya.identidad.web.generado.modelo.SalidaEvidenciaDeStepUp();
+        salida.setEvidencia(e.jwt());
+        salida.setExpiraEn(e.expiraEn().atOffset(java.time.ZoneOffset.UTC));
+        salida.setJti(e.jti());
+        return ResponseEntity.ok(salida);
     }
 
     private EntradaAutenticacion mapear(bo.aportaya.identidad.web.generado.modelo.EntradaAutenticacion cuerpo) {

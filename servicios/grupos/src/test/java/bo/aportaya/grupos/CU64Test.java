@@ -143,4 +143,33 @@ class CU64Test extends BaseDeCU64 {
         assertThat(cuposDelGrupo(escenario.grupo())).isEqualTo(cuposAntes);
         assertThat(cuposOcupadosDelGrupo(escenario.grupo())).isEqualTo(cuposAntes);
     }
+
+    @Test
+    @DisplayName(
+            "B39 · repetir el traspaso con el MISMO acuerdo devuelve el traspaso ya hecho y no mueve el cupo otra vez")
+    void repetirElTraspasoEsInocuo() {
+        Escenario escenario = escenarioConTurno();
+        UUID acuerdo = UUID.randomUUID();
+        dslFixtura.execute(
+                """
+                INSERT INTO grupos.acuerdo
+                    (id, grupo_id, tipo, descripcion, propuesto_por, quorum_requerido, votos_a_favor,
+                     votos_en_contra, abstenciones, estado, referencia_afectada_id, abierto_en, cierra_en)
+                VALUES (?, ?, 'ADMISION_REEMPLAZO', 'traspaso de prueba', ?, 0.600, 3, 0, 0, 'APROBADO', ?,
+                        now() - interval '2 days', now() - interval '1 day')
+                """,
+                acuerdo,
+                escenario.grupo(),
+                fixtura.usuario(),
+                escenario.cupo());
+
+        UUID primero = ejecutarConAcuerdo(escenario, acuerdo);
+        UUID segundo = ejecutarConAcuerdo(escenario, acuerdo);
+
+        assertThat(segundo).isEqualTo(primero);
+        assertThat(dsl.fetchOne("SELECT count(*) FROM grupos.traspaso_cupo WHERE cupo_id = ?", escenario.cupo())
+                        .get(0))
+                .isEqualTo(1L);
+        assertThat(titularDelCupo(escenario.cupo())).isEqualTo(escenario.entrante());
+    }
 }

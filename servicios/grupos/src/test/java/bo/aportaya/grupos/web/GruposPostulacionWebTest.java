@@ -74,6 +74,9 @@ class GruposPostulacionWebTest {
     private CU68Postular cu68;
 
     @MockitoBean
+    private bo.aportaya.grupos.aplicacion.CU68AceptarIngreso cu68Decision;
+
+    @MockitoBean
     private InvitacionesWeb invitaciones;
 
     @MockitoBean

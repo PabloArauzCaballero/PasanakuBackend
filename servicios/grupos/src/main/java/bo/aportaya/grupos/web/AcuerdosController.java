@@ -74,7 +74,16 @@ public class AcuerdosController implements AcuerdosApi {
         var ctx = sesion.actual();
         Traza.marcarCasoDeUso("CU-63", acuerdoId.toString());
 
-        cu63.votar(acuerdoId, ctx.usuarioId(), cuerpo.getVoto().getValue(), ctx);
+        // Vota un PARTICIPANTE del grupo del acuerdo, no un usuario: la FK del voto apunta a
+        // `participante`. Quien no participa de ese grupo no vota.
+        UUID grupoId = consultas
+                .grupoDelAcuerdo(acuerdoId, ctx)
+                .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(63, 1), "Ese acuerdo no existe."));
+        UUID participanteId = consultas
+                .participanteDe(grupoId, ctx.usuarioId(), ctx)
+                .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(63, 1), "No participas de ese grupo."));
+
+        cu63.votar(acuerdoId, participanteId, cuerpo.getVoto().getValue(), ctx);
 
         var respuesta = new SalidaAcuerdo();
         respuesta.setAcuerdoId(acuerdoId);

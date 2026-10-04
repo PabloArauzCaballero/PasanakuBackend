@@ -224,4 +224,31 @@ class CU68Test extends BaseDeCU68 {
         // un grupo que no existe.
         assertThat(respondioAlguien(propuesta.id())).isFalse();
     }
+
+    @Test
+    @DisplayName(
+            "CU-68 2a · la reputacion minima excluye a quien TIENE historial y no llega, pero no a quien es nuevo (B24)")
+    void elRecienLlegadoNoSeExcluyePorSerNuevo() {
+        UUID grupo = grupoConCupoLibre();
+        criterioVigente();
+        UUID exigente = UUID.randomUUID();
+        dslFixtura.execute(
+                """
+                INSERT INTO grupos.criterio_emparejamiento
+                    (id, peso_reputacion, peso_monto, peso_geografia, peso_historial_comun,
+                     reputacion_minima, max_morosos_por_grupo, vigente_desde)
+                VALUES (?, 0.40, 0.30, 0.20, 0.10, 500, 2, now())
+                """,
+                exigente);
+        try {
+            assertThatThrownBy(() -> postular(grupo, false, true, 100, 0, false))
+                    .isInstanceOf(ErrorDeNegocio.class)
+                    .hasMessageContaining("reputacion");
+
+            SalidaPostulacion nuevo = postular(grupo, false, true, 0, 0, true);
+            assertThat(nuevo.solicitudId()).isNotNull();
+        } finally {
+            dslFixtura.execute("DELETE FROM grupos.criterio_emparejamiento WHERE id = ?", exigente);
+        }
+    }
 }

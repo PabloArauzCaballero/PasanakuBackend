@@ -203,6 +203,16 @@ public class CU21CobrarAporte {
         });
     }
 
+    /** De quien es la obligacion y de que periodo: lo que `grupos` necesita para decir si se puede pagar. */
+    @Transactional(readOnly = true)
+    public Optional<ContextoDeObligacion> contextoDe(UUID obligacionId, ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> obligaciones
+                .ver(dsl, obligacionId)
+                .map(o -> new ContextoDeObligacion(o.participanteId(), o.periodoId())));
+    }
+
+    public record ContextoDeObligacion(UUID participanteId, UUID periodoId) {}
+
     public record EntradaCobro(
             String claveIdempotencia,
             UUID obligacionId,
