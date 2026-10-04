@@ -8,7 +8,7 @@ C1 = cuenta("BOB-0000001")
 t1, t2 = login("USR1"), login("USR2")
 print("saldos antes:", saldo("BOB-0000001"), "·", saldo("BOB-0000002"))
 print("-- resolver alias «Juan» con el token de USR1")
-llamar("GET", "/grupos/alias/Juan", t1)
+llamar("GET", "/grupos/participantes/alias/Juan", t1)
 K = str(uuid.uuid4())
 cuerpo = {"cuentaOrigenId": C1, "destino": {"tipo": "ALIAS", "valor": "Juan"}, "monto": {"monto": "50.00", "moneda": "BOB"}, "concepto": "Campania CU-12 sintetica"}
 e, r = llamar("POST", "/billetera/transferencias", t1, idem=K, cuerpo=cuerpo)

@@ -1,0 +1,246 @@
+
+##############################################################################
+# H2.S1.M6 · sondas de autorización  (h2_s1_m6_sondas.py)
+##############################################################################
+== 1. Tokens: rol y permisos reales
+LOGIN USR90 (+591***90) -> 200 requiereFactor=False token=si
+   USR90: rol=PARTICIPANTE permisos=['BILLETERA_OPERAR', 'BILLETERA_VER', 'PARTICIPANTE']
+LOGIN USR1 (+591***01) -> 200 requiereFactor=False token=si
+   USR1: rol=PARTICIPANTE permisos=['BILLETERA_OPERAR', 'BILLETERA_VER', 'GRUPO_ADMINISTRAR', 'GRUPO_CREAR', 'ORGANIZADOR']
+LOGIN USR2 (+591***02) -> 200 requiereFactor=False token=si
+   USR2: rol=PARTICIPANTE permisos=['BILLETERA_OPERAR', 'BILLETERA_VER', 'PARTICIPANTE']
+LOGIN USR91 (+591***91) -> 200 requiereFactor=False token=si
+   USR91: rol=BACKOFFICE permisos=['ACCESOS_ADMINISTRAR', 'ADMIN_PLATAFORMA', 'AUDITORIA_LEER', 'CATALOGO_EDITAR', 'SEGURIDAD_ACCESO_RESTABLECER', 'SEGURIDAD_FACTOR_REINSCRIBIR', 'TARIFARIO_PUBLICAR', 'VERIFICACION_RESOLVER']
+LOGIN USR8 (+591***08) -> 200 requiereFactor=False token=si
+   USR8: rol=BACKOFFICE permisos=['AUDITORIA_LEER', 'BILLETERA_VER_TERCEROS', 'CONTABILIDAD_ERP_COBRAR', 'CONTABILIDAD_ERP_PAGAR', 'ENTREGA_EJECUTAR', 'RETIRO_APROBAR', 'TESORERIA']
+LOGIN USR9 (+591***09) -> 200 requiereFactor=False token=si
+   USR9: rol=BACKOFFICE permisos=['AUDITORIA_LEER', 'BILLETERA_VER_TERCEROS', 'ENTREGA_AUTORIZAR', 'RESPONSABLE_RIESGOS', 'REVERSO_AUTORIZAR']
+
+== 2. Sondas (cuerpos mínimos: el guardia de permisos responde antes de validar el cuerpo)
+-- CU-20: consulta de licencia que hace el servicio grupos  [actor USR1]
+GET   /licencia/alcance?servicio=GRUPO_PASANAKU                                        -> 403 AP-SEG-01
+-- mismo, con token de participante  [actor USR90]
+GET   /licencia/alcance?servicio=GRUPO_PASANAKU                                        -> 403 AP-SEG-01
+-- mismo, con token de backoffice  [actor USR91]
+GET   /licencia/alcance?servicio=GRUPO_PASANAKU                                        -> 403 AP-SEG-01
+-- CU-90 aprobar (ADMIN_PLATAFORMA)  [actor USR91]
+POST  /organizadores/postulaciones/41c0947f-2270-4161-a46d-9433f0261719/aprobacion     -> 422 AP-CU90-03
+-- CU-90 habilitar (ADMIN_PLATAFORMA)  [actor USR91]
+POST  /organizadores/41c0947f-2270-4161-a46d-9433f0261719/habilitacion                 -> 422 AP-CU90-03
+-- CU-74 evaluar insignias (SOPORTE)  [actor USR91]
+POST  /reputacion/insignias/evaluacion                                                 -> 403 AP-SEG-01
+-- CU-90 postular (PARTICIPANTE) — debe pasar el guardia  [actor USR90]
+POST  /organizadores/postulaciones                                                     -> 400 AP-VAL-01
+-- CU-20 crear grupo (GRUPO_CREAR) — debe pasar el guardia  [actor USR1]
+POST  /grupos                                                                          -> 400 AP-VAL-01
+
+##############################################################################
+# H3.S2 · CU-20 crear grupo  (h3_s2_cu20.py)
+##############################################################################
+LOGIN USR1 (+591***01) -> 200 requiereFactor=False token=si
+POST  /grupos                                                                          -> 422 AP-CU20-04
+respuesta: {'codigo': 'AP-CU20-04', 'mensaje': 'El servicio no esta habilitado en este momento.', 'detalle': {}, 'trazaId': '6241a378-cf81-92fe-97fb-31f6e968f3fa'}
+
+##############################################################################
+# H3.S5 · CU-10 recargar y CU-12 transferir (usuario sin grupo)  (h3_dinero.py)
+##############################################################################
+LOGIN USR90 (+591***90) -> 200 requiereFactor=False token=si
+LOGIN USR2 (+591***02) -> 200 requiereFactor=False token=si
+LOGIN USR8 (+591***08) -> 200 requiereFactor=False token=si
+
+== CU-10 · saldo antes: BOB-0000090 disponible=200.00
+POST  /billetera/recargas                                                              -> 201
+orden: {'ordenRecargaId': 'a7ad101e-0a7b-4652-84b2-108b33ead28c', 'estado': 'PENDIENTE', 'acreditara': {'monto': '200.00', 'moneda': 'BOB'}}
+-- negativo: USR2 (participante ajeno) intenta acreditar la orden de USR90
+POST  /billetera/recargas/a7ad101e-0a7b-4652-84b2-108b33ead28c/acreditacion            -> 403 AP-SEG-01
+-- negativo: USR90, TITULAR de la orden, intenta acreditarsela a si mismo (B20)
+POST  /billetera/recargas/a7ad101e-0a7b-4652-84b2-108b33ead28c/acreditacion            -> 403 AP-SEG-01
+-- acreditar (TESORERIA, USR8) con Idempotency-Key K
+POST  /billetera/recargas/a7ad101e-0a7b-4652-84b2-108b33ead28c/acreditacion            -> 200
+   respuesta 1: {'ordenRecargaId': 'a7ad101e-0a7b-4652-84b2-108b33ead28c', 'transaccionId': '7f8c7a5d-f0f4-402c-8b9e-b6da2ca02b81', 'saldoDespues': {'monto': '400.00', 'moneda': 'BOB'}}
+-- repetir la MISMA clave K
+POST  /billetera/recargas/a7ad101e-0a7b-4652-84b2-108b33ead28c/acreditacion            -> 422 AP-CU10-05
+   respuesta 2: {'codigo': 'AP-CU10-05', 'mensaje': 'Esa orden ya esta ACREDITADA.', 'detalle': {}, 'trazaId': 'da1b71a9-7a1b-be6f-f29e-a46fc383c86b'}
+-- repetir con clave NUEVA (la orden ya esta acreditada)
+POST  /billetera/recargas/a7ad101e-0a7b-4652-84b2-108b33ead28c/acreditacion            -> 422 AP-CU10-05
+SQL orden: ACREDITADA bruto=200.00 costo=0.00 acreditado=200.00
+SQL transacciones con esa orden: 1
+SQL patas del libro (sentido, monto): DEBITO 200.00
+CREDITO 200.00
+SQL cuadre de la transacción (suma por sentido): CREDITO=200.00
+DEBITO=200.00
+SQL asiento contable enlazado: NULL
+== CU-10 · saldo después: BOB-0000090 disponible=400.00
+
+== CU-12 · saldos antes: BOB-0000090 disponible=400.00 · BOB-0000002 disponible=600.00
+POST  /billetera/transferencias                                                        -> 422 AP-CU12-02
+transferencia: {'codigo': 'AP-CU12-02', 'mensaje': 'Ese destino no existe.', 'detalle': {}, 'trazaId': 'f7f2d1e2-e3d1-6efe-841f-db4b1722a19e'}
+-- repetir la misma clave
+POST  /billetera/transferencias                                                        -> 422 AP-CU12-02
+   respuesta 2: {'codigo': 'AP-CU12-02', 'mensaje': 'Ese destino no existe.', 'detalle': {}, 'trazaId': 'd6f5167b-5705-30cd-bfc3-0609ba27efb1'}
+-- negativo: USR2 transfiere desde la cuenta de USR90
+POST  /billetera/transferencias                                                        -> 422 AP-CU12-02
+-- negativo: saldo insuficiente
+POST  /billetera/transferencias                                                        -> 422 AP-CU12-02
+== CU-12 · saldos después: BOB-0000090 disponible=400.00 · BOB-0000002 disponible=600.00
+SQL transacciones TRANSFERENCIA por la clave: 0
+
+##############################################################################
+# H3.S6 · CU-12 transferir por alias (usuario con grupo)  (h3_cu12.py)
+##############################################################################
+LOGIN USR1 (+591***01) -> 200 requiereFactor=False token=si
+LOGIN USR2 (+591***02) -> 200 requiereFactor=False token=si
+saldos antes: BOB-0000001 disponible=3589.50 · BOB-0000002 disponible=600.00
+-- resolver alias «Juan» con el token de USR1
+GET   /grupos/alias/Juan                                                               -> 404 AP-VAL-05
+POST  /billetera/transferencias                                                        -> 422 AP-CU12-02
+respuesta: {'codigo': 'AP-CU12-02', 'mensaje': 'Ese destino no existe.', 'detalle': {}, 'trazaId': 'b14e8c04-a0cf-7591-a884-235bdef4142e'}
+saldos después: BOB-0000001 disponible=3589.50 · BOB-0000002 disponible=600.00
+
+##############################################################################
+# H3 · CU-90, CU-69, CU-68, CU-60, CU-21, CU-64, CU-74  (h3_grupos.py)
+##############################################################################
+LOGIN USR90 (+591***90) -> 200 requiereFactor=False token=si
+LOGIN USR1 (+591***01) -> 200 requiereFactor=False token=si
+LOGIN USR2 (+591***02) -> 200 requiereFactor=False token=si
+LOGIN USR3 (+591***03) -> 200 requiereFactor=False token=si
+LOGIN USR91 (+591***91) -> 200 requiereFactor=False token=si
+
+===== CU-90 · USR90 postula a organizador
+POST  /organizadores/postulaciones                                                     -> 400 AP-VAL-01
+respuesta: {'codigo': 'AP-VAL-01', 'mensaje': 'Revisa los datos del formulario.', 'detalle': {'reputacion': 'must match "^\\d+\\.\\d{2}$"'}, 'trazaId': '990e2e41-63b3-7334-884d-6a83b10b581e'}
+SQL solicitudes: 1
+
+===== CU-69 · USR1 invita a USR90 a GRP-DEMO-02 (ENLACE)
+POST  /grupos/eb52a825-de35-4bd6-9c42-6ea1621b147a/invitaciones                        -> 201
+respuesta: {'invitacionId': None, 'mensaje': 'Listo, si corresponde le va a llegar la invitacion.', 'enlace': '<enlace oculto>'}
+SQL invitaciones: 0
+(sin token de enlace en la respuesta: no se puede continuar con aceptar)
+SQL cupos GRP-DEMO-02: LIBRE=2 ; OCUPADO=1
+SQL participantes GRP-DEMO-02: 1
+
+===== CU-68 · USR3 postula a GRP-DEMO-02
+POST  /grupos/eb52a825-de35-4bd6-9c42-6ea1621b147a/postulaciones                       -> 422 AP-CU68-03
+SQL solicitudes de ingreso: 
+
+===== CU-60 · USR1 compromete el sorteo de GRP-DEMO-02 (grupo con cupos libres: se espera rechazo)
+POST  /grupos/eb52a825-de35-4bd6-9c42-6ea1621b147a/sorteo                              -> 422 AP-CU60-01
+-- negativo: USR2 (sin GRUPO_ADMINISTRAR) intenta sortear
+POST  /grupos/eb52a825-de35-4bd6-9c42-6ea1621b147a/sorteo                              -> 403 AP-SEG-01
+SQL sorteos GRP-DEMO-02: 0
+
+===== CU-21 · USR2 paga la obligación PENDIENTE
+-- negativo (ANTES de pagar): monto mayor al pendiente
+POST  /aportes/obligaciones/088a826f-20ff-4bcf-b520-8bb1a3d2df7a/pagos                 -> 422 AP-CU21-02
+-- negativo (ANTES de pagar): USR3 paga la obligación de USR2
+POST  /aportes/obligaciones/088a826f-20ff-4bcf-b520-8bb1a3d2df7a/pagos                 -> 201
+SQL pagos tras los negativos (debe seguir en 0): 1
+POST  /aportes/obligaciones/088a826f-20ff-4bcf-b520-8bb1a3d2df7a/pagos                 -> 422 AP-CU21-01
+respuesta: {'codigo': 'AP-CU21-01', 'mensaje': 'Esa obligacion esta PAGADO.', 'detalle': {}, 'trazaId': 'c3a084f8-3f73-1124-4cf1-405176b6af0b'}
+-- repetir la MISMA clave
+POST  /aportes/obligaciones/088a826f-20ff-4bcf-b520-8bb1a3d2df7a/pagos                 -> 422 AP-CU21-01
+respuesta 2: {'codigo': 'AP-CU21-01', 'mensaje': 'Esa obligacion esta PAGADO.', 'detalle': {}, 'trazaId': 'fc633cf9-4785-15d8-7912-0a680cf4e99d'}
+SQL obligación: PAGADO pagado=500.00
+SQL pagos de la obligación: 1
+SQL saldo USR2 (no debe moverse: el servicio no debita): 600.00
+
+===== CU-64 · USR1 traspasa el cupo 6 de GRP-DEMO-01 a USR90
+POST  /grupos/c1479b2e-864b-4931-a7d0-5edcf3070378/cupos/fb8afb76-a1ac-4f96-90f2-db175 -> 422 AP-CU64-05
+respuesta: {'codigo': 'AP-CU64-05', 'mensaje': 'Este grupo exige que el traspaso se vote.', 'detalle': {}, 'trazaId': '39d81cbd-4b3e-b834-7dbd-7ed4050d18b8'}
+-- negativo: USR2 intenta traspasar
+POST  /grupos/c1479b2e-864b-4931-a7d0-5edcf3070378/cupos/fb8afb76-a1ac-4f96-90f2-db175 -> 403 AP-SEG-01
+SQL traspasos: 0
+
+===== CU-74 · evaluar insignias con token de backoffice (se espera 403 por SOPORTE)
+POST  /reputacion/insignias/evaluacion                                                 -> 403 AP-SEG-01
+
+##############################################################################
+# H3 · CU-90 (cuerpo corregido), CU-61, CU-62, CU-22, CU-11  (h3_resto.py)
+##############################################################################
+LOGIN USR90 (+591***90) -> 200 requiereFactor=False token=si
+LOGIN USR1 (+591***01) -> 200 requiereFactor=False token=si
+LOGIN USR2 (+591***02) -> 200 requiereFactor=False token=si
+LOGIN USR8 (+591***08) -> 200 requiereFactor=False token=si
+LOGIN USR9 (+591***09) -> 200 requiereFactor=False token=si
+
+===== CU-90 · USR90 postula (cuerpo corregido: reputacion con formato decimal)
+POST  /organizadores/postulaciones                                                     -> 200
+respuesta: {'solicitudId': 'f73809ce-0452-4635-8a78-ac8b5c2320dc', 'estado': 'PENDIENTE', 'esNueva': False, 'faltantes': []}
+SQL solicitudes de organizador: PENDIENTE=1
+
+===== CU-61 · verificación pública del sorteo sembrado de GRP-DEMO-01 (sin sesión)
+GET   /publico/sorteos/8be63d5c-ac9b-43b9-8be0-7a9eec704a34/verificacion               -> 200
+respuesta: {'verifica': False, 'hashEsperado': 'a87e627a4e31738f38c6c2f843212598288a9fa23f4c94b8c6282d1d74bdfa93', 'hashRecomputado': '11829c62d70973c1d972ffef383d703c8cfd06bf0fa0c9c65d193b0d72c43025', 'ordenCoincide': False, 'primerCupoDiscrepante': 5, 'paquete': {'semilla': 'entropia-publica-demo-grupo-01', 'entropias': ['participantes: [USR000001', ' USR000002', ' USR000003', ' USR000004', ' USR000005', ' USR000006]', ' bloque_referencia: cierre-2026-01'], 'metodo': 'FISHER_YATES_HMAC', 'cupos': [5, 2, 4, 3]}}
+
+===== CU-62 · USR2 solicita permuta de su turno con el de USR3
+POST  /turnos/permutas                                                                 -> 422 AP-CU62-01
+respuesta: {'codigo': 'AP-CU62-01', 'mensaje': 'Ese turno ya no se puede permutar.', 'detalle': {}, 'trazaId': 'b3c2bc92-7ba9-d7f6-14fe-9aef1a5b8d4a'}
+-- negativo: USR1 solicita permuta de un turno que no es suyo (cupo 2)
+POST  /turnos/permutas                                                                 -> 400 AP-VAL-01
+SQL permutas: 0
+
+===== CU-22 · entrega del fondo: liquidar (USR8) -> autorizar (USR9) -> ejecutar (USR8)
+-- negativo: USR9 (solo autoriza) intenta liquidar
+POST  /entregas                                                                        -> 403 AP-SEG-01
+-- negativo: bruto mayor que lo recaudado
+POST  /entregas                                                                        -> 422 AP-CU22-01
+POST  /entregas                                                                        -> 201
+liquidar: {'entregaId': '94b98e0c-de5f-40a8-8f74-0f8cfbce27d0', 'bruto': {'monto': '3000.00', 'moneda': 'BOB'}, 'totalDeducciones': {'monto': '0.00', 'moneda': 'BOB'}, 'neto': {'monto': '3000.00', 'moneda': 'BOB'}, 'estado': 'PROGRAMADA'}
+-- repetir la MISMA clave
+POST  /entregas                                                                        -> 201
+liquidar (2.ª): {'entregaId': '94b98e0c-de5f-40a8-8f74-0f8cfbce27d0', 'bruto': {'monto': '3000.00', 'moneda': 'BOB'}, 'totalDeducciones': {'monto': '0.00', 'moneda': 'BOB'}, 'neto': {'monto': '3000.00', 'moneda': 'BOB'}, 'estado': 'PROGRAMADA'}
+-- negativo: USR8 (ejecutor) intenta autorizar
+POST  /entregas/94b98e0c-de5f-40a8-8f74-0f8cfbce27d0/autorizacion                      -> 403 AP-SEG-01
+-- USR9 autoriza
+POST  /entregas/94b98e0c-de5f-40a8-8f74-0f8cfbce27d0/autorizacion                      -> 200
+autorizar: {'entregaId': '94b98e0c-de5f-40a8-8f74-0f8cfbce27d0', 'estado': 'AUTORIZADA', 'autorizadaPor': '89ea7477-89bc-4ca7-9a67-d8ba7b87aa63'}
+-- USR8 ejecuta
+POST  /entregas/94b98e0c-de5f-40a8-8f74-0f8cfbce27d0/ejecucion                         -> 200
+ejecutar: {'entregaId': '94b98e0c-de5f-40a8-8f74-0f8cfbce27d0', 'estado': 'ENTREGADA', 'montoEntregado': {'monto': '2989.50', 'moneda': 'BOB'}}
+SQL entrega: ENTREGADA bruto=3000.00 neto=3000.00 entregado=2989.50
+SQL saldo del beneficiario (no se acredita: el servicio no mueve saldo): 600.00
+
+===== CU-11 · USR1 solicita un retiro de 100.00 a su instrumento verificado
+POST  /billetera/retiros                                                               -> 422 AP-CU11-02
+respuesta: {'codigo': 'AP-CU11-02', 'mensaje': 'Falta el segundo factor para autorizar el retiro.', 'detalle': {}, 'trazaId': 'e2bbe563-8953-56da-308a-f91c12ae3b42'}
+-- negativo: USR2 retira de la cuenta de USR1
+POST  /billetera/retiros                                                               -> 422 AP-CU11-01
+SQL órdenes de retiro: EN_REVISION=1
+SQL saldo USR1: 3589.50 retenido=0.00
+
+##############################################################################
+# H3.S10 · CU-62 permuta entre turnos futuros  (h3_permuta.py)
+##############################################################################
+LOGIN USR3 (+591***03) -> 200 requiereFactor=False token=si
+LOGIN USR5 (+591***05) -> 200 requiereFactor=False token=si
+-- negativo: USR5 (dueño del turno 5) intenta permutar los turnos 3 y 4 que no son suyos
+POST  /turnos/permutas                                                                 -> 422 AP-CU62-01
+-- USR3 solicita la permuta de su turno 3 con el turno 4 de USR4
+POST  /turnos/permutas                                                                 -> 201
+respuesta: {'solicitudId': '6be60f97-0e06-4b3e-b384-eb1c888d4967', 'estado': 'PENDIENTE'}
+SQL permutas: 1
+
+##############################################################################
+# H3.S9 · CU-64 traspaso de cupo en GRP-DEMO-02  (h3_traspaso_g2.py)
+##############################################################################
+LOGIN USR1 (+591***01) -> 200 requiereFactor=False token=si
+LOGIN USR2 (+591***02) -> 200 requiereFactor=False token=si
+SQL antes: OCUPADO titular=07ca64de-c3ac-4ffa-9da1-f17959ea0c5b
+-- negativo: USR2 (sin GRUPO_ADMINISTRAR) intenta traspasar
+POST  /grupos/eb52a825-de35-4bd6-9c42-6ea1621b147a/cupos/118a7339-fb46-4acf-8df6-eda37 -> 403 AP-SEG-01
+-- sin acuerdo: el grupo exige votación
+POST  /grupos/eb52a825-de35-4bd6-9c42-6ea1621b147a/cupos/118a7339-fb46-4acf-8df6-eda37 -> 422 AP-CU64-05
+-- CU-63: USR1 propone un acuerdo de traspaso
+POST  /acuerdos                                                                        -> 201
+respuesta: {'acuerdoId': 'f6fad005-e9df-44e2-9ef9-ae33c342e3e5', 'estado': 'EN_VOTACION'}
+-- USR1 vota A_FAVOR (único participante: alcanza el quórum)
+POST  /acuerdos/f6fad005-e9df-44e2-9ef9-ae33c342e3e5/votos                             -> 201
+respuesta: {'acuerdoId': 'f6fad005-e9df-44e2-9ef9-ae33c342e3e5', 'estado': 'APROBADO'}
+SQL acuerdo: ERROR:  relation "grupos.acuerdo_grupo" does not exist
+LINE 1: select estado from grupos.acuerdo_grupo where id='f6fad005-e...
+                           ^
+-- USR1 traspasa con el acuerdo
+POST  /grupos/eb52a825-de35-4bd6-9c42-6ea1621b147a/cupos/118a7339-fb46-4acf-8df6-eda37 -> 500 AP-INT-01
+respuesta: {'codigo': 'AP-INT-01', 'mensaje': 'No pudimos completar la operacion. Volve a intentar.', 'trazaId': '060766fb-b8b0-254f-13de-2280ab78f22d'}
+SQL después: OCUPADO titular=07ca64de-c3ac-4ffa-9da1-f17959ea0c5b
+SQL traspasos: 0
