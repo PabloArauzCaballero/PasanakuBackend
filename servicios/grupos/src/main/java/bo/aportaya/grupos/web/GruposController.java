@@ -188,10 +188,16 @@ public class GruposController implements GruposApi {
                 .map(afuera::estadoDePagos)
                 .orElseGet(() -> afuera.estadoDePagos(ctx.usuarioId()));
 
+        // La clave foranea del traspaso apunta a `participante`, no a `usuario` (B21): el entrante tiene
+        // que ser participante del grupo. Si no lo es, se dice, en vez de responder 500.
+        UUID entranteParticipante = consultas
+                .participanteDe(grupoId, cuerpo.getUsuarioEntranteId(), ctx)
+                .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(64, 1), "Quien entra no participa de ese grupo."));
+
         UUID traspasoId = cu64.ejecutar(
                 new CU64TraspasarCupo.EntradaTraspaso(
                         cupoId,
-                        cuerpo.getUsuarioEntranteId(),
+                        entranteParticipante,
                         cuerpo.getMotivo(),
                         saliente.alDia(),
                         // El nivel de diligencia del entrante lo decide cumplimiento al

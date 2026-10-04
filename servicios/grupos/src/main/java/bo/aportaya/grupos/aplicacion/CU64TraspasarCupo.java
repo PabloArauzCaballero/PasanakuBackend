@@ -92,12 +92,12 @@ public class CU64TraspasarCupo {
                     entrada.cupoId(),
                     saliente,
                     entrada.entranteId(),
-                    entrada.motivo(),
+                    MOTIVO_CODIFICADO,
                     entrada.derechoDeCobroTransferido(),
                     entrada.acuerdoId(),
                     ahora);
 
-            traspasos.traspasar(dsl, entrada.cupoId(), entrada.entranteId(), saliente, entrada.motivo(), ahora);
+            traspasos.traspasar(dsl, entrada.cupoId(), entrada.entranteId(), saliente, MOTIVO_CODIFICADO, ahora);
 
             outbox.emitir(
                     dsl,
@@ -109,11 +109,21 @@ public class CU64TraspasarCupo {
                                     "grupoId",
                                     cupo.grupoId().toString(),
                                     "cupoId",
-                                    entrada.cupoId().toString()),
+                                    entrada.cupoId().toString(),
+                                    "motivo",
+                                    entrada.motivo()),
                             UUID.fromString(ctx.traza().id())));
             return traspaso;
         });
     }
+
+    /**
+     * La columna `traspaso_cupo.motivo` es un codigo cerrado (REEMPLAZO_POR_MORA | RETIRO | VENTA) y
+     * el contrato recibe texto libre de 10 a 300 caracteres: guardar el texto violaba el CHECK y
+     * respondia 500 (B21b). Este caso de uso es el traspaso/venta de un cupo, asi que el codigo es
+     * VENTA; el texto libre viaja en el evento. SUPUESTO a confirmar con producto (PLAN, B21b).
+     */
+    static final String MOTIVO_CODIFICADO = "VENTA";
 
     public record EntradaTraspaso(
             UUID cupoId,
