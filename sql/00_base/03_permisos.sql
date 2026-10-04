@@ -236,9 +236,17 @@ DECLARE f RECORD; v_ruta TEXT;
 BEGIN
   SELECT string_agg(quote_ident(nspname), ', ' ORDER BY nspname) INTO v_ruta
     FROM pg_namespace WHERE nspname !~ '^pg_' AND nspname <> 'information_schema';
-  FOR f IN SELECT p.oid::regprocedure AS fn FROM pg_proc p
+  FOR f IN SELECT p.oid::regprocedure AS fn, p.proname AS nombre FROM pg_proc p
              JOIN pg_namespace n ON n.oid = p.pronamespace
             WHERE n.nspname = 'aportes' AND p.prokind = 'f' LOOP
     EXECUTE format('ALTER FUNCTION %s SET search_path = %s', f.fn, v_ruta);
+    -- Las reglas cruzan esquemas a proposito (un movimiento de billetera dispara el registro
+    -- UIF; crear un grupo valida el contrato del organizador) y el rol que las dispara no
+    -- tiene acceso a esas tablas por diseño (invariante 11). Corren con los privilegios del
+    -- dueño, con el search_path de arriba fijo. Las fn_seg_* de las politicas de fila NO:
+    -- esas leen el contexto de quien consulta.
+    IF f.nombre !~ '^fn_seg_' THEN
+      EXECUTE format('ALTER FUNCTION %s SECURITY DEFINER', f.fn);
+    END IF;
   END LOOP;
 END $busqueda$;
