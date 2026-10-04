@@ -1,6 +1,6 @@
 # Reporte — Alta: fecha en tres selects, actividad con buscador, por qué no deja hacer el alta y captura automática
 
-> **AVANCE: 21 / 24 — 87,5 %.** Dos microtareas BLOQUEADAS (API de TEST caída: hace falta acceso al VPS; prueba en teléfono real) y una A MEDIAS (compilar el APK: a la espera de memoria libre en la máquina compartida).
+> **AVANCE: 21 / 27 — 77,8 %.** Bloqueadas: API de TEST caída, prueba en teléfono real, push de la rama y firma de iOS (las dos últimas por permisos/credenciales). A medias: compilar el APK y el workflow que lo compila en GitHub.
 
 - Fecha: 2026-10-03/04 · Plan: [PLAN.md](./PLAN.md) · Rama: `justin/fix/alta-fecha-actividad-autocaptura` (worktree `PasanakuBackend-alta-v2`, sobre `origin/justin/feature/escaner-identidad-atlas` @ `7214ae3d`)
 - Peldaño de evidencia alcanzado, por área:
@@ -40,6 +40,17 @@
 - Dónde quedó: rama `justin/fix/alta-fecha-actividad-autocaptura`, compila a nivel de Dart.
 
 ## Pendiente
+
+### H7 — Disponible para probar (agregado 2026-10-04)
+- **Android (APK):** `.github/workflows/apk-de-prueba.yml` compila el APK en GitHub (release firmado con claves de depuración, contra TEST) y lo publica como prerelease `apk-prueba-<n>`. Está commiteado en local; **no corrió** porque el push fue denegado por el clasificador de permisos («Create Public Surface»). Con el push hecho, se dispara solo.
+- **iPhone (TestFlight):** el repo no tiene secretos de firma, así que el job `release-ios` no puede subir. Desde la Mac de Pablo (como en `docs/trabajo/2026-09-28-testflight-ios/`), en `apps/movil`:
+  ```
+  flutter build ipa --release --no-codesign --build-number=<AAAAMMDDhhmm>     --dart-define=API=https://api.aportaya.161.97.85.216.sslip.io/api/v1     --dart-define=HOSTS_PERMITIDOS=api.aportaya.161.97.85.216.sslip.io
+  cd ios && pod install && cd ..   # el Podfile cambió (iOS 15.5, ML Kit)
+  xcodebuild -exportArchive -archivePath build/ios/archive/Runner.xcarchive     -exportOptionsPlist <method=app-store-connect, destination=upload, signingStyle=automatic, teamID=7A42TVN3Y6>     -exportPath build/ios/ipa-upload -allowProvisioningUpdates
+  ```
+- Mientras la API de TEST siga en 503, cualquiera de los dos builds abre pero no puede hacer el alta.
+
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|

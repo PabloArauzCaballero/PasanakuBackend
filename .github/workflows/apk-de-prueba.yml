@@ -1,0 +1,97 @@
+# APK de prueba (Android) contra el entorno TEST.
+#
+# Para que el equipo pruebe la app en un Android sin pasar por una tienda: compila
+# el APK en un runner de GitHub (la máquina de desarrollo no da abasto con Docker,
+# el emulador y Gradle a la vez) y lo publica como *prerelease* descargable desde el
+# celular. Es el equivalente de Pasanaku a «abrirlo en Expo Go» de Atlas.
+#
+# Firmado con las claves de depuración (así está `android/app/build.gradle.kts`
+# hoy): sirve para instalar a mano, NO para Play Store. Apunta al gateway de TEST y
+# nada más (`HOSTS_PERMITIDOS`, `lib/dominio/cliente.dart`).
+name: APK de prueba (Android)
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [justin/fix/alta-fecha-actividad-autocaptura]
+    paths:
+      - apps/movil/**
+      - packages/diseno_flutter/**
+      - packages/tokens/**
+      - .github/workflows/apk-de-prueba.yml
+
+concurrency:
+  group: apk-de-prueba-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  API_TEST: https://api.aportaya.161.97.85.216.sslip.io/api/v1
+  HOST_TEST: api.aportaya.161.97.85.216.sslip.io
+
+jobs:
+  apk:
+    name: Compilar y publicar el APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.8
+          channel: stable
+          cache: true
+
+      # Los mismos pasos que el job `frontend` de ci.yml (f0, f0c, f0d): sin los
+      # clientes generados ni los tokens, la app no compila.
+      - name: clientes generados (Dart)
+        run: ./gradlew generateOpenApiClients --no-parallel --no-build-cache -q
+      - name: yarn install
+        run: |
+          corepack enable
+          yarn install --immutable
+      - name: tokens y sistema de diseño
+        run: |
+          yarn workspace @aportaya/tokens build
+          yarn workspace @aportaya/simulado build
+          yarn workspace @aportaya/diseno-flutter build
+          yarn workspace @aportaya/movil build
+
+      - name: flutter build apk (release, contra TEST)
+        working-directory: apps/movil
+        run: |
+          flutter build apk --release \
+            --build-number=${{ github.run_number }} \
+            --dart-define=API=${{ env.API_TEST }} \
+            --dart-define=HOSTS_PERMITIDOS=${{ env.HOST_TEST }}
+          mv build/app/outputs/flutter-apk/app-release.apk \
+            "build/aportaya-test-${{ github.run_number }}.apk"
+          ls -l build/*.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aportaya-test-${{ github.run_number }}
+          path: apps/movil/build/aportaya-test-${{ github.run_number }}.apk
+          if-no-files-found: error
+
+      - name: publicar como prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          etiqueta="apk-prueba-${{ github.run_number }}"
+          gh release create "$etiqueta" \
+            "apps/movil/build/aportaya-test-${{ github.run_number }}.apk" \
+            --prerelease \
+            --target "${{ github.sha }}" \
+            --title "APK de prueba ${{ github.run_number }} (TEST)" \
+            --notes "Solo para pruebas internas contra el entorno TEST. Firmado con claves de depuración: se instala a mano (Ajustes → permitir instalar apps de esta fuente). Rama ${{ github.ref_name }}, commit ${{ github.sha }}."

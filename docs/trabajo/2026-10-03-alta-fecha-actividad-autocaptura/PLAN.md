@@ -6,7 +6,7 @@
 
 ## Alcance
 - IN: `packages/diseno_flutter` (`CampoDeSeleccion`, `CampoDeFecha`, hoja con buscador, `CampoBusqueda`), `apps/movil` (alta: paso 1, paso 7, paso de capturas, cámara, escáner), tests de ambos, gate `scripts/verificar_frontend.py` (regla del buscador), este plan y su reporte.
-- OUT: backend de identidad (el alta no manda el perfil transaccional al servidor hoy — `catalogo_del_perfil.dart` lo dice; no se agrega contrato), backoffice, infraestructura de TEST (VPS/Coolify), subida a TestFlight (se firma y sube desde la Mac, `docs/trabajo/2026-09-28-testflight-ios/PLAN.md:8`).
+- OUT (revisado 2026-10-04: la distribución pasó a IN como H7): backend de identidad (el alta no manda el perfil transaccional al servidor hoy — `catalogo_del_perfil.dart` lo dice; no se agrega contrato), backoffice, infraestructura de TEST (VPS/Coolify), subida a TestFlight (se firma y sube desde la Mac, `docs/trabajo/2026-09-28-testflight-ios/PLAN.md:8`).
 - Ambigüedades registradas:
   1. «Si quiere ponerlo manual, tres espacios» → supuesto: los tres selects son la forma principal y el calendario queda como atajo, **sin** el modo de texto. Confirmar con el usuario.
   2. «Disciplina» del buscador → supuesto: regla del componente (más de 12 opciones ⇒ buscador, automática en `CampoDeSeleccion`) + gate que impide usar `DropdownButton*` fuera de ese componente en `apps/movil`. Con 12 o menos (meses, departamentos) queda el desplegable.
@@ -79,6 +79,17 @@
 | H5.S2.M4 | Pantalla de prueba de vida guiada: tres poses seguidas, guarda las tres capturas | Con detector doble, la pantalla devuelve 3 capturas | test widget | HECHO — `evidencia/h5-s2-m4-m5-prueba-de-vida.txt` (5/5; mutación del signo → 4 fallan) |
 | H5.S2.M5 | Respaldo manual si no hay detector o pasan 20 s sin lograr la pose | Con detector que falla ⇒ aparece «Tomar foto» | test widget | HECHO — `evidencia/h5-s2-m4-m5-prueba-de-vida.txt` (sin detector y a los 20 s) |
 | H5.S2.M6 | Prueba en teléfono real | Las 5 capturas sin tocar «Tomar foto» en las selfies | captura/video del teléfono | BLOQUEADO — hace falta un teléfono real: el emulador no tiene escáner VisionKit/ML Kit de verdad ni una cara que gire, y el build de TestFlight se firma y sube desde la Mac (`docs/trabajo/2026-09-28-testflight-ios/PLAN.md:8`). Simulado en los tres niveles con dobles: correcto (tres poses → 3 capturas), límite (giro 28/27/71, 4 cuadros vs 3) e inválido (pose equivocada, dos caras, sin detector, 20 s). Lo destraba: probar el build en un teléfono Android y uno iPhone y confirmar el signo del giro |
+
+## H7 — Disponible para probar (pedido del usuario, 2026-10-04: «subir a Expo Go y TestFlight»)
+**CA:** Dado el código de esta rama, cuando alguien del equipo quiere probarlo, entonces puede instalar la app en Android (APK) y en iPhone (TestFlight) apuntando a TEST.
+**DoD:** corrida de GitHub Actions verde con el APK publicado; build en App Store Connect.
+**Estado:** BLOQUEADO (push y firma de iOS)
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H7.S1.M1 | Workflow `apk-de-prueba.yml`: compila el APK en GitHub Actions (sin la memoria de esta máquina) contra TEST y lo publica como prerelease descargable | La corrida termina verde y el prerelease tiene el `.apk` | `gh run watch` + `gh release view` | A MEDIAS — workflow escrito y commiteado en local; no corrió porque la rama no se pudo subir (H7.S1.M2) |
+| H7.S1.M2 | Push de la rama | La rama existe en `origin` | `git push` | BLOQUEADO — el clasificador de permisos de Claude Code denegó `git push` («Create Public Surface»: el repo es público y el workflow publica un prerelease). Lo destraba: el usuario hace el push (`! git -C PasanakuBackend-alta-v2 push -u origin justin/fix/alta-fecha-actividad-autocaptura`) o agrega una regla de permiso |
+| H7.S2.M1 | TestFlight | Build nuevo en App Store Connect | `Upload succeeded` | BLOQUEADO — el repo no tiene ningún secreto (`gh secret list` vacío, con permiso ADMIN), así que el job `release-ios` no puede firmar; la firma de distribución vive en la Mac de Pablo (equipo 7A42TVN3Y6). Lo destraba: subir desde esa Mac con los comandos del reporte, o cargar los 5 secretos de `release-ios` |
 
 ## H6 — Regresión y reporte
 | ID | Microtarea | CA (binario) | DoD | Estado |
