@@ -1,4 +1,4 @@
-> **AVANCE: 44 / 89 — 49,4 %.** En rojo: 31 microtareas BLOQUEADAS (la mayoría por decisiones de autorización, modelo o contrato; el resto por entorno), 10 A MEDIAS. **CU-10, CU-12 y CU-20 siguen sin completarse**: la última capa (B28) son triggers que leen tablas de otros esquemas con el rol que los dispara. La app llegó a arrancar en el emulador, pero sin capturas de pantallas de uso: el sistema detuvo el emulador y el recompilado por memoria crítica.
+> **AVANCE: 49 / 95 — 51,6 %.** En rojo: 29 microtareas BLOQUEADAS (decisiones de autorización, modelo o contrato; algunas de entorno), 13 A MEDIAS. Tras el parche B28 y el relanzamiento sobre base limpia: **0 respuestas 5xx** en `campania-todo-relanzada-3.txt`; CU-10 (acreditar), CU-12 (transferir y por alias), CU-60/61 (sorteo y verificación pública) y el voto de acuerdos pasan en runtime. Siguen sin pasar: CU-20 (licencia EN_TRAMITE), CU-64 positivo (CU-68 stub), CU-74 (nadie tiene SOPORTE), CU-11, B15/B5.
 
 # Reporte — Campaña E2E de los casos de uso principales + correcciones (API real + backoffice real)
 
@@ -24,6 +24,15 @@ Con tu autorización se corrigieron, además de B6 y B7 (secuencias y `digest` d
 | B10 | La cotización del retiro enviaba `referenciaTipo: OPERACION`; ahora `ORDEN_RETIRO` | el retiro cotiza y pide el segundo factor |
 | B16 | `TRASPASO_CUPO` se vota como `ADMISION_REEMPLAZO` (decisión tuya) y CU-64 valida que el acuerdo exista, sea del grupo, del tipo y esté `APROBADO` | `proponerAcuerdo` → 201 |
 | B25 | `comprometerSorteo` devuelve la semilla (campo aditivo del contrato) | comprometer 201 → revelar 200 `verificado: true`, 3 turnos creados |
+
+## Ronda H7 — cuenta desechable, backoffice, app y relanzamiento (2026-10-03/04)
+- **Cuenta desechable** `+59171000195` (sintética): alta 202, 3 fotos sintéticas 201, aprobada en la pantalla real del backoffice (`h7-bo-01..03`, `h7-aprobacion-sql.txt`: `APROBADA | t`). No puede entrar (B32: `usuario.estado` sigue `PENDIENTE_VERIFICACION` y el dispositivo nuevo exige un factor que no se puede enrolar).
+- **Corregido y probado:** B30 (cola de verificaciones del backoffice vacía por valores de enum), B31 (la app no entendía el 422 `AP-CU04-03`; `flutter test` 6/6), B28 aplicado (`SECURITY DEFINER` en las funciones de regla entre esquemas), B26 y B22 (aplicados por el usuario; web tests de `grupos` en verde), B34 (destino de transferencia y contador de límites con rol de sistema acotado), B21 y B21b (traspaso a participante, motivo codificado `VENTA` — supuesto a confirmar).
+- **App en el emulador** con USR000001 y código de desarrollo: login, inicio (estado vacío correcto), recarga Bs 50 (201, orden PENDIENTE), extracto vacío (`h7-app-03…12`). La pestaña Grupos muestra «No encontramos lo que buscabas» porque `aportes` devuelve 404 cuando no hay obligaciones: la app debería mostrar un estado vacío (B36, no corregido).
+- **Pendiente de decisión:** B32, B33 (repetir la acreditación con la misma clave da 422 en vez de reproducir el 200), B35, CU-68 (aceptar miembro), licencia para CU-20, SOPORTE para CU-74.
+- **Evidencia nueva:** `h7-*`, `campania-todo-relanzada*.txt`, `h5-sorteo-relanzado.txt`, `bo_aprobar_cuenta.mjs`.
+- **No cubierto:** tests de integración contra base real de los cambios de `nucleo-financiero`/`grupos` (cubiertos en runtime), `ng test` del spec `cu02-expedientes`, modo claro/oscuro de las pantallas de la app, B15/B5, CU-11.
+- **Procesos que quedan corriendo:** stack Docker completo (todos los servicios + postgres/redis/kafka/minio), emulador `pasanaku` headless.
 
 ## Ronda H6 — bloque RLS / libro / permuta / app (autorizada por el usuario)
 
