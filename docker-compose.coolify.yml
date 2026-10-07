@@ -34,6 +34,13 @@ services:
     image: aportaya/esquema:test
     pull_policy: never
     restart: "no"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256m
+    cpus: "0.25"
+    mem_limit: 256m
     environment:
       PGHOST: postgres
       PGPORT: "5432"
@@ -47,6 +54,14 @@ services:
     image: aportaya/gateway:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    cpus: "0.5"
+    mem_limit: 512m
     environment:
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
     healthcheck:
@@ -61,6 +76,14 @@ services:
     image: aportaya/aportes:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    cpus: "0.5"
+    mem_limit: 512m
     read_only: true
     tmpfs:
       - /tmp
@@ -73,6 +96,8 @@ services:
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "0"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
       interval: 10s
@@ -85,6 +110,14 @@ services:
     image: aportaya/auditoria:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    cpus: "0.5"
+    mem_limit: 512m
     read_only: true
     tmpfs:
       - /tmp
@@ -97,6 +130,8 @@ services:
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "0"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
       interval: 10s
@@ -109,6 +144,14 @@ services:
     image: aportaya/cumplimiento:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    cpus: "0.5"
+    mem_limit: 512m
     read_only: true
     tmpfs:
       - /tmp
@@ -122,6 +165,8 @@ services:
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "0"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
       interval: 10s
@@ -134,6 +179,14 @@ services:
     image: aportaya/entregas:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    cpus: "0.5"
+    mem_limit: 512m
     read_only: true
     tmpfs:
       - /tmp
@@ -156,6 +209,8 @@ services:
       SEGURIDAD_PIMIENTA: ${SEGURIDAD_PIMIENTA}
       URL_IDENTIDAD: http://identidad:8080
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "0"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
       interval: 10s
@@ -168,6 +223,14 @@ services:
     image: aportaya/erp:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    cpus: "0.5"
+    mem_limit: 512m
     read_only: true
     tmpfs:
       - /tmp
@@ -188,6 +251,8 @@ services:
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "0"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
       interval: 10s
@@ -200,6 +265,14 @@ services:
     image: aportaya/garantia:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    cpus: "0.5"
+    mem_limit: 512m
     read_only: true
     tmpfs:
       - /tmp
@@ -220,6 +293,8 @@ services:
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "0"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
       interval: 10s
@@ -232,6 +307,14 @@ services:
     image: aportaya/grupos:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    cpus: "0.5"
+    mem_limit: 512m
     read_only: true
     tmpfs:
       - /tmp
@@ -260,6 +343,8 @@ services:
       URL_TARIFAS: http://tarifas:8080
       URL_TRANSPARENCIA: http://transparencia:8080
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "0"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
       interval: 10s
@@ -272,6 +357,14 @@ services:
     image: aportaya/identidad:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    cpus: "0.5"
+    mem_limit: 512m
     read_only: true
     tmpfs:
       - /tmp
@@ -290,6 +383,8 @@ services:
       KAFKA_URL: kafka:9092
       SEGURIDAD_PIMIENTA: ${SEGURIDAD_PIMIENTA}
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "0"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
       interval: 10s
@@ -302,6 +397,14 @@ services:
     image: aportaya/notificaciones:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    cpus: "0.5"
+    mem_limit: 512m
     read_only: true
     tmpfs:
       - /tmp
@@ -323,6 +426,8 @@ services:
       KAFKA_URL: kafka:9092
       WEBHOOK_SECRETO: ${WEBHOOK_SECRETO}
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "0"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
       interval: 10s
@@ -335,6 +440,14 @@ services:
     image: aportaya/nucleo-financiero:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    cpus: "0.5"
+    mem_limit: 512m
     read_only: true
     tmpfs:
       - /tmp
@@ -359,6 +472,8 @@ services:
       URL_GRUPOS: http://grupos:8080
       URL_TARIFAS: http://tarifas:8080
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "0"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
       interval: 10s
@@ -371,6 +486,14 @@ services:
     image: aportaya/organizador:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    cpus: "0.5"
+    mem_limit: 512m
     read_only: true
     tmpfs:
       - /tmp
@@ -391,6 +514,8 @@ services:
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "0"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
       interval: 10s
@@ -403,6 +528,14 @@ services:
     image: aportaya/publicidad:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    cpus: "0.5"
+    mem_limit: 512m
     read_only: true
     tmpfs:
       - /tmp
@@ -423,6 +556,8 @@ services:
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "0"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
       interval: 10s
@@ -435,6 +570,14 @@ services:
     image: aportaya/tarifas:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    cpus: "0.5"
+    mem_limit: 512m
     read_only: true
     tmpfs:
       - /tmp
@@ -456,6 +599,8 @@ services:
       KAFKA_URL: kafka:9092
       SIN_NIT_EMISOR: ${SIN_NIT_EMISOR}
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "0"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
       interval: 10s
@@ -468,6 +613,14 @@ services:
     image: aportaya/transparencia:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    cpus: "0.5"
+    mem_limit: 512m
     read_only: true
     tmpfs:
       - /tmp
@@ -491,6 +644,8 @@ services:
       KAFKA_URL: kafka:9092
       URL_GRUPOS: http://grupos:8080
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "0"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
       interval: 10s
