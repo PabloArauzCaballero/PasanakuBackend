@@ -24,6 +24,14 @@ services:
     image: aportaya/backoffice:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256m
+    cpus: "0.25"
+    mem_limit: 256m
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1"]
       interval: 15s

@@ -200,6 +200,13 @@ services:
     image: aportaya/esquema:test
     pull_policy: never
     restart: "no"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256m
+    cpus: "0.25"
+    mem_limit: 256m
     environment:
       PGHOST: postgres
       PGPORT: "5432"
@@ -213,6 +220,14 @@ services:
     image: aportaya/gateway:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    cpus: "0.5"
+    mem_limit: 512m
     environment:
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
     healthcheck:
@@ -246,6 +261,14 @@ TEXTO_DE_LOS_FRONTS = """
     image: aportaya/backoffice:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256m
+    cpus: "0.25"
+    mem_limit: 256m
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1"]
       interval: 15s
@@ -258,6 +281,14 @@ TEXTO_DE_LOS_FRONTS = """
     image: aportaya/web:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    cpus: "0.5"
+    mem_limit: 512m
     environment:
       # La MISMA dirección relativa que usa el navegador, a propósito: el servidor la
       # resuelve contra sí mismo y sale por su propio reenvío de /api (abajo). Con una
@@ -286,6 +317,14 @@ TEXTO_DE_LOS_FRONTS = """
     image: aportaya/movil-web:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256m
+    cpus: "0.25"
+    mem_limit: 256m
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1"]
       interval: 15s
@@ -341,6 +380,14 @@ BLOQUE_DESPLEGADO = """  {nombre}:
     image: aportaya/{nombre}:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: \"{cpus}\"
+          memory: {memoria}
+    cpus: \"{cpus}\"
+    mem_limit: {memoria}
     read_only: true
     tmpfs:
       - /tmp
@@ -356,6 +403,17 @@ BLOQUE_DESPLEGADO = """  {nombre}:
       start_period: 60s
     networks: [interna]
 """
+
+
+def recursos_de(servicio):
+    """Lee el presupuesto declarado para Kubernetes y lo convierte a Compose."""
+    ruta = SERVICIOS / servicio / "descriptor.yml"
+    texto = ruta.read_text(encoding="utf-8")
+    memoria = re.search(r"^  memoria:\s*(\d+)Mi(?:\s+#.*)?\s*$", texto, re.M)
+    cpu = re.search(r"^  cpu:\s*(\d+)m(?:\s+#.*)?\s*$", texto, re.M)
+    if not memoria or not cpu:
+        raise ValueError(f"{ruta}: recursos.memoria/cpu no se pueden traducir a Compose")
+    return f"{int(cpu.group(1)) / 1000:.3f}".rstrip("0").rstrip("."), f"{memoria.group(1)}m"
 
 
 # Arranque en OLAS de a cuatro, no los catorce a la vez. Arrancar una JVM de Spring es
@@ -430,8 +488,14 @@ def main():
             # trae el segundo factor de desarrollo —codigo fijo— y esa es
             # exactamente la clase de decision que no se hornea en el repositorio.
             lineas.append("      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}")
+            # TEST mantiene una réplica y un pool pequeño por servicio. Las réplicas
+            # de producción y sus pools siguen definidos por descriptor.yml/Kubernetes.
+            lineas.append("      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: \"5\"")
+            lineas.append("      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: \"0\"")
+            cpus, memoria = recursos_de(servicio)
             bloques.append(BLOQUE_DESPLEGADO.format(
-                nombre=servicio, ambiente="\n".join(lineas), dependencias=dependencias_de(servicio, servicios)))
+                nombre=servicio, ambiente="\n".join(lineas), dependencias=dependencias_de(servicio, servicios),
+                cpus=cpus, memoria=memoria))
         else:
             # El perfil `local` enciende el simulador de pagos y la mensajeria
             # simulada, que son los defaults del contrato de implementacion.
