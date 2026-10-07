@@ -1,0 +1,57 @@
+# Patrones versionados para scripts/auditoria/detectar_cambios.py.
+# El mapa es intencionalmente conservador: un cambio compartido activa más gates.
+categories:
+  backend-core:
+    - build.gradle.kts
+    - settings.gradle.kts
+    - gradle.properties
+    - settings-gradle.lockfile
+    - gradlew*
+    - buildSrc/**
+    - gradle/**
+    - bd/**
+    - plataforma/**
+    - scripts/**
+    - docs/CasosDeUso/**
+    - docs/Seguridad.md
+  backend-service:
+    - servicios/**
+  database:
+    - sql/**
+    - seeders/**
+    - docs/entidades/**
+  contracts:
+    - servicios/*/src/main/resources/openapi/**
+    - clientes/**
+    - postman/**
+  frontend-web:
+    - apps/web/**
+    - landing/**
+  frontend-backoffice:
+    - apps/backoffice/**
+  frontend-mobile:
+    - apps/movil/**
+  shared-packages:
+    - packages/**
+  infra:
+    - despliegue/**
+    - docker-compose*
+    - .github/**
+    - .dockerignore
+    - .gitleaksignore
+    - .gitignore
+  docs:
+    - docs/**
+    - planes/**
+    - entregables/**
+    - evidencia/**
+    - README.md
+    - README.*.md
+  dependencies:
+    - gradle/libs.versions.toml
+    - '**/gradle.lockfile'
+    - package.json
+    - '**/package.json'
+    - yarn.lock
+    - '**/pubspec.yaml'
+    - '**/pubspec.lock'
