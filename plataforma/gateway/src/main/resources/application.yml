@@ -40,4 +40,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus
+        # Prometheus no se expone mientras no exista un puerto/credencial de scrape
+        # aislado. El gateway no carga Spring Security; publicar este endpoint en 8080
+        # lo dejaría accesible desde el dominio público de la API.
+        include: health,info
