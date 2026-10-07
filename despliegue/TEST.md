@@ -23,7 +23,7 @@ servicios, el trabajo de esquema y los tres fronts. El compose es
 `python3 scripts/generar_compose.py --coolify` del mismo barrido de `servicios/` que el
 compose local, para que no diverjan.
 
-**Fuera de Coolify**, en `/opt/aportaya/` del VPS: PostgreSQL, PgBouncer, MinIO y Kafka.
+**Fuera de Coolify**, en `/opt/aportaya/` del VPS: PostgreSQL, PgBouncer, MinIO, Redis y Kafka.
 Coolify recrea la aplicación entera en cada despliegue, y la base, el pool de conexiones,
 el almacén de archivos y el broker no pueden reiniciarse cada vez que alguien empuja.
 
