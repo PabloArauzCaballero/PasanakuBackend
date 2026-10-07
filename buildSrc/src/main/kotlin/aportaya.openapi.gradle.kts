@@ -39,7 +39,7 @@ val generarServidor = tasks.register<GenerateTask>("generarServidorOpenApi") {
     description = "Interfaz de servidor de $servicio desde su OpenAPI"
     generatorName.set("spring")
     inputSpec.set(rutaDelContrato)
-    outputDir.set(servidor.map { it.asFile.absolutePath })
+outputDir.set(servidor)
     apiPackage.set("bo.aportaya.$paquete.web.generado")
     modelPackage.set("bo.aportaya.$paquete.web.generado.modelo")
     configOptions.set(
@@ -69,7 +69,7 @@ val generarClienteAngular = tasks.register<GenerateTask>("generarClienteAngular"
     description = "Cliente Angular de $servicio para apps/backoffice y apps/web"
     generatorName.set("typescript-angular")
     inputSpec.set(rutaDelContrato)
-    outputDir.set(clienteAngular.asFile.absolutePath)
+    outputDir.set(clienteAngular)
     configOptions.set(
         mapOf(
             "providedInRoot" to "true",
@@ -88,7 +88,7 @@ val generarClienteDart = tasks.register<GenerateTask>("generarClienteDart") {
     description = "Cliente Dart (dio) de $servicio para apps/movil"
     generatorName.set("dart-dio")
     inputSpec.set(rutaDelContrato)
-    outputDir.set(clienteDart.asFile.absolutePath)
+    outputDir.set(clienteDart)
     additionalProperties.set(
         mapOf(
             "pubName" to "aportaya_cliente_${paquete}",
