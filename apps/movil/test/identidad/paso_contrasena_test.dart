@@ -1,3 +1,4 @@
+import 'package:aportaya_movil/dominio/cliente.dart';
 import 'package:aportaya_movil/pantallas/identidad/dominio/estado_alta.dart';
 import 'package:aportaya_movil/pantallas/identidad/pasos_alta/paso_contrasena.dart';
 import 'package:aportaya_diseno/tema.dart';
@@ -16,8 +17,20 @@ import '../comun.dart';
 /// afuera.
 void main() {
   Future<ProviderContainer> montar(WidgetTester tester) async {
-    // Este paso no toca la red ni el llavero: solo lee y escribe el estado del alta.
-    final contenedor = ProviderContainer(retry: (r, e) => null);
+    final (:dio, :adaptador) = dioSimulado();
+    adaptador.onPost(
+      '/usuarios/verificaciones/correo',
+      (s) => s.reply(202, {
+        'verificacionId': 'dddddddd-0000-4000-8000-000000000003',
+        'destinoEnmascarado': 'ro***@example.com',
+        'expiraEn': '2026-10-07T20:10:00Z',
+      }),
+      data: Matchers.any,
+    );
+    final contenedor = ProviderContainer(
+      retry: (r, e) => null,
+      overrides: [dioProvider.overrideWithValue(dio)],
+    );
     addTearDown(contenedor.dispose);
     // Los datos personales ya cargados: la política rechaza claves derivadas de ellos
     // y sin esto no habría contra qué comprobarlo.
@@ -29,6 +42,7 @@ void main() {
             apellidos: 'Quispe',
             telefono: '+59178123456',
             numeroDocumento: '1234567',
+            correo: 'rosa@example.com',
           ),
         );
     // El asistente parado donde corresponde: montar el paso sin mover el estado haría
@@ -62,7 +76,7 @@ void main() {
     await tester.enterText(campos.at(1), repetida);
     await tester.pump();
     await tester.tap(find.text('Continuar'));
-    await tester.pump();
+    await asentar(tester);
   }
 
   testWidgets('una clave de ocho o más, repetida bien, avanza de paso', (

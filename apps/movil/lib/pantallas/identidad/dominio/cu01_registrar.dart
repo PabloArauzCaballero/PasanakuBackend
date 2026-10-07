@@ -30,9 +30,13 @@ class Registro {
     required String? lugarExpedicion,
     required String correo,
     required String canalVerificacion,
+    required String? verificacionCorreoId,
     required String contrasena,
     required List<String> contratosAceptados,
   }) async {
+    if (verificacionCorreoId == null) {
+      throw const VerificacionCorreoFaltante();
+    }
     try {
       final r = await DefaultApi(_ref.read(dioProvider)).registrarUsuario(
         idempotencyKey: _ref
@@ -43,7 +47,8 @@ class Registro {
           nombres: nombres,
           apellidos: apellidos,
           fechaNacimiento: fechaNacimiento,
-          correo: correo.isEmpty ? null : correo,
+          correo: correo,
+          verificacionCorreoId: verificacionCorreoId,
           canalVerificacion: EntradaRegistroCanalVerificacionEnum.values
               .firstWhere((e) => e.value == canalVerificacion),
           documento: Documento(
@@ -86,3 +91,10 @@ class AltaCreada {
 }
 
 final registroProvider = Provider<Registro>(Registro.new);
+
+class VerificacionCorreoFaltante implements Exception {
+  const VerificacionCorreoFaltante();
+
+  @override
+  String toString() => 'Confirma el codigo de tu correo antes de crear la cuenta.';
+}

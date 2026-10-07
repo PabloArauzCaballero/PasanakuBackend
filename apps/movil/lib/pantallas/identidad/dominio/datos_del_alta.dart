@@ -10,7 +10,7 @@ class DatosPersonales {
     this.numeroDocumento = '',
     this.lugarExpedicion,
     this.correo = '',
-    this.canalVerificacion = 'SMS',
+    this.canalVerificacion = 'CORREO',
   });
   final String nombres;
   final String apellidos;
@@ -24,12 +24,10 @@ class DatosPersonales {
   /// documento y la segunda no puede abrir cuenta.
   final String? lugarExpedicion;
 
-  /// Adonde van los comprobantes y el extracto, y el destino posible de la
-  /// verificación si se elige el correo en vez del SMS.
+  /// Adonde llega el código de alta y luego los comprobantes y el extracto.
   final String correo;
 
-  /// `SMS` o `CORREO`. No son dos formas de lo mismo: cada uno confirma un contacto
-  /// distinto, con su propio propósito en el catálogo de tokens.
+  /// Canal de verificación del alta. Actualmente solo admite `CORREO`.
   final String canalVerificacion;
 
   DatosPersonales copiarCon({

@@ -5,9 +5,11 @@ import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.CU02RevisarExpediente;
 import bo.aportaya.identidad.aplicacion.CU04Autenticar;
+import bo.aportaya.identidad.aplicacion.ConfirmarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.EmitirAcceso;
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.ValidarTokenDeInvitacion;
+import bo.aportaya.identidad.aplicacion.SolicitarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.SabanaDeSeguridadWeb;
@@ -49,6 +51,12 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private CU01RegistrarUsuario cu01RegistrarUsuario;
+
+    @MockitoBean
+    private SolicitarVerificacionCorreo solicitarVerificacionCorreo;
+
+    @MockitoBean
+    private ConfirmarVerificacionCorreo confirmarVerificacionCorreo;
 
     @MockitoBean
     private CU04Autenticar cu04Autenticar;

@@ -4,10 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../textos.dart';
 
-/// **Por dónde llega la verificación.** No son dos formas de lo mismo: el SMS
-/// confirma el celular y el correo confirma el correo, con propósitos distintos en el
-/// catálogo de tokens. Lo que se elige acá es cuál de los dos contactos se confirma
-/// primero; el otro queda para después, desde el perfil.
+/// Muestra el canal de verificación habilitado para el alta: correo.
 class CanalDeVerificacion extends StatelessWidget {
   const CanalDeVerificacion({
     super.key,
@@ -33,7 +30,6 @@ class CanalDeVerificacion extends StatelessWidget {
         SelectorSegmentado<String>(
           valor: valor,
           opciones: const {
-            'SMS': TextosIdentidad.canalSms,
             'CORREO': TextosIdentidad.canalCorreo,
           },
           onChanged: onElegido,

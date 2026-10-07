@@ -20,6 +20,54 @@ servers:
   - url: /api/v1
 
 paths:
+  /usuarios/verificaciones/correo:
+    post:
+      operationId: solicitarVerificacionCorreo
+      summary: Enviar el codigo que confirma el correo del alta
+      description: >-
+        Genera un OTP de seis digitos, guarda solamente su hash y lo envia al correo.
+        La respuesta nunca incluye el codigo. Ruta publica porque ocurre antes de que
+        exista la cuenta.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SolicitudVerificacionCorreo' }
+      responses:
+        '202':
+          description: Codigo aceptado para envio
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VerificacionCorreoSolicitada' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /usuarios/verificaciones/correo/{verificacionId}/confirmacion:
+    post:
+      operationId: confirmarVerificacionCorreo
+      summary: Confirmar el codigo recibido por correo
+      description: >-
+        Consume el codigo si coincide, sigue vigente y conserva intentos. Un codigo
+        incorrecto nunca confirma el correo y suma un intento fallido.
+      parameters:
+        - name: verificacionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConfirmacionVerificacionCorreo' }
+      responses:
+        '200':
+          description: Correo confirmado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VerificacionCorreoConfirmada' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
   /usuarios:
     post:
       operationId: registrarUsuario          # CU-01
@@ -391,6 +439,33 @@ components:
         seguro, y la clave se valida ANTES de escribir (invariante 7).
       schema: { type: string, format: uuid }
   schemas:
+    SolicitudVerificacionCorreo:
+      type: object
+      additionalProperties: false
+      required: [correo]
+      properties:
+        correo: { type: string, format: email, maxLength: 150 }
+    VerificacionCorreoSolicitada:
+      type: object
+      additionalProperties: false
+      required: [verificacionId, destinoEnmascarado, expiraEn]
+      properties:
+        verificacionId: { type: string, format: uuid }
+        destinoEnmascarado: { type: string }
+        expiraEn: { type: string, format: date-time }
+    ConfirmacionVerificacionCorreo:
+      type: object
+      additionalProperties: false
+      required: [correo, codigo]
+      properties:
+        correo: { type: string, format: email, maxLength: 150 }
+        codigo: { type: string, pattern: '^\d{6}$' }
+    VerificacionCorreoConfirmada:
+      type: object
+      additionalProperties: false
+      required: [verificada]
+      properties:
+        verificada: { type: boolean }
     UsuarioEncontrado:
       type: object
       additionalProperties: false
@@ -591,7 +666,7 @@ components:
     EntradaRegistro:
       type: object
       additionalProperties: false      # strict(): lista blanca, no lista negra
-      required: [telefonoE164, nombres, apellidos, fechaNacimiento, documento, aceptaContratos, contrasena]
+      required: [telefonoE164, nombres, apellidos, fechaNacimiento, correo, documento, aceptaContratos, contrasena, verificacionCorreoId]
       properties:
         telefonoE164:    { type: string, pattern: '^\+591\d{8}$' }
         nombres:         { type: string, minLength: 2, maxLength: 60 }
@@ -615,20 +690,22 @@ components:
           format: email
           maxLength: 150
           description: >-
-            Opcional en el contrato y pedido por la app. Una billetera manda extractos
-            y comprobantes, y ese es su destino; ademas es lo que permite elegir el
-            correo como canal de verificacion en vez del SMS.
+            Correo que se confirma antes del alta y que luego recibe extractos y
+            comprobantes de la billetera.
+        verificacionCorreoId:
+          type: string
+          format: uuid
+          description: >-
+            Verificacion de correo ya confirmada. Debe corresponder al mismo correo y
+            se vincula al usuario dentro de la transaccion del alta.
         canalVerificacion:
           type: string
-          enum: [SMS, CORREO]
+          enum: [CORREO]
           # Sin `default`: el generador de Dart lo traduce a instanciar un enum, que
           # no es Dart valido y rompe el cliente. La ausencia la resuelve el servicio,
-          # que trata `null` como SMS — y asi hay un solo lugar que decide.
+          # que trata `null` como CORREO — y asi hay un solo lugar que decide.
           description: >-
-            Por donde quiere recibir la verificacion quien se registra. No son dos
-            formas de lo mismo: `SMS` verifica el TELEFONO y `CORREO` verifica el
-            CORREO —dos propositos distintos del catalogo de tokens, con su propia
-            vigencia y sus propios canales permitidos—. Elegir `CORREO` exige `correo`.
+            El alta confirma el correo mediante un codigo de uso unico.
         documento:       { $ref: '#/components/schemas/Documento' }
         aceptaContratos:
           type: array

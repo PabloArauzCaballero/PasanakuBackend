@@ -91,7 +91,7 @@ class TextosIdentidad {
       'documento: si no coinciden, la verificación se frena.';
   static const pasoDatos = 'Tus datos';
   static const pasoContrasena = 'Tu contraseña';
-  static const pasoCelular = 'Confirmar celular';
+  static const pasoCelular = 'Confirmar correo';
   static const pasoAnverso = 'Documento (anverso)';
   static const pasoReverso = 'Documento (reverso)';
   static const pasoPruebaDeVida = 'Prueba de vida';
@@ -108,7 +108,10 @@ class TextosIdentidad {
   static const codigoPorSms = 'Te enviamos un código por SMS al';
   static const codigoPorCorreo = 'Te enviamos un código al correo';
   static const codigoNoLlega =
-      '¿No te llega? Volvé al paso anterior y cambiá por dónde querés recibirlo.';
+      'El código dura 10 minutos. Si no llega, pedí una combinación nueva.';
+  static const reenviarCodigo = 'Enviar una combinación nueva';
+  static const enviandoCodigo = 'Enviando código...';
+  static const verificandoCodigo = 'Comprobando código...';
   static const capturarAnverso = 'Fotografiá el frente de tu documento';
   static const capturarReverso = 'Fotografiá el reverso de tu documento';
   static const capturarSelfie = 'Mirá a la cámara y no te muevas';
