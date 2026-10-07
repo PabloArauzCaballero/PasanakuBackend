@@ -15,77 +15,77 @@ packages:
       path: "../../clientes/dart/aportes"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "1.0.0"
   aportaya_cliente_cumplimiento:
     dependency: "direct main"
     description:
       path: "../../clientes/dart/cumplimiento"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "1.0.0"
   aportaya_cliente_entregas:
     dependency: "direct main"
     description:
       path: "../../clientes/dart/entregas"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "1.0.0"
   aportaya_cliente_garantia:
     dependency: "direct main"
     description:
       path: "../../clientes/dart/garantia"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "1.0.0"
   aportaya_cliente_grupos:
     dependency: "direct main"
     description:
       path: "../../clientes/dart/grupos"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "1.0.0"
   aportaya_cliente_identidad:
     dependency: "direct main"
     description:
       path: "../../clientes/dart/identidad"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "1.0.0"
   aportaya_cliente_notificaciones:
     dependency: "direct main"
     description:
       path: "../../clientes/dart/notificaciones"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "1.0.0"
   aportaya_cliente_nucleofinanciero:
     dependency: "direct main"
     description:
       path: "../../clientes/dart/nucleo-financiero"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "1.0.0"
   aportaya_cliente_organizador:
     dependency: "direct main"
     description:
       path: "../../clientes/dart/organizador"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "1.0.0"
   aportaya_cliente_tarifas:
     dependency: "direct main"
     description:
       path: "../../clientes/dart/tarifas"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "1.0.0"
   aportaya_cliente_transparencia:
     dependency: "direct main"
     description:
       path: "../../clientes/dart/transparencia"
       relative: true
     source: path
-    version: "0.0.0"
+    version: "1.0.0"
   aportaya_diseno:
     dependency: "direct main"
     description:
