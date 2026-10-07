@@ -70,7 +70,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-      - uses: gradle/actions/setup-gradle@v5
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: 1 · toolchain Java 21
         run: ./gradlew --version
@@ -202,7 +202,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-      - uses: gradle/actions/setup-gradle@v5
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: 12 · generateOpenApiClients — Angular y Dart, sin error y sin salir vacíos
         run: |
@@ -223,7 +223,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-      - uses: gradle/actions/setup-gradle@v5
+      - uses: gradle/actions/setup-gradle@v6
       - uses: actions/setup-node@v7
         with:
           node-version: "22"
@@ -706,7 +706,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-      - uses: gradle/actions/setup-gradle@v5
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: 0 · el esquema, que es lo que jOOQ introspecciona
         env:
@@ -775,7 +775,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-      - uses: gradle/actions/setup-gradle@v5
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: 0 · el esquema, que es lo que jOOQ introspecciona
         env:
@@ -890,7 +890,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-      - uses: gradle/actions/setup-gradle@v5
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: 0 · el esquema, que es lo que jOOQ introspecciona
         env:
@@ -912,7 +912,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-      - uses: gradle/actions/setup-gradle@v5
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: 18 · e2eTest
         run: ./gradlew e2eTest
@@ -943,7 +943,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-      - uses: gradle/actions/setup-gradle@v5
+      - uses: gradle/actions/setup-gradle@v6
       - run: |
           set -e
           modulos="$(./gradlew -q projects | grep -oE "servicios:[a-z-]+|plataforma:gateway" | sort -u)"
