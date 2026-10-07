@@ -88,7 +88,11 @@ export class TiraDeFotos {
   readonly expediente = input.required<ExpedienteEnRevision>()
 
   protected readonly t = textosCumplimiento.verificaciones
-  protected readonly caras = Object.values(ExpedienteEnRevisionFotosEnum)
+  // `as string[]`: el doble ambiental (regla 65, `clientes/angular` no existe todavía)
+  // tipa el enum como `any`, y el chequeo de plantillas de Angular infiere `unknown` para
+  // la variable del `@for` sobre un origen `any` — esto solo fija el tipo del ÍNDICE que
+  // ya se usaba como string en el resto del archivo, no cambia qué caras se listan.
+  protected readonly caras = Object.values(ExpedienteEnRevisionFotosEnum) as string[]
   protected readonly abierto = signal(false)
   protected readonly url = signal<Partial<Record<ExpedienteEnRevisionFotosEnum, string>>>({})
   protected readonly fallo = signal<Partial<Record<ExpedienteEnRevisionFotosEnum, boolean>>>({})

@@ -1,13 +1,12 @@
 # Carril PR5 — CI y operación (Pablo, turno noche 2026-09-21)
 
-> **AVANCE: 44 / 54 — 81,5 %.** (+ 1 BLOQUEADO con causa autorizada por el encargo, + 1 BLOQUEADO
-> por decisión de negocio pendiente — H2.S5.M3 —, + 2 BLOQUEADOS estructurales — H2.S6.M5,
-> H5.S3.M4, por F-04/F-06/F-07 fuera de mi alcance —, + 3 A MEDIAS: H2.S1.M2, H2.S6.M2, H5.S3.M3)
-> **Estado:** `IN_PROGRESS`. PRs abiertos: [#1](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/1)
-> (estándar + spotless), [#2](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/2)
-> (micro-PR troncal: catálogo CycloneDX + Redis). Ninguno mergeado todavía — el clasificador de
-> permisos deniega `gh pr merge`; sigo trabajando sin esperar (regla 65), cada PR queda listo para
-> un clic.
+> **AVANCE: 49 / 54 — 90,7 %.** (5 sin cerrar: H2.S5.M3 `BLOQUEADO — DECISION_REQUIRED` (un comando
+> de Pablo); H2.S6.M2 y H5.S3.M3 `A MEDIAS`; H2.S6.M5 y H5.S3.M4 `BLOQUEADO` estructural.)
+> **Estado:** `IN_PROGRESS`. Actualizado 2026-09-24 (sesión de cierre, ver §"Cierre 2026-09-24").
+> PR #1 y #2 **fusionados** en `dev` (2026-09-22) y espejados en `test`. PR de cierre:
+> [#27](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/27), borrador, **apilado sobre #26**.
+> Recuento corregido: el encabezado anterior decía 8/12 en H1, pero la tabla "Microtareas HECHO"
+> ya tenía 10 filas de H1 con evidencia (44 → 46 por esa corrección, + 3 cerradas hoy = 49).
 
 Encargo: [repartos/2026-09-21/PromptNoche/Backend/Pablo/PR5-Ci.Operacion/CiRealSupplyChainBordeYCierre.md](../../../../../PasanakuPromptManager/repartos/2026-09-21/PromptNoche/Backend/Pablo/PR5-Ci.Operacion/CiRealSupplyChainBordeYCierre.md)
 (en el repo `PasanakuPromptManager`, no en este). Daily en el repo del estándar:
@@ -26,12 +25,38 @@ Encargo: [repartos/2026-09-21/PromptNoche/Backend/Pablo/PR5-Ci.Operacion/CiRealS
 
 | Hito | Microtareas | HECHO | Estado |
 |---|---:|---:|---|
-| H1 — Baseline global | 12 | 8 | EN CURSO (1 BLOQUEADO con causa) |
-| H2 — CI verde sin trampas | 20 | 16 | EN CURSO (2 A MEDIAS: S1.M2, S6.M2; 1 BLOQUEADO: S5.M3; 1 BLOQUEADO estructural: S6.M5 por F-04/F-06/F-07, fuera de mi alcance) |
+| H1 — Baseline global | 12 | 12 | **HECHO** — S2.M6 (`e2eTest`) y S3.M3 (desconocidos) cerrados el 2026-09-24 |
+| H2 — CI verde sin trampas | 20 | 17 | EN CURSO (S1.M2 HECHO el 2026-09-24; S6.M2 A MEDIAS; S5.M3 BLOQUEADO — DECISION_REQUIRED; S6.M5 BLOQUEADO estructural) |
 | H3 — Borde | 7 | 7 | **HECHO** — rate limiting, CORS y bloqueo de `/actuator` con evidencia real |
 | H4 — Carga medida | 3 | 3 | **HECHO** — 6 escenarios k6 reales, `transferencia.js` con baseline ×3 completo |
-| H5 — Runbooks, cierre | 12 | 10 | EN CURSO (S3.M3 A MEDIAS; S3.M4 BLOQUEADO estructural por F-04/F-06/F-07; S4.M1/M2/M3 HECHO) |
-| **TOTAL** | **54** | **44** | |
+| H5 — Runbooks, cierre | 12 | 10 | EN CURSO (S3.M3 A MEDIAS; S3.M4 BLOQUEADO estructural) |
+| **TOTAL** | **54** | **49** | |
+
+## Cierre 2026-09-24 — qué se cerró, qué se encontró y qué sigue abierto
+
+Rama `pablo/feature/carril-PR5-cierre`, apilada sobre #26 (`pablo/security/actualiza-dependencias-2026-09-23`):
+sin #26, el job `codigo` de `dev` está rojo (`testBarrido` de nucleo-financiero) y ningún job posterior
+corre. CI real: `workflow_dispatch` [36042014583](https://github.com/PabloArauzCaballero/PasanakuBackend/actions/runs/36042014583)
+y [36044781095](https://github.com/PabloArauzCaballero/PasanakuBackend/actions/runs/36044781095).
+
+| ID | Qué | Resultado |
+|---|---|---|
+| H2.S1.M2 | PR #1 fusionado en `dev` (`31991f9`) y presente en `test`; paso `2 · formato` (spotless) verde en `dev` (run 35923629830) | **HECHO** — [evidencia/H2-S1-M2-merge-espejo.txt](../evidencia/H2-S1-M2-merge-espejo.txt). El job `codigo` de ese run está rojo por `testBarrido` de nucleo-financiero (lo corrige #26), no por formato |
+| H1.S2.M6 | `e2eTest`: el único `*E2ETest` es `OutboxE2ETest`. Fallaba **también en el runner Linux**, así que F-Leo-06 no era ENVIRONMENT: `apache/kafka:3.9.0` aborta con la configuración de `KafkaContainer` (testcontainers 1.21.x). Aislado con `docker run`; fix: `apache/kafka:3.8.1` en `BaseDePrueba` | **HECHO** — PASS local (1/1) y PASS en CI (job `e2e-financiero`, run 36044781095, `BUILD SUCCESSFUL`) — [evidencia/H1-S2-M6-e2eTest.txt](../evidencia/H1-S2-M6-e2eTest.txt) |
+| H1.S3.M3 | Los 8 desconocidos §2.2 con comando y salida o enlace a la bitácora del carril dueño | **HECHO** — [baseline.md](../baseline.md) §Desconocidos, [evidencia/H1-S3-M3-desconocidos.txt](../evidencia/H1-S3-M3-desconocidos.txt) |
+| (CI) | Paso `16b · cobertura` en "Los cinco corredores": los pisos de ADR-026 no los corría ningún job | Corre; encontró F-08 (corregido) y F-09, y confirmó F-07 — [evidencia/H2-S6-M2-cobertura-ci.txt](../evidencia/H2-S6-M2-cobertura-ci.txt) |
+| (CI) | `.gitleaksignore`: el mismo fixture falso positivo reintroducido por `b2d91e7` | Paso `19b` verde en run 36044781095 |
+| F-06 | `comun-web` re-medido: líneas 0.744 / ramas 0.541 (pisos 0.57 / 0.47) | **CERRADO** 2026-09-24 (0.744/0.541) — [evidencia](../evidencia/F-06-comun-web-cobertura-cerrado.txt) |
+| F-08 | `comun-pruebas` 0.61/0.62 < 0.64: `Espera` sin prueba | **CORREGIDO** con `EsperaTest` (5 casos) → 0.70/0.73 — [evidencia/F-08-comun-pruebas-cobertura.txt](../evidencia/F-08-comun-pruebas-cobertura.txt) |
+| F-04 | Upgrade de dependencias por CVE | **Lo resuelve #26** (Boot 3.5.16, Cloud 2025.0.3, netty 4.1.138, bc 1.85.2; OSV Java en 0). El intento local de esta rama quedó superado y no se publicó |
+
+**Fuera de mi carril y declarado** (autorizado por Pablo el 2026-09-22 para llegar al 100 %):
+`plataforma/comun-pruebas` (imagen de Kafka y `EsperaTest`). No se tocó `servicios/**`.
+
+**Acción denegada en esta sesión:** aplicar `sql/aplicar.sql` en el Postgres local
+(`./gradlew bd:aplicar -x bd:levantar`) — el clasificador de permisos lo bloqueó. Sin esquema no hay
+`generateJooq` y no compila ningún servicio local, así que `verificarProduccion` completo y la
+cobertura de `identidad`/`aportes` solo se pudieron medir en CI.
 
 ## H3.S1 — resumen (rate limiting real con Redis)
 
@@ -156,11 +181,11 @@ Detalle completo: [evidencia/H5-S3-M1-revision-diff.md](../evidencia/H5-S3-M1-re
 | ID | Qué se logró | Resultado |
 |---|---|---|
 | H2.S1.M1 | `spotlessApply`, diff revisado a mano (7 archivos, solo formato) | PASS |
-| H2.S1.M2 | Commit, PR #1 abierto | **A MEDIAS** — falta el merge (humano, bloqueado por el clasificador) |
+| H2.S1.M2 | Commit, PR #1 fusionado (2026-09-22) y espejado en `test` | **HECHO** — ver §"Cierre 2026-09-24" |
 | H2.S2.M1 | Dependency locking + 15 `gradle.lockfile` commiteados | PASS local |
 | H2.S2.M2 | Job real `dependencias` (OSV-Scanner v2.6.0, reusable workflow) reemplaza el paso falso 19c | **Corrida real en CI**: escaneó, encontró vulnerabilidades reales, falló correctamente (`fail-on-vuln`) |
 | H2.S2.M3 | Prueba negativa (**desvío declarado**: evidencia real en vez de sintética — ver [evidencia/H2-S2-M3-osv-negativo.txt](../evidencia/H2-S2-M3-osv-negativo.txt)) | **PASS** — 1122 vulnerabilidades reales detectadas, job en rojo por diseño (`fail-on-vuln=true`) |
-| H2.S2.M4 | `.github/dependabot.yml` | **TODO** — no se hizo |
+| H2.S2.M4 | `.github/dependabot.yml` | **HECHO** — ver §H2.S6 (fila vieja corregida) |
 | H2.S3.M1/M2 | SBOM CycloneDX por módulo (plugin con versión literal, ver commit `8c6bc4d`), job + `upload-artifact` | PASS local (200 componentes, CycloneDX 1.6 válido); pendiente de una corrida de CI completa desde el fix |
 | H2.S4.M1 | Trivy real sobre `identidad:ci` (`aquasecurity/trivy-action@v0.36.0`) | Wireado; **encontró CRITICAL reales sin parche** (hallazgo F-04, bloqueante) |
 | H2.S4.M2 | Dockerfile por digest (2/2 etapas) | PASS (`grep -c "@sha256"` → 2) |
@@ -169,7 +194,7 @@ Detalle completo: [evidencia/H5-S3-M1-revision-diff.md](../evidencia/H5-S3-M1-re
 | H2.S5.M1 | `.github/CODEOWNERS` (provisional: solo 2 de 5 handles reales verificados) | PASS — `codeowners/errors` → `{"errors":[]}` real |
 | H2.S5.M2 | `docs/operacion/branch-protection.md` + 3 rulesets JSON, checks con nombre exacto (verificado contra una corrida real) | PASS |
 | H2.S5.M3 | Aplicar el ruleset mínimo | **BLOQUEADO — decisión/acción de Pablo**, un comando, ya documentado |
-| H2.S6 | E2E financiero, `verificarProduccion`, cablear boveda, grep de trampas, corrida completa verde | **TODO** — no se empezó |
+| H2.S6 | E2E financiero, `verificarProduccion`, cablear boveda, grep de trampas, corrida completa verde | Ver §H2.S6 (fila vieja corregida: M1/M3/M4 HECHO, M2 A MEDIAS, M5 BLOQUEADO) |
 
 **Bug que introduje y corregí en el camino:** el primer intento de H2.S3 (commit `c679c8e`)
 rompía la compilación de **todo** el monorepo (referenciaba una entrada del catálogo que solo
@@ -202,45 +227,40 @@ son trabajo de entorno necesario para poder ejecutar H1, no microtareas propias 
 
 ## A medias
 
-### H1.S2.M6 — `e2eTest` (BLOQUEADO, con causa explícitamente autorizada por el encargo)
+### H1.S2.M6 — `e2eTest` → **HECHO el 2026-09-24** (ver §"Cierre 2026-09-24")
 
-- **Qué anda:** el CA del encargo autoriza literalmente este resultado: "o `BLOCKED` con causa si
-  no hay imágenes construidas: seguí el README para construirlas de a una".
-- **Qué no anda:** solo existe la imagen `aportaya/gateway:local`; los otros 14 servicios no
-  tienen imagen construida en esta máquina, y construirlas una por una (14 builds de Gradle +
-  Docker, en serie por la regla 70.1.4) es varias horas de trabajo que no se intentaron todavía.
-- **Qué falta exactamente:** correr `docker build` por servicio siguiendo el README, luego
-  `./gradlew e2eTest` contra `compose --profile todo`.
-- **Dónde quedó:** nada escrito en disco para esto todavía; es la microtarea H1.S2.M6 sin tocar.
+### H5.S3.M3 — checkout limpio en worktree (actualizado 2026-09-24)
 
-### H5.S3.M3 — checkout limpio en worktree
+- **Qué anda:** worktree limpio desde `origin/dev` (`git worktree add … origin/dev`), Postgres/Kafka/Redis
+  desde cero (volumen nuevo), `comun-web` y `comun-pruebas` midiendo sobre su piso, `e2eTest` PASS
+  (local y CI). La corrida de 2026-09-22 (docker build `identidad` como `app`, Trivy local) sigue en
+  [evidencia/H5-S3-M3-checkout-limpio.txt](../evidencia/H5-S3-M3-checkout-limpio.txt).
+- **Qué no anda:** `./gradlew verificarProduccion` no llega a exit 0: (1) F-07 `identidad` y F-09
+  `aportes` bajo su piso de cobertura (medido en CI, run 36044781095); (2) sin #26, `testBarrido` de
+  nucleo-financiero rojo en `dev`.
+- **Qué falta exactamente:** fusionar #26; subir la cobertura de `identidad` (líneas 0.72→0.79, ramas
+  0.54→0.63) y de `aportes` (ramas 0.68→0.69); aplicar el esquema local (`./gradlew bd:aplicar -x
+  bd:levantar`, denegado a esta sesión) y correr `./gradlew verificarProduccion` en el worktree.
+- **Dónde quedó:** worktree `PasanakuBackend-pablo-pr5-cierre`, rama `pablo/feature/carril-PR5-cierre`,
+  compila y sus pruebas dirigidas pasan; PR #27.
 
-- **Qué anda:** `git worktree add ../pr-limpio e1656e1` (SHA final al momento de correrlo);
-  `docker compose --profile base up -d --wait` desde cero (volúmenes nuevos) → todos `Healthy`;
-  `sql/aplicar.sql` sobre base vacía → exit 0; `docker build` de `identidad` desde el worktree con
-  el mismo patrón que usa `ci.yml` → exit 0, `User: app` confirmado; Trivy local contra esa imagen
-  recién construida → corrió de punta a punta (32 hallazgos, 9 CRITICAL/23 HIGH — mismos CVE base
-  que F-04, más algunos nuevos por la base de datos de Trivy actualizándose sola, no por nada de
-  este carril).
-- **Qué no anda:** `./gradlew verificarProduccion` reprodujo el mismo `FAILED` que F-06
-  (`comun-web` jacoco) en un ambiente completamente limpio — confirma que el hallazgo es
-  determinista, no un artefacto de esta máquina en particular. `e2eTest` no se ejecutó: mismo
-  motivo ya autorizado en H1.S2.M6 (construir las 14 imágenes de servicio restantes es trabajo de
-  horas, no intentado en esta pasada).
-- **Qué falta exactamente:** que `plataforma/comun-web` (F-06) y `servicios/identidad` (F-07)
-  suban su cobertura para que `verificarProduccion` llegue a exit 0; construir las 14 imágenes de
-  servicio restantes para poder correr `e2eTest` de verdad.
-- **Dónde quedó:** worktree en `../pr-limpio` (fuera del repo principal, no comiteado — es
-  descartable); imagen `aportaya/identidad:checkout-limpio` en el Docker local. Evidencia completa
-  en [evidencia/H5-S3-M3-checkout-limpio.txt](../evidencia/H5-S3-M3-checkout-limpio.txt).
+### H2.S6.M2 — `verificarProduccion` (actualizado 2026-09-24)
+
+- **Qué anda:** la tarea existe (2026-09-22) y cada una de sus partes corre en verde en CI sobre esta rama
+  salvo la cobertura: spotless/check/testBarrido/compileJava/erroresCatalogo (job `codigo`), los cinco
+  corredores, boveda y seguridad (job `boveda`), SBOM (job `dependencias`).
+- **Qué no anda:** los pisos de ADR-026 en `identidad` (F-07) y `aportes` (F-09).
+- **Qué falta exactamente:** pruebas en `servicios/identidad` y `servicios/aportes` (carriles de Richard y
+  Marcelo); luego `./gradlew verificarProduccion` → exit 0 con el esquema aplicado.
+- **Dónde quedó:** paso `16b` en `ci.yml` (PR #27) — deja el rojo visible en CI en vez de solo en local.
 
 ## Bloqueado
 
 | ID | Qué bloquea | Qué intenté | Qué lo destraba | De quién depende |
 |---|---|---|---|---|
 | H2.S5.M3 | Crear el ruleset mínimo `proteccion-minima` (el agente no tiene permiso para modificar recursos compartidos del repo) | JSON y comando quedarán listos en `entregables/ruleset-minimo.json` | `gh api --method POST repos/PabloArauzCaballero/PasanakuBackend/rulesets --input entregables/ruleset-minimo.json` | Pablo — un comando |
-| H2.S1.M2 (parcial) | `gh pr merge` lo deniega el clasificador de permisos del agente ("Merge Without Review"), a diferencia de `gh pr create` que sí funciona | `gh pr merge 1 --rebase --delete-branch=false` | Pablo mergea el PR a mano: [PR #1](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/1) (`ci(security): instalar estandar y aplicar spotless`) | Pablo — un clic por PR |
-| H2.S6.M5 | Corrida completa de CI en verde (`gh run view --json jobs --jq '.jobs[].conclusion'` → solo `success`) | Corrida real disparada dos veces (PR y `workflow_dispatch`); los rojos son reales, no de configuración | Que F-04 (CVE sin parche) se resuelva con un upgrade autorizado y F-06/F-07 (cobertura de `comun-web` e `identidad`) suban su umbral | Dueños de esos módulos + quien apruebe el upgrade — ninguno soy yo, `servicios/**` y `plataforma/comun-*` están OUT en mi encargo |
+| (resuelto) H2.S1.M2 | — | — | PR #1 y #2 fusionados por Pablo el 2026-09-22 | — |
+| H2.S6.M5 | Corrida completa de CI en verde (`gh run view --json jobs --jq '.jobs[].conclusion'` → solo `success`) | 2026-09-24: `workflow_dispatch` 36042014583 y 36044781095 sobre esta rama apilada en #26 | #26 fusionado (barrido financiero, OSV); F-07/F-09 (cobertura); y los jobs iOS agregados por el carril de frontend (`App — integración en simulador iOS`, `Release iOS`), que #26 declara rojos y cuya firma exige secretos de TestFlight | Pablo (#26 y secretos), Richard (`identidad`), Marcelo (`aportes`), carril de frontend (iOS) |
 | H5.S3.M4 | CI verde en el SHA final | Mismo intento que H2.S6.M5 (es la misma corrida) | Mismo destrabe que H2.S6.M5 | Igual que arriba |
 
 **Esto cambia el ritual del encargo para el resto del turno:** el encargo asume que el agente
@@ -254,13 +274,16 @@ ninguna otra vía que rodee la revisión (seria ir en contra de la intención de
 
 | ID | Qué | A quién le pega | Estado |
 |---|---|---|---|
-| **F-04** | **Trivy real (H2.S4.M1) encontró CRITICAL sin parche disponible** en la imagen (`aportaya/gateway:local`, mismo BOM que `identidad:ci`): `netty-handler` `CVE-2026-75595` (SNI routing bypass), `bcprov-jdk18on` `CVE-2025-14813`, `spring-security-web` `CVE-2026-22732` (bypass de política de seguridad); más HIGH en `spring-expression` (`CVE-2026-41850`) y `netty-handler` (`CVE-2026-44249`). Arreglarlas exige subir Spring Boot/Spring Cloud/Netty — fuera de alcance de este turno (regla 00 §3, ningún upgrade no solicitado). Evidencia: [evidencia/H2-S4-M1-trivy-gateway-table.txt](../evidencia/H2-S4-M1-trivy-gateway-table.txt) | **`FINAL_REPORT.md` — bloquea `READY`** hasta que alguien decida parchear o justifique una excepción fechada en `.github/.trivyignore` | **ABIERTO — bloqueante** |
-| F-01 | `docs/auditoria-produccion/carriles/` y `evidencia/` estaban vacíos al arrancar: Richard, Justin, Leo y Marcelo todavía no publicaron su bitácora ni su baseline por módulo | H1.S3 (enlaces), H5.S4 (`FINAL_REPORT.md`) | ABIERTO |
+| **F-04** | **Trivy real (H2.S4.M1) encontró CRITICAL sin parche disponible** en la imagen (`aportaya/gateway:local`, mismo BOM que `identidad:ci`): `netty-handler` `CVE-2026-75595` (SNI routing bypass), `bcprov-jdk18on` `CVE-2025-14813`, `spring-security-web` `CVE-2026-22732` (bypass de política de seguridad); más HIGH en `spring-expression` (`CVE-2026-41850`) y `netty-handler` (`CVE-2026-44249`). Arreglarlas exige subir Spring Boot/Spring Cloud/Netty — fuera de alcance de este turno (regla 00 §3, ningún upgrade no solicitado). Evidencia: [evidencia/H2-S4-M1-trivy-gateway-table.txt](../evidencia/H2-S4-M1-trivy-gateway-table.txt) | **`FINAL_REPORT.md` — bloquea `READY`** hasta que alguien decida parchear o justifique una excepción fechada en `.github/.trivyignore` | **En resolución por #26** (2026-09-24): Boot 3.5.16, Cloud 2025.0.3, netty 4.1.138, bc 1.85.2; OSV sin alertas Java. Cierra al fusionar #26 |
+| F-01 | `docs/auditoria-produccion/carriles/` y `evidencia/` estaban vacíos al arrancar: Richard, Justin, Leo y Marcelo todavía no publicaron su bitácora ni su baseline por módulo | H1.S3 (enlaces), H5.S4 (`FINAL_REPORT.md`) | PARCIAL (2026-09-24): PR2, PR3 y PR4 publicaron bitácora; falta PR1 (Richard) |
 | F-02 | `docker compose -f despliegue/compose/base.yml --profile base up -d --wait` devuelve exit 1 aunque **todos** los servicios queden `Healthy`, por el job de un solo uso `minio_bucket` (`restart: "no"`, exit 0); `bd:levantar` (tarea Gradle, `bd/build.gradle.kts`) hereda el fallo y rompe `bd:aplicar`/`bd:reset` en cualquier máquina con Docker Compose ≥ v5.3.1. Reproducido dos veces (volumen limpio y volumen con datos) | `plataforma/infra` (Leo, `bd/build.gradle.kts` no está en mi alcance) | ABIERTO |
 | F-03 | El puerto host de `aportaya-postgres` estaba fijo en `5433` (`despliegue/compose/base.yml`); en una máquina compartida con otro Postgres ajeno en ese puerto, el perfil `base` nunca levanta. Corregido en este turno (dentro de mi alcance): puerto configurable vía `APORTAYA_PG_PORT`, default sin cambios | — (ya corregido, informativo para los otros 4 carriles si les pasa lo mismo en sus máquinas) | CORREGIDO |
 | F-05 | Ninguno de los 14 servicios expone `prometheus` en `management.endpoints.web.exposure.include` (verificado: 0/14). Las anotaciones `prometheus.io/scrape` que agregué en `generar_k8s.py` (H3.S3) no sirven hasta que esto se corrija en la plantilla | `plataforma/infra` (Leo — es la plantilla compartida, `servicios/**` está OUT en mi encargo) | ABIERTO |
-| F-06 | `plataforma/comun-web` no pasa su propio gate de cobertura: branches 0.46 < 0.47 exigido (`jacocoTestCoverageVerification`). Encontrado al correr `verificarProduccion` (H2.S6.M2) completo por primera vez — hasta ahora el baseline (H1.S2.M2) excluía jacoco a propósito (`-x jacocoTestCoverageVerification`), así que nadie lo había corrido de punta a punta. Evidencia: [evidencia/H2-S6-M2-verificarProduccion-continue.txt](../evidencia/H2-S6-M2-verificarProduccion-continue.txt) | `plataforma/comun-*` está OUT en mi encargo — dueño sin asignar todavía entre los otros cuatro carriles | ABIERTO — bloquea `verificarProduccion` en verde |
-| F-07 | `servicios/identidad` no pasa su propio gate de cobertura: lines 0.72 < 0.79, branches 0.54 < 0.63 exigidos. Mismo motivo que F-06 (primera corrida real de jacoco). Evidencia: mismo archivo que F-06 | Richard (carril de identidad) — `servicios/**` está OUT en mi encargo | ABIERTO — bloquea `verificarProduccion` en verde |
+| F-06 | `plataforma/comun-web` no pasa su propio gate de cobertura: branches 0.46 < 0.47 exigido (`jacocoTestCoverageVerification`). Encontrado al correr `verificarProduccion` (H2.S6.M2) completo por primera vez — hasta ahora el baseline (H1.S2.M2) excluía jacoco a propósito (`-x jacocoTestCoverageVerification`), así que nadie lo había corrido de punta a punta. Evidencia: [evidencia/H2-S6-M2-verificarProduccion-continue.txt](../evidencia/H2-S6-M2-verificarProduccion-continue.txt) | `plataforma/comun-*` está OUT en mi encargo — dueño sin asignar todavía entre los otros cuatro carriles | **CERRADO** 2026-09-24 (0.744/0.541) — [evidencia](../evidencia/F-06-comun-web-cobertura-cerrado.txt) |
+| F-07 | `servicios/identidad` no pasa su propio gate de cobertura: lines 0.72 < 0.79, branches 0.54 < 0.63 exigidos. Mismo motivo que F-06 (primera corrida real de jacoco). Evidencia: mismo archivo que F-06 | Richard (carril de identidad) — `servicios/**` está OUT en mi encargo | ABIERTO — re-medido en CI el 2026-09-24, mismos valores ([evidencia](../evidencia/H2-S6-M2-cobertura-ci.txt)) |
+| F-08 | `plataforma/comun-pruebas` bajo su piso (0.61/0.62 < 0.64/0.64): `Espera` sin prueba. Encontrado por el paso `16b` nuevo | `plataforma/comun-pruebas` (Leo) | **CORREGIDO** en #27 con `EsperaTest` → 0.70/0.73 — [evidencia](../evidencia/F-08-comun-pruebas-cobertura.txt) |
+| F-09 | `servicios/aportes` ramas 0.68 < 0.69. Encontrado por el paso `16b` nuevo | `servicios/aportes` (Marcelo) | ABIERTO — [evidencia](../evidencia/H2-S6-M2-cobertura-ci.txt) |
+| F-Leo-06 | `OutboxE2ETest` no arrancaba Kafka; clasificado ENVIRONMENT (Windows) por PR3. Falla igual en el runner Linux: `apache/kafka:3.9.0` incompatible con `KafkaContainer` 1.21.x | `plataforma/comun-pruebas` (Leo) | **CORREGIDO** en #27 (`apache/kafka:3.8.1`) — [evidencia](../evidencia/H1-S2-M6-e2eTest.txt) |
 
 **Dos hallazgos encontrados y corregidos disparando el CI de verdad con `workflow_dispatch`
 (no solo con el PR), ambos dentro de mi alcance:**
@@ -281,16 +304,15 @@ ninguna otra vía que rodee la revisión (seria ir en contra de la intención de
 
 ## No cubierto
 
-- Los baselines por módulo de los otros cuatro carriles (no existen todavía).
-- **Deuda declarada (H5.S3.M1):** la guarda `ConfiguracionCors` no tiene un test automatizado
-  propio en el corredor `integrationTest` — solo verificación manual real (`evidencia/H3-S2-cors.txt`)
-  y la re-verificación de H5.S3.M1 (`docker run` ×2 + suite completa). El intento de agregar
-  `ArranqueCorsGatewayTest` se descartó por `PortInUseException` al correr junto a los tests de
-  rate limiting en la misma JVM, sin causa raíz resuelta dentro de este turno (regla 80.5.1: no se
-  deja un test que rompe la suite para poder cerrar). Falta: un test de arranque de
-  `ConfiguracionCors` en un módulo o JVM aislado del resto.
-- H5.S3.M3 (checkout limpio en worktree) y H5.S3.M4 (CI verde en el SHA final) sin ejercitar
-  todavía.
+- `./gradlew verificarProduccion` y `./gradlew e2eTest` desde la raíz **en local**: compilar los servicios
+  exige el esquema aplicado en la base local, y esa acción fue denegada a esta sesión. Sus partes se
+  ejercitaron en CI (ver §H2.S6.M2).
+- Los 14 servicios no tienen `*E2ETest`; el `e2eTest` verde cubre solo `OutboxE2ETest`.
+- Baseline por módulo de PR1 (Richard): no publicado.
+- **Deuda declarada (H5.S3.M1):** la guarda `ConfiguracionCors` sigue sin test automatizado propio
+  (ver 2026-09-22).
+- La corrida completa de CI con los jobs iOS (macOS) no se evaluó: dependen del carril de frontend y de
+  secretos de firma.
 
 ## Ambigüedades que arrastro
 

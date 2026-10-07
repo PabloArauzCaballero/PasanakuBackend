@@ -1,0 +1,29 @@
+# F-08 -- plataforma/comun-pruebas bajo su piso (lineas 0.64, ramas 0.64; build.gradle.kts:22-23)
+# Encontrado por el paso nuevo 16b del CI (workflow_dispatch 36042014583):
+     Rule violated for bundle comun-pruebas: branches covered ratio is 0.62, but expected minimum is 0.64
+   > Rule violated for bundle comun-pruebas: lines covered ratio is 0.61, but expected minimum is 0.64
+[ant:jacocoReport] Rule violated for bundle comun-pruebas: branches covered ratio is 0.62, but expected minimum is 0.64
+[ant:jacocoReport] Rule violated for bundle comun-pruebas: lines covered ratio is 0.61, but expected minimum is 0.64
+
+## Reproducido local (antes del fix)
+     Rule violated for bundle comun-pruebas: branches covered ratio is 0.62, but expected minimum is 0.64
+   > Rule violated for bundle comun-pruebas: lines covered ratio is 0.61, but expected minimum is 0.64
+[ant:jacocoReport] Rule violated for bundle comun-pruebas: branches covered ratio is 0.62, but expected minimum is 0.64
+[ant:jacocoReport] Rule violated for bundle comun-pruebas: lines covered ratio is 0.61, but expected minimum is 0.64
+Causa: Espera.java (helper de poll agregado por PR3 para OutboxE2ETest) con 0/12 lineas y 0/6 ramas cubiertas; ninguna prueba lo ejercitaba.
+
+## Fix: EsperaTest (5 casos: inmediata, tardia, nunca -> timeout con motivo, plazo vencido, interrupcion)
+$ ./gradlew :plataforma:comun-pruebas:spotlessCheck :plataforma:comun-pruebas:test ... :plataforma:comun-pruebas:jacocoTestCoverageVerification
+> Task :plataforma:comun-pruebas:spotlessCheck
+> Task :plataforma:comun-pruebas:testClasses
+> Task :plataforma:comun-pruebas:test
+> Task :plataforma:comun-pruebas:integrationTest
+> Task :plataforma:comun-pruebas:contractTest
+> Task :plataforma:comun-pruebas:testBarrido
+> Task :plataforma:comun-pruebas:jacocoTestCoverageVerification
+> Task :plataforma:comun-pruebas:jacocoTestReport
+BUILD SUCCESSFUL in 15s
+EXIT=0
+TEST-bo.aportaya.plataforma.pruebas.EsperaTest.xml -> tests="5" skipped="0" failures="0" errors="0"
+LINE   0.7042 covered=100 missed=42  (piso 0.64) -> PASA
+BRANCH 0.7258 covered=45 missed=17   (piso 0.64) -> PASA

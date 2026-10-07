@@ -1,0 +1,5 @@
+App     minos 13.0
+CocoaAsyncSocket 
+Flutter     minos 13.0
+objective_c     minos 13.0
+patrol     minos 15.0

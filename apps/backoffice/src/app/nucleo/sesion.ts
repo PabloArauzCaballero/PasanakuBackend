@@ -2,6 +2,24 @@ import { computed, Injectable, signal } from '@angular/core'
 import { alcanza } from './secciones'
 
 /**
+ * `UNKNOWN` es el único estado de arranque: todavía no se intentó el refresco. `RESTORING`
+ * es mientras `AuthBootstrap` (H3.S2) espera esa respuesta. Desde ahí se resuelve a
+ * `AUTHENTICATED`, `ANONYMOUS` o `ERROR`. Un login manual (`abrir`) o un logout (`cerrar`)
+ * valen desde cualquier estado: son eventos autoritativos del servidor, no parte de la
+ * secuencia de arranque.
+ */
+export type EstadoSesion = 'UNKNOWN' | 'RESTORING' | 'AUTHENTICATED' | 'ANONYMOUS' | 'ERROR'
+
+/** A qué estados puede pasar `restaurando`/`anonima`/`fallo` desde cada estado actual. */
+const TRANSICIONES_DE_ARRANQUE: Readonly<Record<EstadoSesion, ReadonlySet<EstadoSesion>>> = {
+  UNKNOWN: new Set(['RESTORING']),
+  RESTORING: new Set(['ANONYMOUS', 'ERROR']),
+  ANONYMOUS: new Set(['RESTORING']),
+  ERROR: new Set(['RESTORING']),
+  AUTHENTICATED: new Set([]),
+}
+
+/**
  * El token del operador vive SOLO en memoria; el refresco, en cookie HttpOnly que el
  * gateway maneja. Un token en `localStorage` lo lee cualquier script que llegue a la
  * página, y el backoffice mira expedientes con datos de personas.
@@ -18,25 +36,55 @@ export class Sesion {
    */
   readonly sujeto = signal<string | null>(null)
 
+  private readonly estadoInterno = signal<EstadoSesion>('UNKNOWN')
+  readonly estado = this.estadoInterno.asReadonly()
+
   /** Hay operador con sesión: es lo que separa el login del resto del backoffice. */
-  readonly abierta = computed(() => this.acceso() !== null)
+  readonly abierta = computed(() => this.estadoInterno() === 'AUTHENTICATED')
 
   token(): string | null {
     return this.acceso()
   }
 
+  /** Login (manual o por refresco exitoso): vale desde cualquier estado. */
   abrir(acceso: string, permisos: readonly string[], rol: string, sujeto: string | null = null): void {
     this.acceso.set(acceso)
     this.permisos.set(permisos)
     this.rol.set(rol)
     this.sujeto.set(sujeto)
+    this.estadoInterno.set('AUTHENTICATED')
   }
 
+  /** Logout: vale desde cualquier estado. */
   cerrar(): void {
     this.acceso.set(null)
     this.permisos.set([])
     this.rol.set(null)
     this.sujeto.set(null)
+    this.estadoInterno.set('ANONYMOUS')
+  }
+
+  /** `AuthBootstrap` empieza a intentar el refresco. Rechaza si ya hay un intento en curso. */
+  restaurando(): void {
+    this.transicionarDeArranque('RESTORING')
+  }
+
+  /** `AuthBootstrap` concluyó: la cookie de refresco no vale (401) o no había ninguna. */
+  anonima(): void {
+    this.transicionarDeArranque('ANONYMOUS')
+  }
+
+  /** `AuthBootstrap` no pudo determinar el estado (servicio caído, timeout). */
+  fallo(): void {
+    this.transicionarDeArranque('ERROR')
+  }
+
+  private transicionarDeArranque(destino: EstadoSesion): void {
+    const actual = this.estadoInterno()
+    if (!TRANSICIONES_DE_ARRANQUE[actual].has(destino)) {
+      throw new Error(`Sesion: transición de arranque inválida ${actual} → ${destino}`)
+    }
+    this.estadoInterno.set(destino)
   }
 
   /**

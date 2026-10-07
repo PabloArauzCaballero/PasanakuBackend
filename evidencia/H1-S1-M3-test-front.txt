@@ -1,0 +1,244 @@
+❯ Building...
+✔ Building...
+Application bundle generation failed. [7.524 seconds] - 2026-09-22T03:23:59.987Z
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/erp' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/contabilidad/dominio/cu100-periodos.ts:4:34:
+[37m      4 │ import type { SalidaCierre } from [32m'clientes/angular/erp'[37m
+        ╵                                   [32m~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/erp' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/contabilidad/dominio/cu106-estados-financieros.ts:4:44:
+[37m      4 │ import type { SalidaEstadoFinanciero } from [32m'clientes/angular/erp'[37m
+        ╵                                             [32m~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS7053: Element implicitly has an 'any' type because expression of type 'SalidaEstadoFinanciero' can't be used to index type '{ readonly BALANCE_GENERAL: "Balance general"; readonly ESTADO_RESULTADOS: "Estado de resultados"; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/contabilidad/estados/pantalla-de-estados-financieros.ts:89:63:
+[37m      89 │ ...quetaDeTipo = (tipo: TipoDeEstadoFinanciero) => [32mthis.t.tipos[tipo][37m
+         ╵                                                    [32m~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/identidad' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/cumplimiento/dominio/cu02-expedientes.spec.ts:2:74:
+[37m      2 │ ...Enum, type ExpedienteEnRevision } from [32m'clientes/angular/identidad'[37m
+        ╵                                           [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/identidad' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/cumplimiento/dominio/cu02-expedientes.ts:9:7:
+[37m      9 │ } from [32m'clientes/angular/identidad'[37m
+        ╵        [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/organizador' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/cumplimiento/dominio/cu90-habilitacion.ts:4:34:
+[37m      4 │ import type { Habilitacion } from [32m'clientes/angular/organizador'[37m
+        ╵                                   [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/organizador' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/cumplimiento/organizadores/pantalla-de-habilitacion.ts:7:34:
+[37m      7 │ import type { Habilitacion } from [32m'clientes/angular/organizador'[37m
+        ╵                                   [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/identidad' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/cumplimiento/verificaciones/tira-de-fotos.a11y.spec.ts:7:74:
+[37m      7 │ ...Enum, type ExpedienteEnRevision } from [32m'clientes/angular/identidad'[37m
+        ╵                                           [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/identidad' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/cumplimiento/verificaciones/tira-de-fotos.ts:3:73:
+[37m      3 │ ...Enum, type ExpedienteEnRevision } from [32m'clientes/angular/identidad'[37m
+        ╵                                           [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2538: Type 'unknown' cannot be used as an index type.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/cumplimiento/verificaciones/tira-de-fotos.ts:53:23:
+[37m      53 │             @if (url()[[32mcara[37m]; as u) {
+         ╵                        [32m~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2538: Type 'unknown' cannot be used as an index type.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/cumplimiento/verificaciones/tira-de-fotos.ts:53:23:
+[37m      53 │             @if (url()[[32mcara[37m]; as u) {
+         ╵                        [32m~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2538: Type 'unknown' cannot be used as an index type.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/cumplimiento/verificaciones/tira-de-fotos.ts:55:32:
+[37m      55 │             } @else if (fallo()[[32mcara[37m]) {
+         ╵                                 [32m~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2538: Type 'unknown' cannot be used as an index type.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/cumplimiento/verificaciones/tira-de-fotos.ts:126:64:
+[37m      126 │ ...s.expediente().fotos.includes(cara) || this.url()[[32mcara[37m]) continue
+          ╵                                                      [32m~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/nucleo-financiero' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/operacion/dominio/cu13-consultar-saldo.ts:3:36:
+[37m      3 │ ...t type { SaldoBilletera } from [32m'clientes/angular/nucleo-financiero'[37m
+        ╵                                   [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/nucleo-financiero' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/operacion/dominio/cu13.contrato.spec.ts:2:36:
+[37m      2 │ ...t type { SaldoBilletera } from [32m'clientes/angular/nucleo-financiero'[37m
+        ╵                                   [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/publicidad/model/entradaAnunciante' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/publicidad/anunciantes/pantalla-de-anunciantes.ts:14:71:
+[37m      14 │ ...oEnum } from [32m'clientes/angular/publicidad/model/entradaAnunciante'[37m
+         ╵                 [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/publicidad/model/salidaCampana' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/publicidad/campanas/pantalla-de-campanas.a11y.spec.ts:13:40:
+[37m      13 │ ...stadoEnum } from [32m'clientes/angular/publicidad/model/salidaCampana'[37m
+         ╵                     [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/publicidad/model/entradaCampana' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/publicidad/campanas/pantalla-de-campanas.ts:14:69:
+[37m      14 │ ...tivoEnum } from [32m'clientes/angular/publicidad/model/entradaCampana'[37m
+         ╵                    [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ BORRADOR: string; EN_REVISION: string; ACTIVA: string; PAUSADA: string; FINALIZADA: string; RECHAZADA: string; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/publicidad/campanas/pantalla-de-campanas.ts:84:68:
+[37m      84 │ ...toDeEstado = (estado: Campana['estado']) => [32mthis.t.estados[estado][37m
+         ╵                                                [32m~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/publicidad/model/entradaAnunciante' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/publicidad/dominio/cu110-anunciantes.ts:7:39:
+[37m      7 │ ...ciante } from [32m'clientes/angular/publicidad/model/entradaAnunciante'[37m
+        ╵                  [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/publicidad/model/salidaAnunciante' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/publicidad/dominio/cu110-anunciantes.ts:8:38:
+[37m      8 │ ...nciante } from [32m'clientes/angular/publicidad/model/salidaAnunciante'[37m
+        ╵                   [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/publicidad/model/entradaSocio' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/publicidad/dominio/cu110-anunciantes.ts:9:34:
+[37m      9 │ ...ntradaSocio } from [32m'clientes/angular/publicidad/model/entradaSocio'[37m
+        ╵                       [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/publicidad/model/salidaSocio' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/publicidad/dominio/cu110-anunciantes.ts:10:33:
+[37m      10 │ ...SalidaSocio } from [32m'clientes/angular/publicidad/model/salidaSocio'[37m
+         ╵                       [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/publicidad/model/entradaCampana' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/publicidad/dominio/cu111-campanas.ts:7:36:
+[37m      7 │ ...daCampana } from [32m'clientes/angular/publicidad/model/entradaCampana'[37m
+        ╵                     [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/publicidad/model/salidaCampana' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/publicidad/dominio/cu111-campanas.ts:8:35:
+[37m      8 │ ...idaCampana } from [32m'clientes/angular/publicidad/model/salidaCampana'[37m
+        ╵                      [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/publicidad/model/entradaRechazo' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/publicidad/dominio/cu111-campanas.ts:9:36:
+[37m      9 │ ...daRechazo } from [32m'clientes/angular/publicidad/model/entradaRechazo'[37m
+        ╵                     [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/publicidad/model/entradaRevision' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/publicidad/dominio/cu112-moderacion.ts:7:37:
+[37m      7 │ ...Revision } from [32m'clientes/angular/publicidad/model/entradaRevision'[37m
+        ╵                    [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/publicidad/model/salidaRevision' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/publicidad/dominio/cu112-moderacion.ts:8:36:
+[37m      8 │ ...aRevision } from [32m'clientes/angular/publicidad/model/salidaRevision'[37m
+        ╵                     [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/publicidad/model/salidaConsumo' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/publicidad/dominio/cu113-cu114-consumo.ts:6:35:
+[37m      6 │ ...idaConsumo } from [32m'clientes/angular/publicidad/model/salidaConsumo'[37m
+        ╵                      [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/publicidad/model/entradaLiquidacion' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/publicidad/dominio/cu113-cu114-consumo.ts:7:40:
+[37m      7 │ ...acion } from [32m'clientes/angular/publicidad/model/entradaLiquidacion'[37m
+        ╵                 [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/publicidad/model/salidaLiquidacion' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/publicidad/dominio/cu113-cu114-consumo.ts:8:39:
+[37m      8 │ ...dacion } from [32m'clientes/angular/publicidad/model/salidaLiquidacion'[37m
+        ╵                  [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module 'clientes/angular/publicidad/model/entradaRevision' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/publicidad/moderacion/cola-de-moderacion.ts:12:44:
+[37m      12 │ ...ionEnum } from [32m'clientes/angular/publicidad/model/entradaRevision'[37m
+         ╵                   [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "@aportaya/tokens/tokens.css"[0m
+
+    ../../packages/ui/src/estilos.css:2:8:
+[37m      2 │ @import [32m'@aportaya/tokens/tokens.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  The module "./generado/tokens.css" was not found on the file system:
+
+    ../../node_modules/@aportaya/tokens/package.json:9:20:
+[37m      9 │     "./tokens.css": [32m"./generado/tokens.css"[37m,
+        ╵                     [32m~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "@aportaya/tokens/tokens.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+exit=1

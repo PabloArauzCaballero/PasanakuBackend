@@ -22,6 +22,14 @@ services:
     image: aportaya/web:test
     pull_policy: never
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    cpus: "0.5"
+    mem_limit: 512m
     environment:
       # La MISMA dirección relativa que usa el navegador, a propósito: el servidor la
       # resuelve contra sí mismo y sale por su propio reenvío de /api (abajo). Con una

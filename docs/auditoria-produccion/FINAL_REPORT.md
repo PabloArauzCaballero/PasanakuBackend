@@ -2,6 +2,12 @@
 
 > **VEREDICTO: `NOT READY`.**
 
+> **Actualización 2026-09-24 (sigue `NOT READY`):** F-06 **cerrado** (comun-web 0.744/0.541); F-04 en
+> resolución por #26 (upgrade de Boot/Cloud/netty/bc, OSV Java en 0) — cierra al fusionarse; F-08
+> (comun-pruebas) y F-Leo-06 (Kafka de `OutboxE2ETest`) corregidos en #27; F-07 (`identidad`) y F-09
+> (`aportes`) **abiertos**, ahora visibles en CI (paso `16b`); F-01 solo falta PR1. Detalle en
+> [carriles/PR5-ci-operacion.md](carriles/PR5-ci-operacion.md) §"Cierre 2026-09-24".
+
 > **Nota de fuente (regla 00 §1.3):** el encargo pide "las 16 secciones del metaprompt §86", pero
 > ese documento ("metaprompt") no es un archivo accesible desde esta sesión — ni en
 > `PasanakuBackend` ni en `PasanakuPromptManager` hay un archivo con esa sección. No se inventan

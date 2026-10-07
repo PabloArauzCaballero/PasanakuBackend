@@ -15,6 +15,10 @@ const Map<String, String> _prefijosPorHost = {
   'notificaciones': '/notificaciones/bandeja',
 };
 
+/// Las rutas internas a las que puede llevar un enlace. Las usa quien necesite saber qué
+/// destinos son «de la casa» (p. ej. los avisos push) sin repetir esta tabla.
+Iterable<String> get rutasBaseDeEnlaces => _prefijosPorHost.values;
+
 /// `null` si `uri` no es del esquema propio o no hay traducción conocida — en ese
 /// caso `go_router` la trata como una ruta interna normal (o cae en el `errorBuilder`,
 /// nunca en pantalla en blanco).

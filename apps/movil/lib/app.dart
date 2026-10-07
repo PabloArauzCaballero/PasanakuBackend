@@ -5,9 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'dominio/verificacion_contrato.dart';
+import 'navegacion/abridor_de_avisos.dart';
 import 'navegacion/rutas.dart';
 import 'pantallas/soporte/arranque_segun_capacidades.dart';
 import 'pantallas/soporte/capa_de_tutorial.dart';
+import 'proveedores/avisos_push.dart';
 import 'proveedores/sesion.dart';
 import 'package:aportaya_diseno/moviles/apertura_de_marca.dart';
 import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
@@ -130,11 +132,19 @@ class _ConApertura extends ConsumerStatefulWidget {
 class _ConAperturaState extends ConsumerState<_ConApertura> {
   bool _mostrando = true;
   Timer? _respaldo;
+  AbridorDeAvisos? _avisos;
 
   @override
   void initState() {
     super.initState();
     _decidirDondeEntrar();
+    // Tocar un aviso push abre su pantalla. Sin SDK push todavía el flujo no emite
+    // nada (hueco declarado en `infraestructura/*/avisos_push_*.dart`), pero la
+    // escucha ya está lista y probada para cuando el dispositivo lo entregue.
+    _avisos = AbridorDeAvisos(
+      toques: ref.read(avisosPushProvider).toques,
+      abrir: (ruta) => widget.enrutador.push(ruta),
+    )..iniciar();
     // El cinturón de seguridad: si la animación no llamara a su final —un ticker que
     // no arranca, un frame que no llega—, a los dos segundos la apertura se va igual.
     // Nadie se queda mirando un logo sin poder entrar a su plata.
@@ -171,6 +181,7 @@ class _ConAperturaState extends ConsumerState<_ConApertura> {
   @override
   void dispose() {
     _respaldo?.cancel();
+    _avisos?.detener();
     super.dispose();
   }
 

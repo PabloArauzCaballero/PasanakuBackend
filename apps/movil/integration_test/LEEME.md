@@ -2,8 +2,10 @@
 
 En el simulador iOS de GitHub CI, `arranque_y_registro_test.dart` comprueba el
 arranque sin sesión, el tour y la entrada al formulario de alta.
-`deep_link_test.dart` abre `aportaya://unirse/<tokenId>.<secreto>` desde la app
-cerrada y abierta y comprueba que llegue a la pantalla de invitación. Las
+`deep_link_test.dart` comprueba `aportaya://unirse/<tokenId>.<secreto>` como URI
+de inicio y como URL nativa con la app abierta. Patrol monta el árbol Flutter
+de prueba antes de abrir enlaces nativos; no prueba un arranque del proceso desde
+una app terminada. Las
 pruebas widget cubren la ruta sin pestañas y el doble envío de recarga con una
 sola petición.
 

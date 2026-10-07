@@ -68,12 +68,21 @@ liste exactamente las carpetas que existen. Se corrigió agregando una sección 
 | `docker compose --profile base up -d --wait` → exit 1 pese a que **todos** los servicios quedan `Healthy` | `PRODUCT_BUG` (del compose, no de este carril: `plataforma/infra`, dueño Leo) | Reproducido dos veces, con volumen limpio y con volumen viejo: el job de un solo uso `aportaya-minio-bucket` (`restart: "no"`, sale con exit 0) hace que `--wait` de Docker Compose v5.3.1 devuelva 1 aunque todo lo demás esté sano. `bd:levantar` (tarea Gradle) hereda el mismo exit y falla la build aunque la infra quede correcta | **Hallazgo F-02** (no corregido: fuera de mi alcance declarado, `bd/build.gradle.kts` no está en `despliegue/**`). Mitigación local usada este turno: `docker compose … up -d --wait; docker ps` para confirmar salud real, y `./gradlew bd:aplicar -x levantar` |
 | `aportaya-postgres` puerto `5433` choca con `legion-core-postgres` (proyecto ajeno) | `ENVIRONMENT` (esta máquina, compartida entre proyectos) | `netstat -ano` → `5433` ya escuchado por otro proceso | Corregido **en el repo** (dentro de mi alcance, `despliegue/**`): puerto configurable `${APORTAYA_PG_PORT:-5433}` en `despliegue/compose/base.yml`, default sin cambios |
 
-## Desconocidos §2.2 del plan madre — no resueltos esta sesión
+## Desconocidos §2.2 del plan madre — resueltos (H1.S3.M3, 2026-09-24)
 
-Ninguno de los "desconocidos" del plan madre (H0.S3.M6 `integrationTest` módulo por módulo, y la
-tabla §2.2 propiamente dicha) se ejecutó todavía: `integrationTest` no está en el alcance de H1 de
-este encargo (Pablo cubre CI/operación, no la corrección de código de cada servicio). Se deja
-`PENDIENTE`, no `HECHO` ni `A MEDIAS`, porque no se intentó.
+Cada uno con comando y salida, o enlazado a la bitácora del carril que lo resolvió. Salida
+literal de los que corrí yo: [evidencia/H1-S3-M3-desconocidos.txt](evidencia/H1-S3-M3-desconocidos.txt).
+
+| # | Desconocido (§2.2) | Resolución | Evidencia |
+|---|---|---|---|
+| 1 | Resultado real de `verificar`, `integrationTest`, `contractTest`, `sagaTest`, `e2eTest` | Gates globales corridos uno por uno en H1.S2 (todos PASS salvo Spotless, ya corregido); `e2eTest`: el único `*E2ETest` del repo es `OutboxE2ETest` (comun-mensajeria) — ver H1.S2.M6 | [H1-S2-M4](evidencia/H1-S2-M4-test-webTest.txt), [H1-S2-M5](evidencia/H1-S2-M5-contract-saga.txt), [H1-S2-M6](evidencia/H1-S2-M6-e2eTest.txt) |
+| 2 | Qué falla en Spotless | 7 archivos, solo formato; corregido en PR #1 (fusionado); paso `2 · formato` verde en `dev` | [H1-S2-M1](evidencia/H1-S2-M1-spotless.txt), [H2-S1-M2](evidencia/H2-S1-M2-merge-espejo.txt) |
+| 3 | `aplicar.sql` + semillas ×2 + verificaciones | PASS en CI real sobre base vacía (pasos 7–11 del job `base`, run 35923629830) | [H1-S3-M3](evidencia/H1-S3-M3-desconocidos.txt) §3 |
+| 4 | `AislamientoEsquemaTest` vs RLS/`FORCE ROW LEVEL SECURITY`/rol auditor | Resuelto por Marcelo (PR4): 15/15 PASS, `ENABLE`/`FORCE ROW LEVEL SECURITY` en `sql/40_reglas/restricciones.sql` | [carriles/PR4-seguridad.md](carriles/PR4-seguridad.md) |
+| 5 | Adaptador del proveedor de retiros | Resuelto por Justin (PR2, H4.S2): puerto `ProveedorDeRetiro` + `ProveedorDeRetiroLocal` en tres niveles | [carriles/PR2-nucleo-financiero.md](carriles/PR2-nucleo-financiero.md) §H4 |
+| 6 | Formato de `ManejadorGlobalDeErrores` y de los logs | Error: `ErrorApi(codigo, mensaje, detalle, trazaId)`. Logs: **texto plano** por omisión de Spring Boot — 0 configuraciones de log estructurado/JSON en el repo (hallazgo para observabilidad, no de este carril) | [H1-S3-M3](evidencia/H1-S3-M3-desconocidos.txt) §6 |
+| 7 | Clientes HTTP (`*PorHttp`) y resilience4j | 5 clientes; solo `CotizadorPorHttp` usa `@Retry`/`@CircuitBreaker` (Justin, PR2). Los otros 4 no tienen resiliencia | [H1-S3-M3](evidencia/H1-S3-M3-desconocidos.txt) §7, [carriles/PR2-nucleo-financiero.md](carriles/PR2-nucleo-financiero.md) |
+| 8 | ¿`identidad` valida/rota refresh tokens en Java además del trigger? | **No existen refresh tokens**: 0 coincidencias en `sql/` ni en `servicios/identidad/src/main`. Richard (PR1) no publicó bitácora en `carriles/` todavía | [H1-S3-M3](evidencia/H1-S3-M3-desconocidos.txt) §8 |
 
 ## Tabla A–J (`docs/trabajo/2026-09-21-backend-production-ready/PLAN.md` §2.4) — estado en este turno
 
@@ -91,7 +100,8 @@ mío.
 
 ## Enlaces a los baselines por módulo (Richard, Justin, Leo, Marcelo)
 
-Ninguno de los otros cuatro carriles había publicado su `baseline-PR*.md` ni su
-`carriles/PR*.md` al momento de escribir esto (`docs/auditoria-produccion/carriles/` vacío al
-arrancar el turno). Se enlazan acá en cuanto existan; mientras tanto, H1.S3 (Q-01 "desconocidos
-resueltos") los deja pendientes de enlace y lo declara en la tabla de rojos.
+Publicados al 2026-09-24: [baseline-PR3-plataforma.md](baseline-PR3-plataforma.md),
+[carriles/PR2-nucleo-financiero.md](carriles/PR2-nucleo-financiero.md),
+[carriles/PR3-plataforma.md](carriles/PR3-plataforma.md),
+[carriles/PR4-seguridad.md](carriles/PR4-seguridad.md). Richard (PR1, identidad) no publicó
+bitácora en `carriles/` todavía (F-01 sigue abierto solo para PR1).

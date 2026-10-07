@@ -12,3 +12,12 @@ f1130d9ebd8fec6b496e5a23cd143aeb87650a1a:packages/simulado/ejemplos/identidad/em
 f1130d9ebd8fec6b496e5a23cd143aeb87650a1a:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:18
 f1130d9ebd8fec6b496e5a23cd143aeb87650a1a:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:26
 f1130d9ebd8fec6b496e5a23cd143aeb87650a1a:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:34
+# 2026-09-24 (carril PR5, cierre): el MISMO fixture y las mismas cuatro lineas,
+# reintroducido por el commit b2d91e7 (Richard/frontend/sesion, #18) al traer
+# main a dev. Mismo contenido literal ("tokenId": UUID de ejemplo, "token":
+# "token"), misma clasificacion: falso positivo. Encontrado en la corrida real
+# workflow_dispatch 36042014583 (paso 19b, 472 commits escaneados).
+b2d91e70e141cbbac48aa6e1e741be7127ef522b:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:10
+b2d91e70e141cbbac48aa6e1e741be7127ef522b:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:18
+b2d91e70e141cbbac48aa6e1e741be7127ef522b:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:26
+b2d91e70e141cbbac48aa6e1e741be7127ef522b:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:34
