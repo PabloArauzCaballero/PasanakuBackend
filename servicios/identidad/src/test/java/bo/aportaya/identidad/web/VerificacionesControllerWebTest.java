@@ -2,6 +2,7 @@ package bo.aportaya.identidad.web;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -13,8 +14,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import bo.aportaya.identidad.aplicacion.CU02RevisarExpediente;
 import bo.aportaya.identidad.dominio.ExpedienteDeIdentidad;
+import bo.aportaya.plataforma.dominio.CodigoError;
+import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.Sesiones;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -57,7 +61,7 @@ class VerificacionesControllerWebTest {
             CUANDO,
             null,
             null,
-            List.of("ANVERSO", "REVERSO", "SELFIE"));
+            List.of("ANVERSO", "REVERSO", "SELFIE", "PERFIL_IZQUIERDO", "PERFIL_DERECHO"));
 
     @Autowired
     private MockMvc mvc;
@@ -83,6 +87,29 @@ class VerificacionesControllerWebTest {
                     .andExpect(jsonPath("$[0].fotos[0]").value("ANVERSO"))
                     // Las caras se nombran; la imagen no viaja en la lista.
                     .andExpect(jsonPath("$[0].url").doesNotExist());
+        }
+
+        @Test
+        @DisplayName("CU-01 4b · la cola trae el vencimiento y si el documento esta vigente, segun el servidor")
+        void colaConVencimiento() throws Exception {
+            var conFecha = new ExpedienteDeIdentidad(
+                    VERIFICACION,
+                    USUARIO,
+                    "Marisol Quispe",
+                    "CI 1234567 LP",
+                    "EN_REVISION",
+                    CUANDO,
+                    null,
+                    null,
+                    List.of("ANVERSO"),
+                    LocalDate.parse("2026-09-23"));
+            when(revision.cola(eq(null), any())).thenReturn(List.of(conFecha));
+            when(revision.documentoVigente(conFecha)).thenReturn(false);
+
+            mvc.perform(get("/identidad/verificaciones").with(Sesiones.como("BACKOFFICE", "VERIFICACION_RESOLVER")))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].fechaExpiracionDocumento").value("2026-09-23"))
+                    .andExpect(jsonPath("$[0].documentoVigente").value(false));
         }
 
         @Test
@@ -116,6 +143,19 @@ class VerificacionesControllerWebTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.url").value("https://almacen/interno/anverso?firma=xyz"))
                     .andExpect(jsonPath("$.vigenteHasta").exists());
+        }
+
+        @Test
+        @DisplayName("CU-02 · tambien devuelve un enlace para el perfil izquierdo, la cuarta cara")
+        void fotoDePerfilIzquierdo() throws Exception {
+            when(revision.foto(eq(VERIFICACION), eq("PERFIL_IZQUIERDO"), any()))
+                    .thenReturn(
+                            new CU02RevisarExpediente.Enlace("https://almacen/interno/perfil-izq?firma=xyz", CUANDO));
+
+            mvc.perform(get("/identidad/verificaciones/{id}/fotos/{cara}", VERIFICACION, "PERFIL_IZQUIERDO")
+                            .with(Sesiones.como("BACKOFFICE", "VERIFICACION_RESOLVER")))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.url").value("https://almacen/interno/perfil-izq?firma=xyz"));
         }
 
         @Test
@@ -209,6 +249,22 @@ class VerificacionesControllerWebTest {
                     .andExpect(jsonPath("$.estado").value("APROBADA"));
 
             verify(revision).resolver(eq(VERIFICACION), eq("APROBAR"), eq(null), any());
+        }
+
+        @Test
+        @DisplayName("CU-01 4b · aprobar un documento vencido es 422 con su codigo, no un 500 ni un 200")
+        void aprobarVencidoEs422() throws Exception {
+            doThrow(new ErrorDeNegocio(CodigoError.de(1, 11), "El documento esta vencido."))
+                    .when(revision)
+                    .resolver(eq(VERIFICACION), eq("APROBAR"), eq(null), any());
+
+            mvc.perform(post("/identidad/verificaciones/{id}/decision", VERIFICACION)
+                            .with(Sesiones.como("BACKOFFICE", "VERIFICACION_RESOLVER"))
+                            .header("Idempotency-Key", CLAVE)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(APRUEBA))
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU01-11"));
         }
 
         @Test

@@ -2,6 +2,7 @@ package bo.aportaya.identidad.web;
 
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
+import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.ConfirmarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
@@ -12,11 +13,13 @@ import bo.aportaya.identidad.dominio.CanalDeVerificacion;
 import bo.aportaya.identidad.dominio.DocumentoDeIdentidad;
 import bo.aportaya.identidad.web.generado.UsuariosApi;
 import bo.aportaya.identidad.web.generado.modelo.ArchivoDelExpediente;
+import bo.aportaya.identidad.web.generado.modelo.CaraDelExpediente;
 import bo.aportaya.identidad.web.generado.modelo.ConfirmacionVerificacionCorreo;
 import bo.aportaya.identidad.web.generado.modelo.EntradaRegistro;
 import bo.aportaya.identidad.web.generado.modelo.EntradaTitularidad;
 import bo.aportaya.identidad.web.generado.modelo.EntradaTokenDeInvitacion;
 import bo.aportaya.identidad.web.generado.modelo.EntradaValidacionInvitacion;
+import bo.aportaya.identidad.web.generado.modelo.EstadoDeVerificacion;
 import bo.aportaya.identidad.web.generado.modelo.SalidaRegistro;
 import bo.aportaya.identidad.web.generado.modelo.SalidaTitularidad;
 import bo.aportaya.identidad.web.generado.modelo.SalidaTokenDeInvitacion;
@@ -55,6 +58,7 @@ public class UsuariosController implements UsuariosApi {
     private final CU01RegistrarUsuario cu01;
     private final VerificarTitularidad titularidad;
     private final CU02GuardarFotoDelExpediente fotos;
+    private final CU02ConsultarEstadoDeVerificacion estadoDeVerificacion;
     private final EmitirTokenDeInvitacion tokens;
     private final ValidarTokenDeInvitacion validacionDeInvitacion;
     private final BuscarPorTelefono busqueda;
@@ -68,6 +72,7 @@ public class UsuariosController implements UsuariosApi {
             CU01RegistrarUsuario cu01,
             VerificarTitularidad titularidad,
             CU02GuardarFotoDelExpediente fotos,
+            CU02ConsultarEstadoDeVerificacion estadoDeVerificacion,
             EmitirTokenDeInvitacion tokens,
             ValidarTokenDeInvitacion validacionDeInvitacion,
             BuscarPorTelefono busqueda,
@@ -79,6 +84,7 @@ public class UsuariosController implements UsuariosApi {
         this.cu01 = cu01;
         this.titularidad = titularidad;
         this.fotos = fotos;
+        this.estadoDeVerificacion = estadoDeVerificacion;
         this.tokens = tokens;
         this.validacionDeInvitacion = validacionDeInvitacion;
         this.busqueda = busqueda;
@@ -187,6 +193,20 @@ public class UsuariosController implements UsuariosApi {
         }
     }
 
+    /** Estado mínimo para que quien aún no puede iniciar sesión siga su verificación. */
+    @Override
+    @Publico("CU-02: quien acaba de registrarse consulta el estado de su expediente")
+    public ResponseEntity<EstadoDeVerificacion> consultarEstadoDeVerificacion(UUID usuarioId) {
+        Traza.marcarCasoDeUso("CU-02", usuarioId.toString());
+        var expediente = estadoDeVerificacion.ejecutar(usuarioId, Traza.actual());
+        var salida = new EstadoDeVerificacion()
+                .verificacionId(expediente.verificacionId())
+                .estado(EstadoDeVerificacion.EstadoEnum.fromValue(expediente.estado()))
+                .motivoRechazo(expediente.motivoRechazo());
+        expediente.fotos().forEach(f -> salida.addFotosItem(CaraDelExpediente.fromValue(f)));
+        return ResponseEntity.ok(salida);
+    }
+
     @Override
     @Publico("CU-01: el alta ocurre antes de que exista la sesion")
     public ResponseEntity<SalidaRegistro> registrarUsuario(UUID idempotencyKey, EntradaRegistro cuerpo) {
@@ -241,7 +261,8 @@ public class UsuariosController implements UsuariosApi {
                 // porque depende del tipo, y el dominio es el que la exige.
                 cuerpo.getDocumento().getLugarExpedicion() == null
                         ? null
-                        : cuerpo.getDocumento().getLugarExpedicion().getValue());
+                        : cuerpo.getDocumento().getLugarExpedicion().getValue(),
+                cuerpo.getDocumento().getFechaExpiracion());
         return new CU01RegistrarUsuario.EntradaRegistro(
                 cuerpo.getTelefonoE164(),
                 cuerpo.getNombres(),

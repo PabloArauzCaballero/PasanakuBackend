@@ -26,6 +26,18 @@ String? errorFechaNacimiento(DateTime? fecha) {
   return null;
 }
 
+/// El vencimiento del carnet. Hoy todavia vale: el documento vence al terminar ese dia.
+/// Es ayuda: el servidor lo vuelve a comprobar con su propio reloj (AP-CU01-07).
+String? errorVencimientoDocumento(DateTime? fecha, {DateTime? hoy}) {
+  if (fecha == null) return 'Elegí hasta cuándo vale tu carnet.';
+  final h = hoy ?? DateTime.now();
+  final dia = DateTime(h.year, h.month, h.day);
+  if (DateTime(fecha.year, fecha.month, fecha.day).isBefore(dia)) {
+    return 'Tu carnet está vencido. Para abrir la cuenta hace falta uno vigente.';
+  }
+  return null;
+}
+
 String? errorDocumento(String valor) {
   if (valor.trim().length < 5) return 'Revisá el número de documento.';
   return null;

@@ -188,6 +188,37 @@ Y para un participante el mismo factor SMS se acepta
 Dado un permiso cuya acción es APROBAR
 Cuando se lo intenta crear con requiere_mfa en false
 Entonces la restricción ck_permiso_decision_exige_mfa lo rechaza
+
+Dado un operador que ya entró cinco veces con su segundo factor
+Cuando se equivoca una vez de contraseña
+Entonces se le dice que no coincide y NO queda bloqueado
+
+Dado cuatro fallos, un ingreso correcto y otro fallo
+Cuando se cuenta para bloquear
+Entonces solo cuenta lo posterior al ingreso correcto
+
+Dado un refresh vivo
+Cuando se usa
+Entonces entrega otro de la misma familia y el usado queda consumido
+
+Dado un refresh ya rotado hace rato
+Cuando alguien lo reusa
+Entonces se revoca la familia y la sesion, y el refresh nuevo tampoco sirve
+
+Dado dos usos casi simultaneos del mismo refresh (dos pestanas)
+Entonces el segundo se rechaza SIN revocar la sesion
+
+Dado una renovacion sin cookie o con un valor que no es un refresh emitido
+Entonces se rechaza
+
+Dado un refresh vencido
+Entonces se rechaza
+
+Dado una sesion revocada (p. ej. cambio de credencial)
+Entonces su refresh ya no renueva
+
+Dado un refresh emitido
+Entonces en la base solo queda su SHA-256 y nunca el valor en claro
 ```
 
 ## Ver también

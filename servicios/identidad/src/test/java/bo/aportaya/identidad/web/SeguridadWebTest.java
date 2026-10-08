@@ -2,17 +2,20 @@ package bo.aportaya.identidad.web;
 
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
+import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.CU02RevisarExpediente;
 import bo.aportaya.identidad.aplicacion.CU04Autenticar;
 import bo.aportaya.identidad.aplicacion.ConfirmarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.EmitirAcceso;
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
+import bo.aportaya.identidad.aplicacion.RenovarSesion;
 import bo.aportaya.identidad.aplicacion.SolicitarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.ValidarTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.SabanaDeSeguridadWeb;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 /**
@@ -34,7 +37,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
             "aportaya.acceso.vigencia-sesion=PT15M",
             "aportaya.seguridad.pimienta=pimienta-de-prueba-no-es-la-de-produccion",
         })
+@Import(CookieDeRefresco.class)
 class SeguridadWebTest extends SabanaDeSeguridadWeb {
+
+    @MockitoBean
+    private RenovarSesion renovarSesion;
 
     // La subida de la foto del expediente es dependencia de UsuariosController desde
     // que existe el portal de riesgo: sin doblarla, el contexto de esta prueba no levanta.
@@ -45,6 +52,9 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private CU02GuardarFotoDelExpediente guardarFoto;
+
+    @MockitoBean
+    private CU02ConsultarEstadoDeVerificacion estadoDeVerificacion;
 
     @MockitoBean
     private BuscarPorTelefono buscarPorTelefono;

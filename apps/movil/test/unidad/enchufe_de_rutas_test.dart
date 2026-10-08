@@ -40,7 +40,8 @@ void main() {
     () {
       Map<String, String> huella() => {
         for (final f in lib.listSync(recursive: true).whereType<File>())
-          if (!f.path.contains('/pantallas/identidad/'))
+          // `replaceAll`: en Windows el separador es `\` y el `/` fijo no calzaba nunca.
+          if (!f.path.replaceAll(r'\', '/').contains('/pantallas/identidad/'))
             f.path: f.readAsStringSync(),
       };
       final antes = huella();

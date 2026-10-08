@@ -9,6 +9,7 @@ class DatosPersonales {
     this.tipoDocumento = 'CI',
     this.numeroDocumento = '',
     this.lugarExpedicion,
+    this.fechaExpiracion,
     this.correo = '',
     this.canalVerificacion = 'CORREO',
   });
@@ -24,10 +25,18 @@ class DatosPersonales {
   /// documento y la segunda no puede abrir cuenta.
   final String? lugarExpedicion;
 
-  /// Adonde llega el código de alta y luego los comprobantes y el extracto.
+  /// Hasta cuando vale el documento, como lo escribe la persona leyendolo del carnet.
+  /// El servidor no abre cuenta con un documento vencido (AP-CU01-07) y el backoffice
+  /// no aprueba un expediente sin esta fecha (AP-CU01-10): sin ella nadie puede
+  /// comprobar que el documento seguia vigente al revisarlo.
+  final DateTime? fechaExpiracion;
+
+  /// Adonde van los comprobantes y el extracto, y el destino posible de la
+  /// verificación si se elige el correo en vez del SMS.
   final String correo;
 
-  /// Canal de verificación del alta. Actualmente solo admite `CORREO`.
+  /// `SMS` o `CORREO`. No son dos formas de lo mismo: cada uno confirma un contacto
+  /// distinto, con su propio propósito en el catálogo de tokens.
   final String canalVerificacion;
 
   DatosPersonales copiarCon({
@@ -38,6 +47,7 @@ class DatosPersonales {
     String? tipoDocumento,
     String? numeroDocumento,
     String? lugarExpedicion,
+    DateTime? fechaExpiracion,
     String? correo,
     String? canalVerificacion,
   }) => DatosPersonales(
@@ -48,6 +58,7 @@ class DatosPersonales {
     tipoDocumento: tipoDocumento ?? this.tipoDocumento,
     numeroDocumento: numeroDocumento ?? this.numeroDocumento,
     lugarExpedicion: lugarExpedicion ?? this.lugarExpedicion,
+    fechaExpiracion: fechaExpiracion ?? this.fechaExpiracion,
     correo: correo ?? this.correo,
     canalVerificacion: canalVerificacion ?? this.canalVerificacion,
   );

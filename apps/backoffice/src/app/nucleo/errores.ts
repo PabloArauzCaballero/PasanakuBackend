@@ -5,10 +5,17 @@
 export type ErrorTraducido = { mensaje: string; trazaId?: string; codigo?: string; estado?: number; sinConexion?: boolean }
 
 const CATALOGO: Readonly<Record<string, string>> = {
+  // CU-01 flujo 4b · los controles del servidor al decidir un expediente
+  // (identidad.yaml, POST /identidad/verificaciones/{id}/decision).
+  'AP-CU01-08': 'Ese expediente ya fue resuelto por otra persona. Actualizá la cola.',
+  'AP-CU01-09': 'Faltan fotos. No se aprueba un expediente que no se puede mirar entero.',
+  'AP-CU01-10': 'El documento no tiene fecha de vencimiento: no se puede comprobar que esté vigente.',
+  'AP-CU01-11': 'El documento está vencido. No se aprueba con un documento vencido.',
   'AP-CU04-01': 'El teléfono o la contraseña no coinciden.',
   'AP-CU04-02': 'La cuenta está bloqueada por intentos fallidos. Esperá o pedí que la desbloqueen.',
   'AP-CU04-03': 'Ingresá el código de verificación para terminar de entrar.',
-  'AP-CU04-04': 'El código venció. Pedí uno nuevo.',
+  // El backend usa el mismo código para un código equivocado y uno vencido (CU04Autenticar).
+  'AP-CU04-04': 'Ese código no sirve: revisalo o pedí uno nuevo.',
   'AP-CU04-05': 'Demasiados intentos. Esperá unos minutos antes de volver a probar.',
   'AP-CU04-07': 'Ese segundo factor no está permitido para operadores.',
   'AP-CU04-06': 'Tu segundo factor no está enrolado. Pedí el enrolamiento a otra persona con permiso.',

@@ -42,7 +42,9 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
   final _focos = List.generate(5, (_) => FocusNode());
   final _focoFecha = FocusNode();
   final _focoLugar = FocusNode();
+  final _focoVence = FocusNode();
   DateTime? _fechaNacimiento;
+  DateTime? _fechaExpiracion;
   String? _lugarExpedicion;
   String? _canal;
   final _tocados = <String>{};
@@ -56,7 +58,7 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
     for (final c in [_nombres, _apellidos, _telefono, _documento, _correo]) {
       c.dispose();
     }
-    for (final f in [..._focos, _focoFecha, _focoLugar]) {
+    for (final f in [..._focos, _focoFecha, _focoLugar, _focoVence]) {
       f.dispose();
     }
     super.dispose();
@@ -82,10 +84,17 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
                   correo: _correo.text,
                   canalVerificacion: _canal,
                   lugarExpedicion: _lugarExpedicion,
+                  fechaExpiracion: _fechaExpiracion,
                   fechaNacimiento: _fechaNacimiento,
                 ),
           );
     });
+  }
+
+  /// Lo que se elige (no se escribe) vive en el estado del paso hasta sincronizarlo.
+  void _elegir(String cual, void Function() asignar) {
+    asignar();
+    _sincronizar(cual);
   }
 
   /// El error de un campo, o `null` mientras no lo hayan tocado ni se haya intentado
@@ -102,6 +111,9 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
     // sin correo no tienen adonde ir. Ademas es lo que habilita elegirlo como canal.
     'correo': _error('correo', () => errorCorreo(_correo.text)),
     'lugar': _error('lugar', () => errorLugarExpedicion(_lugarExpedicion)),
+    // Ayuda, no garantia: el servidor rechaza el alta con un documento vencido
+    // (AP-CU01-07) aunque este paso se saltee.
+    'vence': _error('vence', () => errorVencimientoDocumento(_fechaExpiracion)),
     'fecha': _error('fecha', () => errorFechaNacimiento(_fechaNacimiento)),
   };
 
@@ -112,21 +124,13 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
       ref.read(altaProvider.notifier).siguiente();
       return;
     }
-    // Al primer campo que falla, para no dejar a nadie buscando cuál era.
-    const orden = [
-      'nombres',
-      'apellidos',
-      'telefono',
-      'documento',
-      'correo',
-      'lugar',
-      'fecha',
-    ];
-    final primero = orden.indexOf(fallan.first.key);
-    (switch (primero) {
-      5 => _focoLugar,
-      6 => _focoFecha,
-      _ => _focos[primero],
+    // Al primer campo que falla, para no dejar a nadie buscando cuál era. El mapa de
+    // errores va en el orden de la pantalla y los cinco de texto son los primeros.
+    (switch (fallan.first.key) {
+      'lugar' => _focoLugar,
+      'vence' => _focoVence,
+      'fecha' => _focoFecha,
+      final campo => _focos[_errores.keys.toList().indexOf(campo)],
     }).requestFocus();
   }
 
@@ -135,6 +139,7 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
     final t = Tokens.of(context);
     _fechaNacimiento ??= ref.read(altaProvider).datos.fechaNacimiento;
     _lugarExpedicion ??= ref.read(altaProvider).datos.lugarExpedicion;
+    _fechaExpiracion ??= ref.read(altaProvider).datos.fechaExpiracion;
     _canal ??= ref.read(altaProvider).datos.canalVerificacion;
     final errores = _errores;
     return Padding(
@@ -158,25 +163,19 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
             focos: _focos,
             focoFecha: _focoFecha,
             focoLugar: _focoLugar,
+            focoVence: _focoVence,
             errores: errores,
             tocados: _tocados,
             prefijo: _prefijoBolivia,
             fecha: _fechaNacimiento,
             lugar: _lugarExpedicion,
+            vence: _fechaExpiracion,
             onCambio: _sincronizar,
             canal: _canal!,
-            onCanal: (c) {
-              _canal = c;
-              _sincronizar('canal');
-            },
-            onLugar: (l) {
-              _lugarExpedicion = l;
-              _sincronizar('lugar');
-            },
-            onFecha: (f) {
-              _fechaNacimiento = f;
-              _sincronizar('fecha');
-            },
+            onCanal: (c) => _elegir('canal', () => _canal = c),
+            onLugar: (l) => _elegir('lugar', () => _lugarExpedicion = l),
+            onVence: (f) => _elegir('vence', () => _fechaExpiracion = f),
+            onFecha: (f) => _elegir('fecha', () => _fechaNacimiento = f),
           ),
           const SizedBox(height: Espacio.s5),
           Boton(

@@ -4,18 +4,20 @@ import 'cu01_registrar.dart';
 import 'estado_alta.dart';
 import 'estado_contrato.dart';
 import 'estado_sesion.dart' show mensajeDeError;
-import 'subida_del_expediente.dart';
 
 /// El cierre del alta: `POST /usuarios` con todo junto.
 ///
 /// Vive aparte de [AltaNotifier] porque son dos cosas distintas. El notifier sabe en
-/// qué paso está el formulario; esto sabe cómo se cierra —qué se manda, en qué orden,
-/// y qué pasa si una foto falla—. Juntarlos hacía de `estado_alta.dart` un archivo que
-/// crecía por los dos lados a la vez.
+/// qué paso está el formulario; esto sabe cómo se cierra —qué se manda y en qué
+/// orden—. Juntarlos hacía de `estado_alta.dart` un archivo que crecía por los dos
+/// lados a la vez.
 ///
-/// **Los ocho pasos juntan datos y recién al final se crea la persona.** Antes de este
-/// llamado no existe nada del lado del servidor, que es lo que permite abandonar el
-/// alta a mitad sin dejar una cuenta a medio hacer.
+/// **Los pasos juntan datos y recién al final se crea la persona.** Antes de este
+/// llamado no existe nada del lado del servidor, lo que permite abandonar el alta a
+/// mitad sin dejar una cuenta a medio hacer. Las cinco fotos se validaron y se
+/// guardaron localmente durante el paso de capturas; se suben recién ahora, con el
+/// `usuarioId` que esta llamada devuelve — ver `seguimiento_del_alta.dart` y
+/// `subida_del_expediente.dart` para la pantalla que las sube.
 Future<ResultadoDelAlta> enviarElAlta(Ref ref, EstadoAlta estado) async {
   final d = estado.datos;
   final nacimiento = d.fechaNacimiento;
@@ -41,29 +43,29 @@ Future<ResultadoDelAlta> enviarElAlta(Ref ref, EstadoAlta estado) async {
           tipoDocumento: d.tipoDocumento,
           numeroDocumento: d.numeroDocumento,
           lugarExpedicion: d.lugarExpedicion,
+          fechaExpiracion: d.fechaExpiracion,
           correo: d.correo,
           canalVerificacion: d.canalVerificacion,
           verificacionCorreoId: estado.verificacionCorreoId,
           contrasena: estado.contrasena,
           contratosAceptados: contratos,
         );
-    // Las tres fotos se sacaron antes de que la persona existiera: recién ahora hay un
-    // `usuarioId` al que atarlas. Si una falla, el alta NO se deshace — la cuenta ya
-    // está creada y quien revisa en el backoffice ve el expediente incompleto, que es
-    // recuperable; perder el alta entera no lo es.
-    if (r.usuarioId != null) {
-      await subirFotosDelExpediente(ref, estado, r.usuarioId!);
-    }
-    return ResultadoDelAlta(cuentaBilleteraId: r.cuentaBilleteraId);
+    return ResultadoDelAlta(
+      usuarioId: r.usuarioId,
+      cuentaBilleteraId: r.cuentaBilleteraId,
+    );
   } on Object catch (e) {
     return ResultadoDelAlta(error: mensajeDeError(e));
   }
 }
 
-/// Lo que devuelve el cierre: el id de la billetera que el backend abrió, o el error
-/// que hay que mostrarle a la persona. Nunca los dos.
+/// Lo que devuelve el cierre: el usuario recién creado (para subir las fotos y
+/// consultar su estado), el id de la billetera si ya abrió, o el error que hay que
+/// mostrarle a la persona. `usuarioId` y `error` nunca son los dos no-nulos a la vez.
 class ResultadoDelAlta {
-  const ResultadoDelAlta({this.cuentaBilleteraId, this.error});
+  const ResultadoDelAlta({this.usuarioId, this.cuentaBilleteraId, this.error});
+
+  final String? usuarioId;
 
   /// `null` si el alta quedó pendiente de verificación y todavía no hay billetera.
   final String? cuentaBilleteraId;

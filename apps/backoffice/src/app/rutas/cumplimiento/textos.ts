@@ -18,10 +18,17 @@ export const textosCumplimiento = {
     fotoFallo: 'No se pudo cargar. Reintentar',
     carpeta: 'Carpeta en el servidor de archivos',
     expedienteIncompleto: 'Faltan fotos. No se aprueba un expediente que no se puede mirar entero.',
+    venceEl: 'Vence el',
+    sinVencimiento: 'Sin fecha de vencimiento',
+    documentoVencido: 'Documento vencido',
+    avisoSinVencimiento:
+      'El documento no tiene fecha de vencimiento: no se puede comprobar que esté vigente. Se puede rechazar, no aprobar.',
+    avisoVencido: 'El documento está vencido. No se aprueba con un documento vencido; se puede rechazar con el motivo.',
     motivo: 'Motivo',
     motivoAyuda: 'Obligatorio para rechazar. Quien recibe el rechazo tiene derecho a saber por qué.',
     aprobar: 'Aprobar',
     rechazar: 'Rechazar',
+    decisionFallo: 'No se pudo guardar la decisión. Probá de nuevo; el expediente sigue sin decidir.',
   },
   alertas: {
     titulo: 'Alertas de riesgo temprano',

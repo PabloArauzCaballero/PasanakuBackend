@@ -21,9 +21,9 @@ export interface EntradaAnunciante {
     socioComercialId?: string | null;
     razonSocialFacturacion: string;
     /**
-     * Opcional. Sin limite, la cuenta no tiene techo mensual.
+     * Importe como CADENA decimal. Un number JSON es un doble.
      */
-    limiteGastoMensual?: string | null;
+    limiteGastoMensual?: string;
     moneda: EntradaAnuncianteMonedaEnum;
 }
 export enum EntradaAnuncianteTipoEnum {

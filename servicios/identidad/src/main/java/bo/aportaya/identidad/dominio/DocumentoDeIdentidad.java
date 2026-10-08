@@ -4,6 +4,7 @@ import bo.aportaya.plataforma.dominio.ErrorDeDominio;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
 import java.util.Objects;
 
 /**
@@ -14,7 +15,8 @@ import java.util.Objects;
  * exactamente lo que hace falta para detectar duplicados sin crear un padron de
  * documentos legible por quien acceda a la base.
  */
-public record DocumentoDeIdentidad(Tipo tipo, String hashNumero, String paisEmision, String lugarExpedicion) {
+public record DocumentoDeIdentidad(
+        Tipo tipo, String hashNumero, String paisEmision, String lugarExpedicion, LocalDate fechaExpiracion) {
 
     /** Las nueve extensiones del carnet boliviano: el departamento que lo emitio. */
     public static final java.util.Set<String> EXTENSIONES =
@@ -40,9 +42,33 @@ public record DocumentoDeIdentidad(Tipo tipo, String hashNumero, String paisEmis
         }
     }
 
+    /** Sin fecha de vencimiento: los usos anteriores a que el alta la pidiera. */
+    public DocumentoDeIdentidad(Tipo tipo, String hashNumero, String paisEmision, String lugarExpedicion) {
+        this(tipo, hashNumero, paisEmision, lugarExpedicion, null);
+    }
+
     public static DocumentoDeIdentidad de(
             Tipo tipo, String numero, String pimienta, String paisEmision, String lugarExpedicion) {
-        return new DocumentoDeIdentidad(tipo, hashear(numero + pimienta), paisEmision, lugarExpedicion);
+        return de(tipo, numero, pimienta, paisEmision, lugarExpedicion, null);
+    }
+
+    public static DocumentoDeIdentidad de(
+            Tipo tipo,
+            String numero,
+            String pimienta,
+            String paisEmision,
+            String lugarExpedicion,
+            LocalDate fechaExpiracion) {
+        return new DocumentoDeIdentidad(
+                tipo, hashear(numero + pimienta), paisEmision, lugarExpedicion, fechaExpiracion);
+    }
+
+    /**
+     * Vencido el dia DESPUES de su fecha de vencimiento: el ultimo dia todavia vale. Sin
+     * fecha no se puede afirmar que este vencido (el alta lo valida aparte).
+     */
+    public boolean vencidoAl(LocalDate hoy) {
+        return fechaExpiracion != null && fechaExpiracion.isBefore(hoy);
     }
 
     /** El hash del numero, sin construir el documento: lo usa el cotejo de titularidad. */

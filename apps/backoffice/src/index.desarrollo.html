@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="es-BO">
+  <head>
+    <meta charset="utf-8" />
+    <title>AportaYa · Backoffice</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Detrás de login y con datos personales: nunca indexable. NGINX repite X-Robots-Tag. -->
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <!-- SOLO desarrollo: la misma etiqueta que en producción inyecta NGINX
+         (docker/nginx.desplegado.conf, sub_filter). Sin ella el gateway queda vacío y
+         ninguna petición llega al proxy de `ng serve` (Prism o el stack local). -->
+    <meta name="aportaya-gateway" content="/api/v1" />
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
+</html>

@@ -1,5 +1,6 @@
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
+import 'package:aportaya_diseno/atomos/fecha.dart';
 import 'package:aportaya_diseno/moleculas/fila_de_cotejo.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,16 @@ class PasoCotejo extends ConsumerWidget {
             declarado: datos.numeroDocumento,
             leido: datos.numeroDocumento,
           ),
+          // El vencimiento tambien se coteja: es lo que el revisor del backoffice
+          // compara contra la foto del anverso antes de aprobar.
+          if (datos.fechaExpiracion case final vence?) ...[
+            const SizedBox(height: Espacio.s2),
+            FilaDeCotejo(
+              campo: TextosIdentidad.fechaExpiracion,
+              declarado: Fecha.formatearDia(vence),
+              leido: Fecha.formatearDia(vence),
+            ),
+          ],
           const SizedBox(height: Espacio.s5),
           Boton(
             texto: TextosIdentidad.continuar,

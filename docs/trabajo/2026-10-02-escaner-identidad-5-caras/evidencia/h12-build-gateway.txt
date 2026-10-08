@@ -1,0 +1,258 @@
+#0 building with "aportaya" instance using docker-container driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 6.56kB 0.0s done
+#1 DONE 0.0s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1.7
+#2 DONE 0.9s
+
+#3 docker-image://docker.io/docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e
+#3 resolve docker.io/docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e 0.0s done
+#3 CACHED
+
+#4 [internal] load metadata for docker.io/library/eclipse-temurin@sha256:7739f0ffce786528961eea6bf46d9610ee968ac6127c9b2e93494757bdecce9f
+#4 DONE 0.0s
+
+#5 [internal] load metadata for docker.io/library/eclipse-temurin@sha256:92a2a4d7a928d057e7bd999c418d66c26a34eb9a0442f3ab67721c3f88110b2d
+#5 DONE 0.0s
+
+#6 [internal] load .dockerignore
+#6 transferring context: 1.78kB 0.0s done
+#6 DONE 0.0s
+
+#7 [construccion  1/15] FROM docker.io/library/eclipse-temurin@sha256:92a2a4d7a928d057e7bd999c418d66c26a34eb9a0442f3ab67721c3f88110b2d
+#7 resolve docker.io/library/eclipse-temurin@sha256:92a2a4d7a928d057e7bd999c418d66c26a34eb9a0442f3ab67721c3f88110b2d 0.0s done
+#7 DONE 0.0s
+
+#8 [construccion  2/15] WORKDIR /construccion
+#8 CACHED
+
+#9 [runtime 1/8] FROM docker.io/library/eclipse-temurin@sha256:7739f0ffce786528961eea6bf46d9610ee968ac6127c9b2e93494757bdecce9f
+#9 resolve docker.io/library/eclipse-temurin@sha256:7739f0ffce786528961eea6bf46d9610ee968ac6127c9b2e93494757bdecce9f 0.0s done
+#9 CACHED
+
+#10 [internal] load build context
+#10 transferring context: 17.39kB 0.2s done
+#10 DONE 0.2s
+
+#11 [runtime 2/8] RUN groupadd --system app && useradd --system --gid app app     && apt-get update     && apt-get install -y --no-install-recommends wget     && rm -rf /var/lib/apt/lists/*
+#11 0.754 Get:1 http://archive.ubuntu.com/ubuntu noble InRelease [256 kB]
+#11 0.775 Get:2 http://security.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+#11 1.666 Get:3 http://security.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1,943 kB]
+#11 1.763 Get:4 http://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+#11 2.008 Get:5 http://archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+#11 2.259 Get:6 http://archive.ubuntu.com/ubuntu noble/universe amd64 Packages [19.3 MB]
+#11 2.761 Get:7 http://security.ubuntu.com/ubuntu noble-security/main amd64 Packages [1,318 kB]
+#11 2.956 Get:8 http://security.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1,543 kB]
+#11 3.324 Get:9 http://security.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [50.0 kB]
+#11 5.094 Get:10 http://archive.ubuntu.com/ubuntu noble/main amd64 Packages [1,808 kB]
+#11 5.377 Get:11 http://archive.ubuntu.com/ubuntu noble/restricted amd64 Packages [117 kB]
+#11 5.391 Get:12 http://archive.ubuntu.com/ubuntu noble/multiverse amd64 Packages [331 kB]
+#11 5.428 Get:13 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1,688 kB]
+#11 5.686 Get:14 http://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [2,127 kB]
+#11 6.021 Get:15 http://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [2,162 kB]
+#11 6.160 Get:16 http://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [56.2 kB]
+#11 6.162 Get:17 http://archive.ubuntu.com/ubuntu noble-backports/main amd64 Packages [49.0 kB]
+#11 6.178 Get:18 http://archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 Packages [671 B]
+#11 6.178 Get:19 http://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [36.0 kB]
+#11 6.967 Fetched 33.2 MB in 7s (4,987 kB/s)
+#11 6.967 Reading package lists...
+#11 8.070 Reading package lists...
+#11 9.159 Building dependency tree...
+#11 9.418 Reading state information...
+#11 9.748 wget is already the newest version (1.21.4-1ubuntu4.5).
+#11 9.748 0 upgraded, 0 newly installed, 0 to remove and 9 not upgraded.
+#11 DONE 9.8s
+
+#12 [runtime 3/8] WORKDIR /app
+#12 DONE 0.0s
+
+#13 [construccion  3/15] RUN apt-get update     && apt-get install -y --no-install-recommends python3     && rm -rf /var/lib/apt/lists/*
+#13 0.802 Get:1 http://archive.ubuntu.com/ubuntu resolute InRelease [136 kB]
+#13 0.817 Get:2 http://security.ubuntu.com/ubuntu resolute-security InRelease [137 kB]
+#13 1.866 Get:3 http://archive.ubuntu.com/ubuntu resolute-updates InRelease [137 kB]
+#13 1.905 Get:4 http://security.ubuntu.com/ubuntu resolute-security/restricted amd64 Packages [549 kB]
+#13 2.338 Get:5 http://archive.ubuntu.com/ubuntu resolute-backports InRelease [137 kB]
+#13 2.656 Get:6 http://archive.ubuntu.com/ubuntu resolute/multiverse amd64 Packages [352 kB]
+#13 2.832 Get:7 http://security.ubuntu.com/ubuntu resolute-security/universe amd64 Packages [237 kB]
+#13 2.941 Get:8 http://security.ubuntu.com/ubuntu resolute-security/main amd64 Packages [676 kB]
+#13 2.956 Get:9 http://archive.ubuntu.com/ubuntu resolute/universe amd64 Packages [20.1 MB]
+#13 3.222 Get:10 http://security.ubuntu.com/ubuntu resolute-security/multiverse amd64 Packages [13.6 kB]
+#13 5.522 Get:11 http://archive.ubuntu.com/ubuntu resolute/main amd64 Packages [1,874 kB]
+#13 5.783 Get:12 http://archive.ubuntu.com/ubuntu resolute/restricted amd64 Packages [189 kB]
+#13 5.826 Get:13 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 Packages [884 kB]
+#13 5.947 Get:14 http://archive.ubuntu.com/ubuntu resolute-updates/universe amd64 Packages [399 kB]
+#13 7.053 Get:15 http://archive.ubuntu.com/ubuntu resolute-updates/restricted amd64 Packages [599 kB]
+#13 8.765 Get:16 http://archive.ubuntu.com/ubuntu resolute-updates/multiverse amd64 Packages [14.9 kB]
+#13 9.059 Get:17 http://archive.ubuntu.com/ubuntu resolute-backports/universe amd64 Packages [3,306 B]
+#13 9.086 Fetched 26.5 MB in 9s (2,998 kB/s)
+#13 9.086 Reading package lists...
+#13 10.17 Reading package lists...
+#13 11.13 Building dependency tree...
+#13 11.34 Reading state information...
+#13 11.39 Solving dependencies...
+#13 11.69 The following additional packages will be installed:
+#13 11.69   libpython3-stdlib libpython3.14-minimal libpython3.14-stdlib media-types
+#13 11.69   netbase python3-minimal python3.14 python3.14-minimal
+#13 11.69 Suggested packages:
+#13 11.69   python3-doc python3-tk python3-venv python3.14-venv python3.14-doc
+#13 11.69   binfmt-support
+#13 11.77 The following NEW packages will be installed:
+#13 11.77   libpython3-stdlib libpython3.14-minimal libpython3.14-stdlib media-types
+#13 11.77   netbase python3 python3-minimal python3.14 python3.14-minimal
+#13 12.36 0 upgraded, 9 newly installed, 0 to remove and 8 not upgraded.
+#13 12.36 Need to get 6,842 kB of archives.
+#13 12.36 After this operation, 25.0 MB of additional disk space will be used.
+#13 12.36 Get:1 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libpython3.14-minimal amd64 3.14.4-1ubuntu0.2 [916 kB]
+#13 14.23 Get:2 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 python3.14-minimal amd64 3.14.4-1ubuntu0.2 [2,579 kB]
+#13 14.74 Get:3 http://archive.ubuntu.com/ubuntu resolute/main amd64 python3-minimal amd64 3.14.3-0ubuntu2 [25.8 kB]
+#13 14.74 Get:4 http://archive.ubuntu.com/ubuntu resolute/main amd64 media-types all 14.0.0build1 [31.4 kB]
+#13 14.74 Get:5 http://archive.ubuntu.com/ubuntu resolute/main amd64 netbase all 6.5build1 [13.0 kB]
+#13 14.74 Get:6 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libpython3.14-stdlib amd64 3.14.4-1ubuntu0.2 [2,415 kB]
+#13 15.00 Get:7 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 python3.14 amd64 3.14.4-1ubuntu0.2 [830 kB]
+#13 15.05 Get:8 http://archive.ubuntu.com/ubuntu resolute/main amd64 libpython3-stdlib amd64 3.14.3-0ubuntu2 [8,476 B]
+#13 15.05 Get:9 http://archive.ubuntu.com/ubuntu resolute/main amd64 python3 amd64 3.14.3-0ubuntu2 [22.9 kB]
+#13 15.24 debconf: unable to initialize frontend: Dialog
+#13 15.24 debconf: (TERM is not set, so the dialog frontend is not usable.)
+#13 15.24 debconf: falling back to frontend: Readline
+#13 15.24 debconf: unable to initialize frontend: Readline
+#13 15.24 debconf: (Can't locate Term/ReadLine.pm in @INC (you may need to install the Term::ReadLine module) (@INC entries checked: /etc/perl /usr/local/lib/x86_64-linux-gnu/perl/5.40.1 /usr/local/share/perl/5.40.1 /usr/lib/x86_64-linux-gnu/perl5/5.40 /usr/share/perl5 /usr/lib/x86_64-linux-gnu/perl-base /usr/lib/x86_64-linux-gnu/perl/5.40 /usr/share/perl/5.40 /usr/local/lib/site_perl) at /usr/share/perl5/Debconf/FrontEnd/Readline.pm line 8, <STDIN> line 9.)
+#13 15.24 debconf: falling back to frontend: Teletype
+#13 15.25 debconf: unable to initialize frontend: Teletype
+#13 15.25 debconf: (This frontend requires a controlling tty.)
+#13 15.25 debconf: falling back to frontend: Noninteractive
+#13 16.38 Fetched 6,842 kB in 3s (2,097 kB/s)
+#13 16.41 Selecting previously unselected package libpython3.14-minimal:amd64.
+#13 16.41 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 10374 files and directories currently installed.)
+#13 16.42 Preparing to unpack .../libpython3.14-minimal_3.14.4-1ubuntu0.2_amd64.deb ...
+#13 16.43 Unpacking libpython3.14-minimal:amd64 (3.14.4-1ubuntu0.2) ...
+#13 16.53 Selecting previously unselected package python3.14-minimal.
+#13 16.53 Preparing to unpack .../python3.14-minimal_3.14.4-1ubuntu0.2_amd64.deb ...
+#13 16.54 Unpacking python3.14-minimal (3.14.4-1ubuntu0.2) ...
+#13 16.63 Setting up libpython3.14-minimal:amd64 (3.14.4-1ubuntu0.2) ...
+#13 16.65 Setting up python3.14-minimal (3.14.4-1ubuntu0.2) ...
+#13 17.78 Selecting previously unselected package python3-minimal.
+#13 17.78 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 10720 files and directories currently installed.)
+#13 17.79 Preparing to unpack .../0-python3-minimal_3.14.3-0ubuntu2_amd64.deb ...
+#13 17.79 Unpacking python3-minimal (3.14.3-0ubuntu2) ...
+#13 17.82 Selecting previously unselected package media-types.
+#13 17.83 Preparing to unpack .../1-media-types_14.0.0build1_all.deb ...
+#13 17.83 Unpacking media-types (14.0.0build1) ...
+#13 17.87 Selecting previously unselected package netbase.
+#13 17.87 Preparing to unpack .../2-netbase_6.5build1_all.deb ...
+#13 17.87 Unpacking netbase (6.5build1) ...
+#13 17.90 Selecting previously unselected package libpython3.14-stdlib:amd64.
+#13 17.90 Preparing to unpack .../3-libpython3.14-stdlib_3.14.4-1ubuntu0.2_amd64.deb ...
+#13 17.91 Unpacking libpython3.14-stdlib:amd64 (3.14.4-1ubuntu0.2) ...
+#13 18.03 Selecting previously unselected package python3.14.
+#13 18.03 Preparing to unpack .../4-python3.14_3.14.4-1ubuntu0.2_amd64.deb ...
+#13 18.04 Unpacking python3.14 (3.14.4-1ubuntu0.2) ...
+#13 18.07 Selecting previously unselected package libpython3-stdlib:amd64.
+#13 18.07 Preparing to unpack .../5-libpython3-stdlib_3.14.3-0ubuntu2_amd64.deb ...
+#13 18.08 Unpacking libpython3-stdlib:amd64 (3.14.3-0ubuntu2) ...
+#13 18.11 Setting up python3-minimal (3.14.3-0ubuntu2) ...
+#13 18.32 Selecting previously unselected package python3.
+#13 18.32 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 11194 files and directories currently installed.)
+#13 18.33 Preparing to unpack .../python3_3.14.3-0ubuntu2_amd64.deb ...
+#13 18.34 Unpacking python3 (3.14.3-0ubuntu2) ...
+#13 18.38 Setting up media-types (14.0.0build1) ...
+#13 18.40 Setting up netbase (6.5build1) ...
+#13 18.43 Setting up libpython3.14-stdlib:amd64 (3.14.4-1ubuntu0.2) ...
+#13 18.44 Setting up python3.14 (3.14.4-1ubuntu0.2) ...
+#13 19.50 Setting up libpython3-stdlib:amd64 (3.14.3-0ubuntu2) ...
+#13 19.51 Setting up python3 (3.14.3-0ubuntu2) ...
+#13 19.53 running python rtupdate hooks for python3.14...
+#13 19.53 running python post-rtupdate hooks for python3.14...
+#13 DONE 19.7s
+
+#14 [construccion  4/15] COPY gradlew settings.gradle.kts build.gradle.kts gradle.properties ./
+#14 DONE 0.1s
+
+#15 [construccion  5/15] COPY gradle gradle
+#15 DONE 0.0s
+
+#16 [construccion  6/15] COPY buildSrc buildSrc
+#16 DONE 0.0s
+
+#17 [construccion  7/15] COPY bd bd
+#17 DONE 0.0s
+
+#18 [construccion  8/15] COPY scripts scripts
+#18 DONE 0.0s
+
+#19 [construccion  9/15] COPY sql/40_reglas/restricciones.sql sql/40_reglas/restricciones.sql
+#19 DONE 0.0s
+
+#20 [construccion 10/15] COPY sql/50_verificacion/prueba_humo.sql sql/50_verificacion/prueba_humo.sql
+#20 DONE 0.0s
+
+#21 [construccion 11/15] COPY plataforma plataforma
+#21 DONE 0.1s
+
+#22 [construccion 12/15] COPY plataforma/gateway plataforma/gateway
+#22 DONE 0.0s
+
+#23 [construccion 13/15] RUN --mount=type=cache,target=/root/.gradle     BD_URL_ADMIN=jdbc:postgresql://172.26.0.7:5432/pasanaku     BD_USUARIO_ADMIN=pasanaku     BD_CLAVE_ADMIN=pasanaku     ./gradlew --no-daemon :plataforma:gateway:bootJar -x test
+#23 1.070 To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.7.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+#23 2.669 Daemon will be stopped at the end of the build 
+#23 12.37 > Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+#23 13.17 > Task :buildSrc:generateExternalPluginSpecBuilders FROM-CACHE
+#23 13.17 > Task :buildSrc:extractPrecompiledScriptPluginPlugins FROM-CACHE
+#23 13.47 > Task :buildSrc:compilePluginsBlocks FROM-CACHE
+#23 13.97 > Task :buildSrc:generatePrecompiledScriptPluginAccessors FROM-CACHE
+#23 13.97 > Task :buildSrc:generateScriptPluginAdapters FROM-CACHE
+#23 14.47 > Task :buildSrc:compileKotlin FROM-CACHE
+#23 14.47 > Task :buildSrc:compileJava NO-SOURCE
+#23 14.47 > Task :buildSrc:compileGroovy NO-SOURCE
+#23 14.47 > Task :buildSrc:pluginDescriptors
+#23 14.57 > Task :buildSrc:processResources
+#23 14.57 > Task :buildSrc:classes
+#23 14.87 > Task :buildSrc:jar
+#23 38.87 > Task :plataforma:gateway:compileJava
+#23 38.87 > Task :plataforma:gateway:processResources
+#23 38.87 > Task :plataforma:gateway:classes
+#23 38.87 > Task :plataforma:gateway:resolveMainClassName
+#23 40.37 > Task :plataforma:gateway:bootJar
+#23 40.37 
+#23 40.37 BUILD SUCCESSFUL in 40s
+#23 40.37 13 actionable tasks: 7 executed, 6 from cache
+#23 40.37 Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+#23 DONE 40.6s
+
+#24 [construccion 14/15] RUN mkdir -p /capas && cd /capas     && java -Djarmode=tools -jar /construccion/plataforma/gateway/build/libs/*.jar extract --layers --launcher --destination /capas
+#24 DONE 1.5s
+
+#25 [construccion 15/15] RUN mkdir -p /nativo /tmp/nativo && cd /tmp/nativo     && case "$(uname -m)" in x86_64) prefijo=linux-x86-64 ;; aarch64) prefijo=linux-aarch64 ;; *) prefijo=desconocido ;; esac     && for j in /capas/dependencies/BOOT-INF/lib/jna-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "com/sun/jna/${prefijo}/libjnidispatch.so" && cp "com/sun/jna/${prefijo}/libjnidispatch.so" /nativo/; done     && for j in /capas/dependencies/BOOT-INF/lib/argon2-jvm-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "${prefijo}/libargon2.so" && cp "${prefijo}/libargon2.so" /nativo/; done     ; ls -l /nativo
+#25 0.144 total 0
+#25 DONE 0.2s
+
+#26 [runtime 4/8] COPY --from=construccion --chown=app:app /capas/dependencies/ ./
+#26 DONE 0.2s
+
+#27 [runtime 5/8] COPY --from=construccion --chown=app:app /capas/spring-boot-loader/ ./
+#27 DONE 0.1s
+
+#28 [runtime 6/8] COPY --from=construccion --chown=app:app /capas/snapshot-dependencies/ ./
+#28 DONE 0.1s
+
+#29 [runtime 7/8] COPY --from=construccion --chown=app:app /capas/application/ ./
+#29 DONE 0.1s
+
+#30 [runtime 8/8] COPY --from=construccion /nativo/ /app/nativo/
+#30 DONE 0.0s
+
+#31 exporting to oci image format
+#31 exporting layers
+#31 exporting layers 1.6s done
+#31 exporting manifest sha256:ad12c84ca921e07041a42f93371c94b6d31145ce5856676e2f0b2759ccdee791 0.0s done
+#31 exporting config sha256:4c56dea0f18eef49d44234abcd44843737c7197ca597e06094f315f053dfc30d 0.0s done
+#31 sending tarball
+#31 ...
+
+#32 importing to docker
+#32 DONE 0.0s
+
+#31 exporting to oci image format
+#31 sending tarball 13.3s done
+#31 DONE 14.9s

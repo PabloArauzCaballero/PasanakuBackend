@@ -1,0 +1,16 @@
+$ ./gradlew :servicios:identidad:test webTest integrationTest --continue
+BUILD SUCCESSFUL in 3m 7s
+test: 5 tests, 0 fallos
+webTest: 55 tests, 0 fallos
+integrationTest: 105 tests, 0 fallos
+  SesionControllerWebTest: 3 tests, 0 fallos
+  SesionesControllerWebTest: 14 tests, 0 fallos
+  SeguridadWebTest: 6 tests, 0 fallos
+  CU04RenovacionTest: 7 tests, 0 fallos
+  ArquitecturaTest: 5 tests, 0 fallos
+webTest 55 tests 0 fallos
+# suite identidad final (tras el fix de SHA-256) · 2026-10-03 19:09:43
+BUILD SUCCESSFUL in 4m 36s
+test: 5 tests, 0 fallos
+webTest: 55 tests, 0 fallos
+integrationTest: 105 tests, 0 fallos

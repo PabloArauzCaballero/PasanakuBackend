@@ -1,0 +1,26 @@
+# CI completo de la rama — corridas con workflow_dispatch (GitHub Actions)
+37173643377 c1f3c709  Frontend ✗ f0e: Postman regenerado antes del cambio de códigos → corregido (7214ae3d)
+37173979873 7214ae3d  Frontend ✗ f2: ejemplos de packages/simulado sin documentoVigente → corregido (9a8cb63a)
+37174752931 9a8cb63a  Frontend ✗ f6: e2e sistemas-sin-contrato (mock contesta 200 a /sesion/refrescar; volverA) → corregido (ea74d593, 99188ce3)
+37176678882 99188ce3  Frontend ✓ · goldens macOS ✓ · iOS ✗ (pumpWidgetAndSettle vs brillo de ~21 s) → corregido (8ffe5b8f)
+37179039867 8ffe5b8f  resultado:
+  success  La boveda y el esquema no divergen
+  success  Base efimera, semillas y permisos
+  success  Dependencias, secretos e imagen
+    Release iOS (macOS)
+  success  Contratos y clientes generados
+  success  Punta a punta financiero — nucleo-financiero y outbox
+  success  Los cinco corredores
+  failure  bootJar y docker build, multietapa y sin root
+  success  Frontend — Flutter y Angular (ADR-044)
+  skipped  Punta a punta — solo en main
+  success  App — navegación en simulador iOS (macOS)
+  success  App — goldens (macOS)
+  failure  Dependencias vulnerables (OSV-Scanner) / osv-scan
+  success  Formato, reglas propias y compilacion
+
+Release iOS en 37179039867: recorrido deep_link 01 PASSED; 02 («deep link con la app abierta») FAILED con 'Invitación al grupo' no visible.
+Ese mismo fallo, con el mismo mensaje, ya ocurrió antes de esta rama: run 36186473391 (dev, 2026-09-25) y run 36766089585 (pablo/feature/testflight-ios, 2026-09-30); pasó en dev 36767449831 (2026-09-30).
+Esta rama no modifica apps/movil/lib/navegacion, app.dart, main.dart, pantallas/pasanaku ni apps/movil/ios (git diff --name-only desde 22c5e687 → 0 archivos).
+OSV-Scanner y Trivy: dependencias de todo el repositorio, ver h12-ci-osv.txt.
+Rerun solo de Release iOS en 37179039867 (job 111374259905), mismo commit 8ffe5b8f: success → el recorrido 02 es intermitente, no un defecto del código.

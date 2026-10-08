@@ -1,0 +1,26 @@
+# H12.S2 · identidad con vencimiento del documento (H6) y códigos AP-CU01-06..11 — 2026-10-03 22:15:09
+# ./gradlew :servicios:identidad:spotlessCheck :servicios:identidad:check :servicios:identidad:testBarrido erroresCatalogo -x test -x jacoco* -x webTest
+BUILD SUCCESSFUL in 39s
+# ./gradlew :servicios:identidad:test :servicios:identidad:webTest :servicios:identidad:integrationTest --continue
+BUILD SUCCESSFUL in 2m 19s
+test: tests=5 failures=0 errors=0 skipped=0
+webTest: tests=59 failures=0 errors=0 skipped=0
+integrationTest: tests=109 failures=0 errors=0 skipped=0
+# casos de H12 (nombres tomados de los XML):
+  CU02DecisionDelServidorTest: "laColaInformaElVencimientoYSiElDocumentoEstaVigente()"
+  CU02DecisionDelServidorTest: "aprobarExigeEnElServidorLasCincoFotosYUnDocumentoVigente()"
+  CU01Test: "Dado un documento con fecha de vencimiento futura · Cuando se registra · Entonces la fecha queda guardada"
+  CU01Test: "Dado un documento vencido · Cuando se registra · Entonces AP-CU01-07 y no se crea nada"
+  CU01Test: "Dado un usuario con documento válido y sin coincidencias en listas · Cuando completa el registro · Entonces existe una cuenta_billetera ACTIVA con nivel SIMPLIFICADA · Y existe una calificacion_riesgo_cliente vigente · Y existe una aceptacion_contrato con hash_evidencia no nulo"
+  CU04RenovacionTest: "Dado una sesion revocada (p. ej. cambio de credencial) · Entonces su refresh ya no renueva"
+  CU04RenovacionTest: "Dado dos usos casi simultaneos del mismo refresh (dos pestanas) · Entonces el segundo se rechaza SIN revocar la sesion"
+  CU04RenovacionTest: "Dado una renovacion sin cookie o con un valor que no es un refresh emitido · Entonces se rechaza"
+  CU04RenovacionTest: "Dado un refresh vivo · Cuando se usa · Entonces entrega otro de la misma familia y el usado queda consumido"
+  CU04RenovacionTest: "Dado un refresh ya rotado hace rato · Cuando alguien lo reusa · Entonces se revoca la familia y la sesion, y el refresh nuevo tampoco sirve"
+  CU04RenovacionTest: "Dado un refresh vencido · Entonces se rechaza"
+  CU04RenovacionTest: "Dado un refresh emitido · Entonces en la base solo queda su SHA-256 y nunca el valor en claro"
+  web.VerificacionesControllerWebTest$Cola: "CU-01 4b · la cola trae el vencimiento y si el documento esta vigente, segun el servidor"
+  web.VerificacionesControllerWebTest$Decision: "CU-01 4b · aprobar un documento vencido es 422 con su codigo, no un 500 ni un 200"
+  web.VerificacionesControllerWebTest$Foto: "CU-02 · devuelve un enlace con vencimiento, nunca la imagen"
+  web.UsuariosControllerWebTest$Alta: "400 · vencimiento que no es una fecha"
+  web.UsuariosControllerWebTest$Alta: "CU-01 · el vencimiento del documento llega al caso de uso, que es quien lo juzga"

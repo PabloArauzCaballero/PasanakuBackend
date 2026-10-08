@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
+import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.ConfirmarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
@@ -20,6 +21,7 @@ import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
 import bo.aportaya.identidad.dominio.AperturaDeCuenta;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.Sesiones;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +30,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -67,7 +70,7 @@ class UsuariosControllerWebTest {
               "correo": "pablo@example.com",
               "canalVerificacion": "CORREO",
               "verificacionCorreoId": "dddddddd-0000-4000-8000-000000000003",
-              "documento": {"tipo": "CI", "numero": "1234567", "lugarExpedicion": "SC"},
+              "documento": {"tipo": "CI", "numero": "1234567", "lugarExpedicion": "SC", "fechaExpiracion": "2031-03-01"},
               "contrasena": "clave-de-prueba-2026",
               "aceptaContratos": ["dddddddd-0000-4000-8000-000000000002"]
             }
@@ -80,6 +83,9 @@ class UsuariosControllerWebTest {
     // que existe el portal de riesgo: sin doblarla, el contexto de esta prueba no levanta.
     @MockitoBean
     private CU02GuardarFotoDelExpediente guardarFoto;
+
+    @MockitoBean
+    private CU02ConsultarEstadoDeVerificacion estadoDeVerificacion;
 
     @MockitoBean
     private CU01RegistrarUsuario cu01;
@@ -177,6 +183,21 @@ class UsuariosControllerWebTest {
         }
 
         @Test
+        @DisplayName("CU-01 · el vencimiento del documento llega al caso de uso, que es quien lo juzga")
+        void elVencimientoLlegaAlCasoDeUso() throws Exception {
+            var entrada = ArgumentCaptor.forClass(CU01RegistrarUsuario.EntradaRegistro.class);
+            when(cu01.ejecutar(entrada.capture(), any()))
+                    .thenReturn(
+                            new CU01RegistrarUsuario.SalidaRegistro(USUARIO, AperturaDeCuenta.PENDIENTE_VERIFICACION));
+
+            registrar(ALTA).andExpect(status().isAccepted());
+
+            org.assertj.core.api.Assertions.assertThat(
+                            entrada.getValue().documento().fechaExpiracion())
+                    .isEqualTo(LocalDate.parse("2031-03-01"));
+        }
+
+        @Test
         @DisplayName("CU-01 · el alta entra SIN sesion: es la ruta por la que se llega al sistema")
         void elAltaNoPideSesion() throws Exception {
             when(cu01.ejecutar(any(), any()))
@@ -210,6 +231,7 @@ class UsuariosControllerWebTest {
             "'telefono fuera del patron', '\"+59171234567\"', '\"71234567\"'",
             "'nombre de una sola letra', '\"Pablo\"', '\"P\"'",
             "'fecha de nacimiento que no es una fecha', '\"1995-06-15\"', '\"15/06/1995\"'",
+            "'vencimiento que no es una fecha', '\"2031-03-01\"', '\"01/03/2031\"'",
             "'sin ningun contrato aceptado', '[\"dddddddd-0000-4000-8000-000000000002\"]', '[]'",
         })
         @DisplayName("CU-01 · el contrato rechaza antes de llegar al caso de uso")

@@ -60,6 +60,12 @@ def movil():
     barrer("sin plataforma en vista", raiz, {".dart"}, r"Platform\.is[A-Z]",
            lambda p: "/infraestructura/" in p.as_posix())
     barrer("sin print", raiz, {".dart"}, r"\b(print|debugPrint)\(", lambda p: False)
+    # Disciplina del buscador: un select se arma SOLO con `CampoDeSeleccion`, que con
+    # más de 12 opciones abre la hoja con buscador. Un `DropdownButton` o un
+    # `showDatePicker` suelto en una pantalla se saltea esa regla (y el segundo trae el
+    # modo de texto `mm/dd/yyyy` que nadie entiende; las fechas van con `CampoDeFecha`).
+    barrer("selects y fechas solo con el sistema de diseño", raiz, {".dart"},
+           r"\b(DropdownButton(FormField)?|DropdownMenu|showDatePicker)\b", lambda p: False)
     # `texto_del_contrato.dart` queda fuera por lo mismo que `tokens.dart`: es DATO, no
     # código. Es el contrato de adhesión y el tarifario que se le muestran a la persona,
     # y su largo lo decide lo que el contrato tiene que decir. La regla existe para que

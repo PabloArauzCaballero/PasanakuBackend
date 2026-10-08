@@ -37,6 +37,9 @@ class TextosDelAlta {
   static const actividadEconomica = 'Actividad económica';
   static const actividadEconomicaAyuda = 'A qué te dedicás hoy.';
   static const actividadFalta = 'Elegí a qué te dedicás.';
+  static const actividadDetalle = '¿Cuál?';
+  static const actividadDetalleAyuda = 'Escribila en pocas palabras.';
+  static const actividadDetalleFalta = 'Escribí a qué te dedicás.';
   static const elegirOpcion = 'Elegir';
   static const montoMensualEstimado = 'Monto mensual estimado';
   static const montoMensualAyuda =

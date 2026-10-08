@@ -1,0 +1,81 @@
+# Regenera las referencias golden en macOS, la plataforma en la que las compara el job
+# `app-goldens` de ci.yml (las de Linux/Windows dan otros pixeles: ver el comentario de
+# packages/diseno_flutter/test/goldens/catalogo_golden_test.dart).
+#
+# Existe porque los botones vivos (H8 del escaner de identidad) cambian a proposito la
+# apariencia y nadie del carril tiene una Mac a mano. Corre SOLO con un push a la rama del
+# escaner que toque este archivo: regenera, verifica las nuevas referencias corriendo los
+# goldens sin `--update-goldens` y las commitea en la misma rama. No toca main/dev.
+name: Goldens macOS (regenerar)
+
+on:
+  push:
+    branches: [justin/feature/escaner-identidad-atlas]
+    paths: [".github/workflows/goldens-macos.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  regenerar:
+    name: Goldens · regenerar y verificar (macOS)
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.8
+          channel: stable
+          cache: true
+
+      - name: clientes generados (Dart), igual que el job frontend de ci.yml
+        run: ./gradlew generateOpenApiClients --no-parallel --no-build-cache -q
+
+      - name: tokens y paquetes Flutter, igual que el job app-goldens de ci.yml
+        run: |
+          corepack enable
+          yarn install --immutable
+          yarn workspace @aportaya/tokens build
+          yarn workspace @aportaya/diseno-flutter build
+          yarn workspace @aportaya/movil build
+
+      - name: regenerar referencias
+        run: |
+          yarn workspace @aportaya/diseno-flutter test:goldens --update-goldens
+          yarn workspace @aportaya/movil test:goldens --update-goldens
+
+      - name: verificar las referencias nuevas (sin --update-goldens)
+        run: |
+          yarn workspace @aportaya/diseno-flutter test:goldens
+          yarn workspace @aportaya/movil test:goldens
+
+      - name: commitear las referencias en la rama
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add packages/diseno_flutter/test/goldens/imagenes apps/movil/test/goldens/imagenes
+          if git diff --cached --quiet; then
+            echo "Las referencias ya estaban al dia."
+          else
+            git commit -m "chore(goldens): referencias regeneradas en macOS (runner de GitHub Actions)"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: goldens-macos
+          path: |
+            packages/diseno_flutter/test/goldens/**/*.png
+            apps/movil/test/goldens/**/*.png

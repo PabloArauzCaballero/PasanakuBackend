@@ -1,13 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'capturas_del_expediente.dart';
 import 'datos_del_alta.dart';
 import 'envio_del_alta.dart';
 import 'verificacion_correo.dart';
 
 export 'datos_del_alta.dart' show DatosLeidosDelDocumento, DatosPersonales;
+export 'capturas_del_expediente.dart' show CaraDelCarril, CapturasDelExpediente;
 
-/// Los ocho pasos del alta (CU-01, delta D-1 de la maqueta). Un paso = un
-/// organismo; ninguno conoce a los demás, solo al notifier.
+/// Los pasos del alta (CU-01). `anverso`, `reverso` y `pruebaDeVida` se juntan en
+/// un único `capturas` — el mismo carrusel de cinco fotos de Atlas, no tres pasos
+/// separados — y por eso ahora son siete, no ocho (la maqueta D-1 sigue nombrando
+/// ocho porque contaba las tres fotos como pasos propios).
 enum PasoAlta {
   datos,
   // Va segundo, antes de las fotos. Quien abandona el alta en el paso del documento
@@ -15,9 +19,7 @@ enum PasoAlta {
   // al final del formulario nadie lee una regla de contraseña.
   contrasena,
   celular,
-  anverso,
-  reverso,
-  pruebaDeVida,
+  capturas,
   cotejo,
   perfilTransaccional,
   contrato,
@@ -34,13 +36,12 @@ class EstadoAlta {
     this.enviandoCodigo = false,
     this.verificandoCodigo = false,
     this.errorCodigo,
-    this.rutaAnverso,
-    this.rutaReverso,
-    this.rutaSelfie,
+    this.capturas = const CapturasDelExpediente(),
     this.leido = const DatosLeidosDelDocumento(),
     this.origenDeFondos = '',
     this.detalleDelOrigen = '',
     this.actividadEconomica = '',
+    this.detalleDeLaActividad = '',
     this.montoMensualEstimado,
     this.enviando = false,
     this.error,
@@ -60,9 +61,7 @@ class EstadoAlta {
   final bool enviandoCodigo;
   final bool verificandoCodigo;
   final String? errorCodigo;
-  final String? rutaAnverso;
-  final String? rutaReverso;
-  final String? rutaSelfie;
+  final CapturasDelExpediente capturas;
   final DatosLeidosDelDocumento leido;
 
   /// El código de la lista cerrada (`catalogo_del_perfil.dart`), no texto libre.
@@ -74,6 +73,9 @@ class EstadoAlta {
 
   /// La sección CIIU elegida, también de la lista cerrada.
   final String actividadEconomica;
+
+  /// Lo escrito en «¿Cuál?» cuando la actividad es `OTRA`; vacío en cualquier otra.
+  final String detalleDeLaActividad;
   final double? montoMensualEstimado;
   final bool enviando;
   final String? error;
@@ -93,13 +95,12 @@ class EstadoAlta {
     bool? verificandoCodigo,
     String? errorCodigo,
     bool limpiarVerificacion = false,
-    String? rutaAnverso,
-    String? rutaReverso,
-    String? rutaSelfie,
+    CapturasDelExpediente? capturas,
     DatosLeidosDelDocumento? leido,
     String? origenDeFondos,
     String? detalleDelOrigen,
     String? actividadEconomica,
+    String? detalleDeLaActividad,
     double? montoMensualEstimado,
     bool? enviando,
     String? error,
@@ -119,13 +120,12 @@ class EstadoAlta {
     enviandoCodigo: enviandoCodigo ?? false,
     verificandoCodigo: verificandoCodigo ?? false,
     errorCodigo: errorCodigo,
-    rutaAnverso: rutaAnverso ?? this.rutaAnverso,
-    rutaReverso: rutaReverso ?? this.rutaReverso,
-    rutaSelfie: rutaSelfie ?? this.rutaSelfie,
+    capturas: capturas ?? this.capturas,
     leido: leido ?? this.leido,
     origenDeFondos: origenDeFondos ?? this.origenDeFondos,
     detalleDelOrigen: detalleDelOrigen ?? this.detalleDelOrigen,
     actividadEconomica: actividadEconomica ?? this.actividadEconomica,
+    detalleDeLaActividad: detalleDeLaActividad ?? this.detalleDeLaActividad,
     montoMensualEstimado: montoMensualEstimado ?? this.montoMensualEstimado,
     enviando: enviando ?? false,
     error: error,
@@ -151,6 +151,8 @@ class AltaNotifier extends Notifier<EstadoAlta> {
 
   void elegirContrasena(String clave) =>
       state = state.copiarCon(contrasena: clave);
+
+  void confirmarCelular() => state = state.copiarCon(codigoConfirmado: true);
 
   Future<bool> solicitarCodigoCorreo({bool nuevo = false}) async {
     if (state.enviandoCodigo) return false;
@@ -193,29 +195,28 @@ class AltaNotifier extends Notifier<EstadoAlta> {
     }
   }
 
-  void capturarAnverso(String? ruta) =>
-      state = state.copiarCon(rutaAnverso: ruta);
+  void registrarCaptura(CaraDelCarril cara, Captura captura) => state = state
+      .copiarCon(capturas: state.capturas.conCaptura(cara, captura));
 
-  void capturarReverso(String? ruta) =>
-      state = state.copiarCon(rutaReverso: ruta);
-
-  void capturarSelfie(String? ruta) =>
-      state = state.copiarCon(rutaSelfie: ruta);
+  void quitarCaptura(CaraDelCarril cara) =>
+      state = state.copiarCon(capturas: state.capturas.sinCaptura(cara));
 
   void actualizarPerfilTransaccional({
     required String origen,
     required String detalleDelOrigen,
     required String actividad,
+    required String detalleDeLaActividad,
     required double? monto,
   }) => state = state.copiarCon(
     origenDeFondos: origen,
     detalleDelOrigen: detalleDelOrigen,
     actividadEconomica: actividad,
+    detalleDeLaActividad: detalleDeLaActividad,
     montoMensualEstimado: monto,
   );
 
   /// Vacía el asistente. Se llama al cerrar el alta: el estado de un formulario de
-  /// ocho pasos que sobrevive al final del formulario hace que el siguiente empiece
+  /// siete pasos que sobrevive al final del formulario hace que el siguiente empiece
   /// con los datos del anterior.
   void reiniciar() => state = const EstadoAlta();
 
@@ -233,12 +234,14 @@ class AltaNotifier extends Notifier<EstadoAlta> {
 
   /// CU-01 · `POST /usuarios`. La petición la arma [enviarElAlta]; acá solo vive el
   /// estado —«enviando», «falló y por qué»—, que es lo único que mira la pantalla.
-  Future<String?> enviarAlServidor() async {
-    if (state.enviando) return null;
+  /// Ya no sube las fotos: eso pasa en la pantalla de subida, con el `usuarioId`
+  /// que devuelve este llamado (ver `seguimiento_del_alta.dart`).
+  Future<ResultadoDelAlta> enviarAlServidor() async {
+    if (state.enviando) return const ResultadoDelAlta();
     state = state.copiarCon(enviando: true);
     final r = await enviarElAlta(ref, state);
     state = state.copiarCon(error: r.error);
-    return r.cuentaBilleteraId;
+    return r;
   }
 }
 

@@ -2,16 +2,22 @@ import 'package:aportaya_diseno/moviles/transicion_de_marca.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
+import 'dominio/capturas_del_expediente.dart';
 import 'pantalla_baja.dart';
 import 'pantalla_bienvenida.dart';
+import 'dominio/juez_de_pose.dart';
+import 'pantalla_camara.dart';
+import 'pantalla_prueba_de_vida.dart';
 import 'pantalla_contrasena.dart';
 import 'pantalla_contrato.dart';
 import 'pantalla_dispositivos.dart';
+import 'pantalla_estado_de_verificacion.dart';
 import 'pantalla_mfa.dart';
 import 'pantalla_perfil.dart';
 import 'pantalla_portada.dart';
 import 'pantalla_registro.dart';
 import 'pantalla_sesion.dart';
+import 'pantalla_subida_del_expediente.dart';
 import 'pantalla_tour.dart';
 import 'pantalla_verificacion_profunda.dart';
 
@@ -98,8 +104,8 @@ final List<RouteBase> rutasDeEntrada = [
     name: 'identidad.portada',
     builder: (context, state) => const PantallaDePortada(),
   ),
-  // Las tres salidas de la bienvenida llegan con el zoom de marca: el sello verde
-  // llena la pantalla, el logotipo se ve en grande y se lo atraviesa. `/registro`
+  // Las tres salidas de la bienvenida llegan con la transición de marca: la portada
+  // se apaga y la pantalla nueva sube apenas al aparecer. `/registro`
   // estaba afuera y se notaba: quien tocaba «Saltar», o «Crear mi cuenta» en la
   // última lámina, caía en el formulario sin que pasara nada — justo el destino que
   // más se usa.
@@ -107,7 +113,7 @@ final List<RouteBase> rutasDeEntrada = [
     path: '/tour',
     name: 'identidad.tour',
     pageBuilder: (context, state) =>
-        _conZoomDeMarca(state, const PantallaDeTour()),
+        _conTransicionDeMarca(state, const PantallaDeTour()),
   ),
   // `?alta=lista` es lo que deja el último paso del alta para que el login pueda
   // decir «tu cuenta quedó creada, ahora entrá». Sin eso, terminar ocho pasos y
@@ -115,7 +121,7 @@ final List<RouteBase> rutasDeEntrada = [
   GoRoute(
     path: '/ingreso',
     name: 'identidad.ingreso',
-    pageBuilder: (context, state) => _conZoomDeMarca(
+    pageBuilder: (context, state) => _conTransicionDeMarca(
       state,
       PantallaDeSesion(
         cuentaRecienCreada: state.uri.queryParameters['alta'] == 'lista',
@@ -126,7 +132,43 @@ final List<RouteBase> rutasDeEntrada = [
     path: '/registro',
     name: 'identidad.registro',
     pageBuilder: (context, state) =>
-        _conZoomDeMarca(state, const PantallaDeRegistro()),
+        _conTransicionDeMarca(state, const PantallaDeRegistro()),
+  ),
+  // El visor en vivo del escáner de identidad (CU-02): pantalla completa, sin la
+  // barra de pestañas ni la transición de marca de las demás — es una toma de foto, no
+  // una transición de producto. Se llega con `context.push<Object?>(..., extra:
+  // CaraDelCarril)` y devuelve la `Captura` aceptada, `'prueba'` (atajo de
+  // desarrollo) o `null` (cancelado).
+  GoRoute(
+    path: '/registro/camara',
+    name: 'identidad.registro.camara',
+    builder: (context, state) =>
+        PantallaDeCamara(cara: state.extra! as CaraDelCarril),
+  ),
+  // La prueba de vida automática (frente, izquierda, derecha): pantalla completa
+  // como la cámara. Recibe las poses a pedir y devuelve las capturas logradas.
+  GoRoute(
+    path: '/registro/prueba-de-vida',
+    name: 'identidad.registro.pruebaDeVida',
+    builder: (context, state) =>
+        PantallaDePruebaDeVida(poses: state.extra! as List<PoseDeVida>),
+  ),
+  // La subida en lote de las cinco fotos, ya con el `usuarioId` que devolvió el
+  // alta — Atlas sube apenas captura; acá se sube recién ahora porque la persona
+  // no existe hasta que `POST /usuarios` responde (ver `envio_del_alta.dart`).
+  GoRoute(
+    path: '/registro/subida',
+    name: 'identidad.registro.subida',
+    builder: (context, state) => PantallaDeSubidaDelExpediente(
+      usuarioId: state.uri.queryParameters['usuario']!,
+    ),
+  ),
+  GoRoute(
+    path: '/registro/estado',
+    name: 'identidad.registro.estado',
+    builder: (context, state) => PantallaDeEstadoDeVerificacion(
+      usuarioId: state.uri.queryParameters['usuario']!,
+    ),
   ),
   // El contrato es el octavo paso del alta, y el alta pasa **antes** de que exista la
   // cuenta. Vivía dentro del shell, así que el último paso de crear una cuenta se leía
@@ -146,7 +188,7 @@ final List<RouteBase> rutasDeEntrada = [
   ),
 ];
 
-Page<void> _conZoomDeMarca(GoRouterState state, Widget pantalla) =>
+Page<void> _conTransicionDeMarca(GoRouterState state, Widget pantalla) =>
     CustomTransitionPage<void>(
       key: state.pageKey,
       child: pantalla,

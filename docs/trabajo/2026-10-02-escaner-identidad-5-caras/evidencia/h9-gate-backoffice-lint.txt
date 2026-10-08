@@ -1,0 +1,8 @@
+$ yarn workspace @aportaya/backoffice typecheck
+exit=0
+$ yarn workspace @aportaya/backoffice lint
+All files pass linting.
+=== apps/backoffice (Angular) ===
+=== packages/tutoriales (Angular) ===
+TODO OK
+exit=0

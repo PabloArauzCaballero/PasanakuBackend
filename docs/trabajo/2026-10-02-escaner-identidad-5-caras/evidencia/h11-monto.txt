@@ -1,0 +1,12 @@
+# H11.S2.M1 · monto.spec (ui) · 2026-10-03 19:25:59
+causa: 500 vectores × await fixture.whenStable() > 5000 ms (vencía también en la base 22c5e687)
+fix: fixture.detectChanges() sincrónico por vector; misma aserción sobre el texto renderizado
+[2m Test Files [22m [1m[32m20 passed[39m[22m[90m (20)[39m
+[2m      Tests [22m [1m[32m112 passed[39m[22m[90m (112)[39m
+mutación: con la expectativa alterada el test falla (verificado y restaurado)
+$ yarn workspace @aportaya/ui typecheck
+exit=0
+$ yarn workspace @aportaya/ui lint
+=== packages/ui (Angular) ===
+TODO OK
+exit=0

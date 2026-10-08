@@ -101,9 +101,19 @@ void main() {
         ..alternarTarifario(true)
         ..alternarTratamientoDatos(true);
 
-      final billetera = await c.read(altaProvider.notifier).enviarAlServidor();
+      final resultado = await c.read(altaProvider.notifier).enviarAlServidor();
 
-      expect(billetera, isNotNull, reason: 'el alta abre la billetera');
+      expect(resultado.error, isNull);
+      expect(
+        resultado.usuarioId,
+        isNotNull,
+        reason: 'se puede subir el expediente',
+      );
+      expect(
+        resultado.cuentaBilleteraId,
+        isNotNull,
+        reason: 'el alta abre la billetera',
+      );
       // Los tres consentimientos viajan por separado: aceptar el contrato no es lo
       // mismo que aceptar el tarifario, y cuál se dio tiene que poder auditarse.
       for (final v in vigentes) {
@@ -139,7 +149,8 @@ void main() {
 
       final r = await c.read(altaProvider.notifier).enviarAlServidor();
 
-      expect(r, isNull);
+      expect(r.error, 'Falta tu fecha de nacimiento.');
+      expect(r.usuarioId, isNull);
       expect(c.read(altaProvider).error, 'Falta tu fecha de nacimiento.');
     },
   );

@@ -55,6 +55,19 @@ export function recortar(cola: readonly ExpedienteEnRevision[], estado: string):
   return estado === POR_DECIDIR ? cola.filter(esperaDecision) : [...cola]
 }
 
+/** Lo que el servidor dijo del vencimiento del documento. */
+export type Vencimiento = 'vigente' | 'vencido' | 'sin-fecha'
+
+/**
+ * Lo decide el servidor (`documentoVigente`, con su reloj en hora de Bolivia), no el
+ * reloj de quien mira: un operador con la hora corrida no puede «revivir» un carnet.
+ * Sin fecha no hay forma de comprobarlo, y el servidor tampoco deja aprobar (AP-CU01-10).
+ */
+export function vencimientoDe(e: ExpedienteEnRevision): Vencimiento {
+  if (!e.fechaExpiracionDocumento) return 'sin-fecha'
+  return e.documentoVigente ? 'vigente' : 'vencido'
+}
+
 /** Una cola vacía es una cola vacía: no hay nada que revisar, y eso es una buena noticia. */
 export const colaVacia = (cola: ExpedienteEnRevision[]): boolean => cola.length === 0
 

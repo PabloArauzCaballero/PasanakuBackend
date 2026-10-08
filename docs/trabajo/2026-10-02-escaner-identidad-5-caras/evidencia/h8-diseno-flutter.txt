@@ -1,0 +1,40 @@
+$ flutter test test/widget/movimiento_test.dart (packages/diseno_flutter)
+Try `flutter pub outdated` for more information.
+00:00 +0: loading C:/Users/DELL/Documents/Github/Pasanaku/PasanakuBackend-escaner/packages/diseno_flutter/test/widget/movimiento_test.dart
+00:00 +0: primario, secundario y peligro llevan piel viva; solo el primario brilla
+00:00 +1: fantasma y enlace no se pintan con relleno, pero se hunden
+00:00 +2: apagado no tiene degradado ni brillo
+00:00 +3: el brillo cruza y se detiene: la pantalla se asienta
+00:01 +4: se hunde al apretar y vuelve al soltar
+00:01 +5: con «reducir movimiento» no se hunde ni brilla
+00:01 +6: el toque sigue llegando a través de la piel
+00:01 +7: botón de ícono y flotante también responden al dedo
+00:01 +8: la transición de página desplaza y funde, nunca escala
+00:01 +9: All tests passed!
+
+$ dart analyze --fatal-infos lib
+Analyzing lib...
+No issues found!
+
+$ python scripts/verificar_frontend.py diseno
+  OK    · ningún archivo de más de 200 líneas (catalogo/ es datos y queda fuera) 
+
+TODO OK
+
+$ flutter test -r expanded (suite completa) -- fallos [E] base (stash) vs con cambios
+base: 15 · con cambios: 15 · nuevos: 0
+goldens/catalogo_golden_test.dart: Moléculas · claro
+goldens/catalogo_golden_test.dart: Moléculas · oscuro
+goldens/catalogo_golden_test.dart: Móviles · claro
+goldens/catalogo_golden_test.dart: Móviles · oscuro
+goldens/catalogo_golden_test.dart: Organismos · claro
+goldens/catalogo_golden_test.dart: Organismos · oscuro
+goldens/catalogo_golden_test.dart: Átomos · botones · claro
+goldens/catalogo_golden_test.dart: Átomos · botones · oscuro
+goldens/catalogo_golden_test.dart: Átomos · campos · claro
+goldens/catalogo_golden_test.dart: Átomos · campos · oscuro
+goldens/catalogo_golden_test.dart: Átomos · indicadores · claro
+goldens/catalogo_golden_test.dart: Átomos · indicadores · oscuro
+goldens/catalogo_golden_test.dart: Átomos · selección · claro
+goldens/catalogo_golden_test.dart: Átomos · selección · oscuro
+goldens/marca_golden_test.dart: la apertura, cuadro por cuadro

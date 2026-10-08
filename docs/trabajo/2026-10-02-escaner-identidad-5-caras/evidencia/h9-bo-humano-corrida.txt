@@ -1,0 +1,85 @@
+# bo-humano · corrida final · base recreada desde esta rama (humo 165 OK) · identidad cc418e08 · ng serve limpio (1 complete, 0 errores) · 2026-10-03 10:25:03
+PASS [ingreso] contraseña equivocada → alerta «El teléfono o la contraseña no coinciden.» y sigue en /ingreso
+PASS [ingreso] código equivocado → alerta «Ese código no sirve: revisalo o pedí uno nuevo.», no entra
+PASS [ingreso] el mensaje no afirma que el código venció (puede estar mal escrito)
+PASS [ingreso] código correcto → entra a /tablero
+PASS [filtros] hay 5 filtros: Por decidir · PENDIENTE · EN_REVISION · APROBADA · RECHAZADA
+PASS [filtros] «Por decidir» mientras carga no muestra tarjetas de otro filtro (ok)
+PASS [filtros] «Por decidir» → 4 tarjetas: EN_REVISION
+PASS [filtros] «Por decidir» activo se anuncia con aria-pressed (valor: true)
+PASS [filtros] «PENDIENTE» mientras carga no muestra tarjetas de otro filtro (ok)
+PASS [filtros] «PENDIENTE» → mensaje de vacío
+PASS [filtros] «PENDIENTE» activo se anuncia con aria-pressed (valor: true)
+PASS [filtros] «EN_REVISION» mientras carga no muestra tarjetas de otro filtro (ok)
+PASS [filtros] «EN_REVISION» → 4 tarjetas: EN_REVISION
+PASS [filtros] «EN_REVISION» activo se anuncia con aria-pressed (valor: true)
+PASS [filtros] «APROBADA» mientras carga no muestra tarjetas de otro filtro (ok)
+PASS [filtros] «APROBADA» → 8 tarjetas: APROBADA
+PASS [filtros] «APROBADA» activo se anuncia con aria-pressed (valor: true)
+PASS [filtros] «RECHAZADA» mientras carga no muestra tarjetas de otro filtro (ok)
+PASS [filtros] «RECHAZADA» → mensaje de vacío
+PASS [filtros] «RECHAZADA» activo se anuncia con aria-pressed (valor: true)
+PASS [fotos] 5 fotos cargadas con alt: ANVERSO 1600px, REVERSO 1600px, SELFIE 1200px, PERFIL_IZQUIERDO 1200px, PERFIL_DERECHO 1200px
+PASS [fotos] «Ocultar las fotos» las oculta
+PASS [fotos] parcial: marca las 2 que faltan y no las 3 que están
+PASS [fotos] parcial: Aprobar deshabilitado
+PASS [fotos] parcial: explica por qué no se puede aprobar
+PASS [motivo] sin motivo, Rechazar está deshabilitado
+PASS [motivo] el motivo escrito en una tarjeta NO aparece en otra (en la otra dice: «»)
+PASS [motivo] Rechazar de la otra tarjeta sigue deshabilitado
+PASS [error] con el servicio caído la tarjeta avisa: «Algo salió mal de nuestro lado. Probá de nuevo en un momento.»
+PASS [error] y se puede volver a intentar (Aprobar habilitado)
+PASS [error] el aviso no aparece en otras tarjetas
+PASS [rechazo] POST decision → 200
+PASS [rechazo] sale de «Por decidir»
+PASS [rechazo] aparece en RECHAZADA con su motivo
+PASS [rechazo] lo que lee la app: RECHAZADA · «La foto del anverso está borrosa: repetila con buena luz (prueba sintética).»
+PASS [aprobar] POST decision → 200
+PASS [aprobar] sale de «Por decidir»
+PASS [aprobar] aparece en APROBADA
+PASS [aprobar] lo que lee la app: APROBADA
+PASS [teclado] Tab llega a «Por decidir»
+PASS [teclado] Tab llega a «EN_REVISION»
+PASS [teclado] Tab llega a «Ver las fotos»
+PASS [teclado] Tab llega a «Motivo»
+PASS [teclado] todo foco es visible
+CONOCIDO [recarga] tras recargar queda en /ingreso (sin renovación de sesión: ver H9.S1.M7)
+PASS [visual] movil light: sin scroll horizontal (sobra 0px)
+PASS [visual] movil light: consola y red sin errores inesperados 
+PASS [visual] movil dark: sin scroll horizontal (sobra 0px)
+PASS [visual] movil dark: consola y red sin errores inesperados 
+PASS [visual] tablet light: sin scroll horizontal (sobra 0px)
+PASS [visual] tablet light: consola y red sin errores inesperados 
+PASS [visual] tablet dark: sin scroll horizontal (sobra 0px)
+PASS [visual] tablet dark: consola y red sin errores inesperados 
+PASS [visual] escritorio light: sin scroll horizontal (sobra 0px)
+PASS [visual] escritorio light: consola y red sin errores inesperados 
+PASS [visual] escritorio dark: sin scroll horizontal (sobra 0px)
+PASS [visual] escritorio dark: consola y red sin errores inesperados 
+PASS [bloqueo] tras 8 ingresos normales, un tipeo equivocado dice «El teléfono o la contraseña no coinciden.» (no «Demasiados intentos»)
+PASS [ruido] consola y red sin errores inesperados ["red: 401 POST /api/v1/sesion/refrescar","red: 422 POST /api/v1/sesiones","red: 422 POST /api/v1/sesiones","red: 422 POST /api/v1/sesiones","red: 401 POST /api/v1/sesion/refrescar"]
+
+RESUMEN: 58 PASS · 0 FAIL
+bloqueos vigentes: 0
+intentos: 8 exitosos, 8 FACTOR_REQUERIDO, 5 fallos reales
+
+# visual tras H9.S3.M7/M8 (botón deshabilitado, contraste del menú) · 2026-10-03 10:30:31
+PASS [visual] movil light: las 3 fotos del parcial cargadas antes de capturar (3)
+PASS [visual] movil light: sin scroll horizontal (sobra 0px)
+PASS [visual] movil light: consola y red sin errores inesperados 
+PASS [visual] movil dark: las 3 fotos del parcial cargadas antes de capturar (3)
+PASS [visual] movil dark: sin scroll horizontal (sobra 0px)
+PASS [visual] movil dark: consola y red sin errores inesperados 
+PASS [visual] tablet light: las 3 fotos del parcial cargadas antes de capturar (3)
+PASS [visual] tablet light: sin scroll horizontal (sobra 0px)
+PASS [visual] tablet light: consola y red sin errores inesperados 
+PASS [visual] tablet dark: las 3 fotos del parcial cargadas antes de capturar (3)
+PASS [visual] tablet dark: sin scroll horizontal (sobra 0px)
+PASS [visual] tablet dark: consola y red sin errores inesperados 
+PASS [visual] escritorio light: las 3 fotos del parcial cargadas antes de capturar (3)
+PASS [visual] escritorio light: sin scroll horizontal (sobra 0px)
+PASS [visual] escritorio light: consola y red sin errores inesperados 
+PASS [visual] escritorio dark: las 3 fotos del parcial cargadas antes de capturar (3)
+PASS [visual] escritorio dark: sin scroll horizontal (sobra 0px)
+PASS [visual] escritorio dark: consola y red sin errores inesperados 
+RESUMEN: 19 PASS · 0 FAIL

@@ -9,7 +9,8 @@
     "lint": "ng lint && python3 ../../scripts/verificar_frontend.py backoffice",
     "test:front": "ng test --include='src/**/*.spec.ts' --exclude='src/**/*.a11y.spec.ts'",
     "test:a11y": "ng test --include='src/**/*.a11y.spec.ts'",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "start:stack": "ng serve --proxy-config proxy.stack-local.json"
   },
   "private": true,
   "dependencies": {

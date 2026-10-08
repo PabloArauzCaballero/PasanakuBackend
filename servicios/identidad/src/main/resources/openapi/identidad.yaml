@@ -103,6 +103,8 @@ paths:
           # AP-CU01-01 KYC_RECHAZADO · AP-CU01-02 COINCIDENCIA_EN_LISTA
           # AP-CU01-03 CUENTA_YA_EXISTE (R-BIL-04) · AP-CU01-04 CONTRATO_NO_ACEPTADO
           # AP-CU01-05 SERVICIO_NO_AUTORIZADO (R-LIC-01)
+          # AP-CU01-06 CLAVE_RECHAZADA: corta, o derivada del telefono o del documento
+          # AP-CU01-07 DOCUMENTO_VENCIDO: la fecha de vencimiento ya paso
 
   /sesiones:
     post:
@@ -129,6 +131,33 @@ paths:
           # AP-CU04-03 FACTOR_REQUERIDO   · AP-CU04-04 TOKEN_VENCIDO
           # AP-CU04-05 DEMASIADOS_INTENTOS · AP-CU04-06 FACTOR_NO_ENROLADO
           # AP-CU04-07 FACTOR_NO_ADMISIBLE (R-SEG-10)
+      # Con `plataforma: WEB` la respuesta 200 trae ademas `Set-Cookie: aportaya_refresco`
+      # (HttpOnly; Secure; SameSite=Strict; Path=/api/v1/sesion), el refresh de ADR-010.
+      # El valor en claro solo existe en esa cabecera: en la base se guarda su SHA-256.
+
+  /sesion/refrescar:
+    post:
+      operationId: renovarSesion              # CU-04 · ADR-010
+      summary: Renovar el acceso del backoffice con el refresh de la cookie
+      description: >-
+        Publica por token de acceso: la credencial es la cookie `aportaya_refresco`
+        (HttpOnly, Secure, SameSite=Strict), que el navegador manda solo a esta ruta.
+        Cada uso rota el refresh (cookie nueva en la respuesta). Reusar uno ya rotado
+        revoca la familia y la sesion (R-SEG-09); dos usos casi simultaneos del mismo
+        refresh (ventana de gracia corta) responden 401 sin revocar. Sin cookie, vencida,
+        revocada o reusada -> 401 y la cookie se borra.
+      responses:
+        '200':
+          description: Acceso renovado; la respuesta trae la cookie rotada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaRenovacion' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+          # AP-SES-01 sin refresh valido (sin cookie, vencido, revocado o reusado)
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU04-08 POLITICA_FALTANTE: no hay fila REFRESCO_SESION en politica_token
 
   /sesiones/desafios:
     post:
@@ -218,7 +247,7 @@ paths:
         - name: cara
           in: path
           required: true
-          schema: { type: string, enum: [ANVERSO, REVERSO, SELFIE] }
+          schema: { type: string, enum: [ANVERSO, REVERSO, SELFIE, PERFIL_IZQUIERDO, PERFIL_DERECHO] }
       responses:
         '200':
           description: El enlace
@@ -250,7 +279,7 @@ paths:
         - name: cara
           in: path
           required: true
-          schema: { type: string, enum: [ANVERSO, REVERSO, SELFIE] }
+          schema: { type: string, enum: [ANVERSO, REVERSO, SELFIE, PERFIL_IZQUIERDO, PERFIL_DERECHO] }
       responses:
         '200':
           description: La foto
@@ -284,7 +313,12 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ExpedienteEnRevision' }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # Se valida en el servidor, no solo en la pantalla (la UI no es barrera):
+          # AP-CU01-08 EXPEDIENTE_YA_RESUELTO · AP-CU01-09 FOTOS_INCOMPLETAS (APROBAR)
+          # AP-CU01-10 DOCUMENTO_SIN_VENCIMIENTO (APROBAR) · AP-CU01-11 DOCUMENTO_VENCIDO (APROBAR)
+          # (CU-01 flujo 4b, revision manual del expediente: no AP-CU02-*, que es de cumplimiento)
 
   /usuarios/{usuarioId}/documentos:
     post:
@@ -314,7 +348,7 @@ paths:
               properties:
                 cara:
                   type: string
-                  enum: [ANVERSO, REVERSO, SELFIE]
+                  enum: [ANVERSO, REVERSO, SELFIE, PERFIL_IZQUIERDO, PERFIL_DERECHO]
                   description: Que parte del expediente es esta foto.
                 archivo:
                   type: string
@@ -326,6 +360,31 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/ArchivoDelExpediente' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+  /usuarios/{usuarioId}/verificacion:
+    get:
+      operationId: consultarEstadoDeVerificacion
+      summary: El estado de la verificacion de quien acaba de registrarse
+      description: >-
+        Ruta publica, igual que `subirDocumento`: quien recien se registro todavia
+        no puede abrir sesion (su dispositivo es nuevo y `ExigeSegundoFactor` le
+        pide un MFA que todavia no tiene enrolado), y necesita saber si su cuenta
+        quedo verificada sin esperar a poder ingresar. La respuesta es minima — ni
+        nombre ni documento — para que esta ruta no se convierta en un directorio
+        de clientes.
+      parameters:
+        - name: usuarioId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: El estado del expediente, sin datos personales
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadoDeVerificacion' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+          # AP-CU02-xx NO_HAY_EXPEDIENTE
+
   /usuarios/{usuarioId}/titularidad/verificacion:
     post:
       operationId: verificarTitularidad
@@ -600,10 +659,30 @@ components:
             El JWT firmado con RS256 que los otros trece servicios validan contra el
             JWKS de identidad (ADR-024). Ausente cuando la respuesta pide un segundo
             factor: recien se emite con la sesion abierta.
+    SalidaRenovacion:
+      type: object
+      additionalProperties: false
+      required: [acceso, rol, permisos]
+      properties:
+        acceso:
+          type: string
+          description: El JWT de acceso nuevo, igual al que emite `autenticar`.
+        rol:      { type: string }
+        permisos:
+          type: array
+          items: { type: string }
+    CaraDelExpediente:
+      type: string
+      description: >-
+        Que parte del expediente es esta foto. Es un schema propio -- y no un enum
+        repetido en cada lugar que lista fotos -- porque dos arreglos con el mismo
+        enum inline generaban una colision de nombres en el cliente Dart (el tipo
+        del campo no coincidia con la clase que el generador emitia).
+      enum: [ANVERSO, REVERSO, SELFIE, PERFIL_IZQUIERDO, PERFIL_DERECHO]
     ExpedienteEnRevision:
       type: object
       additionalProperties: false
-      required: [verificacionId, usuarioId, nombreCompleto, estado, iniciadaEn, fotos]
+      required: [verificacionId, usuarioId, nombreCompleto, estado, iniciadaEn, fotos, documentoVigente]
       properties:
         verificacionId: { type: string, format: uuid }
         usuarioId:      { type: string, format: uuid }
@@ -613,10 +692,19 @@ components:
         iniciadaEn:     { type: string, format: date-time }
         resueltaEn:     { type: string, format: date-time }
         motivoRechazo:  { type: string }
+        fechaExpiracionDocumento:
+          type: string
+          format: date
+          description: Hasta cuando vale el documento. Ausente si el alta no la trajo.
+        documentoVigente:
+          type: boolean
+          description: >-
+            Lo calcula el servidor con la fecha de hoy en La Paz. Falso si el documento
+            esta vencido o no tiene fecha: en los dos casos el expediente no se aprueba.
         fotos:
           type: array
-          description: Que caras tiene cargadas. Un expediente sin las tres no se puede aprobar.
-          items: { type: string, enum: [ANVERSO, REVERSO, SELFIE] }
+          description: Que caras tiene cargadas. Un expediente sin las cinco no se puede aprobar.
+          items: { $ref: '#/components/schemas/CaraDelExpediente' }
     EnlaceDeFoto:
       type: object
       additionalProperties: false
@@ -631,6 +719,22 @@ components:
       properties:
         decision: { type: string, enum: [APROBAR, RECHAZAR] }
         motivo:   { type: string, maxLength: 160, description: 'Obligatorio al rechazar.' }
+    EstadoDeVerificacion:
+      type: object
+      additionalProperties: false
+      required: [verificacionId, estado, fotos]
+      description: >-
+        El estado minimo que el propio participante puede consultar sin sesion.
+        A proposito no trae nombre, documento ni nada que identifique a otra
+        persona distinta de quien ya sabe su propio usuarioId.
+      properties:
+        verificacionId: { type: string, format: uuid }
+        estado:         { type: string, enum: [PENDIENTE, EN_REVISION, APROBADA, RECHAZADA] }
+        motivoRechazo:  { type: string, maxLength: 160 }
+        fotos:
+          type: array
+          description: Que caras tiene cargadas hasta ahora.
+          items: { $ref: '#/components/schemas/CaraDelExpediente' }
     ArchivoDelExpediente:
       type: object
       additionalProperties: false
@@ -639,7 +743,7 @@ components:
         Lo que queda del archivo: donde esta y como comprobar que es el mismo. Nunca
         una URL publica — el binario lo entrega el servicio, con sesion y permisos.
       properties:
-        cara:        { type: string, enum: [ANVERSO, REVERSO, SELFIE] }
+        cara:        { type: string, enum: [ANVERSO, REVERSO, SELFIE, PERFIL_IZQUIERDO, PERFIL_DERECHO] }
         claveObjeto: { type: string, example: 's3://identidad/2026/09/9f2c1e4a.jpg' }
         hashArchivo: { type: string, minLength: 64, maxLength: 64 }
         tipoMime:    { type: string }
@@ -663,6 +767,15 @@ components:
             La extension del carnet: el departamento que lo emitio. Obligatoria para
             `CI` —el servicio la exige— y sin sentido para un pasaporte, que ya es
             unico por numero. No se declara `required` aca porque depende del tipo.
+        fechaExpiracion:
+          type: string
+          format: date
+          description: >-
+            Hasta cuando vale el documento, tal como figura en el carnet (la escribe la
+            persona en el alta). Un documento ya vencido no abre cuenta (AP-CU01-07), y
+            sin esta fecha el expediente no se puede aprobar (AP-CU01-10): no hay forma de
+            comprobar que el documento este vigente. Opcional en el contrato solo por
+            compatibilidad con clientes anteriores; la app la exige.
     EntradaRegistro:
       type: object
       additionalProperties: false      # strict(): lista blanca, no lista negra

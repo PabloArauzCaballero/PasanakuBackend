@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, signal } from '@angular/core'
 import { Boton } from '@aportaya/ui/boton/boton'
-import { ExpedienteEnRevisionFotosEnum, type ExpedienteEnRevision } from 'clientes/angular/identidad'
+import { CaraDelExpediente, type ExpedienteEnRevision } from 'clientes/angular/identidad'
 import { carpetaDelExpediente, crearPedirContenido } from '../dominio/cu02-expedientes'
 import { textosCumplimiento } from '../textos'
 
@@ -88,14 +88,12 @@ export class TiraDeFotos {
   readonly expediente = input.required<ExpedienteEnRevision>()
 
   protected readonly t = textosCumplimiento.verificaciones
-  // `as string[]`: el doble ambiental (regla 65, `clientes/angular` no existe todavía)
-  // tipa el enum como `any`, y el chequeo de plantillas de Angular infiere `unknown` para
-  // la variable del `@for` sobre un origen `any` — esto solo fija el tipo del ÍNDICE que
-  // ya se usaba como string en el resto del archivo, no cambia qué caras se listan.
-  protected readonly caras = Object.values(ExpedienteEnRevisionFotosEnum) as string[]
+  // Tipado explícito: así la variable del `@for` es una cara del contrato y no `unknown`,
+  // tanto contra el doble `clientes/angular/identidad.ts` como contra el cliente generado.
+  protected readonly caras = Object.values(CaraDelExpediente) as CaraDelExpediente[]
   protected readonly abierto = signal(false)
-  protected readonly url = signal<Partial<Record<ExpedienteEnRevisionFotosEnum, string>>>({})
-  protected readonly fallo = signal<Partial<Record<ExpedienteEnRevisionFotosEnum, boolean>>>({})
+  protected readonly url = signal<Partial<Record<CaraDelExpediente, string>>>({})
+  protected readonly fallo = signal<Partial<Record<CaraDelExpediente, boolean>>>({})
   protected readonly carpeta = computed(() => carpetaDelExpediente(this.expediente().usuarioId))
 
   private readonly pedirContenido = crearPedirContenido()
@@ -132,7 +130,7 @@ export class TiraDeFotos {
     }
   }
 
-  protected pedir(cara: ExpedienteEnRevisionFotosEnum): void {
+  protected pedir(cara: CaraDelExpediente): void {
     this.fallo.update((actual) => ({ ...actual, [cara]: false }))
     this.pedirContenido(this.expediente().verificacionId, cara).subscribe({
       next: (bytes) => this.url.update((actual) => ({ ...actual, [cara]: URL.createObjectURL(bytes) })),

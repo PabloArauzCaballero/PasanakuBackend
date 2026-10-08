@@ -510,6 +510,8 @@ ALTER TABLE identidad.verificacion_kyc ALTER COLUMN puntaje_biometrico DROP NOT 
 ALTER TABLE identidad.verificacion_kyc ALTER COLUMN referencia_proveedor DROP NOT NULL;
 ALTER TABLE identidad.verificacion_kyc ALTER COLUMN resuelta_en DROP NOT NULL;
 ALTER TABLE identidad.verificacion_kyc ALTER COLUMN revisada_por DROP NOT NULL;
+ALTER TABLE identidad.verificacion_kyc ALTER COLUMN url_perfil_derecho DROP NOT NULL;
+ALTER TABLE identidad.verificacion_kyc ALTER COLUMN url_perfil_izquierdo DROP NOT NULL;
 ALTER TABLE identidad.verificacion_kyc ALTER COLUMN url_selfie DROP NOT NULL;
 ALTER TABLE identidad.verificacion_kyc ALTER COLUMN vigente_hasta DROP NOT NULL;
 ALTER TABLE notificaciones.bandeja_entrada ALTER COLUMN leida_en DROP NOT NULL;

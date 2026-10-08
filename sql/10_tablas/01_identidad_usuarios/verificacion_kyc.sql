@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS identidad.verificacion_kyc (
   referencia_proveedor               VARCHAR(80),
   puntaje_biometrico                 NUMERIC(5,2),
   url_selfie                         VARCHAR(255),
+  url_perfil_izquierdo               VARCHAR(255),
+  url_perfil_derecho                 VARCHAR(255),
   motivo_rechazo                     VARCHAR(160),
   revisada_por                       UUID,
   iniciada_en                        TIMESTAMPTZ NOT NULL,
@@ -32,6 +34,8 @@ COMMENT ON COLUMN identidad.verificacion_kyc.proveedor IS 'NULL';
 COMMENT ON COLUMN identidad.verificacion_kyc.referencia_proveedor IS 'NULL';
 COMMENT ON COLUMN identidad.verificacion_kyc.puntaje_biometrico IS 'NULL';
 COMMENT ON COLUMN identidad.verificacion_kyc.url_selfie IS 'NULL';
+COMMENT ON COLUMN identidad.verificacion_kyc.url_perfil_izquierdo IS 'NULL, perfil izquierdo de la prueba de vida';
+COMMENT ON COLUMN identidad.verificacion_kyc.url_perfil_derecho IS 'NULL, perfil derecho de la prueba de vida';
 COMMENT ON COLUMN identidad.verificacion_kyc.motivo_rechazo IS 'NULL';
 COMMENT ON COLUMN identidad.verificacion_kyc.revisada_por IS 'FK, NULL';
 COMMENT ON COLUMN identidad.verificacion_kyc.resuelta_en IS 'NULL';

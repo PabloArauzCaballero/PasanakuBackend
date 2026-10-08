@@ -69,6 +69,37 @@ class CU04Test extends BaseDeCU04 {
 
     @Test
     @DisplayName(
+            "Dado un operador que ya entró cinco veces con su segundo factor · Cuando se equivoca una vez de contraseña · Entonces se le dice que no coincide y NO queda bloqueado")
+    void ingresosNormalesNoSumanAlBloqueo() {
+        // Cada ingreso con segundo factor deja un FACTOR_REQUERIDO no exitoso antes del
+        // exitoso. Contarlos como fallos bloqueaba 30 min al operador que entraba seguido
+        // y después tipeaba mal una sola vez (observado en el backoffice, H9.S3.M6).
+        UUID usuario = participanteConCredencial("+59171000011");
+        fixtura.ingresosConSegundoFactor(usuario, 5);
+
+        ResultadoDeAutenticacion resultado = autenticar(entrada("+59171000011", "clave-equivocada", "huella-11"));
+
+        assertThat(resultado.codigo()).map(c -> c.valor()).contains("AP-CU04-01");
+        assertThat(tieneBloqueoVigente(usuario)).isFalse();
+    }
+
+    @Test
+    @DisplayName(
+            "Dado cuatro fallos, un ingreso correcto y otro fallo · Cuando se cuenta para bloquear · Entonces solo cuenta lo posterior al ingreso correcto")
+    void unIngresoCorrectoReiniciaLaCuenta() {
+        UUID usuario = participanteConCredencial("+59171000012");
+        fixtura.intentosFallidos(usuario, 4);
+        fixtura.ingresosConSegundoFactor(usuario, 1);
+        fixtura.intentosFallidos(usuario, 1);
+
+        ResultadoDeAutenticacion resultado = autenticar(entrada("+59171000012", "clave-equivocada", "huella-12"));
+
+        assertThat(resultado.codigo()).map(c -> c.valor()).contains("AP-CU04-01");
+        assertThat(tieneBloqueoVigente(usuario)).isFalse();
+    }
+
+    @Test
+    @DisplayName(
             "Dado un operador con rol de ámbito GLOBAL vigente y su dispositivo marcado confiable · Cuando inicia sesión · Entonces se le exige el segundo factor igual · Y no existe camino que lo omita")
     void criterio4() {
         UUID operador = operadorConTotp("+59171000004", "huella-de-siempre");
