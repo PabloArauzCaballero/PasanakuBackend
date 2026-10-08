@@ -33,54 +33,90 @@ class PantallaDePortada extends StatelessWidget {
       hijo: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: Espacio.s5),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  child: Center(
-                    child: SingleChildScrollView(
-                      child: AparicionEscalonada(
-                        escalon: const Duration(milliseconds: 70),
-                        duracionPorHijo: const Duration(milliseconds: 420),
-                        children: [
-                          Center(child: _Lockup(t: t)),
-                          const SizedBox(height: Espacio.s6),
-                          Semantics(
-                            header: true,
-                            child: Text(
-                              TextosIdentidad.bienvenidaTitulo,
-                              textAlign: TextAlign.center,
-                              style: Tipo.titulo1.copyWith(color: t.text),
-                            ),
-                          ),
-                          const SizedBox(height: Espacio.s3),
-                          Center(
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 320),
-                              child: Text(
-                                TextosIdentidad.bienvenidaTexto,
-                                textAlign: TextAlign.center,
-                                style: Tipo.cuerpo.copyWith(color: t.text2),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: Espacio.s6),
-                          const GarantiasDePortada(),
-                        ],
-                      ),
+          child: LayoutBuilder(
+            builder: (context, restricciones) {
+              final textoGrande =
+                  MediaQuery.textScalerOf(context).scale(1) >= 1.5;
+              final pantallaBaja = restricciones.maxHeight < 620;
+              if (textoGrande || pantallaBaja) {
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: Espacio.s5),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: restricciones.maxHeight,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _ContenidoDePortada(t: t),
+                        const _Salidas(),
+                      ],
                     ),
                   ),
+                );
+              }
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: Espacio.s5),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: SingleChildScrollView(
+                          child: _ContenidoDePortada(t: t),
+                        ),
+                      ),
+                    ),
+                    const _Salidas(),
+                  ],
                 ),
-                const _Salidas(),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),
     );
   }
+}
+
+class _ContenidoDePortada extends StatelessWidget {
+  const _ContenidoDePortada({required this.t});
+
+  final Tokens t;
+
+  @override
+  Widget build(BuildContext context) => AparicionEscalonada(
+    escalon: MovimientoDeInterfaz.escalon,
+    duracionPorHijo: MovimientoDeInterfaz.entrada,
+    children: [
+      Center(child: _Lockup(t: t)),
+      const SizedBox(height: Espacio.s6),
+      Semantics(
+        header: true,
+        child: Text(
+          TextosIdentidad.bienvenidaTitulo,
+          textAlign: TextAlign.center,
+          style: Tipo.titulo1.copyWith(color: t.text),
+        ),
+      ),
+      const SizedBox(height: Espacio.s3),
+      Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 320),
+          child: Text(
+            TextosIdentidad.bienvenidaTexto,
+            textAlign: TextAlign.center,
+            style: Tipo.cuerpo.copyWith(color: t.text2),
+          ),
+        ),
+      ),
+      const SizedBox(height: Espacio.s6),
+      const GarantiasDePortada(),
+    ],
+  );
 }
 
 /// La marca sobre su sello verde y, debajo, la palabra. El sello con el isotipo es el
@@ -91,24 +127,30 @@ class _Lockup extends StatelessWidget {
   final Tokens t;
 
   @override
-  Widget build(BuildContext context) => Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Container(
-        width: 84,
-        height: 84,
-        decoration: BoxDecoration(
-          color: t.verdeSolido,
-          borderRadius: BorderRadius.circular(Radios.xl),
-          boxShadow: [t.sombra3],
-        ),
-        child: Center(
-          child: Marca(tamano: 54, colorDelTrazo: t.sobreVerdeSolido),
-        ),
+  Widget build(BuildContext context) => Semantics(
+    label: 'AportaYa',
+    image: true,
+    child: ExcludeSemantics(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 84,
+            height: 84,
+            decoration: BoxDecoration(
+              color: t.verdeSolido,
+              borderRadius: BorderRadius.circular(Radios.xl),
+              boxShadow: [t.sombra3],
+            ),
+            child: Center(
+              child: Marca(tamano: 54, colorDelTrazo: t.sobreVerdeSolido),
+            ),
+          ),
+          const SizedBox(height: Espacio.s4),
+          PalabraDeMarca(ancho: 148, color: t.brandInk),
+        ],
       ),
-      const SizedBox(height: Espacio.s4),
-      PalabraDeMarca(ancho: 148, color: t.brandInk),
-    ],
+    ),
   );
 }
 

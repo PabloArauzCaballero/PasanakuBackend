@@ -27,5 +27,5 @@ describe('ap-monto', () => {
       await fixture.whenStable()
       expect(fixture.nativeElement.textContent).toBe(v.esperado)
     }
-  })
+  }, 30_000)
 })

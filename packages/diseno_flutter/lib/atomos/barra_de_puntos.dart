@@ -11,6 +11,7 @@ class BarraDePuntos extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
+    final quieto = MediaQuery.disableAnimationsOf(context);
     return Semantics(
       label: 'Pantalla ${actual + 1} de $total',
       excludeSemantics: true,
@@ -19,7 +20,7 @@ class BarraDePuntos extends StatelessWidget {
         children: [
           for (var i = 0; i < total; i += 1)
             AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
+              duration: quieto ? Duration.zero : MovimientoDeInterfaz.rapido,
               margin: const EdgeInsets.symmetric(horizontal: Espacio.s1),
               width: i == actual ? Espacio.s5 : Espacio.s2,
               height: Espacio.s2,

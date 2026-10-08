@@ -1,6 +1,8 @@
 import 'package:flutter/physics.dart';
 import 'package:flutter/material.dart';
 
+import '../tokens/tokens.dart';
+
 /// Hunde lo que envuelve mientras el dedo está encima, y al soltar lo devuelve con un
 /// **resorte**: pasa apenas de su tamaño y se asienta, como los botones de iOS.
 ///
@@ -24,9 +26,7 @@ class _HundidoAlTocarState extends State<HundidoAlTocar>
     with SingleTickerProviderStateMixin {
   // Sin límites: el resorte tiene que poder pasarse por debajo de cero, que es el
   // instante en que el botón queda un poco más grande que su tamaño antes de asentarse.
-  late final AnimationController _control = AnimationController.unbounded(
-    vsync: this,
-  );
+  late final AnimationController _control;
 
   static const _hundido = 0.045;
   static const _resorte = SpringDescription(
@@ -35,11 +35,21 @@ class _HundidoAlTocarState extends State<HundidoAlTocar>
     damping: 17,
   );
 
+  @override
+  void initState() {
+    super.initState();
+    // Se crea mientras el estado está montándose. Si «reducir movimiento» está
+    // activo, `build` devuelve el hijo directamente y nunca usa el controlador;
+    // dejarlo perezoso hacía que `dispose` intentara crearlo por primera vez cuando
+    // el elemento ya estaba desactivado.
+    _control = AnimationController.unbounded(vsync: this);
+  }
+
   void _apretar() {
     if (!widget.activo) return;
     _control.animateTo(
       1,
-      duration: const Duration(milliseconds: 110),
+      duration: MovimientoDeInterfaz.respuesta,
       curve: Curves.easeOut,
     );
   }

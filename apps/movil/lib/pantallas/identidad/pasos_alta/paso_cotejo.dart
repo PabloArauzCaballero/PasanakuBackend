@@ -5,7 +5,7 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../dominio/estado_alta.dart';
+import '../dominio/notifier_alta.dart';
 import '../textos.dart';
 
 /// Paso 6 de 8 — cotejo campo a campo (D-1: "cotejo campo a campo"). Sin OCR

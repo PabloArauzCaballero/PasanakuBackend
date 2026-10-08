@@ -1,5 +1,6 @@
 import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 import 'package:aportaya_diseno/moviles/barra_pestanas.dart';
+import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -136,7 +137,7 @@ class _RamaConTransicionState extends State<_RamaConTransicion>
     with SingleTickerProviderStateMixin {
   late final AnimationController _control = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 180),
+    duration: MovimientoDeInterfaz.cambioDeRama,
     value: 1,
   );
 

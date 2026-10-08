@@ -1,4 +1,5 @@
 import 'package:aportaya_movil/pantallas/identidad/dominio/estado_alta.dart';
+import 'package:aportaya_movil/pantallas/identidad/dominio/notifier_alta.dart';
 import 'package:aportaya_movil/pantallas/identidad/pasos_alta/paso_contrasena.dart';
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
@@ -49,6 +50,7 @@ void main() {
       ),
     );
     await asentar(tester);
+    await tester.pump(const Duration(milliseconds: 450));
     return contenedor;
   }
 
@@ -62,7 +64,7 @@ void main() {
     await tester.enterText(campos.at(1), repetida);
     await tester.pump();
     await tester.tap(find.text('Continuar'));
-    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 450));
   }
 
   testWidgets('una clave de ocho o más, repetida bien, avanza de paso', (

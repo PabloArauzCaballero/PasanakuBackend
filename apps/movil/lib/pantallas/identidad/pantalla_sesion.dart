@@ -13,26 +13,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'aviso_alta.dart';
 import 'dominio/estado_sesion.dart';
 import 'dominio/validaciones.dart';
 import 'sesion_pie.dart';
 import 'textos.dart';
 import '../../navegacion/retorno_de_invitacion.dart';
 
-/// CU-04, paso 1: teléfono y contraseña. El servidor decide si además pide MFA —
-/// esta pantalla nunca asume que no hace falta (invariante 7).
-///
-/// Es la segunda pantalla que ve alguien que abre la app, después de la portada, y
-/// la primera que le pide algo. Por eso tiene la marca arriba y un saludo: entre
-/// «AportaYa te reconoce» y «formulario de acceso» hay una diferencia de confianza
-/// que en una billetera se paga.
+/// CU-04: teléfono y contraseña; el servidor decide si pide MFA (invariante 7).
+/// Primera pantalla que solicita datos: marca y saludo dan contexto de confianza.
 class PantallaDeSesion extends ConsumerStatefulWidget {
-  const PantallaDeSesion({super.key, this.cuentaRecienCreada = false});
+  const PantallaDeSesion({
+    super.key,
+    this.cuentaRecienCreada = false,
+    this.fotosPendientes = false,
+  });
 
   /// Se llega acá desde el último paso del alta. Sin decirlo, el salto del contrato
   /// aceptado a un formulario de acceso se lee como que algo falló: se completaron
   /// ocho pasos y la app pide entrar de nuevo, sin explicar que la cuenta quedó hecha.
   final bool cuentaRecienCreada;
+  final bool fotosPendientes;
 
   @override
   ConsumerState<PantallaDeSesion> createState() => _PantallaDeSesionState();
@@ -41,21 +42,22 @@ class PantallaDeSesion extends ConsumerStatefulWidget {
 class _PantallaDeSesionState extends ConsumerState<PantallaDeSesion> {
   final _telefono = TextEditingController();
   final _contrasena = TextEditingController();
+  final _focoContrasena = FocusNode();
 
   @override
   void dispose() {
     _telefono.dispose();
     _contrasena.dispose();
+    _focoContrasena.dispose();
     super.dispose();
   }
 
-  /// El formato mínimo que el contrato acepta: la contraseña no baja de ocho. Es
-  /// ayuda para no gastar un viaje al servidor, no la decisión — la de verdad la
-  /// toma el servidor.
+  /// Validación local mínima; la decisión de autenticación siempre es del servidor.
   bool get _valido =>
       errorTelefono(_telefono.text) == null && _contrasena.text.length >= 8;
 
   Future<void> _ingresar() async {
+    if (!_valido || ref.read(sesionIdentidadProvider).enviando) return;
     final n = ref.read(sesionIdentidadProvider.notifier);
     n.actualizarCredenciales(
       telefono: _telefono.text.trim(),
@@ -119,11 +121,7 @@ class _PantallaDeSesionState extends ConsumerState<PantallaDeSesion> {
                       const SizedBox(height: Espacio.s5),
                       if (widget.cuentaRecienCreada &&
                           estado.error == null) ...[
-                        const Alerta(
-                          tono: Tono.ok,
-                          titulo: TextosIdentidad.altaListaTitulo,
-                          detalle: TextosIdentidad.altaListaDetalle,
-                        ),
+                        AvisoDeAlta(fotosPendientes: widget.fotosPendientes),
                         const SizedBox(height: Espacio.s4),
                       ],
                       if (estado.error != null) ...[
@@ -136,12 +134,17 @@ class _PantallaDeSesionState extends ConsumerState<PantallaDeSesion> {
                         ayuda: TextosIdentidad.sesionCelularAyuda,
                         controlador: _telefono,
                         tipoDeTeclado: TextInputType.phone,
+                        accionDeTeclado: TextInputAction.next,
+                        onSubmitted: (_) => _focoContrasena.requestFocus(),
                         onChanged: (_) => setState(() {}),
                       ),
                       const SizedBox(height: Espacio.s4),
                       CampoContrasena(
                         etiqueta: TextosIdentidad.contrasena,
                         controlador: _contrasena,
+                        foco: _focoContrasena,
+                        accionDeTeclado: TextInputAction.done,
+                        onSubmitted: (_) => _ingresar(),
                         onChanged: (_) => setState(() {}),
                       ),
                       const SizedBox(height: Espacio.s2),
@@ -180,7 +183,8 @@ class _PantallaDeSesionState extends ConsumerState<PantallaDeSesion> {
                     cargando: estado.enviando,
                     onPressed: _valido ? _ingresar : null,
                   ),
-                  const SesionSinCuenta(),
+                  if (MediaQuery.viewInsetsOf(context).bottom == 0)
+                    const SesionSinCuenta(),
                 ],
               ),
             ),

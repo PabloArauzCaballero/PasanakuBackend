@@ -66,7 +66,12 @@ class _Pastilla extends StatelessWidget {
           children: [
             Icon(icono, size: Espacio.s4, color: t.brandTexto),
             const SizedBox(width: Espacio.s2),
-            Text(texto, style: Tipo.cuerpoChico.copyWith(color: t.brandTexto)),
+            Flexible(
+              child: Text(
+                texto,
+                style: Tipo.cuerpoChico.copyWith(color: t.brandTexto),
+              ),
+            ),
           ],
         ),
       ),

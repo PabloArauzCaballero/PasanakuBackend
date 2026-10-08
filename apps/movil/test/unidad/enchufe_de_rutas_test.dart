@@ -40,7 +40,7 @@ void main() {
     () {
       Map<String, String> huella() => {
         for (final f in lib.listSync(recursive: true).whereType<File>())
-          if (!f.path.contains('/pantallas/identidad/'))
+          if (!f.path.replaceAll('\\', '/').contains('/pantallas/identidad/'))
             f.path: f.readAsStringSync(),
       };
       final antes = huella();

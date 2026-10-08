@@ -95,7 +95,7 @@ class PanelSorteo extends StatelessWidget {
             if (onVerificacionPublica != null)
               Expanded(
                 child: Boton(
-                  texto: 'Verificar afuera',
+                  texto: 'Verificar el sorteo',
                   variante: BotonVariante.fantasma,
                   onPressed: onVerificacionPublica,
                 ),

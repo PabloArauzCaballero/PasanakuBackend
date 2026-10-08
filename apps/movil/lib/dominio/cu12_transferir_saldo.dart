@@ -1,8 +1,10 @@
 import 'package:aportaya_cliente_nucleofinanciero/aportaya_cliente_nucleofinanciero.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../proveedores/conexion.dart';
 import '../dominio/cliente.dart';
-import '../proveedores/idempotencia.dart';
+import 'clave_persistida_de_billetera.dart';
+import 'error_de_operacion_de_dinero.dart';
 
 /// CU-12 · transferir saldo entre billeteras. El dinero no sale del sistema: cambia
 /// de bolsillo. Igual exige clave de idempotencia (invariante 7): una transferencia
@@ -22,11 +24,16 @@ class TransferirSaldo extends AsyncNotifier<SalidaTransferencia?> {
   }) async {
     if (state.isLoading) return;
     state = const AsyncLoading<SalidaTransferencia?>();
-    final dio = ref.read(dioProvider);
-    final clave = ref
-        .read(idempotenciaProvider.notifier)
-        .claveDe(formularioId(cuentaOrigenId));
     try {
+      exigirConexionConfirmada(ref);
+      final dio = ref.read(dioProvider);
+      final claves = ref.read(clavePersistidaDeBilleteraProvider);
+      final id = formularioId(cuentaOrigenId);
+      final clave = await claves.abrir(
+        formularioId: id,
+        datos: [monto, tipoDestino.name, valorDestino, concepto],
+      );
+      exigirConexionConfirmada(ref);
       final r = await DefaultApi(dio).transferirSaldo(
         idempotencyKey: clave,
         entradaTransferencia: EntradaTransferencia(
@@ -39,12 +46,20 @@ class TransferirSaldo extends AsyncNotifier<SalidaTransferencia?> {
           concepto: concepto,
         ),
       );
-      ref
-          .read(idempotenciaProvider.notifier)
-          .cerrar(formularioId(cuentaOrigenId));
-      state = AsyncData(r.data);
+      final salida = r.data;
+      if (salida == null) {
+        throw StateError(
+          'El servidor no devolvió el estado de la transferencia.',
+        );
+      }
+      state = AsyncData(salida);
+      try {
+        await claves.confirmar(id);
+      } on Object {
+        // El éxito remoto no se convierte en error por una limpieza local fallida.
+      }
     } catch (e) {
-      state = AsyncError(errorDeDominio(e), StackTrace.current);
+      state = AsyncError(errorDeOperacionDeDinero(e), StackTrace.current);
     }
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -141,6 +142,14 @@ class _ConAperturaState extends ConsumerState<_ConApertura> {
     _respaldo = Timer(const Duration(seconds: 2), _ocultar);
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_mostrando || !MediaQuery.disableAnimationsOf(context)) return;
+    _mostrando = false;
+    _respaldo?.cancel();
+  }
+
   Future<void> _decidirDondeEntrar() async {
     // Si leer el llavero falla —teléfono con el almacén bloqueado, un permiso raro—,
     // lo seguro es la portada: se pide ingresar de nuevo. Nunca al revés.
@@ -159,13 +168,19 @@ class _ConAperturaState extends ConsumerState<_ConApertura> {
   void _ocultar() {
     _respaldo?.cancel();
     if (!mounted || !_mostrando) return;
-    // Con «reducir movimiento», la apertura pide cerrarse mientras se está
-    // construyendo el árbol, y ahí `setState` sobre un ancestro es un error de
-    // Flutter. Se difiere al frame siguiente, que además es cuando corresponde.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_mostrando) return;
+    final binding = WidgetsBinding.instance;
+    // El respaldo puede vencer sin ticker ni cuadro pendiente: en idle, setState
+    // solicita el cuadro que retira el velo. Durante build se espera al final.
+    if (binding.schedulerPhase == SchedulerPhase.idle) {
       setState(() => _mostrando = false);
+      return;
+    }
+    binding.addPostFrameCallback((_) {
+      if (mounted && _mostrando) setState(() => _mostrando = false);
     });
+    if (binding.schedulerPhase == SchedulerPhase.postFrameCallbacks) {
+      binding.scheduleFrame();
+    }
   }
 
   @override
@@ -177,7 +192,7 @@ class _ConAperturaState extends ConsumerState<_ConApertura> {
   @override
   Widget build(BuildContext context) => Stack(
     children: [
-      widget.child,
+      ExcludeSemantics(excluding: _mostrando, child: widget.child),
       if (_mostrando)
         Positioned.fill(child: AperturaDeMarca(alTerminar: _ocultar)),
     ],

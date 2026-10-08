@@ -37,10 +37,7 @@ GoRouter crearEnrutador({String inicial = '/portada'}) => GoRouter(
       branches: [
         StatefulShellBranch(routes: rutasBilletera),
         StatefulShellBranch(
-          // Sin esto, la rama arranca en su primera ruta declarada. Para `identidad`
-          // esa primera ruta es `/identidad`, que es **iniciar sesión**: tocar
-          // «Perfil» dejaba a alguien ya identificado frente a un formulario de login.
-          // Cada rama dice explícitamente cuál es su casa.
+          // Cada rama declara su casa; Grupos no debe abrir un marcador vacío.
           initialLocation: '/pasanaku/mi-estado',
           routes: [
             ...rutasPasanaku,
@@ -57,15 +54,7 @@ GoRouter crearEnrutador({String inicial = '/portada'}) => GoRouter(
         ),
         StatefulShellBranch(
           initialLocation: '/identidad/perfil',
-          routes: [
-            ...rutasIdentidad,
-            // idem, para `identidad/rutas.dart` (carril M1, ficha `F3`).
-            GoRoute(
-              path: '/identidad',
-              builder: (context, state) =>
-                  const _AunNoDisponible(dominio: 'Perfil'),
-            ),
-          ],
+          routes: rutasIdentidad,
         ),
         // La quinta rama: el centro de ayuda. Tiene pila propia a propósito — se entra
         // a buscar cómo se hace algo y se vuelve a lo que uno estaba haciendo, sin
@@ -87,7 +76,9 @@ GoRouter crearEnrutador({String inicial = '/portada'}) => GoRouter(
   errorBuilder: (context, state) => Scaffold(
     body: SafeArea(
       child: EstadoError(
-        error: StateError('Ruta no encontrada: ${state.uri}'),
+        // La URI puede traer datos sensibles en una query de un enlace externo.
+        // No debe entrar al error, que un monitor futuro podría exportar.
+        error: StateError('Ruta no encontrada'),
         reintentar: () => context.go(inicial),
       ),
     ),

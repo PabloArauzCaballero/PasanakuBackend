@@ -19,44 +19,81 @@ class SelectorSegmentado<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
+    final escala = MediaQuery.textScalerOf(context).scale(14) / 14;
+    final vertical = escala >= 1.5;
+    final items = [
+      for (final e in opciones.entries)
+        _OpcionSegmentada(
+          texto: e.value,
+          seleccionada: e.key == valor,
+          onTap: () => onChanged(e.key),
+        ),
+    ];
     return Container(
       padding: const EdgeInsets.all(Espacio.s1),
       decoration: BoxDecoration(
         color: t.surface2,
         borderRadius: BorderRadius.circular(Radios.pill),
       ),
-      child: Row(
-        children: [
-          for (final e in opciones.entries)
-            Expanded(
-              child: Semantics(
-                button: true,
-                selected: e.key == valor,
-                label: e.value,
-                child: GestureDetector(
-                  onTap: () => onChanged(e.key),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 120),
-                    height: Tactil.minimo,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: e.key == valor
-                          ? t.verdeSolido
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(Radios.pill),
-                    ),
-                    child: Text(
-                      e.value,
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: e.key == valor ? t.sobreVerdeSolido : t.text2,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+      child: vertical
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = 0; i < items.length; i++) ...[
+                  if (i > 0) const SizedBox(height: Espacio.s1),
+                  items[i],
+                ],
+              ],
+            )
+          : Row(children: [for (final item in items) Expanded(child: item)]),
+    );
+  }
+}
+
+class _OpcionSegmentada extends StatelessWidget {
+  const _OpcionSegmentada({
+    required this.texto,
+    required this.seleccionada,
+    required this.onTap,
+  });
+
+  final String texto;
+  final bool seleccionada;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Tokens.of(context);
+    return Semantics(
+      button: true,
+      selected: seleccionada,
+      label: texto,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : MovimientoDeInterfaz.respuesta,
+          constraints: const BoxConstraints(minHeight: Tactil.minimo),
+          padding: const EdgeInsets.symmetric(
+            horizontal: Espacio.s2,
+            vertical: Espacio.s2,
+          ),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: seleccionada ? t.verdeSolido : Colors.transparent,
+            borderRadius: BorderRadius.circular(Radios.pill),
+          ),
+          child: Text(
+            texto,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: seleccionada ? t.sobreVerdeSolido : t.text2,
+              fontWeight: FontWeight.w600,
             ),
-        ],
+          ),
+        ),
       ),
     );
   }

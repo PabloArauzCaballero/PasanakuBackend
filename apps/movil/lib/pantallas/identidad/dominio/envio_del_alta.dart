@@ -50,10 +50,17 @@ Future<ResultadoDelAlta> enviarElAlta(Ref ref, EstadoAlta estado) async {
     // `usuarioId` al que atarlas. Si una falla, el alta NO se deshace — la cuenta ya
     // está creada y quien revisa en el backoffice ve el expediente incompleto, que es
     // recuperable; perder el alta entera no lo es.
-    if (r.usuarioId != null) {
-      await subirFotosDelExpediente(ref, estado, r.usuarioId!);
-    }
-    return ResultadoDelAlta(cuentaBilleteraId: r.cuentaBilleteraId);
+    final fotosPendientes = r.usuarioId == null
+        ? [
+            estado.rutaAnverso,
+            estado.rutaReverso,
+            estado.rutaSelfie,
+          ].any((ruta) => ruta != null && ruta.isNotEmpty)
+        : await subirFotosDelExpediente(ref, estado, r.usuarioId!);
+    return ResultadoDelAlta(
+      cuentaBilleteraId: r.cuentaBilleteraId,
+      fotosPendientes: fotosPendientes,
+    );
   } on Object catch (e) {
     return ResultadoDelAlta(error: mensajeDeError(e));
   }
@@ -62,9 +69,14 @@ Future<ResultadoDelAlta> enviarElAlta(Ref ref, EstadoAlta estado) async {
 /// Lo que devuelve el cierre: el id de la billetera que el backend abrió, o el error
 /// que hay que mostrarle a la persona. Nunca los dos.
 class ResultadoDelAlta {
-  const ResultadoDelAlta({this.cuentaBilleteraId, this.error});
+  const ResultadoDelAlta({
+    this.cuentaBilleteraId,
+    this.error,
+    this.fotosPendientes = false,
+  });
 
   /// `null` si el alta quedó pendiente de verificación y todavía no hay billetera.
   final String? cuentaBilleteraId;
   final String? error;
+  final bool fotosPendientes;
 }

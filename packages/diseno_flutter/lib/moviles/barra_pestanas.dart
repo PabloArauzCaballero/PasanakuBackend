@@ -20,6 +20,7 @@ class BarraPestanas extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
+    final escala = MediaQuery.textScalerOf(context).scale(14) / 14;
     assert(
       destinos.length >= 3 && destinos.length <= 5,
       'entre 3 y 5 destinos',
@@ -29,7 +30,8 @@ class BarraPestanas extends StatelessWidget {
       onDestinationSelected: onChanged,
       backgroundColor: t.surface,
       indicatorColor: t.brandBg,
-      height: Tactil.minimo + Espacio.s5,
+      // Deja espacio para etiquetas de dos líneas con texto ampliado.
+      height: (Tactil.minimo + Espacio.s5) * escala.clamp(1.0, 1.5),
       destinations: [
         for (final d in destinos)
           NavigationDestination(

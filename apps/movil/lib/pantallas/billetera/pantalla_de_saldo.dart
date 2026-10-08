@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../dominio/cu13_consultar_saldo.dart';
 import '../../navegacion/accion_de_avisos.dart';
+import '../../proveedores/conexion.dart';
 import 'cuerpo_de_saldo.dart';
 import 'textos.dart';
 import 'package:aportaya_diseno/moleculas/cabecera.dart';
@@ -19,6 +20,7 @@ class PantallaDeSaldo extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final saldo = ref.watch(saldoProvider(cuentaId));
+    final conexion = ref.watch(hayConexionProvider);
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -36,10 +38,14 @@ class PantallaDeSaldo extends ConsumerWidget {
                 child: EstadoDePantalla<SaldoBilletera>(
                   valor: saldo,
                   etiquetaDeCarga: TextosBilletera.cargandoSaldo,
-                  vacio: saldoEnCero,
                   mensajeVacio: TextosBilletera.sinMovimientos,
                   reintentar: () => ref.invalidate(saldoProvider(cuentaId)),
-                  exito: (s) => CuerpoDeSaldo(saldo: s),
+                  exito: (s) => CuerpoDeSaldo(
+                    saldo: s,
+                    conexion: conexion,
+                    reintentarConexion: () =>
+                        ref.invalidate(hayConexionProvider),
+                  ),
                 ),
               ),
             ],

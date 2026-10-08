@@ -27,8 +27,7 @@ class TextosDelAlta {
       'intentando estafarte.';
 
   static const origenDeFondos = 'Origen de los fondos';
-  static const origenDeFondosAyuda =
-      'De dónde sale la plata que vas a mover por acá.';
+  static const origenDeFondosAyuda = 'De dónde viene la plata.';
   static const origenFalta = 'Elegí de dónde salen tus fondos.';
   static const origenDetalle = 'Contanos de dónde';
   static const origenDetalleAyuda =
@@ -39,9 +38,7 @@ class TextosDelAlta {
   static const actividadFalta = 'Elegí a qué te dedicás.';
   static const elegirOpcion = 'Elegir';
   static const montoMensualEstimado = 'Monto mensual estimado';
-  static const montoMensualAyuda =
-      'Cuánto calculás mover por mes. Es una estimación, no un límite: '
-      'podés dejarlo vacío si todavía no sabés.';
+  static const montoMensualAyuda = 'Opcional; no es un límite.';
   static const montoInvalido = 'Escribí un monto mayor a cero, o dejalo vacío.';
 
   static const contratosCargando = 'Buscando el contrato vigente…';

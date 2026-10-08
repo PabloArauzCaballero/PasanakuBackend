@@ -104,6 +104,58 @@ void main() {
   });
 
   test(
+    'la sesión autenticada no retiene credenciales ni el código MFA',
+    () async {
+      final (:dio, :adaptador) = dioSimulado();
+      adaptador.onPost(
+        ruta,
+        (s) =>
+            s.reply(200, ejemplo('identidad', 'autenticar', 'vacio')['cuerpo']),
+        data: Matchers.any,
+      );
+      final c = contenedorCon(dio);
+      addTearDown(c.dispose);
+
+      final n = c.read(sesionIdentidadProvider.notifier);
+      n.actualizarCredenciales(
+        telefono: '+59178123456',
+        contrasena: 'Secreta123',
+      );
+      expect(await n.completarMfa('123456'), isTrue);
+
+      final estado = c.read(sesionIdentidadProvider);
+      expect(estado.paso, PasoSesion.autenticada);
+      expect(estado.telefono, isEmpty);
+      expect(estado.contrasena, isEmpty);
+      expect(estado.codigoMfa, isEmpty);
+    },
+  );
+
+  test('el desafío MFA conserva solo las credenciales necesarias', () async {
+    final (:dio, :adaptador) = dioSimulado();
+    adaptador.onPost(
+      ruta,
+      (s) => s.reply(200, ejemplo('identidad', 'autenticar', 'ok')['cuerpo']),
+      data: Matchers.any,
+    );
+    final c = contenedorCon(dio);
+    addTearDown(c.dispose);
+
+    final n = c.read(sesionIdentidadProvider.notifier);
+    n.actualizarCredenciales(
+      telefono: '+59178123456',
+      contrasena: 'Secreta123',
+    );
+    expect(await n.enviarCredenciales(), isTrue);
+
+    final estado = c.read(sesionIdentidadProvider);
+    expect(estado.paso, PasoSesion.mfa);
+    expect(estado.telefono, '+59178123456');
+    expect(estado.contrasena, 'Secreta123');
+    expect(estado.codigoMfa, isEmpty);
+  });
+
+  test(
     'un rechazo del servidor no abre sesión y se cuenta en voz de marca',
     () async {
       final (:dio, :adaptador) = dioSimulado();

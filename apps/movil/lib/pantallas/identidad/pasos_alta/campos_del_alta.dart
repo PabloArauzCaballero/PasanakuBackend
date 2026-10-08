@@ -1,5 +1,4 @@
 import 'package:aportaya_diseno/atomos/campo.dart';
-import 'package:aportaya_diseno/atomos/campo_de_seleccion.dart';
 import 'package:aportaya_diseno/moleculas/campo_de_fecha.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +6,7 @@ import 'package:flutter/services.dart';
 
 import '../textos.dart';
 import 'canal_de_verificacion.dart';
+import 'documento_y_lugar.dart';
 
 /// Los cinco campos del primer paso del alta, con su ícono y su ayuda.
 ///
@@ -129,44 +129,22 @@ class CamposDelAlta extends StatelessWidget {
           onChanged: (_) => onCambio('correo'),
         ),
         const SizedBox(height: Espacio.s3),
-        // El número y su extensión van en **un renglón**, como están en el carnet:
-        // `5551234 LP`. Separarlos sugiere que son dos datos sueltos, y no lo son —
-        // el número solo no identifica a nadie.
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 3,
-              child: Campo(
-                etiqueta: TextosIdentidad.numeroDocumento,
-                controlador: controladores[3],
-                foco: focos[3],
-                icono: Icons.credit_card_outlined,
-                ayuda: TextosIdentidad.documentoAyuda,
-                error: errores['documento'],
-                exito: _listo('documento'),
-                onChanged: (_) => onCambio('documento'),
-              ),
-            ),
-            const SizedBox(width: Espacio.s3),
-            Expanded(
-              flex: 2,
-              child: CampoDeSeleccion<String>(
-                etiqueta: TextosIdentidad.lugarExpedicion,
-                valor: lugar,
-                textoVacio: TextosIdentidad.lugarExpedicionVacio,
-                ayuda: TextosIdentidad.lugarExpedicionAyuda,
-                error: errores['lugar'],
-                exito: _listo('lugar'),
-                foco: focoLugar,
-                opciones: [
-                  for (final d in departamentos)
-                    (valor: d.sigla, texto: d.nombre),
-                ],
-                onElegida: onLugar,
-              ),
-            ),
+        // En ancho cómodo se leen juntos, como en el carnet; al crecer el texto
+        // se apilan para no recortar etiquetas ni ayudas.
+        DocumentoYLugar(
+          controlador: controladores[3],
+          focoNumero: focos[3],
+          focoLugar: focoLugar,
+          lugar: lugar,
+          opciones: [
+            for (final d in departamentos) (valor: d.sigla, texto: d.nombre),
           ],
+          errorNumero: errores['documento'],
+          errorLugar: errores['lugar'],
+          exitoNumero: _listo('documento'),
+          exitoLugar: _listo('lugar'),
+          onNumero: (_) => onCambio('documento'),
+          onLugar: onLugar,
         ),
         const SizedBox(height: Espacio.s3),
         CampoDeFecha(

@@ -1,7 +1,9 @@
+import 'package:aportaya_diseno/atomos/campo.dart';
 import 'package:aportaya_diseno/atomos/selector_segmentado.dart';
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_movil/pantallas/identidad/dominio/estado_alta.dart';
+import 'package:aportaya_movil/pantallas/identidad/dominio/notifier_alta.dart';
 import 'package:aportaya_movil/pantallas/identidad/pasos_alta/paso_datos.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,7 +19,14 @@ void main() {
   Future<void> abrir(
     WidgetTester tester, {
     ProviderContainer? contenedor,
+    bool textoGrande = false,
   }) async {
+    if (textoGrande) {
+      tester.view.physicalSize = const Size(320, 760);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+    }
     final scope = contenedor ?? ProviderContainer();
     addTearDown(scope.dispose);
     await tester.pumpWidget(
@@ -25,11 +34,20 @@ void main() {
         container: scope,
         child: MaterialApp(
           theme: temaDesde(Tokens.claro, Brightness.light),
-          home: const Scaffold(body: SingleChildScrollView(child: PasoDatos())),
+          home: MediaQuery(
+            data: MediaQueryData(
+              size: textoGrande ? const Size(320, 760) : const Size(800, 600),
+              textScaler: TextScaler.linear(textoGrande ? 2 : 1),
+            ),
+            child: const Scaffold(
+              body: SingleChildScrollView(child: PasoDatos()),
+            ),
+          ),
         ),
       ),
     );
     await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 450));
   }
 
   testWidgets(
@@ -40,6 +58,38 @@ void main() {
       expect(find.text('Elegí una fecha.'), findsNothing);
     },
   );
+
+  testWidgets('a 320 dp y texto 200 % documento y lugar no truncan ayudas', (
+    tester,
+  ) async {
+    await abrir(tester, textoGrande: true);
+    final numero = find.text('Número de documento');
+    final lugar = find.text('Expedido en');
+    expect(
+      tester.getRect(lugar).top,
+      greaterThan(tester.getRect(numero).bottom),
+    );
+
+    final campo = find.ancestor(of: numero, matching: find.byType(Campo));
+    final entrada = tester.widget<TextField>(
+      find.descendant(of: campo, matching: find.byType(TextField)),
+    );
+    expect(entrada.decoration!.helperMaxLines, greaterThanOrEqualTo(4));
+    final selector = tester.widget<DropdownButtonFormField<String>>(
+      find.byType(DropdownButtonFormField<String>),
+    );
+    expect(selector.decoration.helperMaxLines, greaterThanOrEqualTo(4));
+    await tester.ensureVisible(find.byType(DropdownButtonFormField<String>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(DropdownButtonFormField<String>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('La Paz').last);
+    await tester.pumpAndSettle();
+    final estado = ProviderScope.containerOf(
+      tester.element(find.byType(PasoDatos)),
+    );
+    expect(estado.read(altaProvider).datos.lugarExpedicion, 'LP');
+  });
 
   testWidgets('tocar «Continuar» con el formulario vacío muestra qué falta', (
     tester,
@@ -89,6 +139,7 @@ void main() {
 
     await tester.enterText(find.byType(TextField).at(2), '71000090');
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 450));
 
     final contenedor = ProviderScope.containerOf(
       tester.element(find.byType(PasoDatos)),
@@ -138,6 +189,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Continuar'));
     await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 450));
     expect(contenedor.read(altaProvider).paso, PasoAlta.contrasena);
   });
 }

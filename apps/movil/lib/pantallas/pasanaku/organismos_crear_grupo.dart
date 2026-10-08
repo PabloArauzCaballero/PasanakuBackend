@@ -10,16 +10,10 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'dominio/periodicidades.dart';
 import 'grilla_de_opciones.dart';
 import 'pantalla_crear_grupo.dart';
 import 'textos.dart';
-
-const periodicidades = {
-  'SEMANAL': (nombre: 'Semanal', alAno: '52 turnos al año'),
-  'QUINCENAL': (nombre: 'Quincenal', alAno: '24 al año'),
-  'MENSUAL': (nombre: 'Mensual', alAno: '12 al año'),
-  'BIMENSUAL': (nombre: 'Bimensual', alAno: '6 al año'),
-};
 
 const modalidades = {
   'SORTEO_ALEATORIO': (

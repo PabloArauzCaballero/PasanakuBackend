@@ -4,10 +4,11 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../dominio/estado_alta.dart';
+import '../dominio/notifier_alta.dart';
 import '../dominio/validaciones.dart';
 import '../textos.dart';
 import 'campos_del_alta.dart';
+import 'foco_del_primer_error.dart';
 
 /// Paso 1 de 8 — datos personales (CU-01). Un organismo puro: lee y escribe en el
 /// notifier, no llama a la red.
@@ -112,7 +113,6 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
       ref.read(altaProvider.notifier).siguiente();
       return;
     }
-    // Al primer campo que falla, para no dejar a nadie buscando cuál era.
     const orden = [
       'nombres',
       'apellidos',
@@ -123,11 +123,12 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
       'fecha',
     ];
     final primero = orden.indexOf(fallan.first.key);
-    (switch (primero) {
+    final foco = switch (primero) {
       5 => _focoLugar,
       6 => _focoFecha,
       _ => _focos[primero],
-    }).requestFocus();
+    };
+    mostrarPrimerError(foco, context);
   }
 
   @override

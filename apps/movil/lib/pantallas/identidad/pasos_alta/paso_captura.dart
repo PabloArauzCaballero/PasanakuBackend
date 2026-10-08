@@ -42,9 +42,17 @@ class _PasoCapturaState extends ConsumerState<PasoCaptura> {
   bool _aMano = false;
 
   Future<void> _capturar() async {
-    final ruta = await ref
-        .read(camaraProvider)
-        .capturar(esDocumento: widget.esDocumento);
+    String? ruta;
+    try {
+      ruta = await ref
+          .read(camaraProvider)
+          .capturar(esDocumento: widget.esDocumento);
+    } catch (_) {
+      // Una denegación del sistema o un fallo del plugin no debe tumbar el alta.
+      // La persona conserva las alternativas visibles de foto/manual.
+      ruta = null;
+    }
+    if (!mounted) return;
     setState(() => _fallo = ruta == null);
     widget.onCapturado(ruta);
   }

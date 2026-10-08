@@ -150,10 +150,16 @@ class _TraduccionDeErrores extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     final respuesta = err.response;
     if (respuesta == null) {
+      final tiempoAgotado = switch (err.type) {
+        DioExceptionType.connectionTimeout ||
+        DioExceptionType.sendTimeout ||
+        DioExceptionType.receiveTimeout => true,
+        _ => false,
+      };
       return handler.reject(
         DioException(
           requestOptions: err.requestOptions,
-          error: ErrorDeRed(),
+          error: tiempoAgotado ? const ErrorDeTiempoDeEspera() : ErrorDeRed(),
           type: err.type,
         ),
       );

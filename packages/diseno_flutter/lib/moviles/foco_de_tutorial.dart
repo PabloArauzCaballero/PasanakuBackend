@@ -43,9 +43,7 @@ class FocoDeTutorial extends StatelessWidget {
           )
         : TweenAnimationBuilder<Rect?>(
             tween: RectTween(end: actual),
-            duration: quieto
-                ? Duration.zero
-                : const Duration(milliseconds: 220),
+            duration: quieto ? Duration.zero : MovimientoDeInterfaz.base,
             curve: Curves.easeOutCubic,
             builder: (context, animado, _) => CustomPaint(
               painter: _PintorDeFoco(

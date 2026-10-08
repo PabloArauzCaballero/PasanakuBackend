@@ -19,8 +19,6 @@ bool carnetValido(String valor) =>
 /// Un monto en bolivianos, como cadena decimal (`Dinero` viaja así, nunca `double`):
 /// hasta dos decimales, sin signo, mayor que cero.
 bool montoValido(String valor) {
-  final m = RegExp(r'^\d+(\.\d{1,2})?$').firstMatch(valor);
-  if (m == null) return false;
-  final n = double.parse(valor); // permitido: valida forma, no formatea
-  return n > 0;
+  if (!RegExp(r'^\d+(\.\d{1,2})?$').hasMatch(valor)) return false;
+  return RegExp(r'[1-9]').hasMatch(valor);
 }

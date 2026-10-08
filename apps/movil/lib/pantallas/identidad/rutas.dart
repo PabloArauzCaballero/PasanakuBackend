@@ -24,31 +24,9 @@ import 'pantalla_verificacion_profunda.dart';
 /// Movimientos · Perfil.
 ///
 /// [rutasDeEntrada] son las que van **encima** del shell, sin barra de pestañas,
-/// porque se ven antes de tener sesión: portada, tour, ingreso, alta, contrato y
-/// bienvenida.
+/// porque se ven antes de tener sesión: portada, tour, ingreso, alta, MFA,
+/// contrato y bienvenida.
 final List<RouteBase> rutasIdentidad = [
-  GoRoute(
-    path: '/identidad',
-    name: 'identidad.sesion',
-    builder: (context, state) => const PantallaDeSesion(),
-  ),
-  // La maqueta separa "registro" (datos) de "verificacion-basica" (celular +
-  // documento + prueba de vida + cotejo), pero ambas son pasos del mismo asistente
-  // de ocho pasos que gobierna `AltaNotifier` (§ pantalla_registro.dart) — dos
-  // puertas de entrada a un único estado compartido por Riverpod, no dos flujos
-  // independientes. Se registran como dos rutas porque así las nombra la maqueta y
-  // así las linkea el resto de la app (por ejemplo, un enlace profundo que retoma
-  // justo después de los datos personales).
-  GoRoute(
-    path: '/identidad/verificacion-basica',
-    name: 'identidad.verificacion-basica',
-    builder: (context, state) => const PantallaDeRegistro(),
-  ),
-  GoRoute(
-    path: '/identidad/mfa',
-    name: 'identidad.mfa',
-    builder: (context, state) => const PantallaDeMfa(),
-  ),
   GoRoute(
     path: '/identidad/dispositivos',
     name: 'identidad.dispositivos',
@@ -93,6 +71,25 @@ final List<RouteBase> rutasIdentidad = [
 /// `/identidad/ingreso` — una ruta que nunca existió: quien perdía la sesión no
 /// llegaba al login sino a «ruta no encontrada».
 final List<RouteBase> rutasDeEntrada = [
+  // Alias anteriores a la sesión. No pueden vivir en el shell: mostrar pestañas
+  // durante ingreso, alta o MFA sugiere una cuenta abierta que aún no existe.
+  GoRoute(
+    path: '/identidad',
+    name: 'identidad.sesion',
+    builder: (context, state) => const PantallaDeSesion(),
+  ),
+  // "registro" y "verificacion-basica" son dos puertas al mismo asistente de
+  // AltaNotifier, no dos flujos distintos ni una sesión abierta.
+  GoRoute(
+    path: '/identidad/verificacion-basica',
+    name: 'identidad.verificacion-basica',
+    builder: (context, state) => const PantallaDeRegistro(),
+  ),
+  GoRoute(
+    path: '/identidad/mfa',
+    name: 'identidad.mfa',
+    builder: (context, state) => const PantallaDeMfa(),
+  ),
   GoRoute(
     path: '/portada',
     name: 'identidad.portada',
@@ -119,6 +116,7 @@ final List<RouteBase> rutasDeEntrada = [
       state,
       PantallaDeSesion(
         cuentaRecienCreada: state.uri.queryParameters['alta'] == 'lista',
+        fotosPendientes: state.uri.queryParameters['fotos'] == 'pendientes',
       ),
     ),
   ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../atomos/avatar.dart';
 import '../atomos/barra_de_puntos.dart';
@@ -65,6 +66,8 @@ import '../moviles/notificacion_emergente.dart';
 import '../moviles/pantalla_de_onboarding.dart';
 import '../moviles/teclado_numerico.dart';
 import '../organismos/banner_de_pauta.dart';
+import '../organismos/banner_sin_conexion.dart';
+import '../organismos/aviso_de_conexion.dart';
 import '../organismos/calendario_de_cuotas.dart';
 import '../organismos/estado_de_cuota.dart';
 import '../organismos/estado_error.dart';
@@ -700,6 +703,29 @@ final List<({String grupo, List<Muestra> muestras})> catalogo = [
       (
         nombre: 'Estado sin conexión',
         widget: () => EstadoError(error: _SinRedDeMuestra(), reintentar: () {}),
+      ),
+      (
+        nombre: 'Banner sin conexión',
+        widget: () => const BannerSinConexion(
+          detalle:
+              'Las operaciones están pausadas. Revisá cualquier intento pendiente al volver.',
+        ),
+      ),
+      (
+        nombre: 'Comprobando conexión',
+        widget: () => AvisoDeConexion(
+          estado: const AsyncLoading<bool>(),
+          detalleSinConexion: 'Las operaciones están pausadas.',
+          reintentar: () {},
+        ),
+      ),
+      (
+        nombre: 'Sonda de conexión fallida',
+        widget: () => AvisoDeConexion(
+          estado: AsyncError<bool>(StateError('sonda'), StackTrace.empty),
+          detalleSinConexion: 'Las operaciones están pausadas.',
+          reintentar: () {},
+        ),
       ),
       (
         nombre: 'Lista de movimientos',

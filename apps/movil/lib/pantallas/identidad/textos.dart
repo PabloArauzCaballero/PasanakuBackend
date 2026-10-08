@@ -22,7 +22,7 @@ class TextosIdentidad {
       'Se sortea, y cualquiera del grupo puede comprobarlo.';
   static const portadaCustodiaTitulo = 'La plata no la tenemos nosotros';
   static const portadaCustodiaDetalle =
-      'Queda en Banco Unión, aparte del dinero de la empresa.';
+      'Queda en una cuenta de custodia, aparte del dinero de AportaYa.';
   static const portadaSaltar = 'Saltar';
   static const tourSiguiente = 'Siguiente';
   // La bienvenida y las cuatro láminas del tour, con el texto exacto de la maqueta
@@ -66,6 +66,15 @@ class TextosIdentidad {
 
   // Alta (CU-01), ocho pasos.
   static const registroTitulo = 'Crear cuenta';
+  static const registroReanudado =
+      'Recuperamos tus datos. Volvé a revisar este paso y adjuntá las fotos del documento.';
+  static const registroNoGuardado =
+      'No pudimos guardar tu avance. Mantén la app abierta y vuelve a intentarlo.';
+  static const registroNoRecuperado =
+      'No pudimos recuperar tu avance. Puedes volver a ingresar tus datos.';
+  static const registroBorradorNoBorrado =
+      'Tu cuenta se creó, pero no pudimos borrar el avance guardado en este dispositivo. Por seguridad, cierra la app y contacta a soporte.';
+  static const registroRecuperando = 'Recuperando tu avance';
   static const telefonoAyuda = 'Ocho dígitos, sin el código de país.';
   static const documentoAyuda =
       'Tu cédula de identidad, sin puntos ni guiones.';
@@ -81,8 +90,7 @@ class TextosIdentidad {
       'Elegí cuál de tus dos contactos confirmás primero. Podés confirmar el otro '
       'más adelante desde tu perfil.';
   static const lugarExpedicionFalta = 'Elegí dónde te expidieron el carnet.';
-  static const fechaNacimientoAyuda =
-      'Para abrir una billetera hay que ser mayor de edad.';
+  static const fechaNacimientoAyuda = 'Debés ser mayor de edad.';
   static const registroPie =
       'Al continuar guardamos estos datos para abrir tu cuenta. '
       'Todavía no se envía nada al banco.';
@@ -105,10 +113,11 @@ class TextosIdentidad {
   static const telefono = 'Celular';
   static const tipoDocumento = 'Tipo de documento';
   static const numeroDocumento = 'Número de documento';
-  static const codigoPorSms = 'Te enviamos un código por SMS al';
-  static const codigoPorCorreo = 'Te enviamos un código al correo';
-  static const codigoNoLlega =
-      '¿No te llega? Volvé al paso anterior y cambiá por dónde querés recibirlo.';
+  static const verificacionNoDisponibleTitulo = 'Verificación no disponible';
+  static const verificacionNoDisponibleDetalle =
+      'No enviamos ningún código. Aún no podemos verificar tu contacto; '
+      'el alta queda pausada. Volvé más tarde.';
+  static const volverAlPasoAnterior = 'Volver';
   static const capturarAnverso = 'Fotografiá el frente de tu documento';
   static const capturarReverso = 'Fotografiá el reverso de tu documento';
   static const capturarSelfie = 'Mirá a la cámara y no te muevas';
@@ -123,22 +132,18 @@ class TextosIdentidad {
       'Este dispositivo no tiene cámara disponible. Podés elegir una foto que ya '
       'tengas, o escribir los datos a mano.';
 
-  // CU-03, declaración PEP.
-  static const preguntaPep =
-      '¿Ocupás o ocupaste un cargo público de alta jerarquía, o sos familiar '
-      'directo o cercano de alguien que lo ocupa?';
-  static const detallePep = 'Contanos el cargo y la institución';
-
   // CU-05, contrato de adhesión.
   static const tituloContrato = 'Contrato de adhesión y tarifario';
 
   // CU-04, sesión.
   static const altaListaTitulo = 'Tu cuenta quedó creada';
-  // Sin «la contraseña que elegiste»: el alta de ocho pasos **no** pide contraseña
-  // en ningún momento. Prometerla acá dejaría a alguien buscando una que nunca creó.
   static const altaListaDetalle =
       'Ingresá con tu celular para entrar a tu billetera. Si tu verificación '
       'sigue en curso, te avisamos por correo cuando termine.';
+  static const altaFotosPendientesTitulo = 'Algunas fotos quedaron pendientes';
+  static const altaFotosPendientesDetalle =
+      'Tu cuenta quedó creada, pero no pudimos enviar todas las fotos. '
+      'Ingresá y comunicate con soporte para completar la verificación.';
   static const tituloSesion = 'Ingresar';
   static const sesionSaludo = 'Hola de nuevo';
   static const sesionTitular = 'Entrá a tu billetera';
@@ -151,27 +156,36 @@ class TextosIdentidad {
       'AportaYa y te ayudamos a entrar.';
   static const sesionSinCuenta = '¿Todavía no tenés cuenta?';
   static const sesionCustodia =
-      'Tu plata queda en custodia en Banco Unión, separada del dinero de la empresa.';
+      'Tu plata queda en una cuenta de custodia, separada del dinero de AportaYa.';
   static const contrasena = 'Contraseña';
   static const ingresar = 'Ingresar';
-  static const tituloMfa = 'Verificación en dos pasos';
-  static const dispositivoDeConfianza =
-      'Confiar en este dispositivo por 30 días';
-  static const tusDispositivos = 'Tus dispositivos';
+  static const tusDispositivos = 'Dispositivos';
+  static const dispositivosNoDisponibles =
+      'Gestión de dispositivos no disponible';
+  static const detalleDispositivosNoDisponibles =
+      'Todavía no podés ver, confiar ni revocar dispositivos desde la app. '
+      'No se guardó ninguna elección.';
   static const revocar = 'Revocar';
 
   // CU-07 / CU-09.
   static const tituloPerfil = 'Tu perfil';
-  static const guardar = 'Guardar';
+  static const perfilNoDisponible = 'Gestiones de cuenta no disponibles';
+  static const detallePerfilNoDisponible =
+      'Correo, contraseña y baja todavía no se gestionan desde la app. '
+      'No se enviará ninguna solicitud.';
   static const tituloContrasenaNueva = 'Cambiar contraseña';
-  static const contrasenaActual = 'Contraseña actual';
-  static const contrasenaNueva = 'Contraseña nueva';
+  static const contrasenaNoDisponible =
+      'No podés cambiar la contraseña desde la app';
+  static const detalleContrasenaNoDisponible =
+      'Esta versión no puede guardar el cambio. No ingreses tu contraseña '
+      'aquí: no se enviará.';
   static const cerrarSesion = 'Cerrar sesión';
   static const tituloBaja = 'Dar de baja tu cuenta';
-  static const avisoBaja =
-      'Al confirmar, tu cuenta queda inhabilitada. Si tenés saldo o cupos '
-      'activos, primero hay que resolverlos.';
-  static const confirmarBaja = 'Confirmar baja';
+  static const bajaNoDisponible = 'La baja desde la app no está disponible';
+  static const detalleBajaNoDisponible =
+      'Esta pantalla todavía no puede enviar una solicitud de baja. '
+      'Tu cuenta no se cerró.';
+  static const volverAlPerfil = 'Volver al perfil';
 
   static const continuar = 'Continuar';
   static const atras = 'Atrás';

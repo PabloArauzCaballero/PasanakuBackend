@@ -106,6 +106,65 @@ void main() {
     },
   );
 
+  testWidgets('SelectorSegmentado muestra opciones completas al 200 %', (
+    tester,
+  ) async {
+    pantallaChica(tester);
+    var valor = 'SMS';
+    await tester.pumpWidget(
+      conTema(
+        StatefulBuilder(
+          builder: (context, setState) => SelectorSegmentado<String>(
+            opciones: const {
+              'SMS': 'SMS al celular',
+              'CORREO': 'Correo electrónico',
+            },
+            valor: valor,
+            onChanged: (v) => setState(() => valor = v),
+          ),
+        ),
+        escala: 2,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final selector = tester.getRect(find.byType(SelectorSegmentado<String>));
+    for (final etiqueta in ['SMS al celular', 'Correo electrónico']) {
+      final rect = tester.getRect(find.text(etiqueta));
+      expect(rect.left, greaterThanOrEqualTo(selector.left));
+      expect(rect.right, lessThanOrEqualTo(selector.right));
+      expect(rect.bottom, lessThanOrEqualTo(selector.bottom));
+    }
+    await tester.tap(find.text('Correo electrónico'));
+    await tester.pumpAndSettle();
+    expect(valor, 'CORREO');
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('SelectorSegmentado respeta reducir movimiento', (tester) async {
+    await tester.pumpWidget(
+      conTema(
+        Builder(
+          builder: (context) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(disableAnimations: true),
+            child: SelectorSegmentado<String>(
+              opciones: const {'lista': 'Lista', 'cal': 'Calendario'},
+              valor: 'lista',
+              onChanged: (_) {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(AnimatedContainer), findsNWidgets(2));
+    for (final contenedor in tester.widgetList<AnimatedContainer>(
+      find.byType(AnimatedContainer),
+    )) {
+      expect(contenedor.duration, Duration.zero);
+    }
+  });
+
   testWidgets('ChipsDeFiltro se acomodan en varias líneas, nunca en carrusel', (
     tester,
   ) async {

@@ -23,6 +23,13 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        testInstrumentationRunner = "pl.leancode.patrol.PatrolJUnitRunner"
+    }
+
+    testOptions {
+        // Patrol mantiene un servicio nativo por caso; aislarlos evita que el
+        // segundo herede el servicio cerrado del primero.
+        execution = "ANDROIDX_TEST_ORCHESTRATOR"
     }
 
     buildTypes {
@@ -45,6 +52,7 @@ flutter {
 }
 
 dependencies {
+    androidTestUtil("androidx.test:orchestrator:1.6.1")
     // El puerto `Biometria` (carril F2, `dominio/puertos/biometria.dart`) habla con
     // `BiometricPrompt` nativo por `MethodChannel`: no agrega paquete de pub, solo
     // esta dependencia de Gradle. `android/app/build.gradle.kts` no figura entre los

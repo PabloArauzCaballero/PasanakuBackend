@@ -12,7 +12,9 @@
     "test:front": "flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku --timeout 60s",
     "test:goldens": "flutter test test/goldens --timeout 60s",
     "test:a11y": "flutter test test/a11y --timeout 60s",
-    "test:e2e": "dart pub global activate patrol_cli 3.11.0 && patrol test --target integration_test"
+    "test:e2e": "dart pub global activate patrol_cli 3.11.0 && dart scripts/ejecutar_patrol.dart --exclude integration_test/reinicio_sembrar_test.dart --exclude integration_test/reinicio_verificar_test.dart",
+    "test:e2e:smoke": "dart pub global activate patrol_cli 3.11.0 && dart scripts/ejecutar_patrol.dart --target integration_test/arranque_y_registro_test.dart",
+    "test:e2e:reinicio": "dart pub global activate patrol_cli 3.11.0 && dart scripts/verificar_reinicio_android.dart"
   },
   "devDependencies": {
     "@aportaya/diseno-flutter": "workspace:*",

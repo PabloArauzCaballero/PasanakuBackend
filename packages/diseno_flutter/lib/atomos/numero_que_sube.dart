@@ -16,7 +16,7 @@ class NumeroQueSube extends StatefulWidget {
     this.etiqueta,
     this.estilo,
     this.sufijo = '',
-    this.duracion = const Duration(milliseconds: 650),
+    this.duracion = MovimientoDeInterfaz.contador,
   });
 
   final int valor;

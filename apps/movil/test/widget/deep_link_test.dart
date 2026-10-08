@@ -1,5 +1,6 @@
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/moviles/barra_pestanas.dart';
+import 'package:aportaya_diseno/organismos/estado_error.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_movil/navegacion/rutas.dart';
 import 'package:flutter/material.dart';
@@ -61,5 +62,47 @@ void main() {
     expect(find.text('Invitación al grupo'), findsOneWidget);
     expect(find.text('Ingresar'), findsOneWidget);
     expect(find.byType(BarraPestanas), findsNothing);
+  });
+
+  testWidgets(
+    'enlace malformado no traslada datos a la ruta ni consulta grupo',
+    (tester) async {
+      final router = crearEnrutador(
+        inicial: 'aportaya://unirse/ABC%3Fdocumento%3DCI_FICTICIA',
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(appCon(router));
+      await tester.pumpAndSettle();
+
+      expect(router.state.uri.toString(), '/pasanaku/unirse/invalida');
+      expect(
+        find.textContaining('El enlace de invitación no es válido.'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('Pedí uno nuevo'), findsOneWidget);
+      expect(find.text('Reintentar'), findsNothing);
+      expect(find.text('Ir a portada'), findsOneWidget);
+      expect(find.textContaining('CI_FICTICIA'), findsNothing);
+      await tester.tap(find.text('Ir a portada'));
+      await tester.pumpAndSettle();
+      expect(router.state.uri.toString(), '/portada');
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('una ruta desconocida no copia su query al error', (
+    tester,
+  ) async {
+    const ubicacion = '/ruta-inexistente?documento=CI_FICTICIA&monto=125.00';
+    final router = crearEnrutador(inicial: ubicacion);
+    addTearDown(router.dispose);
+    await tester.pumpWidget(appCon(router));
+    await tester.pumpAndSettle();
+
+    final error = tester.widget<EstadoError>(find.byType(EstadoError)).error;
+    expect(error.toString(), contains('Ruta no encontrada'));
+    expect(error.toString(), isNot(contains('CI_FICTICIA')));
+    expect(error.toString(), isNot(contains('125.00')));
+    expect(tester.takeException(), isNull);
   });
 }

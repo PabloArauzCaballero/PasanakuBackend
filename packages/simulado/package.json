@@ -19,24 +19,24 @@
     "mock": "node scripts/contratos-a-json.mjs && node scripts/generar-ejemplos.mjs && node scripts/inyectar-ejemplos.mjs && node scripts/servidor-mock.mjs",
     "typecheck": "tsc -p tsconfig.json",
     "lint": "eslint src scripts",
-    "test:front": "vitest run",
+    "test:front": "yarn build && vitest run",
     "test:a11y": "echo 'simulado: sin pruebas de a11y (no renderiza)'"
   },
   "dependencies": {
     "randexp": "^0.5.3"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.0",
-    "@hono/node-server": "2.1.1",
-    "@scalar/mock-server": "0.14.4",
-    "@types/node": "^22.10.0",
+    "@eslint/js": "^10.0.1",
+    "@hono/node-server": "2.1.3",
+    "@scalar/mock-server": "0.17.2",
+    "@types/node": "^26.6.4",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
-    "eslint": "^9.39.0",
-    "hono": "4.13.8",
-    "typescript": "~5.9.2",
-    "typescript-eslint": "^8.68.0",
-    "vitest": "^4.1.0",
-    "yaml": "^2.9.0"
+    "eslint": "^10.11.0",
+    "hono": "4.13.12",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.71.0",
+    "vitest": "^5.0.3",
+    "yaml": "^2.9.1"
   }
 }

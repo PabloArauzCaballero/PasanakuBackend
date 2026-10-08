@@ -3,13 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'cu02_subir_foto.dart';
 import 'estado_alta.dart';
 
-/// Sube al servidor de archivos las fotos que se sacaron durante el alta.
-Future<void> subirFotosDelExpediente(
+/// Sube las fotos y devuelve si alguna quedó pendiente de envío.
+Future<bool> subirFotosDelExpediente(
   Ref ref,
   EstadoAlta state,
   String usuarioId,
 ) async {
   final subida = ref.read(subidaDeFotosProvider);
+  var huboFallos = false;
   final pendientes = <CaraDelExpediente, String?>{
     CaraDelExpediente.anverso: state.rutaAnverso,
     CaraDelExpediente.reverso: state.rutaReverso,
@@ -27,8 +28,9 @@ Future<void> subirFotosDelExpediente(
       );
     } on Object {
       // Una foto que no sube no frena el alta. Queda como expediente incompleto y
-      // el backoffice lo ve; decirle a alguien «volvé a empezar» porque se corto
-      // la red al subir la tercera foto seria peor.
+      // se informa el pendiente: la cuenta ya existe y no debe crearse otra.
+      huboFallos = true;
     }
   }
+  return huboFallos;
 }

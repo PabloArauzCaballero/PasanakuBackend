@@ -32,68 +32,75 @@ class LaminaDelTour extends StatelessWidget {
     final quieto = MediaQuery.disableAnimationsOf(context);
     final d = quieto ? 0.0 : desplazamiento.clamp(-1.0, 1.0);
     final cerca = 1 - d.abs();
+    final textoGrande = MediaQuery.textScalerOf(context).scale(1) >= 1.5;
+    final tamanoArte = textoGrande ? 96.0 : 200.0;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: Espacio.s5),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Transform.translate(
-            offset: Offset(d * ancho * 0.45, 0),
-            child: Transform.scale(
-              scale: 0.86 + 0.14 * cerca,
-              child: Opacity(
-                opacity: (0.25 + 0.75 * cerca).clamp(0.0, 1.0),
-                child: Pedestal(
-                  tamano: 200,
-                  hijo: Ilustracion(
-                    pintor: lamina.arte,
-                    etiqueta: lamina.etiqueta,
-                    tamano: 200,
+    return LayoutBuilder(
+      builder: (context, restricciones) => SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: Espacio.s5),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: restricciones.maxHeight),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Transform.translate(
+                offset: Offset(d * ancho * 0.45, 0),
+                child: Transform.scale(
+                  scale: 0.86 + 0.14 * cerca,
+                  child: Opacity(
+                    opacity: (0.25 + 0.75 * cerca).clamp(0.0, 1.0),
+                    child: Pedestal(
+                      tamano: tamanoArte,
+                      hijo: Ilustracion(
+                        pintor: lamina.arte,
+                        etiqueta: lamina.etiqueta,
+                        tamano: tamanoArte,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-          const SizedBox(height: Espacio.s5),
-          Transform.translate(
-            offset: Offset(d * ancho * 0.18, 0),
-            child: Opacity(
-              opacity: cerca.clamp(0.0, 1.0),
-              child: Column(
-                children: [
-                  Semantics(
-                    header: true,
-                    child: Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(text: '${lamina.titulo}\n'),
+              SizedBox(height: textoGrande ? Espacio.s3 : Espacio.s5),
+              Transform.translate(
+                offset: Offset(d * ancho * 0.18, 0),
+                child: Opacity(
+                  opacity: cerca.clamp(0.0, 1.0),
+                  child: Column(
+                    children: [
+                      Semantics(
+                        header: true,
+                        child: Text.rich(
                           TextSpan(
-                            text: lamina.destacado,
-                            style: TextStyle(color: t.brandTexto),
+                            children: [
+                              TextSpan(text: '${lamina.titulo}\n'),
+                              TextSpan(
+                                text: lamina.destacado,
+                                style: TextStyle(color: t.brandTexto),
+                              ),
+                            ],
                           ),
-                        ],
+                          textAlign: TextAlign.center,
+                          style: Tipo.titulo1.copyWith(color: t.text),
+                        ),
                       ),
-                      textAlign: TextAlign.center,
-                      style: Tipo.titulo1.copyWith(color: t.text),
-                    ),
+                      const SizedBox(height: Espacio.s3),
+                      // El ancho del párrafo lo fija la maqueta (`max-width: 31ch`): un
+                      // renglón largo centrado se lee mal, y acá centrado es la norma.
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 320),
+                        child: Text(
+                          lamina.texto,
+                          textAlign: TextAlign.center,
+                          style: Tipo.cuerpo.copyWith(color: t.text2),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: Espacio.s3),
-                  // El ancho del párrafo lo fija la maqueta (`max-width: 31ch`): un
-                  // renglón largo centrado se lee mal, y acá centrado es la norma.
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 320),
-                    child: Text(
-                      lamina.texto,
-                      textAlign: TextAlign.center,
-                      style: Tipo.cuerpo.copyWith(color: t.text2),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

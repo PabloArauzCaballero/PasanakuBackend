@@ -1,4 +1,4 @@
-import 'package:aportaya_diseno/moleculas/riel_de_turnos.dart';
+import 'package:aportaya_diseno/moleculas/alerta.dart';
 import 'package:aportaya_diseno/organismos/estado_de_pantalla.dart';
 import 'package:aportaya_diseno/organismos/panel_sorteo.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
@@ -13,17 +13,8 @@ import 'textos.dart';
 /// propio de F5). El paquete del sorteo trae la semilla revelada solo después de
 /// `revelarSorteo`; antes viaja nula.
 class PantallaTurno extends ConsumerWidget {
-  const PantallaTurno({
-    super.key,
-    required this.sorteoId,
-    required this.total,
-    required this.miTurno,
-    required this.turnoActual,
-  });
+  const PantallaTurno({super.key, required this.sorteoId});
   final String sorteoId;
-  final int total;
-  final int miTurno;
-  final int turnoActual;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -36,7 +27,10 @@ class PantallaTurno extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              RielDeTurnos(total: total, actual: turnoActual, mio: miTurno),
+              const Alerta(
+                titulo: TextosPasanaku.turnoSinConfirmarTitulo,
+                detalle: TextosPasanaku.turnoSinConfirmarDetalle,
+              ),
               const SizedBox(height: Espacio.s5),
               Text(
                 TextosPasanaku.sorteoTitulo,
@@ -65,7 +59,9 @@ class PantallaTurno extends ConsumerWidget {
                         cuando: 'Al revelar',
                       ),
                   ],
-                  coincide: p.semillaRevelada == null ? null : true,
+                  // Una semilla revelada no prueba que el orden coincida.
+                  // El veredicto solo lo entrega la verificación pública.
+                  coincide: null,
                   onVerificacionPublica: () =>
                       context.push('/pasanaku/sorteos/$sorteoId/verificar'),
                 ),

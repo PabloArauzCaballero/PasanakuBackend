@@ -21,7 +21,7 @@ const OBLIGATORIOS = ['ruta', 'titulo', 'bajada', 'descripcion', 'indexable', 'a
 
 function leer(archivo) {
   const texto = readFileSync(archivo, 'utf8')
-  const m = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/.exec(texto)
+  const m = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/.exec(texto)
   if (!m) throw new Error(`${archivo}: sin frontmatter`)
   const meta = parse(m[1])
   for (const campo of OBLIGATORIOS) {

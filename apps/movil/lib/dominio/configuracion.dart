@@ -68,10 +68,18 @@ ResultadoValidacionGateway validarGateway(
   if (analizada.host.isEmpty) {
     return const ResultadoValidacionGateway.invalida('formato-invalido');
   }
+  // La base del gateway es solo origen + ruta versionada. Credenciales o datos
+  // en URL pueden acabar en diagnósticos, historiales y solicitudes posteriores.
+  if (analizada.userInfo.isNotEmpty ||
+      analizada.hasQuery ||
+      analizada.hasFragment) {
+    return const ResultadoValidacionGateway.invalida('url-con-datos');
+  }
 
   final host = analizada.host.toLowerCase();
   final esLoopback = _loopback.contains(host) || host.startsWith('127.');
-  if (esLoopback && release) {
+  final esAliasEmuladorAndroid = host == '10.0.2.2';
+  if ((esLoopback || esAliasEmuladorAndroid) && release) {
     return const ResultadoValidacionGateway.invalida('localhost-no-permitido');
   }
 
@@ -81,7 +89,7 @@ ResultadoValidacionGateway validarGateway(
       .toSet();
   final hostPermitido = permitidos.contains(host);
 
-  if (!hostPermitido && !esLoopback) {
+  if (!hostPermitido && !esLoopback && !esAliasEmuladorAndroid) {
     return const ResultadoValidacionGateway.invalida('host-ajeno');
   }
   if (release && analizada.scheme != 'https' && !esLoopback) {

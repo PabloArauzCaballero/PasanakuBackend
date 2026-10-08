@@ -8,7 +8,8 @@ import 'sesion.dart';
 const _claveHuella = 'dispositivo.huella';
 
 /// El identificador de **esta instalación**, que el contrato de CU-04 pide como
-/// `huellaDispositivo` para poder ofrecer «confiar en este dispositivo por 30 días».
+/// `huellaDispositivo`. El servidor decide si la reconoce como confiable;
+/// generar la huella no activa por sí solo una preferencia de 30 días.
 ///
 /// Se genera una vez y vive en el almacén seguro junto a los tokens. **No es un
 /// identificador de la persona ni del teléfono**: no sale de un IMEI, de una MAC ni
