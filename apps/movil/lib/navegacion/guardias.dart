@@ -2,6 +2,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../proveedores/sesion.dart';
+import 'retorno_de_invitacion.dart';
+
+/// El ingreso solo conserva un destino que también acepta el flujo posterior.
+/// No incrusta una URL arbitraria —y sus posibles datos— en `?volver=`.
+String rutaDeIngresoPara(Uri origen) {
+  final retorno = retornoDeInvitacion(origen.toString());
+  if (retorno == null) return '/ingreso';
+  return '/ingreso?volver=${Uri.encodeComponent(retorno)}';
+}
 
 /// Guardias que cada `rutas.dart` de dominio **compone** en su propia `GoRoute`
 /// (`redirect: (c, s) => exigirSesion(ref, s)`). Este archivo no se edita para
@@ -15,10 +24,9 @@ class Guardias {
     final sesion = _ref.read(sesionProvider);
     final token = await sesion.tokenDeAcceso();
     if (token != null) return null;
-    final vuelta = Uri.encodeComponent(estado.uri.toString());
     // `/ingreso`, no `/identidad/ingreso`: esa ruta nunca existió y quien perdía la
     // sesión terminaba en «ruta no encontrada» en vez de en el login.
-    return '/ingreso?volver=$vuelta';
+    return rutaDeIngresoPara(estado.uri);
   }
 
   /// Nivel de verificación insuficiente (CU-02, CU-40): a la pantalla que explica

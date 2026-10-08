@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../tokens/tokens.dart';
+
 /// Los hijos entran uno detrás de otro, subiendo apenas mientras aparecen.
 ///
 /// **Un solo momento orquestado, al abrir la pantalla.** No es una animación por
@@ -14,8 +16,8 @@ class AparicionEscalonada extends StatefulWidget {
   const AparicionEscalonada({
     super.key,
     required this.children,
-    this.escalon = const Duration(milliseconds: 45),
-    this.duracionPorHijo = const Duration(milliseconds: 280),
+    this.escalon = MovimientoDeInterfaz.escalon,
+    this.duracionPorHijo = MovimientoDeInterfaz.entrada,
   });
 
   final List<Widget> children;

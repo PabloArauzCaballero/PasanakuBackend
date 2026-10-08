@@ -5,10 +5,13 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_movil/app.dart';
 import 'package:aportaya_movil/navegacion/rutas.dart';
 import 'package:aportaya_movil/pantallas/identidad/textos.dart';
+import 'package:aportaya_movil/proveedores/sesion.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+
+import '../comun.dart';
 
 /// **La entrada, como la maqueta**: bienvenida → tour de cuatro láminas → alta.
 ///
@@ -18,6 +21,7 @@ import 'package:go_router/go_router.dart';
 /// onboarding va **centrado**, con símbolo, título, texto y puntos.
 void main() {
   Widget appCon(GoRouter router) => ProviderScope(
+    overrides: [almacenSeguroProvider.overrideWithValue(AlmacenEnMemoria())],
     child: MaterialApp.router(
       theme: temaDesde(Tokens.claro, Brightness.light),
       routerConfig: router,

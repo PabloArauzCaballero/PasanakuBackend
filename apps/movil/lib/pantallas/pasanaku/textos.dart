@@ -78,7 +78,10 @@ class TextosPasanaku {
 
   // Turno
   static const tituloTurno = 'El turno del grupo';
-  static const verificarPublicamente = 'Verificar afuera';
+  static const turnoSinConfirmarTitulo = 'Tu turno no está verificado';
+  static const turnoSinConfirmarDetalle =
+      'Podés revisar el sorteo publicado. No mostraremos una posición sin verificarla.';
+  static const verificarPublicamente = 'Verificar el sorteo';
   static const sorteoTitulo = 'Cómo se sorteó el orden';
   static const calendarioTitulo = 'Calendario del ciclo';
   static const plazoGuardado =
@@ -98,13 +101,41 @@ class TextosPasanaku {
 
   // Aporte (CU-21)
   static const tituloAportar = 'Aportar este período';
-  static const aportarBoton = 'Aportar';
+  static const aporteSinMontoVerificado =
+      'No podemos confirmar cuánto te toca aportar. Por seguridad, no '
+      'enviaremos un pago desde este enlace. Pedí ayuda para continuar.';
+  static const revisarAporte = 'Revisar aporte';
+  static const tituloRevisionAporte = 'Revisá tu aporte';
+  static const confirmarAporte = 'Confirmar aporte';
+  static const cambiarDatosAporte = 'Cambiar datos';
+  static const aporteMedioResumen = 'Medio de pago';
+  static const aporteRevisionAyuda =
+      'Todavía no enviamos nada. Revisá el monto, el medio y la referencia antes de confirmar.';
+  static const aporteEnviandoAyuda =
+      'Estamos enviando este aporte. Esperá la respuesta antes de volver a intentar.';
+  static const aporteReintentoAyuda =
+      'El intento anterior podría haber llegado. Revisá el estado antes de reintentar; se usarán los mismos datos.';
+  static const aporteSinConexion =
+      'Aporte pausado. Tus datos siguen aquí. Si ya lo intentaste, revisá el estado al volver.';
+  static const aporteMontoTitulo = 'Monto de este período';
+  static const aporteMontoAyuda =
+      'Lo define el reglamento del grupo y no se puede cambiar en este pago.';
+  static const aporteCanal = '¿Cómo vas a pagar?';
+  static const aporteReferencia = 'Referencia del pago';
+  static const aporteReferenciaAyuda =
+      'Copiá el código o número que te dio el medio de pago.';
+  static const aporteReferenciaFaltante =
+      'Ingresá la referencia para poder identificar el pago.';
   static const bolsaAcumulada = 'Bolsa acumulada';
   static const comision = 'Comisión';
   static const descuentoPorNivel = 'Descuento por tu nivel';
   static const neto = 'Neto a recibir el turno';
-  static const aportando = 'Cobrando tu aporte…';
-  static const aporteConfirmado = 'Aporte registrado.';
+  static const aportando = 'Registrando tu aporte…';
+  static const aporteConfirmado = 'Aporte registrado';
+  static const aporteConfirmadoDetalle =
+      'El pago quedó guardado. La obligación se actualizará cuando el medio de pago lo confirme.';
+  static const aporteYaRegistradoDetalle =
+      'Reconocimos tu intento anterior: no generamos un segundo pago.';
 
   // Entrega (CU-22)
   static const tituloEntrega = 'Recibir el fondo';
@@ -114,6 +145,10 @@ class TextosPasanaku {
 
   // Mora / incumplimiento — SIEMPRE en hechos, nunca en probabilidad
   static const tituloMora = 'Estado de tu aporte';
+  static const faltaIdentificarParticipacion =
+      'No podemos consultar tu estado porque falta identificar tu participación. '
+      'Por seguridad, no hagas un aporte desde esta pantalla; pedí ayuda.';
+  static const irAAyuda = 'Ir a ayuda';
   static String diasDesdeVencimiento(int dias) => dias <= 0
       ? 'Tu aporte vence hoy.'
       : 'Tu aporte está a $dias día${dias == 1 ? '' : 's'} de su plazo, vencido el';
@@ -127,6 +162,8 @@ class TextosPasanaku {
   static String restriccionVigente(String monto) =>
       'Tenés una restricción vigente. Se levanta pagando $monto.';
   static const tituloMiPuntaje = 'Tu puntaje de reputación';
+  static const faltaIdentificarPuntaje =
+      'No podemos consultar tu puntaje desde este enlace porque no confirma tu identidad. Pedí ayuda para continuar.';
   static const sinHistorial =
       'Todavía no tenés historial suficiente para un puntaje — no es una sanción, es que recién empezás.';
 

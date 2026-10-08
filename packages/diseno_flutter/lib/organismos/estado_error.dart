@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import '../errores.dart';
 import '../tokens/tokens.dart';
 
-/// Qué pasó en lenguaje humano, un botón de reintento y la traza para soporte.
+/// Qué pasó en lenguaje humano, un reintento opcional y la traza para soporte.
 /// Sin conexión es una variante: último estado conocido, operaciones bloqueadas.
 class EstadoError extends StatelessWidget {
   const EstadoError({super.key, required this.error, required this.reintentar});
 
   final Object error;
-  final VoidCallback reintentar;
+  final VoidCallback? reintentar;
 
   @override
   Widget build(BuildContext context) {
@@ -47,16 +47,18 @@ class EstadoError extends StatelessWidget {
               ).textTheme.bodySmall?.copyWith(color: t.text3),
             ),
           ],
-          const SizedBox(height: Espacio.s4),
-          FilledButton(
-            onPressed: reintentar,
-            style: FilledButton.styleFrom(
-              minimumSize: const Size(Tactil.minimo * 3, Tactil.minimo),
-              backgroundColor: t.verdeSolido,
-              foregroundColor: t.sobreVerdeSolido,
+          if (reintentar != null) ...[
+            const SizedBox(height: Espacio.s4),
+            FilledButton(
+              onPressed: reintentar,
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(Tactil.minimo * 3, Tactil.minimo),
+                backgroundColor: t.verdeSolido,
+                foregroundColor: t.sobreVerdeSolido,
+              ),
+              child: const Text('Volver a intentar'),
             ),
-            child: const Text('Volver a intentar'),
-          ),
+          ],
         ],
       ),
     );

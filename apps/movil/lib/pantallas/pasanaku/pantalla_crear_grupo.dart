@@ -36,8 +36,8 @@ abstract class PantallaCrearGrupoControles {
 class PantallaCrearGrupo extends ConsumerStatefulWidget {
   const PantallaCrearGrupo({super.key, this.organizadorId});
 
-  /// Nulo cuando el grupo lo administra la plataforma (RN-18): no hace falta
-  /// habilitación de organizador.
+  /// Nulo para un grupo autogestionado (RN-18): no hace falta habilitación
+  /// de organizador. El servicio sigue exigiendo el permiso GRUPO_CREAR.
   final String? organizadorId;
 
   @override

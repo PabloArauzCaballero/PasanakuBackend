@@ -48,8 +48,12 @@ class _PantallaDeTourState extends State<PantallaDeTour> {
       context.push('/registro');
       return;
     }
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _paginas.jumpToPage(_actual + 1);
+      return;
+    }
     _paginas.nextPage(
-      duration: const Duration(milliseconds: 520),
+      duration: MovimientoDeInterfaz.enfasis,
       curve: Curves.easeInOutCubicEmphasized,
     );
   }
@@ -59,6 +63,34 @@ class _PantallaDeTourState extends State<PantallaDeTour> {
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
+    final quieto = MediaQuery.disableAnimationsOf(context);
+    final pie = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        BarraDePuntos(total: laminasDelTour.length, actual: _actual),
+        const SizedBox(height: Espacio.s5),
+        Boton(
+          texto: _enLaUltima
+              ? TextosIdentidad.portadaCrearCuenta
+              : TextosIdentidad.tourSiguiente,
+          icono: _enLaUltima ? null : Icons.arrow_forward,
+          variante: BotonVariante.primario,
+          expandido: true,
+          onPressed: _siguiente,
+        ),
+        if (_enLaUltima)
+          Padding(
+            padding: const EdgeInsets.only(top: Espacio.s2),
+            child: TextButton(
+              onPressed: () => context.push('/ingreso'),
+              child: Text(
+                TextosIdentidad.portadaYaTengoCuenta,
+                style: Tipo.boton.copyWith(color: t.brandTexto),
+              ),
+            ),
+          ),
+      ],
+    );
     return FondoDeMarca(
       hijo: Scaffold(
         backgroundColor: Colors.transparent,
@@ -84,7 +116,9 @@ class _PantallaDeTourState extends State<PantallaDeTour> {
                     // golpe: la cabecera no salta mientras el dedo todavía está.
                     AnimatedOpacity(
                       opacity: _enLaUltima ? 0 : 1,
-                      duration: const Duration(milliseconds: 220),
+                      duration: quieto
+                          ? Duration.zero
+                          : MovimientoDeInterfaz.base,
                       child: TextButton(
                         onPressed: _enLaUltima
                             ? null
@@ -122,41 +156,14 @@ class _PantallaDeTourState extends State<PantallaDeTour> {
                   Espacio.s4,
                   Espacio.s4,
                 ),
-                child: AnimatedSize(
-                  duration: const Duration(milliseconds: 260),
-                  curve: Curves.easeOutCubic,
-                  alignment: Alignment.topCenter,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      BarraDePuntos(
-                        total: laminasDelTour.length,
-                        actual: _actual,
+                child: quieto
+                    ? pie
+                    : AnimatedSize(
+                        duration: MovimientoDeInterfaz.salida,
+                        curve: Curves.easeOutCubic,
+                        alignment: Alignment.topCenter,
+                        child: pie,
                       ),
-                      const SizedBox(height: Espacio.s5),
-                      Boton(
-                        texto: _enLaUltima
-                            ? TextosIdentidad.portadaCrearCuenta
-                            : TextosIdentidad.tourSiguiente,
-                        icono: _enLaUltima ? null : Icons.arrow_forward,
-                        variante: BotonVariante.primario,
-                        expandido: true,
-                        onPressed: _siguiente,
-                      ),
-                      if (_enLaUltima)
-                        Padding(
-                          padding: const EdgeInsets.only(top: Espacio.s2),
-                          child: TextButton(
-                            onPressed: () => context.push('/ingreso'),
-                            child: Text(
-                              TextosIdentidad.portadaYaTengoCuenta,
-                              style: Tipo.boton.copyWith(color: t.brandTexto),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
               ),
             ],
           ),

@@ -21,7 +21,3 @@ final saldoProvider = FutureProvider.autoDispose.family<SaldoBilletera, String>(
     }
   },
 );
-
-/// Qué es «vacío» para el saldo: una cuenta en cero **no es un error**, es una cuenta nueva.
-bool saldoEnCero(SaldoBilletera s) =>
-    s.disponible.monto == '0.00' && s.retenido.monto == '0.00';

@@ -15,16 +15,15 @@
     "noFallthroughCasesInSwitch": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
-    "baseUrl": ".",
     "paths": {
-      "@aportaya/simulado": ["packages/simulado/src/index.ts"],
-      "@aportaya/simulado/*": ["packages/simulado/src/*"],
-      "@aportaya/dominio-cliente": ["packages/dominio-cliente/src/index.ts"],
-      "@aportaya/dominio-cliente/*": ["packages/dominio-cliente/src/*"],
-      "@aportaya/tokens/*": ["packages/tokens/*"],
-      "@aportaya/tutoriales/*": ["packages/tutoriales/src/*"],
-      "@aportaya/ui/*": ["packages/ui/src/*"],
-      "clientes/angular/*": ["clientes/angular/*"]
+      "@aportaya/simulado": ["./packages/simulado/src/index.ts"],
+      "@aportaya/simulado/*": ["./packages/simulado/src/*"],
+      "@aportaya/dominio-cliente": ["./packages/dominio-cliente/src/index.ts"],
+      "@aportaya/dominio-cliente/*": ["./packages/dominio-cliente/src/*"],
+      "@aportaya/tokens/*": ["./packages/tokens/*"],
+      "@aportaya/tutoriales/*": ["./packages/tutoriales/src/*"],
+      "@aportaya/ui/*": ["./packages/ui/src/*"],
+      "clientes/angular/*": ["./clientes/angular/*"]
     }
   },
   "exclude": ["node_modules", "**/build", "**/dist"]

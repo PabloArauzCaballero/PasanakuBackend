@@ -1,47 +1,75 @@
-import 'package:aportaya_diseno/organismos/panel_bienvenida.dart';
+import 'package:aportaya_diseno/atomos/boton.dart';
+import 'package:aportaya_diseno/atomos/boton_variante.dart';
+import 'package:aportaya_diseno/atomos/tono.dart';
+import 'package:aportaya_diseno/moleculas/alerta.dart';
+import 'package:aportaya_diseno/moleculas/barra_de_accion.dart';
+import 'package:aportaya_diseno/moleculas/cabecera.dart';
+import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'dominio/estado_alta.dart';
 import 'textos.dart';
+import 'textos_bienvenida.dart';
 
-/// D-9 de la maqueta: bono de bienvenida y estado de cuenta nueva, al cerrar el
-/// alta de ocho pasos. El monto del bono es catálogo del backend (no se inventa un
-/// número acá); mientras no haya cliente de identidad, se declara el hueco y se
-/// muestra un texto neutro en su lugar.
+const _anchoMaximoBienvenida = 560.0;
+
+/// Esta ruta heredada puede abrirse sin un alta previa. No afirma que exista una
+/// cuenta ni ofrece entrar a Billetera/Perfil antes de autenticar. El alta real
+/// cierra en `/ingreso?alta=lista`, donde se muestra su resultado comprobado.
 class PantallaDeBienvenida extends StatelessWidget {
-  const PantallaDeBienvenida({super.key, this.datos = const DatosPersonales()});
-
-  final DatosPersonales datos;
+  const PantallaDeBienvenida({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text(TextosIdentidad.tituloBienvenida)),
-      body: SafeArea(
-        child: PanelBienvenida(
-          nombre: datos.nombres.isEmpty ? 'nueva cuenta' : datos.nombres,
-          // Hueco: el monto del bono lo define el catálogo del backend
-          // (`servicios/identidad` o promociones); no está en la bóveda de
-          // pantallas todavía. Va `null` —la frase del bono no se muestra— en vez
-          // de un `'—'`, que no es un importe del contrato `Dinero` y hacía que la
-          // pantalla entera reventara al construirse.
-          bono: null,
-          moneda: 'BOB',
-          pasos: [
-            (
-              texto: 'Ir a tu billetera',
-              hecho: false,
-              onTap: () => context.go('/billetera/inicio'),
+  Widget build(BuildContext context) => Scaffold(
+    body: SafeArea(
+      bottom: false,
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(Espacio.s4),
+              children: [
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: _anchoMaximoBienvenida,
+                    ),
+                    child: const Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        CabeceraDeSeccion(
+                          titulo: TextosIdentidad.tituloBienvenida,
+                        ),
+                        SizedBox(height: Espacio.s4),
+                        Alerta(
+                          titulo: TextosBienvenida.aviso,
+                          detalle: TextosBienvenida.detalle,
+                          tono: Tono.info,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-            (
-              texto: 'Completar tu perfil',
-              hecho: false,
-              onTap: () => context.push('/identidad/perfil'),
+          ),
+          BarraDeAccion(
+            hijo: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: _anchoMaximoBienvenida,
+                ),
+                child: Boton(
+                  texto: TextosBienvenida.irAIngresar,
+                  variante: BotonVariante.primario,
+                  expandido: true,
+                  onPressed: () => context.go('/ingreso'),
+                ),
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
 }

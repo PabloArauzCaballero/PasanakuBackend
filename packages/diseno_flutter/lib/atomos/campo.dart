@@ -25,6 +25,7 @@ class Campo extends StatelessWidget {
     this.formateadores,
     this.onChanged,
     this.onSubmitted,
+    this.accionDeTeclado,
     this.autofocus = false,
     this.soloLectura = false,
     this.onTap,
@@ -51,6 +52,7 @@ class Campo extends StatelessWidget {
   final List<TextInputFormatter>? formateadores;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
+  final TextInputAction? accionDeTeclado;
   final bool autofocus;
 
   /// El valor no se escribe: se elige. Un campo de fecha se ve como cualquier otro
@@ -88,6 +90,7 @@ class Campo extends StatelessWidget {
           inputFormatters: formateadores,
           onChanged: onChanged,
           onSubmitted: onSubmitted,
+          textInputAction: accionDeTeclado,
           autofocus: autofocus,
           style: texto.bodyLarge?.copyWith(color: t.text),
           decoration: DecoracionDeCampo.de(

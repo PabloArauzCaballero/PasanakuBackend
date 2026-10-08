@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../dominio/estado_alta.dart';
+import '../../../dominio/validacion.dart';
+import '../dominio/notifier_alta.dart';
 import '../textos.dart';
 import '../textos_del_alta.dart';
 import 'catalogo_del_perfil.dart';
@@ -53,9 +54,7 @@ class _PasoPerfilTransaccionalState
     super.initState();
     final estado = ref.read(altaProvider);
     _detalle = TextEditingController(text: estado.detalleDelOrigen);
-    _monto = TextEditingController(
-      text: estado.montoMensualEstimado?.round().toString() ?? '',
-    );
+    _monto = TextEditingController(text: estado.montoMensualEstimado);
     _origen = estado.origenDeFondos.isEmpty ? null : estado.origenDeFondos;
     _actividad = estado.actividadEconomica.isEmpty
         ? null
@@ -87,8 +86,7 @@ class _PasoPerfilTransaccionalState
   String? get _errorMonto {
     final texto = _monto.text.trim();
     if (texto.isEmpty) return null;
-    final valor = double.tryParse(texto);
-    if (valor == null || valor <= 0) return TextosDelAlta.montoInvalido;
+    if (!montoValido(texto)) return TextosDelAlta.montoInvalido;
     return null;
   }
 
@@ -107,7 +105,7 @@ class _PasoPerfilTransaccionalState
           origen: _origen!,
           detalleDelOrigen: _pideDetalle ? _detalle.text.trim() : '',
           actividad: _actividad!,
-          monto: double.tryParse(_monto.text.trim()),
+          monto: _monto.text.trim(),
         );
     ref.read(altaProvider.notifier).siguiente();
   }

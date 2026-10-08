@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../comun.dart';
@@ -86,15 +87,24 @@ void main() {
         expect(find.text('Retirar'), findsOneWidget);
         // Las dos secciones que dan contexto debajo de la cifra.
         expect(find.text('Tus pasanakus'), findsOneWidget);
-        expect(find.text('Movimientos'), findsOneWidget);
+        expect(find.text('Extracto'), findsOneWidget);
+        expect(find.text('Generar extracto'), findsOneWidget);
+        expect(
+          find.textContaining('No podemos mostrar tus pasanakus'),
+          findsOneWidget,
+        );
+        expect(
+          find.textContaining('Todavía no estás en ningún pasanaku'),
+          findsNothing,
+        );
         // La custodia sigue estando: es lo que responde «¿dónde está mi plata?».
-        expect(find.textContaining('Banco Unión'), findsOneWidget);
+        expect(find.textContaining('cuenta de custodia'), findsOneWidget);
       });
     },
   );
 
   testWidgets(
-    'vacío: una cuenta en cero dice por qué no hay nada y qué hacer',
+    'saldo cero: muestra el importe, recarga y contexto sin ocultar el inicio',
     (tester) async {
       final (:dio, :adaptador) = dioSimulado();
       final cero = {
@@ -104,16 +114,114 @@ void main() {
         'alCorteDe': '2026-01-15T10:30:00Z',
       };
       adaptador.onGet(ruta, (s) => s.reply(200, cero));
+      await conSuperficieDeTelefono(tester, () async {
+        await tester.pumpWidget(
+          conApp(const PantallaDeSaldo(cuentaId: cuenta), dio: dio),
+        );
+        await asentar(tester);
+        expect(
+          find.bySemanticsLabel('Saldo disponible: Bs 0,00'),
+          findsOneWidget,
+        );
+        expect(find.text('Recargar'), findsOneWidget);
+        expect(find.text('Tus pasanakus'), findsOneWidget);
+        expect(
+          find.textContaining('Elegí un período en el extracto'),
+          findsWidgets,
+        );
+      });
+    },
+  );
+
+  for (final brillo in [Brightness.light, Brightness.dark]) {
+    for (final escala in [1.0, 1.4, 2.0]) {
+      for (final ancho in [360, 390, 430, 480, 520, 550, 552, 554, 600]) {
+        testWidgets(
+          'saldo cero a $ancho×760 y texto ${escala * 100} % en $brillo',
+          (tester) async {
+            final original = tester.view.physicalSize;
+            final pixelRatioOriginal = tester.view.devicePixelRatio;
+            tester.view.physicalSize = Size(ancho.toDouble(), 760);
+            tester.view.devicePixelRatio = 1.0;
+            addTearDown(() {
+              tester.view.physicalSize = original;
+              tester.view.devicePixelRatio = pixelRatioOriginal;
+            });
+            final (:dio, :adaptador) = dioSimulado();
+            adaptador.onGet(
+              ruta,
+              (s) => s.reply(200, {
+                'cuentaId': cuenta,
+                'disponible': {'monto': '0.00', 'moneda': 'BOB'},
+                'retenido': {'monto': '0.00', 'moneda': 'BOB'},
+                'alCorteDe': '2026-01-15T10:30:00Z',
+              }),
+            );
+            await tester.pumpWidget(
+              conApp(
+                const PantallaDeSaldo(cuentaId: cuenta),
+                dio: dio,
+                brillo: brillo,
+                escalaDeTexto: escala,
+              ),
+            );
+            await asentar(tester);
+            expect(
+              find.bySemanticsLabel('Saldo disponible: Bs 0,00'),
+              findsOneWidget,
+            );
+            for (final accion in ['Aportar', 'Recargar', 'Retirar']) {
+              await tester.ensureVisible(find.text(accion));
+              await asentar(tester);
+              final parrafo = tester.renderObject<RenderParagraph>(
+                find.text(accion),
+              );
+              expect(parrafo.didExceedMaxLines, isFalse, reason: accion);
+            }
+            await asentar(tester);
+            expect(find.text('Recargar'), findsOneWidget);
+            expect(tester.takeException(), isNull);
+          },
+        );
+      }
+    }
+    testWidgets('saldo con fondos a 360×760 y texto 200 % en $brillo', (
+      tester,
+    ) async {
+      final original = tester.view.physicalSize;
+      final pixelRatioOriginal = tester.view.devicePixelRatio;
+      tester.view.physicalSize = const Size(360, 760);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.physicalSize = original;
+        tester.view.devicePixelRatio = pixelRatioOriginal;
+      });
+      final (:dio, :adaptador) = dioSimulado();
+      adaptador.onGet(
+        ruta,
+        (s) => s.reply(
+          200,
+          ejemplo('nucleo-financiero', 'consultarSaldo', 'ok')['cuerpo'],
+        ),
+      );
       await tester.pumpWidget(
-        conApp(const PantallaDeSaldo(cuentaId: cuenta), dio: dio),
+        conApp(
+          const PantallaDeSaldo(cuentaId: cuenta),
+          dio: dio,
+          brillo: brillo,
+          escalaDeTexto: 2,
+        ),
       );
       await asentar(tester);
       expect(
-        find.textContaining('Todavía no tenés movimientos'),
+        find.bySemanticsLabel(RegExp(r'^Saldo disponible: ')),
         findsOneWidget,
       );
-    },
-  );
+      await tester.ensureVisible(find.text('Recargar'));
+      await asentar(tester);
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   testWidgets(
     'error: mensaje humano, reintento a la vista y traza para soporte',
@@ -163,7 +271,7 @@ void main() {
       );
       await asentar(tester);
       expect(find.text('Volver a intentar'), findsOneWidget);
-      expect(find.textContaining('No hay conexión'), findsOneWidget);
+      expect(find.textContaining('No pudimos conectarnos'), findsOneWidget);
     },
   );
 

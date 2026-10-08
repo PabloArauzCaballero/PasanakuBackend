@@ -48,15 +48,16 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(resultado.mensaje),
-                    if (resultado.enlace case final enlace?) ...[
+                    if (resultado.invitacionId case final invitacionId?) ...[
                       const SizedBox(height: Espacio.s4),
-                      SelectableText(enlace),
+                      SelectableText('Código de invitación: $invitacionId'),
                       const SizedBox(height: Espacio.s4),
                       Boton(
-                        texto: 'Copiar enlace',
+                        texto: 'Copiar código',
                         variante: BotonVariante.primario,
-                        onPressed: () =>
-                            Clipboard.setData(ClipboardData(text: enlace)),
+                        onPressed: () => Clipboard.setData(
+                          ClipboardData(text: invitacionId),
+                        ),
                       ),
                     ],
                   ],

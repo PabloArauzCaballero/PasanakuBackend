@@ -15,7 +15,7 @@ class AperturaDeMarca extends StatefulWidget {
   const AperturaDeMarca({
     super.key,
     required this.alTerminar,
-    this.duracion = const Duration(milliseconds: 1400),
+    this.duracion = MovimientoDeInterfaz.marca,
   });
 
   final VoidCallback alTerminar;
@@ -75,6 +75,8 @@ class _AperturaDeMarcaState extends State<AperturaDeMarca>
       label: 'AportaYa',
       button: true,
       hint: 'Tocá para saltar la apertura',
+      onTap: _terminar,
+      excludeSemantics: true,
       child: GestureDetector(
         onTap: _terminar,
         behavior: HitTestBehavior.opaque,

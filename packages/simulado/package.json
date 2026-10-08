@@ -19,7 +19,7 @@
     "mock": "node scripts/contratos-a-json.mjs && node scripts/generar-ejemplos.mjs && node scripts/inyectar-ejemplos.mjs && node scripts/servidor-mock.mjs",
     "typecheck": "tsc -p tsconfig.json",
     "lint": "eslint src scripts",
-    "test:front": "vitest run",
+    "test:front": "yarn build && vitest run",
     "test:a11y": "echo 'simulado: sin pruebas de a11y (no renderiza)'"
   },
   "dependencies": {
@@ -34,7 +34,7 @@
     "ajv-formats": "^3.0.1",
     "eslint": "^10.11.0",
     "hono": "4.13.12",
-    "typescript": "~7.0.2",
+    "typescript": "~6.0.2",
     "typescript-eslint": "^8.71.0",
     "vitest": "^5.0.3",
     "yaml": "^2.9.1"

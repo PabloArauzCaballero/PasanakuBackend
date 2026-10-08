@@ -13,6 +13,9 @@ class CampoContrasena extends StatefulWidget {
     this.error,
     this.fortaleza,
     this.onChanged,
+    this.onSubmitted,
+    this.accionDeTeclado,
+    this.foco,
   });
 
   final String etiqueta;
@@ -26,6 +29,9 @@ class CampoContrasena extends StatefulWidget {
   /// 0..1; `null` no muestra medidor.
   final double? fortaleza;
   final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
+  final TextInputAction? accionDeTeclado;
+  final FocusNode? foco;
 
   @override
   State<CampoContrasena> createState() => _CampoContrasenaState();
@@ -47,6 +53,9 @@ class _CampoContrasenaState extends State<CampoContrasena> {
           error: widget.error,
           oculto: !_visible,
           onChanged: widget.onChanged,
+          onSubmitted: widget.onSubmitted,
+          accionDeTeclado: widget.accionDeTeclado,
+          foco: widget.foco,
           sufijo: IconButton(
             tooltip: _visible ? 'Ocultar contraseña' : 'Mostrar contraseña',
             icon: Icon(_visible ? Icons.visibility_off : Icons.visibility),

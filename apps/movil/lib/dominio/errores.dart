@@ -52,7 +52,7 @@ class ErrorDeApi implements Exception, ErrorPresentable {
 class ErrorDeRed implements Exception, ErrorPresentable {
   @override
   String get mensaje =>
-      'No hay conexión. Te mostramos lo último que vimos; para operar hace falta señal.';
+      'No pudimos conectarnos. Revisá tu conexión e intentá de nuevo.';
 
   @override
   String? get trazaId => null;
@@ -62,4 +62,20 @@ class ErrorDeRed implements Exception, ErrorPresentable {
 
   @override
   String toString() => 'ErrorDeRed';
+}
+
+class ErrorDeTiempoDeEspera implements Exception, ErrorPresentable {
+  const ErrorDeTiempoDeEspera();
+
+  @override
+  String get mensaje => 'La respuesta tardó demasiado. Intentá de nuevo.';
+
+  @override
+  String? get trazaId => null;
+
+  @override
+  bool get sinConexion => false;
+
+  @override
+  String toString() => 'ErrorDeTiempoDeEspera';
 }

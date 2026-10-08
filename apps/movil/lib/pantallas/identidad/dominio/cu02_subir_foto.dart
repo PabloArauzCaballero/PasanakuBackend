@@ -41,14 +41,14 @@ class SubidaDeFotos {
     // Bytes y no `MultipartFile.fromFile`: en la web la camara devuelve una URL `blob:`,
     // no una ruta de disco, y `File` no existe. `XFile` lee las dos.
     final foto = XFile(rutaLocal);
-    final cuerpo = FormData.fromMap({
-      'cara': cara.name.toUpperCase(),
-      'archivo': MultipartFile.fromBytes(
-        await foto.readAsBytes(),
-        filename: _nombreDeArchivo(rutaLocal),
-      ),
-    });
     try {
+      final cuerpo = FormData.fromMap({
+        'cara': cara.name.toUpperCase(),
+        'archivo': MultipartFile.fromBytes(
+          await foto.readAsBytes(),
+          filename: _nombreDeArchivo(rutaLocal),
+        ),
+      });
       final r = await _ref
           .read(dioProvider)
           .post<Map<String, dynamic>>(

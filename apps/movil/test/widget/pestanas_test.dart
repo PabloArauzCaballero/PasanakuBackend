@@ -1,20 +1,21 @@
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_movil/navegacion/rutas.dart';
+import 'package:aportaya_movil/proveedores/sesion.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:aportaya_diseno/moviles/barra_pestanas.dart';
 import 'package:go_router/go_router.dart';
 
+import '../comun.dart';
+
 /// **Cada pestaña abre su pantalla, no la primera ruta que encuentra.**
 ///
-/// `StatefulShellBranch` arranca en la primera ruta declarada de la rama si no se le
-/// dice otra cosa. Para `identidad` esa primera ruta es `/identidad`, que es **iniciar
-/// sesión**: tocar «Perfil» dejaba a alguien ya identificado frente a un formulario de
-/// login, sin saber por qué. Cada rama declara su casa, y esto lo vigila.
+/// Cada rama declara su casa; el ingreso, el alta y MFA quedan fuera del shell.
 void main() {
   Widget appCon(GoRouter router) => ProviderScope(
+    overrides: [almacenSeguroProvider.overrideWithValue(AlmacenEnMemoria())],
     child: MaterialApp.router(
       theme: temaDesde(Tokens.claro, Brightness.light),
       routerConfig: router,
@@ -53,6 +54,22 @@ void main() {
     },
   );
 
+  testWidgets('sin identificadores, «Ir a ayuda» abre una salida real', (
+    tester,
+  ) async {
+    final router = crearEnrutador(inicial: '/pasanaku/mi-estado');
+    await tester.pumpWidget(appCon(router));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.textContaining('falta identificar tu participación'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Ir a ayuda'));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.toString(), '/soporte/ayuda');
+  });
+
   testWidgets(
     '«Inicio» y «Movimientos» comparten rama y cada uno va a lo suyo',
     (tester) async {
@@ -81,6 +98,9 @@ void main() {
     '/tour',
     '/ingreso',
     '/registro',
+    '/identidad',
+    '/identidad/verificacion-basica',
+    '/identidad/mfa',
     '/identidad/contrato',
     '/identidad/bienvenida',
   ]) {

@@ -53,4 +53,27 @@ void main() {
     }
     expect(capturado, isA<ErrorDeRed>());
   });
+
+  test('timeout llega como espera agotada, no como teléfono sin red', () async {
+    final (:dio, :adaptador) = dioSimulado();
+    adaptador.onGet(
+      '/x',
+      (s) => s.throws(
+        0,
+        DioException(
+          requestOptions: RequestOptions(path: '/x'),
+          type: DioExceptionType.receiveTimeout,
+        ),
+      ),
+    );
+    Object? capturado;
+    try {
+      await dio.get<Map<String, dynamic>>('/x');
+    } catch (e) {
+      capturado = errorDeDominio(e);
+    }
+    expect(capturado, isA<ErrorDeTiempoDeEspera>());
+    expect((capturado as ErrorDeTiempoDeEspera).sinConexion, isFalse);
+    expect(capturado.mensaje, contains('respuesta tardó demasiado'));
+  });
 }

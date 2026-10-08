@@ -43,4 +43,13 @@ describe('tokens.css y tokens.dart', () => {
     expect(css).toContain(":root[data-theme='light']")
     expect(css).toContain(":root[data-theme='dark']")
   })
+
+  it('expone la misma escala de movimiento en CSS y Dart', () => {
+    for (const [nombre, milisegundos] of Object.entries(tokens.primitivas.movimiento)) {
+      expect(css).toContain(`--motion-${aKebab(nombre)}: ${milisegundos}ms;`)
+      expect(dart).toContain(
+        `static const Duration ${nombre} = Duration(milliseconds: ${milisegundos});`,
+      )
+    }
+  })
 })

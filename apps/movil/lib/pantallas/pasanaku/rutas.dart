@@ -1,18 +1,18 @@
 import 'package:go_router/go_router.dart';
 
-import 'pantalla_aportar.dart';
+import 'pantalla_aporte_no_disponible.dart';
+import 'pantalla_accion_personal_no_disponible.dart';
 import 'pantalla_crear_grupo.dart';
 import 'pantalla_invitar.dart';
 import 'pantalla_mi_estado.dart';
 import 'pantalla_mi_puntaje.dart';
 import 'pantalla_pedir_cupo.dart';
-import 'pantalla_permuta.dart';
 import 'pantalla_reclamo_pendiente.dart';
-import 'pantalla_retiro.dart';
 import 'pantalla_transparencia.dart';
 import 'pantalla_turno.dart';
 import 'pantalla_unirse.dart';
 import 'pantalla_verificar_sorteo.dart';
+import 'textos.dart';
 
 /// Las rutas del dominio pasanaku. Sigue el mismo patrón que `billetera` (M2) e
 /// `identidad` (M1): un archivo por pantalla, todo registrado acá, nada en el
@@ -24,9 +24,12 @@ final List<RouteBase> rutasPasanaku = [
   GoRoute(
     path: '/pasanaku/grupos/nuevo',
     name: 'pasanaku.crearGrupo',
-    builder: (context, state) => PantallaCrearGrupo(
-      organizadorId: state.uri.queryParameters['organizador'],
-    ),
+    // Un ID de organizador recibido por URL no demuestra titularidad.
+    builder: (context, state) => state.uri.hasQuery
+        ? const PantallaAccionPersonalNoDisponible(
+            titulo: TextosPasanaku.tituloCrearGrupo,
+          )
+        : const PantallaCrearGrupo(),
   ),
   GoRoute(
     path: '/pasanaku/grupos/:grupoId/pedir-cupo',
@@ -43,18 +46,17 @@ final List<RouteBase> rutasPasanaku = [
   GoRoute(
     path: '/pasanaku/grupos/:grupoId/retiro',
     name: 'pasanaku.retiro',
-    builder: (context, state) => PantallaRetiro(
-      grupoId: state.pathParameters['grupoId']!,
-      participanteId: state.uri.queryParameters['participante'] ?? '',
+    // No hay contrato que derive la participación propia desde la sesión.
+    builder: (context, state) => const PantallaAccionPersonalNoDisponible(
+      titulo: TextosPasanaku.tituloRetiro,
     ),
   ),
   GoRoute(
     path: '/pasanaku/turnos/permuta',
     name: 'pasanaku.permuta',
-    builder: (context, state) => PantallaPermuta(
-      turnoOrigenId: state.uri.queryParameters['origen'] ?? '',
-      turnoDestinoId: state.uri.queryParameters['destino'] ?? '',
-      contraparteId: state.uri.queryParameters['contraparte'] ?? '',
+    // Los IDs de turnos y contraparte de un enlace no prueban autorización.
+    builder: (context, state) => const PantallaAccionPersonalNoDisponible(
+      titulo: TextosPasanaku.tituloPermuta,
     ),
   ),
   GoRoute(
@@ -72,38 +74,33 @@ final List<RouteBase> rutasPasanaku = [
   GoRoute(
     path: '/pasanaku/mi-estado',
     name: 'pasanaku.miEstado',
-    builder: (context, state) => PantallaMiEstado(
-      participanteId: state.uri.queryParameters['participante'] ?? '',
-      usuarioId: state.uri.queryParameters['usuario'] ?? '',
-    ),
+    // Un enlace no prueba la titularidad de la participación ni del usuario.
+    redirect: (context, state) => state.uri.hasQuery ? state.uri.path : null,
+    builder: (context, state) =>
+        const PantallaMiEstado(participanteId: '', usuarioId: ''),
   ),
   GoRoute(
     path: '/pasanaku/mi-puntaje',
     name: 'pasanaku.miPuntaje',
-    builder: (context, state) => PantallaMiPuntaje(
-      usuarioId: state.uri.queryParameters['usuario'] ?? '',
-    ),
+    redirect: (context, state) => state.uri.hasQuery ? state.uri.path : null,
+    builder: (context, state) => const PantallaMiPuntaje(usuarioId: ''),
   ),
   GoRoute(
     path: '/pasanaku/sorteos/:sorteoId/turno',
     name: 'pasanaku.turno',
-    builder: (context, state) {
-      final q = state.uri.queryParameters;
-      return PantallaTurno(
-        sorteoId: state.pathParameters['sorteoId']!,
-        total: int.parse(q['total'] ?? '0'),
-        miTurno: int.parse(q['mio'] ?? '0'),
-        turnoActual: int.parse(q['actual'] ?? '0'),
-      );
-    },
+    // El turno personal y el actual no están en el contrato publicado. Los
+    // parámetros de un enlace no son una fuente confiable para mostrarlos.
+    redirect: (context, state) => state.uri.hasQuery ? state.uri.path : null,
+    builder: (context, state) =>
+        PantallaTurno(sorteoId: state.pathParameters['sorteoId']!),
   ),
   GoRoute(
     path: '/pasanaku/obligaciones/:obligacionId/aportar',
     name: 'pasanaku.aportar',
-    builder: (context, state) => PantallaAportar(
-      obligacionId: state.pathParameters['obligacionId']!,
-      montoDelPeriodo: state.uri.queryParameters['monto'] ?? '0.00',
-    ),
+    // Un importe de query no es una obligación verificada y además queda en
+    // historiales/logs. Hasta tener GET autenticado, la ruta falla cerrado.
+    redirect: (context, state) => state.uri.hasQuery ? state.uri.path : null,
+    builder: (context, state) => const PantallaAporteNoDisponible(),
   ),
   GoRoute(
     path: '/pasanaku/reclamos/nuevo',

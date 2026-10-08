@@ -26,7 +26,7 @@ class MontoQueSube extends StatefulWidget {
     required this.moneda,
     this.etiqueta,
     this.estilo,
-    this.duracion = const Duration(milliseconds: 650),
+    this.duracion = MovimientoDeInterfaz.contador,
   });
 
   /// El importe como cadena del contrato (`^-?\d+\.\d{2}$`).

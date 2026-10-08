@@ -1,11 +1,15 @@
 import 'package:aportaya_cliente_aportes/aportaya_cliente_aportes.dart';
+import 'package:aportaya_diseno/atomos/boton.dart';
+import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/chip_estado.dart';
 import 'package:aportaya_diseno/atomos/monto.dart';
 import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/organismos/estado_de_pantalla.dart';
+import 'package:aportaya_diseno/organismos/estado_vacio.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'dominio/estado_de_mora.dart';
 import 'textos.dart';
@@ -28,6 +32,25 @@ class PantallaMiEstado extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (participanteId.trim().isEmpty || usuarioId.trim().isEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: const Text(TextosPasanaku.tituloMora)),
+        body: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              child: EstadoVacio(
+                mensaje: TextosPasanaku.faltaIdentificarParticipacion,
+                accion: Boton(
+                  texto: TextosPasanaku.irAAyuda,
+                  variante: BotonVariante.secundario,
+                  onPressed: () => context.goNamed('soporte.ayuda'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
     final estado = ref.watch(estadoDelParticipanteProvider(participanteId));
     final restriccion = ref.watch(restriccionVigenteProvider(usuarioId));
     return Scaffold(

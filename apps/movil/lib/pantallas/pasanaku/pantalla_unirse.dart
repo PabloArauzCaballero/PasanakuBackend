@@ -5,11 +5,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../dominio/cliente.dart';
+import '../../navegacion/retorno_de_invitacion.dart';
 import '../../proveedores/idempotencia.dart';
 import '../../proveedores/sesion.dart';
+import 'accion_error_invitacion.dart';
+import 'acceso_para_invitacion.dart';
+import 'contenido_de_invitacion.dart';
+import 'detalle_de_invitacion.dart';
+import 'dominio/detalle_visible_de_invitacion.dart';
+import 'dominio/fallo_consulta_invitacion.dart';
+import 'dominio/respuesta_aceptacion_invitacion.dart';
 
-/// Entrada pública del enlace. Los datos del grupo llegan solo tras comprobar en
-/// el servidor que el teléfono autenticado es el destinatario de la invitación.
+/// Entrada pública; el servidor valida al destinatario antes de mostrar datos.
 class PantallaUnirse extends ConsumerStatefulWidget {
   const PantallaUnirse({super.key, required this.codigo});
   final String codigo;
@@ -19,19 +26,16 @@ class PantallaUnirse extends ConsumerStatefulWidget {
 }
 
 class _PantallaUnirseState extends ConsumerState<PantallaUnirse> {
-  static final _formato = RegExp(
-    r'^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.([0-9a-f]{64})$',
-  );
-
   bool _cargando = true;
   bool _necesitaIngreso = false;
   bool _aceptaReglamento = false;
   bool _enviando = false;
-  String? _error;
-  Map<String, dynamic>? _detalle;
-  String? _grupoAceptado;
+  bool _consultaEnVuelo = false;
+  bool _enlaceNoRecuperable = false;
+  String? _error, _grupoAceptado;
+  DetalleVisibleDeInvitacion? _detalle;
 
-  RegExpMatch? get _partes => _formato.firstMatch(widget.codigo);
+  RegExpMatch? get _partes => formatoCodigoInvitacion.firstMatch(widget.codigo);
 
   @override
   void initState() {
@@ -40,47 +44,63 @@ class _PantallaUnirseState extends ConsumerState<PantallaUnirse> {
   }
 
   Future<void> _consultar() async {
-    final partes = _partes;
-    if (partes == null) {
-      setState(() {
-        _cargando = false;
-        _error = 'El enlace de invitación no es válido.';
-      });
-      return;
-    }
-    String? acceso;
+    if (_consultaEnVuelo) return;
+    _consultaEnVuelo = true;
     try {
-      acceso = await ref.read(sesionProvider).tokenDeAcceso();
-    } on Object {
-      acceso = null;
-    }
-    if (!mounted) return;
-    if (acceso == null || acceso.isEmpty) {
+      final partes = _partes;
+      if (partes == null) {
+        setState(() {
+          _cargando = false;
+          _error =
+              'El enlace de invitación no es válido. Pedí uno nuevo a quien te invitó.';
+        });
+        return;
+      }
       setState(() {
-        _cargando = false;
-        _necesitaIngreso = true;
+        _cargando = true;
+        _error = null;
+        _enlaceNoRecuperable = false;
       });
-      return;
-    }
-    try {
-      final respuesta = await ref
-          .read(dioProvider)
-          .post<Map<String, dynamic>>(
-            '/grupos/invitaciones/enlace/consultar',
-            data: {'tokenId': partes.group(1), 'token': partes.group(2)},
-          );
+      String? acceso;
+      try {
+        acceso = await ref.read(sesionProvider).tokenDeAcceso();
+      } on Object {
+        acceso = null;
+      }
       if (!mounted) return;
-      setState(() {
-        _cargando = false;
-        _detalle = respuesta.data;
-      });
-    } on Object {
-      if (!mounted) return;
-      setState(() {
-        _cargando = false;
-        _error =
-            'No pudimos verificar la invitación. Revisá el enlace o probá de nuevo.';
-      });
+      if (acceso == null || acceso.isEmpty) {
+        setState(() {
+          _cargando = false;
+          _necesitaIngreso = true;
+        });
+        return;
+      }
+      try {
+        final respuesta = await ref
+            .read(dioProvider)
+            .post<Map<String, dynamic>>(
+              '/grupos/invitaciones/enlace/consultar',
+              data: {'tokenId': partes.group(1), 'token': partes.group(2)},
+            );
+        final detalle = DetalleVisibleDeInvitacion.desde(respuesta.data);
+        if (!mounted) return;
+        setState(() {
+          _cargando = false;
+          _detalle = detalle;
+          _error = null;
+        });
+      } on Object catch (error) {
+        if (!mounted) return;
+        final fallo = FalloConsultaInvitacion.desde(error);
+        setState(() {
+          _cargando = false;
+          _error = fallo.mensaje;
+          _necesitaIngreso = fallo.requiereIngreso;
+          _enlaceNoRecuperable = !fallo.recuperable;
+        });
+      }
+    } finally {
+      _consultaEnVuelo = false;
     }
   }
 
@@ -91,7 +111,10 @@ class _PantallaUnirseState extends ConsumerState<PantallaUnirse> {
         _partes == null) {
       return;
     }
-    setState(() => _enviando = true);
+    setState(() {
+      _enviando = true;
+      _error = null;
+    });
     final partes = _partes!;
     final formulario = 'cu69-aceptar-${partes.group(1)}';
     final clave = ref.read(idempotenciaProvider.notifier).claveDe(formulario);
@@ -103,22 +126,24 @@ class _PantallaUnirseState extends ConsumerState<PantallaUnirse> {
             data: {
               'tokenId': partes.group(1),
               'token': partes.group(2),
-              'hashReglamento': _detalle!['hashReglamento'],
+              'hashReglamento': _detalle!.hashReglamento,
               'aceptaReglamento': true,
             },
             options: Options(headers: {'Idempotency-Key': clave}),
           );
+      final grupoAceptado = grupoDeAceptacionConfirmada(respuesta.data);
       ref.read(idempotenciaProvider.notifier).cerrar(formulario);
       if (!mounted) return;
       setState(() {
-        _grupoAceptado = respuesta.data?['grupoId'] as String?;
+        _grupoAceptado = grupoAceptado;
         _detalle = null;
         _error = null;
       });
     } on Object {
       if (!mounted) return;
       setState(
-        () => _error = 'No pudimos completar tu ingreso. Probá de nuevo.',
+        () => _error =
+            'No pudimos confirmar tu ingreso. Podés volver a intentarlo sin duplicarlo.',
       );
     } finally {
       if (mounted) setState(() => _enviando = false);
@@ -127,69 +152,40 @@ class _PantallaUnirseState extends ConsumerState<PantallaUnirse> {
 
   @override
   Widget build(BuildContext context) {
-    final retorno = Uri.encodeComponent('/pasanaku/unirse/${widget.codigo}');
     return Scaffold(
       appBar: AppBar(title: const Text('Invitación al grupo')),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(Espacio.s5),
+        child: ContenidoDeInvitacion(
           children: [
             if (_cargando) const Center(child: CircularProgressIndicator()),
-            if (_necesitaIngreso) ...[
-              const Text(
-                'Ingresá con el teléfono que recibió la invitación para ver el grupo.',
-              ),
-              const SizedBox(height: Espacio.s4),
-              ElevatedButton(
-                onPressed: () => context.go('/ingreso?volver=$retorno'),
-                child: const Text('Ingresar'),
-              ),
-              TextButton(
-                onPressed: () => context.go('/registro?volver=$retorno'),
-                child: const Text('Crear cuenta'),
-              ),
-            ],
-            if (_detalle case final detalle?) ...[
-              Text(
-                detalle['nombre'] as String? ?? '',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: Espacio.s3),
-              Text(
-                '${detalle['montoAporte']} ${detalle['moneda']} por período · ${detalle['periodicidad']}',
-              ),
-              const SizedBox(height: Espacio.s5),
-              const Text('Reglamento del grupo'),
-              const SizedBox(height: Espacio.s2),
-              Text(detalle['reglamento'] as String? ?? ''),
-              CheckboxListTile(
-                value: _aceptaReglamento,
-                onChanged: (valor) =>
+            if (_necesitaIngreso) AccesoParaInvitacion(codigo: widget.codigo),
+            if (_detalle case final detalle?)
+              DetalleDeInvitacion(
+                detalle: detalle,
+                aceptaReglamento: _aceptaReglamento,
+                enviando: _enviando,
+                alCambiarAceptacion: (valor) =>
                     setState(() => _aceptaReglamento = valor ?? false),
-                title: const Text('Leí y acepto este reglamento'),
-                controlAffinity: ListTileControlAffinity.leading,
+                alAceptar: _aceptar,
               ),
-              ElevatedButton(
-                onPressed: _aceptaReglamento && !_enviando ? _aceptar : null,
-                child: const Text('Unirme al grupo'),
-              ),
-            ],
             if (_grupoAceptado != null) ...[
               const Text('Ya formás parte del grupo.'),
               TextButton(
-                onPressed: () => context.go('/pasanaku/mi-estado'),
-                child: const Text('Ver mis grupos'),
+                onPressed: () => context.go('/portada'),
+                child: const Text('Ir a portada'),
               ),
             ],
             if (_error != null) ...[
               Text(
                 _error!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
+                style: TextStyle(color: Tokens.of(context).errTexto),
               ),
               if (_detalle == null && !_necesitaIngreso)
-                TextButton(
-                  onPressed: _consultar,
-                  child: const Text('Reintentar'),
+                AccionErrorInvitacion(
+                  recuperable: _partes != null && !_enlaceNoRecuperable,
+                  onPressed: _partes == null || _enlaceNoRecuperable
+                      ? () => context.go('/portada')
+                      : _consultar,
                 ),
             ],
           ],

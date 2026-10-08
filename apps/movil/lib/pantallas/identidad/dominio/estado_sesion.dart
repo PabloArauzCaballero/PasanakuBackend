@@ -4,10 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../proveedores/sesion.dart';
 import 'cu04_autenticar.dart';
 
-/// CU-04 — autenticar con MFA y registrar dispositivo. Tres pasos: credenciales,
-/// código MFA, y la oferta de confiar en el dispositivo. Habla con el servidor a
-/// través de [Autenticacion]; nunca arma una petición por su cuenta.
-enum PasoSesion { credenciales, mfa, dispositivo }
+/// CU-04 — autenticar con MFA. El servidor decide cuándo pedir el factor y la
+/// app no ofrece una confianza de dispositivo que no puede registrar.
+enum PasoSesion { credenciales, mfa, autenticada }
 
 class EstadoSesion {
   const EstadoSesion({
@@ -15,7 +14,6 @@ class EstadoSesion {
     this.telefono = '',
     this.contrasena = '',
     this.codigoMfa = '',
-    this.confiarEnDispositivo = false,
     this.enviando = false,
     this.error,
   });
@@ -24,7 +22,6 @@ class EstadoSesion {
   final String telefono;
   final String contrasena;
   final String codigoMfa;
-  final bool confiarEnDispositivo;
   final bool enviando;
   final String? error;
 
@@ -33,7 +30,6 @@ class EstadoSesion {
     String? telefono,
     String? contrasena,
     String? codigoMfa,
-    bool? confiarEnDispositivo,
     bool? enviando,
     String? error,
   }) => EstadoSesion(
@@ -41,7 +37,6 @@ class EstadoSesion {
     telefono: telefono ?? this.telefono,
     contrasena: contrasena ?? this.contrasena,
     codigoMfa: codigoMfa ?? this.codigoMfa,
-    confiarEnDispositivo: confiarEnDispositivo ?? this.confiarEnDispositivo,
     enviando: enviando ?? false,
     error: error,
   );
@@ -58,7 +53,7 @@ class SesionIdentidadNotifier extends Notifier<EstadoSesion> {
   /// segundo factor: eso lo dice la respuesta (invariante 7).
   ///
   /// Devuelve `true` si el flujo avanzó. El estado queda con el paso que corresponde
-  /// —`mfa` si el servidor lo pidió, `dispositivo` si ya hay sesión— o con el error
+  /// —`mfa` si el servidor lo pidió, `autenticada` si ya hay sesión— o con el error
   /// traducido a voz de marca si algo falló.
   Future<bool> enviarCredenciales() => _intentar(
     () => ref
@@ -90,20 +85,19 @@ class SesionIdentidadNotifier extends Notifier<EstadoSesion> {
     state = state.copiarCon(enviando: true);
     try {
       final resultado = await llamada();
+      final autenticada = resultado == ResultadoDeAutenticacion.entro;
       state = state.copiarCon(
-        paso: resultado == ResultadoDeAutenticacion.faltaSegundoFactor
-            ? PasoSesion.mfa
-            : PasoSesion.dispositivo,
+        paso: autenticada ? PasoSesion.autenticada : PasoSesion.mfa,
+        telefono: autenticada ? '' : state.telefono,
+        contrasena: autenticada ? '' : state.contrasena,
+        codigoMfa: '',
       );
       return true;
     } on Object catch (e) {
-      state = state.copiarCon(error: mensajeDeError(e));
+      state = state.copiarCon(codigoMfa: '', error: mensajeDeError(e));
       return false;
     }
   }
-
-  void elegirConfianza(bool confiar) =>
-      state = state.copiarCon(confiarEnDispositivo: confiar);
 
   /// Borra los tokens y deja el estado como recién abierto: quien cierra sesión no
   /// puede quedarse con su teléfono escrito en el formulario del siguiente.

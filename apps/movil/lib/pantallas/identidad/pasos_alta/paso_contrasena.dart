@@ -7,9 +7,10 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../dominio/estado_alta.dart';
+import '../dominio/notifier_alta.dart';
 import '../textos.dart';
 import '../textos_del_alta.dart';
+import 'foco_del_primer_error.dart';
 
 /// Paso 2 de 9 — la contraseña con la que se va a entrar (CU-01).
 ///
@@ -35,6 +36,8 @@ class PasoContrasena extends ConsumerStatefulWidget {
 class _PasoContrasenaState extends ConsumerState<PasoContrasena> {
   late final TextEditingController _clave;
   late final TextEditingController _repetida;
+  final _focoClave = FocusNode();
+  final _focoRepetida = FocusNode();
   var _intentado = false;
 
   /// El mínimo del servidor. Vive acá como constante y no como número suelto en el
@@ -53,6 +56,8 @@ class _PasoContrasenaState extends ConsumerState<PasoContrasena> {
   void dispose() {
     _clave.dispose();
     _repetida.dispose();
+    _focoClave.dispose();
+    _focoRepetida.dispose();
     super.dispose();
   }
 
@@ -81,7 +86,14 @@ class _PasoContrasenaState extends ConsumerState<PasoContrasena> {
 
   void _continuar() {
     setState(() => _intentado = true);
-    if (_errorClave != null || _errorRepetida != null) return;
+    if (_errorClave != null) {
+      mostrarPrimerError(_focoClave, context, alineacion: 0.3);
+      return;
+    }
+    if (_errorRepetida != null) {
+      mostrarPrimerError(_focoRepetida, context, alineacion: 0.3);
+      return;
+    }
     ref.read(altaProvider.notifier).elegirContrasena(_clave.text);
     ref.read(altaProvider.notifier).siguiente();
   }
@@ -102,6 +114,7 @@ class _PasoContrasenaState extends ConsumerState<PasoContrasena> {
           CampoContrasena(
             etiqueta: TextosDelAlta.claveNueva,
             controlador: _clave,
+            foco: _focoClave,
             ayuda: TextosDelAlta.claveAyuda,
             error: _visible(_errorClave),
             onChanged: (_) => setState(() {}),
@@ -110,6 +123,7 @@ class _PasoContrasenaState extends ConsumerState<PasoContrasena> {
           CampoContrasena(
             etiqueta: TextosDelAlta.claveRepetir,
             controlador: _repetida,
+            foco: _focoRepetida,
             error: _visible(_errorRepetida),
             onChanged: (_) => setState(() {}),
           ),

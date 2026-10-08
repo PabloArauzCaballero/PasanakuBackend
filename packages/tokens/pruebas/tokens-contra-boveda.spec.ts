@@ -55,6 +55,8 @@ function valorDe(declaraciones: Record<string, string>, nombre: string): string 
 const color = tokens.primitivas.color as Record<string, string>
 /** Un rol que nombra una primitiva se resuelve a su hex; lo demás queda tal cual. */
 const resolver = (v: string) => color[v] ?? v
+const aKebab = (n: string) =>
+  n.replace(/[A-Z]/g, (l) => `-${l.toLowerCase()}`).replace(/([a-z])(\d)/g, '$1-$2')
 
 function comparar(declaraciones: Record<string, string>, pares: Record<string, string | number>, sufijo = '') {
   for (const [variable, mio] of Object.entries(pares)) {
@@ -84,11 +86,17 @@ describe('los tokens salen de la bóveda, no de la memoria de nadie', () => {
       '--font-b': tokens.primitivas.fuente.cuerpo,
       '--mono': tokens.primitivas.fuente.mono,
     })
+    comparar(
+      raiz,
+      Object.fromEntries(
+        Object.entries(tokens.primitivas.movimiento).map(([k, v]) => [`--motion-${aKebab(k)}`, v]),
+      ),
+      'ms',
+    )
   })
 
   it('la escala tipográfica, rol por rol', () => {
     const tipos = tokens.primitivas.tipo as Record<string, { familia: string; tamano: number; peso: number; alto: number; track: number }>
-    const aKebab = (n: string) => n.replace(/[A-Z]/g, (l) => `-${l.toLowerCase()}`).replace(/([a-z])(\d)/g, '$1-$2')
     const esperado: Record<string, string> = {}
     for (const [nombre, t] of Object.entries(tipos)) {
       if (nombre.startsWith('//')) continue

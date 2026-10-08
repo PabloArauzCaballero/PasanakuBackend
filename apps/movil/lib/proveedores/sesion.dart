@@ -29,8 +29,8 @@ class Sesion {
   }
 
   /// La huella de **la instalación**, no de la persona: sobrevive al cierre de
-  /// sesión a propósito, porque es lo que permite que el teléfono siga siendo «de
-  /// confianza» para quien vuelve a entrar.
+  /// sesión para que el servidor reconozca esta instalación al ingresar otra vez.
+  /// Tener huella local no confirma que el servidor la marque como confiable.
   Future<String?> leerHuella() => _almacen.leer(_claveHuella);
   Future<void> guardarHuella(String valor) =>
       _almacen.guardar(_claveHuella, valor);

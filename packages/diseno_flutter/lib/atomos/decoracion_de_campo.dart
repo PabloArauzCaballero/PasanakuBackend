@@ -20,6 +20,7 @@ abstract final class DecoracionDeCampo {
   }) {
     final t = Tokens.of(context);
     final texto = Theme.of(context).textTheme;
+    final textoGrande = MediaQuery.textScalerOf(context).scale(1) >= 1.5;
     final colorBorde = error != null
         ? t.err
         : exito
@@ -76,10 +77,10 @@ abstract final class DecoracionDeCampo {
       errorStyle: texto.bodySmall?.copyWith(color: t.errTexto),
       helperText: error == null ? ayuda : null,
       helperStyle: texto.bodySmall?.copyWith(color: t.text3),
-      // Dos renglones de ayuda y tres de error: en una fila de dos campos, uno que
-      // crece y el otro no desalinea las cajas.
-      helperMaxLines: 2,
-      errorMaxLines: 3,
+      // Al ampliar texto, la ayuda y el error deben seguir legibles completos.
+      // En tamaño normal se conserva la altura histórica de las filas.
+      helperMaxLines: textoGrande ? 5 : 2,
+      errorMaxLines: textoGrande ? 6 : 3,
     );
   }
 }

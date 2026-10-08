@@ -77,8 +77,8 @@ class EncabezadoDeSaldo extends StatelessWidget {
                 MergeSemantics(
                   child: Semantics(
                     container: true,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                    child: Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         ExcludeSemantics(
                           child: Text(

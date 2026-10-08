@@ -35,8 +35,8 @@ import 'panel_de_marca.dart';
 /// Al volver no se repite el espectáculo: un fundido corto. La marca se presenta al
 /// entrar, no cada vez que alguien retrocede. Con «reducir movimiento», nada.
 abstract final class TransicionDeMarca {
-  static const duracion = Duration(milliseconds: 1450);
-  static const duracionDeVuelta = Duration(milliseconds: 280);
+  static const duracion = MovimientoDeInterfaz.marcaDeRuta;
+  static const duracionDeVuelta = MovimientoDeInterfaz.entrada;
 
   /// Firma de `transitionsBuilder` de `CustomTransitionPage` (go_router) y de
   /// `PageRouteBuilder`.

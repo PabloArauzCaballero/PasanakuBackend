@@ -108,9 +108,9 @@ const TutorialDefinicion seguirTuPasanaku = TutorialDefinicion(
 
 const TutorialDefinicion cuidarTuCuenta = TutorialDefinicion(
   id: 'perfil-seguridad',
-  version: '1.0.0',
+  version: '1.0.1',
   titulo: 'Cuidar tu cuenta',
-  descripcion: 'Dónde están tus datos, tus dispositivos y el segundo factor.',
+  descripcion: 'Cómo cuidar el acceso y entender el segundo factor.',
   categoria: tuCuenta,
   ruta: '/identidad/perfil',
   minutos: 3,
@@ -122,7 +122,7 @@ const TutorialDefinicion cuidarTuCuenta = TutorialDefinicion(
       id: 'perfil',
       titulo: 'Tu perfil',
       descripcion:
-          'Desde acá cambiás tu contraseña, mirás qué teléfonos tienen tu sesión abierta y podés dar de baja la cuenta.',
+          'Desde acá podés cerrar sesión. Los cambios de correo y contraseña y la baja todavía no se gestionan desde la app.',
       ancla: 'identidad.perfil',
       ruta: '/identidad/perfil',
     ),
@@ -130,7 +130,7 @@ const TutorialDefinicion cuidarTuCuenta = TutorialDefinicion(
       id: 'segundo-factor',
       titulo: 'El segundo factor no es un trámite',
       descripcion:
-          'Es lo que impide que alguien con tu contraseña entre a tu plata. Si cambiás de teléfono, revisá tus dispositivos.',
+          'El servidor puede pedir un segundo factor al ingresar. Esta versión todavía no muestra ni revoca dispositivos de confianza.',
       ancla: 'identidad.perfil',
     ),
   ],

@@ -1,31 +1,45 @@
-import 'package:aportaya_diseno/atomos/boton.dart';
-import 'package:aportaya_diseno/atomos/boton_variante.dart';
+import 'dart:async';
+
 import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/moleculas/alerta.dart';
 import 'package:aportaya_diseno/moleculas/barra_de_pasos.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
+import 'cerrar_alta.dart';
 import 'dominio/estado_alta.dart';
-import 'dominio/estado_contrato.dart';
+import 'dominio/notifier_alta.dart';
 import 'pasos_alta/paso_captura.dart';
 import 'pasos_alta/paso_contrasena.dart';
 import 'pasos_alta/paso_celular.dart';
+import 'pasos_alta/paso_contrato.dart';
 import 'pasos_alta/paso_cotejo.dart';
 import 'pasos_alta/paso_datos.dart';
 import 'pasos_alta/paso_perfil_transaccional.dart';
 import 'textos.dart';
-import 'textos_del_alta.dart';
-import '../../navegacion/retorno_de_invitacion.dart';
 
 /// CU-01, el alta en ocho pasos (D-1 de la maqueta). Un solo `Notifier`
 /// (`AltaNotifier`) sabe en qué paso está; esta pantalla solo elige qué organismo
 /// mostrar. **No es un `StatefulWidget` de 600 líneas** — cada paso es su propio
 /// archivo en `pasos_alta/`.
-class PantallaDeRegistro extends ConsumerWidget {
+class PantallaDeRegistro extends ConsumerStatefulWidget {
   const PantallaDeRegistro({super.key});
+
+  @override
+  ConsumerState<PantallaDeRegistro> createState() => _PantallaDeRegistroState();
+}
+
+class _PantallaDeRegistroState extends ConsumerState<PantallaDeRegistro> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        unawaited(ref.read(altaProvider.notifier).restaurarBorrador());
+      }
+    });
+  }
 
   static const _nombreDePaso = {
     PasoAlta.datos: TextosIdentidad.pasoDatos,
@@ -40,9 +54,27 @@ class PantallaDeRegistro extends ConsumerWidget {
   };
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final estado = ref.watch(altaProvider);
     final notifier = ref.read(altaProvider.notifier);
+
+    if (estado.restaurando) {
+      return Scaffold(
+        appBar: AppBar(title: const Text(TextosIdentidad.registroTitulo)),
+        body: const SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: Espacio.s3),
+                Text(TextosIdentidad.registroRecuperando),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     Widget cuerpo() => switch (estado.paso) {
       PasoAlta.datos => const PasoDatos(),
@@ -74,119 +106,83 @@ class PantallaDeRegistro extends ConsumerWidget {
       ),
       PasoAlta.cotejo => const PasoCotejo(),
       PasoAlta.perfilTransaccional => const PasoPerfilTransaccional(),
-      PasoAlta.contrato => _PasoContrato(
+      PasoAlta.contrato => PasoContrato(
         enviando: estado.enviando,
         error: estado.error,
-        onIrAlContrato: () async {
-          final aceptado = await context.push<bool>('/identidad/contrato');
-          if (aceptado != true || !context.mounted) return;
-
-          // Crea la cuenta con el contrato aceptado y la contraseña del paso 2.
-          await notifier.enviarAlServidor();
-          if (!context.mounted) return;
-          // Si falló, reintentar conserva la misma clave de idempotencia.
-          if (ref.read(altaProvider).error != null) return;
-
-          // El alta no abre sesión. Vacia el asistente antes de ir al login.
-          notifier.reiniciar();
-          ref.read(contratoProvider.notifier).reiniciar();
-          final retorno = retornoDeInvitacion(
-            GoRouterState.of(context).uri.queryParameters['volver'],
-          );
-          context.go(
-            retorno == null
-                ? '/ingreso?alta=lista'
-                : '/ingreso?alta=lista&volver=${Uri.encodeComponent(retorno)}',
-          );
-        },
+        onIrAlContrato: () => unawaited(cerrarAlta(context, ref)),
       ),
     };
 
     final t = Tokens.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        // Sin título, la pantalla arrancaba con una flecha suelta sobre una barra de
-        // pasos: quien llega acá desde «Crear mi cuenta» no leía en ningún lado que
-        // está creando una cuenta.
-        title: const Text(TextosIdentidad.registroTitulo),
-        leading: estado.numeroDePaso > 1
-            ? BackButton(onPressed: notifier.atras)
-            : null,
-      ),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: Espacio.s4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  BarraDePasos(
-                    total: estado.totalDePasos,
-                    actual: estado.numeroDePaso,
-                    nombre: _nombreDePaso[estado.paso]!,
-                  ),
-                  // La advertencia va en el primer paso y no en todos: es sobre estos
-                  // campos, y repetirla ocho veces la vuelve ruido.
-                  if (estado.paso == PasoAlta.datos)
-                    Padding(
-                      padding: const EdgeInsets.only(top: Espacio.s3),
-                      child: Text(
-                        TextosIdentidad.registroIntro,
-                        style: Tipo.cuerpoChico.copyWith(color: t.text2),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            Expanded(child: SingleChildScrollView(child: cuerpo())),
-          ],
+    return PopScope<void>(
+      canPop: estado.paso == PasoAlta.datos,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) notifier.atras();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          // Sin título, la pantalla arrancaba con una flecha suelta sobre una barra de
+          // pasos: quien llega acá desde «Crear mi cuenta» no leía en ningún lado que
+          // está creando una cuenta.
+          title: const Text(TextosIdentidad.registroTitulo),
+          leading: estado.numeroDePaso > 1
+              ? BackButton(onPressed: notifier.atras)
+              : null,
         ),
-      ),
-    );
-  }
-}
-
-class _PasoContrato extends StatelessWidget {
-  const _PasoContrato({
-    required this.onIrAlContrato,
-    required this.enviando,
-    required this.error,
-  });
-  final VoidCallback onIrAlContrato;
-  final bool enviando;
-
-  /// Lo que devolvió `POST /usuarios` si falló. Se muestra acá y no en un cartel que
-  /// se va solo: el alta quedó a un toque de completarse y hay que poder reintentarla.
-  final String? error;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(Espacio.s4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text(
-            'Último paso: leer y aceptar el contrato de adhesión y el '
-            'tarifario vigente.',
+        body: SafeArea(
+          child: SingleChildScrollView(
+            key: ValueKey(estado.paso),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: Espacio.s4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      BarraDePasos(
+                        total: estado.totalDePasos,
+                        actual: estado.numeroDePaso,
+                        nombre: _nombreDePaso[estado.paso]!,
+                      ),
+                      // La advertencia va en el primer paso y no en todos: es sobre estos
+                      // campos, y repetirla ocho veces la vuelve ruido.
+                      if (estado.paso == PasoAlta.datos)
+                        Padding(
+                          padding: const EdgeInsets.only(top: Espacio.s3),
+                          child: Text(
+                            TextosIdentidad.registroIntro,
+                            style: Tipo.cuerpoChico.copyWith(color: t.text2),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                if (estado.resumido || estado.errorBorrador != null)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      Espacio.s4,
+                      Espacio.s2,
+                      Espacio.s4,
+                      0,
+                    ),
+                    child: Alerta(
+                      tono: estado.errorBorrador != null
+                          ? Tono.aviso
+                          : Tono.info,
+                      titulo: switch (estado.errorBorrador) {
+                        'recuperar' => TextosIdentidad.registroNoRecuperado,
+                        'guardar' => TextosIdentidad.registroNoGuardado,
+                        'borrar' => TextosIdentidad.registroBorradorNoBorrado,
+                        _ => TextosIdentidad.registroReanudado,
+                      },
+                    ),
+                  ),
+                cuerpo(),
+              ],
+            ),
           ),
-          if (error != null) ...[
-            const SizedBox(height: Espacio.s4),
-            Alerta(tono: Tono.error, titulo: error!),
-          ],
-          const SizedBox(height: Espacio.s4),
-          Boton(
-            texto: enviando
-                ? TextosDelAlta.altaEnviando
-                : TextosIdentidad.continuar,
-            variante: BotonVariante.primario,
-            expandido: true,
-            cargando: enviando,
-            onPressed: enviando ? null : onIrAlContrato,
-          ),
-        ],
+        ),
       ),
     );
   }

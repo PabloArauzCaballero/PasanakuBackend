@@ -25,7 +25,7 @@
   "devDependencies": {
     "postman-cli": "1.69.0",
     "turbo": "^2.11.6",
-    "typescript": "~7.0.2"
+    "typescript": "~6.0.2"
   },
   "resolutions": {
     "@scalar/json-magic/undici": "7.29.0",

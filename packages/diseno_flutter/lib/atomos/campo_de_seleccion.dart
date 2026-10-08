@@ -50,6 +50,7 @@ class CampoDeSeleccion<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
     final texto = Theme.of(context).textTheme;
+    final textoGrande = MediaQuery.textScalerOf(context).scale(1) >= 1.5;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -61,6 +62,15 @@ class CampoDeSeleccion<T> extends StatelessWidget {
           initialValue: valor,
           focusNode: foco,
           isExpanded: true,
+          // La caja conserva una línea; el menú deja crecer cada opción para
+          // que el texto grande se pueda leer completo al desplegarlo.
+          itemHeight: textoGrande ? null : kMinInteractiveDimension,
+          selectedItemBuilder: textoGrande
+              ? (context) => [
+                  for (final o in opciones)
+                    Text(o.texto, overflow: TextOverflow.ellipsis),
+                ]
+              : null,
           // El menú hereda el tema, no se pinta a mano: así sigue al modo oscuro y al
           // tamaño de letra sin que nadie se acuerde de actualizarlo.
           borderRadius: BorderRadius.circular(Radios.md),
@@ -85,7 +95,10 @@ class CampoDeSeleccion<T> extends StatelessWidget {
             for (final o in opciones)
               DropdownMenuItem<T>(
                 value: o.valor,
-                child: Text(o.texto, overflow: TextOverflow.ellipsis),
+                child: Text(
+                  o.texto,
+                  overflow: textoGrande ? null : TextOverflow.ellipsis,
+                ),
               ),
           ],
           onChanged: habilitado
