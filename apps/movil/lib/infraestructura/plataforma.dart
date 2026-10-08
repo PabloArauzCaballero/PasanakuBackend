@@ -81,14 +81,12 @@ Camara camaraDeLaPlataforma() => _camaraDeDesarrollo.isEmpty
     ? CamaraDelSistema()
     : CamaraPrestada(_camaraDeDesarrollo, CamaraDelSistema());
 
-/// **No soportado en iOS** (`capacidades.dart`, CRÍTICA de seguridad):
-/// `FLAG_SECURE` es de la API de Android; no hay un equivalente nativo registrado
-/// para iOS en este carril. `ProteccionPantallaIos` no abre ningún canal nativo, y
-/// `app.dart` bloquea el arranque en release de iOS mientras esto siga así
-/// (H2.S2.M3) en vez de dejar una pantalla de saldo sin protección de captura.
+/// **Degradado en iOS** (`capacidades.dart`, CRÍTICA de seguridad): el mismo
+/// canal que Android, atendido por `AppDelegate.swift` con el lienzo seguro de un
+/// `UITextField` en lugar de `FLAG_SECURE`, que iOS no tiene.
 ProteccionPantalla proteccionPantallaDeLaPlataforma() =>
     !kIsWeb && Platform.isIOS
-    ? const ProteccionPantallaIos()
+    ? ProteccionPantallaIos()
     : ProteccionPantallaAndroid();
 
 /// `IOS` o `ANDROID`, con los nombres que usa el contrato de identidad. Está acá y no

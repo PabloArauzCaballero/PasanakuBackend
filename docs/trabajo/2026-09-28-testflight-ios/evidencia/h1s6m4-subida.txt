@@ -1,0 +1,105 @@
+build=202609282146
+Resolving dependencies...
+Downloading packages...
+  accessibility_tools 2.8.0 (3.0.0 available)
+  clock 1.1.2 (1.1.3 available)
+  code_assets 1.2.1 (2.1.0 available)
+  cross_file 0.3.5+5 (0.4.0 available)
+  dbus 0.7.15 (0.8.0 available)
+  equatable 2.1.0 (3.0.0 available)
+  flutter_secure_storage 10.3.2 (11.2.0 available)
+  flutter_secure_storage_darwin 0.3.2 (0.4.3 available)
+  flutter_secure_storage_linux 3.0.2 (3.0.3 available)
+  flutter_secure_storage_platform_interface 2.1.0 (2.1.1 available)
+  go_router 17.5.0 (18.0.1 available)
+  hooks 2.0.2 (2.2.0 available)
+  image_picker_ios 0.8.13+7 (0.8.13+8 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  mobile_scanner 7.4.1 (7.4.2 available)
+  nm 0.5.0 (0.6.0 available)
+  objective_c 9.5.0 (9.6.0 available)
+  patrol 3.20.0 (4.10.0 available)
+  patrol_finders 2.9.0 (3.6.0 available)
+  patrol_log 0.5.0 (0.10.1 available)
+  petitparser 7.0.2 (7.1.0 available)
+  qr 3.0.2 (4.0.0 available)
+  record_use 0.6.0 (1.1.1 available)
+  stack_trace 1.12.1 (1.12.2 available)
+  test_api 0.7.11 (0.7.14 available)
+  vector_math 2.2.0 (2.4.3 available)
+  xml 7.0.1 (7.1.0 available)
+Got dependencies!
+29 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Warning: Building for device with codesigning disabled. You will have to manually codesign before deploying to device.
+Archiving bo.aportaya.aportayaMovil...
+The following plugins do not support Swift Package Manager for ios:
+  - patrol
+This will become an error in a future version of Flutter. Please contact the plugin maintainers to request Swift Package Manager adoption.
+Running Xcode build...                                          
+Xcode archive done.                                         37,0s
+✓ Built build/ios/archive/Runner.xcarchive (192.1MB)
+
+[✓] App Settings Validation
+    • Version Number: 0.1.0
+    • Build Number: 202609282146
+    • Display Name: Aportaya Movil
+    • Deployment Target: 13.0
+    • Bundle Identifier: bo.aportaya.aportayaMovil
+
+[!] App Icon and Launch Image Assets Validation
+    ! Launch image is set to the default placeholder icon. Replace with unique launch image.
+
+To update the settings, please refer to https://flutter.dev/to/ios-deploy
+
+Codesigning disabled with --no-codesign, skipping IPA.
+build exit=0
+canal en binario: 1
+2026-09-28 21:46:49.489 xcodebuild[4959:3892563] [MT] IDEDistribution: -[IDEDistributionLogging _createLoggingBundleAtPath:]: Created bundle at path "/var/folders/_4/mj0h_c794ks4jkk4vmh8n4g00000gn/T/Runner_2026-09-28_21-46-49.489.xcdistributionlogs".
+2026-09-28 21:47:31.003 xcodebuild[4959:3892563] Starting upload
+2026-09-28 21:47:35.166 xcodebuild[4959:3893856] Progress 0%: Making copy of ‘aportaya_movil.ipa’…
+2026-09-28 21:47:35.166 xcodebuild[4959:3893856] Progress 0%: Making copy of ‘aportaya_movil.ipa’…
+2026-09-28 21:47:35.167 xcodebuild[4959:3893856] Progress 0%: Preparing to upload ‘aportaya_movil.ipa’…
+2026-09-28 21:47:44.020 xcodebuild[4959:3893856] Progress 0%: Analyzing package…
+2026-09-28 21:47:45.903 xcodebuild[4959:3892581] Progress 0%: Sending analysis to App Store Connect…
+2026-09-28 21:47:50.122 xcodebuild[4959:3892581] Progress 0%: Waiting for App Store Connect analysis response…
+2026-09-28 21:47:52.536 xcodebuild[4959:3892581] Progress 0%: Waiting for App Store Connect analysis response…
+2026-09-28 21:48:16.080 xcodebuild[4959:3894372] Progress 0%: Sending SPI analysis to App Store Connect…
+2026-09-28 21:48:23.189 xcodebuild[4959:3892581] Progress 0%: Waiting for App Store Connect SPI analysis response…
+2026-09-28 21:48:25.571 xcodebuild[4959:3892581] Progress 0%: Waiting for App Store Connect SPI analysis response…
+2026-09-28 21:48:47.459 xcodebuild[4959:3899554] Progress 0%: Requesting upload instructions from App Store Connect…
+2026-09-28 21:48:49.148 xcodebuild[4959:3899554] Progress 0%: Preparing file for upload to App Store Connect…
+2026-09-28 21:48:49.156 xcodebuild[4959:3899554] Progress 0%: Preparing file for upload to App Store Connect…
+2026-09-28 21:48:49.156 xcodebuild[4959:3899554] Progress 0%: Uploading to App Store Connect…
+2026-09-28 21:48:49.280 xcodebuild[4959:3899554] Progress 8%: Uploading to App Store Connect…
+2026-09-28 21:48:49.280 xcodebuild[4959:3899554] Progress 8%: Uploading to App Store Connect…
+2026-09-28 21:48:49.991 xcodebuild[4959:3899554] Progress 25%: Uploading to App Store Connect…
+2026-09-28 21:48:49.992 xcodebuild[4959:3899554] Progress 25%: Uploading to App Store Connect…
+2026-09-28 21:48:51.107 xcodebuild[4959:3899554] Progress 55%: Uploading to App Store Connect…
+2026-09-28 21:48:51.108 xcodebuild[4959:3899554] Progress 55%: Uploading to App Store Connect…
+2026-09-28 21:48:51.996 xcodebuild[4959:3899554] Progress 64%: Uploading to App Store Connect…
+2026-09-28 21:48:51.996 xcodebuild[4959:3899554] Progress 64%: Uploading to App Store Connect…
+2026-09-28 21:48:52.576 xcodebuild[4959:3899554] Progress 68%: Uploading to App Store Connect…
+2026-09-28 21:48:52.578 xcodebuild[4959:3899554] Progress 68%: Uploading to App Store Connect… (About 3 seconds remaining. 2.11MB/s)
+2026-09-28 21:48:54.023 xcodebuild[4959:3899554] Progress 81%: Uploading to App Store Connect… (About 3 seconds remaining. 2.11MB/s)
+2026-09-28 21:48:54.023 xcodebuild[4959:3899554] Progress 81%: Uploading to App Store Connect… (About 3 seconds remaining. 2.14MB/s)
+2026-09-28 21:48:54.856 xcodebuild[4959:3899554] Progress 83%: Uploading to App Store Connect… (About 3 seconds remaining. 2.14MB/s)
+2026-09-28 21:48:54.857 xcodebuild[4959:3899554] Progress 83%: Uploading to App Store Connect… (About 3 seconds remaining. 2.14MB/s)
+2026-09-28 21:48:55.704 xcodebuild[4959:3899554] Progress 87%: Uploading to App Store Connect… (About 3 seconds remaining. 2.14MB/s)
+2026-09-28 21:48:55.704 xcodebuild[4959:3899554] Progress 87%: Uploading to App Store Connect… (About 3 seconds remaining. 1.67MB/s)
+2026-09-28 21:48:58.071 xcodebuild[4959:3899554] Progress 92%: Uploading to App Store Connect… (About 3 seconds remaining. 1.67MB/s)
+2026-09-28 21:48:58.071 xcodebuild[4959:3899554] Progress 92%: Uploading to App Store Connect… (About one second remaining. 1.26MB/s)
+2026-09-28 21:49:00.856 xcodebuild[4959:3899554] Progress 100%: Uploading to App Store Connect… (About one second remaining. 1.26MB/s)
+2026-09-28 21:49:00.856 xcodebuild[4959:3899554] Progress 100%: Uploading to App Store Connect… (About one second remaining. 1.12MB/s)
+2026-09-28 21:49:03.890 xcodebuild[4959:3899554] Progress 100%: Completing upload…
+2026-09-28 21:49:05.853 xcodebuild[4959:3899554] Progress 100%: Waiting for package to begin processing…
+2026-09-28 21:49:06.300 xcodebuild[4959:3899554] Progress 100%: Uploaded package is processing.
+2026-09-28 21:49:06.982 xcodebuild[4959:3899554] Progress 100%: Upload succeeded.
+warning: exportArchive App Store Connect Warning. Deployment target too low. Your app targets iOS 13.0. Starting in April 2027, iOS apps must target 15.0 or later to be uploaded to App Store Connect or submitted for distribution.
+
+Uploaded Runner
+** EXPORT SUCCEEDED **
+
+upload exit=0

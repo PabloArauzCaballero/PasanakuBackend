@@ -97,6 +97,34 @@ void main() {
     },
   );
 
+  // Regresión del 2026-09-28: todo iPhone con un build de TestFlight mostraba
+  // «AportaYa no puede abrir en este dispositivo» porque el mapa real de iOS tenía
+  // la protección de pantalla en `noSoportado`.
+  testWidgets(
+    'release + capacidades REALES de iOS: se construye la app real, sin pantalla de bloqueo',
+    (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            capacidadesProvider.overrideWithValue(
+              capacidadesDeLaPlataforma(forzarIOSParaPruebas: true),
+            ),
+          ],
+          child: MaterialApp(
+            home: ArranqueSegunCapacidades(
+              esRelease: true,
+              builder: (context) => const Scaffold(body: Text('app real')),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PantallaBloqueoPlataforma), findsNothing);
+      expect(find.text('app real'), findsOneWidget);
+    },
+  );
+
   testWidgets(
     'fuera de release (debug/perfil), no bloquea aunque falte protección -- solo protege el build de tienda',
     (tester) async {

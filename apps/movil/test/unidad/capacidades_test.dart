@@ -62,9 +62,9 @@ void main() {
       });
 
       test(
-        'iOS: ProteccionPantalla NO soportada (FLAG_SECURE es de Android)',
+        'iOS: ProteccionPantalla degradada (lienzo seguro de UIKit, sin FLAG_SECURE)',
         () {
-          expect(ios.proteccionPantalla, GradoDeSoporte.noSoportado);
+          expect(ios.proteccionPantalla, GradoDeSoporte.degradado);
         },
       );
 
@@ -84,14 +84,17 @@ void main() {
       );
     });
 
-    test('iOS: NO soportada hoy (protección de pantalla no soportada)', () {
-      expect(
-        capacidadesDeLaPlataforma(
-          forzarIOSParaPruebas: true,
-        ).seguridadCriticaSoportada,
-        isFalse,
-      );
-    });
+    test(
+      'iOS: soportada (almacén pleno, protección de pantalla degradada)',
+      () {
+        expect(
+          capacidadesDeLaPlataforma(
+            forzarIOSParaPruebas: true,
+          ).seguridadCriticaSoportada,
+          isTrue,
+        );
+      },
+    );
   });
 
   group('los adaptadores "no soportado en iOS" nunca abren un canal nativo', () {
@@ -111,13 +114,6 @@ void main() {
             (call) =>
                 fail('AvisosPushIos invocó un canal nativo: ${call.method}'),
           );
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(
-            const MethodChannel('bo.aportaya/proteccion_pantalla'),
-            (call) => fail(
-              'ProteccionPantallaIos invocó un canal nativo: ${call.method}',
-            ),
-          );
     });
 
     tearDown(() {
@@ -129,11 +125,6 @@ void main() {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
             const MethodChannel('bo.aportaya/avisos_push'),
-            null,
-          );
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(
-            const MethodChannel('bo.aportaya/proteccion_pantalla'),
             null,
           );
     });
@@ -159,15 +150,35 @@ void main() {
         expect(recibidos, isEmpty);
       },
     );
+  });
 
-    test(
-      'ProteccionPantallaIos.activar()/desactivar() son no-ops sin canal',
-      () async {
-        const proteccion = ProteccionPantallaIos();
-        await proteccion.activar();
-        await proteccion.desactivar();
-        // Si llegó hasta acá sin que `fail()` del handler se disparara, no hubo canal.
-      },
-    );
+  group('ProteccionPantallaIos habla con el receptor nativo', () {
+    const canal = MethodChannel('bo.aportaya/proteccion_pantalla');
+
+    tearDown(() {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(canal, null);
+    });
+
+    test('activar() y desactivar() llegan al canal, en orden', () async {
+      final llamadas = <String>[];
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(canal, (call) async {
+            llamadas.add(call.method);
+            return null;
+          });
+
+      final proteccion = ProteccionPantallaIos();
+      await proteccion.activar();
+      await proteccion.desactivar();
+
+      expect(llamadas, ['activar', 'desactivar']);
+    });
+
+    test('sin receptor (prueba de widget) no falla', () async {
+      final proteccion = ProteccionPantallaIos();
+      await proteccion.activar();
+      await proteccion.desactivar();
+    });
   });
 }
