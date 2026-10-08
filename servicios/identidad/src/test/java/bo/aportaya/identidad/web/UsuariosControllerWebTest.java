@@ -187,12 +187,13 @@ class UsuariosControllerWebTest {
         void elVencimientoLlegaAlCasoDeUso() throws Exception {
             var entrada = ArgumentCaptor.forClass(CU01RegistrarUsuario.EntradaRegistro.class);
             when(cu01.ejecutar(entrada.capture(), any()))
-                    .thenReturn(new CU01RegistrarUsuario.SalidaRegistro(
-                            USUARIO, AperturaDeCuenta.PENDIENTE_VERIFICACION));
+                    .thenReturn(
+                            new CU01RegistrarUsuario.SalidaRegistro(USUARIO, AperturaDeCuenta.PENDIENTE_VERIFICACION));
 
             registrar(ALTA).andExpect(status().isAccepted());
 
-            org.assertj.core.api.Assertions.assertThat(entrada.getValue().documento().fechaExpiracion())
+            org.assertj.core.api.Assertions.assertThat(
+                            entrada.getValue().documento().fechaExpiracion())
                     .isEqualTo(LocalDate.parse("2031-03-01"));
         }
 

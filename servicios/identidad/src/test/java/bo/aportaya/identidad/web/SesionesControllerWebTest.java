@@ -282,8 +282,8 @@ class SesionesControllerWebTest {
         var desafio = UUID.randomUUID();
         var jti = UUID.randomUUID();
         when(cu04StepUp.verificar(any(), any(), any()))
-                .thenReturn(new CU04StepUp.Evidencia(
-                        "evidencia.firmada.jwt", Instant.parse("2026-04-01T12:05:00Z"), jti));
+                .thenReturn(
+                        new CU04StepUp.Evidencia("evidencia.firmada.jwt", Instant.parse("2026-04-01T12:05:00Z"), jti));
 
         mvc.perform(post("/sesiones/desafios/{id}/verificacion", desafio)
                         .with(bo.aportaya.plataforma.pruebas.web.Sesiones.como("PARTICIPANTE"))
