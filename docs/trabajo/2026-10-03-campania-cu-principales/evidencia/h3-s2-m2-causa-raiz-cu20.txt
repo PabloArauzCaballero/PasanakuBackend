@@ -1,0 +1,12 @@
+$ la fila existe para el superusuario de la base
+filas visibles como dueño: 1
+$ política RLS (qual = lo que deja leer)
+pol_organizador_titular :: (fn_seg_rol_privilegiado() OR fn_seg_es_sistema())
+$ como rol_aplicacion SIN contexto de sistema ni rol privilegiado (lo que ve ConsultarHabilitacion para un participante)
+BEGIN
+SET
+ERROR:  permission denied for schema organizador
+$ GET /organizadores/{id}/habilitacion con token de USR000001 (ver h3_s2_diag.py)
+habilitacion: {'habilitado': False, 'nivel': 'INEXISTENTE', ...}
+$ como svc_organizador (rol del servicio organizador), contexto de un participante: sin app.rol privilegiado ni es_sistema
+filas visibles: 0

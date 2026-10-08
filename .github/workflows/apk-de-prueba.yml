@@ -13,12 +13,15 @@ name: APK de prueba (Android)
 on:
   workflow_dispatch: {}
   push:
-    branches: [justin/fix/alta-fecha-actividad-autocaptura]
+    branches:
+      - justin/fix/alta-fecha-actividad-autocaptura
+      - pablo/feature/verificacion-correo-gmail-test
     paths:
       - apps/movil/**
       - packages/diseno_flutter/**
       - packages/tokens/**
       - .github/workflows/apk-de-prueba.yml
+      - servicios/identidad/src/main/resources/openapi/**
 
 concurrency:
   group: apk-de-prueba-${{ github.ref }}

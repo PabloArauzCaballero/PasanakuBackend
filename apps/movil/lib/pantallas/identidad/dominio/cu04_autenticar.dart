@@ -82,7 +82,14 @@ class Autenticacion {
           .guardar(acceso: token, refresco: salida.sesionId ?? token);
       return ResultadoDeAutenticacion.entro;
     } on DioException catch (e) {
-      throw errorDeDominio(e);
+      final error = errorDeDominio(e);
+      // El servicio real pide el segundo factor con 422 `AP-CU04-03` (así lo espera también el
+      // backoffice), no con un 200 + `requiereFactorAdicional`. Sin esto, quien tiene factor
+      // veía «algo salió mal» y no podía entrar (hallazgo B31 de la campaña de CU principales).
+      if (factor == null && error is ErrorDeApi && error.codigo == 'AP-CU04-03') {
+        return ResultadoDeAutenticacion.faltaSegundoFactor;
+      }
+      throw error;
     }
   }
 

@@ -47,7 +47,7 @@ public class CU63Acordar {
     @Transactional
     public UUID proponer(EntradaPropuesta entrada, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
-        TipoDeAcuerdo tipo = TipoDeAcuerdo.valueOf(entrada.tipo());
+        TipoDeAcuerdo tipo = TipoDeAcuerdo.deContrato(entrada.tipo());
 
         return datos.conContexto(ctx, dsl -> {
             // No se vota dos veces lo mismo en paralelo: dos votaciones abiertas
@@ -125,7 +125,12 @@ public class CU63Acordar {
                 estado = "APROBADO";
             } else if (ahora.isAfter(acuerdo.cierraEn())) {
                 estado = "EXPIRADO";
+            } else if (computo.puedeAlcanzar(acuerdo.quorum())) {
+                // Faltan votos que todavia pueden alcanzar el quorum: la votacion sigue abierta. Resolverla al
+                // primer voto la cerraba RECHAZADA y los demas ya no podian votar (B38).
+                return "EN_VOTACION";
             } else {
+                // Ni con todo el peso que falta a favor se alcanza el quorum: no hay nada que esperar.
                 estado = "RECHAZADO";
             }
 

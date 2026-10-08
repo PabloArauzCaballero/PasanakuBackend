@@ -170,4 +170,44 @@ class CU02RevisionTest {
                 .isInstanceOf(ErrorDeDominio.class)
                 .hasMessageContaining("expediente no existe");
     }
+
+    @Test
+    void aprobarElExpedienteActivaAlUsuarioPendienteYRechazarNo() {
+        UUID aprobado = usuario();
+        UUID rechazado = usuario();
+        UUID yaActivo = usuario();
+        dsl.execute(
+                "UPDATE identidad.usuario SET estado = 'PENDIENTE_VERIFICACION', nivel_kyc = 'NINGUNO' WHERE id IN (?, ?)",
+                aprobado,
+                rechazado);
+        dsl.execute("UPDATE identidad.usuario SET estado = 'ACTIVO', nivel_kyc = 'COMPLETO' WHERE id = ?", yaActivo);
+        UUID vAprobada = expediente(aprobado, "EN_REVISION", false);
+        UUID vRechazada = expediente(rechazado, "EN_REVISION", false);
+        UUID vDelActivo = expediente(yaActivo, "EN_REVISION", false);
+        dsl.execute("UPDATE identidad.verificacion_kyc SET nivel_solicitado = 'AVANZADO' WHERE id = ?", vAprobada);
+        ContextoSesion contexto = contexto(usuario());
+        var caso = new CU02RevisarExpediente(
+                repositorio,
+                mock(AlmacenDeArchivos.class),
+                new Datos(dsl),
+                Reloj.fijo(Instant.parse("2026-09-24T12:00:00Z")));
+
+        transaccion.execute(estado -> {
+            caso.resolver(vAprobada, "APROBAR", null, contexto);
+            caso.resolver(vRechazada, "RECHAZAR", "Documento ilegible", contexto);
+            caso.resolver(vDelActivo, "APROBAR", null, contexto);
+            return null;
+        });
+
+        assertThat(dsl.fetchOne("SELECT estado, nivel_kyc FROM identidad.usuario WHERE id = ?", aprobado)
+                        .intoMap())
+                .containsEntry("estado", "ACTIVO")
+                .containsEntry("nivel_kyc", "COMPLETO");
+        assertThat(dsl.fetchValue("SELECT estado FROM identidad.usuario WHERE id = ?", rechazado))
+                .isEqualTo("PENDIENTE_VERIFICACION");
+        assertThat(dsl.fetchOne("SELECT estado, nivel_kyc FROM identidad.usuario WHERE id = ?", yaActivo)
+                        .intoMap())
+                .containsEntry("estado", "ACTIVO")
+                .containsEntry("nivel_kyc", "COMPLETO");
+    }
 }

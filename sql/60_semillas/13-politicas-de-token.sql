@@ -1,6 +1,11 @@
 -- Parámetros de emisión y validación de tokens, uno por propósito. Sin la fila, el propósito no puede emitir token: el vencimiento, el largo del código y el tope de intentos son dato, no constante en el código.
 -- GENERADO desde seeders/minimos/13-politicas-de-token.json — no editar a mano.
 
+-- OTP de seis digitos para confirmar el correo durante el alta mediante Gmail API.
+INSERT INTO politica_token (proposito, ttl_segundos, longitud_codigo, max_intentos_validacion, max_reenvios_por_hora, cooldown_reenvio_segundos, max_emisiones_por_dia, canales_permitidos, exige_dispositivo_conocido, invalida_anteriores, vigente_desde) VALUES
+  ('VERIFICACION_CORREO', 600, 6, 5, 2, 60, 5, 'CORREO', FALSE, TRUE, '2026-10-07T00:00:00-04:00')
+ON CONFLICT (proposito, vigente_desde) DO NOTHING;
+
 -- OTP numéricos: código corto, vida corta y pocos intentos. La ventana de 5 minutos y los 3 intentos son el estándar de segundo factor en banca móvil.
 INSERT INTO politica_token (proposito, ttl_segundos, longitud_codigo, max_intentos_validacion, max_reenvios_por_hora, cooldown_reenvio_segundos, max_emisiones_por_dia, canales_permitidos, exige_dispositivo_conocido, invalida_anteriores, vigente_desde) VALUES
   ('SEGUNDO_FACTOR', 300, 6, 3, 3, 60, 10, 'SMS,WHATSAPP,APP_AUTENTICADORA', FALSE, TRUE, '2026-01-01T00:00:00-04:00'),

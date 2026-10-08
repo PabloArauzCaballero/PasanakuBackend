@@ -14,8 +14,17 @@ BEGIN
     INSERT INTO cuenta_billetera (numero_cuenta, tipo, moneda, estado, nivel_debida_diligencia, fecha_apertura, cuenta_contable_id, permite_saldo_negativo) VALUES
       ('SYS-INGRESOS', 'PLATAFORMA_INGRESOS', 'BOB', 'ACTIVA', 'REFORZADA', now(), (SELECT id FROM cuenta_contable WHERE codigo = '4.1.01'), TRUE),
       ('SYS-IMPUESTOS', 'PLATAFORMA_IMPUESTOS_POR_PAGAR', 'BOB', 'ACTIVA', 'REFORZADA', now(), (SELECT id FROM cuenta_contable WHERE codigo = '2.2.01'), TRUE),
-      ('SYS-CUSTODIA', 'PUENTE_CUSTODIA', 'BOB', 'ACTIVA', 'REFORZADA', now(), (SELECT id FROM cuenta_contable WHERE codigo = '1.1.01'), TRUE),
       ('SYS-SUSPENSO', 'SUSPENSO_NO_IDENTIFICADO', 'BOB', 'ACTIVA', 'REFORZADA', now(), (SELECT id FROM cuenta_contable WHERE codigo = '2.1.04'), TRUE)
+    ON CONFLICT (numero_cuenta) DO NOTHING;
+  END IF;
+END $siembra$;
+
+-- La cuenta puente de custodia lleva el id fijo que el despliegue le da al servicio (CUENTA_PUENTE_CUSTODIA en despliegue/compose/servicios.yml): sin el mismo id, toda pata del libro contra la custodia violaba la clave foranea.
+DO $siembra$
+BEGIN
+  IF current_setting('app.dev_sembrado', true) IS DISTINCT FROM 'si' THEN
+    INSERT INTO cuenta_billetera (id, numero_cuenta, tipo, moneda, estado, nivel_debida_diligencia, fecha_apertura, cuenta_contable_id, permite_saldo_negativo) VALUES
+      ('00000000-0000-0000-0000-0000000000c0', 'SYS-CUSTODIA', 'PUENTE_CUSTODIA', 'BOB', 'ACTIVA', 'REFORZADA', now(), (SELECT id FROM cuenta_contable WHERE codigo = '1.1.01'), TRUE)
     ON CONFLICT (numero_cuenta) DO NOTHING;
   END IF;
 END $siembra$;

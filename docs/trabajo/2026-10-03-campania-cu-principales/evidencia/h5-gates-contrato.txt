@@ -1,0 +1,19 @@
+=== python scripts/generar_postman.py
+
+AVISO · operaciones sin @Permiso hallado en el codigo:
+  aportes: recibirWebhookPasarela
+rc=0
+=== python scripts/inventario_endpoints.py --check
+endpoints relevados: 162 · hallazgos: 0
+El inventario esta alineado: todo lo implementado tiene contrato y viceversa.
+rc=0
+=== python scripts/verificar_contratos_limites.py
+  - transparencia · openapi/*.yaml#/components/schemas/MetricaDeRiesgo/valor: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/MetricaDeRiesgo/umbral: sin limite (`maxLength`/`maximum`/`maxItems`)
+Los contratos de request en el alcance de este gate declaran limites y additionalProperties: false.
+rc=0
+=== python scripts/verificar_seguridad.py
+  (556 archivos revisados; 0 bloquean, 1 son aviso)
+
+TODO OK · 3 aviso(s)
+rc=0

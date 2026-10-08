@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import bo.aportaya.identidad.aplicacion.CU04Autenticar;
+import bo.aportaya.identidad.aplicacion.CU04StepUp;
 import bo.aportaya.identidad.aplicacion.EmitirAcceso;
 import bo.aportaya.identidad.aplicacion.RenovarSesion;
 import bo.aportaya.identidad.dominio.ResultadoDeAutenticacion;
@@ -85,6 +86,9 @@ class SesionesControllerWebTest {
 
     @MockitoBean
     private RenovarSesion renovarSesion;
+
+    @MockitoBean
+    private CU04StepUp cu04StepUp;
 
     private static ResultadoDeAutenticacion abierta() {
         return abierta(false);
@@ -239,5 +243,66 @@ class SesionesControllerWebTest {
                 .andExpect(status().isOk())
                 .andExpect(header().doesNotExist("Set-Cookie"));
         verify(renovarSesion, never()).emitir(any(), any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("B37 · 201: con sesion se abre un desafio de step-up")
+    void abreUnDesafio() throws Exception {
+        var desafio = UUID.fromString("cccccccc-0000-4000-8000-000000000010");
+        when(cu04StepUp.abrir(any(), any()))
+                .thenReturn(new CU04StepUp.Desafio(desafio, Instant.parse("2026-04-01T12:05:00Z")));
+
+        mvc.perform(post("/sesiones/desafios")
+                        .with(bo.aportaya.plataforma.pruebas.web.Sesiones.como("PARTICIPANTE"))
+                        .header("Idempotency-Key", UUID.randomUUID().toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"proposito\":\"RETIRO\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.desafioId").value(desafio.toString()));
+    }
+
+    @Test
+    @DisplayName("B37 · 401: sin sesion no hay desafio ni evidencia")
+    void sinSesionNoHayStepUp() throws Exception {
+        mvc.perform(post("/sesiones/desafios")
+                        .header("Idempotency-Key", UUID.randomUUID().toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"proposito\":\"RETIRO\"}"))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(post("/sesiones/desafios/{id}/verificacion", UUID.randomUUID())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"factor\":{\"tipo\":\"OTP\",\"valor\":\"123456\"}}"))
+                .andExpect(status().isUnauthorized());
+        verifyNoInteractions(cu04StepUp);
+    }
+
+    @Test
+    @DisplayName("B37 · 200: con el factor correcto sale la evidencia")
+    void entregaLaEvidencia() throws Exception {
+        var desafio = UUID.randomUUID();
+        var jti = UUID.randomUUID();
+        when(cu04StepUp.verificar(any(), any(), any()))
+                .thenReturn(new CU04StepUp.Evidencia(
+                        "evidencia.firmada.jwt", Instant.parse("2026-04-01T12:05:00Z"), jti));
+
+        mvc.perform(post("/sesiones/desafios/{id}/verificacion", desafio)
+                        .with(bo.aportaya.plataforma.pruebas.web.Sesiones.como("PARTICIPANTE"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"factor\":{\"tipo\":\"OTP\",\"valor\":\"123456\"}}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.evidencia").value("evidencia.firmada.jwt"))
+                .andExpect(jsonPath("$.jti").value(jti.toString()));
+    }
+
+    @Test
+    @DisplayName("B37 · 400: un proposito que el contrato no enumera")
+    void propositoInvalido() throws Exception {
+        mvc.perform(post("/sesiones/desafios")
+                        .with(bo.aportaya.plataforma.pruebas.web.Sesiones.como("PARTICIPANTE"))
+                        .header("Idempotency-Key", UUID.randomUUID().toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"proposito\":\"VACIAR_LA_CUENTA\"}"))
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(cu04StepUp);
     }
 }

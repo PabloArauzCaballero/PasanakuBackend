@@ -6,9 +6,11 @@ import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.CU02RevisarExpediente;
 import bo.aportaya.identidad.aplicacion.CU04Autenticar;
+import bo.aportaya.identidad.aplicacion.ConfirmarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.EmitirAcceso;
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.RenovarSesion;
+import bo.aportaya.identidad.aplicacion.SolicitarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.ValidarTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
@@ -38,7 +40,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @Import(CookieDeRefresco.class)
 class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
-    // ADR-010: el ingreso web emite el refresh y /sesion/refrescar lo rota.
     @MockitoBean
     private RenovarSesion renovarSesion;
 
@@ -52,8 +53,6 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     @MockitoBean
     private CU02GuardarFotoDelExpediente guardarFoto;
 
-    // El estado publico de la verificacion cuelga de UsuariosController desde que
-    // existe esa ruta: sin doblarlo, el contexto de esta sabana no levanta.
     @MockitoBean
     private CU02ConsultarEstadoDeVerificacion estadoDeVerificacion;
 
@@ -64,7 +63,16 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private CU01RegistrarUsuario cu01RegistrarUsuario;
 
     @MockitoBean
+    private SolicitarVerificacionCorreo solicitarVerificacionCorreo;
+
+    @MockitoBean
+    private ConfirmarVerificacionCorreo confirmarVerificacionCorreo;
+
+    @MockitoBean
     private CU04Autenticar cu04Autenticar;
+
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.CU04StepUp cu04StepUp;
 
     @MockitoBean
     private EmitirAcceso emitirAcceso;

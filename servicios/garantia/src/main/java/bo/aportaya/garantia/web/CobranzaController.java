@@ -40,9 +40,15 @@ public class CobranzaController implements CobranzaApi {
      * condena, y quien consulta necesita poder decirle a la persona que hacer.
      */
     @Override
-    @Permiso("GRUPO_ADMINISTRAR")
+    @Permiso("PARTICIPANTE")
     public ResponseEntity<RestriccionVigente> consultarRestriccion(UUID usuarioId) {
         Traza.marcarCasoDeUso("CU-27", usuarioId.toString());
+
+        // Cada participante consulta lo suyo (lo hace `grupos` al postular o aceptar una
+        // invitacion con su propio token); consultar a otro exige administrar grupos.
+        if (!usuarioId.equals(sesion.actual().usuarioId()) && !sesion.permisos().contains("GRUPO_ADMINISTRAR")) {
+            throw new org.springframework.security.access.AccessDeniedException("falta GRUPO_ADMINISTRAR");
+        }
 
         var restriccion = restricciones.ejecutar(usuarioId, sesion.actual());
 

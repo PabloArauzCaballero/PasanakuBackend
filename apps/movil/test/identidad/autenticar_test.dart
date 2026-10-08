@@ -80,6 +80,35 @@ void main() {
     },
   );
 
+  test(
+    'el servicio real pide el segundo factor con 422 AP-CU04-03: la app pasa al paso del código',
+    () async {
+      final (:dio, :adaptador) = dioSimulado();
+      adaptador.onPost(
+        ruta,
+        (s) => s.reply(422, {
+          'codigo': 'AP-CU04-03',
+          'mensaje': 'Confirma el codigo que te enviamos para terminar de entrar.',
+          'detalle': <String, dynamic>{},
+          'trazaId': 'traza-1',
+        }),
+        data: Matchers.any,
+      );
+      final c = contenedorCon(dio);
+      addTearDown(c.dispose);
+
+      final r = await c
+          .read(autenticacionProvider)
+          .conCredenciales(
+            telefonoE164: '+59178123456',
+            credencial: 'Secreta123',
+          );
+
+      expect(r, ResultadoDeAutenticacion.faltaSegundoFactor);
+      expect(await c.read(sesionProvider).tokenDeAcceso(), isNull);
+    },
+  );
+
   test('el segundo factor abre la sesión', () async {
     final (:dio, :adaptador) = dioSimulado();
     adaptador.onPost(

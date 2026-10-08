@@ -11,7 +11,7 @@ class DatosPersonales {
     this.lugarExpedicion,
     this.fechaExpiracion,
     this.correo = '',
-    this.canalVerificacion = 'SMS',
+    this.canalVerificacion = 'CORREO',
   });
   final String nombres;
   final String apellidos;

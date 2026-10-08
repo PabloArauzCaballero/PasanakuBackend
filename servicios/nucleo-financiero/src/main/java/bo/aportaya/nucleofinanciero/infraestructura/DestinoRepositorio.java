@@ -29,11 +29,14 @@ public class DestinoRepositorio {
     }
 
     private Optional<UUID> unaCuenta(DSLContext dsl, String columna, UUID valor, String tipo) {
-        return Optional.ofNullable(dsl.select(DSL.field("id", UUID.class))
-                .from(DSL.table(DSL.name("nucleo_financiero", "cuenta_billetera")))
-                .where(DSL.field(DSL.name(columna), UUID.class).eq(valor))
-                .and(DSL.field("tipo", String.class).eq(tipo))
-                .and(DSL.field("estado", String.class).eq("ACTIVA"))
-                .fetchOne(DSL.field("id", UUID.class)));
+        // La cuenta destino es de OTRA persona: la politica de fila deja al titular ver solo las suyas.
+        // Se lee con rol de sistema y acotado a devolver un id, no la fila (B8, CU-12).
+        return Optional.ofNullable(
+                bo.aportaya.plataforma.datos.Datos.comoSistema(dsl, () -> dsl.select(DSL.field("id", UUID.class))
+                        .from(DSL.table(DSL.name("nucleo_financiero", "cuenta_billetera")))
+                        .where(DSL.field(DSL.name(columna), UUID.class).eq(valor))
+                        .and(DSL.field("tipo", String.class).eq(tipo))
+                        .and(DSL.field("estado", String.class).eq("ACTIVA"))
+                        .fetchOne(DSL.field("id", UUID.class))));
     }
 }

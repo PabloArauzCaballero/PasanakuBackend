@@ -97,7 +97,7 @@ void main() {
       final contenedor = ProviderScope.containerOf(
         tester.element(find.byType(PasoDatos)),
       );
-      expect(contenedor.read(altaProvider).datos.canalVerificacion, 'SMS');
+      expect(contenedor.read(altaProvider).datos.canalVerificacion, 'CORREO');
 
       final selector = tester.widget<SelectorSegmentado<String>>(
         find.byType(SelectorSegmentado<String>),

@@ -29,13 +29,6 @@ export type ExpedienteEnRevision = {
   // Campo concreto porque el código lo accede con notación de punto
   // (`noPropertyAccessFromIndexSignature` no lo permite si viniera solo del índice).
   motivoRechazo?: string
-  /** `format: date` del contrato («2027-05-10»), sin hora ni zona. Falta en altas viejas. */
-  fechaExpiracionDocumento?: string
-  /**
-   * Lo calcula el servidor con SU reloj (hora de Bolivia): la pantalla no decide si un
-   * documento esta vigente, y el servidor igual rechaza aprobar uno vencido (AP-CU01-11).
-   */
-  documentoVigente: boolean
   // Permisivo para cualquier otro campo que el código real lea de acá sin enumerarlo.
   [campo: string]: unknown
 }
@@ -47,32 +40,21 @@ export type EnlaceDeFoto = { cara: string; url: string }
 // y `FactorPresentado.tipo`) — Prism los valida y rechaza con 422 cualquier otro valor.
 export const EntradaAutenticacionPlataformaEnum = { Web: 'WEB', Android: 'ANDROID', Ios: 'IOS' } as const
 export const FactorPresentadoTipoEnum = { Totp: 'TOTP', Otp: 'OTP', Biometria: 'BIOMETRIA' } as const
-/**
- * Valores del contrato (`identidad.yaml`, `ExpedienteEnRevision.estado`), no los nombres
- * de miembro: con `'EnRevision'` la cola filtraba `?estado=EnRevision` (el servidor
- * devuelve `[]`) y «Por decidir» nunca coincidía con lo que llega (`EN_REVISION`).
- */
+// Valores del contrato real (identidad.yaml: `estado` enum PENDIENTE|EN_REVISION|APROBADA|RECHAZADA).
+// Antes eran los nombres de los miembros ('EnRevision'): el backend los rechazaba como filtro y la cola
+// «Por decidir» salía vacía con expedientes esperando (hallazgo B30 de la campaña de CU principales).
 export const ExpedienteEnRevisionEstadoEnum = {
   Pendiente: 'PENDIENTE',
   EnRevision: 'EN_REVISION',
   Aprobada: 'APROBADA',
   Rechazada: 'RECHAZADA',
 } as const
-/**
- * Contrato real, no un doble: copiado de `components.schemas.CaraDelExpediente` en
- * identidad.yaml (5 caras desde el escáner de identidad, 2026-10-02) y de lo que emite
- * el generador para ese schema. Mismos nombres de miembro que el enum generado.
- */
-export const CaraDelExpediente = {
+/** Nombres tomados de la data de prueba ya presente en `tira-de-fotos.a11y.spec.ts`. */
+export const ExpedienteEnRevisionFotosEnum = {
   Anverso: 'ANVERSO',
   Reverso: 'REVERSO',
   Selfie: 'SELFIE',
-  PerfilIzquierdo: 'PERFIL_IZQUIERDO',
-  PerfilDerecho: 'PERFIL_DERECHO',
 } as const
-export type CaraDelExpediente = (typeof CaraDelExpediente)[keyof typeof CaraDelExpediente]
-/** Nombre anterior del mismo enum, para el código que todavía lo importe. */
-export const ExpedienteEnRevisionFotosEnum = CaraDelExpediente
 /** CU del debido proceso de verificación: aprobar u observar (regla 91.4). */
 export const DecisionDeVerificacionDecisionEnum = {
   Aprobar: 'APROBAR',

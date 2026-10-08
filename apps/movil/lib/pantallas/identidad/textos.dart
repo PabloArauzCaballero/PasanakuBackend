@@ -94,8 +94,11 @@ class TextosIdentidad {
       'documento: si no coinciden, la verificación se frena.';
   static const pasoDatos = 'Tus datos';
   static const pasoContrasena = 'Tu contraseña';
-  static const pasoCelular = 'Confirmar celular';
+  static const pasoCelular = 'Confirmar correo';
   static const pasoCapturas = 'Tus capturas';
+  static const pasoAnverso = 'Documento (anverso)';
+  static const pasoReverso = 'Documento (reverso)';
+  static const pasoPruebaDeVida = 'Prueba de vida';
   static const pasoCotejo = 'Revisá tus datos';
   static const pasoPerfil = 'Tu actividad';
   static const pasoContrato = 'Contrato';
@@ -109,7 +112,23 @@ class TextosIdentidad {
   static const codigoPorSms = 'Te enviamos un código por SMS al';
   static const codigoPorCorreo = 'Te enviamos un código al correo';
   static const codigoNoLlega =
-      '¿No te llega? Volvé al paso anterior y cambiá por dónde querés recibirlo.';
+      'El código dura 10 minutos. Si no llega, pedí una combinación nueva.';
+  static const reenviarCodigo = 'Enviar una combinación nueva';
+  static const enviandoCodigo = 'Enviando código...';
+  static const verificandoCodigo = 'Comprobando código...';
+  static const capturarAnverso = 'Fotografiá el frente de tu documento';
+  static const capturarReverso = 'Fotografiá el reverso de tu documento';
+  static const capturarSelfie = 'Mirá a la cámara y no te muevas';
+  static const camaraSinPermiso =
+      'No pudimos usar la cámara. Podés seguir escribiendo los datos a mano.';
+  static const camaraPocaLuz =
+      'Hay poca luz para una foto nítida. Podés reintentar o escribir los datos.';
+  static const reintentarCaptura = 'Reintentar';
+  static const escribirAMano = 'Escribir a mano';
+  static const elegirDeLasFotos = 'Elegir de mis fotos';
+  static const sinCamara =
+      'Este dispositivo no tiene cámara disponible. Podés elegir una foto que ya '
+      'tengas, o escribir los datos a mano.';
 
   // CU-03, declaración PEP.
   static const preguntaPep =

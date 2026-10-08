@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../dominio/estado_alta.dart';
 import '../textos.dart';
 
-/// Paso 2 de 8 — confirmar el contacto con un código de seis dígitos (CU-01, flujo 1).
+/// Paso 3 de 9 — confirmar el correo con un código de seis dígitos (CU-01, flujo 1).
 /// La validez del código la decide el servidor; acá solo se junta el dato.
 ///
 /// **Dice a dónde se mandó.** Un «te enviamos un código» sin decir adónde deja a
@@ -17,7 +17,7 @@ import '../textos.dart';
 class PasoCelular extends ConsumerWidget {
   const PasoCelular({super.key});
 
-  /// El destino, enmascarado: `+591 7••• ••90` o `ma•••@correo.com`.
+  /// El destino enmascarado mientras llega la respuesta del servidor.
   static String _aDonde(DatosPersonales d) {
     if (d.canalVerificacion == 'CORREO') {
       final partes = d.correo.split('@');
@@ -39,7 +39,11 @@ class PasoCelular extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(_aDonde(estado.datos)),
+          Text(
+            estado.destinoVerificacion == null
+                ? _aDonde(estado.datos)
+                : '${TextosIdentidad.codigoPorCorreo} ${estado.destinoVerificacion}',
+          ),
           const SizedBox(height: Espacio.s2),
           Text(
             TextosIdentidad.codigoNoLlega,
@@ -47,17 +51,38 @@ class PasoCelular extends ConsumerWidget {
           ),
           const SizedBox(height: Espacio.s4),
           CampoOTP(
-            onCompleto: (_) =>
-                ref.read(altaProvider.notifier).confirmarCelular(),
+            error: estado.errorCodigo?.isEmpty == true
+                ? null
+                : estado.errorCodigo,
+            onCompleto: (codigo) => ref
+                .read(altaProvider.notifier)
+                .confirmarCodigoCorreo(codigo),
           ),
           const SizedBox(height: Espacio.s5),
           Boton(
-            texto: TextosIdentidad.continuar,
+            texto: estado.verificandoCodigo
+                ? TextosIdentidad.verificandoCodigo
+                : TextosIdentidad.continuar,
             variante: BotonVariante.primario,
             expandido: true,
+            cargando: estado.verificandoCodigo,
             onPressed: estado.codigoConfirmado
                 ? () => ref.read(altaProvider.notifier).siguiente()
                 : null,
+          ),
+          const SizedBox(height: Espacio.s3),
+          Boton(
+            texto: estado.enviandoCodigo
+                ? TextosIdentidad.enviandoCodigo
+                : TextosIdentidad.reenviarCodigo,
+            variante: BotonVariante.fantasma,
+            expandido: true,
+            cargando: estado.enviandoCodigo,
+            onPressed: estado.verificandoCodigo
+                ? null
+                : () => ref
+                      .read(altaProvider.notifier)
+                      .solicitarCodigoCorreo(nuevo: true),
           ),
         ],
       ),

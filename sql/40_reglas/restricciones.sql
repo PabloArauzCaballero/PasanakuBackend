@@ -57,7 +57,7 @@ BEGIN
   SELECT hash_registro INTO v_anterior
     FROM transaccion_billetera ORDER BY secuencia DESC LIMIT 1;
   NEW.hash_anterior := v_anterior;
-  NEW.hash_registro := encode(digest(
+  NEW.hash_registro := encode(public.digest(
       NEW.id::text || COALESCE(NEW.secuencia::text,'') || NEW.tipo ||
       NEW.estado || NEW.moneda || NEW.monto_total::text ||
       COALESCE(NEW.origen_tipo,'') || COALESCE(NEW.origen_id::text,'') ||
@@ -94,7 +94,7 @@ BEGIN
   SELECT hash_registro INTO v_anterior
     FROM bitacora_evento ORDER BY secuencia DESC LIMIT 1;
   NEW.hash_anterior := COALESCE(v_anterior, repeat('0', 64));
-  NEW.hash_registro := encode(digest(
+  NEW.hash_registro := encode(public.digest(
       NEW.entidad || NEW.entidad_id::text || NEW.accion ||
       COALESCE(NEW.actor_usuario_id::text,'') || COALESCE(NEW.actor_rol,'') ||
       COALESCE(NEW.suplantando_a_usuario_id::text,'') || NEW.origen ||
@@ -1268,8 +1268,19 @@ DECLARE
       -- tercero. `AutorizacionNegativaTest` (SET ROLE svc_nucleo_financiero +
       -- app.usuario_id real) lo confirma: sin este cambio, ni el ATACANTE ni
       -- el DUEÑO ven la orden. Con el cambio, el dueño si, el atacante no.
-      'orden_retiro','orden_recarga'];
+      'orden_retiro','orden_recarga',
+      -- CU-90: quien postula crea y ve SU solicitud. Sin esto, postular a organizador
+      -- violaba la politica de fila con un 500 para el propio titular.
+      'solicitud_organizador'];
+  -- Solo LECTURA para el titular. El titular ve su fila de `organizador` (para saber si
+  -- esta habilitado), su fila de `participante` y los movimientos de su billetera, pero
+  -- NO puede escribirlas: editar su propio `organizador` seria subirse los limites, y
+  -- escribir `movimiento_billetera` seria fabricarse saldo. La escritura sigue siendo del
+  -- sistema y de los privilegiados (`WITH CHECK`). `solicitud_ingreso` (CU-68): el postulante ve las
+  -- suyas, pero no puede aprobarse a si mismo; el servicio la crea con rol de sistema.
+  lectura_por_titular TEXT[] := ARRAY['organizador','participante','movimiento_billetera','solicitud_ingreso'];
   cond TEXT;
+  cond_escritura TEXT;
 BEGIN
   -- Se recorren TODOS los esquemas de servicio, no `public`. Decia
   -- `n.nspname = 'public'` y se escribio antes de que ADR-017 partiera el modelo en
@@ -1290,7 +1301,7 @@ BEGIN
                       WHERE a.attrelid = c.oid AND NOT a.attisdropped
                         AND a.attname IN ('usuario_id','cuenta_billetera_id'))
   LOOP
-    IF NOT (r.t = ANY (visibles_por_titular)) THEN
+    IF NOT (r.t = ANY (visibles_por_titular) OR r.t = ANY (lectura_por_titular)) THEN
       cond := 'fn_seg_rol_privilegiado() OR fn_seg_es_sistema()';  -- denegar por omisión
     ELSIF r.por_usuario THEN
       cond := 'usuario_id = fn_seg_usuario_actual() OR fn_seg_rol_privilegiado() OR fn_seg_es_sistema()';
@@ -1303,12 +1314,18 @@ BEGIN
                      'AND c.usuario_id = fn_seg_usuario_actual())', r.esq, r.t);
     END IF;
 
+    IF r.t = ANY (lectura_por_titular) THEN
+      cond_escritura := 'fn_seg_rol_privilegiado() OR fn_seg_es_sistema()';
+    ELSE
+      cond_escritura := cond;
+    END IF;
+
     EXECUTE format('ALTER TABLE %I.%I ENABLE ROW LEVEL SECURITY', r.esq, r.t);
     EXECUTE format('ALTER TABLE %I.%I FORCE ROW LEVEL SECURITY', r.esq, r.t);
     EXECUTE format('DROP POLICY IF EXISTS pol_%s_titular ON %I.%I', r.t, r.esq, r.t);
     EXECUTE format(
       'CREATE POLICY pol_%s_titular ON %I.%I FOR ALL TO rol_aplicacion '
-      'USING (%s) WITH CHECK (%s)', r.t, r.esq, r.t, cond, cond);
+      'USING (%s) WITH CHECK (%s)', r.t, r.esq, r.t, cond, cond_escritura);
   END LOOP;
 END $$ LANGUAGE plpgsql;
 

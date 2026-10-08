@@ -93,6 +93,11 @@ DE_ENTORNO = {
     "CUENTA_PUENTE_CUSTODIA": "${CUENTA_PUENTE_CUSTODIA}",
     "BASE_URL_PUBLICA": "${BASE_URL_PUBLICA}",
     "SIN_NIT_EMISOR": "${SIN_NIT_EMISOR}",
+    "NOTIFICATION_EMAIL_PROVIDER": "${NOTIFICATION_EMAIL_PROVIDER}",
+    "GMAIL_CLIENT_ID": "${GMAIL_CLIENT_ID}",
+    "GMAIL_CLIENT_SECRET": "${GMAIL_CLIENT_SECRET}",
+    "GMAIL_REFRESH_TOKEN": "${GMAIL_REFRESH_TOKEN}",
+    "GMAIL_FROM_EMAIL": "${GMAIL_FROM_EMAIL}",
     # Con una sola replica la clave generada en memoria alcanza, pero aca se deja
     # inyectable: el dia que haya dos, cada una firmaria distinto y los tokens de
     # una los rechazaria la otra (ADR-037).
@@ -177,11 +182,11 @@ CABECERA_DESPLEGADO = """# El stack desplegado — GENERADO por `python3 scripts
 #       16 JVM, carga 49 y la maquina entera (Atlas incluido) camino al OOM.
 #       `pull_policy: never` porque Coolify intenta bajar del registro hasta las
 #       imagenes locales;
-#   3 · postgres, pgbouncer, minio y kafka NO estan aca: viven fuera de Coolify, en
+#   3 · postgres, pgbouncer, minio, redis y kafka NO estan aca: viven fuera de Coolify, en
 #       /opt/aportaya/, porque Coolify recrea la aplicacion entera en cada despliegue.
 #
 # La red `aportaya-interna` es externa y ya existe: ahi `postgres`, `pgbouncer`,
-# `minio`, `kafka` y `gateway` resuelven igual que en la maquina de desarrollo.
+# `minio`, `redis`, `kafka` y `gateway` resuelven igual que en la maquina de desarrollo.
 name: aportaya
 
 networks:
@@ -230,6 +235,8 @@ services:
     mem_limit: 512m
     environment:
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+      SPRING_DATA_REDIS_HOST: aportaya-redis
+      SPRING_DATA_REDIS_PORT: "6379"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/liveness || exit 1"]
       interval: 10s

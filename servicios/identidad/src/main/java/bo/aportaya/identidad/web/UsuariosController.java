@@ -4,7 +4,9 @@ import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
 import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
+import bo.aportaya.identidad.aplicacion.ConfirmarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
+import bo.aportaya.identidad.aplicacion.SolicitarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.ValidarTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
 import bo.aportaya.identidad.dominio.CanalDeVerificacion;
@@ -12,6 +14,7 @@ import bo.aportaya.identidad.dominio.DocumentoDeIdentidad;
 import bo.aportaya.identidad.web.generado.UsuariosApi;
 import bo.aportaya.identidad.web.generado.modelo.ArchivoDelExpediente;
 import bo.aportaya.identidad.web.generado.modelo.CaraDelExpediente;
+import bo.aportaya.identidad.web.generado.modelo.ConfirmacionVerificacionCorreo;
 import bo.aportaya.identidad.web.generado.modelo.EntradaRegistro;
 import bo.aportaya.identidad.web.generado.modelo.EntradaTitularidad;
 import bo.aportaya.identidad.web.generado.modelo.EntradaTokenDeInvitacion;
@@ -21,7 +24,10 @@ import bo.aportaya.identidad.web.generado.modelo.SalidaRegistro;
 import bo.aportaya.identidad.web.generado.modelo.SalidaTitularidad;
 import bo.aportaya.identidad.web.generado.modelo.SalidaTokenDeInvitacion;
 import bo.aportaya.identidad.web.generado.modelo.SalidaValidacionInvitacion;
+import bo.aportaya.identidad.web.generado.modelo.SolicitudVerificacionCorreo;
 import bo.aportaya.identidad.web.generado.modelo.UsuarioEncontrado;
+import bo.aportaya.identidad.web.generado.modelo.VerificacionCorreoConfirmada;
+import bo.aportaya.identidad.web.generado.modelo.VerificacionCorreoSolicitada;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.Publico;
@@ -56,6 +62,8 @@ public class UsuariosController implements UsuariosApi {
     private final EmitirTokenDeInvitacion tokens;
     private final ValidarTokenDeInvitacion validacionDeInvitacion;
     private final BuscarPorTelefono busqueda;
+    private final SolicitarVerificacionCorreo solicitarCorreo;
+    private final ConfirmarVerificacionCorreo confirmarCorreo;
     private final SesionDeLaPeticion sesion;
     private final HttpServletRequest peticion;
     private final String pimienta;
@@ -68,6 +76,8 @@ public class UsuariosController implements UsuariosApi {
             EmitirTokenDeInvitacion tokens,
             ValidarTokenDeInvitacion validacionDeInvitacion,
             BuscarPorTelefono busqueda,
+            SolicitarVerificacionCorreo solicitarCorreo,
+            ConfirmarVerificacionCorreo confirmarCorreo,
             SesionDeLaPeticion sesion,
             HttpServletRequest peticion,
             @Value("${aportaya.seguridad.pimienta}") String pimienta) {
@@ -78,6 +88,8 @@ public class UsuariosController implements UsuariosApi {
         this.tokens = tokens;
         this.validacionDeInvitacion = validacionDeInvitacion;
         this.busqueda = busqueda;
+        this.solicitarCorreo = solicitarCorreo;
+        this.confirmarCorreo = confirmarCorreo;
         this.sesion = sesion;
         this.peticion = peticion;
         this.pimienta = pimienta;
@@ -181,19 +193,11 @@ public class UsuariosController implements UsuariosApi {
         }
     }
 
-    /**
-     * El estado de la verificacion, para quien todavia no puede abrir sesion.
-     *
-     * <p>Publica por el mismo motivo que {@code subirDocumento}: el dispositivo de
-     * quien acaba de registrarse es nuevo y {@code ExigeSegundoFactor} le pide un MFA
-     * que todavia no tiene enrolado. La respuesta es minima — ni nombre ni documento —
-     * para que esta ruta no se convierta en un directorio de clientes.
-     */
+    /** Estado mínimo para que quien aún no puede iniciar sesión siga su verificación. */
     @Override
-    @Publico("CU-02: quien acaba de registrarse todavia no puede abrir sesion y necesita saber su estado")
+    @Publico("CU-02: quien acaba de registrarse consulta el estado de su expediente")
     public ResponseEntity<EstadoDeVerificacion> consultarEstadoDeVerificacion(UUID usuarioId) {
         Traza.marcarCasoDeUso("CU-02", usuarioId.toString());
-
         var expediente = estadoDeVerificacion.ejecutar(usuarioId, Traza.actual());
         var salida = new EstadoDeVerificacion()
                 .verificacionId(expediente.verificacionId())
@@ -214,6 +218,27 @@ public class UsuariosController implements UsuariosApi {
                 .body(new SalidaRegistro(
                         salida.usuarioId(),
                         SalidaRegistro.EstadoEnum.fromValue(salida.estado().name())));
+    }
+
+    @Override
+    @Publico("CU-01: el codigo se solicita antes de crear la cuenta")
+    public ResponseEntity<VerificacionCorreoSolicitada> solicitarVerificacionCorreo(
+            UUID idempotencyKey, SolicitudVerificacionCorreo cuerpo) {
+        Traza.marcarCasoDeUso("CU-01", "correo");
+        var salida = solicitarCorreo.ejecutar(cuerpo.getCorreo(), idempotencyKey, ip(), agente(), contextoDelAlta());
+        return ResponseEntity.accepted()
+                .body(new VerificacionCorreoSolicitada(
+                        salida.verificacionId(), salida.destinoEnmascarado(), salida.expiraEn()));
+    }
+
+    @Override
+    @Publico("CU-01: el codigo se confirma antes de crear la cuenta")
+    public ResponseEntity<VerificacionCorreoConfirmada> confirmarVerificacionCorreo(
+            UUID verificacionId, ConfirmacionVerificacionCorreo cuerpo) {
+        Traza.marcarCasoDeUso("CU-01", "confirmar-correo");
+        confirmarCorreo.ejecutar(
+                verificacionId, cuerpo.getCorreo(), cuerpo.getCodigo(), ip(), agente(), contextoDelAlta());
+        return ResponseEntity.ok(new VerificacionCorreoConfirmada(true));
     }
 
     /**
@@ -244,12 +269,12 @@ public class UsuariosController implements UsuariosApi {
                 cuerpo.getApellidos(),
                 cuerpo.getFechaNacimiento(),
                 cuerpo.getCorreo(),
-                // El contrato le pone SMS por omision: quien no elige, recibe el
-                // codigo en el telefono que acaba de declarar.
+                // El correo es obligatorio en el alta y es el unico canal habilitado.
                 cuerpo.getCanalVerificacion() == null
-                        ? CanalDeVerificacion.SMS
+                        ? CanalDeVerificacion.CORREO
                         : CanalDeVerificacion.valueOf(
                                 cuerpo.getCanalVerificacion().getValue()),
+                cuerpo.getVerificacionCorreoId(),
                 documento,
                 // El cifrado real lo hace el adaptador de archivos; aca la frontera.
                 "cifrado:" + documento.hashNumero(),
@@ -261,6 +286,14 @@ public class UsuariosController implements UsuariosApi {
                 true,
                 Optional.ofNullable(peticion.getRemoteAddr()).orElse("0.0.0.0"),
                 Optional.ofNullable(peticion.getHeader("User-Agent")).orElse("desconocido"));
+    }
+
+    private String ip() {
+        return Optional.ofNullable(peticion.getRemoteAddr()).orElse("0.0.0.0");
+    }
+
+    private String agente() {
+        return Optional.ofNullable(peticion.getHeader("User-Agent")).orElse("desconocido");
     }
 
     /** El contrato dice {@code CEX}; el {@code .puml} dice {@code CARNET_EXTRANJERIA}. */

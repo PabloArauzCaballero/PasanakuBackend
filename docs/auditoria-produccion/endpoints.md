@@ -2,7 +2,7 @@
 
 > No editar a mano: se regenera con `python3 scripts/inventario_endpoints.py`. El CI falla (`--check`) si un endpoint implementado no esta en su OpenAPI, o viceversa (H2.S1 del carril PR4-seguridad).
 
-**Total de endpoints relevados:** 158.
+**Total de endpoints relevados:** 162.
 
 | Service | Method | Path | Permission | Ownership | Idempotency | Rate limit | MFA | Audit | Tests | Sensible |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -27,7 +27,7 @@
 | cumplimiento | POST | `/cumplimiento/seguridad/incidentes/{incidenteId}/reportes` | RESPONSABLE_SEGURIDAD | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | cumplimiento | POST | `/cumplimiento/usuarios/{usuarioId}/diligencia` | ANALISTA_CUMPLIMIENTO | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | cumplimiento | POST | `/cumplimiento/usuarios/{usuarioId}/pep` | PARTICIPANTE | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
-| cumplimiento | GET | `/licencia/alcance` | SOPORTE | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| cumplimiento | GET | `/licencia/alcance` | PARTICIPANTE | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | entregas | POST | `/cuentas-bancarias` | BILLETERA_OPERAR | n/a | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | entregas | GET | `/cuentas-bancarias/{cuentaId}/disponibilidad` | BILLETERA_OPERAR | revisar (id en la ruta) | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | entregas | POST | `/cuentas-bancarias/{cuentaId}/principal` | BILLETERA_OPERAR | revisar (id en la ruta) | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
@@ -52,7 +52,7 @@
 | erp | POST | `/erp/presupuestos` | CONTABILIDAD_ERP_PRESUPUESTO | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | erp | POST | `/erp/presupuestos/{presupuestoId}/aprobacion` | CONTABILIDAD_ERP_PRESUPUESTO | revisar (id en la ruta) | si | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | erp | POST | `/erp/terceros` | CONTABILIDAD_ERP_COMPRAS | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
-| garantia | GET | `/cobranza/restricciones/vigentes/{usuarioId}` | GRUPO_ADMINISTRAR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| garantia | GET | `/cobranza/restricciones/vigentes/{usuarioId}` | PARTICIPANTE | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | garantia | POST | `/cobranza/restricciones/{restriccionId}/levantamiento` | GRUPO_ADMINISTRAR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | garantia | POST | `/garantia/disoluciones/{disolucionId}/cierre` | GRUPO_ADMINISTRAR | revisar (id en la ruta) | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | garantia | POST | `/garantia/fondos/{grupoId}/devolucion` | GRUPO_ADMINISTRAR | revisar (id en la ruta) | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
@@ -70,6 +70,8 @@
 | grupos | POST | `/acuerdos/{acuerdoId}/votos` | PARTICIPANTE | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | POST | `/grupos` | GRUPO_CREAR | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | GET | `/grupos/calendario/calcular` | PARTICIPANTE | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| grupos | POST | `/grupos/invitaciones/enlace/aceptar` | PARTICIPANTE | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| grupos | POST | `/grupos/invitaciones/enlace/consultar` | PARTICIPANTE | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | GET | `/grupos/participantes/alias/{alias}` | BILLETERA_OPERAR | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | GET | `/grupos/participantes/{usuarioId}/actividad` | BILLETERA_VER | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | GET | `/grupos/sorteos/{sorteoId}/paquete` | PARTICIPANTE | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
@@ -88,18 +90,20 @@
 | identidad | POST | `/usuarios` | PUBLICO | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | identidad | GET | `/usuarios/por-telefono` | GRUPO_ADMINISTRAR | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | identidad | POST | `/usuarios/tokens/invitacion` | GRUPO_ADMINISTRAR | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| identidad | POST | `/usuarios/tokens/invitacion/validar` | PARTICIPANTE | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | identidad | POST | `/usuarios/{usuarioId}/documentos` | PUBLICO | revisar (id en la ruta) | si | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | identidad | POST | `/usuarios/{usuarioId}/titularidad/verificacion` | DATOS_SENSIBLES_LEER | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | notificaciones | POST | `/notificaciones` | SOPORTE | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
-| notificaciones | GET | `/notificaciones/supresion` | SOPORTE | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| notificaciones | GET | `/notificaciones/supresion` | GRUPO_ADMINISTRAR | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | notificaciones | POST | `/notificaciones/webhooks/{proveedor}` | PUBLICO | n/a | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | nucleo-financiero | POST | `/billetera/bloqueos` | DATOS_SENSIBLES_LEER | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | nucleo-financiero | POST | `/billetera/cierres` | BILLETERA_OPERAR | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | nucleo-financiero | POST | `/billetera/recargas` | BILLETERA_OPERAR | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
-| nucleo-financiero | POST | `/billetera/recargas/{ordenId}/acreditacion` | BILLETERA_OPERAR | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| nucleo-financiero | POST | `/billetera/recargas/{ordenId}/acreditacion` | TESORERIA | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | nucleo-financiero | POST | `/billetera/retenciones` | BILLETERA_OPERAR | n/a | si | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | nucleo-financiero | POST | `/billetera/retenciones/{retencionId}/cierre` | BILLETERA_OPERAR | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | nucleo-financiero | POST | `/billetera/retiros` | BILLETERA_OPERAR | n/a | si | borde (gateway, H7.S4 — Pablo) | si (retiro) | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
+| nucleo-financiero | POST | `/billetera/retiros/{ordenId}/aprobacion` | RETIRO_APROBAR | revisar (id en la ruta) | si | borde (gateway, H7.S4 — Pablo) | si (retiro) | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | nucleo-financiero | POST | `/billetera/reversos` | REVERSO_AUTORIZAR | n/a | si | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | nucleo-financiero | POST | `/billetera/transferencias` | BILLETERA_OPERAR | n/a | si | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | nucleo-financiero | GET | `/billetera/{cuentaId}/extracto` | BILLETERA_VER | revisar (id en la ruta) | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |

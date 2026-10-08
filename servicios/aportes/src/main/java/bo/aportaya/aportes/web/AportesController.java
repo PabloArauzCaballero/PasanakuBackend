@@ -7,6 +7,8 @@ import bo.aportaya.aportes.web.generado.modelo.EntradaCobro;
 import bo.aportaya.aportes.web.generado.modelo.EstadoDelParticipante;
 import bo.aportaya.aportes.web.generado.modelo.Morosos;
 import bo.aportaya.aportes.web.generado.modelo.SalidaCobro;
+import bo.aportaya.plataforma.dominio.CodigoError;
+import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
@@ -30,8 +32,14 @@ public class AportesController implements AportesApi {
     private final CU21CobrarAporte cu21;
     private final ConsultarEstadoDelParticipante estados;
     private final SesionDeLaPeticion sesion;
+    private final bo.aportaya.aportes.aplicacion.HechosDeGrupos grupos;
 
-    public AportesController(CU21CobrarAporte cu21, ConsultarEstadoDelParticipante estados, SesionDeLaPeticion sesion) {
+    public AportesController(
+            CU21CobrarAporte cu21,
+            ConsultarEstadoDelParticipante estados,
+            SesionDeLaPeticion sesion,
+            bo.aportaya.aportes.aplicacion.HechosDeGrupos grupos) {
+        this.grupos = grupos;
         this.cu21 = cu21;
         this.estados = estados;
         this.sesion = sesion;
@@ -76,6 +84,18 @@ public class AportesController implements AportesApi {
     public ResponseEntity<SalidaCobro> cobrarAporte(UUID idempotencyKey, UUID obligacionId, EntradaCobro cuerpo) {
         Traza.marcarCasoDeUso("CU-21", obligacionId.toString());
 
+        // Antes de tocar nada: la obligacion tiene que ser de quien paga y el periodo tiene que seguir
+        // abierto (B15/B5). Se pregunta a `grupos` FUERA de la transaccion del cobro (invariante 6).
+        var ctx = sesion.actual();
+        var contexto = cu21.contextoDe(obligacionId, ctx)
+                .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(21, 1), "Esa obligacion no existe."));
+        var admisibilidad = grupos.admisibilidad(contexto.participanteId(), contexto.periodoId())
+                .orElseThrow(() -> new ErrorDeNegocio(
+                        CodigoError.de(21, 7), "No pudimos verificar esa obligacion: intentalo de nuevo."));
+        if (!admisibilidad.esDelUsuario()) {
+            throw new ErrorDeNegocio(CodigoError.de(21, 6), "Esa obligacion no es tuya.");
+        }
+
         var salida = cu21.acreditar(
                 new CU21CobrarAporte.EntradaCobro(
                         idempotencyKey.toString(),
@@ -89,8 +109,8 @@ public class AportesController implements AportesApi {
                         cuerpo.getReferenciaProveedor(),
                         Optional.ofNullable(cuerpo.getProveedorId()),
                         Boolean.TRUE.equals(cuerpo.getEsManual()),
-                        true),
-                sesion.actual());
+                        admisibilidad.periodoAbierto()),
+                ctx);
 
         var respuesta = new SalidaCobro();
         respuesta.setPagoId(salida.pagoId());

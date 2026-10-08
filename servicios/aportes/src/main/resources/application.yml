@@ -18,6 +18,9 @@ spring:
     bootstrap-servers: ${KAFKA_URL}
 
 aportaya:
+  servicios:
+    # A quien se le pregunta (invariante 11: por su contrato, nunca por su base).
+    grupos: ${URL_GRUPOS:http://grupos:8080}
   esquema: aportes
   outbox:
     intervalo: PT1S                 # relevo: lee el outbox y publica DESPUES del commit

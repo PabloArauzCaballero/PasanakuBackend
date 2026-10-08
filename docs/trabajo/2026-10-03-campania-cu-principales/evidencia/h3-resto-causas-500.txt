@@ -1,0 +1,22 @@
+=== organizador
+2026-10-03T12:14:42.686Z ERROR 1 --- [organizador] [mcat-handler-46] [6ac0f1b2a30d66088391ea01abc49b46-c4a1172360706358] b.a.p.w.e.ManejadorGlobalDeErrores       : fallo no previsto
+org.jooq.exception.DataAccessException: SQL [insert into "organizador"."solicitud_organizador" (id, usuario_id, motivacion, experiencia_declarada, kyc_reforzado_id, puntaje_reputacion_al_solicitar, estado, fecha_solicitud) values (cast(? as uuid), cast(? as uuid), ?, ?, cast(? as uuid), ?, ?, cast(? as timestamp with time zone))]; ERROR: new row violates row-level security policy for table "solicitud_organizador"
+Caused by: org.postgresql.util.PSQLException: ERROR: new row violates row-level security policy for table "solicitud_organizador"
+=== entregas
+2026-10-03T12:14:44.623Z  INFO 1 --- [entregas] [mcat-handler-45] [6ac0f1b4060121342c7bfae845243b50-825c669d0fd17315] b.a.p.web.seguridad.GuardiaDePermiso     : acceso denegado: el rol BACKOFFICE no tiene ENTREGA_EJECUTAR
+2026-10-03T12:14:45.195Z ERROR 1 --- [entregas] [mcat-handler-48] [6ac0f1b51915211255eb6981f512690e-5d414044f4df58c7] b.a.p.w.e.ManejadorGlobalDeErrores       : fallo no previsto
+org.jooq.exception.IntegrityConstraintViolationException: SQL [insert into "entregas"."entrega_fondo" (id, grupo_id, periodo_id, turno_id, cupo_id, beneficiario_participante_id, monto_bolsa_bruto, total_deducciones, monto_neto_a_entregar, monto_efectivamente_entregado, moneda, estado, metodo_desembolso, fecha_programada, version) values (cast(? as uuid), cast(? as uuid), cast(? as uuid), cast(? as uuid), cast(? as uu
+Caused by: org.postgresql.util.PSQLException: ERROR: duplicate key value violates unique constraint "uq_entrega_turno"
+2026-10-03T12:14:45.239Z  INFO 1 --- [entregas] [mcat-handler-49] [6ac0f1b516d3be11e24b85c21edef182-63be111eaec87a27] b.a.p.web.seguridad.GuardiaDePermiso     : acceso denegado: el rol BACKOFFICE no tiene ENTREGA_AUTORIZAR
+=== nucleo-financiero
+2026-10-03T12:11:02.067Z  INFO 1 --- [nucleo-financiero] [omcat-handler-6] [6ac0f0d59f9d924e83a67595dc6b3b39-03b522aabfbab8a4] b.a.p.w.e.ManejadorGlobalDeErrores       : regla de negocio AP-CU12-02: Ese destino no existe.
+2026-10-03T12:11:02.120Z  INFO 1 --- [nucleo-financiero] [omcat-handler-7] [6ac0f0d6fef4b745bef5a2d154e3d6d0-2fb6bfedd6a3c567] b.a.p.w.e.ManejadorGlobalDeErrores       : regla de negocio AP-CU12-02: Ese destino no existe.
+2026-10-03T12:11:02.166Z  INFO 1 --- [nucleo-financiero] [omcat-handler-8] [6ac0f0d62fecd9660e579ab955495d79-1fb663545310bc8b] b.a.p.w.e.ManejadorGlobalDeErrores       : regla de negocio AP-CU12-02: Ese destino no existe.
+2026-10-03T12:11:02.224Z  INFO 1 --- [nucleo-financiero] [omcat-handler-9] [6ac0f0d6262371e7321d32a493b45709-1a4310717d427743] b.a.p.w.e.ManejadorGlobalDeErrores       : regla de negocio AP-CU12-02: Ese destino no existe.
+2026-10-03T12:11:43.486Z  INFO 1 --- [nucleo-financiero] [mcat-handler-18] [6ac0f0ff14fc1caeab38ddbfe7f27d0f-90feff124c07982c] b.a.p.w.e.ManejadorGlobalDeErrores       : regla de negocio AP-CU12-02: Ese destino no existe.
+=== tarifas
+2026-10-03T12:14:46.344Z  INFO 1 --- [tarifas] [mcat-handler-46] [6ac0f1b55655b2e4a7cbead94640a8a9-1aa58cb1187ef5b6] b.a.p.w.e.ManejadorGlobalDeErrores       : entrada mal formada: HttpMessageNotReadableException
+2026-10-03T12:14:46.604Z  INFO 1 --- [tarifas] [mcat-handler-47] [6ac0f1b55655b2e4a7cbead94640a8a9-011b54b44f6f0781] b.a.p.w.e.ManejadorGlobalDeErrores       : entrada mal formada: HttpMessageNotReadableException
+2026-10-03T12:14:47.021Z  INFO 1 --- [tarifas] [mcat-handler-48] [6ac0f1b55655b2e4a7cbead94640a8a9-5308a4b035d49463] b.a.p.w.e.ManejadorGlobalDeErrores       : entrada mal formada: HttpMessageNotReadableException
+2026-10-03T12:14:47.075Z  INFO 1 --- [tarifas] [mcat-handler-49] [6ac0f1b7c6fc1fd3cffbc110f5f5965c-38b5c7d28fca6f2a] b.a.p.w.e.ManejadorGlobalDeErrores       : entrada mal formada: HttpMessageNotReadableException
+2026-10-03T12:14:47.286Z  INFO 1 --- [tarifas] [mcat-handler-50] [6ac0f1b7c6fc1fd3cffbc110f5f5965c-9c7b1323ff2c6329] b.a.p.w.e.ManejadorGlobalDeErrores       : entrada mal formada: HttpMessageNotReadableException

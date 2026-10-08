@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'capturas_del_expediente.dart';
 import 'datos_del_alta.dart';
 import 'envio_del_alta.dart';
+import 'verificacion_correo.dart';
 
 export 'datos_del_alta.dart' show DatosLeidosDelDocumento, DatosPersonales;
 export 'capturas_del_expediente.dart' show CaraDelCarril, CapturasDelExpediente;
@@ -30,6 +31,11 @@ class EstadoAlta {
     this.datos = const DatosPersonales(),
     this.contrasena = '',
     this.codigoConfirmado = false,
+    this.verificacionCorreoId,
+    this.destinoVerificacion,
+    this.enviandoCodigo = false,
+    this.verificandoCodigo = false,
+    this.errorCodigo,
     this.capturas = const CapturasDelExpediente(),
     this.leido = const DatosLeidosDelDocumento(),
     this.origenDeFondos = '',
@@ -50,6 +56,11 @@ class EstadoAlta {
   /// servidor ya tiene hasheada.
   final String contrasena;
   final bool codigoConfirmado;
+  final String? verificacionCorreoId;
+  final String? destinoVerificacion;
+  final bool enviandoCodigo;
+  final bool verificandoCodigo;
+  final String? errorCodigo;
   final CapturasDelExpediente capturas;
   final DatosLeidosDelDocumento leido;
 
@@ -78,6 +89,12 @@ class EstadoAlta {
     DatosPersonales? datos,
     String? contrasena,
     bool? codigoConfirmado,
+    String? verificacionCorreoId,
+    String? destinoVerificacion,
+    bool? enviandoCodigo,
+    bool? verificandoCodigo,
+    String? errorCodigo,
+    bool limpiarVerificacion = false,
     CapturasDelExpediente? capturas,
     DatosLeidosDelDocumento? leido,
     String? origenDeFondos,
@@ -91,7 +108,18 @@ class EstadoAlta {
     paso: paso ?? this.paso,
     datos: datos ?? this.datos,
     contrasena: contrasena ?? this.contrasena,
-    codigoConfirmado: codigoConfirmado ?? this.codigoConfirmado,
+    codigoConfirmado: limpiarVerificacion
+        ? false
+        : codigoConfirmado ?? this.codigoConfirmado,
+    verificacionCorreoId: limpiarVerificacion
+        ? null
+        : verificacionCorreoId ?? this.verificacionCorreoId,
+    destinoVerificacion: limpiarVerificacion
+        ? null
+        : destinoVerificacion ?? this.destinoVerificacion,
+    enviandoCodigo: enviandoCodigo ?? false,
+    verificandoCodigo: verificandoCodigo ?? false,
+    errorCodigo: errorCodigo,
     capturas: capturas ?? this.capturas,
     leido: leido ?? this.leido,
     origenDeFondos: origenDeFondos ?? this.origenDeFondos,
@@ -110,13 +138,62 @@ class AltaNotifier extends Notifier<EstadoAlta> {
   @override
   EstadoAlta build() => const EstadoAlta();
 
-  void actualizarDatos(DatosPersonales datos) =>
-      state = state.copiarCon(datos: datos);
+  void actualizarDatos(DatosPersonales datos) {
+    final cambioCorreo =
+        state.datos.correo.trim().toLowerCase() !=
+        datos.correo.trim().toLowerCase();
+    if (cambioCorreo) ref.read(verificacionCorreoProvider).reiniciar();
+    state = state.copiarCon(
+      datos: datos,
+      limpiarVerificacion: cambioCorreo,
+    );
+  }
 
   void elegirContrasena(String clave) =>
       state = state.copiarCon(contrasena: clave);
 
   void confirmarCelular() => state = state.copiarCon(codigoConfirmado: true);
+
+  Future<bool> solicitarCodigoCorreo({bool nuevo = false}) async {
+    if (state.enviandoCodigo) return false;
+    if (!nuevo && state.verificacionCorreoId != null) return true;
+    state = state.copiarCon(enviandoCodigo: true);
+    try {
+      final solicitud = await ref
+          .read(verificacionCorreoProvider)
+          .solicitar(state.datos.correo, nueva: nuevo);
+      state = state.copiarCon(
+        verificacionCorreoId: solicitud.id,
+        destinoVerificacion: solicitud.destino,
+        codigoConfirmado: false,
+      );
+      return true;
+    } on VerificacionCorreoException catch (e) {
+      state = state.copiarCon(errorCodigo: e.mensaje);
+      return false;
+    } on Object {
+      state = state.copiarCon(
+        errorCodigo: 'No pudimos enviar el codigo. Intenta nuevamente.',
+      );
+      return false;
+    }
+  }
+
+  Future<void> confirmarCodigoCorreo(String codigo) async {
+    final id = state.verificacionCorreoId;
+    if (id == null || state.verificandoCodigo) return;
+    state = state.copiarCon(verificandoCodigo: true);
+    try {
+      await ref
+          .read(verificacionCorreoProvider)
+          .confirmar(id: id, correo: state.datos.correo, codigo: codigo);
+      state = state.copiarCon(codigoConfirmado: true);
+    } on VerificacionCorreoException catch (e) {
+      state = state.copiarCon(errorCodigo: e.mensaje);
+    } on Object {
+      state = state.copiarCon(errorCodigo: 'No pudimos comprobar el codigo.');
+    }
+  }
 
   void registrarCaptura(CaraDelCarril cara, Captura captura) => state = state
       .copiarCon(capturas: state.capturas.conCaptura(cara, captura));

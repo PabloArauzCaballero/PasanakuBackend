@@ -6,6 +6,26 @@
   "bloques": [
     {
       "tabla": "politica_token",
+      "conflicto": ["proposito", "vigente_desde"],
+      "comentario": "OTP de seis digitos para confirmar el correo durante el alta mediante Gmail API.",
+      "filas": [
+        {
+          "proposito": "VERIFICACION_CORREO",
+          "ttl_segundos": 600,
+          "longitud_codigo": 6,
+          "max_intentos_validacion": 5,
+          "max_reenvios_por_hora": 2,
+          "cooldown_reenvio_segundos": 60,
+          "max_emisiones_por_dia": 5,
+          "canales_permitidos": "CORREO",
+          "exige_dispositivo_conocido": false,
+          "invalida_anteriores": true,
+          "vigente_desde": "2026-10-07T00:00:00-04:00"
+        }
+      ]
+    },
+    {
+      "tabla": "politica_token",
       "conflicto": [
         "proposito",
         "vigente_desde"

@@ -6,6 +6,7 @@ import static bo.aportaya.identidad.generado.Tables.VERIFICACION_KYC;
 
 import bo.aportaya.identidad.dominio.ExpedienteDeIdentidad;
 import bo.aportaya.plataforma.archivos.DestinoDeObjeto;
+import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeDominio;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
@@ -232,5 +233,23 @@ public class RevisionRepositorio {
         if (filas == 0) {
             throw new ErrorDeNegocio(CodigoError.de(1, 8), "Ese expediente ya fue resuelto.");
         }
+        if ("APROBADA".equals(estado)) {
+            activarAlUsuarioDe(dsl, verificacionId);
+        }
+    }
+
+    /** La aprobación del expediente activa la cuenta que el alta dejó pendiente. */
+    private void activarAlUsuarioDe(DSLContext dsl, UUID verificacionId) {
+        Datos.comoSistema(
+                dsl,
+                () -> dsl.execute(
+                        """
+                UPDATE identidad.usuario u
+                   SET estado = 'ACTIVO',
+                       nivel_kyc = CASE v.nivel_solicitado WHEN 'AVANZADO' THEN 'COMPLETO' ELSE v.nivel_solicitado END
+                  FROM identidad.verificacion_kyc v
+                 WHERE v.id = ? AND u.id = v.usuario_id AND u.estado = 'PENDIENTE_VERIFICACION'
+                """,
+                        verificacionId));
     }
 }

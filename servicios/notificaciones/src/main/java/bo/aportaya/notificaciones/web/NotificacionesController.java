@@ -61,7 +61,7 @@ public class NotificacionesController implements NotificacionesApi {
      * escribe, aunque quien invita no lo sepa.
      */
     @Override
-    @Permiso("SOPORTE")
+    @Permiso("GRUPO_ADMINISTRAR")
     public ResponseEntity<Supresion> consultarSupresion(String identificador, String categoria) {
         Traza.marcarCasoDeUso("CU-80", categoria);
 
