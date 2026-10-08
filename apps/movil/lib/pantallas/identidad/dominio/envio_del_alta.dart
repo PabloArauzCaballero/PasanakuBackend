@@ -43,6 +43,7 @@ Future<ResultadoDelAlta> enviarElAlta(Ref ref, EstadoAlta estado) async {
           lugarExpedicion: d.lugarExpedicion,
           correo: d.correo,
           canalVerificacion: d.canalVerificacion,
+          verificacionCorreoId: estado.verificacionCorreoId,
           contrasena: estado.contrasena,
           contratosAceptados: contratos,
         );

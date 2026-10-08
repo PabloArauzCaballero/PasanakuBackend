@@ -54,6 +54,7 @@ class AcuerdosControllerWebTest {
 
     private static final UUID GRUPO = UUID.fromString("c2000000-0000-4000-8000-000000000001");
     private static final UUID ACUERDO = UUID.fromString("c2000000-0000-4000-8000-000000000002");
+    private static final UUID PARTICIPANTE = UUID.fromString("c2000000-0000-4000-8000-000000000003");
     private static final String CLAVE = "c2000000-0000-4000-8000-0000000000ff";
 
     private static final String PROPUESTA =
@@ -170,6 +171,9 @@ class AcuerdosControllerWebTest {
     @DisplayName("CU-63 · el voto se registra a nombre de QUIEN TIENE LA SESIÓN")
     void elVotoEsDeQuienTieneLaSesion() throws Exception {
         when(cu63.resolver(eq(ACUERDO), any())).thenReturn("EN_VOTACION");
+        when(consultas.grupoDelAcuerdo(eq(ACUERDO), any())).thenReturn(java.util.Optional.of(GRUPO));
+        when(consultas.participanteDe(eq(GRUPO), eq(Sesiones.USUARIO), any()))
+                .thenReturn(java.util.Optional.of(PARTICIPANTE));
 
         mvc.perform(post("/acuerdos/{id}/votos", ACUERDO)
                         .with(Sesiones.como("PARTICIPANTE"))
@@ -179,8 +183,24 @@ class AcuerdosControllerWebTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.estado").value("EN_VOTACION"));
 
-        // El votante sale del token. Si viniera del cuerpo, uno votaria por todos.
-        verify(cu63).votar(eq(ACUERDO), eq(Sesiones.USUARIO), eq("A_FAVOR"), any());
+        // El votante sale del token y se resuelve a SU participante en el grupo del acuerdo
+        // (la FK del voto apunta a `participante`). Si viniera del cuerpo, uno votaria por todos.
+        verify(cu63).votar(eq(ACUERDO), eq(PARTICIPANTE), eq("A_FAVOR"), any());
+    }
+
+    @Test
+    @DisplayName("CU-63 · 422: quien no participa del grupo del acuerdo no vota")
+    void quienNoParticipaNoVota() throws Exception {
+        when(consultas.grupoDelAcuerdo(eq(ACUERDO), any())).thenReturn(java.util.Optional.of(GRUPO));
+        when(consultas.participanteDe(eq(GRUPO), eq(Sesiones.USUARIO), any())).thenReturn(java.util.Optional.empty());
+
+        mvc.perform(post("/acuerdos/{id}/votos", ACUERDO)
+                        .with(Sesiones.como("PARTICIPANTE"))
+                        .header("Idempotency-Key", CLAVE)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"voto\":\"A_FAVOR\"}"))
+                .andExpect(status().isUnprocessableEntity());
+        verifyNoInteractions(cu63);
     }
 
     @Test

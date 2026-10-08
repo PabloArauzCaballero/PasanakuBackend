@@ -72,8 +72,11 @@ public class CotizadorPorHttp implements CotizadorDeComision {
                 codigoTarifario,
                 "hechoGenerador",
                 hechoGenerador,
+                // El contrato de tarifas solo admite ENTREGA_FONDO, ORDEN_RECARGA, ORDEN_RETIRO, PAGO,
+                // PERIODO y TRANSACCION_BILLETERA; con "OPERACION" respondia 400 y ningun retiro cotizaba.
+                // Hoy el unico llamador es el retiro.
                 "referenciaTipo",
-                "OPERACION",
+                "ORDEN_RETIRO",
                 "referenciaId",
                 referenciaId.toString(),
                 "montoBase",

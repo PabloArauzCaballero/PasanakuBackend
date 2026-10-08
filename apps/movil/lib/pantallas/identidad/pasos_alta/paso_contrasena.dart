@@ -79,16 +79,19 @@ class _PasoContrasenaState extends ConsumerState<PasoContrasena> {
 
   String? _visible(String? error) => _intentado ? error : null;
 
-  void _continuar() {
+  Future<void> _continuar() async {
     setState(() => _intentado = true);
     if (_errorClave != null || _errorRepetida != null) return;
-    ref.read(altaProvider.notifier).elegirContrasena(_clave.text);
-    ref.read(altaProvider.notifier).siguiente();
+    final notifier = ref.read(altaProvider.notifier);
+    notifier.elegirContrasena(_clave.text);
+    final enviado = await notifier.solicitarCodigoCorreo();
+    if (enviado) notifier.siguiente();
   }
 
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
+    final alta = ref.watch(altaProvider);
     return Padding(
       padding: const EdgeInsets.all(Espacio.s4),
       child: Column(
@@ -121,11 +124,16 @@ class _PasoContrasenaState extends ConsumerState<PasoContrasena> {
             titulo: TextosDelAlta.claveAvisoTitulo,
             detalle: TextosDelAlta.claveAvisoDetalle,
           ),
+          if (alta.errorCodigo != null) ...[
+            const SizedBox(height: Espacio.s4),
+            Alerta(tono: Tono.error, titulo: alta.errorCodigo!),
+          ],
           const SizedBox(height: Espacio.s5),
           Boton(
             texto: TextosIdentidad.continuar,
             variante: BotonVariante.primario,
             expandido: true,
+            cargando: alta.enviandoCodigo,
             onPressed: _continuar,
           ),
         ],

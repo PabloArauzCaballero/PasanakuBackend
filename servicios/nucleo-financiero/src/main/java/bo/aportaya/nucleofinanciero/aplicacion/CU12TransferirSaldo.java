@@ -84,12 +84,18 @@ public class CU12TransferirSaldo {
                     ? entrada.cuentaOrigenId()
                     : entrada.destinoId();
             UUID segunda = primera.equals(entrada.cuentaOrigenId()) ? entrada.destinoId() : entrada.cuentaOrigenId();
-            cuentas.bloquear(dsl, primera);
-            cuentas.bloquear(dsl, segunda);
+            // La cuenta del otro no es del titular: se bloquea y se lee con rol de sistema (B8). De la
+            // destino solo se usa si esta operativa; el saldo del origen se sigue leyendo como titular.
+            bo.aportaya.plataforma.datos.Datos.comoSistema(dsl, () -> {
+                cuentas.bloquear(dsl, primera);
+                cuentas.bloquear(dsl, segunda);
+                return null;
+            });
 
             var origen = cuentas.ver(dsl, entrada.cuentaOrigenId())
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(12, 2), "La billetera de origen no existe."));
-            var destino = cuentas.ver(dsl, entrada.destinoId())
+            var destino = bo.aportaya.plataforma.datos.Datos.comoSistema(
+                            dsl, () -> cuentas.ver(dsl, entrada.destinoId()))
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(12, 2), "Ese destino no existe."));
 
             // AP-CU12-03: se comprueba el DESTINO tambien. Acreditar en una cuenta

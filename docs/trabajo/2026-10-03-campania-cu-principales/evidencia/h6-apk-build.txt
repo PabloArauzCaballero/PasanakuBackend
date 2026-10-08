@@ -1,0 +1,11 @@
+== generarClientes
+BUILD SUCCESSFUL in 50s
+== build_runner
+rc=0
+== pub get + apk
+If you are a plugin author, please migrate your plugin to Built-in Kotlin using this guide: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-plugin-authors
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+Running Gradle task 'assembleDebug'...                            214,4s
+✓ Built build\app\outputs\flutter-apk\app-debug.apk
+-rw-r--r-- 1 DELL 197121 216954171 Oct  3 16:11 build/app/outputs/flutter-apk/app-debug.apk
+== FIN

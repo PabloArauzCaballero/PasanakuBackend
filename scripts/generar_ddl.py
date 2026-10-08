@@ -746,6 +746,10 @@ def escribir_esquemas():
         L += [f"GRANT USAGE ON SCHEMA {e} TO {r};",
               f"ALTER DEFAULT PRIVILEGES IN SCHEMA {e}",
               f"  GRANT SELECT, INSERT, UPDATE ON TABLES TO {r};",
+              f"-- Una columna con DEFAULT nextval() falla con 'permission denied for sequence'",
+              f"-- si el rol no puede usar la secuencia: sin esto no se registra un movimiento.",
+              f"ALTER DEFAULT PRIVILEGES IN SCHEMA {e}",
+              f"  GRANT USAGE ON SEQUENCES TO {r};",
               f"GRANT USAGE ON SCHEMA {ESQUEMA_CATALOGO} TO {r};",
               f"ALTER DEFAULT PRIVILEGES IN SCHEMA {ESQUEMA_CATALOGO}",
               f"  GRANT SELECT ON TABLES TO {r};",
@@ -753,12 +757,18 @@ def escribir_esquemas():
               f"GRANT USAGE ON SCHEMA {ESQUEMA_COMUN} TO {r};",
               f"ALTER DEFAULT PRIVILEGES IN SCHEMA {ESQUEMA_COMUN}",
               f"  GRANT INSERT ON TABLES TO {r};",
+              f"ALTER DEFAULT PRIVILEGES IN SCHEMA {ESQUEMA_COMUN}",
+              f"  GRANT USAGE ON SEQUENCES TO {r};",
               f"-- Las politicas de fila se escriben FOR ALL TO rol_aplicacion",
               f"-- (sql/40_reglas). Sin esta membresia no le aplican a {r}, y una",
               f"-- politica que no aplica no protege: la tabla queda abierta o",
               f"-- cerrada por accidente, nunca por diseno. rol_aplicacion no otorga",
               f"-- ningun privilegio propio; es la marca que hace aplicar RLS.",
-              f"GRANT rol_aplicacion TO {r};", ""]
+              f"GRANT rol_aplicacion TO {r};",
+              f"-- Las funciones de regla viven en `aportes`: sin USAGE sobre ese esquema un trigger no",
+              f"-- puede llamar a sus funciones hermanas ni a digest(). USAGE no da acceso a ninguna",
+              f"-- tabla: los privilegios de tabla de arriba siguen siendo solo del esquema propio.",
+              f"GRANT USAGE ON SCHEMA aportes TO {r};", ""]
 
     L.append("-- 4) search_path por rol: cada servicio ve SU esquema y el catalogo.")
     L.append("--    Refuerza el GRANT: una consulta a una tabla ajena no solo es")
@@ -841,7 +851,9 @@ def escribir_permisos_finales():
         r = rol_de(e)
         L += [f"GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA {e} TO {r};",
               f"GRANT SELECT ON ALL TABLES IN SCHEMA {ESQUEMA_CATALOGO} TO {r};",
-              f"GRANT INSERT ON ALL TABLES IN SCHEMA {ESQUEMA_COMUN} TO {r};"]
+              f"GRANT INSERT ON ALL TABLES IN SCHEMA {ESQUEMA_COMUN} TO {r};",
+              f"GRANT USAGE ON ALL SEQUENCES IN SCHEMA {e} TO {r};",
+              f"GRANT USAGE ON ALL SEQUENCES IN SCHEMA {ESQUEMA_COMUN} TO {r};"]
     L.append("")
     for e in esquemas:
         L.append(f"GRANT SELECT ON ALL TABLES IN SCHEMA {e} TO rol_auditor;")
@@ -879,6 +891,31 @@ def escribir_permisos_finales():
     for e in esquemas:
         L.append(f"REVOKE INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA {e} FROM rol_auditor;")
     L.append("")
+    L += ["-- Las funciones de regla fijan su propio search_path. Viven todas en `aportes`, y una",
+          "-- funcion sin `SET search_path` resuelve los nombres con el de QUIEN LA DISPARA: con el",
+          "-- de un svc_* (su esquema, catalogo y comun) no encontraba ni las funciones hermanas ni",
+          "-- digest() de pgcrypto, y ningun movimiento del libro se podia registrar. Fijarlo es",
+          "-- ademas la defensa estandar contra el secuestro de search_path.",
+          "DO $busqueda$",
+          "DECLARE f RECORD; v_ruta TEXT;",
+          "BEGIN",
+          "  SELECT string_agg(quote_ident(nspname), ', ' ORDER BY nspname) INTO v_ruta",
+          "    FROM pg_namespace WHERE nspname !~ '^pg_' AND nspname <> 'information_schema';",
+          "  FOR f IN SELECT p.oid::regprocedure AS fn, p.proname AS nombre FROM pg_proc p",
+          "             JOIN pg_namespace n ON n.oid = p.pronamespace",
+          "            WHERE n.nspname = 'aportes' AND p.prokind = 'f' LOOP",
+          "    EXECUTE format('ALTER FUNCTION %s SET search_path = %s', f.fn, v_ruta);",
+          "    -- Las reglas cruzan esquemas a proposito (un movimiento de billetera dispara el registro",
+          "    -- UIF; crear un grupo valida el contrato del organizador) y el rol que las dispara no",
+          "    -- tiene acceso a esas tablas por diseño (invariante 11). Corren con los privilegios del",
+          "    -- dueño, con el search_path de arriba fijo. Las fn_seg_* de las politicas de fila NO:",
+          "    -- esas leen el contexto de quien consulta.",
+          "    IF f.nombre !~ '^fn_seg_' THEN",
+          "      EXECUTE format('ALTER FUNCTION %s SECURITY DEFINER', f.fn);",
+          "    END IF;",
+          "  END LOOP;",
+          "END $busqueda$;",
+          ""]
     (OUT / "00_base" / "03_permisos.sql").write_text("\n".join(L), encoding="utf-8")
 
 

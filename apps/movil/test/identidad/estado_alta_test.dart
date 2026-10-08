@@ -41,6 +41,20 @@ void main() {
         ),
         data: Matchers.any,
       );
+      adaptador.onPost(
+        '/usuarios/verificaciones/correo',
+        (s) => s.reply(202, {
+          'verificacionId': 'dddddddd-0000-4000-8000-000000000003',
+          'destinoEnmascarado': 'ro***@example.com',
+          'expiraEn': '2026-10-07T20:10:00Z',
+        }),
+        data: Matchers.any,
+      );
+      adaptador.onPost(
+        '/usuarios/verificaciones/correo/dddddddd-0000-4000-8000-000000000003/confirmacion',
+        (s) => s.reply(200, {'verificada': true}),
+        data: Matchers.any,
+      );
       dio.interceptors.add(
         InterceptorsWrapper(
           onRequest: (o, h) {
@@ -67,9 +81,16 @@ void main() {
               fechaNacimiento: DateTime.utc(1990, 5, 20),
               telefono: '+59178123456',
               numeroDocumento: '1234567',
+              correo: 'rosa@example.com',
             ),
           );
       c.read(altaProvider.notifier).elegirContrasena('una-clave-larga-2026');
+      expect(
+        await c.read(altaProvider.notifier).solicitarCodigoCorreo(),
+        isTrue,
+      );
+      await c.read(altaProvider.notifier).confirmarCodigoCorreo('482019');
+      expect(c.read(altaProvider).codigoConfirmado, isTrue);
       // Los ids salen de `GET /cumplimiento/contratos/vigentes`: son UUID, uno por
       // entorno. Antes esto mandaba los códigos 'ADHESION' y 'TARIFARIO', inventados
       // en la app, y el servidor los rechazaba al deserializar.
@@ -91,6 +112,10 @@ void main() {
       // Y la contraseña va en la misma petición: sin ella la cuenta nace sin
       // credencial y no se puede entrar.
       expect(cuerpo, contains('una-clave-larga-2026'));
+      expect(
+        cuerpo,
+        contains('dddddddd-0000-4000-8000-000000000003'),
+      );
     },
   );
 

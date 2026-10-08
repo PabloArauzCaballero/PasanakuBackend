@@ -1,0 +1,15 @@
+H3.S15 — evidencia de la app en el emulador: BLOQUEADO por ENTORNO (regla 80.4)
+
+Qué se hizo, en orden:
+  1. `bash apps/movil/scripts/generar-clientes.sh` → exit 0 (los 11 clientes Dart con build_runner).
+  2. `flutter pub get` + `flutter build apk --debug --dart-define=API=http://10.0.2.2/api/v1`, en segundo plano.
+  3. El arnés detuvo ese comando: «was stopped because the system is running low on memory»
+     (aviso del sistema: no es un fallo del comando ni del build; instrucción: no relanzarlo solo mientras falte memoria).
+
+Contexto de memoria en ese momento: 11 servicios Java + Postgres/PgBouncer/Redis/Kafka/MinIO/Gateway/Nginx en Docker
+(18 contenedores), más Gradle/Flutter del build.
+
+Qué lo destraba: liberar memoria (p. ej. `docker compose … down` de los servicios que la corrida de API ya no necesita, o
+cerrar otras aplicaciones) y relanzar el build del APK; después arrancar el AVD `pasanaku` e instalar el APK.
+Dueño: quien ejecute la campaña en esta máquina.
+No se simula: la evidencia de la app solo vale contra la app real.

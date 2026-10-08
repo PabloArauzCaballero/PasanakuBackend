@@ -54,7 +54,7 @@ class CobranzaControllerWebTest {
                 .thenReturn(new ConsultarRestriccion.Restriccion(true, "TOTAL", new BigDecimal("700.00")));
 
         mvc.perform(get("/cobranza/restricciones/vigentes/{id}", USUARIO)
-                        .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR")))
+                        .with(Sesiones.como("PARTICIPANTE", "GRUPO_ADMINISTRAR")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.vigente").value(true))
                 .andExpect(jsonPath("$.nivel").value("TOTAL"))
@@ -70,7 +70,7 @@ class CobranzaControllerWebTest {
                 .thenReturn(new ConsultarRestriccion.Restriccion(false, null, BigDecimal.ZERO));
 
         mvc.perform(get("/cobranza/restricciones/vigentes/{id}", USUARIO)
-                        .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR")))
+                        .with(Sesiones.como("PARTICIPANTE", "GRUPO_ADMINISTRAR")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.vigente").value(false))
                 // Cero y no ausente: el contrato lo marca obligatorio, y un cliente que
@@ -109,8 +109,28 @@ class CobranzaControllerWebTest {
     @DisplayName("CU-27 · 400: un identificador de usuario que no es un identificador")
     void usuarioQueNoEsUuid() throws Exception {
         mvc.perform(get("/cobranza/restricciones/vigentes/{id}", "el-moroso")
-                        .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR")))
+                        .with(Sesiones.como("PARTICIPANTE", "GRUPO_ADMINISTRAR")))
                 .andExpect(status().isBadRequest());
+        verifyNoInteractions(restricciones);
+    }
+
+    @Test
+    @DisplayName("CU-27 · un participante consulta SU propia restricción sin administrar grupos")
+    void participanteConsultaLoSuyo() throws Exception {
+        when(restricciones.ejecutar(any(), any()))
+                .thenReturn(new ConsultarRestriccion.Restriccion(false, null, BigDecimal.ZERO));
+
+        mvc.perform(get("/cobranza/restricciones/vigentes/{id}", Sesiones.USUARIO)
+                        .with(Sesiones.como("PARTICIPANTE")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.vigente").value(false));
+    }
+
+    @Test
+    @DisplayName("CU-27 · 403: un participante no consulta la restricción de otra persona")
+    void participanteNoConsultaLaDeOtro() throws Exception {
+        mvc.perform(get("/cobranza/restricciones/vigentes/{id}", USUARIO).with(Sesiones.como("PARTICIPANTE")))
+                .andExpect(status().isForbidden());
         verifyNoInteractions(restricciones);
     }
 }

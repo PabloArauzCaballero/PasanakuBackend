@@ -56,6 +56,7 @@ final class MapeoDePostulacion {
                 afinidadNeutra,
                 afinidadNeutra,
                 afinidadNeutra,
-                reputacion.tieneHistorial() ? BigDecimal.ONE : afinidadNeutra);
+                reputacion.tieneHistorial() ? BigDecimal.ONE : afinidadNeutra,
+                !reputacion.tieneHistorial());
     }
 }

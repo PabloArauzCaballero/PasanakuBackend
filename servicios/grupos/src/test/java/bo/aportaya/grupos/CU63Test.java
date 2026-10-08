@@ -34,6 +34,40 @@ class CU63Test extends BaseDeCU63 {
     }
 
     @Test
+    @DisplayName("B38 · con votos pendientes que aun pueden alcanzar el quorum, el primer voto NO cierra la votacion")
+    void elPrimerVotoNoCierraLaVotacion() {
+        UUID grupo = fixtura.grupoConformado(3);
+        List<UUID> participantes = fixtura.participantesConCupo(grupo, 3);
+        UUID acuerdo = proponer(grupo, "CAMBIO_FECHA_COBRO", new BigDecimal("0.660"), Optional.empty());
+
+        votar(acuerdo, participantes.get(0), "A_FAVOR");
+        String resultado = transaccion.execute(e -> acordar.resolver(acuerdo, contexto()));
+        assertThat(resultado).isEqualTo("EN_VOTACION");
+        assertThat(estadoDelAcuerdo(acuerdo)).isEqualTo("ABIERTO");
+
+        // Los demas todavia pueden votar, y al segundo a favor (2/3 = 0.6667 >= 0.660) se aprueba.
+        votar(acuerdo, participantes.get(1), "A_FAVOR");
+        String segundo = transaccion.execute(e -> acordar.resolver(acuerdo, contexto()));
+        assertThat(segundo).isEqualTo("APROBADO");
+        assertThat(estadoDelAcuerdo(acuerdo)).isEqualTo("APROBADO");
+    }
+
+    @Test
+    @DisplayName("B38 · cuando ni con todo el peso que falta a favor se alcanza el quorum, se cierra RECHAZADO")
+    void sePierdeCuandoYaNoHayRemedio() {
+        UUID grupo = fixtura.grupoConformado(3);
+        List<UUID> participantes = fixtura.participantesConCupo(grupo, 3);
+        UUID acuerdo = proponer(grupo, "CAMBIO_FECHA_COBRO", new BigDecimal("0.660"), Optional.empty());
+
+        votar(acuerdo, participantes.get(0), "EN_CONTRA");
+        votar(acuerdo, participantes.get(1), "EN_CONTRA");
+
+        String resultado = transaccion.execute(e -> acordar.resolver(acuerdo, contexto()));
+        assertThat(resultado).isEqualTo("RECHAZADO");
+        assertThat(estadoDelAcuerdo(acuerdo)).isEqualTo("RECHAZADO");
+    }
+
+    @Test
     @DisplayName(
             "Dado un acuerdo de expulsión · Cuando el participante afectado intenta votar · Entonces su voto se registra como ABSTENCION_FORZADA y no pondera")
     void criterio2() {

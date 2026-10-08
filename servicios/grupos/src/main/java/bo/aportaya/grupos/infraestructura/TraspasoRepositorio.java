@@ -33,6 +33,20 @@ public class TraspasoRepositorio {
                 cobrado));
     }
 
+    /** El traspaso que ya aplico ese acuerdo a ese cupo para ese entrante, si existe (reintento). */
+    public java.util.Optional<UUID> yaTraspasado(DSLContext dsl, UUID cupoId, UUID acuerdoId, UUID entranteId) {
+        var fila = dsl.fetchOne(
+                """
+                SELECT id FROM grupos.traspaso_cupo
+                 WHERE cupo_id = ? AND aprobado_por_acuerdo_id = ? AND participante_destino_id = ?
+                 ORDER BY fecha DESC LIMIT 1
+                """,
+                cupoId,
+                acuerdoId,
+                entranteId);
+        return fila == null ? java.util.Optional.empty() : java.util.Optional.of(fila.get("id", UUID.class));
+    }
+
     public UUID registrar(
             DSLContext dsl,
             UUID cupoId,

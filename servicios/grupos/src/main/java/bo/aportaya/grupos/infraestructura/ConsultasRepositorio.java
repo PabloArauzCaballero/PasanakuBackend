@@ -1,5 +1,6 @@
 package bo.aportaya.grupos.infraestructura;
 
+import bo.aportaya.grupos.aplicacion.Consultas;
 import bo.aportaya.grupos.dominio.PaqueteDeSorteo;
 import bo.aportaya.grupos.dominio.PoliticaDelGrupo;
 import java.util.List;
@@ -27,14 +28,19 @@ public class ConsultasRepositorio {
      * transfiere ya sabe a quien le manda; esta consulta no es un directorio.
      */
     public Optional<UUID> usuarioDelAlias(DSLContext dsl, String alias) {
-        var fila = dsl.fetchOne(
-                """
+        // Busca entre los participantes de OTROS: la politica de fila deja al titular ver solo
+        // lo suyo. La consulta devuelve unicamente un id de usuario, no la fila, y por eso es
+        // el unico lugar donde se lee con rol de sistema.
+        var fila = bo.aportaya.plataforma.datos.Datos.comoSistema(
+                dsl,
+                () -> dsl.fetchOne(
+                        """
                 SELECT p.usuario_id AS usuario
                   FROM grupos.participante p
                  WHERE p.alias = ? AND p.estado = 'ACTIVO'
                  LIMIT 1
                 """,
-                alias);
+                        alias));
         return fila == null ? Optional.empty() : Optional.ofNullable(fila.get("usuario", UUID.class));
     }
 
@@ -105,6 +111,18 @@ public class ConsultasRepositorio {
         return fila == null ? java.math.BigDecimal.ZERO : fila.get("estimado", java.math.BigDecimal.class);
     }
 
+    /** El grupo de un acuerdo. */
+    public Optional<UUID> grupoDelAcuerdo(DSLContext dsl, UUID acuerdoId) {
+        var fila = dsl.fetchOne("SELECT grupo_id FROM grupos.acuerdo WHERE id = ?", acuerdoId);
+        return fila == null ? Optional.empty() : Optional.ofNullable(fila.get("grupo_id", UUID.class));
+    }
+
+    /** El grupo al que pertenece un turno. */
+    public Optional<UUID> grupoDelTurno(DSLContext dsl, UUID turnoId) {
+        var fila = dsl.fetchOne("SELECT grupo_id FROM grupos.turno WHERE id = ?", turnoId);
+        return fila == null ? Optional.empty() : Optional.ofNullable(fila.get("grupo_id", UUID.class));
+    }
+
     /** Si el reglamento del grupo de ese turno admite permutas. Sin dato, no admite. */
     public boolean permitePermuta(DSLContext dsl, UUID turnoId) {
         var fila = dsl.fetchOne(
@@ -172,6 +190,37 @@ public class ConsultasRepositorio {
                 grupoId,
                 usuarioId);
         return fila == null ? Optional.empty() : Optional.ofNullable(fila.get("id", UUID.class));
+    }
+
+    public List<Consultas.Participacion> participacionesDe(DSLContext dsl, UUID usuarioId) {
+        return dsl.fetch(
+                        """
+                        SELECT grupo_id, id, estado FROM grupos.participante
+                         WHERE usuario_id = ?
+                           AND estado NOT IN ('RETIRADO','EXPULSADO','REEMPLAZADO')
+                         ORDER BY fecha_ingreso DESC, id
+                         LIMIT 50
+                        """,
+                        usuarioId)
+                .map(r -> new Consultas.Participacion(
+                        r.get("grupo_id", UUID.class), r.get("id", UUID.class), r.get("estado", String.class)));
+    }
+
+    /** Si ese participante es la persona de la sesion. */
+    public boolean esElParticipanteDe(DSLContext dsl, UUID participanteId, UUID usuarioId) {
+        return Boolean.TRUE.equals(dsl.fetchOne(
+                        "SELECT EXISTS (SELECT 1 FROM grupos.participante WHERE id = ? AND usuario_id = ?) AS si",
+                        participanteId,
+                        usuarioId)
+                .get("si", Boolean.class));
+    }
+
+    /** Un periodo admite pago salvo que este CERRADO, LIQUIDADO o CANCELADO (o no exista). */
+    public boolean periodoAdmitePago(DSLContext dsl, UUID periodoId) {
+        return Boolean.TRUE.equals(dsl.fetchOne(
+                        "SELECT EXISTS (SELECT 1 FROM grupos.periodo WHERE id = ? AND estado IN ('PROGRAMADO','ABIERTO','EN_GRACIA')) AS si",
+                        periodoId)
+                .get("si", Boolean.class));
     }
 
     public record Politica(String kycMinimo, int reputacionMinima, java.math.BigDecimal quorum, int cuposLibres) {}

@@ -162,6 +162,29 @@ class BilleteraControllerWebTest {
         }
 
         @Test
+        @DisplayName("acreditar una recarga NO lo hace quien la pide: el permiso de operar su billetera no alcanza")
+        void acreditarNoSeHaceConElPermisoDeOperar() throws Exception {
+            mvc.perform(post("/billetera/recargas/{id}/acreditacion", TRANSACCION)
+                            .with(Sesiones.como("PARTICIPANTE", "BILLETERA_OPERAR", "BILLETERA_VER"))
+                            .header("Idempotency-Key", CLAVE))
+                    .andExpect(status().isForbidden());
+            // Acreditarse a uno mismo lo que acaba de pedir es fabricarse saldo (91.3).
+            verifyNoInteractions(cu10);
+        }
+
+        @Test
+        @DisplayName("con el rol de tesoreria, acreditar pasa: confirma que la plata llego")
+        void acreditarConTesoreria() throws Exception {
+            when(cu10.acreditar(any(), any()))
+                    .thenReturn(new CU10RecargarSaldo.SalidaAcreditacion(TRANSACCION, TRANSACCION, bob("200.00")));
+
+            mvc.perform(post("/billetera/recargas/{id}/acreditacion", TRANSACCION)
+                            .with(Sesiones.como("BACKOFFICE", "TESORERIA"))
+                            .header("Idempotency-Key", CLAVE))
+                    .andExpect(status().isOk());
+        }
+
+        @Test
         @DisplayName("con REVERSO_AUTORIZAR, el reverso pasa y responde 201")
         void reversarConSuPermiso() throws Exception {
             when(cu14.ejecutar(any(), any()))

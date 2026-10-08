@@ -50,6 +50,8 @@ class TurnosControllerWebTest {
     private static final UUID TURNO_DESTINO = UUID.fromString("c3000000-0000-4000-8000-000000000002");
     private static final UUID CONTRAPARTE = UUID.fromString("c3000000-0000-4000-8000-000000000003");
     private static final UUID SOLICITUD = UUID.fromString("c3000000-0000-4000-8000-000000000004");
+    private static final UUID GRUPO = UUID.fromString("c3000000-0000-4000-8000-000000000005");
+    private static final UUID SOLICITANTE = UUID.fromString("c3000000-0000-4000-8000-000000000006");
     private static final String CLAVE = "c3000000-0000-4000-8000-0000000000ff";
 
     private static final String PERMUTA =
@@ -71,6 +73,21 @@ class TurnosControllerWebTest {
 
     @MockitoBean
     private HechosDeOtrosServicios afuera;
+
+    @org.junit.jupiter.api.BeforeEach
+    void elSolicitanteParticipaDelGrupoDelTurno() {
+        when(consultas.grupoDelTurno(eq(TURNO_ORIGEN), any())).thenReturn(java.util.Optional.of(GRUPO));
+        when(consultas.participanteDe(eq(GRUPO), any(), any())).thenReturn(java.util.Optional.of(SOLICITANTE));
+    }
+
+    @Test
+    @DisplayName("CU-62 · 422: quien no participa del grupo del turno no puede pedir la permuta")
+    void quienNoParticipaNoPermuta() throws Exception {
+        when(consultas.participanteDe(eq(GRUPO), any(), any())).thenReturn(java.util.Optional.empty());
+
+        permutar(PERMUTA).andExpect(status().isUnprocessableEntity());
+        verifyNoInteractions(cu62);
+    }
 
     private static HechosDeOtrosServicios.EstadoDePagos pagos(boolean alDia) {
         return new HechosDeOtrosServicios.EstadoDePagos(
@@ -102,7 +119,7 @@ class TurnosControllerWebTest {
     @Test
     @DisplayName("CU-62 · los tres hechos los resuelve el servicio, NO el cuerpo de la petición")
     void losHechosNoLosDeclaraQuienPide() throws Exception {
-        when(afuera.estadoDePagos(Sesiones.USUARIO)).thenReturn(pagos(false));
+        when(afuera.estadoDePagos(SOLICITANTE)).thenReturn(pagos(false));
         when(afuera.estadoDePagos(CONTRAPARTE)).thenReturn(pagos(true));
         when(consultas.permitePermuta(eq(TURNO_ORIGEN), any())).thenReturn(false);
         when(cu62.solicitar(any(), any())).thenReturn(SOLICITUD);
@@ -123,8 +140,8 @@ class TurnosControllerWebTest {
         org.assertj.core.api.Assertions.assertThat(entrada.elReglamentoLoPermite())
                 .as("lo permite o no el reglamento del grupo, no el cuerpo")
                 .isFalse();
-        // Y el solicitante sale del token.
-        org.assertj.core.api.Assertions.assertThat(entrada.solicitanteId()).isEqualTo(Sesiones.USUARIO);
+        // Y el solicitante sale del token: es el participante de quien llama en el grupo del turno.
+        org.assertj.core.api.Assertions.assertThat(entrada.solicitanteId()).isEqualTo(SOLICITANTE);
         org.assertj.core.api.Assertions.assertThat(entrada.contraparteId()).isEqualTo(CONTRAPARTE);
     }
 
@@ -139,7 +156,7 @@ class TurnosControllerWebTest {
 
         // Mirar solo al que pide dejaria entrar a alguien en mora por la puerta de la
         // contraparte.
-        verify(afuera).estadoDePagos(Sesiones.USUARIO);
+        verify(afuera).estadoDePagos(SOLICITANTE);
         verify(afuera).estadoDePagos(CONTRAPARTE);
     }
 

@@ -52,6 +52,13 @@ aportaya:
     intentos-maximos: 5
     duracion-bloqueo: PT30M
     vigencia-sesion: PT12H
+  correo:
+    proveedor: ${NOTIFICATION_EMAIL_PROVIDER:local}
+    gmail:
+      client-id: ${GMAIL_CLIENT_ID:}
+      client-secret: ${GMAIL_CLIENT_SECRET:}
+      refresh-token: ${GMAIL_REFRESH_TOKEN:}
+      from-email: ${GMAIL_FROM_EMAIL:}
 
 management:
   endpoint:

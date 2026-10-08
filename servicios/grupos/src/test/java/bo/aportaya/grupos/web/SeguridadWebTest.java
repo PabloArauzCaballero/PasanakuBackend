@@ -56,6 +56,9 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private CU68Postular cu68Postular;
 
     @MockitoBean
+    private bo.aportaya.grupos.aplicacion.CU68AceptarIngreso cu68Decision;
+
+    @MockitoBean
     private InvitacionesWeb invitaciones;
 
     @MockitoBean

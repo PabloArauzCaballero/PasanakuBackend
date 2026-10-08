@@ -36,7 +36,7 @@ public class LicenciaController implements LicenciaApi {
     }
 
     @Override
-    @Permiso("SOPORTE")
+    @Permiso("PARTICIPANTE")
     public ResponseEntity<SalidaAlcance> verificarAlcance(String servicio, UUID usuarioId) {
         Traza.marcarCasoDeUso("CU-46", servicio);
 

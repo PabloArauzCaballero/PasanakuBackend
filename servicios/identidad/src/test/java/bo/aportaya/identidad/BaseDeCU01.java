@@ -56,6 +56,7 @@ abstract class BaseDeCU01 {
                 // hay que poder afirmar es que quedo guardada con el mismo hasheador con
                 // el que despues la verifica el ingreso.
                 new Argon2Hasheador("pimienta-de-prueba"),
+                org.mockito.Mockito.mock(bo.aportaya.identidad.infraestructura.VerificacionCorreoRepositorio.class),
                 8,
                 5);
         dobles = new DoblesDeLaCoreografia(DSL.using(fuente, SQLDialect.POSTGRES));
@@ -81,6 +82,7 @@ abstract class BaseDeCU01 {
                 // de identidad se caia antes de correr una sola prueba.
                 null,
                 CanalDeVerificacion.SMS,
+                null,
                 DocumentoDeIdentidad.de(DocumentoDeIdentidad.Tipo.CI, documento, "pimienta-de-prueba", "BO", "LP"),
                 "cifrado:" + documento,
                 // Ni el telefono ni el documento adentro: la politica rechaza las claves
@@ -103,6 +105,7 @@ abstract class BaseDeCU01 {
                 base.fechaNacimiento(),
                 base.correo(),
                 base.canalVerificacion(),
+                base.verificacionCorreoId(),
                 base.documento(),
                 base.numeroCifrado(),
                 clave,

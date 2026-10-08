@@ -21,6 +21,25 @@ public enum TipoDeAcuerdo {
     PERMUTA_TURNOS;
 
     /**
+     * El tipo del modelo para un valor del contrato OpenAPI.
+     *
+     * <p>El contrato conserva los nombres de CU-63 y el modelo los suyos (ver arriba): la
+     * traduccion vive aca, en un solo lugar. {@code TRASPASO_CUPO} se vota como
+     * {@code ADMISION_REEMPLAZO}, el tipo del modelo mas cercano: el modelo no tiene uno
+     * propio para el traspaso (decision del equipo, 2026-10-03).
+     */
+    public static TipoDeAcuerdo deContrato(String valor) {
+        return switch (valor) {
+            case "CONDONACION" -> CONDONACION_MORA;
+            case "EXPULSION" -> EXPULSION_PARTICIPANTE;
+            case "PERMUTA" -> PERMUTA_TURNOS;
+            case "TRASPASO_CUPO" -> ADMISION_REEMPLAZO;
+            case "DISOLUCION" -> DISOLUCION_ANTICIPADA;
+            default -> valueOf(valor);
+        };
+    }
+
+    /**
      * Si el afectado es parte interesada, su voto no pondera.
      *
      * <p>No es desconfianza: es que nadie decide sobre su propia expulsion ni sobre

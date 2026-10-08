@@ -40,7 +40,7 @@ public class ValidarTokenDeInvitacion {
                           JOIN identidad.usuario u ON u.id = ?
                           WHERE t.id = ? AND t.proposito = 'INVITACION_GRUPO'
                             AND t.estado = 'EMITIDO' AND t.expira_en > now()
-                            AND t.hash_token = encode(digest(?, 'sha256'), 'hex')
+                            AND t.hash_token = encode(public.digest(?, 'sha256'), 'hex')
                             AND u.telefono_e164 = ? AND u.estado = 'ACTIVO'
                             AND array_position(ARRAY['NINGUNO','BASICO','INTERMEDIO','COMPLETO'], u.nivel_kyc)
                               >= array_position(ARRAY['NINGUNO','BASICO','INTERMEDIO','COMPLETO'], ?)
