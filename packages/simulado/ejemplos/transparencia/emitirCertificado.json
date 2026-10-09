@@ -63,7 +63,13 @@
     },
     "rechazo": {
       "estado": 422,
-      "cuerpo": null
+      "cuerpo": {
+        "tipo": "about:blank",
+        "titulo": "Sin snapshot",
+        "estado": 422,
+        "codigo": "AP-CU75-01",
+        "detalle": null
+      }
     }
   }
 }

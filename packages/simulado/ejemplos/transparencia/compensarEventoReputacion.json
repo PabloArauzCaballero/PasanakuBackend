@@ -51,7 +51,13 @@
     },
     "rechazo": {
       "estado": 422,
-      "cuerpo": null
+      "cuerpo": {
+        "tipo": "about:blank",
+        "titulo": "Sin regla vigente",
+        "estado": 422,
+        "codigo": "AP-CU70-01",
+        "detalle": null
+      }
     }
   }
 }

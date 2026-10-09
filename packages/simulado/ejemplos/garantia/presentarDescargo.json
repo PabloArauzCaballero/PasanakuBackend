@@ -48,10 +48,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU25-01",
+        "mensaje": "Obligacion no vencida",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-presentarDescargo-rechazo"
       }
     }
   }

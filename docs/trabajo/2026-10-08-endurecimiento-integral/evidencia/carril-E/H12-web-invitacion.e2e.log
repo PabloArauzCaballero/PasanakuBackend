@@ -1,0 +1,10 @@
+
+Running 5 tests using 1 worker
+
+  ✓  1 [chromium] › pruebas\e2e\invitacion.e2e.ts:35:7 › invitación por enlace (sitio público) › con secreto en el fragmento: se retira de la URL, no queda en storage ni en peticiones, y no promete membresía (756ms)
+  ✓  2 [chromium] › pruebas\e2e\invitacion.e2e.ts:51:7 › invitación por enlace (sitio público) › el historial no guarda el secreto: «atrás» no lo devuelve (380ms)
+  ✓  3 [chromium] › pruebas\e2e\invitacion.e2e.ts:64:7 › invitación por enlace (sitio público) › código inválido: alerta clara, nada guardado, secreto fuera de la URL (350ms)
+  ✓  4 [chromium] › pruebas\e2e\invitacion.e2e.ts:71:7 › invitación por enlace (sitio público) › sin código: alerta clara con salida al inicio (356ms)
+  ✓  5 [chromium] › pruebas\e2e\invitacion.e2e.ts:78:7 › invitación por enlace (sitio público) › el secreto en la consulta (?token=) también se retira y se avisa (280ms)
+
+  5 passed (2.9s)

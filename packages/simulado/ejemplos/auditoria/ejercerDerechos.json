@@ -66,10 +66,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU07-01",
+        "mensaje": "Identidad no verificada",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-ejercerDerechos-rechazo"
       }
     }
   }

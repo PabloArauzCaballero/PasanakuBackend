@@ -61,7 +61,13 @@
     },
     "rechazo": {
       "estado": 422,
-      "cuerpo": null
+      "cuerpo": {
+        "tipo": "about:blank",
+        "titulo": "Sin convivencia",
+        "estado": 422,
+        "codigo": "AP-CU76-01",
+        "detalle": null
+      }
     }
   }
 }

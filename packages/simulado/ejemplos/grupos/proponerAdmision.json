@@ -1,0 +1,86 @@
+{
+  "servicio": "grupos",
+  "operacion": "proponerAdmision",
+  "metodo": "post",
+  "ruta": "/grupos/solicitudes/{solicitudId}/propuestas",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "id": "a1b2c3d4-0001-4aaa-8bbb-000000000001",
+        "solicitudId": "9f1c2b7e-3a54-4d0e-8a61-5b7d2c9e4f10",
+        "fase": "PROPUESTA",
+        "decision": "ACEPTAR",
+        "actorId": "0b84f6a3-2d19-47c5-b3e8-61a9d7052c4f",
+        "motivo": "La conozco del grupo anterior y sus referencias son verificables.",
+        "revision": 1,
+        "evidenciaAlgoritmo": "Reputacion 82/100; sin mora vigente; concentracion de riesgo baja; KYC nivel 2.",
+        "ocurridaEn": "2026-10-08T14:20:00Z",
+        "correlacionId": "2d4e6f80-1a3b-4c5d-8e7f-9a0b1c2d3e4f"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "id": "a1b2c3d4-0001-4aaa-8bbb-000000000001",
+        "solicitudId": "9f1c2b7e-3a54-4d0e-8a61-5b7d2c9e4f10",
+        "fase": "PROPUESTA",
+        "decision": "RECHAZAR",
+        "actorId": "0b84f6a3-2d19-47c5-b3e8-61a9d7052c4f",
+        "motivo": "No tengo referencias de esta persona; prefiero que revise el backoffice.",
+        "revision": 1,
+        "evidenciaAlgoritmo": "Reputacion 82/100; sin mora vigente; concentracion de riesgo baja; KYC nivel 2.",
+        "ocurridaEn": "2026-10-08T14:20:00Z",
+        "correlacionId": "2d4e6f80-1a3b-4c5d-8e7f-9a0b1c2d3e4f"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "id": "a1b2c3d4-0001-4aaa-8bbb-000000000001",
+        "solicitudId": "9f1c2b7e-3a54-4d0e-8a61-5b7d2c9e4f10",
+        "fase": "PROPUESTA",
+        "decision": "RECHAZAR",
+        "actorId": "0b84f6a3-2d19-47c5-b3e8-61a9d7052c4f",
+        "motivo": "Moroso en otro grupo segun el algoritmo.",
+        "revision": 1,
+        "evidenciaAlgoritmo": "Reputacion 82/100; sin mora vigente; concentracion de riesgo baja; KYC nivel 2.",
+        "ocurridaEn": "2026-10-08T14:20:00Z",
+        "correlacionId": "2d4e6f80-1a3b-4c5d-8e7f-9a0b1c2d3e4f"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "id": "a1b2c3d4-0001-4aaa-8bbb-000000000001",
+        "solicitudId": "9f1c2b7e-3a54-4d0e-8a61-5b7d2c9e4f10",
+        "fase": "PROPUESTA",
+        "decision": "ACEPTAR",
+        "actorId": "0b84f6a3-2d19-47c5-b3e8-61a9d7052c4f",
+        "motivo": "La conozco del grupo anterior y sus referencias son verificables.",
+        "revision": 1,
+        "evidenciaAlgoritmo": "Reputacion 82/100; sin mora vigente; concentracion de riesgo baja; KYC nivel 2.",
+        "ocurridaEn": "2026-10-08T14:20:00Z",
+        "correlacionId": "2d4e6f80-1a3b-4c5d-8e7f-9a0b1c2d3e4f"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU68-06",
+        "mensaje": "Solo el administrador de este grupo puede proponer la admisión.",
+        "detalle": {},
+        "trazaId": "traza-proponerAdmision-rechazo"
+      }
+    }
+  }
+}

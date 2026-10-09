@@ -80,10 +80,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU40-01",
+        "mensaje": "Sin limite configurado",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-solicitarRetiro-rechazo"
       }
     }
   }

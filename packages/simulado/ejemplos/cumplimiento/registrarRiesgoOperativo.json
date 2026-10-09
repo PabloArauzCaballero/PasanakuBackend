@@ -56,10 +56,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU54-01",
+        "mensaje": "Fechas incoherentes",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-registrarRiesgoOperativo-rechazo"
       }
     }
   }

@@ -39,7 +39,13 @@
     },
     "rechazo": {
       "estado": 422,
-      "cuerpo": null
+      "cuerpo": {
+        "tipo": "about:blank",
+        "titulo": "Sin modelo vigente",
+        "estado": 422,
+        "codigo": "AP-CU71-01",
+        "detalle": null
+      }
     }
   }
 }

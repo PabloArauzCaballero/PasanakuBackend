@@ -36,7 +36,13 @@
     },
     "rechazo": {
       "estado": 422,
-      "cuerpo": null
+      "cuerpo": {
+        "tipo": "about:blank",
+        "titulo": "Grupo inexistente",
+        "estado": 422,
+        "codigo": "AP-CU73-01",
+        "detalle": null
+      }
     }
   }
 }

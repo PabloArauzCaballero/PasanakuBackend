@@ -65,7 +65,7 @@ type Seccion = { ruta: string; texto: string; permiso: string }
     .menu a:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
     main { grid-area: contenido; min-width: 0; }
     @media (max-width: 40rem) {
-      .shell { grid-template-columns: 1fr; grid-template-areas: 'cabecera' 'menu' 'contenido'; }
+      .shell { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; grid-template-areas: 'cabecera' 'menu' 'contenido'; }
       .menu ul { flex-direction: row; flex-wrap: wrap; }
     }
   `,
@@ -77,6 +77,7 @@ export class ShellFinanciero {
     { ruta: 'tablero', texto: 'Tablero', permiso: 'ver:tablero' },
     { ruta: 'operacion', texto: 'Operación', permiso: 'ver:operacion' },
     { ruta: 'cumplimiento', texto: 'Cumplimiento', permiso: 'ver:cumplimiento' },
+    { ruta: 'admisiones', texto: 'Admisiones', permiso: 'ver:admisiones' },
     { ruta: 'sistemas', texto: 'Sistemas', permiso: 'ver:sistemas' },
     { ruta: 'contabilidad', texto: 'Contabilidad', permiso: 'ver:contabilidad' },
     { ruta: 'publicidad', texto: 'Publicidad', permiso: 'ver:publicidad' },
