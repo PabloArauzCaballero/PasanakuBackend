@@ -38,7 +38,7 @@ class RutaEnPrefijoContratoTest {
     @DisplayName("Toda ruta de todo contrato cae en un prefijo real de su servicio")
     void ningunaRutaFueraDeSuPrefijo() {
         Map<String, List<String>> prefijos = prefijosDelModelo();
-        assertThat(prefijos).as("PREFIJOS no se pudo leer de scripts/modelo.py").hasSize(14);
+        assertThat(prefijos).as("PREFIJOS no se pudo leer de scripts/modelo.py").hasSize(15);
 
         List<String> fuera = new ArrayList<>();
         for (Path contrato : contratos()) {

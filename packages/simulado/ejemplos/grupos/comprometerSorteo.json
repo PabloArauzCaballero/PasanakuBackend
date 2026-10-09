@@ -9,7 +9,8 @@
       "cuerpo": {
         "sorteoId": "14c83a2c-f858-4384-8136-f76580d20edb",
         "hashSemilla": "hashSemilla-hashSemilla-hashSemilla-hashSemilla-hashSemilla-hash",
-        "algoritmo": "FISHER_YATES_SHA256"
+        "algoritmo": "FISHER_YATES_SHA256",
+        "semilla": "semilla"
       }
     },
     "vacio": {
@@ -17,7 +18,8 @@
       "cuerpo": {
         "sorteoId": "14c83a2c-f858-4384-8136-f76580d20edb",
         "hashSemilla": "hashSemilla-hashSemilla-hashSemilla-hashSemilla-hashSemilla-hash",
-        "algoritmo": "FISHER_YATES_SHA256"
+        "algoritmo": "FISHER_YATES_SHA256",
+        "semilla": "semilla"
       }
     },
     "adverso": {
@@ -25,7 +27,8 @@
       "cuerpo": {
         "sorteoId": "14c83a2c-f858-4384-8136-f76580d20edb",
         "hashSemilla": "hashSemilla-hashSemilla-hashSemilla-hashSemilla-hashSemilla-hash",
-        "algoritmo": "FISHER_YATES_SHA256"
+        "algoritmo": "FISHER_YATES_SHA256",
+        "semilla": "semilla"
       }
     },
     "aceptado": {
@@ -33,7 +36,8 @@
       "cuerpo": {
         "sorteoId": "14c83a2c-f858-4384-8136-f76580d20edb",
         "hashSemilla": "hashSemilla-hashSemilla-hashSemilla-hashSemilla-hashSemilla-hash",
-        "algoritmo": "FISHER_YATES_SHA256"
+        "algoritmo": "FISHER_YATES_SHA256",
+        "semilla": "semilla"
       }
     },
     "intermitente": {

@@ -1,0 +1,105 @@
+{
+  "servicio": "inversiones",
+  "operacion": "listarProductosDeInversion",
+  "metodo": "get",
+  "ruta": "/inversiones/productos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "productos": [
+          {
+            "codigo": "codigo",
+            "tipo": "DPF",
+            "nombre": "nombre",
+            "emisor": "emisor",
+            "moneda": "BOB",
+            "nivelRiesgo": "BAJO",
+            "titularidad": "titularidad",
+            "condiciones": {
+              "versionId": "e7b3bccb-db08-4387-8cbb-ff4cc2bc0052",
+              "numero": 1,
+              "plazoDias": 1,
+              "baseDias": 1,
+              "tasaNominalAnual": "4.444444",
+              "permiteRescateAnticipado": true,
+              "penalizacionAnticipo": "4.444444",
+              "diasRescate": 1,
+              "horaCorte": "44:44",
+              "montoMinimo": {
+                "monto": "4.44",
+                "moneda": "BOB"
+              },
+              "tasaRetencion": "4.444444",
+              "tasaComisionExito": "4.444444",
+              "costos": "costos",
+              "texto": "texto",
+              "textoHash": "7777777777777777777777777777777777777777777777777777777777777777",
+              "fuente": "fuente",
+              "fechaCotizacion": "2026-01-15T10:30:00Z",
+              "origenDatos": "SINTETICO",
+              "aptoProduccion": true,
+              "advertencia": "advertencia"
+            }
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "productos": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "productos": [
+          {
+            "codigo": "codigo",
+            "tipo": "DPF",
+            "nombre": "nombre",
+            "emisor": "emisor",
+            "moneda": "BOB",
+            "nivelRiesgo": "BAJO",
+            "titularidad": "titularidad",
+            "condiciones": {
+              "versionId": "e7b3bccb-db08-4387-8cbb-ff4cc2bc0052",
+              "numero": 1,
+              "plazoDias": 1,
+              "baseDias": 1,
+              "tasaNominalAnual": "4.444444",
+              "permiteRescateAnticipado": true,
+              "penalizacionAnticipo": "4.444444",
+              "diasRescate": 1,
+              "horaCorte": "44:44",
+              "montoMinimo": {
+                "monto": "4.44",
+                "moneda": "BOB"
+              },
+              "tasaRetencion": "4.444444",
+              "tasaComisionExito": "4.444444",
+              "costos": "costos",
+              "texto": "texto",
+              "textoHash": "7777777777777777777777777777777777777777777777777777777777777777",
+              "fuente": "fuente",
+              "fechaCotizacion": "2026-01-15T10:30:00Z",
+              "origenDatos": "SINTETICO",
+              "aptoProduccion": true,
+              "advertencia": "advertencia"
+            }
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU120-01",
+        "mensaje": "Producto inexistente",
+        "detalle": {},
+        "trazaId": "traza-listarProductosDeInversion-rechazo"
+      }
+    }
+  }
+}

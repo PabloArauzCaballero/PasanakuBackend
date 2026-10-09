@@ -1,0 +1,98 @@
+{
+  "servicio": "inversiones",
+  "operacion": "crearOrdenDeInversion",
+  "metodo": "post",
+  "ruta": "/inversiones/ordenes",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "ordenId": "5f3f67c8-f912-4012-859d-27826585247d",
+        "estado": "CREADA",
+        "productoCodigo": "productoCodigo",
+        "monto": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "versionCondicionesId": "f0b266b0-93d0-4a50-8362-1ce08482e100",
+        "consentimientoId": "eda4b8e7-3f47-408b-82d1-c77942cebe97",
+        "posicionId": "04be4e22-6cfb-45b8-8845-db9a71b9e3da",
+        "fechaValor": "2026-01-15",
+        "motivoRechazo": "motivoRechazo",
+        "mensaje": "mensaje"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "ordenId": "5f3f67c8-f912-4012-859d-27826585247d",
+        "estado": "CREADA",
+        "productoCodigo": "productoCodigo",
+        "monto": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "versionCondicionesId": "f0b266b0-93d0-4a50-8362-1ce08482e100",
+        "consentimientoId": "eda4b8e7-3f47-408b-82d1-c77942cebe97",
+        "posicionId": "04be4e22-6cfb-45b8-8845-db9a71b9e3da",
+        "fechaValor": "2026-01-15",
+        "motivoRechazo": "motivoRechazo",
+        "mensaje": "mensaje"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "ordenId": "5f3f67c8-f912-4012-859d-27826585247d",
+        "estado": "CREADA",
+        "productoCodigo": "productoCodigo",
+        "monto": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "versionCondicionesId": "f0b266b0-93d0-4a50-8362-1ce08482e100",
+        "consentimientoId": "eda4b8e7-3f47-408b-82d1-c77942cebe97",
+        "posicionId": "04be4e22-6cfb-45b8-8845-db9a71b9e3da",
+        "fechaValor": "2026-01-15",
+        "motivoRechazo": "motivoRechazo",
+        "mensaje": "mensaje"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "ordenId": "5f3f67c8-f912-4012-859d-27826585247d",
+        "estado": "CREADA",
+        "productoCodigo": "productoCodigo",
+        "monto": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "versionCondicionesId": "f0b266b0-93d0-4a50-8362-1ce08482e100",
+        "consentimientoId": "eda4b8e7-3f47-408b-82d1-c77942cebe97",
+        "posicionId": "04be4e22-6cfb-45b8-8845-db9a71b9e3da",
+        "fechaValor": "2026-01-15",
+        "motivoRechazo": "motivoRechazo",
+        "mensaje": "mensaje"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU121-01",
+        "mensaje": "Producto no disponible",
+        "detalle": {},
+        "trazaId": "traza-crearOrdenDeInversion-rechazo"
+      }
+    }
+  }
+}

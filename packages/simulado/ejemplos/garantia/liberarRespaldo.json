@@ -1,0 +1,70 @@
+{
+  "servicio": "garantia",
+  "operacion": "liberarRespaldo",
+  "metodo": "post",
+  "ruta": "/garantia/respaldo/reservas/{reservaId}/liberacion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "reservaId": "1d8b4b69-1ba0-4737-862b-5c5e392b62a0",
+        "liberado": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "esNueva": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "reservaId": "1d8b4b69-1ba0-4737-862b-5c5e392b62a0",
+        "liberado": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "esNueva": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "reservaId": "1d8b4b69-1ba0-4737-862b-5c5e392b62a0",
+        "liberado": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "esNueva": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "reservaId": "1d8b4b69-1ba0-4737-862b-5c5e392b62a0",
+        "liberado": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "esNueva": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU23-01",
+        "mensaje": "Fondo insuficiente",
+        "detalle": {},
+        "trazaId": "traza-liberarRespaldo-rechazo"
+      }
+    }
+  }
+}

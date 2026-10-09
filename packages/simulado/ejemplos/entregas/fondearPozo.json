@@ -1,0 +1,142 @@
+{
+  "servicio": "entregas",
+  "operacion": "fondearPozo",
+  "metodo": "post",
+  "ruta": "/entregas/pozo-completo",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "entregaId": "ccc580d1-c640-4c1d-8a85-0ccc93060cee",
+        "fondeoId": "80f0e970-f562-4c50-8592-55207653a5c0",
+        "estado": "FONDEADO",
+        "pozo": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "confirmado": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "cubiertoMutual": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "cubiertoEmpresa": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "pendiente": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "esNuevo": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "entregaId": "ccc580d1-c640-4c1d-8a85-0ccc93060cee",
+        "fondeoId": "80f0e970-f562-4c50-8592-55207653a5c0",
+        "estado": "FONDEADO",
+        "pozo": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "confirmado": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "cubiertoMutual": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "cubiertoEmpresa": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "pendiente": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "esNuevo": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "entregaId": "ccc580d1-c640-4c1d-8a85-0ccc93060cee",
+        "fondeoId": "80f0e970-f562-4c50-8592-55207653a5c0",
+        "estado": "FONDEADO",
+        "pozo": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "confirmado": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "cubiertoMutual": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "cubiertoEmpresa": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "pendiente": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "esNuevo": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "entregaId": "ccc580d1-c640-4c1d-8a85-0ccc93060cee",
+        "fondeoId": "80f0e970-f562-4c50-8592-55207653a5c0",
+        "estado": "FONDEADO",
+        "pozo": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "confirmado": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "cubiertoMutual": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "cubiertoEmpresa": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "pendiente": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "esNuevo": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU22-01",
+        "mensaje": "Bolsa incompleta",
+        "detalle": {},
+        "trazaId": "traza-fondearPozo-rechazo"
+      }
+    }
+  }
+}

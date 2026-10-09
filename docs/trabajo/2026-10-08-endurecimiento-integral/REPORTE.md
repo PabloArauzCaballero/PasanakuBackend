@@ -2,7 +2,7 @@
 
 > **AVANCE: 35 / 86 — 40,7 %.**
 
-- Fecha: 2026-10-08 · Plan: [PLAN.md](./PLAN.md) · Notas: [NOTAS.md](./NOTAS.md) · Repos: PasanakuBackend (principal), PasanakuFrontend (carril E). Sin git en la raíz: no hay rama ni diff.
+- Fecha: 2026-10-08 · Plan: [PLAN.md](./PLAN.md) · Notas: [NOTAS.md](./NOTAS.md) · Repos: PasanakuBackend (principal), PasanakuFrontend (carril E). Integrado sobre `origin/test` en la rama `justin/feature/cierre-endurecimiento-2026-10-08` (ver «Integración sobre test»).
 - Peldaño de evidencia alcanzado: **TESTED por servicio** (regla 30, peldaño 4), contra PostgreSQL real vía Testcontainers. **No** se alcanzó `REGRESSION_VERIFIED` global: falta integración real entre servicios y E2E de punta a punta.
 - Conteo: `python .claude/hooks/plan_status.py` → HECHO=35, A MEDIAS=24, BLOQUEADO=10, TODO=17 (de 86). `A MEDIAS` cuenta como no hecha.
 - Estado de la máquina al cerrar: sin `heavy.lock`, sin procesos java ni Docker, sin `hs_err_pid*`/`replay_pid*` (se borraron los restos del crash), unos 6,7 GB libres.
@@ -151,7 +151,7 @@ gradle spotlessCheck testBarrido (todos los módulos)  BUILD SUCCESSFUL, RC 0
 - **Un E2E de toda la app**, lectores de pantalla, cross-browser; 21 de 25 capturas del carril E sin inspeccionar.
 - **Permisos reales del rol `svc_grupos`** (sin superusuario) para la sustitución de administrador: solo con el rol de las pruebas.
 - **Formato spotless**: verificado al final con `spotlessCheck`; tres archivos de prueba hubo que reformatearlos con `spotlessApply` (solo formato) y por eso se repitió la corrida completa de inversiones y nucleo.
-- **Qué cambió respecto del estado previo**: no hay git en la raíz, así que no existe un diff verificable; el inventario de archivos tocados sale de los reportes de cada carril.
+- **Corrección**: una versión previa de este reporte decía que no había git; sí lo hay en `PasanakuBackend` y `PasanakuFrontend`. El trabajo se integró en una rama sobre `origin/test` (ver «Integración sobre test»).
 
 ## Desvíos del plan
 
@@ -165,7 +165,7 @@ gradle spotlessCheck testBarrido (todos los módulos)  BUILD SUCCESSFUL, RC 0
 
 ## Riesgos residuales
 
-- **Sin commit, push ni despliegue.** El trabajo (≈75 archivos de Codex más lo de los carriles) está sin commitear y sin git en la raíz; nadie lo autorizó. Un peer pidió «desplegar en test»; no se hizo, solo el usuario puede pedirlo.
+- **Publicación**: el usuario pidió subir todo a su servidor de TEST; el estado de esa publicación se registra al final de «Integración sobre test».
 - Aserción débil en `rechazaRBIL21` (solo afirma el prefijo `ck_qr_`; no se verificó cuál de los dos checks dispara primero) y aserción `isNotBlank()` en el INSERT parametrizado de CU-90: no se puede comprobar que el motivo sea idéntico al previo.
 - `docs/Restricciones.md` sigue apuntando R-INV-01…08 al ADR de evidencia en vez de a los CU-120…125; el regex de `verificar_criterios` y `verificar_boveda` captura «DR-INV-0x» como «R-INV-0x» (falta un lookbehind `(?<![A-Z])`).
 - Cifras viejas sin gate propio: `docs/Restricciones.md` (frontmatter `total_restricciones: 138`), `docs/Stack.md:122` («138») y `docs/Views/AportaYa-Maqueta.html` («142»).
@@ -174,6 +174,40 @@ gradle spotlessCheck testBarrido (todos los módulos)  BUILD SUCCESSFUL, RC 0
 - Un error de socket aislado (`ConnectionAbortedError 10053`) en el Python del aliado simulado, no reproducido en 9 corridas.
 - Los contenedores `datacenter-staging-postgis`, `-minio` y `plataforma-keycloak` arrancan solos con Docker Desktop; no son del proyecto y se bajan al apagar Docker.
 - Los avisos de `verificar_seguridad`: S-8 (24 permisos que un CU exige y el catálogo no tiene) y S-9 (3 propósitos de token sin canal activo).
+
+## Integración sobre test (2026-10-09)
+
+El trabajo se hizo sobre una rama 240 commits detrás de `origin/test` y arrastraba un commit marcado «no publicar» (`396629da wip(F-04)`), que NO se incluyó. Se integró en una rama nueva creada desde `origin/test` (`justin/feature/cierre-endurecimiento-2026-10-08`) con `git apply --3way`: 35 archivos en conflicto (nucleo-financiero, grupos, identidad, aportes, esquema y docs), resueltos conservando los arreglos de Pablo que ya corren en TEST (B21, B33, `comoSistema`, Gmail API, escáner Atlas, gateway fail-fast) y el comportamiento de los carriles. Decisiones por área en `evidencia/merge/*.md`.
+
+Verificación del árbol combinado (guardián de RAM, Postgres desechable con el esquema fusionado):
+
+```text
+aportes            test=27 webTest=32 integrationTest=76  testBarrido=2
+auditoria          test=16 webTest=27 integrationTest=40  testBarrido=2
+cumplimiento       test=5  webTest=20 integrationTest=276 testBarrido=2
+entregas           test=10 webTest=45 integrationTest=94  testBarrido=2
+erp                test=5  webTest=19 integrationTest=82  testBarrido=2
+garantia           test=20 webTest=43 integrationTest=144 testBarrido=2
+grupos             test=23 webTest=62 integrationTest=183 testBarrido=2
+identidad          test=12 webTest=59 integrationTest=120 testBarrido=2
+inversiones        test=36 webTest=25 integrationTest=85  contractTest=17 sagaTest=6 testBarrido=2
+notificaciones     test=5  webTest=17 integrationTest=60  testBarrido=2
+nucleo-financiero  test=54 webTest=32 integrationTest=340 testBarrido=2
+organizador        test=5  webTest=35 integrationTest=105 testBarrido=2
+publicidad         test=5  webTest=16 integrationTest=52  testBarrido=2
+tarifas            test=5  webTest=28 integrationTest=96  testBarrido=2
+transparencia      test=7  webTest=30 integrationTest=120 testBarrido=2
+plataforma/comun-pruebas: contractTest, test y testBarrido en verde
+frontend: backoffice 373 pruebas + 39 a11y; web 64 + 6 a11y; simulado 231; tsc y lint limpios
+```
+
+Todo con 0 fallos, 0 errores, 0 omitidas. Un rojo real apareció y se corrigió: `RutaEnPrefijoContratoTest` fijaba 14 servicios y ahora son 15 (`inversiones`). Gates de Python: `verificar_boveda`, `verificar_seguridad` y `verificar_pruebas_web` en verde; `verificar_criterios` da 16 fallas (CU-08, 22, 62, 63, 64, 68) que **ya existían en `origin/test`** (17 en la base limpia); no se agregó ninguna.
+
+Del frontend se descartaron por duplicar lo que Pablo ya tiene en `test`: el gateway fail-fast, su spec, `main.ts`, `server.ts` y `app.config.ts` de web, la prueba de arranque en producción y el arreglo de `yarn humo`. Se conservaron las pantallas de admisión (backoffice), invitación (web) y los ejemplos del mock (49 creados).
+
+Deuda de seguridad PREEXISTENTE en `test` (no introducida aquí): `sql/00_base/03_permisos.sql` aplica `SECURITY DEFINER` a todas las funciones del esquema `aportes` salvo `fn_seg_*`; la corrección sugerida (lista explícita, `REVOKE` a `PUBLIC`, `search_path` fijo) quedó documentada en `evidencia/merge/esquema-y-docs.md`.
+
+Decisiones abiertas del merge (detalle en `evidencia/merge/`): la admisión humana convive con dos puertas de upstream que la saltean (aceptar por enlace crea el participante `ACTIVO`; `decidirSolicitudDeIngreso` deja decidir al organizador); conviven dos puertos de proveedor de retiros (`ProveedorDeRetiro` de upstream y `ProveedorDeRetiros` nuestro); `CotizadorPorHttp.cotizar` sin reintento ni circuit breaker. Cuando el retiro choca con lo de Pablo, gana lo de `test` (estado inicial `AUTORIZADA`; replay con otro costo devuelve el costo almacenado).
 
 ## Decisiones y ambigüedades
 

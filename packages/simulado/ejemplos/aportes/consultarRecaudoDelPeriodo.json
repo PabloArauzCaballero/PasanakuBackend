@@ -1,0 +1,108 @@
+{
+  "servicio": "aportes",
+  "operacion": "consultarRecaudoDelPeriodo",
+  "metodo": "get",
+  "ruta": "/aportes/periodos/{periodoId}/recaudo",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "periodoId": "dfbae411-8a60-466b-85da-e27a6a1aea7c",
+        "grupoId": "b8398d82-e752-43d4-8f6b-3e569f8c4156",
+        "corteEn": "2026-01-15T10:30:00Z",
+        "pozo": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "confirmado": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "cubiertoMutual": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "faltante": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "pendientes": [
+          {
+            "obligacionId": "79bf9ac5-71c1-41a1-887e-cb64eb80ec66",
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "periodoId": "dfbae411-8a60-466b-85da-e27a6a1aea7c",
+        "grupoId": "b8398d82-e752-43d4-8f6b-3e569f8c4156",
+        "corteEn": "2026-01-15T10:30:00Z",
+        "pozo": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "confirmado": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "cubiertoMutual": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "faltante": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "pendientes": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "periodoId": "dfbae411-8a60-466b-85da-e27a6a1aea7c",
+        "grupoId": "b8398d82-e752-43d4-8f6b-3e569f8c4156",
+        "corteEn": "2026-01-15T10:30:00Z",
+        "pozo": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "confirmado": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "cubiertoMutual": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "faltante": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "pendientes": [
+          {
+            "obligacionId": "79bf9ac5-71c1-41a1-887e-cb64eb80ec66",
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU21-01",
+        "mensaje": "Obligacion no vigente",
+        "detalle": {},
+        "trazaId": "traza-consultarRecaudoDelPeriodo-rechazo"
+      }
+    }
+  }
+}

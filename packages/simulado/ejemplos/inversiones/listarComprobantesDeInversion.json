@@ -1,0 +1,99 @@
+{
+  "servicio": "inversiones",
+  "operacion": "listarComprobantesDeInversion",
+  "metodo": "get",
+  "ruta": "/inversiones/posiciones/{posicionId}/comprobantes",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "comprobantes": [
+          {
+            "comprobanteId": "2f81158f-6f47-4751-80c6-22de9ec84ce0",
+            "tipo": "SUSCRIPCION",
+            "sentidoTitular": "DEBITO",
+            "principal": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "interes": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "impuesto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "comision": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "perdidaRealizada": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "neto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "origenDatos": "SINTETICO",
+            "emitidoEn": "2026-01-15T10:30:00Z"
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "comprobantes": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "comprobantes": [
+          {
+            "comprobanteId": "2f81158f-6f47-4751-80c6-22de9ec84ce0",
+            "tipo": "SUSCRIPCION",
+            "sentidoTitular": "DEBITO",
+            "principal": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "interes": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "impuesto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "comision": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "perdidaRealizada": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "neto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "origenDatos": "SINTETICO",
+            "emitidoEn": "2026-01-15T10:30:00Z"
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU120-01",
+        "mensaje": "Producto inexistente",
+        "detalle": {},
+        "trazaId": "traza-listarComprobantesDeInversion-rechazo"
+      }
+    }
+  }
+}
