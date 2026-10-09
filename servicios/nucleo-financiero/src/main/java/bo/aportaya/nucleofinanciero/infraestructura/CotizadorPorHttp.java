@@ -6,10 +6,14 @@ import bo.aportaya.plataforma.web.clientes.ClienteDeServicio;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import java.math.BigDecimal;
+import java.net.http.HttpClient;
+import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
@@ -18,8 +22,8 @@ import org.springframework.web.client.RestClientResponseException;
  * Le pregunta el precio a {@code tarifas}, por su contrato.
  *
  * <p>Cotizar **deja la cotizacion escrita**, y eso es deliberado: R-TAR-02 dice que lo
- * que se cotiza es lo que se cobra, asi que el retiro que se autoriza despues queda
- * atado a un precio que alguien puede volver a mirar.
+ * que se cotiza es lo que se cobra, asi que la operacion que se autoriza despues queda
+ * atada a un precio que alguien puede volver a mirar.
  *
  * <p>Cuando el tarifario no tiene concepto para el hecho, {@code tarifas} responde
  * {@code AP-CU30-01} con {@code gratuita=true}. Eso <b>no</b> es una falla: es el
@@ -37,6 +41,11 @@ import org.springframework.web.client.RestClientResponseException;
  * eso, resilience4j nunca ve una falla y el circuito nunca se abre. El resultado hacia
  * quien llama no cambia: {@link #costoDeFallback} devuelve el mismo {@code Optional
  * .empty()} que el catch original.
+ *
+ * <p>El {@code referenciaTipo} que viaja es uno de los que el contrato de {@code tarifas}
+ * admite ({@code ENTREGA_FONDO, ORDEN_RECARGA, ORDEN_RETIRO, PAGO, PERIODO,
+ * TRANSACCION_BILLETERA}). Mandar un valor fuera de esa lista hace que {@code tarifas} rechace
+ * la cotizacion, y quien pregunta rechazaba entonces TODA recarga y TODO retiro.
  */
 @Component
 public class CotizadorPorHttp implements CotizadorDeComision {
@@ -49,8 +58,13 @@ public class CotizadorPorHttp implements CotizadorDeComision {
     public CotizadorPorHttp(
             RestClient.Builder constructor,
             @Value("${aportaya.servicios.tarifas}") String urlDeTarifas,
-            @Value("${aportaya.tarifas.codigo-tarifario}") String codigoTarifario) {
-        this.rest = constructor.baseUrl(urlDeTarifas).build();
+            @Value("${aportaya.tarifas.codigo-tarifario}") String codigoTarifario,
+            @Value("${aportaya.tarifas.timeout:PT3S}") Duration timeout) {
+        // Toda llamada saliente tiene tiempo maximo: sin el, un tarifas lento cuelga el hilo de quien opera.
+        var fabrica = new JdkClientHttpRequestFactory(
+                HttpClient.newBuilder().connectTimeout(timeout).build());
+        fabrica.setReadTimeout(timeout);
+        this.rest = constructor.requestFactory(fabrica).baseUrl(urlDeTarifas).build();
         this.codigoTarifario = codigoTarifario;
     }
 
@@ -61,12 +75,46 @@ public class CotizadorPorHttp implements CotizadorDeComision {
     // reintentaba una sola vez, no tres), su propio fallback devolvia
     // Optional.empty() al primer 503 y @Retry nunca se enteraba de que algo habia
     // fallado. Un solo fallback, en el aspecto mas EXTERNO, evita la ambiguedad.
+    //
+    // Sin catch generico de RuntimeException: un timeout o un error de conexion se
+    // propaga tal cual, para que @Retry lo reintente y @CircuitBreaker lo cuente.
     @Override
     @Retry(name = "cotizador", fallbackMethod = "costoDeFallback")
     @CircuitBreaker(name = "cotizador")
     public Optional<Dinero> costoDe(
             String hechoGenerador, UUID referenciaId, Dinero montoBase, String claveIdempotencia) {
+        var moneda = montoBase.moneda();
+        return Optional.of(pedir(hechoGenerador, referenciaId, montoBase, claveIdempotencia)
+                .map(r -> Dinero.de(new BigDecimal(r.montoTotal().monto()), moneda))
+                .orElseGet(() -> Dinero.cero(moneda)));
+    }
 
+    /**
+     * La cotizacion completa para mostrarla antes de operar. A diferencia de {@code costoDe}
+     * (que alimenta la reserva del retiro y vive bajo {@code @Retry}/{@code @CircuitBreaker}), esta
+     * consulta no deja que una falla de transporte escape: «no se pudo saber» es vacio y quien
+     * pregunta rechaza. Una respuesta incompleta (sin comision o impuesto) tambien es vacio: no se
+     * le muestra a nadie un desglose inventado.
+     */
+    @Override
+    public Optional<Cotizacion> cotizar(
+            String hechoGenerador, UUID referenciaId, Dinero montoBase, String claveIdempotencia) {
+        try {
+            return Optional.of(pedir(hechoGenerador, referenciaId, montoBase, claveIdempotencia)
+                    .map(r -> aCotizacion(r, montoBase))
+                    .orElseGet(() -> gratuita(montoBase)));
+        } catch (RuntimeException noSePudoSaber) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Le pregunta a {@code tarifas}. Vacio significa que el tarifario dice que no hay concepto para
+     * el hecho (la operacion es gratuita: una RESPUESTA de negocio, no una falla). Cualquier otra
+     * respuesta de error, un cuerpo ausente o una falla de transporte se deja propagar.
+     */
+    private Optional<Respuesta> pedir(
+            String hechoGenerador, UUID referenciaId, Dinero montoBase, String claveIdempotencia) {
         Map<String, Object> cuerpo = Map.of(
                 "codigoTarifario",
                 codigoTarifario,
@@ -74,9 +122,8 @@ public class CotizadorPorHttp implements CotizadorDeComision {
                 hechoGenerador,
                 // El contrato de tarifas solo admite ENTREGA_FONDO, ORDEN_RECARGA, ORDEN_RETIRO, PAGO,
                 // PERIODO y TRANSACCION_BILLETERA; con "OPERACION" respondia 400 y ningun retiro cotizaba.
-                // Hoy el unico llamador es el retiro.
                 "referenciaTipo",
-                "ORDEN_RETIRO",
+                referenciaTipoDe(hechoGenerador),
                 "referenciaId",
                 referenciaId.toString(),
                 "montoBase",
@@ -90,21 +137,22 @@ public class CotizadorPorHttp implements CotizadorDeComision {
                     .headers(ClienteDeServicio::propagarElToken)
                     .body(cuerpo)
                     .retrieve()
-                    .body(Cotizacion.class);
-            return Optional.ofNullable(salida)
-                    .map(c -> Dinero.de(new BigDecimal(c.montoTotal().monto()), montoBase.moneda()));
+                    .body(Respuesta.class);
+            if (salida == null) {
+                throw new IllegalStateException("tarifas respondio sin cuerpo");
+            }
+            return Optional.of(salida);
         } catch (RestClientResponseException respondio) {
-            // "Gratuita" es una RESPUESTA de negocio, no una falla de transporte: se
-            // resuelve aca mismo, nunca llega a @Retry/@CircuitBreaker. Cualquier otro
-            // codigo (4xx/5xx real) SI se deja propagar — es la unica forma de que
-            // resilience4j vea que algo esta fallando.
             if (esGratuita(respondio)) {
-                return Optional.of(Dinero.cero(montoBase.moneda()));
+                return Optional.empty();
             }
             throw respondio;
         }
-        // Sin catch generico de RuntimeException: un timeout o un error de conexion se
-        // propaga tal cual, para que @Retry lo reintente y @CircuitBreaker lo cuente.
+    }
+
+    private static Cotizacion gratuita(Dinero montoBase) {
+        var cero = Dinero.cero(montoBase.moneda());
+        return new Cotizacion(Optional.empty(), montoBase, cero, cero, cero, Optional.empty(), true);
     }
 
     /**
@@ -119,13 +167,56 @@ public class CotizadorPorHttp implements CotizadorDeComision {
         return Optional.empty();
     }
 
+    @Override
+    public boolean aceptar(UUID cotizacionId) {
+        try {
+            var salida = rest.post()
+                    .uri("/comisiones/cotizaciones/{id}/aceptacion", cotizacionId)
+                    .headers(ClienteDeServicio::propagarElToken)
+                    .retrieve()
+                    .body(Aceptacion.class);
+            return salida != null && salida.aceptada();
+        } catch (RuntimeException sinAceptar) {
+            // Vencida, inexistente o sin respuesta: la persona no acepto un precio vigente.
+            return false;
+        }
+    }
+
+    /** Cada hecho generador se cotiza contra el tipo de referencia del contrato que le corresponde. */
+    static String referenciaTipoDe(String hechoGenerador) {
+        return switch (hechoGenerador) {
+            case "RECARGA" -> "ORDEN_RECARGA";
+            case "RETIRO_ACREDITADO" -> "ORDEN_RETIRO";
+            default -> "TRANSACCION_BILLETERA";
+        };
+    }
+
+    private static Cotizacion aCotizacion(Respuesta r, Dinero base) {
+        var moneda = base.moneda();
+        return new Cotizacion(
+                Optional.of(r.cotizacionId()),
+                base,
+                Dinero.de(new BigDecimal(r.montoComision().monto()), moneda),
+                Dinero.de(new BigDecimal(r.montoImpuesto().monto()), moneda),
+                Dinero.de(new BigDecimal(r.montoTotal().monto()), moneda),
+                Optional.ofNullable(r.validaHasta()),
+                false);
+    }
+
     /** «No hay concepto para ese hecho» es un precio, no un error de transporte. */
     private boolean esGratuita(RestClientResponseException respondio) {
         String cuerpo = respondio.getResponseBodyAsString();
         return cuerpo.contains(SIN_CONCEPTO) && cuerpo.contains("\"gratuita\"");
     }
 
-    private record Cotizacion(Importe montoTotal) {
+    private record Respuesta(
+            UUID cotizacionId,
+            Importe montoComision,
+            Importe montoImpuesto,
+            Importe montoTotal,
+            OffsetDateTime validaHasta) {
         private record Importe(String monto, String moneda) {}
     }
+
+    private record Aceptacion(boolean aceptada) {}
 }

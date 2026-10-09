@@ -51,6 +51,39 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+  /billetera/cotizaciones:
+    post:
+      operationId: cotizarOperacion            # CU-30 (consume tarifas)
+      summary: Ver el precio de una recarga o un retiro antes de confirmarlo
+      description: >-
+        [CONTRATO] Que la persona vea el numero final ANTES de aceptar: base, comision, impuesto,
+        costo total, neto y hasta cuando vale ese precio. No mueve nada ni compromete a nadie. La
+        `Idempotency-Key` que se manda aca es la MISMA que despues lleva la recarga o el retiro, y
+        `cotizacionId` es lo que esa operacion cita para confirmar. Pedir otro importe con la misma
+        clave produce otra cotizacion: no se puede cobrar el precio de un importe sobre otro.
+
+        El precio lo fija `tarifas`; este servicio no lo calcula. Una operacion sin concepto en el
+        tarifario es gratuita (`gratuita=true`, sin `cotizacionId`).
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaCotizacionOperacion' }
+      responses:
+        '200':
+          description: La cotizacion y su desglose
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaCotizacionOperacion' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU10-05 / AP-CU11-01 no se pudo cotizar (tarifas no respondio)
+          # AP-CU10-08 / AP-CU11-12 el costo no puede igualar ni superar el importe
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
   /billetera/recargas:
     post:
       operationId: solicitarRecarga           # CU-10
@@ -84,6 +117,8 @@ paths:
           # AP-CU10-01 LIMITE_EXCEDIDO           · AP-CU10-02 SALDO_MAXIMO_ALCANZADO
           # AP-CU10-03 INSTRUMENTO_NO_VERIFICADO · AP-CU10-04 CUENTA_NO_OPERATIVA
           # AP-CU10-05 ORDEN_EXPIRADA
+          # AP-CU10-06 COTIZACION_REQUERIDA · AP-CU10-07 COTIZACION_VENCIDA
+          # AP-CU10-08 COTIZACION_NO_COINCIDE
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
@@ -209,6 +244,7 @@ paths:
           # AP-CU11-03 INSTRUMENTO_EN_ENFRIAMIENTO · AP-CU11-04 TITULAR_NO_COINCIDE
           # AP-CU11-05 BLOQUEO_DE_AUTORIDAD        · AP-CU11-06 ENCAJE_INCUMPLIDO
           # AP-CU11-07 MFA_INVALIDO (H2: evidencia provista pero no valida)
+          # AP-CU11-13 la Idempotency-Key ya identifica otro retiro (otro importe, destino o cotizacion)
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
@@ -406,6 +442,94 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+  /billetera/qr:
+    post:
+      tags: [qr]
+      operationId: emitirQr                    # CU-12 · QR interno
+      summary: Emitir un QR interno para cobrar
+      description: >-
+        [CONTRATO] Un QR INTERNO es un cobro que una billetera de Pasanaku publica; se paga
+        entre billeteras de Pasanaku. El DINAMICO fija importe y vencimiento y se consume al
+        pagarse. El ESTATICO no fija importe, no vence y se puede pagar muchas veces.
+
+        El `contenido` solo lleva un identificador y una firma: alterarlo lo invalida, nunca
+        cambia a quien se paga ni cuanto. NO es un QR bancario ni interoperable: ese no se
+        procesa (AP-CU12-10).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaQr' }
+      responses:
+        '201':
+          description: QR emitido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaQrEmitido' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU12-02 solo el titular · AP-CU12-03 CUENTA_NO_OPERATIVA · AP-CU12-07 QR_NO_VALIDO
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/qr/lecturas:
+    post:
+      tags: [qr]
+      operationId: leerQr                      # CU-12 · QR interno
+      summary: Ver a quien y cuanto se va a pagar con un QR, sin pagar
+      description: >-
+        [CONTRATO] El contenido viaja en el cuerpo, nunca en la URL. Responde para un QR
+        interno vigente; un QR vencido, usado o alterado se rechaza con su motivo, y uno de otro
+        sistema de pagos se rechaza como NO aceptado (AP-CU12-10): no se afirma interoperabilidad
+        sin un proveedor habilitado ni se lo procesa como si fuera interno.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaLecturaQr' }
+      responses:
+        '200':
+          description: El cobro que el QR representa
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaQrLeido' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU12-07 QR_NO_VALIDO · AP-CU12-08 QR_VENCIDO · AP-CU12-09 QR_YA_USADO
+          # AP-CU12-10 QR_INTEROPERABLE_NO_HABILITADO
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/qr/pagos:
+    post:
+      tags: [qr]
+      operationId: pagarQr                     # CU-12 · QR interno
+      summary: Pagar un QR interno confirmando destinatario e importe
+      description: >-
+        [CONTRATO] Es una transferencia comun entre billeteras (CU-12), atada al QR en la misma
+        transaccion. Un QR dinamico se paga por SU importe, que quien paga tiene que confirmar;
+        y una sola vez: el segundo pago, de quien sea, se rechaza. Repetir la misma
+        `Idempotency-Key` devuelve el mismo comprobante sin mover plata de nuevo.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaPagoQr' }
+      responses:
+        '201':
+          description: Pagado, con su comprobante
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaPagoQr' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU12-01 SALDO_INSUFICIENTE · AP-CU12-02 destino o titular · AP-CU12-07..10 del QR
+          # AP-CU12-11 IMPORTE_NO_CONFIRMADO
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
   # CU-50 Conciliar la custodia NO tiene endpoint: corre como cierre diario. Con el
   # encaje roto no SALE dinero, pero SI entra — dejar entrar plata mejora el encaje y
   # frenarla lo empeoraria justo cuando hace falta lo contrario.
@@ -543,6 +667,37 @@ components:
         # llega vacio.
         evidenciaMfa: { type: string, minLength: 20, maxLength: 4096 }
         factorMfa:    { type: string, minLength: 6, maxLength: 8, deprecated: true }
+        cotizacionId:
+          type: string
+          format: uuid
+          description: >-
+            La cotizacion que la persona vio y acepto (POST /billetera/cotizaciones, con la MISMA
+            Idempotency-Key). Obligatoria mientras `aportaya.cotizacion.exigir-previa` este activa.
+    EntradaCotizacionOperacion:
+      type: object
+      additionalProperties: false
+      required: [operacion, cuentaBilleteraId, monto]
+      properties:
+        operacion: { type: string, enum: [RECARGA, RETIRO] }
+        cuentaBilleteraId: { type: string, format: uuid }
+        monto: { $ref: '#/components/schemas/Dinero' }
+    SalidaCotizacionOperacion:
+      type: object
+      additionalProperties: false
+      required: [base, comision, impuesto, costoTotal, neto, gratuita]
+      properties:
+        cotizacionId:
+          type: string
+          format: uuid
+          description: la version del precio que se acepta; ausente cuando la operacion es gratuita
+        base: { $ref: '#/components/schemas/Dinero' }
+        comision: { $ref: '#/components/schemas/Dinero' }
+        impuesto: { $ref: '#/components/schemas/Dinero' }
+        costoTotal: { $ref: '#/components/schemas/Dinero' }
+        neto:
+          $ref: '#/components/schemas/Dinero'
+        validaHasta: { type: string, format: date-time }
+        gratuita: { type: boolean }
     SalidaRetiro:
       type: object
       additionalProperties: false
@@ -583,6 +738,12 @@ components:
         costoProveedor: { $ref: '#/components/schemas/Dinero' }
         medio: { type: string, maxLength: 30 }
         instrumentoFondeoId: { type: string, format: uuid }
+        cotizacionId:
+          type: string
+          format: uuid
+          description: >-
+            La cotizacion que la persona vio y acepto (POST /billetera/cotizaciones, con la MISMA
+            Idempotency-Key). Obligatoria mientras `aportaya.cotizacion.exigir-previa` este activa.
     SalidaRecarga:
       type: object
       additionalProperties: false
@@ -643,6 +804,63 @@ components:
         estado:          { type: string, maxLength: 20 }
         saldoDisponible: { $ref: '#/components/schemas/Dinero' }
         saldoRetenido:   { $ref: '#/components/schemas/Dinero' }
+    EntradaQr:
+      type: object
+      additionalProperties: false
+      required: [cuentaBilleteraId, modalidad]
+      properties:
+        cuentaBilleteraId: { type: string, format: uuid }
+        modalidad: { type: string, enum: [DINAMICO, ESTATICO] }
+        monto: { $ref: '#/components/schemas/Dinero' }
+        concepto: { type: string, maxLength: 140 }
+    SalidaQrEmitido:
+      type: object
+      additionalProperties: false
+      required: [qrId, contenido, modalidad]
+      properties:
+        qrId: { type: string, format: uuid }
+        contenido: { type: string, maxLength: 80 }
+        modalidad: { type: string, enum: [DINAMICO, ESTATICO] }
+        monto: { $ref: '#/components/schemas/Dinero' }
+        expiraEn: { type: string, format: date-time }
+    EntradaLecturaQr:
+      type: object
+      additionalProperties: false
+      required: [contenido]
+      properties:
+        contenido: { type: string, maxLength: 2048 }
+    SalidaQrLeido:
+      type: object
+      additionalProperties: false
+      required: [qrId, clase, modalidad, destinatario]
+      properties:
+        qrId: { type: string, format: uuid }
+        clase: { type: string, enum: [INTERNO], description: 'solo se responde por QR internos; los demas se rechazan' }
+        modalidad: { type: string, enum: [DINAMICO, ESTATICO] }
+        monto: { $ref: '#/components/schemas/Dinero' }
+        destinatario: { type: string, maxLength: 20, description: 'numero de cuenta enmascarado' }
+        concepto: { type: string, maxLength: 140 }
+        expiraEn: { type: string, format: date-time }
+    EntradaPagoQr:
+      type: object
+      additionalProperties: false
+      required: [contenido, cuentaOrigenId]
+      properties:
+        contenido: { type: string, maxLength: 2048 }
+        cuentaOrigenId: { type: string, format: uuid }
+        monto:
+          $ref: '#/components/schemas/Dinero'
+    SalidaPagoQr:
+      type: object
+      additionalProperties: false
+      required: [transaccionId, qrId, monto, destinatario, saldoDespues]
+      properties:
+        transaccionId: { type: string, format: uuid }
+        qrId: { type: string, format: uuid }
+        monto: { $ref: '#/components/schemas/Dinero' }
+        destinatario: { type: string, maxLength: 20 }
+        concepto: { type: string, maxLength: 140 }
+        saldoDespues: { $ref: '#/components/schemas/Dinero' }
     Dinero:
       type: object
       additionalProperties: false

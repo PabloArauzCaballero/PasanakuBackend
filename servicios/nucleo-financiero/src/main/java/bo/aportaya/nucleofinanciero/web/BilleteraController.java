@@ -1,18 +1,19 @@
 package bo.aportaya.nucleofinanciero.web;
 
-import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU13RetenerSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion;
 import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
-import bo.aportaya.nucleofinanciero.dominio.puertos.CotizadorDeComision;
-import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
 import bo.aportaya.nucleofinanciero.web.generado.BilleteraApi;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaAprobacionRetiro;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaBloqueo;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaCierre;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaCierreRetencion;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaCotizacionOperacion;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaLecturaQr;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaPagoQr;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaQr;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaRecarga;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaRetencion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaRetiro;
@@ -24,7 +25,11 @@ import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaAprobacionRetiro;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaBloqueo;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaCierreBilletera;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaCierreRetencion;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaCotizacionOperacion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaExtracto;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaPagoQr;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaQrEmitido;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaQrLeido;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaRecarga;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaRetencion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaRetiro;
@@ -33,11 +38,8 @@ import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaTransferencia;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Optional;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -58,40 +60,38 @@ import org.springframework.web.bind.annotation.RestController;
 @Permiso("BILLETERA_OPERAR")
 public class BilleteraController implements BilleteraApi {
 
-    private final CU10RecargarSaldo cu10;
+    private final FondeoDeLaBilletera fondeo;
+    private final QrDeLaBilletera qr;
+    private final CU11RetirarSaldo cu11;
     private final CU13RetenerSaldo cu13;
     private final CU14ReversarTransaccion cu14;
     private final CU15EmitirExtracto cu15;
     private final bo.aportaya.nucleofinanciero.aplicacion.CU17BloquearPorAutoridad cu17;
-    private final CU11RetirarSaldo cu11;
     private final MovimientosDeLaBilletera movimientos;
     private final ConsultarSaldo saldos;
-    private final PreparacionDeRetiro preparacionDeRetiro;
     private final SesionDeLaPeticion sesion;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
     public BilleteraController(
-            CU10RecargarSaldo cu10,
+            FondeoDeLaBilletera fondeo,
+            QrDeLaBilletera qr,
+            CU11RetirarSaldo cu11,
             CU13RetenerSaldo cu13,
             CU14ReversarTransaccion cu14,
             CU15EmitirExtracto cu15,
             bo.aportaya.nucleofinanciero.aplicacion.CU17BloquearPorAutoridad cu17,
-            CU11RetirarSaldo cu11,
             MovimientosDeLaBilletera movimientos,
             ConsultarSaldo saldos,
-            CotizadorDeComision cotizador,
-            SegundoFactor segundoFactor,
-            @Value("${aportaya.retiro.doble-aprobacion-desde}") BigDecimal desdeCuandoSonDosFirmas,
             SesionDeLaPeticion sesion) {
-        this.cu10 = cu10;
+        this.fondeo = fondeo;
+        this.qr = qr;
+        this.cu11 = cu11;
         this.cu13 = cu13;
         this.cu14 = cu14;
         this.cu15 = cu15;
         this.cu17 = cu17;
-        this.cu11 = cu11;
         this.movimientos = movimientos;
         this.saldos = saldos;
-        this.preparacionDeRetiro = new PreparacionDeRetiro(cotizador, segundoFactor, desdeCuandoSonDosFirmas);
         this.sesion = sesion;
     }
 
@@ -112,25 +112,17 @@ public class BilleteraController implements BilleteraApi {
 
     @Override
     @Permiso("BILLETERA_OPERAR")
+    public ResponseEntity<SalidaCotizacionOperacion> cotizarOperacion(
+            UUID idempotencyKey, EntradaCotizacionOperacion cuerpo) {
+        Traza.marcarCasoDeUso("CU-30", cuerpo.getCuentaBilleteraId().toString());
+        return fondeo.cotizar(idempotencyKey, cuerpo, sesion.actual());
+    }
+
+    @Override
+    @Permiso("BILLETERA_OPERAR")
     public ResponseEntity<SalidaRecarga> solicitarRecarga(UUID idempotencyKey, EntradaRecarga cuerpo) {
         Traza.marcarCasoDeUso("CU-10", cuerpo.getCuentaBilleteraId().toString());
-
-        var salida = cu10.solicitar(
-                new CU10RecargarSaldo.EntradaSolicitud(
-                        idempotencyKey.toString(),
-                        cuerpo.getCuentaBilleteraId(),
-                        MapeoDeBilletera.dinero(cuerpo.getMonto()),
-                        MapeoDeBilletera.ceroSiFalta(cuerpo.getCostoProveedor(), cuerpo.getMonto()),
-                        cuerpo.getMedio(),
-                        Optional.ofNullable(cuerpo.getInstrumentoFondeoId())),
-                sesion.actual());
-
-        var respuesta = new SalidaRecarga();
-        respuesta.setOrdenRecargaId(salida.ordenRecargaId());
-        respuesta.setEstado(salida.estado());
-        respuesta.setExpiraEn(salida.expiraEn());
-        respuesta.setAcreditara(MapeoDeBilletera.dinero(salida.acreditara()));
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+        return fondeo.solicitarRecarga(idempotencyKey, cuerpo, sesion.actual());
     }
 
     // Acreditar es confirmar que la plata llego: no lo hace quien la pide (91.3). Hasta que
@@ -139,44 +131,14 @@ public class BilleteraController implements BilleteraApi {
     @Permiso("TESORERIA")
     public ResponseEntity<SalidaAcreditacion> acreditarRecarga(UUID ordenId, UUID idempotencyKey) {
         Traza.marcarCasoDeUso("CU-10", ordenId.toString());
-
-        var salida = cu10.acreditar(ordenId, sesion.actual());
-
-        var respuesta = new SalidaAcreditacion();
-        respuesta.setOrdenRecargaId(salida.ordenRecargaId());
-        respuesta.setTransaccionId(salida.transaccionId());
-        respuesta.setSaldoDespues(MapeoDeBilletera.dinero(salida.saldoDespues()));
-        return ResponseEntity.ok(respuesta);
+        return fondeo.acreditarRecarga(ordenId, sesion.actual());
     }
 
-    /**
-     * El retiro, con las dos cosas que este servicio no sabe resueltas ANTES de abrir la
-     * transaccion.
-     *
-     * <p>El costo lo fija {@code tarifas} y el segundo factor lo comprueba quien guarda
-     * las credenciales: son dos llamadas de red, y una llamada de red dentro de la
-     * transaccion es el invariante 6. Por eso salen aca y entran al caso de uso ya
-     * resueltas, igual que hace CU-32 con el servicio fiscal.
-     *
-     * <p>Si el costo no se pudo cotizar, **se rechaza**. Cobrar cero porque tarifas no
-     * respondio es regalar plata en silencio, y denegar por omision es el invariante 9.
-     */
     @Override
     @Permiso("BILLETERA_OPERAR")
     public ResponseEntity<SalidaRetiro> solicitarRetiro(UUID idempotencyKey, EntradaRetiro cuerpo) {
         Traza.marcarCasoDeUso("CU-11", cuerpo.getCuentaBilleteraId().toString());
-
-        var contexto = sesion.actual();
-        var entrada = preparacionDeRetiro.preparar(idempotencyKey, cuerpo, contexto);
-        var salida = cu11.solicitar(entrada, contexto);
-
-        var respuesta = new SalidaRetiro();
-        respuesta.setOrdenRetiroId(salida.ordenRetiroId());
-        respuesta.setEstado(SalidaRetiro.EstadoEnum.fromValue(salida.estado()));
-        respuesta.setCostoRetiro(MapeoDeBilletera.dinero(salida.costoRetiro()));
-        respuesta.setMontoNeto(MapeoDeBilletera.dinero(salida.montoNeto()));
-        respuesta.setRetencionId(salida.retencionId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+        return fondeo.retirar(idempotencyKey, cuerpo, sesion.actual());
     }
 
     /**
@@ -209,7 +171,8 @@ public class BilleteraController implements BilleteraApi {
     public ResponseEntity<SalidaRetencion> retenerSaldo(UUID idempotencyKey, EntradaRetencion cuerpo) {
         Traza.marcarCasoDeUso("CU-13", cuerpo.getCuentaBilleteraId().toString());
 
-        var salida = cu13.retener(MapeoDeBilletera.entradaDeRetencion(cuerpo), sesion.actual());
+        var salida =
+                cu13.retener(MapeoDeBilletera.entradaDeRetencion(cuerpo), idempotencyKey.toString(), sesion.actual());
 
         var respuesta = new SalidaRetencion();
         respuesta.setRetencionId(salida.retencionId());
@@ -296,5 +259,26 @@ public class BilleteraController implements BilleteraApi {
     public ResponseEntity<SalidaCierreBilletera> solicitarCierreBilletera(UUID idempotencyKey, EntradaCierre cuerpo) {
         Traza.marcarCasoDeUso("CU-16", cuerpo.getCuentaBilleteraId().toString());
         return movimientos.cerrar(cuerpo, sesion.actual());
+    }
+
+    @Override
+    @Permiso("BILLETERA_OPERAR")
+    public ResponseEntity<SalidaQrEmitido> emitirQr(EntradaQr cuerpo) {
+        Traza.marcarCasoDeUso("CU-12", cuerpo.getCuentaBilleteraId().toString());
+        return qr.emitir(cuerpo, sesion.actual());
+    }
+
+    @Override
+    @Permiso("BILLETERA_OPERAR")
+    public ResponseEntity<SalidaQrLeido> leerQr(EntradaLecturaQr cuerpo) {
+        Traza.marcarCasoDeUso("CU-12", "lectura-qr");
+        return qr.leer(cuerpo, sesion.actual());
+    }
+
+    @Override
+    @Permiso("BILLETERA_OPERAR")
+    public ResponseEntity<SalidaPagoQr> pagarQr(UUID idempotencyKey, EntradaPagoQr cuerpo) {
+        Traza.marcarCasoDeUso("CU-12", cuerpo.getCuentaOrigenId().toString());
+        return qr.pagar(idempotencyKey, cuerpo, sesion.actual());
     }
 }

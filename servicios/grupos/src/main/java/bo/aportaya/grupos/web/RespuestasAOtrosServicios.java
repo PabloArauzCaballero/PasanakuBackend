@@ -66,7 +66,7 @@ class RespuestasAOtrosServicios {
         respuesta.setSemillaRevelada(paquete.semillaRevelada());
         respuesta.setEntropias(paquete.entropias());
         respuesta.setMetodo(paquete.metodo());
-        respuesta.setCuposEnOrdenOriginal(MapeoDeGrupos.comoEnteros(paquete.ordenPublicado()));
+        respuesta.setCuposEnOrdenOriginal(MapeoDeGrupos.comoEnteros(paquete.cuposEnOrdenOriginal()));
         respuesta.setOrdenPublicado(MapeoDeGrupos.comoEnteros(paquete.ordenPublicado()));
         return ResponseEntity.ok(respuesta);
     }

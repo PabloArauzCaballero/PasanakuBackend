@@ -1,8 +1,10 @@
 package bo.aportaya.nucleofinanciero.aplicacion;
 
+import bo.aportaya.nucleofinanciero.dominio.HuellaDePeticion;
 import bo.aportaya.nucleofinanciero.dominio.VigenciaDeRetencion;
 import bo.aportaya.nucleofinanciero.dominio.VigenciaDeRetencion.Motivo;
 import bo.aportaya.nucleofinanciero.infraestructura.CuentaBilleteraRepositorio;
+import bo.aportaya.nucleofinanciero.infraestructura.RegistroDeIdempotencia;
 import bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -37,28 +39,96 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CU13RetenerSaldo {
 
+    private static final String OPERACION = "RETENER_SALDO";
+    private static final com.fasterxml.jackson.databind.ObjectMapper JSON =
+            new com.fasterxml.jackson.databind.ObjectMapper();
+
     private final Datos datos;
     private final CuentaBilleteraRepositorio cuentas;
     private final RetencionRepositorio retenciones;
     private final Outbox outbox;
     private final Reloj reloj;
+    private final RegistroDeIdempotencia idempotencia;
 
     public CU13RetenerSaldo(
             Datos datos,
             CuentaBilleteraRepositorio cuentas,
             RetencionRepositorio retenciones,
             Outbox outbox,
-            Reloj reloj) {
+            Reloj reloj,
+            RegistroDeIdempotencia idempotencia) {
         this.datos = datos;
         this.cuentas = cuentas;
         this.retenciones = retenciones;
         this.outbox = outbox;
         this.reloj = reloj;
+        this.idempotencia = idempotencia;
     }
 
     @Transactional
     public SalidaRetencion retener(EntradaRetencion entrada, ContextoSesion ctx) {
-        return datos.conContexto(ctx, dsl -> retenerDentroDe(dsl, entrada, ctx));
+        return datos.conContexto(ctx, dsl -> {
+            exigirTitular(dsl, entrada.cuentaBilleteraId(), ctx);
+            return retenerDentroDe(dsl, entrada, ctx);
+        });
+    }
+
+    /**
+     * La retencion que el cliente puede reintentar: la misma clave con la misma peticion
+     * devuelve la misma retencion sin apartar el saldo otra vez; con otra peticion se rechaza.
+     */
+    @Transactional
+    public SalidaRetencion retener(EntradaRetencion entrada, String clave, ContextoSesion ctx) {
+        var ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
+        return datos.conContexto(ctx, dsl -> {
+            exigirTitular(dsl, entrada.cuentaBilleteraId(), ctx);
+            String huella = HuellaDePeticion.de(
+                    entrada.cuentaBilleteraId(),
+                    entrada.monto(),
+                    entrada.motivo(),
+                    entrada.transaccionOrigenId(),
+                    entrada.referenciaTipo(),
+                    entrada.referenciaId(),
+                    entrada.expiraEn());
+            var previa = idempotencia.buscar(dsl, ctx.usuarioId(), OPERACION, clave, huella);
+            if (previa.isPresent()) {
+                UUID retencionId = retencionDe(previa.get());
+                var retencion = retenciones.ver(dsl, retencionId).orElseThrow();
+                var cuenta = cuentas.ver(dsl, retencion.cuentaId()).orElseThrow();
+                return new SalidaRetencion(
+                        retencionId,
+                        cuenta.disponible(),
+                        cuenta.retenido(),
+                        retencion.expiraEn().orElse(null));
+            }
+            var salida = retenerDentroDe(dsl, entrada, ctx);
+            idempotencia.guardar(
+                    dsl,
+                    ctx.usuarioId(),
+                    OPERACION,
+                    clave,
+                    huella,
+                    201,
+                    "{\"retencionId\":\"" + salida.retencionId() + "\"}",
+                    ahora);
+            return salida;
+        });
+    }
+
+    private static UUID retencionDe(String cuerpoGuardado) {
+        try {
+            return UUID.fromString(
+                    JSON.readTree(cuerpoGuardado).path("retencionId").asText());
+        } catch (java.io.IOException | IllegalArgumentException ilegible) {
+            throw new IllegalStateException("La respuesta guardada de la retencion no se puede leer", ilegible);
+        }
+    }
+
+    private void exigirTitular(DSLContext dsl, UUID cuentaId, ContextoSesion ctx) {
+        var cuenta = cuentas.ver(dsl, cuentaId)
+                .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(13, 1), "Esa billetera no existe."));
+        PoliticaDeTitular.exigir(
+                ctx, cuenta.usuarioId(), CodigoError.de(13, 1), "Esa billetera no es tuya: no podes apartar su saldo.");
     }
 
     /** La version para usar dentro de la transaccion de otra operacion. */
@@ -149,7 +219,13 @@ public class CU13RetenerSaldo {
     }
 
     private SalidaCierre cerrar(UUID retencionId, String estado, String evento, ContextoSesion ctx) {
-        return datos.conContexto(ctx, dsl -> cerrarDentroDe(dsl, retencionId, estado, evento, ctx));
+        return datos.conContexto(ctx, dsl -> {
+            var retencion = retenciones
+                    .ver(dsl, retencionId)
+                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(13, 3), "Esa retencion no existe."));
+            exigirTitular(dsl, retencion.cuentaId(), ctx);
+            return cerrarDentroDe(dsl, retencionId, estado, evento, ctx);
+        });
     }
 
     private SalidaCierre cerrarDentroDe(

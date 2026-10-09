@@ -177,7 +177,7 @@ python3 scripts/generar_ddl.py      # esquema SQL completo desde los .puml + el 
 ./gradlew bd:humo                   # 165 comprobaciones, sobre una base DESECHABLE
 ```
 
-El esquema son **306 tablas en un archivo cada una**, con las claves foráneas y los
+El esquema son **335 tablas en un archivo cada una**, con las claves foráneas y los
 índices en pasadas aparte —el orden que necesita la introspección de tipos— más el
 sellado de las tablas append-only y el catálogo de restricciones. Verificado sobre
 PostgreSQL 16: aplica sin errores **las veces que haga falta** —cada objeto se borra

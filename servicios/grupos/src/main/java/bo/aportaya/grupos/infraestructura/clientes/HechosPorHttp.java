@@ -35,6 +35,7 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     private final ClienteDeServicio garantia;
     private final ClienteDeServicio notificaciones;
     private final RestClient identidad;
+    private final ClienteDeServicio identidadConsultas;
 
     public HechosPorHttp(
             RestClient.Builder constructor,
@@ -54,6 +55,7 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
         this.garantia = new ClienteDeServicio(constructor, urlGarantia, "garantia");
         this.notificaciones = new ClienteDeServicio(constructor, urlNotificaciones, "notificaciones");
         this.identidad = constructor.baseUrl(urlIdentidad).build();
+        this.identidadConsultas = new ClienteDeServicio(constructor, urlIdentidad, "identidad");
     }
 
     @Override
@@ -63,6 +65,16 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
                 .map(Habilitacion::habilitado)
                 .orElse(false);
     }
+
+    @Override
+    public Optional<UUID> organizadorHabilitadoDelUsuario(UUID usuarioId) {
+        return organizadores
+                .consultar("/organizadores/usuarios/" + usuarioId + "/habilitacion", HabilitacionPersonal.class)
+                .filter(h -> h.habilitado() && usuarioId.equals(h.usuarioId()))
+                .map(HabilitacionPersonal::organizadorId);
+    }
+
+    private record HabilitacionPersonal(UUID usuarioId, UUID organizadorId, boolean habilitado) {}
 
     @Override
     public Optional<UUID> tarifarioVigente(String codigo) {
@@ -98,7 +110,7 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     public int morososDelGrupo(UUID grupoId) {
         return aportes.consultar("/aportes/grupos/" + grupoId + "/morosos", Morosos.class)
                 .map(Morosos::morosos)
-                .orElse(Integer.MAX_VALUE);
+                .orElse(SIN_DATO_DE_MOROSOS);
     }
 
     @Override
@@ -129,20 +141,20 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     }
 
     @Override
-    public TokenDeInvitacion tokenDeInvitacion(String canal, String destinoEnmascarado) {
+    public TokenInvitacion tokenDeInvitacion(UUID clave, UUID grupoId, String canal, String telefono) {
         var emitido = identidad
                 .post()
                 .uri("/usuarios/tokens/invitacion")
-                .header("Idempotency-Key", UUID.randomUUID().toString())
+                .header("Idempotency-Key", clave.toString())
                 .headers(ClienteDeServicio::propagarElToken)
-                .body(Map.of("canal", canal, "destinoEnmascarado", destinoEnmascarado))
+                .body(Map.of("canal", canal, "telefonoDestino", telefono, "grupoId", grupoId))
                 .retrieve()
-                .body(Token.class);
-        if (emitido == null || emitido.tokenId() == null || emitido.token() == null) {
+                .body(TokenInvitacion.class);
+        if (emitido == null) {
             // Sin token no hay enlace, y sin enlace no hay invitacion que enviar.
             throw new IllegalStateException("identidad no emitio el token de invitacion");
         }
-        return new TokenDeInvitacion(emitido.tokenId(), emitido.token());
+        return emitido;
     }
 
     @Override
@@ -158,9 +170,51 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
                     .body(Validacion.class);
             return resultado != null && resultado.valido();
         } catch (RuntimeException noSePudoValidar) {
+            // Denegar por omision: sin respuesta de identidad el enlace no vale.
             return false;
         }
     }
+
+    @Override
+    public ConsumoInvitacion consumirInvitacion(UUID tokenId, UUID grupoId, UUID clave, String token) {
+        var consumo = identidad
+                .post()
+                .uri("/usuarios/tokens/invitacion/" + tokenId + "/consumos")
+                .header("Idempotency-Key", clave.toString())
+                .headers(ClienteDeServicio::propagarElToken)
+                .body(Map.of("grupoId", grupoId, "token", token))
+                .retrieve()
+                .body(ConsumoInvitacion.class);
+        if (consumo == null) throw new IllegalStateException("No se confirmó la invitacion");
+        return consumo;
+    }
+
+    @Override
+    public boolean revocarTokenDeInvitacion(UUID tokenId) {
+        try {
+            identidad
+                    .post()
+                    .uri("/usuarios/tokens/invitacion/{id}/revocacion", tokenId)
+                    .headers(ClienteDeServicio::propagarElToken)
+                    .retrieve()
+                    .toBodilessEntity();
+            return true;
+        } catch (org.springframework.web.client.RestClientResponseException
+                | org.springframework.web.client.ResourceAccessException noSePudo) {
+            // 422 (no es suyo / ya consumido), caida o timeout: no se da por revocada.
+            return false;
+        }
+    }
+
+    @Override
+    public String nivelDeKyc(UUID usuarioId) {
+        return identidadConsultas
+                .consultar("/usuarios/" + usuarioId + "/kyc", Kyc.class)
+                .map(Kyc::nivel)
+                .orElse("NINGUNO");
+    }
+
+    private record Kyc(String nivel) {}
 
     @Override
     public Optional<UUID> usuarioDelTelefono(String telefonoE164) {
@@ -175,9 +229,7 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
                     ? Optional.ofNullable(encontrado.usuarioId())
                     : Optional.empty();
         } catch (RuntimeException noSePudo) {
-            // Sin respuesta se asume que no tiene cuenta: invitar de mas es ruido;
-            // no invitar por una consulta caida es perder a alguien que si podia entrar.
-            return Optional.empty();
+            throw new IllegalStateException("No se pudo verificar al destinatario de la invitacion", noSePudo);
         }
     }
 
@@ -204,8 +256,6 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     private record Restringido(boolean vigente, String montoQueLaLevanta) {}
 
     private record Suprimido(boolean suprimido) {}
-
-    private record Token(UUID tokenId, String token) {}
 
     private record Validacion(boolean valido) {}
 }

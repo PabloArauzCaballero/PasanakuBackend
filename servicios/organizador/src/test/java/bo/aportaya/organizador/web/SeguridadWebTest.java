@@ -1,6 +1,8 @@
 package bo.aportaya.organizador.web;
 
+import bo.aportaya.organizador.aplicacion.CU90ConsultarBandeja;
 import bo.aportaya.organizador.aplicacion.CU90PostularOrganizador;
+import bo.aportaya.organizador.aplicacion.CU90ResolverHabilitacion;
 import bo.aportaya.organizador.aplicacion.CU91FirmarContrato;
 import bo.aportaya.organizador.aplicacion.CU92EvaluarDesempeno;
 import bo.aportaya.organizador.aplicacion.CU93SancionarOrganizador;
@@ -37,6 +39,12 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private CU93SancionarOrganizador cu93SancionarOrganizador;
+
+    @MockitoBean
+    private CU90ResolverHabilitacion resolverHabilitacion;
+
+    @MockitoBean
+    private CU90ConsultarBandeja consultarBandeja;
 
     @MockitoBean
     private CU95DefinirAutomatizacion cu95DefinirAutomatizacion;

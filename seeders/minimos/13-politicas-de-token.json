@@ -6,7 +6,10 @@
   "bloques": [
     {
       "tabla": "politica_token",
-      "conflicto": ["proposito", "vigente_desde"],
+      "conflicto": [
+        "proposito",
+        "vigente_desde"
+      ],
       "comentario": "OTP de seis digitos para confirmar el correo durante el alta mediante Gmail API.",
       "filas": [
         {
@@ -167,7 +170,7 @@
           "max_reenvios_por_hora": 2,
           "cooldown_reenvio_segundos": 300,
           "max_emisiones_por_dia": 20,
-          "canales_permitidos": "SMS,WHATSAPP,CORREO",
+          "canales_permitidos": "ENLACE,SMS,WHATSAPP,CORREO",
           "exige_dispositivo_conocido": false,
           "invalida_anteriores": false,
           "vigente_desde": "2026-01-01T00:00:00-04:00"

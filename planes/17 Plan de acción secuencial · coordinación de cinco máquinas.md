@@ -355,7 +355,7 @@ fase 17 cierra su E2E **después** de que 3C fusiona, dentro del mismo tramo.
 | **P4** Dell A | **5B** | **19** | **14 publicidad y campañas** · CU-110–114 *(carril nuevo — defecto 5)* |
 | **P5** Dell B | — | — | Segunda medición GEO · verificación de indexación · corrección de contenido |
 
-**Hito:** al cerrar T9, **los 99 casos de uso están implementados.**
+**Hito:** al cerrar T9, **los 105 casos de uso están implementados.**
 
 ### T10 · Cierre — el backoffice de publicidad
 
@@ -574,7 +574,7 @@ Qué carril ocupa tu atención en cada tramo. Los que no figuran corren en segun
 | Tramo | Primer plano | Por qué ese |
 | :-: | --- | --- |
 | **T0** | P1 · Fase 0 | Los cimientos no se delegan: cada decisión de acá se paga veinte fases |
-| **T1** | P1 · Fases 1 y 2 | `comun/` y la frontera transaccional son la plantilla de los 99 CU |
+| **T1** | P1 · Fases 1 y 2 | `comun/` y la frontera transaccional son la plantilla de los 105 CU |
 | **T2** | P1 · 1A identidad · **y** P3 · F1 sistema de diseño | El primer módulo real y el único carril con decisiones estéticas irreversibles |
 | **T3** | P2 · 2A billetera · **y** P1 · 2C grupos | Billetera es el carril con más fronteras transaccionales del proyecto |
 | **T4** | P1 · F3 móvil · **y** P2 · 3A aportes | La primera pantalla real de producto y el cobro con QR |

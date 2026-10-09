@@ -1,0 +1,99 @@
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Starting a Gradle Daemon, 7 stopped Daemons could not be reused, use --status for details
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :servicios:grupos:spotlessJava
+> Task :servicios:grupos:spotlessJavaApply
+> Task :servicios:grupos:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:grupos:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:grupos:spotlessApply
+> Task :servicios:organizador:spotlessJava UP-TO-DATE
+> Task :servicios:organizador:spotlessJavaApply UP-TO-DATE
+> Task :servicios:organizador:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:organizador:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:organizador:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :servicios:grupos:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:grupos:generateJooq UP-TO-DATE
+> Task :servicios:grupos:compileJava
+> Task :servicios:grupos:processResources UP-TO-DATE
+> Task :servicios:grupos:classes
+
+> Task :servicios:grupos:compileTestJava FAILED
+C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\grupos\src\test\java\bo\aportaya\grupos\CU68Test.java:90: error: constructor CriterioDeEmparejamiento in record CriterioDeEmparejamiento cannot be applied to given types;
+        CriterioDeEmparejamiento criterio = new CriterioDeEmparejamiento(uno(), uno(), uno(), uno(), 0, 2);
+                                            ^
+  required: UUID,BigDecimal,BigDecimal,BigDecimal,BigDecimal,int,int
+  found:    BigDecimal,BigDecimal,BigDecimal,BigDecimal,int,int
+  reason: actual and formal argument lists differ in length
+C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\grupos\src\test\java\bo\aportaya\grupos\CU68Test.java:180: error: constructor CriterioDeEmparejamiento in record CriterioDeEmparejamiento cannot be applied to given types;
+                new CriterioDeEmparejamiento(BigDecimal.ZERO, uno(), BigDecimal.ZERO, BigDecimal.ZERO, 0, 5);
+                ^
+  required: UUID,BigDecimal,BigDecimal,BigDecimal,BigDecimal,int,int
+  found:    BigDecimal,BigDecimal,BigDecimal,BigDecimal,int,int
+  reason: actual and formal argument lists differ in length
+C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\grupos\src\test\java\bo\aportaya\grupos\CU68Test.java:184: error: constructor CriterioDeEmparejamiento in record CriterioDeEmparejamiento cannot be applied to given types;
+        assertThat(new CriterioDeEmparejamiento(
+                   ^
+  required: UUID,BigDecimal,BigDecimal,BigDecimal,BigDecimal,int,int
+  found:    BigDecimal,BigDecimal,BigDecimal,BigDecimal,int,int
+  reason: actual and formal argument lists differ in length
+3 errors
+
+> Task :servicios:organizador:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:organizador:generateJooq UP-TO-DATE
+> Task :servicios:organizador:compileJava
+> Task :servicios:organizador:processResources UP-TO-DATE
+> Task :servicios:organizador:classes
+> Task :servicios:organizador:compileTestJava UP-TO-DATE
+
+[Incubating] Problems report is available at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':servicios:grupos:compileTestJava' (registered by plugin class 'org.gradle.api.plugins.JavaBasePlugin').
+> Compilation failed; see the compiler output below.
+  C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\grupos\src\test\java\bo\aportaya\grupos\CU68Test.java:90: error: constructor CriterioDeEmparejamiento in record CriterioDeEmparejamiento cannot be applied to given types;
+          CriterioDeEmparejamiento criterio = new CriterioDeEmparejamiento(uno(), uno(), uno(), uno(), 0, 2);
+                                              ^
+    required: UUID,BigDecimal,BigDecimal,BigDecimal,BigDecimal,int,int
+    found:    BigDecimal,BigDecimal,BigDecimal,BigDecimal,int,int
+    reason: actual and formal argument lists differ in length
+  C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\grupos\src\test\java\bo\aportaya\grupos\CU68Test.java:180: error: constructor CriterioDeEmparejamiento in record CriterioDeEmparejamiento cannot be applied to given types;
+                  new CriterioDeEmparejamiento(BigDecimal.ZERO, uno(), BigDecimal.ZERO, BigDecimal.ZERO, 0, 5);
+                  ^
+    required: UUID,BigDecimal,BigDecimal,BigDecimal,BigDecimal,int,int
+    found:    BigDecimal,BigDecimal,BigDecimal,BigDecimal,int,int
+    reason: actual and formal argument lists differ in length
+  C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\grupos\src\test\java\bo\aportaya\grupos\CU68Test.java:184: error: constructor CriterioDeEmparejamiento in record CriterioDeEmparejamiento cannot be applied to given types;
+          assertThat(new CriterioDeEmparejamiento(
+                     ^
+    required: UUID,BigDecimal,BigDecimal,BigDecimal,BigDecimal,int,int
+    found:    BigDecimal,BigDecimal,BigDecimal,BigDecimal,int,int
+    reason: actual and formal argument lists differ in length
+  3 errors
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 18s
+34 actionable tasks: 5 executed, 29 up-to-date

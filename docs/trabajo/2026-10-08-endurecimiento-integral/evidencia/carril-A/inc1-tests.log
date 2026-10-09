@@ -1,0 +1,124 @@
+[candado:pesado] esperando 60s...
+[candado:pesado] esperando 120s...
+[candado:pesado] tomado tras 120s
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources NO-SOURCE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:nucleo-financiero:generateJooq UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:processResources UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :servicios:nucleo-financiero:processTestResources UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileJava UP-TO-DATE
+> Task :servicios:nucleo-financiero:classes UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileTestJava UP-TO-DATE
+> Task :servicios:nucleo-financiero:testClasses UP-TO-DATE
+> Task :servicios:nucleo-financiero:test
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (malloc) failed to allocate 1226016 bytes. Error detail: Chunk::new
+# An error report file with more information is saved as:
+# C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\nucleo-financiero\hs_err_pid35148.log
+#
+# Compiler replay data is saved as:
+# C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\nucleo-financiero\replay_pid35148.log
+Unexpected exception thrown.
+org.gradle.internal.remote.internal.MessageIOException: Could not write '/127.0.0.1:63697'.
+	at org.gradle.internal.remote.internal.inet.SocketConnection.flush(SocketConnection.java:142)
+	at org.gradle.internal.remote.internal.hub.MessageHub$ConnectionDispatch.run(MessageHub.java:333)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.base/java.lang.Thread.run(Unknown Source)
+Caused by: java.io.IOException: Connection reset by peer
+	at java.base/sun.nio.ch.SocketDispatcher.write0(Native Method)
+	at java.base/sun.nio.ch.SocketDispatcher.write(Unknown Source)
+	at java.base/sun.nio.ch.IOUtil.writeFromNativeBuffer(Unknown Source)
+	at java.base/sun.nio.ch.IOUtil.write(Unknown Source)
+	at java.base/sun.nio.ch.IOUtil.write(Unknown Source)
+	at java.base/sun.nio.ch.SocketChannelImpl.write(Unknown Source)
+	at org.gradle.internal.remote.internal.inet.SocketConnection$SocketOutputStream.writeWithNonBlockingRetry(SocketConnection.java:282)
+	at org.gradle.internal.remote.internal.inet.SocketConnection$SocketOutputStream.writeBufferToChannel(SocketConnection.java:269)
+	at org.gradle.internal.remote.internal.inet.SocketConnection$SocketOutputStream.flush(SocketConnection.java:263)
+	at org.gradle.internal.remote.internal.inet.SocketConnection.flush(SocketConnection.java:140)
+	... 6 more
+
+> Task :servicios:nucleo-financiero:integrationTest FAILED
+
+Gradle Test Run :servicios:nucleo-financiero:integrationTest FAILED
+    org.gradle.process.ProcessExecutionException: Process 'Gradle Test Executor 42' finished with non-zero exit value 1
+        at org.gradle.process.internal.DefaultExecHandle$ExecResultImpl.assertNormalExitValue(DefaultExecHandle.java:460)
+        at org.gradle.process.internal.worker.DefaultWorkerProcess.waitForStop(DefaultWorkerProcess.java:230)
+        at org.gradle.process.internal.worker.DefaultWorkerProcessBuilder$MemoryRequestingWorkerProcess.waitForStop(DefaultWorkerProcessBuilder.java:298)
+        at org.gradle.api.internal.tasks.testing.worker.ForkingTestDefinitionProcessor.stop(ForkingTestDefinitionProcessor.java:157)
+        at org.gradle.api.internal.tasks.testing.processors.RestartEveryNTestDefinitionProcessor.endBatch(RestartEveryNTestDefinitionProcessor.java:77)
+        at org.gradle.api.internal.tasks.testing.processors.RestartEveryNTestDefinitionProcessor.stop(RestartEveryNTestDefinitionProcessor.java:62)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at org.gradle.internal.dispatch.MethodInvocation.invokeOn(MethodInvocation.java:77)
+        at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:28)
+        at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:19)
+        at org.gradle.internal.dispatch.FailureHandlingDispatch.dispatch(FailureHandlingDispatch.java:30)
+        at org.gradle.internal.dispatch.AsyncDispatch.dispatchMessages(AsyncDispatch.java:88)
+        at org.gradle.internal.dispatch.AsyncDispatch.access$000(AsyncDispatch.java:36)
+        at org.gradle.internal.dispatch.AsyncDispatch$1.run(AsyncDispatch.java:72)
+        at org.gradle.internal.concurrent.InterruptibleRunnable.run(InterruptibleRunnable.java:44)
+        at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:84)
+        at org.gradle.internal.operations.CurrentBuildOperationPreservingRunnable.run(CurrentBuildOperationPreservingRunnable.java:51)
+        at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)
+        at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+        at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+        at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+        at java.base/java.lang.Thread.run(Unknown Source)
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':servicios:nucleo-financiero:integrationTest' (registered by plugin 'aportaya.base').
+> Test process encountered an unexpected problem.
+   > Process 'Gradle Test Executor 42' finished with non-zero exit value 1
+
+* Try:
+> Check common problems https://docs.gradle.org/9.7.1/userguide/java_testing.html#sec:java_testing_troubleshooting.
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 36s
+33 actionable tasks: 2 executed, 31 up-to-date

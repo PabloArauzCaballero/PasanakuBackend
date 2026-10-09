@@ -3,24 +3,24 @@ tags:
   - moc
   - modulo/01-identidad-usuarios-y-seguridad
 modulo: "01 — Identidad, Usuarios y Seguridad"
-entidades: 25
+entidades: 26
 ---
 
 # 01 — Identidad, Usuarios y Seguridad · entidades
 
-Las **25 tablas** de este módulo. Justificación de negocio en [[01_identidad_usuarios]].
+Las **26 tablas** de este módulo. Justificación de negocio en [[01_identidad_usuarios]].
 
 [[_Entidades|← Todas las entidades]] · [[Index]]
 
 | Tabla | Columnas | FK sal. | FK ent. |
 | --- | --: | --: | --: |
-| [[usuario]] | 18 | 0 | 209 |
+| [[usuario]] | 18 | 0 | 216 |
 | [[direccion_usuario]] | 8 | 1 | 0 |
 | [[perfil_financiero]] | 8 | 1 | 0 |
 | [[credencial_acceso]] | 8 | 1 | 0 |
 | [[historial_credencial]] | 4 | 1 | 0 |
 | [[politica_token]] | 12 | 0 | 0 |
-| [[token_verificacion]] | 31 | 4 | 10 |
+| [[token_verificacion]] | 31 | 4 | 11 |
 | [[intento_validacion_token]] | 7 | 1 | 0 |
 | [[factor_mfa]] | 9 | 1 | 0 |
 | [[dispositivo]] | 11 | 1 | 4 |
@@ -30,6 +30,7 @@ Las **25 tablas** de este módulo. Justificación de negocio en [[01_identidad_u
 | [[restriccion_usuario]] | 10 | 2 | 0 |
 | [[documento_identidad]] | 15 | 1 | 1 |
 | [[verificacion_kyc]] | 14 | 3 | 2 |
+| [[alcance_invitacion]] | 10 | 1 | 0 |
 | [[referencia_personal]] | 8 | 1 | 0 |
 | [[rol]] | 5 | 0 | 2 |
 | [[permiso]] | 6 | 0 | 1 |

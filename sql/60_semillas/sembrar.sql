@@ -8,7 +8,7 @@
 -- base lo traiga puesto (ALTER DATABASE) o de que quien lo invoque lo pase por
 -- la conexion, y falla con «relation does not exist» donde no sea asi.
 \set ON_ERROR_STOP on
-SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, grupos, identidad, notificaciones, nucleo_financiero, organizador, publicidad, tarifas, transparencia, catalogo, comun, public;
+SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, grupos, identidad, inversiones, notificaciones, nucleo_financiero, organizador, publicidad, tarifas, transparencia, catalogo, comun, public;
 BEGIN;
 
 \ir 01-plan-de-cuentas.sql

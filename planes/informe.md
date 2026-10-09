@@ -160,7 +160,7 @@ tienen prueba de rechazo.
 | App aprobada en ambas tiendas | T8 | ⬜ |
 | Sitio público en línea, indexado y citable | T8 | ⬜ |
 | **Primera medición GEO en los cuatro motores** | T8 | ⬜ |
-| Los 99 casos de uso implementados | T9 | ⬜ |
+| Los 105 casos de uso implementados | T9 | ⬜ |
 
 ## Sincronización entre olas
 

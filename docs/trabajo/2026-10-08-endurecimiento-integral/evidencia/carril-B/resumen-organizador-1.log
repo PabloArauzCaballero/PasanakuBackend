@@ -1,0 +1,33 @@
+# organizador - resumen de runners (carril B) 2026-10-08T13:00:27-04:00
+== test
+ArquitecturaTest                              tests=5 fallos=0 errores=0 omitidos=0 2026-10-08T16:56:37.175Z
+TOTAL tests=5 fallos=0 errores=0 omitidos=0
+== integrationTest
+ArranqueTest                                  tests=1 fallos=0 errores=0 omitidos=0 2026-10-08T16:56:41.713Z
+CU90RechazosTest                              tests=6 fallos=0 errores=0 omitidos=0 2026-10-08T16:56:54.880Z
+CU90ResolucionTest                            tests=9 fallos=0 errores=0 omitidos=0 2026-10-08T16:56:56.743Z
+CU90RevisionYBandejaTest                      tests=7 fallos=0 errores=0 omitidos=0 2026-10-08T16:56:59.258Z
+CU90Test                                      tests=9 fallos=0 errores=0 omitidos=0 2026-10-08T16:57:01.434Z
+CU91RechazosTest                              tests=6 fallos=0 errores=0 omitidos=0 2026-10-08T16:57:04.189Z
+CU91Test                                      tests=9 fallos=0 errores=0 omitidos=0 2026-10-08T16:57:05.532Z
+CU92RechazosTest                              tests=5 fallos=0 errores=0 omitidos=0 2026-10-08T16:57:07.535Z
+CU92Test                                      tests=9 fallos=0 errores=0 omitidos=0 2026-10-08T16:57:08.453Z
+CU93RechazosTest                              tests=6 fallos=0 errores=0 omitidos=0 2026-10-08T16:57:10.192Z
+CU93Test                                      tests=9 fallos=0 errores=0 omitidos=0 2026-10-08T16:57:11.376Z
+CU95RechazosTest                              tests=5 fallos=0 errores=0 omitidos=0 2026-10-08T16:57:13.205Z
+CU95Test                                      tests=9 fallos=0 errores=0 omitidos=0 2026-10-08T16:57:14.207Z
+CU96RechazosTest                              tests=6 fallos=0 errores=0 omitidos=0 2026-10-08T16:57:15.713Z
+CU96Test                                      tests=9 fallos=0 errores=0 omitidos=0 2026-10-08T16:57:17.092Z
+TOTAL tests=105 fallos=0 errores=0 omitidos=0
+== webTest
+CU-95 · definir y activar una regla es de la plataforma tests=6 fallos=0 errores=0 omitidos=0 2026-10-08T17:00:13.664Z
+CU-96 · las tareas que la regla produce       tests=4 fallos=0 errores=0 omitidos=0 2026-10-08T17:00:13.164Z
+HabilitacionBandejaWebTest                    tests=6 fallos=0 errores=0 omitidos=0 2026-10-08T17:00:08.839Z
+CU-93 · sancionar, apelar y resolver          tests=6 fallos=0 errores=0 omitidos=0 2026-10-08T17:00:13.731Z
+CU-91 · quien emite el contrato no lo firma   tests=2 fallos=0 errores=0 omitidos=0 2026-10-08T17:00:13.803Z
+CU-90 · postularse y ser habilitado son dos actos de dos personas tests=5 fallos=0 errores=0 omitidos=0 2026-10-08T17:00:13.831Z
+SeguridadWebTest                              tests=6 fallos=0 errores=0 omitidos=0 2026-10-08T17:00:13.883Z
+TOTAL tests=35 fallos=0 errores=0 omitidos=0
+== testBarrido
+BarridoTest                                   tests=2 fallos=0 errores=0 omitidos=0 2026-10-08T17:00:15.674Z
+TOTAL tests=2 fallos=0 errores=0 omitidos=0

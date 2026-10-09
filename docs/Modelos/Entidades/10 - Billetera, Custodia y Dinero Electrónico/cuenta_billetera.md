@@ -9,7 +9,7 @@ estereotipo: Raíz de agregado
 clave_primaria: [id]
 columnas: 17
 fk_salientes: 4
-fk_entrantes: 14
+fk_entrantes: 15
 append_only: false
 ---
 
@@ -73,6 +73,7 @@ append_only: false
 | [[movimiento_billetera]] | `cuenta_billetera_id` | 10 | [[movimiento_billetera.cuenta_billetera_id → cuenta_billetera]] |
 | [[orden_recarga]] | `cuenta_billetera_id` | 10 | [[orden_recarga.cuenta_billetera_id → cuenta_billetera]] |
 | [[orden_retiro]] | `cuenta_billetera_id` | 10 | [[orden_retiro.cuenta_billetera_id → cuenta_billetera]] |
+| [[qr_transferencia]] | `cuenta_billetera_id` | 10 | [[qr_transferencia.cuenta_billetera_id → cuenta_billetera]] |
 | [[retencion_saldo]] | `cuenta_billetera_id` | 10 | [[retencion_saldo.cuenta_billetera_id → cuenta_billetera]] |
 | [[saldo_diario_billetera]] | `cuenta_billetera_id` | 10 | [[saldo_diario_billetera.cuenta_billetera_id → cuenta_billetera]] |
 | [[solicitud_cierre_billetera]] | `cuenta_billetera_id` | 10 | [[solicitud_cierre_billetera.cuenta_billetera_id → cuenta_billetera]] |
@@ -81,7 +82,7 @@ append_only: false
 
 ## Entidades vecinas
 
-[[alerta_monitoreo_lft]] · [[bloqueo_saldo]] · [[certificado_saldo]] · [[consumo_limite]] · [[cuenta_contable]] · [[estado_cuenta_billetera]] · [[evaluacion_antifraude]] · [[grupo]] · [[movimiento_billetera]] · [[orden_recarga]] · [[orden_retiro]] · [[politica_billetera]] · [[retencion_saldo]] · [[saldo_diario_billetera]] · [[solicitud_cierre_billetera]] · [[transferencia_p2p]] · [[usuario]]
+[[alerta_monitoreo_lft]] · [[bloqueo_saldo]] · [[certificado_saldo]] · [[consumo_limite]] · [[cuenta_contable]] · [[estado_cuenta_billetera]] · [[evaluacion_antifraude]] · [[grupo]] · [[movimiento_billetera]] · [[orden_recarga]] · [[orden_retiro]] · [[politica_billetera]] · [[qr_transferencia]] · [[retencion_saldo]] · [[saldo_diario_billetera]] · [[solicitud_cierre_billetera]] · [[transferencia_p2p]] · [[usuario]]
 
 ## Notas del modelo
 

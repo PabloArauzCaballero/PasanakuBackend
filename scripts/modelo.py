@@ -29,6 +29,7 @@ MODULOS = {
     "12": ("Cumplimiento Regulatorio y Consumidor Financiero", "12_cumplimiento_asfi"),
     "13": ("Contabilidad Financiera y ERP", "13_contabilidad_erp"),
     "14": ("Publicidad y Campañas", "14_publicidad_campanas"),
+    "15": ("Inversiones voluntarias", "15_inversiones"),
 }
 
 FOCO = {
@@ -46,6 +47,7 @@ FOCO = {
     "12": "Que una inspección se responda con consultas, no armando carpetas",
     "13": "Que cerrar un mes no dependa de un Excel armado a mano",
     "14": "Que un partner se anuncie dentro de la app sin inventar un segundo cobro",
+    "15": "Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo",
 }
 
 # --- esquema de base por servicio (ADR-017) --------------------------------
@@ -66,6 +68,7 @@ ESQUEMA = {
     "12": "cumplimiento",
     "13": "erp",
     "14": "publicidad",
+    "15": "inversiones",
 }
 
 # La UNICA excepcion, y esta enumerada a proposito (ADR-014, ADR-017): el libro
@@ -202,6 +205,7 @@ PREFIJOS = {
     "cumplimiento":      ["/cumplimiento", "/uif", "/reclamos", "/licencia"],
     "erp":               ["/erp"],
     "publicidad":        ["/publicidad", "/campanas", "/anunciantes"],
+    "inversiones":       ["/inversiones"],
 }
 
 # Las UNICAS rutas sin sesion de todo el sistema. Que tengan un solo dueno es lo
@@ -277,6 +281,11 @@ def rol_de(esquema):
 # svc_* dueño para que el relevo del outbox pueda marcar publicado. El payload
 # es inmutable de facto (solo se otorga UPDATE sobre publicado_en/estado/intentos).
 APPEND_ONLY = {
+    "decision_ingreso",
+    "alta_grupo",
+    "decision_habilitacion",
+    "snapshot_sorteo",
+    "sustitucion_administrador",
     # Un indicador corregido entra como fila nueva, con la version de definicion
     # con que se recalculo: pisarlo con UPDATE borraria la serie que CU-98 promete
     # mantener disponible.
@@ -284,9 +293,11 @@ APPEND_ONLY = {
     "evento_reputacion", "registro_sellado", "bitacora_evento",
     "registro_acceso_datos", "movimiento_fondo", "abono_recuperacion",
     "historial_estado_incumplimiento", "registro_incumplimiento",
+    # carril C: el respaldo empresarial se corrige con movimiento inverso, nunca con UPDATE
+    "movimiento_reserva", "recuperacion_respaldo",
     "asiento_contable", "movimiento_contable",
     "transaccion_billetera", "movimiento_billetera", "movimiento_custodia",
-    "saldo_diario_billetera", "devengo_comision",
+    "saldo_diario_billetera", "devengo_comision", "discrepancia_proveedor",
     # H2.S2.M2 (carril PR2): el jti de la evidencia step-up se consume una sola vez
     # (INSERT ... ON CONFLICT DO NOTHING); un UPDATE la convertiria en reusable.
     "evidencia_mfa_consumida",
@@ -298,6 +309,11 @@ APPEND_ONLY = {
     "cierre_periodo_contable",
     # --- M14: publicidad y campañas ---
     "impresion_anuncio", "clic_anuncio", "conversion_anuncio", "factura_publicidad",
+    # --- M15: inversiones voluntarias ---
+    # Lo que la persona acepto, lo que se devengo, lo que se publico y lo que se
+    # documento no se corrige: se agrega una fila nueva (contra-movimiento).
+    "version_condiciones", "consentimiento_inversion", "devengo_dpf", "valor_cuota",
+    "comprobante_inversion", "comision_exito", "conciliacion_interes",
 }
 
 # --- tablas particionadas por rango de fecha -----------------------------

@@ -16,6 +16,11 @@ spring:
         prepareThreshold: 0         # PgBouncer en modo transaccion
   kafka:
     bootstrap-servers: ${KAFKA_URL}
+  jackson:
+    deserialization:
+      # El contrato declara additionalProperties: false. Un campo que no esta en el contrato (por
+      # ejemplo un costo propuesto por el cliente) se rechaza con 400 en vez de ignorarse en silencio.
+      fail-on-unknown-properties: true
 
 aportaya:
   # H2.S1: aportaya.mfa.doble-local vive SOLO en application-{local,test}.yml —
@@ -44,6 +49,11 @@ aportaya:
     # Por encima de este monto, un retiro necesita dos firmas. Es politica de riesgo:
     # el numero se mueve sin desplegar.
     doble-aprobacion-desde: 5000.00
+  qr:
+    # Clave con que se firman los QR internos (>= 32 bytes). Es un secreto del entorno: sin ella
+    # el proceso NO levanta, y no hay valor por omision que alguien pueda adivinar.
+    clave: ${QR_INTERNO_CLAVE}
+    vigencia-del-dinamico: PT15M    # lo que vive un QR dinamico antes de vencer
   custodia:
     # La cuenta espejo de la custodia. Es un identificador del entorno, no del codigo:
     # en cada despliegue es otra fila, y equivocarla mueve dinero al lugar equivocado.

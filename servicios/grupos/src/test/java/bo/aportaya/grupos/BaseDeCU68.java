@@ -210,10 +210,10 @@ abstract class BaseDeCU68 {
         });
     }
 
-    protected String rechazaLaBase(String sql) {
+    protected String rechazaLaBase(String sql, Object... parametros) {
         try {
             transaccion.execute(estado -> {
-                dsl.execute(sql);
+                dsl.execute(sql, parametros);
                 estado.setRollbackOnly();
                 return null;
             });

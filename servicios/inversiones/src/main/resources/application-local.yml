@@ -1,0 +1,7 @@
+# inversiones — perfil local — generado por scripts/nuevo_servicio.py
+# Unicamente lo que varia por entorno. El resto esta en application.yml (comun).
+aportaya:
+  entorno:
+    productivo: false        # Q-04: true fuera de local/test
+  cors:
+    origenes: "http://localhost:5173,http://localhost:3000"  # front local; nunca * (GuardiaDeProduccion lo rechazaria de todos modos si productivo)

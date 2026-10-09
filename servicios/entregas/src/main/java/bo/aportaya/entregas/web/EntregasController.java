@@ -1,13 +1,22 @@
 package bo.aportaya.entregas.web;
 
+import bo.aportaya.entregas.aplicacion.CU22EntregarPozoCompleto;
 import bo.aportaya.entregas.aplicacion.CU22LiquidarEntrega;
 import bo.aportaya.entregas.dominio.LiquidacionDeEntrega;
 import bo.aportaya.entregas.web.generado.EntregasApi;
 import bo.aportaya.entregas.web.generado.modelo.EjecutarEntregaRequest;
+import bo.aportaya.entregas.web.generado.modelo.EntradaFondeoDelPozo;
 import bo.aportaya.entregas.web.generado.modelo.EntradaLiquidacion;
+import bo.aportaya.entregas.web.generado.modelo.EntradaOferta;
+import bo.aportaya.entregas.web.generado.modelo.PaginaDeOfertas;
 import bo.aportaya.entregas.web.generado.modelo.SalidaAutorizacion;
+import bo.aportaya.entregas.web.generado.modelo.SalidaCancelacionDeOferta;
+import bo.aportaya.entregas.web.generado.modelo.SalidaCompra;
 import bo.aportaya.entregas.web.generado.modelo.SalidaEjecucionEntrega;
+import bo.aportaya.entregas.web.generado.modelo.SalidaFondeoDelPozo;
 import bo.aportaya.entregas.web.generado.modelo.SalidaLiquidacion;
+import bo.aportaya.entregas.web.generado.modelo.SalidaOferta;
+import bo.aportaya.plataforma.dominio.ClaveIdempotencia;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
@@ -27,10 +36,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class EntregasController implements EntregasApi {
 
     private final CU22LiquidarEntrega cu22;
+    private final CU22EntregarPozoCompleto pozo;
+    private final MercadoWeb mercado;
     private final SesionDeLaPeticion sesion;
 
-    public EntregasController(CU22LiquidarEntrega cu22, SesionDeLaPeticion sesion) {
+    public EntregasController(
+            CU22LiquidarEntrega cu22, CU22EntregarPozoCompleto pozo, MercadoWeb mercado, SesionDeLaPeticion sesion) {
         this.cu22 = cu22;
+        this.pozo = pozo;
+        this.mercado = mercado;
         this.sesion = sesion;
     }
 
@@ -95,5 +109,64 @@ public class EntregasController implements EntregasApi {
         respuesta.setEstado(SalidaEjecucionEntrega.EstadoEnum.fromValue(salida.estado()));
         respuesta.setMontoEntregado(MapeoDeEntregas.dinero(salida.montoEntregado()));
         return ResponseEntity.ok(respuesta);
+    }
+
+    /** Recibir mesa es recibir el pozo completo: el importe lo afirman aportes y garantia, no el cliente. */
+    @Override
+    @Permiso("ENTREGA_EJECUTAR")
+    public ResponseEntity<SalidaFondeoDelPozo> fondearPozo(UUID idempotencyKey, EntradaFondeoDelPozo cuerpo) {
+        Traza.marcarCasoDeUso("CU-22", cuerpo.getTurnoId().toString());
+
+        var salida = pozo.fondear(
+                new CU22EntregarPozoCompleto.Entrada(
+                        cuerpo.getGrupoId(),
+                        cuerpo.getPeriodoId(),
+                        cuerpo.getTurnoId(),
+                        cuerpo.getCupoId(),
+                        cuerpo.getBeneficiarioId(),
+                        cuerpo.getMetodoDesembolso().getValue(),
+                        cuerpo.getFechaProgramada(),
+                        ClaveIdempotencia.deHecho("fondeo", idempotencyKey).valor()),
+                sesion.actual());
+
+        var c = salida.cifras();
+        var respuesta = new SalidaFondeoDelPozo();
+        respuesta.setEntregaId(salida.entregaId());
+        respuesta.setFondeoId(salida.fondeoId());
+        respuesta.setEstado(SalidaFondeoDelPozo.EstadoEnum.fromValue(salida.estadoDelFondeo()));
+        respuesta.setPozo(MapeoDeEntregas.dinero(c.pozo()));
+        respuesta.setConfirmado(MapeoDeEntregas.dinero(c.confirmado()));
+        respuesta.setCubiertoMutual(MapeoDeEntregas.dinero(c.cubiertoMutual()));
+        respuesta.setCubiertoEmpresa(MapeoDeEntregas.dinero(c.cubiertoEmpresa()));
+        respuesta.setPendiente(MapeoDeEntregas.dinero(c.pendiente()));
+        respuesta.setEsNuevo(salida.esNuevo());
+        return ResponseEntity.status(salida.esNuevo() ? HttpStatus.CREATED : HttpStatus.OK)
+                .body(respuesta);
+    }
+
+    // --- mercado del derecho a cobrar un turno (carril C): el permiso vive aca, la traduccion en MercadoWeb ---
+
+    @Override
+    @Permiso("PARTICIPANTE")
+    public ResponseEntity<SalidaOferta> publicarOferta(UUID idempotencyKey, EntradaOferta cuerpo) {
+        return mercado.publicarOferta(idempotencyKey, cuerpo);
+    }
+
+    @Override
+    @Permiso("PARTICIPANTE")
+    public ResponseEntity<PaginaDeOfertas> listarOfertas(Integer limite, Integer pagina) {
+        return mercado.listarOfertas(limite, pagina);
+    }
+
+    @Override
+    @Permiso("PARTICIPANTE")
+    public ResponseEntity<SalidaCancelacionDeOferta> cancelarOferta(UUID ofertaId) {
+        return mercado.cancelarOferta(ofertaId);
+    }
+
+    @Override
+    @Permiso("PARTICIPANTE")
+    public ResponseEntity<SalidaCompra> comprarOferta(UUID ofertaId, UUID idempotencyKey) {
+        return mercado.comprarOferta(ofertaId, idempotencyKey);
     }
 }

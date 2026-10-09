@@ -8,7 +8,7 @@ modulo: "02 — Grupos, Cupos, Turnos y Gobernanza"
 clave_primaria: [id]
 columnas: 8
 fk_salientes: 2
-fk_entrantes: 6
+fk_entrantes: 7
 append_only: false
 ---
 
@@ -42,6 +42,7 @@ append_only: false
 | --- | --- | :-: | --- |
 | [[entrega_fondo]] | `cupo_id` | ↗ 04 | [[entrega_fondo.cupo_id → cupo]] |
 | [[obligacion_aporte]] | `cupo_id` | ↗ 03 | [[obligacion_aporte.cupo_id → cupo]] |
+| [[oferta_turno]] | `cupo_id` | ↗ 04 | [[oferta_turno.cupo_id → cupo]] |
 | [[reemplazo_participante]] | `cupo_id` | ↗ 08 | [[reemplazo_participante.cupo_id → cupo]] |
 | [[registro_incumplimiento]] | `cupo_id` | ↗ 08 | [[registro_incumplimiento.cupo_id → cupo]] |
 | [[traspaso_cupo]] | `cupo_id` | 02 | [[traspaso_cupo.cupo_id → cupo]] |
@@ -49,7 +50,7 @@ append_only: false
 
 ## Entidades vecinas
 
-[[entrega_fondo]] · [[grupo]] · [[obligacion_aporte]] · [[participante]] · [[reemplazo_participante]] · [[registro_incumplimiento]] · [[traspaso_cupo]] · [[turno]]
+[[entrega_fondo]] · [[grupo]] · [[obligacion_aporte]] · [[oferta_turno]] · [[participante]] · [[reemplazo_participante]] · [[registro_incumplimiento]] · [[traspaso_cupo]] · [[turno]]
 
 ## Notas del modelo
 

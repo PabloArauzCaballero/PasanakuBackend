@@ -136,6 +136,22 @@ Dado un reverso que dejaría el saldo negativo
 Cuando se ejecuta
 Entonces se genera una obligación de restitución
 Y el saldo_disponible no baja de cero
+
+# Reverso de una recarga con cargo
+Dada una recarga acreditada con un cargo cotizado
+Cuando se reversa
+Entonces existe un contra-asiento nuevo que cuadra, el original queda intacto y la orden queda REVERSADA
+Y se avisa el cargo una sola vez citando su cotización
+
+Dada una recarga acreditada sin costo
+Cuando se reversa
+Entonces no hay cargo que avisar
+Y la recarga igual queda REVERSADA
+
+Dada una recarga con cargo cuyo saldo acreditado ya se gastó
+Cuando se reversa
+Entonces el reverso se convierte en obligación de restitución
+Y el cargo no se avisa y la orden sigue ACREDITADA
 ```
 
 ## Ver también

@@ -52,6 +52,10 @@ class GarantiaControllerWebTest {
     @Autowired
     private MockMvc mvc;
 
+    // Las rutas de /garantia/respaldo las traduce RespaldoWeb y tienen su propia prueba.
+    @MockitoBean
+    private RespaldoWeb respaldoWeb;
+
     @MockitoBean
     private CU29DevolverFondo cu29;
 

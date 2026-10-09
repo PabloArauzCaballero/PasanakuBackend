@@ -1,0 +1,116 @@
+[candado:pesado] tomado tras 10s
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-archivos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+
+> Task :servicios:identidad:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+No application/json content media type found in response. Response examples can currently only be generated for application/json media type.
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\identidad\build\generated\openapi
+
+> Task :servicios:identidad:spotlessJava
+> Task :servicios:identidad:spotlessJavaApply
+> Task :servicios:identidad:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:identidad:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:identidad:spotlessApply
+> Task :servicios:identidad:generateJooq UP-TO-DATE
+> Task :servicios:identidad:compileJava
+> Task :servicios:identidad:processResources
+> Task :servicios:identidad:classes
+
+> Task :servicios:identidad:compileTestJava FAILED
+C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\identidad\src\test\java\bo\aportaya\identidad\ConsultarNivelKycTest.java:52: error: reference to assertThat is ambiguous
+        assertThat(tx.execute(s -> consulta.ejecutar(usuario, ctx(usuario, "PARTICIPANTE"))))
+        ^
+  both method assertThat(IntPredicate) in Assertions and method <T>assertThat(Predicate<T>) in Assertions match
+  where T is a type-variable:
+    T extends Object declared in method <T>assertThat(Predicate<T>)
+C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\identidad\src\test\java\bo\aportaya\identidad\ConsultarNivelKycTest.java:52: error: incompatible types: inference variable T has incompatible bounds
+        assertThat(tx.execute(s -> consulta.ejecutar(usuario, ctx(usuario, "PARTICIPANTE"))))
+                             ^
+    upper bounds: IntPredicate,Object
+    lower bounds: String
+  where T is a type-variable:
+    T extends Object declared in method <T>execute(TransactionCallback<T>)
+C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\identidad\src\test\java\bo\aportaya\identidad\CU69EmisionYAuditoriaTest.java:128: error: reference to assertThat is ambiguous
+        assertThat(tx.execute(s -> emitir.ejecutar(entrada(UUID.randomUUID(), UUID.randomUUID(), telefono), ctx(otro))))
+        ^
+  both method assertThat(IntPredicate) in Assertions and method <T>assertThat(Predicate<T>) in Assertions match
+  where T is a type-variable:
+    T extends Object declared in method <T>assertThat(Predicate<T>)
+C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\identidad\src\test\java\bo\aportaya\identidad\CU69EmisionYAuditoriaTest.java:128: error: incompatible types: inference variable T has incompatible bounds
+        assertThat(tx.execute(s -> emitir.ejecutar(entrada(UUID.randomUUID(), UUID.randomUUID(), telefono), ctx(otro))))
+                             ^
+    upper bounds: IntPredicate,Object
+    lower bounds: Emitido
+  where T is a type-variable:
+    T extends Object declared in method <T>execute(TransactionCallback<T>)
+Note: Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+4 errors
+
+[Incubating] Problems report is available at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':servicios:identidad:compileTestJava' (registered by plugin class 'org.gradle.api.plugins.JavaBasePlugin').
+> Compilation failed; see the compiler output below.
+  C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\identidad\src\test\java\bo\aportaya\identidad\ConsultarNivelKycTest.java:52: error: reference to assertThat is ambiguous
+          assertThat(tx.execute(s -> consulta.ejecutar(usuario, ctx(usuario, "PARTICIPANTE"))))
+          ^
+    both method assertThat(IntPredicate) in Assertions and method <T>assertThat(Predicate<T>) in Assertions match
+    where T is a type-variable:
+      T extends Object declared in method <T>assertThat(Predicate<T>)
+  C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\identidad\src\test\java\bo\aportaya\identidad\CU69EmisionYAuditoriaTest.java:128: error: reference to assertThat is ambiguous
+          assertThat(tx.execute(s -> emitir.ejecutar(entrada(UUID.randomUUID(), UUID.randomUUID(), telefono), ctx(otro))))
+          ^
+    both method assertThat(IntPredicate) in Assertions and method <T>assertThat(Predicate<T>) in Assertions match
+    where T is a type-variable:
+      T extends Object declared in method <T>assertThat(Predicate<T>)
+  C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\identidad\src\test\java\bo\aportaya\identidad\ConsultarNivelKycTest.java:52: error: incompatible types: inference variable T has incompatible bounds
+          assertThat(tx.execute(s -> consulta.ejecutar(usuario, ctx(usuario, "PARTICIPANTE"))))
+                               ^
+      upper bounds: IntPredicate,Object
+      lower bounds: String
+    where T is a type-variable:
+      T extends Object declared in method <T>execute(TransactionCallback<T>)
+  C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\identidad\src\test\java\bo\aportaya\identidad\CU69EmisionYAuditoriaTest.java:128: error: incompatible types: inference variable T has incompatible bounds
+          assertThat(tx.execute(s -> emitir.ejecutar(entrada(UUID.randomUUID(), UUID.randomUUID(), telefono), ctx(otro))))
+                               ^
+      upper bounds: IntPredicate,Object
+      lower bounds: Emitido
+    where T is a type-variable:
+      T extends Object declared in method <T>execute(TransactionCallback<T>)
+  Note: Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+  4 errors
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 14s
+26 actionable tasks: 6 executed, 20 up-to-date

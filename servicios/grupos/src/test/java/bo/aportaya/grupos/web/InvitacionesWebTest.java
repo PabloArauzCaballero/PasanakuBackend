@@ -34,6 +34,7 @@ class InvitacionesWebTest {
 
     private final UUID grupoId = UUID.randomUUID();
     private final UUID tokenId = UUID.randomUUID();
+    private final UUID clave = UUID.randomUUID();
     private final UUID usuarioId = UUID.randomUUID();
     private final ContextoSesion ctx = ContextoSesion.de(
             usuarioId, "PARTICIPANTE", new Traza(UUID.randomUUID().toString()));
@@ -54,12 +55,12 @@ class InvitacionesWebTest {
     void soloEntregaElEnlaceCuandoLaInvitacionFueCreada() {
         var cuerpo = new EntradaInvitacion(TELEFONO, EntradaInvitacion.CanalEnum.ENLACE);
         when(afuera.usuarioDelTelefono(TELEFONO)).thenReturn(Optional.empty());
-        when(afuera.tokenDeInvitacion(eq("ENLACE"), any()))
-                .thenReturn(new HechosDeOtrosServicios.TokenDeInvitacion(tokenId, SECRETO));
+        when(afuera.tokenDeInvitacion(eq(clave), eq(grupoId), eq("ENLACE"), eq(TELEFONO)))
+                .thenReturn(new HechosDeOtrosServicios.TokenInvitacion(tokenId, SECRETO, null));
         when(invitar.invitar(any(), eq(ctx)))
                 .thenReturn(new CU69Invitar.Resultado(Optional.of(UUID.randomUUID()), "Lista"));
 
-        var salida = web.invitar(grupoId, cuerpo);
+        var salida = web.invitar(grupoId, clave, cuerpo);
 
         assertThat(salida.getEnlace()).isEqualTo("aportaya://unirse/" + tokenId + "." + SECRETO);
         assertThat(salida.getMensaje()).isEqualTo("Lista");
@@ -72,15 +73,15 @@ class InvitacionesWebTest {
                 .thenReturn(new CU69Invitar.Resultado(Optional.empty(), "Solicitud recibida"));
         when(afuera.contactoSuprimido(TELEFONO, "INVITACION_GRUPO")).thenReturn(true);
 
-        assertThat(web.invitar(grupoId, cuerpo).getEnlace()).isNull();
-        verify(afuera, never()).tokenDeInvitacion(any(), any());
+        assertThat(web.invitar(grupoId, clave, cuerpo).getEnlace()).isNull();
+        verify(afuera, never()).tokenDeInvitacion(any(), any(), any(), any());
 
         when(afuera.contactoSuprimido(TELEFONO, "INVITACION_GRUPO")).thenReturn(false);
         when(afuera.usuarioDelTelefono(TELEFONO)).thenReturn(Optional.of(usuarioId));
         when(consultas.yaEsParticipante(grupoId, usuarioId, ctx)).thenReturn(true);
 
-        assertThat(web.invitar(grupoId, cuerpo).getEnlace()).isNull();
-        verify(afuera, never()).tokenDeInvitacion(any(), any());
+        assertThat(web.invitar(grupoId, clave, cuerpo).getEnlace()).isNull();
+        verify(afuera, never()).tokenDeInvitacion(any(), any(), any(), any());
     }
 
     @Test

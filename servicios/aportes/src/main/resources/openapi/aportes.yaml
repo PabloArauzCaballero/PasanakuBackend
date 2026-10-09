@@ -39,6 +39,9 @@
 #   invalida, sin distinguir el motivo) o 200 con `estado` PROCESADO/DUPLICADO/
 #   DESCARTADO. Ver docs/auditoria-produccion/idempotencia-scope.md y
 #   docs/auditoria-produccion/carriles/PR4-seguridad.md §H1.S2.
+#
+# CU-21 (recaudo del pozo) · Cuanto del pozo del periodo es caja confirmada (carril C, H8)
+#   AP-CU21-05  RECAUDO_INCONSISTENTE · el periodo no tiene obligaciones, o mezcla monedas
 openapi: 3.1.0
 info:
   title: aportes
@@ -291,6 +294,29 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Morosos' }
 
+  /aportes/periodos/{periodoId}/recaudo:
+    get:
+      operationId: consultarRecaudoDelPeriodo
+      summary: Cuanto del pozo del periodo es caja confirmada y cuanto falta
+      description: >-
+        Pozo 6.000 y 5.000 confirmados dejan un faltante de 1.000. Un aporte pendiente
+        NO es caja: solo cuenta lo que se acredito tras la confirmacion del proveedor.
+        La consulta que `entregas` necesita para pedir el respaldo empresarial sin leer
+        este esquema (invariante 11) y sin que el cliente afirme cuanto se recaudo.
+        El corte es el instante de la respuesta.
+      parameters:
+        - name: periodoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: El recaudo, con las obligaciones que faltan
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RecaudoDelPeriodo' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
 components:
   parameters:
     ClaveIdempotencia:
@@ -302,6 +328,32 @@ components:
         seguro, y la clave se valida ANTES de escribir (invariante 7).
       schema: { type: string, format: uuid }
   schemas:
+    ObligacionPendiente:
+      type: object
+      additionalProperties: false
+      required: [obligacionId, monto]
+      properties:
+        obligacionId: { type: string, format: uuid }
+        monto:        { $ref: '#/components/schemas/Dinero' }
+    RecaudoDelPeriodo:
+      type: object
+      additionalProperties: false
+      required: [periodoId, grupoId, corteEn, pozo, confirmado, cubiertoMutual, faltante, pendientes]
+      properties:
+        periodoId:      { type: string, format: uuid }
+        grupoId:
+          type: string
+          format: uuid
+          description: el grupo al que pertenece el periodo; permite a quien consulta verificar que el pedido no mezcla grupos
+        corteEn:        { type: string, format: date-time }
+        pozo:           { $ref: '#/components/schemas/Dinero' }
+        confirmado:     { $ref: '#/components/schemas/Dinero' }
+        cubiertoMutual: { $ref: '#/components/schemas/Dinero' }
+        faltante:       { $ref: '#/components/schemas/Dinero' }
+        pendientes:
+          type: array
+          maxItems: 500
+          items: { $ref: '#/components/schemas/ObligacionPendiente' }
     EstadoDelParticipante:
       type: object
       additionalProperties: false

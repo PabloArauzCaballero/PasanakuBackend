@@ -1,0 +1,22 @@
+[candado:pesado] tomado tras 10s
+> Task :servicios:identidad:spotlessJava
+> Task :servicios:identidad:spotlessJavaApply
+> Task :servicios:identidad:spotlessApply
+
+> Task :plataforma:comun-web:erroresCatalogo
+catalogo de errores: 234 restricciones -> 131 reglas · errores-restricciones.properties
+mensajes de regla: 156 · errores-reglas.properties
+  AVISO: 4 reglas con restriccion y sin fila en la boveda: R-BIL-21, R-BIL-22, R-GRP-17, R-UIF-13
+
+> Task :plataforma:comun-web:processResources
+> Task :plataforma:comun-web:classes
+> Task :plataforma:comun-web:jar
+> Task :servicios:identidad:compileTestJava
+> Task :servicios:identidad:testClasses
+> Task :servicios:identidad:integrationTest
+> Task :servicios:identidad:webTest
+> Task :servicios:identidad:testBarrido
+
+BUILD SUCCESSFUL in 1m 6s
+42 actionable tasks: 9 executed, 33 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html

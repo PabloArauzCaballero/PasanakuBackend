@@ -105,7 +105,8 @@ class CU14Test extends BaseDeBilletera {
         transaccion.execute(x -> transferenciaCU.ejecutar(
                 new EntradaTransferencia(
                         "gasto", m.destino(), m.origen(), bob("400.00"), "gasto", Optional.empty(), Optional.empty()),
-                contextoDe(fixtura.usuario())));
+                // Gasta su titular. Antes lo hacia un tercero cualquiera, y la transferencia lo aceptaba.
+                contextoDe(fixtura.titular(m.destino()))));
         UUID autoriza = fixtura.usuario();
 
         SalidaReverso salida = transaccion.execute(x -> reversoCU.ejecutar(

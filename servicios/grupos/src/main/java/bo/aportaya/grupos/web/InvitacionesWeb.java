@@ -46,8 +46,13 @@ public class InvitacionesWeb {
         this.topeDeReenvios = topeDeReenvios;
     }
 
-    public SalidaInvitacion invitar(UUID grupoId, EntradaInvitacion cuerpo) {
+    /**
+     * Resuelve identidad fuera de la transaccion y emite el enlace con la clave del cliente: reintentar
+     * recupera el mismo enlace. Si la invitacion no llega a existir, el enlace emitido se revoca.
+     */
+    public SalidaInvitacion invitar(UUID grupoId, UUID clave, EntradaInvitacion cuerpo) {
         var ctx = sesion.actual();
+        cu69.comprobarEmisor(grupoId, ctx);
         String telefono = cuerpo.getTelefonoInvitado();
         boolean suprimido = afuera.contactoSuprimido(telefono, "INVITACION_GRUPO");
         boolean yaEsta = afuera.usuarioDelTelefono(telefono)
@@ -55,22 +60,35 @@ public class InvitacionesWeb {
                 .orElse(false);
         var token = suprimido || yaEsta
                 ? null
-                : afuera.tokenDeInvitacion(cuerpo.getCanal().getValue(), MapeoDeGrupos.enmascarar(telefono));
-        var salida = cu69.invitar(
-                new CU69Invitar.EntradaInvitacion(
-                        grupoId,
-                        telefono,
-                        cuerpo.getNombreSugerido(),
-                        cuerpo.getCanal().getValue(),
-                        suprimido,
-                        yaEsta,
-                        topeDeReenvios,
-                        token == null ? null : token.tokenId()),
-                ctx);
+                : afuera.tokenDeInvitacion(clave, grupoId, cuerpo.getCanal().getValue(), telefono);
+        CU69Invitar.Resultado salida;
+        try {
+            salida = cu69.invitar(
+                    new CU69Invitar.EntradaInvitacion(
+                            grupoId,
+                            telefono,
+                            cuerpo.getNombreSugerido(),
+                            cuerpo.getCanal().getValue(),
+                            suprimido,
+                            yaEsta,
+                            topeDeReenvios,
+                            token == null ? null : token.tokenId(),
+                            token == null ? null : token.expiraEn()),
+                    ctx);
+        } catch (ErrorDeNegocio rechazada) {
+            // Un enlace emitido que no llego a ser invitacion no debe quedar vivo sin dueno.
+            // El 69-06 es otra invitacion con esa clave: ese enlace SI tiene dueno.
+            if (token != null && !"AP-CU69-06".equals(rechazada.codigo().valor())) {
+                afuera.revocarTokenDeInvitacion(token.tokenId());
+            }
+            throw rechazada;
+        }
         var respuesta = new SalidaInvitacion();
         salida.invitacionId().ifPresent(respuesta::setInvitacionId);
         respuesta.setMensaje(salida.mensaje());
         if (salida.invitacionId().isPresent() && token != null) {
+            respuesta.setToken(token.token());
+            respuesta.setExpiraEn(token.expiraEn());
             respuesta.setEnlace("aportaya://unirse/" + token.tokenId() + "." + token.token());
         }
         return respuesta;

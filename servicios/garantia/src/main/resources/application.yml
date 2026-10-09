@@ -24,6 +24,9 @@ aportaya:
   jwt:
     jwks-uri: ${JWKS_URI}           # ADR-024: cada servicio valida la firma el mismo
   zona-horaria: America/La_Paz      # plazos habiles
+  servicios:
+    # A quien se le pregunta (invariante 11): el recaudo del pozo lo afirma aportes, no el cliente.
+    aportes: ${URL_APORTES:http://aportes:8080}
   incumplimiento:
     # Lo que tiene el participante para presentar su descargo antes de que la
     # declaracion quede firme. Es debido proceso, no un parametro tecnico.

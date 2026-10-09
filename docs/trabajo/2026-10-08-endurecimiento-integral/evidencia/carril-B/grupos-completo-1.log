@@ -1,0 +1,232 @@
+[candado:pesado] esperando 60s...
+[candado:pesado] tomado tras 65s
+> Task :servicios:grupos:spotlessJava
+> Task :servicios:grupos:spotlessJavaApply
+> Task :servicios:grupos:spotlessApply
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (malloc) failed to allocate 1430896 bytes. Error detail: Chunk::new
+# An error report file with more information is saved as:
+# C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\grupos\hs_err_pid33904.log
+#
+# Compiler replay data is saved as:
+# C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\grupos\replay_pid33904.log
+Unexpected exception thrown.
+org.gradle.internal.remote.internal.MessageIOException: Could not write '/127.0.0.1:49709'.
+	at org.gradle.internal.remote.internal.inet.SocketConnection.flush(SocketConnection.java:142)
+	at org.gradle.internal.remote.internal.hub.MessageHub$ConnectionDispatch.run(MessageHub.java:333)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.base/java.lang.Thread.run(Unknown Source)
+Caused by: java.io.IOException: Connection reset by peer
+	at java.base/sun.nio.ch.SocketDispatcher.write0(Native Method)
+	at java.base/sun.nio.ch.SocketDispatcher.write(Unknown Source)
+	at java.base/sun.nio.ch.IOUtil.writeFromNativeBuffer(Unknown Source)
+	at java.base/sun.nio.ch.IOUtil.write(Unknown Source)
+	at java.base/sun.nio.ch.IOUtil.write(Unknown Source)
+	at java.base/sun.nio.ch.SocketChannelImpl.write(Unknown Source)
+	at org.gradle.internal.remote.internal.inet.SocketConnection$SocketOutputStream.writeWithNonBlockingRetry(SocketConnection.java:282)
+	at org.gradle.internal.remote.internal.inet.SocketConnection$SocketOutputStream.writeBufferToChannel(SocketConnection.java:269)
+	at org.gradle.internal.remote.internal.inet.SocketConnection$SocketOutputStream.flush(SocketConnection.java:263)
+	at org.gradle.internal.remote.internal.inet.SocketConnection.flush(SocketConnection.java:140)
+	... 6 more
+
+> Task :servicios:grupos:test FAILED
+
+Gradle Test Run :servicios:grupos:test FAILED
+    org.gradle.process.ProcessExecutionException: Process 'Gradle Test Executor 43' finished with non-zero exit value 1
+        at org.gradle.process.internal.DefaultExecHandle$ExecResultImpl.assertNormalExitValue(DefaultExecHandle.java:460)
+        at org.gradle.process.internal.worker.DefaultWorkerProcess.waitForStop(DefaultWorkerProcess.java:230)
+        at org.gradle.process.internal.worker.DefaultWorkerProcessBuilder$MemoryRequestingWorkerProcess.waitForStop(DefaultWorkerProcessBuilder.java:298)
+        at org.gradle.api.internal.tasks.testing.worker.ForkingTestDefinitionProcessor.stop(ForkingTestDefinitionProcessor.java:157)
+        at org.gradle.api.internal.tasks.testing.processors.RestartEveryNTestDefinitionProcessor.endBatch(RestartEveryNTestDefinitionProcessor.java:77)
+        at org.gradle.api.internal.tasks.testing.processors.RestartEveryNTestDefinitionProcessor.stop(RestartEveryNTestDefinitionProcessor.java:62)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at org.gradle.internal.dispatch.MethodInvocation.invokeOn(MethodInvocation.java:77)
+        at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:28)
+        at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:19)
+        at org.gradle.internal.dispatch.FailureHandlingDispatch.dispatch(FailureHandlingDispatch.java:30)
+        at org.gradle.internal.dispatch.AsyncDispatch.dispatchMessages(AsyncDispatch.java:88)
+        at org.gradle.internal.dispatch.AsyncDispatch.access$000(AsyncDispatch.java:36)
+        at org.gradle.internal.dispatch.AsyncDispatch$1.run(AsyncDispatch.java:72)
+        at org.gradle.internal.concurrent.InterruptibleRunnable.run(InterruptibleRunnable.java:44)
+        at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:84)
+        at org.gradle.internal.operations.CurrentBuildOperationPreservingRunnable.run(CurrentBuildOperationPreservingRunnable.java:51)
+        at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)
+        at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+        at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+        at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+        at java.base/java.lang.Thread.run(Unknown Source)
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (malloc) failed to allocate 1203136 bytes. Error detail: Chunk::new
+# An error report file with more information is saved as:
+# C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\grupos\hs_err_pid35188.log
+#
+# Compiler replay data is saved as:
+# C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\grupos\replay_pid35188.log
+Unexpected exception thrown.
+org.gradle.internal.remote.internal.MessageIOException: Could not write '/127.0.0.1:49797'.
+	at org.gradle.internal.remote.internal.inet.SocketConnection.flush(SocketConnection.java:142)
+	at org.gradle.internal.remote.internal.hub.MessageHub$ConnectionDispatch.run(MessageHub.java:333)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.base/java.lang.Thread.run(Unknown Source)
+Caused by: java.io.IOException: Connection reset by peer
+	at java.base/sun.nio.ch.SocketDispatcher.write0(Native Method)
+	at java.base/sun.nio.ch.SocketDispatcher.write(Unknown Source)
+	at java.base/sun.nio.ch.IOUtil.writeFromNativeBuffer(Unknown Source)
+	at java.base/sun.nio.ch.IOUtil.write(Unknown Source)
+	at java.base/sun.nio.ch.IOUtil.write(Unknown Source)
+	at java.base/sun.nio.ch.SocketChannelImpl.write(Unknown Source)
+	at org.gradle.internal.remote.internal.inet.SocketConnection$SocketOutputStream.writeWithNonBlockingRetry(SocketConnection.java:282)
+	at org.gradle.internal.remote.internal.inet.SocketConnection$SocketOutputStream.writeBufferToChannel(SocketConnection.java:269)
+	at org.gradle.internal.remote.internal.inet.SocketConnection$SocketOutputStream.flush(SocketConnection.java:263)
+	at org.gradle.internal.remote.internal.inet.SocketConnection.flush(SocketConnection.java:140)
+	... 6 more
+
+> Task :servicios:grupos:integrationTest
+
+Gradle Test Run :servicios:grupos:integrationTest FAILED
+    org.gradle.process.ProcessExecutionException: Process 'Gradle Test Executor 44' finished with non-zero exit value 1
+        at org.gradle.process.internal.DefaultExecHandle$ExecResultImpl.assertNormalExitValue(DefaultExecHandle.java:460)
+        at org.gradle.process.internal.worker.DefaultWorkerProcess.waitForStop(DefaultWorkerProcess.java:230)
+        at org.gradle.process.internal.worker.DefaultWorkerProcessBuilder$MemoryRequestingWorkerProcess.waitForStop(DefaultWorkerProcessBuilder.java:298)
+        at org.gradle.api.internal.tasks.testing.worker.ForkingTestDefinitionProcessor.stop(ForkingTestDefinitionProcessor.java:157)
+        at org.gradle.api.internal.tasks.testing.processors.RestartEveryNTestDefinitionProcessor.endBatch(RestartEveryNTestDefinitionProcessor.java:77)
+        at org.gradle.api.internal.tasks.testing.processors.RestartEveryNTestDefinitionProcessor.stop(RestartEveryNTestDefinitionProcessor.java:62)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at org.gradle.internal.dispatch.MethodInvocation.invokeOn(MethodInvocation.java:77)
+        at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:28)
+        at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:19)
+        at org.gradle.internal.dispatch.FailureHandlingDispatch.dispatch(FailureHandlingDispatch.java:30)
+        at org.gradle.internal.dispatch.AsyncDispatch.dispatchMessages(AsyncDispatch.java:88)
+        at org.gradle.internal.dispatch.AsyncDispatch.access$000(AsyncDispatch.java:36)
+        at org.gradle.internal.dispatch.AsyncDispatch$1.run(AsyncDispatch.java:72)
+        at org.gradle.internal.concurrent.InterruptibleRunnable.run(InterruptibleRunnable.java:44)
+        at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:84)
+        at org.gradle.internal.operations.CurrentBuildOperationPreservingRunnable.run(CurrentBuildOperationPreservingRunnable.java:51)
+        at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)
+        at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+        at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+        at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+        at java.base/java.lang.Thread.run(Unknown Source)
+
+> Task :servicios:grupos:integrationTest FAILED
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (malloc) failed to allocate 1148976 bytes. Error detail: Chunk::new
+# An error report file with more information is saved as:
+# C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\grupos\hs_err_pid42404.log
+[thread 21704 also had an error]
+#
+# Compiler replay data is saved as:
+# C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\grupos\replay_pid42404.log
+Unexpected exception thrown.
+org.gradle.internal.remote.internal.MessageIOException: Could not write '/127.0.0.1:60876'.
+	at org.gradle.internal.remote.internal.inet.SocketConnection.flush(SocketConnection.java:142)
+	at org.gradle.internal.remote.internal.hub.MessageHub$ConnectionDispatch.run(MessageHub.java:333)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.base/java.lang.Thread.run(Unknown Source)
+Caused by: java.io.IOException: Connection reset by peer
+	at java.base/sun.nio.ch.SocketDispatcher.write0(Native Method)
+	at java.base/sun.nio.ch.SocketDispatcher.write(Unknown Source)
+	at java.base/sun.nio.ch.IOUtil.writeFromNativeBuffer(Unknown Source)
+	at java.base/sun.nio.ch.IOUtil.write(Unknown Source)
+	at java.base/sun.nio.ch.IOUtil.write(Unknown Source)
+	at java.base/sun.nio.ch.SocketChannelImpl.write(Unknown Source)
+	at org.gradle.internal.remote.internal.inet.SocketConnection$SocketOutputStream.writeWithNonBlockingRetry(SocketConnection.java:282)
+	at org.gradle.internal.remote.internal.inet.SocketConnection$SocketOutputStream.writeBufferToChannel(SocketConnection.java:269)
+	at org.gradle.internal.remote.internal.inet.SocketConnection$SocketOutputStream.flush(SocketConnection.java:263)
+	at org.gradle.internal.remote.internal.inet.SocketConnection.flush(SocketConnection.java:140)
+	... 6 more
+
+> Task :servicios:grupos:webTest
+
+Gradle Test Run :servicios:grupos:webTest FAILED
+    org.gradle.process.ProcessExecutionException: Process 'Gradle Test Executor 45' finished with non-zero exit value 1
+        at org.gradle.process.internal.DefaultExecHandle$ExecResultImpl.assertNormalExitValue(DefaultExecHandle.java:460)
+        at org.gradle.process.internal.worker.DefaultWorkerProcess.waitForStop(DefaultWorkerProcess.java:230)
+        at org.gradle.process.internal.worker.DefaultWorkerProcessBuilder$MemoryRequestingWorkerProcess.waitForStop(DefaultWorkerProcessBuilder.java:298)
+        at org.gradle.api.internal.tasks.testing.worker.ForkingTestDefinitionProcessor.stop(ForkingTestDefinitionProcessor.java:157)
+        at org.gradle.api.internal.tasks.testing.processors.RestartEveryNTestDefinitionProcessor.endBatch(RestartEveryNTestDefinitionProcessor.java:77)
+        at org.gradle.api.internal.tasks.testing.processors.RestartEveryNTestDefinitionProcessor.stop(RestartEveryNTestDefinitionProcessor.java:62)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at org.gradle.internal.dispatch.MethodInvocation.invokeOn(MethodInvocation.java:77)
+        at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:28)
+        at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:19)
+        at org.gradle.internal.dispatch.FailureHandlingDispatch.dispatch(FailureHandlingDispatch.java:30)
+        at org.gradle.internal.dispatch.AsyncDispatch.dispatchMessages(AsyncDispatch.java:88)
+        at org.gradle.internal.dispatch.AsyncDispatch.access$000(AsyncDispatch.java:36)
+        at org.gradle.internal.dispatch.AsyncDispatch$1.run(AsyncDispatch.java:72)
+        at org.gradle.internal.concurrent.InterruptibleRunnable.run(InterruptibleRunnable.java:44)
+        at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:84)
+        at org.gradle.internal.operations.CurrentBuildOperationPreservingRunnable.run(CurrentBuildOperationPreservingRunnable.java:51)
+        at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)
+        at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+        at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+        at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+        at java.base/java.lang.Thread.run(Unknown Source)
+
+> Task :servicios:grupos:webTest FAILED
+> Task :servicios:grupos:testBarrido
+
+FAILURE: Build completed with 3 failures.
+
+1: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:grupos:test' (registered by plugin 'org.gradle.jvm-test-suite').
+> Test process encountered an unexpected problem.
+   > Process 'Gradle Test Executor 43' finished with non-zero exit value 1
+
+* Try:
+> Check common problems https://docs.gradle.org/9.7.1/userguide/java_testing.html#sec:java_testing_troubleshooting.
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+2: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:grupos:integrationTest' (registered by plugin 'aportaya.base').
+> Test process encountered an unexpected problem.
+   > Process 'Gradle Test Executor 44' finished with non-zero exit value 1
+
+* Try:
+> Check common problems https://docs.gradle.org/9.7.1/userguide/java_testing.html#sec:java_testing_troubleshooting.
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+3: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:grupos:webTest' (registered by plugin 'aportaya.base').
+> Test process encountered an unexpected problem.
+   > Process 'Gradle Test Executor 45' finished with non-zero exit value 1
+
+* Try:
+> Check common problems https://docs.gradle.org/9.7.1/userguide/java_testing.html#sec:java_testing_troubleshooting.
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+BUILD FAILED in 1m 2s
+40 actionable tasks: 6 executed, 34 up-to-date

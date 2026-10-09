@@ -8,7 +8,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import bo.aportaya.organizador.aplicacion.CU90ConsultarBandeja;
 import bo.aportaya.organizador.aplicacion.CU90PostularOrganizador;
+import bo.aportaya.organizador.aplicacion.CU90ResolverHabilitacion;
 import bo.aportaya.organizador.aplicacion.CU91FirmarContrato;
 import bo.aportaya.organizador.aplicacion.CU92EvaluarDesempeno;
 import bo.aportaya.organizador.aplicacion.CU93SancionarOrganizador;
@@ -80,6 +82,12 @@ class OrganizadoresControllerWebTest {
 
     @MockitoBean
     private CU93SancionarOrganizador cu93;
+
+    @MockitoBean
+    private CU90ResolverHabilitacion resolverHabilitacion;
+
+    @MockitoBean
+    private CU90ConsultarBandeja consultarBandeja;
 
     @Nested
     @DisplayName("CU-90 · postularse y ser habilitado son dos actos de dos personas")

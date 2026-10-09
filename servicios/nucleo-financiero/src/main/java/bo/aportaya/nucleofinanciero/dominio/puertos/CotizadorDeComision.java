@@ -1,6 +1,7 @@
 package bo.aportaya.nucleofinanciero.dominio.puertos;
 
 import bo.aportaya.plataforma.dominio.Dinero;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,4 +20,29 @@ import java.util.UUID;
 public interface CotizadorDeComision {
 
     Optional<Dinero> costoDe(String hechoGenerador, UUID referenciaId, Dinero montoBase, String claveIdempotencia);
+
+    /**
+     * La cotizacion completa —base, comision, impuesto, total y hasta cuando vale—, para
+     * mostrarsela a la persona <b>antes</b> de operar. Con la misma clave devuelve la misma
+     * cotizacion. Vacio significa que no se pudo saber; una operacion gratuita responde con
+     * {@link Cotizacion#gratuita()} y sin identificador.
+     */
+    default Optional<Cotizacion> cotizar(
+            String hechoGenerador, UUID referenciaId, Dinero montoBase, String claveIdempotencia) {
+        return Optional.empty();
+    }
+
+    /** Deja constancia de que la persona acepto exactamente ese precio; false si no se pudo. */
+    default boolean aceptar(UUID cotizacionId) {
+        return false;
+    }
+
+    record Cotizacion(
+            Optional<UUID> id,
+            Dinero base,
+            Dinero comision,
+            Dinero impuesto,
+            Dinero total,
+            Optional<OffsetDateTime> validaHasta,
+            boolean gratuita) {}
 }

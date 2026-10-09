@@ -7,7 +7,7 @@ clase: OrdenRetiro
 modulo: "10 — Billetera, Custodia y Dinero Electrónico"
 estereotipo: Raíz de agregado
 clave_primaria: [id]
-columnas: 20
+columnas: 21
 fk_salientes: 7
 fk_entrantes: 1
 append_only: false
@@ -37,6 +37,7 @@ append_only: false
 | `mfa_verificado` | BOOLEAN | — | no | — |
 | `requiere_doble_aprobacion` | BOOLEAN | — | no | — |
 | `ventana_enfriamiento_hasta` | TIMESTAMPTZ | — | sí | NULL |
+| `cotizacion_id` | UUID | — | sí | NULL, polimorfica |
 | `referencia_proveedor` | VARCHAR(80) | UQ | sí | UQ, NULL |
 | `clave_idempotencia` | VARCHAR(100) | — | no | — |
 | `solicitada_en` | TIMESTAMPTZ | — | no | — |

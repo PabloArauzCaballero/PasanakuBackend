@@ -64,16 +64,16 @@ class CU10ConcurrenciaTest extends BaseDeBilletera {
         // de bloqueo de `fn_bil_recalcular_saldos` se corrigio igual, por ser el correcto
         // para lo que esa funcion escribe, no porque esta prueba lo exija.
         UUID cuenta = billeteraConLimite();
-        ContextoSesion ctx = contextoDe(fixtura.usuario());
+        ContextoSesion ctx = contextoDe(fixtura.titular(cuenta));
         SalidaSolicitud una = solicitar(cuenta, "300.00", "rec-par-1", ctx);
         SalidaSolicitud otra = solicitar(cuenta, "450.00", "rec-par-2", ctx);
 
         ExecutorService pool = Executors.newFixedThreadPool(2);
         try {
-            Future<?> primera =
-                    pool.submit(() -> transaccion.execute(e -> recargaCU.acreditar(una.ordenRecargaId(), ctx)));
-            Future<?> segunda =
-                    pool.submit(() -> transaccion.execute(e -> recargaCU.acreditar(otra.ordenRecargaId(), ctx)));
+            Future<?> primera = pool.submit(() -> transaccion.execute(e -> recargaCU.acreditar(
+                    una.ordenRecargaId(), ConfirmacionesDePrueba.para(dsl, una.ordenRecargaId()), ctx)));
+            Future<?> segunda = pool.submit(() -> transaccion.execute(e -> recargaCU.acreditar(
+                    otra.ordenRecargaId(), ConfirmacionesDePrueba.para(dsl, otra.ordenRecargaId()), ctx)));
             primera.get();
             segunda.get();
         } finally {

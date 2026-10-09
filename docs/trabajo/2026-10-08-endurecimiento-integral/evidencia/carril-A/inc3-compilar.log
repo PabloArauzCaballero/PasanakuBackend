@@ -1,0 +1,38 @@
+[candado:pesado] esperando 60s...
+[candado:pesado] tomado tras 70s
+Picked up JAVA_TOOL_OPTIONS: -Xms32m -Xmx1g
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :servicios:nucleo-financiero:generarServidorOpenApi UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessJava
+> Task :servicios:nucleo-financiero:spotlessJavaApply
+> Task :servicios:nucleo-financiero:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessApply
+> Task :servicios:nucleo-financiero:generateJooq UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileJava
+> Task :servicios:nucleo-financiero:processResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:classes
+> Task :servicios:nucleo-financiero:compileTestJava
+
+BUILD SUCCESSFUL in 8s
+25 actionable tasks: 4 executed, 21 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html

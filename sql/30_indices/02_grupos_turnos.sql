@@ -7,6 +7,15 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_grupo_codigo_publico
 CREATE INDEX IF NOT EXISTS ix_grupo_estado
   ON grupos.grupo (estado);
 
+CREATE UNIQUE INDEX IF NOT EXISTS uq_alta_grupo_grupo_id
+  ON grupos.alta_grupo (grupo_id);
+
+CREATE INDEX IF NOT EXISTS ix_alta_grupo_creador_id
+  ON grupos.alta_grupo (creador_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_alta_grupo_clave_idempotencia
+  ON grupos.alta_grupo (clave_idempotencia);
+
 CREATE INDEX IF NOT EXISTS ix_reglamento_grupo_grupo_id
   ON grupos.reglamento_grupo (grupo_id);
 
@@ -43,11 +52,29 @@ CREATE INDEX IF NOT EXISTS ix_solicitud_ingreso_grupo_id
 CREATE INDEX IF NOT EXISTS ix_solicitud_ingreso_usuario_id
   ON grupos.solicitud_ingreso (usuario_id);
 
+CREATE INDEX IF NOT EXISTS ix_decision_ingreso_solicitud_id
+  ON grupos.decision_ingreso (solicitud_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_decision_ingreso_clave_idempotencia
+  ON grupos.decision_ingreso (clave_idempotencia);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_decision_ingreso_solicitud_id_revision
+  ON grupos.decision_ingreso (solicitud_id, revision);
+
+CREATE INDEX IF NOT EXISTS ix_sustitucion_administrador_grupo_id
+  ON grupos.sustitucion_administrador (grupo_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_sustitucion_administrador_clave_idempotencia
+  ON grupos.sustitucion_administrador (clave_idempotencia);
+
 CREATE INDEX IF NOT EXISTS ix_invitacion_grupo_id
   ON grupos.invitacion (grupo_id);
 
 CREATE INDEX IF NOT EXISTS ix_invitacion_telefono_invitado
   ON grupos.invitacion (telefono_invitado);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_invitacion_token_id
+  ON grupos.invitacion (token_id);
 
 CREATE INDEX IF NOT EXISTS ix_periodo_grupo_id
   ON grupos.periodo (grupo_id);
@@ -66,6 +93,12 @@ CREATE INDEX IF NOT EXISTS ix_turno_grupo_id
 
 CREATE INDEX IF NOT EXISTS ix_sorteo_turnos_estado
   ON grupos.sorteo_turnos (estado);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_snapshot_sorteo_sorteo_id
+  ON grupos.snapshot_sorteo (sorteo_id);
+
+CREATE INDEX IF NOT EXISTS ix_snapshot_sorteo_grupo_id
+  ON grupos.snapshot_sorteo (grupo_id);
 
 CREATE INDEX IF NOT EXISTS ix_solicitud_permuta_turno_origen_id
   ON grupos.solicitud_permuta (turno_origen_id);

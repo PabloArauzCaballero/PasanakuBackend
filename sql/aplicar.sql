@@ -9,7 +9,7 @@ BEGIN;
 -- el SQL escrito a mano que viene despues (restricciones, semillas,
 -- prueba de humo), que referencia las tablas por nombre simple.
 -- Los 307 nombres de tabla son unicos, asi que resuelve sin ambiguedad.
-SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, grupos, identidad, notificaciones, nucleo_financiero, organizador, publicidad, tarifas, transparencia, catalogo, comun, public;
+SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, grupos, identidad, inversiones, notificaciones, nucleo_financiero, organizador, publicidad, tarifas, transparencia, catalogo, comun, public;
 
 -- 1) Base
 \ir 00_base/00_extensiones.sql
@@ -36,6 +36,7 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/01_identidad_usuarios/restriccion_usuario.sql
 \ir 10_tablas/01_identidad_usuarios/documento_identidad.sql
 \ir 10_tablas/01_identidad_usuarios/verificacion_kyc.sql
+\ir 10_tablas/01_identidad_usuarios/alcance_invitacion.sql
 \ir 10_tablas/01_identidad_usuarios/referencia_personal.sql
 \ir 10_tablas/01_identidad_usuarios/rol.sql
 \ir 10_tablas/01_identidad_usuarios/permiso.sql
@@ -47,6 +48,7 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/01_identidad_usuarios/solicitud_baja.sql
 --    módulo 02 — Grupos, Cupos, Turnos y Gobernanza
 \ir 10_tablas/02_grupos_turnos/grupo.sql
+\ir 10_tablas/02_grupos_turnos/alta_grupo.sql
 \ir 10_tablas/02_grupos_turnos/configuracion_grupo.sql
 \ir 10_tablas/02_grupos_turnos/reglamento_grupo.sql
 \ir 10_tablas/02_grupos_turnos/aceptacion_reglamento.sql
@@ -56,10 +58,13 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/02_grupos_turnos/traspaso_cupo.sql
 \ir 10_tablas/02_grupos_turnos/solicitud_retiro.sql
 \ir 10_tablas/02_grupos_turnos/solicitud_ingreso.sql
+\ir 10_tablas/02_grupos_turnos/decision_ingreso.sql
+\ir 10_tablas/02_grupos_turnos/sustitucion_administrador.sql
 \ir 10_tablas/02_grupos_turnos/invitacion.sql
 \ir 10_tablas/02_grupos_turnos/periodo.sql
 \ir 10_tablas/02_grupos_turnos/turno.sql
 \ir 10_tablas/02_grupos_turnos/sorteo_turnos.sql
+\ir 10_tablas/02_grupos_turnos/snapshot_sorteo.sql
 \ir 10_tablas/02_grupos_turnos/solicitud_permuta.sql
 \ir 10_tablas/02_grupos_turnos/dia_no_habil.sql
 \ir 10_tablas/02_grupos_turnos/postulacion_emparejamiento.sql
@@ -103,6 +108,9 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/04_entregas_fondo/confirmacion_recepcion.sql
 \ir 10_tablas/04_entregas_fondo/incidencia_entrega.sql
 \ir 10_tablas/04_entregas_fondo/historial_estado_entrega.sql
+\ir 10_tablas/04_entregas_fondo/fondeo_entrega.sql
+\ir 10_tablas/04_entregas_fondo/oferta_turno.sql
+\ir 10_tablas/04_entregas_fondo/cesion_derecho.sql
 --    módulo 05 — Notificaciones y Comunicaciones
 \ir 10_tablas/05_notificaciones/evento_notificable.sql
 \ir 10_tablas/05_notificaciones/plantilla_mensaje.sql
@@ -139,6 +147,7 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 --    módulo 07 — Organizador y Automatización
 \ir 10_tablas/07_organizador_automatizacion/organizador.sql
 \ir 10_tablas/07_organizador_automatizacion/solicitud_organizador.sql
+\ir 10_tablas/07_organizador_automatizacion/decision_habilitacion.sql
 \ir 10_tablas/07_organizador_automatizacion/requisito_habilitacion.sql
 \ir 10_tablas/07_organizador_automatizacion/capacitacion_organizador.sql
 \ir 10_tablas/07_organizador_automatizacion/contrato_organizador.sql
@@ -183,6 +192,12 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/08_garantia_incumplimiento/plan_contingencia.sql
 \ir 10_tablas/08_garantia_incumplimiento/disolucion_anticipada.sql
 \ir 10_tablas/08_garantia_incumplimiento/liquidacion_participante.sql
+\ir 10_tablas/08_garantia_incumplimiento/capacidad_respaldo.sql
+\ir 10_tablas/08_garantia_incumplimiento/reserva_respaldo.sql
+\ir 10_tablas/08_garantia_incumplimiento/movimiento_reserva.sql
+\ir 10_tablas/08_garantia_incumplimiento/cobertura_respaldo.sql
+\ir 10_tablas/08_garantia_incumplimiento/cobertura_respaldo_linea.sql
+\ir 10_tablas/08_garantia_incumplimiento/recuperacion_respaldo.sql
 --    módulo 09 — Auditoría, Reportes y Cumplimiento
 \ir 10_tablas/09_auditoria_reportes/bitacora_evento.sql
 \ir 10_tablas/09_auditoria_reportes/registro_acceso_datos.sql
@@ -229,6 +244,8 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/10_billetera_custodia/estado_cuenta_billetera.sql
 \ir 10_tablas/10_billetera_custodia/certificado_saldo.sql
 \ir 10_tablas/10_billetera_custodia/solicitud_cierre_billetera.sql
+\ir 10_tablas/10_billetera_custodia/discrepancia_proveedor.sql
+\ir 10_tablas/10_billetera_custodia/qr_transferencia.sql
 --    módulo 11 — Tarifas, Comisiones, Impuestos y Facturación
 \ir 10_tablas/11_tarifas_comisiones/catalogo_hecho_generador.sql
 \ir 10_tablas/11_tarifas_comisiones/tarifario.sql
@@ -339,6 +356,19 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/14_publicidad_campanas/clic_anuncio.sql
 \ir 10_tablas/14_publicidad_campanas/conversion_anuncio.sql
 \ir 10_tablas/14_publicidad_campanas/factura_publicidad.sql
+--    módulo 15 — Inversiones voluntarias
+\ir 10_tablas/15_inversiones/producto_inversion.sql
+\ir 10_tablas/15_inversiones/version_condiciones.sql
+\ir 10_tablas/15_inversiones/consentimiento_inversion.sql
+\ir 10_tablas/15_inversiones/orden_inversion.sql
+\ir 10_tablas/15_inversiones/instruccion_libro.sql
+\ir 10_tablas/15_inversiones/posicion_inversion.sql
+\ir 10_tablas/15_inversiones/devengo_dpf.sql
+\ir 10_tablas/15_inversiones/valor_cuota.sql
+\ir 10_tablas/15_inversiones/rescate_inversion.sql
+\ir 10_tablas/15_inversiones/comprobante_inversion.sql
+\ir 10_tablas/15_inversiones/comision_exito.sql
+\ir 10_tablas/15_inversiones/conciliacion_interes.sql
 
 -- 2b) Infraestructura de mensajería por esquema (ADR-027)
 \ir 15_infra/mensajeria.sql
@@ -363,6 +393,7 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 20_claves/12_cumplimiento_asfi.sql
 \ir 20_claves/13_contabilidad_erp.sql
 \ir 20_claves/14_publicidad_campanas.sql
+\ir 20_claves/15_inversiones.sql
 
 -- 4) Índices y unicidad
 \ir 30_indices/01_identidad_usuarios.sql
@@ -379,6 +410,7 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 30_indices/12_cumplimiento_asfi.sql
 \ir 30_indices/13_contabilidad_erp.sql
 \ir 30_indices/14_publicidad_campanas.sql
+\ir 30_indices/15_inversiones.sql
 
 -- 5) Sellado de las tablas append-only
 \ir 35_append_only/append_only.sql

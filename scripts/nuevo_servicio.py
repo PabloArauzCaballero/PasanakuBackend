@@ -266,6 +266,7 @@ NIVEL = {
     "erp": ("N3", "Contabilidad de gestión: trabaja sobre períodos cerrados", 2, 2, 5),
     "garantia": ("N2", "La cobertura se aplica en el barrido, no en línea", 3, 6, 8),
     "grupos": ("N2", "Gobernanza del grupo: se atrasa un acuerdo, no se pierde plata", 3, 6, 8),
+    "inversiones": ("N3", "Inversión voluntaria con un aliado: se difiere sin consecuencia externa y el libro no depende de ella", 2, 2, 5),
     "identidad": ("N1", "Autenticar y autorizar: sin esto nadie entra", 4, 10, 10),
     "notificaciones": ("N2", "El outbox retiene: una caída se vuelve atraso, no aviso perdido", 3, 6, 8),
     "nucleo-financiero": ("N1", "El libro contable y la billetera: sin esto no se mueve plata", 4, 10, 10),

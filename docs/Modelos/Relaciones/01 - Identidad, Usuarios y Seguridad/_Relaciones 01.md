@@ -3,17 +3,18 @@ tags:
   - moc
   - modulo/01-identidad-usuarios-y-seguridad
 modulo: "01 — Identidad, Usuarios y Seguridad"
-relaciones_fk: 32
+relaciones_fk: 33
 ---
 
 # 01 — Identidad, Usuarios y Seguridad · relaciones
 
-Las **32 claves foráneas** que salen de las tablas de este módulo.
+Las **33 claves foráneas** que salen de las tablas de este módulo.
 
 [[_Relaciones|← Todas las relaciones]] · [[Index]]
 
 | Relación | Destino | Cruza | Opcional |
 | --- | --- | :-: | :-: |
+| [[alcance_invitacion.token_id → token_verificacion]] | [[token_verificacion]] | — | no |
 | [[asignacion_rol.otorgada_por → usuario]] | [[usuario]] | — | no |
 | [[asignacion_rol.rol_id → rol]] | [[rol]] | — | no |
 | [[asignacion_rol.usuario_id → usuario]] | [[usuario]] | — | no |

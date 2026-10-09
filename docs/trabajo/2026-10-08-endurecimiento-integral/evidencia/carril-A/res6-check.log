@@ -1,0 +1,83 @@
+heavy.sh: candado tomado, libres 6097 MB -> bash C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/corridaA.sh :servicios:nucleo-financiero:spotlessApply :servicios:nucleo-financiero:check
+[corridaA] levantando Docker Desktop
+[corridaA] docker listo
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Starting a Gradle Daemon, 14 stopped Daemons could not be reused, use --status for details
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessJava
+> Task :servicios:nucleo-financiero:spotlessJavaApply
+> Task :servicios:nucleo-financiero:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessApply
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources NO-SOURCE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :servicios:nucleo-financiero:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:nucleo-financiero:generateJooq UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileJava
+> Task :servicios:nucleo-financiero:processResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:classes
+> Task :servicios:nucleo-financiero:compileTestJava
+> Task :servicios:nucleo-financiero:processTestResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:testClasses
+
+> Task :servicios:nucleo-financiero:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:nucleo-financiero:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:nucleo-financiero:sinJpa
+> Task :servicios:nucleo-financiero:spotlessJavaCheck
+> Task :servicios:nucleo-financiero:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessCheck
+> Task :servicios:nucleo-financiero:jacocoTestCoverageVerification
+
+> Task :servicios:nucleo-financiero:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:nucleo-financiero:cobertura
+> Task :servicios:nucleo-financiero:check
+
+BUILD SUCCESSFUL in 42s
+43 actionable tasks: 10 executed, 33 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Stopping Daemon(s)
+1 Daemon stopped
+✓ Stopping Docker Desktop

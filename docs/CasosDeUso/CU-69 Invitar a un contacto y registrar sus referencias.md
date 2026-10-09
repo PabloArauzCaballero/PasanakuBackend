@@ -156,7 +156,8 @@ export const ErroresCU69 = {
 
 [[invitacion]] · [[referencia_personal]] · [[token_verificacion]] ·
 [[intento_validacion_token]] · [[envio_notificacion]] · [[aval_participante]] ·
-`evento_dominio`
+`evento_dominio` ·
+[[alcance_invitacion]]
 
 ## Criterios de aceptación
 
@@ -177,6 +178,38 @@ Entonces no se envía nada y se responde sin revelar el motivo
 Dada una referencia personal registrada
 Cuando la referencia no responde la verificación
 Entonces queda con verificada en false y no puede constituirse en aval
+
+Dada una invitación ENVIADA y vigente a un número en un grupo
+Cuando se emite otra al mismo número con otra clave
+Entonces se rechaza y no reemplaza a la anterior
+Y la anterior sigue ENVIADA y el grupo tiene una sola invitación
+
+Dada una invitación vigente a un número en un grupo
+Cuando se invita al mismo número en otro grupo
+Entonces la invitación se emite sin chocar con la regla de reemisión
+
+Dada una invitación ENVIADA
+Cuando su emisor la revoca
+Entonces queda REVOCADA con fecha de respuesta y se emite el evento de revocación
+Y se puede emitir otra invitación al mismo número
+
+Dada una invitación ENVIADA
+Cuando su emisor la revoca dos veces
+Entonces queda REVOCADA sin error
+Y hay un solo evento de revocación
+
+Dada una invitación ENVIADA emitida por un participante
+Cuando otro participante del grupo intenta revocarla
+Entonces se rechaza y la invitación sigue ENVIADA
+
+Dada una invitación ya ACEPTADA
+Cuando su emisor intenta revocarla
+Entonces se rechaza y la invitación sigue ACEPTADA
+
+Dada una invitación cuya fecha de expiración ya pasó
+Cuando se emite otra al mismo número
+Entonces la vencida se cierra como EXPIRADA
+Y la nueva queda ENVIADA
 ```
 
 ## Ver también

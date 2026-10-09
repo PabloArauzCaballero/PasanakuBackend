@@ -140,14 +140,22 @@ public class CU90PostularOrganizador {
                         "RECHAZADA",
                         ctx.usuarioId(),
                         veredicto.faltantes().get(0).motivo(),
-                        ahora);
+                        ahora,
+                        UUID.fromString(ctx.traza().id()));
                 throw new ErrorDeNegocio(
                         CodigoError.de(90, 5),
                         "No cumple los requisitos de habilitacion.",
                         Map.of("faltantes", veredicto.faltantes().toString()));
             }
 
-            if (!organizadores.resolver(dsl, solicitud.id(), "APROBADA", ctx.usuarioId(), null, ahora)) {
+            if (!organizadores.resolver(
+                    dsl,
+                    solicitud.id(),
+                    "APROBADA",
+                    ctx.usuarioId(),
+                    null,
+                    ahora,
+                    UUID.fromString(ctx.traza().id()))) {
                 throw new ErrorDeNegocio(CodigoError.de(90, 3), "Esa solicitud ya fue resuelta.");
             }
 

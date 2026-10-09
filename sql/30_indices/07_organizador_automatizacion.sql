@@ -10,6 +10,15 @@ CREATE INDEX IF NOT EXISTS ix_organizador_estado
 CREATE INDEX IF NOT EXISTS ix_solicitud_organizador_usuario_id
   ON organizador.solicitud_organizador (usuario_id);
 
+CREATE INDEX IF NOT EXISTS ix_decision_habilitacion_solicitud_id
+  ON organizador.decision_habilitacion (solicitud_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_decision_habilitacion_clave_idempotencia
+  ON organizador.decision_habilitacion (clave_idempotencia);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_decision_habilitacion_solicitud_id_revision
+  ON organizador.decision_habilitacion (solicitud_id, revision);
+
 CREATE UNIQUE INDEX IF NOT EXISTS uq_requisito_habilitacion_codigo
   ON organizador.requisito_habilitacion (codigo);
 

@@ -12,7 +12,7 @@ habilita: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
 
 > **Objetivo.** Que `git clone && docker compose --profile base up -d && ./gradlew
 > bd:reset && ./gradlew :servicios:ejemplo:bootRun` deje corriendo un servicio Spring
-> Boot que responde `/actuator/health`, contra una PostgreSQL 16 con las 306 tablas
+> Boot que responde `/actuator/health`, contra una PostgreSQL 16 con las 335 tablas
 > aplicadas, los catorce esquemas creados y los 20 catálogos mínimos sembrados. Sin un
 > solo caso de uso todavía: esta fase construye el piso sobre el que se paran las
 > otras 17.
@@ -399,7 +399,7 @@ python3 scripts/verificar_boveda.py
 ```
 
 - [ ] Los trece puntos del gate común (§9 del [[00 Plan maestro]])
-- [ ] Las 306 tablas existen y las verificaciones de `sql/50_verificacion/` pasan
+- [ ] Las 335 tablas existen y las verificaciones de `sql/50_verificacion/` pasan
 - [ ] **Los catorce esquemas y los catorce roles existen**, y el `SELECT` cruzado entre
       cualquier par devuelve permiso denegado ← invariante 11
 - [ ] **Solo `svc_nucleo_financiero` escribe `asiento_contable`** ← invariante 12

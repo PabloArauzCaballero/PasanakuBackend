@@ -47,10 +47,11 @@ class CU10RechazosTest extends BaseDeBilletera {
         // anterior. Alterar una del medio rompe la cadena, y por eso el hash es
         // obligatorio — una fila sin el no se puede encadenar ni verificar.
         UUID cuenta = billeteraConLimite();
-        ContextoSesion ctx = contextoDe(fixtura.usuario());
+        ContextoSesion ctx = contextoDe(fixtura.titular(cuenta));
         var orden = transaccion.execute(e -> recargaCU.solicitar(
                 new EntradaSolicitud("aud03", cuenta, bob("10.00"), bob("0.00"), "QR", Optional.empty()), ctx));
-        var acreditada = transaccion.execute(e -> recargaCU.acreditar(orden.ordenRecargaId(), ctx));
+        var acreditada = transaccion.execute(e -> recargaCU.acreditar(
+                orden.ordenRecargaId(), ConfirmacionesDePrueba.para(dsl, orden.ordenRecargaId()), ctx));
 
         assertThat(contar(
                         "SELECT count(*)::int FROM nucleo_financiero.transaccion_billetera WHERE id = ? AND length(hash_registro) = 64",
@@ -100,10 +101,11 @@ class CU10RechazosTest extends BaseDeBilletera {
         // La cadena se verifica en el control diario, no solo al auditar: la
         // consulta que busca eslabones rotos tiene que existir y dar cero.
         UUID cuenta = billeteraConLimite();
-        ContextoSesion ctx = contextoDe(fixtura.usuario());
+        ContextoSesion ctx = contextoDe(fixtura.titular(cuenta));
         var orden = transaccion.execute(e -> recargaCU.solicitar(
                 new EntradaSolicitud("aud10", cuenta, bob("20.00"), bob("0.00"), "QR", Optional.empty()), ctx));
-        transaccion.execute(e -> recargaCU.acreditar(orden.ordenRecargaId(), ctx));
+        transaccion.execute(e -> recargaCU.acreditar(
+                orden.ordenRecargaId(), ConfirmacionesDePrueba.para(dsl, orden.ordenRecargaId()), ctx));
 
         assertThat(
                         contar(
@@ -153,7 +155,7 @@ class CU10RechazosTest extends BaseDeBilletera {
         // reintenta tras un timeout no sabe si la operacion se aplico, y un error
         // de unicidad es indistinguible de «fallo».
         UUID cuenta = billeteraConLimite();
-        ContextoSesion ctx = contextoDe(fixtura.usuario());
+        ContextoSesion ctx = contextoDe(fixtura.titular(cuenta));
 
         var primera = transaccion.execute(e -> recargaCU.solicitar(
                 new EntradaSolicitud("bil19", cuenta, bob("15.00"), bob("0.00"), "QR", Optional.empty()), ctx));
@@ -211,11 +213,29 @@ class CU10RechazosTest extends BaseDeBilletera {
         dslFixtura.execute("DELETE FROM catalogo.tipo_cambio");
         UUID cuenta = fixtura.billetera(fixtura.usuario(), ESTANDAR, BigDecimal.ZERO);
         fixtura.limite("RECARGA", ESTANDAR, "MES", new BigDecimal("10000.00"), null);
-        ContextoSesion ctx = contextoDe(fixtura.usuario());
+        ContextoSesion ctx = contextoDe(fixtura.titular(cuenta));
         var orden = transaccion.execute(e -> recargaCU.solicitar(
                 new EntradaSolicitud("uif02", cuenta, bob("30.00"), bob("0.00"), "QR", Optional.empty()), ctx));
 
-        assertThatThrownBy(() -> transaccion.execute(e -> recargaCU.acreditar(orden.ordenRecargaId(), ctx)))
+        assertThatThrownBy(() -> transaccion.execute(e -> recargaCU.acreditar(
+                        orden.ordenRecargaId(), ConfirmacionesDePrueba.para(dsl, orden.ordenRecargaId()), ctx)))
                 .isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    @DisplayName("rechaza por R-BIL-22")
+    void rechazaRBIL22() {
+        // Una discrepancia que menciona importes tiene que decir en que moneda: sin moneda un importe no
+        // significa nada. Lo rechaza la BASE, no el formulario.
+        String sinMoneda =
+                """
+                INSERT INTO nucleo_financiero.discrepancia_proveedor
+                    (referencia_tipo, referencia_id, tipo, monto_esperado, monto_informado, moneda,
+                     detalle, huella, correlacion_id)
+                VALUES ('ORDEN_RECARGA', gen_random_uuid(), 'MONTO_DISTINTO', 500.00, 499.00, NULL,
+                        'importe distinto', repeat('d', 64), gen_random_uuid())
+                """;
+
+        assertThat(rechazaLaBase(sinMoneda)).contains("ck_discrepancia_moneda");
     }
 }

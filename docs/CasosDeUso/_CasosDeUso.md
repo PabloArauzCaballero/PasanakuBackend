@@ -3,7 +3,7 @@ tags:
   - moc
   - caso-uso
 titulo: "Casos de uso — AportaYa"
-total_casos: 99
+total_casos: 105
 fecha: 2026-08-14
 ---
 
@@ -216,6 +216,23 @@ Norma (docs/Cumplimiento.md)  →  Caso de uso (esta carpeta)  →  Restricción
 | [[CU-113 Entregar un anuncio y medir su desempeño]] | Solo mientras hay presupuesto y cupo | Sistema · Usuario | Política comercial |
 | [[CU-114 Liquidar y facturar el gasto publicitario]] | Se cobra por el mismo camino de siempre | Sistema · Contabilidad | SIN · Ley 393 |
 
+### Inversiones voluntarias
+
+> [!warning] Función acotada
+> Inversión **voluntaria del titular** con un aliado (DPF o cuotas de un fondo abierto).
+> **La inversión de dinero de grupos está desactivada** y todo parámetro comercial o
+> fiscal es **sintético** hasta que exista una decisión de negocio con fuente. Las
+> decisiones abiertas están en el `README` del servicio `inversiones`.
+
+| Código | Caso de uso | Actor | Normativa que lo obliga |
+| --- | --- | --- | --- |
+| [[CU-120 Consultar productos de inversión y sus condiciones]] | Ver qué se ofrece, de quién y de cuándo es el dato, sin promesa | Usuario · Operaciones | Sin norma externa confirmada · consentimiento versionado |
+| [[CU-121 Aceptar las condiciones y ordenar una inversión]] | Aceptar la versión exacta y reservar el saldo antes de enviar | Usuario | Consentimiento versionado · idempotencia de dinero |
+| [[CU-122 Confirmar la posición sin duplicar el saldo]] | Que la posición aparezca una vez y nunca haya posición sin débito | Sistema · Aliado | Trazabilidad del dinero |
+| [[CU-123 Devengar y valorar una posición de inversión]] | Devengado distinto de pagado; cuotas valuadas sin promesa | Usuario · Operaciones | Prohibido inferir parámetros financieros |
+| [[CU-124 Solicitar el rescate de una inversión]] | Informar el corte y no ofrecer dos veces lo mismo | Usuario | Rechazo de doble disponibilidad |
+| [[CU-125 Liquidar el rescate y acreditar al titular]] | Recalcular, conciliar, descomponer sin residuo y acreditar una vez | Sistema · Aliado | Conciliación · protección del inversor |
+
 ## Casos de uso todavía no escritos
 
 Ninguno. **Las 306 entidades del modelo tienen al menos un caso de uso que las
@@ -226,7 +243,10 @@ Los rangos CU-90..99 se abrieron para el organizador, la automatización y los
 proveedores de plataforma, que hasta entonces existían en el modelo (módulo 07) sin
 especificación de flujo. CU-100..109 (contabilidad financiera y ERP, módulo 13) y
 CU-110..119 (publicidad y campañas, módulo 14) se abrieron por la misma razón: dos
-módulos nuevos del modelo sin especificación de flujo todavía. Los códigos de tres
+módulos nuevos del modelo sin especificación de flujo todavía. CU-120..129 es el rango
+del módulo 15 (inversiones voluntarias): CU-120 a CU-125 están escritos; el contrato
+también etiqueta como `CU-127` el cálculo de la comisión de éxito y como `CU-128` el
+listado de comprobantes, que hoy están absorbidos por CU-125 y CU-123. Los códigos de tres
 dígitos rompían un supuesto de ancho fijo en `scripts/verificar_boveda.py`
 (`stem[3:5]`); se corrigió para extraer el número con una expresión regular en vez
 de asumir dos dígitos.

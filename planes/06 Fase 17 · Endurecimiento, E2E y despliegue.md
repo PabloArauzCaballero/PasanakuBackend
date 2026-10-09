@@ -35,7 +35,7 @@ implementar, pertenece a su fase, no a esta.
 ## Gate de entrada
 
 - [ ] Fases 12 a 16 cerradas con sus gates ejecutados
-- [ ] 94 de los 99 casos de uso implementados — la fase 18 (ERP) ya corrió antes; solo
+- [ ] 94 de los 99 casos del alcance original implementados — la fase 18 (ERP) ya corrió antes; solo
       la fase 19 (publicidad) va después
 - [ ] La prueba E2E `PasanakuCompletoE2ETest.java` (hito de la Fase 11) en verde
 
@@ -271,9 +271,9 @@ exige un comando ejecutado o un informe con evidencia. La skill
 `definicion-de-terminado` prohíbe explícitamente marcarlas sin eso.
 
 ### Funcionalidad
-- [ ] **94 de los 99 casos de uso** implementados (todos salvo la fase 19, publicidad), cada uno con sus criterios de aceptación como pruebas nombradas
-- [ ] Las **142 restricciones** con prueba de rechazo
-- [ ] Las **306 tablas** tienen código que las escribe — verificable recién con las fases 18 y 19 cerradas; el verificador vive en `verificar_criterios.py` sobre las clases jOOQ usadas
+- [ ] **94 de los 99 casos del alcance original** implementados (todos salvo la fase 19, publicidad), cada uno con sus criterios de aceptación como pruebas nombradas
+- [ ] Las **164 restricciones** con prueba de rechazo
+- [ ] Las **335 tablas** tienen código que las escribe — verificable recién con las fases 18 y 19 cerradas; el verificador vive en `verificar_criterios.py` sobre las clases jOOQ usadas
 - [ ] Los seis recorridos E2E en verde
 
 ### Calidad

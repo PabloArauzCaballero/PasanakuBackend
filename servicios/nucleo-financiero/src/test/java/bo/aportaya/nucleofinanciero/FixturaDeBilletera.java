@@ -23,6 +23,11 @@ final class FixturaDeBilletera {
         this.dsl = dsl;
     }
 
+    UUID titular(UUID cuenta) {
+        return dsl.fetchOne("SELECT usuario_id FROM nucleo_financiero.cuenta_billetera WHERE id = ?", cuenta)
+                .get("usuario_id", UUID.class);
+    }
+
     /** Un usuario real en identidad: la cuenta lo referencia por clave foranea. */
     UUID usuario() {
         UUID id = UUID.randomUUID();

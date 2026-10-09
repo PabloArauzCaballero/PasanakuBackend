@@ -9,7 +9,7 @@ estereotipo: Raíz de agregado
 clave_primaria: [id]
 columnas: 27
 fk_salientes: 1
-fk_entrantes: 45
+fk_entrantes: 48
 append_only: false
 ---
 
@@ -67,6 +67,7 @@ append_only: false
 | [[aval_participante]] | `grupo_id` | ↗ 08 | [[aval_participante.grupo_id → grupo]] |
 | [[bitacora_evento]] | `grupo_id` | ↗ 09 | [[bitacora_evento.grupo_id → grupo]] |
 | [[bloque_transparencia]] | `grupo_id` | ↗ 06 | [[bloque_transparencia.grupo_id → grupo]] |
+| [[cobertura_respaldo]] | `grupo_id` | ↗ 08 | [[cobertura_respaldo.grupo_id → grupo]] |
 | [[configuracion_grupo]] | `grupo_id` | 02 | [[configuracion_grupo.grupo_id → grupo]] |
 | [[cuenta_billetera]] | `grupo_id` | ↗ 10 | [[cuenta_billetera.grupo_id → grupo]] |
 | [[cuenta_contable]] | `grupo_id` | ↗ 03 | [[cuenta_contable.grupo_id → grupo]] |
@@ -84,6 +85,7 @@ append_only: false
 | [[invitacion]] | `grupo_id` | 02 | [[invitacion.grupo_id → grupo]] |
 | [[metrica_grupo]] | `grupo_id` | ↗ 06 | [[metrica_grupo.grupo_id → grupo]] |
 | [[obligacion_aporte]] | `grupo_id` | ↗ 03 | [[obligacion_aporte.grupo_id → grupo]] |
+| [[oferta_turno]] | `grupo_id` | ↗ 04 | [[oferta_turno.grupo_id → grupo]] |
 | [[participante]] | `grupo_id` | 02 | [[participante.grupo_id → grupo]] |
 | [[periodo]] | `grupo_id` | 02 | [[periodo.grupo_id → grupo]] |
 | [[plan_contingencia]] | `grupo_id` | ↗ 08 | [[plan_contingencia.grupo_id → grupo]] |
@@ -96,6 +98,7 @@ append_only: false
 | [[registro_incumplimiento]] | `grupo_id` | ↗ 08 | [[registro_incumplimiento.grupo_id → grupo]] |
 | [[reglamento_grupo]] | `grupo_id` | 02 | [[reglamento_grupo.grupo_id → grupo]] |
 | [[resena_participante]] | `grupo_id` | ↗ 06 | [[resena_participante.grupo_id → grupo]] |
+| [[reserva_respaldo]] | `grupo_id` | ↗ 08 | [[reserva_respaldo.grupo_id → grupo]] |
 | [[score_riesgo_incumplimiento]] | `grupo_id` | ↗ 08 | [[score_riesgo_incumplimiento.grupo_id → grupo]] |
 | [[solicitud_ingreso]] | `grupo_id` | 02 | [[solicitud_ingreso.grupo_id → grupo]] |
 | [[sorteo_turnos]] | `grupo_id` | 02 | [[sorteo_turnos.grupo_id → grupo]] |
@@ -107,7 +110,7 @@ append_only: false
 
 ## Entidades vecinas
 
-[[acuerdo]] · [[alerta_cumplimiento]] · [[alerta_temprana]] · [[asiento_contable]] · [[asignacion_tarifario]] · [[aval_participante]] · [[bitacora_evento]] · [[bloque_transparencia]] · [[configuracion_grupo]] · [[cuenta_billetera]] · [[cuenta_contable]] · [[cupo]] · [[deuda_participante]] · [[devengo_comision]] · [[dia_no_habil]] · [[disolucion_anticipada]] · [[ejecucion_reporte]] · [[entrega_fondo]] · [[evento_reputacion]] · [[exencion_comision]] · [[fondo_garantia]] · [[historial_estado_grupo]] · [[invitacion]] · [[metrica_grupo]] · [[obligacion_aporte]] · [[organizador]] · [[participante]] · [[periodo]] · [[plan_contingencia]] · [[politica_cobertura]] · [[politica_mora]] · [[politica_sancion]] · [[programacion_recordatorio]] · [[propuesta_grupo]] · [[reemplazo_participante]] · [[registro_incumplimiento]] · [[reglamento_grupo]] · [[resena_participante]] · [[score_riesgo_incumplimiento]] · [[solicitud_ingreso]] · [[sorteo_turnos]] · [[tarea_automatizada]] · [[tarifa_congelada_grupo]] · [[transaccion_billetera]] · [[transferencia_p2p]] · [[turno]]
+[[acuerdo]] · [[alerta_cumplimiento]] · [[alerta_temprana]] · [[asiento_contable]] · [[asignacion_tarifario]] · [[aval_participante]] · [[bitacora_evento]] · [[bloque_transparencia]] · [[cobertura_respaldo]] · [[configuracion_grupo]] · [[cuenta_billetera]] · [[cuenta_contable]] · [[cupo]] · [[deuda_participante]] · [[devengo_comision]] · [[dia_no_habil]] · [[disolucion_anticipada]] · [[ejecucion_reporte]] · [[entrega_fondo]] · [[evento_reputacion]] · [[exencion_comision]] · [[fondo_garantia]] · [[historial_estado_grupo]] · [[invitacion]] · [[metrica_grupo]] · [[obligacion_aporte]] · [[oferta_turno]] · [[organizador]] · [[participante]] · [[periodo]] · [[plan_contingencia]] · [[politica_cobertura]] · [[politica_mora]] · [[politica_sancion]] · [[programacion_recordatorio]] · [[propuesta_grupo]] · [[reemplazo_participante]] · [[registro_incumplimiento]] · [[reglamento_grupo]] · [[resena_participante]] · [[reserva_respaldo]] · [[score_riesgo_incumplimiento]] · [[solicitud_ingreso]] · [[sorteo_turnos]] · [[tarea_automatizada]] · [[tarifa_congelada_grupo]] · [[transaccion_billetera]] · [[transferencia_p2p]] · [[turno]]
 
 ## Ver también
 

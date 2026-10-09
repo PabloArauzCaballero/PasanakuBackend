@@ -122,13 +122,14 @@ export const ErroresCU12 = {
 
 ## Restricciones aplicables
 
-`R-BIL-01` · `R-BIL-02` · `R-BIL-06` · `R-BIL-19` · `R-BIL-20` · `R-GRP-03` ·
+`R-BIL-01` · `R-BIL-02` · `R-BIL-06` · `R-BIL-19` · `R-BIL-20` · `R-BIL-21` · `R-GRP-03` ·
 `R-LIM-01` · `R-AUD-01` · `R-AUD-03` · `R-AUD-05` · `R-UIF-02`
 
 ## Evidencia que deja
 
 [[transaccion_billetera]] · [[movimiento_billetera]] · [[transferencia_p2p]] ·
-[[obligacion_aporte]] · [[asiento_contable]] · [[registro_operacion_relevante]]
+[[obligacion_aporte]] · [[asiento_contable]] · [[registro_operacion_relevante]] ·
+[[qr_transferencia]]
 
 ## Criterios de aceptación
 
@@ -154,6 +155,29 @@ Y existe un asiento_contable con SUM(debe) = SUM(haber)
 Dado un usuario que acumula USD 1.000 en transferencias desde billetera en 3 días
 Cuando ejecuta la que alcanza el umbral
 Entonces existe un registro_operacion_relevante con formulario ROG-03
+
+# Saldo disponible y doble gasto
+Dada una billetera con Bs 500 de los cuales Bs 300 están retenidos
+Cuando se intenta transferir Bs 250 y después Bs 200
+Entonces solo los Bs 200 disponibles pueden gastarse y los Bs 250 se rechazan
+Y los Bs 300 retenidos quedan intactos y todo cuadra desde el mayor
+
+# Idempotencia: la clave es de cada titular
+Dados dos titulares que usan la misma clave de idempotencia
+Cuando cada uno transfiere desde su billetera
+Entonces la clave es de cada titular y cada uno recibe su propio comprobante
+Y la clave de uno no devuelve el comprobante del otro ni lo rompe
+
+# Transferir por QR interno
+Dado un QR dinámico de Bs 50
+Cuando el pagador lo lee, confirma el importe y paga
+Entonces leer no mueve nada, se paga una vez y queda el comprobante con el QR USADO
+Y la transacción suma cero y toca exactamente las dos billeteras
+
+Dado un QR estático
+Cuando se paga varias veces, cada una con su importe y su clave, y pasa el tiempo
+Entonces cada pago mueve su importe, repetir una clave no cobra de nuevo, y el QR nunca se consume ni vence
+Y pagar sin importe o con importe cero se rechaza
 ```
 
 ## Ver también
