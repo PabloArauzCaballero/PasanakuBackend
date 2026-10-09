@@ -1,4 +1,0 @@
-name="bo.aportaya.nucleofinanciero.CU10ConcurrenciaTest" tests="1" skipped="0" failures="0" errors="0"
-name="bo.aportaya.nucleofinanciero.CU10ProveedorTest" tests="6" skipped="0" failures="0" errors="0"
-name="bo.aportaya.nucleofinanciero.CU10RechazosTest" tests="9" skipped="0" failures="0" errors="0"
-name="bo.aportaya.nucleofinanciero.CU10Test" tests="13" skipped="0" failures="0" errors="0"

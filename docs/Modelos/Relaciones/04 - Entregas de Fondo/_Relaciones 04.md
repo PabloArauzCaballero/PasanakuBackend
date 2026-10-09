@@ -3,21 +3,17 @@ tags:
   - moc
   - modulo/04-entregas-de-fondo
 modulo: "04 — Entregas de Fondo"
-relaciones_fk: 34
+relaciones_fk: 24
 ---
 
 # 04 — Entregas de Fondo · relaciones
 
-Las **34 claves foráneas** que salen de las tablas de este módulo.
+Las **24 claves foráneas** que salen de las tablas de este módulo.
 
 [[_Relaciones|← Todas las relaciones]] · [[Index]]
 
 | Relación | Destino | Cruza | Opcional |
 | --- | --- | :-: | :-: |
-| [[cesion_derecho.oferta_turno_id → oferta_turno]] | [[oferta_turno]] | — | no |
-| [[cesion_derecho.participante_destino_id → participante]] | [[participante]] | ↗ 02 | no |
-| [[cesion_derecho.participante_origen_id → participante]] | [[participante]] | ↗ 02 | no |
-| [[cesion_derecho.turno_id → turno]] | [[turno]] | ↗ 02 | no |
 | [[confirmacion_recepcion.entrega_id → entrega_fondo]] | [[entrega_fondo]] | — | no |
 | [[confirmacion_recepcion.token_confirmacion_id → token_verificacion]] | [[token_verificacion]] | ↗ 01 | sí |
 | [[cuenta_bancaria_beneficiario.usuario_id → usuario]] | [[usuario]] | ↗ 01 | no |
@@ -30,18 +26,12 @@ Las **34 claves foráneas** que salen de las tablas de este módulo.
 | [[entrega_fondo.grupo_id → grupo]] | [[grupo]] | ↗ 02 | no |
 | [[entrega_fondo.periodo_id → periodo]] | [[periodo]] | ↗ 02 | no |
 | [[entrega_fondo.turno_id → turno]] | [[turno]] | ↗ 02 | no |
-| [[fondeo_entrega.entrega_id → entrega_fondo]] | [[entrega_fondo]] | — | no |
-| [[fondeo_entrega.turno_id → turno]] | [[turno]] | ↗ 02 | no |
 | [[historial_estado_entrega.ejecutado_por → usuario]] | [[usuario]] | ↗ 01 | sí |
 | [[historial_estado_entrega.entrega_id → entrega_fondo]] | [[entrega_fondo]] | — | no |
 | [[incidencia_entrega.asignada_a → usuario]] | [[usuario]] | ↗ 01 | sí |
 | [[incidencia_entrega.entrega_id → entrega_fondo]] | [[entrega_fondo]] | — | no |
 | [[incidencia_entrega.reportada_por → usuario]] | [[usuario]] | ↗ 01 | no |
 | [[intento_desembolso.orden_desembolso_id → orden_desembolso]] | [[orden_desembolso]] | — | no |
-| [[oferta_turno.cupo_id → cupo]] | [[cupo]] | ↗ 02 | no |
-| [[oferta_turno.grupo_id → grupo]] | [[grupo]] | ↗ 02 | no |
-| [[oferta_turno.participante_origen_id → participante]] | [[participante]] | ↗ 02 | no |
-| [[oferta_turno.turno_id → turno]] | [[turno]] | ↗ 02 | no |
 | [[orden_desembolso.cuenta_destino_id → cuenta_bancaria_beneficiario]] | [[cuenta_bancaria_beneficiario]] | — | no |
 | [[orden_desembolso.entrega_id → entrega_fondo]] | [[entrega_fondo]] | — | no |
 | [[orden_desembolso.proveedor_id → proveedor_pago]] | [[proveedor_pago]] | ↗ 03 | no |

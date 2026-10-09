@@ -9,7 +9,7 @@ estereotipo: Raíz de agregado
 clave_primaria: [id]
 columnas: 23
 fk_salientes: 8
-fk_entrantes: 9
+fk_entrantes: 8
 append_only: false
 ---
 
@@ -77,7 +77,6 @@ append_only: false
 | [[abono_recuperacion]] | `entrega_id` | ↗ 08 | [[abono_recuperacion.entrega_id → entrega_fondo]] |
 | [[confirmacion_recepcion]] | `entrega_id` | 04 | [[confirmacion_recepcion.entrega_id → entrega_fondo]] |
 | [[deduccion_entrega]] | `entrega_id` | 04 | [[deduccion_entrega.entrega_id → entrega_fondo]] |
-| [[fondeo_entrega]] | `entrega_id` | 04 | [[fondeo_entrega.entrega_id → entrega_fondo]] |
 | [[historial_estado_entrega]] | `entrega_id` | 04 | [[historial_estado_entrega.entrega_id → entrega_fondo]] |
 | [[incidencia_entrega]] | `entrega_id` | 04 | [[incidencia_entrega.entrega_id → entrega_fondo]] |
 | [[orden_desembolso]] | `entrega_id` | 04 | [[orden_desembolso.entrega_id → entrega_fondo]] |
@@ -86,7 +85,7 @@ append_only: false
 
 ## Entidades vecinas
 
-[[abono_recuperacion]] · [[confirmacion_recepcion]] · [[cuenta_bancaria_beneficiario]] · [[cupo]] · [[deduccion_entrega]] · [[fondeo_entrega]] · [[grupo]] · [[historial_estado_entrega]] · [[incidencia_entrega]] · [[orden_desembolso]] · [[participante]] · [[periodo]] · [[registro_incumplimiento]] · [[turno]] · [[usuario]] · [[validacion_pre_entrega]]
+[[abono_recuperacion]] · [[confirmacion_recepcion]] · [[cuenta_bancaria_beneficiario]] · [[cupo]] · [[deduccion_entrega]] · [[grupo]] · [[historial_estado_entrega]] · [[incidencia_entrega]] · [[orden_desembolso]] · [[participante]] · [[periodo]] · [[registro_incumplimiento]] · [[turno]] · [[usuario]] · [[validacion_pre_entrega]]
 
 ## Notas del modelo
 

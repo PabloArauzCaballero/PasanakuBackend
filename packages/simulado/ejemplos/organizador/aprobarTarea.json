@@ -52,10 +52,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU96-01",
-        "mensaje": "Tarea duplicada",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-aprobarTarea-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

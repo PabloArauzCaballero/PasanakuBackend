@@ -6,7 +6,7 @@ tabla: invitacion
 clase: Invitacion
 modulo: "02 — Grupos, Cupos, Turnos y Gobernanza"
 clave_primaria: [id]
-columnas: 16
+columnas: 12
 fk_salientes: 3
 fk_entrantes: 0
 append_only: false
@@ -25,11 +25,7 @@ append_only: false
 | `telefono_invitado` | VARCHAR(20) | IDX | no | IDX |
 | `nombre_sugerido` | VARCHAR(80) | — | sí | NULL |
 | `emisor_id` | UUID | FK | no | FK |
-| `token_id` | UUID | FK UQ | no | FK, UQ, M1 |
-| `consumidor_id` | UUID | — | sí | NULL |
-| `clave_consumo` | UUID | — | sí | NULL |
-| `solicitud_ingreso_id` | UUID | — | sí | NULL |
-| `huella_canje` | VARCHAR(64) | — | sí | NULL |
+| `token_id` | UUID | FK UQ | no | FK, M1 |
 | `canal` | VARCHAR(15) | — | no | CK |
 | `estado` | VARCHAR(15) | — | no | CK |
 | `envios_realizados` | SMALLINT | — | no | — |

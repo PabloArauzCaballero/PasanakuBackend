@@ -131,30 +131,13 @@ export const ErroresCU22 = {
 ## Restricciones aplicables
 
 `R-GRP-01` · `R-GRP-02` · `R-TAR-04` · `R-TAR-06` · `R-BIL-01` · `R-SEG-04` ·
-`R-AUD-05` · `R-DES-03` · `R-DES-04` · `R-DES-05`
-
-Las tres últimas las hace cumplir la base en el camino del **pozo completo** y del
-mercado de turnos del servicio `entregas` (`CU22EntregarPozoCompleto` y las clases de
-ofertas y compra de turno), no en la liquidación con deducciones descrita arriba:
-
-- `R-DES-03` · el fondeo del pozo **cuadra al centavo**: confirmado + cubierto por el
-  fondo mutual + faltante = pozo. Lo pendiente es el faltante menos lo que cubrió el
-  respaldo empresarial —es la deuda que se conserva— y el fondeo solo está `FONDEADO`
-  cuando el pendiente es cero.
-- `R-DES-04` · **una oferta viva por turno**: el derecho a cobrar un turno no puede
-  estar publicado, reservado o liquidándose en dos ofertas a la vez.
-- `R-DES-05` · **una cesión viva por turno**, entre partes distintas, y sin retención de
-  fondos no hay título asignado ni cesión liquidada.
-
-Esos caminos devuelven además `AP-CU22-06` a `AP-CU22-09`, declarados en
-`openapi/entregas.yaml`; el contrato de arriba todavía no los lista.
+`R-AUD-05`
 
 ## Evidencia que deja
 
 [[entrega_fondo]] · [[deduccion_entrega]] · [[validacion_pre_entrega]] ·
 [[transaccion_billetera]] · [[devengo_comision]] · [[cargo_comision]] ·
-[[asiento_contable]] · [[constancia_pago]] · [[confirmacion_recepcion]] ·
-[[fondeo_entrega]] · [[oferta_turno]] · [[cesion_derecho]]
+[[asiento_contable]] · [[constancia_pago]] · [[confirmacion_recepcion]]
 
 ## Criterios de aceptación
 

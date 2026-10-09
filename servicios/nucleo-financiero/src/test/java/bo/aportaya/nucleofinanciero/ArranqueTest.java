@@ -52,8 +52,6 @@ class ArranqueTest {
         // La cuenta espejo de la custodia es del entorno. Aca alcanza con que exista:
         // lo que se comprueba es que el proceso la EXIGE para arrancar.
         registro.add("CUENTA_PUENTE_CUSTODIA", () -> "00000000-0000-0000-0000-0000000000c0");
-        // El secreto de los QR internos tambien es del entorno y tambien se exige para arrancar.
-        registro.add("QR_INTERNO_CLAVE", () -> "clave-de-prueba-de-los-qr-internos-0001");
     }
 
     @Autowired

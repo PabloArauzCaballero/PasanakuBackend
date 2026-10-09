@@ -563,70 +563,6 @@ entity "historial_estado_entrega" as histent {
   fecha_hora : TIMESTAMPTZ
 }
 
-
-' ----------------------------------------------------------------------------
-'  Carril C (H8, H9): fondeo completo del pozo y mercado del derecho de cobro.
-' ----------------------------------------------------------------------------
-entity "fondeo_entrega" as fondeo {
-  * id : UUID <<PK>>
-  --
-  # entrega_id : UUID <<FK, UQ>>
-  # turno_id : UUID <<FK, UQ>>
-  moneda : CHAR(3)
-  monto_pozo : DECIMAL(14,2) <<CK: > 0>>
-  monto_confirmado : DECIMAL(14,2) <<CK: >= 0>>
-  monto_cubierto_mutual : DECIMAL(14,2) <<CK: >= 0>>
-  monto_faltante : DECIMAL(14,2) <<CK: >= 0>>
-  monto_cubierto_empresa : DECIMAL(14,2) <<CK: >= 0>>
-  monto_pendiente : DECIMAL(14,2) <<CK: >= 0>>
-  cobertura_respaldo_id : UUID <<NULL>>
-  estado : VARCHAR(15) <<CK: FONDEADO|CON_PENDIENTE, IDX>>
-  corte_en : TIMESTAMPTZ
-  fondeada_en : TIMESTAMPTZ <<NULL>>
-  clave_idempotencia : VARCHAR(80) <<UQ>>
-  version : INTEGER
-}
-
-entity "oferta_turno" as ofturno {
-  * id : UUID <<PK>>
-  --
-  # grupo_id : UUID <<FK, IDX>>
-  # turno_id : UUID <<FK, IDX>>
-  # cupo_id : UUID <<FK>>
-  # participante_origen_id : UUID <<FK>>
-  vendedor_usuario_id : UUID <<IDX>>
-  moneda : CHAR(3)
-  monto_derecho : DECIMAL(14,2) <<CK: > 0>>
-  monto_precio : DECIMAL(14,2) <<CK: > 0>>
-  monto_cargos : DECIMAL(14,2) <<CK: >= 0>>
-  estado : VARCHAR(12) <<CK: PUBLICADA|RESERVADA|LIQUIDANDO|VENDIDA|CANCELADA|VENCIDA, IDX>>
-  vigente_hasta : TIMESTAMPTZ <<IDX>>
-  publicada_en : TIMESTAMPTZ
-  clave_idempotencia : VARCHAR(80) <<UQ>>
-  version : INTEGER
-}
-
-entity "cesion_derecho" as cesion {
-  * id : UUID <<PK>>
-  --
-  # oferta_turno_id : UUID <<FK, IDX>>
-  # turno_id : UUID <<FK, IDX>>
-  # participante_origen_id : UUID <<FK>>
-  # participante_destino_id : UUID <<FK>>
-  comprador_usuario_id : UUID <<IDX>>
-  moneda : CHAR(3)
-  monto_precio : DECIMAL(14,2) <<CK: > 0>>
-  estado : VARCHAR(16) <<CK: CREADA|VALIDADA|FONDOS_RETENIDOS|TITULO_ASIGNADO|LIQUIDADA|FALLIDA, IDX>>
-  retencion_ref : UUID <<NULL>>
-  liquidacion_ref : UUID <<NULL>>
-  motivo_fallo : VARCHAR(200) <<NULL>>
-  clave_idempotencia : VARCHAR(80) <<UQ>>
-  creada_en : TIMESTAMPTZ
-  titulo_asignado_en : TIMESTAMPTZ <<NULL>>
-  liquidada_en : TIMESTAMPTZ <<NULL>>
-  version : INTEGER
-}
-
 entrega ||--o{ deduc : "descuenta"
 entrega ||--|{ valid : "valida con"
 entrega ||--o{ ordendes : "desembolsa via"
@@ -637,9 +573,6 @@ entrega }o--o| ctabco : "abona en"
 regla ||--o{ valid : "instancia"
 ordendes ||--|{ intdes : "intenta"
 ctabco ||--o{ ordendes : "recibe"
-
-entrega ||--o| fondeo : "se fondea con"
-ofturno ||--o| cesion : "se liquida en"
 
 note top of entrega
   <b>Restricciones clave</b>

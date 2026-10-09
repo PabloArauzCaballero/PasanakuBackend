@@ -1,5 +1,11 @@
 package bo.aportaya.nucleofinanciero.aplicacion;
 
+import bo.aportaya.nucleofinanciero.aplicacion.CU13RetenerSaldo.EntradaRetencion;
+import bo.aportaya.nucleofinanciero.aplicacion.CU40EvaluarLimites.EntradaLimites;
+import bo.aportaya.nucleofinanciero.dominio.CondicionesDeRetiro;
+import bo.aportaya.nucleofinanciero.dominio.CondicionesDeRetiro.Situacion;
+import bo.aportaya.nucleofinanciero.dominio.CondicionesDeRetiro.Veredicto;
+import bo.aportaya.nucleofinanciero.dominio.CostoDeOperacion;
 import bo.aportaya.nucleofinanciero.dominio.EstadoDeRetiro;
 import bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRetiro;
 import bo.aportaya.nucleofinanciero.infraestructura.CuentaBilleteraRepositorio;
@@ -11,9 +17,13 @@ import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Reloj;
+import bo.aportaya.plataforma.mensajeria.EventoDominio;
 import bo.aportaya.plataforma.mensajeria.Outbox;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,14 +45,26 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CU11RetirarSaldo {
 
+    private static final String CONCEPTO = "RETIRO";
+    private static final String MOTIVO_RETENCION = "COMISION_PENDIENTE";
+
     private final Datos datos;
+    private final CuentaBilleteraRepositorio cuentas;
     private final OrdenRetiroRepositorio ordenes;
+    private final CU13RetenerSaldo retenciones;
+    private final CU40EvaluarLimites limites;
+    private final Outbox outbox;
+    private final Reloj reloj;
     private final ProveedorDeRetiro proveedor;
     private final ResolucionDeRetiro resolucion;
-    private final SolicitudDeRetiro solicitud;
 
-    // H4.S2.M6 · metricas de negocio, no tecnicas: cuantos retiros se piden, se autorizan (automatico o por
-    // aprobacion) y se rechazan (en cualquiera de sus motivos). `withdrawal_*_total`.
+    // H4.S2.M6 · metricas de negocio, no tecnicas: cuantos retiros se piden, se
+    // autorizan (automatico o por aprobacion) y se rechazan (en cualquiera de sus
+    // motivos). `withdrawal_*_total`, tageadas por `desenlace` para no multiplicar
+    // contadores — un dashboard suma o separa segun le convenga, sin tocar el codigo.
+    private final Counter retirosSolicitados;
+    private final Counter retirosAutorizados;
+    private final Counter retirosRechazados;
 
     public CU11RetirarSaldo(
             Datos datos,
@@ -57,28 +79,22 @@ public class CU11RetirarSaldo {
             ProveedorDeRetiro proveedor,
             MeterRegistry metricas) {
         this.datos = datos;
+        this.cuentas = cuentas;
         this.ordenes = ordenes;
+        this.retenciones = retenciones;
+        this.limites = limites;
+        this.outbox = outbox;
+        this.reloj = reloj;
         this.proveedor = proveedor;
-        Counter retirosSolicitados = Counter.builder("withdrawal_requested_total")
+        this.retirosSolicitados = Counter.builder("withdrawal_requested_total")
                 .description("Retiros solicitados, cualquiera sea su estado inicial")
                 .register(metricas);
-        Counter retirosAutorizados = Counter.builder("withdrawal_approved_total")
+        this.retirosAutorizados = Counter.builder("withdrawal_approved_total")
                 .description("Retiros que llegaron a AUTORIZADA, automatico o por aprobacion")
                 .register(metricas);
-        Counter retirosRechazados = Counter.builder("withdrawal_failed_total")
+        this.retirosRechazados = Counter.builder("withdrawal_failed_total")
                 .description("Retiros rechazados: MFA, limites, proveedor, revision o aprobador")
                 .register(metricas);
-        this.solicitud = new SolicitudDeRetiro(
-                datos,
-                cuentas,
-                ordenes,
-                retenciones,
-                limites,
-                outbox,
-                reloj,
-                retirosSolicitados,
-                retirosAutorizados,
-                retirosRechazados);
         this.resolucion = new ResolucionDeRetiro(
                 datos,
                 cuentas,
@@ -94,7 +110,107 @@ public class CU11RetirarSaldo {
 
     @Transactional
     public SalidaRetiro solicitar(EntradaRetiro entrada, ContextoSesion ctx) {
-        return solicitud.solicitar(entrada, ctx);
+        OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
+
+        return datos.conContexto(ctx, dsl -> {
+            ordenes.bloquearIdempotencia(dsl, entrada.cuentaBilleteraId(), entrada.claveIdempotencia());
+            var yaExiste = ordenes.porClaveIdempotencia(dsl, entrada.cuentaBilleteraId(), entrada.claveIdempotencia());
+            if (yaExiste.isPresent()) {
+                // El replay devuelve el costo ALMACENADO en la orden, no el que trae la
+                // entrada repetida: si el cotizador cambio entretanto, recotizar en el
+                // replay le mostraria a la persona un costo distinto del que se le cobro.
+                var orden = ordenes.ver(dsl, yaExiste.get()).orElseThrow();
+                return new SalidaRetiro(
+                        orden.id(),
+                        orden.estado(),
+                        orden.costo(),
+                        orden.neto(),
+                        orden.retencionId().orElse(null));
+            }
+
+            var cuenta = cuentas.bloquear(dsl, entrada.cuentaBilleteraId())
+                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(11, 1), "Esa billetera no existe."));
+            var instrumento = ordenes.instrumento(dsl, entrada.instrumentoDestinoId())
+                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(11, 4), "Esa cuenta de destino no existe."));
+
+            // Las condiciones duras, todas juntas y en orden: primero lo que la
+            // persona puede resolver, despues lo del sistema.
+            Veredicto veredicto = CondicionesDeRetiro.evaluar(
+                    new Situacion(
+                            entrada.mfaVerificado(),
+                            entrada.evidenciaMfaProvista(),
+                            cuenta.disponible(),
+                            entrada.monto(),
+                            instrumento.usuarioId().equals(cuenta.usuarioId()) && instrumento.titularCoincide(),
+                            instrumento.verificado(),
+                            instrumento.bloqueadoHasta(),
+                            ordenes.hayBloqueoDeAutoridad(dsl, cuenta.id()),
+                            ordenes.encajeCumplido(dsl, cuenta.moneda().name())),
+                    ahora);
+            if (!veredicto.permitido()) {
+                retirosRechazados.increment();
+                throw new ErrorDeNegocio(CodigosDeRetiro.de(veredicto.codigo()), veredicto.motivo());
+            }
+
+            limites.exigirDentroDe(dsl, new EntradaLimites(cuenta.id(), CONCEPTO, entrada.monto()), ctx);
+
+            Dinero neto = CostoDeOperacion.netoDeRetiro(entrada.monto(), entrada.costo());
+
+            // H3.S1.M2 (AMB-5, Q-02): por debajo del umbral, AUTORIZADA automatica en
+            // la MISMA transaccion de creacion — nunca PENDIENTE→PAGADA directo. Por
+            // encima, EN_REVISION hasta que un segundo aprobador (H3.S2) la mueva.
+            EstadoDeRetiro estadoInicial =
+                    entrada.requiereDobleAprobacion() ? EstadoDeRetiro.EN_REVISION : EstadoDeRetiro.AUTORIZADA;
+
+            // El orden importa: la retencion ANTES de la orden. Al reves, entre una y
+            // otra la persona podria gastar el mismo saldo en otra operacion.
+            var retencion = retenciones.retenerDentroDe(
+                    dsl,
+                    new EntradaRetencion(
+                            cuenta.id(),
+                            entrada.monto(),
+                            MOTIVO_RETENCION,
+                            Optional.empty(),
+                            Optional.of("ORDEN_RETIRO"),
+                            Optional.empty(),
+                            Optional.empty()),
+                    ctx);
+
+            UUID ordenId = ordenes.crear(
+                    dsl,
+                    cuenta.id(),
+                    entrada.instrumentoDestinoId(),
+                    retencion.retencionId(),
+                    ctx.usuarioId(),
+                    entrada.monto(),
+                    entrada.costo(),
+                    neto,
+                    entrada.mfaVerificado(),
+                    entrada.requiereDobleAprobacion(),
+                    instrumento.bloqueadoHasta(),
+                    entrada.claveIdempotencia(),
+                    estadoInicial.name(),
+                    ahora);
+
+            outbox.emitir(
+                    dsl,
+                    new EventoDominio(
+                            "nucleo_financiero.retiro_solicitado",
+                            "orden_retiro",
+                            ordenId,
+                            Map.of(
+                                    "cuentaBilleteraId", cuenta.id().toString(),
+                                    "monto", entrada.monto().toString(),
+                                    "neto", neto.toString()),
+                            UUID.fromString(ctx.traza().id())));
+
+            retirosSolicitados.increment();
+            if (estadoInicial == EstadoDeRetiro.AUTORIZADA) {
+                retirosAutorizados.increment();
+            }
+
+            return new SalidaRetiro(ordenId, estadoInicial.name(), entrada.costo(), neto, retencion.retencionId());
+        });
     }
 
     /** Consulta las ordenes EN_PROCESO que recorre la reconciliacion. */
@@ -166,74 +282,7 @@ public class CU11RetirarSaldo {
             // verificacion — es lo que separa MFA_REQUERIDO (nada) de MFA_INVALIDO
             // (algo, pero no vale).
             boolean evidenciaMfaProvista,
-            boolean requiereDobleAprobacion,
-            Optional<UUID> cotizacionId) {
-
-        /** Con evidencia de MFA pero sin cotizacion previa aceptada. */
-        public EntradaRetiro(
-                String claveIdempotencia,
-                UUID cuentaBilleteraId,
-                Dinero monto,
-                Dinero costo,
-                UUID instrumentoDestinoId,
-                boolean mfaVerificado,
-                boolean evidenciaMfaProvista,
-                boolean requiereDobleAprobacion) {
-            this(
-                    claveIdempotencia,
-                    cuentaBilleteraId,
-                    monto,
-                    costo,
-                    instrumentoDestinoId,
-                    mfaVerificado,
-                    evidenciaMfaProvista,
-                    requiereDobleAprobacion,
-                    Optional.empty());
-        }
-
-        /** Sin cotizacion previa aceptada; quien paso el MFA es quien presento evidencia. */
-        public EntradaRetiro(
-                String claveIdempotencia,
-                UUID cuentaBilleteraId,
-                Dinero monto,
-                Dinero costo,
-                UUID instrumentoDestinoId,
-                boolean mfaVerificado,
-                boolean requiereDobleAprobacion) {
-            this(
-                    claveIdempotencia,
-                    cuentaBilleteraId,
-                    monto,
-                    costo,
-                    instrumentoDestinoId,
-                    mfaVerificado,
-                    mfaVerificado,
-                    requiereDobleAprobacion,
-                    Optional.empty());
-        }
-
-        /** Con cotizacion previa aceptada; quien paso el MFA es quien presento evidencia. */
-        public EntradaRetiro(
-                String claveIdempotencia,
-                UUID cuentaBilleteraId,
-                Dinero monto,
-                Dinero costo,
-                UUID instrumentoDestinoId,
-                boolean mfaVerificado,
-                boolean requiereDobleAprobacion,
-                Optional<UUID> cotizacionId) {
-            this(
-                    claveIdempotencia,
-                    cuentaBilleteraId,
-                    monto,
-                    costo,
-                    instrumentoDestinoId,
-                    mfaVerificado,
-                    mfaVerificado,
-                    requiereDobleAprobacion,
-                    cotizacionId);
-        }
-    }
+            boolean requiereDobleAprobacion) {}
 
     public record SalidaRetiro(
             UUID ordenRetiroId, String estado, Dinero costoRetiro, Dinero montoNeto, UUID retencionId) {}

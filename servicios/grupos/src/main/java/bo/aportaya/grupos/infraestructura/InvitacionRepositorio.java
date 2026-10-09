@@ -4,7 +4,6 @@ import static bo.aportaya.grupos.generado.Tables.CUPO;
 import static bo.aportaya.grupos.generado.Tables.INVITACION;
 import static bo.aportaya.grupos.generado.Tables.PARTICIPANTE;
 
-import bo.aportaya.grupos.dominio.InvitacionRegistrada;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,7 +23,7 @@ public class InvitacionRepositorio {
         return dsl.fetchExists(dsl.selectFrom(PARTICIPANTE)
                 .where(PARTICIPANTE.GRUPO_ID.eq(grupoId))
                 .and(PARTICIPANTE.USUARIO_ID.eq(emisorId))
-                .and(PARTICIPANTE.ESTADO.in("ACTIVO", "ACEPTADO_PENDIENTE_FIRMA")));
+                .and(PARTICIPANTE.ESTADO.eq("ACTIVO")));
     }
 
     public UUID crear(
@@ -52,85 +51,22 @@ public class InvitacionRepositorio {
                 .fetchOne(INVITACION.ID);
     }
 
-    /**
-     * Pasa a EXPIRADA las invitaciones vencidas de ese destinatario en el grupo. Sin esto una
-     * invitacion vencida seguiria ENVIADA y el indice de unicidad bloquearia para siempre
-     * emitir otra al mismo numero.
-     */
-    public int expirarVencidas(DSLContext dsl, UUID grupoId, String telefono, OffsetDateTime ahora) {
-        return dsl.update(INVITACION)
-                .set(INVITACION.ESTADO, "EXPIRADA")
-                .where(INVITACION.GRUPO_ID.eq(grupoId))
-                .and(INVITACION.TELEFONO_INVITADO.eq(telefono))
-                .and(INVITACION.ESTADO.eq("ENVIADA"))
-                .and(INVITACION.FECHA_EXPIRACION.le(ahora))
-                .execute();
-    }
-
-    /** Si ya hay una invitacion viva (ENVIADA y sin vencer) para ese numero en ese grupo. */
-    public boolean hayVigente(DSLContext dsl, UUID grupoId, String telefono, OffsetDateTime ahora) {
-        return dsl.fetchExists(dsl.selectFrom(INVITACION)
-                .where(INVITACION.GRUPO_ID.eq(grupoId))
-                .and(INVITACION.TELEFONO_INVITADO.eq(telefono))
-                .and(INVITACION.ESTADO.eq("ENVIADA"))
-                .and(INVITACION.FECHA_EXPIRACION.gt(ahora)));
-    }
-
-    /** Revoca solo si sigue ENVIADA; cero filas significa que ya no era revocable. */
-    public int revocar(DSLContext dsl, UUID invitacionId, OffsetDateTime ahora) {
-        return dsl.update(INVITACION)
-                .set(INVITACION.ESTADO, "REVOCADA")
-                .set(INVITACION.FECHA_RESPUESTA, ahora)
-                .where(INVITACION.ID.eq(invitacionId))
-                .and(INVITACION.ESTADO.eq("ENVIADA"))
-                .execute();
-    }
-
-    public Optional<InvitacionRegistrada> porId(DSLContext dsl, UUID invitacionId) {
+    public Optional<Invitacion> porId(DSLContext dsl, UUID invitacionId) {
         Record fila = dsl.select(
                         INVITACION.ESTADO,
                         INVITACION.ENVIOS_REALIZADOS,
                         INVITACION.GRUPO_ID,
-                        INVITACION.FECHA_EXPIRACION,
-                        INVITACION.TOKEN_ID,
-                        INVITACION.EMISOR_ID)
+                        INVITACION.FECHA_EXPIRACION)
                 .from(INVITACION)
                 .where(INVITACION.ID.eq(invitacionId))
                 .fetchOne();
         return fila == null
                 ? Optional.empty()
-                : Optional.of(new InvitacionRegistrada(
+                : Optional.of(new Invitacion(
                         fila.get(INVITACION.ESTADO),
                         fila.get(INVITACION.ENVIOS_REALIZADOS),
                         fila.get(INVITACION.GRUPO_ID),
-                        fila.get(INVITACION.FECHA_EXPIRACION),
-                        fila.get(INVITACION.TOKEN_ID),
-                        fila.get(INVITACION.EMISOR_ID)));
-    }
-
-    /**
-     * Acepta la invitacion, y solo si sigue {@code ENVIADA}.
-     *
-     * <p>El {@code WHERE estado = 'ENVIADA'} es lo que hace el token de un solo uso:
-     * la segunda vez actualiza cero filas. Comprobarlo antes con un {@code SELECT}
-     * dejaria pasar dos aceptaciones simultaneas.
-     */
-    public int aceptar(
-            DSLContext dsl,
-            UUID invitacionId,
-            UUID tokenId,
-            UUID grupoId,
-            OffsetDateTime ahora,
-            OffsetDateTime consumidoEn) {
-        return dsl.update(INVITACION)
-                .set(INVITACION.ESTADO, "ACEPTADA")
-                .set(INVITACION.FECHA_RESPUESTA, ahora)
-                .where(INVITACION.ID.eq(invitacionId))
-                .and(INVITACION.TOKEN_ID.eq(tokenId))
-                .and(INVITACION.GRUPO_ID.eq(grupoId))
-                .and(INVITACION.FECHA_EXPIRACION.gt(consumidoEn))
-                .and(INVITACION.ESTADO.eq("ENVIADA"))
-                .execute();
+                        fila.get(INVITACION.FECHA_EXPIRACION)));
     }
 
     public int reenviar(DSLContext dsl, UUID invitacionId) {
@@ -143,4 +79,6 @@ public class InvitacionRepositorio {
     // `yaEsParticipante` NO vive aca a proposito: resolver un telefono exige leer
     // identidad.usuario, y este servicio no lee el esquema de otro (invariante 11).
     // La respuesta llega resuelta desde afuera, como el resto de lo que no es suyo.
+
+    public record Invitacion(String estado, short envios, UUID grupoId, OffsetDateTime expiraEn) {}
 }

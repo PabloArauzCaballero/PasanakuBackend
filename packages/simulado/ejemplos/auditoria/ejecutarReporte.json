@@ -56,10 +56,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU58-01",
-        "mensaje": "Sin permiso",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-ejecutarReporte-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

@@ -35,8 +35,6 @@ aportaya:
     # los rechaza la otra (ADR-037). El arranque avisa cuando pasa.
     clave-firma: ${JWT_CLAVE_FIRMA:}           # ADR-024: cada servicio valida la firma el mismo
   zona-horaria: America/La_Paz      # plazos habiles
-  invitaciones:
-    clave: ${INVITACIONES_CLAVE:}
   seguridad:
     # Fuera de la base a proposito: filtrar la tabla de credenciales no alcanza si
     # la pimienta no esta ahi. Si falta la variable, el proceso NO levanta.

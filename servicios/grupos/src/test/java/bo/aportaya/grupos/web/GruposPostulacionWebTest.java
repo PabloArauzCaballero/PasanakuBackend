@@ -14,7 +14,6 @@ import bo.aportaya.grupos.aplicacion.CU59CalcularPlazo;
 import bo.aportaya.grupos.aplicacion.CU64TraspasarCupo;
 import bo.aportaya.grupos.aplicacion.CU65Retirarse;
 import bo.aportaya.grupos.aplicacion.CU68Postular;
-import bo.aportaya.grupos.aplicacion.CU69Invitar;
 import bo.aportaya.grupos.aplicacion.Consultas;
 import bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
@@ -60,9 +59,6 @@ class GruposPostulacionWebTest {
     private MockMvc mvc;
 
     @MockitoBean
-    private bo.aportaya.grupos.aplicacion.CanjearInvitacion canjearInvitacion;
-
-    @MockitoBean
     private CU20CrearGrupo cu20;
 
     @MockitoBean
@@ -82,12 +78,6 @@ class GruposPostulacionWebTest {
 
     @MockitoBean
     private InvitacionesWeb invitaciones;
-
-    @MockitoBean
-    private AdmisionDelGrupo admision;
-
-    @MockitoBean
-    private CU69Invitar cu69;
 
     @MockitoBean
     private Consultas consultas;

@@ -158,7 +158,7 @@ export const ErroresCU68 = {
 
 ## Restricciones aplicables
 
-`R-UIF-09` · `R-GRP-14` · `R-GRP-15` · `R-GRP-17` · `R-GRP-19` · `R-AUD-01` · `R-AUD-04` · `R-SEG-03`
+`R-UIF-09` · `R-GRP-14` · `R-GRP-15` · `R-AUD-01` · `R-AUD-04` · `R-SEG-03`
 
 ## Evidencia que deja
 
@@ -166,8 +166,7 @@ export const ErroresCU68 = {
 [[propuesta_postulacion]] · [[criterio_emparejamiento]] ·
 [[score_riesgo_incumplimiento]] · [[perfil_financiero]] · [[cupo]] ·
 [[participante]] · [[aceptacion_reglamento]] · [[historial_estado_grupo]] ·
-`evento_dominio` ·
-[[alta_grupo]] · [[decision_ingreso]] · [[sustitucion_administrador]]
+`evento_dominio`
 
 ## Criterios de aceptación
 

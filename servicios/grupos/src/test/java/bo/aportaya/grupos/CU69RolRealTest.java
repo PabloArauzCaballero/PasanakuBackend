@@ -21,15 +21,7 @@ class CU69RolRealTest extends BaseDeCU69 {
             dsl.execute("SET LOCAL ROLE svc_grupos");
             return invitar.invitar(
                             new EntradaInvitacion(
-                                    grupo,
-                                    "+59176000042",
-                                    "Contacto",
-                                    "ENLACE",
-                                    false,
-                                    false,
-                                    3,
-                                    tokenEmitido,
-                                    java.time.OffsetDateTime.now().plusDays(7)),
+                                    grupo, "+59176000042", "Contacto", "ENLACE", false, false, 3, tokenEmitido),
                             contexto(emisor))
                     .invitacionId()
                     .orElseThrow();

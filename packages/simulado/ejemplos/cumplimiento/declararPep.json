@@ -48,10 +48,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU03-01",
-        "mensaje": "Declaracion incompleta",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-declararPep-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

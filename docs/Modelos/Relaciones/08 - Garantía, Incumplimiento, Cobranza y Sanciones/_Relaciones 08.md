@@ -3,12 +3,12 @@ tags:
   - moc
   - modulo/08-garantia-incumplimiento-cobranza-y-sanciones
 modulo: "08 — Garantía, Incumplimiento, Cobranza y Sanciones"
-relaciones_fk: 117
+relaciones_fk: 99
 ---
 
 # 08 — Garantía, Incumplimiento, Cobranza y Sanciones · relaciones
 
-Las **117 claves foráneas** que salen de las tablas de este módulo.
+Las **99 claves foráneas** que salen de las tablas de este módulo.
 
 [[_Relaciones|← Todas las relaciones]] · [[Index]]
 
@@ -36,7 +36,6 @@ Las **117 claves foráneas** que salen de las tablas de este módulo.
 | [[aval_participante.token_aceptacion_id → token_verificacion]] | [[token_verificacion]] | ↗ 01 | sí |
 | [[candidato_reemplazo.reemplazo_id → reemplazo_participante]] | [[reemplazo_participante]] | — | no |
 | [[candidato_reemplazo.usuario_id → usuario]] | [[usuario]] | ↗ 01 | no |
-| [[capacidad_respaldo.responsable_id → usuario]] | [[usuario]] | ↗ 01 | no |
 | [[castigo_deuda.aprobado_por → usuario]] | [[usuario]] | ↗ 01 | no |
 | [[castigo_deuda.asiento_contable_id → asiento_contable]] | [[asiento_contable]] | ↗ 03 | sí |
 | [[castigo_deuda.deuda_id → deuda_participante]] | [[deuda_participante]] | — | no |
@@ -47,14 +46,6 @@ Las **117 claves foráneas** que salen de las tablas de este módulo.
 | [[cobertura_incumplimiento.obligacion_id → obligacion_aporte]] | [[obligacion_aporte]] | ↗ 03 | no |
 | [[cobertura_incumplimiento.periodo_id → periodo]] | [[periodo]] | ↗ 02 | no |
 | [[cobertura_incumplimiento.registro_id → registro_incumplimiento]] | [[registro_incumplimiento]] | — | no |
-| [[cobertura_respaldo.grupo_id → grupo]] | [[grupo]] | ↗ 02 | no |
-| [[cobertura_respaldo.periodo_id → periodo]] | [[periodo]] | ↗ 02 | no |
-| [[cobertura_respaldo.reserva_respaldo_id → reserva_respaldo]] | [[reserva_respaldo]] | — | no |
-| [[cobertura_respaldo.responsable_id → usuario]] | [[usuario]] | ↗ 01 | no |
-| [[cobertura_respaldo.solicitada_por → usuario]] | [[usuario]] | ↗ 01 | no |
-| [[cobertura_respaldo.turno_id → turno]] | [[turno]] | ↗ 02 | no |
-| [[cobertura_respaldo_linea.cobertura_respaldo_id → cobertura_respaldo]] | [[cobertura_respaldo]] | — | no |
-| [[cobertura_respaldo_linea.obligacion_id → obligacion_aporte]] | [[obligacion_aporte]] | ↗ 03 | no |
 | [[descargo_participante.participante_id → participante]] | [[participante]] | ↗ 02 | no |
 | [[descargo_participante.registro_id → registro_incumplimiento]] | [[registro_incumplimiento]] | — | no |
 | [[descargo_participante.resuelto_por → usuario]] | [[usuario]] | ↗ 01 | sí |
@@ -91,18 +82,12 @@ Las **117 claves foráneas** que salen de las tablas de este módulo.
 | [[movimiento_fondo.asiento_contable_id → asiento_contable]] | [[asiento_contable]] | ↗ 03 | sí |
 | [[movimiento_fondo.fondo_id → fondo_garantia]] | [[fondo_garantia]] | — | no |
 | [[movimiento_fondo.registrado_por → usuario]] | [[usuario]] | ↗ 01 | sí |
-| [[movimiento_reserva.registrado_por → usuario]] | [[usuario]] | ↗ 01 | no |
-| [[movimiento_reserva.reserva_respaldo_id → reserva_respaldo]] | [[reserva_respaldo]] | — | no |
-| [[movimiento_reserva.responsable_id → usuario]] | [[usuario]] | ↗ 01 | no |
 | [[plan_contingencia.acuerdo_grupo_id → acuerdo]] | [[acuerdo]] | ↗ 02 | sí |
 | [[plan_contingencia.grupo_id → grupo]] | [[grupo]] | ↗ 02 | no |
 | [[politica_cobertura.grupo_id → grupo]] | [[grupo]] | ↗ 02 | sí |
 | [[politica_sancion.grupo_id → grupo]] | [[grupo]] | ↗ 02 | sí |
 | [[promesa_pago.gestion_id → gestion_cobranza]] | [[gestion_cobranza]] | — | no |
 | [[promesa_pago.registrada_por → usuario]] | [[usuario]] | ↗ 01 | sí |
-| [[recuperacion_respaldo.cobertura_respaldo_linea_id → cobertura_respaldo_linea]] | [[cobertura_respaldo_linea]] | — | no |
-| [[recuperacion_respaldo.movimiento_reserva_id → movimiento_reserva]] | [[movimiento_reserva]] | — | no |
-| [[recuperacion_respaldo.pago_id → pago]] | [[pago]] | ↗ 03 | no |
 | [[reemplazo_participante.acuerdo_grupo_id → acuerdo]] | [[acuerdo]] | ↗ 02 | sí |
 | [[reemplazo_participante.cupo_id → cupo]] | [[cupo]] | ↗ 02 | no |
 | [[reemplazo_participante.grupo_id → grupo]] | [[grupo]] | ↗ 02 | no |
@@ -118,9 +103,6 @@ Las **117 claves foráneas** que salen de las tablas de este módulo.
 | [[registro_incumplimiento.reportado_por → usuario]] | [[usuario]] | ↗ 01 | sí |
 | [[registro_incumplimiento.responsable_gestion → usuario]] | [[usuario]] | ↗ 01 | sí |
 | [[registro_incumplimiento.usuario_id → usuario]] | [[usuario]] | ↗ 01 | no |
-| [[reserva_respaldo.capacidad_respaldo_id → capacidad_respaldo]] | [[capacidad_respaldo]] | — | no |
-| [[reserva_respaldo.grupo_id → grupo]] | [[grupo]] | ↗ 02 | no |
-| [[reserva_respaldo.responsable_id → usuario]] | [[usuario]] | ↗ 01 | no |
 | [[sancion.acuerdo_grupo_id → acuerdo]] | [[acuerdo]] | ↗ 02 | sí |
 | [[sancion.aplicada_por → usuario]] | [[usuario]] | ↗ 01 | sí |
 | [[sancion.matriz_id → matriz_sancion]] | [[matriz_sancion]] | — | sí |

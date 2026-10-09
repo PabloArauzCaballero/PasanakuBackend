@@ -44,10 +44,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU62-01",
-        "mensaje": "Turno no permutable",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-solicitarPermuta-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

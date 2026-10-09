@@ -48,10 +48,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU05-01",
-        "mensaje": "Contrato no vigente",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-aceptarContrato-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

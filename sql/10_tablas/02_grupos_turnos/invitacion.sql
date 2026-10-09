@@ -9,10 +9,6 @@ CREATE TABLE IF NOT EXISTS grupos.invitacion (
   nombre_sugerido                    VARCHAR(80),
   emisor_id                          UUID NOT NULL,
   token_id                           UUID NOT NULL,
-  consumidor_id                      UUID,
-  clave_consumo                      UUID,
-  solicitud_ingreso_id               UUID,
-  huella_canje                       VARCHAR(64),
   canal                              VARCHAR(15) NOT NULL,
   estado                             VARCHAR(15) NOT NULL,
   envios_realizados                  SMALLINT NOT NULL,
@@ -30,11 +26,7 @@ COMMENT ON COLUMN grupos.invitacion.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN grupos.invitacion.telefono_invitado IS 'IDX';
 COMMENT ON COLUMN grupos.invitacion.nombre_sugerido IS 'NULL';
 COMMENT ON COLUMN grupos.invitacion.emisor_id IS 'FK';
-COMMENT ON COLUMN grupos.invitacion.token_id IS 'FK, UQ, M1';
-COMMENT ON COLUMN grupos.invitacion.consumidor_id IS 'NULL';
-COMMENT ON COLUMN grupos.invitacion.clave_consumo IS 'NULL';
-COMMENT ON COLUMN grupos.invitacion.solicitud_ingreso_id IS 'NULL';
-COMMENT ON COLUMN grupos.invitacion.huella_canje IS 'NULL';
+COMMENT ON COLUMN grupos.invitacion.token_id IS 'FK, M1';
 COMMENT ON COLUMN grupos.invitacion.canal IS 'CK';
 COMMENT ON COLUMN grupos.invitacion.estado IS 'CK';
 COMMENT ON COLUMN grupos.invitacion.fecha_respuesta IS 'NULL';

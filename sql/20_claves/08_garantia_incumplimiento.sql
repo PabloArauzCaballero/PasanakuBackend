@@ -119,11 +119,6 @@ ALTER TABLE garantia.candidato_reemplazo
   ADD CONSTRAINT fk_candidato_reemplazo_usuario_id
   FOREIGN KEY (usuario_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
-ALTER TABLE garantia.capacidad_respaldo DROP CONSTRAINT IF EXISTS fk_capacidad_respaldo_responsable_id;
-ALTER TABLE garantia.capacidad_respaldo
-  ADD CONSTRAINT fk_capacidad_respaldo_responsable_id
-  FOREIGN KEY (responsable_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
 ALTER TABLE garantia.castigo_deuda DROP CONSTRAINT IF EXISTS fk_castigo_deuda_aprobado_por;
 ALTER TABLE garantia.castigo_deuda
   ADD CONSTRAINT fk_castigo_deuda_aprobado_por
@@ -173,46 +168,6 @@ ALTER TABLE garantia.cobertura_incumplimiento DROP CONSTRAINT IF EXISTS fk_cober
 ALTER TABLE garantia.cobertura_incumplimiento
   ADD CONSTRAINT fk_cobertura_incumplimiento_registro_id
   FOREIGN KEY (registro_id) REFERENCES garantia.registro_incumplimiento (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE garantia.cobertura_respaldo DROP CONSTRAINT IF EXISTS fk_cobertura_respaldo_grupo_id;
-ALTER TABLE garantia.cobertura_respaldo
-  ADD CONSTRAINT fk_cobertura_respaldo_grupo_id
-  FOREIGN KEY (grupo_id) REFERENCES grupos.grupo (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE garantia.cobertura_respaldo DROP CONSTRAINT IF EXISTS fk_cobertura_respaldo_periodo_id;
-ALTER TABLE garantia.cobertura_respaldo
-  ADD CONSTRAINT fk_cobertura_respaldo_periodo_id
-  FOREIGN KEY (periodo_id) REFERENCES grupos.periodo (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE garantia.cobertura_respaldo DROP CONSTRAINT IF EXISTS fk_cobertura_respaldo_reserva_respaldo_id;
-ALTER TABLE garantia.cobertura_respaldo
-  ADD CONSTRAINT fk_cobertura_respaldo_reserva_respaldo_id
-  FOREIGN KEY (reserva_respaldo_id) REFERENCES garantia.reserva_respaldo (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE garantia.cobertura_respaldo DROP CONSTRAINT IF EXISTS fk_cobertura_respaldo_responsable_id;
-ALTER TABLE garantia.cobertura_respaldo
-  ADD CONSTRAINT fk_cobertura_respaldo_responsable_id
-  FOREIGN KEY (responsable_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE garantia.cobertura_respaldo DROP CONSTRAINT IF EXISTS fk_cobertura_respaldo_solicitada_por;
-ALTER TABLE garantia.cobertura_respaldo
-  ADD CONSTRAINT fk_cobertura_respaldo_solicitada_por
-  FOREIGN KEY (solicitada_por) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE garantia.cobertura_respaldo DROP CONSTRAINT IF EXISTS fk_cobertura_respaldo_turno_id;
-ALTER TABLE garantia.cobertura_respaldo
-  ADD CONSTRAINT fk_cobertura_respaldo_turno_id
-  FOREIGN KEY (turno_id) REFERENCES grupos.turno (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE garantia.cobertura_respaldo_linea DROP CONSTRAINT IF EXISTS fk_cobertura_respaldo_linea_cobertura_respaldo_id;
-ALTER TABLE garantia.cobertura_respaldo_linea
-  ADD CONSTRAINT fk_cobertura_respaldo_linea_cobertura_respaldo_id
-  FOREIGN KEY (cobertura_respaldo_id) REFERENCES garantia.cobertura_respaldo (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE garantia.cobertura_respaldo_linea DROP CONSTRAINT IF EXISTS fk_cobertura_respaldo_linea_obligacion_id;
-ALTER TABLE garantia.cobertura_respaldo_linea
-  ADD CONSTRAINT fk_cobertura_respaldo_linea_obligacion_id
-  FOREIGN KEY (obligacion_id) REFERENCES aportes.obligacion_aporte (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 ALTER TABLE garantia.descargo_participante DROP CONSTRAINT IF EXISTS fk_descargo_participante_participante_id;
 ALTER TABLE garantia.descargo_participante
@@ -394,21 +349,6 @@ ALTER TABLE garantia.movimiento_fondo
   ADD CONSTRAINT fk_movimiento_fondo_registrado_por
   FOREIGN KEY (registrado_por) REFERENCES identidad.usuario (id) ON DELETE SET NULL ON UPDATE CASCADE;
 
-ALTER TABLE garantia.movimiento_reserva DROP CONSTRAINT IF EXISTS fk_movimiento_reserva_registrado_por;
-ALTER TABLE garantia.movimiento_reserva
-  ADD CONSTRAINT fk_movimiento_reserva_registrado_por
-  FOREIGN KEY (registrado_por) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE garantia.movimiento_reserva DROP CONSTRAINT IF EXISTS fk_movimiento_reserva_reserva_respaldo_id;
-ALTER TABLE garantia.movimiento_reserva
-  ADD CONSTRAINT fk_movimiento_reserva_reserva_respaldo_id
-  FOREIGN KEY (reserva_respaldo_id) REFERENCES garantia.reserva_respaldo (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE garantia.movimiento_reserva DROP CONSTRAINT IF EXISTS fk_movimiento_reserva_responsable_id;
-ALTER TABLE garantia.movimiento_reserva
-  ADD CONSTRAINT fk_movimiento_reserva_responsable_id
-  FOREIGN KEY (responsable_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
 ALTER TABLE garantia.plan_contingencia DROP CONSTRAINT IF EXISTS fk_plan_contingencia_acuerdo_grupo_id;
 ALTER TABLE garantia.plan_contingencia
   ADD CONSTRAINT fk_plan_contingencia_acuerdo_grupo_id
@@ -438,21 +378,6 @@ ALTER TABLE garantia.promesa_pago DROP CONSTRAINT IF EXISTS fk_promesa_pago_regi
 ALTER TABLE garantia.promesa_pago
   ADD CONSTRAINT fk_promesa_pago_registrada_por
   FOREIGN KEY (registrada_por) REFERENCES identidad.usuario (id) ON DELETE SET NULL ON UPDATE CASCADE;
-
-ALTER TABLE garantia.recuperacion_respaldo DROP CONSTRAINT IF EXISTS fk_recuperacion_respaldo_cobertura_respaldo_linea_id;
-ALTER TABLE garantia.recuperacion_respaldo
-  ADD CONSTRAINT fk_recuperacion_respaldo_cobertura_respaldo_linea_id
-  FOREIGN KEY (cobertura_respaldo_linea_id) REFERENCES garantia.cobertura_respaldo_linea (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE garantia.recuperacion_respaldo DROP CONSTRAINT IF EXISTS fk_recuperacion_respaldo_movimiento_reserva_id;
-ALTER TABLE garantia.recuperacion_respaldo
-  ADD CONSTRAINT fk_recuperacion_respaldo_movimiento_reserva_id
-  FOREIGN KEY (movimiento_reserva_id) REFERENCES garantia.movimiento_reserva (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE garantia.recuperacion_respaldo DROP CONSTRAINT IF EXISTS fk_recuperacion_respaldo_pago_id;
-ALTER TABLE garantia.recuperacion_respaldo
-  ADD CONSTRAINT fk_recuperacion_respaldo_pago_id
-  FOREIGN KEY (pago_id) REFERENCES aportes.pago (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 ALTER TABLE garantia.reemplazo_participante DROP CONSTRAINT IF EXISTS fk_reemplazo_participante_acuerdo_grupo_id;
 ALTER TABLE garantia.reemplazo_participante
@@ -528,21 +453,6 @@ ALTER TABLE garantia.registro_incumplimiento DROP CONSTRAINT IF EXISTS fk_regist
 ALTER TABLE garantia.registro_incumplimiento
   ADD CONSTRAINT fk_registro_incumplimiento_usuario_id
   FOREIGN KEY (usuario_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE garantia.reserva_respaldo DROP CONSTRAINT IF EXISTS fk_reserva_respaldo_capacidad_respaldo_id;
-ALTER TABLE garantia.reserva_respaldo
-  ADD CONSTRAINT fk_reserva_respaldo_capacidad_respaldo_id
-  FOREIGN KEY (capacidad_respaldo_id) REFERENCES garantia.capacidad_respaldo (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE garantia.reserva_respaldo DROP CONSTRAINT IF EXISTS fk_reserva_respaldo_grupo_id;
-ALTER TABLE garantia.reserva_respaldo
-  ADD CONSTRAINT fk_reserva_respaldo_grupo_id
-  FOREIGN KEY (grupo_id) REFERENCES grupos.grupo (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE garantia.reserva_respaldo DROP CONSTRAINT IF EXISTS fk_reserva_respaldo_responsable_id;
-ALTER TABLE garantia.reserva_respaldo
-  ADD CONSTRAINT fk_reserva_respaldo_responsable_id
-  FOREIGN KEY (responsable_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 ALTER TABLE garantia.sancion DROP CONSTRAINT IF EXISTS fk_sancion_acuerdo_grupo_id;
 ALTER TABLE garantia.sancion

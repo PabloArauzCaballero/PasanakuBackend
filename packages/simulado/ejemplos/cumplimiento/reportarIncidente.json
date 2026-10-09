@@ -32,10 +32,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU55-01",
-        "mensaje": "Sin responsable designado",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-reportarIncidente-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

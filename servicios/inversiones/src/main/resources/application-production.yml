@@ -1,7 +1,0 @@
-# inversiones — perfil production — generado por scripts/nuevo_servicio.py
-# Unicamente lo que varia por entorno. El resto esta en application.yml (comun).
-aportaya:
-  entorno:
-    productivo: true        # Q-04: true fuera de local/test
-  cors:
-    origenes: ${APORTAYA_CORS_ORIGENES}  # OBLIGATORIO en staging/production: sin default y nunca *. GuardiaDeProduccion falla el arranque si falta o es *.

@@ -48,10 +48,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU91-01",
-        "mensaje": "Token invalido",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-rescindirContrato-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

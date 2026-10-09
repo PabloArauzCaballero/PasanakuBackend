@@ -1,8 +1,6 @@
 package bo.aportaya.organizador;
 
-import bo.aportaya.organizador.aplicacion.CU90ConsultarBandeja;
 import bo.aportaya.organizador.aplicacion.CU90PostularOrganizador;
-import bo.aportaya.organizador.aplicacion.CU90ResolverHabilitacion;
 import bo.aportaya.organizador.aplicacion.CU91FirmarContrato;
 import bo.aportaya.organizador.aplicacion.CU92EvaluarDesempeno;
 import bo.aportaya.organizador.aplicacion.CU93SancionarOrganizador;
@@ -11,7 +9,6 @@ import bo.aportaya.organizador.aplicacion.CU96EjecutarTarea;
 import bo.aportaya.organizador.infraestructura.AutomatizacionRepositorio;
 import bo.aportaya.organizador.infraestructura.ContratoRepositorio;
 import bo.aportaya.organizador.infraestructura.DesempenoRepositorio;
-import bo.aportaya.organizador.infraestructura.HabilitacionRepositorio;
 import bo.aportaya.organizador.infraestructura.OrganizadorRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
@@ -52,9 +49,6 @@ abstract class BaseDeOrganizador {
     protected static Consumidos consumidos;
 
     protected static CU90PostularOrganizador postulacionCU;
-    protected static CU90ResolverHabilitacion resolucionCU;
-    protected static CU90ConsultarBandeja bandejaCU;
-    protected static final int TOPE_BANDEJA = 100;
     protected static CU91FirmarContrato contratoCU;
     protected static CU92EvaluarDesempeno desempenoCU;
     protected static CU93SancionarOrganizador sancionCU;
@@ -80,15 +74,6 @@ abstract class BaseDeOrganizador {
 
         postulacionCU = new CU90PostularOrganizador(
                 datos, organizadores, outbox, Reloj.delSistema(), GRUPOS_APRENDIZ, MONTO_APRENDIZ);
-        resolucionCU = new CU90ResolverHabilitacion(
-                datos,
-                organizadores,
-                new HabilitacionRepositorio(),
-                outbox,
-                Reloj.delSistema(),
-                GRUPOS_APRENDIZ,
-                MONTO_APRENDIZ);
-        bandejaCU = new CU90ConsultarBandeja(datos, new HabilitacionRepositorio(), TOPE_BANDEJA);
         contratoCU =
                 new CU91FirmarContrato(datos, new ContratoRepositorio(), organizadores, outbox, Reloj.delSistema());
         desempenoCU = new CU92EvaluarDesempeno(
@@ -116,10 +101,10 @@ abstract class BaseDeOrganizador {
         return String.valueOf(raiz.getMessage());
     }
 
-    protected String rechazaLaBase(String sql, Object... parametros) {
+    protected String rechazaLaBase(String sql) {
         try {
             transaccion.execute(estado -> {
-                dsl.execute(sql, parametros);
+                dsl.execute(sql);
                 estado.setRollbackOnly();
                 return null;
             });

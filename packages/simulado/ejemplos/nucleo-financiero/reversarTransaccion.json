@@ -48,10 +48,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU14-01",
-        "mensaje": "Transaccion no reversable",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-reversarTransaccion-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

@@ -76,10 +76,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU13-03",
-        "mensaje": "Retencion ya ejecutada",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-cerrarRetencion-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

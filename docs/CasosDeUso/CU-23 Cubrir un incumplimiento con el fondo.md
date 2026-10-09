@@ -111,40 +111,13 @@ export const ErroresCU23 = {
 
 ## Restricciones aplicables
 
-`R-BIL-01` · `R-AUD-01` · `R-AUD-05` · `R-GRP-02` · `R-GAR-08` · `R-GAR-09` ·
-`R-GAR-10` · `R-GAR-11` · `R-GAR-12`
-
-Las cinco últimas las hace cumplir la base en el camino del **respaldo empresarial** del
-servicio `garantia` (`CU23ReservarRespaldo` y `CU23CubrirConRespaldo`: la empresa aparta
-por ciclo una reserva de una capacidad finita y la usa para cubrir lo que no llegó al
-corte del pozo), no en la cobertura con el fondo mutual descrita arriba:
-
-- `R-GAR-08` · la capacidad empresarial comprometida **nunca supera su tope**. Dos grupos
-  que activan a la vez compiten por la misma fila de capacidad: se bloquea primero y la
-  base lo vuelve a exigir. Sin capacidad cargada se deniega; el tope es un dato.
-- `R-GAR-09` · la reserva se mueve solo con **movimientos inmutables** y nunca se usa más
-  de lo reservado (aplicado + liberado ≤ reservado; recuperado ≤ aplicado). Los
-  contadores de la reserva y de la capacidad son caché del libro de movimientos que
-  mantiene la base, y una reserva liberada no admite ampliación ni aplicación.
-- `R-GAR-10` · **una cobertura viva por turno** (la reversada deja de contar) y su
-  faltante cuadra con el pozo: faltante = pozo − confirmado − cubierto por el fondo mutual.
-- `R-GAR-11` · las líneas de una cobertura **suman exactamente su faltante** (se verifica
-  al confirmar) y cada línea recupera a lo sumo lo que cubrió: nadie se recupera dos
-  veces por el mismo pago.
-- `R-GAR-12` · el turno de una cobertura **es del grupo y del periodo que declara**: la
-  base lo comprueba con una consulta de alcance mínimo a `grupos` y rechaza un turno de
-  otro grupo.
-
-Esos caminos devuelven además `AP-CU23-05`, `AP-CU23-06`, `AP-CU23-07`, `AP-CU23-09`,
-`AP-CU23-11`, `AP-CU23-12` y `AP-CU23-13`, declarados en `openapi/garantia.yaml`; el
-contrato de arriba todavía no los lista.
+`R-BIL-01` · `R-AUD-01` · `R-AUD-05` · `R-GRP-02`
 
 ## Evidencia que deja
 
 [[registro_incumplimiento]] · [[cobertura_incumplimiento]] · [[movimiento_fondo]] ·
 [[deuda_participante]] · [[subrogacion]] · [[transaccion_billetera]] ·
-[[asiento_contable]] · [[gestion_cobranza]] ·
-[[capacidad_respaldo]] · [[reserva_respaldo]] · [[movimiento_reserva]] · [[cobertura_respaldo]] · [[cobertura_respaldo_linea]] · [[recuperacion_respaldo]]
+[[asiento_contable]] · [[gestion_cobranza]]
 
 ## Criterios de aceptación
 

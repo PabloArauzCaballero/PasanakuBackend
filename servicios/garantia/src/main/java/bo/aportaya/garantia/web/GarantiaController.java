@@ -6,22 +6,12 @@ import bo.aportaya.garantia.aplicacion.CU67DisolverGrupo;
 import bo.aportaya.garantia.dominio.CuadreDeDisolucion;
 import bo.aportaya.garantia.web.generado.GarantiaApi;
 import bo.aportaya.garantia.web.generado.modelo.AprobarReemplazo200Response;
-import bo.aportaya.garantia.web.generado.modelo.EntradaAmpliacionRespaldo;
-import bo.aportaya.garantia.web.generado.modelo.EntradaCoberturaRespaldo;
 import bo.aportaya.garantia.web.generado.modelo.EntradaDevolucionFondo;
 import bo.aportaya.garantia.web.generado.modelo.EntradaDisolucion;
-import bo.aportaya.garantia.web.generado.modelo.EntradaRecuperacionRespaldo;
-import bo.aportaya.garantia.web.generado.modelo.EntradaReservaRespaldo;
-import bo.aportaya.garantia.web.generado.modelo.SalidaAmpliacionRespaldo;
 import bo.aportaya.garantia.web.generado.modelo.SalidaCierreDisolucion;
-import bo.aportaya.garantia.web.generado.modelo.SalidaCoberturaRespaldo;
 import bo.aportaya.garantia.web.generado.modelo.SalidaDevolucionFondo;
 import bo.aportaya.garantia.web.generado.modelo.SalidaDisolucion;
-import bo.aportaya.garantia.web.generado.modelo.SalidaLiberacionRespaldo;
-import bo.aportaya.garantia.web.generado.modelo.SalidaRecuperacionRespaldo;
 import bo.aportaya.garantia.web.generado.modelo.SalidaReemplazo;
-import bo.aportaya.garantia.web.generado.modelo.SalidaReservaRespaldo;
-import bo.aportaya.garantia.web.generado.modelo.SalidaReversaRespaldo;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
@@ -43,19 +33,16 @@ public class GarantiaController implements GarantiaApi {
     private final CU29DevolverFondo cu29;
     private final CU66ReemplazarParticipante cu66;
     private final CU67DisolverGrupo cu67;
-    private final RespaldoWeb respaldo;
     private final SesionDeLaPeticion sesion;
 
     public GarantiaController(
             CU29DevolverFondo cu29,
             CU66ReemplazarParticipante cu66,
             CU67DisolverGrupo cu67,
-            RespaldoWeb respaldo,
             SesionDeLaPeticion sesion) {
         this.cu29 = cu29;
         this.cu66 = cu66;
         this.cu67 = cu67;
-        this.respaldo = respaldo;
         this.sesion = sesion;
     }
 
@@ -144,47 +131,5 @@ public class GarantiaController implements GarantiaApi {
         respuesta.setEstado(SalidaCierreDisolucion.EstadoEnum.fromValue(salida.estado()));
         respuesta.setCerradaEn(salida.cerradaEn());
         return ResponseEntity.ok(respuesta);
-    }
-
-    // --- respaldo empresarial (carril C): las seis rutas de /garantia/respaldo ---------------
-    // La traduccion vive en RespaldoWeb; el permiso, que es lo que la guardia lee, vive aca.
-
-    @Override
-    @Permiso("ADMIN_PLATAFORMA")
-    public ResponseEntity<SalidaReservaRespaldo> reservarRespaldo(UUID idempotencyKey, EntradaReservaRespaldo cuerpo) {
-        return respaldo.reservarRespaldo(idempotencyKey, cuerpo);
-    }
-
-    @Override
-    @Permiso("ADMIN_PLATAFORMA")
-    public ResponseEntity<SalidaAmpliacionRespaldo> ampliarRespaldo(
-            UUID reservaId, UUID idempotencyKey, EntradaAmpliacionRespaldo cuerpo) {
-        return respaldo.ampliarRespaldo(reservaId, idempotencyKey, cuerpo);
-    }
-
-    @Override
-    @Permiso("ADMIN_PLATAFORMA")
-    public ResponseEntity<SalidaLiberacionRespaldo> liberarRespaldo(UUID reservaId, UUID idempotencyKey) {
-        return respaldo.liberarRespaldo(reservaId, idempotencyKey);
-    }
-
-    @Override
-    @Permiso("ENTREGA_EJECUTAR")
-    public ResponseEntity<SalidaCoberturaRespaldo> cubrirConRespaldo(
-            UUID idempotencyKey, EntradaCoberturaRespaldo cuerpo) {
-        return respaldo.cubrirConRespaldo(idempotencyKey, cuerpo);
-    }
-
-    @Override
-    @Permiso("ADMIN_PLATAFORMA")
-    public ResponseEntity<SalidaReversaRespaldo> reversarCoberturaRespaldo(UUID coberturaId, UUID idempotencyKey) {
-        return respaldo.reversarCoberturaRespaldo(coberturaId, idempotencyKey);
-    }
-
-    @Override
-    @Permiso("ADMIN_PLATAFORMA")
-    public ResponseEntity<SalidaRecuperacionRespaldo> recuperarRespaldo(
-            UUID idempotencyKey, EntradaRecuperacionRespaldo cuerpo) {
-        return respaldo.recuperarRespaldo(idempotencyKey, cuerpo);
     }
 }

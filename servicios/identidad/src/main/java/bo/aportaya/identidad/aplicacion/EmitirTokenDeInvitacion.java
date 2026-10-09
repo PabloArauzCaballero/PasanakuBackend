@@ -1,175 +1,102 @@
 package bo.aportaya.identidad.aplicacion;
 
-import bo.aportaya.identidad.infraestructura.SecretoDeInvitacion;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Ids;
 import bo.aportaya.plataforma.dominio.Reloj;
+import bo.aportaya.plataforma.dominio.Traza;
+import java.security.SecureRandom;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
+import java.util.HexFormat;
 import java.util.UUID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Emisión idempotente vinculada al emisor, grupo y teléfono; secreto fuera de la base.
+ * El enlace de un solo uso con el que se invita a alguien a un grupo.
  *
- * <p>Límite de emisión: {@code max_emisiones_por_dia} de la política vigente, contado por emisor
- * en las últimas 24 horas y bajo bloqueo por emisor (dos emisiones simultáneas no lo superan).
- * Reemisión: {@code invalida_anteriores} de la política decide, de forma explícita, si la
- * emisión nueva revoca las anteriores vivas del mismo grupo y teléfono. Nada se revoca por accidente.
+ * <p>{@code token_verificacion} es de este servicio, y su politica —vigencia, canales
+ * permitidos, cuantas veces se puede reenviar— esta sembrada en {@code politica_token}
+ * bajo el proposito {@code INVITACION_GRUPO}. {@code grupos} no puede escribir esa
+ * tabla (invariante 11): pide el token y guarda su identificador.
+ *
+ * <p><b>Se guarda el hash, no el token.</b> Quien tenga la base no puede reconstruir
+ * los enlaces vivos; el valor en claro se devuelve una sola vez, a quien lo va a enviar.
  */
 @Service
 public class EmitirTokenDeInvitacion {
-    private static final Logger BITACORA = LoggerFactory.getLogger(EmitirTokenDeInvitacion.class);
+
+    private static final String PROPOSITO = "INVITACION_GRUPO";
+
+    /** Treinta y dos bytes de azar: un enlace adivinable es una invitacion para cualquiera. */
+    private static final int BYTES_DE_AZAR = 32;
+
     private final Datos datos;
     private final Reloj reloj;
     private final Ids ids;
-    private final SecretoDeInvitacion secretos;
+    private final SecureRandom azar = new SecureRandom();
 
-    public EmitirTokenDeInvitacion(Datos datos, Reloj reloj, Ids ids, SecretoDeInvitacion secretos) {
+    public EmitirTokenDeInvitacion(Datos datos, Reloj reloj, Ids ids) {
         this.datos = datos;
         this.reloj = reloj;
         this.ids = ids;
-        this.secretos = secretos;
     }
 
     @Transactional
-    public Emitido ejecutar(Entrada e, ContextoSesion ctx) {
-        if (e.clave() == null
-                || e.grupoId() == null
-                || e.telefono() == null
-                || !e.telefono().matches("\\+591[0-9]{8}")
-                || e.canal() == null) {
-            throw invalida();
-        }
-        String huella = secretos.firmar(
-                "solicitud", ctx.usuarioId() + "|" + e.grupoId() + "|" + e.telefono() + "|" + e.canal());
-        var ahora = reloj.ahora().atOffset(ZoneOffset.UTC).truncatedTo(ChronoUnit.MICROS);
-        return datos.conContexto(ctx, dsl -> {
-            dsl.execute("SELECT pg_advisory_xact_lock(hashtextextended(?,0))", "invitacion:" + e.clave());
-            var anterior = dsl.fetchOne(
-                    """
-                SELECT a.*, t.expira_en, t.estado FROM identidad.alcance_invitacion a
-                JOIN identidad.token_verificacion t ON t.id=a.token_id WHERE a.clave_emision=?
-                """,
-                    e.clave());
-            if (anterior != null) {
-                if (!huella.equals(anterior.get("huella_solicitud", String.class))) throw invalida();
-                // Un enlace revocado o reemitido no se "recupera": devolverlo daria un enlace muerto.
-                if ("INVALIDADO".equals(anterior.get("estado", String.class))) throw invalida();
-                UUID id = anterior.get("token_id", UUID.class);
-                return new Emitido(
-                        id,
-                        secretos.firmar("enlace", id + ":" + anterior.get("nonce", String.class)),
-                        anterior.get("expira_en", OffsetDateTime.class).withOffsetSameInstant(ZoneOffset.UTC));
-            }
+    public Emitido ejecutar(
+            String canal,
+            String destinoEnmascarado,
+            UUID idempotencia,
+            String ipOrigen,
+            String agenteUsuario,
+            ContextoSesion ctx) {
+        OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
+        byte[] bytes = new byte[BYTES_DE_AZAR];
+        azar.nextBytes(bytes);
+        String enClaro = HexFormat.of().formatHex(bytes);
+        UUID id = ids.nuevo();
+
+        // El enlace todavía no pertenece a un usuario: usuario_id es NULL y la
+        // política de fila no permite insertarlo como participante.
+        ContextoSesion interno =
+                ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
+        return datos.conContexto(interno, dsl -> {
             var politica = dsl.fetchOne(
-                    """
-                SELECT * FROM identidad.politica_token WHERE proposito='INVITACION_GRUPO'
-                AND vigente_desde<=?::timestamptz ORDER BY vigente_desde DESC LIMIT 1
-                """,
-                    ahora);
-            if (politica == null
-                    || !Arrays.asList(politica.get("canales_permitidos", String.class)
-                                    .split("[,|;\\s]+"))
-                            .contains(e.canal())) throw invalida();
-            dsl.execute("SELECT pg_advisory_xact_lock(hashtextextended(?,0))", "invitacion-emisor:" + ctx.usuarioId());
-            var recientes = dsl.fetchOne(
-                    """
-                SELECT count(*) FROM identidad.alcance_invitacion a
-                JOIN identidad.token_verificacion t ON t.id=a.token_id
-                WHERE a.emisor_id=? AND t.emitido_en > ?::timestamptz
-                """,
-                    ctx.usuarioId(),
-                    ahora.minusDays(1));
-            if (recientes.get(0, Long.class) >= politica.get("max_emisiones_por_dia", Short.class)) {
-                BITACORA.warn("limite diario de invitaciones alcanzado emisorId={}", ctx.usuarioId());
-                throw new ErrorDeNegocio(
-                        CodigoError.de(69, 8), "Alcanzaste el limite diario de invitaciones. Proba manana.");
+                    "SELECT id, ttl_segundos FROM identidad.politica_token WHERE proposito = ?", PROPOSITO);
+            if (politica == null) {
+                // Denegar por omision: sin politica sembrada no se inventa una vigencia.
+                throw new ErrorDeNegocio(CodigoError.de(9, 1), "No hay politica de token para invitaciones de grupo.");
             }
-            int revocadas = Boolean.TRUE.equals(politica.get("invalida_anteriores", Boolean.class))
-                    ? revocarVivas(dsl, e.grupoId(), e.telefono(), ahora)
-                    : 0;
-            UUID id = ids.nuevo();
-            String nonce = secretos.nonce();
-            String token = secretos.firmar("enlace", id + ":" + nonce);
-            var expira = ahora.plusSeconds(politica.get("ttl_segundos", Integer.class));
             dsl.execute(
                     """
-                INSERT INTO identidad.token_verificacion
-                (id,usuario_id,politica_id,tipo_token,proposito,hash_token,algoritmo_hash,
-                 canal_entrega,destino_enmascarado,estado,emitido_en,expira_en,intentos_fallidos,
-                 max_intentos,reenvios,uso_unico,clicks,ip_origen,agente_usuario,correlation_id,clave_idempotencia)
-                VALUES (?, ?, ?, 'ENLACE','INVITACION_GRUPO',?,'HMAC-SHA256',?,?,'EMITIDO',
-                        ?::timestamptz,?::timestamptz,0,?,0,true,0,?::inet,?,?,?)
-                """,
+                    INSERT INTO identidad.token_verificacion
+                        (id, politica_id, tipo_token, proposito, hash_token, algoritmo_hash,
+                         canal_entrega, destino_enmascarado, estado, emitido_en, expira_en,
+                         intentos_fallidos, max_intentos, reenvios, uso_unico, clicks,
+                         ip_origen, agente_usuario, correlation_id, clave_idempotencia)
+                    VALUES (?, ?, 'ENLACE', ?, encode(public.digest(?, 'sha256'), 'hex'), 'SHA-256',
+                            ?, ?, 'EMITIDO', ?::timestamptz, ?::timestamptz, 0, 1, 0, true, 0,
+                            ?::inet, ?, ?, ?)
+                    """,
                     id,
-                    ctx.usuarioId(),
                     politica.get("id", UUID.class),
-                    secretos.firmar("hash", token),
-                    e.canal(),
-                    "+591****" + e.telefono().substring(e.telefono().length() - 4),
+                    PROPOSITO,
+                    enClaro,
+                    canal,
+                    destinoEnmascarado,
                     ahora,
-                    expira,
-                    politica.get("max_intentos_validacion", Short.class),
-                    e.ip(),
-                    e.agente(),
+                    ahora.plusSeconds(politica.get("ttl_segundos", Integer.class)),
+                    ipOrigen,
+                    agenteUsuario,
                     UUID.fromString(ctx.traza().id()),
-                    e.clave().toString());
-            dsl.execute(
-                    """
-                INSERT INTO identidad.alcance_invitacion
-                (id,token_id,grupo_destino_id,emisor_id,telefono_destino,nonce,clave_emision,huella_solicitud)
-                VALUES (?,?,?,?,?,?,?,?)
-                """,
-                    ids.nuevo(),
-                    id,
-                    e.grupoId(),
-                    ctx.usuarioId(),
-                    e.telefono(),
-                    nonce,
-                    e.clave(),
-                    huella);
-            BITACORA.info(
-                    "invitacion emitida tokenId={} grupoId={} emisorId={} revocadasPorReemision={}",
-                    id,
-                    e.grupoId(),
-                    ctx.usuarioId(),
-                    revocadas);
-            return new Emitido(id, token, expira);
+                    idempotencia.toString());
+            return new Emitido(id, enClaro, ahora.plusSeconds(politica.get("ttl_segundos", Integer.class)));
         });
     }
 
-    private int revocarVivas(org.jooq.DSLContext dsl, UUID grupoId, String telefono, OffsetDateTime ahora) {
-        return dsl.execute(
-                """
-            UPDATE identidad.token_verificacion t SET estado='INVALIDADO',invalidado_en=?::timestamptz,
-            motivo_invalidacion='REEMITIDA_POR_NUEVA_EMISION' FROM identidad.alcance_invitacion a
-            WHERE t.id=a.token_id AND a.grupo_destino_id=? AND a.telefono_destino=?
-            AND t.estado IN ('EMITIDO','ENVIADO')
-            """,
-                ahora,
-                grupoId,
-                telefono);
-    }
-
-    private ErrorDeNegocio invalida() {
-        return new ErrorDeNegocio(CodigoError.de(69, 5), "No se pudo emitir esa invitacion.");
-    }
-
-    public record Entrada(UUID clave, UUID grupoId, String telefono, String canal, String ip, String agente) {}
-
-    public record Emitido(UUID tokenId, String token, OffsetDateTime expiraEn) {
-        @Override
-        public String toString() {
-            return "Emitido[tokenId=" + tokenId + ", token=REDACTADO]";
-        }
-    }
+    /** El token en claro sale UNA vez: de la base solo se puede recuperar su hash. */
+    public record Emitido(UUID tokenId, String token, OffsetDateTime expiraEn) {}
 }

@@ -8,7 +8,7 @@ modulo: "02 — Grupos, Cupos, Turnos y Gobernanza"
 clave_primaria: [id]
 columnas: 11
 fk_salientes: 1
-fk_entrantes: 7
+fk_entrantes: 6
 append_only: false
 ---
 
@@ -43,7 +43,6 @@ append_only: false
 | Entidad | Columna | Módulo | Relación |
 | --- | --- | :-: | --- |
 | [[cobertura_incumplimiento]] | `periodo_id` | ↗ 08 | [[cobertura_incumplimiento.periodo_id → periodo]] |
-| [[cobertura_respaldo]] | `periodo_id` | ↗ 08 | [[cobertura_respaldo.periodo_id → periodo]] |
 | [[entrega_fondo]] | `periodo_id` | ↗ 04 | [[entrega_fondo.periodo_id → periodo]] |
 | [[metrica_grupo]] | `periodo_id` | ↗ 06 | [[metrica_grupo.periodo_id → periodo]] |
 | [[obligacion_aporte]] | `periodo_id` | ↗ 03 | [[obligacion_aporte.periodo_id → periodo]] |
@@ -52,7 +51,7 @@ append_only: false
 
 ## Entidades vecinas
 
-[[cobertura_incumplimiento]] · [[cobertura_respaldo]] · [[entrega_fondo]] · [[grupo]] · [[metrica_grupo]] · [[obligacion_aporte]] · [[registro_incumplimiento]] · [[turno]]
+[[cobertura_incumplimiento]] · [[entrega_fondo]] · [[grupo]] · [[metrica_grupo]] · [[obligacion_aporte]] · [[registro_incumplimiento]] · [[turno]]
 
 ## Ver también
 

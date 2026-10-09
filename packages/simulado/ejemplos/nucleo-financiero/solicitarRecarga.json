@@ -64,10 +64,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU10-01",
-        "mensaje": "Limite excedido",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-solicitarRecarga-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

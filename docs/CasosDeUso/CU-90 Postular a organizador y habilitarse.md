@@ -146,14 +146,13 @@ export const ErroresCU90 = {
 
 ## Restricciones aplicables
 
-`R-UIF-09` · `R-ORG-01` · `R-ORG-02` · `R-ORG-08` · `R-SEG-04` · `R-AUD-01` · `R-AUD-04`
+`R-UIF-09` · `R-ORG-01` · `R-ORG-02` · `R-SEG-04` · `R-AUD-01` · `R-AUD-04`
 
 ## Evidencia que deja
 
 [[solicitud_organizador]] · [[requisito_habilitacion]] ·
 [[capacitacion_organizador]] · [[organizador]] · [[asignacion_rol]] ·
-`evento_dominio` ·
-[[decision_habilitacion]]
+`evento_dominio`
 
 ## Criterios de aceptación
 
@@ -175,68 +174,6 @@ Y sigue administrando los grupos que ya tenía
 Dado un cambio de requisitos posterior a una solicitud pendiente
 Cuando se la resuelve
 Entonces se evalúa con los requisitos vigentes al momento de solicitar
-
-Dada una solicitud pendiente de un postulante que cumple los requisitos
-Cuando una persona de backoffice la aprueba
-Entonces se crea el organizador pendiente de capacitación y la solicitud queda APROBADA
-Y queda una sola decisión conservada y un solo evento de resolución
-
-Dada una solicitud ya aprobada con una clave de idempotencia
-Cuando se reintenta la resolución con la misma clave
-Entonces devuelve la decisión original sin crear otra
-Y hay un solo organizador, una sola decisión y un solo evento
-
-Dada una solicitud aprobada con una clave de idempotencia
-Cuando se reusa esa clave con otro contenido
-Entonces se rechaza y la solicitud sigue APROBADA con una sola decisión
-
-Dada una solicitud pendiente cuyos requisitos medidos no alcanzan o no existen
-Cuando una persona de backoffice intenta aprobarla
-Entonces se rechaza el intento sin aprobar ni rechazar la solicitud
-Y la solicitud sigue PENDIENTE para una persona, sin decisión ni organizador
-
-Dada una solicitud pendiente de un postulante
-Cuando el propio postulante intenta resolverla, aunque actúe con rol de backoffice
-Entonces se rechaza y la solicitud sigue PENDIENTE
-
-Dado un participante sin rol de backoffice y una solicitud pendiente de otra persona
-Cuando intenta resolverla, ver la bandeja o abrir su expediente
-Entonces cada intento se niega por rol insuficiente
-Y la solicitud sigue PENDIENTE
-
-Dada una solicitud pendiente
-Cuando se la resuelve con una revisión obsoleta, y después de resuelta se intenta resolverla otra vez
-Entonces se rechaza cada intento
-Y la solicitud conserva su primera resolución, con una sola decisión
-
-Dada una solicitud aprobada con su organizador
-Cuando se la revisa y se revoca la habilitación
-Entonces se agrega una decisión nueva de revisión y el organizador queda SUSPENDIDO
-Y la primera decisión se conserva sin cambios y se emite el evento de revocación
-
-Dada una solicitud aprobada y otra que sigue pendiente
-Cuando se confirma la habilitación de la aprobada y se intenta revisar la pendiente
-Entonces el organizador de la aprobada queda como estaba
-Y revisar la solicitud que no está aprobada se rechaza
-
-Dadas varias solicitudes pendientes y una ya resuelta
-Cuando backoffice recorre la bandeja por cursor filtrando por PENDIENTE
-Entonces la bandeja lista de la más antigua a la más nueva, sin repetir ni saltear y sin la resuelta
-Y un estado inventado o un cursor incompleto se rechazan
-
-Dada una solicitud rechazada con su motivo
-Cuando el postulante abre su propio expediente
-Entonces ve la decisión con su motivo
-Y otra persona sin postulación no ve el expediente del primero
-
-Dada una solicitud pendiente
-Cuando se la aprueba por la ruta heredada de aprobación
-Entonces la decisión queda en el historial con su evidencia marcada como heredada
-Y ninguna resolución queda afuera: resolverla de nuevo por la ruta nueva se rechaza
-
-Dada una solicitud pendiente y el servicio con su rol real, sin superusuario
-Cuando backoffice la resuelve
-Entonces la resolución se registra y se lee en el historial
 ```
 
 ## Ver también

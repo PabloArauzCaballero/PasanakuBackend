@@ -1,7 +1,0 @@
-# inversiones — perfil test — generado por scripts/nuevo_servicio.py
-# Unicamente lo que varia por entorno. El resto esta en application.yml (comun).
-aportaya:
-  entorno:
-    productivo: false        # Q-04: true fuera de local/test
-  cors:
-    origenes: "http://localhost"  # solo lo que usan webTest/integrationTest

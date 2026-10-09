@@ -23,9 +23,7 @@ public class ReversoRepositorio {
                         DSL.field("tipo", String.class),
                         DSL.field("estado", String.class),
                         DSL.field("moneda", String.class),
-                        DSL.field("monto_total", BigDecimal.class),
-                        DSL.field("origen_tipo", String.class),
-                        DSL.field("origen_id", UUID.class))
+                        DSL.field("monto_total", BigDecimal.class))
                 .from(DSL.table(DSL.name("nucleo_financiero", "transaccion_billetera")))
                 .where(DSL.field("id", UUID.class).eq(transaccionId))
                 .fetchOne();
@@ -53,49 +51,7 @@ public class ReversoRepositorio {
                 cabecera.get("tipo", String.class),
                 cabecera.get("estado", String.class),
                 Dinero.de(cabecera.get("monto_total", BigDecimal.class), moneda),
-                patas,
-                cabecera.get("origen_tipo", String.class),
-                cabecera.get("origen_id", UUID.class)));
-    }
-
-    /**
-     * El cargo que esa transaccion llevaba: la orden que la origino, con su costo y la cotizacion que lo
-     * respaldo. Solo las recargas y los retiros cobran; para cualquier otro origen no hay cargo.
-     */
-    public Optional<Cargo> cargoDe(DSLContext dsl, Original original) {
-        boolean recarga = "ORDEN_RECARGA".equals(original.origenTipo());
-        if (!recarga && !"ORDEN_RETIRO".equals(original.origenTipo())) {
-            return Optional.empty();
-        }
-        String tabla = recarga ? "orden_recarga" : "orden_retiro";
-        String columnaCosto = recarga ? "costo_proveedor" : "costo_retiro";
-        Record fila = dsl.select(
-                        DSL.field(columnaCosto, BigDecimal.class).as("costo"),
-                        DSL.field("moneda", String.class),
-                        DSL.field("cotizacion_id", UUID.class))
-                .from(DSL.table(DSL.name("nucleo_financiero", tabla)))
-                .where(DSL.field("id", UUID.class).eq(original.origenId()))
-                .fetchOne();
-        if (fila == null) {
-            return Optional.empty();
-        }
-        return Optional.of(new Cargo(
-                original.origenTipo(),
-                original.origenId(),
-                Dinero.de(fila.get("costo", BigDecimal.class), Moneda.valueOf(fila.get("moneda", String.class))),
-                Optional.ofNullable(fila.get("cotizacion_id", UUID.class))));
-    }
-
-    /**
-     * La recarga reversada deja de figurar como acreditada. El retiro no se marca: su UPDATE de estado dispara
-     * el control de encaje (R-BIL-11b), y deshacer una salida no puede quedar frenado por el encaje.
-     */
-    public void marcarRecargaReversada(DSLContext dsl, UUID ordenId) {
-        dsl.update(DSL.table(DSL.name("nucleo_financiero", "orden_recarga")))
-                .set(DSL.field("estado", String.class), "REVERSADA")
-                .where(DSL.field("id", UUID.class).eq(ordenId))
-                .and(DSL.field("estado").eq("ACREDITADA"))
-                .execute();
+                patas));
     }
 
     /**
@@ -146,16 +102,7 @@ public class ReversoRepositorio {
      * corresponde, y de ahi sale la respuesta a «¿esto ya se reverso?».
      */
 
-    public record Cargo(String ordenTipo, UUID ordenId, Dinero costo, Optional<UUID> cotizacionId) {}
-
-    public record Original(
-            UUID id,
-            String tipo,
-            String estado,
-            Dinero montoTotal,
-            List<Movimiento> patas,
-            String origenTipo,
-            UUID origenId) {
+    public record Original(UUID id, String tipo, String estado, Dinero montoTotal, List<Movimiento> patas) {
 
         /** Solo se reversa lo aplicado: lo rechazado o ya reversado no tiene efecto que deshacer. */
         public boolean esReversable() {

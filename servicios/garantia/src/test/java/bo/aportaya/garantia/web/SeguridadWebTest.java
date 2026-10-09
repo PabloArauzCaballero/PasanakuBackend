@@ -50,8 +50,4 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private ConsultarRestriccion consultarRestriccion;
-
-    // Las seis rutas de /garantia/respaldo las traduce RespaldoWeb; aca solo importa la guardia.
-    @MockitoBean
-    private RespaldoWeb respaldoWeb;
 }

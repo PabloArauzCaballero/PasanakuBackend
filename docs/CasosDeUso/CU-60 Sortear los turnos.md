@@ -136,13 +136,12 @@ export const ErroresCU60 = {
 
 ## Restricciones aplicables
 
-`R-GRP-05` · `R-GRP-06` · `R-GRP-18` · `R-AUD-01` · `R-AUD-04`
+`R-GRP-05` · `R-GRP-06` · `R-AUD-01` · `R-AUD-04`
 
 ## Evidencia que deja
 
 [[sorteo_turnos]] (*append-only*) · [[turno]] · [[bloque_transparencia]] ·
-`evento_dominio` · [[bitacora_evento]] ·
-[[snapshot_sorteo]]
+`evento_dominio` · [[bitacora_evento]]
 
 ## Criterios de aceptación
 
@@ -165,43 +164,6 @@ Dado un intento de revelar con una semilla que no verifica
 Cuando se ejecuta
 Entonces no se crea ningún turno
 Y el sorteo queda ANULADO con su incidente registrado
-
-Dado un grupo conformado con sus cupos ocupados y su calendario cargado
-Cuando se ejecuta la fase de compromiso
-Entonces queda un snapshot con el plantel, el calendario y las reglas congelados, con un hash de 64 caracteres
-Y el hash del snapshot entra en las entropías junto con el aporte recibido
-Y la semilla queda sellada en el servidor y no aparece en el texto del compromiso
-
-Dado un sorteo comprometido y un cupo que deja de estar ocupado antes de la revelación
-Cuando se intenta revelar
-Entonces se rechaza sin crear turnos y el sorteo sigue COMPROMETIDO, sin anularse
-Y al restituir el plantel congelado la revelación procede con el mismo compromiso
-
-Dado un sorteo comprometido y una fecha límite de pago que cambia después del compromiso
-Cuando se intenta revelar
-Entonces se rechaza y no se crea ningún turno
-
-Dado un sorteo que ya fue revelado
-Cuando se intenta revelar de nuevo
-Entonces se rechaza y no se sortea otra vez
-Y el resultado original sigue consultable con el mismo orden y la misma semilla
-Y los turnos son los del primer sorteo
-
-Dado un sorteo comprometido cuya semilla todavía no se reveló
-Cuando se revela y un tercero reconstruye el resultado con el paquete publicado
-Entonces antes de la revelación el paquete no trae semilla ni orden
-Y después la semilla revelada verifica el hash comprometido con las entropías
-Y barajar el orden original con esa semilla da exactamente el orden sorteado
-
-Dado un sorteo comprometido con la semilla sellada en el servidor
-Cuando se intenta revelar con unas entropías que no son las comprometidas
-Entonces se rechaza sin revelar ni anular: el sorteo sigue COMPROMETIDO y no hay turnos
-Y con las entropías comprometidas la revelación sí verifica
-
-Dado un sorteo comprometido en un grupo sin calendario
-Cuando se intenta revelar
-Entonces se rechaza pero el sorteo sigue vivo en COMPROMETIDO
-Y al existir el calendario la revelación procede y se crean los turnos
 ```
 
 ## Ver también

@@ -209,16 +209,6 @@ ALTER TABLE nucleo_financiero.politica_billetera
   ADD CONSTRAINT fk_politica_billetera_aprobada_por
   FOREIGN KEY (aprobada_por) REFERENCES identidad.usuario (id) ON DELETE SET NULL ON UPDATE CASCADE;
 
-ALTER TABLE nucleo_financiero.qr_transferencia DROP CONSTRAINT IF EXISTS fk_qr_transferencia_cuenta_billetera_id;
-ALTER TABLE nucleo_financiero.qr_transferencia
-  ADD CONSTRAINT fk_qr_transferencia_cuenta_billetera_id
-  FOREIGN KEY (cuenta_billetera_id) REFERENCES nucleo_financiero.cuenta_billetera (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE nucleo_financiero.qr_transferencia DROP CONSTRAINT IF EXISTS fk_qr_transferencia_transaccion_id;
-ALTER TABLE nucleo_financiero.qr_transferencia
-  ADD CONSTRAINT fk_qr_transferencia_transaccion_id
-  FOREIGN KEY (transaccion_id) REFERENCES nucleo_financiero.transaccion_billetera (id) ON DELETE SET NULL ON UPDATE CASCADE;
-
 ALTER TABLE nucleo_financiero.regla_antifraude DROP CONSTRAINT IF EXISTS fk_regla_antifraude_aprobada_por;
 ALTER TABLE nucleo_financiero.regla_antifraude
   ADD CONSTRAINT fk_regla_antifraude_aprobada_por

@@ -72,10 +72,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU23-01",
-        "mensaje": "Fondo insuficiente",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-cubrirIncumplimiento-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

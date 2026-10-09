@@ -2,7 +2,7 @@
 // Busqueda si, entrenamiento no; y los datos de terceros fuera para TODOS.
 export const BUSCADORES_PERMITIDOS = ['Googlebot', 'Bingbot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-User', 'PerplexityBot', 'Google-CloudVertexBot']
 export const ENTRENAMIENTO_BLOQUEADO = ['GPTBot', 'Google-Extended', 'Applebot-Extended', 'CCBot', 'Bytespider', 'meta-externalagent']
-export const RUTAS_NO_INDEXABLES = ['/verificar/', '/publico/', '/invitacion/', '/catalogo', '/api/']
+export const RUTAS_NO_INDEXABLES = ['/verificar/', '/publico/', '/catalogo', '/api/']
 
 export function robotsTxt(base) {
   const lineas = ['# Buscadores y motores generativos con cita: SI']

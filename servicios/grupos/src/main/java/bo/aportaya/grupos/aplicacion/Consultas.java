@@ -127,12 +127,6 @@ public class Consultas {
     }
 
     @Transactional(readOnly = true)
-    /** Si quien llama administra ese grupo (es su administrador activo) o es backoffice. */
-    public boolean puedeAdministrar(UUID grupoId, ContextoSesion ctx) {
-        return "BACKOFFICE".equals(ctx.rol())
-                || datos.conContexto(ctx, dsl -> consultas.esAdministradorDelGrupo(dsl, grupoId, ctx.usuarioId()));
-    }
-
     public Optional<PaqueteDeSorteo> paqueteDelSorteo(UUID sorteoId, ContextoSesion ctx) {
         return datos.conContexto(ctx, dsl -> consultas.paqueteDelSorteo(dsl, sorteoId));
     }

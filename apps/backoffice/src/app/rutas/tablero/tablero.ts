@@ -51,7 +51,6 @@ export class Tablero {
     { ruta: 'operacion', texto: 'Operación', permiso: 'ver:operacion', descripcion: 'Billetera, cobranza, entregas y cierre.' },
     { ruta: 'operacion/estado', texto: 'Arquitectura y estado', permiso: 'ver:operacion', descripcion: 'Nivel de criticidad y réplicas por servicio.' },
     { ruta: 'cumplimiento', texto: 'Cumplimiento', permiso: 'ver:cumplimiento', descripcion: 'UIF, alertas, casos y gobierno.' },
-    { ruta: 'admisiones', texto: 'Solicitudes de ingreso', permiso: 'ver:admisiones', descripcion: 'Resolver quién entra a un grupo.' },
     { ruta: 'contabilidad', texto: 'Contabilidad', permiso: 'ver:contabilidad', descripcion: 'Períodos, presupuestos y estados financieros.' },
     { ruta: 'publicidad', texto: 'Publicidad', permiso: 'ver:publicidad', descripcion: 'Campañas y ofertas.' },
     { ruta: 'sistemas', texto: 'Sistemas', permiso: 'ver:sistemas', descripcion: 'Salud de servicios, despliegues y respaldos.' },

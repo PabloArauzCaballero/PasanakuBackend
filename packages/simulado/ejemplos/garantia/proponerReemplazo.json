@@ -80,10 +80,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU66-01",
-        "mensaje": "Incumplimiento no firme",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-proponerReemplazo-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

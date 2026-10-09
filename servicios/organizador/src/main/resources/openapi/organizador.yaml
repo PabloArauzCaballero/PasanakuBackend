@@ -72,19 +72,6 @@ servers:
   - url: /api/v1
 
 paths:
-  /organizadores/usuarios/{usuarioId}/habilitacion:
-    get:
-      operationId: consultarHabilitacionPersonal
-      summary: Resolver la habilitación y el identificador de organizador del usuario autenticado
-      parameters:
-        - { name: usuarioId, in: path, required: true, schema: { type: string, format: uuid } }
-      responses:
-        '200':
-          description: La falta de habilitación se informa explícitamente
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/HabilitacionPersonal' }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
   /organizadores/postulaciones:
     post:
       operationId: postularOrganizador          # CU-90
@@ -104,107 +91,6 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/SalidaPostulacion' }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
-
-  /organizadores/postulaciones/bandeja:
-    get:
-      operationId: listarBandejaDeHabilitaciones   # CU-90
-      summary: Bandeja del backoffice con las solicitudes de habilitación, de la más antigua a la más nueva
-      description: >-
-        Paginada por cursor (fecha, id). Solo backoffice. Cada fila trae lo necesario para
-        decidir y la revisión esperada que hay que devolver al resolver.
-      parameters:
-        - name: estados
-          in: query
-          required: false
-          schema:
-            type: array
-            items: { type: string, enum: [PENDIENTE, EN_REVISION, APROBADA, RECHAZADA] }
-            minItems: 1
-            maxItems: 4
-          style: form
-          explode: false
-        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
-        - { name: despuesDeFecha, in: query, required: false, schema: { type: string, format: date-time } }
-        - { name: despuesDeId, in: query, required: false, schema: { type: string, format: uuid } }
-      responses:
-        '200':
-          description: Página de la bandeja
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/PaginaDeBandeja' }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
-  /organizadores/postulaciones/mia:
-    get:
-      operationId: consultarMiExpedienteDeHabilitacion   # CU-90
-      summary: El expediente de la última postulación de quien consulta, con sus resoluciones y motivos
-      responses:
-        '200':
-          description: Expediente propio
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/ExpedienteDeHabilitacion' }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
-  /organizadores/postulaciones/{solicitudId}/expediente:
-    get:
-      operationId: consultarExpedienteDeHabilitacion   # CU-90
-      summary: Expediente completo de una solicitud (backoffice)
-      parameters:
-        - { name: solicitudId, in: path, required: true, schema: { type: string, format: uuid } }
-      responses:
-        '200':
-          description: Expediente con el historial íntegro de decisiones
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/ExpedienteDeHabilitacion' }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
-  /organizadores/postulaciones/{solicitudId}/resolucion:
-    post:
-      operationId: resolverHabilitacion   # CU-90
-      summary: Backoffice aprueba o rechaza con motivo; la resolución es idempotente y se conserva
-      description: >-
-        Aprobar exige los requisitos obligatorios con dato; no aprueba por omisión ni rechaza solo.
-        Rechazar es una decisión humana con motivo y queda registrada. Quien resuelve no es quien
-        postuló. La revisión esperada evita pisar una resolución que otra persona acaba de tomar.
-        AP-CU90-03 solicitud inexistente o ya resuelta · AP-CU90-04 autoaprobación ·
-        AP-CU90-05 requisitos no cumplidos · AP-CU90-07 entrada inválida · AP-CU90-08 revisión o
-        clave en conflicto.
-      parameters:
-        - { name: solicitudId, in: path, required: true, schema: { type: string, format: uuid } }
-        - $ref: '#/components/parameters/ClaveIdempotencia'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/EntradaResolucionDeHabilitacion' }
-      responses:
-        '200':
-          description: Decisión registrada, o la original si es un reintento
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/DecisionDeHabilitacion' }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
-  /organizadores/postulaciones/{solicitudId}/revision:
-    post:
-      operationId: revisarHabilitacion   # CU-90
-      summary: Backoffice confirma o revoca una habilitación ya aprobada, con una decisión nueva
-      description: >-
-        Revocar suspende al organizador (no crea grupos nuevos) y emite el aviso para sustituir al
-        administrador; los grupos vigentes y sus obligaciones no se tocan.
-      parameters:
-        - { name: solicitudId, in: path, required: true, schema: { type: string, format: uuid } }
-        - $ref: '#/components/parameters/ClaveIdempotencia'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/EntradaRevisionDeHabilitacion' }
-      responses:
-        '200':
-          description: Decisión de revisión registrada, o la original si es un reintento
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/DecisionDeHabilitacion' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
   /organizadores/postulaciones/{solicitudId}/aprobacion:
@@ -578,13 +464,6 @@ components:
         seguro, y la clave se valida ANTES de escribir (invariante 7).
       schema: { type: string, format: uuid }
   schemas:
-    HabilitacionPersonal:
-      type: object
-      required: [usuarioId, habilitado]
-      properties:
-        usuarioId: { type: string, format: uuid }
-        organizadorId: { type: string, format: uuid }
-        habilitado: { type: boolean }
     Habilitacion:
       type: object
       additionalProperties: false
@@ -633,77 +512,6 @@ components:
         faltantes:
           type: array
           items: { $ref: '#/components/schemas/Faltante' }
-    EntradaResolucionDeHabilitacion:
-      type: object
-      additionalProperties: false
-      required: [decision, motivo, revisionEsperada]
-      properties:
-        decision: { type: string, enum: [APROBAR, RECHAZAR] }
-        motivo: { type: string, minLength: 1, maxLength: 1000 }
-        revisionEsperada: { type: integer, minimum: 0 }
-        medidos:
-          type: object
-          additionalProperties: { type: string, pattern: '^\d+(\.\d{1,2})?$' }
-    EntradaRevisionDeHabilitacion:
-      type: object
-      additionalProperties: false
-      required: [decision, motivo, revisionEsperada]
-      properties:
-        decision: { type: string, enum: [CONFIRMAR, REVOCAR] }
-        motivo: { type: string, minLength: 1, maxLength: 1000 }
-        revisionEsperada: { type: integer, minimum: 0 }
-    DecisionDeHabilitacion:
-      type: object
-      additionalProperties: false
-      required: [id, solicitudId, fase, decision, motivo, revision, ocurridaEn, nueva]
-      properties:
-        id: { type: string, format: uuid }
-        solicitudId: { type: string, format: uuid }
-        fase: { type: string, enum: [RESOLUCION, REVISION] }
-        decision: { type: string, enum: [APROBAR, RECHAZAR, CONFIRMAR, REVOCAR] }
-        actorId: { type: [string, 'null'], format: uuid }
-        motivo: { type: string }
-        revision: { type: integer }
-        organizadorId: { type: [string, 'null'], format: uuid }
-        evidenciaRequisitos: { type: [string, 'null'] }
-        ocurridaEn: { type: string, format: date-time }
-        nueva: { type: boolean, description: Falso cuando es un reintento y se devolvió la decisión original }
-    ResumenDeHabilitacion:
-      type: object
-      additionalProperties: false
-      required: [solicitudId, usuarioId, estado, fechaSolicitud, revision]
-      properties:
-        solicitudId: { type: string, format: uuid }
-        usuarioId: { type: string, format: uuid }
-        estado: { type: string, enum: [PENDIENTE, EN_REVISION, APROBADA, RECHAZADA] }
-        reputacionAlSolicitar: { type: [string, 'null'] }
-        kycReforzadoId: { type: [string, 'null'], format: uuid }
-        motivoRechazo: { type: [string, 'null'] }
-        fechaSolicitud: { type: string, format: date-time }
-        fechaResolucion: { type: [string, 'null'], format: date-time }
-        revision: { type: integer, description: La revisión esperada que se devuelve al resolver }
-        acciones:
-          type: array
-          items: { type: string, enum: [RESOLVER, REVISAR] }
-    PaginaDeBandeja:
-      type: object
-      additionalProperties: false
-      required: [items]
-      properties:
-        items:
-          type: array
-          items: { $ref: '#/components/schemas/ResumenDeHabilitacion' }
-        proximoFecha: { type: [string, 'null'], format: date-time }
-        proximoId: { type: [string, 'null'], format: uuid }
-    ExpedienteDeHabilitacion:
-      type: object
-      additionalProperties: false
-      required: [solicitud, decisiones]
-      properties:
-        solicitud: { $ref: '#/components/schemas/ResumenDeHabilitacion' }
-        decisiones:
-          type: array
-          items: { $ref: '#/components/schemas/DecisionDeHabilitacion' }
     EntradaAprobacion:
       type: object
       additionalProperties: false

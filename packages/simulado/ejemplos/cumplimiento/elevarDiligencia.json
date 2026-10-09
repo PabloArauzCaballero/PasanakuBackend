@@ -76,10 +76,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU02-01",
-        "mensaje": "Documentacion insuficiente",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-elevarDiligencia-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

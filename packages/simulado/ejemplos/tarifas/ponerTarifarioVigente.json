@@ -48,10 +48,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU34-01",
-        "mensaje": "Preaviso no cumplido",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-ponerTarifarioVigente-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

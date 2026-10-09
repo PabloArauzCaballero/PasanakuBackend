@@ -160,10 +160,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU67-01",
-        "mensaje": "Sin acuerdo ni causal",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-iniciarDisolucion-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

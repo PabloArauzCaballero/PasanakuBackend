@@ -14,7 +14,6 @@ import bo.aportaya.grupos.aplicacion.CU59CalcularPlazo;
 import bo.aportaya.grupos.aplicacion.CU64TraspasarCupo;
 import bo.aportaya.grupos.aplicacion.CU65Retirarse;
 import bo.aportaya.grupos.aplicacion.CU68Postular;
-import bo.aportaya.grupos.aplicacion.CU69Invitar;
 import bo.aportaya.grupos.aplicacion.Consultas;
 import bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
@@ -74,9 +73,6 @@ class GruposControllerWebTest {
     private MockMvc mvc;
 
     @MockitoBean
-    private bo.aportaya.grupos.aplicacion.CanjearInvitacion canjearInvitacion;
-
-    @MockitoBean
     private CU20CrearGrupo cu20;
 
     @MockitoBean
@@ -98,12 +94,6 @@ class GruposControllerWebTest {
     private InvitacionesWeb invitaciones;
 
     @MockitoBean
-    private AdmisionDelGrupo admision;
-
-    @MockitoBean
-    private CU69Invitar cu69;
-
-    @MockitoBean
     private Consultas consultas;
 
     @MockitoBean
@@ -119,40 +109,6 @@ class GruposControllerWebTest {
     @DisplayName("CU-20 · crear el grupo")
     class Crear {
 
-        @Test
-        void sinHabilitacionDelCreadorNoInvocaElAlta() throws Exception {
-            crear(GRUPO_NUEVO).andExpect(status().isUnprocessableEntity());
-            verifyNoInteractions(cu20);
-        }
-
-        @Test
-        void noPermiteElegirOrganizadorAjeno() throws Exception {
-            when(afuera.organizadorHabilitadoDelUsuario(any())).thenReturn(java.util.Optional.of(UUID.randomUUID()));
-            String pedido = GRUPO_NUEVO.replaceFirst("\\{", "{\"organizadorId\":\"" + UUID.randomUUID() + "\",");
-            crear(pedido).andExpect(status().isUnprocessableEntity());
-            verifyNoInteractions(cu20);
-        }
-
-        @ParameterizedTest(name = "422 · KYC del creador: {0}")
-        @ValueSource(strings = {"NINGUNO", "DESCONOCIDO", ""})
-        @DisplayName("CU-20 · un creador sin el KYC minimo (o con un nivel que no se entiende) no abre grupo")
-        void creadorSinKycSuficiente(String nivel) throws Exception {
-            when(afuera.organizadorHabilitadoDelUsuario(any())).thenReturn(java.util.Optional.of(UUID.randomUUID()));
-            when(afuera.nivelDeKyc(any())).thenReturn(nivel);
-            crear(GRUPO_NUEVO)
-                    .andExpect(status().isUnprocessableEntity())
-                    .andExpect(jsonPath("$.codigo").value("AP-CU20-05"));
-            verifyNoInteractions(cu20);
-        }
-
-        @Test
-        @DisplayName("CU-20 · sin respuesta de identidad el nivel es NINGUNO: no se abre grupo")
-        void creadorSinRespuestaDeIdentidad() throws Exception {
-            when(afuera.organizadorHabilitadoDelUsuario(any())).thenReturn(java.util.Optional.of(UUID.randomUUID()));
-            crear(GRUPO_NUEVO).andExpect(status().isUnprocessableEntity());
-            verifyNoInteractions(cu20);
-        }
-
         private org.springframework.test.web.servlet.ResultActions crear(String cuerpo) throws Exception {
             return mvc.perform(post("/grupos")
                     .with(Sesiones.como("ORGANIZADOR", "GRUPO_CREAR"))
@@ -164,8 +120,6 @@ class GruposControllerWebTest {
         @Test
         @DisplayName("CU-20 · 202: el grupo queda PEDIDO, no armado")
         void crearGrupo() throws Exception {
-            when(afuera.organizadorHabilitadoDelUsuario(any())).thenReturn(java.util.Optional.of(UUID.randomUUID()));
-            when(afuera.nivelDeKyc(any())).thenReturn("BASICO");
             when(cu20.ejecutar(any(), any())).thenReturn(new CU20CrearGrupo.SalidaCreacion(GRUPO, "250.00"));
 
             crear(GRUPO_NUEVO)
@@ -290,6 +244,107 @@ class GruposControllerWebTest {
                             .with(Sesiones.como("PARTICIPANTE")))
                     .andExpect(status().isBadRequest());
             verifyNoInteractions(cu59);
+        }
+    }
+
+    @Nested
+    @DisplayName("CU-68 · decisión del organizador sobre una solicitud de ingreso")
+    class DecisionDeIngreso {
+        private final java.util.UUID solicitud = java.util.UUID.fromString("c6800000-0000-4000-8000-000000000001");
+        private final java.util.UUID participante = java.util.UUID.fromString("c6800000-0000-4000-8000-000000000002");
+
+        @Test
+        @DisplayName("CU-68 · 200: el organizador acepta y el participante queda pendiente de firma")
+        void acepta() throws Exception {
+            when(cu68Decision.solicitante(org.mockito.ArgumentMatchers.eq(solicitud), any()))
+                    .thenReturn(java.util.UUID.randomUUID());
+            when(afuera.reputacion(any()))
+                    .thenReturn(new HechosDeOtrosServicios.Reputacion(true, new java.math.BigDecimal("700")));
+            when(cu68Decision.decidir(
+                            org.mockito.ArgumentMatchers.eq(solicitud),
+                            org.mockito.ArgumentMatchers.eq(true),
+                            any(),
+                            any(),
+                            any()))
+                    .thenReturn(new bo.aportaya.grupos.aplicacion.CU68AceptarIngreso.Resultado(
+                            solicitud, "APROBADA", participante, null));
+
+            mvc.perform(post("/grupos/solicitudes/{id}/decision", solicitud)
+                            .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR"))
+                            .header(
+                                    "Idempotency-Key",
+                                    java.util.UUID.randomUUID().toString())
+                            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                            .content("{\"decision\":\"ACEPTAR\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.estado").value("APROBADA"))
+                    .andExpect(jsonPath("$.participanteId").value(participante.toString()));
+        }
+
+        @Test
+        @DisplayName("CU-68 · 403: un participante, sin GRUPO_ADMINISTRAR, no decide")
+        void participanteNoDecide() throws Exception {
+            mvc.perform(post("/grupos/solicitudes/{id}/decision", solicitud)
+                            .with(Sesiones.como("PARTICIPANTE"))
+                            .header(
+                                    "Idempotency-Key",
+                                    java.util.UUID.randomUUID().toString())
+                            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                            .content("{\"decision\":\"ACEPTAR\"}"))
+                    .andExpect(status().isForbidden());
+            verifyNoInteractions(cu68Decision);
+        }
+
+        @Test
+        @DisplayName("CU-68 · 401: sin sesión")
+        void sinSesion() throws Exception {
+            mvc.perform(post("/grupos/solicitudes/{id}/decision", solicitud)
+                            .header(
+                                    "Idempotency-Key",
+                                    java.util.UUID.randomUUID().toString())
+                            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                            .content("{\"decision\":\"ACEPTAR\"}"))
+                    .andExpect(status().isUnauthorized());
+            verifyNoInteractions(cu68Decision);
+        }
+
+        @Test
+        @DisplayName("CU-68 · 400: una decisión que el contrato no enumera")
+        void decisionInvalida() throws Exception {
+            mvc.perform(post("/grupos/solicitudes/{id}/decision", solicitud)
+                            .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR"))
+                            .header(
+                                    "Idempotency-Key",
+                                    java.util.UUID.randomUUID().toString())
+                            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                            .content("{\"decision\":\"TAL_VEZ\"}"))
+                    .andExpect(status().isBadRequest());
+            verifyNoInteractions(cu68Decision);
+        }
+    }
+
+    @Nested
+    @DisplayName("CU-68 · mis participaciones (lo que la app necesita para abrir sus pantallas)")
+    class MisParticipaciones {
+        @Test
+        @DisplayName("200: devuelve MIS participaciones, resueltas con la sesión y no con un id del cliente")
+        void lista() throws Exception {
+            var grupo = java.util.UUID.fromString("c6900000-0000-4000-8000-000000000001");
+            var participante = java.util.UUID.fromString("c6900000-0000-4000-8000-000000000002");
+            when(consultas.participacionesDe(any()))
+                    .thenReturn(java.util.List.of(
+                            new bo.aportaya.grupos.aplicacion.Consultas.Participacion(grupo, participante, "ACTIVO")));
+
+            mvc.perform(get("/grupos/participaciones").with(Sesiones.como("PARTICIPANTE")))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].participanteId").value(participante.toString()))
+                    .andExpect(jsonPath("$[0].estado").value("ACTIVO"));
+        }
+
+        @Test
+        @DisplayName("401: sin sesión")
+        void sinSesion() throws Exception {
+            mvc.perform(get("/grupos/participaciones")).andExpect(status().isUnauthorized());
         }
     }
 }

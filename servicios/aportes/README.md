@@ -50,14 +50,6 @@ Los demas casos de uso del modulo 03 siguen pendientes; ninguno esta a medias.
 > El disparo (`@Scheduled` + ShedLock) todavia no esta cableado: el metodo existe,
 > se prueba y no lo llama nadie. Declarado en el informe del carril.
 
-## Recaudo del pozo (carril C, H8)
-
-`GET /aportes/periodos/{periodoId}/recaudo` (`ConsultarRecaudoDelPeriodo`): cuanto del pozo es
-caja confirmada y que obligaciones faltan. Un pendiente NO es caja; el pago de mas, tampoco; lo
-que cubrio el fondo mutual se cuenta aparte. Lo consumen `entregas` y `garantia` para no creerle
-el importe al cliente. Fuente: `obligacion_aporte.monto_pagado` (lo mueve CU-21 tras la
-confirmacion del proveedor); el cuadre contra el mayor es trabajo de la conciliacion (H13).
-
 ## Lo que este servicio NO puede hacer
 
 - Leer el esquema de otro servicio. No tiene `GRANT`, y jOOQ no le genero las

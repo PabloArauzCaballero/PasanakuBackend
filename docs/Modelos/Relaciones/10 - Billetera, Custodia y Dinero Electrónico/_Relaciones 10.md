@@ -3,12 +3,12 @@ tags:
   - moc
   - modulo/10-billetera-custodia-y-dinero-electronico
 modulo: "10 — Billetera, Custodia y Dinero Electrónico"
-relaciones_fk: 64
+relaciones_fk: 61
 ---
 
 # 10 — Billetera, Custodia y Dinero Electrónico · relaciones
 
-Las **64 claves foráneas** que salen de las tablas de este módulo.
+Las **61 claves foráneas** que salen de las tablas de este módulo.
 
 [[_Relaciones|← Todas las relaciones]] · [[Index]]
 
@@ -35,7 +35,6 @@ Las **64 claves foráneas** que salen de las tablas de este módulo.
 | [[evaluacion_antifraude.cuenta_billetera_id → cuenta_billetera]] | [[cuenta_billetera]] | — | no |
 | [[evaluacion_antifraude.revisada_por → usuario]] | [[usuario]] | ↗ 01 | sí |
 | [[evaluacion_antifraude.transaccion_id → transaccion_billetera]] | [[transaccion_billetera]] | — | sí |
-| [[evidencia_mfa_consumida.usuario_id → usuario]] | [[usuario]] | ↗ 01 | no |
 | [[instrumento_fondeo.usuario_id → usuario]] | [[usuario]] | ↗ 01 | no |
 | [[movimiento_billetera.cuenta_billetera_id → cuenta_billetera]] | [[cuenta_billetera]] | — | no |
 | [[movimiento_billetera.transaccion_id → transaccion_billetera]] | [[transaccion_billetera]] | — | no |
@@ -54,8 +53,6 @@ Las **64 claves foráneas** que salen de las tablas de este módulo.
 | [[orden_retiro.solicitada_por → usuario]] | [[usuario]] | ↗ 01 | no |
 | [[orden_retiro.transaccion_id → transaccion_billetera]] | [[transaccion_billetera]] | — | sí |
 | [[politica_billetera.aprobada_por → usuario]] | [[usuario]] | ↗ 01 | sí |
-| [[qr_transferencia.cuenta_billetera_id → cuenta_billetera]] | [[cuenta_billetera]] | — | no |
-| [[qr_transferencia.transaccion_id → transaccion_billetera]] | [[transaccion_billetera]] | — | sí |
 | [[regla_antifraude.aprobada_por → usuario]] | [[usuario]] | ↗ 01 | sí |
 | [[respuesta_idempotente.usuario_id → usuario]] | [[usuario]] | ↗ 01 | no |
 | [[retencion_saldo.cuenta_billetera_id → cuenta_billetera]] | [[cuenta_billetera]] | — | no |

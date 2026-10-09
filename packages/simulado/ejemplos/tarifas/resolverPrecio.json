@@ -48,10 +48,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU36-01",
-        "mensaje": "Criterio invalido",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-resolverPrecio-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

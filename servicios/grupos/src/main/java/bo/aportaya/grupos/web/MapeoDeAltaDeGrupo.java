@@ -2,7 +2,6 @@ package bo.aportaya.grupos.web;
 
 import bo.aportaya.grupos.aplicacion.CU20CrearGrupo;
 import bo.aportaya.grupos.dominio.GrupoNuevo;
-import bo.aportaya.grupos.dominio.TraspasoAdmisible;
 import bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios;
 import bo.aportaya.grupos.web.generado.modelo.EntradaGrupo;
 import java.util.Optional;
@@ -22,35 +21,12 @@ import java.util.UUID;
  */
 final class MapeoDeAltaDeGrupo {
 
-    /** El mismo minimo con el que nace todo grupo (CreacionRepositorio). */
-    private static final String KYC_MINIMO_DEL_CREADOR = "BASICO";
-
     private MapeoDeAltaDeGrupo() {}
 
     static CU20CrearGrupo.EntradaCreacion entrada(
-            EntradaGrupo cuerpo,
-            HechosDeOtrosServicios afuera,
-            String codigoTarifario,
-            String servicioDeLicencia,
-            UUID usuarioId,
-            UUID clave) {
+            EntradaGrupo cuerpo, HechosDeOtrosServicios afuera, String codigoTarifario, String servicioDeLicencia) {
 
-        Optional<UUID> organizador = afuera.organizadorHabilitadoDelUsuario(usuarioId);
-        if (organizador.isEmpty()
-                || (cuerpo.getOrganizadorId() != null && !organizador.get().equals(cuerpo.getOrganizadorId()))) {
-            throw new bo.aportaya.plataforma.dominio.ErrorDeNegocio(
-                    bo.aportaya.plataforma.dominio.CodigoError.de(20, 2),
-                    "El creador debe estar habilitado por backoffice y administrar su propio grupo.");
-        }
-
-        // Quien abre un grupo tiene que cumplir el minimo de verificacion que el grupo le va a exigir a
-        // los demas (BASICO por omision, como lo fija el alta). Nivel dicho por identidad; sin
-        // respuesta vale NINGUNO. Supuesto a confirmar con el oficial de cumplimiento.
-        if (!TraspasoAdmisible.NivelDeKyc.suficiente(afuera.nivelDeKyc(usuarioId), KYC_MINIMO_DEL_CREADOR)) {
-            throw new bo.aportaya.plataforma.dominio.ErrorDeNegocio(
-                    bo.aportaya.plataforma.dominio.CodigoError.de(20, 5),
-                    "Necesitas elevar tu nivel de verificacion antes de crear un grupo.");
-        }
+        Optional<UUID> organizador = Optional.ofNullable(cuerpo.getOrganizadorId());
 
         return new CU20CrearGrupo.EntradaCreacion(
                 new GrupoNuevo(
@@ -61,10 +37,11 @@ final class MapeoDeAltaDeGrupo {
                         cuerpo.getCupos(),
                         cuerpo.getFechaDeInicio()),
                 organizador,
-                true,
+                // Un grupo sin organizador lo lleva la plataforma: no hay a quien
+                // pedirle habilitacion, y nadie cobra por administrarlo (RN-18).
+                organizador.map(afuera::organizadorHabilitado).orElse(true),
                 afuera.tarifarioVigente(codigoTarifario),
                 afuera.licenciaHabilita(servicioDeLicencia),
-                Boolean.TRUE.equals(cuerpo.getPermitePermutaDeTurnos()),
-                clave);
+                Boolean.TRUE.equals(cuerpo.getPermitePermutaDeTurnos()));
     }
 }

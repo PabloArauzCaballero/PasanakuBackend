@@ -50,10 +50,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU82-01",
-        "mensaje": "Firma invalida",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-emitirNotificacion-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

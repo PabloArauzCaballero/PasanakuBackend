@@ -56,10 +56,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU32-01",
-        "mensaje": "Sin cufd vigente",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-emitirFactura-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

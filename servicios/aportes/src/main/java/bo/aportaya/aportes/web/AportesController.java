@@ -2,13 +2,10 @@ package bo.aportaya.aportes.web;
 
 import bo.aportaya.aportes.aplicacion.CU21CobrarAporte;
 import bo.aportaya.aportes.aplicacion.ConsultarEstadoDelParticipante;
-import bo.aportaya.aportes.aplicacion.ConsultarRecaudoDelPeriodo;
 import bo.aportaya.aportes.web.generado.AportesApi;
 import bo.aportaya.aportes.web.generado.modelo.EntradaCobro;
 import bo.aportaya.aportes.web.generado.modelo.EstadoDelParticipante;
 import bo.aportaya.aportes.web.generado.modelo.Morosos;
-import bo.aportaya.aportes.web.generado.modelo.ObligacionPendiente;
-import bo.aportaya.aportes.web.generado.modelo.RecaudoDelPeriodo;
 import bo.aportaya.aportes.web.generado.modelo.SalidaCobro;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
@@ -34,20 +31,17 @@ public class AportesController implements AportesApi {
 
     private final CU21CobrarAporte cu21;
     private final ConsultarEstadoDelParticipante estados;
-    private final ConsultarRecaudoDelPeriodo recaudos;
     private final SesionDeLaPeticion sesion;
     private final bo.aportaya.aportes.aplicacion.HechosDeGrupos grupos;
 
     public AportesController(
             CU21CobrarAporte cu21,
             ConsultarEstadoDelParticipante estados,
-            ConsultarRecaudoDelPeriodo recaudos,
             SesionDeLaPeticion sesion,
             bo.aportaya.aportes.aplicacion.HechosDeGrupos grupos) {
         this.grupos = grupos;
         this.cu21 = cu21;
         this.estados = estados;
-        this.recaudos = recaudos;
         this.sesion = sesion;
     }
 
@@ -130,37 +124,5 @@ public class AportesController implements AportesApi {
         // reintentar sea seguro sin adivinar.
         var estado = salida.esNuevo() ? HttpStatus.CREATED : HttpStatus.OK;
         return ResponseEntity.status(estado).body(respuesta);
-    }
-
-    /**
-     * Cuanto del pozo del periodo es caja confirmada.
-     *
-     * <p>Lo pide {@code entregas} antes de liquidar. El permiso es el de quien ejecuta la
-     * entrega: el token del usuario viaja en la llamada entre servicios.
-     */
-    @Override
-    @Permiso("ENTREGA_EJECUTAR")
-    public ResponseEntity<RecaudoDelPeriodo> consultarRecaudoDelPeriodo(UUID periodoId) {
-        Traza.marcarCasoDeUso("CU-21", periodoId.toString());
-
-        var salida = recaudos.ejecutar(periodoId, sesion.actual());
-
-        var respuesta = new RecaudoDelPeriodo();
-        respuesta.setPeriodoId(salida.periodoId());
-        respuesta.setGrupoId(salida.grupoId());
-        respuesta.setCorteEn(salida.corteEn());
-        respuesta.setPozo(MapeoDeAportes.dinero(salida.recaudo().pozo()));
-        respuesta.setConfirmado(MapeoDeAportes.dinero(salida.recaudo().confirmado()));
-        respuesta.setCubiertoMutual(MapeoDeAportes.dinero(salida.recaudo().cubiertoMutual()));
-        respuesta.setFaltante(MapeoDeAportes.dinero(salida.recaudo().faltante()));
-        respuesta.setPendientes(salida.recaudo().pendientes().stream()
-                .map(p -> {
-                    var o = new ObligacionPendiente();
-                    o.setObligacionId(p.obligacionId());
-                    o.setMonto(MapeoDeAportes.dinero(p.monto()));
-                    return o;
-                })
-                .toList());
-        return ResponseEntity.ok(respuesta);
     }
 }

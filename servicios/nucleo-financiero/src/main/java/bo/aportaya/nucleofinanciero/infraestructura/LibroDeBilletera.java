@@ -114,8 +114,8 @@ public class LibroDeBilletera {
                     .set(DSL.field("orden", Short.class), orden++)
                     .set(DSL.field("sentido", String.class), pata.sentido())
                     .set(DSL.field("monto", BigDecimal.class), pata.monto().monto())
-                    // BEFORE INSERT fija ambos saldos bajo bloqueo de cuenta.
-                    // No se modifica el movimiento después de su inserción.
+                    // Los saldos posteriores los recalcula el trigger; se escribe el
+                    // que se conoce al momento y la base lo corrige.
                     .set(DSL.field("saldo_disponible_posterior", BigDecimal.class), BigDecimal.ZERO)
                     .set(DSL.field("saldo_retenido_posterior", BigDecimal.class), BigDecimal.ZERO)
                     .set(DSL.field("glosa", String.class), pata.glosa())
@@ -144,11 +144,6 @@ public class LibroDeBilletera {
                 iniciadaPor.orElse(CENTINELA_SIN_USUARIO).toString(),
                 origenTipo,
                 clave);
-    }
-
-    /** Atajo para quien inicia siempre una persona (el titular de la sesion). */
-    public Optional<UUID> porClaveIdempotencia(DSLContext dsl, UUID iniciadaPor, String origenTipo, String clave) {
-        return porClaveIdempotencia(dsl, Optional.of(iniciadaPor), origenTipo, clave);
     }
 
     public Optional<UUID> porClaveIdempotencia(

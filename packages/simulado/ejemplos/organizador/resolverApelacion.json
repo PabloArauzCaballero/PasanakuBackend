@@ -48,10 +48,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU93-01",
-        "mensaje": "Sin causal",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-resolverApelacion-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

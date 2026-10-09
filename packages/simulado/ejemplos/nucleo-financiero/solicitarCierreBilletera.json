@@ -60,10 +60,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU16-01",
-        "mensaje": "Obligaciones abiertas",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-solicitarCierreBilletera-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

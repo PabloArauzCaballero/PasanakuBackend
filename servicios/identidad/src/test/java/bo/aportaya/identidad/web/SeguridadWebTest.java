@@ -6,7 +6,6 @@ import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.CU02RevisarExpediente;
 import bo.aportaya.identidad.aplicacion.CU04Autenticar;
 import bo.aportaya.identidad.aplicacion.ConfirmarVerificacionCorreo;
-import bo.aportaya.identidad.aplicacion.ConsultarNivelKyc;
 import bo.aportaya.identidad.aplicacion.EmitirAcceso;
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.SolicitarVerificacionCorreo;
@@ -42,9 +41,6 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     // El portal de riesgo tambien cuelga de la sabana de seguridad: sus rutas son las
     // que miran cedulas ajenas.
     @MockitoBean
-    private bo.aportaya.identidad.aplicacion.ConsumirInvitacion consumirInvitacion;
-
-    @MockitoBean
     private CU02RevisarExpediente revisarExpediente;
 
     @MockitoBean
@@ -79,7 +75,4 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private VerificarTitularidad verificarTitularidad;
-
-    @MockitoBean
-    private ConsultarNivelKyc consultarNivelKyc;
 }

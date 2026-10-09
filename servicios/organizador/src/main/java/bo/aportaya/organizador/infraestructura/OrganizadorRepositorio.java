@@ -1,6 +1,5 @@
 package bo.aportaya.organizador.infraestructura;
 
-import bo.aportaya.organizador.dominio.DecisionDeHabilitacion;
 import bo.aportaya.organizador.dominio.RequisitosDeHabilitacion;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -69,24 +68,10 @@ public class OrganizadorRepositorio {
      *
      * <p>El {@code WHERE estado IN (…)} es la barrera: dos revisores que abrieron la
      * misma solicitud no pueden resolverla los dos, y el segundo se entera.
-     *
-     * <p>Ruta heredada: la resolución también queda en {@code decision_habilitacion} (sin motivo
-     * explícito ni clave del cliente), para que ninguna aprobación quede fuera del historial.
      */
     public boolean resolver(
             DSLContext dsl, UUID id, String estadoNuevo, UUID revisadaPor, String motivoRechazo, OffsetDateTime ahora) {
-        return resolver(dsl, id, estadoNuevo, revisadaPor, motivoRechazo, ahora, UUID.randomUUID());
-    }
-
-    public boolean resolver(
-            DSLContext dsl,
-            UUID id,
-            String estadoNuevo,
-            UUID revisadaPor,
-            String motivoRechazo,
-            OffsetDateTime ahora,
-            UUID correlacion) {
-        boolean cerrada = dsl.update(DSL.table(DSL.name("organizador", "solicitud_organizador")))
+        return dsl.update(DSL.table(DSL.name("organizador", "solicitud_organizador")))
                         .set(DSL.field("estado", String.class), estadoNuevo)
                         .set(DSL.field("revisada_por", UUID.class), revisadaPor)
                         .set(DSL.field("motivo_rechazo", String.class), motivoRechazo)
@@ -96,27 +81,6 @@ public class OrganizadorRepositorio {
                                 .and(DSL.field("estado", String.class).in("PENDIENTE", "EN_REVISION")))
                         .execute()
                 == 1;
-        if (cerrada) {
-            boolean aprobada = "APROBADA".equals(estadoNuevo);
-            BitacoraDeHabilitacion.insertar(
-                    dsl,
-                    new DecisionDeHabilitacion(
-                            UUID.randomUUID(),
-                            id,
-                            UUID.randomUUID(),
-                            "RESOLUCION",
-                            aprobada ? "APROBAR" : "RECHAZAR",
-                            revisadaPor,
-                            motivoRechazo != null
-                                    ? motivoRechazo
-                                    : "Resolucion por la ruta heredada, sin motivo explicito",
-                            BitacoraDeHabilitacion.siguienteRevision(dsl, id),
-                            null,
-                            "ruta heredada: aprobarPostulacion",
-                            ahora,
-                            correlacion));
-        }
-        return cerrada;
     }
 
     /** Los requisitos vigentes para un nivel. Son catalogo, no constantes. */

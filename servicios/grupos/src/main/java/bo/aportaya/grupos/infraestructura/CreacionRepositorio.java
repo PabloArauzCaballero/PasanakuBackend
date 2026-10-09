@@ -17,38 +17,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class CreacionRepositorio {
 
-    public Optional<Alta> altaAnterior(DSLContext dsl, UUID creador, UUID clave) {
-        dsl.fetch("SELECT pg_advisory_xact_lock(hashtextextended(?,0))", "alta-grupo:" + creador);
-        return Optional.ofNullable(dsl.fetchOne(
-                        "SELECT grupo_id, creador_id, huella_solicitud, fondo_por_periodo FROM grupos.alta_grupo WHERE clave_idempotencia=?",
-                        clave))
-                .map(f -> new Alta(
-                        f.get("grupo_id", UUID.class),
-                        f.get("creador_id", UUID.class),
-                        f.get("huella_solicitud", String.class),
-                        f.get("fondo_por_periodo", String.class)));
-    }
-
-    public void guardarAlta(DSLContext dsl, UUID grupo, UUID creador, UUID clave, String huella, String fondo) {
-        dsl.execute(
-                "INSERT INTO grupos.alta_grupo (grupo_id, creador_id, clave_idempotencia, huella_solicitud, fondo_por_periodo, creada_en) VALUES (?,?,?,?,?,now())",
-                grupo,
-                creador,
-                clave,
-                huella,
-                fondo);
-        // La politica de fila reserva `participante` al sistema: el creador no escribe su propia membresia.
-        // El permiso de crear grupos ya se autorizo en la ruta, y la fila es solo del grupo recien creado.
-        bo.aportaya.plataforma.datos.Datos.comoSistema(
-                dsl,
-                () -> dsl.execute(
-                        "INSERT INTO grupos.participante (grupo_id, usuario_id, estado, es_organizador, fecha_ingreso, reputacion_al_ingresar, aportes_realizados, aportes_en_mora) VALUES (?,?,'ACEPTADO_PENDIENTE_FIRMA',true,now(),0,0,0)",
-                        grupo,
-                        creador));
-    }
-
-    public record Alta(UUID grupoId, UUID creadorId, String huella, String fondo) {}
-
     public UUID crear(
             DSLContext dsl,
             GrupoNuevo datos,

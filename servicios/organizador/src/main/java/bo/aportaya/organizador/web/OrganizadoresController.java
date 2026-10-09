@@ -1,12 +1,11 @@
 package bo.aportaya.organizador.web;
 
-import bo.aportaya.organizador.aplicacion.CU90ConsultarBandeja;
 import bo.aportaya.organizador.aplicacion.CU90PostularOrganizador;
-import bo.aportaya.organizador.aplicacion.CU90ResolverHabilitacion;
 import bo.aportaya.organizador.aplicacion.CU91FirmarContrato;
 import bo.aportaya.organizador.aplicacion.CU92EvaluarDesempeno;
 import bo.aportaya.organizador.aplicacion.CU93SancionarOrganizador;
 import bo.aportaya.organizador.aplicacion.ConsultarHabilitacion;
+import bo.aportaya.organizador.web.generado.OrganizadoresApi;
 import bo.aportaya.organizador.web.generado.modelo.EntradaApelacion;
 import bo.aportaya.organizador.web.generado.modelo.EntradaAprobacion;
 import bo.aportaya.organizador.web.generado.modelo.EntradaContrato;
@@ -44,19 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
  * rutas es lo que permite exigirlo.
  */
 @RestController
-public class OrganizadoresController extends RutasDeHabilitacion {
-
-    @Override
-    @Permiso("GRUPO_CREAR")
-    public ResponseEntity<bo.aportaya.organizador.web.generado.modelo.HabilitacionPersonal>
-            consultarHabilitacionPersonal(UUID usuarioId) {
-        var estado = habilitaciones.personal(usuarioId, sesion.actual());
-        var salida = new bo.aportaya.organizador.web.generado.modelo.HabilitacionPersonal();
-        salida.setUsuarioId(estado.usuarioId());
-        salida.setOrganizadorId(estado.organizadorId());
-        salida.setHabilitado(estado.habilitado());
-        return ResponseEntity.ok(salida);
-    }
+public class OrganizadoresController implements OrganizadoresApi {
 
     private final ConsultarHabilitacion habilitaciones;
     private final CU90PostularOrganizador cu90;
@@ -71,10 +58,7 @@ public class OrganizadoresController extends RutasDeHabilitacion {
             CU91FirmarContrato cu91,
             CU92EvaluarDesempeno cu92,
             CU93SancionarOrganizador cu93,
-            CU90ResolverHabilitacion resolutor,
-            CU90ConsultarBandeja bandeja,
             SesionDeLaPeticion sesion) {
-        super(resolutor, bandeja, sesion);
         this.habilitaciones = habilitaciones;
         this.cu90 = cu90;
         this.cu91 = cu91;

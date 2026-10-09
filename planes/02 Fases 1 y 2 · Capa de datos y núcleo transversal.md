@@ -14,7 +14,7 @@ habilita: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
 > catorce servicios comparten (dinero, tiempo, esquemas, acceso a datos, contexto de
 > sesión); la Fase 2 las ensambla en un pipeline HTTP, un outbox y un gateway que
 > funcionan. Son dos gates distintos, pero un solo cuerpo de decisiones: si algo sale
-> mal acá, sale mal en las 15 fases siguientes multiplicado por 105 casos de uso **y
+> mal acá, sale mal en las 15 fases siguientes multiplicado por 99 casos de uso **y
 > por catorce servicios**.
 
 > **Se ejecuta en:** Ola 0 · carril T (troncal, máquina única). **Ningún otro carril
@@ -39,7 +39,7 @@ permiso de más.
 # FASE 1 — Esquemas, roles y capa de datos
 
 > **Objetivo.** Que existan `plataforma/comun-dominio` con `Dinero` exacto y
-> `plataforma/comun-datos` con el acceso a las 335 tablas **generado** desde la base
+> `plataforma/comun-datos` con el acceso a las 306 tablas **generado** desde la base
 > viva, repartidas en catorce esquemas con un rol por servicio, de modo que un
 > servicio no pueda leer los datos de otro **aunque quiera**.
 

@@ -60,10 +60,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU22-01",
-        "mensaje": "Bolsa incompleta",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-ejecutarEntrega-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

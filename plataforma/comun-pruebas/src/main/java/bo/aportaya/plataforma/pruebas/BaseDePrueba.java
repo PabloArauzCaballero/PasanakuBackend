@@ -102,7 +102,7 @@ public final class BaseDePrueba {
 
     private static String esquemas() {
         return "aportes, auditoria, cumplimiento, entregas, erp, garantia, grupos, identidad,"
-                + " inversiones, notificaciones, nucleo_financiero, organizador, publicidad, tarifas,"
+                + " notificaciones, nucleo_financiero, organizador, publicidad, tarifas,"
                 + " transparencia, catalogo, comun, public";
     }
 

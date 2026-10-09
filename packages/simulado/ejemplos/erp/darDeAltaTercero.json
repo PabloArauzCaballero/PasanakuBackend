@@ -40,10 +40,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU100-01",
-        "mensaje": "Periodo ya cerrado",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-darDeAltaTercero-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

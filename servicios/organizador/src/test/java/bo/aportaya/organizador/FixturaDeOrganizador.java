@@ -182,11 +182,6 @@ class FixturaDeOrganizador {
     }
 
     void limpiar() {
-        // El historial de decisiones es append-only y apunta a la solicitud: ni se borra ni deja borrar a
-        // la solicitud. Limpiar la base DE PRUEBA exige saltearse esas dos barreras, solo aca y como
-        // superusuario (replica desactiva triggers y claves foraneas dentro de esta unica sentencia).
-        dsl.execute("DO $$ BEGIN SET LOCAL session_replication_role = replica; "
-                + "DELETE FROM organizador.decision_habilitacion; END $$");
         // El nombre de la tabla va como IDENTIFICADOR de jOOQ, no concatenado.
         for (String[] tabla : new String[][] {
             {"organizador", "ejecucion_tarea"},

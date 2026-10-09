@@ -201,15 +201,3 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_solicitud_cierre_billetera_cuenta_billetera
 
 CREATE INDEX IF NOT EXISTS ix_solicitud_cierre_billetera_estado
   ON nucleo_financiero.solicitud_cierre_billetera (estado);
-
-CREATE INDEX IF NOT EXISTS ix_discrepancia_proveedor_referencia_id
-  ON nucleo_financiero.discrepancia_proveedor (referencia_id);
-
-CREATE UNIQUE INDEX IF NOT EXISTS uq_discrepancia_proveedor_referencia_id_tipo_huella
-  ON nucleo_financiero.discrepancia_proveedor (referencia_id, tipo, huella);
-
-CREATE INDEX IF NOT EXISTS ix_qr_transferencia_cuenta_billetera_id
-  ON nucleo_financiero.qr_transferencia (cuenta_billetera_id);
-
-CREATE UNIQUE INDEX IF NOT EXISTS uq_qr_transferencia_transaccion_id
-  ON nucleo_financiero.qr_transferencia (transaccion_id);

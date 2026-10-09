@@ -51,12 +51,7 @@
     },
     "rechazo": {
       "estado": 401,
-      "cuerpo": {
-        "codigo": "AP-CU100-01",
-        "mensaje": "Periodo ya cerrado",
-        "detalle": {},
-        "trazaId": "traza-recibirWebhookPasarela-rechazo"
-      }
+      "cuerpo": null
     }
   }
 }

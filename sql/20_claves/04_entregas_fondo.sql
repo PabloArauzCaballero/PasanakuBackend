@@ -9,26 +9,6 @@
 -- saltear si ya está— es lo que hace que un ON DELETE cambiado en el
 -- modelo quede corregido al reaplicar.
 
-ALTER TABLE entregas.cesion_derecho DROP CONSTRAINT IF EXISTS fk_cesion_derecho_oferta_turno_id;
-ALTER TABLE entregas.cesion_derecho
-  ADD CONSTRAINT fk_cesion_derecho_oferta_turno_id
-  FOREIGN KEY (oferta_turno_id) REFERENCES entregas.oferta_turno (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE entregas.cesion_derecho DROP CONSTRAINT IF EXISTS fk_cesion_derecho_participante_destino_id;
-ALTER TABLE entregas.cesion_derecho
-  ADD CONSTRAINT fk_cesion_derecho_participante_destino_id
-  FOREIGN KEY (participante_destino_id) REFERENCES grupos.participante (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE entregas.cesion_derecho DROP CONSTRAINT IF EXISTS fk_cesion_derecho_participante_origen_id;
-ALTER TABLE entregas.cesion_derecho
-  ADD CONSTRAINT fk_cesion_derecho_participante_origen_id
-  FOREIGN KEY (participante_origen_id) REFERENCES grupos.participante (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE entregas.cesion_derecho DROP CONSTRAINT IF EXISTS fk_cesion_derecho_turno_id;
-ALTER TABLE entregas.cesion_derecho
-  ADD CONSTRAINT fk_cesion_derecho_turno_id
-  FOREIGN KEY (turno_id) REFERENCES grupos.turno (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
 ALTER TABLE entregas.confirmacion_recepcion DROP CONSTRAINT IF EXISTS fk_confirmacion_recepcion_entrega_id;
 ALTER TABLE entregas.confirmacion_recepcion
   ADD CONSTRAINT fk_confirmacion_recepcion_entrega_id
@@ -89,16 +69,6 @@ ALTER TABLE entregas.entrega_fondo
   ADD CONSTRAINT fk_entrega_fondo_turno_id
   FOREIGN KEY (turno_id) REFERENCES grupos.turno (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
-ALTER TABLE entregas.fondeo_entrega DROP CONSTRAINT IF EXISTS fk_fondeo_entrega_entrega_id;
-ALTER TABLE entregas.fondeo_entrega
-  ADD CONSTRAINT fk_fondeo_entrega_entrega_id
-  FOREIGN KEY (entrega_id) REFERENCES entregas.entrega_fondo (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE entregas.fondeo_entrega DROP CONSTRAINT IF EXISTS fk_fondeo_entrega_turno_id;
-ALTER TABLE entregas.fondeo_entrega
-  ADD CONSTRAINT fk_fondeo_entrega_turno_id
-  FOREIGN KEY (turno_id) REFERENCES grupos.turno (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
 ALTER TABLE entregas.historial_estado_entrega DROP CONSTRAINT IF EXISTS fk_historial_estado_entrega_ejecutado_por;
 ALTER TABLE entregas.historial_estado_entrega
   ADD CONSTRAINT fk_historial_estado_entrega_ejecutado_por
@@ -128,26 +98,6 @@ ALTER TABLE entregas.intento_desembolso DROP CONSTRAINT IF EXISTS fk_intento_des
 ALTER TABLE entregas.intento_desembolso
   ADD CONSTRAINT fk_intento_desembolso_orden_desembolso_id
   FOREIGN KEY (orden_desembolso_id) REFERENCES entregas.orden_desembolso (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE entregas.oferta_turno DROP CONSTRAINT IF EXISTS fk_oferta_turno_cupo_id;
-ALTER TABLE entregas.oferta_turno
-  ADD CONSTRAINT fk_oferta_turno_cupo_id
-  FOREIGN KEY (cupo_id) REFERENCES grupos.cupo (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE entregas.oferta_turno DROP CONSTRAINT IF EXISTS fk_oferta_turno_grupo_id;
-ALTER TABLE entregas.oferta_turno
-  ADD CONSTRAINT fk_oferta_turno_grupo_id
-  FOREIGN KEY (grupo_id) REFERENCES grupos.grupo (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE entregas.oferta_turno DROP CONSTRAINT IF EXISTS fk_oferta_turno_participante_origen_id;
-ALTER TABLE entregas.oferta_turno
-  ADD CONSTRAINT fk_oferta_turno_participante_origen_id
-  FOREIGN KEY (participante_origen_id) REFERENCES grupos.participante (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE entregas.oferta_turno DROP CONSTRAINT IF EXISTS fk_oferta_turno_turno_id;
-ALTER TABLE entregas.oferta_turno
-  ADD CONSTRAINT fk_oferta_turno_turno_id
-  FOREIGN KEY (turno_id) REFERENCES grupos.turno (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 ALTER TABLE entregas.orden_desembolso DROP CONSTRAINT IF EXISTS fk_orden_desembolso_cuenta_destino_id;
 ALTER TABLE entregas.orden_desembolso

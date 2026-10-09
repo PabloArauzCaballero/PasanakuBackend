@@ -10,12 +10,8 @@ import java.math.RoundingMode;
  * la reputacion frente a la geografia es una decision de producto que se toma un
  * martes; si viviera en un {@code static final}, tomarla costaria un despliegue, y
  * nadie podria explicar despues con que pesos se armo un grupo de hace seis meses.
- *
- * <p>{@code id} es la version del motor: cada decision y cada recomendacion la nombra, y con ella y las
- * entradas guardadas el puntaje se reproduce.
  */
 public record CriterioDeEmparejamiento(
-        java.util.UUID id,
         BigDecimal pesoReputacion,
         BigDecimal pesoMonto,
         BigDecimal pesoGeografia,

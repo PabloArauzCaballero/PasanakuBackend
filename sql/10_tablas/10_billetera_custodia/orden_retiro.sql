@@ -19,7 +19,6 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.orden_retiro (
   mfa_verificado                     BOOLEAN DEFAULT FALSE NOT NULL,
   requiere_doble_aprobacion          BOOLEAN DEFAULT FALSE NOT NULL,
   ventana_enfriamiento_hasta         TIMESTAMPTZ,
-  cotizacion_id                      UUID,
   referencia_proveedor               VARCHAR(80),
   clave_idempotencia                 VARCHAR(100) NOT NULL,
   solicitada_en                      TIMESTAMPTZ DEFAULT now() NOT NULL,
@@ -41,6 +40,5 @@ COMMENT ON COLUMN nucleo_financiero.orden_retiro.proveedor_id IS 'FK, NULL, M3';
 COMMENT ON COLUMN nucleo_financiero.orden_retiro.monto_solicitado IS 'CK: > 0';
 COMMENT ON COLUMN nucleo_financiero.orden_retiro.estado IS 'CK, IDX';
 COMMENT ON COLUMN nucleo_financiero.orden_retiro.ventana_enfriamiento_hasta IS 'NULL';
-COMMENT ON COLUMN nucleo_financiero.orden_retiro.cotizacion_id IS 'NULL, polimorfica';
 COMMENT ON COLUMN nucleo_financiero.orden_retiro.referencia_proveedor IS 'UQ, NULL';
 COMMENT ON COLUMN nucleo_financiero.orden_retiro.pagada_en IS 'NULL';

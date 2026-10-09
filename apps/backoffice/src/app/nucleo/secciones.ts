@@ -20,8 +20,6 @@ export const PERMISOS_POR_SECCION: Readonly<Record<string, readonly string[]>> =
   // Verificación de identidad, alertas, casos, actas, habilitación de organizadores.
   'ver:cumplimiento': ['VERIFICACION_RESOLVER', 'CUMPLIMIENTO_ALERTAS', 'CUMPLIMIENTO_CASOS', 'CUMPLIMIENTO_REPORTAR'],
   // Accesos y factores de operadores, catálogos, despliegues e interruptores.
-  // Solicitudes de ingreso a grupos: resolver la admisión es de la plataforma (`@Permiso("ADMIN_PLATAFORMA")` en `grupos`).
-  'ver:admisiones': ['ADMIN_PLATAFORMA'],
   'ver:sistemas': ['ACCESOS_ADMINISTRAR', 'SEGURIDAD_ACCESO_RESTABLECER', 'SEGURIDAD_FACTOR_REINSCRIBIR', 'CATALOGO_EDITAR'],
   'ver:contabilidad': [
     'CONTABILIDAD_ERP_CERRAR',

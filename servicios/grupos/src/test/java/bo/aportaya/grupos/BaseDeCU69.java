@@ -113,20 +113,8 @@ abstract class BaseDeCU69 {
                         suprimido,
                         yaEsParticipante,
                         3,
-                        fixtura.tokenDeInvitacion(),
-                        java.time.OffsetDateTime.now().plusDays(7)),
+                        fixtura.tokenDeInvitacion()),
                 contexto(emisor)));
-    }
-
-    protected bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios.ConsumoInvitacion recibo(
-            UUID invitacion, UUID usuario) {
-        var fila = dslFixtura.fetchOne("SELECT token_id,grupo_id FROM grupos.invitacion WHERE id=?", invitacion);
-        return new bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios.ConsumoInvitacion(
-                fila.get("token_id", UUID.class),
-                fila.get("grupo_id", UUID.class),
-                usuario,
-                UUID.randomUUID(),
-                Reloj.delSistema().ahora().atOffset(java.time.ZoneOffset.UTC));
     }
 
     protected String estadoDe(UUID invitacionId) {

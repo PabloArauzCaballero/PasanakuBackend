@@ -121,19 +121,6 @@ final class FixturaDeGrupos {
      * conserva a proposito por estar todo en un solo cluster.
      */
     UUID tokenDeInvitacion() {
-        return tokenConProposito("INVITACION_GRUPO");
-    }
-
-    UUID tokenDeFirma(UUID titular) {
-        UUID token = tokenConProposito("FIRMA_CONTRATO");
-        dsl.execute(
-                "UPDATE identidad.token_verificacion SET usuario_id=?, estado='CONSUMIDO', consumido_en=now() WHERE id=?",
-                titular,
-                token);
-        return token;
-    }
-
-    private UUID tokenConProposito(String proposito) {
         UUID politica = UUID.randomUUID();
         dsl.execute(
                 """
@@ -141,11 +128,10 @@ final class FixturaDeGrupos {
                     (id, proposito, ttl_segundos, longitud_codigo, max_intentos_validacion,
                      max_reenvios_por_hora, cooldown_reenvio_segundos, max_emisiones_por_dia,
                      canales_permitidos, exige_dispositivo_conocido, invalida_anteriores, vigente_desde)
-                VALUES (?, ?, 604800, 8, 3, 3, 60, 10,
+                VALUES (?, 'INVITACION_GRUPO', 604800, 8, 3, 3, 60, 10,
                         ARRAY['IN_APP','CORREO'], false, true, now())
                 """,
-                politica,
-                proposito);
+                politica);
 
         UUID token = UUID.randomUUID();
         dsl.execute(
@@ -155,14 +141,13 @@ final class FixturaDeGrupos {
                      canal_entrega, destino_enmascarado, estado, emitido_en, expira_en,
                      intentos_fallidos, max_intentos, reenvios, ip_origen, agente_usuario,
                      correlation_id, clave_idempotencia, uso_unico)
-                VALUES (?, ?, 'ENLACE', ?, encode(sha256(?::bytea), 'hex'), 'SHA256',
+                VALUES (?, ?, 'ENLACE', 'INVITACION_GRUPO', encode(sha256(?::bytea), 'hex'), 'SHA256',
                         'IN_APP', '+591*****01', 'EMITIDO', now(), now() + interval '7 days',
                         0, 3, 0, '127.0.0.1'::inet, 'prueba', gen_random_uuid(),
                         gen_random_uuid()::text, true)
                 """,
                 token,
                 politica,
-                proposito,
                 // El hash es unico: dos tokens con el mismo hash serian el mismo token.
                 token.toString());
         return token;

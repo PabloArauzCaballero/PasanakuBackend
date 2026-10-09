@@ -40,10 +40,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU64-01",
-        "mensaje": "Cupo no traspasable",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-traspasarCupo-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

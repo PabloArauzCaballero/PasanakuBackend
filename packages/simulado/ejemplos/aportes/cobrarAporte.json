@@ -68,10 +68,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU21-01",
-        "mensaje": "Obligacion no vigente",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-cobrarAporte-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

@@ -5,7 +5,6 @@ import bo.aportaya.aportes.aplicacion.CU19ReembolsarPago;
 import bo.aportaya.aportes.aplicacion.CU21CobrarAporte;
 import bo.aportaya.aportes.aplicacion.CU99EnrutarProveedor;
 import bo.aportaya.aportes.aplicacion.ConsultarEstadoDelParticipante;
-import bo.aportaya.aportes.aplicacion.ConsultarRecaudoDelPeriodo;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.SabanaDeSeguridadWeb;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -42,7 +41,4 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private CU100RecibirWebhookPasarela cu100RecibirWebhookPasarela;
-
-    @MockitoBean
-    private ConsultarRecaudoDelPeriodo consultarRecaudoDelPeriodo;
 }

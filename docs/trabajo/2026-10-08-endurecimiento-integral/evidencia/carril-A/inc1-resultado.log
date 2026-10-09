@@ -1,9 +1,0 @@
-# inc1: CU10* integrationTest tras discrepancias/idempotencia (comando: gradlew :servicios:nucleo-financiero:integrationTest --tests '*CU10*'); BUILD SUCCESSFUL in 41s
-name="bo.aportaya.nucleofinanciero.CU10ConcurrenciaTest" tests="1" skipped="0" failures="0" errors="0"
-name="bo.aportaya.nucleofinanciero.CU10DiscrepanciaTest" tests="8" skipped="0" failures="0" errors="0"
-name="bo.aportaya.nucleofinanciero.CU10ProveedorTest" tests="6" skipped="0" failures="0" errors="0"
-name="bo.aportaya.nucleofinanciero.CU10RechazosTest" tests="9" skipped="0" failures="0" errors="0"
-name="bo.aportaya.nucleofinanciero.CU10Test" tests="13" skipped="0" failures="0" errors="0"
-name="bo.aportaya.nucleofinanciero.infraestructura.ProveedorSimuladoHostilTest" tests="8" skipped="0" failures="0" errors="0"
-name="bo.aportaya.nucleofinanciero.infraestructura.RecargasProveedorSimuladoTest" tests="10" skipped="0" failures="0" errors="0"
-# nota: una corrida previa (inc1-tests.log) murio por 'insufficient memory for the Java Runtime Environment' (ENVIRONMENT, maquina compartida con 428MB libres); reintento identico sin cambios de codigo: verde

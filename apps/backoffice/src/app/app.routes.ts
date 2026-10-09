@@ -42,11 +42,6 @@ export const routes: Routes = [
         loadChildren: () => import('./rutas/cumplimiento/cumplimiento.routes').then((m) => m.rutasCumplimiento),
       },
       {
-        path: 'admisiones',
-        canMatch: [requierePermiso('ver:admisiones')],
-        loadChildren: () => import('./rutas/admisiones/admisiones.routes').then((m) => m.rutasAdmisiones),
-      },
-      {
         path: 'sistemas',
         canMatch: [requierePermiso('ver:sistemas')],
         loadChildren: () => import('./rutas/sistemas/sistemas.routes').then((m) => m.rutasSistemas),

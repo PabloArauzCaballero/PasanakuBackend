@@ -7,7 +7,7 @@
 // páginas con datos de terceros (`/verificar/*`, `/publico/*`) ya vienen sin `seo` ni
 // frontmatter en `contenido/` — pero la exclusión se declara también acá, en el generador,
 // como defensa en profundidad (el mismo patrón que seo/sitemap.mjs).
-export const RUTAS_EXCLUIDAS_LLMS = ['/verificar/', '/publico/', '/invitacion/', '/catalogo', '/api/']
+export const RUTAS_EXCLUIDAS_LLMS = ['/verificar/', '/publico/', '/catalogo', '/api/']
 
 /** true si la ruta nunca puede entrar a llms.txt/llms-full.txt, sin importar el frontmatter. */
 export function rutaExcluidaDeLlms(ruta) {

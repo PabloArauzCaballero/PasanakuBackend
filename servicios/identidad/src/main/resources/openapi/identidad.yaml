@@ -367,7 +367,8 @@ paths:
         escribir esa tabla (invariante 11): pide el token y guarda su identificador.
 
         Se guarda el hash, nunca el token: quien tenga la base no puede reconstruir los
-        enlaces vivos sin la clave secreta. Reintentos id?nticos del emisor recuperan el mismo enlace.
+        enlaces vivos. El valor en claro se devuelve una sola vez, a quien lo va a
+        enviar.
       parameters:
         - $ref: '#/components/parameters/ClaveIdempotencia'
       requestBody:
@@ -390,8 +391,8 @@ paths:
       summary: Verificar un enlace para el titular de la sesión
       description: >-
         Responde solo si el token emitido sigue vigente y el teléfono indicado
-        pertenece al usuario autenticado. No consume el token: el canje de un solo
-        uso es `consumirInvitacion`, que decide identidad en su propia transacción.
+        pertenece al usuario autenticado. No consume el token: grupos hace la
+        aceptación de un solo uso en su propia transacción.
       requestBody:
         required: true
         content:
@@ -403,36 +404,6 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/SalidaValidacionInvitacion' }
-  /usuarios/tokens/invitacion/{tokenId}/consumos:
-    post:
-      operationId: consumirInvitacion
-      tags: [Invitaciones]
-      parameters:
-        - { name: tokenId, in: path, required: true, schema: { type: string, format: uuid } }
-        - $ref: '#/components/parameters/ClaveIdempotencia'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/CanjeInvitacion' }
-      responses:
-        '200':
-          description: Recibo recuperable solo con el mismo usuario, secreto y clave
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/ConsumoInvitacion' }
-        '422':
-          $ref: '#/components/responses/ReglaDeNegocio'
-  /usuarios/tokens/invitacion/{tokenId}/revocacion:
-    post:
-      operationId: revocarInvitacion
-      tags: [Invitaciones]
-      parameters:
-        - { name: tokenId, in: path, required: true, schema: { type: string, format: uuid } }
-      responses:
-        '204': { description: Invitación revocada por su emisor }
-        '422':
-          $ref: '#/components/responses/ReglaDeNegocio'
 
   /usuarios/por-telefono:
     get:
@@ -456,25 +427,6 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/UsuarioEncontrado' }
-
-  /usuarios/{usuarioId}/kyc:
-    get:
-      operationId: consultarNivelKyc
-      summary: El nivel de verificacion (KYC) vigente de una persona
-      description: >-
-        Lo pregunta `grupos` (CU-20, CU-68) para exigir el nivel minimo del grupo sin leer
-        este esquema (invariante 11). Cada quien lee el suyo; solo backoffice o un proceso
-        del sistema leen el de otra persona. Devuelve el nivel y nada mas.
-      parameters:
-        - { name: usuarioId, in: path, required: true, schema: { type: string, format: uuid } }
-      responses:
-        '200':
-          description: El nivel vigente
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/NivelKyc' }
-        '403':
-          description: Quien pregunta no es la persona ni un rol que pueda leer el de otra
 
 components:
   parameters:
@@ -514,13 +466,6 @@ components:
       required: [verificada]
       properties:
         verificada: { type: boolean }
-    NivelKyc:
-      type: object
-      additionalProperties: false
-      required: [usuarioId, nivel]
-      properties:
-        usuarioId: { type: string, format: uuid }
-        nivel:     { type: string, enum: [NINGUNO, BASICO, INTERMEDIO, COMPLETO] }
     UsuarioEncontrado:
       type: object
       additionalProperties: false
@@ -531,27 +476,15 @@ components:
     EntradaTokenDeInvitacion:
       type: object
       additionalProperties: false
-      required: [canal, grupoId, telefonoDestino]
+      required: [canal, destinoEnmascarado]
       properties:
         canal: { type: string, enum: [ENLACE, SMS, WHATSAPP, CORREO] }
-        grupoId: { type: string, format: uuid }
-        telefonoDestino: { type: string, pattern: '^\+591\d{8}$', writeOnly: true }
-    CanjeInvitacion:
-      type: object
-      additionalProperties: false
-      required: [grupoId, token]
-      properties:
-        grupoId: { type: string, format: uuid }
-        token: { type: string, pattern: '^[0-9a-f]{64}$', writeOnly: true }
-    ConsumoInvitacion:
-      type: object
-      required: [tokenId, grupoId, usuarioId, clave, consumidoEn]
-      properties:
-        tokenId: { type: string, format: uuid }
-        grupoId: { type: string, format: uuid }
-        usuarioId: { type: string, format: uuid }
-        clave: { type: string, format: uuid }
-        consumidoEn: { type: string, format: date-time }
+        destinoEnmascarado:
+          type: string
+          maxLength: 60
+          description: >-
+            El destino YA enmascarado. Sin enmascarar seria un telefono en claro
+            viajando entre servicios y quedando en cada log del camino.
     SalidaTokenDeInvitacion:
       type: object
       additionalProperties: false

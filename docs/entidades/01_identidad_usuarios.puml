@@ -960,20 +960,6 @@ entity "verificacion_kyc" as kyc {
   vigente_hasta : DATE <<NULL>>
 }
 
-entity "alcance_invitacion" as alcanceinv {
-  * id : UUID <<PK>>
-  --
-  # token_id : UUID <<FK, UQ>>
-  grupo_destino_id : UUID
-  emisor_id : UUID
-  telefono_destino : VARCHAR(20)
-  nonce : VARCHAR(64)
-  clave_emision : UUID <<UQ>>
-  huella_solicitud : VARCHAR(64)
-  clave_consumo : UUID <<NULL>>
-  consumidor_id : UUID <<NULL>>
-}
-
 entity "referencia_personal" as refper {
   * id : UUID <<PK>>
   --

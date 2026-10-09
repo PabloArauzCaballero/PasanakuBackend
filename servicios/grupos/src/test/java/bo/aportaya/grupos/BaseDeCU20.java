@@ -39,7 +39,6 @@ abstract class BaseDeCU20 {
     protected static FixturaDeGrupos fixtura;
     protected static Consumidos consumidos;
     protected static UUID creador;
-    protected static UUID organizador;
 
     @BeforeAll
     static void armar() {
@@ -60,15 +59,6 @@ abstract class BaseDeCU20 {
         fixtura = new FixturaDeGrupos(dslFixtura);
         consumidos = new Consumidos("grupos");
         creador = fixtura.usuario();
-        organizador = UUID.randomUUID();
-        dslFixtura.execute(
-                "INSERT INTO organizador.organizador (id, usuario_id, estado, nivel, limite_grupos_simultaneos, limite_monto_administrado, grupos_activos, grupos_historicos, calificacion_promedio, indice_morosidad_cartera, fecha_postulacion) VALUES (?,?,'HABILITADO','ESTANDAR',100,100000,0,0,5,0,now())",
-                organizador,
-                creador);
-        dslFixtura.execute(
-                "INSERT INTO organizador.contrato_organizador (organizador_id, version, contenido_hash, obligaciones, causales_rescision, firmado_en, vigente_desde, token_firma_id) VALUES (?,'sintetico-1',repeat('a',64),'Obligaciones de prueba','Causales de prueba',now(),current_date,?)",
-                organizador,
-                fixtura.tokenDeFirma(creador));
     }
 
     protected ContextoSesion contexto() {
@@ -89,12 +79,11 @@ abstract class BaseDeCU20 {
     protected EntradaCreacion entrada(UUID tarifario, boolean conLicencia, boolean conTarifario) {
         return new EntradaCreacion(
                 datos(),
-                Optional.of(organizador),
+                Optional.empty(),
                 true,
                 conTarifario ? Optional.of(tarifario) : Optional.empty(),
                 conLicencia,
-                true,
-                UUID.randomUUID());
+                true);
     }
 
     protected SalidaCreacion crear(UUID tarifario) {

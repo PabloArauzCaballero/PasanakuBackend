@@ -47,12 +47,7 @@
     },
     "rechazo": {
       "estado": 404,
-      "cuerpo": {
-        "codigo": "AP-CU11-10",
-        "mensaje": "Retiro autoaprobacion prohibida",
-        "detalle": {},
-        "trazaId": "traza-aprobarRetiro-rechazo"
-      }
+      "cuerpo": null
     }
   }
 }

@@ -52,10 +52,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU27-01",
-        "mensaje": "Sin causa vigente",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-restringirDeudor-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

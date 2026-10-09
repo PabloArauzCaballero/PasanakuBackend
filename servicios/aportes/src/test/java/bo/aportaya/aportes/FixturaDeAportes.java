@@ -8,8 +8,8 @@ import org.jooq.DSLContext;
 /** Filas minimas para probar el cobro del aporte, con las columnas del modelo real. */
 final class FixturaDeAportes {
 
-    /** Un telefono E.164 distinto por usuario: uq_usuario_telefono_e164 no perdona. Rango aparte del literal +59170000099 de AislamientoEsquemaTest. */
-    private static final AtomicInteger SECUENCIA = new AtomicInteger(72_000_000);
+    /** Un telefono E.164 distinto por usuario: uq_usuario_telefono_e164 no perdona. */
+    private static final AtomicInteger SECUENCIA = new AtomicInteger(70_000_000);
 
     private final DSLContext dsl;
 

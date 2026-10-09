@@ -1453,100 +1453,6 @@ entity "liquidacion_participante" as liqpart {
   estado : VARCHAR(15) <<CK>>
 }
 
-
-' ----------------------------------------------------------------------------
-'  Carril C (H7.S1.M2, H8): respaldo empresarial reservado por ciclo.
-'  No toca el fondo mutual: es otro mecanismo (docs/Restricciones.md R-GAR-08..).
-' ----------------------------------------------------------------------------
-entity "capacidad_respaldo" as caprespaldo {
-  * id : UUID <<PK>>
-  --
-  ambito : VARCHAR(30) <<UQ+moneda>>
-  moneda : CHAR(3)
-  monto_tope : DECIMAL(16,2) <<CK: >= 0>>
-  monto_comprometido : DECIMAL(16,2) <<CK: >= 0>>
-  # responsable_id : UUID <<FK>>
-  vigente_desde : TIMESTAMPTZ
-  version : INTEGER
-}
-
-entity "reserva_respaldo" as resrespaldo {
-  * id : UUID <<PK>>
-  --
-  # capacidad_respaldo_id : UUID <<FK, IDX>>
-  # grupo_id : UUID <<FK, IDX>>
-  ciclo_numero : SMALLINT <<CK: >= 1, UQ+grupo_id>>
-  moneda : CHAR(3)
-  monto_reservado : DECIMAL(16,2) <<CK: > 0>>
-  monto_aplicado : DECIMAL(16,2) <<CK: >= 0>>
-  monto_recuperado : DECIMAL(16,2) <<CK: >= 0>>
-  monto_liberado : DECIMAL(16,2) <<CK: >= 0>>
-  estado : VARCHAR(10) <<CK: VIGENTE|LIBERADA, IDX>>
-  # responsable_id : UUID <<FK>>
-  clave_idempotencia : VARCHAR(80) <<UQ>>
-  reservada_en : TIMESTAMPTZ
-  version : INTEGER
-}
-
-entity "movimiento_reserva" as movreserva {
-  * id : UUID <<PK>>
-  --
-  # reserva_respaldo_id : UUID <<FK, IDX>>
-  tipo : VARCHAR(25) <<CK: RESERVA|AMPLIACION|APLICACION|REVERSA_APLICACION|RECUPERACION|LIBERACION, IDX>>
-  monto : DECIMAL(14,2) <<CK: > 0>>
-  moneda : CHAR(3)
-  disponible_resultante : DECIMAL(16,2) <<CK: >= 0>>
-  exposicion_resultante : DECIMAL(16,2) <<CK: >= 0>>
-  referencia_tipo : VARCHAR(30)
-  referencia_id : UUID <<IDX>>
-  clave_idempotencia : VARCHAR(80) <<UQ>>
-  # registrado_por : UUID <<FK>>
-  # responsable_id : UUID <<FK>>
-  fecha : TIMESTAMPTZ <<IDX>>
-}
-
-entity "cobertura_respaldo" as cobrespaldo {
-  * id : UUID <<PK>>
-  --
-  # reserva_respaldo_id : UUID <<FK, IDX>>
-  # grupo_id : UUID <<FK, IDX>>
-  # periodo_id : UUID <<FK>>
-  # turno_id : UUID <<FK, IDX>>
-  moneda : CHAR(3)
-  monto_pozo : DECIMAL(14,2) <<CK: > 0>>
-  monto_confirmado : DECIMAL(14,2) <<CK: >= 0>>
-  monto_cubierto_mutual : DECIMAL(14,2) <<CK: >= 0>>
-  monto_faltante : DECIMAL(14,2) <<CK: > 0>>
-  monto_recuperado : DECIMAL(14,2) <<CK: >= 0>>
-  estado : VARCHAR(20) <<CK: APLICADA|RECUPERADA_PARCIAL|RECUPERADA_TOTAL|REVERSADA, IDX>>
-  corte_en : TIMESTAMPTZ
-  clave_idempotencia : VARCHAR(80) <<UQ>>
-  # solicitada_por : UUID <<FK>>
-  # responsable_id : UUID <<FK>>
-  aplicada_en : TIMESTAMPTZ
-  version : INTEGER
-}
-
-entity "cobertura_respaldo_linea" as cobrespaldolinea {
-  * id : UUID <<PK>>
-  --
-  # cobertura_respaldo_id : UUID <<FK, IDX>>
-  # obligacion_id : UUID <<FK, IDX, UQ+cobertura_respaldo_id>>
-  monto_cubierto : DECIMAL(14,2) <<CK: > 0>>
-  monto_recuperado : DECIMAL(14,2) <<CK: >= 0>>
-}
-
-entity "recuperacion_respaldo" as recrespaldo {
-  * id : UUID <<PK>>
-  --
-  # cobertura_respaldo_linea_id : UUID <<FK, IDX>>
-  # pago_id : UUID <<FK, UQ>>
-  # movimiento_reserva_id : UUID <<FK>>
-  monto : DECIMAL(14,2) <<CK: > 0>>
-  moneda : CHAR(3)
-  recuperada_en : TIMESTAMPTZ
-}
-
 polcob ||--o{ fondo : "rige"
 fondo ||--o{ movfondo : "registra"
 fondo ||--o{ devfondo : "devuelve"
@@ -1579,12 +1485,6 @@ sancion ||--o{ apel : "se apela"
 reemp ||--o{ candid : "evalua"
 plancont ||--o| disol : "puede derivar"
 disol ||--|{ liqpart : "liquida"
-
-caprespaldo ||--o{ resrespaldo : "respalda"
-resrespaldo ||--|{ movreserva : "registra"
-resrespaldo ||--o{ cobrespaldo : "cubre con"
-cobrespaldo ||--|{ cobrespaldolinea : "detalla por obligacion"
-cobrespaldolinea ||--o{ recrespaldo : "se recupera con"
 
 note top of reginc
   <b>Expediente unico por hecho</b>

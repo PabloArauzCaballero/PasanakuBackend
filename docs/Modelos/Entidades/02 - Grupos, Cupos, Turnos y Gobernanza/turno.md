@@ -8,7 +8,7 @@ modulo: "02 — Grupos, Cupos, Turnos y Gobernanza"
 clave_primaria: [id]
 columnas: 11
 fk_salientes: 4
-fk_entrantes: 8
+fk_entrantes: 4
 append_only: false
 ---
 
@@ -54,18 +54,14 @@ append_only: false
 
 | Entidad | Columna | Módulo | Relación |
 | --- | --- | :-: | --- |
-| [[cesion_derecho]] | `turno_id` | ↗ 04 | [[cesion_derecho.turno_id → turno]] |
-| [[cobertura_respaldo]] | `turno_id` | ↗ 08 | [[cobertura_respaldo.turno_id → turno]] |
 | [[entrega_fondo]] | `turno_id` | ↗ 04 | [[entrega_fondo.turno_id → turno]] |
-| [[fondeo_entrega]] | `turno_id` | ↗ 04 | [[fondeo_entrega.turno_id → turno]] |
-| [[oferta_turno]] | `turno_id` | ↗ 04 | [[oferta_turno.turno_id → turno]] |
 | [[solicitud_permuta]] | `turno_destino_id` | 02 | [[solicitud_permuta.turno_destino_id → turno]] |
 | [[solicitud_permuta]] | `turno_origen_id` | 02 | [[solicitud_permuta.turno_origen_id → turno]] |
 | [[turno]] | `permutado_con_turno_id` | 02 | [[turno.permutado_con_turno_id → turno]] |
 
 ## Entidades vecinas
 
-[[cesion_derecho]] · [[cobertura_respaldo]] · [[cupo]] · [[entrega_fondo]] · [[fondeo_entrega]] · [[grupo]] · [[oferta_turno]] · [[periodo]] · [[solicitud_permuta]] · [[turno]]
+[[cupo]] · [[entrega_fondo]] · [[grupo]] · [[periodo]] · [[solicitud_permuta]] · [[turno]]
 
 ## Notas del modelo
 

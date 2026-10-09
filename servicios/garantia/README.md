@@ -48,30 +48,6 @@ por que se cubrio lo que se cubrio.
 **La restriccion no le cierra la puerta a pagar.** Bloquear al deudor de todo, incluido
 el camino para regularizarse, garantiza que no se regularice.
 
-## Respaldo empresarial del pozo (carril C, H7/H8)
-
-Un mecanismo APARTE del fondo mutual (CU-23 original, `fondo_garantia`): la empresa reserva
-capacidad por ciclo y cubre lo que no llego al corte para que el pozo se entregue completo.
-Rutas `/garantia/respaldo/*`; el permiso de cada una vive en `GarantiaController` y la
-traduccion en `RespaldoWeb` (el generador agrupa por primer segmento de la ruta).
-
-| Clase | Hace |
-| --- | --- |
-| `CU23ReservarRespaldo` | Reserva (compite por la fila de capacidad, con candado), amplia (contingencia) y libera |
-| `CU23CubrirFaltanteDelCorte` | UNICA puerta HTTP para cubrir: pregunta a `aportes` el faltante, no cree al cliente |
-| `CU23CubrirConRespaldo` | Escritura atomica de la cobertura (todo o nada), una por turno |
-| `CU23RecuperarRespaldo` | Un aporte tardio devuelve a la empresa lo que adelanto, una vez por pago |
-| `CU23ReversarCobertura` | Contra-asiento; no se reversa una cobertura con recuperaciones |
-
-- Los contadores de `reserva_respaldo` y `capacidad_respaldo` son CACHE de `movimiento_reserva`
-  (append-only): los mantiene el trigger `tg_movimiento_reserva_aplica` (R-GAR-09).
-- Los asientos NO se escriben aca: viajan como `partidas` en el evento para que nucleo-financiero
-  las registre con CU-24. Cuentas LOGICAS (`CAJA_EMPRESA`, `RESERVA_RESPALDO`, `POZO_GRUPO`):
-  el mapeo al plan de cuentas es de contabilidad. **Hoy no hay consumidor**: ver el plan del carril C.
-- Orden de candados: reserva, luego cobertura, luego linea. Siempre.
-- Parametros SINTETICOS: el tope de capacidad lo carga gobierno (sin fila se deniega); ninguna
-  tarifa ni politica de recuperacion esta decidida (ambiguedades A1-A4).
-
 ## Lo que este servicio NO puede hacer
 
 - Leer el esquema de otro servicio. No tiene `GRANT`, y jOOQ no le genero las

@@ -23,8 +23,7 @@ function esquemaDe(documento: Contrato, operacion: Operacion, estado: number) {
   const declarada = operacion.responses?.[String(estado)]
   if (!declarada) return null
   const resuelta = resolver(documento, declarada)
-  const medio = Object.keys(resuelta.content ?? {}).find((m) => m === 'application/json' || m.endsWith('+json'))
-  return (medio && resuelta.content?.[medio]?.schema) || null
+  return resuelta.content?.['application/json']?.schema ?? null
 }
 
 const servicios = existsSync(GENERADO) ? readdirSync(GENERADO).filter((a) => a.endsWith('.json')) : []

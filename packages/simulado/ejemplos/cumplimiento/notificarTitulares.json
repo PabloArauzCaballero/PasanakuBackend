@@ -32,10 +32,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU55-03",
-        "mensaje": "Cierre sin notificar",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-notificarTitulares-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

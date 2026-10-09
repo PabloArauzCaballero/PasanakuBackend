@@ -663,17 +663,6 @@ entity "grupo" as grupo {
   cancelado_en : TIMESTAMPTZ <<NULL>>
 }
 
-entity "alta_grupo" as altagr {
-  * id : UUID <<PK>>
-  --
-  grupo_id : UUID <<UQ>>
-  creador_id : UUID <<IDX>>
-  clave_idempotencia : UUID <<UQ>>
-  huella_solicitud : VARCHAR(64)
-  fondo_por_periodo : VARCHAR(60)
-  creada_en : TIMESTAMPTZ
-}
-
 entity "configuracion_grupo" as cfg {
   * # grupo_id : UUID <<PK, FK>>
   --
@@ -794,40 +783,6 @@ entity "solicitud_ingreso" as soling {
   fecha_resolucion : TIMESTAMPTZ <<NULL>>
 }
 
-entity "decision_ingreso" as decing {
-  * id : UUID <<PK>>
-  --
-  solicitud_id : UUID <<IDX>>
-  clave_idempotencia : UUID <<UQ>>
-  fase : VARCHAR(15)
-  decision : VARCHAR(15)
-  actor_id : UUID
-  motivo : VARCHAR(1000)
-  propuesta_id : UUID <<NULL>>
-  participante_id : UUID <<NULL>>
-  revision : INTEGER <<UQ+solicitud_id>>
-  evidencia_algoritmo : TEXT
-  version_motor : VARCHAR(60)
-  recomendacion_algoritmo : VARCHAR(20)
-  apartamiento : BOOLEAN
-  ocurrida_en : TIMESTAMPTZ
-  correlacion_id : UUID
-}
-
-entity "sustitucion_administrador" as sustadm {
-  * id : UUID <<PK>>
-  --
-  grupo_id : UUID <<IDX>>
-  saliente_participante_id : UUID
-  entrante_participante_id : UUID
-  clave_idempotencia : UUID <<UQ>>
-  motivo : VARCHAR(1000)
-  actor_id : UUID
-  obligaciones_conservadas : TEXT
-  ocurrida_en : TIMESTAMPTZ
-  correlacion_id : UUID
-}
-
 entity "invitacion" as inv {
   * id : UUID <<PK>>
   --
@@ -835,11 +790,7 @@ entity "invitacion" as inv {
   telefono_invitado : VARCHAR(20) <<IDX>>
   nombre_sugerido : VARCHAR(80) <<NULL>>
   # emisor_id : UUID <<FK>>
-  # token_id : UUID <<FK, UQ, M1>>
-  consumidor_id : UUID <<NULL>>
-  clave_consumo : UUID <<NULL>>
-  solicitud_ingreso_id : UUID <<NULL>>
-  huella_canje : VARCHAR(64) <<NULL>>
+  # token_id : UUID <<FK, M1>>
   canal : VARCHAR(15) <<CK>>
   estado : VARCHAR(15) <<CK>>
   envios_realizados : SMALLINT
@@ -894,20 +845,6 @@ entity "sorteo_turnos" as sorteo {
   # ejecutado_por : UUID <<FK>>
   fecha_ejecucion : TIMESTAMPTZ
   anulado_en : TIMESTAMPTZ <<NULL>>
-}
-
-entity "snapshot_sorteo" as snapsor {
-  * id : UUID <<PK>>
-  --
-  sorteo_id : UUID <<UQ>>
-  grupo_id : UUID <<IDX>>
-  roster : TEXT
-  periodos : TEXT
-  reglas : TEXT
-  hash_snapshot : VARCHAR(64)
-  semilla_sellada : VARCHAR(128)
-  congelado_en : TIMESTAMPTZ
-  correlacion_id : UUID
 }
 
 entity "solicitud_permuta" as permuta {

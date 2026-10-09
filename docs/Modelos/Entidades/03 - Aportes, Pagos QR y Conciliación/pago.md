@@ -9,7 +9,7 @@ estereotipo: Raíz de agregado
 clave_primaria: [id]
 columnas: 19
 fk_salientes: 4
-fk_entrantes: 10
+fk_entrantes: 9
 append_only: false
 ---
 
@@ -69,13 +69,12 @@ append_only: false
 | [[disputa_pago]] | `pago_id` | 03 | [[disputa_pago.pago_id → pago]] |
 | [[ejecucion_aval]] | `pago_id` | ↗ 08 | [[ejecucion_aval.pago_id → pago]] |
 | [[orden_recarga]] | `pago_id` | ↗ 10 | [[orden_recarga.pago_id → pago]] |
-| [[recuperacion_respaldo]] | `pago_id` | ↗ 08 | [[recuperacion_respaldo.pago_id → pago]] |
 | [[reembolso]] | `pago_id` | 03 | [[reembolso.pago_id → pago]] |
 | [[webhook_pasarela]] | `pago_id` | 03 | [[webhook_pasarela.pago_id → pago]] |
 
 ## Entidades vecinas
 
-[[abono_recuperacion]] · [[comprobante_manual]] · [[conciliacion]] · [[constancia_pago]] · [[disputa_pago]] · [[ejecucion_aval]] · [[intento_pago]] · [[obligacion_aporte]] · [[orden_recarga]] · [[proveedor_pago]] · [[recuperacion_respaldo]] · [[reembolso]] · [[usuario]] · [[webhook_pasarela]]
+[[abono_recuperacion]] · [[comprobante_manual]] · [[conciliacion]] · [[constancia_pago]] · [[disputa_pago]] · [[ejecucion_aval]] · [[intento_pago]] · [[obligacion_aporte]] · [[orden_recarga]] · [[proveedor_pago]] · [[reembolso]] · [[usuario]] · [[webhook_pasarela]]
 
 ## Notas del modelo
 

@@ -56,10 +56,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU92-01",
-        "mensaje": "Periodo no cerrado",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-evaluarDesempeno-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

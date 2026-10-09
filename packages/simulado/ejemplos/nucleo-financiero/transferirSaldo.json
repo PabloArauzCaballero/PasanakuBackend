@@ -64,10 +64,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU12-01",
-        "mensaje": "Saldo insuficiente",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-transferirSaldo-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

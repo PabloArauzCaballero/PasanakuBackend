@@ -1,202 +1,221 @@
 package bo.aportaya.grupos.aplicacion;
 
-import bo.aportaya.grupos.dominio.DecisionDeIngreso;
-import bo.aportaya.grupos.infraestructura.AdmisionRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
-import bo.aportaya.plataforma.dominio.Reloj;
+import bo.aportaya.plataforma.dominio.Traza;
 import bo.aportaya.plataforma.mensajeria.EventoDominio;
 import bo.aportaya.plataforma.mensajeria.Outbox;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jooq.DSLContext;
+import org.jooq.Record;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * CU-68 · Admisión al grupo.
+ * CU-68 · El organizador acepta o rechaza una solicitud de ingreso.
  *
- * <p>Expediente humano: el administrador propone, backoffice resuelve y ambas decisiones se conservan
- * inmutables ({@link #proponer}, {@link #resolver}, {@link #historial}).
+ * <p>Flujo principal 4 del caso de uso: quien decide es el organizador del grupo
+ * ({@code revisada_por}, {@code fecha_resolucion}). Aceptada, en la MISMA transaccion se
+ * reserva el cupo libre, nace el participante y se emite el evento: o pasa todo o no pasa
+ * nada.
  *
- * <p>Camino directo del organizador (flujo principal 4 del caso de uso): acepta o rechaza una solicitud
- * pendiente en una sola transaccion ({@link #pendientes}, {@link #decidir}). Aceptada, en la MISMA
- * transaccion se reserva el cupo libre, nace el participante en {@code ACEPTADO_PENDIENTE_FIRMA} y se
- * emite el evento. Se trabaja con rol de sistema porque la politica de fila reserva a otros las filas de
- * {@code participante} y {@code solicitud_ingreso}; por eso la autorizacion del organizador se comprueba
- * aca, contra el grupo, y no se delega en la base. Una solicitud ya resuelta por cualquiera de los dos
- * caminos no se vuelve a resolver.
+ * <p>La firma del reglamento va antes de que el cupo quede firme, asi que la aceptacion
+ * deja al participante en {@code ACEPTADO_PENDIENTE_FIRMA} y al cupo en {@code RESERVADO};
+ * pasar a ACTIVO/OCUPADO es la firma, un caso posterior (SUPUESTO registrado en el PLAN).
+ *
+ * <p>Se trabaja con rol de sistema porque la politica de fila reserva a otros las filas de
+ * {@code participante} y {@code solicitud_ingreso}; por eso la autorizacion del organizador
+ * se comprueba aca, contra el grupo, y no se delega en la base.
  */
 @Service
 public class CU68AceptarIngreso {
     private final Datos datos;
-    private final AdmisionRepositorio admision;
     private final Outbox outbox;
-    private final Reloj reloj;
-    private final OrganizadorDecideIngreso directo;
 
-    @Autowired
-    public CU68AceptarIngreso(Datos datos, AdmisionRepositorio admision, Outbox outbox, Reloj reloj) {
-        this.datos = datos;
-        this.admision = admision;
-        this.outbox = outbox;
-        this.reloj = reloj;
-        this.directo = new OrganizadorDecideIngreso(datos, outbox);
-    }
-
-    /** Solo el camino directo del organizador ({@link #pendientes}, {@link #decidir}); no usa el expediente. */
     public CU68AceptarIngreso(Datos datos, Outbox outbox) {
-        this(datos, new AdmisionRepositorio(), outbox, Reloj.delSistema());
-    }
-
-    @Transactional
-    public DecisionDeIngreso proponer(Entrada entrada, ContextoSesion ctx) {
-        return decidir(entrada, ctx, false);
-    }
-
-    @Transactional
-    public DecisionDeIngreso resolver(Entrada entrada, ContextoSesion ctx) {
-        if (!"BACKOFFICE".equals(ctx.rol()) && !"ADMIN_PLATAFORMA".equals(ctx.rol())) {
-            throw error("Solo backoffice puede resolver la admisión.");
-        }
-        return decidir(entrada, ctx, true);
-    }
-
-    private DecisionDeIngreso decidir(Entrada entrada, ContextoSesion ctx, boolean definitiva) {
-        if (entrada.clave() == null
-                || entrada.solicitudId() == null
-                || entrada.revisionEsperada() < 0
-                || entrada.motivo() == null
-                || entrada.motivo().isBlank()
-                || entrada.motivo().length() > 1000
-                || entrada.decision() == null
-                || !List.of("ACEPTAR", "RECHAZAR").contains(entrada.decision())) {
-            throw error("La decisión requiere clave, revisión, resultado y motivo explícitos.");
-        }
-        String fase = definitiva ? "RESOLUCION" : "PROPUESTA";
-        return datos.conContexto(ctx, dsl -> {
-            var solicitud = admision.bloquear(dsl, entrada.solicitudId());
-            if (!definitiva && !admision.esAdministrador(dsl, solicitud.grupoId(), ctx.usuarioId())) {
-                throw error("Solo el administrador de este grupo puede proponer la admisión.");
-            }
-            if (solicitud.usuarioId().equals(ctx.usuarioId())) {
-                throw error("Nadie puede decidir su propia admisión.");
-            }
-            var repetida = admision.porClave(dsl, entrada.clave());
-            if (repetida.isPresent()) {
-                var previa = repetida.get();
-                if (!previa.solicitudId().equals(entrada.solicitudId())
-                        || !previa.actorId().equals(ctx.usuarioId())
-                        || !previa.fase().equals(fase)
-                        || !previa.decision().equals(entrada.decision())
-                        || !previa.motivo().equals(entrada.motivo())
-                        || previa.revision() != entrada.revisionEsperada() + 1
-                        || !Objects.equals(previa.propuestaId(), entrada.propuestaId())) {
-                    throw error("La clave de idempotencia pertenece a otra decisión.");
-                }
-                return previa;
-            }
-            var anterior = admision.ultima(dsl, entrada.solicitudId());
-            int revision = anterior.map(DecisionDeIngreso::revision).orElse(0);
-            if (!"PENDIENTE".equals(solicitud.estado()) || revision != entrada.revisionEsperada()) {
-                throw error("La solicitud cambió o ya fue resuelta; actualiza el expediente.");
-            }
-            if (definitiva) {
-                var propuesta = anterior.orElseThrow(() -> error("Falta la propuesta del administrador."));
-                if (!"PROPUESTA".equals(propuesta.fase())
-                        || !propuesta.id().equals(entrada.propuestaId())
-                        || propuesta.actorId().equals(ctx.usuarioId())) {
-                    throw error("La resolución requiere la propuesta vigente y otro responsable humano.");
-                }
-            } else if (entrada.propuestaId() != null) {
-                throw error("Una propuesta no puede suplantar una resolución.");
-            }
-            UUID participante = null;
-            if (definitiva && "ACEPTAR".equals(entrada.decision())) {
-                participante = admision.reservarAdmision(dsl, solicitud);
-            }
-            String evidencia = admision.evidencia(dsl, entrada.solicitudId());
-            var motor = admision.recomendacion(evidencia);
-            // Apartamiento: la persona decide en contra de la lectura del motor (acepta pese a alertas o SIN_DATOS,
-            // o rechaza cuando se recomendaba aceptar). Se registra; no se castiga ni se bloquea.
-            boolean apartamiento =
-                    ("ACEPTAR".equals(entrada.decision()) && "REVISION_HUMANA".equals(motor.recomendacion()))
-                            || ("RECHAZAR".equals(entrada.decision()) && "ACEPTAR".equals(motor.recomendacion()));
-            var decision = new DecisionDeIngreso(
-                    UUID.randomUUID(),
-                    entrada.solicitudId(),
-                    entrada.clave(),
-                    fase,
-                    entrada.decision(),
-                    ctx.usuarioId(),
-                    entrada.motivo(),
-                    entrada.propuestaId(),
-                    participante,
-                    revision + 1,
-                    evidencia,
-                    motor.version(),
-                    motor.recomendacion(),
-                    apartamiento,
-                    reloj.ahora()
-                            .truncatedTo(java.time.temporal.ChronoUnit.MICROS)
-                            .atOffset(ZoneOffset.UTC),
-                    UUID.fromString(ctx.traza().id()));
-            admision.guardar(dsl, decision);
-            if (definitiva) {
-                admision.resolver(dsl, solicitud.id(), decision);
-            }
-            outbox.emitir(
-                    dsl,
-                    new EventoDominio(
-                            definitiva ? "grupos.admision_resuelta" : "grupos.admision_propuesta",
-                            "solicitud_ingreso",
-                            solicitud.id(),
-                            Map.of(
-                                    "decisionId",
-                                    decision.id().toString(),
-                                    "grupoId",
-                                    solicitud.grupoId().toString(),
-                                    "resultado",
-                                    decision.decision()),
-                            decision.correlacionId()));
-            return decision;
-        });
-    }
-
-    @Transactional(readOnly = true)
-    public List<DecisionDeIngreso> historial(UUID solicitudId, ContextoSesion ctx) {
-        return datos.conContexto(ctx, dsl -> {
-            var solicitud = admision.ver(dsl, solicitudId);
-            boolean backoffice = "BACKOFFICE".equals(ctx.rol()) || "ADMIN_PLATAFORMA".equals(ctx.rol());
-            if (!backoffice && !admision.esAdministrador(dsl, solicitud.grupoId(), ctx.usuarioId())) {
-                throw error("El expediente de decisión requiere permisos de revisión.");
-            }
-            return admision.historial(dsl, solicitudId);
-        });
+        this.datos = datos;
+        this.outbox = outbox;
     }
 
     /** La cola del organizador: solo PENDIENTES, la mas antigua primero. */
     @Transactional(readOnly = true)
     public List<Solicitud> pendientes(UUID grupoId, ContextoSesion ctx) {
-        return directo.pendientes(grupoId, ctx);
+        return datos.conContexto(sistema(ctx), dsl -> {
+            exigirOrganizador(dsl, grupoId, ctx.usuarioId());
+            return dsl.fetch(
+                            """
+                            SELECT id, usuario_id, cupos_solicitados, mensaje, puntaje_compatibilidad,
+                                   estado, fecha_solicitud
+                              FROM grupos.solicitud_ingreso
+                             WHERE grupo_id = ? AND estado = 'PENDIENTE'
+                             ORDER BY fecha_solicitud, id
+                             LIMIT 200
+                            """,
+                            grupoId)
+                    .map(r -> new Solicitud(
+                            r.get("id", UUID.class),
+                            r.get("usuario_id", UUID.class),
+                            r.get("cupos_solicitados", Integer.class),
+                            r.get("mensaje", String.class),
+                            r.get("puntaje_compatibilidad", java.math.BigDecimal.class),
+                            r.get("estado", String.class),
+                            r.get("fecha_solicitud", OffsetDateTime.class)));
+        });
     }
 
     @Transactional
     public Resultado decidir(
             UUID solicitudId, boolean aceptar, String motivo, java.math.BigDecimal reputacion, ContextoSesion ctx) {
-        return directo.decidir(solicitudId, aceptar, motivo, reputacion, ctx);
+        return datos.conContexto(sistema(ctx), dsl -> {
+            Record s = dsl.fetchOne(
+                    "SELECT id, grupo_id, usuario_id, estado FROM grupos.solicitud_ingreso WHERE id = ?", solicitudId);
+            if (s == null) {
+                throw new ErrorDeNegocio(CodigoError.de(68, 8), "Esa solicitud no existe.");
+            }
+            UUID grupoId = s.get("grupo_id", UUID.class);
+            exigirOrganizador(dsl, grupoId, ctx.usuarioId());
+
+            // Todas las decisiones del mismo grupo toman primero esta fila: dos aceptaciones no pueden
+            // ocupar el ultimo cupo a la vez.
+            dsl.fetchOne("SELECT id FROM grupos.grupo WHERE id = ? FOR UPDATE", grupoId);
+            Record vigente =
+                    dsl.fetchOne("SELECT estado FROM grupos.solicitud_ingreso WHERE id = ? FOR UPDATE", solicitudId);
+            String actual = vigente.get("estado", String.class);
+            if (!"PENDIENTE".equals(actual)) {
+                // Repetir la MISMA decision es un reintento: se devuelve lo ya resuelto sin mover nada.
+                if (("APROBADA".equals(actual) && aceptar) || ("RECHAZADA".equals(actual) && !aceptar)) {
+                    Record previo = dsl.fetchOne(
+                            """
+                            SELECT p.id AS participante_id, c.id AS cupo_id
+                              FROM grupos.participante p
+                              LEFT JOIN grupos.cupo c ON c.participante_id = p.id
+                             WHERE p.grupo_id = ? AND p.usuario_id = ?
+                             ORDER BY p.fecha_ingreso DESC LIMIT 1
+                            """,
+                            grupoId,
+                            s.get("usuario_id", UUID.class));
+                    return new Resultado(
+                            solicitudId,
+                            actual,
+                            aceptar && previo != null ? previo.get("participante_id", UUID.class) : null,
+                            aceptar && previo != null ? previo.get("cupo_id", UUID.class) : null);
+                }
+                throw new ErrorDeNegocio(CodigoError.de(68, 9), "Esa solicitud ya esta resuelta.");
+            }
+            if (!aceptar && (motivo == null || motivo.isBlank())) {
+                throw new ErrorDeNegocio(CodigoError.de(68, 10), "Para rechazar hay que decir por que.");
+            }
+
+            UUID participanteId = null;
+            UUID cupoId = null;
+            if (aceptar) {
+                Record cupo = dsl.fetchOne(
+                        """
+                        SELECT id FROM grupos.cupo
+                         WHERE grupo_id = ? AND estado = 'LIBRE'
+                         ORDER BY numero LIMIT 1 FOR UPDATE
+                        """,
+                        grupoId);
+                if (cupo == null) {
+                    throw new ErrorDeNegocio(CodigoError.de(68, 4), "Ya no hay cupos libres.");
+                }
+                cupoId = cupo.get("id", UUID.class);
+                participanteId = UUID.randomUUID();
+                dsl.execute(
+                        """
+                        INSERT INTO grupos.participante
+                          (id, grupo_id, usuario_id, estado, es_organizador, invitado_por_id,
+                           fecha_ingreso, reputacion_al_ingresar, aportes_realizados, aportes_en_mora)
+                        VALUES (?, ?, ?, 'ACEPTADO_PENDIENTE_FIRMA', false,
+                          (SELECT id FROM grupos.participante WHERE grupo_id = ? AND usuario_id = ?
+                              AND es_organizador LIMIT 1), now(), ?, 0, 0)
+                        """,
+                        participanteId,
+                        grupoId,
+                        s.get("usuario_id", UUID.class),
+                        grupoId,
+                        ctx.usuarioId(),
+                        reputacion);
+                dsl.execute(
+                        """
+                        UPDATE grupos.cupo SET participante_id = ?, estado = 'RESERVADO', asignado_en = now()
+                         WHERE id = ? AND estado = 'LIBRE'
+                        """,
+                        participanteId,
+                        cupoId);
+                dsl.execute("UPDATE grupos.grupo SET cupos_ocupados = cupos_ocupados + 1 WHERE id = ?", grupoId);
+            }
+
+            String estado = aceptar ? "APROBADA" : "RECHAZADA";
+            dsl.execute(
+                    """
+                    UPDATE grupos.solicitud_ingreso
+                       SET estado = ?, revisada_por = ?, fecha_resolucion = now()
+                     WHERE id = ? AND estado = 'PENDIENTE'
+                    """,
+                    estado,
+                    ctx.usuarioId(),
+                    solicitudId);
+
+            Map<String, Object> carga = new java.util.HashMap<>();
+            carga.put("solicitudId", solicitudId.toString());
+            carga.put("grupoId", grupoId.toString());
+            carga.put("decision", estado);
+            if (participanteId != null) {
+                carga.put("participanteId", participanteId.toString());
+            }
+            if (motivo != null && !motivo.isBlank()) {
+                carga.put("motivo", motivo);
+            }
+            outbox.emitir(
+                    dsl,
+                    new EventoDominio(
+                            aceptar ? "grupos.ingreso_aceptado" : "grupos.ingreso_rechazado",
+                            "solicitud_ingreso",
+                            solicitudId,
+                            carga,
+                            UUID.fromString(ctx.traza().id())));
+            return new Resultado(solicitudId, estado, participanteId, cupoId);
+        });
     }
 
     /** Quien pidio entrar, para consultar su reputacion FUERA de la transaccion de decidir (invariante 6). */
     @Transactional(readOnly = true)
     public UUID solicitante(UUID solicitudId, ContextoSesion ctx) {
-        return directo.solicitante(solicitudId, ctx);
+        return datos.conContexto(sistema(ctx), dsl -> {
+            Record s =
+                    dsl.fetchOne("SELECT grupo_id, usuario_id FROM grupos.solicitud_ingreso WHERE id = ?", solicitudId);
+            if (s == null) {
+                throw new ErrorDeNegocio(CodigoError.de(68, 8), "Esa solicitud no existe.");
+            }
+            exigirOrganizador(dsl, s.get("grupo_id", UUID.class), ctx.usuarioId());
+            return s.get("usuario_id", UUID.class);
+        });
+    }
+
+    /** Solo el organizador del grupo decide: el permiso global no alcanza (BOLA). */
+    private static void exigirOrganizador(DSLContext dsl, UUID grupoId, UUID usuarioId) {
+        boolean esOrganizador = Boolean.TRUE.equals(dsl.fetchOne(
+                        """
+                        SELECT EXISTS (SELECT 1 FROM grupos.participante
+                                        WHERE grupo_id = ? AND usuario_id = ? AND es_organizador
+                                          AND estado NOT IN ('RETIRADO','EXPULSADO','REEMPLAZADO')) AS ok
+                        """,
+                        grupoId,
+                        usuarioId)
+                .get("ok", Boolean.class));
+        if (!esOrganizador) {
+            throw new ErrorDeNegocio(CodigoError.de(68, 8), "Esa solicitud no existe.");
+        }
+    }
+
+    private static ContextoSesion sistema(ContextoSesion ctx) {
+        return ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
     }
 
     public record Solicitud(
@@ -209,11 +228,4 @@ public class CU68AceptarIngreso {
             OffsetDateTime fecha) {}
 
     public record Resultado(UUID solicitudId, String estado, UUID participanteId, UUID cupoId) {}
-
-    private static ErrorDeNegocio error(String mensaje) {
-        return new ErrorDeNegocio(CodigoError.de(68, 6), mensaje);
-    }
-
-    public record Entrada(
-            UUID solicitudId, UUID clave, String decision, String motivo, int revisionEsperada, UUID propuestaId) {}
 }

@@ -52,10 +52,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU95-01",
-        "mensaje": "Accion no automatizable",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-definirRegla-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

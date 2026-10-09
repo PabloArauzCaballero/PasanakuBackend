@@ -4,20 +4,19 @@ import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.ConfirmarVerificacionCorreo;
-import bo.aportaya.identidad.aplicacion.ConsultarNivelKyc;
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.SolicitarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.ValidarTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
 import bo.aportaya.identidad.dominio.CanalDeVerificacion;
 import bo.aportaya.identidad.dominio.DocumentoDeIdentidad;
+import bo.aportaya.identidad.web.generado.UsuariosApi;
 import bo.aportaya.identidad.web.generado.modelo.ArchivoDelExpediente;
 import bo.aportaya.identidad.web.generado.modelo.ConfirmacionVerificacionCorreo;
 import bo.aportaya.identidad.web.generado.modelo.EntradaRegistro;
 import bo.aportaya.identidad.web.generado.modelo.EntradaTitularidad;
 import bo.aportaya.identidad.web.generado.modelo.EntradaTokenDeInvitacion;
 import bo.aportaya.identidad.web.generado.modelo.EntradaValidacionInvitacion;
-import bo.aportaya.identidad.web.generado.modelo.NivelKyc;
 import bo.aportaya.identidad.web.generado.modelo.SalidaRegistro;
 import bo.aportaya.identidad.web.generado.modelo.SalidaTitularidad;
 import bo.aportaya.identidad.web.generado.modelo.SalidaTokenDeInvitacion;
@@ -48,7 +47,7 @@ import org.springframework.web.multipart.MultipartFile;
  * decirle al cliente que tiene algo que todavia nadie abrio.
  */
 @RestController
-public class UsuariosController extends InvitacionesController {
+public class UsuariosController implements UsuariosApi {
 
     /** El «usuario» del contexto mientras todavia no hay usuario. */
     private static final UUID PROCESO_DE_ALTA = UUID.fromString("00000000-0000-4000-8000-000000000001");
@@ -59,7 +58,6 @@ public class UsuariosController extends InvitacionesController {
     private final EmitirTokenDeInvitacion tokens;
     private final ValidarTokenDeInvitacion validacionDeInvitacion;
     private final BuscarPorTelefono busqueda;
-    private final ConsultarNivelKyc nivelesKyc;
     private final SolicitarVerificacionCorreo solicitarCorreo;
     private final ConfirmarVerificacionCorreo confirmarCorreo;
     private final SesionDeLaPeticion sesion;
@@ -72,22 +70,18 @@ public class UsuariosController extends InvitacionesController {
             CU02GuardarFotoDelExpediente fotos,
             EmitirTokenDeInvitacion tokens,
             ValidarTokenDeInvitacion validacionDeInvitacion,
-            bo.aportaya.identidad.aplicacion.ConsumirInvitacion consumo,
             BuscarPorTelefono busqueda,
-            ConsultarNivelKyc nivelesKyc,
             SolicitarVerificacionCorreo solicitarCorreo,
             ConfirmarVerificacionCorreo confirmarCorreo,
             SesionDeLaPeticion sesion,
             HttpServletRequest peticion,
             @Value("${aportaya.seguridad.pimienta}") String pimienta) {
-        super(consumo, sesion, peticion);
         this.cu01 = cu01;
         this.titularidad = titularidad;
         this.fotos = fotos;
         this.tokens = tokens;
         this.validacionDeInvitacion = validacionDeInvitacion;
         this.busqueda = busqueda;
-        this.nivelesKyc = nivelesKyc;
         this.solicitarCorreo = solicitarCorreo;
         this.confirmarCorreo = confirmarCorreo;
         this.sesion = sesion;
@@ -119,16 +113,14 @@ public class UsuariosController extends InvitacionesController {
     public ResponseEntity<SalidaTokenDeInvitacion> emitirTokenDeInvitacion(
             UUID idempotencyKey, EntradaTokenDeInvitacion cuerpo) {
         Traza.marcarCasoDeUso("CU-69", cuerpo.getCanal().getValue());
-        String agente = agente();
+        String agente = Optional.ofNullable(peticion.getHeader("User-Agent")).orElse("grupos");
 
         var emitido = tokens.ejecutar(
-                new EmitirTokenDeInvitacion.Entrada(
-                        idempotencyKey,
-                        cuerpo.getGrupoId(),
-                        cuerpo.getTelefonoDestino(),
-                        cuerpo.getCanal().getValue(),
-                        ip(),
-                        agente.substring(0, Math.min(255, agente.length()))),
+                cuerpo.getCanal().getValue(),
+                cuerpo.getDestinoEnmascarado(),
+                idempotencyKey,
+                Optional.ofNullable(peticion.getRemoteAddr()).orElse("0.0.0.0"),
+                agente.substring(0, Math.min(255, agente.length())),
                 sesion.actual());
 
         var respuesta = new SalidaTokenDeInvitacion();
@@ -160,15 +152,6 @@ public class UsuariosController extends InvitacionesController {
         respuesta.setCoincide(
                 titularidad.coincide(usuarioId, cuerpo.getNombreCompleto(), cuerpo.getDocumento(), sesion.actual()));
         return ResponseEntity.ok(respuesta);
-    }
-
-    /** Cada quien lee su nivel; el de otra persona lo leen solo backoffice o el sistema. */
-    @Override
-    @Permiso("PARTICIPANTE")
-    public ResponseEntity<NivelKyc> consultarNivelKyc(UUID usuarioId) {
-        Traza.marcarCasoDeUso("CU-02", "nivel-kyc");
-        var nivel = nivelesKyc.ejecutar(usuarioId, sesion.actual());
-        return ResponseEntity.ok(new NivelKyc(usuarioId, NivelKyc.NivelEnum.fromValue(nivel)));
     }
 
     /**

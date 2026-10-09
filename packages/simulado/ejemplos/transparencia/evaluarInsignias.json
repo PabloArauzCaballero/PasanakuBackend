@@ -58,13 +58,7 @@
     },
     "rechazo": {
       "estado": 422,
-      "cuerpo": {
-        "tipo": "about:blank",
-        "titulo": "Insignia inexistente",
-        "estado": 422,
-        "codigo": "AP-CU74-01",
-        "detalle": null
-      }
+      "cuerpo": null
     }
   }
 }

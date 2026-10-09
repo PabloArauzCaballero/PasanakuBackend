@@ -4,10 +4,6 @@ import static bo.aportaya.grupos.generado.Tables.CUPO;
 import static bo.aportaya.grupos.generado.Tables.SORTEO_TURNOS;
 import static bo.aportaya.grupos.generado.Tables.TURNO;
 
-import bo.aportaya.grupos.dominio.SnapshotDeSorteo;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -66,8 +62,7 @@ public class SorteoRepositorio {
             String algoritmo,
             UUID ejecutadoPor,
             OffsetDateTime ahora,
-            Optional<OffsetDateTime> fechaPrevista,
-            List<String> entropiasComprometidas) {
+            Optional<OffsetDateTime> fechaPrevista) {
         return dsl.insertInto(SORTEO_TURNOS)
                 .set(SORTEO_TURNOS.GRUPO_ID, grupoId)
                 .set(SORTEO_TURNOS.ALGORITMO, algoritmo)
@@ -75,7 +70,6 @@ public class SorteoRepositorio {
                 .set(SORTEO_TURNOS.HASH_SEMILLA_PREVIO, hash)
                 .set(SORTEO_TURNOS.FECHA_COMPROMISO, ahora)
                 .set(SORTEO_TURNOS.FECHA_REVELADO_PREVISTA, fechaPrevista.orElse(null))
-                .set(SORTEO_TURNOS.APORTES_ENTROPIA, org.jooq.JSONB.valueOf(comoJson(entropiasComprometidas)))
                 .set(SORTEO_TURNOS.SEMILLA_PUBLICA, "")
                 .set(SORTEO_TURNOS.RESULTADO, org.jooq.JSONB.valueOf("[]"))
                 .set(SORTEO_TURNOS.EJECUTADO_POR, ejecutadoPor)
@@ -148,138 +142,6 @@ public class SorteoRepositorio {
 
     public int turnosDe(DSLContext dsl, UUID grupoId) {
         return dsl.fetchCount(TURNO, TURNO.GRUPO_ID.eq(grupoId));
-    }
-
-    /** Los cupos ocupados, con su participante, en orden de numero: el plantel que se congela. */
-    public List<SnapshotDeSorteo.CupoCongelado> plantelOcupado(DSLContext dsl, UUID grupoId) {
-        return dsl.fetch(
-                        "SELECT numero, id, participante_id FROM grupos.cupo WHERE grupo_id = ? AND estado = 'OCUPADO' ORDER BY numero",
-                        grupoId)
-                .map(f -> new SnapshotDeSorteo.CupoCongelado(
-                        f.get("numero", Integer.class), f.get("id", UUID.class), f.get("participante_id", UUID.class)));
-    }
-
-    /** El calendario del grupo, en orden de periodo. */
-    public List<SnapshotDeSorteo.PeriodoCongelado> calendarioDelGrupo(DSLContext dsl, UUID grupoId) {
-        return dsl.fetch(
-                        "SELECT numero, id, fecha_limite_pago FROM grupos.periodo WHERE grupo_id = ? ORDER BY numero",
-                        grupoId)
-                .map(f -> new SnapshotDeSorteo.PeriodoCongelado(
-                        f.get("numero", Integer.class),
-                        f.get("id", UUID.class),
-                        f.get("fecha_limite_pago", java.time.LocalDate.class)));
-    }
-
-    /** Las reglas del grupo que el sorteo da por sentadas, en texto canonico (clave=valor por linea). */
-    public String reglasDelGrupo(DSLContext dsl, UUID grupoId) {
-        var g = dsl.fetchOne(
-                "SELECT monto_aporte, moneda, periodicidad, dia_cobro, num_periodos, cupos_totales, fecha_inicio FROM grupos.grupo WHERE id = ?",
-                grupoId);
-        if (g == null) return "";
-        return "monto=" + g.get("monto_aporte", BigDecimal.class).toPlainString()
-                + "\nmoneda=" + g.get("moneda", String.class)
-                + "\nperiodicidad=" + g.get("periodicidad", String.class)
-                + "\ndiaCobro=" + g.get("dia_cobro")
-                + "\nperiodos=" + g.get("num_periodos")
-                + "\ncupos=" + g.get("cupos_totales")
-                + "\nfechaInicio=" + g.get("fecha_inicio");
-    }
-
-    /** El sorteo con candado de fila: revelar dos veces a la vez se serializa aqui. */
-    public Optional<Sorteo> bloquear(DSLContext dsl, UUID sorteoId) {
-        var f = dsl.fetchOne("SELECT * FROM grupos.sorteo_turnos WHERE id = ? FOR UPDATE", sorteoId);
-        return Optional.ofNullable(f).map(SorteoRepositorio::sorteo);
-    }
-
-    public Optional<Sorteo> ver(DSLContext dsl, UUID sorteoId) {
-        var f = dsl.fetchOne("SELECT * FROM grupos.sorteo_turnos WHERE id = ?", sorteoId);
-        return Optional.ofNullable(f).map(SorteoRepositorio::sorteo);
-    }
-
-    private static Sorteo sorteo(Record f) {
-        return new Sorteo(
-                f.get("id", UUID.class),
-                f.get("grupo_id", UUID.class),
-                f.get("estado", String.class),
-                f.get("hash_semilla_previo", String.class),
-                leerLista(f.get("aportes_entropia", org.jooq.JSONB.class)),
-                leerLista(f.get("resultado", org.jooq.JSONB.class)),
-                f.get("semilla_publica", String.class));
-    }
-
-    private static final ObjectMapper JSON = new ObjectMapper();
-
-    public static String comoJson(List<String> valores) {
-        try {
-            return JSON.writeValueAsString(valores);
-        } catch (JsonProcessingException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    public static List<String> leerLista(org.jooq.JSONB json) {
-        if (json == null) return List.of();
-        try {
-            return JSON.readValue(json.data(), new TypeReference<List<String>>() {});
-        } catch (JsonProcessingException e) {
-            throw new IllegalStateException("JSON de sorteo ilegible", e);
-        }
-    }
-
-    /** Congela el plantel, el calendario y las reglas junto con la semilla sellada. Una sola vez por sorteo. */
-    public void guardarSnapshot(
-            DSLContext dsl,
-            UUID sorteoId,
-            UUID grupoId,
-            SnapshotDeSorteo snapshot,
-            String semillaSellada,
-            UUID correlacion,
-            OffsetDateTime ahora) {
-        dsl.execute(
-                """
-            INSERT INTO grupos.snapshot_sorteo
-            (id,sorteo_id,grupo_id,roster,periodos,reglas,hash_snapshot,semilla_sellada,congelado_en,correlacion_id)
-            VALUES (gen_random_uuid(),?,?,?,?,?,?,?,?::timestamptz,?)
-            """,
-                sorteoId,
-                grupoId,
-                snapshot.rosterCanonico(),
-                snapshot.periodosCanonico(),
-                snapshot.reglas(),
-                snapshot.hash(),
-                semillaSellada,
-                ahora,
-                correlacion);
-    }
-
-    public Optional<Congelado> snapshotDe(DSLContext dsl, UUID sorteoId) {
-        var f = dsl.fetchOne(
-                "SELECT roster, periodos, reglas, hash_snapshot, semilla_sellada FROM grupos.snapshot_sorteo WHERE sorteo_id = ?",
-                sorteoId);
-        if (f == null) return Optional.empty();
-        var snapshot = new SnapshotDeSorteo(
-                SnapshotDeSorteo.leerRoster(f.get("roster", String.class)),
-                SnapshotDeSorteo.leerPeriodos(f.get("periodos", String.class)),
-                f.get("reglas", String.class));
-        return Optional.of(
-                new Congelado(snapshot, f.get("hash_snapshot", String.class), f.get("semilla_sellada", String.class)));
-    }
-
-    public record Sorteo(
-            UUID id,
-            UUID grupoId,
-            String estado,
-            String hash,
-            List<String> entropias,
-            List<String> resultado,
-            String semillaPublica) {}
-
-    /** El snapshot guardado y la semilla sellada; {@code toString} no muestra la semilla. */
-    public record Congelado(SnapshotDeSorteo snapshot, String hash, String semillaSellada) {
-        @Override
-        public String toString() {
-            return "Congelado[hash=" + hash + ", semilla=SELLADA]";
-        }
     }
 
     public record Compromiso(String hash, String estado, UUID grupoId) {}

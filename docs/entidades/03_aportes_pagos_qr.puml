@@ -363,8 +363,6 @@ package "Conciliacion" {
     OBLIGACION_SIN_PAGO
     FUERA_DE_PLAZO
     MONEDA_DISTINTA
-    SIN_CONFIRMACION_PROVEEDOR
-    SIN_MOVIMIENTO_BANCARIO
   }
 
   class MovimientoBancario {

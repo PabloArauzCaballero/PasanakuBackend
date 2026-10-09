@@ -44,10 +44,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU110-01",
-        "mensaje": "Organizador no habilitado",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-darDeAltaAnunciante-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

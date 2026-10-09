@@ -1,9 +1,0 @@
-[candado:pesado] tomado tras 0s
-Picked up JAVA_TOOL_OPTIONS: -Xmx700m -XX:MaxMetaspaceSize=320m -XX:+UseSerialGC
-
-> Task :servicios:grupos:integrationTest
-Picked up JAVA_TOOL_OPTIONS: -Xmx700m -XX:MaxMetaspaceSize=320m -XX:+UseSerialGC
-
-BUILD SUCCESSFUL in 21s
-32 actionable tasks: 1 executed, 31 up-to-date
-Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html

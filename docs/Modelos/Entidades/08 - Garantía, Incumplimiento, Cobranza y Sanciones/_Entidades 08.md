@@ -3,12 +3,12 @@ tags:
   - moc
   - modulo/08-garantia-incumplimiento-cobranza-y-sanciones
 modulo: "08 — Garantía, Incumplimiento, Cobranza y Sanciones"
-entidades: 39
+entidades: 33
 ---
 
 # 08 — Garantía, Incumplimiento, Cobranza y Sanciones · entidades
 
-Las **39 tablas** de este módulo. Justificación de negocio en [[08_garantia_incumplimiento]].
+Las **33 tablas** de este módulo. Justificación de negocio en [[08_garantia_incumplimiento]].
 
 [[_Entidades|← Todas las entidades]] · [[Index]]
 
@@ -47,9 +47,3 @@ Las **39 tablas** de este módulo. Justificación de negocio en [[08_garantia_in
 | [[plan_contingencia]] | 11 | 2 | 0 |
 | [[disolucion_anticipada]] | 11 | 2 | 1 |
 | [[liquidacion_participante]] | 8 | 2 | 0 |
-| [[capacidad_respaldo]] | 8 | 1 | 1 |
-| [[reserva_respaldo]] | 14 | 3 | 2 |
-| [[movimiento_reserva]] | 13 | 3 | 1 |
-| [[cobertura_respaldo]] | 18 | 6 | 1 |
-| [[cobertura_respaldo_linea]] | 5 | 2 | 1 |
-| [[recuperacion_respaldo]] | 7 | 3 | 0 |

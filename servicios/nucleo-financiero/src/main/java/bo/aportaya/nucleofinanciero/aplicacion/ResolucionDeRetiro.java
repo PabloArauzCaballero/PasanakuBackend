@@ -1,7 +1,6 @@
 package bo.aportaya.nucleofinanciero.aplicacion;
 
 import bo.aportaya.nucleofinanciero.dominio.EstadoDeRetiro;
-import bo.aportaya.nucleofinanciero.infraestructura.AprobacionDeRetiroRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.CuentaBilleteraRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera;
 import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera.Pata;
@@ -25,7 +24,6 @@ final class ResolucionDeRetiro {
     private final Datos datos;
     private final CuentaBilleteraRepositorio cuentas;
     private final OrdenRetiroRepositorio ordenes;
-    private final AprobacionDeRetiroRepositorio aprobaciones = new AprobacionDeRetiroRepositorio();
     private final CU13RetenerSaldo retenciones;
     private final LibroDeBilletera libro;
     private final Outbox outbox;
@@ -101,8 +99,6 @@ final class ResolucionDeRetiro {
                             Pata.debito(orden.cuentaId(), orden.solicitado(), "Retiro pagado"),
                             Pata.credito(cuentaPuenteDeCustodia, orden.solicitado(), "Salida hacia custodia")),
                     ahora);
-            // orden_retiro.transaccion_id dice que asiento pago la orden: repetir el despacho devuelve ese id.
-            ordenes.vincularTransaccion(dsl, orden.id(), transaccionId);
 
             outbox.emitir(
                     dsl,
@@ -194,8 +190,8 @@ final class ResolucionDeRetiro {
             }
 
             boolean resuelta = autorizar
-                    ? aprobaciones.pasarAAutorizadaPorAprobacion(dsl, ordenId, ctx.usuarioId())
-                    : aprobaciones.pasarARechazadaPorAprobacion(dsl, ordenId, ctx.usuarioId());
+                    ? ordenes.pasarAAutorizadaPorAprobacion(dsl, ordenId, ctx.usuarioId())
+                    : ordenes.pasarARechazadaPorAprobacion(dsl, ordenId, ctx.usuarioId());
             if (!resuelta) {
                 throw new ErrorDeNegocio(
                         CodigoError.de(11, 11),

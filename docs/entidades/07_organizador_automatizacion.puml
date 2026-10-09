@@ -396,22 +396,6 @@ entity "solicitud_organizador" as solorg {
   fecha_resolucion : TIMESTAMPTZ <<NULL>>
 }
 
-entity "decision_habilitacion" as dechab {
-  * id : UUID <<PK>>
-  --
-  solicitud_id : UUID <<IDX>>
-  clave_idempotencia : UUID <<UQ>>
-  fase : VARCHAR(15)
-  decision : VARCHAR(15)
-  actor_id : UUID
-  motivo : VARCHAR(1000)
-  revision : INTEGER <<UQ+solicitud_id>>
-  organizador_id : UUID <<NULL>>
-  evidencia_requisitos : TEXT
-  ocurrida_en : TIMESTAMPTZ
-  correlacion_id : UUID
-}
-
 entity "requisito_habilitacion" as req {
   * id : UUID <<PK>>
   --

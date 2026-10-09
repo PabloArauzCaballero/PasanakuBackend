@@ -52,10 +52,10 @@
     "rechazo": {
       "estado": 401,
       "cuerpo": {
-        "codigo": "AP-CU24-01",
-        "mensaje": "Asiento descuadrado",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-consultarSaldo-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

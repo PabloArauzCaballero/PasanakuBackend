@@ -22,7 +22,6 @@ import bo.aportaya.nucleofinanciero.infraestructura.LimiteRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.OrdenRecargaRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.OrdenRetiroRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.ProveedorDeRetiroLocal;
-import bo.aportaya.nucleofinanciero.infraestructura.RegistroDeIdempotencia;
 import bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.ReversoRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.TransferenciaRepositorio;
@@ -107,8 +106,7 @@ abstract class BaseDeBilletera {
                 new CuentaBilleteraRepositorio(),
                 new RetencionRepositorio(),
                 new Outbox("nucleo_financiero"),
-                Reloj.delSistema(),
-                new RegistroDeIdempotencia());
+                Reloj.delSistema());
         puente = fixtura.puenteDeCustodia();
         recargaCU = new CU10RecargarSaldo(
                 new Datos(dsl),

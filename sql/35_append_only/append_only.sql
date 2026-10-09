@@ -18,11 +18,6 @@ CREATE TRIGGER tg_acta_comite_append_only
   BEFORE UPDATE OR DELETE ON cumplimiento.acta_comite
   FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
 
-DROP TRIGGER IF EXISTS tg_alta_grupo_append_only ON grupos.alta_grupo;
-CREATE TRIGGER tg_alta_grupo_append_only
-  BEFORE UPDATE OR DELETE ON grupos.alta_grupo
-  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
-
 DROP TRIGGER IF EXISTS tg_asiento_contable_append_only ON nucleo_financiero.asiento_contable;
 CREATE TRIGGER tg_asiento_contable_append_only
   BEFORE UPDATE OR DELETE ON nucleo_financiero.asiento_contable
@@ -48,26 +43,6 @@ CREATE TRIGGER tg_cobro_cuenta_por_cobrar_append_only
   BEFORE UPDATE OR DELETE ON erp.cobro_cuenta_por_cobrar
   FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
 
-DROP TRIGGER IF EXISTS tg_comision_exito_append_only ON inversiones.comision_exito;
-CREATE TRIGGER tg_comision_exito_append_only
-  BEFORE UPDATE OR DELETE ON inversiones.comision_exito
-  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
-
-DROP TRIGGER IF EXISTS tg_comprobante_inversion_append_only ON inversiones.comprobante_inversion;
-CREATE TRIGGER tg_comprobante_inversion_append_only
-  BEFORE UPDATE OR DELETE ON inversiones.comprobante_inversion
-  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
-
-DROP TRIGGER IF EXISTS tg_conciliacion_interes_append_only ON inversiones.conciliacion_interes;
-CREATE TRIGGER tg_conciliacion_interes_append_only
-  BEFORE UPDATE OR DELETE ON inversiones.conciliacion_interes
-  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
-
-DROP TRIGGER IF EXISTS tg_consentimiento_inversion_append_only ON inversiones.consentimiento_inversion;
-CREATE TRIGGER tg_consentimiento_inversion_append_only
-  BEFORE UPDATE OR DELETE ON inversiones.consentimiento_inversion
-  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
-
 DROP TRIGGER IF EXISTS tg_conversion_anuncio_append_only ON publicidad.conversion_anuncio;
 CREATE TRIGGER tg_conversion_anuncio_append_only
   BEFORE UPDATE OR DELETE ON publicidad.conversion_anuncio
@@ -78,16 +53,6 @@ CREATE TRIGGER tg_cuenta_por_cobrar_append_only
   BEFORE UPDATE OR DELETE ON erp.cuenta_por_cobrar
   FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
 
-DROP TRIGGER IF EXISTS tg_decision_habilitacion_append_only ON organizador.decision_habilitacion;
-CREATE TRIGGER tg_decision_habilitacion_append_only
-  BEFORE UPDATE OR DELETE ON organizador.decision_habilitacion
-  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
-
-DROP TRIGGER IF EXISTS tg_decision_ingreso_append_only ON grupos.decision_ingreso;
-CREATE TRIGGER tg_decision_ingreso_append_only
-  BEFORE UPDATE OR DELETE ON grupos.decision_ingreso
-  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
-
 DROP TRIGGER IF EXISTS tg_depreciacion_activo_append_only ON erp.depreciacion_activo;
 CREATE TRIGGER tg_depreciacion_activo_append_only
   BEFORE UPDATE OR DELETE ON erp.depreciacion_activo
@@ -96,16 +61,6 @@ CREATE TRIGGER tg_depreciacion_activo_append_only
 DROP TRIGGER IF EXISTS tg_devengo_comision_append_only ON tarifas.devengo_comision;
 CREATE TRIGGER tg_devengo_comision_append_only
   BEFORE UPDATE OR DELETE ON tarifas.devengo_comision
-  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
-
-DROP TRIGGER IF EXISTS tg_devengo_dpf_append_only ON inversiones.devengo_dpf;
-CREATE TRIGGER tg_devengo_dpf_append_only
-  BEFORE UPDATE OR DELETE ON inversiones.devengo_dpf
-  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
-
-DROP TRIGGER IF EXISTS tg_discrepancia_proveedor_append_only ON nucleo_financiero.discrepancia_proveedor;
-CREATE TRIGGER tg_discrepancia_proveedor_append_only
-  BEFORE UPDATE OR DELETE ON nucleo_financiero.discrepancia_proveedor
   FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
 
 DROP TRIGGER IF EXISTS tg_estado_financiero_generado_append_only ON erp.estado_financiero_generado;
@@ -173,19 +128,9 @@ CREATE TRIGGER tg_movimiento_fondo_append_only
   BEFORE UPDATE OR DELETE ON garantia.movimiento_fondo
   FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
 
-DROP TRIGGER IF EXISTS tg_movimiento_reserva_append_only ON garantia.movimiento_reserva;
-CREATE TRIGGER tg_movimiento_reserva_append_only
-  BEFORE UPDATE OR DELETE ON garantia.movimiento_reserva
-  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
-
 DROP TRIGGER IF EXISTS tg_pago_a_proveedor_append_only ON erp.pago_a_proveedor;
 CREATE TRIGGER tg_pago_a_proveedor_append_only
   BEFORE UPDATE OR DELETE ON erp.pago_a_proveedor
-  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
-
-DROP TRIGGER IF EXISTS tg_recuperacion_respaldo_append_only ON garantia.recuperacion_respaldo;
-CREATE TRIGGER tg_recuperacion_respaldo_append_only
-  BEFORE UPDATE OR DELETE ON garantia.recuperacion_respaldo
   FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
 
 DROP TRIGGER IF EXISTS tg_registro_acceso_datos_append_only ON comun.registro_acceso_datos;
@@ -213,27 +158,7 @@ CREATE TRIGGER tg_saldo_diario_billetera_append_only
   BEFORE UPDATE OR DELETE ON nucleo_financiero.saldo_diario_billetera
   FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
 
-DROP TRIGGER IF EXISTS tg_snapshot_sorteo_append_only ON grupos.snapshot_sorteo;
-CREATE TRIGGER tg_snapshot_sorteo_append_only
-  BEFORE UPDATE OR DELETE ON grupos.snapshot_sorteo
-  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
-
-DROP TRIGGER IF EXISTS tg_sustitucion_administrador_append_only ON grupos.sustitucion_administrador;
-CREATE TRIGGER tg_sustitucion_administrador_append_only
-  BEFORE UPDATE OR DELETE ON grupos.sustitucion_administrador
-  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
-
 DROP TRIGGER IF EXISTS tg_transaccion_billetera_append_only ON nucleo_financiero.transaccion_billetera;
 CREATE TRIGGER tg_transaccion_billetera_append_only
   BEFORE UPDATE OR DELETE ON nucleo_financiero.transaccion_billetera
-  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
-
-DROP TRIGGER IF EXISTS tg_valor_cuota_append_only ON inversiones.valor_cuota;
-CREATE TRIGGER tg_valor_cuota_append_only
-  BEFORE UPDATE OR DELETE ON inversiones.valor_cuota
-  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
-
-DROP TRIGGER IF EXISTS tg_version_condiciones_append_only ON inversiones.version_condiciones;
-CREATE TRIGGER tg_version_condiciones_append_only
-  BEFORE UPDATE OR DELETE ON inversiones.version_condiciones
   FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();

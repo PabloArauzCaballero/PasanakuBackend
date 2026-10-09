@@ -7,7 +7,6 @@ import bo.aportaya.nucleofinanciero.infraestructura.ReversoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
-import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.mensajeria.EventoDominio;
@@ -19,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -163,7 +161,6 @@ public class CU14ReversarTransaccion {
                     entrada.motivo(),
                     original.montoTotal(),
                     ahora);
-            revertirElCargo(dsl, original, transaccionReverso, ctx);
 
             outbox.emitir(
                     dsl,
@@ -178,35 +175,6 @@ public class CU14ReversarTransaccion {
                             UUID.fromString(ctx.traza().id())));
 
             return new SalidaReverso(reversoId, transaccionReverso, false);
-        });
-    }
-
-    /**
-     * Si lo que se reversa era una recarga o un retiro con costo, ese costo tambien se devuelve, y no por una
-     * edicion: el contra-asiento de arriba es nuevo y el original queda intacto. La devolucion fiscal (nota de
-     * credito) es de {@code tarifas}, que la ejecuta al recibir este evento; aca solo se avisa, una vez, y con
-     * identificadores. El reverso ocurre una sola vez por transaccion (R-BIL-15), asi que el aviso tambien.
-     */
-    private void revertirElCargo(
-            DSLContext dsl, ReversoRepositorio.Original original, UUID reverso, ContextoSesion ctx) {
-        reversos.cargoDe(dsl, original).ifPresent(cargo -> {
-            if ("ORDEN_RECARGA".equals(cargo.ordenTipo())) {
-                reversos.marcarRecargaReversada(dsl, cargo.ordenId());
-            }
-            if (cargo.costo().esMayorQue(Dinero.cero(cargo.costo().moneda()))) {
-                var carga = new java.util.HashMap<String, Object>();
-                carga.put("ordenTipo", cargo.ordenTipo());
-                carga.put("transaccionReversoId", reverso.toString());
-                cargo.cotizacionId().ifPresent(id -> carga.put("cotizacionId", id.toString()));
-                outbox.emitir(
-                        dsl,
-                        new EventoDominio(
-                                "nucleo_financiero.cargo_a_revertir",
-                                cargo.ordenTipo().toLowerCase(java.util.Locale.ROOT),
-                                cargo.ordenId(),
-                                carga,
-                                UUID.fromString(ctx.traza().id())));
-            }
         });
     }
 

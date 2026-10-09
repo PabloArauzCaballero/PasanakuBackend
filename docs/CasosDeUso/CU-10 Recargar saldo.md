@@ -139,7 +139,7 @@ export const ErroresCU10 = {
 
 ## Restricciones aplicables
 
-`R-BIL-01` · `R-BIL-02` · `R-BIL-06` · `R-BIL-10` · `R-BIL-19` · `R-BIL-20` · `R-BIL-22` ·
+`R-BIL-01` · `R-BIL-02` · `R-BIL-06` · `R-BIL-10` · `R-BIL-19` · `R-BIL-20` ·
 `R-LIM-01` · `R-LIM-02` · `R-AUD-01` · `R-AUD-03` · `R-AUD-05` · `R-AUD-10` ·
 `R-UIF-02`
 
@@ -147,8 +147,7 @@ export const ErroresCU10 = {
 
 [[orden_recarga]] · [[pago]] · [[webhook_pasarela]] · [[transaccion_billetera]] ·
 [[movimiento_billetera]] · [[asiento_contable]] · [[movimiento_custodia]] ·
-[[respuesta_idempotente]] · [[registro_operacion_relevante]] (si aplica) ·
-[[discrepancia_proveedor]]
+[[respuesta_idempotente]] · [[registro_operacion_relevante]] (si aplica)
 
 ## Criterios de aceptación
 
@@ -170,123 +169,6 @@ Entonces cada una recibe una orden distinta
 Dado que el usuario acumula USD 1.000 en cargas en 3 días calendario
 Cuando se acredita la última
 Entonces existe un registro_operacion_relevante con formulario PCC-01
-
-# Cotización: el precio se ve antes de confirmar
-Dada una recarga de Bs 500 con un costo de Bs 5
-Cuando se cotiza y luego se confirma citando esa cotización
-Entonces la vista muestra base, comisión, impuesto, total, neto y vigencia
-Y la orden cobra exactamente lo cotizado y tarifas registra la aceptación
-
-Dada una operación gravada sin cotización citada
-Cuando se solicita la recarga
-Entonces se rechaza
-Y no se crea la orden ni se envía nada al proveedor
-
-Dada una cotización vencida
-Cuando se solicita la recarga citándola
-Entonces se rechaza porque venció
-Y no se crea la orden, no se envía nada al proveedor y tarifas no registra ninguna aceptación
-
-Dada una cotización emitida para Bs 500
-Cuando se solicita otro importe con la misma clave citando esa cotización
-Entonces se rechaza porque la cotización no corresponde al importe
-Y el nuevo importe obtiene su propia cotización en vez de reutilizar la anterior
-
-Dada una cotización que nunca se emitió para esta solicitud
-Cuando se solicita la recarga citándola
-Entonces se rechaza
-Y no se crea la orden
-
-Dada una cotización vigente que tarifas no acepta registrar
-Cuando se solicita la recarga citándola
-Entonces se rechaza
-Y no se crea la orden ni se envía nada al proveedor
-
-Dado tarifas caído
-Cuando se cotiza o se solicita una recarga
-Entonces ambas se rechazan: no se cobra cero por no saber
-Y no se crea ninguna orden
-
-Dada una operación gratuita de Bs 500
-Cuando se cotiza y se solicita sin citar cotización
-Entonces la vista es gratuita, no hay cotización que citar y se acredita el importe completo
-Y citar una cotización se rechaza
-
-Dado un costo que iguala o supera el importe de la recarga
-Cuando se cotiza
-Entonces se rechaza porque no hay recarga que acreditar
-
-Dado un retiro gravado con cotización vigente
-Cuando se cotiza, se confirma y se solicita citándola
-Entonces la orden de retiro guarda la cotización y su neto descuenta el costo
-Y un retiro gravado sin cotización se rechaza
-
-# Discrepancias con el proveedor
-Dada una confirmación del proveedor con firma inválida
-Cuando se intenta confirmar la recarga
-Entonces el saldo y los movimientos no cambian y la orden sigue PENDIENTE
-Y se abre una discrepancia FIRMA_INVALIDA con una alerta correlacionada
-
-Dada la misma evidencia hostil del proveedor repetida tres veces
-Cuando se intenta confirmar cada vez
-Entonces la discrepancia se registra una sola vez y la alerta no se repite
-Y el saldo no cambia
-
-Dado un proveedor que informa un importe distinto del de la orden
-Cuando se intenta confirmar la recarga
-Entonces no acredita ni crea movimientos
-Y la discrepancia MONTO_DISTINTO deja el importe esperado y el informado
-
-Dado un proveedor que responde por otra referencia
-Cuando se intenta confirmar la recarga
-Entonces no acredita
-Y queda registrada una discrepancia REFERENCIA_DISTINTA
-
-Dada una recarga ya acreditada en el libro
-Cuando el proveedor ahora dice rechazado o confirma con otra transacción
-Entonces se registra un estado contradictorio por cada respuesta
-Y el saldo y los movimientos quedan intactos
-
-Dada una orden de recarga ya cerrada en el libro
-Cuando el proveedor la confirma
-Entonces se registra una discrepancia de estado contradictorio
-Y no se acredita
-
-Dado un proveedor que rechaza legítimamente la recarga
-Cuando se intenta confirmar, también al repetir
-Entonces la orden queda RECHAZADA con un solo evento
-Y no se abre ninguna discrepancia ni se toca el libro
-
-# Idempotencia: la clave es de cada billetera
-Dados dos titulares que usan la misma clave de idempotencia
-Cuando cada uno solicita su recarga
-Entonces cada uno tiene su propia orden: la clave se ampara en la billetera
-Y repetir la clave de uno devuelve su orden, no la del otro
-
-# Contra el proveedor real
-Dada una recarga pendiente en el proveedor real
-Cuando se intenta confirmar antes de que el proveedor resuelva
-Entonces no acredita
-Y cuando el proveedor confirma se acredita una sola vez y repetir devuelve lo mismo
-
-Dado un proveedor real que se cae con una recarga pendiente
-Cuando se intenta confirmar y luego vuelve con su archivo
-Entonces con el proveedor caído no se acredita porque el resultado es desconocido
-Y al volver conserva la operación y la confirmación se acredita una sola vez
-
-Dado un proveedor real que rechaza la recarga
-Cuando se intenta confirmar
-Entonces la orden queda RECHAZADA
-Y no se acredita nada
-
-Dada una confirmación firmada con otro secreto contra el servidor real
-Cuando se intenta confirmar la recarga
-Entonces no acredita y deja una discrepancia FIRMA_INVALIDA
-Y con el secreto correcto la misma confirmación sí acredita
-
-Dada una recarga confirmada contra el proveedor real
-Cuando se revisa el log del proveedor
-Entonces no contiene la clave de acceso, la clave de control ni la firma de la corrida
 ```
 
 ## Ver también

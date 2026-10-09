@@ -29,14 +29,13 @@ import { textosOperacion } from '../textos'
       >
         @if (saldo.hasValue() && saldo.value(); as s) {
           <dl class="saldo">
-            <dt>{{ t.disponible }}<small>{{ t.ayudaDisponible }}</small></dt>
+            <dt>{{ t.disponible }}</dt>
             <dd><ap-monto [monto]="s.disponible.monto" [moneda]="s.disponible.moneda" [etiqueta]="t.disponible" /></dd>
-            <dt>{{ t.retenido }}<small>{{ t.ayudaRetenido }}</small></dt>
+            <dt>{{ t.retenido }}</dt>
             <dd><ap-monto [monto]="s.retenido.monto" [moneda]="s.retenido.moneda" [etiqueta]="t.retenido" /></dd>
             <dt>{{ t.alCorteDe }}</dt>
             <dd><time [attr.datetime]="s.alCorteDe">{{ s.alCorteDe | date: 'dd/MM/yyyy HH:mm' : '-0400' }} (La Paz)</time></dd>
           </dl>
-          <p class="alcance">{{ t.alcance }}</p>
         }
       </ap-estado-de-pantalla>
     </main>
@@ -46,8 +45,6 @@ import { textosOperacion } from '../textos'
     h1 { margin-bottom: var(--s4); }
     .saldo { display: grid; grid-template-columns: auto 1fr; gap: var(--s2) var(--s5); margin: 0; padding: var(--s5); background: var(--surface); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); box-shadow: var(--sh-1); }
     dt { color: var(--text-2); }
-    dt small { display: block; color: var(--text-3); font-size: .8125rem; }
-    .alcance { margin: var(--s3) 0 0; color: var(--text-2); font-size: .875rem; }
     dd { margin: 0; text-align: right; }
   `,
 })

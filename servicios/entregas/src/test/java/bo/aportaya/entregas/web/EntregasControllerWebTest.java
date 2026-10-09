@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import bo.aportaya.entregas.aplicacion.CU22EntregarPozoCompleto;
 import bo.aportaya.entregas.aplicacion.CU22LiquidarEntrega;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.Dinero;
@@ -69,13 +68,6 @@ class EntregasControllerWebTest {
 
     @MockitoBean
     private CU22LiquidarEntrega cu22;
-
-    // El fondeo del pozo tiene su propia prueba (FondeoDelPozoWebTest).
-    @MockitoBean
-    private CU22EntregarPozoCompleto pozo;
-
-    @MockitoBean
-    private MercadoWeb mercado;
 
     private static Dinero bob(String monto) {
         return Dinero.de(monto, Moneda.BOB);

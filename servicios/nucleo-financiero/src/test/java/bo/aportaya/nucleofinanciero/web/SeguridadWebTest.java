@@ -35,9 +35,6 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private CU10RecargarSaldo cu10RecargarSaldo;
 
     @MockitoBean
-    private bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor recargasConProveedor;
-
-    @MockitoBean
     private CU11RetirarSaldo cu11RetirarSaldo;
 
     @MockitoBean
@@ -63,10 +60,4 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private SegundoFactor segundoFactor;
-
-    @MockitoBean
-    private FondeoDeLaBilletera fondeo;
-
-    @MockitoBean
-    private QrDeLaBilletera qrDeLaBilletera;
 }

@@ -57,22 +57,6 @@ public final class TraspasoAdmisible {
         public boolean alcanza(NivelDeKyc minimo) {
             return ordinal() >= minimo.ordinal();
         }
-
-        /**
-         * Si el nivel dicho por {@code identidad} alcanza el minimo del grupo, sin tirar por un valor raro.
-         * Denegar por omision: lo que no se reconoce como nivel vale NINGUNO, y un minimo que no se reconoce
-         * se trata como el mas exigente. Nunca se deja pasar a nadie por no entender un dato.
-         */
-        public static boolean suficiente(String actual, String minimo) {
-            return deOcero(actual, NINGUNO).alcanza(deOcero(minimo, COMPLETO));
-        }
-
-        private static NivelDeKyc deOcero(String valor, NivelDeKyc siNoSeEntiende) {
-            for (NivelDeKyc nivel : values()) {
-                if (nivel.name().equals(valor)) return nivel;
-            }
-            return siNoSeEntiende;
-        }
     }
 
     public enum Motivo {

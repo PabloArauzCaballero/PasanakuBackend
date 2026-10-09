@@ -31,8 +31,6 @@ aportaya:
     umbral-de-ascenso: 85.00
     umbral-de-descenso: 50.00
     plazo-para-apelar: P10D
-    # Cuantas solicitudes como maximo devuelve una pagina de la bandeja de habilitaciones.
-    tope-de-bandeja: 100
   automatizacion:
     intentos-maximos: 3
 

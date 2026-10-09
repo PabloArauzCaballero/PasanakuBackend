@@ -1,6 +1,7 @@
 package bo.aportaya.grupos.aplicacion;
 
 import bo.aportaya.grupos.dominio.CriterioDeEmparejamiento;
+import bo.aportaya.grupos.dominio.MotivoDelPuntaje;
 import bo.aportaya.grupos.infraestructura.EmparejamientoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -76,15 +77,14 @@ public class CU68Postular {
                     .orElseThrow(() ->
                             new ErrorDeNegocio(CodigoError.de(68, 5), "No hay criterio de emparejamiento vigente."));
 
-            // Entrada excluyente (CU-68 2a, B24, ya en TEST): la reputacion minima se exige a quien TIENE historial.
-            if (entrada.reputacionExcluyente()
-                    && !entrada.reputacionSinDatos()
-                    && !criterio.alcanzaLaReputacion(entrada.reputacion())) {
+            // CU-68 2a: «sin historial no se lo excluye por ser nuevo». La reputacion minima se exige a quien
+            // TIENE historial y no llega; el recien llegado entra a la cola del organizador (B24).
+            if (!entrada.sinHistorial() && !criterio.alcanzaLaReputacion(entrada.reputacion())) {
                 throw new ErrorDeNegocio(CodigoError.de(68, 3), "Tu reputacion todavia no alcanza para este grupo.");
             }
-            // El riesgo recomienda; la resolución de admisión pertenece al backoffice.
-            var motivos = MotorDeRecomendacion.motivos(criterio, entrada);
-            String recomendacion = MotorDeRecomendacion.recomendacion(motivos);
+            if (!criterio.admiteOtroMoroso(entrada.morososDelGrupo())) {
+                throw new ErrorDeNegocio(CodigoError.de(68, 5), "Este grupo esta cerrado a nuevos ingresos por ahora.");
+            }
 
             BigDecimal puntaje = criterio.puntuar(
                     entrada.afinidadReputacion(),
@@ -107,19 +107,18 @@ public class CU68Postular {
                             "grupos.ingreso_solicitado",
                             "solicitud_ingreso",
                             solicitud,
-                            Map.ofEntries(
-                                    Map.entry("grupoId", entrada.grupoId().toString()),
-                                    Map.entry("criterio", criterio.toString()),
-                                    Map.entry("versionMotor", criterio.id().toString()),
-                                    Map.entry("motivos", List.copyOf(motivos)),
-                                    Map.entry("puntaje", puntaje.toPlainString()),
-                                    Map.entry("recomendacion", recomendacion),
-                                    // Las entradas, para poder reproducir el puntaje con la version del motor.
-                                    Map.entry("entradas", MotorDeRecomendacion.entradas(entrada)),
-                                    Map.entry("decisionAutomatica", false)),
+                            Map.of("grupoId", entrada.grupoId().toString()),
                             UUID.fromString(ctx.traza().id())));
 
-            return new SalidaPostulacion(solicitud, puntaje, List.copyOf(motivos));
+            return new SalidaPostulacion(
+                    solicitud,
+                    puntaje,
+                    MotivoDelPuntaje.de(
+                            criterio,
+                            entrada.afinidadReputacion(),
+                            entrada.afinidadMonto(),
+                            entrada.afinidadGeografia(),
+                            entrada.afinidadHistorial()));
         });
     }
 
@@ -182,114 +181,7 @@ public class CU68Postular {
             BigDecimal afinidadMonto,
             BigDecimal afinidadGeografia,
             BigDecimal afinidadHistorial,
-            boolean reputacionSinDatos,
-            boolean concentracionSinDatos,
-            boolean reputacionExcluyente) {
-        /** Con datos completos: el motor no tiene nada que marcar como SIN_DATOS. */
-        public EntradaPostulacion(
-                UUID grupoId,
-                short cuposSolicitados,
-                String mensaje,
-                boolean tieneRestriccionVigente,
-                BigDecimal montoQueLevantaLaRestriccion,
-                boolean kycSuficiente,
-                int reputacion,
-                int morososDelGrupo,
-                BigDecimal afinidadReputacion,
-                BigDecimal afinidadMonto,
-                BigDecimal afinidadGeografia,
-                BigDecimal afinidadHistorial) {
-            this(
-                    grupoId,
-                    cuposSolicitados,
-                    mensaje,
-                    tieneRestriccionVigente,
-                    montoQueLevantaLaRestriccion,
-                    kycSuficiente,
-                    reputacion,
-                    morososDelGrupo,
-                    afinidadReputacion,
-                    afinidadMonto,
-                    afinidadGeografia,
-                    afinidadHistorial,
-                    false,
-                    false,
-                    false);
-        }
-
-        /**
-         * Recomendacion con SIN_DATOS: nada se rechaza por reputacion, lo decide una persona (la ruta HTTP usa
-         * esta forma).
-         */
-        public EntradaPostulacion(
-                UUID grupoId,
-                short cuposSolicitados,
-                String mensaje,
-                boolean tieneRestriccionVigente,
-                BigDecimal montoQueLevantaLaRestriccion,
-                boolean kycSuficiente,
-                int reputacion,
-                int morososDelGrupo,
-                BigDecimal afinidadReputacion,
-                BigDecimal afinidadMonto,
-                BigDecimal afinidadGeografia,
-                BigDecimal afinidadHistorial,
-                boolean reputacionSinDatos,
-                boolean concentracionSinDatos) {
-            this(
-                    grupoId,
-                    cuposSolicitados,
-                    mensaje,
-                    tieneRestriccionVigente,
-                    montoQueLevantaLaRestriccion,
-                    kycSuficiente,
-                    reputacion,
-                    morososDelGrupo,
-                    afinidadReputacion,
-                    afinidadMonto,
-                    afinidadGeografia,
-                    afinidadHistorial,
-                    reputacionSinDatos,
-                    concentracionSinDatos,
-                    false);
-        }
-
-        /**
-         * Evaluacion directa de CU-68 2a: quien TIENE historial y no llega a la reputacion minima es rechazado
-         * (AP-CU68-03); quien es nuevo ({@code sinHistorial}) no se excluye por serlo.
-         */
-        public EntradaPostulacion(
-                UUID grupoId,
-                short cuposSolicitados,
-                String mensaje,
-                boolean tieneRestriccionVigente,
-                BigDecimal montoQueLevantaLaRestriccion,
-                boolean kycSuficiente,
-                int reputacion,
-                int morososDelGrupo,
-                BigDecimal afinidadReputacion,
-                BigDecimal afinidadMonto,
-                BigDecimal afinidadGeografia,
-                BigDecimal afinidadHistorial,
-                boolean sinHistorial) {
-            this(
-                    grupoId,
-                    cuposSolicitados,
-                    mensaje,
-                    tieneRestriccionVigente,
-                    montoQueLevantaLaRestriccion,
-                    kycSuficiente,
-                    reputacion,
-                    morososDelGrupo,
-                    afinidadReputacion,
-                    afinidadMonto,
-                    afinidadGeografia,
-                    afinidadHistorial,
-                    sinHistorial,
-                    false,
-                    true);
-        }
-    }
+            boolean sinHistorial) {}
 
     public record SalidaPostulacion(UUID solicitudId, BigDecimal puntaje, List<String> motivos) {}
 

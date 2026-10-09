@@ -101,25 +101,6 @@ class FixturaDeEntregas {
         return new Escenario(grupo, periodo, cupo, turno, participante);
     }
 
-    record Miembro(UUID usuarioId, UUID participanteId) {}
-
-    /** Otro participante activo del mismo grupo: el comprador del derecho. */
-    Miembro miembro(UUID grupoId) {
-        UUID usuario = usuario();
-        UUID participante = UUID.randomUUID();
-        dsl.execute(
-                """
-                INSERT INTO grupos.participante
-                    (id, grupo_id, usuario_id, estado, es_organizador, fecha_ingreso,
-                     reputacion_al_ingresar, aportes_realizados, aportes_en_mora)
-                VALUES (?, ?, ?, 'ACTIVO', false, now(), 50, 1, 0)
-                """,
-                participante,
-                grupoId,
-                usuario);
-        return new Miembro(usuario, participante);
-    }
-
     /** Una regla de validacion previa: la que puede frenar una entrega. */
     UUID regla(String codigo, boolean esBloqueante) {
         UUID id = UUID.randomUUID();
@@ -161,9 +142,6 @@ class FixturaDeEntregas {
             {"entregas", "validacion_pre_entrega"},
             {"entregas", "deduccion_entrega"},
             {"entregas", "historial_estado_entrega"},
-            {"entregas", "cesion_derecho"},
-            {"entregas", "oferta_turno"},
-            {"entregas", "fondeo_entrega"},
             {"entregas", "entrega_fondo"},
             {"entregas", "regla_entrega"},
             {"entregas", "cuenta_bancaria_beneficiario"},

@@ -43,10 +43,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU46-01",
-        "mensaje": "Licencia no otorgada",
+        "codigo": "AP-CU4-44",
+        "mensaje": "mensaje",
         "detalle": {},
-        "trazaId": "traza-verificarAlcance-rechazo"
+        "trazaId": "trazaId"
       }
     }
   }

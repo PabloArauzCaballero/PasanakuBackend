@@ -745,8 +745,6 @@ entity "orden_recarga" as orecarga {
   monto_acreditado : DECIMAL(16,2)
   moneda : CHAR(3)
   estado : VARCHAR(15) <<CK, IDX>>
-  medio : VARCHAR(30) <<NULL>>
-  cotizacion_id : UUID <<NULL, polimorfica>>
   referencia_externa : VARCHAR(80) <<NULL>>
   clave_idempotencia : VARCHAR(100)
   solicitada_en : TIMESTAMPTZ
@@ -772,7 +770,6 @@ entity "orden_retiro" as oretiro {
   mfa_verificado : BOOLEAN
   requiere_doble_aprobacion : BOOLEAN
   ventana_enfriamiento_hasta : TIMESTAMPTZ <<NULL>>
-  cotizacion_id : UUID <<NULL, polimorfica>>
   referencia_proveedor : VARCHAR(80) <<UQ, NULL>>
   clave_idempotencia : VARCHAR(100)
   solicitada_en : TIMESTAMPTZ
@@ -993,39 +990,7 @@ entity "solicitud_cierre_billetera" as solcierre {
   ejecutada_en : TIMESTAMPTZ <<NULL>>
 }
 
-entity "discrepancia_proveedor" as discprov {
-  * id : UUID <<PK>>
-  --
-  referencia_tipo : VARCHAR(20) <<CK: ORDEN_RECARGA|ORDEN_RETIRO>>
-  referencia_id : UUID <<IDX, polimorfica>>
-  tipo : VARCHAR(30) <<CK: FIRMA_INVALIDA|ESTADO_CONTRADICTORIO|MONTO_DISTINTO|REFERENCIA_DISTINTA|RESPUESTA_INVALIDA>>
-  monto_esperado : DECIMAL(16,2) <<NULL>>
-  monto_informado : DECIMAL(16,2) <<NULL>>
-  moneda : CHAR(3) <<NULL>>
-  detalle : VARCHAR(300)
-  huella : VARCHAR(64) <<UQ+referencia_id+tipo>>
-  correlacion_id : UUID
-  detectada_en : TIMESTAMPTZ
-}
-
-entity "qr_transferencia" as qrtransf {
-  * id : UUID <<PK>>
-  --
-  # cuenta_billetera_id : UUID <<FK, IDX>>
-  # transaccion_id : UUID <<FK, NULL, UQ>>
-  modalidad : VARCHAR(10) <<CK: ESTATICO|DINAMICO>>
-  monto : DECIMAL(16,2) <<NULL, CK: > 0>>
-  moneda : CHAR(3)
-  concepto : VARCHAR(140) <<NULL>>
-  estado : VARCHAR(10) <<CK: VIGENTE|USADO|ANULADO>>
-  expira_en : TIMESTAMPTZ <<NULL>>
-  creado_en : TIMESTAMPTZ
-  usado_en : TIMESTAMPTZ <<NULL>>
-}
-
 polbill ||--o{ ctabill : "parametriza"
-ctabill ||--o{ qrtransf : "cobra con"
-txbill ||--o| qrtransf : "salda"
 ctabill ||--o{ movbill : "acumula"
 ctabill ||--o{ reten : "retiene"
 ctabill ||--o{ orecarga : "se fondea con"

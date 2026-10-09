@@ -17,119 +17,6 @@ servers:
   - url: /api/v1
 
 paths:
-  /grupos/{grupoId}/invitaciones/{invitacionId}/canje:
-    post:
-      operationId: canjearInvitacion
-      summary: Canjear invitación y solicitar ingreso sin activar membresía
-      parameters:
-        - { name: grupoId, in: path, required: true, schema: { type: string, format: uuid } }
-        - { name: invitacionId, in: path, required: true, schema: { type: string, format: uuid } }
-        - $ref: '#/components/parameters/ClaveIdempotencia'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/CanjeInvitacion' }
-      responses:
-        '200':
-          description: Solicitud pendiente de resolución humana
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/SalidaCanjeInvitacion' }
-        '422':
-          $ref: '#/components/responses/ReglaDeNegocio'
-  /grupos/{grupoId}/invitaciones/{invitacionId}/revocacion:
-    post:
-      operationId: revocarInvitacionDelGrupo     # CU-69
-      summary: El emisor revoca su invitación; el enlace deja de servir
-      description: >-
-        Revoca primero el enlace en `identidad` y después la invitación local. Es idempotente
-        para el emisor. Una invitación ya aceptada, o de otra persona, responde 422 sin contar
-        más. Después de revocar se puede emitir otra al mismo número: la anterior NO se
-        reemplaza sola (regla explícita de reemisión).
-      parameters:
-        - { name: grupoId, in: path, required: true, schema: { type: string, format: uuid } }
-        - { name: invitacionId, in: path, required: true, schema: { type: string, format: uuid } }
-      responses:
-        '204': { description: Invitación revocada }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
-  /grupos/solicitudes/{solicitudId}/propuestas:
-    post:
-      operationId: proponerAdmision
-      summary: El administrador propone aceptar o rechazar; no activa la membresía
-      parameters:
-        - { name: solicitudId, in: path, required: true, schema: { type: string, format: uuid } }
-        - $ref: '#/components/parameters/ClaveIdempotencia'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/EntradaDecisionIngreso' }
-      responses:
-        '200':
-          description: Propuesta registrada o respuesta original del reintento
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/DecisionIngreso' }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
-  /grupos/solicitudes/{solicitudId}/resoluciones:
-    post:
-      operationId: resolverAdmision
-      summary: Backoffice resuelve la propuesta vigente con motivo y separación de responsables
-      parameters:
-        - { name: solicitudId, in: path, required: true, schema: { type: string, format: uuid } }
-        - $ref: '#/components/parameters/ClaveIdempotencia'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/EntradaDecisionIngreso' }
-      responses:
-        '200':
-          description: Resolución humana persistida; aprobar reserva cupos y requiere firma
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/DecisionIngreso' }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
-  /grupos/{grupoId}/administrador/sustitucion:
-    post:
-      operationId: sustituirAdministrador
-      summary: Backoffice cambia al administrador del grupo; el saliente conserva sus cupos y obligaciones
-      description: >-
-        Continuidad tras una revocación o suspensión de la habilitación. El entrante tiene que ser
-        participante activo del grupo y organizador habilitado. El saliente sigue siendo participante con sus
-        cupos y deudas, identificados en el registro; retirarlo es otro acto. Idempotente por clave.
-        AP-CU68-08 rol · 09 clave de otra sustitución · 10 grupo sin un administrador vigente ·
-        11 entrante no es participante activo · 12 ya es el administrador · 13 conflicto de interés ·
-        14 entrante no habilitado.
-      parameters:
-        - { name: grupoId, in: path, required: true, schema: { type: string, format: uuid } }
-        - $ref: '#/components/parameters/ClaveIdempotencia'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/EntradaSustitucionAdministrador' }
-      responses:
-        '200':
-          description: Sustitución registrada o la original si es un reintento
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/SustitucionAdministrador' }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
-  /grupos/solicitudes/{solicitudId}/decisiones:
-    get:
-      operationId: historialAdmision
-      summary: Historial inmutable accesible al administrador del grupo y al backoffice
-      parameters:
-        - { name: solicitudId, in: path, required: true, schema: { type: string, format: uuid } }
-      responses:
-        '200':
-          description: Decisiones en orden de revisión
-          content:
-            application/json:
-              schema: { type: array, items: { $ref: '#/components/schemas/DecisionIngreso' } }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
   /grupos/calendario/calcular:
     get:
       operationId: calcularPlazoHabil          # CU-59
@@ -219,11 +106,10 @@ paths:
       operationId: revelarSorteo               # CU-60 fase 2
       summary: Revelar la semilla y crear los turnos
       description: >-
-        Verifica que SHA256(semilla || entropias || snapshot) sea el hash publicado y recien
+        Verifica que SHA256(semilla || entropias) sea el hash publicado y recien
         entonces crea los turnos, todo en una transaccion: o hay turnos completos o
-        no hay ninguno. Hay UN solo resultado vigente: revelar de nuevo devuelve el original
-        y no sortea otra vez. Si el plantel o el calendario cambiaron desde el compromiso no
-        se sortea sobre otra cosa (AP-CU60-06). Exige ser administrador del grupo de la ruta.
+        no hay ninguno. Si el hash no cierra, el sorteo queda ANULADO — jamas se
+        publica un resultado que no verifica.
       parameters:
         - name: grupoId
           in: path
@@ -244,8 +130,6 @@ paths:
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU60-03 FECHA_DE_REVELADO_FUTURA · AP-CU60-04 HASH_NO_VERIFICA
-          # AP-CU60-06 PLANTEL_O_CALENDARIO_CAMBIO · AP-CU60-07 YA_REVELADO (el reintento HTTP devuelve el original)
-          # AP-CU60-08 SORTEO_ANULADO · AP-CU60-09 CALENDARIO_AUSENTE · AP-CU60-10 NO_ADMINISTRA_EL_GRUPO
 
   /acuerdos:
     post:
@@ -440,8 +324,6 @@ paths:
           # AP-CU69-03 YA_ES_PARTICIPANTE · AP-CU69-04 TOPE_REENVIOS
           # AP-CU69-05 TOKEN_INVALIDO     · AP-CU69-06 REFERENCIA_DUPLICADA
           # AP-CU69-07 EMISOR_NO_HABILITADO
-          # AP-CU69-08 LIMITE_DIARIO_DE_INVITACIONES (emitido por identidad)
-          # AP-CU69-09 INVITACION_VIGENTE_EXISTENTE (revocarla antes de emitir otra)
 
   /grupos/invitaciones/enlace/consultar:
     post:
@@ -647,7 +529,6 @@ paths:
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU20-01 SIN_TARIFARIO_VIGENTE     · AP-CU20-02 ORGANIZADOR_NO_HABILITADO
           # AP-CU20-03 TARIFA_YA_CONGELADA       · AP-CU20-04 SERVICIO_NO_AUTORIZADO
-          # AP-CU20-05 KYC_INSUFICIENTE_DEL_CREADOR
 
   /grupos/participantes/alias/{alias}:
     get:
@@ -728,53 +609,6 @@ components:
         seguro, y la clave se valida ANTES de escribir (invariante 7).
       schema: { type: string, format: uuid }
   schemas:
-    EntradaDecisionIngreso:
-      type: object
-      additionalProperties: false
-      required: [decision, motivo, revisionEsperada]
-      properties:
-        decision: { type: string, enum: [ACEPTAR, RECHAZAR] }
-        motivo: { type: string, minLength: 1, maxLength: 1000 }
-        revisionEsperada: { type: integer, minimum: 0 }
-        propuestaId: { type: string, format: uuid, description: Obligatoria para resolver; debe ser la propuesta vigente }
-    EntradaSustitucionAdministrador:
-      type: object
-      additionalProperties: false
-      required: [nuevoAdministradorId, motivo]
-      properties:
-        nuevoAdministradorId: { type: string, format: uuid, description: Usuario que pasa a administrar }
-        motivo: { type: string, minLength: 1, maxLength: 1000 }
-    SustitucionAdministrador:
-      type: object
-      additionalProperties: false
-      required: [id, grupoId, salienteParticipanteId, entranteParticipanteId, motivo, obligacionesConservadas, ocurridaEn]
-      properties:
-        id: { type: string, format: uuid }
-        grupoId: { type: string, format: uuid }
-        salienteParticipanteId: { type: string, format: uuid }
-        entranteParticipanteId: { type: string, format: uuid }
-        motivo: { type: string }
-        obligacionesConservadas: { type: string }
-        ocurridaEn: { type: string, format: date-time }
-    DecisionIngreso:
-      type: object
-      required: [id, solicitudId, fase, decision, actorId, motivo, revision, evidenciaAlgoritmo, ocurridaEn, correlacionId]
-      properties:
-        id: { type: string, format: uuid }
-        solicitudId: { type: string, format: uuid }
-        fase: { type: string }
-        decision: { type: string }
-        actorId: { type: string, format: uuid }
-        motivo: { type: string }
-        propuestaId: { type: string, format: uuid }
-        participanteId: { type: string, format: uuid }
-        revision: { type: integer }
-        evidenciaAlgoritmo: { type: string }
-        versionMotor: { type: string, description: Version (id del criterio) del motor que recomendo }
-        recomendacionAlgoritmo: { type: string, enum: [ACEPTAR, REVISION_HUMANA], description: El motor nunca recomienda rechazar por su cuenta }
-        apartamiento: { type: boolean, description: La persona decidio en contra de la lectura del motor }
-        ocurridaEn: { type: string, format: date-time }
-        correlacionId: { type: string, format: uuid }
     EntradaGrupo:
       type: object
       additionalProperties: false
@@ -817,16 +651,15 @@ components:
     EntradaRevelacion:
       type: object
       additionalProperties: false
-      required: [sorteoId]
+      required: [sorteoId, semilla]
       properties:
         sorteoId: { type: string, format: uuid }
         semilla:
           type: string
           description: >-
-            Obsoleta: ya no se usa y se ignora: la semilla queda sellada en el servidor junto con el
-            snapshot del plantel, el calendario y las reglas, y se publica al revelar. Ningun
-            cliente la conoce, asi que nadie puede probar semillas hasta que salga el orden
-            que le conviene.
+            La que se comprometio. Se devuelve aca porque el compromiso la entrego una
+            sola vez: guardarla del lado del servidor entre las dos fases haria posible
+            cambiarla, que es justo lo que el protocolo evita.
         entropias:
           type: array
           items: { type: string, maxLength: 120 }
@@ -916,8 +749,6 @@ components:
         invitacionId: { type: [string, 'null'], format: uuid }
         mensaje:      { type: string }
         enlace:       { type: [string, 'null'], description: Enlace para compartir por el canal elegido }
-        token: { type: string, description: Secreto para compartir; no registrar ni incluir en URL de consulta }
-        expiraEn: { type: string, format: date-time }
     EntradaEnlaceInvitacion:
       type: object
       additionalProperties: false
@@ -953,20 +784,6 @@ components:
       properties:
         grupoId: { type: string, format: uuid }
         participanteId: { type: string, format: uuid }
-    CanjeInvitacion:
-      type: object
-      additionalProperties: false
-      required: [token, cuposSolicitados]
-      properties:
-        token: { type: string, pattern: '^[0-9a-f]{64}$', writeOnly: true }
-        cuposSolicitados: { type: integer, minimum: 1, maximum: 3 }
-        mensaje: { type: string, maxLength: 300 }
-    SalidaCanjeInvitacion:
-      type: object
-      required: [solicitudId, estado]
-      properties:
-        solicitudId: { type: string, format: uuid }
-        estado: { type: string, enum: [PENDIENTE_BACKOFFICE] }
     EntradaPostulacion:
       type: object
       additionalProperties: false
