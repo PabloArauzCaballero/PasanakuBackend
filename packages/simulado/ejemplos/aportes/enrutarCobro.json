@@ -56,10 +56,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU99-01",
+        "mensaje": "Codigo duplicado",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-enrutarCobro-rechazo"
       }
     }
   }

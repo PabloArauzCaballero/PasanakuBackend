@@ -19,6 +19,8 @@ import { defineConfig } from '@playwright/test'
 export default defineConfig({
   testDir: 'e2e',
   testMatch: /.*\.e2e\.ts/,
+  // `produccion.e2e.ts` necesita el build de producción servido aparte: tiene su propia configuración.
+  testIgnore: /produccion\.e2e\.ts/,
   outputDir: '../../.playwright/backoffice',
   reporter: [['list']],
   workers: 1,

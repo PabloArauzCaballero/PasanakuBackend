@@ -12,6 +12,8 @@ const CATALOGO: Readonly<Record<string, string>> = {
   'AP-CU04-05': 'Demasiados intentos. Esperá unos minutos antes de volver a probar.',
   'AP-CU04-07': 'Ese segundo factor no está permitido para operadores.',
   'AP-CU04-06': 'Tu segundo factor no está enrolado. Pedí el enrolamiento a otra persona con permiso.',
+  'AP-CU68-06': 'La solicitud cambió, ya fue resuelta o no tenés permiso para decidirla. Actualizá el expediente y revisá la última decisión.',
+  'AP-CU69-05': 'Esa invitación ya no es válida.',
   'AP-CU14-02': 'Quien autoriza un reverso no puede ejecutarlo. Es otra persona.',
   'AP-CU52-03': 'Un reclamo favorable no se cierra sin registrar la reparación.',
 }

@@ -40,10 +40,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU18-01",
+        "mensaje": "Titular no coincide",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-designarCuentaPrincipal-rechazo"
       }
     }
   }

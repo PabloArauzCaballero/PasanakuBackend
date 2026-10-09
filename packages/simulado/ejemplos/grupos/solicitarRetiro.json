@@ -44,10 +44,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU65-01",
+        "mensaje": "Participante no activo",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-solicitarRetiro-rechazo"
       }
     }
   }

@@ -1,0 +1,82 @@
+{
+  "servicio": "grupos",
+  "operacion": "historialAdmision",
+  "metodo": "get",
+  "ruta": "/grupos/solicitudes/{solicitudId}/decisiones",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "a1b2c3d4-0001-4aaa-8bbb-000000000001",
+          "solicitudId": "9f1c2b7e-3a54-4d0e-8a61-5b7d2c9e4f10",
+          "fase": "PROPUESTA",
+          "decision": "ACEPTAR",
+          "actorId": "0b84f6a3-2d19-47c5-b3e8-61a9d7052c4f",
+          "motivo": "La conozco del grupo anterior y sus referencias son verificables.",
+          "revision": 1,
+          "evidenciaAlgoritmo": "Reputacion 82/100; sin mora vigente; concentracion de riesgo baja; KYC nivel 2.",
+          "ocurridaEn": "2026-10-08T14:20:00Z",
+          "correlacionId": "2d4e6f80-1a3b-4c5d-8e7f-9a0b1c2d3e4f"
+        },
+        {
+          "id": "a1b2c3d4-0002-4aaa-8bbb-000000000002",
+          "solicitudId": "9f1c2b7e-3a54-4d0e-8a61-5b7d2c9e4f10",
+          "fase": "RESOLUCION",
+          "decision": "ACEPTAR",
+          "actorId": "c7d2e91a-5f08-4e36-a4b7-30e8f1625d9c",
+          "motivo": "Evidencia suficiente. Se reservan los cupos y queda pendiente su firma del reglamento.",
+          "propuestaId": "a1b2c3d4-0001-4aaa-8bbb-000000000001",
+          "revision": 2,
+          "evidenciaAlgoritmo": "Reputacion 82/100; sin mora vigente; concentracion de riesgo baja; KYC nivel 2.",
+          "ocurridaEn": "2026-10-08T14:20:00Z",
+          "correlacionId": "2d4e6f80-1a3b-4c5d-8e7f-9a0b1c2d3e4f",
+          "participanteId": "71e9b4d0-6c2a-4f83-8d5e-a03c19f7b268"
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "a1b2c3d4-0001-4aaa-8bbb-000000000001",
+          "solicitudId": "9f1c2b7e-3a54-4d0e-8a61-5b7d2c9e4f10",
+          "fase": "PROPUESTA",
+          "decision": "ACEPTAR",
+          "actorId": "0b84f6a3-2d19-47c5-b3e8-61a9d7052c4f",
+          "motivo": "La conozco del grupo anterior y sus referencias son verificables.",
+          "revision": 1,
+          "evidenciaAlgoritmo": "Reputacion 82/100; sin mora vigente; concentracion de riesgo baja; KYC nivel 2.",
+          "ocurridaEn": "2026-10-08T14:20:00Z",
+          "correlacionId": "2d4e6f80-1a3b-4c5d-8e7f-9a0b1c2d3e4f"
+        },
+        {
+          "id": "a1b2c3d4-0003-4aaa-8bbb-000000000003",
+          "solicitudId": "9f1c2b7e-3a54-4d0e-8a61-5b7d2c9e4f10",
+          "fase": "RESOLUCION",
+          "decision": "RECHAZAR",
+          "actorId": "c7d2e91a-5f08-4e36-a4b7-30e8f1625d9c",
+          "motivo": "La concentracion de riesgo supera el limite del grupo aunque el administrador propuso aceptar.",
+          "propuestaId": "a1b2c3d4-0001-4aaa-8bbb-000000000001",
+          "revision": 2,
+          "evidenciaAlgoritmo": "Reputacion 82/100; sin mora vigente; concentracion de riesgo baja; KYC nivel 2.",
+          "ocurridaEn": "2026-10-08T14:20:00Z",
+          "correlacionId": "2d4e6f80-1a3b-4c5d-8e7f-9a0b1c2d3e4f"
+        }
+      ]
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU68-06",
+        "mensaje": "El expediente de decisión requiere permisos de revisión.",
+        "detalle": {},
+        "trazaId": "traza-historialAdmision-rechazo"
+      }
+    }
+  }
+}

@@ -59,7 +59,9 @@ for (const archivo of readdirSync(GENERADO).filter((a) => a.endsWith('.json'))) 
           operacion.responses[codigo] = JSON.parse(JSON.stringify(documento.components.responses[destino]))
         }
         const contenido = (operacion.responses[codigo].content ??= { 'application/json': {} })
-        const json = (contenido['application/json'] ??= {})
+        // el ejemplo va en el tipo de medio que el contrato declara (p. ej. application/problem+json)
+        const medio = contenido['application/json'] ? 'application/json' : (Object.keys(contenido)[0] ?? 'application/json')
+        const json = (contenido[medio] ??= {})
         json.examples ??= {}
         json.examples[nombre] = { value: ejemplo.cuerpo }
         inyectados += 1

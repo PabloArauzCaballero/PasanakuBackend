@@ -40,10 +40,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU27-01",
+        "mensaje": "Sin causa vigente",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-levantarRestriccion-rechazo"
       }
     }
   }

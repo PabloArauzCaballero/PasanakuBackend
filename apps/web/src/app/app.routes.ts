@@ -169,6 +169,8 @@ export const routes: Routes = [
   { path: 'legal/estado-regulatorio', loadComponent: () => import('./paginas/legal-estado-regulatorio/legal-estado-regulatorio').then((m) => m.LegalEstadoRegulatorio), title: 'Estado regulatorio · AportaYa', data: { seo: seoEstadoRegulatorio } },
   { path: 'descargar', loadComponent: () => import('./paginas/descargar/descargar').then((m) => m.Descargar), title: 'Usar AportaYa · AportaYa', data: { seo: seoDescargar } },
   // Datos de terceros: sin `data.seo`, y noindex reforzado también en app.routes.server.ts.
+  // El secreto viaja en el fragmento (#t=…): el servidor nunca lo ve. La página lo retira de la URL al cargar.
+  { path: 'invitacion/:grupoId/:invitacionId', loadComponent: () => import('./paginas/invitacion/invitacion').then((m) => m.Invitacion), title: 'Tu invitación · AportaYa' },
   { path: 'verificar/:codigo', loadComponent: () => import('./paginas/verificar/verificar').then((m) => m.Verificar), title: 'Verificar certificado · AportaYa' },
   { path: 'publico/grupos/:codigo', loadComponent: () => import('./paginas/publico-grupos/grupo-transparencia').then((m) => m.GrupoTransparencia), title: 'Verificar cadena de transparencia · AportaYa' },
   { path: 'publico/sorteos/:id', loadComponent: () => import('./paginas/publico-sorteos/sorteo-verificacion').then((m) => m.SorteoVerificacion), title: 'Verificar sorteo · AportaYa' },

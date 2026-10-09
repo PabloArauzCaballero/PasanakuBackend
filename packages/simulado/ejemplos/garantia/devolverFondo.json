@@ -128,10 +128,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU29-01",
+        "mensaje": "Cobertura en curso",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-devolverFondo-rechazo"
       }
     }
   }
