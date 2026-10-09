@@ -65,6 +65,17 @@ DE_DESARROLLO = {
     # cualquier entorno con dos replicas esto lo inyecta el almacen de secretos, y no
     # este archivo (ADR-037).
     "JWT_CLAVE_FIRMA": "",
+    # Invitaciones con secreto HMAC (identidad) y QR internos (nucleo-financiero): sin su clave el
+    # servicio no emite/valida. En el entorno desplegado las pone el almacen de secretos.
+    "INVITACIONES_CLAVE": "invitaciones-local-no-es-la-de-produccion-0001",
+    "QR_INTERNO_CLAVE": "qr-interno-local-no-es-el-de-produccion-0001",
+    # Inversiones (SINTETICO): el aliado queda DESHABILITADO. Es el unico modo que arranca en un
+    # entorno productivo (GuardiaDeProduccion) y no hay aliado contratado (DR-INV-01).
+    "INVERSIONES_ALIADO_MODO": "deshabilitado",
+    "INVERSIONES_ALIADO_URL": "http://127.0.0.1:4030",
+    "INVERSIONES_ALIADO_API_KEY": "",
+    "INVERSIONES_ALIADO_FIRMA_SECRETO": "",
+    "NUCLEO_FINANCIERO_URL": "http://nucleo-financiero:8080",
 }
 
 # ── El mismo cuadro, para un entorno DESPLEGADO (Coolify) ───────────────────
@@ -102,6 +113,15 @@ DE_ENTORNO = {
     # inyectable: el dia que haya dos, cada una firmaria distinto y los tokens de
     # una los rechazaria la otra (ADR-037).
     "JWT_CLAVE_FIRMA": "${JWT_CLAVE_FIRMA}",
+    # Secretos nuevos: se cargan en Coolify; el servicio no levanta sin ellos (regla 90.3.4).
+    "INVITACIONES_CLAVE": "${INVITACIONES_CLAVE}",
+    "QR_INTERNO_CLAVE": "${QR_INTERNO_CLAVE}",
+    # Inversiones queda con el aliado DESHABILITADO hasta que exista uno contratado (DR-INV-01).
+    "INVERSIONES_ALIADO_MODO": "deshabilitado",
+    "INVERSIONES_ALIADO_URL": "http://127.0.0.1:4030",
+    "INVERSIONES_ALIADO_API_KEY": "",
+    "INVERSIONES_ALIADO_FIRMA_SECRETO": "",
+    "NUCLEO_FINANCIERO_URL": "http://nucleo-financiero:8080",
 }
 
 

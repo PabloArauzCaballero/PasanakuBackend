@@ -157,6 +157,8 @@ services:
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
       SEGURIDAD_PIMIENTA: ${SEGURIDAD_PIMIENTA}
+      URL_APORTES: http://aportes:8080
+      URL_GARANTIA: http://garantia:8080
       URL_IDENTIDAD: http://identidad:8080
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
     healthcheck:
@@ -222,6 +224,7 @@ services:
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
+      URL_APORTES: http://aportes:8080
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
@@ -292,11 +295,49 @@ services:
       GMAIL_CLIENT_SECRET: ${GMAIL_CLIENT_SECRET}
       GMAIL_FROM_EMAIL: ${GMAIL_FROM_EMAIL}
       GMAIL_REFRESH_TOKEN: ${GMAIL_REFRESH_TOKEN}
+      INVITACIONES_CLAVE: ${INVITACIONES_CLAVE}
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       JWT_CLAVE_FIRMA: ${JWT_CLAVE_FIRMA}
       KAFKA_URL: kafka:9092
       NOTIFICATION_EMAIL_PROVIDER: ${NOTIFICATION_EMAIL_PROVIDER}
       SEGURIDAD_PIMIENTA: ${SEGURIDAD_PIMIENTA}
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  inversiones:
+    image: aportaya/inversiones:test
+    pull_policy: never
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+      entregas:
+        condition: service_healthy
+      erp:
+        condition: service_healthy
+      garantia:
+        condition: service_healthy
+      grupos:
+        condition: service_healthy
+    environment:
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      INVERSIONES_ALIADO_API_KEY: 
+      INVERSIONES_ALIADO_FIRMA_SECRETO: 
+      INVERSIONES_ALIADO_MODO: deshabilitado
+      INVERSIONES_ALIADO_URL: http://127.0.0.1:4030
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      NUCLEO_FINANCIERO_URL: http://nucleo-financiero:8080
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
@@ -363,6 +404,7 @@ services:
       CUENTA_PUENTE_CUSTODIA: ${CUENTA_PUENTE_CUSTODIA}
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
+      QR_INTERNO_CLAVE: ${QR_INTERNO_CLAVE}
       URL_APORTES: http://aportes:8080
       URL_GRUPOS: http://grupos:8080
       URL_TARIFAS: http://tarifas:8080
@@ -417,13 +459,13 @@ services:
     depends_on:
       esquema:
         condition: service_completed_successfully
-      entregas:
+      inversiones:
         condition: service_healthy
-      erp:
+      notificaciones:
         condition: service_healthy
-      garantia:
+      nucleo-financiero:
         condition: service_healthy
-      grupos:
+      organizador:
         condition: service_healthy
     environment:
       BD_CLAVE: ${BD_CLAVE}
@@ -449,13 +491,13 @@ services:
     depends_on:
       esquema:
         condition: service_completed_successfully
+      inversiones:
+        condition: service_healthy
       notificaciones:
         condition: service_healthy
       nucleo-financiero:
         condition: service_healthy
       organizador:
-        condition: service_healthy
-      publicidad:
         condition: service_healthy
     environment:
       BD_CLAVE: ${BD_CLAVE}
@@ -482,13 +524,13 @@ services:
     depends_on:
       esquema:
         condition: service_completed_successfully
+      inversiones:
+        condition: service_healthy
       notificaciones:
         condition: service_healthy
       nucleo-financiero:
         condition: service_healthy
       organizador:
-        condition: service_healthy
-      publicidad:
         condition: service_healthy
     environment:
       BASE_URL_PUBLICA: ${BASE_URL_PUBLICA}
