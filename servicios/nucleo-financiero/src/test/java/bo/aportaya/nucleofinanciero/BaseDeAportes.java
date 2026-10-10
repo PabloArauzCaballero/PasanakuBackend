@@ -34,7 +34,8 @@ abstract class BaseDeAportes extends BaseDeBilletera {
 
     @BeforeAll
     static void armarConsumoDeAportes() {
-        // Pasivo exigible, de naturaleza acreedora: el saldo de los usuarios y el de los grupos es plata que se les debe.
+        // Pasivo exigible, de naturaleza acreedora: el saldo de los usuarios y el de los grupos es plata que se les
+        // debe.
         // Solo en bolivianos, como el plan MINIMO sembrado: en dolares NO hay mapeo y un aporte en USD se rechaza.
         String sufijo = UUID.randomUUID().toString().substring(0, 6);
         contable.cuentaDeMovimiento("SU.BOB." + sufijo, "PASIVO", "ACREEDORA", "BOB");
@@ -150,8 +151,10 @@ abstract class BaseDeAportes extends BaseDeBilletera {
     /** El saldo de una billetera segun el LIBRO (suma de movimientos), no segun la columna cache. */
     protected BigDecimal saldoDelLibro(UUID cuenta) {
         return (BigDecimal) dsl.fetchOne(
-                        "SELECT COALESCE(SUM(CASE WHEN sentido = 'CREDITO' THEN monto ELSE -monto END), 0)"
-                                + " FROM nucleo_financiero.movimiento_billetera WHERE cuenta_billetera_id = ?",
+                        """
+                        SELECT COALESCE(SUM(CASE WHEN sentido = 'CREDITO' THEN monto ELSE -monto END), 0)
+                          FROM nucleo_financiero.movimiento_billetera WHERE cuenta_billetera_id = ?
+                        """,
                         cuenta)
                 .get(0);
     }
@@ -159,15 +162,18 @@ abstract class BaseDeAportes extends BaseDeBilletera {
     /** El saldo de una cuenta del plan segun el MAYOR (acreedora: haber menos debe), no segun {@code cuenta_contable.saldo}. */
     protected BigDecimal saldoDelMayor(String codigoDelPlan) {
         return (BigDecimal) dsl.fetchOne(
-                        "SELECT COALESCE(SUM(m.haber - m.debe), 0) FROM nucleo_financiero.movimiento_contable m"
-                                + " JOIN nucleo_financiero.cuenta_contable c ON c.id = m.cuenta_id WHERE c.codigo = ?",
+                        """
+                        SELECT COALESCE(SUM(m.haber - m.debe), 0) FROM nucleo_financiero.movimiento_contable m
+                          JOIN nucleo_financiero.cuenta_contable c ON c.id = m.cuenta_id WHERE c.codigo = ?
+                        """,
                         codigoDelPlan)
                 .get(0);
     }
 
     protected int transacciones(UUID obligacion) {
         return contar(
-                "SELECT count(*) FROM nucleo_financiero.transaccion_billetera WHERE tipo = 'APORTE_A_GRUPO' AND origen_id = ?",
+                "SELECT count(*) FROM nucleo_financiero.transaccion_billetera WHERE tipo = 'APORTE_A_GRUPO' AND"
+                        + " origen_id = ?",
                 obligacion);
     }
 

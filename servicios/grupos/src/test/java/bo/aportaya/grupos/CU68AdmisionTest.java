@@ -141,25 +141,24 @@ class CU68AdmisionTest extends BaseDeCU68 {
     }
 
     @Test
-    @DisplayName("el historial del expediente lo lee ADMIN_PLATAFORMA (backoffice) y el administrador de ESE grupo")
-    void historialLoLeenBackofficeYElAdministradorDelGrupo() {
-        transaccion.execute(tx -> admision.proponer(propuesta("ACEPTAR", 0), administrador));
-
-        var adminPlataforma = sesion(fixtura.usuario(), "ADMIN_PLATAFORMA");
-        assertThat(transaccion.execute(tx -> admision.historial(solicitud, adminPlataforma)))
-                .hasSize(1);
-        assertThat(transaccion.execute(tx -> admision.historial(solicitud, administrador)))
-                .hasSize(1);
-    }
-
-    @Test
     @DisplayName(
-            "rechaza el historial del expediente a terceros: soporte, participante comun, administrador de otro grupo y rol sin relacion")
-    void rechazaElHistorialATerceros() {
+            "rechaza el historial del expediente a terceros (soporte, participante comun, administrador de otro grupo,"
+                    + " tesoreria) y se lo entrega solo a ADMIN_PLATAFORMA y al administrador de ESE grupo")
+    void historialSoloParaBackofficeYElAdministradorDelGrupo() {
         transaccion.execute(tx -> admision.proponer(propuesta("ACEPTAR", 0), administrador));
 
-        // Soporte trae SOLICITUD_INGRESO_VER sembrado: la guardia lo deja llegar, el caso de uso NO lo admite (no es backoffice
-        // de resolucion ni administra el grupo).
+        // Los que SI: backoffice (ADMIN_PLATAFORMA) y el administrador de ESTE grupo.
+        var adminPlataforma = sesion(fixtura.usuario(), "ADMIN_PLATAFORMA");
+        java.util.List<bo.aportaya.grupos.dominio.DecisionDeIngreso> delBackoffice =
+                transaccion.execute(tx -> admision.historial(solicitud, adminPlataforma));
+        java.util.List<bo.aportaya.grupos.dominio.DecisionDeIngreso> delAdministrador =
+                transaccion.execute(tx -> admision.historial(solicitud, administrador));
+        assertThat(delBackoffice).hasSize(1);
+        assertThat(delAdministrador).hasSize(1);
+
+        // Los que NO. Soporte trae SOLICITUD_INGRESO_VER sembrado: la guardia lo deja llegar, el caso de uso NO lo
+        // admite (no es
+        // backoffice de resolucion ni administra el grupo).
         var soporte = sesion(fixtura.usuario(), "SOPORTE");
         // Un participante comun, sin es_organizador, ni siquiera del grupo.
         var participanteAjeno = sesion(fixtura.usuario(), "PARTICIPANTE");

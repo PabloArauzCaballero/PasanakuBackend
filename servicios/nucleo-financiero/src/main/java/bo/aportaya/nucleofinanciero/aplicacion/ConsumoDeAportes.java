@@ -134,7 +134,8 @@ public class ConsumoDeAportes {
 
     @Transactional
     public Salida procesar(AporteCobrado aporte) {
-        ContextoSesion ctx = ContextoSesion.deSistema(PROCESO, new Traza(aporte.correlationId().toString()));
+        ContextoSesion ctx = ContextoSesion.deSistema(
+                PROCESO, new Traza(aporte.correlationId().toString()));
         return datos.conContexto(ctx, dsl -> {
             if (!consumidos.registrar(dsl, aporte.eventoId(), CONSUMIDOR)) {
                 return Salida.sinEfecto(Resultado.DUPLICADO);
@@ -165,20 +166,21 @@ public class ConsumoDeAportes {
         String deGrupos = codigoDelPlan(SALDO_GRUPOS, aporte);
 
         // 2. Las dos billeteras EN ESA moneda, bloqueadas en orden de identificador (como CU-12: sin abrazo mortal).
-        UUID cuentaUsuario = destinos
-                .cuentaDeUsuarioEn(dsl, aporte.usuarioId(), moneda)
+        UUID cuentaUsuario = destinos.cuentaDeUsuarioEn(dsl, aporte.usuarioId(), moneda)
                 .orElseThrow(() -> sinCuenta("El participante no tiene billetera en " + moneda + ".", aporte));
-        UUID cuentaGrupo = destinos
-                .cuentaDeGrupoEn(dsl, aporte.grupoId(), moneda)
+        UUID cuentaGrupo = destinos.cuentaDeGrupoEn(dsl, aporte.grupoId(), moneda)
                 .orElseThrow(() -> sinCuenta("El grupo no tiene billetera en " + moneda + ".", aporte));
-        List<UUID> enOrden = List.of(cuentaUsuario, cuentaGrupo).stream().sorted().toList();
+        List<UUID> enOrden =
+                List.of(cuentaUsuario, cuentaGrupo).stream().sorted().toList();
         enOrden.forEach(id -> cuentas.bloquear(dsl, id));
         Cuenta origen = cuentas.ver(dsl, cuentaUsuario).orElseThrow();
         Cuenta destino = cuentas.ver(dsl, cuentaGrupo).orElseThrow();
 
         if (!origen.operativa()) {
             throw new ErrorDeNegocio(
-                    CodigoError.de(12, 3), "La billetera del participante esta " + origen.estado() + ".", detalle(aporte));
+                    CodigoError.de(12, 3),
+                    "La billetera del participante esta " + origen.estado() + ".",
+                    detalle(aporte));
         }
         if (!destino.operativa()) {
             throw new ErrorDeNegocio(
@@ -243,7 +245,11 @@ public class ConsumoDeAportes {
                         CodigoError.de(24, 2),
                         "La cuenta logica «%s» no tiene codigo en el plan de cuentas para %s."
                                 .formatted(cuentaLogica, aporte.monto().moneda()),
-                        Map.of("cuentaLogica", cuentaLogica, "moneda", aporte.monto().moneda().name())));
+                        Map.of(
+                                "cuentaLogica",
+                                cuentaLogica,
+                                "moneda",
+                                aporte.monto().moneda().name())));
     }
 
     private static ErrorDeNegocio sinCuenta(String mensaje, AporteCobrado aporte) {
@@ -252,6 +258,10 @@ public class ConsumoDeAportes {
 
     /** Identificadores, nunca importes ni datos de personas (regla 90.2). */
     private static Map<String, Object> detalle(AporteCobrado aporte) {
-        return Map.of("pagoId", aporte.pagoId().toString(), "obligacionId", aporte.obligacionId().toString());
+        return Map.of(
+                "pagoId",
+                aporte.pagoId().toString(),
+                "obligacionId",
+                aporte.obligacionId().toString());
     }
 }

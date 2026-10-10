@@ -86,7 +86,8 @@ public class AplicarCesionDeDerecho {
 
     @Transactional
     public Salida procesar(Cesion cesion) {
-        ContextoSesion ctx = ContextoSesion.deSistema(PROCESO, new Traza(cesion.correlationId().toString()));
+        ContextoSesion ctx = ContextoSesion.deSistema(
+                PROCESO, new Traza(cesion.correlationId().toString()));
         return datos.conContexto(ctx, dsl -> {
             if (!consumidos.registrar(dsl, cesion.eventoId(), CONSUMIDOR)) {
                 return new Salida(Resultado.DUPLICADO, Optional.empty());
@@ -133,18 +134,25 @@ public class AplicarCesionDeDerecho {
                                     "cupoId", cesion.cupoId().toString(),
                                     "motivo", MOTIVO,
                                     "cesionId", cesion.cesionId().toString(),
-                                    "participanteOrigenId", cesion.participanteOrigenId().toString(),
-                                    "participanteDestinoId", cesion.participanteDestinoId().toString()),
+                                    "participanteOrigenId",
+                                            cesion.participanteOrigenId().toString(),
+                                    "participanteDestinoId",
+                                            cesion.participanteDestinoId().toString()),
                             cesion.correlationId()));
             return new Salida(Resultado.APLICADA, Optional.of(traspaso));
         });
     }
 
     private static ErrorDeNegocio rechazo(String mensaje, Cesion cesion) {
-        // AP-CU64-01 (CUPO_NO_TRASPASABLE): el mismo codigo que declara el contrato del traspaso. Identificadores, no personas.
+        // AP-CU64-01 (CUPO_NO_TRASPASABLE): el mismo codigo que declara el contrato del traspaso. Identificadores, no
+        // personas.
         return new ErrorDeNegocio(
                 CodigoError.de(64, 1),
                 mensaje,
-                Map.of("cesionId", cesion.cesionId().toString(), "cupoId", cesion.cupoId().toString()));
+                Map.of(
+                        "cesionId",
+                        cesion.cesionId().toString(),
+                        "cupoId",
+                        cesion.cupoId().toString()));
     }
 }

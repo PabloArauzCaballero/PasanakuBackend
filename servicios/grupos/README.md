@@ -39,13 +39,14 @@ Modulo 02 de la boveda — Grupos, Cupos, Turnos y Gobernanza.
 
 | Tema | Cuando |
 | --- | --- |
-| | |
+| `grupos.cupo_traspasado` | Un cupo cambio de titular (CU-64 o una cesion de derecho del mercado, `motivo=VENTA`) |
 
 ## Eventos que consume
 
 | Tema | De quien | Efecto |
 | --- | --- | --- |
-| | | |
+| `aportaya.entregas.derecho_cedido` | `entregas` | El cupo del turno vendido pasa del vendedor al comprador (`AplicarCesionDeDerecho`): un traspaso `VENTA` con deuda 0, una sola vez por evento y por hecho; fuera de orden se rechaza sin marcar. Encendido por omision (`CESION_CONSUMO_HABILITADO`). **Pendiente de negocio:** las obligaciones futuras ya generadas a nombre del vendedor y `permite_cupos_multiples` del comprador |
+| `aportaya.organizador.habilitacion_revocada` | `organizador` | Sustitucion del administrador (H5.S1.M7); apagado por omision (`SUSTITUCION_CONSUMO_HABILITADO`) |
 
 ## Trabajos programados
 

@@ -56,6 +56,7 @@ asiento inverso enlazado por `asiento_reversa_id` (R-AUD-06).
 | --- | --- |
 | `aportaya.nucleo_financiero.asiento_registrado` | Se confirmó un asiento cuadrado (CU-24) |
 | `aportaya.nucleo_financiero.asiento_reversado` | Se corrigió un asiento con su inverso (CU-24) |
+| `aportaya.nucleo_financiero.aporte_aplicado` | Un `aportes.aporte_cobrado` movió el dinero: lleva `pagoId`, `obligacionId`, `transaccionId`, `asientoId`, `monto` y `moneda` (carril I) |
 
 ## Eventos que consume
 
@@ -63,6 +64,23 @@ asiento inverso enlazado por `asiento_reversa_id` (R-AUD-06).
 | --- | --- | --- |
 | `aportaya.garantia.respaldo_reservado` · `respaldo_ampliado` · `respaldo_liberado` · `respaldo_recuperado` · `cobertura_empresarial_aplicada` | `garantia` | Registra en el mayor el `asiento` propuesto (CU-24), una sola vez por evento |
 | `aportaya.garantia.cobertura_empresarial_reversada` | `garantia` | Reversa el asiento de la cobertura con un contra-asiento enlazado (nunca un `UPDATE`) |
+| `aportaya.aportes.aporte_cobrado` | `aportes` | Con canal `BILLETERA_MOVIL`: debita la billetera del participante, acredita la del grupo (`APORTE_A_GRUPO`) y asienta DEBE `SALDO_USUARIOS` (2.1.01) / HABER `SALDO_GRUPOS` (2.1.02) en la MISMA transaccion (`ConsumoDeAportes`) |
+
+### Aporte cobrado (carril I)
+
+`consumo/ConsumidorDeAportesKafka` → `aplicacion/ConsumoDeAportes`. **Encendido por omision** (`CONSUMO_DE_APORTES_HABILITADO`,
+independiente del consumo de asientos de garantia). Garantias: una sola vez por evento (`evento_consumido`) y por pago (clave
+`aporte-cobrado:<pagoId>` en `uq_tx_idem`); asiento y transaccion cuadrados, enlazados en las dos direcciones y sin `UPDATE`;
+moneda del evento = moneda de las dos billeteras y de las dos cuentas del plan (en USD no hay cuenta en el plan sembrado: se
+rechaza, no se inventa); saldo desde el LIBRO. Si falta una billetera (`AP-CU12-02`), no esta operativa (`AP-CU12-03`) o no hay
+saldo (`AP-CU12-01`) NO se escribe nada y el evento NO se marca consumido: el reproceso lo aplica cuando la causa se resuelva.
+Canales distintos de `BILLETERA_MOVIL` no salen de una billetera: se marcan consumidos y se avisa en el registro.
+
+**Pendiente (declarado):** (1) nadie abre la billetera `GRUPO` ni la de cada persona (no hay consumidor de `grupos.grupo_activado` /
+`identidad.usuario_registrado`); (2) el rechazo no se compensa en `aportes` (el aporte queda `PAGADO`): hace falta `AP-CU21-03`
+sincrono o un evento `aporte_no_aplicado` (producto + aportes); (3) los limites por concepto de CU-40 no se aplican al aporte; (4) los
+codigos 2.1.01/2.1.02 los confirma Contabilidad; (5) recargas y retiros no asientan en el mayor, asi que 2.1.01 queda negativo
+hasta que se decida; (6) la reversa de un aporte son dos operaciones separadas (contra-asiento de CU-24 y reverso de CU-14).
 
 El consumidor (`consumo/ConsumidorDeAsientosKafka`) esta **apagado por omision**
 (`CONSUMO_DE_ASIENTOS_HABILITADO=false`; el compose desplegado de TEST lo enciende): las cuentas son LOGICAS

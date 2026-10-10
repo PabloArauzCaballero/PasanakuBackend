@@ -56,7 +56,8 @@ public class ConsumidorDeAportesKafka {
         BITACORA.info("aporte cobrado {} (pago {}) -> {}", aporte.eventoId(), aporte.pagoId(), salida.resultado());
         if (salida.resultado() == ConsumoDeAportes.Resultado.CANAL_SIN_BILLETERA) {
             BITACORA.warn(
-                    "pago {}: el canal {} no sale de una billetera; su contrapartida entra por la conciliacion, no por este consumidor",
+                    "pago {}: el canal {} no sale de una billetera; su contrapartida entra por la conciliacion, no por"
+                            + " este consumidor",
                     aporte.pagoId(),
                     aporte.canal());
         }

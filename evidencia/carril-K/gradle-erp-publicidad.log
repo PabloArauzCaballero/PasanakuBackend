@@ -1,0 +1,324 @@
+heavy.sh: candado tomado, libres 3528 MB -> bash C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/k/k_gradle.sh --continue :servicios:erp:spotlessApply :servicios:erp:generarClientes :servicios:erp:test :servicios:erp:webTest :servicios:erp:integrationTest :servicios:erp:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Starting a Gradle Daemon, 1 stopped Daemon could not be reused, use --status for details
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+riptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :servicios:erp:spotlessJava
+> Task :servicios:erp:spotlessJavaApply
+> Task :servicios:erp:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:erp:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:erp:spotlessApply
+
+> Task :servicios:erp:generarClienteAngular
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+Failed to get the schema name: null
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\clientes\angular\erp
+
+> Task :servicios:erp:generarClienteDart
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\clientes\dart\erp
+
+> Task :servicios:erp:generarClientes
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources UP-TO-DATE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes
+> Task :plataforma:comun-web:jar
+> Task :plataforma:comun-web:compileTestFixturesJava
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses
+> Task :plataforma:comun-web:testFixturesJar
+
+> Task :servicios:erp:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+Failed to get the schema name: null
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\servicios\erp\build\generated\openapi
+
+> Task :servicios:erp:generateJooq UP-TO-DATE
+> Task :servicios:erp:compileJava
+> Task :servicios:erp:processResources
+> Task :servicios:erp:classes
+> Task :servicios:erp:compileTestJava
+> Task :servicios:erp:processTestResources UP-TO-DATE
+> Task :servicios:erp:testClasses
+
+> Task :servicios:erp:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:erp:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:erp:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T18:55:06.268-04:00  INFO 9476 --- [erp] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T18:55:06.286-04:00  INFO 9476 --- [erp] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T18:55:06.565-04:00  INFO 9476 --- [erp] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T18:55:06.568-04:00  INFO 9476 --- [erp] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:erp:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:publicidad:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:publicidad:generateJooq UP-TO-DATE
+> Task :servicios:publicidad:compileJava UP-TO-DATE
+> Task :servicios:publicidad:processResources UP-TO-DATE
+> Task :servicios:publicidad:classes UP-TO-DATE
+> Task :servicios:publicidad:compileTestJava
+> Task :servicios:publicidad:processTestResources UP-TO-DATE
+> Task :servicios:publicidad:testClasses
+
+> Task :servicios:publicidad:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:publicidad:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:publicidad:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T18:55:56.286-04:00  INFO 11008 --- [publicidad] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T18:55:56.286-04:00  INFO 11008 --- [publicidad] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T18:55:56.568-04:00  INFO 11008 --- [publicidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T18:55:56.573-04:00  INFO 11008 --- [publicidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:publicidad:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:publicidad:spotlessJava UP-TO-DATE
+> Task :servicios:publicidad:spotlessJavaCheck UP-TO-DATE
+> Task :servicios:publicidad:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:publicidad:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:publicidad:spotlessCheck UP-TO-DATE
+
+BUILD SUCCESSFUL in 2m 24s
+57 actionable tasks: 21 executed, 36 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+== RC gradle: 0

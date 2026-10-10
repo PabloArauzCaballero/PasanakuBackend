@@ -27,13 +27,7 @@ class CU103RechazosTest extends EscenarioDeFactura {
                 .contains("R-AUD-01");
 
         var pago = transaccion.execute(t -> facturaCU.pagar(
-                new EntradaPago(
-                        registrada.facturaId(),
-                        new BigDecimal("400.00"),
-                        "BOB",
-                        "TRANSFERENCIA",
-                        tesoreria.usuarioId()),
-                tesoreria));
+                new EntradaPago(registrada.facturaId(), new BigDecimal("400.00"), "BOB", "TRANSFERENCIA"), tesoreria));
         assertThat(pago.montoPagado()).isEqualByComparingTo("400.00");
         assertThat(rechazaLaBase(
                         "DELETE FROM erp.pago_a_proveedor WHERE factura_proveedor_id = ?", registrada.facturaId()))
@@ -46,13 +40,7 @@ class CU103RechazosTest extends EscenarioDeFactura {
         var registrada = transaccion.execute(t -> facturaCU.registrar(
                 factura("F-A05-" + anio, "800.00", enPeriodo(1), aprobador.usuarioId()), aprobador));
         transaccion.execute(t -> facturaCU.pagar(
-                new EntradaPago(
-                        registrada.facturaId(),
-                        new BigDecimal("800.00"),
-                        "BOB",
-                        "TRANSFERENCIA",
-                        tesoreria.usuarioId()),
-                tesoreria));
+                new EntradaPago(registrada.facturaId(), new BigDecimal("800.00"), "BOB", "TRANSFERENCIA"), tesoreria));
 
         // Alta y pago dejan su evento en la misma transaccion que la fila: el rastro no
         // depende de que despues alguien se acuerde de escribirlo.
@@ -73,13 +61,7 @@ class CU103RechazosTest extends EscenarioDeFactura {
         var registrada = transaccion.execute(t -> facturaCU.registrar(
                 factura("F-A06-" + anio, "500.00", enPeriodo(1), aprobador.usuarioId()), aprobador));
         transaccion.execute(t -> facturaCU.pagar(
-                new EntradaPago(
-                        registrada.facturaId(),
-                        new BigDecimal("500.00"),
-                        "BOB",
-                        "TRANSFERENCIA",
-                        tesoreria.usuarioId()),
-                tesoreria));
+                new EntradaPago(registrada.facturaId(), new BigDecimal("500.00"), "BOB", "TRANSFERENCIA"), tesoreria));
 
         // Quien aprobo y quien autorizo quedan escritos, y son personas distintas.
         assertThat(contar(
@@ -139,12 +121,7 @@ class CU103RechazosTest extends EscenarioDeFactura {
         var registrada = transaccion.execute(t -> facturaCU.registrar(
                 factura("F-C04C-" + anio, "600.00", enPeriodo(1), aprobador.usuarioId()), aprobador));
         assertThatThrownBy(() -> transaccion.execute(t -> facturaCU.pagar(
-                        new EntradaPago(
-                                registrada.facturaId(),
-                                new BigDecimal("700.00"),
-                                "BOB",
-                                "TRANSFERENCIA",
-                                tesoreria.usuarioId()),
+                        new EntradaPago(registrada.facturaId(), new BigDecimal("700.00"), "BOB", "TRANSFERENCIA"),
                         tesoreria)))
                 .satisfies(e -> assertThat(raizDe(e)).contains("excede el saldo pendiente"));
     }
@@ -158,12 +135,7 @@ class CU103RechazosTest extends EscenarioDeFactura {
         // Cuatro ojos sobre el egreso: quien aprobo la factura no autoriza su pago. Con
         // uno solo, aprobar y pagarse a si mismo es un unico movimiento de raton.
         assertThatThrownBy(() -> transaccion.execute(t -> facturaCU.pagar(
-                        new EntradaPago(
-                                registrada.facturaId(),
-                                new BigDecimal("1500.00"),
-                                "BOB",
-                                "TRANSFERENCIA",
-                                aprobador.usuarioId()),
+                        new EntradaPago(registrada.facturaId(), new BigDecimal("1500.00"), "BOB", "TRANSFERENCIA"),
                         aprobador)))
                 .satisfies(e -> assertThat(raizDe(e)).contains("R-CTB-05"));
     }
@@ -185,5 +157,35 @@ class CU103RechazosTest extends EscenarioDeFactura {
                         registrada.facturaId(),
                         aprobador.usuarioId()))
                 .contains("R-CTB-05");
+    }
+
+    @Test
+    @DisplayName("rechaza por R-CTB-05: el autorizante es el sujeto de la sesion y el cuerpo no puede dictarlo")
+    void rechazaAutorizanteQueNoEsLaSesion() {
+        var registrada = transaccion.execute(t -> facturaCU.registrar(
+                factura("F-C05B-" + anio, "900.00", enPeriodo(1), aprobador.usuarioId()), aprobador));
+        var pago = new EntradaPago(registrada.facturaId(), new BigDecimal("900.00"), "BOB", "TRANSFERENCIA");
+
+        // EntradaPago ya no trae `autorizadoPor`: no hay campo por el cual un cliente pueda
+        // nombrar a otra persona. Quien aprobo no se libra de R-CTB-05 cambiando un dato.
+        assertThatThrownBy(() -> transaccion.execute(t -> facturaCU.pagar(pago, aprobador)))
+                .satisfies(e -> assertThat(raizDe(e)).contains("R-CTB-05"));
+        assertThat(contar(
+                        "SELECT count(*)::int FROM erp.pago_a_proveedor WHERE factura_proveedor_id = ?",
+                        registrada.facturaId()))
+                .isZero();
+
+        // Pagado por otra sesion: el actor que queda escrito (fila y evento) es el de esa sesion.
+        transaccion.execute(t -> facturaCU.pagar(pago, tesoreria));
+        assertThat(contar(
+                        "SELECT count(*)::int FROM erp.pago_a_proveedor WHERE factura_proveedor_id = ? AND autorizado_por = ?",
+                        registrada.facturaId(),
+                        tesoreria.usuarioId()))
+                .isEqualTo(1);
+        assertThat(contar(
+                        "SELECT count(*)::int FROM erp.evento_dominio WHERE tipo = 'erp.pago_a_proveedor_registrado' AND payload->>'facturaId' = ? AND payload->>'autorizadoPor' = ?",
+                        registrada.facturaId().toString(),
+                        tesoreria.usuarioId().toString()))
+                .isEqualTo(1);
     }
 }

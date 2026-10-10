@@ -138,7 +138,9 @@ public class LibroDeBilletera {
                 .set(DSL.field("moneda", String.class), montoTotal.moneda().name())
                 .set(DSL.field("monto_total", BigDecimal.class), montoTotal.monto())
                 .set(DSL.field("grupo_id", UUID.class), vinculos.grupoId().orElse(null))
-                .set(DSL.field("asiento_contable_id", UUID.class), vinculos.asientoId().orElse(null))
+                .set(
+                        DSL.field("asiento_contable_id", UUID.class),
+                        vinculos.asientoId().orElse(null))
                 .set(DSL.field("origen_tipo", String.class), origenTipo)
                 .set(DSL.field("origen_id", UUID.class), origenId)
                 .set(DSL.field("canal", String.class), canal)

@@ -86,9 +86,11 @@ bash scripts/entrega_simulada.sh backend   # arranque por tandas + humo por el g
    de reclamos, cola de solicitudes escaladas, refresco de sesión, exportaciones). Están nombradas, con su
    motivo, en `scripts/verificar_rutas_frontend.py`. Que el contrato no las publique no dice qué responde el
    backend real: hay que verificarlo en la corrida contra el stack.
-8. `pagarFacturaDeProveedor` (erp) recibe un cuerpo **sin** `autorizadoPor`, que el contrato exige: contra
-   el backend real es un 400 hasta que erp derive ese dato de la sesión. Divergencia fijada por prueba en
-   `apps/backoffice/src/app/nucleo/entrada-estricta.spec.ts`.
+8. `pagarFacturaDeProveedor` (erp): el autorizante del pago lo deriva el servidor del token (sujeto autenticado); el
+   contrato ya no declara `autorizadoPor` y un cuerpo que lo traiga es un 400. El cliente del backoffice no lo
+   manda y su cuerpo cumple el contrato (`apps/backoffice/src/app/nucleo/entrada-estricta.spec.ts`). Probado contra
+   PostgreSQL real (`CU103RechazosTest`) y en la capa web (`PagoDeFacturaWebTest`); falta correrlo contra el stack
+   completo.
 9. Un enlace de invitación ya consumido o revocado se ve igual que uno vigente en el sitio: el sitio no
    tiene sesión y ninguna operación responde sin ella. La pantalla lo declara.
 

@@ -1,0 +1,12 @@
+# javac (JDK 21.0.12) sobre los archivos tocados, YA FORMATEADOS con palantir-java-format 2.57.0 (el de spotless). NO es Gradle: solo prueba que compilan.
+== comun-web: RC 0
+== nucleo-main: RC 0
+== nucleo-test: RC 0
+== grupos-main: RC 0
+== grupos-test: RC 0
+== aportes-main: RC 0
+== aportes-test: RC 0
+== entregas-main: RC 0
+== entregas-test: RC 0
+== identidad-main: RC 0
+== identidad-test: RC 0

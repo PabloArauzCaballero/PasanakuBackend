@@ -105,7 +105,8 @@ class GruposHistorialAdmisionWebTest {
     private SorteoDelGrupo sorteo;
 
     @Test
-    @DisplayName("backoffice con SOLICITUD_INGRESO_VER (ADMIN_PLATAFORMA) llega al caso de uso: ya no es 403 de la guardia")
+    @DisplayName(
+            "backoffice con SOLICITUD_INGRESO_VER (ADMIN_PLATAFORMA) llega al caso de uso: ya no es 403 de la guardia")
     void backofficeLlegaAlExpediente() throws Exception {
         when(admision.historial(any(), any())).thenReturn(List.of());
 
@@ -117,7 +118,8 @@ class GruposHistorialAdmisionWebTest {
 
     @Test
     @DisplayName(
-            "el administrador del grupo (ORGANIZADOR con GRUPO_ADMINISTRAR) y el participante siguen llegando al caso de uso")
+            "el administrador del grupo (ORGANIZADOR con GRUPO_ADMINISTRAR) y el participante siguen llegando al caso"
+                    + " de uso")
     void administradorYParticipanteLlegan() throws Exception {
         when(admision.historial(any(), any())).thenReturn(List.of());
 

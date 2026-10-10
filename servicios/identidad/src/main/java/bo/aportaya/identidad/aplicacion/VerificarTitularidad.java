@@ -40,32 +40,38 @@ public class VerificarTitularidad {
         // cotejo de titularidad compara numeros, no extensiones.
         String hashDeclarado = DocumentoDeIdentidad.hashDeNumero(documentoDeclarado, pimienta);
 
-        return datos.conContexto(ctx, dsl -> Datos.comoSistema(dsl, () -> {
-            // Rol de sistema SOLO para esta lectura y acotada a un booleano: la politica de fila deja ver `usuario` y
-            // `documento_identidad` al titular y a los roles de cumplimiento, no a una credencial de servicio, y quien
-            // pregunta (entregas) pregunta por OTRA persona. Quien puede llegar hasta aca lo decide la guardia de la ruta.
-            var fila = dsl.select(
-                            DSL.field("u.nombres", String.class),
-                            DSL.field("u.apellidos", String.class),
-                            DSL.field("d.hash_numero", String.class))
-                    .from(DSL.table(DSL.name("identidad", "usuario")).as("u"))
-                    .leftJoin(DSL.table(DSL.name("identidad", "documento_identidad"))
-                            .as("d"))
-                    .on(DSL.field("d.usuario_id", UUID.class).eq(DSL.field("u.id", UUID.class)))
-                    .where(DSL.field("u.id", UUID.class).eq(usuarioId))
-                    .fetchOne();
+        return datos.conContexto(
+                ctx,
+                dsl -> Datos.comoSistema(dsl, () -> {
+                    // Rol de sistema SOLO para esta lectura y acotada a un booleano: la politica de fila deja ver
+                    // `usuario` y
+                    // `documento_identidad` al titular y a los roles de cumplimiento, no a una credencial de servicio,
+                    // y quien
+                    // pregunta (entregas) pregunta por OTRA persona. Quien puede llegar hasta aca lo decide la guardia
+                    // de la ruta.
+                    var fila = dsl.select(
+                                    DSL.field("u.nombres", String.class),
+                                    DSL.field("u.apellidos", String.class),
+                                    DSL.field("d.hash_numero", String.class))
+                            .from(DSL.table(DSL.name("identidad", "usuario")).as("u"))
+                            .leftJoin(DSL.table(DSL.name("identidad", "documento_identidad"))
+                                    .as("d"))
+                            .on(DSL.field("d.usuario_id", UUID.class).eq(DSL.field("u.id", UUID.class)))
+                            .where(DSL.field("u.id", UUID.class).eq(usuarioId))
+                            .fetchOne();
 
-            if (fila == null || fila.get("d.hash_numero", String.class) == null) {
-                // Sin documento verificado no se puede afirmar que coincide. Denegar por
-                // omision (invariante 9): quien no completo su KYC no registra cuentas.
-                return false;
-            }
-            if (!fila.get("d.hash_numero", String.class).equals(hashDeclarado)) {
-                return false;
-            }
-            String delTitular = fila.get("u.nombres", String.class) + " " + fila.get("u.apellidos", String.class);
-            return normalizar(delTitular).equals(normalizar(nombreDeclarado));
-        }));
+                    if (fila == null || fila.get("d.hash_numero", String.class) == null) {
+                        // Sin documento verificado no se puede afirmar que coincide. Denegar por
+                        // omision (invariante 9): quien no completo su KYC no registra cuentas.
+                        return false;
+                    }
+                    if (!fila.get("d.hash_numero", String.class).equals(hashDeclarado)) {
+                        return false;
+                    }
+                    String delTitular =
+                            fila.get("u.nombres", String.class) + " " + fila.get("u.apellidos", String.class);
+                    return normalizar(delTitular).equals(normalizar(nombreDeclarado));
+                }));
     }
 
     /** Sin tildes, sin dobles espacios y en minusculas: «José Pérez» es «Jose Perez». */

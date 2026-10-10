@@ -167,6 +167,55 @@ class UsuariosAutorizacionNegativaWebTest {
     }
 
     @Test
+    @DisplayName("la credencial de SERVICIO de entregas verifica la titularidad y recibe SOLO si/no; el caso de uso la"
+            + " recibe como actor del servicio")
+    void servicioDeEntregasVerificaSoloSiONo() throws Exception {
+        when(titularidad.coincide(any(), any(), any(), any())).thenReturn(true);
+
+        String cuerpo = mvc.perform(post("/usuarios/{id}/titularidad/verificacion", USUARIO)
+                        .with(Sesiones.como("SERVICIO_ENTREGAS"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nombreCompleto\":\"Pablo Arauz\",\"documento\":\"1234567\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.coincide").value(true))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        // Contesta si/no: ni el nombre ni el documento guardados salen en la respuesta.
+        assertThat(cuerpo).isEqualTo("{\"coincide\":true}");
+        verify(titularidad).coincide(any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName(
+            "rechaza: la puerta del servicio de entregas es SOLO suya; otros servicios y personas (con o sin permisos"
+                    + " de otras areas) siguen en 403")
+    void rechazaATodoLoQueNoSeaEntregas() throws Exception {
+        String cuerpo = "{\"nombreCompleto\":\"Pablo Arauz\",\"documento\":\"1234567\"}";
+        for (RequestPostProcessor sesion : new RequestPostProcessor[] {
+            Sesiones.como("SERVICIO_INVERSIONES"),
+            Sesiones.como("SERVICIO_INVERSIONES", "BILLETERA_OPERAR"),
+            Sesiones.como("PARTICIPANTE", "BILLETERA_OPERAR"),
+            Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR", "BILLETERA_OPERAR"),
+            Sesiones.como("TESORERIA", "ENTREGA_EJECUTAR"),
+            Sesiones.como("RESPONSABLE_RIESGOS", "ENTREGA_AUTORIZAR"),
+            Sesiones.sinPermisos()
+        }) {
+            mvc.perform(post("/usuarios/{id}/titularidad/verificacion", USUARIO)
+                            .with(sesion)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(cuerpo))
+                    .andExpect(status().isForbidden());
+        }
+        mvc.perform(post("/usuarios/{id}/titularidad/verificacion", USUARIO)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(cuerpo))
+                .andExpect(status().isUnauthorized());
+        verifyNoInteractions(titularidad);
+    }
+
+    @Test
     @DisplayName("rechaza: emitir un enlace de invitacion exige GRUPO_ADMINISTRAR; el token de un servicio no invita")
     void emitirInvitacionSoloAdministradores() throws Exception {
         String cuerpo = "{\"canal\":\"WHATSAPP\",\"grupoId\":\"" + UUID.randomUUID() + "\",\"telefonoDestino\":\""

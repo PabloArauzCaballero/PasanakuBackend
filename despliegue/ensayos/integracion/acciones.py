@@ -55,7 +55,9 @@ def reserva(e: Elenco, g: Grupo, monto: str, ciclo: int = 1) -> lib.Respuesta:
     return e.admin.post("/garantia/respaldo/reservas", {"grupoId": g.id, "ciclo": ciclo, "monto": dinero(monto), "responsableId": e.admin.id})
 
 
-def preparar(participantes: int = 3, abiertos: int = 1, periodos: int = 1, saldo: str = "0") -> tuple[Elenco, Grupo]:
+def preparar(participantes: int = 3, abiertos: int = 1, periodos: int = 1, saldo: str = "1500.00") -> tuple[Elenco, Grupo]:
+    """`saldo`: lo que cada persona tiene en su billetera al empezar. Por omision UN aporte (1500): desde el carril I el aporte cobrado
+    DEBITA la billetera (nucleo consume aportes.aporte_cobrado) y un aporte sin fondos se rechaza, como en la realidad."""
     e = armar_elenco(participantes)
     con_billeteras(e, saldo)
     g = sembrar_grupo(e, "1500.00", periodos, abiertos)

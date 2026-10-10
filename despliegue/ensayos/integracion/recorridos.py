@@ -20,6 +20,7 @@ from acciones import (D, INF, autorizar_y_ejecutar, evento_publicado, fondear_po
                       recorrido, reserva)
 from lib import (asientos_contables, clave, dinero, esperar, numero, psql, saldo_contable, saldo_del_libro,
                  suma_global_del_libro, transacciones_descuadradas, uno)
+from h14 import evento_id, logs_de, reentregar
 from mundo import cuenta_de_servicio_de_entregas, fondear_por_libro, oferta_publicada
 
 
@@ -164,10 +165,28 @@ def h9_m5() -> None:
     INF.comprobar("H9.S1.M5-estado", "oferta VENDIDA y cesion LIQUIDADA", estados and estados[0] == ["VENDIDA", "LIQUIDADA"], str(estados))
     evento_publicado("entregas", "entregas.derecho_cedido", cesion)
     INF.comprobar("H9.S1.M5-evento", "entregas publico entregas.derecho_cedido (PUBLICADO por el relevo)", True)
-    titular = uno("SELECT participante_id FROM grupos.cupo WHERE id = %s", g.cupos[1])
-    INF.brecha("H9.S1.M5-titular", "cambio de titular en grupos",
-               f"el cupo del turno 2 sigue de {titular == g.participantes[1] and 'P2 (vendedor)' or 'otro'}: grupos no consume "
-               "entregas.derecho_cedido (no hay consumidor). Lo cierra el dueno de grupos (CU-62/64)")
+    # Carril I: grupos consume entregas.derecho_cedido y el cupo cambia de titular (antes: «el cupo sigue de P2»).
+    comprador_participante = g.participantes[3]
+    try:
+        titular = esperar(lambda: uno("SELECT participante_id FROM grupos.cupo WHERE id = %s", g.cupos[1]) == comprador_participante, 90, 2,
+                          "grupos asigna el cupo al comprador")
+    except TimeoutError as ex:
+        titular = False
+        INF.registrar("H9.S1.M5-titular-espera", "grupos consume entregas.derecho_cedido", "FAIL", str(ex))
+    traspasos = psql("SELECT motivo, deuda_transferida, derecho_cobro_transferido FROM grupos.traspaso_cupo WHERE cupo_id = %s", g.cupos[1])
+    INF.comprobar("H9.S1.M5-titular", "el cupo del turno 2 pasa de P2 (vendedor) al comprador, con UN traspaso VENTA (deuda 0, derecho de cobro transferido)",
+                  bool(titular) and len(traspasos) == 1 and traspasos[0][0] == "VENTA" and D(traspasos[0][1]) == D("0") and traspasos[0][2] in ("t", "true", "True"),
+                  f"cupo={uno('SELECT participante_id FROM grupos.cupo WHERE id = %s', g.cupos[1])} traspasos={traspasos}")
+    ev = evento_id("entregas", "entregas.derecho_cedido", cesion)
+    if ev:
+        reentregar("entregas", ev)
+        esperar(lambda: uno("SELECT estado FROM entregas.evento_dominio WHERE id = %s AND estado = 'PUBLICADO' AND intentos >= 2", ev), 60, 1,
+                "el derecho_cedido sale por segunda vez")
+        descartado = esperar(lambda: any(ev in linea and "DUPLICADO" in linea for linea in logs_de("grupos")), 60, 2,
+                             "grupos descarta el derecho_cedido repetido")
+        INF.comprobar("H9.S1.M5-titular-duplicado", "el MISMO derecho_cedido entregado dos veces: grupos lo descarta y no escribe otro traspaso",
+                      bool(descartado) and numero("SELECT count(*) FROM grupos.traspaso_cupo WHERE cupo_id = %s", g.cupos[1]) == 1,
+                      f"traspasos={numero('SELECT count(*) FROM grupos.traspaso_cupo WHERE cupo_id = %s', g.cupos[1])}")
     # Reintento: la misma clave de compra no cobra dos veces.
     c2 = e.comprador.post(f"/entregas/mercado/ofertas/{oferta}/compra", clave_=clave())
     INF.comprobar("H9.S1.M5-no-dos-veces", "comprar de nuevo la oferta ya vendida se rechaza y el libro no se mueve",
@@ -180,10 +199,12 @@ TODOS = {"h8m3": h8_m3, "h8m4": h8_m4, "h9m5": h9_m5}
 
 
 def main(argv: list[str]) -> int:
+    from carril_i import RECORRIDOS_I  # los que apagan un servicio a proposito (98.8.4): no entran en la corrida por omision
     from h14 import RECORRIDOS_H14  # despues de los de dinero: usan el mismo informe
 
     todos = {**TODOS, **RECORRIDOS_H14}
     quiero = argv[1:] or ["infra", *todos]
+    todos = {**todos, **RECORRIDOS_I}
     if "infra" in quiero:
         infraestructura()
     for nombre in quiero:

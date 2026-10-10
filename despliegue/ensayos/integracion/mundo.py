@@ -17,7 +17,7 @@ import uuid
 from dataclasses import dataclass, field
 from decimal import Decimal
 
-from lib import (E, ID_PUENTE, Cuenta, abrir_billetera, lit, psql, sembrar_usuarios, uno)
+from lib import (E, ID_PUENTE, Cuenta, abrir_billetera, abrir_billetera_del_grupo, lit, psql, sembrar_usuarios, uno)
 
 
 def telefono_nuevo() -> str:
@@ -112,6 +112,7 @@ class Grupo:
     turnos: list[str]  # turno_id por periodo
     participantes: list[str]  # participante_id, mismo orden que Elenco.participantes (+ comprador al final)
     cupos: list[str]  # cupo_id, mismo orden
+    billetera: str = ""  # cuenta_billetera_id de la billetera GRUPO (donde acredita el aporte cobrado)
 
 
 def sembrar_grupo(e: Elenco, aporte: str = "1500.00", periodos: int = 3, abiertos: int = 1) -> Grupo:
@@ -152,7 +153,8 @@ VALUES ({lit(per)}, {lit(g)}, {k}, current_date - 30 + {(k - 1) * 30}, current_d
 INSERT INTO grupos.turno (id, grupo_id, periodo_id, cupo_id, orden_asignado, estado, criterio_asignacion, monto_estimado_cobro)
 VALUES ({lit(tur)}, {lit(g)}, {lit(per)}, {lit(cupos[k - 1])}, {k}, 'PROGRAMADO', 'SORTEO', {lit(monto_pozo)});""")
     psql("BEGIN;\n" + "\n".join(sql_) + "\nCOMMIT;")
-    return Grupo(g, Decimal(aporte), per_ids, tur_ids, parts, cupos)
+    # La billetera del grupo tampoco la abre ningun servicio hoy: se siembra como la de cada persona (brecha declarada).
+    return Grupo(g, Decimal(aporte), per_ids, tur_ids, parts, cupos, abrir_billetera_del_grupo(g))
 
 
 def abrir_periodo(grupo: Grupo, k: int) -> None:

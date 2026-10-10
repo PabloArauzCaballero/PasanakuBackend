@@ -25,8 +25,9 @@ import org.junit.jupiter.api.Test;
 class ConsumoDeAportesTest extends BaseDeAportes {
 
     @Test
-    @DisplayName(
-            "Dado un participante con Bs 1.000 y un aporte cobrado de Bs 500 · Cuando nucleo consume el evento · Entonces su billetera baja a 500, la del grupo sube a 500 y el mayor asienta DEBE usuarios / HABER grupos por 500")
+    @DisplayName("Dado un participante con Bs 1.000 y un aporte cobrado de Bs 500 · Cuando nucleo consume el evento ·"
+            + " Entonces su billetera baja a 500, la del grupo sube a 500 y el mayor asienta DEBE usuarios / HABER"
+            + " grupos por 500")
     void elAporteMueveLaBilleteraYElMayor() {
         var a = aporte("1000.00");
         var e = cobrado(a, "500.00");
@@ -39,8 +40,10 @@ class ConsumoDeAportesTest extends BaseDeAportes {
         assertThat(saldoDelLibro(a.billeteraDelGrupo())).isEqualByComparingTo("500.00");
         // La transaccion: tipo, origen, monto, grupo, clave por pago y el asiento YA enlazado.
         var tx = dsl.fetchOne(
-                "SELECT tipo, origen_tipo, origen_id, monto_total, moneda, grupo_id, asiento_contable_id, clave_idempotencia, estado"
-                        + " FROM nucleo_financiero.transaccion_billetera WHERE id = ?",
+                """
+                SELECT tipo, origen_tipo, origen_id, monto_total, moneda, grupo_id, asiento_contable_id, clave_idempotencia, estado
+                  FROM nucleo_financiero.transaccion_billetera WHERE id = ?
+                """,
                 salida.transaccionId().orElseThrow());
         assertThat(tx.get(0)).isEqualTo("APORTE_A_GRUPO");
         assertThat(tx.get(1)).isEqualTo("OBLIGACION_APORTE");
@@ -60,8 +63,10 @@ class ConsumoDeAportesTest extends BaseDeAportes {
         assertThat(asiento.get(2)).isEqualTo(a.grupo());
         assertThat(asiento.get(3)).isEqualTo("CONFIRMADO");
         var partidas = dsl.fetch(
-                "SELECT c.codigo, m.debe, m.haber, m.moneda FROM nucleo_financiero.movimiento_contable m"
-                        + " JOIN nucleo_financiero.cuenta_contable c ON c.id = m.cuenta_id WHERE m.asiento_id = ? ORDER BY m.debe DESC",
+                """
+                SELECT c.codigo, m.debe, m.haber, m.moneda FROM nucleo_financiero.movimiento_contable m
+                  JOIN nucleo_financiero.cuenta_contable c ON c.id = m.cuenta_id WHERE m.asiento_id = ? ORDER BY m.debe DESC
+                """,
                 salida.asientoId().orElseThrow());
         assertThat(partidas).hasSize(2);
         assertThat(partidas.get(0).get(0)).isEqualTo(MAPEO.get("SALDO_USUARIOS.BOB"));
@@ -71,7 +76,8 @@ class ConsumoDeAportesTest extends BaseDeAportes {
         assertThat(partidas).allSatisfy(p -> assertThat(p.get(3)).isEqualTo("BOB"));
         // El hecho se publica en la misma transaccion (outbox, regla 98.3).
         assertThat(contar(
-                        "SELECT count(*) FROM nucleo_financiero.evento_dominio WHERE tipo = 'nucleo_financiero.aporte_aplicado' AND agregado_id = ?",
+                        "SELECT count(*) FROM nucleo_financiero.evento_dominio WHERE tipo ="
+                                + " 'nucleo_financiero.aporte_aplicado' AND agregado_id = ?",
                         a.obligacion()))
                 .isEqualTo(1);
         System.out.println("ASIENTO | aporte_cobrado pago=" + e.pagoId() + " | DEBE " + MAPEO.get("SALDO_USUARIOS.BOB")
@@ -80,7 +86,9 @@ class ConsumoDeAportesTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("cuadre: el saldo del mayor (haber - debe) de las dos cuentas del plan coincide con el de las billeteras y con la cache, y el asiento cuadra")
+    @DisplayName(
+            "cuadre: el saldo del mayor (haber - debe) de las dos cuentas del plan coincide con el de las billeteras y"
+                    + " con la cache, y el asiento cuadra")
     void cuadreDesdeElMayor() {
         var a = aporte("2000.00");
         // Las cuentas del plan son compartidas por toda la clase: el delta de ESTE aporte es lo que se compara.
@@ -90,7 +98,8 @@ class ConsumoDeAportesTest extends BaseDeAportes {
         var primero = procesar(cobrado(a, "700.00"));
         var segundo = procesar(cobrado(a, "300.00"));
 
-        BigDecimal deltaUsuarios = saldoDelMayor(MAPEO.get("SALDO_USUARIOS.BOB")).subtract(usuariosAntes);
+        BigDecimal deltaUsuarios =
+                saldoDelMayor(MAPEO.get("SALDO_USUARIOS.BOB")).subtract(usuariosAntes);
         BigDecimal deltaGrupos = saldoDelMayor(MAPEO.get("SALDO_GRUPOS.BOB")).subtract(gruposAntes);
         // Pasivo acreedor: lo que el usuario debita baja su pasivo (-1000) y el del grupo sube (+1000).
         assertThat(deltaUsuarios).isEqualByComparingTo("-1000.00");
@@ -114,9 +123,11 @@ class ConsumoDeAportesTest extends BaseDeAportes {
         }
         // Cada transaccion de billetera cuadra: debitos = creditos.
         assertThat(contar(
-                        "SELECT count(*) FROM (SELECT transaccion_id FROM nucleo_financiero.movimiento_billetera"
-                                + " WHERE transaccion_id IN (?, ?) GROUP BY transaccion_id"
-                                + " HAVING SUM(CASE WHEN sentido = 'CREDITO' THEN monto ELSE -monto END) <> 0) d",
+                        """
+                        SELECT count(*) FROM (SELECT transaccion_id FROM nucleo_financiero.movimiento_billetera
+                         WHERE transaccion_id IN (?, ?) GROUP BY transaccion_id
+                        HAVING SUM(CASE WHEN sentido = 'CREDITO' THEN monto ELSE -monto END) <> 0) d
+                        """,
                         primero.transaccionId().orElseThrow(),
                         segundo.transaccionId().orElseThrow()))
                 .isZero();
@@ -126,7 +137,8 @@ class ConsumoDeAportesTest extends BaseDeAportes {
 
     @Test
     @DisplayName(
-            "evento duplicado: el mismo aporte_cobrado entregado dos veces mueve la plata UNA vez (una transaccion, un asiento, una marca)")
+            "evento duplicado: el mismo aporte_cobrado entregado dos veces mueve la plata UNA vez (una transaccion, un"
+                    + " asiento, una marca)")
     void eventoDuplicado() {
         var a = aporte("1000.00");
         var e = cobrado(a, "500.00");
@@ -144,7 +156,9 @@ class ConsumoDeAportesTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("evento duplicado: el MISMO pago republicado con OTRO id de evento no mueve la plata de nuevo (la clave del libro es el pago)")
+    @DisplayName(
+            "evento duplicado: el MISMO pago republicado con OTRO id de evento no mueve la plata de nuevo (la clave"
+                    + " del libro es el pago)")
     void mismoPagoConOtroEvento() {
         var a = aporte("1000.00");
         var original = cobrado(a, "500.00");
@@ -162,7 +176,9 @@ class ConsumoDeAportesTest extends BaseDeAportes {
 
     @Test
     @DisplayName(
-            "fuera de orden: el segundo cobro parcial de una obligacion consumido ANTES que el primero deja el mismo saldo; y un aporte llegado antes del fondeo se rechaza sin efectos y se aplica una vez al reprocesar")
+            "fuera de orden: el segundo cobro parcial de una obligacion consumido ANTES que el primero deja el mismo"
+                    + " saldo; y un aporte llegado antes del fondeo se rechaza sin efectos y se aplica una vez al"
+                    + " reprocesar")
     void fueraDeOrden() {
         // (a) Dos pagos parciales de la misma obligacion, en orden invertido: las sumas son conmutativas.
         var a = aporte("1000.00");
@@ -194,8 +210,8 @@ class ConsumoDeAportesTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName(
-            "compensa: la reversa del aporte es un CONTRA-ASIENTO y un REVERSO del libro; nada se edita y mayor y billeteras vuelven al punto de partida")
+    @DisplayName("compensa: la reversa del aporte es un CONTRA-ASIENTO y un REVERSO del libro; nada se edita y mayor y"
+            + " billeteras vuelven al punto de partida")
     void reversaDelAporte() {
         var a = aporte("1000.00");
         var salida = procesar(cobrado(a, "500.00"));
@@ -203,16 +219,15 @@ class ConsumoDeAportesTest extends BaseDeAportes {
         BigDecimal gruposConAporte = saldoDelMayor(MAPEO.get("SALDO_GRUPOS.BOB"));
 
         // El mayor: contra-asiento (CU-24), enlazado al original por asiento_reversa_id.
-        var ctx = ContextoSesion.deSistema(UUID.randomUUID(), new Traza(UUID.randomUUID().toString()));
+        var ctx = ContextoSesion.deSistema(
+                UUID.randomUUID(), new Traza(UUID.randomUUID().toString()));
         var contra = transaccion.execute(t -> new bo.aportaya.plataforma.datos.Datos(dsl)
-                .conContexto(
-                        ctx,
-                        d -> new bo.aportaya.nucleofinanciero.aplicacion.CU24RegistrarAsiento(
-                                        new bo.aportaya.nucleofinanciero.infraestructura.CuentaContableRepositorio(),
-                                        new bo.aportaya.nucleofinanciero.infraestructura.AsientoRepositorio(),
-                                        new bo.aportaya.plataforma.mensajeria.Outbox("nucleo_financiero"),
-                                        bo.aportaya.plataforma.dominio.Reloj.delSistema())
-                                .reversar(d, salida.asientoId().orElseThrow(), "reversa del aporte", ctx)));
+                .conContexto(ctx, d -> new bo.aportaya.nucleofinanciero.aplicacion.CU24RegistrarAsiento(
+                                new bo.aportaya.nucleofinanciero.infraestructura.CuentaContableRepositorio(),
+                                new bo.aportaya.nucleofinanciero.infraestructura.AsientoRepositorio(),
+                                new bo.aportaya.plataforma.mensajeria.Outbox("nucleo_financiero"),
+                                bo.aportaya.plataforma.dominio.Reloj.delSistema())
+                        .reversar(d, salida.asientoId().orElseThrow(), "reversa del aporte", ctx)));
         // La billetera: reverso del libro (CU-14), cuatro ojos: quien autoriza no es quien solicita.
         UUID autoriza = fixtura.usuario();
         var reverso = transaccion.execute(t -> reversoCU.ejecutar(
@@ -235,8 +250,10 @@ class ConsumoDeAportesTest extends BaseDeAportes {
                         salida.asientoId().orElseThrow()))
                 .isEqualTo(2);
         assertThat(contar(
-                        "SELECT count(*) FROM nucleo_financiero.asiento_contable WHERE id = ? AND asiento_reversa_id = ?",
-                        contra.asientoId(), salida.asientoId().orElseThrow()))
+                        "SELECT count(*) FROM nucleo_financiero.asiento_contable WHERE id = ? AND asiento_reversa_id ="
+                                + " ?",
+                        contra.asientoId(),
+                        salida.asientoId().orElseThrow()))
                 .isEqualTo(1);
         // Saldos de vuelta: el mayor se compensa por el delta del aporte y las billeteras vuelven a 1000 / 0.
         assertThat(saldoDelMayor(MAPEO.get("SALDO_USUARIOS.BOB")).subtract(usuariosConAporte))

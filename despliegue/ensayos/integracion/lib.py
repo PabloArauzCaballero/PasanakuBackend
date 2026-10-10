@@ -239,6 +239,23 @@ def abrir_billetera(usuario_id: str, moneda: str = "BOB") -> str:
     return cuenta
 
 
+def abrir_billetera_del_grupo(grupo_id: str, moneda: str = "BOB") -> str:
+    """La billetera GRUPO de un grupo. Ningun servicio la abre hoy (no hay consumidor de `grupos.grupo_activado` en
+    nucleo-financiero): sin ella el aporte cobrado NO tiene a donde acreditar y `ConsumoDeAportes` lo rechaza (AP-CU12-02)."""
+    existente = uno("SELECT id FROM nucleo_financiero.cuenta_billetera WHERE grupo_id = %s AND moneda = %s AND tipo = 'GRUPO'",
+                    grupo_id, moneda)
+    if existente:
+        return existente
+    cuenta = str(uuid.uuid4())
+    psql("""INSERT INTO nucleo_financiero.cuenta_billetera
+              (id, numero_cuenta, tipo, grupo_id, politica_billetera_id, moneda, estado, nivel_debida_diligencia,
+               saldo_disponible, saldo_retenido, permite_saldo_negativo, fecha_apertura, version)
+            SELECT %s, %s, 'GRUPO', %s, (SELECT id FROM nucleo_financiero.politica_billetera WHERE moneda = %s ORDER BY vigente_desde LIMIT 1),
+                   %s, 'ACTIVA', 'ESTANDAR', 0, 0, false, now(), 0""",
+         cuenta, "INT-G-" + cuenta[:10], grupo_id, moneda, moneda)
+    return cuenta
+
+
 def saldo_del_libro(cuenta_id: str) -> Decimal:
     """Disponible segun el LIBRO (movimientos), sin descontar retenciones."""
     return numero("""SELECT COALESCE(SUM(CASE WHEN sentido = 'CREDITO' THEN monto ELSE -monto END), 0)

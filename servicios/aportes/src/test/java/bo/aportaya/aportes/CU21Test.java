@@ -47,7 +47,8 @@ class CU21Test extends BaseDeAportes {
 
     @Test
     @DisplayName(
-            "Dada una obligación de Bs 500 pendiente · Cuando el participante paga con saldo · Entonces monto_pagado es 500 y estado es PAGADO · Y la cuenta del grupo aumentó Bs 500")
+            "Dada una obligación de Bs 500 pendiente · Cuando el participante paga con saldo · Entonces monto_pagado"
+                    + " es 500 y estado es PAGADO · Y la cuenta del grupo aumentó Bs 500")
     void criterio1() {
         UUID usuario = fixtura.usuario();
         var obligacion = fixtura.obligacion(usuario, "500.00", 10);
@@ -66,12 +67,15 @@ class CU21Test extends BaseDeAportes {
                         "aportes.aporte_cobrado",
                         obligacion.id()))
                 .isEqualTo(1);
-        // Contrato del productor que consume nucleo-financiero (carril I): el evento trae todo lo que hace falta para mover
+        // Contrato del productor que consume nucleo-financiero (carril I): el evento trae todo lo que hace falta para
+        // mover
         // el dinero sin adivinar, y el importe NUNCA viaja sin su moneda (regla 91.1.2).
         var carga = dsl.fetchOne(
-                "SELECT payload->>'monto', payload->>'moneda', payload->>'canal', payload->>'usuarioId',"
-                        + " payload->>'obligacionId', payload->>'pagoId', payload->>'grupoId', payload->>'participanteId'"
-                        + " FROM aportes.evento_dominio WHERE tipo = 'aportes.aporte_cobrado' AND agregado_id = ?",
+                """
+                SELECT payload->>'monto', payload->>'moneda', payload->>'canal', payload->>'usuarioId',
+                       payload->>'obligacionId', payload->>'pagoId', payload->>'grupoId', payload->>'participanteId'
+                  FROM aportes.evento_dominio WHERE tipo = 'aportes.aporte_cobrado' AND agregado_id = ?
+                """,
                 obligacion.id());
         assertThat(carga.get(0)).isEqualTo("500.00");
         assertThat(carga.get(1)).isEqualTo("BOB");
@@ -85,7 +89,8 @@ class CU21Test extends BaseDeAportes {
 
     @Test
     @DisplayName(
-            "Dado un pago no conciliado con el extracto · Cuando se intenta cerrar el día · Entonces el cierre_diario no puede marcarse cuadrado")
+            "Dado un pago no conciliado con el extracto · Cuando se intenta cerrar el día · Entonces el cierre_diario"
+                    + " no puede marcarse cuadrado")
     void criterio2() {
         // fn_bil_validar_cierre_diario es la autoridad: con excepciones abiertas el
         // dia no se marca cuadrado. La regla vive en la base, no en la aplicacion.
@@ -104,8 +109,8 @@ class CU21Test extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName(
-            "Dado un aporte vencido con política de mora · Cuando corre el proceso diario · Entonces se crea una obligación de tipo RECARGO_MORA con obligacion_origen_id")
+    @DisplayName("Dado un aporte vencido con política de mora · Cuando corre el proceso diario · Entonces se crea una"
+            + " obligación de tipo RECARGO_MORA con obligacion_origen_id")
     void criterio3() {
         UUID usuario = fixtura.usuario();
         var obligacion = fixtura.obligacion(usuario, "500.00", -10);
@@ -116,7 +121,8 @@ class CU21Test extends BaseDeAportes {
 
         assertThat(salida.generados()).isEqualTo(1);
         assertThat(contar(
-                        "SELECT count(*)::int FROM aportes.obligacion_aporte WHERE tipo = 'RECARGO_MORA' AND obligacion_origen_id = ?",
+                        "SELECT count(*)::int FROM aportes.obligacion_aporte WHERE tipo = 'RECARGO_MORA' AND"
+                                + " obligacion_origen_id = ?",
                         obligacion.id()))
                 .isEqualTo(1);
         assertThat(contar(
@@ -144,7 +150,8 @@ class CU21Test extends BaseDeAportes {
 
     @Test
     @DisplayName(
-            "Dadas dos obligaciones con la misma clave de idempotencia · Cuando se acredita cada pago · Entonces cada obligación recibe un pago distinto")
+            "Dadas dos obligaciones con la misma clave de idempotencia · Cuando se acredita cada pago · Entonces cada"
+                    + " obligación recibe un pago distinto")
     void mismaClaveOtraObligacionEsOtroPago() {
         // uq_pago_idem ampara (obligacion_id, clave_idempotencia): dos obligaciones que
         // por coincidencia comparten clave (una plantilla de la app movil, un mismo

@@ -31,13 +31,15 @@ class ConsumoDeAportesRechazosTest extends BaseDeAportes {
         assertThat(asientosDeAportes(a.grupo())).isZero();
         assertThat(marcas(e.eventoId())).isZero();
         assertThat(contar(
-                        "SELECT count(*) FROM nucleo_financiero.evento_dominio WHERE tipo = 'nucleo_financiero.aporte_aplicado' AND agregado_id = ?",
+                        "SELECT count(*) FROM nucleo_financiero.evento_dominio WHERE tipo ="
+                                + " 'nucleo_financiero.aporte_aplicado' AND agregado_id = ?",
                         a.obligacion()))
                 .isZero();
     }
 
     @Test
-    @DisplayName("rechaza moneda distinta: un aporte en USD sin billetera en USD (solo hay BOB) es AP-CU12-02 y no convierte ni mueve nada")
+    @DisplayName("rechaza moneda distinta: un aporte en USD sin billetera en USD (solo hay BOB) es AP-CU12-02 y no"
+            + " convierte ni mueve nada")
     void rechazaMonedaSinBilletera() {
         var a = aporte("1000.00");
         var enDolares = cobrado(a, "100.00", "USD", "BILLETERA_MOVIL");
@@ -52,7 +54,8 @@ class ConsumoDeAportesRechazosTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("rechaza moneda distinta: billetera del participante en USD y del grupo solo en BOB no se mezcla (AP-CU12-02)")
+    @DisplayName("rechaza moneda distinta: billetera del participante en USD y del grupo solo en BOB no se mezcla"
+            + " (AP-CU12-02)")
     void rechazaMonedasMezcladas() {
         var a = aporte("1000.00");
         billeteraUsdDe(a.usuario());
@@ -66,7 +69,9 @@ class ConsumoDeAportesRechazosTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("rechaza moneda distinta: con billeteras en USD pero SIN cuenta del plan en USD no se asienta ni se mueve (AP-CU24-02) y el libro tampoco")
+    @DisplayName(
+            "rechaza moneda distinta: con billeteras en USD pero SIN cuenta del plan en USD no se asienta ni se mueve"
+                    + " (AP-CU24-02) y el libro tampoco")
     void rechazaMonedaSinMapeoContable() {
         var a = aporte("1000.00");
         billeteraUsdDe(a.usuario());
@@ -81,7 +86,8 @@ class ConsumoDeAportesRechazosTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("moneda distinta: con billeteras y plan en USD el aporte se mueve en USD y la billetera en BOB queda intacta")
+    @DisplayName("moneda distinta: con billeteras y plan en USD el aporte se mueve en USD y la billetera en BOB queda"
+            + " intacta")
     void aplicaEnDolaresSinTocarBolivianos() {
         var a = aporte("1000.00");
         UUID usd = billeteraUsdDe(a.usuario());
@@ -112,7 +118,9 @@ class ConsumoDeAportesRechazosTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("rechaza cuenta inexistente: el participante sin billetera, y el grupo sin billetera, son AP-CU12-02 sin efectos")
+    @DisplayName(
+            "rechaza cuenta inexistente: el participante sin billetera, y el grupo sin billetera, son AP-CU12-02 sin"
+                    + " efectos")
     void rechazaCuentasInexistentes() {
         // Participante sin billetera.
         UUID sinBilletera = fixtura.usuario();
@@ -142,7 +150,8 @@ class ConsumoDeAportesRechazosTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("rechaza cuenta no operativa: una billetera BLOQUEADA o CONGELADA (del participante o del grupo) es AP-CU12-03 y no se mueve")
+    @DisplayName("rechaza cuenta no operativa: una billetera BLOQUEADA o CONGELADA (del participante o del grupo) es"
+            + " AP-CU12-03 y no se mueve")
     void rechazaCuentaNoOperativa() {
         var a = aporte("1000.00");
         var e = cobrado(a, "100.00");
@@ -150,37 +159,39 @@ class ConsumoDeAportesRechazosTest extends BaseDeAportes {
         dslFixtura.execute(
                 "UPDATE nucleo_financiero.cuenta_billetera SET estado = 'BLOQUEADA_AUTORIDAD' WHERE id = ?",
                 a.billetera());
-        assertThatThrownBy(() -> procesar(e))
-                .isInstanceOf(ErrorDeNegocio.class)
-                .satisfies(x -> assertThat(codigo(x)).isEqualTo("AP-CU12-03"));
-        dslFixtura.execute("UPDATE nucleo_financiero.cuenta_billetera SET estado = 'ACTIVA' WHERE id = ?", a.billetera());
+        assertThatThrownBy(() -> procesar(e)).isInstanceOf(ErrorDeNegocio.class).satisfies(x -> assertThat(codigo(x))
+                .isEqualTo("AP-CU12-03"));
+        dslFixtura.execute(
+                "UPDATE nucleo_financiero.cuenta_billetera SET estado = 'ACTIVA' WHERE id = ?", a.billetera());
 
         dslFixtura.execute(
-                "UPDATE nucleo_financiero.cuenta_billetera SET estado = 'CONGELADA' WHERE id = ?", a.billeteraDelGrupo());
-        assertThatThrownBy(() -> procesar(e))
-                .isInstanceOf(ErrorDeNegocio.class)
-                .satisfies(x -> assertThat(codigo(x)).isEqualTo("AP-CU12-03"));
+                "UPDATE nucleo_financiero.cuenta_billetera SET estado = 'CONGELADA' WHERE id = ?",
+                a.billeteraDelGrupo());
+        assertThatThrownBy(() -> procesar(e)).isInstanceOf(ErrorDeNegocio.class).satisfies(x -> assertThat(codigo(x))
+                .isEqualTo("AP-CU12-03"));
 
         sinEfectos(a, e);
         assertThat(saldoDelLibro(a.billetera())).isEqualByComparingTo("1000.00");
     }
 
     @Test
-    @DisplayName("rechaza saldo insuficiente: el libro decide, no la cache; AP-CU12-01 y la billetera no baja de lo que tiene")
+    @DisplayName("rechaza saldo insuficiente: el libro decide, no la cache; AP-CU12-01 y la billetera no baja de lo que"
+            + " tiene")
     void rechazaSaldoInsuficiente() {
         var a = aporte("300.00");
         var e = cobrado(a, "500.00");
 
-        assertThatThrownBy(() -> procesar(e))
-                .isInstanceOf(ErrorDeNegocio.class)
-                .satisfies(x -> assertThat(codigo(x)).isEqualTo("AP-CU12-01"));
+        assertThatThrownBy(() -> procesar(e)).isInstanceOf(ErrorDeNegocio.class).satisfies(x -> assertThat(codigo(x))
+                .isEqualTo("AP-CU12-01"));
 
         sinEfectos(a, e);
         assertThat(saldoDelLibro(a.billetera())).isEqualByComparingTo("300.00");
     }
 
     @Test
-    @DisplayName("rechaza un importe que no es positivo (AP-CU24-07) y un canal que no sale de una billetera no mueve nada (se marca consumido)")
+    @DisplayName(
+            "rechaza un importe que no es positivo (AP-CU24-07) y un canal que no sale de una billetera no mueve nada"
+                    + " (se marca consumido)")
     void rechazaImporteCeroYCanalExterno() {
         var a = aporte("1000.00");
         var cero = cobrado(a, "0.00");
@@ -200,8 +211,8 @@ class ConsumoDeAportesRechazosTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName(
-            "rechaza una caida a mitad: si el libro falla DESPUES de asentar en el mayor, todo se revierte (sin asiento huerfano, sin marca) y el reproceso aplica el aporte una sola vez")
+    @DisplayName("rechaza una caida a mitad: si el libro falla DESPUES de asentar en el mayor, todo se revierte (sin"
+            + " asiento huerfano, sin marca) y el reproceso aplica el aporte una sola vez")
     void caidaAMitad() {
         var a = aporte("1000.00");
         var e = cobrado(a, "500.00");
@@ -224,7 +235,8 @@ class ConsumoDeAportesRechazosTest extends BaseDeAportes {
             }
         };
 
-        assertThatThrownBy(() -> transaccion.execute(t -> armar(libroCaido, MAPEO).procesar(e)))
+        assertThatThrownBy(
+                        () -> transaccion.execute(t -> armar(libroCaido, MAPEO).procesar(e)))
                 .isInstanceOf(IllegalStateException.class);
 
         sinEfectos(a, e);
@@ -242,7 +254,8 @@ class ConsumoDeAportesRechazosTest extends BaseDeAportes {
     void concurrenciaDelMismoEvento() throws Exception {
         var a = aporte("1000.00");
         var e = cobrado(a, "500.00");
-        var resultados = enParalelo(() -> procesar(e).resultado(), () -> procesar(e).resultado());
+        var resultados =
+                enParalelo(() -> procesar(e).resultado(), () -> procesar(e).resultado());
 
         assertThat(resultados).containsExactlyInAnyOrder(Resultado.APLICADO, Resultado.DUPLICADO);
         assertThat(transacciones(a.obligacion())).isEqualTo(1);
@@ -253,15 +266,14 @@ class ConsumoDeAportesRechazosTest extends BaseDeAportes {
 
     @Test
     @DisplayName(
-            "concurrencia: dos aportes DISTINTOS de Bs 500 con Bs 600 en la billetera no la dejan en negativo: uno se aplica y el otro es AP-CU12-01")
+            "concurrencia: dos aportes DISTINTOS de Bs 500 con Bs 600 en la billetera no la dejan en negativo: uno se"
+                    + " aplica y el otro es AP-CU12-01")
     void concurrenciaNoGastaDosVeces() throws Exception {
         var a = aporte("600.00");
         var uno = cobrado(a, "500.00");
         var otro = cobrado(a, "500.00");
 
-        var resultados = enParalelo(
-                () -> intentar(uno),
-                () -> intentar(otro));
+        var resultados = enParalelo(() -> intentar(uno), () -> intentar(otro));
 
         assertThat(resultados).containsExactlyInAnyOrder("APLICADO", "AP-CU12-01");
         assertThat(transacciones(a.obligacion())).isEqualTo(1);

@@ -25,13 +25,14 @@ import org.junit.jupiter.api.Test;
  * que {@code TransicionesDeCesion.liquidar} emite. El recorrido con Kafka y entregas reales vive en
  * {@code despliegue/ensayos/integracion}.
  */
-class CU64CesionDeDerechoTest extends BaseDeCU64 {
+class CesionDeDerechoTest extends BaseDeCU64 {
 
     private static AplicarCesionDeDerecho aplicar;
 
     @BeforeAll
     static void armarConsumo() {
-        aplicar = new AplicarCesionDeDerecho(new Datos(dsl), new TraspasoRepositorio(), new Outbox("grupos"), Reloj.delSistema());
+        aplicar = new AplicarCesionDeDerecho(
+                new Datos(dsl), new TraspasoRepositorio(), new Outbox("grupos"), Reloj.delSistema());
     }
 
     /** Un grupo con tres participantes ACTIVOS, cada uno con su cupo y su turno. */
@@ -48,7 +49,14 @@ class CU64CesionDeDerechoTest extends BaseDeCU64 {
 
     private Cesion cesion(Mundo m, int cupo, UUID origen, UUID destino) {
         return new Cesion(
-                UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), m.grupo(), m.cupos().get(cupo), origen, destino);
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                m.grupo(),
+                m.cupos().get(cupo),
+                origen,
+                destino);
     }
 
     private AplicarCesionDeDerecho.Salida procesar(Cesion c) {
@@ -69,7 +77,8 @@ class CU64CesionDeDerechoTest extends BaseDeCU64 {
 
     @Test
     @DisplayName(
-            "Dado un turno vendido por P1 a P2 · Cuando grupos consume derecho_cedido · Entonces el cupo es de P2, el turno conserva su orden, queda el traspaso VENTA con deuda 0 y los estados no cambian")
+            "Dado un turno vendido por P1 a P2 · Cuando grupos consume derecho_cedido · Entonces el cupo es de P2, el"
+                    + " turno conserva su orden, queda el traspaso VENTA con deuda 0 y los estados no cambian")
     void elCupoCambiaDeTitular() {
         var m = mundo();
         UUID vendedor = m.participantes().get(0);
@@ -84,8 +93,10 @@ class CU64CesionDeDerechoTest extends BaseDeCU64 {
         assertThat(titularDelCupo(cupo)).isEqualTo(comprador);
         assertThat(ordenDelCupo(cupo)).isEqualTo(ordenAntes);
         var t = dsl.fetchOne(
-                "SELECT motivo, deuda_transferida, derecho_cobro_transferido, participante_origen_id, participante_destino_id"
-                        + " FROM grupos.traspaso_cupo WHERE cupo_id = ?",
+                """
+                SELECT motivo, deuda_transferida, derecho_cobro_transferido, participante_origen_id, participante_destino_id
+                  FROM grupos.traspaso_cupo WHERE cupo_id = ?
+                """,
                 cupo);
         assertThat(t.get(0)).isEqualTo("VENTA");
         assertThat((BigDecimal) t.get(1)).isEqualByComparingTo(BigDecimal.ZERO);
@@ -96,7 +107,8 @@ class CU64CesionDeDerechoTest extends BaseDeCU64 {
         assertThat(estadoDelParticipante(comprador)).isEqualTo("ACTIVO");
         // Outbox: el hecho se publica en la misma transaccion (regla 98.3).
         assertThat(((Number) dsl.fetchOne(
-                                        "SELECT count(*) FROM grupos.evento_dominio WHERE tipo = 'grupos.cupo_traspasado' AND agregado_id = ?",
+                                        "SELECT count(*) FROM grupos.evento_dominio WHERE tipo ="
+                                                + " 'grupos.cupo_traspasado' AND agregado_id = ?",
                                         salida.traspasoId().orElseThrow())
                                 .get(0))
                         .intValue())
@@ -105,7 +117,8 @@ class CU64CesionDeDerechoTest extends BaseDeCU64 {
     }
 
     @Test
-    @DisplayName("evento duplicado: el mismo derecho_cedido entregado dos veces cambia el cupo UNA vez y deja UN traspaso")
+    @DisplayName(
+            "evento duplicado: el mismo derecho_cedido entregado dos veces cambia el cupo UNA vez y deja UN traspaso")
     void eventoDuplicado() {
         var m = mundo();
         var c = cesion(m, 0, m.participantes().get(0), m.participantes().get(1));
@@ -121,7 +134,8 @@ class CU64CesionDeDerechoTest extends BaseDeCU64 {
     }
 
     @Test
-    @DisplayName("evento duplicado: el MISMO hecho llegado con otro id de evento no escribe un segundo traspaso (YA_APLICADA)")
+    @DisplayName("evento duplicado: el MISMO hecho llegado con otro id de evento no escribe un segundo traspaso"
+            + " (YA_APLICADA)")
     void mismoHechoConOtroEvento() {
         var m = mundo();
         var original = cesion(m, 0, m.participantes().get(0), m.participantes().get(1));
@@ -144,7 +158,8 @@ class CU64CesionDeDerechoTest extends BaseDeCU64 {
 
     @Test
     @DisplayName(
-            "fuera de orden: la segunda cesion de la cadena (P2 a P3) llegada antes de la primera (P1 a P2) se rechaza sin marcar ni escribir, y se aplica cuando la primera ya esta")
+            "fuera de orden: la segunda cesion de la cadena (P2 a P3) llegada antes de la primera (P1 a P2) se rechaza"
+                    + " sin marcar ni escribir, y se aplica cuando la primera ya esta")
     void fueraDeOrden() {
         var m = mundo();
         UUID p1 = m.participantes().get(0);
@@ -156,7 +171,8 @@ class CU64CesionDeDerechoTest extends BaseDeCU64 {
 
         assertThatThrownBy(() -> procesar(segunda))
                 .isInstanceOf(ErrorDeNegocio.class)
-                .satisfies(e -> assertThat(((ErrorDeNegocio) e).codigo().valor()).isEqualTo("AP-CU64-01"));
+                .satisfies(
+                        e -> assertThat(((ErrorDeNegocio) e).codigo().valor()).isEqualTo("AP-CU64-01"));
         assertThat(titularDelCupo(cupo)).isEqualTo(p1);
         assertThat(traspasos(cupo)).isZero();
         assertThat(marcas(segunda.eventoId())).isZero();
@@ -169,8 +185,8 @@ class CU64CesionDeDerechoTest extends BaseDeCU64 {
     }
 
     @Test
-    @DisplayName(
-            "rechaza: un cupo inexistente, un cupo de OTRO grupo y un comprador que no esta ACTIVO en el grupo no cambian nada ni marcan el evento")
+    @DisplayName("rechaza: un cupo inexistente, un cupo de OTRO grupo y un comprador que no esta ACTIVO en el grupo no"
+            + " cambian nada ni marcan el evento")
     void rechazaLoQueNoCorresponde() {
         var m = mundo();
         var otro = mundo();
@@ -202,17 +218,20 @@ class CU64CesionDeDerechoTest extends BaseDeCU64 {
         for (var c : List.of(inexistente, deOtroGrupo, compradorNoActivo)) {
             assertThatThrownBy(() -> procesar(c))
                     .isInstanceOf(ErrorDeNegocio.class)
-                    .satisfies(e -> assertThat(((ErrorDeNegocio) e).codigo().valor()).isEqualTo("AP-CU64-01"));
+                    .satisfies(e ->
+                            assertThat(((ErrorDeNegocio) e).codigo().valor()).isEqualTo("AP-CU64-01"));
             assertThat(marcas(c.eventoId())).isZero();
         }
         assertThat(titularDelCupo(m.cupos().get(0))).isEqualTo(vendedor);
-        assertThat(titularDelCupo(otro.cupos().get(0))).isEqualTo(otro.participantes().get(0));
+        assertThat(titularDelCupo(otro.cupos().get(0)))
+                .isEqualTo(otro.participantes().get(0));
         assertThat(traspasos(m.cupos().get(0))).isZero();
         assertThat(traspasos(otro.cupos().get(0))).isZero();
     }
 
     @Test
-    @DisplayName("concurrencia: dos entregas simultaneas del mismo derecho_cedido (dos replicas) dejan UN traspaso y el cupo en manos del comprador")
+    @DisplayName("concurrencia: dos entregas simultaneas del mismo derecho_cedido (dos replicas) dejan UN traspaso y el"
+            + " cupo en manos del comprador")
     void concurrenciaDeLaMismaCesion() throws Exception {
         var m = mundo();
         var c = cesion(m, 0, m.participantes().get(0), m.participantes().get(1));

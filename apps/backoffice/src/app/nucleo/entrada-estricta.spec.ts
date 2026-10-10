@@ -80,16 +80,18 @@ describe('entrada estricta · los cuerpos de la capa de dominio cumplen el contr
     expect(errores('erp', 'post', '/erp/periodos/{periodoId}/cierre', c)).toEqual([])
   })
 
-  it('erp · pago de factura de proveedor: DIVERGENCIA DECLARADA — no manda `autorizadoPor`, que el contrato exige (required)', async () => {
-    // Decisión de seguridad documentada en `cu103-facturas.ts` (EntradaPago): el «quién autorizó» sale de la sesión, no del cliente. Contra el
-    // backend real eso es un 400 por `required` HASTA que erp derive `autorizadoPor` del token y quite el campo del contrato. Esta prueba fija
-    // la divergencia EXACTA y falla el día que se resuelva en cualquiera de los dos sentidos, para obligar a actualizarla.
+  it('erp · pago de factura de proveedor: { monto, moneda, formaPago } — el autorizante sale del token, no del cuerpo', async () => {
+    // Decisión de seguridad (R-CTB-05): el «quién autorizó» lo deriva el servidor del sujeto autenticado. El contrato ya no declara
+    // `autorizadoPor` y, con `additionalProperties: false`, el servidor responde 400 si el cuerpo lo trae. Dos mitades: el cuerpo que arma el
+    // cliente cumple el contrato, y un cuerpo con `autorizadoPor` NO lo cumple (la prueba falla si alguien lo reintroduce en cualquiera de los lados).
     const pagar = TestBed.runInInjectionContext(() => crearPagoDeFactura())
     const c = await cuerpoDe('/erp/facturas-de-proveedor/f1/pagos', () => firstValueFrom(pagar('f1', { monto: '100.00', moneda: 'BOB', formaPago: 'TRANSFERENCIA' })))
-    const e = errores('erp', 'post', '/erp/facturas-de-proveedor/{facturaId}/pagos', c)
-    expect(e).toHaveLength(1)
-    expect(e[0]).toContain("required property 'autorizadoPor'")
-    expect(e[0]).not.toContain('additional')
+    const ruta = '/erp/facturas-de-proveedor/{facturaId}/pagos'
+    expect(errores('erp', 'post', ruta, c)).toEqual([])
+    expect(Object.keys(c as object)).not.toContain('autorizadoPor')
+    const conAutorizante = errores('erp', 'post', ruta, { ...(c as object), autorizadoPor: '5a2c1f0e-3b7d-4c11-9e55-0a1b2c3d4e5f' })
+    expect(conAutorizante).toHaveLength(1)
+    expect(conAutorizante[0]).toContain('additional')
   })
 
   it('erp · cobro de una cuenta por cobrar: { monto, formaCobro }', async () => {

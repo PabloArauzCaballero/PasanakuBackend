@@ -95,11 +95,13 @@ class GuardiaDePermisoWebTest {
     void laAlternativaAbreSuPuerta() throws Exception {
         mvc.perform(get("/ensayo/dos-puertas").with(Sesiones.como("ADMIN_PLATAFORMA", "SOLICITUD_INGRESO_VER")))
                 .andExpect(status().isOk());
-        mvc.perform(get("/ensayo/dos-puertas").with(Sesiones.como("PARTICIPANTE"))).andExpect(status().isOk());
+        mvc.perform(get("/ensayo/dos-puertas").with(Sesiones.como("PARTICIPANTE")))
+                .andExpect(status().isOk());
     }
 
     @Test
-    @DisplayName("R-SEG: rechaza: con alternativas declaradas, un tercero (otro permiso, otro rol, sin permisos, sin sesion) sigue fuera")
+    @DisplayName("R-SEG: rechaza: con alternativas declaradas, un tercero (otro permiso, otro rol, sin permisos, sin"
+            + " sesion) sigue fuera")
     void laAlternativaNoAbreOtrasPuertas() throws Exception {
         mvc.perform(get("/ensayo/dos-puertas").with(Sesiones.como("TESORERIA", "ENTREGA_EJECUTAR")))
                 .andExpect(status().isForbidden());

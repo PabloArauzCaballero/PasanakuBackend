@@ -17,8 +17,9 @@ import org.junit.jupiter.api.Test;
 class CU130CompraTest extends BaseDeCompraDeTurno {
 
     @Test
-    @DisplayName(
-            "CORRECTO · Dada una oferta de Bs 5.500 con cargos de Bs 50 · Cuando el comprador compra · Entonces la cesion queda LIQUIDADA, el vendedor cobra 5.450, la plataforma 50, el comprador paga 5.500 y la plata del sistema no cambia")
+    @DisplayName("CORRECTO · Dada una oferta de Bs 5.500 con cargos de Bs 50 · Cuando el comprador compra · Entonces la"
+            + " cesion queda LIQUIDADA, el vendedor cobra 5.450, la plataforma 50, el comprador paga 5.500 y la"
+            + " plata del sistema no cambia")
     void compraCompleta() {
         var c = caso();
         var oferta = publicar(c);
@@ -30,7 +31,8 @@ class CU130CompraTest extends BaseDeCompraDeTurno {
         assertThat(estadoDeOferta(oferta.ofertaId())).isEqualTo("VENDIDA");
         assertThat(estadoDeCesion(r.cesionId())).isEqualTo("LIQUIDADA");
         var f = dsl.fetchOne(
-                "SELECT retencion_ref, liquidacion_ref, titulo_asignado_en, liquidada_en FROM entregas.cesion_derecho WHERE id = ?",
+                "SELECT retencion_ref, liquidacion_ref, titulo_asignado_en, liquidada_en FROM entregas.cesion_derecho"
+                        + " WHERE id = ?",
                 r.cesionId());
         assertThat(f.get(0, UUID.class)).isNotNull();
         assertThat(f.get(1, UUID.class)).isNotNull();
@@ -41,15 +43,18 @@ class CU130CompraTest extends BaseDeCompraDeTurno {
         assertThat(fondosDoble.retenidoVivo().esCero()).isTrue();
         assertThat(fondosDoble.totalDelSistema()).isEqualTo(antes);
         assertThat(contar(
-                        "SELECT count(*)::int FROM entregas.evento_dominio WHERE tipo = 'entregas.derecho_cedido' AND agregado_id = ?",
+                        "SELECT count(*)::int FROM entregas.evento_dominio WHERE tipo = 'entregas.derecho_cedido' AND"
+                                + " agregado_id = ?",
                         r.cesionId()))
                 .isEqualTo(1);
         // Contrato del productor (carril I): el evento nombra grupo, cupo y las dos partes para que `grupos` pueda
         // cambiar al titular del cupo sin preguntarle a nadie mas. Los consumidores previos ignoran los campos nuevos.
         var carga = dsl.fetchOne(
-                "SELECT payload->>'grupoId', payload->>'cupoId', payload->>'participanteOrigenId',"
-                        + " payload->>'participanteDestinoId', payload->>'turnoId', payload->>'moneda'"
-                        + " FROM entregas.evento_dominio WHERE tipo = 'entregas.derecho_cedido' AND agregado_id = ?",
+                """
+                SELECT payload->>'grupoId', payload->>'cupoId', payload->>'participanteOrigenId',
+                       payload->>'participanteDestinoId', payload->>'turnoId', payload->>'moneda'
+                  FROM entregas.evento_dominio WHERE tipo = 'entregas.derecho_cedido' AND agregado_id = ?
+                """,
                 r.cesionId());
         assertThat(carga.get(0)).isEqualTo(c.e().grupoId().toString());
         assertThat(carga.get(1)).isEqualTo(c.e().cupoId().toString());
@@ -60,8 +65,8 @@ class CU130CompraTest extends BaseDeCompraDeTurno {
     }
 
     @Test
-    @DisplayName(
-            "Dada la misma clave dos veces · Cuando compra · Entonces hay una cesion, una retencion y un pago (idempotencia ejecutada)")
+    @DisplayName("Dada la misma clave dos veces · Cuando compra · Entonces hay una cesion, una retencion y un pago"
+            + " (idempotencia ejecutada)")
     void idempotente() {
         var c = caso();
         var oferta = publicar(c);
@@ -80,7 +85,8 @@ class CU130CompraTest extends BaseDeCompraDeTurno {
 
     @Test
     @DisplayName(
-            "Dado el derecho ya cedido · Cuando se fondea el pozo del turno · Entonces la entrega se programa para el COMPRADOR y el cupo del vendedor no cambia")
+            "Dado el derecho ya cedido · Cuando se fondea el pozo del turno · Entonces la entrega se programa para el"
+                    + " COMPRADOR y el cupo del vendedor no cambia")
     void elPozoVaAlComprador() {
         var c = caso();
         var oferta = publicar(c);
@@ -97,7 +103,9 @@ class CU130CompraTest extends BaseDeCompraDeTurno {
 
     @Test
     @DisplayName(
-            "Dado un comprador sin saldo · Cuando compra · Entonces AP-CU130-07, la cesion queda FALLIDA, la oferta vuelve a estar a la venta y no queda ninguna retencion huerfana; otro comprador puede comprar despues")
+            "Dado un comprador sin saldo · Cuando compra · Entonces AP-CU130-07, la cesion queda FALLIDA, la oferta"
+                    + " vuelve a estar a la venta y no queda ninguna retencion huerfana; otro comprador puede comprar"
+                    + " despues")
     void saldoInsuficiente() {
         var c = caso();
         fondosDoble.saldo(c.comprador().usuarioId(), bob("100.00"));
@@ -119,7 +127,8 @@ class CU130CompraTest extends BaseDeCompraDeTurno {
 
     @Test
     @DisplayName(
-            "CAIDA DEL DEPENDIDO · Dado que nucleo no responde al retener · Cuando compra · Entonces queda EN CURSO sin titulo ni pago; al volver nucleo, reanudar completa una sola retencion y un solo pago")
+            "CAIDA DEL DEPENDIDO · Dado que nucleo no responde al retener · Cuando compra · Entonces queda EN CURSO"
+                    + " sin titulo ni pago; al volver nucleo, reanudar completa una sola retencion y un solo pago")
     void nucleoCaidoAlRetener() {
         var c = caso();
         var oferta = publicar(c);
@@ -141,7 +150,8 @@ class CU130CompraTest extends BaseDeCompraDeTurno {
 
     @Test
     @DisplayName(
-            "CAIDA DEL DEPENDIDO · Dado que nucleo cae DESPUES de dar el titulo y antes de pagar · Cuando se reanuda · Entonces el vendedor cobra una sola vez y el comprador no paga dos")
+            "CAIDA DEL DEPENDIDO · Dado que nucleo cae DESPUES de dar el titulo y antes de pagar · Cuando se reanuda ·"
+                    + " Entonces el vendedor cobra una sola vez y el comprador no paga dos")
     void nucleoCaidoAlPagar() {
         var c = caso();
         var oferta = publicar(c);
@@ -163,8 +173,8 @@ class CU130CompraTest extends BaseDeCompraDeTurno {
     }
 
     @Test
-    @DisplayName(
-            "REINICIO · Dado que el proceso murio justo despues de retener (nucleo retuvo, la cesion no lo sabe) · Cuando se reanuda · Entonces nucleo devuelve la MISMA retencion y no se retiene dos veces")
+    @DisplayName("REINICIO · Dado que el proceso murio justo despues de retener (nucleo retuvo, la cesion no lo sabe) ·"
+            + " Cuando se reanuda · Entonces nucleo devuelve la MISMA retencion y no se retiene dos veces")
     void reinicioTrasRetener() {
         var c = caso();
         var oferta = publicar(c);

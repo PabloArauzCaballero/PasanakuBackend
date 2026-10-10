@@ -146,10 +146,14 @@ public class CU21CobrarAporte {
                                             obligacion.participanteId().toString(),
                                     "monto", entrada.monto().toString(),
                                     "estado", estadoNuevo,
-                                    // Carril I: lo que nucleo-financiero necesita para mover el dinero SIN adivinar. Se SUMAN
-                                    // campos (los consumidores previos los ignoran). `monto` nunca viajo sin moneda en la
-                                    // base, pero si en el evento (regla 91.1.2). `usuarioId` es quien paga: el controlador
-                                    // ya comprobo que es el titular de la obligacion (AP-CU21-06), y `participanteId` es el
+                                    // Carril I: lo que nucleo-financiero necesita para mover el dinero SIN adivinar. Se
+                                    // SUMAN
+                                    // campos (los consumidores previos los ignoran). `monto` nunca viajo sin moneda en
+                                    // la
+                                    // base, pero si en el evento (regla 91.1.2). `usuarioId` es quien paga: el
+                                    // controlador
+                                    // ya comprobo que es el titular de la obligacion (AP-CU21-06), y `participanteId`
+                                    // es el
                                     // de `grupos`, no una billetera.
                                     "obligacionId", obligacion.id().toString(),
                                     "moneda", entrada.monto().moneda().name(),

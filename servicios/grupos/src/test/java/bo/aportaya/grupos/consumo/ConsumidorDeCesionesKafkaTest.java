@@ -34,7 +34,9 @@ class ConsumidorDeCesionesKafkaTest {
     }
 
     @Test
-    @DisplayName("correcto: lee el evento, la correlacion, la cesion (clave del registro) y los cinco identificadores del payload")
+    @DisplayName(
+            "correcto: lee el evento, la correlacion, la cesion (clave del registro) y los cinco identificadores del"
+                    + " payload")
     void correcto() {
         UUID turno = UUID.randomUUID();
         UUID grupo = UUID.randomUUID();
@@ -61,21 +63,29 @@ class ConsumidorDeCesionesKafkaTest {
     }
 
     @Test
-    @DisplayName("invalido: sin cabecera, sin clave, con un campo que falta o que no es UUID, o con un cuerpo que no es JSON se RECHAZA, nunca se ignora")
+    @DisplayName("invalido: sin cabecera, sin clave, con un campo que falta o que no es UUID, o con un cuerpo que no es"
+            + " JSON se RECHAZA, nunca se ignora")
     void invalido() {
         UUID u = UUID.randomUUID();
         String bueno = cuerpo(u, u, u, u, u);
         String id = UUID.randomUUID().toString();
 
-        assertThatThrownBy(() -> ConsumidorDeCesionesKafka.leer(registro(CESION.toString(), bueno, "correlation_id", id)))
+        assertThatThrownBy(
+                        () -> ConsumidorDeCesionesKafka.leer(registro(CESION.toString(), bueno, "correlation_id", id)))
                 .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> ConsumidorDeCesionesKafka.leer(registro(null, bueno, "event_id", id, "correlation_id", id)))
-                .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> ConsumidorDeCesionesKafka.leer(
-                        registro(CESION.toString(), bueno.replace("cupoId", "otro"), "event_id", id, "correlation_id", id)))
+        assertThatThrownBy(() ->
+                        ConsumidorDeCesionesKafka.leer(registro(null, bueno, "event_id", id, "correlation_id", id)))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> ConsumidorDeCesionesKafka.leer(registro(
-                        CESION.toString(), bueno.replace(u.toString(), "no-es-uuid"), "event_id", id, "correlation_id", id)))
+                        CESION.toString(), bueno.replace("cupoId", "otro"), "event_id", id, "correlation_id", id)))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> ConsumidorDeCesionesKafka.leer(registro(
+                        CESION.toString(),
+                        bueno.replace(u.toString(), "no-es-uuid"),
+                        "event_id",
+                        id,
+                        "correlation_id",
+                        id)))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> ConsumidorDeCesionesKafka.leer(
                         registro(CESION.toString(), "esto no es json", "event_id", id, "correlation_id", id)))

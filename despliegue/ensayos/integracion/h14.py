@@ -106,21 +106,88 @@ def reiniciar_servicios(*nombres: str) -> None:
         subprocess.run(["docker", "restart", *objetivos], capture_output=True, text=True)
 
 
+def aportes_en_el_libro(e: Any, g: Any, obligaciones_pagadas: list[str], antes_usuarios: Decimal, antes_grupos: Decimal) -> None:
+    """Carril I · cada aporte pagado (aportes.aporte_cobrado) MUEVE el libro y el mayor, UNA vez: billeteras, asientos y cuadre.
+    Antes era una brecha declarada (nadie consumia el evento: el aporte quedaba PAGADO y la billetera intacta)."""
+    n = len(obligaciones_pagadas)
+    arr = "{" + ",".join(obligaciones_pagadas) + "}"
+    total = D("1500.00") * n
+    consulta_tx = ("SELECT count(*) FROM nucleo_financiero.transaccion_billetera WHERE tipo = 'APORTE_A_GRUPO' "
+                   "AND origen_id = ANY(%s::uuid[])")
+    try:
+        esperar(lambda: numero(consulta_tx, arr) == n, 150, 2, f"{n} aportes aplicados en el libro")
+    except TimeoutError as ex:
+        INF.registrar("H14.S1.M1-aportes-libro", f"los aportes ({n} x 1500) mueven el libro", "FAIL",
+                      f"{ex}; transacciones={numero(consulta_tx, arr)}")
+        return
+    sin_asiento = numero("SELECT count(*) FROM nucleo_financiero.transaccion_billetera WHERE tipo = 'APORTE_A_GRUPO' "
+                         "AND origen_id = ANY(%s::uuid[]) AND asiento_contable_id IS NULL", arr)
+    por_pago = numero("SELECT count(DISTINCT clave_idempotencia) FROM nucleo_financiero.transaccion_billetera "
+                      "WHERE tipo = 'APORTE_A_GRUPO' AND origen_id = ANY(%s::uuid[])", arr)
+    debitado = [numero("SELECT COALESCE(SUM(m.monto), 0) FROM nucleo_financiero.movimiento_billetera m JOIN nucleo_financiero.transaccion_billetera t "
+                       "ON t.id = m.transaccion_id WHERE t.tipo = 'APORTE_A_GRUPO' AND t.origen_id = ANY(%s::uuid[]) AND m.sentido = 'DEBITO' "
+                       "AND m.cuenta_billetera_id = %s", arr, cuenta) for cuenta in e.billeteras.values()]
+    acreditado = numero("SELECT COALESCE(SUM(m.monto), 0) FROM nucleo_financiero.movimiento_billetera m JOIN nucleo_financiero.transaccion_billetera t "
+                        "ON t.id = m.transaccion_id WHERE t.tipo = 'APORTE_A_GRUPO' AND t.origen_id = ANY(%s::uuid[]) AND m.sentido = 'CREDITO' "
+                        "AND m.cuenta_billetera_id = %s", arr, g.billetera)
+    INF.comprobar("H14.S1.M1-aportes-libro", f"los aportes ({n} x 1500) mueven el libro UNA vez cada uno: 4 billeteras debitadas 4500, la del grupo +{total}",
+                  por_pago == n and sorted(debitado) == [D("4500.00")] * 4 and acreditado == total and sin_asiento == 0,
+                  f"pagos distintos={por_pago} debitado={sorted(debitado)} acreditado_grupo={acreditado} sin_asiento={sin_asiento}")
+    asientos = psql("SELECT a.id, COALESCE(SUM(m.debe), 0), COALESCE(SUM(m.haber), 0), count(*) FROM nucleo_financiero.asiento_contable a "
+                    "JOIN nucleo_financiero.transaccion_billetera t ON t.asiento_contable_id = a.id AND a.origen_id = t.id AND a.origen_tipo = 'PAGO' "
+                    "JOIN nucleo_financiero.movimiento_contable m ON m.asiento_id = a.id WHERE t.tipo = 'APORTE_A_GRUPO' "
+                    "AND t.origen_id = ANY(%s::uuid[]) GROUP BY a.id", arr)
+    INF.comprobar("H14.S1.M1-aportes-mayor", f"el mayor tiene UN asiento PAGO cuadrado (1500 = 1500, dos partidas) por aporte: {n} asientos",
+                  len(asientos) == n and all(D(f[1]) == D(f[2]) == D("1500.00") and f[3] == "2" for f in asientos),
+                  str([(f[1], f[2], f[3]) for f in asientos][:3]))
+    d_usuarios, d_grupos = saldo_contable("2.1.01") - antes_usuarios, saldo_contable("2.1.02") - antes_grupos
+    INF.comprobar("H14.S1.M1-aportes-cuadre", f"cuadre desde el MAYOR: 2.1.02 (dinero de los grupos) +{total}, 2.1.01 (de los usuarios) -{total}; coincide con el libro",
+                  d_grupos == -total and d_usuarios == total and acreditado == total and suma_global_del_libro() == D("0"),
+                  f"delta 2.1.01(debe-haber)={d_usuarios} 2.1.02={d_grupos} libro_grupo={acreditado}")
+    primero = obligaciones_pagadas[0]
+    ev = evento_id("aportes", "aportes.aporte_cobrado", primero)
+    if ev:
+        evento_publicado("aportes", "aportes.aporte_cobrado", primero)
+        reentregar("aportes", ev)
+        esperar(lambda: uno("SELECT estado FROM aportes.evento_dominio WHERE id = %s AND estado = 'PUBLICADO' AND intentos >= 2", ev), 60, 1,
+                "el aporte_cobrado sale por segunda vez")
+        # La prueba de que llego otra vez Y se descarto: el consumidor lo registra («-> DUPLICADO») con el id del evento.
+        descartado = esperar(lambda: any(ev in linea and "DUPLICADO" in linea for linea in logs_de("nucleo-financiero")), 60, 2,
+                             "nucleo-financiero descarta el aporte_cobrado repetido")
+        INF.comprobar("H14.S1.M1-aportes-duplicado", "el MISMO aporte_cobrado entregado dos veces: el consumidor lo descarta y la plata no se mueve dos veces",
+                      bool(descartado) and numero(consulta_tx, arr) == n and saldo_del_libro(g.billetera) == total
+                      and numero("SELECT count(*) FROM nucleo_financiero.evento_consumido WHERE id_evento = %s", ev) == 1,
+                      f"transacciones={numero(consulta_tx, arr)} libro_grupo={saldo_del_libro(g.billetera)}")
+
+
+def logs_de(servicio: str) -> list[str]:
+    """Las lineas de log de los contenedores del servicio (solo para comprobar que el consumidor descarto un duplicado)."""
+    p = subprocess.run(["docker", "ps", "--format", "{{.Names}}"], capture_output=True, text=True)
+    salida: list[str] = []
+    for nombre in [n for n in p.stdout.split() if f"-{servicio}-" in n]:
+        r = subprocess.run(["docker", "logs", "--since", "20m", nombre], capture_output=True, text=True)
+        salida.extend((r.stdout + r.stderr).splitlines())
+    return salida
+
+
 @recorrido("H14.S1.M1")
 def h14_m1() -> None:
     cuenta_de_servicio_de_entregas()
-    e, g = preparar(3, abiertos=1, periodos=4, saldo="0")  # 4 cupos (P1..P3 + comprador), 4 periodos
+    e, g = preparar(3, abiertos=1, periodos=4, saldo="4500.00")  # 4 cupos (P1..P3 + comprador), 4 periodos; fondos para 3 aportes de 1500
     reales: dict[str, str] = {}
     comprador = e.comprador
     fondear_por_libro(e.billeteras[comprador.codigo], D("6000.00"))
     entregas: list[str] = []
     mayor_antes = suma_global_del_libro()
+    todas: list[str] = []  # las 12 obligaciones pagadas (4 personas x 3 turnos)
+    antes_usuarios, antes_grupos = saldo_contable("2.1.01"), saldo_contable("2.1.02")  # el mayor ANTES de los aportes
 
     # --- tres turnos completos: aportes de los 4, pozo completo, autorizacion, ejecucion ---------------------------------
     for k in (1, 2, 3):
         if k > 1:
             abrir_periodo(g, k)  # el reloj de grupos no abre periodos todavia (brecha: lo hace esta funcion)
         ob = obligaciones(g, k, e)
+        todas.extend(ob.values())
         personas = [*e.participantes, comprador]
         pagos = [pagar(c, ob[c.codigo], "1500.00") for c in personas]
         INF.comprobar(f"H14.S1.M1-T{k}-aportes", f"turno {k}: los 4 aportes se pagan por HTTP (201)",
@@ -188,11 +255,7 @@ def h14_m1() -> None:
     INF.comprobar("H14.S1.M1-cuadre", "ninguna transaccion del libro descuadrada; la suma global no cambio por el ciclo",
                   not transacciones_descuadradas() and suma_global_del_libro() == mayor_antes == D("0"),
                   f"descuadradas={transacciones_descuadradas()[:3]} suma={suma_global_del_libro()}")
-    INF.brecha("H14.S1.M1-aportes-libro", "los aportes (4 x 1500 x 3 turnos) mueven el libro",
-               "aportes.aporte_cobrado no tiene consumidor en nucleo-financiero: el aporte queda `PAGADO` en aportes y NO se refleja "
-               f"en la billetera ni en el mayor (movimientos de libro de las 4 billeteras del grupo: "
-               f"{numero('SELECT count(*) FROM nucleo_financiero.movimiento_billetera m JOIN nucleo_financiero.cuenta_billetera c ON c.id = m.cuenta_billetera_id WHERE c.usuario_id = ANY(%s::uuid[])', '{' + ','.join(str(c.id) for c in [*e.participantes, comprador]) + '}')}). "
-               "Dueno: aportes + nucleo-financiero (H8.S1.M1/H4)")
+    aportes_en_el_libro(e, g, todas, antes_usuarios, antes_grupos)
     antes = snapshot(g, e)
     reiniciar_servicios("aportes", "entregas", "garantia", "grupos")
     esperar(lambda: e.tesoreria.get(f"/aportes/periodos/{g.periodos[0]}/recaudo", ).estado == 200, 150, 3, "aportes responde tras el reinicio")
@@ -210,7 +273,7 @@ def h14_m1() -> None:
 @recorrido("H14.S1.M2")
 def h14_m2() -> None:
     """Primer receptor que deja de aportar: la empresa cubre por turno y la obligacion de recuperar se conserva."""
-    e, g = preparar(3, abiertos=1, periodos=3, saldo="0")
+    e, g = preparar(3, abiertos=1, periodos=3, saldo="4500.00")  # fondos para los 3 aportes de cada uno
     p1, p2, p3 = e.participantes
     r = reserva(e, g, "6000.00")
     INF.comprobar("H14.S1.M2-reserva", "garantia reserva 6000 del ciclo (la exposicion maxima prevista)", r.estado == 201, str(r)[:160])
@@ -287,7 +350,7 @@ def h14_m2() -> None:
 def h14_m3() -> None:
     """Pagos, ofertas y resoluciones concurrentes + eventos duplicados: nada de doble dinero, titulo o membresia."""
     cuenta_de_servicio_de_entregas()
-    e, g = preparar(3, abiertos=1, periodos=3, saldo="0")
+    e, g = preparar(3, abiertos=1, periodos=3, saldo="1500.00")  # fondos para UN aporte cada uno
     p1, p2, p3 = e.participantes
     comprador = e.comprador
     fondear_por_libro(e.billeteras[comprador.codigo], D("6000.00"))
@@ -307,6 +370,10 @@ def h14_m3() -> None:
     INF.comprobar("H14.S1.M3-pagos-misma-clave", "6 envios de la MISMA clave: un pago y todos devuelven su id",
                   n == 1 and len(ids) == 1 and cuantos(rs, 200, 201) == 6, f"filas={n} ids={len(ids)} estados={sorted(r.estado for r in rs)}")
     pagar(comprador, ob[comprador.codigo], "1500.00")  # P1 no paga: hace falta cobertura
+    # Los aportes DEBITAN la billetera (nucleo consume aporte_cobrado): se espera a que esten asentados ANTES de medir saldos, o el
+    # cobro de la compra de mas abajo se mezclaria con un debito que llega tarde.
+    esperar(lambda: numero("SELECT count(*) FROM nucleo_financiero.transaccion_billetera WHERE tipo = 'APORTE_A_GRUPO' AND grupo_id = %s", g.id) == 3,
+            120, 2, "los 3 aportes aplicados en el libro")
     reserva(e, g, "3000.00")
 
     # 3 · fondeo concurrente con claves distintas: UNA entrega y UNA cobertura.
@@ -468,7 +535,7 @@ def h13_m6() -> None:
 @recorrido("H8.S1.M4-desembolso")
 def h8_m4_desembolso() -> None:
     """Entregar el pozo por la via del DESEMBOLSO: cuenta de destino verificada -> orden -> respuesta del proveedor -> mayor, UNA vez."""
-    e, g = preparar(3, abiertos=1, periodos=1, saldo="0")
+    e, g = preparar(3, abiertos=1, periodos=1, saldo="1500.00")
     benef = e.participantes[0]
     ci = "".join(str(secrets.randbelow(10)) for _ in range(7))  # CI SINTETICA, solo en memoria
     documento_del_titular(benef.id, ci)  # el KYC no se crea por HTTP en este conjunto (precondicion declarada)
@@ -487,9 +554,9 @@ def h8_m4_desembolso() -> None:
     INF.comprobar("H8.S1.M4-d-ajena", "R-SEG-02: una cuenta a nombre de OTRA persona no se registra (422)", ajena.estado == 422, str(ajena)[:160])
     r = benef.post("/cuentas-bancarias", cuenta)
     registrada = r.estado == 201 and "numeroCuenta" not in r.cuerpo and ci not in r.texto
-    INF.comprobar("H8.S1.M4-d-cuenta", "DEFECTO: la cuenta propia de un participante se registra PENDIENTE y se devuelve ENMASCARADA (CU-18)", registrada,
-                  (str(r)[:160] + " · causa: identidad.verificarTitularidad exige DATOS_SENSIBLES_LEER; entregas propaga el token del PARTICIPANTE "
-                   "(403) y lo lee como «no coincide». Dueno: identidad + entregas (credencial de servicio con permiso acotado)").replace(ci, "***"))
+    INF.comprobar("H8.S1.M4-d-cuenta", "la cuenta propia de un participante se registra PENDIENTE y se devuelve ENMASCARADA (CU-18)", registrada,
+                  (str(r)[:160] + " · antes 422: entregas propagaba el token del PARTICIPANTE a identidad.verificarTitularidad (exige DATOS_SENSIBLES_LEER, "
+                   "403 leido como «no coincide»); ahora firma con la credencial de SERVICIO_ENTREGAS").replace(ci, "***"))
     cuenta_id = r.cuerpo.get("cuentaId") if registrada else cuenta_destino_sembrada(benef.id, cuenta["titularNombre"], ci)
     prematura = e.tesoreria.post("/desembolsos", {"entregaId": entrega, "proveedorId": str(uuid.uuid4()), "cuentaDestinoId": cuenta_id,
                                                   "glosa": "pozo turno 1", "saldoRetenido": True})
@@ -577,9 +644,12 @@ def admision_f1_f4() -> None:
     n_res = len([d for d in (hist.cuerpo if isinstance(hist.cuerpo, list) else []) if d.get("fase") == "RESOLUCION"])
     hb = ad["operador"].get(f"/grupos/solicitudes/{sol}/decisiones")
     INF.comprobar("F2-F3-historial-backoffice",
-                  "DEFECTO: backoffice (ADMIN_PLATAFORMA) lee el historial de decisiones del expediente (el contrato lo promete)", hb.estado == 200,
-                  f"{hb.estado} · causa: RutasDeAdmision.historialAdmision lleva @Permiso(\"PARTICIPANTE\") y ADMIN_PLATAFORMA no lo tiene, aunque "
-                  "CU68AceptarIngreso.historial ya admite al backoffice. Dueno: grupos + modelo de roles (guard de un solo permiso)")
+                  "backoffice (ADMIN_PLATAFORMA) lee el historial de decisiones del expediente (el contrato lo promete)", hb.estado == 200,
+                  f"{hb.estado} · antes 403: RutasDeAdmision.historialAdmision llevaba solo @Permiso(\"PARTICIPANTE\"); ahora admite tambien "
+                  "SOLICITUD_INGRESO_VER y GRUPO_ADMINISTRAR (@PermisoAlternativo) y el caso de uso decide sobre el recurso")
+    ajeno = ad["aspirante"].get(f"/grupos/solicitudes/{sol}/decisiones")
+    INF.comprobar("F2-F3-historial-tercero", "un participante que no es del grupo NO lee el expediente de otra persona (la guardia lo deja llegar, el caso de uso lo niega)",
+                  ajeno.estado in (403, 422) and ajeno.estado != 200, f"{ajeno.estado} {str(ajeno)[:100]}")
     INF.comprobar("F3-una-resolucion", "F3 resolver dos veces no duplica: una sola resolucion en el historial y A sigue sin membresia",
                   n_res == 1 and dob.estado in (200, 409, 422) and ad["aspirante"].get("/grupos/participaciones").cuerpo == [], f"resoluciones={n_res} segunda={dob.estado}")
 
