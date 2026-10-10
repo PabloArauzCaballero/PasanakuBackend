@@ -34,6 +34,10 @@ aportaya:
     # vale con una sola replica: con dos, cada una firma distinto y los tokens de una
     # los rechaza la otra (ADR-037). El arranque avisa cuando pasa.
     clave-firma: ${JWT_CLAVE_FIRMA:}           # ADR-024: cada servicio valida la firma el mismo
+    # Ventana de rotacion: la clave que firmaba ANTES. Solo se publica en el JWKS (no firma),
+    # para que las sesiones vivas sigan validando hasta que venzan (15 min). Vacia fuera de
+    # una rotacion. Ver docs/operacion/rotacion-de-secretos-ensayada.md.
+    clave-firma-anterior: ${JWT_CLAVE_FIRMA_ANTERIOR:}
   zona-horaria: America/La_Paz      # plazos habiles
   invitaciones:
     clave: ${INVITACIONES_CLAVE:}

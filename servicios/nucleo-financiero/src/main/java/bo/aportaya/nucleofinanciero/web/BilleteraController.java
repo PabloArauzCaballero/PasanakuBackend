@@ -6,11 +6,13 @@ import bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion;
 import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
 import bo.aportaya.nucleofinanciero.web.generado.BilleteraApi;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaAcreditacionRescate;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaAprobacionRetiro;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaBloqueo;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaCierre;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaCierreRetencion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaCotizacionOperacion;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaDebitoInversion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaLecturaQr;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaPagoQr;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaQr;
@@ -21,11 +23,13 @@ import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaReverso;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaTransferencia;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SaldoBilletera;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaAcreditacion;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaAcreditacionRescate;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaAprobacionRetiro;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaBloqueo;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaCierreBilletera;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaCierreRetencion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaCotizacionOperacion;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaEjecucionDeRetencion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaExtracto;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaPagoQr;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaQrEmitido;
@@ -100,14 +104,7 @@ public class BilleteraController implements BilleteraApi {
     public ResponseEntity<SaldoBilletera> consultarSaldo(UUID cuentaId) {
         Traza.marcarCasoDeUso("CU-13", cuentaId.toString());
 
-        var salida = saldos.ejecutar(cuentaId, sesion.actual());
-
-        var respuesta = new SaldoBilletera();
-        respuesta.setCuentaId(salida.cuentaId());
-        respuesta.setDisponible(MapeoDeBilletera.dinero(salida.disponible()));
-        respuesta.setRetenido(MapeoDeBilletera.dinero(salida.retenido()));
-        respuesta.setAlCorteDe(salida.alCorteDe());
-        return ResponseEntity.ok(respuesta);
+        return ResponseEntity.ok(MapeoDeBilletera.saldo(saldos.ejecutar(cuentaId, sesion.actual())));
     }
 
     @Override
@@ -141,14 +138,9 @@ public class BilleteraController implements BilleteraApi {
         return fondeo.retirar(idempotencyKey, cuerpo, sesion.actual());
     }
 
-    /**
-     * H3.S2 (ADR-049) · aprobar o rechazar un retiro EN_REVISION.
-     *
-     * <p>{@code @Permiso("RETIRO_APROBAR")} es la primera linea de defensa
-     * (403 si falta); la segregacion solicitante != aprobador es la SEGUNDA, y vive
-     * en {@code CU11.aprobar}/{@code rechazarRevision} — no en el controlador, porque
-     * la base la exige igual y las dos tienen que decir lo mismo.
-     */
+    // H3.S2 (ADR-049): RETIRO_APROBAR es la primera defensa (403); la segregacion
+    // solicitante != aprobador es la SEGUNDA y vive en CU11.aprobar/rechazarRevision,
+    // porque la base la exige igual y las dos tienen que decir lo mismo.
     @Override
     @Permiso("RETIRO_APROBAR")
     public ResponseEntity<SalidaAprobacionRetiro> aprobarRetiro(
@@ -174,12 +166,7 @@ public class BilleteraController implements BilleteraApi {
         var salida =
                 cu13.retener(MapeoDeBilletera.entradaDeRetencion(cuerpo), idempotencyKey.toString(), sesion.actual());
 
-        var respuesta = new SalidaRetencion();
-        respuesta.setRetencionId(salida.retencionId());
-        respuesta.setSaldoDisponible(MapeoDeBilletera.dinero(salida.saldoDisponible()));
-        respuesta.setSaldoRetenido(MapeoDeBilletera.dinero(salida.saldoRetenido()));
-        respuesta.setExpiraEn(salida.expiraEn());
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+        return ResponseEntity.status(HttpStatus.CREATED).body(MapeoDeBilletera.retencion(salida));
     }
 
     @Override
@@ -194,12 +181,35 @@ public class BilleteraController implements BilleteraApi {
                 ? cu13.liberar(retencionId, sesion.actual())
                 : cu13.ejecutar(retencionId, sesion.actual());
 
-        var respuesta = new SalidaCierreRetencion();
-        respuesta.setRetencionId(salida.retencionId());
-        respuesta.setEstado(salida.estado());
-        respuesta.setSaldoDisponible(MapeoDeBilletera.dinero(salida.saldoDisponible()));
-        respuesta.setSaldoRetenido(MapeoDeBilletera.dinero(salida.saldoRetenido()));
-        return ResponseEntity.ok(respuesta);
+        return ResponseEntity.ok(MapeoDeBilletera.cierre(salida));
+    }
+
+    @Override
+    @Permiso("SERVICIO_ENTREGAS")
+    public ResponseEntity<SalidaEjecucionDeRetencion> pagarAlTercero(UUID retencionId, UUID idempotencyKey) {
+        Traza.marcarCasoDeUso("CU-13", retencionId.toString());
+        return movimientos.pagarAlTercero(
+                retencionId, idempotencyKey, IdentidadDeServicio.como(sesion, "SERVICIO_ENTREGAS"));
+    }
+
+    // Servicio a servicio (inversiones): una sesion de usuario final, aunque tenga BILLETERA_OPERAR, recibe 403.
+    @Override
+    @Permiso("SERVICIO_INVERSIONES")
+    public ResponseEntity<SalidaEjecucionDeRetencion> debitarInversion(
+            UUID idempotencyKey, EntradaDebitoInversion cuerpo) {
+        Traza.marcarCasoDeUso("CU-13", cuerpo.getRetencionId().toString());
+        return movimientos.debitarInversion(
+                idempotencyKey, cuerpo, IdentidadDeServicio.como(sesion, "SERVICIO_INVERSIONES"));
+    }
+
+    // Acreditar es confirmar que la plata volvio: no lo hace quien la espera (91.3). Lo confirma el servicio.
+    @Override
+    @Permiso("SERVICIO_INVERSIONES")
+    public ResponseEntity<SalidaAcreditacionRescate> acreditarRescate(
+            UUID idempotencyKey, EntradaAcreditacionRescate cuerpo) {
+        Traza.marcarCasoDeUso("CU-12", cuerpo.getCuentaBilleteraId().toString());
+        return movimientos.acreditarRescate(
+                idempotencyKey, cuerpo, IdentidadDeServicio.como(sesion, "SERVICIO_INVERSIONES"));
     }
 
     @Override

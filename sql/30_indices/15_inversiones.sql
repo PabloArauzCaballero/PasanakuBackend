@@ -120,3 +120,24 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_conciliacion_interes_rescate_inversion_id
 
 CREATE INDEX IF NOT EXISTS ix_conciliacion_interes_estado
   ON inversiones.conciliacion_interes (estado);
+
+CREATE INDEX IF NOT EXISTS ix_distribucion_interes_posicion_inversion_id
+  ON inversiones.distribucion_interes (posicion_inversion_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_distribucion_interes_rescate_inversion_id
+  ON inversiones.distribucion_interes (rescate_inversion_id);
+
+CREATE INDEX IF NOT EXISTS ix_distribucion_interes_usuario_id
+  ON inversiones.distribucion_interes (usuario_id);
+
+CREATE INDEX IF NOT EXISTS ix_distribucion_interes_estado
+  ON inversiones.distribucion_interes (estado);
+
+CREATE INDEX IF NOT EXISTS ix_corrida_trabajo_operacion
+  ON inversiones.corrida_trabajo (operacion);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_corrida_trabajo_operacion_clave_idempotencia
+  ON inversiones.corrida_trabajo (operacion, clave_idempotencia);
+
+CREATE INDEX IF NOT EXISTS ix_corrida_trabajo_estado
+  ON inversiones.corrida_trabajo (estado);

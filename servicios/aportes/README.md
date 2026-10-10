@@ -75,3 +75,19 @@ docker compose --profile base up -d --wait
 ```
 
 Skills: `arrancar-carril` primero, despues las diecinueve de todo carril de backend.
+
+## Calendario de obligaciones (carril O2, H8.S1.M1)
+
+`POST /aportes/periodos/{periodoId}/obligaciones` (`GenerarObligacionesDelPeriodo`, `ADMIN_PLATAFORMA`): una obligacion
+`APORTE_PERIODICO` por cupo (R-GRP-03, `ON CONFLICT DO NOTHING`), con titular, turno, monto y estado `PENDIENTE`. Quien es titular
+y cuanto aporta lo afirma `grupos` (puerto `CalendarioDelPeriodo`, **contrato propuesto**: hoy el adaptador por omision deniega y
+las pruebas usan un doble). `fecha_vencimiento` guarda la fecha de LIQUIDACION (siguiente dia habil si la contractual cae en feriado,
+sabado o domingo); la contractual viaja en la respuesta y en `aportes.obligaciones_generadas`, con `notificarAlGrupo`.
+El "hoy" de mora y recargos es el de La Paz (`Reloj.hoy()`), no el de UTC. Ver `docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-O2/`.
+
+## Tercera vuelta (carril B3)
+
+- `CalendarioDelPeriodoPorHttp` reemplaza a `CalendarioNoDisponible`: consume `GET /grupos/periodos/{id}/calendario-de-aportes`
+  con tiempo maximo y circuit breaker (`ClienteConCircuito`, parametros sinteticos en `aportaya.resiliencia.circuito.*`) y fallo
+  cerrado (`PERIODO_NO_CONFIRMADO` si `grupos` no contesta o el cuerpo no cumple el contrato). `HechosDeGruposPorHttp` tambien
+  lleva circuit breaker.

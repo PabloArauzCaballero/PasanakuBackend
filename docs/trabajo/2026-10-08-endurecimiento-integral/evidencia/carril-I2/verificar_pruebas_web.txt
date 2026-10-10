@@ -1,0 +1,4 @@
+controladores: 33 · con matriz propia: 33 · en deuda: 0
+operaciones con el estado HTTP fuera de su contrato: 25
+servicios con sabana de seguridad: 15
+La capa web esta cubierta segun ADR-043.

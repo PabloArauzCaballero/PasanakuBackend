@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -23,20 +24,27 @@ import org.springframework.web.client.RestClient;
  * —{@code tieneHistorial=false}— y decide quien pregunta. Tratar la falta de historial
  * como puntaje cero le cerraria la puerta a todo el que empieza, que es lo contrario de
  * lo que la regla busca.
+ *
+ * <p>Cada dependencia lleva tiempo maximo y circuit breaker propio ({@link ClienteConCircuito}, regla 98.2.3):
+ * despues de una ventana de fallos se deja de llamar un rato. FALLBACK declarado por dependencia: con el
+ * circuito abierto cada metodo responde exactamente lo mismo que con el dependido caido (lo que no deja pasar),
+ * salvo las operaciones de identidad que EMITEN o CONSUMEN un enlace, que fallan con la excepcion de red y no
+ * crean invitaciones sin token.
  */
 @Component
 public class HechosPorHttp implements HechosDeOtrosServicios {
 
-    private final ClienteDeServicio organizadores;
-    private final ClienteDeServicio tarifas;
-    private final ClienteDeServicio cumplimiento;
-    private final ClienteDeServicio aportes;
-    private final ClienteDeServicio transparencia;
-    private final ClienteDeServicio garantia;
-    private final ClienteDeServicio notificaciones;
-    private final RestClient identidad;
-    private final ClienteDeServicio identidadConsultas;
+    private final ClienteConCircuito organizadores;
+    private final ClienteConCircuito tarifas;
+    private final ClienteConCircuito cumplimiento;
+    private final ClienteConCircuito aportes;
+    private final ClienteConCircuito transparencia;
+    private final ClienteConCircuito garantia;
+    private final ClienteConCircuito notificaciones;
+    private final ClienteConCircuito identidad;
 
+    @Autowired
+    @SuppressWarnings("checkstyle:ParameterNumber")
     public HechosPorHttp(
             RestClient.Builder constructor,
             @Value("${aportaya.servicios.organizador}") String urlOrganizador,
@@ -46,16 +54,41 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
             @Value("${aportaya.servicios.transparencia}") String urlTransparencia,
             @Value("${aportaya.servicios.garantia}") String urlGarantia,
             @Value("${aportaya.servicios.notificaciones}") String urlNotificaciones,
-            @Value("${aportaya.servicios.identidad}") String urlIdentidad) {
-        this.organizadores = new ClienteDeServicio(constructor, urlOrganizador, "organizador");
-        this.tarifas = new ClienteDeServicio(constructor, urlTarifas, "tarifas");
-        this.cumplimiento = new ClienteDeServicio(constructor, urlCumplimiento, "cumplimiento");
-        this.aportes = new ClienteDeServicio(constructor, urlAportes, "aportes");
-        this.transparencia = new ClienteDeServicio(constructor, urlTransparencia, "transparencia");
-        this.garantia = new ClienteDeServicio(constructor, urlGarantia, "garantia");
-        this.notificaciones = new ClienteDeServicio(constructor, urlNotificaciones, "notificaciones");
-        this.identidad = constructor.baseUrl(urlIdentidad).build();
-        this.identidadConsultas = new ClienteDeServicio(constructor, urlIdentidad, "identidad");
+            @Value("${aportaya.servicios.identidad}") String urlIdentidad,
+            ConfiguracionDeCircuito circuito) {
+        this.organizadores = new ClienteConCircuito(constructor, urlOrganizador, "organizador", circuito);
+        this.tarifas = new ClienteConCircuito(constructor, urlTarifas, "tarifas", circuito);
+        this.cumplimiento = new ClienteConCircuito(constructor, urlCumplimiento, "cumplimiento", circuito);
+        this.aportes = new ClienteConCircuito(constructor, urlAportes, "aportes", circuito);
+        this.transparencia = new ClienteConCircuito(constructor, urlTransparencia, "transparencia", circuito);
+        this.garantia = new ClienteConCircuito(constructor, urlGarantia, "garantia", circuito);
+        this.notificaciones = new ClienteConCircuito(constructor, urlNotificaciones, "notificaciones", circuito);
+        this.identidad = new ClienteConCircuito(constructor, urlIdentidad, "identidad", circuito);
+    }
+
+    /** Con los parametros del plan de resiliencia: la usan las pruebas del adaptador. */
+    @SuppressWarnings("checkstyle:ParameterNumber")
+    HechosPorHttp(
+            RestClient.Builder constructor,
+            String urlOrganizador,
+            String urlTarifas,
+            String urlCumplimiento,
+            String urlAportes,
+            String urlTransparencia,
+            String urlGarantia,
+            String urlNotificaciones,
+            String urlIdentidad) {
+        this(
+                constructor,
+                urlOrganizador,
+                urlTarifas,
+                urlCumplimiento,
+                urlAportes,
+                urlTransparencia,
+                urlGarantia,
+                urlNotificaciones,
+                urlIdentidad,
+                ConfiguracionDeCircuito.porOmision());
     }
 
     @Override
@@ -142,14 +175,13 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
 
     @Override
     public TokenInvitacion tokenDeInvitacion(UUID clave, UUID grupoId, String canal, String telefono) {
-        var emitido = identidad
-                .post()
+        var emitido = identidad.ejecutar(rest -> rest.post()
                 .uri("/usuarios/tokens/invitacion")
                 .header("Idempotency-Key", clave.toString())
                 .headers(ClienteDeServicio::propagarElToken)
                 .body(Map.of("canal", canal, "telefonoDestino", telefono, "grupoId", grupoId))
                 .retrieve()
-                .body(TokenInvitacion.class);
+                .body(TokenInvitacion.class));
         if (emitido == null) {
             // Sin token no hay enlace, y sin enlace no hay invitacion que enviar.
             throw new IllegalStateException("identidad no emitio el token de invitacion");
@@ -160,14 +192,13 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     @Override
     public boolean enlaceDeInvitacionValido(UUID tokenId, String token, String telefonoE164, String kycMinimo) {
         try {
-            var resultado = identidad
-                    .post()
+            var resultado = identidad.ejecutar(rest -> rest.post()
                     .uri("/usuarios/tokens/invitacion/validar")
                     .headers(ClienteDeServicio::propagarElToken)
                     .body(Map.of(
                             "tokenId", tokenId, "token", token, "telefonoE164", telefonoE164, "kycMinimo", kycMinimo))
                     .retrieve()
-                    .body(Validacion.class);
+                    .body(Validacion.class));
             return resultado != null && resultado.valido();
         } catch (RuntimeException noSePudoValidar) {
             // Denegar por omision: sin respuesta de identidad el enlace no vale.
@@ -177,14 +208,13 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
 
     @Override
     public ConsumoInvitacion consumirInvitacion(UUID tokenId, UUID grupoId, UUID clave, String token) {
-        var consumo = identidad
-                .post()
+        var consumo = identidad.ejecutar(rest -> rest.post()
                 .uri("/usuarios/tokens/invitacion/" + tokenId + "/consumos")
                 .header("Idempotency-Key", clave.toString())
                 .headers(ClienteDeServicio::propagarElToken)
                 .body(Map.of("grupoId", grupoId, "token", token))
                 .retrieve()
-                .body(ConsumoInvitacion.class);
+                .body(ConsumoInvitacion.class));
         if (consumo == null) throw new IllegalStateException("No se confirmó la invitacion");
         return consumo;
     }
@@ -192,23 +222,22 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     @Override
     public boolean revocarTokenDeInvitacion(UUID tokenId) {
         try {
-            identidad
-                    .post()
+            identidad.ejecutar(rest -> rest.post()
                     .uri("/usuarios/tokens/invitacion/{id}/revocacion", tokenId)
                     .headers(ClienteDeServicio::propagarElToken)
                     .retrieve()
-                    .toBodilessEntity();
+                    .toBodilessEntity());
             return true;
         } catch (org.springframework.web.client.RestClientResponseException
                 | org.springframework.web.client.ResourceAccessException noSePudo) {
-            // 422 (no es suyo / ya consumido), caida o timeout: no se da por revocada.
+            // 422 (no es suyo / ya consumido), caida, timeout o circuito abierto: no se da por revocada.
             return false;
         }
     }
 
     @Override
     public String nivelDeKyc(UUID usuarioId) {
-        return identidadConsultas
+        return identidad
                 .consultar("/usuarios/" + usuarioId + "/kyc", Kyc.class)
                 .map(Kyc::nivel)
                 .orElse("NINGUNO");
@@ -216,15 +245,20 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
 
     private record Kyc(String nivel) {}
 
+    /**
+     * El telefono viaja en el CUERPO de {@code POST /usuarios/busquedas/por-telefono} y no en la URL (regla 90.2.2:
+     * una URL queda en historiales, proxies y logs del gateway). Reemplaza al {@code GET /usuarios/por-telefono},
+     * deprecado por {@code identidad}, que este adaptador ya no usa.
+     */
     @Override
     public Optional<UUID> usuarioDelTelefono(String telefonoE164) {
         try {
-            var encontrado = identidad
-                    .get()
-                    .uri("/usuarios/por-telefono?telefono={t}", telefonoE164)
+            var encontrado = identidad.ejecutar(rest -> rest.post()
+                    .uri("/usuarios/busquedas/por-telefono")
                     .headers(ClienteDeServicio::propagarElToken)
+                    .body(Map.of("telefono", telefonoE164))
                     .retrieve()
-                    .body(Encontrado.class);
+                    .body(Encontrado.class));
             return encontrado != null && encontrado.existe()
                     ? Optional.ofNullable(encontrado.usuarioId())
                     : Optional.empty();

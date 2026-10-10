@@ -112,7 +112,9 @@ public class CU21CobrarAporte {
                     obligacion.saldo().pagado().mas(entrada.monto()),
                     obligacion.saldo().condonado(),
                     obligacion.saldo().cubiertoPorGarantia());
-            boolean vencida = obligacion.finDeGracia().isBefore(ahora.toLocalDate());
+            // El dia de la obligacion es el de La Paz, no el de UTC: a las 21:00 de La Paz del ultimo dia de
+            // gracia, UTC ya marca el dia siguiente y la persona quedaria en mora por pagar a tiempo.
+            boolean vencida = obligacion.finDeGracia().isBefore(reloj.hoy());
             String estadoNuevo = SaldoDeLaObligacion.estadoSegunSaldo(saldoDespues, vencida);
 
             if (!obligaciones.acreditar(
@@ -153,7 +155,7 @@ public class CU21CobrarAporte {
      */
     @Transactional
     public SalidaRecargos generarRecargos(ContextoSesion ctx) {
-        LocalDate hoy = reloj.ahora().atOffset(ZoneOffset.UTC).toLocalDate();
+        LocalDate hoy = reloj.hoy();
 
         return datos.conContexto(ctx, dsl -> {
             List<UUID> generados = new ArrayList<>();

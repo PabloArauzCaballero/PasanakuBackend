@@ -1,0 +1,505 @@
+heavy.sh: candado tomado, libres 3917 MB -> bash C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/f2/visual.sh bo H12-F2-bo-ronda2.e2e.log e2e/admisiones.e2e.ts e2e/f2-posiciones-y-roles.e2e.ts e2e/f2-red-y-teclado.e2e.ts
+== servidores arriba (prism 4010, backoffice 4300) ==
+
+Running 25 tests using 1 worker
+
+  ✓   1 [chromium] › e2e\admisiones.e2e.ts:105:7 › [UI con red simulada] admisión humana en backoffice › arranque en frío: el ingreso carga (258ms)
+  ✘   2 [chromium] › e2e\admisiones.e2e.ts:111:7 › [UI con red simulada] admisión humana en backoffice › BO con permiso: ve la propuesta y la evidencia, resuelve, y la resolución persiste tras recargar (6.1s)
+  ✘   3 [chromium] › e2e\admisiones.e2e.ts:148:7 › [UI con red simulada] admisión humana en backoffice › rol sin el permiso de la plataforma: la sección no aparece y la ruta no monta (sin acciones ajenas) (453ms)
+  ✓   4 [chromium] › e2e\admisiones.e2e.ts:161:7 › [UI con red simulada] admisión humana en backoffice › sin sesión no se entra a la solicitud (292ms)
+  ✘   5 [chromium] › e2e\admisiones.e2e.ts:167:7 › [UI con red simulada] admisión humana en backoffice › estados: cargando, vacío y error del servidor (2.3s)
+  ✘   6 [chromium] › e2e\admisiones.e2e.ts:192:7 › [UI con red simulada] admisión humana en backoffice › respuesta perdida: queda sin confirmar, verifica, reintenta con la MISMA clave y no duplica (649ms)
+  ✓   7 [chromium] › e2e\admisiones.e2e.ts:216:7 › [UI con red simulada] admisión humana en backoffice › envío que nunca llegó: verificar no la encuentra y el reintento reutiliza la misma clave (720ms)
+  ✘   8 [chromium] › e2e\admisiones.e2e.ts:240:7 › [UI con red simulada] admisión humana en backoffice › puerta de entrada: pide el identificador y rechaza uno mal formado (548ms)
+  ✘   9 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:52:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › posiciones separadas: gastable, comprometido en pozos y retenido, con cifras que reconcilian (1.3s)
+  ✘  10 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:69:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › sin separar: con el ejemplo real del contrato (sin comprometidoEnPozos) NO se afirma ninguna cifra gastable (695ms)
+  ✓  11 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:79:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › comprometido mayor que el disponible: se acota, lo gastable queda en cero y se avisa (685ms)
+  ✓  12 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:88:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › saldo incoherente (monedas distintas): no se muestra ninguna cifra (429ms)
+  ✓  13 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:97:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › cuenta en cero, error del servidor y cargando (643ms)
+  ✓  14 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › PARTICIPANTE: el menú ofrece solo Tablero y Ayuda; lo ajeno no monta ni escribiendo la dirección (490ms)
+  ✓  15 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › SOPORTE: el menú ofrece solo Operación; lo ajeno no monta ni escribiendo la dirección (606ms)
+  ✓  16 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › ADMIN_PLATAFORMA: el menú ofrece solo Cumplimiento, Admisiones, Sistemas; lo ajeno no monta ni escribiendo la dirección (477ms)
+  ✓  17 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › CONTABILIDAD: el menú ofrece solo Operación, Contabilidad; lo ajeno no monta ni escribiendo la dirección (542ms)
+  ✓  18 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:159:7 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › una ruta ajena no deja ninguna acción ni ningún código interno de permiso a la vista: vuelve al tablero (427ms)
+  ✘  19 [chromium] › e2e\f2-red-y-teclado.e2e.ts:57:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › respuesta perdida: avisa que no se pudo confirmar, conserva el monto, y el reintento reutiliza la clave y no duplica (425ms)
+  ✘  20 [chromium] › e2e\f2-red-y-teclado.e2e.ts:80:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › el botón no permite doble envío mientras la operación está en curso (450ms)
+  ✘  21 [chromium] › e2e\f2-red-y-teclado.e2e.ts:92:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › plazo vencido (30 s sin respuesta): «sin confirmar», no «falló»; el reintento reutiliza la clave (491ms)
+  ✘  22 [chromium] › e2e\f2-red-y-teclado.e2e.ts:109:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › sin conexión: el envío falla visible, lo escrito se conserva y al volver la red el reintento sale con la misma clave (445ms)
+  ✘  23 [chromium] › e2e\f2-red-y-teclado.e2e.ts:126:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › rechazo del servidor (422): dice que NO se completó, con el código de seguimiento, y no promete nada sobre repetir (437ms)
+  ✘  24 [chromium] › e2e\f2-red-y-teclado.e2e.ts:145:7 › teclado y foco en los flujos críticos del backoffice › cobro: se abre con Enter, el foco entra y queda atrapado en el diálogo, Escape lo cierra y el foco vuelve al botón (5.4s)
+  ✓  25 [chromium] › e2e\f2-red-y-teclado.e2e.ts:167:7 › teclado y foco en los flujos críticos del backoffice › ingreso: se completa y envía solo con teclado, el error de credenciales queda asociado al campo y el foco no se pierde (436ms)
+
+
+  1) [chromium] › e2e\admisiones.e2e.ts:111:7 › [UI con red simulada] admisión humana en backoffice › BO con permiso: ve la propuesta y la evidencia, resuelve, y la resolución persiste tras recargar 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Tablero' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Tablero' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Tablero' })
+
+
+      69 |   await page.getByLabel(/Contraseña/).fill('contrasena-de-prueba')
+      70 |   await page.getByRole('button', { name: 'Continuar' }).click()
+    > 71 |   await expect(page.getByRole('heading', { name: 'Tablero' })).toBeVisible()
+         |                                                                ^
+      72 | }
+      73 |
+      74 | /** Navegación dentro de la app (sin recargar: la sesión vive solo en memoria). */
+        at ingresar (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:71:64)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:141:5
+
+    Error Context: ..\..\.playwright\backoffice\admisiones.e2e.ts--UI-con--0e8ba-ción-persiste-tras-recargar-chromium\error-context.md
+
+  2) [chromium] › e2e\admisiones.e2e.ts:148:7 › [UI con red simulada] admisión humana en backoffice › rol sin el permiso de la plataforma: la sección no aparece y la ruta no monta (sin acciones ajenas) 
+
+    Error: consola: WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS | WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS | [vite] failed to connect to websocket.
+    your current setup:
+      (browser) 127.0.0.1:4300/ <--[HTTP]--> 127.0.0.1:4300/ (server)
+      (browser) 127.0.0.1:4300/ <--[WebSocket (failing)]--> 127.0.0.1:4300/ (server)
+    Check out your Vite / network configuration and https://vite.dev/config/server-options.html#server-hmr . | Failed to send error to Vite server: TypeError: Cannot read properties of undefined (reading 'send')
+        at Object.send (http://127.0.0.1:4300/@vite/client:444:7)
+        at Object.send (http://127.0.0.1:4300/@vite/client:900:16)
+        at Object.send (http://127.0.0.1:4300/@vite/client:307:21)
+        at Object.send (http://127.0.0.1:4300/@vite/client:385:30)
+        at sendError (http://127.0.0.1:4300/@vite/client:486:19)
+        at sendLog (http://127.0.0.1:4300/@vite/client:514:11) | Failed to load resource: the server responded with a status of 401 (Unauthorized)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 17
+
+    - Array []
+    + Array [
+    +   "WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+    +   "WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+    +   "[vite] failed to connect to websocket.
+    + your current setup:
+    +   (browser) 127.0.0.1:4300/ <--[HTTP]--> 127.0.0.1:4300/ (server)
+    +   (browser) 127.0.0.1:4300/ <--[WebSocket (failing)]--> 127.0.0.1:4300/ (server)
+    + Check out your Vite / network configuration and https://vite.dev/config/server-options.html#server-hmr .",
+    +   "Failed to send error to Vite server: TypeError: Cannot read properties of undefined (reading 'send')
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:444:7)
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:900:16)
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:307:21)
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:385:30)
+    +     at sendError (http://127.0.0.1:4300/@vite/client:486:19)
+    +     at sendLog (http://127.0.0.1:4300/@vite/client:514:11)",
+    +   "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    + ]
+        at Object.send (http://127.0.0.1:4300/@vite/client:444:7)
+        at Object.send (http://127.0.0.1:4300/@vite/client:900:16)
+        at Object.send (http://127.0.0.1:4300/@vite/client:307:21)
+        at Object.send (http://127.0.0.1:4300/@vite/client:385:30)
+        at sendError (http://127.0.0.1:4300/@vite/client:486:19)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:158:56
+
+    Error Context: ..\..\.playwright\backoffice\admisiones.e2e.ts--UI-con--b0b84--monta-sin-acciones-ajenas--chromium\error-context.md
+
+  3) [chromium] › e2e\admisiones.e2e.ts:167:7 › [UI con red simulada] admisión humana en backoffice › estados: cargando, vacío y error del servidor 
+
+    Error: consola: WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS | WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS | [vite] failed to connect to websocket.
+    your current setup:
+      (browser) 127.0.0.1:4300/ <--[HTTP]--> 127.0.0.1:4300/ (server)
+      (browser) 127.0.0.1:4300/ <--[WebSocket (failing)]--> 127.0.0.1:4300/ (server)
+    Check out your Vite / network configuration and https://vite.dev/config/server-options.html#server-hmr . | Failed to send error to Vite server: TypeError: Cannot read properties of undefined (reading 'send')
+        at Object.send (http://127.0.0.1:4300/@vite/client:444:7)
+        at Object.send (http://127.0.0.1:4300/@vite/client:900:16)
+        at Object.send (http://127.0.0.1:4300/@vite/client:307:21)
+        at Object.send (http://127.0.0.1:4300/@vite/client:385:30)
+        at sendError (http://127.0.0.1:4300/@vite/client:486:19)
+        at sendLog (http://127.0.0.1:4300/@vite/client:514:11) | Failed to load resource: the server responded with a status of 401 (Unauthorized) | Failed to load resource: the server responded with a status of 422 (Unprocessable Entity)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 16
+
+    - Array []
+    + Array [
+    +   "WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+    +   "WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+    +   "[vite] failed to connect to websocket.
+    + your current setup:
+    +   (browser) 127.0.0.1:4300/ <--[HTTP]--> 127.0.0.1:4300/ (server)
+    +   (browser) 127.0.0.1:4300/ <--[WebSocket (failing)]--> 127.0.0.1:4300/ (server)
+    + Check out your Vite / network configuration and https://vite.dev/config/server-options.html#server-hmr .",
+    +   "Failed to send error to Vite server: TypeError: Cannot read properties of undefined (reading 'send')
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:444:7)
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:900:16)
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:307:21)
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:385:30)
+    +     at sendError (http://127.0.0.1:4300/@vite/client:486:19)
+    +     at sendLog (http://127.0.0.1:4300/@vite/client:514:11)",
+    + ]
+        at Object.send (http://127.0.0.1:4300/@vite/client:444:7)
+        at Object.send (http://127.0.0.1:4300/@vite/client:900:16)
+        at Object.send (http://127.0.0.1:4300/@vite/client:307:21)
+        at Object.send (http://127.0.0.1:4300/@vite/client:385:30)
+        at sendError (http://127.0.0.1:4300/@vite/client:486:19)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:189:106
+
+    Error Context: ..\..\.playwright\backoffice\admisiones.e2e.ts--UI-con--283b1--vacío-y-error-del-servidor-chromium\error-context.md
+
+  4) [chromium] › e2e\admisiones.e2e.ts:192:7 › [UI con red simulada] admisión humana en backoffice › respuesta perdida: queda sin confirmar, verifica, reintenta con la MISMA clave y no duplica 
+
+    Error: consola: WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS | WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS | [vite] failed to connect to websocket.
+    your current setup:
+      (browser) 127.0.0.1:4300/ <--[HTTP]--> 127.0.0.1:4300/ (server)
+      (browser) 127.0.0.1:4300/ <--[WebSocket (failing)]--> 127.0.0.1:4300/ (server)
+    Check out your Vite / network configuration and https://vite.dev/config/server-options.html#server-hmr . | Failed to send error to Vite server: TypeError: Cannot read properties of undefined (reading 'send')
+        at Object.send (http://127.0.0.1:4300/@vite/client:444:7)
+        at Object.send (http://127.0.0.1:4300/@vite/client:900:16)
+        at Object.send (http://127.0.0.1:4300/@vite/client:307:21)
+        at Object.send (http://127.0.0.1:4300/@vite/client:385:30)
+        at sendError (http://127.0.0.1:4300/@vite/client:486:19)
+        at sendLog (http://127.0.0.1:4300/@vite/client:514:11) | Failed to load resource: the server responded with a status of 401 (Unauthorized) | Failed to load resource: net::ERR_CONNECTION_RESET
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 14
+
+    - Array []
+    + Array [
+    +   "[vite] failed to connect to websocket.
+    + your current setup:
+    +   (browser) 127.0.0.1:4300/ <--[HTTP]--> 127.0.0.1:4300/ (server)
+    +   (browser) 127.0.0.1:4300/ <--[WebSocket (failing)]--> 127.0.0.1:4300/ (server)
+    + Check out your Vite / network configuration and https://vite.dev/config/server-options.html#server-hmr .",
+    +   "Failed to send error to Vite server: TypeError: Cannot read properties of undefined (reading 'send')
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:444:7)
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:900:16)
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:307:21)
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:385:30)
+    +     at sendError (http://127.0.0.1:4300/@vite/client:486:19)
+    +     at sendLog (http://127.0.0.1:4300/@vite/client:514:11)",
+    + ]
+        at Object.send (http://127.0.0.1:4300/@vite/client:444:7)
+        at Object.send (http://127.0.0.1:4300/@vite/client:900:16)
+        at Object.send (http://127.0.0.1:4300/@vite/client:307:21)
+        at Object.send (http://127.0.0.1:4300/@vite/client:385:30)
+        at sendError (http://127.0.0.1:4300/@vite/client:486:19)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:213:111
+
+    Error Context: ..\..\.playwright\backoffice\admisiones.e2e.ts--UI-con--a9fdd-la-MISMA-clave-y-no-duplica-chromium\error-context.md
+
+  5) [chromium] › e2e\admisiones.e2e.ts:240:7 › [UI con red simulada] admisión humana en backoffice › puerta de entrada: pide el identificador y rechaza uno mal formado 
+
+    Error: consola: WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS | WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS | [vite] failed to connect to websocket.
+    your current setup:
+      (browser) 127.0.0.1:4300/ <--[HTTP]--> 127.0.0.1:4300/ (server)
+      (browser) 127.0.0.1:4300/ <--[WebSocket (failing)]--> 127.0.0.1:4300/ (server)
+    Check out your Vite / network configuration and https://vite.dev/config/server-options.html#server-hmr . | Failed to send error to Vite server: TypeError: Cannot read properties of undefined (reading 'send')
+        at Object.send (http://127.0.0.1:4300/@vite/client:444:7)
+        at Object.send (http://127.0.0.1:4300/@vite/client:900:16)
+        at Object.send (http://127.0.0.1:4300/@vite/client:307:21)
+        at Object.send (http://127.0.0.1:4300/@vite/client:385:30)
+        at sendError (http://127.0.0.1:4300/@vite/client:486:19)
+        at sendLog (http://127.0.0.1:4300/@vite/client:514:11) | Failed to load resource: the server responded with a status of 401 (Unauthorized)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 16
+
+    - Array []
+    + Array [
+    +   "WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+    +   "WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+    +   "[vite] failed to connect to websocket.
+    + your current setup:
+    +   (browser) 127.0.0.1:4300/ <--[HTTP]--> 127.0.0.1:4300/ (server)
+    +   (browser) 127.0.0.1:4300/ <--[WebSocket (failing)]--> 127.0.0.1:4300/ (server)
+    + Check out your Vite / network configuration and https://vite.dev/config/server-options.html#server-hmr .",
+    +   "Failed to send error to Vite server: TypeError: Cannot read properties of undefined (reading 'send')
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:444:7)
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:900:16)
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:307:21)
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:385:30)
+    +     at sendError (http://127.0.0.1:4300/@vite/client:486:19)
+    +     at sendLog (http://127.0.0.1:4300/@vite/client:514:11)",
+    + ]
+        at Object.send (http://127.0.0.1:4300/@vite/client:444:7)
+        at Object.send (http://127.0.0.1:4300/@vite/client:900:16)
+        at Object.send (http://127.0.0.1:4300/@vite/client:307:21)
+        at Object.send (http://127.0.0.1:4300/@vite/client:385:30)
+        at sendError (http://127.0.0.1:4300/@vite/client:486:19)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:252:106
+
+    Error Context: ..\..\.playwright\backoffice\admisiones.e2e.ts--UI-con--08b26-r-y-rechaza-uno-mal-formado-chromium\error-context.md
+
+  6) [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:52:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › posiciones separadas: gastable, comprometido en pozos y retenido, con cifras que reconcilian 
+
+    Error: consola: WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS | WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS | [vite] failed to connect to websocket.
+    your current setup:
+      (browser) 127.0.0.1:4300/ <--[HTTP]--> 127.0.0.1:4300/ (server)
+      (browser) 127.0.0.1:4300/ <--[WebSocket (failing)]--> 127.0.0.1:4300/ (server)
+    Check out your Vite / network configuration and https://vite.dev/config/server-options.html#server-hmr . | Failed to send error to Vite server: TypeError: Cannot read properties of undefined (reading 'send')
+        at Object.send (http://127.0.0.1:4300/@vite/client:444:7)
+        at Object.send (http://127.0.0.1:4300/@vite/client:900:16)
+        at Object.send (http://127.0.0.1:4300/@vite/client:307:21)
+        at Object.send (http://127.0.0.1:4300/@vite/client:385:30)
+        at sendError (http://127.0.0.1:4300/@vite/client:486:19)
+        at sendLog (http://127.0.0.1:4300/@vite/client:514:11) | Failed to load resource: the server responded with a status of 404 (Not Found)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 16
+
+    - Array []
+    + Array [
+    +   "WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+    +   "WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+    +   "[vite] failed to connect to websocket.
+    + your current setup:
+    +   (browser) 127.0.0.1:4300/ <--[HTTP]--> 127.0.0.1:4300/ (server)
+    +   (browser) 127.0.0.1:4300/ <--[WebSocket (failing)]--> 127.0.0.1:4300/ (server)
+    + Check out your Vite / network configuration and https://vite.dev/config/server-options.html#server-hmr .",
+    +   "Failed to send error to Vite server: TypeError: Cannot read properties of undefined (reading 'send')
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:444:7)
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:900:16)
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:307:21)
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:385:30)
+    +     at sendError (http://127.0.0.1:4300/@vite/client:486:19)
+    +     at sendLog (http://127.0.0.1:4300/@vite/client:514:11)",
+    + ]
+        at Object.send (http://127.0.0.1:4300/@vite/client:444:7)
+        at Object.send (http://127.0.0.1:4300/@vite/client:900:16)
+        at Object.send (http://127.0.0.1:4300/@vite/client:307:21)
+        at Object.send (http://127.0.0.1:4300/@vite/client:385:30)
+        at sendError (http://127.0.0.1:4300/@vite/client:486:19)
+        at sinErroresDeConsola (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-posiciones-y-roles.e2e.ts:50:138)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-posiciones-y-roles.e2e.ts:66:5
+
+    Error Context: ..\..\.playwright\backoffice\f2-posiciones-y-roles.e2e.-76a37--con-cifras-que-reconcilian-chromium\error-context.md
+
+  7) [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:69:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › sin separar: con el ejemplo real del contrato (sin comprometidoEnPozos) NO se afirma ninguna cifra gastable 
+
+    Error: consola: WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS | WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS | [vite] failed to connect to websocket.
+    your current setup:
+      (browser) 127.0.0.1:4300/ <--[HTTP]--> 127.0.0.1:4300/ (server)
+      (browser) 127.0.0.1:4300/ <--[WebSocket (failing)]--> 127.0.0.1:4300/ (server)
+    Check out your Vite / network configuration and https://vite.dev/config/server-options.html#server-hmr . | Failed to send error to Vite server: TypeError: Cannot read properties of undefined (reading 'send')
+        at Object.send (http://127.0.0.1:4300/@vite/client:444:7)
+        at Object.send (http://127.0.0.1:4300/@vite/client:900:16)
+        at Object.send (http://127.0.0.1:4300/@vite/client:307:21)
+        at Object.send (http://127.0.0.1:4300/@vite/client:385:30)
+        at sendError (http://127.0.0.1:4300/@vite/client:486:19)
+        at sendLog (http://127.0.0.1:4300/@vite/client:514:11) | Failed to load resource: the server responded with a status of 404 (Not Found)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 16
+
+    - Array []
+    + Array [
+    +   "WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+    +   "WebSocket connection to 'ws://127.0.0.1:4300/?token=nKCY9pmnoK-z' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+    +   "[vite] failed to connect to websocket.
+    + your current setup:
+    +   (browser) 127.0.0.1:4300/ <--[HTTP]--> 127.0.0.1:4300/ (server)
+    +   (browser) 127.0.0.1:4300/ <--[WebSocket (failing)]--> 127.0.0.1:4300/ (server)
+    + Check out your Vite / network configuration and https://vite.dev/config/server-options.html#server-hmr .",
+    +   "Failed to send error to Vite server: TypeError: Cannot read properties of undefined (reading 'send')
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:444:7)
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:900:16)
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:307:21)
+    +     at Object.send (http://127.0.0.1:4300/@vite/client:385:30)
+    +     at sendError (http://127.0.0.1:4300/@vite/client:486:19)
+    +     at sendLog (http://127.0.0.1:4300/@vite/client:514:11)",
+    + ]
+        at Object.send (http://127.0.0.1:4300/@vite/client:444:7)
+        at Object.send (http://127.0.0.1:4300/@vite/client:900:16)
+        at Object.send (http://127.0.0.1:4300/@vite/client:307:21)
+        at Object.send (http://127.0.0.1:4300/@vite/client:385:30)
+        at sendError (http://127.0.0.1:4300/@vite/client:486:19)
+        at sinErroresDeConsola (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-posiciones-y-roles.e2e.ts:50:138)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-posiciones-y-roles.e2e.ts:76:5
+
+    Error Context: ..\..\.playwright\backoffice\f2-posiciones-y-roles.e2e.-e47c2-irma-ninguna-cifra-gastable-chromium\error-context.md
+
+  8) [chromium] › e2e\f2-red-y-teclado.e2e.ts:57:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › respuesta perdida: avisa que no se pudo confirmar, conserva el monto, y el reintento reutiliza la clave y no duplica 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Cuentas por cobrar' })
+    Expected: visible
+    Error: strict mode violation: getByRole('heading', { name: 'Cuentas por cobrar' }) resolved to 2 elements:
+        1) <h1 _ngcontent-ng-c1109127353="">Cuentas por cobrar</h1> aka locator('h1')
+        2) <h2 _ngcontent-ng-c3145866430="">Cuentas por cobrar</h2> aka locator('h2')
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Cuentas por cobrar' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Cuentas por cobrar' })
+
+
+      41 |   await iniciarSesionDePrueba(page, ['CONTABILIDAD', 'CONTABILIDAD_ERP_COBRAR'], 'CONTABILIDAD')
+      42 |   await navegarSinRecargar(page, '/contabilidad/cobros')
+    > 43 |   await expect(page.getByRole('heading', { name: 'Cuentas por cobrar' })).toBeVisible()
+         |                                                                           ^
+      44 |   await page.getByRole('button', { name: 'Cobrar', exact: true }).click()
+      45 |   await expect(page.getByRole('dialog')).toBeVisible()
+      46 | }
+        at abrirElCobro (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-red-y-teclado.e2e.ts:43:75)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-red-y-teclado.e2e.ts:59:5
+
+    Error Context: ..\..\.playwright\backoffice\f2-red-y-teclado.e2e.ts--d-6a1a7-iliza-la-clave-y-no-duplica-chromium\error-context.md
+
+  9) [chromium] › e2e\f2-red-y-teclado.e2e.ts:80:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › el botón no permite doble envío mientras la operación está en curso 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Cuentas por cobrar' })
+    Expected: visible
+    Error: strict mode violation: getByRole('heading', { name: 'Cuentas por cobrar' }) resolved to 2 elements:
+        1) <h1 _ngcontent-ng-c1109127353="">Cuentas por cobrar</h1> aka locator('h1')
+        2) <h2 _ngcontent-ng-c3145866430="">Cuentas por cobrar</h2> aka locator('h2')
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Cuentas por cobrar' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Cuentas por cobrar' })
+
+
+      41 |   await iniciarSesionDePrueba(page, ['CONTABILIDAD', 'CONTABILIDAD_ERP_COBRAR'], 'CONTABILIDAD')
+      42 |   await navegarSinRecargar(page, '/contabilidad/cobros')
+    > 43 |   await expect(page.getByRole('heading', { name: 'Cuentas por cobrar' })).toBeVisible()
+         |                                                                           ^
+      44 |   await page.getByRole('button', { name: 'Cobrar', exact: true }).click()
+      45 |   await expect(page.getByRole('dialog')).toBeVisible()
+      46 | }
+        at abrirElCobro (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-red-y-teclado.e2e.ts:43:75)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-red-y-teclado.e2e.ts:82:5
+
+    Error Context: ..\..\.playwright\backoffice\f2-red-y-teclado.e2e.ts--d-e3da3--la-operación-está-en-curso-chromium\error-context.md
+
+  10) [chromium] › e2e\f2-red-y-teclado.e2e.ts:92:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › plazo vencido (30 s sin respuesta): «sin confirmar», no «falló»; el reintento reutiliza la clave 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Cuentas por cobrar' })
+    Expected: visible
+    Error: strict mode violation: getByRole('heading', { name: 'Cuentas por cobrar' }) resolved to 2 elements:
+        1) <h1 _ngcontent-ng-c1109127353="">Cuentas por cobrar</h1> aka locator('h1')
+        2) <h2 _ngcontent-ng-c3145866430="">Cuentas por cobrar</h2> aka locator('h2')
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Cuentas por cobrar' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Cuentas por cobrar' })
+
+
+      41 |   await iniciarSesionDePrueba(page, ['CONTABILIDAD', 'CONTABILIDAD_ERP_COBRAR'], 'CONTABILIDAD')
+      42 |   await navegarSinRecargar(page, '/contabilidad/cobros')
+    > 43 |   await expect(page.getByRole('heading', { name: 'Cuentas por cobrar' })).toBeVisible()
+         |                                                                           ^
+      44 |   await page.getByRole('button', { name: 'Cobrar', exact: true }).click()
+      45 |   await expect(page.getByRole('dialog')).toBeVisible()
+      46 | }
+        at abrirElCobro (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-red-y-teclado.e2e.ts:43:75)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-red-y-teclado.e2e.ts:95:5
+
+    Error Context: ..\..\.playwright\backoffice\f2-red-y-teclado.e2e.ts--d-f43a9-eintento-reutiliza-la-clave-chromium\error-context.md
+
+  11) [chromium] › e2e\f2-red-y-teclado.e2e.ts:109:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › sin conexión: el envío falla visible, lo escrito se conserva y al volver la red el reintento sale con la misma clave 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Cuentas por cobrar' })
+    Expected: visible
+    Error: strict mode violation: getByRole('heading', { name: 'Cuentas por cobrar' }) resolved to 2 elements:
+        1) <h1 _ngcontent-ng-c1109127353="">Cuentas por cobrar</h1> aka locator('h1')
+        2) <h2 _ngcontent-ng-c3145866430="">Cuentas por cobrar</h2> aka locator('h2')
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Cuentas por cobrar' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Cuentas por cobrar' })
+
+
+      41 |   await iniciarSesionDePrueba(page, ['CONTABILIDAD', 'CONTABILIDAD_ERP_COBRAR'], 'CONTABILIDAD')
+      42 |   await navegarSinRecargar(page, '/contabilidad/cobros')
+    > 43 |   await expect(page.getByRole('heading', { name: 'Cuentas por cobrar' })).toBeVisible()
+         |                                                                           ^
+      44 |   await page.getByRole('button', { name: 'Cobrar', exact: true }).click()
+      45 |   await expect(page.getByRole('dialog')).toBeVisible()
+      46 | }
+        at abrirElCobro (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-red-y-teclado.e2e.ts:43:75)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-red-y-teclado.e2e.ts:111:5
+
+    Error Context: ..\..\.playwright\backoffice\f2-red-y-teclado.e2e.ts--d-56848-nto-sale-con-la-misma-clave-chromium\error-context.md
+
+  12) [chromium] › e2e\f2-red-y-teclado.e2e.ts:126:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › rechazo del servidor (422): dice que NO se completó, con el código de seguimiento, y no promete nada sobre repetir 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Cuentas por cobrar' })
+    Expected: visible
+    Error: strict mode violation: getByRole('heading', { name: 'Cuentas por cobrar' }) resolved to 2 elements:
+        1) <h1 _ngcontent-ng-c1109127353="">Cuentas por cobrar</h1> aka locator('h1')
+        2) <h2 _ngcontent-ng-c3145866430="">Cuentas por cobrar</h2> aka locator('h2')
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Cuentas por cobrar' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Cuentas por cobrar' })
+
+
+      41 |   await iniciarSesionDePrueba(page, ['CONTABILIDAD', 'CONTABILIDAD_ERP_COBRAR'], 'CONTABILIDAD')
+      42 |   await navegarSinRecargar(page, '/contabilidad/cobros')
+    > 43 |   await expect(page.getByRole('heading', { name: 'Cuentas por cobrar' })).toBeVisible()
+         |                                                                           ^
+      44 |   await page.getByRole('button', { name: 'Cobrar', exact: true }).click()
+      45 |   await expect(page.getByRole('dialog')).toBeVisible()
+      46 | }
+        at abrirElCobro (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-red-y-teclado.e2e.ts:43:75)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-red-y-teclado.e2e.ts:128:5
+
+    Error Context: ..\..\.playwright\backoffice\f2-red-y-teclado.e2e.ts--d-d9236--promete-nada-sobre-repetir-chromium\error-context.md
+
+  13) [chromium] › e2e\f2-red-y-teclado.e2e.ts:145:7 › teclado y foco en los flujos críticos del backoffice › cobro: se abre con Enter, el foco entra y queda atrapado en el diálogo, Escape lo cierra y el foco vuelve al botón 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Cobrar', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Cobrar', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Cobrar', exact: true })
+
+
+      149 |     await navegarSinRecargar(page, '/contabilidad/cobros')
+      150 |     const boton = page.getByRole('button', { name: 'Cobrar', exact: true })
+    > 151 |     await expect(boton).toBeVisible()
+          |                         ^
+      152 |     await boton.focus()
+      153 |     await page.keyboard.press('Enter')
+      154 |     const dialogo = page.getByRole('dialog')
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-red-y-teclado.e2e.ts:151:25
+
+    Error Context: ..\..\.playwright\backoffice\f2-red-y-teclado.e2e.ts-te-a5623-a-y-el-foco-vuelve-al-botón-chromium\error-context.md
+
+  13 failed
+    [chromium] › e2e\admisiones.e2e.ts:111:7 › [UI con red simulada] admisión humana en backoffice › BO con permiso: ve la propuesta y la evidencia, resuelve, y la resolución persiste tras recargar 
+    [chromium] › e2e\admisiones.e2e.ts:148:7 › [UI con red simulada] admisión humana en backoffice › rol sin el permiso de la plataforma: la sección no aparece y la ruta no monta (sin acciones ajenas) 
+    [chromium] › e2e\admisiones.e2e.ts:167:7 › [UI con red simulada] admisión humana en backoffice › estados: cargando, vacío y error del servidor 
+    [chromium] › e2e\admisiones.e2e.ts:192:7 › [UI con red simulada] admisión humana en backoffice › respuesta perdida: queda sin confirmar, verifica, reintenta con la MISMA clave y no duplica 
+    [chromium] › e2e\admisiones.e2e.ts:240:7 › [UI con red simulada] admisión humana en backoffice › puerta de entrada: pide el identificador y rechaza uno mal formado 
+    [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:52:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › posiciones separadas: gastable, comprometido en pozos y retenido, con cifras que reconcilian 
+    [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:69:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › sin separar: con el ejemplo real del contrato (sin comprometidoEnPozos) NO se afirma ninguna cifra gastable 
+    [chromium] › e2e\f2-red-y-teclado.e2e.ts:57:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › respuesta perdida: avisa que no se pudo confirmar, conserva el monto, y el reintento reutiliza la clave y no duplica 
+    [chromium] › e2e\f2-red-y-teclado.e2e.ts:80:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › el botón no permite doble envío mientras la operación está en curso 
+    [chromium] › e2e\f2-red-y-teclado.e2e.ts:92:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › plazo vencido (30 s sin respuesta): «sin confirmar», no «falló»; el reintento reutiliza la clave 
+    [chromium] › e2e\f2-red-y-teclado.e2e.ts:109:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › sin conexión: el envío falla visible, lo escrito se conserva y al volver la red el reintento sale con la misma clave 
+    [chromium] › e2e\f2-red-y-teclado.e2e.ts:126:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › rechazo del servidor (422): dice que NO se completó, con el código de seguimiento, y no promete nada sobre repetir 
+    [chromium] › e2e\f2-red-y-teclado.e2e.ts:145:7 › teclado y foco en los flujos críticos del backoffice › cobro: se abre con Enter, el foco entra y queda atrapado en el diálogo, Escape lo cierra y el foco vuelve al botón 
+  12 passed (33.9s)
+visual.sh bo rc=1

@@ -8,6 +8,7 @@ import bo.aportaya.entregas.web.generado.modelo.EjecutarEntregaRequest;
 import bo.aportaya.entregas.web.generado.modelo.EntradaFondeoDelPozo;
 import bo.aportaya.entregas.web.generado.modelo.EntradaLiquidacion;
 import bo.aportaya.entregas.web.generado.modelo.EntradaOferta;
+import bo.aportaya.entregas.web.generado.modelo.OfertaParaPago;
 import bo.aportaya.entregas.web.generado.modelo.PaginaDeOfertas;
 import bo.aportaya.entregas.web.generado.modelo.SalidaAutorizacion;
 import bo.aportaya.entregas.web.generado.modelo.SalidaCancelacionDeOferta;
@@ -156,6 +157,16 @@ public class EntregasController implements EntregasApi {
     @Permiso("PARTICIPANTE")
     public ResponseEntity<PaginaDeOfertas> listarOfertas(Integer limite, Integer pagina) {
         return mercado.listarOfertas(limite, pagina);
+    }
+
+    /**
+     * H9.S1.M5: lo pide `nucleo-financiero` al pagar al vendedor. El token que viaja es el de la identidad de servicio
+     * de `entregas` (la operacion de nucleo solo la ejecuta ella), no el de un participante.
+     */
+    @Override
+    @Permiso("SERVICIO_ENTREGAS")
+    public ResponseEntity<OfertaParaPago> consultarOfertaParaPago(UUID ofertaId) {
+        return mercado.consultarOfertaParaPago(ofertaId);
     }
 
     @Override

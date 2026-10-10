@@ -56,6 +56,11 @@ public class CU23CubrirFaltanteDelCorte {
                     "El faltante informado no coincide con el que confirma aportes: no se cubre nada.",
                     Map.of("informado", pedido.faltanteEsperado().toString(), "confirmado", faltante.toString()));
         }
+        if (!faltante.esMayorQue(Dinero.cero(faltante.moneda()))) {
+            // Los pagos tardios llenaron el pozo: ya no hay faltante, y la contingencia de ese grupo se cierra.
+            // Se confirma en su propia transaccion y recien despues se rechaza, como antes (AP-CU23-09).
+            cobertura.cerrarContingencia(recaudo.grupoId(), pedido.turnoId(), ctx);
+        }
         List<CU23CubrirConRespaldo.Linea> lineas = recaudo.pendientes().stream()
                 .map(p -> new CU23CubrirConRespaldo.Linea(p.obligacionId(), p.monto()))
                 .toList();

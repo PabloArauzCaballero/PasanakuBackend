@@ -7,6 +7,7 @@ import bo.aportaya.inversiones.dominio.TipoProducto;
 import bo.aportaya.inversiones.dominio.puertos.AliadoDeInversion;
 import bo.aportaya.inversiones.dominio.puertos.AliadoDeInversion.AliadoNoDisponible;
 import bo.aportaya.inversiones.dominio.puertos.AliadoDeInversion.ProductoDelAliado;
+import bo.aportaya.inversiones.dominio.puertos.AliadoDeInversion.RespuestaNoVerificable;
 import bo.aportaya.inversiones.infraestructura.CatalogoRepositorio;
 import bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.Producto;
 import bo.aportaya.inversiones.infraestructura.GuardiaDeProduccion;
@@ -85,6 +86,9 @@ public class CU120Catalogo {
         List<ProductoDelAliado> productos;
         try {
             productos = aliado.catalogo();
+        } catch (RespuestaNoVerificable e) {
+            // El aliado contesto pero la firma, la ventana o la forma no se pueden dar por ciertas: no se toma nada.
+            throw Errores.de(120, 3, "La respuesta del aliado no se pudo verificar: no se guardo nada.");
         } catch (AliadoNoDisponible e) {
             throw Errores.de(120, 2, "No pudimos consultar el catalogo del aliado en este momento.");
         }
@@ -171,6 +175,14 @@ public class CU120Catalogo {
                 p.fechaCotizacion(),
                 origen,
                 !p.sintetico());
+    }
+
+    /** Un producto vigente por su codigo; uno que no existe, o que no se ofrece en este entorno, no existe para quien pregunta. */
+    public VistaProducto producto(String codigo, ContextoSesion ctx) {
+        return listar(ctx).stream()
+                .filter(v -> v.codigo().equals(codigo))
+                .findFirst()
+                .orElseThrow(() -> Errores.de(120, 1, "Ese producto no existe."));
     }
 
     public List<VistaProducto> listar(ContextoSesion ctx) {

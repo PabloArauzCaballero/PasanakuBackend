@@ -1,0 +1,882 @@
+{
+  "config": {
+    "argv": [
+      "C:\\nvm4w\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Downloads\\Entrypoint-GitHUb\\Pasanaku\\PasanakuBackend-cierre\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "-c",
+      "e2e/aceptacion/playwright.aceptacion.config.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Downloads\\Entrypoint-GitHUb\\Pasanaku\\PasanakuBackend-cierre\\apps\\backoffice\\e2e\\aceptacion\\playwright.aceptacion.config.ts",
+    "rootDir": "C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/backoffice/e2e/aceptacion",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\Users\\Usuario\\Downloads\\Entrypoint-GitHUb\\Pasanaku\\PasanakuBackend-cierre\\apps\\backoffice\\e2e\\aceptacion\\apoyo\\global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-E3/trazas/mock",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/backoffice/e2e/aceptacion",
+        "testIgnore": [],
+        "testMatch": [
+          "/.*\\.aceptacion\\.e2e\\.ts/"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Downloads\\Entrypoint-GitHUb\\Pasanaku\\PasanakuBackend-cierre\\docs\\trabajo\\2026-10-08-endurecimiento-integral\\evidencia\\carril-E3\\resultado-mock.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "f1-invitacion.aceptacion.e2e.ts",
+      "file": "f1-invitacion.aceptacion.e2e.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "F1 · invitación por enlace de un solo uso",
+          "file": "f1-invitacion.aceptacion.e2e.ts",
+          "line": 15,
+          "column": 6,
+          "specs": [
+            {
+              "title": "el secreto sale de la URL y de toda petición; A pide ingreso; el enlace se consume una sola vez",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2525,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-10T05:06:51.648Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2b6deb675cbad495fdc9-347a04f97d1da74e8168",
+              "file": "f1-invitacion.aceptacion.e2e.ts",
+              "line": 16,
+              "column": 7
+            },
+            {
+              "title": "el reintento con la MISMA clave devuelve la misma solicitud (la respuesta se perdió, no se duplica)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 48,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-10T05:06:54.347Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2b6deb675cbad495fdc9-5d567aae34b53874ebef",
+              "file": "f1-invitacion.aceptacion.e2e.ts",
+              "line": 69,
+              "column": 7
+            },
+            {
+              "title": "rechazos del canje: sin sesión, secreto mal formado, secreto de otra invitación y clave ausente",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 49,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-10T05:06:54.400Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2b6deb675cbad495fdc9-67e5a2f0cec3c3c324dd",
+              "file": "f1-invitacion.aceptacion.e2e.ts",
+              "line": 80,
+              "column": 7
+            },
+            {
+              "title": "segundo uso en la web: el enlace consumido se sigue viendo «listo» (la web no consulta al servidor) — brecha declarada",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "BRECHA",
+                      "description": "apps/web/src/app/paginas/invitacion/invitacion.ts: un enlace ya consumido o revocado se ve igual que uno vigente hasta abrir la app."
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 612,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-10T05:06:54.455Z",
+                      "annotations": [
+                        {
+                          "type": "BRECHA",
+                          "description": "apps/web/src/app/paginas/invitacion/invitacion.ts: un enlace ya consumido o revocado se ve igual que uno vigente hasta abrir la app."
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2b6deb675cbad495fdc9-dc1b01cd68c6d08caad2",
+              "file": "f1-invitacion.aceptacion.e2e.ts",
+              "line": 94,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "f2-aceptar.aceptacion.e2e.ts",
+      "file": "f2-aceptar.aceptacion.e2e.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "F2 · aceptar una solicitud (dos usuarios)",
+          "file": "f2-aceptar.aceptacion.e2e.ts",
+          "line": 19,
+          "column": 6,
+          "specs": [
+            {
+              "title": "B aprueba con motivo, el estado persiste tras recargar y A ve su participación una sola vez",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "ESTADO-REAL",
+                      "description": "participación de A tras aceptar: PENDIENTE_FIRMA"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4984,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-10T05:06:55.078Z",
+                      "annotations": [
+                        {
+                          "type": "ESTADO-REAL",
+                          "description": "participación de A tras aceptar: PENDIENTE_FIRMA"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a035d19a2bd977f68254-9b1382e7cedadf0b87f1",
+              "file": "f2-aceptar.aceptacion.e2e.ts",
+              "line": 20,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "f3-rechazar.aceptacion.e2e.ts",
+      "file": "f3-rechazar.aceptacion.e2e.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "F3 · rechazar una solicitud (dos usuarios)",
+          "file": "f3-rechazar.aceptacion.e2e.ts",
+          "line": 17,
+          "column": 6,
+          "specs": [
+            {
+              "title": "B rechaza con motivo; no queda membresía; no se puede reabrir sin una nueva revisión",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4732,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-10T05:07:00.072Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "78b406fdda9cccd23946-60fcbbcd3984cc3efbae",
+              "file": "f3-rechazar.aceptacion.e2e.ts",
+              "line": 18,
+              "column": 7
+            },
+            {
+              "title": "el motivo de más de 1000 caracteres se rechaza en el campo y no se envía",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1001,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-10T05:07:04.812Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "78b406fdda9cccd23946-40eef65dc68108363079",
+              "file": "f3-rechazar.aceptacion.e2e.ts",
+              "line": 72,
+              "column": 7
+            },
+            {
+              "title": "A no puede leer el expediente de su propia solicitud ni decidir sobre ella (separación de funciones)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 50,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-10T05:07:05.820Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "78b406fdda9cccd23946-cddbadcf6b4de6fcf2c3",
+              "file": "f3-rechazar.aceptacion.e2e.ts",
+              "line": 87,
+              "column": 7
+            },
+            {
+              "title": "DESEADO: A ve el rechazo con su motivo (hoy no existe cómo)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "fail",
+                      "description": "BRECHA: ningún endpoint ni notificación le entrega a la persona rechazada el resultado ni el motivo (servicios/grupos CU68AceptarIngreso.historial; sin consumidor de grupos.admision_resuelta).",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Downloads\\Entrypoint-GitHUb\\Pasanaku\\PasanakuBackend-cierre\\apps\\backoffice\\e2e\\aceptacion\\f3-rechazar.aceptacion.e2e.ts",
+                        "line": 96,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "expectedStatus": "failed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 50,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m422\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m422\u001b[39m\n    at C:\\Users\\Usuario\\Downloads\\Entrypoint-GitHUb\\Pasanaku\\PasanakuBackend-cierre\\apps\\backoffice\\e2e\\aceptacion\\f3-rechazar.aceptacion.e2e.ts:103:28",
+                        "location": {
+                          "file": "C:\\Users\\Usuario\\Downloads\\Entrypoint-GitHUb\\Pasanaku\\PasanakuBackend-cierre\\apps\\backoffice\\e2e\\aceptacion\\f3-rechazar.aceptacion.e2e.ts",
+                          "column": 28,
+                          "line": 103
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 101 |\u001b[39m     \u001b[36mconst\u001b[39m lectura \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m aNueva\u001b[33m.\u001b[39mhistorial(s\u001b[33m.\u001b[39msolicitudId)\n \u001b[90m 102 |\u001b[39m     \u001b[36mawait\u001b[39m aNueva\u001b[33m.\u001b[39mcerrar()\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 103 |\u001b[39m     expect(lectura\u001b[33m.\u001b[39mestado)\u001b[33m.\u001b[39mtoBe(\u001b[35m200\u001b[39m)\n \u001b[90m     |\u001b[39m                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 104 |\u001b[39m     expect(lectura\u001b[33m.\u001b[39mtexto)\u001b[33m.\u001b[39mtoContain(\u001b[32m'Motivo visible para la persona.'\u001b[39m)\n \u001b[90m 105 |\u001b[39m   })\n \u001b[90m 106 |\u001b[39m })\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\Downloads\\Entrypoint-GitHUb\\Pasanaku\\PasanakuBackend-cierre\\apps\\backoffice\\e2e\\aceptacion\\f3-rechazar.aceptacion.e2e.ts",
+                            "column": 28,
+                            "line": 103
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m422\u001b[39m\n\n  101 |     const lectura = await aNueva.historial(s.solicitudId)\n  102 |     await aNueva.cerrar()\n> 103 |     expect(lectura.estado).toBe(200)\n      |                            ^\n  104 |     expect(lectura.texto).toContain('Motivo visible para la persona.')\n  105 |   })\n  106 | })\n    at C:\\Users\\Usuario\\Downloads\\Entrypoint-GitHUb\\Pasanaku\\PasanakuBackend-cierre\\apps\\backoffice\\e2e\\aceptacion\\f3-rechazar.aceptacion.e2e.ts:103:28"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-10T05:07:05.875Z",
+                      "annotations": [
+                        {
+                          "type": "fail",
+                          "description": "BRECHA: ningún endpoint ni notificación le entrega a la persona rechazada el resultado ni el motivo (servicios/grupos CU68AceptarIngreso.historial; sin consumidor de grupos.admision_resuelta).",
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\Downloads\\Entrypoint-GitHUb\\Pasanaku\\PasanakuBackend-cierre\\apps\\backoffice\\e2e\\aceptacion\\f3-rechazar.aceptacion.e2e.ts",
+                            "line": 96,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Downloads\\Entrypoint-GitHUb\\Pasanaku\\PasanakuBackend-cierre\\docs\\trabajo\\2026-10-08-endurecimiento-integral\\evidencia\\carril-E3\\trazas\\mock\\f3-rechazar.aceptacion.e2e-3aa2e--motivo-hoy-no-existe-cómo-\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Usuario\\Downloads\\Entrypoint-GitHUb\\Pasanaku\\PasanakuBackend-cierre\\apps\\backoffice\\e2e\\aceptacion\\f3-rechazar.aceptacion.e2e.ts",
+                        "column": 28,
+                        "line": 103
+                      }
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "78b406fdda9cccd23946-4a377c0193c382d8075c",
+              "file": "f3-rechazar.aceptacion.e2e.ts",
+              "line": 95,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "f4-limites.aceptacion.e2e.ts",
+      "file": "f4-limites.aceptacion.e2e.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "F4 · límites de la admisión",
+          "file": "f4-limites.aceptacion.e2e.ts",
+          "line": 10,
+          "column": 6,
+          "specs": [
+            {
+              "title": "un operador sin permiso sobre admisiones no ve la sección ni puede abrirla; el servidor también lo rechaza (403)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1209,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-10T05:07:05.939Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "be6d9e6063a7847ed378-e53e33926a7546872e83",
+              "file": "f4-limites.aceptacion.e2e.ts",
+              "line": 11,
+              "column": 7
+            },
+            {
+              "title": "nadie resuelve su propia postulación ni se la propone: A (postulante) recibe 403 en ambas rutas",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "NO-CUBIERTO",
+                      "description": "La regla «Nadie puede decidir su propia admisión» (CU68AceptarIngreso.decidir) exige una cuenta con el rol de B Y que sea la postulante; con tokens de un solo rol no es alcanzable por el contrato: queda cubierta solo por la prueba unitaria del servicio."
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 43,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-10T05:07:07.155Z",
+                      "annotations": [
+                        {
+                          "type": "NO-CUBIERTO",
+                          "description": "La regla «Nadie puede decidir su propia admisión» (CU68AceptarIngreso.decidir) exige una cuenta con el rol de B Y que sea la postulante; con tokens de un solo rol no es alcanzable por el contrato: queda cubierta solo por la prueba unitaria del servicio."
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "be6d9e6063a7847ed378-c90b1acb1ad05a4ddccf",
+              "file": "f4-limites.aceptacion.e2e.ts",
+              "line": 31,
+              "column": 7
+            },
+            {
+              "title": "doble resolución concurrente: dos pestañas de B con decisiones opuestas dejan UNA sola decisión",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2141,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-10T05:07:07.203Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "be6d9e6063a7847ed378-371ffd69f2e0928c8fdc",
+              "file": "f4-limites.aceptacion.e2e.ts",
+              "line": 44,
+              "column": 7
+            },
+            {
+              "title": "respuesta perdida: B no la reenvía a ciegas, verifica, y el reintento con la MISMA clave no duplica",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1771,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-10T05:07:09.350Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "be6d9e6063a7847ed378-ab2be417247e5d72bec3",
+              "file": "f4-limites.aceptacion.e2e.ts",
+              "line": 79,
+              "column": 7
+            },
+            {
+              "title": "el envío que nunca llegó: verificar no la encuentra y el reintento reutiliza la MISMA clave",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1918,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-10T05:07:11.129Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "be6d9e6063a7847ed378-4380e1f8b1598b906597",
+              "file": "f4-limites.aceptacion.e2e.ts",
+              "line": 121,
+              "column": 7
+            },
+            {
+              "title": "estados de la pantalla: cargando, vacío (sin propuesta) y error del servidor",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2438,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-10T05:07:13.056Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "be6d9e6063a7847ed378-70347cfcfed946619001",
+              "file": "f4-limites.aceptacion.e2e.ts",
+              "line": 145,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "f5-pendientes.aceptacion.e2e.ts",
+      "file": "f5-pendientes.aceptacion.e2e.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "F5 · pendiente documentado (sin pantallas de mercado de turnos ni de retiro en web/backoffice)",
+          "file": "f5-pendientes.aceptacion.e2e.ts",
+          "line": 30,
+          "column": 6,
+          "specs": [
+            {
+              "title": "apps/web/src: no hay rutas de pantalla ni llamadas a los endpoints de permuta, cesión o retiro",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-10T05:07:15.506Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4b7ae2548b36d2c0e94b-83b88192d79f2fb14eb5",
+              "file": "f5-pendientes.aceptacion.e2e.ts",
+              "line": 32,
+              "column": 9
+            },
+            {
+              "title": "apps/backoffice/src: no hay rutas de pantalla ni llamadas a los endpoints de permuta, cesión o retiro",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 14,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-10T05:07:15.518Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4b7ae2548b36d2c0e94b-9628f3e52d90924170ef",
+              "file": "f5-pendientes.aceptacion.e2e.ts",
+              "line": 32,
+              "column": 9
+            },
+            {
+              "title": "queda registrado qué falta para poder cubrir F5",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "PENDIENTE",
+                      "description": "Mercado de turnos: aceptar/rechazar una permuta o cesión necesita pantallas en apps/web (participante con sesión) — hoy solo existen en apps/movil."
+                    },
+                    {
+                      "type": "PENDIENTE",
+                      "description": "Retiro con doble aprobación (aprobador A aprueba, B rechaza): endpoint aprobarRetiro existe (RETIRO_APROBAR); el rol TESORERIA ya tiene RETIRO_APROBAR (sql/60_semillas/10-roles-y-permisos.sql:91), pero falta la pantalla de aprobación en apps/backoffice y el mapa de secciones (nucleo/secciones.ts) no la contempla."
+                    },
+                    {
+                      "type": "DECISION",
+                      "description": "Quién prioriza esas pantallas es una decisión de producto (dueño de backoffice / app del participante)."
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-10T05:07:15.537Z",
+                      "annotations": [
+                        {
+                          "type": "PENDIENTE",
+                          "description": "Mercado de turnos: aceptar/rechazar una permuta o cesión necesita pantallas en apps/web (participante con sesión) — hoy solo existen en apps/movil."
+                        },
+                        {
+                          "type": "PENDIENTE",
+                          "description": "Retiro con doble aprobación (aprobador A aprueba, B rechaza): endpoint aprobarRetiro existe (RETIRO_APROBAR); el rol TESORERIA ya tiene RETIRO_APROBAR (sql/60_semillas/10-roles-y-permisos.sql:91), pero falta la pantalla de aprobación en apps/backoffice y el mapa de secciones (nucleo/secciones.ts) no la contempla."
+                        },
+                        {
+                          "type": "DECISION",
+                          "description": "Quién prioriza esas pantallas es una decisión de producto (dueño de backoffice / app del participante)."
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4b7ae2548b36d2c0e94b-6fa970caf7073a126d55",
+              "file": "f5-pendientes.aceptacion.e2e.ts",
+              "line": 46,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T05:06:51.241Z",
+    "duration": 24467.629999999997,
+    "expected": 18,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

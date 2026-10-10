@@ -70,3 +70,26 @@ docker compose --profile base up -d --wait
 ```
 
 Skills: `arrancar-carril` primero, despues las diecinueve de todo carril de backend.
+
+## Vencimiento local (carril O2, H7.S1.M3)
+
+`GET /grupos/calendario/vencimiento` (CU-59): de un instante UTC devuelve la fecha UTC, la CONTRACTUAL (dia en la zona del contrato,
+`America/La_Paz` por omision) y la de LIQUIDACION (primer dia habil), con los dias saltados y su motivo. Habil = sin feriado del
+calendario sembrado, sin sabado y sin domingo. Sin calendario del anio: `AP-CU59-05`. `FeriadoConProcedencia` valida la fuente de un
+feriado; `catalogo.dia_no_habil` es de solo lectura (ADR-029), asi que nada lo escribe desde aca.
+
+## Tercera vuelta (carril B3)
+
+- **Calendario de aportes** (H8.S1.M1, productor real): `GET /grupos/periodos/{periodoId}/calendario-de-aportes`, permiso
+  `ADMIN_PLATAFORMA` (el token de quien dispara la generacion viaja desde `aportes`). Devuelve turno, fechas y, por cupo
+  OCUPADO, titular e importe (aporte x fraccion, half-even). Lo consume `CalendarioDelPeriodoPorHttp` de `aportes`; el
+  archivo dorado `src/test/resources/fixtures/calendario-de-aportes.json` es el cuerpo que ambos lados prueban.
+- **Circuit breaker** en `HechosPorHttp` (ocho dependidos, un circuito cada uno): `infraestructura/clientes/ClienteConCircuito`,
+  parametros SINTETICOS en `aportaya.resiliencia.circuito.*`. Con el circuito abierto cada pregunta responde lo que no deja pasar.
+  `usuarioDelTelefono` usa `POST /usuarios/busquedas/por-telefono` (el telefono ya no va en la URL).
+- **Interruptores** (decision pendiente de negocio y cumplimiento, ver `evidencia/carril-B3/DECISIONES-Y-ABIERTOS.md`):
+  `aportaya.grupos.admision.humana-obligatoria` (`ADMISION_HUMANA_OBLIGATORIA`, true por omision) cierra las dos puertas que
+  saltean la admision humana (`AP-CU69-10`, `AP-CU68-15`); `aportaya.grupos.sustitucion.automatica`
+  (`SUSTITUCION_AUTOMATICA_ADMIN`, false = manual) y `...consumo-habilitado` gobiernan la sustitucion del administrador al revocarse la
+  habilitacion del organizador (`SustitucionAutomatica`, consumidor Kafka apagado por omision).
+- Diccionario de variables de riesgo del motor: `docs/operacion/diccionario-variables-de-riesgo.md`.

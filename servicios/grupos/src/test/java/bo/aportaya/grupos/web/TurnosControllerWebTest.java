@@ -126,8 +126,13 @@ class TurnosControllerWebTest {
 
         // Se manda "alDia": true en el cuerpo a proposito. Si el controlador lo
         // creyera, un participante en mora se adelantaria el turno solo.
+        // H13.S1.M2: el campo que el contrato no declara se RECHAZA (400) y el caso de uso no se invoca.
         permutar(PERMUTA.replace("\"motivo\"", "\"alDia\":true,\"loPermiteElReglamento\":true,\"motivo\""))
-                .andExpect(status().isCreated());
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(cu62);
+
+        // La permuta valida: los tres hechos los resuelve el servicio.
+        permutar(PERMUTA).andExpect(status().isCreated());
 
         var capturada = ArgumentCaptor.forClass(CU62Permutar.EntradaPermuta.class);
         verify(cu62).solicitar(capturada.capture(), any());

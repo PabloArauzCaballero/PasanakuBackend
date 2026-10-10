@@ -1,0 +1,60 @@
+#23 0.808 To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.7.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+#23 1.607 Daemon will be stopped at the end of the build 
+#23 6.009 > Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+#23 6.508 > Task :buildSrc:generateExternalPluginSpecBuilders FROM-CACHE
+#23 6.607 > Task :buildSrc:extractPrecompiledScriptPluginPlugins
+#23 6.707 > Task :buildSrc:compilePluginsBlocks FROM-CACHE
+#23 8.108 > Task :buildSrc:generatePrecompiledScriptPluginAccessors
+#23 8.108 > Task :buildSrc:generateScriptPluginAdapters
+#23 8.607 > Task :buildSrc:pluginDescriptors
+#23 8.607 > Task :buildSrc:processResources
+#23 20.31 > Task :buildSrc:compileKotlin
+#23 20.31 > Task :buildSrc:compileJava NO-SOURCE
+#23 20.31 > Task :buildSrc:compileGroovy NO-SOURCE
+#23 20.31 > Task :buildSrc:classes
+#23 20.41 > Task :buildSrc:jar
+#23 35.51 > Task :plataforma:gateway:compileJava
+#23 35.51 > Task :plataforma:gateway:processResources
+#23 35.51 > Task :plataforma:gateway:classes
+#23 35.51 > Task :plataforma:gateway:resolveMainClassName
+#23 36.39 > Task :plataforma:gateway:bootJar
+#23 36.39 
+#23 36.39 BUILD SUCCESSFUL in 36s
+#23 36.39 13 actionable tasks: 11 executed, 2 from cache
+#23 36.39 Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+#23 DONE 37.7s
+
+#24 [construccion 14/15] RUN mkdir -p /capas && cd /capas     && java -Djarmode=tools -jar /construccion/plataforma/gateway/build/libs/*.jar extract --layers --launcher --destination /capas
+#24 DONE 0.6s
+
+#25 [construccion 15/15] RUN mkdir -p /nativo /tmp/nativo && cd /tmp/nativo     && case "$(uname -m)" in x86_64) prefijo=linux-x86-64 ;; aarch64) prefijo=linux-aarch64 ;; *) prefijo=desconocido ;; esac     && for j in /capas/dependencies/BOOT-INF/lib/jna-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "com/sun/jna/${prefijo}/libjnidispatch.so" && cp "com/sun/jna/${prefijo}/libjnidispatch.so" /nativo/; done     && for j in /capas/dependencies/BOOT-INF/lib/argon2-jvm-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "${prefijo}/libargon2.so" && cp "${prefijo}/libargon2.so" /nativo/; done     ; ls -l /nativo
+#25 0.073 total 0
+#25 DONE 0.1s
+
+#26 [runtime 4/8] COPY --from=construccion --chown=app:app /capas/dependencies/ ./
+#26 DONE 0.1s
+
+#27 [runtime 5/8] COPY --from=construccion --chown=app:app /capas/spring-boot-loader/ ./
+#27 DONE 0.0s
+
+#28 [runtime 6/8] COPY --from=construccion --chown=app:app /capas/snapshot-dependencies/ ./
+#28 DONE 0.0s
+
+#29 [runtime 7/8] COPY --from=construccion --chown=app:app /capas/application/ ./
+#29 DONE 0.1s
+
+#30 [runtime 8/8] COPY --from=construccion /nativo/ /app/nativo/
+#30 DONE 0.1s
+
+#31 exporting to image
+#31 exporting layers
+#31 exporting layers 1.0s done
+#31 exporting manifest sha256:243d4350f428c4ac754a7e3542c03e0d8b701db15242edbbb374731679787af1
+#31 exporting manifest sha256:243d4350f428c4ac754a7e3542c03e0d8b701db15242edbbb374731679787af1 done
+#31 exporting config sha256:fd90490eab6e2152a7f18883af87653405fda8a1fabcce10f0ee4041a6d0a79e done
+#31 exporting attestation manifest sha256:bbb1d262a7e40c196ef37db5301511c4ef6b2d0fb9d1015365ee4fc24479abbc 0.0s done
+#31 exporting manifest list sha256:c7e8fce797855dbe3e6873737b5f1d3f219cf4f21119f22519397ada0d28a164 done
+#31 naming to docker.io/aportaya/gateway:test done
+#31 unpacking to docker.io/aportaya/gateway:test
+#31 unpacking to docker.io/aportaya/gateway:test 0.3s done
+#31 DONE 1.3s

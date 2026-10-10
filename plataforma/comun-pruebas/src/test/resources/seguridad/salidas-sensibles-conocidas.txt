@@ -1,0 +1,21 @@
+# H13.S1.M3 · Salidas con datos sensibles que YA existian cuando se escribio el barrido.
+#
+# Cada linea:  <ruta>|<salida>|<dato>   # <que es> · duenio: <servicio> · arreglo: <propuesta>
+#
+# No es una aprobacion: es una deuda con duenio. El barrido falla ante cualquier hallazgo
+# NUEVO (la lista no crece sola) y ante cualquier linea de aca que ya no se encuentre (cuando
+# se arregla, se borra de este archivo y la deuda baja). Detalle y archivo:linea en
+# docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-S2/H13-S1-M3-barrido-de-datos-sensibles.md
+
+# El numero de documento de un tercero/socio sale en el payload del outbox a TODOS los consumidores (90.2.1, 98.1.5).
+servicios/erp/src/main/java/bo/aportaya/erp/aplicacion/CU102AltaDeTercero.java|EVENTO|numeroDocumento   # duenio: erp · arreglo: publicar terceroId; el consumidor que lo necesite lo pide por contrato
+servicios/erp/src/main/java/bo/aportaya/erp/aplicacion/CU102AltaDeTercero.java|EVENTO|clave:numeroDocumento   # idem
+servicios/publicidad/src/main/java/bo/aportaya/publicidad/aplicacion/CU110AltaDeAnunciante.java|EVENTO|numeroDocumento   # duenio: publicidad · arreglo: publicar socioId, no el documento
+servicios/publicidad/src/main/java/bo/aportaya/publicidad/aplicacion/CU110AltaDeAnunciante.java|EVENTO|clave:numeroDocumento   # idem
+
+# FALSO POSITIVO declarado: `clave` es la clave de IDEMPOTENCIA (un UUID derivado del turno), no un secreto; el detector la ve
+# porque el nombre coincide y la llamada lleva una ruta. No se afloja el detector (ver un secreto real llamado `clave` importa mas).
+servicios/entregas/src/main/java/bo/aportaya/entregas/infraestructura/RespaldoPorHttp.java|URL|clave   # duenio: entregas · arreglo: renombrar la variable a idempotencyKey y borrar esta linea
+
+# El mensaje de error repite el documento que el propio usuario envio (eco al mismo emisor). Riesgo bajo, pero queda en la bitacora de errores.
+servicios/erp/src/main/java/bo/aportaya/erp/aplicacion/CU102AltaDeTercero.java|ERROR|numeroDocumento   # duenio: erp · arreglo: «ese documento ya esta registrado» sin repetirlo

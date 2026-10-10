@@ -18,7 +18,11 @@ import java.util.UUID;
  */
 public interface HechosDeGrupos {
 
-    /** El turno tal como lo ve grupos. {@code montoDelDerecho} es lo que cobra su titular. */
+    /**
+     * El turno tal como lo ve grupos. {@code montoDelDerecho} es lo que cobra su titular. {@code cierreDelTurno} es el
+     * punto de cierre del beneficiario: el instante desde el cual el derecho ya no se puede ofrecer (PLAN H9: la oferta
+     * expira ANTES). Lo afirma grupos; {@code null} significa que no lo informo y la publicacion se rechaza.
+     */
     record Turno(
             UUID turnoId,
             UUID grupoId,
@@ -26,7 +30,8 @@ public interface HechosDeGrupos {
             UUID participanteId,
             UUID usuarioId,
             String estado,
-            Dinero montoDelDerecho) {}
+            Dinero montoDelDerecho,
+            java.time.Instant cierreDelTurno) {}
 
     record Miembro(UUID participanteId, boolean activo) {}
 

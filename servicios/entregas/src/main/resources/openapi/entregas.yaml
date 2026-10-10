@@ -364,6 +364,30 @@ paths:
               schema: { $ref: '#/components/schemas/PaginaDeOfertas' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
+  /entregas/mercado/ofertas/{ofertaId}:
+    get:
+      operationId: consultarOfertaParaPago         # mercado · H9.S1.M5 (el productor del hecho que `nucleo-financiero` consume)
+      summary: Quien vende una oferta, a que precio y en que estado (hecho para pagar al vendedor)
+      description: >-
+        [CONTRATO · SOLO SERVICIO] Lo pide `nucleo-financiero` al ejecutar `POST /billetera/retenciones/{id}/pago-a-tercero`:
+        el beneficiario y el reparto NO los dicta quien llama, los afirma el dueno de la oferta. Exige la identidad de
+        servicio `SERVICIO_ENTREGAS` (la del token que viaja en la llamada entre servicios, porque la operacion de nucleo
+        solo la ejecuta `entregas`); un participante, aunque sea el vendedor o el comprador, recibe 403. Respuesta minima:
+        id, vendedor, precio y estado; nunca el grupo, el turno, los cargos ni el comprador. Una oferta que no existe
+        responde 422 `AP-CU130-05` y nucleo no paga (falla cerrado).
+      parameters:
+        - name: ofertaId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: La oferta, tal cual la afirma entregas
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OfertaParaPago' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
   /entregas/mercado/ofertas/{ofertaId}/cancelacion:
     post:
       operationId: cancelarOferta               # mercado
@@ -449,6 +473,17 @@ components:
         precio:       { $ref: '#/components/schemas/Dinero' }
         cargos:       { $ref: '#/components/schemas/Dinero' }
         vigenteHasta: { type: string, format: date-time }
+    OfertaParaPago:
+      type: object
+      additionalProperties: false
+      required: [ofertaId, vendedorUsuarioId, precio, estado]
+      properties:
+        ofertaId:          { type: string, format: uuid }
+        vendedorUsuarioId: { type: string, format: uuid }
+        precio:            { $ref: '#/components/schemas/Dinero' }
+        estado:
+          type: string
+          enum: [PUBLICADA, RESERVADA, LIQUIDANDO, VENDIDA, CANCELADA, VENCIDA]
     PaginaDeOfertas:
       type: object
       additionalProperties: false

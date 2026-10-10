@@ -66,6 +66,7 @@ public class CU125LiquidarRescate {
     private final AplicadorDeInstrucciones aplicador;
     private final AliadoDeInversion aliado;
     private final CalculoDeLiquidacion calculo;
+    private final CU126DistribuirIntereses distribucion;
     private final Outbox outbox;
     private final Reloj reloj;
 
@@ -80,6 +81,7 @@ public class CU125LiquidarRescate {
             AplicadorDeInstrucciones aplicador,
             AliadoDeInversion aliado,
             CalculoDeLiquidacion calculo,
+            CU126DistribuirIntereses distribucion,
             Outbox outbox,
             Reloj reloj) {
         this.datos = datos;
@@ -92,6 +94,7 @@ public class CU125LiquidarRescate {
         this.aplicador = aplicador;
         this.aliado = aliado;
         this.calculo = calculo;
+        this.distribucion = distribucion;
         this.outbox = outbox;
         this.reloj = reloj;
     }
@@ -215,11 +218,17 @@ public class CU125LiquidarRescate {
             }
             posiciones.cerrar(dsl, p.id(), ahora);
         } else {
-            d = calculo.fondo(dsl, r, p, c, op, ahora);
-            posiciones.descontarCuotas(dsl, p.id(), p.cuotas().subtract(r.cuotas()), ahora);
+            var fondo = calculo.fondo(dsl, r, p, c, op, ahora);
+            d = fondo.d();
+            posiciones.descontarCuotas(dsl, p.id(), p.cuotas().subtract(r.cuotas()), fondo.marcaNueva(), ahora);
         }
 
         comprobantes.emitir(dsl, p.id(), p.usuarioId(), "LIQUIDACION", r.id(), d, p.moneda(), c.origen(), ahora);
+        if (p.tipo() == TipoProducto.DPF) {
+            // R-INV-09: el interes que paga el emisor se reparte al titular, por el periodo y con la retencion del
+            // comprobante.
+            distribucion.registrar(dsl, r, p, c, d, calculo.diasDelPeriodo(r, c, op), ahora, ctx);
+        }
         UUID cuenta = cuentaDeLaOrden(dsl, p);
         instrucciones.crear(dsl, "RESCATE", r.id(), "ACREDITAR", p.usuarioId(), cuenta, d.neto(), p.moneda(), ahora);
         rescates.pasar(

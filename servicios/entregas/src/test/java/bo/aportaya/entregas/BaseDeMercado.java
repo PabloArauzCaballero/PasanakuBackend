@@ -20,6 +20,11 @@ abstract class BaseDeMercado extends BaseDeEntregas {
         gruposDoble.seCae(false);
     }
 
+    /** Un cierre del turno muy posterior a cualquier vigencia de prueba (la maxima es de 7 dias). */
+    protected static java.time.Instant cierreLejano() {
+        return java.time.Instant.now().plus(java.time.Duration.ofDays(30));
+    }
+
     protected static Dinero bob(String monto) {
         return Dinero.de(monto, Moneda.BOB);
     }
@@ -36,7 +41,14 @@ abstract class BaseDeMercado extends BaseDeEntregas {
         var e = fixtura.escenario(vendedor);
         var comprador = fixtura.miembro(e.grupoId());
         gruposDoble.turno(new HechosDeGrupos.Turno(
-                e.turnoId(), e.grupoId(), e.cupoId(), e.participanteId(), vendedor, "PROGRAMADO", bob("6000.00")));
+                e.turnoId(),
+                e.grupoId(),
+                e.cupoId(),
+                e.participanteId(),
+                vendedor,
+                "PROGRAMADO",
+                bob("6000.00"),
+                cierreLejano()));
         gruposDoble.miembro(e.grupoId(), vendedor, e.participanteId(), true);
         gruposDoble.miembro(e.grupoId(), comprador.usuarioId(), comprador.participanteId(), true);
         fondosDoble.saldo(comprador.usuarioId(), bob("10000.00"));

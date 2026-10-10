@@ -1,0 +1,217 @@
+{
+  "descripcion": "Cuentas de sistema que los servicios necesitan para operar: custodia de inversion, ingresos de la plataforma, puente de custodia, y el mapeo SINTETICO de las cuentas logicas de garantia (CAJA_EMPRESA, RESERVA_RESPALDO, POZO_GRUPO) a cuentas del plan, por moneda.",
+  "entorno": "minimo",
+  "apto_produccion": false,
+  "estado": "SINTETICO en lo contable — el mapeo de cuentas logicas (9.x) es una decision de contabilidad abierta (A5 del carril C). Las cuentas 9.x existen para que el consumidor de asientos de nucleo-financiero pueda encenderse en TEST; en produccion el arranque se niega mientras CUENTAS_LOGICAS_APTO_PRODUCCION no sea true. Las cuentas de billetera de sistema (custodia de inversion, ingresos, puente) NO son sinteticas: son las que el libro necesita, sin saldo inicial.",
+  "revisar_con": "contabilidad (plan de cuentas definitivo para respaldo, caja de empresa y pozo) y tesoreria (cuenta bancaria real detras de la custodia de inversion)",
+  "nota": "No hay datos de personas ni credenciales aqui. Las credenciales de servicio (SERVICIO_INVERSIONES, SERVICIO_ENTREGAS) son roles de 10-roles-y-permisos.json; la cuenta de usuario que los porta y su clave se aprovisionan en el entorno (ver servicios/inversiones/README.md), nunca en el repositorio.",
+  "bloques": [
+    {
+      "tabla": "cuenta_contable",
+      "conflicto": [
+        "codigo"
+      ],
+      "comentario": "SINTETICO · apto_produccion=false. Arbol 9 (solo BOB y USD): cada cuenta es de UNA moneda (R-CTB-10). El mapeo logica->codigo vive en la configuracion de nucleo-financiero (aportaya.contabilidad.cuentas-logicas.<LOGICA>.<MONEDA>), no aca.",
+      "filas": [
+        {
+          "codigo": "9",
+          "nombre": "Cuentas sinteticas de simulacion (NO aptas para produccion)",
+          "tipo": "ACTIVO",
+          "naturaleza": "DEUDORA",
+          "moneda": "BOB",
+          "cuenta_padre_id": null,
+          "nivel": 1,
+          "es_cuenta_de_movimiento": false,
+          "saldo": 0
+        },
+        {
+          "codigo": "9.1",
+          "nombre": "Sinteticas BOB",
+          "tipo": "ACTIVO",
+          "naturaleza": "DEUDORA",
+          "moneda": "BOB",
+          "cuenta_padre_id": {
+            "$ref": "cuenta_contable",
+            "codigo": "9"
+          },
+          "nivel": 2,
+          "es_cuenta_de_movimiento": false,
+          "saldo": 0
+        },
+        {
+          "codigo": "9.2",
+          "nombre": "Sinteticas USD",
+          "tipo": "ACTIVO",
+          "naturaleza": "DEUDORA",
+          "moneda": "USD",
+          "cuenta_padre_id": {
+            "$ref": "cuenta_contable",
+            "codigo": "9"
+          },
+          "nivel": 2,
+          "es_cuenta_de_movimiento": false,
+          "saldo": 0
+        },
+        {
+          "codigo": "9.1.01",
+          "nombre": "Caja de la empresa BOB (sintetica)",
+          "tipo": "ACTIVO",
+          "naturaleza": "DEUDORA",
+          "moneda": "BOB",
+          "cuenta_padre_id": {
+            "$ref": "cuenta_contable",
+            "codigo": "9.1"
+          },
+          "nivel": 3,
+          "es_cuenta_de_movimiento": true,
+          "saldo": 0
+        },
+        {
+          "codigo": "9.1.02",
+          "nombre": "Reserva de respaldo BOB (sintetica)",
+          "tipo": "ACTIVO",
+          "naturaleza": "DEUDORA",
+          "moneda": "BOB",
+          "cuenta_padre_id": {
+            "$ref": "cuenta_contable",
+            "codigo": "9.1"
+          },
+          "nivel": 3,
+          "es_cuenta_de_movimiento": true,
+          "saldo": 0
+        },
+        {
+          "codigo": "9.1.03",
+          "nombre": "Pozo del grupo BOB (sintetica)",
+          "tipo": "PASIVO",
+          "naturaleza": "ACREEDORA",
+          "moneda": "BOB",
+          "cuenta_padre_id": {
+            "$ref": "cuenta_contable",
+            "codigo": "9.1"
+          },
+          "nivel": 3,
+          "es_cuenta_de_movimiento": true,
+          "saldo": 0
+        },
+        {
+          "codigo": "9.2.01",
+          "nombre": "Caja de la empresa USD (sintetica)",
+          "tipo": "ACTIVO",
+          "naturaleza": "DEUDORA",
+          "moneda": "USD",
+          "cuenta_padre_id": {
+            "$ref": "cuenta_contable",
+            "codigo": "9.2"
+          },
+          "nivel": 3,
+          "es_cuenta_de_movimiento": true,
+          "saldo": 0
+        },
+        {
+          "codigo": "9.2.02",
+          "nombre": "Reserva de respaldo USD (sintetica)",
+          "tipo": "ACTIVO",
+          "naturaleza": "DEUDORA",
+          "moneda": "USD",
+          "cuenta_padre_id": {
+            "$ref": "cuenta_contable",
+            "codigo": "9.2"
+          },
+          "nivel": 3,
+          "es_cuenta_de_movimiento": true,
+          "saldo": 0
+        },
+        {
+          "codigo": "9.2.03",
+          "nombre": "Pozo del grupo USD (sintetica)",
+          "tipo": "PASIVO",
+          "naturaleza": "ACREEDORA",
+          "moneda": "USD",
+          "cuenta_padre_id": {
+            "$ref": "cuenta_contable",
+            "codigo": "9.2"
+          },
+          "nivel": 3,
+          "es_cuenta_de_movimiento": true,
+          "saldo": 0
+        }
+      ]
+    },
+    {
+      "tabla": "cuenta_billetera",
+      "conflicto": [],
+      "comentario": "Cuentas de billetera de sistema, en cero. Una custodia de inversion activa por moneda (R-BIL-25); una de ingresos por moneda, porque con dos nucleo-financiero no elige. Sin cuenta contable espejo donde contabilidad no la definio. Ids estables (…c0 puente, c1/c2 ingresos, c3/c4 custodia de inversion): la segunda corrida no inserta nada. Sin objetivo de conflicto a proposito: la segunda corrida, y una base donde ya hay una custodia de inversion con otro numero (R-BIL-25), no rompen el despliegue del esquema.",
+      "filas": [
+        {
+          "id": "00000000-0000-0000-0000-0000000000c0",
+          "numero_cuenta": "SYS-CUSTODIA",
+          "tipo": "PUENTE_CUSTODIA",
+          "moneda": "BOB",
+          "estado": "ACTIVA",
+          "nivel_debida_diligencia": "REFORZADA",
+          "fecha_apertura": {
+            "$sql": "now()"
+          },
+          "cuenta_contable_id": {
+            "$ref": "cuenta_contable",
+            "codigo": "1.1.01"
+          },
+          "permite_saldo_negativo": true
+        },
+        {
+          "id": "00000000-0000-0000-0000-0000000000c1",
+          "numero_cuenta": "SYS-INGRESOS",
+          "tipo": "PLATAFORMA_INGRESOS",
+          "moneda": "BOB",
+          "estado": "ACTIVA",
+          "nivel_debida_diligencia": "REFORZADA",
+          "fecha_apertura": {
+            "$sql": "now()"
+          },
+          "cuenta_contable_id": {
+            "$ref": "cuenta_contable",
+            "codigo": "4.1.01"
+          },
+          "permite_saldo_negativo": true
+        },
+        {
+          "id": "00000000-0000-0000-0000-0000000000c2",
+          "numero_cuenta": "SYS-INGRESOS-USD",
+          "tipo": "PLATAFORMA_INGRESOS",
+          "moneda": "USD",
+          "estado": "ACTIVA",
+          "nivel_debida_diligencia": "REFORZADA",
+          "fecha_apertura": {
+            "$sql": "now()"
+          },
+          "permite_saldo_negativo": true
+        },
+        {
+          "id": "00000000-0000-0000-0000-0000000000c3",
+          "numero_cuenta": "SYS-CUSTINV-BOB",
+          "tipo": "CUSTODIA_INVERSION",
+          "moneda": "BOB",
+          "estado": "ACTIVA",
+          "nivel_debida_diligencia": "REFORZADA",
+          "fecha_apertura": {
+            "$sql": "now()"
+          },
+          "permite_saldo_negativo": false
+        },
+        {
+          "id": "00000000-0000-0000-0000-0000000000c4",
+          "numero_cuenta": "SYS-CUSTINV-USD",
+          "tipo": "CUSTODIA_INVERSION",
+          "moneda": "USD",
+          "estado": "ACTIVA",
+          "nivel_debida_diligencia": "REFORZADA",
+          "fecha_apertura": {
+            "$sql": "now()"
+          },
+          "permite_saldo_negativo": false
+        }
+      ]
+    }
+  ]
+}

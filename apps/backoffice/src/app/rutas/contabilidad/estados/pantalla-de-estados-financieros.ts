@@ -15,6 +15,8 @@ import {
   type TipoDeEstadoFinanciero,
 } from '../dominio/cu106-estados-financieros'
 import { textosContabilidad } from '../textos'
+import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
+import type { ErrorTraducido } from '../../../nucleo/errores'
 
 /**
  * CU-106 · `VisorEstadoFinanciero`. **Gate propio del carril B3: el estado financiero se
@@ -29,7 +31,7 @@ import { textosContabilidad } from '../textos'
 @Component({
   selector: 'ap-pantalla-de-estados-financieros',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alerta, BandaDeProposito, Boton, Fecha, GrupoRadio, SeccionDeExpediente],
+  imports: [ErrorDeEnvio, Alerta, BandaDeProposito, Boton, Fecha, GrupoRadio, SeccionDeExpediente],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
     <main>
@@ -38,6 +40,7 @@ import { textosContabilidad } from '../textos'
 
       <ap-grupo-radio nombre="tipo-de-estado" etiqueta="Tipo de estado financiero" [opciones]="tipos" [(elegido)]="tipo" />
       <ap-boton variante="primario" [cargando]="generando()" (pulsado)="generar()">{{ t.generar }}</ap-boton>
+      <ap-error-de-envio [error]="errorDeEnvio()" />
 
       @if (generado(); as g) {
         <ap-alerta [tono]="g.cuadra ? 'ok' : 'error'">{{ g.cuadra ? t.cuadra : t.noCuadra }}</ap-alerta>
@@ -78,6 +81,7 @@ export class PantallaDeEstadosFinancieros {
     { valor: 'ESTADO_RESULTADOS', texto: 'Estado de resultados' },
   ]
   protected readonly generando = signal(false)
+  protected readonly errorDeEnvio = signal<ErrorTraducido | null>(null)
   protected readonly descargando = signal(false)
   protected readonly generado = signal<EstadoFinancieroGenerado | null>(null)
   protected readonly descarga = signal<DocumentoDescargado | null>(null)
@@ -101,6 +105,7 @@ export class PantallaDeEstadosFinancieros {
 
   protected generar(): void {
     this.generando.set(true)
+    this.errorDeEnvio.set(null)
     this.descarga.set(null)
     this.errorDeDescarga.set(null)
     this.enviarGeneracion(this.periodoId(), this.tipo() as TipoDeEstadoFinanciero).subscribe({
@@ -108,7 +113,10 @@ export class PantallaDeEstadosFinancieros {
         this.generado.set(g)
         this.generando.set(false)
       },
-      error: () => this.generando.set(false),
+      error: (e: ErrorTraducido) => {
+        this.errorDeEnvio.set(e)
+        this.generando.set(false)
+      },
     })
   }
 

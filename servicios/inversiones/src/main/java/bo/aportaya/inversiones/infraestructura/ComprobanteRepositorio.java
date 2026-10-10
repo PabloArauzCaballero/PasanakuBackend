@@ -30,7 +30,9 @@ public class ComprobanteRepositorio {
             String sentidoTitular,
             Descomposicion d,
             String origen,
-            OffsetDateTime emitidoEn) {}
+            OffsetDateTime emitidoEn,
+            UUID origenId,
+            String moneda) {}
 
     /** @return {@code true} si lo inserto este actor; el UNIQUE por origen hace idempotente la emision. */
     public boolean emitir(
@@ -68,6 +70,19 @@ public class ComprobanteRepositorio {
     public List<Comprobante> deLaPosicion(DSLContext dsl, UUID posicionId) {
         return dsl.selectFrom(t("comprobante_inversion"))
                 .where(f("posicion_inversion_id", UUID.class).eq(posicionId))
+                .orderBy(
+                        f("emitido_en", OffsetDateTime.class),
+                        f("tipo", String.class).desc(),
+                        f("id", UUID.class))
+                .fetch(this::comprobante);
+    }
+
+    /** Los del titular emitidos en la ventana [desde, hasta), para el reporte fiscal. */
+    public List<Comprobante> delTitular(DSLContext dsl, UUID usuarioId, OffsetDateTime desde, OffsetDateTime hasta) {
+        return dsl.selectFrom(t("comprobante_inversion"))
+                .where(f("usuario_id", UUID.class).eq(usuarioId))
+                .and(f("emitido_en", OffsetDateTime.class).ge(desde))
+                .and(f("emitido_en", OffsetDateTime.class).lt(hasta))
                 .orderBy(
                         f("emitido_en", OffsetDateTime.class),
                         f("tipo", String.class).desc(),
@@ -193,6 +208,8 @@ public class ComprobanteRepositorio {
                 r.get("sentido_titular", String.class),
                 d,
                 r.get("origen_datos", String.class),
-                r.get("emitido_en", OffsetDateTime.class));
+                r.get("emitido_en", OffsetDateTime.class),
+                r.get("origen_id", UUID.class),
+                r.get("moneda", String.class));
     }
 }

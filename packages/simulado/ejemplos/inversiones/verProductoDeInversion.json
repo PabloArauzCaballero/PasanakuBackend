@@ -1,0 +1,128 @@
+{
+  "servicio": "inversiones",
+  "operacion": "verProductoDeInversion",
+  "metodo": "get",
+  "ruta": "/inversiones/productos/{codigo}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "codigo": "DPF-SINT-180",
+        "tipo": "DPF",
+        "nombre": "Deposito a plazo fijo sintetico a 180 dias",
+        "emisor": "Aliado simulado (sintetico)",
+        "moneda": "BOB",
+        "nivelRiesgo": "BAJO",
+        "titularidad": "El titulo queda a nombre del titular; el aliado lo custodia",
+        "condiciones": {
+          "versionId": "43f7608d-e8ac-4ac7-854a-445b62ca43b5",
+          "numero": 1,
+          "plazoDias": 180,
+          "baseDias": 360,
+          "tasaNominalAnual": "0.040000",
+          "permiteRescateAnticipado": false,
+          "penalizacionAnticipo": "0.000000",
+          "diasRescate": 1,
+          "horaCorte": "14:00",
+          "montoMinimo": {
+            "monto": "100.00",
+            "moneda": "BOB"
+          },
+          "tasaRetencion": "0.000000",
+          "tasaComisionExito": "0.000000",
+          "costos": "Sin costos de custodia (sintetico)",
+          "texto": "Condiciones SINTETICAS de prueba: no son una oferta real.",
+          "textoHash": "7777777777777777777777777777777777777777777777777777777777777777",
+          "fuente": "simulador:aliado-simulado",
+          "fechaCotizacion": "2026-01-15T10:30:00Z",
+          "origenDatos": "SINTETICO",
+          "aptoProduccion": false,
+          "advertencia": "SINTETICO: no es una oferta real ni apto para produccion (DR-INV-01)."
+        }
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "codigo": "codigo",
+        "tipo": "DPF",
+        "nombre": "nombre",
+        "emisor": "emisor",
+        "moneda": "BOB",
+        "nivelRiesgo": "BAJO",
+        "titularidad": "titularidad",
+        "condiciones": {
+          "versionId": "43f7608d-e8ac-4ac7-854a-445b62ca43b5",
+          "numero": 0,
+          "plazoDias": 0,
+          "baseDias": 0,
+          "tasaNominalAnual": "0.000000",
+          "permiteRescateAnticipado": false,
+          "penalizacionAnticipo": "0.000000",
+          "diasRescate": 0,
+          "horaCorte": "00:00",
+          "montoMinimo": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "tasaRetencion": "0.000000",
+          "tasaComisionExito": "0.000000",
+          "costos": "costos",
+          "texto": "texto",
+          "textoHash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "fuente": "fuente",
+          "fechaCotizacion": "2026-01-15T10:30:00Z",
+          "origenDatos": "SINTETICO",
+          "aptoProduccion": false,
+          "advertencia": "advertencia"
+        }
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "codigo": "DPF-SINT-180",
+        "tipo": "DPF",
+        "nombre": "Deposito a plazo fijo sintetico a 180 dias",
+        "emisor": "Aliado simulado (sintetico)",
+        "moneda": "BOB",
+        "nivelRiesgo": "BAJO",
+        "titularidad": "El titulo queda a nombre del titular; el aliado lo custodia",
+        "condiciones": {
+          "versionId": "43f7608d-e8ac-4ac7-854a-445b62ca43b5",
+          "numero": 1,
+          "plazoDias": 180,
+          "baseDias": 360,
+          "tasaNominalAnual": "0.040000",
+          "permiteRescateAnticipado": false,
+          "penalizacionAnticipo": "0.000000",
+          "diasRescate": 1,
+          "horaCorte": "14:00",
+          "montoMinimo": {
+            "monto": "100.00",
+            "moneda": "BOB"
+          },
+          "tasaRetencion": "0.000000",
+          "tasaComisionExito": "0.000000",
+          "costos": "Sin costos de custodia (sintetico)",
+          "texto": "Condiciones SINTETICAS de prueba: no son una oferta real.",
+          "textoHash": "7777777777777777777777777777777777777777777777777777777777777777",
+          "fuente": "simulador:aliado-simulado",
+          "fechaCotizacion": "2026-01-15T10:30:00Z",
+          "origenDatos": "SINTETICO",
+          "aptoProduccion": false,
+          "advertencia": "SINTETICO: no es una oferta real ni apto para produccion (DR-INV-01)."
+        }
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU120-01",
+        "mensaje": "Producto inexistente",
+        "detalle": {},
+        "trazaId": "traza-verProductoDeInversion-rechazo"
+      }
+    }
+  }
+}

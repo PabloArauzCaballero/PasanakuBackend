@@ -1,0 +1,60 @@
+heavy.sh: candado tomado, libres 5447 MB -> bash C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/f2/visual.sh bo H12-F2-bo.e2e.log e2e/admisiones.e2e.ts e2e/f2-posiciones-y-roles.e2e.ts e2e/f2-red-y-teclado.e2e.ts
+== servidores arriba (prism 4010, backoffice 4300) ==
+
+Running 25 tests using 1 worker
+
+  ✓   1 [chromium] › e2e\admisiones.e2e.ts:106:7 › [UI con red simulada] admisión humana en backoffice › arranque en frío: el ingreso carga (219ms)
+  ✓   2 [chromium] › e2e\admisiones.e2e.ts:112:7 › [UI con red simulada] admisión humana en backoffice › BO con permiso: ve la propuesta y la evidencia, resuelve, y la resolución persiste tras recargar (1.1s)
+  ✓   3 [chromium] › e2e\admisiones.e2e.ts:150:7 › [UI con red simulada] admisión humana en backoffice › rol sin el permiso de la plataforma: la sección no aparece y la ruta no monta (sin acciones ajenas) (372ms)
+  ✓   4 [chromium] › e2e\admisiones.e2e.ts:164:7 › [UI con red simulada] admisión humana en backoffice › sin sesión no se entra a la solicitud (200ms)
+  ✓   5 [chromium] › e2e\admisiones.e2e.ts:170:7 › [UI con red simulada] admisión humana en backoffice › estados: cargando, vacío y error del servidor (2.3s)
+  ✓   6 [chromium] › e2e\admisiones.e2e.ts:195:7 › [UI con red simulada] admisión humana en backoffice › respuesta perdida: queda sin confirmar, verifica, reintenta con la MISMA clave y no duplica (545ms)
+  ✓   7 [chromium] › e2e\admisiones.e2e.ts:219:7 › [UI con red simulada] admisión humana en backoffice › envío que nunca llegó: verificar no la encuentra y el reintento reutiliza la misma clave (665ms)
+  ✓   8 [chromium] › e2e\admisiones.e2e.ts:243:7 › [UI con red simulada] admisión humana en backoffice › puerta de entrada: pide el identificador y rechaza uno mal formado (540ms)
+  ✓   9 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:52:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › posiciones separadas: gastable, comprometido en pozos y retenido, con cifras que reconcilian (948ms)
+  ✓  10 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:69:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › sin separar: con el ejemplo real del contrato (sin comprometidoEnPozos) NO se afirma ninguna cifra gastable (551ms)
+  ✓  11 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:79:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › comprometido mayor que el disponible: se acota, lo gastable queda en cero y se avisa (595ms)
+  ✓  12 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:88:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › saldo incoherente (monedas distintas): no se muestra ninguna cifra (558ms)
+  ✓  13 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:97:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › cuenta en cero, error del servidor y cargando (619ms)
+  ✓  14 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › PARTICIPANTE: el menú ofrece solo Tablero y Ayuda; lo ajeno no monta ni escribiendo la dirección (451ms)
+  ✓  15 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › SOPORTE: el menú ofrece solo Operación; lo ajeno no monta ni escribiendo la dirección (698ms)
+  ✓  16 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › ADMIN_PLATAFORMA: el menú ofrece solo Cumplimiento, Admisiones, Sistemas; lo ajeno no monta ni escribiendo la dirección (645ms)
+  ✓  17 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › CONTABILIDAD: el menú ofrece solo Operación, Contabilidad; lo ajeno no monta ni escribiendo la dirección (535ms)
+  ✓  18 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:159:7 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › una ruta ajena no deja ninguna acción ni ningún código interno de permiso a la vista: vuelve al tablero (424ms)
+  ✓  19 [chromium] › e2e\f2-red-y-teclado.e2e.ts:57:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › respuesta perdida: avisa que no se pudo confirmar, conserva el monto, y el reintento reutiliza la clave y no duplica (804ms)
+  ✘  20 [chromium] › e2e\f2-red-y-teclado.e2e.ts:80:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › el botón no permite doble envío mientras la operación está en curso (30.0s)
+  ✓  21 [chromium] › e2e\f2-red-y-teclado.e2e.ts:92:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › plazo vencido (30 s sin respuesta): «sin confirmar», no «falló»; el reintento reutiliza la clave (728ms)
+  ✓  22 [chromium] › e2e\f2-red-y-teclado.e2e.ts:109:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › sin conexión: el envío falla visible, lo escrito se conserva y al volver la red el reintento sale con la misma clave (691ms)
+  ✓  23 [chromium] › e2e\f2-red-y-teclado.e2e.ts:126:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › rechazo del servidor (422): dice que NO se completó, con el código de seguimiento, y no promete nada sobre repetir (657ms)
+  ✓  24 [chromium] › e2e\f2-red-y-teclado.e2e.ts:145:7 › teclado y foco en los flujos críticos del backoffice › cobro: se abre con Enter, el foco entra y queda atrapado en el diálogo, Escape lo cierra y el foco vuelve al botón (496ms)
+  ✓  25 [chromium] › e2e\f2-red-y-teclado.e2e.ts:171:7 › teclado y foco en los flujos críticos del backoffice › ingreso: se completa y envía solo con teclado, el error de credenciales queda asociado al campo y el foco no se pierde (346ms)
+
+
+  1) [chromium] › e2e\f2-red-y-teclado.e2e.ts:80:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › el botón no permite doble envío mientras la operación está en curso 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Teléfono')
+
+
+       at apoyo\sesion-e2e.ts:76
+
+      74 |
+      75 |   await page.goto('/ingreso')
+    > 76 |   await page.getByLabel('Teléfono').fill('71234567')
+         |                                     ^
+      77 |   await page.getByLabel('Contraseña', { exact: true }).fill('contrasena-e2e')
+      78 |   await page.getByRole('button', { name: 'Continuar' }).click()
+      79 |
+        at iniciarSesionDePrueba (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\apoyo\sesion-e2e.ts:76:37)
+        at abrirElCobro (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-red-y-teclado.e2e.ts:41:3)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-red-y-teclado.e2e.ts:82:5
+
+    Error Context: ..\..\.playwright\backoffice\f2-red-y-teclado.e2e.ts--d-e3da3--la-operación-está-en-curso-chromium\error-context.md
+
+  1 failed
+    [chromium] › e2e\f2-red-y-teclado.e2e.ts:80:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › el botón no permite doble envío mientras la operación está en curso 
+  24 passed (46.9s)
+visual.sh bo rc=1

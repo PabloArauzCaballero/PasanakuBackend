@@ -14,8 +14,10 @@ export 'package:aportaya_cliente_grupos/src/api/default_api.dart';
 export 'package:aportaya_cliente_grupos/src/model/actividad_en_grupos.dart';
 export 'package:aportaya_cliente_grupos/src/model/admisibilidad_de_pago.dart';
 export 'package:aportaya_cliente_grupos/src/model/alias_resuelto.dart';
+export 'package:aportaya_cliente_grupos/src/model/calendario_de_aportes.dart';
 export 'package:aportaya_cliente_grupos/src/model/canje_invitacion.dart';
 export 'package:aportaya_cliente_grupos/src/model/compromiso_de_sorteo.dart';
+export 'package:aportaya_cliente_grupos/src/model/cupo_del_calendario.dart';
 export 'package:aportaya_cliente_grupos/src/model/decision_ingreso.dart';
 export 'package:aportaya_cliente_grupos/src/model/detalle_enlace_invitacion.dart';
 export 'package:aportaya_cliente_grupos/src/model/dia_salteado.dart';
@@ -50,6 +52,7 @@ export 'package:aportaya_cliente_grupos/src/model/salida_plazo_habil.dart';
 export 'package:aportaya_cliente_grupos/src/model/salida_postulacion.dart';
 export 'package:aportaya_cliente_grupos/src/model/salida_retiro.dart';
 export 'package:aportaya_cliente_grupos/src/model/salida_traspaso.dart';
+export 'package:aportaya_cliente_grupos/src/model/salida_vencimiento_local.dart';
 export 'package:aportaya_cliente_grupos/src/model/solicitud_de_ingreso.dart';
 export 'package:aportaya_cliente_grupos/src/model/sustitucion_administrador.dart';
 

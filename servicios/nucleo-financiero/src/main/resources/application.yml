@@ -16,6 +16,9 @@ spring:
         prepareThreshold: 0         # PgBouncer en modo transaccion
   kafka:
     bootstrap-servers: ${KAFKA_URL}
+    consumer:
+      # Un grupo nuevo lee desde el principio: perderse los primeros eventos es perder asientos.
+      auto-offset-reset: earliest
   jackson:
     deserialization:
       # El contrato declara additionalProperties: false. Un campo que no esta en el contrato (por
@@ -43,6 +46,7 @@ aportaya:
     tarifas: ${URL_TARIFAS:http://tarifas:8080}
     aportes: ${URL_APORTES:http://aportes:8080}
     grupos: ${URL_GRUPOS:http://grupos:8080}
+    entregas: ${URL_ENTREGAS:http://entregas:8080}
   tarifas:
     codigo-tarifario: GENERAL
   retiro:
@@ -58,6 +62,27 @@ aportaya:
     # La cuenta espejo de la custodia. Es un identificador del entorno, no del codigo:
     # en cada despliegue es otra fila, y equivocarla mueve dinero al lugar equivocado.
     cuenta-puente: ${CUENTA_PUENTE_CUSTODIA}
+
+  contabilidad:
+    consumo-de-asientos:
+      # D5: registrar en el mayor los asientos que garantia propone en sus eventos. Se enciende por entorno;
+      # sin mapeo de cuentas logicas cada evento se rechaza (no se inventa un plan de cuentas).
+      habilitado: ${CONSUMO_DE_ASIENTOS_HABILITADO:false}
+    # Cuenta logica -> codigo del plan, por moneda (ambiguedad A5, decision de contabilidad). Vacio = sin mapeo.
+    # El entorno TEST trae un mapeo SINTETICO (arbol 9 de seeders/minimos/22-cuentas-de-sistema.json) con
+    # apto-produccion=false: con el perfil `production` y el consumo encendido, el arranque se NIEGA salvo que
+    # contabilidad entregue el mapeo real y alguien ponga CUENTAS_LOGICAS_APTO_PRODUCCION=true.
+    cuentas-logicas:
+      apto-produccion: ${CUENTAS_LOGICAS_APTO_PRODUCCION:false}
+      CAJA_EMPRESA:
+        BOB: ${CUENTA_LOGICA_CAJA_EMPRESA_BOB:}
+        USD: ${CUENTA_LOGICA_CAJA_EMPRESA_USD:}
+      RESERVA_RESPALDO:
+        BOB: ${CUENTA_LOGICA_RESERVA_RESPALDO_BOB:}
+        USD: ${CUENTA_LOGICA_RESERVA_RESPALDO_USD:}
+      POZO_GRUPO:
+        BOB: ${CUENTA_LOGICA_POZO_GRUPO_BOB:}
+        USD: ${CUENTA_LOGICA_POZO_GRUPO_USD:}
 
 management:
   endpoint:

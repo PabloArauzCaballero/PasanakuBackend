@@ -1,7 +1,9 @@
 package bo.aportaya.grupos.aplicacion;
 
+import bo.aportaya.grupos.dominio.CalendarioDeAportes;
 import bo.aportaya.grupos.dominio.PaqueteDeSorteo;
 import bo.aportaya.grupos.dominio.PoliticaDelGrupo;
+import bo.aportaya.grupos.infraestructura.CalendarioDeAportesRepositorio;
 import bo.aportaya.grupos.infraestructura.ConsultasRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
@@ -24,10 +26,24 @@ public class Consultas {
 
     private final Datos datos;
     private final ConsultasRepositorio consultas;
+    private final CalendarioDeAportesRepositorio calendarios;
 
-    public Consultas(Datos datos, ConsultasRepositorio consultas) {
+    public Consultas(Datos datos, ConsultasRepositorio consultas, CalendarioDeAportesRepositorio calendarios) {
         this.datos = datos;
         this.consultas = consultas;
+        this.calendarios = calendarios;
+    }
+
+    /**
+     * El calendario de aportes de un periodo (H8.S1.M1): titulares, importes y fechas, para que `aportes`
+     * genere sus obligaciones sin leer este esquema. Se lee con rol de sistema (la politica de fila no deja
+     * ver cupos ajenos) y la autorizacion de quien pregunta ya la hizo el permiso del endpoint.
+     */
+    @Transactional(readOnly = true)
+    public Optional<CalendarioDeAportes> calendarioDeAportes(UUID periodoId, ContextoSesion ctx) {
+        ContextoSesion interno =
+                ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
+        return datos.conContexto(interno, dsl -> calendarios.deLosCupos(dsl, periodoId));
     }
 
     @Transactional(readOnly = true)

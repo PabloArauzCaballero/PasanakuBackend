@@ -40,5 +40,7 @@ export default defineConfig({
       timeout: 180_000,
     },
   ],
-  projects: [{ name: 'chromium', use: { browserName: 'chromium', viewport: { width: 1280, height: 900 } } }],
+  // `LocalNetworkAccessChecks` fuera: Chromium reciente bloquea el WebSocket de HMR de Vite entre 127.0.0.1 y 127.0.0.1 y llena la consola de
+  // errores que no son del producto (se vio en la corrida del carril F2). Es del entorno de prueba, no del código.
+  projects: [{ name: 'chromium', use: { browserName: 'chromium', viewport: { width: 1280, height: 900 }, launchOptions: { args: ['--disable-features=LocalNetworkAccessChecks'] } } }],
 })

@@ -17,6 +17,8 @@ import {
   type PeriodoContable,
 } from '../dominio/cu100-periodos'
 import { textosContabilidad } from '../textos'
+import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
+import type { ErrorTraducido } from '../../../nucleo/errores'
 
 /**
  * CU-100 · Abrir y cerrar el período contable. **Gate propio del carril B3: un período
@@ -31,7 +33,7 @@ import { textosContabilidad } from '../textos'
 @Component({
   selector: 'ap-pantalla-de-periodo',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, Boton, ChipEstado, Dialogo, EstadoDePantalla, Fecha, Monto],
+  imports: [ErrorDeEnvio, BandaDeProposito, Boton, ChipEstado, Dialogo, EstadoDePantalla, Fecha, Monto],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
     <main>
@@ -86,6 +88,7 @@ import { textosContabilidad } from '../textos'
         (cancelar)="cerrarConfirmacion()"
       >
         <p>{{ t.confirmarCierre(p.nombre) }}</p>
+        <ap-error-de-envio [error]="errorDeEnvio()" />
       </ap-dialogo>
     }
   `,
@@ -115,6 +118,7 @@ export class PantallaDePeriodo {
   protected readonly elegido = signal<PeriodoContable | null>(null)
   protected readonly dialogoAbierto = signal(false)
   protected readonly cerrando = signal(false)
+  protected readonly errorDeEnvio = signal<ErrorTraducido | null>(null)
   protected readonly asentadoEn = signal<string | null>(null)
   private readonly enviarCierre = crearCierreDePeriodo()
 
@@ -134,19 +138,24 @@ export class PantallaDePeriodo {
   }
 
   protected cerrarConfirmacion(): void {
+    this.errorDeEnvio.set(null)
     this.dialogoAbierto.set(false)
     this.elegido.set(null)
   }
 
   protected confirmarCierre(p: PeriodoContable): void {
     this.cerrando.set(true)
+    this.errorDeEnvio.set(null)
     this.enviarCierre(p.periodoId, `Cierre de ${p.nombre}`).subscribe({
       next: () => {
         this.cerrando.set(false)
         this.cerrarConfirmacion()
         this.periodos.reload()
       },
-      error: () => this.cerrando.set(false),
+      error: (e: ErrorTraducido) => {
+        this.errorDeEnvio.set(e)
+        this.cerrando.set(false)
+      },
     })
   }
 }

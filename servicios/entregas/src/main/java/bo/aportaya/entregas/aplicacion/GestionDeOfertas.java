@@ -73,6 +73,17 @@ public class GestionDeOfertas {
         return registro.listar(misGrupos, ctx, limite, pagina);
     }
 
+    /**
+     * Quien vende, a que precio y en que estado: el hecho que `nucleo-financiero` necesita para pagar al vendedor
+     * sin que se lo dicte quien llama. Vacio si la oferta no existe.
+     */
+    public java.util.Optional<bo.aportaya.entregas.dominio.OfertaParaElPago> verParaElPago(
+            UUID ofertaId, ContextoSesion ctx) {
+        return registro.verParaElPago(ofertaId, ctx)
+                .map(o -> new bo.aportaya.entregas.dominio.OfertaParaElPago(
+                        o.id(), o.vendedorUsuarioId(), o.precio(), o.estado()));
+    }
+
     public int vencer(ContextoSesion ctx) {
         return registro.vencerLasVencidas(ctx);
     }

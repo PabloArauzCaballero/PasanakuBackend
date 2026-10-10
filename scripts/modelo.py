@@ -314,6 +314,7 @@ APPEND_ONLY = {
     # documento no se corrige: se agrega una fila nueva (contra-movimiento).
     "version_condiciones", "consentimiento_inversion", "devengo_dpf", "valor_cuota",
     "comprobante_inversion", "comision_exito", "conciliacion_interes",
+    "distribucion_interes",
 }
 
 # --- tablas particionadas por rango de fecha -----------------------------

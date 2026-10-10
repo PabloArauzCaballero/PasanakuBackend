@@ -152,6 +152,12 @@ public class RegistroDeOfertas {
         });
     }
 
+    /** La oferta tal cual esta, para que `nucleo-financiero` sepa a quien pagar (el permiso ya lo exigio el endpoint). */
+    @Transactional(readOnly = true)
+    public java.util.Optional<Oferta> verParaElPago(UUID ofertaId, ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> ofertas.ver(dsl, ofertaId));
+    }
+
     /** Las ofertas publicadas cuya vigencia paso. Una compra en curso no se vence. */
     @Transactional
     public int vencerLasVencidas(ContextoSesion ctx) {

@@ -45,6 +45,24 @@ public class SustituirAdministrador {
         if (!"BACKOFFICE".equals(ctx.rol()) && !"ADMIN_PLATAFORMA".equals(ctx.rol())) {
             throw error(8, "Solo backoffice sustituye al administrador de un grupo.");
         }
+        return aplicar(entrada, ctx);
+    }
+
+    /**
+     * La misma sustitucion, pedida por el PROCESO (no por una persona) cuando el interruptor
+     * {@code aportaya.grupos.sustitucion.automatica} esta activo. Solo la invoca {@link SustitucionAutomatica}; una
+     * sesion de persona que no sea backoffice sigue rechazada en {@link #ejecutar}. Mismas reglas y mismo registro
+     * append-only: el actor queda identificado como el proceso.
+     */
+    @Transactional
+    public SustitucionDeAdministrador ejecutarAutomatica(Entrada entrada, ContextoSesion ctx) {
+        if (!ctx.esSistema()) {
+            throw error(8, "La sustitucion automatica solo la pide el proceso del sistema.");
+        }
+        return aplicar(entrada, ctx);
+    }
+
+    private SustitucionDeAdministrador aplicar(Entrada entrada, ContextoSesion ctx) {
         if (entrada.clave() == null
                 || entrada.grupoId() == null
                 || entrada.nuevoAdministradorUsuarioId() == null

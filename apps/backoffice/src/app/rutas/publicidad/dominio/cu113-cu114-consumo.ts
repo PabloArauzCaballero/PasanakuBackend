@@ -1,8 +1,8 @@
-import { HttpClient, HttpContext, httpResource } from '@angular/common/http'
+import { HttpClient, httpResource } from '@angular/common/http'
 import { inject } from '@angular/core'
 import { firstValueFrom } from 'rxjs'
 import { GATEWAY } from '../../../nucleo/gateway'
-import { CLAVE_IDEMPOTENCIA, claveDeIdempotencia } from '../../../nucleo/idempotencia.interceptor'
+import { contextoIdempotente } from '../../../nucleo/idempotencia.interceptor'
 import type { SalidaConsumo } from 'clientes/angular/publicidad/model/salidaConsumo'
 import type { EntradaLiquidacion } from 'clientes/angular/publicidad/model/entradaLiquidacion'
 import type { SalidaLiquidacion } from 'clientes/angular/publicidad/model/salidaLiquidacion'
@@ -30,7 +30,7 @@ export async function consultarConsumo(http: HttpClient, gateway: string, cuenta
 export async function liquidarPeriodo(http: HttpClient, gateway: string, cuentaId: string, entrada: EntradaLiquidacion): Promise<SalidaLiquidacion> {
   return firstValueFrom(
     http.post<SalidaLiquidacion>(`${gateway}/publicidad/cuentas/${cuentaId}/liquidaciones`, entrada, {
-      context: new HttpContext().set(CLAVE_IDEMPOTENCIA, claveDeIdempotencia()),
+      context: contextoIdempotente(),
     }),
   )
 }

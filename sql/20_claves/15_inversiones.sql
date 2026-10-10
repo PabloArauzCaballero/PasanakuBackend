@@ -44,6 +44,16 @@ ALTER TABLE inversiones.devengo_dpf
   ADD CONSTRAINT fk_devengo_dpf_posicion_inversion_id
   FOREIGN KEY (posicion_inversion_id) REFERENCES inversiones.posicion_inversion (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
+ALTER TABLE inversiones.distribucion_interes DROP CONSTRAINT IF EXISTS fk_distribucion_interes_posicion_inversion_id;
+ALTER TABLE inversiones.distribucion_interes
+  ADD CONSTRAINT fk_distribucion_interes_posicion_inversion_id
+  FOREIGN KEY (posicion_inversion_id) REFERENCES inversiones.posicion_inversion (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE inversiones.distribucion_interes DROP CONSTRAINT IF EXISTS fk_distribucion_interes_rescate_inversion_id;
+ALTER TABLE inversiones.distribucion_interes
+  ADD CONSTRAINT fk_distribucion_interes_rescate_inversion_id
+  FOREIGN KEY (rescate_inversion_id) REFERENCES inversiones.rescate_inversion (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
 ALTER TABLE inversiones.orden_inversion DROP CONSTRAINT IF EXISTS fk_orden_inversion_consentimiento_inversion_id;
 ALTER TABLE inversiones.orden_inversion
   ADD CONSTRAINT fk_orden_inversion_consentimiento_inversion_id

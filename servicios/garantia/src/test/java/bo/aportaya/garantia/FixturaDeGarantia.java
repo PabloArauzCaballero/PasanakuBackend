@@ -244,6 +244,8 @@ class FixturaDeGarantia {
             {"garantia", "lista_restriccion_interna"},
             {"garantia", "reemplazo_participante"},
             {"garantia", "disolucion_anticipada"},
+            // La contingencia de caja es GLOBAL (frena las reservas de todos): ninguna prueba hereda la de otra.
+            {"garantia", "plan_contingencia"},
             {"garantia", "evento_dominio"},
             {"garantia", "evento_consumido"}
         }) {

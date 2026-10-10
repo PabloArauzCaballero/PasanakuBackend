@@ -3,7 +3,6 @@ package bo.aportaya.entregas.infraestructura;
 import bo.aportaya.entregas.dominio.puertos.RecaudoDelPozo;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
-import bo.aportaya.plataforma.web.clientes.ClienteDeServicio;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -16,22 +15,33 @@ import org.springframework.web.client.RestClient;
 /**
  * Le pregunta a {@code aportes} cuanto del pozo es caja confirmada.
  *
- * <p>Timeout corto de {@link ClienteDeServicio}, sin reintento y sin respuesta parcial: cualquier
- * falla (red, 4xx, 5xx, JSON roto) es vacio y quien pregunta no avanza (denegar por omision). No
- * hay circuit breaker todavia: riesgo residual declarado.
+ * <p>Tiempo maximo y circuit breaker ({@link ClienteConCircuito}), sin reintento y sin respuesta parcial:
+ * cualquier falla (red, 4xx, 5xx, JSON roto, circuito abierto) es vacio y quien pregunta no avanza (denegar por
+ * omision). FALLBACK declarado: con {@code aportes} caido el pozo no se puede afirmar, asi que la entrega NO se
+ * liquida (el usuario ve «procesando», regla 98.4.1); NO se usa el ultimo recaudo conocido (decision de
+ * Tesoreria pendiente, ver evidencia/carril-S2/DEUDA-circuit-breaker-clientes-http.md).
  */
 @Component
 public class RecaudoPorHttp implements RecaudoDelPozo {
 
-    private final ClienteDeServicio cliente;
+    private final ClienteConCircuito cliente;
 
     @Autowired
-    public RecaudoPorHttp(RestClient.Builder constructor, @Value("${aportaya.servicios.aportes}") String urlDeAportes) {
-        this(new ClienteDeServicio(constructor, urlDeAportes, "aportes"));
+    public RecaudoPorHttp(
+            RestClient.Builder constructor,
+            @Value("${aportaya.servicios.aportes}") String urlDeAportes,
+            ConfiguracionDeCircuito circuito) {
+        this.cliente = new ClienteConCircuito(constructor, urlDeAportes, "aportes", circuito);
     }
 
-    RecaudoPorHttp(ClienteDeServicio cliente) {
-        this.cliente = cliente;
+    /** Con los parametros del plan de resiliencia: la usan las pruebas del adaptador. */
+    RecaudoPorHttp(RestClient.Builder constructor, String urlDeAportes) {
+        this(constructor, urlDeAportes, ConfiguracionDeCircuito.porOmision());
+    }
+
+    /** Para pruebas y diagnostico: el estado del circuito hacia `aportes`. */
+    io.github.resilience4j.circuitbreaker.CircuitBreaker.State estadoDelCircuito() {
+        return cliente.estado();
     }
 
     @Override

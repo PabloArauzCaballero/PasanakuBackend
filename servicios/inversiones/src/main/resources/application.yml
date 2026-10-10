@@ -38,6 +38,7 @@ aportaya:
   zona-horaria: America/La_Paz      # plazos habiles
   servicios:
     nucleo-financiero: ${NUCLEO_FINANCIERO_URL:http://nucleo-financiero:8080}   # el libro, SOLO por contrato
+    identidad: ${URL_IDENTIDAD:http://identidad:8080}   # emisor de la credencial de servicio (ADR-024)
   inversiones:
     # SINTETICO: el aliado es un simulador. `deshabilitado` es el unico modo que arranca en un
     # entorno productivo (GuardiaDeProduccion); `simulado` exige loopback y claves de 32 bytes.
@@ -49,8 +50,41 @@ aportaya:
       timeout: PT5S
     libro:
       timeout: PT3S
+      # Identidad de SERVICIO con que se debita la inversion y se acredita el rescate (nucleo-financiero las
+      # acepta solo asi). Dos formas, ambas secretas y por variable de entorno, nunca en el repo:
+      #  - cuenta-servicio: cuenta de servicio en identidad con el rol SERVICIO_INVERSIONES; el servicio entra
+      #    (POST /sesiones) y renueva el token solo antes de que venza. Es la forma de operar.
+      #  - credencial-servicio: un token ya emitido (vive 15 minutos): solo una prueba manual.
+      # Sin ninguna, esas dos operaciones fallan cerradas y quedan pendientes. Config a medias = no arranca.
+      credencial-servicio: ${INVERSIONES_LIBRO_CREDENCIAL_SERVICIO:}
+      cuenta-servicio:
+        telefono: ${INVERSIONES_SERVICIO_TELEFONO:}
+        clave: ${INVERSIONES_SERVICIO_CLAVE:}
+        factor-totp-semilla: ${INVERSIONES_SERVICIO_TOTP_SEMILLA:}
+        factor-fijo: ${INVERSIONES_SERVICIO_FACTOR_FIJO:}   # SOLO TEST: el codigo fijo del perfil local de identidad
     valor-cuota:
       tolerancia-dias: 3            # tecnico, no comercial: cuantos dias de antiguedad tolera la pantalla sin avisar
+    # Instrucciones pendientes al libro: espera exponencial desde que nacieron y un maximo de intentos.
+    # Pasado el maximo NO se descartan: quedan pendientes, contadas como atascadas y a la vista.
+    # Tecnico, no comercial.
+    instrucciones:
+      reintento:
+        base: PT30S
+        tope: PT1H
+        max-intentos: 12
+        por-vuelta: 200             # cuantas se intentan como mucho en cada vuelta del reloj
+        lectura: 500                # cuantas pendientes se leen para elegir entre ellas
+    # Trabajos programados (devengo, sincronizaciones, reintento). `habilitados: false` los apaga
+    # sin tocar la API; el plazo maximo corta un barrido largo entero (queda PARCIAL) y una corrida
+    # en curso mas vieja que `en-curso-caduca` se da por caida y se retoma con la misma clave.
+    # Simulacion de caja (CU-129): variaciones del valor de cuota que se muestran si quien simula no pone las suyas.
+    # Hipotesis, no prediccion.
+    simulacion:
+      escenarios-por-omision: -0.10,0.00,0.10
+    trabajos:
+      habilitados: true
+      plazo-maximo: PT45S
+      en-curso-caduca: PT10M
 
 management:
   endpoint:

@@ -12,18 +12,26 @@
 # Codigos de error (AP-CU<NN>-<nn>), para scripts/verificar_criterios.py:
 #   CU-120 · catalogo        AP-CU120-01 PRODUCTO_INEXISTENTE · AP-CU120-02 ALIADO_NO_DISPONIBLE
 #                            AP-CU120-03 RESPUESTA_DEL_ALIADO_NO_VERIFICABLE
+#                            AP-CU120-04 IDEMPOTENCIA_CONTENIDO_DISTINTO · AP-CU120-05 OPERACION_EN_CURSO
 #   CU-121 · ordenar         AP-CU121-01 PRODUCTO_NO_DISPONIBLE · AP-CU121-02 CONDICIONES_DESACTUALIZADAS
 #                            AP-CU121-03 MONTO_BAJO_EL_MINIMO · AP-CU121-04 SALDO_INSUFICIENTE
 #                            AP-CU121-05 SALDO_AFECTADO_A_POZO · AP-CU121-06 IDEMPOTENCIA_CONTENIDO_DISTINTO
 #                            AP-CU121-07 NO_SE_PUDO_VERIFICAR_SALDO · AP-CU121-08 MONEDA_NO_SOPORTADA
 #   CU-122 · confirmar       AP-CU122-01 ORDEN_INEXISTENTE · AP-CU122-02 CONFIRMACION_NO_COINCIDE
+#                            AP-CU122-03 IDEMPOTENCIA_CONTENIDO_DISTINTO · AP-CU122-04 OPERACION_EN_CURSO
 #   CU-123 · devengo y valor AP-CU123-01 POSICION_INEXISTENTE · AP-CU123-02 VALOR_CUOTA_NO_DISPONIBLE
+#                            AP-CU123-03 IDEMPOTENCIA_CONTENIDO_DISTINTO · AP-CU123-04 OPERACION_EN_CURSO
 #   CU-124 · rescatar        AP-CU124-01 RESCATE_ANTICIPADO_NO_PERMITIDO · AP-CU124-02 DOBLE_DISPONIBILIDAD
 #                            AP-CU124-03 POSICION_NO_ABIERTA · AP-CU124-04 CUOTAS_INVALIDAS
 #                            AP-CU124-05 IDEMPOTENCIA_CONTENIDO_DISTINTO · AP-CU124-06 POSICION_INEXISTENTE
 #                            AP-CU124-07 RESCATE_INEXISTENTE
 #   CU-125 · liquidar        AP-CU125-01 DISCREPANCIA_CON_EL_EMISOR · AP-CU125-02 LIQUIDACION_NO_COINCIDE_CON_EL_VALOR
-#   CU-127 · comision exito  AP-CU127-01 COMISION_NO_CONFIGURADA
+#   CU-126 · intereses       (usa AP-CU123-01 POSICION_INEXISTENTE: la posicion ajena no existe para quien pregunta)
+#   CU-127 · comision exito  AP-CU127-01 COMISION_NO_CONFIGURADA · AP-CU127-02 VALOR_CUOTA_NO_DISPONIBLE
+#                            AP-CU127-03 SIN_CUOTAS_ABIERTAS
+#   CU-128 · comprobantes    AP-CU128-01 PERIODO_INVALIDO
+#   CU-129 · simulacion      AP-CU129-01 IMPORTE_INVALIDO · AP-CU129-02 HORIZONTE_INVALIDO
+#                            AP-CU129-03 PRODUCTO_NO_DISPONIBLE · AP-CU129-04 ESCENARIOS_INVALIDOS
 openapi: 3.1.0
 info:
   title: inversiones
@@ -136,7 +144,7 @@ paths:
         reenvia a ciegas y no se libera el saldo mientras no se sepa que paso.
       parameters:
         - { name: ordenId, in: path, required: true, schema: { type: string, format: uuid } }
-        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - $ref: '#/components/parameters/ClaveIdempotenciaOpcional'
       responses:
         '200':
           description: La orden despues de consultar
@@ -228,7 +236,7 @@ paths:
       summary: Consulta al aliado y, si confirmo, liquida y acredita
       parameters:
         - { name: rescateId, in: path, required: true, schema: { type: string, format: uuid } }
-        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - $ref: '#/components/parameters/ClaveIdempotenciaOpcional'
       responses:
         '200':
           description: El rescate despues de consultar
@@ -262,6 +270,173 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+  /inversiones/productos/{codigo}:
+    get:
+      operationId: verProductoDeInversion           # CU-120
+      summary: Un producto y las condiciones vigentes, con fecha de cotizacion y fuente
+      parameters:
+        - { name: codigo, in: path, required: true, schema: { type: string, maxLength: 40 } }
+      responses:
+        '200':
+          description: El producto con la version de condiciones que se aceptaria hoy
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductoInversion' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /inversiones/posiciones/{posicionId}/distribuciones:
+    get:
+      operationId: listarDistribucionesDeInteres    # CU-126
+      summary: Intereses que pago el emisor y se repartieron al titular, conciliados contra el devengo
+      parameters:
+        - { name: posicionId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Distribuciones de la posicion, con su estado de conciliacion
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ListaDeDistribuciones' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /inversiones/posiciones/{posicionId}/comision:
+    get:
+      operationId: estimarComisionDeExito           # CU-127
+      summary: Estimacion de la comision por resultado de una posicion de fondo, antes de rescatar
+      description: >-
+        Solo grava lo que supera la marca maxima previa del lote. Es una estimacion con el ultimo
+        valor de cuota publicado; la comision real sale de lo que el aliado confirme al rescatar.
+      parameters:
+        - { name: posicionId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: La estimacion
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaComision' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /inversiones/reportes/fiscal:
+    get:
+      operationId: reporteFiscalDeInversiones       # CU-128
+      tags: [Analisis]
+      summary: Comprobantes del periodo con principal, interes, impuesto y comision separados, conciliados con el libro
+      description: >-
+        Reporte de movimientos, no una declaracion tributaria: el tratamiento fiscal real
+        (DR-INV-03) esta pendiente y la retencion es una tasa SINTETICA del producto.
+      parameters:
+        - { name: desde, in: query, required: true, schema: { type: string, format: date } }
+        - { name: hasta, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        '200':
+          description: El reporte del titular de la sesion
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReporteFiscal' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /inversiones/reportes/fiscal/exportacion:
+    get:
+      operationId: exportarReporteFiscalDeInversiones   # CU-128
+      tags: [Analisis]
+      summary: El mismo reporte como CSV (coma, decimales con punto), con encabezado fiscal y fila de totales
+      parameters:
+        - { name: desde, in: query, required: true, schema: { type: string, format: date } }
+        - { name: hasta, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        '200':
+          description: El CSV
+          content:
+            text/csv:
+              schema: { type: string }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /inversiones/simulaciones/caja:
+    post:
+      operationId: simularCajaDeInversion           # CU-129
+      tags: [Analisis]
+      summary: Compara dejar un importe hipotetico en la billetera, en un DPF o en un fondo (no toca saldos)
+      description: >-
+        Cuenta SEPARADA de la operacion real: no consulta el saldo de nadie, no retiene y no
+        ordena. No reactiva la inversion de dinero de grupos. Los escenarios de fondo son
+        hipotesis de quien simula, no una prediccion.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaSimulacion' }
+      responses:
+        '200':
+          description: Las alternativas, con lo que llegaria a la billetera y cuando
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaSimulacion' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /inversiones/instrucciones/reintento:
+    post:
+      operationId: reintentarInstruccionesAlLibro   # CU-122
+      tags: [Operaciones]
+      summary: Reintenta ahora las instrucciones pendientes al libro, sin esperas ni tope de intentos
+      description: >-
+        Lo que el reloj hace cada minuto con espera exponencial y un maximo de intentos, hecho a
+        mano por una persona de plataforma. La clave de idempotencia se reserva: repetirla con el
+        mismo contenido devuelve el resultado guardado.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaReintento' }
+      responses:
+        '200':
+          description: Lo que dejo el barrido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaReintento' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /inversiones/corridas:
+    get:
+      operationId: listarCorridasDeInversiones      # CU-123
+      tags: [Operaciones]
+      summary: Las ultimas corridas de los trabajos (sincronizaciones, devengo, reintentos) y como terminaron
+      parameters:
+        - name: operacion
+          in: query
+          required: false
+          schema: { type: string, enum: [SINCRONIZAR_CATALOGO, SINCRONIZAR_VALORES, DEVENGAR, REINTENTAR_INSTRUCCIONES] }
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 200, default: 50 } }
+      responses:
+        '200':
+          description: Corridas de la mas nueva a la mas vieja
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ListaDeCorridas' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
 components:
   parameters:
     ClaveIdempotencia:
@@ -271,6 +446,15 @@ components:
       description: >-
         Toda operacion con efecto la exige. La red duplica; reintentar tiene que ser
         seguro, y la clave se valida ANTES de escribir (invariante 7).
+      schema: { type: string, format: uuid }
+    ClaveIdempotenciaOpcional:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: >-
+        Se acepta por uniformidad con el resto del contrato pero esta operacion NO la necesita: consultar
+        al aliado y avanzar es idempotente por la maquina de estados (una orden o un rescate ya resuelto
+        no se vuelve a mover), no por la clave.
       schema: { type: string, format: uuid }
   schemas:
     Dinero:
@@ -500,6 +684,191 @@ components:
         devengadas:   { type: integer }
         yaDevengadas: { type: integer }
         total:        { $ref: '#/components/schemas/Dinero' }
+    Distribucion:
+      type: object
+      additionalProperties: false
+      required: [distribucionId, rescateId, periodoDesde, periodoHasta, interesDevengado, penalizacion, interesEsperado, interesPagado, retencion, interesNeto, estado, distribuidaEn]
+      properties:
+        distribucionId:   { type: string, format: uuid }
+        rescateId:        { type: string, format: uuid }
+        periodoDesde:     { type: string, format: date }
+        periodoHasta:     { type: string, format: date }
+        interesDevengado: { $ref: '#/components/schemas/Dinero' }
+        penalizacion:     { $ref: '#/components/schemas/Dinero' }
+        interesEsperado:  { $ref: '#/components/schemas/Dinero' }
+        interesPagado:    { $ref: '#/components/schemas/Dinero' }
+        retencion:        { $ref: '#/components/schemas/Dinero' }
+        interesNeto:      { $ref: '#/components/schemas/Dinero' }
+        estado:           { type: string, enum: [CONCILIADA, DISCREPANCIA] }
+        motivoDiscrepancia: { type: string }
+        distribuidaEn:    { type: string, format: date-time }
+    ListaDeDistribuciones:
+      type: object
+      additionalProperties: false
+      required: [distribuciones]
+      properties:
+        distribuciones:
+          type: array
+          items: { $ref: '#/components/schemas/Distribucion' }
+    SalidaComision:
+      type: object
+      additionalProperties: false
+      required: [posicionId, cuotas, valorCuota, fechaValor, marcaMaximaPrevia, tasa, baseElegible, comisionEstimada, cuotaNetaEstimada, marcaMaximaNueva, comisionCobradaAntes, origenDatos, advertencia]
+      properties:
+        posicionId:           { type: string, format: uuid }
+        cuotas:               { type: string, pattern: '^\d+\.\d{6}$' }
+        valorCuota:           { type: string, pattern: '^\d+\.\d{6}$' }
+        fechaValor:           { type: string, format: date }
+        marcaMaximaPrevia:    { type: string, pattern: '^\d+\.\d{6}$' }
+        tasa:                 { type: string, pattern: '^\d+\.\d{6}$' }
+        baseElegible:         { $ref: '#/components/schemas/Dinero' }
+        comisionEstimada:     { $ref: '#/components/schemas/Dinero' }
+        cuotaNetaEstimada:    { type: string, pattern: '^\d+\.\d{6}$' }
+        marcaMaximaNueva:     { type: string, pattern: '^\d+\.\d{6}$' }
+        comisionCobradaAntes: { $ref: '#/components/schemas/Dinero' }
+        origenDatos:          { type: string, enum: [SINTETICO, VERIFICADO] }
+        advertencia:          { type: string }
+    LineaFiscal:
+      type: object
+      additionalProperties: false
+      required: [comprobanteId, posicionId, productoCodigo, tipo, fecha, principal, interes, impuesto, comision, perdidaRealizada, neto, origenDatos, estadoEnLibro]
+      properties:
+        comprobanteId:    { type: string, format: uuid }
+        posicionId:       { type: string, format: uuid }
+        productoCodigo:   { type: string }
+        tipo:             { type: string, enum: [SUSCRIPCION, LIQUIDACION] }
+        fecha:            { type: string, format: date }
+        principal:        { $ref: '#/components/schemas/Dinero' }
+        interes:          { $ref: '#/components/schemas/Dinero' }
+        impuesto:         { $ref: '#/components/schemas/Dinero' }
+        comision:         { $ref: '#/components/schemas/Dinero' }
+        perdidaRealizada: { $ref: '#/components/schemas/Dinero' }
+        neto:             { $ref: '#/components/schemas/Dinero' }
+        origenDatos:      { type: string, enum: [SINTETICO, VERIFICADO] }
+        estadoEnLibro:    { type: string, enum: [CONCILIADA, PENDIENTE_EN_LIBRO, DIFERENCIA, SIN_INSTRUCCION] }
+    TotalesFiscales:
+      type: object
+      additionalProperties: false
+      required: [principalSuscrito, principalDevuelto, interes, impuesto, comision, perdidaRealizada, netoAcreditado]
+      properties:
+        principalSuscrito: { $ref: '#/components/schemas/Dinero' }
+        principalDevuelto: { $ref: '#/components/schemas/Dinero' }
+        interes:           { $ref: '#/components/schemas/Dinero' }
+        impuesto:          { $ref: '#/components/schemas/Dinero' }
+        comision:          { $ref: '#/components/schemas/Dinero' }
+        perdidaRealizada:  { $ref: '#/components/schemas/Dinero' }
+        netoAcreditado:    { $ref: '#/components/schemas/Dinero' }
+    ConciliacionConElLibro:
+      type: object
+      additionalProperties: false
+      required: [debitadoSegunComprobantes, debitadoEnLibro, acreditadoSegunComprobantes, acreditadoEnLibro, lineasPendientesEnLibro, lineasConDiferencia, distribucionesConDiscrepancia, cuadra]
+      properties:
+        debitadoSegunComprobantes:    { $ref: '#/components/schemas/Dinero' }
+        debitadoEnLibro:              { $ref: '#/components/schemas/Dinero' }
+        acreditadoSegunComprobantes:  { $ref: '#/components/schemas/Dinero' }
+        acreditadoEnLibro:            { $ref: '#/components/schemas/Dinero' }
+        lineasPendientesEnLibro:      { type: integer }
+        lineasConDiferencia:          { type: integer }
+        distribucionesConDiscrepancia: { type: integer }
+        cuadra:                       { type: boolean }
+    ReporteFiscal:
+      type: object
+      additionalProperties: false
+      required: [desde, hasta, lineas, totales, conciliacion, origenDatos, aptoProduccion, notaFiscal]
+      properties:
+        desde:         { type: string, format: date }
+        hasta:         { type: string, format: date }
+        lineas:
+          type: array
+          items: { $ref: '#/components/schemas/LineaFiscal' }
+        totales:       { $ref: '#/components/schemas/TotalesFiscales' }
+        conciliacion:  { $ref: '#/components/schemas/ConciliacionConElLibro' }
+        origenDatos:   { type: string, enum: [SINTETICO, VERIFICADO] }
+        aptoProduccion: { type: boolean }
+        notaFiscal:    { type: string }
+    EntradaSimulacion:
+      type: object
+      additionalProperties: false
+      required: [monto, horizonteDias]
+      properties:
+        monto:         { $ref: '#/components/schemas/Dinero' }
+        horizonteDias: { type: integer, minimum: 1, maximum: 3650 }
+        productos:
+          type: array
+          maxItems: 20
+          items: { type: string, maxLength: 40 }
+          description: Codigos a comparar; vacio compara todos los vigentes.
+        variacionesDeFondo:
+          type: array
+          maxItems: 9
+          items: { type: string, pattern: '^-?\d{1,2}\.\d{2}$', maxLength: 8 }
+          description: Hipotesis de variacion del valor de cuota (0.10 = +10 %); por omision -0.10, 0.00 y 0.10.
+    Alternativa:
+      type: object
+      additionalProperties: false
+      required: [tipo, descripcion, diasParaDisponer, disponibleEnElHorizonte, interes, retencion, comision, netoCuandoDisponible, diferenciaContraBilletera, origenDatos]
+      properties:
+        tipo:           { type: string, enum: [BILLETERA, DPF_AL_VENCIMIENTO, DPF_ANTICIPADO, DPF_NO_DISPONIBLE, FONDO_ESCENARIO] }
+        productoCodigo: { type: string }
+        descripcion:    { type: string }
+        diasParaDisponer: { type: integer }
+        disponibleEnElHorizonte: { type: boolean }
+        interes:        { $ref: '#/components/schemas/Dinero' }
+        retencion:      { $ref: '#/components/schemas/Dinero' }
+        comision:       { $ref: '#/components/schemas/Dinero' }
+        netoCuandoDisponible: { $ref: '#/components/schemas/Dinero' }
+        diferenciaContraBilletera: { $ref: '#/components/schemas/Dinero' }
+        origenDatos:    { type: string, enum: [SINTETICO, VERIFICADO] }
+    SalidaSimulacion:
+      type: object
+      additionalProperties: false
+      required: [monto, horizonteDias, alternativas, usaSaldoReal, advertencia]
+      properties:
+        monto:         { $ref: '#/components/schemas/Dinero' }
+        horizonteDias: { type: integer }
+        alternativas:
+          type: array
+          items: { $ref: '#/components/schemas/Alternativa' }
+        usaSaldoReal:  { type: boolean, description: Siempre falso; la simulacion no lee ni mueve ningun saldo. }
+        advertencia:   { type: string }
+    EntradaReintento:
+      type: object
+      additionalProperties: false
+      properties:
+        limite: { type: integer, minimum: 1, maximum: 500, default: 200 }
+    SalidaReintento:
+      type: object
+      additionalProperties: false
+      required: [aplicadas, rechazadas, siguenPendientes, esperando, atascadas, cortada]
+      properties:
+        aplicadas:        { type: integer }
+        rechazadas:       { type: integer }
+        siguenPendientes: { type: integer }
+        esperando:        { type: integer }
+        atascadas:        { type: integer }
+        cortada:          { type: boolean, description: El barrido paso su plazo maximo y el resto queda para la proxima vuelta. }
+    Corrida:
+      type: object
+      additionalProperties: false
+      required: [corridaId, operacion, clave, origen, estado, iniciadaEn]
+      properties:
+        corridaId: { type: string, format: uuid }
+        operacion: { type: string, enum: [SINCRONIZAR_CATALOGO, SINCRONIZAR_VALORES, DEVENGAR, REINTENTAR_INSTRUCCIONES] }
+        clave:     { type: string }
+        origen:    { type: string, enum: [API, PROGRAMADO] }
+        estado:    { type: string, enum: [EN_CURSO, OK, PARCIAL, FALLIDA] }
+        resultado: { type: object, additionalProperties: { type: string } }
+        error:     { type: string }
+        iniciadaEn:  { type: string, format: date-time }
+        terminadaEn: { type: string, format: date-time }
+    ListaDeCorridas:
+      type: object
+      additionalProperties: false
+      required: [corridas]
+      properties:
+        corridas:
+          type: array
+          items: { $ref: '#/components/schemas/Corrida' }
   responses:
     ReglaDeNegocio:
       description: Regla de negocio de la aplicacion (422, no 400)

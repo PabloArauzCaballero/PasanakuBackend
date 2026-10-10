@@ -1,0 +1,205 @@
+
+Running 25 tests using 1 worker
+
+  ✓   1 [chromium] › e2e\admisiones.e2e.ts:106:7 › [UI con red simulada] admisión humana en backoffice › arranque en frío: el ingreso carga (1.3s)
+  ✘   2 [chromium] › e2e\admisiones.e2e.ts:112:7 › [UI con red simulada] admisión humana en backoffice › BO con permiso: ve la propuesta y la evidencia, resuelve, y la resolución persiste tras recargar (1.3s)
+  ✘   3 [chromium] › e2e\admisiones.e2e.ts:149:7 › [UI con red simulada] admisión humana en backoffice › rol sin el permiso de la plataforma: la sección no aparece y la ruta no monta (sin acciones ajenas) (5.3s)
+  ✓   4 [chromium] › e2e\admisiones.e2e.ts:162:7 › [UI con red simulada] admisión humana en backoffice › sin sesión no se entra a la solicitud (309ms)
+  ✓   5 [chromium] › e2e\admisiones.e2e.ts:168:7 › [UI con red simulada] admisión humana en backoffice › estados: cargando, vacío y error del servidor (2.4s)
+  ✓   6 [chromium] › e2e\admisiones.e2e.ts:193:7 › [UI con red simulada] admisión humana en backoffice › respuesta perdida: queda sin confirmar, verifica, reintenta con la MISMA clave y no duplica (548ms)
+  ✓   7 [chromium] › e2e\admisiones.e2e.ts:217:7 › [UI con red simulada] admisión humana en backoffice › envío que nunca llegó: verificar no la encuentra y el reintento reutiliza la misma clave (593ms)
+  ✓   8 [chromium] › e2e\admisiones.e2e.ts:241:7 › [UI con red simulada] admisión humana en backoffice › puerta de entrada: pide el identificador y rechaza uno mal formado (477ms)
+  ✓   9 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:52:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › posiciones separadas: gastable, comprometido en pozos y retenido, con cifras que reconcilian (1.1s)
+  ✓  10 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:69:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › sin separar: con el ejemplo real del contrato (sin comprometidoEnPozos) NO se afirma ninguna cifra gastable (549ms)
+  ✓  11 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:79:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › comprometido mayor que el disponible: se acota, lo gastable queda en cero y se avisa (564ms)
+  ✓  12 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:88:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › saldo incoherente (monedas distintas): no se muestra ninguna cifra (427ms)
+  ✓  13 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:97:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › cuenta en cero, error del servidor y cargando (600ms)
+  ✓  14 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › PARTICIPANTE: el menú ofrece solo Tablero y Ayuda; lo ajeno no monta ni escribiendo la dirección (398ms)
+  ✓  15 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › SOPORTE: el menú ofrece solo Operación; lo ajeno no monta ni escribiendo la dirección (462ms)
+  ✓  16 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › ADMIN_PLATAFORMA: el menú ofrece solo Cumplimiento, Admisiones, Sistemas; lo ajeno no monta ni escribiendo la dirección (419ms)
+  ✓  17 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › CONTABILIDAD: el menú ofrece solo Operación, Contabilidad; lo ajeno no monta ni escribiendo la dirección (480ms)
+  ✓  18 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:159:7 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › una ruta ajena no deja ninguna acción ni ningún código interno de permiso a la vista: vuelve al tablero (402ms)
+  ✘  19 [chromium] › e2e\f2-red-y-teclado.e2e.ts:57:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › respuesta perdida: avisa que no se pudo confirmar, conserva el monto, y el reintento reutiliza la clave y no duplica (564ms)
+  ✓  20 [chromium] › e2e\f2-red-y-teclado.e2e.ts:80:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › el botón no permite doble envío mientras la operación está en curso (499ms)
+  ✘  21 [chromium] › e2e\f2-red-y-teclado.e2e.ts:92:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › plazo vencido (30 s sin respuesta): «sin confirmar», no «falló»; el reintento reutiliza la clave (510ms)
+  ✘  22 [chromium] › e2e\f2-red-y-teclado.e2e.ts:109:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › sin conexión: el envío falla visible, lo escrito se conserva y al volver la red el reintento sale con la misma clave (577ms)
+  ✘  23 [chromium] › e2e\f2-red-y-teclado.e2e.ts:126:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › rechazo del servidor (422): dice que NO se completó, con el código de seguimiento, y no promete nada sobre repetir (605ms)
+  ✘  24 [chromium] › e2e\f2-red-y-teclado.e2e.ts:145:7 › teclado y foco en los flujos críticos del backoffice › cobro: se abre con Enter, el foco entra y queda atrapado en el diálogo, Escape lo cierra y el foco vuelve al botón (460ms)
+  ✓  25 [chromium] › e2e\f2-red-y-teclado.e2e.ts:167:7 › teclado y foco en los flujos críticos del backoffice › ingreso: se completa y envía solo con teclado, el error de credenciales queda asociado al campo y el foco no se pierde (405ms)
+
+
+  1) [chromium] › e2e\admisiones.e2e.ts:112:7 › [UI con red simulada] admisión humana en backoffice › BO con permiso: ve la propuesta y la evidencia, resuelve, y la resolución persiste tras recargar 
+
+    Error: consola: Failed to load resource: the server responded with a status of 401 (Unauthorized) | Failed to load resource: the server responded with a status of 401 (Unauthorized)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    +   "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    + ]
+
+      144 |     await expect(page.getByRole('heading', { name: 'Resolución de backoffice', level: 3 })).toBeVisible()
+      145 |     await expect(page.getByText('La solicitud ya está resuelta')).toBeVisible()
+    > 146 |     expect(consola, `consola: ${consola.join(' | ')}`).toEqual([])
+          |                                                        ^
+      147 |   })
+      148 |
+      149 |   test('rol sin el permiso de la plataforma: la sección no aparece y la ruta no monta (sin acciones ajenas)', async ({ page }) => {
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:146:56
+
+    Error Context: ..\..\.playwright\backoffice\admisiones.e2e.ts--UI-con--0e8ba-ción-persiste-tras-recargar-chromium\error-context.md
+
+  2) [chromium] › e2e\admisiones.e2e.ts:149:7 › [UI con red simulada] admisión humana en backoffice › rol sin el permiso de la plataforma: la sección no aparece y la ruta no monta (sin acciones ajenas) 
+
+    Error: consola: Failed to load resource: the server responded with a status of 401 (Unauthorized)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    + ]
+
+      157 |     await expect(page.getByRole('button', { name: 'Resolver solicitud' })).toHaveCount(0)
+      158 |     await capturar(page, 'sin-permiso-vuelve-al-tablero', 'movil', 'dark')
+    > 159 |     expect(consola, `consola: ${consola.join(' | ')}`).toEqual([])
+          |                                                        ^
+      160 |   })
+      161 |
+      162 |   test('sin sesión no se entra a la solicitud', async ({ page }) => {
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:159:56
+
+    Error Context: ..\..\.playwright\backoffice\admisiones.e2e.ts--UI-con--b0b84--monta-sin-acciones-ajenas--chromium\error-context.md
+
+  3) [chromium] › e2e\f2-red-y-teclado.e2e.ts:57:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › respuesta perdida: avisa que no se pudo confirmar, conserva el monto, y el reintento reutiliza la clave y no duplica 
+
+    Error: cobro-sin-confirmar movil light: la página no desplaza en horizontal
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0
+    Received:    291
+
+       at apoyo\capturas-f2.ts:54
+
+      52 |   await page.screenshot({ path: path.join(CAPTURAS, `${prefijo}-${nombre}-${viewport}-${tema}.png`), fullPage: true })
+      53 |   const desborde = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+    > 54 |   expect(desborde, `${nombre} ${viewport} ${tema}: la página no desplaza en horizontal`).toBeLessThanOrEqual(0)
+         |                                                                                          ^
+      55 |   const malos = await contraste(page)
+      56 |   const registro = { captura: `${prefijo}-${nombre}-${viewport}-${tema}`, violaciones: malos }
+      57 |   if (process.env['CONTRASTE_INFORME']) {
+        at capturar (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\apoyo\capturas-f2.ts:54:90)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-red-y-teclado.e2e.ts:67:5
+
+    Error Context: ..\..\.playwright\backoffice\f2-red-y-teclado.e2e.ts--d-6a1a7-iliza-la-clave-y-no-duplica-chromium\error-context.md
+
+  4) [chromium] › e2e\f2-red-y-teclado.e2e.ts:92:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › plazo vencido (30 s sin respuesta): «sin confirmar», no «falló»; el reintento reutiliza la clave 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected substring: "tardó demasiado"
+    Error: strict mode violation: getByRole('alert') resolved to 2 elements:
+        1) <ap-alerta tono="error" role="alert" _nghost-ng-c2359830858="" _ngcontent-ng-c4178774395="">…</ap-alerta> aka locator('ap-alerta')
+        2) <p role="alert" class="error" id="ap-campo-3-error" _ngcontent-ng-c1757926728="">Escribí un monto como 1.240,00</p> aka getByText('Escribí un monto como')
+
+    Call log:
+      - Expect "toContainText" getByRole('alert') with timeout 5000ms
+      - waiting for getByRole('alert')
+
+
+      100 |     await page.clock.fastForward(31_000)
+      101 |     await expect(page.getByRole('alert').filter({ hasText: 'No pudimos confirmar si se registró' })).toBeVisible()
+    > 102 |     await expect(page.getByRole('alert')).toContainText('tardó demasiado')
+          |                                           ^
+      103 |     mundo.modo = 'ok'
+      104 |     await confirmar(page)
+      105 |     await expect(page.getByRole('dialog')).toHaveCount(0)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-red-y-teclado.e2e.ts:102:43
+
+    Error Context: ..\..\.playwright\backoffice\f2-red-y-teclado.e2e.ts--d-f43a9-eintento-reutiliza-la-clave-chromium\error-context.md
+
+  5) [chromium] › e2e\f2-red-y-teclado.e2e.ts:109:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › sin conexión: el envío falla visible, lo escrito se conserva y al volver la red el reintento sale con la misma clave 
+
+    Error: cobro-sin-conexion tablet dark: la página no desplaza en horizontal
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0
+    Received:    139
+
+       at apoyo\capturas-f2.ts:54
+
+      52 |   await page.screenshot({ path: path.join(CAPTURAS, `${prefijo}-${nombre}-${viewport}-${tema}.png`), fullPage: true })
+      53 |   const desborde = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+    > 54 |   expect(desborde, `${nombre} ${viewport} ${tema}: la página no desplaza en horizontal`).toBeLessThanOrEqual(0)
+         |                                                                                          ^
+      55 |   const malos = await contraste(page)
+      56 |   const registro = { captura: `${prefijo}-${nombre}-${viewport}-${tema}`, violaciones: malos }
+      57 |   if (process.env['CONTRASTE_INFORME']) {
+        at capturar (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\apoyo\capturas-f2.ts:54:90)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-red-y-teclado.e2e.ts:118:5
+
+    Error Context: ..\..\.playwright\backoffice\f2-red-y-teclado.e2e.ts--d-56848-nto-sale-con-la-misma-clave-chromium\error-context.md
+
+  6) [chromium] › e2e\f2-red-y-teclado.e2e.ts:126:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › rechazo del servidor (422): dice que NO se completó, con el código de seguimiento, y no promete nada sobre repetir 
+
+    Error: cobro-rechazado movil dark: la página no desplaza en horizontal
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0
+    Received:    291
+
+       at apoyo\capturas-f2.ts:54
+
+      52 |   await page.screenshot({ path: path.join(CAPTURAS, `${prefijo}-${nombre}-${viewport}-${tema}.png`), fullPage: true })
+      53 |   const desborde = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+    > 54 |   expect(desborde, `${nombre} ${viewport} ${tema}: la página no desplaza en horizontal`).toBeLessThanOrEqual(0)
+         |                                                                                          ^
+      55 |   const malos = await contraste(page)
+      56 |   const registro = { captura: `${prefijo}-${nombre}-${viewport}-${tema}`, violaciones: malos }
+      57 |   if (process.env['CONTRASTE_INFORME']) {
+        at capturar (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\apoyo\capturas-f2.ts:54:90)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-red-y-teclado.e2e.ts:140:5
+
+    Error Context: ..\..\.playwright\backoffice\f2-red-y-teclado.e2e.ts--d-d9236--promete-nada-sobre-repetir-chromium\error-context.md
+
+  7) [chromium] › e2e\f2-red-y-teclado.e2e.ts:145:7 › teclado y foco en los flujos críticos del backoffice › cobro: se abre con Enter, el foco entra y queda atrapado en el diálogo, Escape lo cierra y el foco vuelve al botón 
+
+    Error: Tab 4: el foco no escapa del diálogo
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      158 |     for (let i = 0; i < 8; i++) {
+      159 |       await page.keyboard.press('Tab')
+    > 160 |       expect(await dentro(), `Tab ${i + 1}: el foco no escapa del diálogo`).toBe(true)
+          |                                                                             ^
+      161 |     }
+      162 |     await page.keyboard.press('Escape')
+      163 |     await expect(dialogo).toHaveCount(0)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-red-y-teclado.e2e.ts:160:77
+
+    Error Context: ..\..\.playwright\backoffice\f2-red-y-teclado.e2e.ts-te-a5623-a-y-el-foco-vuelve-al-botón-chromium\error-context.md
+
+  7 failed
+    [chromium] › e2e\admisiones.e2e.ts:112:7 › [UI con red simulada] admisión humana en backoffice › BO con permiso: ve la propuesta y la evidencia, resuelve, y la resolución persiste tras recargar 
+    [chromium] › e2e\admisiones.e2e.ts:149:7 › [UI con red simulada] admisión humana en backoffice › rol sin el permiso de la plataforma: la sección no aparece y la ruta no monta (sin acciones ajenas) 
+    [chromium] › e2e\f2-red-y-teclado.e2e.ts:57:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › respuesta perdida: avisa que no se pudo confirmar, conserva el monto, y el reintento reutiliza la clave y no duplica 
+    [chromium] › e2e\f2-red-y-teclado.e2e.ts:92:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › plazo vencido (30 s sin respuesta): «sin confirmar», no «falló»; el reintento reutiliza la clave 
+    [chromium] › e2e\f2-red-y-teclado.e2e.ts:109:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › sin conexión: el envío falla visible, lo escrito se conserva y al volver la red el reintento sale con la misma clave 
+    [chromium] › e2e\f2-red-y-teclado.e2e.ts:126:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › rechazo del servidor (422): dice que NO se completó, con el código de seguimiento, y no promete nada sobre repetir 
+    [chromium] › e2e\f2-red-y-teclado.e2e.ts:145:7 › teclado y foco en los flujos críticos del backoffice › cobro: se abre con Enter, el foco entra y queda atrapado en el diálogo, Escape lo cierra y el foco vuelve al botón 
+  18 passed (1.1m)

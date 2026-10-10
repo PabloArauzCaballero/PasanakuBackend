@@ -8,12 +8,16 @@ import bo.aportaya.inversiones.dominio.puertos.LibroDelTitular;
 import bo.aportaya.inversiones.infraestructura.GuardiaDeProduccion;
 import bo.aportaya.plataforma.pruebas.BaseDePrueba;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor;
+import org.springframework.scheduling.config.CronTask;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -64,9 +68,12 @@ class ArranqueTest {
     @Autowired
     private GuardiaDeProduccion guardia;
 
+    @Autowired
+    private ScheduledAnnotationBeanPostProcessor planificador;
+
     @Test
     @DisplayName(
-            "arranque: el contexto levanta, las doce rutas del contrato quedan mapeadas y el aliado esta deshabilitado por omision")
+            "arranque: el contexto levanta, las veinte rutas del contrato quedan mapeadas y el aliado esta deshabilitado por omision")
     void elContextoLevanta() {
         long delContrato = rutas.getHandlerMethods().keySet().stream()
                 .filter(info -> info.getPathPatternsCondition() != null)
@@ -74,7 +81,7 @@ class ArranqueTest {
                         .anyMatch(p -> p.startsWith("/inversiones")))
                 .count();
 
-        assertThat(delContrato).isEqualTo(12);
+        assertThat(delContrato).isEqualTo(20);
         assertThat(libro).isNotNull();
         // Sin configuracion el aliado no confirma nada: pedirle el catalogo es «no disponible».
         assertThatThrownBy(aliado::catalogo).isInstanceOf(AliadoDeInversion.AliadoNoDisponible.class);
@@ -117,6 +124,43 @@ class ArranqueTest {
         try (ConfigurableApplicationContext c =
                 new SpringApplicationBuilder(Aplicacion.class).run(args.toArray(String[]::new))) {
             assertThat(c.getBean(GuardiaDeProduccion.class).productivo()).isFalse();
+        }
+    }
+
+    @Test
+    @DisplayName(
+            "trabajos: el reintento de instrucciones, el devengo y las dos sincronizaciones estan en el planificador")
+    void losTrabajosEstanCableados() {
+        Set<String> registrados = planificador.getScheduledTasks().stream()
+                .map(tarea -> tarea.getTask())
+                .filter(CronTask.class::isInstance)
+                .map(tarea -> tarea.getRunnable().toString())
+                .collect(Collectors.toSet());
+
+        assertThat(registrados)
+                .anyMatch(s -> s.endsWith("ReintentoDeInstrucciones.correr"))
+                .anyMatch(s -> s.endsWith("DevengoDiario.correr"))
+                .anyMatch(s -> s.endsWith("SincronizacionDelAliado.catalogo"))
+                .anyMatch(s -> s.endsWith("SincronizacionDelAliado.valores"));
+    }
+
+    @Test
+    @DisplayName("trabajos: apagados por configuracion no se registran, y la API de operaciones sigue ahi")
+    void losTrabajosSePuedenApagar() {
+        var args = new java.util.ArrayList<String>();
+        propiedades().forEach((k, v) -> args.add("--" + k + "=" + v));
+        args.add("--server.port=0");
+        args.add("--aportaya.inversiones.trabajos.habilitados=false");
+
+        try (ConfigurableApplicationContext c =
+                new SpringApplicationBuilder(Aplicacion.class).run(args.toArray(String[]::new))) {
+            var proceso = c.getBean(ScheduledAnnotationBeanPostProcessor.class);
+            assertThat(proceso.getScheduledTasks().stream()
+                            .map(tarea -> tarea.getTask().getRunnable().toString())
+                            .filter(s -> s.contains("DevengoDiario") || s.contains("ReintentoDeInstrucciones")))
+                    .isEmpty();
+            assertThat(c.getBean(bo.aportaya.inversiones.aplicacion.OperacionesProgramables.class))
+                    .isNotNull();
         }
     }
 }

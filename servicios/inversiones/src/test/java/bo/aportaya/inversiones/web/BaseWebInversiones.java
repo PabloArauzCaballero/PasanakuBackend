@@ -3,10 +3,14 @@ package bo.aportaya.inversiones.web;
 import bo.aportaya.inversiones.aplicacion.CU120Catalogo;
 import bo.aportaya.inversiones.aplicacion.CU121OrdenarInversion;
 import bo.aportaya.inversiones.aplicacion.CU122ConfirmarPosicion;
-import bo.aportaya.inversiones.aplicacion.CU123Devengo;
 import bo.aportaya.inversiones.aplicacion.CU123Posiciones;
 import bo.aportaya.inversiones.aplicacion.CU124SolicitarRescate;
 import bo.aportaya.inversiones.aplicacion.CU125LiquidarRescate;
+import bo.aportaya.inversiones.aplicacion.CU126DistribuirIntereses;
+import bo.aportaya.inversiones.aplicacion.CU127ComisionPorResultado;
+import bo.aportaya.inversiones.aplicacion.CU128ReporteFiscal;
+import bo.aportaya.inversiones.aplicacion.CU129SimularCaja;
+import bo.aportaya.inversiones.aplicacion.OperacionesProgramables;
 import bo.aportaya.inversiones.aplicacion.VistaOrden;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -45,7 +49,19 @@ abstract class BaseWebInversiones {
     protected CU123Posiciones cu123;
 
     @MockitoBean
-    protected CU123Devengo cu123Devengo;
+    protected OperacionesProgramables operaciones;
+
+    @MockitoBean
+    protected CU126DistribuirIntereses cu126;
+
+    @MockitoBean
+    protected CU127ComisionPorResultado cu127;
+
+    @MockitoBean
+    protected CU128ReporteFiscal cu128;
+
+    @MockitoBean
+    protected CU129SimularCaja cu129;
 
     @MockitoBean
     protected CU124SolicitarRescate cu124;

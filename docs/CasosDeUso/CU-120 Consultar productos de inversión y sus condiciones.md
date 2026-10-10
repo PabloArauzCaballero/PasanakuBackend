@@ -69,11 +69,15 @@ normas: [Consentimiento versionado, Prohibido inferir parámetros financieros]
 
 **Sincronizar**
 
-1. Operaciones pide la sincronización. El efecto es idempotente **por contenido** (la
-   cabecera `Idempotency-Key` el contrato la exige, pero ninguna operación de
-   sincronización la usa para decidir nada).
-2. Se pide el catálogo al aliado. Si no responde, devuelve error o la respuesta no se
-   puede verificar: **AP-CU120-02** y no cambia nada.
+1. Operaciones pide la sincronización (o la pide el reloj, una vez al día). La clave
+   `Idempotency-Key` se **reserva** en `corrida_trabajo` (única por operación y clave, `R-INV-10`):
+   la misma clave con el mismo contenido devuelve el resultado guardado sin volver a
+   correr; con otro contenido, **AP-CU120-04**; si otra corrida con esa clave sigue en
+   curso, **AP-CU120-05**. Una corrida fallida (aliado caído) se retoma con la misma clave.
+   Además, el efecto sigue siendo idempotente por contenido.
+2. Se pide el catálogo al aliado. Si no responde o está deshabilitado: **AP-CU120-02** y
+   no cambia nada. Si responde pero la firma, la ventana o la forma no se pueden dar por
+   ciertas: **AP-CU120-03** y no se guarda nada.
 3. Por cada producto, en una transacción propia: se asegura el producto (alta si no
    existía, con emisor `Aliado de demostración (SINTETICO)` y riesgo `BAJO` para un DPF
    y `MEDIO` para un fondo, ambos supuestos sintéticos), se bloquea la fila y se
@@ -82,13 +86,23 @@ normas: [Consentimiento versionado, Prohibido inferir parámetros financieros]
    nada. Si cambió, se inserta una versión nueva (`numero + 1`); las anteriores no se
    tocan, porque son lo que alguien ya aceptó.
 5. En la misma transacción se escribe en el outbox `inversiones.condiciones_publicadas`.
-6. Se responde cuántas versiones eran nuevas.
+6. Se responde cuántas versiones eran nuevas y la corrida queda registrada (cuándo, quién la
+   pidió, cómo terminó).
+
+**Consultar un producto**
+
+1. `GET /inversiones/productos/{codigo}` devuelve el producto con sus condiciones vigentes,
+   igual que el listado. Un código que no existe, o que no se ofrece en este entorno, no
+   existe para quien pregunta: **AP-CU120-01**.
 
 ## Flujos alternativos
 
 | # | Situación | Resultado |
 | :-: | --- | --- |
-| 2a | El aliado está caído, deshabilitado o su respuesta no se puede verificar | `AP-CU120-02`; no se crea ni se modifica nada |
+| 2a | El aliado está caído o deshabilitado | `AP-CU120-02`; no se crea ni se modifica nada |
+| 2b | El aliado responde pero la firma, la ventana o la forma no se pueden verificar | `AP-CU120-03`; no se guarda nada |
+| 1a | La misma clave con otro contenido / con una corrida en curso | `AP-CU120-04` / `AP-CU120-05` |
+| 1b | Un código de producto que no existe | `AP-CU120-01` |
 | 3a | Entorno productivo y producto sintético | No se ofrece: la lista excluye toda versión no apta |
 | 4a | El aliado publica las mismas condiciones | No se inserta nada: sincronizar dos veces no duplica versiones |
 | 4b | El aliado publica condiciones distintas | Nace una versión **nueva**; la anterior queda intacta |
@@ -107,7 +121,7 @@ normas: [Consentimiento versionado, Prohibido inferir parámetros financieros]
 
 ```ts
 export const EntradaCU120 = z.object({
-  claveIdempotencia: z.string().uuid(), // exigida por el contrato; la sincronización es idempotente por contenido
+  claveIdempotencia: z.string().uuid(), // se reserva en corrida_trabajo: misma clave y contenido, mismo resultado
 }).strict()
 
 export const SalidaCU120 = z.object({
@@ -119,14 +133,18 @@ export const ErroresCU120 = {
   PRODUCTO_INEXISTENTE: 'AP-CU120-01',
   ALIADO_NO_DISPONIBLE: 'AP-CU120-02',
   RESPUESTA_DEL_ALIADO_NO_VERIFICABLE: 'AP-CU120-03',
+  IDEMPOTENCIA_CONTENIDO_DISTINTO: 'AP-CU120-04',
+  OPERACION_EN_CURSO: 'AP-CU120-05',
 } as const
 ```
 
 | Error | Cuándo se devuelve |
 | --- | --- |
-| `PRODUCTO_INEXISTENTE` | Declarado en el contrato; hoy ningún camino de CU-120 lo emite (un producto inexistente se reporta al ordenar, ver CU-121) |
-| `ALIADO_NO_DISPONIBLE` | El aliado no respondió, está deshabilitado o su respuesta no se pudo verificar: no se sabe qué hay, y no se inventa |
-| `RESPUESTA_DEL_ALIADO_NO_VERIFICABLE` | Declarado en el contrato; hoy una respuesta sin firma válida se trata como aliado no disponible |
+| `PRODUCTO_INEXISTENTE` | `GET /inversiones/productos/{codigo}` con un código que no existe o que no se ofrece en este entorno (al ordenar, [[CU-121 Aceptar las condiciones y ordenar una inversión]] responde `AP-CU121-01`) |
+| `ALIADO_NO_DISPONIBLE` | El aliado no respondió o está deshabilitado: no se sabe qué hay, y no se inventa |
+| `RESPUESTA_DEL_ALIADO_NO_VERIFICABLE` | El aliado respondió, pero la firma, la ventana de frescura o la forma de lo que llegó no se pueden dar por ciertas: no se guarda nada |
+| `IDEMPOTENCIA_CONTENIDO_DISTINTO` | La clave de idempotencia ya se usó para sincronizar con otro contenido |
+| `OPERACION_EN_CURSO` | Otra sincronización con la misma clave sigue en curso (y no está vencida) |
 
 ## Descomposición atómica
 
@@ -137,8 +155,10 @@ export const ErroresCU120 = {
 | Molécula | `CatalogoRepositorio` | Productos y versiones de condiciones, con bloqueo y numeración |
 | Molécula | `AliadoSimuladoHttp` | Adaptador firmado del puerto `AliadoDeInversion`: timeout, circuit breaker y firma |
 | Molécula | `GuardiaDeProduccion` | Impide arrancar un proceso productivo con el aliado simulado |
-| Organismo | `CU120Catalogo` | Sincroniza y lista; una transacción por producto |
-| Página | `GET /inversiones/productos` · `POST /inversiones/productos/sincronizacion` | Traduce y delega, sin lógica |
+| Molécula | `CorridaRepositorio` | Reserva la clave de la corrida (única por operación y clave) y deja su resultado |
+| Organismo | `CU120Catalogo` | Sincroniza, lista y busca por código; una transacción por producto |
+| Organismo | `OperacionesProgramables` | Reserva la clave, corre la sincronización con su plazo y registra cómo terminó |
+| Página | `GET /inversiones/productos` · `GET /inversiones/productos/{codigo}` · `POST /inversiones/productos/sincronizacion` | Traduce y delega, sin lógica |
 
 ## Eventos, trabajos y permisos
 
@@ -146,7 +166,12 @@ export const ErroresCU120 = {
 | --- | --- | --- |
 | `inversiones.condiciones_publicadas` | Nada todavía (es un hecho publicado para quien lo consuma) | `BILLETERA_VER` para listar · `ADMIN_PLATAFORMA` para sincronizar |
 
-No hay trabajo programado: la sincronización la dispara Operaciones.
+**Trabajo programado.** `SincronizacionDelAliado.catalogo` corre una vez al día (06:00, La Paz) con
+`@SchedulerLock` y la clave `CAT:<fecha>`: una segunda réplica o un segundo disparo del día recibe el
+resultado guardado. Con el aliado caído la corrida queda `FALLIDA` con su código, el trabajo no se cae
+y se retoma con la misma clave en el siguiente disparo. Apagable con
+`aportaya.inversiones.trabajos.habilitados=false`. Las corridas se ven en `GET /inversiones/corridas`
+(`ADMIN_PLATAFORMA`).
 
 ## Interfaz
 
@@ -158,11 +183,11 @@ No hay trabajo programado: la sincronización la dispara Operaciones.
 
 ## Restricciones aplicables
 
-`R-INV-01`
+`R-INV-01` · `R-INV-10`
 
 ## Evidencia que deja
 
-`producto_inversion` · `version_condiciones` · `evento_dominio` (outbox del esquema
+`producto_inversion` · `version_condiciones` · `corrida_trabajo` · `evento_dominio` (outbox del esquema
 `inversiones`). El módulo 15 todavía no tiene notas de entidad en `docs/Modelos`: su
 modelo vive en `docs/entidades/15_inversiones.puml`.
 
@@ -188,12 +213,28 @@ Entonces nace una version NUEVA y la anterior queda intacta
 Dado el aliado caido
 Cuando se sincroniza el catalogo
 Entonces falla con AP-CU120-02 y no cambia nada
+
+Dado un producto vigente
+Cuando se consulta por su codigo
+Entonces trae sus condiciones con fecha de cotizacion, fuente y origen de los datos
+
+Dado un producto que no existe
+Cuando se consulta por su codigo
+Entonces AP-CU120-01
+
+Dada una respuesta del aliado que no se puede verificar
+Cuando se sincroniza el catalogo
+Entonces AP-CU120-03 y no se guarda nada
+
+Dado el aliado caido
+Cuando se sincroniza el catalogo
+Entonces sigue siendo AP-CU120-02, no AP-CU120-03
 ```
 
-Además, las pruebas de reintento (sincronizar dos veces no inserta nada) y de rechazo
-de la base por `R-INV-01` (dato sintético marcado apto para producción; fondo con tasa
+Además, las pruebas de reintento (sincronizar dos veces no inserta nada; una corrida fallida se retoma con la
+misma clave) y de rechazo de la base por `R-INV-10` (corridas incoherentes o con clave repetida) y por `R-INV-01` (dato sintético marcado apto para producción; fondo con tasa
 fija o DPF sin plazo).
 
 ## Ver también
 
-[[CU-121 Aceptar las condiciones y ordenar una inversión]] · [[CU-122 Confirmar la posición sin duplicar el saldo]] · [[CU-123 Devengar y valorar una posición de inversión]] · [[CU-124 Solicitar el rescate de una inversión]] · [[CU-125 Liquidar el rescate y acreditar al titular]]
+[[CU-121 Aceptar las condiciones y ordenar una inversión]] · [[CU-122 Confirmar la posición sin duplicar el saldo]] · [[CU-123 Devengar y valorar una posición de inversión]] · [[CU-124 Solicitar el rescate de una inversión]] · [[CU-125 Liquidar el rescate y acreditar al titular]] · [[CU-129 Simular la caja de una inversión sin tocar saldos]]

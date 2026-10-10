@@ -3,6 +3,7 @@ package bo.aportaya.inversiones;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * El punto de arranque de inversiones. No tiene logica: si aparece un if sobre una
@@ -10,8 +11,13 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
  *
  * La configuracion se valida al arrancar: si falta una clave, el proceso NO levanta
  * y dice cual (planes/01 §0.7).
+ *
+ * {@code @EnableScheduling}: lo necesitan los trabajos de {@code trabajos/} (devengo, sincronizaciones,
+ * reintento de instrucciones). Sin esto, un {@code @Scheduled} no es un error de compilacion ni de
+ * arranque: simplemente no corre nunca.
  */
 @SpringBootApplication
+@EnableScheduling
 @ConfigurationPropertiesScan
 public class Aplicacion {
 

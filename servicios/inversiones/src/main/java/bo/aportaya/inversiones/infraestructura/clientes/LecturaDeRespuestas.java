@@ -1,10 +1,10 @@
 package bo.aportaya.inversiones.infraestructura.clientes;
 
 import bo.aportaya.inversiones.dominio.TipoProducto;
-import bo.aportaya.inversiones.dominio.puertos.AliadoDeInversion.AliadoNoDisponible;
 import bo.aportaya.inversiones.dominio.puertos.AliadoDeInversion.Estado;
 import bo.aportaya.inversiones.dominio.puertos.AliadoDeInversion.OperacionDelAliado;
 import bo.aportaya.inversiones.dominio.puertos.AliadoDeInversion.ProductoDelAliado;
+import bo.aportaya.inversiones.dominio.puertos.AliadoDeInversion.RespuestaNoVerificable;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -47,14 +47,14 @@ final class LecturaDeRespuestas {
                         "SINTETICO".equals(p.path("origenDatos").asText())));
             }
         } catch (IllegalArgumentException | java.time.DateTimeException e) {
-            throw new AliadoNoDisponible("Catalogo con forma inesperada");
+            throw new RespuestaNoVerificable("Catalogo con forma inesperada");
         }
         return salida;
     }
 
     static OperacionDelAliado operacion(JsonNode p, UUID esperada) {
         if (!esperada.toString().equals(p.path("referencia").asText())) {
-            throw new AliadoNoDisponible("La respuesta es de otra referencia");
+            throw new RespuestaNoVerificable("La respuesta es de otra referencia");
         }
         Map<String, String> detalle = new HashMap<>();
         p.path("detalle")
@@ -73,7 +73,7 @@ final class LecturaDeRespuestas {
                     texto(p, "liquidaEn").map(Instant::parse),
                     Map.copyOf(detalle));
         } catch (IllegalArgumentException | java.time.DateTimeException e) {
-            throw new AliadoNoDisponible("Respuesta con forma inesperada");
+            throw new RespuestaNoVerificable("Respuesta con forma inesperada");
         }
     }
 

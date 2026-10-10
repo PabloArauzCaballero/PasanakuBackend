@@ -1,5 +1,6 @@
 package bo.aportaya.inversiones.aplicacion;
 
+import bo.aportaya.inversiones.dominio.PoliticaDeReintento;
 import bo.aportaya.inversiones.dominio.puertos.LibroDelTitular;
 import bo.aportaya.inversiones.dominio.puertos.LibroDelTitular.LibroNoDisponible;
 import bo.aportaya.inversiones.dominio.puertos.LibroDelTitular.SaldoInsuficiente;
@@ -14,6 +15,8 @@ import bo.aportaya.plataforma.dominio.Moneda;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.mensajeria.EventoDominio;
 import bo.aportaya.plataforma.mensajeria.Outbox;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -109,17 +112,69 @@ public class AplicadorDeInstrucciones {
         return "APLICADA";
     }
 
-    /** Reintenta las pendientes; lo corre un trabajo programado y tambien las pruebas. */
+    /** Lo que dejo un barrido de reintento: cuantas se aplicaron, cuantas siguen y cuantas el trabajo ya no toca. */
+    public record Barrido(
+            int aplicadas, int rechazadas, int siguenPendientes, int esperando, int atascadas, boolean cortado) {}
+
+    /** Reintenta TODAS las pendientes ya, sin esperas ni tope de intentos (lo que hace una persona a mano). */
     public int reintentarPendientes(int limite, ContextoSesion ctx) {
+        return reintentarPendientes(limite, limite, null, true, Duration.ofDays(1), ctx)
+                .aplicadas();
+    }
+
+    /**
+     * Reintenta las pendientes que le tocan segun la politica; lo corre el trabajo programado.
+     * Con {@code forzar} se ignoran la espera y el tope de intentos. Si el barrido supera
+     * {@code plazoMaximo} se corta SIN dejar nada a medias: cada instruccion se aplica entera o
+     * no se toca, y el resto queda para la proxima vuelta.
+     *
+     * @param limite cuantas se intentan como mucho en esta vuelta
+     * @param lectura cuantas pendientes se leen para elegir entre ellas (las atascadas quedan al final)
+     * @param politica espera exponencial y tope de intentos; nula solo con {@code forzar}
+     */
+    public Barrido reintentarPendientes(
+            int limite,
+            int lectura,
+            PoliticaDeReintento politica,
+            boolean forzar,
+            Duration plazoMaximo,
+            ContextoSesion ctx) {
         List<Instruccion> pendientes =
-                tx.en(() -> datos.conContexto(ctx, dsl -> instrucciones.pendientes(dsl, limite)));
+                tx.en(() -> datos.conContexto(ctx, dsl -> instrucciones.pendientes(dsl, lectura)));
+        Instant ahora = reloj.ahora();
+        long vence = System.nanoTime() + plazoMaximo.toNanos();
         int aplicadas = 0;
+        int rechazadas = 0;
+        int siguen = 0;
+        int esperando = 0;
+        int atascadas = 0;
+        boolean cortado = false;
         for (Instruccion i : pendientes) {
-            if ("APLICADA".equals(aplicar(i.id(), ctx))) {
-                aplicadas++;
+            boolean atascada = politica != null && politica.atascada(i.intentos());
+            if (atascada && !forzar) {
+                atascadas++;
+                continue;
+            }
+            if (!forzar
+                    && !politica.leToca(
+                            i.intentos(), Duration.between(i.creadaEn().toInstant(), ahora))) {
+                esperando++;
+                continue;
+            }
+            if (aplicadas + rechazadas + siguen >= limite) {
+                break;
+            }
+            if (System.nanoTime() > vence) {
+                cortado = true;
+                break;
+            }
+            switch (aplicar(i.id(), ctx)) {
+                case "APLICADA" -> aplicadas++;
+                case "FALLIDA" -> rechazadas++;
+                default -> siguen++;
             }
         }
-        return aplicadas;
+        return new Barrido(aplicadas, rechazadas, siguen, esperando, atascadas, cortado);
     }
 
     private UUID pedirAlLibro(Instruccion i, Optional<UUID> retencion) {

@@ -80,3 +80,20 @@ docker compose --profile base up -d --wait
 ```
 
 Skills: `arrancar-carril` primero, despues las diecinueve de todo carril de backend.
+
+## Carril O2
+
+`entregas.desembolso_acreditado` lleva el `asiento` propuesto (`AsientoDeEntrega`, origen `ENTREGA`); el contrato con nucleo-financiero y
+lo que quedo contra doble esta en `docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-C/contrato-nucleo-partidas-y-pago-vendedor.md`.
+Carreras de la cesion en el punto de liquidacion: `CU130LiquidacionCarrerasTest`; ficha contractual: `evidencia/carril-O2/H9-S1-M1-ficha-contractual-cesion.md`.
+
+## Tercera vuelta (carril B3)
+
+- **Productor** de `GET /entregas/mercado/ofertas/{ofertaId}` (id, vendedor, precio, estado), permiso de servicio
+  `SERVICIO_ENTREGAS`: es el hecho con el que `nucleo-financiero` paga al vendedor (`OfertasPorHttp`). Respuesta minima; una oferta
+  inexistente es `AP-CU130-05` y nucleo no paga.
+- **Vigencia contra el cierre del turno**: la oferta tiene que vencer ESTRICTAMENTE antes del cierre que informa `grupos`
+  (`HechosDeGrupos.Turno.cierreDelTurno`); sin cierre informado no se publica (`AP-CU130-08`), pasado el cierre `AP-CU130-03`.
+  `GruposNoDisponible` sigue negando todo: `grupos` aun no expone el turno ni su cierre.
+- **Circuit breaker** en `RecaudoPorHttp`, `RespaldoPorHttp` y `TitularPorHttp` (`ClienteConCircuito`, parametros sinteticos en
+  `aportaya.resiliencia.circuito.*`).

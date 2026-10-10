@@ -89,3 +89,14 @@ docker compose --profile base up -d --wait
 ```
 
 Skills: `arrancar-carril` primero, despues las diecinueve de todo carril de backend.
+
+## Falta extraordinaria de caja (carril O2, H8.S1.M6)
+
+Si el respaldo no alcanza (o no hay reserva) sobre un compromiso existente, `CU23CubrirConRespaldo` abre un `plan_contingencia`
+(R-GAR-13: uno vivo por grupo), emite `garantia.contingencia_de_caja_activada` (responsables, obligaciones, comunicacion) y
+`CU23ReservarRespaldo` deniega reservas nuevas (`AP-CU23-10`) hasta que el faltante se cubra. Simulacro: `CU133ContingenciaTest`.
+
+## Tercera vuelta (carril B3)
+
+- `RecaudoPorHttp` lleva circuit breaker (`ClienteConCircuito`, parametros sinteticos en `aportaya.resiliencia.circuito.*`); con
+  `aportes` caido o con el circuito abierto el recaudo es vacio y la cobertura se rechaza (`AP-CU23-12`).

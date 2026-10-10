@@ -50,10 +50,10 @@ abstract class BaseDeCU24 {
     }
 
     /** Ejercita una restricción saltándose la aplicación: prueba la base, no el `if` que la anticipa. */
-    protected String rechazaLaBase(String sql) {
+    protected String rechazaLaBase(String sql, Object... parametros) {
         try {
             transaccion.execute(estado -> {
-                dsl.execute(sql);
+                dsl.execute(sql, parametros);
                 estado.setRollbackOnly();
                 return null;
             });

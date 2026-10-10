@@ -128,6 +128,9 @@ class CU131ConcurrenciaTest extends BaseDeRespaldo {
             "Dos turnos de Bs 800 que pelean por una reserva de Bs 1.000 · Cuando cubren a la vez · Entonces uno se aplica y el otro queda INSUFICIENTE: nunca se gasta mas de lo reservado")
     void dosTurnosPorLaMismaReserva() throws Exception {
         for (int ronda = 0; ronda < RONDAS; ronda++) {
+            // Cada ronda es un ciclo nuevo. El INSUFICIENTE de la ronda anterior dejo una contingencia de caja viva
+            // (H8.S1.M6), que por diseño frena toda reserva nueva: se la limpia como entre pruebas (fixtura.limpiar).
+            dslFixtura.execute("DELETE FROM garantia.plan_contingencia");
             fixturaDeRespaldo.capacidad("20000.00");
             var c = caso();
             var reserva = reservar(c, "1000.00");

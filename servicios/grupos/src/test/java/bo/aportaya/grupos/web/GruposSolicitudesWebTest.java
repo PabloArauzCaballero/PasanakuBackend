@@ -34,6 +34,9 @@ import org.springframework.test.web.servlet.MockMvc;
             "aportaya.grupo.afinidad-neutra=0.50",
             "aportaya.grupo.servicio-de-licencia=http://cumplimiento:8080",
             "aportaya.grupo.tope-de-reenvios-de-invitacion=3",
+            // Comportamiento de TEST (la decision directa del organizador); el modo humano lo prueba
+            // GruposAdmisionHumanaWebTest.
+            "aportaya.grupos.admision.humana-obligatoria=false",
         })
 class GruposSolicitudesWebTest {
 

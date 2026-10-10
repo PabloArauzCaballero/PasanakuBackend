@@ -134,6 +134,7 @@ REVOKE UPDATE, DELETE ON erp.depreciacion_activo FROM svc_erp;
 REVOKE UPDATE, DELETE ON tarifas.devengo_comision FROM svc_tarifas;
 REVOKE UPDATE, DELETE ON inversiones.devengo_dpf FROM svc_inversiones;
 REVOKE UPDATE, DELETE ON nucleo_financiero.discrepancia_proveedor FROM svc_nucleo_financiero;
+REVOKE UPDATE, DELETE ON inversiones.distribucion_interes FROM svc_inversiones;
 REVOKE UPDATE, DELETE ON erp.estado_financiero_generado FROM svc_erp;
 REVOKE UPDATE, DELETE ON transparencia.evento_reputacion FROM svc_transparencia;
 REVOKE UPDATE, DELETE ON cumplimiento.evento_riesgo_operativo FROM svc_cumplimiento;

@@ -72,6 +72,8 @@ normas: [Trazabilidad del dinero, Conciliación, Protección del inversor]
      comisión` y `costo base = principal + pérdida realizada` (`R-INV-03`), inmutable
      (`R-AUD-01`). La posición cerrada no tiene cuotas ni queda sin fecha de cierre
      (`R-INV-04`).
+   - **DPF:** se reparte el interés al titular y se concilia contra el devengo propio
+     ([[CU-126 Distribuir los intereses al titular y conciliarlos]]).
    - Se crea la instrucción `ACREDITAR` pendiente, el rescate pasa a `POR_ACREDITAR` y se
      escribe `inversiones.rescate_confirmado`.
 4. **Fuera de la transacción** se pide al libro el crédito con una **clave determinista**
@@ -137,10 +139,11 @@ export const ErroresCU125 = {
 | `DISCREPANCIA_CON_EL_EMISOR` | El interés o la retención que informa el aliado no coinciden con el cálculo propio: queda en revisión y no se acredita |
 | `LIQUIDACION_NO_COINCIDE_CON_EL_VALOR` | El importe informado no coincide con principal + interés − retención (DPF) o con cuotas × valor de cuota (fondo) |
 
-El comprobante de liquidación se lista con `GET /inversiones/posiciones/{posicionId}/comprobantes`
-(ver [[CU-123 Devengar y valorar una posición de inversión]]); el contrato lo etiqueta `CU-128` y el cálculo de
-comisión `CU-127`. El código `AP-CU127-01` que el encabezado del contrato declara
-(`COMISION_NO_CONFIGURADA`) no lo emite ningún camino hoy.
+El comprobante de liquidación se lista con `GET /inversiones/posiciones/{posicionId}/comprobantes` y el
+reporte por periodo, reconciliado con el libro, está en [[CU-128 Informar comprobantes y reporte fiscal separables]]. La
+comisión por resultado se estima antes de rescatar en [[CU-127 Estimar y cobrar la comisión por resultado]]; al
+liquidar un rescate parcial **la marca máxima de la posición sube** a la que dejó la comisión (sin eso, el
+siguiente rescate cobraría otra vez el mismo tramo de ganancia).
 
 ## Descomposición atómica
 
@@ -177,7 +180,7 @@ comisión `CU-127`. El código `AP-CU127-01` que el encabezado del contrato decl
 ## Evidencia que deja
 
 `rescate_inversion` · `comprobante_inversion` (append-only) · `conciliacion_interes` ·
-`comision_exito` · `posicion_inversion` · `instruccion_libro` · `evento_dominio`
+`distribucion_interes` · `comision_exito` · `posicion_inversion` · `instruccion_libro` · `evento_dominio`
 (outbox).
 
 ## Criterios de aceptación
@@ -254,4 +257,4 @@ no existe en el productor**: este caso solo corre contra el doble del libro. Ver
 
 ## Ver también
 
-[[CU-120 Consultar productos de inversión y sus condiciones]] · [[CU-121 Aceptar las condiciones y ordenar una inversión]] · [[CU-122 Confirmar la posición sin duplicar el saldo]] · [[CU-123 Devengar y valorar una posición de inversión]] · [[CU-124 Solicitar el rescate de una inversión]]
+[[CU-120 Consultar productos de inversión y sus condiciones]] · [[CU-121 Aceptar las condiciones y ordenar una inversión]] · [[CU-122 Confirmar la posición sin duplicar el saldo]] · [[CU-123 Devengar y valorar una posición de inversión]] · [[CU-124 Solicitar el rescate de una inversión]] · [[CU-126 Distribuir los intereses al titular y conciliarlos]] · [[CU-127 Estimar y cobrar la comisión por resultado]] · [[CU-128 Informar comprobantes y reporte fiscal separables]]

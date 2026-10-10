@@ -12,7 +12,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import bo.aportaya.inversiones.aplicacion.CU121OrdenarInversion;
-import bo.aportaya.inversiones.aplicacion.CU123Devengo;
 import bo.aportaya.inversiones.aplicacion.CU123Posiciones;
 import bo.aportaya.inversiones.aplicacion.VistaRescate;
 import bo.aportaya.inversiones.dominio.OrigenDatos;
@@ -30,10 +29,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 
 /** El contrato HTTP de InversionesController: ordenes, permisos que las separan, posiciones, rescates y devengo diario. */
 @PruebaWeb(InversionesController.class)
+@Import({OperacionesDeLaInversion.class, AnalisisDeLaInversion.class})
 class InversionesControllerWebTest extends BaseWebInversiones {
 
     @Test
@@ -143,7 +144,7 @@ class InversionesControllerWebTest extends BaseWebInversiones {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"fecha\":\"2026-10-12\"}"))
                 .andExpect(status().isForbidden());
-        verifyNoInteractions(cu120, cu121, cu123, cu123Devengo, cu124);
+        verifyNoInteractions(cu120, cu121, cu123, operaciones, cu124);
     }
 
     @Test
@@ -271,27 +272,5 @@ class InversionesControllerWebTest extends BaseWebInversiones {
                         .content("{\"cuotas\":\"4.000000\"}"))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.codigo").value("AP-CU124-02"));
-    }
-
-    @Test
-    @DisplayName("CU-123 · el devengo exige ADMIN_PLATAFORMA y una fecha del contrato")
-    void devengo() throws Exception {
-        when(cu123Devengo.devengar(any(), any()))
-                .thenReturn(new CU123Devengo.SalidaDevengo(LocalDate.of(2026, 10, 12), 3, 1, new BigDecimal("12.34")));
-
-        mvc.perform(post("/inversiones/devengos")
-                        .with(Sesiones.como("OPERACIONES", "ADMIN_PLATAFORMA"))
-                        .header("Idempotency-Key", CLAVE)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"fecha\":\"2026-10-12\"}"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.devengadas").value(3))
-                .andExpect(jsonPath("$.total.monto").value("12.34"));
-        mvc.perform(post("/inversiones/devengos")
-                        .with(Sesiones.como("OPERACIONES", "ADMIN_PLATAFORMA"))
-                        .header("Idempotency-Key", CLAVE)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"fecha\":\"hoy\"}"))
-                .andExpect(status().isBadRequest());
     }
 }

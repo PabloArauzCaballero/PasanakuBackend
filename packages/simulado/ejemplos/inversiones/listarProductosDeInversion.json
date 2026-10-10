@@ -38,7 +38,7 @@
               "fuente": "fuente",
               "fechaCotizacion": "2026-01-15T10:30:00Z",
               "origenDatos": "SINTETICO",
-              "aptoProduccion": true,
+              "aptoProduccion": false,
               "advertencia": "advertencia"
             }
           }
@@ -85,7 +85,7 @@
               "fuente": "fuente",
               "fechaCotizacion": "2026-01-15T10:30:00Z",
               "origenDatos": "SINTETICO",
-              "aptoProduccion": true,
+              "aptoProduccion": false,
               "advertencia": "advertencia"
             }
           }

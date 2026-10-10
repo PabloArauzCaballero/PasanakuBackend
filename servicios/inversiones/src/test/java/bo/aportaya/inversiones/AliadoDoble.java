@@ -35,7 +35,9 @@ public class AliadoDoble implements AliadoDeInversion {
         PENDIENTE,
         RECHAZA,
         CAIDO,
-        PERDIDA
+        PERDIDA,
+        /** Contesta, pero la firma, la ventana o la forma no se pueden dar por ciertas. */
+        NO_VERIFICABLE
     }
 
     private record Posicion(
@@ -255,6 +257,9 @@ public class AliadoDoble implements AliadoDeInversion {
     private void caidoONo() {
         if (modo == Modo.CAIDO) {
             throw new AliadoNoDisponible("aliado caido (doble)");
+        }
+        if (modo == Modo.NO_VERIFICABLE) {
+            throw new RespuestaNoVerificable("firma invalida (doble)");
         }
     }
 

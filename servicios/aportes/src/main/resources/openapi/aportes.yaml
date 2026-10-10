@@ -42,6 +42,15 @@
 #
 # CU-21 (recaudo del pozo) · Cuanto del pozo del periodo es caja confirmada (carril C, H8)
 #   AP-CU21-05  RECAUDO_INCONSISTENTE · el periodo no tiene obligaciones, o mezcla monedas
+#   AP-CU21-06  OBLIGACION_AJENA      · la obligacion no es de quien paga
+#   AP-CU21-07  NO_VERIFICABLE        · grupos no contesta al verificarla: se deniega
+#
+# CU-21 (calendario de obligaciones) · Generar una obligacion por cupo al abrir el periodo (H8.S1.M1)
+#   AP-CU21-08  PERIODO_NO_CONFIRMADO     · grupos no contesto, contesto por otro periodo, o informo
+#                                           cupos/importes/fechas que no se pueden usar
+#   AP-CU21-09  CALENDARIO_NO_DISPONIBLE  · no hay calendario de feriados cargado para el anio:
+#                                           no se calcula el vencimiento, no se cuenta corrido
+#   (el periodo que no esta ABIERTO responde AP-CU21-04)
 openapi: 3.1.0
 info:
   title: aportes
@@ -317,6 +326,33 @@ paths:
               schema: { $ref: '#/components/schemas/RecaudoDelPeriodo' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
+  /aportes/periodos/{periodoId}/obligaciones:
+    post:
+      operationId: generarObligacionesDelPeriodo   # CU-21 · H8.S1.M1
+      summary: Generar el calendario de obligaciones del periodo (una por cupo, sin duplicar)
+      description: >-
+        Quien es titular de cada cupo, de que turno es el periodo, cuanto se aporta y las fechas
+        contractuales las afirma `grupos` (el cuerpo no trae nada: solo el id del periodo). La
+        obligacion de cada cupo se crea UNA vez (R-GRP-03): repetir la llamada, o dos llamadas a la
+        vez, devuelven el mismo calendario con `creadas = 0` y no emiten un segundo evento.
+
+        `fechaContractual` es la del reglamento; `fechaDeLiquidacion` es la que se guarda como
+        vencimiento, corrida al siguiente dia habil si cae en feriado, sabado o domingo, y se
+        avisa al grupo. Sin calendario de feriados para el anio no se calcula.
+      parameters:
+        - name: periodoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      responses:
+        '200':
+          description: El calendario de obligaciones del periodo (nuevas y ya existentes)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CalendarioDeObligaciones' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
 components:
   parameters:
     ClaveIdempotencia:
@@ -328,6 +364,48 @@ components:
         seguro, y la clave se valida ANTES de escribir (invariante 7).
       schema: { type: string, format: uuid }
   schemas:
+    LineaDelCalendario:
+      type: object
+      additionalProperties: false
+      required: [obligacionId, cupoId, titularParticipanteId, turno, monto, estado, fechaContractual, fechaDeLiquidacion, finDeGracia, esNueva]
+      properties:
+        obligacionId:          { type: string, format: uuid }
+        cupoId:                { type: string, format: uuid }
+        titularParticipanteId: { type: string, format: uuid }
+        turno:                 { type: integer, minimum: 1 }
+        monto:                 { $ref: '#/components/schemas/Dinero' }
+        estado:                { type: string }
+        fechaContractual:      { type: string, format: date }
+        fechaDeLiquidacion:    { type: string, format: date }
+        finDeGracia:           { type: string, format: date }
+        esNueva:               { type: boolean }
+    DiaSalteadoDelCalendario:
+      type: object
+      additionalProperties: false
+      required: [fecha, motivo]
+      properties:
+        fecha:  { type: string, format: date }
+        motivo: { type: string }
+    CalendarioDeObligaciones:
+      type: object
+      additionalProperties: false
+      required: [periodoId, grupoId, turno, fechaContractual, fechaDeLiquidacion, corridaPorNoHabil, diasSalteados, creadas, obligaciones]
+      properties:
+        periodoId:          { type: string, format: uuid }
+        grupoId:            { type: string, format: uuid }
+        turno:              { type: integer, minimum: 1 }
+        fechaContractual:   { type: string, format: date }
+        fechaDeLiquidacion: { type: string, format: date }
+        corridaPorNoHabil:  { type: boolean }
+        creadas:            { type: integer, minimum: 0 }
+        diasSalteados:
+          type: array
+          maxItems: 60
+          items: { $ref: '#/components/schemas/DiaSalteadoDelCalendario' }
+        obligaciones:
+          type: array
+          maxItems: 500
+          items: { $ref: '#/components/schemas/LineaDelCalendario' }
     ObligacionPendiente:
       type: object
       additionalProperties: false

@@ -1,0 +1,22 @@
+== verificar_criterios
+14 FALLAS:
+  - CU-08 · identidad: prueba sin criterio en la boveda — «Dado un usuario con un rol vigente · Cuando se piden los codigos de rol · Entonces vienen · Y los de una
+  - CU-08 · identidad: prueba sin criterio en la boveda — «Dado un usuario sin roles · Cuando se piden los codigos de rol · Entonces no hay ninguno»
+  - CU-62 · grupos: prueba sin criterio en la boveda — «Dado el turno de otro participante · Cuando alguien que no es su titular pide permutarlo · Entonces se recha
+  - CU-63 · grupos: prueba sin criterio en la boveda — «B38 · con votos pendientes que aun pueden alcanzar el quorum, el primer voto NO cierra la votacion»
+  - CU-63 · grupos: prueba sin criterio en la boveda — «B38 · cuando ni con todo el peso que falta a favor se alcanza el quorum, se cierra RECHAZADO»
+  - CU-64 · grupos: prueba sin criterio en la boveda — «B39 · repetir el traspaso con el MISMO acuerdo devuelve el traspaso ya hecho y no mueve el cupo otra vez»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 · aceptar: reserva el cupo, crea al participante pendiente de firma y deja el evento»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 · repetir la MISMA decisión devuelve lo ya resuelto y no mueve nada»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 · rechazar exige motivo, y rechazada no toma cupo»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 · sin cupos libres no se acepta, y la solicitud sigue PENDIENTE»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 · el organizador de OTRO grupo (o un participante) no decide: «esa solicitud no existe»»
+== verificar_pruebas_web
+La capa web esta cubierta segun ADR-043.
+== verificar_seguridad
+  FALLA · patrones prohibidos: ['servicios\\nucleo-financiero\\src\\test\\java\\bo\\aportaya\\nucleofinanciero\\CU24MonedaTest.java:121 — SQL concatenado (prohibición
+1 FALLAS
+== verificar_boveda
+  FALLA · "Ver también" recíproco ['CU-13→CU-12', 'CU-13→CU-14']
+  FALLA · ninguna cifra desfasada en los planes ['planes\\17 Plan de acción secuencial · coordinación de cinco máquinas.md: dice 105 casos de uso, son 109']
+2 FALLAS

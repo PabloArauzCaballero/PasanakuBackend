@@ -38,9 +38,7 @@ public class CalculoDeLiquidacion {
         int base = c.baseDias().orElseThrow();
         BigDecimal tasa = c.tasaNominalAnual().orElseThrow();
         boolean anticipado = "ANTICIPADO".equals(r.tipo());
-        int dias = anticipado
-                ? Integer.parseInt(op.detalle().getOrDefault("diasDevengados", "-1"))
-                : c.plazoDias().orElseThrow();
+        int dias = diasDelPeriodo(r, c, op);
         BigDecimal propio = DevengoDeDpf.interes(p.principal(), tasa, Math.max(dias, 0), base);
         if (anticipado) {
             propio = propio.multiply(
@@ -76,7 +74,17 @@ public class CalculoDeLiquidacion {
         return coincide ? Descomposicion.dpf(p.principal(), propio, retencionPropia) : null;
     }
 
-    Descomposicion fondo(
+    /** Los dias del periodo que se paga: el plazo, o los que informa el aliado si se cancela antes. */
+    int diasDelPeriodo(Rescate r, Condiciones c, OperacionDelAliado op) {
+        return "ANTICIPADO".equals(r.tipo())
+                ? Integer.parseInt(op.detalle().getOrDefault("diasDevengados", "-1"))
+                : c.plazoDias().orElseThrow();
+    }
+
+    /** Lo que sale de liquidar cuotas: la descomposicion y la marca maxima que queda en la posicion. */
+    record ResultadoDeFondo(Descomposicion d, BigDecimal marcaNueva) {}
+
+    ResultadoDeFondo fondo(
             DSLContext dsl, Rescate r, Posicion p, Condiciones c, OperacionDelAliado op, OffsetDateTime ahora) {
         BigDecimal valor = new BigDecimal(op.detalle().getOrDefault("valorCuota", "0"));
         BigDecimal producido = r.cuotas().multiply(valor).setScale(2, RoundingMode.HALF_EVEN);
@@ -98,10 +106,12 @@ public class CalculoDeLiquidacion {
                 comprobantes.costoBaseVigente(dsl, p.id()), r.cuotas(), p.cuotas());
         BigDecimal ganancia = producido.subtract(liberado).max(BigDecimal.ZERO);
         BigDecimal comision = BigDecimal.ZERO.setScale(2);
+        BigDecimal marcaNueva = p.marcaMaxima();
         if (c.tasaComisionExito().isPresent()) {
             ComisionDeExito e = ComisionDeExito.calcular(
                     r.cuotas(), valor, p.marcaMaxima(), c.tasaComisionExito().get());
             comision = e.comision().min(ganancia);
+            marcaNueva = e.marcaNueva();
             comprobantes.registrarComision(
                     dsl,
                     p.id(),
@@ -118,7 +128,7 @@ public class CalculoDeLiquidacion {
                     c.origen(),
                     ahora);
         }
-        return Descomposicion.fondo(liberado, producido, comision);
+        return new ResultadoDeFondo(Descomposicion.fondo(liberado, producido, comision), marcaNueva);
     }
 
     private static BigDecimal decimal(OperacionDelAliado op, String clave) {

@@ -25,6 +25,7 @@ import bo.aportaya.grupos.web.generado.modelo.SalidaPlazoHabil;
 import bo.aportaya.grupos.web.generado.modelo.SalidaPostulacion;
 import bo.aportaya.grupos.web.generado.modelo.SalidaRetiro;
 import bo.aportaya.grupos.web.generado.modelo.SalidaTraspaso;
+import bo.aportaya.grupos.web.generado.modelo.SalidaVencimientoLocal;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
@@ -32,6 +33,7 @@ import bo.aportaya.plataforma.web.seguridad.Publico;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
@@ -139,6 +141,20 @@ public class GruposController extends RutasDeInvitacion {
                 sesion.actual());
 
         return ResponseEntity.ok(MapeoDeGrupos.plazo(salida));
+    }
+
+    @Override
+    @Permiso("PARTICIPANTE")
+    public ResponseEntity<SalidaVencimientoLocal> calcularVencimientoLocal(
+            OffsetDateTime instante, String alcance, UUID referenciaId, String zona) {
+        Traza.marcarCasoDeUso("CU-59", alcance);
+
+        var salida = cu59.vencimientoLocal(
+                new CU59CalcularPlazo.EntradaVencimiento(
+                        instante.toInstant(), alcance, Optional.ofNullable(referenciaId), Optional.ofNullable(zona)),
+                sesion.actual());
+
+        return ResponseEntity.ok(MapeoDeGrupos.vencimiento(salida));
     }
 
     @Override

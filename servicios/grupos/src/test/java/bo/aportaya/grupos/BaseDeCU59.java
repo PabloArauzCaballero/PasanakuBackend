@@ -29,6 +29,7 @@ abstract class BaseDeCU59 {
     protected static TransactionTemplate transaccion;
     protected static CU59CalcularPlazo calcularPlazo;
     protected static Consumidos consumidos;
+    protected static FixturaDeGrupos fixtura;
 
     @BeforeAll
     static void armar() {
@@ -39,6 +40,8 @@ abstract class BaseDeCU59 {
         transaccion = new TransactionTemplate(new DataSourceTransactionManager(fuente));
         calcularPlazo = new CU59CalcularPlazo(new Datos(dsl), new CalendarioRepositorio());
         consumidos = new Consumidos("grupos");
+        // Por su propia conexion, fuera de la transaccion que se prueba (igual que BaseDeCU60).
+        fixtura = new FixturaDeGrupos(DSL.using(fuente, SQLDialect.POSTGRES));
     }
 
     protected ContextoSesion contexto() {
@@ -63,6 +66,22 @@ abstract class BaseDeCU59 {
                     fecha,
                     descripcion,
                     alcance);
+            return null;
+        });
+    }
+
+    /** Un dia no habil que vale SOLO para ese grupo (alcance GRUPO). */
+    protected void feriadoDeGrupo(UUID grupoId, LocalDate fecha, String descripcion) {
+        transaccion.execute(estado -> {
+            dsl.execute(
+                    """
+                    INSERT INTO catalogo.dia_no_habil (id, fecha, descripcion, alcance, grupo_id)
+                    VALUES (gen_random_uuid(), ?, ?, 'GRUPO', ?)
+                    ON CONFLICT DO NOTHING
+                    """,
+                    fecha,
+                    descripcion,
+                    grupoId);
             return null;
         });
     }

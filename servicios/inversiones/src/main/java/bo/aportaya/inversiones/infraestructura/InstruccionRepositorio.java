@@ -35,7 +35,8 @@ public class InstruccionRepositorio {
             String clave,
             String estado,
             UUID referenciaLibro,
-            int intentos) {}
+            int intentos,
+            OffsetDateTime creadaEn) {}
 
     public UUID crear(
             DSLContext dsl,
@@ -81,12 +82,32 @@ public class InstruccionRepositorio {
                 .fetchOptional(this::instruccion);
     }
 
+    /** Las instrucciones de un conjunto de origenes (ordenes o rescates), para conciliar contra el comprobante. */
+    public List<Instruccion> deOrigenes(DSLContext dsl, java.util.Collection<UUID> origenes) {
+        if (origenes.isEmpty()) {
+            return List.of();
+        }
+        return dsl.selectFrom(t("instruccion_libro"))
+                .where(f("origen_id", UUID.class).in(origenes))
+                .fetch(this::instruccion);
+    }
+
     public List<Instruccion> pendientes(DSLContext dsl, int limite) {
         return dsl.selectFrom(t("instruccion_libro"))
                 .where(f("estado", String.class).eq("PENDIENTE"))
-                .orderBy(f("creada_en", OffsetDateTime.class))
+                // Las atascadas (muchos intentos) al final: no le sacan el lugar a las que si se pueden resolver.
+                .orderBy(f("intentos", Integer.class), f("creada_en", OffsetDateTime.class), f("id", UUID.class))
                 .limit(limite)
                 .fetch(this::instruccion);
+    }
+
+    /** Cuantas siguen pendientes; las que ya pasaron el tope de intentos son las atascadas. */
+    public int contarPendientes(DSLContext dsl, int desdeIntentos) {
+        return dsl.fetchCount(
+                t("instruccion_libro"),
+                f("estado", String.class)
+                        .eq("PENDIENTE")
+                        .and(f("intentos", Integer.class).ge(desdeIntentos)));
     }
 
     public boolean aplicada(DSLContext dsl, UUID id, UUID referenciaLibro, OffsetDateTime ahora) {
@@ -130,6 +151,7 @@ public class InstruccionRepositorio {
                 r.get("clave_idempotencia", String.class),
                 r.get("estado", String.class),
                 r.get("referencia_libro", UUID.class),
-                r.get("intentos", Integer.class));
+                r.get("intentos", Integer.class),
+                r.get("creada_en", OffsetDateTime.class));
     }
 }

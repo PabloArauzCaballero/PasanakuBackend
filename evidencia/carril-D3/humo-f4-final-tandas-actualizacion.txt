@@ -1,0 +1,112 @@
+--- 1. readiness de cada servicio (por dentro) y gateway
+PASS  readiness identidad -> UP
+PASS  readiness aportes -> UP
+PASS  readiness auditoria -> UP
+PASS  readiness cumplimiento -> UP
+--- 1b. /actuator/health completo (la sonda de base pega a PostgreSQL por PgBouncer con el rol svc_<servicio>)
+PASS  health+base identidad -> UP
+PASS  health+base aportes -> UP
+PASS  health+base auditoria -> UP
+PASS  health+base cumplimiento -> UP
+PASS  gateway liveness -> 200
+PASS  gateway readiness -> 200
+--- 2. ruta publica (identidad + PgBouncer + base) a traves del gateway
+PASS  POST /api/v1/sesiones rechaza por contrato -> 400
+PASS  POST /api/v1/usuarios/verificaciones/correo es publica -> 400
+--- 3. ruta protegida por cada prefijo del gateway: sin token -> 401 (o 200 si es publica por contrato)
+PASS  GET /api/v1/aportes/humo-d3 [aportes] -> 401
+PASS  GET /api/v1/conciliacion/humo-d3 [aportes] -> 401
+PASS  GET /api/v1/pagos/humo-d3 [aportes] -> 401
+PASS  GET /api/v1/qr/humo-d3 [aportes] -> 401
+PASS  GET /api/v1/auditoria/humo-d3 [auditoria] -> 401
+PASS  GET /api/v1/indicadores/humo-d3 [auditoria] -> 401
+PASS  GET /api/v1/reportes/humo-d3 [auditoria] -> 401
+PASS  GET /api/v1/cumplimiento/humo-d3 [cumplimiento] -> 401
+PASS  GET /api/v1/licencia/humo-d3 [cumplimiento] -> 401
+PASS  GET /api/v1/reclamos/humo-d3 [cumplimiento] -> 401
+PASS  GET /api/v1/uif/humo-d3 [cumplimiento] -> 401
+PASS  GET /api/v1/identidad/humo-d3 [identidad] -> 401
+PASS  GET /api/v1/roles/humo-d3 [identidad] -> 401
+PASS  GET /api/v1/sesion/humo-d3 [identidad] -> 401
+PASS  GET /api/v1/sesiones/humo-d3 [identidad] -> 401
+PASS  GET /api/v1/usuarios/humo-d3 [identidad] -> 401
+--- 5. ruta inexistente
+PASS  GET /api/v1/no-existe -> 404
+RESUMEN humo: 0 falla(s)
+--- 1. readiness de cada servicio (por dentro) y gateway
+PASS  readiness entregas -> UP
+PASS  readiness erp -> UP
+PASS  readiness garantia -> UP
+PASS  readiness grupos -> UP
+--- 1b. /actuator/health completo (la sonda de base pega a PostgreSQL por PgBouncer con el rol svc_<servicio>)
+PASS  health+base entregas -> UP
+PASS  health+base erp -> UP
+PASS  health+base garantia -> UP
+PASS  health+base grupos -> UP
+PASS  gateway liveness -> 200
+PASS  gateway readiness -> 200
+--- 3. ruta protegida por cada prefijo del gateway: sin token -> 401 (o 200 si es publica por contrato)
+PASS  GET /api/v1/cuentas-bancarias/humo-d3 [entregas] -> 401
+PASS  GET /api/v1/desembolsos/humo-d3 [entregas] -> 401
+PASS  GET /api/v1/entregas/humo-d3 [entregas] -> 401
+PASS  GET /api/v1/erp/humo-d3 [erp] -> 401
+PASS  GET /api/v1/cobranza/humo-d3 [garantia] -> 401
+PASS  GET /api/v1/garantia/humo-d3 [garantia] -> 401
+PASS  GET /api/v1/incumplimientos/humo-d3 [garantia] -> 401
+PASS  GET /api/v1/acuerdos/humo-d3 [grupos] -> 401
+PASS  GET /api/v1/grupos/humo-d3 [grupos] -> 401
+PASS  GET /api/v1/turnos/humo-d3 [grupos] -> 401
+--- 5. ruta inexistente
+PASS  GET /api/v1/no-existe -> 404
+RESUMEN humo: 0 falla(s)
+--- 1. readiness de cada servicio (por dentro) y gateway
+PASS  readiness inversiones -> UP
+PASS  readiness notificaciones -> UP
+PASS  readiness nucleo-financiero -> UP
+PASS  readiness organizador -> UP
+--- 1b. /actuator/health completo (la sonda de base pega a PostgreSQL por PgBouncer con el rol svc_<servicio>)
+PASS  health+base inversiones -> UP
+PASS  health+base notificaciones -> UP
+PASS  health+base nucleo-financiero -> UP
+PASS  health+base organizador -> UP
+PASS  gateway liveness -> 200
+PASS  gateway readiness -> 200
+--- 3. ruta protegida por cada prefijo del gateway: sin token -> 401 (o 200 si es publica por contrato)
+PASS  GET /api/v1/inversiones/humo-d3 [inversiones] -> 401
+PASS  GET /api/v1/notificaciones/humo-d3 [notificaciones] -> 401
+PASS  GET /api/v1/billetera/humo-d3 [nucleo-financiero] -> 401
+PASS  GET /api/v1/billetera/retiros/humo-d3 [nucleo-financiero] -> 401
+PASS  GET /api/v1/billetera/transferencias/humo-d3 [nucleo-financiero] -> 401
+PASS  GET /api/v1/contabilidad/humo-d3 [nucleo-financiero] -> 401
+PASS  GET /api/v1/custodia/humo-d3 [nucleo-financiero] -> 401
+PASS  GET /api/v1/puntos-atencion/humo-d3 [nucleo-financiero] -> 401
+PASS  GET /api/v1/automatizacion/humo-d3 [organizador] -> 401
+PASS  GET /api/v1/organizadores/humo-d3 [organizador] -> 401
+--- 4. inversiones ruteada
+PASS  GET /api/v1/inversiones/productos sin token -> 401
+--- 5. ruta inexistente
+PASS  GET /api/v1/no-existe -> 404
+RESUMEN humo: 0 falla(s)
+--- 1. readiness de cada servicio (por dentro) y gateway
+PASS  readiness publicidad -> UP
+PASS  readiness tarifas -> UP
+PASS  readiness transparencia -> UP
+--- 1b. /actuator/health completo (la sonda de base pega a PostgreSQL por PgBouncer con el rol svc_<servicio>)
+PASS  health+base publicidad -> UP
+PASS  health+base tarifas -> UP
+PASS  health+base transparencia -> UP
+PASS  gateway liveness -> 200
+PASS  gateway readiness -> 200
+--- 3. ruta protegida por cada prefijo del gateway: sin token -> 401 (o 200 si es publica por contrato)
+PASS  GET /api/v1/anunciantes/humo-d3 [publicidad] -> 401
+PASS  GET /api/v1/campanas/humo-d3 [publicidad] -> 401
+PASS  GET /api/v1/publicidad/humo-d3 [publicidad] -> 401
+PASS  GET /api/v1/comisiones/humo-d3 [tarifas] -> 401
+PASS  GET /api/v1/facturas/humo-d3 [tarifas] -> 401
+PASS  GET /api/v1/tarifas/humo-d3 [tarifas] -> 401
+PASS  GET /api/v1/publico/humo-d3 [transparencia] -> 401
+PASS  GET /api/v1/reputacion/humo-d3 [transparencia] -> 401
+PASS  GET /api/v1/verificar/humo-d3 [transparencia] -> 200
+--- 5. ruta inexistente
+PASS  GET /api/v1/no-existe -> 404
+RESUMEN humo: 0 falla(s)

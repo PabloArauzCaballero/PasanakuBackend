@@ -298,11 +298,11 @@ Una microtarea se declara HECHO solo cuando cumple CA y DoD. Estados permitidos:
 
 | ID | Microtarea | CA | DoD / evidencia | Estado |
 | --- | --- | --- | --- | --- |
-| H2.S1.M1 | Reconciliar cuentas y tipos monetarios | Dado wallet, grupo, garantía e inversión, cuando se contabilizan, entonces titular y disponibilidad son inequívocos | E-H2-01: plan de cuentas y prueba de asientos balanceados por moneda | TODO |
+| H2.S1.M1 | Reconciliar cuentas y tipos monetarios | Dado wallet, grupo, garantía e inversión, cuando se contabilizan, entonces titular y disponibilidad son inequívocos | E-H2-01: plan de cuentas y prueba de asientos balanceados por moneda | HECHO |
 | H2.S1.M2 | Implementar disponible, retenido y liquidado | Dado Bs 500 disponibles, cuando se retienen Bs 300, entonces solo Bs 200 pueden gastarse | E-H2-02: prueba persistente de doble gasto concurrente rechazado | HECHO |
 | H2.S1.M3 | Persistir idempotencia y huella de petición | Dada la misma clave, cuando hay reintento igual o modificado, entonces se reutiliza o rechaza sin duplicar | E-H2-03: prueba de concurrencia con un efecto contable | HECHO |
-| H2.S1.M4 | Completar outbox, deduplicación y reversos | Dado un evento repetido o caída tras commit, cuando se recupera, entonces se conserva un solo efecto y toda la historia | E-H2-04: prueba de reinicio y compensación sin borrar asientos | TODO |
-| H2.S1.M5 | Separar proyección y fuente de verdad | Dada una proyección atrasada, cuando se autoriza un débito, entonces manda el saldo autorizado por el ledger | E-H2-05: observación de rechazo aun con caché que muestra saldo anterior | TODO |
+| H2.S1.M4 | Completar outbox, deduplicación y reversos | Dado un evento repetido o caída tras commit, cuando se recupera, entonces se conserva un solo efecto y toda la historia | E-H2-04: prueba de reinicio y compensación sin borrar asientos | HECHO |
+| H2.S1.M5 | Separar proyección y fuente de verdad | Dada una proyección atrasada, cuando se autoriza un débito, entonces manda el saldo autorizado por el ledger | E-H2-05: observación de rechazo aun con caché que muestra saldo anterior | HECHO |
 
 #### H3. Simulación externa y ambiente integrado
 
@@ -312,7 +312,7 @@ Una microtarea se declara HECHO solo cuando cumple CA y DoD. Estados permitidos:
 | --- | --- | --- | --- | --- |
 | H3.S1.M1 | Completar ejemplos de contrato en Prism | Dado un contrato vigente, cuando se usa un ejemplo, entonces valida con su esquema y catálogo de errores | E-H3-01: reporte de validación de ejemplos por capacidad | HECHO |
 | H3.S1.M2 | Implementar proveedor simulado persistente | Dada una operación pendiente, cuando el proceso reinicia, entonces conserva referencia, estado y resultado | E-H3-02: prueba de reinicio con consulta posterior | HECHO |
-| H3.S1.M3 | Incorporar inyección de fallos y reloj | Dado un pago liquidado con respuesta perdida, cuando se consulta, entonces devuelve la liquidación original | E-H3-03: escenario reproducible con semilla y cronología | A MEDIAS |
+| H3.S1.M3 | Incorporar inyección de fallos y reloj | Dado un pago liquidado con respuesta perdida, cuando se consulta, entonces devuelve la liquidación original | E-H3-03: escenario reproducible con semilla y cronología | HECHO |
 | H3.S1.M4 | Cablear móvil, web y backoffice | Dada una acción desde cada cliente, cuando se ejecuta, entonces llega al dominio y produce persistencia visible tras recarga | E-H3-04: recorrido con red, correlación y lectura posterior | BLOQUEADO |
 | H3.S1.M5 | Aislar configuración de prueba | Dada configuración productiva con adaptador mock, cuando arranca, entonces falla con motivo explícito | E-H3-05: prueba de arranque negativo | HECHO |
 
@@ -341,7 +341,7 @@ Una microtarea se declara HECHO solo cuando cumple CA y DoD. Estados permitidos:
 | H5.S1.M4 | Emitir y consumir invitación única | Dado token aleatorio vigente, cuando dos peticiones intentan consumirlo, entonces solo una lo consume | E-H5-04: prueba atómica, expiración y revocación sin token en logs | HECHO |
 | H5.S1.M5 | Solicitar ingreso y registrar propuesta | Dado candidato elegible, cuando admin propone aceptar o rechazar, entonces queda pendiente del backoffice | E-H5-05: propuesta persistida sin activar membresía | HECHO |
 | H5.S1.M6 | Ejecutar la resolución final | Dada decisión humana aceptada, cuando se procesa dos veces, entonces activa una membresía; rechazo no activa ninguna | E-H5-06: resolución, evento y membresía correlacionados | HECHO |
-| H5.S1.M7 | Revisar decisiones y sustituir administrador | Dada revisión o suspensión, cuando se procesa, entonces crea nueva resolución y mantiene obligaciones existentes identificadas | E-H5-07: historial completo y procedimiento de continuidad del grupo | A MEDIAS |
+| H5.S1.M7 | Revisar decisiones y sustituir administrador | Dada revisión o suspensión, cuando se procesa, entonces crea nueva resolución y mantiene obligaciones existentes identificadas | E-H5-07: historial completo y procedimiento de continuidad del grupo | HECHO |
 
 Tokens: generador criptográfico con al menos 128 bits de entropía; preferir 256 bits. Guardar hash con protección adicional gestionada como secreto, no token en texto plano. Limitar intentos, vigencia y ámbito. Evitar token en logs, analítica y cabeceras de referencia de enlaces; si un enlace lo transporta, canjearlo inmediatamente y retirarlo de la navegación. Invitación consumida crea una solicitud, no aprobación. Reemisión revoca o conserva la anterior según regla explícita, nunca accidentalmente.
 
@@ -351,7 +351,7 @@ Tokens: generador criptográfico con al menos 128 bits de entropía; preferir 25
 
 | ID | Microtarea | CA | DoD / evidencia | Estado |
 | --- | --- | --- | --- | --- |
-| H6.S1.M1 | Definir entradas mínimas y procedencia | Dado un dato de riesgo, cuando se usa, entonces tiene origen, fecha, consentimiento aplicable y calidad | E-H6-01: diccionario de variables y variables excluidas | A MEDIAS |
+| H6.S1.M1 | Definir entradas mínimas y procedencia | Dado un dato de riesgo, cuando se usa, entonces tiene origen, fecha, consentimiento aplicable y calidad | E-H6-01: diccionario de variables y variables excluidas | HECHO |
 | H6.S1.M2 | Implementar reglas versionadas | Dado el mismo snapshot y política, cuando se evalúa, entonces devuelve recomendación y razones reproducibles | E-H6-02: casos deterministas con versión y explicación | HECHO |
 | H6.S1.M3 | Manejar SIN_DATOS y caída del motor | Dada información insuficiente, cuando se evalúa, entonces informa incertidumbre sin rechazo automático | E-H6-03: caso de revisión manual disponible y membresía no activada | HECHO |
 | H6.S1.M4 | Registrar apartamiento humano | Dada recomendación de rechazo, cuando BO acepta con motivo, entonces conserva ambas decisiones y autor efectivo | E-H6-04: evidencia de decisión final humana y efecto consistente | HECHO |
@@ -367,7 +367,7 @@ Primera versión: reglas comprensibles sobre identidad verificada, cumplimiento 
 | --- | --- | --- | --- | --- |
 | H7.S1.M1 | Congelar reglas, roster y calendario | Dado grupo listo, cuando se prepara activación, entonces contratos, aportes, fechas y zona horaria quedan versionados | E-H7-01: snapshot y rechazo de edición incompatible posterior | HECHO |
 | H7.S1.M2 | Reservar capacidad empresarial | Dados dos grupos que compiten por capacidad, cuando activan simultáneamente, entonces no sobreasignan respaldo | E-H7-02: prueba de concurrencia y reserva identificada por ciclo | HECHO |
-| H7.S1.M3 | Validar calendario y cortes | Dado feriado o vencimiento local, cuando se calcula, entonces la fecha contractual y la de liquidación se muestran explícitas | E-H7-03: casos de calendario con UTC y America/La_Paz | TODO |
+| H7.S1.M3 | Validar calendario y cortes | Dado feriado o vencimiento local, cuando se calcula, entonces la fecha contractual y la de liquidación se muestran explícitas | E-H7-03: casos de calendario con UTC y America/La_Paz | HECHO |
 | H7.S1.M4 | Ejecutar sorteo verificable | Dado roster congelado, cuando se sortea, entonces cada miembro aparece una vez y existe un solo resultado vigente | E-H7-04: reconstrucción autorizada del resultado y prueba de reinicio | HECHO |
 | H7.S1.M5 | Evitar repetición selectiva del sorteo | Dado resultado inconveniente o fallo tras persistir, cuando se reintenta, entonces devuelve el original y registra el intento | E-H7-05: prueba de prohibición de reroll y cronología de compromiso | HECHO |
 
@@ -379,12 +379,12 @@ Usar una permutación uniforme con aleatoriedad criptográfica y protocolo audit
 
 | ID | Microtarea | CA | DoD / evidencia | Estado |
 | --- | --- | --- | --- | --- |
-| H8.S1.M1 | Generar y cobrar obligaciones | Dado ciclo activo, cuando vence un aporte, entonces identifica titular, turno, monto y estado sin duplicación | E-H8-01: calendario de obligaciones y conciliación de cobros | TODO |
+| H8.S1.M1 | Generar y cobrar obligaciones | Dado ciclo activo, cuando vence un aporte, entonces identifica titular, turno, monto y estado sin duplicación | E-H8-01: calendario de obligaciones y conciliación de cobros | HECHO |
 | H8.S1.M2 | Calcular faltante al corte | Dado pozo Bs 6.000 y Bs 5.000 confirmados, cuando cierra el corte, entonces solicita Bs 1.000 de empresa | E-H8-02: cálculo con pendientes excluidos y referencias de aportes | HECHO |
 | H8.S1.M3 | Aplicar cobertura empresarial | Dada reserva financiada, cuando cubre, entonces mueve fondos corporativos y conserva exposición y responsable | E-H8-03: asientos y evidencia de caja respaldando el movimiento | A MEDIAS |
 | H8.S1.M4 | Entregar el pozo completo | Dado fondeo completo, cuando liquida, entonces beneficiario recibe Bs 6.000 de principal una sola vez | E-H8-04: ledger, confirmación externa y comprobante coincidentes | A MEDIAS |
 | H8.S1.M5 | Tratar aporte tardío y recuperación | Dada cobertura anterior, cuando entra aporte tardío, entonces aplica la regla contractual sin doble cobro ni doble entrega | E-H8-05: trazabilidad de recuperación y saldo de exposición actualizado | HECHO |
-| H8.S1.M6 | Gestionar falta extraordinaria de caja | Dado respaldo insuficiente sobre compromiso existente, cuando se detecta, entonces abre incidente, conserva deuda y ejecuta contingencia | E-H8-06: simulacro con responsables, obligaciones y comunicación verificables | A MEDIAS |
+| H8.S1.M6 | Gestionar falta extraordinaria de caja | Dado respaldo insuficiente sobre compromiso existente, cuando se detecta, entonces abre incidente, conserva deuda y ejecuta contingencia | E-H8-06: simulacro con responsables, obligaciones y comunicación verificables | HECHO |
 
 No cancelar una obligación ya asumida mediante un cambio de bandera ni convertir el impago de una comisión en descuento oculto del pozo. Si la empresa no puede financiar la promesa, impedir nuevos grupos y escalar los existentes; la tecnología no crea capital. La recuperación frente a un miembro requiere título válido, reglas de cobro y debido proceso; cubrir un faltante no autoriza automáticamente sanciones ni préstamos forzosos.
 
@@ -394,12 +394,12 @@ No cancelar una obligación ya asumida mediante un cambio de bandera ni converti
 
 | ID | Microtarea | CA | DoD / evidencia | Estado |
 | --- | --- | --- | --- | --- |
-| H9.S1.M1 | Definir objeto contractual de la cesión | Dado turno por cobrar, cuando se ofrece, entonces se distingue derecho cedido de aportes y membresía | E-H9-01: ficha contractual y escenarios de responsabilidad | TODO |
+| H9.S1.M1 | Definir objeto contractual de la cesión | Dado turno por cobrar, cuando se ofrece, entonces se distingue derecho cedido de aportes y membresía | E-H9-01: ficha contractual y escenarios de responsabilidad | HECHO |
 | H9.S1.M2 | Crear y publicar oferta | Dado titular válido, cuando fija precio, entonces valida moneda, vigencia, cargos y ausencia de otra oferta activa incompatible | E-H9-02: pruebas de titular ajeno, turno pagado y oferta duplicada | HECHO |
 | H9.S1.M3 | Mostrar ofertas elegibles | Dado comprador, cuando consulta, entonces ve monto, fecha, precio, cargos y restricciones sin datos privados innecesarios | E-H9-03: captura y respuestas filtradas según permisos | HECHO |
 | H9.S1.M4 | Reservar oferta y saldo concurrentemente | Dados dos compradores, cuando compran simultáneamente, entonces uno obtiene reserva y el otro respuesta consistente | E-H9-04: prueba concurrente con una sola reserva y sin retenciones huérfanas | HECHO |
 | H9.S1.M5 | Liquidar pago y cambio de titular | Dada reserva válida, cuando la saga termina, entonces vendedor cobra y comprador recibe el derecho una vez | E-H9-05: ledger, titularidad y eventos coincidentes tras reinicio | A MEDIAS |
-| H9.S1.M6 | Resolver vencimiento, cancelación y disputa | Dada compra en curso, cuando compite con cancelación, entonces una transición vence según versión y se resuelven retenciones | E-H9-06: prueba de carreras en el punto de liquidación | A MEDIAS |
+| H9.S1.M6 | Resolver vencimiento, cancelación y disputa | Dada compra en curso, cuando compite con cancelación, entonces una transición vence según versión y se resuelven retenciones | E-H9-06: prueba de carreras en el punto de liquidación | HECHO |
 
 La oferta expira antes del punto de cierre de beneficiario del turno. Una cesión no cambia por sí sola deudor de aportes, administrador ni membresía. Si el comprador debe ser miembro, pasar por el mismo backoffice antes de comprar. Descuento de precio no se anuncia como rentabilidad segura. No habilitar reventas encadenadas o fraccionamiento hasta tener alcance contractual y contable específico.
 
@@ -409,13 +409,13 @@ La oferta expira antes del punto de cierre de beneficiario del turno. Una cesió
 
 | ID | Microtarea | CA | DoD / evidencia | Estado |
 | --- | --- | --- | --- | --- |
-| H10.S1.M1 | Modelar producto, emisor y condiciones | Dado DPF o fondo, cuando se consulta, entonces identifica titularidad, riesgo, costos, plazo y fuente de datos | E-H10-01: contratos y pantallas diferenciadas con fecha de cotización | A MEDIAS |
-| H10.S1.M2 | Capturar consentimiento y enviar orden | Dado saldo libre, cuando invierte voluntariamente, entonces reserva importe y guarda condiciones aceptadas | E-H10-02: prueba de saldo retenido y consentimiento versionado | A MEDIAS |
-| H10.S1.M3 | Confirmar posición sin duplicar saldo | Dada confirmación del proveedor, cuando se procesa, entonces reconoce depósito o cuotas y elimina disponibilidad del importe enviado | E-H10-03: conciliación de posición, efectivo y operación | A MEDIAS |
-| H10.S1.M4 | Calcular y mostrar DPF | Dados principal, tasa y base contractual, cuando devenga, entonces distingue devengado, pagado, impuestos y vencimiento | E-H10-04: cálculo independiente y liquidación simulada al vencimiento | A MEDIAS |
-| H10.S1.M5 | Valorar cuotas de fondo | Dadas cuotas y valor publicado, cuando actualiza, entonces muestra fecha, variación y eventual pérdida sin promesa fija | E-H10-05: caso de caída de valor y dato desactualizado visible | A MEDIAS |
-| H10.S1.M6 | Solicitar y liquidar rescate | Dado producto con plazo de rescate, cuando se solicita, entonces informa corte y mantiene pendiente hasta confirmación de fondos | E-H10-06: rescate demorado y rechazo de doble disponibilidad | A MEDIAS |
-| H10.S1.M7 | Mantener inversión de grupos desactivada | Dado saldo afectado a pozo, cuando se intenta invertir, entonces rechaza; una simulación separada permite comparar caja | E-H10-07: prueba del bloqueo y cálculo comparativo mínimo propio | A MEDIAS |
+| H10.S1.M1 | Modelar producto, emisor y condiciones | Dado DPF o fondo, cuando se consulta, entonces identifica titularidad, riesgo, costos, plazo y fuente de datos | E-H10-01: contratos y pantallas diferenciadas con fecha de cotización | HECHO |
+| H10.S1.M2 | Capturar consentimiento y enviar orden | Dado saldo libre, cuando invierte voluntariamente, entonces reserva importe y guarda condiciones aceptadas | E-H10-02: prueba de saldo retenido y consentimiento versionado | HECHO |
+| H10.S1.M3 | Confirmar posición sin duplicar saldo | Dada confirmación del proveedor, cuando se procesa, entonces reconoce depósito o cuotas y elimina disponibilidad del importe enviado | E-H10-03: conciliación de posición, efectivo y operación | HECHO |
+| H10.S1.M4 | Calcular y mostrar DPF | Dados principal, tasa y base contractual, cuando devenga, entonces distingue devengado, pagado, impuestos y vencimiento | E-H10-04: cálculo independiente y liquidación simulada al vencimiento | HECHO |
+| H10.S1.M5 | Valorar cuotas de fondo | Dadas cuotas y valor publicado, cuando actualiza, entonces muestra fecha, variación y eventual pérdida sin promesa fija | E-H10-05: caso de caída de valor y dato desactualizado visible | HECHO |
+| H10.S1.M6 | Solicitar y liquidar rescate | Dado producto con plazo de rescate, cuando se solicita, entonces informa corte y mantiene pendiente hasta confirmación de fondos | E-H10-06: rescate demorado y rechazo de doble disponibilidad | HECHO |
+| H10.S1.M7 | Mantener inversión de grupos desactivada | Dado saldo afectado a pozo, cuando se intenta invertir, entonces rechaza; una simulación separada permite comparar caja | E-H10-07: prueba del bloqueo y cálculo comparativo mínimo propio | HECHO |
 
 No habilitar rescate anticipado de un DPF que no lo permita. Donde exista, mostrar penalización e impuestos según contrato y validación fiscal. La posibilidad de obtener liquidez vendiendo o cediendo un instrumento es distinta de cancelarlo con el emisor. Las cuotas pendientes de rescate dejan de estar libres para nuevas órdenes según la regla del administrador.
 
@@ -427,9 +427,9 @@ No habilitar rescate anticipado de un DPF que no lo permita. Donde exista, mostr
 | --- | --- | --- | --- | --- |
 | H11.S1.M1 | Cotizar tarifa antes de confirmar | Dada operación gravada por servicio, cuando se confirma, entonces usuario vio importe, base, impuestos y neto con versión | E-H11-01: cotización y cargo coincidentes, incluida expiración | HECHO |
 | H11.S1.M2 | Contabilizar y revertir cargos | Dada operación fallida según contrato, cuando corresponde devolución, entonces revierte cargos una vez mediante asiento nuevo | E-H11-02: extracto de operación y contrapartidas fiscales aplicables | HECHO |
-| H11.S1.M3 | Distribuir intereses confirmados | Dado interés pagado por emisor, cuando se acredita, entonces coincide con titular, período y retenciones | E-H11-03: conciliación contra liquidación externa y devengo | TODO |
-| H11.S1.M4 | Calcular comisión por resultado | Dadas pérdidas previas y aportes nuevos, cuando evalúa, entonces cobra solo beneficio elegible según contrato | E-H11-04: casos de pérdida, recuperación y suscripción por lotes | A MEDIAS |
-| H11.S1.M5 | Emitir comprobantes y reporte fiscal | Dado movimiento con tratamiento definido, cuando se informa, entonces principal, comisión, impuesto e interés son separables | E-H11-05: comprobante y exportación reconciliados con ledger | TODO |
+| H11.S1.M3 | Distribuir intereses confirmados | Dado interés pagado por emisor, cuando se acredita, entonces coincide con titular, período y retenciones | E-H11-03: conciliación contra liquidación externa y devengo | HECHO |
+| H11.S1.M4 | Calcular comisión por resultado | Dadas pérdidas previas y aportes nuevos, cuando evalúa, entonces cobra solo beneficio elegible según contrato | E-H11-04: casos de pérdida, recuperación y suscripción por lotes | HECHO |
+| H11.S1.M5 | Emitir comprobantes y reporte fiscal | Dado movimiento con tratamiento definido, cuando se informa, entonces principal, comisión, impuesto e interés son separables | E-H11-05: comprobante y exportación reconciliados con ledger | HECHO |
 
 Para una eventual comisión de éxito, definir referencia, períodos, marca máxima previa neta de comisión, tratamiento de entradas/salidas y cristalización. Ejemplo sintético: 100 cuotas, marca previa 110, valor antes de éxito 112 y 10% sobre incremento elegible generan Bs 20; cuota neta 111,80. No convertir este ejemplo en tarifa comercial. Si el producto aliado no admite ese cargo, la funcionalidad real permanece inhabilitada o se utiliza otra remuneración expresamente permitida y contratada.
 
@@ -443,7 +443,7 @@ Para una eventual comisión de éxito, definir referencia, períodos, marca máx
 | H12.S1.M2 | Separar saldos y posiciones | Dado dinero retenido, invertido o del grupo, cuando consulta saldo, entonces no aparece como gastable personal | E-H12-02: capturas con cifras reconciliadas y etiquetas claras | A MEDIAS |
 | H12.S1.M3 | Completar estados de red y recuperación | Dado timeout, offline o éxito no confirmado, cuando vuelve, entonces consulta la operación y evita duplicarla | E-H12-03: sesión de navegación con recuperación y persistencia | A MEDIAS |
 | H12.S1.M4 | Verificar accesibilidad y adaptación | Dado móvil/escritorio, teclado y lector, cuando opera los flujos críticos, entonces mantiene foco, semántica y objetivos utilizables | E-H12-04: evidencia WCAG 2.2 AA y revisión móvil según plataforma | A MEDIAS |
-| H12.S1.M5 | Verificar visualmente los flujos | Dadas pantallas y estados tocados, cuando se revisan, entonces no hay recortes, superposiciones o errores de consola/red sin explicar | E-H12-05: capturas inspeccionadas por viewport y tema admitido | A MEDIAS |
+| H12.S1.M5 | Verificar visualmente los flujos | Dadas pantallas y estados tocados, cuando se revisan, entonces no hay recortes, superposiciones o errores de consola/red sin explicar | E-H12-05: capturas inspeccionadas por viewport y tema admitido | HECHO |
 
 Pantallas mínimas: saldo y extracto; recarga; retiro; confirmar QR; solicitud de admin; creación y activación de grupo; invitación; solicitud y estado; propuesta admin; bandeja BO con evidencia; sorteo y calendario; aportes; entrega y cobertura; mercado de turnos; confirmación de cesión; catálogo de inversión; detalle de posición; rescate; comisiones e intereses; reclamo. No añadir controles técnicos del mock a esas pantallas.
 
@@ -456,11 +456,11 @@ Al ejecutar cambios visuales, aplicar las skills correspondientes de Flutter, es
 | ID | Microtarea | CA | DoD / evidencia | Estado |
 | --- | --- | --- | --- | --- |
 | H13.S1.M1 | Conciliar ledger, proveedor y banco | Dada diferencia o movimiento huérfano, cuando concilia, entonces identifica causa, responsable y resolución sin fabricar abonos | E-H13-01: lote con tres fuentes y discrepancias resueltas por evidencia | HECHO |
-| H13.S1.M2 | Probar permisos y aislamiento | Dado usuario de otro grupo/ámbito, cuando intenta leer o actuar, entonces se rechaza sin revelar datos | E-H13-02: matriz de autorización negativa, incluido acceso de servicios | TODO |
-| H13.S1.M3 | Aplicar protección de datos y secretos | Dados logs, URLs y eventos, cuando se inspeccionan, entonces no contienen tokens ni PII innecesaria | E-H13-03: revisión de muestras sintéticas y rotación de secretos ensayada | A MEDIAS |
-| H13.S1.M4 | Restaurar backup y reanudar eventos | Dado punto de recuperación acordado, cuando restaura, entonces ledger y operaciones se reconcilian antes de reabrir | E-H13-04: ensayo con tiempos observados y diferencias explicadas | TODO |
-| H13.S1.M5 | Implementar alarmas y procedimientos | Dada brecha de caja, atraso, cola detenida o conciliación vencida, cuando ocurre, entonces alerta al responsable y activa procedimiento | E-H13-05: inyección de incidente y registro de respuesta | TODO |
-| H13.S1.M6 | Aplicar restricciones y reclamos con debido proceso | Dado caso en revisión, cuando se gestiona, entonces no equivale automáticamente a sanción firme o deuda ejecutable | E-H13-06: trazabilidad de reclamo, resolución y efecto permitido | TODO |
+| H13.S1.M2 | Probar permisos y aislamiento | Dado usuario de otro grupo/ámbito, cuando intenta leer o actuar, entonces se rechaza sin revelar datos | E-H13-02: matriz de autorización negativa, incluido acceso de servicios | HECHO |
+| H13.S1.M3 | Aplicar protección de datos y secretos | Dados logs, URLs y eventos, cuando se inspeccionan, entonces no contienen tokens ni PII innecesaria | E-H13-03: revisión de muestras sintéticas y rotación de secretos ensayada | HECHO |
+| H13.S1.M4 | Restaurar backup y reanudar eventos | Dado punto de recuperación acordado, cuando restaura, entonces ledger y operaciones se reconcilian antes de reabrir | E-H13-04: ensayo con tiempos observados y diferencias explicadas | HECHO |
+| H13.S1.M5 | Implementar alarmas y procedimientos | Dada brecha de caja, atraso, cola detenida o conciliación vencida, cuando ocurre, entonces alerta al responsable y activa procedimiento | E-H13-05: inyección de incidente y registro de respuesta | HECHO |
+| H13.S1.M6 | Aplicar restricciones y reclamos con debido proceso | Dado caso en revisión, cuando se gestiona, entonces no equivale automáticamente a sanción firme o deuda ejecutable | E-H13-06: trazabilidad de reclamo, resolución y efecto permitido | A MEDIAS |
 
 Definir SLO por capacidad y medirlo: demora de confirmación, antigüedad de pendientes, frescura de conciliación, cumplimiento de entrega, espera de revisión humana y recuperación. No inventar SLA contractuales. Registrar fecha local y UTC; no interpretar días de mercado como días corridos sin definición.
 

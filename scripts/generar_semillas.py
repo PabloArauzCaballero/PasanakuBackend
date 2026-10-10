@@ -42,6 +42,7 @@ Valores especiales dentro de una fila:
 
 import json
 import pathlib
+import re
 import shutil
 
 
@@ -77,9 +78,21 @@ PROHIBIDAS_EN_MINIMOS = {
     "documento_identidad", "verificacion_kyc", "declaracion_pep",
     "debida_diligencia", "expediente_cliente", "perfil_financiero",
     "perfil_transaccional", "direccion_usuario", "canal_vinculado",
-    "factor_mfa", "dispositivo", "cuenta_billetera", "movimiento_billetera",
+    "factor_mfa", "dispositivo", "movimiento_billetera",
     "asiento_contable", "linea_asiento", "intento_autenticacion",
     "aceptacion_contrato", "consentimiento", "referencia_personal",
+}
+
+# `cuenta_billetera` es la unica excepcion, y acotada: las cuentas DE SISTEMA (custodia de
+# inversion, ingresos de la plataforma, puente de custodia) no son de nadie y el sistema no opera
+# sin ellas, tampoco en TEST ni en produccion. Entran a `minimos/` solo si cumplen TODO esto:
+#   - su tipo no es USUARIO ni GRUPO (esas son de personas);
+#   - no nombran usuario_id ni grupo_id;
+#   - nacen en cero (ningun saldo se siembra: el saldo sale del libro);
+#   - ninguna se repite en dev/ (un numero_cuenta, un solo dueño).
+TIPOS_DE_SISTEMA_EN_MINIMOS = {
+    "CUSTODIA_INVERSION", "PLATAFORMA_INGRESOS", "PLATAFORMA_IMPUESTOS_POR_PAGAR",
+    "PUENTE_CUSTODIA", "SUSPENSO_NO_IDENTIFICADO", "LIQUIDACION_PROVEEDOR", "FONDO_GARANTIA",
 }
 
 # Guarda que encabeza el orquestador de dev: sin esta marca, no siembra.
@@ -234,9 +247,14 @@ def validar(entorno, mods):
     no depende de tener una base a mano.
     """
     columnas = {}
+    largos = {}
     for d in mods.values():
         for e in d["entidades"].values():
             columnas[e["tabla"]] = {c["nombre"] for c in e["cols"]}
+            for c in e["cols"]:
+                m = re.fullmatch(r"(?:VAR)?CHAR\((\d+)\)", c["tipo"])
+                if m:
+                    largos[(e["tabla"], c["nombre"])] = int(m.group(1))
 
     errores = []
     carpeta = ORIGEN / entorno
@@ -274,6 +292,13 @@ def validar(entorno, mods):
                 for col, valor in fila.items():
                     if col not in columnas[tabla]:
                         errores.append(f"{nombre}: {tabla}.{col} no existe (fila {i})")
+                    # Un texto mas largo que la columna no falla aca sino al aplicar el
+                    # SQL, con «value too long» y las semillas siguientes sin cargar.
+                    tope = largos.get((tabla, col))
+                    if tope and isinstance(valor, str) and len(valor) > tope:
+                        errores.append(
+                            f"{nombre}: {tabla}.{col} mide {len(valor)} y la columna admite {tope} (fila {i})"
+                        )
                     revisar_ref(valor, f"{nombre}: {tabla} fila {i}")
 
     sueltos = {p.name for p in carpeta.glob("*.json")} - {"manifiesto.json"}
@@ -293,6 +318,41 @@ def tablas_de(entorno):
             if "tabla" in b:
                 escritas.add(b["tabla"])
     return escritas
+
+
+def filas_de(entorno, tabla):
+    """Todas las filas que un conjunto de seeders escribe en `tabla`."""
+    filas = []
+    for ruta in sorted((ORIGEN / entorno).glob("*.json")):
+        if ruta.name == "manifiesto.json":
+            continue
+        datos = json.loads(ruta.read_text(encoding="utf-8"))
+        for b in datos.get("bloques", []):
+            if b.get("tabla") == tabla:
+                filas += [(ruta.name, f) for f in b.get("filas", [])]
+    return filas
+
+
+def validar_cuentas_de_sistema():
+    """La excepcion de `cuenta_billetera` en `minimos/`: solo cuentas de sistema, en cero, sin dueño doble."""
+    errores = []
+    de_minimos = filas_de("minimos", "cuenta_billetera")
+    for archivo, f in de_minimos:
+        etiqueta = f"minimos/{archivo}: cuenta_billetera {f.get('numero_cuenta')}"
+        if f.get("tipo") not in TIPOS_DE_SISTEMA_EN_MINIMOS:
+            errores.append(f"{etiqueta}: el tipo '{f.get('tipo')}' no es de sistema; las cuentas de personas van en dev/")
+        for prohibida in ("usuario_id", "grupo_id"):
+            if f.get(prohibida) is not None:
+                errores.append(f"{etiqueta}: nombra {prohibida}; una cuenta de sistema no es de nadie")
+        for saldo in ("saldo_disponible", "saldo_retenido"):
+            if f.get(saldo) not in (None, 0, 0.0):
+                errores.append(f"{etiqueta}: siembra {saldo}; el saldo sale del libro, nunca de una semilla")
+    numeros = {f.get("numero_cuenta") for _, f in de_minimos}
+    for archivo, f in filas_de("dev", "cuenta_billetera"):
+        if f.get("numero_cuenta") in numeros:
+            errores.append(
+                f"dev/{archivo}: cuenta_billetera {f['numero_cuenta']} ya la siembra minimos/; un solo dueño")
+    return errores
 
 
 def validar_separacion():
@@ -324,7 +384,10 @@ def validar_separacion():
     for tabla in sorted(de_minimos & PROHIBIDAS_EN_MINIMOS):
         errores.append(f"minimos/: escribe '{tabla}', que es dato de personas")
 
-    for tabla in sorted(de_minimos & de_dev):
+    errores += validar_cuentas_de_sistema()
+
+    # `cuenta_billetera` la escriben los dos, cada uno con sus filas (ver validar_cuentas_de_sistema).
+    for tabla in sorted((de_minimos & de_dev) - {"cuenta_billetera"}):
         errores.append(
             f"colisión: '{tabla}' la escriben mínimos y dev. Un catálogo tiene un"
             f" solo dueño: si es de producción va en minimos/, si no, en dev/")

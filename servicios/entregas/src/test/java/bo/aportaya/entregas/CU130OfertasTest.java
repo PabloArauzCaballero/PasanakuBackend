@@ -94,7 +94,8 @@ class CU130OfertasTest extends BaseDeMercado {
                 cobrado.e().participanteId(),
                 cobrado.vendedor(),
                 "COBRADO",
-                bob("6000.00")));
+                bob("6000.00"),
+                cierreLejano()));
         rechaza(() -> publicar(cobrado), "AP-CU130-02");
 
         var conEntrega = caso();

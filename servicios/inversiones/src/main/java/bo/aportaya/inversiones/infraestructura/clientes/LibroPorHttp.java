@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
@@ -46,6 +47,7 @@ public class LibroPorHttp implements LibroDelTitular {
 
     private final URI base;
     private final Duration timeout;
+    private final CredencialDeServicio credencial;
     private final HttpClient http;
     // Un 422 de negocio es una respuesta sana del libro: no abre el circuito.
     private final CircuitBreaker cortacircuitos = CircuitBreaker.of(
@@ -61,14 +63,27 @@ public class LibroPorHttp implements LibroDelTitular {
                     .recordExceptions(LibroNoDisponible.class)
                     .build());
 
+    /** Sin credencial de servicio: solo para pruebas del adaptador; debitar y acreditar fallan cerrado. */
+    public LibroPorHttp(URI base, Duration timeout) {
+        this(base, timeout, CredencialDeServicio.ninguna());
+    }
+
+    /** Con un token ya emitido: pruebas del adaptador. */
+    public LibroPorHttp(URI base, Duration timeout, String tokenDeServicio) {
+        this(base, timeout, CredencialDeServicio.fija(tokenDeServicio));
+    }
+
+    @Autowired
     public LibroPorHttp(
             @Value("${aportaya.servicios.nucleo-financiero:http://nucleo-financiero:8080}") URI base,
-            @Value("${aportaya.inversiones.libro.timeout:PT3S}") Duration timeout) {
+            @Value("${aportaya.inversiones.libro.timeout:PT3S}") Duration timeout,
+            CredencialDeServicio credencial) {
         if (timeout.isNegative() || timeout.isZero()) {
             throw new IllegalArgumentException("El timeout debe ser positivo.");
         }
         this.base = base;
         this.timeout = timeout;
+        this.credencial = credencial;
         this.http = HttpClient.newBuilder()
                 .connectTimeout(timeout)
                 .followRedirects(HttpClient.Redirect.NEVER)
@@ -77,7 +92,8 @@ public class LibroPorHttp implements LibroDelTitular {
 
     @Override
     public SaldoDelTitular saldo(UUID cuentaId) {
-        JsonNode r = enviar(pedir("/billetera/" + cuentaId + "/saldo").GET().build());
+        JsonNode r =
+                enviar(pedir("/billetera/" + cuentaId + "/saldo", false).GET().build());
         if (r.path("comprometidoEnPozos").isMissingNode() || r.path("titularId").isMissingNode()) {
             // Sin saber de quien es la cuenta ni cuanto esta afectado a un pozo, no se invierte «por las dudas».
             throw new LibroNoDisponible("El libro no informa el titular ni lo comprometido en pozos");
@@ -102,14 +118,15 @@ public class LibroPorHttp implements LibroDelTitular {
                 "motivo", "INVERSION_VOLUNTARIA",
                 "referenciaTipo", "ORDEN_INVERSION",
                 "referenciaId", referenciaOrden.toString());
-        return UUID.fromString(enviar(post("/billetera/retenciones", clave, cuerpo))
+        return UUID.fromString(enviar(post("/billetera/retenciones", clave, cuerpo, false))
                 .path("retencionId")
                 .asText());
     }
 
     @Override
     public void liberar(UUID retencionId, String clave) {
-        enviar(post("/billetera/retenciones/" + retencionId + "/cierre", clave, Map.of("desenlace", "LIBERADA")));
+        enviar(post(
+                "/billetera/retenciones/" + retencionId + "/cierre", clave, Map.of("desenlace", "LIBERADA"), false));
     }
 
     @Override
@@ -122,7 +139,7 @@ public class LibroPorHttp implements LibroDelTitular {
                                 monto.monto().toPlainString(),
                                 "moneda",
                                 monto.moneda().name()));
-        return UUID.fromString(enviar(post("/billetera/inversiones/debitos", clave, cuerpo))
+        return UUID.fromString(enviar(post("/billetera/inversiones/debitos", clave, cuerpo, true))
                 .path("transaccionId")
                 .asText());
     }
@@ -138,28 +155,52 @@ public class LibroPorHttp implements LibroDelTitular {
                                 "moneda",
                                 monto.moneda().name()),
                 "referenciaId", referenciaRescate.toString());
-        return UUID.fromString(enviar(post("/billetera/inversiones/acreditaciones", clave, cuerpo))
+        return UUID.fromString(enviar(post("/billetera/inversiones/acreditaciones", clave, cuerpo, true))
                 .path("transaccionId")
                 .asText());
     }
 
     // ------------------------------------------------------------------ mecanica
-    private HttpRequest.Builder pedir(String ruta) {
+    private HttpRequest.Builder pedir(String ruta, boolean soloServicio) {
         HttpRequest.Builder b =
                 HttpRequest.newBuilder(base.resolve(ruta)).timeout(timeout).header("Accept", "application/json");
-        // El token de quien pregunta viaja en la llamada, como en el resto de los clientes de servicio.
-        HttpHeaders token = new HttpHeaders();
-        ClienteDeServicio.propagarElToken(token);
-        String autorizacion = token.getFirst(HttpHeaders.AUTHORIZATION);
+        String autorizacion = autorizacion(soloServicio);
         if (autorizacion != null) {
             b.header("Authorization", autorizacion);
         }
         return b;
     }
 
-    private HttpRequest post(String ruta, String clave, Map<String, Object> cuerpo) {
+    /**
+     * Quien firma la llamada. Debitar la inversion y acreditar el rescate mueven plata hacia y
+     * desde la custodia: el libro las acepta SOLO con identidad de servicio, nunca con el token de
+     * una persona (que ademas no existe cuando las reintenta el reloj). Sin credencial de servicio
+     * configurada no se intenta: falla cerrado. El resto de las operaciones lleva el token de quien
+     * pregunta, como en los demas clientes, y si no hay sesion (un reintento del reloj) la
+     * credencial de servicio, si esta configurada. El valor de la credencial no se registra jamas.
+     */
+    private String autorizacion(boolean soloServicio) {
+        if (!soloServicio) {
+            HttpHeaders token = new HttpHeaders();
+            ClienteDeServicio.propagarElToken(token);
+            String delUsuario = token.getFirst(HttpHeaders.AUTHORIZATION);
+            if (delUsuario != null) {
+                return delUsuario;
+            }
+        }
+        var delServicio = credencial.vigente();
+        if (delServicio.isEmpty()) {
+            if (soloServicio) {
+                throw new LibroNoDisponible("No hay credencial de servicio para mover plata hacia o desde la custodia");
+            }
+            return null;
+        }
+        return "Bearer " + delServicio.get();
+    }
+
+    private HttpRequest post(String ruta, String clave, Map<String, Object> cuerpo, boolean soloServicio) {
         try {
-            return pedir(ruta)
+            return pedir(ruta, soloServicio)
                     // El libro pide un UUID; se deriva de la clave de la instruccion y es estable.
                     .header(
                             "Idempotency-Key",

@@ -14,6 +14,8 @@ import {
 import { colaVacia, crearResolver, expedientesEnEstado, POR_DECIDIR, recortar } from '../dominio/cu02-expedientes'
 import { textosCumplimiento } from '../textos'
 import { TiraDeFotos } from './tira-de-fotos'
+import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
+import type { ErrorTraducido } from '../../../nucleo/errores'
 
 /**
  * CU-02 · el portal de riesgo: la cola de expedientes de identidad y la decisión.
@@ -35,7 +37,7 @@ import { TiraDeFotos } from './tira-de-fotos'
 @Component({
   selector: 'ap-pantalla-de-expedientes',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [EstadoDePantalla, BandaDeProposito, ChipEstado, Boton, Campo, FormsModule, TiraDeFotos],
+  imports: [ErrorDeEnvio, EstadoDePantalla, BandaDeProposito, ChipEstado, Boton, Campo, FormsModule, TiraDeFotos],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
     <main>
@@ -70,6 +72,7 @@ import { TiraDeFotos } from './tira-de-fotos'
                 </header>
 
                 <ap-tira-de-fotos [expediente]="e" />
+                <ap-error-de-envio [error]="errorDeEnvio()" />
 
                 @if (pendiente(e)) {
                   @if (!completo(e)) {
@@ -124,6 +127,7 @@ export class PantallaDeExpedientes {
   protected readonly cola = expedientesEnEstado(this.estado)
   protected readonly motivo = signal('')
   protected readonly resolviendo = signal(false)
+  protected readonly errorDeEnvio = signal<ErrorTraducido | null>(null)
   /**
    * Lo que se pinta. `POR_DECIDIR` se recorta acá porque el backend filtra por UN
    * estado y los que esperan una persona son dos.
@@ -167,13 +171,17 @@ export class PantallaDeExpedientes {
 
   protected resolver(e: ExpedienteEnRevision, decision: DecisionDeVerificacionDecisionEnum): void {
     this.resolviendo.set(true)
+    this.errorDeEnvio.set(null)
     this.enviarDecision(e.verificacionId, { decision, motivo: this.motivo() || undefined }).subscribe({
       next: () => {
         this.resolviendo.set(false)
         this.motivo.set('')
         this.cola.reload()
       },
-      error: () => this.resolviendo.set(false),
+      error: (e: ErrorTraducido) => {
+        this.errorDeEnvio.set(e)
+        this.resolviendo.set(false)
+      },
     })
   }
 }

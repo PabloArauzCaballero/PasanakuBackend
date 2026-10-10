@@ -127,8 +127,20 @@ class RespaldoCoberturaWebTest extends BaseDeRespaldoWeb {
                         .header("Idempotency-Key", CLAVE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(inflado))
+                // H13.S1.M2: el cuerpo con campos que el contrato no declara se RECHAZA (antes se ignoraban en
+                // silencio y la prueba verificaba que no llegaran): la garantia es la misma —el caso de uso no
+                // se invoca— y ahora ademas el cliente se entera.
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(cubrir);
+
+        // El pedido valido sigue yendo, y su tipo no tiene donde llevar un importe del cliente: solo ids y,
+        // opcional, el contraste.
+        mvc.perform(post("/garantia/respaldo/coberturas")
+                        .with(Sesiones.como("OPERADOR", "ENTREGA_EJECUTAR"))
+                        .header("Idempotency-Key", CLAVE)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(COBERTURA_VALIDA))
                 .andExpect(status().isOk());
-        // El tipo del pedido no tiene donde llevar un importe del cliente: solo ids y, opcional, el contraste.
         var captor = ArgumentCaptor.forClass(CU23CubrirFaltanteDelCorte.Pedido.class);
         verify(cubrir).cubrir(captor.capture(), any());
         org.assertj.core.api.Assertions.assertThat(captor.getValue().faltanteEsperado())

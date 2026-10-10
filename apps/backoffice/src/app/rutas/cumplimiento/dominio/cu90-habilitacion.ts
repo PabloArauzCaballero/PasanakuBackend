@@ -1,9 +1,9 @@
-import { HttpClient, httpResource, HttpContext } from '@angular/common/http'
+import { HttpClient, httpResource } from '@angular/common/http'
 import { inject, Signal } from '@angular/core'
 import type { Observable } from 'rxjs'
 import type { Habilitacion } from 'clientes/angular/organizador'
 import { GATEWAY } from '../../../nucleo/gateway'
-import { CLAVE_IDEMPOTENCIA, claveDeIdempotencia } from '../../../nucleo/idempotencia.interceptor'
+import { contextoIdempotente } from '../../../nucleo/idempotencia.interceptor'
 
 /**
  * CU-90 · Postular a organizador y habilitarse. Contrato real: `GET
@@ -33,7 +33,7 @@ export function crearHabilitar(): (organizadorId: string) => Observable<Habilita
   const http = inject(HttpClient)
   const gateway = inject(GATEWAY)
   return (organizadorId: string) => {
-    const contexto = new HttpContext().set(CLAVE_IDEMPOTENCIA, claveDeIdempotencia())
+    const contexto = contextoIdempotente()
     return http.post<Habilitacion>(`${gateway}/organizadores/${organizadorId}/habilitacion`, {}, { context: contexto })
   }
 }

@@ -57,6 +57,7 @@ abstract class BaseDeGarantia {
     protected static CU23CubrirIncumplimiento coberturaCU;
     protected static CU23ReservarRespaldo reservaCU;
     protected static CU23CubrirConRespaldo respaldoCU;
+    protected static bo.aportaya.garantia.aplicacion.ContingenciaDeCaja contingencia;
     protected static CU23RecuperarRespaldo recuperacionCU;
     protected static CU23ReversarCobertura reversaCU;
     protected static CU25DeclararIncumplimiento expedienteCU;
@@ -86,8 +87,11 @@ abstract class BaseDeGarantia {
         var gestion = new GestionRepositorio();
         var respaldos = new RespaldoRepositorio();
         var coberturasDeRespaldo = new CoberturaRespaldoRepositorio();
-        reservaCU = new CU23ReservarRespaldo(datos, respaldos, outbox, Reloj.delSistema());
-        respaldoCU = new CU23CubrirConRespaldo(datos, respaldos, coberturasDeRespaldo, outbox, Reloj.delSistema());
+        contingencia = new bo.aportaya.garantia.aplicacion.ContingenciaDeCaja(
+                new bo.aportaya.garantia.infraestructura.PlanDeContingenciaRepositorio(), outbox);
+        reservaCU = new CU23ReservarRespaldo(datos, respaldos, outbox, Reloj.delSistema(), contingencia);
+        respaldoCU = new CU23CubrirConRespaldo(
+                datos, respaldos, coberturasDeRespaldo, outbox, Reloj.delSistema(), contingencia);
         recuperacionCU = new CU23RecuperarRespaldo(datos, respaldos, coberturasDeRespaldo, outbox, Reloj.delSistema());
         reversaCU = new CU23ReversarCobertura(datos, respaldos, coberturasDeRespaldo, outbox, Reloj.delSistema());
 

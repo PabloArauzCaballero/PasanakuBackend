@@ -108,6 +108,11 @@ CREATE TRIGGER tg_discrepancia_proveedor_append_only
   BEFORE UPDATE OR DELETE ON nucleo_financiero.discrepancia_proveedor
   FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
 
+DROP TRIGGER IF EXISTS tg_distribucion_interes_append_only ON inversiones.distribucion_interes;
+CREATE TRIGGER tg_distribucion_interes_append_only
+  BEFORE UPDATE OR DELETE ON inversiones.distribucion_interes
+  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
+
 DROP TRIGGER IF EXISTS tg_estado_financiero_generado_append_only ON erp.estado_financiero_generado;
 CREATE TRIGGER tg_estado_financiero_generado_append_only
   BEFORE UPDATE OR DELETE ON erp.estado_financiero_generado

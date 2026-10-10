@@ -3,12 +3,15 @@ package bo.aportaya.entregas.web;
 import bo.aportaya.entregas.aplicacion.ComprarOfertaDeTurno;
 import bo.aportaya.entregas.aplicacion.GestionDeOfertas;
 import bo.aportaya.entregas.web.generado.modelo.EntradaOferta;
+import bo.aportaya.entregas.web.generado.modelo.OfertaParaPago;
 import bo.aportaya.entregas.web.generado.modelo.PaginaDeOfertas;
 import bo.aportaya.entregas.web.generado.modelo.SalidaCancelacionDeOferta;
 import bo.aportaya.entregas.web.generado.modelo.SalidaCompra;
 import bo.aportaya.entregas.web.generado.modelo.SalidaOferta;
 import bo.aportaya.entregas.web.generado.modelo.VistaDeOferta;
 import bo.aportaya.plataforma.dominio.ClaveIdempotencia;
+import bo.aportaya.plataforma.dominio.CodigoError;
+import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import java.util.UUID;
@@ -75,6 +78,20 @@ public class MercadoWeb {
                     return o;
                 })
                 .toList());
+        return ResponseEntity.ok(respuesta);
+    }
+
+    /** Solo para el pago al vendedor: id, vendedor, precio y estado. La oferta ajena o inexistente es «no disponible». */
+    public ResponseEntity<OfertaParaPago> consultarOfertaParaPago(UUID ofertaId) {
+        Traza.marcarCasoDeUso("MERCADO", ofertaId.toString());
+
+        var oferta = ofertas.verParaElPago(ofertaId, sesion.actual())
+                .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(130, 5), "Esa oferta no esta disponible."));
+        var respuesta = new OfertaParaPago();
+        respuesta.setOfertaId(oferta.ofertaId());
+        respuesta.setVendedorUsuarioId(oferta.vendedorUsuarioId());
+        respuesta.setPrecio(MapeoDeEntregas.dinero(oferta.precio()));
+        respuesta.setEstado(OfertaParaPago.EstadoEnum.fromValue(oferta.estado()));
         return ResponseEntity.ok(respuesta);
     }
 

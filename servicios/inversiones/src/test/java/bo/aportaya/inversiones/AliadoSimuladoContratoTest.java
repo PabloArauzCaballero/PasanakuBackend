@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import bo.aportaya.inversiones.dominio.puertos.AliadoDeInversion.AliadoNoDisponible;
 import bo.aportaya.inversiones.dominio.puertos.AliadoDeInversion.AliadoRechazo;
 import bo.aportaya.inversiones.dominio.puertos.AliadoDeInversion.Estado;
+import bo.aportaya.inversiones.dominio.puertos.AliadoDeInversion.RespuestaNoVerificable;
 import bo.aportaya.inversiones.infraestructura.clientes.AliadoSimuladoHttp;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -118,6 +119,7 @@ class AliadoSimuladoContratoTest extends ServidorDelAliadoSimulado {
         var conOtroSecreto = nuevo("otro-" + "z".repeat(40));
         assertThatThrownBy(conOtroSecreto::catalogo)
                 .isInstanceOf(AliadoNoDisponible.class)
+                .isInstanceOf(RespuestaNoVerificable.class) // distinto de «caido»: AP-CU120-03 y no AP-CU120-02
                 .hasMessageContaining("Firma");
         assertThatThrownBy(() ->
                         conOtroSecreto.suscribir(UUID.randomUUID(), "DPF-DEMO-180", new BigDecimal("1000.00"), titular))

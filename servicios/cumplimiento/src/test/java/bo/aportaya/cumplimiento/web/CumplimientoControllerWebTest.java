@@ -92,7 +92,7 @@ class CumplimientoControllerWebTest {
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(
                                             """
-                                    {"usuarioId":"c1000000-0000-4000-8000-000000000001","version":3,
+                                    {"usuarioId":"11111111-1111-4111-8111-111111111111","version":3,
                                      "consentimientos":[]}
                                     """))
                     .andExpect(status().isCreated())

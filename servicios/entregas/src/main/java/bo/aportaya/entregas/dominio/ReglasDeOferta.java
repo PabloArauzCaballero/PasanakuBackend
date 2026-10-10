@@ -55,6 +55,25 @@ public final class ReglasDeOferta {
                     CodigoError.de(130, 3),
                     "La vigencia tiene que estar en el futuro y no pasar de " + vigenciaMaxima + ".");
         }
+        validarContraElCierre(turno, vigenteHasta);
+    }
+
+    /**
+     * La oferta expira ANTES del punto de cierre del beneficiario del turno (PLAN H9, hallazgo de H9.S1.M1): no
+     * puede seguir viva cuando el derecho ya se cierra. Si grupos no informo el cierre no se publica nada (fallo
+     * cerrado: no se supone un plazo); vigente hasta el mismo instante del cierre tampoco vale, porque «antes» es
+     * estrictamente antes.
+     */
+    private static void validarContraElCierre(HechosDeGrupos.Turno turno, Instant vigenteHasta) {
+        if (turno.cierreDelTurno() == null) {
+            throw new ErrorDeNegocio(
+                    CodigoError.de(130, 8), "No se pudo confirmar el cierre del turno con grupos: no se publica nada.");
+        }
+        if (!vigenteHasta.isBefore(turno.cierreDelTurno())) {
+            throw new ErrorDeNegocio(
+                    CodigoError.de(130, 3),
+                    "La oferta tiene que vencer antes del cierre del turno (" + turno.cierreDelTurno() + ").");
+        }
     }
 
     /** Lo que cobra el vendedor: el precio menos los cargos, que absorbe el (ambiguedad A9). */

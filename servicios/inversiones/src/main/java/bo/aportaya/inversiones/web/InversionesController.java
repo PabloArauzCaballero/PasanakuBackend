@@ -3,21 +3,29 @@ package bo.aportaya.inversiones.web;
 import bo.aportaya.inversiones.aplicacion.CU120Catalogo;
 import bo.aportaya.inversiones.aplicacion.CU121OrdenarInversion;
 import bo.aportaya.inversiones.aplicacion.CU122ConfirmarPosicion;
-import bo.aportaya.inversiones.aplicacion.CU123Devengo;
 import bo.aportaya.inversiones.aplicacion.CU123Posiciones;
 import bo.aportaya.inversiones.aplicacion.CU124SolicitarRescate;
 import bo.aportaya.inversiones.aplicacion.CU125LiquidarRescate;
 import bo.aportaya.inversiones.web.generado.InversionesApi;
 import bo.aportaya.inversiones.web.generado.modelo.EntradaDevengo;
 import bo.aportaya.inversiones.web.generado.modelo.EntradaOrden;
+import bo.aportaya.inversiones.web.generado.modelo.EntradaReintento;
 import bo.aportaya.inversiones.web.generado.modelo.EntradaRescate;
+import bo.aportaya.inversiones.web.generado.modelo.EntradaSimulacion;
 import bo.aportaya.inversiones.web.generado.modelo.ListaDeComprobantes;
+import bo.aportaya.inversiones.web.generado.modelo.ListaDeCorridas;
+import bo.aportaya.inversiones.web.generado.modelo.ListaDeDistribuciones;
 import bo.aportaya.inversiones.web.generado.modelo.ListaDePosiciones;
 import bo.aportaya.inversiones.web.generado.modelo.ListaDeProductos;
+import bo.aportaya.inversiones.web.generado.modelo.ProductoInversion;
+import bo.aportaya.inversiones.web.generado.modelo.ReporteFiscal;
+import bo.aportaya.inversiones.web.generado.modelo.SalidaComision;
 import bo.aportaya.inversiones.web.generado.modelo.SalidaDevengo;
 import bo.aportaya.inversiones.web.generado.modelo.SalidaOrden;
 import bo.aportaya.inversiones.web.generado.modelo.SalidaPosicion;
+import bo.aportaya.inversiones.web.generado.modelo.SalidaReintento;
 import bo.aportaya.inversiones.web.generado.modelo.SalidaRescate;
+import bo.aportaya.inversiones.web.generado.modelo.SalidaSimulacion;
 import bo.aportaya.inversiones.web.generado.modelo.SalidaSincronizacion;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
@@ -25,9 +33,11 @@ import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -48,7 +58,8 @@ public class InversionesController implements InversionesApi {
     private final CU121OrdenarInversion cu121;
     private final CU122ConfirmarPosicion cu122;
     private final CU123Posiciones cu123;
-    private final CU123Devengo cu123Devengo;
+    private final OperacionesDeLaInversion operaciones;
+    private final AnalisisDeLaInversion analisis;
     private final CU124SolicitarRescate cu124;
     private final CU125LiquidarRescate cu125;
     private final SesionDeLaPeticion sesion;
@@ -58,7 +69,8 @@ public class InversionesController implements InversionesApi {
             CU121OrdenarInversion cu121,
             CU122ConfirmarPosicion cu122,
             CU123Posiciones cu123,
-            CU123Devengo cu123Devengo,
+            OperacionesDeLaInversion operaciones,
+            AnalisisDeLaInversion analisis,
             CU124SolicitarRescate cu124,
             CU125LiquidarRescate cu125,
             SesionDeLaPeticion sesion) {
@@ -66,7 +78,8 @@ public class InversionesController implements InversionesApi {
         this.cu121 = cu121;
         this.cu122 = cu122;
         this.cu123 = cu123;
-        this.cu123Devengo = cu123Devengo;
+        this.operaciones = operaciones;
+        this.analisis = analisis;
         this.cu124 = cu124;
         this.cu125 = cu125;
         this.sesion = sesion;
@@ -83,12 +96,17 @@ public class InversionesController implements InversionesApi {
     }
 
     @Override
+    @Permiso("BILLETERA_VER")
+    public ResponseEntity<ProductoInversion> verProductoDeInversion(String codigo) {
+        Traza.marcarCasoDeUso("CU-120", codigo);
+        return ResponseEntity.ok(MapeoDeInversiones.producto(cu120.producto(codigo, sesion.actual())));
+    }
+
+    @Override
     @Permiso("ADMIN_PLATAFORMA")
     public ResponseEntity<SalidaSincronizacion> sincronizarCatalogoDeInversion(UUID idempotencyKey) {
         Traza.marcarCasoDeUso("CU-120", "sincronizacion");
-        return ResponseEntity.ok(sincronizacion(
-                cu120.sincronizar(sesion.actual()),
-                cu120.listar(sesion.actual()).size()));
+        return ResponseEntity.ok(operaciones.catalogo(idempotencyKey, sesion.actual()));
     }
 
     // ------------------------------------------------------------------ CU-121 --
@@ -147,20 +165,21 @@ public class InversionesController implements InversionesApi {
     @Permiso("ADMIN_PLATAFORMA")
     public ResponseEntity<SalidaSincronizacion> sincronizarValoresDeCuota(UUID idempotencyKey) {
         Traza.marcarCasoDeUso("CU-123", "valores-cuota");
-        return ResponseEntity.ok(sincronizacion(cu123.sincronizarValores(sesion.actual()), 0));
+        return ResponseEntity.ok(operaciones.valores(idempotencyKey, sesion.actual()));
     }
 
     @Override
     @Permiso("ADMIN_PLATAFORMA")
     public ResponseEntity<SalidaDevengo> correrDevengoDeDpf(UUID idempotencyKey, EntradaDevengo cuerpo) {
         Traza.marcarCasoDeUso("CU-123", cuerpo.getFecha().toString());
-        var r = cu123Devengo.devengar(cuerpo.getFecha(), sesion.actual());
-        var s = new SalidaDevengo();
-        s.setFecha(r.fecha());
-        s.setDevengadas(r.devengadas());
-        s.setYaDevengadas(r.yaDevengadas());
-        s.setTotal(MapeoDeInversiones.bob(r.total()));
-        return ResponseEntity.ok(s);
+        return ResponseEntity.ok(operaciones.devengo(idempotencyKey, cuerpo.getFecha(), sesion.actual()));
+    }
+
+    @Override
+    @Permiso("ADMIN_PLATAFORMA")
+    public ResponseEntity<ListaDeCorridas> listarCorridasDeInversiones(String operacion, Integer limite) {
+        Traza.marcarCasoDeUso("CU-123", "corridas");
+        return ResponseEntity.ok(operaciones.corridas(operacion, limite, sesion.actual()));
     }
 
     // ------------------------------------------------------------------ CU-124 / 125 --
@@ -194,10 +213,49 @@ public class InversionesController implements InversionesApi {
         return ResponseEntity.ok(lista);
     }
 
-    private static SalidaSincronizacion sincronizacion(int nuevos, int productos) {
-        var s = new SalidaSincronizacion();
-        s.setNuevos(nuevos);
-        s.setProductos(productos);
-        return s;
+    // ------------------------------------------------------------------ CU-122 / 126 / 127 / 129 --
+    @Override
+    @Permiso("ADMIN_PLATAFORMA")
+    public ResponseEntity<SalidaReintento> reintentarInstruccionesAlLibro(
+            UUID idempotencyKey, EntradaReintento cuerpo) {
+        Traza.marcarCasoDeUso("CU-122", "reintento");
+        return ResponseEntity.ok(operaciones.reintento(idempotencyKey, cuerpo.getLimite(), sesion.actual()));
+    }
+
+    @Override
+    @Permiso("BILLETERA_VER")
+    public ResponseEntity<ListaDeDistribuciones> listarDistribucionesDeInteres(UUID posicionId) {
+        Traza.marcarCasoDeUso("CU-126", posicionId.toString());
+        return ResponseEntity.ok(analisis.distribuciones(posicionId, sesion.actual()));
+    }
+
+    @Override
+    @Permiso("BILLETERA_VER")
+    public ResponseEntity<SalidaComision> estimarComisionDeExito(UUID posicionId) {
+        Traza.marcarCasoDeUso("CU-127", posicionId.toString());
+        return ResponseEntity.ok(analisis.comision(posicionId, sesion.actual()));
+    }
+
+    @Override
+    @Permiso("BILLETERA_VER")
+    public ResponseEntity<SalidaSimulacion> simularCajaDeInversion(EntradaSimulacion cuerpo) {
+        Traza.marcarCasoDeUso("CU-129", "simulacion");
+        return ResponseEntity.ok(analisis.simular(cuerpo, sesion.actual()));
+    }
+
+    @Override
+    @Permiso("BILLETERA_VER")
+    public ResponseEntity<ReporteFiscal> reporteFiscalDeInversiones(LocalDate desde, LocalDate hasta) {
+        Traza.marcarCasoDeUso("CU-128", "reporte");
+        return ResponseEntity.ok(analisis.reporte(desde, hasta, sesion.actual()));
+    }
+
+    @Override
+    @Permiso("BILLETERA_VER")
+    public ResponseEntity<String> exportarReporteFiscalDeInversiones(LocalDate desde, LocalDate hasta) {
+        Traza.marcarCasoDeUso("CU-128", "exportacion");
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .body(analisis.csv(desde, hasta, sesion.actual()));
     }
 }

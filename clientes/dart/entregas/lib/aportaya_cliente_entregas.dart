@@ -23,6 +23,7 @@ export 'package:aportaya_cliente_entregas/src/model/entrada_orden_desembolso.dar
 export 'package:aportaya_cliente_entregas/src/model/entrada_registro_cuenta.dart';
 export 'package:aportaya_cliente_entregas/src/model/entrada_respuesta_desembolso.dart';
 export 'package:aportaya_cliente_entregas/src/model/error.dart';
+export 'package:aportaya_cliente_entregas/src/model/oferta_para_pago.dart';
 export 'package:aportaya_cliente_entregas/src/model/pagina_de_ofertas.dart';
 export 'package:aportaya_cliente_entregas/src/model/salida_autorizacion.dart';
 export 'package:aportaya_cliente_entregas/src/model/salida_cancelacion_de_oferta.dart';

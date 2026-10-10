@@ -17,7 +17,7 @@ import { Icono, NombreDeIcono } from '../icono/icono'
   `,
   styles: `
     :host { display: inline-block; max-width: 100%; }
-    button { display: inline-flex; align-items: center; gap: var(--s2); max-width: 100%; min-height: var(--area-tactil); padding: 0 var(--s4); border: var(--borde-fino) solid var(--field-border); border-radius: var(--r-pill); background: var(--surface); color: var(--text); font: inherit; cursor: pointer; }
+    button { display: inline-flex; align-items: center; gap: var(--s2); max-width: 100%; min-height: var(--area-tactil); padding: 0 var(--s4); border: var(--borde-fino) solid var(--borde-control); border-radius: var(--r-pill); background: var(--surface); color: var(--text); font: inherit; cursor: pointer; }
     button[aria-pressed="true"] { background: var(--verde-solido); color: var(--sobre-verde-solido); border-color: var(--verde-solido); font-weight: 600; }
     button:disabled { opacity: .5; cursor: not-allowed; }
     button:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }

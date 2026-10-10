@@ -20,7 +20,8 @@ const PUBLIC = join(RAIZ, 'public')
 const OBLIGATORIOS = ['ruta', 'titulo', 'bajada', 'descripcion', 'indexable', 'actualizado']
 
 function leer(archivo) {
-  const texto = readFileSync(archivo, 'utf8')
+  // Tolera los fines de línea CRLF de un checkout de Windows con autocrlf: sin esto el frontmatter no se reconoce.
+  const texto = readFileSync(archivo, 'utf8').split(String.fromCharCode(13, 10)).join(String.fromCharCode(10))
   const m = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/.exec(texto)
   if (!m) throw new Error(`${archivo}: sin frontmatter`)
   const meta = parse(m[1])

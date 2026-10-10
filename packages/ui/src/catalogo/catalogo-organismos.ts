@@ -2,11 +2,13 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core'
 import { BandaDeProposito } from '../banda-de-proposito/banda-de-proposito'
 import { Boton } from '../boton/boton'
 import { Dialogo } from '../dialogo/dialogo'
+import { ErrorDeEnvio } from '../error-de-envio/error-de-envio'
 import { FocoDeTutorial, type RecuadroResaltado } from '../foco-de-tutorial/foco-de-tutorial'
 import { GloboDeTutorial } from '../globo-de-tutorial/globo-de-tutorial'
 import { ListaDeMovimientos } from '../lista-de-movimientos/lista-de-movimientos'
 import { ListaDeRequisitos } from '../lista-de-requisitos/lista-de-requisitos'
 import { PanelDeFactores } from '../panel-de-factores/panel-de-factores'
+import { PosicionesDeSaldo, type PosicionesParaVista } from '../posiciones-de-saldo/posiciones-de-saldo'
 import { SeccionDeExpediente } from '../seccion-de-expediente/seccion-de-expediente'
 import { Columna, TablaDeDatos } from '../tabla-de-datos/tabla-de-datos'
 import { TarjetaDeOferta } from '../tarjeta-de-oferta/tarjeta-de-oferta'
@@ -20,13 +22,15 @@ import { FACTORES, FILAS_DE_TABLA, FilaDeTabla, HOY, MOVIMIENTOS, PASOS_DE_SORTE
 @Component({
   selector: 'ap-catalogo-organismos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, Boton, Dialogo, FocoDeTutorial, GloboDeTutorial, ListaDeMovimientos, ListaDeRequisitos, PanelDeFactores, SeccionDeExpediente, TablaDeDatos, TarjetaDeOferta, TarjetaDeSolicitud, Vale, VerificadorDeSorteo, SeccionDeCatalogo],
+  imports: [BandaDeProposito, Boton, Dialogo, ErrorDeEnvio, FocoDeTutorial, GloboDeTutorial, ListaDeMovimientos, ListaDeRequisitos, PanelDeFactores, PosicionesDeSaldo, SeccionDeExpediente, TablaDeDatos, TarjetaDeOferta, TarjetaDeSolicitud, Vale, VerificadorDeSorteo, SeccionDeCatalogo],
   template: `
     <ap-seccion-de-catalogo nombre="Organismos" ancla="organismos">
       <ap-banda-de-proposito texto="Acá se ve la plata de una persona y se decide si un movimiento raro se congela o se deja pasar." style="width: 100%" />
       <ap-tabla-de-datos titulo="Grupos" [columnas]="columnas" [filas]="filas" [seleccionable]="true" [elegidas]="['g2']" style="width: 100%; max-width: calc(var(--s7) * 12)" />
       <ap-lista-de-movimientos [movimientos]="movimientos" moneda="BOB" [hoyIso]="hoy" style="width: 100%; max-width: calc(var(--s7) * 9)" />
       <ap-seccion-de-expediente titulo="Verificación de identidad" actor="Ana Flores (cumplimiento)" [actualizadoIso]="hoy" [datos]="[{ nombre: 'Documento', valor: '1234567 LP' }, { nombre: 'Vence', valor: '2030-01-01T00:00:00Z', esFecha: true }, { nombre: 'Resultado', valor: 'Coincide' }]" style="width: 100%; max-width: calc(var(--s7) * 10)" />
+      <ap-posiciones-de-saldo [posiciones]="posiciones" perspectiva="titular" style="width: 100%; max-width: calc(var(--s7) * 9)">Lo invertido no forma parte de este saldo: vive en la posición de inversiones.</ap-posiciones-de-saldo>
+      <ap-error-de-envio [error]="errorDeEnvio" style="width: 100%; max-width: calc(var(--s7) * 9)" />
       <ap-lista-de-requisitos [requisitos]="requisitos" style="width: 100%; max-width: calc(var(--s7) * 9)" />
       <ap-tarjeta-de-solicitud nombre="Carlos Choque" detalle="Pide el cupo 7 de Las Vecinas" [cuandoIso]="hoy" style="width: 100%; max-width: calc(var(--s7) * 8)" />
       <ap-vale partner="Farmacia Sur" beneficio="20 % en medicamentos" codigo="AY-7K2M-93" venceIso="2026-10-01T00:00:00Z" condiciones="Un uso por persona. No acumulable." />
@@ -65,6 +69,8 @@ export class CatalogoOrganismos {
   readonly hoy = HOY
   readonly movimientos = MOVIMIENTOS
   readonly requisitos = REQUISITOS
+  readonly errorDeEnvio = { mensaje: 'La respuesta tardó demasiado y no sabemos si la operación quedó registrada. Antes de repetirla, revisá su estado.', estado: 0, tiempoAgotado: true, trazaId: 'traza-demo-7f3a' }
+  readonly posiciones: PosicionesParaVista = { moneda: 'BOB', gastable: '840.00', comprometidoEnPozos: '400.00', disponible: '1240.00', retenido: '60.00', totalDeLaCuenta: '1300.00', separado: true, advertencias: [] }
   readonly factores = FACTORES
   readonly pasos = PASOS_DE_SORTEO
   readonly filas = FILAS_DE_TABLA

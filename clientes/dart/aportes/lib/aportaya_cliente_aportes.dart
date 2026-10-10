@@ -11,6 +11,8 @@ export 'package:aportaya_cliente_aportes/src/auth/oauth.dart';
 
 export 'package:aportaya_cliente_aportes/src/api/default_api.dart';
 
+export 'package:aportaya_cliente_aportes/src/model/calendario_de_obligaciones.dart';
+export 'package:aportaya_cliente_aportes/src/model/dia_salteado_del_calendario.dart';
 export 'package:aportaya_cliente_aportes/src/model/dinero.dart';
 export 'package:aportaya_cliente_aportes/src/model/entrada_cobro.dart';
 export 'package:aportaya_cliente_aportes/src/model/entrada_disputa.dart';
@@ -19,6 +21,7 @@ export 'package:aportaya_cliente_aportes/src/model/entrada_proveedor.dart';
 export 'package:aportaya_cliente_aportes/src/model/entrada_reembolso.dart';
 export 'package:aportaya_cliente_aportes/src/model/error.dart';
 export 'package:aportaya_cliente_aportes/src/model/estado_del_participante.dart';
+export 'package:aportaya_cliente_aportes/src/model/linea_del_calendario.dart';
 export 'package:aportaya_cliente_aportes/src/model/morosos.dart';
 export 'package:aportaya_cliente_aportes/src/model/obligacion_pendiente.dart';
 export 'package:aportaya_cliente_aportes/src/model/recaudo_del_periodo.dart';

@@ -17,6 +17,11 @@
 #   AP-CU24-02  CUENTA_INEXISTENTE   · el codigo de cuenta no esta en el plan
 #   AP-CU24-03  PERIODO_CERRADO      · pendiente: periodo_contable es de M13 (ERP),
 #                                      que todavia no existe en este carril
+#   AP-CU24-04  MONEDA_INCOHERENTE   · el asiento mezcla monedas, o la partida no es de la
+#                                      moneda de su cuenta (R-AUD-12, R-CTB-10)
+#   AP-CU24-05  REVERSA_NO_COINCIDE  · las partidas del evento de reversa no son el inverso del original
+#   AP-CU24-06  ORIGEN_PENDIENTE     · el asiento que el evento reversa todavia no llego: se reintenta
+#   AP-CU24-07  EVENTO_ILEGIBLE      · el asiento propuesto por el evento no se puede leer
 openapi: 3.1.0
 info:
   title: nucleo-financiero
@@ -205,6 +210,106 @@ paths:
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU13-03 RETENCION_YA_EJECUTADA
         '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/retenciones/{retencionId}/pago-a-tercero:
+    post:
+      operationId: pagarAlTercero              # CU-13
+      summary: Ejecuta una retencion de compra del mercado a favor del vendedor
+      description: >-
+        [CONTRATO · SOLO SERVICIO] Lo pide `entregas` (identidad de servicio `SERVICIO_ENTREGAS`; una
+        sesion de usuario final recibe 403 aunque tenga `BILLETERA_OPERAR`). NO lleva cuerpo: el
+        beneficiario y el reparto NO los dicta quien llama. Se derivan en el servidor: la retencion
+        `COMPRA_EN_MERCADO` nombra la oferta (`referencia_id`); se le pregunta a `entregas` quien es el
+        vendedor y cual es el precio (si no responde, no se paga); el vendedor recibe el precio y la
+        plataforma la diferencia con lo retenido. Una retencion se ejecuta una sola vez: la repetida con
+        la misma `Idempotency-Key` devuelve el mismo resultado sin otro asiento; pagada o liberada se
+        rechaza (R-BIL-24).
+      parameters:
+        - name: retencionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      responses:
+        '200':
+          description: Pagada (o la misma respuesta si se repite), con el saldo del comprador
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaEjecucionDeRetencion' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU13-03 RETENCION_YA_EJECUTADA · AP-CU13-04 CLAVE_DE_OTRA_OPERACION
+          # AP-CU13-05 MOTIVO_INCOMPATIBLE · AP-CU13-06 MONTO_DISTINTO_DE_LO_RETENIDO
+          # AP-CU13-07 CUENTA_DE_SISTEMA_NO_CONFIGURADA · AP-CU13-08 DESTINATARIO_INVALIDO
+          # AP-CU13-09 SOLO_SERVICIO
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/inversiones/debitos:
+    post:
+      operationId: debitarInversion            # CU-13
+      summary: Convierte la retencion de una inversion en el debito definitivo
+      description: >-
+        [CONTRATO · SOLO SERVICIO] Lo pide `inversiones` (DR-INV-05) con identidad de servicio
+        `SERVICIO_INVERSIONES`; una sesion de usuario final recibe 403. La retencion `INVERSION_VOLUNTARIA` pasa a
+        `EJECUTADA` y el importe sale del disponible Y del retenido hacia la custodia de inversion,
+        en una sola transaccion que cuadra. El importe tiene que ser el retenido. Idempotente por
+        `Idempotency-Key` y por orden: una orden se debita una sola vez (R-BIL-24). Saldo insuficiente
+        no aplica aca —la plata ya estaba retenida—; ese rechazo ocurre al retener (AP-CU13-01).
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDebitoInversion' }
+      responses:
+        '200':
+          description: Debitada (o la misma respuesta si se repite), con el saldo resultante
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaEjecucionDeRetencion' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU13-03 · AP-CU13-04 · AP-CU13-05 · AP-CU13-06 · AP-CU13-07 · AP-CU13-09 SOLO_SERVICIO
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/inversiones/acreditaciones:
+    post:
+      operationId: acreditarRescate            # CU-12
+      summary: Acredita al titular un rescate de inversion desde la custodia
+      description: >-
+        [CONTRATO · SOLO SERVICIO] Lo pide `inversiones` (DR-INV-05). Acreditar es confirmar que la plata volvio,
+        y eso no lo hace quien la espera (91.3): exige la identidad de servicio `SERVICIO_INVERSIONES`, no la del titular. Mueve el importe
+        de la custodia de inversion a la billetera del titular en una transaccion que cuadra; la custodia
+        no puede quedar en negativo. Idempotente por `Idempotency-Key` y por rescate (R-BIL-24).
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaAcreditacionRescate' }
+      responses:
+        '200':
+          description: Acreditado (o la misma respuesta si se repite), con el saldo del titular
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaAcreditacionRescate' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU12-01 la custodia no cubre · AP-CU12-02 destino inexistente o de otra moneda
+          # AP-CU12-03 destino no operativo · AP-CU12-06 CLAVE_DE_OTRA_OPERACION
+          # AP-CU12-07 CUSTODIA_NO_CONFIGURADA · AP-CU12-08 SOLO_SERVICIO
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
           $ref: '#/components/responses/NoAutenticado'
 
   # CU-40 Evaluar limites NO tiene endpoint propio: corre DENTRO de la transaccion
@@ -804,6 +909,39 @@ components:
         estado:          { type: string, maxLength: 20 }
         saldoDisponible: { $ref: '#/components/schemas/Dinero' }
         saldoRetenido:   { $ref: '#/components/schemas/Dinero' }
+    EntradaDebitoInversion:
+      type: object
+      additionalProperties: false
+      required: [retencionId, monto]
+      properties:
+        retencionId: { type: string, format: uuid }
+        monto:       { $ref: '#/components/schemas/Dinero' }
+        # titularId: opcional. Si el servicio llamador ya valido a la persona y la informa, el libro
+        # verifica que sea la dueña de la billetera retenida; si difiere, no se mueve nada.
+        titularId:   { type: string, format: uuid }
+    SalidaEjecucionDeRetencion:
+      type: object
+      additionalProperties: false
+      required: [transaccionId, saldoDisponible, saldoRetenido]
+      properties:
+        transaccionId:   { type: string, format: uuid }
+        saldoDisponible: { $ref: '#/components/schemas/Dinero' }
+        saldoRetenido:   { $ref: '#/components/schemas/Dinero' }
+    EntradaAcreditacionRescate:
+      type: object
+      additionalProperties: false
+      required: [cuentaBilleteraId, monto, referenciaId]
+      properties:
+        cuentaBilleteraId: { type: string, format: uuid }
+        monto:             { $ref: '#/components/schemas/Dinero' }
+        referenciaId:      { type: string, format: uuid }
+    SalidaAcreditacionRescate:
+      type: object
+      additionalProperties: false
+      required: [transaccionId, saldoDespues]
+      properties:
+        transaccionId: { type: string, format: uuid }
+        saldoDespues:  { $ref: '#/components/schemas/Dinero' }
     EntradaQr:
       type: object
       additionalProperties: false
@@ -890,6 +1028,15 @@ components:
         disponible: { $ref: '#/components/schemas/Dinero' }
         retenido:   { $ref: '#/components/schemas/Dinero' }
         alCorteDe:  { type: string, format: date-time }
+        titularId:
+          type: string
+          format: uuid
+          description: >-
+            La persona dueña de la cuenta; ausente si es de un grupo o del sistema. Lo pide
+            `inversiones` para compararla con la sesion y no confiar en el id que mando el cliente.
+        # comprometidoEnPozos: la parte del disponible afectada a aportes y pozos (deuda vigente
+        # mas lo por aportar, segun aportes). AUSENTE cuando aportes no informa: el consumidor falla cerrado.
+        comprometidoEnPozos: { $ref: '#/components/schemas/Dinero' }
   responses:
     ReglaDeNegocio:
       description: Regla de negocio de la aplicacion (422, no 400)

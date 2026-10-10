@@ -24,11 +24,12 @@ normas: [Trazabilidad del dinero, Prohibido inferir parámetros financieros]
 
 - **Actor principal:** el usuario titular, que mira sus posiciones (`BILLETERA_VER`).
 - **Actor de plataforma:** Operaciones, que corre el devengo diario y sincroniza los
-  valores de cuota (`ADMIN_PLATAFORMA`). Hoy no hay trabajo programado: se disparan por
-  API.
+  valores de cuota (`ADMIN_PLATAFORMA`). Los dos los dispara también el reloj (ver «Eventos,
+  trabajos y permisos») y quedan registrados en `corrida_trabajo`.
 - **Disparador:** `GET /inversiones/posiciones[/{posicionId}]`,
   `GET /inversiones/posiciones/{posicionId}/comprobantes`,
-  `POST /inversiones/devengos` o `POST /inversiones/valores-cuota/sincronizacion`.
+  `POST /inversiones/devengos`, `POST /inversiones/valores-cuota/sincronizacion` o
+  `GET /inversiones/corridas` (las últimas corridas de los trabajos).
 
 ## Precondiciones
 
@@ -107,7 +108,7 @@ normas: [Trazabilidad del dinero, Prohibido inferir parámetros financieros]
 
 ```ts
 export const EntradaCU123 = z.object({
-  claveIdempotencia: z.string().uuid(), // en las operaciones con efecto (devengo y sincronización de valores)
+  claveIdempotencia: z.string().uuid(), // se reserva en corrida_trabajo (devengo y sincronización de valores)
   fecha: z.string().date(),             // solo en el devengo
 }).strict()
 
@@ -145,6 +146,8 @@ export const SalidaCU123 = z.object({
 export const ErroresCU123 = {
   POSICION_INEXISTENTE: 'AP-CU123-01',
   VALOR_CUOTA_NO_DISPONIBLE: 'AP-CU123-02',
+  IDEMPOTENCIA_CONTENIDO_DISTINTO: 'AP-CU123-03',
+  OPERACION_EN_CURSO: 'AP-CU123-04',
 } as const
 ```
 
@@ -152,6 +155,8 @@ export const ErroresCU123 = {
 | --- | --- |
 | `POSICION_INEXISTENTE` | La posición no existe o es de otra persona |
 | `VALOR_CUOTA_NO_DISPONIBLE` | El aliado no respondió al sincronizar valores, o publicó dos valores distintos para la misma fecha |
+| `IDEMPOTENCIA_CONTENIDO_DISTINTO` | La clave del devengo o de la sincronización de valores ya se usó con otro contenido (por ejemplo, otra fecha de devengo) |
+| `OPERACION_EN_CURSO` | Otra corrida con la misma clave sigue en curso y no está vencida |
 
 ## Descomposición atómica
 
@@ -171,10 +176,23 @@ export const ErroresCU123 = {
 
 | Emite | Dispara | Exige |
 | --- | --- | --- |
-| Ninguno propio | Nada | `BILLETERA_VER` para ver · `ADMIN_PLATAFORMA` para devengar y sincronizar valores |
+| Ninguno propio | Nada | `BILLETERA_VER` para ver · `ADMIN_PLATAFORMA` para devengar, sincronizar valores y ver las corridas |
 
-Pendiente: programar el devengo diario y la sincronización de valores como trabajos con
-bloqueo (hoy se disparan por API).
+**Trabajos programados (cableados).** Todos con `@SchedulerLock`, hora de La Paz, clave de idempotencia
+por ventana y apagables con `aportaya.inversiones.trabajos.habilitados=false`:
+
+| Trabajo | Cuándo | Clave | Qué hace |
+| --- | --- | --- | --- |
+| `DevengoDiario` | 00:30 | `DEV:<fecha>` | Devenga los DPF abiertos de hoy. Si el servicio estuvo caído, el devengo del día en que vuelve cubre la diferencia (resta de dos acumulados): no se pierde un centavo |
+| `SincronizacionDelAliado.valores` | Cada hora, :15 | `VAL:<fecha y hora>` | Trae el último valor de cuota de cada fondo; uno ya publicado no se reescribe |
+| `SincronizacionDelAliado.catalogo` | 06:00 | `CAT:<fecha>` | Ver [[CU-120 Consultar productos de inversión y sus condiciones]] |
+
+Cada corrida deja su fila en `corrida_trabajo` (origen `PROGRAMADO` o `API`, estado `OK`, `PARCIAL`, `FALLIDA` con su
+código de error, resultado y fechas) y se lista en `GET /inversiones/corridas`. Con el aliado caído la corrida queda
+`FALLIDA` (`AP-CU123-02`), el trabajo no se cae y las pantallas siguen mostrando el último valor con su fecha,
+marcado **desactualizado** si es viejo. **Timeout:** cada llamada al aliado tiene el suyo; el barrido de reintentos,
+un plazo máximo ([[CU-122 Confirmar la posición sin duplicar el saldo]]). **Reintento:** una corrida fallida se retoma con la misma clave en el
+siguiente disparo.
 
 ## Interfaz
 
@@ -234,6 +252,14 @@ Entonces falla con AP-CU123-02 y la valoracion existente sigue visible
 Dada la posicion de OTRA persona
 Cuando esta intenta verla, listarla o pedir sus comprobantes
 Entonces AP-CU123-01: no existe para ella
+
+Dado un DPF abierto
+Cuando corre el trabajo de devengo diario
+Entonces devenga la fecha de hoy una sola vez y deja su corrida PROGRAMADO visible
+
+Dado el aliado caido
+Cuando corren las sincronizaciones programadas
+Entonces las corridas quedan FALLIDAS con su codigo y los trabajos no se caen, y al volver el aliado se retoman con la misma clave
 ```
 
 Además, las pruebas de cuadre (los 180 devengos diarios de un DPF suman exactamente
@@ -243,4 +269,4 @@ Además, las pruebas de cuadre (los 180 devengos diarios de un DPF suman exactam
 
 ## Ver también
 
-[[CU-120 Consultar productos de inversión y sus condiciones]] · [[CU-121 Aceptar las condiciones y ordenar una inversión]] · [[CU-122 Confirmar la posición sin duplicar el saldo]] · [[CU-124 Solicitar el rescate de una inversión]] · [[CU-125 Liquidar el rescate y acreditar al titular]]
+[[CU-120 Consultar productos de inversión y sus condiciones]] · [[CU-121 Aceptar las condiciones y ordenar una inversión]] · [[CU-122 Confirmar la posición sin duplicar el saldo]] · [[CU-124 Solicitar el rescate de una inversión]] · [[CU-125 Liquidar el rescate y acreditar al titular]] · [[CU-126 Distribuir los intereses al titular y conciliarlos]] · [[CU-127 Estimar y cobrar la comisión por resultado]] · [[CU-128 Informar comprobantes y reporte fiscal separables]]

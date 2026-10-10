@@ -1,0 +1,13 @@
+PACTO | saldo -> 200
+PACTO | retener -> 201
+PACTO | debitar -> 200
+PACTO | debitar-repetido -> 200
+PACTO | debitar-como-persona -> 403
+PACTO | acreditar -> 200
+PACTO | retener-segunda -> 201
+PACTO | liberar -> 200
+PACTO | retener-sin-saldo -> 422
+LIBRO | titular=1000.00 custodia(delta)=0.00 | inversion=1 rescate=1
+ASIENTO | mapeo sintetico BOB | debe=250.00 haber=250.00 moneda=BOB
+ASIENTO | mapeo sintetico USD | debe=250.00 haber=250.00 moneda=USD
+SEMILLA | 22-cuentas-de-sistema 2 corridas | cuenta_contable=57 cuenta_billetera=5 (iguales tras la 2da corrida)

@@ -162,6 +162,52 @@ public class LibroDeBilletera {
                 .fetchOne(DSL.field("id", UUID.class)));
     }
 
+    /**
+     * La transaccion de ESE hecho (la orden, el rescate, la oferta), la haya pedido quien la haya pedido.
+     * Es la unicidad por origen de R-BIL-24 vista desde la aplicacion: el segundo pedido con otra clave
+     * encuentra el comprobante en vez de chocar con el indice.
+     */
+    public Optional<UUID> porOrigen(DSLContext dsl, String tipo, UUID origenId) {
+        return Datos.comoSistema(
+                dsl,
+                () -> Optional.ofNullable(dsl.select(DSL.field("id", UUID.class))
+                        .from(DSL.table(DSL.name("nucleo_financiero", "transaccion_billetera")))
+                        .where(DSL.field("tipo", String.class).eq(tipo))
+                        .and(DSL.field("origen_id", UUID.class).eq(origenId))
+                        .fetchOne(DSL.field("id", UUID.class))));
+    }
+
+    /** Si una pata de esa transaccion toca la cuenta en ese sentido. */
+    public boolean tocaLaCuenta(DSLContext dsl, UUID transaccionId, UUID cuentaId, String sentido) {
+        return Datos.comoSistema(
+                dsl,
+                () -> dsl.fetchExists(DSL.selectOne()
+                        .from(DSL.table(DSL.name("nucleo_financiero", "movimiento_billetera")))
+                        .where(DSL.field("transaccion_id", UUID.class).eq(transaccionId))
+                        .and(DSL.field("cuenta_billetera_id", UUID.class).eq(cuentaId))
+                        .and(DSL.field("sentido", String.class).eq(sentido))));
+    }
+
+    /** Lo que identifica a una transaccion ya escrita: para decidir si un reintento es el mismo hecho. */
+    public record Resumen(UUID id, String tipo, UUID origenId, Dinero monto) {}
+
+    public Optional<Resumen> resumen(DSLContext dsl, UUID transaccionId) {
+        return Datos.comoSistema(dsl, () -> dsl.select(
+                        DSL.field("tipo", String.class),
+                        DSL.field("origen_id", UUID.class),
+                        DSL.field("monto_total", BigDecimal.class),
+                        DSL.field("moneda", String.class))
+                .from(DSL.table(DSL.name("nucleo_financiero", "transaccion_billetera")))
+                .where(DSL.field("id", UUID.class).eq(transaccionId))
+                .fetchOptional(r -> new Resumen(
+                        transaccionId,
+                        r.get("tipo", String.class),
+                        r.get("origen_id", UUID.class),
+                        Dinero.de(
+                                r.get("monto_total", BigDecimal.class),
+                                bo.aportaya.plataforma.dominio.Moneda.valueOf(r.get("moneda", String.class))))));
+    }
+
     private String ultimoHash(DSLContext dsl) {
         return dsl.select(DSL.field("hash_registro", String.class))
                 .from(DSL.table(DSL.name("nucleo_financiero", "transaccion_billetera")))

@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.retencion_saldo (
   creada_en                          TIMESTAMPTZ DEFAULT now() NOT NULL,
   liberada_en                        TIMESTAMPTZ,
   CONSTRAINT pk_retencion_saldo PRIMARY KEY (id),
-  CONSTRAINT ck_retencion_saldo_motivo CHECK (motivo IN ('ANTIFRAUDE', 'APORTE_PROGRAMADO', 'COMISION_PENDIENTE', 'DISPUTA', 'ENTREGA_EN_CURSO', 'ORDEN_AUTORIDAD')),
+  CONSTRAINT ck_retencion_saldo_motivo CHECK (motivo IN ('ANTIFRAUDE', 'APORTE_PROGRAMADO', 'COMISION_PENDIENTE', 'COMPRA_EN_MERCADO', 'DISPUTA', 'ENTREGA_EN_CURSO', 'INVERSION_VOLUNTARIA', 'ORDEN_AUTORIDAD')),
   CONSTRAINT ck_retencion_saldo_monto CHECK (monto > 0),
   CONSTRAINT ck_retencion_saldo_estado CHECK (estado IN ('EJECUTADA', 'LIBERADA', 'VENCIDA', 'VIGENTE'))
 );

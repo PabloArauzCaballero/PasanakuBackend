@@ -13,11 +13,13 @@ export 'package:aportaya_cliente_nucleofinanciero/src/api/default_api.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/api/qr_api.dart';
 
 export 'package:aportaya_cliente_nucleofinanciero/src/model/dinero.dart';
+export 'package:aportaya_cliente_nucleofinanciero/src/model/entrada_acreditacion_rescate.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/entrada_aprobacion_retiro.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/entrada_bloqueo.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/entrada_cierre.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/entrada_cierre_retencion.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/entrada_cotizacion_operacion.dart';
+export 'package:aportaya_cliente_nucleofinanciero/src/model/entrada_debito_inversion.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/entrada_lectura_qr.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/entrada_pago_qr.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/entrada_qr.dart';
@@ -30,11 +32,13 @@ export 'package:aportaya_cliente_nucleofinanciero/src/model/entrada_transferenci
 export 'package:aportaya_cliente_nucleofinanciero/src/model/error.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/saldo_billetera.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/salida_acreditacion.dart';
+export 'package:aportaya_cliente_nucleofinanciero/src/model/salida_acreditacion_rescate.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/salida_aprobacion_retiro.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/salida_bloqueo.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/salida_cierre_billetera.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/salida_cierre_retencion.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/salida_cotizacion_operacion.dart';
+export 'package:aportaya_cliente_nucleofinanciero/src/model/salida_ejecucion_de_retencion.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/salida_extracto.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/salida_pago_qr.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/salida_qr_emitido.dart';

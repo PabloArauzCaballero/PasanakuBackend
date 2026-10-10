@@ -1,0 +1,25 @@
+> Task :servicios:notificaciones:generateJooq UP-TO-DATE
+> Task :servicios:notificaciones:compileJava
+> Task :servicios:notificaciones:processResources
+> Task :servicios:notificaciones:classes
+> Task :servicios:notificaciones:compileTestJava
+> Task :servicios:notificaciones:processTestResources UP-TO-DATE
+> Task :servicios:notificaciones:testClasses
+> Task :servicios:notificaciones:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+> Task :servicios:notificaciones:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+> Task :servicios:notificaciones:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-09T21:05:53.703-04:00  INFO 33796 --- [notificaciones] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-09T21:05:53.707-04:00  INFO 33796 --- [notificaciones] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-09T21:05:53.851-04:00  INFO 33796 --- [notificaciones] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-09T21:05:53.853-04:00  INFO 33796 --- [notificaciones] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+> Task :servicios:notificaciones:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+BUILD SUCCESSFUL in 1m
+40 actionable tasks: 7 executed, 33 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+== RC gradle: 0

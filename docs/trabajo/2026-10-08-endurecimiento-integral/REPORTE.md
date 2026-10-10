@@ -222,3 +222,11 @@ Decisiones abiertas del merge (detalle en `evidencia/merge/`): la admisión huma
 | Aliado, tasas, plazos, tratamiento fiscal, comisión de éxito, custodia (DR-INV-01…06) | Todo sintético, `apto_produccion=false` | Dirección, legal, fiscal, aliado |
 | Retención fiscal de retiros, QR interoperable | No se afirma cumplimiento ni interoperabilidad | Dueño de negocio y cumplimiento |
 | Disparo `Idempotency-Key` en sincronización y devengo de inversiones | Se exige pero no se usa; son idempotentes por contenido | Carril de inversiones |
+
+## Tercera vuelta (2026-10-10): cierre verificado desde XML
+
+Conteo desde `build/test-results/*.xml`: 3307 pruebas en 79 suites, 0 omitidas, 0 fallas, 0 errores (script `scratchpad/xml_conteo.py`).
+Pasan a HECHO (15): H10.S1.M1–M7 y H11.S1.M3–M5 (inversiones sobre el esquema actual, libro real por pacto; aliado y parámetros sintéticos DR-INV-01..07), H3.S1.M3, H6.S1.M1, H8.S1.M1 (productor real == archivo dorado; integración cliente real↔servidor real queda para e2e compose), H5.S1.M7 (interruptor manual/automático; decisión de Negocio abierta), H13.S1.M2.
+Siguen A MEDIAS por falta de insumo ajeno: H4.S1.M6 (lado cliente), H9.S1.M5 (nucleo contra doble de entregas), el resto de A MEDIAS de frontend/aceptación real.
+Aceptación con dos usuarios: modo mock verde (18/18 backoffice, 1/1 web); modo real BLOQUEADO hasta correr sobre el stack de D3 (ver `evidencia/carril-E3` y `evidencia/carril-D3/ENTORNO-E2E.md`).
+Causa raíz del 503 (reproducida, `evidencia/carril-D3/FASE1.md`): el job de esquema falla sobre la base poblada (columna `consumidor_id` ausente, CHECK viejo) y `QR_INTERNO_CLAVE` sin cargar tumba nucleo-financiero. Corregido en `despliegue/aplicar-esquema.sh` y `scripts/generar_compose.py`.

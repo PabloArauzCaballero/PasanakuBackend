@@ -1,0 +1,1003 @@
+heavy.sh: candado tomado, libres 3565 MB -> bash C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/n2_full.sh --continue :servicios:nucleo-financiero:spotlessApply :servicios:nucleo-financiero:integrationTest --tests *CU13InversionTest --tests *CU13MercadoTest --tests *CU12RescateTest --tests *CU12ProyeccionTest --tests *CU24MonedaTest --tests *CU24EventosTest
+== docker listo, libres: 3549 MB
+== aplicar.sql RC: 0
+psql:/repo/sql/40_reglas/restricciones.sql:3396: NOTICE:  trigger "tg_distribucion_interes_coherente" for relation "distribucion_interes" does not exist, skipping
+psql:/repo/sql/40_reglas/restricciones.sql:3402: NOTICE:  constraint "ck_corrida_trabajo_fin" of relation "corrida_trabajo" does not exist, skipping
+psql:/repo/sql/40_reglas/restricciones.sql:3403: NOTICE:  constraint "ck_corrida_trabajo_error" of relation "corrida_trabajo" does not exist, skipping
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Starting a Gradle Daemon, 5 stopped Daemons could not be reused, use --status for details
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessJava
+> Task :servicios:nucleo-financiero:spotlessJavaApply
+> Task :servicios:nucleo-financiero:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessApply
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources NO-SOURCE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :servicios:nucleo-financiero:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:nucleo-financiero:generateJooq UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileJava
+> Task :servicios:nucleo-financiero:processResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:classes
+> Task :servicios:nucleo-financiero:compileTestJava
+> Task :servicios:nucleo-financiero:processTestResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:testClasses
+
+> Task :servicios:nucleo-financiero:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+CU13InversionTest > rechaza sin custodia de inversion en esa moneda (AP-CU13-07): la retencion sigue vigente FAILED
+    org.jooq.exception.DataAccessException: Cannot commit transaction
+        at app//org.jooq.impl.DefaultConnectionProvider.commit(DefaultConnectionProvider.java:101)
+        at app//org.jooq.impl.DefaultTransactionProvider.commit(DefaultTransactionProvider.java:174)
+        at app//org.jooq.impl.DefaultDSLContext.lambda$transactionResult0$3(DefaultDSLContext.java:536)
+        at app//org.jooq.impl.Tools$3$1.block(Tools.java:6318)
+        at java.base@21.0.12.1/java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:3780)
+        at java.base@21.0.12.1/java.util.concurrent.ForkJoinPool.managedBlock(ForkJoinPool.java:3725)
+        at app//org.jooq.impl.Tools$3.get(Tools.java:6315)
+        at app//org.jooq.impl.DefaultDSLContext.transactionResult0(DefaultDSLContext.java:580)
+        at app//org.jooq.impl.DefaultDSLContext.transactionResult(DefaultDSLContext.java:503)
+        at app//org.jooq.impl.DefaultDSLContext.transaction(DefaultDSLContext.java:593)
+        at app//bo.aportaya.nucleofinanciero.FixturaDeBilletera.acreditar(FixturaDeBilletera.java:147)
+        at app//bo.aportaya.nucleofinanciero.FixturaDeSistema.billeteraEn(FixturaDeSistema.java:74)
+        at app//bo.aportaya.nucleofinanciero.CU13InversionTest.sinCustodia(CU13InversionTest.java:187)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: R-BIL-20: la transacción 9a95d370-b439-41bb-ba09-90cdd31a46ab toca 1 cuenta(s) en moneda distinta de BOB
+          Where: PL/pgSQL function fn_bil_moneda_coherente() line 9 at RAISE
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:389)
+            at app//org.postgresql.jdbc.PgConnection.executeTransactionCommand(PgConnection.java:998)
+            at app//org.postgresql.jdbc.PgConnection.commit(PgConnection.java:1020)
+            at app//org.jooq.impl.DefaultConnectionProvider.commit(DefaultConnectionProvider.java:98)
+            ... 12 more
+
+56 tests completed, 1 failed
+
+> Task :servicios:nucleo-financiero:integrationTest FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':servicios:nucleo-financiero:integrationTest'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/servicios/nucleo-financiero/build/reports/tests/integrationTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 40s
+37 actionable tasks: 5 executed, 32 up-to-date
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Stopping Daemon(s)
+1 Daemon stopped
+== RC gradle: 1
+     c.moneda
+    )
+        at org.jooq.impl.Tools.indexFail(Tools.java:2265)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2307)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2294)
+        at org.jooq.impl.Tools.indexOrFail(Tools.java:2301)
+        at org.jooq.impl.AbstractRecord.get(AbstractRecord.java:252)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.lambda$ver$1(RetencionRepositorio.java:82)
+        at java.base/java.util.Optional.map(Optional.java:260)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.ver(RetencionRepositorio.java:81)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.retencionExistente(CU13EjecutarConDestino.java:256)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.lambda$debitarInversion$2(CU13EjecutarConDestino.java:100)
+        at bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.debitarInversion(CU13EjecutarConDestino.java:98)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.lambda$debitar$0(CU13InversionTest.java:46)
+        at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.debitar(CU13InversionTest.java:46)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.reintentoMismaClave(CU13InversionTest.java:80)
+
+CU13InversionTest > concurrencia: ocho debitos de la misma orden con claves distintas mueven la plata una sola vez FAILED
+    java.util.concurrent.ExecutionException: java.lang.IllegalArgumentException: Field "id" is not contained in row type (
+      r.id,
+      r.cuenta_billetera_id,
+      r.monto,
+      r.motivo,
+      r.estado,
+      r.expira_en,
+      r.referencia_tipo,
+      r.referencia_id,
+      c.moneda
+    )
+        at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
+        at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:191)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.concurrencia(CU13InversionTest.java:230)
+
+        Caused by:
+        java.lang.IllegalArgumentException: Field "id" is not contained in row type (
+          r.id,
+          r.cuenta_billetera_id,
+          r.monto,
+          r.motivo,
+          r.estado,
+          r.expira_en,
+          r.referencia_tipo,
+          r.referencia_id,
+          c.moneda
+        )
+            at org.jooq.impl.Tools.indexFail(Tools.java:2265)
+            at org.jooq.impl.Tools.indexFail(Tools.java:2307)
+            at org.jooq.impl.Tools.indexFail(Tools.java:2294)
+            at org.jooq.impl.Tools.indexOrFail(Tools.java:2301)
+            at org.jooq.impl.AbstractRecord.get(AbstractRecord.java:252)
+            at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.lambda$ver$1(RetencionRepositorio.java:82)
+            at java.base/java.util.Optional.map(Optional.java:260)
+            at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.ver(RetencionRepositorio.java:81)
+            at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.retencionExistente(CU13EjecutarConDestino.java:256)
+            at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.lambda$debitarInversion$2(CU13EjecutarConDestino.java:100)
+            at bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+            at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.debitarInversion(CU13EjecutarConDestino.java:98)
+            at bo.aportaya.nucleofinanciero.CU13InversionTest.lambda$debitar$0(CU13InversionTest.java:46)
+            at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+            at bo.aportaya.nucleofinanciero.CU13InversionTest.debitar(CU13InversionTest.java:46)
+            at bo.aportaya.nucleofinanciero.CU13InversionTest.lambda$concurrencia$24(CU13InversionTest.java:221)
+
+CU13InversionTest > rechaza un titular que no es el dueño de la retencion: el libro verifica lo que dice el servicio llamador FAILED
+    java.lang.AssertionError: 
+    Expecting actual throwable to be an instance of:
+      bo.aportaya.plataforma.dominio.ErrorDeNegocio
+    but was:
+      java.lang.IllegalArgumentException: Field "id" is not contained in row type (
+      r.id,
+      r.cuenta_billetera_id,
+      r.monto,
+      r.motivo,
+      r.estado,
+      r.expira_en,
+      r.referencia_tipo,
+      r.referencia_id,
+      c.moneda
+    )
+    	at org.jooq.impl.Tools.indexFail(Tools.java:2265)
+    	at org.jooq.impl.Tools.indexFail(Tools.java:2307)
+    	at org.jooq.impl.Tools.indexFail(Tools.java:2294)
+    	...(105 remaining lines not displayed - this can be changed with Assertions.setMaxStackTraceElementsDisplayed)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.titularQueNoEs(CU13InversionTest.java:144)
+
+CU13InversionTest > rechaza la misma clave con otra retencion (AP-CU13-04): la clave ya identifica otra operacion FAILED
+    java.lang.IllegalArgumentException: Field "id" is not contained in row type (
+      r.id,
+      r.cuenta_billetera_id,
+      r.monto,
+      r.motivo,
+      r.estado,
+      r.expira_en,
+      r.referencia_tipo,
+      r.referencia_id,
+      c.moneda
+    )
+        at org.jooq.impl.Tools.indexFail(Tools.java:2265)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2307)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2294)
+        at org.jooq.impl.Tools.indexOrFail(Tools.java:2301)
+        at org.jooq.impl.AbstractRecord.get(AbstractRecord.java:252)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.lambda$ver$1(RetencionRepositorio.java:82)
+        at java.base/java.util.Optional.map(Optional.java:260)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.ver(RetencionRepositorio.java:81)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.retencionExistente(CU13EjecutarConDestino.java:256)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.lambda$debitarInversion$2(CU13EjecutarConDestino.java:100)
+        at bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.debitarInversion(CU13EjecutarConDestino.java:98)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.lambda$debitar$0(CU13InversionTest.java:46)
+        at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.debitar(CU13InversionTest.java:46)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.claveDeOtraOperacion(CU13InversionTest.java:106)
+
+CU13InversionTest > rechaza una retencion de otro motivo (AP-CU13-05) y una ya liberada (AP-CU13-03) FAILED
+    java.lang.ClassCastException: class java.lang.IllegalArgumentException cannot be cast to class bo.aportaya.plataforma.dominio.ErrorDeNegocio (java.lang.IllegalArgumentException is in module java.base of loader 'bootstrap'; bo.aportaya.plataforma.dominio.ErrorDeNegocio is in unnamed module of loader 'app')
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.lambda$motivoYEstado$16(CU13InversionTest.java:175)
+        at org.assertj.core.api.ThrowingConsumer.accept(ThrowingConsumer.java:34)
+        at org.assertj.core.api.AbstractAssert.catchOptionalAssertionError(AbstractAssert.java:1048)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+        at java.base/java.util.Spliterators$ArraySpliterator.forEachRemaining(Spliterators.java:1024)
+        at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+        at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
+        at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)
+        at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+        at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
+        at org.assertj.core.api.AbstractAssert.satisfiesForProxy(AbstractAssert.java:1039)
+        at org.assertj.core.api.AbstractAssert.satisfies(AbstractAssert.java:1028)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.motivoYEstado(CU13InversionTest.java:174)
+
+CU13InversionTest > rechaza la base: una segunda transaccion INVERSION para la misma orden (R-BIL-24) FAILED
+    java.lang.IllegalArgumentException: Field "id" is not contained in row type (
+      r.id,
+      r.cuenta_billetera_id,
+      r.monto,
+      r.motivo,
+      r.estado,
+      r.expira_en,
+      r.referencia_tipo,
+      r.referencia_id,
+      c.moneda
+    )
+        at org.jooq.impl.Tools.indexFail(Tools.java:2265)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2307)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2294)
+        at org.jooq.impl.Tools.indexOrFail(Tools.java:2301)
+        at org.jooq.impl.AbstractRecord.get(AbstractRecord.java:252)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.lambda$ver$1(RetencionRepositorio.java:82)
+        at java.base/java.util.Optional.map(Optional.java:260)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.ver(RetencionRepositorio.java:81)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.retencionExistente(CU13EjecutarConDestino.java:256)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.lambda$debitarInversion$2(CU13EjecutarConDestino.java:100)
+        at bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.debitarInversion(CU13EjecutarConDestino.java:98)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.lambda$debitar$0(CU13InversionTest.java:46)
+        at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.debitar(CU13InversionTest.java:46)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.unicidadPorOrigenEnLaBase(CU13InversionTest.java:267)
+
+CU13InversionTest > rechaza sin custodia de inversion en esa moneda (AP-CU13-07): la retencion sigue vigente FAILED
+    org.jooq.exception.DataAccessException: Cannot commit transaction
+        at app//org.jooq.impl.DefaultConnectionProvider.commit(DefaultConnectionProvider.java:101)
+        at app//org.jooq.impl.DefaultTransactionProvider.commit(DefaultTransactionProvider.java:174)
+        at app//org.jooq.impl.DefaultDSLContext.lambda$transactionResult0$3(DefaultDSLContext.java:536)
+        at app//org.jooq.impl.Tools$3$1.block(Tools.java:6318)
+        at java.base@21.0.12.1/java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:3780)
+        at java.base@21.0.12.1/java.util.concurrent.ForkJoinPool.managedBlock(ForkJoinPool.java:3725)
+        at app//org.jooq.impl.Tools$3.get(Tools.java:6315)
+        at app//org.jooq.impl.DefaultDSLContext.transactionResult0(DefaultDSLContext.java:580)
+        at app//org.jooq.impl.DefaultDSLContext.transactionResult(DefaultDSLContext.java:503)
+        at app//org.jooq.impl.DefaultDSLContext.transaction(DefaultDSLContext.java:593)
+        at app//bo.aportaya.nucleofinanciero.FixturaDeBilletera.acreditar(FixturaDeBilletera.java:147)
+        at app//bo.aportaya.nucleofinanciero.FixturaDeSistema.billeteraEn(FixturaDeSistema.java:74)
+        at app//bo.aportaya.nucleofinanciero.CU13InversionTest.sinCustodia(CU13InversionTest.java:187)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: R-BIL-20: la transacción 2101260a-858d-4579-ad1f-8ce6ff98cca4 toca 1 cuenta(s) en moneda distinta de BOB
+          Where: PL/pgSQL function fn_bil_moneda_coherente() line 9 at RAISE
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:389)
+            at app//org.postgresql.jdbc.PgConnection.executeTransactionCommand(PgConnection.java:998)
+            at app//org.postgresql.jdbc.PgConnection.commit(PgConnection.java:1020)
+            at app//org.jooq.impl.DefaultConnectionProvider.commit(DefaultConnectionProvider.java:98)
+            ... 12 more
+
+CU13InversionTest > Dada una retención INVERSION_VOLUNTARIA de Bs 300 sobre una cuenta con Bs 1.000 · Cuando el servicio de inversiones la debita · Entonces el titular queda con Bs 700 disponibles y Bs 0 retenidos · Y la custodia de inversión recibe Bs 300 en una transacción que cuadra FAILED
+    java.lang.IllegalArgumentException: Field "id" is not contained in row type (
+      r.id,
+      r.cuenta_billetera_id,
+      r.monto,
+      r.motivo,
+      r.estado,
+      r.expira_en,
+      r.referencia_tipo,
+      r.referencia_id,
+      c.moneda
+    )
+        at org.jooq.impl.Tools.indexFail(Tools.java:2265)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2307)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2294)
+        at org.jooq.impl.Tools.indexOrFail(Tools.java:2301)
+        at org.jooq.impl.AbstractRecord.get(AbstractRecord.java:252)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.lambda$ver$1(RetencionRepositorio.java:82)
+        at java.base/java.util.Optional.map(Optional.java:260)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.ver(RetencionRepositorio.java:81)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.retencionExistente(CU13EjecutarConDestino.java:256)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.lambda$debitarInversion$2(CU13EjecutarConDestino.java:100)
+        at bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.debitarInversion(CU13EjecutarConDestino.java:98)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.lambda$debitar$0(CU13InversionTest.java:46)
+        at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.debitar(CU13InversionTest.java:46)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.criterio1(CU13InversionTest.java:62)
+
+CU13InversionTest > rechaza otra clave sobre la misma orden: la retencion ya esta EJECUTADA (AP-CU13-03) FAILED
+    java.lang.IllegalArgumentException: Field "id" is not contained in row type (
+      r.id,
+      r.cuenta_billetera_id,
+      r.monto,
+      r.motivo,
+      r.estado,
+      r.expira_en,
+      r.referencia_tipo,
+      r.referencia_id,
+      c.moneda
+    )
+        at org.jooq.impl.Tools.indexFail(Tools.java:2265)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2307)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2294)
+        at org.jooq.impl.Tools.indexOrFail(Tools.java:2301)
+        at org.jooq.impl.AbstractRecord.get(AbstractRecord.java:252)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.lambda$ver$1(RetencionRepositorio.java:82)
+        at java.base/java.util.Optional.map(Optional.java:260)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.ver(RetencionRepositorio.java:81)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.retencionExistente(CU13EjecutarConDestino.java:256)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.lambda$debitarInversion$2(CU13EjecutarConDestino.java:100)
+        at bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.debitarInversion(CU13EjecutarConDestino.java:98)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.lambda$debitar$0(CU13InversionTest.java:46)
+        at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.debitar(CU13InversionTest.java:46)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.otraClaveMismaOrden(CU13InversionTest.java:95)
+
+CU13InversionTest > compensa: reversar el debito de inversion escribe el espejo y deja el original intacto FAILED
+    java.lang.IllegalArgumentException: Field "id" is not contained in row type (
+      r.id,
+      r.cuenta_billetera_id,
+      r.monto,
+      r.motivo,
+      r.estado,
+      r.expira_en,
+      r.referencia_tipo,
+      r.referencia_id,
+      c.moneda
+    )
+        at org.jooq.impl.Tools.indexFail(Tools.java:2265)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2307)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2294)
+        at org.jooq.impl.Tools.indexOrFail(Tools.java:2301)
+        at org.jooq.impl.AbstractRecord.get(AbstractRecord.java:252)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.lambda$ver$1(RetencionRepositorio.java:82)
+        at java.base/java.util.Optional.map(Optional.java:260)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.ver(RetencionRepositorio.java:81)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.retencionExistente(CU13EjecutarConDestino.java:256)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.lambda$debitarInversion$2(CU13EjecutarConDestino.java:100)
+        at bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.debitarInversion(CU13EjecutarConDestino.java:98)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.lambda$debitar$0(CU13InversionTest.java:46)
+        at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.debitar(CU13InversionTest.java:46)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.reversa(CU13InversionTest.java:246)
+
+CU13InversionTest > rechaza un importe distinto de lo retenido, aun por un centavo (AP-CU13-06): el residuo no se absorbe FAILED
+    java.lang.AssertionError: 
+    Expecting actual throwable to be an instance of:
+      bo.aportaya.plataforma.dominio.ErrorDeNegocio
+    but was:
+      java.lang.IllegalArgumentException: Field "id" is not contained in row type (
+      r.id,
+      r.cuenta_billetera_id,
+      r.monto,
+      r.motivo,
+      r.estado,
+      r.expira_en,
+      r.referencia_tipo,
+      r.referencia_id,
+      c.moneda
+    )
+    	at org.jooq.impl.Tools.indexFail(Tools.java:2265)
+    	at org.jooq.impl.Tools.indexFail(Tools.java:2307)
+    	at org.jooq.impl.Tools.indexFail(Tools.java:2294)
+    	...(106 remaining lines not displayed - this can be changed with Assertions.setMaxStackTraceElementsDisplayed)
+        at bo.aportaya.nucleofinanciero.CU13InversionTest.importeDistinto(CU13InversionTest.java:156)
+
+CU13MercadoTest > rechaza la base: un segundo pago de la misma oferta (R-BIL-24) FAILED
+    java.lang.IllegalArgumentException: Field "id" is not contained in row type (
+      r.id,
+      r.cuenta_billetera_id,
+      r.monto,
+      r.motivo,
+      r.estado,
+      r.expira_en,
+      r.referencia_tipo,
+      r.referencia_id,
+      c.moneda
+    )
+        at org.jooq.impl.Tools.indexFail(Tools.java:2265)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2307)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2294)
+        at org.jooq.impl.Tools.indexOrFail(Tools.java:2301)
+        at org.jooq.impl.AbstractRecord.get(AbstractRecord.java:252)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.lambda$ver$1(RetencionRepositorio.java:82)
+        at java.base/java.util.Optional.map(Optional.java:260)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.ver(RetencionRepositorio.java:81)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.retencionExistente(CU13EjecutarConDestino.java:256)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.lambda$preparar$4(CU13EjecutarConDestino.java:163)
+        at bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.preparar(CU13EjecutarConDestino.java:162)
+        at bo.aportaya.nucleofinanciero.aplicacion.PagoDeCompraEnMercado.ejecutar(PagoDeCompraEnMercado.java:36)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.lambda$pagar$0(CU13MercadoTest.java:53)
+        at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.pagar(CU13MercadoTest.java:53)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.unicidadEnLaBase(CU13MercadoTest.java:251)
+
+CU13MercadoTest > concurrencia: seis pagos de la misma retencion con claves distintas pagan una sola vez FAILED
+    java.util.concurrent.ExecutionException: java.lang.IllegalArgumentException: Field "id" is not contained in row type (
+      r.id,
+      r.cuenta_billetera_id,
+      r.monto,
+      r.motivo,
+      r.estado,
+      r.expira_en,
+      r.referencia_tipo,
+      r.referencia_id,
+      c.moneda
+    )
+        at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
+        at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:191)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.concurrencia(CU13MercadoTest.java:221)
+
+        Caused by:
+        java.lang.IllegalArgumentException: Field "id" is not contained in row type (
+          r.id,
+          r.cuenta_billetera_id,
+          r.monto,
+          r.motivo,
+          r.estado,
+          r.expira_en,
+          r.referencia_tipo,
+          r.referencia_id,
+          c.moneda
+        )
+            at org.jooq.impl.Tools.indexFail(Tools.java:2265)
+            at org.jooq.impl.Tools.indexFail(Tools.java:2307)
+            at org.jooq.impl.Tools.indexFail(Tools.java:2294)
+            at org.jooq.impl.Tools.indexOrFail(Tools.java:2301)
+            at org.jooq.impl.AbstractRecord.get(AbstractRecord.java:252)
+            at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.lambda$ver$1(RetencionRepositorio.java:82)
+            at java.base/java.util.Optional.map(Optional.java:260)
+            at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.ver(RetencionRepositorio.java:81)
+            at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.retencionExistente(CU13EjecutarConDestino.java:256)
+            at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.lambda$preparar$4(CU13EjecutarConDestino.java:163)
+            at bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+            at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.preparar(CU13EjecutarConDestino.java:162)
+            at bo.aportaya.nucleofinanciero.aplicacion.PagoDeCompraEnMercado.ejecutar(PagoDeCompraEnMercado.java:36)
+            at bo.aportaya.nucleofinanciero.CU13MercadoTest.lambda$pagar$0(CU13MercadoTest.java:53)
+            at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+            at bo.aportaya.nucleofinanciero.CU13MercadoTest.pagar(CU13MercadoTest.java:53)
+            at bo.aportaya.nucleofinanciero.CU13MercadoTest.lambda$concurrencia$27(CU13MercadoTest.java:213)
+
+CU13MercadoTest > rechaza si entregas no responde o la oferta no esta pagable (AP-CU13-08): no se mueve plata FAILED
+    java.lang.ClassCastException: class java.lang.IllegalArgumentException cannot be cast to class bo.aportaya.plataforma.dominio.ErrorDeNegocio (java.lang.IllegalArgumentException is in module java.base of loader 'bootstrap'; bo.aportaya.plataforma.dominio.ErrorDeNegocio is in unnamed module of loader 'app')
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.codigo(CU13MercadoTest.java:57)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.lambda$ofertaNoConfirmada$9(CU13MercadoTest.java:153)
+        at org.assertj.core.api.ThrowingConsumer.accept(ThrowingConsumer.java:34)
+        at org.assertj.core.api.AbstractAssert.catchOptionalAssertionError(AbstractAssert.java:1048)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+        at java.base/java.util.Spliterators$ArraySpliterator.forEachRemaining(Spliterators.java:1024)
+        at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+        at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
+        at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)
+        at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+        at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
+        at org.assertj.core.api.AbstractAssert.satisfiesForProxy(AbstractAssert.java:1039)
+        at org.assertj.core.api.AbstractAssert.satisfies(AbstractAssert.java:1028)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.ofertaNoConfirmada(CU13MercadoTest.java:153)
+
+CU13MercadoTest > rechaza otra clave sobre una retencion ya pagada (AP-CU13-03): una sola ejecucion por retencion FAILED
+    java.lang.IllegalArgumentException: Field "id" is not contained in row type (
+      r.id,
+      r.cuenta_billetera_id,
+      r.monto,
+      r.motivo,
+      r.estado,
+      r.expira_en,
+      r.referencia_tipo,
+      r.referencia_id,
+      c.moneda
+    )
+        at org.jooq.impl.Tools.indexFail(Tools.java:2265)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2307)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2294)
+        at org.jooq.impl.Tools.indexOrFail(Tools.java:2301)
+        at org.jooq.impl.AbstractRecord.get(AbstractRecord.java:252)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.lambda$ver$1(RetencionRepositorio.java:82)
+        at java.base/java.util.Optional.map(Optional.java:260)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.ver(RetencionRepositorio.java:81)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.retencionExistente(CU13EjecutarConDestino.java:256)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.lambda$preparar$4(CU13EjecutarConDestino.java:163)
+        at bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.preparar(CU13EjecutarConDestino.java:162)
+        at bo.aportaya.nucleofinanciero.aplicacion.PagoDeCompraEnMercado.ejecutar(PagoDeCompraEnMercado.java:36)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.lambda$pagar$0(CU13MercadoTest.java:53)
+        at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.pagar(CU13MercadoTest.java:53)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.unaSolaEjecucion(CU13MercadoTest.java:126)
+
+CU13MercadoTest > Dada una retención COMPRA_EN_MERCADO de Bs 500 para una oferta de Bs 480 · Cuando el servicio de entregas la paga · Entonces el vendedor recibe Bs 480 y la plataforma Bs 20 · Y la retención queda EJECUTADA una sola vez FAILED
+    java.lang.IllegalArgumentException: Field "id" is not contained in row type (
+      r.id,
+      r.cuenta_billetera_id,
+      r.monto,
+      r.motivo,
+      r.estado,
+      r.expira_en,
+      r.referencia_tipo,
+      r.referencia_id,
+      c.moneda
+    )
+        at org.jooq.impl.Tools.indexFail(Tools.java:2265)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2307)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2294)
+        at org.jooq.impl.Tools.indexOrFail(Tools.java:2301)
+        at org.jooq.impl.AbstractRecord.get(AbstractRecord.java:252)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.lambda$ver$1(RetencionRepositorio.java:82)
+        at java.base/java.util.Optional.map(Optional.java:260)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.ver(RetencionRepositorio.java:81)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.retencionExistente(CU13EjecutarConDestino.java:256)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.lambda$preparar$4(CU13EjecutarConDestino.java:163)
+        at bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.preparar(CU13EjecutarConDestino.java:162)
+        at bo.aportaya.nucleofinanciero.aplicacion.PagoDeCompraEnMercado.ejecutar(PagoDeCompraEnMercado.java:36)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.lambda$pagar$0(CU13MercadoTest.java:53)
+        at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.pagar(CU13MercadoTest.java:53)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.criterio2(CU13MercadoTest.java:66)
+
+CU13MercadoTest > compensa: reversar el pago devuelve al comprador lo suyo y deja el original intacto FAILED
+    java.lang.IllegalArgumentException: Field "id" is not contained in row type (
+      r.id,
+      r.cuenta_billetera_id,
+      r.monto,
+      r.motivo,
+      r.estado,
+      r.expira_en,
+      r.referencia_tipo,
+      r.referencia_id,
+      c.moneda
+    )
+        at org.jooq.impl.Tools.indexFail(Tools.java:2265)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2307)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2294)
+        at org.jooq.impl.Tools.indexOrFail(Tools.java:2301)
+        at org.jooq.impl.AbstractRecord.get(AbstractRecord.java:252)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.lambda$ver$1(RetencionRepositorio.java:82)
+        at java.base/java.util.Optional.map(Optional.java:260)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.ver(RetencionRepositorio.java:81)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.retencionExistente(CU13EjecutarConDestino.java:256)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.lambda$preparar$4(CU13EjecutarConDestino.java:163)
+        at bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.preparar(CU13EjecutarConDestino.java:162)
+        at bo.aportaya.nucleofinanciero.aplicacion.PagoDeCompraEnMercado.ejecutar(PagoDeCompraEnMercado.java:36)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.lambda$pagar$0(CU13MercadoTest.java:53)
+        at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.pagar(CU13MercadoTest.java:53)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.reversa(CU13MercadoTest.java:233)
+
+CU13MercadoTest > rechaza un beneficiario distinto del vendedor de la retencion y un vendedor que es el comprador FAILED
+    java.lang.ClassCastException: class java.lang.IllegalArgumentException cannot be cast to class bo.aportaya.plataforma.dominio.ErrorDeNegocio (java.lang.IllegalArgumentException is in module java.base of loader 'bootstrap'; bo.aportaya.plataforma.dominio.ErrorDeNegocio is in unnamed module of loader 'app')
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.codigo(CU13MercadoTest.java:57)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.lambda$beneficiarioIncorrecto$13(CU13MercadoTest.java:168)
+        at org.assertj.core.api.ThrowingConsumer.accept(ThrowingConsumer.java:34)
+        at org.assertj.core.api.AbstractAssert.catchOptionalAssertionError(AbstractAssert.java:1048)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+        at java.base/java.util.Spliterators$ArraySpliterator.forEachRemaining(Spliterators.java:1024)
+        at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+        at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
+        at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)
+        at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+        at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
+        at org.assertj.core.api.AbstractAssert.satisfiesForProxy(AbstractAssert.java:1039)
+        at org.assertj.core.api.AbstractAssert.satisfies(AbstractAssert.java:1028)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.beneficiarioIncorrecto(CU13MercadoTest.java:168)
+
+CU13MercadoTest > cuadre: un precio igual a lo retenido no escribe pata de plataforma FAILED
+    java.lang.IllegalArgumentException: Field "id" is not contained in row type (
+      r.id,
+      r.cuenta_billetera_id,
+      r.monto,
+      r.motivo,
+      r.estado,
+      r.expira_en,
+      r.referencia_tipo,
+      r.referencia_id,
+      c.moneda
+    )
+        at org.jooq.impl.Tools.indexFail(Tools.java:2265)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2307)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2294)
+        at org.jooq.impl.Tools.indexOrFail(Tools.java:2301)
+        at org.jooq.impl.AbstractRecord.get(AbstractRecord.java:252)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.lambda$ver$1(RetencionRepositorio.java:82)
+        at java.base/java.util.Optional.map(Optional.java:260)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.ver(RetencionRepositorio.java:81)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.retencionExistente(CU13EjecutarConDestino.java:256)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.lambda$preparar$4(CU13EjecutarConDestino.java:163)
+        at bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.preparar(CU13EjecutarConDestino.java:162)
+        at bo.aportaya.nucleofinanciero.aplicacion.PagoDeCompraEnMercado.ejecutar(PagoDeCompraEnMercado.java:36)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.lambda$pagar$0(CU13MercadoTest.java:53)
+        at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.pagar(CU13MercadoTest.java:53)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.sinCargos(CU13MercadoTest.java:101)
+
+CU13MercadoTest > rechaza una retencion liberada o de otro motivo (AP-CU13-03 / AP-CU13-05) FAILED
+    java.lang.IllegalArgumentException: Field "id" is not contained in row type (
+      r.id,
+      r.cuenta_billetera_id,
+      r.monto,
+      r.motivo,
+      r.estado,
+      r.expira_en,
+      r.referencia_tipo,
+      r.referencia_id,
+      c.moneda
+    )
+        at org.jooq.impl.Tools.indexFail(Tools.java:2265)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2307)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2294)
+        at org.jooq.impl.Tools.indexOrFail(Tools.java:2301)
+        at org.jooq.impl.AbstractRecord.get(AbstractRecord.java:252)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.lambda$ver$1(RetencionRepositorio.java:82)
+        at java.base/java.util.Optional.map(Optional.java:260)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.ver(RetencionRepositorio.java:81)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13RetenerSaldo.lambda$cerrar$5(CU13RetenerSaldo.java:224)
+        at bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13RetenerSaldo.cerrar(CU13RetenerSaldo.java:222)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13RetenerSaldo.liberar(CU13RetenerSaldo.java:196)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.lambda$retencionNoPagable$22(CU13MercadoTest.java:194)
+        at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.retencionNoPagable(CU13MercadoTest.java:194)
+
+CU13MercadoTest > reintento: la misma clave devuelve el mismo pago sin otro asiento, aunque la oferta ya este LIQUIDADA FAILED
+    java.lang.IllegalArgumentException: Field "id" is not contained in row type (
+      r.id,
+      r.cuenta_billetera_id,
+      r.monto,
+      r.motivo,
+      r.estado,
+      r.expira_en,
+      r.referencia_tipo,
+      r.referencia_id,
+      c.moneda
+    )
+        at org.jooq.impl.Tools.indexFail(Tools.java:2265)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2307)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2294)
+        at org.jooq.impl.Tools.indexOrFail(Tools.java:2301)
+        at org.jooq.impl.AbstractRecord.get(AbstractRecord.java:252)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.lambda$ver$1(RetencionRepositorio.java:82)
+        at java.base/java.util.Optional.map(Optional.java:260)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.ver(RetencionRepositorio.java:81)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.retencionExistente(CU13EjecutarConDestino.java:256)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.lambda$preparar$4(CU13EjecutarConDestino.java:163)
+        at bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.preparar(CU13EjecutarConDestino.java:162)
+        at bo.aportaya.nucleofinanciero.aplicacion.PagoDeCompraEnMercado.ejecutar(PagoDeCompraEnMercado.java:36)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.lambda$pagar$0(CU13MercadoTest.java:53)
+        at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.pagar(CU13MercadoTest.java:53)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.reintento(CU13MercadoTest.java:113)
+
+CU13MercadoTest > cuadre: el precio cuenta centavos, el reparto suma exactamente lo retenido y no sobra residuo FAILED
+    java.lang.IllegalArgumentException: Field "id" is not contained in row type (
+      r.id,
+      r.cuenta_billetera_id,
+      r.monto,
+      r.motivo,
+      r.estado,
+      r.expira_en,
+      r.referencia_tipo,
+      r.referencia_id,
+      c.moneda
+    )
+        at org.jooq.impl.Tools.indexFail(Tools.java:2265)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2307)
+        at org.jooq.impl.Tools.indexFail(Tools.java:2294)
+        at org.jooq.impl.Tools.indexOrFail(Tools.java:2301)
+        at org.jooq.impl.AbstractRecord.get(AbstractRecord.java:252)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.lambda$ver$1(RetencionRepositorio.java:82)
+        at java.base/java.util.Optional.map(Optional.java:260)
+        at bo.aportaya.nucleofinanciero.infraestructura.RetencionRepositorio.ver(RetencionRepositorio.java:81)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.retencionExistente(CU13EjecutarConDestino.java:256)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.lambda$preparar$4(CU13EjecutarConDestino.java:163)
+        at bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.preparar(CU13EjecutarConDestino.java:162)
+        at bo.aportaya.nucleofinanciero.aplicacion.PagoDeCompraEnMercado.ejecutar(PagoDeCompraEnMercado.java:36)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.lambda$repartoExacto$1(CU13MercadoTest.java:87)
+        at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.repartoExacto(CU13MercadoTest.java:87)
+
+CU13MercadoTest > rechaza un precio mayor que lo retenido o de otra moneda (AP-CU13-06): sin cargos negativos FAILED
+    java.lang.ClassCastException: class java.lang.IllegalArgumentException cannot be cast to class bo.aportaya.plataforma.dominio.ErrorDeNegocio (java.lang.IllegalArgumentException is in module java.base of loader 'bootstrap'; bo.aportaya.plataforma.dominio.ErrorDeNegocio is in unnamed module of loader 'app')
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.codigo(CU13MercadoTest.java:57)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.lambda$precioNoCabe$18(CU13MercadoTest.java:183)
+        at org.assertj.core.api.ThrowingConsumer.accept(ThrowingConsumer.java:34)
+        at org.assertj.core.api.AbstractAssert.catchOptionalAssertionError(AbstractAssert.java:1048)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+        at java.base/java.util.Spliterators$ArraySpliterator.forEachRemaining(Spliterators.java:1024)
+        at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+        at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
+        at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)
+        at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+        at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
+        at org.assertj.core.api.AbstractAssert.satisfiesForProxy(AbstractAssert.java:1039)
+        at org.assertj.core.api.AbstractAssert.satisfies(AbstractAssert.java:1028)
+        at bo.aportaya.nucleofinanciero.CU13MercadoTest.precioNoCabe(CU13MercadoTest.java:183)
+
+CU24EventosTest > fuera de orden: la reversa antes que la aplicacion se rechaza sin efectos y se asienta cuando la aplicacion llega FAILED
+    org.jooq.exception.IntegrityConstraintViolationException: SQL [insert into "nucleo_financiero"."asiento_contable" ("fecha", "glosa", "origen_tipo", "origen_id", "grupo_id", "estado", "registrado_por", "asiento_reversa_id") values (cast(? as timestamp(6) with time zone), ?, ?, cast(? as uuid), cast(? as uuid), ?, cast(? as uuid), cast(? as uuid)) returning "nucleo_financiero"."asiento_contable"."id", "nucleo_financiero"."asiento_contable"."numero"]; ERROR: insert or update on table "asiento_contable" violates foreign key constraint "fk_asiento_contable_grupo_id"
+      Detail: Key (grupo_id)=(8301c2ed-6a75-4080-b77e-51c0a9492f6a) is not present in table "grupo".
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3664)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDMLQueryAsResultQuery.fetch(AbstractDMLQueryAsResultQuery.java:140)
+        at app//org.jooq.impl.ResultQueryTrait.fetchLazy(ResultQueryTrait.java:280)
+        at app//org.jooq.impl.ResultQueryTrait.fetchLazyNonAutoClosing(ResultQueryTrait.java:289)
+        at app//org.jooq.impl.ResultQueryTrait.fetchOne(ResultQueryTrait.java:508)
+        at app//org.jooq.impl.ResultQueryTrait.fetchOne(ResultQueryTrait.java:513)
+        at app//bo.aportaya.nucleofinanciero.infraestructura.AsientoRepositorio.crear(AsientoRepositorio.java:56)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CU24RegistrarAsiento.ejecutar(CU24RegistrarAsiento.java:67)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAsientos.lambda$procesar$1(ConsumoDeAsientos.java:122)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAsientos.procesar(ConsumoDeAsientos.java:100)
+        at app//bo.aportaya.nucleofinanciero.CU24EventosTest.lambda$procesar$1(CU24EventosTest.java:82)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.nucleofinanciero.CU24EventosTest.procesar(CU24EventosTest.java:82)
+        at app//bo.aportaya.nucleofinanciero.CU24EventosTest.fueraDeOrden(CU24EventosTest.java:213)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: insert or update on table "asiento_contable" violates foreign key constraint "fk_asiento_contable_grupo_id"
+          Detail: Key (grupo_id)=(8301c2ed-6a75-4080-b77e-51c0a9492f6a) is not present in table "grupo".
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeQuery(PgPreparedStatement.java:139)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.executeQuery(DefaultPreparedStatement.java:104)
+            at app//org.jooq.impl.AbstractDMLQuery.executeReturningQuery(AbstractDMLQuery.java:1419)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1236)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU24EventosTest > evento duplicado: ocho consumidores a la vez del mismo evento asientan una sola vez FAILED
+    java.util.concurrent.ExecutionException: org.jooq.exception.IntegrityConstraintViolationException: SQL [insert into "nucleo_financiero"."asiento_contable" ("fecha", "glosa", "origen_tipo", "origen_id", "grupo_id", "estado", "registrado_por", "asiento_reversa_id") values (cast(? as timestamp(6) with time zone), ?, ?, cast(? as uuid), cast(? as uuid), ?, cast(? as uuid), cast(? as uuid)) returning "nucleo_financiero"."asiento_contable"."id", "nucleo_financiero"."asiento_contable"."numero"]; ERROR: insert or update on table "asiento_contable" violates foreign key constraint "fk_asiento_contable_grupo_id"
+      Detail: Key (grupo_id)=(4c1e0de0-5da6-4def-af4a-f0cf25ee0015) is not present in table "grupo".
+        at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
+        at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:191)
+        at bo.aportaya.nucleofinanciero.CU24EventosTest.concurrencia(CU24EventosTest.java:314)
+
+        Caused by:
+        org.jooq.exception.IntegrityConstraintViolationException: SQL [insert into "nucleo_financiero"."asiento_contable" ("fecha", "glosa", "origen_tipo", "origen_id", "grupo_id", "estado", "registrado_por", "asiento_reversa_id") values (cast(? as timestamp(6) with time zone), ?, ?, cast(? as uuid), cast(? as uuid), ?, cast(? as uuid), cast(? as uuid)) returning "nucleo_financiero"."asiento_contable"."id", "nucleo_financiero"."asiento_contable"."numero"]; ERROR: insert or update on table "asiento_contable" violates foreign key constraint "fk_asiento_contable_grupo_id"
+          Detail: Key (grupo_id)=(4c1e0de0-5da6-4def-af4a-f0cf25ee0015) is not present in table "grupo".
+            at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+            at app//org.jooq.impl.Tools.translate(Tools.java:3664)
+            at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+            at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+            at app//org.jooq.impl.AbstractDMLQueryAsResultQuery.fetch(AbstractDMLQueryAsResultQuery.java:140)
+            at app//org.jooq.impl.ResultQueryTrait.fetchLazy(ResultQueryTrait.java:280)
+            at app//org.jooq.impl.ResultQueryTrait.fetchLazyNonAutoClosing(ResultQueryTrait.java:289)
+            at app//org.jooq.impl.ResultQueryTrait.fetchOne(ResultQueryTrait.java:508)
+            at app//org.jooq.impl.ResultQueryTrait.fetchOne(ResultQueryTrait.java:513)
+            at app//bo.aportaya.nucleofinanciero.infraestructura.AsientoRepositorio.crear(AsientoRepositorio.java:56)
+            at app//bo.aportaya.nucleofinanciero.aplicacion.CU24RegistrarAsiento.ejecutar(CU24RegistrarAsiento.java:67)
+            at app//bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAsientos.lambda$procesar$1(ConsumoDeAsientos.java:122)
+            at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+            at app//bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAsientos.procesar(ConsumoDeAsientos.java:100)
+            at app//bo.aportaya.nucleofinanciero.CU24EventosTest.lambda$procesar$1(CU24EventosTest.java:82)
+            at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+            at app//bo.aportaya.nucleofinanciero.CU24EventosTest.procesar(CU24EventosTest.java:82)
+            at app//bo.aportaya.nucleofinanciero.CU24EventosTest.lambda$concurrencia$19(CU24EventosTest.java:311)
+
+            Caused by:
+            org.postgresql.util.PSQLException: ERROR: insert or update on table "asiento_contable" violates foreign key constraint "fk_asiento_contable_grupo_id"
+              Detail: Key (grupo_id)=(4c1e0de0-5da6-4def-af4a-f0cf25ee0015) is not present in table "grupo".
+                at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+                at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+                at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+                at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+                at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+                at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+                at app//org.postgresql.jdbc.PgPreparedStatement.executeQuery(PgPreparedStatement.java:139)
+                at app//org.jooq.tools.jdbc.DefaultPreparedStatement.executeQuery(DefaultPreparedStatement.java:104)
+                at app//org.jooq.impl.AbstractDMLQuery.executeReturningQuery(AbstractDMLQuery.java:1419)
+                at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1236)
+                at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+                ... 14 more
+
+CU24EventosTest > Dado un evento de garantía con un asiento propuesto · Cuando se consume dos veces · Entonces existe un solo asiento que cuadra en su moneda FAILED
+    org.jooq.exception.IntegrityConstraintViolationException: SQL [insert into "nucleo_financiero"."asiento_contable" ("fecha", "glosa", "origen_tipo", "origen_id", "grupo_id", "estado", "registrado_por", "asiento_reversa_id") values (cast(? as timestamp(6) with time zone), ?, ?, cast(? as uuid), cast(? as uuid), ?, cast(? as uuid), cast(? as uuid)) returning "nucleo_financiero"."asiento_contable"."id", "nucleo_financiero"."asiento_contable"."numero"]; ERROR: insert or update on table "asiento_contable" violates foreign key constraint "fk_asiento_contable_grupo_id"
+      Detail: Key (grupo_id)=(031d4085-c0aa-431d-8ad5-2a18a53aa755) is not present in table "grupo".
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3664)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDMLQueryAsResultQuery.fetch(AbstractDMLQueryAsResultQuery.java:140)
+        at app//org.jooq.impl.ResultQueryTrait.fetchLazy(ResultQueryTrait.java:280)
+        at app//org.jooq.impl.ResultQueryTrait.fetchLazyNonAutoClosing(ResultQueryTrait.java:289)
+        at app//org.jooq.impl.ResultQueryTrait.fetchOne(ResultQueryTrait.java:508)
+        at app//org.jooq.impl.ResultQueryTrait.fetchOne(ResultQueryTrait.java:513)
+        at app//bo.aportaya.nucleofinanciero.infraestructura.AsientoRepositorio.crear(AsientoRepositorio.java:56)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CU24RegistrarAsiento.ejecutar(CU24RegistrarAsiento.java:67)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAsientos.lambda$procesar$1(ConsumoDeAsientos.java:122)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAsientos.procesar(ConsumoDeAsientos.java:100)
+        at app//bo.aportaya.nucleofinanciero.CU24EventosTest.lambda$procesar$1(CU24EventosTest.java:82)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.nucleofinanciero.CU24EventosTest.procesar(CU24EventosTest.java:82)
+        at app//bo.aportaya.nucleofinanciero.CU24EventosTest.criterio5(CU24EventosTest.java:113)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: insert or update on table "asiento_contable" violates foreign key constraint "fk_asiento_contable_grupo_id"
+          Detail: Key (grupo_id)=(031d4085-c0aa-431d-8ad5-2a18a53aa755) is not present in table "grupo".
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeQuery(PgPreparedStatement.java:139)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.executeQuery(DefaultPreparedStatement.java:104)
+            at app//org.jooq.impl.AbstractDMLQuery.executeReturningQuery(AbstractDMLQuery.java:1419)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1236)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU24EventosTest > Dado un evento de reversa de una cobertura ya asentada · Cuando se consume · Entonces nace un contra-asiento enlazado al original y el original queda intacto FAILED
+    org.jooq.exception.IntegrityConstraintViolationException: SQL [insert into "nucleo_financiero"."asiento_contable" ("fecha", "glosa", "origen_tipo", "origen_id", "grupo_id", "estado", "registrado_por", "asiento_reversa_id") values (cast(? as timestamp(6) with time zone), ?, ?, cast(? as uuid), cast(? as uuid), ?, cast(? as uuid), cast(? as uuid)) returning "nucleo_financiero"."asiento_contable"."id", "nucleo_financiero"."asiento_contable"."numero"]; ERROR: insert or update on table "asiento_contable" violates foreign key constraint "fk_asiento_contable_grupo_id"
+      Detail: Key (grupo_id)=(d77adec7-2870-4388-a9b7-8bdb69bff29d) is not present in table "grupo".
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3664)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDMLQueryAsResultQuery.fetch(AbstractDMLQueryAsResultQuery.java:140)
+        at app//org.jooq.impl.ResultQueryTrait.fetchLazy(ResultQueryTrait.java:280)
+        at app//org.jooq.impl.ResultQueryTrait.fetchLazyNonAutoClosing(ResultQueryTrait.java:289)
+        at app//org.jooq.impl.ResultQueryTrait.fetchOne(ResultQueryTrait.java:508)
+        at app//org.jooq.impl.ResultQueryTrait.fetchOne(ResultQueryTrait.java:513)
+        at app//bo.aportaya.nucleofinanciero.infraestructura.AsientoRepositorio.crear(AsientoRepositorio.java:56)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CU24RegistrarAsiento.ejecutar(CU24RegistrarAsiento.java:67)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAsientos.lambda$procesar$1(ConsumoDeAsientos.java:122)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAsientos.procesar(ConsumoDeAsientos.java:100)
+        at app//bo.aportaya.nucleofinanciero.CU24EventosTest.lambda$procesar$1(CU24EventosTest.java:82)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.nucleofinanciero.CU24EventosTest.procesar(CU24EventosTest.java:82)
+        at app//bo.aportaya.nucleofinanciero.CU24EventosTest.criterio6(CU24EventosTest.java:135)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: insert or update on table "asiento_contable" violates foreign key constraint "fk_asiento_contable_grupo_id"
+          Detail: Key (grupo_id)=(d77adec7-2870-4388-a9b7-8bdb69bff29d) is not present in table "grupo".
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeQuery(PgPreparedStatement.java:139)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.executeQuery(DefaultPreparedStatement.java:104)
+            at app//org.jooq.impl.AbstractDMLQuery.executeReturningQuery(AbstractDMLQuery.java:1419)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1236)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU24EventosTest > reintento: la caida antes del commit no deja marca ni asiento, y el reproceso asienta una sola vez FAILED
+    org.jooq.exception.IntegrityConstraintViolationException: SQL [insert into "nucleo_financiero"."asiento_contable" ("fecha", "glosa", "origen_tipo", "origen_id", "grupo_id", "estado", "registrado_por", "asiento_reversa_id") values (cast(? as timestamp(6) with time zone), ?, ?, cast(? as uuid), cast(? as uuid), ?, cast(? as uuid), cast(? as uuid)) returning "nucleo_financiero"."asiento_contable"."id", "nucleo_financiero"."asiento_contable"."numero"]; ERROR: insert or update on table "asiento_contable" violates foreign key constraint "fk_asiento_contable_grupo_id"
+      Detail: Key (grupo_id)=(1734869b-35c2-4ebe-a224-540c91dd6a15) is not present in table "grupo".
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3664)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDMLQueryAsResultQuery.fetch(AbstractDMLQueryAsResultQuery.java:140)
+        at app//org.jooq.impl.ResultQueryTrait.fetchLazy(ResultQueryTrait.java:280)
+        at app//org.jooq.impl.ResultQueryTrait.fetchLazyNonAutoClosing(ResultQueryTrait.java:289)
+        at app//org.jooq.impl.ResultQueryTrait.fetchOne(ResultQueryTrait.java:508)
+        at app//org.jooq.impl.ResultQueryTrait.fetchOne(ResultQueryTrait.java:513)
+        at app//bo.aportaya.nucleofinanciero.infraestructura.AsientoRepositorio.crear(AsientoRepositorio.java:56)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CU24RegistrarAsiento.ejecutar(CU24RegistrarAsiento.java:67)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAsientos.lambda$procesar$1(ConsumoDeAsientos.java:122)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAsientos.procesar(ConsumoDeAsientos.java:100)
+        at app//bo.aportaya.nucleofinanciero.CU24EventosTest.lambda$caidaAntesDelCommit$18(CU24EventosTest.java:278)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.nucleofinanciero.CU24EventosTest.caidaAntesDelCommit(CU24EventosTest.java:277)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: insert or update on table "asiento_contable" violates foreign key constraint "fk_asiento_contable_grupo_id"
+          Detail: Key (grupo_id)=(1734869b-35c2-4ebe-a224-540c91dd6a15) is not present in table "grupo".
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeQuery(PgPreparedStatement.java:139)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.executeQuery(DefaultPreparedStatement.java:104)
+            at app//org.jooq.impl.AbstractDMLQuery.executeReturningQuery(AbstractDMLQuery.java:1419)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1236)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 13 more
+
+CU24EventosTest > rechaza una reversa cuyas partidas no son el inverso del original, con AP-CU24-05 FAILED
+    org.jooq.exception.IntegrityConstraintViolationException: SQL [insert into "nucleo_financiero"."asiento_contable" ("fecha", "glosa", "origen_tipo", "origen_id", "grupo_id", "estado", "registrado_por", "asiento_reversa_id") values (cast(? as timestamp(6) with time zone), ?, ?, cast(? as uuid), cast(? as uuid), ?, cast(? as uuid), cast(? as uuid)) returning "nucleo_financiero"."asiento_contable"."id", "nucleo_financiero"."asiento_contable"."numero"]; ERROR: insert or update on table "asiento_contable" violates foreign key constraint "fk_asiento_contable_grupo_id"
+      Detail: Key (grupo_id)=(e2765b5c-d6f3-408f-8263-0273b6bb20f0) is not present in table "grupo".
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3664)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDMLQueryAsResultQuery.fetch(AbstractDMLQueryAsResultQuery.java:140)
+        at app//org.jooq.impl.ResultQueryTrait.fetchLazy(ResultQueryTrait.java:280)
+        at app//org.jooq.impl.ResultQueryTrait.fetchLazyNonAutoClosing(ResultQueryTrait.java:289)
+        at app//org.jooq.impl.ResultQueryTrait.fetchOne(ResultQueryTrait.java:508)
+        at app//org.jooq.impl.ResultQueryTrait.fetchOne(ResultQueryTrait.java:513)
+        at app//bo.aportaya.nucleofinanciero.infraestructura.AsientoRepositorio.crear(AsientoRepositorio.java:56)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CU24RegistrarAsiento.ejecutar(CU24RegistrarAsiento.java:67)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAsientos.lambda$procesar$1(ConsumoDeAsientos.java:122)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAsientos.procesar(ConsumoDeAsientos.java:100)
+        at app//bo.aportaya.nucleofinanciero.CU24EventosTest.lambda$procesar$1(CU24EventosTest.java:82)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.nucleofinanciero.CU24EventosTest.procesar(CU24EventosTest.java:82)
+        at app//bo.aportaya.nucleofinanciero.CU24EventosTest.reversaQueNoCoincide(CU24EventosTest.java:225)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: insert or update on table "asiento_contable" violates foreign key constraint "fk_asiento_contable_grupo_id"
+          Detail: Key (grupo_id)=(e2765b5c-d6f3-408f-8263-0273b6bb20f0) is not present in table "grupo".
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeQuery(PgPreparedStatement.java:139)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.executeQuery(DefaultPreparedStatement.java:104)
+            at app//org.jooq.impl.AbstractDMLQuery.executeReturningQuery(AbstractDMLQuery.java:1419)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1236)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+56 tests completed, 30 failed
+
+> Task :servicios:nucleo-financiero:integrationTest FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':servicios:nucleo-financiero:integrationTest'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/servicios/nucleo-financiero/build/reports/tests/integrationTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 41s
+37 actionable tasks: 7 executed, 30 up-to-date
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Stopping Daemon(s)
+1 Daemon stopped
+== RC gradle: 1
+FIN RC=1
+FIN RC=1

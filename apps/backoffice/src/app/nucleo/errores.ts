@@ -2,7 +2,7 @@
  * Traducción de `AP-CU<NN>-<nn>` a lenguaje humano. Un `403` responde «no tenés acceso»
  * y nada más: detallarlo confirma que el recurso existe.
  */
-export type ErrorTraducido = { mensaje: string; trazaId?: string; codigo?: string; estado?: number; sinConexion?: boolean }
+export type ErrorTraducido = { mensaje: string; trazaId?: string; codigo?: string; estado?: number; sinConexion?: boolean; tiempoAgotado?: boolean }
 
 const CATALOGO: Readonly<Record<string, string>> = {
   'AP-CU04-01': 'El teléfono o la contraseña no coinciden.',
@@ -28,4 +28,11 @@ export function mensajeDe(codigo: string | undefined, estado: number): string {
     case 0: return 'No hay conexión. Te mostramos lo último que vimos; para operar hace falta señal.'
     default: return 'Algo salió mal de nuestro lado. Probá de nuevo en un momento.'
   }
+}
+
+/** Vencido el plazo de espera: para una escritura NO se sabe si llegó, y el texto lo dice. */
+export function mensajeDeTiempoAgotado(escritura: boolean): string {
+  return escritura
+    ? 'La respuesta tardó demasiado y no sabemos si la operación quedó registrada. Antes de repetirla, revisá su estado: si la repetís igual, no se duplica.'
+    : 'La respuesta tardó demasiado. Probá de nuevo en un momento.'
 }

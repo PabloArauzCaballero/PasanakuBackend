@@ -245,17 +245,17 @@ public class AliadoSimuladoHttp implements AliadoDeInversion {
             Mac mac = Mac.getInstance("HmacSHA256");
             mac.init(new SecretKeySpec(secreto, "HmacSHA256"));
             if (!MessageDigest.isEqual(mac.doFinal(raw), firma)) {
-                throw new AliadoNoDisponible("Firma invalida");
+                throw new RespuestaNoVerificable("Firma invalida");
             }
             JsonNode payload = JSON.readTree(raw);
             Instant emitido = Instant.parse(payload.path("emitidoEn").asText());
             if (!payload.path("simulado").asBoolean(false)
                     || Duration.between(emitido, Instant.now()).abs().compareTo(FRESCURA) > 0) {
-                throw new AliadoNoDisponible("Respuesta fuera de ventana o no marcada como simulada");
+                throw new RespuestaNoVerificable("Respuesta fuera de ventana o no marcada como simulada");
             }
             return payload;
         } catch (IOException | IllegalArgumentException | GeneralSecurityException | java.time.DateTimeException e) {
-            throw new AliadoNoDisponible("Respuesta no verificable");
+            throw new RespuestaNoVerificable("Respuesta no verificable");
         }
     }
 }

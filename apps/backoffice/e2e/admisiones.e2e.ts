@@ -1,6 +1,7 @@
 import { expect, test, type Page, type Route } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
+import { prepararArranque } from './apoyo/arranque-e2e'
 
 /**
  * H12.S1.M1/M3/M5 · admisión humana en el backoffice.
@@ -39,6 +40,7 @@ function jwt(permisos: string[], sub = 'bo-operador-1'): string {
 type Mundo = { registradas: Set<string>; decisiones: Decision[]; resoluciones: { clave: string | null; cuerpo: unknown }[]; fallarResolucion: 'no' | 'sin-llegar' | 'llega-pero-sin-respuesta'; demoraMs: number }
 
 async function simular(page: Page, mundo: Mundo, permisos: string[]): Promise<void> {
+  await prepararArranque(page)
   await page.route('**/api/v1/sesiones', (r: Route) => r.fulfill({ status: 200, json: { tokenAcceso: jwt(permisos), requiereFactorAdicional: false } }))
   await page.route(`**/api/v1/grupos/solicitudes/${SOLICITUD}/decisiones`, async (r: Route) => {
     if (mundo.demoraMs > 0) await new Promise((ok) => setTimeout(ok, mundo.demoraMs))
@@ -66,7 +68,8 @@ async function ingresar(page: Page, yaEnElIngreso = false): Promise<void> {
   await page.getByLabel(/Teléfono/).fill('71234567')
   await page.getByLabel(/Contraseña/).fill('contrasena-de-prueba')
   await page.getByRole('button', { name: 'Continuar' }).click()
-  await expect(page.getByRole('heading', { name: 'Tablero' })).toBeVisible()
+  // Entra al tablero, o a la ruta que se pidió antes de perder la sesión (`volverA`).
+  await page.waitForURL(/\/(tablero|admisiones)/)
 }
 
 /** Navegación dentro de la app (sin recargar: la sesión vive solo en memoria). */
@@ -135,12 +138,13 @@ test.describe('[UI con red simulada] admisión humana en backoffice', () => {
 
     // Persistencia: recargar pierde la sesión (solo en memoria, a propósito); al volver a entrar, la resolución sigue.
     await page.reload()
-    await expect(page).toHaveURL(/\/ingreso$/)
+    await expect(page).toHaveURL(/\/ingreso(\?|$)/)
     await ingresar(page, true)
     await irA(page, `/admisiones/${SOLICITUD}`)
     await expect(page.getByRole('heading', { name: 'Resolución de backoffice', level: 3 })).toBeVisible()
     await expect(page.getByText('La solicitud ya está resuelta')).toBeVisible()
-    expect(consola, `consola: ${consola.join(' | ')}`).toEqual([])
+    // El único «Failed to load resource» esperado es el 401 del refresco de sesión que el doble de `prepararArranque` responde a propósito.
+    expect(consola.filter((c) => !/status of 401/.test(c)), `consola: ${consola.join(' | ')}`).toEqual([])
   })
 
   test('rol sin el permiso de la plataforma: la sección no aparece y la ruta no monta (sin acciones ajenas)', async ({ page }) => {
@@ -149,15 +153,18 @@ test.describe('[UI con red simulada] admisión humana en backoffice', () => {
     await expect(page.getByRole('link', { name: 'Solicitudes de ingreso' })).toHaveCount(0)
     await expect(page.getByRole('navigation').getByRole('link', { name: 'Admisiones' })).toHaveCount(0)
     await irA(page, `/admisiones/${SOLICITUD}`)
-    await expect(page).toHaveURL(/\/sin-permiso/)
+    // `requierePermiso` redirige al tablero: la ruta no monta y no queda ninguna acción de resolver a la vista.
+    await expect(page).toHaveURL(/\/tablero$/)
     await expect(page.getByRole('button', { name: 'Resolver solicitud' })).toHaveCount(0)
-    await capturar(page, 'sin-permiso', 'movil', 'dark')
-    expect(consola, `consola: ${consola.join(' | ')}`).toEqual([])
+    await capturar(page, 'sin-permiso-vuelve-al-tablero', 'movil', 'dark')
+    // El único «Failed to load resource» esperado es el 401 del refresco de sesión que el doble de `prepararArranque` responde a propósito.
+    expect(consola.filter((c) => !/status of 401/.test(c)), `consola: ${consola.join(' | ')}`).toEqual([])
   })
 
   test('sin sesión no se entra a la solicitud', async ({ page }) => {
+    await prepararArranque(page)
     await page.goto(`/admisiones/${SOLICITUD}`)
-    await expect(page).toHaveURL(/\/ingreso$/)
+    await expect(page).toHaveURL(/\/ingreso(\?|$)/)
   })
 
   test('estados: cargando, vacío y error del servidor', async ({ page }) => {

@@ -64,12 +64,31 @@ Toda petición hostil recibe una respuesta controlada y firmada de error; nunca 
 - Credencial incorrecta: `401`, sin evaluar el cuerpo. Cada conexión tiene tiempo máximo (10 s) para que un cliente lento no retenga un hilo.
 - Cualquier otra falla interna: `500 ERROR_INTERNO_CONTROLADO` o `503` si SQLite no responde, sin reproducir contenido de la petición.
 
+## Escenario reproducible con semilla y cronología
+
+La semilla es el texto `pasanaku-escenario-h3-s1-m3-v1`; cada referencia es `uuid5(NAMESPACE_URL, "<semilla>/<nombre>")` y su clave de
+idempotencia es la misma referencia. El reloj de negocio arranca en **T0** (el instante en que se abre el archivo SQLite) y solo avanza por
+`/control/reloj`, así que la cronología se afirma en instantes relativos a T0. Lo único que no es determinista es `transaccionProveedor`
+(uuid4 por operación): se afirma que no cambia entre consultas, no su valor. Ejecutado paso a paso por
+`test_escenario_publicado.py`:
+
+| Tiempo | Acción | Resultado afirmado |
+| --- | --- | --- |
+| T0 | `POST /v1/operaciones` recarga `recarga-A`, 250.00 BOB | `201`, `PENDIENTE`; el resumen dice 1 operación, 0 confirmadas |
+| T0 | mismo pedido, misma clave | misma operación; sigue 1 |
+| T0 | misma clave, monto 999.00 | `409 IDEMPOTENCIA_CON_CONTENIDO_DISTINTO` |
+| T0 | `recarga-B` con `escenario=RESPUESTA_PERDIDA` | la conexión se corta sin respuesta; el proveedor ya la liquidó (1 confirmada) |
+| T0+10 s | consultar `recarga-B` dos veces | `CONFIRMADO`, la misma liquidación original |
+| T0+10 s | reiniciar el proceso con el mismo archivo | `liquidadaEn` de B intacto; 2 operaciones, 1 confirmada, 1 pendiente |
+| T0+3600 s | resolver `recarga-A` a `CONFIRMADO` | su `liquidadaEn` queda 3600 s después de la de B |
+| T0+3600 s | repetir la resolución / resolver a `RECHAZADO` | lo mismo / `TERMINAL`: no retrocede; 2 confirmadas, 0 pendientes |
+
 ## Verificación
 
 Pruebas del proveedor (rápidas, sin Docker; usan un servidor HTTP real en loopback y un SQLite temporal):
 
 ```powershell
-python -m unittest herramientas.proveedor_simulado.test_proveedor herramientas.proveedor_simulado.test_servidor_adverso -v
+python -m unittest herramientas.proveedor_simulado.test_proveedor herramientas.proveedor_simulado.test_servidor_adverso herramientas.proveedor_simulado.test_escenario_publicado -v
 ```
 
 Pruebas del backend contra el **proceso Python real** (necesitan `python` o `python3` en el PATH, o `PYTHON_EJECUTABLE`; si no está, fallan con ese motivo y no se saltean). Levantan el servidor con secretos al azar, matan el proceso, cortan conexiones y afirman que el proveedor termina con **una** operación y el libro con **un** movimiento:

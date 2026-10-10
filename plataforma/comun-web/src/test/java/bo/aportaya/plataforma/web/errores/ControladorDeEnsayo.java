@@ -123,6 +123,15 @@ public class ControladorDeEnsayo {
                 "ERROR: null value in column \"columna_que_el_catalogo_no_conoce\" of relation \"tabla_secreta\"");
     }
 
+    /** Una unicidad que el catalogo no conoce y cuyo mensaje trae el VALOR repetido (sintetico). */
+    @GetMapping("/ensayo/restriccion-con-valor")
+    @Permiso("BILLETERA_VER")
+    public Salida restriccionConValor() {
+        throw new DataIntegrityViolationException(
+                "ERROR: duplicate key value violates unique constraint \"uq_sin_catalogo\"\n"
+                        + "  Detail: Key (telefono)=(+59170000000) already exists.");
+    }
+
     @GetMapping("/ensayo/idempotencia-conflicto")
     @Permiso("BILLETERA_VER")
     public Salida idempotenciaConflicto() {

@@ -9,10 +9,9 @@ import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.SolicitarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.ValidarTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
-import bo.aportaya.identidad.dominio.CanalDeVerificacion;
-import bo.aportaya.identidad.dominio.DocumentoDeIdentidad;
 import bo.aportaya.identidad.web.generado.modelo.ArchivoDelExpediente;
 import bo.aportaya.identidad.web.generado.modelo.ConfirmacionVerificacionCorreo;
+import bo.aportaya.identidad.web.generado.modelo.EntradaBusquedaPorTelefono;
 import bo.aportaya.identidad.web.generado.modelo.EntradaRegistro;
 import bo.aportaya.identidad.web.generado.modelo.EntradaTitularidad;
 import bo.aportaya.identidad.web.generado.modelo.EntradaTokenDeInvitacion;
@@ -27,11 +26,14 @@ import bo.aportaya.identidad.web.generado.modelo.UsuarioEncontrado;
 import bo.aportaya.identidad.web.generado.modelo.VerificacionCorreoConfirmada;
 import bo.aportaya.identidad.web.generado.modelo.VerificacionCorreoSolicitada;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
+import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.Publico;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.Duration;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,6 +67,8 @@ public class UsuariosController extends InvitacionesController {
     private final SesionDeLaPeticion sesion;
     private final HttpServletRequest peticion;
     private final String pimienta;
+    private final TokenDeAlta tokenDeAlta;
+    private final TitularDelExpediente titular;
 
     public UsuariosController(
             CU01RegistrarUsuario cu01,
@@ -79,7 +83,9 @@ public class UsuariosController extends InvitacionesController {
             ConfirmarVerificacionCorreo confirmarCorreo,
             SesionDeLaPeticion sesion,
             HttpServletRequest peticion,
-            @Value("${aportaya.seguridad.pimienta}") String pimienta) {
+            @Value("${aportaya.seguridad.pimienta}") String pimienta,
+            Reloj reloj,
+            @Value("${identidad.alta.vigencia-token:PT30M}") Duration vigenciaTokenDeAlta) {
         super(consumo, sesion, peticion);
         this.cu01 = cu01;
         this.titularidad = titularidad;
@@ -93,6 +99,8 @@ public class UsuariosController extends InvitacionesController {
         this.sesion = sesion;
         this.peticion = peticion;
         this.pimienta = pimienta;
+        this.tokenDeAlta = new TokenDeAlta(pimienta, reloj, vigenciaTokenDeAlta);
+        this.titular = new TitularDelExpediente(tokenDeAlta, sesion);
     }
 
     /**
@@ -101,6 +109,8 @@ public class UsuariosController extends InvitacionesController {
      * <p>Contesta si coinciden y nada mas. Devolver los guardados haria de esta ruta un
      * directorio de clientes para cualquier servicio comprometido.
      */
+    /** @deprecated el telefono viaja en la query; usar {@link #buscarUsuarioPorTelefono} hasta que grupos migre. */
+    @Deprecated
     @Override
     @Permiso("GRUPO_ADMINISTRAR")
     public ResponseEntity<UsuarioEncontrado> buscarPorTelefono(String telefono) {
@@ -112,6 +122,13 @@ public class UsuariosController extends InvitacionesController {
         respuesta.setExiste(encontrado.isPresent());
         encontrado.ifPresent(respuesta::setUsuarioId);
         return ResponseEntity.ok(respuesta);
+    }
+
+    /** La misma pregunta, con el telefono en el cuerpo: una URL queda en logs y proxies (90.2.2). */
+    @Override
+    @Permiso("GRUPO_ADMINISTRAR")
+    public ResponseEntity<UsuarioEncontrado> buscarUsuarioPorTelefono(EntradaBusquedaPorTelefono cuerpo) {
+        return buscarPorTelefono(cuerpo.getTelefono());
     }
 
     @Override
@@ -172,17 +189,21 @@ public class UsuariosController extends InvitacionesController {
     }
 
     /**
-     * La foto del documento o la prueba de vida. Va al servidor de archivos y en la
-     * fila queda la clave del objeto: el binario nunca se sirve directo ni se guarda
+     * La foto del documento o la prueba de vida. Va al servidor de archivos y en
+     * la fila queda la clave del objeto: el binario nunca se sirve directo ni se guarda
      * en el disco del contenedor, que se reemplaza — y la evidencia legal no.
      *
-     * <p>Publica por el mismo motivo que el alta: estas fotos se sacan durante el
-     * registro, cuando todavia no hay sesion que presentar.
+     * <p>Sin sesion exigida porque estas fotos se sacan durante el registro, cuando todavia no
+     * hay sesion que presentar; pero NO es una ruta abierta: el {@code usuarioId} de la URL no
+     * autoriza nada. Escribe en el expediente solo quien presenta el token que le dio SU alta
+     * (cabecera {@code Token-De-Alta}) o quien tiene sesion propia. Todo lo demas es el mismo
+     * 403, exista o no ese usuario.
      */
     @Override
-    @Publico("CU-02: las fotos del expediente se sacan durante el alta, sin sesion")
+    @Publico("CU-02: se sube durante el alta, sin sesion; exige el token de alta del propio usuario o su sesion")
     public ResponseEntity<ArchivoDelExpediente> subirDocumento(
-            UUID usuarioId, UUID idempotencyKey, String cara, MultipartFile archivo) {
+            UUID usuarioId, UUID idempotencyKey, String cara, MultipartFile archivo, String tokenDeAltaPresentado) {
+        titular.exigir(usuarioId, tokenDeAltaPresentado);
         try {
             var guardado = fotos.ejecutar(
                     usuarioId,
@@ -209,12 +230,16 @@ public class UsuariosController extends InvitacionesController {
     public ResponseEntity<SalidaRegistro> registrarUsuario(UUID idempotencyKey, EntradaRegistro cuerpo) {
         Traza.marcarCasoDeUso("CU-01", String.valueOf(cuerpo.getTelefonoE164()));
 
-        var salida = cu01.ejecutar(mapear(cuerpo), contextoDelAlta());
+        var salida = cu01.ejecutar(MapeoDelAlta.mapear(cuerpo, pimienta, ip(), agente()), contextoDelAlta());
 
+        var paraLasFotos = tokenDeAlta.emitir(salida.usuarioId());
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(new SalidaRegistro(
-                        salida.usuarioId(),
-                        SalidaRegistro.EstadoEnum.fromValue(salida.estado().name())));
+                                salida.usuarioId(),
+                                SalidaRegistro.EstadoEnum.fromValue(
+                                        salida.estado().name()))
+                        .tokenDeAlta(paraLasFotos.token())
+                        .tokenDeAltaVenceEn(paraLasFotos.venceEn().atOffset(ZoneOffset.UTC)));
     }
 
     @Override
@@ -247,53 +272,11 @@ public class UsuariosController extends InvitacionesController {
         return ContextoSesion.deSistema(PROCESO_DE_ALTA, new bo.aportaya.plataforma.dominio.Traza(Traza.actual()));
     }
 
-    private CU01RegistrarUsuario.EntradaRegistro mapear(EntradaRegistro cuerpo) {
-        DocumentoDeIdentidad documento = DocumentoDeIdentidad.de(
-                DocumentoDeIdentidad.Tipo.valueOf(
-                        tipoDelModelo(cuerpo.getDocumento().getTipo().getValue())),
-                cuerpo.getDocumento().getNumero(),
-                pimienta,
-                "BO",
-                // La extension solo la lleva el CI; el contrato la deja opcional
-                // porque depende del tipo, y el dominio es el que la exige.
-                cuerpo.getDocumento().getLugarExpedicion() == null
-                        ? null
-                        : cuerpo.getDocumento().getLugarExpedicion().getValue());
-        return new CU01RegistrarUsuario.EntradaRegistro(
-                cuerpo.getTelefonoE164(),
-                cuerpo.getNombres(),
-                cuerpo.getApellidos(),
-                cuerpo.getFechaNacimiento(),
-                cuerpo.getCorreo(),
-                // El correo es obligatorio en el alta y es el unico canal habilitado.
-                cuerpo.getCanalVerificacion() == null
-                        ? CanalDeVerificacion.CORREO
-                        : CanalDeVerificacion.valueOf(
-                                cuerpo.getCanalVerificacion().getValue()),
-                cuerpo.getVerificacionCorreoId(),
-                documento,
-                // El cifrado real lo hace el adaptador de archivos; aca la frontera.
-                "cifrado:" + documento.hashNumero(),
-                // `char[]` y no `String`: una `String` de clave queda en el pool hasta
-                // que el recolector pase, y no hay forma de borrarla antes. El caso de
-                // uso limpia este arreglo apenas la hashea.
-                cuerpo.getContrasena().toCharArray(),
-                cuerpo.getAceptaContratos(),
-                true,
-                Optional.ofNullable(peticion.getRemoteAddr()).orElse("0.0.0.0"),
-                Optional.ofNullable(peticion.getHeader("User-Agent")).orElse("desconocido"));
-    }
-
     private String ip() {
         return Optional.ofNullable(peticion.getRemoteAddr()).orElse("0.0.0.0");
     }
 
     private String agente() {
         return Optional.ofNullable(peticion.getHeader("User-Agent")).orElse("desconocido");
-    }
-
-    /** El contrato dice {@code CEX}; el {@code .puml} dice {@code CARNET_EXTRANJERIA}. */
-    private String tipoDelModelo(String tipoDelContrato) {
-        return "CEX".equals(tipoDelContrato) ? "CARNET_EXTRANJERIA" : tipoDelContrato;
     }
 }

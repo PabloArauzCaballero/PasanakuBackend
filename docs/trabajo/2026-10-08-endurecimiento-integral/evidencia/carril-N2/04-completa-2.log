@@ -1,0 +1,207 @@
+heavy.sh: candado tomado, libres 3630 MB -> bash C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/n2_full.sh --continue spotlessApply :servicios:nucleo-financiero:test :servicios:nucleo-financiero:webTest :servicios:nucleo-financiero:integrationTest :servicios:nucleo-financiero:testBarrido
+== docker listo, libres: 3611 MB
+== aplicar.sql RC: 0
+psql:/repo/sql/40_reglas/restricciones.sql:3396: NOTICE:  trigger "tg_distribucion_interes_coherente" for relation "distribucion_interes" does not exist, skipping
+psql:/repo/sql/40_reglas/restricciones.sql:3402: NOTICE:  constraint "ck_corrida_trabajo_fin" of relation "corrida_trabajo" does not exist, skipping
+psql:/repo/sql/40_reglas/restricciones.sql:3403: NOTICE:  constraint "ck_corrida_trabajo_error" of relation "corrida_trabajo" does not exist, skipping
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Starting a Gradle Daemon, 2 stopped Daemons could not be reused, use --status for details
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-web:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-web:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-web:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-web:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-web:spotlessApply UP-TO-DATE
+> Task :plataforma:gateway:spotlessJava UP-TO-DATE
+> Task :plataforma:gateway:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:gateway:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:gateway:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:gateway:spotlessApply UP-TO-DATE
+> Task :servicios:aportes:spotlessJava UP-TO-DATE
+> Task :servicios:aportes:spotlessJavaApply UP-TO-DATE
+> Task :servicios:aportes:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:aportes:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:aportes:spotlessApply UP-TO-DATE
+> Task :servicios:auditoria:spotlessJava UP-TO-DATE
+> Task :servicios:auditoria:spotlessJavaApply UP-TO-DATE
+> Task :servicios:auditoria:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:auditoria:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:auditoria:spotlessApply UP-TO-DATE
+> Task :servicios:cumplimiento:spotlessJava UP-TO-DATE
+> Task :servicios:cumplimiento:spotlessJavaApply UP-TO-DATE
+> Task :servicios:cumplimiento:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:cumplimiento:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:cumplimiento:spotlessApply UP-TO-DATE
+> Task :servicios:entregas:spotlessJava UP-TO-DATE
+> Task :servicios:entregas:spotlessJavaApply UP-TO-DATE
+> Task :servicios:entregas:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:entregas:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:entregas:spotlessApply UP-TO-DATE
+> Task :servicios:erp:spotlessJava UP-TO-DATE
+> Task :servicios:erp:spotlessJavaApply UP-TO-DATE
+> Task :servicios:erp:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:erp:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:erp:spotlessApply UP-TO-DATE
+> Task :servicios:garantia:spotlessJava UP-TO-DATE
+> Task :servicios:garantia:spotlessJavaApply UP-TO-DATE
+> Task :servicios:garantia:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:garantia:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:garantia:spotlessApply UP-TO-DATE
+> Task :servicios:grupos:spotlessJava UP-TO-DATE
+> Task :servicios:grupos:spotlessJavaApply UP-TO-DATE
+> Task :servicios:grupos:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:grupos:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:grupos:spotlessApply UP-TO-DATE
+> Task :servicios:identidad:spotlessJava UP-TO-DATE
+> Task :servicios:identidad:spotlessJavaApply UP-TO-DATE
+> Task :servicios:identidad:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:identidad:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:identidad:spotlessApply UP-TO-DATE
+> Task :servicios:inversiones:spotlessJava UP-TO-DATE
+> Task :servicios:inversiones:spotlessJavaApply UP-TO-DATE
+> Task :servicios:inversiones:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:inversiones:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:inversiones:spotlessApply UP-TO-DATE
+> Task :servicios:notificaciones:spotlessJava UP-TO-DATE
+> Task :servicios:notificaciones:spotlessJavaApply UP-TO-DATE
+> Task :servicios:notificaciones:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:notificaciones:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:notificaciones:spotlessApply UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessJava UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessJavaApply UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessApply UP-TO-DATE
+> Task :servicios:organizador:spotlessJava UP-TO-DATE
+> Task :servicios:organizador:spotlessJavaApply UP-TO-DATE
+> Task :servicios:organizador:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:organizador:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:organizador:spotlessApply UP-TO-DATE
+> Task :servicios:publicidad:spotlessJava UP-TO-DATE
+> Task :servicios:publicidad:spotlessJavaApply UP-TO-DATE
+> Task :servicios:publicidad:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:publicidad:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:publicidad:spotlessApply UP-TO-DATE
+> Task :servicios:tarifas:spotlessJava UP-TO-DATE
+> Task :servicios:tarifas:spotlessJavaApply UP-TO-DATE
+> Task :servicios:tarifas:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:tarifas:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:tarifas:spotlessApply UP-TO-DATE
+> Task :servicios:transparencia:spotlessJava UP-TO-DATE
+> Task :servicios:transparencia:spotlessJavaApply UP-TO-DATE
+> Task :servicios:transparencia:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:transparencia:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:transparencia:spotlessApply UP-TO-DATE
+> Task :spotlessApply UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources NO-SOURCE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :servicios:nucleo-financiero:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:nucleo-financiero:generateJooq UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileJava UP-TO-DATE
+> Task :servicios:nucleo-financiero:processResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:classes UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileTestJava UP-TO-DATE
+> Task :servicios:nucleo-financiero:processTestResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:testClasses UP-TO-DATE
+
+> Task :servicios:nucleo-financiero:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:nucleo-financiero:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:nucleo-financiero:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-09T22:18:36.018-04:00  INFO 10400 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-09T22:18:36.026-04:00  INFO 10400 --- [nucleo-financiero] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-09T22:18:36.178-04:00  INFO 10400 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-09T22:18:36.183-04:00  INFO 10400 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-09T22:18:36.190-04:00  INFO 10400 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-09T22:18:36.195-04:00  INFO 10400 --- [nucleo-financiero] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-09T22:18:36.197-04:00  INFO 10400 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-10-09T22:18:36.197-04:00  INFO 10400 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+2026-10-09T22:18:36.201-04:00  INFO 10400 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-09T22:18:36.206-04:00  INFO 10400 --- [nucleo-financiero] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-09T22:18:36.208-04:00  INFO 10400 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown initiated...
+2026-10-09T22:18:36.209-04:00  INFO 10400 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown completed.
+2026-10-09T22:18:36.212-04:00  INFO 10400 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-09T22:18:36.216-04:00  INFO 10400 --- [nucleo-financiero] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-09T22:18:36.218-04:00  INFO 10400 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown initiated...
+2026-10-09T22:18:36.219-04:00  INFO 10400 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown completed.
+
+> Task :servicios:nucleo-financiero:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+BUILD SUCCESSFUL in 2m 57s
+124 actionable tasks: 4 executed, 120 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Stopping Daemon(s)
+1 Daemon stopped
+== RC gradle: 0
+FIN RC=0

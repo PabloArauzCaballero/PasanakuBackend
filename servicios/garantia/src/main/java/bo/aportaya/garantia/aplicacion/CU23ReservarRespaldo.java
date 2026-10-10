@@ -43,8 +43,11 @@ public class CU23ReservarRespaldo {
     private final RespaldoRepositorio respaldo;
     private final Outbox outbox;
     private final Reloj reloj;
+    private final ContingenciaDeCaja contingencia;
 
-    public CU23ReservarRespaldo(Datos datos, RespaldoRepositorio respaldo, Outbox outbox, Reloj reloj) {
+    public CU23ReservarRespaldo(
+            Datos datos, RespaldoRepositorio respaldo, Outbox outbox, Reloj reloj, ContingenciaDeCaja contingencia) {
+        this.contingencia = contingencia;
         this.datos = datos;
         this.respaldo = respaldo;
         this.outbox = outbox;
@@ -79,6 +82,13 @@ public class CU23ReservarRespaldo {
                 return new SalidaReserva(p.id(), p.cifras().reservado(), capacidad.disponible(), false);
             }
 
+            // H8.S1.M6: con una falta de caja sin resolver no se prometen ciclos nuevos (la tecnologia no crea
+            // capital).
+            if (contingencia.estaActiva(dsl)) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(23, 10),
+                        "Hay una falta de caja sin resolver: no se reservan ciclos nuevos hasta reponer el respaldo.");
+            }
             if (e.monto().esMayorQue(capacidad.disponible())) {
                 throw new ErrorDeNegocio(
                         CodigoError.de(23, 5),

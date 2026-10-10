@@ -332,6 +332,40 @@ entity "conciliacion_interes" as concint {
   conciliada_en : TIMESTAMPTZ
 }
 
+entity "distribucion_interes" as disint {
+  * id : UUID <<PK>>
+  --
+  # posicion_inversion_id : UUID <<FK, IDX>>
+  # rescate_inversion_id : UUID <<FK, UQ>>
+  usuario_id : UUID <<IDX>>
+  periodo_desde : DATE
+  periodo_hasta : DATE
+  interes_devengado : DECIMAL(14,2) <<CK: >= 0>>
+  penalizacion : DECIMAL(14,2) <<CK: >= 0>>
+  interes_esperado : DECIMAL(14,2) <<CK: >= 0>>
+  interes_pagado : DECIMAL(14,2) <<CK: >= 0>>
+  retencion : DECIMAL(14,2) <<CK: >= 0>>
+  interes_neto : DECIMAL(14,2) <<CK: >= 0>>
+  moneda : CHAR(3)
+  estado : VARCHAR(12) <<CK: CONCILIADA | DISCREPANCIA, IDX>>
+  motivo_discrepancia : VARCHAR(40) <<NULL>>
+  distribuida_en : TIMESTAMPTZ
+}
+
+entity "corrida_trabajo" as corrida {
+  * id : UUID <<PK>>
+  --
+  operacion : VARCHAR(30) <<CK: SINCRONIZAR_CATALOGO | SINCRONIZAR_VALORES | DEVENGAR | REINTENTAR_INSTRUCCIONES, IDX>>
+  clave_idempotencia : VARCHAR(80) <<UQ+operacion>>
+  hash_solicitud : CHAR(64)
+  origen : VARCHAR(10) <<CK: API | PROGRAMADO>>
+  estado : VARCHAR(10) <<CK: EN_CURSO | OK | PARCIAL | FALLIDA, IDX>>
+  resultado : VARCHAR(400) <<NULL>>
+  error : VARCHAR(120) <<NULL>>
+  iniciada_en : TIMESTAMPTZ
+  terminada_en : TIMESTAMPTZ <<NULL>>
+}
+
 prodinv ||--|{ vercond : "publica"
 vercond ||--o{ consinv : "se acepta en"
 consinv ||--o| ordinv : "respalda"
@@ -342,6 +376,8 @@ prodinv ||--o{ valcuo : "se valora con"
 posinv ||--o{ compinv : "se documenta con"
 rescinv ||--o| comexi : "cristaliza"
 rescinv ||--o| concint : "concilia"
+rescinv ||--o| disint : "distribuye interes con"
+posinv ||--o{ disint : "reparte interes"
 
 note top of vercond
   Cada cotizacion es una fila nueva: el texto que la persona
@@ -355,6 +391,20 @@ note bottom of compinv
   y neto = principal + interes - impuesto - comision (R-INV-03).
   costo_base = principal + perdida_realizada: es lo que permite
   derivar el saldo de una posicion sin guardarlo.
+end note
+
+note bottom of disint
+  El interes pagado por el emisor se reparte al titular de la posicion,
+  por el periodo de la posicion y con la retencion del comprobante, y se
+  concilia contra el devengo propio (R-INV-09). Una discrepancia se
+  registra y queda a la vista: no se corrige en silencio.
+end note
+
+note bottom of corrida
+  Una corrida por operacion y clave de idempotencia (R-INV-10): repetir
+  la clave con el mismo contenido devuelve el resultado guardado; con otro
+  contenido se rechaza. Es tambien la visibilidad de los trabajos
+  programados: cuando corrieron, con que resultado y si se cortaron.
 end note
 
 @enduml

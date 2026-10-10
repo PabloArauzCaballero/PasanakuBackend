@@ -44,5 +44,8 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private CU100RecibirWebhookPasarela cu100RecibirWebhookPasarela;
 
     @MockitoBean
+    private bo.aportaya.aportes.aplicacion.GenerarObligacionesDelPeriodo generarObligaciones;
+
+    @MockitoBean
     private ConsultarRecaudoDelPeriodo consultarRecaudoDelPeriodo;
 }

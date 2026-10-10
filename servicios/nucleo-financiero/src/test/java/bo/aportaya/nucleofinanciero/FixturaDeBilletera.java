@@ -64,9 +64,9 @@ final class FixturaDeBilletera {
     /**
      * Una billetera de usuario con el saldo pedido.
      *
-     * <p>El saldo se pone directo porque estas pruebas verifican los limites y las
-     * reglas, no como se llego a ese saldo: llegar «bien» exigiria correr media
-     * docena de casos de uso que todavia no existen.
+     * <p>H2.S1.M5: el saldo entra por el LIBRO ({@link #acreditar}), no escribiendo la columna cache.
+     * Antes se ponia {@code saldo_disponible} directo, y eso ya no autoriza nada: las decisiones de dinero
+     * se toman contra el libro, asi que una billetera con cache sin libro es una billetera sin plata.
      */
     UUID billetera(UUID usuarioId, String nivel, BigDecimal disponible) {
         UUID id = UUID.randomUUID();
@@ -76,14 +76,16 @@ final class FixturaDeBilletera {
                     (id, numero_cuenta, tipo, usuario_id, politica_billetera_id, moneda, estado,
                      nivel_debida_diligencia, saldo_disponible, saldo_retenido,
                      permite_saldo_negativo, fecha_apertura, version)
-                VALUES (?, ?, 'USUARIO', ?, ?, 'BOB', 'ACTIVA', ?, ?, 0, false, now(), 0)
+                VALUES (?, ?, 'USUARIO', ?, ?, 'BOB', 'ACTIVA', ?, 0, 0, false, now(), 0)
                 """,
                 id,
                 "BOB-" + id.toString().substring(0, 12),
                 usuarioId,
                 politica(),
-                nivel,
-                disponible);
+                nivel);
+        if (disponible.signum() > 0) {
+            acreditar(id, disponible);
+        }
         return id;
     }
 

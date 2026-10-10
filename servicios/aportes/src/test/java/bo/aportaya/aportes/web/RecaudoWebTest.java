@@ -44,6 +44,9 @@ class RecaudoWebTest {
     private ConsultarEstadoDelParticipante estados;
 
     @MockitoBean
+    private bo.aportaya.aportes.aplicacion.GenerarObligacionesDelPeriodo generarObligaciones;
+
+    @MockitoBean
     private ConsultarRecaudoDelPeriodo recaudos;
 
     @MockitoBean

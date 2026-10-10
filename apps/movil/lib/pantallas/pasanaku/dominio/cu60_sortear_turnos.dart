@@ -5,7 +5,7 @@ import '../../../dominio/cliente.dart';
 import '../../../proveedores/idempotencia.dart';
 
 /// CU-60 · sortear los turnos, en sus dos fases: comprometer (solo el hash) y
-/// revelar (la semilla, que crea los turnos). Nunca se junta en un paso: sin esa
+/// revelar (con la semilla sellada en el servidor, que crea los turnos). Nunca se junta en un paso: sin esa
 /// separación quien ejecuta el sorteo podría probar semillas hasta que le convenga.
 class ComprometerSorteo extends AsyncNotifier<CompromisoDeSorteo?> {
   static String formularioId(String grupoId) => 'cu60-comprometer-$grupoId';
@@ -53,7 +53,6 @@ class RevelarSorteo extends AsyncNotifier<RevelacionDeSorteo?> {
   Future<void> enviar({
     required String grupoId,
     required String sorteoId,
-    required String semilla,
     List<String>? entropias,
   }) async {
     if (state.isLoading) return;
@@ -68,7 +67,6 @@ class RevelarSorteo extends AsyncNotifier<RevelacionDeSorteo?> {
         idempotencyKey: clave,
         entradaRevelacion: EntradaRevelacion(
           sorteoId: sorteoId,
-          semilla: semilla,
           entropias: entropias,
         ),
       );

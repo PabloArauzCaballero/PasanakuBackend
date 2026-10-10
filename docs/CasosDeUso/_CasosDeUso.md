@@ -3,7 +3,7 @@ tags:
   - moc
   - caso-uso
 titulo: "Casos de uso — AportaYa"
-total_casos: 105
+total_casos: 109
 fecha: 2026-08-14
 ---
 
@@ -232,6 +232,10 @@ Norma (docs/Cumplimiento.md)  →  Caso de uso (esta carpeta)  →  Restricción
 | [[CU-123 Devengar y valorar una posición de inversión]] | Devengado distinto de pagado; cuotas valuadas sin promesa | Usuario · Operaciones | Prohibido inferir parámetros financieros |
 | [[CU-124 Solicitar el rescate de una inversión]] | Informar el corte y no ofrecer dos veces lo mismo | Usuario | Rechazo de doble disponibilidad |
 | [[CU-125 Liquidar el rescate y acreditar al titular]] | Recalcular, conciliar, descomponer sin residuo y acreditar una vez | Sistema · Aliado | Conciliación · protección del inversor |
+| [[CU-126 Distribuir los intereses al titular y conciliarlos]] | Repartir el interés del emisor al titular, por período y con su retención, conciliado contra el devengo | Sistema · Aliado | Conciliación · trazabilidad del dinero |
+| [[CU-127 Estimar y cobrar la comisión por resultado]] | Cobrar solo el beneficio sobre la marca máxima previa, por lote, y estimarlo antes de rescatar | Usuario · Sistema | Protección del inversor |
+| [[CU-128 Informar comprobantes y reporte fiscal separables]] | Principal, interés, impuesto y comisión separados y reconciliados con el libro | Usuario · Sistema | Trazabilidad del dinero · conciliación |
+| [[CU-129 Simular la caja de una inversión sin tocar saldos]] | Comparar billetera, DPF y fondo con un importe hipotético, sin leer ni mover saldos | Usuario | Protección del inversor · separación de patrimonios |
 
 ## Casos de uso todavía no escritos
 
@@ -244,9 +248,9 @@ proveedores de plataforma, que hasta entonces existían en el modelo (módulo 07
 especificación de flujo. CU-100..109 (contabilidad financiera y ERP, módulo 13) y
 CU-110..119 (publicidad y campañas, módulo 14) se abrieron por la misma razón: dos
 módulos nuevos del modelo sin especificación de flujo todavía. CU-120..129 es el rango
-del módulo 15 (inversiones voluntarias): CU-120 a CU-125 están escritos; el contrato
-también etiqueta como `CU-127` el cálculo de la comisión de éxito y como `CU-128` el
-listado de comprobantes, que hoy están absorbidos por CU-125 y CU-123. Los códigos de tres
+del módulo 15 (inversiones voluntarias): CU-120 a CU-129 están escritos. CU-126 reparte y concilia
+el interés, CU-127 estima y cobra la comisión por resultado, CU-128 informa comprobantes y el reporte
+fiscal separables, y CU-129 simula la caja sin tocar saldos. Los códigos de tres
 dígitos rompían un supuesto de ancho fijo en `scripts/verificar_boveda.py`
 (`stem[3:5]`); se corrigió para extraer el número con una expresión regular en vez
 de asumir dos dígitos.

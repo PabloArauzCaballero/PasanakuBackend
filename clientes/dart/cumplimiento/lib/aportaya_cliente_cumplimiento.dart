@@ -11,8 +11,10 @@ export 'package:aportaya_cliente_cumplimiento/src/auth/oauth.dart';
 
 export 'package:aportaya_cliente_cumplimiento/src/api/default_api.dart';
 
+export 'package:aportaya_cliente_cumplimiento/src/model/caso_de_reclamo.dart';
 export 'package:aportaya_cliente_cumplimiento/src/model/contrato_vigente.dart';
 export 'package:aportaya_cliente_cumplimiento/src/model/dinero.dart';
+export 'package:aportaya_cliente_cumplimiento/src/model/efecto_de_reclamos.dart';
 export 'package:aportaya_cliente_cumplimiento/src/model/entrada_aceptacion.dart';
 export 'package:aportaya_cliente_cumplimiento/src/model/entrada_diligencia.dart';
 export 'package:aportaya_cliente_cumplimiento/src/model/entrada_diligencia_documentos_inner.dart';

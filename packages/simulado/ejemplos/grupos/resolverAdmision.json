@@ -15,7 +15,7 @@
         "motivo": "Evidencia suficiente. Se reservan los cupos y queda pendiente su firma del reglamento.",
         "propuestaId": "a1b2c3d4-0001-4aaa-8bbb-000000000001",
         "revision": 2,
-        "evidenciaAlgoritmo": "Reputacion 82/100; sin mora vigente; concentracion de riesgo baja; KYC nivel 2.",
+        "evidenciaAlgoritmo": "Reputación 82/100; sin mora vigente; concentración de riesgo baja; KYC nivel 2.",
         "ocurridaEn": "2026-10-08T14:20:00Z",
         "correlacionId": "2d4e6f80-1a3b-4c5d-8e7f-9a0b1c2d3e4f",
         "participanteId": "71e9b4d0-6c2a-4f83-8d5e-a03c19f7b268"
@@ -32,7 +32,7 @@
         "motivo": "La concentracion de riesgo supera el limite del grupo aunque el administrador propuso aceptar.",
         "propuestaId": "a1b2c3d4-0001-4aaa-8bbb-000000000001",
         "revision": 2,
-        "evidenciaAlgoritmo": "Reputacion 82/100; sin mora vigente; concentracion de riesgo baja; KYC nivel 2.",
+        "evidenciaAlgoritmo": "Reputación 82/100; sin mora vigente; concentración de riesgo baja; KYC nivel 2.",
         "ocurridaEn": "2026-10-08T14:20:00Z",
         "correlacionId": "2d4e6f80-1a3b-4c5d-8e7f-9a0b1c2d3e4f"
       }
@@ -48,7 +48,7 @@
         "motivo": "La concentracion de riesgo supera el limite del grupo aunque el administrador propuso aceptar.",
         "propuestaId": "a1b2c3d4-0001-4aaa-8bbb-000000000001",
         "revision": 2,
-        "evidenciaAlgoritmo": "Reputacion 82/100; sin mora vigente; concentracion de riesgo baja; KYC nivel 2.",
+        "evidenciaAlgoritmo": "Reputación 82/100; sin mora vigente; concentración de riesgo baja; KYC nivel 2.",
         "ocurridaEn": "2026-10-08T14:20:00Z",
         "correlacionId": "2d4e6f80-1a3b-4c5d-8e7f-9a0b1c2d3e4f"
       }
@@ -64,7 +64,7 @@
         "motivo": "Evidencia suficiente. Se reservan los cupos y queda pendiente su firma del reglamento.",
         "propuestaId": "a1b2c3d4-0001-4aaa-8bbb-000000000001",
         "revision": 2,
-        "evidenciaAlgoritmo": "Reputacion 82/100; sin mora vigente; concentracion de riesgo baja; KYC nivel 2.",
+        "evidenciaAlgoritmo": "Reputación 82/100; sin mora vigente; concentración de riesgo baja; KYC nivel 2.",
         "ocurridaEn": "2026-10-08T14:20:00Z",
         "correlacionId": "2d4e6f80-1a3b-4c5d-8e7f-9a0b1c2d3e4f",
         "participanteId": "71e9b4d0-6c2a-4f83-8d5e-a03c19f7b268"

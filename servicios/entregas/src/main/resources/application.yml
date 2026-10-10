@@ -18,6 +18,14 @@ spring:
     bootstrap-servers: ${KAFKA_URL}
 
 aportaya:
+  resiliencia:
+    # Circuit breaker de los clientes hacia otros servicios (regla 98.2.3). Valores SINTETICOS del plan de
+    # resiliencia (evidencia/carril-S2/DEUDA-circuit-breaker-clientes-http.md): no salen de medir trafico real.
+    circuito:
+      ventana: 10                   # llamadas que se miran, y minimo para juzgar
+      umbral-de-fallos: 50          # % de fallos (red, timeout, 5xx, cuerpo ilegible) que lo abre
+      espera-abierto: PT30S         # cuanto se deja de llamar antes de probar
+      llamadas-de-prueba: 3         # llamadas de prueba en semiabierto
   esquema: entregas
   outbox:
     intervalo: PT1S                 # relevo: lee el outbox y publica DESPUES del commit

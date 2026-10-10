@@ -3,11 +3,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http'
 import { provideRouter, withComponentInputBinding } from '@angular/router'
 import { routes } from './app.routes'
 import { inicializarSesion } from './nucleo/auth-bootstrap'
-import { erroresInterceptor } from './nucleo/errores.interceptor'
-import { idempotenciaInterceptor } from './nucleo/idempotencia.interceptor'
-import { registroDeAccesoInterceptor } from './nucleo/registro-de-acceso.interceptor'
-import { sesionInterceptor } from './nucleo/sesion.interceptor'
-import { trazaInterceptor } from './nucleo/traza.interceptor'
+import { INTERCEPTORES_DE_RED } from './nucleo/interceptores'
 import { GATEWAY, gatewayPorDefecto } from './nucleo/gateway'
 import { proveerTutoriales } from './rutas/ayuda/catalogo/proveer'
 
@@ -18,9 +14,7 @@ export const appConfig: ApplicationConfig = {
     // Los query params son entradas del componente: el estado de una tabla vive en la URL.
     provideRouter(routes, withComponentInputBinding()),
     // Ningún componente inyecta HttpClient: la red pasa por estos interceptores y por dominio/.
-    provideHttpClient(
-      withInterceptors([trazaInterceptor, sesionInterceptor, idempotenciaInterceptor, registroDeAccesoInterceptor, erroresInterceptor]),
-    ),
+    provideHttpClient(withInterceptors(INTERCEPTORES_DE_RED)),
     { provide: GATEWAY, useValue: gatewayPorDefecto() },
     // Antes de montar cualquier ruta: intenta restaurar la sesión con la cookie de refresco.
     provideAppInitializer(inicializarSesion()),

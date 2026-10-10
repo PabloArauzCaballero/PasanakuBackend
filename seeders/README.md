@@ -59,6 +59,14 @@ local y en QA, y no deben tocar producción jamás.
 | `19-reportes-y-retencion.json` | 10 definiciones de reporte, 5 programaciones, 19 políticas de retención, 11 reglas de cumplimiento, 20 umbrales, 5 listas | ⚠ **PROVISIONAL** |
 | `20-control-interno-y-continuidad.json` | 12 políticas internas, 16 controles, 12 activos, 5 planes de continuidad, 6 documentos publicados | ⚠ **PROVISIONAL** |
 | `21-contabilidad-y-publicidad.json` | 5 centros de costo, 3 categorías de activo fijo y 4 espacios publicitarios | revisar con contabilidad |
+| `22-cuentas-de-sistema.json` | cuentas de billetera de sistema (custodia de inversión, ingresos de la plataforma y puente de custodia, en cero) y el árbol contable **9** con el mapeo SINTÉTICO de `CAJA_EMPRESA`, `RESERVA_RESPALDO` y `POZO_GRUPO` por moneda | ⚠ **SINTÉTICO** en lo contable (`apto_produccion=false`, A5) |
+
+> [!note] `cuenta_billetera` en `minimos/`: una excepción acotada
+> `generar_semillas.py` admite `cuenta_billetera` en `minimos/` **solo** para cuentas de sistema (nunca `USUARIO`
+> ni `GRUPO`), sin usuario ni grupo, en cero y sin que `dev/` repita el mismo `numero_cuenta`. Las semillas de
+> `22-…` usan identificadores estables y `ON CONFLICT DO NOTHING`: la segunda corrida no inserta nada (probado con
+> `psql` dos veces y con `CU24SemillasTest`). El mapeo cuenta lógica → código del plan NO está en la base: es
+> configuración de `nucleo-financiero` (`CUENTA_LOGICA_<LOGICA>_<MONEDA>`), con default en `generar_compose.py`.
 
 Cada archivo lleva su propio campo `estado`, `advertencia` o `revisar_con`: los
 valores marcados **PROVISIONAL** no deben usarse en producción sin confirmación

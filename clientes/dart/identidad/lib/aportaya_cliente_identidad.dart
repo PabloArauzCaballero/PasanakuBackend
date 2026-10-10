@@ -21,6 +21,7 @@ export 'package:aportaya_cliente_identidad/src/model/dinero.dart';
 export 'package:aportaya_cliente_identidad/src/model/documento.dart';
 export 'package:aportaya_cliente_identidad/src/model/enlace_de_foto.dart';
 export 'package:aportaya_cliente_identidad/src/model/entrada_autenticacion.dart';
+export 'package:aportaya_cliente_identidad/src/model/entrada_busqueda_por_telefono.dart';
 export 'package:aportaya_cliente_identidad/src/model/entrada_desafio_de_step_up.dart';
 export 'package:aportaya_cliente_identidad/src/model/entrada_registro.dart';
 export 'package:aportaya_cliente_identidad/src/model/entrada_titularidad.dart';

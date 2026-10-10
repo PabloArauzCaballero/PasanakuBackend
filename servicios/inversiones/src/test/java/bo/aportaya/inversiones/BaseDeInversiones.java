@@ -8,11 +8,14 @@ import bo.aportaya.inversiones.aplicacion.CU123Devengo;
 import bo.aportaya.inversiones.aplicacion.CU123Posiciones;
 import bo.aportaya.inversiones.aplicacion.CU124SolicitarRescate;
 import bo.aportaya.inversiones.aplicacion.CU125LiquidarRescate;
+import bo.aportaya.inversiones.aplicacion.CU126DistribuirIntereses;
 import bo.aportaya.inversiones.aplicacion.CalculoDeLiquidacion;
 import bo.aportaya.inversiones.aplicacion.Transaccionar;
 import bo.aportaya.inversiones.aplicacion.VistaOrden;
 import bo.aportaya.inversiones.infraestructura.CatalogoRepositorio;
 import bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio;
+import bo.aportaya.inversiones.infraestructura.CorridaRepositorio;
+import bo.aportaya.inversiones.infraestructura.DistribucionRepositorio;
 import bo.aportaya.inversiones.infraestructura.GuardiaDeProduccion;
 import bo.aportaya.inversiones.infraestructura.InstruccionRepositorio;
 import bo.aportaya.inversiones.infraestructura.OrdenRepositorio;
@@ -64,6 +67,8 @@ public abstract class BaseDeInversiones {
     protected static RescateRepositorio rescates;
     protected static ComprobanteRepositorio comprobantes;
     protected static InstruccionRepositorio instrucciones;
+    protected static DistribucionRepositorio distribuciones;
+    protected static CorridaRepositorio corridas;
 
     protected static final AtomicReference<Instant> AHORA = new AtomicReference<>(LUNES);
     protected static final Reloj RELOJ = () -> AHORA.get();
@@ -80,6 +85,7 @@ public abstract class BaseDeInversiones {
     protected CU123Devengo cu123Devengo;
     protected CU124SolicitarRescate cu124;
     protected CU125LiquidarRescate cu125;
+    protected CU126DistribuirIntereses cu126;
 
     /** Un fondo propio de cada prueba: el valor de cuota es estado compartido del producto y las pruebas no deben pisarse. */
     protected String productoFondo;
@@ -104,6 +110,8 @@ public abstract class BaseDeInversiones {
         rescates = new RescateRepositorio();
         comprobantes = new ComprobanteRepositorio();
         instrucciones = new InstruccionRepositorio();
+        distribuciones = new DistribucionRepositorio();
+        corridas = new CorridaRepositorio();
 
         AHORA.set(LUNES);
         libro = new LibroDoble();
@@ -129,6 +137,7 @@ public abstract class BaseDeInversiones {
                 datos, tx, catalogo, ordenes, instrucciones, libro, cu122, guardia, outbox, RELOJ);
         cu123 = new CU123Posiciones(datos, tx, posiciones, catalogo, comprobantes, aliado, RELOJ, 3);
         cu123Devengo = new CU123Devengo(datos, tx, posiciones, catalogo, RELOJ);
+        cu126 = new CU126DistribuirIntereses(datos, tx, distribuciones, posiciones, cu123, outbox);
         cu125 = new CU125LiquidarRescate(
                 datos,
                 tx,
@@ -140,6 +149,7 @@ public abstract class BaseDeInversiones {
                 aplicador,
                 aliado,
                 new CalculoDeLiquidacion(catalogo, comprobantes),
+                cu126,
                 outbox,
                 RELOJ);
         cu124 = new CU124SolicitarRescate(

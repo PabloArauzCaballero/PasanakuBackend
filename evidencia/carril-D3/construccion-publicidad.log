@@ -1,0 +1,60 @@
+#14 [construccion 11/15] COPY plataforma plataforma
+#14 CACHED
+
+#15 [runtime 3/8] WORKDIR /app
+#15 CACHED
+
+#16 [construccion 15/15] RUN mkdir -p /nativo /tmp/nativo && cd /tmp/nativo     && case "$(uname -m)" in x86_64) prefijo=linux-x86-64 ;; aarch64) prefijo=linux-aarch64 ;; *) prefijo=desconocido ;; esac     && for j in /capas/dependencies/BOOT-INF/lib/jna-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "com/sun/jna/${prefijo}/libjnidispatch.so" && cp "com/sun/jna/${prefijo}/libjnidispatch.so" /nativo/; done     && for j in /capas/dependencies/BOOT-INF/lib/argon2-jvm-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "${prefijo}/libargon2.so" && cp "${prefijo}/libargon2.so" /nativo/; done     ; ls -l /nativo
+#16 CACHED
+
+#17 [runtime 2/8] RUN groupadd --system app && useradd --system --gid app app     && apt-get update     && apt-get install -y --no-install-recommends wget     && rm -rf /var/lib/apt/lists/*
+#17 CACHED
+
+#18 [runtime 6/8] COPY --from=construccion --chown=app:app /capas/snapshot-dependencies/ ./
+#18 CACHED
+
+#19 [construccion 14/15] RUN mkdir -p /capas && cd /capas     && java -Djarmode=tools -jar /construccion/servicios/publicidad/build/libs/*.jar extract --layers --launcher --destination /capas
+#19 CACHED
+
+#20 [construccion 13/15] RUN --mount=type=cache,target=/root/.gradle     BD_URL_ADMIN=jdbc:postgresql://127.0.0.1:5444/pasanaku     BD_USUARIO_ADMIN=pasanaku     BD_CLAVE_ADMIN=<BD_CLAVE_ADMIN>     ./gradlew --no-daemon --max-workers=2 -Dorg.gradle.parallel=false "-Dorg.gradle.jvmargs=-Xmx1g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8" :servicios:publicidad:bootJar -x test
+#20 CACHED
+
+#21 [construccion  6/15] COPY buildSrc buildSrc
+#21 CACHED
+
+#22 [construccion  4/15] COPY gradlew settings.gradle.kts build.gradle.kts gradle.properties ./
+#22 CACHED
+
+#23 [runtime 5/8] COPY --from=construccion --chown=app:app /capas/spring-boot-loader/ ./
+#23 CACHED
+
+#24 [construccion  2/15] WORKDIR /construccion
+#24 CACHED
+
+#25 [construccion  8/15] COPY scripts scripts
+#25 CACHED
+
+#26 [construccion 10/15] COPY sql/50_verificacion/prueba_humo.sql sql/50_verificacion/prueba_humo.sql
+#26 CACHED
+
+#27 [construccion 12/15] COPY servicios/publicidad servicios/publicidad
+#27 CACHED
+
+#28 [construccion  7/15] COPY bd bd
+#28 CACHED
+
+#29 [runtime 4/8] COPY --from=construccion --chown=app:app /capas/dependencies/ ./
+#29 CACHED
+
+#30 [runtime 8/8] COPY --from=construccion /nativo/ /app/nativo/
+#30 CACHED
+
+#31 exporting to image
+#31 exporting layers done
+#31 exporting manifest sha256:a736be0f747a8b73b337dea5efa04db1151b9cf47f60fd537b9f4062bb141269 done
+#31 exporting config sha256:b217713dbaf8e1c20bafd5913dc072b397122ffc8a794358e1b29b72162e2915 done
+#31 exporting attestation manifest sha256:0d072955f58c345e2fd8d8fb71b03b0b1eeffa407c2186fee265eb5fca6583a8 0.0s done
+#31 exporting manifest list sha256:53d493ea2e3eea4fbeaef958869a686b9522243a9b5cdbb9d62dafa53dc44cc3 done
+#31 naming to docker.io/aportaya/publicidad:test done
+#31 unpacking to docker.io/aportaya/publicidad:test done
+#31 DONE 0.1s

@@ -83,6 +83,9 @@ class AportesControllerWebTest {
 
     // El recaudo del periodo tiene su propia prueba (RecaudoWebTest).
     @MockitoBean
+    private bo.aportaya.aportes.aplicacion.GenerarObligacionesDelPeriodo generarObligaciones;
+
+    @MockitoBean
     private ConsultarRecaudoDelPeriodo recaudos;
 
     private static Dinero bob(String monto) {

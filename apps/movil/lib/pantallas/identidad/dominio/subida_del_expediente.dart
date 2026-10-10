@@ -8,6 +8,7 @@ Future<void> subirFotosDelExpediente(
   Ref ref,
   EstadoAlta state,
   String usuarioId,
+  String? tokenDeAlta,
 ) async {
   final subida = ref.read(subidaDeFotosProvider);
   final pendientes = <CaraDelExpediente, String?>{
@@ -21,6 +22,7 @@ Future<void> subirFotosDelExpediente(
     try {
       await subida.subir(
         usuarioId: usuarioId,
+        tokenDeAlta: tokenDeAlta,
         cara: entrada.key,
         rutaLocal: ruta,
         formularioId: 'alta-${entrada.key.name}',

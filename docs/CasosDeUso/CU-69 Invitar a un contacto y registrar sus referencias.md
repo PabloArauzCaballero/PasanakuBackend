@@ -67,6 +67,8 @@ normas: [Protección de datos, ASFI Consumidor Financiero, antifraude]
 | — | Varias invitaciones al mismo teléfono desde grupos distintos | Se aplica el tope por destinatario y día (`R-NOT-02`), no por grupo |
 | — | Invitación usada para captar clientes masivamente | El patrón se detecta y se limita: el canal de invitación es entre conocidos, no un canal comercial |
 
+> **Interruptor de admisión humana** (`aportaya.grupos.admision.humana-obligatoria`, decisión pendiente de negocio y cumplimiento). Encendido, aceptar por enlace (que crearía al participante ACTIVO sin expediente) se rechaza y el camino es el canje, que deja una solicitud pendiente de backoffice; apagado conserva el comportamiento de TEST.
+
 ## Postcondiciones
 
 - Toda incorporación por invitación tiene emisor identificado y token consumido una

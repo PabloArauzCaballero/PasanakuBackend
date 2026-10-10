@@ -226,4 +226,4 @@ y penalización de cancelación anticipada de cada producto.
 
 ## Ver también
 
-[[CU-120 Consultar productos de inversión y sus condiciones]] · [[CU-121 Aceptar las condiciones y ordenar una inversión]] · [[CU-122 Confirmar la posición sin duplicar el saldo]] · [[CU-123 Devengar y valorar una posición de inversión]] · [[CU-125 Liquidar el rescate y acreditar al titular]]
+[[CU-120 Consultar productos de inversión y sus condiciones]] · [[CU-121 Aceptar las condiciones y ordenar una inversión]] · [[CU-122 Confirmar la posición sin duplicar el saldo]] · [[CU-123 Devengar y valorar una posición de inversión]] · [[CU-125 Liquidar el rescate y acreditar al titular]] · [[CU-129 Simular la caja de una inversión sin tocar saldos]]

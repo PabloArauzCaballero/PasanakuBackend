@@ -1,0 +1,61 @@
+{
+  "servicio": "inversiones",
+  "operacion": "listarCorridasDeInversiones",
+  "metodo": "get",
+  "ruta": "/inversiones/corridas",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "corridas": [
+          {
+            "corridaId": "eeae3ccf-950b-4fa5-8ba5-c36a83ba3c74",
+            "operacion": "SINCRONIZAR_CATALOGO",
+            "clave": "sincronizar-catalogo-2026-10-09",
+            "origen": "API",
+            "estado": "OK",
+            "resultado": {
+              "productos": "3"
+            },
+            "iniciadaEn": "2026-01-15T10:30:00Z",
+            "terminadaEn": "2026-01-15T10:30:00Z"
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "corridas": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "corridas": [
+          {
+            "corridaId": "eeae3ccf-950b-4fa5-8ba5-c36a83ba3c74",
+            "operacion": "SINCRONIZAR_CATALOGO",
+            "clave": "sincronizar-catalogo-2026-10-09",
+            "origen": "API",
+            "estado": "OK",
+            "resultado": {
+              "productos": "3"
+            },
+            "iniciadaEn": "2026-01-15T10:30:00Z",
+            "terminadaEn": "2026-01-15T10:30:00Z"
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU123-01",
+        "mensaje": "Posicion inexistente",
+        "detalle": {},
+        "trazaId": "traza-listarCorridasDeInversiones-rechazo"
+      }
+    }
+  }
+}

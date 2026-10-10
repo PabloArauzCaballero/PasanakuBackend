@@ -1,0 +1,114 @@
+heavy.sh: timeout esperando RAM/candado (libres: 224 MB)
+/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/n2_full.sh --continue :servicios:nucleo-financiero:spotlessApply :servicios:nucleo-financiero:integrationTest --tests *CU13InversionTest --tests *CU13MercadoTest --tests *CU12RescateTest --tests *CU12ProyeccionTest --tests *CU24MonedaTest --tests *CU24EventosTest
+== docker listo, libres: 3869 MB
+== aplicar.sql RC: 0
+psql:/repo/sql/40_reglas/restricciones.sql:3396: NOTICE:  trigger "tg_distribucion_interes_coherente" for relation "distribucion_interes" does not exist, skipping
+psql:/repo/sql/40_reglas/restricciones.sql:3402: NOTICE:  constraint "ck_corrida_trabajo_fin" of relation "corrida_trabajo" does not exist, skipping
+psql:/repo/sql/40_reglas/restricciones.sql:3403: NOTICE:  constraint "ck_corrida_trabajo_error" of relation "corrida_trabajo" does not exist, skipping
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Starting a Gradle Daemon, 6 stopped Daemons could not be reused, use --status for details
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessJava UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessJavaApply UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources NO-SOURCE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :servicios:nucleo-financiero:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:nucleo-financiero:generateJooq UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileJava UP-TO-DATE
+> Task :servicios:nucleo-financiero:processResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:classes UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileTestJava UP-TO-DATE
+> Task :servicios:nucleo-financiero:processTestResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:testClasses UP-TO-DATE
+
+> Task :servicios:nucleo-financiero:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+CU13InversionTest > rechaza sin custodia de inversion en esa moneda (AP-CU13-07): la retencion sigue vigente FAILED
+    org.jooq.exception.DataAccessException: Cannot commit transaction
+        at app//org.jooq.impl.DefaultConnectionProvider.commit(DefaultConnectionProvider.java:101)
+        at app//org.jooq.impl.DefaultTransactionProvider.commit(DefaultTransactionProvider.java:174)
+        at app//org.jooq.impl.DefaultDSLContext.lambda$transactionResult0$3(DefaultDSLContext.java:536)
+        at app//org.jooq.impl.Tools$3$1.block(Tools.java:6318)
+        at java.base@21.0.12.1/java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:3780)
+        at java.base@21.0.12.1/java.util.concurrent.ForkJoinPool.managedBlock(ForkJoinPool.java:3725)
+        at app//org.jooq.impl.Tools$3.get(Tools.java:6315)
+        at app//org.jooq.impl.DefaultDSLContext.transactionResult0(DefaultDSLContext.java:580)
+        at app//org.jooq.impl.DefaultDSLContext.transactionResult(DefaultDSLContext.java:503)
+        at app//org.jooq.impl.DefaultDSLContext.transaction(DefaultDSLContext.java:593)
+        at app//bo.aportaya.nucleofinanciero.FixturaDeBilletera.acreditar(FixturaDeBilletera.java:147)
+        at app//bo.aportaya.nucleofinanciero.FixturaDeSistema.billeteraEn(FixturaDeSistema.java:74)
+        at app//bo.aportaya.nucleofinanciero.CU13InversionTest.sinCustodia(CU13InversionTest.java:187)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: R-BIL-20: la transacción 0bd65ce0-5da6-4d3b-b726-5105f600b1aa toca 1 cuenta(s) en moneda distinta de BOB
+          Where: PL/pgSQL function fn_bil_moneda_coherente() line 9 at RAISE
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:389)
+            at app//org.postgresql.jdbc.PgConnection.executeTransactionCommand(PgConnection.java:998)
+            at app//org.postgresql.jdbc.PgConnection.commit(PgConnection.java:1020)
+            at app//org.jooq.impl.DefaultConnectionProvider.commit(DefaultConnectionProvider.java:98)
+            ... 12 more
+
+56 tests completed, 1 failed
+
+> Task :servicios:nucleo-financiero:integrationTest FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':servicios:nucleo-financiero:integrationTest'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/servicios/nucleo-financiero/build/reports/tests/integrationTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 46s
+37 actionable tasks: 1 executed, 36 up-to-date
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Stopping Daemon(s)
+1 Daemon stopped
+== RC gradle: 1
+FIN RC=1
+FIN RC=75

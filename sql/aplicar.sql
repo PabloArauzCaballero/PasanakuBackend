@@ -369,6 +369,8 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/15_inversiones/comprobante_inversion.sql
 \ir 10_tablas/15_inversiones/comision_exito.sql
 \ir 10_tablas/15_inversiones/conciliacion_interes.sql
+\ir 10_tablas/15_inversiones/distribucion_interes.sql
+\ir 10_tablas/15_inversiones/corrida_trabajo.sql
 
 -- 2b) Infraestructura de mensajería por esquema (ADR-027)
 \ir 15_infra/mensajeria.sql

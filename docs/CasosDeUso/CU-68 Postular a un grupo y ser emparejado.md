@@ -72,6 +72,8 @@ normas: [UIF conocimiento del cliente, no discriminación, gobernanza del grupo]
 | — | El criterio de emparejamiento cambia | Las propuestas abiertas conservan el criterio con el que se armaron; el nuevo rige para las siguientes |
 | — | Postulación con dos cupos en el mismo grupo | Permitida si el reglamento lo admite; cada cupo es una obligación independiente y así se le muestra |
 
+> **Interruptor de admisión humana** (`aportaya.grupos.admision.humana-obligatoria`, decisión pendiente de negocio y cumplimiento). Encendido —el valor de la aplicación—, la decisión directa del organizador (`decidirSolicitudDeIngreso`) se rechaza y su decisión es una propuesta (`proponerAdmision`) que resuelve backoffice; apagado conserva el comportamiento de TEST. Detalle en `evidencia/carril-B3/DECISIONES-Y-ABIERTOS.md`.
+
 ## Postcondiciones
 
 - Toda incorporación a un grupo tiene solicitud, evaluación, decisión con

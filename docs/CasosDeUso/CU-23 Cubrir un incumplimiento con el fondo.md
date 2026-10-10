@@ -112,7 +112,7 @@ export const ErroresCU23 = {
 ## Restricciones aplicables
 
 `R-BIL-01` · `R-AUD-01` · `R-AUD-05` · `R-GRP-02` · `R-GAR-08` · `R-GAR-09` ·
-`R-GAR-10` · `R-GAR-11` · `R-GAR-12`
+`R-GAR-10` · `R-GAR-11` · `R-GAR-12` · `R-GAR-13`
 
 Las cinco últimas las hace cumplir la base en el camino del **respaldo empresarial** del
 servicio `garantia` (`CU23ReservarRespaldo` y `CU23CubrirConRespaldo`: la empresa aparta
@@ -135,7 +135,19 @@ corte del pozo), no en la cobertura con el fondo mutual descrita arriba:
   base lo comprueba con una consulta de alcance mínimo a `grupos` y rechaza un turno de
   otro grupo.
 
-Esos caminos devuelven además `AP-CU23-05`, `AP-CU23-06`, `AP-CU23-07`, `AP-CU23-09`,
+- `R-GAR-13` · **una contingencia de caja viva por grupo** (H8.S1.M6). Si el respaldo no alcanza
+  (o el grupo no tiene reserva) sobre un compromiso que ya existe, `garantia` ejecuta la
+  contención: abre un `plan_contingencia` (disparador `FONDO_AGOTADO`, tipo `EXTENSION_DE_PLAZO`,
+  estado `APROBADO`, sin acuerdo del grupo porque no cambia reglas), emite
+  `garantia.contingencia_de_caja_activada` con los responsables (el de la reserva y los roles
+  `TESORERIA` y `RESPONSABLE_RIESGOS`), las obligaciones que faltan y el texto para el grupo,
+  y **no reserva ciclos nuevos** mientras dure (`AP-CU23-10`). La deuda se conserva: no se cubre
+  una parte ni se cancela una obligación. Reponer el respaldo (`ampliar`) y reintentar cubre una
+  sola vez y pasa el plan a `EJECUTADO`; si los pagos tardíos llenan el pozo, el pedido de
+  cobertura con faltante cero también lo cierra. Qué más puede hacer el grupo (prorrateo,
+  reducción de bolsa, disolución) es decisión humana y queda abierta (ficha del carril O2).
+
+Esos caminos devuelven además `AP-CU23-05`, `AP-CU23-06`, `AP-CU23-07`, `AP-CU23-09`, `AP-CU23-10`,
 `AP-CU23-11`, `AP-CU23-12` y `AP-CU23-13`, declarados en `openapi/garantia.yaml`; el
 contrato de arriba todavía no los lista.
 

@@ -58,12 +58,12 @@ fn_<dominio>_<accion>  función
 | `R-RIS` | Riesgo operativo y continuidad | 3 |
 | `R-REP` | Reputación y transparencia | 6 |
 | `R-NOT` | Notificaciones | 3 |
-| `R-GAR` | Garantía, incumplimiento y cobranza | 12 |
+| `R-GAR` | Garantía, incumplimiento y cobranza | 13 |
 | `R-DES` | Desembolsos y entregas | 5 |
 | `R-ORG` | Organizador y automatización | 7 |
 | `R-CTB` | Contabilidad financiera y ERP | 8 |
 | `R-PUB` | Publicidad y campañas | 6 |
-| `R-INV` | Inversiones voluntarias | 8 |
+| `R-INV` | Inversiones voluntarias | 10 |
 
 ---
 
@@ -82,6 +82,7 @@ fn_<dominio>_<accion>  función
 | R-AUD-09 | Los hashes de la bitácora los calcula la base, no la aplicación | ASFI · prueba ante el regulador | [[CU-73 Verificar la cadena de transparencia]] |
 | R-AUD-10 | Las cadenas se verifican en el control diario, no sólo al auditar | ASFI Seguridad de la Información | [[CU-73 Verificar la cadena de transparencia]] |
 | R-AUD-11 | El asiento que reversa se marca `REVERSADO` y apunta al original; y también tiene que cuadrar | Contabilidad · Ley 393 | [[CU-24 Registrar el asiento contable de una operación]] |
+| R-AUD-12 | Un asiento no mezcla monedas, y en su moneda el debe iguala al haber | Contabilidad · 91.1.2 (sin tipo de cambio no se suman monedas) | [[CU-24 Registrar el asiento contable de una operación]] |
 
 ```sql
 -- R-AUD-01 · append-only por privilegios, no por convención
@@ -221,6 +222,37 @@ ALTER TABLE asiento_contable
   ADD CONSTRAINT ck_asiento_reversado_enlazado CHECK (
         (estado = 'REVERSADO') = (asiento_reversa_id IS NOT NULL));
 
+-- R-AUD-12 · un asiento no mezcla monedas, y en su moneda cuadra
+--
+-- R-AUD-05 suma debe y haber sin mirar la moneda: un asiento que debita 100 USD y
+-- acredita 100 BOB cuadra numericamente y descuadra economicamente (la misma fuga que
+-- R-BIL-20 cierra en la billetera). Mientras no se registre un tipo de cambio con su
+-- fecha (91.1.2) el mayor no suma monedas distintas: una operacion en dos monedas son
+-- dos asientos, cada uno cuadrado en la suya. Se verifica al COMMIT por lo mismo que
+-- R-AUD-05: las lineas no existen todavia cuando se inserta el encabezado.
+CREATE OR REPLACE FUNCTION fn_aud_asiento_una_moneda() RETURNS trigger AS $$
+DECLARE v_monedas INT; v_descuadradas INT;
+BEGIN
+  SELECT count(DISTINCT moneda) INTO v_monedas
+    FROM movimiento_contable WHERE asiento_id = NEW.id;
+  IF v_monedas > 1 THEN
+    RAISE EXCEPTION 'R-AUD-12: el asiento % mezcla % monedas', NEW.id, v_monedas;
+  END IF;
+  SELECT count(*) INTO v_descuadradas FROM (
+    SELECT moneda FROM movimiento_contable WHERE asiento_id = NEW.id
+     GROUP BY moneda HAVING SUM(debe) <> SUM(haber)) d;
+  IF v_descuadradas > 0 THEN
+    RAISE EXCEPTION 'R-AUD-12: el asiento % no cuadra en su moneda', NEW.id;
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+CREATE CONSTRAINT TRIGGER tg_asiento_una_moneda
+  AFTER INSERT OR UPDATE ON asiento_contable
+  DEFERRABLE INITIALLY DEFERRED
+  FOR EACH ROW WHEN (NEW.estado IN ('CONFIRMADO', 'REVERSADO'))
+  EXECUTE FUNCTION fn_aud_asiento_una_moneda();
+
 -- R-AUD-07 · un cierre de saldo por cuenta y día
 ALTER TABLE saldo_diario_billetera
   ADD CONSTRAINT uq_saldo_diario_cuenta_fecha UNIQUE (cuenta_billetera_id, fecha);
@@ -256,6 +288,9 @@ ALTER TABLE expediente_cliente
 | R-BIL-17 | Una cuenta de destino por titular y número, y una sola principal | ASFI seguridad · UIF titularidad | [[CU-18 Registrar y verificar una cuenta bancaria de destino]] |
 | R-BIL-19 | El reintento devuelve la primera respuesta, no un error de unicidad | Idempotencia extremo a extremo | [[CU-10 Recargar saldo]] |
 | R-BIL-20 | La partida doble también cuadra en moneda | Integridad del dinero | [[CU-12 Transferir saldo entre billeteras]] |
+| R-BIL-24 | Una orden de inversión se debita una sola vez, un rescate se acredita una sola vez y una compra del mercado se paga una sola vez | Integridad del dinero · idempotencia | [[CU-13 Retener y liberar saldo]] |
+| R-BIL-25 | Hay una sola cuenta de custodia de inversión activa por moneda | Integridad del dinero | [[CU-13 Retener y liberar saldo]] |
+| R-BIL-26 | Una retención de inversión o de compra del mercado nombra la orden u oferta que la motiva | Trazabilidad | [[CU-13 Retener y liberar saldo]] |
 
 ```sql
 -- R-BIL-01 · partida doble interna (diferido: se valida al COMMIT)
@@ -488,6 +523,35 @@ CREATE TRIGGER tg_retiro_moneda
 CREATE TRIGGER tg_recarga_moneda
   BEFORE INSERT OR UPDATE OF moneda ON orden_recarga
   FOR EACH ROW EXECUTE FUNCTION fn_bil_moneda_orden();
+
+-- R-BIL-24 · una orden se debita una vez, un rescate se acredita una vez
+--
+-- La clave de idempotencia ampara el reintento del MISMO llamador (R-BIL-06). Pero la
+-- orden de inversion o el rescate pueden llegar con otra clave —otro proceso, otro
+-- operador— y entonces la unicidad por clave no alcanza: el dinero se mueve dos veces
+-- por el mismo hecho. El origen (la orden, el rescate, la oferta) es lo que identifica
+-- el hecho economico, y la base es el ultimo lugar donde esa unicidad todavia vale.
+CREATE UNIQUE INDEX uq_tx_inversion_origen
+  ON transaccion_billetera (origen_id) WHERE tipo = 'INVERSION';
+CREATE UNIQUE INDEX uq_tx_rescate_origen
+  ON transaccion_billetera (origen_id) WHERE tipo = 'RESCATE_INVERSION';
+CREATE UNIQUE INDEX uq_tx_compra_mercado_origen
+  ON transaccion_billetera (origen_id) WHERE tipo = 'COMPRA_EN_MERCADO';
+
+-- R-BIL-25 · una custodia de inversion activa por moneda
+--
+-- Es el unico bolsillo del sistema donde se reune el dinero invertido de todos; dos
+-- cuentas activas en la misma moneda partirian esa verdad sin que nadie lo decida.
+CREATE UNIQUE INDEX uq_cuenta_custodia_inversion_moneda
+  ON cuenta_billetera (moneda)
+  WHERE tipo = 'CUSTODIA_INVERSION' AND estado <> 'CERRADA';
+
+-- R-BIL-26 · una retencion de inversion o de compra nombra lo que la motiva
+ALTER TABLE retencion_saldo
+  ADD CONSTRAINT ck_retencion_referencia_motivo CHECK (
+      motivo NOT IN ('INVERSION_VOLUNTARIA', 'COMPRA_EN_MERCADO')
+      OR (referencia_tipo IS NOT NULL AND referencia_id IS NOT NULL)
+  );
 
 -- R-BIL-08 · toda retención expira salvo orden de autoridad
 ALTER TABLE retencion_saldo
@@ -2278,6 +2342,7 @@ CREATE TRIGGER tg_notificacion_supresion
 | R-GAR-10 | Una cobertura empresarial viva por turno y su faltante cuadra con el pozo | Integridad del pozo | [[CU-23 Cubrir un incumplimiento con el fondo]] |
 | R-GAR-11 | Las líneas de una cobertura suman exactamente su faltante y se recuperan una vez por pago | Integridad · sin doble cobro | [[CU-23 Cubrir un incumplimiento con el fondo]] |
 | R-GAR-12 | El turno de una cobertura empresarial es del grupo y del periodo que declara | Autorización por objeto | [[CU-23 Cubrir un incumplimiento con el fondo]] |
+| R-GAR-13 | Una contingencia de caja viva por grupo: la falta de respaldo se escala una vez, no una por intento | Solvencia · respaldo del pozo | [[CU-23 Cubrir un incumplimiento con el fondo]] |
 
 ```sql
 -- R-GAR-01 · notificar es lo que hace correr el plazo, y el plazo se persiste
@@ -2474,6 +2539,13 @@ END $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, pg_temp;
 CREATE TRIGGER tg_cobertura_respaldo_turno_del_grupo
   BEFORE INSERT ON cobertura_respaldo
   FOR EACH ROW EXECUTE FUNCTION fn_gar_turno_del_grupo();
+
+-- R-GAR-13 · una contingencia de caja viva por grupo (la falta de respaldo se escala una vez)
+-- Viva = PROPUESTO o APROBADO; al cubrirse el faltante pasa a EJECUTADO y deja de contar. Mientras haya
+-- una viva, CU23ReservarRespaldo no reserva para ningun grupo nuevo (no se promete lo que no se puede pagar).
+CREATE UNIQUE INDEX IF NOT EXISTS uq_plan_contingencia_vivo
+  ON plan_contingencia (grupo_id, disparador)
+  WHERE estado IN ('PROPUESTO', 'APROBADO');
 ```
 
 ---
@@ -2742,6 +2814,7 @@ ALTER TABLE ejecucion_tarea
 | R-CTB-07 | Una depreciación por activo y período | NIIF | [[CU-105 Depreciar un activo fijo]] |
 | R-CTB-08 | Un estado financiero por período y tipo | NIIF · Ley 393 | [[CU-106 Generar el estado financiero del período]] |
 | R-CTB-09 | El saldo de una cuenta contable se deriva del libro, no lo escribe la aplicación | NIIF · partida doble | [[CU-24 Registrar el asiento contable de una operación]] |
+| R-CTB-10 | Un movimiento contable es de la misma moneda que su cuenta, y la cuenta no cambia de moneda con movimientos | NIIF · partida doble | [[CU-24 Registrar el asiento contable de una operación]] |
 
 ```sql
 -- R-CTB-01 · un período por ejercicio y mes, y nada se asienta en uno cerrado
@@ -2940,6 +3013,49 @@ END $$ LANGUAGE plpgsql;
 CREATE TRIGGER tg_movimiento_contable_sincroniza_saldo
   AFTER INSERT ON movimiento_contable
   FOR EACH ROW EXECUTE FUNCTION fn_ctb_sincronizar_saldo();
+
+-- R-CTB-10 · el movimiento y su cuenta hablan la misma moneda
+--
+-- fn_ctb_recalcular_saldo suma debe y haber de una cuenta sin mirar moneda: si una
+-- cuenta recibiera BOB y USD, su saldo seria una suma de peras y manzanas. Cada cuenta
+-- es de UNA moneda (un plan de cuentas en dos monedas tiene dos cuentas, con dos codigos)
+-- y el movimiento tiene que coincidir. La cuenta tampoco cambia de moneda una vez que
+-- tiene movimientos: reinterpretaria todo su historico.
+--
+-- El DEFAULT 'BOB' es TRANSITORIO y declarado: erp todavia inserta cuentas y
+-- movimientos sin moneda (fixturas incluidas) y el sistema opero siempre en bolivianos.
+-- nucleo-financiero (el unico que escribe el mayor, invariante 12) la informa siempre
+-- de forma explicita. Se retira el DEFAULT cuando erp la informe.
+ALTER TABLE cuenta_contable ALTER COLUMN moneda SET DEFAULT 'BOB';
+ALTER TABLE movimiento_contable ALTER COLUMN moneda SET DEFAULT 'BOB';
+
+CREATE OR REPLACE FUNCTION fn_ctb_moneda_movimiento() RETURNS trigger AS $$
+DECLARE v_moneda CHAR(3);
+BEGIN
+  SELECT moneda INTO v_moneda FROM cuenta_contable WHERE id = NEW.cuenta_id;
+  IF v_moneda IS DISTINCT FROM NEW.moneda THEN
+    RAISE EXCEPTION 'R-CTB-10: el movimiento es en % y la cuenta % es en %',
+                    NEW.moneda, NEW.cuenta_id, v_moneda;
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tg_movimiento_contable_moneda
+  BEFORE INSERT ON movimiento_contable
+  FOR EACH ROW EXECUTE FUNCTION fn_ctb_moneda_movimiento();
+
+CREATE OR REPLACE FUNCTION fn_ctb_moneda_inmutable() RETURNS trigger AS $$
+BEGIN
+  IF NEW.moneda IS DISTINCT FROM OLD.moneda
+     AND EXISTS (SELECT 1 FROM movimiento_contable WHERE cuenta_id = OLD.id) THEN
+    RAISE EXCEPTION 'R-CTB-10: la cuenta % ya tiene movimientos y no cambia de moneda', OLD.id;
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tg_cuenta_contable_moneda_inmutable
+  BEFORE UPDATE OF moneda ON cuenta_contable
+  FOR EACH ROW EXECUTE FUNCTION fn_ctb_moneda_inmutable();
 ```
 
 ---
@@ -3057,6 +3173,8 @@ ALTER TABLE espacio_publicitario
 | R-INV-06 | Toda instrucción al libro es única por clave de idempotencia y no se da por aplicada sin su referencia | Idempotencia de dinero | `evidencia/carril-D/ADR-inversiones.md` |
 | R-INV-07 | La comisión de éxito sólo grava lo que supera la marca máxima previa, y esa marca no decrece | Protección del inversor | `evidencia/carril-D/ADR-inversiones.md` |
 | R-INV-08 | El interés pagado por el emisor se concilia contra el devengo propio: o coincide o queda como discrepancia | Conciliación | `evidencia/carril-D/ADR-inversiones.md` |
+| R-INV-09 | El interés que se reparte al titular coincide con su posición, su período y la retención del comprobante, y se concilia contra el devengo propio: o coincide o queda como discrepancia con su motivo | Conciliación, trazabilidad del dinero | `evidencia/carril-I2/H11-S1-M3-distribucion-de-intereses.md` |
+| R-INV-10 | Una corrida de una operación de inversiones es única por operación y clave de idempotencia, nace en curso y solo termina con su fecha de fin y, si falló, su error | Idempotencia de operaciones | `evidencia/carril-I2/H10-S1-trabajos-idempotencia.md` |
 
 ```sql
 -- R-INV-01 · sintético => no apto para producción ; condiciones coherentes con el tipo
@@ -3197,6 +3315,22 @@ ALTER TABLE comision_exito
   ADD CONSTRAINT ck_comision_exito_sin_base CHECK (base_elegible > 0 OR comision = 0),
   ADD CONSTRAINT ck_comision_exito_tope CHECK (comision <= base_elegible);
 
+-- ... y la marca máxima de la posición tampoco baja: cobrar dos veces el mismo tramo de
+-- ganancia empieza por una marca que se quedó atrás después de un rescate parcial.
+CREATE OR REPLACE FUNCTION fn_inv_marca_no_decrece() RETURNS trigger AS $$
+BEGIN
+  IF NEW.marca_maxima IS NOT NULL
+     AND (OLD.marca_maxima IS NULL OR NEW.marca_maxima < OLD.marca_maxima) THEN
+    RAISE EXCEPTION 'R-INV-07: la marca máxima de la posición % no puede bajar (de % a %)',
+      NEW.id, OLD.marca_maxima, NEW.marca_maxima;
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tg_posicion_inversion_marca_no_decrece
+  BEFORE UPDATE OF marca_maxima ON posicion_inversion
+  FOR EACH ROW EXECUTE FUNCTION fn_inv_marca_no_decrece();
+
 -- R-INV-08 · conciliación del interés pagado contra el devengo propio
 ALTER TABLE conciliacion_interes
   ADD CONSTRAINT ck_conciliacion_interes_periodo CHECK (periodo_desde <= periodo_hasta),
@@ -3210,6 +3344,54 @@ ALTER TABLE conciliacion_interes
 
 ALTER TABLE devengo_dpf
   ADD CONSTRAINT ck_devengo_dpf_acumulado CHECK (monto <= interes_acumulado);
+
+-- R-INV-09 · el interés repartido coincide con titular, período y retención, y se concilia con el devengo
+ALTER TABLE distribucion_interes
+  ADD CONSTRAINT ck_distribucion_interes_periodo CHECK (periodo_desde <= periodo_hasta),
+  ADD CONSTRAINT ck_distribucion_interes_esperado CHECK (
+        interes_esperado = interes_devengado - penalizacion),
+  ADD CONSTRAINT ck_distribucion_interes_neto CHECK (
+        retencion <= interes_pagado AND interes_neto = interes_pagado - retencion),
+  ADD CONSTRAINT ck_distribucion_interes_estado CHECK (
+        (estado = 'CONCILIADA' AND motivo_discrepancia IS NULL
+           AND interes_esperado = interes_pagado)
+     OR (estado = 'DISCREPANCIA' AND motivo_discrepancia IS NOT NULL
+           AND interes_esperado <> interes_pagado));
+
+CREATE OR REPLACE FUNCTION fn_inv_distribucion_coherente() RETURNS trigger AS $$
+DECLARE
+  v_usuario UUID;
+  v_desde DATE;
+  v_interes NUMERIC(14,2);
+  v_impuesto NUMERIC(14,2);
+BEGIN
+  SELECT p.usuario_id, p.fecha_constitucion INTO v_usuario, v_desde
+    FROM posicion_inversion p WHERE p.id = NEW.posicion_inversion_id;
+  SELECT c.interes, c.impuesto INTO v_interes, v_impuesto
+    FROM comprobante_inversion c
+   WHERE c.origen_id = NEW.rescate_inversion_id AND c.tipo = 'LIQUIDACION';
+  IF v_usuario IS DISTINCT FROM NEW.usuario_id THEN
+    RAISE EXCEPTION 'R-INV-09: el interés % no se reparte al titular de la posición', NEW.id;
+  END IF;
+  IF v_desde IS DISTINCT FROM NEW.periodo_desde THEN
+    RAISE EXCEPTION 'R-INV-09: el período del interés % no arranca en la constitución de la posición', NEW.id;
+  END IF;
+  IF v_interes IS DISTINCT FROM NEW.interes_pagado OR v_impuesto IS DISTINCT FROM NEW.retencion THEN
+    RAISE EXCEPTION 'R-INV-09: el interés % no coincide con el interés y la retención del comprobante', NEW.id;
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tg_distribucion_interes_coherente
+  BEFORE INSERT ON distribucion_interes
+  FOR EACH ROW EXECUTE FUNCTION fn_inv_distribucion_coherente();
+
+-- R-INV-10 · una corrida por operación y clave; terminada solo con su fin
+ALTER TABLE corrida_trabajo
+  ADD CONSTRAINT ck_corrida_trabajo_fin CHECK (
+        (estado = 'EN_CURSO') = (terminada_en IS NULL)),
+  ADD CONSTRAINT ck_corrida_trabajo_error CHECK (
+        estado <> 'FALLIDA' OR error IS NOT NULL);
 ```
 
 ---

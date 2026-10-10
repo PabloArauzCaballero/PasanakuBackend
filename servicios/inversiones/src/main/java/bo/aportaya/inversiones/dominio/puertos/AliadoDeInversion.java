@@ -84,6 +84,18 @@ public interface AliadoDeInversion {
         }
     }
 
+    /**
+     * El aliado respondio, pero lo que llego no se puede dar por cierto: firma invalida, fuera de
+     * ventana, sin la marca de simulado o con una forma que no es la del contrato. Es una
+     * {@link AliadoNoDisponible} (no se asume que paso nada), pero se distingue para decirle a
+     * operaciones que el problema no es que el aliado este caido.
+     */
+    class RespuestaNoVerificable extends AliadoNoDisponible {
+        public RespuestaNoVerificable(String mensaje) {
+            super(mensaje);
+        }
+    }
+
     class AliadoRechazo extends RuntimeException {
         private final String codigo;
 

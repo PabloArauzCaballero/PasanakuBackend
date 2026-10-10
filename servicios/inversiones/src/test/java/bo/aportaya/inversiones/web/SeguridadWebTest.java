@@ -3,12 +3,17 @@ package bo.aportaya.inversiones.web;
 import bo.aportaya.inversiones.aplicacion.CU120Catalogo;
 import bo.aportaya.inversiones.aplicacion.CU121OrdenarInversion;
 import bo.aportaya.inversiones.aplicacion.CU122ConfirmarPosicion;
-import bo.aportaya.inversiones.aplicacion.CU123Devengo;
 import bo.aportaya.inversiones.aplicacion.CU123Posiciones;
 import bo.aportaya.inversiones.aplicacion.CU124SolicitarRescate;
 import bo.aportaya.inversiones.aplicacion.CU125LiquidarRescate;
+import bo.aportaya.inversiones.aplicacion.CU126DistribuirIntereses;
+import bo.aportaya.inversiones.aplicacion.CU127ComisionPorResultado;
+import bo.aportaya.inversiones.aplicacion.CU128ReporteFiscal;
+import bo.aportaya.inversiones.aplicacion.CU129SimularCaja;
+import bo.aportaya.inversiones.aplicacion.OperacionesProgramables;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.SabanaDeSeguridadWeb;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 /**
@@ -17,6 +22,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
  * guardia). Sin controladores declarados: uno nuevo entra a la sabana el dia que se escribe.
  */
 @PruebaWeb
+@Import({OperacionesDeLaInversion.class, AnalisisDeLaInversion.class})
 class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
@@ -32,7 +38,19 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private CU123Posiciones cu123;
 
     @MockitoBean
-    private CU123Devengo cu123Devengo;
+    private OperacionesProgramables operaciones;
+
+    @MockitoBean
+    private CU126DistribuirIntereses cu126;
+
+    @MockitoBean
+    private CU127ComisionPorResultado cu127;
+
+    @MockitoBean
+    private CU128ReporteFiscal cu128;
+
+    @MockitoBean
+    private CU129SimularCaja cu129;
 
     @MockitoBean
     private CU124SolicitarRescate cu124;

@@ -1,6 +1,7 @@
 package bo.aportaya.garantia.aplicacion;
 
 import bo.aportaya.garantia.dominio.AsientoPropuesto;
+import bo.aportaya.garantia.dominio.PlanDeCaja;
 import bo.aportaya.garantia.dominio.RespaldoEmpresarial;
 import bo.aportaya.garantia.infraestructura.CoberturaRespaldoRepositorio;
 import bo.aportaya.garantia.infraestructura.RespaldoRepositorio;
@@ -18,6 +19,7 @@ import java.time.ZoneOffset;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,13 +46,16 @@ public class CU23CubrirConRespaldo {
     private final CoberturaRespaldoRepositorio coberturas;
     private final Outbox outbox;
     private final Reloj reloj;
+    private final ContingenciaDeCaja contingencia;
 
     public CU23CubrirConRespaldo(
             Datos datos,
             RespaldoRepositorio respaldo,
             CoberturaRespaldoRepositorio coberturas,
             Outbox outbox,
-            Reloj reloj) {
+            Reloj reloj,
+            ContingenciaDeCaja contingencia) {
+        this.contingencia = contingencia;
         this.datos = datos;
         this.respaldo = respaldo;
         this.coberturas = coberturas;
@@ -102,7 +107,7 @@ public class CU23CubrirConRespaldo {
         return datos.conContexto(ctx, dsl -> {
             var reserva = respaldo.bloquearVigenteDelGrupo(dsl, e.grupoId()).orElse(null);
             if (reserva == null) {
-                emitirInsuficiente(dsl, e, cero, e.faltante(), "SIN_RESERVA", ctx);
+                insuficiente(dsl, e, cero, e.faltante(), "SIN_RESERVA", null, ahora, ctx);
                 return new SalidaCobertura(Resultado.SIN_RESERVA, null, null, cero, e.faltante(), cero, cero, true);
             }
 
@@ -131,7 +136,15 @@ public class CU23CubrirConRespaldo {
 
             var decision = RespaldoEmpresarial.decidir(reserva.cifras(), e.faltante());
             if (!decision.cubre()) {
-                emitirInsuficiente(dsl, e, decision.disponible(), decision.sinCubrir(), "INSUFICIENTE", ctx);
+                insuficiente(
+                        dsl,
+                        e,
+                        decision.disponible(),
+                        decision.sinCubrir(),
+                        "INSUFICIENTE",
+                        reserva.responsableId(),
+                        ahora,
+                        ctx);
                 return new SalidaCobertura(
                         Resultado.INSUFICIENTE,
                         null,
@@ -162,6 +175,10 @@ public class CU23CubrirConRespaldo {
             for (Linea linea : e.lineas()) {
                 coberturas.agregarLinea(dsl, coberturaId, linea.obligacionId(), linea.monto());
             }
+
+            // Si este grupo estaba en contingencia de caja, ya no: el faltante quedo cubierto.
+            contingencia.resolver(
+                    dsl, e.grupoId(), e.turnoId(), UUID.fromString(ctx.traza().id()), ahora);
 
             var antes = reserva.cifras();
             var despues = new RespaldoEmpresarial.Reserva(
@@ -211,28 +228,41 @@ public class CU23CubrirConRespaldo {
         });
     }
 
-    private void emitirInsuficiente(
+    /** El faltante ya no existe (pagos tardios llenaron el pozo): la contingencia de ese grupo se cierra. */
+    @Transactional
+    public boolean cerrarContingencia(UUID grupoId, UUID turnoId, ContextoSesion ctx) {
+        OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
+        return datos.conContexto(
+                ctx,
+                dsl -> contingencia.resolver(
+                        dsl, grupoId, turnoId, UUID.fromString(ctx.traza().id()), ahora));
+    }
+
+    /** Respaldo insuficiente sobre un compromiso existente: incidente, contencion y escalamiento (H8.S1.M6). */
+    private void insuficiente(
             org.jooq.DSLContext dsl,
             EntradaCobertura e,
             Dinero disponible,
             Dinero sinCubrir,
             String motivo,
+            UUID responsable,
+            OffsetDateTime ahora,
             ContextoSesion ctx) {
-        outbox.emitir(
+        contingencia.insuficiente(
                 dsl,
-                new EventoDominio(
-                        "garantia.respaldo_insuficiente",
-                        "cobertura_respaldo",
+                new PlanDeCaja(
+                        e.grupoId(),
                         e.turnoId(),
-                        Map.of(
-                                "grupoId", e.grupoId().toString(),
-                                "turnoId", e.turnoId().toString(),
-                                "motivo", motivo,
-                                "faltante", e.faltante().toString(),
-                                "disponible", disponible.toString(),
-                                "sinCubrir", sinCubrir.toString(),
-                                "moneda", e.faltante().moneda().name()),
-                        UUID.fromString(ctx.traza().id())));
+                        e.faltante(),
+                        disponible,
+                        sinCubrir,
+                        motivo,
+                        Optional.ofNullable(responsable),
+                        e.lineas().stream()
+                                .map(l -> new PlanDeCaja.Pendiente(l.obligacionId(), l.monto()))
+                                .toList()),
+                UUID.fromString(ctx.traza().id()),
+                ahora);
     }
 
     private void validar(EntradaCobertura e) {

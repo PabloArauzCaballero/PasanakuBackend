@@ -1,0 +1,80 @@
+gateway-1  | 	at bo.aportaya.gateway.ConfiguracionCors.corsWebFilter(ConfiguracionCors.java:59) ~[classes/:1.0.0]
+gateway-1  | 	at bo.aportaya.gateway.ConfiguracionCors$$SpringCGLIB$$0.CGLIB$corsWebFilter$0(<generated>) ~[classes/:1.0.0]
+gateway-1  | 	at bo.aportaya.gateway.ConfiguracionCors$$SpringCGLIB$$FastClass$$1.invoke(<generated>) ~[classes/:1.0.0]
+gateway-1  | 	at org.springframework.cglib.proxy.MethodProxy.invokeSuper(MethodProxy.java:258) ~[spring-core-6.2.19.jar:6.2.19]
+gateway-1  | 	at org.springframework.context.annotation.ConfigurationClassEnhancer$BeanMethodInterceptor.intercept(ConfigurationClassEnhancer.java:400) ~[spring-context-6.2.19.jar:6.2.19]
+gateway-1  | 	at bo.aportaya.gateway.ConfiguracionCors$$SpringCGLIB$$0.corsWebFilter(<generated>) ~[classes/:1.0.0]
+gateway-1  | 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source) ~[na:na]
+gateway-1  | 	at java.base/java.lang.reflect.Method.invoke(Unknown Source) ~[na:na]
+gateway-1  | 	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.lambda$instantiate$0(SimpleInstantiationStrategy.java:172) ~[spring-beans-6.2.19.jar:6.2.19]
+gateway-1  | 	... 29 common frames omitted
+gateway-1  | 
+gateway-1  | Picked up JAVA_TOOL_OPTIONS: -Xmx144m -Xss512k -XX:MaxMetaspaceSize=128m -XX:ReservedCodeCacheSize=48m -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:CICompilerCount=1
+gateway-1  | 
+gateway-1  |   .   ____          _            __ _ _
+gateway-1  |  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+gateway-1  | ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+gateway-1  |  \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+gateway-1  |   '  |____| .__|_| |_|_| |_\__, | / / / /
+gateway-1  |  =========|_|==============|___/=/_/_/_/
+gateway-1  | 
+gateway-1  |  :: Spring Boot ::               (v3.5.16)
+gateway-1  | 
+gateway-1  | 2026-10-10T07:23:52.844Z  INFO 1 --- [gateway] [           main] [                                                 ] bo.aportaya.gateway.Aplicacion           : Starting Aplicacion v1.0.0 using Java 21.0.12 with PID 1 (/app/BOOT-INF/classes started by app in /app)
+gateway-1  | 2026-10-10T07:23:52.845Z  INFO 1 --- [gateway] [           main] [                                                 ] bo.aportaya.gateway.Aplicacion           : The following 1 profile is active: "production"
+gateway-1  | 2026-10-10T07:23:53.309Z  INFO 1 --- [gateway] [           main] [                                                 ] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+gateway-1  | 2026-10-10T07:23:53.310Z  INFO 1 --- [gateway] [           main] [                                                 ] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+gateway-1  | 2026-10-10T07:23:53.322Z  INFO 1 --- [gateway] [           main] [                                                 ] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 5 ms. Found 0 Redis repository interfaces.
+gateway-1  | 2026-10-10T07:23:53.387Z  INFO 1 --- [gateway] [           main] [                                                 ] o.s.cloud.context.scope.GenericScope     : BeanFactory id=f12cd35e-26ab-3bf1-bbec-9a0da970afce
+gateway-1  | 2026-10-10T07:23:53.508Z  WARN 1 --- [gateway] [           main] [                                                 ] onfigReactiveWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'corsWebFilter' defined in class path resource [bo/aportaya/gateway/ConfiguracionCors.class]: Failed to instantiate [org.springframework.web.cors.reactive.CorsWebFilter]: Factory method 'corsWebFilter' threw exception with message: aportaya.cors.origenes vacío o con '*' en un perfil no local/test ([production]). AMB-12/DECISION_REQUIRED: falta la variable APORTAYA_CORS_ORIGENES con el dominio real. No se arranca con CORS abierto.
+gateway-1  | 2026-10-10T07:23:53.515Z  INFO 1 --- [gateway] [           main] [                                                 ] .s.b.a.l.ConditionEvaluationReportLogger : 
+gateway-1  | 
+gateway-1  | Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+gateway-1  | 2026-10-10T07:23:53.522Z ERROR 1 --- [gateway] [           main] [                                                 ] o.s.boot.SpringApplication               : Application run failed
+gateway-1  | 
+gateway-1  | org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'corsWebFilter' defined in class path resource [bo/aportaya/gateway/ConfiguracionCors.class]: Failed to instantiate [org.springframework.web.cors.reactive.CorsWebFilter]: Factory method 'corsWebFilter' threw exception with message: aportaya.cors.origenes vacío o con '*' en un perfil no local/test ([production]). AMB-12/DECISION_REQUIRED: falta la variable APORTAYA_CORS_ORIGENES con el dominio real. No se arranca con CORS abierto.
+gateway-1  | 	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:657) ~[spring-beans-6.2.19.jar:6.2.19]
+gateway-1  | 	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:645) ~[spring-beans-6.2.19.jar:6.2.19]
+gateway-1  | 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1373) ~[spring-beans-6.2.19.jar:6.2.19]
+gateway-1  | 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1203) ~[spring-beans-6.2.19.jar:6.2.19]
+gateway-1  | 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569) ~[spring-beans-6.2.19.jar:6.2.19]
+gateway-1  | 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.19.jar:6.2.19]
+gateway-1  | 	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.19.jar:6.2.19]
+gateway-1  | 	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373) ~[spring-beans-6.2.19.jar:6.2.19]
+gateway-1  | 	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.19.jar:6.2.19]
+gateway-1  | 	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.19.jar:6.2.19]
+gateway-1  | 	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1235) ~[spring-beans-6.2.19.jar:6.2.19]
+gateway-1  | 	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1201) ~[spring-beans-6.2.19.jar:6.2.19]
+gateway-1  | 	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1130) ~[spring-beans-6.2.19.jar:6.2.19]
+gateway-1  | 	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:991) ~[spring-context-6.2.19.jar:6.2.19]
+gateway-1  | 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:628) ~[spring-context-6.2.19.jar:6.2.19]
+gateway-1  | 	at org.springframework.boot.web.reactive.context.ReactiveWebServerApplicationContext.refresh(ReactiveWebServerApplicationContext.java:66) ~[spring-boot-3.5.16.jar:3.5.16]
+gateway-1  | 	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752) ~[spring-boot-3.5.16.jar:3.5.16]
+gateway-1  | 	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439) ~[spring-boot-3.5.16.jar:3.5.16]
+gateway-1  | 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318) ~[spring-boot-3.5.16.jar:3.5.16]
+gateway-1  | 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361) ~[spring-boot-3.5.16.jar:3.5.16]
+gateway-1  | 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350) ~[spring-boot-3.5.16.jar:3.5.16]
+gateway-1  | 	at bo.aportaya.gateway.Aplicacion.main(Aplicacion.java:18) ~[classes/:1.0.0]
+gateway-1  | 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source) ~[na:na]
+gateway-1  | 	at java.base/java.lang.reflect.Method.invoke(Unknown Source) ~[na:na]
+gateway-1  | 	at org.springframework.boot.loader.launch.Launcher.launch(Launcher.java:106) ~[app/:na]
+gateway-1  | 	at org.springframework.boot.loader.launch.Launcher.launch(Launcher.java:64) ~[app/:na]
+gateway-1  | 	at org.springframework.boot.loader.launch.JarLauncher.main(JarLauncher.java:40) ~[app/:na]
+gateway-1  | Caused by: org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.springframework.web.cors.reactive.CorsWebFilter]: Factory method 'corsWebFilter' threw exception with message: aportaya.cors.origenes vacío o con '*' en un perfil no local/test ([production]). AMB-12/DECISION_REQUIRED: falta la variable APORTAYA_CORS_ORIGENES con el dominio real. No se arranca con CORS abierto.
+gateway-1  | 	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.lambda$instantiate$0(SimpleInstantiationStrategy.java:200) ~[spring-beans-6.2.19.jar:6.2.19]
+gateway-1  | 	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiateWithFactoryMethod(SimpleInstantiationStrategy.java:89) ~[spring-beans-6.2.19.jar:6.2.19]
+gateway-1  | 	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:169) ~[spring-beans-6.2.19.jar:6.2.19]
+gateway-1  | 	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:653) ~[spring-beans-6.2.19.jar:6.2.19]
+gateway-1  | 	... 26 common frames omitted
+gateway-1  | Caused by: java.lang.IllegalStateException: aportaya.cors.origenes vacío o con '*' en un perfil no local/test ([production]). AMB-12/DECISION_REQUIRED: falta la variable APORTAYA_CORS_ORIGENES con el dominio real. No se arranca con CORS abierto.
+gateway-1  | 	at bo.aportaya.gateway.ConfiguracionCors.corsWebFilter(ConfiguracionCors.java:59) ~[classes/:1.0.0]
+gateway-1  | 	at bo.aportaya.gateway.ConfiguracionCors$$SpringCGLIB$$0.CGLIB$corsWebFilter$0(<generated>) ~[classes/:1.0.0]
+gateway-1  | 	at bo.aportaya.gateway.ConfiguracionCors$$SpringCGLIB$$FastClass$$1.invoke(<generated>) ~[classes/:1.0.0]
+gateway-1  | 	at org.springframework.cglib.proxy.MethodProxy.invokeSuper(MethodProxy.java:258) ~[spring-core-6.2.19.jar:6.2.19]
+gateway-1  | 	at org.springframework.context.annotation.ConfigurationClassEnhancer$BeanMethodInterceptor.intercept(ConfigurationClassEnhancer.java:400) ~[spring-context-6.2.19.jar:6.2.19]
+gateway-1  | 	at bo.aportaya.gateway.ConfiguracionCors$$SpringCGLIB$$0.corsWebFilter(<generated>) ~[classes/:1.0.0]
+gateway-1  | 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source) ~[na:na]
+gateway-1  | 	at java.base/java.lang.reflect.Method.invoke(Unknown Source) ~[na:na]
+gateway-1  | 	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.lambda$instantiate$0(SimpleInstantiationStrategy.java:172) ~[spring-beans-6.2.19.jar:6.2.19]
+gateway-1  | 	... 29 common frames omitted
+gateway-1  | 

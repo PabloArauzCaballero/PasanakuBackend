@@ -164,9 +164,10 @@ Cuando se liquida la entrega
 Entonces monto_neto_a_entregar es 5.482
 Y existe una deduccion_entrega de tipo COMISION_PLATAFORMA con referencia a cargo_comision
 
-Dado un turno con entrega ya ejecutada
-Cuando se intenta crear otra entrega para el mismo turno
-Entonces la base de datos lo rechaza (R-GRP-01)
+Dado un turno ya liquidado
+Cuando se repite la liquidación
+Entonces devuelve la MISMA entrega y no crea otra
+Y la base sigue rechazando una segunda entrega del turno (R-GRP-01)
 
 Dada una entrega autorizada
 Cuando la ejecuta el mismo usuario que la autorizó

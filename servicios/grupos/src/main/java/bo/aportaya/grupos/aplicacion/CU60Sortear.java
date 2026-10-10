@@ -260,7 +260,7 @@ public class CU60Sortear {
         return cupos.stream().map(c -> "\"" + c + "\"").collect(java.util.stream.Collectors.joining(",", "[", "]"));
     }
 
-    /** La semilla viaja solo hacia quien llama al caso de uso; {@code toString} no la muestra. */
+    /** La semilla es de uso interno (pruebas y revelacion): la respuesta HTTP NO la devuelve y {@code toString} no la muestra. */
     public record Compromiso(UUID sorteoId, String hashSemilla, String semilla) {
         @Override
         public String toString() {

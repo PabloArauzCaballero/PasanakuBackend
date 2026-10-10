@@ -1,4 +1,4 @@
-import { HttpClient, httpResource, HttpContext } from '@angular/common/http'
+import { HttpClient, httpResource } from '@angular/common/http'
 import { inject, Signal } from '@angular/core'
 import type { Observable } from 'rxjs'
 import {
@@ -8,7 +8,7 @@ import {
   type ExpedienteEnRevision,
 } from 'clientes/angular/identidad'
 import { GATEWAY } from '../../../nucleo/gateway'
-import { CLAVE_IDEMPOTENCIA, claveDeIdempotencia } from '../../../nucleo/idempotencia.interceptor'
+import { contextoIdempotente } from '../../../nucleo/idempotencia.interceptor'
 
 /**
  * CU-02 · el portal de riesgo: la cola de expedientes de identidad, sus fotos y la
@@ -107,7 +107,7 @@ export function crearResolver(): (verificacionId: string, cuerpo: DecisionDeVeri
   const http = inject(HttpClient)
   const gateway = inject(GATEWAY)
   return (verificacionId: string, cuerpo: DecisionDeVerificacion) => {
-    const contexto = new HttpContext().set(CLAVE_IDEMPOTENCIA, claveDeIdempotencia())
+    const contexto = contextoIdempotente()
     return http.post<ExpedienteEnRevision>(`${gateway}/identidad/verificaciones/${verificacionId}/decision`, cuerpo, {
       context: contexto,
     })

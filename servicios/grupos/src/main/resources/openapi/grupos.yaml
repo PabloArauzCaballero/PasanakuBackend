@@ -170,6 +170,47 @@ paths:
           # AP-CU59-01 FECHA_DUPLICADA    · AP-CU59-02 ALCANCE_INCOMPLETO
           # AP-CU59-03 FECHA_EN_EL_PASADO · AP-CU59-04 SIN_FUENTE
           # AP-CU59-05 CALENDARIO_VACIO
+  /grupos/calendario/vencimiento:
+    get:
+      operationId: calcularVencimientoLocal    # CU-59 · H7.S1.M3
+      summary: Fecha UTC, fecha contractual y fecha de liquidación de un vencimiento, explícitas
+      description: >-
+        Un instante en UTC puede caer en otro día que el que vive la persona (22:00 del 1 de mayo
+        en La Paz son las 02:00 del 2 de mayo en UTC). La fecha CONTRACTUAL es el día calendario
+        en la zona del contrato (por omisión America/La_Paz); la de LIQUIDACIÓN es el primer día
+        hábil desde la contractual, nunca anterior. Se devuelven las dos y la fecha UTC, y los
+        días que se saltearon con su motivo, para que ninguna se confunda con otra.
+
+        Un día no hábil es un feriado del calendario sembrado (`catalogo.dia_no_habil`, con
+        procedencia en su descripción), un sábado o un domingo. Sin calendario cargado para el año
+        no se calcula (AP-CU59-05): no se cuenta corrido por omisión.
+      parameters:
+        - name: instante
+          in: query
+          required: true
+          schema: { type: string, format: date-time }
+        - name: alcance
+          in: query
+          required: true
+          schema: { type: string, enum: [NACIONAL, DEPARTAMENTAL, PLATAFORMA, GRUPO] }
+        - name: referenciaId
+          in: query
+          required: false
+          schema: { type: string, format: uuid }
+        - name: zona
+          in: query
+          required: false
+          description: Identificador IANA de la zona del contrato; sin él, America/La_Paz.
+          schema: { type: string, maxLength: 40 }
+      responses:
+        '200':
+          description: Las tres fechas y los días que no contaron
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaVencimientoLocal' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU59-02 ALCANCE_INCOMPLETO · AP-CU59-05 CALENDARIO_VACIO · AP-CU59-06 ZONA_INVALIDA
   # Una operacion por caso de uso. Plantilla:
   #
   #   /grupos/…:
@@ -465,6 +506,11 @@ paths:
     post:
       operationId: aceptarInvitacionPorEnlace
       summary: Firmar el reglamento y ocupar un cupo usando el enlace una sola vez
+      description: >-
+        INTERRUPTOR `aportaya.grupos.admision.humana-obligatoria` (decision pendiente de negocio y cumplimiento): encendido
+        (valor de produccion) esta puerta, que crea al participante ACTIVO sin expediente humano, se cierra con 422
+        `AP-CU69-10`; el camino es el canje de la invitacion (`canjearInvitacion`), que deja una solicitud pendiente de
+        backoffice. Apagado conserva el comportamiento de TEST.
       parameters:
         - $ref: '#/components/parameters/ClaveIdempotencia'
       requestBody:
@@ -505,6 +551,34 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/AdmisibilidadDePago' }
+
+  /grupos/periodos/{periodoId}/calendario-de-aportes:
+    get:
+      operationId: consultarCalendarioDeAportes   # CU-21 · H8.S1.M1 (el productor del hecho que `aportes` consume)
+      summary: Quien aporta, cuanto y hasta cuando en un periodo (hecho de grupos para generar obligaciones)
+      description: >-
+        [CONTRATO · LO PIDE `aportes`] Para generar las obligaciones de un periodo `aportes` no cree nada que
+        afirme el cliente: pregunta aqui quien es titular de cada cupo OCUPADO, el turno (numero de periodo),
+        cuanto aporta cada cupo y las fechas del reglamento. El importe de un cupo es el aporte del grupo por
+        la fraccion del cupo (redondeo half-even a 2 decimales; las fracciones distintas de 1 son una
+        ambiguedad abierta, ver docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-B3/). Exige
+        `ADMIN_PLATAFORMA`: es el permiso de quien dispara la generacion y su token viaja en la llamada entre
+        servicios; un participante recibe 403 aunque sea titular de un cupo del periodo, porque el calendario
+        enumera a TODOS los titulares. Se lee con rol de sistema (la politica de fila no deja ver cupos ajenos)
+        y la autorizacion ya la hizo el permiso. Un periodo que no existe responde 422 `AP-CU21-08`.
+      parameters:
+        - name: periodoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: El calendario de aportes del periodo, tal cual lo afirma grupos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CalendarioDeAportes' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
 
   /grupos/participaciones:
     get:
@@ -555,6 +629,10 @@ paths:
         Quien decide es el organizador del grupo. Aceptada, EN LA MISMA TRANSACCION:
         se reserva un cupo libre, nace el participante pendiente de firmar el
         reglamento y se emite el evento. Rechazada, queda el motivo en el evento.
+
+        INTERRUPTOR `aportaya.grupos.admision.humana-obligatoria` (decision pendiente de negocio y cumplimiento): encendido
+        (valor de produccion) esta puerta se cierra con 422 `AP-CU68-15` y la decision del organizador pasa por
+        `proponerAdmision`, que resuelve backoffice; apagado conserva el comportamiento de TEST.
       parameters:
         - name: solicitudId
           in: path
@@ -981,6 +1059,32 @@ components:
       properties:
         esDelUsuario:  { type: boolean }
         periodoAbierto: { type: boolean }
+    CupoDelCalendario:
+      type: object
+      additionalProperties: false
+      required: [cupoId, participanteId, montoEsperado]
+      properties:
+        cupoId:         { type: string, format: uuid }
+        participanteId: { type: string, format: uuid }
+        montoEsperado:  { $ref: '#/components/schemas/Dinero' }
+    CalendarioDeAportes:
+      type: object
+      additionalProperties: false
+      required: [periodoId, grupoId, numero, estado, fechaLimitePago, fechaFinGracia, fechaEntregaPrevista, cupos]
+      properties:
+        periodoId:            { type: string, format: uuid }
+        grupoId:              { type: string, format: uuid }
+        numero:               { type: integer, minimum: 1, description: el turno del ciclo (un turno por periodo) }
+        estado:
+          type: string
+          enum: [PROGRAMADO, ABIERTO, EN_GRACIA, CERRADO, LIQUIDADO, CANCELADO]
+        fechaLimitePago:      { type: string, format: date }
+        fechaFinGracia:       { type: string, format: date }
+        fechaEntregaPrevista: { type: string, format: date }
+        cupos:
+          type: array
+          maxItems: 500
+          items: { $ref: '#/components/schemas/CupoDelCalendario' }
     Participacion:
       type: object
       additionalProperties: false
@@ -1061,17 +1165,15 @@ components:
     CompromisoDeSorteo:
       type: object
       additionalProperties: false
-      required: [sorteoId, hashSemilla, algoritmo, semilla]
+      description: >-
+        Se publica SOLO el hash. La semilla queda sellada en el servidor, junto al snapshot del
+        plantel, el calendario y las reglas, hasta que se revela: devolverla aqui dejaria a quien
+        dispara el sorteo precalcular el orden y abandonar o reintentar si no le conviene.
+      required: [sorteoId, hashSemilla, algoritmo]
       properties:
         sorteoId:    { type: string, format: uuid }
         hashSemilla: { type: string, minLength: 64, maxLength: 64 }
         algoritmo:   { type: string, enum: [FISHER_YATES_SHA256] }
-        semilla:
-          type: string
-          description: >-
-            La semilla se devuelve SOLO a quien dispara el sorteo, que es quien la tiene que
-            devolver al revelar. El servidor no la guarda entre las dos fases: guardarla
-            haria posible cambiarla, que es lo que el protocolo existe para impedir.
     RevelacionDeSorteo:
       type: object
       additionalProperties: false
@@ -1096,6 +1198,20 @@ components:
       required: [fechaLimite, diasSalteados]
       properties:
         fechaLimite:   { type: string, format: date }
+        diasSalteados:
+          type: array
+          items: { $ref: '#/components/schemas/DiaSalteado' }
+    SalidaVencimientoLocal:
+      type: object
+      additionalProperties: false
+      required: [instanteUtc, zonaHoraria, fechaEnUtc, fechaContractual, fechaDeLiquidacion, corridaPorNoHabil, diasSalteados]
+      properties:
+        instanteUtc:        { type: string, format: date-time }
+        zonaHoraria:        { type: string }
+        fechaEnUtc:         { type: string, format: date }
+        fechaContractual:   { type: string, format: date }
+        fechaDeLiquidacion: { type: string, format: date }
+        corridaPorNoHabil:  { type: boolean }
         diasSalteados:
           type: array
           items: { $ref: '#/components/schemas/DiaSalteado' }

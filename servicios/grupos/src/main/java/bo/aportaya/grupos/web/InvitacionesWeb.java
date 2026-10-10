@@ -15,6 +15,7 @@ import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +29,9 @@ public class InvitacionesWeb {
     private final SesionDeLaPeticion sesion;
     private final HttpServletRequest peticion;
     private final int topeDeReenvios;
+    private final boolean admisionHumanaObligatoria;
 
+    /** Comportamiento de TEST: aceptar por enlace sigue creando el participante (interruptor apagado). */
     public InvitacionesWeb(
             CU69Invitar cu69,
             CU69Enlace enlaces,
@@ -36,7 +39,21 @@ public class InvitacionesWeb {
             HechosDeOtrosServicios afuera,
             SesionDeLaPeticion sesion,
             HttpServletRequest peticion,
-            @Value("${aportaya.grupo.tope-de-reenvios-de-invitacion}") int topeDeReenvios) {
+            int topeDeReenvios) {
+        this(cu69, enlaces, consultas, afuera, sesion, peticion, topeDeReenvios, false);
+    }
+
+    @Autowired
+    public InvitacionesWeb(
+            CU69Invitar cu69,
+            CU69Enlace enlaces,
+            Consultas consultas,
+            HechosDeOtrosServicios afuera,
+            SesionDeLaPeticion sesion,
+            HttpServletRequest peticion,
+            @Value("${aportaya.grupo.tope-de-reenvios-de-invitacion}") int topeDeReenvios,
+            @Value("${aportaya.grupos.admision.humana-obligatoria}") boolean admisionHumanaObligatoria) {
+        this.admisionHumanaObligatoria = admisionHumanaObligatoria;
         this.cu69 = cu69;
         this.enlaces = enlaces;
         this.consultas = consultas;
@@ -108,6 +125,13 @@ public class InvitacionesWeb {
     }
 
     public SalidaAceptacionInvitacion aceptar(EntradaAceptacionInvitacion cuerpo) {
+        if (admisionHumanaObligatoria) {
+            // Interruptor aportaya.grupos.admision.humana-obligatoria: esta puerta crea al participante ACTIVO sin
+            // expediente humano. No se toca nada (ni se valida ni se consume el enlace): el canje es el camino.
+            throw new ErrorDeNegocio(
+                    CodigoError.de(69, 10),
+                    "Este grupo exige admision humana: usa el canje de la invitacion; tu solicitud queda pendiente de backoffice.");
+        }
         var ctx = sesion.actual();
         var datos = enlaces.datosDe(cuerpo.getTokenId(), ctx);
         exigirEnlaceValido(cuerpo.getTokenId(), cuerpo.getToken(), datos.telefono(), datos.kycMinimo());

@@ -136,7 +136,7 @@ def main():
                 fallas.append(f"{etiqueta}: prueba sin criterio en la boveda — «{n}»")
 
         # 2 · cada restriccion citada, con su prueba de rechazo
-        for r in sorted(set(re.findall(r"R-[A-Z]{2,4}-\d{2}", texto))):
+        for r in sorted(set(re.findall(r"(?<![A-Za-z])R-[A-Z]{2,4}-\d{2}", texto))):
             if r not in cuerpo:
                 fallas.append(f"{etiqueta}: {r} citado sin prueba de rechazo")
 

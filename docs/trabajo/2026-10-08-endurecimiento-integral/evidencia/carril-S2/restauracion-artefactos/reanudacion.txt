@@ -1,0 +1,5 @@
+R01 se publico exactamente lo que estaba pendiente o huerfano|t|17 publicados de 17 en cola
+R02 la cola quedo vacia (nada PENDIENTE ni TOMADO)|t|0 sin publicar
+R03 el consumidor aplico solo lo que no tenia (no re-aplico lo ya consumido)|t|17 aplicados; ya tenia 390
+R04 la entrega duplicada no aplico nada (idempotencia por clave primaria)|t|0 efectos de la reentrega
+R05 todo publicado quedo consumido una sola vez|t|407 consumidos / 407 publicados

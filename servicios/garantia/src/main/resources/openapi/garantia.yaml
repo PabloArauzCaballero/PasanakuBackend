@@ -67,6 +67,7 @@
 #   AP-CU23-11  COBERTURA_NO_REVERSIBLE · no existe, o ya tiene recuperaciones
 #   AP-CU23-12  RECAUDO_NO_DISPONIBLE   · aportes no responde: se deniega por omision
 #   AP-CU23-13  PEDIDO_NO_COINCIDE      · periodo/turno de otro grupo, o faltante informado distinto
+#   AP-CU23-10  CONTINGENCIA_DE_CAJA_ACTIVA · hay una falta de caja sin resolver: no se reservan ciclos nuevos (R-GAR-13)
 # NOTA: varios nombres del CU no describen el caso que el codigo termino ocupando. Se
 # conservan los NUMEROS, que son los que la boveda ata a cada rechazo, y aca queda
 # documentado que significa cada uno. Renombrarlos es tocar docs/, que es troncal.

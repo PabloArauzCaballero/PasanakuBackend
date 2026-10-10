@@ -5,22 +5,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import bo.aportaya.inversiones.dominio.puertos.LibroDelTitular.LibroNoDisponible;
 import bo.aportaya.inversiones.dominio.puertos.LibroDelTitular.SaldoInsuficiente;
-import bo.aportaya.inversiones.infraestructura.clientes.LibroPorHttp;
-import bo.aportaya.plataforma.dominio.Dinero;
-import bo.aportaya.plataforma.dominio.Moneda;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpServer;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -32,63 +20,7 @@ import org.junit.jupiter.api.Test;
  * local que habla el contrato propuesto ({@code evidencia/carril-D/contrato-requerido-nucleo.md}).
  * La prueba del lado productor es del carril del nucleo y esta PENDIENTE.
  */
-class LibroPorHttpContratoTest {
-
-    private record Peticion(String metodo, String ruta, String clave, String autorizacion, String cuerpo) {}
-
-    private HttpServer servidor;
-    private final List<Peticion> recibidas = new CopyOnWriteArrayList<>();
-    private volatile int estado = 200;
-    private volatile String respuesta = "{}";
-    private volatile long demoraMs = 0;
-    private LibroPorHttp libro;
-
-    @BeforeEach
-    void levantar() throws Exception {
-        servidor = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
-        servidor.createContext("/", this::atender);
-        servidor.start();
-        libro = nuevo(Duration.ofSeconds(2));
-    }
-
-    @AfterEach
-    void bajar() {
-        servidor.stop(0);
-    }
-
-    private LibroPorHttp nuevo(Duration timeout) {
-        return new LibroPorHttp(
-                URI.create("http://127.0.0.1:" + servidor.getAddress().getPort()), timeout);
-    }
-
-    private void atender(HttpExchange e) throws IOException {
-        String cuerpo = new String(e.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-        recibidas.add(new Peticion(
-                e.getRequestMethod(),
-                e.getRequestURI().getPath(),
-                e.getRequestHeaders().getFirst("Idempotency-Key"),
-                e.getRequestHeaders().getFirst("Authorization"),
-                cuerpo));
-        try {
-            Thread.sleep(demoraMs);
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        }
-        byte[] bytes = respuesta.getBytes(StandardCharsets.UTF_8);
-        e.getResponseHeaders().add("Content-Type", "application/json");
-        e.sendResponseHeaders(estado, bytes.length);
-        e.getResponseBody().write(bytes);
-        e.close();
-    }
-
-    private void responder(int status, String json) {
-        this.estado = status;
-        this.respuesta = json;
-    }
-
-    private static Dinero bob(String m) {
-        return Dinero.de(m, Moneda.BOB);
-    }
+class LibroPorHttpContratoTest extends BaseDelLibroHttp {
 
     // ------------------------------------------------------------------ correcto
     @Test
@@ -148,10 +80,11 @@ class LibroPorHttpContratoTest {
         UUID transaccion = UUID.randomUUID();
         responder(200, "{\"transaccionId\":\"" + transaccion + "\",\"retencionId\":\"" + retencion + "\"}");
 
-        libro.liberar(retencion, "LIBERAR:x");
-        assertThat(libro.debitarInversion(retencion, bob("1000.00"), "DEBITAR:x"))
+        var conCredencial = conCredencial(CREDENCIAL);
+        conCredencial.liberar(retencion, "LIBERAR:x");
+        assertThat(conCredencial.debitarInversion(retencion, bob("1000.00"), "DEBITAR:x"))
                 .isEqualTo(transaccion);
-        assertThat(libro.acreditarRescate(UUID.randomUUID(), bob("407.20"), "ACREDITAR:x", UUID.randomUUID()))
+        assertThat(conCredencial.acreditarRescate(UUID.randomUUID(), bob("407.20"), "ACREDITAR:x", UUID.randomUUID()))
                 .isEqualTo(transaccion);
 
         assertThat(recibidas)

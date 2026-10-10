@@ -110,6 +110,40 @@ class SorteoDelGrupoTest {
     }
 
     @Test
+    @DisplayName(
+            "La respuesta de comprometer NO contiene la semilla: se publica solo el hash y la semilla queda sellada en el servidor")
+    void comprometerNoDevuelveLaSemilla() throws Exception {
+        when(consultas.puedeAdministrar(GRUPO, ctx)).thenReturn(true);
+        when(cu60.comprometer(any(), any(), any(), any()))
+                .thenReturn(new CU60Sortear.Compromiso(SORTEO, "a".repeat(64), "SEMILLA-SECRETA-DEL-SERVIDOR"));
+
+        var respuesta = adaptador.comprometer(GRUPO, new EntradaCompromiso(), ctx);
+
+        String json = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(respuesta.getBody());
+        assertThat(json).doesNotContain("SEMILLA-SECRETA-DEL-SERVIDOR").doesNotContainIgnoringCase("\"semilla\"");
+        assertThat(json).contains("hashSemilla");
+        assertThat(java.util.Arrays.stream(
+                                bo.aportaya.grupos.web.generado.modelo.CompromisoDeSorteo.class.getDeclaredFields())
+                        .map(java.lang.reflect.Field::getName))
+                .doesNotContain("semilla");
+    }
+
+    @Test
+    @DisplayName("Revelar con dos semillas distintas del cliente llega igual al caso de uso: ninguna cambia el orden")
+    void semillasDeClientesDistintasNoCambianNada() {
+        when(consultas.puedeAdministrar(GRUPO, ctx)).thenReturn(true);
+        when(cu60.grupoDelSorteo(SORTEO, ctx)).thenReturn(Optional.of(GRUPO));
+        when(cu60.resultadoVigente(SORTEO, ctx)).thenReturn(Optional.empty());
+        when(cu60.revelar(any(), isNull(), any(), any(), any(), any(), any()))
+                .thenReturn(new Revelacion(SORTEO, List.of(UUID.randomUUID()), true, "sellada"));
+
+        adaptador.revelar(GRUPO, entrada("A"), ctx);
+        adaptador.revelar(GRUPO, entrada("B"), ctx);
+
+        verify(cu60, org.mockito.Mockito.times(2)).revelar(any(), isNull(), any(), any(), any(), any(), any());
+    }
+
+    @Test
     @DisplayName("Si ya hay un resultado vigente se devuelve el original y no se vuelve a sortear")
     void reintentoDevuelveElOriginal() {
         var original = new Revelacion(SORTEO, List.of(UUID.randomUUID(), UUID.randomUUID()), true, "semilla");

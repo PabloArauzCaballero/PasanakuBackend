@@ -59,6 +59,7 @@ package "Cuentas de billetera" {
     FONDO_GARANTIA
     SUSPENSO_NO_IDENTIFICADO
     LIQUIDACION_PROVEEDOR
+    CUSTODIA_INVERSION
   }
 
   enum EstadoBilletera {
@@ -150,6 +151,9 @@ package "Libro de movimientos (append-only)" {
     DEVOLUCION
     AJUSTE_OPERATIVO
     REVERSO
+    INVERSION
+    RESCATE_INVERSION
+    COMPRA_EN_MERCADO
   }
 
   enum EstadoTransaccion {
@@ -207,7 +211,7 @@ package "Libro de movimientos (append-only)" {
     - id: UUID
     - cuentaBilleteraId: UUID
     - transaccionOrigenId: UUID
-    - motivo: String <<APORTE_PROGRAMADO | ENTREGA_EN_CURSO | DISPUTA | ORDEN_AUTORIDAD | ANTIFRAUDE | COMISION_PENDIENTE>>
+    - motivo: String <<APORTE_PROGRAMADO | ENTREGA_EN_CURSO | DISPUTA | ORDEN_AUTORIDAD | ANTIFRAUDE | COMISION_PENDIENTE | INVERSION_VOLUNTARIA | COMPRA_EN_MERCADO>>
     - monto: Decimal
     - estado: String <<VIGENTE | LIBERADA | EJECUTADA | VENCIDA>>
     - expiraEn: DateTime

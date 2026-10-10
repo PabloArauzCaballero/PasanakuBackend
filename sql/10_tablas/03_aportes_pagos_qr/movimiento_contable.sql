@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.movimiento_contable (
   cuenta_id                          UUID NOT NULL,
   debe                               NUMERIC(16,2) NOT NULL,
   haber                              NUMERIC(16,2) NOT NULL,
+  moneda                             CHAR(3) NOT NULL,
   descripcion                        VARCHAR(160) NOT NULL,
   CONSTRAINT pk_movimiento_contable PRIMARY KEY (id)
 );

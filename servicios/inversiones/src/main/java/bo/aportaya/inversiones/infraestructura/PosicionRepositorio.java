@@ -119,11 +119,17 @@ public class PosicionRepositorio {
                 .fetch(this::posicion);
     }
 
-    /** Descuenta las cuotas que el aliado ya liquido; la ultima cierra la posicion. */
-    public void descontarCuotas(DSLContext dsl, UUID id, BigDecimal restantes, OffsetDateTime ahora) {
+    /**
+     * Descuenta las cuotas que el aliado ya liquido; la ultima cierra la posicion. La marca
+     * maxima que dejo la comision de exito se guarda aca: sin eso, el proximo rescate parcial
+     * volveria a cobrar el mismo tramo de ganancia (R-INV-07: la marca no baja).
+     */
+    public void descontarCuotas(
+            DSLContext dsl, UUID id, BigDecimal restantes, BigDecimal marcaNueva, OffsetDateTime ahora) {
         boolean cierra = restantes.signum() == 0;
         dsl.update(t("posicion_inversion"))
                 .set(f("cuotas", BigDecimal.class), restantes)
+                .set(f("marca_maxima", BigDecimal.class), marcaNueva)
                 .set(f("estado", String.class), cierra ? "CERRADA" : "ABIERTA")
                 .set(f("cerrada_en", OffsetDateTime.class), cierra ? ahora : null)
                 .set(f("version", Integer.class), f("version", Integer.class).plus(1))

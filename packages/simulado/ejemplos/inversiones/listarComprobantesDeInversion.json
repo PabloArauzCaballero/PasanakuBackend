@@ -89,8 +89,8 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU120-01",
-        "mensaje": "Producto inexistente",
+        "codigo": "AP-CU128-01",
+        "mensaje": "Periodo invalido",
         "detalle": {},
         "trazaId": "traza-listarComprobantesDeInversion-rechazo"
       }

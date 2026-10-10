@@ -24,6 +24,22 @@ public class SustitucionRepositorio {
                 .map(f -> new Participante(f.get("id", UUID.class), f.get("usuario_id", UUID.class)));
     }
 
+    /** Grupos vivos que organiza esa habilitacion (los terminados o cancelados ya no tienen a quien sustituir). */
+    public List<UUID> gruposVigentesDelOrganizador(DSLContext dsl, UUID organizadorId) {
+        return dsl.fetch(
+                        "SELECT id FROM grupos.grupo WHERE organizador_id=? AND estado NOT IN ('FINALIZADO','CANCELADO','DISUELTO_ANTICIPADAMENTE') ORDER BY id",
+                        organizadorId)
+                .map(f -> f.get("id", UUID.class));
+    }
+
+    /** Quienes podrian quedar como administradores: participantes ACTIVOS que no administran, el mas antiguo primero. */
+    public List<Participante> candidatos(DSLContext dsl, UUID grupoId) {
+        return dsl.fetch(
+                        "SELECT id, usuario_id FROM grupos.participante WHERE grupo_id=? AND estado='ACTIVO' AND NOT es_organizador ORDER BY fecha_ingreso, id",
+                        grupoId)
+                .map(f -> new Participante(f.get("id", UUID.class), f.get("usuario_id", UUID.class)));
+    }
+
     public Optional<Participante> participanteActivo(DSLContext dsl, UUID grupoId, UUID usuarioId) {
         return Optional.ofNullable(dsl.fetchOne(
                         "SELECT id, usuario_id FROM grupos.participante WHERE grupo_id=? AND usuario_id=? AND estado='ACTIVO' FOR UPDATE",

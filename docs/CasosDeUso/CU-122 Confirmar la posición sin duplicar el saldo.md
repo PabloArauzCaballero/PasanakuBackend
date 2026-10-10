@@ -98,7 +98,7 @@ no hay progreso: el estado queda visible en vez de insistir en bucle).
 
 ```ts
 export const EntradaCU122 = z.object({
-  claveIdempotencia: z.string().uuid(), // exigida por el contrato; la saga es idempotente por orden y estado
+  claveIdempotencia: z.string().uuid().optional(), // opcional: la saga es idempotente por orden y estado, no por la clave
   ordenId: z.string().uuid(),           // en la ruta
 }).strict()
 
@@ -114,6 +114,8 @@ export const SalidaCU122 = z.object({
 export const ErroresCU122 = {
   ORDEN_INEXISTENTE: 'AP-CU122-01',
   CONFIRMACION_NO_COINCIDE: 'AP-CU122-02',
+  IDEMPOTENCIA_CONTENIDO_DISTINTO: 'AP-CU122-03',
+  OPERACION_EN_CURSO: 'AP-CU122-04',
 } as const
 ```
 
@@ -121,6 +123,8 @@ export const ErroresCU122 = {
 | --- | --- |
 | `ORDEN_INEXISTENTE` | La orden no existe o es de otra persona |
 | `CONFIRMACION_NO_COINCIDE` | Lo que confirma el aliado (monto, cuotas, posición externa, vencimiento) no coincide con la orden: no se registra la posición |
+| `IDEMPOTENCIA_CONTENIDO_DISTINTO` | `POST /inversiones/instrucciones/reintento`: la clave ya se usó con otro contenido |
+| `OPERACION_EN_CURSO` | `POST /inversiones/instrucciones/reintento`: otra corrida con esa clave sigue en curso |
 
 ## Descomposición atómica
 
@@ -139,12 +143,30 @@ export const ErroresCU122 = {
 
 | Emite | Dispara | Exige |
 | --- | --- | --- |
-| `inversiones.saldo_reservado` · `inversiones.posicion_constituida` · `inversiones.orden_rechazada` · `inversiones.instruccion_aplicada` | Nada todavía | `BILLETERA_VER` para ver · `BILLETERA_OPERAR` para sincronizar |
+| `inversiones.saldo_reservado` · `inversiones.posicion_constituida` · `inversiones.orden_rechazada` · `inversiones.instruccion_aplicada` | El reintento programado de las pendientes | `BILLETERA_VER` para ver · `BILLETERA_OPERAR` para sincronizar |
 
-`AplicadorDeInstrucciones.reintentarPendientes` existe para reintentar las instrucciones
-pendientes, pero **ningún trabajo programado lo invoca todavía**: hoy lo ejercita la
-sincronización de cada orden y las pruebas. Cablear ese trabajo (con su bloqueo) queda
-pendiente.
+**Reintento de las instrucciones pendientes (cableado).** Cuando el libro no responde, la instrucción queda
+`PENDIENTE` con su intención persistida. `ReintentoDeInstrucciones` (cada minuto, con `@SchedulerLock`) las
+reintenta con la **misma clave de idempotencia** del libro, así que repetir no mueve plata dos veces:
+
+- **Espera exponencial con tope**, medida desde que la instrucción nació: el intento *n* no ocurre antes de
+  la suma de `min(30 s × 2^k, 1 h)` para *k = 0..n*. El primero también espera: da tiempo a que termine el
+  pedido que la creó.
+- **Máximo de intentos** (12): pasado el máximo la instrucción **no se descarta**; el reloj deja de tocarla
+  y queda contada como **atascada** en el medidor `inversiones.instrucciones.atascadas`, en el log y en el
+  resultado de la corrida. `POST /inversiones/instrucciones/reintento` (`ADMIN_PLATAFORMA`) la reintenta
+  a mano, sin esperas ni tope.
+- **Plazo máximo del barrido** (45 s): si lo supera se corta entero (cada instrucción se aplica entera o no
+  se toca), la corrida queda `PARCIAL` y el resto sigue pendiente para la próxima vuelta.
+- **Visibilidad.** Cada vuelta con trabajo deja su fila en `corrida_trabajo` (cuándo, quién, resultado:
+  aplicadas, rechazadas, siguen, esperando, atascadas, cortada); medidores `inversiones.instrucciones.pendientes`
+  y `.atascadas`, y contador `inversiones.corridas`. Sin nada pendiente no se abre corrida.
+- **Idempotencia del pedido.** La clave del reintento se reserva por operación: misma clave y mismo contenido
+  devuelve el resultado guardado; otro contenido, `AP-CU122-03`; una corrida en curso, `AP-CU122-04`.
+
+El pedido de sincronizar **una orden** (`POST /inversiones/ordenes/{ordenId}/sincronizacion`) acepta la clave
+pero no la necesita: la máquina de estados de la orden es la guarda de idempotencia (una orden ya resuelta no
+se mueve), y la clave es opcional en el contrato.
 
 ## Interfaz
 
@@ -159,7 +181,7 @@ pendiente.
 ## Evidencia que deja
 
 `orden_inversion` · `posicion_inversion` · `comprobante_inversion` · `instruccion_libro`
-· `evento_dominio` (outbox). El movimiento de débito vive en el libro del núcleo.
+· `corrida_trabajo` · `evento_dominio` (outbox). El movimiento de débito vive en el libro del núcleo.
 
 ## Criterios de aceptación
 
@@ -191,10 +213,27 @@ Entonces la posicion existe pero el importe sigue retenido (no hay doble disponi
 Dada una orden de OTRA persona
 Cuando intenta verla o sincronizarla
 Entonces AP-CU122-01: no existe para ella
+
+Dado el libro caido al aplicar una instruccion
+Cuando el reloj reintenta antes de que pase la espera
+Entonces no la toca, y despues de la espera la aplica una sola vez
+
+Dada una instruccion que supero el maximo de intentos
+Cuando el reloj reintenta
+Entonces no la toca y queda contada como atascada, y el reintento a mano la aplica
+
+Dado un barrido de reintentos que supera su plazo maximo
+Cuando corre
+Entonces se corta entero, queda PARCIAL y el resto sigue pendiente
+
+Dado el libro que vuelve
+Cuando corre el trabajo de reintento del reloj
+Entonces aplica lo pendiente y deja su corrida PROGRAMADO, y sin nada pendiente no abre ninguna
 ```
 
 Además, la prueba de reintento (sincronizar dos veces no duplica posición, comprobante
-ni débito) y los rechazos de la base por `R-INV-04` (una posición incoherente con su
+ni débito; la misma clave del reintento devuelve lo guardado; otro contenido o una corrida en curso se rechazan), la de concurrencia
+(ocho reintentos simultáneos con la misma clave corren una vez), la de cuadre de los medidores y los rechazos de la base por `R-INV-04` (una posición incoherente con su
 tipo) y `R-INV-06` (una instrucción al libro aplicada sin referencia, o con una clave de
 idempotencia repetida).
 

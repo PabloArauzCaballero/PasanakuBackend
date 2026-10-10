@@ -7,6 +7,8 @@ import { SeccionDeExpediente } from '@aportaya/ui/seccion-de-expediente/seccion-
 import type { Habilitacion } from 'clientes/angular/organizador'
 import { crearHabilitar, habilitacionDe, habilitacionVacia } from '../dominio/cu90-habilitacion'
 import { textosCumplimiento } from '../textos'
+import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
+import type { ErrorTraducido } from '../../../nucleo/errores'
 
 /**
  * CU-90 · Postular a organizador y habilitarse. Muestra si el organizador está
@@ -18,7 +20,7 @@ import { textosCumplimiento } from '../textos'
 @Component({
   selector: 'ap-pantalla-de-habilitacion-organizador',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [EstadoDePantalla, BandaDeProposito, ChipEstado, Boton, SeccionDeExpediente],
+  imports: [ErrorDeEnvio, EstadoDePantalla, BandaDeProposito, ChipEstado, Boton, SeccionDeExpediente],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
     <main>
@@ -26,6 +28,7 @@ import { textosCumplimiento } from '../textos'
       <ap-estado-de-pantalla [recurso]="habilitacion" [vacio]="vacio" [mensajeVacio]="t.noHabilitado" [etiquetaDeCarga]="t.cargando" (reintentar)="habilitacion.reload()">
         @if (habilitacion.hasValue() && habilitacion.value(); as h) {
           <h2>Estado de la habilitación</h2>
+          <ap-error-de-envio [error]="errorDeEnvio()" />
           <ap-seccion-de-expediente [titulo]="t.titulo" [datos]="datosDe(h)">
             <ap-chip-estado [tono]="h.habilitado ? 'ok' : 'neutro'">{{ h.habilitado ? t.habilitado : t.noHabilitado }}</ap-chip-estado>
             @if (!h.habilitado) {
@@ -47,6 +50,7 @@ export class PantallaDeHabilitacionOrganizador {
   protected readonly habilitacion = habilitacionDe(this.organizadorId)
   protected readonly vacio = habilitacionVacia
   protected readonly habilitando = signal(false)
+  protected readonly errorDeEnvio = signal<ErrorTraducido | null>(null)
   private readonly enviarHabilitacion = crearHabilitar()
 
   protected datosDe(h: Habilitacion) {
@@ -60,12 +64,16 @@ export class PantallaDeHabilitacionOrganizador {
 
   protected habilitar(): void {
     this.habilitando.set(true)
+    this.errorDeEnvio.set(null)
     this.enviarHabilitacion(this.organizadorId()).subscribe({
       next: () => {
         this.habilitando.set(false)
         this.habilitacion.reload()
       },
-      error: () => this.habilitando.set(false),
+      error: (e: ErrorTraducido) => {
+        this.errorDeEnvio.set(e)
+        this.habilitando.set(false)
+      },
     })
   }
 }

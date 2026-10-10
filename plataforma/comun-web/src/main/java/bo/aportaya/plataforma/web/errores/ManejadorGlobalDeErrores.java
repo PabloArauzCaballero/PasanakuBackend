@@ -104,6 +104,18 @@ public class ManejadorGlobalDeErrores {
                 .body(ErrorApi.de("AP-SEG-01", "No tenes acceso a este recurso.", Traza.actual()));
     }
 
+    /** Demasiadas consultas del mismo actor: 429 con cuanto esperar. Sin eco de lo que preguntaba. */
+    @ExceptionHandler(LimiteDeUsoExcedido.class)
+    public ResponseEntity<ErrorApi> limiteDeUso(LimiteDeUsoExcedido e) {
+        BITACORA.info(
+                "limite de uso excedido; reintentar en {} s", e.reintentarEn().toSeconds());
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header(
+                        "Retry-After",
+                        String.valueOf(Math.max(1, e.reintentarEn().toSeconds())))
+                .body(ErrorApi.de("AP-LIM-01", "Hiciste demasiadas consultas. Esperá un momento.", Traza.actual()));
+    }
+
     /** Lo que rechaza la BASE: 409 con la regla traducida. */
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ErrorApi> restriccionDeLaBase(DataAccessException e) {
@@ -116,7 +128,13 @@ public class ManejadorGlobalDeErrores {
                             .body(ErrorApi.de(regla.codigo(), regla.mensaje() + ".", Traza.actual()));
                 })
                 .orElseGet(() -> {
-                    BITACORA.error("restriccion sin traduccion en el catalogo: {}", mensajeCrudo, e);
+                    // Ni el mensaje del driver ni la excepcion entera: ahi viaja el valor que violo
+                    // la restriccion. Se deja el nombre de la restriccion y el rastro (RastroSeguro).
+                    BITACORA.error(
+                            "restriccion sin traduccion en el catalogo: {} trazaId={} causa={}",
+                            RastroSeguro.restriccionDe(mensajeCrudo),
+                            Traza.actual(),
+                            RastroSeguro.de(e));
                     return sinPrevision();
                 });
     }
@@ -210,7 +228,7 @@ public class ManejadorGlobalDeErrores {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorApi> falloNoPrevisto(Exception e) {
-        BITACORA.error("fallo no previsto", e);
+        BITACORA.error("fallo no previsto trazaId={} causa={}", Traza.actual(), RastroSeguro.de(e));
         return sinPrevision();
     }
 
