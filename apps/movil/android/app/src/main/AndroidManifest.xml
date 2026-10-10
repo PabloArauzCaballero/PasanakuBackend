@@ -1,4 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- El escaner de identidad (carnet y prueba de vida) necesita la camara en
+         vivo del plugin `camera`; `image_picker` no la pedia porque abria la app
+         de camara del sistema. `required="false"` porque el resto de la app
+         (billetera, pasanaku, soporte) funciona igual sin camara. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.front" android:required="false"/>
+
     <application
         android:label="aportaya_movil"
         android:name="${applicationName}"

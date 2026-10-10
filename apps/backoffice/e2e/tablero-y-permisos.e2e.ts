@@ -17,6 +17,10 @@ import { expect, test, type Page } from '@playwright/test'
  * camino `ANONYMOUS` real que describe el CA de H3, en vez del camino `ERROR` que es un
  * artefacto de que el backend simulado no tiene el endpoint todavía (regla 65: se aísla
  * el contrato que falta, no se prueba contra el hueco).
+ *
+ * Actualización (H10 del escáner, 2026-10-03): `POST /sesion/refrescar` ya está en el
+ * contrato y el mock lo contesta 200 con un ejemplo; el `401` interceptado sigue siendo
+ * lo que responde el servidor real a un navegador sin cookie.
  */
 async function sinCookieDeSesion(page: Page): Promise<void> {
   await page.route('**/sesion/refrescar', (route) => route.fulfill({ status: 401, json: {} }))

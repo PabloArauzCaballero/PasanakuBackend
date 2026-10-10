@@ -1,0 +1,75 @@
+# H12.S2.M9 · runtime del vencimiento del carnet — 2026-10-03 23:07:08 (hora de La Paz)
+# Stack: base recreada desde esta rama (bd:reset, humo 165 OK · 0 FALLA); imágenes construidas desde esta rama:
+#   identidad e2bedb3b3808
+#   cumplimiento 742d661ce207
+#   gateway ad12c84ca921
+# bd:levantar terminó con exit 1 solo porque 'compose --wait' cuenta como error al job de un solo uso minio-bucket (exited 0); igual que en H10. Todos los contenedores healthy.
+# Datos 100% sintéticos (nombres 'Operador Prueba …', CI al azar, correos @ejemplo.test).
+
+## 1 · API: alta con el carnet vencido ayer
+POST /api/v1/usuarios documento.fechaExpiracion=2026-10-02 →
+422 {"codigo":"AP-CU01-07","mensaje":"Tu documento esta vencido. Para abrir la cuenta hace falta uno vigente.",...}
+SQL: select count(*) from identidad.usuario where nombres='Operador Prueba VENCIDA' → 0 (no se creó nada)
+
+## 2 · Siembra por la API real (POST /usuarios + 5 × POST /usuarios/{id}/documentos)
+VIGENTE  vence 2028-05-10 · SINFECHA sin fechaExpiracion (cliente anterior al campo) · VENCIDO vence 2026-10-03 (hoy)
+Una de las 15 subidas recibió 429 del limitador de nginx (ráfaga de 15 subidas en segundos): protección de la plataforma; reintentada → 201.
+Operador Prueba VIGENTE | vence=2028-05-10 | fotos=5 | APROBADA | revisada_por=df237ee4
+Operador Prueba SINFECHA | vence=(sin fecha) | fotos=5 | EN_REVISION
+Operador Prueba VENCIDO | vence=2026-10-03 | fotos=5 | EN_REVISION
+
+## 3 · App (APK debug de esta rama en el emulador Android, contra el stack)
+h12-app-01: paso 1 con «Vence el» vacío · h12-app-02: Continuar sin fecha → «Elegí hasta cuándo vale tu carnet.»
+h12-app-03: el calendario arranca en el año actual (no ofrece años pasados) · h12-app-04: «15 oct 2029» elegido, el error desaparece
+h12-app-05: paso 1 completo · h12-app-06: cotejo «Vence el: coincide — 15 oct 2029»
+Alta enviada desde la app; SQL:
+usuario Prueba Sintetica | documento_identidad.fecha_expiracion=2029-10-15
+El emulador se cerró solo al terminar el alta (proceso inexistente; la captura final quedó vacía y se borró). El dato llegó al servidor (SQL de arriba).
+
+## 4 · Backoffice como operador — FASE A (yarn start:stack en :4200, sin arnés)
+PASS [dev] el backoffice de desarrollo habla con el gateway sin arnés (meta en index.desarrollo.html) → cola cargada en /cumplimiento/verificaciones
+PASS [vigente] muestra «Vence el 10 may 2028» (mismo día que mandó el alta)
+PASS [vigente] sin aviso de vencido ni de falta de fecha
+PASS [vigente] Aprobar habilitado
+PASS [vence-hoy] vence hoy («Vence el 3 oct 2026»): todavía vigente, sin marca
+PASS [vence-hoy] vence hoy: Aprobar habilitado (no se aprueba acá: se usa en la fase B, pasada la medianoche)
+PASS [sin-fecha] muestra «Sin fecha de vencimiento»
+PASS [sin-fecha] explica por qué no se aprueba
+PASS [sin-fecha] Aprobar deshabilitado
+PASS [servidor] aprobar sin fecha a la fuerza → 422 AP-CU01-10
+PASS [servidor] la tarjeta dice el motivo: «El documento no tiene fecha de vencimiento: no se puede comprobar que esté vigente.»
+PASS [aprobar] aprobar el vigente → 200
+PASS [aprobar] el vigente sale de «Por decidir»
+PASS [oscuro] en oscuro: sin fecha, Aprobar deshabilitado
+PASS [consola] sin errores de consola ni de página (los 422 esperados se excluyen)
+
+15/15 PASS
+
+## 5 · Corrida B temprana (error del arnés, se registra)
+La espera usó TZ=America/La_Paz, que Git Bash no reconoce (cae en UTC): la fase B corrió a las 23:17, ANTES de medianoche.
+El servidor hizo lo correcto: el carnet de VENCIDO vencía ese mismo día (todavía válido) y aprobarlo a la fuerza dio 200 → borde «vence hoy todavía vale» verificado en runtime.
+Consecuencia: ese expediente quedó APROBADO; para la fase B se sembró VENCIDO2 por la API (vence 2026-10-03, 5 fotos 201).
+FAIL [vencido] muestra «Vence el 3 oct 2026 · Documento vencido»
+FAIL [vencido] explica por qué no se aprueba
+FAIL [vencido] Aprobar deshabilitado
+FAIL [servidor] aprobar vencido a la fuerza → 200 undefined
+FAIL [servidor] la tarjeta dice el motivo: «»
+
+## 6 · Incidente de entorno 23:48:09
+Otra sesión corrió clave_dev sobre este stack (credencial_acceso.cambiada_en = 2026-10-03 23:48:09) y entró con varias cuentas de prueba; el primer intento de la fase B a las 00:00:36 recibió AP-CU04-01. Se restituyó la clave con scripts/clave_dev.py (procedimiento del README) y se repitió.
+
+## 7 · Backoffice como operador — FASE B (pasada la medianoche de La Paz; NINGÚN dato modificado: el mismo expediente pasa a vencido por el reloj del servidor)
+inicio fase B: 2026-10-04 00:03:10 hora local (La Paz)
+antes: Operador Prueba VENCIDO2 vence=2026-10-03 EN_REVISION
+PASS [dev] el backoffice de desarrollo habla con el gateway sin arnés (meta en index.desarrollo.html) → cola cargada en /cumplimiento/verificaciones
+PASS [vencido] muestra «Vence el 3 oct 2026 · Documento vencido»
+PASS [vencido] explica por qué no se aprueba
+PASS [vencido] Aprobar deshabilitado
+PASS [servidor] aprobar vencido a la fuerza → 422 AP-CU01-11
+PASS [servidor] la tarjeta dice el motivo: «El documento está vencido. No se aprueba con un documento vencido.»
+PASS [rechazo] rechazar el vencido con motivo → 200
+PASS [oscuro] en oscuro: sin fecha, Aprobar deshabilitado
+PASS [consola] sin errores de consola ni de página (los 422 esperados se excluyen)
+
+9/9 PASS
+despues: Operador Prueba VENCIDO2 RECHAZADA | motivo=El carnet está vencido: subí uno vigente. | revisada_por=df237ee4

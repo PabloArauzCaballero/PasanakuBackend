@@ -1,0 +1,46 @@
+=== H1.S1.M1 — diff del .puml (clase + entity) ===
+$ git diff docs/entidades/01_identidad_usuarios.puml
+(ver commit; agrega urlPerfilIzquierdo/urlPerfilDerecho en VerificacionKYC y
+ url_perfil_izquierdo/url_perfil_derecho en la entity verificacion_kyc)
+
+=== H1.S1.M2 — regenerar DDL, solo cambia verificacion_kyc.sql (+ nulabilidad.sql, lateral esperado) ===
+$ python scripts/generar_ddl.py
+sql/ generado: 306 tablas · 631 claves foráneas · 672 índices · 422 CHECK
+Sin pendientes a nivel de datos.
+
+$ git status --short sql/
+ M sql/10_tablas/01_identidad_usuarios/verificacion_kyc.sql
+ M sql/15_infra/nulabilidad.sql
+
+$ git diff sql/10_tablas/01_identidad_usuarios/verificacion_kyc.sql
++  url_perfil_izquierdo               VARCHAR(255),
++  url_perfil_derecho                 VARCHAR(255),
++COMMENT ON COLUMN identidad.verificacion_kyc.url_perfil_izquierdo IS 'NULL, perfil izquierdo de la prueba de vida';
++COMMENT ON COLUMN identidad.verificacion_kyc.url_perfil_derecho IS 'NULL, perfil derecho de la prueba de vida';
+
+$ PYTHONUTF8=1 python scripts/generar_boveda.py
+{
+  "entidades": 306,
+  "relaciones_fk": 631,
+  "sin_resolver": [],
+  "cross_modulo": 327
+}
+
+$ PYTHONUTF8=1 python scripts/verificar_boveda.py
+...
+TODO OK
+
+Nota de entorno: el intérprete Python de esta máquina (3.14, Windows) usa cp1252
+por defecto al escribir archivos y generar_boveda.py no fuerza UTF-8 — sin
+PYTHONUTF8=1 falla con UnicodeEncodeError en el primer emoji/flecha. No es un
+bug introducido por este cambio (reproduce con el .puml original); se anota
+como hallazgo para el equipo, no se arregla (fuera de alcance).
+
+Hallazgo fuera de alcance (no corregido, solo anotado): al regenerar la bóveda
+completa aparecen 10 archivos con drift PRE-EXISTENTE, no relacionado con este
+cambio (reproducido también con el .puml sin tocar): docs/Index.md,
+"_Entidades 01.md", usuario.md, participante.md, "_Entidades 10.md",
+_Entidades.md, "_Relaciones 10.md", _Relaciones.md, y 2 archivos nuevos
+"evidencia_mfa_consumida*". Se revirtieron a HEAD para no mezclar una
+corrección no pedida con este diff (regla 00 §3). El commit de este trabajo
+solo incluye el .puml, los 2 .sql y verificacion_kyc.md (14→16 columnas).

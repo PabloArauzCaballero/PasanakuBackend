@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-import '../atomos/campo.dart';
-import '../atomos/fecha.dart';
 import '../tokens/tokens.dart';
+import 'parte_de_fecha.dart';
 
-/// Un campo de fecha que **se ve como los demás campos** y abre un calendario.
+/// Una fecha en **tres selects: Día, Mes y Año**, en ese orden, como se dice.
 ///
-/// Antes esto era un `OutlinedButton` suelto en medio del formulario: no parecía un
-/// campo, no tenía etiqueta, no podía mostrar un error y rompía la columna de cajas
-/// iguales. Un dato que se pide es un campo, aunque se elija en vez de escribirse.
+/// Antes abría el calendario de Material, cuyo lápiz pedía escribir `mm/dd/yyyy`
+/// —mes primero, barras—, un formato que nadie usa acá. El calendario queda como
+/// atajo, **solo calendario**. Día y año se eligen con buscador (más de doce
+/// opciones, la disciplina de `CampoDeSeleccion`): se escribe «1987» y listo.
 ///
-/// El calendario abre en la **grilla de años**, no en el mes de hoy: para una fecha de
-/// nacimiento, empezar en el mes actual obliga a retroceder trescientas veces.
+/// Emite la fecha recién cuando las tres partes forman un día que existe; si falta
+/// una, o se armó un 31 de febrero, emite `null` y dice qué pasa.
 class CampoDeFecha extends StatefulWidget {
   const CampoDeFecha({
     super.key,
@@ -29,7 +29,7 @@ class CampoDeFecha extends StatefulWidget {
 
   final String etiqueta;
   final DateTime? valor;
-  final ValueChanged<DateTime> onElegida;
+  final ValueChanged<DateTime?> onElegida;
 
   final DateTime? primera;
   final DateTime? ultima;
@@ -37,9 +37,10 @@ class CampoDeFecha extends StatefulWidget {
   /// Dónde se para el calendario cuando todavía no hay valor.
   final DateTime? inicial;
 
-  final String? ayuda;
-  final String? error;
+  final String? ayuda, error;
   final IconData icono;
+
+  /// Va al select del día, el primero que se completa.
   final FocusNode? foco;
 
   @override
@@ -47,67 +48,153 @@ class CampoDeFecha extends StatefulWidget {
 }
 
 class _CampoDeFechaState extends State<CampoDeFecha> {
-  final _controlador = TextEditingController();
-
-  static String _texto(DateTime f) =>
-      Fecha.formatear(f.toIso8601String(), conHora: false);
+  int? _dia;
+  int? _mes;
+  int? _anio;
 
   @override
   void initState() {
     super.initState();
-    _escribir();
+    _copiar(widget.valor);
   }
 
   @override
   void didUpdateWidget(CampoDeFecha anterior) {
     super.didUpdateWidget(anterior);
-    if (anterior.valor != widget.valor) _escribir();
+    if (widget.valor != null && anterior.valor != widget.valor) {
+      _copiar(widget.valor);
+    }
   }
 
-  void _escribir() =>
-      _controlador.text = widget.valor == null ? '' : _texto(widget.valor!);
-
-  @override
-  void dispose() {
-    _controlador.dispose();
-    super.dispose();
+  void _copiar(DateTime? f) {
+    if (f == null) return;
+    _dia = f.day;
+    _mes = f.month;
+    _anio = f.year;
   }
 
-  Future<void> _abrir() async {
-    final hoy = DateTime.now();
-    final ultima = widget.ultima ?? hoy;
+  DateTime get _primera =>
+      widget.primera ?? DateTime(DateTime.now().year - 120);
+  DateTime get _ultima => widget.ultima ?? DateTime.now();
+
+  /// El problema de la combinación elegida, o `null` si no hay ninguno (o falta algo).
+  String? get _problema {
+    final d = _dia, m = _mes, a = _anio;
+    if (d == null || m == null || a == null) return null;
+    final dias = diasDelMes(a, m);
+    if (d > dias) {
+      return 'Esa fecha no existe: ${mesesDelAnio[m - 1].toLowerCase()} '
+          'de $a tiene $dias días.';
+    }
+    return null;
+  }
+
+  void _cambiar(void Function() asignar) {
+    setState(asignar);
+    final d = _dia, m = _mes, a = _anio;
+    final completa = d != null && m != null && a != null && _problema == null;
+    widget.onElegida(completa ? DateTime(a, m, d) : null);
+  }
+
+  Future<void> _abrirCalendario() async {
     final elegida = await showDatePicker(
       context: context,
-      initialDate: widget.valor ?? widget.inicial ?? ultima,
-      firstDate: widget.primera ?? DateTime(hoy.year - 120),
-      lastDate: ultima,
+      initialDate: widget.valor ?? widget.inicial ?? _ultima,
+      firstDate: _primera,
+      lastDate: _ultima,
       initialDatePickerMode: DatePickerMode.year,
+      // Sin el lápiz: el modo de texto pedía `mm/dd/yyyy`, que nadie entiende.
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
       helpText: widget.etiqueta,
       cancelText: 'Cancelar',
       confirmText: 'Listo',
-      fieldLabelText: widget.etiqueta,
     );
-    if (elegida != null) widget.onElegida(elegida);
+    if (elegida != null) _cambiar(() => _copiar(elegida));
   }
 
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
-    return Campo(
-      etiqueta: widget.etiqueta,
-      soloLectura: true,
-      foco: widget.foco,
-      onTap: _abrir,
-      controlador: _controlador,
-      icono: widget.icono,
-      ayuda: widget.ayuda,
-      error: widget.error,
-      exito: widget.valor != null && widget.error == null,
-      sufijo: IconButton(
-        onPressed: _abrir,
-        icon: Icon(Icons.calendar_month_outlined, color: t.brandTexto),
-        tooltip: widget.etiqueta,
-      ),
+    final texto = Theme.of(context).textTheme;
+    final problema = _problema;
+    final mensaje = problema ?? widget.error;
+    // El borde rojo en las tres cajas; el mensaje, una sola vez debajo.
+    final marca = mensaje == null ? null : '';
+    final completa = widget.valor != null && mensaje == null;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(widget.icono, size: 18, color: t.text3),
+            const SizedBox(width: Espacio.s1),
+            Expanded(
+              child: Text(
+                widget.etiqueta,
+                style: texto.labelLarge?.copyWith(color: t.text2),
+              ),
+            ),
+            IconButton(
+              onPressed: _abrirCalendario,
+              icon: Icon(Icons.calendar_month_outlined, color: t.brandTexto),
+              tooltip: 'Elegir en el calendario',
+            ),
+          ],
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ParteDeFecha(
+              vacio: 'Día',
+              flex: 5,
+              valor: _dia,
+              marca: marca,
+              completa: completa,
+              foco: widget.foco,
+              opciones: [for (var d = 1; d <= 31; d++) (valor: d, texto: '$d')],
+              onElegida: (d) => _cambiar(() => _dia = d),
+            ),
+            const SizedBox(width: Espacio.s2),
+            ParteDeFecha(
+              vacio: 'Mes',
+              flex: 8,
+              valor: _mes,
+              marca: marca,
+              completa: completa,
+              numerico: false,
+              opciones: [
+                for (var m = 1; m <= 12; m++)
+                  (valor: m, texto: mesesDelAnio[m - 1]),
+              ],
+              onElegida: (m) => _cambiar(() => _mes = m),
+            ),
+            const SizedBox(width: Espacio.s2),
+            // Del más cercano al más lejano: el que se busca suele estar arriba.
+            ParteDeFecha(
+              vacio: 'Año',
+              flex: 6,
+              valor: _anio,
+              marca: marca,
+              completa: completa,
+              opciones: [
+                for (var a = _ultima.year; a >= _primera.year; a--)
+                  (valor: a, texto: '$a'),
+              ],
+              onElegida: (a) => _cambiar(() => _anio = a),
+            ),
+          ],
+        ),
+        if (mensaje != null || widget.ayuda != null)
+          Padding(
+            padding: const EdgeInsets.only(top: Espacio.s1, left: Espacio.s3),
+            child: Text(
+              mensaje ?? widget.ayuda!,
+              style: Tipo.ayuda.copyWith(
+                color: mensaje != null ? t.errTexto : t.text3,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

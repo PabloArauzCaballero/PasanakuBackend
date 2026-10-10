@@ -1,0 +1,3 @@
+00:00 +1: repetir una foto reemplaza solo esa cara
+00:00 +2: sin seguimiento, reemplazar no inventa uno
+00:00 +3: All tests passed!

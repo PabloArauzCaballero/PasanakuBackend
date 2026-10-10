@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../tokens/tokens.dart';
+import 'hundido_al_tocar.dart';
 
 /// Botón de ícono cuadrado (40 dp visibles, 48 dp táctiles) para barras y filas.
 class BotonIcono extends StatelessWidget {
@@ -20,14 +21,17 @@ class BotonIcono extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
-    return IconButton(
-      onPressed: onPressed,
-      icon: Icon(icono),
-      tooltip: etiqueta,
-      color: t.brandTexto,
-      constraints: const BoxConstraints.tightFor(
-        width: Tactil.minimo,
-        height: Tactil.minimo,
+    return HundidoAlTocar(
+      activo: onPressed != null,
+      child: IconButton(
+        onPressed: onPressed,
+        icon: Icon(icono),
+        tooltip: etiqueta,
+        color: t.brandTexto,
+        constraints: const BoxConstraints.tightFor(
+          width: Tactil.minimo,
+          height: Tactil.minimo,
+        ),
       ),
     );
   }

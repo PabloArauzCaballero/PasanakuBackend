@@ -80,6 +80,9 @@ class TextosIdentidad {
   static const canalAyuda =
       'Elegí cuál de tus dos contactos confirmás primero. Podés confirmar el otro '
       'más adelante desde tu perfil.';
+  static const fechaExpiracion = 'Vence el';
+  static const fechaExpiracionAyuda =
+      'La fecha de vencimiento que figura en tu carnet.';
   static const lugarExpedicionFalta = 'Elegí dónde te expidieron el carnet.';
   static const fechaNacimientoAyuda =
       'Para abrir una billetera hay que ser mayor de edad.';
@@ -92,6 +95,7 @@ class TextosIdentidad {
   static const pasoDatos = 'Tus datos';
   static const pasoContrasena = 'Tu contraseña';
   static const pasoCelular = 'Confirmar correo';
+  static const pasoCapturas = 'Tus capturas';
   static const pasoAnverso = 'Documento (anverso)';
   static const pasoReverso = 'Documento (reverso)';
   static const pasoPruebaDeVida = 'Prueba de vida';

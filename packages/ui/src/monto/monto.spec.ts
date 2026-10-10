@@ -21,10 +21,13 @@ describe('ap-monto', () => {
   it('pasa los mismos vectores que el Monto de Flutter', async () => {
     TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection()] })
     const fixture = TestBed.createComponent(Monto)
+    // detectChanges sincrónico y no `await whenStable()` por vector: 500 vueltas
+    // asíncronas pasaban de los 5 s del runner (vencía siempre, también en 22c5e687).
+    // Lo que se compara es lo mismo: el texto renderizado de cada vector.
     for (const v of vectores.slice(0, 500)) {
       fixture.componentRef.setInput('monto', v.monto)
       fixture.componentRef.setInput('moneda', v.moneda)
-      await fixture.whenStable()
+      fixture.detectChanges()
       expect(fixture.nativeElement.textContent).toBe(v.esperado)
     }
   })

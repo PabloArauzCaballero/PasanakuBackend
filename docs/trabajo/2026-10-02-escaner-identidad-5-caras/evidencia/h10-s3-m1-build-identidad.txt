@@ -1,0 +1,202 @@
+#0 building with "aportaya" instance using docker-container driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 6.56kB 0.0s done
+#1 DONE 0.0s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1.7
+#2 ...
+
+#3 [auth] docker/dockerfile:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1.7
+#2 DONE 1.4s
+
+#4 docker-image://docker.io/docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e
+#4 resolve docker.io/docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e 0.0s done
+#4 CACHED
+
+#5 [internal] load metadata for docker.io/library/eclipse-temurin@sha256:92a2a4d7a928d057e7bd999c418d66c26a34eb9a0442f3ab67721c3f88110b2d
+#5 ...
+
+#6 [auth] library/eclipse-temurin:pull token for registry-1.docker.io
+#6 DONE 0.0s
+
+#7 [internal] load metadata for docker.io/library/eclipse-temurin@sha256:7739f0ffce786528961eea6bf46d9610ee968ac6127c9b2e93494757bdecce9f
+#7 ...
+
+#5 [internal] load metadata for docker.io/library/eclipse-temurin@sha256:92a2a4d7a928d057e7bd999c418d66c26a34eb9a0442f3ab67721c3f88110b2d
+#5 DONE 0.7s
+
+#7 [internal] load metadata for docker.io/library/eclipse-temurin@sha256:7739f0ffce786528961eea6bf46d9610ee968ac6127c9b2e93494757bdecce9f
+#7 DONE 0.7s
+
+#8 [internal] load .dockerignore
+#8 transferring context: 1.78kB done
+#8 DONE 0.0s
+
+#9 [internal] load build context
+#9 DONE 0.0s
+
+#10 [construccion  1/15] FROM docker.io/library/eclipse-temurin@sha256:92a2a4d7a928d057e7bd999c418d66c26a34eb9a0442f3ab67721c3f88110b2d
+#10 resolve docker.io/library/eclipse-temurin@sha256:92a2a4d7a928d057e7bd999c418d66c26a34eb9a0442f3ab67721c3f88110b2d 0.0s done
+#10 DONE 0.0s
+
+#11 [runtime 1/8] FROM docker.io/library/eclipse-temurin@sha256:7739f0ffce786528961eea6bf46d9610ee968ac6127c9b2e93494757bdecce9f
+#11 resolve docker.io/library/eclipse-temurin@sha256:7739f0ffce786528961eea6bf46d9610ee968ac6127c9b2e93494757bdecce9f 0.0s done
+#11 DONE 0.1s
+
+#12 [runtime 2/8] RUN groupadd --system app && useradd --system --gid app app     && apt-get update     && apt-get install -y --no-install-recommends wget     && rm -rf /var/lib/apt/lists/*
+#12 CACHED
+
+#13 [runtime 3/8] WORKDIR /app
+#13 CACHED
+
+#9 [internal] load build context
+#9 transferring context: 877.41kB 0.3s done
+#9 DONE 0.4s
+
+#14 [construccion  3/15] RUN apt-get update     && apt-get install -y --no-install-recommends python3     && rm -rf /var/lib/apt/lists/*
+#14 CACHED
+
+#15 [construccion  5/15] COPY gradle gradle
+#15 CACHED
+
+#16 [construccion  9/15] COPY sql/40_reglas/restricciones.sql sql/40_reglas/restricciones.sql
+#16 CACHED
+
+#17 [construccion  4/15] COPY gradlew settings.gradle.kts build.gradle.kts gradle.properties ./
+#17 CACHED
+
+#18 [construccion  6/15] COPY buildSrc buildSrc
+#18 CACHED
+
+#19 [construccion 10/15] COPY sql/50_verificacion/prueba_humo.sql sql/50_verificacion/prueba_humo.sql
+#19 CACHED
+
+#20 [construccion 11/15] COPY plataforma plataforma
+#20 CACHED
+
+#21 [construccion  2/15] WORKDIR /construccion
+#21 CACHED
+
+#22 [construccion  7/15] COPY bd bd
+#22 CACHED
+
+#23 [construccion  8/15] COPY scripts scripts
+#23 CACHED
+
+#24 [construccion 12/15] COPY servicios/identidad servicios/identidad
+#24 CACHED
+
+#25 [construccion 13/15] RUN --mount=type=cache,target=/root/.gradle     BD_URL_ADMIN=jdbc:postgresql://172.26.0.6:5432/pasanaku     BD_USUARIO_ADMIN=pasanaku     BD_CLAVE_ADMIN=pasanaku     ./gradlew --no-daemon :servicios:identidad:bootJar -x test
+#25 1.122 To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.7.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+#25 3.521 Daemon will be stopped at the end of the build 
+#25 14.72 > Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+#25 15.92 > Task :buildSrc:generateExternalPluginSpecBuilders FROM-CACHE
+#25 15.92 > Task :buildSrc:extractPrecompiledScriptPluginPlugins FROM-CACHE
+#25 16.22 > Task :buildSrc:compilePluginsBlocks FROM-CACHE
+#25 16.82 > Task :buildSrc:generatePrecompiledScriptPluginAccessors FROM-CACHE
+#25 16.82 > Task :buildSrc:generateScriptPluginAdapters FROM-CACHE
+#25 17.32 > Task :buildSrc:compileKotlin FROM-CACHE
+#25 17.32 > Task :buildSrc:compileJava NO-SOURCE
+#25 17.42 > Task :buildSrc:compileGroovy NO-SOURCE
+#25 17.42 > Task :buildSrc:pluginDescriptors
+#25 17.42 > Task :buildSrc:processResources
+#25 17.42 > Task :buildSrc:classes
+#25 17.82 > Task :buildSrc:jar
+#25 31.92 > Task :plataforma:comun-mensajeria:processResources NO-SOURCE
+#25 31.92 > Task :plataforma:comun-archivos:processResources
+#25 31.92 > Task :plataforma:comun-datos:processResources
+#25 32.02 
+#25 32.02 > Task :plataforma:comun-web:erroresCatalogo
+#25 32.02 catalogo de errores: 190 restricciones -> 113 reglas · errores-restricciones.properties
+#25 32.02 mensajes de regla: 0 · errores-reglas.properties
+#25 32.02   AVISO: 113 reglas con restriccion y sin fila en la boveda: R-AUD-05, R-AUD-06, R-AUD-07, R-AUD-08, R-AUD-11, R-BIL-02, R-BIL-04, R-BIL-05
+#25 32.12 
+#25 32.12 > Task :plataforma:comun-web:processResources
+#25 34.42 > Task :plataforma:comun-dominio:compileJava
+#25 34.42 > Task :plataforma:comun-dominio:processResources NO-SOURCE
+#25 34.42 > Task :plataforma:comun-dominio:classes
+#25 34.42 > Task :plataforma:comun-dominio:jar
+#25 36.12 
+#25 36.12 > Task :servicios:identidad:generarServidorOpenApi
+#25 36.13 OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+#25 36.52 OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+#25 42.22 No application/json content media type found in response. Response examples can currently only be generated for application/json media type.
+#25 43.32 ############################################################################################
+#25 43.32 # Thanks for using OpenAPI Generator.                                                      #
+#25 43.32 # We appreciate your support! Please consider donation to help us maintain this project.   #
+#25 43.32 # https://opencollective.com/openapi_generator/donate                                      #
+#25 43.32 ############################################################################################
+#25 43.32 Successfully generated code to /construccion/servicios/identidad/build/generated/openapi
+#25 47.02 
+#25 47.02 > Task :servicios:identidad:generateJooq
+#25 47.02 Version mismatch         : Database version is older than what dialect POSTGRES supports: 16.14 (Debian 16.14-1.pgdg13+1). Consider https://www.jooq.org/download/support-matrix to see what jOOQ version and edition supports which RDBMS versions.
+#25 51.92 Ambiguous key name       : The one-to-many key identidad.fk_token_verificacion_rotado_de_id generates an inbound key method name tokenVerificacion on table identidad.token_verificacion which conflicts with the previously generated key method name for key identidad.fk_token_verificacion_rotado_de_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+#25 51.92  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+#25 51.92  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+#25 51.92  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+#25 52.72 
+#25 52.72 > Task :servicios:identidad:processResources
+#25 55.81 > Task :plataforma:comun-datos:compileJava
+#25 55.81 > Task :plataforma:comun-datos:classes
+#25 55.81 > Task :plataforma:comun-datos:jar
+#25 59.61 > Task :plataforma:comun-archivos:compileJava
+#25 59.61 > Task :plataforma:comun-archivos:classes
+#25 59.61 > Task :plataforma:comun-archivos:jar
+#25 63.01 > Task :plataforma:comun-mensajeria:compileJava
+#25 63.01 > Task :plataforma:comun-mensajeria:classes
+#25 63.01 > Task :plataforma:comun-mensajeria:jar
+#25 67.82 > Task :plataforma:comun-web:compileJava
+#25 67.82 > Task :plataforma:comun-web:classes
+#25 67.91 > Task :plataforma:comun-web:jar
+#25 80.41 > Task :servicios:identidad:compileJava
+#25 80.41 > Task :servicios:identidad:classes
+#25 80.52 > Task :servicios:identidad:resolveMainClassName
+#25 86.91 > Task :servicios:identidad:bootJar
+#25 86.91 
+#25 86.91 BUILD SUCCESSFUL in 1m 26s
+#25 86.91 29 actionable tasks: 23 executed, 6 from cache
+#25 86.91 Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+#25 DONE 87.2s
+
+#26 [construccion 14/15] RUN mkdir -p /capas && cd /capas     && java -Djarmode=tools -jar /construccion/servicios/identidad/build/libs/*.jar extract --layers --launcher --destination /capas
+#26 DONE 1.7s
+
+#27 [construccion 15/15] RUN mkdir -p /nativo /tmp/nativo && cd /tmp/nativo     && case "$(uname -m)" in x86_64) prefijo=linux-x86-64 ;; aarch64) prefijo=linux-aarch64 ;; *) prefijo=desconocido ;; esac     && for j in /capas/dependencies/BOOT-INF/lib/jna-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "com/sun/jna/${prefijo}/libjnidispatch.so" && cp "com/sun/jna/${prefijo}/libjnidispatch.so" /nativo/; done     && for j in /capas/dependencies/BOOT-INF/lib/argon2-jvm-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "${prefijo}/libargon2.so" && cp "${prefijo}/libargon2.so" /nativo/; done     ; ls -l /nativo
+#27 0.390 total 324
+#27 0.390 -rw-r--r-- 1 root root 194040 Oct  3 23:02 libargon2.so
+#27 0.390 -rw-r--r-- 1 root root 134447 Oct  3 23:02 libjnidispatch.so
+#27 DONE 0.4s
+
+#28 [runtime 4/8] COPY --from=construccion --chown=app:app /capas/dependencies/ ./
+#28 DONE 0.2s
+
+#29 [runtime 5/8] COPY --from=construccion --chown=app:app /capas/spring-boot-loader/ ./
+#29 DONE 0.1s
+
+#30 [runtime 6/8] COPY --from=construccion --chown=app:app /capas/snapshot-dependencies/ ./
+#30 DONE 0.0s
+
+#31 [runtime 7/8] COPY --from=construccion --chown=app:app /capas/application/ ./
+#31 DONE 0.2s
+
+#32 [runtime 8/8] COPY --from=construccion /nativo/ /app/nativo/
+#32 DONE 0.0s
+
+#33 exporting to oci image format
+#33 exporting layers
+#33 exporting layers 3.1s done
+#33 exporting manifest sha256:74d182263115e329c9f72b55dd16a6067b436fed8c6dd205680f7827165827aa 0.0s done
+#33 exporting config sha256:5073c3118405dc2b468cbc8f060e4056de66f23331c16cfe26e53ee2083c7605 0.0s done
+#33 sending tarball
+#33 ...
+
+#34 importing to docker
+#34 DONE 0.0s
+
+#33 exporting to oci image format
+#33 sending tarball 22.1s done
+#33 DONE 25.2s

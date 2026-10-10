@@ -6,7 +6,7 @@ tabla: verificacion_kyc
 clase: VerificacionKYC
 modulo: "01 — Identidad, Usuarios y Seguridad"
 clave_primaria: [id]
-columnas: 14
+columnas: 16
 fk_salientes: 3
 fk_entrantes: 2
 append_only: false
@@ -29,6 +29,8 @@ append_only: false
 | `referencia_proveedor` | VARCHAR(80) | — | sí | NULL |
 | `puntaje_biometrico` | DECIMAL(5,2) | — | sí | NULL |
 | `url_selfie` | VARCHAR(255) | — | sí | NULL |
+| `url_perfil_izquierdo` | VARCHAR(255) | — | sí | NULL, perfil izquierdo de la prueba de vida |
+| `url_perfil_derecho` | VARCHAR(255) | — | sí | NULL, perfil derecho de la prueba de vida |
 | `motivo_rechazo` | VARCHAR(160) | — | sí | NULL |
 | `revisada_por` | UUID | FK | sí | FK, NULL |
 | `iniciada_en` | TIMESTAMPTZ | — | no | — |

@@ -104,6 +104,13 @@ public class CU01RegistrarUsuario {
     public SalidaRegistro ejecutar(EntradaRegistro entrada, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
+        // Un documento vencido no abre cuenta: se valida aca y no solo en la app. El
+        // ultimo dia todavia vale (DocumentoDeIdentidad.vencidoAl).
+        if (entrada.documento().vencidoAl(reloj.hoy())) {
+            throw new ErrorDeNegocio(
+                    CodigoError.de(1, 7), "Tu documento esta vencido. Para abrir la cuenta hace falta uno vigente.");
+        }
+
         return datos.conContexto(ctx, dsl -> {
             if (registros.telefonoYaRegistrado(dsl, entrada.telefonoE164())) {
                 throw new ErrorDeNegocio(

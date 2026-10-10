@@ -1,0 +1,5 @@
+# H12.S3.M3 · backoffice en desarrollo contra el stack local (yarn workspace @aportaya/backoffice start:stack) · 2026-10-03 20:12:44
+$ curl localhost:4210/ | grep aportaya-gateway
+<meta name="aportaya-gateway" content="/api/v1"/>
+$ curl -X POST localhost:4210/api/v1/sesion/refrescar (proxy → nginx → gateway → identidad)
+ http=401

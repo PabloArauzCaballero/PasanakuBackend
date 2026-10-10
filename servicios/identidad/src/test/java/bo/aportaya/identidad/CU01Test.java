@@ -255,4 +255,30 @@ class CU01Test extends BaseDeCU01 {
         assertThat(usuariosTotales()).isEqualTo(usuariosAntes);
         assertThat(eventosDeTipo("identidad.usuario_registrado")).isEqualTo(eventosAntes);
     }
+
+    @Test
+    @DisplayName(
+            "Dado un documento con fecha de vencimiento futura · Cuando se registra · Entonces la fecha queda guardada")
+    void guardaElVencimientoDelDocumento() {
+        var salida = registrarConVencimiento(
+                "+59171000851", "8510851", java.time.LocalDate.now().plusYears(5));
+
+        assertThat(dsl.fetchValue(
+                        "SELECT fecha_expiracion FROM identidad.documento_identidad WHERE usuario_id = ?",
+                        salida.usuarioId()))
+                .isEqualTo(java.sql.Date.valueOf(java.time.LocalDate.now().plusYears(5)));
+    }
+
+    @Test
+    @DisplayName("Dado un documento vencido · Cuando se registra · Entonces AP-CU01-07 y no se crea nada")
+    void documentoVencidoNoAbreCuenta() {
+        long usuariosAntes = usuariosTotales();
+
+        assertThatThrownBy(() -> registrarConVencimiento(
+                        "+59171000852", "8520852", java.time.LocalDate.now().minusDays(2)))
+                .isInstanceOf(ErrorDeNegocio.class)
+                .satisfies(
+                        e -> assertThat(((ErrorDeNegocio) e).codigo().valor()).isEqualTo("AP-CU01-07"));
+        assertThat(usuariosTotales()).isEqualTo(usuariosAntes);
+    }
 }
