@@ -53,6 +53,21 @@ public class CuentaBilleteraRepositorio {
         return Optional.ofNullable(fila).map(f -> mapear(dsl, f));
     }
 
+    /**
+     * La cuenta {@code USUARIO} activa de una persona en esa moneda, vista con la sesion de quien pregunta.
+     * Vacio si no hay ninguna o hay mas de una: no se elige por la persona.
+     */
+    public Optional<UUID> operativaDe(DSLContext dsl, UUID usuarioId, Moneda moneda) {
+        var ids = dsl.select(DSL.field("id", UUID.class))
+                .from(DSL.table(DSL.name("nucleo_financiero", "cuenta_billetera")))
+                .where(DSL.field("tipo", String.class).eq("USUARIO"))
+                .and(DSL.field("usuario_id", UUID.class).eq(usuarioId))
+                .and(DSL.field("moneda", String.class).eq(moneda.name()))
+                .and(DSL.field("estado", String.class).eq("ACTIVA"))
+                .fetch(DSL.field("id", UUID.class));
+        return ids.size() == 1 ? Optional.of(ids.get(0)) : Optional.empty();
+    }
+
     /** Lectura sin bloqueo, para consultar. Nunca para decidir sobre plata. */
     public Optional<Cuenta> ver(DSLContext dsl, UUID cuentaId) {
         Record fila = dsl.select(

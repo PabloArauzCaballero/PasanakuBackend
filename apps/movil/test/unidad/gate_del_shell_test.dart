@@ -36,7 +36,7 @@ void main() {
     final ofensores = <String>[];
     for (final f in lib.listSync(recursive: true).whereType<File>()) {
       if (!f.path.endsWith('.dart')) continue;
-      if (f.path.contains('/infraestructura/')) continue;
+      if (f.path.replaceAll('\\', '/').contains('/infraestructura/')) continue;
       if (RegExp(r'Platform\.is').hasMatch(f.readAsStringSync())) {
         ofensores.add(f.path);
       }

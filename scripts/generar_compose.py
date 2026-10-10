@@ -85,6 +85,13 @@ DE_DESARROLLO = {
     "INVERSIONES_SERVICIO_CLAVE": "",
     "INVERSIONES_SERVICIO_TOTP_SEMILLA": "",
     "INVERSIONES_SERVICIO_FACTOR_FIJO": "",
+    # Cuenta de servicio de entregas en identidad (rol SERVICIO_ENTREGAS): con ella entregas le paga al vendedor de un
+    # turno (pago-a-tercero). Vacias en el repo: las pone quien opera el entorno; a medias, entregas NO arranca.
+    "ENTREGAS_LIBRO_CREDENCIAL_SERVICIO": "",
+    "ENTREGAS_SERVICIO_TELEFONO": "",
+    "ENTREGAS_SERVICIO_CLAVE": "",
+    "ENTREGAS_SERVICIO_TOTP_SEMILLA": "",
+    "ENTREGAS_SERVICIO_FACTOR_FIJO": "",
     "NUCLEO_FINANCIERO_URL": "http://nucleo-financiero:8080",
     # El mismo literal que application-local.yml (en local el perfil lo ignora).
     "APORTAYA_CORS_ORIGENES": "http://localhost:4200",
@@ -98,6 +105,8 @@ DE_DESARROLLO = {
     "CUENTA_LOGICA_CAJA_EMPRESA_USD": "9.2.01",
     "CUENTA_LOGICA_RESERVA_RESPALDO_USD": "9.2.02",
     "CUENTA_LOGICA_POZO_GRUPO_USD": "9.2.03",
+    "CUENTA_LOGICA_DESEMBOLSO_BOB": "9.1.04",
+    "CUENTA_LOGICA_DESEMBOLSO_USD": "9.2.04",
     # Correo del alta (identidad): en desarrollo el proveedor es el local —no envia nada— y las
     # credenciales de Gmail quedan vacias. Sin estas cinco claves el generador de desarrollo
     # se negaba a escribir el compose (las del desplegado ya estaban en DE_ENTORNO).
@@ -164,6 +173,13 @@ DE_ENTORNO = {
     "INVERSIONES_SERVICIO_CLAVE": "",
     "INVERSIONES_SERVICIO_TOTP_SEMILLA": "",
     "INVERSIONES_SERVICIO_FACTOR_FIJO": "",
+    # Cuenta de servicio de entregas en identidad (rol SERVICIO_ENTREGAS): con ella entregas le paga al vendedor de un
+    # turno (pago-a-tercero). Vacias en el repo: las pone quien opera el entorno; a medias, entregas NO arranca.
+    "ENTREGAS_LIBRO_CREDENCIAL_SERVICIO": "",
+    "ENTREGAS_SERVICIO_TELEFONO": "",
+    "ENTREGAS_SERVICIO_CLAVE": "",
+    "ENTREGAS_SERVICIO_TOTP_SEMILLA": "",
+    "ENTREGAS_SERVICIO_FACTOR_FIJO": "",
     "NUCLEO_FINANCIERO_URL": "http://nucleo-financiero:8080",
     # Solo la leen staging/production (application-<perfil>.yml): sin valor por omision y nunca
     # `*`; el servicio no arranca si falta. Con el perfil `local` no tiene efecto. No es un secreto.
@@ -180,6 +196,8 @@ DE_ENTORNO = {
     "CUENTA_LOGICA_CAJA_EMPRESA_USD": "${CUENTA_LOGICA_CAJA_EMPRESA_USD:-9.2.01}",
     "CUENTA_LOGICA_RESERVA_RESPALDO_USD": "${CUENTA_LOGICA_RESERVA_RESPALDO_USD:-9.2.02}",
     "CUENTA_LOGICA_POZO_GRUPO_USD": "${CUENTA_LOGICA_POZO_GRUPO_USD:-9.2.03}",
+    "CUENTA_LOGICA_DESEMBOLSO_BOB": "${CUENTA_LOGICA_DESEMBOLSO_BOB:-9.1.04}",
+    "CUENTA_LOGICA_DESEMBOLSO_USD": "${CUENTA_LOGICA_DESEMBOLSO_USD:-9.2.04}",
     # grupos · interruptores de decision pendiente (negocio y cumplimiento). Opcionales (`:-`): un entorno que no los
     # carga NO deja de arrancar. TEST conserva su comportamiento (false); PRODUCCION debe fijar
     # ADMISION_HUMANA_OBLIGATORIA=true en Coolify (el valor por omision de la aplicacion, sin variable, es true).

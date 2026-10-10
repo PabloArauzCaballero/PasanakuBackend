@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { prepararArranque } from './apoyo/arranque-e2e'
 
 /**
  * PR6-SmartPresentational.Frontend, H4 — E2E dirigido de la pantalla piloto
@@ -31,6 +32,9 @@ function tokenConClaims(claims: Record<string, unknown>): string {
 const TOKEN_CUMPLIMIENTO = tokenConClaims({ sub: 'e2e-oficial', permisos: ['ver:cumplimiento'], rol: 'oficial' })
 
 async function entrarConPermiso(page: Page): Promise<void> {
+  // F4 (TEST_BUG heredado de la integración con el AuthBootstrap): el arranque restaura la sesión con `POST /sesion/refrescar`, que Prism no
+  // tiene; sin este doble el 404 ensuciaba la consola. `prepararArranque` lo responde 401 limpio, como un navegador sin cookie.
+  await prepararArranque(page)
   await page.route('**/sesiones', (route) =>
     route.fulfill({ status: 200, json: { requiereFactorAdicional: false, dispositivoConfiable: true, tokenAcceso: TOKEN_CUMPLIMIENTO } }),
   )
@@ -74,11 +78,12 @@ test.describe('pantalla de caso — E2E dirigido', () => {
   test('consola y red sin errores nuevos al cargar', async ({ page }) => {
     const erroresDeConsola: string[] = []
     page.on('console', (msg) => {
-      if (msg.type() === 'error') erroresDeConsola.push(msg.text())
+      // El único «Failed to load resource» esperado es el 401 del refresco de sesión que responde `prepararArranque` a propósito.
+      if (msg.type() === 'error' && !/status of 401/.test(msg.text())) erroresDeConsola.push(msg.text())
     })
     const respuestasMalas: number[] = []
     page.on('response', (r) => {
-      if (r.status() >= 400 && !r.url().includes('/sesiones')) respuestasMalas.push(r.status())
+      if (r.status() >= 400 && !r.url().includes('/sesiones') && !r.url().includes('/sesion/refrescar')) respuestasMalas.push(r.status())
     })
     await entrarConPermiso(page)
     await page.waitForLoadState('networkidle')

@@ -40,7 +40,7 @@ import type { ErrorTraducido } from '../../../nucleo/errores'
   imports: [ErrorDeEnvio, EstadoDePantalla, BandaDeProposito, ChipEstado, Boton, Campo, FormsModule, TiraDeFotos],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
 
       <div class="filtros" role="group" data-tutorial-id="cumplimiento-filtros" [attr.aria-label]="t.filtrar">
@@ -100,10 +100,10 @@ import type { ErrorTraducido } from '../../../nucleo/errores'
           </ul>
         }
       </ap-estado-de-pantalla>
-    </main>
+    </section>
   `,
   styles: `
-    main { padding: var(--s5); max-width: 52rem; display: flex; flex-direction: column; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 52rem; display: flex; flex-direction: column; gap: var(--s4); }
     .filtros { display: flex; gap: var(--s2); flex-wrap: wrap; }
     .cola { list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--s4); }
     .cola li { border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); padding: var(--s4); display: flex; flex-direction: column; gap: var(--s3); }

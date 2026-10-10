@@ -49,7 +49,8 @@ public class RespaldoPorHttp implements RespaldoEmpresarial {
 
     @Override
     public Optional<Cobertura> cubrir(UUID grupoId, UUID periodoId, UUID turnoId, Dinero faltanteEsperado) {
-        UUID clave = UUID.nameUUIDFromBytes(("cobertura-del-turno:" + turnoId).getBytes(StandardCharsets.UTF_8));
+        UUID idempotencyKey =
+                UUID.nameUUIDFromBytes(("cobertura-del-turno:" + turnoId).getBytes(StandardCharsets.UTF_8));
         try {
             return garantia.pedir(
                             "/garantia/respaldo/coberturas",
@@ -64,7 +65,7 @@ public class RespaldoPorHttp implements RespaldoEmpresarial {
                                                             faltanteEsperado
                                                                     .moneda()
                                                                     .name())),
-                            clave.toString(),
+                            idempotencyKey.toString(),
                             Respuesta.class)
                     .map(Respuesta::aCobertura);
         } catch (RuntimeException noSePudo) {

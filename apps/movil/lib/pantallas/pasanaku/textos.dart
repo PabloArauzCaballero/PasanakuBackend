@@ -16,8 +16,11 @@ class TextosPasanaku {
   static const permitePermutas = 'Permite intercambiar turnos entre socios';
   static const crearGrupoBoton = 'Crear grupo';
   static const creandoGrupo = 'Creando el grupo…';
+  static const grupoCreadoTitulo = 'Grupo creado';
+  static String fondoPorPeriodo(String importe) =>
+      'Fondo por período: $importe';
   static const grupoCreado =
-      'Grupo creado. Está congelando el precio; en un momento se abre para inscripciones.';
+      'Está congelando el precio; en un momento se abre para inscripciones.';
   static const requisitosTitulo = 'Requisitos para organizar';
   static const requisitosAyuda =
       'Los umbrales los fija el contrato de habilitación de organizadores, no esta app.';
@@ -45,10 +48,35 @@ class TextosPasanaku {
 
   // Invitar (CU-69)
   static const tituloInvitar = 'Invitar a un contacto';
-  static const telefonoInvitado = 'Celular de la persona (+591…)';
+  static const accionInvitar = 'Invitar a alguien a mi grupo';
+  static const accionCrearGrupo = 'Organizar un grupo nuevo';
+  static const telefonoInvitado = 'Celular de la persona';
   static const nombreSugerido = 'Cómo la conocés (opcional)';
   static const canalInvitacion = 'Por dónde le llega';
   static const enviarInvitacion = 'Invitar';
+  static const invitacionCreadaTitulo = 'Invitación creada';
+  static String invitacionCreadaPara(String telefono) =>
+      'Le va a llegar a $telefono. Solo esa persona puede usar el enlace.';
+  static String invitacionVence(String cuando) => 'Vence el $cuando.';
+  static const enlaceDeInvitacion = 'Enlace de la invitación';
+  static const copiarEnlace = 'Copiar enlace';
+  static const copiado = 'Copiado';
+  static const enlaceCopiado =
+      'Enlace copiado. Pegalo donde se lo quieras mandar.';
+  static const invitarAOtra = 'Invitar a otra persona';
+  // Unirse por enlace (CU-69, lado de quien recibe)
+  static const tituloUnirse = 'Invitación al grupo';
+  static const verificandoInvitacion = 'Verificando tu invitación…';
+  static const ingresaParaVerGrupo =
+      'Ingresá con el teléfono que recibió la invitación para ver el grupo.';
+  static const ingresar = 'Ingresar';
+  static const crearCuenta = 'Crear cuenta';
+  static const reglamentoDelGrupo = 'Reglamento del grupo';
+  static const aceptoReglamento = 'Leí y acepto este reglamento';
+  static const unirmeAlGrupo = 'Unirme al grupo';
+  static const yaFormasParte = 'Ya formás parte del grupo.';
+  static const verMisGrupos = 'Ver mis grupos';
+  static const reintentar = 'Reintentar';
   static const enviandoInvitacion = 'Enviando la invitación…';
   static const invitacionEnviada =
       'Listo. Le avisamos, con quién y a qué grupo.';

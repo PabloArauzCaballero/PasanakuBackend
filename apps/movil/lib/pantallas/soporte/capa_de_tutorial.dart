@@ -98,54 +98,62 @@ class _CapaDeTutorialState extends ConsumerState<CapaDeTutorial>
     }
 
     final paso = estado.paso;
-    return Stack(
-      children: [
-        NotificationListener<ScrollNotification>(
-          onNotification: _alDesplazar,
-          child: Listener(onPointerDown: _mirarToque, child: widget.hijo),
-        ),
-        if (paso != null) ...[
-          Positioned.fill(
-            child: FocoDeTutorial(
-              recuadro: estado.recuadro,
-              bloquea: paso.bloquea,
-              alTocarFuera: motor.pedirSalida,
-            ),
+    // La capa vive en el `builder` de `MaterialApp.router`, por ENCIMA del Navigator: sin un
+    // `Material` arriba, todo `Text` del globo se pinta con el estilo de error de Flutter
+    // (doble subrayado amarillo). Transparente: no agrega fondo ni elevación.
+    return Material(
+      type: MaterialType.transparency,
+      child: Stack(
+        children: [
+          NotificationListener<ScrollNotification>(
+            onNotification: _alDesplazar,
+            child: Listener(onPointerDown: _mirarToque, child: widget.hijo),
           ),
-          // **El globo se da vuelta si lo que señala está abajo.** Apoyado siempre
-          // abajo tapaba justo la barra de pestañas, que es lo que más se señala en
-          // una app. Con el elemento en la mitad inferior, el globo sube.
-          Positioned(
-            left: 0,
-            right: 0,
-            top: _arriba(context, estado.recuadro, paso.posicion) ? 0 : null,
-            bottom: _arriba(context, estado.recuadro, paso.posicion) ? null : 0,
-            child: GloboDeTutorial(
-              arriba: _arriba(context, estado.recuadro, paso.posicion),
-              titulo: paso.titulo,
-              descripcion: paso.descripcion,
-              indice: estado.indice,
-              total: estado.total,
-              problema: estado.problema,
-              textoAvanzar: estado.esUltimo
-                  ? TextosSoporte.terminar
-                  : TextosSoporte.siguiente,
-              textoSalir: TextosSoporte.omitir,
-              alAvanzar: motor.avanzar,
-              alRetroceder: motor.retroceder,
-              alSalir: motor.pedirSalida,
-              alReintentar: motor.reintentar,
+          if (paso != null) ...[
+            Positioned.fill(
+              child: FocoDeTutorial(
+                recuadro: estado.recuadro,
+                bloquea: paso.bloquea,
+                alTocarFuera: motor.pedirSalida,
+              ),
             ),
-          ),
+            // **El globo se da vuelta si lo que señala está abajo.** Apoyado siempre
+            // abajo tapaba justo la barra de pestañas, que es lo que más se señala en
+            // una app. Con el elemento en la mitad inferior, el globo sube.
+            Positioned(
+              left: 0,
+              right: 0,
+              top: _arriba(context, estado.recuadro, paso.posicion) ? 0 : null,
+              bottom: _arriba(context, estado.recuadro, paso.posicion)
+                  ? null
+                  : 0,
+              child: GloboDeTutorial(
+                arriba: _arriba(context, estado.recuadro, paso.posicion),
+                titulo: paso.titulo,
+                descripcion: paso.descripcion,
+                indice: estado.indice,
+                total: estado.total,
+                problema: estado.problema,
+                textoAvanzar: estado.esUltimo
+                    ? TextosSoporte.terminar
+                    : TextosSoporte.siguiente,
+                textoSalir: TextosSoporte.omitir,
+                alAvanzar: motor.avanzar,
+                alRetroceder: motor.retroceder,
+                alSalir: motor.pedirSalida,
+                alReintentar: motor.reintentar,
+              ),
+            ),
+          ],
+          if (estado.confirmandoSalida)
+            Positioned.fill(
+              child: _ConfirmarSalida(
+                alSalir: motor.omitir,
+                alSeguir: motor.seguirEnElTutorial,
+              ),
+            ),
         ],
-        if (estado.confirmandoSalida)
-          Positioned.fill(
-            child: _ConfirmarSalida(
-              alSalir: motor.omitir,
-              alSeguir: motor.seguirEnElTutorial,
-            ),
-          ),
-      ],
+      ),
     );
   }
 

@@ -27,7 +27,7 @@ const PERMISO_DE_RESOLUCION = 'ADMIN_PLATAFORMA'
   imports: [EstadoDePantalla, BandaDeProposito, Alerta, HistorialDeAdmision, FormularioDeResolucion],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
       <ap-estado-de-pantalla [recurso]="historial" [vacio]="sinDecisiones" [mensajeVacio]="t.sinDecisiones" [etiquetaDeCarga]="t.cargando" (reintentar)="historial.reload()">
         @if (historial.hasValue()) {
@@ -53,10 +53,10 @@ const PERMISO_DE_RESOLUCION = 'ADMIN_PLATAFORMA'
           </div>
         }
       </ap-estado-de-pantalla>
-    </main>
+    </section>
   `,
   styles: `
-    main { padding: var(--s5); max-width: 44rem; display: flex; flex-direction: column; gap: var(--s5); }
+    .pantalla { padding: var(--s5); max-width: 44rem; display: flex; flex-direction: column; gap: var(--s5); }
     h1 { margin: 0; }
     .cuerpo { display: flex; flex-direction: column; gap: var(--s5); }
   `,

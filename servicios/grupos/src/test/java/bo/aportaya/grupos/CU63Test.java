@@ -34,7 +34,8 @@ class CU63Test extends BaseDeCU63 {
     }
 
     @Test
-    @DisplayName("B38 · con votos pendientes que aun pueden alcanzar el quorum, el primer voto NO cierra la votacion")
+    @DisplayName(
+            "Dado un acuerdo con votos pendientes que aun pueden alcanzar el quorum · Cuando entra el primer voto · Entonces la votacion NO se cierra")
     void elPrimerVotoNoCierraLaVotacion() {
         UUID grupo = fixtura.grupoConformado(3);
         List<UUID> participantes = fixtura.participantesConCupo(grupo, 3);
@@ -53,7 +54,8 @@ class CU63Test extends BaseDeCU63 {
     }
 
     @Test
-    @DisplayName("B38 · cuando ni con todo el peso que falta a favor se alcanza el quorum, se cierra RECHAZADO")
+    @DisplayName(
+            "Dado un acuerdo en el que ni con todo el peso que falta a favor se alcanza el quorum · Cuando entra un voto · Entonces se cierra RECHAZADO")
     void sePierdeCuandoYaNoHayRemedio() {
         UUID grupo = fixtura.grupoConformado(3);
         List<UUID> participantes = fixtura.participantesConCupo(grupo, 3);

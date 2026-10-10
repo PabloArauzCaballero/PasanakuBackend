@@ -46,7 +46,7 @@
       "luego": "ok"
     },
     "rechazo": {
-      "estado": 404,
+      "estado": 422,
       "cuerpo": {
         "codigo": "AP-CU11-10",
         "mensaje": "Retiro autoaprobacion prohibida",

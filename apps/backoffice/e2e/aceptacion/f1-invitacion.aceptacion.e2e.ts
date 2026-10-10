@@ -91,14 +91,16 @@ test.describe('F1 · invitación por enlace de un solo uso', () => {
     expect((await api.a.canjear(mundo.grupoId, invitacionId, token)).estado).toBe(200)
   })
 
-  test('segundo uso en la web: el enlace consumido se sigue viendo «listo» (la web no consulta al servidor) — brecha declarada', async ({ a, mundo, api }) => {
+  test('segundo uso en la web: el enlace consumido se sigue viendo «listo» pero la pantalla declara que no puede verificar la vigencia', async ({ a, mundo, api }) => {
     const inv = await api.organizador.invitar(mundo.grupoId, mundo.participante.telefono)
     const { invitacionId, token } = inv.cuerpo
     expect((await api.a.canjear(mundo.grupoId, invitacionId, token)).estado).toBe(200)
     await a.page.goto(`/invitacion/${mundo.grupoId}/${invitacionId}#t=${token}`)
     // El sitio es estático y sin sesión: no puede saber que el enlace ya se usó. El rechazo con mensaje claro llega recién en la app.
     await expect(a.page.getByRole('status').filter({ hasText: 'Tu invitación está lista' })).toBeVisible()
-    test.info().annotations.push({ type: 'BRECHA', description: 'apps/web/src/app/paginas/invitacion/invitacion.ts: un enlace ya consumido o revocado se ve igual que uno vigente hasta abrir la app.' })
+    // Límite declarado en pantalla (F4): la web lo dice en vez de aparentar que verificó.
+    await expect(a.page.getByRole('note').filter({ hasText: 'no podemos saber si el enlace sigue vigente' })).toBeVisible()
+    test.info().annotations.push({ type: 'LIMITE', description: 'apps/web/src/app/paginas/invitacion/invitacion.ts: ni consultarInvitacionPorEnlace ni validarTokenDeInvitacion responden sin la sesión del teléfono invitado; la pantalla declara que no puede verificar la vigencia.' })
     await capturarEstado(a.page, 'F1', 'a-enlace-ya-consumido-se-ve-listo', { viewports: ['movil'], temas: ['light'] })
   })
 })

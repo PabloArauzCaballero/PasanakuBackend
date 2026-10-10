@@ -74,6 +74,19 @@ public final class ClienteConCircuito {
                 .body(tipo));
     }
 
+    /**
+     * Una CONSULTA cuyo dato personal no puede viajar en la URL (regla 90.2.2): un POST con el contacto en el cuerpo y
+     * sin {@code Idempotency-Key}, porque no escribe nada. Mismas reglas que {@link #consultar}.
+     */
+    public <T> Optional<T> consultarPorCuerpo(String ruta, Object cuerpo, Class<T> tipo) {
+        return protegida(() -> rest.post()
+                .uri(ruta)
+                .headers(ClienteDeServicio::propagarElToken)
+                .body(cuerpo)
+                .retrieve()
+                .body(tipo));
+    }
+
     /** Un POST con clave de idempotencia al dependido; mismas reglas que {@link #consultar}. */
     public <T> Optional<T> pedir(String ruta, Object cuerpo, String claveDeIdempotencia, Class<T> tipo) {
         return protegida(() -> rest.post()

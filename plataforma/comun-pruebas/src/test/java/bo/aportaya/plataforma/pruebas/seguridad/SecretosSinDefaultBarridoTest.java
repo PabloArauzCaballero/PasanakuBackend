@@ -32,25 +32,34 @@ class SecretosSinDefaultBarridoTest {
             "\\$\\{([A-Z0-9_]*(?:CLAVE|SECRET|PIMIENTA|TOKEN|PASSWORD|API_KEY|FIRMA|CREDENCIAL)[A-Z0-9_]*):[^}]*\\}");
 
     /** Variable -> por que tiene default hoy y quien lo arregla. Cada una es deuda, no aprobacion. */
-    private static final Map<String, String> DEUDA_CONOCIDA = Map.of(
-            "JWT_CLAVE_FIRMA",
-            "identidad: sin ella genera una clave en memoria (valido con UNA replica; con dos, cada una firma distinto, ADR-037)",
-            "JWT_CLAVE_FIRMA_ANTERIOR",
-            "identidad: OPCIONAL por diseno, no es un secreto que falte: vacia fuera de una rotacion; con ella cargada y sin la vigente el servicio NO arranca",
-            "INVITACIONES_CLAVE",
-            "identidad: default vacio; la longitud minima (32) se valida recien al primer uso (SecretoDeInvitacion), no al arrancar",
-            "GMAIL_CLIENT_SECRET",
-            "identidad: el correo de verificacion queda deshabilitado sin ella",
-            "GMAIL_REFRESH_TOKEN",
-            "identidad: idem",
-            "INVERSIONES_ALIADO_API_KEY",
-            "inversiones: el aliado esta deshabilitado (DR-INV-01); vacio = sin aliado",
-            "INVERSIONES_ALIADO_FIRMA_SECRETO",
-            "inversiones: idem",
-            "INVERSIONES_LIBRO_CREDENCIAL_SERVICIO",
-            "inversiones: vacia = sin credencial de servicio hacia el libro (DR-INV-01)",
-            "INVERSIONES_SERVICIO_CLAVE",
-            "inversiones: OPCIONAL por diseno: vacia = sin cuenta de servicio (el libro no se toca, falla cerrado); con telefono o factor y sin ella el servicio NO arranca (ConfiguracionDeCredencialDeServicio)");
+    private static final Map<String, String> DEUDA_CONOCIDA = Map.ofEntries(
+            Map.entry(
+                    "JWT_CLAVE_FIRMA",
+                    "identidad: sin ella genera una clave en memoria (valido con UNA replica; con dos, cada una firma distinto, ADR-037)"),
+            Map.entry(
+                    "JWT_CLAVE_FIRMA_ANTERIOR",
+                    "identidad: OPCIONAL por diseno, no es un secreto que falte: vacia fuera de una rotacion; con ella cargada y sin la vigente el servicio NO arranca"),
+            Map.entry(
+                    "INVITACIONES_CLAVE",
+                    "identidad: default vacio; la longitud minima (32) se valida recien al primer uso (SecretoDeInvitacion), no al arrancar"),
+            Map.entry("GMAIL_CLIENT_SECRET", "identidad: el correo de verificacion queda deshabilitado sin ella"),
+            Map.entry("GMAIL_REFRESH_TOKEN", "identidad: idem"),
+            Map.entry(
+                    "INVERSIONES_ALIADO_API_KEY",
+                    "inversiones: el aliado esta deshabilitado (DR-INV-01); vacio = sin aliado"),
+            Map.entry("INVERSIONES_ALIADO_FIRMA_SECRETO", "inversiones: idem"),
+            Map.entry(
+                    "INVERSIONES_LIBRO_CREDENCIAL_SERVICIO",
+                    "inversiones: vacia = sin credencial de servicio hacia el libro (DR-INV-01)"),
+            Map.entry(
+                    "INVERSIONES_SERVICIO_CLAVE",
+                    "inversiones: OPCIONAL por diseno: vacia = sin cuenta de servicio (el libro no se toca, falla cerrado); con telefono o factor y sin ella el servicio NO arranca (ConfiguracionDeCredencialDeServicio)"),
+            Map.entry(
+                    "ENTREGAS_LIBRO_CREDENCIAL_SERVICIO",
+                    "entregas: vacia = sin credencial de servicio hacia el libro: pagarAlVendedor falla cerrado y la compra queda detenida y reanudable"),
+            Map.entry(
+                    "ENTREGAS_SERVICIO_CLAVE",
+                    "entregas: OPCIONAL por diseno: vacia = sin cuenta de servicio (no se le paga al vendedor, falla cerrado); con telefono o factor y sin ella el servicio NO arranca (CredencialDeServicioConfigurada)"));
 
     @Test
     @DisplayName(

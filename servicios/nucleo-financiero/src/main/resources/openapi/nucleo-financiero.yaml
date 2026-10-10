@@ -34,6 +34,33 @@ servers:
   - url: /api/v1
 
 paths:
+  /billetera/cuentas/propia:
+    get:
+      operationId: consultarCuentaPropia
+      summary: La billetera operativa de quien pregunta, en una moneda
+      description: >-
+        [CONTRATO · carril G] Las operaciones con plata piden `cuentaBilleteraId`, y nadie lo sabia: el alta
+        responde 202 sin cuenta y ningun otro contrato la entrega. Quien pregunta es SIEMPRE el titular de
+        la sesion (el servidor toma el usuario del token; no hay parametro para preguntar por otra persona).
+        Lo usa `entregas` para retener el saldo de quien compra un turno, con el token de esa persona.
+        422 `AP-CU13-01` si la persona no tiene una billetera activa en esa moneda (o tiene mas de una: no
+        se elige por ella).
+      parameters:
+        - name: moneda
+          in: query
+          required: true
+          schema: { type: string, pattern: '^(BOB|USD)$' }
+      responses:
+        '200':
+          description: La cuenta de la sesion
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CuentaDeLaSesion' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
   /billetera/{cuentaId}/saldo:
     get:
       operationId: consultarSaldo
@@ -1019,6 +1046,14 @@ components:
         mensaje:  { type: string }
         detalle:  { type: object }
         trazaId:  { type: string }
+    CuentaDeLaSesion:
+      type: object
+      additionalProperties: false
+      required: [cuentaId, moneda, estado]
+      properties:
+        cuentaId: { type: string, format: uuid }
+        moneda:   { type: string, enum: [BOB, USD] }
+        estado:   { type: string, maxLength: 20 }
     SaldoBilletera:
       type: object
       additionalProperties: false

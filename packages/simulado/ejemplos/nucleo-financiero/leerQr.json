@@ -76,8 +76,8 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU12-07",
-        "mensaje": "Qr no valido",
+        "codigo": "AP-CU12-10",
+        "mensaje": "Qr de otro sistema de pagos: no se acepta porque no hay un proveedor interoperable habilitado",
         "detalle": {},
         "trazaId": "traza-leerQr-rechazo"
       }

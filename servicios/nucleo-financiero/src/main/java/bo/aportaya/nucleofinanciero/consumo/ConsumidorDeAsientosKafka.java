@@ -49,7 +49,9 @@ public class ConsumidorDeAsientosKafka {
                 "aportaya.garantia.respaldo_liberado",
                 "aportaya.garantia.respaldo_recuperado",
                 "aportaya.garantia.cobertura_empresarial_aplicada",
-                "aportaya.garantia.cobertura_empresarial_reversada"
+                "aportaya.garantia.cobertura_empresarial_reversada",
+                // El desembolso que el proveedor CONFIRMO: entregas propone el asiento, el mayor lo registra una vez.
+                "aportaya.entregas.desembolso_acreditado"
             },
             groupId = "${spring.application.name}-asientos")
     public void alRecibir(ConsumerRecord<String, String> registro) {

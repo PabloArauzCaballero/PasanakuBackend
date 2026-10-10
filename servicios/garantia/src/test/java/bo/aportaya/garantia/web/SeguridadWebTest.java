@@ -8,6 +8,7 @@ import bo.aportaya.garantia.aplicacion.CU29DevolverFondo;
 import bo.aportaya.garantia.aplicacion.CU66ReemplazarParticipante;
 import bo.aportaya.garantia.aplicacion.CU67DisolverGrupo;
 import bo.aportaya.garantia.aplicacion.ConsultarRestriccion;
+import bo.aportaya.garantia.aplicacion.ReclamosEnCurso;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.SabanaDeSeguridadWeb;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -44,6 +45,9 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private CU66ReemplazarParticipante cu66ReemplazarParticipante;
+
+    @MockitoBean
+    private ReclamosEnCurso reclamosEnCurso;
 
     @MockitoBean
     private CU67DisolverGrupo cu67DisolverGrupo;

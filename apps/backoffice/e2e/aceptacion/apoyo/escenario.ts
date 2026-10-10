@@ -19,6 +19,9 @@ export type Mundo = {
   operador2: Cuenta
   /** Operador sin permiso sobre admisiones. */
   sinPermiso: Cuenta
+  /** Dos personas de tesorería (RETIRO_APROBAR): la segunda firma de un retiro. Solo las siembra el doble (F5). */
+  tesoreria?: Cuenta
+  tesoreria2?: Cuenta
 }
 
 async function sembrar(): Promise<Mundo> {

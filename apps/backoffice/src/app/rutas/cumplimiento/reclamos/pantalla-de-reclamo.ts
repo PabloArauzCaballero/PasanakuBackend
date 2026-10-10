@@ -19,7 +19,7 @@ import { textosCumplimiento } from '../textos'
   imports: [BandaDeProposito, RelojDePlazo, Boton],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
       <ap-reloj-de-plazo [etiqueta]="t.plazo" [venceIso]="reclamo().plazoVenceEn" [ahoraIso]="ahoraIso()" [norma]="t.norma" />
 
@@ -27,10 +27,10 @@ import { textosCumplimiento } from '../textos'
       <textarea id="respuesta" [value]="respuesta()" (input)="alEscribir($any($event.target).value)" rows="6"></textarea>
 
       <ap-boton variante="primario" (pulsado)="enviar()">{{ t.enviar }}</ap-boton>
-    </main>
+    </section>
   `,
   styles: `
-    main { padding: var(--s5); max-width: 40rem; display: flex; flex-direction: column; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 40rem; display: flex; flex-direction: column; gap: var(--s4); }
     textarea { width: 100%; min-height: 8rem; padding: var(--s3); border: var(--borde-fino) solid var(--field-border); border-radius: var(--r-md); font: inherit; background: var(--field); color: var(--text); }
   `,
 })

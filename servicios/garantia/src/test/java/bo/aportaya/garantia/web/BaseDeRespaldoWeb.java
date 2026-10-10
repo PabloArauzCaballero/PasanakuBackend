@@ -7,6 +7,7 @@ import bo.aportaya.garantia.aplicacion.CU23ReversarCobertura;
 import bo.aportaya.garantia.aplicacion.CU29DevolverFondo;
 import bo.aportaya.garantia.aplicacion.CU66ReemplazarParticipante;
 import bo.aportaya.garantia.aplicacion.CU67DisolverGrupo;
+import bo.aportaya.garantia.aplicacion.ReclamosEnCurso;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
 import java.util.UUID;
@@ -48,6 +49,9 @@ abstract class BaseDeRespaldoWeb {
 
     @MockitoBean
     protected CU66ReemplazarParticipante cu66;
+
+    @MockitoBean
+    protected ReclamosEnCurso reclamosEnCurso;
 
     @MockitoBean
     protected CU67DisolverGrupo cu67;

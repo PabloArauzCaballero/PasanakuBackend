@@ -69,7 +69,8 @@ public class CU110AltaDeAnunciante {
                             "publicidad.socio_comercial_postulado",
                             "socio_comercial",
                             id,
-                            Map.of("numeroDocumento", entrada.numeroDocumento()),
+                            // El documento del socio no viaja a los consumidores (90.2.1): se publica su id.
+                            Map.of("socioId", id.toString()),
                             UUID.fromString(ctx.traza().id())));
             return id;
         });

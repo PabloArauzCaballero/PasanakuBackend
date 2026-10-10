@@ -381,8 +381,8 @@ Usar una permutación uniforme con aleatoriedad criptográfica y protocolo audit
 | --- | --- | --- | --- | --- |
 | H8.S1.M1 | Generar y cobrar obligaciones | Dado ciclo activo, cuando vence un aporte, entonces identifica titular, turno, monto y estado sin duplicación | E-H8-01: calendario de obligaciones y conciliación de cobros | HECHO |
 | H8.S1.M2 | Calcular faltante al corte | Dado pozo Bs 6.000 y Bs 5.000 confirmados, cuando cierra el corte, entonces solicita Bs 1.000 de empresa | E-H8-02: cálculo con pendientes excluidos y referencias de aportes | HECHO |
-| H8.S1.M3 | Aplicar cobertura empresarial | Dada reserva financiada, cuando cubre, entonces mueve fondos corporativos y conserva exposición y responsable | E-H8-03: asientos y evidencia de caja respaldando el movimiento | A MEDIAS |
-| H8.S1.M4 | Entregar el pozo completo | Dado fondeo completo, cuando liquida, entonces beneficiario recibe Bs 6.000 de principal una sola vez | E-H8-04: ledger, confirmación externa y comprobante coincidentes | A MEDIAS |
+| H8.S1.M3 | Aplicar cobertura empresarial | Dada reserva financiada, cuando cubre, entonces mueve fondos corporativos y conserva exposición y responsable | E-H8-03: asientos y evidencia de caja respaldando el movimiento | HECHO |
+| H8.S1.M4 | Entregar el pozo completo | Dado fondeo completo, cuando liquida, entonces beneficiario recibe Bs 6.000 de principal una sola vez | E-H8-04: ledger, confirmación externa y comprobante coincidentes | HECHO |
 | H8.S1.M5 | Tratar aporte tardío y recuperación | Dada cobertura anterior, cuando entra aporte tardío, entonces aplica la regla contractual sin doble cobro ni doble entrega | E-H8-05: trazabilidad de recuperación y saldo de exposición actualizado | HECHO |
 | H8.S1.M6 | Gestionar falta extraordinaria de caja | Dado respaldo insuficiente sobre compromiso existente, cuando se detecta, entonces abre incidente, conserva deuda y ejecuta contingencia | E-H8-06: simulacro con responsables, obligaciones y comunicación verificables | HECHO |
 
@@ -398,7 +398,7 @@ No cancelar una obligación ya asumida mediante un cambio de bandera ni converti
 | H9.S1.M2 | Crear y publicar oferta | Dado titular válido, cuando fija precio, entonces valida moneda, vigencia, cargos y ausencia de otra oferta activa incompatible | E-H9-02: pruebas de titular ajeno, turno pagado y oferta duplicada | HECHO |
 | H9.S1.M3 | Mostrar ofertas elegibles | Dado comprador, cuando consulta, entonces ve monto, fecha, precio, cargos y restricciones sin datos privados innecesarios | E-H9-03: captura y respuestas filtradas según permisos | HECHO |
 | H9.S1.M4 | Reservar oferta y saldo concurrentemente | Dados dos compradores, cuando compran simultáneamente, entonces uno obtiene reserva y el otro respuesta consistente | E-H9-04: prueba concurrente con una sola reserva y sin retenciones huérfanas | HECHO |
-| H9.S1.M5 | Liquidar pago y cambio de titular | Dada reserva válida, cuando la saga termina, entonces vendedor cobra y comprador recibe el derecho una vez | E-H9-05: ledger, titularidad y eventos coincidentes tras reinicio | A MEDIAS |
+| H9.S1.M5 | Liquidar pago y cambio de titular | Dada reserva válida, cuando la saga termina, entonces vendedor cobra y comprador recibe el derecho una vez | E-H9-05: ledger, titularidad y eventos coincidentes tras reinicio | HECHO |
 | H9.S1.M6 | Resolver vencimiento, cancelación y disputa | Dada compra en curso, cuando compite con cancelación, entonces una transición vence según versión y se resuelven retenciones | E-H9-06: prueba de carreras en el punto de liquidación | HECHO |
 
 La oferta expira antes del punto de cierre de beneficiario del turno. Una cesión no cambia por sí sola deudor de aportes, administrador ni membresía. Si el comprador debe ser miembro, pasar por el mismo backoffice antes de comprar. Descuento de precio no se anuncia como rentabilidad segura. No habilitar reventas encadenadas o fraccionamiento hasta tener alcance contractual y contable específico.
@@ -439,9 +439,9 @@ Para una eventual comisión de éxito, definir referencia, períodos, marca máx
 
 | ID | Microtarea | CA | DoD / evidencia | Estado |
 | --- | --- | --- | --- | --- |
-| H12.S1.M1 | Conectar bandejas de grupos y admisiones | Dado participante/admin/BO, cuando entra, entonces ve sus acciones, autoridad y estado real | E-H12-01: recorrido por roles sin acciones ajenas disponibles | A MEDIAS |
+| H12.S1.M1 | Conectar bandejas de grupos y admisiones | Dado participante/admin/BO, cuando entra, entonces ve sus acciones, autoridad y estado real | E-H12-01: recorrido por roles sin acciones ajenas disponibles | HECHO |
 | H12.S1.M2 | Separar saldos y posiciones | Dado dinero retenido, invertido o del grupo, cuando consulta saldo, entonces no aparece como gastable personal | E-H12-02: capturas con cifras reconciliadas y etiquetas claras | A MEDIAS |
-| H12.S1.M3 | Completar estados de red y recuperación | Dado timeout, offline o éxito no confirmado, cuando vuelve, entonces consulta la operación y evita duplicarla | E-H12-03: sesión de navegación con recuperación y persistencia | A MEDIAS |
+| H12.S1.M3 | Completar estados de red y recuperación | Dado timeout, offline o éxito no confirmado, cuando vuelve, entonces consulta la operación y evita duplicarla | E-H12-03: sesión de navegación con recuperación y persistencia | HECHO |
 | H12.S1.M4 | Verificar accesibilidad y adaptación | Dado móvil/escritorio, teclado y lector, cuando opera los flujos críticos, entonces mantiene foco, semántica y objetivos utilizables | E-H12-04: evidencia WCAG 2.2 AA y revisión móvil según plataforma | A MEDIAS |
 | H12.S1.M5 | Verificar visualmente los flujos | Dadas pantallas y estados tocados, cuando se revisan, entonces no hay recortes, superposiciones o errores de consola/red sin explicar | E-H12-05: capturas inspeccionadas por viewport y tema admitido | HECHO |
 
@@ -460,7 +460,7 @@ Al ejecutar cambios visuales, aplicar las skills correspondientes de Flutter, es
 | H13.S1.M3 | Aplicar protección de datos y secretos | Dados logs, URLs y eventos, cuando se inspeccionan, entonces no contienen tokens ni PII innecesaria | E-H13-03: revisión de muestras sintéticas y rotación de secretos ensayada | HECHO |
 | H13.S1.M4 | Restaurar backup y reanudar eventos | Dado punto de recuperación acordado, cuando restaura, entonces ledger y operaciones se reconcilian antes de reabrir | E-H13-04: ensayo con tiempos observados y diferencias explicadas | HECHO |
 | H13.S1.M5 | Implementar alarmas y procedimientos | Dada brecha de caja, atraso, cola detenida o conciliación vencida, cuando ocurre, entonces alerta al responsable y activa procedimiento | E-H13-05: inyección de incidente y registro de respuesta | HECHO |
-| H13.S1.M6 | Aplicar restricciones y reclamos con debido proceso | Dado caso en revisión, cuando se gestiona, entonces no equivale automáticamente a sanción firme o deuda ejecutable | E-H13-06: trazabilidad de reclamo, resolución y efecto permitido | A MEDIAS |
+| H13.S1.M6 | Aplicar restricciones y reclamos con debido proceso | Dado caso en revisión, cuando se gestiona, entonces no equivale automáticamente a sanción firme o deuda ejecutable | E-H13-06: trazabilidad de reclamo, resolución y efecto permitido | HECHO |
 
 Definir SLO por capacidad y medirlo: demora de confirmación, antigüedad de pendientes, frescura de conciliación, cumplimiento de entrega, espera de revisión humana y recuperación. No inventar SLA contractuales. Registrar fecha local y UTC; no interpretar días de mercado como días corridos sin definición.
 
@@ -470,9 +470,9 @@ Definir SLO por capacidad y medirlo: demora de confirmación, antigüedad de pen
 
 | ID | Microtarea | CA | DoD / evidencia | Estado |
 | --- | --- | --- | --- | --- |
-| H14.S1.M1 | Ejecutar ciclo feliz completo | Dado grupo sintético, cuando completa ciclo y operaciones voluntarias, entonces F01–F21 tienen evidencia y saldos conciliados | E-H14-01: reporte por capacidad con IDs y persistencia después de recarga | TODO |
-| H14.S1.M2 | Ejecutar grupo con mora y cobertura | Dado primer receptor que deja de aportar, cuando avanzan turnos, entonces empresa cubre y se conserva la obligación de recuperación | E-H14-02: flujo temporal con caja y exposición por turno | TODO |
-| H14.S1.M3 | Ejecutar carreras y eventos duplicados | Dados pagos, ofertas y resoluciones concurrentes, cuando se fuerzan fallos, entonces no hay doble dinero, título o membresía | E-H14-03: matriz de fallos y resultados observados | TODO |
+| H14.S1.M1 | Ejecutar ciclo feliz completo | Dado grupo sintético, cuando completa ciclo y operaciones voluntarias, entonces F01–F21 tienen evidencia y saldos conciliados | E-H14-01: reporte por capacidad con IDs y persistencia después de recarga | A MEDIAS |
+| H14.S1.M2 | Ejecutar grupo con mora y cobertura | Dado primer receptor que deja de aportar, cuando avanzan turnos, entonces empresa cubre y se conserva la obligación de recuperación | E-H14-02: flujo temporal con caja y exposición por turno | HECHO |
+| H14.S1.M3 | Ejecutar carreras y eventos duplicados | Dados pagos, ofertas y resoluciones concurrentes, cuando se fuerzan fallos, entonces no hay doble dinero, título o membresía | E-H14-03: matriz de fallos y resultados observados | HECHO |
 | H14.S1.M4 | Ejecutar regresión contractual y visual | Dado diff final, cuando corren gates afectados, entonces clientes y UI mantienen contratos y estados | E-H14-04: salidas de runners y capturas del mismo commit | TODO |
 | H14.S1.M5 | Preparar paquete de entrega simulada | Dado entorno limpio soportado, cuando sigue el README, entonces reproduce el recorrido con fixtures propios | E-H14-05: ejecución desde instalación limpia y reporte de límites | TODO |
 

@@ -40,7 +40,7 @@ const COLUMNAS: ColumnaVirtual<ActivoFijo>[] = [
   imports: [ErrorDeEnvio, BandaDeProposito, BarraDeFiltros, Boton, ChipEstado, Monto, TablaDeDatosVirtualizada],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
       <ap-error-de-envio [error]="errorDeEnvio()" />
       <ap-barra-de-filtros etiqueta="Estado" [incluirBusqueda]="false" [definiciones]="filtros" />
@@ -79,10 +79,10 @@ const COLUMNAS: ColumnaVirtual<ActivoFijo>[] = [
           }
         </ng-template>
       </ap-tabla-de-datos-virtualizada>
-    </main>
+    </section>
   `,
   styles: `
-    main { padding: var(--s5); max-width: 84rem; display: grid; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 84rem; display: grid; gap: var(--s4); }
     h1 { margin: 0; }
     .motivo { color: var(--text-2); white-space: normal; }
   `,

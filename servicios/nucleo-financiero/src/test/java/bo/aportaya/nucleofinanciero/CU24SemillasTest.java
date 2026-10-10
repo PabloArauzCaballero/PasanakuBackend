@@ -139,7 +139,9 @@ class CU24SemillasTest extends BaseDeCU24 {
             "cuadre: el mapeo sintetico que declara el compose existe en el plan, es de su moneda y asienta un evento de garantia")
     void mapeoSinteticoAsientaUnEvento() throws IOException {
         Map<String, String> mapeo = mapeoDelCompose();
-        assertThat(mapeo).as("seis cuentas logicas: 3 bolsillos x 2 monedas").hasSize(6);
+        assertThat(mapeo)
+                .as("ocho cuentas logicas: 4 bolsillos (3 de garantia + el desembolso de entregas) x 2 monedas")
+                .hasSize(8);
         transaccion.executeWithoutResult(t -> {
             sembrar();
             for (var e : mapeo.entrySet()) {

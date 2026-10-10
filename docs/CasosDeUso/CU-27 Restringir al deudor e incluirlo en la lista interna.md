@@ -110,6 +110,8 @@ export const ErroresCU27 = {
   DEUDA_NO_SALDADA:      'AP-CU27-03',
   MISMO_OPERADOR:        'AP-CU27-04',
   NIVEL_DESPROPORCIONADO:'AP-CU27-05',
+  APLICA_EL_RESTRINGIDO: 'AP-CU27-06',
+  RECLAMO_EN_CURSO:       'AP-CU27-07',
 } as const
 ```
 
@@ -120,6 +122,8 @@ export const ErroresCU27 = {
 | `DEUDA_NO_SALDADA` | Se intenta levantar con saldo pendiente |
 | `MISMO_OPERADOR` | Quien levanta es quien aplicó (`R-SEG-04`) |
 | `NIVEL_DESPROPORCIONADO` | El nivel pedido excede el que la política asigna a esa causa |
+| `APLICA_EL_RESTRINGIDO` | Quien aplica la restriccion es el propio restringido (`R-SEG-04`) |
+| `RECLAMO_EN_CURSO` | La persona tiene un reclamo que frena la deuda ejecutable, o cumplimiento no contesto algo entendible: una restriccion no queda firme sobre una deuda en reclamo (H13.S1.M6, regla 91.4) |
 
 ## Descomposición atómica
 

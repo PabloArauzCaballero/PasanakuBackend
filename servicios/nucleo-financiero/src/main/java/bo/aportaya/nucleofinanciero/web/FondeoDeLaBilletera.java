@@ -7,6 +7,7 @@ import bo.aportaya.nucleofinanciero.aplicacion.CuentaPropia;
 import bo.aportaya.nucleofinanciero.aplicacion.OrdenesExistentes;
 import bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.CuentaDeLaSesion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaCotizacionOperacion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaRecarga;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaRetiro;
@@ -66,6 +67,16 @@ class FondeoDeLaBilletera {
         this.existentes = existentes;
         this.segundoFactor = segundoFactor;
         this.desdeCuandoSonDosFirmas = desdeCuandoSonDosFirmas;
+    }
+
+    /** La billetera de la sesion en una moneda: el usuario sale del token, nunca de un parametro. */
+    ResponseEntity<CuentaDeLaSesion> cuentaPropia(String moneda, ContextoSesion ctx) {
+        bo.aportaya.plataforma.web.traza.Traza.marcarCasoDeUso("CU-13", moneda);
+        var respuesta = new CuentaDeLaSesion();
+        respuesta.setCuentaId(cuentaPropia.deLaSesion(bo.aportaya.plataforma.dominio.Moneda.valueOf(moneda), ctx));
+        respuesta.setMoneda(CuentaDeLaSesion.MonedaEnum.fromValue(moneda));
+        respuesta.setEstado("ACTIVA");
+        return ResponseEntity.ok(respuesta);
     }
 
     /** El precio, antes de confirmar: base, comision, impuesto, total, neto y hasta cuando vale. */

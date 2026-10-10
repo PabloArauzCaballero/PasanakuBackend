@@ -35,7 +35,7 @@ const seccionesDe = (rol: string) => SECCIONES.filter((s) => alcanza(s, tokenDe(
 
 /** Lo que cada rol debe ver. Escrito a mano desde las concesiones del catálogo, para que un cambio en cualquiera de los dos se note. */
 const ESPERADO: Record<string, string[]> = {
-  ADMIN_PLATAFORMA: ['cumplimiento', 'admisiones', 'sistemas'],
+  ADMIN_PLATAFORMA: ['operacion', 'cumplimiento', 'admisiones', 'sistemas'],
   OFICIAL_CUMPLIMIENTO: ['operacion', 'cumplimiento'],
   ANALISTA_CUMPLIMIENTO: ['operacion', 'cumplimiento'],
   AUDITOR_INTERNO: ['operacion', 'contabilidad'],
@@ -107,12 +107,11 @@ function fuentes(dir: string): string[] {
 }
 
 /**
- * Permisos que el backoffice pide y que el catálogo NO tiene. Hoy esas pantallas son inalcanzables con un token real
- * (`requierePermiso` falla cerrado). Es una DECISIÓN de seguridad pendiente —¿se agregan al catálogo, o la pantalla
- * usa `RECLAMO_ATENDER` / `ADMIN_PLATAFORMA`?—, no un arreglo de cliente: ver el informe de H12.S1.M1.
- * La lista solo puede ENCOGER: si uno de estos códigos entra al catálogo, esta prueba obliga a sacarlo de acá.
+ * Permisos que el backoffice pide y que el catálogo NO tiene. Hoy: ninguno. `RECLAMO_VER`, `SOLICITUD_INGRESO_VER` y
+ * `SOLICITUD_INGRESO_RESOLVER` entraron al catálogo (`sql/60_semillas/10-roles-y-permisos.sql`) y esta lista se vació.
+ * Solo puede ENCOGER: un permiso nuevo pedido sin catálogo hace fallar la prueba, no se agrega acá en silencio.
  */
-const SIN_CATALOGO_DECLARADOS = ['RECLAMO_VER', 'SOLICITUD_INGRESO_VER', 'SOLICITUD_INGRESO_RESOLVER']
+const SIN_CATALOGO_DECLARADOS: string[] = []
 
 describe('contrato de permisos · lo que el backoffice pide existe en el catálogo', () => {
   const literales = new Set(
@@ -137,5 +136,21 @@ describe('contrato de permisos · lo que el backoffice pide existe en el catálo
 
   it('la lista de pendientes no se pudre: ninguno de los declarados está ya en el catálogo', () => {
     expect(SIN_CATALOGO_DECLARADOS.filter((p) => CATALOGO.permisos.has(p) || CATALOGO.roles.has(p))).toEqual([])
+  })
+
+  it('los tres permisos que antes faltaban (RECLAMO_VER y SOLICITUD_INGRESO_*) están sembrados y los concede el rol que corresponde', () => {
+    const quienes = (permiso: string) => [...CATALOGO.roles].filter((r) => tokenDe(r).includes(permiso)).sort()
+    expect(CATALOGO.permisos.has('RECLAMO_VER')).toBe(true)
+    expect(quienes('RECLAMO_VER')).toEqual(['ADMIN_PLATAFORMA', 'OFICIAL_CUMPLIMIENTO', 'PUNTO_RECLAMO', 'SOPORTE'])
+    expect(quienes('SOLICITUD_INGRESO_VER')).toEqual(['ADMIN_PLATAFORMA', 'SOPORTE'])
+    // Resolver es de quien resuelve admisiones (ADMIN_PLATAFORMA) y de nadie más: quien solo mira no decide.
+    expect(quienes('SOLICITUD_INGRESO_RESOLVER')).toEqual(['ADMIN_PLATAFORMA'])
+  })
+
+  it('cada ruta de operación que pide uno de esos permisos queda alcanzable desde la sección: quien lo tiene ve «operacion»', () => {
+    for (const permiso of ['RECLAMO_VER', 'SOLICITUD_INGRESO_VER', 'SOLICITUD_INGRESO_RESOLVER']) {
+      expect(PERMISOS_POR_SECCION['ver:operacion']).toContain(permiso)
+      expect(alcanza('ver:operacion', [permiso], true), `un token con solo ${permiso} debe abrir operación`).toBe(true)
+    }
   })
 })

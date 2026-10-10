@@ -35,6 +35,8 @@ aportaya:
   servicios:
     # A quien se le pregunta (invariante 11): el recaudo del pozo lo afirma aportes, no el cliente.
     aportes: ${URL_APORTES:http://aportes:8080}
+    # H13.S1.M6: un reclamo en curso no es una deuda ejecutable ni una sancion firme (efecto de los reclamos).
+    cumplimiento: ${URL_CUMPLIMIENTO:http://cumplimiento:8080}
   incumplimiento:
     # Lo que tiene el participante para presentar su descargo antes de que la
     # declaracion quede firme. Es debido proceso, no un parametro tecnico.

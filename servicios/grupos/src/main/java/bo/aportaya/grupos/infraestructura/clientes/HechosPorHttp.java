@@ -1,6 +1,8 @@
 package bo.aportaya.grupos.infraestructura.clientes;
 
 import bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios;
+import bo.aportaya.plataforma.dominio.CodigoError;
+import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.web.clientes.ClienteDeServicio;
 import java.math.BigDecimal;
 import java.util.Map;
@@ -9,6 +11,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 /**
@@ -20,16 +23,9 @@ import org.springframework.web.client.RestClient;
  * (invariante 9), y es deliberado: seguir adelante porque el servicio que valida estaba
  * caido es exactamente el hueco por donde entra lo que las reglas existen para frenar.
  *
- * <p>La unica excepcion es la reputacion: ahi «no se sabe» se responde como tal
- * —{@code tieneHistorial=false}— y decide quien pregunta. Tratar la falta de historial
- * como puntaje cero le cerraria la puerta a todo el que empieza, que es lo contrario de
- * lo que la regla busca.
- *
- * <p>Cada dependencia lleva tiempo maximo y circuit breaker propio ({@link ClienteConCircuito}, regla 98.2.3):
- * despues de una ventana de fallos se deja de llamar un rato. FALLBACK declarado por dependencia: con el
- * circuito abierto cada metodo responde exactamente lo mismo que con el dependido caido (lo que no deja pasar),
- * salvo las operaciones de identidad que EMITEN o CONSUMEN un enlace, que fallan con la excepcion de red y no
- * crean invitaciones sin token.
+ * <p>Excepcion: la reputacion («no se sabe», {@code tieneHistorial=false}, lo decide quien pregunta). Cada dependencia lleva tiempo maximo y circuit breaker propio ({@link ClienteConCircuito}, regla 98.2.3). Con el
+ * circuito abierto cada metodo responde lo mismo que con el dependido caido (lo que no deja pasar), salvo las
+ * operaciones de identidad que EMITEN o CONSUMEN un enlace: fallan con la excepcion de red y no crean invitaciones sin token.
  */
 @Component
 public class HechosPorHttp implements HechosDeOtrosServicios {
@@ -158,16 +154,18 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     public Restriccion restriccion(UUID usuarioId) {
         return garantia.consultar("/cobranza/restricciones/vigentes/" + usuarioId, Restringido.class)
                 .map(r -> new Restriccion(r.vigente(), new BigDecimal(r.montoQueLaLevanta())))
-                // Sin respuesta se asume restringido: dejar entrar a alguien porque el
-                // servicio que lo verifica no contesto es el error que no se paga solo.
+                // Sin respuesta se asume restringido: dejar entrar porque el verificador no contesto no se paga solo.
                 .orElse(new Restriccion(true, BigDecimal.ZERO));
     }
 
     @Override
     public boolean contactoSuprimido(String identificador, String categoria) {
+        // El contacto viaja en el CUERPO, no en la URL (90.2.2): una URL queda en historiales, proxies y logs del
+        // gateway.
         return notificaciones
-                .consultar(
-                        "/notificaciones/supresion?identificador=" + identificador + "&categoria=" + categoria,
+                .consultarPorCuerpo(
+                        "/notificaciones/supresion/consultas",
+                        Map.of("identificador", identificador, "categoria", categoria),
                         Suprimido.class)
                 .map(Suprimido::suprimido)
                 .orElse(true);
@@ -208,15 +206,20 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
 
     @Override
     public ConsumoInvitacion consumirInvitacion(UUID tokenId, UUID grupoId, UUID clave, String token) {
-        var consumo = identidad.ejecutar(rest -> rest.post()
-                .uri("/usuarios/tokens/invitacion/" + tokenId + "/consumos")
-                .header("Idempotency-Key", clave.toString())
-                .headers(ClienteDeServicio::propagarElToken)
-                .body(Map.of("grupoId", grupoId, "token", token))
-                .retrieve()
-                .body(ConsumoInvitacion.class));
-        if (consumo == null) throw new IllegalStateException("No se confirmó la invitacion");
-        return consumo;
+        try {
+            var consumo = identidad.ejecutar(rest -> rest.post()
+                    .uri("/usuarios/tokens/invitacion/" + tokenId + "/consumos")
+                    .header("Idempotency-Key", clave.toString())
+                    .headers(ClienteDeServicio::propagarElToken)
+                    .body(Map.of("grupoId", grupoId, "token", token))
+                    .retrieve()
+                    .body(ConsumoInvitacion.class));
+            if (consumo == null) throw new IllegalStateException("No se confirmó la invitacion");
+            return consumo;
+        } catch (HttpClientErrorException.UnprocessableEntity yaNoVale) {
+            // Pierde la carrera por un enlace de un solo uso (antes: 500).
+            throw new ErrorDeNegocio(CodigoError.de(69, 5), "Esa invitacion ya no es valida.");
+        }
     }
 
     @Override
@@ -246,9 +249,8 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     private record Kyc(String nivel) {}
 
     /**
-     * El telefono viaja en el CUERPO de {@code POST /usuarios/busquedas/por-telefono} y no en la URL (regla 90.2.2:
-     * una URL queda en historiales, proxies y logs del gateway). Reemplaza al {@code GET /usuarios/por-telefono},
-     * deprecado por {@code identidad}, que este adaptador ya no usa.
+     * El telefono viaja en el CUERPO de {@code POST /usuarios/busquedas/por-telefono}, no en la URL (regla 90.2.2).
+     * Reemplaza al {@code GET /usuarios/por-telefono}, deprecado por {@code identidad}.
      */
     @Override
     public Optional<UUID> usuarioDelTelefono(String telefonoE164) {

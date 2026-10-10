@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { prepararArranque } from './apoyo/arranque-e2e'
 import { abrirSesionDePruebaYNavegar } from './apoyo/sesion-de-prueba'
 
 /**
@@ -56,9 +57,12 @@ test.describe('sistemas — sin contrato real, nunca datos de ejemplo (con sesi�
   }
 
   test('sin sesión, /sistemas/servicios redirige a /ingreso (requiereSesion en el shell)', async ({ page }) => {
+    // F4 (TEST_BUG heredado): con el refresco de sesión sin respuesta el arranque se quedaba en /arranque; `prepararArranque` lo responde 401
+    // y el guardia manda a /ingreso conservando a dónde volver.
+    await prepararArranque(page)
     const r = await page.goto('/sistemas/servicios')
     expect(r?.status()).toBe(200)
-    await expect(page).toHaveURL(/\/ingreso$/)
+    await expect(page).toHaveURL(/\/ingreso(\?|$)/)
   })
 
   test('con sesión pero sin rol PLATAFORMA/SEGURIDAD, /sistemas/servicios nunca monta (soloRolesDeSistemas)', async ({ page }) => {

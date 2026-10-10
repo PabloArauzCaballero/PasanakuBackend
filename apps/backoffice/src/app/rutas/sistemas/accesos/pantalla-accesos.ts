@@ -11,16 +11,16 @@ import { textosSistemas } from '../textos'
   imports: [BandaDeProposito, TablaDeDatos, EstadoDePantalla],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
       <ap-estado-de-pantalla [recurso]="accesos" [vacio]="esVacio" [mensajeVacio]="t.vacio" [etiquetaDeCarga]="t.cargando" (reintentar)="accesos.reload()">
         @if (accesos.hasValue() && accesos.value(); as filas) {
           <ap-tabla-de-datos [titulo]="t.titulo" [columnas]="columnas" [filas]="filas" />
         }
       </ap-estado-de-pantalla>
-    </main>
+    </section>
   `,
-  styles: `main { padding: 0; max-width: 60rem; } h1 { margin-bottom: var(--s4); }`,
+  styles: `.pantalla { padding: 0; max-width: 60rem; } h1 { margin-bottom: var(--s4); }`,
 })
 export class PantallaAccesos {
   protected readonly t = textosSistemas.accesos

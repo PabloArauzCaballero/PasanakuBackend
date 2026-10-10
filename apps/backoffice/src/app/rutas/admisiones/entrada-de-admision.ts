@@ -18,7 +18,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
   imports: [BandaDeProposito, Boton, Campo],
   template: `
     <ap-banda-de-proposito [texto]="t.buscarProposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.buscarTitulo }}</h1>
       <p class="aviso">{{ t.buscarSinListado }}</p>
       <form (submit)="$event.preventDefault(); abrir()" novalidate>
@@ -27,10 +27,10 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
           <ap-boton variante="primario" tipo="submit">{{ t.buscarAccion }}</ap-boton>
         </div>
       </form>
-    </main>
+    </section>
   `,
   styles: `
-    main { padding: var(--s5); max-width: 40rem; display: flex; flex-direction: column; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 40rem; display: flex; flex-direction: column; gap: var(--s4); }
     h1 { margin: 0; }
     .aviso { margin: 0; color: var(--text-2); }
     form { display: flex; flex-direction: column; gap: var(--s4); }

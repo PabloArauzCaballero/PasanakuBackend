@@ -234,7 +234,7 @@ class CU68Test extends BaseDeCU68 {
 
     @Test
     @DisplayName(
-            "CU-68 2a · la reputacion minima excluye a quien TIENE historial y no llega, pero no a quien es nuevo (B24)")
+            "Dado un grupo con reputacion minima y dos postulantes, uno con historial por debajo del minimo y otro nuevo · Cuando postulan · Entonces se excluye a quien TIENE historial y no llega, pero no a quien es nuevo (B24)")
     void elRecienLlegadoNoSeExcluyePorSerNuevo() {
         UUID grupo = grupoConCupoLibre();
         criterioVigente();

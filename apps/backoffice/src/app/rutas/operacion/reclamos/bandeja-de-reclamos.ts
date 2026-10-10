@@ -47,7 +47,7 @@ const COLUMNAS: ColumnaVirtual<ReclamoDeBandeja>[] = [
   imports: [Alerta, BandaDeProposito, ChipEstado, RelojDePlazo, Boton, Dialogo, TablaDeDatosVirtualizada, BarraDeFiltros],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1 data-tutorial-id="operacion-reclamos">{{ t.titulo }}</h1>
       @if (sinEnviar()) { <ap-alerta tono="aviso">{{ t.sinEnviar }}</ap-alerta> }
       <ap-barra-de-filtros etiqueta="Estado" [incluirBusqueda]="false" [definiciones]="filtrosDeEstado" />
@@ -78,7 +78,7 @@ const COLUMNAS: ColumnaVirtual<ReclamoDeBandeja>[] = [
           }
         </ng-template>
       </ap-tabla-de-datos-virtualizada>
-    </main>
+    </section>
 
     @if (seleccionado(); as r) {
       <ap-dialogo
@@ -94,7 +94,7 @@ const COLUMNAS: ColumnaVirtual<ReclamoDeBandeja>[] = [
     }
   `,
   styles: `
-    main { padding: var(--s5); max-width: 64rem; display: grid; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 64rem; display: grid; gap: var(--s4); }
     h1 { margin: 0; }
   `,
 })

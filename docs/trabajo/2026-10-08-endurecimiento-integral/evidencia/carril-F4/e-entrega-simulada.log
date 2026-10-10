@@ -1,0 +1,35 @@
+== [01] preflight
+   -> PASS (1 s)
+== [02] tokens
+   -> PASS (635 s)
+== [03] contenido-sitio
+   -> PASS (1 s)
+== [04] simulado-build
+   -> PASS (2 s)
+== [05] simulado-tipos
+   -> PASS (2 s)
+== [06] simulado-lint
+   -> PASS (3 s)
+== [07] simulado-pruebas
+   -> PASS (3 s)
+== [08] rutas-vs-contratos
+   -> PASS (0 s)
+== [09] backoffice-tipos
+   -> PASS (6 s)
+== [10] backoffice-lint
+   -> PASS (5 s)
+== [11] backoffice-pruebas
+   -> PASS (13 s)
+== [12] backoffice-a11y
+   -> PASS (12 s)
+== [13] web-tipos
+   -> PASS (5 s)
+== [14] web-lint
+   -> PASS (4 s)
+== [15] web-pruebas
+   -> PASS (9 s)
+== [16] web-a11y
+   -> PASS (7 s)
+== [17] aceptacion-mock
+   -> PASS (56 s)
+Resumen: /c/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-F4/entrega-simulada-corrida/RESUMEN.md

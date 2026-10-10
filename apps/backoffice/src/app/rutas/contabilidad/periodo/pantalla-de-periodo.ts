@@ -36,7 +36,7 @@ import type { ErrorTraducido } from '../../../nucleo/errores'
   imports: [ErrorDeEnvio, BandaDeProposito, Boton, ChipEstado, Dialogo, EstadoDePantalla, Fecha, Monto],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1 data-tutorial-id="contabilidad-periodo">{{ t.titulo }}</h1>
       <p class="aviso">{{ t.cerrarIrreversible }}</p>
       <ap-estado-de-pantalla
@@ -74,7 +74,7 @@ import type { ErrorTraducido } from '../../../nucleo/errores'
           }
         </ul>
       </ap-estado-de-pantalla>
-    </main>
+    </section>
 
     @if (elegido(); as p) {
       <ap-dialogo
@@ -93,7 +93,7 @@ import type { ErrorTraducido } from '../../../nucleo/errores'
     }
   `,
   styles: `
-    main { padding: var(--s5); max-width: 56rem; display: grid; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 56rem; display: grid; gap: var(--s4); }
     h1, h2 { margin: 0; }
     h2 { font-size: 1em; }
     .aviso { color: var(--text-2); margin: 0; }

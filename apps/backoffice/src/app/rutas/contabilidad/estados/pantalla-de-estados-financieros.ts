@@ -34,7 +34,7 @@ import type { ErrorTraducido } from '../../../nucleo/errores'
   imports: [ErrorDeEnvio, Alerta, BandaDeProposito, Boton, Fecha, GrupoRadio, SeccionDeExpediente],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
       <ap-alerta [tono]="provisorio() ? 'aviso' : 'info'">{{ provisorio() ? t.provisorio : t.definitivo }}</ap-alerta>
 
@@ -59,10 +59,10 @@ import type { ErrorTraducido } from '../../../nucleo/errores'
         </p>
       }
       @if (errorDeDescarga(); as e) { <ap-alerta tono="error">{{ e }}</ap-alerta> }
-    </main>
+    </section>
   `,
   styles: `
-    main { padding: var(--s5); max-width: 48rem; display: grid; gap: var(--s4); justify-items: start; }
+    .pantalla { padding: var(--s5); max-width: 48rem; display: grid; gap: var(--s4); justify-items: start; }
     h1, h2 { margin: 0; }
     h2 { font-size: 1.05em; }
     .hash-ayuda { color: var(--text-2); margin: 0; }

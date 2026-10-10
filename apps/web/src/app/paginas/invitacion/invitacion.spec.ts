@@ -34,6 +34,14 @@ describe('Invitacion · enlace de invitación (H12.S1.M4 · el secreto sale de l
     expect(texto(f)).not.toContain(TOKEN)
   })
 
+  it('declara que desde la web no puede saber si el enlace sigue vigente (consumido o revocado se ve igual)', async () => {
+    const f = await abrir(`/invitacion/g1/i1#t=${TOKEN}`)
+    const nota = (f.nativeElement as HTMLElement).querySelector('[data-limite="vigencia-no-verificable"]')
+    expect(nota?.getAttribute('role')).toBe('note')
+    expect(nota?.textContent).toContain('no podemos saber si el enlace sigue vigente')
+    expect(nota?.textContent).toContain('lo confirma la app')
+  })
+
   it('el secreto no queda en almacenamiento accesible por script ni en cookies', async () => {
     await abrir(`/invitacion/g1/i1#t=${TOKEN}`)
     expect(window.localStorage.length).toBe(0)

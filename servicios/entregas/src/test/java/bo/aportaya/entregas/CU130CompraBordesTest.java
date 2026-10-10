@@ -68,6 +68,7 @@ class CU130CompraBordesTest extends BaseDeCompraDeTurno {
                 c.ctxComprador());
         var ref = fondosDoble.retener(
                 c.comprador().usuarioId(),
+                oferta.ofertaId(),
                 bob("5500.00"),
                 "cesion:" + reserva.cesion().id() + ":retener");
         pasosDeCesion.retenida(reserva.cesion().id(), ref.referencia(), c.ctxComprador());

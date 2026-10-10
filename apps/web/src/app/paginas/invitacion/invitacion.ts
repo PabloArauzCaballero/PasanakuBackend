@@ -17,6 +17,12 @@ type Vista = 'leyendo' | LecturaDeEnlace['estado']
  * Es estática (se prerenderiza sin datos) y no se indexa: la ruta está en `RUTAS_NO_INDEXABLES`.
  * El canje contra el servidor exige la sesión de quien recibe la invitación, y este sitio no tiene
  * sesión de participantes: sigue en la app. Acá no se simula.
+ *
+ * **Límite declarado en pantalla (H12.S1.M1, defecto E3-c):** ni `consultarInvitacionPorEnlace`
+ * (grupos) ni `validarTokenDeInvitacion` (identidad) responden sin la sesión del teléfono
+ * invitado —decirle a un anónimo si un enlace está vigente es una consulta de existencia—, así
+ * que un enlace ya consumido o revocado se ve igual que uno vigente. En lugar de aparentarlo,
+ * la pantalla lo dice (`data-limite="vigencia-no-verificable"`).
  */
 @Component({
   selector: 'ap-invitacion',
@@ -32,7 +38,14 @@ type Vista = 'leyendo' | LecturaDeEnlace['estado']
             <p class="texto-guia" role="status">Preparando tu invitación…</p>
           }
           @case ('listo') {
-            <p class="texto-guia" role="status">Tu invitación está lista. Sacamos el código secreto de la dirección para que no quede a la vista ni en el historial.</p>
+            <p class="texto-guia" role="status">Tu invitación está lista para abrirla en la app. Sacamos el código secreto de la dirección para que no quede a la vista ni en el historial.</p>
+            <div class="aviso" role="note" data-limite="vigencia-no-verificable">
+              <span class="signo"><ap-icono nombre="alerta" [tamano]="17" [grosor]="2.2" /></span>
+              <div>
+                <div class="t">Desde esta página no podemos saber si el enlace sigue vigente</div>
+                <div class="m">Si ya se usó, venció o te lo retiraron, lo confirma la app al ingresar con tu teléfono. Si no funciona, pedile a quien te invitó que te mande uno nuevo.</div>
+              </div>
+            </div>
             <article class="prosa">
               <h2>Qué pasa si la aceptás</h2>
               <ul>

@@ -67,9 +67,11 @@ class _PantallaCrearGrupoState extends ConsumerState<PantallaCrearGrupo>
     super.dispose();
   }
 
+  /// La fecha de inicio NO es requisito para habilitar el botón: el formulario no la
+  /// pregunta y se completa al enviar (hoy + 7 días, `organismos_crear_grupo.dart`). Exigirla
+  /// acá dejaba «Crear grupo» apagado para siempre (hallazgo del carril H en emulador).
   @override
-  bool get completo =>
-      nombre.text.trim().length >= 3 && monto != null && fechaDeInicio != null;
+  bool get completo => nombre.text.trim().length >= 3 && monto != null;
 
   @override
   Widget build(BuildContext context) {

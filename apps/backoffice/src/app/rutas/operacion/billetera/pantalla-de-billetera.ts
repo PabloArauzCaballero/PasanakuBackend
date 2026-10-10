@@ -18,7 +18,7 @@ import { textosOperacion } from '../textos'
   imports: [EstadoDePantalla, PosicionesDeSaldo, Alerta, BandaDeProposito, DatePipe],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1 data-tutorial-id="operacion-billetera">{{ t.titulo }}</h1>
       <ap-estado-de-pantalla
         data-tutorial-id="operacion-saldo"
@@ -39,10 +39,10 @@ import { textosOperacion } from '../textos'
           <p class="corte">{{ t.alCorteDe }} <time [attr.datetime]="s.alCorteDe">{{ s.alCorteDe | date: 'dd/MM/yyyy HH:mm' : '-0400' }} (La Paz)</time></p>
         }
       </ap-estado-de-pantalla>
-    </main>
+    </section>
   `,
   styles: `
-    main { padding: var(--s5); max-width: 40rem; }
+    .pantalla { padding: var(--s5); max-width: 40rem; }
     h1 { margin-bottom: var(--s4); }
     .corte { margin: var(--s3) 0 0; color: var(--text-2); font-size: .875rem; }
   `,

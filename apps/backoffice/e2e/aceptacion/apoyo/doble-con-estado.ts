@@ -20,6 +20,8 @@ type Decision = {
 }
 type Solicitud = { id: string; grupoId: string; usuarioId: string; estado: 'PENDIENTE' | 'APROBADA' | 'RECHAZADA'; cupos: number }
 type Participante = { id: string; grupoId: string; usuarioId: string; estado: string }
+/** Orden de retiro que exige doble aprobación (CU-11): `EN_REVISION` hasta que otra persona la autoriza o la rechaza. */
+type OrdenDeRetiro = { id: string; solicitadaPor: string; estado: 'EN_REVISION' | 'AUTORIZADA' | 'RECHAZADA'; aprobadaPor?: string; motivo?: string; claveDecision?: string; desenlace?: string }
 type Salida = { estado: number; cuerpo?: unknown }
 
 const E = (estado: number, codigo: string, mensaje: string): Salida => ({ estado, cuerpo: { codigo, mensaje, trazaId: randomUUID() } })
@@ -32,6 +34,9 @@ export class DobleConEstado {
   private decisiones: Decision[] = []
   private participantes: Participante[] = []
   private respuestasPorClave = new Map<string, Salida>()
+  private ordenesDeRetiro = new Map<string, OrdenDeRetiro>()
+  /** Contador de cuentas sembradas: teléfonos y factores salen de acá y no del azar, así una corrida se repite igual. */
+  private secuenciaDeCuentas = 0
   private grupoOrganizador = new Map<string, string>()
   /** Cuántas peticiones llegaron a cada ruta: la suite lo usa para probar «una sola decisión» sin mirar el cuerpo. */
   readonly llamadas: string[] = []
@@ -40,15 +45,26 @@ export class DobleConEstado {
   /** Descarta la respuesta de la próxima resolución DESPUÉS de aplicarla (respuesta perdida). */
   perderRespuestaDeResolucion = false
 
-  sembrar(): { grupoId: string; organizador: Cuenta; participante: Cuenta; participante2: Cuenta; operador: Cuenta; operador2: Cuenta; sinPermiso: Cuenta } {
+  sembrar(): {
+    grupoId: string
+    organizador: Cuenta
+    participante: Cuenta
+    participante2: Cuenta
+    operador: Cuenta
+    operador2: Cuenta
+    sinPermiso: Cuenta
+    tesoreria: Cuenta
+    tesoreria2: Cuenta
+  } {
     const nueva = (rol: string, permisos: string[], factor: boolean): Cuenta => {
+      const n = ++this.secuenciaDeCuentas
       const c: Cuenta = {
         id: randomUUID(),
-        telefono: `+5917${String(Math.floor(Math.random() * 1e7)).padStart(7, '0')}`,
+        telefono: `+5917${String(1000000 + n).padStart(7, '0')}`,
         clave: randomBytes(9).toString('base64url'),
         rol,
         permisos,
-        ...(factor ? { factor: String(100000 + Math.floor(Math.random() * 899999)) } : {}),
+        ...(factor ? { factor: String(100000 + ((n * 7919) % 899999)) } : {}),
       }
       this.cuentas.set(c.id, c)
       return c
@@ -65,12 +81,22 @@ export class DobleConEstado {
       operador: nueva('ADMIN_PLATAFORMA', ['ADMIN_PLATAFORMA', 'AUDITORIA_LEER'], true),
       operador2: nueva('ADMIN_PLATAFORMA', ['ADMIN_PLATAFORMA', 'AUDITORIA_LEER'], true),
       sinPermiso: nueva('SOPORTE', ['RECLAMO_ATENDER'], true),
+      // Tesorería: el rol del catálogo que tiene RETIRO_APROBAR (sql/60_semillas/10-roles-y-permisos.sql).
+      tesoreria: nueva('TESORERIA', ['TESORERIA', 'RETIRO_APROBAR', 'BILLETERA_VER_TERCEROS'], true),
+      tesoreria2: nueva('TESORERIA', ['TESORERIA', 'RETIRO_APROBAR', 'BILLETERA_VER_TERCEROS'], true),
     }
   }
 
+  /** Una orden de retiro en revisión, pedida por `solicitadaPor` (la ve quien la pidió: no puede aprobarla). */
+  sembrarRetiro(solicitadaPor: string): { ordenId: string } {
+    const orden: OrdenDeRetiro = { id: randomUUID(), solicitadaPor, estado: 'EN_REVISION' }
+    this.ordenesDeRetiro.set(orden.id, orden)
+    return { ordenId: orden.id }
+  }
+
   /** Estado interno para que la suite compruebe «una sola membresía» sin pasar por la API. */
-  instantanea(): { participantes: Participante[]; decisiones: Decision[]; solicitudes: Solicitud[] } {
-    return { participantes: [...this.participantes], decisiones: [...this.decisiones], solicitudes: [...this.solicitudes.values()] }
+  instantanea(): { participantes: Participante[]; decisiones: Decision[]; solicitudes: Solicitud[]; retiros: OrdenDeRetiro[] } {
+    return { participantes: [...this.participantes], decisiones: [...this.decisiones], solicitudes: [...this.solicitudes.values()], retiros: [...this.ordenesDeRetiro.values()] }
   }
 
   private quien(req: IncomingMessage): Cuenta | null {
@@ -120,6 +146,7 @@ export class DobleConEstado {
       const cola = [...this.solicitudes.values()].filter((x) => x.grupoId === m![1] && x.estado === 'PENDIENTE')
       return { estado: 200, cuerpo: cola.map((x) => ({ solicitudId: x.id, usuarioId: x.usuarioId, cuposSolicitados: x.cupos, estado: x.estado, fechaSolicitud: new Date().toISOString() })) }
     }
+    if (metodo === 'POST' && (m = ruta.match(/^\/billetera\/retiros\/([^/]+)\/aprobacion$/))) return this.aprobarRetiro(c, m[1] ?? '', cuerpo as Record<string, unknown>, claveStr)
     if (metodo === 'GET' && ruta === '/grupos/participaciones') {
       return { estado: 200, cuerpo: this.participantes.filter((p) => p.usuarioId === c.id).map((p) => ({ grupoId: p.grupoId, participanteId: p.id, estado: p.estado })) }
     }
@@ -230,6 +257,37 @@ export class DobleConEstado {
     return { estado: 200, cuerpo: d }
   }
 
+  /**
+   * `aprobarRetiro` (`@Permiso("RETIRO_APROBAR")`, nucleo-financiero): solo alguien DISTINTO de quien lo pidió (AP-CU11-10); la orden tiene que
+   * estar `EN_REVISION` (409 si otra persona la resolvió primero); la misma clave con el mismo contenido repite la respuesta. Entrada ESTRICTA:
+   * un campo que el contrato no declara es 400, como en el servicio.
+   */
+  private aprobarRetiro(c: Cuenta, ordenId: string, cuerpo: Record<string, unknown>, clave: string | null): Salida {
+    if (!this.permitido(c, 'RETIRO_APROBAR')) return E(403, 'AP-AUTZ-403', 'Falta RETIRO_APROBAR.')
+    if (!clave || !/^[0-9a-f-]{36}$/.test(clave)) return E(400, 'AP-IDEM-400', 'Falta la clave de idempotencia (Idempotency-Key).')
+    const permitidos = new Set(['desenlace', 'motivo'])
+    const extra = Object.keys(cuerpo ?? {}).filter((k) => !permitidos.has(k))
+    const desenlace = cuerpo?.['desenlace']
+    if (extra.length > 0 || (desenlace !== 'AUTORIZADA' && desenlace !== 'RECHAZADA') || (cuerpo['motivo'] !== undefined && (typeof cuerpo['motivo'] !== 'string' || cuerpo['motivo'].length > 500))) {
+      return E(400, 'AP-VAL-400', `Entrada inválida${extra.length ? `: campos no declarados (${extra.join(', ')})` : ''}.`)
+    }
+    const orden = this.ordenesDeRetiro.get(ordenId)
+    if (!orden) return E(404, 'AP-CU11-404', 'Esa orden no existe.')
+    if (orden.claveDecision === clave) {
+      const igual = orden.desenlace === desenlace && (orden.motivo ?? '') === ((cuerpo['motivo'] as string | undefined) ?? '') && orden.aprobadaPor === c.id
+      return igual ? { estado: 200, cuerpo: { ordenRetiroId: orden.id, estado: orden.estado, aprobadaPor: c.id } } : E(409, 'AP-IDEM-409', 'La clave pertenece a otra decisión.')
+    }
+    if (orden.solicitadaPor === c.id) return E(422, 'AP-CU11-10', 'Quien pidió el retiro no lo aprueba.')
+    // Sección crítica: sin `await` (en el servicio real, el UPDATE condicionado por estado).
+    if (orden.estado !== 'EN_REVISION') return E(409, 'AP-CU11-409', 'La orden ya no está en revisión.')
+    orden.estado = desenlace
+    orden.aprobadaPor = c.id
+    orden.desenlace = desenlace
+    orden.claveDecision = clave
+    if (typeof cuerpo['motivo'] === 'string') orden.motivo = cuerpo['motivo']
+    return { estado: 200, cuerpo: { ordenRetiroId: orden.id, estado: orden.estado, aprobadaPor: c.id } }
+  }
+
   /** `historial`: el administrador del grupo y backoffice. La persona que pidió entrar NO (por eso no ve su motivo). */
   private historial(c: Cuenta, solicitudId: string): Salida {
     // OJO (a verificar en modo real): en servicios/grupos RutasDeAdmision.historialAdmision lleva `@Permiso("PARTICIPANTE")`, pero PARTICIPANTE es un
@@ -260,6 +318,7 @@ export function servirDoble(puerto: number): Promise<{ servidor: Server; doble: 
     let salida: Salida
     if (ruta === '/__doble/sembrar' && req.method === 'POST') salida = { estado: 200, cuerpo: doble.sembrar() }
     else if (ruta === '/__doble/instantanea') salida = { estado: 200, cuerpo: doble.instantanea() }
+    else if (ruta === '/__doble/retiro' && req.method === 'POST') salida = { estado: 200, cuerpo: doble.sembrarRetiro(String((cuerpo as { solicitadaPor?: string } | undefined)?.solicitadaPor ?? '')) }
     else if (ruta === '/__doble/ajustes' && req.method === 'POST') {
       const a = cuerpo as { demoraResolucionMs?: number; perderRespuestaDeResolucion?: boolean }
       if (a.demoraResolucionMs !== undefined) doble.demoraResolucionMs = a.demoraResolucionMs

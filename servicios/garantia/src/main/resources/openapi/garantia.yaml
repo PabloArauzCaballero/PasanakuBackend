@@ -30,6 +30,7 @@
 #   AP-CU26-04  EJECUCION_DUPLICADA   · aca: el aval ya se ejecuto hasta su tope
 #   AP-CU26-05  FUERA_DE_ALCANCE      · reservado
 #   AP-CU26-06  DEUDA_YA_SALDADA      · reservado
+#   AP-CU26-07  RECLAMO_EN_CURSO      · la persona tiene un reclamo que frena (o cumplimiento no contesto): H13.S1.M6
 #
 # CU-27 · Restringir al deudor
 #   AP-CU27-01  SIN_CAUSA_VIGENTE     · el expediente no existe
@@ -38,6 +39,7 @@
 #   AP-CU27-04  MISMO_OPERADOR        · reservado
 #   AP-CU27-05  NIVEL_DESPROPORCIONADO · reservado
 #   AP-CU27-06  —                     · quien aplica es el restringido (R-SEG-04)
+#   AP-CU27-07  RECLAMO_EN_CURSO      · la persona tiene un reclamo que frena (o cumplimiento no contesto): H13.S1.M6
 #
 # CU-29 · Devolver los aportes del fondo
 #   AP-CU29-01  COBERTURA_EN_CURSO    · el grupo no termino, o carrera perdida

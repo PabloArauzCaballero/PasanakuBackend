@@ -1,0 +1,712 @@
+00:00 +0: loading C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/a11y/pantalla_de_saldo_a11y_test.dart
+00:00 +0: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/contrato/consultar_saldo_test.dart: consultarSaldo · ok encaja en SaldoBilletera y los importes son cadena
+00:00 +1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/a11y/tutoriales_a11y_test.dart: el globo del tutorial, sobre la pantalla real, cumple las guías
+00:00 +2: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/a11y/tutoriales_a11y_test.dart: el globo del tutorial, sobre la pantalla real, cumple las guías
+00:00 +3: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/a11y/tutoriales_a11y_test.dart: el globo del tutorial, sobre la pantalla real, cumple las guías
+00:00 +4: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/a11y/tutoriales_a11y_test.dart: el globo del tutorial, sobre la pantalla real, cumple las guías
+00:00 +5: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/a11y/pantalla_de_saldo_a11y_test.dart: la pantalla de saldo cumple las guías de accesibilidad de Flutter
+00:00 +6: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_de_saldo_golden_test.dart: pantalla de saldo · éxito · claro
+00:00 +7: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_de_saldo_golden_test.dart: pantalla de saldo · éxito · claro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/pantalla_de_saldo_claro.png": Pixel test failed, 3.94%, 9080px diff detected.
+Failure feedback can be found at
+/C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_de_saldo_golden_test.dart:49:7)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +7 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · movil · claro
+00:00 +7 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_de_saldo_golden_test.dart: pantalla de saldo · éxito · claro [E]
+  Test failed. See exception logs above.
+  The test description was: pantalla de saldo · éxito · claro
+  
+00:00 +8 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · movil · claro
+00:01 +9 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · movil · claro
+00:01 +10 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · movil · claro
+00:01 +11 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · movil · claro
+00:01 +12 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · movil · claro
+00:01 +13 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · movil · claro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/escanear_denegado_movil_claro.png": Pixel test failed, 3.67%, 8454px diff detected.
+Failure feedback can be found at
+/C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart:58:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +13 -2: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/a11y/tutoriales_a11y_test.dart: el centro de tutoriales cumple las guías
+00:01 +13 -2: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · movil · claro [E]
+  Test failed. See exception logs above.
+  The test description was: escanear · cámara denegada · movil · claro
+  
+00:01 +13 -2: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_de_saldo_golden_test.dart: pantalla de saldo · éxito · oscuro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/pantalla_de_saldo_oscuro.png": Pixel test failed, 3.92%, 9032px diff detected.
+Failure feedback can be found at
+/C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_de_saldo_golden_test.dart:49:7)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +13 -3: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/a11y/tutoriales_a11y_test.dart: el centro de tutoriales cumple las guías
+00:01 +13 -3: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_de_saldo_golden_test.dart: pantalla de saldo · éxito · oscuro [E]
+  Test failed. See exception logs above.
+  The test description was: pantalla de saldo · éxito · oscuro
+  
+00:01 +14 -3: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:01 +14 -3: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · tableta · claro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/escanear_denegado_tableta_claro.png": Pixel test failed, 1.18%, 9295px diff
+detected.
+Failure feedback can be found at
+/C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart:58:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +14 -4: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:01 +14 -4: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · tableta · claro [E]
+  Test failed. See exception logs above.
+  The test description was: escanear · cámara denegada · tableta · claro
+  
+00:01 +15 -4: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:01 +15 -4: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · escritorio · claro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/escanear_denegado_escritorio_claro.png": Pixel test failed, 0.91%, 9295px diff
+detected.
+Failure feedback can be found at
+/C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart:58:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +15 -5: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:01 +15 -5: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · escritorio · claro [E]
+  Test failed. See exception logs above.
+  The test description was: escanear · cámara denegada · escritorio · claro
+  
+00:01 +16 -5: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:01 +17 -5: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:01 +17 -5: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · movil · oscuro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/escanear_denegado_movil_oscuro.png": Pixel test failed, 3.67%, 8454px diff
+detected.
+Failure feedback can be found at
+/C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart:58:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +17 -6: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:01 +17 -6: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · movil · oscuro [E]
+  Test failed. See exception logs above.
+  The test description was: escanear · cámara denegada · movil · oscuro
+  
+00:01 +17 -6: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · tableta · oscuro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/escanear_denegado_tableta_oscuro.png": Pixel test failed, 1.18%, 9295px diff
+detected.
+Failure feedback can be found at
+/C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart:58:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +17 -7: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:01 +17 -7: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · tableta · oscuro [E]
+  Test failed. See exception logs above.
+  The test description was: escanear · cámara denegada · tableta · oscuro
+  
+00:02 +17 -7: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · escritorio · oscuro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/escanear_denegado_escritorio_oscuro.png": Pixel test failed, 0.91%, 9295px diff
+detected.
+Failure feedback can be found at
+/C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart:58:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +17 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:02 +17 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · escritorio · oscuro [E]
+  Test failed. See exception logs above.
+  The test description was: escanear · cámara denegada · escritorio · oscuro
+  
+00:02 +18 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:03 +19 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:03 +20 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:03 +21 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:03 +22 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:03 +23 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:03 +24 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:03 +25 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:03 +26 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:03 +27 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:03 +28 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +29 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +30 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +31 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +32 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +33 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +34 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +35 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +36 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +37 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +38 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +39 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +40 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +41 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +42 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +43 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +44 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +45 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +46 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +47 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +48 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +49 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +50 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +51 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +52 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +53 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +54 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:04 +55 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +56 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +57 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +58 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +59 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +60 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +61 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +62 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +63 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +64 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +65 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +66 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +67 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +68 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +69 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +70 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +71 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +72 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +73 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +74 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +75 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +76 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +77 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +78 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +79 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +80 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +81 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +82 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +83 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +84 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +84 -8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_crear_grupo_test.dart: con nombre y monto el botón se habilita y envía una sola petición con fecha de inicio
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: an object with length of <1>
+  Actual: []
+   Which: has length of <0>
+estado: AsyncError<SalidaGrupo?>(value: null, error: ErrorDeRed, stackTrace: #0
+CrearGrupo.enviar (package:aportaya_movil/pantallas/pasanaku/dominio/cu20_crear_grupo.dart:52:56)
+<asynchronous suspension>
+#1      _PantallaCrearGrupoState._enviar
+(package:aportaya_movil/pantallas/pasanaku/pantalla_crear_grupo.dart:120:5)
+<asynchronous suspension>
+)
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_crear_grupo_test.dart:63:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_crear_grupo_test.dart line 63
+The test description was:
+  con nombre y monto el botón se habilita y envía una sola petición con fecha de inicio
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:05 +84 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +84 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_crear_grupo_test.dart: con nombre y monto el botón se habilita y envía una sola petición con fecha de inicio [E]
+  Test failed. See exception logs above.
+  The test description was: con nombre y monto el botón se habilita y envía una sola petición con fecha de inicio
+  
+00:05 +85 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +86 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +87 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +88 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +89 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +90 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +91 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:05 +92 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/transicion_ingreso_cubre.png": Pixel test failed, 0.00%, 10px diff detected.
+Failure feedback can be found at
+/C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart:76:7)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:06 +93 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +94 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +95 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/transicion_ingreso_marca.png": Pixel test failed, 0.06%, 1702px diff detected.
+Failure feedback can be found at
+/C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart:76:7)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:06 +96 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +97 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +98 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +99 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +100 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +101 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +102 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +103 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +104 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +105 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +106 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +107 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +108 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +109 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +110 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +111 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +112 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +113 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +114 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:06 +115 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +116 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +117 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +118 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +119 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +120 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +121 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +122 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +123 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +124 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +125 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +126 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +127 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +128 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +129 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +130 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +131 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +132 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +133 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +134 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +135 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +136 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +137 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +138 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +139 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +140 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +141 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +142 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +143 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +144 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +145 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +146 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +147 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +148 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +149 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +150 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +151 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +152 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/transicion_ingreso_atraviesa.png": Pixel test failed, 0.00%, 95px diff detected.
+Failure feedback can be found at
+/C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart:76:7)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:07 +153 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +154 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +155 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +156 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +157 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +158 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +159 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +160 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +161 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +162 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +163 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +164 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +165 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +166 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +167 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:07 +168 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:08 +169 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:08 +170 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:08 +171 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:08 +172 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:08 +173 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:08 +174 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:08 +175 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:08 +176 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:08 +177 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:08 +178 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:08 +179 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:08 +180 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:08 +181 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:08 +182 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+00:08 +183 -9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/transicion_ingreso_llega.png": Pixel test failed, 0.94%, 27752px diff detected.
+Failure feedback can be found at
+/C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart:76:7)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following message was thrown:
+Multiple exceptions (4) were detected during the running of the current test, and at least one was
+unexpected.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:08 +183 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el zoom de marca, cuadro por cuadro [E]
+  Test failed. See exception logs above.
+  The test description was: portada → ingreso: el zoom de marca, cuadro por cuadro
+  
+00:08 +183 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/tutoriales/validacion_test.dart: un catálogo sano no tiene nada que decir
+00:08 +184 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/tutoriales/validacion_test.dart: detecta ids duplicados: uno pisa al otro
+00:08 +185 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/tutoriales/validacion_test.dart: detecta un tutorial sin pasos
+00:08 +186 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/tutoriales/validacion_test.dart: detecta un paso que no resalta nada ni navega
+00:08 +187 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/tutoriales/validacion_test.dart: un paso sin ancla pero que pide navegar es válido: el objetivo es la ruta
+00:08 +188 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/tutoriales/validacion_test.dart: detecta una ruta que la app no sabe abrir, y acepta una subruta
+00:08 +189 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/tutoriales/validacion_test.dart: detecta requisitos y siguientes que no existen
+00:08 +190 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/tutoriales/validacion_test.dart: detecta una dependencia circular entre requisitos
+00:08 +191 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/tutoriales/validacion_test.dart: detecta pasos duplicados dentro de un tutorial
+00:08 +192 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/tutoriales/validacion_test.dart: devuelve TODOS los problemas, no el primero
+00:08 +193 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/usuario_id_del_token_test.dart: saca el sub del token de acceso
+00:08 +194 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/usuario_id_del_token_test.dart: sin token, o con un token que no es un JWT, no hay usuario
+00:08 +195 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/usuario_id_del_token_test.dart: un token sin sub, o con sub vacío o que no es texto, no hay usuario
+00:09 +196 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/acceso_escanear_test.dart: correcto: el ícono de la cabecera del inicio abre el escáner de invitaciones
+00:09 +197 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/acceso_escanear_test.dart: correcto: el ícono de la cabecera del inicio abre el escáner de invitaciones
+00:09 +198 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/acceso_escanear_test.dart: correcto: el ícono de la cabecera del inicio abre el escáner de invitaciones
+00:09 +199 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/acceso_escanear_test.dart: correcto: el ícono de la cabecera del inicio abre el escáner de invitaciones
+00:09 +200 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/acceso_escanear_test.dart: correcto: el ícono de la cabecera del inicio abre el escáner de invitaciones
+00:09 +201 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/acceso_escanear_test.dart: correcto: el ícono de la cabecera del inicio abre el escáner de invitaciones
+00:09 +202 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/capacidades_ui_test.dart: no soportado: el botón está deshabilitado y el motivo se lee en pantalla
+00:09 +203 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/conexion_test.dart: sin conexión se ve un estado, nunca una pantalla en blanco
+00:09 +204 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/conexion_test.dart: sin conexión se ve un estado, nunca una pantalla en blanco
+00:10 +205 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/conexion_test.dart: sin conexión se ve un estado, nunca una pantalla en blanco
+00:10 +206 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/configuracion_invalida_test.dart: con configuración inválida: se ve la pantalla de bloqueo y no se crea el cliente HTTP
+00:10 +207 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/deep_link_test.dart: app cerrada: aportaya://billetera abre /billetera/inicio
+00:10 +208 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/deep_link_test.dart: app cerrada: aportaya://billetera abre /billetera/inicio
+00:10 +209 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pantalla_de_saldo_test.dart: cargando: lo dice mientras espera, sin pantalla en blanco
+00:10 +210 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pantalla_de_saldo_test.dart: cargando: lo dice mientras espera, sin pantalla en blanco
+00:10 +211 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pantalla_escanear_test.dart: correcto: un QR de invitación abre unirse y reemplaza el visor
+00:10 +212 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pantalla_escanear_test.dart: correcto: un QR de invitación abre unirse y reemplaza el visor
+00:10 +213 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pantalla_recargar_test.dart: doble toque en la recarga: una sola petición, la misma clave de idempotencia
+00:10 +214 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pantalla_recargar_test.dart: doble toque en la recarga: una sola petición, la misma clave de idempotencia
+00:10 +215 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pantalla_recargar_test.dart: doble toque en la recarga: una sola petición, la misma clave de idempotencia
+00:10 +216 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pantalla_recargar_test.dart: doble toque en la recarga: una sola petición, la misma clave de idempotencia
+00:10 +217 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pantalla_recargar_test.dart: doble toque en la recarga: una sola petición, la misma clave de idempotencia
+00:10 +218 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pantalla_recargar_test.dart: doble toque en la recarga: una sola petición, la misma clave de idempotencia
+00:10 +219 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pantalla_recargar_test.dart: doble toque en la recarga: una sola petición, la misma clave de idempotencia
+00:11 +220 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pantalla_recargar_test.dart: doble toque en la recarga: una sola petición, la misma clave de idempotencia
+00:11 +221 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pantalla_recargar_test.dart: doble toque en la recarga: una sola petición, la misma clave de idempotencia
+00:11 +222 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pantalla_recargar_test.dart: doble toque en la recarga: una sola petición, la misma clave de idempotencia
+00:11 +223 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pantalla_recargar_test.dart: doble toque en la recarga: una sola petición, la misma clave de idempotencia
+00:11 +224 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pestanas_test.dart: «Perfil» abre el perfil, nunca la pantalla de iniciar sesión
+00:11 +225 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pestanas_test.dart: «Perfil» abre el perfil, nunca la pantalla de iniciar sesión
+00:11 +226 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pestanas_test.dart: «Perfil» abre el perfil, nunca la pantalla de iniciar sesión
+00:11 +227 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pestanas_test.dart: «Perfil» abre el perfil, nunca la pantalla de iniciar sesión
+00:11 +228 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pestanas_test.dart: «Perfil» abre el perfil, nunca la pantalla de iniciar sesión
+00:11 +229 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pestanas_test.dart: «Perfil» abre el perfil, nunca la pantalla de iniciar sesión
+00:11 +230 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/paso_datos_test.dart: tocar «Continuar» con el formulario vacío muestra qué falta
+00:11 +231 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/paso_datos_test.dart: tocar «Continuar» con el formulario vacío muestra qué falta
+00:11 +232 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/portada_test.dart: la app abre en la bienvenida, no adentro de la billetera
+00:11 +233 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/portada_test.dart: la app abre en la bienvenida, no adentro de la billetera
+00:11 +234 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/portada_test.dart: la app abre en la bienvenida, no adentro de la billetera
+00:11 +235 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/portada_test.dart: la app abre en la bienvenida, no adentro de la billetera
+00:11 +236 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/autolanzamiento_inicio_test.dart: correcto: primera vez, arranca la guía y deja su avance
+00:11 +237 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/autolanzamiento_inicio_test.dart: correcto: primera vez, arranca la guía y deja su avance
+00:12 +238 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/autolanzamiento_inicio_test.dart: correcto: primera vez, arranca la guía y deja su avance
+00:12 +239 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/paso_datos_test.dart: con todo completo, «Continuar» avanza de paso
+00:12 +240 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/paso_datos_test.dart: con todo completo, «Continuar» avanza de paso
+00:12 +241 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/paso_datos_test.dart: con todo completo, «Continuar» avanza de paso
+00:12 +242 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/paso_datos_test.dart: con todo completo, «Continuar» avanza de paso
+00:12 +243 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/paso_datos_test.dart: con todo completo, «Continuar» avanza de paso
+00:12 +244 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/paso_datos_test.dart: con todo completo, «Continuar» avanza de paso
+00:12 +245 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/portada_test.dart: arrancando la app de verdad —no solo el enrutador— se llega a la bienvenida
+00:12 +246 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/portada_test.dart: arrancando la app de verdad —no solo el enrutador— se llega a la bienvenida
+00:12 +247 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pestanas_test.dart: /ingreso se ve sin la barra de pestañas
+00:12 +248 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/portada_test.dart: «Ya tengo cuenta» lleva al ingreso, sin barra de pestañas
+00:12 +249 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/portada_test.dart: «Ya tengo cuenta» lleva al ingreso, sin barra de pestañas
+00:13 +250 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/portada_test.dart: «Ya tengo cuenta» lleva al ingreso, sin barra de pestañas
+00:13 +251 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pestanas_test.dart: /identidad/bienvenida se ve sin la barra de pestañas
+00:13 +252 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/centro_de_ayuda_test.dart: lista solo lo que le sirve a quien mira
+00:13 +253 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/centro_de_ayuda_test.dart: lista solo lo que le sirve a quien mira
+00:13 +254 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/centro_de_ayuda_test.dart: lista solo lo que le sirve a quien mira
+00:13 +255 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/centro_de_ayuda_test.dart: lista solo lo que le sirve a quien mira
+00:13 +256 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/ver_guia_otra_vez_test.dart: correcto: tras completarla, Perfil la vuelve a lanzar de cero
+00:13 +257 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/ver_guia_otra_vez_test.dart: correcto: tras completarla, Perfil la vuelve a lanzar de cero
+00:13 +258 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/ver_guia_otra_vez_test.dart: correcto: tras completarla, Perfil la vuelve a lanzar de cero
+00:13 +259 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/ver_guia_otra_vez_test.dart: correcto: tras completarla, Perfil la vuelve a lanzar de cero
+00:13 +260 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/ver_guia_otra_vez_test.dart: correcto: tras completarla, Perfil la vuelve a lanzar de cero
+00:13 +261 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/motor_test.dart: avanza con el botón, retrocede, y no pasa del primero hacia atrás
+00:13 +262 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/motor_test.dart: avanza con el botón, retrocede, y no pasa del primero hacia atrás
+00:13 +263 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/centro_de_ayuda_test.dart: el buscador recorta, y el vacío explica por qué
+00:13 +264 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/centro_de_ayuda_test.dart: el buscador recorta, y el vacío explica por qué
+00:13 +265 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/motor_test.dart: el primer paso hereda la ruta del tutorial
+00:13 +266 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/motor_test.dart: el primer paso hereda la ruta del tutorial
+00:13 +267 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/centro_de_ayuda_test.dart: reiniciar borra el avance de ese tutorial
+00:14 +268 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/motor_test.dart: un paso de otra pantalla navega solo
+00:14 +269 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/motor_test.dart: un ancla que no aparece deja el problema a la vista y NO traba
+00:14 +270 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/motor_test.dart: reintentar encuentra el ancla que llegó después
+00:14 +271 -10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/motor_test.dart: salir en el primer paso cierra; a la mitad pregunta antes
+00:14 +272 -10: Some tests failed.
+
+Failing tests:
+  C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_de_saldo_golden_test.dart: pantalla de saldo · éxito · claro
+  C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_de_saldo_golden_test.dart: pantalla de saldo · éxito · oscuro
+  C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · escritorio · claro
+  C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · escritorio · oscuro
+  ... and 6 more

@@ -39,6 +39,7 @@
 #   AP-CU93-04  MISMO_RESOLUTOR        · apela quien recibio la sancion, no un tercero
 #   AP-CU93-05  GRUPOS_SIN_DESTINO     · aca: sancion sin motivo escrito
 #   AP-CU93-06  SANCION_PRESCRITA      · nadie se sanciona a si mismo
+#   AP-CU93-07  RECLAMO_EN_CURSO       · la persona tiene un reclamo que frena la sancion firme (o cumplimiento no contesto): H13.S1.M6
 #
 # CU-95 · Definir una regla de automatizacion
 #   AP-CU95-01  ACCION_NO_AUTOMATIZABLE · codigo de regla duplicado

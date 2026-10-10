@@ -19,7 +19,7 @@ type Acceso = { ruta: string; texto: string; permiso: string; descripcion: strin
   imports: [BandaDeProposito, RouterLink],
   template: `
     <ap-banda-de-proposito texto="Punto de entrada del backoffice: a qué sección podés entrar con tu rol." />
-    <main>
+    <section class="pantalla">
       <h1>Tablero</h1>
       <ul class="accesos" data-tutorial-id="tablero-accesos">
         @for (a of accesos; track a.ruta) {
@@ -33,10 +33,10 @@ type Acceso = { ruta: string; texto: string; permiso: string; descripcion: strin
           }
         }
       </ul>
-    </main>
+    </section>
   `,
   styles: `
-    main { padding: var(--s5); }
+    .pantalla { padding: var(--s5); }
     h1 { margin-bottom: var(--s4); }
     .accesos { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: var(--s4); }
     a { display: block; min-height: var(--area-tactil); padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); text-decoration: none; }
@@ -50,6 +50,7 @@ export class Tablero {
   protected readonly accesos: Acceso[] = [
     { ruta: 'operacion', texto: 'Operación', permiso: 'ver:operacion', descripcion: 'Billetera, cobranza, entregas y cierre.' },
     { ruta: 'operacion/estado', texto: 'Arquitectura y estado', permiso: 'ver:operacion', descripcion: 'Nivel de criticidad y réplicas por servicio.' },
+    { ruta: 'operacion/retiros', texto: 'Aprobación de retiros', permiso: 'RETIRO_APROBAR', descripcion: 'Segunda firma de un retiro: autorizar o rechazar.' },
     { ruta: 'cumplimiento', texto: 'Cumplimiento', permiso: 'ver:cumplimiento', descripcion: 'UIF, alertas, casos y gobierno.' },
     { ruta: 'admisiones', texto: 'Solicitudes de ingreso', permiso: 'ver:admisiones', descripcion: 'Resolver quién entra a un grupo.' },
     { ruta: 'contabilidad', texto: 'Contabilidad', permiso: 'ver:contabilidad', descripcion: 'Períodos, presupuestos y estados financieros.' },

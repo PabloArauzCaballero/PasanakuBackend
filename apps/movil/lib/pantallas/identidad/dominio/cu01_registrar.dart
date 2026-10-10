@@ -105,5 +105,6 @@ class VerificacionCorreoFaltante implements Exception {
   const VerificacionCorreoFaltante();
 
   @override
-  String toString() => 'Confirma el codigo de tu correo antes de crear la cuenta.';
+  String toString() =>
+      'Confirma el codigo de tu correo antes de crear la cuenta.';
 }

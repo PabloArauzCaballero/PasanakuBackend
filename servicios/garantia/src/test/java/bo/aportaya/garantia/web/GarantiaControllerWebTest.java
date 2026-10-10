@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import bo.aportaya.garantia.aplicacion.CU29DevolverFondo;
 import bo.aportaya.garantia.aplicacion.CU66ReemplazarParticipante;
 import bo.aportaya.garantia.aplicacion.CU67DisolverGrupo;
+import bo.aportaya.garantia.aplicacion.ReclamosEnCurso;
 import bo.aportaya.garantia.dominio.CuadreDeDisolucion;
 import bo.aportaya.garantia.dominio.DevolucionDelFondo;
 import bo.aportaya.plataforma.dominio.Dinero;
@@ -61,6 +62,9 @@ class GarantiaControllerWebTest {
 
     @MockitoBean
     private CU66ReemplazarParticipante cu66;
+
+    @MockitoBean
+    private ReclamosEnCurso reclamosEnCurso;
 
     @MockitoBean
     private CU67DisolverGrupo cu67;

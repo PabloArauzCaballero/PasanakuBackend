@@ -8,11 +8,11 @@ import net.javacrumbs.shedlock.provider.jdbctemplate.JdbcTemplateLockProvider;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -27,8 +27,16 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * varias replicas, solo una corre el relevo a la vez — {@code FOR UPDATE SKIP LOCKED}
  * asume eso; sin el lock, dos relevos a la vez seria un caso mas raro de proteger, no
  * uno imposible.
+ *
+ * <p><b>Es una auto-configuracion y va DESPUES de la de Kafka, a proposito</b> (carril G, defecto hallado en el
+ * stack real): {@code @ConditionalOnBean(KafkaTemplate)} solo ve los beans que ya se registraron. Cuando esta
+ * clase llegaba por {@code @Import} desde {@code ConfiguracionComunWeb}, la auto-configuracion de Kafka (que
+ * crea el {@code KafkaTemplate}) todavia no habia corrido, la condicion daba falso y el {@link Relevo} no
+ * existia en NINGUN servicio: los eventos se quedaban en {@code PENDIENTE} con cero intentos para siempre. Los
+ * tests no lo veian porque ponian el {@code KafkaTemplate} como configuracion de usuario. El orden lo fija
+ * {@code afterName} y la carga el archivo {@code META-INF/spring/...AutoConfiguration.imports} de este modulo.
  */
-@Configuration
+@AutoConfiguration(afterName = "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration")
 @EnableScheduling
 @EnableSchedulerLock(defaultLockAtMostFor = "PT30S")
 public class ConfiguracionMensajeria {

@@ -1,5 +1,5 @@
 {
-  "descripcion": "Cuentas de sistema que los servicios necesitan para operar: custodia de inversion, ingresos de la plataforma, puente de custodia, y el mapeo SINTETICO de las cuentas logicas de garantia (CAJA_EMPRESA, RESERVA_RESPALDO, POZO_GRUPO) a cuentas del plan, por moneda.",
+  "descripcion": "Cuentas de sistema que los servicios necesitan para operar: custodia de inversion, ingresos de la plataforma, puente de custodia, y el mapeo SINTETICO de las cuentas logicas de garantia (CAJA_EMPRESA, RESERVA_RESPALDO, POZO_GRUPO) y de entregas (DESEMBOLSO_CONFIRMADO) a cuentas del plan, por moneda.",
   "entorno": "minimo",
   "apto_produccion": false,
   "estado": "SINTETICO en lo contable — el mapeo de cuentas logicas (9.x) es una decision de contabilidad abierta (A5 del carril C). Las cuentas 9.x existen para que el consumidor de asientos de nucleo-financiero pueda encenderse en TEST; en produccion el arranque se niega mientras CUENTAS_LOGICAS_APTO_PRODUCCION no sea true. Las cuentas de billetera de sistema (custodia de inversion, ingresos, puente) NO son sinteticas: son las que el libro necesita, sin saldo inicial.",
@@ -95,6 +95,20 @@
           "saldo": 0
         },
         {
+          "codigo": "9.1.04",
+          "nombre": "Custodia del pozo desembolsada BOB (sintetica)",
+          "tipo": "ACTIVO",
+          "naturaleza": "DEUDORA",
+          "moneda": "BOB",
+          "cuenta_padre_id": {
+            "$ref": "cuenta_contable",
+            "codigo": "9.1"
+          },
+          "nivel": 3,
+          "es_cuenta_de_movimiento": true,
+          "saldo": 0
+        },
+        {
           "codigo": "9.2.01",
           "nombre": "Caja de la empresa USD (sintetica)",
           "tipo": "ACTIVO",
@@ -127,6 +141,20 @@
           "nombre": "Pozo del grupo USD (sintetica)",
           "tipo": "PASIVO",
           "naturaleza": "ACREEDORA",
+          "moneda": "USD",
+          "cuenta_padre_id": {
+            "$ref": "cuenta_contable",
+            "codigo": "9.2"
+          },
+          "nivel": 3,
+          "es_cuenta_de_movimiento": true,
+          "saldo": 0
+        },
+        {
+          "codigo": "9.2.04",
+          "nombre": "Custodia del pozo desembolsada USD (sintetica)",
+          "tipo": "ACTIVO",
+          "naturaleza": "DEUDORA",
           "moneda": "USD",
           "cuenta_padre_id": {
             "$ref": "cuenta_contable",

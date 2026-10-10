@@ -26,7 +26,7 @@ import { FormularioDeCaso } from './formulario-de-caso'
   imports: [BandaDeProposito, FormularioDeCaso],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
       <ap-formulario-de-caso
         [etapas]="progreso().etapas"
@@ -44,10 +44,10 @@ import { FormularioDeCaso } from './formulario-de-caso'
         (seEscribioNarrativa)="alEscribirNarrativa($event)"
         (seQuiereConfirmar)="confirmar()"
       />
-    </main>
+    </section>
   `,
   styles: `
-    main { padding: var(--s5); max-width: 40rem; display: flex; flex-direction: column; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 40rem; display: flex; flex-direction: column; gap: var(--s4); }
   `,
 })
 export class PantallaDeCaso implements OnInit {

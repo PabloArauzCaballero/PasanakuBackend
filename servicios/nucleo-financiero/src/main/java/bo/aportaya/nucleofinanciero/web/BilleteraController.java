@@ -6,6 +6,7 @@ import bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion;
 import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
 import bo.aportaya.nucleofinanciero.web.generado.BilleteraApi;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.CuentaDeLaSesion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaAcreditacionRescate;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaAprobacionRetiro;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaBloqueo;
@@ -97,6 +98,12 @@ public class BilleteraController implements BilleteraApi {
         this.movimientos = movimientos;
         this.saldos = saldos;
         this.sesion = sesion;
+    }
+
+    @Override
+    @Permiso("BILLETERA_VER")
+    public ResponseEntity<CuentaDeLaSesion> consultarCuentaPropia(String moneda) {
+        return fondeo.cuentaPropia(moneda, sesion.actual());
     }
 
     @Override
@@ -216,7 +223,6 @@ public class BilleteraController implements BilleteraApi {
     @Permiso("REVERSO_AUTORIZAR")
     public ResponseEntity<SalidaReverso> reversarTransaccion(UUID idempotencyKey, EntradaReverso cuerpo) {
         Traza.marcarCasoDeUso("CU-14", cuerpo.getTransaccionOriginalId().toString());
-
         var salida =
                 cu14.ejecutar(MapeoDeBilletera.entradaDeReverso(idempotencyKey.toString(), cuerpo), sesion.actual());
 
@@ -246,7 +252,6 @@ public class BilleteraController implements BilleteraApi {
     @Permiso("DATOS_SENSIBLES_LEER")
     public ResponseEntity<SalidaBloqueo> bloquearPorAutoridad(UUID idempotencyKey, EntradaBloqueo cuerpo) {
         Traza.marcarCasoDeUso("CU-17", cuerpo.getNumeroOficio());
-
         var salida = cu17.ejecutar(MapeoDeBilletera.entradaDeBloqueo(cuerpo), sesion.actual());
 
         var respuesta = new SalidaBloqueo();

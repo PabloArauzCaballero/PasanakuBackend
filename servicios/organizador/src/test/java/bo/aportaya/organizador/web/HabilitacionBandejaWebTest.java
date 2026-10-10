@@ -17,6 +17,7 @@ import bo.aportaya.organizador.aplicacion.CU91FirmarContrato;
 import bo.aportaya.organizador.aplicacion.CU92EvaluarDesempeno;
 import bo.aportaya.organizador.aplicacion.CU93SancionarOrganizador;
 import bo.aportaya.organizador.aplicacion.ConsultarHabilitacion;
+import bo.aportaya.organizador.aplicacion.ReclamosEnCurso;
 import bo.aportaya.organizador.dominio.DecisionDeHabilitacion;
 import bo.aportaya.organizador.dominio.ExpedienteDeHabilitacion;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -67,6 +68,9 @@ class HabilitacionBandejaWebTest {
 
     @MockitoBean
     private CU93SancionarOrganizador cu93;
+
+    @MockitoBean
+    private ReclamosEnCurso reclamosEnCurso;
 
     @MockitoBean
     private CU90ResolverHabilitacion resolverHabilitacion;

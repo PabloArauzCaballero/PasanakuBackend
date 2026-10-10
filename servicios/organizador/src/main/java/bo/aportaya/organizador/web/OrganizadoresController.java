@@ -7,6 +7,7 @@ import bo.aportaya.organizador.aplicacion.CU91FirmarContrato;
 import bo.aportaya.organizador.aplicacion.CU92EvaluarDesempeno;
 import bo.aportaya.organizador.aplicacion.CU93SancionarOrganizador;
 import bo.aportaya.organizador.aplicacion.ConsultarHabilitacion;
+import bo.aportaya.organizador.aplicacion.ReclamosEnCurso;
 import bo.aportaya.organizador.web.generado.modelo.EntradaApelacion;
 import bo.aportaya.organizador.web.generado.modelo.EntradaAprobacion;
 import bo.aportaya.organizador.web.generado.modelo.EntradaContrato;
@@ -63,6 +64,7 @@ public class OrganizadoresController extends RutasDeHabilitacion {
     private final CU91FirmarContrato cu91;
     private final CU92EvaluarDesempeno cu92;
     private final CU93SancionarOrganizador cu93;
+    private final ReclamosEnCurso reclamos;
     private final SesionDeLaPeticion sesion;
 
     public OrganizadoresController(
@@ -71,6 +73,7 @@ public class OrganizadoresController extends RutasDeHabilitacion {
             CU91FirmarContrato cu91,
             CU92EvaluarDesempeno cu92,
             CU93SancionarOrganizador cu93,
+            ReclamosEnCurso reclamos,
             CU90ResolverHabilitacion resolutor,
             CU90ConsultarBandeja bandeja,
             SesionDeLaPeticion sesion) {
@@ -80,6 +83,7 @@ public class OrganizadoresController extends RutasDeHabilitacion {
         this.cu91 = cu91;
         this.cu92 = cu92;
         this.cu93 = cu93;
+        this.reclamos = reclamos;
         this.sesion = sesion;
     }
 
@@ -232,7 +236,7 @@ public class OrganizadoresController extends RutasDeHabilitacion {
     @Permiso("ADMIN_PLATAFORMA")
     public ResponseEntity<SalidaSancion> sancionarOrganizador(UUID organizadorId, EntradaSancion cuerpo) {
         Traza.marcarCasoDeUso("CU-93", organizadorId.toString());
-
+        reclamos.exigirQueNoFrene(organizadorId, sesion.actual()); // H13.S1.M6: reclamo en curso != sancion firme
         var salida = cu93.sancionar(
                 new CU93SancionarOrganizador.EntradaSancion(
                         organizadorId,

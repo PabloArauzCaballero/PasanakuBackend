@@ -38,6 +38,8 @@ aportaya:
     identidad: ${URL_IDENTIDAD:http://identidad:8080}
     aportes: ${URL_APORTES:http://aportes:8080}        # afirma cuanto del pozo es caja confirmada
     garantia: ${URL_GARANTIA:http://garantia:8080}    # cubre el faltante con la reserva empresarial
+    grupos: ${URL_GRUPOS:http://grupos:8080}          # a que grupos pertenece quien compra un turno
+    nucleo-financiero: ${URL_NUCLEO_FINANCIERO:http://nucleo-financiero:8080}   # el libro: retener, pagar, liberar
   # Fuera de la base a proposito: filtrar la tabla de cuentas no alcanza si la
   # pimienta no esta ahi. Si falta la variable, el proceso NO levanta.
   seguridad:
@@ -53,6 +55,21 @@ aportaya:
     # SINTETICO (ambiguedad del carril C): plazo para resolver un faltante extraordinario de caja.
     # Lo fija operaciones; este valor solo permite arrancar y probar.
     sla: PT24H
+  entregas:
+    libro:
+      timeout: PT3S
+      # Identidad de SERVICIO con que se le paga al vendedor de un turno (nucleo-financiero acepta `pago-a-tercero`
+      # solo asi: una sesion de usuario final recibe 403). Dos formas, ambas secretas y por entorno, nunca en el repo:
+      #  - cuenta-servicio: cuenta de servicio en identidad con el rol SERVICIO_ENTREGAS; el servicio entra
+      #    (POST /sesiones) y renueva el token solo antes de que venza. Es la forma de operar.
+      #  - credencial-servicio: un token ya emitido (vive 15 minutos): solo una prueba manual.
+      # Sin ninguna, pagarAlVendedor falla cerrado y la compra queda detenida y reanudable. Config a medias = no arranca.
+      credencial-servicio: ${ENTREGAS_LIBRO_CREDENCIAL_SERVICIO:}
+      cuenta-servicio:
+        telefono: ${ENTREGAS_SERVICIO_TELEFONO:}
+        clave: ${ENTREGAS_SERVICIO_CLAVE:}
+        factor-totp-semilla: ${ENTREGAS_SERVICIO_TOTP_SEMILLA:}
+        factor-fijo: ${ENTREGAS_SERVICIO_FACTOR_FIJO:}   # SOLO TEST: el codigo fijo del perfil local de identidad
   mercado:
     # SINTETICOS (ambiguedades del carril C): los fija producto/operaciones, no son una decision tomada.
     vigencia-maxima: PT168H        # cuanto puede durar una oferta publicada

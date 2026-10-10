@@ -4,6 +4,7 @@ import bo.aportaya.inversiones.dominio.puertos.LibroDelTitular;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
 import bo.aportaya.plataforma.web.clientes.ClienteDeServicio;
+import bo.aportaya.plataforma.web.clientes.CredencialDeServicio;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;

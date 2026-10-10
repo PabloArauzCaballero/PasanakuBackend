@@ -39,6 +39,13 @@ export const rutasOperacion: Routes = [
     title: 'Solicitudes escaladas · AportaYa',
     canMatch: [requierePermiso('SOLICITUD_INGRESO_VER')],
   },
+  {
+    // CU-11 · segunda firma de un retiro. El contrato no publica un listado de órdenes en revisión: se abre por id.
+    path: 'retiros',
+    loadComponent: () => import('./retiros/pantalla-de-aprobacion-de-retiro').then((m) => m.PantallaDeAprobacionDeRetiro),
+    title: 'Aprobación de retiros · AportaYa',
+    canMatch: [requierePermiso('RETIRO_APROBAR')],
+  },
   // `estado/` es de F6 (ficha F6, estructura congelada): la ficha se lo asigna al shell
   // aunque viva dentro del dominio `operacion` que B1 posee. Es la única entrada de esta
   // lista que F6 agrega; el resto de `operacion.routes.ts` lo llena B1.

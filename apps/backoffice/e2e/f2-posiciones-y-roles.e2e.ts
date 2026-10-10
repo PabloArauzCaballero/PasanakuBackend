@@ -125,7 +125,9 @@ const SECCIONES = ['Operación', 'Cumplimiento', 'Admisiones', 'Sistemas', 'Cont
 const ROLES: { rol: string; ve: (typeof SECCIONES)[number][]; prohibida: string; billeteraDeTerceros: boolean }[] = [
   { rol: 'PARTICIPANTE', ve: [], prohibida: '/operacion/estado', billeteraDeTerceros: false },
   { rol: 'SOPORTE', ve: ['Operación'], prohibida: '/admisiones', billeteraDeTerceros: true },
-  { rol: 'ADMIN_PLATAFORMA', ve: ['Cumplimiento', 'Admisiones', 'Sistemas'], prohibida: '/operacion/estado', billeteraDeTerceros: false },
+  // F4: el catálogo sembrado le concede RECLAMO_VER y SOLICITUD_INGRESO_VER/RESOLVER, que piden operacion/reclamos y operacion/solicitudes-escaladas:
+  // por eso ve «Operación». Contabilidad sigue ajena (no tiene ningún CONTABILIDAD_ERP_*).
+  { rol: 'ADMIN_PLATAFORMA', ve: ['Operación', 'Cumplimiento', 'Admisiones', 'Sistemas'], prohibida: '/contabilidad', billeteraDeTerceros: false },
   { rol: 'CONTABILIDAD', ve: ['Operación', 'Contabilidad'], prohibida: '/cumplimiento', billeteraDeTerceros: true },
 ]
 

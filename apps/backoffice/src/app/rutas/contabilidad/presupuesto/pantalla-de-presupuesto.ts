@@ -36,7 +36,7 @@ const COLUMNAS: ColumnaVirtual<PartidaPresupuestaria>[] = [
   imports: [BandaDeProposito, BarraDeFiltros, ChipEstado, Monto, TablaDeDatosVirtualizada],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
       <p class="aviso">{{ t.noBloquea }}</p>
       <ap-barra-de-filtros etiqueta="Estado" [incluirBusqueda]="false" [definiciones]="filtros" />
@@ -71,10 +71,10 @@ const COLUMNAS: ColumnaVirtual<PartidaPresupuestaria>[] = [
           }
         </ng-template>
       </ap-tabla-de-datos-virtualizada>
-    </main>
+    </section>
   `,
   styles: `
-    main { padding: var(--s5); max-width: 72rem; display: grid; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 72rem; display: grid; gap: var(--s4); }
     h1 { margin: 0; }
     .aviso { color: var(--text-2); margin: 0; }
     .desviacion { display: inline-flex; align-items: center; gap: var(--s2); justify-content: flex-end; }

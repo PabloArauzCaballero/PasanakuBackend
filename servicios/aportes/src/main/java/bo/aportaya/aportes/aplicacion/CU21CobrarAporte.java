@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,21 +61,26 @@ public class CU21CobrarAporte {
         return datos.conContexto(ctx, dsl -> {
             // La clave se valida ANTES de escribir (invariante 7): el webhook del
             // proveedor llega dos veces mas seguido de lo que uno cree.
-            var yaPagado = pagos.porClaveIdempotencia(dsl, entrada.obligacionId(), entrada.claveIdempotencia());
-            if (yaPagado.isPresent()) {
-                var pago = pagos.ver(dsl, yaPagado.get()).orElseThrow();
-                var obligacion = obligaciones.ver(dsl, pago.obligacionId()).orElseThrow();
-                return new SalidaCobro(
-                        pago.id(),
-                        obligacion.id(),
-                        obligacion.estado(),
-                        obligacion.saldo().pendiente(),
-                        false);
+            var repetido = repeticion(dsl, entrada);
+            if (repetido.isPresent()) {
+                return repetido.get();
             }
 
             var obligacion = obligaciones
                     .bloquear(dsl, entrada.obligacionId())
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(21, 1), "Esa obligacion no existe."));
+
+            // Carril G (hallado con 8 envios simultaneos de la MISMA clave): el reintento que llega mientras el
+            // original todavia no
+            // confirmo pasa la comprobacion de arriba, espera el candado de la obligacion y, al obtenerlo, la ve PAGADA
+            // y recibia
+            // AP-CU21-01 en vez de la respuesta del original. Con el candado en la mano se vuelve a mirar: no hay doble
+            // cobro
+            // (ya no lo habia), pero ahora el reintento recibe lo mismo que el original.
+            var repetidoTrasElCandado = repeticion(dsl, entrada);
+            if (repetidoTrasElCandado.isPresent()) {
+                return repetidoTrasElCandado.get();
+            }
 
             // AP-CU21-01.
             if ("PAGADO".equals(obligacion.estado()) || "ANULADO".equals(obligacion.estado())) {
@@ -144,6 +150,21 @@ public class CU21CobrarAporte {
 
             return new SalidaCobro(pagoId, obligacion.id(), estadoNuevo, saldoDespues.pendiente(), true);
         });
+    }
+
+    /** El resultado del pago que ya uso esta clave sobre esta obligacion, si lo hay. */
+    private Optional<SalidaCobro> repeticion(DSLContext dsl, EntradaCobro entrada) {
+        return pagos.porClaveIdempotencia(dsl, entrada.obligacionId(), entrada.claveIdempotencia())
+                .map(pagoId -> {
+                    var pago = pagos.ver(dsl, pagoId).orElseThrow();
+                    var obligacion = obligaciones.ver(dsl, pago.obligacionId()).orElseThrow();
+                    return new SalidaCobro(
+                            pago.id(),
+                            obligacion.id(),
+                            obligacion.estado(),
+                            obligacion.saldo().pendiente(),
+                            false);
+                });
     }
 
     /**

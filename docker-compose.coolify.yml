@@ -160,12 +160,19 @@ services:
     environment:
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      ENTREGAS_LIBRO_CREDENCIAL_SERVICIO: 
+      ENTREGAS_SERVICIO_CLAVE: 
+      ENTREGAS_SERVICIO_FACTOR_FIJO: 
+      ENTREGAS_SERVICIO_TELEFONO: 
+      ENTREGAS_SERVICIO_TOTP_SEMILLA: 
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
       SEGURIDAD_PIMIENTA: ${SEGURIDAD_PIMIENTA}
       URL_APORTES: http://aportes:8080
       URL_GARANTIA: http://garantia:8080
+      URL_GRUPOS: http://grupos:8080
       URL_IDENTIDAD: http://identidad:8080
+      URL_NUCLEO_FINANCIERO: http://nucleo-financiero:8080
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
@@ -231,6 +238,7 @@ services:
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
       URL_APORTES: http://aportes:8080
+      URL_CUMPLIMIENTO: http://cumplimiento:8080
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
@@ -423,6 +431,8 @@ services:
       CUENTAS_LOGICAS_APTO_PRODUCCION: false
       CUENTA_LOGICA_CAJA_EMPRESA_BOB: ${CUENTA_LOGICA_CAJA_EMPRESA_BOB:-9.1.01}
       CUENTA_LOGICA_CAJA_EMPRESA_USD: ${CUENTA_LOGICA_CAJA_EMPRESA_USD:-9.2.01}
+      CUENTA_LOGICA_DESEMBOLSO_BOB: ${CUENTA_LOGICA_DESEMBOLSO_BOB:-9.1.04}
+      CUENTA_LOGICA_DESEMBOLSO_USD: ${CUENTA_LOGICA_DESEMBOLSO_USD:-9.2.04}
       CUENTA_LOGICA_POZO_GRUPO_BOB: ${CUENTA_LOGICA_POZO_GRUPO_BOB:-9.1.03}
       CUENTA_LOGICA_POZO_GRUPO_USD: ${CUENTA_LOGICA_POZO_GRUPO_USD:-9.2.03}
       CUENTA_LOGICA_RESERVA_RESPALDO_BOB: ${CUENTA_LOGICA_RESERVA_RESPALDO_BOB:-9.1.02}
@@ -467,6 +477,7 @@ services:
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
+      URL_CUMPLIMIENTO: http://cumplimiento:8080
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]

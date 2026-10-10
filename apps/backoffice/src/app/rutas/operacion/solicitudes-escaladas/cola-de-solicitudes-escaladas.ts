@@ -37,7 +37,7 @@ const COLUMNAS: ColumnaVirtual<SolicitudEscalada>[] = [
   imports: [Alerta, BandaDeProposito, RelojDePlazo, Boton, Dialogo, Campo, TablaDeDatosVirtualizada],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
       @if (sinEnviar()) { <ap-alerta tono="aviso">{{ t.sinEnviar }}</ap-alerta> }
       <ap-tabla-de-datos-virtualizada [titulo]="t.titulo" [columnas]="COLUMNAS" [cargador]="cargador" [ordenPermitido]="['fechaLimiteOrganizador', 'usuarioNombre']" [identidad]="identidad">
@@ -67,7 +67,7 @@ const COLUMNAS: ColumnaVirtual<SolicitudEscalada>[] = [
           }
         </ng-template>
       </ap-tabla-de-datos-virtualizada>
-    </main>
+    </section>
 
     @if (seleccionada(); as s) {
       <ap-dialogo
@@ -87,7 +87,7 @@ const COLUMNAS: ColumnaVirtual<SolicitudEscalada>[] = [
     }
   `,
   styles: `
-    main { padding: var(--s5); max-width: 68rem; display: grid; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 68rem; display: grid; gap: var(--s4); }
     h1 { margin: 0; }
     .factores { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s1); font-size: .9em; white-space: normal; }
     .factores .favor { color: var(--ok); }

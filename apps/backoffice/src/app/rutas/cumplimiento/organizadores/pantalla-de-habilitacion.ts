@@ -23,7 +23,7 @@ import type { ErrorTraducido } from '../../../nucleo/errores'
   imports: [ErrorDeEnvio, EstadoDePantalla, BandaDeProposito, ChipEstado, Boton, SeccionDeExpediente],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
       <ap-estado-de-pantalla [recurso]="habilitacion" [vacio]="vacio" [mensajeVacio]="t.noHabilitado" [etiquetaDeCarga]="t.cargando" (reintentar)="habilitacion.reload()">
         @if (habilitacion.hasValue() && habilitacion.value(); as h) {
@@ -37,10 +37,10 @@ import type { ErrorTraducido } from '../../../nucleo/errores'
           </ap-seccion-de-expediente>
         }
       </ap-estado-de-pantalla>
-    </main>
+    </section>
   `,
   styles: `
-    main { padding: var(--s5); max-width: 40rem; display: flex; flex-direction: column; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 40rem; display: flex; flex-direction: column; gap: var(--s4); }
     h1 { margin-bottom: var(--s2); }
   `,
 })

@@ -190,6 +190,18 @@ Entonces se materializa un grupo y se guarda grupo_materializado_id
 Dada una propuesta expirada
 Cuando un postulante intenta aceptarla
 Entonces se rechaza con PROPUESTA_EXPIRADA y vuelve a la bolsa
+
+Dada una solicitud de ingreso PENDIENTE con un cupo libre
+Cuando el organizador del grupo la acepta
+Entonces reserva el cupo, crea al participante pendiente de firma y deja el evento
+
+Dado un grupo con solicitudes en distintos estados y otras de otros grupos
+Cuando su organizador pide la cola
+Entonces solo ve las PENDIENTES de SU grupo
+
+Dado un grupo con reputacion minima y dos postulantes, uno con historial por debajo del minimo y otro nuevo
+Cuando postulan
+Entonces se excluye a quien TIENE historial y no llega, pero no a quien es nuevo (B24)
 ```
 
 ## Ver también

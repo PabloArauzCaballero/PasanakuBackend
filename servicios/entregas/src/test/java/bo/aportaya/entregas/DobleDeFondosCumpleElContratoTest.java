@@ -8,9 +8,10 @@ import java.util.UUID;
  * El doble de nucleo-financiero ({@link DoblesDelMercado.Fondos}) tiene que cumplir {@link ContratoDeFondosDelComprador}:
  * si el doble miente, todas las pruebas del mercado que lo usan estarian probando contra un invento.
  *
- * <p>QUEDA PENDIENTE contra el productor real: cuando nucleo-financiero publique {@code pagarAlVendedor}
- * (retencion de un tercero), se agrega una subclase que arma el adaptador HTTP contra un nucleo levantado y
- * pasa EXACTAMENTE estas mismas pruebas. Hasta entonces H9.S1.M5 esta cerrada contra doble, no contra nucleo.
+ * <p>El adaptador real ({@code FondosPorHttp}, carril G) no pasa ESTAS pruebas: su contrato HTTP es distinto del del
+ * doble (el libro deriva a quien pagar y cuanto desde la oferta, el cuerpo del pago va vacio), asi que tiene las
+ * suyas en {@code FondosPorHttpTest} y el recorrido contra nucleo-financiero y entregas REALES vive en
+ * {@code despliegue/ensayos/integracion}.
  */
 class DobleDeFondosCumpleElContratoTest extends ContratoDeFondosDelComprador {
 

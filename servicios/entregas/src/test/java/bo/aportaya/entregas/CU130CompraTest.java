@@ -164,6 +164,7 @@ class CU130CompraTest extends BaseDeCompraDeTurno {
         // El proceso retiene en nucleo y muere antes de anotar FONDOS_RETENIDOS.
         fondosDoble.retener(
                 c.comprador().usuarioId(),
+                oferta.ofertaId(),
                 bob("5500.00"),
                 "cesion:" + reserva.cesion().id() + ":retener");
         assertThat(estadoDeCesion(reserva.cesion().id())).isEqualTo("VALIDADA");

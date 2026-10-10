@@ -77,7 +77,8 @@ class CU68AceptarIngresoTest extends BaseDeCU68 {
     }
 
     @Test
-    @DisplayName("CU-68 · aceptar: reserva el cupo, crea al participante pendiente de firma y deja el evento")
+    @DisplayName(
+            "Dada una solicitud de ingreso PENDIENTE con un cupo libre · Cuando el organizador del grupo la acepta · Entonces reserva el cupo, crea al participante pendiente de firma y deja el evento")
     void aceptar() {
         UUID[] a = armar(true);
         var r = transaccion.execute(
@@ -113,7 +114,7 @@ class CU68AceptarIngresoTest extends BaseDeCU68 {
     }
 
     @Test
-    @DisplayName("CU-68 · repetir la MISMA decisión devuelve lo ya resuelto y no mueve nada")
+    @DisplayName("reintento: repetir la MISMA decisión devuelve lo ya resuelto y no mueve nada")
     void repetirEsInocuo() {
         UUID[] a = armar(true);
         var primera = transaccion.execute(
@@ -132,7 +133,7 @@ class CU68AceptarIngresoTest extends BaseDeCU68 {
     }
 
     @Test
-    @DisplayName("CU-68 · rechazar exige motivo, y rechazada no toma cupo")
+    @DisplayName("rechaza: rechazar exige motivo, y una solicitud rechazada no toma cupo")
     void rechazar() {
         UUID[] a = armar(true);
         assertThatThrownBy(() ->
@@ -151,7 +152,7 @@ class CU68AceptarIngresoTest extends BaseDeCU68 {
     }
 
     @Test
-    @DisplayName("CU-68 · sin cupos libres no se acepta, y la solicitud sigue PENDIENTE")
+    @DisplayName("rechaza: sin cupos libres no se acepta, y la solicitud sigue PENDIENTE")
     void sinCupos() {
         UUID[] a = armar(false);
         assertThatThrownBy(() -> transaccion.execute(
@@ -165,7 +166,7 @@ class CU68AceptarIngresoTest extends BaseDeCU68 {
     }
 
     @Test
-    @DisplayName("CU-68 · el organizador de OTRO grupo (o un participante) no decide: «esa solicitud no existe»")
+    @DisplayName("rechaza: el organizador de OTRO grupo (o un participante) no decide: «esa solicitud no existe»")
     void ajenoNoDecide() {
         UUID[] a = armar(true);
         UUID[] otro = armar(true);
@@ -183,7 +184,7 @@ class CU68AceptarIngresoTest extends BaseDeCU68 {
     }
 
     @Test
-    @DisplayName("CU-68 · decidir lo contrario de lo ya resuelto es un error, no un reintento")
+    @DisplayName("rechaza: decidir lo contrario de lo ya resuelto es un error, no un reintento")
     void contrarioNoEsReintento() {
         UUID[] a = armar(true);
         transaccion.execute(e -> decidirCU().decidir(a[3], true, null, new java.math.BigDecimal("700"), como(a[1])));
@@ -194,7 +195,8 @@ class CU68AceptarIngresoTest extends BaseDeCU68 {
     }
 
     @Test
-    @DisplayName("CU-68 · la cola del organizador lista solo las PENDIENTES de SU grupo")
+    @DisplayName(
+            "Dado un grupo con solicitudes en distintos estados y otras de otros grupos · Cuando su organizador pide la cola · Entonces solo ve las PENDIENTES de SU grupo")
     void cola() {
         UUID[] a = armar(true);
         var lista = transaccion.execute(e -> decidirCU().pendientes(a[0], como(a[1])));

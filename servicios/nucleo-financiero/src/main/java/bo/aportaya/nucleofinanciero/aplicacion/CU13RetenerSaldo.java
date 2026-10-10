@@ -40,8 +40,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class CU13RetenerSaldo {
 
     private static final String OPERACION = "RETENER_SALDO";
-    private static final com.fasterxml.jackson.databind.ObjectMapper JSON =
-            new com.fasterxml.jackson.databind.ObjectMapper();
 
     private final Datos datos;
     private final CuentaBilleteraRepositorio cuentas;
@@ -92,14 +90,10 @@ public class CU13RetenerSaldo {
                     entrada.expiraEn());
             var previa = idempotencia.buscar(dsl, ctx.usuarioId(), OPERACION, clave, huella);
             if (previa.isPresent()) {
-                UUID retencionId = retencionDe(previa.get());
-                var retencion = retenciones.ver(dsl, retencionId).orElseThrow();
-                var cuenta = cuentas.ver(dsl, retencion.cuentaId()).orElseThrow();
+                var guardado = CuerpoDeRetencion.leer(previa.get());
+                var cuenta = cuentas.ver(dsl, entrada.cuentaBilleteraId()).orElseThrow();
                 return new SalidaRetencion(
-                        retencionId,
-                        cuenta.disponible(),
-                        cuenta.retenido(),
-                        retencion.expiraEn().orElse(null));
+                        guardado.retencionId(), cuenta.disponible(), cuenta.retenido(), guardado.expiraEn());
             }
             var salida = retenerDentroDe(dsl, entrada, ctx);
             idempotencia.guardar(
@@ -109,19 +103,10 @@ public class CU13RetenerSaldo {
                     clave,
                     huella,
                     201,
-                    "{\"retencionId\":\"" + salida.retencionId() + "\"}",
+                    CuerpoDeRetencion.escribir(salida.retencionId(), salida.expiraEn()),
                     ahora);
             return salida;
         });
-    }
-
-    private static UUID retencionDe(String cuerpoGuardado) {
-        try {
-            return UUID.fromString(
-                    JSON.readTree(cuerpoGuardado).path("retencionId").asText());
-        } catch (java.io.IOException | IllegalArgumentException ilegible) {
-            throw new IllegalStateException("La respuesta guardada de la retencion no se puede leer", ilegible);
-        }
     }
 
     private void exigirTitular(DSLContext dsl, UUID cuentaId, ContextoSesion ctx) {
@@ -241,7 +226,8 @@ public class CU13RetenerSaldo {
             if (!VigenciaDeRetencion.estaAbierta(retencion.estado())) {
                 throw new ErrorDeNegocio(
                         CodigoError.de(13, 3),
-                        "Esa retencion ya esta " + retencion.estado() + ": no admite mas operaciones.");
+                        "Esa retencion ya esta " + retencion.estado() + ": no admite mas operaciones.",
+                        Map.of("estado", retencion.estado()));
             }
             // H4.S2.M3: ReconciliacionDeRetiros (nucleo-financiero) cierra retenciones
             // con un ContextoSesion.deSistema(...) cuyo usuarioId es un identificador

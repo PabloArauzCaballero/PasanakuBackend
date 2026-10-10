@@ -144,7 +144,7 @@ final class DoblesDelMercado {
         }
 
         @Override
-        public synchronized Referencia retener(UUID compradorUsuarioId, Dinero monto, String clave) {
+        public synchronized Referencia retener(UUID compradorUsuarioId, UUID ofertaId, Dinero monto, String clave) {
             var previa = porClave.get(clave);
             if (previa != null) {
                 return previa;

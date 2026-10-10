@@ -40,7 +40,7 @@ const TAMANO_DE_PAGINA = 50
   imports: [BandaDeProposito, Boton, Dialogo, Campo, CampoMonto, ChipEstado, Monto, TablaDeDatos, Paginacion],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <header>
         <h1>{{ t.titulo }}</h1>
         @if (puedeGestionar()) {
@@ -77,7 +77,7 @@ const TAMANO_DE_PAGINA = 50
         </ng-template>
       </ap-tabla-de-datos>
       <ap-paginacion [(pagina)]="pagina" [totalDeFilas]="total()" [porPagina]="tamanoDePagina" />
-    </main>
+    </section>
 
     <ap-dialogo [titulo]="t.nuevoAnunciante" [textoDeConfirmar]="t.guardar" [abierto]="dialogoAbierto()" (abiertoChange)="dialogoAbierto.set($event)" (confirmar)="guardar()" (cancelar)="cerrar()" [cargando]="guardando()">
       <div class="formulario">
@@ -87,7 +87,7 @@ const TAMANO_DE_PAGINA = 50
     </ap-dialogo>
   `,
   styles: `
-    main { padding: var(--s5); max-width: 68rem; display: grid; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 68rem; display: grid; gap: var(--s4); }
     header { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); }
     h1 { margin: 0; }
     .formulario { display: grid; gap: var(--s3); }

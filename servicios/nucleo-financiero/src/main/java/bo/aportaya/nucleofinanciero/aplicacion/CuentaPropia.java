@@ -40,4 +40,16 @@ public class CuentaPropia {
             return cuenta.moneda();
         });
     }
+
+    /**
+     * La billetera operativa de quien pregunta, en esa moneda. El usuario sale de la sesion y no de un parametro:
+     * es la forma de que otro servicio (entregas) sepa sobre que cuenta retener sin que le dicten el identificador
+     * de la cuenta de otra persona.
+     */
+    @Transactional(readOnly = true)
+    public UUID deLaSesion(bo.aportaya.plataforma.dominio.Moneda moneda, ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> cuentas.operativaDe(dsl, ctx.usuarioId(), moneda)
+                .orElseThrow(() -> new ErrorDeNegocio(
+                        CodigoError.de(13, 1), "No tenes una billetera activa en " + moneda.name() + ".")));
+    }
 }

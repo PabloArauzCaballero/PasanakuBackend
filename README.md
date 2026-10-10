@@ -152,6 +152,20 @@ python3 scripts/verificar_seguridad.py   # patrones prohibidos, secretos y rutas
 operaciones servidas, dieciseis declaradas como huecos de contrato entre carriles, y
 la lista de lo que la Fase 17 todavia debe.
 
+## Entrega simulada reproducible
+
+Para repetir el recorrido de punta a punta desde un clon limpio, con cuentas sintéticas y sin ningún
+proveedor real (regresión contractual y visual incluidas):
+
+```bash
+npx playwright install chromium             # una vez por máquina
+bash scripts/entrega_simulada.sh frontend   # instala, genera, tipos, lint, pruebas, axe y aceptación de dos usuarios
+bash scripts/entrega_simulada.sh backend    # arranque del stack por tandas y humo (Docker, 4 GB)
+```
+
+Deja un `RESUMEN.md` con cada paso y **los límites** de lo que se probó. Detalle, entorno soportado y qué
+datos usa: [`docs/operacion/entrega-simulada.md`](docs/operacion/entrega-simulada.md).
+
 ## De la bóveda al código
 
 La carpeta `docs/` no es solo documentación: es la **especificación ejecutable**

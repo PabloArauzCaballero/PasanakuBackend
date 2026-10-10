@@ -151,6 +151,10 @@ Dada una retención COMPRA_EN_MERCADO de Bs 500 para una oferta de Bs 480
 Cuando el servicio de entregas la paga
 Entonces el vendedor recibe Bs 480 y la plataforma Bs 20
 Y la retención queda EJECUTADA una sola vez
+
+Dado una persona con una billetera BOB activa
+Cuando pregunta por su billetera propia
+Entonces recibe la suya y no la de otra persona
 ```
 
 ## Ver también

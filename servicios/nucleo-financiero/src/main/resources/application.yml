@@ -83,6 +83,10 @@ aportaya:
       POZO_GRUPO:
         BOB: ${CUENTA_LOGICA_POZO_GRUPO_BOB:}
         USD: ${CUENTA_LOGICA_POZO_GRUPO_USD:}
+      # entregas.desembolso_acreditado: la contrapartida del pozo cuando el proveedor CONFIRMA que salio hacia el beneficiario.
+      DESEMBOLSO_CONFIRMADO:
+        BOB: ${CUENTA_LOGICA_DESEMBOLSO_BOB:}
+        USD: ${CUENTA_LOGICA_DESEMBOLSO_USD:}
 
 management:
   endpoint:

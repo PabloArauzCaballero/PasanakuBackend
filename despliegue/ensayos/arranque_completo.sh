@@ -86,6 +86,17 @@ if [ "$(docker inspect -f '{{.State.Health.Status}}' "$PROYECTO_INFRA-postgres-1
   log "ERROR: la infraestructura no levanto"; RC=20; exit $RC
 fi
 
+# Carril G: la lista de topicos sale del codigo (scripts/listar_topicos.py). El broker del ensayo, como el de TEST,
+# arranca con KAFKA_AUTO_CREATE_TOPICS_ENABLE=false: sin esto el relevo del outbox no puede publicar NINGUN evento.
+if [ -z "${D3_SIN_TOPICOS:-}" ]; then
+  log "kafka: creando los topicos aportaya.* (auto-create apagado, como TEST)"
+  bash "$RAIZ/despliegue/host/crear-topicos.sh" "$PROYECTO_INFRA-kafka-1" 2>&1 | tail -3
+fi
+
+# Las variables del entorno del ensayo (cuenta de servicio de entregas, etc.) pasan tal cual a `docker compose`: el compose
+# desplegado las declara sin valor (`ENTREGAS_SERVICIO_TELEFONO:`) y las toma del entorno del proceso.
+set -a; source "$ENVF"; set +a
+
 PSQL_ADMIN() { docker exec -i -e PGPASSWORD="$(grep ^BD_CLAVE_ADMIN= "$ENVF" | cut -d= -f2)" "$PROYECTO_INFRA-postgres-1" psql -v ON_ERROR_STOP=1 -q -U pasanaku -d pasanaku "$@"; }
 CLAVE_BD="$(grep ^BD_CLAVE= "$ENVF" | cut -d= -f2)"
 CONTEOS="select tablename||'='||(xpath('/row/c/text()', query_to_xml('select count(*) c from '||quote_ident(schemaname)||'.'||quote_ident(tablename), false, true, '')))[1]::text from pg_tables where schemaname not in ('pg_catalog','information_schema') order by 1"

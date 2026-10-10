@@ -83,7 +83,8 @@ public class ComprarOfertaDeTurno {
                 case "FALLIDA":
                     return new Resultado(cesionId, "FALLIDA", false);
                 case "VALIDADA": {
-                    var r = fondos.retener(c.compradorUsuarioId(), c.precio(), "cesion:" + cesionId + ":retener");
+                    var r = fondos.retener(
+                            c.compradorUsuarioId(), c.ofertaId(), c.precio(), "cesion:" + cesionId + ":retener");
                     if (r.resultado() == FondosDelComprador.Resultado.SALDO_INSUFICIENTE) {
                         pasos.fallar(cesionId, "El comprador no tiene saldo para el precio.", ctx);
                         throw new ErrorDeNegocio(CodigoError.de(130, 7), "No tenes saldo disponible para ese precio.");
