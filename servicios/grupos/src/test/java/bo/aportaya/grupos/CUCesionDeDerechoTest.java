@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
  * que {@code TransicionesDeCesion.liquidar} emite. El recorrido con Kafka y entregas reales vive en
  * {@code despliegue/ensayos/integracion}.
  */
-class CesionDeDerechoTest extends BaseDeCU64 {
+class CUCesionDeDerechoTest extends BaseDeCU64 {
 
     private static AplicarCesionDeDerecho aplicar;
 
