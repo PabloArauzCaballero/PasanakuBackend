@@ -107,6 +107,12 @@ DE_DESARROLLO = {
     "CUENTA_LOGICA_POZO_GRUPO_USD": "9.2.03",
     "CUENTA_LOGICA_DESEMBOLSO_BOB": "9.1.04",
     "CUENTA_LOGICA_DESEMBOLSO_USD": "9.2.04",
+    # aportes.aporte_cobrado (carril I): pasivo exigible del plan MINIMO (2.1.01 usuarios, 2.1.02 grupos), no del arbol 9
+    # sintetico. El plan no tiene cuentas en USD: vacio = un aporte en dolares se rechaza en vez de inventar una cuenta.
+    "CUENTA_LOGICA_SALDO_USUARIOS_BOB": "2.1.01",
+    "CUENTA_LOGICA_SALDO_GRUPOS_BOB": "2.1.02",
+    "CUENTA_LOGICA_SALDO_USUARIOS_USD": "",
+    "CUENTA_LOGICA_SALDO_GRUPOS_USD": "",
     # Correo del alta (identidad): en desarrollo el proveedor es el local —no envia nada— y las
     # credenciales de Gmail quedan vacias. Sin estas cinco claves el generador de desarrollo
     # se negaba a escribir el compose (las del desplegado ya estaban en DE_ENTORNO).
@@ -119,6 +125,12 @@ DE_DESARROLLO = {
     "ADMISION_HUMANA_OBLIGATORIA": "false",
     "SUSTITUCION_AUTOMATICA_ADMIN": "false",
     "SUSTITUCION_CONSUMO_HABILITADO": "false",
+    # grupos · consumo de entregas.derecho_cedido (el cupo cambia de titular al venderse un turno): ENCENDIDO. La venta ya
+    # movio el dinero en otro servicio; apagarlo la deja pagada sin reflejo en el grupo.
+    "CESION_CONSUMO_HABILITADO": "true",
+    # nucleo-financiero · consumo de aportes.aporte_cobrado (debita al participante, acredita al grupo, asienta en el mayor):
+    # ENCENDIDO. Sin el, el aporte queda PAGADO en `aportes` y no mueve billetera ni mayor.
+    "CONSUMO_DE_APORTES_HABILITADO": "true",
 }
 
 # ── El mismo cuadro, para un entorno DESPLEGADO (Coolify) ───────────────────
@@ -198,12 +210,19 @@ DE_ENTORNO = {
     "CUENTA_LOGICA_POZO_GRUPO_USD": "${CUENTA_LOGICA_POZO_GRUPO_USD:-9.2.03}",
     "CUENTA_LOGICA_DESEMBOLSO_BOB": "${CUENTA_LOGICA_DESEMBOLSO_BOB:-9.1.04}",
     "CUENTA_LOGICA_DESEMBOLSO_USD": "${CUENTA_LOGICA_DESEMBOLSO_USD:-9.2.04}",
+    "CUENTA_LOGICA_SALDO_USUARIOS_BOB": "${CUENTA_LOGICA_SALDO_USUARIOS_BOB:-2.1.01}",
+    "CUENTA_LOGICA_SALDO_GRUPOS_BOB": "${CUENTA_LOGICA_SALDO_GRUPOS_BOB:-2.1.02}",
+    "CUENTA_LOGICA_SALDO_USUARIOS_USD": "${CUENTA_LOGICA_SALDO_USUARIOS_USD:-}",
+    "CUENTA_LOGICA_SALDO_GRUPOS_USD": "${CUENTA_LOGICA_SALDO_GRUPOS_USD:-}",
     # grupos · interruptores de decision pendiente (negocio y cumplimiento). Opcionales (`:-`): un entorno que no los
     # carga NO deja de arrancar. TEST conserva su comportamiento (false); PRODUCCION debe fijar
     # ADMISION_HUMANA_OBLIGATORIA=true en Coolify (el valor por omision de la aplicacion, sin variable, es true).
     "ADMISION_HUMANA_OBLIGATORIA": "${ADMISION_HUMANA_OBLIGATORIA:-false}",
     "SUSTITUCION_AUTOMATICA_ADMIN": "${SUSTITUCION_AUTOMATICA_ADMIN:-false}",
     "SUSTITUCION_CONSUMO_HABILITADO": "${SUSTITUCION_CONSUMO_HABILITADO:-false}",
+    # Carril I · consumidores del circuito del dinero, ENCENDIDOS por omision (ver DE_DESARROLLO). Opcionales (`:-`).
+    "CESION_CONSUMO_HABILITADO": "${CESION_CONSUMO_HABILITADO:-true}",
+    "CONSUMO_DE_APORTES_HABILITADO": "${CONSUMO_DE_APORTES_HABILITADO:-true}",
 }
 
 

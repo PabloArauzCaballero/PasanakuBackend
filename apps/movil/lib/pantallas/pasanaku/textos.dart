@@ -20,7 +20,7 @@ class TextosPasanaku {
   static String fondoPorPeriodo(String importe) =>
       'Fondo por período: $importe';
   static const grupoCreado =
-      'Está congelando el precio; en un momento se abre para inscripciones.';
+      'Grupo creado. Está congelando el precio; en un momento se abre para inscripciones.';
   static const requisitosTitulo = 'Requisitos para organizar';
   static const requisitosAyuda =
       'Los umbrales los fija el contrato de habilitación de organizadores, no esta app.';

@@ -8,6 +8,7 @@ import bo.aportaya.plataforma.dominio.Moneda;
 import bo.aportaya.plataforma.web.idempotencia.IdempotenciaConflicto;
 import bo.aportaya.plataforma.web.idempotencia.IdempotenciaEnProceso;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
+import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.Publico;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -73,6 +74,14 @@ public class ControladorDeEnsayo {
     @GetMapping("/ensayo/solo-rol")
     @Permiso("ORGANIZADOR")
     public Map<String, String> soloRol() {
+        return Map.of("estado", "ok");
+    }
+
+    /** Dos poblaciones, dos codigos: el rol de grupo PARTICIPANTE y el permiso de operacion de backoffice. */
+    @GetMapping("/ensayo/dos-puertas")
+    @Permiso("PARTICIPANTE")
+    @PermisoAlternativo("SOLICITUD_INGRESO_VER")
+    public Map<String, String> dosPuertas() {
         return Map.of("estado", "ok");
     }
 

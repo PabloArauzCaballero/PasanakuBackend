@@ -44,6 +44,19 @@ class CU130CompraTest extends BaseDeCompraDeTurno {
                         "SELECT count(*)::int FROM entregas.evento_dominio WHERE tipo = 'entregas.derecho_cedido' AND agregado_id = ?",
                         r.cesionId()))
                 .isEqualTo(1);
+        // Contrato del productor (carril I): el evento nombra grupo, cupo y las dos partes para que `grupos` pueda
+        // cambiar al titular del cupo sin preguntarle a nadie mas. Los consumidores previos ignoran los campos nuevos.
+        var carga = dsl.fetchOne(
+                "SELECT payload->>'grupoId', payload->>'cupoId', payload->>'participanteOrigenId',"
+                        + " payload->>'participanteDestinoId', payload->>'turnoId', payload->>'moneda'"
+                        + " FROM entregas.evento_dominio WHERE tipo = 'entregas.derecho_cedido' AND agregado_id = ?",
+                r.cesionId());
+        assertThat(carga.get(0)).isEqualTo(c.e().grupoId().toString());
+        assertThat(carga.get(1)).isEqualTo(c.e().cupoId().toString());
+        assertThat(carga.get(2)).isEqualTo(c.e().participanteId().toString());
+        assertThat(carga.get(3)).isEqualTo(c.comprador().participanteId().toString());
+        assertThat(carga.get(4)).isEqualTo(c.e().turnoId().toString());
+        assertThat(carga.get(5)).isEqualTo("BOB");
     }
 
     @Test

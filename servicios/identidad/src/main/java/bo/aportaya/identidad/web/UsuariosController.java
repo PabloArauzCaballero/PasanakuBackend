@@ -28,6 +28,7 @@ import bo.aportaya.identidad.web.generado.modelo.VerificacionCorreoSolicitada;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
+import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.Publico;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
@@ -168,8 +169,20 @@ public class UsuariosController extends InvitacionesController {
         return ResponseEntity.ok(new SalidaValidacionInvitacion().valido(valido));
     }
 
+    /**
+     * Si el nombre y el documento declarados son los del titular: SOLO contesta si o no, jamas el dato.
+     *
+     * <p>Dos puertas. {@code DATOS_SENSIBLES_LEER} es de quien lee documentos de clientes (backoffice) y NO de un
+     * participante. La otra es la credencial de SERVICIO de {@code entregas} ({@code SERVICIO_ENTREGAS}): es el mecanismo
+     * con que entregas comprueba que una cuenta bancaria es de quien la registra (CU-18, R-SEG-02). Antes entregas
+     * propagaba el token del PARTICIPANTE, que no tiene el permiso, y el 403 se leia como «no coincide»: ningun
+     * participante podia registrar su cuenta. El rol es la puerta mas estrecha posible: solo esta ruta lo nombra, y la
+     * respuesta es un booleano (carril I). QUE rol de operacion deberia poder verificar es una decision del modelo de
+     * roles que corresponde a Seguridad; aca solo se cierra el mecanismo.
+     */
     @Override
     @Permiso("DATOS_SENSIBLES_LEER")
+    @PermisoAlternativo("SERVICIO_ENTREGAS")
     public ResponseEntity<SalidaTitularidad> verificarTitularidad(UUID usuarioId, EntradaTitularidad cuerpo) {
         Traza.marcarCasoDeUso("CU-01", usuarioId.toString());
 

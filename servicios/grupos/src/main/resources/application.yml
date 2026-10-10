@@ -73,6 +73,11 @@ aportaya:
       # Enciende el consumidor de Kafka de organizador.habilitacion_revocada (apagado hasta que operaciones confirme la
       # configuracion del consumidor). Independiente de `automatica`.
       consumo-habilitado: ${SUSTITUCION_CONSUMO_HABILITADO:false}
+    cesion:
+      # entregas.derecho_cedido: al venderse un turno el cupo cambia de titular. ENCENDIDO por omision: la venta ya movio
+      # el dinero en otro servicio, y apagar esto la deja pagada sin reflejo en el grupo (carril I). Se apaga solo por decision
+      # de operaciones.
+      consumo-habilitado: ${CESION_CONSUMO_HABILITADO:true}
 
 management:
   endpoint:

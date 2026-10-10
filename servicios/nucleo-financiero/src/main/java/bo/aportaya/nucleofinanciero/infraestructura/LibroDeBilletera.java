@@ -59,23 +59,36 @@ public class LibroDeBilletera {
         // El libro lo escribe el sistema, nunca el titular: las politicas de fila reservan
         // `movimiento_billetera` y los saldos al sistema. El permiso para llegar hasta aca ya
         // lo valido cada caso de uso; el rol de sistema dura solo lo que dura este bloque.
-        return Datos.comoSistema(
+        return registrarVinculada(
                 dsl,
-                () -> escribir(
-                        dsl,
-                        tipo,
-                        origenTipo,
-                        origenId,
-                        canal,
-                        montoTotal,
-                        claveIdempotencia,
-                        iniciadaPor,
-                        patas,
-                        ahora));
+                UUID.randomUUID(),
+                tipo,
+                origenTipo,
+                origenId,
+                canal,
+                montoTotal,
+                claveIdempotencia,
+                iniciadaPor,
+                patas,
+                Vinculos.ninguno(),
+                ahora);
     }
 
-    private UUID escribir(
+    /** A que grupo pertenece la transaccion y con que asiento del mayor quedo asentada (ambos opcionales). */
+    public record Vinculos(Optional<UUID> grupoId, Optional<UUID> asientoId) {
+        public static Vinculos ninguno() {
+            return new Vinculos(Optional.empty(), Optional.empty());
+        }
+    }
+
+    /**
+     * Igual que {@link #registrar}, pero con el identificador de la transaccion ya decidido y sus vinculos al grupo y al
+     * asiento del mayor. Existe porque el libro es append-only: el asiento ({@code origen_id} = esta transaccion) se
+     * escribe PRIMERO y la transaccion nace ya apuntandolo; enlazarlos despues exigiria un UPDATE sobre el libro.
+     */
+    public UUID registrarVinculada(
             DSLContext dsl,
+            UUID id,
             String tipo,
             String origenTipo,
             UUID origenId,
@@ -84,9 +97,39 @@ public class LibroDeBilletera {
             String claveIdempotencia,
             Optional<UUID> iniciadaPor,
             List<Pata> patas,
+            Vinculos vinculos,
+            OffsetDateTime ahora) {
+        return Datos.comoSistema(
+                dsl,
+                () -> escribir(
+                        dsl,
+                        id,
+                        tipo,
+                        origenTipo,
+                        origenId,
+                        canal,
+                        montoTotal,
+                        claveIdempotencia,
+                        iniciadaPor,
+                        patas,
+                        vinculos,
+                        ahora));
+    }
+
+    private UUID escribir(
+            DSLContext dsl,
+            UUID id,
+            String tipo,
+            String origenTipo,
+            UUID origenId,
+            String canal,
+            Dinero montoTotal,
+            String claveIdempotencia,
+            Optional<UUID> iniciadaPor,
+            List<Pata> patas,
+            Vinculos vinculos,
             OffsetDateTime ahora) {
 
-        UUID id = UUID.randomUUID();
         String hashAnterior = ultimoHash(dsl);
         dsl.insertInto(DSL.table(DSL.name("nucleo_financiero", "transaccion_billetera")))
                 .set(DSL.field("id", UUID.class), id)
@@ -94,6 +137,8 @@ public class LibroDeBilletera {
                 .set(DSL.field("estado", String.class), "APLICADA")
                 .set(DSL.field("moneda", String.class), montoTotal.moneda().name())
                 .set(DSL.field("monto_total", BigDecimal.class), montoTotal.monto())
+                .set(DSL.field("grupo_id", UUID.class), vinculos.grupoId().orElse(null))
+                .set(DSL.field("asiento_contable_id", UUID.class), vinculos.asientoId().orElse(null))
                 .set(DSL.field("origen_tipo", String.class), origenTipo)
                 .set(DSL.field("origen_id", UUID.class), origenId)
                 .set(DSL.field("canal", String.class), canal)

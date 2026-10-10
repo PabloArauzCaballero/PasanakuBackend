@@ -188,8 +188,15 @@ public class TransicionesDeCesion {
                             "entregas.derecho_cedido",
                             "cesion_derecho",
                             cesionId,
+                            // Carril I: `grupos` ya sabia que turno se cedio pero no a QUIEN ni de que grupo/cupo; sin eso
+                            // el cupo seguia de P2 tras la venta. Se SUMAN campos (compatible): quien consumia antes los
+                            // ignora. Solo identificadores, nunca datos de personas.
                             Map.of(
                                     "turnoId", c.turnoId().toString(),
+                                    "grupoId", o.grupoId().toString(),
+                                    "cupoId", o.cupoId().toString(),
+                                    "participanteOrigenId", c.origenId().toString(),
+                                    "participanteDestinoId", c.destinoId().toString(),
                                     "precio", c.precio().toString(),
                                     "moneda", c.precio().moneda().name(),
                                     "liquidacionRef", liquidacionRef.toString()),

@@ -68,6 +68,11 @@ aportaya:
       # D5: registrar en el mayor los asientos que garantia propone en sus eventos. Se enciende por entorno;
       # sin mapeo de cuentas logicas cada evento se rechaza (no se inventa un plan de cuentas).
       habilitado: ${CONSUMO_DE_ASIENTOS_HABILITADO:false}
+    consumo-de-aportes:
+      # Carril I: aportes.aporte_cobrado mueve el dinero (debita al participante, acredita al grupo, asienta en el mayor).
+      # ENCENDIDO por omision: es el camino normal del aporte, no una funcion opcional (sin el, el aporte queda PAGADO en
+      # `aportes` y no se refleja en la billetera ni en el mayor). Independiente de `consumo-de-asientos` (que espera el mapeo A5).
+      habilitado: ${CONSUMO_DE_APORTES_HABILITADO:true}
     # Cuenta logica -> codigo del plan, por moneda (ambiguedad A5, decision de contabilidad). Vacio = sin mapeo.
     # El entorno TEST trae un mapeo SINTETICO (arbol 9 de seeders/minimos/22-cuentas-de-sistema.json) con
     # apto-produccion=false: con el perfil `production` y el consumo encendido, el arranque se NIEGA salvo que
@@ -87,6 +92,15 @@ aportaya:
       DESEMBOLSO_CONFIRMADO:
         BOB: ${CUENTA_LOGICA_DESEMBOLSO_BOB:}
         USD: ${CUENTA_LOGICA_DESEMBOLSO_USD:}
+      # aportes.aporte_cobrado: el saldo de los usuarios y el de los grupos son pasivo exigible, 2.1.01 y 2.1.02 del plan MINIMO
+      # (seeders/minimos/01-plan-de-cuentas.json, no del arbol sintetico 9). El plan solo tiene cuentas en BOB: en USD no hay
+      # mapeo y un aporte en dolares se rechaza (AP-CU24-02) en vez de inventar una cuenta. Contabilidad confirma estos codigos.
+      SALDO_USUARIOS:
+        BOB: ${CUENTA_LOGICA_SALDO_USUARIOS_BOB:2.1.01}
+        USD: ${CUENTA_LOGICA_SALDO_USUARIOS_USD:}
+      SALDO_GRUPOS:
+        BOB: ${CUENTA_LOGICA_SALDO_GRUPOS_BOB:2.1.02}
+        USD: ${CUENTA_LOGICA_SALDO_GRUPOS_USD:}
 
 management:
   endpoint:

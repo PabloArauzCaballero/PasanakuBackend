@@ -40,7 +40,10 @@ public class VerificarTitularidad {
         // cotejo de titularidad compara numeros, no extensiones.
         String hashDeclarado = DocumentoDeIdentidad.hashDeNumero(documentoDeclarado, pimienta);
 
-        return datos.conContexto(ctx, dsl -> {
+        return datos.conContexto(ctx, dsl -> Datos.comoSistema(dsl, () -> {
+            // Rol de sistema SOLO para esta lectura y acotada a un booleano: la politica de fila deja ver `usuario` y
+            // `documento_identidad` al titular y a los roles de cumplimiento, no a una credencial de servicio, y quien
+            // pregunta (entregas) pregunta por OTRA persona. Quien puede llegar hasta aca lo decide la guardia de la ruta.
             var fila = dsl.select(
                             DSL.field("u.nombres", String.class),
                             DSL.field("u.apellidos", String.class),
@@ -62,7 +65,7 @@ public class VerificarTitularidad {
             }
             String delTitular = fila.get("u.nombres", String.class) + " " + fila.get("u.apellidos", String.class);
             return normalizar(delTitular).equals(normalizar(nombreDeclarado));
-        });
+        }));
     }
 
     /** Sin tildes, sin dobles espacios y en minusculas: «José Pérez» es «Jose Perez». */

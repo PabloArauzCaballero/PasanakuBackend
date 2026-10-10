@@ -84,7 +84,7 @@ es del arnés de prueba, no de la app (sin dump previo la captura sale limpia).
 
 ## Comandos y resultados
 
-* `flutter analyze` → `19-analyze-final3.log` / `22-analyze-final4.log`: 1 issue (info preexistente).
-* `flutter test` → `18-flutter-test-final3.log` y `21-flutter-test-final4.log`: ver líneas finales; **todos pasan salvo los 9 goldens**.
-* `flutter build apk --debug` → `20-build-apk-final3.log`, `23-build-apk-final4.log`: OK.
+* `flutter analyze` → `19-analyze-final3.log`: 1 issue (info preexistente).
+* `flutter test` → `18-flutter-test-final3.log` (277 pasan, 9 fallan = goldens): ver líneas finales; **todos pasan salvo los 9 goldens**.
+* `flutter build apk --debug` → `20-build-apk-final3.log`: OK (es el APK entregado; un 4.º intento de rebuild por un retoque de texto venció por RAM y se revirtió el retoque).
 * Apagado: emuladores (`adb emu kill`), daemon Gradle (`gradlew --stop`), Prism y doble (procesos node) al terminar.

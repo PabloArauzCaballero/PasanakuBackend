@@ -141,6 +141,44 @@ class CU68AdmisionTest extends BaseDeCU68 {
     }
 
     @Test
+    @DisplayName("el historial del expediente lo lee ADMIN_PLATAFORMA (backoffice) y el administrador de ESE grupo")
+    void historialLoLeenBackofficeYElAdministradorDelGrupo() {
+        transaccion.execute(tx -> admision.proponer(propuesta("ACEPTAR", 0), administrador));
+
+        var adminPlataforma = sesion(fixtura.usuario(), "ADMIN_PLATAFORMA");
+        assertThat(transaccion.execute(tx -> admision.historial(solicitud, adminPlataforma)))
+                .hasSize(1);
+        assertThat(transaccion.execute(tx -> admision.historial(solicitud, administrador)))
+                .hasSize(1);
+    }
+
+    @Test
+    @DisplayName(
+            "rechaza el historial del expediente a terceros: soporte, participante comun, administrador de otro grupo y rol sin relacion")
+    void rechazaElHistorialATerceros() {
+        transaccion.execute(tx -> admision.proponer(propuesta("ACEPTAR", 0), administrador));
+
+        // Soporte trae SOLICITUD_INGRESO_VER sembrado: la guardia lo deja llegar, el caso de uso NO lo admite (no es backoffice
+        // de resolucion ni administra el grupo).
+        var soporte = sesion(fixtura.usuario(), "SOPORTE");
+        // Un participante comun, sin es_organizador, ni siquiera del grupo.
+        var participanteAjeno = sesion(fixtura.usuario(), "PARTICIPANTE");
+        // Administrador (es_organizador) pero de OTRO grupo.
+        UUID otroGrupo = grupoConCupoLibre();
+        var otro = dslFixtura.fetchOne(
+                "SELECT id, usuario_id FROM grupos.participante WHERE grupo_id=? ORDER BY id LIMIT 1", otroGrupo);
+        dslFixtura.execute("UPDATE grupos.participante SET es_organizador=true WHERE id=?", otro.get("id", UUID.class));
+        var administradorAjeno = sesion(otro.get("usuario_id", UUID.class), "ORGANIZADOR");
+        var tesoreria = sesion(fixtura.usuario(), "TESORERIA");
+
+        for (var tercero : java.util.List.of(soporte, participanteAjeno, administradorAjeno, tesoreria)) {
+            assertThatThrownBy(() -> transaccion.execute(tx -> admision.historial(solicitud, tercero)))
+                    .as("rol %s", tercero.rol())
+                    .isInstanceOf(ErrorDeNegocio.class);
+        }
+    }
+
+    @Test
     void propuestaObsoletaNoPuedeSerResuelta() {
         var vieja = transaccion.execute(tx -> admision.proponer(propuesta("ACEPTAR", 0), administrador));
         transaccion.execute(tx -> admision.proponer(propuesta("RECHAZAR", 1), administrador));
