@@ -1,6 +1,15 @@
 # Carril I (quinta vuelta) — informe honesto
 
-Peldaño por área: **WRITTEN + RUNS por javac + prueba en seco contra el esquema real**. NO `TESTED` por Gradle, NO `VERIFIED` en el stack.
+**ACTUALIZACION (stack de G bajado, Gradle corrido por heavy.sh):** comun-web 67, grupos 362, nucleo-financiero 549, identidad 227, entregas 212 tests
+(test+webTest+integrationTest+testBarrido, conteos desde XML en `conteos-*.txt`, logs `gradle-*.log`): 0 fallos. aportes: 172/173 con 1 fallo de
+`BarridoTest` (CU21Test llegaba a 300 lineas; ya acortado) y a la espera de re-correr. Causas raiz corregidas en esta etapa: (1) los tests de BD
+deben llamarse `CU*Test` (el corredor `integrationTest` los rutea por nombre; con otro nombre caen en `test` con timeout de 5 s) → renombrados
+`CUCesionDeDerechoTest`, `CUVerificarTitularidadTest`, `CUConsumoDeAportes*Test`; (2) `FixturaDeBilletera.limpiarBilleteras` no puede borrar grupos con billetera GRUPO
+(sus transacciones/asientos append-only los referencian) y eso rompia 20 tests ajenos (Libro*, SegundoFactor*, Reconciliacion*): ahora los salta;
+(3) `CU24SemillasTest` cuenta solo el mapeo SINTETICO 9.x; (4) BarridoTest 300 lineas: `CUConsumoDeAportesConcurrenciaTest` separado; (5) USD sin plan: el consumidor valida el plan antes que las billeteras (AP-CU24-02), los tests de billetera faltante usan un plan con USD.
+Stack/recorridos reales: ver al final (pendiente si no figura el resultado).
+
+Peldaño original por área (antes de esa etapa): WRITTEN + RUNS por javac + prueba en seco contra el esquema real.
 Causa: el guardián (`heavy.sh`, ≥3500 MB libres) no dejó correr NADA pesado: con el stack `aportaya-d3-*` de G arriba hubo 1,9–3,2 GB libres
 durante toda la sesión; se encoló el trabajo (≈2 h de espera) y se canceló. Detener contenedores del stack fue denegado por el clasificador
 de permisos (con razón: es carga de otros carriles). Hasta que alguien baje el stack, el resto es de quien tenga permiso para hacerlo.

@@ -4,7 +4,7 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'textos.dart';
+import 'textos_invitacion.dart';
 
 /// Las dos puertas de entrada al organizador desde la pestaña «Grupos».
 ///
@@ -27,7 +27,7 @@ class AccionesDeGrupo extends StatelessWidget {
       children: [
         if (id != null && id.isNotEmpty) ...[
           Boton(
-            texto: TextosPasanaku.accionInvitar,
+            texto: TextosInvitacion.accionInvitar,
             variante: BotonVariante.primario,
             expandido: true,
             onPressed: () => context.push('/pasanaku/grupos/$id/invitar'),
@@ -35,7 +35,7 @@ class AccionesDeGrupo extends StatelessWidget {
           const SizedBox(height: Espacio.s2),
         ],
         Boton(
-          texto: TextosPasanaku.accionCrearGrupo,
+          texto: TextosInvitacion.accionCrearGrupo,
           variante: BotonVariante.fantasma,
           expandido: true,
           onPressed: () => context.push('/pasanaku/grupos/nuevo'),

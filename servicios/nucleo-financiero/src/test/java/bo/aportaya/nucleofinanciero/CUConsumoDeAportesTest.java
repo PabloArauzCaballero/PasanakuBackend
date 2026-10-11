@@ -19,10 +19,10 @@ import org.junit.jupiter.api.Test;
  * <p>El productor (aportes) es un doble de CONTRATO: el evento se arma con los campos exactos que
  * {@code CU21CobrarAporte} emite. Cubre el camino correcto, el cuadre desde el libro y desde el mayor, el evento duplicado, el
  * fuera de orden y la reversa. Los rechazos (moneda, cuentas, saldo, canal, atomicidad, concurrencia) estan en
- * {@link ConsumoDeAportesRechazosTest}. El recorrido con aportes, Kafka y el libro reales vive en
+ * {@link CUConsumoDeAportesRechazosTest}. El recorrido con aportes, Kafka y el libro reales vive en
  * {@code despliegue/ensayos/integracion}.
  */
-class ConsumoDeAportesTest extends BaseDeAportes {
+class CUConsumoDeAportesTest extends BaseDeAportes {
 
     @Test
     @DisplayName("Dado un participante con Bs 1.000 y un aporte cobrado de Bs 500 · Cuando nucleo consume el evento ·"

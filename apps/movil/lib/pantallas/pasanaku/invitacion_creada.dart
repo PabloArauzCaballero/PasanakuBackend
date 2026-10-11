@@ -8,7 +8,7 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'textos.dart';
+import 'textos_invitacion.dart';
 
 /// El resultado de CU-69: la invitación quedó creada y esta pantalla entrega el enlace.
 ///
@@ -40,7 +40,7 @@ class _InvitacionCreadaState extends State<InvitacionCreada> {
     await Clipboard.setData(ClipboardData(text: enlace));
     if (!mounted) return;
     setState(() => _copiado = true);
-    mostrarSnackbar(context, TextosPasanaku.enlaceCopiado);
+    mostrarSnackbar(context, TextosInvitacion.enlaceCopiado);
   }
 
   @override
@@ -68,7 +68,7 @@ class _InvitacionCreadaState extends State<InvitacionCreada> {
                   const SizedBox(width: Espacio.s3),
                   Expanded(
                     child: Text(
-                      TextosPasanaku.invitacionCreadaTitulo,
+                      TextosInvitacion.invitacionCreadaTitulo,
                       style: Tipo.titulo3.copyWith(color: t.text),
                     ),
                   ),
@@ -76,13 +76,13 @@ class _InvitacionCreadaState extends State<InvitacionCreada> {
               ),
               const SizedBox(height: Espacio.s3),
               Text(
-                TextosPasanaku.invitacionCreadaPara(widget.telefono),
+                TextosInvitacion.invitacionCreadaPara(widget.telefono),
                 style: Tipo.cuerpo.copyWith(color: t.text2),
               ),
               if (vence != null) ...[
                 const SizedBox(height: Espacio.s1),
                 Text(
-                  TextosPasanaku.invitacionVence(
+                  TextosInvitacion.invitacionVence(
                     Fecha.formatear(vence.toUtc().toIso8601String()),
                   ),
                   style: Tipo.cuerpoChico.copyWith(color: t.text3),
@@ -94,7 +94,7 @@ class _InvitacionCreadaState extends State<InvitacionCreada> {
         if (enlace != null) ...[
           const SizedBox(height: Espacio.s4),
           Text(
-            TextosPasanaku.enlaceDeInvitacion,
+            TextosInvitacion.enlaceDeInvitacion,
             style: Tipo.etiqueta.copyWith(color: t.text2),
           ),
           const SizedBox(height: Espacio.s2),
@@ -108,17 +108,14 @@ class _InvitacionCreadaState extends State<InvitacionCreada> {
             child: SelectableText(
               enlace,
               maxLines: 3,
-              style: Tipo.cuerpoChico.copyWith(
-                color: t.text,
-                fontFamily: 'monospace',
-              ),
+              style: Tipo.cuerpoChico.copyWith(color: t.text),
             ),
           ),
           const SizedBox(height: Espacio.s4),
           Boton(
             texto: _copiado
-                ? TextosPasanaku.copiado
-                : TextosPasanaku.copiarEnlace,
+                ? TextosInvitacion.copiado
+                : TextosInvitacion.copiarEnlace,
             icono: _copiado ? Icons.check_rounded : Icons.copy_rounded,
             variante: BotonVariante.primario,
             expandido: true,
@@ -127,7 +124,7 @@ class _InvitacionCreadaState extends State<InvitacionCreada> {
         ],
         const SizedBox(height: Espacio.s2),
         Boton(
-          texto: TextosPasanaku.invitarAOtra,
+          texto: TextosInvitacion.invitarAOtra,
           variante: BotonVariante.fantasma,
           expandido: true,
           onPressed: widget.alInvitarOtra,

@@ -235,7 +235,15 @@ final class FixturaDeBilletera {
         dsl.execute("DELETE FROM grupos.periodo");
         dsl.execute("DELETE FROM grupos.cupo");
         dsl.execute("DELETE FROM grupos.participante");
-        dsl.execute("DELETE FROM grupos.grupo");
+        // Un grupo con billetera GRUPO (ConsumoDeAportes) tiene transacciones y asientos append-only que lo
+        // referencian: no se borra
+        // (borrarlo dispararia un UPDATE sobre el libro y R-AUD-01 lo rechaza); sus filas no afectan a las demas
+        // pruebas.
+        dsl.execute(
+                """
+                DELETE FROM grupos.grupo g
+                 WHERE NOT EXISTS (SELECT 1 FROM nucleo_financiero.cuenta_billetera c WHERE c.grupo_id = g.id)
+                """);
         dsl.execute("DELETE FROM nucleo_financiero.orden_retiro");
         dsl.execute("DELETE FROM nucleo_financiero.instrumento_fondeo");
         dsl.execute("DELETE FROM nucleo_financiero.conciliacion_custodia");

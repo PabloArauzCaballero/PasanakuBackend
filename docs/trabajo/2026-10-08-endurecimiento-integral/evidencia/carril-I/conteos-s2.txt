@@ -1,0 +1,1 @@
+servicios/nucleo-financiero: tests=549 fallos=0 errores=0 omitidos=0 por tarea={'contractTest': 9, 'integrationTest': 423, 'test': 71, 'testBarrido': 2, 'webTest': 44}

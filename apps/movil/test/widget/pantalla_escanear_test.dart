@@ -3,7 +3,7 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_movil/dominio/puertos/ajustes_del_sistema.dart';
 import 'package:aportaya_movil/dominio/puertos/visor_qr.dart';
 import 'package:aportaya_movil/pantallas/pasanaku/pantalla_escanear.dart';
-import 'package:aportaya_movil/pantallas/pasanaku/textos.dart';
+import 'package:aportaya_movil/pantallas/pasanaku/textos_invitacion.dart';
 import 'package:aportaya_movil/proveedores/ajustes_del_sistema.dart';
 import 'package:aportaya_movil/proveedores/visor_qr.dart';
 import 'package:flutter/material.dart';
@@ -106,7 +106,7 @@ void main() {
     await tester.pump();
     b.leer('000201010212-un-qr-de-cobro');
     await tester.pump();
-    expect(find.text(TextosPasanaku.escanearRechazo), findsOneWidget);
+    expect(find.text(TextosInvitacion.escanearRechazo), findsOneWidget);
     expect(find.text('visor'), findsOneWidget);
     await tester.pump(const Duration(seconds: 3));
   });
@@ -117,9 +117,9 @@ void main() {
       final b = _Banco(problema: ProblemaDeCamara.denegado);
       await tester.pumpWidget(b.montar());
       await tester.pump();
-      expect(find.text(TextosPasanaku.camaraDenegadaTitulo), findsOneWidget);
-      expect(find.text(TextosPasanaku.camaraDenegadaDetalle), findsOneWidget);
-      expect(find.text(TextosPasanaku.usarEnlace), findsOneWidget);
+      expect(find.text(TextosInvitacion.camaraDenegadaTitulo), findsOneWidget);
+      expect(find.text(TextosInvitacion.camaraDenegadaDetalle), findsOneWidget);
+      expect(find.text(TextosInvitacion.usarEnlace), findsOneWidget);
     },
   );
 
@@ -130,7 +130,7 @@ void main() {
     await tester.pumpWidget(b.montar());
     await tester.pump();
     await tester.enterText(find.byType(TextField), _invitacion);
-    await tester.tap(find.text(TextosPasanaku.usarEnlace));
+    await tester.tap(find.text(TextosInvitacion.usarEnlace));
     await tester.pumpAndSettle();
     expect(find.text('unirse $_uuid.$_hash'), findsOneWidget);
   });
@@ -142,9 +142,9 @@ void main() {
     await tester.pumpWidget(b.montar());
     await tester.pump();
     await tester.enterText(find.byType(TextField), 'https://ejemplo.com');
-    await tester.tap(find.text(TextosPasanaku.usarEnlace));
+    await tester.tap(find.text(TextosInvitacion.usarEnlace));
     await tester.pump();
-    expect(find.text(TextosPasanaku.enlaceInvalido), findsOneWidget);
+    expect(find.text(TextosInvitacion.enlaceInvalido), findsOneWidget);
   });
 
   testWidgets('correcto: cámara denegada ofrece Abrir ajustes y lo abre', (
@@ -153,7 +153,7 @@ void main() {
     final b = _Banco(problema: ProblemaDeCamara.denegado);
     await tester.pumpWidget(b.montar());
     await tester.pump();
-    await tester.tap(find.text(TextosPasanaku.abrirAjustes));
+    await tester.tap(find.text(TextosInvitacion.abrirAjustes));
     await tester.pump();
     expect(b.ajustes.aperturas, 1);
   });
@@ -167,11 +167,11 @@ void main() {
       );
       await tester.pumpWidget(b.montar());
       await tester.pump();
-      await tester.tap(find.text(TextosPasanaku.abrirAjustes));
+      await tester.tap(find.text(TextosInvitacion.abrirAjustes));
       await tester.pump();
       expect(b.ajustes.aperturas, 1);
-      expect(find.text(TextosPasanaku.camaraDenegadaTitulo), findsOneWidget);
-      expect(find.text(TextosPasanaku.usarEnlace), findsOneWidget);
+      expect(find.text(TextosInvitacion.camaraDenegadaTitulo), findsOneWidget);
+      expect(find.text(TextosInvitacion.usarEnlace), findsOneWidget);
     },
   );
 
@@ -182,7 +182,7 @@ void main() {
       final b = _Banco(problema: p);
       await tester.pumpWidget(b.montar());
       await tester.pump();
-      expect(find.text(TextosPasanaku.abrirAjustes), findsNothing);
+      expect(find.text(TextosInvitacion.abrirAjustes), findsNothing);
     });
   }
 }

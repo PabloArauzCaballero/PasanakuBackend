@@ -1,0 +1,3 @@
+servicios/identidad: tests=227 fallos=0 errores=0 omitidos=0 por tarea={'integrationTest': 122, 'test': 20, 'testBarrido': 2, 'webTest': 83}
+servicios/entregas: tests=212 fallos=0 errores=0 omitidos=0 por tarea={'contractTest': 9, 'integrationTest': 107, 'test': 40, 'testBarrido': 2, 'webTest': 54}
+servicios/aportes: tests=173 fallos=1 errores=0 omitidos=0 por tarea={'integrationTest': 89, 'test': 46, 'testBarrido': 2, 'webTest': 36}

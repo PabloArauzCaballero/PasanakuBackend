@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../dominio/tutoriales/modelo.dart';
 import '../../proveedores/tutoriales.dart';
+import 'confirmar_salida_de_tutorial.dart';
 import 'textos.dart';
 
 /// **La capa del tutorial**: lo único que la app monta para que los tutoriales existan.
@@ -147,7 +148,7 @@ class _CapaDeTutorialState extends ConsumerState<CapaDeTutorial>
           ],
           if (estado.confirmandoSalida)
             Positioned.fill(
-              child: _ConfirmarSalida(
+              child: ConfirmarSalidaDeTutorial(
                 alSalir: motor.omitir,
                 alSeguir: motor.seguirEnElTutorial,
               ),
@@ -177,29 +178,4 @@ class _CapaDeTutorialState extends ConsumerState<CapaDeTutorial>
       );
     }
   }
-}
-
-/// Confirmación antes de abandonar a la mitad. No es un `showDialog` porque el globo ya
-/// está encima de todo: se dibuja en la misma capa y no pelea por el foco.
-class _ConfirmarSalida extends StatelessWidget {
-  const _ConfirmarSalida({required this.alSalir, required this.alSeguir});
-
-  final VoidCallback alSalir;
-  final VoidCallback alSeguir;
-
-  @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: const Text(TextosSoporte.salirTitulo),
-    content: const Text(TextosSoporte.salirCuerpo),
-    actions: [
-      TextButton(
-        onPressed: alSalir,
-        child: const Text(TextosSoporte.salirConfirmar),
-      ),
-      TextButton(
-        onPressed: alSeguir,
-        child: const Text(TextosSoporte.salirSeguir),
-      ),
-    ],
-  );
 }
