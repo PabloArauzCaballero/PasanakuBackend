@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
  * {@code entregas} por OTRA persona la fila no se veia y el veredicto era siempre «no». Ahora la lectura es de sistema, acotada
  * a un booleano; quien puede llegar hasta aca lo decide la guardia de la ruta (probada en {@code UsuariosAutorizacionNegativaWebTest}).
  */
-class VerificarTitularidadTest extends BaseDeCU08 {
+class CUVerificarTitularidadTest extends BaseDeCU08 {
 
     private static final String PIMIENTA = "pimienta-de-prueba-no-es-la-de-produccion";
 

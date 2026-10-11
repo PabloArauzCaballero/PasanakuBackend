@@ -19,10 +19,10 @@ import org.junit.jupiter.api.Test;
  * <p>El productor (aportes) es un doble de CONTRATO: el evento se arma con los campos exactos que
  * {@code CU21CobrarAporte} emite. Cubre el camino correcto, el cuadre desde el libro y desde el mayor, el evento duplicado, el
  * fuera de orden y la reversa. Los rechazos (moneda, cuentas, saldo, canal, atomicidad, concurrencia) estan en
- * {@link ConsumoDeAportesRechazosTest}. El recorrido con aportes, Kafka y el libro reales vive en
+ * {@link CUConsumoDeAportesRechazosTest}. El recorrido con aportes, Kafka y el libro reales vive en
  * {@code despliegue/ensayos/integracion}.
  */
-class ConsumoDeAportesTest extends BaseDeAportes {
+class CUConsumoDeAportesTest extends BaseDeAportes {
 
     @Test
     @DisplayName("Dado un participante con Bs 1.000 y un aporte cobrado de Bs 500 · Cuando nucleo consume el evento ·"
@@ -76,8 +76,9 @@ class ConsumoDeAportesTest extends BaseDeAportes {
         assertThat(partidas).allSatisfy(p -> assertThat(p.get(3)).isEqualTo("BOB"));
         // El hecho se publica en la misma transaccion (outbox, regla 98.3).
         assertThat(contar(
-                        "SELECT count(*) FROM nucleo_financiero.evento_dominio WHERE tipo ="
-                                + " 'nucleo_financiero.aporte_aplicado' AND agregado_id = ?",
+                        """
+                        SELECT count(*) FROM nucleo_financiero.evento_dominio WHERE tipo = 'nucleo_financiero.aporte_aplicado' AND agregado_id = ?
+                        """,
                         a.obligacion()))
                 .isEqualTo(1);
         System.out.println("ASIENTO | aporte_cobrado pago=" + e.pagoId() + " | DEBE " + MAPEO.get("SALDO_USUARIOS.BOB")
@@ -250,8 +251,9 @@ class ConsumoDeAportesTest extends BaseDeAportes {
                         salida.asientoId().orElseThrow()))
                 .isEqualTo(2);
         assertThat(contar(
-                        "SELECT count(*) FROM nucleo_financiero.asiento_contable WHERE id = ? AND asiento_reversa_id ="
-                                + " ?",
+                        """
+                        SELECT count(*) FROM nucleo_financiero.asiento_contable WHERE id = ? AND asiento_reversa_id = ?
+                        """,
                         contra.asientoId(),
                         salida.asientoId().orElseThrow()))
                 .isEqualTo(1);

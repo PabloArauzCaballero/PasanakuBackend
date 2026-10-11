@@ -197,7 +197,12 @@ class CU24SemillasTest extends BaseDeCU24 {
         Map<String, String> mapeo = new HashMap<>();
         var m = MAPEO_DEL_COMPOSE.matcher(desplegado);
         while (m.find()) {
-            mapeo.put(m.group(1) + "." + m.group(2), m.group(3));
+            // Solo el arbol SINTETICO (9.x). Las cuentas logicas SALDO_USUARIOS/SALDO_GRUPOS apuntan a 2.1.01/2.1.02
+            // del plan MINIMO real
+            // (no sinteticas) y las prueba CUConsumoDeAportesTest.
+            if (m.group(3).startsWith("9.")) {
+                mapeo.put(m.group(1) + "." + m.group(2), m.group(3));
+            }
         }
         return mapeo;
     }

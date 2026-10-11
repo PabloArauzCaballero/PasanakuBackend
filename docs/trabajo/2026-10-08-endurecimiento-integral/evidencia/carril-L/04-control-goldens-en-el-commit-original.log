@@ -1,0 +1,33 @@
+heavy.sh: candado tomado, libres 2844 MB -> bash C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/l5_control.sh
+> test_api 0.7.12 (was 0.7.11) (0.7.15 available)
+> vector_math 2.4.3 (was 2.2.0)
+Changed 4 dependencies!
+2 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+PUBGET_RC=0
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/l5_control/apps/movil/test/goldens/pantalla_escanear_golden_test.dart:58:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -9: C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/l5_control/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · escritorio · oscuro [E]
+  Test failed. See exception logs above.
+  The test description was: escanear · cámara denegada · escritorio · oscuro
+  
+00:01 +0 -9: Some tests failed.
+
+Failing tests:
+  C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/l5_control/apps/movil/test/goldens/pantalla_de_saldo_golden_test.dart: pantalla de saldo · éxito · claro
+  C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/l5_control/apps/movil/test/goldens/pantalla_de_saldo_golden_test.dart: pantalla de saldo · éxito · oscuro
+  C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/l5_control/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · escritorio · claro
+  C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/l5_control/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · escritorio · oscuro
+  ... and 5 more
+RC=1

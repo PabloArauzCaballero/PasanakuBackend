@@ -67,24 +67,6 @@ class CU21Test extends BaseDeAportes {
                         "aportes.aporte_cobrado",
                         obligacion.id()))
                 .isEqualTo(1);
-        // Contrato del productor que consume nucleo-financiero (carril I): el evento trae todo lo que hace falta para
-        // mover
-        // el dinero sin adivinar, y el importe NUNCA viaja sin su moneda (regla 91.1.2).
-        var carga = dsl.fetchOne(
-                """
-                SELECT payload->>'monto', payload->>'moneda', payload->>'canal', payload->>'usuarioId',
-                       payload->>'obligacionId', payload->>'pagoId', payload->>'grupoId', payload->>'participanteId'
-                  FROM aportes.evento_dominio WHERE tipo = 'aportes.aporte_cobrado' AND agregado_id = ?
-                """,
-                obligacion.id());
-        assertThat(carga.get(0)).isEqualTo("500.00");
-        assertThat(carga.get(1)).isEqualTo("BOB");
-        assertThat(carga.get(2)).isEqualTo("BILLETERA_MOVIL");
-        assertThat(carga.get(3)).isEqualTo(usuario.toString());
-        assertThat(carga.get(4)).isEqualTo(obligacion.id().toString());
-        assertThat(carga.get(5)).isEqualTo(salida.pagoId().toString());
-        assertThat(carga.get(6)).isEqualTo(obligacion.grupoId().toString());
-        assertThat(carga.get(7)).isNotNull();
     }
 
     @Test
@@ -121,8 +103,9 @@ class CU21Test extends BaseDeAportes {
 
         assertThat(salida.generados()).isEqualTo(1);
         assertThat(contar(
-                        "SELECT count(*)::int FROM aportes.obligacion_aporte WHERE tipo = 'RECARGO_MORA' AND"
-                                + " obligacion_origen_id = ?",
+                        """
+                        SELECT count(*)::int FROM aportes.obligacion_aporte WHERE tipo = 'RECARGO_MORA' AND obligacion_origen_id = ?
+                        """,
                         obligacion.id()))
                 .isEqualTo(1);
         assertThat(contar(

@@ -13,7 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'dominio/cu69_invitar_al_grupo.dart';
 import 'invitacion_creada.dart';
-import 'textos.dart';
+import 'textos_invitacion.dart';
 
 const _canales = {'ENLACE': 'Enlace', 'SMS': 'SMS', 'WHATSAPP': 'WhatsApp'};
 
@@ -55,7 +55,7 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
           children: [
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: Espacio.s4),
-              child: CabeceraDeSeccion(titulo: TextosPasanaku.tituloInvitar),
+              child: CabeceraDeSeccion(titulo: TextosInvitacion.tituloInvitar),
             ),
             Expanded(
               child: resultado != null
@@ -85,7 +85,7 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
           padding: const EdgeInsets.all(Espacio.s4),
           children: [
             Pregunta(
-              etiqueta: TextosPasanaku.telefonoInvitado,
+              etiqueta: TextosInvitacion.telefonoInvitado,
               control: Campo(
                 etiqueta: '',
                 prefijo: _prefijo,
@@ -95,7 +95,7 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
             ),
             const SizedBox(height: Espacio.s5),
             Pregunta(
-              etiqueta: TextosPasanaku.nombreSugerido,
+              etiqueta: TextosInvitacion.nombreSugerido,
               control: Campo(
                 etiqueta: '',
                 onChanged: (v) => setState(() => _nombre = v),
@@ -103,7 +103,7 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
             ),
             const SizedBox(height: Espacio.s5),
             Pregunta(
-              etiqueta: TextosPasanaku.canalInvitacion,
+              etiqueta: TextosInvitacion.canalInvitacion,
               control: SelectorSegmentado<String>(
                 opciones: _canales,
                 valor: _canal,
@@ -122,7 +122,7 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
       ),
       BarraDeAccion(
         hijo: Boton(
-          texto: TextosPasanaku.enviarInvitacion,
+          texto: TextosInvitacion.enviarInvitacion,
           variante: BotonVariante.primario,
           expandido: true,
           cargando: estado.isLoading,

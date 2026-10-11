@@ -1,0 +1,1 @@
+servicios/grupos: tests=313 fallos=1 errores=0 omitidos=0 por tarea={'integrationTest': 213, 'test': 12, 'testBarrido': 2, 'webTest': 86}

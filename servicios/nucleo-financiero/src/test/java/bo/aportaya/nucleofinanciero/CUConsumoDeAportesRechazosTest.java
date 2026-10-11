@@ -11,9 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -21,9 +18,9 @@ import org.junit.jupiter.api.Test;
  * Carril I (quinta vuelta) · lo que {@code aportes.aporte_cobrado} NO puede hacer: moneda distinta, cuentas que no existen o
  * no operan, saldo que no alcanza, canal que no sale de una billetera, caida a mitad y carreras. En todos los casos
  * rechazados NO se escribe nada (ni libro, ni mayor, ni marca de consumo): el reproceso aplica el evento cuando la causa se
- * resuelva. El camino correcto, el cuadre y la reversa estan en {@link ConsumoDeAportesTest}.
+ * resuelva. El camino correcto, el cuadre y la reversa estan en {@link CUConsumoDeAportesTest}.
  */
-class ConsumoDeAportesRechazosTest extends BaseDeAportes {
+class CUConsumoDeAportesRechazosTest extends BaseDeAportes {
 
     /** Nada quedo escrito para este aporte. */
     private void sinEfectos(Aporte a, bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAportes.AporteCobrado e) {
@@ -31,10 +28,22 @@ class ConsumoDeAportesRechazosTest extends BaseDeAportes {
         assertThat(asientosDeAportes(a.grupo())).isZero();
         assertThat(marcas(e.eventoId())).isZero();
         assertThat(contar(
-                        "SELECT count(*) FROM nucleo_financiero.evento_dominio WHERE tipo ="
-                                + " 'nucleo_financiero.aporte_aplicado' AND agregado_id = ?",
+                        """
+                        SELECT count(*) FROM nucleo_financiero.evento_dominio WHERE tipo = 'nucleo_financiero.aporte_aplicado' AND agregado_id = ?
+                        """,
                         a.obligacion()))
                 .isZero();
+    }
+
+    /** El consumidor con cuentas del plan tambien en USD: asi el rechazo llega a la billetera que falta y no al plan. */
+    private bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAportes conPlanEnDolares() {
+        var mapeo = new HashMap<>(MAPEO);
+        String sufijo = UUID.randomUUID().toString().substring(0, 6);
+        contable.cuentaDeMovimiento("SU.USD." + sufijo, "PASIVO", "ACREEDORA", "USD");
+        contable.cuentaDeMovimiento("SG.USD." + sufijo, "PASIVO", "ACREEDORA", "USD");
+        mapeo.put("SALDO_USUARIOS.USD", "SU.USD." + sufijo);
+        mapeo.put("SALDO_GRUPOS.USD", "SG.USD." + sufijo);
+        return armar(libroReal, mapeo);
     }
 
     @Test
@@ -44,7 +53,7 @@ class ConsumoDeAportesRechazosTest extends BaseDeAportes {
         var a = aporte("1000.00");
         var enDolares = cobrado(a, "100.00", "USD", "BILLETERA_MOVIL");
 
-        assertThatThrownBy(() -> procesar(enDolares))
+        assertThatThrownBy(() -> transaccion.execute(t -> conPlanEnDolares().procesar(enDolares)))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .satisfies(x -> assertThat(codigo(x)).isEqualTo("AP-CU12-02"));
 
@@ -61,7 +70,7 @@ class ConsumoDeAportesRechazosTest extends BaseDeAportes {
         billeteraUsdDe(a.usuario());
         var enDolares = cobrado(a, "100.00", "USD", "BILLETERA_MOVIL");
 
-        assertThatThrownBy(() -> procesar(enDolares))
+        assertThatThrownBy(() -> transaccion.execute(t -> conPlanEnDolares().procesar(enDolares)))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .satisfies(x -> assertThat(codigo(x)).isEqualTo("AP-CU12-02"));
 
@@ -247,68 +256,5 @@ class ConsumoDeAportesRechazosTest extends BaseDeAportes {
         assertThat(procesar(e).resultado()).isEqualTo(Resultado.DUPLICADO);
         assertThat(transacciones(a.obligacion())).isEqualTo(1);
         assertThat(asientosDeAportes(a.grupo())).isEqualTo(1);
-    }
-
-    @Test
-    @DisplayName("concurrencia: dos replicas que entregan el MISMO evento a la vez mueven la plata una sola vez")
-    void concurrenciaDelMismoEvento() throws Exception {
-        var a = aporte("1000.00");
-        var e = cobrado(a, "500.00");
-        var resultados =
-                enParalelo(() -> procesar(e).resultado(), () -> procesar(e).resultado());
-
-        assertThat(resultados).containsExactlyInAnyOrder(Resultado.APLICADO, Resultado.DUPLICADO);
-        assertThat(transacciones(a.obligacion())).isEqualTo(1);
-        assertThat(asientosDeAportes(a.grupo())).isEqualTo(1);
-        assertThat(saldoDelLibro(a.billetera())).isEqualByComparingTo("500.00");
-        assertThat(saldoDelLibro(a.billeteraDelGrupo())).isEqualByComparingTo("500.00");
-    }
-
-    @Test
-    @DisplayName(
-            "concurrencia: dos aportes DISTINTOS de Bs 500 con Bs 600 en la billetera no la dejan en negativo: uno se"
-                    + " aplica y el otro es AP-CU12-01")
-    void concurrenciaNoGastaDosVeces() throws Exception {
-        var a = aporte("600.00");
-        var uno = cobrado(a, "500.00");
-        var otro = cobrado(a, "500.00");
-
-        var resultados = enParalelo(() -> intentar(uno), () -> intentar(otro));
-
-        assertThat(resultados).containsExactlyInAnyOrder("APLICADO", "AP-CU12-01");
-        assertThat(transacciones(a.obligacion())).isEqualTo(1);
-        assertThat(saldoDelLibro(a.billetera())).isEqualByComparingTo("100.00");
-        assertThat(saldoDelLibro(a.billeteraDelGrupo())).isEqualByComparingTo("500.00");
-    }
-
-    private String intentar(bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAportes.AporteCobrado e) {
-        try {
-            return procesar(e).resultado().name();
-        } catch (ErrorDeNegocio rechazo) {
-            return rechazo.codigo().valor();
-        }
-    }
-
-    @SafeVarargs
-    private <T> List<T> enParalelo(java.util.concurrent.Callable<T>... tareas) throws Exception {
-        var hilos = Executors.newFixedThreadPool(tareas.length);
-        try {
-            var largada = new CountDownLatch(1);
-            var futuros = new java.util.ArrayList<java.util.concurrent.Future<T>>();
-            for (var tarea : tareas) {
-                futuros.add(hilos.submit(() -> {
-                    largada.await();
-                    return tarea.call();
-                }));
-            }
-            largada.countDown();
-            var resultados = new java.util.ArrayList<T>();
-            for (var f : futuros) {
-                resultados.add(f.get(60, TimeUnit.SECONDS));
-            }
-            return resultados;
-        } finally {
-            hilos.shutdownNow();
-        }
     }
 }

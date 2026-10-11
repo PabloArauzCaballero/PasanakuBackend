@@ -31,8 +31,9 @@ class CU130CompraTest extends BaseDeCompraDeTurno {
         assertThat(estadoDeOferta(oferta.ofertaId())).isEqualTo("VENDIDA");
         assertThat(estadoDeCesion(r.cesionId())).isEqualTo("LIQUIDADA");
         var f = dsl.fetchOne(
-                "SELECT retencion_ref, liquidacion_ref, titulo_asignado_en, liquidada_en FROM entregas.cesion_derecho"
-                        + " WHERE id = ?",
+                """
+                SELECT retencion_ref, liquidacion_ref, titulo_asignado_en, liquidada_en FROM entregas.cesion_derecho WHERE id = ?
+                """,
                 r.cesionId());
         assertThat(f.get(0, UUID.class)).isNotNull();
         assertThat(f.get(1, UUID.class)).isNotNull();
@@ -43,8 +44,9 @@ class CU130CompraTest extends BaseDeCompraDeTurno {
         assertThat(fondosDoble.retenidoVivo().esCero()).isTrue();
         assertThat(fondosDoble.totalDelSistema()).isEqualTo(antes);
         assertThat(contar(
-                        "SELECT count(*)::int FROM entregas.evento_dominio WHERE tipo = 'entregas.derecho_cedido' AND"
-                                + " agregado_id = ?",
+                        """
+                        SELECT count(*)::int FROM entregas.evento_dominio WHERE tipo = 'entregas.derecho_cedido' AND agregado_id = ?
+                        """,
                         r.cesionId()))
                 .isEqualTo(1);
         // Contrato del productor (carril I): el evento nombra grupo, cupo y las dos partes para que `grupos` pueda
