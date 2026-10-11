@@ -107,7 +107,11 @@ Son **sintéticas y declaradas** (`seeders/dev/17-usuarios-e2e-sinteticos.json`:
 `apto_produccion=false`, procedencia «inventado para este repositorio», correos `@example.invalid`).
 Lo que simulan sin que haya pasado: el nivel de verificación `BASICO` de A y B (no hay documento ni
 decisión de una persona detrás) y la habilitación de A como organizador `APRENDIZ` (no hubo
-postulación, capacitación ni contrato). Es lo único que consultan `grupos` antes de crear un grupo.
+postulación ni capacitación) y su **contrato de organizador** (una fila firmada y vigente, apoyada en un token
+de firma sintético ya consumido: sin emisión ni firma reales; emitirlo por la API exige `ADMIN_PLATAFORMA`). `grupos`
+consulta la habilitación antes de crear un grupo y, además, el trigger `R-ORG-02` exige ese contrato: sin él, `POST /grupos`
+responde `500 AP-INT-01` (medido en TEST, `evidencia/carril-L2/12-…` y `13-…`). Re-correr `sembrar_test.sh` lo agrega
+(idempotente) y `--retirar` lo rescinde.
 No se sembró billetera: ni crear, ni invitar, ni aceptar la piden.
 
 **Cómo sembrarlas.** La contraseña de cada cuenta se genera fuera del repositorio, en

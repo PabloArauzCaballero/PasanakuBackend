@@ -271,7 +271,8 @@ deliberado, para que nadie confunda una cuenta de demostración con una usable.
 ### Dos cuentas sintéticas para TEST (`17-usuarios-e2e-sinteticos.json`)
 
 `SINT-E2E-A` (organizador habilitado) y `SINT-E2E-B` (invitado), más un otorgante `SINT-E2E-0` sin
-acceso. **Sintéticas y declaradas** (`apto_produccion=false`, procedencia «inventado para este
+acceso, y el contrato de organizador sintético de A (con su token de firma sintético consumido), que el trigger
+`R-ORG-02` exige para crear un grupo. **Sintéticas y declaradas** (`apto_produccion=false`, procedencia «inventado para este
 repositorio», teléfonos `+59170009100/101/102`, correos `@example.invalid`). El archivo **no trae
 credencial**: identidad hashea `contraseña + pimienta` y la pimienta de TEST es un secreto. La pone
 `despliegue/ensayos/sembrar_test.sh`, en el servidor, con una contraseña generada fuera del
