@@ -103,8 +103,9 @@ class CU21Test extends BaseDeAportes {
 
         assertThat(salida.generados()).isEqualTo(1);
         assertThat(contar(
-                        "SELECT count(*)::int FROM aportes.obligacion_aporte WHERE tipo = 'RECARGO_MORA' AND"
-                                + " obligacion_origen_id = ?",
+                        """
+                        SELECT count(*)::int FROM aportes.obligacion_aporte WHERE tipo = 'RECARGO_MORA' AND obligacion_origen_id = ?
+                        """,
                         obligacion.id()))
                 .isEqualTo(1);
         assertThat(contar(

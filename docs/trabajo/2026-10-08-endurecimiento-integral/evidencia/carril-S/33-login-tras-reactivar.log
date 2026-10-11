@@ -1,0 +1,6 @@
+[A] paso 1 (sin factor):  HTTP 422 codigo=AP-CU04-03
+[A] paso 2 (factor 000000): HTTP 200 TOKEN emitido (no se imprime). claims=['exp', 'iat', 'jti', 'nivel_diligencia', 'permisos', 'rol', 'sub']
+[A]   rol=PARTICIPANTE permisos=['BILLETERA_OPERAR', 'BILLETERA_VER', 'GRUPO_ADMINISTRAR', 'GRUPO_CREAR', 'ORGANIZADOR', 'PARTICIPANTE']
+[B] paso 1 (sin factor):  HTTP 422 codigo=AP-CU04-03
+[B] paso 2 (factor 000000): HTTP 200 TOKEN emitido (no se imprime). claims=['exp', 'iat', 'jti', 'nivel_diligencia', 'permisos', 'rol', 'sub']
+[B]   rol=PARTICIPANTE permisos=['BILLETERA_OPERAR', 'BILLETERA_VER', 'PARTICIPANTE']

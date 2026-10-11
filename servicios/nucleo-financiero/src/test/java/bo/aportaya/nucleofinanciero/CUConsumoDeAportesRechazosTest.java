@@ -28,8 +28,9 @@ class CUConsumoDeAportesRechazosTest extends BaseDeAportes {
         assertThat(asientosDeAportes(a.grupo())).isZero();
         assertThat(marcas(e.eventoId())).isZero();
         assertThat(contar(
-                        "SELECT count(*) FROM nucleo_financiero.evento_dominio WHERE tipo ="
-                                + " 'nucleo_financiero.aporte_aplicado' AND agregado_id = ?",
+                        """
+                        SELECT count(*) FROM nucleo_financiero.evento_dominio WHERE tipo = 'nucleo_financiero.aporte_aplicado' AND agregado_id = ?
+                        """,
                         a.obligacion()))
                 .isZero();
     }

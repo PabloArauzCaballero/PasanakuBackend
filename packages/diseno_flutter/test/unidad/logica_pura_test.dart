@@ -44,6 +44,14 @@ void main() {
     );
   });
 
+  test('Fecha.formatearDia muestra el día elegido tal cual, sin correrlo por zona', () {
+    expect(Fecha.formatearDia(DateTime(1990, 10, 11)), '11 oct 1990');
+    expect(Fecha.formatearDia(DateTime(2000, 1, 1)), '1 ene 2000');
+    // Borde: medianoche y fin del día de calendario no cambian de día.
+    expect(Fecha.formatearDia(DateTime(1990, 10, 11, 23, 59)), '11 oct 1990');
+    expect(Fecha.formatearDia(DateTime.utc(1990, 10, 11)), '11 oct 1990');
+  });
+
   test('RelojDePlazo dice lo que falta sin recalcular el vencimiento', () {
     final ahora = DateTime(2026, 9, 9, 10);
     expect(

@@ -1,0 +1,158 @@
+{
+  "descripcion": "Dos cuentas SINTETICAS de prueba para recorrer de punta a punta «A organiza e invita, B acepta o rechaza» contra TEST: A (organizador habilitado) y B (invitado), mas un otorgante sin acceso que solo existe para firmar las asignaciones de rol.",
+  "entorno": "dev",
+  "sintetico": true,
+  "apto_produccion": false,
+  "procedencia": {
+    "fuente": "Inventado para este repositorio. Ninguna fila corresponde a una persona, a un documento ni a un registro oficial.",
+    "obtenido": "2026-10-11",
+    "licencia": "No aplica: contenido propio del proyecto, sin datos de terceros.",
+    "autor": "carril S (6.a vuelta del endurecimiento integral)"
+  },
+  "nota": "Las filas llevan identificadores estables (e2e00000-0000-4000-8000-…) y ON CONFLICT DO NOTHING: aplicarlas dos veces no cambia nada. Telefonos +59170009100/101/102 y correos @example.invalid (dominio reservado por la IANA: nadie los lee ni los recibe). La CREDENCIAL no esta aca a proposito: identidad hashea `contrasena + pimienta` y la pimienta de TEST es un secreto que no vive en el repositorio. La pone `despliegue/ensayos/sembrar_test.sh`, en el servidor, con la pimienta del propio contenedor de identidad y una contrasena que se genera fuera del repositorio. El segundo factor lo valida el perfil `local` de TEST (DesafioDeDesarrollo, codigo fijo de desarrollo): solo existe donde corre ese perfil.",
+  "advertencia": "SOLO DEV Y TEST. No es un catalogo, no es un dato de la plataforma y no existe en produccion: vive en seeders/dev/, el orquestador de dev aborta si la base no esta marcada con app.entorno = 'dev' y sembrar_test.sh aborta si identidad no corre con el perfil `local`. Lo que estas cuentas SIMULAN, sin que haya pasado de verdad: el nivel de verificacion BASICO de A y de B (no hay documento, ni selfie, ni decision de una persona detras) y la habilitacion de A como organizador APRENDIZ (no hay solicitud, ni capacitacion, ni contrato firmado). Son el estado que dejaria ese tramo, declarado sintetico; no lo reemplazan.",
+  "reglas_que_permite_probar": [
+    "R-USR — inicio de sesion real contra credencial_acceso (Argon2id con pimienta) de una cuenta que no pasa por el alta con OTP de correo",
+    "R-SEG — segundo factor enrolado (SMS) que el perfil local de TEST valida",
+    "R-ROL — A con ORGANIZADOR (GRUPO_CREAR, GRUPO_ADMINISTRAR) y PARTICIPANTE; B solo PARTICIPANTE",
+    "CU-20 — A pasa las precondiciones de crear grupo: habilitado por organizador, nivel de verificacion BASICO",
+    "CU-69/CU-68 — A invita a B por su telefono; B (BASICO) postula con el enlace"
+  ],
+  "bloques": [
+    {
+      "tabla": "usuario",
+      "conflicto": ["codigo_publico"],
+      "comentario": "SINTETICO · apto_produccion=false. Tres personas inventadas. nivel_kyc BASICO en A y B es una asignacion de la semilla, no el resultado de una verificacion (ver advertencia).",
+      "filas": [
+        {
+          "id": "e2e00000-0000-4000-8000-000000000000",
+          "codigo_publico": "SINT-E2E-0",
+          "nombres": "Otorgante",
+          "apellidos": "Sintetico E2E (sin acceso)",
+          "telefono_e164": "+59170009100",
+          "correo": "sint-e2e-0@example.invalid",
+          "fecha_nacimiento": "1990-01-01",
+          "estado": "SUSPENDIDO",
+          "nivel_kyc": "NINGUNO",
+          "idioma": "es-BO",
+          "zona_horaria": "America/La_Paz",
+          "fecha_registro": { "$sql": "now()" }
+        },
+        {
+          "id": "e2e00000-0000-4000-8000-000000000001",
+          "codigo_publico": "SINT-E2E-A",
+          "nombres": "Cuenta A",
+          "apellidos": "Sintetica E2E (organizador)",
+          "telefono_e164": "+59170009101",
+          "correo": "sint-e2e-a@example.invalid",
+          "fecha_nacimiento": "1990-01-01",
+          "estado": "ACTIVO",
+          "nivel_kyc": "BASICO",
+          "idioma": "es-BO",
+          "zona_horaria": "America/La_Paz",
+          "fecha_registro": { "$sql": "now()" }
+        },
+        {
+          "id": "e2e00000-0000-4000-8000-000000000002",
+          "codigo_publico": "SINT-E2E-B",
+          "nombres": "Cuenta B",
+          "apellidos": "Sintetica E2E (invitado)",
+          "telefono_e164": "+59170009102",
+          "correo": "sint-e2e-b@example.invalid",
+          "fecha_nacimiento": "1990-01-01",
+          "estado": "ACTIVO",
+          "nivel_kyc": "BASICO",
+          "idioma": "es-BO",
+          "zona_horaria": "America/La_Paz",
+          "fecha_registro": { "$sql": "now()" }
+        }
+      ]
+    },
+    {
+      "tabla": "asignacion_rol",
+      "conflicto": ["id"],
+      "comentario": "A: ORGANIZADOR (trae GRUPO_CREAR y GRUPO_ADMINISTRAR) y PARTICIPANTE; B: PARTICIPANTE. Ambito GLOBAL como en 15-usuarios-dev.json. Nadie se asigna un rol a si mismo (ck_asignacion_no_autoasignada): firma el otorgante sintetico.",
+      "filas": [
+        {
+          "id": "e2e00000-0000-4000-8000-0000000000a1",
+          "usuario_id": { "$ref": "usuario", "codigo_publico": "SINT-E2E-A" },
+          "rol_id": { "$ref": "rol", "codigo": "ORGANIZADOR" },
+          "ambito": "GLOBAL",
+          "ambito_id": null,
+          "otorgada_por": { "$ref": "usuario", "codigo_publico": "SINT-E2E-0" },
+          "otorgada_en": { "$sql": "now() - interval '1 hour'" },
+          "vigente_hasta": null
+        },
+        {
+          "id": "e2e00000-0000-4000-8000-0000000000a2",
+          "usuario_id": { "$ref": "usuario", "codigo_publico": "SINT-E2E-A" },
+          "rol_id": { "$ref": "rol", "codigo": "PARTICIPANTE" },
+          "ambito": "GLOBAL",
+          "ambito_id": null,
+          "otorgada_por": { "$ref": "usuario", "codigo_publico": "SINT-E2E-0" },
+          "otorgada_en": { "$sql": "now() - interval '1 hour'" },
+          "vigente_hasta": null
+        },
+        {
+          "id": "e2e00000-0000-4000-8000-0000000000a3",
+          "usuario_id": { "$ref": "usuario", "codigo_publico": "SINT-E2E-B" },
+          "rol_id": { "$ref": "rol", "codigo": "PARTICIPANTE" },
+          "ambito": "GLOBAL",
+          "ambito_id": null,
+          "otorgada_por": { "$ref": "usuario", "codigo_publico": "SINT-E2E-0" },
+          "otorgada_en": { "$sql": "now() - interval '1 hour'" },
+          "vigente_hasta": null
+        }
+      ]
+    },
+    {
+      "tabla": "factor_mfa",
+      "conflicto": ["id"],
+      "comentario": "Segundo factor SMS enrolado y confirmado: sin factor, el ingreso de un dispositivo nuevo termina en AP-CU04-04. El secreto es un marcador, no un secreto: el codigo lo decide el perfil local de TEST.",
+      "filas": [
+        {
+          "id": "e2e00000-0000-4000-8000-0000000000b1",
+          "usuario_id": { "$ref": "usuario", "codigo_publico": "SINT-E2E-A" },
+          "tipo": "SMS",
+          "secreto_cifrado": "enc:v1:sintetico-e2e-sms-a",
+          "activo": true,
+          "es_principal": true,
+          "confirmado_en": { "$sql": "now() - interval '1 hour'" },
+          "version_llave": 1
+        },
+        {
+          "id": "e2e00000-0000-4000-8000-0000000000b2",
+          "usuario_id": { "$ref": "usuario", "codigo_publico": "SINT-E2E-B" },
+          "tipo": "SMS",
+          "secreto_cifrado": "enc:v1:sintetico-e2e-sms-b",
+          "activo": true,
+          "es_principal": true,
+          "confirmado_en": { "$sql": "now() - interval '1 hour'" },
+          "version_llave": 1
+        }
+      ]
+    },
+    {
+      "tabla": "organizador",
+      "conflicto": ["usuario_id"],
+      "comentario": "SINTETICO · A figura HABILITADO, nivel APRENDIZ, con los limites iniciales de aportaya.organizador (2 grupos, 30000.00): es lo unico que consulta grupos antes de crear un grupo. No hubo postulacion, capacitacion ni contrato (ver advertencia).",
+      "filas": [
+        {
+          "id": "e2e00000-0000-4000-8000-0000000000c1",
+          "usuario_id": { "$ref": "usuario", "codigo_publico": "SINT-E2E-A" },
+          "estado": "HABILITADO",
+          "nivel": "APRENDIZ",
+          "limite_grupos_simultaneos": 2,
+          "limite_monto_administrado": 30000.00,
+          "grupos_activos": 0,
+          "grupos_historicos": 0,
+          "monto_administrado_actual": 0,
+          "calificacion_promedio": 0,
+          "indice_morosidad_cartera": 0,
+          "fecha_postulacion": { "$sql": "now()" },
+          "fecha_habilitacion": { "$sql": "now()" }
+        }
+      ]
+    }
+  ]
+}

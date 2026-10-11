@@ -1,0 +1,3 @@
+[retirar] antes:   usuarios=3 activos=3 roles_vigentes=3 factores_activos=2 organizador_habilitado=1 credenciales=2 
+[retirar] despues: usuarios=3 activos=1 roles_vigentes=0 factores_activos=0 organizador_habilitado=0 credenciales=0 
+[retirar] listo. Los grupos e invitaciones que se hayan creado en la prueba quedan como historial (no se borran).

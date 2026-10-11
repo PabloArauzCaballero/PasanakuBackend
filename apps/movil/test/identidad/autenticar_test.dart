@@ -160,8 +160,10 @@ void main() {
       expect(await c.read(sesionProvider).tokenDeAcceso(), isNull);
       expect(
         c.read(sesionIdentidadProvider).error,
-        'El código no coincide. Revisalo e intentá de nuevo.',
-        reason: 'la app no muestra el mensaje crudo del backend',
+        'El celular o la contraseña no coinciden. Revisalos e intentá de nuevo.',
+        reason:
+            'AP-CU04-01 es CREDENCIAL_INVALIDA (no «código»): hallazgo H2 contra TEST real; '
+            'la app no muestra el mensaje crudo del backend',
       );
       expect(c.read(sesionIdentidadProvider).enviando, isFalse);
     },

@@ -107,8 +107,9 @@ class CUCesionDeDerechoTest extends BaseDeCU64 {
         assertThat(estadoDelParticipante(comprador)).isEqualTo("ACTIVO");
         // Outbox: el hecho se publica en la misma transaccion (regla 98.3).
         assertThat(((Number) dsl.fetchOne(
-                                        "SELECT count(*) FROM grupos.evento_dominio WHERE tipo ="
-                                                + " 'grupos.cupo_traspasado' AND agregado_id = ?",
+                                        """
+                                        SELECT count(*) FROM grupos.evento_dominio WHERE tipo = 'grupos.cupo_traspasado' AND agregado_id = ?
+                                        """,
                                         salida.traspasoId().orElseThrow())
                                 .get(0))
                         .intValue())
