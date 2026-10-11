@@ -2,8 +2,8 @@ package bo.aportaya.identidad;
 
 import static bo.aportaya.identidad.ExpedientesDePrueba.clave;
 import static bo.aportaya.identidad.ExpedientesDePrueba.contexto;
-import static bo.aportaya.identidad.ExpedientesDePrueba.expedienteCompleto;
 import static bo.aportaya.identidad.ExpedientesDePrueba.expediente;
+import static bo.aportaya.identidad.ExpedientesDePrueba.expedienteCompleto;
 import static bo.aportaya.identidad.ExpedientesDePrueba.usuario;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

@@ -11,7 +11,11 @@ import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
 import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
+import bo.aportaya.identidad.aplicacion.ConfirmarVerificacionCorreo;
+import bo.aportaya.identidad.aplicacion.ConsultarNivelKyc;
+import bo.aportaya.identidad.aplicacion.ConsumirInvitacion;
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
+import bo.aportaya.identidad.aplicacion.SolicitarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.ValidarTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
 import bo.aportaya.identidad.dominio.ExpedienteDeIdentidad;
@@ -62,6 +66,18 @@ class EstadoDeVerificacionWebTest {
 
     @MockitoBean
     private VerificarTitularidad titularidad;
+
+    @MockitoBean
+    private ConsumirInvitacion consumirInvitacion;
+
+    @MockitoBean
+    private ConsultarNivelKyc nivelesKyc;
+
+    @MockitoBean
+    private SolicitarVerificacionCorreo solicitarCorreo;
+
+    @MockitoBean
+    private ConfirmarVerificacionCorreo confirmarCorreo;
 
     @Test
     @DisplayName("CU-02 · 200 SIN sesion: quien recien se registro todavia no puede abrir una")

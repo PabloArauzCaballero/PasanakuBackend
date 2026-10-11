@@ -11,6 +11,7 @@ import bo.aportaya.identidad.aplicacion.CU04Autenticar;
 import bo.aportaya.identidad.aplicacion.CU04StepUp;
 import bo.aportaya.identidad.aplicacion.EmitirAcceso;
 import bo.aportaya.identidad.aplicacion.RenovarSesion;
+import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -19,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 
 /**
  * {@code POST /sesiones/desafios} y su verificacion: el step-up que exige una operacion sensible (B37).
