@@ -143,6 +143,7 @@ abstract class BaseDeCU01 {
                 base.fechaNacimiento(),
                 base.correo(),
                 base.canalVerificacion(),
+                base.verificacionCorreoId(),
                 DocumentoDeIdentidad.de(
                         DocumentoDeIdentidad.Tipo.CI, documento, "pimienta-de-prueba", "BO", "LP", vence),
                 base.numeroCifrado(),

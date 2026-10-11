@@ -12,6 +12,7 @@ export 'package:aportaya_cliente_nucleofinanciero/src/auth/oauth.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/api/default_api.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/api/qr_api.dart';
 
+export 'package:aportaya_cliente_nucleofinanciero/src/model/cuenta_de_la_sesion.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/dinero.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/entrada_acreditacion_rescate.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/entrada_aprobacion_retiro.dart';
