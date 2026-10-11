@@ -10,15 +10,12 @@ import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.SolicitarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.ValidarTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
-import bo.aportaya.identidad.web.generado.modelo.ArchivoDelExpediente;
-import bo.aportaya.identidad.web.generado.modelo.CaraDelExpediente;
 import bo.aportaya.identidad.web.generado.modelo.ConfirmacionVerificacionCorreo;
 import bo.aportaya.identidad.web.generado.modelo.EntradaBusquedaPorTelefono;
 import bo.aportaya.identidad.web.generado.modelo.EntradaRegistro;
 import bo.aportaya.identidad.web.generado.modelo.EntradaTitularidad;
 import bo.aportaya.identidad.web.generado.modelo.EntradaTokenDeInvitacion;
 import bo.aportaya.identidad.web.generado.modelo.EntradaValidacionInvitacion;
-import bo.aportaya.identidad.web.generado.modelo.EstadoDeVerificacion;
 import bo.aportaya.identidad.web.generado.modelo.NivelKyc;
 import bo.aportaya.identidad.web.generado.modelo.SalidaRegistro;
 import bo.aportaya.identidad.web.generado.modelo.SalidaTitularidad;
@@ -44,7 +41,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * La pagina de CU-01: traduce y delega, sin logica.
@@ -54,15 +50,13 @@ import org.springframework.web.multipart.MultipartFile;
  * decirle al cliente que tiene algo que todavia nadie abrio.
  */
 @RestController
-public class UsuariosController extends InvitacionesController {
+public class UsuariosController extends ExpedienteController {
 
     /** El «usuario» del contexto mientras todavia no hay usuario. */
     private static final UUID PROCESO_DE_ALTA = UUID.fromString("00000000-0000-4000-8000-000000000001");
 
     private final CU01RegistrarUsuario cu01;
     private final VerificarTitularidad titularidad;
-    private final CU02GuardarFotoDelExpediente fotos;
-    private final CU02ConsultarEstadoDeVerificacion estadoDeVerificacion;
     private final EmitirTokenDeInvitacion tokens;
     private final ValidarTokenDeInvitacion validacionDeInvitacion;
     private final BuscarPorTelefono busqueda;
@@ -72,8 +66,6 @@ public class UsuariosController extends InvitacionesController {
     private final SesionDeLaPeticion sesion;
     private final HttpServletRequest peticion;
     private final String pimienta;
-    private final TokenDeAlta tokenDeAlta;
-    private final TitularDelExpediente titular;
 
     public UsuariosController(
             CU01RegistrarUsuario cu01,
@@ -92,11 +84,9 @@ public class UsuariosController extends InvitacionesController {
             @Value("${aportaya.seguridad.pimienta}") String pimienta,
             Reloj reloj,
             @Value("${identidad.alta.vigencia-token:PT30M}") Duration vigenciaTokenDeAlta) {
-        super(consumo, sesion, peticion);
+        super(consumo, sesion, peticion, fotos, estadoDeVerificacion, pimienta, reloj, vigenciaTokenDeAlta);
         this.cu01 = cu01;
         this.titularidad = titularidad;
-        this.fotos = fotos;
-        this.estadoDeVerificacion = estadoDeVerificacion;
         this.tokens = tokens;
         this.validacionDeInvitacion = validacionDeInvitacion;
         this.busqueda = busqueda;
@@ -106,8 +96,6 @@ public class UsuariosController extends InvitacionesController {
         this.sesion = sesion;
         this.peticion = peticion;
         this.pimienta = pimienta;
-        this.tokenDeAlta = new TokenDeAlta(pimienta, reloj, vigenciaTokenDeAlta);
-        this.titular = new TitularDelExpediente(tokenDeAlta, sesion);
     }
 
     /**
@@ -205,57 +193,6 @@ public class UsuariosController extends InvitacionesController {
         Traza.marcarCasoDeUso("CU-02", "nivel-kyc");
         var nivel = nivelesKyc.ejecutar(usuarioId, sesion.actual());
         return ResponseEntity.ok(new NivelKyc(usuarioId, NivelKyc.NivelEnum.fromValue(nivel)));
-    }
-
-    /**
-     * La foto del documento o la prueba de vida. Va al servidor de archivos y en
-     * la fila queda la clave del objeto: el binario nunca se sirve directo ni se guarda
-     * en el disco del contenedor, que se reemplaza — y la evidencia legal no.
-     *
-     * <p>Sin sesion exigida porque estas fotos se sacan durante el registro, cuando todavia no
-     * hay sesion que presentar; pero NO es una ruta abierta: el {@code usuarioId} de la URL no
-     * autoriza nada. Escribe en el expediente solo quien presenta el token que le dio SU alta
-     * (cabecera {@code Token-De-Alta}) o quien tiene sesion propia. Todo lo demas es el mismo
-     * 403, exista o no ese usuario.
-     */
-    @Override
-    @Publico("CU-02: se sube durante el alta, sin sesion; exige el token de alta del propio usuario o su sesion")
-    public ResponseEntity<ArchivoDelExpediente> subirDocumento(
-            UUID usuarioId, UUID idempotencyKey, String cara, MultipartFile archivo, String tokenDeAltaPresentado) {
-        titular.exigir(usuarioId, tokenDeAltaPresentado);
-        try {
-            var guardado = fotos.ejecutar(
-                    usuarioId,
-                    CU02GuardarFotoDelExpediente.Cara.valueOf(cara),
-                    archivo.getInputStream(),
-                    archivo.getSize(),
-                    archivo.getOriginalFilename(),
-                    Traza.actual());
-            var salida = new ArchivoDelExpediente()
-                    .cara(ArchivoDelExpediente.CaraEnum.fromValue(cara))
-                    .claveObjeto(guardado.clave().toString())
-                    .hashArchivo(guardado.hashSha256())
-                    .tipoMime(guardado.tipoMime())
-                    .bytes(guardado.bytes());
-            return ResponseEntity.status(201).body(salida);
-        } catch (java.io.IOException e) {
-            throw new bo.aportaya.plataforma.dominio.ErrorDeDominio(
-                    "Se corto la subida de la foto. Probá de nuevo.", e);
-        }
-    }
-
-    /** Estado mínimo para que quien aún no puede iniciar sesión siga su verificación. */
-    @Override
-    @Publico("CU-02: quien acaba de registrarse consulta el estado de su expediente")
-    public ResponseEntity<EstadoDeVerificacion> consultarEstadoDeVerificacion(UUID usuarioId) {
-        Traza.marcarCasoDeUso("CU-02", usuarioId.toString());
-        var expediente = estadoDeVerificacion.ejecutar(usuarioId, Traza.actual());
-        var salida = new EstadoDeVerificacion()
-                .verificacionId(expediente.verificacionId())
-                .estado(EstadoDeVerificacion.EstadoEnum.fromValue(expediente.estado()))
-                .motivoRechazo(expediente.motivoRechazo());
-        expediente.fotos().forEach(f -> salida.addFotosItem(CaraDelExpediente.fromValue(f)));
-        return ResponseEntity.ok(salida);
     }
 
     @Override

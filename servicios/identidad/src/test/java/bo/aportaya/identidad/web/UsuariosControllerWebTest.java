@@ -22,7 +22,6 @@ import bo.aportaya.identidad.dominio.AperturaDeCuenta;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.Sesiones;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -59,6 +58,8 @@ class UsuariosControllerWebTest {
     private static final UUID USUARIO = UUID.fromString("dddddddd-0000-4000-8000-000000000001");
     private static final UUID CONTRATO = UUID.fromString("dddddddd-0000-4000-8000-000000000002");
     private static final String CLAVE = "dddddddd-0000-4000-8000-0000000000ff";
+    private static final CU01RegistrarUsuario.SalidaRegistro ALTA_ACEPTADA =
+            new CU01RegistrarUsuario.SalidaRegistro(USUARIO, AperturaDeCuenta.PENDIENTE_VERIFICACION);
 
     private static final String ALTA =
             """
@@ -128,9 +129,7 @@ class UsuariosControllerWebTest {
         @Test
         @DisplayName("CU-01 · 202 y PENDIENTE_VERIFICACION: existe y todavia no opera")
         void altaAceptada() throws Exception {
-            when(cu01.ejecutar(any(), any()))
-                    .thenReturn(
-                            new CU01RegistrarUsuario.SalidaRegistro(USUARIO, AperturaDeCuenta.PENDIENTE_VERIFICACION));
+            when(cu01.ejecutar(any(), any())).thenReturn(ALTA_ACEPTADA);
 
             registrar(ALTA)
                     .andExpect(status().isAccepted())
@@ -142,9 +141,7 @@ class UsuariosControllerWebTest {
         @DisplayName("CU-01 · el vencimiento del documento llega al caso de uso, que es quien lo juzga")
         void elVencimientoLlegaAlCasoDeUso() throws Exception {
             var entrada = ArgumentCaptor.forClass(CU01RegistrarUsuario.EntradaRegistro.class);
-            when(cu01.ejecutar(entrada.capture(), any()))
-                    .thenReturn(
-                            new CU01RegistrarUsuario.SalidaRegistro(USUARIO, AperturaDeCuenta.PENDIENTE_VERIFICACION));
+            when(cu01.ejecutar(entrada.capture(), any())).thenReturn(ALTA_ACEPTADA);
 
             registrar(ALTA).andExpect(status().isAccepted());
 
@@ -156,9 +153,7 @@ class UsuariosControllerWebTest {
         @Test
         @DisplayName("CU-01 · el alta entra SIN sesion: es la ruta por la que se llega al sistema")
         void elAltaNoPideSesion() throws Exception {
-            when(cu01.ejecutar(any(), any()))
-                    .thenReturn(
-                            new CU01RegistrarUsuario.SalidaRegistro(USUARIO, AperturaDeCuenta.PENDIENTE_VERIFICACION));
+            when(cu01.ejecutar(any(), any())).thenReturn(ALTA_ACEPTADA);
 
             // Sin `.with(Sesiones...)`. Si esta prueba diera 401, no habria forma de
             // conseguir un token y por lo tanto no habria forma de usar el sistema.
@@ -168,9 +163,7 @@ class UsuariosControllerWebTest {
         @Test
         @DisplayName("CU-01 · la respuesta no devuelve nada de lo que se mando")
         void elAltaNoDevuelveDatosPersonales() throws Exception {
-            when(cu01.ejecutar(any(), any()))
-                    .thenReturn(
-                            new CU01RegistrarUsuario.SalidaRegistro(USUARIO, AperturaDeCuenta.PENDIENTE_VERIFICACION));
+            when(cu01.ejecutar(any(), any())).thenReturn(ALTA_ACEPTADA);
 
             String cuerpo = registrar(ALTA).andReturn().getResponse().getContentAsString();
 
