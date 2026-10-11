@@ -1,0 +1,26 @@
+## 10. validar (identidad) ANTES de revocar, como B
+{"valido":false}
+HTTP 200
+## 11. B intenta revocar la invitacion de A (no es el emisor)
+{"codigo":"AP-SEG-01","mensaje":"No tenes acceso a este recurso.","trazaId":"ea35a855-2b97-44ca-82bd-fb937688a242"}
+HTTP 403
+## 12. A revoca la invitacion 1
+{"codigo":"AP-CU69-05","mensaje":"No se pudo revocar esa invitacion.","detalle":{},"trazaId":"5db0f390-cb3b-4304-976f-a97faf51b0ef"}
+HTTP 422
+## 13. validar DESPUES de revocar, como B
+{"valido":false}
+HTTP 200
+## 14. B consulta el enlace revocado
+{"codigo":"AP-CU69-05","mensaje":"Esa invitacion ya no es valida.","detalle":{},"trazaId":"e296908f-a3ad-4e75-959d-d29405c4397a"}
+HTTP 422
+## 15. revocar de nuevo (idempotente para el emisor)
+{"codigo":"AP-CU69-05","mensaje":"No se pudo revocar esa invitacion.","detalle":{},"trazaId":"e33fcabf-3197-4898-8c0b-02a1d9f200a5"}
+HTTP 422
+## 16. A emite la 2.a invitacion a B (SMS) tras revocar
+{"codigo":"AP-CU69-09","mensaje":"Ya hay una invitacion vigente para ese numero. Revocala antes de emitir otra.","detalle":{},"trazaId":"3fb3ed5a-cdf4-45ed-8b95-2c11bef84bc7"}
+HTTP 422
+## 17. participaciones A y B (persistencia)
+[{"grupoId":"bfb102a3-0e36-401a-abac-97911e4bae55","participanteId":"c37763fb-f345-46d6-b860-4c3badfa0d28","estado":"ACEPTADO_PENDIENTE_FIRMA"}]
+HTTP 200
+[]
+HTTP 200
