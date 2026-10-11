@@ -147,7 +147,7 @@ Cuando el servicio de inversiones la debita
 Entonces el titular queda con Bs 700 disponibles y Bs 0 retenidos
 Y la custodia de inversión recibe Bs 300 en una transacción que cuadra
 
-Dada una retención COMPRA_EN_MERCADO de Bs 500 para una oferta de Bs 480
+Dada una retención COMPRA_EN_MERCADO de Bs 500 para una oferta de precio Bs 500 con cargos de Bs 20
 Cuando el servicio de entregas la paga
 Entonces el vendedor recibe Bs 480 y la plataforma Bs 20
 Y la retención queda EJECUTADA una sola vez

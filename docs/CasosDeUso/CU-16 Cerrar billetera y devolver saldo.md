@@ -133,6 +133,10 @@ Dado un titular con un bloqueo_saldo vigente
 Cuando solicita el cierre
 Entonces la solicitud se rechaza indicando el número de oficio
 
+Dado un titular al dia en todas sus participaciones
+Cuando solicita el cierre
+Entonces la solicitud se crea (la puerta de aportes se abre solo con el hecho, no por omision)
+
 Dada una cuenta cerrada
 Cuando se consulta su historial dentro del plazo de conservación
 Entonces los movimientos siguen disponibles

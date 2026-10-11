@@ -1,0 +1,7 @@
+casos de uso implementados y verificados: 106
+pendientes de implementar (3): CU-05 (identidad), CU-51 (aportes), CU-57 (nucleo-financiero)
+
+2 FALLAS:
+  - CU-13 · nucleo-financiero: prueba sin criterio en la boveda — «limite: cargos iguales al precio dejan Bs 0 para el vendedor: solo hay pata de plataforma y el reparto cuadra»
+  - CU-21 · aportes: prueba sin criterio en la boveda — «limite: un pago que no existe en aportes se marca consumido sin tocar nada (no hay a quien compensar)»
+RC=1
