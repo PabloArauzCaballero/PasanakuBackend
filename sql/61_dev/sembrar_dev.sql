@@ -52,5 +52,6 @@ END $$;
 \ir 14-identidad-y-sesiones.sql
 \ir 15-usuarios-dev.sql
 \ir 16-campania-cu-principales.sql
+\ir 17-usuarios-e2e-sinteticos.sql
 
 COMMIT;

@@ -1,0 +1,4 @@
+minimos  → sql\60_semillas: 22 archivos, 877 filas
+dev      → sql\61_dev: 17 archivos, 631 filas
+         → despliegue/ensayos/sembrar_test.sh: bloque SQL-GENERADO al dia (47 lineas)
+total: 1508 filas de semilla · validadas contra el modelo
