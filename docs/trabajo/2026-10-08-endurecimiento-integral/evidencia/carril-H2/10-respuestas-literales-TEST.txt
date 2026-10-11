@@ -1,0 +1,10 @@
+# Respuestas reales de https://api.aportaya.161.97.85.216.sslip.io/api/v1 (2026-10-11). Datos sinteticos; correos @example.com (dominio reservado IANA).
+GET  /actuator/health                                   -> 200
+POST /sesiones {}  (cuerpo mal formado)                 -> 400 {"codigo":"AP-VAL-02","mensaje":"Revisa el formato de los datos enviados."}
+POST /usuarios/verificaciones/correo {correo: h2.prueba.a@example.com}  (Idempotency-Key uuid)
+                                                        -> 202 {"verificacionId":"<uuid>","destinoEnmascarado":"h2***@example.com","expiraEn":"2026-10-11T14:22:17Z"}
+POST /sesiones {telefonoE164:+59170000091, credencial:<sintetica>, huellaDispositivo, plataforma:ANDROID}
+                                                        -> 422 {"codigo":"AP-CU04-01","mensaje":"El telefono o la credencial no coinciden."}
+POST /usuarios/verificaciones/correo/{id}/confirmacion {correo, codigo:"222222"}  (id reemplazado por una solicitud nueva de la app)
+                                                        -> 422 {"codigo":"AP-CU01-09","mensaje":"El codigo ya no esta disponible."}
+# El OTP de correo no se devuelve en ninguna respuesta (SolicitarVerificacionCorreo.java) y TEST no expone buzon: sin el codigo no hay POST /usuarios (verificacionCorreoId confirmado es obligatorio).

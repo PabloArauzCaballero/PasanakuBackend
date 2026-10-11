@@ -8,9 +8,21 @@ const Map<String, String> _catalogo = {
   'AP-CU01-01':
       'Todavía no podemos abrir tu cuenta: falta verificar tus datos.',
   'AP-CU01-03': 'Ese celular ya tiene una cuenta. Si es tuyo, iniciá sesión.',
-  'AP-CU04-01': 'El código no coincide. Revisalo e intentá de nuevo.',
-  'AP-CU04-04': 'Demasiados intentos. Esperá una hora y volvé a probar.',
+  // CU-01 · código de correo previo al alta (servicio identidad: AP-CU01-07..11).
+  'AP-CU01-07': 'No pudimos enviar el correo. Probá de nuevo en un momento.',
+  'AP-CU01-08': 'Pediste demasiados códigos. Esperá un rato y volvé a probar.',
+  'AP-CU01-09': 'El código no es correcto. Revisalo o pedí uno nuevo.',
+  'AP-CU01-10': 'El código venció. Pedí uno nuevo.',
+  'AP-CU01-11':
+      'Confirmá el código de este correo antes de crear tu cuenta.',
+  // CU-04 · el servidor distingue cada rechazo (identidad.yaml: 01 credencial, 02 bloqueo,
+  // 04 código del segundo factor, 05 demasiados intentos, 06/07 factor). La app los dice por separado.
+  'AP-CU04-01': 'El celular o la contraseña no coinciden. Revisalos e intentá de nuevo.',
+  'AP-CU04-02': 'Tu cuenta está bloqueada un rato por seguridad. Probá más tarde.',
+  'AP-CU04-04': 'El código no coincide o ya no sirve. Revisalo o pedí uno nuevo.',
+  'AP-CU04-05': 'Demasiados intentos. Esperá un rato y volvé a probar.',
   'AP-CU04-06': 'Tu segundo factor no está activado. Pedí ayuda a soporte.',
+  'AP-CU04-07': 'Ese tipo de segundo factor no sirve para tu cuenta. Pedí ayuda a soporte.',
   // CU-12 · QR interno. Cada rechazo del QR dice una cosa distinta; en particular el bancario/interoperable
   // NO se presenta como «QR inválido» ni como si pudiera pagarse acá: todavía no hay proveedor habilitado.
   'AP-CU12-07':
