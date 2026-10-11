@@ -14,3 +14,17 @@ Generados por `scripts/generar_postman.py`. Se resolvió con "ours" y se regener
 
 ## docs/CasosDeUso/CU-01
 Se conservan los dos escenarios nuevos de nuestra rama (verificación de correo con código incorrecto/correcto/reutilizado) y los dos de dev (fecha de vencimiento futura se guarda; documento vencido da AP-CU01-07).
+
+## Verificadores (scripts/) que se desfasaron por la integración
+- `scripts/auditoria/verificar_limites_compose.py` (dev) fijaba «16 servicios» en el compose de Coolify: con `inversiones` (nuestro, nuevo)
+  son 17. La cuenta pasa a salir de los `descriptor.yml` más el job de esquema y el gateway; el resto del verificador (límites, una réplica,
+  Hikari) no se toca.
+- `scripts/verificar_rutas_frontend.py`: `POST /sesion/refrescar` figuraba como «conocida sin contrato»; dev le dio operación en
+  `identidad.yaml`. El verificador exige sacarla de la lista (se pudrió), y se saca.
+
+## clientes/angular/identidad.ts (doble temporal de 2026-09-21)
+Archivo versionado a pesar de que `clientes/angular/` es generado. Declara a mano un subconjunto del cliente y, por resolución de módulos,
+SOMBREA al cliente real (`clientes/angular/identidad/index.ts`): el código de dev (`CaraDelExpediente`, `fechaExpiracionDocumento`,
+`documentoVigente`) no tipa contra él (`tsc` del backoffice: 5 errores, que ya estaban en dev y no los introduce el merge). Con el
+cliente real generado `tsc` de app y spec del backoffice pasa limpio, y el CI ya exige que `identidad/index.ts` exista. Se elimina el doble
+(como pedía su propio encabezado: «se borra cuando se publique el cliente real»). Quien trabaje en local corre `./gradlew generarClientes`.
