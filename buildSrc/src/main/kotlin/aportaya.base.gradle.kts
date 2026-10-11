@@ -124,6 +124,8 @@ tasks.named<Test>("test") {
         "**/Reconciliacion*Test.class",
         "**/*ResilienciaTest.class",
         "**/AutorizacionNegativaTest.class",
+        // Carril I: extiende BaseDeCU08 (contenedor); corre en `integrationTest`.
+        "**/VerificarTitularidad*Test.class",
     )
     systemProperty("junit.jupiter.execution.timeout.default", "5s")
     testLogging {
