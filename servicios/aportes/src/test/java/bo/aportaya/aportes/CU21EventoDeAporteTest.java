@@ -23,7 +23,8 @@ class CU21EventoDeAporteTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("contrato: aporte_cobrado lleva monto, moneda, canal, usuario, obligacion, pago, grupo y participante")
+    @DisplayName(
+            "cuadre: el evento aporte_cobrado lleva monto, moneda, canal, usuario, obligacion, pago, grupo y participante")
     void elEventoTrae_todoLoQueNucleoNecesita() {
         var usuario = fixtura.usuario();
         var obligacion = fixtura.obligacion(usuario, "500.00", 10);
@@ -49,7 +50,14 @@ class CU21EventoDeAporteTest extends BaseDeAportes {
                 """,
                 obligacion.id());
 
-        assertThat(List.of(carga.get(0), carga.get(1), carga.get(2), carga.get(3), carga.get(4), carga.get(5), carga.get(6)))
+        assertThat(List.of(
+                        carga.get(0),
+                        carga.get(1),
+                        carga.get(2),
+                        carga.get(3),
+                        carga.get(4),
+                        carga.get(5),
+                        carga.get(6)))
                 .containsExactly(
                         "500.00",
                         "BOB",

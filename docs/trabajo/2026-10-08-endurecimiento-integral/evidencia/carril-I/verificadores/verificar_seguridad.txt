@@ -18,7 +18,7 @@
   OK    · los 4 operadores de dev tienen TOTP y pueden entrar
 
 === 3 · PATRONES PROHIBIDOS ===
-  OK    · 3160 archivos de código sin patrones prohibidos
+  FALLA · patrones prohibidos: ['servicios\\nucleo-financiero\\src\\test\\java\\bo\\aportaya\\nucleofinanciero\\BaseDeAportes.java:175 — SQL concatenado (prohibición 2)', 'servicios\\nucleo-financiero\\src\\test\\java\\bo\\aportaya\\nucleofinanciero\\CUConsumoDeAportesRechazosTest.java:31 — SQL concatenado (prohibición 2)', 'servicios\\nucleo-financiero\\src\\test\\java\\bo\\aportaya\\nucleofinanciero\\CUConsumoDeAportesTest.java:79 — SQL concatenado (prohibición 2)', 'servicios\\nucleo-financiero\\src\\test\\java\\bo\\aportaya\\nucleofinanciero\\CUConsumoDeAportesTest.java:253 — SQL concatenado (prohibición 2)', 'servicios\\grupos\\src\\test\\java\\bo\\aportaya\\grupos\\CUCesionDeDerechoTest.java:110 — SQL concatenado (prohibición 2)', 'servicios\\entregas\\src\\test\\java\\bo\\aportaya\\entregas\\CU130CompraTest.java:34 — SQL concatenado (prohibición 2)', 'servicios\\entregas\\src\\test\\java\\bo\\aportaya\\entregas\\CU130CompraTest.java:46 — SQL concatenado (prohibición 2)', 'servicios\\aportes\\src\\test\\java\\bo\\aportaya\\aportes\\CU21Test.java:106 — SQL concatenado (prohibición 2)']
 
 === 3b · RUTAS ABIERTAS, ENUMERADAS ===
   OK    · el permiso de acceso abierto vive en un solo archivo
@@ -47,4 +47,4 @@
   AVISO · servicios/inversiones/src/main/java/bo/aportaya/inversiones/infraestructura/Sql.java:20 — DSL.field(variable) — nombre de columna dinámico (fuera del alcance de este carril; dueño del servicio)
   (800 archivos revisados; 0 bloquean, 4 son aviso)
 
-TODO OK · 6 aviso(s)
+1 FALLAS

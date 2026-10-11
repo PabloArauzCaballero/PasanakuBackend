@@ -76,8 +76,9 @@ class CUConsumoDeAportesTest extends BaseDeAportes {
         assertThat(partidas).allSatisfy(p -> assertThat(p.get(3)).isEqualTo("BOB"));
         // El hecho se publica en la misma transaccion (outbox, regla 98.3).
         assertThat(contar(
-                        "SELECT count(*) FROM nucleo_financiero.evento_dominio WHERE tipo ="
-                                + " 'nucleo_financiero.aporte_aplicado' AND agregado_id = ?",
+                        """
+                        SELECT count(*) FROM nucleo_financiero.evento_dominio WHERE tipo = 'nucleo_financiero.aporte_aplicado' AND agregado_id = ?
+                        """,
                         a.obligacion()))
                 .isEqualTo(1);
         System.out.println("ASIENTO | aporte_cobrado pago=" + e.pagoId() + " | DEBE " + MAPEO.get("SALDO_USUARIOS.BOB")
@@ -250,8 +251,9 @@ class CUConsumoDeAportesTest extends BaseDeAportes {
                         salida.asientoId().orElseThrow()))
                 .isEqualTo(2);
         assertThat(contar(
-                        "SELECT count(*) FROM nucleo_financiero.asiento_contable WHERE id = ? AND asiento_reversa_id ="
-                                + " ?",
+                        """
+                        SELECT count(*) FROM nucleo_financiero.asiento_contable WHERE id = ? AND asiento_reversa_id = ?
+                        """,
                         contra.asientoId(),
                         salida.asientoId().orElseThrow()))
                 .isEqualTo(1);

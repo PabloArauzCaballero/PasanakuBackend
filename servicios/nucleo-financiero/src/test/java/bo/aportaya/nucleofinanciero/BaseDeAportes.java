@@ -172,8 +172,9 @@ abstract class BaseDeAportes extends BaseDeBilletera {
 
     protected int transacciones(UUID obligacion) {
         return contar(
-                "SELECT count(*) FROM nucleo_financiero.transaccion_billetera WHERE tipo = 'APORTE_A_GRUPO' AND"
-                        + " origen_id = ?",
+                """
+                SELECT count(*) FROM nucleo_financiero.transaccion_billetera WHERE tipo = 'APORTE_A_GRUPO' AND origen_id = ?
+                """,
                 obligacion);
     }
 

@@ -45,3 +45,13 @@ Recorridos reales preparados (no corridos): `h14.py` (GAP de aportes → 4 compr
 - grupos: obligaciones futuras ya generadas a nombre del vendedor y `permite_cupos_multiples` del comprador (negocio).
 - Hallazgo fuera de alcance: `nucleo/HechosPorHttp` pregunta a `aportes` `/participantes/{usuarioId}/estado`, pero aportes indexa por `participante_id` de grupos: «tiene obligaciones abiertas» da siempre falso (cierre de billetera con deuda).
 - Stack de G: no se tocó (solo lecturas y 3 transacciones con ROLLBACK; consumieron números de secuencia). Sigue arriba; H ya terminó (su informe lo declara).
+
+## Cierre (ultima etapa)
+- Gradle por heavy.sh (0 fallos, conteos desde XML): comun-web 67, nucleo 549, identidad 227, entregas 212, aportes 174 (`gradle-s3-aportes.log`, `gradle-s5-*.log`).
+  grupos: 362/362 en `gradle-s1-*.log`; en la corrida final (`gradle-s5`) falla `HechosCaidaTest.conElCircuitoAbiertoSeDeniega` (NPE en
+  `HechosPorHttp.estadoDePagos` con cuerpo `{}`, circuito semiabierto a los 400 ms bajo carga; preexistente, no tocado por el carril).
+  Causa raiz corregida (cuerpo sin importes = «sin dato», fallback declarado). **La re-corrida de grupos con ese arreglo NO se ejecuto**: el guardian no
+  dio RAM (>=3500 MB libres) y la cancele al cerrar. Comando: `MAX_WAIT_S=3000 bash scratchpad/i_seg.sh s7 servicios:grupos`.
+- Tras esa corrida solo se mecanizaron literales SQL a text blocks (verificar_seguridad exige no concatenar) en CU21Test, CU130CompraTest y CUCesionDeDerechoTest:
+  sin cambio de comportamiento, **no re-corridos**. `verificar_*.py` en RC 0 al final.
+- Stack real (recorridos h14m1/h9m5/desembolso/f1f4/i-*): **NO VERIFICADO** — sin RAM; no se construyeron imagenes. El stack de G esta abajo.
