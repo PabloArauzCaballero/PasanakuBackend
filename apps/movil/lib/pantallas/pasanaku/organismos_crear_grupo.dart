@@ -3,7 +3,10 @@ import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/campo.dart';
 import 'package:aportaya_diseno/atomos/campo_monto.dart';
 import 'package:aportaya_diseno/atomos/casilla.dart';
+import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/dinero/formatear.dart';
+import 'package:aportaya_diseno/errores.dart';
+import 'package:aportaya_diseno/moleculas/alerta.dart';
 import 'package:aportaya_diseno/moleculas/barra_de_accion.dart';
 import 'package:aportaya_diseno/moleculas/pregunta.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
@@ -114,6 +117,18 @@ class FormularioCrearGrupo extends StatelessWidget {
                 ],
               ),
             ),
+            // Carril H3: con el servidor TEST real el rechazo (p. ej. 422 AP-CU20-04) no se veía:
+            // el botón dejaba de girar y no pasaba nada. Se dice arriba de la acción, siempre visible.
+            if (estado.hasError && !estado.isLoading)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  Espacio.s4,
+                  Espacio.s2,
+                  Espacio.s4,
+                  0,
+                ),
+                child: _RechazoAlCrear(error: estado.error!),
+              ),
             BarraDeAccion(
               hijo: Boton(
                 texto: TextosPasanaku.crearGrupoBoton,
@@ -150,5 +165,26 @@ class FormularioCrearGrupo extends StatelessWidget {
       // Todavía está escribiendo: no hay consecuencia que adelantar.
       return null;
     }
+  }
+}
+
+/// El rechazo de crear grupo, en lenguaje humano y con la traza para soporte.
+class _RechazoAlCrear extends StatelessWidget {
+  const _RechazoAlCrear({required this.error});
+  final Object error;
+
+  @override
+  Widget build(BuildContext context) {
+    final presentable = error is ErrorPresentable
+        ? error as ErrorPresentable
+        : null;
+    final traza = presentable?.trazaId;
+    return Alerta(
+      titulo:
+          presentable?.mensaje ??
+          'No pudimos crear el grupo. Probá de nuevo en un momento.',
+      detalle: traza == null ? null : 'Código de seguimiento: $traza',
+      tono: Tono.error,
+    );
   }
 }

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../dominio/cliente.dart';
+import '../../dominio/errores.dart';
 import '../../proveedores/idempotencia.dart';
 import '../../proveedores/sesion.dart';
 import 'tarjetas_de_unirse.dart';
@@ -89,14 +90,26 @@ class _PantallaUnirseState extends ConsumerState<PantallaUnirse> {
         _cargando = false;
         _detalle = respuesta.data;
       });
-    } on Object {
+    } on Object catch (e) {
       if (!mounted) return;
       setState(() {
         _cargando = false;
-        _error =
-            'No pudimos verificar la invitación. Revisá el enlace o probá de nuevo.';
+        _error = _textoDelRechazo(
+          e,
+          'No pudimos verificar la invitación. Revisá el enlace o probá de nuevo.',
+        );
       });
     }
+  }
+
+  /// Si el servidor rechazó con un código que la app sabe explicar (enlace revocado, vencido, ya usado,
+  /// ingreso con revisión humana…), se dice eso; si no (sin red, falla), el texto general de la pantalla.
+  String _textoDelRechazo(Object e, String generico) {
+    final motivo = errorDeDominio(e);
+    if (motivo is ErrorDeApi && tieneMensajePropio(motivo.codigo)) {
+      return motivo.mensaje;
+    }
+    return generico;
   }
 
   Future<void> _aceptar() async {
@@ -130,10 +143,13 @@ class _PantallaUnirseState extends ConsumerState<PantallaUnirse> {
         _detalle = null;
         _error = null;
       });
-    } on Object {
+    } on Object catch (e) {
       if (!mounted) return;
       setState(
-        () => _error = 'No pudimos completar tu ingreso. Probá de nuevo.',
+        () => _error = _textoDelRechazo(
+          e,
+          'No pudimos completar tu ingreso. Probá de nuevo.',
+        ),
       );
     } finally {
       if (mounted) setState(() => _enviando = false);
