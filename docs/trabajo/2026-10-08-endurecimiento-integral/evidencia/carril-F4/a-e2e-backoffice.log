@@ -1,0 +1,20 @@
+[WebServer] node:internal/modules/package_json_reader:314
+[WebServer]   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+[WebServer]         ^
+[WebServer] 
+[WebServer] Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@scalar/mock-server' imported from C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\packages\simulado\scripts\servidor-mock.mjs
+[WebServer]     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+[WebServer]     at packageResolve (node:internal/modules/esm/resolve:768:81)
+[WebServer]     at moduleResolve (node:internal/modules/esm/resolve:855:18)
+[WebServer]     at defaultResolve (node:internal/modules/esm/resolve:985:11)
+[WebServer]     at #cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+[WebServer]     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+[WebServer]     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+[WebServer]     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+[WebServer]   code: 'ERR_MODULE_NOT_FOUND'
+[WebServer] }
+[WebServer] 
+[WebServer] Node.js v22.23.1
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+RC=1

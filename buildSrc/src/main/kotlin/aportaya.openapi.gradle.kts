@@ -40,6 +40,13 @@ val generarServidor = tasks.register<GenerateTask>("generarServidorOpenApi") {
     generatorName.set("spring")
     inputSpec.set(rutaDelContrato)
     outputDir.set(servidor.map { it.asFile.absolutePath })
+    // Plantillas propias de `pojo` y `model` (copia de JavaSpring/7.14.0 SIN el mapa de
+    // propiedades adicionales). El generador emitia `@JsonAnySetter` en 31 modelos de 11
+    // servicios aunque el contrato dijera `additionalProperties: false`: Jackson entregaba
+    // cualquier campo de mas al mapa en vez de rechazarlo (mass assignment, regla 96.2.2).
+    // Sin el mapa, el campo desconocido llega al deserializador, y `comun-web` lo rechaza.
+    // La prueba `ModelosSinCamposAbiertosTest` falla si vuelve a salir uno.
+    templateDir.set(rootProject.layout.projectDirectory.dir("buildSrc/plantillas-openapi/spring").asFile.absolutePath)
     apiPackage.set("bo.aportaya.$paquete.web.generado")
     modelPackage.set("bo.aportaya.$paquete.web.generado.modelo")
     configOptions.set(
@@ -52,6 +59,8 @@ val generarServidor = tasks.register<GenerateTask>("generarServidorOpenApi") {
             "useJakartaEe" to "true",
         ),
     )
+    // `templateDir` es un String para Gradle: sin esto, cambiar una plantilla no invalida la tarea.
+    inputs.dir(rootProject.layout.projectDirectory.dir("buildSrc/plantillas-openapi/spring"))
     onlyIf { tieneOperaciones() }
 }
 

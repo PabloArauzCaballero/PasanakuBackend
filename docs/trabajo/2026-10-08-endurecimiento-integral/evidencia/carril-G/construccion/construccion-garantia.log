@@ -1,0 +1,60 @@
+#23 9.276 > Task :plataforma:comun-web:jar
+#23 10.98 
+#23 10.98 > Task :servicios:garantia:generarServidorOpenApi
+#23 10.98 OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+#23 10.98 Failed to get the schema name: null
+#23 10.98 OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+#23 10.98 ############################################################################################
+#23 10.98 # Thanks for using OpenAPI Generator.                                                      #
+#23 10.98 # We appreciate your support! Please consider donation to help us maintain this project.   #
+#23 10.98 # https://opencollective.com/openapi_generator/donate                                      #
+#23 10.98 ############################################################################################
+#23 10.98 Successfully generated code to /construccion/servicios/garantia/build/generated/openapi
+#23 12.28 
+#23 12.28 > Task :servicios:garantia:generateJooq
+#23 12.28 Version mismatch         : Database version is older than what dialect POSTGRES supports: 16.15 (Debian 16.15-1.pgdg13+2). Consider https://www.jooq.org/download/support-matrix to see what jOOQ version and edition supports which RDBMS versions.
+#23 16.98 
+#23 16.98 > Task :servicios:garantia:compileJava
+#23 16.98 > Task :servicios:garantia:processResources
+#23 16.98 > Task :servicios:garantia:classes
+#23 17.08 > Task :servicios:garantia:resolveMainClassName
+#23 17.44 > Task :servicios:garantia:bootJar
+#23 17.44 
+#23 17.44 BUILD SUCCESSFUL in 17s
+#23 17.44 27 actionable tasks: 17 executed, 10 from cache
+#23 17.44 Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+#23 DONE 17.6s
+
+#24 [construccion 14/15] RUN mkdir -p /capas && cd /capas     && java -Djarmode=tools -jar /construccion/servicios/garantia/build/libs/*.jar extract --layers --launcher --destination /capas
+#24 DONE 0.5s
+
+#25 [construccion 15/15] RUN mkdir -p /nativo /tmp/nativo && cd /tmp/nativo     && case "$(uname -m)" in x86_64) prefijo=linux-x86-64 ;; aarch64) prefijo=linux-aarch64 ;; *) prefijo=desconocido ;; esac     && for j in /capas/dependencies/BOOT-INF/lib/jna-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "com/sun/jna/${prefijo}/libjnidispatch.so" && cp "com/sun/jna/${prefijo}/libjnidispatch.so" /nativo/; done     && for j in /capas/dependencies/BOOT-INF/lib/argon2-jvm-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "${prefijo}/libargon2.so" && cp "${prefijo}/libargon2.so" /nativo/; done     ; ls -l /nativo
+#25 0.057 total 0
+#25 DONE 0.1s
+
+#26 [runtime 4/8] COPY --from=construccion --chown=app:app /capas/dependencies/ ./
+#26 DONE 0.2s
+
+#27 [runtime 5/8] COPY --from=construccion --chown=app:app /capas/spring-boot-loader/ ./
+#27 DONE 0.0s
+
+#28 [runtime 6/8] COPY --from=construccion --chown=app:app /capas/snapshot-dependencies/ ./
+#28 DONE 0.0s
+
+#29 [runtime 7/8] COPY --from=construccion --chown=app:app /capas/application/ ./
+#29 DONE 0.0s
+
+#30 [runtime 8/8] COPY --from=construccion /nativo/ /app/nativo/
+#30 DONE 0.0s
+
+#31 exporting to image
+#31 exporting layers
+#31 exporting layers 1.7s done
+#31 exporting manifest sha256:1c63aeaed7c7604f7ce7459c833a82686ac1c69b05c47608781ad64db4ea6795 done
+#31 exporting config sha256:bf51d57c0c974f6a9280047493937a4ed19234305515691d246c208d3ecdfafc 0.0s done
+#31 exporting attestation manifest sha256:ff88c0478eeec6a9554760ea2f640294ba37cede2d0bd923697099cce33461a7 0.0s done
+#31 exporting manifest list sha256:a62b19b90031f12548ccd7c96466b684c1d8af2016c2834c5a2e731acc2792b5 done
+#31 naming to docker.io/aportaya/garantia:test done
+#31 unpacking to docker.io/aportaya/garantia:test
+#31 unpacking to docker.io/aportaya/garantia:test 0.3s done
+#31 DONE 2.0s

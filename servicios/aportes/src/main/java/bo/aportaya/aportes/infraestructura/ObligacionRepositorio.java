@@ -90,7 +90,7 @@ public class ObligacionRepositorio {
                                 DSL.field("monto_pagado", BigDecimal.class),
                                 DSL.field("monto_pagado", BigDecimal.class).plus(monto.monto()))
                         .set(DSL.field("estado", String.class), nuevoEstado)
-                        .set(DSL.field("fecha_pago_efectivo", LocalDate.class), ahora.toLocalDate())
+                        .set(DSL.field("fecha_pago_efectivo", OffsetDateTime.class), ahora)
                         .set(DSL.field("version", Integer.class), versionEsperada + 1)
                         .where(DSL.field("id", UUID.class).eq(obligacionId))
                         .and(DSL.field("version", Integer.class).eq(versionEsperada))
@@ -183,7 +183,7 @@ public class ObligacionRepositorio {
                         """
                         SELECT o.id FROM aportes.obligacion_aporte o
                          WHERE o.tipo = 'APORTE_PERIODICO'
-                           AND o.estado IN ('PENDIENTE', 'PARCIAL', 'EN_MORA')
+                           AND o.estado IN ('PENDIENTE', 'PAGADO_PARCIAL', 'EN_MORA')
                            AND o.fecha_fin_gracia < ?
                            AND NOT EXISTS (SELECT 1 FROM aportes.obligacion_aporte r
                                             WHERE r.obligacion_origen_id = o.id AND r.tipo = 'RECARGO_MORA')

@@ -183,8 +183,12 @@ public class CU23CubrirIncumplimiento {
                     coberturaId,
                     "FONDO_GARANTIA",
                     calculo.montoCubierto(),
-                    ahora.toLocalDate().plusDays(diasParaExigirLaDeuda),
-                    ahora.toLocalDate().plusYears(aniosDePrescripcion));
+                    ahora.atZoneSameInstant(bo.aportaya.plataforma.dominio.Reloj.ZONA)
+                            .toLocalDate()
+                            .plusDays(diasParaExigirLaDeuda),
+                    ahora.atZoneSameInstant(bo.aportaya.plataforma.dominio.Reloj.ZONA)
+                            .toLocalDate()
+                            .plusYears(aniosDePrescripcion));
 
             expedientes.registrarTransicion(
                     dsl,

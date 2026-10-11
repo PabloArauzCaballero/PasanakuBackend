@@ -122,8 +122,13 @@ public abstract class SabanaDeSeguridadWeb {
         }
 
         for (Endpoint endpoint : Endpoint.conPermiso(rutas)) {
-            String[] ajenos =
-                    todos.stream().filter(p -> !p.equals(endpoint.permiso())).toArray(String[]::new);
+            // Las alternativas DECLARADAS de la ruta (@PermisoAlternativo) no son «la operacion de al lado»: son otra
+            // puerta
+            // abierta a proposito, con su propia prueba negativa en el servicio.
+            String[] ajenos = todos.stream()
+                    .filter(p -> !p.equals(endpoint.permiso())
+                            && !endpoint.alternativas().contains(p))
+                    .toArray(String[]::new);
 
             var respuesta = pedir(endpoint, Sesiones.de(Sesiones.USUARIO, Sesiones.ROL_SIN_NADA, ajenos));
 

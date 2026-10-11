@@ -1,0 +1,60 @@
+#14 CACHED
+
+#15 [runtime 6/8] COPY --from=construccion --chown=app:app /capas/snapshot-dependencies/ ./
+#15 CACHED
+
+#16 [runtime 4/8] COPY --from=construccion --chown=app:app /capas/dependencies/ ./
+#16 CACHED
+
+#17 [construccion  5/15] COPY gradle gradle
+#17 CACHED
+
+#18 [construccion 15/15] RUN mkdir -p /nativo /tmp/nativo && cd /tmp/nativo     && case "$(uname -m)" in x86_64) prefijo=linux-x86-64 ;; aarch64) prefijo=linux-aarch64 ;; *) prefijo=desconocido ;; esac     && for j in /capas/dependencies/BOOT-INF/lib/jna-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "com/sun/jna/${prefijo}/libjnidispatch.so" && cp "com/sun/jna/${prefijo}/libjnidispatch.so" /nativo/; done     && for j in /capas/dependencies/BOOT-INF/lib/argon2-jvm-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "${prefijo}/libargon2.so" && cp "${prefijo}/libargon2.so" /nativo/; done     ; ls -l /nativo
+#18 CACHED
+
+#19 [construccion  2/15] WORKDIR /construccion
+#19 CACHED
+
+#20 [construccion 12/15] COPY servicios/tarifas servicios/tarifas
+#20 CACHED
+
+#21 [construccion  6/15] COPY buildSrc buildSrc
+#21 CACHED
+
+#22 [construccion  9/15] COPY sql/40_reglas/restricciones.sql sql/40_reglas/restricciones.sql
+#22 CACHED
+
+#23 [construccion  7/15] COPY bd bd
+#23 CACHED
+
+#24 [construccion 14/15] RUN mkdir -p /capas && cd /capas     && java -Djarmode=tools -jar /construccion/servicios/tarifas/build/libs/*.jar extract --layers --launcher --destination /capas
+#24 CACHED
+
+#25 [runtime 2/8] RUN groupadd --system app && useradd --system --gid app app     && apt-get update     && apt-get install -y --no-install-recommends wget     && rm -rf /var/lib/apt/lists/*
+#25 CACHED
+
+#26 [construccion  8/15] COPY scripts scripts
+#26 CACHED
+
+#27 [construccion 10/15] COPY sql/50_verificacion/prueba_humo.sql sql/50_verificacion/prueba_humo.sql
+#27 CACHED
+
+#28 [runtime 7/8] COPY --from=construccion --chown=app:app /capas/application/ ./
+#28 CACHED
+
+#29 [construccion 13/15] RUN --mount=type=cache,target=/root/.gradle     BD_URL_ADMIN=jdbc:postgresql://127.0.0.1:5444/pasanaku     BD_USUARIO_ADMIN=pasanaku     BD_CLAVE_ADMIN=<BD_CLAVE_ADMIN>     ./gradlew --no-daemon --max-workers=2 -Dorg.gradle.parallel=false "-Dorg.gradle.jvmargs=-Xmx1g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8" :servicios:tarifas:bootJar -x test
+#29 CACHED
+
+#30 [runtime 8/8] COPY --from=construccion /nativo/ /app/nativo/
+#30 CACHED
+
+#31 exporting to image
+#31 exporting layers done
+#31 exporting manifest sha256:b5bfb2eb93cdac0f5cc5520c609143fd75dd1da925cef56ad5e2a08217fb9a6c done
+#31 exporting config sha256:1284ec068a73342ace6d835cd270e680ce14326ad9869f519abeeb1ae63cb134 done
+#31 exporting attestation manifest sha256:80bef9011a7b2e8e85eb3e96f9fe93438b7510ce58a83985449c08719739fd7c 0.1s done
+#31 exporting manifest list sha256:3092047ba2f8778acf4a4d5bbc22166756bf799f8c4925f425b7d54be01a163e
+#31 exporting manifest list sha256:3092047ba2f8778acf4a4d5bbc22166756bf799f8c4925f425b7d54be01a163e 0.0s done
+#31 naming to docker.io/aportaya/tarifas:test done
+#31 unpacking to docker.io/aportaya/tarifas:test 0.0s done
+#31 DONE 0.2s

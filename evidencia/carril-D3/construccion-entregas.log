@@ -1,0 +1,60 @@
+#23 9.953 > Task :plataforma:comun-web:jar
+#23 11.35 
+#23 11.35 > Task :servicios:entregas:generarServidorOpenApi
+#23 11.35 OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+#23 11.35 OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+#23 11.35 ############################################################################################
+#23 11.35 # Thanks for using OpenAPI Generator.                                                      #
+#23 11.35 # We appreciate your support! Please consider donation to help us maintain this project.   #
+#23 11.35 # https://opencollective.com/openapi_generator/donate                                      #
+#23 11.35 ############################################################################################
+#23 11.35 Successfully generated code to /construccion/servicios/entregas/build/generated/openapi
+#23 12.55 
+#23 12.55 > Task :servicios:entregas:generateJooq
+#23 12.55 Version mismatch         : Database version is older than what dialect POSTGRES supports: 16.15 (Debian 16.15-1.pgdg13+2). Consider https://www.jooq.org/download/support-matrix to see what jOOQ version and edition supports which RDBMS versions.
+#23 15.65 
+#23 15.65 > Task :servicios:entregas:compileJava
+#23 15.65 > Task :servicios:entregas:processResources
+#23 15.65 > Task :servicios:entregas:classes
+#23 15.65 > Task :servicios:entregas:resolveMainClassName
+#23 15.95 > Task :servicios:entregas:bootJar
+#23 16.00 
+#23 16.00 BUILD SUCCESSFUL in 15s
+#23 16.00 26 actionable tasks: 16 executed, 10 from cache
+#23 16.00 Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+#23 DONE 16.2s
+
+#24 [construccion 14/15] RUN mkdir -p /capas && cd /capas     && java -Djarmode=tools -jar /construccion/servicios/entregas/build/libs/*.jar extract --layers --launcher --destination /capas
+#24 DONE 0.5s
+
+#25 [construccion 15/15] RUN mkdir -p /nativo /tmp/nativo && cd /tmp/nativo     && case "$(uname -m)" in x86_64) prefijo=linux-x86-64 ;; aarch64) prefijo=linux-aarch64 ;; *) prefijo=desconocido ;; esac     && for j in /capas/dependencies/BOOT-INF/lib/jna-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "com/sun/jna/${prefijo}/libjnidispatch.so" && cp "com/sun/jna/${prefijo}/libjnidispatch.so" /nativo/; done     && for j in /capas/dependencies/BOOT-INF/lib/argon2-jvm-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "${prefijo}/libargon2.so" && cp "${prefijo}/libargon2.so" /nativo/; done     ; ls -l /nativo
+#25 0.069 total 0
+#25 DONE 0.1s
+
+#26 [runtime 4/8] COPY --from=construccion --chown=app:app /capas/dependencies/ ./
+#26 DONE 0.2s
+
+#27 [runtime 5/8] COPY --from=construccion --chown=app:app /capas/spring-boot-loader/ ./
+#27 DONE 0.0s
+
+#28 [runtime 6/8] COPY --from=construccion --chown=app:app /capas/snapshot-dependencies/ ./
+#28 DONE 0.0s
+
+#29 [runtime 7/8] COPY --from=construccion --chown=app:app /capas/application/ ./
+#29 DONE 0.0s
+
+#30 [runtime 8/8] COPY --from=construccion /nativo/ /app/nativo/
+#30 DONE 0.1s
+
+#31 exporting to image
+#31 exporting layers
+#31 exporting layers 1.1s done
+#31 exporting manifest sha256:b81d0bf6643baa6102908551b5718ba125b6806097ce74c4ea6393cd4bc5c845
+#31 exporting manifest sha256:b81d0bf6643baa6102908551b5718ba125b6806097ce74c4ea6393cd4bc5c845 done
+#31 exporting config sha256:9782380c3c7762d64b76186295d5d53aeb05b9b3281b4ab742c56ec09e9a1106 done
+#31 exporting attestation manifest sha256:5b2c8f559559c6ac6cee493fcf685c2e51dc9f29b6779d76d8153c2b61600788 0.0s done
+#31 exporting manifest list sha256:aa18e8d4c342eae62cef76cfdff803ec29a56db0994131c6f1503baf275f700f done
+#31 naming to docker.io/aportaya/entregas:test done
+#31 unpacking to docker.io/aportaya/entregas:test
+#31 unpacking to docker.io/aportaya/entregas:test 0.3s done
+#31 DONE 1.4s

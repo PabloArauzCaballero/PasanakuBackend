@@ -1,0 +1,80 @@
+# Lo UNICO que el ensayo le cambia a docker-compose.coolify.yml: memoria y puertos.
+#
+# Se combina con el compose desplegado SIN editarlo:
+#   docker compose -f docker-compose.coolify.yml -f despliegue/ensayos/arranque/servicios.override.yml ...
+#
+#   · mem_limit y JAVA_TOOL_OPTIONS: Docker Desktop corre con 4 GB, y dieciseis JVM con el
+#     75 % de la RAM del contenedor como heap (el ENTRYPOINT del Dockerfile) no entran. En el
+#     host de TEST (23 GB) no se aplica nada de esto. -Xmx explicito gana a MaxRAMPercentage.
+#   · las redes apuntan a las del ensayo (aportaya-d3-*), creadas por infra.yml.
+#   · el gateway publica su puerto en loopback para el humo y para quien pruebe desde afuera.
+#
+# NO toca variables de entorno de los servicios, healthchecks, depends_on, read_only ni tmpfs:
+# eso es exactamente lo que se quiere probar.
+# `scripts/generar_compose.py` no genera este archivo; arranque_completo.sh comprueba que cubra
+# TODOS los servicios del compose desplegado y falla si aparece uno nuevo sin cubrir.
+
+x-jvm: &jvm
+  JAVA_TOOL_OPTIONS: "-Xmx${D3_XMX:-144m} -Xss512k -XX:MaxMetaspaceSize=128m -XX:ReservedCodeCacheSize=48m -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:CICompilerCount=1"
+
+networks:
+  interna:
+    name: aportaya-d3-interna
+    external: true
+  publica:
+    name: aportaya-d3-publica
+    external: true
+
+services:
+  gateway:
+    mem_limit: ${D3_MEM:-320m}
+    environment: *jvm
+    ports:
+      - "127.0.0.1:${D3_PUERTO_GATEWAY:-18080}:8080"
+  aportes:
+    mem_limit: ${D3_MEM:-320m}
+    environment: *jvm
+  auditoria:
+    mem_limit: ${D3_MEM:-320m}
+    environment: *jvm
+  cumplimiento:
+    mem_limit: ${D3_MEM:-320m}
+    environment: *jvm
+  entregas:
+    mem_limit: ${D3_MEM:-320m}
+    environment: *jvm
+  erp:
+    mem_limit: ${D3_MEM:-320m}
+    environment: *jvm
+  garantia:
+    mem_limit: ${D3_MEM:-320m}
+    environment: *jvm
+  grupos:
+    mem_limit: ${D3_MEM:-320m}
+    environment: *jvm
+  identidad:
+    mem_limit: ${D3_MEM:-320m}
+    environment: *jvm
+  inversiones:
+    mem_limit: ${D3_MEM:-320m}
+    environment: *jvm
+  notificaciones:
+    mem_limit: ${D3_MEM:-320m}
+    environment: *jvm
+  nucleo-financiero:
+    mem_limit: ${D3_MEM:-320m}
+    environment: *jvm
+  organizador:
+    mem_limit: ${D3_MEM:-320m}
+    environment: *jvm
+  publicidad:
+    mem_limit: ${D3_MEM:-320m}
+    environment: *jvm
+  tarifas:
+    mem_limit: ${D3_MEM:-320m}
+    environment: *jvm
+  transparencia:
+    mem_limit: ${D3_MEM:-320m}
+    environment: *jvm
+  esquema:
+    mem_limit: 128m

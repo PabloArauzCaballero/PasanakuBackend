@@ -143,7 +143,7 @@ public class CU19ReembolsarPago {
                     obligacion.saldo().pagado().menos(reembolso.monto()),
                     obligacion.saldo().condonado(),
                     obligacion.saldo().cubiertoPorGarantia());
-            boolean vencida = obligacion.finDeGracia().isBefore(ahora.toLocalDate());
+            boolean vencida = obligacion.finDeGracia().isBefore(reloj.hoy());
             String estadoNuevo = SaldoDeLaObligacion.estadoSegunSaldo(saldoDespues, vencida);
             obligaciones.revertirPago(dsl, obligacion.id(), reembolso.monto(), estadoNuevo);
 

@@ -20,7 +20,9 @@
               "moneda": "BOB"
             }
           }
-        ]
+        ],
+        "tokenDeAlta": "alta-sintetico-0000000000000000000000000000000000000000",
+        "tokenDeAltaVenceEn": "2030-01-01T00:10:00Z"
       }
     },
     "vacio": {
@@ -30,7 +32,9 @@
         "estado": "PENDIENTE_VERIFICACION",
         "cuentaBilleteraId": "cc4c1e4f-5b7d-428d-868c-e733e27c9b0d",
         "nivelDiligencia": "SIMPLIFICADA",
-        "limites": []
+        "limites": [],
+        "tokenDeAlta": "alta-sintetico-0000000000000000000000000000000000000000",
+        "tokenDeAltaVenceEn": "2030-01-01T00:10:00Z"
       }
     },
     "adverso": {
@@ -49,7 +53,9 @@
               "moneda": "BOB"
             }
           }
-        ]
+        ],
+        "tokenDeAlta": "alta-sintetico-0000000000000000000000000000000000000000",
+        "tokenDeAltaVenceEn": "2030-01-01T00:10:00Z"
       }
     },
     "aceptado": {
@@ -68,7 +74,9 @@
               "moneda": "BOB"
             }
           }
-        ]
+        ],
+        "tokenDeAlta": "alta-sintetico-0000000000000000000000000000000000000000",
+        "tokenDeAltaVenceEn": "2030-01-01T00:10:00Z"
       }
     },
     "intermitente": {
@@ -83,10 +91,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU01-01",
+        "mensaje": "Kyc rechazado",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-registrarUsuario-rechazo"
       }
     }
   }

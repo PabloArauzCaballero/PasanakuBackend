@@ -1,0 +1,109 @@
+{
+  "nombre": "integracion-real",
+  "resumen": {
+    "PASS": 14,
+    "FAIL": 0,
+    "GAP": 0,
+    "INFO": 0
+  },
+  "filas": [
+    {
+      "id": "INFRA-1",
+      "titulo": "los topicos aportaya.* existen (el broker no autocrea)",
+      "resultado": "PASS",
+      "detalle": "243 topicos",
+      "evidencia": null
+    },
+    {
+      "id": "INFRA-2",
+      "titulo": "el relevo del outbox publica: ningun evento de garantia quedo PENDIENTE sin intentos hace >2 min",
+      "resultado": "PASS",
+      "detalle": "0 pendientes sin intentar",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-pago",
+      "titulo": "IPAC062BC paga su aporte por HTTP (obligacion 81ea3017)",
+      "resultado": "PASS",
+      "detalle": "<201 {\"pagoId\":\"7568942a-2a8d-46e6-ab6f-051860849d2b\",\"obligacionId\":\"81ea3017-ee98-4ed6-85f3-c41776433ee8\",\"estadoOblig",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-pago",
+      "titulo": "IPA3DD45B paga su aporte por HTTP (obligacion 6244f650)",
+      "resultado": "PASS",
+      "detalle": "<201 {\"pagoId\":\"cb7d345c-f56d-41f7-80b0-b0ab5206312e\",\"obligacionId\":\"6244f650-2bfe-4baa-884f-ae5d476f8676\",\"estadoOblig",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-pago",
+      "titulo": "ICOD8A32A paga su aporte por HTTP (obligacion 60a312cf)",
+      "resultado": "PASS",
+      "detalle": "<201 {\"pagoId\":\"bbe0522a-941e-432d-81cd-c85795221ea3\",\"obligacionId\":\"60a312cf-4d39-4b4d-94ce-a42805c6468d\",\"estadoOblig",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-recaudo",
+      "titulo": "aportes afirma el pozo 6000, confirmado 4500 y faltante 1500 (no lo afirma el cliente)",
+      "resultado": "PASS",
+      "detalle": "{'periodoId': '2af3ccdb-8af8-4774-aac9-7d76727530c3', 'grupoId': 'b92db82e-7b49-479a-b220-367b78a01312', 'corteEn': '2026-10-10T19:58:35.156908Z', 'pozo': {'monto': '6000.00', 'moneda': 'BOB'}, 'confi",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-reserva",
+      "titulo": "garantia reserva 3000 de la capacidad empresarial (201)",
+      "resultado": "PASS",
+      "detalle": "<201 {\"reservaId\":\"0c16b157-73d2-45fc-92e4-e62237749d20\",\"reservado\":{\"monto\":\"3000.00\",\"moneda\":\"BOB\"},\"capacidadDisponible\":{\"monto\":\"97000.00\",\"moneda\":\"BOB\"},\"es>",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-mayor-reserva",
+      "titulo": "el mayor asienta la reserva (3000) que cuadra, antes de cualquier cobertura",
+      "resultado": "PASS",
+      "detalle": "[{'id': '2c2e57dd-32d0-45a9-afbe-1bd6629878f0', 'estado': 'CONFIRMADO', 'reversa': None, 'debe': Decimal('3000.00'), 'haber': Decimal('3000.00')}]",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-cobertura",
+      "titulo": "entregas -> aportes -> garantia: el pozo queda FONDEADO y la empresa cubre 1500",
+      "resultado": "PASS",
+      "detalle": "<201 {\"entregaId\":\"592c6985-5897-4902-9cb3-0e8078a4580a\",\"fondeoId\":\"8ddf645b-74c4-48e2-beb9-31f1526d6e07\",\"estado\":\"FONDEADO\",\"pozo\":{\"monto\":\"6000.00\",\"moneda\":\"BO>",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-cobertura-fila",
+      "titulo": "hay UNA cobertura viva del turno, con responsable y solicitante",
+      "resultado": "PASS",
+      "detalle": "cobertura=b58db357-7511-4fa4-afe2-4e8f6a2b7cad",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-exposicion",
+      "titulo": "la reserva conserva la exposicion: reservado 3000, aplicado 1500, recuperado 0",
+      "resultado": "PASS",
+      "detalle": "[['3000.00', '1500.00', '0.00']]",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-mayor",
+      "titulo": "el mayor de nucleo tiene UN asiento COBERTURA que cuadra (debe = haber = 1500)",
+      "resultado": "PASS",
+      "detalle": "[{'id': '802fdc84-5759-4702-aad0-132c8317a412', 'estado': 'CONFIRMADO', 'reversa': None, 'debe': Decimal('1500.00'), 'haber': Decimal('1500.00')}]",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-cuentas",
+      "titulo": "cuentas logicas -> plan: POZO_GRUPO (9.1.03) +1500 al debe, RESERVA_RESPALDO (9.1.02) -1500",
+      "resultado": "PASS",
+      "detalle": "pozo 1500.00, reserva -1500.00",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-idempotencia",
+      "titulo": "repetir el fondeo (otra clave): misma entrega, UNA cobertura y UNA entrega",
+      "resultado": "PASS",
+      "detalle": "entregas=1 coberturas=1 -> <200 {\"entregaId\":\"592c6985-5897-4902-9cb3-0e8078a4580a\",\"fondeoId\":\"8ddf645b-74c4-48e2-beb9-31f1526d6e07\",\"estado\":\"FONDEADO\",\"pozo\":{\"monto\":\"6000.00\",\"moneda\":\"BO>",
+      "evidencia": null
+    }
+  ]
+}

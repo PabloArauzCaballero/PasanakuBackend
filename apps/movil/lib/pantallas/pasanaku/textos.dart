@@ -16,6 +16,9 @@ class TextosPasanaku {
   static const permitePermutas = 'Permite intercambiar turnos entre socios';
   static const crearGrupoBoton = 'Crear grupo';
   static const creandoGrupo = 'Creando el grupo…';
+  static const grupoCreadoTitulo = 'Grupo creado';
+  static String fondoPorPeriodo(String importe) =>
+      'Fondo por período: $importe';
   static const grupoCreado =
       'Grupo creado. Está congelando el precio; en un momento se abre para inscripciones.';
   static const requisitosTitulo = 'Requisitos para organizar';
@@ -42,16 +45,6 @@ class TextosPasanaku {
   static const cupoNoOcupadoAviso =
       'Pedir el cupo no lo ocupa todavía: tu lista de grupos no lo va a mostrar hasta que te acepten.';
   static const puntajeTitulo = 'Por qué te propusimos este puntaje';
-
-  // Invitar (CU-69)
-  static const tituloInvitar = 'Invitar a un contacto';
-  static const telefonoInvitado = 'Celular de la persona (+591…)';
-  static const nombreSugerido = 'Cómo la conocés (opcional)';
-  static const canalInvitacion = 'Por dónde le llega';
-  static const enviarInvitacion = 'Invitar';
-  static const enviandoInvitacion = 'Enviando la invitación…';
-  static const invitacionEnviada =
-      'Listo. Le avisamos, con quién y a qué grupo.';
 
   // Permuta de turnos (CU-62)
   static const tituloPermuta = 'Cambiar turno con otro socio';
@@ -156,26 +149,6 @@ class TextosPasanaku {
   static const puntajeInsuficiente =
       'Tu puntaje no alcanza el mínimo para ver este mercado.';
   static const verTuNivel = 'Ver tu nivel';
-
-  // Escanear una invitación
-  static const tituloEscanear = 'Escanear invitación';
-  static const escanearAyuda =
-      'Apuntá la cámara al QR de la invitación que te mandó el organizador.';
-  static const escanearAbriendo = 'Abriendo la cámara…';
-  static const escanearRechazo =
-      'Ese QR no es una invitación de AportaYa. Probá con otro.';
-  static const camaraDenegadaTitulo = 'No podemos usar la cámara';
-  static const camaraDenegadaDetalle =
-      'Le negaste el permiso a AportaYa. Habilitalo desde los ajustes del teléfono, o pegá el enlace de la invitación acá abajo.';
-  static const camaraNoDisponibleDetalle =
-      'Este dispositivo no puede escanear. Pegá el enlace de la invitación acá abajo.';
-  static const camaraOtroDetalle =
-      'La cámara no arrancó. Volvé a intentar o pegá el enlace de la invitación acá abajo.';
-  static const abrirAjustes = 'Abrir ajustes';
-  static const pegarEnlaceEtiqueta = 'Enlace de la invitación';
-  static const usarEnlace = 'Usar este enlace';
-  static const enlaceInvalido =
-      'Ese enlace no es una invitación de AportaYa. Revisalo y probá de nuevo.';
 
   // Comunes
   static const volverAIntentar = 'Volver a intentar';

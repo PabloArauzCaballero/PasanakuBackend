@@ -52,6 +52,7 @@ normas: [Ley 393 (conservación e integridad), ASFI riesgo operativo]
 | 3a | El saldo ya se gastó y quedaría negativo | El reverso genera una obligación de restitución en lugar de saldo negativo: **nunca se permite descubierto** (`R-BIL-02`) |
 | 2a | No hay segundo aprobador | La reversa no se ejecuta |
 | 1a | Se intenta reversar dos veces | Rechazo por unicidad (`R-BIL-15`) |
+| — | Se reversa un débito de inversión, un rescate o el pago de una compra del mercado | Es el mismo espejo: cada pata vuelve en sentido contrario (la custodia de inversión o el vendedor devuelven lo recibido), la original queda íntegra y, si la contraparte ya gastó, se genera la obligación de restitución. Probado en `CU13InversionTest`, `CU13MercadoTest` y `CU12RescateTest` (casos `compensa`) |
 | — | Contracargo del proveedor | Además del reverso, se abre disputa y se evalúa cargo al usuario según contrato |
 
 ## Postcondiciones
@@ -136,8 +137,24 @@ Dado un reverso que dejaría el saldo negativo
 Cuando se ejecuta
 Entonces se genera una obligación de restitución
 Y el saldo_disponible no baja de cero
+
+# Reverso de una recarga con cargo
+Dada una recarga acreditada con un cargo cotizado
+Cuando se reversa
+Entonces existe un contra-asiento nuevo que cuadra, el original queda intacto y la orden queda REVERSADA
+Y se avisa el cargo una sola vez citando su cotización
+
+Dada una recarga acreditada sin costo
+Cuando se reversa
+Entonces no hay cargo que avisar
+Y la recarga igual queda REVERSADA
+
+Dada una recarga con cargo cuyo saldo acreditado ya se gastó
+Cuando se reversa
+Entonces el reverso se convierte en obligación de restitución
+Y el cargo no se avisa y la orden sigue ACREDITADA
 ```
 
 ## Ver también
 
-[[CU-19 Reembolsar un pago y atender una disputa]] · [[CU-33 Devolver comisión y emitir nota de crédito]] · [[CU-54 Registrar un evento de riesgo operativo]] · [[Restricciones]]
+[[CU-13 Retener y liberar saldo]] (reversa lo que ejecuta una retención con destino) · [[CU-19 Reembolsar un pago y atender una disputa]] · [[CU-33 Devolver comisión y emitir nota de crédito]] · [[CU-54 Registrar un evento de riesgo operativo]] · [[Restricciones]]

@@ -1,0 +1,74 @@
+{
+  "servicio": "grupos",
+  "operacion": "consultarCalendarioDeAportes",
+  "metodo": "get",
+  "ruta": "/grupos/periodos/{periodoId}/calendario-de-aportes",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "periodoId": "7da831c2-54dc-4732-8974-56f0d28498f4",
+        "grupoId": "cad5d595-3361-4953-864b-833afe377ee8",
+        "numero": 1,
+        "estado": "PROGRAMADO",
+        "fechaLimitePago": "2026-01-15",
+        "fechaFinGracia": "2026-01-15",
+        "fechaEntregaPrevista": "2026-01-15",
+        "cupos": [
+          {
+            "cupoId": "03da567f-7da7-4fcf-8e7d-49b08181764e",
+            "participanteId": "15c33ab2-8163-41ba-86b5-ff4f897266c6",
+            "montoEsperado": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "periodoId": "7da831c2-54dc-4732-8974-56f0d28498f4",
+        "grupoId": "cad5d595-3361-4953-864b-833afe377ee8",
+        "numero": 1,
+        "estado": "PROGRAMADO",
+        "fechaLimitePago": "2026-01-15",
+        "fechaFinGracia": "2026-01-15",
+        "fechaEntregaPrevista": "2026-01-15",
+        "cupos": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "periodoId": "7da831c2-54dc-4732-8974-56f0d28498f4",
+        "grupoId": "cad5d595-3361-4953-864b-833afe377ee8",
+        "numero": 1,
+        "estado": "PROGRAMADO",
+        "fechaLimitePago": "2026-01-15",
+        "fechaFinGracia": "2026-01-15",
+        "fechaEntregaPrevista": "2026-01-15",
+        "cupos": [
+          {
+            "cupoId": "03da567f-7da7-4fcf-8e7d-49b08181764e",
+            "participanteId": "15c33ab2-8163-41ba-86b5-ff4f897266c6",
+            "montoEsperado": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU21-01",
+        "mensaje": "Obligacion no vigente",
+        "detalle": {},
+        "trazaId": "traza-consultarCalendarioDeAportes-rechazo"
+      }
+    }
+  }
+}

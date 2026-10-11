@@ -223,6 +223,53 @@ public class ReclamoRepositorio {
                         f.get("fecha_respuesta", OffsetDateTime.class)));
     }
 
+    /**
+     * Los reclamos de una persona con lo que importa para saber si frenan un efecto: su estado, su
+     * resultado, cuando se respondio, y si tienen una instancia sin resolver o resuelta con
+     * resarcimiento. Solo lectura y sin el texto del reclamo ni de la respuesta (datos de la persona).
+     */
+    public List<CasoDelReclamo> casosDelUsuario(DSLContext dsl, UUID usuarioId) {
+        return dsl.fetch(
+                        """
+                        SELECT r.id, r.codigo, r.categoria, r.producto, r.estado, r.resultado, r.monto_reclamado,
+                               r.fecha_ingreso, r.fecha_respuesta,
+                               EXISTS (SELECT 1 FROM cumplimiento.instancia_reclamo i
+                                        WHERE i.reclamo_id = r.id AND i.estado IN ('PRESENTADA', 'EN_TRAMITE')) AS sin_resolver,
+                               EXISTS (SELECT 1 FROM cumplimiento.instancia_reclamo i
+                                        WHERE i.reclamo_id = r.id AND i.estado = 'RESUELTA'
+                                          AND COALESCE(i.monto_resarcido, 0) > 0) AS resarcida
+                          FROM cumplimiento.reclamo_cliente r
+                         WHERE r.usuario_id = ?
+                         ORDER BY r.fecha_ingreso, r.codigo
+                        """,
+                        usuarioId)
+                .map(f -> new CasoDelReclamo(
+                        f.get("id", UUID.class),
+                        f.get("codigo", String.class),
+                        f.get("categoria", String.class),
+                        f.get("producto", String.class),
+                        f.get("estado", String.class),
+                        f.get("resultado", String.class),
+                        f.get("monto_reclamado", BigDecimal.class),
+                        f.get("fecha_ingreso", OffsetDateTime.class),
+                        f.get("fecha_respuesta", OffsetDateTime.class),
+                        Boolean.TRUE.equals(f.get("sin_resolver", Boolean.class)),
+                        Boolean.TRUE.equals(f.get("resarcida", Boolean.class))));
+    }
+
+    public record CasoDelReclamo(
+            UUID id,
+            String codigo,
+            String categoria,
+            String producto,
+            String estado,
+            String resultado,
+            BigDecimal montoReclamado,
+            OffsetDateTime fechaIngreso,
+            OffsetDateTime fechaRespuesta,
+            boolean instanciaSinResolver,
+            boolean instanciaConResarcimiento) {}
+
     public record Punto(UUID id, String tipo, boolean activo) {}
 
     public record Reclamo(

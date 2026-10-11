@@ -1,0 +1,596 @@
+[7:43:22 a. m.] » [CLI] ...  awaiting  Starting Prism…
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/aportes/obligaciones/c0f4c1ef-c46b-a109-476f-52da19dee6af/pagos
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/pagos/71681ea6-7f00-92b0-de0f-866108d2ad20/reembolsos
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/pagos/reembolsos/634fecd8-8326-cb5b-9eb4-cee7ba5579ef/aprobacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/pagos/d49d487f-83b5-b50a-583d-6987f6f7500c/disputas
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/pagos/proveedores
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/pagos/enrutamiento
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/pagos/webhooks/contigo
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/aportes/participantes/33378872-c3f0-8544-fc6f-e6c3ada39f96/estado
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/aportes/grupos/d515ad13-9bcd-49ed-43ed-a3169bca6718/morosos
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/aportes/periodos/ed3295b1-edea-48e1-faa4-c8d664fa5d2a/recaudo
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/aportes/periodos/b2d4ddd8-a3cb-54d7-95ed-983126890d74/obligaciones
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/auditoria/derechos
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/reportes/5e709f43-0e79-3ba7-789b-11247053dace/ejecuciones
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/reportes/exportaciones/d5b531b5-fae4-07aa-2c57-d098b11af3c6/descargas
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/indicadores?periodo=strues&dimension=GLOBAL&dimensionId=800b6f82-9759-61cd-a6ab-eee01a00c9f7&periodosDeSerie=22
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/cumplimiento/usuarios/f41266f0-0cc4-36ec-2e06-8a5937129ce0/diligencia
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/cumplimiento/usuarios/2267f768-4b3c-b52c-c110-149a24f29529/pep
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/cumplimiento/contratos/vigentes
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/cumplimiento/contratos/58d3a805-3291-1ced-d6ac-065979f95522/aceptaciones
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/cumplimiento/riesgos/eventos
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/cumplimiento/seguridad/incidentes
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/cumplimiento/seguridad/incidentes/1632881d-dd74-6255-b98f-15590de407cb/reportes
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/cumplimiento/seguridad/incidentes/e393ce94-d530-5a1e-6da9-6a3026260e66/notificaciones
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/reclamos/usuarios/5969aa29-3095-77da-04f3-aafcd6406465/efecto
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/licencia/alcance?servicio=timor
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/cuentas-bancarias
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/cuentas-bancarias/006d50a0-bf4d-eae6-148b-077b7bf7636a/verificacion
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/cuentas-bancarias/1f2cfb03-6329-6ff1-f61f-a7f1e22c6e3c/disponibilidad
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/cuentas-bancarias/ea6b7134-c398-1789-df94-90bbaba05bce/principal
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/entregas
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/entregas/003eec74-a7a3-8b5b-c903-9845e5304091/autorizacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/entregas/43bbdbb6-1c04-47e7-4c5b-8e15b711ce6d/ejecucion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/desembolsos
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/desembolsos/89ae6ab3-b249-ce1c-3553-a07c79e5acc9/respuesta
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/entregas/pozo-completo
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/entregas/mercado/ofertas
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/entregas/mercado/ofertas
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/entregas/mercado/ofertas/02c11e4c-b5f5-020a-bd72-cfdb23de8c35
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/entregas/mercado/ofertas/4e22510f-f3b9-cbb5-f052-fe205adbd433/cancelacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/entregas/mercado/ofertas/b35bda36-5660-2e07-d091-baf4dcfc5d8d/compra
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/erp/ejercicios
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/erp/periodos/d62f19d8-3309-ee7a-bb78-532c106a3178/cierre
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/erp/presupuestos
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/erp/presupuestos/6fb62d64-30f3-935e-bf11-8017e8df013c/aprobacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/erp/terceros
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/erp/ordenes-de-compra
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/erp/ordenes-de-compra/917eecb4-e3cd-f8ca-06e7-ef730e8c7bd8/aprobacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/erp/facturas-de-proveedor
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/erp/facturas-de-proveedor/a8f0f1f4-494d-c9ee-fd33-4251d451babe/pagos
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/erp/cuentas-por-cobrar
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/erp/cuentas-por-cobrar/ef87785a-ab88-da9c-749f-7abc6c44366d/cobros
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/erp/activos/fe44d602-0b6e-f549-e30f-9748390e491a/depreciaciones
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/erp/periodos/ee0f0d24-3145-92ff-49dc-917942003df2/depreciaciones
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/erp/periodos/67239b72-a041-ca90-ee09-801430066b45/estados-financieros
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/erp/plantillas-de-asiento/0a27ed4e-fa09-00eb-ae3d-1250f33d281f/validacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/incumplimientos
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/incumplimientos/8bc88e82-b157-cba5-eb42-03d4fd441443/descargo
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/incumplimientos/7cf8fb9f-7725-38ee-9f0b-5f86fbf71625/descargo/resolucion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/incumplimientos/5c21f979-1503-b51a-9bfc-574fb576d968/cobertura
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/incumplimientos/b5ad884c-c244-a018-cd4c-e67598e83997/aval/ejecucion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/incumplimientos/f7b0eba7-482c-5d1f-0e6b-ca95282f94d2/restriccion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/cobranza/restricciones/821e393e-0946-e539-bebd-df455ffc6c25/levantamiento
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/garantia/fondos/4e6eab1c-e1bd-a098-33a0-8817d6027fea/devolucion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/incumplimientos/e5966101-8c46-33a7-30de-b0f6122ef994/reemplazo
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/garantia/reemplazos/3405bb7b-3103-c7ff-fea8-c56edf3e9bd5/aprobacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/garantia/reemplazos/69a53188-130a-dc66-e0dd-0723d3251456/ejecucion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/garantia/grupos/122bbe83-0979-19fd-08c4-d150e7c71321/disolucion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/garantia/disoluciones/a0c8f32a-b8c5-4fa3-e0cb-f54f25ef4ec1/cierre
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/cobranza/restricciones/vigentes/b7378b24-62e2-f560-850f-abfc444f6a52
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/garantia/respaldo/reservas
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/garantia/respaldo/reservas/67134874-9fc3-fa49-4221-054263ce1727/ampliacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/garantia/respaldo/reservas/fdc73f5e-fe54-7a07-428f-9e7d5904addc/liberacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/garantia/respaldo/coberturas
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/garantia/respaldo/coberturas/0bb87c43-a441-c89f-51f7-8671cb868183/reversa
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/garantia/respaldo/recuperaciones
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/grupos/c2e36362-9c3b-5b5b-a4f5-446cdbd37d3a/invitaciones/1bb5084f-9b6b-5ecf-2376-59814e8d27fc/canje
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/grupos/f869764e-e576-c1c4-569e-94e1fa790b09/invitaciones/c11581fc-70a0-592c-9c8f-5e4ccedcce4e/revocacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/grupos/solicitudes/9f282b7e-c5aa-7521-86ce-48dbe3dbfb81/propuestas
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/grupos/solicitudes/de4c7355-eabe-08bf-e664-5b9aea76ae84/resoluciones
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/grupos/34583041-2f78-1a16-2db5-938144f933b3/administrador/sustitucion
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/grupos/solicitudes/37db5f78-0cf6-f562-264d-20ed995fbfef/decisiones
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/grupos/calendario/calcular?desde=1959-04-01&dias=265&alcance=PLATAFORMA
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/grupos/calendario/vencimiento?instante=1953-09-09T22%3A19%3A39.0Z&alcance=DEPARTAMENTAL
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/grupos/f3c13b99-7b9e-46c5-59b8-56fd0044e335/sorteo
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/grupos/f0190921-2706-07ce-23b8-7d0eb501e4ba/sorteo/revelacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/acuerdos
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/acuerdos/8e46b2dc-fb9f-80b7-77ea-00cbcdfb875a/votos
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/turnos/permutas
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/grupos/d28b40cd-65d8-f1d8-3c4f-d574681d86ff/retiros
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/grupos/1c64eb07-8d56-7a06-0bcb-4cb11cb4e7a3/cupos/7ae56b09-2772-de07-6f8f-db722eeaa84e/traspasos
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/grupos/cc54a676-a09d-9386-5299-178ffda8bad2/invitaciones
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/grupos/invitaciones/enlace/consultar
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/grupos/invitaciones/enlace/aceptar
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/grupos/obligaciones/admisibilidad?participanteId=635d2bd8-a15f-5c96-5abd-c290857b0dfa&periodoId=c3fa7a7c-727f-44f6-5be0-783cc6bee4ca
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/grupos/periodos/20d64b54-d13d-8c50-8d65-de0b18ea86b2/calendario-de-aportes
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/grupos/participaciones
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/grupos/a77363c3-e2be-5f61-15f8-f09d3c4f46d8/solicitudes
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/grupos/solicitudes/fca0bf52-69db-b43f-d854-4540878578da/decision
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/grupos/e37c1d15-0bf9-68e7-53d6-4e88f61dbf39/postulaciones
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/grupos
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/grupos/participantes/alias/ars
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/grupos/participantes/8bd984aa-be87-b991-c6fc-ecc20724a0ec/actividad
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/grupos/sorteos/45df5a8a-cf50-40d0-8794-9595d3c5850e/paquete
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/usuarios/verificaciones/correo
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/usuarios/verificaciones/correo/ffe8bec3-9b35-60ff-06af-7eabe6636162/confirmacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/usuarios
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/sesiones
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/sesiones/desafios
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/sesiones/desafios/3f732835-5d5e-58b2-0c16-b344de2a6cae/verificacion
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/identidad/verificaciones
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/identidad/verificaciones/13b140c1-b123-a9bc-c754-a18a9e6578b5/fotos/ANVERSO
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/identidad/verificaciones/202eb958-fba5-e379-3eee-3e804625b5e4/fotos/SELFIE/contenido
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/identidad/verificaciones/0a42651e-5f5c-bf88-45fe-e10f957b6b7c/decision
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/usuarios/36fcd420-ed19-5277-c8e3-ed1665bdd5bf/documentos
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/usuarios/f39d7eff-29a3-18af-5091-589f48bef425/titularidad/verificacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/usuarios/tokens/invitacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/usuarios/tokens/invitacion/validar
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/usuarios/tokens/invitacion/55df4aeb-5847-7bc5-6bb1-41b46ef8f458/consumos
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/usuarios/tokens/invitacion/d989300d-02e1-4ff1-9289-c41fde8ab980/revocacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/usuarios/busquedas/por-telefono
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/usuarios/por-telefono?telefono=%2B59154722389
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/usuarios/ea00aee3-08b0-8cf6-afa3-f770e8d11ad9/kyc
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/inversiones/productos
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/inversiones/productos/sincronizacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/inversiones/valores-cuota/sincronizacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/inversiones/ordenes
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/inversiones/ordenes/b48208ba-d913-36c0-3c01-f5783fda846a
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/inversiones/ordenes/391d0ad7-2e52-c2a7-aed0-d865b2118e13/sincronizacion
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/inversiones/posiciones
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/inversiones/posiciones/498fe54a-9692-9934-c0f5-bedb7eacd68c
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/inversiones/posiciones/28866bb1-17d7-12f0-a028-71156aa5354b/comprobantes
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/inversiones/posiciones/4d000b21-fc90-5661-26a2-f8c8d042d209/rescates
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/inversiones/rescates/08f1d986-06be-adc5-f52e-e545e4556842/sincronizacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/inversiones/devengos
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/inversiones/productos/conspergo
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/inversiones/posiciones/e1d68863-df0b-1f1c-4d2d-8f61b781490f/distribuciones
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/inversiones/posiciones/efb09f63-8f76-cfde-863a-8c0fdc377bec/comision
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/inversiones/reportes/fiscal?desde=1899-09-20&hasta=1937-08-02
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/inversiones/reportes/fiscal/exportacion?desde=1931-09-18&hasta=1911-11-09
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/inversiones/simulaciones/caja
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/inversiones/instrucciones/reintento
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/inversiones/corridas
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/notificaciones
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/notificaciones/webhooks/auxilium
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/notificaciones/supresion/consultas
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/notificaciones/supresion?identificador=statua&categoria=cohors
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/billetera/cuentas/propia?moneda=BOB
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/billetera/b3e4f2dc-1984-a589-7463-a923134364ce/saldo
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/billetera/cotizaciones
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/billetera/recargas
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/billetera/recargas/6c8c4a1f-5823-8f71-9659-96972879db9e/acreditacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/billetera/retenciones
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/billetera/retenciones/d1cbf74f-b9e2-b3d5-e578-5ba818be02bb/cierre
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/billetera/retenciones/847eb912-c710-f7d1-73aa-ebbcbdc8b23c/pago-a-tercero
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/billetera/inversiones/debitos
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/billetera/inversiones/acreditaciones
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/billetera/retiros
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/billetera/retiros/215bd80d-17b3-6bef-0ebc-7fd826a6eff5/aprobacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/billetera/transferencias
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/billetera/reversos
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/billetera/019bf0c2-afaa-1756-a5fe-0b4ff7e3aa12/extracto?desde=1945-08-03&hasta=1899-11-06
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/billetera/cierres
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/billetera/bloqueos
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/billetera/qr
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/billetera/qr/lecturas
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/billetera/qr/pagos
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/organizadores/usuarios/2df1131d-f20b-b741-1ab6-559d67f7012c/habilitacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/organizadores/postulaciones
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/organizadores/postulaciones/bandeja
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/organizadores/postulaciones/mia
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/organizadores/postulaciones/0ef64678-84e5-728a-91ed-44584f43a45c/expediente
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/organizadores/postulaciones/729bae23-6b7e-3bcb-b043-f2f727f72446/resolucion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/organizadores/postulaciones/69f3ba47-2704-9093-1346-1c2667d3c323/revision
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/organizadores/postulaciones/4f01f9bb-ed11-600f-4fff-fdc6eb3889f4/aprobacion
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/organizadores/48accd94-2008-933b-fee1-ada34d72973e/habilitacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/organizadores/79c9312c-4993-e5e9-3c79-962836a10a5d/habilitacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/organizadores/b22a5537-020e-aa56-b918-de1aca777ba6/contratos
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/organizadores/contratos/3e002f9d-6ee7-a507-4404-a46089c0df36/firma
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/organizadores/contratos/e779bb33-c7c9-e7d5-cc9c-fa8b4b453724/rescision
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/organizadores/5daf41df-c98a-0b8b-279d-8f48f064497f/evaluaciones
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/organizadores/5918f6fb-63f4-6bda-3427-3dead8a81c3f/sanciones
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/organizadores/sanciones/f92fbc6a-4ab7-8132-c882-669e4444da3f/apelacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/organizadores/sanciones/3be83c6e-3c74-adfa-17cc-76d378c6106c/resolucion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/automatizacion/reglas
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/automatizacion/reglas/cdd4ef32-57d9-7408-c6b1-38268df34f31/activacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/automatizacion/tareas
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/automatizacion/tareas/7393bbf8-8b1d-b8af-2730-9bdbdeb23f7c/aprobacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/automatizacion/tareas/a53c5bff-0045-afe8-9c58-8c59be454c29/ejecuciones
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/publicidad/socios-comerciales
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/publicidad/socios-comerciales/dd6afbab-777c-c32c-c18d-eea596fe2b17/verificacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/publicidad/anunciantes
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/publicidad/campanas
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/publicidad/campanas/05397ca3-f5f1-54b7-8a57-6c6ab638e881/aprobacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/publicidad/campanas/1b5c55e1-221f-3dc5-c4e3-315068ac3222/rechazo
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/publicidad/piezas-creativas
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/publicidad/piezas-creativas/d04490cc-8356-1e55-0d14-e9bb06210ed6/revision
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/publicidad/anuncios
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/publicidad/espacios/1daba6ba-9892-94d5-a7c3-90bf1db908f1/entrega
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/publicidad/impresiones/1492eb15-f3e0-d561-0029-f3592c8220f1/clic
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/publicidad/conversiones
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/publicidad/cuentas/597a53d7-211a-6978-5ae9-b62f6525b7a4/consumo?periodo=2355-02
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/publicidad/cuentas/598f581b-6584-c1f3-e501-24a9bca480cf/liquidaciones
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/comisiones/cotizaciones
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/comisiones/cotizaciones/263f473a-4497-545b-894a-38a12d672d4c/aceptacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/comisiones/devengos
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/comisiones/devengos/2759ff59-1df7-2608-857b-a6d64a0472cc/cobros
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/facturas
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/comisiones/be48c766-c654-9fae-bc95-39bdbf5ff82e/devoluciones
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/tarifas/tarifarios
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/tarifas/tarifarios/70ce6b91-fb96-95db-2475-73d08e5166b3/vigencia
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/tarifas/liquidaciones/8315-10/cierre
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/tarifas/segmentos
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/tarifas/precios/resolver
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/tarifas/vigentes/arca
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/publico/sorteos/5c018188-8d7c-ff86-deb1-e777627360e9/verificacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/reputacion/eventos
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/reputacion/eventos/24b5cc2b-4acf-af8f-1a67-41041beace37/compensacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/reputacion/puntajes
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/reputacion/snapshots
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/reputacion/bloques
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/publico/grupos/ff7316a9-1a42-b63d-f6e0-c1724641d24f/verificacion
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/publico/grupos/98800017-c820-ccc8-39c3-9fc8ad0e698f/bloques
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/reputacion/insignias/evaluacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/reputacion/insignias/c3a4e4bd-8c19-0ed5-5019-fdb101e778fa/revocacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/reputacion/certificados
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/reputacion/certificados/earum/revocacion
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/verificar/cumque
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/reputacion/resenas
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/reputacion/resenas/c4b12e3b-00fe-c6ae-a93b-b2824a880b37/moderacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/reputacion/riesgo/evaluacion
+[7:43:23 a. m.] » [CLI] i  info      POST       http://127.0.0.1:4010/api/v1/reputacion/riesgo/alertas/1f710bc7-9f06-666d-5b47-fb01cf5d4b23/cierre
+[7:43:23 a. m.] » [CLI] i  info      GET        http://127.0.0.1:4010/api/v1/reputacion/a03dd227-1294-cc75-c446-f371b6ea3afc/puntaje
+[7:43:23 a. m.] » [CLI] ►  start     Prism is listening on http://127.0.0.1:4010
+[7:43:24 a. m.] » [HTTP SERVER] get / i  info      Request received
+[7:43:24 a. m.] » [HTTP SERVER] get / ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:43 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:43 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:43 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:43 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:43 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:43 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:43 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:43 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:44 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:44 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:44 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:44 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:44 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:44 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:44 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:44 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:45 a. m.] » [HTTP SERVER] get /api/v1/billetera/11111111-1111-4111-8111-111111111111/saldo i  info      Request received
+[7:43:45 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:45 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:45 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:45 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:45 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:45 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:45 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:45 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:45 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:45 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:45 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:45 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:45 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:46 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:46 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:46 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:46 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:46 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:46 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:46 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:46 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:46 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:46 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:46 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:46 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:46 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:46 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:46 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:46 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:47 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:47 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:47 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:47 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:47 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:47 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:47 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:47 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:47 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:47 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:47 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:47 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:47 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:47 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:47 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:47 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:48 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:48 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:48 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:48 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:48 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:48 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:48 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:48 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:50 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:50 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:51 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:51 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:51 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:51 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:51 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:51 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:51 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:51 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:51 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:51 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:51 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:51 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:51 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:51 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:51 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:51 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:52 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:52 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:52 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:52 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:52 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:52 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:52 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:52 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:52 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:52 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:52 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:52 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:52 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:52 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:53 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:53 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:53 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:53 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:53 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:53 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:53 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:53 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:53 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:53 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:54 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:54 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:54 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:54 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:54 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:54 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:54 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:54 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:54 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:54 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:54 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:54 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:54 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:54 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:55 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:55 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:55 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:55 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:55 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:55 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:55 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:55 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:55 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:55 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:55 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:55 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:56 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:56 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:56 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:56 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:56 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:56 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:56 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:56 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:56 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:56 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:56 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:56 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:56 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:56 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:56 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:56 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:56 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:56 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:57 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:57 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:57 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:57 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:57 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:57 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:57 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:57 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:57 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:57 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:57 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:57 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:57 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:57 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:57 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:57 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:57 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:57 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:57 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:57 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:57 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:57 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:57 a. m.] » [HTTP SERVER] get /api/v1/publicidad/anunciantes i  info      Request received
+[7:43:57 a. m.] » [HTTP SERVER] get /api/v1/publicidad/anunciantes ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_METHOD_MATCHED_ERROR: Route resolved, but no method matched
+[7:43:57 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:57 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:58 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:58 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:58 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:58 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:58 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:58 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:43:58 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:43:58 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:43:58 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:43:58 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:43:58 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:43:58 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:43:58 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:43:58 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:44:06 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:44:06 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:44:06 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:44:06 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:44:06 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:44:06 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:44:06 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:44:06 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:44:06 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:44:06 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:44:06 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:44:06 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:44:06 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:44:06 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:44:06 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:44:06 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:44:06 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:44:06 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:44:06 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:44:06 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:44:06 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:44:06 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:44:06 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:44:06 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:44:07 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:44:07 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:44:07 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:44:07 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:44:07 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:44:07 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:44:07 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:44:07 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:44:07 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:44:07 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:44:07 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:44:07 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:44:07 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:44:07 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:44:07 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:44:07 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:44:08 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:44:08 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:44:08 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:44:08 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:44:08 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:44:08 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:44:08 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:44:08 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:44:08 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:44:08 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:44:08 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:44:08 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:44:08 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:44:08 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:44:08 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:44:08 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:44:09 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:44:09 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:44:09 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:44:09 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:44:09 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:44:09 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:44:09 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:44:09 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:44:09 a. m.] » [HTTP SERVER] get /api/v1/publicidad/anunciantes i  info      Request received
+[7:44:09 a. m.] » [HTTP SERVER] get /api/v1/publicidad/anunciantes ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_METHOD_MATCHED_ERROR: Route resolved, but no method matched
+[7:44:09 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:44:09 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:44:09 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:44:09 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:44:09 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:44:09 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:44:09 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:44:09 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:44:09 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:44:09 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:44:10 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:44:10 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:44:10 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:44:10 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:44:10 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:44:10 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:44:10 a. m.] » [HTTP SERVER] get /api/v1/publicidad/anunciantes i  info      Request received
+[7:44:10 a. m.] » [HTTP SERVER] get /api/v1/publicidad/anunciantes ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_METHOD_MATCHED_ERROR: Route resolved, but no method matched
+[7:44:10 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:44:10 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:44:10 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:44:10 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:44:10 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:44:10 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:44:10 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:44:10 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:44:10 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:44:10 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:44:10 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:44:10 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:44:10 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:44:10 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:44:10 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:44:10 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:44:10 a. m.] » [HTTP SERVER] get /api/v1/publicidad/anunciantes i  info      Request received
+[7:44:10 a. m.] » [HTTP SERVER] get /api/v1/publicidad/anunciantes ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_METHOD_MATCHED_ERROR: Route resolved, but no method matched
+[7:44:11 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:44:11 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:44:11 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:44:11 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:44:11 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:44:11 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:44:11 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:44:11 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:44:11 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:44:11 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:44:11 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:44:11 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:44:11 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:44:11 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:44:11 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:44:11 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:44:11 a. m.] » [HTTP SERVER] get /api/v1/publicidad/anunciantes i  info      Request received
+[7:44:11 a. m.] » [HTTP SERVER] get /api/v1/publicidad/anunciantes ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_METHOD_MATCHED_ERROR: Route resolved, but no method matched
+[7:44:11 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:44:11 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:44:11 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:44:11 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:44:11 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:44:11 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:44:11 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:44:11 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:44:12 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:44:12 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:44:12 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:44:12 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:44:12 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:44:12 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:44:12 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:44:12 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:44:12 a. m.] » [HTTP SERVER] get /api/v1/publicidad/anunciantes i  info      Request received
+[7:44:12 a. m.] » [HTTP SERVER] get /api/v1/publicidad/anunciantes ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_METHOD_MATCHED_ERROR: Route resolved, but no method matched
+[7:44:12 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:44:12 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:44:12 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:44:12 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:44:12 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:44:12 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:44:12 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:44:12 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:44:12 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:44:12 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:44:12 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:44:12 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:44:12 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:44:12 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:44:12 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:44:12 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"
+[7:44:13 a. m.] » [HTTP SERVER] get /api/v1/publicidad/anunciantes i  info      Request received
+[7:44:13 a. m.] » [HTTP SERVER] get /api/v1/publicidad/anunciantes ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_METHOD_MATCHED_ERROR: Route resolved, but no method matched
+[7:44:13 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar i  info      Request received
+[7:44:13 a. m.] » [HTTP SERVER] post /api/v1/sesion/refrescar ×  error     Request terminated with error: https://stoplight.io/prism/errors#NO_PATH_MATCHED_ERROR: Route not resolved, no path matched
+[7:44:13 a. m.] » [HTTP SERVER] post /api/v1/sesiones i  info      Request received
+[7:44:13 a. m.] »     [NEGOTIATOR] i  info      Request contains an accept header: application/json, text/plain, */*
+[7:44:13 a. m.] »     [VALIDATOR] √  success   The request passed the validation rules. Looking for the best response
+[7:44:13 a. m.] »     [NEGOTIATOR] √  success   Found a compatible content for application/json, text/plain, */*
+[7:44:13 a. m.] »     [NEGOTIATOR] √  success   Responding with the requested status code 200
+[7:44:13 a. m.] »     [NEGOTIATOR] i  info      > Responding with "200"

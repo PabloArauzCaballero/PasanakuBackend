@@ -35,7 +35,7 @@ const COLUMNAS: ColumnaVirtual<Campana>[] = [
   imports: [BandaDeProposito, Boton, Dialogo, Campo, CampoMonto, ChipEstado, Monto, TablaDeDatosVirtualizada],
   template: `
     <ap-banda-de-proposito [texto]="t.propositoGestion" />
-    <main>
+    <section class="pantalla">
       <header>
         <h1 data-tutorial-id="publicidad-campanas">{{ t.tituloGestion }}</h1>
         @if (puedeGestionar()) {
@@ -57,7 +57,7 @@ const COLUMNAS: ColumnaVirtual<Campana>[] = [
           }
         </ng-template>
       </ap-tabla-de-datos-virtualizada>
-    </main>
+    </section>
 
     <ap-dialogo [titulo]="t.nuevaCampana" [textoDeConfirmar]="t.guardar" [abierto]="dialogoAbierto()" [cargando]="guardando()" (abiertoChange)="dialogoAbierto.set($event)" (confirmar)="guardar()" (cancelar)="cerrar()">
       <div class="formulario" data-tutorial-id="publicidad-formulario-campana">
@@ -67,7 +67,7 @@ const COLUMNAS: ColumnaVirtual<Campana>[] = [
     </ap-dialogo>
   `,
   styles: `
-    main { padding: var(--s5); max-width: 68rem; display: grid; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 68rem; display: grid; gap: var(--s4); }
     header { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); }
     h1 { margin: 0; }
     .formulario { display: grid; gap: var(--s3); }

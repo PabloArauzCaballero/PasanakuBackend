@@ -182,6 +182,13 @@ Entonces no se crea el usuario
 Dada una clave que contiene el teléfono
 Cuando se registra
 Entonces se rechaza
+
+Dado un correo al que ya se le emitió un código de verificación
+Cuando se confirma con un código incorrecto y después con el correcto
+Entonces el incorrecto no confirma y suma un intento fallido
+Y el correcto consume la verificación y habilita exactamente un alta con ese correo
+Y pedir otro código para otro correo con la misma clave de idempotencia se rechaza
+Y reutilizar la verificación para dar de alta otro correo se rechaza sin crear usuario
 ```
 
 ## Ver también

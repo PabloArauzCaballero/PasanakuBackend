@@ -91,6 +91,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_documento_identidad_lugar_expedicion_hash_n
 CREATE INDEX IF NOT EXISTS ix_verificacion_kyc_usuario_id
   ON identidad.verificacion_kyc (usuario_id);
 
+CREATE UNIQUE INDEX IF NOT EXISTS uq_alcance_invitacion_token_id
+  ON identidad.alcance_invitacion (token_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_alcance_invitacion_clave_emision
+  ON identidad.alcance_invitacion (clave_emision);
+
 CREATE INDEX IF NOT EXISTS ix_referencia_personal_usuario_id
   ON identidad.referencia_personal (usuario_id);
 

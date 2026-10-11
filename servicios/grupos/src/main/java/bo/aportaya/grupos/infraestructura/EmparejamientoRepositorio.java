@@ -29,6 +29,7 @@ public class EmparejamientoRepositorio {
         return fila == null
                 ? Optional.empty()
                 : Optional.of(new CriterioDeEmparejamiento(
+                        fila.get(CRITERIO_EMPAREJAMIENTO.ID),
                         fila.get(CRITERIO_EMPAREJAMIENTO.PESO_REPUTACION),
                         fila.get(CRITERIO_EMPAREJAMIENTO.PESO_MONTO),
                         fila.get(CRITERIO_EMPAREJAMIENTO.PESO_GEOGRAFIA),

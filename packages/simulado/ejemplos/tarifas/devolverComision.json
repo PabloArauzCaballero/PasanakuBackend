@@ -68,10 +68,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU33-01",
+        "mensaje": "Excede lo cobrado",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-devolverComision-rechazo"
       }
     }
   }

@@ -33,7 +33,7 @@ const COLUMNAS: ColumnaVirtual<PiezaCreativa>[] = [
   imports: [BandaDeProposito, Boton, Dialogo, Campo, ChipEstado, TablaDeDatosVirtualizada],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
       <ap-tabla-de-datos-virtualizada [titulo]="t.titulo" [columnas]="COLUMNAS" [cargador]="cargador" [ordenPermitido]="['titulo']" [identidad]="identidad">
         <ng-template #celda let-p let-columna="columna">
@@ -57,7 +57,7 @@ const COLUMNAS: ColumnaVirtual<PiezaCreativa>[] = [
           }
         </ng-template>
       </ap-tabla-de-datos-virtualizada>
-    </main>
+    </section>
 
     @if (seleccionada(); as p) {
       <ap-dialogo
@@ -78,7 +78,7 @@ const COLUMNAS: ColumnaVirtual<PiezaCreativa>[] = [
     }
   `,
   styles: `
-    main { padding: var(--s5); max-width: 68rem; display: grid; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 68rem; display: grid; gap: var(--s4); }
     h1 { margin: 0; }
     .acciones { display: flex; gap: var(--s2); }
     .bloqueado { color: var(--text-2); font-size: .9em; }

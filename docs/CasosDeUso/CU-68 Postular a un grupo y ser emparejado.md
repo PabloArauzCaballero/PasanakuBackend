@@ -72,6 +72,8 @@ normas: [UIF conocimiento del cliente, no discriminación, gobernanza del grupo]
 | — | El criterio de emparejamiento cambia | Las propuestas abiertas conservan el criterio con el que se armaron; el nuevo rige para las siguientes |
 | — | Postulación con dos cupos en el mismo grupo | Permitida si el reglamento lo admite; cada cupo es una obligación independiente y así se le muestra |
 
+> **Interruptor de admisión humana** (`aportaya.grupos.admision.humana-obligatoria`, decisión pendiente de negocio y cumplimiento). Encendido —el valor de la aplicación—, la decisión directa del organizador (`decidirSolicitudDeIngreso`) se rechaza y su decisión es una propuesta (`proponerAdmision`) que resuelve backoffice; apagado conserva el comportamiento de TEST. Detalle en `evidencia/carril-B3/DECISIONES-Y-ABIERTOS.md`.
+
 ## Postcondiciones
 
 - Toda incorporación a un grupo tiene solicitud, evaluación, decisión con
@@ -158,7 +160,7 @@ export const ErroresCU68 = {
 
 ## Restricciones aplicables
 
-`R-UIF-09` · `R-GRP-14` · `R-GRP-15` · `R-AUD-01` · `R-AUD-04` · `R-SEG-03`
+`R-UIF-09` · `R-GRP-14` · `R-GRP-15` · `R-GRP-17` · `R-GRP-19` · `R-AUD-01` · `R-AUD-04` · `R-SEG-03`
 
 ## Evidencia que deja
 
@@ -166,7 +168,8 @@ export const ErroresCU68 = {
 [[propuesta_postulacion]] · [[criterio_emparejamiento]] ·
 [[score_riesgo_incumplimiento]] · [[perfil_financiero]] · [[cupo]] ·
 [[participante]] · [[aceptacion_reglamento]] · [[historial_estado_grupo]] ·
-`evento_dominio`
+`evento_dominio` ·
+[[alta_grupo]] · [[decision_ingreso]] · [[sustitucion_administrador]]
 
 ## Criterios de aceptación
 
@@ -187,6 +190,18 @@ Entonces se materializa un grupo y se guarda grupo_materializado_id
 Dada una propuesta expirada
 Cuando un postulante intenta aceptarla
 Entonces se rechaza con PROPUESTA_EXPIRADA y vuelve a la bolsa
+
+Dada una solicitud de ingreso PENDIENTE con un cupo libre
+Cuando el organizador del grupo la acepta
+Entonces reserva el cupo, crea al participante pendiente de firma y deja el evento
+
+Dado un grupo con solicitudes en distintos estados y otras de otros grupos
+Cuando su organizador pide la cola
+Entonces solo ve las PENDIENTES de SU grupo
+
+Dado un grupo con reputacion minima y dos postulantes, uno con historial por debajo del minimo y otro nuevo
+Cuando postulan
+Entonces se excluye a quien TIENE historial y no llega, pero no a quien es nuevo (B24)
 ```
 
 ## Ver también

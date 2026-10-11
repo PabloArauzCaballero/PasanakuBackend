@@ -1,0 +1,15 @@
+[candado:pesado] tomado tras 0s
+## typecheck
+exit=0
+## lint
+exit=0
+## vitest
+
+ RUN  v4.1.11 C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuFrontend/packages/simulado
+
+
+ Test Files  2 passed (2)
+      Tests  171 passed (171)
+   Start at  11:57:59
+   Duration  1.04s (transform 81ms, setup 0ms, import 306ms, tests 731ms, environment 0ms)
+

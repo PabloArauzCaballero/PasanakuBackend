@@ -1,0 +1,7 @@
+[candado:esquema] tomado tras 0s
+sql\40_reglas\restricciones.sql: 20 bloques SQL, 163 restricciones · sql\50_verificacion\verificaciones.sql: 1 bloque(s) de control
+minimos  → sql\60_semillas: 21 archivos, 847 filas
+dev      → sql\61_dev: 15 archivos, 605 filas
+total: 1452 filas de semilla · validadas contra el modelo
+sql/ generado: 333 tablas · 677 claves foráneas · 764 índices · 514 CHECK
+Sin pendientes a nivel de datos.

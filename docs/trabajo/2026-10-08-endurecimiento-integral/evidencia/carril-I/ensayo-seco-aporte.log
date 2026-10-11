@@ -1,0 +1,22 @@
+BEGIN
+SET
+antes: libro usuario | 6000.00
+antes: mayor 2.1.01 / 2.1.02 (haber-debe) | 0.00 | 0.00
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 2
+SET CONSTRAINTS
+despues: libro usuario | 4500.00
+despues: libro grupo | 1500.00
+despues: mayor 2.1.01 / 2.1.02 (cache R-CTB-09) | -1500.00 | 1500.00
+asiento cuadra | 1500.00 | 1500.00 | 2
+enlaces | t | t
+SAVEPOINT
+ERROR:  duplicate key value violates unique constraint "uq_tx_idem"
+DETAIL:  Key (COALESCE(iniciada_por, '00000000-0000-0000-0000-000000000000'::uuid), origen_tipo, clave_idempotencia)=(8d347bfe-b89e-4d36-99c2-33c62d75e21c, OBLIGACION_APORTE, aporte-cobrado:seco-a7abefd2-b87a-4f67-b03c-667462f4483f) already exists.
+ROLLBACK
+ROLLBACK
+residuo tras el ROLLBACK: grupo_wallets, aportes_tx, asientos_seco, saldo 2.1.01 (esperado 0,0,0,0.00)

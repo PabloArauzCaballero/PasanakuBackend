@@ -1,0 +1,17 @@
+aportaya/notificaciones:test 528MB
+aportaya/transparencia:test 528MB
+aportaya/tarifas:test 529MB
+aportaya/publicidad:test 528MB
+aportaya/organizador:test 528MB
+aportaya/nucleo-financiero:test 534MB
+aportaya/esquema:test 639MB
+aportaya/inversiones:test 529MB
+aportaya/grupos:test 529MB
+aportaya/garantia:test 529MB
+aportaya/erp:test 528MB
+aportaya/entregas:test 528MB
+aportaya/cumplimiento:test 530MB
+aportaya/auditoria:test 528MB
+aportaya/aportes:test 528MB
+aportaya/gateway:test 498MB
+aportaya/identidad:test 568MB

@@ -17,6 +17,8 @@ import {
   type PeriodoContable,
 } from '../dominio/cu100-periodos'
 import { textosContabilidad } from '../textos'
+import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
+import type { ErrorTraducido } from '../../../nucleo/errores'
 
 /**
  * CU-100 · Abrir y cerrar el período contable. **Gate propio del carril B3: un período
@@ -31,10 +33,10 @@ import { textosContabilidad } from '../textos'
 @Component({
   selector: 'ap-pantalla-de-periodo',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, Boton, ChipEstado, Dialogo, EstadoDePantalla, Fecha, Monto],
+  imports: [ErrorDeEnvio, BandaDeProposito, Boton, ChipEstado, Dialogo, EstadoDePantalla, Fecha, Monto],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1 data-tutorial-id="contabilidad-periodo">{{ t.titulo }}</h1>
       <p class="aviso">{{ t.cerrarIrreversible }}</p>
       <ap-estado-de-pantalla
@@ -72,7 +74,7 @@ import { textosContabilidad } from '../textos'
           }
         </ul>
       </ap-estado-de-pantalla>
-    </main>
+    </section>
 
     @if (elegido(); as p) {
       <ap-dialogo
@@ -86,11 +88,12 @@ import { textosContabilidad } from '../textos'
         (cancelar)="cerrarConfirmacion()"
       >
         <p>{{ t.confirmarCierre(p.nombre) }}</p>
+        <ap-error-de-envio [error]="errorDeEnvio()" />
       </ap-dialogo>
     }
   `,
   styles: `
-    main { padding: var(--s5); max-width: 56rem; display: grid; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 56rem; display: grid; gap: var(--s4); }
     h1, h2 { margin: 0; }
     h2 { font-size: 1em; }
     .aviso { color: var(--text-2); margin: 0; }
@@ -115,6 +118,7 @@ export class PantallaDePeriodo {
   protected readonly elegido = signal<PeriodoContable | null>(null)
   protected readonly dialogoAbierto = signal(false)
   protected readonly cerrando = signal(false)
+  protected readonly errorDeEnvio = signal<ErrorTraducido | null>(null)
   protected readonly asentadoEn = signal<string | null>(null)
   private readonly enviarCierre = crearCierreDePeriodo()
 
@@ -134,19 +138,24 @@ export class PantallaDePeriodo {
   }
 
   protected cerrarConfirmacion(): void {
+    this.errorDeEnvio.set(null)
     this.dialogoAbierto.set(false)
     this.elegido.set(null)
   }
 
   protected confirmarCierre(p: PeriodoContable): void {
     this.cerrando.set(true)
+    this.errorDeEnvio.set(null)
     this.enviarCierre(p.periodoId, `Cierre de ${p.nombre}`).subscribe({
       next: () => {
         this.cerrando.set(false)
         this.cerrarConfirmacion()
         this.periodos.reload()
       },
-      error: () => this.cerrando.set(false),
+      error: (e: ErrorTraducido) => {
+        this.errorDeEnvio.set(e)
+        this.cerrando.set(false)
+      },
     })
   }
 }

@@ -69,6 +69,7 @@ class Registro {
       return AltaCreada(
         usuarioId: r.data?.usuarioId.toString(),
         cuentaBilleteraId: r.data?.cuentaBilleteraId?.toString(),
+        tokenDeAlta: r.data?.tokenDeAlta,
       );
     } on DioException catch (e) {
       throw errorDeDominio(e);
@@ -85,9 +86,17 @@ class Registro {
 /// Lo que vuelve del alta. La billetera puede no existir todavia —el alta responde
 /// 202 y la abre otro servicio al consumir el evento—, pero el usuario si.
 class AltaCreada {
-  const AltaCreada({required this.usuarioId, required this.cuentaBilleteraId});
+  const AltaCreada({
+    required this.usuarioId,
+    required this.cuentaBilleteraId,
+    this.tokenDeAlta,
+  });
   final String? usuarioId;
   final String? cuentaBilleteraId;
+
+  /// El permiso de UN solo proposito para subir las fotos de ESTE usuario: la subida ya
+  /// no se acepta con solo conocer el `usuarioId` (cabecera `Token-De-Alta`).
+  final String? tokenDeAlta;
 }
 
 final registroProvider = Provider<Registro>(Registro.new);
@@ -96,5 +105,6 @@ class VerificacionCorreoFaltante implements Exception {
   const VerificacionCorreoFaltante();
 
   @override
-  String toString() => 'Confirma el codigo de tu correo antes de crear la cuenta.';
+  String toString() =>
+      'Confirma el codigo de tu correo antes de crear la cuenta.';
 }

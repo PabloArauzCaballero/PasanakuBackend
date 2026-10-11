@@ -2384,7 +2384,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"monto\": \"100.00\",\n  \"moneda\": \"BOB\",\n  \"formaPago\": \"TRANSFERENCIA\",\n  \"autorizadoPor\": \"{{autorizadoPor}}\"\n}",
+              "raw": "{\n  \"monto\": \"100.00\",\n  \"moneda\": \"BOB\",\n  \"formaPago\": \"TRANSFERENCIA\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2489,7 +2489,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"monto\": \"5000.00\",\n  \"moneda\": \"USD\",\n  \"formaPago\": \"QR\",\n  \"autorizadoPor\": \"{{id}}\"\n}",
+              "raw": "{\n  \"monto\": \"5000.00\",\n  \"moneda\": \"USD\",\n  \"formaPago\": \"QR\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2560,7 +2560,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"monto\": \"100.00\",\n  \"moneda\": \"BOB\",\n  \"formaPago\": \"TRANSFERENCIA\",\n  \"autorizadoPor\": \"{{autorizadoPor}}\"\n}",
+              "raw": "{\n  \"monto\": \"100.00\",\n  \"moneda\": \"BOB\",\n  \"formaPago\": \"TRANSFERENCIA\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2635,7 +2635,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"moneda\": \"BOB\",\n  \"formaPago\": \"TRANSFERENCIA\",\n  \"autorizadoPor\": \"{{autorizadoPor}}\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"moneda\": \"BOB\",\n  \"formaPago\": \"TRANSFERENCIA\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4415,10 +4415,6 @@
     },
     {
       "key": "aprobadaPor",
-      "value": ""
-    },
-    {
-      "key": "autorizadoPor",
       "value": ""
     },
     {

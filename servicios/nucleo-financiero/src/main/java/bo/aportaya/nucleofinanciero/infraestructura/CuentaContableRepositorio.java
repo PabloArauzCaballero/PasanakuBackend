@@ -16,13 +16,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class CuentaContableRepositorio {
 
-    /** {@code R-CTB-02} vive en la base; acá solo se resuelve el código a su identificador. */
-    public record CuentaEncontrada(UUID id) {}
+    /**
+     * {@code R-CTB-02} vive en la base; acá solo se resuelve el código a su identificador y
+     * a su moneda (R-CTB-10: una cuenta es de una sola moneda).
+     */
+    public record CuentaEncontrada(UUID id, String moneda) {}
 
     public Optional<CuentaEncontrada> porCodigo(DSLContext dsl, String codigo) {
-        return dsl.select(CUENTA_CONTABLE.ID)
+        return dsl.select(CUENTA_CONTABLE.ID, CUENTA_CONTABLE.MONEDA)
                 .from(CUENTA_CONTABLE)
                 .where(CUENTA_CONTABLE.CODIGO.eq(codigo))
-                .fetchOptional(r -> new CuentaEncontrada(r.value1()));
+                .fetchOptional(r -> new CuentaEncontrada(r.value1(), r.value2()));
     }
 }

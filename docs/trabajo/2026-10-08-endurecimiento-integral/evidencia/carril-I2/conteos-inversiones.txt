@@ -1,0 +1,7 @@
+Conteos reales desde servicios/inversiones/build/test-results/*.xml (corrida final, RC gradle 0)
+contractTest     tests=20 fallos=0 errores=0 omitidas=0
+integrationTest  tests=144 fallos=0 errores=0 omitidas=0
+sagaTest         tests=8 fallos=0 errores=0 omitidas=0
+test             tests=36 fallos=0 errores=0 omitidas=0
+testBarrido      tests=2 fallos=0 errores=0 omitidas=0
+webTest          tests=33 fallos=0 errores=0 omitidas=0

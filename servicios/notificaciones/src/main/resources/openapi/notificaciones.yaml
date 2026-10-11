@@ -97,11 +97,46 @@ paths:
   # Sus codigos quedan declarados igual: el catalogo de errores es del contrato, no
   # del transporte.
 
+  /notificaciones/supresion/consultas:
+    post:
+      operationId: verificarSupresion
+      summary: Si un destino pidio no recibir mas (el contacto viaja en el cuerpo)
+      description: >-
+        Lo mismo que `GET /notificaciones/supresion`, sin el telefono o correo en la URL (regla
+        90.2.2: una URL queda en historiales, proxies y logs de acceso del gateway y de cada
+        salto). Es el que tienen que usar los consumidores; el GET queda deprecado hasta que
+        `grupos` migre (`HechosPorHttp`) y se retira despues.
+
+        Esta pregunta es un oraculo («este contacto pidio no recibir»): contesta SOLO si/no, la
+        puede hacer quien administra grupos, y cada actor tiene un tope de consultas por minuto
+        (429 con `Retry-After`) para que no sirva para recorrer una agenda. Lee, no escribe: por eso
+        no lleva `Idempotency-Key`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaConsultaSupresion' }
+      responses:
+        '200':
+          description: Si esta suprimido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Supresion' }
+        '429':
+          description: Demasiadas consultas de este actor en el ultimo minuto
+          headers:
+            Retry-After:
+              description: Segundos hasta poder volver a preguntar
+              schema: { type: integer }
+
   /notificaciones/supresion:
     get:
       operationId: consultarSupresion
-      summary: Si un destino pidio no recibir mas
+      deprecated: true
+      summary: Si un destino pidio no recibir mas (DEPRECADO - usar la consulta por cuerpo)
       description: >-
+        DEPRECADO: el contacto viaja en la query. Reemplazo: `POST /notificaciones/supresion/consultas`.
+
         La pregunta CU-69 de `grupos` antes de invitar: a quien se dio de baja no se le
         escribe, aunque quien invita no lo sepa. La lista de supresion es de este
         servicio y nadie mas la puede leer (invariante 11).
@@ -135,6 +170,13 @@ components:
         seguro, y la clave se valida ANTES de escribir (invariante 7).
       schema: { type: string, format: uuid }
   schemas:
+    EntradaConsultaSupresion:
+      type: object
+      additionalProperties: false
+      required: [identificador, categoria]
+      properties:
+        identificador: { type: string, minLength: 1, maxLength: 120 }
+        categoria: { type: string, minLength: 1, maxLength: 40 }
     Supresion:
       type: object
       additionalProperties: false

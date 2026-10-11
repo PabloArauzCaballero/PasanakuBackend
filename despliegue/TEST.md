@@ -255,6 +255,124 @@ las columnas volvieron a admitir nulos.
 > reescriben la tabla, son instantáneos— pero mientras dure la transacción nadie más
 > toca esas tablas.
 
+## Secretos que hay que cargar en Coolify antes de subir (2026-10-10)
+
+Solo NOMBRES; los valores no viven en el repositorio. Cada uno se genera una vez, en una
+terminal propia, y se pega en las variables de la aplicacion `aportaya-api`:
+
+```bash
+openssl rand -hex 32     # 64 caracteres hex; el servicio exige al menos 32
+```
+
+| Variable | La lee | Sin ella | Como se ve el fallo |
+| --- | --- | --- | --- |
+| `QR_INTERNO_CLAVE` | `nucleo-financiero` | **no arranca** (`ContenidoDeQr`: «necesita al menos 32 bytes», bean `qrInterno`) | contenedor en `restarting`; la ola 3 del compose no queda sana y **las olas siguientes (publicidad, tarifas, transparencia) nunca arrancan**; las rutas `/api/v1/billetera`, `/contabilidad`, `/custodia` dan 503 |
+| `INVITACIONES_CLAVE` | `identidad` | arranca (UP) pero **toda invitacion falla en runtime** con 500: `SecretoDeInvitacion.firmar` lanza `IllegalStateException` si la clave tiene menos de 32 caracteres | readiness verde: el problema solo aparece al emitir/validar/consumir una invitacion |
+
+Ninguna de las dos tiene valor por omision a proposito (regla 90.3.4). **`INVITACIONES_CLAVE`
+no puede rotarse a la ligera**: las invitaciones ya emitidas se firman con esa clave y dejarian
+de validar.
+
+Siguen siendo las de antes y ya deben estar cargadas: `BD_CLAVE`, `BD_USUARIO_ADMIN`,
+`BD_CLAVE_ADMIN`, `ARCHIVOS_USUARIO`, `ARCHIVOS_CLAVE`, `SEGURIDAD_PIMIENTA`,
+`WEBHOOK_SECRETO`, `CERTIFICADOS_CLAVE_FIRMA`, `CUENTA_PUENTE_CUSTODIA`, `BASE_URL_PUBLICA`,
+`SIN_NIT_EMISOR`, `JWT_CLAVE_FIRMA`, `PERFIL_SPRING`, `WEB_HOSTS_PERMITIDOS`, `URL_APP`, y
+las `GMAIL_*` / `NOTIFICATION_EMAIL_PROVIDER`.
+
+`inversiones` no suma ningun secreto: su aliado queda `deshabilitado` (`INVERSIONES_ALIADO_*`
+y `INVERSIONES_LIBRO_CREDENCIAL_SERVICIO` van fijos y vacios en el compose; el servicio los
+declara con valor por omision). El unico modo que acepta un perfil productivo es
+`deshabilitado` (`GuardiaDeProduccion`).
+
+**`APORTAYA_CORS_ORIGENES`** (nueva en el compose, gateway y servicios): solo la leen los perfiles
+`staging`/`production`; con `local` no tiene efecto. Hoy no hay que cargarla. Pero **TEST no puede pasar a
+`production` todavia**: `nucleo-financiero` no arranca (no existe un `ProveedorDeRetiro` fuera de `local`/`test`,
+`ProveedorDeRetiroLocal.java:38`; `evidencia/carril-D3/FASE2.md`). Se queda en `PERFIL_SPRING=local`.
+
+**Credencial de `svc_inversiones`.** El rol nace `NOLOGIN` y el servicio no puede conectarse
+hasta que tenga clave. El compose ahora le pasa al trabajo de esquema `ROLES_CLAVE: ${BD_CLAVE}`
+y `despliegue/aplicar-esquema.sh` da esa clave **solo** a los `svc_*` que no tienen login o no
+tienen clave (no rota los que ya la tienen). No hay variable nueva que cargar.
+
+## El esquema ahora expande antes de aplicar (2026-10-10)
+
+El 503 del intento anterior tuvo una causa mas profunda que las claves: **el trabajo de esquema
+fallaba sobre la base de TEST** y, por `service_completed_successfully`, no arrancaba ningun
+servicio (`evidencia/carril-D3/FASE1.md`):
+
+```
+psql:/sql/10_tablas/02_grupos_turnos/invitacion.sql:34: ERROR:  column "consumidor_id" of relation "grupos.invitacion" does not exist
+esquema exited with code 3
+```
+
+`CREATE TABLE IF NOT EXISTS` no agrega a una tabla existente las columnas que el modelo sumo, y
+el primer `COMMENT ON COLUMN` que las nombra aborta toda la transaccion. Ademas los `CHECK` en
+linea no se refrescan (la semilla de la cuenta `CUSTODIA_INVERSION` violaba el `CHECK` viejo).
+
+`aplicar-esquema.sh` ahora **expande** antes de aplicar: aplica `aplicar.sql` en una base de
+referencia descartable, y por cada columna que le falta a una tabla real emite
+`ADD COLUMN`, y por cada `CHECK` cuya definicion cambio lo reemplaza. Es derivado y aditivo (ver
+el comentario del script); sobre una base vacia no hace nada; sin permiso para `CREATE DATABASE`
+avisa y sigue como antes. Una columna `NOT NULL` sin `DEFAULT` entra opcional.
+
+Medido contra una base con los datos de `59370bbd` (402 tablas, 11 usuarios, 25 movimientos):
+esquema `exit 0`, 436 tablas, **0 tablas pierden filas**, y una segunda corrida no agrega nada.
+
+La causa de fondo esta en el generador (`scripts/generar_ddl.py`, regla 97.1): lo correcto es que
+emita el `ADD COLUMN IF NOT EXISTS` desde el modelo. Mientras no lo haga, esta expansion es la red.
+
+## Procedimiento de subida segura a TEST, por etapas
+
+Orden y verificacion de cada etapa. Si una etapa falla, **no se sigue**.
+
+**Etapa 0 · antes de tocar nada (local).**
+`bash despliegue/ensayos/arranque_completo.sh` con `D3_ESCENARIO=actualizacion` (aplica `sql/`
+de lo que corre hoy en TEST y despues el actual, levanta los servicios y corre el humo). Debe
+terminar con `RESUMEN humo: 0 falla(s)`. Un `COMMIT` anterior distinto del de TEST se fija con
+`D3_COMMIT_ANTERIOR=<sha>`.
+
+**Etapa 1 · secretos.** Cargar `QR_INTERNO_CLAVE` e `INVITACIONES_CLAVE` en Coolify
+(arriba). Verificar que **ambas** existen y tienen 64 caracteres, sin mostrarlas.
+
+**Etapa 2 · respaldo.** `pg_dump -Fc pasanaku > /opt/aportaya/respaldos/pre-<sha>.dump` en el
+VPS y `pg_restore --list` sobre el archivo (un respaldo que no se lee no es respaldo, regla
+97.3.6). Anotar el sha desplegado hoy: es el destino del revert.
+
+**Etapa 3 · imagen del esquema y del gateway.** Construir `aportaya/esquema:test` y
+`aportaya/gateway:test` (el timer lo hace; o `docker build -f despliegue/Dockerfile.esquema`).
+Verificar `docker image inspect aportaya/esquema:test`. Correr el trabajo de esquema **solo**, a mano,
+contra la base real y leer su salida: debe terminar `esquema: listo`, con la lista de columnas
+agregadas y `roles svc_* con credencial: 15 de 15`.
+
+```bash
+docker run --rm --network aportaya-interna -e PGHOST=postgres -e PGUSER="$BD_USUARIO_ADMIN"   -e PGPASSWORD="$BD_CLAVE_ADMIN" -e PGDATABASE=pasanaku -e ROLES_CLAVE="$BD_CLAVE" aportaya/esquema:test
+```
+
+Como es aditivo, **las imagenes viejas siguen funcionando contra el esquema nuevo** (columnas nuevas
+opcionales o con default, tablas nuevas ignoradas). Esta es la etapa «expandir» de la regla 97.3.5.
+
+**Etapa 4 · servicios.** Reconstruir las quince imagenes (de a una; el timer) y desplegar. Orden
+que impone el compose: `esquema` -> `identidad` -> olas de a cuatro. Verificar:
+
+```bash
+docker ps --format '{{.Names}} {{.Status}}' | grep -v healthy   # nada debe quedar unhealthy/restarting
+for s in identidad nucleo-financiero inversiones; do
+  docker exec "$(docker ps --format '{{.Names}}' | grep "^$s-")"     wget -qO- http://127.0.0.1:8080/actuator/health/readiness; echo; done
+```
+
+**Etapa 5 · humo por el borde.** `GET https://api.aportaya…/api/v1/sesiones` sin token debe dar 401
+(no 503/504); `GET /api/v1/inversiones/productos` sin token, 401; un login con el operador de plataforma.
+Es lo que hace `despliegue/ensayos/arranque/humo.sh` apuntando al gateway local.
+
+**Marcha atras, sin perdida de datos.** El esquema solo se expandio: no hay nada que deshacer en
+la base. Se revierte el codigo con un **revert-commit** sobre `test` (el mismo mecanismo que ya se
+uso: `git revert <sha-de-la-subida>`, push, y el timer reconstruye y despliega el estado anterior).
+Si ademas fallo el trabajo de esquema, no se tocó la base (la transaccion es una sola). El
+respaldo de la etapa 2 solo se restaura si hubo corrupcion, no para volver atras.
+
+Dos cosas que un revert **no** deshace, a saber: (1) las columnas y tablas agregadas siguen ahi
+—inofensivas para el codigo viejo—, y (2) las restricciones `CHECK` ya ensanchadas.
+
 ## Lo que este entorno NO es
 
 No es producción ni se le parece: una réplica por servicio, sin respaldo

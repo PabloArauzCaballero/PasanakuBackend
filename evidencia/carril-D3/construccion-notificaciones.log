@@ -1,0 +1,60 @@
+#23 9.723 > Task :plataforma:comun-mensajeria:jar
+#23 9.823 > Task :plataforma:comun-web:compileJava FROM-CACHE
+#23 9.823 
+#23 9.823 > Task :plataforma:comun-web:erroresCatalogo
+#23 9.823 catalogo de errores: 262 restricciones -> 140 reglas · errores-restricciones.properties
+#23 9.823 mensajes de regla: 0 · errores-reglas.properties
+#23 9.823   AVISO: 140 reglas con restriccion y sin fila en la boveda: R-AUD-05, R-AUD-06, R-AUD-07, R-AUD-08, R-AUD-11, R-BIL-02, R-BIL-04, R-BIL-05
+#23 9.824 
+#23 9.824 > Task :plataforma:comun-web:processResources
+#23 9.824 > Task :plataforma:comun-web:classes
+#23 9.824 > Task :plataforma:comun-web:jar
+#23 9.923 > Task :servicios:notificaciones:generarServidorOpenApi FROM-CACHE
+#23 11.22 
+#23 11.22 > Task :servicios:notificaciones:generateJooq
+#23 11.22 Version mismatch         : Database version is older than what dialect POSTGRES supports: 16.15 (Debian 16.15-1.pgdg13+2). Consider https://www.jooq.org/download/support-matrix to see what jOOQ version and edition supports which RDBMS versions.
+#23 14.22 
+#23 14.22 > Task :servicios:notificaciones:compileJava
+#23 14.22 > Task :servicios:notificaciones:processResources
+#23 14.22 > Task :servicios:notificaciones:classes
+#23 14.22 > Task :servicios:notificaciones:resolveMainClassName
+#23 14.62 > Task :servicios:notificaciones:bootJar
+#23 14.62 
+#23 14.62 BUILD SUCCESSFUL in 14s
+#23 14.62 26 actionable tasks: 15 executed, 11 from cache
+#23 14.62 Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+#23 DONE 14.9s
+
+#24 [construccion 14/15] RUN mkdir -p /capas && cd /capas     && java -Djarmode=tools -jar /construccion/servicios/notificaciones/build/libs/*.jar extract --layers --launcher --destination /capas
+#24 DONE 0.6s
+
+#25 [construccion 15/15] RUN mkdir -p /nativo /tmp/nativo && cd /tmp/nativo     && case "$(uname -m)" in x86_64) prefijo=linux-x86-64 ;; aarch64) prefijo=linux-aarch64 ;; *) prefijo=desconocido ;; esac     && for j in /capas/dependencies/BOOT-INF/lib/jna-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "com/sun/jna/${prefijo}/libjnidispatch.so" && cp "com/sun/jna/${prefijo}/libjnidispatch.so" /nativo/; done     && for j in /capas/dependencies/BOOT-INF/lib/argon2-jvm-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "${prefijo}/libargon2.so" && cp "${prefijo}/libargon2.so" /nativo/; done     ; ls -l /nativo
+#25 0.058 total 0
+#25 DONE 0.1s
+
+#26 [runtime 4/8] COPY --from=construccion --chown=app:app /capas/dependencies/ ./
+#26 DONE 0.4s
+
+#27 [runtime 5/8] COPY --from=construccion --chown=app:app /capas/spring-boot-loader/ ./
+#27 DONE 0.1s
+
+#28 [runtime 6/8] COPY --from=construccion --chown=app:app /capas/snapshot-dependencies/ ./
+#28 DONE 0.1s
+
+#29 [runtime 7/8] COPY --from=construccion --chown=app:app /capas/application/ ./
+#29 DONE 0.1s
+
+#30 [runtime 8/8] COPY --from=construccion /nativo/ /app/nativo/
+#30 DONE 0.1s
+
+#31 exporting to image
+#31 exporting layers
+#31 exporting layers 1.8s done
+#31 exporting manifest sha256:0402bc340bde51869cc5e113e0a7452670d47ad19880789abf2636821582f9a2 done
+#31 exporting config sha256:aa390acbd37c697b22a5294562a00f930614d18189a3037afac9382fd903a141 done
+#31 exporting attestation manifest sha256:ce8c598824e00e7e9bb6baa0f4746143262f4c7453745f1fd54c8c2828c58616 0.0s done
+#31 exporting manifest list sha256:5b8c152d4ccc50487f04460e44d49e7e7266147d242ae5050e7da987038de576 done
+#31 naming to docker.io/aportaya/notificaciones:test done
+#31 unpacking to docker.io/aportaya/notificaciones:test
+#31 unpacking to docker.io/aportaya/notificaciones:test 0.3s done
+#31 DONE 2.2s

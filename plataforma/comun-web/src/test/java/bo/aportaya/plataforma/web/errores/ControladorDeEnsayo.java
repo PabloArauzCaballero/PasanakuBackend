@@ -8,6 +8,7 @@ import bo.aportaya.plataforma.dominio.Moneda;
 import bo.aportaya.plataforma.web.idempotencia.IdempotenciaConflicto;
 import bo.aportaya.plataforma.web.idempotencia.IdempotenciaEnProceso;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
+import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.Publico;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -76,6 +77,14 @@ public class ControladorDeEnsayo {
         return Map.of("estado", "ok");
     }
 
+    /** Dos poblaciones, dos codigos: el rol de grupo PARTICIPANTE y el permiso de operacion de backoffice. */
+    @GetMapping("/ensayo/dos-puertas")
+    @Permiso("PARTICIPANTE")
+    @PermisoAlternativo("SOLICITUD_INGRESO_VER")
+    public Map<String, String> dosPuertas() {
+        return Map.of("estado", "ok");
+    }
+
     @GetMapping("/ensayo/con-parametro")
     @Permiso("BILLETERA_VER")
     public Map<String, String> conParametro(@RequestParam String desde) {
@@ -121,6 +130,15 @@ public class ControladorDeEnsayo {
     public Salida restriccionDesconocida() {
         throw new DataIntegrityViolationException(
                 "ERROR: null value in column \"columna_que_el_catalogo_no_conoce\" of relation \"tabla_secreta\"");
+    }
+
+    /** Una unicidad que el catalogo no conoce y cuyo mensaje trae el VALOR repetido (sintetico). */
+    @GetMapping("/ensayo/restriccion-con-valor")
+    @Permiso("BILLETERA_VER")
+    public Salida restriccionConValor() {
+        throw new DataIntegrityViolationException(
+                "ERROR: duplicate key value violates unique constraint \"uq_sin_catalogo\"\n"
+                        + "  Detail: Key (telefono)=(+59170000000) already exists.");
     }
 
     @GetMapping("/ensayo/idempotencia-conflicto")

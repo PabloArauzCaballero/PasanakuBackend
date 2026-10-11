@@ -1,0 +1,29 @@
+{
+  "servicio": "inversiones",
+  "operacion": "exportarReporteFiscalDeInversiones",
+  "metodo": "get",
+  "ruta": "/inversiones/reportes/fiscal/exportacion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": null
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": null
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": null
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU128-01",
+        "mensaje": "Periodo invalido",
+        "detalle": {},
+        "trazaId": "traza-exportarReporteFiscalDeInversiones-rechazo"
+      }
+    }
+  }
+}

@@ -24,6 +24,15 @@ void main() {
       expect(r.valida, isTrue);
     });
 
+    test(
+      '10.0.2.2 en debug no necesita HOSTS_PERMITIDOS (defines-por-plataforma)',
+      () {
+        final r = validarGateway('http://10.0.2.2:4010/api/v1', release: false);
+        expect(r.valida, isTrue);
+        expect(r.url, 'http://10.0.2.2:4010/api/v1');
+      },
+    );
+
     test('localhost en debug, sin necesidad de lista', () {
       final r = validarGateway('http://localhost:4010/api/v1', release: false);
       expect(r.valida, isTrue);
@@ -141,6 +150,16 @@ void main() {
 
     test('localhost nunca se acepta en release', () {
       final r = validarGateway('http://localhost:4010/api/v1', release: true);
+      expect(r.motivo, 'localhost-no-permitido');
+    });
+
+    test('10.0.2.2 nunca se acepta en release, ni estando en la lista', () {
+      final r = validarGateway(
+        'https://10.0.2.2/api/v1',
+        release: true,
+        hostsPermitidos: const ['10.0.2.2'],
+      );
+      expect(r.valida, isFalse);
       expect(r.motivo, 'localhost-no-permitido');
     });
 

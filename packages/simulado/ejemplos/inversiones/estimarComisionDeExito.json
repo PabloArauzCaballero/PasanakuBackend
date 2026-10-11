@@ -1,0 +1,98 @@
+{
+  "servicio": "inversiones",
+  "operacion": "estimarComisionDeExito",
+  "metodo": "get",
+  "ruta": "/inversiones/posiciones/{posicionId}/comision",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "posicionId": "04317bbc-0dbb-49ae-898a-f21211ed056a",
+        "cuotas": "100.000000",
+        "valorCuota": "112.000000",
+        "fechaValor": "2026-10-09",
+        "marcaMaximaPrevia": "110.000000",
+        "tasa": "0.100000",
+        "baseElegible": {
+          "monto": "200.00",
+          "moneda": "BOB"
+        },
+        "comisionEstimada": {
+          "monto": "20.00",
+          "moneda": "BOB"
+        },
+        "cuotaNetaEstimada": "111.800000",
+        "marcaMaximaNueva": "112.000000",
+        "comisionCobradaAntes": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "origenDatos": "SINTETICO",
+        "advertencia": "SINTETICO: tasa de comision de ejemplo; la decision comercial y legal (DR-INV-04) esta abierta."
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "posicionId": "04317bbc-0dbb-49ae-898a-f21211ed056a",
+        "cuotas": "0.000000",
+        "valorCuota": "0.000000",
+        "fechaValor": "2026-01-15",
+        "marcaMaximaPrevia": "0.000000",
+        "tasa": "0.000000",
+        "baseElegible": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "comisionEstimada": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "cuotaNetaEstimada": "0.000000",
+        "marcaMaximaNueva": "0.000000",
+        "comisionCobradaAntes": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "origenDatos": "SINTETICO",
+        "advertencia": "advertencia"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "posicionId": "04317bbc-0dbb-49ae-898a-f21211ed056a",
+        "cuotas": "100.000000",
+        "valorCuota": "112.000000",
+        "fechaValor": "2026-10-09",
+        "marcaMaximaPrevia": "110.000000",
+        "tasa": "0.100000",
+        "baseElegible": {
+          "monto": "200.00",
+          "moneda": "BOB"
+        },
+        "comisionEstimada": {
+          "monto": "20.00",
+          "moneda": "BOB"
+        },
+        "cuotaNetaEstimada": "111.800000",
+        "marcaMaximaNueva": "112.000000",
+        "comisionCobradaAntes": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "origenDatos": "SINTETICO",
+        "advertencia": "SINTETICO: tasa de comision de ejemplo; la decision comercial y legal (DR-INV-04) esta abierta."
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU127-01",
+        "mensaje": "Comision no configurada",
+        "detalle": {},
+        "trazaId": "traza-estimarComisionDeExito-rechazo"
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+== verificar_criterios --servicio garantia
+casos de uso implementados y verificados: 7
+Sin divergencias entre la boveda y el codigo.
+== verificar_criterios --servicio aportes
+casos de uso implementados y verificados: 3
+pendientes de implementar (1): CU-51 (aportes)
+Sin divergencias entre la boveda y el codigo.
+== verificar_criterios --servicio entregas
+casos de uso implementados y verificados: 3
+Sin divergencias entre la boveda y el codigo.

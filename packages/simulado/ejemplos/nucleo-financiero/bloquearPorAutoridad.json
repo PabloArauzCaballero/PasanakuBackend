@@ -76,10 +76,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU17-01",
+        "mensaje": "Oficio duplicado",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-bloquearPorAutoridad-rechazo"
       }
     }
   }

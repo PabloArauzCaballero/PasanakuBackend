@@ -67,10 +67,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU90-01",
+        "mensaje": "Kyc insuficiente",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-postularOrganizador-rechazo"
       }
     }
   }

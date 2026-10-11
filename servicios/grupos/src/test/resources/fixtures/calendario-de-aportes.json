@@ -1,0 +1,21 @@
+{
+  "periodoId": "c8100000-0000-4000-8000-000000000001",
+  "grupoId": "c8100000-0000-4000-8000-000000000002",
+  "numero": 3,
+  "estado": "ABIERTO",
+  "fechaLimitePago": "2026-06-05",
+  "fechaFinGracia": "2026-06-08",
+  "fechaEntregaPrevista": "2026-06-12",
+  "cupos": [
+    {
+      "cupoId": "c8100000-0000-4000-8000-0000000000a1",
+      "participanteId": "c8100000-0000-4000-8000-0000000000b1",
+      "montoEsperado": { "monto": "500.00", "moneda": "BOB" }
+    },
+    {
+      "cupoId": "c8100000-0000-4000-8000-0000000000a2",
+      "participanteId": "c8100000-0000-4000-8000-0000000000b2",
+      "montoEsperado": { "monto": "250.00", "moneda": "BOB" }
+    }
+  ]
+}

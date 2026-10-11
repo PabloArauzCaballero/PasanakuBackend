@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.ValidarTokenDeInvitacion;
+import bo.aportaya.identidad.infraestructura.SecretoDeInvitacion;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Ids;
@@ -36,8 +37,10 @@ class CU69ValidarTokenDeInvitacionTest {
                 contenedor.getJdbcUrl(), contenedor.getUsername(), contenedor.getPassword());
         dsl = DSL.using(new TransactionAwareDataSourceProxy(fuente), SQLDialect.POSTGRES);
         transaccion = new TransactionTemplate(new DataSourceTransactionManager(fuente));
-        validar = new ValidarTokenDeInvitacion(new Datos(dsl));
-        emitir = new EmitirTokenDeInvitacion(new Datos(dsl), Reloj.delSistema(), Ids.seguros());
+        // El secreto de invitaciones es el mismo del emisor: el hash se firma con HMAC, no con SHA-256 a secas.
+        var secretos = new SecretoDeInvitacion("secreto-sintetico-exclusivo-pruebas-cu69-validar-0");
+        validar = new ValidarTokenDeInvitacion(new Datos(dsl), secretos);
+        emitir = new EmitirTokenDeInvitacion(new Datos(dsl), Reloj.delSistema(), Ids.seguros(), secretos);
     }
 
     @Test
@@ -57,8 +60,10 @@ class CU69ValidarTokenDeInvitacionTest {
                 politica);
         var emisor = ContextoSesion.de(
                 titular, "PARTICIPANTE", new Traza(UUID.randomUUID().toString()));
-        var emitido = transaccion.execute(
-                estado -> emitir.ejecutar("ENLACE", "+591*****10", UUID.randomUUID(), "127.0.0.1", "prueba", emisor));
+        var emitido = transaccion.execute(estado -> emitir.ejecutar(
+                new EmitirTokenDeInvitacion.Entrada(
+                        UUID.randomUUID(), UUID.randomUUID(), TELEFONO, "ENLACE", "127.0.0.1", "prueba"),
+                emisor));
         UUID token = emitido.tokenId();
         String secreto = emitido.token();
 

@@ -11,30 +11,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'grilla_de_opciones.dart';
+import 'grupo_creado.dart';
+import 'opciones_de_grupo.dart';
 import 'pantalla_crear_grupo.dart';
 import 'textos.dart';
-
-const periodicidades = {
-  'SEMANAL': (nombre: 'Semanal', alAno: '52 turnos al año'),
-  'QUINCENAL': (nombre: 'Quincenal', alAno: '24 al año'),
-  'MENSUAL': (nombre: 'Mensual', alAno: '12 al año'),
-  'BIMENSUAL': (nombre: 'Bimensual', alAno: '6 al año'),
-};
-
-const modalidades = {
-  'SORTEO_ALEATORIO': (
-    nombre: 'Sorteo al azar',
-    detalle: 'Nadie elige: el orden sale sorteado y verificable',
-  ),
-  'ORDEN_DE_INGRESO': (
-    nombre: 'Orden de ingreso',
-    detalle: 'Cobra primero quien entró primero',
-  ),
-  'ACUERDO_MANUAL': (
-    nombre: 'Lo acuerda el grupo',
-    detalle: 'Ustedes fijan el orden entre todos',
-  ),
-};
 
 /// El formulario, como conversación: una pregunta por bloque, las opciones
 /// excluyentes como tarjetas elegibles, y la acción anclada abajo para que no haya
@@ -54,25 +34,10 @@ class FormularioCrearGrupo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = Tokens.of(context);
     if (resultado != null) {
-      return Padding(
-        padding: const EdgeInsets.all(Espacio.s4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              TextosPasanaku.grupoCreado,
-              style: Tipo.titulo2.copyWith(color: t.text),
-            ),
-            const SizedBox(height: Espacio.s2),
-            Text(
-              'Fondo por período: ${resultado.fondoPorPeriodo}',
-              style: Tipo.cuerpo.copyWith(color: t.text2),
-            ),
-          ],
-        ),
+      return GrupoCreado(
+        grupoId: '${resultado.grupoId}',
+        fondoPorPeriodo: resultado.fondoPorPeriodo as String,
       );
     }
     return StatefulBuilder(

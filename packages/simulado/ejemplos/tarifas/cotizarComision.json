@@ -127,10 +127,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU30-01",
+        "mensaje": "Sin concepto aplicable",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-cotizarComision-rechazo"
       }
     }
   }

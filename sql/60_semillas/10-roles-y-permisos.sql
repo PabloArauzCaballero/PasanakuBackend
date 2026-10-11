@@ -11,6 +11,8 @@ INSERT INTO rol (codigo, nombre, ambito, es_sistema) VALUES
   ('SOPORTE', 'Soporte y atención al cliente', 'GLOBAL', TRUE),
   ('PUNTO_RECLAMO', 'Responsable del Punto de Reclamo', 'GLOBAL', TRUE),
   ('TESORERIA', 'Tesorería y conciliación', 'GLOBAL', TRUE),
+  ('SERVICIO_ENTREGAS', 'Identidad de servicio: entregas (pagos del mercado)', 'GLOBAL', TRUE),
+  ('SERVICIO_INVERSIONES', 'Identidad de servicio: inversiones (debita y acredita)', 'GLOBAL', TRUE),
   ('CONTABILIDAD', 'Contabilidad', 'GLOBAL', TRUE),
   ('ORGANIZADOR', 'Organizador de grupo', 'GRUPO', TRUE),
   ('PARTICIPANTE', 'Participante de grupo', 'GRUPO', TRUE),
@@ -54,7 +56,10 @@ INSERT INTO permiso (codigo, descripcion, recurso, accion, requiere_mfa) VALUES
   ('SEGURIDAD_ACCESO_RESTABLECER', 'Aprobar el restablecimiento de la credencial de un operador (ADR-038, R-SEG-11)', 'acceso_operador', 'APROBAR', TRUE),
   ('SEGURIDAD_FACTOR_REINSCRIBIR', 'Dar de baja y volver a enrolar el segundo factor de un operador (ADR-038)', 'factor_mfa', 'EJECUTAR', TRUE),
   ('TARIFARIO_PUBLICAR', 'Publicar un tarifario nuevo', 'tarifario', 'PUBLICAR', TRUE),
-  ('VERIFICACION_RESOLVER', 'Aprobar o rechazar la verificación de identidad de una persona', 'verificacion_kyc', 'RESOLVER', TRUE)
+  ('VERIFICACION_RESOLVER', 'Aprobar o rechazar la verificación de identidad de una persona', 'verificacion_kyc', 'RESOLVER', TRUE),
+  ('RECLAMO_VER', 'Ver el rastro de reclamos de una persona y su efecto sobre sanciones y deudas (CU-52)', 'reclamo_cliente', 'LEER', FALSE),
+  ('SOLICITUD_INGRESO_VER', 'Ver las solicitudes de ingreso a un grupo escaladas a revision humana (CU-68)', 'solicitud_ingreso', 'LEER', FALSE),
+  ('SOLICITUD_INGRESO_RESOLVER', 'Resolver una solicitud de ingreso escalada; quien propone no resuelve (CU-68)', 'solicitud_ingreso', 'RESOLVER', TRUE)
 ON CONFLICT (codigo) DO NOTHING;
 
 -- Sin esta matriz los roles no otorgan nada y el guard de denegar por omisión rechaza todo. Dos separaciones de funciones están cableadas acá y no se negocian: quien AUTORIZA una entrega o un reverso no puede EJECUTARLO, y quien edita catálogos no toca dinero ni datos sensibles (control CI-04).
@@ -116,5 +121,12 @@ INSERT INTO rol_permiso (rol_id, permiso_id) VALUES
   ((SELECT id FROM rol WHERE codigo = 'ANUNCIANTE'), (SELECT id FROM permiso WHERE codigo = 'PUBLICIDAD_CAMPANA_GESTIONAR')),
   ((SELECT id FROM rol WHERE codigo = 'ADMIN_PLATAFORMA'), (SELECT id FROM permiso WHERE codigo = 'VERIFICACION_RESOLVER')),
   ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'VERIFICACION_RESOLVER')),
-  ((SELECT id FROM rol WHERE codigo = 'ANALISTA_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'VERIFICACION_RESOLVER'))
+  ((SELECT id FROM rol WHERE codigo = 'ANALISTA_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'VERIFICACION_RESOLVER')),
+  ((SELECT id FROM rol WHERE codigo = 'SOPORTE'), (SELECT id FROM permiso WHERE codigo = 'RECLAMO_VER')),
+  ((SELECT id FROM rol WHERE codigo = 'PUNTO_RECLAMO'), (SELECT id FROM permiso WHERE codigo = 'RECLAMO_VER')),
+  ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'RECLAMO_VER')),
+  ((SELECT id FROM rol WHERE codigo = 'ADMIN_PLATAFORMA'), (SELECT id FROM permiso WHERE codigo = 'SOLICITUD_INGRESO_VER')),
+  ((SELECT id FROM rol WHERE codigo = 'SOPORTE'), (SELECT id FROM permiso WHERE codigo = 'SOLICITUD_INGRESO_VER')),
+  ((SELECT id FROM rol WHERE codigo = 'ADMIN_PLATAFORMA'), (SELECT id FROM permiso WHERE codigo = 'SOLICITUD_INGRESO_RESOLVER')),
+  ((SELECT id FROM rol WHERE codigo = 'ADMIN_PLATAFORMA'), (SELECT id FROM permiso WHERE codigo = 'RECLAMO_VER'))
 ON CONFLICT (rol_id, permiso_id) DO NOTHING;

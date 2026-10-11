@@ -7,7 +7,7 @@
 -- su esquema, y corren en su propia sesion de psql. Sin esta linea fallan con
 -- «relation "transaccion_billetera" does not exist» en cualquier base que no
 -- traiga el search_path puesto por ALTER DATABASE — el CI, por ejemplo.
-SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, grupos, identidad, notificaciones, nucleo_financiero, organizador, publicidad, tarifas, transparencia, catalogo, comun, public;
+SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, grupos, identidad, inversiones, notificaciones, nucleo_financiero, organizador, publicidad, tarifas, transparencia, catalogo, comun, public;
 
 -- 1) Transacciones descuadradas
 SELECT t.id FROM transaccion_billetera t
@@ -114,3 +114,21 @@ SELECT c.id, c.codigo, c.saldo AS cacheado, COALESCE(l.derivado, 0) AS derivado
 SELECT id, numero, estado, asiento_reversa_id
   FROM asiento_contable
  WHERE (estado = 'REVERSADO') <> (asiento_reversa_id IS NOT NULL);
+
+-- R-GAR-09 · contadores de la reserva que no coinciden con su libro de movimientos
+SELECT r.id FROM reserva_respaldo r
+  LEFT JOIN LATERAL (
+        SELECT SUM(CASE WHEN m.tipo IN ('RESERVA', 'AMPLIACION') THEN m.monto ELSE 0 END) AS reservado,
+               SUM(CASE WHEN m.tipo = 'APLICACION' THEN m.monto WHEN m.tipo = 'REVERSA_APLICACION' THEN -m.monto ELSE 0 END) AS aplicado,
+               SUM(CASE WHEN m.tipo = 'RECUPERACION' THEN m.monto ELSE 0 END) AS recuperado,
+               SUM(CASE WHEN m.tipo = 'LIBERACION' THEN m.monto ELSE 0 END) AS liberado
+          FROM movimiento_reserva m WHERE m.reserva_respaldo_id = r.id) l ON TRUE
+ WHERE r.monto_reservado <> COALESCE(l.reservado, 0) OR r.monto_aplicado <> COALESCE(l.aplicado, 0)
+    OR r.monto_recuperado <> COALESCE(l.recuperado, 0) OR r.monto_liberado <> COALESCE(l.liberado, 0);
+
+-- R-GAR-08 · capacidad cuyo comprometido no es lo reservado menos lo liberado
+SELECT c.id FROM capacidad_respaldo c
+  LEFT JOIN LATERAL (
+        SELECT SUM(r.monto_reservado - r.monto_liberado) AS vivo
+          FROM reserva_respaldo r WHERE r.capacidad_respaldo_id = c.id) l ON TRUE
+ WHERE c.monto_comprometido <> COALESCE(l.vivo, 0);

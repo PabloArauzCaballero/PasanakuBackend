@@ -68,6 +68,14 @@ public class GuardiaDePermiso implements HandlerInterceptor {
         if (codigo.equals(contexto.rol()) || sesion.permisos().contains(codigo)) {
             return true;
         }
+        PermisoAlternativo alternativos = metodo.getMethodAnnotation(PermisoAlternativo.class);
+        if (alternativos != null) {
+            for (String otro : alternativos.value()) {
+                if (otro.equals(contexto.rol()) || sesion.permisos().contains(otro)) {
+                    return true;
+                }
+            }
+        }
 
         BITACORA.info("acceso denegado: el rol {} no tiene {}", contexto.rol(), codigo);
         throw new AccessDeniedException("falta " + codigo);

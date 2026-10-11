@@ -139,6 +139,12 @@ export const ErroresCU18 = {
 | `cuenta_beneficiaria.rechazada` | Aviso con el motivo y pedido de otra cuenta | — |
 | — | Trabajo que concilia los micro-depósitos enviados y no informados | — |
 
+> **Quién verifica la titularidad (carril I).** El paso 3 lo contesta `identidad` (`POST /usuarios/{id}/titularidad/verificacion`, solo
+> sí/no, nunca el dato). `entregas` firma esa pregunta con la credencial de SERVICIO `SERVICIO_ENTREGAS`, no con el token del
+> participante: el participante no tiene `DATOS_SENSIBLES_LEER` y su 403 se leía como «no coincide», con lo que nadie podía registrar
+> su cuenta. Sin credencial de servicio la respuesta es «no coincide» (falla cerrado). Qué otros roles pueden verificar es una decisión
+> del modelo de roles que corresponde a Seguridad.
+
 ## Interfaz
 
 - **App:** *Cobros → Mis cuentas*: lista con el número enmascarado, el banco, el

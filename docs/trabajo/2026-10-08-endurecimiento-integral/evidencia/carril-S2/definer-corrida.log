@@ -1,0 +1,180 @@
+== DIAGNOSTICO (seccion | clave | valor ...)
+D1|funciones_en_aportes|73
+D1|security_definer|63
+D1|definer_que_son_trigger|51
+D1|definer_invocables_por_SQL_(no_trigger)|12
+D2|definer_ejecutable_por_PUBLIC|63
+D2|invocable_por_svc_nucleo_financiero_(no_trigger)|fn_bil_recalcular_saldos(p_cuenta uuid)
+D2|invocable_por_svc_nucleo_financiero_(no_trigger)|fn_con_exigir_contrato(p_usuario uuid, p_tipo text)
+D2|invocable_por_svc_nucleo_financiero_(no_trigger)|fn_ctb_recalcular_saldo(p_cuenta uuid)
+D2|invocable_por_svc_nucleo_financiero_(no_trigger)|fn_fx_a_usd(p_monto numeric, p_moneda character, p_fecha date, OUT monto_usd numeric, OUT tipo_cambio numeric)
+D2|invocable_por_svc_nucleo_financiero_(no_trigger)|fn_lic_servicio_habilitado(p_servicio text)
+D2|invocable_por_svc_nucleo_financiero_(no_trigger)|fn_lim_evaluar(p_cuenta uuid, p_concepto text, p_monto numeric)
+D2|invocable_por_svc_nucleo_financiero_(no_trigger)|fn_not_puede_enviar(p_destinatario uuid, p_es_obligatorio boolean)
+D2|invocable_por_svc_nucleo_financiero_(no_trigger)|fn_uif_acumulado(p_usuario uuid, p_umbral uuid, p_fecha date, OUT monto numeric, OUT desde date, OUT inicio_id uuid)
+D2|invocable_por_svc_nucleo_financiero_(no_trigger)|fn_uif_concepto(p_tipo text)
+D2|invocable_por_svc_nucleo_financiero_(no_trigger)|fn_uif_exigir_ddd(p_usuario uuid)
+D2|invocable_por_svc_nucleo_financiero_(no_trigger)|fn_uif_registrar_operacion(p_transaccion uuid)
+D2|invocable_por_svc_nucleo_financiero_(no_trigger)|fn_uif_titular(p_transaccion uuid)
+D3|definer_sin_search_path_fijo|0
+D3|definer_con_public_o_sin_pg_catalog_en_search_path|63
+D4|fn_aud_asiento_cuadrado()|true|true
+D4|fn_aud_asiento_una_moneda()|true|true
+D4|fn_aud_bloquear_mutacion()|true|true
+D4|fn_aud_encadenar_bitacora()|true|true
+D4|fn_aud_encadenar_transaccion()|true|true
+D4|fn_bil_exigir_encaje()|true|true
+D4|fn_bil_fijar_saldo_posterior()|true|true
+D4|fn_bil_moneda_coherente()|true|true
+D4|fn_bil_moneda_orden()|true|true
+D4|fn_bil_recalcular_saldos(p_cuenta uuid)|false|true
+D4|fn_bil_sincronizar_saldos()|true|true
+D4|fn_bil_transaccion_cuadrada()|true|true
+D4|fn_bil_validar_cierre_cuenta()|true|true
+D4|fn_bil_validar_cierre_diario()|true|true
+D4|fn_bil_validar_instrumento_retiro()|true|true
+D4|fn_con_exigir_contrato(p_usuario uuid, p_tipo text)|false|true
+D4|fn_ctb_cuenta_de_movimiento()|true|true
+D4|fn_ctb_moneda_inmutable()|true|true
+D4|fn_ctb_moneda_movimiento()|true|true
+D4|fn_ctb_periodo_abierto()|true|true
+D4|fn_ctb_recalcular_saldo(p_cuenta uuid)|false|true
+D4|fn_ctb_segregacion_pago()|true|true
+D4|fn_ctb_sincronizar_saldo()|true|true
+D4|fn_des_validar_cuenta_destino()|true|true
+D4|fn_fx_a_usd(p_monto numeric, p_moneda character, p_fecha date, OUT monto_usd numeric, OUT tipo_cambio numeric)|false|true
+D4|fn_gar_aplicar_movimiento_reserva()|true|true
+D4|fn_gar_evidencia_inmutable()|true|true
+D4|fn_gar_lineas_cuadran()|true|true
+D4|fn_gar_turno_del_grupo()|true|true
+D4|fn_gar_validar_tope_aval()|true|true
+D4|fn_grp_compromiso_inmutable()|true|true
+D4|fn_grp_recalcular_deducciones()|true|true
+D4|fn_grp_validar_disolucion()|true|true
+D4|fn_grp_validar_permuta()|true|true
+D4|fn_grp_validar_retiro_grupo()|true|true
+D4|fn_grp_voto_inmutable()|true|true
+D4|fn_inv_condiciones_coherentes()|true|true
+D4|fn_inv_distribucion_coherente()|true|true
+D4|fn_inv_doble_disponibilidad()|true|true
+D4|fn_inv_marca_no_decrece()|true|true
+D4|fn_inv_orden_consentida()|true|true
+D4|fn_lic_servicio_habilitado(p_servicio text)|false|true
+D4|fn_lim_evaluar(p_cuenta uuid, p_concepto text, p_monto numeric)|false|true
+D4|fn_not_puede_enviar(p_destinatario uuid, p_es_obligatorio boolean)|false|true
+D4|fn_not_validar_supresion()|true|true
+D4|fn_org_contrato_inmutable()|true|true
+D4|fn_org_validar_resolutor()|true|true
+D4|fn_pub_creativa_aprobada()|true|true
+D4|fn_pub_moderador_distinto()|true|true
+D4|fn_rep_encadenar_bloque()|true|true
+D4|fn_rep_validar_componentes()|true|true
+D4|fn_rep_validar_resena()|true|true
+D4|fn_tar_factura_inmutable()|true|true
+D4|fn_tar_tarifario_inmutable()|true|true
+D4|fn_tar_validar_devolucion()|true|true
+D4|fn_tar_validar_preaviso()|true|true
+D4|fn_uif_acumulado(p_usuario uuid, p_umbral uuid, p_fecha date, OUT monto numeric, OUT desde date, OUT inicio_id uuid)|false|true
+D4|fn_uif_concepto(p_tipo text)|false|true
+D4|fn_uif_disparar_registro()|true|true
+D4|fn_uif_exigir_ddd(p_usuario uuid)|false|true
+D4|fn_uif_registrar_operacion(p_transaccion uuid)|false|true
+D4|fn_uif_titular(p_transaccion uuid)|false|true
+D4|fn_uif_validar_pep()|true|true
+D5|fn_bil_recalcular_saldos|f|-|nucleo_financiero|t
+D5|fn_bil_validar_cierre_diario|t|nucleo_financiero|aportes,nucleo_financiero|t
+D5|fn_con_exigir_contrato|f|-|cumplimiento|t
+D5|fn_ctb_periodo_abierto|t|nucleo_financiero|erp|t
+D5|fn_ctb_recalcular_saldo|f|-|nucleo_financiero|t
+D5|fn_ctb_segregacion_pago|t|erp|aportes,erp|t
+D5|fn_fx_a_usd|f|-|catalogo|t
+D5|fn_gar_turno_del_grupo|t|garantia|grupos|t
+D5|fn_grp_validar_disolucion|t|garantia|grupos,nucleo_financiero|t
+D5|fn_grp_validar_retiro_grupo|t|nucleo_financiero|entregas,grupos,nucleo_financiero|t
+D5|fn_inv_distribucion_coherente|t|inversiones|catalogo,inversiones|t
+D5|fn_inv_orden_consentida|t|inversiones|identidad,inversiones|t
+D5|fn_lic_servicio_habilitado|f|-|catalogo,cumplimiento|t
+D5|fn_lim_evaluar|f|-|catalogo,nucleo_financiero|t
+D5|fn_not_puede_enviar|f|-|identidad,notificaciones|t
+D5|fn_pub_moderador_distinto|t|publicidad|identidad,organizador,publicidad|t
+D5|fn_rep_validar_resena|t|transparencia|grupos|t
+D5|fn_tar_tarifario_inmutable|t|tarifas|catalogo|t
+D5|fn_tar_validar_preaviso|t|catalogo|tarifas|t
+D5|fn_uif_acumulado|f|-|catalogo,cumplimiento,nucleo_financiero|t
+D5|fn_uif_concepto|f|-|nucleo_financiero|t
+D5|fn_uif_exigir_ddd|f|-|cumplimiento|t
+D5|fn_uif_registrar_operacion|f|-|catalogo,cumplimiento,nucleo_financiero|t
+D5|fn_uif_titular|f|-|nucleo_financiero|t
+D5|fn_aud_asiento_cuadrado|t|nucleo_financiero|nucleo_financiero|f
+D5|fn_aud_asiento_una_moneda|t|nucleo_financiero|nucleo_financiero|f
+D5|fn_aud_bloquear_mutacion|t|auditoria,comun,cumplimiento,erp,garantia,grupos,inversiones,nucleo_financiero,organizador,publicidad,tarifas,transparencia|-|f
+D5|fn_aud_encadenar_bitacora|t|comun|comun|f
+D5|fn_aud_encadenar_transaccion|t|nucleo_financiero|nucleo_financiero|f
+D5|fn_bil_exigir_encaje|t|nucleo_financiero|nucleo_financiero|f
+D5|fn_bil_fijar_saldo_posterior|t|nucleo_financiero|nucleo_financiero|f
+D5|fn_bil_moneda_coherente|t|nucleo_financiero|nucleo_financiero|f
+D5|fn_bil_moneda_orden|t|nucleo_financiero|nucleo_financiero|f
+D5|fn_bil_sincronizar_saldos|t|nucleo_financiero|-|f
+D5|fn_bil_transaccion_cuadrada|t|nucleo_financiero|nucleo_financiero|f
+D5|fn_bil_validar_cierre_cuenta|t|nucleo_financiero|nucleo_financiero|f
+D5|fn_bil_validar_instrumento_retiro|t|nucleo_financiero|nucleo_financiero|f
+D5|fn_ctb_cuenta_de_movimiento|t|nucleo_financiero|nucleo_financiero|f
+D5|fn_ctb_moneda_inmutable|t|nucleo_financiero|nucleo_financiero|f
+D5|fn_ctb_moneda_movimiento|t|nucleo_financiero|nucleo_financiero|f
+D5|fn_ctb_sincronizar_saldo|t|nucleo_financiero|-|f
+D5|fn_des_validar_cuenta_destino|t|entregas|entregas|f
+D5|fn_gar_aplicar_movimiento_reserva|t|garantia|garantia|f
+D5|fn_gar_evidencia_inmutable|t|garantia|-|f
+D5|fn_gar_lineas_cuadran|t|garantia|garantia|f
+D5|fn_gar_validar_tope_aval|t|garantia|garantia|f
+D5|fn_grp_compromiso_inmutable|t|grupos|-|f
+D5|fn_grp_recalcular_deducciones|t|entregas|entregas|f
+D5|fn_grp_validar_permuta|t|grupos|grupos|f
+D5|fn_grp_voto_inmutable|t|grupos|-|f
+D5|fn_inv_condiciones_coherentes|t|inversiones|inversiones|f
+D5|fn_inv_doble_disponibilidad|t|inversiones|inversiones|f
+D5|fn_inv_marca_no_decrece|t|inversiones|-|f
+D5|fn_not_validar_supresion|t|notificaciones|notificaciones|f
+D5|fn_org_contrato_inmutable|t|organizador|-|f
+D5|fn_org_validar_resolutor|t|organizador|organizador|f
+D5|fn_pub_creativa_aprobada|t|publicidad|publicidad|f
+D5|fn_rep_encadenar_bloque|t|transparencia|transparencia|f
+D5|fn_rep_validar_componentes|t|transparencia|transparencia|f
+D5|fn_tar_factura_inmutable|t|tarifas|-|f
+D5|fn_tar_validar_devolucion|t|tarifas|tarifas|f
+D5|fn_uif_disparar_registro|t|nucleo_financiero|-|f
+D5|fn_uif_validar_pep|t|cumplimiento|cumplimiento|f
+
+== LISTA EXPLICITA PROPUESTA (candidatas que cruzan esquema): 24 funciones
+   fn_bil_recalcular_saldos
+   fn_bil_validar_cierre_diario
+   fn_con_exigir_contrato
+   fn_ctb_periodo_abierto
+   fn_ctb_recalcular_saldo
+   fn_ctb_segregacion_pago
+   fn_fx_a_usd
+   fn_gar_turno_del_grupo
+   fn_grp_validar_disolucion
+   fn_grp_validar_retiro_grupo
+   fn_inv_distribucion_coherente
+   fn_inv_orden_consentida
+   fn_lic_servicio_habilitado
+   fn_lim_evaluar
+   fn_not_puede_enviar
+   fn_pub_moderador_distinto
+   fn_rep_validar_resena
+   fn_tar_tarifario_inmutable
+   fn_tar_validar_preaviso
+   fn_uif_acumulado
+   fn_uif_concepto
+   fn_uif_exigir_ddd
+   fn_uif_registrar_operacion
+   fn_uif_titular
+
+== PRUEBA DE DERIVA PROPUESTA contra el estado ACTUAL (debe fallar: describe el estado deseado)
+X1 toda funcion DEFINER esta en la lista explicita|f|39 DEFINER fuera de la lista
+X2 la lista no tiene funciones que ya no existen|t|0 sobrantes
+X3 ninguna DEFINER es ejecutable por PUBLIC (REVOKE ... FROM PUBLIC)|f|63 ejecutables por PUBLIC
+X4 toda DEFINER fija search_path, con pg_catalog y SIN public|f|63 sin search_path seguro
+X5 las fn_seg_* (politicas de fila) siguen siendo INVOKER: leen el contexto de quien consulta|t|fn_seg_* en INVOKER
+X6 ninguna DEFINER no-trigger es invocable por un rol de servicio (no se llama con SELECT)|f|12 DEFINER invocables por svc_nucleo_financiero

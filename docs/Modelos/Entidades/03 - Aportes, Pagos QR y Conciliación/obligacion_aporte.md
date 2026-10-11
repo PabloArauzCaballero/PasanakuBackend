@@ -9,7 +9,7 @@ estereotipo: Raíz de agregado
 clave_primaria: [id]
 columnas: 22
 fk_salientes: 7
-fk_entrantes: 7
+fk_entrantes: 8
 append_only: false
 ---
 
@@ -70,6 +70,7 @@ append_only: false
 | --- | --- | :-: | --- |
 | [[cargo_comision]] | `obligacion_id` | ↗ 11 | [[cargo_comision.obligacion_id → obligacion_aporte]] |
 | [[cobertura_incumplimiento]] | `obligacion_id` | ↗ 08 | [[cobertura_incumplimiento.obligacion_id → obligacion_aporte]] |
+| [[cobertura_respaldo_linea]] | `obligacion_id` | ↗ 08 | [[cobertura_respaldo_linea.obligacion_id → obligacion_aporte]] |
 | [[obligacion_aporte]] | `obligacion_origen_id` | 03 | [[obligacion_aporte.obligacion_origen_id → obligacion_aporte]] |
 | [[orden_cobro]] | `obligacion_id` | 03 | [[orden_cobro.obligacion_id → obligacion_aporte]] |
 | [[pago]] | `obligacion_id` | 03 | [[pago.obligacion_id → obligacion_aporte]] |
@@ -78,7 +79,7 @@ append_only: false
 
 ## Entidades vecinas
 
-[[cargo_comision]] · [[cobertura_incumplimiento]] · [[cupo]] · [[grupo]] · [[obligacion_aporte]] · [[orden_cobro]] · [[pago]] · [[participante]] · [[periodo]] · [[plan_regularizacion]] · [[politica_mora]] · [[registro_incumplimiento]] · [[transferencia_p2p]]
+[[cargo_comision]] · [[cobertura_incumplimiento]] · [[cobertura_respaldo_linea]] · [[cupo]] · [[grupo]] · [[obligacion_aporte]] · [[orden_cobro]] · [[pago]] · [[participante]] · [[periodo]] · [[plan_regularizacion]] · [[politica_mora]] · [[registro_incumplimiento]] · [[transferencia_p2p]]
 
 ## Notas del modelo
 

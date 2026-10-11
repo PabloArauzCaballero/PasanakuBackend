@@ -11,6 +11,15 @@ const Map<String, String> _catalogo = {
   'AP-CU04-01': 'El código no coincide. Revisalo e intentá de nuevo.',
   'AP-CU04-04': 'Demasiados intentos. Esperá una hora y volvé a probar.',
   'AP-CU04-06': 'Tu segundo factor no está activado. Pedí ayuda a soporte.',
+  // CU-12 · QR interno. Cada rechazo del QR dice una cosa distinta; en particular el bancario/interoperable
+  // NO se presenta como «QR inválido» ni como si pudiera pagarse acá: todavía no hay proveedor habilitado.
+  'AP-CU12-07':
+      'Ese QR no es válido. Pedí que te generen uno nuevo desde AportaYa.',
+  'AP-CU12-08': 'Ese QR venció. Pedí que te generen uno nuevo.',
+  'AP-CU12-09': 'Ese QR ya se usó. Cada QR se paga una sola vez.',
+  'AP-CU12-10':
+      'Este QR es de un banco o de otra red de pagos y todavía no aceptamos pagos con QR interoperable. '
+      'Podés pagar con un QR de AportaYa o con una transferencia.',
   'AP-CU21-03': 'No pudimos cobrar. Revisá tu saldo e intentá de nuevo.',
   'AP-VAL-03': 'Este vale ya se usó. Cada vale se canjea una sola vez.',
 };

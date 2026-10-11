@@ -1,0 +1,34 @@
+[candado:pesado] esperando 60s...
+[candado:pesado] tomado tras 100s
+##### backoffice typecheck
+tsc exit=0
+##### backoffice test gateway
+❯ Building...
+✔ Building...
+Application bundle generation complete. [10.752 seconds] - 2026-10-08T16:04:48.979Z
+
+
+ RUN  v4.1.11 C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuFrontend/apps/backoffice
+
+
+ Test Files  1 passed (1)
+      Tests  13 passed (13)
+   Start at  12:04:49
+   Duration  1.82s (transform 100ms, setup 469ms, import 17ms, tests 7ms, environment 1.15s)
+
+##### web typecheck
+tsc exit=0
+##### web test gateway
+❯ Building...
+✔ Building...
+Application bundle generation complete. [3.858 seconds] - 2026-10-08T16:05:06.009Z
+
+
+ RUN  v4.1.11 C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuFrontend/apps/web
+
+
+ Test Files  1 passed (1)
+      Tests  13 passed (13)
+   Start at  12:05:07
+   Duration  1.93s (transform 74ms, setup 390ms, import 19ms, tests 8ms, environment 1.27s)
+

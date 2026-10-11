@@ -9,6 +9,11 @@
 -- saltear si ya está— es lo que hace que un ON DELETE cambiado en el
 -- modelo quede corregido al reaplicar.
 
+ALTER TABLE identidad.alcance_invitacion DROP CONSTRAINT IF EXISTS fk_alcance_invitacion_token_id;
+ALTER TABLE identidad.alcance_invitacion
+  ADD CONSTRAINT fk_alcance_invitacion_token_id
+  FOREIGN KEY (token_id) REFERENCES identidad.token_verificacion (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
 ALTER TABLE identidad.asignacion_rol DROP CONSTRAINT IF EXISTS fk_asignacion_rol_otorgada_por;
 ALTER TABLE identidad.asignacion_rol
   ADD CONSTRAINT fk_asignacion_rol_otorgada_por

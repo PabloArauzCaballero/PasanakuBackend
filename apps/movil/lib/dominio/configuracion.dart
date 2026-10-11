@@ -31,7 +31,18 @@ class ResultadoValidacionGateway {
 }
 
 final RegExp _rutaVersionada = RegExp(r'/v\d+/?$');
-const Set<String> _loopback = {'localhost', '127.0.0.1', '::1', '0.0.0.0'};
+
+/// Hosts que significan «la máquina de desarrollo»: el loopback y `10.0.2.2`, el alias
+/// fijo con que el emulador de Android llega a la máquina anfitriona. `release` los
+/// rechaza a todos (hallazgo del carril H: el emulador no pasaba sin `HOSTS_PERMITIDOS`,
+/// contra lo que dice `entregables/defines-por-plataforma.md`).
+const Set<String> _loopback = {
+  'localhost',
+  '127.0.0.1',
+  '::1',
+  '0.0.0.0',
+  '10.0.2.2',
+};
 
 /// Valida la URL del gateway para el build de la app.
 ///

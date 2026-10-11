@@ -89,7 +89,7 @@ import { accionParaTecla, enfocarFilaPorId } from './navegacion-por-teclado'
     <ap-paginacion [(pagina)]="pagina" [totalDeFilas]="total()" [porPagina]="tamanoDePagina()" />
   `,
   styles: `
-    :host { display: block; }
+    :host { display: block; min-width: 0; max-width: 100%; }
     .cabecera-tabla { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); padding-bottom: var(--s3); }
     h2 { font-size: 1.05em; color: var(--text); margin: 0; }
     .cargando { color: var(--text-3); font-size: .85em; }

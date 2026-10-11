@@ -7,6 +7,7 @@ import bo.aportaya.grupos.aplicacion.CU63Acordar;
 import bo.aportaya.grupos.aplicacion.CU64TraspasarCupo;
 import bo.aportaya.grupos.aplicacion.CU65Retirarse;
 import bo.aportaya.grupos.aplicacion.CU68Postular;
+import bo.aportaya.grupos.aplicacion.CU69Invitar;
 import bo.aportaya.grupos.aplicacion.Consultas;
 import bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
@@ -35,6 +36,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
+    private bo.aportaya.grupos.aplicacion.CanjearInvitacion canjearInvitacion;
+
+    @MockitoBean
     private CU20CrearGrupo cu20CrearGrupo;
 
     @MockitoBean
@@ -60,6 +64,12 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private InvitacionesWeb invitaciones;
+
+    @MockitoBean
+    private AdmisionDelGrupo admision;
+
+    @MockitoBean
+    private CU69Invitar cu69Invitar;
 
     @MockitoBean
     private Consultas consultas;

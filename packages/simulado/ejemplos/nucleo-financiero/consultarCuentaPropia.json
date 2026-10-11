@@ -1,0 +1,41 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "consultarCuentaPropia",
+  "metodo": "get",
+  "ruta": "/billetera/cuentas/propia",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "cuentaId": "334cc0fa-e284-49fa-82e3-7570015d12af",
+        "moneda": "BOB",
+        "estado": "estado"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "cuentaId": "334cc0fa-e284-49fa-82e3-7570015d12af",
+        "moneda": "BOB",
+        "estado": "estado"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "cuentaId": "334cc0fa-e284-49fa-82e3-7570015d12af",
+        "moneda": "BOB",
+        "estado": "estado"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU24-01",
+        "mensaje": "Asiento descuadrado",
+        "detalle": {},
+        "trazaId": "traza-consultarCuentaPropia-rechazo"
+      }
+    }
+  }
+}

@@ -90,8 +90,7 @@ final class MapeoDeErp {
                 facturaId,
                 new BigDecimal(cuerpo.getMonto()),
                 cuerpo.getMoneda().getValue(),
-                cuerpo.getFormaPago().getValue(),
-                cuerpo.getAutorizadoPor());
+                cuerpo.getFormaPago().getValue());
     }
 
     static CU104CobrarCuenta.EntradaCuenta cuentaPorCobrar(EntradaCuentaPorCobrar cuerpo) {

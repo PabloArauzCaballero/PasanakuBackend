@@ -69,7 +69,7 @@ export const RAMA_DE: Record<ResourceStatus, 'cargando' | 'obsoleto' | 'error' |
   `,
   styles: `
     :host { display: block; }
-    .esqueleto span { display: block; height: var(--s5); margin-bottom: var(--s3); border-radius: var(--r-sm); background: var(--surface-2); }
+    .esqueleto span { display: block; height: var(--s5); margin-bottom: var(--s3); border-radius: var(--r-sm); background: var(--esqueleto); }
     .esqueleto span:nth-child(1) { width: 40%; } .esqueleto span:nth-child(2) { width: 60%; } .esqueleto span:nth-child(3) { width: 30%; }
     .error, .vacio { padding: var(--s5); text-align: center; }
     .mensaje { color: var(--text); margin: 0 0 var(--s2); }

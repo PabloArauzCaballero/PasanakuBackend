@@ -295,6 +295,11 @@ paths:
         la fila queda una clave de objeto (ADR-034). El tipo se decide leyendo los
         primeros bytes, no por la extension ni por el Content-Type que manda el
         cliente. Devuelve la clave y el SHA-256 para que el expediente quede trazable.
+
+        Quien sube tiene que ser la persona: o presenta el `tokenDeAlta` que devolvio SU alta
+        (cabecera `Token-De-Alta`), o es su propia sesion. Cualquier otro caso —token de otro
+        usuario, vencido, mal formado, ausente, o un UUID que no existe— responde el MISMO 403,
+        sin decir si el usuario existe.
       parameters:
         - name: usuarioId
           in: path
@@ -304,6 +309,11 @@ paths:
           in: header
           required: true
           schema: { type: string, format: uuid }
+        - name: Token-De-Alta
+          in: header
+          required: false
+          description: El `tokenDeAlta` de la respuesta del alta. Opcional solo si hay sesion propia.
+          schema: { type: string, maxLength: 200 }
       requestBody:
         required: true
         content:
@@ -325,6 +335,8 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ArchivoDelExpediente' }
+        '403':
+          description: No es la persona ni presenta el token de su alta (idéntico exista o no el usuario)
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
   /usuarios/{usuarioId}/titularidad/verificacion:
     post:
@@ -367,8 +379,7 @@ paths:
         escribir esa tabla (invariante 11): pide el token y guarda su identificador.
 
         Se guarda el hash, nunca el token: quien tenga la base no puede reconstruir los
-        enlaces vivos. El valor en claro se devuelve una sola vez, a quien lo va a
-        enviar.
+        enlaces vivos sin la clave secreta. Reintentos id?nticos del emisor recuperan el mismo enlace.
       parameters:
         - $ref: '#/components/parameters/ClaveIdempotencia'
       requestBody:
@@ -391,8 +402,8 @@ paths:
       summary: Verificar un enlace para el titular de la sesión
       description: >-
         Responde solo si el token emitido sigue vigente y el teléfono indicado
-        pertenece al usuario autenticado. No consume el token: grupos hace la
-        aceptación de un solo uso en su propia transacción.
+        pertenece al usuario autenticado. No consume el token: el canje de un solo
+        uso es `consumirInvitacion`, que decide identidad en su propia transacción.
       requestBody:
         required: true
         content:
@@ -404,12 +415,69 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/SalidaValidacionInvitacion' }
+  /usuarios/tokens/invitacion/{tokenId}/consumos:
+    post:
+      operationId: consumirInvitacion
+      tags: [Invitaciones]
+      parameters:
+        - { name: tokenId, in: path, required: true, schema: { type: string, format: uuid } }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CanjeInvitacion' }
+      responses:
+        '200':
+          description: Recibo recuperable solo con el mismo usuario, secreto y clave
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ConsumoInvitacion' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+  /usuarios/tokens/invitacion/{tokenId}/revocacion:
+    post:
+      operationId: revocarInvitacion
+      tags: [Invitaciones]
+      parameters:
+        - { name: tokenId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '204': { description: Invitación revocada por su emisor }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
+  /usuarios/busquedas/por-telefono:
+    post:
+      operationId: buscarUsuarioPorTelefono
+      summary: Si ese telefono ya tiene cuenta (el telefono viaja en el cuerpo)
+      description: >-
+        Lo mismo que `GET /usuarios/por-telefono`, sin el telefono en la URL: una URL queda en
+        historiales, proxies y logs de acceso del gateway y de cada salto (regla 90.2.2).
+        Es el que tienen que usar los consumidores; el GET queda deprecado hasta que `grupos`
+        migre (`HechosPorHttp`) y se retira despues.
+
+        Mismo permiso y misma respuesta: el identificador y nada mas. Lee, no escribe: por eso
+        no lleva `Idempotency-Key`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaBusquedaPorTelefono' }
+      responses:
+        '200':
+          description: Si existe, con su identificador
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UsuarioEncontrado' }
 
   /usuarios/por-telefono:
     get:
       operationId: buscarPorTelefono
-      summary: Si ese telefono ya tiene cuenta
+      deprecated: true
+      summary: Si ese telefono ya tiene cuenta (DEPRECADO - usar la busqueda por cuerpo)
       description: >-
+        DEPRECADO: el telefono viaja en la query. Reemplazo: `POST /usuarios/busquedas/por-telefono`.
+
         La pregunta `grupos` antes de invitar (CU-69): invitar a quien ya es
         participante es ruido, y para saberlo hay que poder ir del telefono al usuario.
 
@@ -427,6 +495,25 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/UsuarioEncontrado' }
+
+  /usuarios/{usuarioId}/kyc:
+    get:
+      operationId: consultarNivelKyc
+      summary: El nivel de verificacion (KYC) vigente de una persona
+      description: >-
+        Lo pregunta `grupos` (CU-20, CU-68) para exigir el nivel minimo del grupo sin leer
+        este esquema (invariante 11). Cada quien lee el suyo; solo backoffice o un proceso
+        del sistema leen el de otra persona. Devuelve el nivel y nada mas.
+      parameters:
+        - { name: usuarioId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: El nivel vigente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NivelKyc' }
+        '403':
+          description: Quien pregunta no es la persona ni un rol que pueda leer el de otra
 
 components:
   parameters:
@@ -466,6 +553,19 @@ components:
       required: [verificada]
       properties:
         verificada: { type: boolean }
+    NivelKyc:
+      type: object
+      additionalProperties: false
+      required: [usuarioId, nivel]
+      properties:
+        usuarioId: { type: string, format: uuid }
+        nivel:     { type: string, enum: [NINGUNO, BASICO, INTERMEDIO, COMPLETO] }
+    EntradaBusquedaPorTelefono:
+      type: object
+      additionalProperties: false
+      required: [telefono]
+      properties:
+        telefono: { type: string, pattern: '^\+591\d{8}$' }
     UsuarioEncontrado:
       type: object
       additionalProperties: false
@@ -476,15 +576,27 @@ components:
     EntradaTokenDeInvitacion:
       type: object
       additionalProperties: false
-      required: [canal, destinoEnmascarado]
+      required: [canal, grupoId, telefonoDestino]
       properties:
         canal: { type: string, enum: [ENLACE, SMS, WHATSAPP, CORREO] }
-        destinoEnmascarado:
-          type: string
-          maxLength: 60
-          description: >-
-            El destino YA enmascarado. Sin enmascarar seria un telefono en claro
-            viajando entre servicios y quedando en cada log del camino.
+        grupoId: { type: string, format: uuid }
+        telefonoDestino: { type: string, pattern: '^\+591\d{8}$', writeOnly: true }
+    CanjeInvitacion:
+      type: object
+      additionalProperties: false
+      required: [grupoId, token]
+      properties:
+        grupoId: { type: string, format: uuid }
+        token: { type: string, pattern: '^[0-9a-f]{64}$', writeOnly: true }
+    ConsumoInvitacion:
+      type: object
+      required: [tokenId, grupoId, usuarioId, clave, consumidoEn]
+      properties:
+        tokenId: { type: string, format: uuid }
+        grupoId: { type: string, format: uuid }
+        usuarioId: { type: string, format: uuid }
+        clave: { type: string, format: uuid }
+        consumidoEn: { type: string, format: date-time }
     SalidaTokenDeInvitacion:
       type: object
       additionalProperties: false
@@ -737,6 +849,13 @@ components:
         limites:
           type: array
           items: { $ref: '#/components/schemas/LimiteAplicable' }
+        tokenDeAlta:
+          type: string
+          description: >-
+            Permiso de UN solo proposito —subir las fotos del expediente de ESTE usuario— y vencimiento
+            corto. Se manda en la cabecera `Token-De-Alta` de `POST /usuarios/{usuarioId}/documentos`.
+            No es una sesion: no sirve para nada mas.
+        tokenDeAltaVenceEn: { type: string, format: date-time }
   responses:
     ReglaDeNegocio:
       description: Regla de negocio de la aplicacion (422, no 400)

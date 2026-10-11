@@ -236,8 +236,10 @@ paths:
       operationId: pagarFacturaDeProveedor
       summary: CU-103 · Paga, total o parcialmente, una factura aprobada
       description: >-
-        Exige CONTABILIDAD_ERP_PAGAR. Quien aprobo la factura no puede autorizar su
-        pago (R-CTB-05).
+        Exige CONTABILIDAD_ERP_PAGAR. Quien autoriza el pago es el sujeto autenticado
+        (token), no un dato del cuerpo: el cuerpo no lleva `autorizadoPor` y, si lo
+        trae, se rechaza con 400. Quien aprobo la factura no puede autorizar su pago
+        (R-CTB-05).
       parameters:
         - $ref: '#/components/parameters/FacturaId'
         - $ref: '#/components/parameters/ClaveIdempotencia'
@@ -569,17 +571,13 @@ components:
     EntradaPago:
       type: object
       additionalProperties: false
-      required: [monto, moneda, formaPago, autorizadoPor]
+      required: [monto, moneda, formaPago]
       properties:
         monto: { $ref: '#/components/schemas/Monto' }
         moneda: { type: string, enum: [BOB, USD] }
         formaPago:
           type: string
           enum: [TRANSFERENCIA, CHEQUE, EFECTIVO, QR]
-        autorizadoPor:
-          type: string
-          format: uuid
-          description: Distinto de quien aprobo la factura (R-CTB-05)
     EntradaCuentaPorCobrar:
       type: object
       additionalProperties: false

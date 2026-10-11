@@ -26,7 +26,7 @@ import { textosSistemas } from '../textos'
   imports: [BandaDeProposito, TablaDeDatos, ChipEstado, InterruptorUI, Alerta, Dialogo, Campo, EstadoDePantalla],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
 
       <ap-estado-de-pantalla [recurso]="despliegues" [vacio]="esVacio" [mensajeVacio]="t.vacio" [etiquetaDeCarga]="t.cargando" (reintentar)="despliegues.reload()">
@@ -67,9 +67,9 @@ import { textosSistemas } from '../textos'
           <ap-alerta tono="error">No podés confirmar el mismo cambio que pediste. Necesitamos el correo de otra persona.</ap-alerta>
         }
       </ap-dialogo>
-    </main>
+    </section>
   `,
-  styles: `main { padding: 0; max-width: 60rem; display: flex; flex-direction: column; gap: var(--s5); } h1 { margin-bottom: 0; } .fila { display: flex; align-items: center; gap: var(--s3); } button { background: transparent; border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); padding: 0 var(--s3); min-height: var(--area-tactil); cursor: pointer; }`,
+  styles: `.pantalla { padding: 0; max-width: 60rem; display: flex; flex-direction: column; gap: var(--s5); } h1 { margin-bottom: 0; } .fila { display: flex; align-items: center; gap: var(--s3); } button { background: transparent; border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); padding: 0 var(--s3); min-height: var(--area-tactil); cursor: pointer; }`,
 })
 export class PantallaDespliegues {
   protected readonly t = textosSistemas.despliegues

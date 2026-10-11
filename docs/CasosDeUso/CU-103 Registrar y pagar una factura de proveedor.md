@@ -37,7 +37,8 @@ normas: [Ley 393 (libros y conservación), Código de Comercio, SIN]
    `factura_proveedor.asiento_contable_id` (ver
    [[CU-24 Registrar el asiento contable de una operación]]).
 4. Tesorería registra el [[pago_a_proveedor]], con `autorizado_por` **distinto**
-   de quien aprobó la factura (`R-SEG-04`).
+   de quien aprobó la factura (`R-SEG-04`). `autorizado_por` es el sujeto autenticado
+   (el token), nunca un dato del cuerpo de la petición.
 5. **En la misma transacción**: se actualiza `monto_pagado`/`saldo_pendiente` de
    la factura, se genera el asiento del pago (`DEBE` cuentas por pagar, `HABER`
    banco/caja), y si `saldo_pendiente = 0`, `estado = 'PAGADA'`.

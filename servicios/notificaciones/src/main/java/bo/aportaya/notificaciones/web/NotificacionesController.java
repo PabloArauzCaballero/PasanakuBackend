@@ -4,18 +4,22 @@ import bo.aportaya.notificaciones.aplicacion.CU82ProcesarRespuesta;
 import bo.aportaya.notificaciones.aplicacion.ConsultarSupresion;
 import bo.aportaya.notificaciones.aplicacion.SolicitarAviso;
 import bo.aportaya.notificaciones.web.generado.NotificacionesApi;
+import bo.aportaya.notificaciones.web.generado.modelo.EntradaConsultaSupresion;
 import bo.aportaya.notificaciones.web.generado.modelo.EntradaNotificacion;
 import bo.aportaya.notificaciones.web.generado.modelo.EntradaRespuesta;
 import bo.aportaya.notificaciones.web.generado.modelo.SalidaNotificacion;
 import bo.aportaya.notificaciones.web.generado.modelo.SalidaRespuesta;
 import bo.aportaya.notificaciones.web.generado.modelo.Supresion;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
+import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.Publico;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,16 +46,20 @@ public class NotificacionesController implements NotificacionesApi {
     private final ConsultarSupresion supresiones;
     private final CU82ProcesarRespuesta cu82;
     private final SesionDeLaPeticion sesion;
+    private final LimiteDeConsultas limiteDeConsultas;
 
     public NotificacionesController(
             SolicitarAviso avisos,
             ConsultarSupresion supresiones,
             CU82ProcesarRespuesta cu82,
-            SesionDeLaPeticion sesion) {
+            SesionDeLaPeticion sesion,
+            Reloj reloj,
+            @Value("${aportaya.supresion.consultas-por-minuto:30}") int consultasPorMinuto) {
         this.avisos = avisos;
         this.supresiones = supresiones;
         this.cu82 = cu82;
         this.sesion = sesion;
+        this.limiteDeConsultas = new LimiteDeConsultas(reloj, consultasPorMinuto, Duration.ofMinutes(1));
     }
 
     /**
@@ -60,13 +68,31 @@ public class NotificacionesController implements NotificacionesApi {
      * <p>La pregunta {@code grupos} antes de invitar: a quien se dio de baja no se le
      * escribe, aunque quien invita no lo sepa.
      */
+    /** @deprecated el contacto viaja en la query; usar {@link #verificarSupresion} hasta que grupos migre. */
+    @Deprecated
     @Override
     @Permiso("GRUPO_ADMINISTRAR")
     public ResponseEntity<Supresion> consultarSupresion(String identificador, String categoria) {
+        return preguntar(identificador, categoria);
+    }
+
+    /**
+     * La misma pregunta con el contacto en el cuerpo (90.2.2) y con tope por actor: es un oraculo
+     * de «este contacto pidio no recibir» y sin tope recorre una agenda.
+     */
+    @Override
+    @Permiso("GRUPO_ADMINISTRAR")
+    public ResponseEntity<Supresion> verificarSupresion(EntradaConsultaSupresion cuerpo) {
+        return preguntar(cuerpo.getIdentificador(), cuerpo.getCategoria());
+    }
+
+    private ResponseEntity<Supresion> preguntar(String identificador, String categoria) {
         Traza.marcarCasoDeUso("CU-80", categoria);
 
+        var contexto = sesion.actual();
+        limiteDeConsultas.registrar(contexto.usuarioId());
         var respuesta = new Supresion();
-        respuesta.setSuprimido(supresiones.estaSuprimido(identificador, categoria, sesion.actual()));
+        respuesta.setSuprimido(supresiones.estaSuprimido(identificador, categoria, contexto));
         return ResponseEntity.ok(respuesta);
     }
 
@@ -74,6 +100,13 @@ public class NotificacionesController implements NotificacionesApi {
     @Permiso("SOPORTE")
     public ResponseEntity<SalidaNotificacion> emitirNotificacion(UUID idempotencyKey, EntradaNotificacion cuerpo) {
         Traza.marcarCasoDeUso("CU-80", cuerpo.getEvento());
+
+        // El contrato dice `datos: object`, pero el generador lo tipa como Object y una cadena o una lista
+        // pasan la validacion: se cierra aca (96.2.1) en vez de publicar en el outbox algo que ninguna plantilla sabe
+        // leer.
+        if (!(cuerpo.getDatos() instanceof java.util.Map<?, ?>)) {
+            throw new bo.aportaya.plataforma.dominio.ErrorDeDominio("Los datos del aviso tienen que ser un objeto.");
+        }
 
         var salida = avisos.ejecutar(
                 new SolicitarAviso.Entrada(cuerpo.getDestinatarioId(), cuerpo.getEvento(), cuerpo.getDatos()),

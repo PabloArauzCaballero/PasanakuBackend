@@ -363,6 +363,8 @@ package "Conciliacion" {
     OBLIGACION_SIN_PAGO
     FUERA_DE_PLAZO
     MONEDA_DISTINTA
+    SIN_CONFIRMACION_PROVEEDOR
+    SIN_MOVIMIENTO_BANCARIO
   }
 
   class MovimientoBancario {
@@ -475,6 +477,7 @@ package "Contabilidad de doble partida" {
     - nombre: String
     - tipo: String <<ACTIVO | PASIVO | PATRIMONIO | INGRESO | EGRESO>>
     - naturaleza: String <<DEUDORA | ACREEDORA>>
+    - moneda: String <<ISO-4217; la cuenta es de UNA moneda: el saldo no mezcla monedas>>
     - cuentaPadreId: UUID <<null si es cuenta de primer nivel; plan de cuentas jerarquico, M13>>
     - nivel: Integer <<profundidad en el plan de cuentas>>
     - esCuentaDeMovimiento: Boolean <<false = cuenta sumarizadora, no recibe movimientos directos>>
@@ -511,6 +514,7 @@ package "Contabilidad de doble partida" {
     - cuentaId: UUID
     - debe: Decimal
     - haber: Decimal
+    - moneda: String <<ISO-4217; igual a la de la cuenta, y una sola por asiento>>
     - descripcion: String
     --
     + importe(): Decimal
@@ -933,6 +937,7 @@ entity "cuenta_contable" as cta {
   nombre : VARCHAR(80)
   tipo : VARCHAR(15) <<CK>>
   naturaleza : VARCHAR(12) <<CK>>
+  moneda : CHAR(3)
   # cuenta_padre_id : UUID <<FK, NULL, IDX>>
   nivel : SMALLINT
   es_cuenta_de_movimiento : BOOLEAN
@@ -963,6 +968,7 @@ entity "movimiento_contable" as movcta {
   # cuenta_id : UUID <<FK, IDX>>
   debe : DECIMAL(16,2)
   haber : DECIMAL(16,2)
+  moneda : CHAR(3)
   descripcion : VARCHAR(160)
 }
 

@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core'
-import { CampoMonto } from '@aportaya/ui/campo-monto/campo-monto'
+import { aCadenaDelContrato, CampoMonto } from '@aportaya/ui/campo-monto/campo-monto'
 import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
 import { GrupoRadio } from '@aportaya/ui/grupo-radio/grupo-radio'
 import { Monto } from '@aportaya/ui/monto/monto'
 import { cobroExcedeElSaldo, crearCobro, type CuentaPorCobrar, type FormaDeCobro } from '../dominio/cu104-cobros'
 import { textosContabilidad } from '../textos'
+import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
+import type { ErrorTraducido } from '../../../nucleo/errores'
 
 /**
  * CU-104 · El paso de Tesorería sobre una cuenta por cobrar. El excedente no se acredita
@@ -14,7 +16,7 @@ import { textosContabilidad } from '../textos'
 @Component({
   selector: 'ap-ficha-de-cobro',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CampoMonto, Dialogo, GrupoRadio, Monto],
+  imports: [ErrorDeEnvio, CampoMonto, Dialogo, GrupoRadio, Monto],
   template: `
     <ap-dialogo
       [titulo]="t.cobrar + ' · ' + cuenta().origenTipo"
@@ -34,6 +36,7 @@ import { textosContabilidad } from '../textos'
       @if (entidadCambioConBorradorSucio()) {
         <p class="aviso-entidad" role="alert">Esta cuenta cambió mientras editabas. Tu borrador no se perdió, pero no se puede guardar contra los datos anteriores: cerrá y volvé a abrir para continuar.</p>
       }
+      <ap-error-de-envio [error]="errorDeEnvio()" />
       <ap-campo-monto [etiqueta]="'Monto cobrado'" [(valor)]="monto" [error]="errorDeMonto()" />
       <ap-grupo-radio nombre="forma-de-cobro" etiqueta="Forma de cobro" [opciones]="formas" [(elegido)]="forma" />
     </ap-dialogo>
@@ -49,7 +52,10 @@ export class FichaDeCobro {
   readonly cerrada = output<void>()
   protected readonly abierto = signal(true)
   protected readonly enviando = signal(false)
+  protected readonly errorDeEnvio = signal<ErrorTraducido | null>(null)
   protected readonly monto = signal('')
+  /** Lo escrito («1.240,50») pasado a la cadena del contrato («1240.50»); `null` si no es un monto válido. */
+  protected readonly montoDelContrato = computed(() => aCadenaDelContrato(this.monto()))
   protected readonly forma = signal<string>('TRANSFERENCIA')
   protected readonly formas = [
     { valor: 'TRANSFERENCIA', texto: 'Transferencia' },
@@ -61,7 +67,7 @@ export class FichaDeCobro {
   private readonly valorInicialDeForma = 'TRANSFERENCIA'
 
   protected readonly errorDeMonto = computed(() =>
-    this.monto() && cobroExcedeElSaldo(this.cuenta(), this.monto()) ? 'El cobro no puede exceder el saldo pendiente de la cuenta.' : undefined,
+    this.montoDelContrato() && cobroExcedeElSaldo(this.cuenta(), this.montoDelContrato()!) ? 'El cobro no puede exceder el saldo pendiente de la cuenta.' : undefined,
   )
 
   /**
@@ -98,14 +104,18 @@ export class FichaDeCobro {
   }
 
   protected confirmar(): void {
-    if (this.enviando() || this.entidadCambioConBorradorSucio() || this.errorDeMonto() || !this.monto()) return
+    if (this.enviando() || this.entidadCambioConBorradorSucio() || this.errorDeMonto() || !this.montoDelContrato()) return
     this.enviando.set(true)
-    this.enviarCobro(this.cuenta().cuentaPorCobrarId, { monto: this.monto(), formaCobro: this.forma() as FormaDeCobro }).subscribe({
+    this.errorDeEnvio.set(null)
+    this.enviarCobro(this.cuenta().cuentaPorCobrarId, { monto: this.montoDelContrato()!, formaCobro: this.forma() as FormaDeCobro }).subscribe({
       next: () => {
         this.enviando.set(false)
         this.cambiarApertura(false)
       },
-      error: () => this.enviando.set(false),
+      error: (e: ErrorTraducido) => {
+        this.errorDeEnvio.set(e)
+        this.enviando.set(false)
+      },
     })
   }
 }

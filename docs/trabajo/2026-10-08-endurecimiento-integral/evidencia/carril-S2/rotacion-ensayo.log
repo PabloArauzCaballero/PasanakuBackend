@@ -1,0 +1,29 @@
+== 1 · INVENTARIO de secretos del despliegue contra el documento de rotacion
+  OK    · el despliegue inyecta secretos que inventariar — 10 variables
+  OK    · existe el documento de rotacion — docs\operacion\rotacion-de-secretos-ensayada.md
+  OK    · todo secreto inyectado tiene fila en el inventario del documento — 10 con fila
+== 2 · HIGIENE: los valores de desarrollo no estan en el compose desplegado
+  OK    · ningun valor de desarrollo aparece en docker-compose.coolify.yml — 5 valores revisados
+== 3 · JWT (JWT_CLAVE_FIRMA / JWKS de identidad): rotar sin y con ventana de solapamiento
+  OK    · antes de rotar las sesiones vivas validan — 200/200
+  OK    · DISENO ACTUAL (una sola clave): rotar invalida TODA sesion viva (logout global) — 200/200 sesiones invalidadas
+  DEFECTO ENCONTRADO · JWKS de identidad publica una sola clave: rotar JWT_CLAVE_FIRMA desloguea a las 200 sesiones del ensayo (docs/operacion/secret-rotation.md lo declara; la propuesta es el solapamiento de abajo)
+  OK    · CON SOLAPAMIENTO: las sesiones firmadas con la clave vieja siguen validando — 200/200
+  OK    · CON SOLAPAMIENTO: lo firmado con la clave nueva valida desde el primer segundo — 200/200
+  OK    · al retirar la clave vieja, lo firmado con ella deja de validar (la clave filtrada no sirve) — 0 aceptados
+  OK    · y lo firmado con la nueva sigue valido — 200/200
+  OK    · un token vencido se rechaza aunque la clave este publicada
+  OK    · un kid desconocido se rechaza (nadie elige su propia clave)
+== 4 · HMAC (INVITACIONES_CLAVE, WEBHOOK_SECRETO, ...): verificar con dos, firmar con una
+  OK    · sin ventana (solo la nueva) lo emitido con la vieja se rechaza — 0/100 aceptados
+  OK    · con ventana [nueva, vieja] todo lo emitido con la vieja sigue valido — 100/100 aceptados
+  OK    · lo nuevo se firma SOLO con la nueva y no valida con la vieja
+  OK    · retirada la vieja, la ventana se cierra y la filtrada no firma nada valido
+== 5 · PIMIENTA (SEGURIDAD_PIMIENTA): migracion perezosa, no re-firma
+  OK    · la huella guardada NO se puede convertir a la pimienta nueva sin el valor original — hace falta que el usuario presente el valor
+  OK    · durante la ventana entran con la vieja y se migran con la nueva — 100 migrados
+  OK    · se sabe cuantos faltan: la vieja NO se retira hasta que sea cero — 400 pendientes
+  OK    · un valor equivocado no entra con ninguna de las dos
+
+comprobaciones: 20 · fallas: 0 · defectos del repositorio encontrados: 1 · 0.43 s
+ENSAYO DE ROTACION: PASS

@@ -1,12 +1,15 @@
 package bo.aportaya.organizador.web;
 
+import bo.aportaya.organizador.aplicacion.CU90ConsultarBandeja;
 import bo.aportaya.organizador.aplicacion.CU90PostularOrganizador;
+import bo.aportaya.organizador.aplicacion.CU90ResolverHabilitacion;
 import bo.aportaya.organizador.aplicacion.CU91FirmarContrato;
 import bo.aportaya.organizador.aplicacion.CU92EvaluarDesempeno;
 import bo.aportaya.organizador.aplicacion.CU93SancionarOrganizador;
 import bo.aportaya.organizador.aplicacion.CU95DefinirAutomatizacion;
 import bo.aportaya.organizador.aplicacion.CU96EjecutarTarea;
 import bo.aportaya.organizador.aplicacion.ConsultarHabilitacion;
+import bo.aportaya.organizador.aplicacion.ReclamosEnCurso;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.SabanaDeSeguridadWeb;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -37,6 +40,15 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private CU93SancionarOrganizador cu93SancionarOrganizador;
+
+    @MockitoBean
+    private ReclamosEnCurso reclamosEnCurso;
+
+    @MockitoBean
+    private CU90ResolverHabilitacion resolverHabilitacion;
+
+    @MockitoBean
+    private CU90ConsultarBandeja consultarBandeja;
 
     @MockitoBean
     private CU95DefinirAutomatizacion cu95DefinirAutomatizacion;

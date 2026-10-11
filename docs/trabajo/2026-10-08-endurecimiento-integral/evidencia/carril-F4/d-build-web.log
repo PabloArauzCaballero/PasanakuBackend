@@ -1,0 +1,70 @@
+contenido: 10 páginas · 10 indexables · robots.txt, sitemap.xml, llms.txt y llms-full.txt generados
+❯ Building...
+✔ Building...
+Browser bundles     
+Initial chunk files  | Names                    |  Raw size | Estimated transfer size
+chunk-NyXfuHxU.js    | -                        | 196.97 kB |                58.45 kB
+main-EWU3WM3A.js     | main                     | 122.76 kB |                32.86 kB
+styles-2B4NHK7Y.css  | styles                   |  37.79 kB |                 7.48 kB
+chunk-jD7zbecP.js    | -                        |  32.86 kB |                 9.99 kB
+
+                     | Initial total            | 390.38 kB |               108.78 kB
+
+Lazy chunk files     | Names                    |  Raw size | Estimated transfer size
+chunk-DPzpXr1I.js    | catalogo                 | 138.35 kB |                31.90 kB
+chunk-C6r9jjTK.js    | -                        |  29.58 kB |                 6.37 kB
+chunk-u0_mgNeu2.js   | inicio                   |  23.98 kB |                 7.17 kB
+chunk-DxztAwI3.js    | pantalla-centro-de-ayuda |  13.65 kB |                 3.85 kB
+chunk-ChsWE-p5.js    | -                        |  10.50 kB |                 3.27 kB
+chunk-Vn0zPzb0.js    | -                        |   7.59 kB |                 2.54 kB
+chunk-M1KMjeCZ.js    | -                        |   6.81 kB |                 2.29 kB
+chunk-CU5-6E29.js    | catalogo                 |   5.87 kB |                 1.90 kB
+chunk-0Fjv7xBI.js    | -                        |   5.38 kB |                 1.89 kB
+chunk-CXLxzoDh2.js   | verificador-de-sorteo    |   5.11 kB |                 2.11 kB
+chunk-bPcFylUr.js    | anfitrion-de-tutorial    |   5.08 kB |                 1.94 kB
+chunk-RB3sT4pM.js    | -                        |   4.73 kB |                 1.72 kB
+chunk-CyDrJR9q.js    | -                        |   4.55 kB |                 1.41 kB
+chunk-Cz-qGQWd.js    | invitacion               |   4.41 kB |                 1.74 kB
+chunk-BWeUMwg02.js   | simulador-de-costos      |   4.02 kB |                 1.69 kB
+...and 29 more lazy chunks files. Use "--verbose" to show all the files.
+
+
+Server bundles      
+Initial chunk files  | Names                    |  Raw size
+server.mjs           | server                   |   1.77 MB |                        
+main.server.mjs      | main.server              | 474.56 kB |                        
+polyfills.server.mjs | polyfills.server         | 234.99 kB |                        
+chunk-TNNZAN7A.mjs   | -                        | 203.03 kB |                        
+chunk-DMXWAZJR.mjs   | -                        |  78.89 kB |                        
+chunk-3X5O6XUG.mjs   | -                        |  34.16 kB |                        
+chunk-4G6NKN6R.mjs   | -                        |  15.12 kB |                        
+chunk-OSSMFA5X.mjs   | -                        |   4.02 kB |                        
+chunk-Y66VPZKV.mjs   | -                        |   2.12 kB |                        
+chunk-4GEOHNNJ.mjs   | -                        |   1.47 kB |                        
+chunk-TWD63J35.mjs   | -                        |   1.39 kB |                        
+chunk-ITOR7NUX.mjs   | -                        |   1.38 kB |                        
+
+Lazy chunk files     | Names                    |  Raw size
+chunk-HO6SY3PJ.mjs   | catalogo                 | 171.50 kB |                        
+chunk-YHUNYMFG.mjs   | -                        |  29.81 kB |                        
+chunk-A5D5W7BL.mjs   | inicio                   |  23.89 kB |                        
+chunk-I76DE5EC.mjs   | pantalla-centro-de-ayuda |  13.62 kB |                        
+chunk-64TQNORZ.mjs   | xhr2                     |  12.17 kB |                        
+chunk-QBTWF36M.mjs   | xhr2                     |  12.08 kB |                        
+chunk-KKV4LQ23.mjs   | -                        |  10.47 kB |                        
+chunk-FI6VWNCJ.mjs   | -                        |   7.56 kB |                        
+chunk-WGD3I3JB.mjs   | -                        |   6.88 kB |                        
+chunk-YWUX7LMJ.mjs   | catalogo                 |   6.08 kB |                        
+chunk-RAEFU3RK.mjs   | -                        |   5.33 kB |                        
+chunk-R726NN75.mjs   | anfitrion-de-tutorial    |   5.19 kB |                        
+chunk-3HYUXBW2.mjs   | verificador-de-sorteo    |   5.13 kB |                        
+chunk-TVQFMVDX.mjs   | -                        |   4.73 kB |                        
+chunk-SDZP6BJL.mjs   | -                        |   4.56 kB |                        
+...and 31 more lazy chunks files. Use "--verbose" to show all the files.
+
+Prerendered 12 static routes.
+Application bundle generation complete. [6.041 seconds] - 2026-10-10T11:46:37.595Z
+
+Output location: C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\web\dist\web
+
+build web rc=0

@@ -23,7 +23,7 @@ export type OpcionDeRadio = { valor: string; texto: string; detalle?: string }
     legend { font-weight: 600; color: var(--text-2); margin-bottom: var(--s2); }
     label { display: flex; align-items: center; gap: var(--s3); min-height: var(--area-tactil); cursor: pointer; color: var(--text); }
     input { position: absolute; width: var(--borde-fino); height: var(--borde-fino); opacity: 0; }
-    .aro { width: var(--s5); height: var(--s5); flex: none; border: var(--borde-desfase) solid var(--field-border); border-radius: var(--r-pill); background: var(--field); }
+    .aro { width: var(--s5); height: var(--s5); flex: none; border: var(--borde-desfase) solid var(--borde-control); border-radius: var(--r-pill); background: var(--field); }
     input:checked + .aro { border-color: var(--verde-solido); border-width: calc(var(--s2) - var(--borde-fino)); }
     input:focus-visible + .aro { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
     .texto { display: flex; flex-direction: column; }

@@ -78,4 +78,25 @@ final class MapeoDeGrupos {
                 .toList());
         return respuesta;
     }
+
+    /** Las tres fechas y los dias que no contaron, tal cual las calculo el dominio. */
+    static bo.aportaya.grupos.web.generado.modelo.SalidaVencimientoLocal vencimiento(
+            bo.aportaya.grupos.aplicacion.CU59CalcularPlazo.SalidaVencimiento salida) {
+        var respuesta = new bo.aportaya.grupos.web.generado.modelo.SalidaVencimientoLocal();
+        respuesta.setInstanteUtc(salida.instanteUtc().atOffset(java.time.ZoneOffset.UTC));
+        respuesta.setZonaHoraria(salida.zonaHoraria());
+        respuesta.setFechaEnUtc(salida.fechaEnUtc());
+        respuesta.setFechaContractual(salida.fechaContractual());
+        respuesta.setFechaDeLiquidacion(salida.fechaDeLiquidacion());
+        respuesta.setCorridaPorNoHabil(salida.corridaPorNoHabil());
+        respuesta.setDiasSalteados(salida.diasSalteados().stream()
+                .map(d -> {
+                    var salteado = new bo.aportaya.grupos.web.generado.modelo.DiaSalteado();
+                    salteado.setFecha(d.fecha());
+                    salteado.setDescripcion(d.descripcion());
+                    return salteado;
+                })
+                .toList());
+        return respuesta;
+    }
 }

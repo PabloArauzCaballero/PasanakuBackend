@@ -1,0 +1,6 @@
+Analyzing movil...                                              
+
+   info - Use the null-aware marker '?' rather than a null check via an 'if'. Try using '?' - lib\pantallas\identidad\dominio\cu02_subir_foto.dart:65:17 - use_null_aware_elements
+  error - Undefined name 'Matchers'. Try correcting the name to one that is defined, or defining the name - test\identidad\paso_contrasena_test.dart:28:13 - undefined_identifier
+
+2 issues found. (ran in 4.8s)

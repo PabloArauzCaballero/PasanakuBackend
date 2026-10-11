@@ -54,9 +54,8 @@ class PasoCelular extends ConsumerWidget {
             error: estado.errorCodigo?.isEmpty == true
                 ? null
                 : estado.errorCodigo,
-            onCompleto: (codigo) => ref
-                .read(altaProvider.notifier)
-                .confirmarCodigoCorreo(codigo),
+            onCompleto: (codigo) =>
+                ref.read(altaProvider.notifier).confirmarCodigoCorreo(codigo),
           ),
           const SizedBox(height: Espacio.s5),
           Boton(

@@ -21,7 +21,11 @@ public final class VigenciaDeRetencion {
         DISPUTA,
         ORDEN_AUTORIDAD,
         ANTIFRAUDE,
-        COMISION_PENDIENTE;
+        COMISION_PENDIENTE,
+        /** La que aparta el importe de una orden de inversion hasta que se debita o se libera. */
+        INVERSION_VOLUNTARIA,
+        /** La del comprador de un derecho en el mercado, hasta que se paga al vendedor o se libera. */
+        COMPRA_EN_MERCADO;
 
         /** La unica que puede vivir sin fecha de fin. */
         public boolean puedeSerIndefinida() {

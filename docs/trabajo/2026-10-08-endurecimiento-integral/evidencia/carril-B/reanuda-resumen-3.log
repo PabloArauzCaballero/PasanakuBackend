@@ -1,0 +1,9 @@
+# grupos (corrida final reanudacion)
+   bo.aportaya.grupos.infraestructura.clientes.HechosPorHttpTest tests 7 fallos 0 errores 0 2026-10-08T19:46:59.902Z
+   bo.aportaya.grupos.web.AdmisionDelGrupoSustitucionTest tests 3 fallos 0 errores 0 2026-10-08T19:47:03.173Z
+test             tests=20 fallos=0 errores=0 omitidos=0
+webTest          tests=50 fallos=0 errores=0 omitidos=0
+   bo.aportaya.grupos.CU68MotorTest tests 8 fallos 0 errores 0 2026-10-08T19:47:51.180Z
+   bo.aportaya.grupos.CU68SustitucionTest tests 10 fallos 0 errores 0 2026-10-08T19:47:53.947Z
+integrationTest  tests=167 fallos=0 errores=0 omitidos=0
+testBarrido      tests=2 fallos=0 errores=0 omitidos=0

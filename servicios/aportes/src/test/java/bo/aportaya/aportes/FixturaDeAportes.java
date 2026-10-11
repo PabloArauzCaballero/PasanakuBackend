@@ -8,8 +8,8 @@ import org.jooq.DSLContext;
 /** Filas minimas para probar el cobro del aporte, con las columnas del modelo real. */
 final class FixturaDeAportes {
 
-    /** Un telefono E.164 distinto por usuario: uq_usuario_telefono_e164 no perdona. */
-    private static final AtomicInteger SECUENCIA = new AtomicInteger(70_000_000);
+    /** Un telefono E.164 distinto por usuario: uq_usuario_telefono_e164 no perdona. Rango aparte del literal +59170000099 de AislamientoEsquemaTest. */
+    private static final AtomicInteger SECUENCIA = new AtomicInteger(72_000_000);
 
     private final DSLContext dsl;
 
@@ -152,6 +152,69 @@ final class FixturaDeAportes {
                 consultaEstado,
                 (short) prioridad);
         return id;
+    }
+
+    record CupoDePrueba(UUID cupoId, UUID participanteId, UUID usuarioId) {}
+
+    record PeriodoDePrueba(UUID grupoId, UUID periodoId, java.util.List<CupoDePrueba> cupos) {}
+
+    /** Un periodo ABIERTO de un grupo con `cupos` cupos ocupados, SIN obligaciones: las genera el caso de uso. */
+    PeriodoDePrueba periodoAbierto(int cupos, java.time.LocalDate limite, java.time.LocalDate gracia) {
+        UUID grupo = grupo();
+        UUID periodo = UUID.randomUUID();
+        dsl.execute(
+                """
+                INSERT INTO grupos.periodo
+                    (id, grupo_id, numero, fecha_inicio, fecha_limite_pago, fecha_fin_gracia,
+                     fecha_entrega_prevista, estado, monto_objetivo, monto_recaudado, cupos_morosos)
+                VALUES (?, ?, 1, ?, ?, ?, ?, 'ABIERTO', ?, 0, 0)
+                """,
+                periodo,
+                grupo,
+                limite.minusDays(20),
+                limite,
+                gracia,
+                gracia.plusDays(2),
+                new BigDecimal(500 * cupos));
+        java.util.List<CupoDePrueba> ocupados = new java.util.ArrayList<>();
+        for (int i = 0; i < cupos; i++) {
+            UUID usuario = usuario();
+            UUID participante = UUID.randomUUID();
+            dsl.execute(
+                    """
+                    INSERT INTO grupos.participante
+                        (id, grupo_id, usuario_id, estado, es_organizador, fecha_ingreso,
+                         reputacion_al_ingresar, aportes_realizados, aportes_en_mora)
+                    VALUES (?, ?, ?, 'ACTIVO', false, now(), 50, 0, 0)
+                    """,
+                    participante,
+                    grupo,
+                    usuario);
+            UUID cupo = UUID.randomUUID();
+            dsl.execute(
+                    """
+                    INSERT INTO grupos.cupo (id, grupo_id, numero, participante_id, estado, fraccion, asignado_en)
+                    VALUES (?, ?, ?, ?, 'OCUPADO', 1.0, now())
+                    """,
+                    cupo,
+                    grupo,
+                    (short) (i + 1),
+                    participante);
+            ocupados.add(new CupoDePrueba(cupo, participante, usuario));
+        }
+        return new PeriodoDePrueba(grupo, periodo, ocupados);
+    }
+
+    /** Un dia no habil de la plataforma, con su fuente en la descripcion (sintetico si asi se dice). */
+    void feriado(java.time.LocalDate fecha, String descripcion) {
+        dsl.execute(
+                """
+                INSERT INTO catalogo.dia_no_habil (id, fecha, descripcion, alcance)
+                VALUES (gen_random_uuid(), ?, ?, 'NACIONAL')
+                ON CONFLICT DO NOTHING
+                """,
+                fecha,
+                descripcion);
     }
 
     void limpiar() {

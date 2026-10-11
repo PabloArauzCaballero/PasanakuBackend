@@ -152,7 +152,8 @@ export const ErroresCU04 = {
 ## Evidencia que deja
 
 [[intento_autenticacion]] · [[sesion]] · [[dispositivo]] · [[factor_mfa]] ·
-[[token_verificacion]] · [[intento_validacion_token]] · [[bitacora_evento]]
+[[token_verificacion]] · [[intento_validacion_token]] · [[bitacora_evento]] ·
+[[evidencia_mfa_consumida]]
 
 ## Criterios de aceptación
 

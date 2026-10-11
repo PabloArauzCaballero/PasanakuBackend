@@ -34,6 +34,7 @@ class SubidaDeFotos {
 
   Future<FotoDelExpediente> subir({
     required String usuarioId,
+    required String? tokenDeAlta,
     required CaraDelExpediente cara,
     required String rutaLocal,
     required String formularioId,
@@ -59,6 +60,9 @@ class SubidaDeFotos {
                 'Idempotency-Key': _ref
                     .read(idempotenciaProvider.notifier)
                     .claveDe(formularioId),
+                // Sin sesion durante el alta, lo que autoriza la subida es el token
+                // que devolvio ESE alta; con solo el `usuarioId` el servidor responde 403.
+                'Token-De-Alta': ?tokenDeAlta,
               },
             ),
           );

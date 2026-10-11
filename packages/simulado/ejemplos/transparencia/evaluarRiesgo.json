@@ -102,7 +102,13 @@
     },
     "rechazo": {
       "estado": 422,
-      "cuerpo": null
+      "cuerpo": {
+        "tipo": "about:blank",
+        "titulo": "Sin historial",
+        "estado": 422,
+        "codigo": "AP-CU97-01",
+        "detalle": null
+      }
     }
   }
 }

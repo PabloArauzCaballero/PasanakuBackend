@@ -1,0 +1,25 @@
+> Task :plataforma:comun-pruebas:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileTestJava
+> Task :plataforma:comun-pruebas:processTestResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:testClasses
+> Task :plataforma:comun-pruebas:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+> Task :plataforma:comun-pruebas:webTest NO-SOURCE
+> Task :plataforma:comun-pruebas:contractTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+> Task :plataforma:comun-pruebas:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+BUILD SUCCESSFUL in 23s
+23 actionable tasks: 4 executed, 19 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+== RC gradle: 0

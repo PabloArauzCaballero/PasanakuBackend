@@ -1,0 +1,16 @@
+heavy.sh: candado tomado, libres 4172 MB -> bash -c cd '/c/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/web' && npx ng test --runner-config='/c/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/scripts/vitest-serial.config.mjs' --include='src/**/*.spec.ts' --exclude='src/**/*.a11y.spec.ts' --no-watch
+Using Vitest configuration file: C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\scripts\vitest-serial.config.mjs
+❯ Building...
+✔ Building...
+Application bundle generation complete. [3.786 seconds] - 2026-10-10T13:07:19.581Z
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90mC:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/web[39m
+
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+
+[2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+[2m      Tests [22m [1m[32m74 passed[39m[22m[90m (74)[39m
+[2m   Start at [22m 09:07:19
+[2m   Duration [22m 2.46s[2m (transform 296ms, setup 343ms, import 543ms, tests 854ms, environment 568ms)[22m
+

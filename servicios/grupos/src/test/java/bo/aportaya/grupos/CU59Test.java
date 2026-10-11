@@ -53,8 +53,12 @@ class CU59Test extends BaseDeCU59 {
         LocalDate corrido = transaccion.execute(
                 e -> calcularPlazo.correrSiCae(LocalDate.of(2026, 5, 1), AlcanceDeCalendario.NACIONAL, contexto()));
 
-        assertThat(corrido).isEqualTo(LocalDate.of(2026, 5, 2));
+        // El 1 de mayo de 2026 es viernes: el sabado 2 y el domingo 3 tampoco son habiles,
+        // asi que el vencimiento se corre al lunes 4. (Antes esta prueba esperaba el sabado 2:
+        // el corrimiento solo miraba el calendario y no los fines de semana — H7.S1.M3.)
+        assertThat(corrido).isEqualTo(LocalDate.of(2026, 5, 4));
         assertThat(corrido).isAfter(LocalDate.of(2026, 5, 1));
+        assertThat(corrido.getDayOfWeek()).isNotIn(java.time.DayOfWeek.SATURDAY, java.time.DayOfWeek.SUNDAY);
     }
 
     @Test

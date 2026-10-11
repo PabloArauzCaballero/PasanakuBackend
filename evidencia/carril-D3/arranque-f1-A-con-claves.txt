@@ -1,0 +1,32 @@
+[d3 01:40:24] escenario=limpia perfil=local roles=todos modo=individual omitir=[] xmx=144m mem=320m
+[d3 01:40:24] libres Windows al empezar: 3718 MB
+[d3 01:40:28] infra: postgres, pgbouncer, redis, minio, kafka
+ Container aportaya-d3-infra-minio-1 Healthy 
+ Container aportaya-d3-infra-kafka-1 Healthy 
+ Container aportaya-d3-infra-pgbouncer-1 Healthy 
+[d3 01:40:38] esquema: docker compose up esquema (service_completed_successfully en TEST)
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3396: NOTICE:  trigger "tg_distribucion_interes_coherente" for relation "distribucion_interes" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3402: NOTICE:  constraint "ck_corrida_trabajo_fin" of relation "corrida_trabajo" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3403: NOTICE:  constraint "ck_corrida_trabajo_error" of relation "corrida_trabajo" does not exist, skipping
+esquema-1  | esquema: catalogos minimos (sql/60_semillas)
+esquema-1  | esquema:                ?column?               
+esquema-1  | esquema: --------------------------------------
+esquema-1  | esquema:  roles svc_* con credencial: 15 de 15
+esquema-1  | esquema: (1 row)
+esquema-1  | esquema: 
+esquema-1  | esquema: 436 tablas en pasanaku
+esquema-1  | esquema: listo
+[Kesquema-1 exited with code 0
+[d3 01:40:42] esquema: exit code = 0
+roles svc_* sin login: 0
+[d3 01:40:42] == identidad solo (--no-deps)
+RESULTADO identidad: healthy | readiness: {"status":"UP"}
+RAM aportaya-d3-identidad-1 239.4MiB / 320MiB
+[d3 01:40:56] == nucleo-financiero solo (--no-deps)
+RESULTADO nucleo-financiero: healthy | readiness: {"status":"UP"}
+RAM aportaya-d3-nucleo-financiero-1 263.6MiB / 320MiB
+[d3 01:41:10] == gateway solo (--no-deps)
+RESULTADO gateway: ausente | readiness: 
+  (log -> evidencia/carril-D3/log-f1-A-con-claves-gateway.txt)
+[d3 01:46:15] RAM pico de los contenedores (hora,n,MB): 01:41:02,6,915
+[d3 01:46:18] libres Windows al terminar: 2902 MB

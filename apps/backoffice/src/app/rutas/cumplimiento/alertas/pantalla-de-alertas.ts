@@ -16,7 +16,7 @@ import { textosCumplimiento } from '../textos'
   imports: [BandaDeProposito, PanelDeFactores],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
       <p class="aviso">{{ t.aviso }}</p>
 
@@ -29,10 +29,10 @@ import { textosCumplimiento } from '../textos'
         <h2 id="estimaciones">{{ t.estimaciones }}</h2>
         <ap-panel-de-factores [veredicto]="t.estimaciones + ': ' + t.veredicto" [factores]="factoresDeEstimaciones(alerta())" />
       </section>
-    </main>
+    </section>
   `,
   styles: `
-    main { padding: var(--s5); max-width: 40rem; display: flex; flex-direction: column; gap: var(--s5); }
+    .pantalla { padding: var(--s5); max-width: 40rem; display: flex; flex-direction: column; gap: var(--s5); }
     .aviso { color: var(--text-2); }
     h2 { font-size: 1em; color: var(--text-2); margin-bottom: var(--s2); }
   `,

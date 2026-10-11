@@ -23,6 +23,11 @@ final class FixturaDeBilletera {
         this.dsl = dsl;
     }
 
+    UUID titular(UUID cuenta) {
+        return dsl.fetchOne("SELECT usuario_id FROM nucleo_financiero.cuenta_billetera WHERE id = ?", cuenta)
+                .get("usuario_id", UUID.class);
+    }
+
     /** Un usuario real en identidad: la cuenta lo referencia por clave foranea. */
     UUID usuario() {
         UUID id = UUID.randomUUID();
@@ -59,9 +64,9 @@ final class FixturaDeBilletera {
     /**
      * Una billetera de usuario con el saldo pedido.
      *
-     * <p>El saldo se pone directo porque estas pruebas verifican los limites y las
-     * reglas, no como se llego a ese saldo: llegar «bien» exigiria correr media
-     * docena de casos de uso que todavia no existen.
+     * <p>H2.S1.M5: el saldo entra por el LIBRO ({@link #acreditar}), no escribiendo la columna cache.
+     * Antes se ponia {@code saldo_disponible} directo, y eso ya no autoriza nada: las decisiones de dinero
+     * se toman contra el libro, asi que una billetera con cache sin libro es una billetera sin plata.
      */
     UUID billetera(UUID usuarioId, String nivel, BigDecimal disponible) {
         UUID id = UUID.randomUUID();
@@ -71,14 +76,16 @@ final class FixturaDeBilletera {
                     (id, numero_cuenta, tipo, usuario_id, politica_billetera_id, moneda, estado,
                      nivel_debida_diligencia, saldo_disponible, saldo_retenido,
                      permite_saldo_negativo, fecha_apertura, version)
-                VALUES (?, ?, 'USUARIO', ?, ?, 'BOB', 'ACTIVA', ?, ?, 0, false, now(), 0)
+                VALUES (?, ?, 'USUARIO', ?, ?, 'BOB', 'ACTIVA', ?, 0, 0, false, now(), 0)
                 """,
                 id,
                 "BOB-" + id.toString().substring(0, 12),
                 usuarioId,
                 politica(),
-                nivel,
-                disponible);
+                nivel);
+        if (disponible.signum() > 0) {
+            acreditar(id, disponible);
+        }
         return id;
     }
 
@@ -228,7 +235,15 @@ final class FixturaDeBilletera {
         dsl.execute("DELETE FROM grupos.periodo");
         dsl.execute("DELETE FROM grupos.cupo");
         dsl.execute("DELETE FROM grupos.participante");
-        dsl.execute("DELETE FROM grupos.grupo");
+        // Un grupo con billetera GRUPO (ConsumoDeAportes) tiene transacciones y asientos append-only que lo
+        // referencian: no se borra
+        // (borrarlo dispararia un UPDATE sobre el libro y R-AUD-01 lo rechaza); sus filas no afectan a las demas
+        // pruebas.
+        dsl.execute(
+                """
+                DELETE FROM grupos.grupo g
+                 WHERE NOT EXISTS (SELECT 1 FROM nucleo_financiero.cuenta_billetera c WHERE c.grupo_id = g.id)
+                """);
         dsl.execute("DELETE FROM nucleo_financiero.orden_retiro");
         dsl.execute("DELETE FROM nucleo_financiero.instrumento_fondeo");
         dsl.execute("DELETE FROM nucleo_financiero.conciliacion_custodia");

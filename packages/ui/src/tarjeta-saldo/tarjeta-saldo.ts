@@ -12,7 +12,7 @@ import { Monto } from '../monto/monto'
   imports: [Boton, Monto],
   host: { role: 'region', '[attr.aria-label]': 'etiqueta()' },
   template: `
-    <p class="etiqueta">{{ etiqueta() }}</p>
+    <p class="rotulo">{{ etiqueta() }}</p>
     <p class="saldo"><ap-monto [monto]="saldo()" [moneda]="moneda()" [etiqueta]="etiqueta()" /></p>
     @if (retenido()) { <p class="retenido">Retenido: <ap-monto [monto]="retenido()!" [moneda]="moneda()" etiqueta="Retenido" /></p> }
     <div class="acciones">
@@ -23,7 +23,7 @@ import { Monto } from '../monto/monto'
   styles: `
     :host { display: block; padding: var(--s5); border-radius: var(--r-lg); background: var(--verde-solido); color: var(--sobre-verde-solido); }
     p { margin: 0; }
-    .etiqueta { opacity: .85; font-weight: 600; }
+    .rotulo { opacity: .85; font-weight: 600; }
     .saldo { margin-top: var(--s1); font-size: 2em; font-weight: 600; }
     .retenido { margin-top: var(--s1); opacity: .85; font-size: .9em; }
     .acciones { display: flex; flex-wrap: wrap; gap: var(--s3); margin-top: var(--s4); }

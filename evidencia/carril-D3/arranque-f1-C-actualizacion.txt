@@ -1,0 +1,57 @@
+[d3 02:10:23] escenario=actualizacion perfil=local roles=todos modo=individual omitir=[] xmx=144m mem=320m
+[d3 02:10:23] libres Windows al empezar: 4183 MB
+[d3 02:10:34] infra: postgres, pgbouncer, redis, minio, kafka
+ Container aportaya-d3-infra-minio-1 Healthy 
+ Container aportaya-d3-infra-kafka-1 Healthy 
+ Container aportaya-d3-infra-pgbouncer-1 Healthy 
+[d3 02:10:45] version anterior 59370bbd: esquema + semillas + datos de dev + credencial de los roles
+psql:40_reglas/restricciones.sql:2731: NOTICE:  trigger "tg_revision_creativa_moderador" for relation "revision_creativa" does not exist, skipping
+psql:40_reglas/restricciones.sql:2737: NOTICE:  constraint "uq_factura_publicidad_cuenta_periodo" of relation "factura_publicidad" does not exist, skipping
+psql:40_reglas/restricciones.sql:2742: NOTICE:  constraint "ck_espacio_pub_capacidad" of relation "espacio_publicitario" does not exist, skipping
+[d3 02:10:53] version anterior: 402 tablas; usuarios=11 movimientos=25
+[d3 02:10:53] esquema: docker compose up esquema (service_completed_successfully en TEST)
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/configuracion_grupo.sql:17: NOTICE:  relation "configuracion_grupo" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/reglamento_grupo.sql:17: NOTICE:  relation "reglamento_grupo" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/aceptacion_reglamento.sql:14: NOTICE:  relation "aceptacion_reglamento" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/historial_estado_grupo.sql:14: NOTICE:  relation "historial_estado_grupo" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/participante.sql:21: NOTICE:  relation "participante" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/cupo.sql:17: NOTICE:  relation "cupo" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/traspaso_cupo.sql:18: NOTICE:  relation "traspaso_cupo" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/solicitud_retiro.sql:18: NOTICE:  relation "solicitud_retiro" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/solicitud_ingreso.sql:18: NOTICE:  relation "solicitud_ingreso" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/invitacion.sql:25: NOTICE:  relation "invitacion" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/invitacion.sql:34: ERROR:  column "consumidor_id" of relation "grupos.invitacion" does not exist
+[Kesquema-1 exited with code 3
+[d3 02:10:54] esquema: exit code = 3
+esquema-1  | psql:/sql/10_tablas/01_identidad_usuarios/intento_validacion_token.sql:15: NOTICE:  relation "intento_validacion_token" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/01_identidad_usuarios/factor_mfa.sql:17: NOTICE:  relation "factor_mfa" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/01_identidad_usuarios/dispositivo.sql:19: NOTICE:  relation "dispositivo" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/01_identidad_usuarios/sesion.sql:18: NOTICE:  relation "sesion" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/01_identidad_usuarios/intento_autenticacion.sql:17: NOTICE:  relation "intento_autenticacion" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/01_identidad_usuarios/bloqueo_cuenta.sql:15: NOTICE:  relation "bloqueo_cuenta" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/01_identidad_usuarios/restriccion_usuario.sql:19: NOTICE:  relation "restriccion_usuario" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/01_identidad_usuarios/documento_identidad.sql:25: NOTICE:  relation "documento_identidad" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/01_identidad_usuarios/verificacion_kyc.sql:23: NOTICE:  relation "verificacion_kyc" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/01_identidad_usuarios/referencia_personal.sql:16: NOTICE:  relation "referencia_personal" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/01_identidad_usuarios/rol.sql:13: NOTICE:  relation "rol" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/01_identidad_usuarios/permiso.sql:13: NOTICE:  relation "permiso" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/01_identidad_usuarios/rol_permiso.sql:8: NOTICE:  relation "rol_permiso" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/01_identidad_usuarios/asignacion_rol.sql:18: NOTICE:  relation "asignacion_rol" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/01_identidad_usuarios/consentimiento.sql:18: NOTICE:  relation "consentimiento" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/01_identidad_usuarios/preferencia_notificacion.sql:21: NOTICE:  relation "preferencia_notificacion" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/01_identidad_usuarios/reputacion_usuario.sql:18: NOTICE:  relation "reputacion_usuario" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/01_identidad_usuarios/solicitud_baja.sql:13: NOTICE:  relation "solicitud_baja" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/grupo.sql:41: NOTICE:  relation "grupo" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/configuracion_grupo.sql:17: NOTICE:  relation "configuracion_grupo" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/reglamento_grupo.sql:17: NOTICE:  relation "reglamento_grupo" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/aceptacion_reglamento.sql:14: NOTICE:  relation "aceptacion_reglamento" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/historial_estado_grupo.sql:14: NOTICE:  relation "historial_estado_grupo" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/participante.sql:21: NOTICE:  relation "participante" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/cupo.sql:17: NOTICE:  relation "cupo" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/traspaso_cupo.sql:18: NOTICE:  relation "traspaso_cupo" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/solicitud_retiro.sql:18: NOTICE:  relation "solicitud_retiro" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/solicitud_ingreso.sql:18: NOTICE:  relation "solicitud_ingreso" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/invitacion.sql:25: NOTICE:  relation "invitacion" already exists, skipping
+esquema-1  | psql:/sql/10_tablas/02_grupos_turnos/invitacion.sql:34: ERROR:  column "consumidor_id" of relation "grupos.invitacion" does not exist
+[d3 02:10:55] RAM pico de los contenedores (hora,n,MB): 02:10:45,5,722
+[d3 02:10:58] libres Windows al terminar: 2041 MB

@@ -146,7 +146,8 @@ export const ErroresCU11 = {
 [[orden_retiro]] · [[retencion_saldo]] · [[evaluacion_antifraude]] ·
 [[transaccion_billetera]] · [[movimiento_billetera]] · [[asiento_contable]] ·
 [[respuesta_idempotente]] ·
-[[registro_operacion_relevante]] (si aplica)
+[[registro_operacion_relevante]] (si aplica) ·
+[[discrepancia_proveedor]]
 
 ## Criterios de aceptación
 
@@ -188,6 +189,69 @@ Entonces las metricas withdrawal_requested_total y withdrawal_approved_total sum
 Dado un retiro que no pasa una condicion dura
 Cuando se rechaza antes de crear la orden
 Entonces solo suma la metrica withdrawal_failed_total, nunca requested ni approved
+
+# Idempotencia: la clave es de cada billetera
+Dados dos titulares que usan la misma clave de idempotencia
+Cuando cada uno solicita su retiro
+Entonces cada billetera tiene su espacio de claves y cada uno tiene su propia orden
+Y la clave de uno no devuelve la orden del otro ni la rompe
+
+# Despacho al proveedor
+Dado un retiro cuyo proveedor liquida pero pierde la respuesta
+Cuando se despacha la orden
+Entonces se consulta al proveedor en vez de reenviar y el libro paga una sola vez
+Y repetir el despacho devuelve lo mismo sin otro envío
+
+Dado un envío al proveedor que se pierde antes de llegar
+Cuando se despacha la orden
+Entonces queda en proceso con el dinero retenido y sin débito
+Y el siguiente intento lo envía y, al confirmarse, el libro paga una vez
+
+Dado un proveedor caído
+Cuando se despacha la orden
+Entonces no se envía nada: sin poder preguntar no hay un segundo envío a ciegas
+Y la orden queda en proceso con el dinero retenido
+
+Dada una orden despachada que el proveedor rechaza en firme
+Cuando se resuelve la orden
+Entonces la orden queda RECHAZADA, la retención se libera y el saldo disponible vuelve
+Y el libro no se toca, tampoco al repetir la resolución
+
+Dada una orden despachada cuya respuesta del proveedor trae otro importe o referencia
+Cuando se resuelve la orden
+Entonces se registra una discrepancia MONTO_DISTINTO con el importe esperado y el informado
+Y la orden sigue en proceso, el dinero retenido y no se debita nada
+
+Dada una orden despachada cuya consulta al proveedor llega con firma inválida
+Cuando se resuelve la orden
+Entonces se registra una discrepancia FIRMA_INVALIDA
+Y nada se paga y el dinero sigue retenido
+
+Dada una orden ya pagada en el libro
+Cuando el proveedor dice después que la rechazó
+Entonces se registra un estado contradictorio
+Y el pago no se deshace: sigue PAGADA con su único débito
+
+# Contra el proveedor real
+Dado el proveedor real que liquida y pierde la respuesta
+Cuando se despacha la orden
+Entonces la consulta por referencia encuentra la operación y el libro paga una sola vez
+Y repetir el despacho devuelve lo mismo sin otra operación en el proveedor
+
+Dado el proveedor real que muere con la orden pendiente
+Cuando se resuelve la orden con el proveedor caído y luego vuelve con su archivo
+Entonces caído el resultado es desconocido y el dinero sigue retenido
+Y al volver se resuelve sin segundo envío: una operación y un débito
+
+Dado un envío que se corta antes de llegar al proveedor real
+Cuando se despacha la orden y se vuelve a intentar
+Entonces la primera vez no hay operación en el proveedor y el dinero sigue retenido
+Y el siguiente intento la crea una sola vez y el libro paga una vez
+
+Dada una orden despachada que el proveedor real rechaza
+Cuando se resuelve la orden
+Entonces el dinero vuelve a estar disponible y no queda nada retenido
+Y el libro no registra ningún débito
 ```
 
 ## Ver también

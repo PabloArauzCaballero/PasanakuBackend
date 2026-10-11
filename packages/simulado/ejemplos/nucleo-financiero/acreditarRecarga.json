@@ -60,10 +60,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU10-05",
+        "mensaje": "Orden expirada",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-acreditarRecarga-rechazo"
       }
     }
   }

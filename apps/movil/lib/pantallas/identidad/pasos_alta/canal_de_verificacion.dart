@@ -29,9 +29,7 @@ class CanalDeVerificacion extends StatelessWidget {
         const SizedBox(height: Espacio.s2),
         SelectorSegmentado<String>(
           valor: valor,
-          opciones: const {
-            'CORREO': TextosIdentidad.canalCorreo,
-          },
+          opciones: const {'CORREO': TextosIdentidad.canalCorreo},
           onChanged: onElegido,
         ),
         const SizedBox(height: Espacio.s2),

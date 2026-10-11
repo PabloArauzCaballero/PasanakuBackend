@@ -253,6 +253,14 @@ public class ReporteRepositorio {
                         fila.get("expira_en", OffsetDateTime.class)));
     }
 
+    /** Quien pidio la ejecucion: la unica persona a la que se le autoriza bajar su exportacion. */
+    public Optional<UUID> solicitanteDe(DSLContext dsl, UUID ejecucionId) {
+        return Optional.ofNullable(dsl.select(DSL.field("solicitado_por", UUID.class))
+                .from(DSL.table(EJECUCION))
+                .where(DSL.field("id").eq(ejecucionId))
+                .fetchOne(0, UUID.class));
+    }
+
     public int contarDescarga(DSLContext dsl, UUID exportacionId) {
         return dsl.update(DSL.table(EXPORTACION))
                 .set(

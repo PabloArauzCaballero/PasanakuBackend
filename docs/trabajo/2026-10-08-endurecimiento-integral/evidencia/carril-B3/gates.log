@@ -1,0 +1,132 @@
+##### verificar_criterios
+casos de uso implementados y verificados: 106
+pendientes de implementar (3): CU-05 (identidad), CU-51 (aportes), CU-57 (nucleo-financiero)
+
+14 FALLAS:
+  - CU-08 · identidad: prueba sin criterio en la boveda — «Dado un usuario con un rol vigente · Cuando se piden los codigos de rol · Entonces vienen · Y los de una asignacion revocada no»
+  - CU-08 · identidad: prueba sin criterio en la boveda — «Dado un usuario sin roles · Cuando se piden los codigos de rol · Entonces no hay ninguno»
+  - CU-62 · grupos: prueba sin criterio en la boveda — «Dado el turno de otro participante · Cuando alguien que no es su titular pide permutarlo · Entonces se rechaza y no queda solicitud»
+  - CU-63 · grupos: prueba sin criterio en la boveda — «B38 · con votos pendientes que aun pueden alcanzar el quorum, el primer voto NO cierra la votacion»
+  - CU-63 · grupos: prueba sin criterio en la boveda — «B38 · cuando ni con todo el peso que falta a favor se alcanza el quorum, se cierra RECHAZADO»
+  - CU-64 · grupos: prueba sin criterio en la boveda — «B39 · repetir el traspaso con el MISMO acuerdo devuelve el traspaso ya hecho y no mueve el cupo otra vez»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 · aceptar: reserva el cupo, crea al participante pendiente de firma y deja el evento»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 · repetir la MISMA decisión devuelve lo ya resuelto y no mueve nada»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 · rechazar exige motivo, y rechazada no toma cupo»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 · sin cupos libres no se acepta, y la solicitud sigue PENDIENTE»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 · el organizador de OTRO grupo (o un participante) no decide: «esa solicitud no existe»»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 · decidir lo contrario de lo ya resuelto es un error, no un reintento»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 · la cola del organizador lista solo las PENDIENTES de SU grupo»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 2a · la reputacion minima excluye a quien TIENE historial y no llega, pero no a quien es nuevo (B24)»
+##### verificar_pruebas_web
+controladores: 34 · con matriz propia: 34 · en deuda: 0
+operaciones con el estado HTTP fuera de su contrato: 25
+servicios con sabana de seguridad: 15
+La capa web esta cubierta segun ADR-043.
+##### verificar_seguridad
+=== 1 · EL ESTÁNDAR ES COHERENTE ===
+  OK    · el estándar tiene sus nueve secciones
+  OK    · los 51 controles declaran cómo se verifican
+  OK    · las 12 restricciones citadas existen en el catálogo
+  OK    · las 9 brechas declaradas están numeradas sin huecos
+  OK    · la cifra de restricciones del estándar está al día (172)
+
+=== 2 · ACCESO ADMINISTRATIVO ===
+  OK    · ADR-038 registrado
+  OK    · ADR-038 vigente
+  OK    · R-SEG-10 está en la bóveda y llegó al SQL generado
+  OK    · R-SEG-11 está en la bóveda y llegó al SQL generado
+  OK    · R-SEG-12 está en la bóveda y llegó al SQL generado
+  OK    · los disparadores de operador no dependen de una función que el search_path puede no ver
+  OK    · los 37 permisos sembrados respetan R-SEG-12
+  OK    · el permiso SEGURIDAD_ACCESO_RESTABLECER está sembrado
+  OK    · el permiso SEGURIDAD_FACTOR_REINSCRIBIR está sembrado
+  OK    · los 4 operadores de dev tienen TOTP y pueden entrar
+
+=== 3 · PATRONES PROHIBIDOS ===
+  FALLA · patrones prohibidos: ['apps\\backoffice\\e2e\\aceptacion\\apoyo\\doble-con-estado.ts:47 — aleatoriedad no criptográfica (prohibición 6)', 'apps\\backoffice\\e2e\\aceptacion\\apoyo\\doble-con-estado.ts:51 — aleatoriedad no criptográfica (prohibición 6)']
+
+=== 3b · RUTAS ABIERTAS, ENUMERADAS ===
+  OK    · el permiso de acceso abierto vive en un solo archivo
+  OK    · las 5 rutas abiertas son las declaradas y ninguna mas
+
+=== 4 · SECRETOS ===
+  OK    · ningún secreto versionado
+  OK    · ningún archivo .env en el árbol de trabajo
+  OK    · .gitignore excluye los archivos de entorno
+
+=== 5 · EL CICLO ESTÁ CABLEADO ===
+  OK    · la skill seguridad-aplicacion existe
+  OK    · la skill está en el índice de skills
+  OK    · el contrato de implementación exige este gate
+  OK    · el contrato de implementación remite al estándar de seguridad
+  OK    · el CI ejecuta el gate de seguridad
+
+=== 6 · CATÁLOGO COHERENTE CON LA ESPECIFICACIÓN ===
+  AVISO · S-8 · 30 permisos que un CU exige y el catálogo no tiene: AUTOMATIZACION_ADMINISTRAR, BACKOFFICE, CALENDARIO_ADMINISTRAR, COBRANZA_GESTIONAR, CUMPLIMIENTO_ADMINISTRAR, CUMPLIMIENTO_EVALUAR…
+  AVISO · S-9 · 3 propósitos de token sin canal activo (INICIO_SESION_SIN_CONTRASENA, VERIFICACION_TELEFONO, CAMBIO_CORREO): un flujo trabado invita a encender SMS
+
+=== 7 · SQL CON ENTRADA DINÁMICA (SQL-SEGURO) ===
+  AVISO · servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/infraestructura/DestinoRepositorio.java:37 — DSL.field(variable) — nombre de columna dinámico (fuera del alcance de este carril; dueño del servicio)
+  AVISO · servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/infraestructura/ReversoRepositorio.java:73 — DSL.field(variable) — nombre de columna dinámico (fuera del alcance de este carril; dueño del servicio)
+  AVISO · servicios/inversiones/src/main/java/bo/aportaya/inversiones/infraestructura/Sql.java:20 — DSL.field(variable) — nombre de columna dinámico (fuera del alcance de este carril; dueño del servicio)
+  (778 archivos revisados; 0 bloquean, 3 son aviso)
+
+1 FALLAS
+##### verificar_boveda
+
+=== CASOS DE USO ===
+  OK    · 109 casos de uso encontrados
+  OK    · todos con las 13 secciones de la plantilla 
+  OK    · todos con tabla de errores 
+  FALLA · códigos de error correlativos ['CU-68', 'CU-69']
+  OK    · cada código con su fila y su CU 
+  OK    · ≥3 escenarios Gherkin por caso 
+  OK    · ≥4 flujos alternativos por caso 
+  FALLA · "Ver también" recíproco ['CU-13→CU-14', 'CU-13→CU-12']
+
+=== COBERTURA DEL MODELO ===
+  OK    · 323 entidades en el modelo
+  OK    · toda entidad tiene al menos un caso de uso 
+
+=== RESTRICCIONES ===
+  OK    · 172 restricciones definidas
+  OK    · toda restricción citada existe 
+  OK    · toda restricción está citada por un caso 
+
+=== ÍNDICES ===
+  OK    · índice de casos completo (sobran [], faltan [])
+  OK    · total_casos: 109 en el frontmatter
+  OK    · índice de skills completo (260 skills)
+  OK    · frontmatter de cada skill coincide con su carpeta
+
+=== ARQUITECTURA ===
+  OK    · 48 decisiones registradas
+  OK    · toda decisión está en el índice 
+  OK    · toda decisión tiene las 6 secciones obligatorias 
+  OK    · toda decisión declara estado válido 
+  OK    · sin números de ADR repetidos 
+
+=== ESQUEMAS POR SERVICIO ===
+  OK    · 337 tablas con esquema asignado (modelo: 337)
+  OK    · todo esquema es uno de los declarados 
+  OK    · el libro contable entero en nucleo_financiero 
+  OK    · movimiento_billetera con el libro: partida doble en una transaccion
+  OK    · bitacoras en el esquema comun 
+  OK    · el outbox salio de comun (ADR-027)
+  OK    · outbox por esquema en 15_infra 
+  OK    · estado_saga en los esquemas orquestadores 
+  OK    · el esquema de cada tabla coincide con su modulo 
+  OK    · 356 claves foraneas cruzan esquemas y las verifica el motor
+  OK    · 15 roles de servicio creados
+  OK    · cada rol con permiso sobre su esquema 
+  OK    · ningun servicio LEE el rastro ajeno 
+
+=== ENLACES ===
+  OK    · ningún wikilink roto en la bóveda 
+  OK    · ningún wikilink roto en las skills 
+
+=== CIFRAS CITADAS ===
+  FALLA · ninguna cifra desfasada en los planes ['planes\\17 Plan de acción secuencial · coordinación de cinco máquinas.md: dice 105 casos de uso, son 109']
+          cifras vigentes: 109 casos de uso · 337 tablas · 323 entidades · 172 restricciones · 48 ADR
+
+3 FALLAS

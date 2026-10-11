@@ -1,0 +1,145 @@
+PASS  INFRA-1 los topicos aportaya.* existen (el broker no autocrea)  -> 243 topicos
+PASS  INFRA-2 el relevo del outbox publica: ningun evento de garantia quedo PENDIENTE sin intentos hace >2 min  -> 0 pendientes sin intentar
+PASS  H8.S1.M3-pago IPA2E048B paga su aporte por HTTP (obligacion d38dc883)  -> <201 {"pagoId":"42a46f12-57ba-4de2-a363-179edf66615c","obligacionId":"d38dc883-b602-4d38-8349-5fd42dff397c","estadoOblig
+PASS  H8.S1.M3-pago IPAB0B71A paga su aporte por HTTP (obligacion c314e723)  -> <201 {"pagoId":"2304a9c0-547e-487c-981b-fa4191c65b09","obligacionId":"c314e723-f557-4b4d-a9c5-625e2df2290d","estadoOblig
+PASS  H8.S1.M3-pago ICO5A0484 paga su aporte por HTTP (obligacion 9ad74d62)  -> <201 {"pagoId":"d973efd1-560c-44ac-9742-35fdbf009f5e","obligacionId":"9ad74d62-c52f-4fdf-ba87-77610cd4e992","estadoOblig
+PASS  H8.S1.M3-recaudo aportes afirma el pozo 6000, confirmado 4500 y faltante 1500 (no lo afirma el cliente)  -> {'periodoId': '60c91025-c365-437e-810f-6d137362676f', 'grupoId': 'a25966d9-b897-40ae-bdd7-88beef3c528c', 'corteEn': '2026-10-10T19:58:52.095865Z', 'pozo': {'monto': '6000.00', 'moneda': 'BOB'}, 'confi
+PASS  H8.S1.M3-reserva garantia reserva 3000 de la capacidad empresarial (201)  -> <201 {"reservaId":"b25b6141-5985-459d-8992-6b5c6cb81685","reservado":{"monto":"3000.00","moneda":"BOB"},"capacidadDisponible":{"monto":"97000.00","moneda":"BOB"},"es>
+PASS  H8.S1.M3-mayor-reserva el mayor asienta la reserva (3000) que cuadra, antes de cualquier cobertura  -> [{'id': '9a3105f3-8f1a-4631-8b61-3f6b454f5ff9', 'estado': 'CONFIRMADO', 'reversa': None, 'debe': Decimal('3000.00'), 'haber': Decimal('3000.00')}]
+PASS  H8.S1.M3-cobertura entregas -> aportes -> garantia: el pozo queda FONDEADO y la empresa cubre 1500  -> <201 {"entregaId":"639bfb84-50c9-413c-9957-0b8b24da377c","fondeoId":"4d85f3e1-271a-4383-8f5d-6134660eaa13","estado":"FONDEADO","pozo":{"monto":"6000.00","moneda":"BO>
+PASS  H8.S1.M3-cobertura-fila hay UNA cobertura viva del turno, con responsable y solicitante  -> cobertura=82e1b64b-d661-40b7-b902-1c6c2a35c122
+PASS  H8.S1.M3-exposicion la reserva conserva la exposicion: reservado 3000, aplicado 1500, recuperado 0  -> [['3000.00', '1500.00', '0.00']]
+PASS  H8.S1.M3-mayor el mayor de nucleo tiene UN asiento COBERTURA que cuadra (debe = haber = 1500)  -> [{'id': 'a5db20ae-bebe-4ae1-92f7-89d34a32ca91', 'estado': 'CONFIRMADO', 'reversa': None, 'debe': Decimal('1500.00'), 'haber': Decimal('1500.00')}]
+PASS  H8.S1.M3-cuentas cuentas logicas -> plan: POZO_GRUPO (9.1.03) +1500 al debe, RESERVA_RESPALDO (9.1.02) -1500  -> pozo 1500.00, reserva -1500.00
+PASS  H8.S1.M3-idempotencia repetir el fondeo (otra clave): misma entrega, UNA cobertura y UNA entrega  -> entregas=1 coberturas=1 -> <200 {"entregaId":"639bfb84-50c9-413c-9957-0b8b24da377c","fondeoId":"4d85f3e1-271a-4383-8f5d-6134660eaa13","estado":"FONDEADO","pozo":{"monto":"6000.00","moneda":"BO>
+PASS  H8.S1.M4-fondeo pozo completo (6000, sin cobertura) FONDEADO con pozo = confirmado + cubierto  -> <201 {"entregaId":"0754cc71-932e-41a7-8e61-8b789a5f8663","fondeoId":"ad4658cb-e217-4a49-802a-8da609cb4e34","estado":"FONDEADO","pozo":{"monto":"6000.00","moneda":"BO>
+PASS  H8.S1.M4-autoriza quien autoriza (RESPONSABLE_RIESGOS) autoriza  -> <200 {"entregaId":"0754cc71-932e-41a7-8e61-8b789a5f8663","estado":"AUTORIZADA","autorizadaPor":"b1ef5cec-a572-4605-b933-0e4a9c1dd4ef"}>
+PASS  H8.S1.M4-segregacion quien autoriza NO ejecuta (R-SEG-04): el permiso lo frena antes (403) o la regla (422)  -> <403 {"codigo":"AP-SEG-01","mensaje":"No tenes acceso a este recurso.","trazaId":"52278605-89b3-4184-aa1c-eff68bea7ff8"}>
+PASS  H8.S1.M4-ejecuta otra persona (TESORERIA) la ejecuta: ENTREGADA por 6000.00  -> <200 {"entregaId":"0754cc71-932e-41a7-8e61-8b789a5f8663","estado":"ENTREGADA","montoEntregado":{"monto":"6000.00","moneda":"BOB"}}>
+PASS  H8.S1.M4-una-vez ejecutar de nuevo se rechaza (422): el beneficiario no cobra dos veces  -> <422 {"codigo":"AP-CU22-03","mensaje":"Esa entrega no estaba lista para ejecutarse.","detalle":{},"trazaId":"798f5b2a-353d-4388-a061-ca6b86736176"}>
+PASS  H8.S1.M4-unica existe UNA sola entrega del turno (R-GRP-01)  -> entregas=1
+INFO  H8.S1.M4-desembolso desembolso con confirmacion externa y comprobante contra el mayor  -> se ejercita en el recorrido `desembolso` (cuenta verificada -> orden -> respuesta -> asiento ENTREGA en el mayor)
+PASS  H9.S1.M5-cuenta nucleo entrega la billetera de la sesion (GET /billetera/cuentas/propia)  -> <200 {"cuentaId":"f404852f-b015-4bff-b994-f4fc48e99ff1","moneda":"BOB","estado":"ACTIVA"}>
+PASS  H9.S1.M5-compra la compra termina LIQUIDADA (200): retener -> titulo -> pago-a-tercero con token de SERVICIO  -> <200 {"cesionId":"ddd6db8d-f256-4d82-8c84-2df029545c14","estado":"LIQUIDADA","liquidada":true}>
+PASS  H9.S1.M5-retencion una sola retencion COMPRA_EN_MERCADO EJECUTADA por el precio  -> [['912f5c90-c818-4462-8bb5-f114a37f254b', 'EJECUTADA', '5500.00']]
+PASS  H9.S1.M5-mayor el libro cuadra: comprador -5500, y vendedor + plataforma = +5500 (sistema cerrado)  -> comprador -5500.00, vendedor 5500.00, plataforma 0
+GAP   H9.S1.M5-cargos reparto de los cargos de la oferta (DECISION_REQUIRED, ambiguedad A9)  -> entregas declara que el vendedor cobra precio-cargos (5450.00) y la plataforma 50.00; nucleo le pago al vendedor 5500.00 y a la plataforma 0: dos servicios, dos lecturas. La OfertaParaPago es minima A PROPOSITO (no lleva cargos) y un test lo exige: decidirlo es de Direccion comercial/tarifas, no se resuelve por conveniencia
+PASS  H9.S1.M5-estado oferta VENDIDA y cesion LIQUIDADA  -> [['VENDIDA', 'LIQUIDADA']]
+PASS  H9.S1.M5-evento entregas publico entregas.derecho_cedido (PUBLICADO por el relevo)
+GAP   H9.S1.M5-titular cambio de titular en grupos  -> el cupo del turno 2 sigue de P2 (vendedor): grupos no consume entregas.derecho_cedido (no hay consumidor). Lo cierra el dueno de grupos (CU-62/64)
+PASS  H9.S1.M5-no-dos-veces comprar de nuevo la oferta ya vendida se rechaza y el libro no se mueve  -> <422 {"codigo":"AP-CU130-05","mensaje":"Esa oferta no esta disponible: otra persona la reservo, se cancelo o vencio.","detalle":{},"trazaId":"38d596dd-74d4-40a1
+PASS  H9.S1.M5-cuadre ninguna transaccion del libro quedo descuadrada y la suma global sigue en cero  -> []
+PASS  H14.S1.M1-T1-aportes turno 1: los 4 aportes se pagan por HTTP (201)  -> [201, 201, 201, 201]
+PASS  H14.S1.M1-T1-recaudo turno 1: aportes afirma pozo = confirmado = 6000 y faltante 0  -> {'periodoId': '52e56b8b-8d21-4ceb-8e87-ea1b5518090a', 'grupoId': '0d7b1840-5e7b-48b8-9538-7f22a442469b', 'corteEn': '2026-10-10T19:59:10.279629Z', 'pozo': {'mon
+PASS  H14.S1.M1-T1-fondeo turno 1: pozo completo FONDEADO sin cobertura  -> <201 {"entregaId":"26724356-9da9-4782-b9a6-075bf0dc9190","fondeoId":"204ec1e3-c704-4ee3-a150-ef0f2041247c","estado":"FONDEADO","pozo":{"monto":"6000.00","moneda":"BO>
+PASS  H14.S1.M1-T1-entrega turno 1: autoriza RESPONSABLE_RIESGOS, ejecuta TESORERIA: ENTREGADA 6000  -> 200/200 <200 {"entregaId":"26724356-9da9-4782-b9a6-075bf0dc9190","estado":"ENTREGADA","montoEntregado":{"monto":"6000.00","moned
+PASS  H14.S1.M1-T2-aportes turno 2: los 4 aportes se pagan por HTTP (201)  -> [201, 201, 201, 201]
+PASS  H14.S1.M1-T2-recaudo turno 2: aportes afirma pozo = confirmado = 6000 y faltante 0  -> {'periodoId': '68019d5a-e66f-45e3-a4d8-279091340bdd', 'grupoId': '0d7b1840-5e7b-48b8-9538-7f22a442469b', 'corteEn': '2026-10-10T19:59:10.773178Z', 'pozo': {'mon
+PASS  H14.S1.M1-T2-fondeo turno 2: pozo completo FONDEADO sin cobertura  -> <201 {"entregaId":"e0d793f6-0814-4e13-b428-bb653578be94","fondeoId":"011bde59-195b-43ed-a624-10a3212eca9e","estado":"FONDEADO","pozo":{"monto":"6000.00","moneda":"BO>
+PASS  H14.S1.M1-T2-entrega turno 2: autoriza RESPONSABLE_RIESGOS, ejecuta TESORERIA: ENTREGADA 6000  -> 200/200 <200 {"entregaId":"e0d793f6-0814-4e13-b428-bb653578be94","estado":"ENTREGADA","montoEntregado":{"monto":"6000.00","moned
+PASS  H14.S1.M1-T3-aportes turno 3: los 4 aportes se pagan por HTTP (201)  -> [201, 201, 201, 201]
+PASS  H14.S1.M1-T3-recaudo turno 3: aportes afirma pozo = confirmado = 6000 y faltante 0  -> {'periodoId': '4d6ed94b-aff1-43b1-9983-9a1e18cc6ea8', 'grupoId': '0d7b1840-5e7b-48b8-9538-7f22a442469b', 'corteEn': '2026-10-10T19:59:11.549554Z', 'pozo': {'mon
+PASS  H14.S1.M1-T3-fondeo turno 3: pozo completo FONDEADO sin cobertura  -> <201 {"entregaId":"1f54bfb2-d340-4eee-8c32-04945d174c98","fondeoId":"2a812764-242c-4f72-b391-1e730f2b80c0","estado":"FONDEADO","pozo":{"monto":"6000.00","moneda":"BO>
+PASS  H14.S1.M1-T3-entrega turno 3: autoriza RESPONSABLE_RIESGOS, ejecuta TESORERIA: ENTREGADA 6000  -> 200/200 <200 {"entregaId":"1f54bfb2-d340-4eee-8c32-04945d174c98","estado":"ENTREGADA","montoEntregado":{"monto":"6000.00","moned
+PASS  H14.S1.M1-F12 F12 el miembro ve la oferta elegible y NO se muestra al vendedor  -> 200 {"pagina":0,"ofertas":[{"ofertaId":"2bab2ecc-2d57-4a6a-a2a8-f73f4dee5594","grupoId":"0d7b1840-5e7b-48b8-9538-7f22a442469b","turnoId":"6133aefe-4b2c-44a2-9a92-22
+PASS  H14.S1.M1-F13 F13 compra LIQUIDADA (retener -> titulo -> pago)  -> <200 {"cesionId":"0b800115-e5b6-47d3-bdc0-82097a2f5f24","estado":"LIQUIDADA","liquidada":true}>
+PASS  H14.S1.M1-mercado-libro el libro del mercado: comprador -5500; vendedor + plataforma = +5500  -> comprador -5500.00, vendedor 5500.00
+PASS  H14.S1.M1-F06-invitar el organizador emite la invitacion de un solo uso (201)  -> <201 {"invitacionId":"30c527c2-c134-4d48-a986-61d901f24e6d","mensaje":"Invitacion disponible para compartir.","enlace":"
+PASS  H14.S1.M1-F01 F01 el aspirante pide ingreso: solicitud PENDIENTE_BACKOFFICE  -> <200 {"solicitudId":"1c534e60-2e62-4218-898b-ac54920aa89c","estado":"PENDIENTE_BACKOFFICE"}>
+PASS  H14.S1.M1-F07 F07 el administrador propone ACEPTAR con motivo  -> <200 {"id":"85df3bfd-4f6d-4ca8-8e92-4b9e9701f1a7","solicitudId":"1c534e60-2e62-4218-898b-ac54920aa89c","fase":"PROPUESTA","decision":"ACEPTAR","actorId":"44ca92
+PASS  H14.S1.M1-F04 F04 backoffice resuelve ACEPTAR (otra persona que quien propuso)  -> <200 {"id":"6ce790b1-3414-4015-9418-8040807377a7","solicitudId":"1c534e60-2e62-4218-898b-ac54920aa89c","fase":"RESOLUCION","decision":"ACEPTAR","actorId":"cf172
+PASS  H14.S1.M1-F06 F06 el aspirante ve SU participacion, una sola vez  -> 200 n=1
+PASS  H14.S1.M1-cuadre ninguna transaccion del libro descuadrada; la suma global no cambio por el ciclo  -> descuadradas=[] suma=0.00
+GAP   H14.S1.M1-aportes-libro los aportes (4 x 1500 x 3 turnos) mueven el libro  -> aportes.aporte_cobrado no tiene consumidor en nucleo-financiero: el aporte queda `PAGADO` en aportes y NO se refleja en la billetera ni en el mayor (movimientos de libro de las 4 billeteras del grupo: 4). Dueno: aportes + nucleo-financiero (H8.S1.M1/H4)
+PASS  H14.S1.M1-persistencia tras reiniciar aportes/entregas/garantia/grupos y volver a ingresar, el estado es el mismo  -> entregas=3 iguales=True
+PASS  H14.S1.M1-recarga la consulta HTTP tras el reinicio devuelve el mismo recaudo  -> <200 {"periodoId":"52e56b8b-8d21-4ceb-8e87-ea1b5518090a","grupoId":"0d7b1840-5e7b-48b8-9538-7f22a442469b","corteEn":"202
+PASS  H14.S1.M1-F01 F01 Solicitar ingreso  -> REAL por HTTP · solicitud 1c534e60 PENDIENTE_BACKOFFICE
+INFO  H14.S1.M1-F02 F02 Cargar saldo  -> FUERA · recargas exigen cotizacion de `tarifas` y pasarela: no estan en el conjunto minimo; el saldo inicial entra por el libro cuadrado
+INFO  H14.S1.M1-F03 F03 Solicitar ser administrador  -> FUERA · habilitacion de organizador: servicio `organizador` + tarifario + licencia (cubierto por la aceptacion REAL F1-F4 y por H5)
+PASS  H14.S1.M1-F04 F04 Aprobacion por backoffice  -> REAL por HTTP · resolucion de backoffice ACEPTAR con motivo
+INFO  H14.S1.M1-F05 F05 Crear grupo  -> SEMBRADO · crearGrupo exige organizador habilitado, tarifario y licencia: el grupo se siembra por SQL (declarado en mundo.py)
+PASS  H14.S1.M1-F06 F06 Recibir aceptacion/rechazo  -> REAL por HTTP · invitacion 30c527c2 -> participacion unica
+PASS  H14.S1.M1-F07 F07 Proponer aceptacion/rechazo  -> REAL por HTTP · propuesta 85df3bfd ACEPTAR
+INFO  H14.S1.M1-F08 F08 Algoritmo de recomendacion  -> FUERA · servicio de recomendacion fuera del conjunto minimo
+INFO  H14.S1.M1-F09 F09 Sortear turnos  -> SEMBRADO · los turnos se siembran; el sorteo (CU-60) lo cubren las pruebas de integracion de grupos, no esta corrida
+GAP   H14.S1.M1-F10 F10 Crear oferta con precio  -> publicarOferta por HTTP denegado: `grupos` no publica la consulta de turno (titular/estado/monto); la oferta se siembra. Dueno: grupos
+PASS  H14.S1.M1-F11 F11 Vender turno  -> REAL por HTTP · cesion LIQUIDADA con pago al vendedor desde el libro
+PASS  H14.S1.M1-F12 F12 Ver ofertas  -> REAL por HTTP · oferta 2bab2ecc visible para el miembro
+PASS  H14.S1.M1-F13 F13 Comprar turno  -> REAL por HTTP · oferta 2bab2ecc -> cesion 0b800115 LIQUIDADA
+PASS  H14.S1.M1-F14 F14 Recibir mesa  -> REAL por HTTP · 3 turnos: aporte x4 -> pozo 6000 -> entrega ENTREGADA; entregas 26724356,e0d793f6,1f54bfb2
+INFO  H14.S1.M1-F15 F15 Retirar saldo  -> FUERA · retiros: pasarela y cuentas de custodia fuera del conjunto minimo
+INFO  H14.S1.M1-F16 F16 Invertir voluntariamente  -> FUERA · inversiones fuera del conjunto minimo
+INFO  H14.S1.M1-F17 F17 Solicitar rescate  -> FUERA · inversiones fuera del conjunto minimo
+INFO  H14.S1.M1-F18 F18 Transferir por QR  -> FUERA · transferencia QR: pasarela fuera del conjunto minimo
+INFO  H14.S1.M1-F19 F19 Cobrar comision  -> FUERA · comisiones: `tarifas` fuera del conjunto minimo
+INFO  H14.S1.M1-F20 F20 Pagar intereses  -> FUERA · inversiones fuera del conjunto minimo
+INFO  H14.S1.M1-F21 F21 Cobrar regalia de rentabilidades  -> FUERA · inversiones fuera del conjunto minimo
+PASS  H14.S1.M2-reserva garantia reserva 6000 del ciclo (la exposicion maxima prevista)  -> <201 {"reservaId":"b547a1f2-f7d5-4686-8562-49efd7b6e966","reservado":{"monto":"6000.00","moneda":"BOB"},"capacidadDisponible":{"monto":"94000.00","moneda":"BOB"
+PASS  H14.S1.M2-T1-cobertura turno 1: falta el aporte de P1 (1500); la empresa cubre y el pozo se funda completo  -> faltante={'monto': '1500.00', 'moneda': 'BOB'} fondeo=<201 {"entregaId":"dec0ffec-ae67-4c17-a985-38233a574d65","fondeoId":"cfb48c08-aa04-404c-b40b-062dde1ee4db","estado":"FONDEADO","pozo":{"monto":"6000.00","moneda
+PASS  H14.S1.M2-T1-entrega turno 1: el beneficiario cobra el pozo COMPLETO (6000), no lo recaudado  -> 200/200 <200 {"entregaId":"dec0ffec-ae67-4c17-a985-38233a574d65","estado":"ENTREGADA","montoEntregado":{"mon
+PASS  H14.S1.M2-T2-cobertura turno 2: falta el aporte de P1 (1500); la empresa cubre y el pozo se funda completo  -> faltante={'monto': '1500.00', 'moneda': 'BOB'} fondeo=<201 {"entregaId":"26269087-396e-4183-9920-39a1845f3617","fondeoId":"93fe6199-6400-41dd-a11b-057a78d44c99","estado":"FONDEADO","pozo":{"monto":"6000.00","moneda
+PASS  H14.S1.M2-T2-entrega turno 2: el beneficiario cobra el pozo COMPLETO (6000), no lo recaudado  -> 200/200 <200 {"entregaId":"26269087-396e-4183-9920-39a1845f3617","estado":"ENTREGADA","montoEntregado":{"mon
+PASS  H14.S1.M2-T3-cobertura turno 3: falta el aporte de P1 (1500); la empresa cubre y el pozo se funda completo  -> faltante={'monto': '1500.00', 'moneda': 'BOB'} fondeo=<201 {"entregaId":"e91e9229-71b5-453c-a566-8998982b705c","fondeoId":"f66506e3-b92c-4e02-bdf8-5ebbffbae9a9","estado":"FONDEADO","pozo":{"monto":"6000.00","moneda
+PASS  H14.S1.M2-T3-entrega turno 3: el beneficiario cobra el pozo COMPLETO (6000), no lo recaudado  -> 200/200 <200 {"entregaId":"e91e9229-71b5-453c-a566-8998982b705c","estado":"ENTREGADA","montoEntregado":{"mon
+PASS  H14.S1.M2-exposicion exposicion por turno: 1500, 3000, 4500 (aplicado - recuperado), con la reserva en 6000  -> [{"turno": 1, "pozo": "6000.00", "confirmado": "4500.00", "cubiertoEmpresa": "1500.00", "exposicion": "1500.00", "reservado": "6000.00"}, {"turno": 2, "pozo": "6000.00", "confirmado": "4500.00", "cubiertoEmpresa": "1500.00", "exposicion": "3000.00", "reservado": "6000.00"}, {"turno": 3, "pozo": "6000.00", "confirmado": "4500.00", "cubiertoEmpresa": "1500.00", "exposicion": "4500.00", "reservado": "6000.00"}]
+PASS  H14.S1.M2-mayor el mayor tiene UN asiento COBERTURA cuadrado por turno cubierto (3 x 1500)  -> [[(Decimal('1500.00'), Decimal('1500.00'))], [(Decimal('1500.00'), Decimal('1500.00'))], [(Decimal('1500.00'), Decimal('1500.00'))]]
+PASS  H14.S1.M2-caja la caja de respaldo (9.1.02) bajo 4500 en el mayor, igual que la exposicion  -> delta -4500.00
+PASS  H14.S1.M2-pago-tarde P1 puede pagar tarde su aporte del turno 1 (pagar nunca se restringe)  -> <201 {"pagoId":"8daa92d5-f2ac-41bd-bb39-5c2b9bcae666","obligacionId":"b3d984d0-9167-455f-b621-5ad6c94a738b","estadoObligacion":"PAGADO","pendiente":{"monto":"0.00",">
+PASS  H14.S1.M2-recupera la recuperacion devuelve 1500 a la empresa (no al pozo) y la exposicion baja a 3000  -> <200 {"resultado":"RECUPERADA","recuperado":{"monto":"1500.00","moneda":"BOB"},"excedente":{"monto":"0.00","moneda":"BOB"},"exposicionDespues":{"monto":"3000.00","mo>
+PASS  H14.S1.M2-recupera-una-vez el mismo pago no recupera dos veces (YA_RECUPERADA, nada nuevo)  -> <200 {"resultado":"YA_RECUPERADA","recuperado":{"monto":"1500.00","moneda":"BOB"},"excedente":{"monto":"0.00","moneda":"BOB"},"exposicionDespues":{"monto":"3000
+PASS  H14.S1.M2-mayor-recupera el mayor asienta la recuperacion (1500 a la empresa) UNA vez y cuadra  -> [{'id': 'c400d7e9-ff77-4fd2-bdc6-c653308cfdda', 'estado': 'CONFIRMADO', 'reversa': None, 'debe': Decimal('1500.00'), 'haber': Decimal('1500.00')}]
+PASS  H14.S1.M2-recupera-evento-dup el evento de recuperacion entregado dos veces no asienta dos veces  -> un asiento
+PASS  H14.S1.M2-conserva la obligacion de recuperar se conserva: 4500 aplicado, 1500 recuperado, 3000 de exposicion viva  -> [['6000.00', '4500.00', '1500.00']]
+PASS  H14.S1.M2-cuadre el libro y el mayor quedan cuadrados  -> []
+INFO  H14.S1.M2-flujo flujo temporal con caja y exposicion por turno  -> [{"turno": 1, "pozo": "6000.00", "confirmado": "4500.00", "cubiertoEmpresa": "1500.00", "exposicion": "1500.00", "reservado": "6000.00"}, {"turno": 2, "pozo": "6000.00", "confirmado": "4500.00", "cubiertoEmpresa": "1500.00", "exposicion": "3000.00", "reservado": "6000.00"}, {"turno": 3, "pozo": "6000.00", "confirmado": "4500.00", "cubiertoEmpresa": "1500.00", "exposicion": "4500.00", "reservado": "6000.00"}]
+PASS  H14.S1.M3-pagos-claves 6 pagos concurrentes (claves distintas) de la misma obligacion: UN pago, nada de doble cobro  -> filas=1 estados=[201, 422, 422, 422, 422, 422]
+PASS  H14.S1.M3-pagos-misma-clave 6 envios de la MISMA clave: un pago y todos devuelven su id  -> filas=1 ids=1 estados=[200, 200, 200, 200, 200, 201]
+PASS  H14.S1.M3-fondeo 5 fondeos concurrentes: UNA entrega, UNA cobertura, 1500 aplicados una sola vez  -> entregas=1 coberturas=1 aplicado=1500.00 estados=[200, 200, 200, 200, 201]
+PASS  H14.S1.M3-ejecucion 4 ejecuciones concurrentes: la entrega queda ENTREGADA una vez y las demas se rechazan  -> estado=ENTREGADA estados=[200, 422, 422, 422]
+PASS  H14.S1.M3-compra 4 compras concurrentes de una oferta (2 compradores, 1 con la misma clave dos veces): UN titulo, UNA retencion, UN cobro de 5500  -> cesiones=1 retenciones=1 cobrado=5500.00 estados=[200, 200, 422, 422]
+PASS  H14.S1.M3-membresia la membresia no se duplica por la venta (el derecho cambia de titular, no hay participante nuevo)  -> participantes=4
+PASS  H14.S1.M3-evento-duplicado el MISMO evento entregado dos veces: UN asiento COBERTURA y el consumidor lo descarta  -> asientos=1 consumidos 11 -> 11
+PASS  H14.S1.M3-canje 4 canjes concurrentes del enlace de un solo uso: UNA solicitud  -> solicitudes=1 estados=[200, 422, 422, 422]
+PASS  H14.S1.M3-resolucion 4 resoluciones concurrentes: UNA resolucion y UNA membresia  -> resoluciones=1 membresias=1 estados=[200, 422, 422, 422]
+PASS  H14.S1.M3-cuadre al final el libro cuadra transaccion por transaccion y la suma global es cero  -> []
+PASS  H13.S1.M6-efecto cumplimiento afirma que el reclamo en analisis FRENA la sancion firme y la deuda ejecutable  -> <200 {"usuarioId":"c1261421-19c3-4c0e-ae8e-1b5c3cf63cb7","bloqueaSancionFirme":true,"bloqueaDeudaEjecutable":true,"motivoGlobal":null,"casos":[{"reclamoId":"5bb07869>
+PASS  H13.S1.M6-organizador-sin-permiso un ORGANIZADOR sin RECLAMO_VER recibe 403 de cumplimiento (garantia fallaria CERRADO)  -> <403 {"codigo":"AP-SEG-01","mensaje":"No tenes acceso a este recurso.","trazaId":"694055f9-5733-4861
+PASS  H13.S1.M6-permiso un participante NO ve el rastro de reclamos de otra persona (403)  -> <403 {"codigo":"AP-SEG-01","mensaje":"No tenes acceso a este recurso.","trazaId":"ea1d1034-7b7f-46e7
+PASS  H13.S1.M6-expediente se declara el incumplimiento (expediente con plazo de descargo)  -> <201 {"expedienteId":"00f39974-c261-47a1-b161-cde3592a3971","codigoExpediente":"EINT-5BB078","estado":"NOTIFICADO","puedeDescargarHasta":"2026-10-15T20:00:04.195606Z>
+PASS  H13.S1.M6-garantia-frena garantia NO restringe mientras el reclamo esta en revision (422 AP-CU27-07)  -> <422 {"codigo":"AP-CU27-07","mensaje":"Hay un reclamo en curso de esa persona, o no se pudo confirmar que no lo haya: no se vuelve ejecutable la deuda mientras no se>
+PASS  H13.S1.M6-sin-efecto no hay restriccion ni deuda ejecutable creadas por el intento  -> restricciones=0
+PASS  H13.S1.M6-garantia-plazo-elevar cerrado DESFAVORABLE el cliente aun puede elevarlo: sigue frenando (422 AP-CU27-07)  -> <422 {"codigo":"AP-CU27-07","mensaje":"Hay un reclamo en curso de esa persona, o no se pudo confirmar que no lo haya: no se vuelve ejecutable la deuda mientras 
+PASS  H13.S1.M6-garantia-pasa desistido el reclamo la restriccion procede (201)  -> <201 {"restriccionId":"d71cf113-de9a-44e7-98bb-a553bfc35ee9","nivel":"LIMITADO","vigenteHasta":"2026-11-09T20:00:04.609605Z","esNueva":true}>
+PASS  H13.S1.M6-organizador-frena organizador NO sanciona mientras un reclamo contra esa persona esta en analisis (422 AP-CU93-07)  -> <422 {"codigo":"AP-CU93-07","mensaje":"Hay un reclamo en curso de esa persona, o no se pudo confirmar que no lo haya: la sancion no queda firme mientras no se resuel>
+PASS  H13.S1.M6-organizador-pasa cerrado el reclamo la sancion procede con su plazo de apelacion (201)  -> <201 {"sancionId":"3f91017a-d847-412e-a076-cb26f97055f6","tipo":"ADVERTENCIA","estadoDelOrganizador":null,"puedeApelarHasta":"2026-10-20T20:00:05.414103Z"}>
+INFO  H13.S1.M6-origen alta y resolucion del reclamo  -> cumplimiento no expone HTTP para ingresar ni cerrar un reclamo en este stack: el reclamo se siembra por SQL (declarado)
+PASS  H8.S1.M4-d-fondeo pozo completo FONDEADO (6000)  -> <201 {"entregaId":"c3f2ffc7-7479-4722-97a4-2e4d4f6102c4","fondeoId":"7272ae9b-125b-4cbb-92e1-a7e973f5ea13","estado":"FONDEADO","pozo":{"monto":"6000.00","moneda
+PASS  H8.S1.M4-d-autoriza autorizada por RESPONSABLE_RIESGOS  -> <200 {"entregaId":"c3f2ffc7-7479-4722-97a4-2e4d4f6102c4","estado":"AUTORIZADA","autorizadaPor":"db965f64-ad4a-4e43-9bfe-91a087acbf48"}>
+PASS  H8.S1.M4-d-ajena R-SEG-02: una cuenta a nombre de OTRA persona no se registra (422)  -> <422 {"codigo":"AP-CU18-01","mensaje":"El titular de la cuenta no coincide con quien la registra.","detalle":{},"trazaId":"12babc04-2521-4893-bffb-53f4313de362"
+FAIL  H8.S1.M4-d-cuenta DEFECTO: la cuenta propia de un participante se registra PENDIENTE y se devuelve ENMASCARADA (CU-18)  -> <422 {"codigo":"AP-CU18-01","mensaje":"El titular de la cuenta no coincide con quien la registra.","detalle":{},"trazaId":"bd64a5fc-c9c5-41ca-b02a-654ecd8db3ea" · causa: identidad.verificarTitularidad exige DATOS_SENSIBLES_LEER; entregas propaga el token del PARTICIPANTE (403) y lo lee como «no coincide». Dueno: identidad + entregas (credencial de servicio con permiso acotado)
+PASS  H8.S1.M4-d-sin-verificar R-DES-02: no se desembolsa a una cuenta sin verificar (422)  -> <422 {"codigo":"AP-CU28-02","mensaje":"No se ordena un desembolso a una cuenta sin verificar.","detalle":{},"trazaId":"875acedc-09a2-4892-ae
+PASS  H8.S1.M4-d-verifica verificada: empieza la ventana de enfriamiento (se guarda su fin)  -> <200 {"cuentaId":"5c443743-fec2-4843-88b3-4c350a0a0aec","estado":"VERIFICADA","disponibleDesde":"2026-10-11T20:00:09.520408Z","esNueva":true}>
+PASS  H8.S1.M4-d-enfriamiento verificada NO es utilizable: en la ventana de enfriamiento se rechaza (422)  -> <422 {"codigo":"AP-CU28-02","mensaje":"Esa cuenta esta en su ventana de enfriamiento hasta 2026-10-11T20:00:09.520408Z.","detalle":{},"traza
+PASS  H8.S1.M4-d-orden orden ENVIADA_A_PROVEEDOR (201)  -> <201 {"ordenId":"4ae94385-8c2b-4662-bb59-1b957471bda7","estado":"ENVIADA_A_PROVEEDOR","claveIdempotencia":"65c6172a-f314-439c-9895-adce02c7c70b","intentos":1,"e
+PASS  H8.S1.M4-d-una-orden R-DES-01: repetir la orden no abre otra (UNA viva por entrega)  -> ordenes=1 200
+PASS  H8.S1.M4-d-acreditada la respuesta exitosa del proveedor acredita la orden y la entrega queda ENTREGADA  -> <201 {"ordenId":"4ae94385-8c2b-4662-bb59-1b957471bda7","estado":"ACREDITADA","numeroIntento":1,"reintentableEn":null,"esNuevo":true}> (el contrato dice 200 y el codigo da 201: divergencia YA anotada como deuda en scripts/verificar_pruebas_web.py)
+PASS  H8.S1.M4-d-respuesta-repetida la misma respuesta otra vez no acredita dos veces  -> <201 {"ordenId":null,"estado":"ACREDITADA","numeroIntento":0,"reintentableEn":null,"esNuevo":false}>
+PASS  H8.S1.M4-d-mayor el mayor de nucleo tiene UN asiento del desembolso que cuadra (6000)  -> [{'id': 'd97a5578-9669-4061-b8a4-90565fd02322', 'estado': 'CONFIRMADO', 'reversa': None, 'debe': Decimal('6000.00'), 'haber': Decimal('6000.00')}]
+PASS  H8.S1.M4-d-evento-duplicado el evento de acreditacion entregado dos veces no asienta dos veces  -> un asiento
+PASS  H8.S1.M4-d-cuadre el libro sigue cuadrado  -> []
+PASS  F1-invitar F1 el organizador emite el enlace de un solo uso (201, token de 64 hex)  -> 201
+PASS  F1-canje F1 A pide ingreso: PENDIENTE_BACKOFFICE, sin membresia todavia  -> <200 {"solicitudId":"8c0a3a24-8322-4baf-9350-7c8a8143d4be","estado":"PENDIENTE_BACKOFFICE"}>
+PASS  F1-misma-clave F1 el reintento con la MISMA clave devuelve la misma solicitud  -> <200 {"solicitudId":"8c0a3a24-8322-4baf-9350-7c8a8143d4be","estado":"PENDIENTE_BACKOFFICE"}>
+PASS  F1-un-solo-uso F1/F4 el enlace usado otra vez con OTRA clave: 422 AP-CU69-05 y no crea otra solicitud  -> <422 {"codigo":"AP-CU69-05","mensaje":"Esa invitacion ya no es valida.","detalle":{},"trazaId":"b130dece-6a68-47de-b008-2e9f0f275b6b"}>
+PASS  F4-ajeno F4 otra persona con el mismo enlace: 422 AP-CU69-05  -> <422 {"codigo":"AP-CU69-05","mensaje":"Esa invitacion ya no es valida.","detalle":{},"trazaId":"99d9538e-b0ac-414b-9a25-28fc03dca3e2"}>
+PASS  F1-cola F1 el organizador ve UNA sola solicitud pendiente  -> n=1
+PASS  F3-propone F3 el administrador propone RECHAZAR con motivo  -> <200 {"id":"3cdc1294-1fae-451a-9f85-f3355f5f27db","solicitudId":"8c0a3a24-8322-4baf-9350-7c8a8143d4be","fase":"PROPUESTA","decision":"RECHAZ
+PASS  F4-sin-permiso F4 quien no es de backoffice no resuelve (403)  -> <403 {"codigo":"AP-SEG-01","mensaje":"No tenes acceso a este recurso.","trazaId":"8d01d8fc-cc06-4043
+PASS  F4-sin-motivo F4 resolver sin motivo se rechaza (4xx) y no cierra la solicitud  -> <400 {"codigo":"AP-VAL-01","mensaje":"Revisa los datos del formulario.","detalle":{"motivo":"size must be between 1 and 
+PASS  F3-rechaza F3 backoffice resuelve RECHAZAR con motivo  -> <200 {"id":"aec2a7ea-9e4c-4566-b596-a72a2a8f36b0","solicitudId":"8c0a3a24-8322-4baf-9350-7c8a8143d4be","fase":"RESOLUCION","decision":"RECHA
+FAIL  F2-F3-historial-backoffice DEFECTO: backoffice (ADMIN_PLATAFORMA) lee el historial de decisiones del expediente (el contrato lo promete)  -> 403 · causa: RutasDeAdmision.historialAdmision lleva @Permiso("PARTICIPANTE") y ADMIN_PLATAFORMA no lo tiene, aunque CU68AceptarIngreso.historial ya admite al backoffice. Dueno: grupos + modelo de roles (guard de un solo permiso)
+PASS  F3-una-resolucion F3 resolver dos veces no duplica: una sola resolucion en el historial y A sigue sin membresia  -> resoluciones=1 segunda=422
+PASS  F2-acepta F2 backoffice acepta: A ve UNA participacion (la membresia existe una sola vez)  -> 200 n=1 estado=ACEPTADO_PENDIENTE_FIRMA
+GAP   F1-F4-navegador A en apps/web y B en apps/backoffice (Chromium + ng serve)  -> no se ejecuto: `aceptacion.sh real` es proceso pesado y el guardian (>=3500 MB libres) no lo deja arrancar con el stack arriba (libres ~2300 MB con el stack minimo). Falta una ventana con >=6 GB libres. Lo cubre cuando haya RAM: `bash despliegue/ensayos/integracion/correr.sh aceptacion`
+
+RESUMEN integracion-real: 121 PASS, 2 FAIL, 5 GAP (brechas declaradas)

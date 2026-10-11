@@ -1,6 +1,7 @@
 package bo.aportaya.plataforma.pruebas.web;
 
 import bo.aportaya.plataforma.web.seguridad.Permiso;
+import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.Publico;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,8 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  * @param permiso el codigo que exige, o {@code null} si es publico
  * @param publico si declara {@link Publico}
  * @param exigeClave si declara {@code Idempotency-Key} como cabecera obligatoria
+ * @param alternativas otros codigos que tambien abren la ruta ({@link PermisoAlternativo}): la sabana los excluye del
+ *     barrido cruzado, porque abrir esa puerta es una decision declarada y no un permiso de «la operacion de al lado»
  */
 public record Endpoint(
         String metodo,
@@ -31,7 +34,8 @@ public record Endpoint(
         boolean publico,
         boolean exigeClave,
         /** Recibe un archivo: la sabana tiene que hablarle multipart o come un 415. */
-        boolean recibeArchivo) {
+        boolean recibeArchivo,
+        List<String> alternativas) {
 
     /** Un valor que sirve para {@code UUID}, para {@code String} y para el comparador de rutas. */
     private static final String RELLENO = "00000000-0000-4000-8000-000000000000";
@@ -65,8 +69,8 @@ public record Endpoint(
                             esPublico(manejador),
                             exigeClaveDeIdempotencia(manejador),
                             info.getConsumesCondition().getConsumableMediaTypes().stream()
-                                    .anyMatch(
-                                            t -> t.includes(org.springframework.http.MediaType.MULTIPART_FORM_DATA))));
+                                    .anyMatch(t -> t.includes(org.springframework.http.MediaType.MULTIPART_FORM_DATA)),
+                            alternativasDe(manejador)));
                 }
             }
         });
@@ -151,6 +155,11 @@ public record Endpoint(
         }
         Permiso deClase = manejador.getBeanType().getAnnotation(Permiso.class);
         return deClase == null ? null : deClase.value();
+    }
+
+    private static List<String> alternativasDe(HandlerMethod manejador) {
+        PermisoAlternativo otros = manejador.getMethodAnnotation(PermisoAlternativo.class);
+        return otros == null ? List.of() : List.of(otros.value());
     }
 
     private static boolean esPublico(HandlerMethod manejador) {

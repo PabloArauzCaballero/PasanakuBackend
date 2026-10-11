@@ -1,8 +1,8 @@
-import { HttpClient, HttpContext, httpResource } from '@angular/common/http'
+import { HttpClient, httpResource } from '@angular/common/http'
 import { inject } from '@angular/core'
 import { firstValueFrom } from 'rxjs'
 import { GATEWAY } from '../../../nucleo/gateway'
-import { CLAVE_IDEMPOTENCIA, claveDeIdempotencia } from '../../../nucleo/idempotencia.interceptor'
+import { contextoIdempotente } from '../../../nucleo/idempotencia.interceptor'
 import type { CargadorDePagina, PaginaServidor } from '../../../nucleo/tabla/tipos'
 import type { EntradaAnunciante } from 'clientes/angular/publicidad/model/entradaAnunciante'
 import type { SalidaAnunciante } from 'clientes/angular/publicidad/model/salidaAnunciante'
@@ -53,19 +53,19 @@ export function recursoDeSocio(socioId: () => string | undefined) {
 
 export async function postularSocio(http: HttpClient, gateway: string, entrada: EntradaSocio): Promise<SalidaSocio> {
   return firstValueFrom(
-    http.post<SalidaSocio>(`${gateway}/publicidad/socios-comerciales`, entrada, { context: new HttpContext().set(CLAVE_IDEMPOTENCIA, claveDeIdempotencia()) }),
+    http.post<SalidaSocio>(`${gateway}/publicidad/socios-comerciales`, entrada, { context: contextoIdempotente() }),
   )
 }
 
 export async function verificarSocio(http: HttpClient, gateway: string, socioId: string): Promise<SalidaSocio> {
   return firstValueFrom(
-    http.post<SalidaSocio>(`${gateway}/publicidad/socios-comerciales/${socioId}/verificacion`, {}, { context: new HttpContext().set(CLAVE_IDEMPOTENCIA, claveDeIdempotencia()) }),
+    http.post<SalidaSocio>(`${gateway}/publicidad/socios-comerciales/${socioId}/verificacion`, {}, { context: contextoIdempotente() }),
   )
 }
 
 export async function darDeAltaAnunciante(http: HttpClient, gateway: string, entrada: EntradaAnunciante): Promise<SalidaAnunciante> {
   return firstValueFrom(
-    http.post<SalidaAnunciante>(`${gateway}/publicidad/anunciantes`, entrada, { context: new HttpContext().set(CLAVE_IDEMPOTENCIA, claveDeIdempotencia()) }),
+    http.post<SalidaAnunciante>(`${gateway}/publicidad/anunciantes`, entrada, { context: contextoIdempotente() }),
   )
 }
 

@@ -1,0 +1,32 @@
+# Pruebas SIN base de datos ni Spring, JVM de 512 MB con el lanzador JUnit (no Gradle): borde de Kafka de grupos y adaptador de entregas -> identidad
+
+Test run finished after 287 ms
+[         4 containers found      ]
+[         0 containers skipped    ]
+[         4 containers started    ]
+[         0 containers aborted    ]
+[         4 containers successful ]
+[         0 containers failed     ]
+[         2 tests found           ]
+[         0 tests skipped         ]
+[         2 tests started         ]
+[         0 tests aborted         ]
+[         2 tests successful      ]
+[         0 tests failed          ]
+
+[main] WARN bo.aportaya.entregas.infraestructura.TitularPorHttp - verificar titularidad sin credencial de servicio: no coincide
+
+Test run finished after 750 ms
+[         4 containers found      ]
+[         0 containers skipped    ]
+[         4 containers started    ]
+[         0 containers aborted    ]
+[         4 containers successful ]
+[         0 containers failed     ]
+[         3 tests found           ]
+[         0 tests skipped         ]
+[         3 tests started         ]
+[         0 tests aborted         ]
+[         3 tests successful      ]
+[         0 tests failed          ]
+

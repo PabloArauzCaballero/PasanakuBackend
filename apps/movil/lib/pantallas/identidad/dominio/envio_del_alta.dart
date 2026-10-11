@@ -52,7 +52,7 @@ Future<ResultadoDelAlta> enviarElAlta(Ref ref, EstadoAlta estado) async {
     // está creada y quien revisa en el backoffice ve el expediente incompleto, que es
     // recuperable; perder el alta entera no lo es.
     if (r.usuarioId != null) {
-      await subirFotosDelExpediente(ref, estado, r.usuarioId!);
+      await subirFotosDelExpediente(ref, estado, r.usuarioId!, r.tokenDeAlta);
     }
     return ResultadoDelAlta(cuentaBilleteraId: r.cuentaBilleteraId);
   } on Object catch (e) {

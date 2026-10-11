@@ -17,7 +17,7 @@ import { textosCumplimiento } from '../textos'
   imports: [BandaDeProposito, ChipEstado, Boton],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
 
       <p>{{ t.quorum }}: {{ acta().asistentes.length }} / {{ acta().quorumMinimo }}</p>
@@ -37,10 +37,10 @@ import { textosCumplimiento } from '../textos'
       }
 
       <ap-boton variante="primario" [deshabilitado]="!puedeCerrar()" (pulsado)="cerrar()">{{ t.cerrar }}</ap-boton>
-    </main>
+    </section>
   `,
   styles: `
-    main { padding: var(--s5); max-width: 40rem; display: flex; flex-direction: column; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 40rem; display: flex; flex-direction: column; gap: var(--s4); }
     .votos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s2); }
     .votos li { display: flex; align-items: center; gap: var(--s3); }
     .motivo { color: var(--text-3); font-size: .9em; }

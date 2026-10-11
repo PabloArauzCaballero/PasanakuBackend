@@ -1,0 +1,25 @@
+> Task :servicios:auditoria:generateJooq UP-TO-DATE
+> Task :servicios:auditoria:compileJava
+> Task :servicios:auditoria:processResources
+> Task :servicios:auditoria:classes
+> Task :servicios:auditoria:compileTestJava
+> Task :servicios:auditoria:processTestResources UP-TO-DATE
+> Task :servicios:auditoria:testClasses
+> Task :servicios:auditoria:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+> Task :servicios:auditoria:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+> Task :servicios:auditoria:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-09T20:57:20.372-04:00  INFO 27292 --- [auditoria] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-09T20:57:20.376-04:00  INFO 27292 --- [auditoria] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-09T20:57:20.525-04:00  INFO 27292 --- [auditoria] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-09T20:57:20.526-04:00  INFO 27292 --- [auditoria] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+> Task :servicios:auditoria:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+BUILD SUCCESSFUL in 51s
+40 actionable tasks: 7 executed, 33 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+== RC gradle: 0

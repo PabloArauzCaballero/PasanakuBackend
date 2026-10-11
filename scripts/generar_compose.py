@@ -65,6 +65,72 @@ DE_DESARROLLO = {
     # cualquier entorno con dos replicas esto lo inyecta el almacen de secretos, y no
     # este archivo (ADR-037).
     "JWT_CLAVE_FIRMA": "",
+    # Ventana de rotacion de la clave de firma: la que firmaba ANTES, publicada solo en el JWKS.
+    # Vacia salvo durante una rotacion (docs/operacion/rotacion-de-secretos-ensayada.md).
+    "JWT_CLAVE_FIRMA_ANTERIOR": "",
+    # Invitaciones con secreto HMAC (identidad) y QR internos (nucleo-financiero): sin su clave el
+    # servicio no emite/valida. En el entorno desplegado las pone el almacen de secretos.
+    "INVITACIONES_CLAVE": "invitaciones-local-no-es-la-de-produccion-0001",
+    "QR_INTERNO_CLAVE": "qr-interno-local-no-es-el-de-produccion-0001",
+    # Inversiones (SINTETICO): el aliado queda DESHABILITADO. Es el unico modo que arranca en un
+    # entorno productivo (GuardiaDeProduccion) y no hay aliado contratado (DR-INV-01).
+    "INVERSIONES_ALIADO_MODO": "deshabilitado",
+    "INVERSIONES_ALIADO_URL": "http://127.0.0.1:4030",
+    "INVERSIONES_ALIADO_API_KEY": "",
+    "INVERSIONES_ALIADO_FIRMA_SECRETO": "",
+    "INVERSIONES_LIBRO_CREDENCIAL_SERVICIO": "",
+    # Cuenta de servicio de inversiones en identidad (rol SERVICIO_INVERSIONES). Vacias en el repo: las pone quien
+    # opera el entorno; con una de las cuatro puesta y otra no, inversiones NO arranca.
+    "INVERSIONES_SERVICIO_TELEFONO": "",
+    "INVERSIONES_SERVICIO_CLAVE": "",
+    "INVERSIONES_SERVICIO_TOTP_SEMILLA": "",
+    "INVERSIONES_SERVICIO_FACTOR_FIJO": "",
+    # Cuenta de servicio de entregas en identidad (rol SERVICIO_ENTREGAS): con ella entregas le paga al vendedor de un
+    # turno (pago-a-tercero). Vacias en el repo: las pone quien opera el entorno; a medias, entregas NO arranca.
+    "ENTREGAS_LIBRO_CREDENCIAL_SERVICIO": "",
+    "ENTREGAS_SERVICIO_TELEFONO": "",
+    "ENTREGAS_SERVICIO_CLAVE": "",
+    "ENTREGAS_SERVICIO_TOTP_SEMILLA": "",
+    "ENTREGAS_SERVICIO_FACTOR_FIJO": "",
+    "NUCLEO_FINANCIERO_URL": "http://nucleo-financiero:8080",
+    # El mismo literal que application-local.yml (en local el perfil lo ignora).
+    "APORTAYA_CORS_ORIGENES": "http://localhost:4200",
+    # Nucleo-financiero · consumo de asientos de garantia (D5). En desarrollo queda APAGADO; el mapeo de
+    # cuentas logicas es SINTETICO (arbol 9 de seeders/minimos/22-cuentas-de-sistema.json, apto_produccion=false).
+    "CONSUMO_DE_ASIENTOS_HABILITADO": "false",
+    "CUENTAS_LOGICAS_APTO_PRODUCCION": "false",
+    "CUENTA_LOGICA_CAJA_EMPRESA_BOB": "9.1.01",
+    "CUENTA_LOGICA_RESERVA_RESPALDO_BOB": "9.1.02",
+    "CUENTA_LOGICA_POZO_GRUPO_BOB": "9.1.03",
+    "CUENTA_LOGICA_CAJA_EMPRESA_USD": "9.2.01",
+    "CUENTA_LOGICA_RESERVA_RESPALDO_USD": "9.2.02",
+    "CUENTA_LOGICA_POZO_GRUPO_USD": "9.2.03",
+    "CUENTA_LOGICA_DESEMBOLSO_BOB": "9.1.04",
+    "CUENTA_LOGICA_DESEMBOLSO_USD": "9.2.04",
+    # aportes.aporte_cobrado (carril I): pasivo exigible del plan MINIMO (2.1.01 usuarios, 2.1.02 grupos), no del arbol 9
+    # sintetico. El plan no tiene cuentas en USD: vacio = un aporte en dolares se rechaza en vez de inventar una cuenta.
+    "CUENTA_LOGICA_SALDO_USUARIOS_BOB": "2.1.01",
+    "CUENTA_LOGICA_SALDO_GRUPOS_BOB": "2.1.02",
+    "CUENTA_LOGICA_SALDO_USUARIOS_USD": "",
+    "CUENTA_LOGICA_SALDO_GRUPOS_USD": "",
+    # Correo del alta (identidad): en desarrollo el proveedor es el local —no envia nada— y las
+    # credenciales de Gmail quedan vacias. Sin estas cinco claves el generador de desarrollo
+    # se negaba a escribir el compose (las del desplegado ya estaban en DE_ENTORNO).
+    "NOTIFICATION_EMAIL_PROVIDER": "local",
+    "GMAIL_CLIENT_ID": "",
+    "GMAIL_CLIENT_SECRET": "",
+    "GMAIL_REFRESH_TOKEN": "",
+    "GMAIL_FROM_EMAIL": "",
+    # grupos · interruptores de decision pendiente: en desarrollo conservan el comportamiento de TEST.
+    "ADMISION_HUMANA_OBLIGATORIA": "false",
+    "SUSTITUCION_AUTOMATICA_ADMIN": "false",
+    "SUSTITUCION_CONSUMO_HABILITADO": "false",
+    # grupos · consumo de entregas.derecho_cedido (el cupo cambia de titular al venderse un turno): ENCENDIDO. La venta ya
+    # movio el dinero en otro servicio; apagarlo la deja pagada sin reflejo en el grupo.
+    "CESION_CONSUMO_HABILITADO": "true",
+    # nucleo-financiero · consumo de aportes.aporte_cobrado (debita al participante, acredita al grupo, asienta en el mayor):
+    # ENCENDIDO. Sin el, el aporte queda PAGADO en `aportes` y no mueve billetera ni mayor.
+    "CONSUMO_DE_APORTES_HABILITADO": "true",
 }
 
 # ── El mismo cuadro, para un entorno DESPLEGADO (Coolify) ───────────────────
@@ -102,6 +168,61 @@ DE_ENTORNO = {
     # inyectable: el dia que haya dos, cada una firmaria distinto y los tokens de
     # una los rechazaria la otra (ADR-037).
     "JWT_CLAVE_FIRMA": "${JWT_CLAVE_FIRMA}",
+    # Opcional (`:-`): vacia fuera de una rotacion. Con `${X}` a secas Coolify la pediria siempre.
+    "JWT_CLAVE_FIRMA_ANTERIOR": "${JWT_CLAVE_FIRMA_ANTERIOR:-}",
+    # Secretos nuevos: se cargan en Coolify; el servicio no levanta sin ellos (regla 90.3.4).
+    "INVITACIONES_CLAVE": "${INVITACIONES_CLAVE}",
+    "QR_INTERNO_CLAVE": "${QR_INTERNO_CLAVE}",
+    # Inversiones queda con el aliado DESHABILITADO hasta que exista uno contratado (DR-INV-01).
+    "INVERSIONES_ALIADO_MODO": "deshabilitado",
+    "INVERSIONES_ALIADO_URL": "http://127.0.0.1:4030",
+    "INVERSIONES_ALIADO_API_KEY": "",
+    "INVERSIONES_ALIADO_FIRMA_SECRETO": "",
+    "INVERSIONES_LIBRO_CREDENCIAL_SERVICIO": "",
+    # Cuenta de servicio de inversiones en identidad (rol SERVICIO_INVERSIONES). Vacias en el repo: las pone quien
+    # opera el entorno; con una de las cuatro puesta y otra no, inversiones NO arranca.
+    "INVERSIONES_SERVICIO_TELEFONO": "",
+    "INVERSIONES_SERVICIO_CLAVE": "",
+    "INVERSIONES_SERVICIO_TOTP_SEMILLA": "",
+    "INVERSIONES_SERVICIO_FACTOR_FIJO": "",
+    # Cuenta de servicio de entregas en identidad (rol SERVICIO_ENTREGAS): con ella entregas le paga al vendedor de un
+    # turno (pago-a-tercero). Vacias en el repo: las pone quien opera el entorno; a medias, entregas NO arranca.
+    "ENTREGAS_LIBRO_CREDENCIAL_SERVICIO": "",
+    "ENTREGAS_SERVICIO_TELEFONO": "",
+    "ENTREGAS_SERVICIO_CLAVE": "",
+    "ENTREGAS_SERVICIO_TOTP_SEMILLA": "",
+    "ENTREGAS_SERVICIO_FACTOR_FIJO": "",
+    "NUCLEO_FINANCIERO_URL": "http://nucleo-financiero:8080",
+    # Solo la leen staging/production (application-<perfil>.yml): sin valor por omision y nunca
+    # `*`; el servicio no arranca si falta. Con el perfil `local` no tiene efecto. No es un secreto.
+    "APORTAYA_CORS_ORIGENES": "${APORTAYA_CORS_ORIGENES}",
+    # Nucleo-financiero · consumo de asientos de garantia (D5), ENCENDIDO en TEST con un mapeo SINTETICO de
+    # cuentas logicas (arbol 9 de seeders/minimos/22-cuentas-de-sistema.json, apto_produccion=false). Cada valor
+    # se puede pisar desde Coolify sin tocar el repo; el perfil `production` se niega a arrancar con esto
+    # mientras CUENTAS_LOGICAS_APTO_PRODUCCION no sea true (GuardiaDeCuentasLogicas).
+    "CONSUMO_DE_ASIENTOS_HABILITADO": "${CONSUMO_DE_ASIENTOS_HABILITADO:-true}",
+    "CUENTAS_LOGICAS_APTO_PRODUCCION": "false",
+    "CUENTA_LOGICA_CAJA_EMPRESA_BOB": "${CUENTA_LOGICA_CAJA_EMPRESA_BOB:-9.1.01}",
+    "CUENTA_LOGICA_RESERVA_RESPALDO_BOB": "${CUENTA_LOGICA_RESERVA_RESPALDO_BOB:-9.1.02}",
+    "CUENTA_LOGICA_POZO_GRUPO_BOB": "${CUENTA_LOGICA_POZO_GRUPO_BOB:-9.1.03}",
+    "CUENTA_LOGICA_CAJA_EMPRESA_USD": "${CUENTA_LOGICA_CAJA_EMPRESA_USD:-9.2.01}",
+    "CUENTA_LOGICA_RESERVA_RESPALDO_USD": "${CUENTA_LOGICA_RESERVA_RESPALDO_USD:-9.2.02}",
+    "CUENTA_LOGICA_POZO_GRUPO_USD": "${CUENTA_LOGICA_POZO_GRUPO_USD:-9.2.03}",
+    "CUENTA_LOGICA_DESEMBOLSO_BOB": "${CUENTA_LOGICA_DESEMBOLSO_BOB:-9.1.04}",
+    "CUENTA_LOGICA_DESEMBOLSO_USD": "${CUENTA_LOGICA_DESEMBOLSO_USD:-9.2.04}",
+    "CUENTA_LOGICA_SALDO_USUARIOS_BOB": "${CUENTA_LOGICA_SALDO_USUARIOS_BOB:-2.1.01}",
+    "CUENTA_LOGICA_SALDO_GRUPOS_BOB": "${CUENTA_LOGICA_SALDO_GRUPOS_BOB:-2.1.02}",
+    "CUENTA_LOGICA_SALDO_USUARIOS_USD": "${CUENTA_LOGICA_SALDO_USUARIOS_USD:-}",
+    "CUENTA_LOGICA_SALDO_GRUPOS_USD": "${CUENTA_LOGICA_SALDO_GRUPOS_USD:-}",
+    # grupos · interruptores de decision pendiente (negocio y cumplimiento). Opcionales (`:-`): un entorno que no los
+    # carga NO deja de arrancar. TEST conserva su comportamiento (false); PRODUCCION debe fijar
+    # ADMISION_HUMANA_OBLIGATORIA=true en Coolify (el valor por omision de la aplicacion, sin variable, es true).
+    "ADMISION_HUMANA_OBLIGATORIA": "${ADMISION_HUMANA_OBLIGATORIA:-false}",
+    "SUSTITUCION_AUTOMATICA_ADMIN": "${SUSTITUCION_AUTOMATICA_ADMIN:-false}",
+    "SUSTITUCION_CONSUMO_HABILITADO": "${SUSTITUCION_CONSUMO_HABILITADO:-false}",
+    # Carril I · consumidores del circuito del dinero, ENCENDIDOS por omision (ver DE_DESARROLLO). Opcionales (`:-`).
+    "CESION_CONSUMO_HABILITADO": "${CESION_CONSUMO_HABILITADO:-true}",
+    "CONSUMO_DE_APORTES_HABILITADO": "${CONSUMO_DE_APORTES_HABILITADO:-true}",
 }
 
 
@@ -211,6 +332,10 @@ services:
       PGDATABASE: pasanaku
       PGUSER: ${BD_USUARIO_ADMIN}
       PGPASSWORD: ${BD_CLAVE_ADMIN}
+      # Credencial de los roles svc_* que todavia no la tienen (ver despliegue/aplicar-esquema.sh):
+      # los servicios se conectan con ${BD_CLAVE}, asi que es la misma clave. Un servicio nuevo
+      # trae su rol NOLOGIN y no arranca sin esto.
+      ROLES_CLAVE: ${BD_CLAVE}
     networks: [interna]
 
   # El gateway: la unica entrada a la API (ADR-025).
@@ -222,6 +347,8 @@ services:
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
       SPRING_DATA_REDIS_HOST: aportaya-redis
       SPRING_DATA_REDIS_PORT: "6379"
+      # Obligatoria fuera de local/test (ConfiguracionCors tumba el arranque si falta o es `*`).
+      APORTAYA_CORS_ORIGENES: ${APORTAYA_CORS_ORIGENES}
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/liveness || exit 1"]
       interval: 10s
@@ -390,11 +517,19 @@ def dependencias_de(servicio, servicios):
 
 
 def variables_de(servicio):
-    """Las variables que este servicio exige, leidas de su propia configuracion."""
-    config = SERVICIOS / servicio / "src/main/resources/application.yml"
-    if not config.is_file():
+    """Las variables que este servicio exige, leidas de su propia configuracion.
+
+    Tambien los application-<perfil>.yml: `APORTAYA_CORS_ORIGENES` vive solo en los de
+    staging/production y, al no leerlos, el compose desplegado no la declaraba: con
+    PERFIL_SPRING=production nucleo-financiero, inversiones y el gateway morian por
+    `aportaya.cors.origenes` (evidencia/carril-D3/log-f2-perfil-production-*.txt).
+    """
+    archivos = sorted((SERVICIOS / servicio / "src/main/resources").glob("application*.yml"))
+    if not archivos:
         return []
-    texto = config.read_text(encoding="utf-8")
+    texto = "\n".join(a.read_text(encoding="utf-8") for a in archivos)
+    # Una linea comentada no declara variables.
+    texto = "\n".join(linea.split("#", 1)[0] for linea in texto.splitlines())
     return sorted(set(re.findall(r"\$\{([A-Z_]+)[:}]", texto)))
 
 

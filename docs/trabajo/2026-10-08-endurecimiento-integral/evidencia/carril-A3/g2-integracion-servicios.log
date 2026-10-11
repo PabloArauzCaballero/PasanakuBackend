@@ -1,0 +1,151 @@
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources NO-SOURCE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :servicios:auditoria:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:auditoria:generateJooq UP-TO-DATE
+> Task :servicios:auditoria:compileJava UP-TO-DATE
+> Task :servicios:auditoria:processResources UP-TO-DATE
+> Task :servicios:auditoria:classes UP-TO-DATE
+> Task :servicios:auditoria:compileTestJava UP-TO-DATE
+> Task :servicios:auditoria:processTestResources UP-TO-DATE
+> Task :servicios:auditoria:testClasses UP-TO-DATE
+
+> Task :servicios:auditoria:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T02:40:31.197-04:00  INFO 36820 --- [auditoria] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T02:40:31.201-04:00  INFO 36820 --- [auditoria] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T02:40:31.337-04:00  INFO 36820 --- [auditoria] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T02:40:31.338-04:00  INFO 36820 --- [auditoria] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:erp:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:erp:generateJooq UP-TO-DATE
+> Task :servicios:erp:compileJava UP-TO-DATE
+> Task :servicios:erp:processResources UP-TO-DATE
+> Task :servicios:erp:classes UP-TO-DATE
+> Task :servicios:erp:compileTestJava UP-TO-DATE
+> Task :servicios:erp:processTestResources UP-TO-DATE
+> Task :servicios:erp:testClasses UP-TO-DATE
+
+> Task :servicios:erp:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T02:40:58.485-04:00  INFO 20164 --- [erp] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T02:40:58.485-04:00  INFO 20164 --- [erp] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T02:40:58.614-04:00  INFO 20164 --- [erp] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T02:40:58.618-04:00  INFO 20164 --- [erp] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:publicidad:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:publicidad:generateJooq UP-TO-DATE
+> Task :servicios:publicidad:compileJava UP-TO-DATE
+> Task :servicios:publicidad:processResources UP-TO-DATE
+> Task :servicios:publicidad:classes UP-TO-DATE
+> Task :servicios:publicidad:compileTestJava UP-TO-DATE
+> Task :servicios:publicidad:processTestResources UP-TO-DATE
+> Task :servicios:publicidad:testClasses UP-TO-DATE
+
+> Task :servicios:publicidad:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T02:41:26.608-04:00  INFO 11708 --- [publicidad] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T02:41:26.615-04:00  INFO 11708 --- [publicidad] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T02:41:26.744-04:00  INFO 11708 --- [publicidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T02:41:26.744-04:00  INFO 11708 --- [publicidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:tarifas:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:tarifas:generateJooq UP-TO-DATE
+> Task :servicios:tarifas:compileJava UP-TO-DATE
+> Task :servicios:tarifas:processResources UP-TO-DATE
+> Task :servicios:tarifas:classes UP-TO-DATE
+> Task :servicios:tarifas:compileTestJava UP-TO-DATE
+> Task :servicios:tarifas:processTestResources UP-TO-DATE
+> Task :servicios:tarifas:testClasses UP-TO-DATE
+
+> Task :servicios:tarifas:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T02:42:04.220-04:00  INFO 35948 --- [tarifas] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T02:42:04.220-04:00  INFO 35948 --- [tarifas] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T02:42:04.354-04:00  INFO 35948 --- [tarifas] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T02:42:04.355-04:00  INFO 35948 --- [tarifas] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:transparencia:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:transparencia:generateJooq UP-TO-DATE
+> Task :servicios:transparencia:compileJava UP-TO-DATE
+> Task :servicios:transparencia:processResources UP-TO-DATE
+> Task :servicios:transparencia:classes UP-TO-DATE
+> Task :servicios:transparencia:compileTestJava UP-TO-DATE
+> Task :servicios:transparencia:processTestResources UP-TO-DATE
+> Task :servicios:transparencia:testClasses UP-TO-DATE
+
+> Task :servicios:transparencia:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T02:42:32.218-04:00  INFO 18692 --- [transparencia] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T02:42:32.223-04:00  INFO 18692 --- [transparencia] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T02:42:32.357-04:00  INFO 18692 --- [transparencia] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T02:42:32.359-04:00  INFO 18692 --- [transparencia] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:organizador:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:organizador:generateJooq UP-TO-DATE
+> Task :servicios:organizador:compileJava UP-TO-DATE
+> Task :servicios:organizador:processResources UP-TO-DATE
+> Task :servicios:organizador:classes UP-TO-DATE
+> Task :servicios:organizador:compileTestJava UP-TO-DATE
+> Task :servicios:organizador:processTestResources UP-TO-DATE
+> Task :servicios:organizador:testClasses UP-TO-DATE
+
+> Task :servicios:organizador:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T02:43:15.007-04:00  INFO 36812 --- [organizador] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T02:43:15.009-04:00  INFO 36812 --- [organizador] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T02:43:15.137-04:00  INFO 36812 --- [organizador] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T02:43:15.142-04:00  INFO 36812 --- [organizador] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+BUILD SUCCESSFUL in 3m 11s
+67 actionable tasks: 6 executed, 61 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+== etapa g2-integracion-servicios RC: 0

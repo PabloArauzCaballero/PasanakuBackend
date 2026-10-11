@@ -1,0 +1,80 @@
+heavy.sh: timeout esperando RAM/candado (libres: 1205 MB)
+== sigo esperando turno (01:03)
+heavy.sh: candado tomado, libres 4253 MB -> bash /c/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/b3/regresion_b3.sh
+##### simulado: typecheck + lint + vitest
+tsc exit=0
+eslint exit=0
+     53|       })
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 248 passed (249)
+   Start at  01:05:47
+   Duration  1.30s (transform 149ms, setup 0ms, import 455ms, tests 1.29s, environment 0ms)
+##### backoffice: typecheck
+tsc app exit=0
+tsc spec exit=0
+##### backoffice: ng lint
+Linting "backoffice"...
+(node:34848) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/backoffice/eslint.config.js?mtime=1791516635797 is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+All files pass linting.
+##### backoffice: verificar_frontend.py
+TODO OK
+##### backoffice: test:front
+    138|   it('la lista de pendientes no se pudre: ninguno de los declarados es…
+    139|     expect(SIN_CATALOGO_DECLARADOS.filter((p) => CATALOGO.permisos.has…
+       |                                                                                                      ^
+    140|   })
+    141| })
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+ Test Files  1 failed | 66 passed (67)
+      Tests  2 failed | 419 passed (421)
+   Start at  01:06:02
+   Duration  4.53s (transform 753ms, setup 362ms, import 896ms, tests 2.26s, environment 808ms)
+##### backoffice: test:a11y
+Using Vitest configuration file: C:\Users\Usuario\AppData\Local\Temp\claude\C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku\c468f89e-ca7f-4172-b7d5-74080b60e5a8\scratchpad\vitest-serial.config.mjs
+❯ Building...
+✔ Building...
+Application bundle generation complete. [2.864 seconds] - 2026-10-10T05:06:11.640Z
+ RUN  v4.1.11 C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/backoffice
+ Test Files  28 passed (28)
+      Tests  42 passed (42)
+   Start at  01:06:11
+   Duration  5.98s (transform 540ms, setup 299ms, import 991ms, tests 4.01s, environment 536ms)
+##### web: typecheck
+tsc app exit=0
+tsc spec exit=0
+##### web: ng lint
+Linting "web"...
+(node:24276) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/web/eslint.config.js?mtime=1791516635999 is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\web\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+All files pass linting.
+##### web: verificar_frontend.py
+TODO OK
+##### web: test:front
+Using Vitest configuration file: C:\Users\Usuario\AppData\Local\Temp\claude\C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku\c468f89e-ca7f-4172-b7d5-74080b60e5a8\scratchpad\vitest-serial.config.mjs
+❯ Building...
+✔ Building...
+Application bundle generation complete. [3.544 seconds] - 2026-10-10T05:06:29.749Z
+ RUN  v4.1.11 C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/web
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+ Test Files  16 passed (16)
+      Tests  72 passed (72)
+   Start at  01:06:30
+   Duration  2.43s (transform 238ms, setup 254ms, import 550ms, tests 973ms, environment 499ms)
+##### web: test:a11y
+Using Vitest configuration file: C:\Users\Usuario\AppData\Local\Temp\claude\C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku\c468f89e-ca7f-4172-b7d5-74080b60e5a8\scratchpad\vitest-serial.config.mjs
+❯ Building...
+✔ Building...
+Application bundle generation complete. [2.484 seconds] - 2026-10-10T05:06:36.241Z
+ RUN  v4.1.11 C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/web
+ Test Files  4 passed (4)
+      Tests  8 passed (8)
+   Start at  01:06:36
+   Duration  2.20s (transform 196ms, setup 251ms, import 361ms, tests 948ms, environment 513ms)
+regresion terminada
+== turno_cmd RC final: 0

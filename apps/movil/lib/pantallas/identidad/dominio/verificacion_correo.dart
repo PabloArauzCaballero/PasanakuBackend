@@ -20,12 +20,13 @@ class VerificacionCorreo {
     final idempotencia = _ref.read(idempotenciaProvider.notifier);
     if (nueva) idempotencia.cerrar(_formulario);
     try {
-      final respuesta = await DefaultApi(
-        _ref.read(dioProvider),
-      ).solicitarVerificacionCorreo(
-        idempotencyKey: idempotencia.claveDe(_formulario),
-        solicitudVerificacionCorreo: SolicitudVerificacionCorreo(correo: correo),
-      );
+      final respuesta = await DefaultApi(_ref.read(dioProvider))
+          .solicitarVerificacionCorreo(
+            idempotencyKey: idempotencia.claveDe(_formulario),
+            solicitudVerificacionCorreo: SolicitudVerificacionCorreo(
+              correo: correo,
+            ),
+          );
       final cuerpo = respuesta.data;
       if (cuerpo == null) {
         throw StateError('El servidor no devolvio la verificacion.');

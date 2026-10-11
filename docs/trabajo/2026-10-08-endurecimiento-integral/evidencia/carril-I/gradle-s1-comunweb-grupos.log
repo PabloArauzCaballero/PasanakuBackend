@@ -1,0 +1,129 @@
+heavy.sh: candado tomado, libres 4562 MB -> bash C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/i_jj.sh --continue :plataforma:comun-web:spotlessApply :servicios:grupos:spotlessApply :plataforma:comun-web:test :plataforma:comun-web:webTest :plataforma:comun-web:integrationTest :plataforma:comun-web:testBarrido :servicios:grupos:test :servicios:grupos:webTest :servicios:grupos:integrationTest :servicios:grupos:testBarrido
+== libres: 4604 MB
+== aplicar.sql RC: 0
+psql:/repo/sql/40_reglas/restricciones.sql:3396: NOTICE:  trigger "tg_distribucion_interes_coherente" for relation "distribucion_interes" does not exist, skipping
+psql:/repo/sql/40_reglas/restricciones.sql:3402: NOTICE:  constraint "ck_corrida_trabajo_fin" of relation "corrida_trabajo" does not exist, skipping
+psql:/repo/sql/40_reglas/restricciones.sql:3403: NOTICE:  constraint "ck_corrida_trabajo_error" of relation "corrida_trabajo" does not exist, skipping
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Starting a Gradle Daemon, 3 stopped Daemons could not be reused, use --status for details
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :plataforma:comun-web:spotlessJava
+> Task :plataforma:comun-web:spotlessJavaApply
+> Task :plataforma:comun-web:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-web:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-web:spotlessApply
+> Task :servicios:grupos:spotlessJava
+> Task :servicios:grupos:spotlessJavaApply
+> Task :servicios:grupos:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:grupos:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:grupos:spotlessApply
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources UP-TO-DATE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestResources NO-SOURCE
+> Task :plataforma:comun-web:testClasses UP-TO-DATE
+> Task :plataforma:comun-web:test UP-TO-DATE
+> Task :plataforma:comun-web:webTest UP-TO-DATE
+> Task :plataforma:comun-web:integrationTest UP-TO-DATE
+> Task :plataforma:comun-web:testBarrido UP-TO-DATE
+> Task :servicios:grupos:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:grupos:generateJooq UP-TO-DATE
+> Task :servicios:grupos:compileJava UP-TO-DATE
+> Task :servicios:grupos:processResources UP-TO-DATE
+> Task :servicios:grupos:classes UP-TO-DATE
+> Task :servicios:grupos:compileTestJava
+> Task :servicios:grupos:processTestResources UP-TO-DATE
+> Task :servicios:grupos:testClasses
+
+> Task :servicios:grupos:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:grupos:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:grupos:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T19:13:33.166-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Node -1 disconnected.
+2026-10-10T19:13:33.166-04:00  WARN 4356 --- [grupos] [        kafka-1] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2026-10-10T19:13:33.166-04:00  WARN 4356 --- [grupos] [        kafka-1] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-10-10T19:13:33.413-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-10T19:13:33.414-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-10T19:13:33.414-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Unsubscribed all topics or patterns and assigned partitions
+2026-10-10T19:13:33.423-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-10T19:13:33.423-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-10T19:13:33.462-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-10T19:13:33.462-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-10T19:13:33.462-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-10T19:13:33.462-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-10T19:13:33.477-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-grupos-cesiones-1 unregistered
+2026-10-10T19:13:33.477-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : grupos-cesiones: Consumer stopped
+2026-10-10T19:13:33.494-04:00  INFO 4356 --- [grupos] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T19:13:33.535-04:00  INFO 4356 --- [grupos] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T19:13:33.566-04:00  INFO 4356 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T19:13:33.579-04:00  INFO 4356 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-10T19:13:33.604-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-2, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-10T19:13:33.604-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-2, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-10T19:13:33.604-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-grupos-cesiones-2, groupId=grupos-cesiones] Unsubscribed all topics or patterns and assigned partitions
+2026-10-10T19:13:33.604-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-2, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-10T19:13:33.604-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-2, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-10T19:13:33.604-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-10T19:13:33.604-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-10T19:13:33.604-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-10T19:13:33.604-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-10T19:13:33.620-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-grupos-cesiones-2 unregistered
+2026-10-10T19:13:33.620-04:00  INFO 4356 --- [grupos] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : grupos-cesiones: Consumer stopped
+2026-10-10T19:13:33.620-04:00  INFO 4356 --- [grupos] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T19:13:33.636-04:00  INFO 4356 --- [grupos] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T19:13:33.639-04:00  INFO 4356 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-10-10T19:13:33.646-04:00  INFO 4356 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+
+> Task :servicios:grupos:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+BUILD SUCCESSFUL in 2m 15s
+50 actionable tasks: 9 executed, 41 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+== RC gradle: 0
+FIN RC=0

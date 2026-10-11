@@ -1,0 +1,64 @@
+heavy.sh: candado tomado, libres 3501 MB -> bash despliegue/ensayos/alarmas/ensayo_alarmas.sh
+ENSAYO DE ALARMAS · 2026-10-10T02:24:49Z · contenedor aportaya-pg-s2-alarmas · puerto 5439
+
+== F0 base desechable con el esquema real y los catalogos
+   siembra de catalogos: 1 error(es)
+   psql:/repo/sql/60_semillas/10-roles-y-permisos.sql:22: ERROR:  value too long for type character varying(60)
+   roles sembrados por el catalogo: 0
+-- personal sintetico con su rol (el catalogo de roles es el sembrado; ADMIN_PLATAFORMA queda SIN persona a proposito)
+
+== F1 todo en orden: no debe sonar nada
+[ALR-01] brecha_de_caja: en orden
+[ALR-02] atraso_de_aportes: en orden
+[ALR-03] cola_detenida: en orden
+[ALR-04] conciliacion_vencida: en orden
+AVISO: umbrales sinteticos (apto_produccion=false); fijarlos es decision de operaciones y tesoreria.
+   OK rc=0
+
+== F2 INYECCION de los cuatro incidentes
+   [ALR-01] brecha_de_caja: DISPARADA (1) -> responsable (1 destinatario/s) · procedimiento docs/operacion/alarmas/ALR-01-brecha-de-caja.md
+   [ALR-02] atraso_de_aportes: DISPARADA (1) -> responsable (1 destinatario/s) · procedimiento docs/operacion/alarmas/ALR-02-atraso-de-aportes.md
+   [ALR-03] cola_detenida: DISPARADA (2) -> escalamiento (1 destinatario/s) · procedimiento docs/operacion/alarmas/ALR-03-cola-detenida.md
+   [ALR-04] conciliacion_vencida: DISPARADA (1) -> responsable (1 destinatario/s) · procedimiento docs/operacion/alarmas/ALR-04-conciliacion-vencida.md
+   AVISO: umbrales sinteticos (apto_produccion=false); fijarlos es decision de operaciones y tesoreria.
+   deteccion (inyeccion -> alarma): 1553 ms
+
+== F3 el responsable por rol, el escalamiento y el cuerpo de la notificacion
+   ALR-01 CRITICA  nivel=responsable  rol=TESORERIA              runbook existe=True cuerpo valido=True
+   ALR-02 ALTA     nivel=responsable  rol=SOPORTE                runbook existe=True cuerpo valido=True
+   ALR-03 ALTA     nivel=escalamiento rol=RESPONSABLE_SEGURIDAD  runbook existe=True cuerpo valido=True
+   ALR-04 CRITICA  nivel=responsable  rol=TESORERIA              runbook existe=True cuerpo valido=True
+   EntradaNotificacion exige ['datos', 'destinatarioId', 'evento']; alarmas registradas: 4
+
+== F4 una alarma abierta NO se repite en el registro (se informa como vigente)
+   [ALR-01] brecha_de_caja: VIGENTE (1) desde 2026-10-10T02:25:02.969886+00:00
+   [ALR-02] atraso_de_aportes: VIGENTE (1) desde 2026-10-10T02:25:03.249175+00:00
+   [ALR-03] cola_detenida: VIGENTE (2) desde 2026-10-10T02:25:03.618743+00:00
+   [ALR-04] conciliacion_vencida: VIGENTE (1) desde 2026-10-10T02:25:03.892821+00:00
+
+== F5 RESPUESTA segun los procedimientos (docs/operacion/alarmas/*) y resolucion
+   [ALR-01] brecha_de_caja: RESUELTA tras 2.9 s
+   [ALR-02] atraso_de_aportes: RESUELTA tras 2.7 s
+   [ALR-03] cola_detenida: RESUELTA tras 2.4 s
+   [ALR-04] conciliacion_vencida: RESUELTA tras 2.2 s
+   respuesta + verificacion: 677 ms
+
+== F6 sin nadie a quien avisar la alarma FALLA en voz alta (rc=4), no calla
+   [ALR-01] brecha_de_caja: DISPARADA (1) -> ninguno (0 destinatario/s) · procedimiento docs/operacion/alarmas/ALR-01-brecha-de-caja.md
+   [ALR-02] atraso_de_aportes: en orden
+   [ALR-03] cola_detenida: en orden
+   [ALR-04] conciliacion_vencida: en orden
+   OK rc=4 (alarma sin destinatario)
+
+== REGISTRO DE RESPUESTA (alarmas.jsonl, resumido)
+   02:25:02 DISPARADA ALR-01 CRITICA  conteo=1 avisado_a=TESORERIA procedimiento=docs/operacion/alarmas/ALR-01-brecha-de-caja.md
+   02:25:03 DISPARADA ALR-02 ALTA     conteo=1 avisado_a=SOPORTE procedimiento=docs/operacion/alarmas/ALR-02-atraso-de-aportes.md
+   02:25:03 DISPARADA ALR-03 ALTA     conteo=2 avisado_a=RESPONSABLE_SEGURIDAD procedimiento=docs/operacion/alarmas/ALR-03-cola-detenida.md
+   02:25:03 DISPARADA ALR-04 CRITICA  conteo=1 avisado_a=TESORERIA procedimiento=docs/operacion/alarmas/ALR-04-conciliacion-vencida.md
+   02:25:05 RESUELTA  ALR-01 duracion=2.9 s
+   02:25:05 RESUELTA  ALR-02 duracion=2.7 s
+   02:25:06 RESUELTA  ALR-03 duracion=2.4 s
+   02:25:06 RESUELTA  ALR-04 duracion=2.2 s
+   02:25:06 DISPARADA ALR-01 CRITICA  conteo=1 avisado_a=None procedimiento=docs/operacion/alarmas/ALR-01-brecha-de-caja.md
+fallas: 0
+ENSAYO DE ALARMAS: PASS

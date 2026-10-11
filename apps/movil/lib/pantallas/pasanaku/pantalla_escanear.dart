@@ -12,7 +12,7 @@ import '../../dominio/puertos/visor_qr.dart';
 import '../../navegacion/lectura_de_qr.dart';
 import '../../proveedores/ajustes_del_sistema.dart';
 import '../../proveedores/visor_qr.dart';
-import 'textos.dart';
+import 'textos_invitacion.dart';
 
 /// Escanear el QR de una invitación. **Solo lleva a la pantalla de unirse**, donde la
 /// persona confirma: escanear no acredita ni mueve nada. Lo que dice el QR no se guarda
@@ -45,7 +45,7 @@ class _PantallaEscanearState extends ConsumerState<PantallaEscanear> {
       context.pushReplacement(ruta);
       return;
     }
-    setState(() => _rechazo = TextosPasanaku.escanearRechazo);
+    setState(() => _rechazo = TextosInvitacion.escanearRechazo);
     Future<void>.delayed(const Duration(seconds: 2), () {
       if (mounted) _cerrojo.liberar();
     });
@@ -54,7 +54,7 @@ class _PantallaEscanearState extends ConsumerState<PantallaEscanear> {
   void _usarEnlace() {
     final ruta = rutaDeInvitacionDesdeQr(_enlace.text);
     if (ruta == null) {
-      setState(() => _rechazo = TextosPasanaku.enlaceInvalido);
+      setState(() => _rechazo = TextosInvitacion.enlaceInvalido);
       return;
     }
     context.pushReplacement(ruta);
@@ -73,17 +73,18 @@ class _PantallaEscanearState extends ConsumerState<PantallaEscanear> {
   }
 
   Widget _avisoDeCamara(ProblemaDeCamara problema) => Alerta(
-    titulo: TextosPasanaku.camaraDenegadaTitulo,
+    titulo: TextosInvitacion.camaraDenegadaTitulo,
     detalle: switch (problema) {
-      ProblemaDeCamara.denegado => TextosPasanaku.camaraDenegadaDetalle,
-      ProblemaDeCamara.noDisponible => TextosPasanaku.camaraNoDisponibleDetalle,
-      ProblemaDeCamara.otro => TextosPasanaku.camaraOtroDetalle,
+      ProblemaDeCamara.denegado => TextosInvitacion.camaraDenegadaDetalle,
+      ProblemaDeCamara.noDisponible =>
+        TextosInvitacion.camaraNoDisponibleDetalle,
+      ProblemaDeCamara.otro => TextosInvitacion.camaraOtroDetalle,
     },
     tono: Tono.aviso,
     accion: problema == ProblemaDeCamara.denegado
         ? TextButton(
             onPressed: () => ref.read(ajustesDelSistemaProvider).abrir(),
-            child: const Text(TextosPasanaku.abrirAjustes),
+            child: const Text(TextosInvitacion.abrirAjustes),
           )
         : null,
   );
@@ -92,14 +93,14 @@ class _PantallaEscanearState extends ConsumerState<PantallaEscanear> {
   Widget build(BuildContext context) {
     final construirVisor = ref.watch(visorQrProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text(TextosPasanaku.tituloEscanear)),
+      appBar: AppBar(title: const Text(TextosInvitacion.tituloEscanear)),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(Espacio.s4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(TextosPasanaku.escanearAyuda),
+              const Text(TextosInvitacion.escanearAyuda),
               const SizedBox(height: Espacio.s3),
               if (_problemaDeCamara case final problema?)
                 _avisoDeCamara(problema)
@@ -109,7 +110,7 @@ class _PantallaEscanearState extends ConsumerState<PantallaEscanear> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(Radios.md),
                     child: Semantics(
-                      label: TextosPasanaku.tituloEscanear,
+                      label: TextosInvitacion.tituloEscanear,
                       child: construirVisor(
                         alLeer: _alLeer,
                         problema: _alFallarLaCamara,
@@ -126,14 +127,14 @@ class _PantallaEscanearState extends ConsumerState<PantallaEscanear> {
               ],
               const SizedBox(height: Espacio.s5),
               Campo(
-                etiqueta: TextosPasanaku.pegarEnlaceEtiqueta,
+                etiqueta: TextosInvitacion.pegarEnlaceEtiqueta,
                 controlador: _enlace,
                 tipoDeTeclado: TextInputType.url,
                 onSubmitted: (_) => _usarEnlace(),
               ),
               const SizedBox(height: Espacio.s3),
               Boton(
-                texto: TextosPasanaku.usarEnlace,
+                texto: TextosInvitacion.usarEnlace,
                 variante: BotonVariante.secundario,
                 expandido: true,
                 onPressed: _usarEnlace,

@@ -1,0 +1,24 @@
+heavy.sh: candado tomado, libres 4197 MB -> bash -c cd '/c/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/web' && npx ng lint && /c/Users/Usuario/bin/python3 ../../scripts/verificar_frontend.py web
+
+Linting "web"...
+(node:35500) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/web/eslint.config.js?mtime=1791516635999 is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\web\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+All files pass linting.
+
+=== apps/web (Angular) ===
+  OK    · sin red en vista 
+  OK    · sin literal de diseño 
+  OK    · sin formato de dinero 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+=== packages/tutoriales (Angular) ===
+  OK    · sin red fuera del puerto 
+  OK    · sin literal de diseño 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+  OK    · sin literal de diseño en @aportaya/ui 
+
+TODO OK

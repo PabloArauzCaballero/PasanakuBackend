@@ -147,16 +147,16 @@ public class VerificacionCorreoRepositorio {
                     politica.get("id", UUID.class),
                     PROPOSITO,
                     proteccion.hashCodigo(correo, codigo),
-                    enmascarar(correo),
+                    TextoDeVerificacion.enmascarar(correo),
                     ahora,
                     expira,
                     politica.get("max_intentos_validacion", Short.class),
                     ip,
-                    limitar(agente, 255),
+                    TextoDeVerificacion.limitar(agente, 255),
                     UUID.fromString(ctx.traza().id()),
                     claveIdempotencia.toString(),
                     huella);
-            return new Preparada(new Solicitada(id, enmascarar(correo), expira), codigo, true);
+            return new Preparada(new Solicitada(id, TextoDeVerificacion.enmascarar(correo), expira), codigo, true);
         });
     }
 
@@ -280,33 +280,7 @@ public class VerificacionCorreoRepositorio {
 
     private void intento(
             DSLContext dsl, UUID tokenId, String resultado, String ip, String agente, OffsetDateTime ahora) {
-        dsl.execute(
-                """
-                INSERT INTO identidad.intento_validacion_token
-                    (id, token_id, fecha_hora, resultado, ip_origen, agente_usuario)
-                VALUES (?, ?, ?::timestamptz, ?, ?::inet, ?)
-                """,
-                ids.nuevo(),
-                tokenId,
-                ahora,
-                resultado,
-                ip,
-                limitar(agente, 255));
-    }
-
-    private static String enmascarar(String correo) {
-        String normal = correo.strip().toLowerCase(Locale.ROOT);
-        int arroba = normal.indexOf('@');
-        String nombre = arroba > 0 ? normal.substring(0, arroba) : normal;
-        String dominio = arroba > 0 ? normal.substring(arroba) : "";
-        String visible = nombre.substring(0, Math.min(2, nombre.length()));
-        String mascara = visible + "***" + dominio;
-        return limitar(mascara, 40);
-    }
-
-    private static String limitar(String valor, int maximo) {
-        if (valor == null) return "desconocido";
-        return valor.length() <= maximo ? valor : valor.substring(0, maximo);
+        TextoDeVerificacion.registrarIntento(dsl, ids.nuevo(), tokenId, resultado, ip, agente, ahora);
     }
 
     public record Solicitada(UUID verificacionId, String destinoEnmascarado, OffsetDateTime expiraEn) {}

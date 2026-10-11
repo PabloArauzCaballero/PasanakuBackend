@@ -12,7 +12,7 @@ import { textosSistemas } from '../textos'
   imports: [BandaDeProposito, TablaDeDatos, ChipEstado, EstadoDePantalla],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
       <ap-estado-de-pantalla [recurso]="incidentes" [vacio]="esVacio" [mensajeVacio]="t.vacio" [etiquetaDeCarga]="t.cargando" (reintentar)="incidentes.reload()">
         @if (incidentes.hasValue() && incidentes.value(); as filas) {
@@ -27,9 +27,9 @@ import { textosSistemas } from '../textos'
           </ap-tabla-de-datos>
         }
       </ap-estado-de-pantalla>
-    </main>
+    </section>
   `,
-  styles: `main { padding: 0; max-width: 60rem; } h1 { margin-bottom: var(--s4); }`,
+  styles: `.pantalla { padding: 0; max-width: 60rem; } h1 { margin-bottom: var(--s4); }`,
 })
 export class PantallaIncidentes {
   protected readonly t = textosSistemas.incidentes

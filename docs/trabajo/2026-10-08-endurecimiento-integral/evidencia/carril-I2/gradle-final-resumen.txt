@@ -1,0 +1,17 @@
+23:> Task :servicios:inversiones:spotlessJava
+24:> Task :servicios:inversiones:spotlessJavaApply
+25:> Task :servicios:inversiones:spotlessKotlinGradle UP-TO-DATE
+26:> Task :servicios:inversiones:spotlessKotlinGradleApply UP-TO-DATE
+27:> Task :servicios:inversiones:spotlessApply
+60:> Task :servicios:inversiones:testClasses
+62:> Task :servicios:inversiones:test
+65:> Task :servicios:inversiones:webTest
+70:> Task :servicios:inversiones:integrationTest
+79:> Task :servicios:inversiones:contractTest
+82:> Task :servicios:inversiones:sagaTest
+85:> Task :servicios:inversiones:testBarrido
+88:> Task :servicios:inversiones:spotlessJavaCheck UP-TO-DATE
+89:> Task :servicios:inversiones:spotlessKotlinGradleCheck UP-TO-DATE
+90:> Task :servicios:inversiones:spotlessCheck UP-TO-DATE
+874:BUILD SUCCESSFUL in 3m 23s
+880:== RC gradle: 0

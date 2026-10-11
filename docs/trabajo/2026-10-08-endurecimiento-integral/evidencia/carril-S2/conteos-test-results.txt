@@ -1,0 +1,4 @@
+plataforma/comun-pruebas test=27(fallos 0, omitidas 0) webTest=0(fallos 0, omitidas 0) integrationTest=15(fallos 0, omitidas 0) testBarrido=5(fallos 0, omitidas 0) contractTest=20(fallos 0, omitidas 0)
+servicios/cumplimiento test=14(fallos 0, omitidas 0) webTest=25(fallos 0, omitidas 0) integrationTest=280(fallos 0, omitidas 0) testBarrido=2(fallos 0, omitidas 0)
+servicios/auditoria test=16(fallos 0, omitidas 0) webTest=28(fallos 0, omitidas 0) integrationTest=43(fallos 0, omitidas 0) testBarrido=2(fallos 0, omitidas 0)
+servicios/notificaciones test=5(fallos 0, omitidas 0) webTest=21(fallos 0, omitidas 0) integrationTest=60(fallos 0, omitidas 0) testBarrido=2(fallos 0, omitidas 0)

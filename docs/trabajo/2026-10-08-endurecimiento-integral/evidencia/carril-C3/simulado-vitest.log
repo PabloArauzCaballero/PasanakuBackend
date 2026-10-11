@@ -1,0 +1,16 @@
+heavy.sh: candado tomado, libres 4183 MB -> bash C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/c3_simulado.sh
+## contratos-a-json
+contratos convertidos desde C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre: aportes (11 rutas) · auditoria (4 rutas) · cumplimiento (10 rutas) · entregas (14 rutas) · erp (15 rutas) · garantia (20 rutas) · grupos (28 rutas) · identidad (19 rutas) · inversiones (20 rutas) · notificaciones (4 rutas) · nucleo-financiero (19 rutas) · organizador (21 rutas) · publicidad (14 rutas) · tarifas (12 rutas) · transparencia (18 rutas)
+## generar-ejemplos
+ejemplos: 0 creados · 231 conservados (editados a mano, no se pisan) · 0 rechazos alineados al catalogo de errores
+## tsc
+tsc exit=0
+## eslint
+eslint exit=0
+## vitest
+ RUN  v4.1.11 C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/packages/simulado
+ Test Files  3 passed (3)
+      Tests  249 passed (249)
+   Start at  02:01:36
+   Duration  1.12s (transform 92ms, setup 0ms, import 246ms, tests 1.27s, environment 0ms)
+== fin simulado
