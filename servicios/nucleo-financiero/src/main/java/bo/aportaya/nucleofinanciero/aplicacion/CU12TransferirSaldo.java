@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CU12TransferirSaldo {
 
     private static final String CONCEPTO = "TRANSFERENCIA";
+    private static final String ORIGEN = "TRANSFERENCIA_P2P";
 
     private final Datos datos;
     private final CuentaBilleteraRepositorio cuentas;
@@ -69,13 +71,11 @@ public class CU12TransferirSaldo {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
         return datos.conContexto(ctx, dsl -> {
-            libro.bloquearIdempotencia(
-                    dsl, Optional.of(ctx.usuarioId()), "TRANSFERENCIA_P2P", entrada.claveIdempotencia());
-            var yaExiste = libro.porClaveIdempotencia(
-                    dsl, Optional.of(ctx.usuarioId()), "TRANSFERENCIA_P2P", entrada.claveIdempotencia());
+            // Los reintentos simultaneos de la misma clave se turnan: el segundo ve el comprobante del primero.
+            libro.bloquearIdempotencia(dsl, Optional.of(ctx.usuarioId()), ORIGEN, entrada.claveIdempotencia());
+            var yaExiste = libro.porClaveIdempotencia(dsl, ctx.usuarioId(), ORIGEN, entrada.claveIdempotencia());
             if (yaExiste.isPresent()) {
-                var saldo = cuentas.ver(dsl, entrada.cuentaOrigenId()).orElseThrow();
-                return new SalidaTransferencia(yaExiste.get(), saldo.disponible(), entrada.destinoId(), false);
+                return repetida(dsl, yaExiste.get(), entrada);
             }
 
             // Orden de bloqueo por identificador: evita el abrazo mortal entre dos
@@ -86,7 +86,7 @@ public class CU12TransferirSaldo {
             UUID segunda = primera.equals(entrada.cuentaOrigenId()) ? entrada.destinoId() : entrada.cuentaOrigenId();
             // La cuenta del otro no es del titular: se bloquea y se lee con rol de sistema (B8). De la
             // destino solo se usa si esta operativa; el saldo del origen se sigue leyendo como titular.
-            bo.aportaya.plataforma.datos.Datos.comoSistema(dsl, () -> {
+            Datos.comoSistema(dsl, () -> {
                 cuentas.bloquear(dsl, primera);
                 cuentas.bloquear(dsl, segunda);
                 return null;
@@ -94,8 +94,11 @@ public class CU12TransferirSaldo {
 
             var origen = cuentas.ver(dsl, entrada.cuentaOrigenId())
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(12, 2), "La billetera de origen no existe."));
-            var destino = bo.aportaya.plataforma.datos.Datos.comoSistema(
-                            dsl, () -> cuentas.ver(dsl, entrada.destinoId()))
+            // BOLA: mover plata de una billetera ajena no se autoriza con el permiso de la ruta.
+            if (!ctx.usuarioId().equals(origen.usuarioId())) {
+                throw new ErrorDeNegocio(CodigoError.de(12, 2), "La billetera de origen no es tuya.");
+            }
+            var destino = Datos.comoSistema(dsl, () -> cuentas.ver(dsl, entrada.destinoId()))
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(12, 2), "Ese destino no existe."));
 
             // AP-CU12-03: se comprueba el DESTINO tambien. Acreditar en una cuenta
@@ -126,8 +129,8 @@ public class CU12TransferirSaldo {
 
             UUID transaccionId = libro.registrar(
                     dsl,
-                    "TRANSFERENCIA_P2P",
-                    "TRANSFERENCIA_P2P",
+                    ORIGEN,
+                    ORIGEN,
                     UUID.randomUUID(),
                     "APP",
                     entrada.monto(),
@@ -185,6 +188,26 @@ public class CU12TransferirSaldo {
                     destino.id(),
                     entrada.obligacionId().isPresent());
         });
+    }
+
+    /**
+     * Repetir la clave es repetir la MISMA transferencia: mismo origen, destino, importe,
+     * concepto y obligacion. Si algo cambia, la clave ya identifica otra y no se devuelve
+     * el comprobante viejo como si fuera de esta peticion.
+     */
+    private SalidaTransferencia repetida(DSLContext dsl, UUID transaccionId, EntradaTransferencia entrada) {
+        var previa = transferencias.porTransaccion(dsl, transaccionId).orElseThrow();
+        boolean igual = previa.origenId().equals(entrada.cuentaOrigenId())
+                && previa.destinoId().equals(entrada.destinoId())
+                && previa.monto().equals(entrada.monto())
+                && java.util.Objects.equals(previa.concepto(), entrada.concepto())
+                && previa.obligacionId().equals(entrada.obligacionId());
+        if (!igual) {
+            throw new ErrorDeNegocio(
+                    CodigoError.de(12, 6), "La clave de idempotencia ya identifica otra transferencia.");
+        }
+        var saldo = cuentas.ver(dsl, entrada.cuentaOrigenId()).orElseThrow();
+        return new SalidaTransferencia(transaccionId, saldo.disponible(), entrada.destinoId(), false);
     }
 
     public record EntradaTransferencia(

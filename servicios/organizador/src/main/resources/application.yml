@@ -19,6 +19,17 @@ spring:
 
 aportaya:
   esquema: organizador
+  resiliencia:
+    # Circuit breaker de los clientes hacia otros servicios (regla 98.2.3). Valores SINTETICOS del plan de
+    # resiliencia (evidencia/carril-S2/DEUDA-circuit-breaker-clientes-http.md): no salen de medir trafico real.
+    circuito:
+      ventana: 10                   # llamadas que se miran, y minimo para juzgar
+      umbral-de-fallos: 50          # % de fallos (red, timeout, 5xx, cuerpo ilegible) que lo abre
+      espera-abierto: PT30S         # cuanto se deja de llamar antes de probar
+      llamadas-de-prueba: 3         # llamadas de prueba en semiabierto
+  servicios:
+    # A quien se le pregunta (invariante 11). H13.S1.M6: un reclamo en curso no es una sancion firme.
+    cumplimiento: ${URL_CUMPLIMIENTO:http://cumplimiento:8080}
   outbox:
     intervalo: PT1S                 # relevo: lee el outbox y publica DESPUES del commit
   jwt:
@@ -31,6 +42,8 @@ aportaya:
     umbral-de-ascenso: 85.00
     umbral-de-descenso: 50.00
     plazo-para-apelar: P10D
+    # Cuantas solicitudes como maximo devuelve una pagina de la bandeja de habilitaciones.
+    tope-de-bandeja: 100
   automatizacion:
     intentos-maximos: 3
 

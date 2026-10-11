@@ -1,6 +1,10 @@
 /* Base mínima de @aportaya/ui: consume los tokens generados; no declara ningún literal. */
 @import '@aportaya/tokens/tokens.css';
 
+/* Derivados de los tokens (ninguno inventa un valor): el borde de un CONTROL (campo, radio, casilla, interruptor) tiene que verse
+   a 3:1 contra su fondo (WCAG 1.4.11) y `--field-border` del sistema de diseño no llega (1,5:1 en claro, 1,6:1 en oscuro). */
+:root { --borde-control: color-mix(in srgb, var(--text-3) 85%, var(--field)); --esqueleto: color-mix(in srgb, var(--text-3) 20%, var(--bg)); }
+
 /* Movimiento: los mismos valores que `Movimiento` en diseno_flutter. Firme y corto. */
 :root { --mov-micro: 120ms; --mov-entrada: 220ms; --mov-brillo: 5300ms; --curva-llega: cubic-bezier(.05, .7, .1, 1); --curva-sale: cubic-bezier(.3, 0, .8, .15); }
 *, *::before, *::after { box-sizing: border-box; }

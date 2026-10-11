@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core'
 import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
 import { RelojDePlazo } from '@aportaya/ui/reloj-de-plazo/reloj-de-plazo'
+import { Alerta } from '@aportaya/ui/alerta/alerta'
 import { Boton } from '@aportaya/ui/boton/boton'
 import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
 import { Campo } from '@aportaya/ui/campo/campo'
@@ -33,11 +34,12 @@ const COLUMNAS: ColumnaVirtual<SolicitudEscalada>[] = [
 @Component({
   selector: 'ap-cola-de-solicitudes-escaladas',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, RelojDePlazo, Boton, Dialogo, Campo, TablaDeDatosVirtualizada],
+  imports: [Alerta, BandaDeProposito, RelojDePlazo, Boton, Dialogo, Campo, TablaDeDatosVirtualizada],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
+      @if (sinEnviar()) { <ap-alerta tono="aviso">{{ t.sinEnviar }}</ap-alerta> }
       <ap-tabla-de-datos-virtualizada [titulo]="t.titulo" [columnas]="COLUMNAS" [cargador]="cargador" [ordenPermitido]="['fechaLimiteOrganizador', 'usuarioNombre']" [identidad]="identidad">
         <ng-template #celda let-s let-columna="columna">
           @switch (columna.clave) {
@@ -65,7 +67,7 @@ const COLUMNAS: ColumnaVirtual<SolicitudEscalada>[] = [
           }
         </ng-template>
       </ap-tabla-de-datos-virtualizada>
-    </main>
+    </section>
 
     @if (seleccionada(); as s) {
       <ap-dialogo
@@ -85,7 +87,7 @@ const COLUMNAS: ColumnaVirtual<SolicitudEscalada>[] = [
     }
   `,
   styles: `
-    main { padding: var(--s5); max-width: 68rem; display: grid; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 68rem; display: grid; gap: var(--s4); }
     h1 { margin: 0; }
     .factores { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s1); font-size: .9em; white-space: normal; }
     .factores .favor { color: var(--ok); }
@@ -107,6 +109,8 @@ export class ColaDeSolicitudesEscaladas {
   protected readonly dialogoAbierto = signal(false)
   protected readonly motivo = signal('')
   protected readonly intentoConfirmar = signal(false)
+  /** La confirmación no manda nada (falta la operación en el servicio): se dice, en vez de cerrar el diálogo como si hubiera funcionado. */
+  protected readonly sinEnviar = signal(false)
   protected readonly motivoVacio = computed(() => this.intentoConfirmar() && this.accion() === 'RECHAZAR' && this.motivo().trim().length === 0)
 
   abrir(s: SolicitudEscalada, accion: Accion): void {
@@ -128,7 +132,8 @@ export class ColaDeSolicitudesEscaladas {
       if (this.motivo().trim().length === 0) return
     }
     // El envío real queda pendiente del contrato de resolución (ver el supuesto
-    // declarado en dominio/d15-solicitudes-escaladas.ts).
+    // declarado en dominio/d15-solicitudes-escaladas.ts). Mientras tanto se avisa que NO se envió.
     this.cerrar()
+    this.sinEnviar.set(true)
   }
 }

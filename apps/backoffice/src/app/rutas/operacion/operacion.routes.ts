@@ -15,11 +15,17 @@ import { requierePermiso } from '../../nucleo/permisos'
  * permiso cambió después de montar.
  */
 export const rutasOperacion: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'billetera/11111111-1111-4111-8111-111111111111' },
+  // H12.S1.M1 · antes redirigía a la billetera de una cuenta FIJA (un UUID de ejemplo) a cualquier operador que
+  // entrara a la sección: la puerta de entrada de operación es la pantalla que no depende de ninguna cuenta ni
+  // permiso fino. La billetera de un tercero se abre por enlace, con su cuenta, y la gobierna su permiso.
+  { path: '', pathMatch: 'full', redirectTo: 'estado' },
   {
     path: 'billetera/:cuentaId',
     loadComponent: () => import('./billetera/pantalla-de-billetera').then((m) => m.PantallaDeBilletera),
     title: 'Billetera · AportaYa',
+    // H12.S1.M1 · ver la billetera de OTRA persona exige su permiso (`BILLETERA_VER_TERCEROS`, con segundo factor):
+    // pertenecer a la sección no alcanza (quien solo atiende reclamos no mira saldos ajenos). El servidor vuelve a decidir.
+    canMatch: [requierePermiso('BILLETERA_VER_TERCEROS')],
   },
   {
     path: 'reclamos',
@@ -32,6 +38,13 @@ export const rutasOperacion: Routes = [
     loadComponent: () => import('./solicitudes-escaladas/cola-de-solicitudes-escaladas').then((m) => m.ColaDeSolicitudesEscaladas),
     title: 'Solicitudes escaladas · AportaYa',
     canMatch: [requierePermiso('SOLICITUD_INGRESO_VER')],
+  },
+  {
+    // CU-11 · segunda firma de un retiro. El contrato no publica un listado de órdenes en revisión: se abre por id.
+    path: 'retiros',
+    loadComponent: () => import('./retiros/pantalla-de-aprobacion-de-retiro').then((m) => m.PantallaDeAprobacionDeRetiro),
+    title: 'Aprobación de retiros · AportaYa',
+    canMatch: [requierePermiso('RETIRO_APROBAR')],
   },
   // `estado/` es de F6 (ficha F6, estructura congelada): la ficha se lo asigna al shell
   // aunque viva dentro del dominio `operacion` que B1 posee. Es la única entrada de esta

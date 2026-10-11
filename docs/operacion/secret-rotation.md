@@ -13,7 +13,7 @@
 
 | Secreto | Variable | Quién lo usa | Efecto de rotarlo |
 |---|---|---|---|
-| Clave de firma JWT | `JWT_CLAVE_FIRMA` | Solo `identidad` (ADR-024: un único emisor, los otros trece validan contra su JWKS, no firman) | Toda sesión activa firmada con la clave vieja deja de validar — logout forzado global |
+| Clave de firma JWT | `JWT_CLAVE_FIRMA` | Solo `identidad` (ADR-024: un único emisor, los otros trece validan contra su JWKS, no firman) | Con `JWT_CLAVE_FIRMA_ANTERIOR` cargada (la vieja, solo publicada en el JWKS) ninguna sesión se invalida: el JWKS publica dos claves durante la ventana (15 min). Sin ella, toda sesión firmada con la vieja deja de validar — logout forzado global. Procedimiento: [[rotacion-de-secretos-ensayada]] |
 | Pimienta de hashing | `SEGURIDAD_PIMIENTA` | Todos los que guardan `token_verificacion` (regla 90.2.9: hash con *pepper*, nunca el valor plano) | Los hashes existentes, calculados con la pimienta vieja, dejan de verificar — invalida OTP/tokens de un solo uso en vuelo |
 | Credenciales de Postgres | `POSTGRES_PASSWORD` (dev: `pasanaku`, hardcodeado — `despliegue/compose/base.yml`) | Todos los servicios, vía PgBouncer | En dev no aplica (es un valor de desarrollo, no un secreto real); en producción, la rotación depende del proveedor gestionado — no hay un mecanismo propio de este repo todavía |
 | Credenciales de MinIO | `MINIO_ROOT_USER`/`MINIO_ROOT_PASSWORD` (dev: `aportaya`/`aportaya-local`) | El servidor de archivos | Mismo caso: valor de desarrollo, sin mecanismo de rotación propio para producción |

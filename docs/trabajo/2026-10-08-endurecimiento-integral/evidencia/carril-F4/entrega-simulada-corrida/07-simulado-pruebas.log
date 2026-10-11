@@ -1,0 +1,10 @@
+heavy.sh: candado tomado, libres 3714 MB -> bash -c cd '/c/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/packages/simulado' && npx vitest run
+
+ RUN  v4.1.11 C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/packages/simulado
+
+
+ Test Files  4 passed (4)
+      Tests  259 passed (259)
+   Start at  09:06:27
+   Duration  1.23s (transform 146ms, setup 0ms, import 340ms, tests 1.35s, environment 0ms)
+

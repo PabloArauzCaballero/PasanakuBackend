@@ -88,7 +88,8 @@ class CU01VerificacionCorreoTest {
     }
 
     @Test
-    @DisplayName("el codigo incorrecto no confirma; el correcto habilita exactamente un alta")
+    @DisplayName(
+            "Dado un correo al que ya se le emitió un código de verificación · Cuando se confirma con un código incorrecto y después con el correcto · Entonces el incorrecto no confirma y suma un intento fallido · Y el correcto consume la verificación y habilita exactamente un alta con ese correo · Y pedir otro código para otro correo con la misma clave de idempotencia se rechaza · Y reutilizar la verificación para dar de alta otro correo se rechaza sin crear usuario")
     void recorridoCompleto() {
         String sufijo = UUID.randomUUID().toString().substring(0, 8);
         String destino = "alta-" + sufijo + "@example.com";

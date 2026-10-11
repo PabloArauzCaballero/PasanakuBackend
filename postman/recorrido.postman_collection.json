@@ -33,7 +33,7 @@
         "description": "Paso 1 del recorrido. Servicio `identidad`, operacion `registrarUsuario`.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"nombres\": \"nombres-de-prueba\",\n  \"apellidos\": \"apellidos-de-prueba\",\n  \"fechaNacimiento\": \"{{fecha_hoy}}\",\n  \"contrasena\": \"contrasena-de-prueba\",\n  \"correo\": \"correo-de-prueba\",\n  \"canalVerificacion\": \"SMS\",\n  \"documento\": {\n    \"tipo\": \"CI\",\n    \"numero\": \"numero-de-prueba\",\n    \"lugarExpedicion\": \"LP\",\n    \"fechaExpiracion\": \"{{fecha_hoy}}\"\n  },\n  \"aceptaContratos\": [\n    \"{{aceptaContratos}}\"\n  ]\n}",
+          "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"nombres\": \"nombres-de-prueba\",\n  \"apellidos\": \"apellidos-de-prueba\",\n  \"fechaNacimiento\": \"{{fecha_hoy}}\",\n  \"contrasena\": \"contrasena-de-prueba\",\n  \"correo\": \"correo-de-prueba\",\n  \"verificacionCorreoId\": \"{{verificacionCorreoId}}\",\n  \"canalVerificacion\": \"CORREO\",\n  \"documento\": {\n    \"tipo\": \"CI\",\n    \"numero\": \"numero-de-prueba\",\n    \"lugarExpedicion\": \"LP\",\n    \"fechaExpiracion\": \"{{fecha_hoy}}\"\n  },\n  \"aceptaContratos\": [\n    \"{{aceptaContratos}}\"\n  ]\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -148,7 +148,7 @@
         "description": "Paso 3 del recorrido. Servicio `nucleo-financiero`, operacion `solicitarRecarga`.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"costoProveedor\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"medio\": \"medio-de-prueba\",\n  \"instrumentoFondeoId\": \"{{instrumentoFondeoId}}\"\n}",
+          "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"costoProveedor\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"medio\": \"medio-de-prueba\",\n  \"instrumentoFondeoId\": \"{{instrumentoFondeoId}}\",\n  \"cotizacionId\": \"{{cotizacionId}}\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -494,6 +494,10 @@
       "value": ""
     },
     {
+      "key": "cotizacionId",
+      "value": ""
+    },
+    {
       "key": "cuentaBilleteraId",
       "value": ""
     },
@@ -527,6 +531,10 @@
     },
     {
       "key": "token",
+      "value": ""
+    },
+    {
+      "key": "verificacionCorreoId",
       "value": ""
     }
   ]

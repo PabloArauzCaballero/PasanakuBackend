@@ -1,0 +1,101 @@
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Starting a Gradle Daemon, 15 stopped Daemons could not be reused, use --status for details
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :servicios:grupos:spotlessJava
+> Task :servicios:grupos:spotlessJavaApply
+> Task :servicios:grupos:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:grupos:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:grupos:spotlessApply
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources NO-SOURCE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :servicios:grupos:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:grupos:generateJooq UP-TO-DATE
+> Task :servicios:grupos:compileJava UP-TO-DATE
+> Task :servicios:grupos:processResources UP-TO-DATE
+> Task :servicios:grupos:classes UP-TO-DATE
+
+> Task :servicios:grupos:compileTestJava
+C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\grupos\src\test\java\bo\aportaya\grupos\CU68MotorTest.java:208: error: reference to assertThat is ambiguous
+        assertThat(transaccion.execute(tx -> admision.historial(salida.solicitudId(), backoffice)))
+        ^
+  both method assertThat(IntPredicate) in Assertions and method <T>assertThat(Predicate<T>) in Assertions match
+  where T is a type-variable:
+    T extends Object declared in method <T>assertThat(Predicate<T>)
+C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\grupos\src\test\java\bo\aportaya\grupos\CU68MotorTest.java:208: error: incompatible types: inference variable T has incompatible bounds
+        assertThat(transaccion.execute(tx -> admision.historial(salida.solicitudId(), backoffice)))
+                                      ^
+    upper bounds: IntPredicate,Object
+    lower bounds: List<DecisionDeIngreso>
+  where T is a type-variable:
+    T extends Object declared in method <T>execute(TransactionCallback<T>)
+Note: Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+2 errors
+
+> Task :servicios:grupos:compileTestJava FAILED
+> Task :servicios:grupos:processTestResources UP-TO-DATE
+
+[Incubating] Problems report is available at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':servicios:grupos:compileTestJava' (registered by plugin class 'org.gradle.api.plugins.JavaBasePlugin').
+> Compilation failed; see the compiler output below.
+  C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\grupos\src\test\java\bo\aportaya\grupos\CU68MotorTest.java:208: error: reference to assertThat is ambiguous
+          assertThat(transaccion.execute(tx -> admision.historial(salida.solicitudId(), backoffice)))
+          ^
+    both method assertThat(IntPredicate) in Assertions and method <T>assertThat(Predicate<T>) in Assertions match
+    where T is a type-variable:
+      T extends Object declared in method <T>assertThat(Predicate<T>)
+  C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\grupos\src\test\java\bo\aportaya\grupos\CU68MotorTest.java:208: error: incompatible types: inference variable T has incompatible bounds
+          assertThat(transaccion.execute(tx -> admision.historial(salida.solicitudId(), backoffice)))
+                                        ^
+      upper bounds: IntPredicate,Object
+      lower bounds: List<DecisionDeIngreso>
+    where T is a type-variable:
+      T extends Object declared in method <T>execute(TransactionCallback<T>)
+  Note: Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+  2 errors
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 17s
+36 actionable tasks: 3 executed, 33 up-to-date

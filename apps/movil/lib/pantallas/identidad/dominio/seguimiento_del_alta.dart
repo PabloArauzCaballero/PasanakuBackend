@@ -7,9 +7,16 @@ import 'capturas_del_expediente.dart';
 /// `usuarioId` que devolvió y una copia de las cinco capturas.
 @immutable
 class AltaEnSeguimiento {
-  const AltaEnSeguimiento({required this.usuarioId, required this.capturas});
+  const AltaEnSeguimiento({
+    required this.usuarioId,
+    required this.capturas,
+    this.tokenDeAlta,
+  });
 
   final String usuarioId;
+
+  /// Lo que autoriza subir las fotos sin sesión; solo vive en memoria.
+  final String? tokenDeAlta;
   final CapturasDelExpediente capturas;
 }
 
@@ -22,8 +29,15 @@ class SeguimientoDelAlta extends Notifier<AltaEnSeguimiento?> {
   @override
   AltaEnSeguimiento? build() => null;
 
-  void fijar(String usuarioId, CapturasDelExpediente capturas) =>
-      state = AltaEnSeguimiento(usuarioId: usuarioId, capturas: capturas);
+  void fijar(
+    String usuarioId,
+    CapturasDelExpediente capturas, {
+    String? tokenDeAlta,
+  }) => state = AltaEnSeguimiento(
+    usuarioId: usuarioId,
+    capturas: capturas,
+    tokenDeAlta: tokenDeAlta,
+  );
 
   /// "Repetir la foto" desde la pantalla de subida: la nueva reemplaza a la vieja.
   void reemplazarCaptura(CaraDelCarril cara, Captura captura) {
@@ -31,6 +45,7 @@ class SeguimientoDelAlta extends Notifier<AltaEnSeguimiento?> {
     if (actual == null) return;
     state = AltaEnSeguimiento(
       usuarioId: actual.usuarioId,
+      tokenDeAlta: actual.tokenDeAlta,
       capturas: actual.capturas.conCaptura(cara, captura),
     );
   }

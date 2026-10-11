@@ -91,7 +91,7 @@ void main() {
   });
 
   testWidgets(
-    'el canal arranca en SMS: el código va al teléfono que se declaró',
+    'el canal arranca en CORREO: el código va al correo que se declaró',
     (tester) async {
       await abrir(tester);
       final contenedor = ProviderScope.containerOf(
@@ -102,7 +102,7 @@ void main() {
       final selector = tester.widget<SelectorSegmentado<String>>(
         find.byType(SelectorSegmentado<String>),
       );
-      expect(selector.valor, 'SMS');
+      expect(selector.valor, 'CORREO');
     },
   );
 

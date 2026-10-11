@@ -122,10 +122,7 @@ void main() {
       // Y la contraseña va en la misma petición: sin ella la cuenta nace sin
       // credencial y no se puede entrar.
       expect(cuerpo, contains('una-clave-larga-2026'));
-      expect(
-        cuerpo,
-        contains('dddddddd-0000-4000-8000-000000000003'),
-      );
+      expect(cuerpo, contains('dddddddd-0000-4000-8000-000000000003'));
     },
   );
 

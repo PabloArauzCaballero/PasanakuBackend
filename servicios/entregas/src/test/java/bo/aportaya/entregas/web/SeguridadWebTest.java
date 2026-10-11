@@ -1,6 +1,7 @@
 package bo.aportaya.entregas.web;
 
 import bo.aportaya.entregas.aplicacion.CU18RegistrarCuentaDestino;
+import bo.aportaya.entregas.aplicacion.CU22EntregarPozoCompleto;
 import bo.aportaya.entregas.aplicacion.CU22LiquidarEntrega;
 import bo.aportaya.entregas.aplicacion.CU28EmitirDesembolso;
 import bo.aportaya.entregas.dominio.puertos.TitularDeLaBilletera;
@@ -28,6 +29,12 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private CU22LiquidarEntrega cu22LiquidarEntrega;
+
+    @MockitoBean
+    private CU22EntregarPozoCompleto cu22EntregarPozoCompleto;
+
+    @MockitoBean
+    private MercadoWeb mercadoWeb;
 
     @MockitoBean
     private CU28EmitirDesembolso cu28EmitirDesembolso;

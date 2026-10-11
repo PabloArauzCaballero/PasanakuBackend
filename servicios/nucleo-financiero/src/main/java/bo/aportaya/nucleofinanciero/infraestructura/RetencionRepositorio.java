@@ -54,25 +54,39 @@ public class RetencionRepositorio {
         return id;
     }
 
+    /**
+     * La retencion con la moneda de SU cuenta: {@code retencion_saldo} no tiene columna de
+     * moneda, y fijar BOB aca (como se hacia) rotulaba en bolivianos el importe retenido
+     * de una cuenta en dolares.
+     */
     public Optional<Retencion> ver(DSLContext dsl, UUID retencionId) {
+        var r = DSL.table(DSL.name("nucleo_financiero", "retencion_saldo")).as("r");
+        var c = DSL.table(DSL.name("nucleo_financiero", "cuenta_billetera")).as("c");
         Record fila = dsl.select(
-                        DSL.field("id", UUID.class),
-                        DSL.field("cuenta_billetera_id", UUID.class),
-                        DSL.field("monto", BigDecimal.class),
-                        DSL.field("motivo", String.class),
-                        DSL.field("estado", String.class),
-                        DSL.field("expira_en", OffsetDateTime.class))
-                .from(DSL.table(DSL.name("nucleo_financiero", "retencion_saldo")))
-                .where(DSL.field("id", UUID.class).eq(retencionId))
+                        DSL.field("r.id", UUID.class).as("id"),
+                        DSL.field("r.cuenta_billetera_id", UUID.class).as("cuenta_billetera_id"),
+                        DSL.field("r.monto", BigDecimal.class).as("monto"),
+                        DSL.field("r.motivo", String.class).as("motivo"),
+                        DSL.field("r.estado", String.class).as("estado"),
+                        DSL.field("r.expira_en", OffsetDateTime.class).as("expira_en"),
+                        DSL.field("r.referencia_tipo", String.class).as("referencia_tipo"),
+                        DSL.field("r.referencia_id", UUID.class).as("referencia_id"),
+                        DSL.field("c.moneda", String.class).as("moneda"))
+                .from(r)
+                .join(c)
+                .on(DSL.field("c.id", UUID.class).eq(DSL.field("r.cuenta_billetera_id", UUID.class)))
+                .where(DSL.field("r.id", UUID.class).eq(retencionId))
                 .fetchOne();
         return Optional.ofNullable(fila)
                 .map(f -> new Retencion(
                         f.get("id", UUID.class),
                         f.get("cuenta_billetera_id", UUID.class),
-                        Dinero.de(f.get("monto", BigDecimal.class), Moneda.BOB),
+                        Dinero.de(f.get("monto", BigDecimal.class), Moneda.valueOf(f.get("moneda", String.class))),
                         f.get("motivo", String.class),
                         f.get("estado", String.class),
-                        Optional.ofNullable(f.get("expira_en", OffsetDateTime.class))));
+                        Optional.ofNullable(f.get("expira_en", OffsetDateTime.class)),
+                        Optional.ofNullable(f.get("referencia_tipo", String.class)),
+                        Optional.ofNullable(f.get("referencia_id", UUID.class))));
     }
 
     /**
@@ -132,5 +146,12 @@ public class RetencionRepositorio {
     }
 
     public record Retencion(
-            UUID id, UUID cuentaId, Dinero monto, String motivo, String estado, Optional<OffsetDateTime> expiraEn) {}
+            UUID id,
+            UUID cuentaId,
+            Dinero monto,
+            String motivo,
+            String estado,
+            Optional<OffsetDateTime> expiraEn,
+            Optional<String> referenciaTipo,
+            Optional<UUID> referenciaId) {}
 }

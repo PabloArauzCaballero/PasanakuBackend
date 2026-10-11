@@ -1,0 +1,125 @@
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-archivos:compileJava UP-TO-DATE
+> Task :plataforma:comun-archivos:processResources UP-TO-DATE
+> Task :plataforma:comun-archivos:classes UP-TO-DATE
+> Task :plataforma:comun-archivos:jar UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources NO-SOURCE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :servicios:identidad:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:identidad:generateJooq UP-TO-DATE
+> Task :servicios:identidad:compileJava UP-TO-DATE
+> Task :servicios:identidad:processResources UP-TO-DATE
+> Task :servicios:identidad:classes UP-TO-DATE
+> Task :servicios:identidad:compileTestJava UP-TO-DATE
+> Task :servicios:identidad:processTestResources UP-TO-DATE
+> Task :servicios:identidad:testClasses UP-TO-DATE
+
+> Task :servicios:identidad:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T02:25:39.316-04:00  INFO 29164 --- [identidad] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T02:25:39.323-04:00  INFO 29164 --- [identidad] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T02:25:39.504-04:00  INFO 29164 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T02:25:39.510-04:00  INFO 29164 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-10T02:25:39.517-04:00  INFO 29164 --- [identidad] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T02:25:39.520-04:00  INFO 29164 --- [identidad] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T02:25:39.522-04:00  INFO 29164 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-10-10T02:25:39.523-04:00  INFO 29164 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+2026-10-10T02:25:39.528-04:00  INFO 29164 --- [identidad] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T02:25:39.532-04:00  INFO 29164 --- [identidad] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T02:25:39.533-04:00  INFO 29164 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown initiated...
+2026-10-10T02:25:39.534-04:00  INFO 29164 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown completed.
+2026-10-10T02:25:39.538-04:00  INFO 29164 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown initiated...
+2026-10-10T02:25:39.540-04:00  INFO 29164 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown completed.
+
+> Task :servicios:notificaciones:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:notificaciones:generateJooq UP-TO-DATE
+> Task :servicios:notificaciones:compileJava UP-TO-DATE
+> Task :servicios:notificaciones:processResources UP-TO-DATE
+> Task :servicios:notificaciones:classes UP-TO-DATE
+> Task :servicios:notificaciones:compileTestJava UP-TO-DATE
+> Task :servicios:notificaciones:processTestResources UP-TO-DATE
+> Task :servicios:notificaciones:testClasses UP-TO-DATE
+
+> Task :servicios:notificaciones:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T02:26:06.871-04:00  INFO 3448 --- [notificaciones] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T02:26:06.871-04:00  INFO 3448 --- [notificaciones] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T02:26:07.015-04:00  INFO 3448 --- [notificaciones] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T02:26:07.021-04:00  INFO 3448 --- [notificaciones] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:cumplimiento:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:cumplimiento:generateJooq UP-TO-DATE
+> Task :servicios:cumplimiento:compileJava UP-TO-DATE
+> Task :servicios:cumplimiento:processResources UP-TO-DATE
+> Task :servicios:cumplimiento:classes UP-TO-DATE
+> Task :servicios:cumplimiento:compileTestJava UP-TO-DATE
+> Task :servicios:cumplimiento:processTestResources UP-TO-DATE
+> Task :servicios:cumplimiento:testClasses UP-TO-DATE
+
+> Task :servicios:cumplimiento:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T02:26:43.382-04:00  INFO 10952 --- [cumplimiento] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T02:26:43.390-04:00  INFO 10952 --- [cumplimiento] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T02:26:43.540-04:00  INFO 10952 --- [cumplimiento] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T02:26:43.542-04:00  INFO 10952 --- [cumplimiento] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :plataforma:gateway:compileJava UP-TO-DATE
+> Task :plataforma:gateway:processResources UP-TO-DATE
+> Task :plataforma:gateway:classes UP-TO-DATE
+> Task :plataforma:gateway:compileTestJava UP-TO-DATE
+> Task :plataforma:gateway:processTestResources NO-SOURCE
+> Task :plataforma:gateway:testClasses UP-TO-DATE
+
+> Task :plataforma:gateway:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T02:26:54.303-04:00  INFO 21036 --- [gateway] [ionShutdownHook] [                                                 ] o.s.b.w.embedded.netty.GracefulShutdown  : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T02:26:54.303-04:00  INFO 21036 --- [gateway] [ netty-shutdown] [                                                 ] o.s.b.w.embedded.netty.GracefulShutdown  : Graceful shutdown complete
+
+BUILD SUCCESSFUL in 1m 59s
+53 actionable tasks: 4 executed, 49 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+== etapa e5-integracion RC: 0

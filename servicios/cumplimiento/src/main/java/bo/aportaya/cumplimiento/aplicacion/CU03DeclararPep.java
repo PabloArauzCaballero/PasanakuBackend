@@ -90,10 +90,12 @@ public class CU03DeclararPep {
         }
         Optional<BeneficiarioFinal> sinDocumento = ClasificacionPep.primeroSinDocumento(entrada.beneficiariosFinales());
         if (sinDocumento.isPresent()) {
+            // Por posicion y no por nombre: un mensaje de error no repite datos de una
+            // persona (90.2.1), aunque se los haya dado quien lo recibe.
+            int posicion = entrada.beneficiariosFinales().indexOf(sinDocumento.get()) + 1;
             throw new ErrorDeNegocio(
                     CodigoError.de(3, 2),
-                    "Falta identificar al beneficiario final "
-                            + sinDocumento.get().nombre() + ".");
+                    "Falta identificar al beneficiario final numero " + posicion + " de la lista.");
         }
 
         Resultado resultado = ClasificacionPep.clasificar(declaracion, entrada.beneficiariosFinales());

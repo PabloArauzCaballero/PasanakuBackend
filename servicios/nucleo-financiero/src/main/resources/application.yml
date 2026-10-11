@@ -16,6 +16,14 @@ spring:
         prepareThreshold: 0         # PgBouncer en modo transaccion
   kafka:
     bootstrap-servers: ${KAFKA_URL}
+    consumer:
+      # Un grupo nuevo lee desde el principio: perderse los primeros eventos es perder asientos.
+      auto-offset-reset: earliest
+  jackson:
+    deserialization:
+      # El contrato declara additionalProperties: false. Un campo que no esta en el contrato (por
+      # ejemplo un costo propuesto por el cliente) se rechaza con 400 en vez de ignorarse en silencio.
+      fail-on-unknown-properties: true
 
 aportaya:
   # H2.S1: aportaya.mfa.doble-local vive SOLO en application-{local,test}.yml —
@@ -38,16 +46,61 @@ aportaya:
     tarifas: ${URL_TARIFAS:http://tarifas:8080}
     aportes: ${URL_APORTES:http://aportes:8080}
     grupos: ${URL_GRUPOS:http://grupos:8080}
+    entregas: ${URL_ENTREGAS:http://entregas:8080}
   tarifas:
     codigo-tarifario: GENERAL
   retiro:
     # Por encima de este monto, un retiro necesita dos firmas. Es politica de riesgo:
     # el numero se mueve sin desplegar.
     doble-aprobacion-desde: 5000.00
+  qr:
+    # Clave con que se firman los QR internos (>= 32 bytes). Es un secreto del entorno: sin ella
+    # el proceso NO levanta, y no hay valor por omision que alguien pueda adivinar.
+    clave: ${QR_INTERNO_CLAVE}
+    vigencia-del-dinamico: PT15M    # lo que vive un QR dinamico antes de vencer
   custodia:
     # La cuenta espejo de la custodia. Es un identificador del entorno, no del codigo:
     # en cada despliegue es otra fila, y equivocarla mueve dinero al lugar equivocado.
     cuenta-puente: ${CUENTA_PUENTE_CUSTODIA}
+
+  contabilidad:
+    consumo-de-asientos:
+      # D5: registrar en el mayor los asientos que garantia propone en sus eventos. Se enciende por entorno;
+      # sin mapeo de cuentas logicas cada evento se rechaza (no se inventa un plan de cuentas).
+      habilitado: ${CONSUMO_DE_ASIENTOS_HABILITADO:false}
+    consumo-de-aportes:
+      # Carril I: aportes.aporte_cobrado mueve el dinero (debita al participante, acredita al grupo, asienta en el mayor).
+      # ENCENDIDO por omision: es el camino normal del aporte, no una funcion opcional (sin el, el aporte queda PAGADO en
+      # `aportes` y no se refleja en la billetera ni en el mayor). Independiente de `consumo-de-asientos` (que espera el mapeo A5).
+      habilitado: ${CONSUMO_DE_APORTES_HABILITADO:true}
+    # Cuenta logica -> codigo del plan, por moneda (ambiguedad A5, decision de contabilidad). Vacio = sin mapeo.
+    # El entorno TEST trae un mapeo SINTETICO (arbol 9 de seeders/minimos/22-cuentas-de-sistema.json) con
+    # apto-produccion=false: con el perfil `production` y el consumo encendido, el arranque se NIEGA salvo que
+    # contabilidad entregue el mapeo real y alguien ponga CUENTAS_LOGICAS_APTO_PRODUCCION=true.
+    cuentas-logicas:
+      apto-produccion: ${CUENTAS_LOGICAS_APTO_PRODUCCION:false}
+      CAJA_EMPRESA:
+        BOB: ${CUENTA_LOGICA_CAJA_EMPRESA_BOB:}
+        USD: ${CUENTA_LOGICA_CAJA_EMPRESA_USD:}
+      RESERVA_RESPALDO:
+        BOB: ${CUENTA_LOGICA_RESERVA_RESPALDO_BOB:}
+        USD: ${CUENTA_LOGICA_RESERVA_RESPALDO_USD:}
+      POZO_GRUPO:
+        BOB: ${CUENTA_LOGICA_POZO_GRUPO_BOB:}
+        USD: ${CUENTA_LOGICA_POZO_GRUPO_USD:}
+      # entregas.desembolso_acreditado: la contrapartida del pozo cuando el proveedor CONFIRMA que salio hacia el beneficiario.
+      DESEMBOLSO_CONFIRMADO:
+        BOB: ${CUENTA_LOGICA_DESEMBOLSO_BOB:}
+        USD: ${CUENTA_LOGICA_DESEMBOLSO_USD:}
+      # aportes.aporte_cobrado: el saldo de los usuarios y el de los grupos son pasivo exigible, 2.1.01 y 2.1.02 del plan MINIMO
+      # (seeders/minimos/01-plan-de-cuentas.json, no del arbol sintetico 9). El plan solo tiene cuentas en BOB: en USD no hay
+      # mapeo y un aporte en dolares se rechaza (AP-CU24-02) en vez de inventar una cuenta. Contabilidad confirma estos codigos.
+      SALDO_USUARIOS:
+        BOB: ${CUENTA_LOGICA_SALDO_USUARIOS_BOB:2.1.01}
+        USD: ${CUENTA_LOGICA_SALDO_USUARIOS_USD:}
+      SALDO_GRUPOS:
+        BOB: ${CUENTA_LOGICA_SALDO_GRUPOS_BOB:2.1.02}
+        USD: ${CUENTA_LOGICA_SALDO_GRUPOS_USD:}
 
 management:
   endpoint:

@@ -1,0 +1,146 @@
+# Infraestructura DESECHABLE del ensayo de arranque completo (carril D3).
+#
+# Reproduce lo que en TEST vive FUERA de Coolify, en /opt/aportaya/: PostgreSQL, PgBouncer,
+# MinIO, Redis y Kafka. Mismas imagenes y misma configuracion que despliegue/compose/base.yml
+# (modo transaccion, auth_query contra pg_shadow, KRaft de un nodo), con tres diferencias que
+# son SOLO de tamano y de aislamiento, no de comportamiento:
+#
+#   1 · memoria acotada (mem_limit y heap) porque Docker Desktop corre con 4 GB (.wslconfig);
+#   2 · nombres de red propios (aportaya-d3-*) para no pisar `aportaya-interna`, que ya existe
+#       en la maquina con contenedores de otro trabajo;
+#   3 · el unico puerto publicado es el de PostgreSQL en loopback (jOOQ introspecciona la base
+#       viva desde el build) y el de PgBouncer, para quien quiera sembrar usuarios.
+#
+# Los valores (clave de la base, de MinIO) salen de ${...} del archivo de entorno que genera
+# arranque_completo.sh en un directorio FUERA del repositorio. Aca no hay ninguno.
+name: aportaya-d3-infra
+
+networks:
+  interna:
+    name: aportaya-d3-interna
+  publica:
+    name: aportaya-d3-publica
+
+services:
+  postgres:
+    image: postgres:16
+    networks:
+      interna:
+        aliases: [postgres]
+    mem_limit: 700m
+    environment:
+      POSTGRES_DB: pasanaku
+      POSTGRES_USER: ${BD_USUARIO_ADMIN}
+      POSTGRES_PASSWORD: ${BD_CLAVE_ADMIN}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    # Base LIMPIA a proposito, como la de TEST: sin `app.entorno = 'dev'` y sin `app.clave_dev`.
+    # Los roles svc_* nacen NOLOGIN y reciben credencial como en TEST (ver arranque_completo.sh).
+    command:
+      - postgres
+      - -c
+      - max_connections=300
+      - -c
+      - shared_buffers=128MB
+      - -c
+      - timezone=America/La_Paz
+    ports:
+      - "127.0.0.1:${D3_PUERTO_PG:-5444}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${BD_USUARIO_ADMIN} -d pasanaku"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    networks:
+      interna:
+        aliases: [pgbouncer]
+    mem_limit: 64m
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USER: ${BD_USUARIO_ADMIN}
+      DB_PASSWORD: ${BD_CLAVE_ADMIN}
+      LISTEN_PORT: "6432"
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: "1000"
+      DEFAULT_POOL_SIZE: "40"
+      AUTH_TYPE: scram-sha-256
+      ADMIN_USERS: ${BD_USUARIO_ADMIN}
+      AUTH_USER: ${BD_USUARIO_ADMIN}
+      AUTH_QUERY: "SELECT usename, passwd FROM pg_shadow WHERE usename = $1"
+    ports:
+      - "127.0.0.1:${D3_PUERTO_PGBOUNCER:-6444}:6432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 6432 -U ${BD_USUARIO_ADMIN}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # MinIO real de la maquina (no hay acceso a quay.io): el mismo `minio server`. El bucket se crea
+  # como directorio, sin versionado. Solo importa cuando alguien sube un archivo.
+  minio:
+    image: ${D3_IMAGEN_MINIO:-datacenter-staging-minio:latest}
+    networks:
+      interna:
+        aliases: [minio]
+    mem_limit: 256m
+    environment:
+      MINIO_ROOT_USER: ${ARCHIVOS_USUARIO}
+      MINIO_ROOT_PASSWORD: ${ARCHIVOS_CLAVE}
+    entrypoint: ["/bin/sh", "-c", "mkdir -p /data/aportaya-archivos && exec minio server /data --console-address :9001"]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:9000/minio/health/live || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # El gateway la nombra `aportaya-redis` (docker-compose.coolify.yml): se le da ese alias.
+  redis:
+    image: redis:7.4.2-alpine
+    networks:
+      interna:
+        aliases: [redis, aportaya-redis]
+      # Sin algun servicio en `publica`, compose no crea la red y el gateway (que declara las
+      # dos, como en TEST: interna + coolify) no puede crearse. Redis no escucha ahi.
+      publica: {}
+    mem_limit: 48m
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  kafka:
+    image: confluentinc/cp-kafka:7.7.1
+    networks:
+      interna:
+        aliases: [kafka]
+    mem_limit: 640m
+    environment:
+      KAFKA_HEAP_OPTS: "-Xms128m -Xmx320m"
+      CLUSTER_ID: aportaya-local-cluster
+      KAFKA_NODE_ID: "1"
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: "0"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server kafka:9092 >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+      start_period: 30s

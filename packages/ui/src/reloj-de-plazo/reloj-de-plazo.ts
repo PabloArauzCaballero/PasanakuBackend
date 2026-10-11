@@ -16,7 +16,7 @@ import type { Tono } from '../tono/tono'
   template: `
     <ap-icono nombre="reloj" tamano="s5" [class]="'tono-' + tono()" />
     <div class="cuerpo">
-      <p class="etiqueta">{{ etiqueta() }}</p>
+      <p class="rotulo">{{ etiqueta() }}</p>
       <p class="fecha"><ap-fecha [iso]="venceIso()" [conHora]="false" /></p>
       @if (norma()) { <p class="norma">{{ norma() }}</p> }
     </div>
@@ -26,10 +26,10 @@ import type { Tono } from '../tono/tono'
     :host { display: flex; align-items: center; gap: var(--s3); padding: var(--s3); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface); }
     .cuerpo { flex: 1; min-width: 0; }
     p { margin: 0; }
-    .etiqueta { font-weight: 600; color: var(--text-2); }
+    .rotulo { font-weight: 600; color: var(--text-2); }
     .fecha ap-fecha { color: var(--text); }
     .norma { color: var(--text-3); font-size: .85em; }
-    .tono-error { color: var(--err); } .tono-aviso { color: var(--warn); } .tono-info { color: var(--info); }
+    .tono-error { color: var(--err-texto); } .tono-aviso { color: var(--aviso-texto); } .tono-info { color: var(--info-texto); }
   `,
 })
 export class RelojDePlazo {

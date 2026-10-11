@@ -86,6 +86,18 @@ public class ClienteDeServicio {
         }
     }
 
+    /**
+     * El usuario (reclamo {@code sub}) del token de la peticion en curso, o vacio si no hay sesion con un JWT (un trabajo
+     * programado). Es lo que un adaptador mira para no actuar en nombre de una persona distinta de la que esta
+     * autenticada: la identidad sale del token verificado, nunca de lo que diga el cuerpo.
+     */
+    public static Optional<String> usuarioDeLaSesion() {
+        Authentication autenticacion = SecurityContextHolder.getContext().getAuthentication();
+        return autenticacion != null && autenticacion.getPrincipal() instanceof Jwt token
+                ? Optional.ofNullable(token.getSubject())
+                : Optional.empty();
+    }
+
     private void conElTokenDeQuienPregunta(HttpHeaders cabeceras) {
         Authentication autenticacion = SecurityContextHolder.getContext().getAuthentication();
         if (autenticacion != null && autenticacion.getPrincipal() instanceof Jwt token) {

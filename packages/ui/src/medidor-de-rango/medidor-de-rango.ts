@@ -8,7 +8,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
   selector: 'ap-medidor-de-rango',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <p class="etiqueta">{{ etiqueta() }} <strong>{{ zona() }}</strong></p>
+    <p class="rotulo">{{ etiqueta() }} <strong>{{ zona() }}</strong></p>
     <meter [min]="minimo()" [max]="maximo()" [value]="valor()" [low]="bajo()" [high]="alto()" [attr.aria-label]="etiqueta() + ': ' + zona()">{{ valor() }}</meter>
     <div class="zonas" aria-hidden="true">
       <span class="baja"></span><span class="media"></span><span class="alta"></span>
@@ -19,7 +19,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
   styles: `
     :host { display: block; }
     p { margin: 0; }
-    .etiqueta { color: var(--text-2); font-weight: 600; margin-bottom: var(--s2); }
+    .rotulo { color: var(--text-2); font-weight: 600; margin-bottom: var(--s2); }
     strong { color: var(--text); }
     meter { position: absolute; width: var(--borde-fino); height: var(--borde-fino); opacity: 0; }
     .zonas { position: relative; display: flex; height: var(--s2); border-radius: var(--r-pill); overflow: visible; }

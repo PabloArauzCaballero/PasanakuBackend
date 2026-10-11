@@ -38,10 +38,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU59-01",
+        "mensaje": "Fecha duplicada",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-calcularPlazoHabil-rechazo"
       }
     }
   }

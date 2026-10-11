@@ -35,6 +35,51 @@ final class MapeoDeBilletera {
         return salida;
     }
 
+    /** El saldo, de quien es y lo comprometido en pozos: lo ausente se OMITE, no se rellena con cero. */
+    static bo.aportaya.nucleofinanciero.web.generado.modelo.SaldoBilletera saldo(
+            bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo.Salida salida) {
+        var respuesta = new bo.aportaya.nucleofinanciero.web.generado.modelo.SaldoBilletera();
+        respuesta.setCuentaId(salida.cuentaId());
+        respuesta.setDisponible(dinero(salida.disponible()));
+        respuesta.setRetenido(dinero(salida.retenido()));
+        respuesta.setAlCorteDe(salida.alCorteDe());
+        respuesta.setTitularId(salida.titularId());
+        if (salida.comprometidoEnPozos() != null) {
+            respuesta.setComprometidoEnPozos(dinero(salida.comprometidoEnPozos()));
+        }
+        return respuesta;
+    }
+
+    static bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaRetencion retencion(
+            bo.aportaya.nucleofinanciero.aplicacion.CU13RetenerSaldo.SalidaRetencion salida) {
+        var respuesta = new bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaRetencion();
+        respuesta.setRetencionId(salida.retencionId());
+        respuesta.setSaldoDisponible(dinero(salida.saldoDisponible()));
+        respuesta.setSaldoRetenido(dinero(salida.saldoRetenido()));
+        respuesta.setExpiraEn(salida.expiraEn());
+        return respuesta;
+    }
+
+    static bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaCierreRetencion cierre(
+            bo.aportaya.nucleofinanciero.aplicacion.CU13RetenerSaldo.SalidaCierre salida) {
+        var respuesta = new bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaCierreRetencion();
+        respuesta.setRetencionId(salida.retencionId());
+        respuesta.setEstado(salida.estado());
+        respuesta.setSaldoDisponible(dinero(salida.saldoDisponible()));
+        respuesta.setSaldoRetenido(dinero(salida.saldoRetenido()));
+        return respuesta;
+    }
+
+    /** La retencion que se ejecuta con destino: la transaccion que la consumio y el saldo que quedo. */
+    static bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaEjecucionDeRetencion ejecucion(
+            bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino.SalidaEjecucion salida) {
+        var respuesta = new bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaEjecucionDeRetencion();
+        respuesta.setTransaccionId(salida.transaccionId());
+        respuesta.setSaldoDisponible(dinero(salida.saldoDisponible()));
+        respuesta.setSaldoRetenido(dinero(salida.saldoRetenido()));
+        return respuesta;
+    }
+
     /** La orden de la autoridad, tal como la firma quien la emite. */
     static bo.aportaya.nucleofinanciero.aplicacion.CU17BloquearPorAutoridad.EntradaBloqueo entradaDeBloqueo(
             bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaBloqueo cuerpo) {

@@ -1,0 +1,190 @@
+{
+  "consumidor": "inversiones",
+  "productor": "nucleo-financiero",
+  "version": 1,
+  "descripcion": "Pacto dirigido por el consumidor: lo que el cliente real de inversiones (LibroPorHttp) le pide al libro y lo que el libro real (nucleo-financiero) responde. Las dos pruebas leen ESTE archivo: LibroPorHttpPactoTest (inversiones) verifica que el cliente manda exactamente esto; PactoConInversionesTest (nucleo-financiero) manda exactamente esto contra el servidor real, en HTTP, sobre PostgreSQL. Si una de las dos cambia sin tocar el pacto, la otra no se entera: el pacto es el contrato.",
+  "marcadores": "{cuenta} {orden} {orden2} {rescate} {retencion} {retencion2}: identificadores de la prueba; el productor los crea (estado previo) y el consumidor usa UUID fijos. Las capturas ('captura') guardan un campo de la respuesta para los marcadores siguientes.",
+  "identidades": {
+    "PERSONA": "Authorization: Bearer <token de la persona titular> (el que viaja desde la sesion de la peticion)",
+    "SERVICIO": "Authorization: Bearer <credencial de servicio de inversiones>, SIEMPRE; nunca el token de una persona"
+  },
+  "interacciones": [
+    {
+      "id": "saldo",
+      "puerto": "saldo",
+      "peticion": { "metodo": "GET", "ruta": "/billetera/{cuenta}/saldo", "identidad": "PERSONA" },
+      "respuesta": {
+        "estado": 200,
+        "campos": ["titularId", "disponible.monto", "disponible.moneda", "retenido.monto", "retenido.moneda", "comprometidoEnPozos.monto", "comprometidoEnPozos.moneda"],
+        "ejemplo": {
+          "cuentaId": "{cuenta}",
+          "titularId": "{titular}",
+          "disponible": { "monto": "1000.00", "moneda": "BOB" },
+          "retenido": { "monto": "0.00", "moneda": "BOB" },
+          "comprometidoEnPozos": { "monto": "0.00", "moneda": "BOB" },
+          "alCorteDe": "2026-10-09T12:00:00Z"
+        }
+      }
+    },
+    {
+      "id": "retener",
+      "puerto": "retener",
+      "peticion": {
+        "metodo": "POST",
+        "ruta": "/billetera/retenciones",
+        "identidad": "PERSONA",
+        "clave": "{clave1}",
+        "cuerpo": {
+          "cuentaBilleteraId": "{cuenta}",
+          "monto": { "monto": "300.00", "moneda": "BOB" },
+          "motivo": "INVERSION_VOLUNTARIA",
+          "referenciaTipo": "ORDEN_INVERSION",
+          "referenciaId": "{orden}"
+        }
+      },
+      "respuesta": {
+        "estado": 201,
+        "campos": ["retencionId", "saldoDisponible.monto", "saldoRetenido.monto"],
+        "captura": { "retencion": "retencionId" },
+        "ejemplo": {
+          "retencionId": "{retencion}",
+          "saldoDisponible": { "monto": "700.00", "moneda": "BOB" },
+          "saldoRetenido": { "monto": "300.00", "moneda": "BOB" }
+        }
+      }
+    },
+    {
+      "id": "debitar",
+      "puerto": "debitarInversion",
+      "peticion": {
+        "metodo": "POST",
+        "ruta": "/billetera/inversiones/debitos",
+        "identidad": "SERVICIO",
+        "clave": "{clave2}",
+        "cuerpo": { "retencionId": "{retencion}", "monto": { "monto": "300.00", "moneda": "BOB" } }
+      },
+      "respuesta": {
+        "estado": 200,
+        "campos": ["transaccionId", "saldoDisponible.monto", "saldoRetenido.monto"],
+        "captura": { "debito": "transaccionId" },
+        "ejemplo": {
+          "transaccionId": "{debito}",
+          "saldoDisponible": { "monto": "700.00", "moneda": "BOB" },
+          "saldoRetenido": { "monto": "0.00", "moneda": "BOB" }
+        }
+      }
+    },
+    {
+      "id": "debitar-repetido",
+      "puerto": "debitarInversion",
+      "soloProductor": "el reintento lo hace el reloj de inversiones con la MISMA clave; el productor devuelve la misma transaccion y no mueve plata dos veces",
+      "peticion": {
+        "metodo": "POST",
+        "ruta": "/billetera/inversiones/debitos",
+        "identidad": "SERVICIO",
+        "clave": "{clave2}",
+        "cuerpo": { "retencionId": "{retencion}", "monto": { "monto": "300.00", "moneda": "BOB" } }
+      },
+      "respuesta": { "estado": 200, "campos": ["transaccionId"], "igualA": { "transaccionId": "debito" } }
+    },
+    {
+      "id": "debitar-como-persona",
+      "soloProductor": "inversiones NUNCA manda el token de una persona a esta ruta; si alguien lo hace, el libro responde 403 y no mueve nada",
+      "peticion": {
+        "metodo": "POST",
+        "ruta": "/billetera/inversiones/debitos",
+        "identidad": "PERSONA",
+        "clave": "{clave3}",
+        "cuerpo": { "retencionId": "{retencion}", "monto": { "monto": "300.00", "moneda": "BOB" } }
+      },
+      "respuesta": { "estado": 403 }
+    },
+    {
+      "id": "acreditar",
+      "puerto": "acreditarRescate",
+      "peticion": {
+        "metodo": "POST",
+        "ruta": "/billetera/inversiones/acreditaciones",
+        "identidad": "SERVICIO",
+        "clave": "{clave4}",
+        "cuerpo": {
+          "cuentaBilleteraId": "{cuenta}",
+          "monto": { "monto": "300.00", "moneda": "BOB" },
+          "referenciaId": "{rescate}"
+        }
+      },
+      "respuesta": {
+        "estado": 200,
+        "campos": ["transaccionId", "saldoDespues.monto", "saldoDespues.moneda"],
+        "ejemplo": { "transaccionId": "{acreditacion}", "saldoDespues": { "monto": "1000.00", "moneda": "BOB" } }
+      }
+    },
+    {
+      "id": "retener-segunda",
+      "puerto": "retener",
+      "peticion": {
+        "metodo": "POST",
+        "ruta": "/billetera/retenciones",
+        "identidad": "PERSONA",
+        "clave": "{clave5}",
+        "cuerpo": {
+          "cuentaBilleteraId": "{cuenta}",
+          "monto": { "monto": "150.00", "moneda": "BOB" },
+          "motivo": "INVERSION_VOLUNTARIA",
+          "referenciaTipo": "ORDEN_INVERSION",
+          "referenciaId": "{orden2}"
+        }
+      },
+      "respuesta": {
+        "estado": 201,
+        "campos": ["retencionId"],
+        "captura": { "retencion2": "retencionId" },
+        "ejemplo": {
+          "retencionId": "{retencion2}",
+          "saldoDisponible": { "monto": "850.00", "moneda": "BOB" },
+          "saldoRetenido": { "monto": "150.00", "moneda": "BOB" }
+        }
+      }
+    },
+    {
+      "id": "liberar",
+      "puerto": "liberar",
+      "peticion": {
+        "metodo": "POST",
+        "ruta": "/billetera/retenciones/{retencion2}/cierre",
+        "identidad": "PERSONA",
+        "clave": "{clave6}",
+        "cuerpo": { "desenlace": "LIBERADA" }
+      },
+      "respuesta": {
+        "estado": 200,
+        "campos": ["retencionId", "estado", "saldoDisponible.monto", "saldoRetenido.monto"],
+        "ejemplo": {
+          "retencionId": "{retencion2}",
+          "estado": "LIBERADA",
+          "saldoDisponible": { "monto": "1000.00", "moneda": "BOB" },
+          "saldoRetenido": { "monto": "0.00", "moneda": "BOB" }
+        }
+      }
+    },
+    {
+      "id": "retener-sin-saldo",
+      "puerto": "retener",
+      "invalido": "AP-CU13-01 es el unico 422 que el consumidor traduce a una decision (SaldoInsuficiente); cualquier otro no-2xx es 'no se sabe' y se reintenta con la misma clave",
+      "peticion": {
+        "metodo": "POST",
+        "ruta": "/billetera/retenciones",
+        "identidad": "PERSONA",
+        "clave": "{clave7}",
+        "cuerpo": {
+          "cuentaBilleteraId": "{cuenta}",
+          "monto": { "monto": "99999.00", "moneda": "BOB" },
+          "motivo": "INVERSION_VOLUNTARIA",
+          "referenciaTipo": "ORDEN_INVERSION",
+          "referenciaId": "{orden3}"
+        }
+      },
+      "respuesta": { "estado": 422, "codigo": "AP-CU13-01", "ejemplo": { "codigo": "AP-CU13-01", "mensaje": "Saldo insuficiente", "trazaId": "traza-pacto" } }
+    }
+  ]
+}

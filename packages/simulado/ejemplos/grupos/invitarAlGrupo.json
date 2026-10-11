@@ -44,10 +44,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU69-01",
+        "mensaje": "Sin cupos libles",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-invitarAlGrupo-rechazo"
       }
     }
   }

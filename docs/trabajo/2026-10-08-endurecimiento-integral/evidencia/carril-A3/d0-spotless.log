@@ -1,0 +1,132 @@
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Starting a Gradle Daemon, 3 stopped Daemons could not be reused, use --status for details
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-web:spotlessJava
+> Task :plataforma:comun-web:spotlessJavaApply
+> Task :plataforma:comun-web:spotlessKotlinGradle
+> Task :plataforma:comun-web:spotlessKotlinGradleApply
+> Task :plataforma:comun-web:spotlessApply
+> Task :plataforma:gateway:spotlessJava
+> Task :plataforma:gateway:spotlessJavaApply
+> Task :plataforma:gateway:spotlessKotlinGradle
+> Task :plataforma:gateway:spotlessKotlinGradleApply
+> Task :plataforma:gateway:spotlessApply
+> Task :servicios:aportes:spotlessJava UP-TO-DATE
+> Task :servicios:aportes:spotlessJavaApply UP-TO-DATE
+> Task :servicios:aportes:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:aportes:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:aportes:spotlessApply UP-TO-DATE
+> Task :servicios:auditoria:spotlessJava
+> Task :servicios:auditoria:spotlessJavaApply
+> Task :servicios:auditoria:spotlessKotlinGradle
+> Task :servicios:auditoria:spotlessKotlinGradleApply
+> Task :servicios:auditoria:spotlessApply
+> Task :servicios:cumplimiento:spotlessJava
+> Task :servicios:cumplimiento:spotlessJavaApply
+> Task :servicios:cumplimiento:spotlessKotlinGradle
+> Task :servicios:cumplimiento:spotlessKotlinGradleApply
+> Task :servicios:cumplimiento:spotlessApply
+> Task :servicios:entregas:spotlessJava
+> Task :servicios:entregas:spotlessJavaApply
+> Task :servicios:entregas:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:entregas:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:entregas:spotlessApply
+> Task :servicios:erp:spotlessJava
+> Task :servicios:erp:spotlessJavaApply
+> Task :servicios:erp:spotlessKotlinGradle
+> Task :servicios:erp:spotlessKotlinGradleApply
+> Task :servicios:erp:spotlessApply
+> Task :servicios:garantia:spotlessJava UP-TO-DATE
+> Task :servicios:garantia:spotlessJavaApply UP-TO-DATE
+> Task :servicios:garantia:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:garantia:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:garantia:spotlessApply UP-TO-DATE
+> Task :servicios:grupos:spotlessJava
+> Task :servicios:grupos:spotlessJavaApply
+> Task :servicios:grupos:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:grupos:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:grupos:spotlessApply
+> Task :servicios:identidad:spotlessJava
+> Task :servicios:identidad:spotlessJavaApply
+> Task :servicios:identidad:spotlessKotlinGradle
+> Task :servicios:identidad:spotlessKotlinGradleApply
+> Task :servicios:identidad:spotlessApply
+> Task :servicios:inversiones:spotlessJava UP-TO-DATE
+> Task :servicios:inversiones:spotlessJavaApply UP-TO-DATE
+> Task :servicios:inversiones:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:inversiones:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:inversiones:spotlessApply UP-TO-DATE
+> Task :servicios:notificaciones:spotlessJava
+> Task :servicios:notificaciones:spotlessJavaApply
+> Task :servicios:notificaciones:spotlessKotlinGradle
+> Task :servicios:notificaciones:spotlessKotlinGradleApply
+> Task :servicios:notificaciones:spotlessApply
+> Task :servicios:nucleo-financiero:spotlessJava UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessJavaApply UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessApply UP-TO-DATE
+> Task :servicios:organizador:spotlessJava UP-TO-DATE
+> Task :servicios:organizador:spotlessJavaApply UP-TO-DATE
+> Task :servicios:organizador:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:organizador:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:organizador:spotlessApply UP-TO-DATE
+> Task :servicios:publicidad:spotlessJava
+> Task :servicios:publicidad:spotlessJavaApply
+> Task :servicios:publicidad:spotlessKotlinGradle
+> Task :servicios:publicidad:spotlessKotlinGradleApply
+> Task :servicios:publicidad:spotlessApply
+> Task :servicios:tarifas:spotlessJava UP-TO-DATE
+> Task :servicios:tarifas:spotlessJavaApply UP-TO-DATE
+> Task :servicios:tarifas:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:tarifas:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:tarifas:spotlessApply UP-TO-DATE
+> Task :servicios:transparencia:spotlessJava
+> Task :servicios:transparencia:spotlessJavaApply
+> Task :servicios:transparencia:spotlessKotlinGradle
+> Task :servicios:transparencia:spotlessKotlinGradleApply
+> Task :servicios:transparencia:spotlessApply
+> Task :spotlessApply
+
+BUILD SUCCESSFUL in 20s
+98 actionable tasks: 40 executed, 58 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+== etapa d0-spotless RC: 0

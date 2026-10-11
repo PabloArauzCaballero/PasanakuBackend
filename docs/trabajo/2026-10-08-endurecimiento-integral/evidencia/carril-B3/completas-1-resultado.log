@@ -1,0 +1,496 @@
+heavy.sh: candado tomado, libres 3681 MB -> bash C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/b3/b3_jj.sh --continue :servicios:grupos:spotlessApply :servicios:aportes:spotlessApply :servicios:entregas:spotlessApply :servicios:garantia:spotlessApply :servicios:organizador:spotlessApply :servicios:grupos:test :servicios:grupos:webTest :servicios:grupos:integrationTest :servicios:grupos:testBarrido :servicios:aportes:test :servicios:aportes:webTest :servicios:aportes:integrationTest :servicios:aportes:testBarrido :servicios:entregas:test :servicios:entregas:webTest :servicios:entregas:integrationTest :servicios:entregas:testBarrido :servicios:garantia:test :servicios:garantia:webTest :servicios:garantia:integrationTest :servicios:garantia:testBarrido :servicios:organizador:test :servicios:organizador:webTest :servicios:organizador:integrationTest :servicios:organizador:testBarrido
+== docker listo, libres: 3676 MB
+== aplicar.sql RC: 0
+psql:/repo/sql/40_reglas/restricciones.sql:3396: NOTICE:  trigger "tg_distribucion_interes_coherente" for relation "distribucion_interes" does not exist, skipping
+psql:/repo/sql/40_reglas/restricciones.sql:3402: NOTICE:  constraint "ck_corrida_trabajo_fin" of relation "corrida_trabajo" does not exist, skipping
+psql:/repo/sql/40_reglas/restricciones.sql:3403: NOTICE:  constraint "ck_corrida_trabajo_error" of relation "corrida_trabajo" does not exist, skipping
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Starting a Gradle Daemon, 5 stopped Daemons could not be reused, use --status for details
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :servicios:grupos:spotlessJava
+> Task :servicios:grupos:spotlessJavaApply
+> Task :servicios:grupos:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:grupos:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:grupos:spotlessApply
+> Task :servicios:aportes:spotlessJava
+> Task :servicios:aportes:spotlessJavaApply
+> Task :servicios:aportes:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:aportes:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:aportes:spotlessApply
+> Task :servicios:entregas:spotlessJava
+> Task :servicios:entregas:spotlessJavaApply
+> Task :servicios:entregas:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:entregas:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:entregas:spotlessApply
+> Task :servicios:garantia:spotlessJava
+> Task :servicios:garantia:spotlessJavaApply
+> Task :servicios:garantia:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:garantia:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:garantia:spotlessApply
+> Task :servicios:organizador:spotlessJava
+> Task :servicios:organizador:spotlessJavaApply
+> Task :servicios:organizador:spotlessKotlinGradle
+> Task :servicios:organizador:spotlessKotlinGradleApply
+> Task :servicios:organizador:spotlessApply
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources NO-SOURCE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+
+> Task :plataforma:comun-web:erroresCatalogo
+catalogo de errores: 262 restricciones -> 140 reglas · errores-restricciones.properties
+mensajes de regla: 169 · errores-reglas.properties
+  AVISO: 3 reglas con restriccion y sin fila en la boveda: R-BIL-21, R-BIL-22, R-UIF-13
+
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :servicios:grupos:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:grupos:generateJooq UP-TO-DATE
+> Task :servicios:grupos:compileJava UP-TO-DATE
+> Task :servicios:grupos:processResources UP-TO-DATE
+> Task :servicios:grupos:classes UP-TO-DATE
+> Task :servicios:grupos:compileTestJava
+> Task :servicios:grupos:processTestResources
+> Task :servicios:grupos:testClasses
+
+> Task :servicios:grupos:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:grupos:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:grupos:webTest
+
+GruposAdmisionHumanaWebTest > ENCENDIDO · rechazar tampoco es una decision directa: ninguna decision de un organizador solo cierra la solicitud FAILED
+    java.lang.AssertionError: Status expected:<422> but was:<400>
+        at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:61)
+        at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:128)
+        at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:640)
+        at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+        at bo.aportaya.grupos.web.GruposAdmisionHumanaWebTest.rechazarTambienSeCierra(GruposAdmisionHumanaWebTest.java:124)
+
+82 tests completed, 1 failed
+
+> Task :servicios:grupos:webTest FAILED
+
+> Task :servicios:grupos:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:grupos:integrationTest
+
+ArranqueCalendarioDeAportesTest > el guardia real: un participante recibe 403, sin token 401 y un periodo inexistente 422 AP-CU21-08 FAILED
+    org.jooq.exception.IntegrityConstraintViolationException: SQL [INSERT INTO grupos.grupo
+        (id, codigo_publico, nombre, monto_aporte, moneda, periodicidad, dia_cobro,
+         num_periodos, cupos_totales, cupos_ocupados, fecha_inicio, fecha_fin_estimada,
+         estado, tipo_conformacion, modalidad_turnos, visibilidad, es_autogestionado,
+         requiere_kyc_minimo, reputacion_minima, dias_gracia, aplica_recargo_mora,
+         usa_fondo_garantia, porcentaje_fondo_garantia, quorum_decisiones)
+        -- quorum_decisiones es numeric(4,3): una FRACCION, no un porcentaje.
+        -- Poner 60 ahi desborda; el sesenta por ciento es 0.600.
+    VALUES (?, ?, 'Grupo de prueba', 500.00, 'BOB', 'MENSUAL', 5, ?, ?, ?,
+            CURRENT_DATE, CURRENT_DATE + 180, 'CONFORMADO', 'MANUAL_POR_INVITACION', 'SORTEO_ALEATORIO',
+            'PRIVADO', true, 'BASICO', 0, 3, true, false, 0.00, 0.600)
+    ]; ERROR: new row for relation "grupo" violates check constraint "ck_grupo_num_periodos"
+      Detail: Failing row contains (9e32a586-fd4a-46aa-addb-fb1bd66176b6, GR-9e32a586, Grupo de prueba, null, 500.00, BOB, MENSUAL, 5, 2, 2, 2, 2026-10-10, 2027-04-08, CONFORMADO, MANUAL_POR_INVITACION, SORTEO_ALEATORIO, PRIVADO, null, t, BASICO, 0.00, 3, t, f, 0.00, 0.600, null).
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3664)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.DefaultDSLContext.execute(DefaultDSLContext.java:1117)
+        at app//bo.aportaya.grupos.FixturaDeGrupos.grupoConformado(FixturaDeGrupos.java:49)
+        at app//bo.aportaya.grupos.ArranqueCalendarioDeAportesTest.periodoConDosTitulares(ArranqueCalendarioDeAportesTest.java:117)
+        at app//bo.aportaya.grupos.ArranqueCalendarioDeAportesTest.laGuardiaRealYElPeriodoInexistente(ArranqueCalendarioDeAportesTest.java:171)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: new row for relation "grupo" violates check constraint "ck_grupo_num_periodos"
+          Detail: Failing row contains (9e32a586-fd4a-46aa-addb-fb1bd66176b6, GR-9e32a586, Grupo de prueba, null, 500.00, BOB, MENSUAL, 5, 2, 2, 2, 2026-10-10, 2027-04-08, CONFORMADO, MANUAL_POR_INVITACION, SORTEO_ALEATORIO, PRIVADO, null, t, BASICO, 0.00, 3, t, f, 0.00, 0.600, null).
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 4 more
+
+ArranqueCalendarioDeAportesTest > el productor real responde 200 con la forma exacta del archivo dorado, deserializable de forma estricta FAILED
+    org.jooq.exception.IntegrityConstraintViolationException: SQL [INSERT INTO grupos.grupo
+        (id, codigo_publico, nombre, monto_aporte, moneda, periodicidad, dia_cobro,
+         num_periodos, cupos_totales, cupos_ocupados, fecha_inicio, fecha_fin_estimada,
+         estado, tipo_conformacion, modalidad_turnos, visibilidad, es_autogestionado,
+         requiere_kyc_minimo, reputacion_minima, dias_gracia, aplica_recargo_mora,
+         usa_fondo_garantia, porcentaje_fondo_garantia, quorum_decisiones)
+        -- quorum_decisiones es numeric(4,3): una FRACCION, no un porcentaje.
+        -- Poner 60 ahi desborda; el sesenta por ciento es 0.600.
+    VALUES (?, ?, 'Grupo de prueba', 500.00, 'BOB', 'MENSUAL', 5, ?, ?, ?,
+            CURRENT_DATE, CURRENT_DATE + 180, 'CONFORMADO', 'MANUAL_POR_INVITACION', 'SORTEO_ALEATORIO',
+            'PRIVADO', true, 'BASICO', 0, 3, true, false, 0.00, 0.600)
+    ]; ERROR: new row for relation "grupo" violates check constraint "ck_grupo_num_periodos"
+      Detail: Failing row contains (cfc4265d-3155-4a80-840d-7555a4503d4d, GR-cfc4265d, Grupo de prueba, null, 500.00, BOB, MENSUAL, 5, 2, 2, 2, 2026-10-10, 2027-04-08, CONFORMADO, MANUAL_POR_INVITACION, SORTEO_ALEATORIO, PRIVADO, null, t, BASICO, 0.00, 3, t, f, 0.00, 0.600, null).
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3664)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.DefaultDSLContext.execute(DefaultDSLContext.java:1117)
+        at app//bo.aportaya.grupos.FixturaDeGrupos.grupoConformado(FixturaDeGrupos.java:49)
+        at app//bo.aportaya.grupos.ArranqueCalendarioDeAportesTest.periodoConDosTitulares(ArranqueCalendarioDeAportesTest.java:117)
+        at app//bo.aportaya.grupos.ArranqueCalendarioDeAportesTest.elCuerpoRealTieneLaFormaDelDorado(ArranqueCalendarioDeAportesTest.java:141)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: new row for relation "grupo" violates check constraint "ck_grupo_num_periodos"
+          Detail: Failing row contains (cfc4265d-3155-4a80-840d-7555a4503d4d, GR-cfc4265d, Grupo de prueba, null, 500.00, BOB, MENSUAL, 5, 2, 2, 2, 2026-10-10, 2027-04-08, CONFORMADO, MANUAL_POR_INVITACION, SORTEO_ALEATORIO, PRIVADO, null, t, BASICO, 0.00, 3, t, f, 0.00, 0.600, null).
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 4 more
+
+CU68SustitucionAutomaticaTest > automaticaConOrganizadorCaidoFallaCerrado() FAILED
+    bo.aportaya.plataforma.dominio.ErrorDeDominio: El servicio organizador respondio 503
+        at app//bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios.organizadorHabilitadoDelUsuario(HechosDeOtrosServicios.java:30)
+        at app//bo.aportaya.grupos.CU68SustitucionAutomaticaTest.habilitados(CU68SustitucionAutomaticaTest.java:77)
+        at app//bo.aportaya.grupos.CU68SustitucionAutomaticaTest.automaticaConOrganizadorCaidoFallaCerrado(CU68SustitucionAutomaticaTest.java:201)
+
+CalendarioDeAportesRepositorioTest > un periodo de otro grupo no mezcla los cupos de este (aislamiento por grupo) FAILED
+    org.jooq.exception.IntegrityConstraintViolationException: SQL [INSERT INTO grupos.grupo
+        (id, codigo_publico, nombre, monto_aporte, moneda, periodicidad, dia_cobro,
+         num_periodos, cupos_totales, cupos_ocupados, fecha_inicio, fecha_fin_estimada,
+         estado, tipo_conformacion, modalidad_turnos, visibilidad, es_autogestionado,
+         requiere_kyc_minimo, reputacion_minima, dias_gracia, aplica_recargo_mora,
+         usa_fondo_garantia, porcentaje_fondo_garantia, quorum_decisiones)
+        -- quorum_decisiones es numeric(4,3): una FRACCION, no un porcentaje.
+        -- Poner 60 ahi desborda; el sesenta por ciento es 0.600.
+    VALUES (?, ?, 'Grupo de prueba', 500.00, 'BOB', 'MENSUAL', 5, ?, ?, ?,
+            CURRENT_DATE, CURRENT_DATE + 180, 'CONFORMADO', 'MANUAL_POR_INVITACION', 'SORTEO_ALEATORIO',
+            'PRIVADO', true, 'BASICO', 0, 3, true, false, 0.00, 0.600)
+    ]; ERROR: new row for relation "grupo" violates check constraint "ck_grupo_num_periodos"
+      Detail: Failing row contains (c7ee14d5-b7dd-433b-aafb-a8200e253312, GR-c7ee14d5, Grupo de prueba, null, 500.00, BOB, MENSUAL, 5, 2, 2, 2, 2026-10-10, 2027-04-08, CONFORMADO, MANUAL_POR_INVITACION, SORTEO_ALEATORIO, PRIVADO, null, t, BASICO, 0.00, 3, t, f, 0.00, 0.600, null).
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3664)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.DefaultDSLContext.execute(DefaultDSLContext.java:1117)
+        at app//bo.aportaya.grupos.FixturaDeGrupos.grupoConformado(FixturaDeGrupos.java:49)
+        at app//bo.aportaya.grupos.CalendarioDeAportesRepositorioTest.noMezclaGrupos(CalendarioDeAportesRepositorioTest.java:117)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: new row for relation "grupo" violates check constraint "ck_grupo_num_periodos"
+          Detail: Failing row contains (c7ee14d5-b7dd-433b-aafb-a8200e253312, GR-c7ee14d5, Grupo de prueba, null, 500.00, BOB, MENSUAL, 5, 2, 2, 2, 2026-10-10, 2027-04-08, CONFORMADO, MANUAL_POR_INVITACION, SORTEO_ALEATORIO, PRIVADO, null, t, BASICO, 0.00, 3, t, f, 0.00, 0.600, null).
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 3 more
+
+CalendarioDeAportesRepositorioTest > la fraccion del cupo escala el importe, redondeado half-even al centavo (limite) FAILED
+    org.jooq.exception.IntegrityConstraintViolationException: SQL [INSERT INTO grupos.grupo
+        (id, codigo_publico, nombre, monto_aporte, moneda, periodicidad, dia_cobro,
+         num_periodos, cupos_totales, cupos_ocupados, fecha_inicio, fecha_fin_estimada,
+         estado, tipo_conformacion, modalidad_turnos, visibilidad, es_autogestionado,
+         requiere_kyc_minimo, reputacion_minima, dias_gracia, aplica_recargo_mora,
+         usa_fondo_garantia, porcentaje_fondo_garantia, quorum_decisiones)
+        -- quorum_decisiones es numeric(4,3): una FRACCION, no un porcentaje.
+        -- Poner 60 ahi desborda; el sesenta por ciento es 0.600.
+    VALUES (?, ?, 'Grupo de prueba', 500.00, 'BOB', 'MENSUAL', 5, ?, ?, ?,
+            CURRENT_DATE, CURRENT_DATE + 180, 'CONFORMADO', 'MANUAL_POR_INVITACION', 'SORTEO_ALEATORIO',
+            'PRIVADO', true, 'BASICO', 0, 3, true, false, 0.00, 0.600)
+    ]; ERROR: new row for relation "grupo" violates check constraint "ck_grupo_num_periodos"
+      Detail: Failing row contains (1f25f54b-2c33-47b8-85c3-0cc5834c5454, GR-1f25f54b, Grupo de prueba, null, 500.00, BOB, MENSUAL, 5, 2, 2, 2, 2026-10-10, 2027-04-08, CONFORMADO, MANUAL_POR_INVITACION, SORTEO_ALEATORIO, PRIVADO, null, t, BASICO, 0.00, 3, t, f, 0.00, 0.600, null).
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3664)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.DefaultDSLContext.execute(DefaultDSLContext.java:1117)
+        at app//bo.aportaya.grupos.FixturaDeGrupos.grupoConformado(FixturaDeGrupos.java:49)
+        at app//bo.aportaya.grupos.CalendarioDeAportesRepositorioTest.laFraccionEscalaElImporte(CalendarioDeAportesRepositorioTest.java:87)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: new row for relation "grupo" violates check constraint "ck_grupo_num_periodos"
+          Detail: Failing row contains (1f25f54b-2c33-47b8-85c3-0cc5834c5454, GR-1f25f54b, Grupo de prueba, null, 500.00, BOB, MENSUAL, 5, 2, 2, 2, 2026-10-10, 2027-04-08, CONFORMADO, MANUAL_POR_INVITACION, SORTEO_ALEATORIO, PRIVADO, null, t, BASICO, 0.00, 3, t, f, 0.00, 0.600, null).
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 3 more
+
+2026-10-10T00:26:21.999-04:00  INFO 30040 --- [grupos] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T00:26:22.005-04:00  INFO 30040 --- [grupos] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T00:26:22.194-04:00  INFO 30040 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T00:26:22.199-04:00  INFO 30040 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-10T00:26:22.207-04:00  INFO 30040 --- [grupos] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T00:26:22.211-04:00  INFO 30040 --- [grupos] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T00:26:22.212-04:00  INFO 30040 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-10-10T00:26:22.213-04:00  INFO 30040 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+
+> Task :servicios:grupos:integrationTest FAILED
+
+206 tests completed, 5 failed
+
+> Task :servicios:grupos:testBarrido FAILED
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+BarridoTest > tamano-archivo: ningun archivo llega a 300 lineas FAILED
+    java.lang.AssertionError: [tamano-archivo: 300 lineas o mas bloquean — son varias piezas que nadie separo] 
+    Expecting empty but was: ["main\java\bo\aportaya\grupos\web\GruposController.java  305 lineas (limite 300)"]
+        at bo.aportaya.plataforma.pruebas.barrido.Barrido.ningunArchivoBloquea(Barrido.java:46)
+        at bo.aportaya.grupos.BarridoTest.ningunArchivoBloquea(BarridoTest.java:20)
+
+2 tests completed, 1 failed
+
+> Task :servicios:aportes:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:aportes:generateJooq UP-TO-DATE
+> Task :servicios:aportes:compileJava UP-TO-DATE
+> Task :servicios:aportes:processResources UP-TO-DATE
+> Task :servicios:aportes:classes UP-TO-DATE
+> Task :servicios:aportes:compileTestJava UP-TO-DATE
+> Task :servicios:aportes:processTestResources UP-TO-DATE
+> Task :servicios:aportes:testClasses UP-TO-DATE
+
+> Task :servicios:aportes:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:aportes:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:aportes:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T00:27:14.053-04:00  INFO 14516 --- [aportes] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T00:27:14.056-04:00  INFO 14516 --- [aportes] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T00:27:14.210-04:00  INFO 14516 --- [aportes] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T00:27:14.211-04:00  INFO 14516 --- [aportes] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:aportes:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:entregas:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:entregas:generateJooq UP-TO-DATE
+> Task :servicios:entregas:compileJava UP-TO-DATE
+> Task :servicios:entregas:processResources UP-TO-DATE
+> Task :servicios:entregas:classes UP-TO-DATE
+> Task :servicios:entregas:compileTestJava UP-TO-DATE
+> Task :servicios:entregas:processTestResources UP-TO-DATE
+> Task :servicios:entregas:testClasses UP-TO-DATE
+
+> Task :servicios:entregas:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+ArquitecturaTest > laWebNoTieneReglas FAILED
+    java.lang.AssertionError: Architecture Violation [Priority: MEDIUM] - Rule 'no classes that reside in a package '..web..' should depend on classes that reside in a package '..infraestructura..'' was violated (6 times):
+    Method <bo.aportaya.entregas.web.MercadoWeb.consultarOfertaParaPago(java.util.UUID)> calls method <bo.aportaya.entregas.infraestructura.OfertaRepositorio$Oferta.estado()> in (MercadoWeb.java:94)
+    Method <bo.aportaya.entregas.web.MercadoWeb.consultarOfertaParaPago(java.util.UUID)> calls method <bo.aportaya.entregas.infraestructura.OfertaRepositorio$Oferta.id()> in (MercadoWeb.java:91)
+    Method <bo.aportaya.entregas.web.MercadoWeb.consultarOfertaParaPago(java.util.UUID)> calls method <bo.aportaya.entregas.infraestructura.OfertaRepositorio$Oferta.precio()> in (MercadoWeb.java:93)
+    Method <bo.aportaya.entregas.web.MercadoWeb.consultarOfertaParaPago(java.util.UUID)> calls method <bo.aportaya.entregas.infraestructura.OfertaRepositorio$Oferta.vendedorUsuarioId()> in (MercadoWeb.java:92)
+    Method <bo.aportaya.entregas.web.OfertaParaPagoWebTest.oferta(java.lang.String)> calls constructor <bo.aportaya.entregas.infraestructura.OfertaRepositorio$Oferta.<init>(java.util.UUID, java.util.UUID, java.util.UUID, java.util.UUID, java.util.UUID, java.util.UUID, bo.aportaya.plataforma.dominio.Dinero, bo.aportaya.plataforma.dominio.Dinero, bo.aportaya.plataforma.dominio.Dinero, java.lang.String, java.time.OffsetDateTime, int)> in (OfertaParaPagoWebTest.java:76)
+    Method <bo.aportaya.entregas.web.OfertaParaPagoWebTest.oferta(java.lang.String)> has return type <bo.aportaya.entregas.infraestructura.OfertaRepositorio$Oferta> in (OfertaParaPagoWebTest.java:0)
+        at com.tngtech.archunit.lang.ArchRule$Assertions.assertNoViolation(ArchRule.java:94)
+        at com.tngtech.archunit.lang.ArchRule$Assertions.check(ArchRule.java:86)
+        at com.tngtech.archunit.lang.ArchRule$Factory$SimpleArchRule.check(ArchRule.java:165)
+        at com.tngtech.archunit.lang.syntax.ObjectsShouldInternal.check(ObjectsShouldInternal.java:81)
+        at com.tngtech.archunit.junit.internal.ArchUnitTestDescriptor$ArchUnitRuleDescriptor.execute(ArchUnitTestDescriptor.java:168)
+        at com.tngtech.archunit.junit.internal.ArchUnitTestDescriptor$ArchUnitRuleDescriptor.execute(ArchUnitTestDescriptor.java:151)
+        at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+        at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+23 tests completed, 1 failed
+
+> Task :servicios:entregas:test FAILED
+
+> Task :servicios:entregas:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:entregas:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T00:28:34.294-04:00  INFO 29608 --- [entregas] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T00:28:34.298-04:00  INFO 29608 --- [entregas] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T00:28:34.456-04:00  INFO 29608 --- [entregas] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T00:28:34.459-04:00  INFO 29608 --- [entregas] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:entregas:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:garantia:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:garantia:generateJooq UP-TO-DATE
+> Task :servicios:garantia:compileJava UP-TO-DATE
+> Task :servicios:garantia:processResources UP-TO-DATE
+> Task :servicios:garantia:classes UP-TO-DATE
+> Task :servicios:garantia:compileTestJava UP-TO-DATE
+> Task :servicios:garantia:processTestResources UP-TO-DATE
+> Task :servicios:garantia:testClasses UP-TO-DATE
+
+> Task :servicios:garantia:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:garantia:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:garantia:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T00:29:47.799-04:00  INFO 33668 --- [garantia] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T00:29:47.805-04:00  INFO 33668 --- [garantia] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T00:29:47.981-04:00  INFO 33668 --- [garantia] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T00:29:47.983-04:00  INFO 33668 --- [garantia] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:garantia:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:organizador:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+Failed to get the schema name: null
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\servicios\organizador\build\generated\openapi
+
+> Task :servicios:organizador:generateJooq
+Version mismatch         : Database version is older than what dialect POSTGRES supports: 16.15 (Debian 16.15-1.pgdg13+2). Consider https://www.jooq.org/download/support-matrix to see what jOOQ version and edition supports which RDBMS versions.
+
+> Task :servicios:organizador:compileJava
+> Task :servicios:organizador:processResources UP-TO-DATE
+> Task :servicios:organizador:classes
+> Task :servicios:organizador:compileTestJava
+> Task :servicios:organizador:processTestResources UP-TO-DATE
+> Task :servicios:organizador:testClasses
+
+> Task :servicios:organizador:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:organizador:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:organizador:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T00:30:47.572-04:00  INFO 26080 --- [organizador] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T00:30:47.572-04:00  INFO 26080 --- [organizador] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T00:30:47.712-04:00  INFO 26080 --- [organizador] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T00:30:47.717-04:00  INFO 26080 --- [organizador] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:organizador:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+FAILURE: Build completed with 4 failures.
+
+1: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:grupos:webTest'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/servicios/grupos/build/reports/tests/webTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+2: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:grupos:integrationTest'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/servicios/grupos/build/reports/tests/integrationTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+3: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:grupos:testBarrido'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/servicios/grupos/build/reports/tests/testBarrido/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+4: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:entregas:test'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/servicios/entregas/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+BUILD FAILED in 5m 50s
+96 actionable tasks: 41 executed, 55 up-to-date
+== RC gradle: 1
+== turno.sh RC final: 1

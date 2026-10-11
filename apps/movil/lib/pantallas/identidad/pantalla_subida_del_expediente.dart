@@ -36,7 +36,11 @@ class _PantallaDeSubidaDelExpedienteState
     final capturas = _capturas(ref.read(seguimientoDelAltaProvider));
     await ref
         .read(subidaProvider.notifier)
-        .subirPendientes(usuarioId: widget.usuarioId, capturas: capturas);
+        .subirPendientes(
+          usuarioId: widget.usuarioId,
+          capturas: capturas,
+          tokenDeAlta: ref.read(seguimientoDelAltaProvider)?.tokenDeAlta,
+        );
   }
 
   Future<void> _repetir(CaraDelCarril cara) async {
@@ -49,7 +53,12 @@ class _PantallaDeSubidaDelExpedienteState
         .reemplazarCaptura(cara, nueva);
     await ref
         .read(subidaProvider.notifier)
-        .reintentar(usuarioId: widget.usuarioId, cara: cara, ruta: nueva.ruta);
+        .reintentar(
+          usuarioId: widget.usuarioId,
+          cara: cara,
+          ruta: nueva.ruta,
+          tokenDeAlta: ref.read(seguimientoDelAltaProvider)?.tokenDeAlta,
+        );
   }
 
   @override
@@ -87,6 +96,9 @@ class _PantallaDeSubidaDelExpedienteState
                               usuarioId: widget.usuarioId,
                               cara: cara,
                               ruta: capturas.porCara[cara]!.ruta,
+                              tokenDeAlta: ref
+                                  .read(seguimientoDelAltaProvider)
+                                  ?.tokenDeAlta,
                             ),
                         onRepetir: () => _repetir(cara),
                       ),

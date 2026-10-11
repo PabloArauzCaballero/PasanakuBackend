@@ -108,9 +108,9 @@ const seoTransparencia: MetaDeRuta = {
 const seoPreguntas: MetaDeRuta = {
   titulo: 'Preguntas frecuentes',
   descripcion: 'Preguntas frecuentes sobre AportaYa: qué es, qué cobra, qué pasa si alguien no aporta y cómo se verifica el sorteo.',
-  actualizado: '2026-09-09',
+  actualizado: '2026-10-09',
   jsonLd: [
-    paginaWeb({ titulo: 'Preguntas frecuentes', descripcion: 'Lo que más preguntan antes de unirse a un grupo.', ruta: '/preguntas', actualizado: '2026-09-09' }),
+    paginaWeb({ titulo: 'Preguntas frecuentes', descripcion: 'Lo que más preguntan antes de unirse a un grupo.', ruta: '/preguntas', actualizado: '2026-10-09' }),
     preguntasFrecuentes([
       { pregunta: '¿AportaYa presta dinero o paga intereses?', respuesta: 'No. Un pasanaku es ahorro rotativo: el dinero que recibís en tu turno es el que aportó el grupo, no un préstamo ni una inversión con rendimiento.' },
       { pregunta: '¿Cuánto cobra AportaYa?', respuesta: 'Una comisión por operación, que se muestra completa —con impuestos incluidos— antes de que confirmes cualquier movimiento.' },
@@ -118,6 +118,7 @@ const seoPreguntas: MetaDeRuta = {
       { pregunta: '¿Cómo sé que el sorteo de turnos no está arreglado?', respuesta: 'El sorteo usa un algoritmo público en dos fases —compromiso y revelación— y cada resultado se puede verificar de forma independiente.' },
       { pregunta: '¿AportaYa está regulado por ASFI?', respuesta: 'Tenemos una solicitud de licencia en trámite ante la ASFI.' },
       { pregunta: '¿Qué hago si tengo un reclamo?', respuesta: 'Lo presentás desde la app o por los canales publicados en Reclamos, con un plazo de respuesta garantizado.' },
+      { pregunta: '¿Todo lo que veo en mi billetera lo puedo gastar?', respuesta: 'No: la billetera separa lo gastable, lo comprometido en pozos de grupos y lo retenido por una operación en curso. Solo lo gastable se puede retirar o transferir.' },
     ]),
   ],
 }
@@ -169,6 +170,8 @@ export const routes: Routes = [
   { path: 'legal/estado-regulatorio', loadComponent: () => import('./paginas/legal-estado-regulatorio/legal-estado-regulatorio').then((m) => m.LegalEstadoRegulatorio), title: 'Estado regulatorio · AportaYa', data: { seo: seoEstadoRegulatorio } },
   { path: 'descargar', loadComponent: () => import('./paginas/descargar/descargar').then((m) => m.Descargar), title: 'Usar AportaYa · AportaYa', data: { seo: seoDescargar } },
   // Datos de terceros: sin `data.seo`, y noindex reforzado también en app.routes.server.ts.
+  // El secreto viaja en el fragmento (#t=…): el servidor nunca lo ve. La página lo retira de la URL al cargar.
+  { path: 'invitacion/:grupoId/:invitacionId', loadComponent: () => import('./paginas/invitacion/invitacion').then((m) => m.Invitacion), title: 'Tu invitación · AportaYa' },
   { path: 'verificar/:codigo', loadComponent: () => import('./paginas/verificar/verificar').then((m) => m.Verificar), title: 'Verificar certificado · AportaYa' },
   { path: 'publico/grupos/:codigo', loadComponent: () => import('./paginas/publico-grupos/grupo-transparencia').then((m) => m.GrupoTransparencia), title: 'Verificar cadena de transparencia · AportaYa' },
   { path: 'publico/sorteos/:id', loadComponent: () => import('./paginas/publico-sorteos/sorteo-verificacion').then((m) => m.SorteoVerificacion), title: 'Verificar sorteo · AportaYa' },

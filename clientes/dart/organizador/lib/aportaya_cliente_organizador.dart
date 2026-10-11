@@ -11,6 +11,7 @@ export 'package:aportaya_cliente_organizador/src/auth/oauth.dart';
 
 export 'package:aportaya_cliente_organizador/src/api/default_api.dart';
 
+export 'package:aportaya_cliente_organizador/src/model/decision_de_habilitacion.dart';
 export 'package:aportaya_cliente_organizador/src/model/dinero.dart';
 export 'package:aportaya_cliente_organizador/src/model/entrada_apelacion.dart';
 export 'package:aportaya_cliente_organizador/src/model/entrada_aprobacion.dart';
@@ -21,13 +22,19 @@ export 'package:aportaya_cliente_organizador/src/model/entrada_postulacion.dart'
 export 'package:aportaya_cliente_organizador/src/model/entrada_programacion.dart';
 export 'package:aportaya_cliente_organizador/src/model/entrada_regla.dart';
 export 'package:aportaya_cliente_organizador/src/model/entrada_resolucion.dart';
+export 'package:aportaya_cliente_organizador/src/model/entrada_resolucion_de_habilitacion.dart';
+export 'package:aportaya_cliente_organizador/src/model/entrada_revision_de_habilitacion.dart';
 export 'package:aportaya_cliente_organizador/src/model/entrada_sancion.dart';
 export 'package:aportaya_cliente_organizador/src/model/error.dart';
+export 'package:aportaya_cliente_organizador/src/model/expediente_de_habilitacion.dart';
 export 'package:aportaya_cliente_organizador/src/model/faltante.dart';
 export 'package:aportaya_cliente_organizador/src/model/firmar_contrato_request.dart';
 export 'package:aportaya_cliente_organizador/src/model/habilitacion.dart';
+export 'package:aportaya_cliente_organizador/src/model/habilitacion_personal.dart';
 export 'package:aportaya_cliente_organizador/src/model/metrica.dart';
+export 'package:aportaya_cliente_organizador/src/model/pagina_de_bandeja.dart';
 export 'package:aportaya_cliente_organizador/src/model/rescindir_contrato_request.dart';
+export 'package:aportaya_cliente_organizador/src/model/resumen_de_habilitacion.dart';
 export 'package:aportaya_cliente_organizador/src/model/salida_apelacion.dart';
 export 'package:aportaya_cliente_organizador/src/model/salida_contrato.dart';
 export 'package:aportaya_cliente_organizador/src/model/salida_ejecucion.dart';

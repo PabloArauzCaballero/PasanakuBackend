@@ -86,10 +86,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU01-08",
+        "mensaje": "Expediente ya resuelto",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-resolverVerificacion-rechazo"
       }
     }
   }

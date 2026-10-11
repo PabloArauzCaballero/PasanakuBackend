@@ -15,14 +15,14 @@ Las **23 tablas** de este módulo. Justificación de negocio en [[03_aportes_pag
 | Tabla | Columnas | FK sal. | FK ent. |
 | --- | --: | --: | --: |
 | [[politica_mora]] | 10 | 1 | 2 |
-| [[obligacion_aporte]] | 22 | 7 | 7 |
+| [[obligacion_aporte]] | 22 | 7 | 8 |
 | [[plan_regularizacion]] | 7 | 2 | 2 |
 | [[proveedor_pago]] | 12 | 0 | 8 |
 | [[orden_cobro]] | 11 | 2 | 4 |
 | [[qr_cobro]] | 9 | 1 | 0 |
 | [[enlace_pago_rapido]] | 6 | 2 | 0 |
 | [[intento_pago]] | 10 | 1 | 1 |
-| [[pago]] | 19 | 4 | 9 |
+| [[pago]] | 19 | 4 | 10 |
 | [[comprobante_manual]] | 9 | 3 | 0 |
 | [[constancia_pago]] | 7 | 1 | 0 |
 | [[reembolso]] | 10 | 3 | 0 |

@@ -24,20 +24,26 @@ final class FixturaDeNucleoFinanciero {
         this.dsl = dsl;
     }
 
-    /** Una cuenta de movimiento del plan de cuentas, con saldo inicial en cero. */
+    /** Una cuenta de movimiento del plan de cuentas, con saldo inicial en cero, en bolivianos. */
     UUID cuentaDeMovimiento(String codigo, String tipo, String naturaleza) {
+        return cuentaDeMovimiento(codigo, tipo, naturaleza, "BOB");
+    }
+
+    /** La misma, en la moneda pedida: una cuenta contable es de UNA moneda (R-CTB-10). */
+    UUID cuentaDeMovimiento(String codigo, String tipo, String naturaleza, String moneda) {
         UUID id = UUID.randomUUID();
         dsl.execute(
                 """
                 INSERT INTO nucleo_financiero.cuenta_contable
-                    (id, codigo, nombre, tipo, naturaleza, nivel, es_cuenta_de_movimiento, saldo)
-                VALUES (?, ?, ?, ?, ?, 1, true, 0.00)
+                    (id, codigo, nombre, tipo, naturaleza, moneda, nivel, es_cuenta_de_movimiento, saldo)
+                VALUES (?, ?, ?, ?, ?, ?, 1, true, 0.00)
                 """,
                 id,
                 codigo,
                 "Cuenta de prueba " + codigo,
                 tipo,
-                naturaleza);
+                naturaleza,
+                moneda);
         return id;
     }
 

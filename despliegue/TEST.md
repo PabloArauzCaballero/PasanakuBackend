@@ -90,6 +90,66 @@ SMS ni correo de verdad, y es una decisión consciente para un entorno de prueba
 que haya un canal real, se cambia la variable `PERFIL_SPRING` en Coolify y este párrafo
 deja de ser cierto.
 
+## Cuentas sintéticas de prueba en TEST (2026-10-11)
+
+El alta normal no sirve para probar en TEST: exige el código de seis dígitos que llega por
+correo, y no hay buzón alcanzable (`evidencia/carril-H2`). Para poder recorrer «A organiza e
+invita, B acepta o rechaza» con login real hay **dos cuentas sembradas desde el seeder**, sin
+correos personales y sin tocar la base a mano:
+
+| Código | Qué es | Teléfono (en la app, 8 dígitos) | Roles |
+| --- | --- | --- | --- |
+| `SINT-E2E-A` | organizador e invitante | `+59170009101` (`70009101`) | `ORGANIZADOR` (trae `GRUPO_CREAR` y `GRUPO_ADMINISTRAR`) y `PARTICIPANTE` |
+| `SINT-E2E-B` | invitado | `+59170009102` (`70009102`) | `PARTICIPANTE` |
+
+Más un otorgante `SINT-E2E-0` (suspendido, sin credencial) que solo firma las asignaciones de rol.
+Son **sintéticas y declaradas** (`seeders/dev/17-usuarios-e2e-sinteticos.json`:
+`apto_produccion=false`, procedencia «inventado para este repositorio», correos `@example.invalid`).
+Lo que simulan sin que haya pasado: el nivel de verificación `BASICO` de A y B (no hay documento ni
+decisión de una persona detrás) y la habilitación de A como organizador `APRENDIZ` (no hubo
+postulación, capacitación ni contrato). Es lo único que consultan `grupos` antes de crear un grupo.
+No se sembró billetera: ni crear, ni invitar, ni aceptar la piden.
+
+**Cómo sembrarlas.** La contraseña de cada cuenta se genera fuera del repositorio, en
+`%TEMP%\aportaya-s\cuentas-test.txt` (asignaciones de shell: teléfono, clave y segundo factor). Se
+antepone al guion, así viaja por la entrada estándar del `ssh` y no queda en el servidor ni en
+`ps`:
+
+```bash
+cat "$TEMP/aportaya-s/cuentas-test.txt" despliegue/ensayos/sembrar_test.sh | ssh root@161.97.85.216 'bash -s'
+```
+
+`sembrar_test.sh` aplica **solo** esa semilla contra la base `pasanaku` de `aportaya-postgres`, calcula el
+Argon2id de `contraseña + pimienta` con la pimienta que lee del contenedor de identidad
+(`docker exec … printenv`, nunca impresa), y termina con una sonda que no abre sesión: sin segundo
+factor debe responder `422 AP-CU04-03` (credencial correcta). Es idempotente (ids estables,
+`ON CONFLICT DO NOTHING`, la credencial solo si falta): la segunda corrida dice `cambios: 0`. Aborta si
+identidad no corre con el perfil `local`, que es el que acepta `000000` como segundo factor. El SQL que
+lleva el guion lo escribe `scripts/generar_semillas.py` entre las marcas `SQL-GENERADO`; no se edita.
+
+**Cómo comprobarlas y retirarlas.**
+
+```bash
+ssh root@161.97.85.216 'bash -s -- --estado'  < despliegue/ensayos/sembrar_test.sh   # solo cuenta
+ssh root@161.97.85.216 'bash -s -- --retirar' < despliegue/ensayos/sembrar_test.sh   # baja lógica
+```
+
+`--retirar` revoca sesiones y roles, desactiva el factor, quita la credencial, deshabilita al organizador
+y marca a los usuarios eliminados, todo en una transacción. Los grupos e invitaciones que se hayan creado
+durante la prueba quedan como historial (no se borran). Volver a correr el guion las reactiva.
+
+**Ojo con el bloqueo por intentos.** `CU04Autenticar` cuenta como «fallido» todo intento sin éxito de los
+últimos 15 minutos, **incluido el primer paso de un ingreso correcto** (el que termina en `AP-CU04-03`
+porque falta el segundo factor). Con cinco ingresos seguidos, un solo error de contraseña bloquea la
+cuenta 30 minutos (`AP-CU04-05` y después `AP-CU04-02`). El guion deja un intento así por cuenta y por
+corrida (la sonda): si una cuenta queda bloqueada, se espera la media hora; no se destraba tocando la base.
+Medido contra la imagen real de identidad (`evidencia/carril-S/21-login-clave-equivocada.log`). Es
+comportamiento del servicio, no de las cuentas, y queda anotado, no corregido.
+
+**No existen en producción.** Viven en `seeders/dev/` (nunca en `minimos/`): `sembrar_dev.sql` aborta
+sin `app.entorno = 'dev'`, y `sembrar_test.sh` aborta si identidad no corre con el perfil `local` (el de
+producción no acepta el segundo factor fijo). Producción no corre ninguno de los dos.
+
 ## El corpus de identidad
 
 TEST se usa además para juntar un corpus de verificación de identidad: por cada persona
@@ -254,6 +314,124 @@ las columnas volvieron a admitir nulos.
 > `ALTER` toma un `ACCESS EXCLUSIVE` sobre su tabla. Son cambios de catálogo —no
 > reescriben la tabla, son instantáneos— pero mientras dure la transacción nadie más
 > toca esas tablas.
+
+## Secretos que hay que cargar en Coolify antes de subir (2026-10-10)
+
+Solo NOMBRES; los valores no viven en el repositorio. Cada uno se genera una vez, en una
+terminal propia, y se pega en las variables de la aplicacion `aportaya-api`:
+
+```bash
+openssl rand -hex 32     # 64 caracteres hex; el servicio exige al menos 32
+```
+
+| Variable | La lee | Sin ella | Como se ve el fallo |
+| --- | --- | --- | --- |
+| `QR_INTERNO_CLAVE` | `nucleo-financiero` | **no arranca** (`ContenidoDeQr`: «necesita al menos 32 bytes», bean `qrInterno`) | contenedor en `restarting`; la ola 3 del compose no queda sana y **las olas siguientes (publicidad, tarifas, transparencia) nunca arrancan**; las rutas `/api/v1/billetera`, `/contabilidad`, `/custodia` dan 503 |
+| `INVITACIONES_CLAVE` | `identidad` | arranca (UP) pero **toda invitacion falla en runtime** con 500: `SecretoDeInvitacion.firmar` lanza `IllegalStateException` si la clave tiene menos de 32 caracteres | readiness verde: el problema solo aparece al emitir/validar/consumir una invitacion |
+
+Ninguna de las dos tiene valor por omision a proposito (regla 90.3.4). **`INVITACIONES_CLAVE`
+no puede rotarse a la ligera**: las invitaciones ya emitidas se firman con esa clave y dejarian
+de validar.
+
+Siguen siendo las de antes y ya deben estar cargadas: `BD_CLAVE`, `BD_USUARIO_ADMIN`,
+`BD_CLAVE_ADMIN`, `ARCHIVOS_USUARIO`, `ARCHIVOS_CLAVE`, `SEGURIDAD_PIMIENTA`,
+`WEBHOOK_SECRETO`, `CERTIFICADOS_CLAVE_FIRMA`, `CUENTA_PUENTE_CUSTODIA`, `BASE_URL_PUBLICA`,
+`SIN_NIT_EMISOR`, `JWT_CLAVE_FIRMA`, `PERFIL_SPRING`, `WEB_HOSTS_PERMITIDOS`, `URL_APP`, y
+las `GMAIL_*` / `NOTIFICATION_EMAIL_PROVIDER`.
+
+`inversiones` no suma ningun secreto: su aliado queda `deshabilitado` (`INVERSIONES_ALIADO_*`
+y `INVERSIONES_LIBRO_CREDENCIAL_SERVICIO` van fijos y vacios en el compose; el servicio los
+declara con valor por omision). El unico modo que acepta un perfil productivo es
+`deshabilitado` (`GuardiaDeProduccion`).
+
+**`APORTAYA_CORS_ORIGENES`** (nueva en el compose, gateway y servicios): solo la leen los perfiles
+`staging`/`production`; con `local` no tiene efecto. Hoy no hay que cargarla. Pero **TEST no puede pasar a
+`production` todavia**: `nucleo-financiero` no arranca (no existe un `ProveedorDeRetiro` fuera de `local`/`test`,
+`ProveedorDeRetiroLocal.java:38`; `evidencia/carril-D3/FASE2.md`). Se queda en `PERFIL_SPRING=local`.
+
+**Credencial de `svc_inversiones`.** El rol nace `NOLOGIN` y el servicio no puede conectarse
+hasta que tenga clave. El compose ahora le pasa al trabajo de esquema `ROLES_CLAVE: ${BD_CLAVE}`
+y `despliegue/aplicar-esquema.sh` da esa clave **solo** a los `svc_*` que no tienen login o no
+tienen clave (no rota los que ya la tienen). No hay variable nueva que cargar.
+
+## El esquema ahora expande antes de aplicar (2026-10-10)
+
+El 503 del intento anterior tuvo una causa mas profunda que las claves: **el trabajo de esquema
+fallaba sobre la base de TEST** y, por `service_completed_successfully`, no arrancaba ningun
+servicio (`evidencia/carril-D3/FASE1.md`):
+
+```
+psql:/sql/10_tablas/02_grupos_turnos/invitacion.sql:34: ERROR:  column "consumidor_id" of relation "grupos.invitacion" does not exist
+esquema exited with code 3
+```
+
+`CREATE TABLE IF NOT EXISTS` no agrega a una tabla existente las columnas que el modelo sumo, y
+el primer `COMMENT ON COLUMN` que las nombra aborta toda la transaccion. Ademas los `CHECK` en
+linea no se refrescan (la semilla de la cuenta `CUSTODIA_INVERSION` violaba el `CHECK` viejo).
+
+`aplicar-esquema.sh` ahora **expande** antes de aplicar: aplica `aplicar.sql` en una base de
+referencia descartable, y por cada columna que le falta a una tabla real emite
+`ADD COLUMN`, y por cada `CHECK` cuya definicion cambio lo reemplaza. Es derivado y aditivo (ver
+el comentario del script); sobre una base vacia no hace nada; sin permiso para `CREATE DATABASE`
+avisa y sigue como antes. Una columna `NOT NULL` sin `DEFAULT` entra opcional.
+
+Medido contra una base con los datos de `59370bbd` (402 tablas, 11 usuarios, 25 movimientos):
+esquema `exit 0`, 436 tablas, **0 tablas pierden filas**, y una segunda corrida no agrega nada.
+
+La causa de fondo esta en el generador (`scripts/generar_ddl.py`, regla 97.1): lo correcto es que
+emita el `ADD COLUMN IF NOT EXISTS` desde el modelo. Mientras no lo haga, esta expansion es la red.
+
+## Procedimiento de subida segura a TEST, por etapas
+
+Orden y verificacion de cada etapa. Si una etapa falla, **no se sigue**.
+
+**Etapa 0 · antes de tocar nada (local).**
+`bash despliegue/ensayos/arranque_completo.sh` con `D3_ESCENARIO=actualizacion` (aplica `sql/`
+de lo que corre hoy en TEST y despues el actual, levanta los servicios y corre el humo). Debe
+terminar con `RESUMEN humo: 0 falla(s)`. Un `COMMIT` anterior distinto del de TEST se fija con
+`D3_COMMIT_ANTERIOR=<sha>`.
+
+**Etapa 1 · secretos.** Cargar `QR_INTERNO_CLAVE` e `INVITACIONES_CLAVE` en Coolify
+(arriba). Verificar que **ambas** existen y tienen 64 caracteres, sin mostrarlas.
+
+**Etapa 2 · respaldo.** `pg_dump -Fc pasanaku > /opt/aportaya/respaldos/pre-<sha>.dump` en el
+VPS y `pg_restore --list` sobre el archivo (un respaldo que no se lee no es respaldo, regla
+97.3.6). Anotar el sha desplegado hoy: es el destino del revert.
+
+**Etapa 3 · imagen del esquema y del gateway.** Construir `aportaya/esquema:test` y
+`aportaya/gateway:test` (el timer lo hace; o `docker build -f despliegue/Dockerfile.esquema`).
+Verificar `docker image inspect aportaya/esquema:test`. Correr el trabajo de esquema **solo**, a mano,
+contra la base real y leer su salida: debe terminar `esquema: listo`, con la lista de columnas
+agregadas y `roles svc_* con credencial: 15 de 15`.
+
+```bash
+docker run --rm --network aportaya-interna -e PGHOST=postgres -e PGUSER="$BD_USUARIO_ADMIN"   -e PGPASSWORD="$BD_CLAVE_ADMIN" -e PGDATABASE=pasanaku -e ROLES_CLAVE="$BD_CLAVE" aportaya/esquema:test
+```
+
+Como es aditivo, **las imagenes viejas siguen funcionando contra el esquema nuevo** (columnas nuevas
+opcionales o con default, tablas nuevas ignoradas). Esta es la etapa «expandir» de la regla 97.3.5.
+
+**Etapa 4 · servicios.** Reconstruir las quince imagenes (de a una; el timer) y desplegar. Orden
+que impone el compose: `esquema` -> `identidad` -> olas de a cuatro. Verificar:
+
+```bash
+docker ps --format '{{.Names}} {{.Status}}' | grep -v healthy   # nada debe quedar unhealthy/restarting
+for s in identidad nucleo-financiero inversiones; do
+  docker exec "$(docker ps --format '{{.Names}}' | grep "^$s-")"     wget -qO- http://127.0.0.1:8080/actuator/health/readiness; echo; done
+```
+
+**Etapa 5 · humo por el borde.** `GET https://api.aportaya…/api/v1/sesiones` sin token debe dar 401
+(no 503/504); `GET /api/v1/inversiones/productos` sin token, 401; un login con el operador de plataforma.
+Es lo que hace `despliegue/ensayos/arranque/humo.sh` apuntando al gateway local.
+
+**Marcha atras, sin perdida de datos.** El esquema solo se expandio: no hay nada que deshacer en
+la base. Se revierte el codigo con un **revert-commit** sobre `test` (el mismo mecanismo que ya se
+uso: `git revert <sha-de-la-subida>`, push, y el timer reconstruye y despliega el estado anterior).
+Si ademas fallo el trabajo de esquema, no se tocó la base (la transaccion es una sola). El
+respaldo de la etapa 2 solo se restaura si hubo corrupcion, no para volver atras.
+
+Dos cosas que un revert **no** deshace, a saber: (1) las columnas y tablas agregadas siguen ahi
+—inofensivas para el codigo viejo—, y (2) las restricciones `CHECK` ya ensanchadas.
 
 ## Lo que este entorno NO es
 

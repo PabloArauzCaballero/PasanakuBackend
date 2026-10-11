@@ -46,9 +46,14 @@ final restriccionVigenteProvider = FutureProvider.autoDispose
 /// Quien soy y en qué grupo participo, resuelto con la SESIÓN: la pestaña «Grupos» abre sus pantallas
 /// sin ids en la ruta (B36). `participanteId` queda vacío si todavía no participa de ningún grupo.
 class MiParticipacion {
-  const MiParticipacion({required this.usuarioId, required this.participanteId});
+  const MiParticipacion({
+    required this.usuarioId,
+    required this.participanteId,
+    this.grupoId = '',
+  });
   final String usuarioId;
   final String participanteId;
+  final String grupoId;
 }
 
 final miParticipacionProvider = FutureProvider.autoDispose<MiParticipacion>((
@@ -62,6 +67,7 @@ final miParticipacionProvider = FutureProvider.autoDispose<MiParticipacion>((
     return MiParticipacion(
       usuarioId: usuarioId,
       participanteId: primera?.participanteId ?? '',
+      grupoId: primera?.grupoId ?? '',
     );
   } catch (e) {
     throw errorDeDominio(e);

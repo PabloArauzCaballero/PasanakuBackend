@@ -4,6 +4,7 @@ import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.jooq.DSLContext;
@@ -41,6 +42,7 @@ public class OrdenRetiroRepositorio {
             // nunca hardcodeado aca: esta clase es infraestructura, no la maquina de
             // estados.
             String estadoInicial,
+            Optional<UUID> cotizacionId,
             OffsetDateTime ahora) {
 
         UUID id = UUID.randomUUID();
@@ -59,6 +61,7 @@ public class OrdenRetiroRepositorio {
                 .set(DSL.field("requiere_doble_aprobacion", Boolean.class), requiereDobleAprobacion)
                 .set(DSL.field("ventana_enfriamiento_hasta", OffsetDateTime.class), enfriamientoHasta.orElse(null))
                 .set(DSL.field("clave_idempotencia", String.class), claveIdempotencia)
+                .set(DSL.field("cotizacion_id", UUID.class), cotizacionId.orElse(null))
                 .set(DSL.field("solicitada_en", OffsetDateTime.class), ahora)
                 .execute();
         return id;
@@ -75,7 +78,13 @@ public class OrdenRetiroRepositorio {
                         DSL.field("moneda", String.class),
                         DSL.field("estado", String.class),
                         DSL.field("solicitada_por", UUID.class),
-                        DSL.field("referencia_proveedor", String.class))
+                        DSL.field("referencia_proveedor", String.class),
+                        DSL.field("instrumento_destino_id", UUID.class),
+                        DSL.field("aprobada_por", UUID.class),
+                        DSL.field("requiere_doble_aprobacion", Boolean.class),
+                        DSL.field("ventana_enfriamiento_hasta", OffsetDateTime.class),
+                        DSL.field("transaccion_id", UUID.class),
+                        DSL.field("cotizacion_id", UUID.class))
                 .from(DSL.table(DSL.name("nucleo_financiero", "orden_retiro")))
                 .where(DSL.field("id", UUID.class).eq(ordenId))
                 .fetchOne();
@@ -97,7 +106,13 @@ public class OrdenRetiroRepositorio {
                         DSL.field("moneda", String.class),
                         DSL.field("estado", String.class),
                         DSL.field("solicitada_por", UUID.class),
-                        DSL.field("referencia_proveedor", String.class))
+                        DSL.field("referencia_proveedor", String.class),
+                        DSL.field("instrumento_destino_id", UUID.class),
+                        DSL.field("aprobada_por", UUID.class),
+                        DSL.field("requiere_doble_aprobacion", Boolean.class),
+                        DSL.field("ventana_enfriamiento_hasta", OffsetDateTime.class),
+                        DSL.field("transaccion_id", UUID.class),
+                        DSL.field("cotizacion_id", UUID.class))
                 .from(DSL.table(DSL.name("nucleo_financiero", "orden_retiro")))
                 .where(DSL.field("estado", String.class).eq("EN_PROCESO"))
                 .fetch(OrdenRetiroRepositorio::aOrden);
@@ -114,7 +129,13 @@ public class OrdenRetiroRepositorio {
                 Dinero.de(f.get("monto_neto", BigDecimal.class), moneda),
                 f.get("estado", String.class),
                 f.get("solicitada_por", UUID.class),
-                Optional.ofNullable(f.get("referencia_proveedor", String.class)));
+                Optional.ofNullable(f.get("referencia_proveedor", String.class)),
+                f.get("instrumento_destino_id", UUID.class),
+                Optional.ofNullable(f.get("aprobada_por", UUID.class)),
+                f.get("requiere_doble_aprobacion", Boolean.class),
+                Optional.ofNullable(f.get("ventana_enfriamiento_hasta", OffsetDateTime.class)),
+                Optional.ofNullable(f.get("transaccion_id", UUID.class)),
+                Optional.ofNullable(f.get("cotizacion_id", UUID.class)));
     }
 
     /**
@@ -128,6 +149,16 @@ public class OrdenRetiroRepositorio {
         BloqueoDeIdempotencia.tomar(dsl, "orden_retiro", cuentaId.toString(), clave);
     }
 
+    /** La orden bloqueada: dos despachos a la vez de la misma orden se turnan. */
+    public Optional<UUID> bloquear(DSLContext dsl, UUID ordenId) {
+        return Optional.ofNullable(dsl.select(DSL.field("id", UUID.class))
+                .from(DSL.table(DSL.name("nucleo_financiero", "orden_retiro")))
+                .where(DSL.field("id", UUID.class).eq(ordenId))
+                .forUpdate()
+                .fetchOne(DSL.field("id", UUID.class)));
+    }
+
+    /** La unicidad es (cuenta, clave) (R-BIL-06): la clave sola no identifica nada. */
     public Optional<UUID> porClaveIdempotencia(DSLContext dsl, UUID cuentaId, String clave) {
         return Optional.ofNullable(dsl.select(DSL.field("id", UUID.class))
                 .from(DSL.table(DSL.name("nucleo_financiero", "orden_retiro")))
@@ -138,44 +169,35 @@ public class OrdenRetiroRepositorio {
 
     /** Transicion condicionada al estado previo: la carrera la decide el UPDATE. */
     public boolean pasarA(DSLContext dsl, UUID ordenId, String desde, String hacia, OffsetDateTime pagadaEn) {
+        return pasarADesde(dsl, ordenId, List.of(desde), hacia, pagadaEn);
+    }
+
+    /** Igual, pero admite varios estados de origen: una orden en proceso tambien se paga o se rechaza. */
+    public boolean pasarADesde(
+            DSLContext dsl, UUID ordenId, List<String> desde, String hacia, OffsetDateTime pagadaEn) {
         var paso = dsl.update(DSL.table(DSL.name("nucleo_financiero", "orden_retiro")))
                 .set(DSL.field("estado", String.class), hacia)
                 .set(DSL.field("pagada_en", OffsetDateTime.class), pagadaEn);
         return paso.where(DSL.field("id", UUID.class).eq(ordenId))
-                        .and(DSL.field("estado").eq(desde))
+                        .and(DSL.field("estado").in(desde))
                         .execute()
                 > 0;
     }
 
     /**
-     * EN_REVISION → AUTORIZADA (H3.S2): un aprobador DISTINTO del solicitante.
-     *
-     * <p>{@code aprobada_por <> solicitada_por} se repite aca aunque
-     * {@code ck_retiro_doble_aprobacion} ya lo exige en la base: la base rechaza con
-     * un error generico de restriccion, y {@code CU11.aprobar} necesita distinguir
-     * "ya no esta en revision" (alguien mas la resolvio primero) de "sos el mismo que
-     * la pidio" para dar el codigo de error correcto — R-SEG-04 no perdona, pero el
-     * mensaje si puede ser util.
+     * La orden AUTORIZADA sale hacia el proveedor: pasa a EN_PROCESO y fija la referencia que el
+     * proveedor conocera (la de la orden). Repetirlo sobre una orden ya en proceso no cambia nada, y
+     * no pisa una referencia que el proveedor ya devolvio por la via de {@code instruirPago}.
      */
-    public boolean pasarAAutorizadaPorAprobacion(DSLContext dsl, UUID ordenId, UUID aprobadaPor) {
+    public boolean enviarAlProveedor(DSLContext dsl, UUID ordenId) {
         return dsl.update(DSL.table(DSL.name("nucleo_financiero", "orden_retiro")))
-                        .set(DSL.field("estado", String.class), "AUTORIZADA")
-                        .set(DSL.field("aprobada_por", UUID.class), aprobadaPor)
+                        .set(DSL.field("estado", String.class), "EN_PROCESO")
+                        .set(
+                                DSL.field("referencia_proveedor", String.class),
+                                DSL.coalesce(
+                                        DSL.field("referencia_proveedor", String.class), DSL.val(ordenId.toString())))
                         .where(DSL.field("id", UUID.class).eq(ordenId))
-                        .and(DSL.field("estado").eq("EN_REVISION"))
-                        .and(DSL.field("solicitada_por", UUID.class).ne(aprobadaPor))
-                        .execute()
-                > 0;
-    }
-
-    /** EN_REVISION → RECHAZADA (H3.S2): el aprobador la rechaza, sin llegar a AUTORIZADA. */
-    public boolean pasarARechazadaPorAprobacion(DSLContext dsl, UUID ordenId, UUID aprobadaPor) {
-        return dsl.update(DSL.table(DSL.name("nucleo_financiero", "orden_retiro")))
-                        .set(DSL.field("estado", String.class), "RECHAZADA")
-                        .set(DSL.field("aprobada_por", UUID.class), aprobadaPor)
-                        .where(DSL.field("id", UUID.class).eq(ordenId))
-                        .and(DSL.field("estado").eq("EN_REVISION"))
-                        .and(DSL.field("solicitada_por", UUID.class).ne(aprobadaPor))
+                        .and(DSL.field("estado").in("AUTORIZADA", "EN_PROCESO"))
                         .execute()
                 > 0;
     }
@@ -195,6 +217,14 @@ public class OrdenRetiroRepositorio {
                         .and(DSL.field("estado").eq("AUTORIZADA"))
                         .execute()
                 > 0;
+    }
+
+    /** Deja anotada la transaccion del libro que pago la orden (la columna existia y nadie la llenaba). */
+    public void vincularTransaccion(DSLContext dsl, UUID ordenId, UUID transaccionId) {
+        dsl.update(DSL.table(DSL.name("nucleo_financiero", "orden_retiro")))
+                .set(DSL.field("transaccion_id", UUID.class), transaccionId)
+                .where(DSL.field("id", UUID.class).eq(ordenId))
+                .execute();
     }
 
     /** El instrumento de destino, con lo que las condiciones duras necesitan mirar. */
@@ -256,7 +286,13 @@ public class OrdenRetiroRepositorio {
             Dinero neto,
             String estado,
             UUID solicitadaPor,
-            Optional<String> referenciaProveedor) {}
+            Optional<String> referenciaProveedor,
+            UUID instrumentoDestinoId,
+            Optional<UUID> aprobadaPor,
+            boolean requiereDobleAprobacion,
+            Optional<OffsetDateTime> enfriamientoHasta,
+            Optional<UUID> transaccionId,
+            Optional<UUID> cotizacionId) {}
 
     public record Instrumento(
             UUID usuarioId, boolean verificado, boolean titularCoincide, Optional<OffsetDateTime> bloqueadoHasta) {}

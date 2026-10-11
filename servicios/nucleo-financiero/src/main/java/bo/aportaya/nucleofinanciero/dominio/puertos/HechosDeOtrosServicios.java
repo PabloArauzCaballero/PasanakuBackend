@@ -1,5 +1,7 @@
 package bo.aportaya.nucleofinanciero.dominio.puertos;
 
+import bo.aportaya.plataforma.dominio.Dinero;
+import bo.aportaya.plataforma.dominio.Moneda;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,4 +33,11 @@ public interface HechosDeOtrosServicios {
 
     /** Si participa hoy de algun grupo vivo. Sin respuesta se asume que si. */
     boolean participaEnGrupoActivo(UUID usuarioId);
+
+    /**
+     * Cuanto de su plata esta afectado a aportes y pozos (deuda vigente mas lo por aportar), en esa
+     * moneda. Vacio si {@code aportes} no responde o informa otra moneda: quien pregunta NO asume
+     * cero, omite el dato y el consumidor falla cerrado.
+     */
+    Optional<Dinero> comprometidoEnPozos(UUID usuarioId, Moneda moneda);
 }

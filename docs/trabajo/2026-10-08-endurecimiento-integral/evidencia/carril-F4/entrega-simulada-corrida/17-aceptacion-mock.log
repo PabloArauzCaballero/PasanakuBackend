@@ -1,0 +1,37 @@
+heavy.sh: candado tomado, libres 4342 MB -> bash /c/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/backoffice/e2e/aceptacion/scripts/aceptacion.sh mock
+== backoffice (ng serve) en http://127.0.0.1:5449, proxy -> http://127.0.0.1:5448
+== web (ng serve) en http://127.0.0.1:5450
+== suite de dos usuarios (backoffice + doble/real), modo mock
+
+Running 21 tests using 1 worker
+
+  ✓   1 e2e\aceptacion\f1-invitacion.aceptacion.e2e.ts:16:7 › F1 · invitación por enlace de un solo uso › el secreto sale de la URL y de toda petición; A pide ingreso; el enlace se consume una sola vez (2.6s)
+  ✓   2 e2e\aceptacion\f1-invitacion.aceptacion.e2e.ts:69:7 › F1 · invitación por enlace de un solo uso › el reintento con la MISMA clave devuelve la misma solicitud (la respuesta se perdió, no se duplica) (50ms)
+  ✓   3 e2e\aceptacion\f1-invitacion.aceptacion.e2e.ts:80:7 › F1 · invitación por enlace de un solo uso › rechazos del canje: sin sesión, secreto mal formado, secreto de otra invitación y clave ausente (56ms)
+  ✓   4 e2e\aceptacion\f1-invitacion.aceptacion.e2e.ts:94:7 › F1 · invitación por enlace de un solo uso › segundo uso en la web: el enlace consumido se sigue viendo «listo» pero la pantalla declara que no puede verificar la vigencia (530ms)
+  ✓   5 e2e\aceptacion\f2-aceptar.aceptacion.e2e.ts:20:7 › F2 · aceptar una solicitud (dos usuarios) › B aprueba con motivo, el estado persiste tras recargar y A ve su participación una sola vez (4.8s)
+  ✓   6 e2e\aceptacion\f3-rechazar.aceptacion.e2e.ts:18:7 › F3 · rechazar una solicitud (dos usuarios) › B rechaza con motivo; no queda membresía; no se puede reabrir sin una nueva revisión (4.0s)
+  ✓   7 e2e\aceptacion\f3-rechazar.aceptacion.e2e.ts:72:7 › F3 · rechazar una solicitud (dos usuarios) › el motivo de más de 1000 caracteres se rechaza en el campo y no se envía (999ms)
+  ✓   8 e2e\aceptacion\f3-rechazar.aceptacion.e2e.ts:87:7 › F3 · rechazar una solicitud (dos usuarios) › A no puede leer el expediente de su propia solicitud ni decidir sobre ella (separación de funciones) (47ms)
+  ✘   9 e2e\aceptacion\f3-rechazar.aceptacion.e2e.ts:95:7 › F3 · rechazar una solicitud (dos usuarios) › DESEADO: A ve el rechazo con su motivo (hoy no existe cómo) (52ms)
+  ✓  10 e2e\aceptacion\f4-limites.aceptacion.e2e.ts:11:7 › F4 · límites de la admisión › un operador sin permiso sobre admisiones no ve la sección ni puede abrirla; el servidor también lo rechaza (403) (1.0s)
+  ✓  11 e2e\aceptacion\f4-limites.aceptacion.e2e.ts:31:7 › F4 · límites de la admisión › nadie resuelve su propia postulación ni se la propone: A (postulante) recibe 403 en ambas rutas (48ms)
+  ✓  12 e2e\aceptacion\f4-limites.aceptacion.e2e.ts:44:7 › F4 · límites de la admisión › doble resolución concurrente: dos pestañas de B con decisiones opuestas dejan UNA sola decisión (2.0s)
+  ✓  13 e2e\aceptacion\f4-limites.aceptacion.e2e.ts:79:7 › F4 · límites de la admisión › respuesta perdida: B no la reenvía a ciegas, verifica, y el reintento con la MISMA clave no duplica (1.6s)
+  ✓  14 e2e\aceptacion\f4-limites.aceptacion.e2e.ts:121:7 › F4 · límites de la admisión › el envío que nunca llegó: verificar no la encuentra y el reintento reutiliza la MISMA clave (1.7s)
+  ✓  15 e2e\aceptacion\f4-limites.aceptacion.e2e.ts:145:7 › F4 · límites de la admisión › estados de la pantalla: cargando, vacío (sin propuesta) y error del servidor (2.4s)
+  ✓  16 e2e\aceptacion\f5-pendientes.aceptacion.e2e.ts:37:9 › F5 · mercado de turnos pendiente documentado; retiro con pantalla solo en backoffice › apps/web/src: no hay rutas de pantalla ni llamadas a los endpoints de permuta, cesión o mercado de turnos (5ms)
+  ✓  17 e2e\aceptacion\f5-pendientes.aceptacion.e2e.ts:37:9 › F5 · mercado de turnos pendiente documentado; retiro con pantalla solo en backoffice › apps/backoffice/src: no hay rutas de pantalla ni llamadas a los endpoints de permuta, cesión o mercado de turnos (10ms)
+  ✓  18 e2e\aceptacion\f5-pendientes.aceptacion.e2e.ts:49:7 › F5 · mercado de turnos pendiente documentado; retiro con pantalla solo en backoffice › el retiro con doble aprobación tiene su ruta en backoffice, con su permiso, y ninguna en el sitio web (5ms)
+  ✓  19 e2e\aceptacion\f5-pendientes.aceptacion.e2e.ts:58:7 › F5 · mercado de turnos pendiente documentado; retiro con pantalla solo en backoffice › queda registrado qué falta para cubrir el mercado de turnos (0ms)
+  ✓  20 e2e\aceptacion\f5-retiro.aceptacion.e2e.ts:25:7 › F5 · retiro con doble aprobación (dos tesoreros) › quien pidió el retiro no lo aprueba; otra persona lo autoriza una sola vez y la tercera ve que ya no está en revisión (5.1s)
+  ✓  21 e2e\aceptacion\f5-retiro.aceptacion.e2e.ts:84:7 › F5 · retiro con doble aprobación (dos tesoreros) › rechazar con motivo libera la orden y queda registrado; un campo de más no llega al servidor (1.2s)
+
+  21 passed (29.2s)
+== lado A en el sitio web
+
+Running 1 test using 1 worker
+
+  ✓  1 pruebas\e2e\aceptacion\a-invitacion.aceptacion.e2e.ts:14:7 › A · página de invitación (apps/web) › estados: lista, código inválido, sin código y secreto en la consulta; el secreto no queda en ningún lado (4.6s)
+
+  1 passed (5.2s)

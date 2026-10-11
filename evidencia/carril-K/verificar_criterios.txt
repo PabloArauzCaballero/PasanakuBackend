@@ -1,0 +1,3 @@
+casos de uso implementados y verificados: 106
+pendientes de implementar (3): CU-05 (identidad), CU-51 (aportes), CU-57 (nucleo-financiero)
+Sin divergencias entre la boveda y el codigo.

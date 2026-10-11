@@ -62,7 +62,13 @@
     },
     "rechazo": {
       "estado": 422,
-      "cuerpo": null
+      "cuerpo": {
+        "tipo": "about:blank",
+        "titulo": "Sorteo no revelado",
+        "estado": 422,
+        "codigo": "AP-CU61-01",
+        "detalle": null
+      }
     }
   }
 }

@@ -1,0 +1,60 @@
+#23 16.37 OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+#23 16.37 OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+#23 16.37 ############################################################################################
+#23 16.37 # Thanks for using OpenAPI Generator.                                                      #
+#23 16.37 # We appreciate your support! Please consider donation to help us maintain this project.   #
+#23 16.37 # https://opencollective.com/openapi_generator/donate                                      #
+#23 16.37 ############################################################################################
+#23 16.37 Successfully generated code to /construccion/servicios/aportes/build/generated/openapi
+#23 17.87 
+#23 17.87 > Task :servicios:aportes:generateJooq
+#23 17.87 Version mismatch         : Database version is older than what dialect POSTGRES supports: 16.15 (Debian 16.15-1.pgdg13+2). Consider https://www.jooq.org/download/support-matrix to see what jOOQ version and edition supports which RDBMS versions.
+#23 17.87 Ambiguous key name       : The one-to-many key aportes.fk_obligacion_aporte_obligacion_origen_id generates an inbound key method name obligacionAporte on table aportes.obligacion_aporte which conflicts with the previously generated key method name for key aportes.fk_obligacion_aporte_obligacion_origen_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+#23 17.87  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+#23 17.87  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+#23 17.87  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+#23 20.57 
+#23 20.57 > Task :servicios:aportes:compileJava
+#23 20.57 > Task :servicios:aportes:processResources
+#23 20.57 > Task :servicios:aportes:classes
+#23 20.57 > Task :servicios:aportes:resolveMainClassName
+#23 21.76 > Task :servicios:aportes:bootJar
+#23 21.76 
+#23 21.76 BUILD SUCCESSFUL in 21s
+#23 21.76 26 actionable tasks: 17 executed, 9 from cache
+#23 21.76 Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+#23 DONE 22.0s
+
+#24 [construccion 14/15] RUN mkdir -p /capas && cd /capas     && java -Djarmode=tools -jar /construccion/servicios/aportes/build/libs/*.jar extract --layers --launcher --destination /capas
+#24 DONE 0.6s
+
+#25 [construccion 15/15] RUN mkdir -p /nativo /tmp/nativo && cd /tmp/nativo     && case "$(uname -m)" in x86_64) prefijo=linux-x86-64 ;; aarch64) prefijo=linux-aarch64 ;; *) prefijo=desconocido ;; esac     && for j in /capas/dependencies/BOOT-INF/lib/jna-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "com/sun/jna/${prefijo}/libjnidispatch.so" && cp "com/sun/jna/${prefijo}/libjnidispatch.so" /nativo/; done     && for j in /capas/dependencies/BOOT-INF/lib/argon2-jvm-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "${prefijo}/libargon2.so" && cp "${prefijo}/libargon2.so" /nativo/; done     ; ls -l /nativo
+#25 0.072 total 0
+#25 DONE 0.1s
+
+#26 [runtime 4/8] COPY --from=construccion --chown=app:app /capas/dependencies/ ./
+#26 DONE 0.2s
+
+#27 [runtime 5/8] COPY --from=construccion --chown=app:app /capas/spring-boot-loader/ ./
+#27 DONE 0.0s
+
+#28 [runtime 6/8] COPY --from=construccion --chown=app:app /capas/snapshot-dependencies/ ./
+#28 DONE 0.0s
+
+#29 [runtime 7/8] COPY --from=construccion --chown=app:app /capas/application/ ./
+#29 DONE 0.0s
+
+#30 [runtime 8/8] COPY --from=construccion /nativo/ /app/nativo/
+#30 DONE 0.0s
+
+#31 exporting to image
+#31 exporting layers
+#31 exporting layers 1.2s done
+#31 exporting manifest sha256:3c0048c7b42e972d660c459f9b9cbfbd5ea522b1adb12e90506844c453776407 done
+#31 exporting config sha256:b407a6e4f9e4ab33f6875c84d5515efeee5174b1317bf740cb98c3807ebd5c17 done
+#31 exporting attestation manifest sha256:77aaef05ac6de7a7daf788f9ebdd5de75a1d87b21644ea641eb4eb3b0e979424 0.0s done
+#31 exporting manifest list sha256:3edb91e20045b46855ab8ca3a810c34d5366500e65f9227067c598fa9cf44999 done
+#31 naming to docker.io/aportaya/aportes:test done
+#31 unpacking to docker.io/aportaya/aportes:test
+#31 unpacking to docker.io/aportaya/aportes:test 0.3s done
+#31 DONE 1.5s

@@ -1,0 +1,20 @@
+Inspeccion visual carril F2 (todas las capturas abiertas con Read; 71 en capturas/ + las 25 de carril-E vistas antes de corregir).
+Todo lo que corrio contra Prism/doble de red: VERIFIED_FUNCTIONAL_ONLY (no es integracion real).
+DEFECTOS ENCONTRADOS Y CORREGIDOS
+1. Pagina de backoffice con desborde horizontal (291 px a 360 px) con la tabla de cobros: la tabla (grid item) no se encogia. Corregido: tabla-de-datos-virtualizada :host min-width:0.
+2. Contraste: chip/reloj tono "info" (3,78:1) -> usa --info-texto; reloj-de-plazo error/aviso usaban --err/--warn (texto) -> --err-texto/--aviso-texto; formulario-de-caso .aviso.
+3. Clase global .etiqueta del sitio (mayusculas, naranja, tracking) pisaba ap-tarjeta-saldo (1,44:1): renombrada a .rotulo en 4 componentes de packages/ui.
+4. Borde de controles (campo, radio, casilla, interruptor, OTP) a 1,5:1 (WCAG 1.4.11): token derivado --borde-control (3:1+).
+5. Esqueleto de carga casi invisible (surface-2 sobre bg): --esqueleto derivado.
+6. Cabecera movil del backoffice: marca partida en 3 lineas junto al boton de ayuda: flex-wrap + nowrap en la marca.
+7. Item activo del menu del backoffice (texto verde sobre verde claro 2,85:1): fondo mezclado y texto var(--text).
+8. Foco no volvia al boton que abrio el dialogo cuando el dialogo se destruye con @if (reclamos, escaladas, cierre de periodo, cobro): Dialogo devuelve el foco.
+9. Cobro/pago enviaban el texto crudo del campo ("100", "1.240,50") en vez de la cadena del contrato ("100.00"/"1240.50") y validaban exceso con el texto crudo: corregido con aCadenaDelContrato.
+10. Errores de envio de cobro/pago/cierre/depreciacion/estados/habilitacion/expedientes se tragaban en silencio: ap-error-de-envio.
+11. Ejemplos del mock sin tildes ("Reputacion", "concentracion").
+NO CORREGIDOS (anotados)
+- Navegacion del sitio web en 360 px: "Seguridad/Preguntas/Guia" cortadas por desbordamiento del menu (hay degradado, sin indicador de desplazamiento).
+- Columna de acciones de la tabla de cobros en 1280 px trunca "Registrar el cobro" (celda con overflow hidden).
+- Dialogo alto en movil (740 px): el contenido hace scroll interno y el boton de confirmar queda fuera de la vista inicial.
+- Pantalla de billetera muestra el codigo crudo del rol (ADMIN_PLATAFORMA) en la cabecera.
+- Capturas de componentes del catalogo web son de elemento: no muestran el viewport.

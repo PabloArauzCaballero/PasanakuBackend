@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.cuenta_contable (
   nombre                             VARCHAR(80) NOT NULL,
   tipo                               VARCHAR(15) NOT NULL,
   naturaleza                         VARCHAR(12) NOT NULL,
+  moneda                             CHAR(3) NOT NULL,
   cuenta_padre_id                    UUID,
   nivel                              SMALLINT NOT NULL,
   es_cuenta_de_movimiento            BOOLEAN DEFAULT FALSE NOT NULL,

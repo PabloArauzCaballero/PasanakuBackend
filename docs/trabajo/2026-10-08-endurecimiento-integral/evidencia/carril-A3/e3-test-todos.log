@@ -1,0 +1,352 @@
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-archivos:compileJava UP-TO-DATE
+> Task :plataforma:comun-archivos:processResources UP-TO-DATE
+> Task :plataforma:comun-archivos:classes UP-TO-DATE
+> Task :plataforma:comun-archivos:jar UP-TO-DATE
+> Task :plataforma:comun-archivos:compileTestJava UP-TO-DATE
+> Task :plataforma:comun-archivos:processTestResources NO-SOURCE
+> Task :plataforma:comun-archivos:testClasses UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+
+> Task :plataforma:comun-archivos:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileTestJava UP-TO-DATE
+> Task :plataforma:comun-datos:processTestResources NO-SOURCE
+> Task :plataforma:comun-datos:testClasses UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :plataforma:comun-datos:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :plataforma:comun-dominio:compileTestJava UP-TO-DATE
+> Task :plataforma:comun-dominio:processTestResources NO-SOURCE
+> Task :plataforma:comun-dominio:testClasses UP-TO-DATE
+
+> Task :plataforma:comun-dominio:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources NO-SOURCE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileTestJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processTestResources NO-SOURCE
+> Task :plataforma:comun-mensajeria:testClasses UP-TO-DATE
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :plataforma:comun-mensajeria:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :plataforma:comun-pruebas:compileTestJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processTestResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:testClasses UP-TO-DATE
+> Task :plataforma:comun-pruebas:test UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestResources NO-SOURCE
+> Task :plataforma:comun-web:testClasses UP-TO-DATE
+> Task :plataforma:comun-web:test UP-TO-DATE
+> Task :plataforma:gateway:compileJava UP-TO-DATE
+> Task :plataforma:gateway:processResources UP-TO-DATE
+> Task :plataforma:gateway:classes UP-TO-DATE
+> Task :plataforma:gateway:compileTestJava UP-TO-DATE
+> Task :plataforma:gateway:processTestResources NO-SOURCE
+> Task :plataforma:gateway:testClasses UP-TO-DATE
+> Task :plataforma:gateway:test NO-SOURCE
+> Task :servicios:aportes:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:aportes:generateJooq UP-TO-DATE
+> Task :servicios:aportes:compileJava UP-TO-DATE
+> Task :servicios:aportes:processResources UP-TO-DATE
+> Task :servicios:aportes:classes UP-TO-DATE
+> Task :servicios:aportes:compileTestJava UP-TO-DATE
+> Task :servicios:aportes:processTestResources UP-TO-DATE
+> Task :servicios:aportes:testClasses UP-TO-DATE
+
+> Task :servicios:aportes:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:auditoria:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:auditoria:generateJooq UP-TO-DATE
+> Task :servicios:auditoria:compileJava UP-TO-DATE
+> Task :servicios:auditoria:processResources UP-TO-DATE
+> Task :servicios:auditoria:classes UP-TO-DATE
+> Task :servicios:auditoria:compileTestJava UP-TO-DATE
+> Task :servicios:auditoria:processTestResources UP-TO-DATE
+> Task :servicios:auditoria:testClasses UP-TO-DATE
+
+> Task :servicios:auditoria:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:cumplimiento:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:cumplimiento:generateJooq UP-TO-DATE
+> Task :servicios:cumplimiento:compileJava UP-TO-DATE
+> Task :servicios:cumplimiento:processResources UP-TO-DATE
+> Task :servicios:cumplimiento:classes UP-TO-DATE
+> Task :servicios:cumplimiento:compileTestJava UP-TO-DATE
+> Task :servicios:cumplimiento:processTestResources UP-TO-DATE
+> Task :servicios:cumplimiento:testClasses UP-TO-DATE
+
+> Task :servicios:cumplimiento:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:entregas:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:entregas:generateJooq UP-TO-DATE
+> Task :servicios:entregas:compileJava UP-TO-DATE
+> Task :servicios:entregas:processResources UP-TO-DATE
+> Task :servicios:entregas:classes UP-TO-DATE
+> Task :servicios:entregas:compileTestJava UP-TO-DATE
+> Task :servicios:entregas:processTestResources UP-TO-DATE
+> Task :servicios:entregas:testClasses UP-TO-DATE
+
+> Task :servicios:entregas:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:erp:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:erp:generateJooq UP-TO-DATE
+> Task :servicios:erp:compileJava UP-TO-DATE
+> Task :servicios:erp:processResources UP-TO-DATE
+> Task :servicios:erp:classes UP-TO-DATE
+> Task :servicios:erp:compileTestJava UP-TO-DATE
+> Task :servicios:erp:processTestResources UP-TO-DATE
+> Task :servicios:erp:testClasses UP-TO-DATE
+
+> Task :servicios:erp:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:garantia:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:garantia:generateJooq UP-TO-DATE
+> Task :servicios:garantia:compileJava UP-TO-DATE
+> Task :servicios:garantia:processResources UP-TO-DATE
+> Task :servicios:garantia:classes UP-TO-DATE
+> Task :servicios:garantia:compileTestJava UP-TO-DATE
+> Task :servicios:garantia:processTestResources UP-TO-DATE
+> Task :servicios:garantia:testClasses UP-TO-DATE
+
+> Task :servicios:garantia:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:grupos:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:grupos:generateJooq UP-TO-DATE
+> Task :servicios:grupos:compileJava UP-TO-DATE
+> Task :servicios:grupos:processResources UP-TO-DATE
+> Task :servicios:grupos:classes UP-TO-DATE
+> Task :servicios:grupos:compileTestJava UP-TO-DATE
+> Task :servicios:grupos:processTestResources UP-TO-DATE
+> Task :servicios:grupos:testClasses UP-TO-DATE
+
+> Task :servicios:grupos:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:identidad:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:identidad:generateJooq UP-TO-DATE
+> Task :servicios:identidad:compileJava UP-TO-DATE
+> Task :servicios:identidad:processResources UP-TO-DATE
+> Task :servicios:identidad:classes UP-TO-DATE
+> Task :servicios:identidad:compileTestJava UP-TO-DATE
+> Task :servicios:identidad:processTestResources UP-TO-DATE
+> Task :servicios:identidad:testClasses UP-TO-DATE
+
+> Task :servicios:identidad:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:inversiones:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:inversiones:generateJooq UP-TO-DATE
+> Task :servicios:inversiones:compileJava UP-TO-DATE
+> Task :servicios:inversiones:processResources UP-TO-DATE
+> Task :servicios:inversiones:classes UP-TO-DATE
+> Task :servicios:inversiones:compileTestJava UP-TO-DATE
+> Task :servicios:inversiones:processTestResources UP-TO-DATE
+> Task :servicios:inversiones:testClasses UP-TO-DATE
+
+> Task :servicios:inversiones:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:notificaciones:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:notificaciones:generateJooq UP-TO-DATE
+> Task :servicios:notificaciones:compileJava UP-TO-DATE
+> Task :servicios:notificaciones:processResources UP-TO-DATE
+> Task :servicios:notificaciones:classes UP-TO-DATE
+> Task :servicios:notificaciones:compileTestJava UP-TO-DATE
+> Task :servicios:notificaciones:processTestResources UP-TO-DATE
+> Task :servicios:notificaciones:testClasses UP-TO-DATE
+
+> Task :servicios:notificaciones:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:nucleo-financiero:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:nucleo-financiero:generateJooq UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileJava UP-TO-DATE
+> Task :servicios:nucleo-financiero:processResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:classes UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileTestJava UP-TO-DATE
+> Task :servicios:nucleo-financiero:processTestResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:testClasses UP-TO-DATE
+
+> Task :servicios:nucleo-financiero:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:organizador:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:organizador:generateJooq UP-TO-DATE
+> Task :servicios:organizador:compileJava UP-TO-DATE
+> Task :servicios:organizador:processResources UP-TO-DATE
+> Task :servicios:organizador:classes UP-TO-DATE
+> Task :servicios:organizador:compileTestJava UP-TO-DATE
+> Task :servicios:organizador:processTestResources UP-TO-DATE
+> Task :servicios:organizador:testClasses UP-TO-DATE
+
+> Task :servicios:organizador:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:publicidad:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:publicidad:generateJooq UP-TO-DATE
+> Task :servicios:publicidad:compileJava UP-TO-DATE
+> Task :servicios:publicidad:processResources UP-TO-DATE
+> Task :servicios:publicidad:classes UP-TO-DATE
+> Task :servicios:publicidad:compileTestJava UP-TO-DATE
+> Task :servicios:publicidad:processTestResources UP-TO-DATE
+> Task :servicios:publicidad:testClasses UP-TO-DATE
+
+> Task :servicios:publicidad:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:tarifas:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:tarifas:generateJooq UP-TO-DATE
+> Task :servicios:tarifas:compileJava UP-TO-DATE
+> Task :servicios:tarifas:processResources UP-TO-DATE
+> Task :servicios:tarifas:classes UP-TO-DATE
+> Task :servicios:tarifas:compileTestJava UP-TO-DATE
+> Task :servicios:tarifas:processTestResources UP-TO-DATE
+> Task :servicios:tarifas:testClasses UP-TO-DATE
+
+> Task :servicios:tarifas:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:transparencia:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:transparencia:generateJooq UP-TO-DATE
+> Task :servicios:transparencia:compileJava UP-TO-DATE
+> Task :servicios:transparencia:processResources UP-TO-DATE
+> Task :servicios:transparencia:classes UP-TO-DATE
+> Task :servicios:transparencia:compileTestJava UP-TO-DATE
+> Task :servicios:transparencia:processTestResources UP-TO-DATE
+> Task :servicios:transparencia:testClasses UP-TO-DATE
+
+> Task :servicios:transparencia:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :test
+> Task :plataforma:comun-archivos:testBarrido NO-SOURCE
+> Task :plataforma:comun-datos:testBarrido NO-SOURCE
+> Task :plataforma:comun-dominio:testBarrido NO-SOURCE
+
+> Task :plataforma:comun-mensajeria:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :plataforma:comun-pruebas:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+SalidasSensiblesBarridoTest > barrido: ninguna salida nueva lleva PII ni credenciales; la deuda conocida esta declarada y vigente FAILED
+    java.lang.AssertionError: [lineas de salidas-sensibles-conocidas.txt que ya no existen en el codigo: borrarlas] 
+    Expecting empty but was: ["servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/clientes/HechosPorHttp.java|URL|?telefono",
+        "servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/clientes/HechosPorHttp.java|URL|telefonoE164"]
+        at bo.aportaya.plataforma.pruebas.seguridad.SalidasSensiblesBarridoTest.ningunaSalidaNuevaConDatosSensibles(SalidasSensiblesBarridoTest.java:52)
+
+5 tests completed, 1 failed
+
+> Task :plataforma:comun-pruebas:testBarrido FAILED
+> Task :plataforma:comun-web:testBarrido UP-TO-DATE
+> Task :plataforma:gateway:testBarrido NO-SOURCE
+
+> Task :servicios:aportes:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:auditoria:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:cumplimiento:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:entregas:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:erp:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:garantia:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:grupos:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:identidad:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:inversiones:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:notificaciones:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:nucleo-financiero:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:organizador:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:publicidad:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:tarifas:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:transparencia:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':plataforma:comun-pruebas:testBarrido'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/plataforma/comun-pruebas/build/reports/tests/testBarrido/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 2m 21s
+167 actionable tasks: 36 executed, 131 up-to-date
+== etapa e3-test-todos RC: 1

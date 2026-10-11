@@ -1,0 +1,29 @@
+{
+  "servicio": "grupos",
+  "operacion": "consultarAdmisibilidadDePago",
+  "metodo": "get",
+  "ruta": "/grupos/obligaciones/admisibilidad",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "esDelUsuario": true,
+        "periodoAbierto": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "esDelUsuario": false,
+        "periodoAbierto": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "esDelUsuario": true,
+        "periodoAbierto": true
+      }
+    }
+  }
+}

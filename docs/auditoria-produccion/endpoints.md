@@ -2,13 +2,15 @@
 
 > No editar a mano: se regenera con `python3 scripts/inventario_endpoints.py`. El CI falla (`--check`) si un endpoint implementado no esta en su OpenAPI, o viceversa (H2.S1 del carril PR4-seguridad).
 
-**Total de endpoints relevados:** 162.
+**Total de endpoints relevados:** 231.
 
 | Service | Method | Path | Permission | Ownership | Idempotency | Rate limit | MFA | Audit | Tests | Sensible |
 |---|---|---|---|---|---|---|---|---|---|---|
 | aportes | GET | `/aportes/grupos/{grupoId}/morosos` | BILLETERA_VER | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | aportes | POST | `/aportes/obligaciones/{obligacionId}/pagos` | BILLETERA_OPERAR | revisar (id en la ruta) | si | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | aportes | GET | `/aportes/participantes/{participanteId}/estado` | BILLETERA_VER | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| aportes | POST | `/aportes/periodos/{periodoId}/obligaciones` | ADMIN_PLATAFORMA | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| aportes | GET | `/aportes/periodos/{periodoId}/recaudo` | ENTREGA_EJECUTAR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | aportes | POST | `/pagos/enrutamiento` | BILLETERA_OPERAR | n/a | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | aportes | POST | `/pagos/proveedores` | ADMIN_PLATAFORMA | n/a | si | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | aportes | POST | `/pagos/reembolsos/{reembolsoId}/aprobacion` | REVERSO_AUTORIZAR | revisar (id en la ruta) | si | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
@@ -28,6 +30,7 @@
 | cumplimiento | POST | `/cumplimiento/usuarios/{usuarioId}/diligencia` | ANALISTA_CUMPLIMIENTO | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | cumplimiento | POST | `/cumplimiento/usuarios/{usuarioId}/pep` | PARTICIPANTE | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | cumplimiento | GET | `/licencia/alcance` | PARTICIPANTE | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| cumplimiento | GET | `/reclamos/usuarios/{usuarioId}/efecto` | RECLAMO_VER | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | entregas | POST | `/cuentas-bancarias` | BILLETERA_OPERAR | n/a | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | entregas | GET | `/cuentas-bancarias/{cuentaId}/disponibilidad` | BILLETERA_OPERAR | revisar (id en la ruta) | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | entregas | POST | `/cuentas-bancarias/{cuentaId}/principal` | BILLETERA_OPERAR | revisar (id en la ruta) | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
@@ -35,6 +38,12 @@
 | entregas | POST | `/desembolsos` | ENTREGA_EJECUTAR | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | entregas | POST | `/desembolsos/{ordenId}/respuesta` | ENTREGA_EJECUTAR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | entregas | POST | `/entregas` | ENTREGA_EJECUTAR | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| entregas | GET | `/entregas/mercado/ofertas` | PARTICIPANTE | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| entregas | POST | `/entregas/mercado/ofertas` | PARTICIPANTE | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| entregas | GET | `/entregas/mercado/ofertas/{ofertaId}` | SERVICIO_ENTREGAS | revisar (id en la ruta) | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
+| entregas | POST | `/entregas/mercado/ofertas/{ofertaId}/cancelacion` | PARTICIPANTE | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| entregas | POST | `/entregas/mercado/ofertas/{ofertaId}/compra` | PARTICIPANTE | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| entregas | POST | `/entregas/pozo-completo` | ENTREGA_EJECUTAR | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | entregas | POST | `/entregas/{entregaId}/autorizacion` | ENTREGA_AUTORIZAR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | entregas | POST | `/entregas/{entregaId}/ejecucion` | ENTREGA_EJECUTAR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | erp | POST | `/erp/activos/{activoId}/depreciaciones` | CONTABILIDAD_ERP_ACTIVOS_FIJOS | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
@@ -59,6 +68,12 @@
 | garantia | POST | `/garantia/grupos/{grupoId}/disolucion` | GRUPO_ADMINISTRAR | revisar (id en la ruta) | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | garantia | POST | `/garantia/reemplazos/{reemplazoId}/aprobacion` | GRUPO_ADMINISTRAR | revisar (id en la ruta) | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | garantia | POST | `/garantia/reemplazos/{reemplazoId}/ejecucion` | GRUPO_ADMINISTRAR | revisar (id en la ruta) | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
+| garantia | POST | `/garantia/respaldo/coberturas` | ENTREGA_EJECUTAR | n/a | si | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
+| garantia | POST | `/garantia/respaldo/coberturas/{coberturaId}/reversa` | ADMIN_PLATAFORMA | revisar (id en la ruta) | si | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
+| garantia | POST | `/garantia/respaldo/recuperaciones` | ADMIN_PLATAFORMA | n/a | si | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
+| garantia | POST | `/garantia/respaldo/reservas` | ADMIN_PLATAFORMA | n/a | si | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
+| garantia | POST | `/garantia/respaldo/reservas/{reservaId}/ampliacion` | ADMIN_PLATAFORMA | revisar (id en la ruta) | si | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
+| garantia | POST | `/garantia/respaldo/reservas/{reservaId}/liberacion` | ADMIN_PLATAFORMA | revisar (id en la ruta) | si | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | garantia | POST | `/incumplimientos` | GRUPO_ADMINISTRAR | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | garantia | POST | `/incumplimientos/{expedienteId}/aval/ejecucion` | GRUPO_ADMINISTRAR | revisar (id en la ruta) | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | garantia | POST | `/incumplimientos/{expedienteId}/cobertura` | GRUPO_ADMINISTRAR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
@@ -70,15 +85,27 @@
 | grupos | POST | `/acuerdos/{acuerdoId}/votos` | PARTICIPANTE | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | POST | `/grupos` | GRUPO_CREAR | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | GET | `/grupos/calendario/calcular` | PARTICIPANTE | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
-| grupos | POST | `/grupos/invitaciones/enlace/aceptar` | PARTICIPANTE | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
-| grupos | POST | `/grupos/invitaciones/enlace/consultar` | PARTICIPANTE | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| grupos | GET | `/grupos/calendario/vencimiento` | PARTICIPANTE | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| grupos | POST | `/grupos/invitaciones/enlace/aceptar` | SIN_IMPLEMENTAR | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| grupos | POST | `/grupos/invitaciones/enlace/consultar` | SIN_IMPLEMENTAR | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| grupos | GET | `/grupos/obligaciones/admisibilidad` | PARTICIPANTE | n/a | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
+| grupos | GET | `/grupos/participaciones` | SIN_IMPLEMENTAR | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | GET | `/grupos/participantes/alias/{alias}` | BILLETERA_OPERAR | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | GET | `/grupos/participantes/{usuarioId}/actividad` | BILLETERA_VER | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
-| grupos | GET | `/grupos/sorteos/{sorteoId}/paquete` | PARTICIPANTE | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| grupos | GET | `/grupos/periodos/{periodoId}/calendario-de-aportes` | SIN_IMPLEMENTAR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| grupos | POST | `/grupos/solicitudes/{solicitudId}/decision` | SIN_IMPLEMENTAR | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| grupos | GET | `/grupos/solicitudes/{solicitudId}/decisiones` | SIN_IMPLEMENTAR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| grupos | POST | `/grupos/solicitudes/{solicitudId}/propuestas` | SIN_IMPLEMENTAR | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| grupos | POST | `/grupos/solicitudes/{solicitudId}/resoluciones` | SIN_IMPLEMENTAR | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| grupos | GET | `/grupos/sorteos/{sorteoId}/paquete` | PUBLICO | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| grupos | POST | `/grupos/{grupoId}/administrador/sustitucion` | SIN_IMPLEMENTAR | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | POST | `/grupos/{grupoId}/cupos/{cupoId}/traspasos` | GRUPO_ADMINISTRAR | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
-| grupos | POST | `/grupos/{grupoId}/invitaciones` | GRUPO_ADMINISTRAR | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| grupos | POST | `/grupos/{grupoId}/invitaciones` | SIN_IMPLEMENTAR | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| grupos | POST | `/grupos/{grupoId}/invitaciones/{invitacionId}/canje` | SIN_IMPLEMENTAR | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| grupos | POST | `/grupos/{grupoId}/invitaciones/{invitacionId}/revocacion` | SIN_IMPLEMENTAR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | POST | `/grupos/{grupoId}/postulaciones` | PARTICIPANTE | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | POST | `/grupos/{grupoId}/retiros` | PARTICIPANTE | revisar (id en la ruta) | si | borde (gateway, H7.S4 — Pablo) | si (retiro) | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
+| grupos | GET | `/grupos/{grupoId}/solicitudes` | SIN_IMPLEMENTAR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | POST | `/grupos/{grupoId}/sorteo` | GRUPO_ADMINISTRAR | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | POST | `/grupos/{grupoId}/sorteo/revelacion` | GRUPO_ADMINISTRAR | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | POST | `/turnos/permutas` | PARTICIPANTE | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
@@ -87,21 +114,57 @@
 | identidad | GET | `/identidad/verificaciones/{verificacionId}/fotos/{cara}` | VERIFICACION_RESOLVER | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | identidad | GET | `/identidad/verificaciones/{verificacionId}/fotos/{cara}/contenido` | VERIFICACION_RESOLVER | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | identidad | POST | `/sesiones` | PUBLICO | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| identidad | POST | `/sesiones/desafios` | SIN_ANOTACION | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| identidad | POST | `/sesiones/desafios/{desafioId}/verificacion` | SIN_ANOTACION | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | identidad | POST | `/usuarios` | PUBLICO | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| identidad | POST | `/usuarios/busquedas/por-telefono` | GRUPO_ADMINISTRAR | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | identidad | GET | `/usuarios/por-telefono` | GRUPO_ADMINISTRAR | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | identidad | POST | `/usuarios/tokens/invitacion` | GRUPO_ADMINISTRAR | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | identidad | POST | `/usuarios/tokens/invitacion/validar` | PARTICIPANTE | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| identidad | POST | `/usuarios/tokens/invitacion/{tokenId}/consumos` | SIN_IMPLEMENTAR | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| identidad | POST | `/usuarios/tokens/invitacion/{tokenId}/revocacion` | SIN_IMPLEMENTAR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| identidad | POST | `/usuarios/verificaciones/correo` | PUBLICO | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| identidad | POST | `/usuarios/verificaciones/correo/{verificacionId}/confirmacion` | PUBLICO | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | identidad | POST | `/usuarios/{usuarioId}/documentos` | PUBLICO | revisar (id en la ruta) | si | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
+| identidad | GET | `/usuarios/{usuarioId}/kyc` | PARTICIPANTE | revisar (id en la ruta) | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | identidad | POST | `/usuarios/{usuarioId}/titularidad/verificacion` | DATOS_SENSIBLES_LEER | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| inversiones | GET | `/inversiones/corridas` | ADMIN_PLATAFORMA | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| inversiones | POST | `/inversiones/devengos` | ADMIN_PLATAFORMA | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| inversiones | POST | `/inversiones/instrucciones/reintento` | ADMIN_PLATAFORMA | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| inversiones | POST | `/inversiones/ordenes` | BILLETERA_OPERAR | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| inversiones | GET | `/inversiones/ordenes/{ordenId}` | BILLETERA_VER | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| inversiones | POST | `/inversiones/ordenes/{ordenId}/sincronizacion` | BILLETERA_OPERAR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| inversiones | GET | `/inversiones/posiciones` | BILLETERA_VER | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| inversiones | GET | `/inversiones/posiciones/{posicionId}` | BILLETERA_VER | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| inversiones | GET | `/inversiones/posiciones/{posicionId}/comision` | BILLETERA_VER | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| inversiones | GET | `/inversiones/posiciones/{posicionId}/comprobantes` | BILLETERA_VER | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| inversiones | GET | `/inversiones/posiciones/{posicionId}/distribuciones` | BILLETERA_VER | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| inversiones | POST | `/inversiones/posiciones/{posicionId}/rescates` | BILLETERA_OPERAR | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| inversiones | GET | `/inversiones/productos` | BILLETERA_VER | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| inversiones | POST | `/inversiones/productos/sincronizacion` | ADMIN_PLATAFORMA | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| inversiones | GET | `/inversiones/productos/{codigo}` | BILLETERA_VER | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| inversiones | GET | `/inversiones/reportes/fiscal` | BILLETERA_VER | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| inversiones | GET | `/inversiones/reportes/fiscal/exportacion` | BILLETERA_VER | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| inversiones | POST | `/inversiones/rescates/{rescateId}/sincronizacion` | BILLETERA_OPERAR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| inversiones | POST | `/inversiones/simulaciones/caja` | BILLETERA_VER | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| inversiones | POST | `/inversiones/valores-cuota/sincronizacion` | ADMIN_PLATAFORMA | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | notificaciones | POST | `/notificaciones` | SOPORTE | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | notificaciones | GET | `/notificaciones/supresion` | GRUPO_ADMINISTRAR | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| notificaciones | POST | `/notificaciones/supresion/consultas` | GRUPO_ADMINISTRAR | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | notificaciones | POST | `/notificaciones/webhooks/{proveedor}` | PUBLICO | n/a | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | nucleo-financiero | POST | `/billetera/bloqueos` | DATOS_SENSIBLES_LEER | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | nucleo-financiero | POST | `/billetera/cierres` | BILLETERA_OPERAR | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| nucleo-financiero | POST | `/billetera/cotizaciones` | BILLETERA_OPERAR | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| nucleo-financiero | POST | `/billetera/inversiones/acreditaciones` | SERVICIO_INVERSIONES | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| nucleo-financiero | POST | `/billetera/inversiones/debitos` | SERVICIO_INVERSIONES | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| nucleo-financiero | POST | `/billetera/qr` | BILLETERA_OPERAR | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| nucleo-financiero | POST | `/billetera/qr/lecturas` | BILLETERA_OPERAR | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| nucleo-financiero | POST | `/billetera/qr/pagos` | BILLETERA_OPERAR | n/a | si | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | nucleo-financiero | POST | `/billetera/recargas` | BILLETERA_OPERAR | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | nucleo-financiero | POST | `/billetera/recargas/{ordenId}/acreditacion` | TESORERIA | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | nucleo-financiero | POST | `/billetera/retenciones` | BILLETERA_OPERAR | n/a | si | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | nucleo-financiero | POST | `/billetera/retenciones/{retencionId}/cierre` | BILLETERA_OPERAR | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| nucleo-financiero | POST | `/billetera/retenciones/{retencionId}/pago-a-tercero` | SERVICIO_ENTREGAS | revisar (id en la ruta) | si | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | nucleo-financiero | POST | `/billetera/retiros` | BILLETERA_OPERAR | n/a | si | borde (gateway, H7.S4 — Pablo) | si (retiro) | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | nucleo-financiero | POST | `/billetera/retiros/{ordenId}/aprobacion` | RETIRO_APROBAR | revisar (id en la ruta) | si | borde (gateway, H7.S4 — Pablo) | si (retiro) | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | nucleo-financiero | POST | `/billetera/reversos` | REVERSO_AUTORIZAR | n/a | si | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
@@ -116,9 +179,15 @@
 | organizador | POST | `/organizadores/contratos/{contratoId}/firma` | ORGANIZADOR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | organizador | POST | `/organizadores/contratos/{contratoId}/rescision` | ADMIN_PLATAFORMA | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | organizador | POST | `/organizadores/postulaciones` | PARTICIPANTE | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| organizador | GET | `/organizadores/postulaciones/bandeja` | SIN_IMPLEMENTAR | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| organizador | GET | `/organizadores/postulaciones/mia` | SIN_IMPLEMENTAR | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | organizador | POST | `/organizadores/postulaciones/{solicitudId}/aprobacion` | ADMIN_PLATAFORMA | revisar (id en la ruta) | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
+| organizador | GET | `/organizadores/postulaciones/{solicitudId}/expediente` | SIN_IMPLEMENTAR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| organizador | POST | `/organizadores/postulaciones/{solicitudId}/resolucion` | SIN_IMPLEMENTAR | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| organizador | POST | `/organizadores/postulaciones/{solicitudId}/revision` | SIN_IMPLEMENTAR | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | organizador | POST | `/organizadores/sanciones/{sancionId}/apelacion` | ORGANIZADOR | revisar (id en la ruta) | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
 | organizador | POST | `/organizadores/sanciones/{sancionId}/resolucion` | ADMIN_PLATAFORMA | revisar (id en la ruta) | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
+| organizador | GET | `/organizadores/usuarios/{usuarioId}/habilitacion` | GRUPO_CREAR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | organizador | POST | `/organizadores/{organizadorId}/contratos` | ADMIN_PLATAFORMA | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | organizador | POST | `/organizadores/{organizadorId}/evaluaciones` | ADMIN_PLATAFORMA | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | organizador | GET | `/organizadores/{organizadorId}/habilitacion` | GRUPO_CREAR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |

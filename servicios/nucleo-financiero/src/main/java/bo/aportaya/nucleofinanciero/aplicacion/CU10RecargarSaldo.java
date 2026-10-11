@@ -2,6 +2,7 @@ package bo.aportaya.nucleofinanciero.aplicacion;
 
 import bo.aportaya.nucleofinanciero.aplicacion.CU40EvaluarLimites.EntradaLimites;
 import bo.aportaya.nucleofinanciero.dominio.CostoDeOperacion;
+import bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRecargas.Confirmacion;
 import bo.aportaya.nucleofinanciero.infraestructura.CuentaBilleteraRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera;
 import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera.Pata;
@@ -77,17 +78,22 @@ public class CU10RecargarSaldo {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
         return datos.conContexto(ctx, dsl -> {
-            ordenes.bloquearIdempotencia(dsl, entrada.cuentaBilleteraId(), entrada.claveIdempotencia());
-            // La clave se valida ANTES de escribir (invariante 7). Repetir el pedido
-            // devuelve la misma orden, no una segunda.
-            var yaExiste = ordenes.porClaveIdempotencia(dsl, entrada.cuentaBilleteraId(), entrada.claveIdempotencia());
-            if (yaExiste.isPresent()) {
-                var orden = ordenes.ver(dsl, yaExiste.get()).orElseThrow();
-                return new SalidaSolicitud(orden.id(), orden.estado(), orden.expiraEn(), null);
-            }
-
+            // La billetera se bloquea y se autoriza ANTES de tomar el lock de idempotencia: asi un tercero no
+            // puede ocupar el lock de (cuenta, clave) de otra persona.
             var cuenta = cuentas.bloquear(dsl, entrada.cuentaBilleteraId())
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(10, 4), "Esa billetera no existe."));
+            if (!ctx.usuarioId().equals(cuenta.usuarioId())) {
+                throw new ErrorDeNegocio(CodigoError.de(10, 4), "Solo el titular puede solicitar una recarga.");
+            }
+            ordenes.bloquearIdempotencia(dsl, cuenta.id(), entrada.claveIdempotencia());
+            // La clave se valida ANTES de escribir (invariante 7). Repetir el pedido
+            // devuelve la misma orden, no una segunda.
+            var yaExiste = ordenes.porClaveIdempotencia(dsl, cuenta.id(), entrada.claveIdempotencia());
+            if (yaExiste.isPresent()) {
+                var orden = ordenes.ver(dsl, yaExiste.get()).orElseThrow();
+                ReglasDeRecarga.exigirMismaSolicitud(orden, entrada);
+                return new SalidaSolicitud(orden.id(), orden.estado(), orden.expiraEn(), orden.acreditado());
+            }
 
             // AP-CU10-04.
             if (!cuenta.operativa()) {
@@ -95,15 +101,10 @@ public class CU10RecargarSaldo {
                         CodigoError.de(10, 4), "La billetera esta " + cuenta.estado() + ": no admite recargas.");
             }
 
-            // AP-CU10-03. Un medio de fondeo sin verificar puede no ser de quien dice.
+            // AP-CU10-03.
             if (entrada.instrumentoFondeoId().isPresent()) {
-                var instrumento = ordenes.instrumento(
-                                dsl, entrada.instrumentoFondeoId().get())
-                        .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(10, 3), "Ese medio de fondeo no existe."));
-                if (!instrumento.verificado() || !instrumento.titularCoincide()) {
-                    throw new ErrorDeNegocio(
-                            CodigoError.de(10, 3), "Ese medio de fondeo no esta verificado a nombre del titular.");
-                }
+                ReglasDeRecarga.exigirInstrumentoDelTitular(
+                        ordenes.instrumento(dsl, entrada.instrumentoFondeoId().get()), ctx);
             }
 
             // AP-CU10-01 · R-LIM-01. Se evalua al SOLICITAR y no solo al acreditar,
@@ -121,6 +122,8 @@ public class CU10RecargarSaldo {
                     entrada.costoProveedor(),
                     acreditado,
                     entrada.claveIdempotencia(),
+                    entrada.medio(),
+                    entrada.cotizacionId(),
                     ahora,
                     expira);
 
@@ -140,6 +143,21 @@ public class CU10RecargarSaldo {
         });
     }
 
+    /** Autoriza la lectura antes de consultar al proveedor fuera de la transaccion. */
+    @Transactional(readOnly = true)
+    public OrdenRecargaRepositorio.Orden consultarPropia(UUID ordenId, ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> {
+            var orden = ordenes.ver(dsl, ordenId)
+                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(10, 5), "Esa orden no existe."));
+            var cuenta = cuentas.ver(dsl, orden.cuentaId())
+                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(10, 4), "Esa billetera no existe."));
+            if (!ctx.usuarioId().equals(cuenta.usuarioId())) {
+                throw new ErrorDeNegocio(CodigoError.de(10, 4), "Solo el titular puede consultar esta recarga.");
+            }
+            return orden;
+        });
+    }
+
     /**
      * El proveedor confirmo: ahora si se mueve el saldo.
      *
@@ -148,32 +166,39 @@ public class CU10RecargarSaldo {
      * contrapartida, R-BIL-01 rechaza la transaccion entera.
      */
     @Transactional
-    public SalidaAcreditacion acreditar(UUID ordenId, ContextoSesion ctx) {
+    public SalidaAcreditacion acreditar(UUID ordenId, Confirmacion confirmacion, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
         return datos.conContexto(ctx, dsl -> {
-            var orden = ordenes.ver(dsl, ordenId)
+            var orden = ordenes.bloquear(dsl, ordenId)
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(10, 5), "Esa orden no existe."));
 
-            // Repetir la confirmacion de una orden YA acreditada es un reintento, no un error: se devuelve
-            // la respuesta original (mismo id de transaccion) y no se mueve nada (B33, regla 91.6).
-            if ("ACREDITADA".equals(orden.estado())) {
-                var original = ordenes.transaccionDe(dsl, orden.id());
-                if (original.isPresent()) {
-                    var actual = cuentas.ver(dsl, orden.cuentaId()).orElseThrow();
-                    return new SalidaAcreditacion(orden.id(), original.get(), actual.disponible());
-                }
+            if (confirmacion == null
+                    || !ordenId.equals(confirmacion.referencia())
+                    || !"CONFIRMADO".equals(confirmacion.estado())
+                    || !orden.bruto().equals(confirmacion.monto())
+                    || confirmacion.transaccionProveedor() == null
+                    || confirmacion.liquidadaEn() == null
+                    || confirmacion.liquidadaEn().isAfter(ahora.plusSeconds(30))) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(10, 5), "Falta la confirmacion autentica del proveedor para esta recarga.");
+            }
+            var cuenta = cuentas.bloquear(dsl, orden.cuentaId()).orElseThrow();
+            if (!ctx.usuarioId().equals(cuenta.usuarioId())) {
+                throw new ErrorDeNegocio(CodigoError.de(10, 4), "Solo el titular puede confirmar esta recarga.");
             }
 
+            // Repetir la confirmacion de una orden YA acreditada (B33, regla 91.6) devuelve la respuesta
+            // original sin mover nada. Eso lo resuelve RecargasConProveedor (yaAcreditada / carrera perdida),
+            // que primero compara la confirmacion con la referencia del proveedor que acredito; aqui un
+            // segundo abono directo sigue siendo un error, nunca un segundo asiento.
             // AP-CU10-05.
             if (!"PENDIENTE".equals(orden.estado())) {
                 throw new ErrorDeNegocio(CodigoError.de(10, 5), "Esa orden ya esta " + orden.estado() + ".");
             }
-            if (orden.expiraEn() != null && orden.expiraEn().isBefore(ahora)) {
+            if (orden.expiraEn() != null && !confirmacion.liquidadaEn().isBefore(orden.expiraEn())) {
                 throw new ErrorDeNegocio(CodigoError.de(10, 5), "Esa orden de recarga ya vencio.");
             }
-
-            var cuenta = cuentas.bloquear(dsl, orden.cuentaId()).orElseThrow();
 
             UUID transaccionId = libro.registrar(
                     dsl,
@@ -191,7 +216,12 @@ public class CU10RecargarSaldo {
 
             // Si otra confirmacion gano la carrera, la transaccion se revierte entera:
             // el mismo pago no puede sumar saldo dos veces.
-            if (!ordenes.acreditar(dsl, orden.id(), transaccionId, ahora)) {
+            if (!ordenes.acreditar(
+                    dsl,
+                    orden.id(),
+                    transaccionId,
+                    confirmacion.transaccionProveedor().toString(),
+                    ahora)) {
                 throw new ErrorDeNegocio(CodigoError.de(10, 5), "Otra confirmacion acredito esa orden primero.");
             }
 
@@ -216,6 +246,18 @@ public class CU10RecargarSaldo {
     }
 
     /** Trabajo programado: una orden que nadie pago no queda pendiente para siempre. */
+    @Transactional(readOnly = true)
+    public SalidaAcreditacion resultadoConfirmado(UUID ordenId, ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> {
+            var orden = ordenes.ver(dsl, ordenId).orElseThrow();
+            var cuenta = cuentas.ver(dsl, orden.cuentaId()).orElseThrow();
+            if (!ctx.usuarioId().equals(cuenta.usuarioId()) || !"ACREDITADA".equals(orden.estado())) {
+                throw new ErrorDeNegocio(CodigoError.de(10, 5), "La orden no tiene una acreditacion accesible.");
+            }
+            return new SalidaAcreditacion(orden.id(), orden.transaccionId(), ordenes.saldoDeLaAcreditacion(dsl, orden));
+        });
+    }
+
     @Transactional
     public int expirarVencidas(ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
@@ -228,7 +270,27 @@ public class CU10RecargarSaldo {
             Dinero monto,
             Dinero costoProveedor,
             String medio,
-            Optional<UUID> instrumentoFondeoId) {}
+            Optional<UUID> instrumentoFondeoId,
+            Optional<UUID> cotizacionId) {
+
+        /** Sin cotizacion previa: el costo lo dicta el servidor y no hay aceptacion que registrar. */
+        public EntradaSolicitud(
+                String claveIdempotencia,
+                UUID cuentaBilleteraId,
+                Dinero monto,
+                Dinero costoProveedor,
+                String medio,
+                Optional<UUID> instrumentoFondeoId) {
+            this(
+                    claveIdempotencia,
+                    cuentaBilleteraId,
+                    monto,
+                    costoProveedor,
+                    medio,
+                    instrumentoFondeoId,
+                    Optional.empty());
+        }
+    }
 
     public record SalidaSolicitud(UUID ordenRecargaId, String estado, OffsetDateTime expiraEn, Dinero acreditara) {}
 

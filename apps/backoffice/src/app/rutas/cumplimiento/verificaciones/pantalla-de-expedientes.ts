@@ -4,6 +4,7 @@ import { Boton } from '@aportaya/ui/boton/boton'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
 import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
 import {
   CaraDelExpediente,
   ExpedienteEnRevisionEstadoEnum,
@@ -36,10 +37,10 @@ import { TiraDeFotos } from './tira-de-fotos'
 @Component({
   selector: 'ap-pantalla-de-expedientes',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [EstadoDePantalla, BandaDeProposito, ChipEstado, Boton, FormsModule, TiraDeFotos, DecisionDeExpediente, VencimientoDelDocumento],
+  imports: [ErrorDeEnvio, EstadoDePantalla, BandaDeProposito, ChipEstado, Boton, FormsModule, TiraDeFotos, DecisionDeExpediente, VencimientoDelDocumento],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
 
       <div class="filtros" role="group" data-tutorial-id="cumplimiento-filtros" [attr.aria-label]="t.filtrar">
@@ -80,9 +81,9 @@ import { TiraDeFotos } from './tira-de-fotos'
                     [vencimiento]="vencimientoDe(e)"
                     [ocupado]="resolviendo() !== null"
                     [enCurso]="resolviendo()?.id === e.verificacionId ? resolviendo()!.decision : null"
-                    [error]="errores()[e.verificacionId]"
                     (decidir)="resolver(e, $event)"
                   />
+                  <ap-error-de-envio [error]="errores()[e.verificacionId] ?? null" />
                 } @else if (e.motivoRechazo) {
                   <p class="aviso">{{ t.motivo }}: {{ e.motivoRechazo }}</p>
                 }
@@ -91,10 +92,10 @@ import { TiraDeFotos } from './tira-de-fotos'
           </ul>
         }
       </ap-estado-de-pantalla>
-    </main>
+    </section>
   `,
   styles: `
-    main { padding: var(--s5); max-width: 52rem; display: flex; flex-direction: column; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 52rem; display: flex; flex-direction: column; gap: var(--s4); }
     .filtros { display: flex; gap: var(--s2); flex-wrap: wrap; }
     .cola { list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--s4); }
     .cola li { border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); padding: var(--s4); display: flex; flex-direction: column; gap: var(--s3); }
@@ -115,8 +116,11 @@ export class PantallaDeExpedientes {
 
   protected readonly estado = signal<string>(POR_DECIDIR)
   protected readonly cola = expedientesEnEstado(this.estado)
-  /** El error de la última decisión, por expediente: se ve en la tarjeta donde se tomó. */
-  protected readonly errores = signal<Readonly<Record<string, string>>>({})
+  /**
+   * El error de la última decisión, por expediente: se ve en la tarjeta donde se tomó. Se guarda el error traducido
+   * entero (no solo el texto) para que `ap-error-de-envio` distinga «no pasó» de «no sabemos si pasó».
+   */
+  protected readonly errores = signal<Readonly<Record<string, ErrorTraducido>>>({})
   /** La decisión en vuelo; mientras haya una, no se dispara otra. */
   protected readonly resolviendo = signal<{ id: string; decision: Decision['decision'] } | null>(null)
   /**
@@ -177,7 +181,7 @@ export class PantallaDeExpedientes {
       // Callarlo dejaba al operador creyendo que decidió: el error se ve en la tarjeta.
       error: (err: ErrorTraducido) => {
         this.resolviendo.set(null)
-        this.errores.update((m) => ({ ...m, [id]: err?.mensaje ?? this.t.decisionFallo }))
+        this.errores.update((m) => ({ ...m, [id]: { ...err, mensaje: err?.mensaje ?? this.t.decisionFallo } }))
       },
     })
   }

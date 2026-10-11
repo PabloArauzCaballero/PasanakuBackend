@@ -1,0 +1,456 @@
+
+Running 18 tests using 1 worker
+
+  ✓   1 [chromium] › e2e\admisiones.e2e.ts:103:7 › [UI con red simulada] admisión humana en backoffice › arranque en frío: el ingreso carga (273ms)
+  ✘   2 [chromium] › e2e\admisiones.e2e.ts:109:7 › [UI con red simulada] admisión humana en backoffice › BO con permiso: ve la propuesta y la evidencia, resuelve, y la resolución persiste tras recargar (5.3s)
+  ✘   3 [chromium] › e2e\admisiones.e2e.ts:146:7 › [UI con red simulada] admisión humana en backoffice › rol sin el permiso de la plataforma: la sección no aparece y la ruta no monta (sin acciones ajenas) (5.3s)
+  ✘   4 [chromium] › e2e\admisiones.e2e.ts:158:7 › [UI con red simulada] admisión humana en backoffice › sin sesión no se entra a la solicitud (5.2s)
+  ✘   5 [chromium] › e2e\admisiones.e2e.ts:163:7 › [UI con red simulada] admisión humana en backoffice › estados: cargando, vacío y error del servidor (5.3s)
+  ✘   6 [chromium] › e2e\admisiones.e2e.ts:188:7 › [UI con red simulada] admisión humana en backoffice › respuesta perdida: queda sin confirmar, verifica, reintenta con la MISMA clave y no duplica (5.3s)
+  ✘   7 [chromium] › e2e\admisiones.e2e.ts:212:7 › [UI con red simulada] admisión humana en backoffice › envío que nunca llegó: verificar no la encuentra y el reintento reutiliza la misma clave (5.3s)
+  ✘   8 [chromium] › e2e\admisiones.e2e.ts:236:7 › [UI con red simulada] admisión humana en backoffice › puerta de entrada: pide el identificador y rechaza uno mal formado (5.3s)
+  ✘   9 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:52:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › posiciones separadas: gastable, comprometido en pozos y retenido, con cifras que reconcilian (484ms)
+  ✘  10 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:69:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › sin separar: con el ejemplo real del contrato (sin comprometidoEnPozos) NO se afirma ninguna cifra gastable (454ms)
+  ✘  11 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:79:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › comprometido mayor que el disponible: se acota, lo gastable queda en cero y se avisa (547ms)
+  ✘  12 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:88:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › saldo incoherente (monedas distintas): no se muestra ninguna cifra (410ms)
+  ✘  13 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:97:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › cuenta en cero, error del servidor y cargando (549ms)
+  ✘  14 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › PARTICIPANTE: el menú ofrece solo Tablero y Ayuda; lo ajeno no monta ni escribiendo la dirección (400ms)
+  ✘  15 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › SOPORTE: el menú ofrece solo Operación; lo ajeno no monta ni escribiendo la dirección (469ms)
+  ✘  16 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › ADMIN_PLATAFORMA: el menú ofrece solo Cumplimiento, Admisiones, Sistemas; lo ajeno no monta ni escribiendo la dirección (387ms)
+  ✘  17 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › CONTABILIDAD: el menú ofrece solo Operación, Contabilidad; lo ajeno no monta ni escribiendo la dirección (443ms)
+  ✘  18 [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:159:7 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › la pantalla «sin acceso» no muestra códigos internos de permiso (5.4s)
+
+
+  1) [chromium] › e2e\admisiones.e2e.ts:109:7 › [UI con red simulada] admisión humana en backoffice › BO con permiso: ve la propuesta y la evidencia, resuelve, y la resolución persiste tras recargar 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Tablero' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Tablero' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Tablero' })
+
+
+      67 |   await page.getByLabel(/Contraseña/).fill('contrasena-de-prueba')
+      68 |   await page.getByRole('button', { name: 'Continuar' }).click()
+    > 69 |   await expect(page.getByRole('heading', { name: 'Tablero' })).toBeVisible()
+         |                                                                ^
+      70 | }
+      71 |
+      72 | /** Navegación dentro de la app (sin recargar: la sesión vive solo en memoria). */
+        at ingresar (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:69:64)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:112:5
+
+    Error Context: ..\..\.playwright\backoffice\admisiones.e2e.ts--UI-con--0e8ba-ción-persiste-tras-recargar-chromium\error-context.md
+
+  2) [chromium] › e2e\admisiones.e2e.ts:146:7 › [UI con red simulada] admisión humana en backoffice › rol sin el permiso de la plataforma: la sección no aparece y la ruta no monta (sin acciones ajenas) 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Tablero' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Tablero' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Tablero' })
+
+
+      67 |   await page.getByLabel(/Contraseña/).fill('contrasena-de-prueba')
+      68 |   await page.getByRole('button', { name: 'Continuar' }).click()
+    > 69 |   await expect(page.getByRole('heading', { name: 'Tablero' })).toBeVisible()
+         |                                                                ^
+      70 | }
+      71 |
+      72 | /** Navegación dentro de la app (sin recargar: la sesión vive solo en memoria). */
+        at ingresar (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:69:64)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:148:5
+
+    Error Context: ..\..\.playwright\backoffice\admisiones.e2e.ts--UI-con--b0b84--monta-sin-acciones-ajenas--chromium\error-context.md
+
+  3) [chromium] › e2e\admisiones.e2e.ts:158:7 › [UI con red simulada] admisión humana en backoffice › sin sesión no se entra a la solicitud 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/ingreso$/
+    Received string:  "http://127.0.0.1:4300/arranque?volverA=%2Fadmisiones%2F9f1c2b7e-3a54-4d0e-8a61-5b7d2c9e4f10"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        14 × locator resolved to <html lang="es-BO">…</html>
+           - unexpected value "http://127.0.0.1:4300/arranque?volverA=%2Fadmisiones%2F9f1c2b7e-3a54-4d0e-8a61-5b7d2c9e4f10"
+
+
+      158 |   test('sin sesión no se entra a la solicitud', async ({ page }) => {
+      159 |     await page.goto(`/admisiones/${SOLICITUD}`)
+    > 160 |     await expect(page).toHaveURL(/\/ingreso$/)
+          |                        ^
+      161 |   })
+      162 |
+      163 |   test('estados: cargando, vacío y error del servidor', async ({ page }) => {
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:160:24
+
+    Error Context: ..\..\.playwright\backoffice\admisiones.e2e.ts--UI-con--19b81--no-se-entra-a-la-solicitud-chromium\error-context.md
+
+  4) [chromium] › e2e\admisiones.e2e.ts:163:7 › [UI con red simulada] admisión humana en backoffice › estados: cargando, vacío y error del servidor 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Tablero' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Tablero' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Tablero' })
+
+
+      67 |   await page.getByLabel(/Contraseña/).fill('contrasena-de-prueba')
+      68 |   await page.getByRole('button', { name: 'Continuar' }).click()
+    > 69 |   await expect(page.getByRole('heading', { name: 'Tablero' })).toBeVisible()
+         |                                                                ^
+      70 | }
+      71 |
+      72 | /** Navegación dentro de la app (sin recargar: la sesión vive solo en memoria). */
+        at ingresar (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:69:64)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:167:5
+
+    Error Context: ..\..\.playwright\backoffice\admisiones.e2e.ts--UI-con--283b1--vacío-y-error-del-servidor-chromium\error-context.md
+
+  5) [chromium] › e2e\admisiones.e2e.ts:188:7 › [UI con red simulada] admisión humana en backoffice › respuesta perdida: queda sin confirmar, verifica, reintenta con la MISMA clave y no duplica 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Tablero' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Tablero' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Tablero' })
+
+
+      67 |   await page.getByLabel(/Contraseña/).fill('contrasena-de-prueba')
+      68 |   await page.getByRole('button', { name: 'Continuar' }).click()
+    > 69 |   await expect(page.getByRole('heading', { name: 'Tablero' })).toBeVisible()
+         |                                                                ^
+      70 | }
+      71 |
+      72 | /** Navegación dentro de la app (sin recargar: la sesión vive solo en memoria). */
+        at ingresar (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:69:64)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:191:5
+
+    Error Context: ..\..\.playwright\backoffice\admisiones.e2e.ts--UI-con--a9fdd-la-MISMA-clave-y-no-duplica-chromium\error-context.md
+
+  6) [chromium] › e2e\admisiones.e2e.ts:212:7 › [UI con red simulada] admisión humana en backoffice › envío que nunca llegó: verificar no la encuentra y el reintento reutiliza la misma clave 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Tablero' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Tablero' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Tablero' })
+
+
+      67 |   await page.getByLabel(/Contraseña/).fill('contrasena-de-prueba')
+      68 |   await page.getByRole('button', { name: 'Continuar' }).click()
+    > 69 |   await expect(page.getByRole('heading', { name: 'Tablero' })).toBeVisible()
+         |                                                                ^
+      70 | }
+      71 |
+      72 | /** Navegación dentro de la app (sin recargar: la sesión vive solo en memoria). */
+        at ingresar (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:69:64)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:215:5
+
+    Error Context: ..\..\.playwright\backoffice\admisiones.e2e.ts--UI-con--272f4-to-reutiliza-la-misma-clave-chromium\error-context.md
+
+  7) [chromium] › e2e\admisiones.e2e.ts:236:7 › [UI con red simulada] admisión humana en backoffice › puerta de entrada: pide el identificador y rechaza uno mal formado 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Tablero' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Tablero' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Tablero' })
+
+
+      67 |   await page.getByLabel(/Contraseña/).fill('contrasena-de-prueba')
+      68 |   await page.getByRole('button', { name: 'Continuar' }).click()
+    > 69 |   await expect(page.getByRole('heading', { name: 'Tablero' })).toBeVisible()
+         |                                                                ^
+      70 | }
+      71 |
+      72 | /** Navegación dentro de la app (sin recargar: la sesión vive solo en memoria). */
+        at ingresar (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:69:64)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\admisiones.e2e.ts:238:5
+
+    Error Context: ..\..\.playwright\backoffice\admisiones.e2e.ts--UI-con--08b26-r-y-rechaza-uno-mal-formado-chromium\error-context.md
+
+  8) [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:52:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › posiciones separadas: gastable, comprometido en pozos y retenido, con cifras que reconcilian 
+
+    Error: billetera-posiciones movil light: la página no desplaza en horizontal
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0
+    Received:    51
+
+       at apoyo\capturas-f2.ts:51
+
+      49 |   await page.screenshot({ path: path.join(CAPTURAS, `${prefijo}-${nombre}-${viewport}-${tema}.png`), fullPage: true })
+      50 |   const desborde = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+    > 51 |   expect(desborde, `${nombre} ${viewport} ${tema}: la página no desplaza en horizontal`).toBeLessThanOrEqual(0)
+         |                                                                                          ^
+      52 |   const malos = await contraste(page)
+      53 |   const registro = { captura: `${prefijo}-${nombre}-${viewport}-${tema}`, violaciones: malos }
+      54 |   if (process.env['CONTRASTE_INFORME']) {
+        at capturar (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\apoyo\capturas-f2.ts:51:90)
+        at todas (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\apoyo\capturas-f2.ts:62:84)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-posiciones-y-roles.e2e.ts:65:5
+
+    Error Context: ..\..\.playwright\backoffice\f2-posiciones-y-roles.e2e.-76a37--con-cifras-que-reconcilian-chromium\error-context.md
+
+  9) [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:69:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › sin separar: con el ejemplo real del contrato (sin comprometidoEnPozos) NO se afirma ninguna cifra gastable 
+
+    Error: billetera-sin-separar movil light: la página no desplaza en horizontal
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0
+    Received:    51
+
+       at apoyo\capturas-f2.ts:51
+
+      49 |   await page.screenshot({ path: path.join(CAPTURAS, `${prefijo}-${nombre}-${viewport}-${tema}.png`), fullPage: true })
+      50 |   const desborde = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+    > 51 |   expect(desborde, `${nombre} ${viewport} ${tema}: la página no desplaza en horizontal`).toBeLessThanOrEqual(0)
+         |                                                                                          ^
+      52 |   const malos = await contraste(page)
+      53 |   const registro = { captura: `${prefijo}-${nombre}-${viewport}-${tema}`, violaciones: malos }
+      54 |   if (process.env['CONTRASTE_INFORME']) {
+        at capturar (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\apoyo\capturas-f2.ts:51:90)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-posiciones-y-roles.e2e.ts:74:5
+
+    Error Context: ..\..\.playwright\backoffice\f2-posiciones-y-roles.e2e.-e47c2-irma-ninguna-cifra-gastable-chromium\error-context.md
+
+  10) [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:79:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › comprometido mayor que el disponible: se acota, lo gastable queda en cero y se avisa 
+
+    Error: billetera-excede movil light: la página no desplaza en horizontal
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0
+    Received:    51
+
+       at apoyo\capturas-f2.ts:51
+
+      49 |   await page.screenshot({ path: path.join(CAPTURAS, `${prefijo}-${nombre}-${viewport}-${tema}.png`), fullPage: true })
+      50 |   const desborde = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+    > 51 |   expect(desborde, `${nombre} ${viewport} ${tema}: la página no desplaza en horizontal`).toBeLessThanOrEqual(0)
+         |                                                                                          ^
+      52 |   const malos = await contraste(page)
+      53 |   const registro = { captura: `${prefijo}-${nombre}-${viewport}-${tema}`, violaciones: malos }
+      54 |   if (process.env['CONTRASTE_INFORME']) {
+        at capturar (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\apoyo\capturas-f2.ts:51:90)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-posiciones-y-roles.e2e.ts:85:5
+
+    Error Context: ..\..\.playwright\backoffice\f2-posiciones-y-roles.e2e.-378da-le-queda-en-cero-y-se-avisa-chromium\error-context.md
+
+  11) [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:88:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › saldo incoherente (monedas distintas): no se muestra ninguna cifra 
+
+    Error: billetera-incoherente movil light: la página no desplaza en horizontal
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0
+    Received:    51
+
+       at apoyo\capturas-f2.ts:51
+
+      49 |   await page.screenshot({ path: path.join(CAPTURAS, `${prefijo}-${nombre}-${viewport}-${tema}.png`), fullPage: true })
+      50 |   const desborde = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+    > 51 |   expect(desborde, `${nombre} ${viewport} ${tema}: la página no desplaza en horizontal`).toBeLessThanOrEqual(0)
+         |                                                                                          ^
+      52 |   const malos = await contraste(page)
+      53 |   const registro = { captura: `${prefijo}-${nombre}-${viewport}-${tema}`, violaciones: malos }
+      54 |   if (process.env['CONTRASTE_INFORME']) {
+        at capturar (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\apoyo\capturas-f2.ts:51:90)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-posiciones-y-roles.e2e.ts:94:5
+
+    Error Context: ..\..\.playwright\backoffice\f2-posiciones-y-roles.e2e.-b6a32-no-se-muestra-ninguna-cifra-chromium\error-context.md
+
+  12) [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:97:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › cuenta en cero, error del servidor y cargando 
+
+    Error: billetera-error movil dark: la página no desplaza en horizontal
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0
+    Received:    51
+
+       at apoyo\capturas-f2.ts:51
+
+      49 |   await page.screenshot({ path: path.join(CAPTURAS, `${prefijo}-${nombre}-${viewport}-${tema}.png`), fullPage: true })
+      50 |   const desborde = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+    > 51 |   expect(desborde, `${nombre} ${viewport} ${tema}: la página no desplaza en horizontal`).toBeLessThanOrEqual(0)
+         |                                                                                          ^
+      52 |   const malos = await contraste(page)
+      53 |   const registro = { captura: `${prefijo}-${nombre}-${viewport}-${tema}`, violaciones: malos }
+      54 |   if (process.env['CONTRASTE_INFORME']) {
+        at capturar (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\apoyo\capturas-f2.ts:51:90)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-posiciones-y-roles.e2e.ts:109:5
+
+    Error Context: ..\..\.playwright\backoffice\f2-posiciones-y-roles.e2e.-d27d4-ror-del-servidor-y-cargando-chromium\error-context.md
+
+  13) [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › PARTICIPANTE: el menú ofrece solo Tablero y Ayuda; lo ajeno no monta ni escribiendo la dirección 
+
+    Error: rol-participante movil light: la página no desplaza en horizontal
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0
+    Received:    81
+
+       at apoyo\capturas-f2.ts:51
+
+      49 |   await page.screenshot({ path: path.join(CAPTURAS, `${prefijo}-${nombre}-${viewport}-${tema}.png`), fullPage: true })
+      50 |   const desborde = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+    > 51 |   expect(desborde, `${nombre} ${viewport} ${tema}: la página no desplaza en horizontal`).toBeLessThanOrEqual(0)
+         |                                                                                          ^
+      52 |   const malos = await contraste(page)
+      53 |   const registro = { captura: `${prefijo}-${nombre}-${viewport}-${tema}`, violaciones: malos }
+      54 |   if (process.env['CONTRASTE_INFORME']) {
+        at capturar (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\apoyo\capturas-f2.ts:51:90)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-posiciones-y-roles.e2e.ts:154:7
+
+    Error Context: ..\..\.playwright\backoffice\f2-posiciones-y-roles.e2e.-8b250-ni-escribiendo-la-dirección-chromium\error-context.md
+
+  14) [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › SOPORTE: el menú ofrece solo Operación; lo ajeno no monta ni escribiendo la dirección 
+
+    Error: rol-soporte movil light: la página no desplaza en horizontal
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0
+    Received:    51
+
+       at apoyo\capturas-f2.ts:51
+
+      49 |   await page.screenshot({ path: path.join(CAPTURAS, `${prefijo}-${nombre}-${viewport}-${tema}.png`), fullPage: true })
+      50 |   const desborde = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+    > 51 |   expect(desborde, `${nombre} ${viewport} ${tema}: la página no desplaza en horizontal`).toBeLessThanOrEqual(0)
+         |                                                                                          ^
+      52 |   const malos = await contraste(page)
+      53 |   const registro = { captura: `${prefijo}-${nombre}-${viewport}-${tema}`, violaciones: malos }
+      54 |   if (process.env['CONTRASTE_INFORME']) {
+        at capturar (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\apoyo\capturas-f2.ts:51:90)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-posiciones-y-roles.e2e.ts:154:7
+
+    Error Context: ..\..\.playwright\backoffice\f2-posiciones-y-roles.e2e.-f6d50-ni-escribiendo-la-dirección-chromium\error-context.md
+
+  15) [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › ADMIN_PLATAFORMA: el menú ofrece solo Cumplimiento, Admisiones, Sistemas; lo ajeno no monta ni escribiendo la dirección 
+
+    Error: rol-admin_plataforma movil light: la página no desplaza en horizontal
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0
+    Received:    131
+
+       at apoyo\capturas-f2.ts:51
+
+      49 |   await page.screenshot({ path: path.join(CAPTURAS, `${prefijo}-${nombre}-${viewport}-${tema}.png`), fullPage: true })
+      50 |   const desborde = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+    > 51 |   expect(desborde, `${nombre} ${viewport} ${tema}: la página no desplaza en horizontal`).toBeLessThanOrEqual(0)
+         |                                                                                          ^
+      52 |   const malos = await contraste(page)
+      53 |   const registro = { captura: `${prefijo}-${nombre}-${viewport}-${tema}`, violaciones: malos }
+      54 |   if (process.env['CONTRASTE_INFORME']) {
+        at capturar (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\apoyo\capturas-f2.ts:51:90)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-posiciones-y-roles.e2e.ts:154:7
+
+    Error Context: ..\..\.playwright\backoffice\f2-posiciones-y-roles.e2e.-d5426-ni-escribiendo-la-dirección-chromium\error-context.md
+
+  16) [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › CONTABILIDAD: el menú ofrece solo Operación, Contabilidad; lo ajeno no monta ni escribiendo la dirección 
+
+    Error: rol-contabilidad movil light: la página no desplaza en horizontal
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0
+    Received:    88
+
+       at apoyo\capturas-f2.ts:51
+
+      49 |   await page.screenshot({ path: path.join(CAPTURAS, `${prefijo}-${nombre}-${viewport}-${tema}.png`), fullPage: true })
+      50 |   const desborde = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+    > 51 |   expect(desborde, `${nombre} ${viewport} ${tema}: la página no desplaza en horizontal`).toBeLessThanOrEqual(0)
+         |                                                                                          ^
+      52 |   const malos = await contraste(page)
+      53 |   const registro = { captura: `${prefijo}-${nombre}-${viewport}-${tema}`, violaciones: malos }
+      54 |   if (process.env['CONTRASTE_INFORME']) {
+        at capturar (C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\apoyo\capturas-f2.ts:51:90)
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-posiciones-y-roles.e2e.ts:154:7
+
+    Error Context: ..\..\.playwright\backoffice\f2-posiciones-y-roles.e2e.-5c2bf-ni-escribiendo-la-dirección-chromium\error-context.md
+
+  17) [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:159:7 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › la pantalla «sin acceso» no muestra códigos internos de permiso 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('No tenés acceso a esa sección')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('No tenés acceso a esa sección') with timeout 5000ms
+      - waiting for getByText('No tenés acceso a esa sección')
+
+
+      160 |     await iniciarSesionDePrueba(page, permisosDe('SOPORTE'), 'SOPORTE')
+      161 |     await navegarSinRecargar(page, '/admisiones/9f1c2b7e-3a54-4d0e-8a61-5b7d2c9e4f10')
+    > 162 |     await expect(page.getByText('No tenés acceso a esa sección')).toBeVisible()
+          |                                                                   ^
+      163 |     await expect(page.locator('body')).not.toContainText('ver:')
+      164 |     await capturar(page, 'bo', 'sin-acceso', 'movil', 'dark')
+      165 |   })
+        at C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\e2e\f2-posiciones-y-roles.e2e.ts:162:67
+
+    Error Context: ..\..\.playwright\backoffice\f2-posiciones-y-roles.e2e.-c6747-códigos-internos-de-permiso-chromium\error-context.md
+
+  17 failed
+    [chromium] › e2e\admisiones.e2e.ts:109:7 › [UI con red simulada] admisión humana en backoffice › BO con permiso: ve la propuesta y la evidencia, resuelve, y la resolución persiste tras recargar 
+    [chromium] › e2e\admisiones.e2e.ts:146:7 › [UI con red simulada] admisión humana en backoffice › rol sin el permiso de la plataforma: la sección no aparece y la ruta no monta (sin acciones ajenas) 
+    [chromium] › e2e\admisiones.e2e.ts:158:7 › [UI con red simulada] admisión humana en backoffice › sin sesión no se entra a la solicitud 
+    [chromium] › e2e\admisiones.e2e.ts:163:7 › [UI con red simulada] admisión humana en backoffice › estados: cargando, vacío y error del servidor 
+    [chromium] › e2e\admisiones.e2e.ts:188:7 › [UI con red simulada] admisión humana en backoffice › respuesta perdida: queda sin confirmar, verifica, reintenta con la MISMA clave y no duplica 
+    [chromium] › e2e\admisiones.e2e.ts:212:7 › [UI con red simulada] admisión humana en backoffice › envío que nunca llegó: verificar no la encuentra y el reintento reutiliza la misma clave 
+    [chromium] › e2e\admisiones.e2e.ts:236:7 › [UI con red simulada] admisión humana en backoffice › puerta de entrada: pide el identificador y rechaza uno mal formado 
+    [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:52:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › posiciones separadas: gastable, comprometido en pozos y retenido, con cifras que reconcilian 
+    [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:69:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › sin separar: con el ejemplo real del contrato (sin comprometidoEnPozos) NO se afirma ninguna cifra gastable 
+    [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:79:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › comprometido mayor que el disponible: se acota, lo gastable queda en cero y se avisa 
+    [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:88:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › saldo incoherente (monedas distintas): no se muestra ninguna cifra 
+    [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:97:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › cuenta en cero, error del servidor y cargando 
+    [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › PARTICIPANTE: el menú ofrece solo Tablero y Ayuda; lo ajeno no monta ni escribiendo la dirección 
+    [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › SOPORTE: el menú ofrece solo Operación; lo ajeno no monta ni escribiendo la dirección 
+    [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › ADMIN_PLATAFORMA: el menú ofrece solo Cumplimiento, Admisiones, Sistemas; lo ajeno no monta ni escribiendo la dirección 
+    [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:134:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › CONTABILIDAD: el menú ofrece solo Operación, Contabilidad; lo ajeno no monta ni escribiendo la dirección 
+    [chromium] › e2e\f2-posiciones-y-roles.e2e.ts:159:7 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › la pantalla «sin acceso» no muestra códigos internos de permiso 
+  1 passed (59.2s)

@@ -70,7 +70,11 @@ class PantallaDeRegistro extends ConsumerWidget {
           // Las capturas se copian ANTES de `reiniciar()`, que las vacía.
           ref
               .read(seguimientoDelAltaProvider.notifier)
-              .fijar(usuarioId, ref.read(altaProvider).capturas);
+              .fijar(
+                usuarioId,
+                ref.read(altaProvider).capturas,
+                tokenDeAlta: resultado.tokenDeAlta,
+              );
           notifier.reiniciar();
           ref.read(contratoProvider.notifier).reiniciar();
           final retorno = retornoDeInvitacion(

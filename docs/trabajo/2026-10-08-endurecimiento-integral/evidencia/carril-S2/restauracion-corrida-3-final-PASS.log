@@ -1,0 +1,142 @@
+ENSAYO DE RESTAURACION · 2026-10-10T01:19:59Z · contenedor aportaya-pg-s2 · puerto 5439 · imagen postgres:16
+libres: 2497 MB
+
+== F0 origen: PostgreSQL desechable con el esquema completo
+   siembra de catalogos: 1 error(es)
+   psql:/repo/sql/60_semillas/10-roles-y-permisos.sql:22: ERROR:  value too long for type character varying(60)
+   esquema + catalogos: 5051 ms · tablas: 436
+
+== F1 datos sinteticos del lote base (400 asientos; cola viva: 8 pendientes y 2 tomados por un relevo muerto)
+   asientos=400
+   movimientos=800
+   suma_debe=216500.00
+   suma_haber=216500.00
+   max_numero=400
+   huella_mayor=82dfcc11728d4e857c6b83ad579d27a2
+   eventos=400
+   ev_pendientes=8
+   ev_tomados=2
+   ev_publicados=390
+   consumidos_erp=390
+   tablas_con_rls=101
+   tablas=436
+
+== F2 PUNTO DE RESPALDO: pg_dump (custom) y roles
+   respaldo: 538 ms · 2967925 bytes (dump) · punto de recuperacion: 2026-10-09 21:20:13.561654-04
+
+== F3 trabajo POSTERIOR al respaldo (7 asientos que el respaldo no tiene) y estado del origen en el momento del desastre
+   asientos del origen: asientos=407 (el respaldo tiene asientos=400)
+
+== F4 DESASTRE: se destruye el contenedor y su volumen
+   contenedor y datos destruidos
+
+== F5 RESTAURACION en una instancia VACIA (RTO desde aqui)
+   roles (globales): 21 CREATE ROLE en el dump; rechazados por ya existir (superusuario de arranque): 1
+   pg_restore rc=0 · 0 lineas con 'error' · 5781 ms
+   instancia + roles: 7765 ms
+
+== F6 CONCILIACION DEL MAYOR sobre el punto de recuperacion (compuerta de reapertura)
+   C01 cada asiento cuadra, por moneda|t|0 asientos descuadrados
+   C02 debe total = haber total|t|0.00 de diferencia
+   C03 ningun asiento en firme sin movimientos|t|asientos vacios: 0
+   C04 ningun movimiento huerfano|t|huerfanos: 0
+   C05 asientos = manifiesto|t|400 vs manifiesto 400
+   C06 suma del debe = manifiesto|t|216500.00 vs manifiesto 216500.00
+   C07 huella del libro = manifiesto|t|esperada 82dfcc11728d4e857c6b83ad579d27a2
+   C08 saldo almacenado = saldo recalculado desde el mayor|t|cuentas con saldo distinto: 0
+   C09 la secuencia de asientos no retrocede|t|last_value 400 / max(numero) 400
+   C10 numeros de asiento sin repetir y max = manifiesto|t|max 400 vs manifiesto 400
+   C11 append-only vigente: trigger puesto y sin UPDATE/DELETE para el servicio|t|trigger y privilegios restaurados
+   C12 cuadre diferido y moneda unica siguen en la base|t|constraint triggers R-AUD-05 y R-AUD-12
+   C13 politicas de fila y tablas = manifiesto|t|rls esperadas 101, tablas esperadas 436
+   C14 la base conserva su search_path (ALTER DATABASE no viaja en el dump)|t|search_path de la base
+   C15 outbox coherente con el mayor (un evento por asiento, ninguno huerfano)|t|eventos sin asiento o asientos sin evento
+   C16 todo lo consumido salio publicado|t|consumidos sin publicar: 0
+   C17 cola del outbox = manifiesto (pendientes, tomados huerfanos, publicados, consumidos)|t|cola restaurada tal como se respaldo
+   [punto de recuperacion] conciliacion: 233 ms
+   COMPUERTA: ABIERTA para este punto de recuperacion
+
+== F7 DIFERENCIAS CON EL ORIGEN, explicadas
+   origen en el desastre: 407 asientos · restaurado: 400 · faltan: 7
+   los 7 asientos con fecha posterior al respaldo (origen) y su presencia hoy: 0
+   perdido: 401|S2 sintetico posterior 1|2026-10-09 21:20:16.591549-04
+   perdido: 402|S2 sintetico posterior 2|2026-10-09 21:20:16.592086-04
+   perdido: 403|S2 sintetico posterior 3|2026-10-09 21:20:16.592101-04
+   perdido: 404|S2 sintetico posterior 4|2026-10-09 21:20:16.592108-04
+   perdido: 405|S2 sintetico posterior 5|2026-10-09 21:20:16.592115-04
+   perdido: 406|S2 sintetico posterior 6|2026-10-09 21:20:16.592121-04
+   perdido: 407|S2 sintetico posterior 7|2026-10-09 21:20:16.592127-04
+   RPO observado (respaldo -> desastre): 3 s
+   EXPLICADA: la diferencia son exactamente los 7 asientos posteriores al respaldo; ningun otro asiento difiere
+
+== F8 REPOSICION desde la fuente externa (mismo lote, mismos ids) y conciliacion contra el origen
+   C01 cada asiento cuadra, por moneda|t|0 asientos descuadrados
+   C02 debe total = haber total|t|0.00 de diferencia
+   C03 ningun asiento en firme sin movimientos|t|asientos vacios: 0
+   C04 ningun movimiento huerfano|t|huerfanos: 0
+   C05 asientos = manifiesto|t|407 vs manifiesto 407
+   C06 suma del debe = manifiesto|t|218236.00 vs manifiesto 218236.00
+   C07 huella del libro = manifiesto|t|esperada 83d27d62186566e5723762eea373052f
+   C08 saldo almacenado = saldo recalculado desde el mayor|t|cuentas con saldo distinto: 0
+   C09 la secuencia de asientos no retrocede|t|last_value 407 / max(numero) 407
+   C10 numeros de asiento sin repetir y max = manifiesto|t|max 407 vs manifiesto 407
+   C11 append-only vigente: trigger puesto y sin UPDATE/DELETE para el servicio|t|trigger y privilegios restaurados
+   C12 cuadre diferido y moneda unica siguen en la base|t|constraint triggers R-AUD-05 y R-AUD-12
+   C13 politicas de fila y tablas = manifiesto|t|rls esperadas 101, tablas esperadas 436
+   C14 la base conserva su search_path (ALTER DATABASE no viaja en el dump)|t|search_path de la base
+   C15 outbox coherente con el mayor (un evento por asiento, ninguno huerfano)|t|eventos sin asiento o asientos sin evento
+   C16 todo lo consumido salio publicado|t|consumidos sin publicar: 0
+   C17 cola del outbox = manifiesto (pendientes, tomados huerfanos, publicados, consumidos)|t|cola restaurada tal como se respaldo
+   [mayor repuesto vs origen] conciliacion: 221 ms
+   IDENTICO al origen (huella del libro, sumas, numeros de asiento y cola del outbox)
+   reposicion + conciliacion: 584 ms
+
+== F9 REANUDACION DE EVENTOS (solo con la compuerta abierta)
+   R01 se publico exactamente lo que estaba pendiente o huerfano|t|17 publicados de 17 en cola
+   R02 la cola quedo vacia (nada PENDIENTE ni TOMADO)|t|0 sin publicar
+   R03 el consumidor aplico solo lo que no tenia (no re-aplico lo ya consumido)|t|17 aplicados; ya tenia 390
+   R04 la entrega duplicada no aplico nada (idempotencia por clave primaria)|t|0 efectos de la reentrega
+   R05 todo publicado quedo consumido una sola vez|t|407 consumidos / 407 publicados
+   reanudacion: 257 ms
+   RTO (instancia vacia -> mayor conciliado y eventos corriendo): 15321 ms
+
+== F10 INCIDENCIAS INYECTADAS: la compuerta tiene que CERRARSE
+-- I1: la base pierde su search_path (ALTER DATABASE no viaja en pg_dump)
+      C14 la base conserva su search_path (ALTER DATABASE no viaja en el dump)|f|search_path de la base
+   I1 OK: compuerta CERRADA (C14)
+-- I2: un saldo almacenado deja de coincidir con el mayor
+      C08 saldo almacenado = saldo recalculado desde el mayor|f|cuentas con saldo distinto: 1
+   I2 OK: compuerta CERRADA (C08)
+   reparacion: saldo recalculado DESDE el mayor (no se edita a mano)
+-- I3: la secuencia de asientos retrocede (el defecto clasico de un dump sin setval)
+      C09 la secuencia de asientos no retrocede|f|last_value 1 / max(numero) 407
+   I3 OK: compuerta CERRADA (C09)
+-- tras reparar las tres, la compuerta vuelve a abrir
+   C01 cada asiento cuadra, por moneda|t|0 asientos descuadrados
+   C02 debe total = haber total|t|0.00 de diferencia
+   C03 ningun asiento en firme sin movimientos|t|asientos vacios: 0
+   C04 ningun movimiento huerfano|t|huerfanos: 0
+   C05 asientos = manifiesto|t|407 vs manifiesto 407
+   C06 suma del debe = manifiesto|t|218236.00 vs manifiesto 218236.00
+   C07 huella del libro = manifiesto|t|esperada 83d27d62186566e5723762eea373052f
+   C08 saldo almacenado = saldo recalculado desde el mayor|t|cuentas con saldo distinto: 0
+   C09 la secuencia de asientos no retrocede|t|last_value 407 / max(numero) 407
+   C10 numeros de asiento sin repetir y max = manifiesto|t|max 407 vs manifiesto 407
+   C11 append-only vigente: trigger puesto y sin UPDATE/DELETE para el servicio|t|trigger y privilegios restaurados
+   C12 cuadre diferido y moneda unica siguen en la base|t|constraint triggers R-AUD-05 y R-AUD-12
+   C13 politicas de fila y tablas = manifiesto|t|rls esperadas 101, tablas esperadas 436
+   C14 la base conserva su search_path (ALTER DATABASE no viaja en el dump)|t|search_path de la base
+   C15 outbox coherente con el mayor (un evento por asiento, ninguno huerfano)|t|eventos sin asiento o asientos sin evento
+   C16 todo lo consumido salio publicado|t|consumidos sin publicar: 0
+   C17 cola del outbox = manifiesto (pendientes, tomados huerfanos, publicados, consumidos)|t|cola restaurada tal como se respaldo
+   [reparado] conciliacion: 221 ms
+   COMPUERTA: ABIERTA
+
+== RESUMEN
+respaldo (pg_dump + roles): 538 ms
+restauracion (pg_restore):  5781 ms
+RTO medido:                 15321 ms (instancia vacia -> compuerta abierta -> eventos reanudados)
+RPO observado:              3 s (asientos posteriores al respaldo: 7, repuestos desde la fuente)
+duracion total del ensayo:  35157 ms
+fallas: 0
+ENSAYO: PASS

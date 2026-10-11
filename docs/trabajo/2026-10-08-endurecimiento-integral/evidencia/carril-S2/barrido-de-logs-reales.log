@@ -1,0 +1,4 @@
+informes XML revisados: 494 · con salida estandar: 176 · lineas de log: 6168
+hallazgos: 2 {"secreto_clave_valor": 2}
+  secreto_clave_valor      plataforma/comun-web/build/test-results/webTest/TEST-bo.aportaya.plataforma.web.errores.ManejadorGlobalDeErroresWebTest.xml:22  (huella e8d2e926)
+  secreto_clave_valor      plataforma/gateway/build/test-results/integrationTest/TEST-bo.aportaya.gateway.ArranqueRateLimitGatewayTest.xml:70  (huella bcfec5ac)

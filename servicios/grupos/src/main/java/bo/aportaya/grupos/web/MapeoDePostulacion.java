@@ -2,6 +2,7 @@ package bo.aportaya.grupos.web;
 
 import bo.aportaya.grupos.aplicacion.CU68Postular;
 import bo.aportaya.grupos.aplicacion.Consultas;
+import bo.aportaya.grupos.dominio.TraspasoAdmisible;
 import bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios;
 import bo.aportaya.grupos.web.generado.modelo.EntradaPostulacion;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -41,6 +42,7 @@ final class MapeoDePostulacion {
                 .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(68, 4), "Ese grupo no existe."));
         var restriccion = afuera.restriccion(ctx.usuarioId());
         var reputacion = afuera.reputacion(ctx.usuarioId());
+        int moroso = afuera.morososDelGrupo(grupoId);
 
         return new CU68Postular.EntradaPostulacion(
                 grupoId,
@@ -48,15 +50,17 @@ final class MapeoDePostulacion {
                 cuerpo.getMensaje(),
                 restriccion.vigente(),
                 restriccion.montoQueLaLevanta(),
-                // El nivel de diligencia lo eleva cumplimiento; que el minimo del grupo
-                // este declarado es lo que permite exigirlo aca.
-                politica.kycMinimo() != null,
+                // El nivel lo dice identidad (fuera de la transaccion); aca solo se compara con
+                // el minimo del grupo. Sin respuesta vale NINGUNO: no se deja pasar por omision.
+                TraspasoAdmisible.NivelDeKyc.suficiente(afuera.nivelDeKyc(ctx.usuarioId()), politica.kycMinimo()),
                 reputacion.puntaje().intValue(),
-                afuera.morososDelGrupo(grupoId),
+                moroso,
                 afinidadNeutra,
                 afinidadNeutra,
                 afinidadNeutra,
                 reputacion.tieneHistorial() ? BigDecimal.ONE : afinidadNeutra,
-                !reputacion.tieneHistorial());
+                // Sin historial (o sin respuesta del servicio) no es reputacion cero: es SIN_DATOS y lo ve una persona.
+                !reputacion.tieneHistorial(),
+                moroso == HechosDeOtrosServicios.SIN_DATO_DE_MOROSOS);
     }
 }

@@ -102,9 +102,14 @@ class AcuerdosControllerWebTest {
         when(cu63.proponer(any(), any())).thenReturn(ACUERDO);
 
         // Se manda un quorum en el cuerpo a proposito: el contrato no lo tiene, y si
-        // alguna vez lo aceptara, esta prueba lo diria.
+        // alguna vez lo aceptara, esta prueba lo diria. H13.S1.M2: ahora el campo de mas se
+        // RECHAZA (400) en vez de ignorarse, y el caso de uso no se invoca.
         proponer(PROPUESTA.replace("\"diasVotacion\":7", "\"diasVotacion\":7,\"quorum\":\"0.01\""))
-                .andExpect(status().isCreated());
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(cu63);
+
+        // La propuesta valida: el quorum sale de la politica del grupo.
+        proponer(PROPUESTA).andExpect(status().isCreated());
 
         var capturada = ArgumentCaptor.forClass(CU63Acordar.EntradaPropuesta.class);
         verify(cu63).proponer(capturada.capture(), any());

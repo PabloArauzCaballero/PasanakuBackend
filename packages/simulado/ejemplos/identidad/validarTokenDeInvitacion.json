@@ -1,0 +1,41 @@
+{
+  "servicio": "identidad",
+  "operacion": "validarTokenDeInvitacion",
+  "metodo": "post",
+  "ruta": "/usuarios/tokens/invitacion/validar",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "valido": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "valido": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "valido": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "valido": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    }
+  }
+}

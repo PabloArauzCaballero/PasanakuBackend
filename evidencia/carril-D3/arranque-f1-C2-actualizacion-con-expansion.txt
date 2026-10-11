@@ -1,0 +1,57 @@
+[d3 02:32:02] escenario=actualizacion perfil=local roles=todos modo=individual omitir=[] xmx=144m mem=320m
+[d3 02:32:03] libres Windows al empezar: 3591 MB
+[d3 02:32:06] infra: postgres, pgbouncer, redis, minio, kafka
+ Container aportaya-d3-infra-minio-1 Healthy 
+ Container aportaya-d3-infra-kafka-1 Healthy 
+ Container aportaya-d3-infra-pgbouncer-1 Healthy 
+[d3 02:32:16] version anterior 59370bbd: esquema + semillas + datos de dev + credencial de los roles
+psql:40_reglas/restricciones.sql:2731: NOTICE:  trigger "tg_revision_creativa_moderador" for relation "revision_creativa" does not exist, skipping
+psql:40_reglas/restricciones.sql:2737: NOTICE:  constraint "uq_factura_publicidad_cuenta_periodo" of relation "factura_publicidad" does not exist, skipping
+psql:40_reglas/restricciones.sql:2742: NOTICE:  constraint "ck_espacio_pub_capacidad" of relation "espacio_publicitario" does not exist, skipping
+[d3 02:32:24] version anterior: 402 tablas; usuarios=11 movimientos=25
+[d3 02:32:24] esquema: docker compose up esquema (service_completed_successfully en TEST)
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3481: NOTICE:  relation "ix_requerimiento_vencidos" already exists, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3483: NOTICE:  relation "ix_reporte_vencidos" already exists, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3485: NOTICE:  relation "ix_revision_kyc_vencidas" already exists, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3487: NOTICE:  relation "ix_ddd_por_vencer" already exists, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3491: NOTICE:  relation "ix_movimiento_cuenta_fecha" already exists, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3492: NOTICE:  relation "ix_transaccion_ocurrida" already exists, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3496: NOTICE:  relation "ix_operelev_periodo" already exists, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3498: NOTICE:  relation "ix_operelev_usuario_fecha" already exists, skipping
+esquema-1  | esquema: catalogos minimos (sql/60_semillas)
+esquema-1  | psql:/sql/60_semillas/22-cuentas-de-sistema.sql:42: ERROR:  new row for relation "cuenta_billetera" violates check constraint "ck_cuenta_billetera_tipo"
+esquema-1  | DETAIL:  Failing row contains (00000000-0000-0000-0000-0000000000c3, SYS-CUSTINV-BOB, CUSTODIA_INVERSION, null, null, null, null, BOB, ACTIVA, REFORZADA, 0.00, 0.00, 0.00, f, 2026-10-10 02:32:36.969849-04, null, 0).
+[Kesquema-1 exited with code 3
+[d3 02:32:37] esquema: exit code = 3
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3249: NOTICE:  constraint "ck_posicion_inv_vencimiento" of relation "posicion_inversion" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3264: NOTICE:  constraint "ck_rescate_inv_cuotas" of relation "rescate_inversion" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3265: NOTICE:  constraint "ck_rescate_inv_rechazo" of relation "rescate_inversion" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3301: NOTICE:  trigger "tg_rescate_inversion_doble_disponibilidad" for relation "rescate_inversion" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3307: NOTICE:  constraint "ck_instruccion_libro_aplicada" of relation "instruccion_libro" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3313: NOTICE:  constraint "ck_comision_exito_marca" of relation "comision_exito" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3314: NOTICE:  constraint "ck_comision_exito_sin_base" of relation "comision_exito" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3315: NOTICE:  constraint "ck_comision_exito_tope" of relation "comision_exito" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3333: NOTICE:  trigger "tg_posicion_inversion_marca_no_decrece" for relation "posicion_inversion" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3339: NOTICE:  constraint "ck_conciliacion_interes_periodo" of relation "conciliacion_interes" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3351: NOTICE:  constraint "ck_devengo_dpf_acumulado" of relation "devengo_dpf" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3356: NOTICE:  constraint "ck_distribucion_interes_periodo" of relation "distribucion_interes" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3357: NOTICE:  constraint "ck_distribucion_interes_esperado" of relation "distribucion_interes" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3358: NOTICE:  constraint "ck_distribucion_interes_neto" of relation "distribucion_interes" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3396: NOTICE:  trigger "tg_distribucion_interes_coherente" for relation "distribucion_interes" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3402: NOTICE:  constraint "ck_corrida_trabajo_fin" of relation "corrida_trabajo" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3403: NOTICE:  constraint "ck_corrida_trabajo_error" of relation "corrida_trabajo" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3477: NOTICE:  relation "ix_reclamo_vencidos" already exists, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3479: NOTICE:  relation "ix_caso_vencidos" already exists, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3481: NOTICE:  relation "ix_requerimiento_vencidos" already exists, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3483: NOTICE:  relation "ix_reporte_vencidos" already exists, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3485: NOTICE:  relation "ix_revision_kyc_vencidas" already exists, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3487: NOTICE:  relation "ix_ddd_por_vencer" already exists, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3491: NOTICE:  relation "ix_movimiento_cuenta_fecha" already exists, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3492: NOTICE:  relation "ix_transaccion_ocurrida" already exists, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3496: NOTICE:  relation "ix_operelev_periodo" already exists, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3498: NOTICE:  relation "ix_operelev_usuario_fecha" already exists, skipping
+esquema-1  | esquema: catalogos minimos (sql/60_semillas)
+esquema-1  | psql:/sql/60_semillas/22-cuentas-de-sistema.sql:42: ERROR:  new row for relation "cuenta_billetera" violates check constraint "ck_cuenta_billetera_tipo"
+esquema-1  | DETAIL:  Failing row contains (00000000-0000-0000-0000-0000000000c3, SYS-CUSTINV-BOB, CUSTODIA_INVERSION, null, null, null, null, BOB, ACTIVA, REFORZADA, 0.00, 0.00, 0.00, f, 2026-10-10 02:32:36.969849-04, null, 0).
+[d3 02:32:37] RAM pico de los contenedores (hora,n,MB): 02:32:28,6,749
+[d3 02:32:40] libres Windows al terminar: 1741 MB

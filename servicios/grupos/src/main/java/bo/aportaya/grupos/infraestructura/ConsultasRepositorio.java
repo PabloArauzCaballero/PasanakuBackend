@@ -58,6 +58,16 @@ public class ConsultasRepositorio {
         return fila == null ? 0 : fila.get("activos", Integer.class);
     }
 
+    /** Administrador activo del grupo (el que tiene {@code es_organizador}). */
+    public boolean esAdministradorDelGrupo(DSLContext dsl, UUID grupoId, UUID usuarioId) {
+        return dsl.fetchExists(dsl.selectOne()
+                .from("grupos.participante")
+                .where(
+                        "grupo_id = ? AND usuario_id = ? AND es_organizador AND estado IN ('ACTIVO','ACEPTADO_PENDIENTE_FIRMA')",
+                        grupoId,
+                        usuarioId));
+    }
+
     /**
      * El paquete publicado de un sorteo, para que se pueda rehacer desde afuera.
      *
@@ -77,12 +87,28 @@ public class ConsultasRepositorio {
         if (fila == null) {
             return Optional.empty();
         }
+        List<String> resultado = SorteoRepositorio.leerLista(fila.get("resultado", JSONB.class));
+        var numeros = new java.util.HashMap<String, Integer>();
+        if (!resultado.isEmpty()) {
+            dsl.fetch("SELECT id, numero FROM grupos.cupo WHERE id = ANY(?::uuid[])", (Object)
+                            resultado.stream().map(UUID::fromString).toArray(UUID[]::new))
+                    .forEach(f -> numeros.put(f.get("id", UUID.class).toString(), f.get("numero", Integer.class)));
+        }
+        List<String> publicado =
+                resultado.stream().map(c -> String.valueOf(numeros.get(c))).toList();
+        List<String> original = publicado.stream()
+                .map(Integer::valueOf)
+                .sorted()
+                .map(String::valueOf)
+                .toList();
+        String semilla = fila.get("semilla_publica", String.class);
         return Optional.of(new PaqueteDeSorteo(
                 fila.get("hash_semilla_previo", String.class),
-                fila.get("semilla_publica", String.class),
+                semilla == null || semilla.isBlank() ? null : semilla,
                 fila.get("algoritmo", String.class),
-                comoLista(fila.get("aportes_entropia", JSONB.class)),
-                comoLista(fila.get("resultado", JSONB.class))));
+                SorteoRepositorio.leerLista(fila.get("aportes_entropia", JSONB.class)),
+                original,
+                publicado));
     }
 
     /** Los periodos del grupo, en orden. El sorteo reparte turnos contra ellos. */
@@ -224,16 +250,4 @@ public class ConsultasRepositorio {
     }
 
     public record Politica(String kycMinimo, int reputacionMinima, java.math.BigDecimal quorum, int cuposLibres) {}
-
-    /** Un jsonb de una sola dimension, como lista de textos. Vacio si no hay nada. */
-    private static List<String> comoLista(JSONB json) {
-        if (json == null) {
-            return List.of();
-        }
-        String crudo = json.data().trim();
-        if (crudo.length() <= 2) {
-            return List.of();
-        }
-        return List.of(crudo.substring(1, crudo.length() - 1).replace("\"", "").split(","));
-    }
 }

@@ -1,0 +1,8 @@
+# H13.S1.M3 · Salidas con datos sensibles que YA existian cuando se escribio el barrido.
+#
+# Cada linea:  <ruta>|<salida>|<dato>   # <que es> · duenio: <servicio> · arreglo: <propuesta>
+#
+# No es una aprobacion: es una deuda con duenio. El barrido falla ante cualquier hallazgo
+# NUEVO (la lista no crece sola) y ante cualquier linea de aca que ya no se encuentre (cuando
+# se arregla, se borra de este archivo y la deuda baja). Detalle y archivo:linea en
+# docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-S2/H13-S1-M3-barrido-de-datos-sensibles.md

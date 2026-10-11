@@ -143,10 +143,7 @@ class AltaNotifier extends Notifier<EstadoAlta> {
         state.datos.correo.trim().toLowerCase() !=
         datos.correo.trim().toLowerCase();
     if (cambioCorreo) ref.read(verificacionCorreoProvider).reiniciar();
-    state = state.copiarCon(
-      datos: datos,
-      limpiarVerificacion: cambioCorreo,
-    );
+    state = state.copiarCon(datos: datos, limpiarVerificacion: cambioCorreo);
   }
 
   void elegirContrasena(String clave) =>

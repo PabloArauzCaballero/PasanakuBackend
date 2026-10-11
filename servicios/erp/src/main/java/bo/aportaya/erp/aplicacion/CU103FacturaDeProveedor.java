@@ -164,6 +164,11 @@ public class CU103FacturaDeProveedor {
      * <p>Lo que **no** se relaja es la segregacion: quien figura como aprobador no puede
      * ser quien autoriza el pago. Queda declarado como hueco en
      * {@code planes/informes/carril-3D-erp.md}.
+     *
+     * <p>**Quien autoriza el pago lo dicta el token, no el cuerpo.** El autorizante es
+     * {@code ctx.usuarioId()}, el sujeto autenticado de la peticion: si lo mandara el
+     * cliente, quien aprobo la factura solo tendria que escribir otro identificador para
+     * saltarse R-CTB-05. Por eso {@link EntradaPago} no lo trae y el contrato lo rechaza.
      */
     @Transactional
     public SalidaFactura pagar(EntradaPago entrada, ContextoSesion ctx) {
@@ -178,7 +183,8 @@ public class CU103FacturaDeProveedor {
             if (factura.aprobadaPor() == null) {
                 throw new ErrorDeNegocio(CodigoError.de(103, 2), "La factura no esta aprobada: no se puede pagar.");
             }
-            if (factura.aprobadaPor().equals(entrada.autorizadoPor())) {
+            UUID autorizadoPor = ctx.usuarioId();
+            if (factura.aprobadaPor().equals(autorizadoPor)) {
                 throw new ErrorDeNegocio(
                         CodigoError.de(103, 2),
                         "Quien aprobo la factura no puede ademas autorizar su pago (R-CTB-05).");
@@ -203,7 +209,7 @@ public class CU103FacturaDeProveedor {
                     entrada.monto(),
                     entrada.moneda(),
                     entrada.formaPago(),
-                    entrada.autorizadoPor(),
+                    autorizadoPor,
                     pagadoNuevo,
                     factura.monto(),
                     ahora);
@@ -221,7 +227,7 @@ public class CU103FacturaDeProveedor {
                                             factura.monto()
                                                     .subtract(pagadoNuevo)
                                                     .toPlainString(),
-                                    "autorizadoPor", entrada.autorizadoPor().toString()),
+                                    "autorizadoPor", autorizadoPor.toString()),
                             UUID.fromString(ctx.traza().id())));
 
             return new SalidaFactura(
@@ -245,7 +251,7 @@ public class CU103FacturaDeProveedor {
             UUID cuentaGastoId,
             UUID aprobadaPor) {}
 
-    public record EntradaPago(UUID facturaId, BigDecimal monto, String moneda, String formaPago, UUID autorizadoPor) {}
+    public record EntradaPago(UUID facturaId, BigDecimal monto, String moneda, String formaPago) {}
 
     public record SalidaFactura(
             UUID facturaId, String estado, BigDecimal monto, BigDecimal montoPagado, BigDecimal saldoPendiente) {}

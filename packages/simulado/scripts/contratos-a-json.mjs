@@ -13,7 +13,10 @@ import { fileURLToPath } from 'node:url'
 import { parse } from 'yaml'
 
 const AQUI = dirname(fileURLToPath(import.meta.url))
-const RAIZ = resolve(AQUI, '../../..')
+// Por defecto, los contratos del propio repositorio. `CONTRATOS_RAIZ` apunta a otra raiz que
+// contenga `servicios/` (p. ej. el repositorio del backend, que es donde manda ADR-020 y
+// donde aparecen primero los contratos nuevos). Solo se LEE: nunca se escribe alli.
+const RAIZ = process.env.CONTRATOS_RAIZ ? resolve(process.env.CONTRATOS_RAIZ) : resolve(AQUI, '../../..')
 const SERVICIOS = join(RAIZ, 'servicios')
 const DESTINO = join(AQUI, '..', 'generado')
 
@@ -28,10 +31,13 @@ const escritos = []
 for (const servicio of readdirSync(SERVICIOS)) {
   const yaml = join(SERVICIOS, servicio, 'src/main/resources/openapi', `${servicio}.yaml`)
   if (!existsSync(yaml)) continue
-  const documento = parse(readFileSync(yaml, 'utf8'))
+  const texto = readFileSync(yaml, 'utf8')
+  const documento = parse(texto)
   const rutas = Object.keys(documento?.paths ?? {})
   if (rutas.length === 0) continue // borrador vacio de la Fase 0: no es un error
   writeFileSync(join(DESTINO, `${servicio}.json`), `${JSON.stringify(documento, null, 2)}\n`, 'utf8')
+  // El YAML original viaja al lado: los comentarios `# AP-CUnn-nn` son el catalogo de errores.
+  writeFileSync(join(DESTINO, `${servicio}.yaml`), texto, 'utf8')
   escritos.push(`${servicio} (${rutas.length} rutas)`)
 }
 
@@ -39,4 +45,5 @@ if (escritos.length === 0) {
   console.error('ningun contrato con operaciones: no hay nada que simular')
   process.exit(1)
 }
-console.log(`contratos convertidos: ${escritos.join(' · ')}`)
+writeFileSync(join(DESTINO, 'ORIGEN.txt'), RAIZ, 'utf8')
+console.log(`contratos convertidos desde ${RAIZ}: ${escritos.join(' · ')}`)

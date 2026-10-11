@@ -1,0 +1,141 @@
+heavy.sh: candado tomado, libres 6808 MB -> bash C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/corridaA.sh :servicios:nucleo-financiero:spotlessApply :servicios:nucleo-financiero:integrationTest
+[corridaA] levantando Docker Desktop
+[corridaA] docker listo
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Starting a Gradle Daemon, 8 stopped Daemons could not be reused, use --status for details
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessJava
+> Task :servicios:nucleo-financiero:spotlessJavaApply
+> Task :servicios:nucleo-financiero:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessApply
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources NO-SOURCE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :servicios:nucleo-financiero:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:nucleo-financiero:generateJooq UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileJava UP-TO-DATE
+> Task :servicios:nucleo-financiero:processResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:classes UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileTestJava
+> Task :servicios:nucleo-financiero:processTestResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:testClasses
+
+> Task :servicios:nucleo-financiero:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+CU10ProveedorTest > noAcreditaUnaOrdenPendienteAunqueElUsuarioLoSolicite() FAILED
+    bo.aportaya.plataforma.dominio.ErrorDeNegocio: No se pudo confirmar el costo de la operacion: intentalo de nuevo.
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion.lambda$preguntar$1(CotizarOperacion.java:150)
+        at java.base@21.0.9/java.util.Optional.orElseThrow(Unknown Source)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion.preguntar(CotizarOperacion.java:149)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion.confirmar(CotizarOperacion.java:110)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor.solicitar(RecargasConProveedor.java:59)
+        at app//bo.aportaya.nucleofinanciero.CU10ProveedorTest.noAcreditaUnaOrdenPendienteAunqueElUsuarioLoSolicite(CU10ProveedorTest.java:112)
+
+CU10ProveedorTest > dominioRechazaAcreditarSinConfirmacion() FAILED
+    bo.aportaya.plataforma.dominio.ErrorDeNegocio: No se pudo confirmar el costo de la operacion: intentalo de nuevo.
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion.lambda$preguntar$1(CotizarOperacion.java:150)
+        at java.base@21.0.9/java.util.Optional.orElseThrow(Unknown Source)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion.preguntar(CotizarOperacion.java:149)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion.confirmar(CotizarOperacion.java:110)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor.solicitar(RecargasConProveedor.java:59)
+        at app//bo.aportaya.nucleofinanciero.CU10ProveedorTest.dominioRechazaAcreditarSinConfirmacion(CU10ProveedorTest.java:186)
+
+CU10ProveedorTest > confirmacionConImporteDistintoNoAcredita() FAILED
+    bo.aportaya.plataforma.dominio.ErrorDeNegocio: No se pudo confirmar el costo de la operacion: intentalo de nuevo.
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion.lambda$preguntar$1(CotizarOperacion.java:150)
+        at java.base@21.0.9/java.util.Optional.orElseThrow(Unknown Source)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion.preguntar(CotizarOperacion.java:149)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion.confirmar(CotizarOperacion.java:110)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor.solicitar(RecargasConProveedor.java:59)
+        at app//bo.aportaya.nucleofinanciero.CU10ProveedorTest.confirmacionConImporteDistintoNoAcredita(CU10ProveedorTest.java:169)
+
+CU10ProveedorTest > cobraPrecioDelServidorYRepiteResultadoSinSegundoAbono() FAILED
+    bo.aportaya.plataforma.dominio.ErrorDeNegocio: No se pudo confirmar el costo de la operacion: intentalo de nuevo.
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion.lambda$preguntar$1(CotizarOperacion.java:150)
+        at java.base@21.0.9/java.util.Optional.orElseThrow(Unknown Source)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion.preguntar(CotizarOperacion.java:149)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion.confirmar(CotizarOperacion.java:110)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor.solicitar(RecargasConProveedor.java:59)
+        at app//bo.aportaya.nucleofinanciero.CU10ProveedorTest.cobraPrecioDelServidorYRepiteResultadoSinSegundoAbono(CU10ProveedorTest.java:125)
+
+CU10ProveedorTest > idempotenciaNoPermiteCambiarMonto() FAILED
+    bo.aportaya.plataforma.dominio.ErrorDeNegocio: No se pudo confirmar el costo de la operacion: intentalo de nuevo.
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion.lambda$preguntar$1(CotizarOperacion.java:150)
+        at java.base@21.0.9/java.util.Optional.orElseThrow(Unknown Source)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion.preguntar(CotizarOperacion.java:149)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion.confirmar(CotizarOperacion.java:110)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor.solicitar(RecargasConProveedor.java:59)
+        at app//bo.aportaya.nucleofinanciero.CU10ProveedorTest.idempotenciaNoPermiteCambiarMonto(CU10ProveedorTest.java:157)
+
+CU10ProveedorTest > otraPersonaNoPuedeCargarLaCuentaNiConfirmarla() FAILED
+    bo.aportaya.plataforma.dominio.ErrorDeNegocio: No se pudo confirmar el costo de la operacion: intentalo de nuevo.
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion.lambda$preguntar$1(CotizarOperacion.java:150)
+        at java.base@21.0.9/java.util.Optional.orElseThrow(Unknown Source)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion.preguntar(CotizarOperacion.java:149)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion.confirmar(CotizarOperacion.java:110)
+        at app//bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor.solicitar(RecargasConProveedor.java:59)
+        at app//bo.aportaya.nucleofinanciero.CU10ProveedorTest.otraPersonaNoPuedeCargarLaCuentaNiConfirmarla(CU10ProveedorTest.java:148)
+
+2026-10-08T15:24:09.074-04:00  INFO 20580 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-08T15:24:09.079-04:00  INFO 20580 --- [nucleo-financiero] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-08T15:24:09.242-04:00  INFO 20580 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-08T15:24:09.243-04:00  INFO 20580 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:nucleo-financiero:integrationTest
+
+278 tests completed, 6 failed
+
+> Task :servicios:nucleo-financiero:integrationTest FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':servicios:nucleo-financiero:integrationTest'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend/servicios/nucleo-financiero/build/reports/tests/integrationTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 1m 53s
+37 actionable tasks: 4 executed, 33 up-to-date
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Stopping Daemon(s)
+1 Daemon stopped
+✓ Stopping Docker Desktop

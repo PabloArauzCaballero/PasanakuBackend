@@ -9,6 +9,7 @@ import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
+import bo.aportaya.plataforma.dominio.Moneda;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.mensajeria.EventoDominio;
 import bo.aportaya.plataforma.mensajeria.Outbox;
@@ -75,7 +76,14 @@ public class CU24RegistrarAsiento {
 
         String descripcion = descripcionDe(entrada.glosa());
         for (PartidaResuelta r : resueltas) {
-            asientos.agregarMovimiento(dsl, asiento.id(), r.cuentaId(), r.debe(), r.haber(), descripcion);
+            asientos.agregarMovimiento(
+                    dsl,
+                    asiento.id(),
+                    r.cuentaId(),
+                    r.debe(),
+                    r.haber(),
+                    r.moneda().name(),
+                    descripcion);
         }
 
         outbox.emitir(
@@ -118,13 +126,15 @@ public class CU24RegistrarAsiento {
                 registrante(ctx),
                 Optional.of(asientoOriginalId));
 
-        Dinero totalDebe = Dinero.cero(bo.aportaya.plataforma.dominio.Moneda.BOB);
+        // El inverso conserva la moneda del original (R-AUD-12): reversar nunca cambia de moneda.
+        Moneda monedaDelOriginal = Moneda.valueOf(movimientos.get(0).moneda());
+        Dinero totalDebe = Dinero.cero(monedaDelOriginal);
         Dinero totalHaber = totalDebe;
         for (AsientoRepositorio.MovimientoExistente m : movimientos) {
             // El inverso intercambia debe y haber de cada línea, cuenta por cuenta.
-            asientos.agregarMovimiento(dsl, reversa.id(), m.cuentaId(), m.haber(), m.debe(), glosaReversa);
-            totalDebe = totalDebe.mas(Dinero.de(m.haber(), bo.aportaya.plataforma.dominio.Moneda.BOB));
-            totalHaber = totalHaber.mas(Dinero.de(m.debe(), bo.aportaya.plataforma.dominio.Moneda.BOB));
+            asientos.agregarMovimiento(dsl, reversa.id(), m.cuentaId(), m.haber(), m.debe(), m.moneda(), glosaReversa);
+            totalDebe = totalDebe.mas(Dinero.de(m.haber(), monedaDelOriginal));
+            totalHaber = totalHaber.mas(Dinero.de(m.debe(), monedaDelOriginal));
         }
 
         outbox.emitir(
@@ -159,10 +169,24 @@ public class CU24RegistrarAsiento {
                         CodigoError.de(24, 2),
                         "La cuenta «%s» no existe en el plan de cuentas.".formatted(p.cuentaCodigo()),
                         Map.of("cuentaCodigo", p.cuentaCodigo())));
-        return new PartidaResuelta(cuenta.id(), p.debe(), p.haber());
+        // R-CTB-10: la base lo rechaza igual; acá se adelanta para devolver AP-CU24-04 y no un 500.
+        if (!cuenta.moneda().equals(p.moneda().name())) {
+            throw new ErrorDeNegocio(
+                    CodigoError.de(24, 4),
+                    "La cuenta «%s» es en %s y la partida en %s."
+                            .formatted(p.cuentaCodigo(), cuenta.moneda(), p.moneda()),
+                    Map.of(
+                            "cuentaCodigo",
+                            p.cuentaCodigo(),
+                            "monedaCuenta",
+                            cuenta.moneda(),
+                            "monedaPartida",
+                            p.moneda().name()));
+        }
+        return new PartidaResuelta(cuenta.id(), p.debe(), p.haber(), p.moneda());
     }
 
-    private record PartidaResuelta(UUID cuentaId, BigDecimal debe, BigDecimal haber) {}
+    private record PartidaResuelta(UUID cuentaId, BigDecimal debe, BigDecimal haber, Moneda moneda) {}
 
     public record EntradaAsiento(
             OrigenAsiento origenTipo, UUID origenId, List<Partida> partidas, String glosa, Optional<UUID> grupoId) {

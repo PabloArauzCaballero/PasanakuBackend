@@ -1,15 +1,26 @@
+import 'package:aportaya_diseno/atomos/boton.dart';
+import 'package:aportaya_diseno/atomos/boton_variante.dart';
+import 'package:aportaya_diseno/moleculas/barra_de_accion.dart';
+import 'package:aportaya_diseno/moleculas/cabecera.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../dominio/cliente.dart';
 import '../../proveedores/idempotencia.dart';
 import '../../proveedores/sesion.dart';
+import 'tarjetas_de_unirse.dart';
+import 'textos_invitacion.dart';
+import 'vistas_de_unirse.dart';
 
 /// Entrada pública del enlace. Los datos del grupo llegan solo tras comprobar en
 /// el servidor que el teléfono autenticado es el destinatario de la invitación.
+///
+/// Diseño (hallazgo del carril H): antes era texto plano pegado al borde, con el importe
+/// crudo («100.00 BOB … MENSUAL») y el botón principal casi invisible mientras estaba
+/// apagado. Ahora usa la cabecera, las tarjetas, la casilla y la barra de acción del
+/// sistema de diseño, igual que «Organizar un grupo».
 class PantallaUnirse extends ConsumerStatefulWidget {
   const PantallaUnirse({super.key, required this.codigo});
   final String codigo;
@@ -48,6 +59,10 @@ class _PantallaUnirseState extends ConsumerState<PantallaUnirse> {
       });
       return;
     }
+    setState(() {
+      _cargando = true;
+      _error = null;
+    });
     String? acceso;
     try {
       acceso = await ref.read(sesionProvider).tokenDeAcceso();
@@ -128,70 +143,53 @@ class _PantallaUnirseState extends ConsumerState<PantallaUnirse> {
   @override
   Widget build(BuildContext context) {
     final retorno = Uri.encodeComponent('/pasanaku/unirse/${widget.codigo}');
+    final detalle = _detalle;
     return Scaffold(
-      appBar: AppBar(title: const Text('Invitación al grupo')),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(Espacio.s5),
+        bottom: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (_cargando) const Center(child: CircularProgressIndicator()),
-            if (_necesitaIngreso) ...[
-              const Text(
-                'Ingresá con el teléfono que recibió la invitación para ver el grupo.',
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: Espacio.s4),
+              child: CabeceraDeSeccion(titulo: TextosInvitacion.tituloUnirse),
+            ),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(Espacio.s4),
+                children: [
+                  if (_cargando) const VerificandoInvitacion(),
+                  if (_necesitaIngreso) IngresoRequerido(retorno: retorno),
+                  if (detalle != null) ...[
+                    TarjetaDelGrupo(detalle: detalle),
+                    const SizedBox(height: Espacio.s4),
+                    ReglamentoDelGrupo(
+                      reglamento: detalle['reglamento'] as String? ?? '',
+                      acepta: _aceptaReglamento,
+                      alCambiar: (v) => setState(() => _aceptaReglamento = v),
+                    ),
+                  ],
+                  if (_grupoAceptado != null) const IngresoAceptado(),
+                  if (_error != null)
+                    ErrorDeInvitacion(
+                      mensaje: _error!,
+                      alReintentar: _detalle == null && !_necesitaIngreso
+                          ? _consultar
+                          : null,
+                    ),
+                ],
               ),
-              const SizedBox(height: Espacio.s4),
-              ElevatedButton(
-                onPressed: () => context.go('/ingreso?volver=$retorno'),
-                child: const Text('Ingresar'),
-              ),
-              TextButton(
-                onPressed: () => context.go('/registro?volver=$retorno'),
-                child: const Text('Crear cuenta'),
-              ),
-            ],
-            if (_detalle case final detalle?) ...[
-              Text(
-                detalle['nombre'] as String? ?? '',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: Espacio.s3),
-              Text(
-                '${detalle['montoAporte']} ${detalle['moneda']} por período · ${detalle['periodicidad']}',
-              ),
-              const SizedBox(height: Espacio.s5),
-              const Text('Reglamento del grupo'),
-              const SizedBox(height: Espacio.s2),
-              Text(detalle['reglamento'] as String? ?? ''),
-              CheckboxListTile(
-                value: _aceptaReglamento,
-                onChanged: (valor) =>
-                    setState(() => _aceptaReglamento = valor ?? false),
-                title: const Text('Leí y acepto este reglamento'),
-                controlAffinity: ListTileControlAffinity.leading,
-              ),
-              ElevatedButton(
-                onPressed: _aceptaReglamento && !_enviando ? _aceptar : null,
-                child: const Text('Unirme al grupo'),
-              ),
-            ],
-            if (_grupoAceptado != null) ...[
-              const Text('Ya formás parte del grupo.'),
-              TextButton(
-                onPressed: () => context.go('/pasanaku/mi-estado'),
-                child: const Text('Ver mis grupos'),
-              ),
-            ],
-            if (_error != null) ...[
-              Text(
-                _error!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-              if (_detalle == null && !_necesitaIngreso)
-                TextButton(
-                  onPressed: _consultar,
-                  child: const Text('Reintentar'),
+            ),
+            if (detalle != null)
+              BarraDeAccion(
+                hijo: Boton(
+                  texto: TextosInvitacion.unirmeAlGrupo,
+                  variante: BotonVariante.primario,
+                  expandido: true,
+                  cargando: _enviando,
+                  onPressed: _aceptaReglamento && !_enviando ? _aceptar : null,
                 ),
-            ],
+              ),
           ],
         ),
       ),

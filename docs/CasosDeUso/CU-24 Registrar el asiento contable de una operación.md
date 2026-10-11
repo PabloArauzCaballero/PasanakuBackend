@@ -31,7 +31,7 @@ normas: [Ley 393 (libros y conservación), plan de cuentas, NIIF]
 2. **En la misma transacción que el hecho económico** se crea
    [[asiento_contable]] con `origen_tipo` / `origen_id` apuntando al hecho, y sus
    [[movimiento_contable]].
-3. Un trigger valida `SUM(debe) = SUM(haber)` al confirmar el asiento (`R-AUD-05`).
+3. Un trigger valida `SUM(debe) = SUM(haber)` al confirmar el asiento (`R-AUD-05`), **en una sola moneda**: cada cuenta y cada movimiento llevan su moneda, un movimiento es de la moneda de su cuenta (`R-CTB-10`) y un asiento no mezcla monedas (`R-AUD-12`). Sin un tipo de cambio registrado con su fecha no se suman BOB con USD: una operación en dos monedas son dos asientos.
 4. El saldo de cada [[cuenta_contable]] tocada se sincroniza **desde el libro, por
    trigger** (`R-CTB-09`): la aplicación no lo escribe, igual que no escribe el de
    billetera. Se emite `evento_dominio` en la misma transacción.
@@ -57,7 +57,7 @@ normas: [Ley 393 (libros y conservación), plan de cuentas, NIIF]
 export const EntradaCU24 = z.object({
   origenTipo: z.enum(['PAGO','ENTREGA','COBERTURA','COMISION','BILLETERA','AJUSTE']),
   origenId: z.string().uuid(),
-  partidas: z.array(z.object({ cuentaCodigo: z.string(), debe: MontoSchema, haber: MontoSchema })).min(2),
+  partidas: z.array(z.object({ cuentaCodigo: z.string(), debe: MontoSchema, haber: MontoSchema, moneda: z.enum(['BOB','USD']) })).min(2),
   glosa: z.string().max(200),
 }).strict()
 
@@ -72,6 +72,10 @@ export const ErroresCU24 = {
   ASIENTO_DESCUADRADO: 'AP-CU24-01',
   CUENTA_INEXISTENTE: 'AP-CU24-02',
   PERIODO_CERRADO: 'AP-CU24-03',
+  MONEDA_INCOHERENTE: 'AP-CU24-04',
+  REVERSA_NO_COINCIDE: 'AP-CU24-05',
+  ORIGEN_PENDIENTE: 'AP-CU24-06',
+  EVENTO_ILEGIBLE: 'AP-CU24-07',
 } as const
 ```
 
@@ -80,6 +84,10 @@ export const ErroresCU24 = {
 | `ASIENTO_DESCUADRADO` | Debe y haber no coinciden (R-AUD-05) |
 | `CUENTA_INEXISTENTE` | El código de cuenta no está en el plan |
 | `PERIODO_CERRADO` | El período contable ya se cerró |
+| `MONEDA_INCOHERENTE` | El asiento mezcla monedas, o la partida no es de la moneda de su cuenta (`R-AUD-12`, `R-CTB-10`) |
+| `REVERSA_NO_COINCIDE` | Las partidas del evento de reversa no son el inverso del asiento original |
+| `ORIGEN_PENDIENTE` | El asiento que el evento reversa todavía no llegó: se reintenta, no se descarta |
+| `EVENTO_ILEGIBLE` | El asiento propuesto por el evento no se puede leer (origen, importe o moneda inválidos) |
 
 ## Descomposición atómica
 
@@ -98,6 +106,8 @@ export const ErroresCU24 = {
 | `asiento.registrado` | Actualiza saldos de cuenta y alimenta el cierre diario | Interno |
 | `asiento.reversado` | Asiento inverso enlazado al original | `CONTABILIDAD` |
 
+**Consume** los eventos de `garantia` que traen un `asiento` propuesto (`respaldo_reservado`, `respaldo_ampliado`, `respaldo_liberado`, `respaldo_recuperado`, `cobertura_empresarial_aplicada`, `cobertura_empresarial_reversada`) con cuentas **lógicas** que contabilidad mapea al plan por moneda (`aportaya.contabilidad.cuentas-logicas.<LOGICA>.<MONEDA>`; sin mapeo el evento se rechaza y no se asienta). La marca de evento consumido y el asiento van en la misma transacción: un evento repetido produce un solo asiento, y una reversa produce el contra-asiento enlazado, nunca un `UPDATE`.
+
 ## Interfaz
 
 - **App:** No tiene pantalla: sostiene lo que el usuario ve en el panel de transparencia.
@@ -105,7 +115,7 @@ export const ErroresCU24 = {
 
 ## Restricciones aplicables
 
-`R-AUD-01` · `R-AUD-05` · `R-AUD-06` · `R-AUD-11` · `R-CTB-02` · `R-CTB-09`
+`R-AUD-01` · `R-AUD-05` · `R-AUD-06` · `R-AUD-11` · `R-AUD-12` · `R-CTB-02` · `R-CTB-09` · `R-CTB-10`
 
 ## Evidencia que deja
 
@@ -126,6 +136,18 @@ Entonces la base de datos lo rechaza
 Dada una corrección contable
 Cuando se ejecuta
 Entonces existe un asiento nuevo con asiento_reversa_id apuntando al original
+
+Dado un asiento que mezcla BOB y USD
+Cuando se intenta confirmar
+Entonces la base de datos lo rechaza (R-AUD-12)
+
+Dado un evento de garantía con un asiento propuesto
+Cuando se consume dos veces
+Entonces existe un solo asiento que cuadra en su moneda
+
+Dado un evento de reversa de una cobertura ya asentada
+Cuando se consume
+Entonces nace un contra-asiento enlazado al original y el original queda intacto
 ```
 
 ## Ver también

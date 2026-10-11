@@ -13,7 +13,7 @@ import { textosSistemas } from '../textos'
   imports: [BandaDeProposito, TablaDeDatos, ChipEstado, EstadoDePantalla],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
       <ap-estado-de-pantalla [recurso]="outbox" [vacio]="esVacio" [mensajeVacio]="t.vacio" [etiquetaDeCarga]="t.cargando" (reintentar)="outbox.reload()">
         @if (outbox.hasValue() && outbox.value(); as datos) {
@@ -38,9 +38,9 @@ import { textosSistemas } from '../textos'
           </section>
         }
       </ap-estado-de-pantalla>
-    </main>
+    </section>
   `,
-  styles: `main { padding: 0; max-width: 60rem; display: flex; flex-direction: column; gap: var(--s5); } h1 { margin-bottom: 0; }`,
+  styles: `.pantalla { padding: 0; max-width: 60rem; display: flex; flex-direction: column; gap: var(--s5); } h1 { margin-bottom: 0; }`,
 })
 export class PantallaOutbox {
   protected readonly t = textosSistemas.outbox

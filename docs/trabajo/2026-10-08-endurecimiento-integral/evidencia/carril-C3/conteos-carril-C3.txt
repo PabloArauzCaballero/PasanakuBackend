@@ -1,0 +1,12 @@
+Conteos reales desde servicios/<svc>/build/test-results/*/*.xml (corrida gradle-corrida-completa.log, RC 0)
+nucleo-financiero  contractTest     tests=9 fallos=0 errores=0 omitidas=0
+nucleo-financiero  integrationTest  tests=401 fallos=0 errores=0 omitidas=0
+nucleo-financiero  test             tests=67 fallos=0 errores=0 omitidas=0
+nucleo-financiero  testBarrido      tests=2 fallos=0 errores=0 omitidas=0
+nucleo-financiero  webTest          tests=40 fallos=0 errores=0 omitidas=0
+inversiones        contractTest     tests=32 fallos=0 errores=0 omitidas=0
+inversiones        integrationTest  tests=147 fallos=0 errores=0 omitidas=0
+inversiones        sagaTest         tests=8 fallos=0 errores=0 omitidas=0
+inversiones        test             tests=39 fallos=0 errores=0 omitidas=0
+inversiones        testBarrido      tests=2 fallos=0 errores=0 omitidas=0
+inversiones        webTest          tests=33 fallos=0 errores=0 omitidas=0

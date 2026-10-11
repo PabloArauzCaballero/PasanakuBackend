@@ -8,7 +8,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
   template: `@for (a of anchos(); track $index) { <span [style.width.%]="a"></span> }`,
   styles: `
     :host { display: block; }
-    span { display: block; height: var(--s4); margin-bottom: var(--s3); border-radius: var(--r-sm); background: var(--surface-2); animation: latir 1.4s ease-in-out infinite; }
+    span { display: block; height: var(--s4); margin-bottom: var(--s3); border-radius: var(--r-sm); background: var(--esqueleto); animation: latir 1.4s ease-in-out infinite; }
     span:last-child { margin-bottom: 0; }
     @keyframes latir { 50% { opacity: .55; } }
     @media (prefers-reduced-motion: reduce) { span { animation: none; } }

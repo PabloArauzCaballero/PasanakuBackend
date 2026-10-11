@@ -1,0 +1,75 @@
+{
+  "servicio": "cumplimiento",
+  "operacion": "consultarEfectoDeReclamos",
+  "metodo": "get",
+  "ruta": "/reclamos/usuarios/{usuarioId}/efecto",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "usuarioId": "c8f8a978-89ae-497a-8156-b00252a6c2f2",
+        "bloqueaSancionFirme": true,
+        "bloqueaDeudaEjecutable": true,
+        "motivoGlobal": "motivoGlobal",
+        "casos": [
+          {
+            "reclamoId": "47a253c6-295b-4b76-8ef9-18b070fd9f3c",
+            "codigo": "codigo",
+            "categoria": "categoria",
+            "producto": "producto",
+            "estado": "estado",
+            "resultado": "resultado",
+            "fechaIngreso": "2026-01-15T10:30:00Z",
+            "fechaRespuesta": "2026-01-15T10:30:00Z",
+            "bloqueaSancionFirme": true,
+            "bloqueaDeudaEjecutable": true,
+            "motivo": "SIN_RECLAMOS"
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "usuarioId": "c8f8a978-89ae-497a-8156-b00252a6c2f2",
+        "bloqueaSancionFirme": false,
+        "bloqueaDeudaEjecutable": false,
+        "motivoGlobal": "motivoGlobal",
+        "casos": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "usuarioId": "c8f8a978-89ae-497a-8156-b00252a6c2f2",
+        "bloqueaSancionFirme": true,
+        "bloqueaDeudaEjecutable": true,
+        "motivoGlobal": "motivoGlobal",
+        "casos": [
+          {
+            "reclamoId": "47a253c6-295b-4b76-8ef9-18b070fd9f3c",
+            "codigo": "codigo",
+            "categoria": "categoria",
+            "producto": "producto",
+            "estado": "estado",
+            "resultado": "resultado",
+            "fechaIngreso": "2026-01-15T10:30:00Z",
+            "fechaRespuesta": "2026-01-15T10:30:00Z",
+            "bloqueaSancionFirme": true,
+            "bloqueaDeudaEjecutable": true,
+            "motivo": "SIN_RECLAMOS"
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU52-01",
+        "mensaje": "Punto reclamo inactivo",
+        "detalle": {},
+        "trazaId": "traza-consultarEfectoDeReclamos-rechazo"
+      }
+    }
+  }
+}

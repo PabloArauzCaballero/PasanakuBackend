@@ -1,0 +1,274 @@
+{
+  "servicio": "inversiones",
+  "operacion": "reporteFiscalDeInversiones",
+  "metodo": "get",
+  "ruta": "/inversiones/reportes/fiscal",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "desde": "2026-01-01",
+        "hasta": "2026-06-30",
+        "lineas": [
+          {
+            "comprobanteId": "bf04f4c7-662d-4bad-826d-6e0962532e07",
+            "posicionId": "69b3a0d1-0218-480f-8bab-f8de6bcbf8e0",
+            "productoCodigo": "DPF-SINT-180",
+            "tipo": "SUSCRIPCION",
+            "fecha": "2026-01-01",
+            "principal": {
+              "monto": "10000.00",
+              "moneda": "BOB"
+            },
+            "interes": {
+              "monto": "0.00",
+              "moneda": "BOB"
+            },
+            "impuesto": {
+              "monto": "0.00",
+              "moneda": "BOB"
+            },
+            "comision": {
+              "monto": "0.00",
+              "moneda": "BOB"
+            },
+            "perdidaRealizada": {
+              "monto": "0.00",
+              "moneda": "BOB"
+            },
+            "neto": {
+              "monto": "10000.00",
+              "moneda": "BOB"
+            },
+            "origenDatos": "SINTETICO",
+            "estadoEnLibro": "CONCILIADA"
+          }
+        ],
+        "totales": {
+          "principalSuscrito": {
+            "monto": "10000.00",
+            "moneda": "BOB"
+          },
+          "principalDevuelto": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "interes": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "impuesto": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "comision": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "perdidaRealizada": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "netoAcreditado": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          }
+        },
+        "conciliacion": {
+          "debitadoSegunComprobantes": {
+            "monto": "10000.00",
+            "moneda": "BOB"
+          },
+          "debitadoEnLibro": {
+            "monto": "10000.00",
+            "moneda": "BOB"
+          },
+          "acreditadoSegunComprobantes": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "acreditadoEnLibro": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "lineasPendientesEnLibro": 0,
+          "lineasConDiferencia": 0,
+          "distribucionesConDiscrepancia": 0,
+          "cuadra": true
+        },
+        "origenDatos": "SINTETICO",
+        "aptoProduccion": false,
+        "notaFiscal": "SINTETICO: el tratamiento fiscal no esta definido (DR-INV-03); este reporte separa principal, interes, impuesto y comision pero no es un documento tributario."
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "desde": "2026-01-15",
+        "hasta": "2026-01-15",
+        "lineas": [],
+        "totales": {
+          "principalSuscrito": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "principalDevuelto": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "interes": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "impuesto": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "comision": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "perdidaRealizada": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "netoAcreditado": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          }
+        },
+        "conciliacion": {
+          "debitadoSegunComprobantes": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "debitadoEnLibro": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "acreditadoSegunComprobantes": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "acreditadoEnLibro": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "lineasPendientesEnLibro": 0,
+          "lineasConDiferencia": 0,
+          "distribucionesConDiscrepancia": 0,
+          "cuadra": false
+        },
+        "origenDatos": "SINTETICO",
+        "aptoProduccion": false,
+        "notaFiscal": "notaFiscal"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "desde": "2026-01-01",
+        "hasta": "2026-06-30",
+        "lineas": [
+          {
+            "comprobanteId": "bf04f4c7-662d-4bad-826d-6e0962532e07",
+            "posicionId": "69b3a0d1-0218-480f-8bab-f8de6bcbf8e0",
+            "productoCodigo": "DPF-SINT-180",
+            "tipo": "SUSCRIPCION",
+            "fecha": "2026-01-01",
+            "principal": {
+              "monto": "10000.00",
+              "moneda": "BOB"
+            },
+            "interes": {
+              "monto": "0.00",
+              "moneda": "BOB"
+            },
+            "impuesto": {
+              "monto": "0.00",
+              "moneda": "BOB"
+            },
+            "comision": {
+              "monto": "0.00",
+              "moneda": "BOB"
+            },
+            "perdidaRealizada": {
+              "monto": "0.00",
+              "moneda": "BOB"
+            },
+            "neto": {
+              "monto": "10000.00",
+              "moneda": "BOB"
+            },
+            "origenDatos": "SINTETICO",
+            "estadoEnLibro": "CONCILIADA"
+          }
+        ],
+        "totales": {
+          "principalSuscrito": {
+            "monto": "10000.00",
+            "moneda": "BOB"
+          },
+          "principalDevuelto": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "interes": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "impuesto": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "comision": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "perdidaRealizada": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "netoAcreditado": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          }
+        },
+        "conciliacion": {
+          "debitadoSegunComprobantes": {
+            "monto": "10000.00",
+            "moneda": "BOB"
+          },
+          "debitadoEnLibro": {
+            "monto": "10000.00",
+            "moneda": "BOB"
+          },
+          "acreditadoSegunComprobantes": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "acreditadoEnLibro": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "lineasPendientesEnLibro": 0,
+          "lineasConDiferencia": 0,
+          "distribucionesConDiscrepancia": 0,
+          "cuadra": true
+        },
+        "origenDatos": "SINTETICO",
+        "aptoProduccion": false,
+        "notaFiscal": "SINTETICO: el tratamiento fiscal no esta definido (DR-INV-03); este reporte separa principal, interes, impuesto y comision pero no es un documento tributario."
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU128-01",
+        "mensaje": "Periodo invalido",
+        "detalle": {},
+        "trazaId": "traza-reporteFiscalDeInversiones-rechazo"
+      }
+    }
+  }
+}

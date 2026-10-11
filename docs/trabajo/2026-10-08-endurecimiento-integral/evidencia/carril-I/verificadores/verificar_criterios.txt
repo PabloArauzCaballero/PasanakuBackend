@@ -1,0 +1,5 @@
+casos de uso implementados y verificados: 106
+pendientes de implementar (3): CU-05 (identidad), CU-51 (aportes), CU-57 (nucleo-financiero)
+
+1 FALLAS:
+  - CU-21 · aportes: prueba sin criterio en la boveda — «contrato: aporte_cobrado lleva monto, moneda, canal, usuario, obligacion, pago, grupo y participante»

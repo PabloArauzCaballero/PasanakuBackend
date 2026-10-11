@@ -95,4 +95,15 @@ describe('ColaDeSolicitudesEscaladas', () => {
     fixture.componentInstance.confirmar()
     expect(fixture.componentInstance['dialogoAbierto']()).toBe(false)
   })
+
+  it('confirmar no envía nada y lo dice: ninguna petición salió y se avisa que la decisión NO se registró', async () => {
+    const fixture = await montar('con-permiso')
+    http.expectOne(URL).flush([SOLICITUD])
+    await fixture.whenStable()
+    fixture.componentInstance.abrir(SOLICITUD, 'ACEPTAR')
+    fixture.componentInstance.confirmar()
+    fixture.detectChanges()
+    http.verify()
+    expect(fixture.nativeElement.querySelector('ap-alerta')?.textContent).toContain('todavía NO se envió')
+  })
 })

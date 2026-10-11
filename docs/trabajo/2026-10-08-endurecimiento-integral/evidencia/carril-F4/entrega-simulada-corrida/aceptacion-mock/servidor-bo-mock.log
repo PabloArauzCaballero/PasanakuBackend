@@ -1,0 +1,47 @@
+❯ Building...
+✔ Building...
+Initial chunk files | Names                            |  Raw size
+main.js             | main                             |  88.25 kB | 
+chunk-ZJR6SPTZ.js   | -                                |  33.44 kB | 
+chunk-Z6N47VS4.js   | -                                |  14.43 kB | 
+chunk-T36VTUD4.js   | -                                |  12.63 kB | 
+chunk-Q4SSXDIR.js   | -                                |   6.88 kB | 
+styles.css          | styles                           |   6.51 kB | 
+chunk-IHBJBM7G.js   | -                                |   2.76 kB | 
+chunk-PWWEUBT4.js   | -                                |   2.14 kB | 
+chunk-DISHPVFM.js   | -                                |   1.27 kB | 
+chunk-DNH6DZJ5.js   | -                                |   1.16 kB | 
+chunk-VUJOFXKG.js   | -                                | 987 bytes | 
+
+                    | Initial total                    | 170.46 kB
+
+Lazy chunk files    | Names                            |  Raw size
+chunk-QDOCMOWB.js   | pantalla-centro-de-ayuda         |  54.62 kB | 
+chunk-A6PGNYFO.js   | pantalla-de-compras              |  51.40 kB | 
+chunk-3MP26IGR.js   | pantalla-de-admision             |  46.00 kB | 
+chunk-VSYAXTNY.js   | pantalla-de-expedientes          |  37.11 kB | 
+chunk-723HTBOA.js   | pantalla-de-ingreso              |  31.18 kB | 
+chunk-FXYDU576.js   | -                                |  31.13 kB | 
+chunk-WX3VPWNZ.js   | -                                |  30.00 kB | 
+chunk-Y6IWJM67.js   | pantalla-de-caso                 |  29.75 kB | 
+chunk-UT4LZXXA.js   | pantalla-de-cobros               |  27.76 kB | 
+chunk-UENOFGQU.js   | pantalla-de-billetera            |  25.59 kB | 
+chunk-LKQTTZ4C.js   | pantalla-despliegues             |  24.16 kB | 
+chunk-3AICFU6H.js   | pantalla-de-aprobacion-de-retiro |  24.11 kB | 
+chunk-7GP6OYMN.js   | pantalla-de-periodo              |  20.76 kB | 
+chunk-YK2IN4EP.js   | cola-de-solicitudes-escaladas    |  20.00 kB | 
+chunk-6NLDAM6G.js   | pantalla-de-anunciantes          |  19.94 kB | 
+...and 68 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [4.518 seconds] - 2026-10-10T13:07:38.413Z
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8102: NG8102: The left side of this nullish coalescing operation does not include 'null' or 'undefined' in its type, therefore the '??' operator can be safely removed. Find more at https://v22.angular.dev/extended-diagnostics/NG8102[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/cumplimiento/verificaciones/pantalla-de-expedientes.ts:69:38:
+[37m      69 │ ...            <p class="doc">{{ [32me.documento ?? t.sinDocumento[37m }}</p>
+         ╵                                  [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+Watch mode enabled. Watching for file changes...
+NOTE: Raw file sizes do not reflect development server per-request transformations.
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m5449[22m/[39m

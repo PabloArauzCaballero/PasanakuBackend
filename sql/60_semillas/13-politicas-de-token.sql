@@ -21,7 +21,7 @@ ON CONFLICT (proposito, vigente_desde) DO NOTHING;
 -- Enlaces firmados: no son adivinables, así que la vida es más larga, pero `longitud_codigo` es la del secreto aleatorio y no un código que alguien tipea.
 INSERT INTO politica_token (proposito, ttl_segundos, longitud_codigo, max_intentos_validacion, max_reenvios_por_hora, cooldown_reenvio_segundos, max_emisiones_por_dia, canales_permitidos, exige_dispositivo_conocido, invalida_anteriores, vigente_desde) VALUES
   ('VERIFICACION_CORREO', 86400, 32, 5, 2, 300, 5, 'CORREO', FALSE, TRUE, '2026-01-01T00:00:00-04:00'),
-  ('INVITACION_GRUPO', 604800, 32, 5, 2, 300, 20, 'SMS,WHATSAPP,CORREO', FALSE, FALSE, '2026-01-01T00:00:00-04:00'),
+  ('INVITACION_GRUPO', 604800, 32, 5, 2, 300, 20, 'ENLACE,SMS,WHATSAPP,CORREO', FALSE, FALSE, '2026-01-01T00:00:00-04:00'),
   ('ENLACE_PAGO', 172800, 32, 10, 3, 120, 20, 'SMS,WHATSAPP,PUSH_APP', FALSE, FALSE, '2026-01-01T00:00:00-04:00'),
   ('FIRMA_REGLAMENTO', 259200, 32, 5, 2, 300, 5, 'WHATSAPP,CORREO,PUSH_APP', FALSE, TRUE, '2026-01-01T00:00:00-04:00'),
   ('EXPORTACION_DATOS', 604800, 32, 3, 1, 600, 2, 'CORREO', TRUE, TRUE, '2026-01-01T00:00:00-04:00')

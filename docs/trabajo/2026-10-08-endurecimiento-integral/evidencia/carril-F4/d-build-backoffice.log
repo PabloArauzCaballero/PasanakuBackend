@@ -1,0 +1,44 @@
+❯ Building...
+✔ Building...
+Initial chunk files | Names                            |  Raw size | Estimated transfer size
+chunk-CvVAkXn1.js   | -                                | 183.22 kB |                53.46 kB
+main-IY4M2RJ4.js    | main                             | 144.29 kB |                39.56 kB
+chunk-DWBlJYcp.js   | -                                |  14.85 kB |                 4.66 kB
+styles-AIK6LYP6.css | styles                           |   5.48 kB |                 1.29 kB
+chunk-CxTbJzw_.js   | -                                |   1.83 kB |               671 bytes
+
+                    | Initial total                    | 349.66 kB |                99.64 kB
+
+Lazy chunk files    | Names                            |  Raw size | Estimated transfer size
+chunk-Bzr1nWpM.js   | -                                |  35.99 kB |                 9.93 kB
+chunk-CxUTw_dQ2.js  | pantalla-de-compras              |  16.14 kB |                 4.88 kB
+chunk-BIWwj78Y2.js  | pantalla-centro-de-ayuda         |  15.80 kB |                 4.45 kB
+chunk-ChqxwLEF2.js  | catalogo                         |  14.37 kB |                 4.20 kB
+chunk-DG1xiz3O.js   | pantalla-de-admision             |  13.71 kB |                 3.96 kB
+chunk-CHi8n6xr2.js  | pantalla-de-expedientes          |  11.13 kB |                 3.58 kB
+chunk-C4uBAkyY.js   | pantalla-de-billetera            |   9.78 kB |                 3.31 kB
+chunk-BFt-ZE0b2.js  | pantalla-de-ingreso              |   9.58 kB |                 3.33 kB
+chunk-C42Lbk9N.js   | -                                |   9.52 kB |                 2.82 kB
+chunk-CGde1SGN.js   | pantalla-de-cobros               |   9.32 kB |                 3.33 kB
+chunk-BVX1Fe6B.js   | pantalla-de-caso                 |   9.07 kB |                 2.91 kB
+chunk-Cn3zBgij.js   | pantalla-de-aprobacion-de-retiro |   9.02 kB |                 3.22 kB
+chunk-lpor1jAy.js   | pantalla-despliegues             |   7.92 kB |                 2.75 kB
+chunk-BEPNyYMR2.js  | globo-de-tutorial                |   7.61 kB |                 2.55 kB
+chunk-BIZBbxvq2.js  | pantalla-de-anunciantes          |   6.92 kB |                 2.64 kB
+...and 78 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [3.481 seconds] - 2026-10-10T11:55:00.610Z
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8102: NG8102: The left side of this nullish coalescing operation does not include 'null' or 'undefined' in its type, therefore the '??' operator can be safely removed. Find more at https://v22.angular.dev/extended-diagnostics/NG8102[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/rutas/cumplimiento/verificaciones/pantalla-de-expedientes.ts:69:38:
+[37m      69 │ ...            <p class="doc">{{ [32me.documento ?? t.sinDocumento[37m }}</p>
+         ╵                                  [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mbundle initial exceeded maximum budget. Budget 340.00 kB was not met by 9.66 kB with a total of 349.66 kB.[0m
+
+
+Output location: C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\dist\backoffice
+
+RC=0

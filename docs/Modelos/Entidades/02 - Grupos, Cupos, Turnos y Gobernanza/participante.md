@@ -9,7 +9,7 @@ estereotipo: Raíz de agregado
 clave_primaria: [id]
 columnas: 13
 fk_salientes: 3
-fk_entrantes: 25
+fk_entrantes: 28
 append_only: false
 ---
 
@@ -35,6 +35,14 @@ append_only: false
 | `aportes_realizados` | SMALLINT | — | no | — |
 | `aportes_en_mora` | SMALLINT | — | no | — |
 
+## Reglas del catálogo
+
+> Declaradas en [[Restricciones]], no en el modelo. El nombre es el que devuelve la base al rechazar.
+
+| Regla | Tipo | Columnas |
+| --- | :-: | --- |
+| `uq_participante_vigente_grupo_usuario` | UNIQUE parcial | `grupo_id`, `usuario_id` |
+
 ## Claves foráneas salientes
 
 | Columna | Referencia a | Módulo | Opcional | Relación |
@@ -49,6 +57,8 @@ append_only: false
 | --- | --- | :-: | --- |
 | [[aceptacion_reglamento]] | `participante_id` | 02 | [[aceptacion_reglamento.participante_id → participante]] |
 | [[aval_participante]] | `participante_avalado_id` | ↗ 08 | [[aval_participante.participante_avalado_id → participante]] |
+| [[cesion_derecho]] | `participante_destino_id` | ↗ 04 | [[cesion_derecho.participante_destino_id → participante]] |
+| [[cesion_derecho]] | `participante_origen_id` | ↗ 04 | [[cesion_derecho.participante_origen_id → participante]] |
 | [[cuenta_contable]] | `participante_id` | ↗ 03 | [[cuenta_contable.participante_id → participante]] |
 | [[cupo]] | `participante_id` | 02 | [[cupo.participante_id → participante]] |
 | [[descargo_participante]] | `participante_id` | ↗ 08 | [[descargo_participante.participante_id → participante]] |
@@ -59,6 +69,7 @@ append_only: false
 | [[evento_reputacion]] | `participante_id` | ↗ 06 | [[evento_reputacion.participante_id → participante]] |
 | [[liquidacion_participante]] | `participante_id` | ↗ 08 | [[liquidacion_participante.participante_id → participante]] |
 | [[obligacion_aporte]] | `participante_id` | ↗ 03 | [[obligacion_aporte.participante_id → participante]] |
+| [[oferta_turno]] | `participante_origen_id` | ↗ 04 | [[oferta_turno.participante_origen_id → participante]] |
 | [[participante]] | `invitado_por_id` | 02 | [[participante.invitado_por_id → participante]] |
 | [[plan_regularizacion]] | `participante_id` | ↗ 03 | [[plan_regularizacion.participante_id → participante]] |
 | [[reemplazo_participante]] | `participante_entrante_id` | ↗ 08 | [[reemplazo_participante.participante_entrante_id → participante]] |
@@ -75,7 +86,7 @@ append_only: false
 
 ## Entidades vecinas
 
-[[aceptacion_reglamento]] · [[aval_participante]] · [[cuenta_contable]] · [[cupo]] · [[descargo_participante]] · [[deuda_participante]] · [[devengo_comision]] · [[devolucion_fondo]] · [[entrega_fondo]] · [[evento_reputacion]] · [[grupo]] · [[liquidacion_participante]] · [[obligacion_aporte]] · [[participante]] · [[plan_regularizacion]] · [[reemplazo_participante]] · [[registro_incumplimiento]] · [[resena_participante]] · [[sancion]] · [[solicitud_permuta]] · [[solicitud_retiro]] · [[traspaso_cupo]] · [[usuario]] · [[voto_participante]]
+[[aceptacion_reglamento]] · [[aval_participante]] · [[cesion_derecho]] · [[cuenta_contable]] · [[cupo]] · [[descargo_participante]] · [[deuda_participante]] · [[devengo_comision]] · [[devolucion_fondo]] · [[entrega_fondo]] · [[evento_reputacion]] · [[grupo]] · [[liquidacion_participante]] · [[obligacion_aporte]] · [[oferta_turno]] · [[participante]] · [[plan_regularizacion]] · [[reemplazo_participante]] · [[registro_incumplimiento]] · [[resena_participante]] · [[sancion]] · [[solicitud_permuta]] · [[solicitud_retiro]] · [[traspaso_cupo]] · [[usuario]] · [[voto_participante]]
 
 ## Notas del modelo
 

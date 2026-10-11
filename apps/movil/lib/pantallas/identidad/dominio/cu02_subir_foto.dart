@@ -45,6 +45,7 @@ class SubidaDeFotos {
     required String rutaLocal,
     required String formularioId,
     CancelToken? cancelToken,
+    String? tokenDeAlta,
   }) async {
     // Bytes y no `MultipartFile.fromFile`: en la web la camara devuelve una URL `blob:`,
     // no una ruta de disco, y `File` no existe. `XFile` lee las dos.
@@ -69,6 +70,9 @@ class SubidaDeFotos {
               'Idempotency-Key': _ref
                   .read(idempotenciaProvider.notifier)
                   .claveDe(formularioId),
+              // Sin sesion durante el alta, lo que autoriza la subida es el token que
+              // devolvio ESE alta; con solo el `usuarioId` el servidor responde 403.
+              'Token-De-Alta': ?tokenDeAlta,
             },
           ),
         );

@@ -1,0 +1,59 @@
+heavy.sh: candado tomado, libres 5340 MB -> bash C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/f2/dirigido.sh apps/backoffice src/app/nucleo/cadena-de-red.spec.ts
+Using Vitest configuration file: C:\Users\Usuario\AppData\Local\Temp\claude\C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku\c468f89e-ca7f-4172-b7d5-74080b60e5a8\scratchpad\vitest-serial.config.mjs
+❯ Building...
+✔ Building...
+Application bundle generation complete. [3.423 seconds] - 2026-10-09T21:39:32.837Z
+ RUN  v4.1.11 C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/backoffice
+ ❯  backoffice  src/app/nucleo/cadena-de-red.spec.ts (11 tests | 2 failed) 38ms
+     × un 401 en la aplicación real dispara UN refresco y el reintento trae la respuesta (el error no se traduce antes de tiempo) 16ms
+     × si el refresco también falla, la pantalla ve «Tu sesión venció» ya traducido, con la traza de la petición, y la sesión se cierra 2ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL   backoffice  src/app/nucleo/cadena-de-red.spec.ts > cadena de red · sesión > un 401 en la aplicación real dispara UN refresco y el reintento trae la respuesta (el error no se traduce antes de tiempo)
+Error: Expected one matching request for criteria "Match URL: https://gw.test/api/v1/sesion/refrescar", found none.
+ ❯ HttpClientTestingBackend.expectOne ../../../darwin_arm64-fastbuild-ST-fdfa778d11ba/bin/packages/common/http/testing/src/backend.ts:112:12
+ ❯ src/app/nucleo/cadena-de-red.spec.ts:43:13
+     41|     const promesa = firstValueFrom(http.get(`${GW}/recurso`))
+     42|     backend.expectOne(`${GW}/recurso`).flush({ codigo: 'AP-X', mensaje…
+     43|     backend.expectOne(`${GW}/sesion/refrescar`).flush({ acceso: 'nuevo…
+       |             ^
+     44|     const reintento = backend.expectOne(`${GW}/recurso`)
+     45|     expect(reintento.request.headers.get('Authorization')).toBe('Beare…
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+ FAIL   backoffice  src/app/nucleo/cadena-de-red.spec.ts > cadena de red · sesión > si el refresco también falla, la pantalla ve «Tu sesión venció» ya traducido, con la traza de la petición, y la sesión se cierra
+Error: Expected one matching request for criteria "Match URL: https://gw.test/api/v1/sesion/refrescar", found none.
+ ❯ HttpClientTestingBackend.expectOne ../../../darwin_arm64-fastbuild-ST-fdfa778d11ba/bin/packages/common/http/testing/src/backend.ts:112:12
+ ❯ src/app/nucleo/cadena-de-red.spec.ts:57:13
+     55|     const primera = backend.expectOne(`${GW}/recurso`)
+     56|     primera.flush({}, { status: 401, statusText: 'Unauthorized' })
+     57|     backend.expectOne(`${GW}/sesion/refrescar`).flush({}, { status: 40…
+       |             ^
+     58|     const error = await promesa
+     59|     expect(error?.mensaje).toBe('Tu sesión venció. Volvé a ingresar.')
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+{
+  mensaje: 'Tu sesión venció. Volvé a ingresar.',
+  codigo: 'AP-X',
+  estado: 401,
+  sinConexion: false,
+  trazaId: '9602d83c817371b3611a0faeec6667d5',
+  VITEST_TEST_NAME: 'una escritura sin respuesta vence a los 30 s como «sin confirmar»: estado 0, tiempoAgotado, mensaje que prohíbe darla por fallida',
+  VITEST_TEST_PATH: 'C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/backoffice/src/app/nucleo/cadena-de-red.spec.ts',
+  type: 'Unhandled Rejection',
+  stacks: []
+}
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { mensaje: 'Tu sesión venció. Volvé a ingresar.', codigo: 'AP-X', estado: 401, sinConexion: false, trazaId: '9602d83c817371b3611a0faeec6667d5' }
+This error originated in "src/app/nucleo/cadena-de-red.spec.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "una escritura sin respuesta vence a los 30 s como «sin confirmar»: estado 0, tiempoAgotado, mensaje que prohíbe darla por fallida". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+ Test Files  1 failed (1)
+      Tests  2 failed | 9 passed (11)
+     Errors  1 error
+   Start at  17:39:33
+   Duration  1.12s (transform 62ms, setup 236ms, import 45ms, tests 38ms, environment 671ms)

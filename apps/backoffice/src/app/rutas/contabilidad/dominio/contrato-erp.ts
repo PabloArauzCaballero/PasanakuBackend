@@ -1,6 +1,6 @@
 import { HttpClient, HttpContext } from '@angular/common/http'
 import { firstValueFrom } from 'rxjs'
-import { CLAVE_IDEMPOTENCIA, claveDeIdempotencia } from '../../../nucleo/idempotencia.interceptor'
+import { contextoIdempotente } from '../../../nucleo/idempotencia.interceptor'
 import type { CargadorDePagina, PaginaServidor, PedidoDePagina } from '../../../nucleo/tabla/tipos'
 
 /**
@@ -30,7 +30,7 @@ export type Importe = { monto: string; moneda: Moneda }
 
 /** El contexto HTTP que exige toda operación con efecto de `erp.yaml` (invariante 7). */
 export function contextoConClave(): HttpContext {
-  return new HttpContext().set(CLAVE_IDEMPOTENCIA, claveDeIdempotencia())
+  return contextoIdempotente()
 }
 
 function comparar<T>(a: T, b: T, clave: keyof T): number {

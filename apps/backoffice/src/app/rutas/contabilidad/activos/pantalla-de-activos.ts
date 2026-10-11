@@ -12,6 +12,8 @@ import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-v
 import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
 import { cargadorDeActivos, crearDepreciacion, motivoParaNoDepreciar, type ActivoFijo } from '../dominio/cu105-activos'
 import { textosContabilidad } from '../textos'
+import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
+import type { ErrorTraducido } from '../../../nucleo/errores'
 
 const COLUMNAS: ColumnaVirtual<ActivoFijo>[] = [
   { clave: 'codigo', titulo: 'Código', ordenable: true },
@@ -35,11 +37,12 @@ const COLUMNAS: ColumnaVirtual<ActivoFijo>[] = [
 @Component({
   selector: 'ap-pantalla-de-activos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, BarraDeFiltros, Boton, ChipEstado, Monto, TablaDeDatosVirtualizada],
+  imports: [ErrorDeEnvio, BandaDeProposito, BarraDeFiltros, Boton, ChipEstado, Monto, TablaDeDatosVirtualizada],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
+      <ap-error-de-envio [error]="errorDeEnvio()" />
       <ap-barra-de-filtros etiqueta="Estado" [incluirBusqueda]="false" [definiciones]="filtros" />
       <ap-tabla-de-datos-virtualizada
         [titulo]="t.titulo"
@@ -76,10 +79,10 @@ const COLUMNAS: ColumnaVirtual<ActivoFijo>[] = [
           }
         </ng-template>
       </ap-tabla-de-datos-virtualizada>
-    </main>
+    </section>
   `,
   styles: `
-    main { padding: var(--s5); max-width: 84rem; display: grid; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 84rem; display: grid; gap: var(--s4); }
     h1 { margin: 0; }
     .motivo { color: var(--text-2); white-space: normal; }
   `,
@@ -92,6 +95,7 @@ export class PantallaDeActivos {
   protected readonly identidad = (a: ActivoFijo) => a.activoFijoId
   protected readonly etiqueta = (a: ActivoFijo) => this.t.estados[a.estado]
   protected readonly enviando = signal<string | null>(null)
+  protected readonly errorDeEnvio = signal<ErrorTraducido | null>(null)
   private readonly sesion = inject(Sesion)
   private readonly enviarDepreciacion = crearDepreciacion()
   protected readonly puedeDepreciar = computed(() => this.sesion.puede('CONTABILIDAD_ERP_ACTIVOS_FIJOS'))
@@ -112,9 +116,13 @@ export class PantallaDeActivos {
 
   protected depreciar(a: ActivoFijo): void {
     this.enviando.set(a.activoFijoId)
+    this.errorDeEnvio.set(null)
     this.enviarDepreciacion(a.activoFijoId, this.periodoVigenteId()).subscribe({
       next: () => this.enviando.set(null),
-      error: () => this.enviando.set(null),
+      error: (e: ErrorTraducido) => {
+        this.errorDeEnvio.set(e)
+        this.enviando.set(null)
+      },
     })
   }
 }

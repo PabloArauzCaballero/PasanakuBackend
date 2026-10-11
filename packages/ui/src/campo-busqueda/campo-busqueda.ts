@@ -16,7 +16,7 @@ import { Icono } from '../icono/icono'
   `,
   styles: `
     :host { display: block; }
-    label { display: flex; align-items: center; gap: var(--s2); min-height: var(--area-tactil); padding: 0 var(--s3); border: var(--borde-fino) solid var(--field-border); border-radius: var(--r-pill); background: var(--field); color: var(--text-3); }
+    label { display: flex; align-items: center; gap: var(--s2); min-height: var(--area-tactil); padding: 0 var(--s3); border: var(--borde-fino) solid var(--borde-control); border-radius: var(--r-pill); background: var(--field); color: var(--text-3); }
     label:focus-within { border-color: var(--brand); box-shadow: 0 0 0 var(--borde-foco) var(--g300); }
     .oculto { position: absolute; width: var(--borde-fino); height: var(--borde-fino); overflow: hidden; clip: rect(0 0 0 0); }
     input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--text); font: inherit; outline: none; }

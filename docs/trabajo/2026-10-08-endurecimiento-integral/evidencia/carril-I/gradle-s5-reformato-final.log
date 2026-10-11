@@ -1,0 +1,313 @@
+heavy.sh: candado tomado, libres 3499 MB -> bash C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/i_jj.sh --continue :servicios:aportes:spotlessApply :servicios:entregas:spotlessApply :servicios:grupos:spotlessApply :servicios:nucleo-financiero:spotlessApply :servicios:aportes:test :servicios:aportes:webTest :servicios:aportes:integrationTest :servicios:aportes:testBarrido :servicios:entregas:test :servicios:entregas:webTest :servicios:entregas:integrationTest :servicios:entregas:testBarrido :servicios:grupos:test :servicios:grupos:webTest :servicios:grupos:integrationTest :servicios:grupos:testBarrido :servicios:nucleo-financiero:test :servicios:nucleo-financiero:webTest :servicios:nucleo-financiero:integrationTest :servicios:nucleo-financiero:testBarrido
+== libres: 3467 MB
+== aplicar.sql RC: 0
+psql:/repo/sql/40_reglas/restricciones.sql:3396: NOTICE:  trigger "tg_distribucion_interes_coherente" for relation "distribucion_interes" does not exist, skipping
+psql:/repo/sql/40_reglas/restricciones.sql:3402: NOTICE:  constraint "ck_corrida_trabajo_fin" of relation "corrida_trabajo" does not exist, skipping
+psql:/repo/sql/40_reglas/restricciones.sql:3403: NOTICE:  constraint "ck_corrida_trabajo_error" of relation "corrida_trabajo" does not exist, skipping
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Starting a Gradle Daemon, 3 stopped Daemons could not be reused, use --status for details
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :servicios:aportes:spotlessJava
+> Task :servicios:aportes:spotlessJavaApply
+> Task :servicios:aportes:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:aportes:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:aportes:spotlessApply
+> Task :servicios:entregas:spotlessJava
+> Task :servicios:entregas:spotlessJavaApply
+> Task :servicios:entregas:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:entregas:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:entregas:spotlessApply
+> Task :servicios:grupos:spotlessJava
+> Task :servicios:grupos:spotlessJavaApply
+> Task :servicios:grupos:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:grupos:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:grupos:spotlessApply
+> Task :servicios:nucleo-financiero:spotlessJava
+> Task :servicios:nucleo-financiero:spotlessJavaApply
+> Task :servicios:nucleo-financiero:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessApply
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources UP-TO-DATE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :servicios:aportes:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:aportes:generateJooq UP-TO-DATE
+> Task :servicios:aportes:compileJava UP-TO-DATE
+> Task :servicios:aportes:processResources UP-TO-DATE
+> Task :servicios:aportes:classes UP-TO-DATE
+> Task :servicios:aportes:compileTestJava
+> Task :servicios:aportes:processTestResources UP-TO-DATE
+> Task :servicios:aportes:testClasses
+
+> Task :servicios:aportes:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:aportes:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:aportes:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T22:27:20.119-04:00  INFO 9552 --- [aportes] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T22:27:20.119-04:00  INFO 9552 --- [aportes] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T22:27:20.261-04:00  INFO 9552 --- [aportes] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T22:27:20.267-04:00  INFO 9552 --- [aportes] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:aportes:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:entregas:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:entregas:generateJooq UP-TO-DATE
+> Task :servicios:entregas:compileJava UP-TO-DATE
+> Task :servicios:entregas:processResources UP-TO-DATE
+> Task :servicios:entregas:classes UP-TO-DATE
+> Task :servicios:entregas:compileTestJava
+> Task :servicios:entregas:processTestResources UP-TO-DATE
+> Task :servicios:entregas:testClasses
+
+> Task :servicios:entregas:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:entregas:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:entregas:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T22:28:38.177-04:00  INFO 33640 --- [entregas] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T22:28:38.181-04:00  INFO 33640 --- [entregas] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T22:28:38.311-04:00  INFO 33640 --- [entregas] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T22:28:38.313-04:00  INFO 33640 --- [entregas] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:entregas:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:grupos:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:grupos:generateJooq UP-TO-DATE
+> Task :servicios:grupos:compileJava UP-TO-DATE
+> Task :servicios:grupos:processResources UP-TO-DATE
+> Task :servicios:grupos:classes UP-TO-DATE
+> Task :servicios:grupos:compileTestJava
+> Task :servicios:grupos:processTestResources UP-TO-DATE
+> Task :servicios:grupos:testClasses
+
+> Task :servicios:grupos:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+HechosCaidaTest > FALLBACK declarado: con el circuito abierto cada metodo deniega, igual que con el dependido caido FAILED
+    java.lang.NullPointerException: Cannot invoke "String.toCharArray()" because "val" is null
+        at java.base/java.math.BigDecimal.<init>(BigDecimal.java:903)
+        at bo.aportaya.grupos.infraestructura.clientes.HechosPorHttp.lambda$estadoDePagos$1(HechosPorHttp.java:128)
+        at java.base/java.util.Optional.map(Optional.java:260)
+        at bo.aportaya.grupos.infraestructura.clientes.HechosPorHttp.estadoDePagos(HechosPorHttp.java:126)
+        at bo.aportaya.grupos.infraestructura.clientes.HechosCaidaTest.conElCircuitoAbiertoSeDeniega(HechosCaidaTest.java:104)
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:grupos:test FAILED
+
+61 tests completed, 1 failed
+
+> Task :servicios:grupos:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:grupos:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T22:29:49.399-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-10T22:29:49.399-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-10T22:29:49.399-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Unsubscribed all topics or patterns and assigned partitions
+2026-10-10T22:29:49.402-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-10T22:29:49.402-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-10T22:29:49.402-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-10T22:29:49.402-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-10T22:29:49.402-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-10T22:29:49.402-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-10T22:29:49.415-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-grupos-cesiones-1 unregistered
+2026-10-10T22:29:49.415-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : grupos-cesiones: Consumer stopped
+2026-10-10T22:29:49.417-04:00  INFO 4788 --- [grupos] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T22:29:49.417-04:00  INFO 4788 --- [grupos] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T22:29:49.434-04:00  INFO 4788 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T22:29:49.436-04:00  INFO 4788 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-10T22:29:49.446-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-2, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-10T22:29:49.447-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-2, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-10T22:29:49.447-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-grupos-cesiones-2, groupId=grupos-cesiones] Unsubscribed all topics or patterns and assigned partitions
+2026-10-10T22:29:49.447-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-2, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-10T22:29:49.447-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-2, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-10T22:29:49.447-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-10T22:29:49.447-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-10T22:29:49.447-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-10T22:29:49.447-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-10T22:29:49.451-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-grupos-cesiones-2 unregistered
+2026-10-10T22:29:49.451-04:00  INFO 4788 --- [grupos] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : grupos-cesiones: Consumer stopped
+2026-10-10T22:29:49.451-04:00  INFO 4788 --- [grupos] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T22:29:49.455-04:00  INFO 4788 --- [grupos] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T22:29:49.456-04:00  INFO 4788 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-10-10T22:29:49.458-04:00  INFO 4788 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+
+> Task :servicios:grupos:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:nucleo-financiero:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:nucleo-financiero:generateJooq UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileJava UP-TO-DATE
+> Task :servicios:nucleo-financiero:processResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:classes UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileTestJava
+> Task :servicios:nucleo-financiero:processTestResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:testClasses
+
+> Task :servicios:nucleo-financiero:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:nucleo-financiero:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:nucleo-financiero:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T22:32:29.781-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-nucleo-financiero-aportes-3, groupId=nucleo-financiero-aportes] Node -1 disconnected.
+2026-10-10T22:32:29.781-04:00  WARN 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-nucleo-financiero-aportes-3, groupId=nucleo-financiero-aportes] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2026-10-10T22:32:29.781-04:00  WARN 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-nucleo-financiero-aportes-3, groupId=nucleo-financiero-aportes] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-10-10T22:32:29.823-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-nucleo-financiero-aportes-2, groupId=nucleo-financiero-aportes] Node -1 disconnected.
+2026-10-10T22:32:29.823-04:00  WARN 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-nucleo-financiero-aportes-2, groupId=nucleo-financiero-aportes] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2026-10-10T22:32:29.823-04:00  WARN 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-nucleo-financiero-aportes-2, groupId=nucleo-financiero-aportes] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-10-10T22:32:29.916-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-1, groupId=nucleo-financiero-aportes] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-10T22:32:29.916-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-1, groupId=nucleo-financiero-aportes] Request joining group due to: consumer pro-actively leaving the group
+2026-10-10T22:32:29.916-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-nucleo-financiero-aportes-1, groupId=nucleo-financiero-aportes] Unsubscribed all topics or patterns and assigned partitions
+2026-10-10T22:32:29.919-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-1, groupId=nucleo-financiero-aportes] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-10T22:32:29.919-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-1, groupId=nucleo-financiero-aportes] Request joining group due to: consumer pro-actively leaving the group
+2026-10-10T22:32:29.922-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-10T22:32:29.922-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-10T22:32:29.922-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-10T22:32:29.922-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-10T22:32:29.924-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-nucleo-financiero-aportes-1 unregistered
+2026-10-10T22:32:29.924-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : nucleo-financiero-aportes: Consumer stopped
+2026-10-10T22:32:29.926-04:00  INFO 33924 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T22:32:29.933-04:00  INFO 33924 --- [nucleo-financiero] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T22:32:29.943-04:00  INFO 33924 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T22:32:29.946-04:00  INFO 33924 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-10T22:32:29.954-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-2, groupId=nucleo-financiero-aportes] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-10T22:32:29.954-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-2, groupId=nucleo-financiero-aportes] Request joining group due to: consumer pro-actively leaving the group
+2026-10-10T22:32:29.954-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-nucleo-financiero-aportes-2, groupId=nucleo-financiero-aportes] Unsubscribed all topics or patterns and assigned partitions
+2026-10-10T22:32:29.954-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-2, groupId=nucleo-financiero-aportes] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-10T22:32:29.954-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-2, groupId=nucleo-financiero-aportes] Request joining group due to: consumer pro-actively leaving the group
+2026-10-10T22:32:29.955-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-10T22:32:29.955-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-10T22:32:29.955-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-10T22:32:29.955-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-10T22:32:29.956-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-nucleo-financiero-aportes-2 unregistered
+2026-10-10T22:32:29.957-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : nucleo-financiero-aportes: Consumer stopped
+2026-10-10T22:32:29.957-04:00  INFO 33924 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T22:32:29.961-04:00  INFO 33924 --- [nucleo-financiero] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T22:32:29.963-04:00  INFO 33924 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-10-10T22:32:29.964-04:00  INFO 33924 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+2026-10-10T22:32:29.967-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-3, groupId=nucleo-financiero-aportes] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-10T22:32:29.967-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-3, groupId=nucleo-financiero-aportes] Request joining group due to: consumer pro-actively leaving the group
+2026-10-10T22:32:29.967-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-nucleo-financiero-aportes-3, groupId=nucleo-financiero-aportes] Unsubscribed all topics or patterns and assigned partitions
+2026-10-10T22:32:29.967-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-3, groupId=nucleo-financiero-aportes] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-10T22:32:29.967-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-3, groupId=nucleo-financiero-aportes] Request joining group due to: consumer pro-actively leaving the group
+2026-10-10T22:32:29.968-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-10T22:32:29.968-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-10T22:32:29.968-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-10T22:32:29.968-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-10T22:32:29.969-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-nucleo-financiero-aportes-3 unregistered
+2026-10-10T22:32:29.970-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : nucleo-financiero-aportes: Consumer stopped
+2026-10-10T22:32:29.970-04:00  INFO 33924 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T22:32:29.977-04:00  INFO 33924 --- [nucleo-financiero] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T22:32:29.979-04:00  INFO 33924 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown initiated...
+2026-10-10T22:32:29.980-04:00  INFO 33924 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown completed.
+2026-10-10T22:32:29.983-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-4, groupId=nucleo-financiero-aportes] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-10T22:32:29.983-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-4, groupId=nucleo-financiero-aportes] Request joining group due to: consumer pro-actively leaving the group
+2026-10-10T22:32:29.983-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-nucleo-financiero-aportes-4, groupId=nucleo-financiero-aportes] Unsubscribed all topics or patterns and assigned partitions
+2026-10-10T22:32:29.983-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-4, groupId=nucleo-financiero-aportes] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-10T22:32:29.983-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-4, groupId=nucleo-financiero-aportes] Request joining group due to: consumer pro-actively leaving the group
+2026-10-10T22:32:29.984-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-10T22:32:29.984-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-10T22:32:29.984-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-10T22:32:29.984-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-10T22:32:29.985-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-nucleo-financiero-aportes-4 unregistered
+2026-10-10T22:32:29.985-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : nucleo-financiero-aportes: Consumer stopped
+2026-10-10T22:32:29.985-04:00  INFO 33924 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T22:32:29.991-04:00  INFO 33924 --- [nucleo-financiero] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T22:32:29.993-04:00  INFO 33924 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown initiated...
+2026-10-10T22:32:29.994-04:00  INFO 33924 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown completed.
+2026-10-10T22:32:29.998-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-5, groupId=nucleo-financiero-aportes] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-10T22:32:29.998-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-5, groupId=nucleo-financiero-aportes] Request joining group due to: consumer pro-actively leaving the group
+2026-10-10T22:32:29.998-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-nucleo-financiero-aportes-5, groupId=nucleo-financiero-aportes] Unsubscribed all topics or patterns and assigned partitions
+2026-10-10T22:32:29.998-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-5, groupId=nucleo-financiero-aportes] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-10T22:32:29.998-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-5, groupId=nucleo-financiero-aportes] Request joining group due to: consumer pro-actively leaving the group
+2026-10-10T22:32:29.998-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-10T22:32:29.998-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-10T22:32:29.998-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-10T22:32:29.998-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-10T22:32:29.999-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-nucleo-financiero-aportes-5 unregistered
+2026-10-10T22:32:29.999-04:00  INFO 33924 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : nucleo-financiero-aportes: Consumer stopped
+2026-10-10T22:32:30.000-04:00  INFO 33924 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T22:32:30.005-04:00  INFO 33924 --- [nucleo-financiero] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T22:32:30.007-04:00  INFO 33924 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Shutdown initiated...
+2026-10-10T22:32:30.008-04:00  INFO 33924 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Shutdown completed.
+
+> Task :servicios:nucleo-financiero:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':servicios:grupos:test'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/servicios/grupos/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 6m 19s
+83 actionable tasks: 28 executed, 55 up-to-date
+== RC gradle: 1
+FIN RC=1

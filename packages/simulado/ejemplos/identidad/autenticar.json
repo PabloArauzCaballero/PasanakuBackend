@@ -56,10 +56,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU04-01",
+        "mensaje": "Credencial invalida",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-autenticar-rechazo"
       }
     }
   }

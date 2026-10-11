@@ -139,6 +139,10 @@ Entonces la operación se rechaza con TURNO_NO_PERMUTABLE
 Dado un solicitante con deuda vigente
 Cuando propone la permuta
 Entonces se rechaza con SOLICITANTE_EN_MORA
+
+Dado el turno de otro participante
+Cuando alguien que no es su titular pide permutarlo
+Entonces se rechaza y no queda solicitud
 ```
 
 ## Ver también

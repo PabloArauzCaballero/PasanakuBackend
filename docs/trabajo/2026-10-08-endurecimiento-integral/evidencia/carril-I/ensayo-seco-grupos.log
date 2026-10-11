@@ -1,0 +1,13 @@
+BEGIN
+SET
+antes: titular del cupo es el vendedor | t
+cupo bloqueado | OCUPADO | t
+INSERT 0 1
+INSERT 0 1
+UPDATE 1
+despues: titular del cupo es el comprador | t
+despues: UN traspaso VENTA | 1 | VENTA | 0.00
+estados de los participantes intactos | ACTIVO | ACTIVO
+INSERT 0 0
+marcas del evento tras el segundo intento (debe ser 1) | 1
+ROLLBACK

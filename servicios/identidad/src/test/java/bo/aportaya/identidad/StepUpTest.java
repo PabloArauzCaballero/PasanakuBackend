@@ -39,7 +39,7 @@ class StepUpTest {
 
     @org.junit.jupiter.api.BeforeAll
     static void clave() {
-        emisorCompartido = new EmisorDeAcceso("");
+        emisorCompartido = new EmisorDeAcceso("", "");
     }
 
     private DesafioDeFactor factor;

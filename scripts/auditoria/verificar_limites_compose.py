@@ -63,7 +63,10 @@ def main() -> int:
                 revisar_servicio(archivo, servicio_esperado, config, usa_hikari=False)
             continue
 
-        exigir(len(servicios) == 16, f"{archivo}: se esperaban 16 servicios, hay {len(servicios)}")
+        # Un contenedor por cada servicio con descriptor, más el job de esquema y el gateway: el número no se hornea,
+        # porque un servicio nuevo (inversiones) lo desfasaba sin que nadie se enterara de qué se esperaba.
+        esperados = len(list((ROOT / "servicios").glob("*/descriptor.yml"))) + 2
+        exigir(len(servicios) == esperados, f"{archivo}: se esperaban {esperados} servicios, hay {len(servicios)}")
         for nombre, config in servicios.items():
             revisar_servicio(archivo, nombre, config, usa_hikari=nombre not in {"esquema", "gateway"})
 

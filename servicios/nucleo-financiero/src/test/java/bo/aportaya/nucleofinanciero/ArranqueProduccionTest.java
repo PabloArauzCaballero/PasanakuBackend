@@ -43,6 +43,7 @@ class ArranqueProduccionTest {
         registro.add("aportaya.jwt.jwks-uri", () -> "http://identidad:8080/.well-known/jwks.json");
         registro.add("SEGURIDAD_PIMIENTA", () -> "pimienta-de-prueba");
         registro.add("CUENTA_PUENTE_CUSTODIA", () -> "00000000-0000-0000-0000-0000000000c0");
+        registro.add("QR_INTERNO_CLAVE", () -> "clave-de-prueba-de-los-qr-internos-0001");
         registro.add("APORTAYA_CORS_ORIGENES", () -> "https://app.aportaya.bo");
     }
 

@@ -7,33 +7,33 @@
     "ok": {
       "estado": 201,
       "cuerpo": {
-        "tokenId": "2db8db74-4ca6-4bf6-811e-60827a5f976a",
-        "token": "token",
-        "expiraEn": "2026-01-15T10:30:00Z"
+        "tokenId": "e4b91a07-3c5d-48f2-a6b0-7d1e92c83f45",
+        "token": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "expiraEn": "2026-10-15T14:18:00Z"
       }
     },
     "vacio": {
       "estado": 201,
       "cuerpo": {
-        "tokenId": "2db8db74-4ca6-4bf6-811e-60827a5f976a",
-        "token": "token",
-        "expiraEn": "2026-01-15T10:30:00Z"
+        "tokenId": "e4b91a07-3c5d-48f2-a6b0-7d1e92c83f45",
+        "token": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "expiraEn": "2026-10-15T14:18:00Z"
       }
     },
     "adverso": {
       "estado": 201,
       "cuerpo": {
-        "tokenId": "2db8db74-4ca6-4bf6-811e-60827a5f976a",
-        "token": "token",
-        "expiraEn": "2026-01-15T10:30:00Z"
+        "tokenId": "e4b91a07-3c5d-48f2-a6b0-7d1e92c83f45",
+        "token": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "expiraEn": "2026-10-15T14:18:00Z"
       }
     },
     "aceptado": {
       "estado": 202,
       "cuerpo": {
-        "tokenId": "2db8db74-4ca6-4bf6-811e-60827a5f976a",
-        "token": "token",
-        "expiraEn": "2026-01-15T10:30:00Z"
+        "tokenId": "e4b91a07-3c5d-48f2-a6b0-7d1e92c83f45",
+        "token": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "expiraEn": "2026-10-15T14:18:00Z"
       }
     },
     "intermitente": {
@@ -48,10 +48,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU01-01",
+        "mensaje": "Kyc rechazado",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-emitirTokenDeInvitacion-rechazo"
       }
     }
   }

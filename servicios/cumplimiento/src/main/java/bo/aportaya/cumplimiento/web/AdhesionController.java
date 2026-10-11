@@ -89,7 +89,19 @@ final class AdhesionController {
                 .toList());
     }
 
+    /**
+     * H13.S1.M2 · Cada quien declara y acepta lo suyo. El rol correcto sobre lo ajeno sigue
+     * siendo acceso indebido (90.1.2). La negativa es la generica de siempre (403 AP-SEG-01):
+     * no dice si el otro usuario existe ni que permiso faltaria.
+     */
+    private void soloElPropio(UUID usuarioId) {
+        if (!usuarioId.equals(sesion.actual().usuarioId())) {
+            throw new org.springframework.security.access.AccessDeniedException("no es el titular");
+        }
+    }
+
     ResponseEntity<SalidaAceptacion> aceptarContrato(UUID contratoId, EntradaAceptacion cuerpo) {
+        soloElPropio(cuerpo.getUsuarioId());
         Traza.marcarCasoDeUso("CU-05", cuerpo.getUsuarioId().toString());
 
         // La IP y el dispositivo salen de la peticion, no del cuerpo: son la evidencia
@@ -113,6 +125,7 @@ final class AdhesionController {
     }
 
     ResponseEntity<SalidaPep> declararPep(UUID usuarioId, EntradaPep cuerpo) {
+        soloElPropio(usuarioId);
         Traza.marcarCasoDeUso("CU-03", usuarioId.toString());
 
         var salida = cu03.ejecutar(

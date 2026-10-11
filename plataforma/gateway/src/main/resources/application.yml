@@ -4,6 +4,15 @@
 spring:
   application:
     name: gateway
+  # El gateway no tiene usuarios ni autentica: lo hace cada servicio con el JWT. Si Spring
+  # Security aparece en el classpath (hoy solo en las pruebas), su autoconfiguracion crearia
+  # un usuario `user` con una clave aleatoria e IMPRIMIRIA esa clave en el log de arranque
+  # («Using generated security password»). Se excluye en las dos variantes (reactiva y
+  # servlet): una clase ausente del classpath se ignora al excluir.
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.reactive.ReactiveUserDetailsServiceAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
   # Las rutas de verdad, generadas desde PREFIJOS por scripts/generar_gateway.py.
   # Hasta que este archivo existio, el gateway levantaba sin una sola ruta: todo lo
   # que entraba por NGINX daba 404, y la app contra el backend real no llegaba a

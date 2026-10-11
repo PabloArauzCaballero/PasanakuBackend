@@ -65,12 +65,18 @@ class SubidaNotifier extends Notifier<EstadoDeLaSubida> {
   Future<void> subirPendientes({
     required String usuarioId,
     required CapturasDelExpediente capturas,
+    String? tokenDeAlta,
   }) async {
     for (final cara in CapturasDelExpediente.orden) {
       if (state.porCara[cara]?.estado == EstadoDeUnaSubida.subida) continue;
       final captura = capturas.porCara[cara];
       if (captura == null) continue;
-      await _subirUna(usuarioId: usuarioId, cara: cara, ruta: captura.ruta);
+      await _subirUna(
+        usuarioId: usuarioId,
+        cara: cara,
+        ruta: captura.ruta,
+        tokenDeAlta: tokenDeAlta,
+      );
     }
   }
 
@@ -78,6 +84,7 @@ class SubidaNotifier extends Notifier<EstadoDeLaSubida> {
     required String usuarioId,
     required CaraDelCarril cara,
     required String ruta,
+    String? tokenDeAlta,
   }) async {
     final cancelacion = CancelToken();
     _cancelaciones[cara] = cancelacion;
@@ -103,6 +110,7 @@ class SubidaNotifier extends Notifier<EstadoDeLaSubida> {
             rutaLocal: ruta,
             formularioId: 'alta-${cara.name}',
             cancelToken: cancelacion,
+            tokenDeAlta: tokenDeAlta,
           );
       _temporizadores[cara]?.cancel();
       _actualizar(
@@ -139,7 +147,13 @@ class SubidaNotifier extends Notifier<EstadoDeLaSubida> {
     required String usuarioId,
     required CaraDelCarril cara,
     required String ruta,
-  }) => _subirUna(usuarioId: usuarioId, cara: cara, ruta: ruta);
+    String? tokenDeAlta,
+  }) => _subirUna(
+    usuarioId: usuarioId,
+    cara: cara,
+    ruta: ruta,
+    tokenDeAlta: tokenDeAlta,
+  );
 
   /// "Repetir la foto": rota la clave de idempotencia — la foto nueva es, a
   /// propósito, una operación distinta de la que falló.

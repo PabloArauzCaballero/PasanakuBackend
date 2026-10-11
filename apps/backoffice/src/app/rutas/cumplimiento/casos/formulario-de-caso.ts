@@ -43,7 +43,7 @@ import { GrupoRadio, type OpcionDeRadio } from '@aportaya/ui/grupo-radio/grupo-r
     :host { display: flex; flex-direction: column; gap: var(--s4); }
     textarea { width: 100%; min-height: 8rem; padding: var(--s3); border: var(--borde-fino) solid var(--field-border); border-radius: var(--r-md); font: inherit; background: var(--field); color: var(--text); }
     .ayuda { color: var(--text-3); font-size: .9em; margin: 0; }
-    .aviso { color: var(--info); font-size: .9em; margin: 0; }
+    .aviso { color: var(--info-texto); font-size: .9em; margin: 0; }
   `,
 })
 export class FormularioDeCaso {

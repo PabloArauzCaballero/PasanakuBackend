@@ -20,7 +20,7 @@ import { ChangeDetectionStrategy, Component, computed, input, model, output } fr
     :host { position: relative; display: block; width: 100%; max-width: calc(var(--s7) * 6); }
     .oculto { position: absolute; width: var(--borde-fino); height: var(--borde-fino); overflow: hidden; clip: rect(0 0 0 0); }
     .celdas { display: flex; gap: var(--s2); }
-    .celda { display: inline-flex; align-items: center; justify-content: center; flex: 1; min-height: calc(var(--s7) + var(--s2)); border: var(--borde-fino) solid var(--field-border); border-radius: var(--r-md); background: var(--field); font-family: var(--font-d); font-size: 1.4em; color: var(--text); }
+    .celda { display: inline-flex; align-items: center; justify-content: center; flex: 1; min-height: calc(var(--s7) + var(--s2)); border: var(--borde-fino) solid var(--borde-control); border-radius: var(--r-md); background: var(--field); font-family: var(--font-d); font-size: 1.4em; color: var(--text); }
     :host(:focus-within) .celda.activa { border-color: var(--brand); box-shadow: 0 0 0 var(--borde-foco) var(--g300); }
     :host(.con-error) .celda { border-color: var(--err); }
     input { position: absolute; inset: 0; width: 100%; opacity: 0; font-size: 1em; }

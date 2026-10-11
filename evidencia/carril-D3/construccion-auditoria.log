@@ -1,0 +1,60 @@
+#23 11.15 > Task :plataforma:comun-web:jar
+#23 12.24 
+#23 12.24 > Task :servicios:auditoria:generarServidorOpenApi
+#23 12.24 OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+#23 12.24 Failed to get the schema name: null
+#23 12.24 OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+#23 12.24 ############################################################################################
+#23 12.24 # Thanks for using OpenAPI Generator.                                                      #
+#23 12.24 # We appreciate your support! Please consider donation to help us maintain this project.   #
+#23 12.25 # https://opencollective.com/openapi_generator/donate                                      #
+#23 12.25 ############################################################################################
+#23 12.25 Successfully generated code to /construccion/servicios/auditoria/build/generated/openapi
+#23 13.44 
+#23 13.44 > Task :servicios:auditoria:generateJooq
+#23 13.44 Version mismatch         : Database version is older than what dialect POSTGRES supports: 16.15 (Debian 16.15-1.pgdg13+2). Consider https://www.jooq.org/download/support-matrix to see what jOOQ version and edition supports which RDBMS versions.
+#23 16.24 
+#23 16.24 > Task :servicios:auditoria:compileJava
+#23 16.24 > Task :servicios:auditoria:processResources
+#23 16.24 > Task :servicios:auditoria:classes
+#23 16.34 > Task :servicios:auditoria:resolveMainClassName
+#23 16.64 > Task :servicios:auditoria:bootJar
+#23 16.67 
+#23 16.67 BUILD SUCCESSFUL in 16s
+#23 16.67 26 actionable tasks: 16 executed, 10 from cache
+#23 16.67 Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+#23 DONE 16.8s
+
+#24 [construccion 14/15] RUN mkdir -p /capas && cd /capas     && java -Djarmode=tools -jar /construccion/servicios/auditoria/build/libs/*.jar extract --layers --launcher --destination /capas
+#24 DONE 0.5s
+
+#25 [construccion 15/15] RUN mkdir -p /nativo /tmp/nativo && cd /tmp/nativo     && case "$(uname -m)" in x86_64) prefijo=linux-x86-64 ;; aarch64) prefijo=linux-aarch64 ;; *) prefijo=desconocido ;; esac     && for j in /capas/dependencies/BOOT-INF/lib/jna-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "com/sun/jna/${prefijo}/libjnidispatch.so" && cp "com/sun/jna/${prefijo}/libjnidispatch.so" /nativo/; done     && for j in /capas/dependencies/BOOT-INF/lib/argon2-jvm-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "${prefijo}/libargon2.so" && cp "${prefijo}/libargon2.so" /nativo/; done     ; ls -l /nativo
+#25 0.463 total 0
+#25 DONE 0.5s
+
+#26 [runtime 4/8] COPY --from=construccion --chown=app:app /capas/dependencies/ ./
+#26 DONE 0.2s
+
+#27 [runtime 5/8] COPY --from=construccion --chown=app:app /capas/spring-boot-loader/ ./
+#27 DONE 0.0s
+
+#28 [runtime 6/8] COPY --from=construccion --chown=app:app /capas/snapshot-dependencies/ ./
+#28 DONE 0.0s
+
+#29 [runtime 7/8] COPY --from=construccion --chown=app:app /capas/application/ ./
+#29 DONE 0.0s
+
+#30 [runtime 8/8] COPY --from=construccion /nativo/ /app/nativo/
+#30 DONE 0.0s
+
+#31 exporting to image
+#31 exporting layers
+#31 exporting layers 1.4s done
+#31 exporting manifest sha256:09e96fa7b7af34a7d11c72d6f9d760feba06b94e50f3e86175ad72f6f178f99e done
+#31 exporting config sha256:46c6966a52a941c4f87b30723713153d89560dc4be5febe0d6ece9e98dd062f2 0.0s done
+#31 exporting attestation manifest sha256:916c5b625ef39fef5f4dcb8413d9379704c197568daf6c7d4576fce18e6fc2f4 0.0s done
+#31 exporting manifest list sha256:119c5a1c9cbce33a524063608e5e1791bf8a475685efc88875e5e5bc24af2c32 done
+#31 naming to docker.io/aportaya/auditoria:test done
+#31 unpacking to docker.io/aportaya/auditoria:test
+#31 unpacking to docker.io/aportaya/auditoria:test 0.3s done
+#31 DONE 1.8s

@@ -1,0 +1,60 @@
+#21 9.520 > Task :plataforma:comun-web:classes
+#21 9.520 > Task :plataforma:comun-web:jar
+#21 9.520 > Task :servicios:aportes:generarServidorOpenApi FROM-CACHE
+#21 10.92 
+#21 10.92 > Task :servicios:aportes:generateJooq
+#21 10.92 Version mismatch         : Database version is older than what dialect POSTGRES supports: 16.15 (Debian 16.15-1.pgdg13+2). Consider https://www.jooq.org/download/support-matrix to see what jOOQ version and edition supports which RDBMS versions.
+#21 10.92 Ambiguous key name       : The one-to-many key aportes.fk_obligacion_aporte_obligacion_origen_id generates an inbound key method name obligacionAporte on table aportes.obligacion_aporte which conflicts with the previously generated key method name for key aportes.fk_obligacion_aporte_obligacion_origen_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+#21 10.92  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+#21 10.92  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+#21 10.92  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+#21 14.22 
+#21 14.22 > Task :servicios:aportes:compileJava
+#21 14.22 > Task :servicios:aportes:processResources
+#21 14.22 > Task :servicios:aportes:classes
+#21 14.22 > Task :servicios:aportes:resolveMainClassName
+#21 14.62 > Task :servicios:aportes:bootJar
+#21 14.62 
+#21 14.65 BUILD SUCCESSFUL in 14s
+#21 14.65 27 actionable tasks: 16 executed, 11 from cache
+#21 14.65 Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+#21 DONE 15.3s
+
+#22 [construccion 14/15] RUN mkdir -p /capas && cd /capas     && java -Djarmode=tools -jar /construccion/servicios/aportes/build/libs/*.jar extract --layers --launcher --destination /capas
+#22 DONE 1.6s
+
+#23 [construccion 15/15] RUN mkdir -p /nativo /tmp/nativo && cd /tmp/nativo     && case "$(uname -m)" in x86_64) prefijo=linux-x86-64 ;; aarch64) prefijo=linux-aarch64 ;; *) prefijo=desconocido ;; esac     && for j in /capas/dependencies/BOOT-INF/lib/jna-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "com/sun/jna/${prefijo}/libjnidispatch.so" && cp "com/sun/jna/${prefijo}/libjnidispatch.so" /nativo/; done     && for j in /capas/dependencies/BOOT-INF/lib/argon2-jvm-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "${prefijo}/libargon2.so" && cp "${prefijo}/libargon2.so" /nativo/; done     ; ls -l /nativo
+#23 0.077 total 0
+#23 DONE 0.1s
+
+#24 [runtime 4/8] COPY --from=construccion --chown=app:app /capas/dependencies/ ./
+#24 CACHED
+
+#25 [runtime 5/8] COPY --from=construccion --chown=app:app /capas/spring-boot-loader/ ./
+#25 CACHED
+
+#26 [runtime 2/8] RUN groupadd --system app && useradd --system --gid app app     && apt-get update     && apt-get install -y --no-install-recommends wget     && rm -rf /var/lib/apt/lists/*
+#26 CACHED
+
+#27 [runtime 3/8] WORKDIR /app
+#27 CACHED
+
+#28 [runtime 6/8] COPY --from=construccion --chown=app:app /capas/snapshot-dependencies/ ./
+#28 CACHED
+
+#29 [runtime 7/8] COPY --from=construccion --chown=app:app /capas/application/ ./
+#29 DONE 0.1s
+
+#30 [runtime 8/8] COPY --from=construccion /nativo/ /app/nativo/
+#30 DONE 0.1s
+
+#31 exporting to image
+#31 exporting layers 0.1s done
+#31 exporting manifest sha256:0cb4c2f32f9529e19e289bfc4333a79dd5a95f9643ad8d3867a3fe2ddd0176a1
+#31 exporting manifest sha256:0cb4c2f32f9529e19e289bfc4333a79dd5a95f9643ad8d3867a3fe2ddd0176a1 done
+#31 exporting config sha256:94be3edb9b6960acad43b5baadaa6ce350bfa5c8261d1f93432266dc32300326 done
+#31 exporting attestation manifest sha256:af8e3938133f1bf663d282887018eb07c3fc78e7d8c0aaa1ec04f8267ae5ca58 0.0s done
+#31 exporting manifest list sha256:7a0d03c7083cc4f98a2ce9c28206f0a33eaea472434369a734d87f487ba10769 done
+#31 naming to docker.io/aportaya/aportes:test done
+#31 unpacking to docker.io/aportaya/aportes:test 0.1s done
+#31 DONE 0.3s

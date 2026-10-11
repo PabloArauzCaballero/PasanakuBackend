@@ -1,0 +1,82 @@
+heavy.sh: candado tomado, libres 4891 MB -> bash despliegue/ensayos/arranque_completo.sh
+[d3 06:47:01] escenario=limpia perfil=local roles=todos modo=conjunto omitir=[] xmx=144m mem=320m
+[d3 06:47:02] libres Windows al empezar: 4888 MB
+[d3 06:47:14] infra: postgres, pgbouncer, redis, minio, kafka
+ Container aportaya-d3-infra-minio-1 Healthy 
+ Container aportaya-d3-infra-kafka-1 Healthy 
+ Container aportaya-d3-infra-pgbouncer-1 Healthy 
+[d3 06:47:24] esquema: docker compose up esquema (service_completed_successfully en TEST)
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3396: NOTICE:  trigger "tg_distribucion_interes_coherente" for relation "distribucion_interes" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3402: NOTICE:  constraint "ck_corrida_trabajo_fin" of relation "corrida_trabajo" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3403: NOTICE:  constraint "ck_corrida_trabajo_error" of relation "corrida_trabajo" does not exist, skipping
+esquema-1  | esquema: catalogos minimos (sql/60_semillas)
+esquema-1  | esquema:                ?column?               
+esquema-1  | esquema: --------------------------------------
+esquema-1  | esquema:  roles svc_* con credencial: 15 de 15
+esquema-1  | esquema: (1 row)
+esquema-1  | esquema: 
+esquema-1  | esquema: 436 tablas en pasanaku
+esquema-1  | esquema: listo
+[Kesquema-1 exited with code 0
+[d3 06:47:30] esquema: exit code = 0
+roles svc_* sin login: 0
+RESULTADO gateway: healthy | readiness: {"status":"UP"}
+RESULTADO identidad: healthy | readiness: {"status":"UP"}
+RESULTADO grupos: healthy | readiness: {"status":"UP"}
+RESULTADO aportes: healthy | readiness: {"status":"UP"}
+RESULTADO entregas: healthy | readiness: {"status":"UP"}
+RESULTADO nucleo-financiero: healthy | readiness: {"status":"UP"}
+RESULTADO garantia: healthy | readiness: {"status":"UP"}
+usuarios sembrados: 5
+credenciales (fuera del repo): C:\Users\Usuario\AppData\Local\Temp/aportaya-d3/credenciales-e2e.txt
+--- 1. readiness de cada servicio (por dentro) y gateway
+PASS  readiness identidad -> UP
+PASS  readiness aportes -> UP
+PASS  readiness entregas -> UP
+PASS  readiness garantia -> UP
+PASS  readiness grupos -> UP
+PASS  readiness nucleo-financiero -> UP
+--- 1b. /actuator/health completo (la sonda de base pega a PostgreSQL por PgBouncer con el rol svc_<servicio>)
+PASS  health+base identidad -> UP
+PASS  health+base aportes -> UP
+PASS  health+base entregas -> UP
+PASS  health+base garantia -> UP
+PASS  health+base grupos -> UP
+PASS  health+base nucleo-financiero -> UP
+PASS  gateway liveness -> 200
+PASS  gateway readiness -> 200
+--- 2. ruta publica (identidad + PgBouncer + base) a traves del gateway
+PASS  POST /api/v1/sesiones rechaza por contrato -> 400
+PASS  POST /api/v1/usuarios/verificaciones/correo es publica -> 400
+--- 3. ruta protegida por cada prefijo del gateway: sin token -> 401 (o 200 si es publica por contrato)
+PASS  GET /api/v1/aportes/humo-d3 [aportes] -> 401
+PASS  GET /api/v1/conciliacion/humo-d3 [aportes] -> 401
+PASS  GET /api/v1/pagos/humo-d3 [aportes] -> 401
+PASS  GET /api/v1/qr/humo-d3 [aportes] -> 401
+PASS  GET /api/v1/cuentas-bancarias/humo-d3 [entregas] -> 401
+PASS  GET /api/v1/desembolsos/humo-d3 [entregas] -> 401
+PASS  GET /api/v1/entregas/humo-d3 [entregas] -> 401
+PASS  GET /api/v1/cobranza/humo-d3 [garantia] -> 401
+PASS  GET /api/v1/garantia/humo-d3 [garantia] -> 401
+PASS  GET /api/v1/incumplimientos/humo-d3 [garantia] -> 401
+PASS  GET /api/v1/acuerdos/humo-d3 [grupos] -> 401
+PASS  GET /api/v1/grupos/humo-d3 [grupos] -> 401
+PASS  GET /api/v1/turnos/humo-d3 [grupos] -> 401
+PASS  GET /api/v1/identidad/humo-d3 [identidad] -> 401
+PASS  GET /api/v1/roles/humo-d3 [identidad] -> 401
+PASS  GET /api/v1/sesion/humo-d3 [identidad] -> 401
+PASS  GET /api/v1/sesiones/humo-d3 [identidad] -> 401
+PASS  GET /api/v1/usuarios/humo-d3 [identidad] -> 401
+PASS  GET /api/v1/billetera/humo-d3 [nucleo-financiero] -> 401
+PASS  GET /api/v1/billetera/retiros/humo-d3 [nucleo-financiero] -> 401
+PASS  GET /api/v1/billetera/transferencias/humo-d3 [nucleo-financiero] -> 401
+PASS  GET /api/v1/contabilidad/humo-d3 [nucleo-financiero] -> 401
+PASS  GET /api/v1/custodia/humo-d3 [nucleo-financiero] -> 401
+PASS  GET /api/v1/puntos-atencion/humo-d3 [nucleo-financiero] -> 401
+--- 5. ruta inexistente
+PASS  GET /api/v1/no-existe -> 404
+RESUMEN humo: 0 falla(s)
+[d3 06:48:01] gateway: http://127.0.0.1:18086  postgres: 127.0.0.1:5446  pgbouncer: 127.0.0.1:6446
+[d3 06:48:01] RAM pico de los contenedores (hora,n,MB): 06:47:48,12,2197
+[d3 06:48:02] D3_MANTENER=1: el stack queda arriba (consume RAM). Bajar con: bash despliegue/ensayos/bajar_entorno.sh
+[d3 06:48:02] libres Windows al terminar: 875 MB

@@ -1,0 +1,45 @@
+=== packages/diseno_flutter (Flutter) ===
+  OK    · sin red en el sistema de diseño 
+  OK    · sin literal de diseño 
+  OK    · sin formato de dinero 
+  OK    · sin plataforma 
+  OK    · sin print 
+  OK    · ningún archivo de más de 200 líneas (catalogo/ es datos y queda fuera) 
+=== packages/ui (Angular) ===
+  OK    · sin red en el sistema de diseño 
+  OK    · sin literal de diseño 
+  OK    · sin formato de dinero 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas (catalogo/ es datos y queda fuera) 
+  OK    · cada pieza tiene su archivo con el mismo nombre 
+=== packages/tutoriales (Angular) ===
+  OK    · sin red fuera del puerto 
+  OK    · sin literal de diseño 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+=== apps/movil (Flutter) ===
+  OK    · sin red en vista 
+  OK    · sin literal de diseño 
+  OK    · sin formato de dinero 
+  OK    · sin plataforma en vista 
+  OK    · sin print 
+  OK    · ningún archivo de más de 200 líneas (texto_del_contrato.dart es dato y queda fuera) 
+  OK    · el shell tiene navegacion/rutas.dart
+  OK    · el shell tiene dominio/cliente.dart
+  OK    · el shell tiene proveedores/sesion.dart
+=== apps/backoffice (Angular) ===
+  OK    · sin red en vista 
+  OK    · sin literal de diseño 
+  OK    · sin formato de dinero 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+  OK    · sin literal de diseño en @aportaya/ui 
+=== apps/web (Angular) ===
+  OK    · sin red en vista 
+  OK    · sin literal de diseño 
+  OK    · sin formato de dinero 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+  OK    · sin literal de diseño en @aportaya/ui 
+
+TODO OK

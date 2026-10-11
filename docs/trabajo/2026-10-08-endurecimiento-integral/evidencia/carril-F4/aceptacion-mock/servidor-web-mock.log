@@ -1,0 +1,70 @@
+❯ Building...
+✔ Building...
+Browser bundles     
+Initial chunk files  | Names                    |  Raw size
+main.js              | main                     |  64.84 kB | 
+styles.css           | styles                   |  46.14 kB | 
+chunk-OLNQPO3J.js    | -                        |  40.90 kB | 
+chunk-4EF5GN62.js    | -                        |  28.32 kB | 
+chunk-DPQ62CMX.js    | -                        |  14.44 kB | 
+chunk-NR477V43.js    | -                        |   5.28 kB | 
+chunk-PU6N7LBI.js    | -                        |   1.42 kB | 
+chunk-VUJOFXKG.js    | -                        | 987 bytes | 
+
+                     | Initial total            | 202.32 kB
+
+Lazy chunk files     | Names                    |  Raw size
+chunk-7JOZUSJ7.js    | catalogo                 | 406.64 kB | 
+chunk-DXVDDE63.js    | inicio                   |  71.40 kB | 
+chunk-2KE2ETSV.js    | pantalla-centro-de-ayuda |  47.25 kB | 
+chunk-T4MF7E4G.js    | -                        |  36.13 kB | 
+chunk-C2YS72UT.js    | -                        |  30.93 kB | 
+chunk-RU2VK2UW.js    | sorteo-verificacion      |  21.32 kB | 
+chunk-JJEFALKM.js    | -                        |  18.21 kB | 
+chunk-Y7YH77XO.js    | tarifas                  |  16.58 kB | 
+chunk-PSBH4QK6.js    | grupo-transparencia      |  14.34 kB | 
+chunk-JUOVDRC3.js    | invitacion               |  14.15 kB | 
+chunk-6OFAFPAT.js    | plazos                   |  13.51 kB | 
+chunk-BZSKCOQM.js    | verificar                |  12.30 kB | 
+chunk-UE2ZILBW.js    | -                        |   9.18 kB | 
+chunk-KPI4AQ6G.js    | catalogo                 |   7.83 kB | 
+chunk-AQPDHAIO.js    | -                        |   7.20 kB | 
+...and 12 more lazy chunks files. Use "--verbose" to show all the files.
+
+
+Server bundles      
+Initial chunk files  | Names                    |  Raw size
+main.server.mjs      | main.server              |  67.24 kB | 
+chunk-C3D2UHTH.mjs   | -                        |  40.89 kB | 
+chunk-U7A55CIL.mjs   | -                        |  28.31 kB | 
+chunk-LBHJCOMN.mjs   | -                        |  14.43 kB | 
+chunk-FAGZ2UBF.mjs   | -                        |   5.27 kB | 
+server.mjs           | server                   |   4.58 kB | 
+chunk-ONFEFTIG.mjs   | -                        |   1.41 kB | 
+chunk-54EZUNS5.mjs   | -                        | 972 bytes | 
+polyfills.server.mjs | polyfills.server         | 268 bytes | 
+
+Lazy chunk files     | Names                    |  Raw size
+chunk-MVTNWOE6.mjs   | catalogo                 | 406.63 kB | 
+chunk-YRJW7POA.mjs   | inicio                   |  71.39 kB | 
+chunk-SJA555L5.mjs   | pantalla-centro-de-ayuda |  47.24 kB | 
+chunk-N5FRFU6X.mjs   | -                        |  36.12 kB | 
+chunk-UYUGQ6TL.mjs   | -                        |  30.92 kB | 
+chunk-HXQHICZU.mjs   | sorteo-verificacion      |  21.32 kB | 
+chunk-JYJEDJDR.mjs   | -                        |  18.19 kB | 
+chunk-6D67RJKU.mjs   | tarifas                  |  16.57 kB | 
+chunk-DSJXSSZ5.mjs   | grupo-transparencia      |  14.33 kB | 
+chunk-4P5JOR2F.mjs   | invitacion               |  14.14 kB | 
+chunk-KRSA6GGC.mjs   | plazos                   |  13.51 kB | 
+chunk-Z2SOMBX3.mjs   | verificar                |  12.29 kB | 
+chunk-3WU6JGFR.mjs   | -                        |   9.16 kB | 
+chunk-M3UDOCRY.mjs   | catalogo                 |   7.82 kB | 
+chunk-SMNBCTOO.mjs   | -                        |   7.19 kB | 
+...and 12 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [3.918 seconds] - 2026-10-10T12:21:58.086Z
+
+Watch mode enabled. Watching for file changes...
+NOTE: Raw file sizes do not reflect development server per-request transformations.
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m5450[22m/[39m
+NG0751: Angular has detected that this application contains `@defer` blocks and the hot module replacement (HMR) mode is enabled. All `@defer` block dependencies will be loaded eagerly. Find more at https://v22.angular.dev/errors/NG0751

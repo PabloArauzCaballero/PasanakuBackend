@@ -60,10 +60,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU35-01",
+        "mensaje": "Dias sin cerrar",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-cerrarLiquidacion-rechazo"
       }
     }
   }

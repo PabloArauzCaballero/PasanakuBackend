@@ -34,7 +34,7 @@ let secuencia = 0
   styles: `
     :host { display: block; }
     label { display: block; margin-bottom: var(--s1); font-weight: 600; color: var(--text-2); }
-    .caja { display: flex; align-items: center; gap: var(--s2); min-height: var(--area-tactil); padding: 0 var(--s3); border: var(--borde-fino) solid var(--field-border); border-radius: var(--r-md); background: var(--field); color: var(--text); }
+    .caja { display: flex; align-items: center; gap: var(--s2); min-height: var(--area-tactil); padding: 0 var(--s3); border: var(--borde-fino) solid var(--borde-control); border-radius: var(--r-md); background: var(--field); color: var(--text); }
     .caja:focus-within { border-color: var(--brand); box-shadow: 0 0 0 var(--borde-foco) var(--g300); }
     :host(.con-error) .caja { border-color: var(--err); }
     :host(.con-exito) .caja { border-color: var(--ok); }

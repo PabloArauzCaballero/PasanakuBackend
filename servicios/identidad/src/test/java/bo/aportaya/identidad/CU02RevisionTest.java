@@ -3,6 +3,7 @@ package bo.aportaya.identidad;
 import static bo.aportaya.identidad.ExpedientesDePrueba.clave;
 import static bo.aportaya.identidad.ExpedientesDePrueba.contexto;
 import static bo.aportaya.identidad.ExpedientesDePrueba.expediente;
+import static bo.aportaya.identidad.ExpedientesDePrueba.expedienteCompleto;
 import static bo.aportaya.identidad.ExpedientesDePrueba.usuario;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -181,9 +182,10 @@ class CU02RevisionTest {
                 aprobado,
                 rechazado);
         dsl.execute("UPDATE identidad.usuario SET estado = 'ACTIVO', nivel_kyc = 'COMPLETO' WHERE id = ?", yaActivo);
-        UUID vAprobada = expediente(aprobado, "EN_REVISION", false);
+        // Aprobar exige las cinco fotos y un documento vigente (AP-CU01-09/10/11); rechazar no exige nada de eso.
+        UUID vAprobada = expedienteCompleto(aprobado, "2030-01-01");
         UUID vRechazada = expediente(rechazado, "EN_REVISION", false);
-        UUID vDelActivo = expediente(yaActivo, "EN_REVISION", false);
+        UUID vDelActivo = expedienteCompleto(yaActivo, "2030-01-01");
         dsl.execute("UPDATE identidad.verificacion_kyc SET nivel_solicitado = 'AVANZADO' WHERE id = ?", vAprobada);
         ContextoSesion contexto = contexto(usuario());
         var caso = new CU02RevisarExpediente(

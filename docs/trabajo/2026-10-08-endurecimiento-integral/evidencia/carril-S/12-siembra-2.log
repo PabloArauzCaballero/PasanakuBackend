@@ -1,0 +1,7 @@
+[sembrar] antes:   usuarios=3 activos=3 roles_vigentes=3 factores_activos=2 organizador_habilitado=1 credenciales=2 
+[sembrar] las dos cuentas ya tenian credencial: no se tocaron (cambia la contrasena con el flujo normal si hace falta)
+[sembrar] despues: usuarios=3 activos=3 roles_vigentes=3 factores_activos=2 organizador_habilitado=1 credenciales=2 
+[sembrar] cambios: 0 (idempotente)
+[sonda] A: http=422 "codigo":"AP-CU04-03"   (esperado: http=422 y AP-CU04-03 = credencial correcta, falta el segundo factor)
+[sonda] B: http=422 "codigo":"AP-CU04-03"   (esperado: igual)
+[listo] cuentas SINTETICAS sembradas (apto_produccion=false). Telefonos, contrasenas y segundo factor: tu archivo cuentas-test.txt.

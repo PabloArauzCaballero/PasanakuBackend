@@ -1,0 +1,67 @@
+heavy.sh: candado tomado, libres 4699 MB -> bash /c/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/h2/tests_build.sh
+Resolving dependencies...
+Downloading packages...
+  accessibility_tools 2.8.0 (3.0.0 available)
+  clock 1.1.2 (1.1.3 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  qr 3.0.2 (4.0.0 available)
+  stack_trace 1.12.1 (1.12.2 available)
+  test_api 0.7.12 (0.7.15 available)
+  url_launcher 6.3.2 (6.3.3 available)
+Got dependencies!
+7 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/packages/diseno_flutter/test/unidad/logica_pura_test.dart
+00:00 +0: CampoMonto.aCadenaDelContrato acepta lo que escribe una persona y devuelve la cadena del contrato
+00:00 +1: CampoMonto.aCadenaDelContrato rechaza lo que no es un importe
+00:00 +2: CuentaEnmascarada muestra solo los últimos cuatro
+00:00 +3: Fecha lleva la zona horaria de La Paz, explícita
+00:00 +4: Fecha.formatearDia muestra el día elegido tal cual, sin correrlo por zona
+00:00 +5: RelojDePlazo dice lo que falta sin recalcular el vencimiento
+00:00 +6: ListaDeMovimientos.neto suma cadenas del contrato sin pasar por double
+00:00 +7: CalendarioDeCuotas el total exigible no suma lo futuro ni lo pagado
+00:00 +8: CalendarioDeCuotas la más urgente manda el color del día
+00:00 +9: All tests passed!
+rc_pkg=0
+00:00 +0: loading C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/errores_identidad_test.dart
+00:00 +0: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/errores_identidad_test.dart: mensajeDe · identidad correcto: cada rechazo de CU-04 tiene su texto y ninguno es el genérico
+00:00 +1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/errores_identidad_test.dart: mensajeDe · identidad límite: credencial inválida habla de celular y contraseña, no de «código»
+00:00 +2: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/errores_identidad_test.dart: mensajeDe · identidad límite: demasiados intentos es AP-CU04-05, no el 04 (que es el código del factor)
+00:00 +3: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/errores_identidad_test.dart: mensajeDe · identidad correcto: los cinco rechazos del código de correo del alta son distintos y accionables
+00:00 +4: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/errores_identidad_test.dart: mensajeDe · identidad inválido: un código AP-CU01 desconocido sigue cayendo en el mensaje por estado
+00:00 +5: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/errores_qr_test.dart: mensajeDe · QR interno vs interoperable (CU-12) correcto: cada rechazo del QR tiene su propio texto, ninguno es el genérico
+00:00 +6: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/errores_qr_test.dart: mensajeDe · QR interno vs interoperable (CU-12) límite: el QR interoperable no habilitado no se llama «inválido» ni promete que se puede pagar
+00:00 +7: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/errores_qr_test.dart: mensajeDe · QR interno vs interoperable (CU-12) inválido: un código de QR que no existe cae en el mensaje por estado, sin inventar interoperabilidad
+00:00 +8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/identidad/autenticar_test.dart: cuando el servidor pide segundo factor, no hay sesión todavía: el token no se guarda hasta que el factor pasa
+00:00 +9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/identidad/autenticar_test.dart: cuando no hace falta segundo factor, el token queda guardado
+00:00 +10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/identidad/autenticar_test.dart: el servicio real pide el segundo factor con 422 AP-CU04-03: la app pasa al paso del código
+00:00 +11: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/identidad/autenticar_test.dart: el segundo factor abre la sesión
+00:00 +12: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/identidad/autenticar_test.dart: un rechazo del servidor no abre sesión y se cuenta en voz de marca
+00:00 +13: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/identidad/autenticar_test.dart: la huella de dispositivo es estable entre intentos
+00:00 +14: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pantalla_de_saldo_test.dart: cargando: lo dice mientras espera, sin pantalla en blanco
+00:00 +15: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/a11y/pantalla_de_saldo_a11y_test.dart: la pantalla de saldo cumple las guías de accesibilidad de Flutter
+00:00 +16: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/a11y/pantalla_de_saldo_a11y_test.dart: la pantalla de saldo cumple las guías de accesibilidad de Flutter
+00:00 +17: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/a11y/pantalla_de_saldo_a11y_test.dart: la pantalla de saldo cumple las guías de accesibilidad de Flutter
+00:00 +18: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pantalla_de_saldo_test.dart: error: mensaje humano, reintento a la vista y traza para soporte
+00:00 +19: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/a11y/pantalla_de_saldo_a11y_test.dart: el estado de error también: el botón de reintento se alcanza y se lee
+00:01 +20: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pantalla_de_saldo_test.dart: sin red: no se queda cargando para siempre, y dice que no hay conexión
+00:01 +21: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pantalla_de_saldo_test.dart: un 403 no dice más que «no tenés acceso»
+00:01 +22: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/pantalla_de_saldo_test.dart: reintentar vuelve a pedir el saldo al servidor: nunca se ajusta en memoria
+00:01 +23: All tests passed!
+rc_app=0
+Analyzing 3 items...                                            
+No issues found! (ran in 4.7s)
+rc_analyze=0
+Running Gradle task 'assembleDebug'...                          
+WARNING: Your app uses the following plugins that apply Kotlin Gradle Plugin (KGP): app_settings, patrol
+Future versions of Flutter will fail to build if your app uses plugins that apply KGP.
+
+Please check the changelogs of these plugins and upgrade to a version that supports Built-in Kotlin.
+If no such version exists, report the issue to the plugin. If necessary, here is a guide on filing
+an issue against a plugin: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-app-developers#report-incompatible-kotlin-gradle-plugin-usage-to-plugin-authors
+
+If you are a plugin author, please migrate your plugin to Built-in Kotlin using this guide: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-plugin-authors
+Running Gradle task 'assembleDebug'...                             30,3s
+✓ Built build\app\outputs\flutter-apk\app-debug.apk
+rc_build=0
+1 Daemon stopped

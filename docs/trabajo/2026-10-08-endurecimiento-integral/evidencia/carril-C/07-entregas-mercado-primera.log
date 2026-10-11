@@ -1,0 +1,120 @@
+[candado:pesado] esperando 60s...
+[candado:pesado] esperando 120s...
+[candado:pesado] esperando 180s...
+[candado:pesado] esperando 240s...
+[candado:pesado] esperando 300s...
+[candado:pesado] esperando 360s...
+[candado:pesado] esperando 420s...
+[candado:pesado] esperando 480s...
+[candado:pesado] esperando 540s...
+      0 [main] bash 400780 dofork: child -1 - forked process 2024 died unexpectedly, retry 0, exit code 0xC000012D, errno 11
+C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/55cc9bcc-149c-4c02-b725-c5b37b935ce2/scratchpad/candado.sh: fork: retry: Resource temporarily unavailable
+      0 [main] bash (22716) child_copy: cygheap read copy failed, 0x0..0x80000DF20, done 0, windows pid 22716, Win32 error 299
+      0 [main] bash 395779 dofork: child -1 - forked process 22716 died unexpectedly, retry 0, exit code 0xC0000142, errno 11
+C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/55cc9bcc-149c-4c02-b725-c5b37b935ce2/scratchpad/candado.sh: fork: retry: Resource temporarily unavailable
+[candado:pesado] esperando 600s...
+[candado:pesado] esperando 660s...
+[candado:pesado] esperando 720s...
+[candado:pesado] esperando 780s...
+[candado:pesado] esperando 840s...
+[candado:pesado] esperando 900s...
+[candado:pesado] esperando 960s...
+      1 [main] bash (33932) child_copy: cygheap read copy failed, 0x0..0x80000DF20, done 0, windows pid 33932, Win32 error 299
+426400900 [main] bash 395779 dofork: child -1 - forked process 33932 died unexpectedly, retry 0, exit code 0xC0000142, errno 11
+C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/55cc9bcc-149c-4c02-b725-c5b37b935ce2/scratchpad/candado.sh: fork: retry: Resource temporarily unavailable
+[candado:pesado] esperando 1020s...
+494963009 [main] bash 395779 dofork: child -1 - forked process 12932 died unexpectedly, retry 0, exit code 0xC000012D, errno 11
+C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/55cc9bcc-149c-4c02-b725-c5b37b935ce2/scratchpad/candado.sh: fork: retry: Resource temporarily unavailable
+[candado:pesado] esperando 1080s...
+[candado:pesado] esperando 1140s...
+[candado:pesado] esperando 1200s...
+[candado:pesado] tomado tras 1220s
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :servicios:entregas:spotlessJava
+> Task :servicios:entregas:spotlessJavaApply
+> Task :servicios:entregas:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:entregas:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:entregas:spotlessApply
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources NO-SOURCE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :servicios:entregas:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:entregas:generateJooq UP-TO-DATE
+> Task :servicios:entregas:compileJava UP-TO-DATE
+> Task :servicios:entregas:processResources UP-TO-DATE
+> Task :servicios:entregas:classes UP-TO-DATE
+> Task :servicios:entregas:compileTestJava
+> Task :servicios:entregas:processTestResources UP-TO-DATE
+> Task :servicios:entregas:testClasses
+
+> Task :servicios:entregas:test
+
+ArquitecturaTest > laWebNoTieneReglas FAILED
+    java.lang.AssertionError: Architecture Violation [Priority: MEDIUM] - Rule 'no classes that reside in a package '..web..' should depend on classes that reside in a package '..infraestructura..'' was violated (8 times):
+    Method <bo.aportaya.entregas.web.MercadoWeb.listarOfertas(java.lang.Integer, java.lang.Integer)> calls method <bo.aportaya.entregas.infraestructura.MercadoRepositorio$Vista.cargos()> in (MercadoWeb.java:73)
+    Method <bo.aportaya.entregas.web.MercadoWeb.listarOfertas(java.lang.Integer, java.lang.Integer)> calls method <bo.aportaya.entregas.infraestructura.MercadoRepositorio$Vista.derecho()> in (MercadoWeb.java:71)
+    Method <bo.aportaya.entregas.web.MercadoWeb.listarOfertas(java.lang.Integer, java.lang.Integer)> calls method <bo.aportaya.entregas.infraestructura.MercadoRepositorio$Vista.grupoId()> in (MercadoWeb.java:69)
+    Method <bo.aportaya.entregas.web.MercadoWeb.listarOfertas(java.lang.Integer, java.lang.Integer)> calls method <bo.aportaya.entregas.infraestructura.MercadoRepositorio$Vista.ofertaId()> in (MercadoWeb.java:68)
+    Method <bo.aportaya.entregas.web.MercadoWeb.listarOfertas(java.lang.Integer, java.lang.Integer)> calls method <bo.aportaya.entregas.infraestructura.MercadoRepositorio$Vista.precio()> in (MercadoWeb.java:72)
+    Method <bo.aportaya.entregas.web.MercadoWeb.listarOfertas(java.lang.Integer, java.lang.Integer)> calls method <bo.aportaya.entregas.infraestructura.MercadoRepositorio$Vista.turnoId()> in (MercadoWeb.java:70)
+    Method <bo.aportaya.entregas.web.MercadoWeb.listarOfertas(java.lang.Integer, java.lang.Integer)> calls method <bo.aportaya.entregas.infraestructura.MercadoRepositorio$Vista.vigenteHasta()> in (MercadoWeb.java:74)
+    Method <bo.aportaya.entregas.web.MercadoWebTest.listar()> calls constructor <bo.aportaya.entregas.infraestructura.MercadoRepositorio$Vista.<init>(java.util.UUID, java.util.UUID, java.util.UUID, bo.aportaya.plataforma.dominio.Dinero, bo.aportaya.plataforma.dominio.Dinero, bo.aportaya.plataforma.dominio.Dinero, java.time.OffsetDateTime)> in (MercadoWebTest.java:130)
+        at com.tngtech.archunit.lang.ArchRule$Assertions.assertNoViolation(ArchRule.java:94)
+        at com.tngtech.archunit.lang.ArchRule$Assertions.check(ArchRule.java:86)
+        at com.tngtech.archunit.lang.ArchRule$Factory$SimpleArchRule.check(ArchRule.java:165)
+        at com.tngtech.archunit.lang.syntax.ObjectsShouldInternal.check(ObjectsShouldInternal.java:81)
+        at com.tngtech.archunit.junit.internal.ArchUnitTestDescriptor$ArchUnitRuleDescriptor.execute(ArchUnitTestDescriptor.java:168)
+        at com.tngtech.archunit.junit.internal.ArchUnitTestDescriptor$ArchUnitRuleDescriptor.execute(ArchUnitTestDescriptor.java:151)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+10 tests completed, 1 failed
+
+> Task :servicios:entregas:test FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':servicios:entregas:test'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend/servicios/entregas/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 18s
+37 actionable tasks: 4 executed, 33 up-to-date

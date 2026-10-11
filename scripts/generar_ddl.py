@@ -205,7 +205,9 @@ VALORES = {
     ("transaccion_billetera", "origen_tipo"):
         ["OBLIGACION_APORTE", "ENTREGA_FONDO", "DEVENGO_COMISION",
          "COBERTURA_INCUMPLIMIENTO", "ORDEN_RECARGA", "ORDEN_RETIRO",
-         "TRANSFERENCIA_P2P", "AJUSTE"],
+         "TRANSFERENCIA_P2P", "AJUSTE",
+         # H2.S1 (nucleo, segunda vuelta): inversion voluntaria, rescate y compra en el mercado
+         "ORDEN_INVERSION", "RESCATE_INVERSION", "OFERTA_MERCADO"],
     ("intento_desembolso", "resultado"):
         ["EXITOSO", "FALLIDO", "PENDIENTE", "TIMEOUT"],
 

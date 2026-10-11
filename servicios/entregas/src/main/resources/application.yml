@@ -18,6 +18,14 @@ spring:
     bootstrap-servers: ${KAFKA_URL}
 
 aportaya:
+  resiliencia:
+    # Circuit breaker de los clientes hacia otros servicios (regla 98.2.3). Valores SINTETICOS del plan de
+    # resiliencia (evidencia/carril-S2/DEUDA-circuit-breaker-clientes-http.md): no salen de medir trafico real.
+    circuito:
+      ventana: 10                   # llamadas que se miran, y minimo para juzgar
+      umbral-de-fallos: 50          # % de fallos (red, timeout, 5xx, cuerpo ilegible) que lo abre
+      espera-abierto: PT30S         # cuanto se deja de llamar antes de probar
+      llamadas-de-prueba: 3         # llamadas de prueba en semiabierto
   esquema: entregas
   outbox:
     intervalo: PT1S                 # relevo: lee el outbox y publica DESPUES del commit
@@ -28,6 +36,10 @@ aportaya:
     # A quien se le pregunta. Un servicio no lee la base de otro (invariante 11):
     # pregunta por su contrato, y fuera de la transaccion (invariante 6).
     identidad: ${URL_IDENTIDAD:http://identidad:8080}
+    aportes: ${URL_APORTES:http://aportes:8080}        # afirma cuanto del pozo es caja confirmada
+    garantia: ${URL_GARANTIA:http://garantia:8080}    # cubre el faltante con la reserva empresarial
+    grupos: ${URL_GRUPOS:http://grupos:8080}          # a que grupos pertenece quien compra un turno
+    nucleo-financiero: ${URL_NUCLEO_FINANCIERO:http://nucleo-financiero:8080}   # el libro: retener, pagar, liberar
   # Fuera de la base a proposito: filtrar la tabla de cuentas no alcanza si la
   # pimienta no esta ahi. Si falta la variable, el proceso NO levanta.
   seguridad:
@@ -39,6 +51,29 @@ aportaya:
     # Una cuenta recien verificada espera antes de poder recibir: es la ventana en la
     # que el titular real alcanza a darse cuenta si alguien registro una que no es suya.
     enfriamiento: PT24H
+  incidencia-fondo:
+    # SINTETICO (ambiguedad del carril C): plazo para resolver un faltante extraordinario de caja.
+    # Lo fija operaciones; este valor solo permite arrancar y probar.
+    sla: PT24H
+  entregas:
+    libro:
+      timeout: PT3S
+      # Identidad de SERVICIO con que se le paga al vendedor de un turno (nucleo-financiero acepta `pago-a-tercero`
+      # solo asi: una sesion de usuario final recibe 403). Dos formas, ambas secretas y por entorno, nunca en el repo:
+      #  - cuenta-servicio: cuenta de servicio en identidad con el rol SERVICIO_ENTREGAS; el servicio entra
+      #    (POST /sesiones) y renueva el token solo antes de que venza. Es la forma de operar.
+      #  - credencial-servicio: un token ya emitido (vive 15 minutos): solo una prueba manual.
+      # Sin ninguna, pagarAlVendedor falla cerrado y la compra queda detenida y reanudable. Config a medias = no arranca.
+      credencial-servicio: ${ENTREGAS_LIBRO_CREDENCIAL_SERVICIO:}
+      cuenta-servicio:
+        telefono: ${ENTREGAS_SERVICIO_TELEFONO:}
+        clave: ${ENTREGAS_SERVICIO_CLAVE:}
+        factor-totp-semilla: ${ENTREGAS_SERVICIO_TOTP_SEMILLA:}
+        factor-fijo: ${ENTREGAS_SERVICIO_FACTOR_FIJO:}   # SOLO TEST: el codigo fijo del perfil local de identidad
+  mercado:
+    # SINTETICOS (ambiguedades del carril C): los fija producto/operaciones, no son una decision tomada.
+    vigencia-maxima: PT168H        # cuanto puede durar una oferta publicada
+    reserva-maxima: PT10M          # cuanto puede quedar una compra a medias antes de abortarse
   desembolso:
     intentos-maximos: 3
     espera-entre-intentos: PT15M

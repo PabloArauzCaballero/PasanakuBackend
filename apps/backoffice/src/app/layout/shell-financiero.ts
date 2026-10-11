@@ -54,10 +54,10 @@ type Seccion = { ruta: string; texto: string; permiso: string }
   `,
   styles: `
     .shell { display: grid; grid-template-columns: minmax(12rem, 16rem) 1fr; grid-template-rows: auto 1fr; grid-template-areas: 'cabecera cabecera' 'menu contenido'; min-height: 100dvh; background: var(--bg); }
-    .cabecera { grid-area: cabecera; display: flex; align-items: center; justify-content: space-between; padding: var(--s3) var(--s5); border-bottom: var(--borde-fino) solid var(--border); background: var(--surface); }
-    .marca { margin: 0; font-weight: 700; color: var(--text); }
-    .derecha { display: flex; align-items: center; gap: var(--s3); }
-    .rol { margin: 0; color: var(--text-2); font-size: .9em; }
+    .cabecera { grid-area: cabecera; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s2) var(--s3); padding: var(--s3) var(--s5); border-bottom: var(--borde-fino) solid var(--border); background: var(--surface); }
+    .marca { margin: 0; font-weight: 700; color: var(--text); white-space: nowrap; }
+    .derecha { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2) var(--s3); min-width: 0; }
+    .rol { margin: 0; color: var(--text-2); font-size: .9em; overflow-wrap: anywhere; }
     .menu { grid-area: menu; border-right: var(--borde-fino) solid var(--border); background: var(--surface); padding: var(--s4); }
     .menu ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s1); }
     .menu a { display: block; min-height: var(--area-tactil); padding: var(--s2) var(--s3); border-radius: var(--r-md); color: var(--text-2); text-decoration: none; }
@@ -69,9 +69,7 @@ type Seccion = { ruta: string; texto: string; permiso: string }
     @media (max-width: 40rem) {
       /* minmax(0, 1fr): con 1fr a secas la columna no bajaba del mínimo de la cabecera y
          en 390 px la página entera desbordaba 39 px hacia el costado. */
-      .shell { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'cabecera' 'menu' 'contenido'; }
-      .cabecera { flex-wrap: wrap; gap: var(--s2); padding: var(--s3) var(--s4); }
-      .derecha { flex-wrap: wrap; }
+      .shell { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto 1fr; grid-template-areas: 'cabecera' 'menu' 'contenido'; }
       .menu ul { flex-direction: row; flex-wrap: wrap; }
     }
   `,
@@ -83,6 +81,7 @@ export class ShellFinanciero {
     { ruta: 'tablero', texto: 'Tablero', permiso: 'ver:tablero' },
     { ruta: 'operacion', texto: 'Operación', permiso: 'ver:operacion' },
     { ruta: 'cumplimiento', texto: 'Cumplimiento', permiso: 'ver:cumplimiento' },
+    { ruta: 'admisiones', texto: 'Admisiones', permiso: 'ver:admisiones' },
     { ruta: 'sistemas', texto: 'Sistemas', permiso: 'ver:sistemas' },
     { ruta: 'contabilidad', texto: 'Contabilidad', permiso: 'ver:contabilidad' },
     { ruta: 'publicidad', texto: 'Publicidad', permiso: 'ver:publicidad' },

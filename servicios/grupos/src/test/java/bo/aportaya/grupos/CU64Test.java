@@ -146,7 +146,7 @@ class CU64Test extends BaseDeCU64 {
 
     @Test
     @DisplayName(
-            "B39 · repetir el traspaso con el MISMO acuerdo devuelve el traspaso ya hecho y no mueve el cupo otra vez")
+            "reintento: repetir el traspaso con el MISMO acuerdo devuelve el traspaso ya hecho y no mueve el cupo otra vez")
     void repetirElTraspasoEsInocuo() {
         Escenario escenario = escenarioConTurno();
         UUID acuerdo = UUID.randomUUID();

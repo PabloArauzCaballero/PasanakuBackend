@@ -1,0 +1,70 @@
+{
+  "servicio": "garantia",
+  "operacion": "reversarCoberturaRespaldo",
+  "metodo": "post",
+  "ruta": "/garantia/respaldo/coberturas/{coberturaId}/reversa",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "coberturaId": "c322248a-e6ff-4d4c-85dd-89c6aa21d1d6",
+        "revertido": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "esNueva": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "coberturaId": "c322248a-e6ff-4d4c-85dd-89c6aa21d1d6",
+        "revertido": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "esNueva": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "coberturaId": "c322248a-e6ff-4d4c-85dd-89c6aa21d1d6",
+        "revertido": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "esNueva": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "coberturaId": "c322248a-e6ff-4d4c-85dd-89c6aa21d1d6",
+        "revertido": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "esNueva": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU23-01",
+        "mensaje": "Fondo insuficiente",
+        "detalle": {},
+        "trazaId": "traza-reversarCoberturaRespaldo-rechazo"
+      }
+    }
+  }
+}

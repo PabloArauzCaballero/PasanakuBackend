@@ -22,7 +22,23 @@ const Map<String, String> _catalogo = {
   'AP-CU04-04': 'Ese código no sirve: revisalo o pedí uno nuevo.',
   'AP-CU04-05':
       'Demasiados intentos. Esperá unos minutos antes de volver a probar.',
+  'AP-CU01-08': 'Pediste demasiados códigos. Esperá un rato y volvé a probar.',
+  'AP-CU01-09': 'El código no es correcto. Revisalo o pedí uno nuevo.',
+  'AP-CU01-10': 'El código venció. Pedí uno nuevo.',
+  'AP-CU01-11':
+      'Confirmá el código de este correo antes de crear tu cuenta.',
+  'AP-CU04-02': 'Tu cuenta está bloqueada un rato por seguridad. Probá más tarde.',
   'AP-CU04-06': 'Tu segundo factor no está activado. Pedí ayuda a soporte.',
+  'AP-CU04-07': 'Ese tipo de segundo factor no sirve para tu cuenta. Pedí ayuda a soporte.',
+  // CU-12 · QR interno. Cada rechazo del QR dice una cosa distinta; en particular el bancario/interoperable
+  // NO se presenta como «QR inválido» ni como si pudiera pagarse acá: todavía no hay proveedor habilitado.
+  'AP-CU12-07':
+      'Ese QR no es válido. Pedí que te generen uno nuevo desde AportaYa.',
+  'AP-CU12-08': 'Ese QR venció. Pedí que te generen uno nuevo.',
+  'AP-CU12-09': 'Ese QR ya se usó. Cada QR se paga una sola vez.',
+  'AP-CU12-10':
+      'Este QR es de un banco o de otra red de pagos y todavía no aceptamos pagos con QR interoperable. '
+      'Podés pagar con un QR de AportaYa o con una transferencia.',
   'AP-CU21-03': 'No pudimos cobrar. Revisá tu saldo e intentá de nuevo.',
   'AP-VAL-03': 'Este vale ya se usó. Cada vale se canjea una sola vez.',
 };

@@ -1,0 +1,1 @@
+heavy.sh: candado tomado, libres 3711 MB -> bash -c cd '/c/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/backoffice' && npx tsc -p tsconfig.app.json --noEmit && npx tsc -p tsconfig.spec.json --noEmit

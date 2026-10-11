@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import 'pantalla_aportar.dart';
@@ -125,7 +126,12 @@ final List<RouteBase> rutasDeInvitacion = [
   GoRoute(
     path: '/pasanaku/unirse/:codigo',
     name: 'pasanaku.unirse',
-    builder: (context, state) =>
-        PantallaUnirse(codigo: state.pathParameters['codigo']!),
+    // La clave por código: con la app ya abierta en una invitación, un segundo enlace llega a
+    // la MISMA ruta con otro parámetro y, sin clave, Flutter reutilizaba el estado y seguía
+    // mostrando la invitación anterior (hallazgo del carril H en emulador).
+    builder: (context, state) {
+      final codigo = state.pathParameters['codigo']!;
+      return PantallaUnirse(key: ValueKey(codigo), codigo: codigo);
+    },
   ),
 ];

@@ -88,4 +88,15 @@ describe('BandejaDeReclamos', () => {
     fixture.componentInstance.confirmarRespuesta()
     expect(fixture.componentInstance['dialogoAbierto']()).toBe(false)
   })
+
+  it('confirmar no envía nada y lo dice: ninguna petición salió y se avisa que la respuesta NO se registró', async () => {
+    const fixture = await montar('RECLAMO_ATENDER')
+    http.expectOne(URL).flush([RECLAMO])
+    await fixture.whenStable()
+    fixture.componentInstance.abrirConfirmacion(RECLAMO)
+    fixture.componentInstance.confirmarRespuesta()
+    fixture.detectChanges()
+    http.verify()
+    expect(fixture.nativeElement.querySelector('ap-alerta')?.textContent).toContain('todavía NO se envió')
+  })
 })

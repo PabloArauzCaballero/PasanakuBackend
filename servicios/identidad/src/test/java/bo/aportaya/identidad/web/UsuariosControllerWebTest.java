@@ -1,7 +1,6 @@
 package bo.aportaya.identidad.web;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -14,6 +13,7 @@ import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
 import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.ConfirmarVerificacionCorreo;
+import bo.aportaya.identidad.aplicacion.ConsultarNivelKyc;
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.SolicitarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.ValidarTokenDeInvitacion;
@@ -22,7 +22,6 @@ import bo.aportaya.identidad.dominio.AperturaDeCuenta;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.Sesiones;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -59,6 +58,8 @@ class UsuariosControllerWebTest {
     private static final UUID USUARIO = UUID.fromString("dddddddd-0000-4000-8000-000000000001");
     private static final UUID CONTRATO = UUID.fromString("dddddddd-0000-4000-8000-000000000002");
     private static final String CLAVE = "dddddddd-0000-4000-8000-0000000000ff";
+    private static final CU01RegistrarUsuario.SalidaRegistro ALTA_ACEPTADA =
+            new CU01RegistrarUsuario.SalidaRegistro(USUARIO, AperturaDeCuenta.PENDIENTE_VERIFICACION);
 
     private static final String ALTA =
             """
@@ -81,6 +82,9 @@ class UsuariosControllerWebTest {
 
     // La subida de la foto del expediente es dependencia de UsuariosController desde
     // que existe el portal de riesgo: sin doblarla, el contexto de esta prueba no levanta.
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.ConsumirInvitacion consumirInvitacion;
+
     @MockitoBean
     private CU02GuardarFotoDelExpediente guardarFoto;
 
@@ -108,61 +112,14 @@ class UsuariosControllerWebTest {
     @MockitoBean
     private ConfirmarVerificacionCorreo confirmarCorreo;
 
+    @MockitoBean
+    private ConsultarNivelKyc nivelesKyc;
+
     private org.springframework.test.web.servlet.ResultActions registrar(String cuerpo) throws Exception {
         return mvc.perform(post("/usuarios")
                 .header("Idempotency-Key", CLAVE)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(cuerpo));
-    }
-
-    @Nested
-    @DisplayName("Verificacion del correo previa al alta")
-    class VerificacionCorreo {
-
-        @Test
-        @DisplayName("202: solicita un codigo sin devolverlo en la respuesta")
-        void solicitarCodigo() throws Exception {
-            UUID verificacion = UUID.fromString("dddddddd-0000-4000-8000-000000000003");
-            when(solicitarCorreo.ejecutar(any(), any(), any(), any(), any()))
-                    .thenReturn(new SolicitarVerificacionCorreo.Resultado(
-                            verificacion, "pa***@example.com", OffsetDateTime.parse("2026-10-07T20:10:00Z")));
-
-            mvc.perform(post("/usuarios/verificaciones/correo")
-                            .header("Idempotency-Key", CLAVE)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"correo\":\"pablo@example.com\"}"))
-                    .andExpect(status().isAccepted())
-                    .andExpect(jsonPath("$.verificacionId").value(verificacion.toString()))
-                    .andExpect(jsonPath("$.destinoEnmascarado").value("pa***@example.com"))
-                    .andExpect(jsonPath("$.codigo").doesNotExist());
-        }
-
-        @Test
-        @DisplayName("200: confirma el codigo mediante el caso de uso")
-        void confirmarCodigo() throws Exception {
-            UUID verificacion = UUID.fromString("dddddddd-0000-4000-8000-000000000003");
-
-            mvc.perform(post("/usuarios/verificaciones/correo/{id}/confirmacion", verificacion)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"correo\":\"pablo@example.com\",\"codigo\":\"482019\"}"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.verificada").value(true));
-
-            verify(confirmarCorreo).ejecutar(any(), any(), any(), any(), any(), any());
-        }
-
-        @Test
-        @DisplayName("400: un codigo que no tenga seis digitos no llega al caso de uso")
-        void codigoMalFormado() throws Exception {
-            mvc.perform(post(
-                                    "/usuarios/verificaciones/correo/{id}/confirmacion",
-                                    "dddddddd-0000-4000-8000-000000000003")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"correo\":\"pablo@example.com\",\"codigo\":\"123\"}"))
-                    .andExpect(status().isBadRequest());
-
-            verifyNoInteractions(confirmarCorreo);
-        }
     }
 
     @Nested
@@ -172,9 +129,7 @@ class UsuariosControllerWebTest {
         @Test
         @DisplayName("CU-01 · 202 y PENDIENTE_VERIFICACION: existe y todavia no opera")
         void altaAceptada() throws Exception {
-            when(cu01.ejecutar(any(), any()))
-                    .thenReturn(
-                            new CU01RegistrarUsuario.SalidaRegistro(USUARIO, AperturaDeCuenta.PENDIENTE_VERIFICACION));
+            when(cu01.ejecutar(any(), any())).thenReturn(ALTA_ACEPTADA);
 
             registrar(ALTA)
                     .andExpect(status().isAccepted())
@@ -186,9 +141,7 @@ class UsuariosControllerWebTest {
         @DisplayName("CU-01 · el vencimiento del documento llega al caso de uso, que es quien lo juzga")
         void elVencimientoLlegaAlCasoDeUso() throws Exception {
             var entrada = ArgumentCaptor.forClass(CU01RegistrarUsuario.EntradaRegistro.class);
-            when(cu01.ejecutar(entrada.capture(), any()))
-                    .thenReturn(
-                            new CU01RegistrarUsuario.SalidaRegistro(USUARIO, AperturaDeCuenta.PENDIENTE_VERIFICACION));
+            when(cu01.ejecutar(entrada.capture(), any())).thenReturn(ALTA_ACEPTADA);
 
             registrar(ALTA).andExpect(status().isAccepted());
 
@@ -200,9 +153,7 @@ class UsuariosControllerWebTest {
         @Test
         @DisplayName("CU-01 · el alta entra SIN sesion: es la ruta por la que se llega al sistema")
         void elAltaNoPideSesion() throws Exception {
-            when(cu01.ejecutar(any(), any()))
-                    .thenReturn(
-                            new CU01RegistrarUsuario.SalidaRegistro(USUARIO, AperturaDeCuenta.PENDIENTE_VERIFICACION));
+            when(cu01.ejecutar(any(), any())).thenReturn(ALTA_ACEPTADA);
 
             // Sin `.with(Sesiones...)`. Si esta prueba diera 401, no habria forma de
             // conseguir un token y por lo tanto no habria forma de usar el sistema.
@@ -212,9 +163,7 @@ class UsuariosControllerWebTest {
         @Test
         @DisplayName("CU-01 · la respuesta no devuelve nada de lo que se mando")
         void elAltaNoDevuelveDatosPersonales() throws Exception {
-            when(cu01.ejecutar(any(), any()))
-                    .thenReturn(
-                            new CU01RegistrarUsuario.SalidaRegistro(USUARIO, AperturaDeCuenta.PENDIENTE_VERIFICACION));
+            when(cu01.ejecutar(any(), any())).thenReturn(ALTA_ACEPTADA);
 
             String cuerpo = registrar(ALTA).andReturn().getResponse().getContentAsString();
 

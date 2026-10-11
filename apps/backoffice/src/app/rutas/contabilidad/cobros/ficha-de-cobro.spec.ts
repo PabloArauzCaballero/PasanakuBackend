@@ -112,7 +112,7 @@ describe('FichaDeCobro · el contenedor es el único dueño del borrador (H4)', 
     botonConfirmar.click()
     fixture.detectChanges()
     const req = http.expectOne(URL)
-    expect(req.request.body).toEqual({ monto: '100', formaCobro: 'TRANSFERENCIA' })
+    expect(req.request.body).toEqual({ monto: '100.00', formaCobro: 'TRANSFERENCIA' })
     req.flush(CUENTA)
     fixture.detectChanges()
     expect(cerrada).toBe(true)

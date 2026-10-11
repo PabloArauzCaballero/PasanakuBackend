@@ -187,6 +187,15 @@ Y al intentar abrir su sesion la base la rechaza por R-SEG-10
 Dado un administrador de plataforma
 Cuando intenta asignarse a sí mismo un rol
 Entonces la restricción ck_asignacion_no_autoasignada lo rechaza (R-SEG-07)
+
+Dado un usuario con un rol vigente
+Cuando se piden los codigos de rol
+Entonces vienen
+Y los de una asignacion revocada no
+
+Dado un usuario sin roles
+Cuando se piden los codigos de rol
+Entonces no hay ninguno
 ```
 
 ## Ver también

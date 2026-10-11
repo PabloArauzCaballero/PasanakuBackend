@@ -3,27 +3,28 @@ tags:
   - moc
   - modulo/10-billetera-custodia-y-dinero-electronico
 modulo: "10 — Billetera, Custodia y Dinero Electrónico"
-entidades: 24
+entidades: 27
 ---
 
 # 10 — Billetera, Custodia y Dinero Electrónico · entidades
 
-Las **24 tablas** de este módulo. Justificación de negocio en [[10_billetera_custodia]].
+Las **27 tablas** de este módulo. Justificación de negocio en [[10_billetera_custodia]].
 
 [[_Entidades|← Todas las entidades]] · [[Index]]
 
 | Tabla | Columnas | FK sal. | FK ent. |
 | --- | --: | --: | --: |
 | [[politica_billetera]] | 11 | 1 | 1 |
-| [[cuenta_billetera]] | 17 | 4 | 14 |
+| [[cuenta_billetera]] | 17 | 4 | 15 |
 | [[saldo_diario_billetera]] | 9 | 1 | 0 |
-| [[transaccion_billetera]] | 20 | 5 | 14 |
+| [[transaccion_billetera]] | 20 | 5 | 15 |
 | [[movimiento_billetera]] | 10 | 2 | 0 |
 | [[retencion_saldo]] | 12 | 3 | 2 |
 | [[reverso_transaccion]] | 10 | 3 | 0 |
 | [[instrumento_fondeo]] | 16 | 1 | 2 |
-| [[orden_recarga]] | 16 | 5 | 0 |
-| [[orden_retiro]] | 20 | 7 | 1 |
+| [[evidencia_mfa_consumida]] | 5 | 1 | 0 |
+| [[orden_recarga]] | 18 | 5 | 0 |
+| [[orden_retiro]] | 21 | 7 | 1 |
 | [[transferencia_p2p]] | 11 | 5 | 0 |
 | [[cuenta_custodia]] | 14 | 0 | 2 |
 | [[movimiento_custodia]] | 11 | 2 | 0 |
@@ -38,3 +39,5 @@ Las **24 tablas** de este módulo. Justificación de negocio en [[10_billetera_c
 | [[estado_cuenta_billetera]] | 13 | 1 | 0 |
 | [[certificado_saldo]] | 10 | 2 | 0 |
 | [[solicitud_cierre_billetera]] | 10 | 3 | 0 |
+| [[discrepancia_proveedor]] | 11 | 0 | 0 |
+| [[qr_transferencia]] | 11 | 2 | 0 |

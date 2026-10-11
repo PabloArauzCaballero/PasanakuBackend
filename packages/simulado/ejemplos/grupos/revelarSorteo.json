@@ -58,10 +58,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU4-44",
-        "mensaje": "mensaje",
+        "codigo": "AP-CU60-03",
+        "mensaje": "Fecha de revelado futura",
         "detalle": {},
-        "trazaId": "trazaId"
+        "trazaId": "traza-revelarSorteo-rechazo"
       }
     }
   }

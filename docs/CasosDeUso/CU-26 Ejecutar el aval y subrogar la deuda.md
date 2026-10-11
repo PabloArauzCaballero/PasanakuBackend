@@ -106,6 +106,7 @@ export const ErroresCU26 = {
   EJECUCION_DUPLICADA:   'AP-CU26-04',
   FUERA_DE_ALCANCE:      'AP-CU26-05',
   DEUDA_YA_SALDADA:      'AP-CU26-06',
+  RECLAMO_EN_CURSO:      'AP-CU26-07',
 } as const
 ```
 
@@ -117,6 +118,7 @@ export const ErroresCU26 = {
 | `EJECUCION_DUPLICADA` | Ya hay ejecución abierta para ese aval y registro |
 | `FUERA_DE_ALCANCE` | El hecho no está entre los que el aval cubre |
 | `DEUDA_YA_SALDADA` | El incumplido pagó: la ejecución se cierra como innecesaria |
+| `RECLAMO_EN_CURSO` | La persona tiene un reclamo que frena la deuda ejecutable, o [[CU-52 Atender un reclamo en plazo|cumplimiento]] no contestó algo entendible: un reclamo en revisión no es una deuda ejecutable (H13.S1.M6, regla 91.4) |
 
 ## Descomposición atómica
 

@@ -1,8 +1,8 @@
-import { HttpClient, HttpContext } from '@angular/common/http'
+import { HttpClient } from '@angular/common/http'
 import { inject } from '@angular/core'
 import { firstValueFrom } from 'rxjs'
 import { GATEWAY } from '../../../nucleo/gateway'
-import { CLAVE_IDEMPOTENCIA, claveDeIdempotencia } from '../../../nucleo/idempotencia.interceptor'
+import { contextoIdempotente } from '../../../nucleo/idempotencia.interceptor'
 import type { CargadorDePagina, PaginaServidor } from '../../../nucleo/tabla/tipos'
 import type { EntradaRevision } from 'clientes/angular/publicidad/model/entradaRevision'
 import type { SalidaRevision } from 'clientes/angular/publicidad/model/salidaRevision'
@@ -66,7 +66,7 @@ export function cargadorDePiezasPendientes(): CargadorDePagina<PiezaCreativa> {
 export async function moderarPieza(http: HttpClient, gateway: string, piezaId: string, entrada: EntradaRevision): Promise<SalidaRevision> {
   return firstValueFrom(
     http.post<SalidaRevision>(`${gateway}/publicidad/piezas-creativas/${piezaId}/revision`, entrada, {
-      context: new HttpContext().set(CLAVE_IDEMPOTENCIA, claveDeIdempotencia()),
+      context: contextoIdempotente(),
     }),
   )
 }

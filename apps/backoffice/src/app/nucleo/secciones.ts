@@ -16,10 +16,24 @@
  */
 export const PERMISOS_POR_SECCION: Readonly<Record<string, readonly string[]>> = {
   // Billetera de terceros, reclamos, solicitudes escaladas, estado de la plataforma.
-  'ver:operacion': ['BILLETERA_VER_TERCEROS', 'RECLAMO_ATENDER', 'ENTREGA_AUTORIZAR', 'ENTREGA_EJECUTAR', 'REVERSO_AUTORIZAR'],
+  // `RECLAMO_VER`, `SOLICITUD_INGRESO_*` y `RETIRO_APROBAR` ya están sembrados y son los que piden las rutas `operacion/reclamos`,
+  // `operacion/solicitudes-escaladas` y `operacion/retiros`: sin ellos acá, quien solo los tuviera no veía la sección.
+  'ver:operacion': [
+    'BILLETERA_VER_TERCEROS',
+    'RECLAMO_ATENDER',
+    'RECLAMO_VER',
+    'SOLICITUD_INGRESO_VER',
+    'SOLICITUD_INGRESO_RESOLVER',
+    'RETIRO_APROBAR',
+    'ENTREGA_AUTORIZAR',
+    'ENTREGA_EJECUTAR',
+    'REVERSO_AUTORIZAR',
+  ],
   // Verificación de identidad, alertas, casos, actas, habilitación de organizadores.
   'ver:cumplimiento': ['VERIFICACION_RESOLVER', 'CUMPLIMIENTO_ALERTAS', 'CUMPLIMIENTO_CASOS', 'CUMPLIMIENTO_REPORTAR'],
   // Accesos y factores de operadores, catálogos, despliegues e interruptores.
+  // Solicitudes de ingreso a grupos: resolver la admisión es de la plataforma (`@Permiso("ADMIN_PLATAFORMA")` en `grupos`).
+  'ver:admisiones': ['ADMIN_PLATAFORMA'],
   'ver:sistemas': ['ACCESOS_ADMINISTRAR', 'SEGURIDAD_ACCESO_RESTABLECER', 'SEGURIDAD_FACTOR_REINSCRIBIR', 'CATALOGO_EDITAR'],
   'ver:contabilidad': [
     'CONTABILIDAD_ERP_CERRAR',

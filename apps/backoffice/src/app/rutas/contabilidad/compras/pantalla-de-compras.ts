@@ -30,7 +30,7 @@ const PESTANAS: Pestana[] = [
   imports: [Alerta, BandaDeProposito, Pestanas, TablaDeOrdenes, TablaDeFacturas],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
       <ap-alerta tono="info" titulo="Registrar no es pagar">{{ t.segregacion }}</ap-alerta>
       <ap-pestanas etiqueta="Compras y cuentas por pagar" [pestanas]="PESTANAS" [(elegida)]="pestana" />
@@ -41,10 +41,10 @@ const PESTANAS: Pestana[] = [
           <ap-tabla-de-facturas />
         }
       </div>
-    </main>
+    </section>
   `,
   styles: `
-    main { padding: var(--s5); max-width: 80rem; display: grid; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 80rem; display: grid; gap: var(--s4); }
     h1 { margin: 0; }
   `,
 })

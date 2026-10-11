@@ -52,6 +52,8 @@ Future<ResultadoDelAlta> enviarElAlta(Ref ref, EstadoAlta estado) async {
         );
     return ResultadoDelAlta(
       usuarioId: r.usuarioId,
+      // Sin sesion durante el alta, este token es lo que autoriza subir las fotos.
+      tokenDeAlta: r.tokenDeAlta,
       cuentaBilleteraId: r.cuentaBilleteraId,
     );
   } on Object catch (e) {
@@ -63,9 +65,17 @@ Future<ResultadoDelAlta> enviarElAlta(Ref ref, EstadoAlta estado) async {
 /// consultar su estado), el id de la billetera si ya abrió, o el error que hay que
 /// mostrarle a la persona. `usuarioId` y `error` nunca son los dos no-nulos a la vez.
 class ResultadoDelAlta {
-  const ResultadoDelAlta({this.usuarioId, this.cuentaBilleteraId, this.error});
+  const ResultadoDelAlta({
+    this.usuarioId,
+    this.tokenDeAlta,
+    this.cuentaBilleteraId,
+    this.error,
+  });
 
   final String? usuarioId;
+
+  /// Autoriza la subida de las fotos de ESTE alta (cabecera `Token-De-Alta`).
+  final String? tokenDeAlta;
 
   /// `null` si el alta quedó pendiente de verificación y todavía no hay billetera.
   final String? cuentaBilleteraId;

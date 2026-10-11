@@ -1,0 +1,1 @@
+nucleo-financiero test=62(f0,s0) webTest=39(f0,s0) integrationTest=396(f0,s0) testBarrido=2(f0,s0)

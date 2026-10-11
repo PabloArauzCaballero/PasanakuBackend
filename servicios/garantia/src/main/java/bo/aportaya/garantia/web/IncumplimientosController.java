@@ -5,6 +5,7 @@ import bo.aportaya.garantia.aplicacion.CU25DeclararIncumplimiento;
 import bo.aportaya.garantia.aplicacion.CU26EjecutarAval;
 import bo.aportaya.garantia.aplicacion.CU27RestringirDeudor;
 import bo.aportaya.garantia.aplicacion.CU66ReemplazarParticipante;
+import bo.aportaya.garantia.aplicacion.ReclamosEnCurso;
 import bo.aportaya.garantia.web.generado.IncumplimientosApi;
 import bo.aportaya.garantia.web.generado.modelo.EntradaCobertura;
 import bo.aportaya.garantia.web.generado.modelo.EntradaDeclaracion;
@@ -44,6 +45,7 @@ public class IncumplimientosController implements IncumplimientosApi {
     private final CU26EjecutarAval cu26;
     private final CU27RestringirDeudor cu27;
     private final CU66ReemplazarParticipante cu66;
+    private final ReclamosEnCurso reclamos;
     private final SesionDeLaPeticion sesion;
 
     public IncumplimientosController(
@@ -52,12 +54,14 @@ public class IncumplimientosController implements IncumplimientosApi {
             CU26EjecutarAval cu26,
             CU27RestringirDeudor cu27,
             CU66ReemplazarParticipante cu66,
+            ReclamosEnCurso reclamos,
             SesionDeLaPeticion sesion) {
         this.cu23 = cu23;
         this.cu25 = cu25;
         this.cu26 = cu26;
         this.cu27 = cu27;
         this.cu66 = cu66;
+        this.reclamos = reclamos;
         this.sesion = sesion;
     }
 
@@ -166,6 +170,8 @@ public class IncumplimientosController implements IncumplimientosApi {
     public ResponseEntity<SalidaEjecucionAval> ejecutarAval(UUID expedienteId) {
         Traza.marcarCasoDeUso("CU-26", expedienteId.toString());
 
+        // H13.S1.M6: un reclamo en curso no es una deuda ejecutable. Se pregunta ANTES, fuera de la transaccion.
+        reclamos.exigirQueNoFrene(expedienteId, 26, sesion.actual());
         var salida = cu26.ejecutar(expedienteId, sesion.actual());
 
         var respuesta = new SalidaEjecucionAval();
@@ -184,6 +190,8 @@ public class IncumplimientosController implements IncumplimientosApi {
     public ResponseEntity<SalidaRestriccion> restringirDeudor(UUID expedienteId, EntradaRestriccion cuerpo) {
         Traza.marcarCasoDeUso("CU-27", expedienteId.toString());
 
+        // H13.S1.M6: una restriccion no queda firme sobre una deuda que la persona esta reclamando.
+        reclamos.exigirQueNoFrene(expedienteId, 27, sesion.actual());
         var salida = cu27.restringir(
                 new CU27RestringirDeudor.EntradaRestriccion(
                         expedienteId,

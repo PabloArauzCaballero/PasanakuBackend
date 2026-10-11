@@ -1,0 +1,153 @@
+{
+  "servicio": "aportes",
+  "operacion": "generarObligacionesDelPeriodo",
+  "metodo": "post",
+  "ruta": "/aportes/periodos/{periodoId}/obligaciones",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "periodoId": "92e3493e-48c0-47c4-825d-c0106dba4010",
+        "grupoId": "6909df89-89ac-4175-81f5-a3104f2b5f0f",
+        "turno": 1,
+        "fechaContractual": "2026-05-01",
+        "fechaDeLiquidacion": "2026-05-04",
+        "corridaPorNoHabil": true,
+        "creadas": 3,
+        "diasSalteados": [
+          {
+            "fecha": "2026-05-01",
+            "motivo": "Día del Trabajo — feriado nacional"
+          },
+          {
+            "fecha": "2026-05-02",
+            "motivo": "Sabado"
+          },
+          {
+            "fecha": "2026-05-03",
+            "motivo": "Domingo"
+          }
+        ],
+        "obligaciones": [
+          {
+            "obligacionId": "ba7651b2-a23f-46ae-8849-271c5cb5c860",
+            "cupoId": "e48696d8-fcc1-4618-8847-20c0e1484cf0",
+            "titularParticipanteId": "fc368ca2-9d26-4ff4-8110-4356995d5c96",
+            "turno": 1,
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "estado": "PENDIENTE",
+            "fechaContractual": "2026-05-01",
+            "fechaDeLiquidacion": "2026-05-04",
+            "finDeGracia": "2026-05-07",
+            "esNueva": true
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "periodoId": "92e3493e-48c0-47c4-825d-c0106dba4010",
+        "grupoId": "6909df89-89ac-4175-81f5-a3104f2b5f0f",
+        "turno": 1,
+        "fechaContractual": "2026-01-15",
+        "fechaDeLiquidacion": "2026-01-15",
+        "corridaPorNoHabil": false,
+        "creadas": 0,
+        "diasSalteados": [],
+        "obligaciones": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "periodoId": "92e3493e-48c0-47c4-825d-c0106dba4010",
+        "grupoId": "6909df89-89ac-4175-81f5-a3104f2b5f0f",
+        "turno": 1,
+        "fechaContractual": "2026-01-15",
+        "fechaDeLiquidacion": "2026-01-15",
+        "corridaPorNoHabil": true,
+        "creadas": 0,
+        "diasSalteados": [
+          {
+            "fecha": "2026-01-15",
+            "motivo": "motivo"
+          }
+        ],
+        "obligaciones": [
+          {
+            "obligacionId": "ba7651b2-a23f-46ae-8849-271c5cb5c860",
+            "cupoId": "e48696d8-fcc1-4618-8847-20c0e1484cf0",
+            "titularParticipanteId": "fc368ca2-9d26-4ff4-8110-4356995d5c96",
+            "turno": 1,
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "estado": "estado",
+            "fechaContractual": "2026-01-15",
+            "fechaDeLiquidacion": "2026-01-15",
+            "finDeGracia": "2026-01-15",
+            "esNueva": true
+          }
+        ]
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "periodoId": "92e3493e-48c0-47c4-825d-c0106dba4010",
+        "grupoId": "6909df89-89ac-4175-81f5-a3104f2b5f0f",
+        "turno": 1,
+        "fechaContractual": "2026-01-15",
+        "fechaDeLiquidacion": "2026-01-15",
+        "corridaPorNoHabil": true,
+        "creadas": 0,
+        "diasSalteados": [
+          {
+            "fecha": "2026-01-15",
+            "motivo": "motivo"
+          }
+        ],
+        "obligaciones": [
+          {
+            "obligacionId": "ba7651b2-a23f-46ae-8849-271c5cb5c860",
+            "cupoId": "e48696d8-fcc1-4618-8847-20c0e1484cf0",
+            "titularParticipanteId": "fc368ca2-9d26-4ff4-8110-4356995d5c96",
+            "turno": 1,
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "estado": "estado",
+            "fechaContractual": "2026-01-15",
+            "fechaDeLiquidacion": "2026-01-15",
+            "finDeGracia": "2026-01-15",
+            "esNueva": true
+          }
+        ]
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU21-04",
+        "mensaje": "Solo un periodo ABIERTO genera obligaciones",
+        "detalle": {},
+        "trazaId": "traza-generarObligacionesDelPeriodo-rechazo"
+      }
+    }
+  }
+}

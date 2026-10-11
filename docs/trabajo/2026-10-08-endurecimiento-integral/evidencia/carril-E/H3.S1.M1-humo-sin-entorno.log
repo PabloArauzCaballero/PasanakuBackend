@@ -1,0 +1,4 @@
+[candado:pesado] tomado tras 0s
+humo: el entorno "local" no responde en http://localhost:8080 (TimeoutError).
+humo: levanta el gateway/servicios (o elige otro entorno con --entorno) y vuelve a correr. No se ejecuto ninguna coleccion.
+yarn humo exit=1

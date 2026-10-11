@@ -1,0 +1,74 @@
+{
+  "servicio": "grupos",
+  "operacion": "sustituirAdministrador",
+  "metodo": "post",
+  "ruta": "/grupos/{grupoId}/administrador/sustitucion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "id": "2e3a1041-aee2-45a9-87f2-77a18dd1ca5e",
+        "grupoId": "ed65a0cc-a1e4-425c-8c81-b2908f49b328",
+        "salienteParticipanteId": "f081e5a2-ba87-404a-8a06-f5e8ab08f5ec",
+        "entranteParticipanteId": "260c3814-fceb-4ada-8251-8bd3222f7b2e",
+        "motivo": "motivo",
+        "obligacionesConservadas": "obligacionesConservadas",
+        "ocurridaEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "id": "2e3a1041-aee2-45a9-87f2-77a18dd1ca5e",
+        "grupoId": "ed65a0cc-a1e4-425c-8c81-b2908f49b328",
+        "salienteParticipanteId": "f081e5a2-ba87-404a-8a06-f5e8ab08f5ec",
+        "entranteParticipanteId": "260c3814-fceb-4ada-8251-8bd3222f7b2e",
+        "motivo": "motivo",
+        "obligacionesConservadas": "obligacionesConservadas",
+        "ocurridaEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "id": "2e3a1041-aee2-45a9-87f2-77a18dd1ca5e",
+        "grupoId": "ed65a0cc-a1e4-425c-8c81-b2908f49b328",
+        "salienteParticipanteId": "f081e5a2-ba87-404a-8a06-f5e8ab08f5ec",
+        "entranteParticipanteId": "260c3814-fceb-4ada-8251-8bd3222f7b2e",
+        "motivo": "motivo",
+        "obligacionesConservadas": "obligacionesConservadas",
+        "ocurridaEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "id": "2e3a1041-aee2-45a9-87f2-77a18dd1ca5e",
+        "grupoId": "ed65a0cc-a1e4-425c-8c81-b2908f49b328",
+        "salienteParticipanteId": "f081e5a2-ba87-404a-8a06-f5e8ab08f5ec",
+        "entranteParticipanteId": "260c3814-fceb-4ada-8251-8bd3222f7b2e",
+        "motivo": "motivo",
+        "obligacionesConservadas": "obligacionesConservadas",
+        "ocurridaEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU68-08",
+        "mensaje": "Solicitud no encontrada",
+        "detalle": {},
+        "trazaId": "traza-sustituirAdministrador-rechazo"
+      }
+    }
+  }
+}

@@ -88,7 +88,8 @@ void main() {
         ruta,
         (s) => s.reply(422, {
           'codigo': 'AP-CU04-03',
-          'mensaje': 'Confirma el codigo que te enviamos para terminar de entrar.',
+          'mensaje':
+              'Confirma el codigo que te enviamos para terminar de entrar.',
           'detalle': <String, dynamic>{},
           'trazaId': 'traza-1',
         }),

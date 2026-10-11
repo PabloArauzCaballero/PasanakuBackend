@@ -1,0 +1,117 @@
+heavy.sh: candado tomado, libres 3516 MB -> bash despliegue/ensayos/restauracion/ensayo_restauracion.sh
+ENSAYO DE RESTAURACION · 2026-10-09T21:30:53Z · contenedor aportaya-pg-s2 · puerto 5439 · imagen postgres:16
+
+== levantando Docker Desktop
+libres: 1232 MB
+
+== F0 origen: PostgreSQL desechable con el esquema completo
+   esquema + catalogos: 11174 ms · tablas: 436
+
+== F1 datos sinteticos del lote base (400 asientos; cola viva: 8 pendientes y 2 tomados por un relevo muerto)
+   asientos=400
+   movimientos=800
+   suma_debe=216500.00
+   suma_haber=216500.00
+   max_numero=400
+   huella_mayor=82dfcc11728d4e857c6b83ad579d27a2
+   eventos=400
+   ev_pendientes=8
+   ev_tomados=2
+   ev_publicados=390
+   consumidos_erp=390
+   tablas_con_rls=101
+   tablas=436
+
+== F2 PUNTO DE RESPALDO: pg_dump (custom) y roles
+   respaldo: 648 ms · 3025302 bytes (dump) · punto de recuperacion: 2026-10-09 17:31:46.135099-04
+
+== F3 trabajo POSTERIOR al respaldo (7 asientos que el respaldo no tiene) y estado del origen en el momento del desastre
+   asientos del origen: asientos=407 (el respaldo tiene asientos=400)
+
+== F4 DESASTRE: se destruye el contenedor y su volumen
+   contenedor y datos destruidos
+
+== F5 RESTAURACION en una instancia VACIA (RTO desde aqui)
+   roles (globales): errores esperados por roles que ya existen: 1
+   pg_restore rc=1 · 715 lineas con 'error' · 6034 ms
+   pg_restore: error: could not execute query: ERROR:  role "rol_aplicacion" does not exist
+   pg_restore: error: could not execute query: ERROR:  role "rol_aplicacion" does not exist
+   pg_restore: error: could not execute query: ERROR:  role "rol_aplicacion" does not exist
+   pg_restore: error: could not execute query: ERROR:  role "rol_aplicacion" does not exist
+   pg_restore: error: could not execute query: ERROR:  role "rol_aplicacion" does not exist
+   instancia + roles: 7890 ms
+
+== F6 CONCILIACION DEL MAYOR sobre el punto de recuperacion (compuerta de reapertura)
+   ERROR:  role "svc_nucleo_financiero" does not exist
+   [punto de recuperacion] conciliacion: 230 ms
+FALLA: la conciliacion del punto de recuperacion no dio verde
+
+== F7 DIFERENCIAS CON EL ORIGEN, explicadas
+   origen en el desastre: 407 asientos · restaurado: 400 · faltan: 7
+   los 7 asientos con fecha posterior al respaldo (origen) y su presencia hoy: 0
+   perdido: 401|S2 sintetico posterior 1|2026-10-09 17:31:49.38384-04
+   perdido: 402|S2 sintetico posterior 2|2026-10-09 17:31:49.384495-04
+   perdido: 403|S2 sintetico posterior 3|2026-10-09 17:31:49.384514-04
+   perdido: 404|S2 sintetico posterior 4|2026-10-09 17:31:49.384521-04
+   perdido: 405|S2 sintetico posterior 5|2026-10-09 17:31:49.384537-04
+   perdido: 406|S2 sintetico posterior 6|2026-10-09 17:31:49.384547-04
+   perdido: 407|S2 sintetico posterior 7|2026-10-09 17:31:49.384556-04
+   RPO observado (respaldo -> desastre): 4 s
+   EXPLICADA: la diferencia son exactamente los 7 asientos posteriores al respaldo; ningun otro asiento difiere
+
+== F8 REPOSICION desde la fuente externa (mismo lote, mismos ids) y conciliacion contra el origen
+   ERROR:  role "svc_nucleo_financiero" does not exist
+   [mayor repuesto vs origen] conciliacion: 228 ms
+FALLA: tras reponer, el mayor no coincide con el origen
+   reposicion + conciliacion: 521 ms
+
+== F9 REANUDACION DE EVENTOS (solo con la compuerta abierta)
+   SELECT 1
+   SELECT 17
+   SELECT 17
+   SELECT 0
+   R01 se publico exactamente lo que estaba pendiente o huerfano|t|17 publicados de 17 en cola
+   R02 la cola quedo vacia (nada PENDIENTE ni TOMADO)|t|0 sin publicar
+   R03 el consumidor aplico solo lo que no tenia (no re-aplico lo ya consumido)|t|17 aplicados; ya tenia 390
+   R04 la entrega duplicada no aplico nada (idempotencia por clave primaria)|t|0 efectos de la reentrega
+   R05 todo publicado quedo consumido una sola vez|t|407 consumidos / 407 publicados
+   reanudacion: 269 ms
+   RTO (instancia vacia -> mayor conciliado y eventos corriendo): 15678 ms
+
+== F10 INCIDENCIAS INYECTADAS: la compuerta tiene que CERRARSE
+-- I1: la base pierde su search_path (ALTER DATABASE no viaja en pg_dump)
+FALLA: I1: la compuerta debia cerrar (rc=1) y dio rc=2 con search_path perdido
+-- I2: un saldo almacenado deja de coincidir con el mayor
+FALLA: I2: la compuerta debia cerrar (rc=1) y dio rc=2 con saldo adulterado
+ fn_ctb_recalcular_saldo 
+-------------------------
+ 
+(1 row)
+
+   reparacion: saldo recalculado DESDE el mayor (no se edita a mano)
+-- I3: la secuencia de asientos retrocede (el defecto clasico de un dump sin setval)
+ setval 
+--------
+      1
+(1 row)
+
+FALLA: I3: la compuerta debia cerrar (rc=1) y dio rc=2 con secuencia retrocedida
+ setval 
+--------
+    407
+(1 row)
+
+-- tras reparar las tres, la compuerta vuelve a abrir
+   ERROR:  role "svc_nucleo_financiero" does not exist
+   [reparado] conciliacion: 218 ms
+FALLA: reparado el defecto, la compuerta sigue cerrada
+
+== RESUMEN
+respaldo (pg_dump + roles): 648 ms
+restauracion (pg_restore):  6034 ms
+RTO medido:                 15678 ms (instancia vacia -> compuerta abierta -> eventos reanudados)
+RPO observado:              4 s (asientos posteriores al respaldo: 7, repuestos desde la fuente)
+duracion total del ensayo:  42897 ms
+fallas: 6
+ENSAYO: FAIL
+RC=1

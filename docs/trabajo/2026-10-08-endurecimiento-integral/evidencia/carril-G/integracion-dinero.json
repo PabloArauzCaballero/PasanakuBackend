@@ -1,0 +1,1037 @@
+{
+  "nombre": "integracion-real",
+  "resumen": {
+    "PASS": 121,
+    "FAIL": 2,
+    "GAP": 5,
+    "INFO": 15
+  },
+  "filas": [
+    {
+      "id": "INFRA-1",
+      "titulo": "los topicos aportaya.* existen (el broker no autocrea)",
+      "resultado": "PASS",
+      "detalle": "243 topicos",
+      "evidencia": null
+    },
+    {
+      "id": "INFRA-2",
+      "titulo": "el relevo del outbox publica: ningun evento de garantia quedo PENDIENTE sin intentos hace >2 min",
+      "resultado": "PASS",
+      "detalle": "0 pendientes sin intentar",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-pago",
+      "titulo": "IPA2E048B paga su aporte por HTTP (obligacion d38dc883)",
+      "resultado": "PASS",
+      "detalle": "<201 {\"pagoId\":\"42a46f12-57ba-4de2-a363-179edf66615c\",\"obligacionId\":\"d38dc883-b602-4d38-8349-5fd42dff397c\",\"estadoOblig",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-pago",
+      "titulo": "IPAB0B71A paga su aporte por HTTP (obligacion c314e723)",
+      "resultado": "PASS",
+      "detalle": "<201 {\"pagoId\":\"2304a9c0-547e-487c-981b-fa4191c65b09\",\"obligacionId\":\"c314e723-f557-4b4d-a9c5-625e2df2290d\",\"estadoOblig",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-pago",
+      "titulo": "ICO5A0484 paga su aporte por HTTP (obligacion 9ad74d62)",
+      "resultado": "PASS",
+      "detalle": "<201 {\"pagoId\":\"d973efd1-560c-44ac-9742-35fdbf009f5e\",\"obligacionId\":\"9ad74d62-c52f-4fdf-ba87-77610cd4e992\",\"estadoOblig",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-recaudo",
+      "titulo": "aportes afirma el pozo 6000, confirmado 4500 y faltante 1500 (no lo afirma el cliente)",
+      "resultado": "PASS",
+      "detalle": "{'periodoId': '60c91025-c365-437e-810f-6d137362676f', 'grupoId': 'a25966d9-b897-40ae-bdd7-88beef3c528c', 'corteEn': '2026-10-10T19:58:52.095865Z', 'pozo': {'monto': '6000.00', 'moneda': 'BOB'}, 'confi",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-reserva",
+      "titulo": "garantia reserva 3000 de la capacidad empresarial (201)",
+      "resultado": "PASS",
+      "detalle": "<201 {\"reservaId\":\"b25b6141-5985-459d-8992-6b5c6cb81685\",\"reservado\":{\"monto\":\"3000.00\",\"moneda\":\"BOB\"},\"capacidadDisponible\":{\"monto\":\"97000.00\",\"moneda\":\"BOB\"},\"es>",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-mayor-reserva",
+      "titulo": "el mayor asienta la reserva (3000) que cuadra, antes de cualquier cobertura",
+      "resultado": "PASS",
+      "detalle": "[{'id': '9a3105f3-8f1a-4631-8b61-3f6b454f5ff9', 'estado': 'CONFIRMADO', 'reversa': None, 'debe': Decimal('3000.00'), 'haber': Decimal('3000.00')}]",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-cobertura",
+      "titulo": "entregas -> aportes -> garantia: el pozo queda FONDEADO y la empresa cubre 1500",
+      "resultado": "PASS",
+      "detalle": "<201 {\"entregaId\":\"639bfb84-50c9-413c-9957-0b8b24da377c\",\"fondeoId\":\"4d85f3e1-271a-4383-8f5d-6134660eaa13\",\"estado\":\"FONDEADO\",\"pozo\":{\"monto\":\"6000.00\",\"moneda\":\"BO>",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-cobertura-fila",
+      "titulo": "hay UNA cobertura viva del turno, con responsable y solicitante",
+      "resultado": "PASS",
+      "detalle": "cobertura=82e1b64b-d661-40b7-b902-1c6c2a35c122",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-exposicion",
+      "titulo": "la reserva conserva la exposicion: reservado 3000, aplicado 1500, recuperado 0",
+      "resultado": "PASS",
+      "detalle": "[['3000.00', '1500.00', '0.00']]",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-mayor",
+      "titulo": "el mayor de nucleo tiene UN asiento COBERTURA que cuadra (debe = haber = 1500)",
+      "resultado": "PASS",
+      "detalle": "[{'id': 'a5db20ae-bebe-4ae1-92f7-89d34a32ca91', 'estado': 'CONFIRMADO', 'reversa': None, 'debe': Decimal('1500.00'), 'haber': Decimal('1500.00')}]",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-cuentas",
+      "titulo": "cuentas logicas -> plan: POZO_GRUPO (9.1.03) +1500 al debe, RESERVA_RESPALDO (9.1.02) -1500",
+      "resultado": "PASS",
+      "detalle": "pozo 1500.00, reserva -1500.00",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M3-idempotencia",
+      "titulo": "repetir el fondeo (otra clave): misma entrega, UNA cobertura y UNA entrega",
+      "resultado": "PASS",
+      "detalle": "entregas=1 coberturas=1 -> <200 {\"entregaId\":\"639bfb84-50c9-413c-9957-0b8b24da377c\",\"fondeoId\":\"4d85f3e1-271a-4383-8f5d-6134660eaa13\",\"estado\":\"FONDEADO\",\"pozo\":{\"monto\":\"6000.00\",\"moneda\":\"BO>",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-fondeo",
+      "titulo": "pozo completo (6000, sin cobertura) FONDEADO con pozo = confirmado + cubierto",
+      "resultado": "PASS",
+      "detalle": "<201 {\"entregaId\":\"0754cc71-932e-41a7-8e61-8b789a5f8663\",\"fondeoId\":\"ad4658cb-e217-4a49-802a-8da609cb4e34\",\"estado\":\"FONDEADO\",\"pozo\":{\"monto\":\"6000.00\",\"moneda\":\"BO>",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-autoriza",
+      "titulo": "quien autoriza (RESPONSABLE_RIESGOS) autoriza",
+      "resultado": "PASS",
+      "detalle": "<200 {\"entregaId\":\"0754cc71-932e-41a7-8e61-8b789a5f8663\",\"estado\":\"AUTORIZADA\",\"autorizadaPor\":\"b1ef5cec-a572-4605-b933-0e4a9c1dd4ef\"}>",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-segregacion",
+      "titulo": "quien autoriza NO ejecuta (R-SEG-04): el permiso lo frena antes (403) o la regla (422)",
+      "resultado": "PASS",
+      "detalle": "<403 {\"codigo\":\"AP-SEG-01\",\"mensaje\":\"No tenes acceso a este recurso.\",\"trazaId\":\"52278605-89b3-4184-aa1c-eff68bea7ff8\"}>",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-ejecuta",
+      "titulo": "otra persona (TESORERIA) la ejecuta: ENTREGADA por 6000.00",
+      "resultado": "PASS",
+      "detalle": "<200 {\"entregaId\":\"0754cc71-932e-41a7-8e61-8b789a5f8663\",\"estado\":\"ENTREGADA\",\"montoEntregado\":{\"monto\":\"6000.00\",\"moneda\":\"BOB\"}}>",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-una-vez",
+      "titulo": "ejecutar de nuevo se rechaza (422): el beneficiario no cobra dos veces",
+      "resultado": "PASS",
+      "detalle": "<422 {\"codigo\":\"AP-CU22-03\",\"mensaje\":\"Esa entrega no estaba lista para ejecutarse.\",\"detalle\":{},\"trazaId\":\"798f5b2a-353d-4388-a061-ca6b86736176\"}>",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-unica",
+      "titulo": "existe UNA sola entrega del turno (R-GRP-01)",
+      "resultado": "PASS",
+      "detalle": "entregas=1",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-desembolso",
+      "titulo": "desembolso con confirmacion externa y comprobante contra el mayor",
+      "resultado": "INFO",
+      "detalle": "se ejercita en el recorrido `desembolso` (cuenta verificada -> orden -> respuesta -> asiento ENTREGA en el mayor)",
+      "evidencia": null
+    },
+    {
+      "id": "H9.S1.M5-cuenta",
+      "titulo": "nucleo entrega la billetera de la sesion (GET /billetera/cuentas/propia)",
+      "resultado": "PASS",
+      "detalle": "<200 {\"cuentaId\":\"f404852f-b015-4bff-b994-f4fc48e99ff1\",\"moneda\":\"BOB\",\"estado\":\"ACTIVA\"}>",
+      "evidencia": null
+    },
+    {
+      "id": "H9.S1.M5-compra",
+      "titulo": "la compra termina LIQUIDADA (200): retener -> titulo -> pago-a-tercero con token de SERVICIO",
+      "resultado": "PASS",
+      "detalle": "<200 {\"cesionId\":\"ddd6db8d-f256-4d82-8c84-2df029545c14\",\"estado\":\"LIQUIDADA\",\"liquidada\":true}>",
+      "evidencia": null
+    },
+    {
+      "id": "H9.S1.M5-retencion",
+      "titulo": "una sola retencion COMPRA_EN_MERCADO EJECUTADA por el precio",
+      "resultado": "PASS",
+      "detalle": "[['912f5c90-c818-4462-8bb5-f114a37f254b', 'EJECUTADA', '5500.00']]",
+      "evidencia": null
+    },
+    {
+      "id": "H9.S1.M5-mayor",
+      "titulo": "el libro cuadra: comprador -5500, y vendedor + plataforma = +5500 (sistema cerrado)",
+      "resultado": "PASS",
+      "detalle": "comprador -5500.00, vendedor 5500.00, plataforma 0",
+      "evidencia": null
+    },
+    {
+      "id": "H9.S1.M5-cargos",
+      "titulo": "reparto de los cargos de la oferta (DECISION_REQUIRED, ambiguedad A9)",
+      "resultado": "GAP",
+      "detalle": "entregas declara que el vendedor cobra precio-cargos (5450.00) y la plataforma 50.00; nucleo le pago al vendedor 5500.00 y a la plataforma 0: dos servicios, dos lecturas. La OfertaParaPago es minima A PROPOSITO (no lleva cargos) y un test lo exige: decidirlo es de Direccion comercial/tarifas, no se resuelve por conveniencia",
+      "evidencia": null
+    },
+    {
+      "id": "H9.S1.M5-estado",
+      "titulo": "oferta VENDIDA y cesion LIQUIDADA",
+      "resultado": "PASS",
+      "detalle": "[['VENDIDA', 'LIQUIDADA']]",
+      "evidencia": null
+    },
+    {
+      "id": "H9.S1.M5-evento",
+      "titulo": "entregas publico entregas.derecho_cedido (PUBLICADO por el relevo)",
+      "resultado": "PASS",
+      "detalle": "",
+      "evidencia": null
+    },
+    {
+      "id": "H9.S1.M5-titular",
+      "titulo": "cambio de titular en grupos",
+      "resultado": "GAP",
+      "detalle": "el cupo del turno 2 sigue de P2 (vendedor): grupos no consume entregas.derecho_cedido (no hay consumidor). Lo cierra el dueno de grupos (CU-62/64)",
+      "evidencia": null
+    },
+    {
+      "id": "H9.S1.M5-no-dos-veces",
+      "titulo": "comprar de nuevo la oferta ya vendida se rechaza y el libro no se mueve",
+      "resultado": "PASS",
+      "detalle": "<422 {\"codigo\":\"AP-CU130-05\",\"mensaje\":\"Esa oferta no esta disponible: otra persona la reservo, se cancelo o vencio.\",\"detalle\":{},\"trazaId\":\"38d596dd-74d4-40a1",
+      "evidencia": null
+    },
+    {
+      "id": "H9.S1.M5-cuadre",
+      "titulo": "ninguna transaccion del libro quedo descuadrada y la suma global sigue en cero",
+      "resultado": "PASS",
+      "detalle": "[]",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-T1-aportes",
+      "titulo": "turno 1: los 4 aportes se pagan por HTTP (201)",
+      "resultado": "PASS",
+      "detalle": "[201, 201, 201, 201]",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-T1-recaudo",
+      "titulo": "turno 1: aportes afirma pozo = confirmado = 6000 y faltante 0",
+      "resultado": "PASS",
+      "detalle": "{'periodoId': '52e56b8b-8d21-4ceb-8e87-ea1b5518090a', 'grupoId': '0d7b1840-5e7b-48b8-9538-7f22a442469b', 'corteEn': '2026-10-10T19:59:10.279629Z', 'pozo': {'mon",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-T1-fondeo",
+      "titulo": "turno 1: pozo completo FONDEADO sin cobertura",
+      "resultado": "PASS",
+      "detalle": "<201 {\"entregaId\":\"26724356-9da9-4782-b9a6-075bf0dc9190\",\"fondeoId\":\"204ec1e3-c704-4ee3-a150-ef0f2041247c\",\"estado\":\"FONDEADO\",\"pozo\":{\"monto\":\"6000.00\",\"moneda\":\"BO>",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-T1-entrega",
+      "titulo": "turno 1: autoriza RESPONSABLE_RIESGOS, ejecuta TESORERIA: ENTREGADA 6000",
+      "resultado": "PASS",
+      "detalle": "200/200 <200 {\"entregaId\":\"26724356-9da9-4782-b9a6-075bf0dc9190\",\"estado\":\"ENTREGADA\",\"montoEntregado\":{\"monto\":\"6000.00\",\"moned",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-T2-aportes",
+      "titulo": "turno 2: los 4 aportes se pagan por HTTP (201)",
+      "resultado": "PASS",
+      "detalle": "[201, 201, 201, 201]",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-T2-recaudo",
+      "titulo": "turno 2: aportes afirma pozo = confirmado = 6000 y faltante 0",
+      "resultado": "PASS",
+      "detalle": "{'periodoId': '68019d5a-e66f-45e3-a4d8-279091340bdd', 'grupoId': '0d7b1840-5e7b-48b8-9538-7f22a442469b', 'corteEn': '2026-10-10T19:59:10.773178Z', 'pozo': {'mon",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-T2-fondeo",
+      "titulo": "turno 2: pozo completo FONDEADO sin cobertura",
+      "resultado": "PASS",
+      "detalle": "<201 {\"entregaId\":\"e0d793f6-0814-4e13-b428-bb653578be94\",\"fondeoId\":\"011bde59-195b-43ed-a624-10a3212eca9e\",\"estado\":\"FONDEADO\",\"pozo\":{\"monto\":\"6000.00\",\"moneda\":\"BO>",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-T2-entrega",
+      "titulo": "turno 2: autoriza RESPONSABLE_RIESGOS, ejecuta TESORERIA: ENTREGADA 6000",
+      "resultado": "PASS",
+      "detalle": "200/200 <200 {\"entregaId\":\"e0d793f6-0814-4e13-b428-bb653578be94\",\"estado\":\"ENTREGADA\",\"montoEntregado\":{\"monto\":\"6000.00\",\"moned",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-T3-aportes",
+      "titulo": "turno 3: los 4 aportes se pagan por HTTP (201)",
+      "resultado": "PASS",
+      "detalle": "[201, 201, 201, 201]",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-T3-recaudo",
+      "titulo": "turno 3: aportes afirma pozo = confirmado = 6000 y faltante 0",
+      "resultado": "PASS",
+      "detalle": "{'periodoId': '4d6ed94b-aff1-43b1-9983-9a1e18cc6ea8', 'grupoId': '0d7b1840-5e7b-48b8-9538-7f22a442469b', 'corteEn': '2026-10-10T19:59:11.549554Z', 'pozo': {'mon",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-T3-fondeo",
+      "titulo": "turno 3: pozo completo FONDEADO sin cobertura",
+      "resultado": "PASS",
+      "detalle": "<201 {\"entregaId\":\"1f54bfb2-d340-4eee-8c32-04945d174c98\",\"fondeoId\":\"2a812764-242c-4f72-b391-1e730f2b80c0\",\"estado\":\"FONDEADO\",\"pozo\":{\"monto\":\"6000.00\",\"moneda\":\"BO>",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-T3-entrega",
+      "titulo": "turno 3: autoriza RESPONSABLE_RIESGOS, ejecuta TESORERIA: ENTREGADA 6000",
+      "resultado": "PASS",
+      "detalle": "200/200 <200 {\"entregaId\":\"1f54bfb2-d340-4eee-8c32-04945d174c98\",\"estado\":\"ENTREGADA\",\"montoEntregado\":{\"monto\":\"6000.00\",\"moned",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F12",
+      "titulo": "F12 el miembro ve la oferta elegible y NO se muestra al vendedor",
+      "resultado": "PASS",
+      "detalle": "200 {\"pagina\":0,\"ofertas\":[{\"ofertaId\":\"2bab2ecc-2d57-4a6a-a2a8-f73f4dee5594\",\"grupoId\":\"0d7b1840-5e7b-48b8-9538-7f22a442469b\",\"turnoId\":\"6133aefe-4b2c-44a2-9a92-22",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F13",
+      "titulo": "F13 compra LIQUIDADA (retener -> titulo -> pago)",
+      "resultado": "PASS",
+      "detalle": "<200 {\"cesionId\":\"0b800115-e5b6-47d3-bdc0-82097a2f5f24\",\"estado\":\"LIQUIDADA\",\"liquidada\":true}>",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-mercado-libro",
+      "titulo": "el libro del mercado: comprador -5500; vendedor + plataforma = +5500",
+      "resultado": "PASS",
+      "detalle": "comprador -5500.00, vendedor 5500.00",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F06-invitar",
+      "titulo": "el organizador emite la invitacion de un solo uso (201)",
+      "resultado": "PASS",
+      "detalle": "<201 {\"invitacionId\":\"30c527c2-c134-4d48-a986-61d901f24e6d\",\"mensaje\":\"Invitacion disponible para compartir.\",\"enlace\":\"",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F01",
+      "titulo": "F01 el aspirante pide ingreso: solicitud PENDIENTE_BACKOFFICE",
+      "resultado": "PASS",
+      "detalle": "<200 {\"solicitudId\":\"1c534e60-2e62-4218-898b-ac54920aa89c\",\"estado\":\"PENDIENTE_BACKOFFICE\"}>",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F07",
+      "titulo": "F07 el administrador propone ACEPTAR con motivo",
+      "resultado": "PASS",
+      "detalle": "<200 {\"id\":\"85df3bfd-4f6d-4ca8-8e92-4b9e9701f1a7\",\"solicitudId\":\"1c534e60-2e62-4218-898b-ac54920aa89c\",\"fase\":\"PROPUESTA\",\"decision\":\"ACEPTAR\",\"actorId\":\"44ca92",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F04",
+      "titulo": "F04 backoffice resuelve ACEPTAR (otra persona que quien propuso)",
+      "resultado": "PASS",
+      "detalle": "<200 {\"id\":\"6ce790b1-3414-4015-9418-8040807377a7\",\"solicitudId\":\"1c534e60-2e62-4218-898b-ac54920aa89c\",\"fase\":\"RESOLUCION\",\"decision\":\"ACEPTAR\",\"actorId\":\"cf172",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F06",
+      "titulo": "F06 el aspirante ve SU participacion, una sola vez",
+      "resultado": "PASS",
+      "detalle": "200 n=1",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-cuadre",
+      "titulo": "ninguna transaccion del libro descuadrada; la suma global no cambio por el ciclo",
+      "resultado": "PASS",
+      "detalle": "descuadradas=[] suma=0.00",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-aportes-libro",
+      "titulo": "los aportes (4 x 1500 x 3 turnos) mueven el libro",
+      "resultado": "GAP",
+      "detalle": "aportes.aporte_cobrado no tiene consumidor en nucleo-financiero: el aporte queda `PAGADO` en aportes y NO se refleja en la billetera ni en el mayor (movimientos de libro de las 4 billeteras del grupo: 4). Dueno: aportes + nucleo-financiero (H8.S1.M1/H4)",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-persistencia",
+      "titulo": "tras reiniciar aportes/entregas/garantia/grupos y volver a ingresar, el estado es el mismo",
+      "resultado": "PASS",
+      "detalle": "entregas=3 iguales=True",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-recarga",
+      "titulo": "la consulta HTTP tras el reinicio devuelve el mismo recaudo",
+      "resultado": "PASS",
+      "detalle": "<200 {\"periodoId\":\"52e56b8b-8d21-4ceb-8e87-ea1b5518090a\",\"grupoId\":\"0d7b1840-5e7b-48b8-9538-7f22a442469b\",\"corteEn\":\"202",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F01",
+      "titulo": "F01 Solicitar ingreso",
+      "resultado": "PASS",
+      "detalle": "REAL por HTTP · solicitud 1c534e60 PENDIENTE_BACKOFFICE",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F02",
+      "titulo": "F02 Cargar saldo",
+      "resultado": "INFO",
+      "detalle": "FUERA · recargas exigen cotizacion de `tarifas` y pasarela: no estan en el conjunto minimo; el saldo inicial entra por el libro cuadrado",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F03",
+      "titulo": "F03 Solicitar ser administrador",
+      "resultado": "INFO",
+      "detalle": "FUERA · habilitacion de organizador: servicio `organizador` + tarifario + licencia (cubierto por la aceptacion REAL F1-F4 y por H5)",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F04",
+      "titulo": "F04 Aprobacion por backoffice",
+      "resultado": "PASS",
+      "detalle": "REAL por HTTP · resolucion de backoffice ACEPTAR con motivo",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F05",
+      "titulo": "F05 Crear grupo",
+      "resultado": "INFO",
+      "detalle": "SEMBRADO · crearGrupo exige organizador habilitado, tarifario y licencia: el grupo se siembra por SQL (declarado en mundo.py)",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F06",
+      "titulo": "F06 Recibir aceptacion/rechazo",
+      "resultado": "PASS",
+      "detalle": "REAL por HTTP · invitacion 30c527c2 -> participacion unica",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F07",
+      "titulo": "F07 Proponer aceptacion/rechazo",
+      "resultado": "PASS",
+      "detalle": "REAL por HTTP · propuesta 85df3bfd ACEPTAR",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F08",
+      "titulo": "F08 Algoritmo de recomendacion",
+      "resultado": "INFO",
+      "detalle": "FUERA · servicio de recomendacion fuera del conjunto minimo",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F09",
+      "titulo": "F09 Sortear turnos",
+      "resultado": "INFO",
+      "detalle": "SEMBRADO · los turnos se siembran; el sorteo (CU-60) lo cubren las pruebas de integracion de grupos, no esta corrida",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F10",
+      "titulo": "F10 Crear oferta con precio",
+      "resultado": "GAP",
+      "detalle": "publicarOferta por HTTP denegado: `grupos` no publica la consulta de turno (titular/estado/monto); la oferta se siembra. Dueno: grupos",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F11",
+      "titulo": "F11 Vender turno",
+      "resultado": "PASS",
+      "detalle": "REAL por HTTP · cesion LIQUIDADA con pago al vendedor desde el libro",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F12",
+      "titulo": "F12 Ver ofertas",
+      "resultado": "PASS",
+      "detalle": "REAL por HTTP · oferta 2bab2ecc visible para el miembro",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F13",
+      "titulo": "F13 Comprar turno",
+      "resultado": "PASS",
+      "detalle": "REAL por HTTP · oferta 2bab2ecc -> cesion 0b800115 LIQUIDADA",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F14",
+      "titulo": "F14 Recibir mesa",
+      "resultado": "PASS",
+      "detalle": "REAL por HTTP · 3 turnos: aporte x4 -> pozo 6000 -> entrega ENTREGADA; entregas 26724356,e0d793f6,1f54bfb2",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F15",
+      "titulo": "F15 Retirar saldo",
+      "resultado": "INFO",
+      "detalle": "FUERA · retiros: pasarela y cuentas de custodia fuera del conjunto minimo",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F16",
+      "titulo": "F16 Invertir voluntariamente",
+      "resultado": "INFO",
+      "detalle": "FUERA · inversiones fuera del conjunto minimo",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F17",
+      "titulo": "F17 Solicitar rescate",
+      "resultado": "INFO",
+      "detalle": "FUERA · inversiones fuera del conjunto minimo",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F18",
+      "titulo": "F18 Transferir por QR",
+      "resultado": "INFO",
+      "detalle": "FUERA · transferencia QR: pasarela fuera del conjunto minimo",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F19",
+      "titulo": "F19 Cobrar comision",
+      "resultado": "INFO",
+      "detalle": "FUERA · comisiones: `tarifas` fuera del conjunto minimo",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F20",
+      "titulo": "F20 Pagar intereses",
+      "resultado": "INFO",
+      "detalle": "FUERA · inversiones fuera del conjunto minimo",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M1-F21",
+      "titulo": "F21 Cobrar regalia de rentabilidades",
+      "resultado": "INFO",
+      "detalle": "FUERA · inversiones fuera del conjunto minimo",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M2-reserva",
+      "titulo": "garantia reserva 6000 del ciclo (la exposicion maxima prevista)",
+      "resultado": "PASS",
+      "detalle": "<201 {\"reservaId\":\"b547a1f2-f7d5-4686-8562-49efd7b6e966\",\"reservado\":{\"monto\":\"6000.00\",\"moneda\":\"BOB\"},\"capacidadDisponible\":{\"monto\":\"94000.00\",\"moneda\":\"BOB\"",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M2-T1-cobertura",
+      "titulo": "turno 1: falta el aporte de P1 (1500); la empresa cubre y el pozo se funda completo",
+      "resultado": "PASS",
+      "detalle": "faltante={'monto': '1500.00', 'moneda': 'BOB'} fondeo=<201 {\"entregaId\":\"dec0ffec-ae67-4c17-a985-38233a574d65\",\"fondeoId\":\"cfb48c08-aa04-404c-b40b-062dde1ee4db\",\"estado\":\"FONDEADO\",\"pozo\":{\"monto\":\"6000.00\",\"moneda",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M2-T1-entrega",
+      "titulo": "turno 1: el beneficiario cobra el pozo COMPLETO (6000), no lo recaudado",
+      "resultado": "PASS",
+      "detalle": "200/200 <200 {\"entregaId\":\"dec0ffec-ae67-4c17-a985-38233a574d65\",\"estado\":\"ENTREGADA\",\"montoEntregado\":{\"mon",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M2-T2-cobertura",
+      "titulo": "turno 2: falta el aporte de P1 (1500); la empresa cubre y el pozo se funda completo",
+      "resultado": "PASS",
+      "detalle": "faltante={'monto': '1500.00', 'moneda': 'BOB'} fondeo=<201 {\"entregaId\":\"26269087-396e-4183-9920-39a1845f3617\",\"fondeoId\":\"93fe6199-6400-41dd-a11b-057a78d44c99\",\"estado\":\"FONDEADO\",\"pozo\":{\"monto\":\"6000.00\",\"moneda",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M2-T2-entrega",
+      "titulo": "turno 2: el beneficiario cobra el pozo COMPLETO (6000), no lo recaudado",
+      "resultado": "PASS",
+      "detalle": "200/200 <200 {\"entregaId\":\"26269087-396e-4183-9920-39a1845f3617\",\"estado\":\"ENTREGADA\",\"montoEntregado\":{\"mon",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M2-T3-cobertura",
+      "titulo": "turno 3: falta el aporte de P1 (1500); la empresa cubre y el pozo se funda completo",
+      "resultado": "PASS",
+      "detalle": "faltante={'monto': '1500.00', 'moneda': 'BOB'} fondeo=<201 {\"entregaId\":\"e91e9229-71b5-453c-a566-8998982b705c\",\"fondeoId\":\"f66506e3-b92c-4e02-bdf8-5ebbffbae9a9\",\"estado\":\"FONDEADO\",\"pozo\":{\"monto\":\"6000.00\",\"moneda",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M2-T3-entrega",
+      "titulo": "turno 3: el beneficiario cobra el pozo COMPLETO (6000), no lo recaudado",
+      "resultado": "PASS",
+      "detalle": "200/200 <200 {\"entregaId\":\"e91e9229-71b5-453c-a566-8998982b705c\",\"estado\":\"ENTREGADA\",\"montoEntregado\":{\"mon",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M2-exposicion",
+      "titulo": "exposicion por turno: 1500, 3000, 4500 (aplicado - recuperado), con la reserva en 6000",
+      "resultado": "PASS",
+      "detalle": "[{\"turno\": 1, \"pozo\": \"6000.00\", \"confirmado\": \"4500.00\", \"cubiertoEmpresa\": \"1500.00\", \"exposicion\": \"1500.00\", \"reservado\": \"6000.00\"}, {\"turno\": 2, \"pozo\": \"6000.00\", \"confirmado\": \"4500.00\", \"cubiertoEmpresa\": \"1500.00\", \"exposicion\": \"3000.00\", \"reservado\": \"6000.00\"}, {\"turno\": 3, \"pozo\": \"6000.00\", \"confirmado\": \"4500.00\", \"cubiertoEmpresa\": \"1500.00\", \"exposicion\": \"4500.00\", \"reservado\": \"6000.00\"}]",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M2-mayor",
+      "titulo": "el mayor tiene UN asiento COBERTURA cuadrado por turno cubierto (3 x 1500)",
+      "resultado": "PASS",
+      "detalle": "[[(Decimal('1500.00'), Decimal('1500.00'))], [(Decimal('1500.00'), Decimal('1500.00'))], [(Decimal('1500.00'), Decimal('1500.00'))]]",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M2-caja",
+      "titulo": "la caja de respaldo (9.1.02) bajo 4500 en el mayor, igual que la exposicion",
+      "resultado": "PASS",
+      "detalle": "delta -4500.00",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M2-pago-tarde",
+      "titulo": "P1 puede pagar tarde su aporte del turno 1 (pagar nunca se restringe)",
+      "resultado": "PASS",
+      "detalle": "<201 {\"pagoId\":\"8daa92d5-f2ac-41bd-bb39-5c2b9bcae666\",\"obligacionId\":\"b3d984d0-9167-455f-b621-5ad6c94a738b\",\"estadoObligacion\":\"PAGADO\",\"pendiente\":{\"monto\":\"0.00\",\">",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M2-recupera",
+      "titulo": "la recuperacion devuelve 1500 a la empresa (no al pozo) y la exposicion baja a 3000",
+      "resultado": "PASS",
+      "detalle": "<200 {\"resultado\":\"RECUPERADA\",\"recuperado\":{\"monto\":\"1500.00\",\"moneda\":\"BOB\"},\"excedente\":{\"monto\":\"0.00\",\"moneda\":\"BOB\"},\"exposicionDespues\":{\"monto\":\"3000.00\",\"mo>",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M2-recupera-una-vez",
+      "titulo": "el mismo pago no recupera dos veces (YA_RECUPERADA, nada nuevo)",
+      "resultado": "PASS",
+      "detalle": "<200 {\"resultado\":\"YA_RECUPERADA\",\"recuperado\":{\"monto\":\"1500.00\",\"moneda\":\"BOB\"},\"excedente\":{\"monto\":\"0.00\",\"moneda\":\"BOB\"},\"exposicionDespues\":{\"monto\":\"3000",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M2-mayor-recupera",
+      "titulo": "el mayor asienta la recuperacion (1500 a la empresa) UNA vez y cuadra",
+      "resultado": "PASS",
+      "detalle": "[{'id': 'c400d7e9-ff77-4fd2-bdc6-c653308cfdda', 'estado': 'CONFIRMADO', 'reversa': None, 'debe': Decimal('1500.00'), 'haber': Decimal('1500.00')}]",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M2-recupera-evento-dup",
+      "titulo": "el evento de recuperacion entregado dos veces no asienta dos veces",
+      "resultado": "PASS",
+      "detalle": "un asiento",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M2-conserva",
+      "titulo": "la obligacion de recuperar se conserva: 4500 aplicado, 1500 recuperado, 3000 de exposicion viva",
+      "resultado": "PASS",
+      "detalle": "[['6000.00', '4500.00', '1500.00']]",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M2-cuadre",
+      "titulo": "el libro y el mayor quedan cuadrados",
+      "resultado": "PASS",
+      "detalle": "[]",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M2-flujo",
+      "titulo": "flujo temporal con caja y exposicion por turno",
+      "resultado": "INFO",
+      "detalle": "[{\"turno\": 1, \"pozo\": \"6000.00\", \"confirmado\": \"4500.00\", \"cubiertoEmpresa\": \"1500.00\", \"exposicion\": \"1500.00\", \"reservado\": \"6000.00\"}, {\"turno\": 2, \"pozo\": \"6000.00\", \"confirmado\": \"4500.00\", \"cubiertoEmpresa\": \"1500.00\", \"exposicion\": \"3000.00\", \"reservado\": \"6000.00\"}, {\"turno\": 3, \"pozo\": \"6000.00\", \"confirmado\": \"4500.00\", \"cubiertoEmpresa\": \"1500.00\", \"exposicion\": \"4500.00\", \"reservado\": \"6000.00\"}]",
+      "evidencia": [
+        {
+          "turno": 1,
+          "pozo": "6000.00",
+          "confirmado": "4500.00",
+          "cubiertoEmpresa": "1500.00",
+          "exposicion": "1500.00",
+          "reservado": "6000.00"
+        },
+        {
+          "turno": 2,
+          "pozo": "6000.00",
+          "confirmado": "4500.00",
+          "cubiertoEmpresa": "1500.00",
+          "exposicion": "3000.00",
+          "reservado": "6000.00"
+        },
+        {
+          "turno": 3,
+          "pozo": "6000.00",
+          "confirmado": "4500.00",
+          "cubiertoEmpresa": "1500.00",
+          "exposicion": "4500.00",
+          "reservado": "6000.00"
+        }
+      ]
+    },
+    {
+      "id": "H14.S1.M3-pagos-claves",
+      "titulo": "6 pagos concurrentes (claves distintas) de la misma obligacion: UN pago, nada de doble cobro",
+      "resultado": "PASS",
+      "detalle": "filas=1 estados=[201, 422, 422, 422, 422, 422]",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M3-pagos-misma-clave",
+      "titulo": "6 envios de la MISMA clave: un pago y todos devuelven su id",
+      "resultado": "PASS",
+      "detalle": "filas=1 ids=1 estados=[200, 200, 200, 200, 200, 201]",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M3-fondeo",
+      "titulo": "5 fondeos concurrentes: UNA entrega, UNA cobertura, 1500 aplicados una sola vez",
+      "resultado": "PASS",
+      "detalle": "entregas=1 coberturas=1 aplicado=1500.00 estados=[200, 200, 200, 200, 201]",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M3-ejecucion",
+      "titulo": "4 ejecuciones concurrentes: la entrega queda ENTREGADA una vez y las demas se rechazan",
+      "resultado": "PASS",
+      "detalle": "estado=ENTREGADA estados=[200, 422, 422, 422]",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M3-compra",
+      "titulo": "4 compras concurrentes de una oferta (2 compradores, 1 con la misma clave dos veces): UN titulo, UNA retencion, UN cobro de 5500",
+      "resultado": "PASS",
+      "detalle": "cesiones=1 retenciones=1 cobrado=5500.00 estados=[200, 200, 422, 422]",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M3-membresia",
+      "titulo": "la membresia no se duplica por la venta (el derecho cambia de titular, no hay participante nuevo)",
+      "resultado": "PASS",
+      "detalle": "participantes=4",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M3-evento-duplicado",
+      "titulo": "el MISMO evento entregado dos veces: UN asiento COBERTURA y el consumidor lo descarta",
+      "resultado": "PASS",
+      "detalle": "asientos=1 consumidos 11 -> 11",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M3-canje",
+      "titulo": "4 canjes concurrentes del enlace de un solo uso: UNA solicitud",
+      "resultado": "PASS",
+      "detalle": "solicitudes=1 estados=[200, 422, 422, 422]",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M3-resolucion",
+      "titulo": "4 resoluciones concurrentes: UNA resolucion y UNA membresia",
+      "resultado": "PASS",
+      "detalle": "resoluciones=1 membresias=1 estados=[200, 422, 422, 422]",
+      "evidencia": null
+    },
+    {
+      "id": "H14.S1.M3-cuadre",
+      "titulo": "al final el libro cuadra transaccion por transaccion y la suma global es cero",
+      "resultado": "PASS",
+      "detalle": "[]",
+      "evidencia": null
+    },
+    {
+      "id": "H13.S1.M6-efecto",
+      "titulo": "cumplimiento afirma que el reclamo en analisis FRENA la sancion firme y la deuda ejecutable",
+      "resultado": "PASS",
+      "detalle": "<200 {\"usuarioId\":\"c1261421-19c3-4c0e-ae8e-1b5c3cf63cb7\",\"bloqueaSancionFirme\":true,\"bloqueaDeudaEjecutable\":true,\"motivoGlobal\":null,\"casos\":[{\"reclamoId\":\"5bb07869>",
+      "evidencia": null
+    },
+    {
+      "id": "H13.S1.M6-organizador-sin-permiso",
+      "titulo": "un ORGANIZADOR sin RECLAMO_VER recibe 403 de cumplimiento (garantia fallaria CERRADO)",
+      "resultado": "PASS",
+      "detalle": "<403 {\"codigo\":\"AP-SEG-01\",\"mensaje\":\"No tenes acceso a este recurso.\",\"trazaId\":\"694055f9-5733-4861",
+      "evidencia": null
+    },
+    {
+      "id": "H13.S1.M6-permiso",
+      "titulo": "un participante NO ve el rastro de reclamos de otra persona (403)",
+      "resultado": "PASS",
+      "detalle": "<403 {\"codigo\":\"AP-SEG-01\",\"mensaje\":\"No tenes acceso a este recurso.\",\"trazaId\":\"ea1d1034-7b7f-46e7",
+      "evidencia": null
+    },
+    {
+      "id": "H13.S1.M6-expediente",
+      "titulo": "se declara el incumplimiento (expediente con plazo de descargo)",
+      "resultado": "PASS",
+      "detalle": "<201 {\"expedienteId\":\"00f39974-c261-47a1-b161-cde3592a3971\",\"codigoExpediente\":\"EINT-5BB078\",\"estado\":\"NOTIFICADO\",\"puedeDescargarHasta\":\"2026-10-15T20:00:04.195606Z>",
+      "evidencia": null
+    },
+    {
+      "id": "H13.S1.M6-garantia-frena",
+      "titulo": "garantia NO restringe mientras el reclamo esta en revision (422 AP-CU27-07)",
+      "resultado": "PASS",
+      "detalle": "<422 {\"codigo\":\"AP-CU27-07\",\"mensaje\":\"Hay un reclamo en curso de esa persona, o no se pudo confirmar que no lo haya: no se vuelve ejecutable la deuda mientras no se>",
+      "evidencia": null
+    },
+    {
+      "id": "H13.S1.M6-sin-efecto",
+      "titulo": "no hay restriccion ni deuda ejecutable creadas por el intento",
+      "resultado": "PASS",
+      "detalle": "restricciones=0",
+      "evidencia": null
+    },
+    {
+      "id": "H13.S1.M6-garantia-plazo-elevar",
+      "titulo": "cerrado DESFAVORABLE el cliente aun puede elevarlo: sigue frenando (422 AP-CU27-07)",
+      "resultado": "PASS",
+      "detalle": "<422 {\"codigo\":\"AP-CU27-07\",\"mensaje\":\"Hay un reclamo en curso de esa persona, o no se pudo confirmar que no lo haya: no se vuelve ejecutable la deuda mientras ",
+      "evidencia": null
+    },
+    {
+      "id": "H13.S1.M6-garantia-pasa",
+      "titulo": "desistido el reclamo la restriccion procede (201)",
+      "resultado": "PASS",
+      "detalle": "<201 {\"restriccionId\":\"d71cf113-de9a-44e7-98bb-a553bfc35ee9\",\"nivel\":\"LIMITADO\",\"vigenteHasta\":\"2026-11-09T20:00:04.609605Z\",\"esNueva\":true}>",
+      "evidencia": null
+    },
+    {
+      "id": "H13.S1.M6-organizador-frena",
+      "titulo": "organizador NO sanciona mientras un reclamo contra esa persona esta en analisis (422 AP-CU93-07)",
+      "resultado": "PASS",
+      "detalle": "<422 {\"codigo\":\"AP-CU93-07\",\"mensaje\":\"Hay un reclamo en curso de esa persona, o no se pudo confirmar que no lo haya: la sancion no queda firme mientras no se resuel>",
+      "evidencia": null
+    },
+    {
+      "id": "H13.S1.M6-organizador-pasa",
+      "titulo": "cerrado el reclamo la sancion procede con su plazo de apelacion (201)",
+      "resultado": "PASS",
+      "detalle": "<201 {\"sancionId\":\"3f91017a-d847-412e-a076-cb26f97055f6\",\"tipo\":\"ADVERTENCIA\",\"estadoDelOrganizador\":null,\"puedeApelarHasta\":\"2026-10-20T20:00:05.414103Z\"}>",
+      "evidencia": null
+    },
+    {
+      "id": "H13.S1.M6-origen",
+      "titulo": "alta y resolucion del reclamo",
+      "resultado": "INFO",
+      "detalle": "cumplimiento no expone HTTP para ingresar ni cerrar un reclamo en este stack: el reclamo se siembra por SQL (declarado)",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-d-fondeo",
+      "titulo": "pozo completo FONDEADO (6000)",
+      "resultado": "PASS",
+      "detalle": "<201 {\"entregaId\":\"c3f2ffc7-7479-4722-97a4-2e4d4f6102c4\",\"fondeoId\":\"7272ae9b-125b-4cbb-92e1-a7e973f5ea13\",\"estado\":\"FONDEADO\",\"pozo\":{\"monto\":\"6000.00\",\"moneda",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-d-autoriza",
+      "titulo": "autorizada por RESPONSABLE_RIESGOS",
+      "resultado": "PASS",
+      "detalle": "<200 {\"entregaId\":\"c3f2ffc7-7479-4722-97a4-2e4d4f6102c4\",\"estado\":\"AUTORIZADA\",\"autorizadaPor\":\"db965f64-ad4a-4e43-9bfe-91a087acbf48\"}>",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-d-ajena",
+      "titulo": "R-SEG-02: una cuenta a nombre de OTRA persona no se registra (422)",
+      "resultado": "PASS",
+      "detalle": "<422 {\"codigo\":\"AP-CU18-01\",\"mensaje\":\"El titular de la cuenta no coincide con quien la registra.\",\"detalle\":{},\"trazaId\":\"12babc04-2521-4893-bffb-53f4313de362\"",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-d-cuenta",
+      "titulo": "DEFECTO: la cuenta propia de un participante se registra PENDIENTE y se devuelve ENMASCARADA (CU-18)",
+      "resultado": "FAIL",
+      "detalle": "<422 {\"codigo\":\"AP-CU18-01\",\"mensaje\":\"El titular de la cuenta no coincide con quien la registra.\",\"detalle\":{},\"trazaId\":\"bd64a5fc-c9c5-41ca-b02a-654ecd8db3ea\" · causa: identidad.verificarTitularidad exige DATOS_SENSIBLES_LEER; entregas propaga el token del PARTICIPANTE (403) y lo lee como «no coincide». Dueno: identidad + entregas (credencial de servicio con permiso acotado)",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-d-sin-verificar",
+      "titulo": "R-DES-02: no se desembolsa a una cuenta sin verificar (422)",
+      "resultado": "PASS",
+      "detalle": "<422 {\"codigo\":\"AP-CU28-02\",\"mensaje\":\"No se ordena un desembolso a una cuenta sin verificar.\",\"detalle\":{},\"trazaId\":\"875acedc-09a2-4892-ae",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-d-verifica",
+      "titulo": "verificada: empieza la ventana de enfriamiento (se guarda su fin)",
+      "resultado": "PASS",
+      "detalle": "<200 {\"cuentaId\":\"5c443743-fec2-4843-88b3-4c350a0a0aec\",\"estado\":\"VERIFICADA\",\"disponibleDesde\":\"2026-10-11T20:00:09.520408Z\",\"esNueva\":true}>",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-d-enfriamiento",
+      "titulo": "verificada NO es utilizable: en la ventana de enfriamiento se rechaza (422)",
+      "resultado": "PASS",
+      "detalle": "<422 {\"codigo\":\"AP-CU28-02\",\"mensaje\":\"Esa cuenta esta en su ventana de enfriamiento hasta 2026-10-11T20:00:09.520408Z.\",\"detalle\":{},\"traza",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-d-orden",
+      "titulo": "orden ENVIADA_A_PROVEEDOR (201)",
+      "resultado": "PASS",
+      "detalle": "<201 {\"ordenId\":\"4ae94385-8c2b-4662-bb59-1b957471bda7\",\"estado\":\"ENVIADA_A_PROVEEDOR\",\"claveIdempotencia\":\"65c6172a-f314-439c-9895-adce02c7c70b\",\"intentos\":1,\"e",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-d-una-orden",
+      "titulo": "R-DES-01: repetir la orden no abre otra (UNA viva por entrega)",
+      "resultado": "PASS",
+      "detalle": "ordenes=1 200",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-d-acreditada",
+      "titulo": "la respuesta exitosa del proveedor acredita la orden y la entrega queda ENTREGADA",
+      "resultado": "PASS",
+      "detalle": "<201 {\"ordenId\":\"4ae94385-8c2b-4662-bb59-1b957471bda7\",\"estado\":\"ACREDITADA\",\"numeroIntento\":1,\"reintentableEn\":null,\"esNuevo\":true}> (el contrato dice 200 y el codigo da 201: divergencia YA anotada como deuda en scripts/verificar_pruebas_web.py)",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-d-respuesta-repetida",
+      "titulo": "la misma respuesta otra vez no acredita dos veces",
+      "resultado": "PASS",
+      "detalle": "<201 {\"ordenId\":null,\"estado\":\"ACREDITADA\",\"numeroIntento\":0,\"reintentableEn\":null,\"esNuevo\":false}>",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-d-mayor",
+      "titulo": "el mayor de nucleo tiene UN asiento del desembolso que cuadra (6000)",
+      "resultado": "PASS",
+      "detalle": "[{'id': 'd97a5578-9669-4061-b8a4-90565fd02322', 'estado': 'CONFIRMADO', 'reversa': None, 'debe': Decimal('6000.00'), 'haber': Decimal('6000.00')}]",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-d-evento-duplicado",
+      "titulo": "el evento de acreditacion entregado dos veces no asienta dos veces",
+      "resultado": "PASS",
+      "detalle": "un asiento",
+      "evidencia": null
+    },
+    {
+      "id": "H8.S1.M4-d-cuadre",
+      "titulo": "el libro sigue cuadrado",
+      "resultado": "PASS",
+      "detalle": "[]",
+      "evidencia": null
+    },
+    {
+      "id": "F1-invitar",
+      "titulo": "F1 el organizador emite el enlace de un solo uso (201, token de 64 hex)",
+      "resultado": "PASS",
+      "detalle": "201",
+      "evidencia": null
+    },
+    {
+      "id": "F1-canje",
+      "titulo": "F1 A pide ingreso: PENDIENTE_BACKOFFICE, sin membresia todavia",
+      "resultado": "PASS",
+      "detalle": "<200 {\"solicitudId\":\"8c0a3a24-8322-4baf-9350-7c8a8143d4be\",\"estado\":\"PENDIENTE_BACKOFFICE\"}>",
+      "evidencia": null
+    },
+    {
+      "id": "F1-misma-clave",
+      "titulo": "F1 el reintento con la MISMA clave devuelve la misma solicitud",
+      "resultado": "PASS",
+      "detalle": "<200 {\"solicitudId\":\"8c0a3a24-8322-4baf-9350-7c8a8143d4be\",\"estado\":\"PENDIENTE_BACKOFFICE\"}>",
+      "evidencia": null
+    },
+    {
+      "id": "F1-un-solo-uso",
+      "titulo": "F1/F4 el enlace usado otra vez con OTRA clave: 422 AP-CU69-05 y no crea otra solicitud",
+      "resultado": "PASS",
+      "detalle": "<422 {\"codigo\":\"AP-CU69-05\",\"mensaje\":\"Esa invitacion ya no es valida.\",\"detalle\":{},\"trazaId\":\"b130dece-6a68-47de-b008-2e9f0f275b6b\"}>",
+      "evidencia": null
+    },
+    {
+      "id": "F4-ajeno",
+      "titulo": "F4 otra persona con el mismo enlace: 422 AP-CU69-05",
+      "resultado": "PASS",
+      "detalle": "<422 {\"codigo\":\"AP-CU69-05\",\"mensaje\":\"Esa invitacion ya no es valida.\",\"detalle\":{},\"trazaId\":\"99d9538e-b0ac-414b-9a25-28fc03dca3e2\"}>",
+      "evidencia": null
+    },
+    {
+      "id": "F1-cola",
+      "titulo": "F1 el organizador ve UNA sola solicitud pendiente",
+      "resultado": "PASS",
+      "detalle": "n=1",
+      "evidencia": null
+    },
+    {
+      "id": "F3-propone",
+      "titulo": "F3 el administrador propone RECHAZAR con motivo",
+      "resultado": "PASS",
+      "detalle": "<200 {\"id\":\"3cdc1294-1fae-451a-9f85-f3355f5f27db\",\"solicitudId\":\"8c0a3a24-8322-4baf-9350-7c8a8143d4be\",\"fase\":\"PROPUESTA\",\"decision\":\"RECHAZ",
+      "evidencia": null
+    },
+    {
+      "id": "F4-sin-permiso",
+      "titulo": "F4 quien no es de backoffice no resuelve (403)",
+      "resultado": "PASS",
+      "detalle": "<403 {\"codigo\":\"AP-SEG-01\",\"mensaje\":\"No tenes acceso a este recurso.\",\"trazaId\":\"8d01d8fc-cc06-4043",
+      "evidencia": null
+    },
+    {
+      "id": "F4-sin-motivo",
+      "titulo": "F4 resolver sin motivo se rechaza (4xx) y no cierra la solicitud",
+      "resultado": "PASS",
+      "detalle": "<400 {\"codigo\":\"AP-VAL-01\",\"mensaje\":\"Revisa los datos del formulario.\",\"detalle\":{\"motivo\":\"size must be between 1 and ",
+      "evidencia": null
+    },
+    {
+      "id": "F3-rechaza",
+      "titulo": "F3 backoffice resuelve RECHAZAR con motivo",
+      "resultado": "PASS",
+      "detalle": "<200 {\"id\":\"aec2a7ea-9e4c-4566-b596-a72a2a8f36b0\",\"solicitudId\":\"8c0a3a24-8322-4baf-9350-7c8a8143d4be\",\"fase\":\"RESOLUCION\",\"decision\":\"RECHA",
+      "evidencia": null
+    },
+    {
+      "id": "F2-F3-historial-backoffice",
+      "titulo": "DEFECTO: backoffice (ADMIN_PLATAFORMA) lee el historial de decisiones del expediente (el contrato lo promete)",
+      "resultado": "FAIL",
+      "detalle": "403 · causa: RutasDeAdmision.historialAdmision lleva @Permiso(\"PARTICIPANTE\") y ADMIN_PLATAFORMA no lo tiene, aunque CU68AceptarIngreso.historial ya admite al backoffice. Dueno: grupos + modelo de roles (guard de un solo permiso)",
+      "evidencia": null
+    },
+    {
+      "id": "F3-una-resolucion",
+      "titulo": "F3 resolver dos veces no duplica: una sola resolucion en el historial y A sigue sin membresia",
+      "resultado": "PASS",
+      "detalle": "resoluciones=1 segunda=422",
+      "evidencia": null
+    },
+    {
+      "id": "F2-acepta",
+      "titulo": "F2 backoffice acepta: A ve UNA participacion (la membresia existe una sola vez)",
+      "resultado": "PASS",
+      "detalle": "200 n=1 estado=ACEPTADO_PENDIENTE_FIRMA",
+      "evidencia": null
+    },
+    {
+      "id": "F1-F4-navegador",
+      "titulo": "A en apps/web y B en apps/backoffice (Chromium + ng serve)",
+      "resultado": "GAP",
+      "detalle": "no se ejecuto: `aceptacion.sh real` es proceso pesado y el guardian (>=3500 MB libres) no lo deja arrancar con el stack arriba (libres ~2300 MB con el stack minimo). Falta una ventana con >=6 GB libres. Lo cubre cuando haya RAM: `bash despliegue/ensayos/integracion/correr.sh aceptacion`",
+      "evidencia": null
+    }
+  ]
+}

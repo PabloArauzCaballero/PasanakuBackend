@@ -25,6 +25,9 @@ describe('PantallaDeBilletera · accesibilidad', () => {
     ['éxito', () => http.expectOne(URL).flush(ejemploDe('nucleo-financiero', 'consultarSaldo', 'ok').cuerpo as object)],
     ['error', () => http.expectOne(URL).flush({ codigo: 'AP-CU04-01', mensaje: '', trazaId: 't' }, { status: 401, statusText: 'x' })],
     ['vacío', () => http.expectOne(URL).flush(ejemploDe('nucleo-financiero', 'consultarSaldo', 'vacio').cuerpo as object)],
+    ['posiciones separadas (contrato pedido, doble)', () => http.expectOne(URL).flush({ ...(ejemploDe('nucleo-financiero', 'consultarSaldo', 'ok').cuerpo as object), comprometidoEnPozos: { monto: '400.00', moneda: 'BOB' } })],
+    ['comprometido mayor que el disponible (doble)', () => http.expectOne(URL).flush({ ...(ejemploDe('nucleo-financiero', 'consultarSaldo', 'ok').cuerpo as object), comprometidoEnPozos: { monto: '5000.00', moneda: 'BOB' } })],
+    ['saldo incoherente (doble)', () => http.expectOne(URL).flush({ ...(ejemploDe('nucleo-financiero', 'consultarSaldo', 'ok').cuerpo as object), retenido: { monto: '1.00', moneda: 'USD' } })],
   ] as const) {
     it(`sin violaciones serias en el estado ${nombre}`, async () => {
       const fixture = TestBed.createComponent(PantallaDeBilletera)
