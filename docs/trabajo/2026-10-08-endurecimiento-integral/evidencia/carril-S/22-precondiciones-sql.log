@@ -1,0 +1,22 @@
+-- ConsultarHabilitacion.personal: SELECT id, estado FROM organizador.organizador WHERE usuario_id=?  (HABILITADO => habilitado=true)
+SINT-E2E-0 |  |  | 
+SINT-E2E-A | HABILITADO | APRENDIZ | 2
+SINT-E2E-B |  |  | 
+-- ConsultarNivelKyc: SELECT nivel_kyc FROM identidad.usuario WHERE id=?  (CU-20 exige >= BASICO)
+SINT-E2E-0 | NINGUNO | SUSPENDIDO | +59170009100
+SINT-E2E-A | BASICO | ACTIVO | +59170009101
+SINT-E2E-B | BASICO | ACTIVO | +59170009102
+-- roles vigentes y permisos efectivos (lo que EmitirAcceso mete en el token)
+SINT-E2E-A | ORGANIZADOR | BILLETERA_VER,GRUPO_ADMINISTRAR,GRUPO_CREAR
+SINT-E2E-A | PARTICIPANTE | BILLETERA_VER
+SINT-E2E-B | PARTICIPANTE | BILLETERA_VER
+-- segundo factor enrolado
+SINT-E2E-A | SMS | t | t | t
+SINT-E2E-B | SMS | t | t | t
+-- credencial: solo el algoritmo y el prefijo del formato (el hash no se imprime)
+SINT-E2E-A | ARGON2ID | $argon2id$v=19$m=65536,t=3,p=2
+SINT-E2E-B | ARGON2ID | $argon2id$v=19$m=65536,t=3,p=2
+-- correos y telefonos: ninguno es de una persona
+SINT-E2E-0 | sint-e2e-0@example.invalid | +59170009100
+SINT-E2E-A | sint-e2e-a@example.invalid | +59170009101
+SINT-E2E-B | sint-e2e-b@example.invalid | +59170009102

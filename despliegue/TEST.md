@@ -90,6 +90,66 @@ SMS ni correo de verdad, y es una decisión consciente para un entorno de prueba
 que haya un canal real, se cambia la variable `PERFIL_SPRING` en Coolify y este párrafo
 deja de ser cierto.
 
+## Cuentas sintéticas de prueba en TEST (2026-10-11)
+
+El alta normal no sirve para probar en TEST: exige el código de seis dígitos que llega por
+correo, y no hay buzón alcanzable (`evidencia/carril-H2`). Para poder recorrer «A organiza e
+invita, B acepta o rechaza» con login real hay **dos cuentas sembradas desde el seeder**, sin
+correos personales y sin tocar la base a mano:
+
+| Código | Qué es | Teléfono (en la app, 8 dígitos) | Roles |
+| --- | --- | --- | --- |
+| `SINT-E2E-A` | organizador e invitante | `+59170009101` (`70009101`) | `ORGANIZADOR` (trae `GRUPO_CREAR` y `GRUPO_ADMINISTRAR`) y `PARTICIPANTE` |
+| `SINT-E2E-B` | invitado | `+59170009102` (`70009102`) | `PARTICIPANTE` |
+
+Más un otorgante `SINT-E2E-0` (suspendido, sin credencial) que solo firma las asignaciones de rol.
+Son **sintéticas y declaradas** (`seeders/dev/17-usuarios-e2e-sinteticos.json`:
+`apto_produccion=false`, procedencia «inventado para este repositorio», correos `@example.invalid`).
+Lo que simulan sin que haya pasado: el nivel de verificación `BASICO` de A y B (no hay documento ni
+decisión de una persona detrás) y la habilitación de A como organizador `APRENDIZ` (no hubo
+postulación, capacitación ni contrato). Es lo único que consultan `grupos` antes de crear un grupo.
+No se sembró billetera: ni crear, ni invitar, ni aceptar la piden.
+
+**Cómo sembrarlas.** La contraseña de cada cuenta se genera fuera del repositorio, en
+`%TEMP%\aportaya-s\cuentas-test.txt` (asignaciones de shell: teléfono, clave y segundo factor). Se
+antepone al guion, así viaja por la entrada estándar del `ssh` y no queda en el servidor ni en
+`ps`:
+
+```bash
+cat "$TEMP/aportaya-s/cuentas-test.txt" despliegue/ensayos/sembrar_test.sh | ssh root@161.97.85.216 'bash -s'
+```
+
+`sembrar_test.sh` aplica **solo** esa semilla contra la base `pasanaku` de `aportaya-postgres`, calcula el
+Argon2id de `contraseña + pimienta` con la pimienta que lee del contenedor de identidad
+(`docker exec … printenv`, nunca impresa), y termina con una sonda que no abre sesión: sin segundo
+factor debe responder `422 AP-CU04-03` (credencial correcta). Es idempotente (ids estables,
+`ON CONFLICT DO NOTHING`, la credencial solo si falta): la segunda corrida dice `cambios: 0`. Aborta si
+identidad no corre con el perfil `local`, que es el que acepta `000000` como segundo factor. El SQL que
+lleva el guion lo escribe `scripts/generar_semillas.py` entre las marcas `SQL-GENERADO`; no se edita.
+
+**Cómo comprobarlas y retirarlas.**
+
+```bash
+ssh root@161.97.85.216 'bash -s -- --estado'  < despliegue/ensayos/sembrar_test.sh   # solo cuenta
+ssh root@161.97.85.216 'bash -s -- --retirar' < despliegue/ensayos/sembrar_test.sh   # baja lógica
+```
+
+`--retirar` revoca sesiones y roles, desactiva el factor, quita la credencial, deshabilita al organizador
+y marca a los usuarios eliminados, todo en una transacción. Los grupos e invitaciones que se hayan creado
+durante la prueba quedan como historial (no se borran). Volver a correr el guion las reactiva.
+
+**Ojo con el bloqueo por intentos.** `CU04Autenticar` cuenta como «fallido» todo intento sin éxito de los
+últimos 15 minutos, **incluido el primer paso de un ingreso correcto** (el que termina en `AP-CU04-03`
+porque falta el segundo factor). Con cinco ingresos seguidos, un solo error de contraseña bloquea la
+cuenta 30 minutos (`AP-CU04-05` y después `AP-CU04-02`). El guion deja un intento así por cuenta y por
+corrida (la sonda): si una cuenta queda bloqueada, se espera la media hora; no se destraba tocando la base.
+Medido contra la imagen real de identidad (`evidencia/carril-S/21-login-clave-equivocada.log`). Es
+comportamiento del servicio, no de las cuentas, y queda anotado, no corregido.
+
+**No existen en producción.** Viven en `seeders/dev/` (nunca en `minimos/`): `sembrar_dev.sql` aborta
+sin `app.entorno = 'dev'`, y `sembrar_test.sh` aborta si identidad no corre con el perfil `local` (el de
+producción no acepta el segundo factor fijo). Producción no corre ninguno de los dos.
+
 ## El corpus de identidad
 
 TEST se usa además para juntar un corpus de verificación de identidad: por cada persona
