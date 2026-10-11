@@ -17,15 +17,14 @@ import org.springframework.web.client.RestClient;
 /**
  * Le pregunta a los otros seis servicios, por sus contratos.
  *
- * <p>Cada respuesta que no llega se traduce a **la que no deja pasar**: el organizador
- * no esta habilitado, no hay tarifario, la licencia no cubre, el participante no esta
- * al dia, hay restriccion vigente, el contacto esta suprimido. Es denegar por omision
- * (invariante 9), y es deliberado: seguir adelante porque el servicio que valida estaba
- * caido es exactamente el hueco por donde entra lo que las reglas existen para frenar.
+ * <p>Cada respuesta que no llega se traduce a **la que no deja pasar**: el organizador no esta habilitado, no hay
+ * tarifario, la licencia no cubre, el participante no esta al dia, hay restriccion vigente, el contacto esta
+ * suprimido. Es denegar por omision (invariante 9), y es deliberado: seguir adelante porque el servicio que valida
+ * estaba caido es exactamente el hueco por donde entra lo que las reglas existen para frenar.
  *
- * <p>Excepcion: la reputacion («no se sabe», {@code tieneHistorial=false}, lo decide quien pregunta). Cada dependencia lleva tiempo maximo y circuit breaker propio ({@link ClienteConCircuito}, regla 98.2.3). Con el
- * circuito abierto cada metodo responde lo mismo que con el dependido caido (lo que no deja pasar), salvo las
- * operaciones de identidad que EMITEN o CONSUMEN un enlace: fallan con la excepcion de red y no crean invitaciones sin token.
+ * <p>Excepcion: la reputacion («no se sabe», {@code tieneHistorial=false}). Cada dependencia lleva tiempo maximo y
+ * circuit breaker propio ({@link ClienteConCircuito}, regla 98.2.3): con el circuito abierto responde como caida,
+ * salvo identidad al EMITIR o CONSUMIR un enlace, que falla con la excepcion de red y no crea invitaciones sin token.
  */
 @Component
 public class HechosPorHttp implements HechosDeOtrosServicios {
