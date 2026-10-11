@@ -20,7 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
  * El expediente de identidad (CU-02): la subida de las fotos durante el alta y el estado de la verificacion.
  *
  * <p>Vive aparte de {@link UsuariosController} por tamano (el barrido corta en 300 lineas): son las dos
- * operaciones publicas que sirven a quien todavia no tiene sesion, y las dos comparten el control de titularidad.
+ * operaciones sin sesion obligatoria que sirven a quien todavia no la tiene, y las dos comparten el control de
+ * titularidad.
  */
 public abstract class ExpedienteController extends InvitacionesController {
 
@@ -84,16 +85,28 @@ public abstract class ExpedienteController extends InvitacionesController {
         }
     }
 
-    /** Estado mínimo para que quien aún no puede iniciar sesión siga su verificación. */
+    /**
+     * Estado mínimo para que quien aún no puede iniciar sesión siga su verificación.
+     *
+     * <p>Sin sesión obligatoria, pero el {@code usuarioId} de la URL no autoriza nada: lo consulta
+     * solo quien presenta el token que le dio SU alta (cabecera {@code Token-De-Alta}) o quien tiene
+     * sesión propia. Todo lo demás es el mismo 403, exista o no ese usuario, y se decide ANTES de
+     * leer el expediente. {@code motivoRechazo} es texto de quien revisó: solo sale cuando el estado
+     * es RECHAZADA (a quien le rechazan la cuenta le corresponde saber por qué) y nunca antes.
+     */
     @Override
-    @Publico("CU-02: quien acaba de registrarse consulta el estado de su expediente")
-    public ResponseEntity<EstadoDeVerificacion> consultarEstadoDeVerificacion(UUID usuarioId) {
+    @Publico(
+            "CU-02: quien acaba de registrarse consulta su expediente; exige el token de alta del propio usuario o su sesion")
+    public ResponseEntity<EstadoDeVerificacion> consultarEstadoDeVerificacion(
+            UUID usuarioId, String tokenDeAltaPresentado) {
+        titular.exigir(usuarioId, tokenDeAltaPresentado);
         Traza.marcarCasoDeUso("CU-02", usuarioId.toString());
         var expediente = estadoDeVerificacion.ejecutar(usuarioId, Traza.actual());
+        var estado = EstadoDeVerificacion.EstadoEnum.fromValue(expediente.estado());
         var salida = new EstadoDeVerificacion()
                 .verificacionId(expediente.verificacionId())
-                .estado(EstadoDeVerificacion.EstadoEnum.fromValue(expediente.estado()))
-                .motivoRechazo(expediente.motivoRechazo());
+                .estado(estado)
+                .motivoRechazo(estado == EstadoDeVerificacion.EstadoEnum.RECHAZADA ? expediente.motivoRechazo() : null);
         expediente.fotos().forEach(f -> salida.addFotosItem(CaraDelExpediente.fromValue(f)));
         return ResponseEntity.ok(salida);
     }

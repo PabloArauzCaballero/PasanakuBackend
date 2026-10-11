@@ -4,6 +4,7 @@ import 'package:aportaya_cliente_identidad/aportaya_cliente_identidad.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'cu02_consultar_verificacion.dart';
+import 'seguimiento_del_alta.dart';
 
 /// Los cuatro estados finales/no-finales, igual que Atlas: `PENDIENTE` y
 /// `EN_REVISION` siguen consultando solas; `APROBADA` y `RECHAZADA` detienen el
@@ -32,7 +33,18 @@ class VerificacionNotifier extends AsyncNotifier<EstadoDeVerificacion> {
       // pantalla que lo mira.
       return Future.error(StateError('Todavía no hay usuario para consultar.'));
     }
-    return ref.read(consultarVerificacionProvider).ejecutar(usuarioId);
+    return ref
+        .read(consultarVerificacionProvider)
+        .ejecutar(usuarioId, tokenDeAlta: _tokenDeAlta(usuarioId));
+  }
+
+  /// El token que devolvió el alta de ESTE usuario y que el servidor exige para
+  /// contestar sin sesión (igual que `subirDocumento`). Solo vale si el seguimiento
+  /// en memoria es el de este mismo `usuarioId`: el de otra persona se rechaza igual
+  /// con 403, y mandarlo solo ensucia.
+  String? _tokenDeAlta(String usuarioId) {
+    final seguimiento = ref.read(seguimientoDelAltaProvider);
+    return seguimiento?.usuarioId == usuarioId ? seguimiento?.tokenDeAlta : null;
   }
 
   /// Arranca el sondeo para un usuario. Se llama una sola vez, al entrar a la
@@ -52,7 +64,7 @@ class VerificacionNotifier extends AsyncNotifier<EstadoDeVerificacion> {
     try {
       final expediente = await ref
           .read(consultarVerificacionProvider)
-          .ejecutar(usuarioId);
+          .ejecutar(usuarioId, tokenDeAlta: _tokenDeAlta(usuarioId));
       state = AsyncData(expediente);
       _intentos++;
       _temporizador?.cancel();

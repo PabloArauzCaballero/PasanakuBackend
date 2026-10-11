@@ -1,0 +1,133 @@
+heavy.sh: candado tomado, libres 4123 MB -> bash C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/n_full.sh --continue :servicios:identidad:spotlessCheck :servicios:grupos:spotlessCheck :servicios:identidad:webTest :servicios:identidad:testBarrido :servicios:grupos:testBarrido
+== docker listo, libres: 4050 MB
+== aplicar.sql RC: 0
+psql:/repo/sql/40_reglas/restricciones.sql:3396: NOTICE:  trigger "tg_distribucion_interes_coherente" for relation "distribucion_interes" does not exist, skipping
+psql:/repo/sql/40_reglas/restricciones.sql:3402: NOTICE:  constraint "ck_corrida_trabajo_fin" of relation "corrida_trabajo" does not exist, skipping
+psql:/repo/sql/40_reglas/restricciones.sql:3403: NOTICE:  constraint "ck_corrida_trabajo_error" of relation "corrida_trabajo" does not exist, skipping
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Starting a Gradle Daemon, 2 stopped Daemons could not be reused, use --status for details
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :servicios:identidad:spotlessJava
+> Task :servicios:identidad:spotlessJavaCheck
+> Task :servicios:identidad:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:identidad:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:identidad:spotlessCheck
+> Task :servicios:grupos:spotlessJava
+> Task :servicios:grupos:spotlessJavaCheck FAILED
+> Task :servicios:grupos:spotlessKotlinGradle
+> Task :servicios:grupos:spotlessKotlinGradleCheck
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-archivos:compileJava UP-TO-DATE
+> Task :plataforma:comun-archivos:processResources UP-TO-DATE
+> Task :plataforma:comun-archivos:classes UP-TO-DATE
+> Task :plataforma:comun-archivos:jar UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources UP-TO-DATE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :servicios:identidad:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:identidad:generateJooq UP-TO-DATE
+> Task :servicios:identidad:compileJava UP-TO-DATE
+> Task :servicios:identidad:processResources UP-TO-DATE
+> Task :servicios:identidad:classes UP-TO-DATE
+> Task :servicios:identidad:compileTestJava
+> Task :servicios:identidad:processTestResources UP-TO-DATE
+> Task :servicios:identidad:testClasses
+
+> Task :servicios:identidad:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:identidad:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:grupos:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:grupos:generateJooq UP-TO-DATE
+> Task :servicios:grupos:compileJava
+> Task :servicios:grupos:processResources UP-TO-DATE
+> Task :servicios:grupos:classes
+> Task :servicios:grupos:compileTestJava UP-TO-DATE
+> Task :servicios:grupos:processTestResources UP-TO-DATE
+> Task :servicios:grupos:testClasses UP-TO-DATE
+
+> Task :servicios:grupos:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':servicios:grupos:spotlessJavaCheck' (registered by plugin 'aportaya.base').
+> The following files had format violations:
+      src\main\java\bo\aportaya\grupos\infraestructura\clientes\HechosPorHttp.java
+          @@ -123,7 +123,8 @@
+           ····@Override
+           ····public·EstadoDePagos·estadoDePagos(UUID·participanteId)·{
+           ········return·aportes.consultar("/aportes/participantes/"·+·participanteId·+·"/estado",·Estado.class)
+          -················//·Un·cuerpo·sin·los·importes·(`{}`)·no·es·una·respuesta:·es·«sin·dato».·Antes·era·un·NPE·(500)·en·vez·del
+          +················//·Un·cuerpo·sin·los·importes·(`{}`)·no·es·una·respuesta:·es·«sin·dato».·Antes·era·un·NPE·(500)·en·vez
+          +················//·del
+           ················//·fallback·declarado·(carril·I:·hallado·por·HechosCaidaTest·cuando·el·circuito·vuelve·a·semiabrirse).
+           ················.filter(e·->·e.totalAportado()·!=·null·&&·e.deudaVigente()·!=·null·&&·e.porAportar()·!=·null)
+           ················.map(e·->·new·EstadoDePagos(
+          @@ -289,8 +290,12 @@
+           ············String·moneda)·{}
+           
+           ····private·record·Morosos(int·morosos)·{}
+          +
+           ····private·record·Puntaje(boolean·tieneHistorial,·String·puntaje)·{}
+          +
+           ····private·record·Restringido(boolean·vigente,·String·montoQueLaLevanta)·{}
+          +
+           ····private·record·Suprimido(boolean·suprimido)·{}
+          +
+           ····private·record·Validacion(boolean·valido)·{}
+           }
+  Run 'gradlew.bat :servicios:grupos:spotlessApply' to fix these violations.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 28s
+53 actionable tasks: 11 executed, 42 up-to-date
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Stopping Daemon(s)
+1 Daemon stopped
+== RC gradle: 1
+FIN RC=1

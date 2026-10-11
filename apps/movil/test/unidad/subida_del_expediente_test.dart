@@ -26,6 +26,7 @@ class _SubidaFalsa extends SubidaDeFotos {
     required String rutaLocal,
     required String formularioId,
     CancelToken? cancelToken,
+    String? tokenDeAlta,
   }) async {
     final fin = Completer<void>();
     llamadas.add((

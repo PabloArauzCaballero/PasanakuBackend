@@ -1,8 +1,14 @@
 import 'package:aportaya_cliente_identidad/aportaya_cliente_identidad.dart';
+import 'package:aportaya_movil/dominio/cliente.dart';
+import 'package:aportaya_movil/pantallas/identidad/dominio/capturas_del_expediente.dart';
 import 'package:aportaya_movil/pantallas/identidad/dominio/cu02_consultar_verificacion.dart';
 import 'package:aportaya_movil/pantallas/identidad/dominio/estado_de_verificacion.dart';
+import 'package:aportaya_movil/pantallas/identidad/dominio/seguimiento_del_alta.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../comun.dart';
 
 /// Doble de `ConsultarVerificacion`: devuelve los estados de la lista en orden y,
 /// cuando se acaba, repite el último. Cuenta cuántas veces la consultaron.
@@ -12,9 +18,16 @@ class _ConsultaFalsa extends ConsultarVerificacion {
   final bool falla;
   int consultas = 0;
 
+  /// El `Token-De-Alta` con el que llegó cada consulta, en orden.
+  final tokens = <String?>[];
+
   @override
-  Future<EstadoDeVerificacion> ejecutar(String usuarioId) async {
+  Future<EstadoDeVerificacion> ejecutar(
+    String usuarioId, {
+    String? tokenDeAlta,
+  }) async {
     consultas++;
+    tokens.add(tokenDeAlta);
     if (falla) throw StateError('sin red');
     final i = consultas - 1 < _estados.length
         ? consultas - 1
@@ -107,6 +120,92 @@ void main() {
 
     await notifier.actualizar();
     expect(falsa.consultas, 2);
+  });
+
+  testWidgets(
+    'cada consulta lleva el Token-De-Alta de ESE alta; sin seguimiento no lleva ninguno',
+    (tester) async {
+      final (:contenedor, :falsa) = _armar([_enRevision, _aprobada]);
+      contenedor
+          .read(seguimientoDelAltaProvider.notifier)
+          .fijar('u-1', const CapturasDelExpediente(), tokenDeAlta: 'tok-u-1');
+      contenedor.read(verificacionProvider.notifier).iniciar('u-1');
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 2));
+      expect(falsa.tokens, ['tok-u-1', 'tok-u-1']);
+
+      // Otro usuario en pantalla: el token de u-1 NO viaja a la consulta de u-2.
+      contenedor.read(verificacionProvider.notifier).iniciar('u-2');
+      await tester.pump();
+      expect(falsa.tokens.last, isNull);
+    },
+  );
+
+  test('contra el cliente real: el Token-De-Alta viaja como cabecera', () async {
+    final (:dio, :adaptador) = dioSimulado();
+    const usuario = 'dddddddd-0000-4000-8000-000000000001';
+    final cabeceras = <Map<String, dynamic>>[];
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (o, h) {
+          if (o.path.endsWith('/verificacion')) cabeceras.add(o.headers);
+          h.next(o);
+        },
+      ),
+    );
+    adaptador.onGet(
+      '/usuarios/$usuario/verificacion',
+      (s) => s.reply(
+        200,
+        ejemplo('identidad', 'consultarEstadoDeVerificacion', 'ok')['cuerpo'],
+      ),
+      headers: {'Token-De-Alta': 'tok-real'},
+    );
+    final c = ProviderContainer(
+      retry: (retryCount, error) => null,
+      overrides: [dioProvider.overrideWithValue(dio)],
+    );
+    addTearDown(c.dispose);
+
+    final r = await c
+        .read(consultarVerificacionProvider)
+        .ejecutar(usuario, tokenDeAlta: 'tok-real');
+
+    expect(r.estado, EstadoDeVerificacionEstadoEnum.PENDIENTE);
+    expect(cabeceras.single['Token-De-Alta'], 'tok-real');
+  });
+
+  test('contra el cliente real: sin token no hay cabecera y el 403 llega como error', () async {
+    final (:dio, :adaptador) = dioSimulado();
+    const usuario = 'dddddddd-0000-4000-8000-000000000001';
+    final cabeceras = <Map<String, dynamic>>[];
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (o, h) {
+          cabeceras.add(o.headers);
+          h.next(o);
+        },
+      ),
+    );
+    adaptador.onGet(
+      '/usuarios/$usuario/verificacion',
+      (s) => s.reply(403, {
+        'codigo': 'AP-SEG-01',
+        'mensaje': 'No tenés permiso para esta acción',
+        'trazaId': 't-1',
+      }),
+    );
+    final c = ProviderContainer(
+      retry: (retryCount, error) => null,
+      overrides: [dioProvider.overrideWithValue(dio)],
+    );
+    addTearDown(c.dispose);
+
+    await expectLater(
+      c.read(consultarVerificacionProvider).ejecutar(usuario),
+      throwsA(isA<DioException>()),
+    );
+    expect(cabeceras.single.containsKey('Token-De-Alta'), isFalse);
   });
 
   testWidgets('un fallo de red queda como error y no reprograma', (

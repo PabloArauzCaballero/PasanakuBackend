@@ -72,7 +72,7 @@ class SubidaDeFotos {
                   .claveDe(formularioId),
               // Sin sesion durante el alta, lo que autoriza la subida es el token que
               // devolvio ESE alta; con solo el `usuarioId` el servidor responde 403.
-              if (tokenDeAlta != null) 'Token-De-Alta': tokenDeAlta,
+              'Token-De-Alta': ?tokenDeAlta,
             },
           ),
         );

@@ -377,23 +377,36 @@ paths:
       operationId: consultarEstadoDeVerificacion
       summary: El estado de la verificacion de quien acaba de registrarse
       description: >-
-        Ruta publica, igual que `subirDocumento`: quien recien se registro todavia
-        no puede abrir sesion (su dispositivo es nuevo y `ExigeSegundoFactor` le
-        pide un MFA que todavia no tiene enrolado), y necesita saber si su cuenta
-        quedo verificada sin esperar a poder ingresar. La respuesta es minima — ni
-        nombre ni documento — para que esta ruta no se convierta en un directorio
-        de clientes.
+        Ruta sin sesion obligatoria, igual que `subirDocumento`: quien recien se registro
+        todavia no puede abrir sesion (su dispositivo es nuevo y `ExigeSegundoFactor` le
+        pide un MFA que todavia no tiene enrolado), y necesita saber si su cuenta quedo
+        verificada sin esperar a poder ingresar.
+
+        Pero el `usuarioId` de la URL NO autoriza nada: lo consulta solo la persona. O
+        presenta el `tokenDeAlta` que devolvio SU alta (cabecera `Token-De-Alta`), o es su
+        propia sesion. Cualquier otro caso —token de otro usuario, vencido, mal formado,
+        ausente, sesion de otra persona, o un UUID que no existe— responde el MISMO 403,
+        sin decir si el usuario existe, y se decide antes de leer el expediente. La
+        respuesta es minima — ni nombre ni documento — y el motivo del rechazo solo viaja
+        cuando el estado es RECHAZADA (la persona tiene derecho a saber por que).
       parameters:
         - name: usuarioId
           in: path
           required: true
           schema: { type: string, format: uuid }
+        - name: Token-De-Alta
+          in: header
+          required: false
+          description: El `tokenDeAlta` de la respuesta del alta. Opcional solo si hay sesion propia.
+          schema: { type: string, maxLength: 200 }
       responses:
         '200':
           description: El estado del expediente, sin datos personales
           content:
             application/json:
               schema: { $ref: '#/components/schemas/EstadoDeVerificacion' }
+        '403':
+          description: No es la persona ni presenta el token de su alta (idéntico exista o no el usuario)
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
           # AP-CU02-xx NO_HAY_EXPEDIENTE
 
@@ -836,9 +849,9 @@ components:
       additionalProperties: false
       required: [verificacionId, estado, fotos]
       description: >-
-        El estado minimo que el propio participante puede consultar sin sesion.
-        A proposito no trae nombre, documento ni nada que identifique a otra
-        persona distinta de quien ya sabe su propio usuarioId.
+        El estado minimo que el propio participante puede consultar con el token de su
+        alta o con su sesion. A proposito no trae nombre, documento ni nada que identifique
+        a otra persona; `motivoRechazo` solo viaja cuando el estado es RECHAZADA.
       properties:
         verificacionId: { type: string, format: uuid }
         estado:         { type: string, enum: [PENDIENTE, EN_REVISION, APROBADA, RECHAZADA] }
