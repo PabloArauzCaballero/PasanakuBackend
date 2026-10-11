@@ -150,6 +150,49 @@ comportamiento del servicio, no de las cuentas, y queda anotado, no corregido.
 sin `app.entorno = 'dev'`, y `sembrar_test.sh` aborta si identidad no corre con el perfil `local` (el de
 producción no acepta el segundo factor fijo). Producción no corre ninguno de los dos.
 
+## Sandbox de licencia para GRUPO_PASANAKU en TEST (sintético)
+
+**Por qué.** Con las cuentas de arriba A pasa todas las precondiciones de «crear grupo», pero TEST
+responde `422 AP-CU20-04` («El servicio no está habilitado en este momento»): `GET
+/licencia/alcance?servicio=GRUPO_PASANAKU` dice `habilitado:false, via:NINGUNA` porque la licencia se siembra
+`EN_TRAMITE` a propósito (R-LIC-01, CU-46; `seeders/minimos/08-gobierno-y-licencia.json`). No es un defecto:
+es la regla funcionando, y sin licencia el recorrido «A crea grupo e invita, B acepta» no se puede hacer.
+
+**Qué se hace (y qué NO).** Se abre la **segunda puerta** del propio modelo: un `entorno_prueba_regulado`
+(sandbox) `ACTIVO` solo para `GRUPO_PASANAKU`, colgado de la licencia sembrada. `fn_lic_servicio_habilitado()`
+y `cumplimiento` habilitan un servicio si hay licencia OTORGADA que lo cubre **o** un sandbox activo dentro
+de su ventana (CU-46, flujo principal 2). Por eso **no se toca la licencia**: sigue `ASFI /
+CERTIFICADO_ADECUACION / EN_TRAMITE`, sin número de resolución, y no se inventa ningún número ni autoridad.
+La respuesta pasa a `habilitado:true, via:SANDBOX`, con los límites de la fila. BILLETERA, RECARGA, RETIRO y
+TRANSFERENCIA_P2P siguen denegados.
+
+**Es sintético y declarado** (`seeders/dev/18-licencia-sandbox-test.json`: `apto_produccion=false`,
+procedencia «sandbox de TEST: no es una licencia ASFI», el campo `alcance` de la fila lleva la misma
+leyenda). Lo que simula sin que haya pasado: que cumplimiento haya autorizado un entorno de prueba regulado
+(no hay solicitud, resolución, garantía ni informes). Los límites (50 usuarios, 50000.00) están para cumplir
+`ck_sandbox_limites` (R-LIC-02); no son un límite regulatorio. La persona dueña de TEST lo autorizó
+expresamente («sí, sandbox de licencia»). **Nunca en producción.**
+
+**Cómo aplicarlo, comprobarlo y retirarlo** (el SQL del guion lo escribe `scripts/generar_semillas.py` entre
+las marcas `SQL-GENERADO`; no se edita):
+
+```bash
+ssh root@161.97.85.216 'bash -s'              < despliegue/ensayos/sandbox_licencia_test.sh   # aplica (idempotente)
+ssh root@161.97.85.216 'bash -s -- --estado'  < despliegue/ensayos/sandbox_licencia_test.sh   # solo lee
+ssh root@161.97.85.216 'bash -s -- --retirar' < despliegue/ensayos/sandbox_licencia_test.sh   # lo da de baja
+```
+
+Idempotente (id estable, `ON CONFLICT (id) DO NOTHING`): la segunda corrida dice `cambios: 0`. Si el sandbox
+se retiró o su ventana (90 días) venció, correrlo de nuevo lo reactiva. `--retirar` pasa la fila a
+`FINALIZADO`: el alcance vuelve a `habilitado:false, via:NINGUNA` y la licencia no cambió. Se comprueba con
+una sesión real: `GET /licencia/alcance?servicio=GRUPO_PASANAKU`.
+
+**Guardas** (abortan sin escribir): (1) identidad, cumplimiento y grupos deben correr con el perfil `local`
+y ninguno con un perfil de producción; (2) si la base trae `app.entorno`, no puede ser de producción; (3) si
+ya existe una licencia `OTORGADA` no se mezcla un sandbox sintético con una real; (4) debe existir la
+licencia sembrada de la que cuelga. Además vive en `seeders/dev/`: `sembrar_dev.sql` (que lo incluye) aborta
+sin `app.entorno = 'dev'` y `minimos/` no lo contiene, así que producción no lo recibe.
+
 ## El corpus de identidad
 
 TEST se usa además para juntar un corpus de verificación de identidad: por cada persona
