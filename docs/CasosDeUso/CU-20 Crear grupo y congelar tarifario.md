@@ -50,10 +50,10 @@ normas: [ASFI transparencia y consumidor financiero]
    sin precio congelado no puede recibir a nadie.
 
 > **Decisión A1 ([[ADR-052 Decisiones adoptadas por delegación del dueño|ADR-052]] DD-5; pendiente de ratificación de Producto).** El diseño original dice que el
-> grupo abre «cuando los dos respondieron» (precio congelado y cuenta del grupo abierta). La cuenta del grupo (segunda
-> y tercera viñeta del paso 3) todavía no la abre ningún consumidor, y la única razón que el diseño da para el borrador
-> es el precio. El grupo abre solo, con el precio congelado, y la cuenta del grupo **no** es condición de apertura. Un grupo
-> puede recibir invitados antes de tener cuenta; cobrarles sigue exigiéndola.
+> grupo abre «cuando los dos respondieron» (precio congelado y cuenta del grupo abierta). `nucleo-financiero` abre la
+> cuenta del grupo al consumir `grupos.grupo_creado` (ADR-052 DD-8, carril Q), pero la única razón que el diseño da para el
+> borrador es el precio: el grupo abre solo, con el precio congelado, y la cuenta del grupo **no** es condición de apertura.
+> Un grupo puede recibir invitados un instante antes de que su cuenta exista; cobrarles sigue exigiéndola.
 
 ## Flujos alternativos
 

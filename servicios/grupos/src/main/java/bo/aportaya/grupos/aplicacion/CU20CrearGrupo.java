@@ -32,9 +32,9 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * <p>Misma respuesta que en CU-01, por la misma razon: <b>coreografia</b>. El grupo
  * nace {@code BORRADOR} y emite {@code grupos.grupo_creado}; {@code tarifas} congela
- * el precio y {@code nucleo-financiero} abrira la cuenta al consumirlo. El grupo pasa a
- * {@code ABIERTO_A_INSCRIPCION} cuando {@code tarifas} responde ({@link AbrirInscripcionDelGrupo}; la cuenta del grupo
- * todavia no la abre nadie y la apertura no la espera: supuesto A1, a confirmar con producto y con ese servicio).
+ * el precio y {@code nucleo-financiero} abre la cuenta al consumirlo. El grupo pasa a
+ * {@code ABIERTO_A_INSCRIPCION} cuando {@code tarifas} responde ({@link AbrirInscripcionDelGrupo}; la apertura no
+ * espera a la cuenta del grupo: supuesto A1, a confirmar con producto y con ese servicio).
  *
  * <p>Que nazca en borrador no es un rodeo: <b>un grupo sin precio congelado no puede
  * recibir a nadie</b>, porque el precio es justamente lo que cada participante acepta
