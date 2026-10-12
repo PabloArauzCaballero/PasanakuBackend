@@ -1,0 +1,415 @@
+== intento 1 05:17:29
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources UP-TO-DATE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :servicios:nucleo-financiero:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:nucleo-financiero:generateJooq UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileJava
+> Task :servicios:nucleo-financiero:processResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:classes
+> Task :servicios:nucleo-financiero:compileTestJava
+> Task :servicios:nucleo-financiero:processTestResources
+> Task :servicios:nucleo-financiero:testClasses
+
+> Task :servicios:nucleo-financiero:test
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+> Task :servicios:nucleo-financiero:webTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:nucleo-financiero:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:nucleo-financiero:integrationTest
+
+CU13PactoInversionesTest > cuadre: el servidor real responde lo pactado a cada peticion del pacto y el libro queda cuadrado (custodia en cero, titular con su saldo) FAILED
+    org.opentest4j.AssertionFailedError: [saldo: falta el campo comprometidoEnPozos.monto] 
+    Expecting value to be false but was true
+        at app//bo.aportaya.nucleofinanciero.CU13PactoInversionesTest.elProductorCumpleElPacto(CU13PactoInversionesTest.java:164)
+
+CUConsumoDeAportesTest > fuera de orden: el segundo cobro parcial de una obligacion consumido ANTES que el primero deja el mismo saldo; y un aporte llegado antes del fondeo se rechaza sin efectos y se aplica una vez al reprocesar FAILED
+    java.lang.AssertionError: 
+    Expecting code to raise a throwable.
+        at bo.aportaya.nucleofinanciero.CUConsumoDeAportesTest.fueraDeOrden(CUConsumoDeAportesTest.java:197)
+
+2026-10-12T05:21:31.382Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-nucleo-financiero-grupos-9, groupId=nucleo-financiero-grupos] Node -1 disconnected.
+2026-10-12T05:21:31.382Z  WARN 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-nucleo-financiero-grupos-9, groupId=nucleo-financiero-grupos] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2026-10-12T05:21:31.382Z  WARN 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-nucleo-financiero-grupos-9, groupId=nucleo-financiero-grupos] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-10-12T05:21:31.488Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-nucleo-financiero-usuarios-10, groupId=nucleo-financiero-usuarios] Node -1 disconnected.
+2026-10-12T05:21:31.489Z  WARN 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-nucleo-financiero-usuarios-10, groupId=nucleo-financiero-usuarios] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2026-10-12T05:21:31.489Z  WARN 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-nucleo-financiero-usuarios-10, groupId=nucleo-financiero-usuarios] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-10-12T05:21:31.505Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-usuarios-1, groupId=nucleo-financiero-usuarios] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.505Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-usuarios-1, groupId=nucleo-financiero-usuarios] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.505Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-nucleo-financiero-usuarios-1, groupId=nucleo-financiero-usuarios] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:21:31.508Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-2, groupId=nucleo-financiero-aportes] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.508Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-2, groupId=nucleo-financiero-aportes] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.508Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-nucleo-financiero-aportes-2, groupId=nucleo-financiero-aportes] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:21:31.509Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-grupos-3, groupId=nucleo-financiero-grupos] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.509Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-grupos-3, groupId=nucleo-financiero-grupos] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.509Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-nucleo-financiero-grupos-3, groupId=nucleo-financiero-grupos] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:21:31.510Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-2, groupId=nucleo-financiero-aportes] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.510Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-2, groupId=nucleo-financiero-aportes] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.510Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-usuarios-1, groupId=nucleo-financiero-usuarios] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.510Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-grupos-3, groupId=nucleo-financiero-grupos] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.510Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-usuarios-1, groupId=nucleo-financiero-usuarios] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.510Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-grupos-3, groupId=nucleo-financiero-grupos] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.514Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:21:31.515Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:21:31.514Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:21:31.515Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:21:31.515Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:21:31.515Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:21:31.515Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:21:31.515Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:21:31.518Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:21:31.518Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:21:31.518Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:21:31.518Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:21:31.525Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-nucleo-financiero-usuarios-1 unregistered
+2026-10-12T05:21:31.526Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : nucleo-financiero-usuarios: Consumer stopped
+2026-10-12T05:21:31.526Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-nucleo-financiero-grupos-3 unregistered
+2026-10-12T05:21:31.527Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : nucleo-financiero-grupos: Consumer stopped
+2026-10-12T05:21:31.530Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-nucleo-financiero-aportes-2 unregistered
+2026-10-12T05:21:31.530Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : nucleo-financiero-aportes: Consumer stopped
+2026-10-12T05:21:31.531Z  INFO 32192 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-12T05:21:31.536Z  INFO 32192 --- [nucleo-financiero] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-12T05:21:31.551Z  INFO 32192 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-12T05:21:31.553Z  INFO 32192 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-12T05:21:31.570Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-grupos-6, groupId=nucleo-financiero-grupos] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.570Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-usuarios-4, groupId=nucleo-financiero-usuarios] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.570Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-grupos-6, groupId=nucleo-financiero-grupos] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.570Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-usuarios-4, groupId=nucleo-financiero-usuarios] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.570Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-nucleo-financiero-grupos-6, groupId=nucleo-financiero-grupos] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:21:31.570Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-nucleo-financiero-usuarios-4, groupId=nucleo-financiero-usuarios] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:21:31.570Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-grupos-6, groupId=nucleo-financiero-grupos] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.570Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-grupos-6, groupId=nucleo-financiero-grupos] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.570Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-usuarios-4, groupId=nucleo-financiero-usuarios] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.570Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-usuarios-4, groupId=nucleo-financiero-usuarios] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.572Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:21:31.572Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:21:31.572Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:21:31.572Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:21:31.573Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:21:31.573Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:21:31.574Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:21:31.574Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:21:31.575Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-nucleo-financiero-grupos-6 unregistered
+2026-10-12T05:21:31.576Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : nucleo-financiero-grupos: Consumer stopped
+2026-10-12T05:21:31.576Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-5, groupId=nucleo-financiero-aportes] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.576Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-5, groupId=nucleo-financiero-aportes] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.576Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-nucleo-financiero-aportes-5, groupId=nucleo-financiero-aportes] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:21:31.576Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-5, groupId=nucleo-financiero-aportes] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.576Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-5, groupId=nucleo-financiero-aportes] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.577Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:21:31.577Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:21:31.577Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-nucleo-financiero-grupos-15, groupId=nucleo-financiero-grupos] Node -1 disconnected.
+2026-10-12T05:21:31.577Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:21:31.577Z  WARN 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-nucleo-financiero-grupos-15, groupId=nucleo-financiero-grupos] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2026-10-12T05:21:31.577Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:21:31.577Z  WARN 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-nucleo-financiero-grupos-15, groupId=nucleo-financiero-grupos] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-10-12T05:21:31.579Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-nucleo-financiero-aportes-5 unregistered
+2026-10-12T05:21:31.579Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : nucleo-financiero-aportes: Consumer stopped
+2026-10-12T05:21:31.582Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-nucleo-financiero-usuarios-4 unregistered
+2026-10-12T05:21:31.582Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : nucleo-financiero-usuarios: Consumer stopped
+2026-10-12T05:21:31.583Z  INFO 32192 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-12T05:21:31.584Z  INFO 32192 --- [nucleo-financiero] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-12T05:21:31.587Z  INFO 32192 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-10-12T05:21:31.593Z  INFO 32192 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+2026-10-12T05:21:31.603Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-grupos-9, groupId=nucleo-financiero-grupos] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.604Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-grupos-9, groupId=nucleo-financiero-grupos] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.604Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-nucleo-financiero-grupos-9, groupId=nucleo-financiero-grupos] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:21:31.604Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-grupos-9, groupId=nucleo-financiero-grupos] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.604Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-grupos-9, groupId=nucleo-financiero-grupos] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.604Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:21:31.604Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:21:31.604Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:21:31.604Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:21:31.606Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-nucleo-financiero-grupos-9 unregistered
+2026-10-12T05:21:31.608Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : nucleo-financiero-grupos: Consumer stopped
+2026-10-12T05:21:31.610Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-usuarios-7, groupId=nucleo-financiero-usuarios] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.610Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-usuarios-7, groupId=nucleo-financiero-usuarios] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.610Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-nucleo-financiero-usuarios-7, groupId=nucleo-financiero-usuarios] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:21:31.611Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-usuarios-7, groupId=nucleo-financiero-usuarios] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.611Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-usuarios-7, groupId=nucleo-financiero-usuarios] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.612Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:21:31.612Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-8, groupId=nucleo-financiero-aportes] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.613Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:21:31.613Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:21:31.613Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-8, groupId=nucleo-financiero-aportes] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.613Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-nucleo-financiero-aportes-8, groupId=nucleo-financiero-aportes] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:21:31.613Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:21:31.613Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-8, groupId=nucleo-financiero-aportes] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.613Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-8, groupId=nucleo-financiero-aportes] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.614Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:21:31.614Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:21:31.614Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:21:31.615Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:21:31.617Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-nucleo-financiero-usuarios-13, groupId=nucleo-financiero-usuarios] Node -1 disconnected.
+2026-10-12T05:21:31.617Z  WARN 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-nucleo-financiero-usuarios-13, groupId=nucleo-financiero-usuarios] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2026-10-12T05:21:31.617Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-nucleo-financiero-usuarios-7 unregistered
+2026-10-12T05:21:31.617Z  WARN 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-nucleo-financiero-usuarios-13, groupId=nucleo-financiero-usuarios] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-10-12T05:21:31.617Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : nucleo-financiero-usuarios: Consumer stopped
+2026-10-12T05:21:31.618Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-nucleo-financiero-aportes-8 unregistered
+2026-10-12T05:21:31.619Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : nucleo-financiero-aportes: Consumer stopped
+2026-10-12T05:21:31.620Z  INFO 32192 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-12T05:21:31.621Z  INFO 32192 --- [nucleo-financiero] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-12T05:21:31.629Z  INFO 32192 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown initiated...
+2026-10-12T05:21:31.634Z  INFO 32192 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown completed.
+2026-10-12T05:21:31.650Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-grupos-12, groupId=nucleo-financiero-grupos] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.651Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-grupos-12, groupId=nucleo-financiero-grupos] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.651Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-nucleo-financiero-grupos-12, groupId=nucleo-financiero-grupos] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:21:31.651Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-grupos-12, groupId=nucleo-financiero-grupos] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.651Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-grupos-12, groupId=nucleo-financiero-grupos] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.651Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-usuarios-10, groupId=nucleo-financiero-usuarios] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.651Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-usuarios-10, groupId=nucleo-financiero-usuarios] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.651Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-nucleo-financiero-usuarios-10, groupId=nucleo-financiero-usuarios] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:21:31.651Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-usuarios-10, groupId=nucleo-financiero-usuarios] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.651Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-usuarios-10, groupId=nucleo-financiero-usuarios] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.652Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:21:31.652Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:21:31.652Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:21:31.650Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-11, groupId=nucleo-financiero-aportes] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.652Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:21:31.652Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-11, groupId=nucleo-financiero-aportes] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.652Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-nucleo-financiero-aportes-11, groupId=nucleo-financiero-aportes] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:21:31.652Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-11, groupId=nucleo-financiero-aportes] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.652Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-11, groupId=nucleo-financiero-aportes] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.653Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:21:31.653Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:21:31.653Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:21:31.653Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:21:31.653Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:21:31.653Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:21:31.653Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:21:31.653Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:21:31.655Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-nucleo-financiero-grupos-12 unregistered
+2026-10-12T05:21:31.655Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : nucleo-financiero-grupos: Consumer stopped
+2026-10-12T05:21:31.658Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-nucleo-financiero-usuarios-10 unregistered
+2026-10-12T05:21:31.658Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : nucleo-financiero-usuarios: Consumer stopped
+2026-10-12T05:21:31.659Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-nucleo-financiero-aportes-11 unregistered
+2026-10-12T05:21:31.659Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : nucleo-financiero-aportes: Consumer stopped
+2026-10-12T05:21:31.659Z  INFO 32192 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-12T05:21:31.662Z  INFO 32192 --- [nucleo-financiero] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-12T05:21:31.665Z  INFO 32192 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown initiated...
+2026-10-12T05:21:31.668Z  INFO 32192 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown completed.
+2026-10-12T05:21:31.679Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-14, groupId=nucleo-financiero-aportes] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.679Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-14, groupId=nucleo-financiero-aportes] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.679Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-nucleo-financiero-aportes-14, groupId=nucleo-financiero-aportes] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:21:31.679Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-14, groupId=nucleo-financiero-aportes] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.679Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-aportes-14, groupId=nucleo-financiero-aportes] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.679Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-grupos-15, groupId=nucleo-financiero-grupos] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.680Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-grupos-15, groupId=nucleo-financiero-grupos] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.680Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-nucleo-financiero-grupos-15, groupId=nucleo-financiero-grupos] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:21:31.680Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-grupos-15, groupId=nucleo-financiero-grupos] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.680Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-grupos-15, groupId=nucleo-financiero-grupos] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.679Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-usuarios-13, groupId=nucleo-financiero-usuarios] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.680Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-usuarios-13, groupId=nucleo-financiero-usuarios] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.680Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-nucleo-financiero-usuarios-13, groupId=nucleo-financiero-usuarios] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:21:31.680Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-usuarios-13, groupId=nucleo-financiero-usuarios] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.680Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-nucleo-financiero-usuarios-13, groupId=nucleo-financiero-usuarios] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:21:31.681Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:21:31.681Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:21:31.681Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:21:31.681Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:21:31.681Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:21:31.681Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:21:31.681Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:21:31.681Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:21:31.683Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-nucleo-financiero-aportes-14 unregistered
+2026-10-12T05:21:31.683Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-nucleo-financiero-grupos-15 unregistered
+2026-10-12T05:21:31.684Z  INFO 32192 --- [nucleo-financiero] [        kafka-3] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : nucleo-financiero-grupos: Consumer stopped
+2026-10-12T05:21:31.684Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:21:31.684Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:21:31.684Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:21:31.684Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:21:31.684Z  INFO 32192 --- [nucleo-financiero] [        kafka-2] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : nucleo-financiero-aportes: Consumer stopped
+2026-10-12T05:21:31.685Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-nucleo-financiero-usuarios-13 unregistered
+2026-10-12T05:21:31.688Z  INFO 32192 --- [nucleo-financiero] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : nucleo-financiero-usuarios: Consumer stopped
+2026-10-12T05:21:31.688Z  INFO 32192 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-12T05:21:31.690Z  INFO 32192 --- [nucleo-financiero] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-12T05:21:31.692Z  INFO 32192 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Shutdown initiated...
+2026-10-12T05:21:31.698Z  INFO 32192 --- [nucleo-financiero] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Shutdown completed.
+
+> Task :servicios:nucleo-financiero:integrationTest
+
+444 tests completed, 2 failed
+
+> Task :servicios:nucleo-financiero:integrationTest FAILED
+
+> Task :servicios:nucleo-financiero:contractTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+> Task :servicios:nucleo-financiero:sagaTest NO-SOURCE
+
+> Task :servicios:nucleo-financiero:testBarrido FAILED
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+BarridoTest > tamano-archivo: ningun archivo llega a 300 lineas FAILED
+    java.lang.AssertionError: [tamano-archivo: 300 lineas o mas bloquean — son varias piezas que nadie separo] 
+    Expecting empty but was: ["main/java/bo/aportaya/nucleofinanciero/aplicacion/CU13EjecutarConDestino.java  313 lineas (limite 300)",
+        "test/java/bo/aportaya/nucleofinanciero/CU13MercadoTest.java  356 lineas (limite 300)"]
+        at bo.aportaya.plataforma.pruebas.barrido.Barrido.ningunArchivoBloquea(Barrido.java:46)
+        at bo.aportaya.nucleofinanciero.BarridoTest.ningunArchivoBloquea(BarridoTest.java:20)
+
+2 tests completed, 1 failed
+
+> Task :servicios:aportes:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:aportes:generateJooq UP-TO-DATE
+> Task :servicios:aportes:compileJava
+> Task :servicios:aportes:processResources UP-TO-DATE
+> Task :servicios:aportes:classes
+> Task :servicios:aportes:compileTestJava
+> Task :servicios:aportes:processTestResources
+> Task :servicios:aportes:testClasses
+
+> Task :servicios:aportes:test
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+> Task :servicios:aportes:webTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:aportes:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-12T05:22:58.872Z  INFO 12196 --- [aportes] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-aportes-compensacion-1, groupId=aportes-compensacion] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:22:58.872Z  INFO 12196 --- [aportes] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-aportes-compensacion-1, groupId=aportes-compensacion] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:22:58.872Z  INFO 12196 --- [aportes] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-aportes-compensacion-1, groupId=aportes-compensacion] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:22:58.874Z  INFO 12196 --- [aportes] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-aportes-compensacion-1, groupId=aportes-compensacion] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:22:58.875Z  INFO 12196 --- [aportes] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-aportes-compensacion-1, groupId=aportes-compensacion] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:22:58.879Z  INFO 12196 --- [aportes] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:22:58.879Z  INFO 12196 --- [aportes] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:22:58.880Z  INFO 12196 --- [aportes] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:22:58.880Z  INFO 12196 --- [aportes] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:22:58.886Z  INFO 12196 --- [aportes] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-aportes-compensacion-1 unregistered
+2026-10-12T05:22:58.887Z  INFO 12196 --- [aportes] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : aportes-compensacion: Consumer stopped
+2026-10-12T05:22:58.890Z  INFO 12196 --- [aportes] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-12T05:22:58.893Z  INFO 12196 --- [aportes] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-12T05:22:58.905Z  INFO 12196 --- [aportes] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-12T05:22:58.915Z  INFO 12196 --- [aportes] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:aportes:contractTest NO-SOURCE
+> Task :servicios:aportes:sagaTest NO-SOURCE
+
+> Task :servicios:aportes:testBarrido FAILED
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+BarridoTest > tamano-archivo: ningun archivo llega a 300 lineas FAILED
+    java.lang.AssertionError: [tamano-archivo: 300 lineas o mas bloquean — son varias piezas que nadie separo] 
+    Expecting empty but was: ["test/java/bo/aportaya/aportes/CU21CompensaTest.java  349 lineas (limite 300)"]
+        at bo.aportaya.plataforma.pruebas.barrido.Barrido.ningunArchivoBloquea(Barrido.java:46)
+        at bo.aportaya.aportes.BarridoTest.ningunArchivoBloquea(BarridoTest.java:20)
+
+2 tests completed, 1 failed
+
+> Task :servicios:entregas:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:entregas:generateJooq UP-TO-DATE
+> Task :servicios:entregas:compileJava UP-TO-DATE
+> Task :servicios:entregas:processResources UP-TO-DATE
+> Task :servicios:entregas:classes UP-TO-DATE
+> Task :servicios:entregas:compileTestJava
+> Task :servicios:entregas:processTestResources
+> Task :servicios:entregas:testClasses
+
+> Task :servicios:entregas:test
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+> Task :servicios:entregas:webTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:entregas:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-12T05:24:53.814Z  INFO 15196 --- [entregas] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-12T05:24:53.817Z  INFO 15196 --- [entregas] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-12T05:24:53.827Z  INFO 15196 --- [entregas] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-12T05:24:53.832Z  INFO 15196 --- [entregas] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:entregas:contractTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+> Task :servicios:entregas:sagaTest NO-SOURCE
+
+> Task :servicios:entregas:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+FAILURE: Build completed with 3 failures.
+
+1: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:nucleo-financiero:integrationTest'.
+> There were failing tests. See the report at: file:///home/user/PasanakuBackend/servicios/nucleo-financiero/build/reports/tests/integrationTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+2: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:nucleo-financiero:testBarrido'.
+> There were failing tests. See the report at: file:///home/user/PasanakuBackend/servicios/nucleo-financiero/build/reports/tests/testBarrido/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+3: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:aportes:testBarrido'.
+> There were failing tests. See the report at: file:///home/user/PasanakuBackend/servicios/aportes/build/reports/tests/testBarrido/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+BUILD FAILED in 7m 28s
+58 actionable tasks: 22 executed, 36 up-to-date
+RC 1

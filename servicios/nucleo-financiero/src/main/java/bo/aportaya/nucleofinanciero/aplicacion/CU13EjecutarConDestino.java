@@ -175,29 +175,10 @@ public class CU13EjecutarConDestino {
             if (!ofertaDe(retencion).equals(e.ofertaId())) {
                 throw new ErrorDeNegocio(CodigoError.de(13, 8), "La oferta no es la que motivo esa retencion.");
             }
-            // Reparto (decision delegada por el dueno, 2026-10-11; lo modela entregas): el comprador paga el PRECIO,
-            // que es
-            // exactamente lo que retuvo; el vendedor cobra precio - cargos y la plataforma ingresa los cargos. Los dos
-            // importes
-            // los afirma entregas (dueno de la oferta); aca solo se verifica que cuadren con lo retenido.
+            // El reparto lo afirma entregas (dueno de la oferta); aca solo se verifica que cuadre con lo retenido.
             Dinero precio = e.precio();
             Dinero cargos = e.cargos();
-            if (precio.moneda() != retencion.monto().moneda()
-                    || cargos.moneda() != precio.moneda()
-                    || precio.esNegativo()
-                    || precio.esCero()
-                    || !precio.equals(retencion.monto())) {
-                throw new ErrorDeNegocio(
-                        CodigoError.de(13, 6),
-                        "El precio de la oferta (" + precio + ") no es lo retenido (" + retencion.monto() + ").");
-            }
-            if (cargos.esNegativo() || cargos.esMayorQue(precio)) {
-                throw new ErrorDeNegocio(
-                        CodigoError.de(13, 6),
-                        "Los cargos de la oferta (" + cargos + ") no pueden ser negativos ni superar el precio ("
-                                + precio + ").");
-            }
-            Dinero paraElVendedor = precio.menos(cargos);
+            Dinero paraElVendedor = RepartoDeCompraEnMercado.paraElVendedor(precio, cargos, retencion.monto());
             if (e.vendedorUsuarioId().equals(comprador.usuarioId())) {
                 throw new ErrorDeNegocio(CodigoError.de(13, 8), "El vendedor no puede ser el comprador.");
             }
