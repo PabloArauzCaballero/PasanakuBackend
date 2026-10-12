@@ -215,7 +215,7 @@ Todos los carriles pararon con su trabajo **commiteado como `WIP:` y empujado** 
 
 ## 12. RETOMADA 2026-10-12 (sesión Claude): qué quedó de este relevo
 
-Detalle y evidencia: «Retomada 2026-10-12 (H17)» en `REPORTE.md` y `evidencia/carril-H17/`. Avance del plan: **89 / 114**.
+Detalle y evidencia: «Retomada 2026-10-12 (H17)» en `REPORTE.md` y `evidencia/carril-H17/`. Avance del plan: **91 / 114**.
 
 - **§6.1–6.3 hechos**: P, Q, R y T compilan, están formateados y sus pruebas pasan (backend: 3.587 pruebas, 3 rojas anteriores; frontend JS 1.007; Flutter 407 + 47 + a11y). Se corrigieron 14 defectos de lo que había quedado en `WRITTEN` (tabla del REPORTE). Rama de trabajo: `claude-marcelo/affectionate-heisenberg-nzjzml` (parte de `dev` con el PR #53 ya integrado).
 - **§6.5 sustituido, no cumplido**: el recorrido A/B se hizo en un stack LOCAL (servicios, Kafka y Postgres reales) y pasa de punta a punta, incluidas tres caídas provocadas. Contra TEST **no** se hizo.

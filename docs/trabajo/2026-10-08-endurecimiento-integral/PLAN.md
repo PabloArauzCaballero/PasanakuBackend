@@ -635,7 +635,7 @@ Alcance IN: compilar, formatear, probar y corregir lo escrito por P/Q/R/T; regen
 Alcance OUT: servidor TEST (Contabo; la clave SSH está solo en el equipo del dueño), APK/TestFlight, decisiones de §8 del relevo.
 **CA:** Dado el código WIP de P/Q/R/T, cuando se compila y se prueba por servicio, entonces cada carril queda con compilación RC 0 y pruebas en verde medidas desde `build/test-results/*.xml`, o con la falla clasificada (regla 80.4) y registrada.
 **DoD:** salidas literales en `evidencia/carril-H17/`; peldaño declarado por área; `REPORTE.md` actualizado.
-**Estado:** A MEDIAS (S7.M3 depende de la clave SSH del dueño)
+**Estado:** A MEDIAS (S7.M3 depende de la clave SSH del dueño; simulado en 3 niveles, ver su fila)
 
 ### H17.S1 — Entorno de verificación
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
@@ -678,9 +678,9 @@ Alcance OUT: servidor TEST (Contabo; la clave SSH está solo en el equipo del du
 ### H17.S7 — Cierre documental y subida
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H17.S7.M1 | `PLAN.md`, `REPORTE.md` y los `ESTADO.md` reflejan lo verificado | `plan_status.py` coincide con las tablas; avance en la primera línea del reporte | `python .claude/hooks/plan_status.py` | HECHO · `REPORTE.md` (sección «Retomada 2026-10-12 (H17)», avance en la primera línea), `RELEVO-CODEX.md` §12 y los `ESTADO.md` de P/Q/R/T; `plan_status.py` da 90/114 |
-| H17.S7.M2 | Push a la rama de trabajo (Backend) | `git push` RC 0 | `git push -u origin claude-marcelo/affectionate-heisenberg-nzjzml` | TODO |
-| H17.S7.M3 | Redespliegue a TEST y recorrido A/B (relevo §6.4–6.5) | — | Requiere la clave SSH del dueño y acceso a Contabo: BLOQUEADO; lo destraba el dueño o quien tenga la clave | BLOQUEADO |
+| H17.S7.M1 | `PLAN.md`, `REPORTE.md` y los `ESTADO.md` reflejan lo verificado | `plan_status.py` coincide con las tablas; avance en la primera línea del reporte | `python .claude/hooks/plan_status.py` | HECHO · `REPORTE.md` (sección «Retomada 2026-10-12 (H17)», avance en la primera línea), `RELEVO-CODEX.md` §12 y los `ESTADO.md` de P/Q/R/T; `plan_status.py` da 91/114 al cerrar |
+| H17.S7.M2 | Push a la rama de trabajo (Backend) | `git push` RC 0 | `git push -u origin claude-marcelo/affectionate-heisenberg-nzjzml` | HECHO · `git push -u origin claude-marcelo/affectionate-heisenberg-nzjzml` → rama creada en el remoto, RC 0 |
+| H17.S7.M3 | Redespliegue a TEST y recorrido A/B (relevo §6.4–6.5) | — | Requiere la clave SSH del dueño y acceso a Contabo: BLOQUEADO; lo destraba el dueño o quien tenga la clave | BLOQUEADO · SIMULACION-65: aceptado|limite|invalido. Contrato = los scripts de despliegue y de siembra del repo contra el host de TEST. Doble = Postgres/Kafka desechables con el estado de TEST. **Aceptado**: `politica-invitacion-ensayo.log` (ENLACE false→true), `r-upgrade.log` (columna + UNIQUE), `e2e-sembrar.log`, `e2e-sandbox-licencia.log`, 248 tópicos creados. **Límite**: segunda corrida «cambios: 0» en cada uno; pagos legados intactos. **Inválido**: `despliegue-invalido.log` (sin contenedor → RC 3; argumento desconocido → RC 2; nada escrito). Falta contra TEST real: la clave SSH `id_ed25519_contabo` del dueño; hasta que exista, esto NO equivale a TEST verificado |
 
 ### H17.S8 — Integración local con Kafka y servicios reales (relevo §6.5, sustituto verificable de TEST)
 Los servicios corren como procesos del host contra PostgreSQL 16 y Kafka (cp-kafka 7.7.1) reales en Docker; las cuentas son las sintéticas de `seeders/dev/17`. Dobles declarados: el segundo factor de desarrollo (`000000`, perfil `local`), el alta real de usuario (el OTP de correo no se registra en el log, así que `usuario_registrado` se publica por el outbox real con el contrato de CU-01) y el estado de TEST (base desechable).

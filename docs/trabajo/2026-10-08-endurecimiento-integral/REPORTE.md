@@ -1,6 +1,6 @@
 # Reporte — Endurecimiento integral (cierre tras el corte por falta de RAM)
 
-> **AVANCE: 89 / 114 — 78,1 %.** (`microtareas HECHO / total` de `PLAN.md`, calculado con `python .claude/hooks/plan_status.py`; `A MEDIAS` cuenta como no hecha. Retomada 2026-10-12: de 69 / 86 a 89 / 114; H17 agregó 28 microtareas, 20 en HECHO.)
+> **AVANCE: 91 / 114 — 79,8 %.** (`microtareas HECHO / total` de `PLAN.md`, calculado con `python .claude/hooks/plan_status.py`; `A MEDIAS` cuenta como no hecha. Retomada 2026-10-12: de 69 / 86 a 91 / 114; H17 agregó 28 microtareas, 22 en HECHO.)
 
 - Fecha: 2026-10-08 · Plan: [PLAN.md](./PLAN.md) · Notas: [NOTAS.md](./NOTAS.md) · Repos: PasanakuBackend (principal), PasanakuFrontend (carril E). Integrado sobre `origin/test` en la rama `justin/feature/cierre-endurecimiento-2026-10-08` (ver «Integración sobre test»).
 - Peldaño de evidencia alcanzado: **TESTED por servicio** (regla 30, peldaño 4), contra PostgreSQL real vía Testcontainers. **No** se alcanzó `REGRESSION_VERIFIED` global: falta integración real entre servicios y E2E de punta a punta.
