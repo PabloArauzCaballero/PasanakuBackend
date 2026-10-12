@@ -73,7 +73,7 @@ public class TarifaCongeladaRepositorio {
                 """
                 INSERT INTO tarifas.tarifa_congelada_grupo
                     (grupo_id, tarifario_id, snapshot_conceptos, hash_snapshot, congelada_en)
-                VALUES (?, ?, ?::jsonb, ?, ?)
+                VALUES (?, ?, ?::jsonb, ?, ?::timestamptz)
                 ON CONFLICT (grupo_id) DO NOTHING
                 """,
                 grupoId,

@@ -1,0 +1,549 @@
+== intento 1 05:11:00
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-web:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-web:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-web:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-web:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-web:spotlessApply UP-TO-DATE
+> Task :plataforma:gateway:spotlessJava UP-TO-DATE
+> Task :plataforma:gateway:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:gateway:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:gateway:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:gateway:spotlessApply UP-TO-DATE
+> Task :servicios:aportes:spotlessJava
+> Task :servicios:aportes:spotlessJavaApply
+> Task :servicios:aportes:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:aportes:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:aportes:spotlessApply
+> Task :servicios:auditoria:spotlessJava UP-TO-DATE
+> Task :servicios:auditoria:spotlessJavaApply UP-TO-DATE
+> Task :servicios:auditoria:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:auditoria:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:auditoria:spotlessApply UP-TO-DATE
+> Task :servicios:cumplimiento:spotlessJava UP-TO-DATE
+> Task :servicios:cumplimiento:spotlessJavaApply UP-TO-DATE
+> Task :servicios:cumplimiento:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:cumplimiento:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:cumplimiento:spotlessApply UP-TO-DATE
+> Task :servicios:entregas:spotlessJava
+> Task :servicios:entregas:spotlessJavaApply
+> Task :servicios:entregas:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:entregas:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:entregas:spotlessApply
+> Task :servicios:erp:spotlessJava
+> Task :servicios:erp:spotlessJavaApply
+> Task :servicios:erp:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:erp:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:erp:spotlessApply
+> Task :servicios:garantia:spotlessJava UP-TO-DATE
+> Task :servicios:garantia:spotlessJavaApply UP-TO-DATE
+> Task :servicios:garantia:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:garantia:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:garantia:spotlessApply UP-TO-DATE
+> Task :servicios:grupos:spotlessJava
+> Task :servicios:grupos:spotlessJavaApply
+> Task :servicios:grupos:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:grupos:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:grupos:spotlessApply
+> Task :servicios:identidad:spotlessJava
+> Task :servicios:identidad:spotlessJavaApply
+> Task :servicios:identidad:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:identidad:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:identidad:spotlessApply
+> Task :servicios:inversiones:spotlessJava UP-TO-DATE
+> Task :servicios:inversiones:spotlessJavaApply UP-TO-DATE
+> Task :servicios:inversiones:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:inversiones:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:inversiones:spotlessApply UP-TO-DATE
+> Task :servicios:notificaciones:spotlessJava UP-TO-DATE
+> Task :servicios:notificaciones:spotlessJavaApply UP-TO-DATE
+> Task :servicios:notificaciones:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:notificaciones:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:notificaciones:spotlessApply UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessJava
+> Task :servicios:nucleo-financiero:spotlessJavaApply
+> Task :servicios:nucleo-financiero:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessApply
+> Task :servicios:organizador:spotlessJava UP-TO-DATE
+> Task :servicios:organizador:spotlessJavaApply UP-TO-DATE
+> Task :servicios:organizador:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:organizador:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:organizador:spotlessApply UP-TO-DATE
+> Task :servicios:publicidad:spotlessJava UP-TO-DATE
+> Task :servicios:publicidad:spotlessJavaApply UP-TO-DATE
+> Task :servicios:publicidad:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:publicidad:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:publicidad:spotlessApply UP-TO-DATE
+> Task :servicios:tarifas:spotlessJava
+> Task :servicios:tarifas:spotlessJavaApply
+> Task :servicios:tarifas:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:tarifas:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:tarifas:spotlessApply
+> Task :servicios:transparencia:spotlessJava UP-TO-DATE
+> Task :servicios:transparencia:spotlessJavaApply UP-TO-DATE
+> Task :servicios:transparencia:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:transparencia:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:transparencia:spotlessApply UP-TO-DATE
+> Task :spotlessApply
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources UP-TO-DATE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :servicios:grupos:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:grupos:generateJooq UP-TO-DATE
+> Task :servicios:grupos:compileJava
+> Task :servicios:grupos:processResources UP-TO-DATE
+> Task :servicios:grupos:classes
+> Task :servicios:grupos:compileTestJava
+> Task :servicios:grupos:processTestResources UP-TO-DATE
+> Task :servicios:grupos:testClasses
+
+> Task :servicios:grupos:test
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:grupos:webTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:grupos:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-12T05:12:54.872Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Node -1 disconnected.
+2026-10-12T05:12:54.872Z  WARN 17854 --- [grupos] [        kafka-2] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2026-10-12T05:12:54.872Z  WARN 17854 --- [grupos] [        kafka-2] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-10-12T05:12:54.909Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:12:54.910Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:12:54.910Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:12:54.911Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:12:54.911Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:12:54.911Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:12:54.914Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:12:54.914Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:12:54.914Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:12:54.915Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:12:54.920Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:12:54.922Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:12:54.922Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:12:54.923Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:12:54.923Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:12:54.925Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:12:54.927Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:12:54.927Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:12:54.944Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-grupos-apertura-2 unregistered
+2026-10-12T05:12:54.946Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-grupos-cesiones-1 unregistered
+2026-10-12T05:12:54.949Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : grupos-cesiones: Consumer stopped
+2026-10-12T05:12:54.950Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : grupos-apertura: Consumer stopped
+2026-10-12T05:12:54.958Z  INFO 17854 --- [grupos] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-12T05:12:54.961Z  INFO 17854 --- [grupos] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-12T05:12:54.975Z  INFO 17854 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-12T05:12:54.981Z  INFO 17854 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-12T05:12:54.994Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-3, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:12:54.994Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-3, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:12:54.994Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-grupos-cesiones-3, groupId=grupos-cesiones] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:12:54.995Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-3, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:12:54.994Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:12:54.995Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:12:54.995Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:12:54.996Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:12:54.996Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:12:54.997Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:12:54.998Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:12:54.997Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-3, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:12:54.998Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:12:54.999Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:12:54.999Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:12:54.999Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:12:55.000Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:12:55.001Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:12:55.007Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-grupos-apertura-4 unregistered
+2026-10-12T05:12:55.007Z  INFO 17854 --- [grupos] [        kafka-2] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : grupos-apertura: Consumer stopped
+2026-10-12T05:12:55.008Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-grupos-cesiones-3 unregistered
+2026-10-12T05:12:55.009Z  INFO 17854 --- [grupos] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : grupos-cesiones: Consumer stopped
+2026-10-12T05:12:55.009Z  INFO 17854 --- [grupos] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-12T05:12:55.012Z  INFO 17854 --- [grupos] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-12T05:12:55.020Z  INFO 17854 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-10-12T05:12:55.022Z  INFO 17854 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+
+> Task :servicios:grupos:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+> Task :servicios:tarifas:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:tarifas:generateJooq UP-TO-DATE
+> Task :servicios:tarifas:compileJava UP-TO-DATE
+> Task :servicios:tarifas:processResources UP-TO-DATE
+> Task :servicios:tarifas:classes UP-TO-DATE
+> Task :servicios:tarifas:compileTestJava
+> Task :servicios:tarifas:processTestResources UP-TO-DATE
+> Task :servicios:tarifas:testClasses
+
+> Task :servicios:tarifas:test
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+> Task :servicios:tarifas:webTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:tarifas:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:tarifas:integrationTest
+
+CU20CongelarTarifaTest > concurrencia: dos grupo_creado a la vez del mismo grupo dejan una sola tarifa congelada FAILED
+    java.util.concurrent.ExecutionException: org.jooq.exception.DataAccessException: SQL [INSERT INTO tarifas.tarifa_congelada_grupo
+        (grupo_id, tarifario_id, snapshot_conceptos, hash_snapshot, congelada_en)
+    VALUES (?, ?, ?::jsonb, ?, ?)
+    ON CONFLICT (grupo_id) DO NOTHING
+    ]; ERROR: column "congelada_en" is of type timestamp with time zone but expression is of type character varying
+      Hint: You will need to rewrite or cast the expression.
+      Position: 153
+        at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
+        at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:205)
+        at bo.aportaya.tarifas.CU20CongelarTarifaTest.concurrencia(CU20CongelarTarifaTest.java:180)
+
+        Caused by:
+        org.jooq.exception.DataAccessException: SQL [INSERT INTO tarifas.tarifa_congelada_grupo
+            (grupo_id, tarifario_id, snapshot_conceptos, hash_snapshot, congelada_en)
+        VALUES (?, ?, ?::jsonb, ?, ?)
+        ON CONFLICT (grupo_id) DO NOTHING
+        ]; ERROR: column "congelada_en" is of type timestamp with time zone but expression is of type character varying
+          Hint: You will need to rewrite or cast the expression.
+          Position: 153
+            at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+            at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+            at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+            at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+            at app//org.jooq.impl.DefaultDSLContext.execute(DefaultDSLContext.java:1117)
+            at app//bo.aportaya.tarifas.infraestructura.TarifaCongeladaRepositorio.congelar(TarifaCongeladaRepositorio.java:72)
+            at app//bo.aportaya.tarifas.aplicacion.CongelarTarifaDelGrupo.lambda$procesar$1(CongelarTarifaDelGrupo.java:82)
+            at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+            at app//bo.aportaya.tarifas.aplicacion.CongelarTarifaDelGrupo.procesar(CongelarTarifaDelGrupo.java:75)
+            at app//bo.aportaya.tarifas.CU20CongelarTarifaTest.lambda$procesar$0(CU20CongelarTarifaTest.java:61)
+            at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+            at app//bo.aportaya.tarifas.CU20CongelarTarifaTest.procesar(CU20CongelarTarifaTest.java:61)
+            at app//bo.aportaya.tarifas.CU20CongelarTarifaTest.lambda$concurrencia$2(CU20CongelarTarifaTest.java:173)
+
+            Caused by:
+            org.postgresql.util.PSQLException: ERROR: column "congelada_en" is of type timestamp with time zone but expression is of type character varying
+              Hint: You will need to rewrite or cast the expression.
+              Position: 153
+                at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+                at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+                at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+                at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+                at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+                at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+                at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+                at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+                at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+                at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+                ... 9 more
+
+CU20CongelarTarifaTest > reintento: otro grupo_creado del mismo grupo conserva la tarifa y vuelve a responder para que el grupo abra FAILED
+    org.jooq.exception.DataAccessException: SQL [INSERT INTO tarifas.tarifa_congelada_grupo
+        (grupo_id, tarifario_id, snapshot_conceptos, hash_snapshot, congelada_en)
+    VALUES (?, ?, ?::jsonb, ?, ?)
+    ON CONFLICT (grupo_id) DO NOTHING
+    ]; ERROR: column "congelada_en" is of type timestamp with time zone but expression is of type character varying
+      Hint: You will need to rewrite or cast the expression.
+      Position: 153
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.DefaultDSLContext.execute(DefaultDSLContext.java:1117)
+        at app//bo.aportaya.tarifas.infraestructura.TarifaCongeladaRepositorio.congelar(TarifaCongeladaRepositorio.java:72)
+        at app//bo.aportaya.tarifas.aplicacion.CongelarTarifaDelGrupo.lambda$procesar$1(CongelarTarifaDelGrupo.java:82)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at app//bo.aportaya.tarifas.aplicacion.CongelarTarifaDelGrupo.procesar(CongelarTarifaDelGrupo.java:75)
+        at app//bo.aportaya.tarifas.CU20CongelarTarifaTest.lambda$procesar$0(CU20CongelarTarifaTest.java:61)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.tarifas.CU20CongelarTarifaTest.procesar(CU20CongelarTarifaTest.java:61)
+        at app//bo.aportaya.tarifas.CU20CongelarTarifaTest.reintentoConservaLaTarifa(CU20CongelarTarifaTest.java:131)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: column "congelada_en" is of type timestamp with time zone but expression is of type character varying
+          Hint: You will need to rewrite or cast the expression.
+          Position: 153
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 9 more
+
+CU20CongelarTarifaTest > rls: congelar funciona con el rol real del servicio (svc_tarifas), no solo con el dueno de la base FAILED
+    org.jooq.exception.DataAccessException: SQL [INSERT INTO tarifas.tarifa_congelada_grupo
+        (grupo_id, tarifario_id, snapshot_conceptos, hash_snapshot, congelada_en)
+    VALUES (?, ?, ?::jsonb, ?, ?)
+    ON CONFLICT (grupo_id) DO NOTHING
+    ]; ERROR: column "congelada_en" is of type timestamp with time zone but expression is of type character varying
+      Hint: You will need to rewrite or cast the expression.
+      Position: 153
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.DefaultDSLContext.execute(DefaultDSLContext.java:1117)
+        at app//bo.aportaya.tarifas.infraestructura.TarifaCongeladaRepositorio.congelar(TarifaCongeladaRepositorio.java:72)
+        at app//bo.aportaya.tarifas.aplicacion.CongelarTarifaDelGrupo.lambda$procesar$1(CongelarTarifaDelGrupo.java:82)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at app//bo.aportaya.tarifas.aplicacion.CongelarTarifaDelGrupo.procesar(CongelarTarifaDelGrupo.java:75)
+        at app//bo.aportaya.tarifas.CU20CongelarTarifaTest.lambda$rolRealDelServicio$4(CU20CongelarTarifaTest.java:195)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.tarifas.CU20CongelarTarifaTest.rolRealDelServicio(CU20CongelarTarifaTest.java:193)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: column "congelada_en" is of type timestamp with time zone but expression is of type character varying
+          Hint: You will need to rewrite or cast the expression.
+          Position: 153
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 8 more
+
+CU20CongelarTarifaTest > congela el precio con el snapshot de los conceptos y un hash verificable, y responde tarifa_congelada FAILED
+    org.jooq.exception.DataAccessException: SQL [INSERT INTO tarifas.tarifa_congelada_grupo
+        (grupo_id, tarifario_id, snapshot_conceptos, hash_snapshot, congelada_en)
+    VALUES (?, ?, ?::jsonb, ?, ?)
+    ON CONFLICT (grupo_id) DO NOTHING
+    ]; ERROR: column "congelada_en" is of type timestamp with time zone but expression is of type character varying
+      Hint: You will need to rewrite or cast the expression.
+      Position: 153
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.DefaultDSLContext.execute(DefaultDSLContext.java:1117)
+        at app//bo.aportaya.tarifas.infraestructura.TarifaCongeladaRepositorio.congelar(TarifaCongeladaRepositorio.java:72)
+        at app//bo.aportaya.tarifas.aplicacion.CongelarTarifaDelGrupo.lambda$procesar$1(CongelarTarifaDelGrupo.java:82)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at app//bo.aportaya.tarifas.aplicacion.CongelarTarifaDelGrupo.procesar(CongelarTarifaDelGrupo.java:75)
+        at app//bo.aportaya.tarifas.CU20CongelarTarifaTest.lambda$procesar$0(CU20CongelarTarifaTest.java:61)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.tarifas.CU20CongelarTarifaTest.procesar(CU20CongelarTarifaTest.java:61)
+        at app//bo.aportaya.tarifas.CU20CongelarTarifaTest.congelaYResponde(CU20CongelarTarifaTest.java:81)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: column "congelada_en" is of type timestamp with time zone but expression is of type character varying
+          Hint: You will need to rewrite or cast the expression.
+          Position: 153
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 9 more
+
+CU20CongelarTarifaTest > evento duplicado: el mismo grupo_creado dos veces deja una sola tarifa y una sola respuesta FAILED
+    org.jooq.exception.DataAccessException: SQL [INSERT INTO tarifas.tarifa_congelada_grupo
+        (grupo_id, tarifario_id, snapshot_conceptos, hash_snapshot, congelada_en)
+    VALUES (?, ?, ?::jsonb, ?, ?)
+    ON CONFLICT (grupo_id) DO NOTHING
+    ]; ERROR: column "congelada_en" is of type timestamp with time zone but expression is of type character varying
+      Hint: You will need to rewrite or cast the expression.
+      Position: 153
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.DefaultDSLContext.execute(DefaultDSLContext.java:1117)
+        at app//bo.aportaya.tarifas.infraestructura.TarifaCongeladaRepositorio.congelar(TarifaCongeladaRepositorio.java:72)
+        at app//bo.aportaya.tarifas.aplicacion.CongelarTarifaDelGrupo.lambda$procesar$1(CongelarTarifaDelGrupo.java:82)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at app//bo.aportaya.tarifas.aplicacion.CongelarTarifaDelGrupo.procesar(CongelarTarifaDelGrupo.java:75)
+        at app//bo.aportaya.tarifas.CU20CongelarTarifaTest.lambda$procesar$0(CU20CongelarTarifaTest.java:61)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.tarifas.CU20CongelarTarifaTest.procesar(CU20CongelarTarifaTest.java:61)
+        at app//bo.aportaya.tarifas.CU20CongelarTarifaTest.eventoDuplicado(CU20CongelarTarifaTest.java:116)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: column "congelada_en" is of type timestamp with time zone but expression is of type character varying
+          Hint: You will need to rewrite or cast the expression.
+          Position: 153
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 9 more
+
+2026-10-12T05:14:11.081Z  INFO 21615 --- [tarifas] [        kafka-1] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-tarifas-congelamiento-1, groupId=tarifas-congelamiento] Node -1 disconnected.
+2026-10-12T05:14:11.084Z  WARN 21615 --- [tarifas] [        kafka-1] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-tarifas-congelamiento-1, groupId=tarifas-congelamiento] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2026-10-12T05:14:11.085Z  WARN 21615 --- [tarifas] [        kafka-1] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-tarifas-congelamiento-1, groupId=tarifas-congelamiento] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-10-12T05:14:11.172Z  INFO 21615 --- [tarifas] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-tarifas-congelamiento-1, groupId=tarifas-congelamiento] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:14:11.172Z  INFO 21615 --- [tarifas] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-tarifas-congelamiento-1, groupId=tarifas-congelamiento] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:14:11.172Z  INFO 21615 --- [tarifas] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-tarifas-congelamiento-1, groupId=tarifas-congelamiento] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:14:11.174Z  INFO 21615 --- [tarifas] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-tarifas-congelamiento-1, groupId=tarifas-congelamiento] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:14:11.174Z  INFO 21615 --- [tarifas] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-tarifas-congelamiento-1, groupId=tarifas-congelamiento] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:14:11.179Z  INFO 21615 --- [tarifas] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:14:11.179Z  INFO 21615 --- [tarifas] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:14:11.179Z  INFO 21615 --- [tarifas] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:14:11.180Z  INFO 21615 --- [tarifas] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:14:11.186Z  INFO 21615 --- [tarifas] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-tarifas-congelamiento-1 unregistered
+2026-10-12T05:14:11.187Z  INFO 21615 --- [tarifas] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : tarifas-congelamiento: Consumer stopped
+2026-10-12T05:14:11.190Z  INFO 21615 --- [tarifas] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-12T05:14:11.192Z  INFO 21615 --- [tarifas] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-12T05:14:11.216Z  INFO 21615 --- [tarifas] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-12T05:14:11.225Z  INFO 21615 --- [tarifas] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:tarifas:integrationTest
+
+103 tests completed, 5 failed
+
+> Task :servicios:tarifas:integrationTest FAILED
+
+> Task :servicios:tarifas:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+> Task :plataforma:comun-archivos:compileJava UP-TO-DATE
+> Task :plataforma:comun-archivos:processResources UP-TO-DATE
+> Task :plataforma:comun-archivos:classes UP-TO-DATE
+> Task :plataforma:comun-archivos:jar UP-TO-DATE
+> Task :servicios:identidad:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:identidad:generateJooq UP-TO-DATE
+> Task :servicios:identidad:compileJava UP-TO-DATE
+> Task :servicios:identidad:processResources UP-TO-DATE
+> Task :servicios:identidad:classes UP-TO-DATE
+> Task :servicios:identidad:compileTestJava
+> Task :servicios:identidad:processTestResources UP-TO-DATE
+> Task :servicios:identidad:testClasses
+
+> Task :servicios:identidad:test
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:identidad:webTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:identidad:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-12T05:15:48.147Z  INFO 25036 --- [identidad] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-12T05:15:48.152Z  INFO 25036 --- [identidad] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-12T05:15:48.163Z  INFO 25036 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-12T05:15:48.167Z  INFO 25036 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-12T05:15:48.203Z  INFO 25036 --- [identidad] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-12T05:15:48.207Z  INFO 25036 --- [identidad] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-12T05:15:48.215Z  INFO 25036 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-10-12T05:15:48.219Z  INFO 25036 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+2026-10-12T05:15:48.230Z  INFO 25036 --- [identidad] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-12T05:15:48.232Z  INFO 25036 --- [identidad] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-12T05:15:48.237Z  INFO 25036 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown initiated...
+2026-10-12T05:15:48.252Z  INFO 25036 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown completed.
+2026-10-12T05:15:48.262Z  INFO 25036 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown initiated...
+2026-10-12T05:15:48.278Z  INFO 25036 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown completed.
+
+> Task :servicios:identidad:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':servicios:tarifas:integrationTest'.
+> There were failing tests. See the report at: file:///home/user/PasanakuBackend/servicios/tarifas/build/reports/tests/integrationTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 4m 50s
+148 actionable tasks: 30 executed, 118 up-to-date
+RC 1
