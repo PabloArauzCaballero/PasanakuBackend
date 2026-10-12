@@ -627,3 +627,56 @@ Solicitud: implementar los tres planes completos. Inicio: 2026-10-08. Se preserv
 Kill-test inicial: administrador sin habilitacion no crea grupo; propuesta del administrador no activa membresia; webhook duplicado no duplica saldo.
 
 Frontera: cada servicio solo escribe su esquema, efectos locales y outbox en transaccion; consultas remotas fuera de transaccion; compensaciones y reintentos idempotentes. La autorizacion del usuario incluye implementar estos cambios reversibles sin una nueva confirmacion.
+
+## H17 — Retomada 2026-10-12: verificar y cerrar los carriles P, Q, R y T (escritos sin compilar)
+
+Registro: sesión Claude (rama `claude-marcelo/affectionate-heisenberg-nzjzml`, Backend y Frontend). Parte del relevo `RELEVO-CODEX.md` §6 pasos 1–3 y 6. El contenedor tiene 16 GB, Docker y Postgres 16, así que lo que Windows no pudo correr por RAM se corre aquí.
+Alcance IN: compilar, formatear, probar y corregir lo escrito por P/Q/R/T; regenerar clientes; gates `verificar_*.py`; actualizar PLAN/REPORTE.
+Alcance OUT: servidor TEST (Contabo; la clave SSH está solo en el equipo del dueño), APK/TestFlight, decisiones de §8 del relevo.
+**CA:** Dado el código WIP de P/Q/R/T, cuando se compila y se prueba por servicio, entonces cada carril queda con compilación RC 0 y pruebas en verde medidas desde `build/test-results/*.xml`, o con la falla clasificada (regla 80.4) y registrada.
+**DoD:** salidas literales en `evidencia/carril-H17/`; peldaño declarado por área; `REPORTE.md` actualizado.
+**Estado:** EN CURSO
+
+### H17.S1 — Entorno de verificación
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H17.S1.M1 | Integrar las ramas del relevo (cierre) en la rama de trabajo | La rama contiene los commits WIP de P/Q/R/T y no tiene marcas de conflicto | `git log --oneline origin/justin/feature/cierre-endurecimiento-2026-10-08..HEAD` incluye el merge; `git grep -n '^<<<<<<<'` vacío | HECHO |
+| H17.S1.M2 | Postgres 16 desechable con `sql/aplicar.sql` aplicado | `aplicar.sql` termina con RC 0 | `psql -v ON_ERROR_STOP=1 -f sql/aplicar.sql` → RC 0 | TODO |
+| H17.S1.M3 | `generarClientes compileJava compileTestJava` de todos los servicios | RC 0 | `./gradlew generarClientes compileJava compileTestJava` → BUILD SUCCESSFUL | TODO |
+
+### H17.S2 — Carril P (grupos, tarifas, identidad)
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H17.S2.M1 | `spotlessApply` y `spotlessCheck` de grupos, tarifas e identidad | check en verde | `./gradlew :servicios:{grupos,tarifas,identidad}:spotlessCheck` → RC 0 | TODO |
+| H17.S2.M2 | Pruebas de grupos, tarifas e identidad (test, webTest, integrationTest, testBarrido) | 0 fallas, conteo desde XML | `python .../xml_conteo.py` por servicio | TODO |
+| H17.S2.M3 | Ensayo de `politica_invitacion_test.sh` contra Postgres desechable, dos corridas | segunda corrida «cambios: 0» | salida de las dos corridas | TODO |
+
+### H17.S3 — Carril Q (nucleo-financiero, aportes, entregas)
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H17.S3.M1 | `spotlessCheck` de nucleo-financiero, aportes y entregas | RC 0 | `./gradlew :servicios:{nucleo-financiero,aportes,entregas}:spotlessCheck` | TODO |
+| H17.S3.M2 | Pruebas de nucleo-financiero, aportes y entregas | 0 fallas, conteo desde XML | `xml_conteo.py` por servicio | TODO |
+
+### H17.S4 — Carril R (erp, publicidad)
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H17.S4.M1 | Compilación, formato y pruebas de erp y publicidad con el esquema aditivo (`clave_idempotencia` en `pago_a_proveedor`) | 0 fallas; `r_upgrade.sh` aplica sobre base poblada y es idempotente | `./gradlew :servicios:{erp,publicidad}:test integrationTest` + dos corridas de `r_upgrade.sh` | TODO |
+
+### H17.S5 — Clientes, web, backoffice y gates
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H17.S5.M1 | Clientes regenerados y `packages/simulado` en verde | `generarClientes` sin diff pendiente tras commitear; vitest verde | `yarn` en `packages/simulado` | TODO |
+| H17.S5.M2 | Web y backoffice compilan y sus pruebas pasan | tsc/lint/vitest RC 0 | comandos de `package.json` | TODO |
+| H17.S5.M3 | Gates `verificar_*.py` | RC 0 en criterios, seguridad, pruebas_web, bóveda, maqueta, contratos_limites, rutas_frontend | cada script → RC 0 | TODO |
+
+### H17.S6 — Carril T (app móvil)
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H17.S6.M1 | `dart format`, `flutter analyze`, `flutter test` y `verificar_frontend.py movil` con Flutter 3.44.8 | RC 0 | comandos listados; si no hay Flutter instalable en el contenedor: BLOQUEADO con evidencia | TODO |
+
+### H17.S7 — Cierre documental y subida
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H17.S7.M1 | `PLAN.md`, `REPORTE.md` y los `ESTADO.md` reflejan lo verificado | `plan_status.py` coincide con las tablas; avance en la primera línea del reporte | `python .claude/hooks/plan_status.py` | TODO |
+| H17.S7.M2 | Push a la rama de trabajo (Backend) | `git push` RC 0 | `git push -u origin claude-marcelo/affectionate-heisenberg-nzjzml` | TODO |
+| H17.S7.M3 | Redespliegue a TEST y recorrido A/B (relevo §6.4–6.5) | — | Requiere la clave SSH del dueño y acceso a Contabo: BLOQUEADO; lo destraba el dueño o quien tenga la clave | BLOQUEADO |
