@@ -44,7 +44,9 @@ class CU13MercadoTest extends BaseDeInversiones {
         ingresos = sistemaFx.ingresosDePlataforma("BOB");
         oferta = UUID.randomUUID();
         ofertas.seCae(false);
-        ofertas.publica(oferta, vendedor, "480.00", "RESERVADA");
+        // Carril Q (decision delegada por el dueno, 2026-10-11): el comprador paga el PRECIO (500), el vendedor cobra
+        // precio - cargos (480) y la plataforma ingresa los cargos (20).
+        ofertas.publica(oferta, vendedor, "500.00", "20.00", "RESERVADA");
         retencion = retenerCompra(comprador, cuentaComprador, "500.00", oferta);
         servicio = comoServicio("SERVICIO_ENTREGAS");
     }
@@ -59,7 +61,7 @@ class CU13MercadoTest extends BaseDeInversiones {
 
     @Test
     @DisplayName(
-            "Dada una retención COMPRA_EN_MERCADO de Bs 500 para una oferta de Bs 480 · Cuando el servicio de entregas la paga · Entonces el vendedor recibe Bs 480 y la plataforma Bs 20 · Y la retención queda EJECUTADA una sola vez")
+            "Dada una retención COMPRA_EN_MERCADO de Bs 500 para una oferta de precio Bs 500 con cargos de Bs 20 · Cuando el servicio de entregas la paga · Entonces el vendedor recibe Bs 480 y la plataforma Bs 20 · Y la retención queda EJECUTADA una sola vez")
     void criterio2() {
         BigDecimal ingresosAntes = sistemaFx.saldoDelLibro(ingresos);
 
@@ -68,6 +70,24 @@ class CU13MercadoTest extends BaseDeInversiones {
         assertThat(sistemaFx.saldoDelLibro(cuentaVendedor)).isEqualByComparingTo("480.00");
         assertThat(sistemaFx.saldoDelLibro(ingresos).subtract(ingresosAntes)).isEqualByComparingTo("20.00");
         assertThat(sistemaFx.saldoDelLibro(cuentaComprador)).isEqualByComparingTo("500.00");
+        // Cada deduccion con su linea (regla 91.3.4): comprador -500, vendedor +480, plataforma +20, moneda al lado.
+        var lineas = dsl.fetch(
+                """
+                SELECT m.cuenta_billetera_id, m.sentido, m.monto, m.glosa, t.moneda
+                  FROM nucleo_financiero.movimiento_billetera m
+                  JOIN nucleo_financiero.transaccion_billetera t ON t.id = m.transaccion_id
+                 WHERE m.transaccion_id = ? ORDER BY m.orden
+                """,
+                salida.transaccionId());
+        assertThat(lineas).hasSize(3);
+        assertThat(lineas.get(0).get("cuenta_billetera_id")).isEqualTo(cuentaComprador);
+        assertThat(lineas.get(0).get("sentido")).isEqualTo("DEBITO");
+        assertThat((BigDecimal) lineas.get(0).get("monto")).isEqualByComparingTo("500.00");
+        assertThat(lineas.get(1).get("cuenta_billetera_id")).isEqualTo(cuentaVendedor);
+        assertThat((BigDecimal) lineas.get(1).get("monto")).isEqualByComparingTo("480.00");
+        assertThat(lineas.get(2).get("cuenta_billetera_id")).isEqualTo(ingresos);
+        assertThat((BigDecimal) lineas.get(2).get("monto")).isEqualByComparingTo("20.00");
+        assertThat(lineas).allSatisfy(l -> assertThat(l.get("moneda")).isEqualTo("BOB"));
         BigDecimal[] sumas = sistemaFx.sumas(salida.transaccionId());
         assertThat(sumas[0]).isEqualByComparingTo(sumas[1]).isEqualByComparingTo("500.00");
         assertThat(contar(
@@ -78,26 +98,25 @@ class CU13MercadoTest extends BaseDeInversiones {
     }
 
     @Test
-    @DisplayName("cuadre: el precio cuenta centavos, el reparto suma exactamente lo retenido y no sobra residuo")
+    @DisplayName("cuadre: el precio cuenta centavos, el reparto suma exactamente el precio y no sobra residuo")
     void repartoExacto() {
-        ofertas.publica(oferta, vendedor, "33.33", "RESERVADA");
         UUID cien = UUID.randomUUID();
-        ofertas.publica(cien, vendedor, "33.33", "RESERVADA");
+        ofertas.publica(cien, vendedor, "100.00", "33.33", "RESERVADA");
         UUID ret = retenerCompra(comprador, cuentaComprador, "100.00", cien);
+        BigDecimal ingresosAntes = sistemaFx.saldoDelLibro(ingresos);
         var salida = transaccion.execute(t -> pagoCU.ejecutar(ret, "pag-2", servicio));
         BigDecimal[] sumas = sistemaFx.sumas(salida.transaccionId());
         assertThat(sumas[0]).isEqualByComparingTo("100.00").isEqualByComparingTo(sumas[1]);
-        assertThat(contar(
-                        "SELECT count(*)::int FROM nucleo_financiero.movimiento_billetera WHERE transaccion_id=? AND monto=66.67",
-                        salida.transaccionId()))
-                .as("los cargos son 100.00 - 33.33 = 66.67: la diferencia es de la plataforma, no se pierde")
-                .isEqualTo(1);
+        assertThat(sistemaFx.saldoDelLibro(cuentaVendedor)).as("100.00 - 33.33").isEqualByComparingTo("66.67");
+        assertThat(sistemaFx.saldoDelLibro(ingresos).subtract(ingresosAntes))
+                .as("los cargos de la plataforma, sin perder ni un centavo")
+                .isEqualByComparingTo("33.33");
     }
 
     @Test
-    @DisplayName("cuadre: un precio igual a lo retenido no escribe pata de plataforma")
+    @DisplayName("cuadre: una oferta sin cargos no escribe pata de plataforma")
     void sinCargos() {
-        ofertas.publica(oferta, vendedor, "500.00", "RESERVADA");
+        ofertas.publica(oferta, vendedor, "500.00", "0.00", "RESERVADA");
         var salida = pagar("pag-3", servicio);
         assertThat(contar(
                         "SELECT count(*)::int FROM nucleo_financiero.movimiento_billetera WHERE transaccion_id=?",
@@ -111,7 +130,7 @@ class CU13MercadoTest extends BaseDeInversiones {
             "reintento: la misma clave devuelve el mismo pago sin otro asiento, aunque la oferta ya este LIQUIDADA")
     void reintento() {
         var una = pagar("pag-4", servicio);
-        ofertas.publica(oferta, vendedor, "480.00", "LIQUIDADA");
+        ofertas.publica(oferta, vendedor, "500.00", "20.00", "LIQUIDADA");
         ofertas.seCae(true);
         var otra = pagar("pag-4", servicio);
         assertThat(otra.transaccionId()).isEqualTo(una.transaccionId());
@@ -152,7 +171,7 @@ class CU13MercadoTest extends BaseDeInversiones {
         assertThatThrownBy(() -> pagar("pag-7", servicio))
                 .satisfies(e -> assertThat(codigo(e)).isEqualTo("AP-CU13-08"));
         ofertas.seCae(false);
-        ofertas.publica(oferta, vendedor, "480.00", "CANCELADA");
+        ofertas.publica(oferta, vendedor, "500.00", "20.00", "CANCELADA");
         assertThatThrownBy(() -> pagar("pag-7", servicio))
                 .satisfies(e -> assertThat(codigo(e)).isEqualTo("AP-CU13-08"));
         assertThat(sistemaFx.saldoDelLibro(cuentaVendedor)).isEqualByComparingTo("0.00");
@@ -163,29 +182,97 @@ class CU13MercadoTest extends BaseDeInversiones {
     @DisplayName("rechaza un beneficiario distinto del vendedor de la retencion y un vendedor que es el comprador")
     void beneficiarioIncorrecto() {
         // El beneficiario no llega en el pedido: lo trae entregas. Si traen al comprador como vendedor, se rechaza.
-        ofertas.publica(oferta, comprador, "480.00", "RESERVADA");
+        ofertas.publica(oferta, comprador, "500.00", "20.00", "RESERVADA");
         assertThatThrownBy(() -> pagar("pag-8", servicio))
                 .satisfies(e -> assertThat(codigo(e)).isEqualTo("AP-CU13-08"));
         // Y una oferta que no es la que motivo la retencion tampoco se paga.
         assertThatThrownBy(() -> transaccion.execute(t -> ejecucionCU.pagarAlTercero(
                         new EntradaPagoATercero(
-                                "pag-8b", retencion, UUID.randomUUID(), vendedor, Dinero.de("480.00", Moneda.BOB)),
+                                "pag-8b",
+                                retencion,
+                                UUID.randomUUID(),
+                                vendedor,
+                                Dinero.de("500.00", Moneda.BOB),
+                                Dinero.de("20.00", Moneda.BOB)),
                         servicio)))
                 .satisfies(e -> assertThat(codigo(e)).isEqualTo("AP-CU13-08"));
         assertThat(sistemaFx.saldoDelLibro(cuentaVendedor)).isEqualByComparingTo("0.00");
     }
 
     @Test
-    @DisplayName("rechaza un precio mayor que lo retenido o de otra moneda (AP-CU13-06): sin cargos negativos")
+    @DisplayName("rechaza un precio que no es lo retenido (mayor o menor) o de otra moneda (AP-CU13-06)")
     void precioNoCabe() {
-        ofertas.publica(oferta, vendedor, "500.01", "RESERVADA");
+        ofertas.publica(oferta, vendedor, "500.01", "20.00", "RESERVADA");
         assertThatThrownBy(() -> pagar("pag-9", servicio))
                 .satisfies(e -> assertThat(codigo(e)).isEqualTo("AP-CU13-06"));
+        ofertas.publica(oferta, vendedor, "499.99", "20.00", "RESERVADA");
+        assertThatThrownBy(() -> pagar("pag-9a", servicio))
+                .satisfies(e -> assertThat(codigo(e)).isEqualTo("AP-CU13-06"));
         assertThatThrownBy(() -> transaccion.execute(t -> ejecucionCU.pagarAlTercero(
-                        new EntradaPagoATercero("pag-9b", retencion, oferta, vendedor, Dinero.de("480.00", Moneda.USD)),
+                        new EntradaPagoATercero(
+                                "pag-9b",
+                                retencion,
+                                oferta,
+                                vendedor,
+                                Dinero.de("500.00", Moneda.USD),
+                                Dinero.de("20.00", Moneda.USD)),
                         servicio)))
                 .satisfies(e -> assertThat(codigo(e)).isEqualTo("AP-CU13-06"));
         assertThat(sistemaFx.saldoDelLibro(cuentaVendedor)).isEqualByComparingTo("0.00");
+        assertThat(sistemaFx.saldoDelLibro(cuentaComprador)).isEqualByComparingTo("500.00");
+    }
+
+    @Test
+    @DisplayName("rechaza cargos mayores que el precio, negativos o en otra moneda (AP-CU13-06): el vendedor no paga mas de"
+            + " lo que cobra y no se mueve nada")
+    void cargosInvalidos() {
+        ofertas.publica(oferta, vendedor, "500.00", "500.01", "RESERVADA");
+        assertThatThrownBy(() -> pagar("pag-12", servicio))
+                .satisfies(e -> assertThat(codigo(e)).isEqualTo("AP-CU13-06"));
+        assertThatThrownBy(() -> transaccion.execute(t -> ejecucionCU.pagarAlTercero(
+                        new EntradaPagoATercero(
+                                "pag-12b",
+                                retencion,
+                                oferta,
+                                vendedor,
+                                Dinero.de("500.00", Moneda.BOB),
+                                Dinero.de("-1.00", Moneda.BOB)),
+                        servicio)))
+                .satisfies(e -> assertThat(codigo(e)).isEqualTo("AP-CU13-06"));
+        assertThatThrownBy(() -> transaccion.execute(t -> ejecucionCU.pagarAlTercero(
+                        new EntradaPagoATercero(
+                                "pag-12c",
+                                retencion,
+                                oferta,
+                                vendedor,
+                                Dinero.de("500.00", Moneda.BOB),
+                                Dinero.de("20.00", Moneda.USD)),
+                        servicio)))
+                .satisfies(e -> assertThat(codigo(e)).isEqualTo("AP-CU13-06"));
+        assertThat(sistemaFx.saldoDelLibro(cuentaVendedor)).isEqualByComparingTo("0.00");
+        assertThat(sistemaFx.saldoDelLibro(cuentaComprador)).isEqualByComparingTo("500.00");
+        assertThat(contar(
+                        "SELECT count(*)::int FROM nucleo_financiero.retencion_saldo WHERE id=? AND estado='VIGENTE'",
+                        retencion))
+                .isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("cuadre: cargos iguales al precio dejan Bs 0 para el vendedor: solo hay pata de plataforma y el reparto cuadra")
+    void cargosIgualesAlPrecio() {
+        ofertas.publica(oferta, vendedor, "500.00", "500.00", "RESERVADA");
+        BigDecimal ingresosAntes = sistemaFx.saldoDelLibro(ingresos);
+
+        var salida = pagar("pag-13", servicio);
+
+        BigDecimal[] sumas = sistemaFx.sumas(salida.transaccionId());
+        assertThat(sumas[0]).isEqualByComparingTo("500.00").isEqualByComparingTo(sumas[1]);
+        assertThat(sistemaFx.saldoDelLibro(cuentaVendedor)).isEqualByComparingTo("0.00");
+        assertThat(sistemaFx.saldoDelLibro(ingresos).subtract(ingresosAntes)).isEqualByComparingTo("500.00");
+        assertThat(contar(
+                        "SELECT count(*)::int FROM nucleo_financiero.movimiento_billetera WHERE transaccion_id=?",
+                        salida.transaccionId()))
+                .isEqualTo(2);
     }
 
     @Test
@@ -230,6 +317,7 @@ class CU13MercadoTest extends BaseDeInversiones {
     @Test
     @DisplayName("compensa: reversar el pago devuelve al comprador lo suyo y deja el original intacto")
     void reversa() {
+        BigDecimal ingresosAntes = sistemaFx.saldoDelLibro(ingresos);
         var pago = pagar("pag-r", servicio);
         var reverso = transaccion.execute(t -> reversoCU.ejecutar(
                 new bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion.EntradaReverso(
@@ -242,6 +330,9 @@ class CU13MercadoTest extends BaseDeInversiones {
         assertThat(reverso.generaObligacionDeRestitucion()).isFalse();
         assertThat(sistemaFx.saldoDelLibro(cuentaComprador)).isEqualByComparingTo("1000.00");
         assertThat(sistemaFx.saldoDelLibro(cuentaVendedor)).isEqualByComparingTo("0.00");
+        assertThat(sistemaFx.saldoDelLibro(ingresos).subtract(ingresosAntes))
+                .as("los cargos tambien vuelven")
+                .isEqualByComparingTo("0.00");
         sistemaFx.imprimir("REVERSO de pagarAlTercero", reverso.transaccionReversoId());
     }
 

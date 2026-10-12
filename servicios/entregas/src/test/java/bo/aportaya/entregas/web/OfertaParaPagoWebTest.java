@@ -61,11 +61,12 @@ class OfertaParaPagoWebTest {
     private CU22EntregarPozoCompleto pozo;
 
     private static OfertaParaElPago oferta(String estado) {
-        return new OfertaParaElPago(OFERTA, VENDEDOR, Dinero.de("5500.00", Moneda.BOB), estado);
+        return new OfertaParaElPago(
+                OFERTA, VENDEDOR, Dinero.de("5500.00", Moneda.BOB), Dinero.de("50.00", Moneda.BOB), estado);
     }
 
     @Test
-    @DisplayName("200: con la identidad de servicio de entregas devuelve id, vendedor, precio como cadena y estado")
+    @DisplayName("200: con la identidad de servicio de entregas devuelve id, vendedor, precio y cargos como cadena y estado")
     void correcto() throws Exception {
         when(ofertas.verParaElPago(eq(OFERTA), any())).thenReturn(Optional.of(oferta("RESERVADA")));
 
@@ -75,13 +76,15 @@ class OfertaParaPagoWebTest {
                 .andExpect(jsonPath("$.vendedorUsuarioId").value(VENDEDOR.toString()))
                 .andExpect(jsonPath("$.precio.monto").value("5500.00"))
                 .andExpect(jsonPath("$.precio.moneda").value("BOB"))
+                .andExpect(jsonPath("$.cargos.monto").value("50.00"))
+                .andExpect(jsonPath("$.cargos.moneda").value("BOB"))
                 .andExpect(jsonPath("$.estado").value("RESERVADA"))
-                .andExpect(jsonPath("$.length()").value(4));
+                .andExpect(jsonPath("$.length()").value(5));
         verify(ofertas).verParaElPago(eq(OFERTA), any());
     }
 
     @Test
-    @DisplayName("200: no filtra el grupo, el turno, los cargos, el derecho ni al comprador (respuesta minima)")
+    @DisplayName("200: no filtra el grupo, el turno, el derecho ni al comprador (respuesta minima: los cargos SI viajan)")
     void respuestaMinima() throws Exception {
         when(ofertas.verParaElPago(eq(OFERTA), any())).thenReturn(Optional.of(oferta("LIQUIDANDO")));
 
@@ -94,7 +97,6 @@ class OfertaParaPagoWebTest {
         org.assertj.core.api.Assertions.assertThat(cuerpo)
                 .doesNotContain("grupoId")
                 .doesNotContain("turnoId")
-                .doesNotContain("cargos")
                 .doesNotContain("derecho")
                 .doesNotContain(COMPRADOR.toString());
     }

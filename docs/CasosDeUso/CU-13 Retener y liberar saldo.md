@@ -126,6 +126,11 @@ export const ErroresCU13 = {
 
 [[retencion_saldo]] · [[cuenta_billetera]] · [[transaccion_billetera]] (si se ejecuta)
 
+> Reparto de la venta de un turno, adoptado por delegación del dueño (2026-10-11) y alineado con lo que modela
+> `entregas`: el comprador paga el **precio** (lo retenido), el vendedor cobra `precio − cargos` y la plataforma
+> ingresa los `cargos`, cada uno con su línea en la transacción (regla 91.3.4). Los cargos los afirma `entregas` con
+> la oferta; sin ellos no se paga. Errores: `AP-CU13-06` si el precio no es lo retenido o los cargos son negativos o superan el precio.
+
 ## Criterios de aceptación
 
 ```gherkin

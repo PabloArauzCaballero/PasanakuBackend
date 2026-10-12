@@ -63,6 +63,19 @@ aportaya:
     # en cada despliegue es otra fila, y equivocarla mueve dinero al lugar equivocado.
     cuenta-puente: ${CUENTA_PUENTE_CUSTODIA}
 
+  billetera:
+    apertura:
+      # Carril Q: quien abre las billeteras. identidad.usuario_registrado -> la de la persona (BOB, SIMPLIFICADA);
+      # grupos.grupo_creado -> la del grupo (BOB, titular el GRUPO, R-GRP-04). ENCENDIDOS: sin ellos nadie tiene billetera.
+      usuarios:
+        habilitado: ${APERTURA_USUARIOS_HABILITADO:true}
+      grupos:
+        habilitado: ${APERTURA_GRUPOS_HABILITADO:true}
+      # ACTIVA (por omision) o EN_APERTURA. Supuesto delegado por el dueno, a confirmar con Cumplimiento: quien impide
+      # operar a una persona sin verificar es identidad (no inicia sesion hasta que su KYC se aprueba). EN_APERTURA deja la
+      # cuenta cerrada a toda operacion hasta que exista una senal de activacion, que hoy NO existe.
+      estado-inicial-usuario: ${APERTURA_ESTADO_INICIAL_USUARIO:ACTIVA}
+
   contabilidad:
     consumo-de-asientos:
       # D5: registrar en el mayor los asientos que garantia propone en sus eventos. Se enciende por entorno;

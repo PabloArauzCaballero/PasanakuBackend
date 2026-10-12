@@ -91,6 +91,13 @@ export const ErroresCU16 = {
 | `RETENCION_VIGENTE` | Hay saldo retenido sin resolver |
 | `BLOQUEO_DE_AUTORIDAD` | Existe un oficio vigente (R-BIL-13) |
 
+> **Cómo se sabe que hay deuda (carril Q).** `nucleo-financiero` no lee `aportes` ni `grupos`: con el token de la persona pide a
+> `grupos` sus participaciones (`GET /grupos/participaciones`) y a `aportes` el estado de pagos de CADA participación
+> (`GET /aportes/participantes/{participanteId}/estado`; el identificador es el de `grupos`, no el `usuarioId`). Si la sesión no es la
+> del titular, o algún servicio no contesta o responde algo ilegible, se asume que SÍ hay obligaciones (`OBLIGACIONES_ABIERTAS`).
+> Antes se preguntaba con el `usuarioId` y `aportes` contestaba siempre «al día». Riesgo residual: solo cuentan las participaciones
+> vigentes de `grupos`; la deuda de quien ya salió de un grupo no frena el cierre.
+
 ## Descomposición atómica
 
 | Nivel | Pieza | Responsabilidad |

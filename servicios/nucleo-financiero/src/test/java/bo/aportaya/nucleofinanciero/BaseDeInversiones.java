@@ -101,8 +101,17 @@ abstract class BaseDeInversiones extends BaseDeBilletera {
         private final Map<UUID, Oferta> porId = new HashMap<>();
         private boolean caido;
 
+        /** Una oferta sin cargos: el vendedor cobra todo el precio. */
         void publica(UUID ofertaId, UUID vendedor, String precio, String estado) {
-            porId.put(ofertaId, new Oferta(ofertaId, vendedor, Dinero.de(precio, Moneda.BOB), estado));
+            publica(ofertaId, vendedor, precio, "0.00", estado);
+        }
+
+        /** Carril Q: la oferta trae los cargos que {@code entregas} cobra al vendedor (precio - cargos para el vendedor). */
+        void publica(UUID ofertaId, UUID vendedor, String precio, String cargos, String estado) {
+            porId.put(
+                    ofertaId,
+                    new Oferta(
+                            ofertaId, vendedor, Dinero.de(precio, Moneda.BOB), Dinero.de(cargos, Moneda.BOB), estado));
         }
 
         void seCae(boolean caido) {
