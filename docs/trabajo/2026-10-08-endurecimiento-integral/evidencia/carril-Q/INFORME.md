@@ -65,4 +65,16 @@ duplicado por clave; caida de entregas; reversa devuelve tambien los cargos; con
 
 ## Ejecucion
 
-(pendiente — ver abajo)
+Peldaño por area (regla 30):
+
+* nucleo-financiero, aportes: **RUNS** (javac suelto: `javac-y-pruebas-sin-bd.txt`, RC 0 en main y test) + **TESTED parcial**: 22 pruebas sin base de datos en
+  verde (ConsumidorDeAperturasKafkaTest, HechosPorHttpPorUsuarioTest, ContratosConOtrosServiciosTest, PactoConEntregasContratoTest) y 3 en aportes
+  (ConsumidorDeAportesNoAplicadosKafkaTest). **Las pruebas con PostgreSQL (CUApertura*, CUAporteNoAplicadoTest, CU16CierreConDeudaTest, CU13MercadoTest, CU21CompensaTest,
+  CUConsumoDeAportes*) NO SE CORRIERON**: el guardian de RAM nunca dio >= 3500 MB libres en 50 + 50 min (libres 0,5-1,3 GB, sin java ni docker propios; chrome 3,6 GB, claude 3,2 GB).
+* entregas: **WRITTEN** (no compilado: `MercadoWeb` depende del modelo generado del OpenAPI, que se regenera con Gradle).
+* Gradle spotlessApply / test / webTest / integrationTest / testBarrido / generarClientes: **no corridos**. Clientes generados (clientes/angular, clientes/dart, packages/simulado)
+  NO regenerados salvo `packages/simulado/ejemplos/entregas/consultarOfertaParaPago.json` (a mano, con `cargos`).
+* Verificadores (RC 0): criterios, boveda, seguridad, pruebas_web, contratos_limites (`verificar_*.txt`). `verificar_carriles.py` da 1 falla ajena («sin carril dueno: inversiones»).
+* Conteos desde XML: no hay (no corrio Gradle).
+
+Ver `ESTADO.md` para retomar.
