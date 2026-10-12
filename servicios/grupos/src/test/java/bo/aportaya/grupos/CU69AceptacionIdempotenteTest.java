@@ -67,7 +67,8 @@ class CU69AceptacionIdempotenteTest extends BaseDeCU69 {
     }
 
     @Test
-    @DisplayName("Antes de aceptar no hay repetición que devolver")
+    @DisplayName(
+            "Dado un enlace sin aceptación previa · Cuando se pregunta por una repetición · Entonces no hay participación que devolver")
     void sinAceptacionPreviaNoHayRepeticion() {
         Aceptacion a = invitacionLista("+59176000082");
 
@@ -78,7 +79,8 @@ class CU69AceptacionIdempotenteTest extends BaseDeCU69 {
     }
 
     @Test
-    @DisplayName("Otra clave sobre un enlace ya consumido sigue siendo un enlace inválido")
+    @DisplayName(
+            "Dado un enlace ya consumido · Cuando se intenta aceptar con OTRA clave · Entonces se rechaza con TOKEN_INVALIDO")
     void otraClaveNoEsUnReintento() {
         Aceptacion a = invitacionLista("+59176000083");
         aceptar(a, UUID.randomUUID(), a.invitado());
@@ -93,7 +95,8 @@ class CU69AceptacionIdempotenteTest extends BaseDeCU69 {
     }
 
     @Test
-    @DisplayName("Otra persona con la misma clave no recibe la participación ajena")
+    @DisplayName(
+            "Dado un enlace ya aceptado por una persona · Cuando otra persona intenta con la MISMA clave · Entonces se rechaza con TOKEN_INVALIDO y no recibe la participación ajena")
     void otraPersonaNoRecibeLaParticipacionAjena() {
         Aceptacion a = invitacionLista("+59176000084");
         UUID clave = UUID.randomUUID();

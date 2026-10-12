@@ -173,6 +173,22 @@ export const ErroresCU69 = {
 ## Criterios de aceptación
 
 ```gherkin
+Dado un enlace ya aceptado
+Cuando la misma persona repite con la MISMA clave
+Entonces recibe la misma participación y no se duplica nada
+
+Dado un enlace sin aceptación previa
+Cuando se pregunta por una repetición
+Entonces no hay participación que devolver
+
+Dado un enlace ya consumido
+Cuando se intenta aceptar con OTRA clave
+Entonces se rechaza con TOKEN_INVALIDO
+
+Dado un enlace ya aceptado por una persona
+Cuando otra persona intenta con la MISMA clave
+Entonces se rechaza con TOKEN_INVALIDO y no recibe la participación ajena
+
 Dado un participante activo y un grupo con cupos libres
 Cuando invita a un teléfono nuevo
 Entonces existe una invitacion ENVIADA con token de un solo uso
