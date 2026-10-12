@@ -45,8 +45,10 @@ class CongelarTarifaDelGrupoTest extends BaseDeTarifas {
         UUID tarifario = fixtura.tarifarioBorrador("CONG-" + codigo());
         UUID uno = fixtura.hechoGenerador("H1-" + codigo());
         UUID dos = fixtura.hechoGenerador("H2-" + codigo());
-        fixtura.conceptoPorcentual(tarifario, uno, null, null, "C1-" + codigo(), "1.5000", "1.00", "50.00", false, false);
-        fixtura.conceptoPorcentual(tarifario, dos, null, null, "C2-" + codigo(), "2.0000", "2.00", "80.00", false, false);
+        fixtura.conceptoPorcentual(
+                tarifario, uno, null, null, "C1-" + codigo(), "1.5000", "1.00", "50.00", false, false);
+        fixtura.conceptoPorcentual(
+                tarifario, dos, null, null, "C2-" + codigo(), "2.0000", "2.00", "80.00", false, false);
         fixtura.activar(tarifario);
         return tarifario;
     }
@@ -70,7 +72,8 @@ class CongelarTarifaDelGrupoTest extends BaseDeTarifas {
     }
 
     @Test
-    @DisplayName("congela el precio con el snapshot de los conceptos y un hash verificable, y responde tarifa_congelada")
+    @DisplayName(
+            "congela el precio con el snapshot de los conceptos y un hash verificable, y responde tarifa_congelada")
     void congelaYResponde() {
         UUID grupo = escenario.grupo();
         UUID tarifario = tarifarioConDosConceptos();
@@ -118,7 +121,8 @@ class CongelarTarifaDelGrupoTest extends BaseDeTarifas {
     }
 
     @Test
-    @DisplayName("reintento: otro grupo_creado del mismo grupo conserva la tarifa y vuelve a responder para que el grupo abra")
+    @DisplayName(
+            "reintento: otro grupo_creado del mismo grupo conserva la tarifa y vuelve a responder para que el grupo abra")
     void reintentoConservaLaTarifa() {
         UUID grupo = escenario.grupo();
         UUID primero = tarifarioConDosConceptos();
@@ -201,8 +205,10 @@ class CongelarTarifaDelGrupoTest extends BaseDeTarifas {
         UUID tarifario = tarifarioConDosConceptos();
         var repositorio = new TarifaCongeladaRepositorio();
 
-        String uno = transaccion.execute(e -> repositorio.snapshotDe(dsl, tarifario).orElseThrow());
-        String dos = transaccion.execute(e -> repositorio.snapshotDe(dsl, tarifario).orElseThrow());
+        String uno =
+                transaccion.execute(e -> repositorio.snapshotDe(dsl, tarifario).orElseThrow());
+        String dos =
+                transaccion.execute(e -> repositorio.snapshotDe(dsl, tarifario).orElseThrow());
 
         assertThat(uno).isEqualTo(dos);
         assertThat(TarifaCongeladaRepositorio.hashDe(uno)).isEqualTo(TarifaCongeladaRepositorio.hashDe(dos));

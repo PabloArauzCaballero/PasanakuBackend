@@ -90,8 +90,9 @@ class HechosPorHttpPorUsuarioTest {
     }
 
     @Test
-    @DisplayName("correcto: con una deuda abierta en UNA de sus dos participaciones, tieneObligacionesAbiertas es true y lo"
-            + " comprometido suma las dos")
+    @DisplayName(
+            "correcto: con una deuda abierta en UNA de sus dos participaciones, tieneObligacionesAbiertas es true y lo"
+                    + " comprometido suma las dos")
     void conDeudaAbierta() {
         participa(pagos(0, "0.00", "0.00"), pagos(2, "300.00", "1200.00"));
 
@@ -104,7 +105,8 @@ class HechosPorHttpPorUsuarioTest {
     }
 
     @Test
-    @DisplayName("correcto: al dia en todas sus participaciones no tiene obligaciones abiertas y lo comprometido es cero")
+    @DisplayName(
+            "correcto: al dia en todas sus participaciones no tiene obligaciones abiertas y lo comprometido es cero")
     void sinDeuda() {
         participa(pagos(0, "0.00", "0.00"), pagos(0, "0.00", "0.00"));
 
@@ -114,7 +116,8 @@ class HechosPorHttpPorUsuarioTest {
     }
 
     @Test
-    @DisplayName("limite: una persona sin participaciones no debe nada (no se le pidio nada), y eso es distinto de no saber")
+    @DisplayName(
+            "limite: una persona sin participaciones no debe nada (no se le pidio nada), y eso es distinto de no saber")
     void sinParticipaciones() {
         cuerpos.put("/grupos/participaciones", "[]");
 
@@ -125,7 +128,8 @@ class HechosPorHttpPorUsuarioTest {
     }
 
     @Test
-    @DisplayName("limite: plata comprometida en OTRA moneda no se suma ni se convierte: lo comprometido se omite (vacio)")
+    @DisplayName(
+            "limite: plata comprometida en OTRA moneda no se suma ni se convierte: lo comprometido se omite (vacio)")
     void otraMoneda() {
         participa(pagos(1, "100.00", "0.00"));
 
@@ -134,8 +138,9 @@ class HechosPorHttpPorUsuarioTest {
     }
 
     @Test
-    @DisplayName("invalido: la sesion no es la del titular (un operador, un trabajo) · Entonces no se sabe: se asume que"
-            + " tiene obligaciones, se omite lo comprometido y NO se llama a nadie")
+    @DisplayName(
+            "invalido: la sesion no es la del titular (un operador, un trabajo) · Entonces no se sabe: se asume que"
+                    + " tiene obligaciones, se omite lo comprometido y NO se llama a nadie")
     void sesionAjena() {
         participa(pagos(0, "0.00", "0.00"));
         sesionDe(UUID.randomUUID());
@@ -148,8 +153,9 @@ class HechosPorHttpPorUsuarioTest {
     }
 
     @Test
-    @DisplayName("invalido: grupos caido o ilegible, aportes caido en una participacion, cuerpo sin conteo o importe mal"
-            + " formado · Entonces tiene obligaciones (cerrado) y lo comprometido se omite, nunca cero")
+    @DisplayName(
+            "invalido: grupos caido o ilegible, aportes caido en una participacion, cuerpo sin conteo o importe mal"
+                    + " formado · Entonces tiene obligaciones (cerrado) y lo comprometido se omite, nunca cero")
     void dependidosCaidos() {
         // grupos 500
         participa(pagos(0, "0.00", "0.00"));

@@ -75,8 +75,8 @@ class RegistroDeFacturaWebTest {
     @MockitoBean
     private CU106GenerarEstadoFinanciero cu106;
 
-    private ResultActions registrar(org.springframework.test.web.servlet.request.RequestPostProcessor sesion, String cuerpo)
-            throws Exception {
+    private ResultActions registrar(
+            org.springframework.test.web.servlet.request.RequestPostProcessor sesion, String cuerpo) throws Exception {
         return mvc.perform(post("/erp/facturas-de-proveedor")
                 .with(sesion)
                 .header("Idempotency-Key", CLAVE)
@@ -94,7 +94,9 @@ class RegistroDeFacturaWebTest {
     void elAprobadorEsElSujetoDelToken() throws Exception {
         when(cu103.registrar(any(), any())).thenReturn(aprobada());
 
-        registrar(Sesiones.como("CONTABILIDAD", "CONTABILIDAD_ERP_CUENTAS_POR_PAGAR"), "{" + BASE + ",\"aprobar\":true}")
+        registrar(
+                        Sesiones.como("CONTABILIDAD", "CONTABILIDAD_ERP_CUENTAS_POR_PAGAR"),
+                        "{" + BASE + ",\"aprobar\":true}")
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.estado").value("APROBADA"));
 

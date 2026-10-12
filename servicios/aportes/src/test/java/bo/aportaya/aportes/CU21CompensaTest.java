@@ -88,7 +88,8 @@ class CU21CompensaTest extends BaseDeAportes {
         UUID usuario = fixtura.usuario();
         var obligacion = fixtura.obligacion(usuario, monto, diasHastaVencer);
         ContextoSesion ctx = contextoDe(usuario);
-        return new Caso(usuario, obligacion.id(), pagar(obligacion.id(), ctx, monto).pagoId(), ctx);
+        return new Caso(
+                usuario, obligacion.id(), pagar(obligacion.id(), ctx, monto).pagoId(), ctx);
     }
 
     private AporteNoAplicado aviso(Caso c) {
@@ -150,12 +151,14 @@ class CU21CompensaTest extends BaseDeAportes {
                         "SELECT count(*)::int FROM comun.bitacora_evento WHERE entidad = 'pago' AND entidad_id = ?",
                         c.pago()))
                 .isEqualTo(1);
-        System.out.println("COMPENSA | pago=" + c.pago() + " ACREDITADO -> " + estadoDelPago(c.pago()) + " | obligacion "
-                + "PAGADO -> " + estadoDe(c.obligacion()) + " | monto_pagado 500.00 -> " + pagadoDe(c.obligacion()));
+        System.out.println("COMPENSA | pago=" + c.pago() + " ACREDITADO -> " + estadoDelPago(c.pago())
+                + " | obligacion " + "PAGADO -> " + estadoDe(c.obligacion()) + " | monto_pagado 500.00 -> "
+                + pagadoDe(c.obligacion()));
     }
 
     @Test
-    @DisplayName("evento duplicado: el mismo aporte_no_aplicado dos veces compensa UNA vez y publica UN aporte_compensado")
+    @DisplayName(
+            "evento duplicado: el mismo aporte_no_aplicado dos veces compensa UNA vez y publica UN aporte_compensado")
     void eventoDuplicado() {
         Caso c = pagado("500.00", 10);
         var a = aviso(c);
@@ -168,8 +171,9 @@ class CU21CompensaTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("reintento: el MISMO pago llega en OTRO evento · ya esta compensado: no se revierte dos veces (la obligacion"
-            + " no queda con menos de cero pagado)")
+    @DisplayName(
+            "reintento: el MISMO pago llega en OTRO evento · ya esta compensado: no se revierte dos veces (la obligacion"
+                    + " no queda con menos de cero pagado)")
     void mismoPagoOtroEvento() {
         Caso c = pagado("500.00", 10);
 
@@ -181,8 +185,9 @@ class CU21CompensaTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("cuadre: con dos pagos (Bs 200 y Bs 300) se compensa solo el que no se aplico: queda PAGADO_PARCIAL con"
-            + " Bs 200, igual a la suma de los pagos vigentes")
+    @DisplayName(
+            "cuadre: con dos pagos (Bs 200 y Bs 300) se compensa solo el que no se aplico: queda PAGADO_PARCIAL con"
+                    + " Bs 200, igual a la suma de los pagos vigentes")
     void compensaSoloElPagoFallido() {
         UUID usuario = fixtura.usuario();
         var obligacion = fixtura.obligacion(usuario, "500.00", 10);
@@ -191,8 +196,8 @@ class CU21CompensaTest extends BaseDeAportes {
         var segundo = pagar(obligacion.id(), ctx, "300.00");
         assertThat(estadoDe(obligacion.id())).isEqualTo("PAGADO");
 
-        var salida = compensar(new AporteNoAplicado(
-                UUID.randomUUID(), UUID.randomUUID(), segundo.pagoId(), obligacion.id(), FALLA));
+        var salida = compensar(
+                new AporteNoAplicado(UUID.randomUUID(), UUID.randomUUID(), segundo.pagoId(), obligacion.id(), FALLA));
 
         assertThat(salida.resultado()).isEqualTo(Resultado.COMPENSADO);
         assertThat(estadoDelPago(primero.pagoId())).isEqualTo("ACREDITADO");
@@ -215,7 +220,8 @@ class CU21CompensaTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("rechaza un aviso cuyo pago es de OTRA obligacion: no se compensa a ciegas, no queda marca y nada cambia")
+    @DisplayName(
+            "rechaza un aviso cuyo pago es de OTRA obligacion: no se compensa a ciegas, no queda marca y nada cambia")
     void rechazaElSobreIncoherente() {
         Caso c = pagado("500.00", 10);
         Caso otro = pagado("300.00", 10);
@@ -231,8 +237,9 @@ class CU21CompensaTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("rechaza compensar lo que ya se toco por otro camino: un pago con reembolso solicitado o en disputa no se"
-            + " reversa solo (queda para una persona) y no se pierde el evento")
+    @DisplayName(
+            "rechaza compensar lo que ya se toco por otro camino: un pago con reembolso solicitado o en disputa no se"
+                    + " reversa solo (queda para una persona) y no se pierde el evento")
     void noCompensaLoReembolsadoNiEnDisputa() {
         Caso conReembolso = pagado("500.00", 10);
         transaccion.execute(t -> reembolsoCU.solicitar(
@@ -250,7 +257,8 @@ class CU21CompensaTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("rechaza compensar un pago que no existe en aportes: se marca consumido sin tocar nada (no hay a quien compensar)")
+    @DisplayName(
+            "rechaza compensar un pago que no existe en aportes: se marca consumido sin tocar nada (no hay a quien compensar)")
     void pagoInexistente() {
         Caso c = pagado("500.00", 10);
         var a = new AporteNoAplicado(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), c.obligacion(), FALLA);
@@ -261,8 +269,9 @@ class CU21CompensaTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("concurrencia: dos eventos DISTINTOS del mismo pago al mismo tiempo compensan UNA sola vez: ni cero negativo ni"
-            + " dos avisos")
+    @DisplayName(
+            "concurrencia: dos eventos DISTINTOS del mismo pago al mismo tiempo compensan UNA sola vez: ni cero negativo ni"
+                    + " dos avisos")
     void concurrencia() throws Exception {
         Caso c = pagado("500.00", 10);
 
@@ -276,8 +285,9 @@ class CU21CompensaTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("rechaza una caida a mitad: si se cae la auditoria DESPUES de reversar el pago, todo se revierte (pago y"
-            + " obligacion intactos, sin marca) y el reproceso compensa una sola vez")
+    @DisplayName(
+            "rechaza una caida a mitad: si se cae la auditoria DESPUES de reversar el pago, todo se revierte (pago y"
+                    + " obligacion intactos, sin marca) y el reproceso compensa una sola vez")
     void caidaAMitad() {
         Caso c = pagado("500.00", 10);
         var a = aviso(c);
@@ -299,7 +309,8 @@ class CU21CompensaTest extends BaseDeAportes {
             }
         };
 
-        assertThatThrownBy(() -> transaccion.execute(t -> compensarCon(auditoriaCaida).procesar(a)))
+        assertThatThrownBy(() ->
+                        transaccion.execute(t -> compensarCon(auditoriaCaida).procesar(a)))
                 .isInstanceOf(IllegalStateException.class);
 
         assertThat(estadoDelPago(c.pago())).isEqualTo("ACREDITADO");

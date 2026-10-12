@@ -95,22 +95,27 @@ class CU16CierreConDeudaTest extends BaseDeBilletera {
     }
 
     @Test
-    @DisplayName("rechaza el cierre con una deuda abierta: aportes informa una obligacion en mora de la participacion de la"
-            + " persona · AP-CU16-01 y la solicitud no se crea")
+    @DisplayName(
+            "rechaza el cierre con una deuda abierta: aportes informa una obligacion en mora de la participacion de la"
+                    + " persona · AP-CU16-01 y la solicitud no se crea")
     void rechazaElCierreConDeudaAbierta() {
         var c = titular();
         estadoDeAportes.set(pagos(1, "500.00"));
 
         assertThatThrownBy(() -> solicitarElCierre(c))
                 .isInstanceOf(ErrorDeNegocio.class)
-                .satisfies(x -> assertThat(((ErrorDeNegocio) x).codigo().valor()).isEqualTo("AP-CU16-01"));
-        assertThat(contar("SELECT count(*) FROM nucleo_financiero.solicitud_cierre_billetera WHERE cuenta_billetera_id = ?", c.cuenta()))
+                .satisfies(
+                        x -> assertThat(((ErrorDeNegocio) x).codigo().valor()).isEqualTo("AP-CU16-01"));
+        assertThat(contar(
+                        "SELECT count(*) FROM nucleo_financiero.solicitud_cierre_billetera WHERE cuenta_billetera_id = ?",
+                        c.cuenta()))
                 .isZero();
     }
 
     @Test
-    @DisplayName("rechaza el cierre si aportes no contesta: no saber es «debe» (cerrar le pasaria la deuda a los otros del"
-            + " grupo) · AP-CU16-01")
+    @DisplayName(
+            "rechaza el cierre si aportes no contesta: no saber es «debe» (cerrar le pasaria la deuda a los otros del"
+                    + " grupo) · AP-CU16-01")
     void rechazaElCierreSiAportesEstaCaido() {
         var c = titular();
         estadoDeAportes.set(pagos(0, "0.00"));
@@ -118,19 +123,23 @@ class CU16CierreConDeudaTest extends BaseDeBilletera {
 
         assertThatThrownBy(() -> solicitarElCierre(c))
                 .isInstanceOf(ErrorDeNegocio.class)
-                .satisfies(x -> assertThat(((ErrorDeNegocio) x).codigo().valor()).isEqualTo("AP-CU16-01"));
+                .satisfies(
+                        x -> assertThat(((ErrorDeNegocio) x).codigo().valor()).isEqualTo("AP-CU16-01"));
     }
 
     @Test
-    @DisplayName("Dado un titular al dia en todas sus participaciones · Cuando solicita el cierre · Entonces la solicitud se"
-            + " crea (la puerta de aportes se abre solo con el hecho, no por omision)")
+    @DisplayName(
+            "Dado un titular al dia en todas sus participaciones · Cuando solicita el cierre · Entonces la solicitud se"
+                    + " crea (la puerta de aportes se abre solo con el hecho, no por omision)")
     void sinDeudaSeSolicita() {
         var c = titular();
         estadoDeAportes.set(pagos(0, "0.00"));
 
         solicitarElCierre(c);
 
-        assertThat(contar("SELECT count(*) FROM nucleo_financiero.solicitud_cierre_billetera WHERE cuenta_billetera_id = ?", c.cuenta()))
+        assertThat(contar(
+                        "SELECT count(*) FROM nucleo_financiero.solicitud_cierre_billetera WHERE cuenta_billetera_id = ?",
+                        c.cuenta()))
                 .isEqualTo(1);
     }
 }

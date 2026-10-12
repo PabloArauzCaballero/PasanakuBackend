@@ -29,7 +29,10 @@ import org.springframework.stereotype.Component;
  * muertos con alerta es la decision pendiente de operaciones. Un rechazo NO marca el evento como consumido.
  */
 @Component
-@ConditionalOnProperty(name = "aportaya.grupos.apertura.consumo-habilitado", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(
+        name = "aportaya.grupos.apertura.consumo-habilitado",
+        havingValue = "true",
+        matchIfMissing = true)
 public class ConsumidorDePreciosCongeladosKafka {
 
     private static final Logger BITACORA = LoggerFactory.getLogger(ConsumidorDePreciosCongeladosKafka.class);

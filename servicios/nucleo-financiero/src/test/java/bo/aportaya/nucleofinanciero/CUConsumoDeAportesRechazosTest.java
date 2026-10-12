@@ -184,9 +184,10 @@ class CUConsumoDeAportesRechazosTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("rechaza saldo insuficiente: el libro decide, no la cache; es un rechazo DEFINITIVO (AP-CU12-01): nada se"
-            + " mueve, el evento se marca consumido y se publica aporte_no_aplicado (la compensacion esta en"
-            + " CUAporteNoAplicadoTest)")
+    @DisplayName(
+            "rechaza saldo insuficiente: el libro decide, no la cache; es un rechazo DEFINITIVO (AP-CU12-01): nada se"
+                    + " mueve, el evento se marca consumido y se publica aporte_no_aplicado (la compensacion esta en"
+                    + " CUAporteNoAplicadoTest)")
     void rechazaSaldoInsuficiente() {
         var a = aporte("300.00");
         var e = cobrado(a, "500.00");

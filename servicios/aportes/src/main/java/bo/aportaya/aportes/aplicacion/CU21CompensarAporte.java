@@ -91,7 +91,8 @@ public class CU21CompensarAporte {
 
     @Transactional
     public Salida procesar(AporteNoAplicado e) {
-        ContextoSesion ctx = ContextoSesion.deSistema(PROCESO, new Traza(e.correlationId().toString()));
+        ContextoSesion ctx =
+                ContextoSesion.deSistema(PROCESO, new Traza(e.correlationId().toString()));
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
         return datos.conContexto(ctx, dsl -> {
             if (!consumidos.registrar(dsl, e.eventoId(), CONSUMIDOR)) {
@@ -102,18 +103,21 @@ public class CU21CompensarAporte {
                 return sinEfecto(Resultado.PAGO_INEXISTENTE);
             }
             if (!pago.get().obligacionId().equals(e.obligacionId())) {
-                // El sobre afirma algo que el pago guardado desmiente: no se compensa a ciegas (y no se marca consumido).
+                // El sobre afirma algo que el pago guardado desmiente: no se compensa a ciegas (y no se marca
+                // consumido).
                 throw new IllegalArgumentException("El pago " + e.pagoId() + " no es de la obligacion del evento.");
             }
             // El candado de la obligacion serializa contra un cobro, un reembolso o otra compensacion del mismo pago.
             var obligacion = obligaciones
                     .bloquear(dsl, pago.get().obligacionId())
                     .orElseThrow(() -> new IllegalStateException("La obligacion del pago no existe."));
-            // Con el candado en la mano se vuelve a mirar el pago: otro evento del mismo pago pudo compensarlo mientras esperaba.
+            // Con el candado en la mano se vuelve a mirar el pago: otro evento del mismo pago pudo compensarlo mientras
+            // esperaba.
             if ("REVERSADO".equals(pagos.ver(dsl, e.pagoId()).orElseThrow().estado())) {
                 return sinEfecto(Resultado.YA_COMPENSADO);
             }
-            boolean conReembolsos = !pagos.reembolsadoDe(dsl, pago.get().id(), pago.get().monto().moneda())
+            boolean conReembolsos = !pagos.reembolsadoDe(
+                            dsl, pago.get().id(), pago.get().monto().moneda())
                     .esCero();
             if (conReembolsos || !pagos.reversar(dsl, pago.get().id())) {
                 return sinEfecto(Resultado.NO_COMPENSABLE);

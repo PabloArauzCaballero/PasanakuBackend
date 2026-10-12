@@ -121,7 +121,8 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     @Override
     public EstadoDePagos estadoDePagos(UUID participanteId) {
         return aportes.consultar("/aportes/participantes/" + participanteId + "/estado", Estado.class)
-                // Un cuerpo sin los importes (`{}`) no es una respuesta: es «sin dato». Antes era un NPE (500) en vez del
+                // Un cuerpo sin los importes (`{}`) no es una respuesta: es «sin dato». Antes era un NPE (500) en vez
+                // del
                 // fallback declarado (carril I: hallado por HechosCaidaTest cuando el circuito vuelve a semiabrirse).
                 .filter(e -> e.totalAportado() != null && e.deudaVigente() != null && e.porAportar() != null)
                 .map(e -> new EstadoDePagos(

@@ -192,7 +192,8 @@ public class ConsumoDeAportes {
         }
         // El saldo sale del LIBRO, no de la cache: lo que autoriza un debito es lo que el libro dice ahora.
         if (monto.esMayorQue(origen.disponible()) && !origen.permiteNegativo()) {
-            // Rechazo DEFINITIVO (no se arregla reprocesando): se compensa. Nada se escribio todavia, asi que se publica el
+            // Rechazo DEFINITIVO (no se arregla reprocesando): se compensa. Nada se escribio todavia, asi que se
+            // publica el
             // hecho en la misma transaccion que la marca de consumo y `aportes` revierte el pago (saga, regla 98.3).
             return rechazarPorSaldo(dsl, aporte);
         }

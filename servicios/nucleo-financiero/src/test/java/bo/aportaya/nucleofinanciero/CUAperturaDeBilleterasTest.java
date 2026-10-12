@@ -69,8 +69,9 @@ class CUAperturaDeBilleterasTest extends BaseDeApertura {
     }
 
     @Test
-    @DisplayName("Dado un grupo_creado · Cuando nucleo lo consume · Entonces existe UNA billetera BOB del GRUPO (titular"
-            + " el grupo, nunca una persona: R-GRP-04), ACTIVA, ESTANDAR, sin politica P2P")
+    @DisplayName(
+            "Dado un grupo_creado · Cuando nucleo lo consume · Entonces existe UNA billetera BOB del GRUPO (titular"
+                    + " el grupo, nunca una persona: R-GRP-04), ACTIVA, ESTANDAR, sin politica P2P")
     void abreLaBilleteraDelGrupo() {
         UUID grupo = grupoReal();
         var e = creado(grupo);
@@ -95,8 +96,9 @@ class CUAperturaDeBilleterasTest extends BaseDeApertura {
     }
 
     @Test
-    @DisplayName("evento duplicado: el mismo usuario_registrado / grupo_creado dos veces deja UNA cuenta, UNA marca y UN"
-            + " aviso")
+    @DisplayName(
+            "evento duplicado: el mismo usuario_registrado / grupo_creado dos veces deja UNA cuenta, UNA marca y UN"
+                    + " aviso")
     void eventoDuplicado() {
         UUID usuario = fixtura.usuario();
         var eu = registrado(usuario);
@@ -115,8 +117,9 @@ class CUAperturaDeBilleterasTest extends BaseDeApertura {
     }
 
     @Test
-    @DisplayName("reintento: el productor republica el alta con OTRO id de evento · Entonces no se abre una segunda cuenta"
-            + " ni se repite el aviso")
+    @DisplayName(
+            "reintento: el productor republica el alta con OTRO id de evento · Entonces no se abre una segunda cuenta"
+                    + " ni se repite el aviso")
     void reintentoConOtroEvento() {
         UUID usuario = fixtura.usuario();
         var primera = abrir(apertura, registrado(usuario));
@@ -163,8 +166,9 @@ class CUAperturaDeBilleterasTest extends BaseDeApertura {
     }
 
     @Test
-    @DisplayName("rechaza abrir sin politica de billetera vigente: no se crea una cuenta que niega todo; no queda marca y"
-            + " el reproceso la abre cuando la politica exista")
+    @DisplayName(
+            "rechaza abrir sin politica de billetera vigente: no se crea una cuenta que niega todo; no queda marca y"
+                    + " el reproceso la abre cuando la politica exista")
     void rechazaSinPolitica() {
         UUID usuario = fixtura.usuario();
         var e = registrado(usuario);
@@ -217,16 +221,17 @@ class CUAperturaDeBilleterasTest extends BaseDeApertura {
     }
 
     @Test
-    @DisplayName("concurrencia: dos eventos DISTINTOS del mismo usuario (y del mismo grupo) al mismo tiempo dejan UNA sola"
-            + " cuenta: el indice unico R-BIL-04 decide")
+    @DisplayName(
+            "concurrencia: dos eventos DISTINTOS del mismo usuario (y del mismo grupo) al mismo tiempo dejan UNA sola"
+                    + " cuenta: el indice unico R-BIL-04 decide")
     void concurrencia() throws Exception {
         UUID usuario = fixtura.usuario();
         UUID grupo = grupoReal();
         var u = enParalelo(
                 () -> abrir(apertura, registrado(usuario)).resultado(),
                 () -> abrir(apertura, registrado(usuario)).resultado());
-        var g = enParalelo(
-                () -> abrir(apertura, creado(grupo)).resultado(), () -> abrir(apertura, creado(grupo)).resultado());
+        var g = enParalelo(() -> abrir(apertura, creado(grupo)).resultado(), () -> abrir(apertura, creado(grupo))
+                .resultado());
 
         assertThat(u).containsExactlyInAnyOrder(Resultado.ABIERTA, Resultado.YA_EXISTIA);
         assertThat(g).containsExactlyInAnyOrder(Resultado.ABIERTA, Resultado.YA_EXISTIA);

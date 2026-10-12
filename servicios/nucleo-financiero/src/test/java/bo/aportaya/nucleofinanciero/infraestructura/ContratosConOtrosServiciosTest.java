@@ -48,7 +48,8 @@ class ContratosConOtrosServiciosTest {
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/", exchange -> {
             ruta.set(exchange.getRequestURI().getPath());
-            boolean deGrupos = "/grupos/participaciones".equals(exchange.getRequestURI().getPath());
+            boolean deGrupos =
+                    "/grupos/participaciones".equals(exchange.getRequestURI().getPath());
             byte[] raw = (deGrupos ? participaciones.get() : cuerpo.get()).getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().add("Content-Type", "application/json");
             exchange.sendResponseHeaders(estado.get(), raw.length);
@@ -114,9 +115,7 @@ class ContratosConOtrosServiciosTest {
     @DisplayName("limite: sin deuda ni por aportar es cero, que es distinto de no saber")
     void comprometidoCero() {
         cuerpo.set("{\"deudaVigente\":\"0.00\",\"porAportar\":\"0.00\",\"obligacionesAbiertas\":0,\"moneda\":\"BOB\"}");
-        assertThat(hechos.comprometidoEnPozos(usuario, Moneda.BOB)
-                        .orElseThrow()
-                        .esCero())
+        assertThat(hechos.comprometidoEnPozos(usuario, Moneda.BOB).orElseThrow().esCero())
                 .isTrue();
     }
 
@@ -127,8 +126,7 @@ class ContratosConOtrosServiciosTest {
         assertThat(hechos.comprometidoEnPozos(usuario, Moneda.USD)).isEmpty();
         for (int codigo : new int[] {404, 500}) {
             estado.set(codigo);
-            assertThat(hechos.comprometidoEnPozos(usuario, Moneda.BOB))
-                    .isEmpty();
+            assertThat(hechos.comprometidoEnPozos(usuario, Moneda.BOB)).isEmpty();
         }
         estado.set(200);
         cuerpo.set("esto no es json");

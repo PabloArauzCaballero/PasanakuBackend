@@ -103,12 +103,11 @@ class CU103IdempotenciaTest extends EscenarioDeFactura {
         transaccion.execute(t -> facturaCU.pagar(pago(factura.facturaId(), "1000.00", clave), tesoreria));
 
         // Responder con el pago viejo le haria creer al cliente que el de 4000 se hizo.
-        assertThatThrownBy(() ->
-                        transaccion.execute(t -> facturaCU.pagar(pago(factura.facturaId(), "4000.00", clave), tesoreria)))
+        assertThatThrownBy(() -> transaccion.execute(
+                        t -> facturaCU.pagar(pago(factura.facturaId(), "4000.00", clave), tesoreria)))
                 .hasMessageContaining("otro pago");
         assertThatThrownBy(() -> transaccion.execute(t -> facturaCU.pagar(
-                        new EntradaPago(
-                                factura.facturaId(), new BigDecimal("1000.00"), "BOB", "CHEQUE", clave),
+                        new EntradaPago(factura.facturaId(), new BigDecimal("1000.00"), "BOB", "CHEQUE", clave),
                         tesoreria)))
                 .hasMessageContaining("otro pago");
         // La clave tampoco la reusa otra persona: seria otro autorizante del mismo pago.
@@ -135,7 +134,8 @@ class CU103IdempotenciaTest extends EscenarioDeFactura {
     }
 
     @Test
-    @DisplayName("concurrencia: el mismo pago reintentado en simultaneo se registra una sola vez y todos reciben lo mismo")
+    @DisplayName(
+            "concurrencia: el mismo pago reintentado en simultaneo se registra una sola vez y todos reciben lo mismo")
     void concurrenciaDelMismoPago() throws Exception {
         var factura = transaccion.execute(t -> facturaCU.registrar(factura("5000.00", enPeriodo(1)), aprobador));
         var parcial = pago(factura.facturaId(), "2000.00", UUID.randomUUID());
@@ -215,7 +215,8 @@ class CU103IdempotenciaTest extends EscenarioDeFactura {
     void rechazaPagoSinClave() {
         var factura = transaccion.execute(t -> facturaCU.registrar(factura("500.00", enPeriodo(1)), aprobador));
 
-        assertThatThrownBy(() -> new EntradaPago(factura.facturaId(), new BigDecimal("500.00"), "BOB", "EFECTIVO", null))
+        assertThatThrownBy(
+                        () -> new EntradaPago(factura.facturaId(), new BigDecimal("500.00"), "BOB", "EFECTIVO", null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("clave de idempotencia");
         assertThat(contar(SUMA_DE_PAGOS, factura.facturaId())).isZero();

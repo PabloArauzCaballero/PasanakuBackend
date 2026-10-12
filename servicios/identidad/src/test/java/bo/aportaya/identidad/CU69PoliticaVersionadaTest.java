@@ -76,7 +76,8 @@ class CU69PoliticaVersionadaTest {
     @BeforeEach
     void caso() {
         telefono = "+591" + String.format("%08d", Math.abs(UUID.randomUUID().hashCode() % 100000000));
-        emisor = fixtura.usuario("+591" + String.format("%08d", Math.abs(UUID.randomUUID().hashCode() % 100000000)));
+        emisor = fixtura.usuario(
+                "+591" + String.format("%08d", Math.abs(UUID.randomUUID().hashCode() % 100000000)));
     }
 
     private EmitirTokenDeInvitacion.Emitido emitir(String canal) {
@@ -84,17 +85,19 @@ class CU69PoliticaVersionadaTest {
                 UUID.randomUUID(), UUID.randomUUID(), telefono, canal, "127.0.0.1", "prueba-sintetica");
         return tx.execute(s -> emitir.ejecutar(
                 entrada,
-                ContextoSesion.de(emisor, "PARTICIPANTE", new Traza(UUID.randomUUID().toString()))));
+                ContextoSesion.de(
+                        emisor, "PARTICIPANTE", new Traza(UUID.randomUUID().toString()))));
     }
 
     @Test
-    @DisplayName("rechaza ENLACE mientras rige la version vieja (la que conservaba TEST) y acepta los canales que tenia")
+    @DisplayName(
+            "rechaza ENLACE mientras rige la version vieja (la que conservaba TEST) y acepta los canales que tenia")
     void conLaVersionViejaEnlaceSeRechaza() {
         AHORA.set(Instant.parse("2040-06-01T12:00:00Z"));
 
-        assertThatThrownBy(() -> emitir("ENLACE"))
-                .isInstanceOfSatisfying(ErrorDeNegocio.class, e -> assertThat(e.codigo().valor())
-                        .isEqualTo("AP-CU69-05"));
+        assertThatThrownBy(() -> emitir("ENLACE")).isInstanceOfSatisfying(ErrorDeNegocio.class, e -> assertThat(
+                        e.codigo().valor())
+                .isEqualTo("AP-CU69-05"));
         assertThat(emitir("SMS").tokenId()).isNotNull();
     }
 

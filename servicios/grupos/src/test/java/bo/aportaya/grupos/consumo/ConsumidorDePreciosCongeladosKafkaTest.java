@@ -39,11 +39,7 @@ class ConsumidorDePreciosCongeladosKafkaTest {
         UUID tarifario = UUID.randomUUID();
 
         var precio = ConsumidorDePreciosCongeladosKafka.leer(registro(
-                cuerpo(grupo, tarifario),
-                "event_id",
-                EVENTO.toString(),
-                "correlation_id",
-                CORRELACION.toString()));
+                cuerpo(grupo, tarifario), "event_id", EVENTO.toString(), "correlation_id", CORRELACION.toString()));
 
         assertThat(precio.eventoId()).isEqualTo(EVENTO);
         assertThat(precio.correlationId()).isEqualTo(CORRELACION);
@@ -52,7 +48,8 @@ class ConsumidorDePreciosCongeladosKafkaTest {
     }
 
     @Test
-    @DisplayName("invalido: sin cabecera, con un campo que falta o que no es UUID, o con un cuerpo que no es JSON se RECHAZA")
+    @DisplayName(
+            "invalido: sin cabecera, con un campo que falta o que no es UUID, o con un cuerpo que no es JSON se RECHAZA")
     void invalido() {
         UUID u = UUID.randomUUID();
         String bueno = cuerpo(u, u);

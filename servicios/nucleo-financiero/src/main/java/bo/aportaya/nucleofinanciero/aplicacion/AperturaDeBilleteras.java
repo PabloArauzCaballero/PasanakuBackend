@@ -154,7 +154,8 @@ public class AperturaDeBilleteras {
         // Determinista por titular: un reintento del mismo alta propone el mismo numero.
         String numero = prefijo + titular.toString().replace("-", "").substring(0, 15);
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
-        boolean abierta = cuentas.abrir(dsl, new Apertura(id, numero, tipo, titular, MONEDA, estado, nivel, politica, ahora));
+        boolean abierta =
+                cuentas.abrir(dsl, new Apertura(id, numero, tipo, titular, MONEDA, estado, nivel, politica, ahora));
         if (!abierta) {
             // Otro evento del mismo titular gano la carrera (R-BIL-04): su cuenta es la buena.
             var ganadora = "USUARIO".equals(tipo)
@@ -172,12 +173,18 @@ public class AperturaDeBilleteras {
                         "cuenta_billetera",
                         id,
                         Map.of(
-                                "cuentaId", id.toString(),
-                                "tipo", tipo,
-                                "titularId", titular.toString(),
-                                "moneda", MONEDA.name(),
-                                "estado", estado,
-                                "nivelDebidaDiligencia", nivel),
+                                "cuentaId",
+                                id.toString(),
+                                "tipo",
+                                tipo,
+                                "titularId",
+                                titular.toString(),
+                                "moneda",
+                                MONEDA.name(),
+                                "estado",
+                                estado,
+                                "nivelDebidaDiligencia",
+                                nivel),
                         correlationId));
         return new Salida(Resultado.ABIERTA, Optional.of(id));
     }

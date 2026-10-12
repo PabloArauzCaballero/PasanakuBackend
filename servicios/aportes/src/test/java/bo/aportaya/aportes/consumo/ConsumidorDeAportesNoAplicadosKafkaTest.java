@@ -41,7 +41,8 @@ class ConsumidorDeAportesNoAplicadosKafkaTest {
     }
 
     @Test
-    @DisplayName("pacto · correcto: el consumidor entiende el ejemplo que publica nucleo (pago, obligacion, motivo, cabeceras)")
+    @DisplayName(
+            "pacto · correcto: el consumidor entiende el ejemplo que publica nucleo (pago, obligacion, motivo, cabeceras)")
     void correcto() throws IOException {
         JsonNode pacto = pacto();
         UUID evento = UUID.randomUUID();
@@ -63,7 +64,9 @@ class ConsumidorDeAportesNoAplicadosKafkaTest {
         assertThat(aviso.motivo()).isEqualTo("SALDO_INSUFICIENTE");
         // Lo que el consumidor exige esta declarado en el pacto, y el ejemplo lo trae todo.
         for (JsonNode campo : pacto.path("consumidorExige")) {
-            assertThat(pacto.path("ejemplo").has(campo.asText())).as(campo.asText()).isTrue();
+            assertThat(pacto.path("ejemplo").has(campo.asText()))
+                    .as(campo.asText())
+                    .isTrue();
         }
         assertThat(pacto.path("topico").asText()).isEqualTo("aportaya.nucleo_financiero.aporte_no_aplicado");
     }
@@ -88,8 +91,7 @@ class ConsumidorDeAportesNoAplicadosKafkaTest {
         String id = UUID.randomUUID().toString();
         assertThatThrownBy(() -> ConsumidorDeAportesNoAplicadosKafka.leer(registro(ejemplo, "correlation_id", id)))
                 .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() ->
-                        ConsumidorDeAportesNoAplicadosKafka.leer(registro(ejemplo, "event_id", id)))
+        assertThatThrownBy(() -> ConsumidorDeAportesNoAplicadosKafka.leer(registro(ejemplo, "event_id", id)))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> ConsumidorDeAportesNoAplicadosKafka.leer(
                         registro(ejemplo, "event_id", "no-es-uuid", "correlation_id", id)))

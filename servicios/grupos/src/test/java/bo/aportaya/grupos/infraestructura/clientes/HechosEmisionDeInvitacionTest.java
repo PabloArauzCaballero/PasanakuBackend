@@ -85,7 +85,8 @@ class HechosEmisionDeInvitacionTest {
     @DisplayName("correcto: el enlace emitido llega con su identificador, su secreto y su vencimiento")
     void emiteElEnlace() throws Exception {
         var hechos = contra(
-                201, "{\"tokenId\":\"" + TOKEN + "\",\"token\":\"" + SECRETO + "\",\"expiraEn\":\"2031-01-01T00:00:00Z\"}");
+                201,
+                "{\"tokenId\":\"" + TOKEN + "\",\"token\":\"" + SECRETO + "\",\"expiraEn\":\"2031-01-01T00:00:00Z\"}");
 
         var emitido = hechos.tokenDeInvitacion(CLAVE, GRUPO, "ENLACE", TELEFONO);
 
@@ -111,11 +112,13 @@ class HechosEmisionDeInvitacionTest {
     @DisplayName("limite: el tope diario de identidad (AP-CU69-08) tambien llega con su codigo y su mensaje")
     void elTopeDiarioLlegaConSuCodigo() throws Exception {
         var hechos = contra(
-                422, "{\"codigo\":\"AP-CU69-08\",\"mensaje\":\"Alcanzaste el limite diario de invitaciones. Proba manana.\"}");
+                422,
+                "{\"codigo\":\"AP-CU69-08\",\"mensaje\":\"Alcanzaste el limite diario de invitaciones. Proba manana.\"}");
 
         assertThatThrownBy(() -> hechos.tokenDeInvitacion(CLAVE, GRUPO, "SMS", TELEFONO))
-                .isInstanceOfSatisfying(ErrorDeNegocio.class, e -> assertThat(e.codigo().valor())
-                        .isEqualTo("AP-CU69-08"));
+                .isInstanceOfSatisfying(
+                        ErrorDeNegocio.class,
+                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU69-08"));
     }
 
     @Test
@@ -144,7 +147,8 @@ class HechosEmisionDeInvitacionTest {
     }
 
     @Test
-    @DisplayName("el rastro de un enlace que no se pudo validar lleva la clase o el estado HTTP, nunca el telefono ni el secreto")
+    @DisplayName(
+            "el rastro de un enlace que no se pudo validar lleva la clase o el estado HTTP, nunca el telefono ni el secreto")
     void validarDejaRastroSeguro() throws Exception {
         var conRespuesta = contra(500, "{\"detalle\":\"" + TELEFONO + SECRETO + "\"}");
         assertThat(conRespuesta.enlaceDeInvitacionValido(TOKEN, SECRETO, TELEFONO, "NINGUNO"))
@@ -154,7 +158,8 @@ class HechosEmisionDeInvitacionTest {
         assertThat(sinRed.enlaceDeInvitacionValido(TOKEN, SECRETO, TELEFONO, "NINGUNO"))
                 .isFalse();
 
-        var mensajes = bitacora.list.stream().map(ILoggingEvent::getFormattedMessage).toList();
+        var mensajes =
+                bitacora.list.stream().map(ILoggingEvent::getFormattedMessage).toList();
         assertThat(mensajes).hasSize(2);
         assertThat(mensajes.get(0)).contains("HTTP 500");
         assertThat(mensajes.get(1)).containsAnyOf("ResourceAccessException", "Exception");

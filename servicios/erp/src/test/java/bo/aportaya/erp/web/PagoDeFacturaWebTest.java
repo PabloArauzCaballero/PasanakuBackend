@@ -189,7 +189,8 @@ class PagoDeFacturaWebTest {
 
         var entrada = ArgumentCaptor.forClass(CU103FacturaDeProveedor.EntradaPago.class);
         verify(cu103, org.mockito.Mockito.times(2)).pagar(entrada.capture(), any());
-        assertThat(entrada.getAllValues()).extracting(CU103FacturaDeProveedor.EntradaPago::claveIdempotencia)
+        assertThat(entrada.getAllValues())
+                .extracting(CU103FacturaDeProveedor.EntradaPago::claveIdempotencia)
                 .containsOnly(UUID.fromString(CLAVE));
     }
 
@@ -219,9 +220,11 @@ class PagoDeFacturaWebTest {
     }
 
     @Test
-    @DisplayName("400 · QR no es una forma de pago a proveedor: el contrato la alinea con ck_pago_a_proveedor_forma_pago")
+    @DisplayName(
+            "400 · QR no es una forma de pago a proveedor: el contrato la alinea con ck_pago_a_proveedor_forma_pago")
     void qrNoEsFormaDePagoAProveedor() throws Exception {
-        pagar(Sesiones.como("TESORERIA", "CONTABILIDAD_ERP_PAGAR"),
+        pagar(
+                        Sesiones.como("TESORERIA", "CONTABILIDAD_ERP_PAGAR"),
                         "{\"monto\":\"400.00\",\"moneda\":\"BOB\",\"formaPago\":\"QR\"}")
                 .andExpect(status().isBadRequest());
 
@@ -234,7 +237,8 @@ class PagoDeFacturaWebTest {
         when(cu103.pagar(any(), any())).thenReturn(parcial());
 
         for (String forma : new String[] {"TRANSFERENCIA", "CHEQUE", "EFECTIVO"}) {
-            pagar(Sesiones.como("TESORERIA", "CONTABILIDAD_ERP_PAGAR"),
+            pagar(
+                            Sesiones.como("TESORERIA", "CONTABILIDAD_ERP_PAGAR"),
                             "{\"monto\":\"400.00\",\"moneda\":\"BOB\",\"formaPago\":\"" + forma + "\"}")
                     .andExpect(status().isCreated());
         }

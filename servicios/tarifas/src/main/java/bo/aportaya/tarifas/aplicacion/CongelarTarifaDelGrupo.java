@@ -76,8 +76,7 @@ public class CongelarTarifaDelGrupo {
             if (!consumidos.registrar(dsl, grupo.eventoId(), CONSUMIDOR)) {
                 return Resultado.DUPLICADO;
             }
-            String snapshot = tarifas
-                    .snapshotDe(dsl, grupo.tarifarioId())
+            String snapshot = tarifas.snapshotDe(dsl, grupo.tarifarioId())
                     .orElseThrow(() -> new IllegalStateException("El tarifario del grupo no existe"));
             boolean yaEstaba = tarifas.yaCongelado(dsl, grupo.grupoId());
             var congelada = tarifas.congelar(

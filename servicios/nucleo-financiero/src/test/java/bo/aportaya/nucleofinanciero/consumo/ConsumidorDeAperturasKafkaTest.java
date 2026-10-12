@@ -37,8 +37,9 @@ class ConsumidorDeAperturasKafkaTest {
     }
 
     @Test
-    @DisplayName("correcto: usuario_registrado trae usuarioId y nivelSolicitado; grupo_creado trae grupoId y tarifarioId; se lee"
-            + " el id del evento, la correlacion y el titular")
+    @DisplayName(
+            "correcto: usuario_registrado trae usuarioId y nivelSolicitado; grupo_creado trae grupoId y tarifarioId; se lee"
+                    + " el id del evento, la correlacion y el titular")
     void correcto() {
         UUID evento = UUID.randomUUID();
         UUID correlacion = UUID.randomUUID();
@@ -65,8 +66,9 @@ class ConsumidorDeAperturasKafkaTest {
     }
 
     @Test
-    @DisplayName("invalido: falta una cabecera o el titular, un id que no es UUID o un cuerpo que no es JSON se RECHAZAN,"
-            + " nunca se ignoran (ignorarlos deja a una persona o a un grupo sin billetera)")
+    @DisplayName(
+            "invalido: falta una cabecera o el titular, un id que no es UUID o un cuerpo que no es JSON se RECHAZAN,"
+                    + " nunca se ignoran (ignorarlos deja a una persona o a un grupo sin billetera)")
     void invalido() {
         String id = UUID.randomUUID().toString();
         String cuerpo = "{\"usuarioId\":\"%s\"}".formatted(UUID.randomUUID());
@@ -83,8 +85,8 @@ class ConsumidorDeAperturasKafkaTest {
         assertThatThrownBy(() -> ConsumidorDeUsuariosKafka.leer(
                         registro("{\"usuarioId\":\"no-es-uuid\"}", "event_id", id, "correlation_id", id)))
                 .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> ConsumidorDeGruposKafka.leer(
-                        registro("esto no es json", "event_id", id, "correlation_id", id)))
+        assertThatThrownBy(() ->
+                        ConsumidorDeGruposKafka.leer(registro("esto no es json", "event_id", id, "correlation_id", id)))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> ConsumidorDeGruposKafka.leer(registro("{}", "event_id", id, "correlation_id", id)))
                 .isInstanceOf(IllegalArgumentException.class);
@@ -93,11 +95,12 @@ class ConsumidorDeAperturasKafkaTest {
     }
 
     @Test
-    @DisplayName("pacto · productores (estatico): identidad publica identidad.usuario_registrado con usuarioId y grupos publica"
-            + " grupos.grupo_creado con grupoId: los tipos y campos que este servicio consume")
+    @DisplayName(
+            "pacto · productores (estatico): identidad publica identidad.usuario_registrado con usuarioId y grupos publica"
+                    + " grupos.grupo_creado con grupoId: los tipos y campos que este servicio consume")
     void losProductoresPublicanLoQueSeConsume() throws IOException {
-        String identidad =
-                codigoDe("servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/CU01RegistrarUsuario.java");
+        String identidad = codigoDe(
+                "servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/CU01RegistrarUsuario.java");
         assertThat(identidad).contains("\"identidad.usuario_registrado\"").contains("\"usuarioId\"");
         String grupos = codigoDe("servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU20CrearGrupo.java");
         assertThat(grupos).contains("\"grupos.grupo_creado\"").contains("\"grupoId\"");

@@ -47,13 +47,15 @@ class CUAperturaYAporteTest extends BaseDeAportes {
 
     private UUID cuentaDeGrupo(UUID grupo) {
         return (UUID) dsl.fetchOne(
-                        "SELECT id FROM nucleo_financiero.cuenta_billetera WHERE tipo = 'GRUPO' AND grupo_id = ?", grupo)
+                        "SELECT id FROM nucleo_financiero.cuenta_billetera WHERE tipo = 'GRUPO' AND grupo_id = ?",
+                        grupo)
                 .get(0);
     }
 
     @Test
-    @DisplayName("cuadre: persona y grupo con billetera abierta por los consumidores · el aporte cobrado de Bs 500 se aplica;"
-            + " el libro sube el grupo y baja a la persona, y el mayor cuadra (debe = haber) por el mismo importe")
+    @DisplayName(
+            "cuadre: persona y grupo con billetera abierta por los consumidores · el aporte cobrado de Bs 500 se aplica;"
+                    + " el libro sube el grupo y baja a la persona, y el mayor cuadra (debe = haber) por el mismo importe")
     void elAporteSeAplicaSobreBilleterasAbiertasPorElSistema() {
         UUID usuario = fixtura.usuario();
         UUID obligacion = obligaciones.obligacionDeAporte(usuario);
@@ -92,8 +94,9 @@ class CUAperturaYAporteTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("reintento: el aporte rechazado por falta de billetera del grupo (AP-CU12-02, sin marca) se aplica en el"
-            + " reproceso cuando el consumidor de grupo_creado la abre")
+    @DisplayName(
+            "reintento: el aporte rechazado por falta de billetera del grupo (AP-CU12-02, sin marca) se aplica en el"
+                    + " reproceso cuando el consumidor de grupo_creado la abre")
     void elReprocesoAplicaCuandoSeAbreLaDelGrupo() {
         UUID usuario = fixtura.usuario();
         UUID obligacion = obligaciones.obligacionDeAporte(usuario);

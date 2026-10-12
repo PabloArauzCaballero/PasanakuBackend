@@ -66,7 +66,8 @@ class OfertaParaPagoWebTest {
     }
 
     @Test
-    @DisplayName("200: con la identidad de servicio de entregas devuelve id, vendedor, precio y cargos como cadena y estado")
+    @DisplayName(
+            "200: con la identidad de servicio de entregas devuelve id, vendedor, precio y cargos como cadena y estado")
     void correcto() throws Exception {
         when(ofertas.verParaElPago(eq(OFERTA), any())).thenReturn(Optional.of(oferta("RESERVADA")));
 
@@ -84,7 +85,8 @@ class OfertaParaPagoWebTest {
     }
 
     @Test
-    @DisplayName("200: no filtra el grupo, el turno, el derecho ni al comprador (respuesta minima: los cargos SI viajan)")
+    @DisplayName(
+            "200: no filtra el grupo, el turno, el derecho ni al comprador (respuesta minima: los cargos SI viajan)")
     void respuestaMinima() throws Exception {
         when(ofertas.verParaElPago(eq(OFERTA), any())).thenReturn(Optional.of(oferta("LIQUIDANDO")));
 

@@ -175,8 +175,10 @@ public class CU13EjecutarConDestino {
             if (!ofertaDe(retencion).equals(e.ofertaId())) {
                 throw new ErrorDeNegocio(CodigoError.de(13, 8), "La oferta no es la que motivo esa retencion.");
             }
-            // Reparto (decision delegada por el dueno, 2026-10-11; lo modela entregas): el comprador paga el PRECIO, que es
-            // exactamente lo que retuvo; el vendedor cobra precio - cargos y la plataforma ingresa los cargos. Los dos importes
+            // Reparto (decision delegada por el dueno, 2026-10-11; lo modela entregas): el comprador paga el PRECIO,
+            // que es
+            // exactamente lo que retuvo; el vendedor cobra precio - cargos y la plataforma ingresa los cargos. Los dos
+            // importes
             // los afirma entregas (dueno de la oferta); aca solo se verifica que cuadren con lo retenido.
             Dinero precio = e.precio();
             Dinero cargos = e.cargos();

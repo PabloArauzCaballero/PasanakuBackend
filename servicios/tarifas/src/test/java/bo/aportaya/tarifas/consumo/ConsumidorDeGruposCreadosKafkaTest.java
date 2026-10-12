@@ -48,7 +48,8 @@ class ConsumidorDeGruposCreadosKafkaTest {
     }
 
     @Test
-    @DisplayName("invalido: sin cabecera, con un campo que falta o que no es UUID, o con un cuerpo que no es JSON se RECHAZA")
+    @DisplayName(
+            "invalido: sin cabecera, con un campo que falta o que no es UUID, o con un cuerpo que no es JSON se RECHAZA")
     void invalido() {
         UUID u = UUID.randomUUID();
         String bueno = cuerpo(u, u);
@@ -68,8 +69,8 @@ class ConsumidorDeGruposCreadosKafkaTest {
         assertThatThrownBy(() -> ConsumidorDeGruposCreadosKafka.leer(
                         registro("esto no es json", "event_id", id, "correlation_id", id)))
                 .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> ConsumidorDeGruposCreadosKafka.leer(
-                        registro("[1,2]", "event_id", id, "correlation_id", id)))
+        assertThatThrownBy(() ->
+                        ConsumidorDeGruposCreadosKafka.leer(registro("[1,2]", "event_id", id, "correlation_id", id)))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 }

@@ -134,20 +134,24 @@ class CU69CanjeOrdenWebTest {
     }
 
     @Test
-    @DisplayName("rechaza el canje por la comprobacion local ANTES de consumir el enlace: identidad no se toca ni se escribe nada")
+    @DisplayName(
+            "rechaza el canje por la comprobacion local ANTES de consumir el enlace: identidad no se toca ni se escribe nada")
     void rechazoLocalNoConsumeElEnlace() throws Exception {
         doThrow(new ErrorDeNegocio(CodigoError.de(68, 6), "Ya tenes una postulacion pendiente en este grupo."))
                 .when(canjes)
                 .comprobarAntesDeConsumir(any(), any(), any());
 
-        canjear().andExpect(status().isUnprocessableEntity()).andExpect(jsonPath("$.codigo").value("AP-CU68-06"));
+        canjear()
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.codigo").value("AP-CU68-06"));
 
         verify(afuera, never()).consumirInvitacion(any(), any(), any(), any());
         verify(canjes, never()).ejecutar(any(), any(), any(), any());
     }
 
     @Test
-    @DisplayName("compensa el orden irreversible: con todo en regla se comprueba, luego se consume el enlace y luego se canjea localmente")
+    @DisplayName(
+            "compensa el orden irreversible: con todo en regla se comprueba, luego se consume el enlace y luego se canjea localmente")
     void ordenDelCanje() throws Exception {
         UUID solicitud = UUID.randomUUID();
         var recibo = new HechosDeOtrosServicios.ConsumoInvitacion(

@@ -73,8 +73,9 @@ class CUAporteNoAplicadoTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("evento duplicado: el mismo aporte_cobrado sin saldo dos veces publica UN solo aporte_no_aplicado, y recargar"
-            + " despues NO lo aplica solo (el pago ya se compensa: la persona vuelve a pagar)")
+    @DisplayName(
+            "evento duplicado: el mismo aporte_cobrado sin saldo dos veces publica UN solo aporte_no_aplicado, y recargar"
+                    + " despues NO lo aplica solo (el pago ya se compensa: la persona vuelve a pagar)")
     void duplicadoNoRepiteElAviso() {
         var a = aporte("300.00");
         var e = cobrado(a, "500.00");
@@ -90,8 +91,9 @@ class CUAporteNoAplicadoTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("reintento: el MISMO pago llega con otro id de evento y sigue sin saldo · Entonces el aviso viaja con el mismo"
-            + " pagoId (aportes compensa por pago, idempotente) y el libro sigue intacto")
+    @DisplayName(
+            "reintento: el MISMO pago llega con otro id de evento y sigue sin saldo · Entonces el aviso viaja con el mismo"
+                    + " pagoId (aportes compensa por pago, idempotente) y el libro sigue intacto")
     void mismoPagoOtroEvento() {
         var a = aporte("300.00");
         var e = cobrado(a, "500.00");
@@ -110,7 +112,8 @@ class CUAporteNoAplicadoTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("Dado saldo justo (Bs 500 para un aporte de Bs 500) · Entonces SE aplica: el rechazo es solo por falta de saldo")
+    @DisplayName(
+            "Dado saldo justo (Bs 500 para un aporte de Bs 500) · Entonces SE aplica: el rechazo es solo por falta de saldo")
     void conSaldoJustoSeAplica() {
         var a = aporte("500.00");
         var e = cobrado(a, "500.00");
@@ -122,8 +125,9 @@ class CUAporteNoAplicadoTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("pacto con aportes · productor: el evento publicado trae TODOS los campos del pacto, con el formato del"
-            + " ejemplo (importe decimal de dos decimales, moneda ISO, motivo y codigo)")
+    @DisplayName(
+            "pacto con aportes · productor: el evento publicado trae TODOS los campos del pacto, con el formato del"
+                    + " ejemplo (importe decimal de dos decimales, moneda ISO, motivo y codigo)")
     void cumpleElPactoConAportes() throws IOException {
         Path raiz = Path.of("").toAbsolutePath();
         while (raiz != null && !Files.isRegularFile(raiz.resolve("contratos/pactos/aportes-nucleo-financiero.json"))) {

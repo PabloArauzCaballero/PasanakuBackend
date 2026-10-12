@@ -47,7 +47,8 @@ class UsuariosTitularidadLimiteWebTest {
 
     private static final UUID USUARIO = UUID.fromString("dddddddd-0000-4000-8000-0000000000b1");
     private static final String DOCUMENTO = "98765432";
-    private static final String CUERPO = "{\"nombreCompleto\":\"Persona Sintetica\",\"documento\":\"" + DOCUMENTO + "\"}";
+    private static final String CUERPO =
+            "{\"nombreCompleto\":\"Persona Sintetica\",\"documento\":\"" + DOCUMENTO + "\"}";
 
     @Autowired
     private MockMvc mvc;
@@ -90,14 +91,18 @@ class UsuariosTitularidadLimiteWebTest {
     }
 
     @Test
-    @DisplayName("rechaza: pasado el tope por minuto el actor de servicio recibe 429 con Retry-After, sin tocar el expediente, y OTRO actor sigue pudiendo")
+    @DisplayName(
+            "rechaza: pasado el tope por minuto el actor de servicio recibe 429 con Retry-After, sin tocar el expediente, y OTRO actor sigue pudiendo")
     void topeDeVerificacionesPorActor() throws Exception {
         when(titularidad.coincide(any(), any(), any(), any())).thenReturn(false);
-        // Actores propios de esta prueba: el reloj de las pruebas esta parado y el cupo de un actor compartido no se renueva.
+        // Actores propios de esta prueba: el reloj de las pruebas esta parado y el cupo de un actor compartido no se
+        // renueva.
         var abusador = Sesiones.de(UUID.randomUUID(), "SERVICIO_ENTREGAS");
 
         for (int i = 0; i < 3; i++) {
-            verificar(abusador).andExpect(status().isOk()).andExpect(jsonPath("$.coincide").value(false));
+            verificar(abusador)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.coincide").value(false));
         }
         var corte = verificar(abusador)
                 .andExpect(status().isTooManyRequests())

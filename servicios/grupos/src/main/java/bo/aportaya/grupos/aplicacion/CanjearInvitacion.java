@@ -37,7 +37,8 @@ public class CanjearInvitacion {
      * {@link #ejecutar} responde la misma solicitud, que es lo que hace idempotente el reintento.
      */
     @Transactional(readOnly = true)
-    public void comprobarAntesDeConsumir(UUID invitacionId, CU68Postular.EntradaPostulacion entrada, ContextoSesion ctx) {
+    public void comprobarAntesDeConsumir(
+            UUID invitacionId, CU68Postular.EntradaPostulacion entrada, ContextoSesion ctx) {
         datos.conContexto(ctx, dsl -> {
             var fila = dsl.fetchOne(
                     "SELECT estado, fecha_expiracion, solicitud_ingreso_id, grupo_id FROM grupos.invitacion WHERE id=?",

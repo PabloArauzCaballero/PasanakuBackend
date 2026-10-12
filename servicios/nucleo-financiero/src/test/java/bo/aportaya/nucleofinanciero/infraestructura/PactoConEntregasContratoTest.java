@@ -141,7 +141,8 @@ class PactoConEntregasContratoTest {
         for (JsonNode estado : pacto.path("estadosDeOferta")) {
             estadoForzado = 200;
             cuerpoForzado = "{\"ofertaId\":\"" + OFERTA + "\",\"vendedorUsuarioId\":\"" + VENDEDOR
-                    + "\",\"precio\":{\"monto\":\"500.00\",\"moneda\":\"BOB\"},\"cargos\":{\"monto\":\"20.00\",\"moneda\":\"BOB\"},\"estado\":\"" + estado.asText() + "\"}";
+                    + "\",\"precio\":{\"monto\":\"500.00\",\"moneda\":\"BOB\"},\"cargos\":{\"monto\":\"20.00\",\"moneda\":\"BOB\"},\"estado\":\""
+                    + estado.asText() + "\"}";
             assertThat(cliente().oferta(OFERTA).orElseThrow().estado()).isEqualTo(estado.asText());
         }
     }

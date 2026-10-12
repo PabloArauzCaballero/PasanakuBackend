@@ -223,8 +223,9 @@ class CU13MercadoTest extends BaseDeInversiones {
     }
 
     @Test
-    @DisplayName("rechaza cargos mayores que el precio, negativos o en otra moneda (AP-CU13-06): el vendedor no paga mas de"
-            + " lo que cobra y no se mueve nada")
+    @DisplayName(
+            "rechaza cargos mayores que el precio, negativos o en otra moneda (AP-CU13-06): el vendedor no paga mas de"
+                    + " lo que cobra y no se mueve nada")
     void cargosInvalidos() {
         ofertas.publica(oferta, vendedor, "500.00", "500.01", "RESERVADA");
         assertThatThrownBy(() -> pagar("pag-12", servicio))
@@ -258,7 +259,8 @@ class CU13MercadoTest extends BaseDeInversiones {
     }
 
     @Test
-    @DisplayName("cuadre: cargos iguales al precio dejan Bs 0 para el vendedor: solo hay pata de plataforma y el reparto cuadra")
+    @DisplayName(
+            "cuadre: cargos iguales al precio dejan Bs 0 para el vendedor: solo hay pata de plataforma y el reparto cuadra")
     void cargosIgualesAlPrecio() {
         ofertas.publica(oferta, vendedor, "500.00", "500.00", "RESERVADA");
         BigDecimal ingresosAntes = sistemaFx.saldoDelLibro(ingresos);

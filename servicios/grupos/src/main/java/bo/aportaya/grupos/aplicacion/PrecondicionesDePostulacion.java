@@ -50,8 +50,8 @@ final class PrecondicionesDePostulacion {
 
         CriterioDeEmparejamiento criterio = emparejamientos
                 .criterioVigente(dsl, ahora)
-                .orElseThrow(() ->
-                        new ErrorDeNegocio(CodigoError.de(68, 5), "No hay criterio de emparejamiento vigente."));
+                .orElseThrow(
+                        () -> new ErrorDeNegocio(CodigoError.de(68, 5), "No hay criterio de emparejamiento vigente."));
 
         // Entrada excluyente (CU-68 2a, B24, ya en TEST): la reputacion minima se exige a quien TIENE historial.
         if (entrada.reputacionExcluyente()

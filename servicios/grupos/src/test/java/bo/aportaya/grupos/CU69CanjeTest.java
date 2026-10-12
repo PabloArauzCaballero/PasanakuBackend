@@ -148,8 +148,7 @@ class CU69CanjeTest extends BaseDeCU68 {
     }
 
     private void comprobar(boolean kyc) {
-        transaccion.executeWithoutResult(
-                s -> canjes.comprobarAntesDeConsumir(invitacion, entrada(kyc), contexto()));
+        transaccion.executeWithoutResult(s -> canjes.comprobarAntesDeConsumir(invitacion, entrada(kyc), contexto()));
     }
 
     @Test
@@ -161,7 +160,8 @@ class CU69CanjeTest extends BaseDeCU68 {
         // La comprobacion corre ANTES de consumir el enlace en identidad: rechaza con el codigo de la regla...
         assertThat(codigoDelRechazo(() -> comprobar(true))).isEqualTo("AP-CU68-06");
         // ...y no deja nada escrito: la invitacion sigue ENVIADA y sin solicitud, asi que el emisor puede revocarla.
-        var fila = dslFixtura.fetchOne("SELECT estado, solicitud_ingreso_id FROM grupos.invitacion WHERE id=?", invitacion);
+        var fila = dslFixtura.fetchOne(
+                "SELECT estado, solicitud_ingreso_id FROM grupos.invitacion WHERE id=?", invitacion);
         assertThat(fila.get("estado", String.class)).isEqualTo("ENVIADA");
         assertThat(fila.get("solicitud_ingreso_id", UUID.class)).isNull();
         assertThat(contar("SELECT count(*)::int FROM grupos.solicitud_ingreso WHERE grupo_id=?", grupo))
@@ -173,7 +173,8 @@ class CU69CanjeTest extends BaseDeCU68 {
         // KYC insuficiente: la misma regla que postular.
         assertThat(codigoDelRechazo(() -> comprobar(false))).isEqualTo("AP-CU68-02");
 
-        // Invitacion revocada, vencida o de otro grupo: no hay nada que canjear, y no se quema un enlace que ya no sirve.
+        // Invitacion revocada, vencida o de otro grupo: no hay nada que canjear, y no se quema un enlace que ya no
+        // sirve.
         dslFixtura.execute("UPDATE grupos.invitacion SET estado='REVOCADA' WHERE id=?", invitacion);
         assertThat(codigoDelRechazo(() -> comprobar(true))).isEqualTo("AP-CU69-05");
         dslFixtura.execute("UPDATE grupos.invitacion SET estado='ENVIADA' WHERE id=?", invitacion);

@@ -101,8 +101,8 @@ public class CU68Postular {
     @Transactional(readOnly = true)
     public void comprobar(EntradaPostulacion entrada, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
-        datos.conContexto(ctx, dsl -> PrecondicionesDePostulacion.exigir(
-                emparejamientos, dsl, entrada, ctx.usuarioId(), ahora));
+        datos.conContexto(
+                ctx, dsl -> PrecondicionesDePostulacion.exigir(emparejamientos, dsl, entrada, ctx.usuarioId(), ahora));
     }
 
     /**
