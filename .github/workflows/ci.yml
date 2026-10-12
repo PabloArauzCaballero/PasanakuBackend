@@ -405,14 +405,13 @@ jobs:
 
   # -------------------------------------------------------------- app-goldens --
   # H5.S2.M2 (madre H8.S2.M2), decision D-A4. Las goldens de Flutter comparan
-  # pixeles; las lineas base de este repo estan hechas en macOS (`turbo.json`
-  # ya lo documentaba: "el CI es Linux, ahi medían el rasterizador, no el
-  # diseño" -- por eso `test:goldens` NUNCA corria en ningun lado). Este job es
-  # el que le da un lugar real donde correr, en la MISMA plataforma que genero
-  # las imagenes de referencia.
+  # pixeles: el rasterizador cambia entre plataformas, asi que la linea base se
+  # genera y se compara en la MISMA: Linux (ubuntu, donde corre el CI). H17.S9.M5:
+  # las lineas base de macOS no pasaban en Linux; se regeneraron en Linux con
+  # Flutter 3.44.8 y son deterministas (dos corridas, mismo md5).
   app-goldens:
-    name: App — goldens (macOS)
-    runs-on: macos-latest
+    name: App — goldens (Linux)
+    runs-on: ubuntu-latest
     needs: [detectar-cambios, frontend]
     if: ${{ !cancelled() && needs.detectar-cambios.outputs.mobile == 'true' && needs.frontend.result == 'success' }}
     steps:
