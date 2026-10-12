@@ -1,0 +1,556 @@
+== intento 1 05:05:06
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources UP-TO-DATE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+
+> Task :plataforma:comun-web:erroresCatalogo
+catalogo de errores: 263 restricciones -> 141 reglas · errores-restricciones.properties
+mensajes de regla: 170 · errores-reglas.properties
+  AVISO: 3 reglas con restriccion y sin fila en la boveda: R-BIL-21, R-BIL-22, R-UIF-13
+
+> Task :plataforma:comun-web:processResources
+> Task :plataforma:comun-web:classes
+> Task :plataforma:comun-web:jar
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar
+> Task :servicios:grupos:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:grupos:generateJooq UP-TO-DATE
+> Task :servicios:grupos:compileJava
+> Task :servicios:grupos:processResources UP-TO-DATE
+> Task :servicios:grupos:classes
+> Task :servicios:grupos:compileTestJava
+> Task :servicios:grupos:processTestResources
+> Task :servicios:grupos:testClasses
+
+> Task :servicios:grupos:test
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:grupos:webTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:grupos:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:grupos:integrationTest
+
+CU20AperturaTest > concurrencia: dos respuestas distintas de tarifas para el mismo grupo abren una sola vez FAILED
+    java.util.concurrent.ExecutionException: org.jooq.exception.DataAccessException: SQL [INSERT INTO grupos.historial_estado_grupo
+        (grupo_id, estado_anterior, estado_nuevo, motivo, ejecutado_por, fecha_hora)
+    SELECT ?, 'BORRADOR', 'ABIERTO_A_INSCRIPCION', ?, a.creador_id, ?
+      FROM grupos.alta_grupo a WHERE a.grupo_id = ?
+    ]; ERROR: column "fecha_hora" is of type timestamp with time zone but expression is of type character varying
+      Hint: You will need to rewrite or cast the expression.
+      Position: 190
+        at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
+        at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:205)
+        at bo.aportaya.grupos.CU20AperturaTest.concurrencia(CU20AperturaTest.java:124)
+
+        Caused by:
+        org.jooq.exception.DataAccessException: SQL [INSERT INTO grupos.historial_estado_grupo
+            (grupo_id, estado_anterior, estado_nuevo, motivo, ejecutado_por, fecha_hora)
+        SELECT ?, 'BORRADOR', 'ABIERTO_A_INSCRIPCION', ?, a.creador_id, ?
+          FROM grupos.alta_grupo a WHERE a.grupo_id = ?
+        ]; ERROR: column "fecha_hora" is of type timestamp with time zone but expression is of type character varying
+          Hint: You will need to rewrite or cast the expression.
+          Position: 190
+            at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+            at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+            at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+            at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+            at app//org.jooq.impl.DefaultDSLContext.execute(DefaultDSLContext.java:1117)
+            at app//bo.aportaya.grupos.aplicacion.AbrirInscripcionDelGrupo.lambda$procesar$0(AbrirInscripcionDelGrupo.java:86)
+            at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+            at app//bo.aportaya.grupos.aplicacion.AbrirInscripcionDelGrupo.procesar(AbrirInscripcionDelGrupo.java:70)
+            at app//bo.aportaya.grupos.CU20AperturaTest.lambda$procesar$0(CU20AperturaTest.java:40)
+            at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+            at app//bo.aportaya.grupos.CU20AperturaTest.procesar(CU20AperturaTest.java:40)
+            at app//bo.aportaya.grupos.CU20AperturaTest.lambda$concurrencia$2(CU20AperturaTest.java:117)
+
+            Caused by:
+            org.postgresql.util.PSQLException: ERROR: column "fecha_hora" is of type timestamp with time zone but expression is of type character varying
+              Hint: You will need to rewrite or cast the expression.
+              Position: 190
+                at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+                at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+                at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+                at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+                at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+                at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+                at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+                at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+                at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+                at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+                ... 8 more
+
+CU20AperturaTest > rls: la apertura funciona con el rol real del servicio (svc_grupos), no solo con el dueno de la base FAILED
+    org.jooq.exception.DataAccessException: SQL [INSERT INTO grupos.historial_estado_grupo
+        (grupo_id, estado_anterior, estado_nuevo, motivo, ejecutado_por, fecha_hora)
+    SELECT ?, 'BORRADOR', 'ABIERTO_A_INSCRIPCION', ?, a.creador_id, ?
+      FROM grupos.alta_grupo a WHERE a.grupo_id = ?
+    ]; ERROR: column "fecha_hora" is of type timestamp with time zone but expression is of type character varying
+      Hint: You will need to rewrite or cast the expression.
+      Position: 190
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.DefaultDSLContext.execute(DefaultDSLContext.java:1117)
+        at app//bo.aportaya.grupos.aplicacion.AbrirInscripcionDelGrupo.lambda$procesar$0(AbrirInscripcionDelGrupo.java:86)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at app//bo.aportaya.grupos.aplicacion.AbrirInscripcionDelGrupo.procesar(AbrirInscripcionDelGrupo.java:70)
+        at app//bo.aportaya.grupos.CU20AperturaTest.lambda$rolRealDelServicio$4(CU20AperturaTest.java:139)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.grupos.CU20AperturaTest.rolRealDelServicio(CU20AperturaTest.java:137)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: column "fecha_hora" is of type timestamp with time zone but expression is of type character varying
+          Hint: You will need to rewrite or cast the expression.
+          Position: 190
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 7 more
+
+CU20AperturaTest > Dado un grupo recién creado en BORRADOR · Cuando tarifas congela su precio y responde tarifa.congelada · Entonces el grupo pasa a ABIERTO_A_INSCRIPCION y queda el historial de su estado FAILED
+    org.jooq.exception.DataAccessException: SQL [INSERT INTO grupos.historial_estado_grupo
+        (grupo_id, estado_anterior, estado_nuevo, motivo, ejecutado_por, fecha_hora)
+    SELECT ?, 'BORRADOR', 'ABIERTO_A_INSCRIPCION', ?, a.creador_id, ?
+      FROM grupos.alta_grupo a WHERE a.grupo_id = ?
+    ]; ERROR: column "fecha_hora" is of type timestamp with time zone but expression is of type character varying
+      Hint: You will need to rewrite or cast the expression.
+      Position: 190
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.DefaultDSLContext.execute(DefaultDSLContext.java:1117)
+        at app//bo.aportaya.grupos.aplicacion.AbrirInscripcionDelGrupo.lambda$procesar$0(AbrirInscripcionDelGrupo.java:86)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at app//bo.aportaya.grupos.aplicacion.AbrirInscripcionDelGrupo.procesar(AbrirInscripcionDelGrupo.java:70)
+        at app//bo.aportaya.grupos.CU20AperturaTest.lambda$procesar$0(CU20AperturaTest.java:40)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.grupos.CU20AperturaTest.procesar(CU20AperturaTest.java:40)
+        at app//bo.aportaya.grupos.CU20AperturaTest.criterioApertura(CU20AperturaTest.java:57)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: column "fecha_hora" is of type timestamp with time zone but expression is of type character varying
+          Hint: You will need to rewrite or cast the expression.
+          Position: 190
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 8 more
+
+CU20AperturaTest > Dado un grupo que ya salió de BORRADOR · Cuando la respuesta de tarifas llega otra vez o fuera de orden · Entonces el estado no cambia y no se escribe otro historial FAILED
+    org.jooq.exception.DataAccessException: SQL [INSERT INTO grupos.historial_estado_grupo
+        (grupo_id, estado_anterior, estado_nuevo, motivo, ejecutado_por, fecha_hora)
+    SELECT ?, 'BORRADOR', 'ABIERTO_A_INSCRIPCION', ?, a.creador_id, ?
+      FROM grupos.alta_grupo a WHERE a.grupo_id = ?
+    ]; ERROR: column "fecha_hora" is of type timestamp with time zone but expression is of type character varying
+      Hint: You will need to rewrite or cast the expression.
+      Position: 190
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.DefaultDSLContext.execute(DefaultDSLContext.java:1117)
+        at app//bo.aportaya.grupos.aplicacion.AbrirInscripcionDelGrupo.lambda$procesar$0(AbrirInscripcionDelGrupo.java:86)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at app//bo.aportaya.grupos.aplicacion.AbrirInscripcionDelGrupo.procesar(AbrirInscripcionDelGrupo.java:70)
+        at app//bo.aportaya.grupos.CU20AperturaTest.lambda$procesar$0(CU20AperturaTest.java:40)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.grupos.CU20AperturaTest.procesar(CU20AperturaTest.java:40)
+        at app//bo.aportaya.grupos.CU20AperturaTest.criterioIdempotente(CU20AperturaTest.java:74)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: column "fecha_hora" is of type timestamp with time zone but expression is of type character varying
+          Hint: You will need to rewrite or cast the expression.
+          Position: 190
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 8 more
+
+CU69CanjeTest > rechazaAntesDeConsumirPorCadaCondicionLocal() FAILED
+    org.jooq.exception.IntegrityConstraintViolationException: SQL [UPDATE grupos.invitacion SET estado='REVOCADA' WHERE id=?]; ERROR: new row for relation "invitacion" violates check constraint "ck_invitacion_respuesta"
+      Detail: Failing row contains (2e100e4e-b912-4422-9785-3cb0b8b4fd4d, 3e8ac29c-2bbe-4c2a-9725-039b1862f024, +59176000000, Contacto, 686d6b5d-f5b1-45ac-8629-4c558c2fc03e, b93f30e7-279d-4ecc-8516-4ebad1cf8b0e, null, null, null, null, ENLACE, REVOCADA, 1, 2026-10-12 05:05:53.573034+00, 2026-10-13 05:06:53.57308+00, null).
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3664)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.DefaultDSLContext.execute(DefaultDSLContext.java:1117)
+        at app//bo.aportaya.grupos.CU69CanjeTest.rechazaAntesDeConsumirPorCadaCondicionLocal(CU69CanjeTest.java:178)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: new row for relation "invitacion" violates check constraint "ck_invitacion_respuesta"
+          Detail: Failing row contains (2e100e4e-b912-4422-9785-3cb0b8b4fd4d, 3e8ac29c-2bbe-4c2a-9725-039b1862f024, +59176000000, Contacto, 686d6b5d-f5b1-45ac-8629-4c558c2fc03e, b93f30e7-279d-4ecc-8516-4ebad1cf8b0e, null, null, null, null, ENLACE, REVOCADA, 1, 2026-10-12 05:05:53.573034+00, 2026-10-13 05:06:53.57308+00, null).
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 2 more
+
+CU69CanjeTest > reintentoDeUnCanjeCompletadoNoLoRechazaLaComprobacion() FAILED
+    bo.aportaya.plataforma.dominio.ErrorDeNegocio: Ya tenes una postulacion pendiente en este grupo.
+        at app//bo.aportaya.grupos.aplicacion.PrecondicionesDePostulacion.exigir(PrecondicionesDePostulacion.java:48)
+        at app//bo.aportaya.grupos.aplicacion.CU68Postular.lambda$comprobar$1(CU68Postular.java:105)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+        at app//bo.aportaya.grupos.aplicacion.CU68Postular.comprobar(CU68Postular.java:104)
+        at app//bo.aportaya.grupos.aplicacion.CanjearInvitacion.comprobarAntesDeConsumir(CanjearInvitacion.java:53)
+        at app//bo.aportaya.grupos.CU69CanjeTest.lambda$comprobar$13(CU69CanjeTest.java:151)
+        at app//org.springframework.transaction.support.TransactionOperations.lambda$executeWithoutResult$0(TransactionOperations.java:68)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//org.springframework.transaction.support.TransactionOperations.executeWithoutResult(TransactionOperations.java:67)
+        at app//bo.aportaya.grupos.CU69CanjeTest.comprobar(CU69CanjeTest.java:151)
+        at app//bo.aportaya.grupos.CU69CanjeTest.reintentoDeUnCanjeCompletadoNoLoRechazaLaComprobacion(CU69CanjeTest.java:212)
+
+2026-10-12T05:07:07.188Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:07:07.188Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:07:07.188Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:07:07.189Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:07:07.190Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:07:07.190Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:07:07.194Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:07:07.194Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:07:07.194Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:07:07.194Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:07:07.202Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:07:07.203Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:07:07.203Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:07:07.204Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:07:07.204Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:07:07.204Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:07:07.204Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:07:07.204Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:07:07.220Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-grupos-cesiones-1 unregistered
+2026-10-12T05:07:07.222Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-grupos-apertura-2 unregistered
+2026-10-12T05:07:07.225Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : grupos-cesiones: Consumer stopped
+2026-10-12T05:07:07.226Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : grupos-apertura: Consumer stopped
+2026-10-12T05:07:07.230Z  INFO 6646 --- [grupos] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-12T05:07:07.235Z  INFO 6646 --- [grupos] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-12T05:07:07.246Z  INFO 6646 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-12T05:07:07.251Z  INFO 6646 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-12T05:07:07.264Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-3, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:07:07.265Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-3, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:07:07.265Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-grupos-cesiones-3, groupId=grupos-cesiones] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:07:07.265Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-3, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:07:07.265Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-3, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:07:07.266Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:07:07.266Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:07:07.266Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:07:07.266Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:07:07.267Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:07:07.267Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:07:07.267Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:07:07.267Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:07:07.267Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:07:07.286Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:07:07.286Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:07:07.286Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:07:07.289Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:07:07.295Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-grupos-cesiones-3 unregistered
+2026-10-12T05:07:07.296Z  INFO 6646 --- [grupos] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : grupos-cesiones: Consumer stopped
+2026-10-12T05:07:07.296Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-grupos-apertura-4 unregistered
+2026-10-12T05:07:07.298Z  INFO 6646 --- [grupos] [        kafka-2] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : grupos-apertura: Consumer stopped
+2026-10-12T05:07:07.298Z  INFO 6646 --- [grupos] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-12T05:07:07.302Z  INFO 6646 --- [grupos] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-12T05:07:07.306Z  INFO 6646 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-10-12T05:07:07.312Z  INFO 6646 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+
+> Task :servicios:grupos:integrationTest
+
+224 tests completed, 6 failed
+
+> Task :servicios:grupos:integrationTest FAILED
+
+> Task :servicios:grupos:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+> Task :servicios:tarifas:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:tarifas:generateJooq UP-TO-DATE
+> Task :servicios:tarifas:compileJava
+> Task :servicios:tarifas:processResources UP-TO-DATE
+> Task :servicios:tarifas:classes
+> Task :servicios:tarifas:compileTestJava
+> Task :servicios:tarifas:processTestResources
+> Task :servicios:tarifas:testClasses
+
+> Task :servicios:tarifas:test
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+CongelarTarifaDelGrupoTest > initializationError FAILED
+    java.util.concurrent.TimeoutException: bo.aportaya.tarifas.BaseDeTarifas#armar() timed out after 5 seconds
+        at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+8 tests completed, 1 failed
+
+> Task :servicios:tarifas:test FAILED
+
+> Task :servicios:tarifas:webTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:tarifas:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-12T05:08:21.088Z  INFO 10775 --- [tarifas] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-tarifas-congelamiento-1, groupId=tarifas-congelamiento] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:08:21.089Z  INFO 10775 --- [tarifas] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-tarifas-congelamiento-1, groupId=tarifas-congelamiento] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:08:21.093Z  INFO 10775 --- [tarifas] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-tarifas-congelamiento-1, groupId=tarifas-congelamiento] Unsubscribed all topics or patterns and assigned partitions
+2026-10-12T05:08:21.096Z  INFO 10775 --- [tarifas] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-tarifas-congelamiento-1, groupId=tarifas-congelamiento] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-12T05:08:21.096Z  INFO 10775 --- [tarifas] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-tarifas-congelamiento-1, groupId=tarifas-congelamiento] Request joining group due to: consumer pro-actively leaving the group
+2026-10-12T05:08:21.109Z  INFO 10775 --- [tarifas] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-12T05:08:21.110Z  INFO 10775 --- [tarifas] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-12T05:08:21.110Z  INFO 10775 --- [tarifas] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-12T05:08:21.110Z  INFO 10775 --- [tarifas] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-12T05:08:21.120Z  INFO 10775 --- [tarifas] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-tarifas-congelamiento-1 unregistered
+2026-10-12T05:08:21.122Z  INFO 10775 --- [tarifas] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : tarifas-congelamiento: Consumer stopped
+2026-10-12T05:08:21.130Z  INFO 10775 --- [tarifas] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-12T05:08:21.133Z  INFO 10775 --- [tarifas] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-12T05:08:21.146Z  INFO 10775 --- [tarifas] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-12T05:08:21.153Z  INFO 10775 --- [tarifas] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:tarifas:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+> Task :plataforma:comun-archivos:compileJava UP-TO-DATE
+> Task :plataforma:comun-archivos:processResources UP-TO-DATE
+> Task :plataforma:comun-archivos:classes UP-TO-DATE
+> Task :plataforma:comun-archivos:jar
+> Task :servicios:identidad:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:identidad:generateJooq UP-TO-DATE
+> Task :servicios:identidad:compileJava UP-TO-DATE
+> Task :servicios:identidad:processResources UP-TO-DATE
+> Task :servicios:identidad:classes UP-TO-DATE
+> Task :servicios:identidad:compileTestJava
+> Task :servicios:identidad:processTestResources
+> Task :servicios:identidad:testClasses
+
+> Task :servicios:identidad:test
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:identidad:webTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:identidad:webTest
+
+UsuariosTitularidadLimiteWebTest > rechaza: pasado el tope por minuto el actor de servicio recibe 429 con Retry-After, sin tocar el expediente, y OTRO actor sigue pudiendo FAILED
+    java.lang.IllegalStateException: Failed to load ApplicationContext for [WebMergedContextConfiguration@79eb7803 testClass = bo.aportaya.identidad.web.UsuariosTitularidadLimiteWebTest, locations = [], classes = [bo.aportaya.identidad.Aplicacion], contextInitializerClasses = [], activeProfiles = [], propertySourceDescriptors = [PropertySourceDescriptor[locations=[], ignoreResourceNotFound=false, name=null, propertySourceFactory=null, encoding=null]], propertySourceProperties = ["aportaya.seguridad.pimienta=pimienta-de-prueba-no-es-la-de-produccion", "aportaya.titularidad.consultas-por-minuto=3", "aportaya.esquema=prueba", "aportaya.jwt.jwks-uri=http://no-se-consulta.invalido/jwks.json", "aportaya.zona-horaria=America/La_Paz", "logging.level.org.springframework.security=WARN", "org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTestContextBootstrapper=true"], contextCustomizers = [org.springframework.boot.test.autoconfigure.OnFailureConditionReportContextCustomizerFactory$OnFailureConditionReportContextCustomizer@7fda2001, org.springframework.boot.test.autoconfigure.OverrideAutoConfigurationContextCustomizerFactory$DisableAutoConfigurationContextCustomizer@799f916e, org.springframework.boot.test.autoconfigure.actuate.observability.ObservabilityContextCustomizerFactory$DisableObservabilityContextCustomizer@1f, org.springframework.boot.test.autoconfigure.filter.TypeExcludeFiltersContextCustomizer@d214b6c7, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@da2d76e2, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizer@e7b265e, [ImportsContextCustomizer@72ba2d6f key = [org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientWebSecurityAutoConfiguration, org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration, org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration, org.springframework.boot.autoconfigure.web.servlet.HttpEncodingAutoConfiguration, org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration, bo.aportaya.plataforma.pruebas.web.ContextoWebDePrueba, org.springframework.boot.autoconfigure.security.saml2.Saml2RelyingPartyAutoConfiguration, org.springframework.boot.autoconfigure.context.MessageSourceAutoConfiguration, org.springframework.boot.autoconfigure.hateoas.HypermediaAutoConfiguration, org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration, org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration, org.springframework.boot.test.autoconfigure.web.reactive.WebTestClientAutoConfiguration, org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcAutoConfiguration, org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration, org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration, org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration, org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientAutoConfiguration, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcSecurityConfiguration, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcWebClientAutoConfiguration, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcWebDriverAutoConfiguration, org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration, org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration, org.springframework.boot.autoconfigure.jsonb.JsonbAutoConfiguration, org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration, org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration, org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration, org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration, org.springframework.boot.autoconfigure.groovy.template.GroovyTemplateAutoConfiguration, org.springframework.boot.autoconfigure.mustache.MustacheAutoConfiguration]], org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@66e21568, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@543d5863, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.reactor.netty.DisableReactorResourceFactoryGlobalResourcesContextCustomizerFactory$DisableReactorResourceFactoryGlobalResourcesContextCustomizerCustomizer@392781e, org.springframework.test.context.bean.override.BeanOverrideContextCustomizer@824f9175, org.springframework.test.context.support.DynamicPropertiesContextCustomizer@0, org.springframework.boot.test.context.SpringBootTestAnnotation@29b534f6], resourceBasePath = "src/main/webapp", contextLoader = org.springframework.boot.test.context.SpringBootContextLoader, parent = null]
+        at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContext(DefaultCacheAwareContextLoaderDelegate.java:180)
+        at org.springframework.test.context.support.DefaultTestContext.getApplicationContext(DefaultTestContext.java:130)
+        at org.springframework.test.context.bean.override.BeanOverrideTestExecutionListener.injectFields(BeanOverrideTestExecutionListener.java:107)
+        at org.springframework.test.context.bean.override.BeanOverrideTestExecutionListener.prepareTestInstance(BeanOverrideTestExecutionListener.java:70)
+        at org.springframework.test.context.TestContextManager.prepareTestInstance(TestContextManager.java:260)
+        at org.springframework.test.context.junit.jupiter.SpringExtension.postProcessTestInstance(SpringExtension.java:159)
+        at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:184)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+        at java.base/java.util.stream.ReferencePipeline$2$1.accept(ReferencePipeline.java:179)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+        at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1708)
+        at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+        at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
+        at java.base/java.util.stream.ForEachOps$ForEachOp.evaluateSequential(ForEachOps.java:151)
+        at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(ForEachOps.java:174)
+        at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+        at java.base/java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:596)
+        at java.base/java.util.Optional.orElseGet(Optional.java:364)
+        at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+        at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+        Caused by:
+        org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'usuariosController' defined in file [/home/user/PasanakuBackend/servicios/identidad/build/classes/java/main/bo/aportaya/identidad/web/UsuariosController.class]: Unsatisfied dependency expressed through constructor parameter 3: No qualifying bean of type 'bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+            at app//org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:804)
+            at app//org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:240)
+            at app//org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1393)
+            at app//org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1230)
+            at app//org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569)
+            at app//org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529)
+            at app//org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339)
+            at app//org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373)
+            at app//org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337)
+            at app//org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202)
+            at app//org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1235)
+            at app//org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1201)
+            at app//org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1130)
+            at app//org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:991)
+            at app//org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:628)
+            at app//org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752)
+            at app//org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439)
+            at app//org.springframework.boot.SpringApplication.run(SpringApplication.java:318)
+            at app//org.springframework.boot.test.context.SpringBootContextLoader.lambda$loadContext$3(SpringBootContextLoader.java:151)
+            at app//org.springframework.util.function.ThrowingSupplier.get(ThrowingSupplier.java:58)
+            at app//org.springframework.util.function.ThrowingSupplier.get(ThrowingSupplier.java:46)
+            at app//org.springframework.boot.SpringApplication.withHook(SpringApplication.java:1461)
+            at app//org.springframework.boot.test.context.SpringBootContextLoader$ContextLoaderHook.run(SpringBootContextLoader.java:590)
+            at app//org.springframework.boot.test.context.SpringBootContextLoader.loadContext(SpringBootContextLoader.java:151)
+            at app//org.springframework.boot.test.context.SpringBootContextLoader.loadContext(SpringBootContextLoader.java:110)
+            at app//org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContextInternal(DefaultCacheAwareContextLoaderDelegate.java:225)
+            at app//org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContext(DefaultCacheAwareContextLoaderDelegate.java:152)
+            ... 19 more
+
+            Caused by:
+            org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+                at app//org.springframework.beans.factory.support.DefaultListableBeanFactory.raiseNoMatchingBeanFound(DefaultListableBeanFactory.java:2322)
+                at app//org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1740)
+                at app//org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1660)
+                at app//org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:913)
+                at app//org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791)
+                ... 45 more
+
+UsuariosTitularidadLimiteWebTest > rechaza: el rechazo por permiso no gasta cupo del tope (un 403 no consulta nada) FAILED
+    java.lang.IllegalStateException: ApplicationContext failure threshold (1) exceeded: skipping repeated attempt to load context for [WebMergedContextConfiguration@79eb7803 testClass = bo.aportaya.identidad.web.UsuariosTitularidadLimiteWebTest, locations = [], classes = [bo.aportaya.identidad.Aplicacion], contextInitializerClasses = [], activeProfiles = [], propertySourceDescriptors = [PropertySourceDescriptor[locations=[], ignoreResourceNotFound=false, name=null, propertySourceFactory=null, encoding=null]], propertySourceProperties = ["aportaya.seguridad.pimienta=pimienta-de-prueba-no-es-la-de-produccion", "aportaya.titularidad.consultas-por-minuto=3", "aportaya.esquema=prueba", "aportaya.jwt.jwks-uri=http://no-se-consulta.invalido/jwks.json", "aportaya.zona-horaria=America/La_Paz", "logging.level.org.springframework.security=WARN", "org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTestContextBootstrapper=true"], contextCustomizers = [org.springframework.boot.test.autoconfigure.OnFailureConditionReportContextCustomizerFactory$OnFailureConditionReportContextCustomizer@7fda2001, org.springframework.boot.test.autoconfigure.OverrideAutoConfigurationContextCustomizerFactory$DisableAutoConfigurationContextCustomizer@799f916e, org.springframework.boot.test.autoconfigure.actuate.observability.ObservabilityContextCustomizerFactory$DisableObservabilityContextCustomizer@1f, org.springframework.boot.test.autoconfigure.filter.TypeExcludeFiltersContextCustomizer@d214b6c7, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@da2d76e2, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizer@e7b265e, [ImportsContextCustomizer@72ba2d6f key = [org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientWebSecurityAutoConfiguration, org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration, org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration, org.springframework.boot.autoconfigure.web.servlet.HttpEncodingAutoConfiguration, org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration, bo.aportaya.plataforma.pruebas.web.ContextoWebDePrueba, org.springframework.boot.autoconfigure.security.saml2.Saml2RelyingPartyAutoConfiguration, org.springframework.boot.autoconfigure.context.MessageSourceAutoConfiguration, org.springframework.boot.autoconfigure.hateoas.HypermediaAutoConfiguration, org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration, org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration, org.springframework.boot.test.autoconfigure.web.reactive.WebTestClientAutoConfiguration, org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcAutoConfiguration, org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration, org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration, org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration, org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientAutoConfiguration, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcSecurityConfiguration, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcWebClientAutoConfiguration, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcWebDriverAutoConfiguration, org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration, org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration, org.springframework.boot.autoconfigure.jsonb.JsonbAutoConfiguration, org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration, org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration, org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration, org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration, org.springframework.boot.autoconfigure.groovy.template.GroovyTemplateAutoConfiguration, org.springframework.boot.autoconfigure.mustache.MustacheAutoConfiguration]], org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@66e21568, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@543d5863, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.reactor.netty.DisableReactorResourceFactoryGlobalResourcesContextCustomizerFactory$DisableReactorResourceFactoryGlobalResourcesContextCustomizerCustomizer@392781e, org.springframework.test.context.bean.override.BeanOverrideContextCustomizer@824f9175, org.springframework.test.context.support.DynamicPropertiesContextCustomizer@0, org.springframework.boot.test.context.SpringBootTestAnnotation@29b534f6], resourceBasePath = "src/main/webapp", contextLoader = org.springframework.boot.test.context.SpringBootContextLoader, parent = null]
+        at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContext(DefaultCacheAwareContextLoaderDelegate.java:145)
+        at org.springframework.test.context.support.DefaultTestContext.getApplicationContext(DefaultTestContext.java:130)
+        at org.springframework.test.context.bean.override.BeanOverrideTestExecutionListener.injectFields(BeanOverrideTestExecutionListener.java:107)
+        at org.springframework.test.context.bean.override.BeanOverrideTestExecutionListener.prepareTestInstance(BeanOverrideTestExecutionListener.java:70)
+        at org.springframework.test.context.TestContextManager.prepareTestInstance(TestContextManager.java:260)
+        at org.springframework.test.context.junit.jupiter.SpringExtension.postProcessTestInstance(SpringExtension.java:159)
+        at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:184)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+        at java.base/java.util.stream.ReferencePipeline$2$1.accept(ReferencePipeline.java:179)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+        at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1708)
+        at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+        at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
+        at java.base/java.util.stream.ForEachOps$ForEachOp.evaluateSequential(ForEachOps.java:151)
+        at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(ForEachOps.java:174)
+        at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+        at java.base/java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:596)
+        at java.base/java.util.Optional.orElseGet(Optional.java:364)
+        at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+        at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+113 tests completed, 2 failed
+
+> Task :servicios:identidad:webTest FAILED
+
+> Task :servicios:identidad:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-12T05:09:47.424Z  INFO 14161 --- [identidad] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-12T05:09:47.429Z  INFO 14161 --- [identidad] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-12T05:09:47.569Z  INFO 14161 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-12T05:09:47.576Z  INFO 14161 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-12T05:09:47.596Z  INFO 14161 --- [identidad] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-12T05:09:47.598Z  INFO 14161 --- [identidad] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-12T05:09:47.602Z  INFO 14161 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-10-12T05:09:47.606Z  INFO 14161 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+2026-10-12T05:09:47.619Z  INFO 14161 --- [identidad] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-12T05:09:47.621Z  INFO 14161 --- [identidad] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-12T05:09:47.624Z  INFO 14161 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown initiated...
+2026-10-12T05:09:47.627Z  INFO 14161 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown completed.
+2026-10-12T05:09:47.642Z  INFO 14161 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown initiated...
+2026-10-12T05:09:47.646Z  INFO 14161 --- [identidad] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown completed.
+
+> Task :servicios:identidad:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45433 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+FAILURE: Build completed with 3 failures.
+
+1: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:grupos:integrationTest'.
+> There were failing tests. See the report at: file:///home/user/PasanakuBackend/servicios/grupos/build/reports/tests/integrationTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+2: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:tarifas:test'.
+> There were failing tests. See the report at: file:///home/user/PasanakuBackend/servicios/tarifas/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+3: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:identidad:webTest'.
+> There were failing tests. See the report at: file:///home/user/PasanakuBackend/servicios/identidad/build/reports/tests/webTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+BUILD FAILED in 4m 43s
+59 actionable tasks: 29 executed, 30 up-to-date
+RC 1

@@ -87,7 +87,7 @@ public class AbrirInscripcionDelGrupo {
                     """
                     INSERT INTO grupos.historial_estado_grupo
                         (grupo_id, estado_anterior, estado_nuevo, motivo, ejecutado_por, fecha_hora)
-                    SELECT ?, 'BORRADOR', 'ABIERTO_A_INSCRIPCION', ?, a.creador_id, ?
+                    SELECT ?::uuid, 'BORRADOR', 'ABIERTO_A_INSCRIPCION', ?::text, a.creador_id, ?::timestamptz
                       FROM grupos.alta_grupo a WHERE a.grupo_id = ?
                     """,
                     precio.grupoId(),

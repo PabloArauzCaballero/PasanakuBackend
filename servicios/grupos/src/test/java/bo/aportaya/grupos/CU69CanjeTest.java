@@ -175,9 +175,11 @@ class CU69CanjeTest extends BaseDeCU68 {
 
         // Invitacion revocada, vencida o de otro grupo: no hay nada que canjear, y no se quema un enlace que ya no
         // sirve.
-        dslFixtura.execute("UPDATE grupos.invitacion SET estado='REVOCADA' WHERE id=?", invitacion);
+        dslFixtura.execute(
+                "UPDATE grupos.invitacion SET estado='REVOCADA', fecha_respuesta=now() WHERE id=?", invitacion);
         assertThat(codigoDelRechazo(() -> comprobar(true))).isEqualTo("AP-CU69-05");
-        dslFixtura.execute("UPDATE grupos.invitacion SET estado='ENVIADA' WHERE id=?", invitacion);
+        dslFixtura.execute(
+                "UPDATE grupos.invitacion SET estado='ENVIADA', fecha_respuesta=NULL WHERE id=?", invitacion);
         dslFixtura.execute(
                 "UPDATE grupos.invitacion SET fecha_expiracion=now()-interval '1 second' WHERE id=?", invitacion);
         assertThat(codigoDelRechazo(() -> comprobar(true))).isEqualTo("AP-CU69-05");

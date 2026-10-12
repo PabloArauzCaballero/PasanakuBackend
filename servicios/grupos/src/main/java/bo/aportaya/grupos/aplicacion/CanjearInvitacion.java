@@ -39,17 +39,18 @@ public class CanjearInvitacion {
     @Transactional(readOnly = true)
     public void comprobarAntesDeConsumir(
             UUID invitacionId, CU68Postular.EntradaPostulacion entrada, ContextoSesion ctx) {
-        datos.conContexto(ctx, dsl -> {
+        boolean yaCanjeada = datos.conContexto(ctx, dsl -> {
             var fila = dsl.fetchOne(
                     "SELECT estado, fecha_expiracion, solicitud_ingreso_id, grupo_id FROM grupos.invitacion WHERE id=?",
                     invitacionId);
             if (fila == null || !entrada.grupoId().equals(fila.get("grupo_id", UUID.class))) throw invalida();
-            if (fila.get("solicitud_ingreso_id", UUID.class) != null) return null;
+            if (fila.get("solicitud_ingreso_id", UUID.class) != null) return true;
             if (!"ENVIADA".equals(fila.get("estado", String.class))
                     || !fila.get("fecha_expiracion", java.time.OffsetDateTime.class)
                             .isAfter(java.time.OffsetDateTime.now())) throw invalida();
-            return null;
+            return false;
         });
+        if (yaCanjeada) return;
         postulaciones.comprobar(entrada, ctx);
     }
 

@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
  * los campos que emite {@code CU20CrearGrupo} (grupoId, tarifarioId). La cadena real, con Kafka, la ejercita el
  * recorrido de integracion.
  */
-class CongelarTarifaDelGrupoTest extends BaseDeTarifas {
+class CU20CongelarTarifaTest extends BaseDeTarifas {
 
     private static CongelarTarifaDelGrupo congelar;
 
