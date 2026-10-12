@@ -11,6 +11,7 @@ import bo.aportaya.tarifas.aplicacion.CongelarTarifaDelGrupo.GrupoCreado;
 import bo.aportaya.tarifas.aplicacion.CongelarTarifaDelGrupo.Resultado;
 import bo.aportaya.tarifas.infraestructura.TarifaCongeladaRepositorio;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -136,7 +137,7 @@ class CongelarTarifaDelGrupoTest extends BaseDeTarifas {
         assertThat(dsl.fetch(
                                 "SELECT payload ->> 'tarifarioId' FROM tarifas.evento_dominio WHERE agregado_id = ? AND tipo = 'tarifas.tarifa_congelada'",
                                 grupo)
-                        .getValues(0))
+                        .getValues(0, String.class))
                 .containsOnly(primero.toString());
     }
 
@@ -205,7 +206,7 @@ class CongelarTarifaDelGrupoTest extends BaseDeTarifas {
 
         assertThat(uno).isEqualTo(dos);
         assertThat(TarifaCongeladaRepositorio.hashDe(uno)).isEqualTo(TarifaCongeladaRepositorio.hashDe(dos));
-        assertThat(transaccion.execute(e -> repositorio.snapshotDe(dsl, UUID.randomUUID())))
-                .isEmpty();
+        Optional<String> inexistente = transaccion.execute(e -> repositorio.snapshotDe(dsl, UUID.randomUUID()));
+        assertThat(inexistente).isEmpty();
     }
 }
