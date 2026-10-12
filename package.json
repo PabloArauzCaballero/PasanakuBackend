@@ -23,9 +23,9 @@
     "postman": "python3 scripts/generar_postman.py"
   },
   "devDependencies": {
-    "postman-cli": "1.69.0",
-    "turbo": "^2.11.6",
-    "typescript": "~6.0.2"
+    "postman-cli": "1.71.0",
+    "turbo": "^2.11.7",
+    "typescript": "~7.0.2"
   },
   "resolutions": {
     "@scalar/json-magic/undici": "7.29.0",
