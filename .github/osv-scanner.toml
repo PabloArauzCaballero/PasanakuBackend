@@ -14,3 +14,30 @@
 # id = "GHSA-xxxx-xxxx-xxxx"
 # ignoreUntil = 2026-10-21   # <= 30 dias desde que se registra (AMB-9)
 # reason = "MEDIUM, sin ruta de explotacion en este monorepo: <detalle>. Revisar antes de la fecha."
+
+# H17 (2026-10-12): excepciones con fecha de revision, mientras se planifica la migracion
+# de Spring Boot 3.5 a 4.x (Spring Framework 7). Ver la PR de la migracion cuando exista.
+#
+# spring-webflux y spring-webmvc 6.2.19: el parche publicado es 7.0.x (cambio mayor).
+# El gateway solo expone health e info (plataforma/gateway/src/main/resources/application.yml);
+# el endpoint de actuator de Spring Cloud Gateway no esta expuesto. Lo que no esta verificado
+# es el detalle de cada advisory: se revisa antes de la fecha.
+[[IgnoredVulns]]
+id = "GHSA-9qf2-26p9-2q2q"
+ignoreUntil = 2026-11-11
+reason = "spring-webflux 6.2.19 sin parche en 6.2.x (el fix es 7.0.x, cambio mayor). Gateway sin actuator de gateway expuesto. Detalle no verificado: revisar antes de la fecha."
+
+[[IgnoredVulns]]
+id = "GHSA-j9f9-w8pj-32f8"
+ignoreUntil = 2026-11-11
+reason = "spring-webflux y spring-webmvc 6.2.19, sin parche en 6.2.x (fix 7.0.x). Gateway sin actuator de gateway expuesto. Detalle no verificado: revisar antes de la fecha."
+
+[[IgnoredVulns]]
+id = "GHSA-pc63-qcmh-9cmg"
+ignoreUntil = 2026-11-11
+reason = "spring-webmvc 6.2.19 en aportes y auditoria, sin parche en 6.2.x (fix 7.0.x). Detalle no verificado: revisar antes de la fecha."
+
+[[IgnoredVulns]]
+id = "GHSA-vfj7-8cjw-p6xm"
+ignoreUntil = 2026-11-11
+reason = "braces 3.0.3 via micromatch 4 (herramientas de desarrollo del frontend, sin fix publicado). Revisar antes de la fecha."
