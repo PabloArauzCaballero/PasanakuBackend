@@ -16,28 +16,26 @@
 # reason = "MEDIUM, sin ruta de explotacion en este monorepo: <detalle>. Revisar antes de la fecha."
 
 # H17 (2026-10-12): excepciones con fecha de revision, mientras se planifica la migracion
-# de Spring Boot 3.5 a 4.x (Spring Framework 7). Ver la PR de la migracion cuando exista.
-#
-# spring-webflux y spring-webmvc 6.2.19: el parche publicado es 7.0.x (cambio mayor).
-# El gateway solo expone health e info (plataforma/gateway/src/main/resources/application.yml);
-# el endpoint de actuator de Spring Cloud Gateway no esta expuesto. Lo que no esta verificado
-# es el detalle de cada advisory: se revisa antes de la fecha.
-[[IgnoredVulns]]
-id = "GHSA-9qf2-26p9-2q2q"
-ignoreUntil = 2026-11-11
-reason = "spring-webflux 6.2.19 sin parche en 6.2.x (el fix es 7.0.x, cambio mayor). Gateway sin actuator de gateway expuesto. Detalle no verificado: revisar antes de la fecha."
-
+# de Spring Boot 3.5 a 4.x (Spring Framework 7). El parche de Spring Framework esta solo en 7.0.9
+# (verificado: no existe 6.2.20 en Maven Central). Cada advisory exige un mecanismo concreto que el
+# codigo NO usa, y la prueba SpringSinSuperficieVulnerableBarridoTest falla si empieza a usarlo.
+# Detalle de cada advisory leido en github.com/advisories el 2026-10-12.
 [[IgnoredVulns]]
 id = "GHSA-j9f9-w8pj-32f8"
 ignoreUntil = 2026-11-11
-reason = "spring-webflux y spring-webmvc 6.2.19, sin parche en 6.2.x (fix 7.0.x). Gateway sin actuator de gateway expuesto. Detalle no verificado: revisar antes de la fecha."
+reason = "CVE-2026-47890: corrupcion de streams SSE al renderizar fragmentos de vistas (webmvc y webflux 6.2.0-6.2.19). El backend no usa SSE ni renderiza vistas (barrido SpringSinSuperficieVulnerableBarridoTest). Se quita al migrar a Spring 7."
 
 [[IgnoredVulns]]
 id = "GHSA-pc63-qcmh-9cmg"
 ignoreUntil = 2026-11-11
-reason = "spring-webmvc 6.2.19 en aportes y auditoria, sin parche en 6.2.x (fix 7.0.x). Detalle no verificado: revisar antes de la fecha."
+reason = "CVE-2026-47884: path traversal en XsltView con un mapeo /** que renderiza vistas (webmvc 6.2.0-6.2.19). El backend no usa XsltView ni resolvers de vistas (barrido). Se quita al migrar a Spring 7."
+
+[[IgnoredVulns]]
+id = "GHSA-9qf2-26p9-2q2q"
+ignoreUntil = 2026-11-11
+reason = "CVE-2026-47892: bypass de predicado de cabecera en endpoints funcionales de WebFlux desplegados bajo DispatcherServlet (webflux 6.2.0-6.2.19). El gateway tiene un endpoint funcional (Version.java) pero corre sobre Netty, sin servlet (lockfile: reactor-netty, sin spring-webmvc ni servlet); los servicios servlet no declaran endpoints funcionales (barrido). Se quita al migrar a Spring 7."
 
 [[IgnoredVulns]]
 id = "GHSA-vfj7-8cjw-p6xm"
 ignoreUntil = 2026-11-11
-reason = "braces 3.0.3 via micromatch 4 (herramientas de desarrollo del frontend, sin fix publicado). Revisar antes de la fecha."
+reason = "braces 3.0.3 llega por micromatch 4 desde eslint-plugin-boundaries y @boundaries/elements (herramientas de desarrollo del frontend, no se empaquetan). Sin fix publicado. Revisar antes de la fecha."
