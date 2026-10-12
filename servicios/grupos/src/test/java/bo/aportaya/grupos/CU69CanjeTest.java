@@ -20,6 +20,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class CU69CanjeTest extends BaseDeCU68 {
@@ -135,6 +136,82 @@ class CU69CanjeTest extends BaseDeCU68 {
             return canjes.ejecutar(invitacion, recibo, entrada(true), contexto());
         });
         assertThat(resultado).isNotNull();
+    }
+
+    private String codigoDelRechazo(Runnable comprobacion) {
+        try {
+            comprobacion.run();
+        } catch (ErrorDeNegocio rechazo) {
+            return rechazo.codigo().valor();
+        }
+        throw new AssertionError("La comprobacion debio rechazar");
+    }
+
+    private void comprobar(boolean kyc) {
+        transaccion.executeWithoutResult(
+                s -> canjes.comprobarAntesDeConsumir(invitacion, entrada(kyc), contexto()));
+    }
+
+    @Test
+    @DisplayName(
+            "Dado un invitado con una postulación pendiente en el grupo · Cuando canjea una invitación vigente de ese grupo · Entonces se rechaza con AP-CU68-06 y el enlace no se consume en identidad")
+    void criterioCanjeConPostulacionPendiente() {
+        transaccion.execute(s -> postularCU.postular(entrada(true), contexto()));
+
+        // La comprobacion corre ANTES de consumir el enlace en identidad: rechaza con el codigo de la regla...
+        assertThat(codigoDelRechazo(() -> comprobar(true))).isEqualTo("AP-CU68-06");
+        // ...y no deja nada escrito: la invitacion sigue ENVIADA y sin solicitud, asi que el emisor puede revocarla.
+        var fila = dslFixtura.fetchOne("SELECT estado, solicitud_ingreso_id FROM grupos.invitacion WHERE id=?", invitacion);
+        assertThat(fila.get("estado", String.class)).isEqualTo("ENVIADA");
+        assertThat(fila.get("solicitud_ingreso_id", UUID.class)).isNull();
+        assertThat(contar("SELECT count(*)::int FROM grupos.solicitud_ingreso WHERE grupo_id=?", grupo))
+                .isEqualTo(1);
+    }
+
+    @Test
+    void rechazaAntesDeConsumirPorCadaCondicionLocal() {
+        // KYC insuficiente: la misma regla que postular.
+        assertThat(codigoDelRechazo(() -> comprobar(false))).isEqualTo("AP-CU68-02");
+
+        // Invitacion revocada, vencida o de otro grupo: no hay nada que canjear, y no se quema un enlace que ya no sirve.
+        dslFixtura.execute("UPDATE grupos.invitacion SET estado='REVOCADA' WHERE id=?", invitacion);
+        assertThat(codigoDelRechazo(() -> comprobar(true))).isEqualTo("AP-CU69-05");
+        dslFixtura.execute("UPDATE grupos.invitacion SET estado='ENVIADA' WHERE id=?", invitacion);
+        dslFixtura.execute(
+                "UPDATE grupos.invitacion SET fecha_expiracion=now()-interval '1 second' WHERE id=?", invitacion);
+        assertThat(codigoDelRechazo(() -> comprobar(true))).isEqualTo("AP-CU69-05");
+        dslFixtura.execute(
+                "UPDATE grupos.invitacion SET fecha_expiracion=now()+interval '1 day' WHERE id=?", invitacion);
+        UUID otroGrupo = grupoConCupoLibre();
+        assertThat(codigoDelRechazo(() -> transaccion.executeWithoutResult(s -> canjes.comprobarAntesDeConsumir(
+                        invitacion,
+                        new CU68Postular.EntradaPostulacion(
+                                otroGrupo,
+                                (short) 1,
+                                "otro",
+                                false,
+                                BigDecimal.ZERO,
+                                true,
+                                50,
+                                0,
+                                uno(),
+                                uno(),
+                                uno(),
+                                uno()),
+                        contexto()))))
+                .isEqualTo("AP-CU69-05");
+    }
+
+    @Test
+    void reintentoDeUnCanjeCompletadoNoLoRechazaLaComprobacion() {
+        // El canje se completo y el cliente reintenta con la misma clave: la comprobacion previa no puede decir
+        // «ya tenes una postulacion» (la que acaba de crear), porque entonces el reintento dejaria de ser idempotente.
+        UUID solicitud = transaccion.execute(s -> canjes.ejecutar(invitacion, recibo, entrada(true), contexto()));
+
+        comprobar(true);
+
+        assertThat(transaccion.<UUID>execute(s -> canjes.ejecutar(invitacion, recibo, entrada(true), contexto())))
+                .isEqualTo(solicitud);
     }
 
     private CU68Postular.EntradaPostulacion entrada(boolean kyc) {

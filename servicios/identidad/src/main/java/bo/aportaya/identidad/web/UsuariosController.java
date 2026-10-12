@@ -70,6 +70,7 @@ public class UsuariosController extends InvitacionesController {
     private final String pimienta;
     private final TokenDeAlta tokenDeAlta;
     private final TitularDelExpediente titular;
+    private final LimiteDeConsultas limiteDeTitularidad;
 
     public UsuariosController(
             CU01RegistrarUsuario cu01,
@@ -86,7 +87,8 @@ public class UsuariosController extends InvitacionesController {
             HttpServletRequest peticion,
             @Value("${aportaya.seguridad.pimienta}") String pimienta,
             Reloj reloj,
-            @Value("${identidad.alta.vigencia-token:PT30M}") Duration vigenciaTokenDeAlta) {
+            @Value("${identidad.alta.vigencia-token:PT30M}") Duration vigenciaTokenDeAlta,
+            @Value("${aportaya.titularidad.consultas-por-minuto:120}") int titularidadPorMinuto) {
         super(consumo, sesion, peticion);
         this.cu01 = cu01;
         this.titularidad = titularidad;
@@ -102,6 +104,7 @@ public class UsuariosController extends InvitacionesController {
         this.pimienta = pimienta;
         this.tokenDeAlta = new TokenDeAlta(pimienta, reloj, vigenciaTokenDeAlta);
         this.titular = new TitularDelExpediente(tokenDeAlta, sesion);
+        this.limiteDeTitularidad = new LimiteDeConsultas(reloj, titularidadPorMinuto, Duration.ofMinutes(1));
     }
 
     /**
@@ -185,6 +188,8 @@ public class UsuariosController extends InvitacionesController {
     @PermisoAlternativo("SERVICIO_ENTREGAS")
     public ResponseEntity<SalidaTitularidad> verificarTitularidad(UUID usuarioId, EntradaTitularidad cuerpo) {
         Traza.marcarCasoDeUso("CU-01", usuarioId.toString());
+        // Oraculo de si/no: tope por actor (429 con Retry-After) ANTES de tocar el expediente.
+        limiteDeTitularidad.registrar(sesion.actual().usuarioId());
 
         var respuesta = new SalidaTitularidad();
         respuesta.setCoincide(

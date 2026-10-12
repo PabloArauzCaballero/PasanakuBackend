@@ -197,6 +197,33 @@ ya existe una licencia `OTORGADA` no se mezcla un sandbox sintético con una rea
 licencia sembrada de la que cuelga. Además vive en `seeders/dev/`: `sembrar_dev.sql` (que lo incluye) aborta
 sin `app.entorno = 'dev'` y `minimos/` no lo contiene, así que producción no lo recibe.
 
+## Invitar por ENLACE y abrir el grupo a inscripciones en TEST (carril P, 2026-10-11)
+
+Cuatro defectos de código impedían que un invitado aceptara una invitación (hallados por el carril L3 contra TEST).
+Los tres de código viajan en el despliegue; falta una acción en el VPS **que no ejecuta ningún agente**:
+
+1. **Política de token versionada.** `canal=ENLACE` (el de la app) daba `500 AP-INT-01` porque la fila de
+   `identidad.politica_token` de TEST no lo permitía y la siembra es `DO NOTHING`. La corrección es una **versión
+   nueva** de la política (`seeders/minimos/13-politicas-de-token.json`, `vigente_desde` 2026-10-11), no un `UPDATE`.
+   Las bases nuevas la reciben solas; **TEST ya poblada la recibe con**
+   `ssh root@161.97.85.216 'bash -s' < despliegue/ensayos/politica_invitacion_test.sh` (idempotente; `--estado` solo lee;
+   falla si la política vigente no permite ENLACE).
+2. **Tópico nuevo en Kafka.** `tarifas` responde en `aportaya.tarifas.tarifa_congelada`; el broker de TEST no crea
+   tópicos solo: correr `despliegue/host/crear-topicos.sh` (la lista sale del código) **antes o junto con** el despliegue.
+3. **Apertura del grupo.** `tarifas` congela el precio al consumir `grupos.grupo_creado` y `grupos` pasa el grupo de
+   `BORRADOR` a `ABIERTO_A_INSCRIPCION` al consumir la respuesta. Los consumidores nacen con `auto-offset-reset: earliest`
+   (grupo de consumidores nuevo): al arrancar leen los `grupo_creado` que ya estaban y abren también los grupos creados
+   antes (los de prueba de L3 incluidos). Interruptores, **encendidos** por omisión: `CONGELAMIENTO_CONSUMO_HABILITADO`
+   (tarifas) y `APERTURA_CONSUMO_HABILITADO` (grupos).
+
+**Decisiones adoptadas por delegación del dueño del proyecto (2026-10-11, «lo más recomendado»):**
+- El grupo se abre **automáticamente** al confirmarse el congelamiento del precio, sin interruptor apagado: es lo que la app
+  ya promete («en un momento se abre para inscripciones»). No espera la cuenta del grupo (`nucleo-financiero` todavía no la abre):
+  **supuesto A1, a confirmar con producto y con el dueño de `nucleo-financiero`**.
+- **Admisión humana:** producción debe fijar `ADMISION_HUMANA_OBLIGATORIA=true` (es además el valor por omisión de la aplicación;
+  el compose de TEST la deja en `false` para conservar «aceptar por enlace»).
+- **Sustitución automática del administrador:** `SUSTITUCION_AUTOMATICA_ADMIN=false` (manual) por omisión.
+
 ## El corpus de identidad
 
 TEST se usa además para juntar un corpus de verificación de identidad: por cada persona

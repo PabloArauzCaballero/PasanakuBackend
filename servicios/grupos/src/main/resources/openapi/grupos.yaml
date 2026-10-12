@@ -697,8 +697,10 @@ paths:
       summary: Crear el grupo y disparar el congelamiento del tarifario
       description: >-
         El grupo nace BORRADOR y emite `grupos.grupo_creado`; `tarifas` congela el
-        precio y `nucleo-financiero` abre la cuenta del grupo al consumirlo. Pasa a
-        ABIERTO_A_INSCRIPCION cuando los dos respondieron.
+        precio al consumirlo y responde `tarifas.tarifa_congelada`, y el grupo pasa a
+        ABIERTO_A_INSCRIPCION al consumir esa respuesta. `nucleo-financiero` abrira la
+        cuenta del grupo al consumir `grupo_creado`, pero todavia no lo hace y la
+        apertura no la espera (supuesto a confirmar con producto y con ese servicio).
 
         Que nazca en borrador no es un rodeo: un grupo sin precio congelado no puede
         recibir a nadie, porque el precio es justamente lo que cada participante

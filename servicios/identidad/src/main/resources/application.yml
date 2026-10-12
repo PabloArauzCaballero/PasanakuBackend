@@ -45,6 +45,10 @@ aportaya:
     # Fuera de la base a proposito: filtrar la tabla de credenciales no alcanza si
     # la pimienta no esta ahi. Si falta la variable, el proceso NO levanta.
     pimienta: ${SEGURIDAD_PIMIENTA}
+  titularidad:
+    # CU-18: tope de verificaciones de titularidad (si/no) por actor y por minuto. SINTETICO: lo fija Seguridad con el
+    # trafico real de entregas; con N replicas el tope efectivo es N veces este.
+    consultas-por-minuto: 120
   # El servidor de archivos. En la columna va la clave del objeto, nunca una URL
   # publica: el binario lo entrega este servicio, con sesion y permisos (ADR-034).
   archivos:

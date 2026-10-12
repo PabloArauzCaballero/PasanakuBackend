@@ -16,6 +16,10 @@ spring:
         prepareThreshold: 0         # PgBouncer en modo transaccion
   kafka:
     bootstrap-servers: ${KAFKA_URL}
+    consumer:
+      # Un grupo de consumidores nuevo lee desde el principio: perderse un grupos.grupo_creado deja a un grupo sin precio
+      # congelado (el congelamiento es idempotente por grupo, asi que releer no cuesta nada).
+      auto-offset-reset: earliest
 
 aportaya:
   esquema: tarifas
@@ -36,6 +40,10 @@ aportaya:
     # Lo que hay para emitir una factura despues del cierre del periodo antes de que
     # el SIN la rechace por extemporanea.
     plazo-tras-el-cierre: PT48H
+  congelamiento:
+    # grupos.grupo_creado: se congela el tarifario del grupo (R-TAR-07, CU-20). ENCENDIDO por omision: es el camino normal
+    # de la creacion de un grupo; apagado, los grupos nuevos nunca se abren a inscripciones.
+    consumo-habilitado: ${CONGELAMIENTO_CONSUMO_HABILITADO:true}
   comisiones:
     # Lo que se cotiza es lo que se cobra (R-TAR-02), y una cotizacion vieja deja de
     # serlo: pasado este plazo se vuelve a cotizar contra el tarifario de hoy.

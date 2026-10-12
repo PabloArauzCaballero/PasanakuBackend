@@ -78,6 +78,7 @@ services:
     environment:
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      COMPENSACION_CONSUMO_HABILITADO: ${COMPENSACION_CONSUMO_HABILITADO:-true}
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
       URL_GRUPOS: http://grupos:8080
@@ -268,6 +269,7 @@ services:
         condition: service_healthy
     environment:
       ADMISION_HUMANA_OBLIGATORIA: ${ADMISION_HUMANA_OBLIGATORIA:-false}
+      APERTURA_CONSUMO_HABILITADO: ${APERTURA_CONSUMO_HABILITADO:-true}
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
       CESION_CONSUMO_HABILITADO: ${CESION_CONSUMO_HABILITADO:-true}
@@ -425,6 +427,9 @@ services:
       grupos:
         condition: service_healthy
     environment:
+      APERTURA_ESTADO_INICIAL_USUARIO: ${APERTURA_ESTADO_INICIAL_USUARIO:-ACTIVA}
+      APERTURA_GRUPOS_HABILITADO: ${APERTURA_GRUPOS_HABILITADO:-true}
+      APERTURA_USUARIOS_HABILITADO: ${APERTURA_USUARIOS_HABILITADO:-true}
       APORTAYA_CORS_ORIGENES: ${APORTAYA_CORS_ORIGENES}
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
@@ -546,6 +551,7 @@ services:
     environment:
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      CONGELAMIENTO_CONSUMO_HABILITADO: ${CONGELAMIENTO_CONSUMO_HABILITADO:-true}
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
       SIN_NIT_EMISOR: ${SIN_NIT_EMISOR}

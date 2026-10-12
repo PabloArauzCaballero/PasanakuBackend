@@ -12,9 +12,12 @@ Escribe
     sql/61_dev/              SQL de los datos de dev + sembrar_dev.sql
     despliegue/ensayos/sembrar_test.sh
     despliegue/ensayos/sandbox_licencia_test.sh
+    despliegue/ensayos/politica_invitacion_test.sh
                              el bloque «SQL-GENERADO» de cada guion: la misma siembra de
-                             las cuentas sinteticas (17) y del sandbox de GRUPO_PASANAKU
-                             (18), para aplicarlas EN TEST sin copiarlas a mano
+                             las cuentas sinteticas (17), del sandbox de GRUPO_PASANAKU
+                             (18) y de las politicas de token (minimos/13, para que una
+                             base ya poblada reciba la version nueva de INVITACION_GRUPO),
+                             para aplicarlas EN TEST sin copiarlas a mano
 
 La separación entre los dos conjuntos es dura y la verifica este mismo script:
 ninguna tabla escrita por `minimos/` puede escribirse desde `dev/`, `minimos/` no
@@ -453,26 +456,28 @@ def procesar(entorno):
 # no se escribe a mano —seria una segunda fuente de verdad—: este generador lo reescribe entre
 # dos marcas cada vez que corre, y un diff despues de generar delata que quedo viejo.
 #
-# Hoy son dos: las cuentas sinteticas (17) y el sandbox de GRUPO_PASANAKU (18).
+# Hoy son tres: las cuentas sinteticas (dev/17), el sandbox de GRUPO_PASANAKU (dev/18) y las politicas de token
+# (minimos/13: una base poblada conserva la fila vieja porque la siembra es DO NOTHING; la version nueva entra por aca).
 MARCA_INICIO = "# >>> SQL-GENERADO"
 MARCA_FIN = "# <<< SQL-GENERADO"
-# (semilla, guion que la lleva, palabra de cierre del heredoc)
+# (semilla, guion que la lleva, palabra de cierre del heredoc, carpeta de seeders de donde sale)
 SIEMBRAS_DE_TEST = [
-    ("17-usuarios-e2e-sinteticos", pathlib.Path("despliegue/ensayos/sembrar_test.sh"), "SQL_SEMILLA_E2E"),
-    ("18-licencia-sandbox-test", pathlib.Path("despliegue/ensayos/sandbox_licencia_test.sh"), "SQL_SEMILLA_SANDBOX"),
+    ("17-usuarios-e2e-sinteticos", pathlib.Path("despliegue/ensayos/sembrar_test.sh"), "SQL_SEMILLA_E2E", "dev"),
+    ("18-licencia-sandbox-test", pathlib.Path("despliegue/ensayos/sandbox_licencia_test.sh"), "SQL_SEMILLA_SANDBOX", "dev"),
+    ("13-politicas-de-token", pathlib.Path("despliegue/ensayos/politica_invitacion_test.sh"), "SQL_SEMILLA_POLITICA", "minimos"),
 ]
 
 
-def sincronizar_script_test(semilla, script, fin_de_heredoc):
+def sincronizar_script_test(semilla, script, fin_de_heredoc, entorno="dev"):
     """Reescribe el bloque SQL-GENERADO de `script` con el SQL de `semilla`. Devuelve las lineas."""
-    fuente = DESTINOS["dev"][0] / f"{semilla}.sql"
+    fuente = DESTINOS[entorno][0] / f"{semilla}.sql"
     if not script.exists() or not fuente.exists():
         return 0
     cuerpo = fuente.read_text(encoding="utf-8").replace("\r\n", "\n").strip("\n")
     if fin_de_heredoc in cuerpo:
         raise SystemExit(f"{fuente}: contiene la palabra de cierre {fin_de_heredoc}; cambiala en el generador")
     bloque = "\n".join([
-        f"{MARCA_INICIO} · no editar: lo escribe scripts/generar_semillas.py desde seeders/dev/{semilla}.json",
+        f"{MARCA_INICIO} · no editar: lo escribe scripts/generar_semillas.py desde seeders/{entorno}/{semilla}.json",
         "# search_path como el de los orquestadores: este guion corre en su propia sesion de psql.",
         "IFS= read -r -d '' SEMILLA_SQL <<'" + fin_de_heredoc + "' || true",
         SEARCH_PATH_SQL,
@@ -508,8 +513,8 @@ def main():
         archivos, filas = procesar(entorno)
         print(f"{entorno:8} → {DESTINOS[entorno][0]}: {archivos} archivos, {filas} filas")
         total += filas
-    for semilla, script, cierre in SIEMBRAS_DE_TEST:
-        lineas = sincronizar_script_test(semilla, script, cierre)
+    for semilla, script, cierre, entorno in SIEMBRAS_DE_TEST:
+        lineas = sincronizar_script_test(semilla, script, cierre, entorno)
         if lineas:
             print(f"{'':8} → {script.as_posix()}: bloque SQL-GENERADO al dia ({lineas} lineas)")
     print(f"total: {total} filas de semilla · validadas contra el modelo")
