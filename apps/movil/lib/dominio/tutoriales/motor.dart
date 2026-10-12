@@ -7,6 +7,15 @@ import 'escribano.dart';
 import 'estado_del_motor.dart';
 import 'modelo.dart';
 
+/// Lo que dice la guía cuando el elemento de un paso no está en pantalla. Sin ids internos.
+const textoAnclaAusente =
+    'Esta parte de la pantalla todavía no está disponible, así que no podemos señalarla. '
+    'Podés reintentar o salir de la guía.';
+
+/// Lo que dice la guía cuando no puede llevar a la pantalla del paso. Sin rutas internas.
+const textoNoSePudoAbrir =
+    'No pudimos abrir la pantalla de este paso. Podés reintentar o salir de la guía.';
+
 /// **El motor: dónde estoy, cómo sigo y qué hago si el paso no se puede dar.**
 ///
 /// Es una máquina de estados; no dibuja nada. El velo, el globo y los gestos viven en
@@ -161,7 +170,10 @@ class MotorDeTutoriales extends Notifier<EstadoDelMotor> {
     if (!state.activo || state.indice != indice) return;
     if (recuadro == null) {
       state = state.copiaCon(
-        problema: 'No encontramos «${paso.ancla}» en esta pantalla.',
+        // Sin el id interno del ancla («billetera.saldo»): no le dice nada a quien mira. Si esta
+        // parte de la pantalla no está (por ejemplo, la billetera todavía no está activa), se
+        // dice eso y se puede reintentar o salir de la guía.
+        problema: textoAnclaAusente,
       );
       return;
     }
@@ -174,7 +186,7 @@ class MotorDeTutoriales extends Notifier<EstadoDelMotor> {
     final actual = _ubicacion?.call() ?? '';
     if (actual == ruta || actual.startsWith('$ruta/')) return true;
     if (_navegar == null) {
-      state = state.copiaCon(problema: 'No pudimos abrir «$ruta» desde acá.');
+      state = state.copiaCon(problema: textoNoSePudoAbrir);
       return false;
     }
     _navegar!(ruta);

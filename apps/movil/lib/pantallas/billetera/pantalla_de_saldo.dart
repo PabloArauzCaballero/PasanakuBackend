@@ -7,6 +7,7 @@ import '../../navegacion/accion_de_avisos.dart';
 import '../../navegacion/accion_de_escanear.dart';
 import '../soporte/autolanzador_de_guia.dart';
 import 'cuerpo_de_saldo.dart';
+import 'resolver_cuenta.dart';
 import 'textos.dart';
 import 'package:aportaya_diseno/moleculas/cabecera.dart';
 import 'package:aportaya_diseno/organismos/estado_de_pantalla.dart';
@@ -15,12 +16,13 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 /// El inicio de la billetera. Sin `AppBar`: la cabecera es parte de la pantalla, con
 /// el saludo encima del título, y la campana de avisos como única acción.
 class PantallaDeSaldo extends ConsumerWidget {
-  const PantallaDeSaldo({super.key, required this.cuentaId});
-  final String cuentaId;
+  const PantallaDeSaldo({super.key, this.cuentaId});
+
+  /// La cuenta a mostrar; `null` = la de la persona, que se le pregunta al servidor.
+  final String? cuentaId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final saldo = ref.watch(saldoProvider(cuentaId));
     return AutolanzadorDeGuia(
       hijo: Scaffold(
         body: SafeArea(
@@ -36,13 +38,9 @@ class PantallaDeSaldo extends ConsumerWidget {
                   acciones: [AccionDeEscanear(), AccionDeAvisos()],
                 ),
                 Expanded(
-                  child: EstadoDePantalla<SaldoBilletera>(
-                    valor: saldo,
-                    etiquetaDeCarga: TextosBilletera.cargandoSaldo,
-                    vacio: saldoEnCero,
-                    mensajeVacio: TextosBilletera.sinMovimientos,
-                    reintentar: () => ref.invalidate(saldoProvider(cuentaId)),
-                    exito: (s) => CuerpoDeSaldo(saldo: s),
+                  child: ResolverCuenta(
+                    cuentaId: cuentaId,
+                    construir: (id) => _SaldoDeLaCuenta(cuentaId: id),
                   ),
                 ),
               ],
@@ -50,6 +48,24 @@ class PantallaDeSaldo extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// El saldo de una cuenta ya conocida: cargando, éxito, cuenta en cero y error con reintento.
+class _SaldoDeLaCuenta extends ConsumerWidget {
+  const _SaldoDeLaCuenta({required this.cuentaId});
+  final String cuentaId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return EstadoDePantalla<SaldoBilletera>(
+      valor: ref.watch(saldoProvider(cuentaId)),
+      etiquetaDeCarga: TextosBilletera.cargandoSaldo,
+      vacio: saldoEnCero,
+      mensajeVacio: TextosBilletera.sinMovimientos,
+      reintentar: () => ref.invalidate(saldoProvider(cuentaId)),
+      exito: (s) => CuerpoDeSaldo(saldo: s),
     );
   }
 }

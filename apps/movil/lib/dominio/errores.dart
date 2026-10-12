@@ -27,7 +27,7 @@ const Map<String, String> _catalogo = {
   'AP-CU04-07':
       'Ese tipo de segundo factor no sirve para tu cuenta. Pedí ayuda a soporte.',
   // CU-13 · el saldo. Con TEST real, la cuenta que la app consulta no existe (422) y se leía como falla del servidor.
-  'AP-CU13-01': 'Todavía no encontramos una billetera abierta a tu nombre.',
+  'AP-CU13-01': 'Tu billetera todavía no está activa.',
   // CU-20 · crear grupo. Con el servidor TEST real, AP-CU20-04 (licencia sin otorgar, R-LIC-01) llegaba como
   // «Algo salió mal de nuestro lado»: era un rechazo de negocio explicable, no una falla.
   'AP-CU20-01':

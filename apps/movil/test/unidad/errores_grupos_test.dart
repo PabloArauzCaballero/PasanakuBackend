@@ -53,5 +53,14 @@ void main() {
         expect(mensajeDe('AP-CU69-99', estado: 422), generico);
       },
     );
+
+    test(
+      'correcto: AP-CU13-01 dice que la billetera todavía no está activa, no una falla',
+      () {
+        final m = mensajeDe('AP-CU13-01', estado: 422);
+        expect(m, contains('todavía no está activa'));
+        expect(m, isNot(generico));
+      },
+    );
   });
 }

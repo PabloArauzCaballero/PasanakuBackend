@@ -9,6 +9,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # Idioma de los textos propios de Material (selector de fecha, botones): sin esto, con el
+  # teléfono en inglés el calendario del alta sale en inglés. Es del SDK de Flutter: no suma un
+  # proveedor nuevo, solo `intl` como transitiva.
+  flutter_localizations:
+    sdk: flutter
   flutter_riverpod: ^3.0.0
   go_router: ^17.0.0
   dio: ^5.7.0

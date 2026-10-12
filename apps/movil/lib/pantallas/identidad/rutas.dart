@@ -45,11 +45,6 @@ final List<RouteBase> rutasIdentidad = [
     builder: (context, state) => const PantallaDeRegistro(),
   ),
   GoRoute(
-    path: '/identidad/mfa',
-    name: 'identidad.mfa',
-    builder: (context, state) => const PantallaDeMfa(),
-  ),
-  GoRoute(
     path: '/identidad/dispositivos',
     name: 'identidad.dispositivos',
     builder: (context, state) => const PantallaDeDispositivos(),
@@ -136,6 +131,13 @@ final List<RouteBase> rutasDeEntrada = [
     path: '/identidad/contrato',
     name: 'identidad.contrato',
     builder: (context, state) => const PantallaDeContrato(),
+  ),
+  // El segundo factor se pide en pleno ingreso, antes de que haya sesión: con la barra de pestañas
+  // debajo y «Perfil» encendido (carril H3) parecía una pantalla de una cuenta ya abierta.
+  GoRoute(
+    path: '/identidad/mfa',
+    name: 'identidad.mfa',
+    builder: (context, state) => const PantallaDeMfa(),
   ),
   // Idem: la bienvenida es lo que se ve al cerrar el alta, cuando todavía no se
   // ingresó.
