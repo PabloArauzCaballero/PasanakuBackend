@@ -107,7 +107,11 @@ Son **sintéticas y declaradas** (`seeders/dev/17-usuarios-e2e-sinteticos.json`:
 `apto_produccion=false`, procedencia «inventado para este repositorio», correos `@example.invalid`).
 Lo que simulan sin que haya pasado: el nivel de verificación `BASICO` de A y B (no hay documento ni
 decisión de una persona detrás) y la habilitación de A como organizador `APRENDIZ` (no hubo
-postulación, capacitación ni contrato). Es lo único que consultan `grupos` antes de crear un grupo.
+postulación ni capacitación) y su **contrato de organizador** (una fila firmada y vigente, apoyada en un token
+de firma sintético ya consumido: sin emisión ni firma reales; emitirlo por la API exige `ADMIN_PLATAFORMA`). `grupos`
+consulta la habilitación antes de crear un grupo y, además, el trigger `R-ORG-02` exige ese contrato: sin él, `POST /grupos`
+responde `500 AP-INT-01` (medido en TEST, `evidencia/carril-L2/12-…` y `13-…`). Re-correr `sembrar_test.sh` lo agrega
+(idempotente) y `--retirar` lo rescinde.
 No se sembró billetera: ni crear, ni invitar, ni aceptar la piden.
 
 **Cómo sembrarlas.** La contraseña de cada cuenta se genera fuera del repositorio, en
@@ -149,6 +153,76 @@ comportamiento del servicio, no de las cuentas, y queda anotado, no corregido.
 **No existen en producción.** Viven en `seeders/dev/` (nunca en `minimos/`): `sembrar_dev.sql` aborta
 sin `app.entorno = 'dev'`, y `sembrar_test.sh` aborta si identidad no corre con el perfil `local` (el de
 producción no acepta el segundo factor fijo). Producción no corre ninguno de los dos.
+
+## Sandbox de licencia para GRUPO_PASANAKU en TEST (sintético)
+
+**Por qué.** Con las cuentas de arriba A pasa todas las precondiciones de «crear grupo», pero TEST
+responde `422 AP-CU20-04` («El servicio no está habilitado en este momento»): `GET
+/licencia/alcance?servicio=GRUPO_PASANAKU` dice `habilitado:false, via:NINGUNA` porque la licencia se siembra
+`EN_TRAMITE` a propósito (R-LIC-01, CU-46; `seeders/minimos/08-gobierno-y-licencia.json`). No es un defecto:
+es la regla funcionando, y sin licencia el recorrido «A crea grupo e invita, B acepta» no se puede hacer.
+
+**Qué se hace (y qué NO).** Se abre la **segunda puerta** del propio modelo: un `entorno_prueba_regulado`
+(sandbox) `ACTIVO` solo para `GRUPO_PASANAKU`, colgado de la licencia sembrada. `fn_lic_servicio_habilitado()`
+y `cumplimiento` habilitan un servicio si hay licencia OTORGADA que lo cubre **o** un sandbox activo dentro
+de su ventana (CU-46, flujo principal 2). Por eso **no se toca la licencia**: sigue `ASFI /
+CERTIFICADO_ADECUACION / EN_TRAMITE`, sin número de resolución, y no se inventa ningún número ni autoridad.
+La respuesta pasa a `habilitado:true, via:SANDBOX`, con los límites de la fila. BILLETERA, RECARGA, RETIRO y
+TRANSFERENCIA_P2P siguen denegados.
+
+**Es sintético y declarado** (`seeders/dev/18-licencia-sandbox-test.json`: `apto_produccion=false`,
+procedencia «sandbox de TEST: no es una licencia ASFI», el campo `alcance` de la fila lleva la misma
+leyenda). Lo que simula sin que haya pasado: que cumplimiento haya autorizado un entorno de prueba regulado
+(no hay solicitud, resolución, garantía ni informes). Los límites (50 usuarios, 50000.00) están para cumplir
+`ck_sandbox_limites` (R-LIC-02); no son un límite regulatorio. La persona dueña de TEST lo autorizó
+expresamente («sí, sandbox de licencia»). **Nunca en producción.**
+
+**Cómo aplicarlo, comprobarlo y retirarlo** (el SQL del guion lo escribe `scripts/generar_semillas.py` entre
+las marcas `SQL-GENERADO`; no se edita):
+
+```bash
+ssh root@161.97.85.216 'bash -s'              < despliegue/ensayos/sandbox_licencia_test.sh   # aplica (idempotente)
+ssh root@161.97.85.216 'bash -s -- --estado'  < despliegue/ensayos/sandbox_licencia_test.sh   # solo lee
+ssh root@161.97.85.216 'bash -s -- --retirar' < despliegue/ensayos/sandbox_licencia_test.sh   # lo da de baja
+```
+
+Idempotente (id estable, `ON CONFLICT (id) DO NOTHING`): la segunda corrida dice `cambios: 0`. Si el sandbox
+se retiró o su ventana (90 días) venció, correrlo de nuevo lo reactiva. `--retirar` pasa la fila a
+`FINALIZADO`: el alcance vuelve a `habilitado:false, via:NINGUNA` y la licencia no cambió. Se comprueba con
+una sesión real: `GET /licencia/alcance?servicio=GRUPO_PASANAKU`.
+
+**Guardas** (abortan sin escribir): (1) identidad, cumplimiento y grupos deben correr con el perfil `local`
+y ninguno con un perfil de producción; (2) si la base trae `app.entorno`, no puede ser de producción; (3) si
+ya existe una licencia `OTORGADA` no se mezcla un sandbox sintético con una real; (4) debe existir la
+licencia sembrada de la que cuelga. Además vive en `seeders/dev/`: `sembrar_dev.sql` (que lo incluye) aborta
+sin `app.entorno = 'dev'` y `minimos/` no lo contiene, así que producción no lo recibe.
+
+## Invitar por ENLACE y abrir el grupo a inscripciones en TEST (carril P, 2026-10-11)
+
+Cuatro defectos de código impedían que un invitado aceptara una invitación (hallados por el carril L3 contra TEST).
+Los tres de código viajan en el despliegue; falta una acción en el VPS **que no ejecuta ningún agente**:
+
+1. **Política de token versionada.** `canal=ENLACE` (el de la app) daba `500 AP-INT-01` porque la fila de
+   `identidad.politica_token` de TEST no lo permitía y la siembra es `DO NOTHING`. La corrección es una **versión
+   nueva** de la política (`seeders/minimos/13-politicas-de-token.json`, `vigente_desde` 2026-10-11), no un `UPDATE`.
+   Las bases nuevas la reciben solas; **TEST ya poblada la recibe con**
+   `ssh root@161.97.85.216 'bash -s' < despliegue/ensayos/politica_invitacion_test.sh` (idempotente; `--estado` solo lee;
+   falla si la política vigente no permite ENLACE).
+2. **Tópico nuevo en Kafka.** `tarifas` responde en `aportaya.tarifas.tarifa_congelada`; el broker de TEST no crea
+   tópicos solo: correr `despliegue/host/crear-topicos.sh` (la lista sale del código) **antes o junto con** el despliegue.
+3. **Apertura del grupo.** `tarifas` congela el precio al consumir `grupos.grupo_creado` y `grupos` pasa el grupo de
+   `BORRADOR` a `ABIERTO_A_INSCRIPCION` al consumir la respuesta. Los consumidores nacen con `auto-offset-reset: earliest`
+   (grupo de consumidores nuevo): al arrancar leen los `grupo_creado` que ya estaban y abren también los grupos creados
+   antes (los de prueba de L3 incluidos). Interruptores, **encendidos** por omisión: `CONGELAMIENTO_CONSUMO_HABILITADO`
+   (tarifas) y `APERTURA_CONSUMO_HABILITADO` (grupos).
+
+**Decisiones adoptadas por delegación del dueño del proyecto (2026-10-11, «lo más recomendado»):**
+- El grupo se abre **automáticamente** al confirmarse el congelamiento del precio, sin interruptor apagado: es lo que la app
+  ya promete («en un momento se abre para inscripciones»). No espera la cuenta del grupo (`nucleo-financiero` todavía no la abre):
+  **supuesto A1, a confirmar con producto y con el dueño de `nucleo-financiero`**.
+- **Admisión humana:** producción debe fijar `ADMISION_HUMANA_OBLIGATORIA=true` (es además el valor por omisión de la aplicación;
+  el compose de TEST la deja en `false` para conservar «aceptar por enlace»).
+- **Sustitución automática del administrador:** `SUSTITUCION_AUTOMATICA_ADMIN=false` (manual) por omisión.
 
 ## El corpus de identidad
 

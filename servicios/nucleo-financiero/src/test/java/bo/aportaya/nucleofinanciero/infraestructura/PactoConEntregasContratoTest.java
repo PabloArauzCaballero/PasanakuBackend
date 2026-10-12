@@ -116,12 +116,13 @@ class PactoConEntregasContratoTest {
 
     @Test
     @DisplayName(
-            "pacto · correcto: el cliente real pide la oferta con el token de quien llama y entiende vendedor, precio y estado")
+            "pacto · correcto: el cliente real pide la oferta con el token de quien llama y entiende vendedor, precio, cargos y estado")
     void ofertaReservada() {
         var oferta = cliente().oferta(OFERTA).orElseThrow();
 
         assertThat(oferta.vendedorUsuarioId()).isEqualTo(VENDEDOR);
-        assertThat(oferta.precio().toString()).isEqualTo("480.00");
+        assertThat(oferta.precio().toString()).isEqualTo("500.00");
+        assertThat(oferta.cargos().toString()).isEqualTo("20.00");
         assertThat(oferta.estado()).isEqualTo("RESERVADA");
         assertThat(vistos)
                 .containsExactly(new Visto("GET", "/entregas/mercado/ofertas/" + OFERTA, "Bearer " + PORTADOR));
@@ -140,7 +141,7 @@ class PactoConEntregasContratoTest {
         for (JsonNode estado : pacto.path("estadosDeOferta")) {
             estadoForzado = 200;
             cuerpoForzado = "{\"ofertaId\":\"" + OFERTA + "\",\"vendedorUsuarioId\":\"" + VENDEDOR
-                    + "\",\"precio\":{\"monto\":\"480.00\",\"moneda\":\"BOB\"},\"estado\":\"" + estado.asText() + "\"}";
+                    + "\",\"precio\":{\"monto\":\"500.00\",\"moneda\":\"BOB\"},\"cargos\":{\"monto\":\"20.00\",\"moneda\":\"BOB\"},\"estado\":\"" + estado.asText() + "\"}";
             assertThat(cliente().oferta(OFERTA).orElseThrow().estado()).isEqualTo(estado.asText());
         }
     }
@@ -164,6 +165,20 @@ class PactoConEntregasContratoTest {
 
     @Test
     @DisplayName(
+            "pacto · invalido: una oferta SIN cargos (entregas viejo) o con cargos mal formados es vacio: sin saber el reparto no se paga")
+    void ofertaSinCargos() {
+        estadoForzado = 200;
+        cuerpoForzado = "{\"ofertaId\":\"" + OFERTA + "\",\"vendedorUsuarioId\":\"" + VENDEDOR
+                + "\",\"precio\":{\"monto\":\"500.00\",\"moneda\":\"BOB\"},\"estado\":\"RESERVADA\"}";
+        assertThat(cliente().oferta(OFERTA)).as("sin cargos").isEmpty();
+        cuerpoForzado = "{\"ofertaId\":\"" + OFERTA + "\",\"vendedorUsuarioId\":\"" + VENDEDOR
+                + "\",\"precio\":{\"monto\":\"500.00\",\"moneda\":\"BOB\"},"
+                + "\"cargos\":{\"monto\":\"20.001\",\"moneda\":\"BOB\"},\"estado\":\"RESERVADA\"}";
+        assertThat(cliente().oferta(OFERTA)).as("cargos con tres decimales").isEmpty();
+    }
+
+    @Test
+    @DisplayName(
             "pacto · productor: entregas.yaml publica la operacion con los campos, los estados y el 422 que el pacto asume")
     void entregasPublicaLaOferta() throws IOException {
         String yaml = Files.readString(
@@ -175,7 +190,7 @@ class PactoConEntregasContratoTest {
                 .contains("get:", "operationId: consultarOfertaParaPago", "'200':", "'422':", "SERVICIO_ENTREGAS");
 
         String esquema = yaml.substring(yaml.indexOf("    OfertaParaPago:"), yaml.indexOf("    PaginaDeOfertas:"));
-        assertThat(esquema).contains("required: [ofertaId, vendedorUsuarioId, precio, estado]");
+        assertThat(esquema).contains("required: [ofertaId, vendedorUsuarioId, precio, cargos, estado]");
         List<String> publicados = new ArrayList<>();
         pacto.path("estadosDeOferta").forEach(n -> publicados.add(n.asText()));
         assertThat(esquema).contains("enum: [" + String.join(", ", publicados) + "]");

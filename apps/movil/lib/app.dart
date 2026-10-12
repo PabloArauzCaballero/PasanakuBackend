@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'dominio/verificacion_contrato.dart';
+import 'localizacion.dart';
 import 'navegacion/abridor_de_avisos.dart';
 import 'navegacion/rutas.dart';
 import 'pantallas/soporte/arranque_segun_capacidades.dart';
@@ -56,6 +57,8 @@ class _AppAportaYaReal extends StatelessWidget {
       theme: temaDesde(Tokens.claro, Brightness.light),
       darkTheme: temaDesde(Tokens.oscuro, Brightness.dark),
       themeMode: ThemeMode.system,
+      supportedLocales: idiomasDeLaApp,
+      localizationsDelegates: delegadosDeIdioma,
       routerConfig: enrutador,
       debugShowCheckedModeBanner: false,
       // El registro de anclas y la capa del tutorial envuelven a TODA la app: un

@@ -26,6 +26,32 @@ public class CanjearInvitacion {
         this.postulaciones = postulaciones;
     }
 
+    /**
+     * Comprueba, SIN escribir, que el canje puede completarse localmente. Se llama ANTES de consumir el enlace en
+     * {@code identidad}: consumir es irreversible (el enlace es de un solo uso y no se reactiva), asi que nada que
+     * se pueda saber de antemano puede quedar para despues (regla 98.3.5). Sin esto, una postulacion duplicada, un
+     * grupo sin cupos o un KYC insuficiente dejaban el enlace quemado y al organizador sin poder revocarlo ni
+     * reemitir (L3, H3).
+     *
+     * <p>Si la invitacion ya tiene su solicitud (reintento de un canje que se completo) no se vuelve a comprobar:
+     * {@link #ejecutar} responde la misma solicitud, que es lo que hace idempotente el reintento.
+     */
+    @Transactional(readOnly = true)
+    public void comprobarAntesDeConsumir(UUID invitacionId, CU68Postular.EntradaPostulacion entrada, ContextoSesion ctx) {
+        datos.conContexto(ctx, dsl -> {
+            var fila = dsl.fetchOne(
+                    "SELECT estado, fecha_expiracion, solicitud_ingreso_id, grupo_id FROM grupos.invitacion WHERE id=?",
+                    invitacionId);
+            if (fila == null || !entrada.grupoId().equals(fila.get("grupo_id", UUID.class))) throw invalida();
+            if (fila.get("solicitud_ingreso_id", UUID.class) != null) return null;
+            if (!"ENVIADA".equals(fila.get("estado", String.class))
+                    || !fila.get("fecha_expiracion", java.time.OffsetDateTime.class)
+                            .isAfter(java.time.OffsetDateTime.now())) throw invalida();
+            return null;
+        });
+        postulaciones.comprobar(entrada, ctx);
+    }
+
     @Transactional
     public UUID ejecutar(
             UUID invitacionId, ConsumoInvitacion recibo, CU68Postular.EntradaPostulacion entrada, ContextoSesion ctx) {

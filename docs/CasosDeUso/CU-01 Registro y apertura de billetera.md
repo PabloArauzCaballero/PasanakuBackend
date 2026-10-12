@@ -57,8 +57,13 @@ normas: [ASFI Res. 540/2025, UIF EBR, ASFI Consumidor Financiero]
 9. Se crea [[cuenta_billetera]] con `tipo='USUARIO'`, `estado='ACTIVA'`,
    `nivel_debida_diligencia='SIMPLIFICADA'`, saldos en cero, y su
    [[cuenta_contable]] espejo.
-10. Se escribe `evento_dominio` `USUARIO_REGISTRADO` y `BILLETERA_ABIERTA` en la
-    misma transacción.
+10. Se escribe `evento_dominio` `USUARIO_REGISTRADO` en la misma transacción.
+
+> **Quién abre la billetera ([[ADR-052 Decisiones adoptadas por delegación del dueño|ADR-052]] DD-8; pendiente de
+> ratificación).** Los pasos 4 a 9 cruzan servicios: `identidad` crea al usuario (`PENDIENTE_VERIFICACION`, no opera) y
+> emite `identidad.usuario_registrado`; `cumplimiento` hace la diligencia; y la `cuenta_billetera` (paso 9) y su
+> `cuenta_contable` espejo **las abre `nucleo-financiero` al consumir el evento**, en su propio esquema y transacción.
+> Ningún servicio abre una billetera ajena ni la crea al primer uso. El consumidor está en implementación en otro carril; hasta verificarlo contra Kafka real, no hay billeteras reales.
 
 ## Flujos alternativos
 

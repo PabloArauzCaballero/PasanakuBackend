@@ -54,6 +54,11 @@ public class ConsumidorDeAportesKafka {
         var salida = consumo.procesar(aporte);
         // Identificadores y resultados, nunca importes ni datos de personas (regla 90.2).
         BITACORA.info("aporte cobrado {} (pago {}) -> {}", aporte.eventoId(), aporte.pagoId(), salida.resultado());
+        if (salida.resultado() == ConsumoDeAportes.Resultado.RECHAZADO_POR_SALDO) {
+            BITACORA.warn(
+                    "pago {}: el saldo no alcanza; se publico aporte_no_aplicado para que aportes compense el pago",
+                    aporte.pagoId());
+        }
         if (salida.resultado() == ConsumoDeAportes.Resultado.CANAL_SIN_BILLETERA) {
             BITACORA.warn(
                     "pago {}: el canal {} no sale de una billetera; su contrapartida entra por la conciliacion, no por"

@@ -1,0 +1,18 @@
+# Recorrido API real TEST (carril L3, 2026-10-11). Telefonos, tokens, hex64 enmascarados.
+## 0. licencia GRUPO_PASANAKU
+{"habilitado":true,"via":"SANDBOX","limitesSandbox":{"usuarios":50,"montoOperacion":"50000.00"},"motivo":null}
+HTTP 200
+## 1. login A/B
+HTTP 200
+HTTP 200
+## 2. participaciones antes
+[]
+HTTP 200
+[]
+HTTP 200
+## 3. A crea G1
+{"grupoId":"bfb102a3-0e36-401a-abac-97911e4bae55","fondoPorPeriodo":"300.00"}
+HTTP 202
+## 4. participaciones de A tras crear
+[{"grupoId":"bfb102a3-0e36-401a-abac-97911e4bae55","participanteId":"c37763fb-f345-46d6-b860-4c3badfa0d28","estado":"ACEPTADO_PENDIENTE_FIRMA"}]
+HTTP 200

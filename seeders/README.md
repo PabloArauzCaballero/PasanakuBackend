@@ -88,6 +88,14 @@ legal, y cada fila tiene su columna `base_normativa` esperando la cita exacta.
 > "caerse" —escribe una fila en la misma transacción que la notificación—. Encender
 > `CORREO_SMTP` y `PUSH_APP` es cosa del entorno: en dev lo hace
 > `seeders/dev/01-entorno-tecnico.json` apuntando a un buzón local.
+>
+> **Excepción acotada y declarada: el sandbox sintético de `GRUPO_PASANAKU`
+> (`dev/18-licencia-sandbox-test.json`).** No enciende la licencia: la fila de `licencia_regulatoria` sigue
+> `EN_TRAMITE`, sin número de resolución. Abre la segunda puerta del propio modelo (R-LIC-01 / CU-46: un
+> `entorno_prueba_regulado` ACTIVO), solo para ese servicio, marcado «sandbox de TEST: no es una licencia
+> ASFI» (`apto_produccion=false`) y con la autorización expresa de la persona dueña de TEST. Vive en
+> `dev/`, así que producción no lo recibe; `despliegue/ensayos/sandbox_licencia_test.sh` lo aplica en TEST
+> con guardas y trae `--retirar`.
 
 Tres catálogos tienen una desviación anotada, y conviene conocerla antes de usarlos:
 
@@ -263,12 +271,24 @@ deliberado, para que nadie confunda una cuenta de demostración con una usable.
 ### Dos cuentas sintéticas para TEST (`17-usuarios-e2e-sinteticos.json`)
 
 `SINT-E2E-A` (organizador habilitado) y `SINT-E2E-B` (invitado), más un otorgante `SINT-E2E-0` sin
-acceso. **Sintéticas y declaradas** (`apto_produccion=false`, procedencia «inventado para este
+acceso, y el contrato de organizador sintético de A (con su token de firma sintético consumido), que el trigger
+`R-ORG-02` exige para crear un grupo. **Sintéticas y declaradas** (`apto_produccion=false`, procedencia «inventado para este
 repositorio», teléfonos `+59170009100/101/102`, correos `@example.invalid`). El archivo **no trae
 credencial**: identidad hashea `contraseña + pimienta` y la pimienta de TEST es un secreto. La pone
 `despliegue/ensayos/sembrar_test.sh`, en el servidor, con una contraseña generada fuera del
 repositorio (ver `despliegue/TEST.md`, «Cuentas sintéticas de prueba en TEST»). El SQL embebido en ese
 guion lo regenera `scripts/generar_semillas.py` entre las marcas `SQL-GENERADO`.
+
+### Sandbox de licencia para TEST (`18-licencia-sandbox-test.json`)
+
+Una sola fila de `entorno_prueba_regulado` (`ACTIVO`, solo `GRUPO_PASANAKU`, 50 usuarios y 50000.00 de
+tope, ventana de 90 días) colgada de la licencia sembrada. **Sintética y declarada** (`apto_produccion=false`,
+procedencia «sandbox de TEST: no es una licencia ASFI», sin número de resolución ni autoridad inventados). Sin
+ella, crear un grupo en TEST/dev responde `422 AP-CU20-04`. Con ella, `GET /licencia/alcance?servicio=GRUPO_PASANAKU`
+responde `habilitado:true, via:SANDBOX`; BILLETERA, RECARGA, RETIRO y TRANSFERENCIA_P2P siguen denegados.
+Id estable + `ON CONFLICT (id) DO NOTHING`. El SQL embebido en `despliegue/ensayos/sandbox_licencia_test.sh`
+(`--estado`, `--retirar`; ver `despliegue/TEST.md`, «Sandbox de licencia para GRUPO_PASANAKU en TEST») lo
+regenera `scripts/generar_semillas.py` entre las marcas `SQL-GENERADO`.
 
 Los mínimos son idempotentes: volver a ejecutarlos no duplica nada.
 

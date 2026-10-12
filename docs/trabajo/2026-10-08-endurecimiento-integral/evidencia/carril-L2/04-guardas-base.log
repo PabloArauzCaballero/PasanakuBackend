@@ -1,0 +1,15 @@
+##### 5. Guarda de marca de entorno de la base: app.entorno='production' => aborta (5)
+$ bash sandbox_licencia_test.sh    [marca-production]
+ERROR: la base esta marcada app.entorno=«production»: aca no se habilita un sandbox
+RC=5
+$ bash sandbox_licencia_test.sh --estado   [estado-tras-abortar]
+[estado] sandbox_filas=0 sandbox_activo_vigente=0 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=false fn_lic_BILLETERA=false 
+RC=0
+
+##### 6. Guarda de licencia: si existiera una licencia OTORGADA => aborta (5) (se simula y se restaura)
+$ bash sandbox_licencia_test.sh    [licencia-otorgada]
+ERROR: ya hay 1 licencia(s) OTORGADA(s): no se mezcla un sandbox sintetico con una licencia real
+RC=5
+$ bash sandbox_licencia_test.sh --estado   [estado-restaurado]
+[estado] sandbox_filas=0 sandbox_activo_vigente=0 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=false fn_lic_BILLETERA=false 
+RC=0

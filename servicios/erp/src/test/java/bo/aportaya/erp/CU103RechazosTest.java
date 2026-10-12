@@ -17,7 +17,7 @@ class CU103RechazosTest extends EscenarioDeFactura {
     @DisplayName("rechaza por R-AUD-01")
     void rechazaRAUD01() {
         var registrada = transaccion.execute(t -> facturaCU.registrar(
-                factura("F-A01-" + anio, "1200.00", enPeriodo(1), aprobador.usuarioId()), aprobador));
+                factura("F-A01-" + anio, "1200.00", enPeriodo(1), true), aprobador));
 
         // La factura es append-only: ni su monto ni su aprobacion se reescriben, y no
         // se borra. Una factura editable no prueba nada de lo que se pago.
@@ -27,7 +27,7 @@ class CU103RechazosTest extends EscenarioDeFactura {
                 .contains("R-AUD-01");
 
         var pago = transaccion.execute(t -> facturaCU.pagar(
-                new EntradaPago(registrada.facturaId(), new BigDecimal("400.00"), "BOB", "TRANSFERENCIA"), tesoreria));
+                new EntradaPago(registrada.facturaId(), new BigDecimal("400.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()), tesoreria));
         assertThat(pago.montoPagado()).isEqualByComparingTo("400.00");
         assertThat(rechazaLaBase(
                         "DELETE FROM erp.pago_a_proveedor WHERE factura_proveedor_id = ?", registrada.facturaId()))
@@ -38,9 +38,9 @@ class CU103RechazosTest extends EscenarioDeFactura {
     @DisplayName("rechaza por R-AUD-05")
     void rechazaRAUD05() {
         var registrada = transaccion.execute(t -> facturaCU.registrar(
-                factura("F-A05-" + anio, "800.00", enPeriodo(1), aprobador.usuarioId()), aprobador));
+                factura("F-A05-" + anio, "800.00", enPeriodo(1), true), aprobador));
         transaccion.execute(t -> facturaCU.pagar(
-                new EntradaPago(registrada.facturaId(), new BigDecimal("800.00"), "BOB", "TRANSFERENCIA"), tesoreria));
+                new EntradaPago(registrada.facturaId(), new BigDecimal("800.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()), tesoreria));
 
         // Alta y pago dejan su evento en la misma transaccion que la fila: el rastro no
         // depende de que despues alguien se acuerde de escribirlo.
@@ -59,9 +59,9 @@ class CU103RechazosTest extends EscenarioDeFactura {
     @DisplayName("rechaza por R-AUD-06")
     void rechazaRAUD06() {
         var registrada = transaccion.execute(t -> facturaCU.registrar(
-                factura("F-A06-" + anio, "500.00", enPeriodo(1), aprobador.usuarioId()), aprobador));
+                factura("F-A06-" + anio, "500.00", enPeriodo(1), true), aprobador));
         transaccion.execute(t -> facturaCU.pagar(
-                new EntradaPago(registrada.facturaId(), new BigDecimal("500.00"), "BOB", "TRANSFERENCIA"), tesoreria));
+                new EntradaPago(registrada.facturaId(), new BigDecimal("500.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()), tesoreria));
 
         // Quien aprobo y quien autorizo quedan escritos, y son personas distintas.
         assertThat(contar(
@@ -87,7 +87,7 @@ class CU103RechazosTest extends EscenarioDeFactura {
                 aprobador));
 
         assertThatThrownBy(() -> transaccion.execute(t -> facturaCU.registrar(
-                        factura("F-C01-" + anio, "300.00", enero, aprobador.usuarioId()), aprobador)))
+                        factura("F-C01-" + anio, "300.00", enero, true), aprobador)))
                 .satisfies(e -> assertThat(raizDe(e)).contains("periodo 1 de la fecha de emision esta cerrado"));
     }
 
@@ -96,12 +96,12 @@ class CU103RechazosTest extends EscenarioDeFactura {
     void rechazaRCTB04() {
         String numero = "F-C04-" + anio;
         transaccion.execute(
-                t -> facturaCU.registrar(factura(numero, "1000.00", enPeriodo(1), aprobador.usuarioId()), aprobador));
+                t -> facturaCU.registrar(factura(numero, "1000.00", enPeriodo(1), true), aprobador));
 
         // Un proveedor no emite dos veces el mismo numero de factura; si aparece dos
         // veces, una de las dos es un pago repetido esperando ocurrir.
         assertThatThrownBy(() -> transaccion.execute(t -> facturaCU.registrar(
-                        factura(numero, "1000.00", enPeriodo(1), aprobador.usuarioId()), aprobador)))
+                        factura(numero, "1000.00", enPeriodo(1), true), aprobador)))
                 .satisfies(e -> assertThat(raizDe(e)).contains("ya tiene registrada la factura"));
 
         // El vencimiento no puede ser anterior a la emision.
@@ -119,9 +119,9 @@ class CU103RechazosTest extends EscenarioDeFactura {
 
         // Y el saldo nunca queda negativo: no se paga mas de lo facturado.
         var registrada = transaccion.execute(t -> facturaCU.registrar(
-                factura("F-C04C-" + anio, "600.00", enPeriodo(1), aprobador.usuarioId()), aprobador));
+                factura("F-C04C-" + anio, "600.00", enPeriodo(1), true), aprobador));
         assertThatThrownBy(() -> transaccion.execute(t -> facturaCU.pagar(
-                        new EntradaPago(registrada.facturaId(), new BigDecimal("700.00"), "BOB", "TRANSFERENCIA"),
+                        new EntradaPago(registrada.facturaId(), new BigDecimal("700.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()),
                         tesoreria)))
                 .satisfies(e -> assertThat(raizDe(e)).contains("excede el saldo pendiente"));
     }
@@ -130,12 +130,12 @@ class CU103RechazosTest extends EscenarioDeFactura {
     @DisplayName("rechaza por R-CTB-05")
     void rechazaRCTB05() {
         var registrada = transaccion.execute(t -> facturaCU.registrar(
-                factura("F-C05-" + anio, "1500.00", enPeriodo(1), aprobador.usuarioId()), aprobador));
+                factura("F-C05-" + anio, "1500.00", enPeriodo(1), true), aprobador));
 
         // Cuatro ojos sobre el egreso: quien aprobo la factura no autoriza su pago. Con
         // uno solo, aprobar y pagarse a si mismo es un unico movimiento de raton.
         assertThatThrownBy(() -> transaccion.execute(t -> facturaCU.pagar(
-                        new EntradaPago(registrada.facturaId(), new BigDecimal("1500.00"), "BOB", "TRANSFERENCIA"),
+                        new EntradaPago(registrada.facturaId(), new BigDecimal("1500.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()),
                         aprobador)))
                 .satisfies(e -> assertThat(raizDe(e)).contains("R-CTB-05"));
     }
@@ -146,7 +146,7 @@ class CU103RechazosTest extends EscenarioDeFactura {
         // La misma segregacion, vista desde la base y no desde el caso de uso: el
         // trigger la sostiene aunque alguien escriba el pago por fuera.
         var registrada = transaccion.execute(t -> facturaCU.registrar(
-                factura("F-S04-" + anio, "2000.00", enPeriodo(1), aprobador.usuarioId()), aprobador));
+                factura("F-S04-" + anio, "2000.00", enPeriodo(1), true), aprobador));
 
         assertThat(rechazaLaBase(
                         """
@@ -163,8 +163,8 @@ class CU103RechazosTest extends EscenarioDeFactura {
     @DisplayName("rechaza por R-CTB-05: el autorizante es el sujeto de la sesion y el cuerpo no puede dictarlo")
     void rechazaAutorizanteQueNoEsLaSesion() {
         var registrada = transaccion.execute(t -> facturaCU.registrar(
-                factura("F-C05B-" + anio, "900.00", enPeriodo(1), aprobador.usuarioId()), aprobador));
-        var pago = new EntradaPago(registrada.facturaId(), new BigDecimal("900.00"), "BOB", "TRANSFERENCIA");
+                factura("F-C05B-" + anio, "900.00", enPeriodo(1), true), aprobador));
+        var pago = new EntradaPago(registrada.facturaId(), new BigDecimal("900.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID());
 
         // EntradaPago ya no trae `autorizadoPor`: no hay campo por el cual un cliente pueda
         // nombrar a otra persona. Quien aprobo no se libra de R-CTB-05 cambiando un dato.

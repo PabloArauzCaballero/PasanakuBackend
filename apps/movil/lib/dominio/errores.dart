@@ -29,7 +29,35 @@ const Map<String, String> _catalogo = {
       'Confirmá el código de este correo antes de crear tu cuenta.',
   'AP-CU04-02': 'Tu cuenta está bloqueada un rato por seguridad. Probá más tarde.',
   'AP-CU04-06': 'Tu segundo factor no está activado. Pedí ayuda a soporte.',
-  'AP-CU04-07': 'Ese tipo de segundo factor no sirve para tu cuenta. Pedí ayuda a soporte.',
+  'AP-CU04-07':
+      'Ese tipo de segundo factor no sirve para tu cuenta. Pedí ayuda a soporte.',
+  // CU-13 · el saldo. Con TEST real, la cuenta que la app consulta no existe (422) y se leía como falla del servidor.
+  'AP-CU13-01': 'Tu billetera todavía no está activa.',
+  // CU-20 · crear grupo. Con el servidor TEST real, AP-CU20-04 (licencia sin otorgar, R-LIC-01) llegaba como
+  // «Algo salió mal de nuestro lado»: era un rechazo de negocio explicable, no una falla.
+  'AP-CU20-01':
+      'Todavía no hay una tarifa vigente para crear grupos. Probá más adelante.',
+  'AP-CU20-02': 'Tu cuenta todavía no está habilitada para organizar grupos.',
+  'AP-CU20-03':
+      'El precio de este grupo ya estaba fijado. Revisá tus grupos antes de repetirlo.',
+  'AP-CU20-04':
+      'Organizar grupos todavía no está disponible en AportaYa. Probá más adelante.',
+  'AP-CU20-05':
+      'Necesitás subir tu nivel de verificación antes de organizar un grupo.',
+  // CU-69 · invitar y unirse por enlace (grupos.yaml: 01 cupos, 03 ya participa, 04 reenvíos, 05 enlace
+  // inválido/revocado/vencido, 07 emisor, 08 límite diario, 09 vigente, 10 ingreso con revisión humana).
+  'AP-CU69-01': 'Ya no hay cupos libres en este grupo.',
+  'AP-CU69-03': 'Esa persona ya forma parte del grupo.',
+  'AP-CU69-04': 'Ya reenviaste esta invitación demasiadas veces.',
+  'AP-CU69-05':
+      'Esta invitación ya no es válida: pudo vencer, usarse o ser revocada por quien te invitó.',
+  'AP-CU69-07':
+      'No podés invitar a este grupo: solo quien lo organiza puede hacerlo.',
+  'AP-CU69-08': 'Llegaste al límite de invitaciones de hoy. Probá mañana.',
+  'AP-CU69-09':
+      'Ya hay una invitación vigente para ese celular. Revocala antes de enviar otra.',
+  'AP-CU69-10':
+      'Este grupo revisa cada ingreso antes de aceptarlo y por enlace no se puede entrar todavía. Pedile ayuda a quien te invitó.',
   // CU-12 · QR interno. Cada rechazo del QR dice una cosa distinta; en particular el bancario/interoperable
   // NO se presenta como «QR inválido» ni como si pudiera pagarse acá: todavía no hay proveedor habilitado.
   'AP-CU12-07':
@@ -42,6 +70,10 @@ const Map<String, String> _catalogo = {
   'AP-CU21-03': 'No pudimos cobrar. Revisá tu saldo e intentá de nuevo.',
   'AP-VAL-03': 'Este vale ya se usó. Cada vale se canjea una sola vez.',
 };
+
+/// ¿La app tiene un texto propio para este código? Las pantallas lo usan para no tapar un rechazo
+/// explicable con el genérico por estado.
+bool tieneMensajePropio(String codigo) => _catalogo.containsKey(codigo);
 
 String mensajeDe(String codigo, {int? estado}) {
   final conocido = _catalogo[codigo];

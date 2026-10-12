@@ -1,0 +1,12 @@
+##### 1. ANTES: estado de la base (solo lectura)
+$ bash sandbox_licencia_test.sh --estado   [antes]
+[estado] sandbox_filas=0 sandbox_activo_vigente=0 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=false fn_lic_BILLETERA=false 
+RC=0
+
+##### 2. Guarda de perfil: sin contenedores identidad/cumplimiento/grupos => aborta, no escribe
+$ bash sandbox_licencia_test.sh    [sin-contenedores]
+ERROR: esperaba UN contenedor «identidad-…» en marcha y hay: 
+RC=3
+$ bash sandbox_licencia_test.sh --estado   [estado-tras-abortar]
+[estado] sandbox_filas=0 sandbox_activo_vigente=0 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=false fn_lic_BILLETERA=false 
+RC=0

@@ -198,6 +198,45 @@ public class ComprasRepositorio {
                 factura.get("aprobada_por", UUID.class)));
     }
 
+    /**
+     * El pago ya registrado con esa clave para esa factura, si existe (R-CTB-11). La
+     * clave se ampara en la factura: la misma clave en otra factura es otro pago.
+     */
+    public Optional<Pago> pagoPorClave(DSLContext dsl, UUID facturaId, UUID clave) {
+        return dsl.select(
+                        DSL.field("monto", BigDecimal.class),
+                        DSL.field("moneda", String.class),
+                        DSL.field("forma_pago", String.class),
+                        DSL.field("autorizado_por", UUID.class),
+                        DSL.field("fecha_pago", OffsetDateTime.class))
+                .from(DSL.table(DSL.name("erp", "pago_a_proveedor")))
+                .where(DSL.field("factura_proveedor_id", UUID.class)
+                        .eq(facturaId)
+                        .and(DSL.field("clave_idempotencia", UUID.class).eq(clave)))
+                .fetchOptional(f -> new Pago(
+                        f.get("monto", BigDecimal.class),
+                        f.get("moneda", String.class),
+                        f.get("forma_pago", String.class),
+                        f.get("autorizado_por", UUID.class),
+                        f.get("fecha_pago", OffsetDateTime.class)));
+    }
+
+    /**
+     * Lo pagado de la factura hasta un pago inclusive, para devolver en el reintento lo
+     * que devolvio el original aunque despues hayan entrado otros pagos. Se mide por
+     * {@code fecha_pago}: los pagos de una factura se escriben bajo su {@code FOR UPDATE},
+     * uno detras de otro.
+     */
+    public BigDecimal pagadoHasta(DSLContext dsl, UUID facturaId, OffsetDateTime hasta) {
+        return dsl.select(DSL.coalesce(DSL.sum(DSL.field("monto", BigDecimal.class)), BigDecimal.ZERO)
+                        .as("pagado"))
+                .from(DSL.table(DSL.name("erp", "pago_a_proveedor")))
+                .where(DSL.field("factura_proveedor_id", UUID.class)
+                        .eq(facturaId)
+                        .and(DSL.field("fecha_pago", OffsetDateTime.class).le(hasta)))
+                .fetchOne(f -> f.get("pagado", BigDecimal.class));
+    }
+
     public UUID pagar(
             DSLContext dsl,
             UUID facturaId,
@@ -205,8 +244,7 @@ public class ComprasRepositorio {
             String moneda,
             String formaPago,
             UUID autorizadoPor,
-            BigDecimal pagadoNuevo,
-            BigDecimal montoFactura,
+            UUID claveIdempotencia,
             OffsetDateTime ahora) {
 
         UUID id = UUID.randomUUID();
@@ -218,12 +256,16 @@ public class ComprasRepositorio {
                 .set(DSL.field("fecha_pago", OffsetDateTime.class), ahora)
                 .set(DSL.field("forma_pago", String.class), formaPago)
                 .set(DSL.field("autorizado_por", UUID.class), autorizadoPor)
+                .set(DSL.field("clave_idempotencia", UUID.class), claveIdempotencia)
                 .execute();
 
         // La factura NO se toca: es append-only. Su estado se deriva de la suma de sus
         // pagos, y esa suma es la que manda.
         return id;
     }
+
+    public record Pago(
+            BigDecimal monto, String moneda, String formaPago, UUID autorizadoPor, OffsetDateTime fechaPago) {}
 
     public record Tercero(UUID id, String tipo, String estado) {}
 

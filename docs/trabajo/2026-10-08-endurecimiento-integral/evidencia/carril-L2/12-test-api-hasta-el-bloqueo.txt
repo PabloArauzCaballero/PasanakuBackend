@@ -1,0 +1,40 @@
+# Recorrido por API contra https://api.aportaya.161.97.85.216.sslip.io/api/v1 (carril L2, 2026-10-11). Cuentas sinteticas A/B; telefonos, tokens, hex64 enmascarados.
+
+## 0. GET /licencia/alcance?servicio=GRUPO_PASANAKU y los demas (A)
+-- GRUPO_PASANAKU
+{"habilitado":true,"via":"SANDBOX","limitesSandbox":{"usuarios":50,"montoOperacion":"50000.00"},"motivo":null}
+HTTP 200
+-- BILLETERA
+{"habilitado":false,"via":"NINGUNA","limitesSandbox":null,"motivo":"Todavia no hay licencia otorgada: BILLETERA no puede ofrecerse."}
+HTTP 200
+-- RECARGA
+{"habilitado":false,"via":"NINGUNA","limitesSandbox":null,"motivo":"Todavia no hay licencia otorgada: RECARGA no puede ofrecerse."}
+HTTP 200
+-- RETIRO
+{"habilitado":false,"via":"NINGUNA","limitesSandbox":null,"motivo":"Todavia no hay licencia otorgada: RETIRO no puede ofrecerse."}
+HTTP 200
+-- TRANSFERENCIA_P2P
+{"habilitado":false,"via":"NINGUNA","limitesSandbox":null,"motivo":"Todavia no hay licencia otorgada: TRANSFERENCIA_P2P no puede ofrecerse."}
+HTTP 200
+
+## 1. login A y B con segundo factor
+HTTP 200
+HTTP 200
+
+## 2. participaciones antes (A, B)
+[]
+HTTP 200
+[]
+HTTP 200
+
+## 3. A crea el grupo G1 'L2 API uno' (100.00 BOB, MENSUAL, 3 cupos, dia 5, ORDEN_DE_INGRESO)
+{"codigo":"AP-INT-01","mensaje":"No pudimos completar la operacion. Volve a intentar.","trazaId":"d995eb58-36a0-4b13-8c3b-06d3a26e2a32"}
+HTTP 500
+
+## 4. participaciones de A tras crear
+[]
+HTTP 200
+
+## 5. A invita a B (canal ENLACE) -- invitacion 1 al grupo G1
+{"codigo":"AP-VAL-05","mensaje":"Esa ruta no existe.","trazaId":"d9c4af6f-d80d-4173-8a22-93207a612068"}
+HTTP 404

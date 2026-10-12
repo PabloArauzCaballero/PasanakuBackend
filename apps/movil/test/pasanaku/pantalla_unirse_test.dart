@@ -89,12 +89,37 @@ void main() {
       );
       await montar(tester, dio: dio);
 
+      // Carril H3: el servidor TEST real responde AP-CU69-05 para revocada/vencida/usada; la
+      // pantalla lo dice (antes: un texto único, igual para sin red y para revocada).
       expect(
-        find.textContaining('No pudimos verificar la invitación'),
+        find.textContaining('Esta invitación ya no es válida'),
         findsOneWidget,
       );
       expect(find.text('Reintentar'), findsOneWidget);
       expect(find.text('Unirme al grupo'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'rechazo sin código propio (500): conserva el texto general de verificación',
+    (tester) async {
+      final (:dio, :adaptador) = dioSimulado();
+      adaptador.onPost(
+        '/grupos/invitaciones/enlace/consultar',
+        (s) => s.reply(500, {
+          'codigo': 'AP-XXX-00',
+          'mensaje': 'falla',
+          'trazaId': 't-2',
+        }),
+        data: Matchers.any,
+      );
+      await montar(tester, dio: dio);
+
+      expect(
+        find.textContaining('No pudimos verificar la invitación'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('ya no es válida'), findsNothing);
     },
   );
 

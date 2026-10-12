@@ -34,12 +34,14 @@ Los demas casos de uso del modulo 03 siguen pendientes; ninguno esta a medias.
 | `aportes.disputa_abierta` | El proveedor abrio una disputa, con su `fechaLimiteRespuesta` ya guardada |
 | `aportes.proveedor_activado` | Un proveedor de pago quedo activo y empieza a recibir trafico |
 | `aportes.recargo_generado` | El trabajo diario creo una obligacion de tipo `RECARGO_MORA` |
+| `aportes.aporte_compensado` | Carril Q: un pago que `nucleo-financiero` no pudo aplicar por falta de saldo se revirtio (`REVERSADO`) y la obligacion volvio a quedar pendiente por ese importe |
 
 ## Eventos que consume
 
 | Tema | De quien | Efecto |
 | --- | --- | --- |
-| — | — | Ninguno todavia. Las confirmaciones del proveedor llegan por webhook y se anotan en `evento_consumido` con el consumidor `proveedor-pago`, que es lo que impide que un reenvio abra dos disputas |
+| `aportaya.nucleo_financiero.aporte_no_aplicado` | `nucleo-financiero` | Carril Q · compensa el aporte `PAGADO` que el libro no pudo aplicar por falta de saldo (`CU21CompensarAporte`, consumidor `ConsumidorDeAportesNoAplicadosKafka`): el pago pasa a `REVERSADO`, la obligacion vuelve a `PENDIENTE` (o `EN_MORA` si ya vencio) y se publica `aporte_compensado`. Una sola vez por evento (`evento_consumido`) y por pago (el `UPDATE` lleva la precondicion `estado = 'ACREDITADO'`); el importe sale del pago guardado, no del evento; un pago con reembolsos o en disputa NO se compensa solo (`NO_COMPENSABLE`: lo resuelve una persona). **Encendido por omision** (`COMPENSACION_CONSUMO_HABILITADO`). Pacto: `contratos/pactos/aportes-nucleo-financiero.json`. NO verificado con Kafka y los dos procesos reales |
+| `proveedor-pago` (webhook) | la pasarela | Las confirmaciones del proveedor llegan por webhook y se anotan en `evento_consumido` con el consumidor `proveedor-pago`, que es lo que impide que un reenvio abra dos disputas |
 
 ## Trabajos programados
 

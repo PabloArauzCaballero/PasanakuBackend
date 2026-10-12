@@ -15,6 +15,13 @@ normas: [ASFI transparencia, SIN facturación, contabilidad]
 > vez**, y que cada boliviano descontado tenga una línea explicable —incluida la
 > comisión de la plataforma.
 
+> **Vigencia ([[ADR-051 Garantía del pozo, comisión y autogestión|ADR-051]], D-04 y D-15, aceptado por delegación del dueño, pendiente de ratificación).**
+> El camino que manda es el del **pozo completo** (`CU22EntregarPozoCompleto`): el principal se acredita íntegro, la
+> comisión de la plataforma es un **cargo separado** con su propia línea (no una deducción del principal) y todo importe
+> que se cobre a quien recibe se muestra línea por línea. La liquidación con deducciones de abajo
+> (`CU22LiquidarEntrega`) queda como **legado**, y la falta de plata en la bolsa la cubre la reserva empresarial
+> (todo o nada), no el fondo mutual. No hay comisión del organizador (RN-18).
+
 ## Actores y disparador
 
 - **Actor principal:** el sistema (organizador digital) o el organizador humano.

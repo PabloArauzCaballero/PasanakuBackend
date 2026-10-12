@@ -1,0 +1,26 @@
+##### 7. APLICAR, primera corrida (todas las guardas pasan: los tres contenedores con perfil local)
+$ bash sandbox_licencia_test.sh    [primera]
+[sandbox] antes:   sandbox_filas=0 sandbox_activo_vigente=0 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=false fn_lic_BILLETERA=false 
+[sandbox] despues: sandbox_filas=1 sandbox_activo_vigente=1 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=true fn_lic_BILLETERA=false 
+[sandbox] cambios: si (antes != despues)
+[listo] sandbox SINTETICO de GRUPO_PASANAKU activo (no es una licencia ASFI; la licencia sigue EN_TRAMITE). Retirar: --retirar.
+RC=0
+
+##### 8. APLICAR, segunda corrida: idempotencia => cambios: 0
+$ bash sandbox_licencia_test.sh    [segunda]
+[sandbox] antes:   sandbox_filas=1 sandbox_activo_vigente=1 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=true fn_lic_BILLETERA=false 
+[sandbox] despues: sandbox_filas=1 sandbox_activo_vigente=1 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=true fn_lic_BILLETERA=false 
+[sandbox] cambios: 0 (idempotente)
+[listo] sandbox SINTETICO de GRUPO_PASANAKU activo (no es una licencia ASFI; la licencia sigue EN_TRAMITE). Retirar: --retirar.
+RC=0
+
+##### 9. La fila sembrada (alcance, limites, ventana, licencia colgante)
+GRUPO_PASANAKU|ACTIVO|2026-10-10|2027-01-09|50|50000.00|["SANDBOX-TEST", "sandbox de TEST: no es una licencia ASFI", "sintetico: apto_produccion=false"]|ASFI/CERTIFICADO_ADECUACION/EN_TRAMITE/numero=NULL
+-- servicios habilitados hoy:
+fn_lic_servicio_habilitado(GRUPO_PASANAKU) = t
+fn_lic_servicio_habilitado(BILLETERA) = f
+fn_lic_servicio_habilitado(RECARGA) = f
+fn_lic_servicio_habilitado(RETIRO) = f
+fn_lic_servicio_habilitado(TRANSFERENCIA_P2P) = f
+-- la licencia no se toco:
+EN_TRAMITE|t|[]

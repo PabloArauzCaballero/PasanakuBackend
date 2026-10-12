@@ -401,7 +401,7 @@ Las **323 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[tercero_comercial]] | 9 | 1 | 3 | — |
 | [[orden_compra]] | 10 | 3 | 1 | — |
 | [[factura_proveedor]] | 14 | 5 | 2 | append-only |
-| [[pago_a_proveedor]] | 8 | 3 | 0 | append-only |
+| [[pago_a_proveedor]] | 9 | 3 | 0 | append-only |
 | [[cuenta_por_cobrar]] | 10 | 1 | 2 | append-only |
 | [[cobro_cuenta_por_cobrar]] | 7 | 2 | 0 | append-only |
 | [[categoria_activo_fijo]] | 8 | 3 | 1 | — |

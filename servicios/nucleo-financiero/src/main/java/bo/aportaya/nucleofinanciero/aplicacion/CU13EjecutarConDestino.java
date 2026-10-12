@@ -175,16 +175,27 @@ public class CU13EjecutarConDestino {
             if (!ofertaDe(retencion).equals(e.ofertaId())) {
                 throw new ErrorDeNegocio(CodigoError.de(13, 8), "La oferta no es la que motivo esa retencion.");
             }
+            // Reparto (decision delegada por el dueno, 2026-10-11; lo modela entregas): el comprador paga el PRECIO, que es
+            // exactamente lo que retuvo; el vendedor cobra precio - cargos y la plataforma ingresa los cargos. Los dos importes
+            // los afirma entregas (dueno de la oferta); aca solo se verifica que cuadren con lo retenido.
             Dinero precio = e.precio();
+            Dinero cargos = e.cargos();
             if (precio.moneda() != retencion.monto().moneda()
+                    || cargos.moneda() != precio.moneda()
                     || precio.esNegativo()
                     || precio.esCero()
-                    || precio.esMayorQue(retencion.monto())) {
+                    || !precio.equals(retencion.monto())) {
                 throw new ErrorDeNegocio(
                         CodigoError.de(13, 6),
-                        "El precio de la oferta (" + precio + ") no cabe en lo retenido (" + retencion.monto() + ").");
+                        "El precio de la oferta (" + precio + ") no es lo retenido (" + retencion.monto() + ").");
             }
-            Dinero cargos = retencion.monto().menos(precio);
+            if (cargos.esNegativo() || cargos.esMayorQue(precio)) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(13, 6),
+                        "Los cargos de la oferta (" + cargos + ") no pueden ser negativos ni superar el precio ("
+                                + precio + ").");
+            }
+            Dinero paraElVendedor = precio.menos(cargos);
             if (e.vendedorUsuarioId().equals(comprador.usuarioId())) {
                 throw new ErrorDeNegocio(CodigoError.de(13, 8), "El vendedor no puede ser el comprador.");
             }
@@ -203,8 +214,10 @@ public class CU13EjecutarConDestino {
             cu13.ejecutarDentroDe(dsl, retencion.id(), ctx);
 
             List<Pata> patas = new ArrayList<>();
-            patas.add(Pata.debito(comprador.id(), retencion.monto(), "Compra en el mercado"));
-            patas.add(Pata.credito(vendedor, precio, "Venta en el mercado"));
+            patas.add(Pata.debito(comprador.id(), precio, "Compra en el mercado"));
+            if (!paraElVendedor.esCero()) {
+                patas.add(Pata.credito(vendedor, paraElVendedor, "Venta en el mercado (precio menos cargos)"));
+            }
             ingresos.ifPresent(cuenta -> patas.add(Pata.credito(cuenta, cargos, "Cargos del mercado")));
             UUID transaccionId = libro.registrar(
                     dsl,
@@ -228,7 +241,7 @@ public class CU13EjecutarConDestino {
                                     "cuentaCompradorId", comprador.id().toString(),
                                     "cuentaVendedorId", vendedor.toString(),
                                     "ofertaId", e.ofertaId().toString(),
-                                    "paraElVendedor", precio.toString(),
+                                    "paraElVendedor", paraElVendedor.toString(),
                                     "cargos", cargos.toString(),
                                     "moneda", precio.moneda().name(),
                                     "servicio", llamador.rol()),
@@ -284,7 +297,12 @@ public class CU13EjecutarConDestino {
 
     /** Los hechos de la oferta los trajo el servidor de {@code entregas}; el cliente no dicta ninguno. */
     public record EntradaPagoATercero(
-            String claveIdempotencia, UUID retencionId, UUID ofertaId, UUID vendedorUsuarioId, Dinero precio) {}
+            String claveIdempotencia,
+            UUID retencionId,
+            UUID ofertaId,
+            UUID vendedorUsuarioId,
+            Dinero precio,
+            Dinero cargos) {}
 
     public record Preparacion(UUID ofertaId, Optional<SalidaEjecucion> yaEjecutada) {}
 

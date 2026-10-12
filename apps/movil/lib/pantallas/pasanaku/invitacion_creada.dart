@@ -15,6 +15,12 @@ import 'textos_invitacion.dart';
 /// El enlace lleva el secreto de la invitación: se muestra y se copia, **nunca** se
 /// escribe en un log ni en la ruta de navegación (regla 90.2.9). Por eso no hay un
 /// `print` ni un `debugPrint` en este archivo.
+///
+/// **Sin botón «Compartir» a propósito (decisión registrada, carril T).** La hoja nativa de
+/// compartir necesita un plugin (`share_plus`) y `pubspec.yaml` no trae ninguno que la ofrezca:
+/// sumarlo es una dependencia nueva que abre superficie nativa en Android e iOS (regla 90.4,
+/// `dependency-management`). Mientras producto no apruebe la dependencia, el enlace se **copia**
+/// y se pega en el chat que la persona elija. Ver `evidencia/carril-T/INFORME.md`.
 class InvitacionCreada extends StatefulWidget {
   const InvitacionCreada({
     super.key,
