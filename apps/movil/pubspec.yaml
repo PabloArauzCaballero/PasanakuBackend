@@ -45,7 +45,7 @@ dependencies:
   # contratos vigentes solo se pueden preguntar (`GET /cumplimiento/contratos/vigentes`).
   aportaya_cliente_cumplimiento:
     path: ../../clientes/dart/cumplimiento
-  image_picker: ^1.2.3
+  image_picker: ^1.2.4
   path_provider: ^2.1.6
   app_settings: ^9.0.0
 
