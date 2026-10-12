@@ -6,15 +6,9 @@ import 'avance.dart';
 import 'escribano.dart';
 import 'estado_del_motor.dart';
 import 'modelo.dart';
+import 'textos_del_motor.dart';
 
-/// Lo que dice la guía cuando el elemento de un paso no está en pantalla. Sin ids internos.
-const textoAnclaAusente =
-    'Esta parte de la pantalla todavía no está disponible, así que no podemos señalarla. '
-    'Podés reintentar o salir de la guía.';
-
-/// Lo que dice la guía cuando no puede llevar a la pantalla del paso. Sin rutas internas.
-const textoNoSePudoAbrir =
-    'No pudimos abrir la pantalla de este paso. Podés reintentar o salir de la guía.';
+export 'textos_del_motor.dart';
 
 /// **El motor: dónde estoy, cómo sigo y qué hago si el paso no se puede dar.**
 ///

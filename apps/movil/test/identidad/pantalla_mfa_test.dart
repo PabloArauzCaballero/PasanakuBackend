@@ -4,6 +4,7 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_movil/dominio/cliente.dart';
 import 'package:aportaya_movil/pantallas/identidad/pantalla_mfa.dart';
 import 'package:aportaya_movil/proveedores/sesion.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,7 +27,6 @@ void main() {
         pedidos = 0;
         final (:dio, :adaptador) = dioSimulado();
         adaptador.onPost('/sesiones', (s) {
-          pedidos += 1;
           return s.reply(422, {
             'codigo': 'AP-CU04-04',
             'mensaje': 'x',
@@ -34,6 +34,18 @@ void main() {
             'trazaId': 'traza-mfa',
           });
         }, data: Matchers.any);
+        // Se cuentan los pedidos que de verdad salen: el callback de `onPost` corre al registrar la
+        // ruta, no al recibir un pedido, y contar ahí daba 1 antes de escribir nada.
+        dio.interceptors.add(
+          InterceptorsWrapper(
+            onRequest: (o, h) {
+              if (o.method == 'POST' && o.path.endsWith('/sesiones')) {
+                pedidos += 1;
+              }
+              h.next(o);
+            },
+          ),
+        );
         tester.view.physicalSize = const Size(360, 740);
         tester.view.devicePixelRatio = 1;
         tester.platformDispatcher.textScaleFactorTestValue = 1.3;
@@ -88,10 +100,7 @@ void main() {
           await tester.enterText(find.byType(TextField).first, '123456');
           await asentar(tester);
           expect(pedidos, 1, reason: 'al completar las seis casillas se envía');
-          expect(
-            find.textContaining('El código no coincide o ya no sirve'),
-            findsOneWidget,
-          );
+          expect(find.textContaining('Ese código no sirve'), findsOneWidget);
           expect(confirmar(tester).onPressed, isNotNull);
 
           await tester.tap(find.text('Confirmar'));

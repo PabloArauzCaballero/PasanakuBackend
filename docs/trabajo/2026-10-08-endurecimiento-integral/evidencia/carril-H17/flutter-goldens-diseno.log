@@ -1,0 +1,529 @@
++2: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Átomos · botones · claro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/atomos_botones_claro.png": Pixel test failed, 0.94%, 8124px diff detected.
+Failure feedback can be found at
+/home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart:47:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
++2 -1: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Átomos · botones · claro [E]
+  Test failed. See exception logs above.
+  The test description was: Átomos · botones · claro
+  
++2 -1: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Átomos · botones · oscuro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/atomos_botones_oscuro.png": Pixel test failed, 0.94%, 8106px diff detected.
+Failure feedback can be found at
+/home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart:47:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
++2 -2: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Átomos · botones · oscuro [E]
+  Test failed. See exception logs above.
+  The test description was: Átomos · botones · oscuro
+  
++3 -2: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/marca_golden_test.dart: la apertura, cuadro por cuadro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/apertura_medio.png": Pixel test failed, 0.11%, 297px diff detected.
+Failure feedback can be found at
+/home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/marca_golden_test.dart:59:7)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/apertura_tarde.png": Pixel test failed, 0.16%, 450px diff detected.
+Failure feedback can be found at
+/home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/marca_golden_test.dart:59:7)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following message was thrown:
+Multiple exceptions (2) were detected during the running of the current test, and at least one was
+unexpected.
+════════════════════════════════════════════════════════════════════════════════════════════════════
++3 -3: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/marca_golden_test.dart: la apertura, cuadro por cuadro [E]
+  Test failed. See exception logs above.
+  The test description was: la apertura, cuadro por cuadro
+  
++3 -3: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Átomos · campos · claro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/atomos_campos_claro.png": Pixel test failed, 1.50%, 12930px diff detected.
+Failure feedback can be found at
+/home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart:47:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
++3 -4: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Átomos · campos · claro [E]
+  Test failed. See exception logs above.
+  The test description was: Átomos · campos · claro
+  
++3 -4: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Átomos · campos · oscuro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/atomos_campos_oscuro.png": Pixel test failed, 1.49%, 12902px diff detected.
+Failure feedback can be found at
+/home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart:47:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
++3 -5: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Átomos · campos · oscuro [E]
+  Test failed. See exception logs above.
+  The test description was: Átomos · campos · oscuro
+  
++3 -5: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Átomos · selección · claro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/atomos_seleccion_claro.png": Pixel test failed, 1.08%, 9326px diff detected.
+Failure feedback can be found at
+/home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart:47:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
++3 -6: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Átomos · selección · claro [E]
+  Test failed. See exception logs above.
+  The test description was: Átomos · selección · claro
+  
++3 -6: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Átomos · selección · oscuro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/atomos_seleccion_oscuro.png": Pixel test failed, 1.08%, 9318px diff detected.
+Failure feedback can be found at
+/home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart:47:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
++3 -7: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Átomos · selección · oscuro [E]
+  Test failed. See exception logs above.
+  The test description was: Átomos · selección · oscuro
+  
++3 -7: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Átomos · indicadores · claro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/atomos_indicadores_claro.png": Pixel test failed, 1.48%, 12796px diff detected.
+Failure feedback can be found at
+/home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart:47:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
++3 -8: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Átomos · indicadores · claro [E]
+  Test failed. See exception logs above.
+  The test description was: Átomos · indicadores · claro
+  
++3 -8: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Átomos · indicadores · oscuro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/atomos_indicadores_oscuro.png": Pixel test failed, 1.47%, 12722px diff detected.
+Failure feedback can be found at
+/home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart:47:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
++3 -9: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Átomos · indicadores · oscuro [E]
+  Test failed. See exception logs above.
+  The test description was: Átomos · indicadores · oscuro
+  
++3 -9: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Moléculas · claro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/moleculas_claro.png": Pixel test failed, 3.96%, 34184px diff detected.
+Failure feedback can be found at
+/home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart:47:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
++3 -10: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Moléculas · claro [E]
+  Test failed. See exception logs above.
+  The test description was: Moléculas · claro
+  
++3 -10: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Moléculas · oscuro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/moleculas_oscuro.png": Pixel test failed, 3.95%, 34121px diff detected.
+Failure feedback can be found at
+/home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart:47:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
++3 -11: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Moléculas · oscuro [E]
+  Test failed. See exception logs above.
+  The test description was: Moléculas · oscuro
+  
++3 -11: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Organismos · claro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/organismos_claro.png": Pixel test failed, 3.92%, 33887px diff detected.
+Failure feedback can be found at
+/home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart:47:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
++3 -12: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Organismos · claro [E]
+  Test failed. See exception logs above.
+  The test description was: Organismos · claro
+  
++3 -12: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Organismos · oscuro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/organismos_oscuro.png": Pixel test failed, 3.92%, 33839px diff detected.
+Failure feedback can be found at
+/home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart:47:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
++3 -13: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Organismos · oscuro [E]
+  Test failed. See exception logs above.
+  The test description was: Organismos · oscuro
+  
++3 -13: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Móviles · claro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/moviles_claro.png": Pixel test failed, 2.52%, 21798px diff detected.
+Failure feedback can be found at
+/home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart:47:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
++3 -14: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Móviles · claro [E]
+  Test failed. See exception logs above.
+  The test description was: Móviles · claro
+  
++3 -14: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Móviles · oscuro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown while running async test code:
+Golden "imagenes/moviles_oscuro.png": Pixel test failed, 2.52%, 21738px diff detected.
+Failure feedback can be found at
+/home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/failures
+
+When the exception was thrown, this was the stack:
+#0      LocalFileComparator.compare (package:flutter_test/src/_goldens_io.dart:108:5)
+<asynchronous suspension>
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+<asynchronous suspension>
+<asynchronous suspension>
+#3      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart:47:9)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
++3 -15: /home/user/PasanakuBackend/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Móviles · oscuro [E]
+  Test failed. See exception logs above.
+  The test description was: Móviles · oscuro
+  
++3 -15: Some tests failed.

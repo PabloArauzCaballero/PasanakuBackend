@@ -41,9 +41,9 @@ void main() {
     await abrirSelector(tester, telefono: const Locale('en', 'US'));
     final contexto = tester.element(find.byType(Dialog));
     expect(Localizations.localeOf(contexto).languageCode, 'es');
-    // Los textos propios de Material salen del idioma: en inglés serían «CANCEL» y «Thu, Oct 11».
+    // Los textos propios de Material salen del idioma: en inglés serían «CANCEL» y «Thu, Oct 11»; en español, «Cancelar».
     final textos = MaterialLocalizations.of(contexto);
-    expect(textos.cancelButtonLabel, 'CANCELAR');
+    expect(textos.cancelButtonLabel, 'Cancelar');
     expect(textos.formatMediumDate(DateTime(1990, 10, 11)), contains('oct'));
     expect(find.textContaining('Oct'), findsNothing);
     expect(find.textContaining('oct'), findsWidgets);
