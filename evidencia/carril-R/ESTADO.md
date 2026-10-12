@@ -1,3 +1,5 @@
+> **SUPERADO por H17 (2026-10-12).** Lo que este archivo daba por «escrito sin verificar» se compiló, se formateó y se probó después: ver «Retomada 2026-10-12 (H17)» en [REPORTE.md](../../docs/trabajo/2026-10-08-endurecimiento-integral/REPORTE.md) y `docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-H17/`. Se conserva el texto original de abajo como estado del corte del 2026-10-11.
+
 # Carril R · ESTADO (2026-10-11, cortado por el coordinador)
 
 Peldaño: WRITTEN para todo el código Java/TS (NADA compiló ni corrió: la RAM libre quedó en ~0,6-1,3 GB, el guardián exige 3500 y nunca se liberó; dos esperas de 3000 s). Cancelé mi corrida pendiente.

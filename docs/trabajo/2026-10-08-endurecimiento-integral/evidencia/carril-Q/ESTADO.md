@@ -1,3 +1,5 @@
+> **SUPERADO por H17 (2026-10-12).** Lo que este archivo daba por «escrito sin verificar» se compiló, se formateó y se probó después: ver «Retomada 2026-10-12 (H17)» en [REPORTE.md](../../REPORTE.md) y `../carril-H17/`. Se conserva el texto original de abajo como estado del corte del 2026-10-11.
+
 # Carril Q — ESTADO al cierre de sesion (2026-10-11)
 
 Plan: `PLAN-CARRIL-Q.md`. Informe completo: `INFORME.md`. Decisiones de negocio: adoptadas por delegacion del dueno 2026-10-11 (ADR-051/052 de carril W: DD-1 precio - cargos, DD-8 billeteras).

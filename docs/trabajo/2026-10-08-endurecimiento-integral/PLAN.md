@@ -635,49 +635,73 @@ Alcance IN: compilar, formatear, probar y corregir lo escrito por P/Q/R/T; regen
 Alcance OUT: servidor TEST (Contabo; la clave SSH está solo en el equipo del dueño), APK/TestFlight, decisiones de §8 del relevo.
 **CA:** Dado el código WIP de P/Q/R/T, cuando se compila y se prueba por servicio, entonces cada carril queda con compilación RC 0 y pruebas en verde medidas desde `build/test-results/*.xml`, o con la falla clasificada (regla 80.4) y registrada.
 **DoD:** salidas literales en `evidencia/carril-H17/`; peldaño declarado por área; `REPORTE.md` actualizado.
-**Estado:** EN CURSO
+**Estado:** A MEDIAS (S7.M3 depende de la clave SSH del dueño)
 
 ### H17.S1 — Entorno de verificación
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
 | H17.S1.M1 | Integrar las ramas del relevo (cierre) en la rama de trabajo | La rama contiene los commits WIP de P/Q/R/T y no tiene marcas de conflicto | `git log --oneline origin/justin/feature/cierre-endurecimiento-2026-10-08..HEAD` incluye el merge; `git grep -n '^<<<<<<<'` vacío | HECHO |
-| H17.S1.M2 | Postgres 16 desechable con `sql/aplicar.sql` aplicado | `aplicar.sql` termina con RC 0 | `psql -v ON_ERROR_STOP=1 -f sql/aplicar.sql` → RC 0 | TODO |
-| H17.S1.M3 | `generarClientes compileJava compileTestJava` de todos los servicios | RC 0 | `./gradlew generarClientes compileJava compileTestJava` → BUILD SUCCESSFUL | TODO |
+| H17.S1.M2 | Postgres 16 desechable con `sql/aplicar.sql` aplicado | `aplicar.sql` termina con RC 0 | `psql -v ON_ERROR_STOP=1 -f sql/aplicar.sql` → RC 0 | HECHO · `evidencia/carril-H17/aplicar.log`: RC 0, 436 tablas |
+| H17.S1.M3 | `generarClientes compileJava compileTestJava` de todos los servicios | RC 0 | `./gradlew generarClientes compileJava compileTestJava` → BUILD SUCCESSFUL | HECHO · `evidencia/carril-H17/compilar-6.log` RC 0; `generar-clientes.log` RC 0 sin diff |
 
 ### H17.S2 — Carril P (grupos, tarifas, identidad)
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H17.S2.M1 | `spotlessApply` y `spotlessCheck` de grupos, tarifas e identidad | check en verde | `./gradlew :servicios:{grupos,tarifas,identidad}:spotlessCheck` → RC 0 | TODO |
-| H17.S2.M2 | Pruebas de grupos, tarifas e identidad (test, webTest, integrationTest, testBarrido) | 0 fallas, conteo desde XML | `python .../xml_conteo.py` por servicio | TODO |
-| H17.S2.M3 | Ensayo de `politica_invitacion_test.sh` contra Postgres desechable, dos corridas | segunda corrida «cambios: 0» | salida de las dos corridas | TODO |
+| H17.S2.M1 | `spotlessApply` y `spotlessCheck` de grupos, tarifas e identidad | check en verde | `./gradlew :servicios:{grupos,tarifas,identidad}:spotlessCheck` → RC 0 | HECHO · `evidencia/carril-H17/spotless-apply.log`; `spotlessCheck` en `regresion-completa.log` |
+| H17.S2.M2 | Pruebas de grupos, tarifas e identidad (test, webTest, integrationTest, testBarrido) | 0 fallas, conteo desde XML | `python .../xml_conteo.py` por servicio | HECHO · grupos 385, tarifas 140, identidad 274 (XML); fallos hallados y corregidos: ver REPORTE |
+| H17.S2.M3 | Ensayo de `politica_invitacion_test.sh` contra Postgres desechable, dos corridas | segunda corrida «cambios: 0» | salida de las dos corridas | HECHO · `evidencia/carril-H17/politica-invitacion-ensayo.log`: antes ENLACE=false, despues true, 2.a corrida «cambios: 0» (sobre un DOBLE declarado del estado de TEST) |
 
 ### H17.S3 — Carril Q (nucleo-financiero, aportes, entregas)
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H17.S3.M1 | `spotlessCheck` de nucleo-financiero, aportes y entregas | RC 0 | `./gradlew :servicios:{nucleo-financiero,aportes,entregas}:spotlessCheck` | TODO |
-| H17.S3.M2 | Pruebas de nucleo-financiero, aportes y entregas | 0 fallas, conteo desde XML | `xml_conteo.py` por servicio | TODO |
+| H17.S3.M1 | `spotlessCheck` de nucleo-financiero, aportes y entregas | RC 0 | `./gradlew :servicios:{nucleo-financiero,aportes,entregas}:spotlessCheck` | HECHO · spotlessCheck verde en la regresion completa |
+| H17.S3.M2 | Pruebas de nucleo-financiero, aportes y entregas | 0 fallas, conteo desde XML | `xml_conteo.py` por servicio | HECHO · `evidencia/carril-H17/pruebas-Q2.log` BUILD SUCCESSFUL; nucleo 581, aportes 187, entregas 212 (XML) |
 
 ### H17.S4 — Carril R (erp, publicidad)
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H17.S4.M1 | Compilación, formato y pruebas de erp y publicidad con el esquema aditivo (`clave_idempotencia` en `pago_a_proveedor`) | 0 fallas; `r_upgrade.sh` aplica sobre base poblada y es idempotente | `./gradlew :servicios:{erp,publicidad}:test integrationTest` + dos corridas de `r_upgrade.sh` | TODO |
+| H17.S4.M1 | Compilación, formato y pruebas de erp y publicidad con el esquema aditivo (`clave_idempotencia` en `pago_a_proveedor`) | 0 fallas; `r_upgrade.sh` aplica sobre base poblada y es idempotente | `./gradlew :servicios:{erp,publicidad}:test integrationTest` + dos corridas de `r_upgrade.sh` | HECHO · `evidencia/carril-H17/pruebas-R.log` BUILD SUCCESSFUL; erp 135, publicidad 75; `evidencia/carril-H17/r-upgrade.log`: columna + UNIQUE aditivos, 2.a corrida 0 cambios |
 
 ### H17.S5 — Clientes, web, backoffice y gates
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H17.S5.M1 | Clientes regenerados y `packages/simulado` en verde | `generarClientes` sin diff pendiente tras commitear; vitest verde | `yarn` en `packages/simulado` | TODO |
-| H17.S5.M2 | Web y backoffice compilan y sus pruebas pasan | tsc/lint/vitest RC 0 | comandos de `package.json` | TODO |
-| H17.S5.M3 | Gates `verificar_*.py` | RC 0 en criterios, seguridad, pruebas_web, bóveda, maqueta, contratos_limites, rutas_frontend | cada script → RC 0 | TODO |
+| H17.S5.M1 | Clientes regenerados y `packages/simulado` en verde | `generarClientes` sin diff pendiente tras commitear; vitest verde | `yarn` en `packages/simulado` | HECHO · `evidencia/carril-H17/js-test-front.log`: simulado 261, tokens 15, dominio-cliente 44, tutoriales 9 |
+| H17.S5.M2 | Web y backoffice compilan y sus pruebas pasan | tsc/lint/vitest RC 0 | comandos de `package.json` | HECHO · `evidencia/carril-H17/js-test-front.log` web 74, ui 125, backoffice 479; `js-build.log` RC 0 |
+| H17.S5.M3 | Gates `verificar_*.py` | RC 0 en criterios, seguridad, pruebas_web, bóveda, maqueta, contratos_limites, rutas_frontend | cada script → RC 0 | HECHO · 7 gates en RC 0 (`evidencia/carril-H17/gate-*.txt`); `verificar_carriles` sigue rojo por «inversiones sin carril dueno» (anterior a H17) |
 
 ### H17.S6 — Carril T (app móvil)
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H17.S6.M1 | `dart format`, `flutter analyze`, `flutter test` y `verificar_frontend.py movil` con Flutter 3.44.8 | RC 0 | comandos listados; si no hay Flutter instalable en el contenedor: BLOQUEADO con evidencia | TODO |
-| H17.S6.M2 | Formato Dart de lo tocado por T y de la deriva heredada de `dev` (no previsto: aparecio al correr `dart format`) | `dart format --set-exit-if-changed lib test` en apps/movil y packages/diseno_flutter termina con RC 0, sin cambio de comportamiento | `dart format --output=none --set-exit-if-changed lib test` → RC 0 en ambos | TODO |
+| H17.S6.M1 | `dart format`, `flutter analyze`, `flutter test` y `verificar_frontend.py movil` con Flutter 3.44.8 | RC 0 | comandos listados; si no hay Flutter instalable en el contenedor: BLOQUEADO con evidencia | HECHO · `evidencia/carril-H17/flutter-*.log`: movil 407 + a11y 4, diseno 47 + a11y 14, analyze --fatal-infos RC 0, gate movil/diseno OK. Goldens: ENVIRONMENT, ver REPORTE |
+| H17.S6.M2 | Formato Dart de lo tocado por T y de la deriva heredada de `dev` (no previsto: aparecio al correr `dart format`) | `dart format --set-exit-if-changed lib test` en apps/movil y packages/diseno_flutter termina con RC 0, sin cambio de comportamiento | `dart format --output=none --set-exit-if-changed lib test` → RC 0 en ambos | HECHO · `dart format --set-exit-if-changed` RC 0 en movil y diseno |
 
 ### H17.S7 — Cierre documental y subida
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H17.S7.M1 | `PLAN.md`, `REPORTE.md` y los `ESTADO.md` reflejan lo verificado | `plan_status.py` coincide con las tablas; avance en la primera línea del reporte | `python .claude/hooks/plan_status.py` | TODO |
+| H17.S7.M1 | `PLAN.md`, `REPORTE.md` y los `ESTADO.md` reflejan lo verificado | `plan_status.py` coincide con las tablas; avance en la primera línea del reporte | `python .claude/hooks/plan_status.py` | HECHO · `REPORTE.md` (sección «Retomada 2026-10-12 (H17)», avance en la primera línea), `RELEVO-CODEX.md` §12 y los `ESTADO.md` de P/Q/R/T; `plan_status.py` da 90/114 |
 | H17.S7.M2 | Push a la rama de trabajo (Backend) | `git push` RC 0 | `git push -u origin claude-marcelo/affectionate-heisenberg-nzjzml` | TODO |
 | H17.S7.M3 | Redespliegue a TEST y recorrido A/B (relevo §6.4–6.5) | — | Requiere la clave SSH del dueño y acceso a Contabo: BLOQUEADO; lo destraba el dueño o quien tenga la clave | BLOQUEADO |
+
+### H17.S8 — Integración local con Kafka y servicios reales (relevo §6.5, sustituto verificable de TEST)
+Los servicios corren como procesos del host contra PostgreSQL 16 y Kafka (cp-kafka 7.7.1) reales en Docker; las cuentas son las sintéticas de `seeders/dev/17`. Dobles declarados: el segundo factor de desarrollo (`000000`, perfil `local`), el alta real de usuario (el OTP de correo no se registra en el log, así que `usuario_registrado` se publica por el outbox real con el contrato de CU-01) y el estado de TEST (base desechable).
+**CA:** Dado el stack local, cuando A crea un grupo e invita a B por ENLACE y B acepta, entonces el grupo se abre solo, nucleo abre su billetera, B queda como participante en la base y las caídas de tarifas, grupos y garantia degradan como declara el diseño.
+**DoD:** `python3 evidencia/carril-H17/recorrido_ab.py`, `e2e_caidas.py` y `e2e-usuario-registrado.sh` con su salida en `evidencia/carril-H17/e2e-*.log`.
+**Estado:** HECHO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H17.S8.M1 | Levantar 9 servicios + Kafka (248 tópicos) + Postgres y sembrar cuentas y licencia sandbox con los scripts del repo | 9 `/actuator/health` en 200; ambos scripts de siembra idempotentes («cambios: 0») | `levantar_local.sh up`; `e2e-sembrar.log`, `e2e-sandbox-licencia.log` | HECHO |
+| H17.S8.M2 | P·H1/H2: grupo creado → tarifa congelada → grupo abierto; invitar por ENLACE; B consulta y acepta | `ABIERTO_A_INSCRIPCION` en segundos, 1 tarifa con hash, 1 historial, 201 al invitar, 200 al consultar, 201 al aceptar con participante en la base | `recorrido_ab.py` (`e2e-recorrido-ab.log`) | HECHO |
+| H17.S8.M3 | P·H3: un canje que no puede completarse no quema el enlace | 422 `AP-CU68-06`, token `EMITIDO`, invitación `ENVIADA`, revocación 204 | `recorrido_ab.py` | HECHO |
+| H17.S8.M4 | Q·DD-8: billetera del grupo y de la persona al evento, con entrega duplicada | 1 billetera por grupo y por persona; la 2.ª entrega queda `DUPLICADO` | `recorrido_ab.py`, `e2e-usuario-registrado.sh` | HECHO |
+| H17.S8.M5 | Romper a propósito: tarifas apagado, grupos con `kill -9` tras confirmar el alta, garantia apagado | alta rechazada `AP-CU20-01` sin escribir; el outbox no pierde el evento y el grupo abre al volver; postulación falla cerrada `AP-CU68-01` y entra al volver | `e2e_caidas.py` (`e2e-caidas.log`) | HECHO |
+| H17.S8.M6 | Traza | `grupo_creado` y `tarifa_congelada` comparten `correlationId` | `e2e-traza.log` | HECHO |
+
+### H17.S9 — Hallazgos de H17 (registrados, no corregidos dentro de este trabajo)
+| ID | Hallazgo | Por qué no se corrigió aquí | Dueño | Estado |
+|---|---|---|---|---|
+| H17.S9.M1 | `aceptarInvitacionPorEnlace` ignora `Idempotency-Key`: reintentar con la misma clave da 422 `AP-CU69-05` aunque la participación se creó (regla 96.3.3); anterior a P (`d8e103ec`) | fuera del alcance de P/Q/R/T; requiere decidir cómo se guarda la clave | Backend grupos | TODO |
+| H17.S9.M2 | 3 pruebas rojas de `plataforma/comun-pruebas` (`MatrizDeAutorizacionContratoTest`): `renovarSesion` y `consultarEstadoDeVerificacion` fuera de `PoliticaDeAcceso`, `historialAdmision` sin controlador. Rojas también en `origin/dev` (08042090) | son decisiones de seguridad y de contrato ajenas | Seguridad / grupos | TODO |
+| H17.S9.M3 | `verificar_carriles.py`: «sin carril dueño: inversiones» | declarar el dueño es decisión de equipo | Coordinación | TODO |
+| H17.S9.M4 | `packages/diseno_flutter/pubspec.lock` resuelto con otro Flutter (matcher 0.12.20 / meta 1.19.0 contra 0.12.19 / 1.18.0 de Flutter 3.44.8) y `.flutter-plugins-dependencies` versionado con rutas de otra máquina | no se pidió tocar locks | Quien mantiene el paquete | TODO |
+| H17.S9.M5 | Goldens de Flutter (movil 9, diseno 15) fallan por píxeles en Linux; se generan en macOS | el CI de macOS es la autoridad; no se regeneran en otra plataforma | CI macOS | TODO |

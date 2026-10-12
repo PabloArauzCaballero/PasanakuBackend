@@ -1,3 +1,5 @@
+> **SUPERADO por H17 (2026-10-12).** Lo que este archivo daba por «escrito sin verificar» se compiló, se formateó y se probó después: ver «Retomada 2026-10-12 (H17)» en [REPORTE.md](../../REPORTE.md) y `../carril-H17/`. Se conserva el texto original de abajo como estado del corte del 2026-10-11.
+
 # Carril T — ESTADO (corte por traspaso, 2026-10-11). Peldaño: WRITTEN (nada compilado ni testeado salvo pub get)
 
 ## Verificado (único)
