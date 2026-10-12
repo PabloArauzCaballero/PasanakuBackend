@@ -43,7 +43,12 @@ public class PagoDeCompraEnMercado {
                         CodigoError.de(13, 8), "No se pudo confirmar la oferta con entregas: no se paga."));
         return ejecuciones.pagarAlTercero(
                 new EntradaPagoATercero(
-                        clave, retencionId, oferta.ofertaId(), oferta.vendedorUsuarioId(), oferta.precio()),
+                        clave,
+                        retencionId,
+                        oferta.ofertaId(),
+                        oferta.vendedorUsuarioId(),
+                        oferta.precio(),
+                        oferta.cargos()),
                 ctx);
     }
 }

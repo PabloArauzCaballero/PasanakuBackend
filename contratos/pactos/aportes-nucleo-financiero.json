@@ -1,0 +1,34 @@
+{
+  "productor": "nucleo-financiero",
+  "consumidor": "aportes",
+  "version": 1,
+  "descripcion": "Carril Q. Pacto del aviso de que un aporte cobrado NO se pudo aplicar al libro por falta de saldo, para que aportes lo compense (saga de aporte, regla 98.3). Productor: ConsumoDeAportes (nucleo-financiero) lo emite por su outbox en la MISMA transaccion que marca consumido el evento aportes.aporte_cobrado. Consumidor: CU21CompensarAporte (aportes) via ConsumidorDeAportesNoAplicadosKafka. Lo comparten dos pruebas: CUAporteNoAplicadoTest (nucleo, el productor emite al menos estos campos) y ConsumidorDeAportesNoAplicadosKafkaTest (aportes, el consumidor lee este ejemplo). NO existe todavia una prueba contra Kafka y los dos procesos reales juntos: ver evidencia/carril-Q/INFORME.md.",
+  "topico": "aportaya.nucleo_financiero.aporte_no_aplicado",
+  "tipo": "nucleo_financiero.aporte_no_aplicado",
+  "agregado": "obligacion_aporte",
+  "cabeceras": ["event_id", "correlation_id"],
+  "campos": {
+    "pagoId": "uuid del pago de aportes (clave de la compensacion: idempotente por pago)",
+    "obligacionId": "uuid de la obligacion; tiene que ser la del pago o el consumidor rechaza",
+    "grupoId": "uuid",
+    "monto": "cadena decimal con dos decimales",
+    "moneda": "ISO-4217",
+    "motivo": "SALDO_INSUFICIENTE (unico motivo definitivo hoy)",
+    "codigo": "AP-CU12-01"
+  },
+  "consumidorExige": ["pagoId", "obligacionId", "motivo"],
+  "ejemplo": {
+    "pagoId": "c0000000-0000-4000-8000-000000000001",
+    "obligacionId": "c0000000-0000-4000-8000-000000000002",
+    "grupoId": "c0000000-0000-4000-8000-000000000003",
+    "monto": "500.00",
+    "moneda": "BOB",
+    "motivo": "SALDO_INSUFICIENTE",
+    "codigo": "AP-CU12-01"
+  },
+  "garantias": [
+    "nucleo publica el aviso UNA vez por evento aporte_cobrado y marca el evento consumido (no reintenta solo)",
+    "aportes compensa UNA vez por pago, aunque lleguen dos eventos distintos del mismo pago",
+    "aportes no compensa un pago con reembolsos ni en disputa: queda para una persona"
+  ]
+}

@@ -24,7 +24,9 @@ export type TamanoDeBoton = 'sm' | 'base' | 'lg'
     :host { display: inline-block; --c: var(--verde-solido); --tinta: var(--sobre-verde-solido); }
     :host(.ancho), :host(.ancho) button { display: block; width: 100%; }
     button { position: relative; overflow: hidden; isolation: isolate; display: inline-flex; align-items: center; justify-content: center; gap: var(--s2); max-width: 100%; min-height: var(--area-tactil); padding: 0 var(--s5); border: var(--borde-fino) solid transparent; border-radius: var(--r-md); font: inherit; font-weight: 600; cursor: pointer; transition: transform var(--mov-micro) var(--curva-llega), box-shadow var(--mov-entrada) var(--curva-llega), background-color var(--mov-micro) ease-out, filter var(--mov-micro) ease-out; }
-    .texto { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    /* Por omisión el texto se acorta antes que desbordar; quien aloja el botón en un espacio angosto puede
+       pedir que se parta en líneas con --boton-texto-ajuste: normal (el diálogo lo hace). */
+    .texto { overflow: hidden; text-overflow: ellipsis; white-space: var(--boton-texto-ajuste, nowrap); }
     button:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
     button:disabled { cursor: not-allowed; }
     button:disabled:not([aria-busy]) { background: var(--surface-2); color: var(--text-3); border-color: var(--border); box-shadow: none; }

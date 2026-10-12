@@ -62,6 +62,7 @@ normas: [ASFI conciliación y contabilidad, UIF]
 | 1a | `grupos` no contesta, contesta por otro periodo o informa cupos o importes inutilizables | Rechazo `PERIODO_NO_CONFIRMADO`: no se genera nada |
 | 1b | No hay calendario de feriados cargado para el año del vencimiento | Rechazo `CALENDARIO_NO_DISPONIBLE`: no se calcula, no se cuenta corrido |
 | 1c | El período no está `ABIERTO` | Rechazo `PERIODO_CERRADO` |
+| 3b | El pago salió de la billetera y `nucleo-financiero` no pudo aplicarlo por falta de saldo (`AP-CU12-01`) | `nucleo-financiero` no mueve nada, marca el evento consumido y publica `aporte_no_aplicado`; `aportes` lo consume, el pago pasa a `REVERSADO` y la obligación vuelve a `PENDIENTE` (o `EN_MORA` si ya venció) por ese importe. Una vez por pago, aunque el aviso se repita. Un pago con reembolsos o en disputa no se compensa solo: lo resuelve una persona |
 | 3a | El pago no concilia con el extracto bancario | [[excepcion_conciliacion]] abierta; **bloquea el cierre diario** (`R-BIL-12`) |
 | 6a | Vence el plazo de gracia | Se genera recargo y, superado el umbral, [[registro_incumplimiento]] |
 | — | El participante paga de más | El excedente queda como saldo a favor, no se "pierde" |
@@ -145,13 +146,16 @@ export const ErroresCU21 = {
 | --- | --- | --- |
 | `aporte.confirmado` | Reputación, tablero del grupo y cancelación de recordatorios | `BILLETERA_OPERAR` |
 | `aporte.vencido` | Recargo y, superado el umbral, incumplimiento | — |
+| `aporte_compensado` | Aviso a la persona de que su aporte no se aplicó por falta de saldo | — (consume `nucleo_financiero.aporte_no_aplicado`) |
 
 > **Cómo se mueve el dinero (carril I).** `aportes` no escribe el libro (invariante 12): al acreditar emite
 > `aportes.aporte_cobrado` (`pagoId`, `obligacionId`, `grupoId`, `participanteId`, `usuarioId`, `monto`, `moneda`, `canal`) por outbox y
 > `nucleo-financiero` lo CONSUME (`ConsumoDeAportes`). Con canal `BILLETERA_MOVIL` debita la billetera del participante, acredita la
 > del grupo (`APORTE_A_GRUPO`) y asienta DEBE 2.1.01 / HABER 2.1.02 en la misma transacción; el consumidor es idempotente por evento y
-> por pago, y un rechazo (sin cuenta, sin saldo, moneda sin cuenta en el plan) no escribe nada ni marca el evento. Queda como decisión
-> pendiente cómo se compensa en `aportes` un aporte `PAGADO` que el libro no pudo aplicar.
+> por pago, y un rechazo (sin cuenta, sin saldo, moneda sin cuenta en el plan) no escribe nada ni marca el evento. Con saldo insuficiente (`AP-CU12-01`) el rechazo es
+> DEFINITIVO: nucleo publica `nucleo_financiero.aporte_no_aplicado` y `aportes` compensa el pago (flujo alternativo 3b, `CU21CompensarAporte`).
+> Siguen pendientes, sin inventarse: los canales distintos de `BILLETERA_MOVIL` (entran por la conciliación y su propio asiento) y los
+> límites por concepto de [[CU-40 Evaluar límites antes de una operación]] sobre el aporte (decisión de Riesgos).
 
 ## Interfaz
 
@@ -170,6 +174,10 @@ export const ErroresCU21 = {
 ## Criterios de aceptación
 
 ```gherkin
+Dado un aporte de Bs 500 pagado con saldo que nucleo-financiero no pudo aplicar por falta de saldo
+Cuando aportes consume el aviso aporte_no_aplicado
+Entonces el pago queda REVERSADO y la obligación vuelve a PENDIENTE con Bs 0 pagados
+
 Dada una obligación de Bs 500 pendiente
 Cuando el participante paga con saldo
 Entonces monto_pagado es 500 y estado es PAGADO

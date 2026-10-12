@@ -44,7 +44,9 @@ class VerificacionNotifier extends AsyncNotifier<EstadoDeVerificacion> {
   /// con 403, y mandarlo solo ensucia.
   String? _tokenDeAlta(String usuarioId) {
     final seguimiento = ref.read(seguimientoDelAltaProvider);
-    return seguimiento?.usuarioId == usuarioId ? seguimiento?.tokenDeAlta : null;
+    return seguimiento?.usuarioId == usuarioId
+        ? seguimiento?.tokenDeAlta
+        : null;
   }
 
   /// Arranca el sondeo para un usuario. Se llama una sola vez, al entrar a la

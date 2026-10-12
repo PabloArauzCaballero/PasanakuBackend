@@ -65,9 +65,18 @@ normas: [Protección de datos, ASFI Consumidor Financiero, antifraude]
 | 6a | La referencia no responde la verificación | Queda sin verificar; el usuario puede reemplazarla. No se insiste más de lo que fija el tope |
 | 6b | La referencia pide no ser contactada | Se elimina el vínculo y su teléfono va a [[lista_supresion]] |
 | — | Varias invitaciones al mismo teléfono desde grupos distintos | Se aplica el tope por destinatario y día (`R-NOT-02`), no por grupo |
+| 2b | `identidad` rechaza emitir el enlace (canal que la política de token vigente no permite, tope diario) | La respuesta es ese mismo rechazo (422 con su `AP-CU69-xx`), nunca un 500 «volvé a intentar»: reintentar no lo arregla |
+| 2c | La invitación no llega a existir (ya hay otra vigente) tras emitir el enlace | El enlace recién emitido se revoca; si no se pudo revocar queda registro, sin datos personales |
+| 5c | El canje no puede completarse localmente (postulación pendiente, sin cupos, KYC o restricción, invitación revocada o vencida) | Se rechaza **antes** de consumir el enlace: el token no se quema y el emisor puede revocar o reemitir |
 | — | Invitación usada para captar clientes masivamente | El patrón se detecta y se limita: el canal de invitación es entre conocidos, no un canal comercial |
 
-> **Interruptor de admisión humana** (`aportaya.grupos.admision.humana-obligatoria`, decisión pendiente de negocio y cumplimiento). Encendido, aceptar por enlace (que crearía al participante ACTIVO sin expediente) se rechaza y el camino es el canje, que deja una solicitud pendiente de backoffice; apagado conserva el comportamiento de TEST.
+> **Política de token `INVITACION_GRUPO` (versionada).** Los canales que acepta la emisión salen de la política con
+> `vigente_desde` más reciente que ya rige (`politica_token`). Agregar `ENLACE` —el canal por omisión de la app— es una
+> versión nueva (`seeders/minimos/13-politicas-de-token.json`, vigente desde 2026-10-11), no una edición de la fila
+> sembrada: la siembra es `DO NOTHING` y una base poblada conservaría la fila vieja. Una base ya poblada la recibe con
+> `despliegue/ensayos/politica_invitacion_test.sh` (idempotente).
+
+> **Interruptor de admisión humana** (`aportaya.grupos.admision.humana-obligatoria`, decisión adoptada por delegación del dueño en [[ADR-052 Decisiones adoptadas por delegación del dueño|ADR-052]] DD-2: `true` en producción y `false` en TEST; pendiente de ratificación de negocio y cumplimiento). Encendido, aceptar por enlace (que crearía al participante ACTIVO sin expediente) se rechaza y el camino es el canje, que deja una solicitud pendiente de backoffice; apagado conserva el comportamiento de TEST. Producción debe fijar `ADMISION_HUMANA_OBLIGATORIA=true`.
 
 ## Postcondiciones
 
@@ -164,6 +173,22 @@ export const ErroresCU69 = {
 ## Criterios de aceptación
 
 ```gherkin
+Dado un enlace ya aceptado
+Cuando la misma persona repite con la MISMA clave
+Entonces recibe la misma participación y no se duplica nada
+
+Dado un enlace sin aceptación previa
+Cuando se pregunta por una repetición
+Entonces no hay participación que devolver
+
+Dado un enlace ya consumido
+Cuando se intenta aceptar con OTRA clave
+Entonces se rechaza con TOKEN_INVALIDO
+
+Dado un enlace ya aceptado por una persona
+Cuando otra persona intenta con la MISMA clave
+Entonces se rechaza con TOKEN_INVALIDO y no recibe la participación ajena
+
 Dado un participante activo y un grupo con cupos libres
 Cuando invita a un teléfono nuevo
 Entonces existe una invitacion ENVIADA con token de un solo uso
@@ -212,6 +237,10 @@ Dada una invitación cuya fecha de expiración ya pasó
 Cuando se emite otra al mismo número
 Entonces la vencida se cierra como EXPIRADA
 Y la nueva queda ENVIADA
+
+Dado un invitado con una postulación pendiente en el grupo
+Cuando canjea una invitación vigente de ese grupo
+Entonces se rechaza con AP-CU68-06 y el enlace no se consume en identidad
 ```
 
 ## Ver también

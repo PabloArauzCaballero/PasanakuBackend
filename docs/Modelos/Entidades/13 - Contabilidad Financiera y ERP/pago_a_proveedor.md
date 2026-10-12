@@ -7,7 +7,7 @@ tabla: pago_a_proveedor
 clase: PagoAProveedor
 modulo: "13 — Contabilidad Financiera y ERP"
 clave_primaria: [id]
-columnas: 8
+columnas: 9
 fk_salientes: 3
 fk_entrantes: 0
 append_only: true
@@ -28,7 +28,16 @@ append_only: true
 | `fecha_pago` | TIMESTAMPTZ | — | no | — |
 | `forma_pago` | VARCHAR(20) | — | no | CK |
 | `autorizado_por` | UUID | FK | no | FK |
+| `clave_idempotencia` | UUID | — | sí | NULL |
 | `asiento_contable_id` | UUID | FK | sí | FK, NULL, M3 |
+
+## Reglas del catálogo
+
+> Declaradas en [[Restricciones]], no en el modelo. El nombre es el que devuelve la base al rechazar.
+
+| Regla | Tipo | Columnas |
+| --- | :-: | --- |
+| `uq_pago_a_proveedor_clave` | UNIQUE | `factura_proveedor_id`, `clave_idempotencia` |
 
 ## Claves foráneas salientes
 

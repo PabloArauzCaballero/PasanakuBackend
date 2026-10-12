@@ -6,6 +6,9 @@ import 'avance.dart';
 import 'escribano.dart';
 import 'estado_del_motor.dart';
 import 'modelo.dart';
+import 'textos_del_motor.dart';
+
+export 'textos_del_motor.dart';
 
 /// **El motor: dónde estoy, cómo sigo y qué hago si el paso no se puede dar.**
 ///
@@ -161,7 +164,10 @@ class MotorDeTutoriales extends Notifier<EstadoDelMotor> {
     if (!state.activo || state.indice != indice) return;
     if (recuadro == null) {
       state = state.copiaCon(
-        problema: 'No encontramos «${paso.ancla}» en esta pantalla.',
+        // Sin el id interno del ancla («billetera.saldo»): no le dice nada a quien mira. Si esta
+        // parte de la pantalla no está (por ejemplo, la billetera todavía no está activa), se
+        // dice eso y se puede reintentar o salir de la guía.
+        problema: textoAnclaAusente,
       );
       return;
     }
@@ -174,7 +180,7 @@ class MotorDeTutoriales extends Notifier<EstadoDelMotor> {
     final actual = _ubicacion?.call() ?? '';
     if (actual == ruta || actual.startsWith('$ruta/')) return true;
     if (_navegar == null) {
-      state = state.copiaCon(problema: 'No pudimos abrir «$ruta» desde acá.');
+      state = state.copiaCon(problema: textoNoSePudoAbrir);
       return false;
     }
     _navegar!(ruta);

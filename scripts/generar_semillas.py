@@ -11,9 +11,13 @@ Escribe
     sql/60_semillas/         SQL de los seeders mínimos + sembrar.sql
     sql/61_dev/              SQL de los datos de dev + sembrar_dev.sql
     despliegue/ensayos/sembrar_test.sh
-                             el bloque «SQL-GENERADO» de ese guion: la misma siembra de
-                             las cuentas sinteticas de prueba, para aplicarla EN TEST
-                             sin copiarla a mano
+    despliegue/ensayos/sandbox_licencia_test.sh
+    despliegue/ensayos/politica_invitacion_test.sh
+                             el bloque «SQL-GENERADO» de cada guion: la misma siembra de
+                             las cuentas sinteticas (17), del sandbox de GRUPO_PASANAKU
+                             (18) y de las politicas de token (minimos/13, para que una
+                             base ya poblada reciba la version nueva de INVITACION_GRUPO),
+                             para aplicarlas EN TEST sin copiarlas a mano
 
 La separación entre los dos conjuntos es dura y la verifica este mismo script:
 ninguna tabla escrita por `minimos/` puede escribirse desde `dev/`, `minimos/` no
@@ -451,38 +455,44 @@ def procesar(entorno):
 # autocontenido que se ejecuta por ssh en el servidor: ahi no hay repositorio. El SQL que lleva
 # no se escribe a mano —seria una segunda fuente de verdad—: este generador lo reescribe entre
 # dos marcas cada vez que corre, y un diff despues de generar delata que quedo viejo.
-SEMILLA_TEST = "17-usuarios-e2e-sinteticos"
-SCRIPT_TEST = pathlib.Path("despliegue/ensayos/sembrar_test.sh")
+#
+# Hoy son tres: las cuentas sinteticas (dev/17), el sandbox de GRUPO_PASANAKU (dev/18) y las politicas de token
+# (minimos/13: una base poblada conserva la fila vieja porque la siembra es DO NOTHING; la version nueva entra por aca).
 MARCA_INICIO = "# >>> SQL-GENERADO"
 MARCA_FIN = "# <<< SQL-GENERADO"
-FIN_DE_HEREDOC = "SQL_SEMILLA_E2E"
+# (semilla, guion que la lleva, palabra de cierre del heredoc, carpeta de seeders de donde sale)
+SIEMBRAS_DE_TEST = [
+    ("17-usuarios-e2e-sinteticos", pathlib.Path("despliegue/ensayos/sembrar_test.sh"), "SQL_SEMILLA_E2E", "dev"),
+    ("18-licencia-sandbox-test", pathlib.Path("despliegue/ensayos/sandbox_licencia_test.sh"), "SQL_SEMILLA_SANDBOX", "dev"),
+    ("13-politicas-de-token", pathlib.Path("despliegue/ensayos/politica_invitacion_test.sh"), "SQL_SEMILLA_POLITICA", "minimos"),
+]
 
 
-def sincronizar_script_test():
-    """Reescribe el bloque SQL-GENERADO de sembrar_test.sh con el SQL de la semilla 17. Devuelve las lineas."""
-    fuente = DESTINOS["dev"][0] / f"{SEMILLA_TEST}.sql"
-    if not SCRIPT_TEST.exists() or not fuente.exists():
+def sincronizar_script_test(semilla, script, fin_de_heredoc, entorno="dev"):
+    """Reescribe el bloque SQL-GENERADO de `script` con el SQL de `semilla`. Devuelve las lineas."""
+    fuente = DESTINOS[entorno][0] / f"{semilla}.sql"
+    if not script.exists() or not fuente.exists():
         return 0
     cuerpo = fuente.read_text(encoding="utf-8").replace("\r\n", "\n").strip("\n")
-    if FIN_DE_HEREDOC in cuerpo:
-        raise SystemExit(f"{fuente}: contiene la palabra de cierre {FIN_DE_HEREDOC}; cambiala en el generador")
+    if fin_de_heredoc in cuerpo:
+        raise SystemExit(f"{fuente}: contiene la palabra de cierre {fin_de_heredoc}; cambiala en el generador")
     bloque = "\n".join([
-        f"{MARCA_INICIO} · no editar: lo escribe scripts/generar_semillas.py desde seeders/dev/{SEMILLA_TEST}.json",
+        f"{MARCA_INICIO} · no editar: lo escribe scripts/generar_semillas.py desde seeders/{entorno}/{semilla}.json",
         "# search_path como el de los orquestadores: este guion corre en su propia sesion de psql.",
-        "IFS= read -r -d '' SEMILLA_SQL <<'" + FIN_DE_HEREDOC + "' || true",
+        "IFS= read -r -d '' SEMILLA_SQL <<'" + fin_de_heredoc + "' || true",
         SEARCH_PATH_SQL,
         cuerpo,
-        FIN_DE_HEREDOC,
+        fin_de_heredoc,
         MARCA_FIN,
     ])
-    actual = SCRIPT_TEST.read_text(encoding="utf-8").replace("\r\n", "\n")
+    actual = script.read_text(encoding="utf-8").replace("\r\n", "\n")
     ini, fin = actual.find(MARCA_INICIO), actual.find(MARCA_FIN)
     if ini < 0 or fin < ini:
-        raise SystemExit(f"{SCRIPT_TEST}: faltan las marcas «{MARCA_INICIO}» / «{MARCA_FIN}»")
+        raise SystemExit(f"{script}: faltan las marcas «{MARCA_INICIO}» / «{MARCA_FIN}»")
     nuevo = actual[:ini] + bloque + actual[fin + len(MARCA_FIN):]
     if nuevo != actual:
         # newline="\n": el guion corre en Linux; un CRLF lo rompe («$'\r': command not found»).
-        with SCRIPT_TEST.open("w", encoding="utf-8", newline="\n") as f:
+        with script.open("w", encoding="utf-8", newline="\n") as f:
             f.write(nuevo)
     return cuerpo.count("\n") + 1
 
@@ -503,9 +513,10 @@ def main():
         archivos, filas = procesar(entorno)
         print(f"{entorno:8} → {DESTINOS[entorno][0]}: {archivos} archivos, {filas} filas")
         total += filas
-    lineas = sincronizar_script_test()
-    if lineas:
-        print(f"{'':8} → {SCRIPT_TEST.as_posix()}: bloque SQL-GENERADO al dia ({lineas} lineas)")
+    for semilla, script, cierre, entorno in SIEMBRAS_DE_TEST:
+        lineas = sincronizar_script_test(semilla, script, cierre, entorno)
+        if lineas:
+            print(f"{'':8} → {script.as_posix()}: bloque SQL-GENERADO al dia ({lineas} lineas)")
     print(f"total: {total} filas de semilla · validadas contra el modelo")
     return 0
 

@@ -1,0 +1,17 @@
+# DOBLE DECLARADO del estado de TEST: base desechable con el esquema+semilla anteriores y la fila INVITACION_GRUPO como la observo L3 en TEST (canales SMS,WHATSAPP,CORREO)
+$ --estado
+[estado] politicas_total=14 invitacion_versiones=1 invitacion_vigente_desde=2026-01-01T04:00Z invitacion_vigente_canales=SMS,WHATSAPP,CORREO invitacion_vigente_permite_ENLACE=false 
+$ corrida 1
+[politica] antes:   politicas_total=14 invitacion_versiones=1 invitacion_vigente_desde=2026-01-01T04:00Z invitacion_vigente_canales=SMS,WHATSAPP,CORREO invitacion_vigente_permite_ENLACE=false 
+[politica] despues: politicas_total=16 invitacion_versiones=2 invitacion_vigente_desde=2026-10-11T04:00Z invitacion_vigente_canales=ENLACE,SMS,WHATSAPP,CORREO invitacion_vigente_permite_ENLACE=true 
+[politica] cambios: si (antes != despues)
+[listo] INVITACION_GRUPO permite ENLACE. Probar: POST /grupos/{id}/invitaciones con canal=ENLACE debe dar 201.
+RC=0
+$ corrida 2
+[politica] antes:   politicas_total=16 invitacion_versiones=2 invitacion_vigente_desde=2026-10-11T04:00Z invitacion_vigente_canales=ENLACE,SMS,WHATSAPP,CORREO invitacion_vigente_permite_ENLACE=true 
+[politica] despues: politicas_total=16 invitacion_versiones=2 invitacion_vigente_desde=2026-10-11T04:00Z invitacion_vigente_canales=ENLACE,SMS,WHATSAPP,CORREO invitacion_vigente_permite_ENLACE=true 
+[politica] cambios: 0 (idempotente)
+[listo] INVITACION_GRUPO permite ENLACE. Probar: POST /grupos/{id}/invitaciones con canal=ENLACE debe dar 201.
+RC=0
+$ --estado final
+[estado] politicas_total=16 invitacion_versiones=2 invitacion_vigente_desde=2026-10-11T04:00Z invitacion_vigente_canales=ENLACE,SMS,WHATSAPP,CORREO invitacion_vigente_permite_ENLACE=true 

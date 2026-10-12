@@ -1,0 +1,13 @@
+# Contexto común (gates cruzados tras el cierre de los carriles A–E)
+Repo: C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend (sin git; ~75+ archivos de Codex y de los carriles sin commitear: NO revertir nada ajeno; no hay commit/push).
+Los carriles A–E ya cerraron sus suites por servicio. Quedan gates de repo (scripts/*.py) en rojo porque agregaron pruebas sin actualizar la especificación o su cobertura. Idioma: español rioplatense, igual que el repo.
+
+## Regla de RAM (OBLIGATORIA)
+La máquina tiene 15,7 GB y se cayó por falta de RAM. Python/lectura/edición: libres. Todo Gradle/Docker/Testcontainers va así, de a una corrida, agrupando tareas:
+  bash C:/Users/Usuario/.claude/ram-guard/heavy.sh bash -c "./gradlew.bat --max-workers=2 -Dorg.gradle.parallel=false -Dorg.gradle.jvmargs='-Xmx1536m -XX:MaxMetaspaceSize=512m' <tareas>; ./gradlew.bat --stop"
+con `export JAVA_TOOL_OPTIONS='-Xmx1g -XX:+UseSerialGC'` antes. Los integrationTest necesitan Docker: levantá Docker Desktop SOLO dentro del guardián (ver ejemplos en el scratchpad de la sesión: C:\Users\Usuario\AppData\Local\Temp\claude\C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku\a*\ o los scripts corridaA.sh / corrida_c.sh / carrilB_run.sh de la sesión 55cc9bcc\scratchpad) y bajarlo al terminar (`docker desktop stop`). No modifiques gradle.properties ni .wslconfig. No dejes procesos java/docker/navegadores vivos. Los hs_err_pid*/replay_pid* que veas son restos del crash: borralos.
+
+## Cómo funcionan los gates de criterios
+scripts/verificar_criterios.py: en cada CU implementado, (1) cada escenario del bloque ```gherkin de docs/CasosDeUso/CU-NN *.md (grupo de líneas Dado/Cuando/Entonces unidas por " · ", ver escenarios_gherkin en scripts/modelo.py) debe tener una prueba con ese mismo nombre (normalizado: minúsculas, sin puntuación), y (2) toda prueba cuyo nombre no coincida con un escenario y no empiece por rechaza/reintento/concurrencia/cuadre/compensa/evento duplicado/fuera de orden/rls falla con «prueba sin criterio en la boveda». Ejecutalo con `python scripts/verificar_criterios.py [--servicio X]` desde la raíz del repo (SIN -I: importa `modelo` del directorio del script).
+NUNCA debilites, borres, ni marques skip ninguna prueba; no cambies aserciones. Solo se alinean NOMBRES y especificación. Mirá cómo quedaron alineados otros CU que sí pasan (p. ej. los de garantia/entregas/aportes) y copiá la convención exacta. Los CU md bajo docs/CasosDeUso se regeneran/derivan de la bóveda: verificá si hay un generador que los pise (grep en scripts/) antes de editarlos y editá la FUENTE si existe.
+Entregá un reporte ≤60 líneas: qué cambió, comandos con salida literal recortada, qué quedó sin hacer. No digas "listo" sin salida literal.

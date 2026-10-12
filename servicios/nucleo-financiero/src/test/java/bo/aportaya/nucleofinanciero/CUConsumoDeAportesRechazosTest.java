@@ -184,17 +184,21 @@ class CUConsumoDeAportesRechazosTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("rechaza saldo insuficiente: el libro decide, no la cache; AP-CU12-01 y la billetera no baja de lo que"
-            + " tiene")
+    @DisplayName(
+            "rechaza saldo insuficiente: el libro decide, no la cache; es un rechazo DEFINITIVO (AP-CU12-01): nada se"
+                    + " mueve, el evento se marca consumido y se publica aporte_no_aplicado (la compensacion esta en"
+                    + " CUAporteNoAplicadoTest)")
     void rechazaSaldoInsuficiente() {
         var a = aporte("300.00");
         var e = cobrado(a, "500.00");
 
-        assertThatThrownBy(() -> procesar(e)).isInstanceOf(ErrorDeNegocio.class).satisfies(x -> assertThat(codigo(x))
-                .isEqualTo("AP-CU12-01"));
+        assertThat(procesar(e).resultado()).isEqualTo(Resultado.RECHAZADO_POR_SALDO);
 
-        sinEfectos(a, e);
+        assertThat(transacciones(a.obligacion())).isZero();
+        assertThat(asientosDeAportes(a.grupo())).isZero();
+        assertThat(marcas(e.eventoId())).isEqualTo(1);
         assertThat(saldoDelLibro(a.billetera())).isEqualByComparingTo("300.00");
+        assertThat(saldoDelLibro(a.billeteraDelGrupo())).isEqualByComparingTo("0.00");
     }
 
     @Test

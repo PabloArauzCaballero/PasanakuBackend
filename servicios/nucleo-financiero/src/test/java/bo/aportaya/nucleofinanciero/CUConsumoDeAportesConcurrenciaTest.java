@@ -32,7 +32,7 @@ class CUConsumoDeAportesConcurrenciaTest extends BaseDeAportes {
     @Test
     @DisplayName(
             "concurrencia: dos aportes DISTINTOS de Bs 500 con Bs 600 en la billetera no la dejan en negativo: uno se"
-                    + " aplica y el otro es AP-CU12-01")
+                    + " aplica y el otro se rechaza por saldo (compensable)")
     void concurrenciaNoGastaDosVeces() throws Exception {
         var a = aporte("600.00");
         var uno = cobrado(a, "500.00");
@@ -40,10 +40,17 @@ class CUConsumoDeAportesConcurrenciaTest extends BaseDeAportes {
 
         var resultados = enParalelo(() -> intentar(uno), () -> intentar(otro));
 
-        assertThat(resultados).containsExactlyInAnyOrder("APLICADO", "AP-CU12-01");
+        assertThat(resultados).containsExactlyInAnyOrder("APLICADO", "RECHAZADO_POR_SALDO");
         assertThat(transacciones(a.obligacion())).isEqualTo(1);
         assertThat(saldoDelLibro(a.billetera())).isEqualByComparingTo("100.00");
         assertThat(saldoDelLibro(a.billeteraDelGrupo())).isEqualByComparingTo("500.00");
+        // El rechazado no dejo efectos en el libro y publico exactamente UN aviso para compensar.
+        assertThat(contar(
+                        """
+                        SELECT count(*) FROM nucleo_financiero.evento_dominio WHERE tipo = 'nucleo_financiero.aporte_no_aplicado' AND agregado_id = ?
+                        """,
+                        a.obligacion()))
+                .isEqualTo(1);
     }
 
     private String intentar(bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAportes.AporteCobrado e) {

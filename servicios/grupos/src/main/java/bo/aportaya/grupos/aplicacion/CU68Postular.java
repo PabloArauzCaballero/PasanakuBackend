@@ -51,37 +51,8 @@ public class CU68Postular {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
         return datos.conContexto(ctx, dsl -> {
-            // La restriccion se responde diciendo QUE la levanta: rechazar sin decir
-            // como salir deja a alguien fuera sin camino de vuelta.
-            if (entrada.tieneRestriccionVigente()) {
-                throw new ErrorDeNegocio(
-                        CodigoError.de(68, 1),
-                        "Tenes una restriccion vigente.",
-                        Map.of(
-                                "montoQueLaLevanta",
-                                entrada.montoQueLevantaLaRestriccion().toString()));
-            }
-            if (!entrada.kycSuficiente()) {
-                throw new ErrorDeNegocio(CodigoError.de(68, 2), "Necesitas elevar tu nivel de verificacion.");
-            }
-            if (!emparejamientos.hayCuposLibres(dsl, entrada.grupoId())) {
-                throw new ErrorDeNegocio(CodigoError.de(68, 4), "Este grupo ya no tiene cupos libres.");
-            }
-            if (emparejamientos.yaPostulo(dsl, entrada.grupoId(), ctx.usuarioId())) {
-                throw new ErrorDeNegocio(CodigoError.de(68, 6), "Ya tenes una postulacion pendiente en este grupo.");
-            }
-
-            CriterioDeEmparejamiento criterio = emparejamientos
-                    .criterioVigente(dsl, ahora)
-                    .orElseThrow(() ->
-                            new ErrorDeNegocio(CodigoError.de(68, 5), "No hay criterio de emparejamiento vigente."));
-
-            // Entrada excluyente (CU-68 2a, B24, ya en TEST): la reputacion minima se exige a quien TIENE historial.
-            if (entrada.reputacionExcluyente()
-                    && !entrada.reputacionSinDatos()
-                    && !criterio.alcanzaLaReputacion(entrada.reputacion())) {
-                throw new ErrorDeNegocio(CodigoError.de(68, 3), "Tu reputacion todavia no alcanza para este grupo.");
-            }
+            CriterioDeEmparejamiento criterio =
+                    PrecondicionesDePostulacion.exigir(emparejamientos, dsl, entrada, ctx.usuarioId(), ahora);
             // El riesgo recomienda; la resolución de admisión pertenece al backoffice.
             var motivos = MotorDeRecomendacion.motivos(criterio, entrada);
             String recomendacion = MotorDeRecomendacion.recomendacion(motivos);
@@ -121,6 +92,17 @@ public class CU68Postular {
 
             return new SalidaPostulacion(solicitud, puntaje, List.copyOf(motivos));
         });
+    }
+
+    /**
+     * Las mismas precondiciones de {@link #postular}, SIN escribir. Sirve para comprobar antes de un paso
+     * irreversible en otro servicio (el canje de una invitacion consume el enlace en {@code identidad}).
+     */
+    @Transactional(readOnly = true)
+    public void comprobar(EntradaPostulacion entrada, ContextoSesion ctx) {
+        OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
+        datos.conContexto(
+                ctx, dsl -> PrecondicionesDePostulacion.exigir(emparejamientos, dsl, entrada, ctx.usuarioId(), ahora));
     }
 
     /**

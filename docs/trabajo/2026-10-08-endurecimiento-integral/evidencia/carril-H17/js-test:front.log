@@ -1,0 +1,121 @@
+[recortado por tamaño: últimas 120 de 541 líneas; la salida completa se reproduce con el comando del REPORTE]
+@aportaya/web:test:front: [2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+@aportaya/web:test:front: [2m      Tests [22m [1m[32m74 passed[39m[22m[90m (74)[39m
+@aportaya/web:test:front: [2m   Start at [22m 05:42:37
+@aportaya/web:test:front: [2m   Duration [22m 5.15s[2m (transform 1.55s, setup 3.72s, import 2.54s, tests 3.24s, environment 22.60s)[22m
+@aportaya/web:test:front: 
+@aportaya/ui:test:front:  [32m✓[39m [30m[45m ui [49m[39m src/catalogo/catalogo.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 452[2mms[22m[39m
+@aportaya/ui:test:front:      [33m[2m✓[22m[39m se renderiza con las cuatro reglas de la maqueta a la vista [33m 428[2mms[22m[39m
+@aportaya/ui:test:front:  [32m✓[39m [30m[45m ui [49m[39m src/globo-de-tutorial/ubicacion.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+@aportaya/ui:test:front:  [32m✓[39m [30m[45m ui [49m[39m src/estado-de-pantalla/estado-de-pantalla.exhaustividad.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+@aportaya/ui:test:front:  [32m✓[39m [30m[45m ui [49m[39m src/estado-vacio/estado-vacio.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/entrada-estricta.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 158[2mms[22m[39m
+@aportaya/ui:test:front:  [32m✓[39m [30m[45m ui [49m[39m src/error-de-envio/error-de-envio.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 233[2mms[22m[39m
+@aportaya/ui:test:front:  [32m✓[39m [30m[45m ui [49m[39m src/dialogo/dialogo.foco.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 14[2mms[22m[39m
+@aportaya/backoffice:test:front: Not implemented: Window's confirm() method
+@aportaya/ui:test:front:  [32m✓[39m [30m[45m ui [49m[39m src/monto/monto.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+@aportaya/ui:test:front:  [32m✓[39m [30m[45m ui [49m[39m src/tarjeta-de-solicitud/tarjeta-de-solicitud.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 22[2mms[22m[39m
+@aportaya/ui:test:front:  [32m✓[39m [30m[45m ui [49m[39m src/selector-segmentado/selector-segmentado.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 10[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/contabilidad/cobros/ficha-de-cobro.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 438[2mms[22m[39m
+@aportaya/backoffice:test:front: Not implemented: Window's confirm() method
+@aportaya/ui:test:front:  [32m✓[39m [30m[45m ui [49m[39m src/chips-de-filtro/chips-de-filtro.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 10[2mms[22m[39m
+@aportaya/ui:test:front:  [32m✓[39m [30m[45m ui [49m[39m src/fecha/fecha.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+@aportaya/ui:test:front:  [32m✓[39m [30m[45m ui [49m[39m src/lista-de-movimientos/lista-de-movimientos.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+@aportaya/ui:test:front:  [32m✓[39m [30m[45m ui [49m[39m src/campo-monto/campo-monto.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+@aportaya/ui:test:front:  [32m✓[39m [30m[45m ui [49m[39m src/reloj-de-plazo/reloj-de-plazo.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+@aportaya/ui:test:front:  [32m✓[39m [30m[45m ui [49m[39m src/fila-de-cotejo/fila-de-cotejo.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+@aportaya/ui:test:front:  [32m✓[39m [30m[45m ui [49m[39m src/avatar/avatar.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+@aportaya/ui:test:front:  [32m✓[39m [30m[45m ui [49m[39m src/cuenta-enmascarada/cuenta-enmascarada.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+@aportaya/ui:test:front: 
+@aportaya/ui:test:front: [2m Test Files [22m [1m[32m23 passed[39m[22m[90m (23)[39m
+@aportaya/ui:test:front: [2m      Tests [22m [1m[32m125 passed[39m[22m[90m (125)[39m
+@aportaya/ui:test:front: [2m   Start at [22m 05:42:36
+@aportaya/ui:test:front: [2m   Duration [22m 7.77s[2m (transform 2.24s, setup 1.08s, import 2.63s, tests 2.76s, environment 902ms)[22m
+@aportaya/ui:test:front: 
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/admisiones/formulario-de-resolucion.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 136[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/matriz-de-roles.spec.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/operacion/retiros/pantalla-de-aprobacion-de-retiro.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 146[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/admisiones/pantalla-de-admision.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 154[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/sesion.interceptor.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/contabilidad/compras/ficha-de-factura.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 129[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/cumplimiento/casos/formulario-de-caso.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 59[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/contabilidad/cobros/ficha-de-cobro.frontend.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 77[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/contabilidad/periodo/pantalla-de-periodo.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 121[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/cadena-de-red.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/layout/tutoriales/anfitrion-de-tutorial.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 182[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/ayuda/pantalla-centro-de-ayuda.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 192[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/publicidad/anunciantes/pantalla-de-anunciantes.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 79[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/contabilidad/cobros/ficha-de-cobro.error.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/operacion/billetera/pantalla-de-billetera.posiciones.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 91[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/operacion/billetera/pantalla-de-billetera.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 63[2mms[22m[39m
+@aportaya/backoffice:test:front: [90mstderr[2m | src/app/nucleo/tutoriales/motor.spec.ts
+@aportaya/backoffice:test:front: [22m[39mNG0912: Component ID generation collision detected. Components '_PantallaDePrueba' and '_OtraPantallaDePrueba' with selector 'ng-component' generated the same component ID. To fix this, you can change the selector of one of those components or add an extra host attribute to force a different ID. Find more at https://v22.angular.dev/errors/NG0912
+@aportaya/backoffice:test:front: 
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/tutoriales/motor.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/cumplimiento/verificaciones/decision-de-expediente.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 101[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/operacion/solicitudes-escaladas/cola-de-solicitudes-escaladas.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 79[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/registro-de-acceso.interceptor.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/contabilidad/dominio/cu101-presupuestos.spec.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/publicidad/campanas/panel-de-aprobacion.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/contabilidad/estados/pantalla-de-estados-financieros.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 62[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/operacion/reclamos/bandeja-de-reclamos.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 59[2mms[22m[39m
+@aportaya/backoffice:test:front: [90mstderr[2m | src/app/nucleo/tutoriales/vigilar-accion.spec.ts
+@aportaya/backoffice:test:front: [22m[39mNG0912: Component ID generation collision detected. Components '_A' and '_B' with selector 'ng-component' generated the same component ID. To fix this, you can change the selector of one of those components or add an extra host attribute to force a different ID. Find more at https://v22.angular.dev/errors/NG0912
+@aportaya/backoffice:test:front: 
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/tutoriales/vigilar-accion.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 162[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/auth-bootstrap.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/permisos.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/ayuda/vista-de-tutoriales.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/tabla/tabla-de-datos-virtualizada.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 53[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/tutoriales/avance.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/tutoriales/registro.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/tutoriales/motor-salida.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 77[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/tutoriales/validacion.spec.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/contabilidad/dominio/cu103-facturas.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/gateway.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/tutoriales/almacen-local.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/sistemas/despliegues/pantalla-despliegues.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 82[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/ayuda/catalogo/catalogo.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/cumplimiento/dominio/cu02-expedientes.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/cumplimiento/organizadores/pantalla-de-habilitacion.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/cumplimiento/casos/pantalla-de-caso.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 97[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/cumplimiento/actas/pantalla-de-acta.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/secciones.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/operacion/estado/pantalla-de-estado.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 155[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/contabilidad/dominio/cu106-estados-financieros.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/cumplimiento/reclamos/pantalla-de-reclamo.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/restaurando-sesion.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/operacion/dominio/cu52-reclamos.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/cadena-de-red.timeout.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/contabilidad/dominio/cu100-periodos.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/filtros/barra-de-filtros.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/operacion/dominio/d15-solicitudes-escaladas.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/sistemas/servicios/pantalla-servicios.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/publicidad/dominio/cu112-moderacion.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/enchufe-de-rutas.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/sistemas/guardia-rol-sistemas.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/sesion.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/cumplimiento/verificaciones/vencimiento-del-documento.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/errores.spec.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/cumplimiento/alertas/pantalla-de-alertas.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/tutoriales/objetivo.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/sistemas/dominio/datos-simulados.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/publicidad/dominio/cu113-cu114-consumo.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/sistemas/dominio/sin-simulado-en-pantallas.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/publicidad/publicidad.routes.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/sistemas/dominio/proveedor-fuentes.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/sistemas/dominio/proveedor-fuentes.demo.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/nucleo/tabla/navegacion-por-teclado.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/operacion/dominio/cu13.contrato.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+@aportaya/backoffice:test:front:  [32m✓[39m [30m[42m backoffice [49m[39m src/app/rutas/sistemas/dominio/adaptador-fuente-no-disponible.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+@aportaya/backoffice:test:front: 
+@aportaya/backoffice:test:front: [2m Test Files [22m [1m[32m72 passed[39m[22m[90m (72)[39m
+@aportaya/backoffice:test:front: [2m      Tests [22m [1m[32m479 passed[39m[22m[90m (479)[39m
+@aportaya/backoffice:test:front: [2m   Start at [22m 05:42:41
+@aportaya/backoffice:test:front: [2m   Duration [22m 6.90s[2m (transform 1.18s, setup 761ms, import 1.48s, tests 3.53s, environment 737ms)[22m
+@aportaya/backoffice:test:front: 
+
+ Tasks:    11 successful, 11 total
+Cached:    8 cached, 11 total
+  Time:    24.379s 
+

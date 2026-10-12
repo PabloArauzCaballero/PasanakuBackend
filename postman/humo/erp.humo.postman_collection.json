@@ -2077,7 +2077,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"terceroComercialId\": \"{{terceroComercialId}}\",\n  \"ordenCompraId\": \"{{ordenCompraId}}\",\n  \"centroCostoId\": \"{{centroCostoId}}\",\n  \"numeroFactura\": \"numeroFactura-de-prueba\",\n  \"fechaEmision\": \"{{fecha_hoy}}\",\n  \"fechaVencimiento\": \"{{fecha_hoy}}\",\n  \"monto\": \"100.00\",\n  \"moneda\": \"BOB\",\n  \"cuentaGastoId\": \"{{cuentaGastoId}}\",\n  \"aprobadaPor\": \"{{aprobadaPor}}\"\n}",
+              "raw": "{\n  \"terceroComercialId\": \"{{terceroComercialId}}\",\n  \"ordenCompraId\": \"{{ordenCompraId}}\",\n  \"centroCostoId\": \"{{centroCostoId}}\",\n  \"numeroFactura\": \"numeroFactura-de-prueba\",\n  \"fechaEmision\": \"{{fecha_hoy}}\",\n  \"fechaVencimiento\": \"{{fecha_hoy}}\",\n  \"monto\": \"100.00\",\n  \"moneda\": \"BOB\",\n  \"cuentaGastoId\": \"{{cuentaGastoId}}\",\n  \"aprobar\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2174,7 +2174,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"terceroComercialId\": \"{{id}}\",\n  \"ordenCompraId\": \"{{id}}\",\n  \"centroCostoId\": \"{{id}}\",\n  \"numeroFactura\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"fechaEmision\": \"{{fecha_hoy}}\",\n  \"fechaVencimiento\": \"{{fecha_hoy}}\",\n  \"monto\": \"5000.00\",\n  \"moneda\": \"USD\",\n  \"cuentaGastoId\": \"{{id}}\",\n  \"aprobadaPor\": \"{{id}}\"\n}",
+              "raw": "{\n  \"terceroComercialId\": \"{{id}}\",\n  \"ordenCompraId\": \"{{id}}\",\n  \"centroCostoId\": \"{{id}}\",\n  \"numeroFactura\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"fechaEmision\": \"{{fecha_hoy}}\",\n  \"fechaVencimiento\": \"{{fecha_hoy}}\",\n  \"monto\": \"5000.00\",\n  \"moneda\": \"USD\",\n  \"cuentaGastoId\": \"{{id}}\",\n  \"aprobar\": false\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2237,7 +2237,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"terceroComercialId\": \"{{terceroComercialId}}\",\n  \"ordenCompraId\": \"{{ordenCompraId}}\",\n  \"centroCostoId\": \"{{centroCostoId}}\",\n  \"numeroFactura\": \"numeroFactura-de-prueba\",\n  \"fechaEmision\": \"{{fecha_hoy}}\",\n  \"fechaVencimiento\": \"{{fecha_hoy}}\",\n  \"monto\": \"100.00\",\n  \"moneda\": \"BOB\",\n  \"cuentaGastoId\": \"{{cuentaGastoId}}\",\n  \"aprobadaPor\": \"{{aprobadaPor}}\"\n}",
+              "raw": "{\n  \"terceroComercialId\": \"{{terceroComercialId}}\",\n  \"ordenCompraId\": \"{{ordenCompraId}}\",\n  \"centroCostoId\": \"{{centroCostoId}}\",\n  \"numeroFactura\": \"numeroFactura-de-prueba\",\n  \"fechaEmision\": \"{{fecha_hoy}}\",\n  \"fechaVencimiento\": \"{{fecha_hoy}}\",\n  \"monto\": \"100.00\",\n  \"moneda\": \"BOB\",\n  \"cuentaGastoId\": \"{{cuentaGastoId}}\",\n  \"aprobar\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2304,7 +2304,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"ordenCompraId\": \"{{ordenCompraId}}\",\n  \"centroCostoId\": \"{{centroCostoId}}\",\n  \"numeroFactura\": \"numeroFactura-de-prueba\",\n  \"fechaEmision\": \"{{fecha_hoy}}\",\n  \"fechaVencimiento\": \"{{fecha_hoy}}\",\n  \"monto\": \"100.00\",\n  \"moneda\": \"BOB\",\n  \"cuentaGastoId\": \"{{cuentaGastoId}}\",\n  \"aprobadaPor\": \"{{aprobadaPor}}\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"ordenCompraId\": \"{{ordenCompraId}}\",\n  \"centroCostoId\": \"{{centroCostoId}}\",\n  \"numeroFactura\": \"numeroFactura-de-prueba\",\n  \"fechaEmision\": \"{{fecha_hoy}}\",\n  \"fechaVencimiento\": \"{{fecha_hoy}}\",\n  \"monto\": \"100.00\",\n  \"moneda\": \"BOB\",\n  \"cuentaGastoId\": \"{{cuentaGastoId}}\",\n  \"aprobar\": true,\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2489,7 +2489,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"monto\": \"5000.00\",\n  \"moneda\": \"USD\",\n  \"formaPago\": \"QR\"\n}",
+              "raw": "{\n  \"monto\": \"5000.00\",\n  \"moneda\": \"USD\",\n  \"formaPago\": \"EFECTIVO\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4411,10 +4411,6 @@
   "variable": [
     {
       "key": "activoId",
-      "value": ""
-    },
-    {
-      "key": "aprobadaPor",
       "value": ""
     },
     {

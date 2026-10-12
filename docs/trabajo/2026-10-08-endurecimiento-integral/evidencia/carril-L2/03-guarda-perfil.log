@@ -1,0 +1,12 @@
+##### 3. Guarda de perfil: cumplimiento corre con perfil de PRODUCCION => aborta (5), no escribe
+$ bash sandbox_licencia_test.sh    [perfil-produccion]
+ERROR: cumplimiento corre con el perfil «production», de produccion: aca no se habilita un sandbox
+RC=5
+$ bash sandbox_licencia_test.sh --estado   [estado-tras-abortar]
+[estado] sandbox_filas=0 sandbox_activo_vigente=0 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=false fn_lic_BILLETERA=false 
+RC=0
+
+##### 4. Guarda de perfil: cumplimiento sin el perfil local => aborta (5)
+$ bash sandbox_licencia_test.sh    [perfil-no-local]
+ERROR: cumplimiento corre con el perfil «default», no con «local»: aca no se habilita un sandbox
+RC=5

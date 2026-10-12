@@ -9,6 +9,7 @@ class CampoOTP extends StatefulWidget {
   const CampoOTP({
     super.key,
     required this.onCompleto,
+    this.onCambio,
     this.largo = 6,
     this.oculto = false,
     this.error,
@@ -16,6 +17,10 @@ class CampoOTP extends StatefulWidget {
   });
 
   final ValueChanged<String> onCompleto;
+
+  /// Cada vez que cambia lo escrito, con lo que hay hasta ese momento (completo o no):
+  /// lo necesita quien muestra un botón «Confirmar» que solo se enciende con el código entero.
+  final ValueChanged<String>? onCambio;
   final int largo;
   final bool oculto;
   final String? error;
@@ -59,6 +64,7 @@ class _CampoOTPState extends State<CampoOTP> {
       _f[i - 1].requestFocus();
     }
     final todo = _c.map((c) => c.text).join();
+    widget.onCambio?.call(todo);
     if (todo.length == widget.largo) {
       widget.onCompleto(todo);
     }

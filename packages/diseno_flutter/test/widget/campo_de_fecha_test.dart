@@ -23,7 +23,11 @@ void main() {
   }
 
   /// El día y el año tienen buscador (más de 12 opciones); el mes, desplegable.
-  Future<void> buscarYElegir(WidgetTester tester, String vacio, String q) async {
+  Future<void> buscarYElegir(
+    WidgetTester tester,
+    String vacio,
+    String q,
+  ) async {
     await tester.tap(find.text(vacio));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), q);

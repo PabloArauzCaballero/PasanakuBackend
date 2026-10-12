@@ -3,13 +3,13 @@ import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/moleculas/barra_de_accion.dart';
 import 'package:aportaya_diseno/moleculas/cabecera.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../dominio/cliente.dart';
 import '../../proveedores/idempotencia.dart';
 import '../../proveedores/sesion.dart';
+import 'dominio/cu69_unirse_por_enlace.dart';
 import 'tarjetas_de_unirse.dart';
 import 'textos_invitacion.dart';
 import 'vistas_de_unirse.dart';
@@ -30,10 +30,6 @@ class PantallaUnirse extends ConsumerStatefulWidget {
 }
 
 class _PantallaUnirseState extends ConsumerState<PantallaUnirse> {
-  static final _formato = RegExp(
-    r'^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.([0-9a-f]{64})$',
-  );
-
   bool _cargando = true;
   bool _necesitaIngreso = false;
   bool _aceptaReglamento = false;
@@ -42,7 +38,7 @@ class _PantallaUnirseState extends ConsumerState<PantallaUnirse> {
   Map<String, dynamic>? _detalle;
   String? _grupoAceptado;
 
-  RegExpMatch? get _partes => _formato.firstMatch(widget.codigo);
+  EnlaceDeInvitacion? get _enlace => EnlaceDeInvitacion.leer(widget.codigo);
 
   @override
   void initState() {
@@ -51,8 +47,8 @@ class _PantallaUnirseState extends ConsumerState<PantallaUnirse> {
   }
 
   Future<void> _consultar() async {
-    final partes = _partes;
-    if (partes == null) {
+    final enlace = _enlace;
+    if (enlace == null) {
       setState(() {
         _cargando = false;
         _error = 'El enlace de invitación no es válido.';
@@ -78,23 +74,20 @@ class _PantallaUnirseState extends ConsumerState<PantallaUnirse> {
       return;
     }
     try {
-      final respuesta = await ref
-          .read(dioProvider)
-          .post<Map<String, dynamic>>(
-            '/grupos/invitaciones/enlace/consultar',
-            data: {'tokenId': partes.group(1), 'token': partes.group(2)},
-          );
+      final detalle = await enlace.consultar(ref.read(dioProvider));
       if (!mounted) return;
       setState(() {
         _cargando = false;
-        _detalle = respuesta.data;
+        _detalle = detalle;
       });
-    } on Object {
+    } on Object catch (e) {
       if (!mounted) return;
       setState(() {
         _cargando = false;
-        _error =
-            'No pudimos verificar la invitación. Revisá el enlace o probá de nuevo.';
+        _error = textoDelRechazoDeInvitacion(
+          e,
+          'No pudimos verificar la invitación. Revisá el enlace o probá de nuevo.',
+        );
       });
     }
   }
@@ -103,37 +96,33 @@ class _PantallaUnirseState extends ConsumerState<PantallaUnirse> {
     if (_enviando ||
         !_aceptaReglamento ||
         _detalle == null ||
-        _partes == null) {
+        _enlace == null) {
       return;
     }
     setState(() => _enviando = true);
-    final partes = _partes!;
-    final formulario = 'cu69-aceptar-${partes.group(1)}';
+    final enlace = _enlace!;
+    final formulario = 'cu69-aceptar-${enlace.tokenId}';
     final clave = ref.read(idempotenciaProvider.notifier).claveDe(formulario);
     try {
-      final respuesta = await ref
-          .read(dioProvider)
-          .post<Map<String, dynamic>>(
-            '/grupos/invitaciones/enlace/aceptar',
-            data: {
-              'tokenId': partes.group(1),
-              'token': partes.group(2),
-              'hashReglamento': _detalle!['hashReglamento'],
-              'aceptaReglamento': true,
-            },
-            options: Options(headers: {'Idempotency-Key': clave}),
-          );
+      final grupoId = await enlace.aceptar(
+        ref.read(dioProvider),
+        hashReglamento: _detalle!['hashReglamento'],
+        claveDeIdempotencia: clave,
+      );
       ref.read(idempotenciaProvider.notifier).cerrar(formulario);
       if (!mounted) return;
       setState(() {
-        _grupoAceptado = respuesta.data?['grupoId'] as String?;
+        _grupoAceptado = grupoId;
         _detalle = null;
         _error = null;
       });
-    } on Object {
+    } on Object catch (e) {
       if (!mounted) return;
       setState(
-        () => _error = 'No pudimos completar tu ingreso. Probá de nuevo.',
+        () => _error = textoDelRechazoDeInvitacion(
+          e,
+          'No pudimos completar tu ingreso. Probá de nuevo.',
+        ),
       );
     } finally {
       if (mounted) setState(() => _enviando = false);

@@ -1,0 +1,44 @@
+## 6. B consulta el enlace de inv1
+{"codigo":"AP-CU69-05","mensaje":"Esa invitacion ya no es valida.","detalle":{},"trazaId":"5ecb2763-5a8e-4ee8-b1bd-4daea20f89e1"}
+HTTP 422
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys,json;d=json.loads(sys.stdin.read());print(d['hashReglamento'])
+                                                         ~^^^^^^^^^^^^^^^^^^
+KeyError: 'hashReglamento'
+## 7. B acepta (aceptaReglamento true)
+{"codigo":"AP-VAL-01","mensaje":"Revisa los datos del formulario.","detalle":{"hashReglamento":"must match \"^[0-9a-f]{64}$\""},"trazaId":"7a557f07-2b9a-416b-a28b-f6b9ef06035b"}
+HTTP 400
+## 8. participaciones B / A tras aceptar
+[]
+HTTP 200
+[{"grupoId":"bfb102a3-0e36-401a-abac-97911e4bae55","participanteId":"c37763fb-f345-46d6-b860-4c3badfa0d28","estado":"ACEPTADO_PENDIENTE_FIRMA"}]
+HTTP 200
+## 9. reuso del enlace por B (ya usado)
+{"codigo":"AP-VAL-01","mensaje":"Revisa los datos del formulario.","detalle":{"hashReglamento":"must match \"^[0-9a-f]{64}$\""},"trazaId":"9b58f8c8-8e83-4d04-badc-f8e5ae25311c"}
+HTTP 400
+## validar directo a identidad como B, kyc NINGUNO
+{"valido":true}
+HTTP 200
+## igual con la sesion de A (telefono de A)
+{"valido":false}
+HTTP 200
+## B postula al G1 (discrimina el estado del grupo: exige ABIERTO_A_INSCRIPCION)
+{"solicitudId":"77abcbc0-a824-4a29-aa9d-ed58837694a6","puntaje":"0.5000","motivos":["el monto del aporte encaja con lo que buscas","hay gente de tu zona","el riesgo del grupo se parece al tuyo","ya compartiste grupo con alguien de ahi","SIN_DATOS_REPUTACION: sin historial verificable; requiere valoración humana del backoffice."]}
+HTTP 201
+## B canjea la invitacion (camino de admision humana)
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json;print(json.load(open('/c/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/l3/inv1.json'))['enlace'])
+                                ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/c/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/l3/inv1.json'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json;print(json.load(open('/c/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/l3/inv1.json'))['invitacionId'])
+                                ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/c/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/l3/inv1.json'
+{"codigo":"AP-VAL-05","mensaje":"Esa ruta no existe.","trazaId":"e63e2c2a-0a76-49c2-912a-40211df3b8cc"}
+HTTP 404
+## B canjea la invitacion (admision humana)
+{"codigo":"AP-CU68-06","mensaje":"Ya tenes una postulacion pendiente en este grupo.","detalle":{},"trazaId":"2b61c223-42ee-4c1e-a2ea-1300d47c19a3"}
+HTTP 422

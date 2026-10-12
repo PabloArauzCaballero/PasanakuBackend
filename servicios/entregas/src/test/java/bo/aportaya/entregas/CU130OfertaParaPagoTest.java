@@ -29,7 +29,7 @@ class CU130OfertaParaPagoTest extends BaseDeMercado {
     }
 
     @Test
-    @DisplayName("CORRECTO · la oferta publicada devuelve su vendedor, el precio exacto (sin los cargos) y el estado")
+    @DisplayName("CORRECTO · la oferta publicada devuelve su vendedor, el precio exacto, sus cargos y el estado")
     void devuelveVendedorPrecioYEstado() {
         var c = caso();
         var publicada = publicar(c);
@@ -40,6 +40,8 @@ class CU130OfertaParaPagoTest extends BaseDeMercado {
         assertThat(oferta.ofertaId()).isEqualTo(publicada.ofertaId());
         assertThat(oferta.vendedorUsuarioId()).isEqualTo(c.vendedor());
         assertThat(oferta.precio()).isEqualTo(bob("5500.00"));
+        assertThat(oferta.cargos().esNegativo()).isFalse();
+        assertThat(oferta.cargos().esMayorQue(oferta.precio())).isFalse();
         assertThat(oferta.estado()).isEqualTo("PUBLICADA");
     }
 

@@ -50,16 +50,18 @@ import org.springframework.transaction.annotation.Transactional;
  *       transaccion ({@code origen_id}). Nada se actualiza despues (append-only).
  *   <li><b>Moneda</b>: el importe viaja con su moneda; las cuentas de billetera y las del plan se buscan EN ESA moneda. No
  *       existe conversion: sin cuenta en esa moneda, el evento se rechaza.
- *   <li><b>Sin dinero inventado</b>: el saldo del participante se lee del libro; si no alcanza ({@code AP-CU12-01}) o una
- *       de las cuentas no existe o no esta operativa ({@code AP-CU12-02}/{@code 03}), NO se escribe nada y el evento NO se
- *       marca como consumido: el reproceso lo aplica cuando la causa se resuelva (se recarga, se abre la cuenta).
+ *   <li><b>Sin dinero inventado</b>: el saldo del participante se lee del libro. Si una de las cuentas no existe o no esta
+ *       operativa ({@code AP-CU12-02}/{@code 03}), NO se escribe nada y el evento NO se marca como consumido: el reproceso
+ *       lo aplica cuando la causa se resuelva (se abre la cuenta, se descongela). Si el saldo no alcanza ({@code AP-CU12-01})
+ *       el rechazo es DEFINITIVO: no se escribe en el libro ni en el mayor, el evento SE marca como consumido y se publica
+ *       {@code nucleo_financiero.aporte_no_aplicado} para que {@code aportes} compense el pago.
  * </ul>
  *
  * <p><b>Alcance declarado:</b> solo el canal {@code BILLETERA_MOVIL} sale de una billetera. Los demas canales (QR,
  * tarjeta, transferencia bancaria, efectivo al organizador, compensacion interna, fondo de garantia) entran por la
  * conciliacion y por su propio asiento; aca no se inventa su contrapartida ({@link Resultado#CANAL_SIN_BILLETERA}, se
- * marca consumido y se avisa en el registro). Tampoco se aplican los limites por concepto de CU-40 ni se compensa en
- * {@code aportes} un rechazo (DECISION PENDIENTE de producto/contabilidad; ver el reporte del carril).
+ * marca consumido y se avisa en el registro). Tampoco se aplican los limites por concepto de CU-40 (DECISION PENDIENTE de
+ * producto/riesgos; ver el informe del carril Q).
  */
 @Service
 public class ConsumoDeAportes {
@@ -83,7 +85,9 @@ public class ConsumoDeAportes {
         APLICADO,
         DUPLICADO,
         YA_APLICADO,
-        CANAL_SIN_BILLETERA
+        CANAL_SIN_BILLETERA,
+        /** Rechazo DEFINITIVO por saldo: no se movio nada y se publico {@code aporte_no_aplicado} para compensar. */
+        RECHAZADO_POR_SALDO
     }
 
     /** Lo que {@code aportes.aporte_cobrado} trae, ya con tipos: el borde con Kafka valida y convierte. */
@@ -188,8 +192,10 @@ public class ConsumoDeAportes {
         }
         // El saldo sale del LIBRO, no de la cache: lo que autoriza un debito es lo que el libro dice ahora.
         if (monto.esMayorQue(origen.disponible()) && !origen.permiteNegativo()) {
-            throw new ErrorDeNegocio(
-                    CodigoError.de(12, 1), "El disponible del participante no cubre el aporte.", detalle(aporte));
+            // Rechazo DEFINITIVO (no se arregla reprocesando): se compensa. Nada se escribio todavia, asi que se
+            // publica el
+            // hecho en la misma transaccion que la marca de consumo y `aportes` revierte el pago (saga, regla 98.3).
+            return rechazarPorSaldo(dsl, aporte);
         }
 
         // 3. El asiento PRIMERO (apunta a la transaccion que va a existir) y la transaccion con el asiento ya enlazado.
@@ -237,6 +243,31 @@ public class ConsumoDeAportes {
                                 "moneda", moneda),
                         aporte.correlationId()));
         return new Salida(Resultado.APLICADO, Optional.of(transaccionId), Optional.of(asiento.asientoId()));
+    }
+
+    /**
+     * AP-CU12-01 como hecho, no como excepcion: una excepcion dejaba el aporte {@code PAGADO} en {@code aportes} sin que el
+     * dinero se hubiera movido, y el contenedor de Kafka terminaba descartando el evento tras agotar los reintentos. El
+     * evento queda marcado como consumido (el reproceso no repite el aviso) y {@code aportes} lo compensa de forma
+     * idempotente por {@code pagoId}.
+     */
+    private Salida rechazarPorSaldo(DSLContext dsl, AporteCobrado aporte) {
+        outbox.emitir(
+                dsl,
+                new EventoDominio(
+                        "nucleo_financiero.aporte_no_aplicado",
+                        "obligacion_aporte",
+                        aporte.obligacionId(),
+                        Map.of(
+                                "pagoId", aporte.pagoId().toString(),
+                                "obligacionId", aporte.obligacionId().toString(),
+                                "grupoId", aporte.grupoId().toString(),
+                                "monto", aporte.monto().toString(),
+                                "moneda", aporte.monto().moneda().name(),
+                                "motivo", "SALDO_INSUFICIENTE",
+                                "codigo", CodigoError.de(12, 1).valor()),
+                        aporte.correlationId()));
+        return Salida.sinEfecto(Resultado.RECHAZADO_POR_SALDO);
     }
 
     private String codigoDelPlan(String cuentaLogica, AporteCobrado aporte) {

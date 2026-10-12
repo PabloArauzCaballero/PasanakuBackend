@@ -141,72 +141,78 @@ void main() {
     },
   );
 
-  test('contra el cliente real: el Token-De-Alta viaja como cabecera', () async {
-    final (:dio, :adaptador) = dioSimulado();
-    const usuario = 'dddddddd-0000-4000-8000-000000000001';
-    final cabeceras = <Map<String, dynamic>>[];
-    dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (o, h) {
-          if (o.path.endsWith('/verificacion')) cabeceras.add(o.headers);
-          h.next(o);
-        },
-      ),
-    );
-    adaptador.onGet(
-      '/usuarios/$usuario/verificacion',
-      (s) => s.reply(
-        200,
-        ejemplo('identidad', 'consultarEstadoDeVerificacion', 'ok')['cuerpo'],
-      ),
-      headers: {'Token-De-Alta': 'tok-real'},
-    );
-    final c = ProviderContainer(
-      retry: (retryCount, error) => null,
-      overrides: [dioProvider.overrideWithValue(dio)],
-    );
-    addTearDown(c.dispose);
+  test(
+    'contra el cliente real: el Token-De-Alta viaja como cabecera',
+    () async {
+      final (:dio, :adaptador) = dioSimulado();
+      const usuario = 'dddddddd-0000-4000-8000-000000000001';
+      final cabeceras = <Map<String, dynamic>>[];
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (o, h) {
+            if (o.path.endsWith('/verificacion')) cabeceras.add(o.headers);
+            h.next(o);
+          },
+        ),
+      );
+      adaptador.onGet(
+        '/usuarios/$usuario/verificacion',
+        (s) => s.reply(
+          200,
+          ejemplo('identidad', 'consultarEstadoDeVerificacion', 'ok')['cuerpo'],
+        ),
+        headers: {'Token-De-Alta': 'tok-real'},
+      );
+      final c = ProviderContainer(
+        retry: (retryCount, error) => null,
+        overrides: [dioProvider.overrideWithValue(dio)],
+      );
+      addTearDown(c.dispose);
 
-    final r = await c
-        .read(consultarVerificacionProvider)
-        .ejecutar(usuario, tokenDeAlta: 'tok-real');
+      final r = await c
+          .read(consultarVerificacionProvider)
+          .ejecutar(usuario, tokenDeAlta: 'tok-real');
 
-    expect(r.estado, EstadoDeVerificacionEstadoEnum.PENDIENTE);
-    expect(cabeceras.single['Token-De-Alta'], 'tok-real');
-  });
+      expect(r.estado, EstadoDeVerificacionEstadoEnum.PENDIENTE);
+      expect(cabeceras.single['Token-De-Alta'], 'tok-real');
+    },
+  );
 
-  test('contra el cliente real: sin token no hay cabecera y el 403 llega como error', () async {
-    final (:dio, :adaptador) = dioSimulado();
-    const usuario = 'dddddddd-0000-4000-8000-000000000001';
-    final cabeceras = <Map<String, dynamic>>[];
-    dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (o, h) {
-          cabeceras.add(o.headers);
-          h.next(o);
-        },
-      ),
-    );
-    adaptador.onGet(
-      '/usuarios/$usuario/verificacion',
-      (s) => s.reply(403, {
-        'codigo': 'AP-SEG-01',
-        'mensaje': 'No tenés permiso para esta acción',
-        'trazaId': 't-1',
-      }),
-    );
-    final c = ProviderContainer(
-      retry: (retryCount, error) => null,
-      overrides: [dioProvider.overrideWithValue(dio)],
-    );
-    addTearDown(c.dispose);
+  test(
+    'contra el cliente real: sin token no hay cabecera y el 403 llega como error',
+    () async {
+      final (:dio, :adaptador) = dioSimulado();
+      const usuario = 'dddddddd-0000-4000-8000-000000000001';
+      final cabeceras = <Map<String, dynamic>>[];
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (o, h) {
+            cabeceras.add(o.headers);
+            h.next(o);
+          },
+        ),
+      );
+      adaptador.onGet(
+        '/usuarios/$usuario/verificacion',
+        (s) => s.reply(403, {
+          'codigo': 'AP-SEG-01',
+          'mensaje': 'No tenés permiso para esta acción',
+          'trazaId': 't-1',
+        }),
+      );
+      final c = ProviderContainer(
+        retry: (retryCount, error) => null,
+        overrides: [dioProvider.overrideWithValue(dio)],
+      );
+      addTearDown(c.dispose);
 
-    await expectLater(
-      c.read(consultarVerificacionProvider).ejecutar(usuario),
-      throwsA(isA<DioException>()),
-    );
-    expect(cabeceras.single.containsKey('Token-De-Alta'), isFalse);
-  });
+      await expectLater(
+        c.read(consultarVerificacionProvider).ejecutar(usuario),
+        throwsA(isA<DioException>()),
+      );
+      expect(cabeceras.single.containsKey('Token-De-Alta'), isFalse);
+    },
+  );
 
   testWidgets('un fallo de red queda como error y no reprograma', (
     tester,

@@ -979,7 +979,7 @@
             }
           ]
         },
-        "description": "## El estado de la verificacion de quien acaba de registrarse\n\nRuta publica, igual que `subirDocumento`: quien recien se registro todavia no puede abrir sesion (su dispositivo es nuevo y `ExigeSegundoFactor` le pide un MFA que todavia no tiene enrolado), y necesita saber si su cuenta quedo verificada sin esperar a poder ingresar. La respuesta es minima — ni nombre ni documento — para que esta ruta no se convierta en un directorio de clientes.\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `consultarEstadoDeVerificacion` |\n| **Ruta** | `GET /api/v1/usuarios/{usuarioId}/verificacion` |\n| **Permiso** | **ruta publica, sin sesion** |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+        "description": "## El estado de la verificacion de quien acaba de registrarse\n\nRuta sin sesion obligatoria, igual que `subirDocumento`: quien recien se registro todavia no puede abrir sesion (su dispositivo es nuevo y `ExigeSegundoFactor` le pide un MFA que todavia no tiene enrolado), y necesita saber si su cuenta quedo verificada sin esperar a poder ingresar.\nPero el `usuarioId` de la URL NO autoriza nada: lo consulta solo la persona. O presenta el `tokenDeAlta` que devolvio SU alta (cabecera `Token-De-Alta`), o es su propia sesion. Cualquier otro caso —token de otro usuario, vencido, mal formado, ausente, sesion de otra persona, o un UUID que no existe— responde el MISMO 403, sin decir si el usuario existe, y se decide antes de leer el expediente. La respuesta es minima — ni nombre ni documento — y el motivo del rechazo solo viaja cuando el estado es RECHAZADA (la persona tiene derecho a saber por que).\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `consultarEstadoDeVerificacion` |\n| **Ruta** | `GET /api/v1/usuarios/{usuarioId}/verificacion` |\n| **Permiso** | **ruta publica, sin sesion** |\n| **Respuestas** | `200`, `403`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [
@@ -989,7 +989,7 @@
             "type": "text/javascript",
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
-              "const esperadas = [200, 422];",
+              "const esperadas = [200, 403, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -1057,7 +1057,7 @@
             }
           ]
         },
-        "description": "## Si el nombre y el documento declarados son los del titular\n\nContesta si coinciden; NO dice cuales son. Devolver el nombre y el documento guardados convertiria esta ruta en un directorio de clientes para cualquier servicio comprometido. El documento ademas se guarda como hash con pimienta: lo que se comparan son dos hashes, nunca dos numeros.\nLa usa `entregas` antes de registrar una cuenta bancaria — R-SEG-02 exige que la cuenta sea de quien la registra, y ese dato vive aca.\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `verificarTitularidad` |\n| **Ruta** | `POST /api/v1/usuarios/{usuarioId}/titularidad/verificacion` |\n| **Permiso** | `DATOS_SENSIBLES_LEER` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Si el nombre y el documento declarados son los del titular\n\nContesta si coinciden; NO dice cuales son. Devolver el nombre y el documento guardados convertiria esta ruta en un directorio de clientes para cualquier servicio comprometido. El documento ademas se guarda como hash con pimienta: lo que se comparan son dos hashes, nunca dos numeros.\nLa usa `entregas` antes de registrar una cuenta bancaria — R-SEG-02 exige que la cuenta sea de quien la registra, y ese dato vive aca.\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `verificarTitularidad` |\n| **Ruta** | `POST /api/v1/usuarios/{usuarioId}/titularidad/verificacion` |\n| **Permiso** | `DATOS_SENSIBLES_LEER` |\n| **Respuestas** | `200`, `422`, `429` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"nombreCompleto\": \"nombreCompleto-de-prueba\",\n  \"documento\": \"documento-de-prueba\"\n}",
@@ -1076,7 +1076,7 @@
             "type": "text/javascript",
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
-              "const esperadas = [200, 422];",
+              "const esperadas = [200, 422, 429];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",

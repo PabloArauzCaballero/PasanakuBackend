@@ -101,7 +101,7 @@ class CU101Test extends BaseDeErp {
                         new BigDecimal("12000.00"),
                         "BOB",
                         cuentaGasto,
-                        ctx.usuarioId()),
+                        true),
                 ctx));
 
         var ejecucion = transaccion.execute(t -> presupuestoCU.ejecucion(presupuesto.presupuestoId(), ctx));

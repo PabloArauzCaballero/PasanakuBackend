@@ -128,9 +128,22 @@ DE_DESARROLLO = {
     # grupos · consumo de entregas.derecho_cedido (el cupo cambia de titular al venderse un turno): ENCENDIDO. La venta ya
     # movio el dinero en otro servicio; apagarlo la deja pagada sin reflejo en el grupo.
     "CESION_CONSUMO_HABILITADO": "true",
+    # CU-20 (carril P): tarifas congela el precio al consumir grupos.grupo_creado y grupos abre el grupo a inscripciones al
+    # consumir tarifas.tarifa_congelada. ENCENDIDOS: sin ellos un grupo creado por la API queda en BORRADOR para siempre.
+    "CONGELAMIENTO_CONSUMO_HABILITADO": "true",
+    "APERTURA_CONSUMO_HABILITADO": "true",
     # nucleo-financiero · consumo de aportes.aporte_cobrado (debita al participante, acredita al grupo, asienta en el mayor):
     # ENCENDIDO. Sin el, el aporte queda PAGADO en `aportes` y no mueve billetera ni mayor.
     "CONSUMO_DE_APORTES_HABILITADO": "true",
+    # nucleo-financiero (carril Q) · quien abre las billeteras: identidad.usuario_registrado abre la de la persona y
+    # grupos.grupo_creado la del grupo. ENCENDIDOS: sin ellos nadie tiene billetera (AP-CU13-01 a todos, AP-CU12-02 al aporte).
+    # El estado inicial de la billetera de la persona es ACTIVA (decision delegada, a confirmar con Cumplimiento);
+    # EN_APERTURA la deja cerrada a toda operacion hasta que exista una senal de activacion (hoy no existe).
+    # aportes (carril Q) · compensacion del aporte PAGADO que nucleo no pudo aplicar por falta de saldo: ENCENDIDA.
+    "COMPENSACION_CONSUMO_HABILITADO": "true",
+    "APERTURA_USUARIOS_HABILITADO": "true",
+    "APERTURA_GRUPOS_HABILITADO": "true",
+    "APERTURA_ESTADO_INICIAL_USUARIO": "ACTIVA",
 }
 
 # ── El mismo cuadro, para un entorno DESPLEGADO (Coolify) ───────────────────
@@ -222,7 +235,13 @@ DE_ENTORNO = {
     "SUSTITUCION_CONSUMO_HABILITADO": "${SUSTITUCION_CONSUMO_HABILITADO:-false}",
     # Carril I · consumidores del circuito del dinero, ENCENDIDOS por omision (ver DE_DESARROLLO). Opcionales (`:-`).
     "CESION_CONSUMO_HABILITADO": "${CESION_CONSUMO_HABILITADO:-true}",
+    "CONGELAMIENTO_CONSUMO_HABILITADO": "${CONGELAMIENTO_CONSUMO_HABILITADO:-true}",
+    "APERTURA_CONSUMO_HABILITADO": "${APERTURA_CONSUMO_HABILITADO:-true}",
     "CONSUMO_DE_APORTES_HABILITADO": "${CONSUMO_DE_APORTES_HABILITADO:-true}",
+    "COMPENSACION_CONSUMO_HABILITADO": "${COMPENSACION_CONSUMO_HABILITADO:-true}",
+    "APERTURA_USUARIOS_HABILITADO": "${APERTURA_USUARIOS_HABILITADO:-true}",
+    "APERTURA_GRUPOS_HABILITADO": "${APERTURA_GRUPOS_HABILITADO:-true}",
+    "APERTURA_ESTADO_INICIAL_USUARIO": "${APERTURA_ESTADO_INICIAL_USUARIO:-ACTIVA}",
 }
 
 
