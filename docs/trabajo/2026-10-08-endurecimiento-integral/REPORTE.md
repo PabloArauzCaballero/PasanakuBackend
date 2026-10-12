@@ -1,6 +1,6 @@
 # Reporte — Endurecimiento integral (cierre tras el corte por falta de RAM)
 
-> **AVANCE: 91 / 114 — 79,8 %.** (`microtareas HECHO / total` de `PLAN.md`, calculado con `python .claude/hooks/plan_status.py`; `A MEDIAS` cuenta como no hecha. Retomada 2026-10-12: de 69 / 86 a 91 / 114; H17 agregó 28 microtareas, 22 en HECHO.)
+> **AVANCE: 93 / 118 — 78,8 %.** (`microtareas HECHO / total` de `PLAN.md`, calculado con `python .claude/hooks/plan_status.py`; `A MEDIAS` cuenta como no hecha. Retomada 2026-10-12: de 69 / 86 a 93 / 118; H17 agregó 32 microtareas, 24 en HECHO.)
 
 - Fecha: 2026-10-08 · Plan: [PLAN.md](./PLAN.md) · Notas: [NOTAS.md](./NOTAS.md) · Repos: PasanakuBackend (principal), PasanakuFrontend (carril E). Integrado sobre `origin/test` en la rama `justin/feature/cierre-endurecimiento-2026-10-08` (ver «Integración sobre test»).
 - Peldaño de evidencia alcanzado: **TESTED por servicio** (regla 30, peldaño 4), contra PostgreSQL real vía Testcontainers. **No** se alcanzó `REGRESSION_VERIFIED` global: falta integración real entre servicios y E2E de punta a punta.
@@ -10,7 +10,7 @@
 ## Retomada 2026-10-12 (H17): carriles P, Q, R y T verificados
 
 - Rama: `claude-marcelo/affectionate-heisenberg-nzjzml` (Backend). Parte de `dev` (`08042090`, ya con el PR #53) más los commits `WIP:` de P/Q/R/T de `justin/feature/cierre-endurecimiento-2026-10-08`. Frontend: sin cambios (`PasanakuFrontend` no se tocó).
-- Peldaño de evidencia por área (regla 30): **Backend P, Q, R: `TESTED`** contra PostgreSQL real; la cadena P·Q llegó a **`VERIFIED` en un stack local** (servicios, Kafka y Postgres reales, con las caídas provocadas de abajo); **Frontend JS: `TESTED`**; **App móvil (Flutter): `TESTED`** (sin prueba visual: `VERIFIED_FUNCTIONAL_ONLY` en lo que sea visual); **TEST (Contabo): `UNKNOWN`**, no se tocó. El peldaño del trabajo es el más bajo de sus áreas: `UNKNOWN` en TEST. No es `REGRESSION_VERIFIED`.
+- Peldaño de evidencia por área (regla 30): **Backend P, Q, R: `TESTED`** contra PostgreSQL real; la cadena P·Q llegó a **`VERIFIED` en un stack local** (servicios, Kafka y Postgres reales, con las caídas provocadas de abajo); **Frontend JS: `TESTED`**; **App móvil (Flutter) y backoffice: `TESTED` con prueba visual contra dobles** (`VERIFIED_FUNCTIONAL_ONLY`; ver «Prueba visual»); **TEST (Contabo): `UNKNOWN`**, no se tocó. El peldaño del trabajo es el más bajo de sus áreas: `UNKNOWN` en TEST. No es `REGRESSION_VERIFIED`.
 - Entorno: contenedor Linux con 16 GB; Postgres 16 y Kafka en Docker, Flutter 3.44.8 (tag de GitHub), Node 24 y Yarn 4.18.0 instalados desde el registro de npm (`repo.yarnpkg.com` devuelve 403 por la política de salida de la organización), y un espejo de Maven Central para Gradle (`~/.gradle/init.d`, fuera del repo) porque `repo.maven.apache.org` respondía 429. Nada de eso entra al repositorio.
 
 ### Completado en H17 (comando → resultado; salidas en `evidencia/carril-H17/`)
@@ -52,12 +52,20 @@
 | 13 | app: `estado_alta.dart` (247) y `motor.dart` (206) pasaban de 200 líneas; formato Dart roto en 8 archivos (3 de T, 5 heredados de `dev`) | regla propia / ENVIRONMENT de la deriva | `modelo_del_alta.dart`, `textos_del_motor.dart`; `dart format` |
 | 14 | CU-20, `grupos.yaml` y `CU20CrearGrupo` seguían diciendo que nucleo «todavía no» abre la cuenta del grupo | documentación desactualizada | actualizados |
 
+### Prueba visual (regla 95.7), mirada captura por captura
+
+- **Backoffice, pago a proveedor (R)** — `capturas-backoffice/` (6 PNG: móvil/tablet/escritorio × claro/oscuro). El formulario ofrece Transferencia, Cheque y Efectivo y ninguna «QR»; consola sin errores, sin desborde horizontal, contraste medido con axe sin violaciones. Los listados de facturas y de órdenes no existen en el contrato y van simulados.
+- **App móvil (T)** — `capturas-app/` (30 PNG, 360×740 con texto al 130 %, 768×1024 y 1280×900, claro y oscuro): billetera con saldo (sin «Banco Unión»; «En custodia, separado del dinero de la empresa»), billetera «Tu billetera todavía no está activa» con «Volver a revisar», segundo factor (explicación, «Confirmar» apagado hasta tener 6 dígitos, rechazo con texto y borde rojo, «Confirmar» para reintentar) y selector de fecha en español con el teléfono en inglés. Las 24 pruebas verifican que no haya excepción de desborde.
+- **Lo que se ve mal** (no se corrigió; hallazgos H17.S9.M6 y M7): (1) en `ap-dialogo` a 360 px el botón de confirmar largo se sale del relleno del diálogo; (2) en la billetera con saldo a 360 px y texto al 130 % los botones Aportar/Recargar/Retirar se cortan.
+- Limitaciones de las capturas: las del backoffice son de página completa, así que el velo del diálogo solo cubre el alto de la ventana (efecto de la captura); las de la app no son de un emulador y no se comparan con los goldens de macOS. Los generadores quedan en el repo: `apps/backoffice/e2e/h17-pago-a-proveedor.e2e.ts` y `apps/movil/test/capturas/` (el CI de la app no ejecuta esa carpeta). Este contenedor necesitó apuntar Playwright al Chromium 1194 preinstalado con un config local que no se versionó.
+
 ### Hallazgos que NO se corrigieron (registrados en el plan, H17.S9)
 
 1. **`aceptarInvitacionPorEnlace` ignora la `Idempotency-Key`** (regla 96.3.3): reintentar con la misma clave devuelve 422 `AP-CU69-05` aunque la participación ya se creó. Anterior a P (`d8e103ec`). Visto en `e2e-recorrido-ab.log` (único `FAIL` del recorrido, deliberadamente dejado a la vista).
 2. **3 pruebas rojas de `plataforma/comun-pruebas`** (`MatrizDeAutorizacionContratoTest`): `renovarSesion` y `consultarEstadoDeVerificacion` no están en `PoliticaDeAcceso`, y `historialAdmision` no tiene controlador. Rojas también en `origin/dev` `08042090` (`baseline-dev-contractTest.log`). Son decisiones de seguridad y de contrato de otros carriles.
 3. `verificar_carriles.py`: «sin carril dueño: inversiones» (anterior).
 4. `packages/diseno_flutter/pubspec.lock` está resuelto con otro Flutter (con 3.44.8 baja `matcher`/`meta`) y `.flutter-plugins-dependencies` está versionado con rutas de otra máquina. Se revirtió el cambio que hizo `flutter pub get`.
+6. (Visual) `ap-dialogo` desborda el relleno a 360 px y los botones de la billetera se cortan a 360 px con texto al 130 % (H17.S9.M6/M7).
 5. Goldens de Flutter: movil 9 y diseño 15 fallan por píxeles en Linux (el CI los genera en macOS): clasificados `ENVIRONMENT`, no se regeneran.
 
 ### A medias
@@ -71,7 +79,7 @@
 ### No cubierto en H17
 
 - **TEST (Contabo)**: no se desplegó ni se ejercitó nada ahí. Los scripts de TEST se ensayaron contra dobles locales declarados (el shim de `docker` que hace pasar al proceso del host por los contenedores `identidad-local`/`cumplimiento-local`, y una base desechable con el estado que L3 observó en TEST).
-- **Clientes**: el recorrido es por API. No se ejercitó la app (emuladores), la web ni el backoffice contra el stack; no hay **prueba visual** (capturas por viewport y tema) de lo que cambió en pantalla (MFA, billetera, idioma, quitar QR de pagos a proveedor). Las pruebas de widget y a11y pasan, pero eso es `VERIFIED_FUNCTIONAL_ONLY`.
+- **Clientes**: el recorrido A/B es por API. La app (en emulador), la web y el backoffice no se ejercitaron contra el stack real. Sí hay **prueba visual** de lo que cambió en pantalla (ver «Prueba visual» abajo), pero contra dobles: el backoffice contra `ng serve` con los listados simulados, y la app como pruebas de widget con las fuentes reales, no en emulador ni con el backend. Eso es `VERIFIED_FUNCTIONAL_ONLY` + prueba visual contra dobles, no `VERIFIED`. Faltan la web pública y las pantallas que no cambiaron.
 - **Alta real de usuario** (CU-01 con OTP de correo): el OTP no se registra en el log, así que `usuario_registrado` se publicó por el outbox real con el contrato de CU-01 (productor sintético declarado).
 - **Q sobre Kafka real**: el consumo de `aporte_cobrado` y la compensación `aporte_no_aplicado` ↔ `aportes` solo se probaron con base real y dobles de contrato (`CUAporteNoAplicadoTest`, `CU21Compensa*Test`), no con los dos servicios y Kafka a la vez; tampoco el reparto precio − cargos contra el `entregas` real.
 - **Servicios no levantados** en el recorrido: entregas, transparencia, inversiones, erp, publicidad, auditoría, gateway; ni tokens de servicio ni mTLS entre servicios.

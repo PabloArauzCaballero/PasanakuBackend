@@ -705,3 +705,20 @@ Los servicios corren como procesos del host contra PostgreSQL 16 y Kafka (cp-kaf
 | H17.S9.M3 | `verificar_carriles.py`: «sin carril dueño: inversiones» | declarar el dueño es decisión de equipo | Coordinación | TODO |
 | H17.S9.M4 | `packages/diseno_flutter/pubspec.lock` resuelto con otro Flutter (matcher 0.12.20 / meta 1.19.0 contra 0.12.19 / 1.18.0 de Flutter 3.44.8) y `.flutter-plugins-dependencies` versionado con rutas de otra máquina | no se pidió tocar locks | Quien mantiene el paquete | TODO |
 | H17.S9.M5 | Goldens de Flutter (movil 9, diseno 15) fallan por píxeles en Linux; se generan en macOS | el CI de macOS es la autoridad; no se regeneran en otra plataforma | CI macOS | TODO |
+
+### H17.S10 — Prueba visual del frontend (regla 95.7, relevo §5 T y R)
+Capturas por viewport (360×740, 768×1024, 1280×900) y tema (claro y oscuro), texto al 130 % en la app, y **miradas una por una**. Contra dobles declarados: el backoffice corre con Chromium contra `ng serve` y los listados de facturas y órdenes (que no existen en el contrato) van simulados con `page.route`; la app corre como pruebas de widget con las fuentes reales cargadas, no en emulador ni contra TEST.
+**CA:** Dadas las pantallas que tocaron R y T, cuando se capturan en 3 tamaños × 2 temas, entonces el contenido se lee, no hay desborde horizontal ni error de consola y lo observado queda registrado.
+**DoD:** `yarn playwright test e2e/h17-pago-a-proveedor.e2e.ts` y `flutter test test/capturas --update-goldens`; PNG en `evidencia/carril-H17/capturas-backoffice/` y `capturas-app/`.
+**Estado:** HECHO (con los dos hallazgos de S9.M6 y S9.M7)
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H17.S10.M1 | Backoffice: formulario de pago a proveedor sin «QR» (R) | 3 radios (Transferencia, Cheque, Efectivo), ninguno «QR», 0 errores de consola, 0 desborde, contraste axe sin violaciones, 6 capturas | `yarn playwright test e2e/h17-pago-a-proveedor.e2e.ts` → 1 passed; `capturas-backoffice/` | HECHO |
+| H17.S10.M2 | App: billetera con saldo y «todavía no activa» (T·D4), segundo factor inicial y rechazo (T), selector de fecha en español (T) | 30 capturas legibles, 24 pruebas sin excepción de desborde, textos de T visibles | `flutter test test/capturas --update-goldens` → 24 passed; `capturas-app/` | HECHO |
+
+Hallazgos nuevos de la prueba visual (no corregidos):
+| ID | Hallazgo | Dueño | Estado |
+|---|---|---|---|
+| H17.S9.M6 | `ap-dialogo` a 360 px: el botón de confirmar largo («Registrar el pago de F-2026-001») se sale del relleno del diálogo, en claro y oscuro (`bo-pago-a-proveedor-movil-*.png`). Componente compartido de `@aportaya/ui`; anterior a R | Frontend ui | TODO |
+| H17.S9.M7 | App, billetera con saldo a 360 px y texto al 130 %: los tres botones de acción se cortan («Apor…», «Reca…», «Retir…»); desde 768 px se ven completos (`billetera-con-saldo-movil-*.png`) | Frontend app | TODO |

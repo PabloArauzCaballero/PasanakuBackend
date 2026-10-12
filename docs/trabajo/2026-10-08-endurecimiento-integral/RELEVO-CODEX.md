@@ -215,10 +215,11 @@ Todos los carriles pararon con su trabajo **commiteado como `WIP:` y empujado** 
 
 ## 12. RETOMADA 2026-10-12 (sesión Claude): qué quedó de este relevo
 
-Detalle y evidencia: «Retomada 2026-10-12 (H17)» en `REPORTE.md` y `evidencia/carril-H17/`. Avance del plan: **91 / 114**.
+Detalle y evidencia: «Retomada 2026-10-12 (H17)» en `REPORTE.md` y `evidencia/carril-H17/`. Avance del plan: **93 / 118**.
 
 - **§6.1–6.3 hechos**: P, Q, R y T compilan, están formateados y sus pruebas pasan (backend: 3.587 pruebas, 3 rojas anteriores; frontend JS 1.007; Flutter 407 + 47 + a11y). Se corrigieron 14 defectos de lo que había quedado en `WRITTEN` (tabla del REPORTE). Rama de trabajo: `claude-marcelo/affectionate-heisenberg-nzjzml` (parte de `dev` con el PR #53 ya integrado).
 - **§6.5 sustituido, no cumplido**: el recorrido A/B se hizo en un stack LOCAL (servicios, Kafka y Postgres reales) y pasa de punta a punta, incluidas tres caídas provocadas. Contra TEST **no** se hizo.
 - **§6.4 pendiente (necesita la clave SSH del dueño)**: `subir_a_test.sh`; `crear-topicos.sh` (tópico nuevo `aportaya.tarifas.tarifa_congelada`); `politica_invitacion_test.sh`; esquema aditivo de R; scripts de siembra. Ya ensayados en local: `politica_invitacion_test.sh` y `r_upgrade_local.sh`.
 - **Hallazgos nuevos, sin corregir**: `aceptarInvitacionPorEnlace` ignora la `Idempotency-Key`; 3 pruebas rojas de `comun-pruebas` (también en `dev`); lock de `diseno_flutter`; goldens (CI macOS). Ver H17.S9.
 - **Para repetir el stack local**: `evidencia/carril-H17/levantar_local.sh up` (necesita Postgres en :5433 con `aplicar.sql` + `60_semillas/sembrar.sql`, Kafka en :9092 con los tópicos de `scripts/listar_topicos.py`, y los jars de `bootJar`), luego `sembrar_test.sh` y `sandbox_licencia_test.sh` con el shim de `docker` descrito en el REPORTE, y `recorrido_ab.py`, `e2e_caidas.py`, `e2e-usuario-registrado.sh`.
+- **Prueba visual hecha (contra dobles)**: `evidencia/carril-H17/capturas-backoffice/` (6) y `capturas-app/` (30); dos hallazgos visuales abiertos (H17.S9.M6 y M7). Falta verlas en emulador y contra TEST.

@@ -1,0 +1,7 @@
+[WebServer] Prebundling has been configured but will not be used because caching has been disabled.
+
+Running 1 test using 1 worker
+
+  ✓  1 [chromium] › e2e/h17-pago-a-proveedor.e2e.ts:14:7 › H17 · pago a proveedor › el formulario ofrece solo las formas que la base admite, en 3 viewports y 2 temas (3.8s)
+
+  1 passed (21.3s)
