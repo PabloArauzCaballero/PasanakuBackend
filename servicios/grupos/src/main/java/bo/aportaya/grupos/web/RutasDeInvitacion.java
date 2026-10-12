@@ -73,7 +73,7 @@ abstract class RutasDeInvitacion extends RutasDeSolicitudes {
     @Permiso("PARTICIPANTE")
     public ResponseEntity<SalidaAceptacionInvitacion> aceptarInvitacionPorEnlace(
             UUID idempotencyKey, EntradaAceptacionInvitacion cuerpo) {
-        return ResponseEntity.status(201).body(enlaces.aceptar(cuerpo));
+        return ResponseEntity.status(201).body(enlaces.aceptar(idempotencyKey, cuerpo));
     }
 
     @Override

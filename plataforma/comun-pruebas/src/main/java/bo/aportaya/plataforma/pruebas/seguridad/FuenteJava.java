@@ -79,11 +79,21 @@ public final class FuenteJava {
         return enmascarado.substring(inicioDelBloque(posicion), posicion);
     }
 
+    /**
+     * Donde empiezan las anotaciones de un metodo: despues del {@code ;}, {@code {} o {@code }} anterior.
+     * Las llaves DENTRO de los parentesis de una anotacion no cuentan: {@code @PermisoAlternativo({"A", "B"})}
+     * trae un arreglo, y cortar ahi dejaba fuera el {@code @Override} y la operacion se leia como inexistente.
+     */
     private int inicioDelBloque(int posicion) {
         int inicio = posicion;
+        int parentesis = 0;
         while (inicio > 0) {
             char c = enmascarado.charAt(inicio - 1);
-            if (c == ';' || c == '{' || c == '}') {
+            if (c == ')') {
+                parentesis++;
+            } else if (c == '(' && parentesis > 0) {
+                parentesis--;
+            } else if (parentesis == 0 && (c == ';' || c == '{' || c == '}')) {
                 break;
             }
             inicio--;
