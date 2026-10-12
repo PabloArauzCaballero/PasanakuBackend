@@ -68,9 +68,7 @@ class PantallaConCuenta extends StatelessWidget {
     if (cuentaId != null && cuentaId!.isNotEmpty) return construir(cuentaId!);
     return Scaffold(
       appBar: AppBar(title: Text(titulo)),
-      body: SafeArea(
-        child: ResolverCuenta(construir: construir),
-      ),
+      body: SafeArea(child: ResolverCuenta(construir: construir)),
     );
   }
 }

@@ -144,7 +144,9 @@ void main() {
           expect(find.text('Recargar'), findsOneWidget);
           expect(find.textContaining('Banco Unión'), findsNothing);
           expect(
-            find.textContaining('En custodia, separado del dinero de la empresa'),
+            find.textContaining(
+              'En custodia, separado del dinero de la empresa',
+            ),
             findsOneWidget,
           );
           sinDesborde(tester);

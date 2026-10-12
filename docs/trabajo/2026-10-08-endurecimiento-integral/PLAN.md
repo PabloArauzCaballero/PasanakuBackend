@@ -673,6 +673,7 @@ Alcance OUT: servidor TEST (Contabo; la clave SSH está solo en el equipo del du
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
 | H17.S6.M1 | `dart format`, `flutter analyze`, `flutter test` y `verificar_frontend.py movil` con Flutter 3.44.8 | RC 0 | comandos listados; si no hay Flutter instalable en el contenedor: BLOQUEADO con evidencia | TODO |
+| H17.S6.M2 | Formato Dart de lo tocado por T y de la deriva heredada de `dev` (no previsto: aparecio al correr `dart format`) | `dart format --set-exit-if-changed lib test` en apps/movil y packages/diseno_flutter termina con RC 0, sin cambio de comportamiento | `dart format --output=none --set-exit-if-changed lib test` → RC 0 en ambos | TODO |
 
 ### H17.S7 — Cierre documental y subida
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |

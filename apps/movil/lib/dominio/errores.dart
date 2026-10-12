@@ -25,9 +25,9 @@ const Map<String, String> _catalogo = {
   'AP-CU01-08': 'Pediste demasiados códigos. Esperá un rato y volvé a probar.',
   'AP-CU01-09': 'El código no es correcto. Revisalo o pedí uno nuevo.',
   'AP-CU01-10': 'El código venció. Pedí uno nuevo.',
-  'AP-CU01-11':
-      'Confirmá el código de este correo antes de crear tu cuenta.',
-  'AP-CU04-02': 'Tu cuenta está bloqueada un rato por seguridad. Probá más tarde.',
+  'AP-CU01-11': 'Confirmá el código de este correo antes de crear tu cuenta.',
+  'AP-CU04-02':
+      'Tu cuenta está bloqueada un rato por seguridad. Probá más tarde.',
   'AP-CU04-06': 'Tu segundo factor no está activado. Pedí ayuda a soporte.',
   'AP-CU04-07':
       'Ese tipo de segundo factor no sirve para tu cuenta. Pedí ayuda a soporte.',
