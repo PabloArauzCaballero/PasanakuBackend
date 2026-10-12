@@ -61,7 +61,7 @@ fn_<dominio>_<accion>  función
 | `R-GAR` | Garantía, incumplimiento y cobranza | 13 |
 | `R-DES` | Desembolsos y entregas | 5 |
 | `R-ORG` | Organizador y automatización | 7 |
-| `R-CTB` | Contabilidad financiera y ERP | 8 |
+| `R-CTB` | Contabilidad financiera y ERP | 11 |
 | `R-PUB` | Publicidad y campañas | 6 |
 | `R-INV` | Inversiones voluntarias | 10 |
 
@@ -2815,6 +2815,7 @@ ALTER TABLE ejecucion_tarea
 | R-CTB-08 | Un estado financiero por período y tipo | NIIF · Ley 393 | [[CU-106 Generar el estado financiero del período]] |
 | R-CTB-09 | El saldo de una cuenta contable se deriva del libro, no lo escribe la aplicación | NIIF · partida doble | [[CU-24 Registrar el asiento contable de una operación]] |
 | R-CTB-10 | Un movimiento contable es de la misma moneda que su cuenta, y la cuenta no cambia de moneda con movimientos | NIIF · partida doble | [[CU-24 Registrar el asiento contable de una operación]] |
+| R-CTB-11 | Un pago a proveedor por factura y clave de idempotencia: reintentar el mismo pago no lo duplica | Control interno · idempotencia de dinero (regla 91.1.4) | [[CU-103 Registrar y pagar una factura de proveedor]] |
 
 ```sql
 -- R-CTB-01 · un período por ejercicio y mes, y nada se asienta en uno cerrado
@@ -3056,6 +3057,15 @@ END $$ LANGUAGE plpgsql;
 CREATE TRIGGER tg_cuenta_contable_moneda_inmutable
   BEFORE UPDATE OF moneda ON cuenta_contable
   FOR EACH ROW EXECUTE FUNCTION fn_ctb_moneda_inmutable();
+
+-- R-CTB-11 · un pago a proveedor por factura y clave de idempotencia
+-- La clave se ampara en la factura (como R-DES-01 en la entrega). Es opcional en la base
+-- porque los pagos anteriores a esta regla no la tienen: PostgreSQL trata dos NULL como
+-- distintos, asi que esos pagos viejos no compiten entre si. Todo pago nuevo entra por
+-- CU-103, que la exige (cabecera Idempotency-Key obligatoria). Entre un SELECT previo y el
+-- INSERT entra el duplicado: el UNIQUE es lo que lo corta.
+CREATE UNIQUE INDEX IF NOT EXISTS uq_pago_a_proveedor_clave
+  ON pago_a_proveedor (factura_proveedor_id, clave_idempotencia);
 ```
 
 ---

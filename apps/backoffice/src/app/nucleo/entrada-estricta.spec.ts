@@ -94,6 +94,34 @@ describe('entrada estricta · los cuerpos de la capa de dominio cumplen el contr
     expect(conAutorizante[0]).toContain('additional')
   })
 
+  it('erp · pago de factura de proveedor: QR no es una forma de pago a proveedor (el contrato la alinea con ck_pago_a_proveedor_forma_pago)', () => {
+    const ruta = '/erp/facturas-de-proveedor/{facturaId}/pagos'
+    const base = { monto: '100.00', moneda: 'BOB' }
+    for (const formaPago of ['TRANSFERENCIA', 'CHEQUE', 'EFECTIVO']) expect(errores('erp', 'post', ruta, { ...base, formaPago })).toEqual([])
+    const conQr = errores('erp', 'post', ruta, { ...base, formaPago: 'QR' })
+    expect(conQr).toHaveLength(1)
+    expect(conQr[0]).toContain('allowed values')
+  })
+
+  it('erp · alta de factura de proveedor: el aprobador sale del token, el cuerpo solo dice si aprueba (`aprobar`), nunca quién (`aprobadaPor`)', () => {
+    // R-CTB-05. El backoffice todavía no tiene formulario de alta (solo lista y paga): se valida el cuerpo del contrato con literales, igual que
+    // las demás pruebas de este archivo. Un cuerpo con `aprobadaPor` NO cumple el contrato (el servidor responde 400).
+    const ruta = '/erp/facturas-de-proveedor'
+    const alta = {
+      terceroComercialId: '5a2c1f0e-3b7d-4c11-9e55-0a1b2c3d4e5f',
+      numeroFactura: 'F-0001',
+      fechaEmision: '2026-10-01',
+      fechaVencimiento: '2026-10-31',
+      monto: '1000.00',
+      moneda: 'BOB',
+    }
+    expect(errores('erp', 'post', ruta, alta)).toEqual([])
+    expect(errores('erp', 'post', ruta, { ...alta, aprobar: true })).toEqual([])
+    const conAprobador = errores('erp', 'post', ruta, { ...alta, aprobadaPor: '5a2c1f0e-3b7d-4c11-9e55-0a1b2c3d4e5f' })
+    expect(conAprobador).toHaveLength(1)
+    expect(conAprobador[0]).toContain('additional')
+  })
+
   it('erp · cobro de una cuenta por cobrar: { monto, formaCobro }', async () => {
     const cobrar = TestBed.runInInjectionContext(() => crearCobro())
     const c = await cuerpoDe('/erp/cuentas-por-cobrar/c1/cobros', () => firstValueFrom(cobrar('c1', { monto: '100.00', formaCobro: 'TRANSFERENCIA' })))

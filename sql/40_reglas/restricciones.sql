@@ -3052,6 +3052,15 @@ CREATE TRIGGER tg_cuenta_contable_moneda_inmutable
   BEFORE UPDATE OF moneda ON cuenta_contable
   FOR EACH ROW EXECUTE FUNCTION fn_ctb_moneda_inmutable();
 
+-- R-CTB-11 · un pago a proveedor por factura y clave de idempotencia
+-- La clave se ampara en la factura (como R-DES-01 en la entrega). Es opcional en la base
+-- porque los pagos anteriores a esta regla no la tienen: PostgreSQL trata dos NULL como
+-- distintos, asi que esos pagos viejos no compiten entre si. Todo pago nuevo entra por
+-- CU-103, que la exige (cabecera Idempotency-Key obligatoria). Entre un SELECT previo y el
+-- INSERT entra el duplicado: el UNIQUE es lo que lo corta.
+CREATE UNIQUE INDEX IF NOT EXISTS uq_pago_a_proveedor_clave
+  ON pago_a_proveedor (factura_proveedor_id, clave_idempotencia);
+
 
 -- ---------------------------------------------------------------------
 -- R-PUB — Publicidad y campañas

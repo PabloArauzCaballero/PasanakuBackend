@@ -65,6 +65,13 @@ describe('FichaDeFactura · el contenedor es el único dueño del borrador (H4)'
     expect(confirmSpy).not.toHaveBeenCalled()
   })
 
+  it('formas de pago: solo las tres que admite el pago a proveedor (TRANSFERENCIA, CHEQUE, EFECTIVO), sin QR', () => {
+    const fixture = montar()
+    const etiquetas = Array.from(fixture.nativeElement.querySelectorAll('ap-grupo-radio label') as NodeListOf<HTMLElement>).map((l) => l.textContent?.trim())
+    expect(etiquetas).toEqual(['Transferencia', 'Cheque', 'Efectivo'])
+    expect(fixture.nativeElement.textContent).not.toContain('QR')
+  })
+
   it('validación: un monto que excede el saldo pendiente se marca y no se envía', () => {
     const fixture = montar()
     escribirMonto(fixture, '999')

@@ -178,4 +178,65 @@ class PagoDeFacturaWebTest {
 
         verifyNoInteractions(cu103);
     }
+
+    @Test
+    @DisplayName("201 · la Idempotency-Key de la cabecera llega al caso de uso: el reintento no es un pago nuevo")
+    void laClaveDeIdempotenciaLlegaAlCasoDeUso() throws Exception {
+        when(cu103.pagar(any(), any())).thenReturn(parcial());
+
+        pagar(Sesiones.como("TESORERIA", "CONTABILIDAD_ERP_PAGAR"), CUERPO).andExpect(status().isCreated());
+        pagar(Sesiones.como("TESORERIA", "CONTABILIDAD_ERP_PAGAR"), CUERPO).andExpect(status().isCreated());
+
+        var entrada = ArgumentCaptor.forClass(CU103FacturaDeProveedor.EntradaPago.class);
+        verify(cu103, org.mockito.Mockito.times(2)).pagar(entrada.capture(), any());
+        assertThat(entrada.getAllValues()).extracting(CU103FacturaDeProveedor.EntradaPago::claveIdempotencia)
+                .containsOnly(UUID.fromString(CLAVE));
+    }
+
+    @Test
+    @DisplayName("422 · la misma clave con otro pago sale como regla de negocio AP-CU103-05")
+    void claveReutilizadaConOtroPago() throws Exception {
+        when(cu103.pagar(any(), any()))
+                .thenThrow(new ErrorDeNegocio(
+                        CodigoError.de(103, 5), "Esa clave de idempotencia ya se uso para otro pago de esta factura."));
+
+        pagar(Sesiones.como("TESORERIA", "CONTABILIDAD_ERP_PAGAR"), CUERPO)
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.codigo").value("AP-CU103-05"));
+    }
+
+    @Test
+    @DisplayName("400 · una Idempotency-Key que no es un UUID no paga nada")
+    void claveQueNoEsUuid() throws Exception {
+        mvc.perform(post("/erp/facturas-de-proveedor/{id}/pagos", FACTURA)
+                        .with(Sesiones.como("TESORERIA", "CONTABILIDAD_ERP_PAGAR"))
+                        .header("Idempotency-Key", "no-es-un-uuid")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(CUERPO))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(cu103);
+    }
+
+    @Test
+    @DisplayName("400 · QR no es una forma de pago a proveedor: el contrato la alinea con ck_pago_a_proveedor_forma_pago")
+    void qrNoEsFormaDePagoAProveedor() throws Exception {
+        pagar(Sesiones.como("TESORERIA", "CONTABILIDAD_ERP_PAGAR"),
+                        "{\"monto\":\"400.00\",\"moneda\":\"BOB\",\"formaPago\":\"QR\"}")
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(cu103);
+    }
+
+    @Test
+    @DisplayName("201 · las tres formas que admite la base (TRANSFERENCIA, CHEQUE, EFECTIVO) pasan el contrato")
+    void formasQueAdmiteLaBase() throws Exception {
+        when(cu103.pagar(any(), any())).thenReturn(parcial());
+
+        for (String forma : new String[] {"TRANSFERENCIA", "CHEQUE", "EFECTIVO"}) {
+            pagar(Sesiones.como("TESORERIA", "CONTABILIDAD_ERP_PAGAR"),
+                            "{\"monto\":\"400.00\",\"moneda\":\"BOB\",\"formaPago\":\"" + forma + "\"}")
+                    .andExpect(status().isCreated());
+        }
+    }
 }
