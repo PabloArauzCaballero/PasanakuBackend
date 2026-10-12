@@ -1,0 +1,86 @@
+
+   • Packages in scope: @aportaya/backoffice, @aportaya/dominio-cliente, @aportaya/simulado, @aportaya/tokens, @aportaya/tutoriales, @aportaya/ui, @aportaya/web
+   • Running lint in 7 packages
+   • Remote caching disabled
+
+@aportaya/ui:lint: cache miss, executing 6062ac4a78b50e04
+@aportaya/web:contenido: cache hit, replaying logs 3a52db0096f3c748
+@aportaya/web:contenido: contenido: 10 páginas · 10 indexables · robots.txt, sitemap.xml, llms.txt y llms-full.txt generados
+@aportaya/tokens:lint: cache hit, replaying logs 4ccad199b93a5fba
+@aportaya/dominio-cliente:lint: cache hit, replaying logs 6435164e18b957dd
+@aportaya/web:lint: cache miss, executing 66ba55d5de47a09d
+@aportaya/simulado:lint: cache hit, replaying logs a04356e007858c0a
+@aportaya/tutoriales:lint: cache hit, replaying logs 076371bae5ab94d0
+@aportaya/tutoriales:lint: === packages/tutoriales (Angular) ===
+@aportaya/tutoriales:lint:   OK    · sin red fuera del puerto 
+@aportaya/tutoriales:lint:   OK    · sin literal de diseño 
+@aportaya/tutoriales:lint:   OK    · sin console 
+@aportaya/tutoriales:lint:   OK    · ningún archivo de más de 200 líneas 
+@aportaya/tutoriales:lint: 
+@aportaya/tutoriales:lint: TODO OK
+@aportaya/backoffice:lint: cache miss, executing c68bb59f206c00f4
+@aportaya/web:lint: 
+@aportaya/web:lint: Linting "web"...
+@aportaya/backoffice:lint: 
+@aportaya/backoffice:lint: Linting "backoffice"...
+@aportaya/ui:lint: 
+@aportaya/ui:lint: Linting "ui"...
+@aportaya/backoffice:lint: (node:13138) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/PasanakuBackend/apps/backoffice/eslint.config.js?mtime=1791779023681 is not specified and it doesn't parse as CommonJS.
+@aportaya/backoffice:lint: Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+@aportaya/backoffice:lint: To eliminate this warning, add "type": "module" to /home/user/PasanakuBackend/apps/backoffice/package.json.
+@aportaya/backoffice:lint: (Use `node --trace-warnings ...` to show where the warning was created)
+@aportaya/web:lint: (node:13131) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/user/PasanakuBackend/apps/web/eslint.config.js?mtime=1791779023785 is not specified and it doesn't parse as CommonJS.
+@aportaya/web:lint: Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+@aportaya/web:lint: To eliminate this warning, add "type": "module" to /home/user/PasanakuBackend/apps/web/package.json.
+@aportaya/web:lint: (Use `node --trace-warnings ...` to show where the warning was created)
+@aportaya/web:lint: 
+@aportaya/web:lint: All files pass linting.
+@aportaya/web:lint: 
+@aportaya/web:lint: === apps/web (Angular) ===
+@aportaya/web:lint:   OK    · sin red en vista 
+@aportaya/web:lint:   OK    · sin literal de diseño 
+@aportaya/web:lint:   OK    · sin formato de dinero 
+@aportaya/web:lint:   OK    · sin console 
+@aportaya/web:lint:   OK    · ningún archivo de más de 200 líneas 
+@aportaya/web:lint: === packages/tutoriales (Angular) ===
+@aportaya/web:lint:   OK    · sin red fuera del puerto 
+@aportaya/web:lint:   OK    · sin literal de diseño 
+@aportaya/web:lint:   OK    · sin console 
+@aportaya/web:lint:   OK    · ningún archivo de más de 200 líneas 
+@aportaya/web:lint:   OK    · sin literal de diseño en @aportaya/ui 
+@aportaya/web:lint: 
+@aportaya/web:lint: TODO OK
+@aportaya/ui:lint: 
+@aportaya/ui:lint: All files pass linting.
+@aportaya/ui:lint: 
+@aportaya/ui:lint: === packages/ui (Angular) ===
+@aportaya/ui:lint:   OK    · sin red en el sistema de diseño 
+@aportaya/ui:lint:   OK    · sin literal de diseño 
+@aportaya/ui:lint:   OK    · sin formato de dinero 
+@aportaya/ui:lint:   OK    · sin console 
+@aportaya/ui:lint:   OK    · ningún archivo de más de 200 líneas (catalogo/ es datos y queda fuera) 
+@aportaya/ui:lint:   OK    · cada pieza tiene su archivo con el mismo nombre 
+@aportaya/ui:lint: 
+@aportaya/ui:lint: TODO OK
+@aportaya/backoffice:lint: 
+@aportaya/backoffice:lint: All files pass linting.
+@aportaya/backoffice:lint: 
+@aportaya/backoffice:lint: === apps/backoffice (Angular) ===
+@aportaya/backoffice:lint:   OK    · sin red en vista 
+@aportaya/backoffice:lint:   OK    · sin literal de diseño 
+@aportaya/backoffice:lint:   OK    · sin formato de dinero 
+@aportaya/backoffice:lint:   OK    · sin console 
+@aportaya/backoffice:lint:   OK    · ningún archivo de más de 200 líneas 
+@aportaya/backoffice:lint: === packages/tutoriales (Angular) ===
+@aportaya/backoffice:lint:   OK    · sin red fuera del puerto 
+@aportaya/backoffice:lint:   OK    · sin literal de diseño 
+@aportaya/backoffice:lint:   OK    · sin console 
+@aportaya/backoffice:lint:   OK    · ningún archivo de más de 200 líneas 
+@aportaya/backoffice:lint:   OK    · sin literal de diseño en @aportaya/ui 
+@aportaya/backoffice:lint: 
+@aportaya/backoffice:lint: TODO OK
+
+ Tasks:    8 successful, 8 total
+Cached:    5 cached, 8 total
+  Time:    8.219s 
+

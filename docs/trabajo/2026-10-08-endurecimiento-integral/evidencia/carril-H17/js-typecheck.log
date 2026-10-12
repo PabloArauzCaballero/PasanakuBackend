@@ -1,0 +1,29 @@
+
+   • Packages in scope: @aportaya/backoffice, @aportaya/dominio-cliente, @aportaya/simulado, @aportaya/tokens, @aportaya/tutoriales, @aportaya/ui, @aportaya/web
+   • Running typecheck in 7 packages
+   • Remote caching disabled
+
+@aportaya/simulado:build: cache hit, replaying logs e342dc285c254e50
+@aportaya/simulado:build: contratos convertidos desde /home/user/PasanakuBackend: aportes (11 rutas) · auditoria (4 rutas) · cumplimiento (10 rutas) · entregas (14 rutas) · erp (15 rutas) · garantia (20 rutas) · grupos (28 rutas) · identidad (21 rutas) · inversiones (20 rutas) · notificaciones (4 rutas) · nucleo-financiero (20 rutas) · organizador (21 rutas) · publicidad (14 rutas) · tarifas (12 rutas) · transparencia (18 rutas)
+@aportaya/simulado:build: ejemplos: 0 creados · 234 conservados (editados a mano, no se pisan) · 0 rechazos alineados al catalogo de errores
+@aportaya/simulado:build: simulado: 1275 ejemplos inyectados · 232 rutas en generado/prism/todos.yaml
+@aportaya/tokens:build: cache hit, replaying logs edf27c7588a8a487
+@aportaya/tokens:build: generado/tokens.css · 230 lineas
+@aportaya/tokens:build: generado/tokens.dart · 378 lineas
+@aportaya/web:contenido: cache hit, replaying logs 3a52db0096f3c748
+@aportaya/tokens:build: vectores/monto.json · 5006 casos
+@aportaya/web:contenido: contenido: 10 páginas · 10 indexables · robots.txt, sitemap.xml, llms.txt y llms-full.txt generados
+@aportaya/tokens:typecheck: cache miss, executing 3f963d3cd4ec1161
+@aportaya/dominio-cliente:typecheck: cache miss, executing dd5a2b1017980c3c
+@aportaya/simulado:typecheck: cache miss, executing 2a5d26ea660a0087
+@aportaya/ui:typecheck: cache miss, executing ebdfd7585d9b99d4
+@aportaya/ui:build: cache hit, replaying logs 79e3bb7173d5063b
+@aportaya/ui:build: ui: se consume por alias de tsconfig; `ng build` empaqueta con ng-packagr cuando haga falta publicar
+@aportaya/tutoriales:typecheck: cache miss, executing 3b43ec777bdfc39f
+@aportaya/backoffice:typecheck: cache miss, executing 7391acd0d1172235
+@aportaya/web:typecheck: cache miss, executing 927b41dbf7318c13
+
+ Tasks:    11 successful, 11 total
+Cached:    4 cached, 11 total
+  Time:    18.631s 
+
