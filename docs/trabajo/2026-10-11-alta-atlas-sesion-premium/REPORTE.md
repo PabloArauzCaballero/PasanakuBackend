@@ -155,7 +155,7 @@
 | H3.S3.M3 | BLOQUEADO | Resolver la dependencia/criterio documentado en el propio ID del plan; dueño: responsable de identidad |
 | H5.S4.M3; H6.S3.M8 | A MEDIAS | Captura/cámara y medición de rendimiento requieren emulador o dispositivo; las microtareas de subida y privacidad H5.S3.M2–M4/H6.S3.M9 ya están HECHO según sus criterios automatizados |
 | H8.S4.M3/M4 | A MEDIAS | Resolver política de color por producto y completar el alcance oscuro que carece de ruta local |
-| H6.S2.M3 | TODO | Medir umbrales con 10 altas reales en teléfono y registrar el antes/después; no sustituible por cámara fake |
+| H6.S2.M3 | BLOQUEADO | Conectar un teléfono Android real y registrar 10 altas con variación de luz/rostro; `flutter devices` solo detecta Windows y Chrome. Evidencia: [bloqueo de dispositivo](./evidencia/h6-s2-m3-dispositivo-no-disponible-2026-10-13.md). No se ajustaron umbrales. |
 | H10.S1.M6 | A MEDIAS | El barrido global previo a los últimos retoques dio 52/268 PASS y 216 diffs; la captura H10 puntual de datos a 412 dp pasó 1/1 después de corregir espaciado. Falta volver a barrer, clasificar el resto y verificar las referencias en el runner canónico ([evidencia](./evidencia/h10-app-goldens-flutter-3.47.5-2026-10-13.md)) |
 | H10.S1.M7 | A MEDIAS | Ejecutar `flutter test` en el runner canónico Linux y confirmar las cinco baselines de marca; la única distro WSL presente es `docker-desktop` y Docker no está activo |
 | H10.S1.M8 | BLOQUEADO | Restaurar PostgreSQL/Docker y disponer de memoria suficiente para Gradle |
