@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
@@ -5,24 +7,14 @@ import '../tokens/tokens.dart';
 import 'luz_de_boton.dart';
 import 'movimiento.dart';
 
-/// **La piel de un botón con relleno: profundidad, respuesta al dedo y un brillo.**
-///
-/// - **Profundidad**: un degradado vertical sutil del mismo color (apenas más claro
-///   arriba, apenas más hondo abajo), un filo de luz de 1 px en el borde superior y una
-///   sombra en dos capas teñida con el color del botón — de contacto y de ambiente.
-/// - **Respuesta**: al apoyar el dedo se hunde un 3,5 % y la sombra se recoge hacia el
-///   botón, como algo que baja; al soltar vuelve con un resorte que apenas se pasa.
-///   Con mouse, al pasar por encima se eleva un poco.
-/// - **Brillo**: si [brilla], una franja de luz cruza el botón en diagonal al aparecer
-///   y unas pocas veces más, espaciadas. Mientras [cargando], cruza seguido: es lo que
-///   dice «estoy trabajando» sin depender solo del girador.
-///
-/// Apagado no tiene nada de esto: ni degradado, ni sombra, ni brillo. Con «reducir
-/// movimiento», la profundidad queda y el movimiento se va.
+/// **Piel de botón con relleno**: profundidad, respuesta al dedo y brillo finito.
+/// El degradado conserva el contraste del texto; el movimiento se suprime si el
+/// usuario prefiere reducirlo. En carga, el brillo comunica actividad.
 class SuperficieViva extends StatefulWidget {
   const SuperficieViva({
     super.key,
     required this.color,
+    required this.colorDelTexto,
     required this.radio,
     required this.child,
     this.activo = true,
@@ -31,6 +23,7 @@ class SuperficieViva extends StatefulWidget {
   });
 
   final Color color;
+  final Color colorDelTexto;
   final double radio;
   final bool activo;
   final bool brilla;
@@ -56,13 +49,14 @@ class _SuperficieVivaState extends State<SuperficieViva>
   );
   bool _encima = false;
   bool _quieto = false;
+  Timer? _brilloEnEspera;
 
-  static const _cuanto = 0.035;
+  static const _escalaPresion = 0.97;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _quieto = MediaQuery.disableAnimationsOf(context);
+    _quieto = reducirMovimiento(context);
     _ajustarBrillo();
   }
 
@@ -77,13 +71,26 @@ class _SuperficieVivaState extends State<SuperficieViva>
   }
 
   void _ajustarBrillo() {
-    if (_quieto || !(widget.brilla || widget.cargando)) {
+    if (_quieto || !widget.activo || !(widget.brilla || widget.cargando)) {
+      _brilloEnEspera?.cancel();
+      _brilloEnEspera = null;
       _brillo.stop();
       _brillo.value = 0;
     } else if (widget.cargando) {
+      _brilloEnEspera?.cancel();
+      _brilloEnEspera = null;
       _brillo.repeat(period: Movimiento.brillo);
     } else if (widget.activo) {
-      _brillo.repeat(count: SuperficieViva.vecesDelBrillo + 1);
+      if (_brillo.isAnimating ||
+          _brillo.value != 0 ||
+          _brilloEnEspera != null) {
+        return;
+      }
+      _brilloEnEspera = Timer(Movimiento.pausaDelBrillo, () {
+        _brilloEnEspera = null;
+        if (!mounted || _quieto || !widget.activo || !widget.brilla) return;
+        _brillo.repeat(count: SuperficieViva.vecesDelBrillo + 1);
+      });
     }
   }
 
@@ -101,6 +108,7 @@ class _SuperficieVivaState extends State<SuperficieViva>
 
   @override
   void dispose() {
+    _brilloEnEspera?.cancel();
     _hundido.dispose();
     _brillo.dispose();
     super.dispose();
@@ -124,8 +132,12 @@ class _SuperficieVivaState extends State<SuperficieViva>
           builder: (context, hijo) {
             final h = _hundido.value.clamp(0.0, 1.0);
             final alto = widget.activo ? (_encima ? 1.25 : 1.0) * (1 - h) : 0.0;
+            final direccionDelDegradado =
+                widget.colorDelTexto.computeLuminance() > c.computeLuminance()
+                ? Paleta.ink
+                : Paleta.white;
             return Transform.scale(
-              scale: 1 - _cuanto * _hundido.value,
+              scale: 1 - (1 - _escalaPresion) * _hundido.value,
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   borderRadius: forma,
@@ -133,8 +145,8 @@ class _SuperficieVivaState extends State<SuperficieViva>
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Color.lerp(c, Paleta.white, 0.10)!,
-                      Color.lerp(c, Paleta.ink, 0.10)!,
+                      Color.lerp(c, direccionDelDegradado, 0.06)!,
+                      Color.lerp(c, direccionDelDegradado, 0.10)!,
                     ],
                   ),
                   boxShadow: [

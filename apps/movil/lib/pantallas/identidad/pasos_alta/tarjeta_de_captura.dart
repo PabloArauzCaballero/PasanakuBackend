@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:aportaya_diseno/atomos/chip_estado.dart';
 import 'package:aportaya_diseno/atomos/movimiento.dart';
 import 'package:aportaya_diseno/atomos/tono.dart';
@@ -10,6 +8,7 @@ import '../dominio/capturas_del_expediente.dart';
 import '../textos_de_captura.dart';
 import 'guia_de_encuadre.dart';
 import 'riel_de_capturas.dart';
+import 'visor_ampliado_de_captura.dart';
 
 /// Un cuadro del carrusel: el título de la cara con su insignia y el marco donde va
 /// la foto. La acción («Tomar foto» o «Repetir la foto») vive fuera, en
@@ -25,10 +24,12 @@ class TarjetaDeCaptura extends StatelessWidget {
     super.key,
     required this.cara,
     required this.captura,
+    this.mostrarEncabezado = true,
   });
 
   final CaraDelCarril cara;
   final Captura? captura;
+  final bool mostrarEncabezado;
 
   @override
   Widget build(BuildContext context) {
@@ -39,21 +40,27 @@ class TarjetaDeCaptura extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  tituloDeCaptura(cara),
-                  style: Tipo.titulo3.copyWith(color: t.text),
+          Visibility(
+            visible: mostrarEncabezado,
+            maintainSize: true,
+            maintainAnimation: true,
+            maintainState: true,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    tituloDeCaptura(cara),
+                    style: Tipo.titulo3.copyWith(color: t.text),
+                  ),
                 ),
-              ),
-              ChipEstado(
-                texto: lista
-                    ? TextosDeCaptura.listo
-                    : TextosDeCaptura.pendiente,
-                tono: lista ? Tono.ok : Tono.neutro,
-              ),
-            ],
+                ChipEstado(
+                  texto: lista
+                      ? TextosDeCaptura.listo
+                      : TextosDeCaptura.pendiente,
+                  tono: lista ? Tono.ok : Tono.neutro,
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: Espacio.s3),
           Expanded(
@@ -66,16 +73,29 @@ class TarjetaDeCaptura extends StatelessWidget {
                   colors: [t.brandBg, t.surface],
                 ),
                 border: Border.all(color: t.border),
-                boxShadow: [t.sombra1],
+                boxShadow: Elevacion.tarjeta(t),
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(Radios.lg),
                 child: AnimatedSwitcher(
-                  duration: Movimiento.entrada,
+                  duration: duracion(context, Movimiento.popDeCaptura),
                   switchInCurve: Movimiento.llega,
                   switchOutCurve: Movimiento.sale,
+                  transitionBuilder: (hijo, animacion) => ScaleTransition(
+                    scale: Tween<double>(begin: 0.96, end: 1).animate(
+                      CurvedAnimation(
+                        parent: animacion,
+                        curve: Movimiento.llega,
+                      ),
+                    ),
+                    child: FadeTransition(opacity: animacion, child: hijo),
+                  ),
                   child: lista
-                      ? _Foto(key: const ValueKey('foto'), captura: captura!)
+                      ? _Foto(
+                          key: ValueKey('foto-${captura!.sha256Corto}'),
+                          cara: cara,
+                          captura: captura!,
+                        )
                       : _Marco(key: const ValueKey('marco'), cara: cara),
                 ),
               ),
@@ -150,13 +170,23 @@ class _Marco extends StatelessWidget {
 }
 
 class _Foto extends StatelessWidget {
-  const _Foto({super.key, required this.captura});
+  const _Foto({super.key, required this.cara, required this.captura});
+  final CaraDelCarril cara;
   final Captura captura;
 
   @override
   Widget build(BuildContext context) {
-    // Android-first (ADR-036): la ruta de una captura siempre es un archivo local,
-    // nunca una URL `blob:` de la web.
-    return Image.file(File(captura.ruta), fit: BoxFit.cover);
+    return Semantics(
+      button: true,
+      label: 'Ampliar ${tituloDeCaptura(cara)}',
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => mostrarCapturaAmpliada(context, captura),
+        child: Hero(
+          tag: etiquetaHeroDeCaptura(captura),
+          child: imagenDeCaptura(context, captura, fit: BoxFit.cover),
+        ),
+      ),
+    );
   }
 }

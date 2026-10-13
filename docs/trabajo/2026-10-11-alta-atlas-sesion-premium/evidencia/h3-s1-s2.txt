@@ -1,0 +1,83 @@
+H3.S1 / H3.S2 — verificación del selector (2026-10-12)
+
+Comando:
+  cd packages/diseno_flutter
+  flutter test test/widget/hoja_de_seleccion_test.dart test/widget/campo_de_seleccion_test.dart --reporter expanded
+Salida final literal:
+  00:01 +13: All tests passed!
+Exit code: 0
+
+Comando:
+  cd packages/diseno_flutter
+  flutter test test/a11y/catalogo_a11y_test.dart --reporter expanded
+Salida final literal:
+  00:02 +14: All tests passed!
+Exit code: 0
+
+Comando:
+  cd packages/diseno_flutter
+  dart analyze lib/atomos/campo.dart lib/atomos/campo_busqueda.dart lib/atomos/campo_de_seleccion.dart lib/atomos/fila_de_seleccion.dart lib/atomos/hoja_de_seleccion.dart lib/atomos/lista_con_buscador.dart lib/atomos/normalizar_para_buscar.dart lib/moleculas/campo_de_fecha.dart lib/moleculas/parte_de_fecha.dart test/widget/hoja_de_seleccion_test.dart test/widget/campo_de_seleccion_test.dart
+Salida final literal:
+  No issues found!
+Exit code: 0
+
+Comando:
+  cd apps/movil
+  flutter test test/widget/paso_datos_test.dart test/identidad/estado_alta_test.dart test/identidad/paso_contrasena_test.dart test/widget/tutoriales/motor_test.dart test/identidad/motivo_de_salida_en_ingreso_test.dart --reporter expanded
+Salida final literal:
+  00:04 +27: All tests passed!
+Exit code: 0
+
+Comando:
+  cd apps/movil
+  flutter test test/a11y --reporter expanded
+Salida final literal:
+  00:01 +4: All tests passed!
+Exit code: 0
+
+Comando:
+  cd apps/movil
+  dart analyze
+Salida final literal:
+  Analyzing movil...
+  No issues found!
+Exit code: 0
+
+Comando:
+  python scripts/verificar_frontend.py movil
+Salida final literal:
+  TODO OK
+Exit code: 0
+
+Comando de suite completa (paquete):
+  cd packages/diseno_flutter
+  flutter test
+Resultado literal final:
+  00:07 +69 -18: Some tests failed.
+  ... and 14 more
+Exit code: 1
+Nota: los 18 fallos son comparaciones de golden en `test/goldens/catalogo_golden_test.dart`; el baseline guardado en `h0-diseno-post-clientes.txt` ya registraba 15 fallos de golden. No se regeneraron capturas de referencia. La ejecución completa no se considera PASS.
+
+Límites observados:
+- El test de geometría usa teclado simulado a 360×640 con inset 300; no sustituye una captura en Android/iOS.
+- El inventario no encontró un selector de soporte en `apps/movil/lib`, por lo que no existe un tercer selector real que capturar en este checkout.
+- No se ejecutó lector de pantalla físico.
+
+## Verificación posterior — 2026-10-12
+
+```text
+cd packages/diseno_flutter
+flutter test --concurrency=1 --reporter expanded test/widget/hoja_de_seleccion_test.dart
+00:01 +6: All tests passed!
+EXIT_CODE=0
+```
+
+La fila visible del selector quedó en 48 dp (el mínimo táctil del sistema), y el offset inicial al valor elegido usa el mismo alto. Con inset de teclado de 300 px y viewport 360×640 se ven ahora tres filas completas; buscar, foco, reducir movimiento, selección y scroll inicial permanecen verdes. H3.S1.M1 queda HECHO; H3.S1.M3 sigue A MEDIAS por captura en dispositivo real pendiente.
+
+Suite completa posterior al ajuste:
+
+```text
+flutter test --concurrency=1 --reporter compact --timeout 60s
+82 passed; 13 failed (todas comparaciones de golden)
+EXIT_CODE=1
+```

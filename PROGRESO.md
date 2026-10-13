@@ -1,0 +1,259 @@
+# Progreso — alta Atlas, sesión premium y app móvil
+
+Actualizado: 2026-10-13. Este archivo es el punto de reanudación; el trabajo no está terminado.
+
+## Estado guardado
+
+- Repositorio: `C:\Users\leonardo\Repositories\pasanaku\PasanakuBackend`
+- Rama: `codex/alta-atlas-sesion-premium-2026-10-11`
+- Plan maestro: `docs/trabajo/2026-10-11-alta-atlas-sesion-premium/PLAN.md`
+- Avance oficial más reciente: **182/213 microtareas HECHO (85,4 %)**; quedan 10 `TODO`, 18 `A MEDIAS` y 3 `BLOQUEADO`. El contador fue comprobado con `.claude/hooks/plan_status.py`.
+- Todos los cambios actuales están escritos en el directorio de trabajo. No hay cambios staged (`git diff --cached --stat` vacío) y no se creó commit, push ni PR. El árbol ya estaba muy modificado, con numerosos archivos modificados y nuevos; `git status` también lista algunas rutas eliminadas y archivos nuevos relacionados. **No limpiar, restaurar ni descartar nada** al reanudar.
+- No se borraron archivos durante esta continuación. Las pruebas se ejecutaron serialmente; la auditoría ligera de lectura sobre la próxima superficie terminó sin tests ni cambios. No hay procesos de prueba activos.
+- Al ejecutar por primera vez el SDK baseline Flutter 3.44.8, Pub sincronizó `apps/movil/pubspec.lock` con `flutter_localizations` y `fake_async`, que ya estaban declarados en el `pubspec.yaml` modificado. Las pruebas posteriores usan `--no-pub`; no hubo actualización mayor deliberada de dependencias.
+
+## Completado y verificado
+
+El reporte oficial de trabajo está en `docs/trabajo/2026-10-11-alta-atlas-sesion-premium/REPORTE.md`; 181 microtareas están marcadas `HECHO` con evidencia. A alto nivel ya existen implementaciones y pruebas para la sesión, manejo de errores, selectores, alta, captura de carnet, prueba de vida, tour, billetera/perfil y adaptación de skills. La verificación previa incluye análisis estático, formato, gates del frontend, accesibilidad y suites dirigidas. Esto no significa que todo el plan ni la QA física estén completos.
+
+Avances de la sesión del 13 de octubre:
+
+- H10.S1.M7: aislé dos fallas de golden en la marca, confirmé que solo reflejaban cambios intencionales de roles de color y actualicé/revisé esas cinco imágenes. La suite completa de `packages/diseno_flutter` pasa **118/118** en Windows/Flutter 3.47.5. Sigue `A MEDIAS` porque la guía exige verificar baselines en el runner canónico; WSL solo enumera `docker-desktop` y Docker no responde. Evidencia: `evidencia/h10-goldens-flutter-3.44.8-2026-10-12.md`.
+- H8.S3.M9: las acciones existentes de cambio de contraseña/guía pasaron a filas accesibles con ripple y `HundidoAlTocar`; conservaron jerarquía de Guardar, cierre y baja. TDD rojo/verde, suite H8 3/3, a11y 6/6, goldens/referencia perfil 8/8, análisis limpio, formato estable y gate móvil TODO OK. Se inspeccionaron 8 PNG (6 tema/ancho, oscuro H8 y fila presionada); rúbrica de perfil revisada sin hallazgo mayor. Skills: `mobile-ux-design`, `pasanaku-app-movil-ux`, `pasanaku-ui-componentes`, `pasanaku-diseno`, `pasanaku-movimiento`, `flutter-development`, `flutter-testing`, `visual-proof`, `ui-quality-review`. Evidencia `evidencia/h8-s3-m9.md`; estado HECHO.
+- Revalidé el entorno para backend/dispositivo: PostgreSQL acepta TCP solo en 5432 (el build requiere 5433), Docker daemon no está disponible, y hay dos AVD configurados en 2 GiB pero ninguno conectado; con 1,73 GiB libres no los inicié. No se tocaron credenciales ni bases. Evidencia: `evidencia/h1-s6-backend-bloqueado.md`.
+- H4.S5.M1: amplié la regresión de estructura del alta para comprobar explícitamente las cuatro cabeceras y navegación de retorno desde contrato; prueba 4/4 y análisis dirigido limpio. Sigue `A MEDIAS` porque no está conservada la salida roja histórica exigida por su DoD TDD. [Evidencia](docs/trabajo/2026-10-11-alta-atlas-sesion-premium/evidencia/h4-s5-m1-verificacion-2026-10-13.md).
+- H4.S1.M3: corregí el ejemplo de contraseña a «Mínimo 8 caracteres» y convertí la diferencia detectada en una aserción exacta; tests ingreso/alta 4/4 + 4/4 y análisis dirigido limpios. Estado `HECHO`. [Evidencia](docs/trabajo/2026-10-11-alta-atlas-sesion-premium/evidencia/h4-s1-m3-verificacion-2026-10-13.md).
+- H4.S2.M4: rótulos de nombres y cajas quedan alineados en dos columnas a 412 dp; el espacio extra se limita a ese layout. Matriz widget 360/412: 4/4; golden H10 puntual 412 dp/130 %: 1/1. Sigue `A MEDIAS` por falta de captura física. [Evidencia](docs/trabajo/2026-10-11-alta-atlas-sesion-premium/evidencia/h4-s2.txt).
+- H10.S1.M6: revalidación global Flutter 3.47.5 dio 52/268 PASS, 216 diffs. Inspección visual encontró al menos un error real de contenido y ya se corrigió; golden de transición aún expone baseline desactualizada. No regeneré baselines; barrido debe repetirse después de los cambios. [Evidencia](docs/trabajo/2026-10-11-alta-atlas-sesion-premium/evidencia/h10-app-goldens-flutter-3.47.5-2026-10-13.md).
+- H8.S4.M3: cotejé estáticamente cuatro grupos de acciones con su mapeo widget-token. Confirmé verde de marca en botones fantasma y enlaces, rojo en la acción destructiva de baja; además, las dos filas de navegación del perfil son neutrales, aunque el inventario visual previo las agrupaba como verdes. La regla literal del plan sigue sin conciliarse con «verde = estructura, naranja = acción» del enum; no cambié código ni paleta y la microtarea sigue `A MEDIAS`. [Auditoría](docs/trabajo/2026-10-11-alta-atlas-sesion-premium/evidencia/h8-s4-m3-auditoria-roles-2026-10-13.md).
+- Revalidación móvil serial: `test/widget/paso_contrato_de_alta_test.dart` pasó 2/2 y `test/goldens/h10_bienvenida_visual_test.dart` pasó 6/6. La suite completa `test/goldens` terminó con 52/268 PASS y 216/268 FAIL por diffs golden, sin actualizaciones automáticas; H10.S1.M6 continúa `A MEDIAS`. Evidencia y siguiente paso concreto: `docs/trabajo/2026-10-11-alta-atlas-sesion-premium/evidencia/h10-app-goldens-flutter-3.47.5-2026-10-13.md`.
+- H8.S1.M2: auditoría visual previa completada en paralelo por lotes; 20 superficies disponibles puntuadas en ocho dimensiones y anti-slop. Resultado de aprobación visual: RECHAZADA por tres hallazgos mayores (MFA, carrusel de documento y bienvenida); el paso puente del contrato conserva una observación menor porque navega al contrato real y no debe duplicar texto legal. Evidencia: `docs/trabajo/2026-10-11-alta-atlas-sesion-premium/evidencia/h8-rubrica-antes.md`. Matriz de 228 celdas; grupo/detalle no tiene ruta local.
+- H8.S4.M5 y H10.S3.M3: tres hallazgos mayores ajustados y revisitados; MFA/documento/bienvenida: 30 goldens visuales actualizados tras inspección, 30/30 repetidos sin update, deep links 5/5, regresión de carrusel 1/1, análisis limpio, gate frontend TODO OK. Gate final: 0 críticos/0 mayores en las 20 superficies disponibles (no es QA física/AA global). Evidencia: `evidencia/h8-rubrica-despues.md`.
+- Skills leídas/usadas en esta continuación: `flutter-development`, `frontend-forms-ux`, `ux-writing-microcopy`, `frontend-ux-states`, `mobile-ux-design`, `ui-quality-review`, `visual-proof`, `evidence-and-verification`, `work-report-md`. Los agentes de UI leyeron además sus instrucciones aplicables en `AGENTS.md` antes de sus cambios aislados.
+
+- H8.S3.M7: se quitó el escalonado exterior que retrasaba toda la billetera; solo las filas de movimientos mantienen 30 ms (máximo ocho y resto agrupado). `MontoQueSube` ahora usa `Movimiento.entrada` (220 ms) y `Movimiento.llega`. Suites dirigidas repetidas: móvil 9/9 y paquete de diseño 10/10; cierre `HECHO` para el criterio UI. No se afirman integración PostgreSQL/jOOQ ni haptic físico; historial limitado a 100 sin cursor queda anotado como límite.
+- H8.S4.M4: nueva evidencia oscura de `PantallaDeCamara` de identidad para permiso denegado y bloqueado (360 × 740 dp, 130 %), dos PNG inspeccionados. Test sintético update/repetición 2/2, análisis limpio; la cámara nunca se inicia y no se toma foto. Inventario/PLAN enlazados. El alcance global sigue parcial.
+- H8.S4.M3: la matriz de contraste detectó y corrigió un defecto del brillo animado (el CTA claro bajaba a 4,08:1); `SuperficieViva` ahora orienta su degradado para conservar contraste. Otra brecha en `ColorScheme.onError/error` daba 4,38:1; Material ahora usa `rojoSolido` con `sobreRojoSolido`, preservando `err` semántico para indicadores. Node 3/3, a11y actual 14/14, goldens catálogo 14/14 sin actualizar y análisis dirigido limpio. Inspección color-focalizada: 40 capturas de 20 unidades disponibles en claro/oscuro; verde en acciones/enlaces y texto destacado, rojo en acción destructiva. El criterio literal no coincide con esas pantallas, por lo que M3 sigue `A MEDIAS` hasta resolver política de marca/acciones destructivas; grupos/detalle no tiene ruta local y Vitest no está instalado.
+- Continuación 13-10: `CampoDeFecha` se dividió sin cambiar el breakpoint/layout: `campo_de_fecha.dart` (157 líneas) delega a `selectores_de_fecha_responsivos.dart` (100 líneas). La hoja de selección delega filtro a `filtrar_opciones_de_hoja.dart`; sus pruebas pasan 7/7. El gate `verificar_frontend.py diseno` pasa. Campo fecha: 7/7, incluyendo frontera 479/480 dp; `dart analyze --fatal-infos` limpio. Las regresiones móviles H8/H10 de goldens fallaron en este Flutter 3.47.5 por diferencias pixelarias en pantallas no correspondientes al selector (H8 paso 1: 328 px/0,12 %; H10 ingreso: 483/0,18 %, alta: 699/0,26 %); en billetera H10 difirió 7,88 % y luego falló `ensureVisible` al no encontrar el elemento esperado. No se actualizaron baselines; ver imágenes de `apps/movil/test/goldens/failures` y revisar con el rasterizador canónico antes de atribuirlo a la extracción.
+- Ajuste responsive del alta oscura a 360 × 740 dp y escala de texto 130 %: los campos CI/expedición y Día/Mes/Año se apilan en ancho compacto; las ayudas largas del CI y del monto mensual caben completas; se restablece el scroll entre pasos y se captura el botón completo del paso 4. La disposición del carnet se extrajo a `apps/movil/lib/pantallas/identidad/pasos_alta/campos_del_carnet.dart` para respetar el gate de tamaño de archivos.
+- Se agregó `apps/movil/test/goldens/h8_alta_oscura_test.dart`. Ejecución final sin actualizar archivos dorados: **1/1 PASS**. El test de fecha del paquete pasó previamente **6/6**. Análisis estático dirigido: `No issues found!`; gate `python ..\..\scripts\verificar_frontend.py movil`: `TODO OK` (11/11).
+- Se agregó `apps/movil/test/goldens/h8_prueba_vida_oscura_test.dart` y la captura `docs/trabajo/2026-10-11-alta-atlas-sesion-premium/evidencia/h8-prueba-vida-oscura-frente-360-130.png`. El golden usa las fuentes reales de la app; la imagen fue inspeccionada y se lee correctamente. Test final sin `--update-goldens`: **1/1 PASS**; `dart analyze --fatal-infos test/goldens/h8_prueba_vida_oscura_test.dart`: **No issues found!**. Solo cubre pose frontal inicial con cámara simulada; no demuestra cámara física ni los demás estados.
+- Se agregó `apps/movil/test/goldens/h8_grupos_mi_estado_oscuro_test.dart` con tres capturas para los estados deuda/restricción y al día/sin restricción en oscuro. Inspección a 360 × 740 dp/130 %: texto y acciones completos, sin corte ni superposición. Test final sin `--update-goldens`: **2/2 PASS**; análisis dirigido: **No issues found!**. Usa providers falsos; no cubre la navegación global ni valida el backend.
+- Se cerró H4.S6.M4 tras revisar visualmente las capturas widget golden del ingreso y las seis vistas del alta, incluyendo posiciones de scroll. Hallazgos de inglés visible: **0**. El test `textos_en_espanol_test.dart` pasó **1/1**. Checklist y límites (capturas de prueba, no dispositivo; sin diálogos nativos) en `docs/trabajo/2026-10-11-alta-atlas-sesion-premium/evidencia/h4-s6.txt` y `NOTAS.md`.
+- Se agregó `apps/movil/test/goldens/h8_centro_ayuda_oscuro_test.dart` y dos capturas de inicio/lista del centro de ayuda en oscuro. Inspección visual a 360 × 740 dp/130 %: textos, filtros y acciones completos y legibles. Test sin actualización: **1/1 PASS**; `dart analyze --fatal-infos`: **No issues found!**. Evidencia: `evidencia/h8-ayuda-oscura.md`.
+- Se agregó `apps/movil/test/goldens/h8_verificacion_oscura_test.dart` con capturas oscuras de los cuatro estados de verificación (pendiente, en revisión, aprobada y rechazada). Inspección a 360 × 740 dp/130 % sin texto recortado ni excepción; el motivo de rechazo se localiza. Test sin actualización: **1/1 PASS**; análisis dirigido: **No issues found!**. Usa ID/motivo falsos; evidencia: `evidencia/h8-verificacion-oscura.md`.
+- Se corrigió `apps/movil/test/goldens/pantalla_escanear_golden_test.dart` para cargar las fuentes reales de la app. Inspeccioné las seis capturas de permiso denegado (móvil/tableta/escritorio, claro/oscuro): textos y acciones legibles, sin cortes ni solapamientos. La suite sin actualización pasó **6/6** y `dart analyze --fatal-infos` quedó en **No issues found!**. Evidencia: `docs/trabajo/2026-10-11-alta-atlas-sesion-premium/evidencia/h8-camara-denegada-visual.md`. Las capturas antiguas usaban glifos de fuente de prueba y no sirven para legibilidad. Faltan otros estados de cámara; H8.S4.M4 sigue parcial.
+- Se agregó `apps/movil/test/goldens/h8_subida_oscura_test.dart` y revisé `docs/trabajo/2026-10-11-alta-atlas-sesion-premium/evidencia/h8-subida-oscura-360-130.png`: primera cara subiendo, cuatro pendientes, acción de cancelar visible y «Continuar» deshabilitado, sin rutas locales; fixture sintético oscuro 360 × 740/130 %. El golden final sin actualización pasó **1/1**, widget de subida **2/2**, dominio **10/10**, `dart analyze --fatal-infos` sin incidencias y gate frontend `TODO OK` (11/11). El test detectó una lectura de providers durante `dispose()`; se corrigió el ciclo de limpieza y los tests dirigidos pasan. Evidencia: `evidencia/h8-subida-oscura-360-130.md`. H8.S4.M4 permanece `A MEDIAS`.
+- Auditoría paralela, estática y sin pruebas: los PNG de deuda/inicio y deuda/acciones de grupos son idénticos (no contarlos como estados visuales separados). Los estados oscuros de carga/error y reintento de «Grupos / mi estado» ya tienen fixtures sintéticas; no cubren detalle, backend ni navegación global.
+- Se añadieron dos fixtures al golden de grupos para carga y error/reintento: la pantalla conserva los esqueletos y acciones durante carga; el error comunica en español y el botón reintenta hasta mostrar «Al día». Inspeccioné ambos PNG: textos y acciones legibles, sin corte ni superposición. Actualización de goldens **4/4**, repetición sin actualización **4/4**, análisis estático sin incidencias y gate frontend `TODO OK` (11/11). Evidencia en `evidencia/h8-grupos-mi-estado-oscuro.md`. No cubre tema claro, detalle ni navegación global.
+- Se amplió el golden de portada/MFA con un error sintético `422 AP-CU04-04`: el mensaje de rechazo se ve completo a 360 × 740/130 % y las seis casillas quedan disponibles para reintentar. Captura inspeccionada visualmente; las suites con y sin actualización pasaron 4/4. No cubre OTP válido, navegación, teclado del sistema ni dispositivo.
+- Verificación final de MFA: suite focalizada sin actualización **4/4 PASS**, `dart analyze --fatal-infos test/goldens/h8_portada_mfa_oscuro_test.dart` sin incidencias y gate frontend `TODO OK` 11/11. Evidencia: `evidencia/h8-s4-m4-portada-mfa-oscuro.md`. H8.S4.M4 sigue parcial.
+- Se añadió una fixture del ingreso oscuro para rechazo sintético `422 AP-CU04-01`: mensaje específico, campos y acciones íntegros, contraseña enmascarada; teléfono, servicio y haptics son falsos. Golden sin actualización **2/2 PASS**, análisis Dart sin incidencias y gate frontend `TODO OK` 11/11. Captura inspeccionada en `evidencia/h8-ingreso-error-oscuro-360-130.png`; falta validar teclado y dispositivo.
+- Se amplió `test/goldens/h8_break_ui_test.dart` con una captura oscura del feed de billetera de 40 movimientos al 200 %. Inspección manual: filas, fechas e importes legibles, sin corte ni overflow. Ejecución de creación y repetición sin actualización **6/6 PASS**; análisis Dart y gate frontend `TODO OK` 11/11. Evidencia: `evidencia/h8-break-ui/billetera-40-movimientos-200-oscuro.png`. Solo se generó la captura nueva; no se tocaron las demás baselines.
+- Evidencia actualizada en `docs/trabajo/2026-10-11-alta-atlas-sesion-premium/evidencia/h8-s4-m4-alta-oscura.md` e inventario `h8-s4-m4-inventario.md`. H8.S4.M4 permanece `A MEDIAS`.
+- Se completó en paralelo una revisión estática de color para el ingreso oscuro: naranja en acción primaria, verde en foco/enlaces y rojo semántico de error. El criterio «un solo acento» no precisa si `brand` y `accent` cuentan por separado; se documentó sin veredicto en `evidencia/h8-s4-m3.md` y H8.S4.M3 sigue parcial.
+- H8.S4.M4: se añadieron capturas oscuras sintéticas de subida en curso y error/reintento a 360 × 740 dp/130 %, y de error a 320 × 640/200 %. Los tests detectaron overflow horizontal de 21 px y título truncado a 200 %; `FilaDeSubida` usa `Wrap` y la barra adapta el título a dos líneas desde 180 %. Capturas inspeccionadas; golden update y repetición **2/2**, widget **2/2**, dominio **10/10**, `dart analyze` limpio y gate frontend **11/11**. En auditoría posterior, H10 cubrió visualmente 20/21 unidades conceptuales; M4 continúa parcial por la unidad sin pantalla/contrato grupos/detalle. Validación física/backend se conservan como límites del entorno.
+- Se cerró `H8.S4.M1`: `TarjetaDeCaptura` quedó en dos capas de `Elevacion.tarjeta(t)`; no hay `BoxShadow` literal en pantallas y los radios revisados usan roles `Radios.*`. Se inspeccionaron goldens claro/oscuro; `paso_capturas_test.dart` pasa **4/4** con y sin actualización y el análisis dirigido está limpio. La aceptación local no certifica equivalencia de rasterizadores.
+- En el checkpoint anterior a completar las matrices H10, H10.S3.M1/M2 seguían `A MEDIAS` y la evidencia cubría grupos, portada y billetera (54 celdas, 48 PNG nuevos + 6 reutilizados). La billetera reveló truncamiento de tres acciones a 360/412 dp; se apilan bajo 420 dp y el test comprueba que las etiquetas no se trunquen. “Al día” no se inventa como estado técnico `EstadoVacio`.
+
+- Se agregó `apps/movil/test/goldens/h10_ingreso_visual_test.dart`: matriz de `PantallaDeSesion` con 18 celdas (360 × 740, 412 × 850 y 600 × 960 dp; claro/oscuro; principal/carga/error), escala 130 %, DPR 1. Reutiliza las dos capturas H8 compatibles de 360 oscuro; genera 16 PNG H10 nuevos. Error usa `422 AP-CU04-01` sintético y carga un override del provider; no se toca la pantalla ni el backend. Inspeccioné los 18 archivos: no observé recortes ni superposiciones; agregué y pasé una aserción que sitúa “Crear mi cuenta” dentro del viewport incluso en error a 360 dp. La primera ejecución falló en las seis celdas de carga porque `asentar` esperaba que terminara el spinner indeterminado; cambié solo la espera del test a un frame y luego pasó la matriz completa con y sin actualización, 18/18 ambas veces. `dart analyze --fatal-infos` limpio; gate móvil `TODO OK` 11/11.
+- Para MFA, la auditoría paralela encontró que `estado.enviando` no se mostraba y las seis casillas seguían editables. La pantalla ahora muestra `TextosIdentidad.verificandoCodigo` con el botón de progreso del sistema (sin spinner suelto, como exige H8) y `CampoOTP` recibe `habilitado:false` durante el envío. Se agregó `h10_mfa_visual_test.dart`: 18 celdas a 360/412/600, claro/oscuro, principal/cargando/error; reutiliza exactamente las dos capturas H8 oscuras de 360 y genera 16 PNG. Inspeccioné una por una las 16 imágenes nuevas: sin recorte, solapamiento ni texto ilegible; error claro 360 se envuelve completo. Golden update y repetición 18/18, H8 MFA focalizado 2/2, análisis dirigido sin issues y gate móvil 11/11.
+- Cobertura H10.S3.M1/M2: veinte unidades visuales, **228 celdas (204 PNG nuevos + 24 reutilizados)**; inventario conceptual de 21 unidades en `evidencia/h10-visual/INDICE.md`. Solo grupos/detalle conceptual sigue sin ruta/contrato local. H10.S3.M2 queda HECHO por anotación visual individual de 228/228 celdas; M1 sigue A MEDIAS. H8.S1.M2 también quedó HECHO como auditoría previa (20 superficies puntuadas; aprobación visual rechazada por hallazgos mayores). En este checkpoint global: 182/213 (85,4 %).
+- Skills leídas para este slice: `skills-router`, `outcome-first`, `context-thrift`, `factual-discovery`, `anti-hallucination-guard`, `scope-discipline`, `native-code-patterns`, `progress-reporting`, `root-cause-debugging`, `evidence-and-verification`, `visual-proof`, `visual-regression-testing`, `flutter-development`, `flutter-state-architecture`, `flutter-testing`, `flutter-theming`, `agent-orchestration`, `agent-resource-control`, `work-report-md`, `finish-your-turn`, `qa-evidence-reporting`, `pasanaku-app-movil-ux`, `pasanaku-diseno`, `pasanaku-ui-componentes`, `pasanaku-movimiento`.
+
+### Slice completado — Tour H10.S3.M1/M2
+
+- Resultado observable: cada lámina del recorrido se conserva legible en 360/412/600 dp y ambos temas; la última ofrece «Empezar» (no «Siguiente»/«Saltar»).
+- IN: test golden H10 de las cuatro láminas × tres anchos × dos temas; reutilización de las tres imágenes H8 oscuras 360 dp que comparan exactamente; anotar inspección de cada celda.
+- OUT: cambiar contenido o navegación de Tour, transiciones fuera de `movimientoReducido`, dispositivo físico y otras superficies H10.
+- Criterio/kill-test: 24 celdas capturadas, con expectativa semántica sobre lámina final; correr el test sin `--update-goldens` para detectar cualquier celda ausente/diferente y abrir los 21 PNG nuevos.
+- Estado: test completado y pasado 24/24 con y sin actualización; `dart analyze --fatal-infos` limpio. Se inspeccionaron visualmente las 21 capturas nuevas y las 3 referencias H8 reutilizadas, sin recortes ni solapamientos. La cuarta referencia H8 difiere en 126 px (0,05 %), así que la celda oscura 360 de la lámina 4 usa baseline H10 propia; la prueba H8 histórica correspondiente sigue fallando y no se regeneró.
+
+### Slice completado — Bienvenida H10.S3.M1/M2
+
+- Resultado observable: quien termina el alta ve el título de bienvenida y las dos acciones siguientes completas en 360/412/600 dp, claro y oscuro, con texto 130 %.
+- IN: test golden del estado principal estático de `PantallaDeBienvenida`, seis celdas; inspección por celda; update + repetición sin update; reporte y `LEIDO.md`.
+- OUT: cambiar la pantalla o el monto del bono, inventar fixtures de carga/vacío/error, backend o validación física.
+- Kill-test: probar primero H8 de 360 dp oscuro. La comparación histórica ya da 190 px (0,07 %) de diferencia, concentrados en el borde del panel; por tanto, no se reutiliza ni se actualiza H8, y la cobertura nueva usará seis referencias H10.
+- Archivos previstos: `apps/movil/test/goldens/h10_bienvenida_visual_test.dart`, seis PNG H10, `evidencia/h10-visual/{INDICE,LEIDO}.md`, `REPORTE.md`, `PROGRESO.md`.
+- Estado: suite actualizada y repetida 6/6; `dart analyze --fatal-infos` limpio; gate móvil `TODO OK` (11/11). Las seis capturas se inspeccionaron, sin recortes ni solapamientos. La reutilización H8 se descartó tras la discrepancia reproducida. Sin cambios en código de producto.
+- Skills leídas: `skills-router`, `outcome-first`, `vertical-slicing`, `scope-discipline`, `factual-discovery`, `flutter-testing`, `visual-regression-testing`, `visual-proof`, `progress-reporting`.
+
+### Slice completado — Estado de verificación H10.S3.M1/M2
+
+- Resultado observable: participante ve el estado real del expediente (pendiente, revisión, aprobada o rechazada) con título, identificador y acción correctos a 360/412/600 dp en claro/oscuro, texto 130 %.
+- IN: matriz golden de cuatro estados sintéticos × tres anchos × dos temas; reutilizar H8 solo para las celdas oscuras de 360 dp si la comparación H10 coincide; inspección por captura y registro de comandos.
+- OUT: backend real, fotos/documentos reales, modificar estados/contratos, generar dinero/bonos y validación en dispositivo.
+- Kill-test: regresión H8 actual sin update (cuatro estados en oscuro 360); su corrida acaba de pasar. El test H10 debe repetirse también sin update y comparar exactas las cuatro celdas H8 elegidas.
+- Archivos: `apps/movil/test/goldens/h10_verificacion_visual_test.dart`, 20 PNG H10, cuatro PNG H8 reutilizados, `evidencia/h10-visual/{INDICE,LEIDO}.md`, `REPORTE.md`, `PROGRESO.md`.
+- Estado: H8 focalizado pasó 1/1 testWidgets (4 estados); cuatro casos H10 con referencias H8 4/4; se generaron 20 PNG H10 (12 claros + 4 oscuros 412 dp + 4 oscuros 600 dp); repetición sin actualización 24/24; análisis Dart limpio; gate móvil `TODO OK` 11/11. Inspeccioné las 20 nuevas y revisé las 4 H8; sin clipping ni solapamiento. Sin cambios en código de producto.
+
+### Slice completado — Subida del expediente H10.S3.M1/M2
+
+- Resultado esperado: matriz visual sintética de subida pendiente/en curso y fallo de red, tres anchos (360/412/600 dp), ambos temas, texto 130 % y DPR 1; cobertura propia H10, reutilizando H8 solo cuando el golden confirme igualdad exacta.
+- IN: golden de `PantallaDeSubidaDelExpediente`, overrides falsos, asserts de contenido/tema/escala/ausencia de rutas privadas, inspección de capturas y actualización del índice/reporte.
+- OUT: tocar endpoint/backend, lógica de carga, archivos reales, permisos/cámara, navegación de flujo completo, estados inventados y regeneración de referencias H8.
+- Kill-test: `h8_subida_oscura_test.dart` sin actualizar pasó la captura pendiente y falló en la de error de red con 148 píxeles (0,06 %) distintos; no reutilizar baseline H8 del fallo ni modificarla. La primera invocación del ejecutable Flutter tuvo una ruta errónea y no inició el test; segunda invocación usó `C:\src\flutter-3.44.8\flutter\bin\flutter.bat` correctamente.
+- No escribir datos reales en fixtures; usar solo UUID/rutas/datos sintéticos. Máximo un proceso Flutter/Dart a la vez.
+- Archivos: `apps/movil/test/goldens/h10_subida_visual_test.dart`, 11 PNG H10 nuevos, una captura H8 reutilizada, `evidencia/h10-visual/{INDICE,LEIDO}.md`, `REPORTE.md` y este progreso.
+- Estado: update y repetición sin update 12/12 cada una; pruebas widget + unidad 12/12; `dart analyze --fatal-infos` limpio; gate móvil `TODO OK` 11/11. Inspeccioné las 11 capturas nuevas sin recortes, solapamientos ni texto ilegible. Sin cambios de producto.
+- Skills leídas: `flutter-testing`, `visual-proof`, `visual-regression-testing`, `scope-discipline`, `vertical-slicing`, `skills-router`, `outcome-first`, `progress-reporting`.
+
+### Slice completado — Perfil H10.S3.M1/M2
+
+- Resultado esperado: ampliar visualmente el perfil inicial sintético a tres anchos y dos temas con texto 130 %, sin activar guardado, navegación, cierre de sesión ni baja de cuenta.
+- IN: `PantallaDePerfil` y sus campos/acciones estáticos; reusar H8 solo si el kill-test confirma igualdad exacta. OUT: modificar producto, operaciones reales, formulario con datos personales, teclado y transiciones de rutas.
+- Fuente/candidata identificada en lectura paralela: `apps/movil/test/goldens/h8_perfil_oscuro_test.dart`, `apps/movil/lib/pantallas/identidad/pantalla_perfil.dart`, evidencia H8.S4.M4; tema/viewport H8 disponible: oscuro 360 × 740 dp/130 %.
+- Kill-test ejecutado: `h8_perfil_oscuro_test.dart` sin update falla a 444 píxeles (0,17 %) en oscuro/360 dp con Flutter 3.44.8; no reutilizar ni modificar esa referencia. H10 tiene seis PNG propios. Fixtures sin sesión real.
+- Archivos: `apps/movil/test/goldens/h10_perfil_visual_test.dart`, seis PNG H10 nuevos, `evidencia/h10-visual/{INDICE,LEIDO}.md`, `REPORTE.md` y este progreso.
+- Estado: update y repetición sin update 6/6 cada una; test widget vecino de cierre de sesión 1/1; `dart analyze --fatal-infos` limpio; gate móvil `TODO OK` 11/11. Inspeccioné las seis capturas; sin clipping, solapamientos ni correo real. Sin cambios de producto.
+
+### Slice completado — Candado H10.S3.M1/M2
+
+- Resultado esperado: fotografiar solo el estado bloqueado al arranque en tres anchos (360/412/600 dp), ambos temas, texto 130 % y DPR 1; datos/proveedores sintéticos.
+- IN: capa `CapaDeBloqueo`, título/detalle/acciones visibles y cobertura propia H10; OUT: desbloqueo exitoso, biometría real, renovación de sesión, ruta de ingreso y cambiar lógica de seguridad.
+- Fuente: `apps/movil/lib/pantallas/identidad/capa_de_bloqueo.dart`; test anterior `apps/movil/test/goldens/h1_candado_visual_test.dart` solo verifica título, usa otros altos/tamaños y no configura escala 130 %; sus PNG no se presumen equivalentes ni se reutilizarán.
+- Estado: H10 update y repetición normal 6/6 cada una; análisis Dart limpio; regresiones widget/unidad de bloqueo 20/20; gate móvil `TODO OK` 11/11. Inspeccioné las seis capturas, sin cortes ni solapamientos. La primera corrida update falló solo por un `SemanticsHandle` sin cerrar en el test; se quitó el handle redundante y las dos corridas finales pasan.
+- Archivos: `apps/movil/test/goldens/h10_candado_visual_test.dart`, seis PNG propios, `evidencia/h10-visual/{INDICE,LEIDO}.md`, `REPORTE.md` y este progreso.
+
+### Slice completado — Centro de ayuda H10.S3.M1/M2
+
+- Resultado esperado: matriz determinista de inicio recomendado y lista desplazada al último tutorial × tres anchos (360/412/600 dp) × ambos temas, texto 130 % y DPR 1.
+- IN: `PantallaCentroDeAyuda`, tres tutoriales sintéticos con registro/progreso local; reusar las dos capturas H8 oscuras/360 solo tras igualdad exacta. OUT: lanzar tutorial/navegar, persistencia real, teclado real, inventar carga/error, o agregar estados vacíos no requeridos en esta superficie.
+- Kill-test: `h8_centro_ayuda_oscuro_test.dart` sin update falló en la captura de inicio con 1.286 píxeles (0,48 %) distintos en Flutter 3.44.8. No reutilizar ni modificar H8; generar 12 baselines H10 propias. El estado de lista conserva el procedimiento de scroll ya probado y debe dejar la tarjeta/acción final dentro del viewport.
+
+### Slice completado — Cámara de identidad H10.S3.M1/M2
+
+- Resultado: solo el visor concedido de `PantallaDeCamara`, con cámara falsa inerte (sin tomar foto) en 360/412/600 dp, ambos temas, texto 130 % y DPR 1; seis PNG H10 nuevos, sin referencia H8 compatible.
+- IN: marco ID-1, consejos plegados, título/pista, botón de foto y cancelar; OUT: plugins/dispositivo, permiso denegado (otra pantalla ya inventariada), toma/escritura/lectura de fotos, subida y navegación posterior.
+- No hay golden H8 de esta ruta; las seis PNG de denegación pertenecen al escáner QR, no son referencia compatible. Generar seis baselines H10 nuevas.
+- Kill-test: adaptar el fake `CamaraDePrueba` del test widget existente, comprobar visor completo y UI visible sin llamar `tomarFoto`.
+- Privacidad: sin archivos ni imágenes de identidad reales, servicio de cámara ni datos de cuenta.
+- Hallazgos y ajuste: inicialmente el pie aparecía arriba y el panel de consejos solapaba la última línea de pista a 360 dp/130 %. Se cambió el pie a `MainAxisSize.min`, los consejos fluyen debajo del encabezado a altura natural, y el test aserta ausencia de solapamiento y posición inferior del botón. Se extrajo el encabezado/consejos a `EncabezadoYConsejosDeCamara` para respetar el límite de 200 líneas del gate.
+- Verificación final: H10 update y repetición normal 6/6 cada una; `dart analyze` dirigido sin incidencias; test widget de cámara de respaldo 5/5; gate móvil `TODO OK` 11/11. Inspeccioné las seis imágenes finales, sin recortes, solapamientos ni texto ilegible. No se tomó ni escribió foto; el test falla si se intenta capturar.
+- Legibilidad de ambos flujos de cámara: ambos mantienen un fondo oscuro por diseño; al capturar el tema claro heredaban texto de acción oscuro con poco contraste. `PantallaDeCamara` y `PantallaDePruebaDeVida` ahora usan los tokens del tema oscuro internamente; los tests comprueban que las acciones manuales estén habilitadas y las capturas claras se regeneraron/inspeccionaron.
+- Archivos: `apps/movil/test/goldens/h10_camara_visual_test.dart`, seis PNG H10 nuevos, `pantalla_camara.dart`, `pasos_alta/encabezado_y_consejos_de_camara.dart`, `evidencia/h10-visual/{INDICE,LEIDO}.md`, `REPORTE.md` y este progreso.
+- **Prueba de vida completada después:** seis celdas iniciales, H8 oscuro/360 reutilizado solo tras igualdad exacta; cinco PNG H10 nuevos. `flutter test` update/repetición 5/5 (H8 se verifica por separado 1/1); análisis limpio; widget/unidad de vida 39/39; gate móvil `TODO OK` 11/11. Cámara y vida usan cámara fake; no se tomó foto, no se usó dispositivo, cuenta ni imagen personal. Los seis PNG finales se inspeccionaron sin recortes ni solapamientos.
+- Archivos adicionales: `apps/movil/test/goldens/h10_prueba_vida_visual_test.dart`, cinco PNG H10 nuevos y una referencia H8 reutilizada; ambos flujos se fuerzan a tokens oscuros para mantener contraste sobre el visor oscuro.
+- **Alta — cuenta inicial completada:** seis celdas (360/412/600 dp × claro/oscuro), campos vacíos sin foco/teclado, sin pulsar «Continuar»; la única referencia H8 candidata, oscuro/360, pasó igualdad exacta y no se modificó. Se generaron e inspeccionaron cinco PNG H10. `flutter test` update/repetición H10: 5/5 y 6/6 respectivamente; H8 exacta 1/1; `dart analyze` limpio; gate 11/11. Fixture `dioSimulado()` + almacén en memoria, placeholders de ejemplo solamente.
+- Archivos adicionales: `apps/movil/test/goldens/h10_alta_cuenta_visual_test.dart`, cinco PNG H10 nuevos y una referencia H8 reutilizada.
+- **Alta — actividad/perfil transaccional inicial completada:** seis celdas (360/412/600 dp × claro/oscuro), origen/actividad/monto vacíos, sin foco ni teclado y sin pulsar «Continuar». La referencia H8 oscuro/360 pasó comparación exacta; no se modificó. Se generaron e inspeccionaron cinco PNG H10; `flutter test` update/repetición con las pruebas widget de perfil: 11/11; análisis Dart limpio y gate móvil `TODO OK` 11/11. Fixture `dioSimulado()` + almacén en memoria; los selectores permanecieron cerrados.
+- Archivos adicionales: `apps/movil/test/goldens/h10_alta_actividad_visual_test.dart`, cinco PNG H10 nuevos y una referencia H8 reutilizada.
+- **Alta — paso previo al contrato completado:** seis celdas (360/412/600 dp × claro/oscuro), texto «Último paso» y acción visibles; sin abrir el documento, sin consentimientos ni envío del alta. La referencia H8 oscuro/360 pasó igualdad exacta; cinco PNG H10 nuevos inspeccionados. Matriz y widget existente `paso_contrato_de_alta_test.dart`: 8/8; análisis Dart limpio. Fixture sintético con Dio y almacén en memoria.
+- Archivos adicionales: `apps/movil/test/goldens/h10_alta_contrato_visual_test.dart`, cinco PNG H10 nuevos y una referencia H8 reutilizada.
+- **Alta — correo inicial completada:** seis celdas (360/412/600 dp × claro/oscuro), seis OTP vacíos, sin foco/teclado ni solicitud o verificación; la referencia H8 oscuro/360 pasó igualdad exacta y no se modificó. Cinco PNG H10 inspeccionados; actualización y repetición: 5/5 y 6/6; prueba de estructura del alta: 4/4; análisis dirigido limpio; gate móvil `TODO OK` 11/11. Fixture Dio simulado y almacén en memoria.
+- Archivos adicionales: `apps/movil/test/goldens/h10_alta_correo_visual_test.dart`, cinco PNG H10 nuevos y una referencia H8 reutilizada. En ausencia intencional de correo, el texto muestra puntos suspensivos, igual que H8; verificar variante con destino sintético si la microtarea exige un dato enmascarado legible.
+- **Alta — datos iniciales completada:** seis celdas (360/412/600 dp × claro/oscuro), cuatro nombres y fecha vacíos, sin foco/teclado ni uso de dato personal. La referencia H8 oscuro/360 pasó igualdad exacta; cinco PNG H10 nuevos inspeccionados. Actualización/repetición H10 con widget de datos: 5/5 y 8/8; análisis limpio. A 360/412 dp el resto del formulario es desplazable; a 600 dp queda completo.
+- Archivos adicionales: `apps/movil/test/goldens/h10_alta_datos_visual_test.dart`, cinco PNG H10 nuevos y una referencia H8 reutilizada.
+- **Alta — documento inicial completada:** seis celdas (360/412/600 dp × claro/oscuro), sin documento ni fotos, sin foco/teclado y sin accionar cámara, pautas ni envío. No se reutilizó H8 porque su golden de paso 3 difiere 1.056 píxeles (0,40 %) bajo Flutter 3.47.5; se generaron e inspeccionaron seis PNG H10. Actualización/repetición y widget de capturas: 6/6 y 10/10; análisis limpio. El carrusel muestra intencionalmente el borde/título parcial de la siguiente tarjeta como affordance; el anverso activo se lee completo.
+- Archivos adicionales: `apps/movil/test/goldens/h10_alta_documento_visual_test.dart`, seis PNG H10 nuevos; los PNG H8 incompatibles quedan intactos.
+- No quedan subestados iniciales de `/registro` pendientes en esta matriz. Grupos/detalle sigue sin ruta/contrato local. Mantener un único runner Flutter/Dart.
+- Máximo un runner Flutter/Dart activo; no requerir hardware, backend ni red.
+- Respetar el límite de un solo runner Flutter/Dart concurrente.
+
+Comandos verdes comprobados al pausar:
+
+```powershell
+# Desde apps/movil
+flutter test --no-pub --concurrency=1 --reporter expanded test/goldens/h8_alta_oscura_test.dart
+flutter test --no-pub --concurrency=1 --reporter expanded test/goldens/h8_prueba_vida_oscura_test.dart
+flutter test --no-pub --concurrency=1 --reporter expanded --update-goldens test/goldens/h10_tour_visual_test.dart
+flutter test --no-pub --concurrency=1 --reporter expanded test/goldens/h10_tour_visual_test.dart
+dart analyze --fatal-infos test/goldens/h10_tour_visual_test.dart
+flutter test --no-pub --concurrency=1 --reporter expanded --plain-name 'oscuro · 360 dp' test/goldens/h10_verificacion_visual_test.dart
+flutter test --no-pub --concurrency=1 --reporter expanded --plain-name 'claro' --update-goldens test/goldens/h10_verificacion_visual_test.dart
+flutter test --no-pub --concurrency=1 --reporter expanded --plain-name 'oscuro · 412 dp' --update-goldens test/goldens/h10_verificacion_visual_test.dart
+flutter test --no-pub --concurrency=1 --reporter expanded --plain-name 'oscuro · 600 dp' --update-goldens test/goldens/h10_verificacion_visual_test.dart
+flutter test --no-pub --concurrency=1 --reporter expanded test/goldens/h10_verificacion_visual_test.dart
+dart analyze --fatal-infos test/goldens/h10_verificacion_visual_test.dart
+python ..\..\scripts\verificar_frontend.py movil # TODO OK, 11/11
+flutter test --no-pub --concurrency=1 --reporter expanded test/goldens/h8_grupos_mi_estado_oscuro_test.dart
+flutter test --no-pub --concurrency=1 --reporter expanded test/goldens/h8_centro_ayuda_oscuro_test.dart
+flutter test --no-pub --concurrency=1 --reporter expanded test/goldens/h8_verificacion_oscura_test.dart
+flutter test --no-pub --concurrency=1 --reporter expanded test/goldens/pantalla_escanear_golden_test.dart
+flutter test --no-pub --concurrency=1 --reporter expanded test/goldens/h8_subida_oscura_test.dart
+flutter test --no-pub --concurrency=1 --reporter expanded test/goldens/h8_portada_mfa_oscuro_test.dart
+flutter test --no-pub --concurrency=1 --reporter expanded test/goldens/h8_ingreso_oscuro_test.dart
+flutter test --no-pub --concurrency=1 --reporter expanded test/goldens/h8_break_ui_test.dart --timeout 60s
+flutter test --no-pub --concurrency=1 --reporter expanded test/widget/pantalla_subida_del_expediente_test.dart
+flutter test --no-pub --concurrency=1 --reporter expanded test/unidad/subida_del_expediente_test.dart
+flutter test --no-pub --concurrency=1 --reporter expanded test/unidad/textos_en_espanol_test.dart
+flutter test --no-pub --concurrency=1 --reporter expanded test/widget/paso_capturas_test.dart
+dart analyze --fatal-infos test/widget/paso_capturas_test.dart lib/pantallas/identidad/pasos_alta/tarjeta_de_captura.dart
+flutter test --no-pub --concurrency=1 --reporter expanded test/goldens/h8_subida_oscura_test.dart
+flutter test --no-pub --concurrency=1 --reporter expanded test/widget/pantalla_subida_del_expediente_test.dart
+flutter test --no-pub --concurrency=1 --reporter expanded test/unidad/subida_del_expediente_test.dart
+dart analyze --fatal-infos test/goldens/h8_subida_oscura_test.dart lib/pantallas/identidad/fila_de_subida.dart lib/pantallas/identidad/pantalla_subida_del_expediente.dart
+python ..\..\scripts\verificar_frontend.py movil
+dart analyze --fatal-infos test/goldens/h8_portada_mfa_oscuro_test.dart
+dart analyze --fatal-infos test/goldens/h8_ingreso_oscuro_test.dart
+dart analyze --fatal-infos test/goldens/h8_break_ui_test.dart
+dart analyze --fatal-infos test/goldens/h8_prueba_vida_oscura_test.dart
+dart analyze --fatal-infos test/goldens/h8_grupos_mi_estado_oscuro_test.dart
+dart analyze --fatal-infos test/goldens/h8_centro_ayuda_oscuro_test.dart
+dart analyze --fatal-infos test/goldens/h8_verificacion_oscura_test.dart
+dart analyze --fatal-infos test/goldens/pantalla_escanear_golden_test.dart
+python ..\..\scripts\verificar_frontend.py movil
+```
+
+## Pendiente en el plan
+
+El contador oficial más reciente informa 10 microtareas `TODO`, 18 `A MEDIAS` y 3 bloqueadas. Consultar sus criterios en `PLAN.md` y `REPORTE.md`; no cambiar estados para inflar el porcentaje.
+
+**A MEDIAS:** `H1.S4.M1`; `H1.S6.M2–M5`; `H2.S1.M1`, `H2.S1.M3`; `H3.S1.M3`; `H4.S2.M4`; `H4.S5.M1`; `H5.S4.M3`; `H6.S3.M8`; `H8.S4.M3`, `H8.S4.M4`; `H10.S1.M6`, `H10.S1.M7`, `H10.S3.M1`, `H10.S4.M1`.
+
+**BLOQUEADO en la última auditoría:**
+
+- `H1.S6.M8`: integración de sesión dependiente del entorno de base de datos/servicios.
+- `H3.S3.M3`: dependencia/criterio pendiente del área de identidad; ver el ID en el plan.
+- `H10.S1.M8`: verificación backend/Gradle, dependiente de PostgreSQL/Docker y memoria disponible.
+
+**Siguiente trabajo recomendado:** priorizar la validación física y las dependencias externas de los `TODO` restantes (dispositivo Android, backend/servicios y entorno PostgreSQL/Docker/Gradle), según los DoD de `PLAN.md`. No cerrar esas celdas con fixtures si exigen dispositivo o servicios reales. Los mayores visuales MFA/documento/bienvenida ya están resueltos y reevaluados en `evidencia/h8-rubrica-despues.md`; el contrato es una observación menor. No inventar grupos/detalle sin ruta/contrato. H10.S3.M2 cumple su DoD de inspección visual: 228/228 celdas anotadas. Mantener pruebas pesadas seriales y como máximo un agente de lectura liviana.
+
+## Errores conocidos y límites
+
+- Las suites completas de goldens aún no están verdes. La evidencia del 12-10 en `evidencia/h10-goldens-flutter-3.44.8-2026-10-12.md` registra comparaciones pixelarias: app **10 PASS / 14 FAIL** y paquete `diseno_flutter` **100 PASS / 15 FAIL** en la repetición documentada. No regenerar baselines masivamente sin revisar las diferencias en el rasterizador canónico. Los goldens H8 dirigidos indicados arriba sí pasan individualmente en la máquina actual.
+- La regresión amplia anterior registró **566 PASS y un fallo de timer preexistente en H0**, en `guardian_de_sesion_test.dart`; revisar evidencia antes de atribuirlo a cambios nuevos.
+- La suite `h8_portada_mfa_oscuro_test.dart` ejecutada con Flutter 3.44.8 en este slice dio fallos de golden solo en portada (0,96 % y 1,01 % de píxeles distintos); los dos casos MFA pasan aislados 2/2 y también pasaron dentro de la suite. No se regeneraron las baselines de portada; verificar con el Flutter/rasterizador canónico antes de concluir si es drift de entorno o cambio visual.
+- La regresión `h8_tour_oscuro_test.dart` ejecutada con Flutter 3.44.8 falla únicamente en la lámina 4: 126 píxeles (0,05 %) difieren de su H8; las otras tres referencias oscuras de 360 dp se reutilizan. No se actualizó la baseline H8. La suite H10 propia del Tour sí pasa 24/24 con y sin actualización.
+- La regresión `h8_bienvenida_oscuro_test.dart` ejecutada con Flutter 3.44.8 falla con 190 píxeles (0,07 %) distintos, visibles en el contorno de la tarjeta; H10 genera sus seis capturas nuevas y no modifica la referencia histórica.
+- La primera aserción H10 probó por error que `Saltar` no existiera como widget en la lámina 4; el control se desvanece visualmente pero permanece en el árbol. El test ahora valida su exclusión semántica y opacidad cero; la suite final pasa 24/24.
+- No hay Android conectado: hay dos AVD configurados (2 GiB cada uno), pero no se iniciaron con solo 1,73 GiB libres. PostgreSQL Windows acepta conexiones en 5432, pero 5433 (requerido por `generateJooq`) está cerrado y `psql` sin credenciales no autentica; Docker Desktop no tiene daemon disponible, falta generación jOOQ y no se modificó la instancia. Evidencia: `evidencia/h1-s6-backend-bloqueado.md`. No afirmar integración backend, cámara física, rendimiento por cuadro ni protección real del SO.
+- Flutter actual observado en esta sesión: **3.47.5**. Los resultados de goldens históricos citados arriba fueron tomados con Flutter 3.44.8; no son una corrida completa actual.
+- Al invocar Flutter 3.44.8 explícitamente, la compilación del asset hook `objective_c` falló por formato de kernel incompatible (`expected 130, found 138`), mientras `.dart_tool` está generado por Dart 3.13.4 del Flutter 3.47.5 activo. No se borró ni regeneró el caché; la nueva matriz se probó con el Flutter activo y queda pendiente repetir en entorno canónico coincidente.
+- Con Flutter 3.47.5, suites vecinas preexistentes no relacionadas con la cuenta vacía fallaron: H8 del alta difirió en el paso 3 (1.056 px, 0,40 %); `campos_del_alta_test.dart` tuvo dos aserciones de geometría/ejemplos y `paso_contrasena_test.dart` esperaba el texto antiguo “Mínimo 8 caracteres”. La matriz H10 cuenta vacía pasa 6/6 y el H8 candidato oscuro/360 pasa exacto; revisar esos fallos con el SDK canónico antes de atribuirlos a una regresión.
+- Auditoría nueva de la matriz golden H10 sin `--update-goldens`: corrida serial detenida a 01:21 para liberar memoria con `+21 -201`, seis celdas no ejecutadas. No se actualizaron baselines. Comparación visual de los `_testImage.png` disponibles encontró diferencias estructurales de tokens/peso tipográfico frente a masters históricos; no explicarlas solo como rasterizador. Detalle y pares inspeccionados: `docs/trabajo/2026-10-11-alta-atlas-sesion-premium/evidencia/h8-rubrica-antes.md`.
+- El plan no autoriza push, PR, merge ni despliegue. El trabajo de esta sesión quedó local y sin commit.
+
+## Instrucciones exactas para retomar
+
+1. Abrir PowerShell en `C:\Users\leonardo\Repositories\pasanaku\PasanakuBackend` y leer primero este archivo, `AGENTS.md`, `docs/trabajo/2026-10-11-alta-atlas-sesion-premium/PLAN.md`, `NOTAS.md` y `REPORTE.md`.
+
+   ```powershell
+   Set-Location 'C:\Users\leonardo\Repositories\pasanaku\PasanakuBackend'
+   Get-Content -Encoding utf8 .\PROGRESO.md
+   Get-Content -Encoding utf8 .\AGENTS.md
+   git branch --show-current
+   git status --short
+   ```
+
+2. Preservar todo el árbol tal como está: no ejecutar `git clean`, `git reset`, `git checkout --`, no borrar carpetas de `failures` y no revertir archivos marcados `D`. No hacer staging/commit de todos los cambios sin revisar su alcance.
+
+3. La cámara denegada ya está revisada en las seis combinaciones y verificada (6/6; análisis sin incidencias); ver `evidencia/h8-camara-denegada-visual.md`. Solo repetir los siguientes comandos si cambia ese test o sus capturas. Desde `apps\movil`, ejecutarlos sin regenerar:
+
+   ```powershell
+   flutter test --no-pub --concurrency=1 --reporter expanded test/goldens/pantalla_escanear_golden_test.dart
+   dart analyze --fatal-infos test/goldens/pantalla_escanear_golden_test.dart
+   ```
+
+   Si una modificación futura hace fallar la suite, conservar las salidas e imágenes para diagnóstico; no regenerar masivamente.
+
+4. Para confirmar el checkpoint, correr por separado y en serie los comandos dirigidos de la sección “Completado y verificado”. Si alguno falla, registrar la salida antes de editar. No usar `--update-goldens` en la verificación normal.
+
+5. Consultar únicamente el contador del plan objetivo:
+
+   ```powershell
+   python .claude/hooks/plan_status.py --path docs/trabajo/2026-10-11-alta-atlas-sesion-premium/PLAN.md
+   ```
+
+6. Continuar con una microtarea pendiente según dependencias y criterios del plan. Registrar pruebas y límites en `docs/trabajo/2026-10-11-alta-atlas-sesion-premium/evidencia/` y actualizar `REPORTE.md` al cerrar la próxima sesión. No publicar cambios.

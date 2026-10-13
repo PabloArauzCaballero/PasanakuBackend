@@ -1,0 +1,27 @@
+H5.S4.M3 — cámara de respaldo para carnet
+
+Implementación
+- El preview de cámara llena el área segura disponible; cabecera, marco ID-1,
+  consejos y controles se presentan como capas sobre el visor.
+- El marco apaisado reutiliza la proporción ID-1 de 85.6/54 (≈1.585) en un
+  helper que permite probar el rectángulo que se dibuja.
+- La pantalla admite una CamaraEnVivo opcional para pruebas; la aplicación sigue
+  usando el adaptador de plataforma por defecto. Para anverso/reverso se solicita
+  la cámara trasera, y siguen visibles «Tomar foto» y «Cancelar».
+
+Pruebas agregadas, no ejecutadas
+- pantalla_camara_de_respaldo_test.dart comprueba preview de área completa,
+  proporción del marco, consejos superpuestos, cámara trasera, devolución de la
+  captura y cancelación/liberación de la cámara.
+- Las fotos de prueba se crean en Directory.systemTemp y se limpian en cada caso.
+
+Verificación
+- dart format: 3 archivos, 0 cambios pendientes.
+- git diff --check en los archivos Dart rastreados: limpio.
+- Chequeo no indexado del test nuevo: sin errores de whitespace; Git mostró solo
+  su aviso habitual de conversión LF/CRLF en Windows.
+- No ejecuté Flutter, build, analyzer ni tests por instrucción de RAM.
+- Capturas de emulador: pendientes; no se abrió emulador en esta tarea.
+
+Alcance
+- No se tocaron scanner, carrusel, subida ni adaptador nativo de cámara.

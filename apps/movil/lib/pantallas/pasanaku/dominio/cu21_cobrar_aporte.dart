@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../dominio/cliente.dart';
 import '../../../proveedores/idempotencia.dart';
+import '../../../proveedores/sesion.dart';
 
 /// CU-21 · cobrar el aporte del período. El dinero lo mueve `nucleo-financiero`
 /// (invariante 12); esta pantalla solo aplica el pago a la obligación. `esNuevo` en
@@ -14,7 +15,10 @@ class CobrarAporte extends AsyncNotifier<SalidaCobro?> {
   String get _formularioId => 'cu21-cobrar-$obligacionId';
 
   @override
-  Future<SalidaCobro?> build() async => null;
+  Future<SalidaCobro?> build() async {
+    ref.watch(generacionDeSesionProvider);
+    return null;
+  }
 
   Future<void> enviar({
     required String monto,

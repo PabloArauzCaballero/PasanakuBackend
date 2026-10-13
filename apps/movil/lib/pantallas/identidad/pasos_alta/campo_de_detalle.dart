@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 /// El campo que aparece debajo de una lista cerrada cuando se elige «Otro» u
 /// «Otra»: ahí se escribe lo que la lista no tenía. Lo usan el origen de fondos y la
-/// actividad económica del paso 7, con el mismo aspecto y el mismo espacio arriba.
+/// actividad económica de la fase 3, con el mismo aspecto y el mismo espacio arriba.
 class CampoDeDetalle extends StatelessWidget {
   const CampoDeDetalle({
     super.key,

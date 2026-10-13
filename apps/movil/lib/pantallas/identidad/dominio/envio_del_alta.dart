@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../dominio/errores.dart';
 
 import 'cu01_registrar.dart';
 import 'estado_alta.dart';
@@ -56,6 +57,12 @@ Future<ResultadoDelAlta> enviarElAlta(Ref ref, EstadoAlta estado) async {
       tokenDeAlta: r.tokenDeAlta,
       cuentaBilleteraId: r.cuentaBilleteraId,
     );
+  } on ErrorDeApi catch (e) {
+    return ResultadoDelAlta(
+      error: e.mensaje,
+      campoError: e.campo,
+      trazaId: e.trazaId,
+    );
   } on Object catch (e) {
     return ResultadoDelAlta(error: mensajeDeError(e));
   }
@@ -70,6 +77,8 @@ class ResultadoDelAlta {
     this.tokenDeAlta,
     this.cuentaBilleteraId,
     this.error,
+    this.campoError,
+    this.trazaId,
   });
 
   final String? usuarioId;
@@ -80,4 +89,6 @@ class ResultadoDelAlta {
   /// `null` si el alta quedó pendiente de verificación y todavía no hay billetera.
   final String? cuentaBilleteraId;
   final String? error;
+  final CampoDeErrorApi? campoError;
+  final String? trazaId;
 }

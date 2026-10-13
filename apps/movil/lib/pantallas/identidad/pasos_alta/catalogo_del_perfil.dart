@@ -1,4 +1,4 @@
-/// Las listas cerradas del perfil transaccional declarado (CU-01, paso 7).
+/// Las listas cerradas de actividad y perfil transaccional declarado (CU-01, fase 3).
 ///
 /// **Se elige, no se escribe.** Un campo libre acá produce «trabajo», «mi sueldo»,
 /// «negocio» y «NEGOCIO» como cuatro respuestas distintas a la misma pregunta, y el
@@ -34,7 +34,7 @@ const List<OpcionDelPerfil> origenesDeFondos = [
   (codigo: 'OTRO', texto: 'Otro (lo detallo)'),
 ];
 
-/// El código que obliga a escribir el detalle a mano.
+/// El código que requiere un detalle ingresado por la persona.
 const String origenOtro = 'OTRO';
 
 /// A qué se dedica quien abre la cuenta. El código es la sección CIIU Rev. 4.

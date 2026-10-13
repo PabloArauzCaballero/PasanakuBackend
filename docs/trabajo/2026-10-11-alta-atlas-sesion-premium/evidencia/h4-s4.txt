@@ -1,0 +1,66 @@
+H4.S4 — canal de verificación único (2026-10-12)
+
+Prueba primero:
+  cd apps/movil
+  flutter test test/widget/canal_de_verificacion_test.dart --reporter expanded
+Salida roja relevante literal:
+  Expected: no matching candidates
+  Actual: _TypeWidgetFinder:<Found 1 widget with type "SelectorSegmentado<String>">
+  00:00 +0 -1: un solo canal se informa sin dibujar un selector [E]
+Exit code: 1
+
+Implementación:
+  `CanalDeVerificacion` solo dibuja `SelectorSegmentado` si hay al menos dos
+  canales conocidos. Con CORREO como único canal, informa “Te mandamos el
+  código a tu correo.” El dominio define `canalesDeVerificacionDelAlta` como
+  `['CORREO']` y documenta la restricción del contrato CU-01.
+
+Comando final:
+  cd apps/movil
+  flutter test test/widget/canal_de_verificacion_test.dart test/widget/paso_datos_test.dart --reporter expanded
+Salida final literal:
+  00:03 +7: All tests passed!
+Exit code: 0
+
+Comando:
+  cd apps/movil
+  dart analyze lib/pantallas/identidad/dominio/canales_de_verificacion.dart lib/pantallas/identidad/pasos_alta/canal_de_verificacion.dart lib/pantallas/identidad/pasos_alta/campos_del_alta.dart test/widget/canal_de_verificacion_test.dart test/widget/paso_datos_test.dart
+Salida final literal:
+  No issues found!
+Exit code: 0
+
+H4.S4.M3 — barrido de controles con una sola opción:
+Comando:
+  cd packages/diseno_flutter
+  flutter test test/widget/comportamiento_test.dart test/widget/campo_de_seleccion_test.dart --reporter expanded
+Salida final literal:
+  00:01 +18: All tests passed!
+Exit code: 0
+
+Comando:
+  cd packages/diseno_flutter
+  dart analyze lib/atomos/selector_segmentado.dart lib/atomos/grupo_radio.dart lib/atomos/campo_de_seleccion.dart lib/moleculas/chips_de_filtro.dart test/widget/comportamiento_test.dart test/widget/campo_de_seleccion_test.dart
+Salida final literal:
+  No issues found!
+Exit code: 0
+
+Comando de integración:
+  cd apps/movil
+  flutter test test/widget/canal_de_verificacion_test.dart test/widget/paso_datos_test.dart --reporter expanded
+Salida final literal:
+  00:03 +7: All tests passed!
+Exit code: 0
+
+Comando de análisis completo:
+  cd apps/movil
+  dart analyze
+Salida final literal:
+  Analyzing movil...
+  No issues found!
+Exit code: 0
+
+Comando de gate:
+  python scripts/verificar_frontend.py movil
+Salida final literal:
+  TODO OK
+Exit code: 0

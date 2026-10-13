@@ -99,7 +99,7 @@ class CamaraEnVivoPlugin implements CamaraEnVivo {
           alLeer(await lector.leer(cuadro));
         } on Object {
           // Un cuadro que no se pudo leer no frena la prueba: viene otro enseguida,
-          // y si no anda nunca la pantalla ofrece la foto a mano.
+          // y si no anda nunca la pantalla ofrece tomar la foto manualmente.
         } finally {
           ocupado = false;
         }

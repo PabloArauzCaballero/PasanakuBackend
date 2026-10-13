@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../atomos/hundido_al_tocar.dart';
 import '../atomos/avatar.dart';
 import '../tokens/tokens.dart';
 
@@ -53,28 +54,31 @@ class BannerDePauta extends StatelessWidget {
                 ),
               ],
             ),
-            InkWell(
-              onTap: onTap,
-              child: Row(
-                children: [
-                  Avatar(nombre: anunciante, tamano: Tactil.minimo),
-                  const SizedBox(width: Espacio.s3),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          titulo,
-                          style: texto.titleSmall?.copyWith(color: t.text),
-                        ),
-                        Text(
-                          detalle,
-                          style: texto.bodySmall?.copyWith(color: t.text2),
-                        ),
-                      ],
+            HundidoAlTocar(
+              activo: onTap != null,
+              child: InkWell(
+                onTap: onTap,
+                child: Row(
+                  children: [
+                    Avatar(nombre: anunciante, tamano: Tactil.minimo),
+                    const SizedBox(width: Espacio.s3),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            titulo,
+                            style: texto.titleSmall?.copyWith(color: t.text),
+                          ),
+                          Text(
+                            detalle,
+                            style: texto.bodySmall?.copyWith(color: t.text2),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],

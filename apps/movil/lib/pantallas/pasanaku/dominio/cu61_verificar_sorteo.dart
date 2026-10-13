@@ -2,6 +2,7 @@ import 'package:aportaya_cliente_transparencia/aportaya_cliente_transparencia.da
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../dominio/cliente.dart';
+import '../../../proveedores/sesion.dart';
 
 /// CU-61 · verificación pública del sorteo. Ruta **sin sesión** en `transparencia`;
 /// recomputa con el mismo átomo que sorteó (CU-60), así que la app nunca reproduce
@@ -9,6 +10,7 @@ import '../../../dominio/cliente.dart';
 /// servidor, sería justamente el riesgo que el compromiso-revelación evita.
 final verificarSorteoProvider = FutureProvider.autoDispose
     .family<SalidaVerificacionSorteo, String>((ref, sorteoId) async {
+      ref.watch(generacionDeSesionProvider);
       final dio = ref.watch(dioProvider);
       try {
         final r = await DefaultApi(dio).verificarSorteo(sorteoId: sorteoId);

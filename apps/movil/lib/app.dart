@@ -4,193 +4,154 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'dominio/verificacion_contrato.dart';
-import 'navegacion/abridor_de_avisos.dart';
+export 'app_real.dart'
+    show localeDeAportaYa, localesDeAportaYa, delegadosDeLocalizacionDeAportaYa;
+
+import 'dominio/cierre_de_sesion.dart';
+import 'dominio/vigilante_de_sesion.dart';
+import 'dominio/tope_de_sesion.dart';
 import 'navegacion/rutas.dart';
 import 'pantallas/soporte/arranque_segun_capacidades.dart';
-import 'pantallas/soporte/capa_de_tutorial.dart';
-import 'proveedores/avisos_push.dart';
+import 'proveedores/bloqueo.dart';
 import 'proveedores/sesion.dart';
+import 'app_real.dart';
 import 'package:aportaya_diseno/moviles/apertura_de_marca.dart';
-import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
-import 'package:aportaya_diseno/moviles/como_en_un_telefono.dart';
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 
-class AppAportaYa extends ConsumerWidget {
+class AppAportaYa extends ConsumerStatefulWidget {
   /// [inicial] nulo significa «la que diga el enrutador». Antes esta clase repetía su
   /// propia ruta de arranque, y cuando la del enrutador cambió a la portada, esta
   /// copia siguió mandando a la billetera: la app abría adentro igual. Un valor por
   /// defecto en dos lugares es un valor por defecto que va a divergir.
-  AppAportaYa({super.key, String? inicial})
-    : _enrutador = inicial == null
-          ? crearEnrutador()
-          : crearEnrutador(inicial: inicial);
+  const AppAportaYa({super.key, this.inicial});
 
-  final GoRouter _enrutador;
+  final String? inicial;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // H2.S2.M3 (madre H6.S2.M3): en un release de iOS sin almacén seguro ni
-    // protección de pantalla soportados, `builder` de acá abajo NUNCA se llama --
-    // ni `verificacionContratoProvider` ni el cliente HTTP que crea se tocan.
-    return ArranqueSegunCapacidades(
-      builder: (context) => _AppAportaYaReal(enrutador: _enrutador, ref: ref),
-    );
-  }
+  ConsumerState<AppAportaYa> createState() => _AppAportaYaState();
 }
 
-class _AppAportaYaReal extends StatelessWidget {
-  const _AppAportaYaReal({required this.enrutador, required this.ref});
-
-  final GoRouter enrutador;
-  final WidgetRef ref;
-
-  @override
-  Widget build(BuildContext context) {
-    // Se dispara al construir el árbol, sin bloquear el primer frame: si el
-    // gateway está caído al iniciar, el arranque no se cuelga esperándolo.
-    ref.watch(verificacionContratoProvider);
-    return MaterialApp.router(
-      title: 'AportaYa',
-      theme: temaDesde(Tokens.claro, Brightness.light),
-      darkTheme: temaDesde(Tokens.oscuro, Brightness.dark),
-      themeMode: ThemeMode.system,
-      routerConfig: enrutador,
-      debugShowCheckedModeBanner: false,
-      // El registro de anclas y la capa del tutorial envuelven a TODA la app: un
-      // recorrido cruza pantallas, así que no puede vivir dentro de una. Con el
-      // tutorial apagado, las dos piezas no dibujan ni escuchan nada.
-      builder: (context, child) => ComoEnUnTelefono(
-        child: ProveedorDeAnclas(
-          hijo: CapaDeTutorial(
-            enrutador: enrutador,
-            hijo: _ConApertura(
-              enrutador: enrutador,
-              child: _AvisoDeContrato(child: child),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Una franja angosta arriba, no un diálogo que tapa la pantalla: el aviso de
-/// «actualizá la app» no puede impedir seguir usando lo que ya funciona.
-class _AvisoDeContrato extends ConsumerWidget {
-  const _AvisoDeContrato({required this.child});
-  final Widget? child;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final estado = ref.watch(verificacionContratoProvider).asData?.value;
-    if (estado != EstadoContrato.desactualizado || child == null) {
-      return child ?? const SizedBox.shrink();
-    }
-    return Column(
-      children: [
-        Material(
-          color: Theme.of(context).colorScheme.errorContainer,
-          child: SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text(
-                'Hay una versión nueva de AportaYa. Actualizala para seguir '
-                'operando sin problemas.',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ),
-          ),
-        ),
-        Expanded(child: child!),
-      ],
-    );
-  }
-}
-
-/// La apertura de marca por encima de la app, una sola vez por arranque.
-///
-/// Va acá arriba y no como una ruta: así la app **ya está armada y pidiendo el saldo**
-/// detrás de la animación, en vez de empezar a cargar recién cuando la apertura
-/// termina. La animación tapa el arranque; no lo demora.
-/// También es el momento en que se decide **a dónde entrar**: mientras la marca se
-/// acerca, se lee el almacén seguro. Si hay una sesión guardada, la app abre en la
-/// billetera; si no, se queda en la portada. Es el único lugar donde esa pregunta se
-/// hace, y se hace una sola vez por arranque: preguntarla en cada navegación sería
-/// tocar el llavero del teléfono a cada paso.
-class _ConApertura extends ConsumerStatefulWidget {
-  const _ConApertura({required this.child, required this.enrutador});
-  final Widget child;
-  final GoRouter enrutador;
-
-  @override
-  ConsumerState<_ConApertura> createState() => _ConAperturaState();
-}
-
-class _ConAperturaState extends ConsumerState<_ConApertura> {
-  bool _mostrando = true;
-  Timer? _respaldo;
-  AbridorDeAvisos? _avisos;
+class _AppAportaYaState extends ConsumerState<AppAportaYa> {
+  GoRouter? _enrutador;
+  late final Sesion _sesion;
+  late final Vigilante _vigilante;
+  late final TopeDeSesion _tope;
+  late final AppLifecycleListener _cicloDeVida;
+  Timer? _timerDeInactividad;
+  Timer? _timerDelTope;
+  bool _estuvoEnSegundoPlano = false;
 
   @override
   void initState() {
     super.initState();
-    _decidirDondeEntrar();
-    // Tocar un aviso push abre su pantalla. Sin SDK push todavía el flujo no emite
-    // nada (hueco declarado en `infraestructura/*/avisos_push_*.dart`), pero la
-    // escucha ya está lista y probada para cuando el dispositivo lo entregue.
-    _avisos = AbridorDeAvisos(
-      toques: ref.read(avisosPushProvider).toques,
-      abrir: (ruta) => widget.enrutador.push(ruta),
-    )..iniciar();
-    // El cinturón de seguridad: si la animación no llamara a su final —un ticker que
-    // no arranca, un frame que no llega—, a los dos segundos la apertura se va igual.
-    // Nadie se queda mirando un logo sin poder entrar a su plata.
-    _respaldo = Timer(const Duration(seconds: 2), _ocultar);
+    _sesion = ref.read(sesionProvider);
+    final ahora = ref.read(relojDeSesionProvider);
+    final bloqueo = ref.read(bloqueoProvider);
+    _vigilante = Vigilante(
+      ahora: ahora,
+      bloquear: bloqueo.bloquear,
+      bloqueada: () => bloqueo.bloqueada,
+    );
+    _tope = TopeDeSesion(
+      sesion: _sesion,
+      ahora: ahora,
+      cerrar: ({required motivo}) =>
+          ref.read(cierreDeSesionProvider).ejecutar(motivo: motivo),
+    );
+    _sesion.addListener(_alCambiarSesion);
+    _cicloDeVida = AppLifecycleListener(onStateChange: _alCambiarEstado);
+    _timerDeInactividad = Timer.periodic(
+      revisionDeInactividad,
+      (_) => _vigilante.revisar(),
+    );
+    _timerDelTope = Timer.periodic(
+      const Duration(minutes: 1),
+      (_) => unawaited(_tope.revisar()),
+    );
+    _hidratarSesion();
   }
 
-  Future<void> _decidirDondeEntrar() async {
-    // Si leer el llavero falla —teléfono con el almacén bloqueado, un permiso raro—,
-    // lo seguro es la portada: se pide ingresar de nuevo. Nunca al revés.
-    String? token;
-    try {
-      token = await ref.read(sesionProvider).tokenDeAcceso();
-    } on Object {
-      token = null;
+  Future<void> _hidratarSesion() async {
+    await _sesion.hidratar();
+    if (!mounted) return;
+    if (_sesion.activa) {
+      // La sesión se cubre antes de crear el router: no hay un primer frame
+      // privado sin candado tras un arranque en frío.
+      ref.read(bloqueoProvider).bloquearAlArrancar();
+      await _tope.revisar();
+      if (!mounted) return;
     }
-    if (!mounted || token == null || token.isEmpty) return;
-    if (widget.enrutador.state.uri.toString() == '/portada') {
-      widget.enrutador.go('/billetera/inicio');
-    }
-  }
-
-  void _ocultar() {
-    _respaldo?.cancel();
-    if (!mounted || !_mostrando) return;
-    // Con «reducir movimiento», la apertura pide cerrarse mientras se está
-    // construyendo el árbol, y ahí `setState` sobre un ancestro es un error de
-    // Flutter. Se difiere al frame siguiente, que además es cuando corresponde.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_mostrando) return;
-      setState(() => _mostrando = false);
+    setState(() {
+      _enrutador = crearEnrutador(
+        inicial: widget.inicial ?? '/portada',
+        sesion: _sesion,
+      );
     });
+  }
+
+  void _alCambiarEstado(AppLifecycleState estado) {
+    _vigilante.cambioDeEstado(estado);
+    if (estado == AppLifecycleState.hidden ||
+        estado == AppLifecycleState.paused) {
+      _estuvoEnSegundoPlano = true;
+      return;
+    }
+    if (estado == AppLifecycleState.resumed) {
+      final reintentarBiometria = _estuvoEnSegundoPlano;
+      _estuvoEnSegundoPlano = false;
+      unawaited(_alReanudar(reintentarBiometria));
+    }
+  }
+
+  Future<void> _alReanudar(bool reintentarBiometria) async {
+    await _tope.revisar();
+    if (!mounted || !reintentarBiometria || !_sesion.activa) return;
+    final bloqueo = ref.read(bloqueoProvider);
+    if (bloqueo.bloqueada) bloqueo.nuevoEpisodioBiometrico();
+  }
+
+  void _alCambiarSesion() {
+    if (_sesion.estado == EstadoDeSesion.anonima) {
+      ref.read(bloqueoProvider).olvidar();
+    }
   }
 
   @override
   void dispose() {
-    _respaldo?.cancel();
-    _avisos?.detener();
+    _timerDeInactividad?.cancel();
+    _timerDelTope?.cancel();
+    _cicloDeVida.dispose();
+    _sesion.removeListener(_alCambiarSesion);
+    _enrutador?.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) => Stack(
-    children: [
-      widget.child,
-      if (_mostrando)
-        Positioned.fill(child: AperturaDeMarca(alTerminar: _ocultar)),
-    ],
-  );
+  Widget build(BuildContext context) {
+    final enrutador = _enrutador;
+    if (enrutador == null) {
+      // No se construye ninguna ruta privada hasta terminar la hidratación.
+      return Listener(
+        onPointerDown: (_) => _vigilante.interaccion(),
+        child: MaterialApp(
+          title: 'AportaYa',
+          locale: localeDeAportaYa,
+          supportedLocales: localesDeAportaYa,
+          localizationsDelegates: delegadosDeLocalizacionDeAportaYa,
+          theme: temaDesde(Tokens.claro, Brightness.light),
+          home: Scaffold(body: AperturaDeMarca(alTerminar: () {})),
+        ),
+      );
+    }
+    // H2.S2.M3 (madre H6.S2.M3): en un release de iOS sin almacén seguro ni
+    // protección de pantalla soportados, `builder` de acá abajo NUNCA se llama --
+    // ni `verificacionContratoProvider` ni el cliente HTTP que crea se tocan.
+    return Listener(
+      onPointerDown: (_) => _vigilante.interaccion(),
+      child: ArranqueSegunCapacidades(
+        builder: (context) => AppAportaYaReal(enrutador: enrutador, ref: ref),
+      ),
+    );
+  }
 }

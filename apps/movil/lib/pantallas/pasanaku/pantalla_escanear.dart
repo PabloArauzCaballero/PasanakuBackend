@@ -16,7 +16,7 @@ import 'textos_invitacion.dart';
 
 /// Escanear el QR de una invitación. **Solo lleva a la pantalla de unirse**, donde la
 /// persona confirma: escanear no acredita ni mueve nada. Lo que dice el QR no se guarda
-/// ni se registra. Si la cámara no anda, el enlace se puede pegar a mano.
+/// ni se registra. Si la cámara no anda, se puede copiar y pegar el enlace.
 class PantallaEscanear extends ConsumerStatefulWidget {
   const PantallaEscanear({super.key});
 

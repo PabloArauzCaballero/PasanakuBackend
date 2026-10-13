@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'movimiento.dart';
 import '../tokens/tokens.dart';
 
 /// La caja de un campo: borde, relleno, adorno, ayuda y error.
@@ -11,6 +12,8 @@ abstract final class DecoracionDeCampo {
   static InputDecoration de(
     BuildContext context, {
     String? ayuda,
+    int lineasDeAyuda = 2,
+    String? ejemplo,
     String? error,
     bool exito = false,
     bool habilitado = true,
@@ -61,7 +64,18 @@ abstract final class DecoracionDeCampo {
               ),
             ),
       prefixIconConstraints: const BoxConstraints(minWidth: 0),
-      suffixIcon: sufijo,
+      suffixIcon:
+          sufijo ??
+          (exito && error == null
+              ? TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0.6, end: 1),
+                  duration: duracion(context, Movimiento.tildeDeValidez),
+                  curve: Movimiento.llega,
+                  builder: (context, escala, hijo) =>
+                      Transform.scale(scale: escala, child: hijo),
+                  child: Icon(Icons.check_rounded, color: t.ok),
+                )
+              : null),
       contentPadding: const EdgeInsets.symmetric(
         horizontal: Espacio.s4,
         vertical: Espacio.s4,
@@ -73,12 +87,14 @@ abstract final class DecoracionDeCampo {
       ),
       disabledBorder: borde(t.border, Borde.fino),
       errorText: error,
+      hintText: ejemplo,
+      hintStyle: Tipo.cuerpo.copyWith(color: t.textoDeEjemplo),
       errorStyle: texto.bodySmall?.copyWith(color: t.errTexto),
       helperText: error == null ? ayuda : null,
       helperStyle: texto.bodySmall?.copyWith(color: t.text3),
       // Dos renglones de ayuda y tres de error: en una fila de dos campos, uno que
       // crece y el otro no desalinea las cajas.
-      helperMaxLines: 2,
+      helperMaxLines: lineasDeAyuda,
       errorMaxLines: 3,
     );
   }

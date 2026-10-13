@@ -30,7 +30,7 @@ void main() {
     test('una foto de 720p (1280×720) se rechaza por chica', () {
       expect(
         evaluarCalidad(ancho: 1280, alto: 720, esDocumento: false),
-        contains('muy pequeña'),
+        contains('muy chica'),
       );
     });
 

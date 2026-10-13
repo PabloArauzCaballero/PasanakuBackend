@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../proveedores/sesion.dart';
+
 /// CU-03 — declaración PEP y beneficiario final. Una pregunta binaria y, si es
 /// afirmativa, el detalle del cargo; la debida diligencia reforzada la decide el
 /// servidor (flujo alternativo 6a de CU-01), esta pantalla solo declara.
@@ -14,7 +16,10 @@ class EstadoPep {
 
 class PepNotifier extends Notifier<EstadoPep> {
   @override
-  EstadoPep build() => const EstadoPep();
+  EstadoPep build() {
+    ref.watch(generacionDeSesionProvider);
+    return const EstadoPep();
+  }
 
   void declarar({required bool esPep, String detalle = ''}) =>
       state = EstadoPep(esPep: esPep, detalle: detalle);
@@ -41,7 +46,10 @@ class EstadoPerfil {
 
 class PerfilNotifier extends Notifier<EstadoPerfil> {
   @override
-  EstadoPerfil build() => const EstadoPerfil();
+  EstadoPerfil build() {
+    ref.watch(generacionDeSesionProvider);
+    return const EstadoPerfil();
+  }
 
   void actualizarCorreo(String correo) =>
       state = state.copiarCon(correo: correo);
@@ -87,7 +95,10 @@ class EstadoContrasena {
 
 class ContrasenaNotifier extends Notifier<EstadoContrasena> {
   @override
-  EstadoContrasena build() => const EstadoContrasena();
+  EstadoContrasena build() {
+    ref.watch(generacionDeSesionProvider);
+    return const EstadoContrasena();
+  }
 
   void actualizar({String? actual, String? nueva}) =>
       state = state.copiarCon(actual: actual, nueva: nueva);
@@ -110,7 +121,10 @@ final contrasenaProvider =
 /// maqueta no pide uno; declarado como supuesto en el informe).
 class BajaNotifier extends Notifier<bool> {
   @override
-  bool build() => false; // confirmando
+  bool build() {
+    ref.watch(generacionDeSesionProvider);
+    return false; // confirmando
+  }
 
   Future<void> confirmarBaja() {
     throw UnimplementedError(

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'cu02_consultar_verificacion.dart';
 import 'seguimiento_del_alta.dart';
+import '../../../proveedores/sesion.dart';
 
 /// Los cuatro estados finales/no-finales, igual que Atlas: `PENDIENTE` y
 /// `EN_REVISION` siguen consultando solas; `APROBADA` y `RECHAZADA` detienen el
@@ -26,6 +27,7 @@ class VerificacionNotifier extends AsyncNotifier<EstadoDeVerificacion> {
 
   @override
   Future<EstadoDeVerificacion> build() {
+    ref.watch(generacionDeSesionProvider);
     ref.onDispose(() => _temporizador?.cancel());
     final usuarioId = _usuarioId;
     if (usuarioId == null) {
@@ -44,7 +46,9 @@ class VerificacionNotifier extends AsyncNotifier<EstadoDeVerificacion> {
   /// con 403, y mandarlo solo ensucia.
   String? _tokenDeAlta(String usuarioId) {
     final seguimiento = ref.read(seguimientoDelAltaProvider);
-    return seguimiento?.usuarioId == usuarioId ? seguimiento?.tokenDeAlta : null;
+    return seguimiento?.usuarioId == usuarioId
+        ? seguimiento?.tokenDeAlta
+        : null;
   }
 
   /// Arranca el sondeo para un usuario. Se llama una sola vez, al entrar a la
@@ -56,7 +60,7 @@ class VerificacionNotifier extends AsyncNotifier<EstadoDeVerificacion> {
   }
 
   /// "Actualizar estado": lo dispara el sondeo automático y también el botón
-  /// manual de la pantalla, igual que en Atlas.
+  /// que muestra la pantalla, igual que en Atlas.
   Future<void> actualizar() async {
     final usuarioId = _usuarioId;
     if (usuarioId == null) return;

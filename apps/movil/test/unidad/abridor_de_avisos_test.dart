@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:aportaya_movil/navegacion/abridor_de_avisos.dart';
+import 'package:aportaya_movil/navegacion/acceso_a_rutas.dart';
+import 'package:aportaya_movil/proveedores/sesion.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _uuid = '3f2a9c1e-8b47-4d21-9a66-0c5e7d1b2a34';
@@ -37,6 +39,21 @@ void main() {
     await tocar('aportaya://billetera');
     expect(abiertas, ['/billetera/inicio']);
   });
+
+  test(
+    'un aviso a ruta privada sin sesión se envía al ingreso con retorno',
+    () async {
+      await tocar('aportaya://notificaciones');
+      expect(abiertas, ['/notificaciones/bandeja']);
+      expect(
+        decidirRuta(
+          estado: EstadoDeSesion.anonima,
+          destino: Uri.parse(abiertas.single),
+        ),
+        '/ingreso?volver=%2Fnotificaciones%2Fbandeja',
+      );
+    },
+  );
 
   test('correcto: la invitación válida abre unirse', () async {
     await tocar('aportaya://unirse/$_uuid.$_hash');

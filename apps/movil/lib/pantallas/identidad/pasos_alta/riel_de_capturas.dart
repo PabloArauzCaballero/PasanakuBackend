@@ -30,11 +30,14 @@ class RielDeCapturas extends StatelessWidget {
       children: [
         for (final cara in CapturasDelExpediente.orden)
           Expanded(
-            child: _Cara(
-              cara: cara,
-              actual: cara == actual,
-              lista: listas.contains(cara),
-              onTap: () => onElegir(cara),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Espacio.s1),
+              child: _Cara(
+                cara: cara,
+                actual: cara == actual,
+                lista: listas.contains(cara),
+                onTap: () => onElegir(cara),
+              ),
             ),
           ),
       ],
@@ -44,7 +47,7 @@ class RielDeCapturas extends StatelessWidget {
 
 IconData iconoDeCara(CaraDelCarril cara) => switch (cara) {
   CaraDelCarril.anverso => Icons.badge_outlined,
-  CaraDelCarril.reverso => Icons.credit_card_outlined,
+  CaraDelCarril.reverso => Icons.flip_to_back_rounded,
   CaraDelCarril.selfie => Icons.face_outlined,
   CaraDelCarril.perfilIzquierdo => Icons.turn_left,
   CaraDelCarril.perfilDerecho => Icons.turn_right,
@@ -88,7 +91,7 @@ class _Cara extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 AnimatedContainer(
-                  duration: Movimiento.entrada,
+                  duration: duracion(context, Movimiento.entrada),
                   curve: Movimiento.llega,
                   width: _lado,
                   height: _lado,
@@ -102,7 +105,7 @@ class _Cara extends StatelessWidget {
                     boxShadow: actual || lista ? [t.sombra1, t.sombra2] : null,
                   ),
                   child: AnimatedSwitcher(
-                    duration: Movimiento.entrada,
+                    duration: duracion(context, Movimiento.entrada),
                     switchInCurve: Movimiento.llega,
                     transitionBuilder: (hijo, a) =>
                         FadeTransition(opacity: a, child: hijo),
@@ -117,7 +120,8 @@ class _Cara extends StatelessWidget {
                 const SizedBox(height: Espacio.s1 + Borde.desfase),
                 Text(
                   corto,
-                  maxLines: 1,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: Tipo.ayuda.copyWith(
                     color: actual ? t.text : t.text3,

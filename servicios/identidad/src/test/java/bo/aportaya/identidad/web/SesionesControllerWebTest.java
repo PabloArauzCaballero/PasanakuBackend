@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import bo.aportaya.identidad.aplicacion.EntradaAutenticacion;
 import bo.aportaya.identidad.aplicacion.CU04Autenticar;
 import bo.aportaya.identidad.aplicacion.CU04StepUp;
 import bo.aportaya.identidad.aplicacion.EmitirAcceso;
@@ -20,6 +21,7 @@ import bo.aportaya.identidad.aplicacion.RenovarSesion;
 import bo.aportaya.identidad.dominio.ResultadoDeAutenticacion;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -28,6 +30,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -55,7 +58,7 @@ import org.springframework.test.web.servlet.MockMvc;
         properties = {
             "aportaya.acceso.intentos-maximos=5",
             "aportaya.acceso.duracion-bloqueo=PT15M",
-            "aportaya.acceso.vigencia-sesion=PT15M",
+            "aportaya.acceso.vigencia-sesion=PT8H",
         })
 @org.springframework.context.annotation.Import(CookieDeRefresco.class)
 class SesionesControllerWebTest {
@@ -104,14 +107,36 @@ class SesionesControllerWebTest {
     @DisplayName("CU-04 · 200 con la sesion abierta: sale el token y sale el identificador de sesion")
     void ingresoExitoso() throws Exception {
         when(cu04.ejecutar(any(), any())).thenReturn(abierta());
-        when(emitirAcceso.ejecutar(any(), any(), any(), any()))
+        when(emitirAcceso.ejecutar(any(), any(), any(), any(), any()))
                 .thenReturn(new EmitirAcceso.Acceso("un.token.firmado", Instant.parse("2026-04-01T12:00:00Z")));
+        when(renovarSesion.emitir(any(), any(), any(), any(), any()))
+                .thenReturn(new RenovarSesion.Emitido(
+                        "b".repeat(64), OffsetDateTime.now(ZoneOffset.UTC).plusHours(8)));
 
         mvc.perform(post("/sesiones").contentType(MediaType.APPLICATION_JSON).content(CUERPO))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.requiereFactorAdicional").value(false))
                 .andExpect(jsonPath("$.sesionId").value(SESION.toString()))
                 .andExpect(jsonPath("$.tokenAcceso").value("un.token.firmado"));
+    }
+
+    @Test
+    @DisplayName("CU-04 · la vigencia del servidor que llega al caso de uso es de ocho horas")
+    void ingresoPasaTopeDeOchoHoras() throws Exception {
+        when(cu04.ejecutar(any(), any())).thenReturn(abierta());
+        when(emitirAcceso.ejecutar(any(), any(), any(), any(), any()))
+                .thenReturn(new EmitirAcceso.Acceso("un.token.firmado", Instant.parse("2026-04-01T12:00:00Z")));
+        when(renovarSesion.emitir(any(), any(), any(), any(), any()))
+                .thenReturn(new RenovarSesion.Emitido(
+                        "b".repeat(64), OffsetDateTime.now(ZoneOffset.UTC).plusHours(8)));
+
+        mvc.perform(post("/sesiones").contentType(MediaType.APPLICATION_JSON).content(CUERPO))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<EntradaAutenticacion> entrada = ArgumentCaptor.forClass(EntradaAutenticacion.class);
+        verify(cu04).ejecutar(entrada.capture(), any());
+        org.assertj.core.api.Assertions.assertThat(entrada.getValue().vigenciaDeSesion())
+                .isEqualTo(Duration.ofHours(8));
     }
 
     @Test
@@ -125,7 +150,7 @@ class SesionesControllerWebTest {
 
         // Lo importante no es el estado: es que el emisor no se toco. Un token emitido
         // aca seria una sesion completa con media credencial.
-        verify(emitirAcceso, never()).ejecutar(any(), any(), any(), any());
+        verify(emitirAcceso, never()).ejecutar(any(), any(), any(), any(), any());
     }
 
     @Test
@@ -213,7 +238,7 @@ class SesionesControllerWebTest {
             "ADR-010 · ingreso WEB: el refresh sale en una cookie HttpOnly, Secure, SameSite=Strict, solo para /api/v1/sesion")
     void ingresoWebEmiteLaCookie() throws Exception {
         when(cu04.ejecutar(any(), any())).thenReturn(abierta(true));
-        when(emitirAcceso.ejecutar(any(), any(), any(), any()))
+        when(emitirAcceso.ejecutar(any(), any(), any(), any(), any()))
                 .thenReturn(new EmitirAcceso.Acceso("un.token.firmado", Instant.parse("2026-04-01T12:00:00Z")));
         when(renovarSesion.emitir(any(), any(), any(), any(), any()))
                 .thenReturn(new RenovarSesion.Emitido(
@@ -228,20 +253,27 @@ class SesionesControllerWebTest {
                                         containsString("HttpOnly"),
                                         containsString("Secure"),
                                         containsString("SameSite=Strict"),
-                                        containsString("Path=/api/v1/sesion"))));
+                                        containsString("Path=/api/v1/sesion"))))
+                .andExpect(jsonPath("$.tokenRefresco").doesNotExist());
         verify(renovarSesion).emitir(any(), any(), any(), any(), any());
     }
 
-    @Test
-    @DisplayName("ADR-010 · la app (ANDROID) no recibe cookie: guarda el bearer en su almacen seguro")
-    void ingresoAppSinCookie() throws Exception {
+    @ParameterizedTest(name = "ADR-010 · la app ({0}) recibe el refresh en el cuerpo y nunca en cookie")
+    @ValueSource(strings = {"ANDROID", "IOS"})
+    void ingresoAppSinCookie(String plataforma) throws Exception {
         when(cu04.ejecutar(any(), any())).thenReturn(abierta());
-        when(emitirAcceso.ejecutar(any(), any(), any(), any()))
+        when(emitirAcceso.ejecutar(any(), any(), any(), any(), any()))
                 .thenReturn(new EmitirAcceso.Acceso("un.token.firmado", Instant.parse("2026-04-01T12:00:00Z")));
+        when(renovarSesion.emitir(any(), any(), any(), any(), any()))
+                .thenReturn(new RenovarSesion.Emitido(
+                        "b".repeat(64), OffsetDateTime.now(ZoneOffset.UTC).plusHours(8)));
 
-        mvc.perform(post("/sesiones").contentType(MediaType.APPLICATION_JSON).content(CUERPO))
+        mvc.perform(post("/sesiones")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(CUERPO.replace("ANDROID", plataforma)))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.tokenRefresco").value("b".repeat(64)))
                 .andExpect(header().doesNotExist("Set-Cookie"));
-        verify(renovarSesion, never()).emitir(any(), any(), any(), any(), any());
+        verify(renovarSesion).emitir(any(), any(), any(), any(), any());
     }
 }

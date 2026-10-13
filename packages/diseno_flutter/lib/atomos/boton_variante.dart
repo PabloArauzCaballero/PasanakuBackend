@@ -1,4 +1,4 @@
-/// Verde = estructura, naranja = acción: un solo [BotonVariante.primario] por pantalla.
+/// Las acciones usan un solo acento naranja; verde y rojo quedan para estados.
 enum BotonVariante {
   primario,
   secundario,

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../dominio/cliente.dart';
 import '../proveedores/idempotencia.dart';
+import '../proveedores/sesion.dart';
 
 /// CU-10 · recargar saldo (cash-in). La orden queda `PENDIENTE`: la acreditación la
 /// confirma el proveedor por webhook (flujo 3 del CU); acá solo se crea la orden con
@@ -16,7 +17,10 @@ class RecargarSaldo extends AsyncNotifier<SalidaRecarga?> {
   static String formularioId(String cuentaId) => 'cu10-recarga-$cuentaId';
 
   @override
-  Future<SalidaRecarga?> build() async => null;
+  Future<SalidaRecarga?> build() async {
+    ref.watch(generacionDeSesionProvider);
+    return null;
+  }
 
   Future<void> enviar({
     required String cuentaId,

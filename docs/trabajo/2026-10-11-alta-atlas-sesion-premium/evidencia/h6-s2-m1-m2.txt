@@ -1,0 +1,29 @@
+H6.S2.M1–M2 — Ciclo puro de una pose
+Fecha: 2026-10-12
+
+Implementación:
+- Se añadió `apps/movil/lib/pantallas/identidad/dominio/ciclo_de_pose.dart`.
+- `CicloDePose` consume un `DateTime` y el `Veredicto` del juez; no importa Flutter.
+- Se separaron `CaraDelCarril` y `LecturaDeRostro` en modelos de dominio puros; los
+  archivos de cámara/capturas mantienen sus exports existentes para compatibilidad.
+- La pérdida de señal se detecta por dos segundos desde el respiro si nunca llegó un
+  veredicto, o desde el último veredicto si la señal se interrumpió.
+- Conserva las fases respiro, búsqueda, cuenta atrás, foto tomada y terminada; separa
+  disparo automático/manual, progreso, segundos y pista.
+- Adapta el juez existente: `listo || progreso > 0` significa cuadro sin problema.
+- Se añadió `apps/movil/test/unidad/ciclo_de_pose_test.dart` con los 12 casos del plan:
+  respiro, veredicto con problema, inicio de cuenta, captura única, pérdida y recuperación
+  de pose, espera indefinida del detector activo, modo sin detector, detector silencioso,
+  disparo manual, ventana de foto tomada y reloj retrocedido.
+
+Verificación ejecutada:
+- `dart format apps/movil/lib/pantallas/identidad/dominio/ciclo_de_pose.dart
+  apps/movil/test/unidad/ciclo_de_pose_test.dart`: correcto; 2 archivos formateados.
+- `git diff --check`: código de salida 0; Git avisó que ciertos archivos existentes de
+  otros cambios pasarán de LF a CRLF en futuras escrituras. No se modificaron por ello.
+- La suite Flutter no se ejecutó por la restricción explícita de RAM; no se afirma resultado
+  verde ni salida roja de tests.
+
+H6.S2.M3 sigue sin cubrirse: ajustar o validar umbrales necesita al menos 10 altas de prueba
+en un teléfono Android real y registrar luz/rostro/resultado en `evidencia/h6-umbrales.md`.
+No se cambió ningún umbral sin esa evidencia.

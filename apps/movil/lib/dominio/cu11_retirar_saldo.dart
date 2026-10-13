@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../dominio/cliente.dart';
 import '../proveedores/idempotencia.dart';
+import '../proveedores/sesion.dart';
 
 /// CU-11 · retirar saldo (cash-out). Primero se retiene el saldo, después se instruye
 /// el pago (lo hace el servidor, fuera de esta transacción): la app solo pide el
@@ -11,7 +12,10 @@ class RetirarSaldo extends AsyncNotifier<SalidaRetiro?> {
   static String formularioId(String cuentaId) => 'cu11-retiro-$cuentaId';
 
   @override
-  Future<SalidaRetiro?> build() async => null;
+  Future<SalidaRetiro?> build() async {
+    ref.watch(generacionDeSesionProvider);
+    return null;
+  }
 
   Future<void> enviar({
     required String cuentaId,

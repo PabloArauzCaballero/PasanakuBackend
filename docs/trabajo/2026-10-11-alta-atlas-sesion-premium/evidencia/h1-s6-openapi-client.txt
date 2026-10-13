@@ -1,0 +1,15 @@
+H1.S6.M1 — contrato OpenAPI
+
+`./gradlew :servicios:identidad:generarServidorOpenApi :servicios:identidad:generarClientes`
+Exit code: 0. El generador oficial parseó `identidad.yaml` y generó la API/modelos del servidor y los clientes.
+
+`./gradlew :servicios:identidad:openApiValidate`
+No usable: la tarea falla al no tener `inputSpec` configurado. Se conserva como limitación de la tarea del repositorio, no como error del YAML.
+
+H1.S6.M6 — clientes Dart
+
+`C:\Program Files\Git\bin\bash.exe apps/movil/scripts/generar-clientes.sh`
+Exit code: 0; se generaron los 11 paquetes Dart indicados por el script.
+
+`rg -n "tokenRefresco" clientes/dart/identidad/lib`
+Coincidencias en `salida_autenticacion.dart` y `salida_autenticacion.g.dart`, incluyendo el campo nullable `String? tokenRefresco`.

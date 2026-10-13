@@ -35,8 +35,9 @@ Future<DimensionesDeImagen> medir(Uint8List bytes) async {
 }
 
 /// `null` si la captura pasa; si no, el mensaje que Atlas le muestra a la persona
-/// para que repita la foto. Solo se aplica al anverso y al reverso del carnet —las
-/// selfies no tienen una proporción fija que comprobar.
+/// para que repita la foto. [esDocumento] debe ser `true` solo para el recorte del
+/// carnet que entrega el escáner; las fotos completas de cámara y las selfies no
+/// tienen una proporción fija que comprobar.
 String? evaluarCalidad({
   required int ancho,
   required int alto,
@@ -44,18 +45,20 @@ String? evaluarCalidad({
 }) {
   final ladoLargo = ancho > alto ? ancho : alto;
   if (ladoLargo < ladoLargoMinimo) {
-    return 'La imagen salió muy pequeña. Acerca un poco el teléfono.';
+    return 'La imagen salió muy chica. Acercá un poco el teléfono.';
   }
   if (!esDocumento) return null;
 
   final ladoCorto = ancho > alto ? alto : ancho;
   if (ladoCorto == 0) {
-    return 'No parece el carnet entero. Repite con los cuatro bordes a la vista.';
+    return 'No parece el carnet entero. Repetila con los cuatro bordes a la vista.';
   }
   final proporcion = ladoLargo / ladoCorto;
   final desvio = (proporcion - _proporcionCarnet).abs() / _proporcionCarnet;
-  if (desvio > _toleranciaProporcion) {
-    return 'No parece el carnet entero. Repite con los cuatro bordes a la vista.';
+  // Los extremos son inclusivos. La comparación epsilon evita que una fracción
+  // decimal representada como double convierta el ±12 % exacto en 12.000... %.
+  if (desvio - _toleranciaProporcion > 1e-12) {
+    return 'No parece el carnet entero. Repetila con los cuatro bordes a la vista.';
   }
   return null;
 }

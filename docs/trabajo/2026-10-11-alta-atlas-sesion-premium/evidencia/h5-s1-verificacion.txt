@@ -1,0 +1,15 @@
+H5.S1 verificacion posterior (2026-10-12)
+
+flutter test test/widget/tarjeta_de_capturas_test.dart --reporter expanded
+00:11 +2: All tests passed!
+
+git grep -n -i "escribirAMano\|a mano" apps/movil/lib
+(sin salida)
+
+El inventario amplio conserva los usos funcionales de “manual” de prueba de
+vida/desbloqueo, y los identificadores internos relacionados; no queda opcion
+de captura documental para escribir ni rama de carnet ficticio. `aMano` en la
+expresion del inventario tambien coincide parcialmente con `tamano`.
+
+“Usar esta foto igual” despues del rechazo local aun no esta disponible: el
+validador actual no tiene una salida para aceptar una captura rechazada.

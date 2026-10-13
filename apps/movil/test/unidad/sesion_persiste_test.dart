@@ -31,7 +31,7 @@ void main() {
     );
     await scope1
         .read(sesionProvider)
-        .guardar(acceso: 'token-acceso', refresco: 'token-refresco');
+        .abrir(acceso: 'token-acceso', refresco: 'token-refresco');
     scope1.dispose();
 
     // "Cerrar y reabrir": un ProviderScope NUEVO (el estado de memoria de Riverpod
@@ -53,7 +53,7 @@ void main() {
       overrides: [almacenSeguroProvider.overrideWithValue(almacen)],
     );
     final sesion = scope.read(sesionProvider);
-    await sesion.guardar(acceso: 'a', refresco: 'r');
+    await sesion.abrir(acceso: 'a', refresco: 'r');
     await sesion.cerrar();
 
     expect(await sesion.tokenDeAcceso(), isNull);

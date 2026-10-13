@@ -1,11 +1,10 @@
-import 'package:aportaya_diseno/moviles/transicion_de_marca.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import 'dominio/capturas_del_expediente.dart';
 import 'pantalla_baja.dart';
 import 'pantalla_bienvenida.dart';
 import 'dominio/juez_de_pose.dart';
+import 'pagina_con_transicion_de_marca.dart';
 import 'pantalla_camara.dart';
 import 'pantalla_prueba_de_vida.dart';
 import 'pantalla_contrasena.dart';
@@ -13,6 +12,7 @@ import 'pantalla_contrato.dart';
 import 'pantalla_dispositivos.dart';
 import 'pantalla_estado_de_verificacion.dart';
 import 'pantalla_mfa.dart';
+import 'pantalla_pautas_de_fotos.dart';
 import 'pantalla_perfil.dart';
 import 'pantalla_portada.dart';
 import 'pantalla_registro.dart';
@@ -40,7 +40,7 @@ final List<RouteBase> rutasIdentidad = [
   ),
   // La maqueta separa "registro" (datos) de "verificacion-basica" (celular +
   // documento + prueba de vida + cotejo), pero ambas son pasos del mismo asistente
-  // de ocho pasos que gobierna `AltaNotifier` (§ pantalla_registro.dart) — dos
+  // de seis pasos que gobierna `AltaNotifier` (§ pantalla_registro.dart) — dos
   // puertas de entrada a un único estado compartido por Riverpod, no dos flujos
   // independientes. Se registran como dos rutas porque así las nombra la maqueta y
   // así las linkea el resto de la app (por ejemplo, un enlace profundo que retoma
@@ -49,11 +49,6 @@ final List<RouteBase> rutasIdentidad = [
     path: '/identidad/verificacion-basica',
     name: 'identidad.verificacion-basica',
     builder: (context, state) => const PantallaDeRegistro(),
-  ),
-  GoRoute(
-    path: '/identidad/mfa',
-    name: 'identidad.mfa',
-    builder: (context, state) => const PantallaDeMfa(),
   ),
   GoRoute(
     path: '/identidad/dispositivos',
@@ -99,6 +94,13 @@ final List<RouteBase> rutasIdentidad = [
 /// `/identidad/ingreso` — una ruta que nunca existió: quien perdía la sesión no
 /// llegaba al login sino a «ruta no encontrada».
 final List<RouteBase> rutasDeEntrada = [
+  // El MFA sucede antes de emitir una sesión autorizada. Mantenerlo fuera del shell
+  // evita ofrecer pestañas privadas mientras la persona todavía se autentica.
+  GoRoute(
+    path: '/identidad/mfa',
+    name: 'identidad.mfa',
+    builder: (context, state) => const PantallaDeMfa(),
+  ),
   GoRoute(
     path: '/portada',
     name: 'identidad.portada',
@@ -113,15 +115,15 @@ final List<RouteBase> rutasDeEntrada = [
     path: '/tour',
     name: 'identidad.tour',
     pageBuilder: (context, state) =>
-        _conTransicionDeMarca(state, const PantallaDeTour()),
+        paginaConTransicionDeMarca(state, const PantallaDeTour()),
   ),
   // `?alta=lista` es lo que deja el último paso del alta para que el login pueda
-  // decir «tu cuenta quedó creada, ahora entrá». Sin eso, terminar ocho pasos y
+  // decir «tu cuenta quedó creada, ahora entrá». Sin eso, terminar seis pasos y
   // aparecer en un formulario de acceso se lee como un error.
   GoRoute(
     path: '/ingreso',
     name: 'identidad.ingreso',
-    pageBuilder: (context, state) => _conTransicionDeMarca(
+    pageBuilder: (context, state) => paginaConTransicionDeMarca(
       state,
       PantallaDeSesion(
         cuentaRecienCreada: state.uri.queryParameters['alta'] == 'lista',
@@ -132,7 +134,12 @@ final List<RouteBase> rutasDeEntrada = [
     path: '/registro',
     name: 'identidad.registro',
     pageBuilder: (context, state) =>
-        _conTransicionDeMarca(state, const PantallaDeRegistro()),
+        paginaConTransicionDeMarca(state, const PantallaDeRegistro()),
+  ),
+  GoRoute(
+    path: '/registro/pautas',
+    name: 'identidad.registro.pautas',
+    builder: (context, state) => const PantallaDePautasDeFotos(),
   ),
   // El visor en vivo del escáner de identidad (CU-02): pantalla completa, sin la
   // barra de pestañas ni la transición de marca de las demás — es una toma de foto, no
@@ -187,12 +194,3 @@ final List<RouteBase> rutasDeEntrada = [
     builder: (context, state) => const PantallaDeBienvenida(),
   ),
 ];
-
-Page<void> _conTransicionDeMarca(GoRouterState state, Widget pantalla) =>
-    CustomTransitionPage<void>(
-      key: state.pageKey,
-      child: pantalla,
-      transitionDuration: TransicionDeMarca.duracion,
-      reverseTransitionDuration: TransicionDeMarca.duracionDeVuelta,
-      transitionsBuilder: TransicionDeMarca.construir,
-    );

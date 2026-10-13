@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../atomos/movimiento.dart';
+
 /// Los hijos entran uno detrás de otro, subiendo apenas mientras aparecen.
 ///
 /// **Un solo momento orquestado, al abrir la pantalla.** No es una animación por
@@ -16,11 +18,13 @@ class AparicionEscalonada extends StatefulWidget {
     required this.children,
     this.escalon = const Duration(milliseconds: 45),
     this.duracionPorHijo = const Duration(milliseconds: 280),
+    this.demoraInicial = Duration.zero,
   });
 
   final List<Widget> children;
   final Duration escalon;
   final Duration duracionPorHijo;
+  final Duration demoraInicial;
 
   @override
   State<AparicionEscalonada> createState() => _AparicionEscalonadaState();
@@ -31,6 +35,7 @@ class _AparicionEscalonadaState extends State<AparicionEscalonada>
   late final AnimationController _control = AnimationController(
     vsync: this,
     duration:
+        widget.demoraInicial +
         widget.duracionPorHijo +
         widget.escalon * (widget.children.length - 1).clamp(0, 20),
   );
@@ -38,7 +43,7 @@ class _AparicionEscalonadaState extends State<AparicionEscalonada>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (MediaQuery.disableAnimationsOf(context)) {
+    if (reducirMovimiento(context)) {
       _control.value = 1;
     } else if (!_control.isAnimating && _control.value == 0) {
       _control.forward();
@@ -62,7 +67,10 @@ class _AparicionEscalonadaState extends State<AparicionEscalonada>
         for (var i = 0; i < widget.children.length; i++)
           _Hijo(
             control: _control,
-            desde: (widget.escalon.inMilliseconds * i / total).clamp(0.0, 1.0),
+            desde:
+                (widget.demoraInicial.inMilliseconds +
+                    widget.escalon.inMilliseconds * i) /
+                total,
             largo: porHijo,
             child: widget.children[i],
           ),
@@ -94,15 +102,22 @@ class _Hijo extends StatelessWidget {
         curve: Curves.easeOutCubic,
       ),
     );
-    return FadeTransition(
-      opacity: curva,
-      child: SlideTransition(
-        // Sube, no baja: el contenido llega a su lugar en vez de caer sobre él.
-        position: Tween(
-          begin: const Offset(0, 0.06),
-          end: Offset.zero,
-        ).animate(curva),
-        child: child,
+    return AnimatedBuilder(
+      animation: curva,
+      child: child,
+      builder: (context, hijo) => IgnorePointer(
+        ignoring: curva.value < 0.01,
+        child: FadeTransition(
+          opacity: curva,
+          child: SlideTransition(
+            // Sube, no baja: el contenido llega a su lugar en vez de caer sobre él.
+            position: Tween(
+              begin: const Offset(0, 0.06),
+              end: Offset.zero,
+            ).animate(curva),
+            child: hijo,
+          ),
+        ),
       ),
     );
   }

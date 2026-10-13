@@ -1,12 +1,21 @@
-/// Los textos del carrusel de capturas y de la cámara del escáner (CU-02),
-/// comportamiento copiado de Atlas. Aparte de `textos_del_alta.dart` por el mismo
-/// motivo que ese archivo existe: 200 líneas por archivo.
+// Los textos del carrusel de capturas y de la cámara del escáner (CU-02),
+// comportamiento copiado de Atlas. Aparte de `textos_del_alta.dart` por el mismo
+// motivo que ese archivo existe: 200 líneas por archivo.
+import 'dominio/capturas_del_expediente.dart';
+import 'dominio/juez_de_pose.dart';
+
 class TextosDeCaptura {
   TextosDeCaptura._();
 
   static String contador(int listas) => 'Tus capturas ($listas de 5)';
   static const tomarFoto = 'Tomar foto';
-  static const repetirFoto = 'Repetir la foto';
+  static String repetirFotoDe(CaraDelCarril cara) => switch (cara) {
+    CaraDelCarril.anverso => 'Repetir foto del anverso',
+    CaraDelCarril.reverso => 'Repetir foto del reverso',
+    CaraDelCarril.selfie => 'Repetir foto de frente',
+    CaraDelCarril.perfilIzquierdo => 'Repetir foto del perfil izquierdo',
+    CaraDelCarril.perfilDerecho => 'Repetir foto del perfil derecho',
+  };
   static const listo = 'Lista';
   static const pendiente = 'Pendiente';
   static const usarCarnetDePrueba = 'Usar el carnet de prueba';
@@ -20,11 +29,16 @@ class TextosDeCaptura {
   static const abrirElEscaner = 'Abrir el escáner';
 
   static const necesitamosTuCamara = 'Necesitamos tu cámara';
+  static const soloParaTuPrueba = 'Solo se usa para tu prueba de vida.';
+  static const privacidadDeVida =
+      'La foto queda asociada únicamente a tu expediente. No accedemos a tu galería.';
   static const permitirCamara = 'Permitir cámara';
   static const permisoBloqueado =
-      'El permiso está bloqueado. Habilitalo desde los ajustes del teléfono.';
+      'Abrí los ajustes del teléfono para permitirla.';
   static const abrirAjustes = 'Abrir ajustes';
   static const cancelar = 'Cancelar';
+  static const tomarAhora = 'Tomar ahora';
+  static const continuar = 'Continuar';
 
   static const consejosTitulo = 'Consejos para la foto';
   static const consejosSubtitulo = 'Luz, reflejos, nitidez y ángulo';
@@ -34,6 +48,23 @@ class TextosDeCaptura {
 
   // Prueba de vida automática: tres poses seguidas, la foto se saca sola.
   static String deTres(int i, int total) => '$i de $total';
+  static String fotoDeVida(int i, int total) => 'FOTO $i DE $total';
+  static String tituloDePose(PoseDeVida pose) => switch (pose) {
+    PoseDeVida.frente => 'Mirá de frente',
+    PoseDeVida.izquierda => 'Girá a tu izquierda',
+    PoseDeVida.derecha => 'Girá a tu derecha',
+  };
+  static String instruccionDePose(PoseDeVida pose) => switch (pose) {
+    PoseDeVida.frente => 'Poné tu cara dentro del óvalo.',
+    PoseDeVida.izquierda => 'Despacio, hasta que se vea tu oreja derecha.',
+    PoseDeVida.derecha => 'Despacio, hasta que se vea tu oreja izquierda.',
+  };
+  static const quietoFoto = 'Quedate quieto: la foto sale sola.';
+  static String instruccionDuranteCuenta(PoseDeVida pose) =>
+      '${instruccionDePose(pose)} $quietoFoto';
+  static const fotoTomada = '¡Foto tomada!';
+  static const seguirSiguiente = 'Seguí la siguiente indicación.';
+  static const vidaLista = '¡Listo! Tus tres fotos están';
   static const seSacaSola =
       'La foto se saca sola cuando estés en posición. No hace falta tocar nada.';
   static const preparando = 'Buscando tu cara…';
@@ -45,7 +76,7 @@ class TextosDeCaptura {
   static String corto(String valorApi) => switch (valorApi) {
     'ANVERSO' => 'Frente',
     'REVERSO' => 'Dorso',
-    'SELFIE' => 'Selfie',
+    'SELFIE' => 'De frente',
     'PERFIL_IZQUIERDO' => 'Perfil izq.',
     _ => 'Perfil der.',
   };
@@ -54,7 +85,7 @@ class TextosDeCaptura {
   static String pista(String valorApi) => switch (valorApi) {
     'ANVERSO' ||
     'REVERSO' => 'El carnet entero dentro del marco, sobre una mesa oscura',
-    'SELFIE' => 'De frente, con la cara centrada y buena luz',
+    'SELFIE' => 'Foto de frente, con la cara centrada y buena luz',
     'PERFIL_IZQUIERDO' => 'Gira la cabeza a tu izquierda, no el teléfono',
     _ => 'Gira la cabeza a tu derecha, no el teléfono',
   };

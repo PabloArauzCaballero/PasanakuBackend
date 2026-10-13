@@ -12,7 +12,7 @@ void main() {
   // dependa de `dioProvider` (`dominio/cliente.dart`) llega a leerse, y no se crea
   // ningún cliente HTTP ni sale ninguna petición.
   final child = resultadoGateway.valida
-      ? AppAportaYa()
+      ? const AppAportaYa()
       : const PantallaConfiguracionInvalida();
   runApp(
     ProviderScope(

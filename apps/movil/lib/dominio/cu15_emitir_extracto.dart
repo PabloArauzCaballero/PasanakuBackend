@@ -2,6 +2,7 @@ import 'package:aportaya_cliente_nucleofinanciero/aportaya_cliente_nucleofinanci
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../dominio/cliente.dart';
+import '../proveedores/sesion.dart';
 
 /// CU-15 · emitir extracto y certificado de saldo. Es una consulta (sin efecto): no
 /// lleva clave de idempotencia. `hashArchivo` es la evidencia de integridad del PDF
@@ -19,6 +20,7 @@ class ParametrosExtracto {
 
 final extractoProvider = FutureProvider.autoDispose
     .family<SalidaExtracto, ParametrosExtracto>((ref, p) async {
+      ref.watch(generacionDeSesionProvider);
       final dio = ref.watch(dioProvider);
       try {
         final r = await DefaultApi(

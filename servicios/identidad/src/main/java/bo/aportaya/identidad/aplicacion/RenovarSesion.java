@@ -147,7 +147,7 @@ public class RenovarSesion {
             Emitido siguiente = insertar(
                     dsl, usuarioId, sesionId, fila.get("familia_id", UUID.class), tokenId, ip, agente, trazaId, ahora);
             boolean esOperador = usuarios.perfilDe(dsl, usuarioId).esOperador();
-            return new Renovacion(Optional.of(usuarioId), esOperador, Optional.of(siguiente));
+            return new Renovacion(Optional.of(usuarioId), esOperador, Optional.of(siguiente), Optional.of(sesionId));
         });
     }
 
@@ -236,9 +236,17 @@ public class RenovarSesion {
     public record Emitido(String token, OffsetDateTime expiraEn) {}
 
     /** Renovada (con titular, si es operador y el refresh siguiente) o rechazada (todo vacio). */
-    public record Renovacion(Optional<UUID> usuarioId, boolean esOperador, Optional<Emitido> siguiente) {
+    public record Renovacion(
+            Optional<UUID> usuarioId,
+            boolean esOperador,
+            Optional<Emitido> siguiente,
+            Optional<UUID> sesionId) {
+        public Renovacion(Optional<UUID> usuarioId, boolean esOperador, Optional<Emitido> siguiente) {
+            this(usuarioId, esOperador, siguiente, Optional.empty());
+        }
+
         static Renovacion rechazada() {
-            return new Renovacion(Optional.empty(), false, Optional.empty());
+            return new Renovacion(Optional.empty(), false, Optional.empty(), Optional.empty());
         }
 
         public boolean renovada() {

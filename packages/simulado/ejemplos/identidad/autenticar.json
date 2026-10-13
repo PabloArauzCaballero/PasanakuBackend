@@ -21,7 +21,8 @@
         "expiraEn": "2026-01-15T10:30:00Z",
         "requiereFactorAdicional": false,
         "dispositivoConfiable": false,
-        "tokenAcceso": "tokenAcceso"
+        "tokenAcceso": "tokenAcceso",
+        "tokenRefresco": "refresco-movil-sintetico"
       }
     },
     "adverso": {

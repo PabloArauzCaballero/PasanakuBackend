@@ -8,7 +8,7 @@ import 'ruta_del_aviso.dart';
 /// de toques): un mismo destino repetido dentro de [ventana] se ignora. Lo que trae el
 /// aviso pasa por [rutaDelAviso]; lo que no es un destino de la casa se descarta sin
 /// ruido. Sin sesión no hace falta nada especial: las rutas protegidas ya redirigen al
-/// ingreso y vuelven (`Guardias.exigirSesion`).
+/// ingreso y vuelven (protección central del enrutador).
 class AbridorDeAvisos {
   AbridorDeAvisos({
     required this.toques,

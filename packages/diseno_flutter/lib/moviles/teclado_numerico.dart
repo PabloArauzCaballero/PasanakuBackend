@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../atomos/hundido_al_tocar.dart';
 import '../tokens/tokens.dart';
 
 /// Grilla 3×4 para montos y PIN: dígitos, coma y borrar. Cada tecla ≥ 48 dp.
@@ -28,30 +29,33 @@ class TecladoNumerico extends StatelessWidget {
         button: v != null || icono != null,
         label: etiqueta ?? v,
         excludeSemantics: true,
-        child: InkWell(
-          onTap: v == null && icono == null
-              ? null
-              : (onTap ?? () => onTecla(v!)),
-          borderRadius: BorderRadius.circular(Radios.md),
-          child: Container(
-            height: Tactil.minimo + Espacio.s3,
-            margin: const EdgeInsets.all(Espacio.s1),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: v == null && icono == null
-                  ? Colors.transparent
-                  : t.surface2,
-              borderRadius: BorderRadius.circular(Radios.md),
-            ),
-            child: icono != null
-                ? Icon(icono, color: t.text)
-                : Text(
-                    v ?? '',
-                    style: texto.headlineSmall?.copyWith(
-                      fontFamily: Fuente.display,
-                      color: t.text,
+        child: HundidoAlTocar(
+          activo: v != null || icono != null,
+          child: InkWell(
+            onTap: v == null && icono == null
+                ? null
+                : (onTap ?? () => onTecla(v!)),
+            borderRadius: BorderRadius.circular(Radios.md),
+            child: Container(
+              height: Tactil.minimo + Espacio.s3,
+              margin: const EdgeInsets.all(Espacio.s1),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: v == null && icono == null
+                    ? Colors.transparent
+                    : t.surface2,
+                borderRadius: BorderRadius.circular(Radios.md),
+              ),
+              child: icono != null
+                  ? Icon(icono, color: t.text)
+                  : Text(
+                      v ?? '',
+                      style: texto.headlineSmall?.copyWith(
+                        fontFamily: Fuente.display,
+                        color: t.text,
+                      ),
                     ),
-                  ),
+            ),
           ),
         ),
       ),

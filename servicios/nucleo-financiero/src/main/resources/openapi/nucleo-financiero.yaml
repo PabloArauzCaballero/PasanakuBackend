@@ -83,6 +83,35 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+  /billetera/{cuentaId}/movimientos:
+    get:
+      operationId: listarMovimientosBilletera
+      summary: Listar movimientos recientes de una billetera
+      description: >-
+        Lectura del libro append-only, ordenada del movimiento más reciente al más antiguo.
+        `limite` vale 5 por omisión para el resumen de inicio y admite hasta 100 para la
+        pantalla de movimientos. Nunca emite ni sella un extracto (CU-15).
+      parameters:
+        - name: cuentaId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: limite
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 100, default: 5 }
+      responses:
+        '200':
+          description: Movimientos recientes y saldos posteriores del libro
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ListaMovimientosBilletera' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU13-01 CUENTA_INEXISTENTE · AP-CU13-02 LIMITE_INVALIDO
+
   /billetera/cotizaciones:
     post:
       operationId: cotizarOperacion            # CU-30 (consume tarifas)
@@ -1072,6 +1101,27 @@ components:
         # comprometidoEnPozos: la parte del disponible afectada a aportes y pozos (deuda vigente
         # mas lo por aportar, segun aportes). AUSENTE cuando aportes no informa: el consumidor falla cerrado.
         comprometidoEnPozos: { $ref: '#/components/schemas/Dinero' }
+    ListaMovimientosBilletera:
+      type: object
+      additionalProperties: false
+      required: [cuentaId, movimientos]
+      properties:
+        cuentaId: { type: string, format: uuid }
+        movimientos:
+          type: array
+          items: { $ref: '#/components/schemas/MovimientoBilletera' }
+    MovimientoBilletera:
+      type: object
+      additionalProperties: false
+      required: [id, sentido, monto, saldoDisponiblePosterior, saldoRetenidoPosterior, glosa, registradoEn]
+      properties:
+        id: { type: string, format: uuid }
+        sentido: { type: string, enum: [DEBITO, CREDITO] }
+        monto: { $ref: '#/components/schemas/Dinero' }
+        saldoDisponiblePosterior: { $ref: '#/components/schemas/Dinero' }
+        saldoRetenidoPosterior: { $ref: '#/components/schemas/Dinero' }
+        glosa: { type: string, maxLength: 160 }
+        registradoEn: { type: string, format: date-time }
   responses:
     ReglaDeNegocio:
       description: Regla de negocio de la aplicacion (422, no 400)

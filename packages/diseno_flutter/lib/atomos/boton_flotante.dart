@@ -22,6 +22,7 @@ class BotonFlotante extends StatelessWidget {
     final t = Tokens.of(context);
     return SuperficieViva(
       color: t.accent,
+      colorDelTexto: t.accentInk,
       radio: Radios.lg,
       brilla: true,
       child: FloatingActionButton(

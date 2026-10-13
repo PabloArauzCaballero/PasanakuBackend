@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:aportaya_movil/dominio/cliente.dart';
 import 'package:aportaya_movil/pantallas/identidad/dominio/cu04_autenticar.dart';
 import 'package:aportaya_movil/pantallas/identidad/dominio/estado_sesion.dart';
@@ -31,10 +33,19 @@ void main() {
     'guarda hasta que el factor pasa',
     () async {
       final (:dio, :adaptador) = dioSimulado();
+      late String cuerpo;
       adaptador.onPost(
         ruta,
         (s) => s.reply(200, ejemplo('identidad', 'autenticar', 'ok')['cuerpo']),
         data: Matchers.any,
+      );
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (o, h) {
+            if (o.path == ruta) cuerpo = '${o.data}';
+            h.next(o);
+          },
+        ),
       );
       final c = contenedorCon(dio);
       addTearDown(c.dispose);
@@ -43,7 +54,7 @@ void main() {
           .read(autenticacionProvider)
           .conCredenciales(
             telefonoE164: '+59178123456',
-            credencial: 'Secreta123',
+            credencial: '12345678',
           );
 
       expect(r, ResultadoDeAutenticacion.faltaSegundoFactor);
@@ -52,6 +63,33 @@ void main() {
         isNull,
         reason: 'un segundo factor pendiente no es una sesión abierta',
       );
+      final body = jsonDecode(cuerpo) as Map<String, dynamic>;
+      expect(body.keys, containsAll({'telefonoE164', 'huellaDispositivo'}));
+      expect(
+        body.keys.toSet().difference({
+          'telefonoE164',
+          'credencial',
+          'huellaDispositivo',
+          'plataforma',
+          'factor',
+        }),
+        isEmpty,
+      );
+      expect(body['telefonoE164'], matches(RegExp(r'^\+591\d{8}$')));
+      expect((body['credencial'] as String).length, 8);
+      expect(
+        (body['huellaDispositivo'] as String).length,
+        lessThanOrEqualTo(128),
+      );
+      expect(body['plataforma'], anyOf('ANDROID', 'IOS'));
+      await c
+          .read(autenticacionProvider)
+          .conCredenciales(
+            telefonoE164: '+59178123456',
+            credencial: List.filled(128, 'x').join(),
+          );
+      final bodyMaximo = jsonDecode(cuerpo) as Map<String, dynamic>;
+      expect((bodyMaximo['credencial'] as String).length, 128);
     },
   );
 
@@ -166,6 +204,7 @@ void main() {
         reason: 'la app no muestra el mensaje crudo del backend',
       );
       expect(c.read(sesionIdentidadProvider).enviando, isFalse);
+      expect(c.read(sesionIdentidadProvider).trazaId, 't');
     },
   );
 

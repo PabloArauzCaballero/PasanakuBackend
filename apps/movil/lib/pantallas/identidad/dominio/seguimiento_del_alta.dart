@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'capturas_del_expediente.dart';
+import '../../../proveedores/sesion.dart';
 
 /// Lo que la pantalla de subida necesita después de `POST /usuarios`: el
 /// `usuarioId` que devolvió y una copia de las cinco capturas.
@@ -27,7 +28,10 @@ class AltaEnSeguimiento {
 /// sobrevive a algo que el resto del alta no tiene por qué sobrevivir.
 class SeguimientoDelAlta extends Notifier<AltaEnSeguimiento?> {
   @override
-  AltaEnSeguimiento? build() => null;
+  AltaEnSeguimiento? build() {
+    ref.watch(generacionDeSesionProvider);
+    return null;
+  }
 
   void fijar(
     String usuarioId,
@@ -40,17 +44,23 @@ class SeguimientoDelAlta extends Notifier<AltaEnSeguimiento?> {
   );
 
   /// "Repetir la foto" desde la pantalla de subida: la nueva reemplaza a la vieja.
-  void reemplazarCaptura(CaraDelCarril cara, Captura captura) {
+  Future<void> reemplazarCaptura(CaraDelCarril cara, Captura captura) async {
     final actual = state;
     if (actual == null) return;
+    final capturas = await actual.capturas.reemplazarCaptura(cara, captura);
     state = AltaEnSeguimiento(
       usuarioId: actual.usuarioId,
       tokenDeAlta: actual.tokenDeAlta,
-      capturas: actual.capturas.conCaptura(cara, captura),
+      capturas: capturas,
     );
   }
 
-  void limpiar() => state = null;
+  Future<void> limpiar() async {
+    final actual = state;
+    if (actual == null) return;
+    state = null;
+    await actual.capturas.eliminarArchivosLocales();
+  }
 }
 
 final seguimientoDelAltaProvider =

@@ -36,7 +36,7 @@ class CamaraPrestada implements Camara {
     if (bytes == null) {
       // El puente no está corriendo, o macOS no dio el permiso de cámara. No se
       // rompe el alta por eso: se intenta la cámara del sistema y, si tampoco, la
-      // pantalla ya ofrece elegir de las fotos o escribir a mano.
+      // pantalla ya ofrece elegir de las fotos.
       return _respaldo.capturar(esDocumento: esDocumento);
     }
     final carpeta = await getTemporaryDirectory();

@@ -1,7 +1,6 @@
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
-import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/material.dart';
 
 import '../dominio/capturas_del_expediente.dart';
@@ -14,12 +13,10 @@ class PieDeCapturas extends StatelessWidget {
     super.key,
     required this.capturas,
     required this.onEnviar,
-    required this.onUsarCarnetDePrueba,
   });
 
   final CapturasDelExpediente capturas;
   final VoidCallback onEnviar;
-  final VoidCallback onUsarCarnetDePrueba;
 
   @override
   Widget build(BuildContext context) {
@@ -53,18 +50,6 @@ class PieDeCapturas extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-        ],
-        // Solo en desarrollo, y con el peso de un enlace: no compite con la acción.
-        if (!kReleaseMode && !capturas.completo) ...[
-          const SizedBox(height: Espacio.s3),
-          Center(
-            child: Boton(
-              texto: TextosDeCaptura.usarCarnetDePrueba,
-              icono: Icons.science_outlined,
-              variante: BotonVariante.enlace,
-              onPressed: onUsarCarnetDePrueba,
-            ),
           ),
         ],
       ],

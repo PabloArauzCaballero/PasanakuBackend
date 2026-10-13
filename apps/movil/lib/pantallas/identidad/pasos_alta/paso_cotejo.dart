@@ -9,12 +9,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../dominio/estado_alta.dart';
 import '../textos.dart';
 
-/// Paso 6 de 8 — cotejo campo a campo (D-1: "cotejo campo a campo"). Sin OCR
+/// Cotejo campo a campo en la fase «Tus datos» (D-1: "cotejo campo a campo"). Sin OCR
 /// contratado todavía (hueco H-CLIENTE), `leido` reusa lo declarado por la persona
 /// — la fila igual muestra la mecánica de coincidencia/corrección que pide la
 /// maqueta, y queda lista para que el proveedor real reemplace ese origen de dato.
 class PasoCotejo extends ConsumerWidget {
-  const PasoCotejo({super.key});
+  const PasoCotejo({super.key, this.soloResumen = false});
+
+  final bool soloResumen;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -51,13 +53,15 @@ class PasoCotejo extends ConsumerWidget {
               leido: Fecha.formatearDia(vence),
             ),
           ],
-          const SizedBox(height: Espacio.s5),
-          Boton(
-            texto: TextosIdentidad.continuar,
-            variante: BotonVariante.primario,
-            expandido: true,
-            onPressed: () => ref.read(altaProvider.notifier).siguiente(),
-          ),
+          if (!soloResumen) ...[
+            const SizedBox(height: Espacio.s5),
+            Boton(
+              texto: TextosIdentidad.continuar,
+              variante: BotonVariante.primario,
+              expandido: true,
+              onPressed: () => ref.read(altaProvider.notifier).siguiente(),
+            ),
+          ],
         ],
       ),
     );

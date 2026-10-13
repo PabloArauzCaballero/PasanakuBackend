@@ -24,7 +24,7 @@ void main() {
         .conCaptura(CaraDelCarril.reverso, _captura())
         .conCaptura(CaraDelCarril.selfie, _captura());
     expect(capturas.siguientePendiente, CaraDelCarril.perfilIzquierdo);
-    expect(capturas.primeraFaltante, 'Falta la selfie de tu perfil izquierdo.');
+    expect(capturas.primeraFaltante, 'Falta la foto de tu perfil izquierdo.');
   });
 
   test('completo cuando están las cinco, y no antes', () {

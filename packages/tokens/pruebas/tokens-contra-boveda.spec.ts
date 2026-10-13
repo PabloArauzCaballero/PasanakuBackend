@@ -101,7 +101,7 @@ describe('los tokens salen de la bóveda, no de la memoria de nadie', () => {
 
   it('ninguna pantalla necesita un tamaño que la escala no tenga', () => {
     const tipos = Object.keys(tokens.primitivas.tipo).filter((k) => !k.startsWith('//'))
-    for (const imprescindible of ['cifraGrande', 'titulo1', 'boton', 'cuerpo', 'campoEtiqueta', 'ayuda']) {
+    for (const imprescindible of ['cuentaAtras', 'cifraGrande', 'titulo1', 'boton', 'cuerpo', 'campoEtiqueta', 'ayuda']) {
       expect(tipos, `falta el rol ${imprescindible}`).toContain(imprescindible)
     }
   })

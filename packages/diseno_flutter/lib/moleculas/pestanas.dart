@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../atomos/hundido_al_tocar.dart';
 import '../tokens/tokens.dart';
 
 /// Pestañas de contenido, el activo en marca.
@@ -26,26 +27,28 @@ class Pestanas extends StatelessWidget {
               button: true,
               selected: i == actual,
               label: titulos[i],
-              child: InkWell(
-                onTap: () => onChanged(i),
-                child: Container(
-                  height: Tactil.minimo,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        color: i == actual ? t.brand : t.border,
-                        width: i == actual ? Borde.foco : Borde.fino,
+              child: HundidoAlTocar(
+                child: InkWell(
+                  onTap: () => onChanged(i),
+                  child: Container(
+                    height: Tactil.minimo,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: i == actual ? t.brand : t.border,
+                          width: i == actual ? Borde.foco : Borde.fino,
+                        ),
                       ),
                     ),
-                  ),
-                  child: Text(
-                    titulos[i],
-                    style: texto.labelLarge?.copyWith(
-                      color: i == actual ? t.brandTexto : t.text2,
-                      fontWeight: i == actual
-                          ? FontWeight.w700
-                          : FontWeight.w500,
+                    child: Text(
+                      titulos[i],
+                      style: texto.labelLarge?.copyWith(
+                        color: i == actual ? t.brandTexto : t.text2,
+                        fontWeight: i == actual
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),

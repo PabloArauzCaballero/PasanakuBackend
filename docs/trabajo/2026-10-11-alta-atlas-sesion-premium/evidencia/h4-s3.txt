@@ -1,0 +1,41 @@
+H4.S3 — íconos y número de CI (2026-10-12)
+
+Prueba primero (el rojo inicial del test de íconos y CI):
+  cd apps/movil
+  flutter test test/widget/paso_datos_test.dart --name 'el alta distingue correo' --reporter expanded
+Salida roja relevante literal:
+  Expected: some matching candidates
+  Actual: _IconWidgetFinder:<Found 0 widgets with icon "IconData(U+F006C)">
+  00:01 +0 -1: el alta distingue correo, nombres y número de CI [E]
+Exit code: 1
+
+Comando final de campos de alta y validación:
+  cd apps/movil
+  flutter test test/widget/paso_datos_test.dart --reporter expanded
+Salida final literal:
+  00:03 +8: All tests passed!
+Exit code: 0
+
+Comando del carril de capturas:
+  cd apps/movil
+  flutter test test/identidad/iconos_del_carnet_test.dart --reporter expanded
+Salida final literal:
+  00:00 +1: All tests passed!
+Exit code: 0
+
+Comando de análisis:
+  cd apps/movil
+  dart analyze
+Salida final literal:
+  Analyzing movil...
+  No issues found!
+Exit code: 0
+
+Comando de búsqueda:
+  cd apps/movil
+  rg -n 'credit_card' lib/pantallas/identidad
+Salida final literal:
+  Sin coincidencias.
+Exit code: 0 (sin coincidencias, código 1 de rg transformado explícitamente en veredicto vacío)
+
+El CI usa `TextInputType.number`, solo dígitos, un máximo de 10 en el formateador y validación de 5–10 dígitos en el dominio. No se creó el icono propio opcional: no hay captura nueva que demuestre que `badge_outlined` sea ambiguo.

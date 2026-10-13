@@ -23,7 +23,7 @@ String motivoDeRechazo(String? codigo) => switch (codigo) {
   'DOCUMENTO_NO_VALIDO' => 'El documento no se pudo validar.',
   'IDENTIDAD_NO_COINCIDE' => 'La cara no coincide con el documento.',
   'SOSPECHA_DE_FRAUDE' => 'El documento quedó marcado para revisión.',
-  'REQUIERE_REVISION' => 'Necesita que una persona lo revise a mano.',
+  'REQUIERE_REVISION' => 'Necesita una revisión manual.',
   null => 'No pudimos confirmar el motivo.',
   _ => codigo,
 };

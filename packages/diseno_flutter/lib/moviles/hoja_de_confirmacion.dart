@@ -50,7 +50,7 @@ class HojaDeConfirmacion extends StatelessWidget {
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(Radios.xl),
         ),
-        boxShadow: [t.sombra3],
+        boxShadow: Elevacion.superpuesta(t),
       ),
       child: SafeArea(
         top: false,

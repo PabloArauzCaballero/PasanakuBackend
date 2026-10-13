@@ -15,7 +15,7 @@ import '../atomos/movimiento.dart';
 /// así nunca se ven las dos superpuestas. Al volver, un fundido corto. Con «reducir
 /// movimiento», nada.
 abstract final class TransicionDeMarca {
-  static const duracion = Duration(milliseconds: 420);
+  static const duracion = Movimiento.pagina;
   static const duracionDeVuelta = Movimiento.paginaDeVuelta;
 
   /// Cuánto sube la pantalla nueva mientras aparece, en píxeles lógicos.
@@ -31,20 +31,29 @@ abstract final class TransicionDeMarca {
     Animation<double> secundaria,
     Widget pantalla,
   ) {
-    if (MediaQuery.disableAnimationsOf(context)) return pantalla;
-    return AnimatedBuilder(
-      animation: animacion,
-      child: pantalla,
-      builder: (context, hijo) {
-        final v = _aparece.transform(animacion.value);
-        return Opacity(
-          opacity: v,
-          child: Transform.translate(
-            offset: Offset(0, _subida * (1 - v)),
-            child: hijo,
-          ),
-        );
-      },
+    final fondo = Theme.of(context).scaffoldBackgroundColor;
+    if (reducirMovimiento(context)) {
+      return ColoredBox(color: fondo, child: pantalla);
+    }
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ColoredBox(color: fondo),
+        AnimatedBuilder(
+          animation: animacion,
+          child: pantalla,
+          builder: (context, hijo) {
+            final v = _aparece.transform(animacion.value);
+            return Opacity(
+              opacity: v,
+              child: Transform.translate(
+                offset: Offset(0, _subida * (1 - v)),
+                child: hijo,
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 }

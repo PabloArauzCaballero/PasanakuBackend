@@ -6,6 +6,7 @@ import 'avance.dart';
 import 'escribano.dart';
 import 'estado_del_motor.dart';
 import 'modelo.dart';
+import 'navegacion_del_tutorial.dart';
 
 /// **El motor: dónde estoy, cómo sigo y qué hago si el paso no se puede dar.**
 ///
@@ -117,6 +118,14 @@ class MotorDeTutoriales extends Notifier<EstadoDelMotor> {
     state = EstadoDelMotor.apagado;
   }
 
+  /// Cierra el recorrido sin registrar que la persona lo omitió.
+  ///
+  /// Se usa cuando deja de existir el contexto que autorizaba mostrarlo (por ejemplo,
+  /// al cerrar sesión); si vuelve a entrar, una guía pendiente debe seguir pendiente.
+  void cancelar() {
+    state = EstadoDelMotor.apagado;
+  }
+
   Future<void> _terminar() async {
     final tutorial = state.tutorial;
     state = EstadoDelMotor.apagado;
@@ -170,15 +179,12 @@ class MotorDeTutoriales extends Notifier<EstadoDelMotor> {
 
   /// Lleva a esa ruta si hace falta. `false` si no se pudo.
   bool _llegarA(String? ruta) {
-    if (ruta == null) return true;
-    final actual = _ubicacion?.call() ?? '';
-    if (actual == ruta || actual.startsWith('$ruta/')) return true;
-    if (_navegar == null) {
-      state = state.copiaCon(problema: 'No pudimos abrir «$ruta» desde acá.');
-      return false;
-    }
-    _navegar!(ruta);
-    return true;
+    return llegarA(
+      ruta: ruta,
+      actual: _ubicacion?.call() ?? '',
+      navegar: _navegar,
+      alFallar: (problema) => state = state.copiaCon(problema: problema),
+    );
   }
 
   /// Vuelve a medir el elemento del paso actual: la pantalla se desplazó o cambió de

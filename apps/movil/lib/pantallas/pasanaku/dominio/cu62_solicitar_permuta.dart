@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../dominio/cliente.dart';
 import '../../../proveedores/idempotencia.dart';
+import '../../../proveedores/sesion.dart';
 
 /// CU-62 · solicitar la permuta de dos turnos. Nace `PENDIENTE`: sin aceptación de
 /// la contraparte no hay nada — esta pantalla nunca la da por hecha.
@@ -10,7 +11,10 @@ class SolicitarPermuta extends AsyncNotifier<SalidaPermuta?> {
   static const formularioId = 'cu62-solicitar-permuta';
 
   @override
-  Future<SalidaPermuta?> build() async => null;
+  Future<SalidaPermuta?> build() async {
+    ref.watch(generacionDeSesionProvider);
+    return null;
+  }
 
   Future<void> enviar({
     required String turnoOrigenId,

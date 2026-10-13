@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:aportaya_diseno/tokens/tokens.dart';
 
 import '../../../infraestructura/escaner_de_documentos.dart';
 import '../dominio/captura_desde_archivo.dart';
 import '../dominio/capturas_del_expediente.dart';
 import '../dominio/juez_de_pose.dart';
+import 'opciones_de_captura_rechazada.dart';
 
 /// Cómo se saca cada cara del expediente, igual en el alta y al repetir una foto
 /// desde la subida:
@@ -27,28 +29,63 @@ Future<Object?> sacarCaptura(
       extra: posesDesde(cara, listas),
     );
   }
-  final escaneo = await escanear();
-  if (!context.mounted || escaneo is EscaneoCancelado) return null;
-  if (escaneo is EscaneoCapturado) {
-    final resultado = await capturaDesdeArchivo(
-      escaneo.ruta,
-      recortadaAlCarnet: true,
-    );
-    if (resultado is Captura) return {cara: resultado};
-    if (context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(resultado as String)));
+  while (context.mounted) {
+    final escaneo = await escanear();
+    if (!context.mounted || escaneo is EscaneoCancelado) return null;
+    if (escaneo is EscaneoCapturado) {
+      final evaluacion = await evaluarCapturaDesdeArchivo(
+        escaneo.ruta,
+        recortadaAlCarnet: true,
+      );
+      if (!context.mounted) return null;
+      final motivo = evaluacion.rechazo;
+      if (motivo == null) return {cara: evaluacion.captura};
+      final eleccion = await showModalBottomSheet<_EleccionDeFoto>(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (hoja) => DecoratedBox(
+          decoration: BoxDecoration(
+            color: Tokens.of(hoja).surface,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(Radios.xl),
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.all(Espacio.s5),
+              child: OpcionesDeCapturaRechazada(
+                cara: cara,
+                motivo: motivo,
+                onRepetir: () =>
+                    Navigator.of(hoja).pop(_EleccionDeFoto.repetir),
+                onUsarEstaFoto: () =>
+                    Navigator.of(hoja).pop(_EleccionDeFoto.usar),
+              ),
+            ),
+          ),
+        ),
+      );
+      if (!context.mounted) return null;
+      if (eleccion == _EleccionDeFoto.usar) {
+        return {cara: evaluacion.captura};
+      }
+      if (eleccion != _EleccionDeFoto.repetir) return null;
+      continue;
     }
-    return null;
+    // `EscaneoNoDisponible`: la cámara de la app, en silencio, como Atlas.
+    break;
   }
-  // `EscaneoNoDisponible`: la cámara de la app, en silencio, como Atlas.
+  if (!context.mounted) return null;
   final resultado = await context.push<Object?>(
     '/registro/camara',
     extra: cara,
   );
   return resultado is Captura ? {cara: resultado} : resultado;
 }
+
+enum _EleccionDeFoto { repetir, usar }
 
 /// Las poses que se piden al tocar [cara]: si ya estaba lista, solo esa (se está
 /// repitiendo); si no, esa y las que le siguen y todavía faltan, de corrido —la

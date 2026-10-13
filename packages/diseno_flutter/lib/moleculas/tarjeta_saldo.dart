@@ -50,7 +50,7 @@ class TarjetaSaldo extends StatelessWidget {
       decoration: BoxDecoration(
         color: t.verdeSolido,
         borderRadius: BorderRadius.circular(Radios.lg),
-        boxShadow: [t.sombra2],
+        boxShadow: Elevacion.destacada(t),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

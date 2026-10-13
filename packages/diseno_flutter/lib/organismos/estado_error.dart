@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../atomos/entrada_de_estado.dart';
+import '../atomos/movimiento.dart';
 import '../errores.dart';
 import '../tokens/tokens.dart';
 
@@ -22,43 +24,80 @@ class EstadoError extends StatelessWidget {
         presentable?.mensaje ??
         'Algo salió mal de nuestro lado. Probá de nuevo en un momento.';
     final traza = presentable?.trazaId;
-    return Padding(
-      padding: const EdgeInsets.all(Espacio.s5),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            sinConexion ? Icons.wifi_off_outlined : Icons.error_outline,
-            size: Espacio.s7,
-            color: t.errTexto,
-          ),
-          const SizedBox(height: Espacio.s3),
-          Text(
-            mensaje,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: t.text),
-          ),
-          if (traza != null) ...[
-            const SizedBox(height: Espacio.s2),
+    return EntradaDeEstado(
+      child: Padding(
+        padding: const EdgeInsets.all(Espacio.s5),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              sinConexion ? Icons.wifi_off_outlined : Icons.error_outline,
+              size: Espacio.s7,
+              color: t.errTexto,
+            ),
+            const SizedBox(height: Espacio.s3),
             Text(
-              'Código de seguimiento: $traza',
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: t.text3),
+              mensaje,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: t.text),
             ),
+            if (traza != null) ...[
+              const SizedBox(height: Espacio.s2),
+              Text(
+                'Referencia: $traza',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: t.text3),
+              ),
+            ],
+            const SizedBox(height: Espacio.s4),
+            _BotonDeReintento(onPressed: reintentar),
           ],
-          const SizedBox(height: Espacio.s4),
-          FilledButton(
-            onPressed: reintentar,
-            style: FilledButton.styleFrom(
-              minimumSize: const Size(Tactil.minimo * 3, Tactil.minimo),
-              backgroundColor: t.verdeSolido,
-              foregroundColor: t.sobreVerdeSolido,
-            ),
-            child: const Text('Volver a intentar'),
-          ),
-        ],
+        ),
       ),
     );
   }
+}
+
+class _BotonDeReintento extends StatefulWidget {
+  const _BotonDeReintento({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  State<_BotonDeReintento> createState() => _BotonDeReintentoState();
+}
+
+class _BotonDeReintentoState extends State<_BotonDeReintento>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _control = AnimationController(
+    vsync: this,
+    duration: Movimiento.reintento,
+  );
+
+  void _tocar() {
+    if (!reducirMovimiento(context)) _control.forward(from: 0);
+    widget.onPressed();
+  }
+
+  @override
+  void dispose() {
+    _control.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => FilledButton.icon(
+    onPressed: _tocar,
+    style: FilledButton.styleFrom(
+      minimumSize: const Size(Tactil.minimo * 3, Tactil.minimo),
+      backgroundColor: Tokens.of(context).accent,
+      foregroundColor: Tokens.of(context).accentInk,
+    ),
+    icon: RotationTransition(
+      turns: Tween<double>(begin: 0, end: 1).animate(_control),
+      child: const Icon(Icons.refresh_rounded),
+    ),
+    label: const Text('Volver a intentar'),
+  );
 }

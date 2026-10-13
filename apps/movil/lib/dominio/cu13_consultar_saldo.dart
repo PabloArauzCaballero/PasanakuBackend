@@ -2,6 +2,7 @@ import 'package:aportaya_cliente_nucleofinanciero/aportaya_cliente_nucleofinanci
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../dominio/cliente.dart';
+import '../proveedores/sesion.dart';
 
 /// CU-13 · consultar el saldo. Un archivo por caso de uso, sobre el cliente generado:
 /// el tipo `SaldoBilletera` viene de `clientes/dart`, nunca se reescribe (invariante 2).
@@ -10,6 +11,7 @@ import '../dominio/cliente.dart';
 /// relee (`ref.invalidate`) en vez de sumar en memoria (regla §0.2b del flujo).
 final saldoProvider = FutureProvider.autoDispose.family<SaldoBilletera, String>(
   (ref, cuentaId) async {
+    ref.watch(generacionDeSesionProvider);
     final dio = ref.watch(dioProvider);
     try {
       final r = await dio.get<Map<String, dynamic>>(
@@ -22,6 +24,20 @@ final saldoProvider = FutureProvider.autoDispose.family<SaldoBilletera, String>(
   },
 );
 
+/// Lectura reciente del libro; los movimientos son otra consulta y nunca se deducen del saldo.
+final movimientosBilleteraProvider = FutureProvider.autoDispose
+    .family<ListaMovimientosBilletera, String>((ref, cuentaId) async {
+      ref.watch(generacionDeSesionProvider);
+      final dio = ref.watch(dioProvider);
+      try {
+        final r = await dio.get<Map<String, dynamic>>(
+          '/billetera/$cuentaId/movimientos',
+          queryParameters: const {'limite': 100},
+        );
+        return ListaMovimientosBilletera.fromJson(r.data!);
+      } catch (e) {
+        throw errorDeDominio(e);
+      }
+    });
+
 /// Qué es «vacío» para el saldo: una cuenta en cero **no es un error**, es una cuenta nueva.
-bool saldoEnCero(SaldoBilletera s) =>
-    s.disponible.monto == '0.00' && s.retenido.monto == '0.00';

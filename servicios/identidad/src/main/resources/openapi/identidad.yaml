@@ -133,31 +133,52 @@ paths:
           # AP-CU04-07 FACTOR_NO_ADMISIBLE (R-SEG-10)
       # Con `plataforma: WEB` la respuesta 200 trae ademas `Set-Cookie: aportaya_refresco`
       # (HttpOnly; Secure; SameSite=Strict; Path=/api/v1/sesion), el refresh de ADR-010.
-      # El valor en claro solo existe en esa cabecera: en la base se guarda su SHA-256.
+      # Android/iOS reciben el refresh rotatorio en tokenRefresco (cuerpo); WEB lo recibe
+      # solo en cookie. El valor en claro no se registra y en la base se guarda su SHA-256.
 
   /sesion/refrescar:
     post:
       operationId: renovarSesion              # CU-04 · ADR-010
-      summary: Renovar el acceso del backoffice con el refresh de la cookie
+      summary: Renovar el acceso con cookie web o refresh del cuerpo móvil
       description: >-
-        Publica por token de acceso: la credencial es la cookie `aportaya_refresco`
-        (HttpOnly, Secure, SameSite=Strict), que el navegador manda solo a esta ruta.
-        Cada uso rota el refresh (cookie nueva en la respuesta). Reusar uno ya rotado
+        Pública por token de acceso. WEB usa la cookie `aportaya_refresco`
+        (HttpOnly, Secure, SameSite=Strict); Android/iOS envían `refresco` en el cuerpo
+        JSON y reciben el siguiente token en el cuerpo. Si llegan ambas credenciales,
+        se prefiere la cookie. Cada uso rota el refresh. Reusar uno ya rotado
         revoca la familia y la sesion (R-SEG-09); dos usos casi simultaneos del mismo
-        refresh (ventana de gracia corta) responden 401 sin revocar. Sin cookie, vencida,
-        revocada o reusada -> 401 y la cookie se borra.
+        refresh (ventana de gracia corta) responden 401 sin revocar. Sin credencial,
+        vencida, revocada o reusada -> 401.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaRenovacion' }
       responses:
         '200':
-          description: Acceso renovado; la respuesta trae la cookie rotada
+          description: Acceso renovado; el refresh rotado vuelve por el mismo canal de entrada
           content:
             application/json:
               schema: { $ref: '#/components/schemas/SalidaRenovacion' }
         '401':
           $ref: '#/components/responses/NoAutenticado'
-          # AP-SES-01 sin refresh valido (sin cookie, vencido, revocado o reusado)
+          # AP-SES-01 sin refresh valido (ausente, vencido, revocado o reusado)
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU04-08 POLITICA_FALTANTE: no hay fila REFRESCO_SESION en politica_token
+
+  /sesion:
+    delete:
+      operationId: cerrarSesion
+      summary: Cerrar la sesión autenticada actual
+      description: >-
+        Revoca de forma idempotente la sesión identificada por el reclamo `sesion_id`
+        del JWT bearer y todos sus refresh de la familia. No acepta un identificador
+        de sesión del cliente, por lo que no puede cerrar una sesión ajena.
+      security:
+        - bearerAuth: []
+      responses:
+        '204': { description: Sesión revocada o ya revocada }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
 
   /sesiones/desafios:
     post:
@@ -784,6 +805,18 @@ components:
             El JWT firmado con RS256 que los otros trece servicios validan contra el
             JWKS de identidad (ADR-024). Ausente cuando la respuesta pide un segundo
             factor: recien se emite con la sesion abierta.
+        tokenRefresco:
+          type: string
+          description: >-
+            Solo para ANDROID/IOS: token rotatorio que el teléfono guarda en almacenamiento
+            seguro y manda en el cuerpo a /sesion/refrescar. WEB recibe el valor solo en
+            la cookie HttpOnly.
+    EntradaRenovacion:
+      type: object
+      additionalProperties: false
+      required: [refresco]
+      properties:
+        refresco: { type: string, minLength: 32, maxLength: 256 }
     SalidaRenovacion:
       type: object
       additionalProperties: false
@@ -796,6 +829,9 @@ components:
         permisos:
           type: array
           items: { type: string }
+        refresco:
+          type: string
+          description: Solo si la solicitud envió el refresh en el cuerpo (Android/iOS).
     CaraDelExpediente:
       type: string
       description: >-

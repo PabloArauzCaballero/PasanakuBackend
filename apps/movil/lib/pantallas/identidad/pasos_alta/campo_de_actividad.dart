@@ -5,7 +5,7 @@ import '../textos_del_alta.dart';
 import 'campo_de_detalle.dart';
 import 'catalogo_del_perfil.dart';
 
-/// «Actividad económica» del paso 7 y, si se eligió «Otra», el «¿Cuál?» debajo.
+/// «Actividad económica» de la fase 3 y, si se eligió «Otra», el «¿Cuál?» debajo.
 ///
 /// Son dieciocho opciones más «Otra»: pasan el umbral de [CampoDeSeleccion] y se
 /// eligen con buscador. El error de «¿Cuál?» se marca en ese campo, no en la lista.
@@ -43,7 +43,7 @@ class CampoDeActividad extends StatelessWidget {
         exito: valor != null,
         opciones: [
           for (final a in actividadesEconomicas)
-            (valor: a.codigo, texto: a.texto),
+            (valor: a.codigo, texto: a.texto, detalle: null),
         ],
         onElegida: onElegida,
       ),

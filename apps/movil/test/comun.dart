@@ -11,6 +11,8 @@ import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_movil/dominio/cliente.dart';
 import 'package:aportaya_movil/dominio/puertos/almacen_seguro.dart';
+import 'package:aportaya_movil/dominio/puertos/haptica.dart';
+import 'package:aportaya_movil/proveedores/haptica.dart';
 import 'package:aportaya_movil/proveedores/sesion.dart';
 
 /// Almacén en memoria: las pruebas no tocan el Keystore.
@@ -23,6 +25,24 @@ class AlmacenEnMemoria implements AlmacenSeguro {
       _datos[clave] = valor;
   @override
   Future<void> borrar(String clave) async => _datos.remove(clave);
+}
+
+Future<Sesion> sesionActivaDePrueba() async {
+  final sesion = Sesion(
+    AlmacenEnMemoria(),
+    () => DateTime.utc(2026, 10, 11, 12),
+  );
+  await sesion.abrir(acceso: 'token-sintetico', refresco: 'refresco-sintetico');
+  return sesion;
+}
+
+Future<Sesion> sesionAnonimaDePrueba() async {
+  final sesion = Sesion(
+    AlmacenEnMemoria(),
+    () => DateTime.utc(2026, 10, 11, 12),
+  );
+  await sesion.hidratar();
+  return sesion;
 }
 
 /// La base para el Dio de pruebas — nunca `baseDelGateway`: en `flutter test` no hay
@@ -41,6 +61,13 @@ const String _baseDePrueba = 'https://pruebas.aportaya.bo/api/v1';
     ),
   );
   final adaptador = DioAdapter(dio: dio, matcher: const UrlRequestMatcher());
+  adaptador.onGet(
+    RegExp(r'/billetera/[^/]+/movimientos'),
+    (s) => s.reply(200, {
+      'cuentaId': '11111111-1111-4111-8111-111111111111',
+      'movimientos': <Object>[],
+    }),
+  );
   instalarInterceptores(dio, Sesion(AlmacenEnMemoria()));
   return (dio: dio, adaptador: adaptador);
 }
@@ -104,18 +131,27 @@ Widget conApp(
   Widget hijo, {
   required Dio dio,
   Brightness brillo = Brightness.light,
+  bool movimientoReducido = false,
+  Haptica? haptica,
 }) => ProviderScope(
   // Igual que en main.dart: sin reintentos automáticos.
   retry: (retryCount, error) => null,
   overrides: [
     almacenSeguroProvider.overrideWithValue(AlmacenEnMemoria()),
     dioProvider.overrideWithValue(dio),
+    if (haptica != null) hapticaProvider.overrideWithValue(haptica),
   ],
   child: MaterialApp(
     theme: temaDesde(Tokens.claro, Brightness.light),
     darkTheme: temaDesde(Tokens.oscuro, Brightness.dark),
     themeMode: brillo == Brightness.dark ? ThemeMode.dark : ThemeMode.light,
     home: hijo,
+    builder: (context, child) => MediaQuery(
+      data: MediaQuery.of(
+        context,
+      ).copyWith(disableAnimations: movimientoReducido),
+      child: child!,
+    ),
   ),
 );
 

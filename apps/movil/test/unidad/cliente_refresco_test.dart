@@ -91,7 +91,7 @@ void main() {
     'diez 401 concurrentes con token vencido comparten un único refresco',
     () async {
       final sesion = Sesion(AlmacenEnMemoria());
-      await sesion.guardar(acceso: 'viejo', refresco: 'r1');
+      await sesion.abrir(acceso: 'viejo', refresco: 'r1');
 
       final dio = Dio(
         BaseOptions(baseUrl: 'https://pruebas.aportaya.bo/api/v1'),
@@ -122,7 +122,9 @@ void main() {
     'si el refresco falla, la sesión se cierra una vez y las N fallan con su error original',
     () async {
       final sesion = Sesion(AlmacenEnMemoria());
-      await sesion.guardar(acceso: 'viejo', refresco: 'r1');
+      await sesion.abrir(acceso: 'viejo', refresco: 'r1');
+      var cierresNotificados = 0;
+      sesion.addListener(() => cierresNotificados++);
 
       final dio = Dio(
         BaseOptions(baseUrl: 'https://pruebas.aportaya.bo/api/v1'),
@@ -132,7 +134,7 @@ void main() {
       instalarInterceptores(dio, sesion);
 
       final resultados = await Future.wait([
-        for (var i = 0; i < 4; i++)
+        for (var i = 0; i < 5; i++)
           dio
               .get<Map<String, dynamic>>('/recurso-$i')
               .then<Object>((r) => r)
@@ -149,6 +151,11 @@ void main() {
         );
       }
       expect(await sesion.tokenDeAcceso(), isNull, reason: 'sesión cerrada');
+      expect(
+        cierresNotificados,
+        1,
+        reason: 'un cierre observable e idempotente',
+      );
     },
   );
 }

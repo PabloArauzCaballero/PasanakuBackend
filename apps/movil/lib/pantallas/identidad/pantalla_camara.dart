@@ -2,8 +2,8 @@ import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/moleculas/alerta.dart';
+import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
-import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,29 +12,35 @@ import '../../infraestructura/plataforma.dart';
 import '../../proveedores/ajustes_del_sistema.dart';
 import 'dominio/captura_desde_archivo.dart';
 import 'dominio/capturas_del_expediente.dart';
+import 'dominio/camara_identidad.dart';
 import 'pasos_alta/aviso_de_permiso_camara.dart';
-import 'pasos_alta/cabecera_de_camara.dart';
-import 'pasos_alta/consejos_para_la_foto.dart';
+import 'pasos_alta/encabezado_y_consejos_de_camara.dart';
+import 'pasos_alta/elegir_captura_de_galeria.dart';
 import 'pasos_alta/guia_de_encuadre.dart';
+import 'pasos_alta/opciones_de_captura_rechazada.dart';
 import 'textos_de_captura.dart';
 
 /// La cámara en vivo del escáner, comportamiento de Atlas: cabecera con la pista
 /// del paso, visor con guía de encuadre y consejos plegables, pie con "Tomar
 /// foto" y "Cancelar". Devuelve la [Captura] aceptada, o `null` si se canceló.
 class PantallaDeCamara extends ConsumerStatefulWidget {
-  const PantallaDeCamara({super.key, required this.cara});
+  const PantallaDeCamara({super.key, required this.cara, this.camara});
   final CaraDelCarril cara;
+  @visibleForTesting
+  final CamaraEnVivo? camara;
 
   @override
   ConsumerState<PantallaDeCamara> createState() => _PantallaDeCamaraState();
 }
 
 class _PantallaDeCamaraState extends ConsumerState<PantallaDeCamara> {
-  final CamaraEnVivo _camara = camaraEnVivoDeLaPlataforma();
+  late final CamaraEnVivo _camara =
+      widget.camara ?? camaraEnVivoDeLaPlataforma();
   EstadoDePermiso? _permiso;
   bool _lista = false;
   bool _tomando = false;
   String? _rechazo;
+  Captura? _capturaRechazada;
 
   @override
   void initState() {
@@ -67,33 +73,69 @@ class _PantallaDeCamaraState extends ConsumerState<PantallaDeCamara> {
       _rechazo = null;
     });
     final ruta = await _camara.tomarFoto();
-    final resultado = await capturaDesdeArchivo(ruta, recortadaAlCarnet: false);
+    final evaluacion = await evaluarCapturaDesdeArchivo(
+      ruta,
+      recortadaAlCarnet: false,
+    );
     if (!mounted) return;
-    if (resultado is String) {
+    if (evaluacion.rechazo != null && widget.cara.esDocumento) {
       setState(() {
         _tomando = false;
-        _rechazo = resultado;
+        _rechazo = evaluacion.rechazo;
+        _capturaRechazada = evaluacion.captura;
       });
       return;
     }
-    Navigator.of(context).pop(resultado);
+    if (evaluacion.rechazo != null) {
+      setState(() {
+        _tomando = false;
+        _rechazo = evaluacion.rechazo;
+      });
+      return;
+    }
+    Navigator.of(context).pop(evaluacion.captura);
+  }
+
+  void _usarCapturaRechazada() {
+    final captura = _capturaRechazada;
+    if (captura != null) Navigator.of(context).pop(captura);
+  }
+
+  Future<void> _elegirDeLasFotos() async {
+    final captura = await elegirCapturaDeGaleria(
+      context,
+      ref.read(camaraProvider),
+    );
+    if (mounted && captura != null) {
+      Navigator.of(context).pop({widget.cara: captura});
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Paleta.ink,
-      body: SafeArea(
-        child: Column(
-          children: [
-            CabeceraDeCamara(
-              titulo: tituloDeCaptura(widget.cara),
-              pista: pistaDeCaptura(widget.cara),
-              onVolver: () => Navigator.of(context).pop(),
-            ),
-            Expanded(child: _visor()),
-            _pie(),
-          ],
+    return Theme(
+      data: temaDesde(Tokens.oscuro, Brightness.dark),
+      child: Scaffold(
+        backgroundColor: Paleta.ink,
+        body: SafeArea(
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              _visor(),
+              if (_lista) ...[
+                GuiaDeEncuadre(esDocumento: widget.cara.esDocumento),
+              ],
+              Align(
+                alignment: Alignment.topCenter,
+                child: EncabezadoYConsejosDeCamara(
+                  cara: widget.cara,
+                  lista: _lista,
+                  onVolver: () => Navigator.of(context).pop(),
+                ),
+              ),
+              Align(alignment: Alignment.bottomCenter, child: _pie()),
+            ],
+          ),
         ),
       ),
     );
@@ -102,8 +144,17 @@ class _PantallaDeCamaraState extends ConsumerState<PantallaDeCamara> {
   Widget _pie() => Padding(
     padding: const EdgeInsets.all(Espacio.s4),
     child: Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        if (_rechazo != null) ...[
+        if (_rechazo != null && _capturaRechazada != null) ...[
+          OpcionesDeCapturaRechazada(
+            cara: widget.cara,
+            motivo: _rechazo!,
+            onRepetir: _tomarFoto,
+            onUsarEstaFoto: _usarCapturaRechazada,
+          ),
+          const SizedBox(height: Espacio.s3),
+        ] else if (_rechazo != null) ...[
           Alerta(titulo: _rechazo!, tono: Tono.aviso),
           const SizedBox(height: Espacio.s3),
         ],
@@ -114,15 +165,6 @@ class _PantallaDeCamaraState extends ConsumerState<PantallaDeCamara> {
           cargando: _tomando,
           onPressed: _lista && !_tomando ? _tomarFoto : null,
         ),
-        if (!kReleaseMode) ...[
-          const SizedBox(height: Espacio.s2),
-          Boton(
-            texto: TextosDeCaptura.usarCarnetDePrueba,
-            variante: BotonVariante.fantasma,
-            expandido: true,
-            onPressed: () => Navigator.of(context).pop('prueba'),
-          ),
-        ],
         const SizedBox(height: Espacio.s2),
         Boton(
           texto: TextosDeCaptura.cancelar,
@@ -142,6 +184,7 @@ class _PantallaDeCamaraState extends ConsumerState<PantallaDeCamara> {
         onAccion: _permiso == EstadoDePermiso.denegadoParaSiempre
             ? () => ref.read(ajustesDelSistemaProvider).abrir()
             : _inicializar,
+        onElegirDeLasFotos: _elegirDeLasFotos,
       );
     }
     if (!_lista) {
@@ -149,18 +192,6 @@ class _PantallaDeCamaraState extends ConsumerState<PantallaDeCamara> {
         child: CircularProgressIndicator(color: Paleta.white),
       );
     }
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        _camara.vista(),
-        GuiaDeEncuadre(esDocumento: widget.cara.esDocumento),
-        Positioned(
-          left: Espacio.s3,
-          right: Espacio.s3,
-          bottom: Espacio.s3,
-          child: ConsejosParaLaFoto(cara: widget.cara),
-        ),
-      ],
-    );
+    return Stack(fit: StackFit.expand, children: [_camara.vista()]);
   }
 }

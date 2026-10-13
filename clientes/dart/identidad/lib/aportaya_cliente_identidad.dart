@@ -25,6 +25,7 @@ export 'package:aportaya_cliente_identidad/src/model/entrada_autenticacion.dart'
 export 'package:aportaya_cliente_identidad/src/model/entrada_busqueda_por_telefono.dart';
 export 'package:aportaya_cliente_identidad/src/model/entrada_desafio_de_step_up.dart';
 export 'package:aportaya_cliente_identidad/src/model/entrada_registro.dart';
+export 'package:aportaya_cliente_identidad/src/model/entrada_renovacion.dart';
 export 'package:aportaya_cliente_identidad/src/model/entrada_titularidad.dart';
 export 'package:aportaya_cliente_identidad/src/model/entrada_token_de_invitacion.dart';
 export 'package:aportaya_cliente_identidad/src/model/entrada_validacion_invitacion.dart';

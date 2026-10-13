@@ -1,6 +1,19 @@
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 
+const proporcionCarnetId1 = 85.6 / 54;
+
+/// Rectángulo apaisado del carnet dentro del visor, dejando un margen lateral.
+Rect marcoDeCarnetId1(Size size) {
+  final ancho = size.width * 0.86;
+  final alto = ancho / proporcionCarnetId1;
+  return Rect.fromCenter(
+    center: size.center(Offset.zero),
+    width: ancho,
+    height: alto,
+  );
+}
+
 /// El marco de encuadre sobre el visor, igual que Atlas: esquinas de carnet (ID-1,
 /// proporción 85.6×54) para el documento, cuatro esquinas sueltas para el rostro.
 class GuiaDeEncuadre extends StatelessWidget {
@@ -41,7 +54,6 @@ class _PintorDeGuia extends CustomPainter {
   final Color color;
   final double grosor;
 
-  static const _proporcionCarnet = 85.6 / 54;
   static const _largoEsquina = 28.0;
 
   @override
@@ -54,13 +66,7 @@ class _PintorDeGuia extends CustomPainter {
 
     final Rect marco;
     if (esDocumento) {
-      final ancho = size.width * 0.86;
-      final alto = ancho / _proporcionCarnet;
-      marco = Rect.fromCenter(
-        center: size.center(Offset.zero),
-        width: ancho,
-        height: alto,
-      );
+      marco = marcoDeCarnetId1(size);
     } else {
       // Cuatro esquinas al 12 % del borde, igual que Atlas para la selfie y los
       // perfiles: no hay óvalo, hay un rectángulo amplio centrado en el rostro.

@@ -2,8 +2,11 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:aportaya_diseno/errores.dart';
 
+import '../../../dominio/cliente.dart';
 import '../../../proveedores/idempotencia.dart';
+import '../../../proveedores/sesion.dart';
 import 'capturas_del_expediente.dart';
 import 'cu02_subir_foto.dart';
 import 'estado_sesion.dart' show mensajeDeError;
@@ -16,12 +19,21 @@ class SubidaDeUnaCara {
   const SubidaDeUnaCara({
     this.estado = EstadoDeUnaSubida.pendiente,
     this.error,
+    this.trazaId,
   });
   final EstadoDeUnaSubida estado;
   final String? error;
+  final String? trazaId;
 
-  SubidaDeUnaCara copiarCon({EstadoDeUnaSubida? estado, String? error}) =>
-      SubidaDeUnaCara(estado: estado ?? this.estado, error: error);
+  SubidaDeUnaCara copiarCon({
+    EstadoDeUnaSubida? estado,
+    String? error,
+    String? trazaId,
+  }) => SubidaDeUnaCara(
+    estado: estado ?? this.estado,
+    error: error,
+    trazaId: trazaId,
+  );
 }
 
 class EstadoDeLaSubida {
@@ -45,9 +57,11 @@ class EstadoDeLaSubida {
 class SubidaNotifier extends Notifier<EstadoDeLaSubida> {
   final _cancelaciones = <CaraDelCarril, CancelToken>{};
   final _temporizadores = <CaraDelCarril, Timer>{};
+  var _cancelarLote = false;
 
   @override
   EstadoDeLaSubida build() {
+    ref.watch(generacionDeSesionProvider);
     ref.onDispose(() {
       for (final t in _temporizadores.values) {
         t.cancel();
@@ -67,7 +81,9 @@ class SubidaNotifier extends Notifier<EstadoDeLaSubida> {
     required CapturasDelExpediente capturas,
     String? tokenDeAlta,
   }) async {
+    _cancelarLote = false;
     for (final cara in CapturasDelExpediente.orden) {
+      if (_cancelarLote) return;
       if (state.porCara[cara]?.estado == EstadoDeUnaSubida.subida) continue;
       final captura = capturas.porCara[cara];
       if (captura == null) continue;
@@ -77,7 +93,9 @@ class SubidaNotifier extends Notifier<EstadoDeLaSubida> {
         ruta: captura.ruta,
         tokenDeAlta: tokenDeAlta,
       );
+      if (_cancelarLote) return;
     }
+    if (state.completa) await capturas.eliminarArchivosLocales();
   }
 
   Future<void> _subirUna({
@@ -126,11 +144,13 @@ class SubidaNotifier extends Notifier<EstadoDeLaSubida> {
         );
         return;
       }
+      final problema = errorDeDominio(e);
       _actualizar(
         cara,
         SubidaDeUnaCara(
           estado: EstadoDeUnaSubida.fallida,
-          error: mensajeDeError(e),
+          error: mensajeDeError(problema),
+          trazaId: problema is ErrorPresentable ? problema.trazaId : null,
         ),
       );
     }
@@ -139,6 +159,15 @@ class SubidaNotifier extends Notifier<EstadoDeLaSubida> {
   /// "Cancelar la subida": corta la petición en curso de esa cara.
   void cancelar(CaraDelCarril cara) {
     _cancelaciones[cara]?.cancel();
+  }
+
+  /// Detiene también las caras que aún no se iniciaron cuando se abandona esta
+  /// pantalla; cancelar solo una fila mantiene el comportamiento de seguir con las otras.
+  void cancelarPendientes() {
+    _cancelarLote = true;
+    for (final cancelacion in _cancelaciones.values) {
+      cancelacion.cancel();
+    }
   }
 
   /// "Reintentar": mismo archivo, misma clave de idempotencia — un reintento del

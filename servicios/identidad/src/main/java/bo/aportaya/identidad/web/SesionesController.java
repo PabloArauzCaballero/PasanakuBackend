@@ -104,16 +104,20 @@ public class SesionesController implements SesionesApi {
         var respuesta = ResponseEntity.ok();
         // ADR-010: el backoffice (WEB) recibe ademas el refresh en una cookie httpOnly. La
         // app no: guarda el bearer en el almacen seguro del telefono.
-        boolean web = cuerpo.getPlataforma() != null
-                && "WEB".equals(cuerpo.getPlataforma().getValue());
-        if (web && salida.getTokenAcceso() != null) {
+        String plataforma = cuerpo.getPlataforma() != null ? cuerpo.getPlataforma().getValue() : "ANDROID";
+        boolean web = "WEB".equals(plataforma);
+        if (salida.getTokenAcceso() != null) {
             var emitido = refresco.emitir(
                     resultado.usuarioId().orElseThrow(),
                     resultado.sesionId().orElseThrow(),
                     Optional.ofNullable(peticion.getRemoteAddr()).orElse("0.0.0.0"),
                     Optional.ofNullable(peticion.getHeader("User-Agent")).orElse("desconocido"),
                     Traza.actual());
-            respuesta.header(HttpHeaders.SET_COOKIE, cookie.emitir(emitido.token(), emitido.expiraEn()));
+            if (web) {
+                respuesta.header(HttpHeaders.SET_COOKIE, cookie.emitir(emitido.token(), emitido.expiraEn()));
+            } else {
+                salida.setTokenRefresco(emitido.token());
+            }
         }
         return respuesta.body(salida);
     }
@@ -175,11 +179,12 @@ public class SesionesController implements SesionesApi {
         if (!resultado.requiereFactorAdicional()) {
             resultado
                     .usuarioId()
-                    .map(usuario -> acceso.ejecutar(
+                            .map(usuario -> acceso.ejecutar(
                             usuario,
                             resultado.esOperador() ? ROL_DE_OPERADOR : ROL_DE_PARTICIPANTE,
                             NIVEL_POR_OMISION,
-                            null))
+                                    null,
+                                    resultado.sesionId().orElseThrow()))
                     .ifPresent(emitido -> salida.setTokenAcceso(emitido.token()));
         }
         return salida;

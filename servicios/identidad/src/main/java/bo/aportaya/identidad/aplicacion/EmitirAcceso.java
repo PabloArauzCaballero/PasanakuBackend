@@ -55,7 +55,7 @@ public class EmitirAcceso {
     }
 
     @Transactional(readOnly = true)
-    public Acceso ejecutar(UUID usuarioId, String rol, String nivelDiligencia, String dispositivo) {
+    public Acceso ejecutar(UUID usuarioId, String rol, String nivelDiligencia, String dispositivo, UUID sesionId) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
         // El contexto es el del propio titular: leer sus asignaciones bajo su politica de
@@ -70,7 +70,7 @@ public class EmitirAcceso {
             return List.copyOf(todos);
         });
 
-        var emitido = emisor.emitir(usuarioId, rol, permisos, nivelDiligencia, dispositivo);
+        var emitido = emisor.emitir(usuarioId, rol, permisos, nivelDiligencia, dispositivo, sesionId);
         return new Acceso(emitido.token(), emitido.expiraEn(), permisos);
     }
 

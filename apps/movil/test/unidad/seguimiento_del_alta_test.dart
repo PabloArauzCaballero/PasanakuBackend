@@ -15,12 +15,12 @@ Captura _captura(String ruta) => Captura(
 void main() {
   test(
     'las cinco capturas siguen disponibles después de reiniciar el alta',
-    () {
+    () async {
       final contenedor = ProviderContainer();
       addTearDown(contenedor.dispose);
       final alta = contenedor.read(altaProvider.notifier);
       for (final cara in CapturasDelExpediente.orden) {
-        alta.registrarCaptura(cara, _captura('/tmp/${cara.name}.jpg'));
+        await alta.registrarCaptura(cara, _captura('/tmp/${cara.name}.jpg'));
       }
 
       // El mismo orden que `pantalla_registro.dart` tras `POST /usuarios`.
@@ -36,7 +36,7 @@ void main() {
     },
   );
 
-  test('repetir una foto reemplaza solo esa cara', () {
+  test('repetir una foto reemplaza solo esa cara', () async {
     final contenedor = ProviderContainer();
     addTearDown(contenedor.dispose);
     var capturas = const CapturasDelExpediente();
@@ -46,7 +46,7 @@ void main() {
     final notifier = contenedor.read(seguimientoDelAltaProvider.notifier)
       ..fijar('usuario-1', capturas);
 
-    notifier.reemplazarCaptura(
+    await notifier.reemplazarCaptura(
       CaraDelCarril.selfie,
       _captura('/tmp/nueva.jpg'),
     );
@@ -59,10 +59,10 @@ void main() {
     expect(porCara[CaraDelCarril.anverso]!.ruta, '/tmp/anverso.jpg');
   });
 
-  test('sin seguimiento, reemplazar no inventa uno', () {
+  test('sin seguimiento, reemplazar no inventa uno', () async {
     final contenedor = ProviderContainer();
     addTearDown(contenedor.dispose);
-    contenedor
+    await contenedor
         .read(seguimientoDelAltaProvider.notifier)
         .reemplazarCaptura(CaraDelCarril.selfie, _captura('/tmp/x.jpg'));
     expect(contenedor.read(seguimientoDelAltaProvider), isNull);

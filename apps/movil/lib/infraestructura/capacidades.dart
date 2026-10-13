@@ -101,7 +101,7 @@ const _capacidadesAndroid = Capacidades(
 /// | AvisosPush          | noSoportado | El canal de Android no tiene receptor APNs; sin él, "soportado" sería fingir. `/notificaciones/bandeja` sigue siendo la fuente de verdad (ADR-035), así que la app funciona igual. |
 /// | Camara              | soportado   | `image_picker` es multiplataforma real; no hay ningún `MethodChannel` propio detrás. |
 /// | ProteccionPantalla  | degradado   | iOS no tiene `FLAG_SECURE`: `AppDelegate.swift` atiende `bo.aportaya/proteccion_pantalla` colgando la ventana del lienzo seguro de un `UITextField`, que tapa capturas y grabaciones. Degradado porque es un comportamiento de UIKit no documentado como API de privacidad. Es CRÍTICA (`seguridadCriticaSoportada`). |
-/// | Haptica             | soportado   | `HapticaIos` usa `HapticFeedback` del SDK de Flutter, no un canal propio. |
+/// | Haptica             | soportado   | `HapticaFlutter` mapea acciones semánticas al SDK de Flutter desde un único adaptador. |
 const _capacidadesIos = Capacidades(
   almacenSeguro: GradoDeSoporte.soportado,
   conectividad: GradoDeSoporte.soportado,
