@@ -202,7 +202,8 @@ suyas está trabajando de memoria.
 | `5B` publicidad ★ | `facturacion-sin` · `motor-de-reglas` · `proveedores-externos` |
 | `F0.T` troncal del frontend | `entorno-monorepo` · `contratos-api` · `ci-calidad` · `decisiones-adr` |
 | `F0-M` `F0-B` `F0-W` andamiajes | `decisiones-adr` · `ci-calidad` · `entorno-monorepo` |
-| `F1-W` `F1-M` sistemas de diseño | `disenar-frontend` **completa**, con `docs/Views/Sistema-Diseno/` · y la del mundo (`web-angular` / `movil-flutter`) |
+| `F1-W` sistema de diseño web | `disenar-frontend` **completa**, `web-angular` · `animate` · `animation-vocabulary` · `apple-design` · `break-ui` · `emil-design-eng` · `find-animation-opportunities` · `fixing-accessibility` · `fixing-motion-performance` · `frontend-design` · `improve-animations` · `improve-ui` · `mobile-native` · `review-animations` · `web-design-guidelines` |
+| `F1-M` sistema de diseño móvil | `disenar-frontend` **completa**, `movil-flutter` · `pasanaku-app-movil-ux` · `pasanaku-diseno` · `pasanaku-movimiento` · `pasanaku-ui-componentes` |
 | `F2` shell móvil | `movil-flutter` · `autenticacion-jwt` *(de lectura: `proveedorSesion`, refresh y `401`)* · `resiliencia-rendimiento` *(offline e intermitencia)* · `proveedores-externos` *(Shorebird, FCM)* |
 | `F3` móvil identidad | `kyc-onboarding` · `autenticacion-jwt` |
 | `F4` móvil billetera | `qr-pagos` · `dinero-decimal` |
