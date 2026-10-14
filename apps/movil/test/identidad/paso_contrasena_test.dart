@@ -163,7 +163,7 @@ class _AltaConErrorDeClave extends AltaNotifier {
   @override
   EstadoAlta build() => const EstadoAlta(
     paso: PasoAlta.cuenta,
-    contrasena: 'clave-rechazada-2026',
+    contrasena: 'placeholder-demo',
     error: 'Esa contraseña no sirve: elegí otra.',
     campoError: CampoDeErrorApi.contrasena,
     trazaId: 'traza-prueba',
