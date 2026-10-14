@@ -41,6 +41,13 @@ class Fecha extends StatelessWidget {
     return '$d, $hh:$mm (La Paz)';
   }
 
+  /// Un día elegido en un calendario (p. ej. la fecha de nacimiento): es una fecha de
+  /// calendario, sin hora ni zona, así que se muestra con sus propios día, mes y año.
+  /// Pasarla por [formatear] la corría un día atrás en todo teléfono que no estuviera en
+  /// UTC-4 (hallazgo H2: «11 oct 1990» elegido, «10 oct 1990» mostrado).
+  static String formatearDia(DateTime dia) =>
+      '${dia.day} ${_meses[dia.month - 1]} ${dia.year}';
+
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);

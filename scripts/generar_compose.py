@@ -128,6 +128,9 @@ DE_DESARROLLO = {
     # grupos · consumo de entregas.derecho_cedido (el cupo cambia de titular al venderse un turno): ENCENDIDO. La venta ya
     # movio el dinero en otro servicio; apagarlo la deja pagada sin reflejo en el grupo.
     "CESION_CONSUMO_HABILITADO": "true",
+    # nucleo-financiero · consumo de aportes.aporte_cobrado (debita al participante, acredita al grupo, asienta en el mayor):
+    # ENCENDIDO. Sin el, el aporte queda PAGADO en `aportes` y no mueve billetera ni mayor.
+    "CONSUMO_DE_APORTES_HABILITADO": "true",
     # CU-20 (carril P): tarifas congela el precio al consumir grupos.grupo_creado y grupos abre el grupo a inscripciones al
     # consumir tarifas.tarifa_congelada. ENCENDIDOS: sin ellos un grupo creado por la API queda en BORRADOR para siempre.
     "CONGELAMIENTO_CONSUMO_HABILITADO": "true",
@@ -235,6 +238,7 @@ DE_ENTORNO = {
     "SUSTITUCION_CONSUMO_HABILITADO": "${SUSTITUCION_CONSUMO_HABILITADO:-false}",
     # Carril I · consumidores del circuito del dinero, ENCENDIDOS por omision (ver DE_DESARROLLO). Opcionales (`:-`).
     "CESION_CONSUMO_HABILITADO": "${CESION_CONSUMO_HABILITADO:-true}",
+    "CONSUMO_DE_APORTES_HABILITADO": "${CONSUMO_DE_APORTES_HABILITADO:-true}",
     "CONGELAMIENTO_CONSUMO_HABILITADO": "${CONGELAMIENTO_CONSUMO_HABILITADO:-true}",
     "APERTURA_CONSUMO_HABILITADO": "${APERTURA_CONSUMO_HABILITADO:-true}",
     "CONSUMO_DE_APORTES_HABILITADO": "${CONSUMO_DE_APORTES_HABILITADO:-true}",

@@ -120,6 +120,18 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     }
 
     @Override
+    public Optional<Dinero> comprometidoEnPozos(UUID usuarioId, Moneda moneda) {
+        try {
+            return aportes.consultar("/aportes/participantes/" + usuarioId + "/estado", Estado.class)
+                    .filter(e -> moneda.name().equals(e.moneda()) && e.deudaVigente() != null && e.porAportar() != null)
+                    .map(e -> Dinero.de(e.deudaVigente(), moneda).mas(Dinero.de(e.porAportar(), moneda)));
+        } catch (RuntimeException ilegible) {
+            // 5xx, cuerpo ilegible, importe mal formado: no se sabe. Omitir, nunca inventar un cero.
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public boolean participaEnGrupoActivo(UUID usuarioId) {
         return grupos.consultar("/grupos/participantes/" + usuarioId + "/actividad", Actividad.class)
                 .map(a -> a.gruposActivos() > 0)

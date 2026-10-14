@@ -135,7 +135,7 @@
     {
       "tabla": "organizador",
       "conflicto": ["usuario_id"],
-      "comentario": "SINTETICO · A figura HABILITADO, nivel APRENDIZ, con los limites iniciales de aportaya.organizador (2 grupos, 30000.00): es lo unico que consulta grupos antes de crear un grupo. No hubo postulacion ni capacitacion (ver advertencia).",
+      "comentario": "SINTETICO · A figura HABILITADO, nivel APRENDIZ, con los limites iniciales de aportaya.organizador (2 grupos, 30000.00): es lo unico que consulta grupos antes de crear un grupo. No hubo postulacion ni capacitacion; el contrato es una fila sintetica por R-ORG-02 (ver advertencia).",
       "filas": [
         {
           "id": "e2e00000-0000-4000-8000-0000000000c1",

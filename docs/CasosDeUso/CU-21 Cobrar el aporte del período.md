@@ -157,6 +157,13 @@ export const ErroresCU21 = {
 > Siguen pendientes, sin inventarse: los canales distintos de `BILLETERA_MOVIL` (entran por la conciliación y su propio asiento) y los
 > límites por concepto de [[CU-40 Evaluar límites antes de una operación]] sobre el aporte (decisión de Riesgos).
 
+> **Cómo se mueve el dinero (carril I).** `aportes` no escribe el libro (invariante 12): al acreditar emite
+> `aportes.aporte_cobrado` (`pagoId`, `obligacionId`, `grupoId`, `participanteId`, `usuarioId`, `monto`, `moneda`, `canal`) por outbox y
+> `nucleo-financiero` lo CONSUME (`ConsumoDeAportes`). Con canal `BILLETERA_MOVIL` debita la billetera del participante, acredita la
+> del grupo (`APORTE_A_GRUPO`) y asienta DEBE 2.1.01 / HABER 2.1.02 en la misma transacción; el consumidor es idempotente por evento y
+> por pago, y un rechazo (sin cuenta, sin saldo, moneda sin cuenta en el plan) no escribe nada ni marca el evento. Queda como decisión
+> pendiente cómo se compensa en `aportes` un aporte `PAGADO` que el libro no pudo aplicar.
+
 ## Interfaz
 
 - **App:** *Mi aporte*: monto, fecha límite y un botón; con saldo es instantáneo.
