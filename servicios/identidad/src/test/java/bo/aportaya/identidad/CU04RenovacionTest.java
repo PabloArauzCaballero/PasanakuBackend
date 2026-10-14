@@ -2,8 +2,8 @@ package bo.aportaya.identidad;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import bo.aportaya.identidad.aplicacion.RenovarSesion;
 import bo.aportaya.identidad.aplicacion.CerrarSesion;
+import bo.aportaya.identidad.aplicacion.RenovarSesion;
 import bo.aportaya.identidad.infraestructura.UsuarioRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.Ids;
@@ -183,16 +183,16 @@ class CU04RenovacionTest extends BaseDeCU04 {
             cierre.ejecutar(usuario, sesion, UUID.randomUUID().toString());
             return null;
         });
-        OffsetDateTime primeraRevocacion = dsl.fetchValue(
-                "SELECT revocada_en FROM identidad.sesion WHERE id = ?", OffsetDateTime.class, sesion);
+        OffsetDateTime primeraRevocacion = dsl.fetchOne("SELECT revocada_en FROM identidad.sesion WHERE id = ?", sesion)
+                .get("revocada_en", OffsetDateTime.class);
         transaccion.execute(e -> {
             dsl.execute(SEARCH_PATH_DEL_SERVICIO);
             cierre.ejecutar(usuario, sesion, UUID.randomUUID().toString());
             return null;
         });
 
-        assertThat(dsl.fetchValue(
-                        "SELECT revocada_en FROM identidad.sesion WHERE id = ?", OffsetDateTime.class, sesion))
+        assertThat(dsl.fetchOne("SELECT revocada_en FROM identidad.sesion WHERE id = ?", sesion)
+                        .get("revocada_en", OffsetDateTime.class))
                 .isNotNull()
                 .isEqualTo(primeraRevocacion);
         assertThat(estadoDe(siguiente)).isEqualTo("INVALIDADO");

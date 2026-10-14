@@ -8,6 +8,7 @@ import bo.aportaya.identidad.dominio.ResultadoDeAutenticacion;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -32,6 +33,39 @@ class CU04Test extends BaseDeCU04 {
         assertThat(resultado.requiereFactorAdicional()).isTrue();
         assertThat(resultado.codigo()).map(c -> c.valor()).contains("AP-CU04-03");
         assertThat(dispositivoConfiable(usuario, "huella-nueva")).isFalse();
+    }
+
+    @Test
+    @DisplayName("una cuenta pendiente de aprobacion manual puede iniciar sesion y sigue pendiente")
+    void cuentaPendientePuedeIniciarSesionSinAutoaprobarse() {
+        String telefono = "+59173" + ThreadLocalRandom.current().nextInt(100_000, 1_000_000);
+        UUID usuario = participanteConCredencial(telefono);
+        dsl.execute(
+                "UPDATE identidad.usuario SET estado = 'PENDIENTE_VERIFICACION', nivel_kyc = 'NINGUNO' WHERE id = ?",
+                usuario);
+        ResultadoDeAutenticacion resultado = autenticar(entrada(telefono, "clave-correcta", "huella-pendiente"));
+
+        assertThat(resultado.exitoso())
+                .as("rechazo: %s (%s)", resultado.codigo(), resultado.mensaje())
+                .isTrue();
+        assertThat(sesionesDe(usuario)).isEqualTo(1);
+        assertThat(dispositivoConfiable(usuario, "huella-pendiente")).isFalse();
+        assertThat(dsl.fetchOne("SELECT estado FROM identidad.usuario WHERE id = ?", usuario)
+                        .get("estado", String.class))
+                .isEqualTo("PENDIENTE_VERIFICACION");
+    }
+
+    @Test
+    @DisplayName("un usuario activo sin factor sigue requiriendo segundo factor en dispositivo nuevo")
+    void cuentaActivaSinFactorNoOmiteMfaEnDispositivoNuevo() {
+        String telefono = "+59174" + ThreadLocalRandom.current().nextInt(100_000, 1_000_000);
+        UUID usuario = participanteConCredencial(telefono);
+
+        ResultadoDeAutenticacion resultado = autenticar(entrada(telefono, "clave-correcta", "huella-activa-nueva"));
+
+        assertThat(resultado.requiereFactorAdicional()).isTrue();
+        assertThat(resultado.codigo()).map(c -> c.valor()).contains("AP-CU04-03");
+        assertThat(sesionesDe(usuario)).isZero();
     }
 
     @Test

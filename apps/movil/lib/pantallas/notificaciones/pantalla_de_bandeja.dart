@@ -50,7 +50,9 @@ class PantallaDeBandeja extends ConsumerWidget {
     'ok' => Tono.ok,
     'aviso' => Tono.aviso,
     'error' => Tono.error,
-    'marca' => Tono.marca,
+    // Una novedad de producto no es un estado de éxito; evita convertir marca en
+    // verde semántico dentro de la bandeja.
+    'marca' => Tono.neutro,
     _ => Tono.info,
   };
 

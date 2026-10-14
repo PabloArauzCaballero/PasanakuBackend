@@ -123,7 +123,8 @@ public class EmisorDeAcceso {
     }
 
     /** Compatibilidad para emisores de pruebas/otros flujos que no abren una sesión revocable. */
-    public Emitido emitir(UUID usuarioId, String rol, List<String> permisos, String nivelDiligencia, String dispositivo) {
+    public Emitido emitir(
+            UUID usuarioId, String rol, List<String> permisos, String nivelDiligencia, String dispositivo) {
         return emitir(usuarioId, rol, permisos, nivelDiligencia, dispositivo, null);
     }
 

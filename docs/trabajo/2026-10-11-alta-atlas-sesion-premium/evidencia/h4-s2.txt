@@ -48,3 +48,12 @@ La matriz simulada comprueba la columna en 360 dp, dos columnas alineadas en 412
 ejemplos de los cuatro campos de texto del paso. La captura de H10 confirma que limitar la
 reserva de altura a dos columnas no añade espacio en el layout apilado de esa pantalla. No
 sustituye la captura física pendiente.
+
+### Actualización 2026-10-14 — cierre de H4.S2.M4
+
+La captura pendiente se completó en el emulador Android Samsung_A06-L (el dispositivo/emulador
+está permitido por `NOTAS.md`). H4.S2.M4 queda HECHO: integración Android 1/1 a 360 dp y 1/1 a
+412 dp; pruebas widget de `campos_del_alta_test.dart` y `paso_datos_test.dart`, 6/6; análisis
+estático del test de integración limpio. Las capturas completas de sistema se inspeccionaron:
+una columna a 360 dp, dos filas alineadas a 412 dp. Ver [registro y capturas detallados](./h4-s2-m4-android.md).
+No se afirma validación en teléfono físico.

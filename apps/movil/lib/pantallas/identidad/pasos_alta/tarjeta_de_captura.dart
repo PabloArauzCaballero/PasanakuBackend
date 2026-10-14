@@ -16,7 +16,7 @@ import 'visor_ampliado_de_captura.dart';
 /// la página.
 ///
 /// Vacío no es una caja gris con una cámara: es el **marco de encuadre** de esa cara
-/// (las esquinas de un carnet o las del rostro) dibujado en el verde de la marca, con
+/// (las esquinas de un carnet o las del rostro) dibujado en color neutral, con
 /// el ícono de la cara y la pista de cómo sacarla. Así la persona ve qué se le pide
 /// antes de abrir la cámara. Con la foto, la foto ocupa el marco.
 class TarjetaDeCaptura extends StatelessWidget {
@@ -70,7 +70,7 @@ class TarjetaDeCaptura extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [t.brandBg, t.surface],
+                  colors: [t.surface2, t.surface],
                 ),
                 border: Border.all(color: t.border),
                 boxShadow: Elevacion.tarjeta(t),
@@ -131,7 +131,7 @@ class _Marco extends StatelessWidget {
           padding: const EdgeInsets.all(Espacio.s3),
           child: GuiaDeEncuadre(
             esDocumento: cara.esDocumento,
-            color: t.brand.withValues(alpha: 0.55),
+            color: t.text2,
             grosor: Borde.foco,
           ),
         ),
@@ -151,7 +151,7 @@ class _Marco extends StatelessWidget {
                   child: Icon(
                     iconoDeCara(cara),
                     size: Espacio.s6,
-                    color: t.brandTexto,
+                    color: t.text2,
                   ),
                 ),
                 const SizedBox(height: Espacio.s3),

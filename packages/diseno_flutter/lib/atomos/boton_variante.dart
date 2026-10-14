@@ -5,7 +5,4 @@ enum BotonVariante {
   fantasma,
   peligro,
   enlace,
-
-  /// Fantasma para usar **sobre el verde sólido** (tarjeta de saldo): texto y borde claros.
-  sobreVerde,
 }

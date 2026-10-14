@@ -414,7 +414,7 @@ final List<({String grupo, List<Muestra> muestras})> catalogo = [
           ),
           accionSecundaria: Boton(
             texto: 'Retirar',
-            variante: BotonVariante.sobreVerde,
+            variante: BotonVariante.secundario,
             onPressed: () {},
           ),
         ),

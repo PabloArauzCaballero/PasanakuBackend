@@ -9,19 +9,56 @@ Implementación
   usando el adaptador de plataforma por defecto. Para anverso/reverso se solicita
   la cámara trasera, y siguen visibles «Tomar foto» y «Cancelar».
 
-Pruebas agregadas, no ejecutadas
+Pruebas agregadas y ejecutadas
 - pantalla_camara_de_respaldo_test.dart comprueba preview de área completa,
   proporción del marco, consejos superpuestos, cámara trasera, devolución de la
   captura y cancelación/liberación de la cámara.
 - Las fotos de prueba se crean en Directory.systemTemp y se limpian en cada caso.
+
+Comando y salida literal (Windows, Flutter 3.44.8; 2026-10-14):
+
+```text
+flutter test --no-pub --concurrency=1 --reporter expanded test/widget/pantalla_camara_de_respaldo_test.dart
+00:00 +0: loading test/widget/pantalla_camara_de_respaldo_test.dart
+00:00 +0: el carnet usa visor a pantalla completa con marco ID-1 y consejos superpuestos
+00:01 +1: Tomar foto entrega el carnet capturado
+00:01 +2: foto rechazada en cámara de respaldo puede usarse sin repetirla
+00:02 +3: el flujo de captura envuelve la foto aceptada en el mapa del alta
+00:02 +4: Cancelar cierra la cámara sin devolver una captura
+00:03 +5: All tests passed!
+EXIT_CODE=0
+```
 
 Verificación
 - dart format: 3 archivos, 0 cambios pendientes.
 - git diff --check en los archivos Dart rastreados: limpio.
 - Chequeo no indexado del test nuevo: sin errores de whitespace; Git mostró solo
   su aviso habitual de conversión LF/CRLF en Windows.
-- No ejecuté Flutter, build, analyzer ni tests por instrucción de RAM.
-- Capturas de emulador: pendientes; no se abrió emulador en esta tarea.
+- La suite widget pasa 5/5; no se ejecutaron build, analyzer ni integración física.
+- Integración Android con Samsung_A06-L (Android 33, 720×1600, cámara trasera
+  virtualscene, permiso `CAMERA` concedido):
+
+```text
+flutter drive --no-pub -d emulator-5554 --use-application-binary=build/app/outputs/flutter-apk/app-debug.apk --driver=test_driver/integration_test.dart --target=integration_test/h5_s4_m3_camara_test.dart
+00:00 +0: H5.S4.M3 cámara real, captura evidencia y libera el sensor
+00:06 +1: (tearDownAll)
+00:07 +2: All tests passed!
+All tests passed.
+Evidencia guardada: .../evidencia/h5-s4-m3-samsung-a06.png (794273 bytes)
+EXIT_CODE=0
+```
+
+- CameraX enumeró CameraId-0/1, abrió la trasera, configuró el preview 1280×720,
+  tomó la captura de pantalla y cerró `CameraGraph-1` al cancelar. No se tomó ni
+  guardó una foto de carnet.
+- [Captura Samsung_A06-L](./h5-s4-m3-samsung-a06.png): PNG 720×1600, escena virtual
+  visible, marco de cuatro esquinas y controles completos; inspeccionada después
+  de la última ejecución, sin recortes ni superposiciones.
+- La reconstrucción de Flutter 3.47.5 no fue necesaria para la integración y
+  detectó un hook `objective_c` en caché de Dart 3.12 (kernel 130 vs. esperado 138).
+  Se usó el APK debug preconstruido; no se cambiaron dependencias ni baselines.
+- El análisis Dart dirigido de ambos archivos nuevos pasó: `No issues found!`.
+  Formato y `git diff --check` quedaron limpios.
 
 Alcance
 - No se tocaron scanner, carrusel, subida ni adaptador nativo de cámara.

@@ -107,9 +107,8 @@ class PantallaDePortada extends StatelessWidget {
   }
 }
 
-/// La marca sobre su sello verde y, debajo, la palabra. El sello con el isotipo es el
-/// `#ay-marca` de la maqueta —el isotipo pensado para ir sobre relleno de marca—; la
-/// palabra debajo es lo que lo vuelve un logotipo y no un cuadrado verde.
+/// La marca sobre su sello de acción y, debajo, la palabra. Mantiene la forma del
+/// lockup original sin sumar el verde de marca como segundo acento de la pantalla.
 class _Lockup extends StatelessWidget {
   const _Lockup({required this.t});
   final Tokens t;
@@ -122,16 +121,16 @@ class _Lockup extends StatelessWidget {
         width: 84,
         height: 84,
         decoration: BoxDecoration(
-          color: t.verdeSolido,
+          color: t.accent,
           borderRadius: BorderRadius.circular(Radios.xl),
           boxShadow: [t.sombra3],
         ),
         child: Center(
-          child: Marca(tamano: 54, colorDelTrazo: t.sobreVerdeSolido),
+          child: Marca(tamano: 54, colorDelTrazo: t.accentInk),
         ),
       ),
       const SizedBox(height: Espacio.s4),
-      PalabraDeMarca(ancho: 148, color: t.brandInk),
+      PalabraDeMarca(ancho: 148, color: t.text),
     ],
   );
 }

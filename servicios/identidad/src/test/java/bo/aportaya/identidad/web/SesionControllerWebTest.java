@@ -9,9 +9,9 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -19,7 +19,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import bo.aportaya.identidad.aplicacion.EmitirAcceso;
 import bo.aportaya.identidad.aplicacion.RenovarSesion;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.Cookie;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -139,14 +138,17 @@ class SesionControllerWebTest {
     @Test
     @DisplayName("cerrar sesión: el ID sale del JWT y responde 204 idempotente")
     void cierraSesionActual() throws Exception {
-        when(sesion.actual()).thenReturn(bo.aportaya.plataforma.dominio.ContextoSesion.de(
-                OPERADOR, "PARTICIPANTE", new bo.aportaya.plataforma.dominio.Traza(UUID.randomUUID().toString())));
+        when(sesion.actual())
+                .thenReturn(bo.aportaya.plataforma.dominio.ContextoSesion.de(
+                        OPERADOR,
+                        "PARTICIPANTE",
+                        new bo.aportaya.plataforma.dominio.Traza(
+                                UUID.randomUUID().toString())));
         when(sesion.idDeLaSesion()).thenReturn(SESION);
 
         mvc.perform(delete("/sesion")
                         .cookie(new Cookie("aportaya_refresco", VIEJO))
-                        .with(jwt().jwt(token -> token
-                                .subject(OPERADOR.toString())
+                        .with(jwt().jwt(token -> token.subject(OPERADOR.toString())
                                 .claim("rol", "PARTICIPANTE")
                                 .claim("sesion_id", SESION.toString()))))
                 .andExpect(status().isNoContent())
@@ -157,12 +159,15 @@ class SesionControllerWebTest {
     @Test
     @DisplayName("el operador también puede cerrar su propia sesión")
     void cierraSesionDeOperador() throws Exception {
-        when(sesion.actual()).thenReturn(bo.aportaya.plataforma.dominio.ContextoSesion.de(
-                OPERADOR, "BACKOFFICE", new bo.aportaya.plataforma.dominio.Traza(UUID.randomUUID().toString())));
+        when(sesion.actual())
+                .thenReturn(bo.aportaya.plataforma.dominio.ContextoSesion.de(
+                        OPERADOR,
+                        "BACKOFFICE",
+                        new bo.aportaya.plataforma.dominio.Traza(
+                                UUID.randomUUID().toString())));
         when(sesion.idDeLaSesion()).thenReturn(SESION);
 
-        mvc.perform(delete("/sesion").with(jwt().jwt(token -> token
-                        .subject(OPERADOR.toString())
+        mvc.perform(delete("/sesion").with(jwt().jwt(token -> token.subject(OPERADOR.toString())
                         .claim("rol", "BACKOFFICE")
                         .claim("sesion_id", SESION.toString()))))
                 .andExpect(status().isNoContent())

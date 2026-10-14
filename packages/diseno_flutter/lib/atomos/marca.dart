@@ -20,8 +20,8 @@ class Marca extends StatelessWidget {
 
   final double tamano;
 
-  /// El color de los tres trazos exteriores. Por defecto, el verde de marca del tema.
-  /// Sobre relleno verde sólido se le pasa [Tokens.sobreVerdeSolido].
+  /// El color de los tres trazos exteriores. Por defecto, usa texto neutral para que
+  /// el isotipo no agregue un segundo acento cromático a la pantalla.
   final Color? colorDelTrazo;
 
   /// Cuánto del trazo está dibujado, de 0 a 1. Lo usa la apertura para que la marca
@@ -42,7 +42,7 @@ class Marca extends StatelessWidget {
         dimension: tamano,
         child: CustomPaint(
           painter: PintorDeMarca(
-            trazo: colorDelTrazo ?? t.brand,
+            trazo: colorDelTrazo ?? t.text,
             acento: t.accent,
             avance: avance,
             volumen: volumen,

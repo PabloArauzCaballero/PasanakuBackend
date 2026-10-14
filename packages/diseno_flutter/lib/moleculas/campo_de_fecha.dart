@@ -139,7 +139,7 @@ class _CampoDeFechaState extends State<CampoDeFecha> {
             ),
             IconButton(
               onPressed: _abrirCalendario,
-              icon: Icon(Icons.calendar_month_outlined, color: t.brandTexto),
+              icon: Icon(Icons.calendar_month_outlined, color: t.accentTexto),
               tooltip: 'Elegir en el calendario',
             ),
           ],

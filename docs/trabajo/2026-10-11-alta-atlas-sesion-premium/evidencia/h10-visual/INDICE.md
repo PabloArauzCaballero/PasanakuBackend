@@ -107,7 +107,7 @@ La portada es una pantalla estática: los estados de carga, vacío y error de co
 | 600 | claro | principal | `h10-portada-principal-claro-600-130.png` | OK; garantías envuelven en 2+1, sin corte |
 | 600 | oscuro | principal | `h10-portada-principal-oscuro-600-130.png` | OK; garantías envuelven en 2+1, sin corte |
 
-Se generaron cuatro PNG nuevos y se reutilizaron dos capturas H8. Los seis muestran íntegros el título, la marca, las garantías y las acciones. La suite `h10_portada_visual_test.dart` pasa 4/4 con y sin actualización; el análisis Dart queda limpio y el gate frontend 11/11.
+Se generaron cuatro PNG nuevos y se reutilizaron dos capturas H8. En la revisión de roles de color se inspeccionaron y actualizaron las cuatro H10 y las dos H8: lockup/sello, garantías, acciones secundarias y primarias quedan coherentes con acento naranja y roles neutrales; títulos/acciones completos, sin corte. `h10_portada_visual_test.dart` pasa 4/4 con y sin actualización; `h8_portada_mfa_oscuro_test.dart` pasa 4/4 con y sin actualización (las otras dos celdas MFA permanecen intactas). El análisis Dart queda limpio y el gate frontend 11/11.
 
 ## Tour — láminas estáticas
 
@@ -124,7 +124,7 @@ Se generaron cuatro PNG nuevos y se reutilizaron dos capturas H8. Los seis muest
 | 4 | claro | `h10-tour-lamina-4-claro-360-130.png` | `h10-tour-lamina-4-claro-412-130.png` | `h10-tour-lamina-4-claro-600-130.png` |
 | 4 | oscuro | `h10-tour-lamina-4-oscuro-360-130.png` | `h10-tour-lamina-4-oscuro-412-130.png` | `h10-tour-lamina-4-oscuro-600-130.png` |
 
-Se generaron e inspeccionaron visualmente 21 PNG nuevos y se reutilizan 3 referencias H8. `h10_tour_visual_test.dart` pasó 24/24 con actualización y 24/24 sin actualización; `dart analyze --fatal-infos test/goldens/h10_tour_visual_test.dart` terminó en `No issues found!`. La regresión H8 de las cuatro láminas falla solo en la lámina 4 con 126 px/0,05 %; no se regeneró esa referencia histórica. La repetición H10 compara la lámina 4 contra su baseline H10 y pasa. El gate móvil `python ..\..\scripts\verificar_frontend.py movil` terminó en `TODO OK` (11/11).
+Se generaron e inspeccionaron visualmente 21 PNG H10 nuevos y se reutilizan 3 referencias H8 oscuras/360. En esta revisión, personas, rueda, paraguas y aro decorativos pasan a tonos neutrales; naranja queda como acento y verde solo en el tilde de comprobante verificado. Se actualizaron e inspeccionaron las cuatro capturas H8 oscuras/360. `h10_tour_visual_test.dart` pasó 24/24 con actualización y 24/24 sin actualización; `h8_tour_oscuro_test.dart` pasó 1/1 con cuatro capturas y 1/1 sin actualización. `dart analyze --fatal-infos test/goldens/h10_tour_visual_test.dart` terminó en `No issues found!`. El gate móvil `python ..\..\scripts\verificar_frontend.py movil` terminó en `TODO OK` (11/11).
 
 ## Bienvenida — cuenta nueva
 
@@ -314,7 +314,7 @@ flutter test --no-pub --concurrency=1 test/goldens/h10_prueba_vida_visual_test.d
 | 600 | claro | `h10-camara-concedida-claro-600-130.png` | OK; contenido completo |
 | 600 | oscuro | `h10-camara-concedida-oscuro-600-130.png` | OK; contenido completo |
 
-El test comprueba tamaño completo del visor, que los consejos sigan a la cabecera sin solapamiento y que el botón quede en la zona inferior; también falla si se llama a `tomarFoto`. H10 update/repetición: 6/6 ambas; test widget de respaldo: 5/5; `dart analyze` limpio; gate móvil `TODO OK` (11/11). Para repetir desde `apps/movil`:
+El test comprueba tamaño completo del visor, que los consejos sigan a la cabecera sin solapamiento y que el botón quede en la zona inferior; también falla si se llama a `tomarFoto`. En la revisión de roles se inspeccionaron las seis imágenes y se actualizaron sus baselines: las acciones usan un único acento naranja, texto/superficies mantienen contraste y la cámara sintética no captura. H10 update/repetición: 6/6 ambas; test widget de respaldo: 5/5; `dart analyze` limpio; gate móvil `TODO OK` (11/11). Para repetir desde `apps/movil`:
 
 ```powershell
 flutter test --no-pub --concurrency=1 test/goldens/h10_camara_visual_test.dart

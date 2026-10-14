@@ -218,7 +218,7 @@ No se encontraron selectores de banco o motivo de soporte en el runtime actual (
 ### Partes del nombre en el alta (H4.S2)
 
 - `DatosPersonales` conserva las cuatro partes escritas y expone `nombres`/`apellidos` armados para no alterar CU-01, el cotejo ni los clientes generados. Los constructores y `copiarCon` heredados que reciben cadenas completas las guardan en la primera parte, sin separarlas por espacios: «José Luis» y «De la Cruz» pueden ser nombres compuestos.
-- La distribución responde al ancho local con `LayoutBuilder`; se prueba a 360 y 412 dp, junto con autofill hints, capitalización y orden del foco. Falta captura en dispositivo/emulador físico, así que H4.S2.M4 sigue A MEDIAS. Ver `evidencia/h4-s2.txt`.
+- La distribución responde al ancho local con `LayoutBuilder`; se prueba a 360 y 412 dp, junto con autofill hints, capitalización y orden del foco. Actualización 2026-10-14: las capturas Android del emulador a 360/412 dp y sus verificaciones quedaron registradas; H4.S2.M4 está HECHO. No equivale a QA en teléfono físico. Ver `evidencia/h4-s2-m4-android.md` y la actualización en `evidencia/h4-s2.txt`.
 
 ### Placeholders del alta y el ingreso (H4.S1)
 

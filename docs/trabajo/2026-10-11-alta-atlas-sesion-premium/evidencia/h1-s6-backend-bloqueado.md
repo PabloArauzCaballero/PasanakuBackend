@@ -24,3 +24,10 @@ Hallazgos de revisión atendidos en código, aún sin prueba de integración: `D
 - Docker Desktop sigue sin daemon accesible (`docker ps` no conecta con `dockerDesktopLinuxEngine`).
 - `flutter emulators` enumera `Pixel_2` y `Samsung_A06-L`, ambos configurados con 2048 MB; `adb devices -l` no enumera dispositivos conectados. Memoria física libre observada: 1,73 GiB. No se inició un AVD ni Gradle para evitar exceder el margen de memoria.
 - Esta comprobación aporta disponibilidad parcial del servicio PostgreSQL, pero no la base/puerto/credenciales que requiere el proyecto. No cambia el estado ni el bloqueo de las microtareas backend.
+
+## Revalidación del acceso a Docker — 2026-10-14
+
+- `Get-Service -Name com.docker.service` confirma Docker Desktop `Stopped`.
+- Intenté iniciar solo ese servicio autorizado para comprobar si podía levantar el entorno local: `Start-Service -Name com.docker.service -ErrorAction Stop` terminó con `CouldNotStartService` / «No se puede abrir el servicio com.docker.service en el equipo». La sesión no tiene acceso operativo al servicio.
+- No se inició Docker, no se arrancó `docker-compose.coolify.yml` (es configuración de despliegue, no un stack local de pruebas) y no se modificó PostgreSQL Windows.
+- H1.S6.M8 sigue `BLOQUEADO`: no existe un `compose.yaml` local de desarrollo y el motor Docker no está accesible desde esta sesión; no se fabricó una prueba E2E con un doble.

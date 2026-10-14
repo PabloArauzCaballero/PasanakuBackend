@@ -68,7 +68,7 @@ class _FilaDeConsejo extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.check_circle, size: Espacio.s4, color: t.brandTexto),
+          Icon(Icons.check_circle, size: Espacio.s4, color: t.text2),
           const SizedBox(width: Espacio.s2),
           Expanded(
             child: Text(texto, style: Theme.of(context).textTheme.bodySmall),

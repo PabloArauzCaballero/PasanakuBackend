@@ -29,7 +29,7 @@ class TextosIdentidad {
   static const tourEmpezar = 'Empezar';
   // La bienvenida y las cuatro láminas del tour, con el texto exacto de la maqueta
   // (`docs/Views/AportaYa-Maqueta.html`: `bienvenida` y `const TOUR`). La segunda
-  // línea de cada título es la que se destaca en verde.
+  // línea destacada usa el mismo rol neutral que el resto del título.
   static const bienvenidaTitulo =
       'El pasanaku de siempre,\ncon la plata segura';
   static const bienvenidaTexto =

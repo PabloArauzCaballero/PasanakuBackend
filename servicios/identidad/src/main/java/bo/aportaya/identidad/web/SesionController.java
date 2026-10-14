@@ -1,7 +1,7 @@
 package bo.aportaya.identidad.web;
 
-import bo.aportaya.identidad.aplicacion.EmitirAcceso;
 import bo.aportaya.identidad.aplicacion.CerrarSesion;
+import bo.aportaya.identidad.aplicacion.EmitirAcceso;
 import bo.aportaya.identidad.aplicacion.RenovarSesion;
 import bo.aportaya.identidad.web.generado.SesionApi;
 import bo.aportaya.identidad.web.generado.modelo.SalidaRenovacion;
@@ -61,9 +61,8 @@ public class SesionController implements SesionApi {
     public ResponseEntity<SalidaRenovacion> renovarSesion(
             bo.aportaya.identidad.web.generado.modelo.EntradaRenovacion entradaRenovacion) {
         Optional<String> cookiePresentada = cookie.leer(peticion);
-        String token = cookiePresentada.orElseGet(() -> entradaRenovacion == null
-                ? null
-                : entradaRenovacion.getRefresco());
+        String token =
+                cookiePresentada.orElseGet(() -> entradaRenovacion == null ? null : entradaRenovacion.getRefresco());
         var renovacion = refresco.renovar(
                 token,
                 Optional.ofNullable(peticion.getRemoteAddr()).orElse("0.0.0.0"),

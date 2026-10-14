@@ -71,7 +71,7 @@ class LaminaDelTour extends StatelessWidget {
                           TextSpan(text: '${lamina.titulo}\n'),
                           TextSpan(
                             text: lamina.destacado,
-                            style: TextStyle(color: t.brandTexto),
+                            style: TextStyle(color: t.text),
                           ),
                         ],
                       ),

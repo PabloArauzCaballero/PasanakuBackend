@@ -32,10 +32,10 @@ class AccionesRapidas extends StatelessWidget {
                           width: Tactil.minimo,
                           height: Tactil.minimo,
                           decoration: BoxDecoration(
-                            color: t.brandBg,
+                            color: t.surface2,
                             borderRadius: BorderRadius.circular(Radios.md),
                           ),
-                          child: Icon(a.icono, color: t.brandTexto),
+                          child: Icon(a.icono, color: t.accentTexto),
                         ),
                         const SizedBox(height: Espacio.s1),
                         Text(

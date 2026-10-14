@@ -237,10 +237,7 @@ public class RenovarSesion {
 
     /** Renovada (con titular, si es operador y el refresh siguiente) o rechazada (todo vacio). */
     public record Renovacion(
-            Optional<UUID> usuarioId,
-            boolean esOperador,
-            Optional<Emitido> siguiente,
-            Optional<UUID> sesionId) {
+            Optional<UUID> usuarioId, boolean esOperador, Optional<Emitido> siguiente, Optional<UUID> sesionId) {
         public Renovacion(Optional<UUID> usuarioId, boolean esOperador, Optional<Emitido> siguiente) {
             this(usuarioId, esOperador, siguiente, Optional.empty());
         }

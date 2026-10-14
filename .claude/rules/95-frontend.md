@@ -91,4 +91,8 @@ fácil.
 `frontend-design-system` · `css-architecture` · `frontend-ux-states` · `frontend-forms-ux` ·
 `angular-forms` · `frontend-accessibility` · `frontend-responsive-layout` · `frontend-data-tables` ·
 `frontend-motion` · `frontend-security` · `frontend-error-monitoring` · `ui-quality-review` ·
-`visual-proof` · `angular-development`
+`visual-proof` · `angular-development` · `apple-design` · `emil-design-eng` · `mobile-native` ·
+`animate` · `animation-vocabulary` · `find-animation-opportunities` · `improve-animations` ·
+`review-animations` · `fixing-motion-performance` · `fixing-accessibility` · `break-ui` ·
+`improve-ui` · `frontend-design` · `web-design-guidelines` · `pasanaku-diseno` ·
+`pasanaku-app-movil-ux` · `pasanaku-movimiento` · `pasanaku-ui-componentes`

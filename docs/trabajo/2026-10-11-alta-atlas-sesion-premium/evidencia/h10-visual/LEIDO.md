@@ -6,6 +6,10 @@ Tour: 24 celdas (21 PNG nuevos + 3 referencias H8 oscuras reutilizadas); Bienven
 
 Abrí e inspeccioné cada celda: grupos / mi estado (20 nuevas + 4 reutilizadas), portada (4 nuevas + 2 reutilizadas), billetera (24 nuevas), ingreso (16 nuevas + 2 reutilizadas), MFA (16 nuevas + 2 reutilizadas), Tour (21 nuevas + 3 reutilizadas), Bienvenida (6 nuevas), Verificación (20 nuevas + 4 reutilizadas), Subida (11 nuevas + 1 reutilizada), Perfil (6), Candado (6), Ayuda (12), Cámara (6), Prueba de vida (5 nuevas + 1 reutilizada), Alta/cuenta (5 nuevas + 1 reutilizada), Alta/actividad (5 nuevas + 1 reutilizada), Alta/contrato (5 nuevas + 1 reutilizada), Alta/correo (5 nuevas + 1 reutilizada), Alta/datos (5 nuevas + 1 reutilizada) y Alta/documento (6 nuevas), **228 en total**. Cada fila deja una observación por imagen; la evidencia reproducible y los comandos están en [INDICE.md](./INDICE.md).
 
+## Revalidación posterior de roles de color — 2026-10-13
+
+La inspección original de 228 capturas precede algunos cambios semánticos de color. Como revisión adicional del diff global se reabrieron y revisaron las 6 capturas actuales de Candado, las 12 de Ayuda, las 7 de Perfil (incluido estado presionado), las 12 de Subida y las 20 imágenes nuevas de Verificación (cuatro estados, cinco celdas por estado). En Candado, marca, CTA y acción secundaria mantienen jerarquía; en Ayuda los CTA reflejan roles de acción y el filtro seleccionado sigue distinguible; en Perfil Cerrar sesión queda neutro y la baja de cuenta sigue el criterio naranja, no rojo; en Subida, error conserva rojo y acciones pasan a naranja; en Verificación, acciones pasan a naranja y los estados/textos siguen distinguibles. No hay clipping ni pérdida de jerarquía; se actualizaron esas 57 referencias tras inspección y las suites pasan sin update: 6/6, 12/12, 7/7, 12/12 y 24/24 (Verificación incluye cuatro referencias H8 reutilizadas). El barrido global posterior aún está pendiente.
+
 | Captura | Resultado visual |
 |---|---|
 | `h10-grupos-mi-estado-principal-deuda-claro-360-130.png` | OK: deuda, monto y dos acciones legibles; sin recorte. |
@@ -121,7 +125,7 @@ No observé clipping, solapamiento ni texto ilegible en las 16 imágenes MFA nue
 | 4 | claro | OK: «Empezar» visible; «Saltar» desvanecido; composición completa. | OK: «Empezar» visible; sin clipping. | OK: «Empezar» visible; sin clipping. |
 | 4 | oscuro | OK: baseline H10 propia; «Empezar» visible; sin clipping. | OK: «Empezar» visible; sin clipping. | OK: «Empezar» visible; sin clipping. |
 
-Las 21 capturas H10 fueron inspeccionadas visualmente, más las tres referencias H8 reutilizadas. No se observó clipping, solapamiento ni texto ilegible; los controles superiores e inferiores están visibles en las tres H8 inspeccionadas. Carga, vacío y error no aplican al tour estático. La H8 de lámina 4 difiere 126 px (0,05 %) de la salida actual en Flutter 3.44.8; por eso se generó y validó una referencia H10 separada, sin modificar la H8 histórica.
+Las 21 capturas H10 fueron inspeccionadas visualmente, más las tres referencias H8 reutilizadas. En esta revisión los verdes decorativos de las ilustraciones y del aro del pedestal se neutralizaron; se conserva el tilde verde como estado verificado y el naranja como acento. No se observó clipping, solapamiento ni texto ilegible; los controles superiores e inferiores están visibles en las tres H8 inspeccionadas. Carga, vacío y error no aplican al tour estático. Las cuatro capturas H8 oscuras se actualizaron y revisaron para reflejar el cambio de roles; H8 y H10 pasan sin update.
 
 ### Bienvenida — lectura de las 6 celdas
 

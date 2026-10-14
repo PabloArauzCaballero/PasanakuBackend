@@ -43,7 +43,7 @@ void main() {
 
     comprobarEscala200(tester);
     expect(find.text('Ingresar'), findsOneWidget);
-    expect(find.text('Mínimo 8'), findsOneWidget);
+    expect(find.text('Mínimo 8 caracteres'), findsOneWidget);
     await expectLater(
       find.byType(PantallaDeSesion),
       matchesGoldenFile('$_evidencia/ingreso-360-200.png'),
@@ -132,7 +132,7 @@ void main() {
       find.byType(PantallaDeSaldo),
       matchesGoldenFile('$_evidencia/billetera-360-200.png'),
     );
-    await tester.ensureVisible(find.text('Movimientos'));
+    await tester.drag(find.byType(ListView).first, const Offset(0, -280));
     await tester.pumpAndSettle();
     comprobarEscala200(tester);
     await expectLater(

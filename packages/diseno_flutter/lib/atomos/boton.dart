@@ -54,11 +54,6 @@ class Boton extends StatelessWidget {
       // Las acciones usan el acento naranja; verde/rojo se reserva para estados.
       BotonVariante.peligro => (t.accent, t.accentInk, null),
       BotonVariante.enlace => (Colors.transparent, t.accentTexto, null),
-      BotonVariante.sobreVerde => (
-        Colors.transparent,
-        t.sobreVerdeSolido,
-        t.sobreVerdeSolido,
-      ),
     };
     final alto = switch (tamano) {
       BotonTamano.sm => Tactil.minimo - Espacio.s2,

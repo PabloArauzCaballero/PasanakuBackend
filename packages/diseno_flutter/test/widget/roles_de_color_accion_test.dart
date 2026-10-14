@@ -54,7 +54,6 @@ void main() {
           case BotonVariante.enlace:
             expect(frente, tokens.accentTexto, reason: '$variante');
           case BotonVariante.primario:
-          case BotonVariante.sobreVerde:
             fail('La matriz no pretende cubrir $variante');
         }
       }

@@ -97,7 +97,8 @@ class FilaDeMovimiento extends StatelessWidget {
           contentPadding: EdgeInsets.zero,
           leading: Icon(
             esCredito ? Icons.south_west : Icons.north_east,
-            color: esCredito ? t.okTexto : t.text2,
+            // El sentido identifica el tipo de movimiento, no su estado.
+            color: t.text2,
           ),
           title: Text(
             movimiento.glosa,

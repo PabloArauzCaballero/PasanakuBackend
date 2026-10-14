@@ -77,7 +77,7 @@ class PintorDeMarca extends CustomPainter {
     colors: [
       Color.lerp(color, Paleta.white, 0.22)!,
       color,
-      Color.lerp(color, Paleta.g900, 0.18)!,
+      Color.lerp(color, Paleta.ink, 0.18)!,
     ],
     stops: const [0, 0.55, 1],
   ).createShader(caja);

@@ -150,14 +150,16 @@ void main() {
       find.textContaining('Todavía no estás en ningún pasanaku'),
       findsOneWidget,
     );
-    expect(find.text('Movimientos'), findsOneWidget);
-    expect(find.textContaining('Todavía no tenés movimientos'), findsOneWidget);
     expect(find.textContaining('9.999.999,99'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await expectLater(
       find.byType(PantallaDeSaldo),
       matchesGoldenFile('$_evidencia/billetera-saldo-alto-vacios-200.png'),
     );
+    await tester.drag(find.byType(ListView).first, const Offset(0, -560));
+    await tester.pumpAndSettle();
+    expect(find.text('Movimientos'), findsOneWidget);
+    expect(find.textContaining('Todavía no tenés movimientos'), findsOneWidget);
   });
 
   testWidgets('billetera · saldo cero y vacíos · 200 % · oscuro', (
@@ -184,12 +186,14 @@ void main() {
     await asentar(tester);
 
     comprobarEscala200(tester);
-    expect(find.textContaining('Todavía no tenés movimientos'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await expectLater(
       find.byType(PantallaDeSaldo),
       matchesGoldenFile('$_evidencia/billetera-saldo-cero-200.png'),
     );
+    await tester.drag(find.byType(ListView).first, const Offset(0, -560));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Todavía no tenés movimientos'), findsOneWidget);
   });
 
   testWidgets('billetera · 40 movimientos · 200 %', (tester) async {
@@ -234,6 +238,8 @@ void main() {
     await tester.pumpAndSettle();
 
     comprobarEscala200(tester);
+    await tester.drag(find.byType(ListView).first, const Offset(0, -560));
+    await tester.pumpAndSettle();
     expect(find.text('Movimiento de prueba 00'), findsOneWidget);
     expect(find.text('Movimiento de prueba 39'), findsOneWidget);
     expect(find.byType(ListTile), findsNWidgets(40));
@@ -258,6 +264,8 @@ void main() {
       Theme.of(tester.element(find.byType(Scaffold).first)).brightness,
       Brightness.dark,
     );
+    await tester.drag(find.byType(ListView).first, const Offset(0, -560));
+    await tester.pumpAndSettle();
     expect(find.byType(ListTile), findsNWidgets(40));
     expect(tester.takeException(), isNull);
     await tester.ensureVisible(find.text('Movimiento de prueba 39'));

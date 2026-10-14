@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../atomos/monto.dart';
 import '../tokens/tokens.dart';
 
-/// El encabezado verde con el saldo: disponible en grande, retenido y en pasanakus
-/// como líneas, y **una** acción naranja.
+/// El encabezado neutral con el saldo: disponible en grande, retenido y en
+/// pasanakus como líneas, y **una** acción naranja.
 class TarjetaSaldo extends StatelessWidget {
   const TarjetaSaldo({
     super.key,
@@ -33,14 +33,14 @@ class TarjetaSaldo extends StatelessWidget {
         Expanded(
           child: Text(
             etiqueta,
-            style: texto.bodySmall?.copyWith(color: t.sobreVerdeSolido),
+            style: texto.bodySmall?.copyWith(color: t.text2),
           ),
         ),
         Monto(
           monto: monto,
           moneda: moneda,
           etiqueta: etiqueta,
-          estilo: texto.bodySmall?.copyWith(color: t.sobreVerdeSolido),
+          estilo: texto.bodySmall?.copyWith(color: t.text2),
         ),
       ],
     );
@@ -48,7 +48,7 @@ class TarjetaSaldo extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(Espacio.s5),
       decoration: BoxDecoration(
-        color: t.verdeSolido,
+        color: t.surface2,
         borderRadius: BorderRadius.circular(Radios.lg),
         boxShadow: Elevacion.destacada(t),
       ),
@@ -57,7 +57,7 @@ class TarjetaSaldo extends StatelessWidget {
         children: [
           Text(
             'Saldo disponible',
-            style: texto.labelLarge?.copyWith(color: t.sobreVerdeSolido),
+            style: texto.labelLarge?.copyWith(color: t.text2),
           ),
           const SizedBox(height: Espacio.s1),
           Monto(
@@ -65,7 +65,7 @@ class TarjetaSaldo extends StatelessWidget {
             moneda: moneda,
             etiqueta: 'Saldo disponible',
             estilo: texto.headlineMedium?.copyWith(
-              color: t.sobreVerdeSolido,
+              color: t.text,
               fontWeight: FontWeight.w700,
             ),
           ),

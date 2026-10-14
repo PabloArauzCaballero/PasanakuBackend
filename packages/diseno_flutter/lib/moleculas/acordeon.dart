@@ -27,6 +27,8 @@ class Acordeon extends StatelessWidget {
           ).textTheme.titleSmall?.copyWith(color: t.text),
         ),
         initiallyExpanded: abierto,
+        backgroundColor: t.surface2,
+        collapsedBackgroundColor: t.surface2,
         iconColor: t.brandTexto,
         collapsedIconColor: t.text3,
         tilePadding: EdgeInsets.zero,

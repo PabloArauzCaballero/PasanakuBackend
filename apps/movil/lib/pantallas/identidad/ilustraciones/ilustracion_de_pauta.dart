@@ -57,7 +57,7 @@ class _PintorDePauta extends CustomPainter {
     canvas.drawRRect(
       RRect.fromRectAndRadius(caja, const Radius.circular(Radios.md)),
       Paint()
-        ..color = t.brand
+        ..color = t.text.withValues(alpha: 0.55)
         ..style = PaintingStyle.stroke
         ..strokeWidth = Borde.fino,
     );
@@ -69,12 +69,12 @@ class _PintorDePauta extends CustomPainter {
     );
     canvas.drawRRect(
       RRect.fromRectAndRadius(foto, const Radius.circular(Radios.sm)),
-      Paint()..color = t.brandBg,
+      Paint()..color = t.surface2,
     );
     canvas.drawCircle(
       Offset(foto.center.dx, foto.top + foto.height * 0.34),
       foto.width * 0.20,
-      Paint()..color = t.brand,
+      Paint()..color = t.text2,
     );
     canvas.drawRRect(
       RRect.fromRectAndRadius(
@@ -85,7 +85,7 @@ class _PintorDePauta extends CustomPainter {
         ),
         const Radius.circular(Radios.sm),
       ),
-      Paint()..color = t.brand,
+      Paint()..color = t.text2,
     );
     final textoX = foto.right + 7;
     for (var i = 0; i < 3; i++) {
@@ -165,7 +165,7 @@ class _PintorDePauta extends CustomPainter {
       const Offset(-5, 13),
       const Offset(5, 13),
       Paint()
-        ..color = t.errTexto
+        ..color = t.text2
         ..strokeWidth = 2
         ..strokeCap = StrokeCap.round,
     );

@@ -38,7 +38,6 @@ class FilaDeMovimiento extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
     final texto = Theme.of(context).textTheme;
-    final debito = monto.startsWith('-');
     return Semantics(
       button: onTap != null,
       label: '${tipo.nombre}: $concepto${pendiente ? ', pendiente' : ''}',
@@ -57,10 +56,7 @@ class FilaDeMovimiento extends StatelessWidget {
                     color: t.surface2,
                     borderRadius: BorderRadius.circular(Radios.md),
                   ),
-                  child: Icon(
-                    tipo.icono,
-                    color: pendiente ? t.text3 : t.brandTexto,
-                  ),
+                  child: Icon(tipo.icono, color: t.text2),
                 ),
                 const SizedBox(width: Espacio.s3),
                 Expanded(
@@ -96,7 +92,7 @@ class FilaDeMovimiento extends StatelessWidget {
                       monto: monto,
                       moneda: moneda,
                       estilo: texto.bodyLarge?.copyWith(
-                        color: debito ? t.text : t.okTexto,
+                        color: t.text,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

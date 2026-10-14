@@ -26,7 +26,7 @@ class ArteSorteoALaVista extends ArteDeMaqueta {
           ..arcToPoint(const Offset(109.8, 48.9), radius: _radio)
           ..lineTo(70, 72)
           ..close(),
-        relleno(Paleta.g600),
+        relleno(t.text2),
       )
       ..drawPath(
         Path()
@@ -34,7 +34,7 @@ class ArteSorteoALaVista extends ArteDeMaqueta {
           ..arcToPoint(const Offset(70, 118), radius: _radio)
           ..lineTo(70, 72)
           ..close(),
-        relleno(Paleta.g300),
+        relleno(t.border),
       )
       ..drawPath(
         Path()
@@ -42,7 +42,7 @@ class ArteSorteoALaVista extends ArteDeMaqueta {
           ..arcToPoint(const Offset(30.2, 48.9), radius: _radio)
           ..lineTo(70, 72)
           ..close(),
-        relleno(Paleta.g500),
+        relleno(t.text3),
       );
 
     c.drawCircle(_centro, 13, relleno(crema));

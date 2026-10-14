@@ -1,6 +1,6 @@
 # H8.S4.M4 — inventario de capturas oscuras
 
-Estado: A MEDIAS. Auditoría inicial del 12 de octubre de 2026, ampliada el 13; este inventario no sustituye la revisión visual de cada captura ni demuestra «0 textos ilegibles» para todo el alcance.
+Estado actual: BLOQUEADO solo por la unidad conceptual «grupos/detalle», que no tiene pantalla, ruta ni contrato local. El historial de auditoría empezó el 12 de octubre de 2026 y se actualizó el 13.
 
 El alcance está en `PLAN.md`, sección H8: portada, tour, ingreso, MFA, seis pantallas del alta, cámara, prueba de vida, subida, estado de verificación, bienvenida, candado, billetera/inicio, grupos (mi estado y detalle), perfil y ayuda.
 
@@ -22,4 +22,21 @@ El alcance está en `PLAN.md`, sección H8: portada, tour, ingreso, MFA, seis pa
 | Estado de verificación | [Pendiente, en revisión, aprobada y rechazada en oscuro 360 × 740 al 130 %](./h8-verificacion-oscura.md) | Carga/error, claro, otros tamaños y navegación/dispositivo |
 | Cobertura visual complementaria H10 | [Matriz H10 e índice de celdas](./h10-visual/INDICE.md) y [lectura individual](./h10-visual/LEIDO.md): 20 de las 21 unidades conceptuales, 228/228 celdas existentes inspeccionadas; incluye capturas oscuras en anchos de 360/412/600 dp y referencias H8 reutilizadas | Grupos/detalle no tiene ruta/pantalla ni contrato local para producir una captura. Resolver su alcance con producto/arquitectura antes de atribuirle UI inexistente; H8.S4.M4 sigue parcial por esta unidad fuera de ruta |
 
-La matriz H10 amplía la cobertura visual oscura a 20 unidades conceptuales existentes; sus 228 celdas se anotaron una a una en `h10-visual/LEIDO.md`. Esta evidencia sintética respalda legibilidad/layout y no demuestra hardware, permisos del SO, backend ni navegación integrada; esas son limitaciones del entorno/alcance de las capturas, no hallazgos de texto ilegible. No contar las capturas deuda/inicio y deuda/acciones de grupos como estados distintos: son idénticas. La única unidad conceptual sin pantalla/ruta local es grupos/detalle, por lo que se conserva H8.S4.M4 como `A MEDIAS` y no se inventa una captura. La suite completa de goldens tampoco está verde en el SDK disponible (ver `h10-goldens-flutter-3.44.8-2026-10-12.md`); ese resultado se mantiene como caveat de regresión, separado del inventario de capturas.
+La matriz H10 amplía la cobertura visual oscura a 20 unidades conceptuales existentes; sus 228 celdas se anotaron una a una en `h10-visual/LEIDO.md`. Esta evidencia sintética respalda legibilidad/layout y no demuestra hardware, permisos del SO, backend ni navegación integrada. No contar las capturas deuda/inicio y deuda/acciones de grupos como estados distintos: son idénticas. La única unidad conceptual sin pantalla/ruta local es grupos/detalle; no se inventa una captura.
+
+## Revalidación de cobertura y bloqueo — 2026-10-13
+
+### Auditoría complementaria del contrato local de grupos — 2026-10-13
+
+Se verificó `servicios/grupos/src/main/resources/openapi/grupos.yaml`: existe `GET /grupos/participaciones` (`listarMisParticipaciones`), pero cada elemento `Participacion` solo contiene `grupoId`, `participanteId` y `estado`. `/grupos` publica únicamente `POST crearGrupo`; no existe `GET /grupos/{grupoId}` ni una operación equivalente de detalle. La lectura de participaciones sirve para conocer en qué grupos está la persona, pero no define ni entrega el contenido de una pantalla de detalle. H8.S4.M4 sigue bloqueado por alcance/contrato de producto, no por ausencia absoluta de lecturas de grupos.
+
+Se ejecutó en serie, sin `--update-goldens`, el conjunto H8 oscuro disponible:
+
+```text
+flutter test --no-pub --concurrency=1 --timeout 60s --reporter compact test/goldens/h8_alta_oscura_test.dart test/goldens/h8_bienvenida_oscuro_test.dart test/goldens/h8_camara_identidad_permiso_oscuro_test.dart test/goldens/h8_centro_ayuda_oscuro_test.dart test/goldens/h8_grupos_mi_estado_oscuro_test.dart test/goldens/h8_ingreso_oscuro_test.dart test/goldens/h8_perfil_oscuro_test.dart test/goldens/h8_portada_mfa_oscuro_test.dart test/goldens/h8_prueba_vida_oscura_test.dart test/goldens/h8_subida_oscura_test.dart test/goldens/h8_tour_oscuro_test.dart test/goldens/h8_verificacion_oscura_test.dart
+Resultado: All tests passed; 21/21 PASS.
+```
+
+El lote cubre las capturas oscuras dedicadas de alta, bienvenida, permiso de cámara, ayuda, estado de grupo, ingreso, perfil, portada/MFA, prueba de vida, subida, tour y verificación. La matriz H10 cubre además cámara concedida, candado y billetera, dentro de las 20 unidades implementadas; `LEIDO.md` registra 228/228 celdas inspeccionadas. En el código vigente no existe ruta/pantalla de detalle de grupo y falta un contrato de lectura para producir datos reales; el inventario de rutas declara explícitamente ese hueco.
+
+**Resultado:** las 20 superficies existentes tienen evidencia visual oscura revisada. La unidad 19/21 («grupos — detalle») continúa en el alcance escrito pero no existe en el producto local. No añadir una UI/fixture inventada para simularla: resolver con producto/arquitectura si se implementa con contrato real o se retira formalmente del alcance. **H8.S4.M4 = BLOQUEADO** por decisión/dependencia externa; dueño: producto + arquitectura de grupos. Capturas sintéticas no se presentan como prueba de sensores/permisos reales.

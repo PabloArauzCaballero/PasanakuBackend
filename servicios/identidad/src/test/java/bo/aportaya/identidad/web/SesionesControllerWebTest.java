@@ -13,10 +13,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import bo.aportaya.identidad.aplicacion.EntradaAutenticacion;
 import bo.aportaya.identidad.aplicacion.CU04Autenticar;
 import bo.aportaya.identidad.aplicacion.CU04StepUp;
 import bo.aportaya.identidad.aplicacion.EmitirAcceso;
+import bo.aportaya.identidad.aplicacion.EntradaAutenticacion;
 import bo.aportaya.identidad.aplicacion.RenovarSesion;
 import bo.aportaya.identidad.dominio.ResultadoDeAutenticacion;
 import bo.aportaya.plataforma.dominio.CodigoError;

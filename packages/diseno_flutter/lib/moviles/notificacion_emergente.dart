@@ -46,10 +46,7 @@ class NotificacionEmergente extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.notifications_active_outlined,
-                    color: t.brandTexto,
-                  ),
+                  Icon(Icons.notifications_active_outlined, color: t.text2),
                   const SizedBox(width: Espacio.s3),
                   Expanded(
                     child: Column(

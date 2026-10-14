@@ -36,12 +36,10 @@ class PanelSorteo extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: Espacio.s3,
-                  backgroundColor: t.verdeSolido,
+                  backgroundColor: t.surface2,
                   child: Text(
                     '${i + 1}',
-                    style: texto.labelSmall?.copyWith(
-                      color: t.sobreVerdeSolido,
-                    ),
+                    style: texto.labelSmall?.copyWith(color: t.text2),
                   ),
                 ),
                 const SizedBox(width: Espacio.s3),

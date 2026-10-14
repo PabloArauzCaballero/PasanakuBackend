@@ -69,7 +69,7 @@ class TarjetaDeOferta extends StatelessWidget {
                 monto: compensacion,
                 moneda: moneda,
                 etiqueta: 'Compensación',
-                estilo: texto.titleMedium?.copyWith(color: t.brandTexto),
+                estilo: texto.titleMedium?.copyWith(color: t.text),
               ),
             ],
           ),
