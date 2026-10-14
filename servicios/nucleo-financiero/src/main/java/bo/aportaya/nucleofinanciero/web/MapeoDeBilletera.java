@@ -1,6 +1,9 @@
 package bo.aportaya.nucleofinanciero.web;
 
+import bo.aportaya.nucleofinanciero.aplicacion.ConsultarMovimientosBilletera;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.Dinero;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.ListaMovimientosBilletera;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.MovimientoBilletera;
 import bo.aportaya.plataforma.dominio.Moneda;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -47,6 +50,25 @@ final class MapeoDeBilletera {
         if (salida.comprometidoEnPozos() != null) {
             respuesta.setComprometidoEnPozos(dinero(salida.comprometidoEnPozos()));
         }
+        return respuesta;
+    }
+
+    static ListaMovimientosBilletera movimientos(ConsultarMovimientosBilletera.Salida salida) {
+        var respuesta = new ListaMovimientosBilletera();
+        respuesta.setCuentaId(salida.cuentaId());
+        respuesta.setMovimientos(salida.movimientos().stream()
+                .map(movimiento -> {
+                    var fila = new MovimientoBilletera();
+                    fila.setId(movimiento.id());
+                    fila.setSentido(MovimientoBilletera.SentidoEnum.fromValue(movimiento.sentido()));
+                    fila.setMonto(dinero(movimiento.monto()));
+                    fila.setSaldoDisponiblePosterior(dinero(movimiento.saldoDisponiblePosterior()));
+                    fila.setSaldoRetenidoPosterior(dinero(movimiento.saldoRetenidoPosterior()));
+                    fila.setGlosa(movimiento.glosa());
+                    fila.setRegistradoEn(movimiento.registradoEn());
+                    return fila;
+                })
+                .toList());
         return respuesta;
     }
 

@@ -26,8 +26,11 @@ final catalogoDeTutorialesProvider = Provider<List<TutorialDefinicion>>(
 /// crear grupo (hoy solo se consulta con un `organizadorId` concreto): declararlo acá
 /// en vez de inventarlo deja el hueco a la vista y con un solo lugar donde llenarlo.
 final capacidadesProvider = FutureProvider<Set<Capacidad>>((ref) async {
-  final token = await ref.watch(sesionProvider).tokenDeAcceso();
-  return {if (token != null && token.isNotEmpty) Capacidad.sesion};
+  // `Sesion` es observable, pero el provider expone la misma instancia; la generación
+  // invalida capacidades cuando hay un ingreso o un cierre.
+  ref.watch(generacionDeSesionProvider);
+  final estado = ref.watch(sesionProvider.select((sesion) => sesion.estado));
+  return {if (estado == EstadoDeSesion.activa) Capacidad.sesion};
 });
 
 final registroDeTutorialesProvider = Provider<RegistroDeTutoriales>((ref) {
@@ -99,12 +102,26 @@ const String guiaDeInicioId = 'intro-app';
 /// la guía es una ayuda, no puede bloquear ni romper una tarea.
 final autolanzarGuiaDeInicioProvider = Provider<Future<bool> Function()>((ref) {
   var intentada = false;
+  final sesion = ref.watch(sesionProvider);
+  var estabaActiva = sesion.activa;
+  void alCambiarSesion() {
+    if (estabaActiva && !sesion.activa) {
+      ref.read(motorDeTutorialesProvider.notifier).cancelar();
+    }
+    estabaActiva = sesion.activa;
+  }
+
+  sesion.addListener(alCambiarSesion);
+  ref.onDispose(() => sesion.removeListener(alCambiarSesion));
   return () async {
     if (intentada) return false;
     intentada = true;
     try {
+      if (!sesion.activa) return false;
       await ref.read(capacidadesProvider.future);
       await ref.read(progresoDeTutorialesProvider.notifier).cargar();
+      // La sesión puede haberse cerrado mientras se leían capacidades o avance.
+      if (!sesion.activa) return false;
       if (ref.read(motorDeTutorialesProvider).activo) return false;
       final tutorial = ref
           .read(registroDeTutorialesProvider)

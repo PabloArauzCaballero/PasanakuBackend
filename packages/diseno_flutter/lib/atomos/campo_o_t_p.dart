@@ -14,6 +14,8 @@ class CampoOTP extends StatefulWidget {
     this.oculto = false,
     this.error,
     this.etiqueta = 'Código de verificación',
+    this.ejemplo,
+    this.habilitado = true,
   });
 
   final ValueChanged<String> onCompleto;
@@ -25,6 +27,8 @@ class CampoOTP extends StatefulWidget {
   final bool oculto;
   final String? error;
   final String etiqueta;
+  final String? ejemplo;
+  final bool habilitado;
 
   @override
   State<CampoOTP> createState() => _CampoOTPState();
@@ -87,6 +91,7 @@ class _CampoOTPState extends State<CampoOTP> {
                 width: Tactil.minimo,
                 height: Tactil.minimo + Espacio.s2,
                 child: TextField(
+                  enabled: widget.habilitado,
                   controller: _c[i],
                   focusNode: _f[i],
                   obscureText: widget.oculto,
@@ -122,6 +127,13 @@ class _CampoOTPState extends State<CampoOTP> {
               );
             }),
           ),
+          if (widget.ejemplo != null) ...[
+            const SizedBox(height: Espacio.s1),
+            Text(
+              widget.ejemplo!,
+              style: Tipo.cuerpo.copyWith(color: t.textoDeEjemplo),
+            ),
+          ],
           if (widget.error != null) ...[
             const SizedBox(height: Espacio.s2),
             Text(

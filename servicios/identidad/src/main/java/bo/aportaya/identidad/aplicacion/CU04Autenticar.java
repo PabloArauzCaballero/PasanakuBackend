@@ -1,5 +1,6 @@
 package bo.aportaya.identidad.aplicacion;
 
+import bo.aportaya.identidad.dominio.AperturaDeCuenta;
 import bo.aportaya.identidad.dominio.ExigeSegundoFactor;
 import bo.aportaya.identidad.dominio.FactorAdmisible;
 import bo.aportaya.identidad.dominio.PerfilDeAcceso;
@@ -117,6 +118,9 @@ public class CU04Autenticar {
         }
 
         PerfilDeAcceso perfil = usuarios.perfilDe(dsl, usuario);
+        boolean pendienteDeAprobacion = usuarios.estadoDe(dsl, usuario)
+                .filter(AperturaDeCuenta.PENDIENTE_VERIFICACION.name()::equals)
+                .isPresent();
         var dispositivo = accesos.dispositivoPorHuella(dsl, usuario, entrada.huella(), entrada.plataforma(), ahora);
         Optional<String> factor = accesos.factorActivo(dsl, usuario);
 
@@ -139,7 +143,14 @@ public class CU04Autenticar {
                             CodigoError.de(4, 7), "Ese tipo de factor no se admite para tu rol."));
         }
 
-        if (ExigeSegundoFactor.decidir(perfil, dispositivo.confiable(), entrada.operacionSensible())) {
+        // El alta ya verifico la credencial y crea la cuenta en revision manual. Si aun no
+        // existe un factor enrolado, permitir iniciar sesion sin confiar el dispositivo ni
+        // activar la cuenta; las operaciones sensibles siguen exigiendo segundo factor.
+        // Cuando hay factor, la politica normal de MFA sigue aplicando tambien a pendientes.
+        boolean accesoInicialPendienteSinFactor =
+                pendienteDeAprobacion && !perfil.esOperador() && factor.isEmpty() && !entrada.operacionSensible();
+        if (!accesoInicialPendienteSinFactor
+                && ExigeSegundoFactor.decidir(perfil, dispositivo.confiable(), entrada.operacionSensible())) {
             if (entrada.factorPresentado().isEmpty()) {
                 factor.ifPresent(tipo -> desafio.emitir(usuario, tipo));
                 return cerrar(

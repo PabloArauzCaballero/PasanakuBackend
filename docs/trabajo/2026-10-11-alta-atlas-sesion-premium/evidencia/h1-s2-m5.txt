@@ -1,0 +1,2 @@
+﻿Comando: rg -n '_decidirDondeEntrar' apps/movil/lib
+sin coincidencias (rg exit 1: PASS)

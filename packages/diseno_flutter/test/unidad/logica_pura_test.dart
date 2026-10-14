@@ -6,10 +6,19 @@ import 'package:aportaya_diseno/organismos/calendario_de_cuotas.dart';
 import 'package:aportaya_diseno/organismos/cuota.dart';
 import 'package:aportaya_diseno/organismos/estado_de_cuota.dart';
 import 'package:aportaya_diseno/organismos/lista_de_movimientos.dart';
+import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Los átomos con aritmética o reglas: se prueban en milisegundos, sin widget.
 void main() {
+  test('Elevacion compone las sombras semánticas con roles de cada tema', () {
+    for (final tema in [Tokens.claro, Tokens.oscuro]) {
+      expect(Elevacion.tarjeta(tema), [tema.sombra1, tema.sombra2]);
+      expect(Elevacion.destacada(tema), [tema.sombra2]);
+      expect(Elevacion.superpuesta(tema), [tema.sombra3]);
+    }
+  });
+
   group('CampoMonto.aCadenaDelContrato', () {
     test(
       'acepta lo que escribe una persona y devuelve la cadena del contrato',

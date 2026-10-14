@@ -9,8 +9,13 @@ void main() {
     });
 
     test('rechaza una foto más chica que el lado mínimo', () {
-      final motivo = evaluarCalidad(ancho: 1200, alto: 756, esDocumento: true);
-      expect(motivo, contains('muy pequeña'));
+      final motivo = evaluarCalidad(ancho: 1399, alto: 884, esDocumento: true);
+      expect(motivo, 'La imagen salió muy chica. Acercá un poco el teléfono.');
+    });
+
+    test('acepta el lado mínimo de 1400 píxeles en orientación vertical', () {
+      final motivo = evaluarCalidad(ancho: 884, alto: 1400, esDocumento: true);
+      expect(motivo, isNull);
     });
 
     test('rechaza una proporción que no es la de un carnet', () {
@@ -18,18 +23,31 @@ void main() {
       expect(motivo, contains('el carnet entero'));
     });
 
-    test('acepta el borde de la tolerancia (+12 %)', () {
-      const proporcionLimite = (85.6 / 54) * 1.119;
-      final alto = (1600 / proporcionLimite).round();
-      final motivo = evaluarCalidad(ancho: 1600, alto: alto, esDocumento: true);
-      expect(motivo, isNull);
+    test('acepta ambos bordes exactos de la tolerancia (±12 %)', () {
+      // Estas proporciones equivalen exactamente a ID-1 ±12 %.
+      expect(
+        evaluarCalidad(ancho: 5992, alto: 3375, esDocumento: true),
+        isNull,
+      );
+      expect(
+        evaluarCalidad(ancho: 4708, alto: 3375, esDocumento: true),
+        isNull,
+      );
+    });
+
+    test('acepta el carnet ID-1 vertical', () {
+      expect(
+        evaluarCalidad(ancho: 1009, alto: 1600, esDocumento: true),
+        isNull,
+      );
     });
 
     test('rechaza apenas fuera de la tolerancia', () {
-      const proporcionFuera = (85.6 / 54) * 1.2;
-      final alto = (1600 / proporcionFuera).round();
-      final motivo = evaluarCalidad(ancho: 1600, alto: alto, esDocumento: true);
-      expect(motivo, contains('el carnet entero'));
+      final motivo = evaluarCalidad(ancho: 6000, alto: 3375, esDocumento: true);
+      expect(
+        motivo,
+        'No parece el carnet entero. Repetila con los cuatro bordes a la vista.',
+      );
     });
   });
 
@@ -45,7 +63,7 @@ void main() {
 
     test('igual rechaza una selfie demasiado chica', () {
       final motivo = evaluarCalidad(ancho: 800, alto: 800, esDocumento: false);
-      expect(motivo, contains('muy pequeña'));
+      expect(motivo, contains('muy chica'));
     });
   });
 }

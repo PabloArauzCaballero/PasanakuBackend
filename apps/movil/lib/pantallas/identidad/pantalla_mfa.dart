@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 
 import 'dominio/estado_sesion.dart';
 import 'textos.dart';
+import 'textos_del_alta.dart';
 import '../../navegacion/retorno_de_invitacion.dart';
 
 /// CU-04, paso 2: el segundo factor. Seis dígitos, el mismo átomo del celular en
@@ -66,9 +67,16 @@ class _PantallaDeMfaState extends ConsumerState<PantallaDeMfa> {
                   const SizedBox(height: Espacio.s5),
                   CampoOTP(
                     etiqueta: TextosIdentidad.etiquetaCodigoMfa,
+                    ejemplo: TextosDelAlta.ejemploCodigo,
                     error: estado.error,
+                    habilitado: !estado.enviando,
                     onCambio: (c) => setState(() => _codigo = c),
                     onCompleto: _confirmar,
+                  ),
+                  const SizedBox(height: Espacio.s4),
+                  Text(
+                    TextosIdentidad.mfaSinCodigoAyuda,
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ],
               ),

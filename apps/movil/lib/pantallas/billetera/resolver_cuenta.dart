@@ -42,6 +42,7 @@ class ResolverCuenta extends ConsumerWidget {
     return EstadoDePantalla<CuentaPropia?>(
       valor: valor,
       etiquetaDeCarga: TextosBilletera.buscandoBilletera,
+      etiquetaDeTraza: 'Código de seguimiento',
       mensajeVacio: TextosBilletera.billeteraInactiva,
       reintentar: revisar,
       exito: (cuenta) => construir(cuenta!.cuentaId),

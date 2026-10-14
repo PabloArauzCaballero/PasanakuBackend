@@ -64,7 +64,7 @@ class GloboDeTutorial extends StatelessWidget {
             bottom: Radius.circular(arriba ? Radios.xl : 0),
           ),
           border: Border.all(color: t.border, width: Borde.fino),
-          boxShadow: [t.sombra3],
+          boxShadow: Elevacion.superpuesta(t),
         ),
         child: SafeArea(
           top: arriba,

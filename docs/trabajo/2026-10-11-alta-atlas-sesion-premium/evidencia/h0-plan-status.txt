@@ -1,0 +1,6 @@
+python .claude\hooks\plan_status.py --self-test
+plan_status self-test: 31 PASS, 0 FAIL
+
+python .claude\hooks\plan_status.py --path docs\trabajo\2026-10-11-alta-atlas-sesion-premium\PLAN.md
+Avance: 22/212 microtareas HECHO (10.4%)
+Estados: TODO=188  HECHO=22  A MEDIAS=2

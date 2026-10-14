@@ -2,11 +2,13 @@ package bo.aportaya.identidad;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import bo.aportaya.identidad.aplicacion.CerrarSesion;
 import bo.aportaya.identidad.aplicacion.RenovarSesion;
 import bo.aportaya.identidad.infraestructura.UsuarioRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.Ids;
 import bo.aportaya.plataforma.dominio.Reloj;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,6 +22,7 @@ import org.junit.jupiter.api.Test;
 class CU04RenovacionTest extends BaseDeCU04 {
 
     private RenovarSesion refresco;
+    private CerrarSesion cierre;
 
     @BeforeEach
     void armarRefresco() {
@@ -36,6 +39,7 @@ class CU04RenovacionTest extends BaseDeCU04 {
                 ON CONFLICT (proposito, vigente_desde) DO NOTHING
                 """);
         refresco = new RenovarSesion(new Datos(dsl), new UsuarioRepositorio(), Reloj.delSistema(), Ids.seguros());
+        cierre = new CerrarSesion(new Datos(dsl), Reloj.delSistema());
     }
 
     @Test
@@ -121,6 +125,20 @@ class CU04RenovacionTest extends BaseDeCU04 {
     }
 
     @Test
+    @DisplayName("Dado el límite absoluto de ocho horas · una sesión expirada no renueva su refresh")
+    void topeAbsolutoDeSesion() {
+        UUID usuario = participanteConCredencial("+59171000029");
+        UUID sesion = fixtura.sesionAbierta(usuario);
+        String token = emitir(usuario, sesion);
+        dsl.execute(
+                "UPDATE identidad.sesion SET iniciada_en = now() - interval '8 hours 1 second', "
+                        + "expira_en = now() - interval '1 second' WHERE id = ?",
+                sesion);
+
+        assertThat(renovar(token).renovada()).isFalse();
+    }
+
+    @Test
     @DisplayName("Dado una sesion revocada (p. ej. cambio de credencial) · Entonces su refresh ya no renueva")
     void sesionRevocada() {
         UUID usuario = participanteConCredencial("+59171000025");
@@ -141,6 +159,44 @@ class CU04RenovacionTest extends BaseDeCU04 {
         assertThat(dsl.fetchValue("SELECT count(*) FROM identidad.token_verificacion WHERE hash_token = ?", token))
                 .isEqualTo(0L);
         assertThat(estadoDe(token)).isEqualTo("EMITIDO");
+    }
+
+    @Test
+    @DisplayName("Dado una sesión con refresh vivo · al cerrarla, revoca su familia y no acepta otro titular")
+    void cierreRevocaLaFamiliaDeLaSesionDelTitular() {
+        UUID usuario = participanteConCredencial("+59171000027");
+        UUID otroUsuario = participanteConCredencial("+59171000028");
+        UUID sesion = fixtura.sesionAbierta(usuario);
+        String primero = emitir(usuario, sesion);
+        String siguiente = renovar(primero).siguiente().orElseThrow().token();
+
+        transaccion.execute(e -> {
+            dsl.execute(SEARCH_PATH_DEL_SERVICIO);
+            cierre.ejecutar(otroUsuario, sesion, UUID.randomUUID().toString());
+            return null;
+        });
+        assertThat(dsl.fetchValue("SELECT revocada_en IS NULL FROM identidad.sesion WHERE id = ?", sesion))
+                .isEqualTo(true);
+
+        transaccion.execute(e -> {
+            dsl.execute(SEARCH_PATH_DEL_SERVICIO);
+            cierre.ejecutar(usuario, sesion, UUID.randomUUID().toString());
+            return null;
+        });
+        OffsetDateTime primeraRevocacion = dsl.fetchOne("SELECT revocada_en FROM identidad.sesion WHERE id = ?", sesion)
+                .get("revocada_en", OffsetDateTime.class);
+        transaccion.execute(e -> {
+            dsl.execute(SEARCH_PATH_DEL_SERVICIO);
+            cierre.ejecutar(usuario, sesion, UUID.randomUUID().toString());
+            return null;
+        });
+
+        assertThat(dsl.fetchOne("SELECT revocada_en FROM identidad.sesion WHERE id = ?", sesion)
+                        .get("revocada_en", OffsetDateTime.class))
+                .isNotNull()
+                .isEqualTo(primeraRevocacion);
+        assertThat(estadoDe(siguiente)).isEqualTo("INVALIDADO");
+        assertThat(renovar(siguiente).renovada()).isFalse();
     }
 
     // Con el search_path del rol del servicio (svc_identidad), no el del administrador de la

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../atomos/hundido_al_tocar.dart';
 import '../tokens/tokens.dart';
 import 'cuota.dart';
 import 'estado_de_cuota.dart';
@@ -62,59 +63,62 @@ class CeldaDeCuota extends StatelessWidget {
       button: cuotas.isNotEmpty,
       label: '$dia${esHoy ? ', hoy' : ''}$detalle',
       excludeSemantics: true,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(Radios.sm),
-        child: Container(
-          margin: const EdgeInsets.all(Espacio.s1 / 2),
-          decoration: BoxDecoration(
-            color: relleno,
-            borderRadius: BorderRadius.circular(Radios.sm),
-            border: Border.all(
-              color: borde,
-              width: estado == EstadoDeCuota.futura
-                  ? Borde.fino
-                  : Borde.foco - Borde.fino,
-            ),
-            boxShadow: esHoy
-                ? [
-                    BoxShadow(
-                      color: t.brand,
-                      spreadRadius: Borde.foco - Borde.fino,
-                      blurRadius: 0,
-                    ),
-                  ]
-                : null,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                '$dia',
-                style: texto.labelLarge?.copyWith(
-                  color: t.text,
-                  fontWeight: elegido ? FontWeight.w700 : FontWeight.w500,
-                ),
+      child: HundidoAlTocar(
+        activo: onTap != null,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(Radios.sm),
+          child: Container(
+            margin: const EdgeInsets.all(Espacio.s1 / 2),
+            decoration: BoxDecoration(
+              color: relleno,
+              borderRadius: BorderRadius.circular(Radios.sm),
+              border: Border.all(
+                color: borde,
+                width: estado == EstadoDeCuota.futura
+                    ? Borde.fino
+                    : Borde.foco - Borde.fino,
               ),
-              if (cuotas.isNotEmpty)
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (final c in cuotas)
-                      Container(
-                        width: Espacio.s1 + Espacio.s1 / 2,
-                        height: Espacio.s1 + Espacio.s1 / 2,
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: Espacio.s1 / 4,
-                        ),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: coloresDe(c.estado, t).$2,
-                        ),
+              boxShadow: esHoy
+                  ? [
+                      BoxShadow(
+                        color: t.brand,
+                        spreadRadius: Borde.foco - Borde.fino,
+                        blurRadius: 0,
                       ),
-                  ],
+                    ]
+                  : null,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '$dia',
+                  style: texto.labelLarge?.copyWith(
+                    color: t.text,
+                    fontWeight: elegido ? FontWeight.w700 : FontWeight.w500,
+                  ),
                 ),
-            ],
+                if (cuotas.isNotEmpty)
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (final c in cuotas)
+                        Container(
+                          width: Espacio.s1 + Espacio.s1 / 2,
+                          height: Espacio.s1 + Espacio.s1 / 2,
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: Espacio.s1 / 4,
+                          ),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: coloresDe(c.estado, t).$2,
+                          ),
+                        ),
+                    ],
+                  ),
+              ],
+            ),
           ),
         ),
       ),

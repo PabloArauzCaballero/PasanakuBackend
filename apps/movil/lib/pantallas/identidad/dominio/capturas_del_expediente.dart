@@ -1,25 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 
-/// Las cinco caras del expediente (CU-02), en el orden en que Atlas las pide y que
-/// replicamos acá: primero el carnet, después la prueba de vida de frente y de
-/// perfil. El valor de cada una es el que entiende `CaraDelExpediente` del contrato.
-enum CaraDelCarril {
-  anverso('ANVERSO', esDocumento: true),
-  reverso('REVERSO', esDocumento: true),
-  selfie('SELFIE', esDocumento: false),
-  perfilIzquierdo('PERFIL_IZQUIERDO', esDocumento: false),
-  perfilDerecho('PERFIL_DERECHO', esDocumento: false);
-
-  const CaraDelCarril(this.valorApi, {required this.esDocumento});
-
-  /// El valor exacto que el contrato espera. No es `name.toUpperCase()`: los
-  /// nombres compuestos (`perfilIzquierdo`) perderían el guion bajo.
-  final String valorApi;
-
-  /// Las dos primeras usan la cámara trasera y el marco del carnet; las otras tres,
-  /// la delantera y el marco de rostro.
-  final bool esDocumento;
-}
+export 'cara_del_carril.dart';
+import 'cara_del_carril.dart';
 
 /// Una captura aceptada: la ruta local, su peso y un adelanto del hash para
 /// mostrarlo en el carrusel («12 KB · SHA-256 9f2c1e4a3b7d…»), igual que Atlas.
@@ -40,6 +24,24 @@ class Captura {
   final String sha256Corto;
 
   String get kilobytes => '${(bytes / 1024).round()} KB';
+
+  /// La representación apta para diagnóstico nunca incluye la ruta del archivo.
+  @override
+  String toString() =>
+      'Captura($kilobytes, ${ancho}x$alto, sha256:$sha256Corto)';
+
+  /// Borra el archivo temporal sin propagar errores de plataforma que incluyen
+  /// la ruta local en su texto (las rutas de documentos no deben quedar en logs).
+  Future<void> eliminarArchivoLocal() => eliminarRutaLocal(ruta);
+}
+
+Future<void> eliminarRutaLocal(String ruta) async {
+  try {
+    final archivo = File(ruta);
+    if (await archivo.exists()) await archivo.delete();
+  } on FileSystemException {
+    // Limpieza de mejor esfuerzo; nunca imprimir la excepción: lleva `ruta`.
+  }
 }
 
 /// Las cinco capturas del expediente, inmutable como el resto del estado del alta.
@@ -65,23 +67,44 @@ class CapturasDelExpediente {
   }
 
   /// El motivo que se muestra bajo el botón «Enviar documento» deshabilitado —
-  /// nombra la primera que falta, como hace Atlas («Falta la selfie de tu perfil
-  /// izquierdo.»), no un genérico «faltan fotos».
+  /// nombra la primera que falta («Falta la foto de tu perfil izquierdo.»), no un
+  /// genérico «faltan fotos».
   String? get primeraFaltante {
     final falta = siguientePendiente;
     if (falta == null) return null;
     return switch (falta) {
       CaraDelCarril.anverso => 'Falta el anverso de tu carnet.',
       CaraDelCarril.reverso => 'Falta el reverso de tu carnet.',
-      CaraDelCarril.selfie => 'Falta tu selfie de frente.',
-      CaraDelCarril.perfilIzquierdo =>
-        'Falta la selfie de tu perfil izquierdo.',
-      CaraDelCarril.perfilDerecho => 'Falta la selfie de tu perfil derecho.',
+      CaraDelCarril.selfie => 'Falta tu foto de frente.',
+      CaraDelCarril.perfilIzquierdo => 'Falta la foto de tu perfil izquierdo.',
+      CaraDelCarril.perfilDerecho => 'Falta la foto de tu perfil derecho.',
     };
   }
 
   CapturasDelExpediente conCaptura(CaraDelCarril cara, Captura captura) =>
       CapturasDelExpediente(porCara: {...porCara, cara: captura});
+
+  /// Reemplaza la cara y elimina su archivo anterior antes de publicar el estado.
+  /// Si ambas capturas apuntan al mismo archivo, lo conserva.
+  Future<CapturasDelExpediente> reemplazarCaptura(
+    CaraDelCarril cara,
+    Captura captura,
+  ) async {
+    final anterior = porCara[cara];
+    if (anterior != null && anterior.ruta != captura.ruta) {
+      await anterior.eliminarArchivoLocal();
+    }
+    return conCaptura(cara, captura);
+  }
+
+  /// Elimina todas las rutas únicas del expediente. No se registran rutas ni
+  /// excepciones de filesystem en logs.
+  Future<void> eliminarArchivosLocales() async {
+    final rutas = porCara.values.map((captura) => captura.ruta).toSet();
+    for (final ruta in rutas) {
+      await eliminarRutaLocal(ruta);
+    }
+  }
 
   CapturasDelExpediente sinCaptura(CaraDelCarril cara) =>
       CapturasDelExpediente(porCara: {...porCara}..remove(cara));
@@ -92,9 +115,9 @@ class CapturasDelExpediente {
 String tituloDeCaptura(CaraDelCarril cara) => switch (cara) {
   CaraDelCarril.anverso => 'Anverso del carnet',
   CaraDelCarril.reverso => 'Reverso del carnet',
-  CaraDelCarril.selfie => 'Selfie de frente',
-  CaraDelCarril.perfilIzquierdo => 'Selfie: perfil izquierdo',
-  CaraDelCarril.perfilDerecho => 'Selfie: perfil derecho',
+  CaraDelCarril.selfie => 'Foto de frente',
+  CaraDelCarril.perfilIzquierdo => 'Foto: perfil izquierdo',
+  CaraDelCarril.perfilDerecho => 'Foto: perfil derecho',
 };
 
 /// La pista que se muestra arriba del visor mientras se toma la foto. Para los

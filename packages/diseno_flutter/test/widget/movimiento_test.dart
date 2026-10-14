@@ -4,6 +4,7 @@ import 'package:aportaya_diseno/atomos/boton_icono.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/hundido_al_tocar.dart';
 import 'package:aportaya_diseno/atomos/luz_de_boton.dart';
+import 'package:aportaya_diseno/atomos/movimiento.dart';
 import 'package:aportaya_diseno/atomos/superficie_viva.dart';
 import 'package:aportaya_diseno/moviles/transicion_de_eje.dart';
 import 'package:flutter/material.dart';
@@ -64,6 +65,12 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(conTema(boton(BotonVariante.primario)));
+    expect(_luz(tester).avance, isNull, reason: 'no brilla al cargar');
+    await tester.pump(
+      Movimiento.pausaDelBrillo - const Duration(milliseconds: 1),
+    );
+    expect(_luz(tester).avance, isNull, reason: 'espera los 4,2 s');
+    await tester.pump(const Duration(milliseconds: 1));
     await tester.pump(const Duration(milliseconds: 500));
     expect(_luz(tester).avance, isNotNull, reason: 'cruzando al aparecer');
     // Si el brillo fuera eterno, esto no terminaría nunca.
@@ -95,7 +102,26 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 500));
     expect(_luz(tester).avance, isNull);
+    expect(
+      _escala(tester),
+      closeTo(1, 0.001),
+      reason: 'tampoco transforma el botón al tocarlo',
+    );
   });
+
+  testWidgets(
+    'reducir movimiento permite desmontar sin crear un ticker tardío',
+    (tester) async {
+      await tester.pumpWidget(
+        MediaQuery(
+          data: const MediaQueryData(disableAnimations: true),
+          child: conTema(const HundidoAlTocar(child: Text('Fila'))),
+        ),
+      );
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('el toque sigue llegando a través de la piel', (tester) async {
     var toques = 0;
@@ -104,6 +130,34 @@ void main() {
     );
     await tester.tap(find.text('Seguir'));
     expect(toques, 1);
+  });
+
+  testWidgets('botones y filas se hunden a 0,97 y vuelven con resorte', (
+    tester,
+  ) async {
+    await tester.pumpWidget(conTema(const HundidoAlTocar(child: Text('Fila'))));
+    final gesto = await tester.startGesture(
+      tester.getCenter(find.text('Fila')),
+    );
+    await tester.pump();
+    await tester.pump(Movimiento.micro);
+    final transformacion = find
+        .ancestor(of: find.text('Fila'), matching: find.byType(Transform))
+        .first;
+    final escala = tester
+        .widget<Transform>(transformacion)
+        .transform
+        .storage[0];
+    expect(escala, closeTo(0.97, 0.001));
+    await gesto.up();
+    await tester.pumpAndSettle();
+    final reposo = tester
+        .widget<Transform>(transformacion)
+        .transform
+        .storage[0];
+    expect(reposo, closeTo(1, 0.001));
+    expect(Movimiento.resorte.stiffness, 520);
+    expect(Movimiento.resorte.damping, 19);
   });
 
   testWidgets('botón de ícono y flotante también responden al dedo', (

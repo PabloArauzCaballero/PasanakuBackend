@@ -9,9 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # Idioma de los textos propios de Material (selector de fecha, botones): sin esto, con el
-  # teléfono en inglés el calendario del alta sale en inglés. Es del SDK de Flutter: no suma un
-  # proveedor nuevo, solo `intl` como transitiva.
+  # Widgets del sistema (incluido DatePicker) deben seguir el idioma configurado
+  # para Material; esta dependencia viene con Flutter y no agrega proveedor externo.
   flutter_localizations:
     sdk: flutter
   flutter_riverpod: ^3.0.0
@@ -79,6 +78,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  fake_async: ^1.3.3
   flutter_lints: ^6.0.0
   http_mock_adapter: ^0.6.1
   # F12: el andamiaje de integration_test/ (7 recorridos) lo necesita. Micro-PR al

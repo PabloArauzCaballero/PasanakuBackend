@@ -1,0 +1,51 @@
+H4.S1 — verificación ejecutada el 2026-10-12
+
+Tokens
+------
+node --test pruebas/texto-de-ejemplo-contraste.test.mjs
+# Subtest: textoDeEjemplo tiene contraste de al menos 3:1 con el campo en ambos temas
+ok 1 - textoDeEjemplo tiene contraste de al menos 3:1 con el campo en ambos temas
+# tests 1
+# pass 1
+# fail 0
+
+Los generadores oficiales del paquete se ejecutaron directamente (Yarn 1 global
+no coincide con packageManager yarn@4.18.0; no se habilitó Corepack ni se
+instalaron herramientas globales):
+node scripts/a-css.mjs; node scripts/a-dart.mjs; node scripts/vectores.mjs
+generado/tokens.css · 234 lineas
+generado/tokens.dart · 383 lineas
+vectores/monto.json · 5006 casos
+Copiado generado/tokens.dart a packages/diseno_flutter/lib/tokens/tokens.dart
+
+Paquete diseno_flutter
+----------------------
+dart analyze lib/atomos/campo.dart lib/atomos/decoracion_de_campo.dart
+  lib/atomos/campo_contrasena.dart lib/atomos/campo_monto.dart
+  lib/atomos/campo_de_seleccion.dart lib/atomos/campo_o_t_p.dart
+  lib/moleculas/campo_de_fecha.dart lib/moleculas/parte_de_fecha.dart
+No issues found!
+
+flutter test test/widget --reporter expanded
+00:03 +52: All tests passed!
+
+App móvil
+---------
+flutter test test/widget/campos_del_alta_test.dart test/widget/paso_datos_test.dart
+  test/identidad/paso_contrasena_test.dart
+  test/identidad/pantalla_sesion_prefijo_test.dart --reporter expanded
+00:04 +18: All tests passed!
+
+python scripts/verificar_frontend.py movil
+TODO OK
+
+Goldens
+-------
+flutter test test/goldens/catalogo_golden_test.dart --plain-name
+  "Átomos · campos" --update-goldens --reporter expanded
+00:01 +2: All tests passed!
+Se actualizaron y miraron únicamente atomos_campos_claro.png y
+atomos_campos_oscuro.png: la estructura no se desplazó, los hints quedan dentro
+del campo y con menos énfasis que el texto ingresado. Ningún otro golden cambió.
+Los 18 diffs previos de la suite completa del paquete siguen fuera de este
+alcance; no se atribuyen al cambio de hints.

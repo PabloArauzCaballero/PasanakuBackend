@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:aportaya_movil/dominio/errores.dart';
 import 'package:aportaya_movil/pantallas/identidad/dominio/capturas_del_expediente.dart';
 import 'package:aportaya_movil/pantallas/identidad/dominio/cu02_subir_foto.dart';
 import 'package:aportaya_movil/pantallas/identidad/dominio/subida_del_expediente.dart';
 import 'package:aportaya_movil/proveedores/idempotencia.dart';
 import 'package:dio/dio.dart';
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,7 +20,9 @@ class _SubidaFalsa extends SubidaDeFotos {
   final Ref _ref;
 
   final llamadas =
-      <({CaraDelCarril cara, String clave, Completer<void> fin})>[];
+      <
+        ({CaraDelCarril cara, String clave, String ruta, Completer<void> fin})
+      >[];
 
   @override
   Future<FotoDelExpediente> subir({
@@ -32,6 +37,7 @@ class _SubidaFalsa extends SubidaDeFotos {
     llamadas.add((
       cara: cara,
       clave: _ref.read(idempotenciaProvider.notifier).claveDe(formularioId),
+      ruta: rutaLocal,
       fin: fin,
     ));
     final cortes = <Future<void>>[fin.future];
@@ -49,6 +55,11 @@ DioException _fallo503() {
     requestOptions: pedido,
     response: Response(requestOptions: pedido, statusCode: 503),
     type: DioExceptionType.badResponse,
+    error: ErrorDeApi(
+      codigo: 'NO_EXISTE',
+      trazaId: 'traza-subida',
+      estado: 503,
+    ),
   );
 }
 
@@ -107,6 +118,42 @@ void main() {
     expect(contenedor.read(subidaProvider).subiendoAlguna, isFalse);
   });
 
+  test('al completar la subida borra los cinco archivos temporales', () async {
+    final dir = await Directory.systemTemp.createTemp('alta-subida-completa-');
+    addTearDown(() => dir.delete(recursive: true));
+    final (:contenedor, :falsa) = _armar();
+    final archivos = <File>[];
+    var capturas = const CapturasDelExpediente();
+    for (final cara in CapturasDelExpediente.orden) {
+      final archivo = File('${dir.path}/${cara.name}.jpg');
+      await archivo.writeAsBytes([1, 2, 3]);
+      archivos.add(archivo);
+      capturas = capturas.conCaptura(
+        cara,
+        Captura(
+          ruta: archivo.path,
+          bytes: 3,
+          ancho: 1600,
+          alto: 1009,
+          sha256Corto: 'corto',
+        ),
+      );
+    }
+    final subida = contenedor
+        .read(subidaProvider.notifier)
+        .subirPendientes(usuarioId: 'u-1', capturas: capturas);
+
+    for (final cara in CapturasDelExpediente.orden) {
+      await _vaciar();
+      expect(falsa.llamadas.last.cara, cara);
+      falsa.llamadas.last.fin.complete();
+    }
+    await subida;
+
+    expect(contenedor.read(subidaProvider).completa, isTrue);
+    expect(archivos.every((archivo) => !archivo.existsSync()), isTrue);
+  });
+
   test('sin capturas no sube nada (el bug de H5.S1.M1 se veía así)', () async {
     final (:contenedor, :falsa) = _armar();
     await contenedor
@@ -118,6 +165,29 @@ void main() {
     expect(falsa.llamadas, isEmpty);
     expect(contenedor.read(subidaProvider).completa, isFalse);
   });
+
+  test(
+    'abandonar el lote cancela la cara activa y no inicia las siguientes',
+    () async {
+      final (:contenedor, :falsa) = _armar();
+      final notifier = contenedor.read(subidaProvider.notifier);
+      final subida = notifier.subirPendientes(
+        usuarioId: 'u-1',
+        capturas: _cinco(),
+      );
+
+      await _vaciar();
+      expect(falsa.llamadas, hasLength(1));
+      notifier.cancelarPendientes();
+      await subida;
+
+      expect(falsa.llamadas, hasLength(1));
+      expect(
+        _estado(contenedor, CaraDelCarril.anverso),
+        EstadoDeUnaSubida.pendiente,
+      );
+    },
+  );
 
   test('una cara que falla queda «fallida» y no frena a las demás', () async {
     final (:contenedor, :falsa) = _armar();
@@ -138,6 +208,7 @@ void main() {
         .porCara[CaraDelCarril.anverso]!;
     expect(anverso.estado, EstadoDeUnaSubida.fallida);
     expect(anverso.error, isNotEmpty);
+    expect(anverso.trazaId, 'traza-subida');
     expect(
       _estado(contenedor, CaraDelCarril.perfilDerecho),
       EstadoDeUnaSubida.subida,
@@ -174,6 +245,7 @@ void main() {
       await segunda;
 
       expect(falsa.llamadas[1].clave, falsa.llamadas[0].clave);
+      expect(falsa.llamadas[1].ruta, falsa.llamadas[0].ruta);
       expect(
         _estado(contenedor, CaraDelCarril.selfie),
         EstadoDeUnaSubida.subida,
@@ -205,6 +277,8 @@ void main() {
     await segunda;
 
     expect(falsa.llamadas[1].clave, isNot(falsa.llamadas[0].clave));
+    expect(falsa.llamadas[0].ruta, '/tmp/reverso.jpg');
+    expect(falsa.llamadas[1].ruta, '/tmp/reverso-nueva.jpg');
   });
 
   test(
@@ -263,5 +337,41 @@ void main() {
     await tester.pump();
     await subida;
     expect(_estado(contenedor, CaraDelCarril.selfie), EstadoDeUnaSubida.subida);
+  });
+
+  test('fake_async: el estado lento aparece exactamente a los 10 s', () {
+    final (:contenedor, :falsa) = _armar();
+    fakeAsync((reloj) {
+      contenedor
+          .read(subidaProvider.notifier)
+          .reintentar(
+            usuarioId: 'u-1',
+            cara: CaraDelCarril.perfilIzquierdo,
+            ruta: '/tmp/perfil-izquierdo.jpg',
+          );
+      reloj.flushMicrotasks();
+      expect(
+        _estado(contenedor, CaraDelCarril.perfilIzquierdo),
+        EstadoDeUnaSubida.subiendo,
+      );
+
+      reloj.elapse(const Duration(seconds: 9));
+      expect(
+        _estado(contenedor, CaraDelCarril.perfilIzquierdo),
+        EstadoDeUnaSubida.subiendo,
+      );
+      reloj.elapse(const Duration(seconds: 1));
+      expect(
+        _estado(contenedor, CaraDelCarril.perfilIzquierdo),
+        EstadoDeUnaSubida.lenta,
+      );
+
+      falsa.llamadas.single.fin.complete();
+      reloj.flushMicrotasks();
+      expect(
+        _estado(contenedor, CaraDelCarril.perfilIzquierdo),
+        EstadoDeUnaSubida.subida,
+      );
+    });
   });
 }

@@ -26,6 +26,9 @@ abstract final class TextosBilletera {
   static const sinMovimientos =
       'Todavía no tenés movimientos. Cuando recargues saldo van a aparecer acá.';
   static const alCorteDe = 'Actualizado';
+  static const cargandoMovimientos = 'Cargando movimientos';
+  static const errorMovimientos = 'No pudimos cargar tus movimientos.';
+  static const reintentar = 'Reintentar';
   static const recargar = 'Recargar';
   static const aportar = 'Aportar';
   static const retirar = 'Retirar';

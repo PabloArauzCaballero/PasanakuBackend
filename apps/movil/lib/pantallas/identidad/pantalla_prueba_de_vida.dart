@@ -1,198 +1,194 @@
 import 'dart:async';
 
+import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
+import 'package:aportaya_diseno/atomos/movimiento.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../dominio/puertos/camara_en_vivo.dart';
 import '../../infraestructura/plataforma.dart';
 import '../../proveedores/ajustes_del_sistema.dart';
-import 'dominio/captura_desde_archivo.dart';
-import 'dominio/capturas_del_expediente.dart';
+import '../../proveedores/haptica.dart';
+import 'controlador_prueba_de_vida.dart';
 import 'dominio/juez_de_pose.dart';
+import 'dominio/ciclo_de_pose.dart';
 import 'pasos_alta/aviso_de_permiso_camara.dart';
-import 'pasos_alta/cabecera_de_camara.dart';
+import 'pasos_alta/barra_superior_de_vida.dart';
+import 'pasos_alta/cuenta_atras_grande.dart';
 import 'pasos_alta/guia_de_encuadre.dart';
+import 'pasos_alta/miniaturas_de_vida.dart';
 import 'pasos_alta/pie_de_prueba_de_vida.dart';
+import 'pasos_alta/silueta_de_cara.dart';
 import 'textos_de_captura.dart';
 
-/// La prueba de vida automática: frente, perfil izquierdo y perfil derecho seguidos,
-/// con la cámara delantera. **La foto se saca sola** cuando el detector ve la pose
-/// sostenida ([JuezDePose]). Sin detector, o tras [plazoAutomatico] sin lograrla,
-/// aparece «Tomar foto» de respaldo (sin dejar de detectar). Devuelve las capturas
-/// logradas por cara —aunque se cancele a mitad— o `null` si no salió ninguna.
 class PantallaDePruebaDeVida extends ConsumerStatefulWidget {
   const PantallaDePruebaDeVida({
     super.key,
     required this.poses,
     this.crearCamara = camaraEnVivoDeLaPlataforma,
+    this.ahora,
+    this.validarFoto,
   });
 
   final List<PoseDeVida> poses;
-
-  /// Las pruebas pasan un doble; la app, la cámara real.
   final CamaraEnVivo Function() crearCamara;
-
-  static const plazoAutomatico = Duration(seconds: 20);
+  @visibleForTesting
+  final DateTime Function()? ahora;
+  @visibleForTesting
+  final Future<Object> Function(String ruta)? validarFoto;
 
   @override
   ConsumerState<PantallaDePruebaDeVida> createState() =>
       _PantallaDePruebaDeVidaState();
 }
 
-class _PantallaDePruebaDeVidaState
-    extends ConsumerState<PantallaDePruebaDeVida> {
-  late final CamaraEnVivo _camara = widget.crearCamara();
-  final _capturas = <CaraDelCarril, Captura>{};
-  EstadoDePermiso? _permiso;
-  var _lista = false;
-  var _indice = 0;
-  late JuezDePose _juez = JuezDePose(_pose);
-  Veredicto? _veredicto;
-  var _tomando = false;
-  var _manual = false;
-  String? _rechazo;
-  Timer? _plazo;
-
-  PoseDeVida get _pose => widget.poses[_indice];
+class _PantallaDePruebaDeVidaState extends ConsumerState<PantallaDePruebaDeVida>
+    with TickerProviderStateMixin {
+  late final AnimationController _controladorDestello;
+  late final Animation<double> _destello;
+  late final ControladorPruebaDeVida _prueba;
 
   @override
   void initState() {
     super.initState();
-    _inicializar();
+    _controladorDestello = AnimationController(
+      vsync: this,
+      duration: Movimiento.destelloDeCaptura,
+    );
+    _destello = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0, end: 0.85), weight: 16),
+      TweenSequenceItem(tween: Tween(begin: 0.85, end: 0), weight: 84),
+    ]).animate(_controladorDestello);
+    _prueba = ControladorPruebaDeVida(
+      poses: widget.poses,
+      crearCamara: widget.crearCamara,
+      ahora: widget.ahora,
+      validarFoto: widget.validarFoto,
+      alCapturarConExito: () => ref.read(hapticaProvider).exito(),
+      alDisparar: () {
+        final tiempo = duracion(context, Movimiento.destelloDeCaptura);
+        _controladorDestello.duration = tiempo;
+        if (tiempo == Duration.zero) {
+          _controladorDestello.value = 0;
+          return;
+        }
+        unawaited(_controladorDestello.forward(from: 0));
+      },
+    );
+    unawaited(_prueba.inicializar());
   }
 
-  Future<void> _inicializar() async {
-    final permiso = await _camara.pedirPermiso();
-    if (!mounted) return;
-    if (permiso == EstadoDePermiso.concedido) {
-      await _camara.iniciar(frontal: true, conDeteccion: true);
-    }
-    if (!mounted) return;
-    setState(() {
-      _permiso = permiso;
-      _lista = permiso == EstadoDePermiso.concedido;
-    });
-    if (_lista) await _empezarPose();
-  }
+  void _terminar() => Navigator.of(context).pop(_prueba.resultado);
 
-  Future<void> _empezarPose() async {
-    _juez = JuezDePose(_pose);
-    _plazo?.cancel();
-    _plazo = Timer(PantallaDePruebaDeVida.plazoAutomatico, () {
-      if (mounted) setState(() => _manual = true);
-    });
-    setState(() {
-      _veredicto = null;
-      _manual = false;
-    });
-    final conDetector = await _camara.escucharRostros(_alLeer);
-    if (mounted && !conDetector) setState(() => _manual = true);
+  Future<void> _continuar() async {
+    if (mounted) _terminar();
   }
-
-  void _alLeer(LecturaDeRostro? lectura) {
-    if (!mounted || _tomando) return;
-    final veredicto = _juez.evaluar(lectura);
-    setState(() => _veredicto = veredicto);
-    if (veredicto.listo) _capturar();
-  }
-
-  Future<void> _capturar() async {
-    if (_tomando) return;
-    setState(() {
-      _tomando = true;
-      _rechazo = null;
-    });
-    _plazo?.cancel();
-    Object resultado;
-    try {
-      await _camara.dejarDeEscuchar();
-      final ruta = await _camara.tomarFoto();
-      resultado = await capturaDesdeArchivo(ruta, recortadaAlCarnet: false);
-    } on Object {
-      resultado = TextosDeCaptura.fotoFallida;
-    }
-    if (!mounted) return;
-    if (resultado is! Captura) {
-      setState(() {
-        _tomando = false;
-        _rechazo = resultado as String;
-      });
-      await _empezarPose();
-      return;
-    }
-    _capturas[_pose.cara] = resultado;
-    unawaited(HapticFeedback.mediumImpact());
-    if (_indice == widget.poses.length - 1) return _terminar();
-    setState(() {
-      _indice++;
-      _tomando = false;
-    });
-    await _empezarPose();
-  }
-
-  void _terminar() => Navigator.of(
-    context,
-  ).pop(_capturas.isEmpty ? null : Map<CaraDelCarril, Captura>.of(_capturas));
 
   @override
   void dispose() {
-    _plazo?.cancel();
-    _camara.liberar();
+    _prueba.dispose();
+    _controladorDestello.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Paleta.ink,
-      body: SafeArea(
-        child: Column(
-          children: [
-            CabeceraDeCamara(
-              titulo:
-                  '${tituloDeCaptura(_pose.cara)} · '
-                  '${TextosDeCaptura.deTres(_indice + 1, widget.poses.length)}',
-              pista: pistaDeCaptura(_pose.cara),
-              onVolver: _terminar,
+  Widget build(BuildContext context) => Theme(
+    data: temaDesde(Tokens.oscuro, Brightness.dark),
+    child: AnimatedBuilder(
+      animation: _prueba,
+      builder: (context, _) {
+        final pose = _prueba.pose;
+        final instruccion = TextosDeCaptura.instruccionDePose(pose);
+        return Scaffold(
+          backgroundColor: Paleta.ink,
+          body: SafeArea(
+            child: Column(
+              children: [
+                BarraSuperiorDeVida(
+                  indice: _prueba.indice + 1,
+                  total: widget.poses.length,
+                  titulo: TextosDeCaptura.tituloDePose(pose),
+                  instruccion: instruccion,
+                  onSalir: _terminar,
+                ),
+                Expanded(child: _visor(pose)),
+                MiniaturasDeVida(
+                  poses: widget.poses,
+                  capturas: _prueba.capturas,
+                  rechazadas: _prueba.rechazadas,
+                  onRepetir: _prueba.repetir,
+                ),
+                PieDePruebaDeVida(
+                  pista: _pistaActual(),
+                  progreso: _prueba.estado.progreso,
+                  rechazo: _prueba.rechazo,
+                  manual: _prueba.camaraLista,
+                  tomando: _prueba.tomando,
+                  tomada: _prueba.fotoTomada,
+                  finalizada: _prueba.finalizada,
+                  onTomarFoto: _prueba.tomarAhora,
+                  onContinuar: _continuar,
+                  onCancelar: _terminar,
+                ),
+              ],
             ),
-            Expanded(child: _visor()),
-            PieDePruebaDeVida(
-              pista: _lista
-                  ? (_veredicto?.pista ?? TextosDeCaptura.preparando)
-                  : null,
-              progreso: _veredicto?.progreso ?? 0,
-              rechazo: _rechazo,
-              manual: _manual && _lista,
-              tomando: _tomando,
-              onTomarFoto: _capturar,
-              onCancelar: _terminar,
-            ),
-          ],
-        ),
-      ),
-    );
+          ),
+        );
+      },
+    ),
+  );
+
+  String? _pistaActual() {
+    if (_prueba.finalizada || _prueba.fotoTomada) return null;
+    if (_prueba.estado.fase == FaseDePose.cuentaAtras) {
+      return TextosDeCaptura.instruccionDuranteCuenta(_prueba.pose);
+    }
+    return _prueba.estado.pista ?? TextosDeCaptura.preparando;
   }
 
-  Widget _visor() {
-    if (_permiso == EstadoDePermiso.denegado ||
-        _permiso == EstadoDePermiso.denegadoParaSiempre) {
+  Widget _visor(PoseDeVida pose) {
+    if (_prueba.permiso == EstadoDePermiso.denegado ||
+        _prueba.permiso == EstadoDePermiso.denegadoParaSiempre) {
+      final bloqueado = _prueba.permiso == EstadoDePermiso.denegadoParaSiempre;
       return AvisoDePermisoCamara(
-        bloqueadoParaSiempre: _permiso == EstadoDePermiso.denegadoParaSiempre,
-        onAccion: _permiso == EstadoDePermiso.denegadoParaSiempre
+        soloPruebaDeVida: true,
+        bloqueadoParaSiempre: bloqueado,
+        onAccion: bloqueado
             ? () => ref.read(ajustesDelSistemaProvider).abrir()
-            : _inicializar,
+            : _prueba.reintentarPermiso,
       );
     }
-    if (!_lista) {
+    if (!_prueba.camaraLista) {
       return const Center(
         child: CircularProgressIndicator(color: Paleta.white),
       );
     }
     return Stack(
       fit: StackFit.expand,
-      children: [_camara.vista(), const GuiaDeEncuadre(esDocumento: false)],
+      children: [
+        RepaintBoundary(child: _prueba.vista),
+        SiluetaDeCara(
+          pose: pose,
+          progreso: _prueba.estado.progreso,
+          tomada: _prueba.fotoTomada,
+        ),
+        const GuiaDeEncuadre(esDocumento: false),
+        CuentaAtrasGrande(
+          segundos: _prueba.estado.fase == FaseDePose.cuentaAtras
+              ? _prueba.estado.segundos
+              : null,
+        ),
+        AnimatedBuilder(
+          key: const ValueKey('destello-de-captura'),
+          animation: _destello,
+          builder: (context, _) => IgnorePointer(
+            child: ColoredBox(
+              color: Paleta.white.withValues(alpha: _destello.value),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -30,7 +30,7 @@ SECCIONES_REPORTE = ("COMPLETADO", "A MEDIAS", "PENDIENTE")
 #: Ubicacion por defecto de los trabajos (regla 20, seccion 1).
 GLOB_PLANES = "docs/trabajo/*/PLAN.md"
 
-_MICRO_ID = re.compile(r"H\d+\.S\d+\.M\d+", re.IGNORECASE)
+_MICRO_ID = re.compile(r"(?:H\d+\.S\d+\.M\d+|S0\.M\d+)", re.IGNORECASE)
 # Fila que PARECE una microtarea (empieza con un ID tipo H<n>...) aunque su ID sea invalido.
 # Sirve para avisar en vez de descartarla en silencio.
 _CANDIDATA_ID = re.compile(r"^\s*`?\s*H\d+[.\w]*\s*`?\s*$", re.IGNORECASE)
@@ -113,6 +113,10 @@ def parse_plan(texto: str) -> dict:
         encabezado = _HEADING.match(linea)
         if encabezado:
             titulo = encabezado.group(1).strip()
+            # Los anexos pueden contener ejemplos de PLAN.md con IDs deliberadamente
+            # repetidos. Solo las tareas del cuerpo del plan forman parte del avance.
+            if titulo.casefold().startswith("anexo "):
+                break
             # Formato de la regla 20: "## H1 - nombre" / "### H1.S1 - nombre"
             primero = titulo.split()[0].strip(":.-") if titulo.split() else ""
             if _HITO_ID.match(primero):

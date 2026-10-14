@@ -19,6 +19,7 @@ import '../../../proveedores/sesion.dart';
 /// levantaría la restricción) y se declara el hueco en el informe.
 final estadoDelParticipanteProvider = FutureProvider.autoDispose
     .family<aportes.EstadoDelParticipante, String>((ref, participanteId) async {
+      ref.watch(generacionDeSesionProvider);
       final dio = ref.watch(dioProvider);
       try {
         final r = await aportes.DefaultApi(
@@ -32,6 +33,7 @@ final estadoDelParticipanteProvider = FutureProvider.autoDispose
 
 final restriccionVigenteProvider = FutureProvider.autoDispose
     .family<garantia.RestriccionVigente, String>((ref, usuarioId) async {
+      ref.watch(generacionDeSesionProvider);
       final dio = ref.watch(dioProvider);
       try {
         final r = await garantia.DefaultApi(
@@ -59,6 +61,7 @@ class MiParticipacion {
 final miParticipacionProvider = FutureProvider.autoDispose<MiParticipacion>((
   ref,
 ) async {
+  ref.watch(generacionDeSesionProvider);
   final usuarioId = await ref.watch(sesionProvider).usuarioId() ?? '';
   final dio = ref.watch(dioProvider);
   try {

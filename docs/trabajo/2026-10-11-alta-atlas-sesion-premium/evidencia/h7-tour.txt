@@ -1,0 +1,14 @@
+H7.S1 — tour y portada (2026-10-12)
+
+flutter test test/widget/tour_test.dart test/widget/portada_test.dart
+  --reporter expanded
+00:04 +10: All tests passed!
+
+La ultima lamina tiene una sola accion «Empezar» con flecha; el boton conserva
+su ancho y transicion (220 ms, fundido + 8 dp); con reducir movimiento avanza
+instantaneamente y el test confirma duracion cero. «Saltar» se desvanece y queda
+fuera de semantica. La portada conserva registro/ingreso y abre el tour desde
+«¿Como funciona?».
+
+No hay capturas 360/412 claro/oscuro; el DoD visual global de H7 queda pendiente,
+aunque las cuatro microtareas funcionales pasaron.

@@ -9,9 +9,15 @@ class TextosDeSubida {
       'Subiendo ${_nombreCorto(cara)}…';
   static const detalle = 'Se guarda cifrada en tu expediente.';
   static const lenta =
-      'Está tardando más de lo normal. Puedes esperar o cancelar…';
+      'Está tardando más de lo normal. Podés esperar o cancelar y volver a intentar.';
   static const reintentar = 'Reintentar';
-  static const repetirLaFoto = 'Repetir la foto';
+  static String repetirFotoDe(CaraDelCarril cara) => switch (cara) {
+    CaraDelCarril.anverso => 'Repetir foto del anverso',
+    CaraDelCarril.reverso => 'Repetir foto del reverso',
+    CaraDelCarril.selfie => 'Repetir foto de frente',
+    CaraDelCarril.perfilIzquierdo => 'Repetir foto del perfil izquierdo',
+    CaraDelCarril.perfilDerecho => 'Repetir foto del perfil derecho',
+  };
   static const cancelarLaSubida = 'Cancelar la subida';
   static const todoListo = 'Documento enviado';
   static const tituloSubiendo = 'Enviando tus documentos';
@@ -21,7 +27,7 @@ class TextosDeSubida {
   static String _nombreCorto(CaraDelCarril cara) => switch (cara) {
     CaraDelCarril.anverso => 'el anverso',
     CaraDelCarril.reverso => 'el reverso',
-    CaraDelCarril.selfie => 'tu selfie',
+    CaraDelCarril.selfie => 'tu foto de frente',
     CaraDelCarril.perfilIzquierdo => 'tu perfil izquierdo',
     CaraDelCarril.perfilDerecho => 'tu perfil derecho',
   };

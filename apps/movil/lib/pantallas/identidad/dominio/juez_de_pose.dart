@@ -1,5 +1,5 @@
-import '../../../dominio/puertos/camara_en_vivo.dart';
-import 'capturas_del_expediente.dart';
+import 'cara_del_carril.dart';
+import 'lectura_de_rostro.dart';
 
 /// Las tres poses de la prueba de vida, en el orden en que se piden.
 enum PoseDeVida {

@@ -2,6 +2,7 @@ import 'package:aportaya_cliente_cumplimiento/aportaya_cliente_cumplimiento.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'contratos_vigentes.dart';
+import '../../../proveedores/sesion.dart';
 
 /// CU-05 — el contrato se muestra ENTERO antes de poder aceptar (gate del carril).
 /// `leidoHastaElFinal` lo pone la pantalla cuando el `ScrollController` llega al
@@ -72,7 +73,10 @@ class EstadoContratoAdhesion {
 
 class ContratoNotifier extends Notifier<EstadoContratoAdhesion> {
   @override
-  EstadoContratoAdhesion build() => const EstadoContratoAdhesion();
+  EstadoContratoAdhesion build() {
+    ref.watch(generacionDeSesionProvider);
+    return const EstadoContratoAdhesion();
+  }
 
   /// Los consentimientos vuelven a cero al cerrar el alta: nadie hereda la
   /// aceptación de otra persona por no haber recargado la app.

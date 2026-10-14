@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../dominio/cliente.dart';
 import '../../../proveedores/idempotencia.dart';
 
-/// CU-01 · alta de usuario. `POST /usuarios`, en una sola petición: los ocho pasos
+/// CU-01 · alta de usuario. `POST /usuarios`, en una sola petición: los datos reunidos en el asistente
 /// del formulario juntan datos y recién al final —con los contratos aceptados— se
 /// crea la persona. Antes de eso no existe nada del lado del servidor, que es lo que
 /// permite abandonar el alta a mitad sin dejar una cuenta a medio hacer.

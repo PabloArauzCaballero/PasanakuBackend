@@ -26,7 +26,9 @@ ThemeData temaDesde(Tokens t, Brightness brillo) {
       onPrimaryContainer: t.brandInk,
       secondary: t.accent,
       onSecondary: t.accentInk,
-      error: t.err,
+      // El texto blanco de ColorScheme.onError necesita el rojo sólido con ≥4.5:1;
+      // `err` queda como tono semántico para bordes e indicadores de error.
+      error: t.rojoSolido,
       onError: t.sobreRojoSolido,
       errorContainer: t.errBg,
       onErrorContainer: t.errTexto,
@@ -103,7 +105,7 @@ ThemeData temaDesde(Tokens t, Brightness brillo) {
       behavior: SnackBarBehavior.floating,
       backgroundColor: t.text,
       contentTextStyle: Tipo.cuerpo.copyWith(color: t.bg),
-      actionTextColor: t.accent,
+      actionTextColor: t.bg,
       insetPadding: const EdgeInsets.all(Espacio.s4),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Radios.md),

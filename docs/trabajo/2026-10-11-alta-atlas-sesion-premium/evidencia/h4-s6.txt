@@ -1,0 +1,47 @@
+H4.S6 — español y localización (2026-10-12)
+
+flutter test test/unidad/textos_en_espanol_test.dart --reporter expanded
+00:00 +1: All tests passed!
+
+flutter test test/identidad/estructura_del_alta_test.dart
+  test/identidad/primer_bloqueo_test.dart
+  test/identidad/componentes_de_fase_test.dart
+  test/unidad/textos_en_espanol_test.dart
+  test/identidad/date_picker_es_bolivia_test.dart --reporter expanded
+00:03 +10: All tests passed!
+
+El test de barrido lee todos los `textos*.dart` y literales directos de `Text`
+en pantallas; no encontró vocabulario inglés expuesto. Se cambiaron apariciones
+visibles de «selfie» por «foto/de frente». `SELFIE` como valor de contrato y
+`selfie` como identificador/comentario permanecen internos.
+
+La app define Locale('es','BO'), locales admitidos y delegates Material,
+Widgets y Cupertino en las dos instancias MaterialApp; el DatePicker probado
+muestra «octubre» y «Mes anterior».
+
+Al 12-10 no había capturas disponibles para la revisión visual manual. El 13-10
+se revisaron las capturas widget golden locales de ingreso y de las seis vistas
+del alta, generadas a 360 × 740 dp y escala de texto 130 %. Resultado: 0
+hallazgos de inglés visible en las capturas revisadas. La ejecución actual de
+`flutter test --no-pub --concurrency=1 --reporter expanded
+test/unidad/textos_en_espanol_test.dart` también pasó (1/1).
+
+Checklist visual de H4.S6.M4 (capturas en
+`evidencia/`, prefijo `h8-`):
+- Ingreso: `h8-ingreso-oscuro-360-130.png`.
+- Alta, Tu cuenta: `h8-alta-oscuro-paso-1-360-130.png` y
+  `h8-alta-oscuro-paso-1-abajo-360-130.png`.
+- Alta, confirmar correo: `h8-alta-oscuro-paso-2-360-130.png`.
+- Alta, identidad/carnet: `h8-alta-oscuro-paso-3-360-130.png`,
+  `h8-alta-oscuro-paso-3-abajo-360-130-corregido.png` y
+  `h8-alta-oscuro-paso-3-fecha-responsive-360-130.png`.
+- Alta, datos personales/revisión: `h8-alta-oscuro-paso-4-360-130-scroll-restablecido.png`,
+  `h8-alta-oscuro-paso-4-fecha-responsive-360-130.png` y
+  `h8-alta-oscuro-paso-4-abajo-360-130.png`.
+- Alta, actividad: `h8-alta-oscuro-paso-5-360-130-scroll-restablecido.png` y
+  `h8-alta-oscuro-paso-5-abajo-360-130-scroll-restablecido.png`.
+- Alta, contrato: `h8-alta-oscuro-paso-6-360-130.png`.
+
+Alcance: son capturas widget golden del flujo de app, no fotografías de un
+dispositivo. La revisión confirma el copy visible de esas vistas; no cubre
+diálogos propios del sistema operativo ni permisos nativos.

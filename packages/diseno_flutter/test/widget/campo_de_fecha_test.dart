@@ -22,7 +22,8 @@ void main() {
     return emitidas;
   }
 
-  /// El día y el año tienen buscador (más de 12 opciones); el mes, desplegable.
+  /// Día y año tienen buscador; el mes es desplegable. Conserva el flujo de
+  /// selección desde la hoja modal buscable.
   Future<void> buscarYElegir(
     WidgetTester tester,
     String vacio,
@@ -32,14 +33,14 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), q);
     await tester.pumpAndSettle();
-    await tester.tap(find.text(q).last);
+    await tester.tap(find.text(q, findRichText: true).last);
     await tester.pumpAndSettle();
   }
 
   Future<void> elegirMes(WidgetTester tester, String mes) async {
     await tester.tap(find.text('Mes'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(mes).last);
+    await tester.tap(find.text(mes, findRichText: true).last);
     await tester.pumpAndSettle();
   }
 
@@ -49,6 +50,22 @@ void main() {
     final mes = tester.getTopLeft(find.text('Mes')).dx;
     final anio = tester.getTopLeft(find.text('Año')).dx;
     expect(dia < mes && mes < anio, isTrue);
+  });
+
+  testWidgets('apila a 479 dp y alinea en fila desde 480 dp', (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(511, 760); // 479 dp tras el padding.
+    addTearDown(tester.view.reset);
+    await montar(tester);
+    final yDiaApilado = tester.getTopLeft(find.text('Día')).dy;
+    final yMesApilado = tester.getTopLeft(find.text('Mes')).dy;
+    expect(yDiaApilado < yMesApilado, isTrue);
+
+    tester.view.physicalSize = const Size(512, 760); // 480 dp tras el padding.
+    await tester.pump();
+    final yDiaEnFila = tester.getTopLeft(find.text('Día')).dy;
+    final yMesEnFila = tester.getTopLeft(find.text('Mes')).dy;
+    expect(yDiaEnFila, yMesEnFila);
   });
 
   testWidgets('elegir 12, abril y 1995 emite el 12 de abril de 1995', (

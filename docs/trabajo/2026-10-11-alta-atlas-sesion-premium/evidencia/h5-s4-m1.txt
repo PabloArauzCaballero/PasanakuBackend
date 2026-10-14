@@ -1,0 +1,21 @@
+H5.S4.M1 — Hoja previa al escáner
+
+Cambios:
+- Copy general de Atlas en voseo y copy de filtros iOS añadidos a
+  `apps/movil/lib/pantallas/identidad/pasos_alta/hoja_antes_de_escanear.dart`.
+- La apertura usa `await showModalBottomSheet<bool>(...)`; solo devuelve `true`
+  tras cerrar con «Abrir el escáner». Cierre/cancelación devuelve `false`.
+- Test widget en `apps/movil/test/widget/hoja_antes_de_escanear_test.dart`:
+  comprueba copy iOS y que el capturador no se invoque mientras la hoja está
+  abierta, y que sí se invoque una vez cerrada.
+
+Verificación ejecutada (sin Flutter/build/analyzer, por límite de RAM):
+- `dart format apps/movil/lib/pantallas/identidad/pasos_alta/hoja_antes_de_escanear.dart apps/movil/test/widget/hoja_antes_de_escanear_test.dart`
+  → `Formatted 2 files (1 changed) in 0.01 seconds.`
+- `dart format --output=none --set-exit-if-changed ...`
+  → `Formatted 2 files (0 changed) in 0.00 seconds.`
+- `git diff --check` sobre los archivos fuente/prueba → sin salida, código 0.
+- `git diff --no-index --check -- NUL apps/movil/test/widget/hoja_antes_de_escanear_test.dart`
+  → sin errores de whitespace; Git avisó que normalizará LF a CRLF en una
+  futura escritura en Windows.
+- El test widget está añadido pero no se ejecutó.

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'dominio.dart';
+import '../../proveedores/sesion.dart';
 
 /// La bandeja completa. F2 la deja con datos de ejemplo — el CU real que la llena
 /// desde el backend (con paginación e idempotencia de lectura) es de un carril de
@@ -8,7 +9,10 @@ import 'dominio.dart';
 /// `Future` por pantalla, porque un push entrante inserta encima sin recargar todo.
 class BandejaNotificaciones extends Notifier<List<Notificacion>> {
   @override
-  List<Notificacion> build() => [];
+  List<Notificacion> build() {
+    ref.watch(generacionDeSesionProvider);
+    return [];
+  }
 
   /// **Se encolan, no se pisan** (D-11): una notificación nueva se agrega arriba,
   /// nunca reemplaza a la anterior. El filtro de `eventosSinAviso` lo aplica quien

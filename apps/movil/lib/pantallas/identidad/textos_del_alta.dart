@@ -15,6 +15,16 @@ class TextosDelAlta {
   static const claveNueva = 'Contraseña';
   static const claveRepetir = 'Repetila';
   static const claveAyuda = 'Ocho caracteres o más.';
+  static const ejemploPrimerNombre = 'Ej.: María';
+  static const ejemploSegundoNombre = 'Ej.: Fernanda';
+  static const ejemploApellidoPaterno = 'Ej.: Mendoza';
+  static const ejemploApellidoMaterno = 'Ej.: Quispe';
+  static const ejemploTelefono = '71234567';
+  static const ejemploCorreo = 'tu@correo.com';
+  static const ejemploContrasena = 'Mínimo 8 caracteres';
+  static const ejemploRepetirContrasena = 'Igual a la de arriba';
+  static const ejemploNumeroDocumento = 'Ej.: 8452136';
+  static const ejemploCodigo = '6 dígitos';
   static const claveCorta = 'Todavía es corta: tienen que ser ocho o más.';
   static const claveConTelefono =
       'No uses tu celular adentro de la contraseña.';

@@ -22,7 +22,7 @@ void mostrarSnackbar(
           ? null
           : SnackBarAction(
               label: accion,
-              textColor: t.accent,
+              textColor: t.sobreVerdeSolido,
               onPressed: onAccion ?? () {},
             ),
     ),

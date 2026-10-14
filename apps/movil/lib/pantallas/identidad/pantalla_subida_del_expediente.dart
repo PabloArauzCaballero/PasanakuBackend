@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
@@ -26,10 +28,19 @@ class PantallaDeSubidaDelExpediente extends ConsumerStatefulWidget {
 
 class _PantallaDeSubidaDelExpedienteState
     extends ConsumerState<PantallaDeSubidaDelExpediente> {
+  late final SubidaNotifier _notificadorDeSubida;
+  late final SeguimientoDelAlta _seguimientoDelAlta;
+  var _estadoDeSubida = const EstadoDeLaSubida();
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _subir());
+    _notificadorDeSubida = ref.read(subidaProvider.notifier);
+    _seguimientoDelAlta = ref.read(seguimientoDelAltaProvider.notifier);
+    _estadoDeSubida = ref.read(subidaProvider);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _subir();
+    });
   }
 
   Future<void> _subir() async {
@@ -41,6 +52,29 @@ class _PantallaDeSubidaDelExpedienteState
           capturas: capturas,
           tokenDeAlta: ref.read(seguimientoDelAltaProvider)?.tokenDeAlta,
         );
+    await _borrarSiCompleta();
+  }
+
+  Future<void> _borrarSiCompleta() async {
+    if (_estadoDeSubida.completa) {
+      await _seguimientoDelAlta.limpiar();
+    }
+  }
+
+  Future<void> _reintentar(CaraDelCarril cara) async {
+    final captura = _capturas(
+      ref.read(seguimientoDelAltaProvider),
+    ).porCara[cara];
+    if (captura == null) return;
+    await ref
+        .read(subidaProvider.notifier)
+        .reintentar(
+          usuarioId: widget.usuarioId,
+          cara: cara,
+          ruta: captura.ruta,
+          tokenDeAlta: ref.read(seguimientoDelAltaProvider)?.tokenDeAlta,
+        );
+    await _borrarSiCompleta();
   }
 
   Future<void> _repetir(CaraDelCarril cara) async {
@@ -48,7 +82,7 @@ class _PantallaDeSubidaDelExpedienteState
     final lograda = await sacarCaptura(context, cara, listas: {cara});
     final nueva = lograda is Map<CaraDelCarril, Captura> ? lograda[cara] : null;
     if (!mounted || nueva == null) return;
-    ref
+    await ref
         .read(seguimientoDelAltaProvider.notifier)
         .reemplazarCaptura(cara, nueva);
     await ref
@@ -59,19 +93,41 @@ class _PantallaDeSubidaDelExpedienteState
           ruta: nueva.ruta,
           tokenDeAlta: ref.read(seguimientoDelAltaProvider)?.tokenDeAlta,
         );
+    await _borrarSiCompleta();
+  }
+
+  @override
+  void dispose() {
+    if (_estadoDeSubida.subiendoAlguna) {
+      _notificadorDeSubida.cancelarPendientes();
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(_seguimientoDelAlta.limpiar());
+    });
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(subidaProvider, (_, siguiente) => _estadoDeSubida = siguiente);
     final subida = ref.watch(subidaProvider);
     final capturas = _capturas(ref.watch(seguimientoDelAltaProvider));
+    final escalaTexto = MediaQuery.textScalerOf(context).scale(1);
+    final textoGrande = escalaTexto >= 1.8;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        toolbarHeight: textoGrande ? 112 : null,
         title: Text(
-          subida.completa
+          textoGrande
+              ? subida.completa
+                    ? 'Tus documentos\nestán enviados'
+                    : 'Enviando tus\ndocumentos'
+              : subida.completa
               ? TextosDeSubida.tituloEnviados
               : TextosDeSubida.tituloSubiendo,
+          maxLines: textoGrande ? 2 : 1,
+          overflow: textoGrande ? TextOverflow.visible : TextOverflow.ellipsis,
         ),
       ),
       body: SafeArea(
@@ -90,16 +146,7 @@ class _PantallaDeSubidaDelExpedienteState
                         ruta: capturas.porCara[cara]?.ruta,
                         onCancelar: () =>
                             ref.read(subidaProvider.notifier).cancelar(cara),
-                        onReintentar: () => ref
-                            .read(subidaProvider.notifier)
-                            .reintentar(
-                              usuarioId: widget.usuarioId,
-                              cara: cara,
-                              ruta: capturas.porCara[cara]!.ruta,
-                              tokenDeAlta: ref
-                                  .read(seguimientoDelAltaProvider)
-                                  ?.tokenDeAlta,
-                            ),
+                        onReintentar: () => _reintentar(cara),
                         onRepetir: () => _repetir(cara),
                       ),
                   ],

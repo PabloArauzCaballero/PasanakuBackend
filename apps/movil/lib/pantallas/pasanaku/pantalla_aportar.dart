@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/campo.dart';
@@ -9,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'dominio/cu21_cobrar_aporte.dart';
+import '../../proveedores/haptica.dart';
 import 'textos.dart';
 
 const _canales = {
@@ -46,7 +49,13 @@ class _PantallaAportarState extends ConsumerState<PantallaAportar> {
 
   @override
   Widget build(BuildContext context) {
-    final estado = ref.watch(cobrarAporteProvider(widget.obligacionId));
+    final cobrar = cobrarAporteProvider(widget.obligacionId);
+    ref.listen(cobrar, (anterior, siguiente) {
+      if (anterior?.value == null && siguiente.value != null) {
+        unawaited(ref.read(hapticaProvider).exito().catchError((Object _) {}));
+      }
+    });
+    final estado = ref.watch(cobrar);
     final resultado = estado.value;
     return Scaffold(
       appBar: AppBar(title: const Text(TextosPasanaku.tituloAportar)),

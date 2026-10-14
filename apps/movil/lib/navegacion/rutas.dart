@@ -10,6 +10,8 @@ import '../pantallas/notificaciones/rutas.dart';
 import '../pantallas/pasanaku/rutas.dart';
 import '../pantallas/soporte/rutas.dart';
 import 'enlaces_profundos.dart';
+import 'acceso_a_rutas.dart';
+import '../proveedores/sesion.dart';
 import 'shell.dart';
 
 /// **El enchufe por dominio.** Lo escribe el shell (F2) UNA vez y se congela: cada
@@ -24,11 +26,16 @@ import 'shell.dart';
 /// que encontrarse con qué es AportaYa y cómo entrar, no con el tablero de una cuenta
 /// que todavía no es suya. Las pruebas que van directo a una pantalla de adentro pasan
 /// su ruta explícitamente.
-GoRouter crearEnrutador({String inicial = '/portada'}) => GoRouter(
+GoRouter crearEnrutador({
+  String inicial = '/portada',
+  required Sesion sesion,
+}) => GoRouter(
   initialLocation: inicial,
+  refreshListenable: sesion,
   redirect: (context, state) {
     final interna = rutaInternaDesde(state.uri);
-    return interna;
+    final destino = interna == null ? state.uri : Uri.parse(interna);
+    return decidirRuta(estado: sesion.estado, destino: destino) ?? interna;
   },
   routes: [
     StatefulShellRoute.indexedStack(

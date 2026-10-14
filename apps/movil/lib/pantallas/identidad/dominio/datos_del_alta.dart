@@ -2,8 +2,12 @@
 /// su documento. Separados de `estado_alta.dart` por el barrido de 200 líneas.
 class DatosPersonales {
   const DatosPersonales({
-    this.nombres = '',
-    this.apellidos = '',
+    String? nombres,
+    String? apellidos,
+    String? primerNombre,
+    this.segundoNombre = '',
+    String? apellidoPaterno,
+    this.apellidoMaterno = '',
     this.fechaNacimiento,
     this.telefono = '',
     this.tipoDocumento = 'CI',
@@ -12,9 +16,23 @@ class DatosPersonales {
     this.fechaExpiracion,
     this.correo = '',
     this.canalVerificacion = 'CORREO',
-  });
-  final String nombres;
-  final String apellidos;
+  }) : primerNombre = primerNombre ?? nombres ?? '',
+       apellidoPaterno = apellidoPaterno ?? apellidos ?? '';
+
+  final String primerNombre;
+  final String segundoNombre;
+  final String apellidoPaterno;
+  final String apellidoMaterno;
+
+  /// Forma compatible con el contrato y con `DatosLeidosDelDocumento`.
+  String get nombres => _unirPartes(primerNombre, segundoNombre);
+  String get apellidos => _unirPartes(apellidoPaterno, apellidoMaterno);
+
+  static String _unirPartes(String primera, String segunda) =>
+      [primera, segunda]
+          .map((parte) => parte.trim().replaceAll(RegExp(r'\s+'), ' '))
+          .where((parte) => parte.isNotEmpty)
+          .join(' ');
   final DateTime? fechaNacimiento;
   final String telefono;
   final String tipoDocumento;
@@ -42,6 +60,10 @@ class DatosPersonales {
   DatosPersonales copiarCon({
     String? nombres,
     String? apellidos,
+    String? primerNombre,
+    String? segundoNombre,
+    String? apellidoPaterno,
+    String? apellidoMaterno,
     DateTime? fechaNacimiento,
     String? telefono,
     String? tipoDocumento,
@@ -51,8 +73,11 @@ class DatosPersonales {
     String? correo,
     String? canalVerificacion,
   }) => DatosPersonales(
-    nombres: nombres ?? this.nombres,
-    apellidos: apellidos ?? this.apellidos,
+    primerNombre: primerNombre ?? nombres ?? this.primerNombre,
+    segundoNombre: segundoNombre ?? (nombres == null ? this.segundoNombre : ''),
+    apellidoPaterno: apellidoPaterno ?? apellidos ?? this.apellidoPaterno,
+    apellidoMaterno:
+        apellidoMaterno ?? (apellidos == null ? this.apellidoMaterno : ''),
     fechaNacimiento: fechaNacimiento ?? this.fechaNacimiento,
     telefono: telefono ?? this.telefono,
     tipoDocumento: tipoDocumento ?? this.tipoDocumento,

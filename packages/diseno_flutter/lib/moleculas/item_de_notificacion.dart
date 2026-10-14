@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../atomos/punto.dart';
+import '../atomos/hundido_al_tocar.dart';
 import '../atomos/tono.dart';
 import '../tokens/tokens.dart';
 
@@ -31,52 +32,55 @@ class ItemDeNotificacion extends StatelessWidget {
       button: onTap != null,
       label: '${leida ? '' : 'Sin leer. '}$titulo. $detalle. $cuando',
       excludeSemantics: true,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(Espacio.s4),
-          color: leida ? Colors.transparent : t.surface2,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CircleAvatar(
-                radius: Espacio.s5,
-                backgroundColor: fondo,
-                child: Icon(
-                  Icons.notifications_outlined,
-                  color: frente,
-                  size: Espacio.s5,
+      child: HundidoAlTocar(
+        activo: onTap != null,
+        child: InkWell(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(Espacio.s4),
+            color: leida ? Colors.transparent : t.surface2,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  radius: Espacio.s5,
+                  backgroundColor: fondo,
+                  child: Icon(
+                    Icons.notifications_outlined,
+                    color: frente,
+                    size: Espacio.s5,
+                  ),
                 ),
-              ),
-              const SizedBox(width: Espacio.s3),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      titulo,
-                      style: texto.titleSmall?.copyWith(
-                        color: t.text,
-                        fontWeight: leida ? FontWeight.w500 : FontWeight.w700,
+                const SizedBox(width: Espacio.s3),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        titulo,
+                        style: texto.titleSmall?.copyWith(
+                          color: t.text,
+                          fontWeight: leida ? FontWeight.w500 : FontWeight.w700,
+                        ),
                       ),
-                    ),
-                    Text(
-                      detalle,
-                      style: texto.bodyMedium?.copyWith(color: t.text2),
-                    ),
-                    Text(
-                      cuando,
-                      style: texto.bodySmall?.copyWith(color: t.text3),
-                    ),
-                  ],
+                      Text(
+                        detalle,
+                        style: texto.bodyMedium?.copyWith(color: t.text2),
+                      ),
+                      Text(
+                        cuando,
+                        style: texto.bodySmall?.copyWith(color: t.text3),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              if (!leida)
-                const Padding(
-                  padding: EdgeInsets.only(top: Espacio.s2),
-                  child: Punto(),
-                ),
-            ],
+                if (!leida)
+                  const Padding(
+                    padding: EdgeInsets.only(top: Espacio.s2),
+                    child: Punto(),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

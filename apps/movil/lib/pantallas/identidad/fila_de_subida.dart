@@ -1,5 +1,6 @@
 import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/moleculas/alerta.dart';
+import 'package:aportaya_diseno/moleculas/referencia_de_error.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 
@@ -60,8 +61,11 @@ class FilaDeSubida extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Alerta(titulo: estado?.error ?? '', tono: Tono.error),
+                ReferenciaDeError(trazaId: estado?.trazaId),
                 const SizedBox(height: Espacio.s2),
-                Row(
+                Wrap(
+                  spacing: Espacio.s1,
+                  runSpacing: Espacio.s1,
                   children: [
                     TextButton(
                       onPressed: onReintentar,
@@ -69,7 +73,7 @@ class FilaDeSubida extends StatelessWidget {
                     ),
                     TextButton(
                       onPressed: onRepetir,
-                      child: const Text(TextosDeSubida.repetirLaFoto),
+                      child: Text(TextosDeSubida.repetirFotoDe(cara)),
                     ),
                   ],
                 ),
@@ -85,6 +89,11 @@ class FilaDeSubida extends StatelessWidget {
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Semantics(
+            label: 'Subida en progreso',
+            child: const LinearProgressIndicator(),
+          ),
+          const SizedBox(height: Espacio.s2),
           Text(titulo),
           Text(detalle, style: Tipo.ayuda),
           TextButton(

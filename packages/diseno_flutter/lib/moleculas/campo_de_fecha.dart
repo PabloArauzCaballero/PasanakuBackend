@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../tokens/tokens.dart';
 import 'parte_de_fecha.dart';
+import 'selectores_de_fecha_responsivos.dart';
 
 /// Una fecha en **tres selects: Día, Mes y Año**, en ese orden, como se dice.
 ///
@@ -22,6 +23,7 @@ class CampoDeFecha extends StatefulWidget {
     this.ultima,
     this.inicial,
     this.ayuda,
+    this.ejemplo = '',
     this.error,
     this.icono = Icons.cake_outlined,
     this.foco,
@@ -38,6 +40,7 @@ class CampoDeFecha extends StatefulWidget {
   final DateTime? inicial;
 
   final String? ayuda, error;
+  final String ejemplo;
   final IconData icono;
 
   /// Va al select del día, el primero que se completa.
@@ -136,53 +139,24 @@ class _CampoDeFechaState extends State<CampoDeFecha> {
             ),
             IconButton(
               onPressed: _abrirCalendario,
-              icon: Icon(Icons.calendar_month_outlined, color: t.brandTexto),
+              icon: Icon(Icons.calendar_month_outlined, color: t.accentTexto),
               tooltip: 'Elegir en el calendario',
             ),
           ],
         ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ParteDeFecha(
-              vacio: 'Día',
-              flex: 5,
-              valor: _dia,
-              marca: marca,
-              completa: completa,
-              foco: widget.foco,
-              opciones: [for (var d = 1; d <= 31; d++) (valor: d, texto: '$d')],
-              onElegida: (d) => _cambiar(() => _dia = d),
-            ),
-            const SizedBox(width: Espacio.s2),
-            ParteDeFecha(
-              vacio: 'Mes',
-              flex: 8,
-              valor: _mes,
-              marca: marca,
-              completa: completa,
-              numerico: false,
-              opciones: [
-                for (var m = 1; m <= 12; m++)
-                  (valor: m, texto: mesesDelAnio[m - 1]),
-              ],
-              onElegida: (m) => _cambiar(() => _mes = m),
-            ),
-            const SizedBox(width: Espacio.s2),
-            // Del más cercano al más lejano: el que se busca suele estar arriba.
-            ParteDeFecha(
-              vacio: 'Año',
-              flex: 6,
-              valor: _anio,
-              marca: marca,
-              completa: completa,
-              opciones: [
-                for (var a = _ultima.year; a >= _primera.year; a--)
-                  (valor: a, texto: '$a'),
-              ],
-              onElegida: (a) => _cambiar(() => _anio = a),
-            ),
-          ],
+        SelectoresDeFechaResponsivos(
+          dia: _dia,
+          mes: _mes,
+          anio: _anio,
+          primerAnio: _primera.year,
+          ultimoAnio: _ultima.year,
+          marca: marca,
+          completa: completa,
+          focoDia: widget.foco,
+          ejemplo: widget.ejemplo,
+          onDia: (d) => _cambiar(() => _dia = d),
+          onMes: (m) => _cambiar(() => _mes = m),
+          onAnio: (a) => _cambiar(() => _anio = a),
         ),
         if (mensaje != null || widget.ayuda != null)
           Padding(

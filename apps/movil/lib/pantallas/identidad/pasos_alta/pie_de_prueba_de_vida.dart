@@ -18,7 +18,10 @@ class PieDePruebaDeVida extends StatelessWidget {
     required this.rechazo,
     required this.manual,
     required this.tomando,
+    required this.tomada,
+    required this.finalizada,
     required this.onTomarFoto,
+    required this.onContinuar,
     required this.onCancelar,
   });
 
@@ -28,7 +31,10 @@ class PieDePruebaDeVida extends StatelessWidget {
   final String? rechazo;
   final bool manual;
   final bool tomando;
+  final bool tomada;
+  final bool finalizada;
   final VoidCallback onTomarFoto;
+  final VoidCallback onContinuar;
   final VoidCallback onCancelar;
 
   @override
@@ -37,7 +43,39 @@ class PieDePruebaDeVida extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (pista != null) ...[
+        if (finalizada) ...[
+          Semantics(
+            liveRegion: true,
+            child: const Text(
+              TextosDeCaptura.vidaLista,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Paleta.white),
+            ),
+          ),
+          const SizedBox(height: Espacio.s3),
+          Boton(
+            texto: TextosDeCaptura.continuar,
+            variante: BotonVariante.primario,
+            expandido: true,
+            onPressed: onContinuar,
+          ),
+        ] else if (tomada) ...[
+          Semantics(
+            liveRegion: true,
+            child: const Column(
+              children: [
+                Text(
+                  TextosDeCaptura.fotoTomada,
+                  style: TextStyle(color: Paleta.white),
+                ),
+                Text(
+                  TextosDeCaptura.seguirSiguiente,
+                  style: TextStyle(color: Paleta.white),
+                ),
+              ],
+            ),
+          ),
+        ] else if (pista != null) ...[
           // Se anuncia a medida que cambia: quien usa lector de pantalla también
           // tiene que saber hacia dónde girar.
           Semantics(
@@ -59,24 +97,18 @@ class PieDePruebaDeVida extends StatelessWidget {
             ),
           ),
           const SizedBox(height: Espacio.s2),
-          Text(
-            TextosDeCaptura.seSacaSola,
-            textAlign: TextAlign.center,
-            style: Tipo.ayuda.copyWith(color: Paleta.white),
-          ),
-          const SizedBox(height: Espacio.s3),
         ],
         if (rechazo != null) ...[
           Alerta(titulo: rechazo!, tono: Tono.aviso),
           const SizedBox(height: Espacio.s3),
         ],
-        if (manual) ...[
+        if (!finalizada && !tomada) ...[
           Boton(
-            texto: TextosDeCaptura.tomarFoto,
-            variante: BotonVariante.primario,
+            texto: TextosDeCaptura.tomarAhora,
+            variante: BotonVariante.fantasma,
             expandido: true,
             cargando: tomando,
-            onPressed: tomando ? null : onTomarFoto,
+            onPressed: !manual || tomando ? null : onTomarFoto,
           ),
           const SizedBox(height: Espacio.s2),
         ],

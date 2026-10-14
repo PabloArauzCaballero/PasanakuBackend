@@ -27,7 +27,7 @@ class BotonIcono extends StatelessWidget {
         onPressed: onPressed,
         icon: Icon(icono),
         tooltip: etiqueta,
-        color: t.brandTexto,
+        color: t.accentTexto,
         constraints: const BoxConstraints.tightFor(
           width: Tactil.minimo,
           height: Tactil.minimo,

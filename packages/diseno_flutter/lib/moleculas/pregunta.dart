@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../atomos/hundido_al_tocar.dart';
 import '../tokens/tokens.dart';
 
 /// Una pregunta de un formulario: etiqueta arriba, control abajo, ayuda debajo.
@@ -109,23 +110,26 @@ class _Paso extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
-    return Semantics(
-      button: true,
-      enabled: onTap != null,
-      label: etiqueta,
-      child: Material(
-        color: t.surface2,
-        borderRadius: BorderRadius.circular(Radios.sm),
-        child: InkWell(
-          onTap: onTap,
+    return HundidoAlTocar(
+      activo: onTap != null,
+      child: Semantics(
+        button: true,
+        enabled: onTap != null,
+        label: etiqueta,
+        child: Material(
+          color: t.surface2,
           borderRadius: BorderRadius.circular(Radios.sm),
-          child: SizedBox(
-            width: Tactil.minimo - Espacio.s2,
-            height: Tactil.minimo - Espacio.s2,
-            child: Icon(
-              icono,
-              size: 20,
-              color: onTap == null ? t.text3 : t.text,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(Radios.sm),
+            child: SizedBox(
+              width: Tactil.minimo - Espacio.s2,
+              height: Tactil.minimo - Espacio.s2,
+              child: Icon(
+                icono,
+                size: 20,
+                color: onTap == null ? t.text3 : t.text,
+              ),
             ),
           ),
         ),

@@ -1,0 +1,24 @@
+H4.S5 — componentes visuales (verificación del 2026-10-12)
+
+flutter test test/identidad/primer_bloqueo_test.dart
+  test/identidad/componentes_de_fase_test.dart --reporter expanded
+00:00 +5: All tests passed!
+
+Pruebas cubiertas: orden de primer requisito pendiente; cabecera accesible con
+fase/título y progreso; bloque con icono y tarjeta; tarjeta de confianza; motivo
+del botón deshabilitado como ayuda debajo del botón. No se adjuntó captura de la
+cabecera, por lo que M4 queda A MEDIAS. La integración del flujo completo de
+registro, errores del servidor y protección de pantalla tampoco se cubre aún.
+
+Tras integrar la cabecera de fase y la enumeración `PasoAlta`:
+flutter test test/identidad/estructura_del_alta_test.dart
+  test/identidad/primer_bloqueo_test.dart
+  test/identidad/componentes_de_fase_test.dart
+  test/unidad/textos_en_espanol_test.dart
+  test/identidad/date_picker_es_bolivia_test.dart --reporter expanded
+00:03 +10: All tests passed!
+
+`estructura_del_alta_test.dart` comprueba orden, asignación a cuatro fases,
+cabecera y conservación del primer nombre al retroceder. La fase de identidad
+todavía se representa por el subpaso de capturas: separar los campos de identidad
+del paso heredado `PasoDatos` queda pendiente, por eso M3 es A MEDIAS.

@@ -21,6 +21,19 @@ Future<Object> capturaDesdeArchivo(
   String ruta, {
   required bool recortadaAlCarnet,
 }) async {
+  final evaluacion = await evaluarCapturaDesdeArchivo(
+    ruta,
+    recortadaAlCarnet: recortadaAlCarnet,
+  );
+  return evaluacion.rechazo ?? evaluacion.captura;
+}
+
+/// Conserva la misma captura aun cuando el control local recomiende repetirla.
+/// La persona decide si la calidad basta; el chequeo no bloquea el flujo.
+Future<EvaluacionDeCaptura> evaluarCapturaDesdeArchivo(
+  String ruta, {
+  required bool recortadaAlCarnet,
+}) async {
   final bytes = await File(ruta).readAsBytes();
   final dimensiones = await calidad.medir(bytes);
   final motivo = calidad.evaluarCalidad(
@@ -28,12 +41,21 @@ Future<Object> capturaDesdeArchivo(
     alto: dimensiones.alto,
     esDocumento: recortadaAlCarnet,
   );
-  if (motivo != null) return motivo;
-  return Captura(
-    ruta: ruta,
-    bytes: bytes.length,
-    ancho: dimensiones.ancho,
-    alto: dimensiones.alto,
-    sha256Corto: sha256.convert(bytes).toString().substring(0, 12),
+  return EvaluacionDeCaptura(
+    captura: Captura(
+      ruta: ruta,
+      bytes: bytes.length,
+      ancho: dimensiones.ancho,
+      alto: dimensiones.alto,
+      sha256Corto: sha256.convert(bytes).toString().substring(0, 12),
+    ),
+    rechazo: motivo,
   );
+}
+
+class EvaluacionDeCaptura {
+  const EvaluacionDeCaptura({required this.captura, required this.rechazo});
+
+  final Captura captura;
+  final String? rechazo;
 }

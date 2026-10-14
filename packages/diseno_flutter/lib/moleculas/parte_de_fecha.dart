@@ -36,13 +36,15 @@ class ParteDeFecha extends StatelessWidget {
     this.completa = false,
     this.numerico = true,
     this.foco,
+    this.ejemplo = '',
+    this.expandir = true,
   });
 
   /// Lo que dice antes de elegir: «Día», «Mes» o «Año».
   final String vacio;
   final int flex;
   final int? valor;
-  final List<({int valor, String texto})> opciones;
+  final List<({int valor, String texto, String? detalle})> opciones;
   final ValueChanged<int> onElegida;
 
   /// `''` pinta el borde de error sin texto: el mensaje va una vez, debajo de la fila.
@@ -50,13 +52,15 @@ class ParteDeFecha extends StatelessWidget {
   final bool completa;
   final bool numerico;
   final FocusNode? foco;
+  final String ejemplo;
+  final bool expandir;
 
   @override
-  Widget build(BuildContext context) => Expanded(
-    flex: flex,
-    child: CampoDeSeleccion<int>(
+  Widget build(BuildContext context) {
+    final campo = CampoDeSeleccion<int>(
       etiqueta: '',
       textoVacio: vacio,
+      ejemplo: ejemplo,
       foco: foco,
       valor: valor,
       error: marca,
@@ -64,6 +68,7 @@ class ParteDeFecha extends StatelessWidget {
       tecladoDeBusqueda: numerico ? TextInputType.number : TextInputType.text,
       opciones: opciones,
       onElegida: onElegida,
-    ),
-  );
+    );
+    return expandir ? Expanded(flex: flex, child: campo) : campo;
+  }
 }

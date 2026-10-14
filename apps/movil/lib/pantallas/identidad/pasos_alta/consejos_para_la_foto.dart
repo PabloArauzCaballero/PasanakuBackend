@@ -8,13 +8,18 @@ import '../textos_de_captura.dart';
 /// El panel plegable de consejos sobre el visor, comportamiento de Atlas: cerrado
 /// por omisión, con un consejo por línea y su ícono de correcto/incorrecto.
 ///
-/// Reutiliza `Acordeon` del sistema de diseño en vez de dibujos a mano: Atlas trae
+/// Reutiliza `Acordeon` del sistema de diseño en vez de dibujos propios: Atlas trae
 /// una ilustración por consejo; acá se prioriza terminar el comportamiento completo
 /// (plegado, contenido por tipo de cara) con el tiempo disponible, y se deja
 /// declarado que el arte bespoke queda pendiente.
 class ConsejosParaLaFoto extends StatelessWidget {
-  const ConsejosParaLaFoto({super.key, required this.cara});
+  const ConsejosParaLaFoto({
+    super.key,
+    required this.cara,
+    this.abierto = false,
+  });
   final CaraDelCarril cara;
+  final bool abierto;
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +32,7 @@ class ConsejosParaLaFoto extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: Espacio.s3),
         child: Acordeon(
           titulo: TextosDeCaptura.consejosTitulo,
+          abierto: abierto,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [for (final c in consejos) _FilaDeConsejo(texto: c)],
@@ -62,7 +68,7 @@ class _FilaDeConsejo extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.check_circle, size: Espacio.s4, color: t.brandTexto),
+          Icon(Icons.check_circle, size: Espacio.s4, color: t.text2),
           const SizedBox(width: Espacio.s2),
           Expanded(
             child: Text(texto, style: Theme.of(context).textTheme.bodySmall),

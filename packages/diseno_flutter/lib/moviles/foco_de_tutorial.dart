@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../tokens/tokens.dart';
+import '../atomos/movimiento.dart';
 
 /// Aire alrededor del elemento, para que el anillo no lo toque.
 const double _holgura = 6;
@@ -28,7 +29,6 @@ class FocoDeTutorial extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
-    final quieto = MediaQuery.disableAnimationsOf(context);
     final actual = recuadro;
     final pintura = actual == null
         // Sin recuadro no hay nada que animar —y `RectTween` sin destino revienta—:
@@ -43,10 +43,8 @@ class FocoDeTutorial extends StatelessWidget {
           )
         : TweenAnimationBuilder<Rect?>(
             tween: RectTween(end: actual),
-            duration: quieto
-                ? Duration.zero
-                : const Duration(milliseconds: 220),
-            curve: Curves.easeOutCubic,
+            duration: duracion(context, Movimiento.entrada),
+            curve: Movimiento.llega,
             builder: (context, animado, _) => CustomPaint(
               painter: _PintorDeFoco(
                 recuadro: animado ?? actual,

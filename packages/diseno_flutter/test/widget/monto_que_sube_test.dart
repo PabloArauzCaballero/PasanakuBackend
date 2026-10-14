@@ -1,4 +1,6 @@
 import 'package:aportaya_diseno/atomos/monto_que_sube.dart';
+import 'package:aportaya_diseno/atomos/movimiento.dart';
+import 'package:aportaya_diseno/dinero/formatear.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,6 +19,33 @@ void main() {
   Finder textoDelMonto() => find.byType(Text);
   String visible(WidgetTester tester) =>
       tester.widget<Text>(textoDelMonto()).data!;
+
+  test('el saldo usa la duración de entrada compartida', () {
+    expect(
+      const MontoQueSube(monto: saldo, moneda: 'BOB').duracion,
+      Movimiento.entrada,
+    );
+  });
+
+  testWidgets('el conteo usa la curva de llegada compartida', (tester) async {
+    await tester.pumpWidget(
+      conTema(const MontoQueSube(monto: saldo, moneda: 'BOB')),
+    );
+    await tester.pump();
+    await tester.pump(
+      Duration(milliseconds: Movimiento.entrada.inMilliseconds ~/ 2),
+    );
+
+    final proporcion = Movimiento.llega.transform(0.5);
+    final centavosVisibles = (centavosDe(saldo) * proporcion).round();
+    expect(
+      visible(tester),
+      formatearMonto(
+        monto: montoDesdeCentavos(centavosVisibles),
+        moneda: 'BOB',
+      ),
+    );
+  });
 
   testWidgets('termina exactamente en el importe, no cerca', (tester) async {
     await tester.pumpWidget(

@@ -34,7 +34,7 @@ class TransicionDeEje extends PageTransitionsBuilder {
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
-    if (MediaQuery.disableAnimationsOf(context)) return child;
+    if (reducirMovimiento(context)) return child;
     return _Eje(llegada: animation, partida: secondaryAnimation, child: child);
   }
 }

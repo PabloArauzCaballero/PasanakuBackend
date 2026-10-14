@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../dominio/cliente.dart';
 import '../../../proveedores/idempotencia.dart';
+import '../../../proveedores/sesion.dart';
 
 /// CU-60 · sortear los turnos, en sus dos fases: comprometer (solo el hash) y
 /// revelar (con la semilla sellada en el servidor, que crea los turnos). Nunca se junta en un paso: sin esa
@@ -11,7 +12,10 @@ class ComprometerSorteo extends AsyncNotifier<CompromisoDeSorteo?> {
   static String formularioId(String grupoId) => 'cu60-comprometer-$grupoId';
 
   @override
-  Future<CompromisoDeSorteo?> build() async => null;
+  Future<CompromisoDeSorteo?> build() async {
+    ref.watch(generacionDeSesionProvider);
+    return null;
+  }
 
   Future<void> enviar({
     required String grupoId,
@@ -48,7 +52,10 @@ class RevelarSorteo extends AsyncNotifier<RevelacionDeSorteo?> {
   static String formularioId(String sorteoId) => 'cu60-revelar-$sorteoId';
 
   @override
-  Future<RevelacionDeSorteo?> build() async => null;
+  Future<RevelacionDeSorteo?> build() async {
+    ref.watch(generacionDeSesionProvider);
+    return null;
+  }
 
   Future<void> enviar({
     required String grupoId,
@@ -87,6 +94,7 @@ final revelarSorteoProvider =
 /// revelado `semillaRevelada` viaja nula: eso es el punto del protocolo.
 final paqueteDelSorteoProvider = FutureProvider.autoDispose
     .family<PaqueteDelSorteo, String>((ref, sorteoId) async {
+      ref.watch(generacionDeSesionProvider);
       final dio = ref.watch(dioProvider);
       try {
         final r = await DefaultApi(

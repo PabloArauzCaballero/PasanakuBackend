@@ -1,8 +1,11 @@
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
+import 'package:aportaya_diseno/atomos/campo_de_seleccion.dart';
 import 'package:aportaya_movil/pantallas/identidad/dominio/estado_alta.dart';
+import 'package:aportaya_movil/pantallas/identidad/pasos_alta/bloque_de_formulario.dart';
 import 'package:aportaya_movil/pantallas/identidad/pasos_alta/catalogo_del_perfil.dart';
 import 'package:aportaya_movil/pantallas/identidad/pasos_alta/paso_perfil_transaccional.dart';
+import 'package:aportaya_movil/pantallas/identidad/pasos_alta/tarjeta_de_confianza.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,7 +22,7 @@ void main() {
         child: MaterialApp(
           theme: temaDesde(Tokens.claro, Brightness.light),
           home: const Scaffold(
-            body: SingleChildScrollView(child: PasoPerfilTransaccional()),
+            body: SingleChildScrollView(child: PasoActividad()),
           ),
         ),
       ),
@@ -29,9 +32,9 @@ void main() {
   }
 
   Future<void> elegirOrigenSueldo(WidgetTester tester) async {
-    await tester.tap(find.text('Elegir').first);
+    await tester.tap(find.byType(CampoDeSeleccion<String>).first);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Sueldo o salario').last);
+    await tester.tap(find.bySemanticsLabel('Sueldo o salario').last);
     await tester.pumpAndSettle();
   }
 
@@ -40,11 +43,11 @@ void main() {
     String q,
     String opcion,
   ) async {
-    await tester.tap(find.text('Elegir').last);
+    await tester.tap(find.byType(CampoDeSeleccion<String>).last);
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField).last, q);
     await tester.pumpAndSettle();
-    await tester.tap(find.text(opcion).last);
+    await tester.tap(find.bySemanticsLabel(opcion).last);
     await tester.pumpAndSettle();
   }
 
@@ -68,15 +71,28 @@ void main() {
     );
   });
 
+  testWidgets('la actividad muestra bloque y tarjeta de confianza', (
+    tester,
+  ) async {
+    await abrir(tester);
+    expect(find.byType(BloqueDeFormulario), findsOneWidget);
+    expect(find.text('TU ACTIVIDAD'), findsOneWidget);
+    expect(find.byType(TarjetaDeConfianza), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.byType(TarjetaDeConfianza)).dy,
+      greaterThan(tester.getBottomLeft(find.text('Continuar')).dy),
+    );
+  });
+
   testWidgets('la actividad se elige con buscador', (tester) async {
     await abrir(tester);
-    await tester.tap(find.text('Elegir').last);
+    await tester.tap(find.byType(CampoDeSeleccion<String>).last);
     await tester.pumpAndSettle();
-    expect(find.text('Buscar'), findsOneWidget);
+    expect(find.byType(TextField), findsNWidgets(2));
     await tester.enterText(find.byType(TextField).last, 'salud');
     await tester.pumpAndSettle();
-    expect(find.text('Salud o asistencia social'), findsOneWidget);
-    expect(find.text('Educación'), findsNothing);
+    expect(find.bySemanticsLabel('Salud o asistencia social'), findsOneWidget);
+    expect(find.bySemanticsLabel('Educación'), findsNothing);
   });
 
   testWidgets('«Otra» pide «¿Cuál?» y no deja seguir sin escribirla', (

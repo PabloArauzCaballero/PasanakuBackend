@@ -9,6 +9,8 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -37,6 +39,7 @@ import org.springframework.test.web.servlet.MockMvc;
 class SesionControllerWebTest {
 
     private static final UUID OPERADOR = UUID.fromString("dddddddd-0000-4000-8000-000000000001");
+    private static final UUID SESION = UUID.fromString("dddddddd-0000-4000-8000-000000000009");
     private static final String VIEJO = "b".repeat(64);
     private static final String NUEVO = "c".repeat(64);
 
@@ -49,6 +52,12 @@ class SesionControllerWebTest {
     @MockitoBean
     private EmitirAcceso emitirAcceso;
 
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.CerrarSesion cerrarSesion;
+
+    @MockitoBean
+    private bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion sesion;
+
     @Test
     @DisplayName("con un refresh valido: 200 con el acceso nuevo, el rol, los permisos y la cookie ROTADA")
     void renueva() throws Exception {
@@ -57,8 +66,9 @@ class SesionControllerWebTest {
                         Optional.of(OPERADOR),
                         true,
                         Optional.of(new RenovarSesion.Emitido(
-                                NUEVO, OffsetDateTime.now(ZoneOffset.UTC).plusHours(12)))));
-        when(emitirAcceso.ejecutar(eq(OPERADOR), eq("BACKOFFICE"), any(), isNull()))
+                                NUEVO, OffsetDateTime.now(ZoneOffset.UTC).plusHours(8))),
+                        Optional.of(SESION)));
+        when(emitirAcceso.ejecutar(eq(OPERADOR), eq("BACKOFFICE"), any(), isNull(), eq(SESION)))
                 .thenReturn(new EmitirAcceso.Acceso(
                         "acceso.nuevo", Instant.now().plusSeconds(900), List.of("ver:cumplimiento")));
 
@@ -78,7 +88,7 @@ class SesionControllerWebTest {
     }
 
     @Test
-    @DisplayName("sin cookie: 401 AP-SES-01, se borra la cookie y no se emite acceso")
+    @DisplayName("sin credencial de refresco: 401 AP-SES-01 y no se emite acceso")
     void sinCookie() throws Exception {
         when(renovarSesion.renovar(isNull(), any(), any(), any()))
                 .thenReturn(new RenovarSesion.Renovacion(Optional.empty(), false, Optional.empty()));
@@ -86,9 +96,8 @@ class SesionControllerWebTest {
         mvc.perform(post("/sesion/refrescar"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.codigo").value("AP-SES-01"))
-                .andExpect(header().string(
-                                "Set-Cookie", allOf(startsWith("aportaya_refresco=;"), containsString("Max-Age=0"))));
-        verify(emitirAcceso, never()).ejecutar(any(), any(), any(), any());
+                .andExpect(header().doesNotExist("Set-Cookie"));
+        verify(emitirAcceso, never()).ejecutar(any(), any(), any(), any(), any());
     }
 
     @Test
@@ -100,6 +109,69 @@ class SesionControllerWebTest {
         mvc.perform(post("/sesion/refrescar").cookie(new Cookie("aportaya_refresco", VIEJO)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(header().string("Set-Cookie", containsString("Max-Age=0")));
-        verify(emitirAcceso, never()).ejecutar(any(), any(), any(), any());
+        verify(emitirAcceso, never()).ejecutar(any(), any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("refresh móvil: lee y rota el token por el cuerpo sin cookie")
+    void rotaRefreshMovil() throws Exception {
+        when(renovarSesion.renovar(eq(VIEJO), any(), any(), any()))
+                .thenReturn(new RenovarSesion.Renovacion(
+                        Optional.of(OPERADOR),
+                        true,
+                        Optional.of(new RenovarSesion.Emitido(
+                                NUEVO, OffsetDateTime.now(ZoneOffset.UTC).plusHours(8))),
+                        Optional.of(SESION)));
+        when(emitirAcceso.ejecutar(eq(OPERADOR), eq("BACKOFFICE"), any(), isNull(), eq(SESION)))
+                .thenReturn(new EmitirAcceso.Acceso(
+                        "acceso.nuevo", Instant.now().plusSeconds(900), List.of("ver:cumplimiento")));
+
+        mvc.perform(post("/sesion/refrescar")
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("{\"refresco\":\"" + VIEJO + "\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.acceso").value("acceso.nuevo"))
+                .andExpect(jsonPath("$.refresco").value(NUEVO))
+                .andExpect(header().doesNotExist("Set-Cookie"));
+    }
+
+    @Test
+    @DisplayName("cerrar sesión: el ID sale del JWT y responde 204 idempotente")
+    void cierraSesionActual() throws Exception {
+        when(sesion.actual())
+                .thenReturn(bo.aportaya.plataforma.dominio.ContextoSesion.de(
+                        OPERADOR,
+                        "PARTICIPANTE",
+                        new bo.aportaya.plataforma.dominio.Traza(
+                                UUID.randomUUID().toString())));
+        when(sesion.idDeLaSesion()).thenReturn(SESION);
+
+        mvc.perform(delete("/sesion")
+                        .cookie(new Cookie("aportaya_refresco", VIEJO))
+                        .with(jwt().jwt(token -> token.subject(OPERADOR.toString())
+                                .claim("rol", "PARTICIPANTE")
+                                .claim("sesion_id", SESION.toString()))))
+                .andExpect(status().isNoContent())
+                .andExpect(header().string("Set-Cookie", containsString("Max-Age=0")));
+        verify(cerrarSesion).ejecutar(eq(OPERADOR), eq(SESION), any());
+    }
+
+    @Test
+    @DisplayName("el operador también puede cerrar su propia sesión")
+    void cierraSesionDeOperador() throws Exception {
+        when(sesion.actual())
+                .thenReturn(bo.aportaya.plataforma.dominio.ContextoSesion.de(
+                        OPERADOR,
+                        "BACKOFFICE",
+                        new bo.aportaya.plataforma.dominio.Traza(
+                                UUID.randomUUID().toString())));
+        when(sesion.idDeLaSesion()).thenReturn(SESION);
+
+        mvc.perform(delete("/sesion").with(jwt().jwt(token -> token.subject(OPERADOR.toString())
+                        .claim("rol", "BACKOFFICE")
+                        .claim("sesion_id", SESION.toString()))))
+                .andExpect(status().isNoContent())
+                .andExpect(header().doesNotExist("Set-Cookie"));
+        verify(cerrarSesion).ejecutar(eq(OPERADOR), eq(SESION), any());
     }
 }

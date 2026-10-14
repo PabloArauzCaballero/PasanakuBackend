@@ -19,34 +19,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'cargar_fuentes_de_aplicacion.dart';
 import '../comun.dart';
 
-/// **Las transiciones, congeladas a mitad de camino.**
-///
-/// Una animación de navegación no se revisa mirándola pasar: dura poco más de un
-/// segundo y a esa velocidad cualquier cosa «parece que anda». Acá se detiene el reloj
-/// en los cuatro tiempos del zoom de marca —el panel cubriendo la pantalla, el
-/// logotipo grande y quieto, el logotipo yéndose hacia la cámara, la pantalla nueva
-/// asentándose— y cada uno queda como imagen. Si un día alguien cambia la curva, lo
-/// saca el diff.
-///
-/// **El primer cuadro es el que trajo esta prueba de vuelta:** el panel tiene que
-/// cubrir la pantalla ENTERA. Cuando crecía desde un sello de 72 px, acá se veía lo
-/// que se veía en la app: un rectángulo verde chico en el medio de la portada, con el
-/// logotipo cortado por sus bordes.
-///
-/// El segundo cuadro es el otro que importa: ahí tiene que estar el logotipo
-/// **entero**, isotipo y palabra, ocupando media pantalla. Si vuelve a aparecer solo
-/// el isotipo chiquito, esta prueba lo muestra sin que nadie tenga que grabar un
-/// video.
+/// Congela los hitos del fundido a través de la navegación: primero una superficie
+/// opaca (sin asomar la pantalla anterior), luego aparece la pantalla nueva y termina
+/// asentada. Las capturas impiden que regresen el zoom largo de marca o la superposición
+/// de páginas.
 void main() {
-  testWidgets('portada → ingreso: el zoom de marca, cuadro por cuadro', (
+  setUpAll(cargarFuentesDeAplicacion);
+
+  testWidgets('portada → ingreso: el fundido no superpone las pantallas', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(1170, 2532);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
-    final router = crearEnrutador();
+    final router = crearEnrutador(sesion: await sesionAnonimaDePrueba());
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -62,15 +51,13 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Ya tengo cuenta'));
-    // `pump()` sin duración arranca la transición; los siguientes la detienen en cada
-    // tiempo del zoom. Los milisegundos son acumulados: 200, 720, 1150 y 1400 de los
-    // 1450 que dura.
+    // `pump()` sin duración arranca la transición. Se captura la superficie opaca,
+    // el primer tercio del fundido, el asentamiento y el estado final a los 300 ms.
     await tester.pump();
     for (final (nombre, avance) in [
-      ('cubre', 200),
-      ('marca', 520),
-      ('atraviesa', 430),
-      ('llega', 250),
+      ('cubre', 0),
+      ('aparece', 165),
+      ('asienta', 135),
     ]) {
       await tester.pump(Duration(milliseconds: avance));
       await expectLater(
@@ -79,6 +66,10 @@ void main() {
       );
     }
     await tester.pumpAndSettle();
+    await expectLater(
+      find.byType(MaterialApp),
+      matchesGoldenFile('imagenes/transicion_ingreso_final.png'),
+    );
     expect(router.state.uri.toString(), '/ingreso');
   });
 }

@@ -7,6 +7,7 @@ import 'package:aportaya_movil/dominio/puertos/almacen_de_progreso.dart';
 import 'package:aportaya_movil/dominio/tutoriales/modelo.dart';
 import 'package:aportaya_movil/infraestructura/almacen_de_progreso_seguro.dart';
 import 'package:aportaya_movil/pantallas/soporte/capa_de_tutorial.dart';
+import 'package:aportaya_movil/proveedores/sesion.dart';
 import 'package:aportaya_movil/proveedores/tutoriales.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,9 +49,12 @@ class BancoDeTutoriales {
   final List<TutorialDefinicion> catalogo;
   final String inicial;
   final AlmacenDeProgreso almacen = AlmacenDeProgresoSeguro(AlmacenEnMemoria());
+  final Sesion sesion = Sesion(AlmacenEnMemoria());
   late final ProviderContainer contenedor;
   late final GoRouter enrutador;
   final ValueNotifier<bool> _tardio = ValueNotifier(false);
+
+  Future<void> abrirSesion() => sesion.abrir(acceso: 'token-de-prueba');
 
   /// Hace aparecer el ancla que llega después, como la fila que trae una petición.
   void mostrarTardio() => _tardio.value = true;
@@ -78,6 +82,7 @@ class BancoDeTutoriales {
       overrides: [
         catalogoDeTutorialesProvider.overrideWithValue(catalogo),
         almacenDeProgresoProvider.overrideWithValue(almacen),
+        sesionProvider.overrideWithValue(sesion),
         capacidadesProvider.overrideWith((_) async => {Capacidad.sesion}),
       ],
     );

@@ -1,13 +1,61 @@
-import 'dart:ui';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:aportaya_diseno/moleculas/aparicion_escalonada.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../comun.dart';
 import 'package:aportaya_movil/pantallas/billetera/pantalla_de_saldo.dart';
+import 'package:aportaya_movil/dominio/puertos/haptica.dart';
 
 const cuenta = '11111111-1111-4111-8111-111111111111';
 const ruta = '/billetera/$cuenta/saldo';
+
+class _HapticaDePrueba implements Haptica {
+  int selecciones = 0;
+
+  @override
+  Future<void> seleccion() async => selecciones++;
+
+  @override
+  Future<void> botonPrimario() async {}
+
+  @override
+  Future<void> avisoDeCredencialesIncorrectas() async {}
+
+  @override
+  Future<void> exito() async {}
+
+  @override
+  Future<void> errorQueBloqueaDinero() async {}
+}
+
+class _AdaptadorContador implements HttpClientAdapter {
+  _AdaptadorContador(this.delegate);
+
+  final HttpClientAdapter delegate;
+  int consultas = 0;
+  int movimientos = 0;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) {
+    if (options.method == 'GET' && options.path.endsWith('/saldo')) {
+      consultas++;
+    }
+    if (options.method == 'GET' && options.path.endsWith('/movimientos')) {
+      movimientos++;
+    }
+    return delegate.fetch(options, requestStream, cancelFuture);
+  }
+
+  @override
+  void close({bool force = false}) => delegate.close(force: force);
+}
 
 /// Los cuatro estados de la pantalla real de F0, contra los ejemplos del contrato:
 /// los mismos JSON que Prism sirve en desarrollo. Una pantalla probada solo en su
@@ -134,10 +182,7 @@ void main() {
       );
       await asentar(tester);
       expect(find.text('Volver a intentar'), findsOneWidget);
-      expect(
-        find.textContaining('Código de seguimiento: traza-401'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('Referencia: traza-401'), findsOneWidget);
       expect(
         find.text('tecnico'),
         findsNothing,
@@ -220,6 +265,111 @@ void main() {
           findsOneWidget,
         );
         expect(find.text('Volver a intentar'), findsNothing);
+      });
+    },
+  );
+
+  testWidgets('refrescar emite haptica de seleccion', (tester) async {
+    final (:dio, :adaptador) = dioSimulado();
+    final contador = _AdaptadorContador(dio.httpClientAdapter);
+    dio.httpClientAdapter = contador;
+    adaptador.onGet(
+      ruta,
+      (s) => s.reply(
+        200,
+        ejemplo('nucleo-financiero', 'consultarSaldo', 'ok')['cuerpo'],
+      ),
+    );
+    final haptica = _HapticaDePrueba();
+    await tester.pumpWidget(
+      conApp(
+        const PantallaDeSaldo(cuentaId: cuenta),
+        dio: dio,
+        haptica: haptica,
+      ),
+    );
+    await asentar(tester);
+    expect(contador.consultas, 1);
+    expect(contador.movimientos, 1);
+    expect(
+      find.bySemanticsLabel(RegExp(r'^Saldo disponible: ')),
+      findsOneWidget,
+    );
+
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, 420));
+    await asentar(tester);
+
+    expect(haptica.selecciones, 1);
+    expect(contador.consultas, 2);
+    expect(contador.movimientos, 2);
+  });
+
+  testWidgets(
+    'movimientos del servidor conservan orden y muestran los posteriores juntos',
+    (tester) async {
+      final (:dio, :adaptador) = dioSimulado();
+      adaptador.onGet(
+        ruta,
+        (s) => s.reply(
+          200,
+          ejemplo('nucleo-financiero', 'consultarSaldo', 'ok')['cuerpo'],
+        ),
+      );
+      adaptador.onGet(
+        '/billetera/$cuenta/movimientos',
+        (s) => s.reply(200, {
+          'cuentaId': cuenta,
+          'movimientos': [
+            for (var i = 0; i < 10; i++)
+              {
+                'id':
+                    '00000000-0000-4000-8000-${i.toString().padLeft(12, '0')}',
+                'sentido': i.isEven ? 'CREDITO' : 'DEBITO',
+                'monto': {'monto': '${i + 1}.00', 'moneda': 'BOB'},
+                'saldoDisponiblePosterior': {
+                  'monto': '${i + 10}.00',
+                  'moneda': 'BOB',
+                },
+                'saldoRetenidoPosterior': {'monto': '0.00', 'moneda': 'BOB'},
+                'glosa': 'Movimiento $i',
+                'registradoEn':
+                    '2026-10-11T12:${i.toString().padLeft(2, '0')}:00Z',
+              },
+          ],
+        }),
+        queryParameters: const {'limite': 100},
+      );
+      await conSuperficieDeTelefono(tester, () async {
+        await tester.pumpWidget(
+          conApp(const PantallaDeSaldo(cuentaId: cuenta), dio: dio),
+        );
+        await asentar(tester);
+        expect(find.text('Movimiento 0'), findsOneWidget);
+        expect(find.text('Movimiento 7'), findsOneWidget);
+        expect(find.text('Movimiento 8'), findsOneWidget);
+        expect(find.text('Movimiento 9'), findsOneWidget);
+        expect(find.textContaining('Bs 10,00'), findsOneWidget);
+        expect(
+          tester.getTopLeft(find.text('Movimiento 0')).dy,
+          lessThan(tester.getTopLeft(find.text('Movimiento 1')).dy),
+        );
+        final apariciones = find
+            .byType(AparicionEscalonada)
+            .evaluate()
+            .toList();
+        expect(apariciones, hasLength(1));
+        expect(
+          find.ancestor(
+            of: find.text('Tus pasanakus'),
+            matching: find.byType(AparicionEscalonada),
+          ),
+          findsNothing,
+          reason: 'la cifra y las secciones no esperan al escalonado del feed',
+        );
+        final lista = apariciones.single.widget as AparicionEscalonada;
+        expect(lista.escalon, const Duration(milliseconds: 30));
+        expect(lista.children, hasLength(9));
+        expect(lista.children.last, isA<Column>());
       });
     },
   );

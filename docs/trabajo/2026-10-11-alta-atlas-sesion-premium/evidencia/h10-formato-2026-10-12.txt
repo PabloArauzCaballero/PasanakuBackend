@@ -1,0 +1,19 @@
+Directorio: apps/movil
+
+1) Chequeo inicial:
+`dart format --output=none --set-exit-if-changed lib test`
+EXIT_CODE=1; detectó 7 archivos sin formato de 381.
+
+2) Se formatearon únicamente esos 7 archivos detectados:
+- lib/pantallas/identidad/dominio/cu04_autenticar.dart
+- lib/proveedores/tutoriales.dart
+- test/unidad/errores_identidad_test.dart
+- test/unidad/estado_de_verificacion_test.dart
+- test/unidad/refresco_movil_test.dart
+- test/unidad/sesion_observable_test.dart
+- test/unidad/tutoriales/autolanzamiento_sesion_test.dart
+
+3) Verificación final:
+`dart format --output=none --set-exit-if-changed lib test`
+Formatted 381 files (0 changed).
+EXIT_CODE=0.
