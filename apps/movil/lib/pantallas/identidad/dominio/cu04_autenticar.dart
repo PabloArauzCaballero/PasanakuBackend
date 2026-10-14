@@ -1,6 +1,6 @@
 import 'package:aportaya_cliente_identidad/aportaya_cliente_identidad.dart';
-import 'dart:developer' as developer;
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../dominio/cliente.dart';
@@ -80,7 +80,7 @@ class Autenticacion {
       if (refresco == null || refresco.isEmpty) {
         // Nunca usar sesionId como refresh: es un identificador, no una credencial.
         // Sin refresh la sesión se conserva hasta que venza el acceso (15 min).
-        developer.log(
+        debugPrint(
           'El servidor no entregó tokenRefresco para la sesión móvil.',
         );
       }
