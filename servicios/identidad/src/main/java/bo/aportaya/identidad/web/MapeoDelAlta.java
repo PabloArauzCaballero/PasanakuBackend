@@ -22,7 +22,8 @@ final class MapeoDelAlta {
                 // porque depende del tipo, y el dominio es el que la exige.
                 cuerpo.getDocumento().getLugarExpedicion() == null
                         ? null
-                        : cuerpo.getDocumento().getLugarExpedicion().getValue());
+                        : cuerpo.getDocumento().getLugarExpedicion().getValue(),
+                cuerpo.getDocumento().getFechaExpiracion());
         return new CU01RegistrarUsuario.EntradaRegistro(
                 cuerpo.getTelefonoE164(),
                 cuerpo.getNombres(),

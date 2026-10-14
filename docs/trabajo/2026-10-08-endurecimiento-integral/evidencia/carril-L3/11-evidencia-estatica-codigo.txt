@@ -1,0 +1,40 @@
+# Evidencia estatica (comandos y salida literal), worktree HEAD fec8d391
+
+$ grep -rIl "grupo_creado" servicios/*/src/main  (quien emite / quien consume el evento)
+servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU20CrearGrupo.java
+servicios/grupos/src/main/resources/openapi/grupos.yaml
+
+$ grep -rn "KafkaListener" servicios/tarifas/src/main servicios/nucleo-financiero/src/main  (consumidores existentes)
+servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/consumo/ConsumidorDeAportesKafka.java:18:import org.springframework.kafka.annotation.KafkaListener;
+servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/consumo/ConsumidorDeAportesKafka.java:51:    @KafkaListener(topics = "aportaya.aportes.aporte_cobra
+servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/consumo/ConsumidorDeAsientosKafka.java:14:import org.springframework.kafka.annotation.KafkaListener
+servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/consumo/ConsumidorDeAsientosKafka.java:45:    @KafkaListener(
+
+$ lugares que escriben grupos.grupo.estado en codigo de servicio
+servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU69Enlace.java:113:            dsl.execute("UPDATE grupos.grupo SET cupos_ocupados = cupos_ocupados + 1 WHERE id = ?", vigente.grupoId());
+servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/OrganizadorDecideIngreso.java:134:                dsl.execute("UPDATE grupos.grupo SET cupos_ocupados = cupos_ocupados + 1 WHERE id = ?", g
+servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/AdmisionRepositorio.java:137:                "UPDATE grupos.grupo SET cupos_ocupados=(SELECT count(*) FROM grupos.cupo WHERE grupo_id=
+servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/CreacionRepositorio.java:73:                .set(GRUPO.ESTADO, "BORRADOR")
+servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/EmparejamientoRepositorio.java:76:                        PROPUESTA_GRUPO.ESTADO,
+servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/EmparejamientoRepositorio.java:86:                        fila.get(PROPUESTA_GRUPO.ESTADO),
+servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/EmparejamientoRepositorio.java:111:                .set(PROPUESTA_GRUPO.ESTADO, "CONFIRMADA")
+
+$ lecturas que exigen CONFORMADO/ABIERTO_A_INSCRIPCION
+servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU20CrearGrupo.java:36: * {@code ABIERTO_A_INSCRIPCION} cuando los dos respondieron.
+servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU69Enlace.java:157:                   AND g.estado IN ('CONFORMADO','ABIERTO_A_INSCRIPCION')
+servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/AdmisionRepositorio.java:98:        if (!"ABIERTO_A_INSCRIPCION".equals(grupo.get("estado", String.class))) {
+servicios/grupos/src/main/resources/openapi/grupos.yaml:701:        ABIERTO_A_INSCRIPCION cuando los dos respondieron.
+
+$ politica de token INVITACION_GRUPO sembrada hoy vs. antes (git)
+-          "canales_permitidos": "SMS,WHATSAPP,CORREO",
++          "canales_permitidos": "ENLACE,SMS,WHATSAPP,CORREO",
+
+$ orden de la llamada en canjearInvitacion (RutasDeInvitacion.java:103-105)
+            throw new ErrorDeNegocio(CodigoError.de(69, 5), "Esa invitacion ya no es valida.");
+        var postulacion = new EntradaPostulacion(cuerpo.getCuposSolicitados()).mensaje(cuerpo.getMensaje());
+        var entrada = MapeoDePostulacion.entrada(grupoId, postulacion, consultas, afuera, afinidad, ctx);
+        var recibo = afuera.consumirInvitacion(invitacion.tokenId(), grupoId, idempotencyKey, cuerpo.getToken());
+        if (!idempotencyKey.equals(recibo.clave()))
+            throw new ErrorDeNegocio(CodigoError.de(69, 5), "No se confirmó el canje.");
+        UUID solicitud = canjes.ejecutar(invitacionId, recibo, entrada, ctx);
+        return ResponseEntity.ok(

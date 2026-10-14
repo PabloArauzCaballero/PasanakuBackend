@@ -1,0 +1,10 @@
+Comando: flutter test test/unidad/catalogo_de_errores_test.dart --reporter expanded
+Fecha: 2026-10-12
+Resultado inicial (antes de implementar el mapeo): compilación roja.
+
+Errores observados:
+- Undefined name 'CampoDeErrorApi' (dos referencias).
+- The getter 'campo' isn't defined for the type 'ErrorDeApi' (tres referencias).
+
+Esto demuestra que el catálogo previo sólo producía mensajes y no clasificaba ni
+conservaba los dos campos que pueden deducirse sin ambigüedad del contrato.

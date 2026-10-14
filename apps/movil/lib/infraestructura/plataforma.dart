@@ -6,6 +6,7 @@ import '../dominio/puertos/almacen_seguro.dart';
 import '../dominio/puertos/avisos_push.dart';
 import '../dominio/puertos/biometria.dart';
 import '../dominio/puertos/camara.dart';
+import '../dominio/puertos/camara_en_vivo.dart';
 import '../dominio/puertos/conectividad.dart';
 import '../dominio/puertos/haptica.dart';
 import '../dominio/puertos/proteccion_pantalla.dart';
@@ -19,6 +20,7 @@ import 'ios/almacen_seguro_ios.dart';
 import 'ios/avisos_push_ios.dart';
 import 'ios/biometria_ios.dart';
 import 'camara_del_sistema.dart';
+import 'camara_en_vivo_plugin.dart';
 import 'camara_prestada.dart';
 import 'ios/haptica_ios.dart';
 import 'ios/proteccion_pantalla_ios.dart';
@@ -80,6 +82,12 @@ const _camaraDeDesarrollo = String.fromEnvironment('CAMARA_DEV');
 Camara camaraDeLaPlataforma() => _camaraDeDesarrollo.isEmpty
     ? CamaraDelSistema()
     : CamaraPrestada(_camaraDeDesarrollo, CamaraDelSistema());
+
+/// El visor en vivo del escáner de identidad (CU-02): el mismo plugin `camera` en
+/// las dos plataformas, sin nada exclusivo de Android ni de iOS que justifique dos
+/// adaptadores. Una instancia por pantalla — se crea al entrar a `/registro/camara`
+/// y se libera al salir.
+CamaraEnVivo camaraEnVivoDeLaPlataforma() => CamaraEnVivoPlugin();
 
 /// **Degradado en iOS** (`capacidades.dart`, CRÍTICA de seguridad): el mismo
 /// canal que Android, atendido por `AppDelegate.swift` con el lienzo seguro de un

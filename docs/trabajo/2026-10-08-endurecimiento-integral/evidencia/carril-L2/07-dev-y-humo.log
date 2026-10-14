@@ -1,0 +1,19 @@
+##### 13. Orquestador de DEV (sql/61_dev/sembrar_dev.sql) con el 18 incluido, dos veces, sobre una base nueva con app.entorno='dev'
+(1 row)
+
+(1 row)
+
+corrida 1: RC=0 filas_sandbox=1 usuarios=14 sandbox_id=1
+(1 row)
+
+corrida 2: RC=0 filas_sandbox=1 usuarios=14 sandbox_id=1
+
+##### 14. Prueba de humo del esquema (sql/50_verificacion/prueba_humo.sql) sobre esa base con dev + sandbox
+RC=0 ; lineas FALLA: 1; lineas OK: 164
+15:FALLA · R-AUD-01 47 de 31 tablas selladas
+31:OK    · R-LIC-01 sin licencia cargada, el servicio no se habilita
+169:Prueba de humo terminada: toda línea debe empezar con OK.
+
+##### 15. Misma prueba de humo SIN la fila del sandbox (linea base): la unica FALLA no es del sandbox
+RC=0 ; sin sandbox: lineas FALLA: 1; lineas OK: 164
+15:FALLA · R-AUD-01 47 de 31 tablas selladas

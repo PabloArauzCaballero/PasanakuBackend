@@ -155,10 +155,12 @@ $q$);
 -- UPDATE de estado, ADR-027: evento_dominio ya no está sellado; 29 → 30 al sellar
 -- indicador_kpi, que pasó a append-only para que un indicador recalculado no pise
 -- la serie anterior; 30 → 31 al sellar evidencia_mfa_consumida para impedir
--- que un jti de step-up ya consumido se vuelva reutilizable).
-SELECT CASE WHEN count(*) = 31
-            THEN 'OK    · R-AUD-01 las 31 tablas append-only están selladas'
-            ELSE 'FALLA · R-AUD-01 ' || count(*) || ' de 31 tablas selladas' END
+-- que un jti de step-up ya consumido se vuelva reutilizable; 31 → 47 al sellar los
+-- libros de dinero, inversión, publicidad y cumplimiento que se sumaron a APPEND_ONLY:
+-- las 47 coinciden una a una con scripts/modelo.py, no falta ningún sello).
+SELECT CASE WHEN count(*) = 47
+            THEN 'OK    · R-AUD-01 las 47 tablas append-only están selladas'
+            ELSE 'FALLA · R-AUD-01 ' || count(*) || ' de 47 tablas selladas' END
   FROM pg_trigger tg
   JOIN pg_class c ON c.oid = tg.tgrelid
  WHERE NOT tg.tgisinternal AND tg.tgname LIKE '%append\_only'

@@ -23,7 +23,7 @@ Las **18 tablas** de este módulo. Justificación de negocio en [[13_contabilida
 | [[tercero_comercial]] | 9 | 1 | 3 |
 | [[orden_compra]] | 10 | 3 | 1 |
 | [[factura_proveedor]] | 14 | 5 | 2 |
-| [[pago_a_proveedor]] | 8 | 3 | 0 |
+| [[pago_a_proveedor]] | 9 | 3 | 0 |
 | [[cuenta_por_cobrar]] | 10 | 1 | 2 |
 | [[cobro_cuenta_por_cobrar]] | 7 | 2 | 0 |
 | [[categoria_activo_fijo]] | 8 | 3 | 1 |

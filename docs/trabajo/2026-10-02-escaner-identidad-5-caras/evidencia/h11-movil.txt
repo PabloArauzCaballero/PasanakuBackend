@@ -1,0 +1,7 @@
+# H11 movil · 2026-10-03 19:21:33
+$ flutter analyze
+No issues found! (ran in 6.9s)
+$ flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku
+01:18 +283: All tests passed!                                                                                                                                                                          
+$ verificar_frontend.py movil
+TODO OK

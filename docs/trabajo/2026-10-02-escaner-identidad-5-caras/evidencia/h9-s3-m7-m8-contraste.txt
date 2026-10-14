@@ -1,0 +1,2 @@
+light {"menuActivo":{"texto":"rgb(16, 35, 26)","fondo":"rgb(231, 242, 235)","contraste":"14.33"},"verFotosSinFotos":{"disabled":true,"texto":"rgb(100, 113, 105)","fondo":"rgba(0, 0, 0, 0)","borde":"rgb(220, 228, 222)","cursor":"not-allowed"}}
+dark {"menuActivo":{"texto":"rgb(234, 243, 237)","fondo":"rgb(22, 74, 48)","contraste":"9.02"},"verFotosSinFotos":{"disabled":true,"texto":"rgb(137, 153, 142)","fondo":"rgba(0, 0, 0, 0)","borde":"rgb(28, 58, 42)","cursor":"not-allowed"}}

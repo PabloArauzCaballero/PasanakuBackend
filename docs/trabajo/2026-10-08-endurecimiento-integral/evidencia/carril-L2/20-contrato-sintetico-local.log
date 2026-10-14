@@ -1,0 +1,60 @@
+##### 1. Control negativo ANTES de sembrar: organizador sin contrato => el trigger R-ORG-02 rechaza el grupo (lo que TEST devolvio como 500)
+ERROR:  R-ORG-02: el organizador <id> no tiene contrato firmado y vigente
+CONTEXT:  PL/pgSQL function grupos.fn_org_validar_contrato_grupo() line 13 at RAISE
+
+##### 2. sembrar_test.sh, primera corrida (guarda de perfil local con contenedor de juguete; hash por contenedor python)
+$ sembrar_test.sh    [primera]
+[sembrar] antes:   usuarios=0 activos=0 roles_vigentes=0 factores_activos=0 organizador_habilitado=0 contratos_vigentes=0 credenciales=0 
+[sembrar] credencial puesta a: SINT-E2E-A SINT-E2E-B 
+[sembrar] despues: usuarios=3 activos=3 roles_vigentes=3 factores_activos=2 organizador_habilitado=1 contratos_vigentes=1 credenciales=2 
+[sembrar] cambios: si (antes != despues)
+[listo] cuentas SINTETICAS sembradas (apto_produccion=false). Telefonos, contrasenas y segundo factor: tu archivo cuentas-test.txt.
+RC=0
+
+##### 3. segunda corrida => cambios: 0
+$ sembrar_test.sh    [segunda]
+[sembrar] antes:   usuarios=3 activos=3 roles_vigentes=3 factores_activos=2 organizador_habilitado=1 contratos_vigentes=1 credenciales=2 
+[sembrar] las dos cuentas ya tenian credencial: no se tocaron (cambia la contrasena con el flujo normal si hace falta)
+[sembrar] despues: usuarios=3 activos=3 roles_vigentes=3 factores_activos=2 organizador_habilitado=1 contratos_vigentes=1 credenciales=2 
+[sembrar] cambios: 0 (idempotente)
+[listo] cuentas SINTETICAS sembradas (apto_produccion=false). Telefonos, contrasenas y segundo factor: tu archivo cuentas-test.txt.
+RC=0
+
+##### 4. con el contrato vigente el INSERT del grupo pasa el trigger
+                     ?column?                      
+---------------------------------------------------
+ INSERT de grupo: OK (trigger R-ORG-02 satisfecho)
+(1 row)
+
+-- la fila:
+SINT-1|t|f|2026-10-10||
+
+##### 5. --retirar => contrato rescindido; el INSERT del grupo vuelve a ser rechazado por R-ORG-02
+$ sembrar_test.sh --retirar   [retirar]
+[retirar] antes:   usuarios=3 activos=3 roles_vigentes=3 factores_activos=2 organizador_habilitado=1 contratos_vigentes=1 credenciales=2 
+[retirar] despues: usuarios=3 activos=1 roles_vigentes=0 factores_activos=0 organizador_habilitado=0 contratos_vigentes=0 credenciales=0 
+[retirar] listo. Los grupos e invitaciones que se hayan creado en la prueba quedan como historial (no se borran).
+RC=0
+ERROR:  R-ORG-02: el organizador <id> no tiene contrato firmado y vigente
+CONTEXT:  PL/pgSQL function grupos.fn_org_validar_contrato_grupo() line 13 at RAISE
+
+##### 6. sembrar de nuevo => reactiva el contrato (rescindido_en NULL) y el grupo vuelve a pasar
+$ sembrar_test.sh    [reactivar]
+[sembrar] antes:   usuarios=3 activos=1 roles_vigentes=0 factores_activos=0 organizador_habilitado=0 contratos_vigentes=0 credenciales=0 
+[sembrar] credencial puesta a: SINT-E2E-A SINT-E2E-B 
+[sembrar] despues: usuarios=3 activos=3 roles_vigentes=3 factores_activos=2 organizador_habilitado=1 contratos_vigentes=1 credenciales=2 
+[sembrar] cambios: si (antes != despues)
+[listo] cuentas SINTETICAS sembradas (apto_produccion=false). Telefonos, contrasenas y segundo factor: tu archivo cuentas-test.txt.
+RC=0
+                     ?column?                      
+---------------------------------------------------
+ INSERT de grupo: OK (trigger R-ORG-02 satisfecho)
+(1 row)
+
+$ sembrar_test.sh    [idempotente-otra-vez]
+[sembrar] antes:   usuarios=3 activos=3 roles_vigentes=3 factores_activos=2 organizador_habilitado=1 contratos_vigentes=1 credenciales=2 
+[sembrar] las dos cuentas ya tenian credencial: no se tocaron (cambia la contrasena con el flujo normal si hace falta)
+[sembrar] despues: usuarios=3 activos=3 roles_vigentes=3 factores_activos=2 organizador_habilitado=1 contratos_vigentes=1 credenciales=2 
+[sembrar] cambios: 0 (idempotente)
+[listo] cuentas SINTETICAS sembradas (apto_produccion=false). Telefonos, contrasenas y segundo factor: tu archivo cuentas-test.txt.
+RC=0

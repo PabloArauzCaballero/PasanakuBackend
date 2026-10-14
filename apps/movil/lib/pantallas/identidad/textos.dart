@@ -22,12 +22,14 @@ class TextosIdentidad {
       'Se sortea, y cualquiera del grupo puede comprobarlo.';
   static const portadaCustodiaTitulo = 'La plata no la tenemos nosotros';
   static const portadaCustodiaDetalle =
-      'Queda en Banco Unión, aparte del dinero de la empresa.';
+      'Queda en una cuenta de custodia, aparte del dinero de la empresa.';
   static const portadaSaltar = 'Saltar';
+  static const portadaComoFunciona = '¿Cómo funciona?';
   static const tourSiguiente = 'Siguiente';
+  static const tourEmpezar = 'Empezar';
   // La bienvenida y las cuatro láminas del tour, con el texto exacto de la maqueta
   // (`docs/Views/AportaYa-Maqueta.html`: `bienvenida` y `const TOUR`). La segunda
-  // línea de cada título es la que se destaca en verde.
+  // línea destacada usa el mismo rol neutral que el resto del título.
   static const bienvenidaTitulo =
       'El pasanaku de siempre,\ncon la plata segura';
   static const bienvenidaTexto =
@@ -64,11 +66,12 @@ class TextosIdentidad {
   static const portadaGarantiaRegistro = 'Todo queda registrado';
   static const portadaGarantiaTurno = 'Tu turno a la vista';
 
-  // Alta (CU-01), ocho pasos.
+  // Alta (CU-01), seis pasos en cuatro fases.
   static const registroTitulo = 'Crear cuenta';
   static const telefonoAyuda = 'Ocho dígitos, sin el código de país.';
   static const documentoAyuda =
-      'Tu cédula de identidad, sin puntos ni guiones.';
+      'El número de tu cédula de identidad, solo los dígitos y sin el complemento. '
+      'Ej.: 8452136. Tiene que ser el mismo que se ve en la foto del carnet.';
   static const lugarExpedicion = 'Expedido en';
   static const lugarExpedicionAyuda = 'El departamento del carnet.';
   static const lugarExpedicionVacio = 'Elegir';
@@ -80,6 +83,9 @@ class TextosIdentidad {
   static const canalAyuda =
       'Elegí cuál de tus dos contactos confirmás primero. Podés confirmar el otro '
       'más adelante desde tu perfil.';
+  static const fechaExpiracion = 'Vence el';
+  static const fechaExpiracionAyuda =
+      'La fecha de vencimiento que figura en tu carnet.';
   static const lugarExpedicionFalta = 'Elegí dónde te expidieron el carnet.';
   static const fechaNacimientoAyuda =
       'Para abrir una billetera hay que ser mayor de edad.';
@@ -91,7 +97,8 @@ class TextosIdentidad {
       'documento: si no coinciden, la verificación se frena.';
   static const pasoDatos = 'Tus datos';
   static const pasoContrasena = 'Tu contraseña';
-  static const pasoCelular = 'Confirmar correo';
+  static const pasoCorreo = 'Confirmar correo';
+  static const pasoCapturas = 'Tus capturas';
   static const pasoAnverso = 'Documento (anverso)';
   static const pasoReverso = 'Documento (reverso)';
   static const pasoPruebaDeVida = 'Prueba de vida';
@@ -101,10 +108,14 @@ class TextosIdentidad {
 
   static const nombres = 'Nombres';
   static const apellidos = 'Apellidos';
+  static const primerNombre = 'Primer nombre';
+  static const segundoNombre = 'Segundo nombre (opcional)';
+  static const apellidoPaterno = 'Apellido paterno';
+  static const apellidoMaterno = 'Apellido materno';
   static const fechaNacimiento = 'Fecha de nacimiento';
   static const telefono = 'Celular';
   static const tipoDocumento = 'Tipo de documento';
-  static const numeroDocumento = 'Número de documento';
+  static const numeroDocumento = 'Número de CI';
   static const codigoPorSms = 'Te enviamos un código por SMS al';
   static const codigoPorCorreo = 'Te enviamos un código al correo';
   static const codigoNoLlega =
@@ -115,16 +126,7 @@ class TextosIdentidad {
   static const capturarAnverso = 'Fotografiá el frente de tu documento';
   static const capturarReverso = 'Fotografiá el reverso de tu documento';
   static const capturarSelfie = 'Mirá a la cámara y no te muevas';
-  static const camaraSinPermiso =
-      'No pudimos usar la cámara. Podés seguir escribiendo los datos a mano.';
-  static const camaraPocaLuz =
-      'Hay poca luz para una foto nítida. Podés reintentar o escribir los datos.';
-  static const reintentarCaptura = 'Reintentar';
-  static const escribirAMano = 'Escribir a mano';
-  static const elegirDeLasFotos = 'Elegir de mis fotos';
-  static const sinCamara =
-      'Este dispositivo no tiene cámara disponible. Podés elegir una foto que ya '
-      'tengas, o escribir los datos a mano.';
+  static const elegirDeLasFotos = 'Elegir de la galería';
 
   // CU-03, declaración PEP.
   static const preguntaPep =
@@ -137,8 +139,8 @@ class TextosIdentidad {
 
   // CU-04, sesión.
   static const altaListaTitulo = 'Tu cuenta quedó creada';
-  // Sin «la contraseña que elegiste»: el alta de ocho pasos **no** pide contraseña
-  // en ningún momento. Prometerla acá dejaría a alguien buscando una que nunca creó.
+  // El ingreso identifica a la cuenta por el celular; la clave elegida en el alta
+  // se usa junto con ese dato para autenticarse.
   static const altaListaDetalle =
       'Ingresá con tu celular para entrar a tu billetera. Si tu verificación '
       'sigue en curso, te avisamos por correo cuando termine.';
@@ -154,10 +156,20 @@ class TextosIdentidad {
       'AportaYa y te ayudamos a entrar.';
   static const sesionSinCuenta = '¿Todavía no tenés cuenta?';
   static const sesionCustodia =
-      'Tu plata queda en custodia en Banco Unión, separada del dinero de la empresa.';
+      'Tu plata queda en una cuenta de custodia, separada del dinero de la empresa.';
   static const contrasena = 'Contraseña';
   static const ingresar = 'Ingresar';
   static const tituloMfa = 'Verificación en dos pasos';
+  static const mfaIndicacion =
+      'Ingresá el código de seis dígitos solicitado para proteger tu ingreso.';
+  static const mfaSinCodigoAyuda =
+      'Si no recibiste un código o no podés acceder, comunicate con soporte de '
+      'AportaYa.';
+  static const explicacionMfa =
+      'Para cuidar tu cuenta te pedimos un código más. Escribí los 6 dígitos de '
+      'tu segundo factor y confirmá para terminar de ingresar.';
+  static const confirmarMfa = 'Confirmar';
+  static const etiquetaCodigoMfa = 'Código de tu segundo factor';
   static const dispositivoDeConfianza =
       'Confiar en este dispositivo por 30 días';
   static const tusDispositivos = 'Tus dispositivos';

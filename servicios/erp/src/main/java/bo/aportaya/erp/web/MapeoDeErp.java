@@ -82,15 +82,17 @@ final class MapeoDeErp {
                 new BigDecimal(cuerpo.getMonto()),
                 cuerpo.getMoneda().getValue(),
                 cuerpo.getCuentaGastoId(),
-                cuerpo.getAprobadaPor());
+                Boolean.TRUE.equals(cuerpo.getAprobar()));
     }
 
-    static CU103FacturaDeProveedor.EntradaPago pago(java.util.UUID facturaId, EntradaPago cuerpo) {
+    static CU103FacturaDeProveedor.EntradaPago pago(
+            java.util.UUID facturaId, java.util.UUID claveIdempotencia, EntradaPago cuerpo) {
         return new CU103FacturaDeProveedor.EntradaPago(
                 facturaId,
                 new BigDecimal(cuerpo.getMonto()),
                 cuerpo.getMoneda().getValue(),
-                cuerpo.getFormaPago().getValue());
+                cuerpo.getFormaPago().getValue(),
+                claveIdempotencia);
     }
 
     static CU104CobrarCuenta.EntradaCuenta cuentaPorCobrar(EntradaCuentaPorCobrar cuerpo) {

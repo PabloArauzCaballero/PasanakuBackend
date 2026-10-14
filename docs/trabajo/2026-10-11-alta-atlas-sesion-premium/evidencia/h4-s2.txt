@@ -1,0 +1,59 @@
+H4.S2 — evidencia de nombres separados
+Fecha local: 2026-10-12 (America/La_Paz)
+
+Rojo inicial de la prueba de contrato, antes de implementar modelo/validación:
+flutter test test/identidad/nombres_del_alta_test.dart --reporter expanded
+test/identidad/nombres_del_alta_test.dart: Error: No named parameter with the name 'primerNombre'.
+test/identidad/nombres_del_alta_test.dart: Error: Method not found: 'errorApellidos'.
+00:00 +0 -1: Some tests failed.
+
+Verde final de la app (seis suites focalizadas de modelo, validación, layout/foco,
+paso de datos y compatibilidad del estado/contraseña):
+flutter test test/identidad/nombres_del_alta_test.dart test/unidad/validaciones_test.dart test/widget/campos_del_alta_test.dart test/widget/paso_datos_test.dart test/identidad/estado_alta_test.dart test/identidad/paso_contrasena_test.dart --reporter expanded
+00:05 +40: All tests passed!
+
+Analyzer de la app:
+flutter analyze
+No issues found! (ran in 3.6s)
+
+Regresión de los campos y selectores compartidos en el sistema de diseño:
+flutter test test/widget/campo_de_seleccion_test.dart test/widget/hoja_de_seleccion_test.dart test/widget/comportamiento_test.dart --reporter expanded
+00:02 +24: All tests passed!
+dart analyze lib/atomos/campo.dart
+No issues found!
+
+Gate móvil:
+python scripts/verificar_frontend.py movil
+TODO OK
+
+Cobertura visual automatizada: la geometría se simuló a 360 y 412 dp en widget tests.
+No se capturó una imagen en un dispositivo/emulador físico; H4.S2.M4 queda A MEDIAS
+hasta completar esa evidencia física. Las pruebas ejercitan autofill hints, capitalización,
+orden del foco por «Siguiente» y foco al primer error del formulario.
+
+Reverificación del 13-10-2026, después de alinear los rótulos largos únicamente en el layout
+de dos columnas:
+
+```text
+flutter test --no-pub --concurrency=1 --reporter expanded --timeout 60s test/widget/campos_del_alta_test.dart
+00:02 +4: All tests passed!
+EXIT_CODE=0
+
+flutter test --no-pub --concurrency=1 --reporter expanded --timeout 60s --plain-name "alta datos inicial · claro · 412 dp · texto 130 %" test/goldens/h10_alta_datos_visual_test.dart
+00:01 +1: All tests passed!
+EXIT_CODE=0
+```
+
+La matriz simulada comprueba la columna en 360 dp, dos columnas alineadas en 412 dp y los
+ejemplos de los cuatro campos de texto del paso. La captura de H10 confirma que limitar la
+reserva de altura a dos columnas no añade espacio en el layout apilado de esa pantalla. No
+sustituye la captura física pendiente.
+
+### Actualización 2026-10-14 — cierre de H4.S2.M4
+
+La captura pendiente se completó en el emulador Android Samsung_A06-L (el dispositivo/emulador
+está permitido por `NOTAS.md`). H4.S2.M4 queda HECHO: integración Android 1/1 a 360 dp y 1/1 a
+412 dp; pruebas widget de `campos_del_alta_test.dart` y `paso_datos_test.dart`, 6/6; análisis
+estático del test de integración limpio. Las capturas completas de sistema se inspeccionaron:
+una columna a 360 dp, dos filas alineadas a 412 dp. Ver [registro y capturas detallados](./h4-s2-m4-android.md).
+No se afirma validación en teléfono físico.

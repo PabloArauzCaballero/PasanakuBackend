@@ -64,6 +64,24 @@ La bóveda (`docs/`) dice **qué** hay que construir. Las skills dicen **cómo**
 | `movil-flutter` | Al trabajar en la app (Flutter) o en `packages/diseno_flutter` |
 | `web-angular` | Al trabajar en el backoffice, el sitio público o `packages/ui` (Angular) |
 | `web-backoffice` | El comportamiento del backoffice: tablas, expedientes, plazos, permisos |
+| `animate` | Al implementar una animación o transición nueva |
+| `animation-vocabulary` | Cuando haya que identificar o nombrar un efecto de movimiento |
+| `apple-design` | Al diseñar o revisar interacciones físicas, gestos y movimiento fluido en web |
+| `break-ui` | Al probar una interfaz con datos extremos y buscar fallos de presentación |
+| `emil-design-eng` | Al pulir una interfaz y revisar sus detalles visuales e interacción |
+| `find-animation-opportunities` | Al buscar cambios de interfaz que podrían beneficiarse de movimiento, sin implementarlos |
+| `fixing-accessibility` | Al revisar o corregir accesibilidad web, teclado, foco, contraste y formularios |
+| `fixing-motion-performance` | Al diagnosticar tirones o problemas de rendimiento en animaciones web |
+| `frontend-design` | Al definir una dirección visual distintiva para una interfaz nueva o renovada |
+| `improve-animations` | Al auditar el movimiento de un proyecto y planificar mejoras sin editar el código fuente |
+| `improve-ui` | Al auditar una interfaz existente y preparar planes de mejora sin modificar el producto |
+| `mobile-native` | Al adaptar una web para que se sienta natural en teléfonos y pantallas táctiles |
+| `pasanaku-app-movil-ux` | Antes de diseñar o revisar UX de la app móvil Flutter, navegación, sesión o hardware |
+| `pasanaku-diseno` | Antes de cambiar colores, espaciado, tipografía, componentes o pantallas de la app Flutter |
+| `pasanaku-movimiento` | Al añadir o diagnosticar animaciones y microinteracciones en la app Flutter |
+| `pasanaku-ui-componentes` | Antes de crear o revisar widgets Flutter reutilizables y su ubicación en el proyecto |
+| `review-animations` | Al revisar un cambio concreto de animación y movimiento |
+| `web-design-guidelines` | Al auditar una interfaz web frente a las pautas actuales de diseño y accesibilidad |
 
 ## Dominio
 

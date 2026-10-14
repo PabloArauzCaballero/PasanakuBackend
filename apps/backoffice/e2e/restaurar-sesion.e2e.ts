@@ -9,6 +9,10 @@ import { expect, test } from '@playwright/test'
  * el mock de Prism generado desde ese contrato. Se intercepta con `page.route` — regla 65,
  * el doble del contrato que falta — devolviendo lo que `AuthBootstrap` espera de un `200`
  * real: `{ acceso, permisos, rol }`.
+ *
+ * Actualización (H10 del escáner, 2026-10-03): el endpoint ya está en el contrato
+ * (`renovarSesion`, ADR-010). Se sigue interceptando para fijar cada respuesta del caso
+ * (200/401/500) en vez de depender del ejemplo que sirva el mock.
  */
 const REFRESCO_OK = { acceso: 't-refrescado', permisos: ['ver:operacion'], rol: 'oficial' }
 

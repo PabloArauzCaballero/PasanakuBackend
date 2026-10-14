@@ -1,11 +1,14 @@
+import 'dart:async';
+
 import 'package:aportaya_diseno/atomos/barra_de_puntos.dart';
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/moleculas/cabecera.dart';
+import 'package:aportaya_diseno/atomos/movimiento.dart';
+import 'package:aportaya_diseno/moviles/alcance_haptica.dart';
 import 'package:aportaya_diseno/moviles/fondo_de_marca.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import 'lamina_del_tour.dart';
@@ -17,7 +20,7 @@ import 'textos.dart';
 ///
 /// Se pasa con el dedo o con «Siguiente». El deslizamiento rebota en los extremos
 /// —el mismo resorte de las listas de iOS— y cada cambio de lámina da un golpecito
-/// háptico, así el gesto se siente en la mano además de verse.
+/// háptico, así el gesto se siente en el dedo además de verse.
 class PantallaDeTour extends StatefulWidget {
   const PantallaDeTour({super.key});
 
@@ -48,8 +51,12 @@ class _PantallaDeTourState extends State<PantallaDeTour> {
       context.push('/registro');
       return;
     }
+    if (reducirMovimiento(context)) {
+      _paginas.jumpToPage(_actual + 1);
+      return;
+    }
     _paginas.nextPage(
-      duration: const Duration(milliseconds: 520),
+      duration: Movimiento.pagina,
       curve: Curves.easeInOutCubicEmphasized,
     );
   }
@@ -58,7 +65,7 @@ class _PantallaDeTourState extends State<PantallaDeTour> {
 
   @override
   Widget build(BuildContext context) {
-    final t = Tokens.of(context);
+    final duracionAnimacion = duracion(context, Movimiento.entrada);
     return FondoDeMarca(
       hijo: Scaffold(
         backgroundColor: Colors.transparent,
@@ -84,12 +91,15 @@ class _PantallaDeTourState extends State<PantallaDeTour> {
                     // golpe: la cabecera no salta mientras el dedo todavía está.
                     AnimatedOpacity(
                       opacity: _enLaUltima ? 0 : 1,
-                      duration: const Duration(milliseconds: 220),
+                      duration: duracionAnimacion,
                       child: TextButton(
                         onPressed: _enLaUltima
                             ? null
                             : () => context.push('/registro'),
-                        child: const Text(TextosIdentidad.portadaSaltar),
+                        child: ExcludeSemantics(
+                          excluding: _enLaUltima,
+                          child: const Text(TextosIdentidad.portadaSaltar),
+                        ),
                       ),
                     ),
                   ],
@@ -103,7 +113,7 @@ class _PantallaDeTourState extends State<PantallaDeTour> {
                   ),
                   itemCount: laminasDelTour.length,
                   onPageChanged: (i) {
-                    HapticFeedback.selectionClick();
+                    unawaited(AlcanceHaptica.maybeOf(context)?.seleccion());
                     setState(() => _actual = i);
                   },
                   itemBuilder: (context, i) => AnimatedBuilder(
@@ -122,40 +132,57 @@ class _PantallaDeTourState extends State<PantallaDeTour> {
                   Espacio.s4,
                   Espacio.s4,
                 ),
-                child: AnimatedSize(
-                  duration: const Duration(milliseconds: 260),
-                  curve: Curves.easeOutCubic,
-                  alignment: Alignment.topCenter,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      BarraDePuntos(
-                        total: laminasDelTour.length,
-                        actual: _actual,
-                      ),
-                      const SizedBox(height: Espacio.s5),
-                      Boton(
-                        texto: _enLaUltima
-                            ? TextosIdentidad.portadaCrearCuenta
-                            : TextosIdentidad.tourSiguiente,
-                        icono: _enLaUltima ? null : Icons.arrow_forward,
-                        variante: BotonVariante.primario,
-                        expandido: true,
-                        onPressed: _siguiente,
-                      ),
-                      if (_enLaUltima)
-                        Padding(
-                          padding: const EdgeInsets.only(top: Espacio.s2),
-                          child: TextButton(
-                            onPressed: () => context.push('/ingreso'),
-                            child: Text(
-                              TextosIdentidad.portadaYaTengoCuenta,
-                              style: Tipo.boton.copyWith(color: t.brandTexto),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    BarraDePuntos(
+                      total: laminasDelTour.length,
+                      actual: _actual,
+                    ),
+                    const SizedBox(height: Espacio.s5),
+                    SizedBox(
+                      width: double.infinity,
+                      child: AnimatedSwitcher(
+                        duration: duracionAnimacion,
+                        transitionBuilder: (child, animation) {
+                          final opacidad = animation.drive(
+                            CurveTween(curve: Movimiento.llega),
+                          );
+                          final desplazamiento = animation.drive(
+                            Tween<double>(
+                              begin: 8,
+                              end: 0,
+                            ).chain(CurveTween(curve: Movimiento.llega)),
+                          );
+                          return FadeTransition(
+                            opacity: opacidad,
+                            child: AnimatedBuilder(
+                              animation: desplazamiento,
+                              child: child,
+                              builder: (context, child) => Transform.translate(
+                                offset: Offset(0, desplazamiento.value),
+                                child: child,
+                              ),
                             ),
+                          );
+                        },
+                        child: Boton(
+                          key: ValueKey(
+                            _enLaUltima
+                                ? TextosIdentidad.tourEmpezar
+                                : TextosIdentidad.tourSiguiente,
                           ),
+                          texto: _enLaUltima
+                              ? TextosIdentidad.tourEmpezar
+                              : TextosIdentidad.tourSiguiente,
+                          icono: Icons.arrow_forward,
+                          variante: BotonVariante.primario,
+                          expandido: true,
+                          onPressed: _siguiente,
                         ),
-                    ],
-                  ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

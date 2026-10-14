@@ -2,6 +2,7 @@ import 'package:aportaya_cliente_transparencia/aportaya_cliente_transparencia.da
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../dominio/cliente.dart';
+import '../../../proveedores/sesion.dart';
 
 /// CU-73 · verificar la cadena de transparencia de un grupo. Ruta pública: recorre
 /// los bloques y devuelve el primero que falla. Un grupo sin bloques todavía no es
@@ -9,6 +10,7 @@ import '../../../dominio/cliente.dart';
 /// cadena rota, nunca los mezcla en el mismo mensaje.
 final verificarCadenaProvider = FutureProvider.autoDispose
     .family<SalidaVerificacionCadena, String>((ref, grupoId) async {
+      ref.watch(generacionDeSesionProvider);
       final dio = ref.watch(dioProvider);
       try {
         final r = await DefaultApi(dio).verificarCadena(grupoId: grupoId);

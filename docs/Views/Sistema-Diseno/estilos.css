@@ -3,7 +3,7 @@
   --g900:#0C2C1D;--g800:#123A26;--g700:#164A30;--g600:#1C5A3A;--g500:#237349;
   --g400:#3C9366;--g300:#7CBE9C;--g200:#BCDFCC;--g100:#E7F2EB;
   /* ===== Naranja Aporte ===== */
-  --o700:#BC6217;--o600:#D6741C;--o500:#E5852B;--o400:#EF9E4E;--o300:#F6BE85;--o200:#FBDBB8;--o100:#FDF0DF;
+  --o700:#B85B13;--o600:#D6741C;--o500:#E5852B;--o400:#EF9E4E;--o300:#F6BE85;--o200:#FBDBB8;--o100:#FDF0DF;
   /* ===== Neutros ===== */
   --ink:#10231A;--slate:#38473F;--muted:#6C7B72;--line:#DCE4DE;--cloud:#F3F6F2;--crema:#F6F4EC;--white:#FFF;
   /* ===== Semánticos ===== */
@@ -19,6 +19,7 @@
      Cada rol es un `font` abreviado (peso tamaño/alto familia) más su tracking
      aparte, porque el abreviado de CSS no lo lleva. La app Flutter genera de acá
      un TextStyle por rol: los dos mundos miden la misma letra. */
+  --t-cuenta-atras:700 88px/1 var(--font-d);   --t-cuenta-atras-track:-0.035em;
   --t-cifra-grande:700 40px/1 var(--font-d);   --t-cifra-grande-track:-0.035em;
   --t-cifra:700 22px/1.1 var(--font-d);        --t-cifra-track:-0.02em;
   --t-titulo-1:700 26px/1.15 var(--font-d);    --t-titulo-1-track:-0.02em;
@@ -34,11 +35,10 @@
   /* ===== Tema claro ===== */
   --bg:var(--crema);--surface:var(--white);--surface-2:var(--cloud);
   --text:var(--ink);--text-2:var(--slate);--border:var(--line);
-  --brand:var(--g600);--brand-ink:var(--g800);--accent:var(--o500);--accent-ink:#3A1E02;
+  --brand:var(--g600);--brand-ink:var(--g800);--accent:var(--o700);--accent-ink:var(--white);
   --field:var(--white);--field-border:#C9D4CD;
-  /* Relleno sólido fijo (NO se redefine por tema): para botones/píldoras/círculos que
-     llevan texto blanco encima. --brand se aclara en oscuro para servir como texto y
-     deja de sostener blanco (3.59:1) — por eso este es un token aparte. */
+  /* Relleno sólido contextual: en oscuro sube a g300 y usa tinta para conservar
+     ≥4,5:1 de texto y ≥3:1 contra las superficies del tema. */
   --verde-solido:#1C5A3A;--sobre-verde-solido:#F4FBF6;
   /* ===== Roles de TEXTO con contraste verificado (WCAG AA ≥ 4.5:1) =====
      Los tonos de marca no siempre pasan como texto chico sobre crema:
@@ -55,13 +55,14 @@
 }
 @media (prefers-color-scheme:dark){:root{
   --bg:#0A1F15;--surface:#0F2B1D;--surface-2:#0C2418;--text:#EAF3ED;--text-2:#B7CCC0;--text-3:#89998E;--border:#1C3A2A;
-  --brand:var(--g400);--brand-ink:#EAF3ED;--accent:var(--o400);--field:#0C2418;--field-border:#2A4A38;
-  --brand-texto:#419F6E;--accent-texto:var(--o400);--ok-texto:var(--g300);--aviso-texto:var(--warn);--err-texto:#F08C8C;--info-texto:#8FC2E4;
+  --brand:var(--g300);--brand-ink:#EAF3ED;--accent:var(--o400);--accent-ink:#3A1E02;
+  --field:#0C2418;--field-border:#2A4A38;--verde-solido:var(--g300);--sobre-verde-solido:var(--ink);
+  --brand-texto:var(--g300);--accent-texto:var(--o400);--ok-texto:var(--g300);--aviso-texto:var(--warn);--err-texto:#F08C8C;--info-texto:#8FC2E4;
   --cloud:#0C2418;--crema:#0A1F15;--okbg:rgba(31,157,87,.14);--warnbg:rgba(240,180,41,.14);--errbg:rgba(214,69,69,.14);--infobg:rgba(46,127,184,.14);
   --sh-1:0 1px 2px rgba(0,0,0,.3);--sh-2:0 6px 20px rgba(0,0,0,.32);--sh-3:0 20px 46px rgba(0,0,0,.4);
 }}
-:root[data-theme="light"]{--bg:#F6F4EC;--surface:#fff;--surface-2:#F3F6F2;--text:#10231A;--text-2:#38473F;--border:#DCE4DE;--brand:#1C5A3A;--brand-ink:#123A26;--accent:#E5852B;--text-3:#647169;--brand-texto:#1C5A3A;--accent-texto:#A65B14;--ok-texto:#197C45;--aviso-texto:#AA5915;--err-texto:#C13A3A;--info-texto:#256C9E;--field:#fff;--field-border:#C9D4CD;--cloud:#F3F6F2;--crema:#F6F4EC;--okbg:#E7F5EC;--warnbg:#FEF4DA;--errbg:#FBECEC;--infobg:#E7F1F8}
-:root[data-theme="dark"]{--bg:#0A1F15;--surface:#0F2B1D;--surface-2:#0C2418;--text:#EAF3ED;--text-2:#B7CCC0;--text-3:#89998E;--border:#1C3A2A;--brand:#3C9366;--brand-ink:#EAF3ED;--accent:#EF9E4E;--brand-texto:#419F6E;--accent-texto:var(--o400);--ok-texto:var(--g300);--aviso-texto:var(--warn);--err-texto:#F08C8C;--info-texto:#8FC2E4;--field:#0C2418;--field-border:#2A4A38;--cloud:#0C2418;--crema:#0A1F15;--okbg:rgba(31,157,87,.14);--warnbg:rgba(240,180,41,.14);--errbg:rgba(214,69,69,.14);--infobg:rgba(46,127,184,.14);--sh-1:0 1px 2px rgba(0,0,0,.3);--sh-2:0 6px 20px rgba(0,0,0,.32);--sh-3:0 20px 46px rgba(0,0,0,.4)}
+:root[data-theme="light"]{--bg:#F6F4EC;--surface:#fff;--surface-2:#F3F6F2;--text:#10231A;--text-2:#38473F;--border:#DCE4DE;--brand:#1C5A3A;--brand-ink:#123A26;--accent:var(--o700);--accent-ink:var(--white);--text-3:#647169;--brand-texto:#1C5A3A;--accent-texto:#A65B14;--ok-texto:#197C45;--aviso-texto:#AA5915;--err-texto:#C13A3A;--info-texto:#256C9E;--field:#fff;--field-border:#C9D4CD;--cloud:#F3F6F2;--crema:#F6F4EC;--okbg:#E7F5EC;--warnbg:#FEF4DA;--errbg:#FBECEC;--infobg:#E7F1F8}
+:root[data-theme="dark"]{--bg:#0A1F15;--surface:#0F2B1D;--surface-2:#0C2418;--text:#EAF3ED;--text-2:#B7CCC0;--text-3:#89998E;--border:#1C3A2A;--brand:#7CBE9C;--brand-ink:#EAF3ED;--accent:#EF9E4E;--accent-ink:#3A1E02;--verde-solido:var(--g300);--sobre-verde-solido:var(--ink);--brand-texto:var(--g300);--accent-texto:var(--o400);--ok-texto:var(--g300);--aviso-texto:var(--warn);--err-texto:#F08C8C;--info-texto:#8FC2E4;--field:#0C2418;--field-border:#2A4A38;--cloud:#0C2418;--crema:#0A1F15;--okbg:rgba(31,157,87,.14);--warnbg:rgba(240,180,41,.14);--errbg:rgba(214,69,69,.14);--infobg:rgba(46,127,184,.14);--sh-1:0 1px 2px rgba(0,0,0,.3);--sh-2:0 6px 20px rgba(0,0,0,.32);--sh-3:0 20px 46px rgba(0,0,0,.4)}
 
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-b);line-height:1.55;font-size:15px;-webkit-font-smoothing:antialiased}
@@ -203,7 +204,7 @@ h3{font-size:18px;font-weight:600;margin:0 0 4px}
 .balcard .v .cur{font-size:16px;opacity:.8}
 .qa{display:flex;gap:10px}
 .qa .b{flex:1;text-align:center;border-radius:var(--r-md);padding:11px 8px;font-family:var(--font-d);font-weight:600;font-size:13px}
-.qa .b.pri{background:var(--o500);color:#3A1E02}.qa .b.gh{background:rgba(255,255,255,.14);color:#EAF7EF;border:1px solid rgba(255,255,255,.22)}
+.qa .b.pri{background:var(--accent);color:var(--accent-ink)}.qa .b.gh{background:rgba(255,255,255,.14);color:#EAF7EF;border:1px solid rgba(255,255,255,.22)}
 .alert{display:flex;gap:12px;border-radius:var(--r-md);padding:14px 16px;border:1px solid}
 .alert .ic{font-weight:700;flex:none}
 .alert.ok{background:var(--okbg);border-color:color-mix(in srgb,var(--ok) 40%,transparent)}.alert.warn{background:var(--warnbg);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}.alert.err{background:var(--errbg);border-color:color-mix(in srgb,var(--err) 40%,transparent)}.alert.info{background:var(--infobg);border-color:color-mix(in srgb,var(--info) 40%,transparent)}

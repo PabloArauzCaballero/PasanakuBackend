@@ -30,6 +30,7 @@
 #   AP-CU103-02  MISMO_APROBADOR_Y_PAGADOR    · R-CTB-05: cuatro ojos sobre el egreso
 #   AP-CU103-03  FACTURA_DUPLICADA            · ese proveedor ya tiene ese numero
 #   AP-CU103-04  MONTO_PAGO_MAYOR_AL_SALDO    · el pago excede el saldo pendiente
+#   AP-CU103-05  CLAVE_DE_IDEMPOTENCIA_REUTILIZADA · R-CTB-11: esa clave ya es de otro pago de la factura
 #
 # CU-104 · Cobrar una cuenta por cobrar
 #   AP-CU104-01  CUENTA_INEXISTENTE           · el identificador no corresponde a una cuenta
@@ -215,7 +216,9 @@ paths:
       summary: CU-103 · Registra la factura del proveedor
       description: >-
         Exige CONTABILIDAD_ERP_CUENTAS_POR_PAGAR. La aprobacion es un dato del alta:
-        `factura_proveedor` es append-only y no admite aprobarse despues.
+        `factura_proveedor` es append-only y no admite aprobarse despues. El aprobador
+        es el sujeto autenticado (token), no un dato del cuerpo: si el cuerpo trae
+        `aprobadaPor`, se rechaza con 400.
       parameters:
         - $ref: '#/components/parameters/ClaveIdempotencia'
       requestBody:
@@ -239,7 +242,9 @@ paths:
         Exige CONTABILIDAD_ERP_PAGAR. Quien autoriza el pago es el sujeto autenticado
         (token), no un dato del cuerpo: el cuerpo no lleva `autorizadoPor` y, si lo
         trae, se rechaza con 400. Quien aprobo la factura no puede autorizar su pago
-        (R-CTB-05).
+        (R-CTB-05). Idempotente (R-CTB-11): la misma `Idempotency-Key` sobre la misma
+        factura con el mismo pago devuelve la respuesta del original sin registrar otro
+        pago; con la misma clave y otro pago responde 422 AP-CU103-05.
       parameters:
         - $ref: '#/components/parameters/FacturaId'
         - $ref: '#/components/parameters/ClaveIdempotencia'
@@ -544,12 +549,14 @@ components:
         monto: { $ref: '#/components/schemas/Monto' }
         moneda: { type: string, enum: [BOB, USD] }
         cuentaGastoId: { type: string, format: uuid }
-        aprobadaPor:
-          type: string
-          format: uuid
+        aprobar:
+          type: boolean
+          default: false
           description: >-
-            Quien aprueba, en el alta. La tabla es append-only: no hay aprobacion
-            posterior.
+            Si quien registra tambien aprueba la factura, en el alta (la tabla es
+            append-only: no hay aprobacion posterior). El aprobador es siempre el sujeto
+            autenticado (token): el cuerpo NO lleva `aprobadaPor` y, si lo trae, se
+            rechaza con 400. Quien aprueba no puede autorizar su pago (R-CTB-05).
     SalidaFactura:
       type: object
       additionalProperties: false
@@ -577,7 +584,11 @@ components:
         moneda: { type: string, enum: [BOB, USD] }
         formaPago:
           type: string
-          enum: [TRANSFERENCIA, CHEQUE, EFECTIVO, QR]
+          description: >-
+            Las tres formas que admite `pago_a_proveedor` (ck_pago_a_proveedor_forma_pago,
+            docs/entidades/13_contabilidad_erp.puml). QR no esta: no hay decision que lo
+            admita, y el cobro por QR es de `cuenta_por_cobrar`, no del pago a proveedor.
+          enum: [TRANSFERENCIA, CHEQUE, EFECTIVO]
     EntradaCuentaPorCobrar:
       type: object
       additionalProperties: false

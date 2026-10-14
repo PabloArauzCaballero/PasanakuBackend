@@ -102,6 +102,20 @@ public class SesionDeLaPeticion {
         return permisos == null ? Set.of() : Set.copyOf(permisos);
     }
 
+    /** Identificador de sesión firmado por identidad; nunca se toma del cuerpo o query del cliente. */
+    public UUID idDeLaSesion() {
+        Authentication autenticacion = SecurityContextHolder.getContext().getAuthentication();
+        if (autenticacion == null || !(autenticacion.getPrincipal() instanceof Jwt token)) {
+            throw new SinContextoDeSesion("la petición llegó sin token verificado");
+        }
+        String id = token.getClaimAsString("sesion_id");
+        try {
+            return UUID.fromString(id);
+        } catch (RuntimeException invalido) {
+            throw new SinContextoDeSesion("el token no trae un identificador de sesión válido");
+        }
+    }
+
     private static UUID usuarioDe(String sujeto) {
         try {
             return UUID.fromString(sujeto);

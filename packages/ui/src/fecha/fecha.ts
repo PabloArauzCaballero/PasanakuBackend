@@ -18,6 +18,16 @@ export class Fecha {
   readonly texto = computed(() => formatearFecha(this.iso(), this.conHora()))
 }
 
+/**
+ * «2027-05-10» (un `format: date`, sin hora ni zona) → «10 may 2027». Aparte de
+ * `formatearFecha` a propósito: `new Date('2027-05-10')` es medianoche UTC, y pasarla a
+ * La Paz la corre al 9 — un vencimiento mostrado un día antes del real.
+ */
+export function formatearDia(dia: string): string {
+  const [a, m, d] = dia.split('-')
+  return `${Number(d)} ${MESES[Number(m) - 1]} ${a}`
+}
+
 /** «2026-09-10T18:05:00Z» → «10 sep 2026, 14:05 (La Paz)». */
 export function formatearFecha(iso: string, conHora = true): string {
   const utc = new Date(iso).getTime()

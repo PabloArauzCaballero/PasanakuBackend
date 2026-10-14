@@ -153,14 +153,11 @@ def h9_m5() -> None:
     INF.comprobar("H9.S1.M5-mayor", "el libro cuadra: comprador -5500, y vendedor + plataforma = +5500 (sistema cerrado)",
                   d_comprador == D("-5500.00") and d_vendedor + d_plataforma == D("5500.00"),
                   f"comprador {d_comprador}, vendedor {d_vendedor}, plataforma {d_plataforma}")
-    if d_vendedor == D(precio) and d_plataforma == D("0.00"):
-        INF.brecha("H9.S1.M5-cargos", "reparto de los cargos de la oferta (DECISION_REQUIRED, ambiguedad A9)",
-                   f"entregas declara que el vendedor cobra precio-cargos ({D(precio) - D(cargos)}) y la plataforma {cargos}; nucleo le pago "
-                   f"al vendedor {d_vendedor} y a la plataforma {d_plataforma}: dos servicios, dos lecturas. La OfertaParaPago es minima A "
-                   "PROPOSITO (no lleva cargos) y un test lo exige: decidirlo es de Direccion comercial/tarifas, no se resuelve por conveniencia")
-    else:
-        INF.comprobar("H9.S1.M5-cargos", "reparto de los cargos coincide con entregas", d_vendedor == D(precio) - D(cargos) and d_plataforma == D(cargos),
-                      f"vendedor {d_vendedor}, plataforma {d_plataforma}")
+    # Carril Q (decision adoptada por delegacion del dueno, 2026-10-11): el comprador paga el PRECIO, el vendedor cobra
+    # precio - cargos y la plataforma ingresa los cargos, cada uno con su linea. Antes esto era la brecha DECISION_REQUIRED A9.
+    INF.comprobar("H9.S1.M5-cargos", "reparto de los cargos coincide con entregas (vendedor precio-cargos, plataforma cargos)",
+                  d_vendedor == D(precio) - D(cargos) and d_plataforma == D(cargos),
+                  f"vendedor {d_vendedor}, plataforma {d_plataforma}")
     estados = psql("SELECT o.estado, c.estado FROM entregas.oferta_turno o JOIN entregas.cesion_derecho c ON c.oferta_turno_id = o.id WHERE o.id = %s", oferta)
     INF.comprobar("H9.S1.M5-estado", "oferta VENDIDA y cesion LIQUIDADA", estados and estados[0] == ["VENDIDA", "LIQUIDADA"], str(estados))
     evento_publicado("entregas", "entregas.derecho_cedido", cesion)

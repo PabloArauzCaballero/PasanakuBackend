@@ -1,0 +1,37 @@
+heavy.sh: candado tomado, libres 4668 MB -> bash /c/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/h3/tests.sh
+== dart format
+Formatted lib/dominio/errores.dart
+Formatted test/pasanaku/pantalla_crear_grupo_test.dart
+Formatted test/unidad/errores_grupos_test.dart
+Formatted 7 files (3 changed) in 0.03 seconds.
+== analyze
+Analyzing movil...                                              
+No issues found! (ran in 8.6s)
+RC_ANALYZE=0
+== flutter test
+00:00 +0: loading C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/errores_grupos_test.dart
+00:00 +0: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/errores_grupos_test.dart: mensajeDe · grupos correcto: cada rechazo de crear grupo (CU-20) tiene texto propio y distinto
+00:00 +1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/errores_grupos_test.dart: mensajeDe · grupos correcto: cada rechazo de crear grupo (CU-20) tiene texto propio y distinto
+00:00 +2: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/errores_grupos_test.dart: mensajeDe · grupos correcto: los rechazos de invitar y unirse (CU-69) tienen texto propio
+00:00 +3: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/errores_identidad_test.dart: mensajeDe · identidad límite: credencial inválida habla de celular y contraseña, no de «código»
+00:00 +4: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/errores_grupos_test.dart: mensajeDe · grupos límite: el enlace inválido explica las tres causas posibles sin acusar al servidor
+00:00 +5: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/errores_grupos_test.dart: mensajeDe · grupos límite: el enlace inválido explica las tres causas posibles sin acusar al servidor
+00:00 +6: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/errores_identidad_test.dart: mensajeDe · identidad correcto: los cinco rechazos del código de correo del alta son distintos y accionables
+00:00 +7: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/errores_identidad_test.dart: mensajeDe · identidad correcto: los cinco rechazos del código de correo del alta son distintos y accionables
+00:00 +8: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/unidad/errores_identidad_test.dart: mensajeDe · identidad inválido: un código AP-CU01 desconocido sigue cayendo en el mensaje por estado
+00:00 +9: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_unirse_test.dart: con sesión muestra el grupo con importe formateado y exige la casilla
+00:00 +10: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_crear_grupo_test.dart: sin monto el botón sigue apagado
+00:00 +11: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_crear_grupo_test.dart: sin monto el botón sigue apagado
+00:00 +12: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_crear_grupo_test.dart: sin monto el botón sigue apagado
+00:00 +13: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_crear_grupo_test.dart: sin monto el botón sigue apagado
+00:00 +14: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_crear_grupo_test.dart: sin monto el botón sigue apagado
+00:00 +15: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_crear_grupo_test.dart: sin monto el botón sigue apagado
+00:00 +16: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_crear_grupo_test.dart: sin monto el botón sigue apagado
+00:01 +17: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/unirse_segundo_enlace_test.dart: un segundo enlace con la app abierta consulta y muestra el nuevo
+00:01 +18: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/unirse_segundo_enlace_test.dart: un segundo enlace con la app abierta consulta y muestra el nuevo
+00:01 +19: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/unirse_segundo_enlace_test.dart: un segundo enlace con la app abierta consulta y muestra el nuevo
+00:01 +20: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/unirse_segundo_enlace_test.dart: un segundo enlace con la app abierta consulta y muestra el nuevo
+00:01 +21: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/unirse_segundo_enlace_test.dart: un segundo enlace con la app abierta consulta y muestra el nuevo
+00:01 +22: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_crear_grupo_test.dart: rechaza el servidor (422 AP-CU20-04): el motivo se ve y lo escrito se conserva
+00:01 +23: All tests passed!
+RC_TEST=0

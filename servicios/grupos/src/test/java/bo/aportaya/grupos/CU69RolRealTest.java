@@ -40,7 +40,7 @@ class CU69RolRealTest extends BaseDeCU69 {
 
         transaccion.execute(e -> {
             dsl.execute("SET LOCAL ROLE svc_grupos");
-            enlace.aceptar(token, hash, "127.0.0.1", BigDecimal.ZERO, contexto(invitado));
+            enlace.aceptar(token, UUID.randomUUID(), hash, "127.0.0.1", BigDecimal.ZERO, contexto(invitado));
             return null;
         });
 

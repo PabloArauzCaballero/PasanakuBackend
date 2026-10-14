@@ -11,6 +11,52 @@ String? errorNombre(String valor) {
   return null;
 }
 
+/// Un campo de nombre opcional: vacío es válido; su obligatoriedad se decide por
+/// el rol del campo y la validación combinada del formulario.
+String? errorCampoDeNombre(String valor) {
+  final v = valor.trim().replaceAll(RegExp(r'\s+'), ' ');
+  if (v.isEmpty) return null;
+  if (v.length > 30) return 'No puede pasar de 30 letras.';
+  if (!RegExp(r"^[\p{L}]+(?:[ '-][\p{L}]+)*$", unicode: true).hasMatch(v)) {
+    return 'Usá solo letras, apóstrofo o guion.';
+  }
+  return null;
+}
+
+String? errorNombres(String primerNombre, String segundoNombre) {
+  if (primerNombre.trim().isEmpty) return 'Escribí tu primer nombre.';
+  final error = errorCampoDeNombre(primerNombre);
+  if (error != null) return error;
+  final total = [primerNombre, segundoNombre]
+      .where((parte) => parte.trim().isNotEmpty)
+      .map((parte) => parte.trim().replaceAll(RegExp(r'\s+'), ' '))
+      .join(' ')
+      .length;
+  if (total < 2) return 'Escribí tu primer nombre.';
+  if (total > 60) {
+    return 'Entre los dos nombres no pueden pasar de 60 letras.';
+  }
+  return null;
+}
+
+String? errorApellidos(String paterno, String materno) {
+  if (paterno.trim().isEmpty && materno.trim().isEmpty) {
+    return 'Escribí al menos un apellido.';
+  }
+  for (final valor in [paterno, materno]) {
+    final error = errorCampoDeNombre(valor);
+    if (error != null) return error;
+  }
+  final total = [paterno, materno]
+      .where((parte) => parte.trim().isNotEmpty)
+      .map((parte) => parte.trim().replaceAll(RegExp(r'\s+'), ' '))
+      .join(' ')
+      .length;
+  if (total < 2) return 'Escribí al menos un apellido.';
+  if (total > 60) return 'Los apellidos juntos no pueden pasar de 60 letras.';
+  return null;
+}
+
 String? errorTelefono(String valor) {
   final v = valor.trim();
   if (!RegExp(r'^\+591\d{8}$').hasMatch(v)) {
@@ -26,8 +72,23 @@ String? errorFechaNacimiento(DateTime? fecha) {
   return null;
 }
 
+/// El vencimiento del carnet. Hoy todavia vale: el documento vence al terminar ese dia.
+/// Es ayuda: el servidor lo vuelve a comprobar con su propio reloj (AP-CU01-07).
+String? errorVencimientoDocumento(DateTime? fecha, {DateTime? hoy}) {
+  if (fecha == null) return 'Elegí hasta cuándo vale tu carnet.';
+  final h = hoy ?? DateTime.now();
+  final dia = DateTime(h.year, h.month, h.day);
+  if (DateTime(fecha.year, fecha.month, fecha.day).isBefore(dia)) {
+    return 'Tu carnet está vencido. Para abrir la cuenta hace falta uno vigente.';
+  }
+  return null;
+}
+
 String? errorDocumento(String valor) {
-  if (valor.trim().length < 5) return 'Revisá el número de documento.';
+  final numero = valor.trim();
+  if (!RegExp(r'^\d{5,10}$').hasMatch(numero)) {
+    return 'Escribí un número de CI de entre 5 y 10 dígitos.';
+  }
   return null;
 }
 

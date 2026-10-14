@@ -1,0 +1,9 @@
+$ ./gradlew :servicios:identidad:test webTest integrationTest --continue
+BUILD SUCCESSFUL in 2m 6s
+# resultados JUnit (integrationTest CU04Test)
+tests 13 fallos 0 errores 0
+ - OK concurrencia: dos ingresos del mismo usuario no duplican el dispositivo
+ - OK Dado cuatro fallos, un ingreso correcto y otro fallo · Cuando se cuenta para bloquear · Entonces solo cuenta lo posterio
+ - OK Dado cinco intentos fallidos consecutivos · Cuando ocurre el sexto · Entonces existe un bloqueo_cuenta vigente para ese 
+ - OK Dado un operador que ya entró cinco veces con su segundo factor · Cuando se equivoca una vez de contraseña · Entonces se
+ - OK reintento: dos ingresos iguales dejan dos intentos registrados, y ninguno se pisa

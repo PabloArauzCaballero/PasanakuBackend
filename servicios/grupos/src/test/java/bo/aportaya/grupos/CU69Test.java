@@ -48,7 +48,7 @@ class CU69Test extends BaseDeCU69 {
         String hash = transaccion.execute(
                 e -> enlace.datosDe(token, contexto(invitado)).hashReglamento());
         transaccion.execute(e -> {
-            enlace.aceptar(token, hash, "127.0.0.1", java.math.BigDecimal.ZERO, contexto(invitado));
+            enlace.aceptar(token, UUID.randomUUID(), hash, "127.0.0.1", java.math.BigDecimal.ZERO, contexto(invitado));
             return null;
         });
 
@@ -72,7 +72,8 @@ class CU69Test extends BaseDeCU69 {
                 .isEqualTo(1);
 
         assertThatThrownBy(() -> transaccion.execute(e -> {
-                    enlace.aceptar(token, hash, "127.0.0.1", java.math.BigDecimal.ZERO, contexto(invitado));
+                    enlace.aceptar(
+                            token, UUID.randomUUID(), hash, "127.0.0.1", java.math.BigDecimal.ZERO, contexto(invitado));
                     return null;
                 }))
                 .isInstanceOf(ErrorDeNegocio.class)
@@ -89,7 +90,12 @@ class CU69Test extends BaseDeCU69 {
         UUID invitado = fixtura.usuario();
 
         assertThatThrownBy(() -> transaccion.execute(e -> enlace.aceptar(
-                        token, "f".repeat(64), "127.0.0.1", java.math.BigDecimal.ZERO, contexto(invitado))))
+                        token,
+                        UUID.randomUUID(),
+                        "f".repeat(64),
+                        "127.0.0.1",
+                        java.math.BigDecimal.ZERO,
+                        contexto(invitado))))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("reglamento cambió");
         assertThat(estadoDe(invitacion)).isEqualTo("ENVIADA");
@@ -243,7 +249,7 @@ class CU69Test extends BaseDeCU69 {
                 e -> enlace.datosDe(token, contexto(invitado)).hashReglamento());
 
         transaccion.execute(e -> {
-            enlace.aceptar(token, hash, "127.0.0.1", java.math.BigDecimal.ZERO, contexto(invitado));
+            enlace.aceptar(token, UUID.randomUUID(), hash, "127.0.0.1", java.math.BigDecimal.ZERO, contexto(invitado));
             return null;
         });
 

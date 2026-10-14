@@ -1,5 +1,6 @@
 import 'package:aportaya_diseno/ilustraciones/lienzo.dart';
 import 'package:aportaya_diseno/ilustraciones/pedestal.dart';
+import 'package:aportaya_diseno/atomos/movimiento.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 
@@ -29,7 +30,7 @@ class LaminaDelTour extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
     final ancho = MediaQuery.sizeOf(context).width;
-    final quieto = MediaQuery.disableAnimationsOf(context);
+    final quieto = reducirMovimiento(context);
     final d = quieto ? 0.0 : desplazamiento.clamp(-1.0, 1.0);
     final cerca = 1 - d.abs();
 
@@ -70,7 +71,7 @@ class LaminaDelTour extends StatelessWidget {
                           TextSpan(text: '${lamina.titulo}\n'),
                           TextSpan(
                             text: lamina.destacado,
-                            style: TextStyle(color: t.brandTexto),
+                            style: TextStyle(color: t.text),
                           ),
                         ],
                       ),

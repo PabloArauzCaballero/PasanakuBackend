@@ -16,31 +16,47 @@ class FilaDeCotejo extends StatelessWidget {
   final String leido;
   final VoidCallback? onCorregir;
 
+  bool get pendiente => declarado.trim().isEmpty || leido.trim().isEmpty;
+
   bool get coincide =>
-      declarado.trim().toLowerCase() == leido.trim().toLowerCase();
+      !pendiente && declarado.trim().toLowerCase() == leido.trim().toLowerCase();
 
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
     final texto = Theme.of(context).textTheme;
+    final estaPendiente = pendiente;
+    final estaCotejada = coincide;
+    final colorDeEstado = estaPendiente
+        ? t.text2
+        : estaCotejada
+        ? t.okTexto
+        : t.avisoTexto;
     return Semantics(
-      label:
-          '$campo: ${coincide ? 'coincide' : 'no coincide. Declaraste $declarado, el documento dice $leido'}',
+      label: '$campo: ${switch ((estaPendiente, estaCotejada)) {
+        (true, _) => 'pendiente de completar',
+        (_, true) => 'coincide',
+        _ => 'no coincide. Declaraste $declarado, el documento dice $leido',
+      }}',
       child: Container(
         padding: const EdgeInsets.all(Espacio.s3),
         decoration: BoxDecoration(
-          color: coincide ? t.surface : t.warnBg,
+          color: estaCotejada || estaPendiente ? t.surface : t.warnBg,
           borderRadius: BorderRadius.circular(Radios.md),
           border: Border.all(
-            color: coincide ? t.border : t.warn,
+            color: estaCotejada || estaPendiente ? t.border : t.warn,
             width: Borde.fino,
           ),
         ),
         child: Row(
           children: [
             Icon(
-              coincide ? Icons.check_circle_outline : Icons.difference_outlined,
-              color: coincide ? t.okTexto : t.avisoTexto,
+              estaPendiente
+                  ? Icons.radio_button_unchecked
+                  : estaCotejada
+                  ? Icons.check_circle_outline
+                  : Icons.difference_outlined,
+              color: colorDeEstado,
             ),
             const SizedBox(width: Espacio.s3),
             Expanded(
@@ -52,10 +68,14 @@ class FilaDeCotejo extends StatelessWidget {
                     style: texto.labelLarge?.copyWith(color: t.text2),
                   ),
                   Text(
-                    coincide ? declarado : 'Declaraste: $declarado',
+                    switch ((estaPendiente, estaCotejada)) {
+                      (true, _) => 'Pendiente de completar',
+                      (_, true) => declarado,
+                      _ => 'Declaraste: $declarado',
+                    },
                     style: texto.bodyMedium?.copyWith(color: t.text),
                   ),
-                  if (!coincide)
+                  if (!estaPendiente && !estaCotejada)
                     Text(
                       'El documento dice: $leido',
                       style: texto.bodyMedium?.copyWith(

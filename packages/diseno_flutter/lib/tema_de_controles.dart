@@ -42,12 +42,12 @@ ButtonStyle botonBordeDesde(Tokens t) => _base(t).copyWith(
 
 ButtonStyle botonTextoDesde(Tokens t) => _base(t).copyWith(
   foregroundColor: WidgetStateProperty.resolveWith(
-    (e) => e.contains(WidgetState.disabled) ? t.text3 : t.brandTexto,
+    (e) => e.contains(WidgetState.disabled) ? t.text3 : t.accentTexto,
   ),
   padding: const WidgetStatePropertyAll(
     EdgeInsets.symmetric(horizontal: Espacio.s2),
   ),
-  overlayColor: WidgetStatePropertyAll(t.brand.withValues(alpha: 0.06)),
+  overlayColor: WidgetStatePropertyAll(t.accent.withValues(alpha: 0.08)),
 );
 
 CheckboxThemeData casillaDesde(Tokens t) => CheckboxThemeData(

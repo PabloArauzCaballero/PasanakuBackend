@@ -1,0 +1,5 @@
+python tools\extraer_anexos.py PLAN.md --prefijo C/ --quitar-prefijo C/ --destino $tmp
+escritos: 456 · con error: 0
+
+Comparación apps/movil/lib (Anexo C contra checkout; comparación textual con saltos normalizados):
+anexo_files=221 substantive_differences=0

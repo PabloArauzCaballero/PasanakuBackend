@@ -1,0 +1,89 @@
+Picked up JAVA_TOOL_OPTIONS: <proxy y truststore del contenedor, omitido>
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders FROM-CACHE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins FROM-CACHE
+> Task :buildSrc:compilePluginsBlocks FROM-CACHE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors FROM-CACHE
+> Task :buildSrc:generateScriptPluginAdapters FROM-CACHE
+> Task :buildSrc:compileKotlin FROM-CACHE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors
+> Task :buildSrc:processResources
+> Task :buildSrc:classes
+> Task :buildSrc:jar
+> Task :plataforma:comun-dominio:compileJava FROM-CACHE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar
+> Task :plataforma:comun-pruebas:compileJava FROM-CACHE
+> Task :plataforma:comun-pruebas:processResources
+> Task :plataforma:comun-pruebas:classes
+> Task :plataforma:comun-pruebas:compileTestJava FROM-CACHE
+> Task :plataforma:comun-pruebas:processTestResources
+> Task :plataforma:comun-pruebas:testClasses
+
+> Task :plataforma:comun-pruebas:contractTest
+Picked up JAVA_TOOL_OPTIONS: <proxy y truststore del contenedor, omitido>
+
+MatrizDeAutorizacionContratoTest > rechaza: toda ruta publica que CAMBIA estado declara un control compensatorio (ninguna queda sin dueno) FAILED
+    java.lang.AssertionError: [una ruta sin sesion que escribe sin control compensatorio es un IDOR esperando a que alguien conozca un UUID: no hay lista de excepciones] 
+    Expecting empty but was: ["identidad POST /sesion/refrescar (renovarSesion)"]
+        at bo.aportaya.plataforma.pruebas.seguridad.MatrizDeAutorizacionContratoTest.ningunaRutaPublicaEscribeSinControl(MatrizDeAutorizacionContratoTest.java:151)
+
+MatrizDeAutorizacionContratoTest > rechaza: toda operacion que el contrato promete tiene una decision de acceso en su controlador FAILED
+    java.lang.AssertionError: [operacion sin @Permiso ni @Publico, o sin controlador: queda abierta o no existe] 
+    Expecting empty but was: ["grupos GET /grupos/solicitudes/{solicitudId}/decisiones (historialAdmision) -> SIN_METODO (sin controlador)"]
+        at bo.aportaya.plataforma.pruebas.seguridad.MatrizDeAutorizacionContratoTest.todaOperacionDecideSuAcceso(MatrizDeAutorizacionContratoTest.java:72)
+
+MatrizDeAutorizacionContratoTest > rechaza: la lista de rutas sin sesion es exactamente la declarada, ni una mas ni una menos FAILED
+    java.lang.AssertionError: [una ruta nueva sin sesion exige una decision escrita en PoliticaDeAcceso; una que ya no lo es, se borra] 
+    Expecting actual:
+      ["autenticar",
+        "confirmarVerificacionCorreo",
+        "consultarEstadoDeVerificacion",
+        "consultarPaqueteDelSorteo",
+        "listarBloques",
+        "listarContratosVigentes",
+        "procesarRespuestaEntrante",
+        "recibirWebhookPasarela",
+        "registrarUsuario",
+        "renovarSesion",
+        "solicitarVerificacionCorreo",
+        "subirDocumento",
+        "verificarCadena",
+        "verificarCertificado",
+        "verificarSorteo"]
+    to contain exactly in any order:
+      ["autenticar",
+        "confirmarVerificacionCorreo",
+        "consultarPaqueteDelSorteo",
+        "listarBloques",
+        "listarContratosVigentes",
+        "procesarRespuestaEntrante",
+        "recibirWebhookPasarela",
+        "registrarUsuario",
+        "solicitarVerificacionCorreo",
+        "subirDocumento",
+        "verificarCadena",
+        "verificarCertificado",
+        "verificarSorteo"]
+    but the following elements were unexpected:
+      ["consultarEstadoDeVerificacion", "renovarSesion"]
+        at bo.aportaya.plataforma.pruebas.seguridad.MatrizDeAutorizacionContratoTest.lasRutasPublicasSonLasDeclaradas(MatrizDeAutorizacionContratoTest.java:107)
+
+20 tests completed, 3 failed
+
+> Task :plataforma:comun-pruebas:contractTest FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':plataforma:comun-pruebas:contractTest'.
+> There were failing tests. See the report at: file:///tmp/claude-0/wt-dev/plataforma/comun-pruebas/build/reports/tests/contractTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 6s
+16 actionable tasks: 7 executed, 9 from cache

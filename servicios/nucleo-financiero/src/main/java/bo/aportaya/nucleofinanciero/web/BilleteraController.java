@@ -4,6 +4,7 @@ import bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU13RetenerSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion;
 import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto;
+import bo.aportaya.nucleofinanciero.aplicacion.ConsultarMovimientosBilletera;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
 import bo.aportaya.nucleofinanciero.web.generado.BilleteraApi;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.CuentaDeLaSesion;
@@ -22,6 +23,7 @@ import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaRetencion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaRetiro;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaReverso;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaTransferencia;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.ListaMovimientosBilletera;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SaldoBilletera;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaAcreditacion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaAcreditacionRescate;
@@ -74,6 +76,7 @@ public class BilleteraController implements BilleteraApi {
     private final bo.aportaya.nucleofinanciero.aplicacion.CU17BloquearPorAutoridad cu17;
     private final MovimientosDeLaBilletera movimientos;
     private final ConsultarSaldo saldos;
+    private final ConsultarMovimientosBilletera consultasDeMovimientos;
     private final SesionDeLaPeticion sesion;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
@@ -87,6 +90,7 @@ public class BilleteraController implements BilleteraApi {
             bo.aportaya.nucleofinanciero.aplicacion.CU17BloquearPorAutoridad cu17,
             MovimientosDeLaBilletera movimientos,
             ConsultarSaldo saldos,
+            ConsultarMovimientosBilletera consultasDeMovimientos,
             SesionDeLaPeticion sesion) {
         this.fondeo = fondeo;
         this.qr = qr;
@@ -97,6 +101,7 @@ public class BilleteraController implements BilleteraApi {
         this.cu17 = cu17;
         this.movimientos = movimientos;
         this.saldos = saldos;
+        this.consultasDeMovimientos = consultasDeMovimientos;
         this.sesion = sesion;
     }
 
@@ -112,6 +117,14 @@ public class BilleteraController implements BilleteraApi {
         Traza.marcarCasoDeUso("CU-13", cuentaId.toString());
 
         return ResponseEntity.ok(MapeoDeBilletera.saldo(saldos.ejecutar(cuentaId, sesion.actual())));
+    }
+
+    @Override
+    @Permiso("BILLETERA_VER")
+    public ResponseEntity<ListaMovimientosBilletera> listarMovimientosBilletera(UUID cuentaId, Integer limite) {
+        Traza.marcarCasoDeUso("CU-13", cuentaId.toString());
+        return ResponseEntity.ok(MapeoDeBilletera.movimientos(
+                consultasDeMovimientos.ejecutar(cuentaId, limite, sesion.actual())));
     }
 
     @Override

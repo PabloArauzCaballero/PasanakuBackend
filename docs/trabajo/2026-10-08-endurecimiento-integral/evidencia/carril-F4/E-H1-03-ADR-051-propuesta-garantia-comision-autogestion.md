@@ -11,6 +11,10 @@ fecha: 2026-10-10
 
 # ADR-051 — Garantía del pozo, comisión y autogestión: de la contradicción a lo decidido
 
+> **Actualización 2026-10-11.** Esta propuesta fue **promovida a ADR aceptado**: `docs/Arquitectura/ADR-051 Garantía del pozo, comisión y autogestión.md`
+> (aceptado por delegación expresa del dueño del proyecto; pendiente de ratificación de Producto/Finanzas/Legal). Este archivo se conserva como
+> expediente de la propuesta; lo que dice abajo como «abierto» quedó decidido allí.
+
 > Tres reglas nuevas del producto contradicen documentación y código anteriores. Este ADR
 > pone **antes / después** de cada una, nombra las **consecuencias financieras** y separa lo
 > que el repositorio **ya decide** de lo que es **decisión de negocio** y sigue **abierto**.

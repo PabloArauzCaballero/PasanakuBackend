@@ -23,6 +23,7 @@
     "14-identidad-y-sesiones.json",
     "15-usuarios-dev.json",
     "16-campania-cu-principales.json",
-    "17-usuarios-e2e-sinteticos.json"
+    "17-usuarios-e2e-sinteticos.json",
+    "18-licencia-sandbox-test.json"
   ]
 }

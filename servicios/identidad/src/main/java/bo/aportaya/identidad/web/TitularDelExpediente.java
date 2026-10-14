@@ -8,12 +8,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 
 /**
- * El control de objeto (IDOR) de la subida de fotos del expediente: quien escribe tiene que ser la
- * persona dueña de ese expediente.
+ * El control de objeto (IDOR/BOLA) del expediente: quien sube las fotos o consulta el estado de la
+ * verificacion tiene que ser la persona dueña de ese expediente.
  *
  * <p>Lo acredita con el token que devolvio SU alta ({@link TokenDeAlta}) o con su propia sesion. Se
  * decide ANTES de leer el archivo y de tocar el almacen o la base, de modo que la respuesta (el
- * {@code 403} de siempre, via {@code AccessDeniedException}) no depende de si el usuario existe.
+ * {@code 403} de siempre, via {@code AccessDeniedException}) no depende de si el usuario existe. Lo
+ * comparten {@code subirDocumento} y {@code consultarEstadoDeVerificacion}: las dos son rutas sin
+ * sesion obligatoria y las dos llevan el {@code usuarioId} en la URL.
  */
 final class TitularDelExpediente {
 
@@ -31,8 +33,8 @@ final class TitularDelExpediente {
         if (tokenDeAlta.valido(tokenPresentado, usuarioId) || esLaSesionDe(usuarioId)) {
             return;
         }
-        BITACORA.info("subida de documento denegada: ni token de alta de ese usuario ni su sesion");
-        throw new AccessDeniedException("subida de documento denegada");
+        BITACORA.info("acceso al expediente denegado: ni token de alta de ese usuario ni su sesion");
+        throw new AccessDeniedException("acceso al expediente denegado");
     }
 
     private boolean esLaSesionDe(UUID usuarioId) {

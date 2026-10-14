@@ -55,7 +55,7 @@ public class EmitirAcceso {
     }
 
     @Transactional(readOnly = true)
-    public Acceso ejecutar(UUID usuarioId, String rol, String nivelDiligencia, String dispositivo) {
+    public Acceso ejecutar(UUID usuarioId, String rol, String nivelDiligencia, String dispositivo, UUID sesionId) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
         // El contexto es el del propio titular: leer sus asignaciones bajo su politica de
@@ -70,8 +70,8 @@ public class EmitirAcceso {
             return List.copyOf(todos);
         });
 
-        var emitido = emisor.emitir(usuarioId, rol, permisos, nivelDiligencia, dispositivo);
-        return new Acceso(emitido.token(), emitido.expiraEn());
+        var emitido = emisor.emitir(usuarioId, rol, permisos, nivelDiligencia, dispositivo, sesionId);
+        return new Acceso(emitido.token(), emitido.expiraEn(), permisos);
     }
 
     /**
@@ -80,5 +80,10 @@ public class EmitirAcceso {
      * <p>Es de esta capa y no de infraestructura porque lo consume la pagina, y la pagina
      * no depende de infraestructura. El detalle de como se firmo se queda del otro lado.
      */
-    public record Acceso(String token, java.time.Instant expiraEn) {}
+    public record Acceso(String token, java.time.Instant expiraEn, List<String> permisos) {
+        /** Sin permisos a la vista: para quien solo necesita el token. */
+        public Acceso(String token, java.time.Instant expiraEn) {
+            this(token, expiraEn, List.of());
+        }
+    }
 }

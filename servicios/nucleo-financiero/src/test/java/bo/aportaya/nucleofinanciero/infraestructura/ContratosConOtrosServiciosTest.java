@@ -18,6 +18,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.client.RestClient;
 
 /**
@@ -32,6 +35,11 @@ class ContratosConOtrosServiciosTest {
     private final AtomicInteger estado = new AtomicInteger(200);
     private final AtomicReference<String> cuerpo = new AtomicReference<>("{}");
     private final AtomicReference<String> ruta = new AtomicReference<>();
+    /** Carril Q: el estado de pagos se pide por participacion (la de grupos), no por usuario; el usuario es el de la sesion. */
+    private final UUID usuario = UUID.randomUUID();
+
+    private final UUID participante = UUID.randomUUID();
+    private final AtomicReference<String> participaciones = new AtomicReference<>();
     private HechosPorHttp hechos;
     private OfertasPorHttp ofertas;
 
@@ -40,7 +48,9 @@ class ContratosConOtrosServiciosTest {
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/", exchange -> {
             ruta.set(exchange.getRequestURI().getPath());
-            byte[] raw = cuerpo.get().getBytes(StandardCharsets.UTF_8);
+            boolean deGrupos =
+                    "/grupos/participaciones".equals(exchange.getRequestURI().getPath());
+            byte[] raw = (deGrupos ? participaciones.get() : cuerpo.get()).getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().add("Content-Type", "application/json");
             exchange.sendResponseHeaders(estado.get(), raw.length);
             try (var salida = exchange.getResponseBody()) {
@@ -48,6 +58,13 @@ class ContratosConOtrosServiciosTest {
             }
         });
         server.start();
+        participaciones.set("[{\"grupoId\":\"%s\",\"participanteId\":\"%s\",\"estado\":\"ACTIVO\"}]"
+                .formatted(UUID.randomUUID(), participante));
+        SecurityContextHolder.getContext()
+                .setAuthentication(new JwtAuthenticationToken(Jwt.withTokenValue("t")
+                        .header("alg", "none")
+                        .subject(usuario.toString())
+                        .build()));
         String url = "http://127.0.0.1:" + server.getAddress().getPort();
         hechos = new HechosPorHttp(RestClient.builder(), url, url);
         ofertas = new OfertasPorHttp(RestClient.builder(), url);
@@ -55,6 +72,7 @@ class ContratosConOtrosServiciosTest {
 
     @AfterEach
     void cerrar() {
+        SecurityContextHolder.clearContext();
         server.stop(0);
     }
 
@@ -86,18 +104,18 @@ class ContratosConOtrosServiciosTest {
     @DisplayName("correcto: lo comprometido es deudaVigente mas porAportar, y un campo desconocido no rompe la lectura")
     void comprometidoCorrecto() {
         cuerpo.set(ESTADO);
-        var comprometido = hechos.comprometidoEnPozos(UUID.randomUUID(), Moneda.BOB);
+        var comprometido = hechos.comprometidoEnPozos(usuario, Moneda.BOB);
         assertThat(comprometido).isPresent();
         assertThat(comprometido.get().toString()).isEqualTo("1500.00");
+        // Se pregunta a aportes por la PARTICIPACION de grupos, nunca por el usuario.
+        assertThat(ruta.get()).isEqualTo("/aportes/participantes/" + participante + "/estado");
     }
 
     @Test
     @DisplayName("limite: sin deuda ni por aportar es cero, que es distinto de no saber")
     void comprometidoCero() {
         cuerpo.set("{\"deudaVigente\":\"0.00\",\"porAportar\":\"0.00\",\"obligacionesAbiertas\":0,\"moneda\":\"BOB\"}");
-        assertThat(hechos.comprometidoEnPozos(UUID.randomUUID(), Moneda.BOB)
-                        .orElseThrow()
-                        .esCero())
+        assertThat(hechos.comprometidoEnPozos(usuario, Moneda.BOB).orElseThrow().esCero())
                 .isTrue();
     }
 
@@ -105,30 +123,30 @@ class ContratosConOtrosServiciosTest {
     @DisplayName("invalido: otra moneda, 404, 500, cuerpo ilegible o importe mal formado dan vacio (nunca cero)")
     void comprometidoInvalido() {
         cuerpo.set(ESTADO);
-        assertThat(hechos.comprometidoEnPozos(UUID.randomUUID(), Moneda.USD)).isEmpty();
+        assertThat(hechos.comprometidoEnPozos(usuario, Moneda.USD)).isEmpty();
         for (int codigo : new int[] {404, 500}) {
             estado.set(codigo);
-            assertThat(hechos.comprometidoEnPozos(UUID.randomUUID(), Moneda.BOB))
-                    .isEmpty();
+            assertThat(hechos.comprometidoEnPozos(usuario, Moneda.BOB)).isEmpty();
         }
         estado.set(200);
         cuerpo.set("esto no es json");
-        assertThat(hechos.comprometidoEnPozos(UUID.randomUUID(), Moneda.BOB)).isEmpty();
+        assertThat(hechos.comprometidoEnPozos(usuario, Moneda.BOB)).isEmpty();
         cuerpo.set("{\"deudaVigente\":\"abc\",\"porAportar\":\"1.001\",\"moneda\":\"BOB\"}");
-        assertThat(hechos.comprometidoEnPozos(UUID.randomUUID(), Moneda.BOB)).isEmpty();
+        assertThat(hechos.comprometidoEnPozos(usuario, Moneda.BOB)).isEmpty();
     }
 
     @Test
-    @DisplayName("correcto: la oferta trae vendedor, precio y estado")
+    @DisplayName("correcto: la oferta trae vendedor, precio, cargos y estado")
     void ofertaCorrecta() {
         UUID oferta = UUID.randomUUID();
         UUID vendedor = UUID.randomUUID();
         cuerpo.set(
-                "{\"ofertaId\":\"%s\",\"vendedorUsuarioId\":\"%s\",\"precio\":{\"monto\":\"480.00\",\"moneda\":\"BOB\"},\"estado\":\"RESERVADA\"}"
+                "{\"ofertaId\":\"%s\",\"vendedorUsuarioId\":\"%s\",\"precio\":{\"monto\":\"480.00\",\"moneda\":\"BOB\"},\"cargos\":{\"monto\":\"20.00\",\"moneda\":\"BOB\"},\"estado\":\"RESERVADA\"}"
                         .formatted(oferta, vendedor));
         var o = ofertas.oferta(oferta).orElseThrow();
         assertThat(o.vendedorUsuarioId()).isEqualTo(vendedor);
         assertThat(o.precio().toString()).isEqualTo("480.00");
+        assertThat(o.cargos().toString()).isEqualTo("20.00");
         assertThat(o.estado()).isEqualTo("RESERVADA");
         assertThat(ruta.get()).isEqualTo("/entregas/mercado/ofertas/" + oferta);
     }

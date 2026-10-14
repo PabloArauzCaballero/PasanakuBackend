@@ -27,7 +27,7 @@ class Refrescador {
       final acceso = r.data?['acceso'] as String?;
       final nuevo = r.data?['refresco'] as String?;
       if (acceso == null || nuevo == null) return false;
-      await _sesion.guardar(acceso: acceso, refresco: nuevo);
+      await _sesion.renovar(acceso: acceso, refresco: nuevo);
       return true;
     } on DioException {
       return false;

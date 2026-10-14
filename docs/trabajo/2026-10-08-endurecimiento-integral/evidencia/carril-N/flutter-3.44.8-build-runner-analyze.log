@@ -1,0 +1,42 @@
+heavy.sh: timeout esperando RAM/candado (libres: 3221 MB)
+Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/n_flutter3.sh
+== flutter
+Flutter 3.44.8 • channel [user-branch] • unknown source
+== tokens.dart como lo hace el Dockerfile (COPY + dart format)
+cp: cannot create regular file 'C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-dev/packages/diseno_flutter/lib/tokens/tokens.dart': No such file or directory
+== build_runner de los clientes (apps/movil/scripts/generar-clientes.sh)
+== identidad ==
+  Built with build_runner/aot in 27s; wrote 68 outputs.
+== nucleo-financiero ==
+  Built with build_runner/aot in 29s; wrote 74 outputs.
+== tarifas ==
+  Built with build_runner/aot in 28s; wrote 48 outputs.
+== grupos ==
+  Built with build_runner/aot in 27s; wrote 88 outputs.
+== aportes ==
+  Built with build_runner/aot in 26s; wrote 42 outputs.
+== transparencia ==
+  Built with build_runner/aot in 26s; wrote 70 outputs.
+== entregas ==
+  Built with build_runner/aot in 28s; wrote 54 outputs.
+== garantia ==
+  Built with build_runner/aot in 27s; wrote 76 outputs.
+== organizador ==
+  Built with build_runner/aot in 27s; wrote 72 outputs.
+== notificaciones ==
+  Built with build_runner/aot in 26s; wrote 16 outputs.
+== cumplimiento ==
+  Built with build_runner/aot in 26s; wrote 40 outputs.
+== [D] pub get --enforce-lockfile con el lock nuevo
+37 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+RC_ENFORCE=0
+== [E] flutter analyze --no-pub
+Analyzing movil...                                              
+
+   info - Use the null-aware marker '?' rather than a null check via an 'if'. Try using '?' - lib\pantallas\identidad\dominio\cu02_subir_foto.dart:75:15 - use_null_aware_elements
+
+1 issue found. (ran in 10.9s)
+RC_ANALYZE=1
+FIN RC=0
+FIN RC=75

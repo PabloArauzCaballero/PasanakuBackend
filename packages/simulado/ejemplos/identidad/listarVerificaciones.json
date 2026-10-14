@@ -18,7 +18,9 @@
           "motivoRechazo": "motivoRechazo",
           "fotos": [
             "ANVERSO"
-          ]
+          ],
+          "fechaExpiracionDocumento": "2028-05-10",
+          "documentoVigente": true
         }
       ]
     },
@@ -40,7 +42,9 @@
           "motivoRechazo": "motivoRechazo",
           "fotos": [
             "ANVERSO"
-          ]
+          ],
+          "fechaExpiracionDocumento": "2026-01-14",
+          "documentoVigente": false
         }
       ]
     }

@@ -1,0 +1,51 @@
+$ yarn workspace @aportaya/backoffice typecheck
+exit=0
+
+$ yarn workspace @aportaya/backoffice lint
+
+Linting "backoffice"...
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+
+All files pass linting.
+
+no se encontr� Python; ejecutar sin argumentos para instalar desde el Microsoft Store o deshabilitar este acceso directo desde Configuraci�n > Aplicaciones > Configuraci�n avanzada de aplicaciones > Alias de ejecuci�n de aplicaciones.
+exit=49
+
+$ yarn workspace @aportaya/backoffice test:front
+Not implemented: Window's confirm() method
+Not implemented: Window's confirm() method
+
+[2m Test Files [22m [1m[32m60 passed[39m[22m[90m (60)[39m
+[2m      Tests [22m [1m[32m354 passed[39m[22m[90m (354)[39m
+[2m   Start at [22m 15:05:38
+[2m   Duration [22m 30.19s[2m (transform 1.12s, setup 1.66s, import 1.97s, tests 3.08s, environment 22.24s)[22m
+
+exit=0
+
+$ yarn workspace @aportaya/backoffice test:a11y
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+
+[2m Test Files [22m [1m[32m27 passed[39m[22m[90m (27)[39m
+[2m      Tests [22m [1m[32m34 passed[39m[22m[90m (34)[39m
+[2m   Start at [22m 15:06:16
+[2m   Duration [22m 24.13s[2m (transform 913ms, setup 458ms, import 16.08s, tests 6.56s, environment 771ms)[22m
+
+exit=0
+
+$ yarn workspace @aportaya/backoffice lint   (PATH con pyshim, PYTHONUTF8=1)
+All files pass linting.
+=== apps/backoffice (Angular) ===
+  OK    · sin red en vista 
+  OK    · sin literal de diseño 
+  OK    · sin formato de dinero 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+=== packages/tutoriales (Angular) ===
+  OK    · sin red fuera del puerto 
+  OK    · sin literal de diseño 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+  OK    · sin literal de diseño en @aportaya/ui 
+TODO OK
+exit=0

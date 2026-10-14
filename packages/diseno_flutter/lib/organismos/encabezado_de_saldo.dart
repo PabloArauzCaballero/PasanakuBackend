@@ -57,11 +57,17 @@ class EncabezadoDeSaldo extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: Espacio.s1),
-                MontoQueSube(
-                  monto: monto,
-                  moneda: moneda,
-                  etiqueta: etiquetaHablada ?? etiqueta,
-                  estilo: Tipo.cifraGrande.copyWith(color: t.text),
+                // Un importe largo debe reducirse hasta caber en una sola línea:
+                // partir `9.999.999,99` entre grupos cambia cómo se lee el saldo.
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: MontoQueSube(
+                    monto: monto,
+                    moneda: moneda,
+                    etiqueta: etiquetaHablada ?? etiqueta,
+                    estilo: Tipo.cifraGrande.copyWith(color: t.text),
+                  ),
                 ),
               ],
             ),

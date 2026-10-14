@@ -10,9 +10,8 @@ import '../tokens/tokens.dart';
 /// SVG a `Path` coordenada por coordenada. La maqueta es el criterio de aceptación
 /// visual (skill `disenar-frontend`): lo que se aprobó ahí es lo que se dibuja acá.
 ///
-/// Los colores son los de la paleta con su nombre, salvo dos que se leen del tema
-/// para que el dibujo no quede como un parche claro sobre el fondo oscuro: el disco
-/// de fondo (`g100` en claro) y el centro crema.
+/// Cada lámina reserva el naranja como único acento; personas y formas estructurales
+/// usan roles neutrales. Se conserva verde solo en el tilde de comprobante verificado.
 abstract class ArteDeMaqueta extends CustomPainter {
   const ArteDeMaqueta(this.t);
   final Tokens t;
@@ -22,7 +21,7 @@ abstract class ArteDeMaqueta extends CustomPainter {
   /// Dibuja en coordenadas de la maqueta, de 0 a 140.
   void dibujar(Canvas c);
 
-  Color get disco => t.brandBg;
+  Color get disco => t.surface2;
   Color get crema => t.bg;
 
   Paint relleno(Color color) => Paint()..color = color;

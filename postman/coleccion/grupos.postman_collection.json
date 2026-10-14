@@ -1,10 +1,538 @@
 {
   "info": {
     "name": "AportaYa · grupos",
-    "description": "# AportaYa · grupos\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**16 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · grupos\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**28 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
+    {
+      "name": "canjearInvitacion · Canjear invitación y solicitar ingreso sin activar membresía",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/grupos/:grupoId/invitaciones/:invitacionId/canje",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "grupos",
+            ":grupoId",
+            "invitaciones",
+            ":invitacionId",
+            "canje"
+          ],
+          "variable": [
+            {
+              "key": "grupoId",
+              "value": "{{grupoId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            },
+            {
+              "key": "invitacionId",
+              "value": "{{invitacionId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Canjear invitación y solicitar ingreso sin activar membresía\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `canjearInvitacion` |\n| **Ruta** | `POST /api/v1/grupos/{grupoId}/invitaciones/{invitacionId}/canje` |\n| **Permiso** | _no declarado en el codigo_ |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"token\": \"0000000000000000000000000000000000000000000000000000000000000000\",\n  \"cuposSolicitados\": 1,\n  \"mensaje\": \"mensaje-de-prueba\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "revocarInvitacionDelGrupo · El emisor revoca su invitación; el enlace deja de servir",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/grupos/:grupoId/invitaciones/:invitacionId/revocacion",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "grupos",
+            ":grupoId",
+            "invitaciones",
+            ":invitacionId",
+            "revocacion"
+          ],
+          "variable": [
+            {
+              "key": "grupoId",
+              "value": "{{grupoId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            },
+            {
+              "key": "invitacionId",
+              "value": "{{invitacionId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## El emisor revoca su invitación; el enlace deja de servir\n\nRevoca primero el enlace en `identidad` y después la invitación local. Es idempotente para el emisor. Una invitación ya aceptada, o de otra persona, responde 422 sin contar más. Después de revocar se puede emitir otra al mismo número: la anterior NO se reemplaza sola (regla explícita de reemisión).\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `revocarInvitacionDelGrupo` |\n| **Ruta** | `POST /api/v1/grupos/{grupoId}/invitaciones/{invitacionId}/revocacion` |\n| **Permiso** | _no declarado en el codigo_ |\n| **Respuestas** | `204`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [204, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "proponerAdmision · El administrador propone aceptar o rechazar; no activa la membresía",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/grupos/solicitudes/:solicitudId/propuestas",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "grupos",
+            "solicitudes",
+            ":solicitudId",
+            "propuestas"
+          ],
+          "variable": [
+            {
+              "key": "solicitudId",
+              "value": "{{solicitudId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## El administrador propone aceptar o rechazar; no activa la membresía\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `proponerAdmision` |\n| **Ruta** | `POST /api/v1/grupos/solicitudes/{solicitudId}/propuestas` |\n| **Permiso** | _no declarado en el codigo_ |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"decision\": \"ACEPTAR\",\n  \"motivo\": \"motivo-de-prueba\",\n  \"revisionEsperada\": 0,\n  \"propuestaId\": \"{{propuestaId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "resolverAdmision · Backoffice resuelve la propuesta vigente con motivo y separación de responsables",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/grupos/solicitudes/:solicitudId/resoluciones",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "grupos",
+            "solicitudes",
+            ":solicitudId",
+            "resoluciones"
+          ],
+          "variable": [
+            {
+              "key": "solicitudId",
+              "value": "{{solicitudId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Backoffice resuelve la propuesta vigente con motivo y separación de responsables\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `resolverAdmision` |\n| **Ruta** | `POST /api/v1/grupos/solicitudes/{solicitudId}/resoluciones` |\n| **Permiso** | _no declarado en el codigo_ |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"decision\": \"ACEPTAR\",\n  \"motivo\": \"motivo-de-prueba\",\n  \"revisionEsperada\": 0,\n  \"propuestaId\": \"{{propuestaId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "sustituirAdministrador · Backoffice cambia al administrador del grupo; el saliente conserva sus cupos y obligaciones",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/grupos/:grupoId/administrador/sustitucion",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "grupos",
+            ":grupoId",
+            "administrador",
+            "sustitucion"
+          ],
+          "variable": [
+            {
+              "key": "grupoId",
+              "value": "{{grupoId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Backoffice cambia al administrador del grupo; el saliente conserva sus cupos y obligaciones\n\nContinuidad tras una revocación o suspensión de la habilitación. El entrante tiene que ser participante activo del grupo y organizador habilitado. El saliente sigue siendo participante con sus cupos y deudas, identificados en el registro; retirarlo es otro acto. Idempotente por clave. AP-CU68-08 rol · 09 clave de otra sustitución · 10 grupo sin un administrador vigente · 11 entrante no es participante activo · 12 ya es el administrador · 13 conflicto de interés · 14 entrante no habilitado.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `sustituirAdministrador` |\n| **Ruta** | `POST /api/v1/grupos/{grupoId}/administrador/sustitucion` |\n| **Permiso** | _no declarado en el codigo_ |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nuevoAdministradorId\": \"{{nuevoAdministradorId}}\",\n  \"motivo\": \"motivo-de-prueba\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "historialAdmision · Historial inmutable accesible al administrador del grupo y al backoffice",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/grupos/solicitudes/:solicitudId/decisiones",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "grupos",
+            "solicitudes",
+            ":solicitudId",
+            "decisiones"
+          ],
+          "variable": [
+            {
+              "key": "solicitudId",
+              "value": "{{solicitudId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Historial inmutable accesible al administrador del grupo y al backoffice\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `historialAdmision` |\n| **Ruta** | `GET /api/v1/grupos/solicitudes/{solicitudId}/decisiones` |\n| **Permiso** | _no declarado en el codigo_ |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
     {
       "name": "calcularPlazoHabil · Fecha límite en días hábiles, con los días que se saltearon",
       "request": {
@@ -54,6 +582,99 @@
           ]
         },
         "description": "## Fecha límite en días hábiles, con los días que se saltearon\n\nEl resultado se GUARDA donde se use y no se recalcula: si despues se declara un feriado, ese plazo no se mueve. Devuelve tambien que dias se saltearon, porque un plazo que no se puede explicar no se puede defender.\nNota de ruta: el caso de uso dice `/calendario`, que no esta entre los prefijos reservados de `grupos` (/grupos, /turnos, /acuerdos). Va bajo /grupos/calendario para no invadir un prefijo sin dueno.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `calcularPlazoHabil` |\n| **Ruta** | `GET /api/v1/grupos/calendario/calcular` |\n| **Permiso** | `PARTICIPANTE` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU59-01` | Fecha duplicada |\n| `AP-CU59-02` | Alcance incompleto |\n| `AP-CU59-03` | Fecha en el pasado |\n| `AP-CU59-04` | Sin fuente |\n| `AP-CU59-05` | Calendario vacio |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "calcularVencimientoLocal · Fecha UTC, fecha contractual y fecha de liquidación de un vencimiento, explícitas",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/grupos/calendario/vencimiento",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "grupos",
+            "calendario",
+            "vencimiento"
+          ],
+          "variable": [],
+          "query": [
+            {
+              "key": "instante",
+              "value": "{{momento_ahora}}",
+              "description": "",
+              "disabled": false
+            },
+            {
+              "key": "alcance",
+              "value": "NACIONAL",
+              "description": "",
+              "disabled": false
+            },
+            {
+              "key": "referenciaId",
+              "value": "{{referenciaId}}",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "zona",
+              "value": "zona-de-prueba",
+              "description": "Identificador IANA de la zona del contrato; sin él, America/La_Paz.",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "## Fecha UTC, fecha contractual y fecha de liquidación de un vencimiento, explícitas\n\nUn instante en UTC puede caer en otro día que el que vive la persona (22:00 del 1 de mayo en La Paz son las 02:00 del 2 de mayo en UTC). La fecha CONTRACTUAL es el día calendario en la zona del contrato (por omisión America/La_Paz); la de LIQUIDACIÓN es el primer día hábil desde la contractual, nunca anterior. Se devuelven las dos y la fecha UTC, y los días que se saltearon con su motivo, para que ninguna se confunda con otra.\nUn día no hábil es un feriado del calendario sembrado (`catalogo.dia_no_habil`, con procedencia en su descripción), un sábado o un domingo. Sin calendario cargado para el año no se calcula (AP-CU59-05): no se cuenta corrido por omisión.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `calcularVencimientoLocal` |\n| **Ruta** | `GET /api/v1/grupos/calendario/vencimiento` |\n| **Permiso** | `PARTICIPANTE` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU59-02` | Alcance incompleto |\n| `AP-CU59-05` | Calendario vacio |\n| `AP-CU59-06` | Zona invalida |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [
@@ -227,7 +848,7 @@
             }
           ]
         },
-        "description": "## Revelar la semilla y crear los turnos\n\nVerifica que SHA256(semilla || entropias) sea el hash publicado y recien entonces crea los turnos, todo en una transaccion: o hay turnos completos o no hay ninguno. Si el hash no cierra, el sorteo queda ANULADO — jamas se publica un resultado que no verifica.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `revelarSorteo` |\n| **Ruta** | `POST /api/v1/grupos/{grupoId}/sorteo/revelacion` |\n| **Permiso** | `GRUPO_ADMINISTRAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU60-03` | Fecha de revelado futura |\n| `AP-CU60-04` | Hash no verifica |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Revelar la semilla y crear los turnos\n\nVerifica que SHA256(semilla || entropias || snapshot) sea el hash publicado y recien entonces crea los turnos, todo en una transaccion: o hay turnos completos o no hay ninguno. Hay UN solo resultado vigente: revelar de nuevo devuelve el original y no sortea otra vez. Si el plantel o el calendario cambiaron desde el compromiso no se sortea sobre otra cosa (AP-CU60-06). Exige ser administrador del grupo de la ruta.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `revelarSorteo` |\n| **Ruta** | `POST /api/v1/grupos/{grupoId}/sorteo/revelacion` |\n| **Permiso** | `GRUPO_ADMINISTRAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU60-03` | Fecha de revelado futura |\n| `AP-CU60-04` | Hash no verifica |\n| `AP-CU60-06` | Plantel o calendario cambio |\n| `AP-CU60-07` | Ya revelado |\n| `AP-CU60-08` | Sorteo anulado |\n| `AP-CU60-09` | Calendario ausente |\n| `AP-CU60-10` | No administra el grupo |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"sorteoId\": \"{{sorteoId}}\",\n  \"semilla\": \"semilla-de-prueba\",\n  \"entropias\": [\n    \"entropias-de-prueba\"\n  ]\n}",
@@ -765,7 +1386,7 @@
             }
           ]
         },
-        "description": "## Invitar a un contacto, con token de un solo uso\n\nSi el destinatario esta suprimido NO se envia nada y se responde como si hubiera salido bien: decir «esa persona pidio no recibir mensajes» ya cuenta algo de ella a quien no tiene por que saberlo.\nEl mensaje dice quien invita y a que grupo, con el monto y la periodicidad — nadie deberia aceptar un compromiso de dinero sin saber cual— y no revela datos de los otros integrantes.\nEl token lo emite `identidad`: aca se recibe su identificador.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `invitarAlGrupo` |\n| **Ruta** | `POST /api/v1/grupos/{grupoId}/invitaciones` |\n| **Permiso** | `GRUPO_ADMINISTRAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU69-01` | Sin cupos libles |\n| `AP-CU69-02` | Destinatario suprimido |\n| `AP-CU69-03` | Ya es participante |\n| `AP-CU69-04` | Tope reenvios |\n| `AP-CU69-05` | Token invalido |\n| `AP-CU69-06` | Referencia duplicada |\n| `AP-CU69-07` | Emisor no habilitado |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Invitar a un contacto, con token de un solo uso\n\nSi el destinatario esta suprimido NO se envia nada y se responde como si hubiera salido bien: decir «esa persona pidio no recibir mensajes» ya cuenta algo de ella a quien no tiene por que saberlo.\nEl mensaje dice quien invita y a que grupo, con el monto y la periodicidad — nadie deberia aceptar un compromiso de dinero sin saber cual— y no revela datos de los otros integrantes.\nEl token lo emite `identidad`: aca se recibe su identificador.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `invitarAlGrupo` |\n| **Ruta** | `POST /api/v1/grupos/{grupoId}/invitaciones` |\n| **Permiso** | _no declarado en el codigo_ |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU69-01` | Sin cupos libles |\n| `AP-CU69-02` | Destinatario suprimido |\n| `AP-CU69-03` | Ya es participante |\n| `AP-CU69-04` | Tope reenvios |\n| `AP-CU69-05` | Token invalido |\n| `AP-CU69-06` | Referencia duplicada |\n| `AP-CU69-07` | Emisor no habilitado |\n| `AP-CU69-08` | Limite diario de invitaciones |\n| `AP-CU69-09` | Invitacion vigente existente |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"telefonoInvitado\": \"+59178123456\",\n  \"nombreSugerido\": \"nombreSugerido-de-prueba\",\n  \"canal\": \"ENLACE\"\n}",
@@ -846,7 +1467,7 @@
           ],
           "variable": []
         },
-        "description": "## Ver grupo y reglamento de una invitación válida para mi teléfono\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `consultarInvitacionPorEnlace` |\n| **Ruta** | `POST /api/v1/grupos/invitaciones/enlace/consultar` |\n| **Permiso** | `PARTICIPANTE` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Ver grupo y reglamento de una invitación válida para mi teléfono\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `consultarInvitacionPorEnlace` |\n| **Ruta** | `POST /api/v1/grupos/invitaciones/enlace/consultar` |\n| **Permiso** | _no declarado en el codigo_ |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"tokenId\": \"{{tokenId}}\",\n  \"token\": \"0000000000000000000000000000000000000000000000000000000000000000\"\n}",
@@ -932,7 +1553,7 @@
           ],
           "variable": []
         },
-        "description": "## Firmar el reglamento y ocupar un cupo usando el enlace una sola vez\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `aceptarInvitacionPorEnlace` |\n| **Ruta** | `POST /api/v1/grupos/invitaciones/enlace/aceptar` |\n| **Permiso** | `PARTICIPANTE` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Firmar el reglamento y ocupar un cupo usando el enlace una sola vez\n\nINTERRUPTOR `aportaya.grupos.admision.humana-obligatoria` (decision pendiente de negocio y cumplimiento): encendido (valor de produccion) esta puerta, que crea al participante ACTIVO sin expediente humano, se cierra con 422 `AP-CU69-10`; el camino es el canje de la invitacion (`canjearInvitacion`), que deja una solicitud pendiente de backoffice. Apagado conserva el comportamiento de TEST.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `aceptarInvitacionPorEnlace` |\n| **Ruta** | `POST /api/v1/grupos/invitaciones/enlace/aceptar` |\n| **Permiso** | _no declarado en el codigo_ |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"tokenId\": \"{{tokenId}}\",\n  \"token\": \"0000000000000000000000000000000000000000000000000000000000000000\",\n  \"hashReglamento\": \"0000000000000000000000000000000000000000000000000000000000000000\",\n  \"aceptaReglamento\": true\n}",
@@ -952,6 +1573,392 @@
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
               "const esperadas = [201, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "consultarAdmisibilidadDePago · Si quien pregunta puede pagar esa obligacion, y si el periodo sigue abierto",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/grupos/obligaciones/admisibilidad",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "grupos",
+            "obligaciones",
+            "admisibilidad"
+          ],
+          "variable": [],
+          "query": [
+            {
+              "key": "participanteId",
+              "value": "{{participanteId}}",
+              "description": "",
+              "disabled": false
+            },
+            {
+              "key": "periodoId",
+              "value": "{{periodoId}}",
+              "description": "",
+              "disabled": false
+            }
+          ]
+        },
+        "description": "## Si quien pregunta puede pagar esa obligacion, y si el periodo sigue abierto\n\nLo pregunta `aportes` ANTES de registrar un pago (B15/B5). `esDelUsuario` es si el participante es la persona de la sesion: pagar la obligacion de otro no es un favor, es un registro falso. `periodoAbierto` es falso para un periodo CERRADO, LIQUIDADO o CANCELADO; PROGRAMADO y EN_GRACIA siguen admitiendo el pago.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `consultarAdmisibilidadDePago` |\n| **Ruta** | `GET /api/v1/grupos/obligaciones/admisibilidad` |\n| **Permiso** | `PARTICIPANTE` |\n| **Respuestas** | `200` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "consultarCalendarioDeAportes · Quien aporta, cuanto y hasta cuando en un periodo (hecho de grupos para generar obligaciones)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/grupos/periodos/:periodoId/calendario-de-aportes",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "grupos",
+            "periodos",
+            ":periodoId",
+            "calendario-de-aportes"
+          ],
+          "variable": [
+            {
+              "key": "periodoId",
+              "value": "{{periodoId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Quien aporta, cuanto y hasta cuando en un periodo (hecho de grupos para generar obligaciones)\n\n[CONTRATO · LO PIDE `aportes`] Para generar las obligaciones de un periodo `aportes` no cree nada que afirme el cliente: pregunta aqui quien es titular de cada cupo OCUPADO, el turno (numero de periodo), cuanto aporta cada cupo y las fechas del reglamento. El importe de un cupo es el aporte del grupo por la fraccion del cupo (redondeo half-even a 2 decimales; las fracciones distintas de 1 son una ambiguedad abierta, ver docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-B3/). Exige `ADMIN_PLATAFORMA`: es el permiso de quien dispara la generacion y su token viaja en la llamada entre servicios; un participante recibe 403 aunque sea titular de un cupo del periodo, porque el calendario enumera a TODOS los titulares. Se lee con rol de sistema (la politica de fila no deja ver cupos ajenos) y la autorizacion ya la hizo el permiso. Un periodo que no existe responde 422 `AP-CU21-08`.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `consultarCalendarioDeAportes` |\n| **Ruta** | `GET /api/v1/grupos/periodos/{periodoId}/calendario-de-aportes` |\n| **Permiso** | _no declarado en el codigo_ |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "listarMisParticipaciones · Los grupos en los que participo",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/grupos/participaciones",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "grupos",
+            "participaciones"
+          ],
+          "variable": []
+        },
+        "description": "## Los grupos en los que participo\n\nLo que la app necesita para abrir sus pantallas (estado de aporte, retiro): el identificador de MI participacion en cada grupo. Solo lo propio, nunca el de otros.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `listarMisParticipaciones` |\n| **Ruta** | `GET /api/v1/grupos/participaciones` |\n| **Permiso** | _no declarado en el codigo_ |\n| **Respuestas** | `200` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "listarSolicitudesDeIngreso · Solicitudes de ingreso PENDIENTES de un grupo",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/grupos/:grupoId/solicitudes",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "grupos",
+            ":grupoId",
+            "solicitudes"
+          ],
+          "variable": [
+            {
+              "key": "grupoId",
+              "value": "{{grupoId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Solicitudes de ingreso PENDIENTES de un grupo\n\nLa cola del organizador: quien pidio entrar, con el puntaje y el motivo que escribio. Solo las PENDIENTES; las resueltas quedan en el historial.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `listarSolicitudesDeIngreso` |\n| **Ruta** | `GET /api/v1/grupos/{grupoId}/solicitudes` |\n| **Permiso** | _no declarado en el codigo_ |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "decidirSolicitudDeIngreso · Aceptar o rechazar una solicitud de ingreso",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/grupos/solicitudes/:solicitudId/decision",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "grupos",
+            "solicitudes",
+            ":solicitudId",
+            "decision"
+          ],
+          "variable": [
+            {
+              "key": "solicitudId",
+              "value": "{{solicitudId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Aceptar o rechazar una solicitud de ingreso\n\nQuien decide es el organizador del grupo. Aceptada, EN LA MISMA TRANSACCION: se reserva un cupo libre, nace el participante pendiente de firmar el reglamento y se emite el evento. Rechazada, queda el motivo en el evento.\nINTERRUPTOR `aportaya.grupos.admision.humana-obligatoria` (decision pendiente de negocio y cumplimiento): encendido (valor de produccion) esta puerta se cierra con 422 `AP-CU68-15` y la decision del organizador pasa por `proponerAdmision`, que resuelve backoffice; apagado conserva el comportamiento de TEST.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `decidirSolicitudDeIngreso` |\n| **Ruta** | `POST /api/v1/grupos/solicitudes/{solicitudId}/decision` |\n| **Permiso** | _no declarado en el codigo_ |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU68-04` | Sin cupos libres |\n| `AP-CU68-08` | Solicitud no encontrada |\n| `AP-CU68-09` | Solicitud ya resuelta |\n| `AP-CU68-10` | Motivo requerido |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"decision\": \"ACEPTAR\",\n  \"motivo\": \"motivo-de-prueba\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -1106,7 +2113,7 @@
           ],
           "variable": []
         },
-        "description": "## Crear el grupo y disparar el congelamiento del tarifario\n\nEl grupo nace BORRADOR y emite `grupos.grupo_creado`; `tarifas` congela el precio y `nucleo-financiero` abre la cuenta del grupo al consumirlo. Pasa a ABIERTO_A_INSCRIPCION cuando los dos respondieron.\nQue nazca en borrador no es un rodeo: un grupo sin precio congelado no puede recibir a nadie, porque el precio es justamente lo que cada participante acepta al firmar el reglamento. Dejarlo abierto antes seria pedirle a alguien que se comprometa a un costo que todavia no existe.\nLa cuenta del grupo tiene por titular al GRUPO y nunca al organizador (R-GRP-04): si fuera del organizador, la plata del grupo estaria a nombre de una persona.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `crearGrupo` |\n| **Ruta** | `POST /api/v1/grupos` |\n| **Permiso** | `GRUPO_CREAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `202`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU20-01` | Sin tarifario vigente |\n| `AP-CU20-02` | Organizador no habilitado |\n| `AP-CU20-03` | Tarifa ya congelada |\n| `AP-CU20-04` | Servicio no autorizado |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Crear el grupo y disparar el congelamiento del tarifario\n\nEl grupo nace BORRADOR y emite `grupos.grupo_creado`; `tarifas` congela el precio al consumirlo y responde `tarifas.tarifa_congelada`, y el grupo pasa a ABIERTO_A_INSCRIPCION al consumir esa respuesta. `nucleo-financiero` abre la cuenta del grupo al consumir `grupo_creado`; la apertura de inscripciones no la espera (supuesto A1, a confirmar con producto y con ese servicio).\nQue nazca en borrador no es un rodeo: un grupo sin precio congelado no puede recibir a nadie, porque el precio es justamente lo que cada participante acepta al firmar el reglamento. Dejarlo abierto antes seria pedirle a alguien que se comprometa a un costo que todavia no existe.\nLa cuenta del grupo tiene por titular al GRUPO y nunca al organizador (R-GRP-04): si fuera del organizador, la plata del grupo estaria a nombre de una persona.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `crearGrupo` |\n| **Ruta** | `POST /api/v1/grupos` |\n| **Permiso** | `GRUPO_CREAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `202`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU20-01` | Sin tarifario vigente |\n| `AP-CU20-02` | Organizador no habilitado |\n| `AP-CU20-03` | Tarifa ya congelada |\n| `AP-CU20-04` | Servicio no autorizado |\n| `AP-CU20-05` | Kyc insuficiente del creador |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"nombre\": \"nombre-de-prueba\",\n  \"montoAporte\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"periodicidad\": \"SEMANAL\",\n  \"cupos\": 3,\n  \"diaCobro\": 1,\n  \"modalidadTurnos\": \"SORTEO_ALEATORIO\",\n  \"fechaDeInicio\": \"{{fecha_hoy}}\",\n  \"organizadorId\": \"{{organizadorId}}\",\n  \"permitePermutaDeTurnos\": true\n}",
@@ -1312,12 +2319,7 @@
       "name": "consultarPaqueteDelSorteo · El paquete publicado de un sorteo, para poder recomputarlo",
       "request": {
         "method": "GET",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{token}}"
-          }
-        ],
+        "header": [],
         "url": {
           "raw": "{{base_url}}{{prefijo_api}}/grupos/sorteos/:sorteoId/paquete",
           "host": [
@@ -1337,7 +2339,7 @@
             }
           ]
         },
-        "description": "## El paquete publicado de un sorteo, para poder recomputarlo\n\nLa pregunta `transparencia` para CU-61. Trae lo que hace falta para rehacer el sorteo desde afuera: el hash comprometido, la semilla revelada, las entropias, el metodo y el orden publicado.\nAntes del revelado la semilla viaja nula, y ese es el punto: comprometer y revelar existen para que nadie —nosotros incluidos— pueda elegir el resultado despues de conocerlo.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `consultarPaqueteDelSorteo` |\n| **Ruta** | `GET /api/v1/grupos/sorteos/{sorteoId}/paquete` |\n| **Permiso** | `PARTICIPANTE` |\n| **Respuestas** | `200` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+        "description": "## El paquete publicado de un sorteo, para poder recomputarlo\n\nLa pregunta `transparencia` para CU-61. Trae lo que hace falta para rehacer el sorteo desde afuera: el hash comprometido, la semilla revelada, las entropias, el metodo y el orden publicado.\nAntes del revelado la semilla viaja nula, y ese es el punto: comprometer y revelar existen para que nadie —nosotros incluidos— pueda elegir el resultado despues de conocerlo.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `consultarPaqueteDelSorteo` |\n| **Ruta** | `GET /api/v1/grupos/sorteos/{sorteoId}/paquete` |\n| **Permiso** | **ruta publica, sin sesion** |\n| **Respuestas** | `200` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [
@@ -1436,6 +2438,18 @@
       "value": ""
     },
     {
+      "key": "invitacionId",
+      "value": ""
+    },
+    {
+      "key": "momento_ahora",
+      "value": ""
+    },
+    {
+      "key": "nuevoAdministradorId",
+      "value": ""
+    },
+    {
       "key": "organizadorId",
       "value": ""
     },
@@ -1444,7 +2458,15 @@
       "value": ""
     },
     {
+      "key": "periodoId",
+      "value": ""
+    },
+    {
       "key": "prefijo_api",
+      "value": ""
+    },
+    {
+      "key": "propuestaId",
       "value": ""
     },
     {
@@ -1453,6 +2475,10 @@
     },
     {
       "key": "referenciaId",
+      "value": ""
+    },
+    {
+      "key": "solicitudId",
       "value": ""
     },
     {

@@ -1,0 +1,6 @@
+00:00 +0: loading C:/Users/DELL/Documents/Github/Pasanaku/PasanakuBackend-alta-v2/apps/movil/test/widget/paso_perfil_transaccional_test.dart
+00:00 +0: las actividades entran en un renglón y existe «Otra»
+00:00 +1: la actividad se elige con buscador
+00:04 +2: «Otra» pide «¿Cuál?» y no deja seguir sin escribirla
+00:06 +3: con una actividad de la lista, «¿Cuál?» no aparece
+00:08 +4: All tests passed!

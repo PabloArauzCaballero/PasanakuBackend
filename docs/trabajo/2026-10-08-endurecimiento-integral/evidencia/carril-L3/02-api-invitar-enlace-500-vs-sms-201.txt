@@ -1,0 +1,7 @@
+# Carril L3 (2026-10-11). A invita a B al grupo G1 (los telefonos y el hex64 del enlace van enmascarados).
+## canal ENLACE (el que la app ofrece por omision)
+{"codigo":"AP-INT-01","mensaje":"No pudimos completar la operacion. Volve a intentar.","trazaId":"f27564f4-2784-4d5d-b989-554c2851d11b"}
+HTTP 500
+## 5b. A invita a B con canal SMS al G1
+{"invitacionId":"624ee342-9ab3-4554-af28-3dc02e572138","mensaje":"Invitacion disponible para compartir.","enlace":"aportaya://unirse/d4d378aa-b8e9-4736-8835-ef27ef154737.<hex64>","token":"***","expiraEn":"2026-10-18T22:08:40.891248Z"}
+HTTP 201

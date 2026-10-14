@@ -44,7 +44,7 @@ class TarjetaDelGrupo extends StatelessWidget {
             style: Tipo.titulo2.copyWith(color: t.text),
           ),
           const SizedBox(height: Espacio.s2),
-          Text(_importe(), style: Tipo.titulo1.copyWith(color: t.brandTexto)),
+          Text(_importe(), style: Tipo.titulo1.copyWith(color: t.text)),
           Text(
             _cadaCuanto[detalle['periodicidad']] ??
                 '${detalle['periodicidad']}'.toLowerCase(),

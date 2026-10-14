@@ -1,0 +1,7 @@
+PASS rechaza: con tarifas apagado crear el grupo falla cerrado (422 AP-CU20-01) y no escribe nada · http=422 codigo=AP-CU20-01 grupos 8->8
+PASS grupos muerto con el alta ya confirmada: el evento queda en el outbox y el grupo en BORRADOR · http=202 outbox=PENDIENTE grupo=BORRADOR
+PASS al volver grupos el outbox publica, tarifas congela y el grupo se abre solo (nada se perdio) · estado=ABIERTO_A_INSCRIPCION a los 27.6s de volver
+PASS y queda una sola tarifa congelada y una sola billetera de grupo · tarifas=1 billeteras=1
+PASS rechaza: con garantia apagado la postulacion falla cerrada (AP-CU68-01), no deja pasar a ciegas · http=422 codigo=AP-CU68-01
+PASS y no quedo ninguna solicitud escrita · filas=0
+PASS al volver garantia la misma postulacion entra (201) · http=201 codigo=None

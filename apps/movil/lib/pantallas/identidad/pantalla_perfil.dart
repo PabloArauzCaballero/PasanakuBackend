@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'dominio/estado_cuenta.dart';
 import 'dominio/estado_sesion.dart';
 import 'textos.dart';
+import 'fila_de_accion_de_perfil.dart';
 import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 import '../../proveedores/tutoriales.dart';
 
@@ -25,6 +26,7 @@ class PantallaDePerfil extends ConsumerStatefulWidget {
 
 class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
   final _correo = TextEditingController();
+  bool _cerrandoSesion = false;
 
   @override
   void dispose() {
@@ -61,17 +63,17 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
                     .actualizarCorreo(_correo.text),
               ),
               const SizedBox(height: Espacio.s3),
-              Boton(
+              FilaDeAccionDePerfil(
+                claveSemantica: const ValueKey('perfil-fila-contrasena'),
                 texto: TextosIdentidad.tituloContrasenaNueva,
-                variante: BotonVariante.fantasma,
-                expandido: true,
+                pista: 'Abrí el cambio de contraseña.',
                 onPressed: () => context.push('/identidad/contrasena'),
               ),
-              const SizedBox(height: Espacio.s3),
-              Boton(
+              const SizedBox(height: Espacio.s2),
+              FilaDeAccionDePerfil(
+                claveSemantica: const ValueKey('perfil-fila-guia'),
                 texto: TextosIdentidad.verGuiaOtraVez,
-                variante: BotonVariante.fantasma,
-                expandido: true,
+                pista: 'Reiniciá y abrí la guía de inicio.',
                 onPressed: () =>
                     ref.read(verGuiaDeInicioOtraVezProvider)().ignore(),
               ),
@@ -81,14 +83,18 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
               // distintas —una se deshace volviendo a ingresar, la otra no— y en una
               // app de dinero no pueden parecerse.
               Boton(
-                texto: TextosIdentidad.cerrarSesion,
+                texto: _cerrandoSesion
+                    ? 'Cerrando sesión…'
+                    : TextosIdentidad.cerrarSesion,
                 variante: BotonVariante.fantasma,
                 expandido: true,
+                cargando: _cerrandoSesion,
                 onPressed: () async {
+                  if (_cerrandoSesion) return;
+                  setState(() => _cerrandoSesion = true);
                   await ref
                       .read(sesionIdentidadProvider.notifier)
                       .cerrarSesion();
-                  if (context.mounted) context.go('/portada');
                 },
               ),
               const SizedBox(height: Espacio.s3),

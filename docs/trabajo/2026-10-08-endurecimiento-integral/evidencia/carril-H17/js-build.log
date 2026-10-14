@@ -1,0 +1,133 @@
+
+   • Packages in scope: @aportaya/backoffice, @aportaya/web
+   • Running build in 2 packages
+   • Remote caching disabled
+
+@aportaya/simulado:build: cache hit, replaying logs e342dc285c254e50
+@aportaya/simulado:build: contratos convertidos desde /home/user/PasanakuBackend: aportes (11 rutas) · auditoria (4 rutas) · cumplimiento (10 rutas) · entregas (14 rutas) · erp (15 rutas) · garantia (20 rutas) · grupos (28 rutas) · identidad (21 rutas) · inversiones (20 rutas) · notificaciones (4 rutas) · nucleo-financiero (20 rutas) · organizador (21 rutas) · publicidad (14 rutas) · tarifas (12 rutas) · transparencia (18 rutas)
+@aportaya/simulado:build: ejemplos: 0 creados · 234 conservados (editados a mano, no se pisan) · 0 rechazos alineados al catalogo de errores
+@aportaya/simulado:build: simulado: 1275 ejemplos inyectados · 232 rutas en generado/prism/todos.yaml
+@aportaya/tokens:build: cache hit, replaying logs edf27c7588a8a487
+@aportaya/tokens:build: generado/tokens.css · 230 lineas
+@aportaya/tokens:build: generado/tokens.dart · 378 lineas
+@aportaya/tokens:build: vectores/monto.json · 5006 casos
+@aportaya/ui:build: cache hit, replaying logs 79e3bb7173d5063b
+@aportaya/ui:build: ui: se consume por alias de tsconfig; `ng build` empaqueta con ng-packagr cuando haga falta publicar
+@aportaya/backoffice:build: cache miss, executing 66f8bbfbefd9186e
+@aportaya/backoffice:build: ❯ Building...
+@aportaya/backoffice:build: ✔ Building...
+@aportaya/backoffice:build: Initial chunk files | Names                            |  Raw size | Estimated transfer size
+@aportaya/backoffice:build: chunk-iTD2J6Fn.js   | -                                | 181.63 kB |                53.06 kB
+@aportaya/backoffice:build: main-PNTYIT7S.js    | main                             | 145.52 kB |                39.84 kB
+@aportaya/backoffice:build: chunk-C6s9efa_.js   | -                                |  14.85 kB |                 4.66 kB
+@aportaya/backoffice:build: styles-OFOP7ONZ.css | styles                           |   5.63 kB |                 1.36 kB
+@aportaya/backoffice:build: chunk-KFiQmZVh.js   | -                                |   1.83 kB |               663 bytes
+@aportaya/backoffice:build: 
+@aportaya/backoffice:build:                     | Initial total                    | 349.45 kB |                99.58 kB
+@aportaya/backoffice:build: 
+@aportaya/backoffice:build: Lazy chunk files    | Names                            |  Raw size | Estimated transfer size
+@aportaya/backoffice:build: chunk-DZpiTCYM.js   | -                                |  36.12 kB |                 9.96 kB
+@aportaya/backoffice:build: chunk-CW4Cp7yC.js   | -                                |  24.16 kB |                 3.19 kB
+@aportaya/backoffice:build: chunk-BPmsUQcK.js   | pantalla-de-compras              |  16.14 kB |                 4.90 kB
+@aportaya/backoffice:build: chunk-B1r9zk7r.js   | pantalla-centro-de-ayuda         |  15.87 kB |                 4.44 kB
+@aportaya/backoffice:build: chunk-ChqxwLEF.js   | catalogo                         |  14.37 kB |                 4.20 kB
+@aportaya/backoffice:build: chunk-CfRdH2xU.js   | pantalla-de-expedientes          |  14.23 kB |                 4.31 kB
+@aportaya/backoffice:build: chunk-CuMZwEM7.js   | pantalla-de-admision             |  13.76 kB |                 3.96 kB
+@aportaya/backoffice:build: chunk-D2m6yWCX.js   | pantalla-de-billetera            |   9.78 kB |                 3.30 kB
+@aportaya/backoffice:build: chunk-Du-QjXaZ.js   | pantalla-de-ingreso              |   9.57 kB |                 3.31 kB
+@aportaya/backoffice:build: chunk-CIP68q8N.js   | -                                |   9.53 kB |                 2.83 kB
+@aportaya/backoffice:build: chunk-Bmx-Dj2U.js   | pantalla-de-cobros               |   9.33 kB |                 3.34 kB
+@aportaya/backoffice:build: chunk-BD752uMs.js   | pantalla-de-caso                 |   9.08 kB |                 2.93 kB
+@aportaya/backoffice:build: chunk-EUFcFVBB.js   | pantalla-de-aprobacion-de-retiro |   9.03 kB |                 3.22 kB
+@aportaya/backoffice:build: chunk-dpR2vXXo.js   | -                                |   8.16 kB |                 1.96 kB
+@aportaya/backoffice:build: chunk-IC367MX5.js   | pantalla-despliegues             |   7.93 kB |                 2.76 kB
+@aportaya/backoffice:build: ...and 77 more lazy chunks files. Use "--verbose" to show all the files.
+@aportaya/backoffice:build: 
+@aportaya/backoffice:build: Application bundle generation complete. [7.201 seconds] - 2026-10-12T05:43:07.438Z
+@aportaya/backoffice:build: 
+@aportaya/backoffice:build: ▲ [WARNING] bundle initial exceeded maximum budget. Budget 340.00 kB was not met by 9.46 kB with a total of 349.45 kB.
+@aportaya/backoffice:build: 
+@aportaya/backoffice:build: 
+@aportaya/backoffice:build: ▲ [WARNING] angular:styles/component:css;ec905ef9b5bf27c1;/home/user/PasanakuBackend/packages/ui/src/boton/boton.ts exceeded maximum budget. Budget 4.00 kB was not met by 629 bytes with a total of 4.63 kB.
+@aportaya/backoffice:build: 
+@aportaya/backoffice:build: 
+@aportaya/backoffice:build: Output location: /home/user/PasanakuBackend/apps/backoffice/dist/backoffice
+@aportaya/backoffice:build: 
+@aportaya/web:build: cache miss, executing dcf22a2cfcad4a5b
+@aportaya/web:build: contenido: 10 páginas · 10 indexables · robots.txt, sitemap.xml, llms.txt y llms-full.txt generados
+@aportaya/web:build: ❯ Building...
+@aportaya/web:build: ✔ Building...
+@aportaya/web:build: Browser bundles     
+@aportaya/web:build: Initial chunk files  | Names                    |  Raw size | Estimated transfer size
+@aportaya/web:build: chunk-K6oK5Mbb.js    | -                        | 195.52 kB |                58.11 kB
+@aportaya/web:build: main-6VRFZMMD.js     | main                     | 123.76 kB |                33.04 kB
+@aportaya/web:build: styles-7UKSSISQ.css  | styles                   |  37.94 kB |                 7.54 kB
+@aportaya/web:build: chunk--Yl8wwvO.js    | -                        |  32.86 kB |                 9.99 kB
+@aportaya/web:build: 
+@aportaya/web:build:                      | Initial total            | 390.07 kB |               108.68 kB
+@aportaya/web:build: 
+@aportaya/web:build: Lazy chunk files     | Names                    |  Raw size | Estimated transfer size
+@aportaya/web:build: chunk-C0I-xysx.js    | catalogo                 | 138.54 kB |                31.88 kB
+@aportaya/web:build: chunk-C6r9jjTK.js    | -                        |  29.58 kB |                 6.37 kB
+@aportaya/web:build: chunk-F7LVaRBh.js    | inicio                   |  23.98 kB |                 7.17 kB
+@aportaya/web:build: chunk-De2kgZV1.js    | pantalla-centro-de-ayuda |  13.71 kB |                 3.84 kB
+@aportaya/web:build: chunk-BRVadUNR.js    | -                        |  10.53 kB |                 3.27 kB
+@aportaya/web:build: chunk-C5fTHOdV.js    | -                        |   8.17 kB |                 1.97 kB
+@aportaya/web:build: chunk-Dm6kRHeG.js    | -                        |   7.60 kB |                 2.55 kB
+@aportaya/web:build: chunk-D9vU6mz1.js    | -                        |   6.81 kB |                 2.30 kB
+@aportaya/web:build: chunk-CU5-6E29.js    | catalogo                 |   5.87 kB |                 1.90 kB
+@aportaya/web:build: chunk-agffynkn.js    | -                        |   5.41 kB |                 1.89 kB
+@aportaya/web:build: chunk-D3ZR2nWW.js    | anfitrion-de-tutorial    |   5.15 kB |                 1.95 kB
+@aportaya/web:build: chunk-BlGgHEwO.js    | verificador-de-sorteo    |   5.13 kB |                 2.12 kB
+@aportaya/web:build: chunk-FAQH9oKq.js    | -                        |   4.73 kB |                 1.72 kB
+@aportaya/web:build: chunk-KVZLmeA1.js    | invitacion               |   4.42 kB |                 1.75 kB
+@aportaya/web:build: chunk-Caq_3nvt.js    | simulador-de-costos      |   4.03 kB |                 1.69 kB
+@aportaya/web:build: ...and 29 more lazy chunks files. Use "--verbose" to show all the files.
+@aportaya/web:build: 
+@aportaya/web:build: 
+@aportaya/web:build: Server bundles      
+@aportaya/web:build: Initial chunk files  | Names                    |  Raw size
+@aportaya/web:build: server.mjs           | server                   | 916.97 kB |                        
+@aportaya/web:build: main.server.mjs      | main.server              | 304.65 kB |                        
+@aportaya/web:build: polyfills.server.mjs | polyfills.server         | 235.58 kB |                        
+@aportaya/web:build: chunk-G2RIUIO6.mjs   | -                        | 201.58 kB |                        
+@aportaya/web:build: chunk-S2N2AGKC.mjs   | -                        |  79.67 kB |                        
+@aportaya/web:build: chunk-YAQUWAHC.mjs   | -                        |  34.18 kB |                        
+@aportaya/web:build: chunk-DRMUWJQD.mjs   | -                        |  15.12 kB |                        
+@aportaya/web:build: chunk-2VBMZ2NY.mjs   | -                        |   4.02 kB |                        
+@aportaya/web:build: chunk-FA7M4B37.mjs   | -                        |   2.12 kB |                        
+@aportaya/web:build: chunk-C2KJ4ATU.mjs   | -                        |   1.54 kB |                        
+@aportaya/web:build: chunk-ZL6G7Y66.mjs   | -                        |   1.47 kB |                        
+@aportaya/web:build: chunk-TWD63J35.mjs   | -                        |   1.39 kB |                        
+@aportaya/web:build: 
+@aportaya/web:build: Lazy chunk files     | Names                    |  Raw size
+@aportaya/web:build: chunk-CFDQDPNR.mjs   | catalogo                 | 171.50 kB |                        
+@aportaya/web:build: chunk-YHUNYMFG.mjs   | -                        |  29.81 kB |                        
+@aportaya/web:build: chunk-B6WOAF6I.mjs   | inicio                   |  23.89 kB |                        
+@aportaya/web:build: chunk-JK7K7A7Z.mjs   | pantalla-centro-de-ayuda |  13.62 kB |                        
+@aportaya/web:build: chunk-5U547IHF.mjs   | xhr2                     |  12.17 kB |                        
+@aportaya/web:build: chunk-AC4ONSPL.mjs   | xhr2                     |  12.08 kB |                        
+@aportaya/web:build: chunk-INH4HIIM.mjs   | -                        |  10.47 kB |                        
+@aportaya/web:build: chunk-FMLM75R3.mjs   | -                        |   8.18 kB |                        
+@aportaya/web:build: chunk-RDW6FTIF.mjs   | -                        |   7.56 kB |                        
+@aportaya/web:build: chunk-FAPMHHN2.mjs   | -                        |   6.88 kB |                        
+@aportaya/web:build: chunk-YWUX7LMJ.mjs   | catalogo                 |   6.08 kB |                        
+@aportaya/web:build: chunk-2H6X5WCB.mjs   | -                        |   5.33 kB |                        
+@aportaya/web:build: chunk-AC5BDCHZ.mjs   | anfitrion-de-tutorial    |   5.19 kB |                        
+@aportaya/web:build: chunk-GUIRLARR.mjs   | verificador-de-sorteo    |   5.13 kB |                        
+@aportaya/web:build: chunk-DL4AWYWD.mjs   | -                        |   4.73 kB |                        
+@aportaya/web:build: ...and 31 more lazy chunks files. Use "--verbose" to show all the files.
+@aportaya/web:build: 
+@aportaya/web:build: Prerendered 12 static routes.
+@aportaya/web:build: Application bundle generation complete. [9.562 seconds] - 2026-10-12T05:43:18.593Z
+@aportaya/web:build: 
+@aportaya/web:build: ▲ [WARNING] angular:styles/component:css;ec905ef9b5bf27c1;/home/user/PasanakuBackend/packages/ui/src/boton/boton.ts exceeded maximum budget. Budget 4.00 kB was not met by 629 bytes with a total of 4.63 kB.
+@aportaya/web:build: 
+@aportaya/web:build: 
+@aportaya/web:build: Output location: /home/user/PasanakuBackend/apps/web/dist/web
+@aportaya/web:build: 
+
+ Tasks:    5 successful, 5 total
+Cached:    3 cached, 5 total
+  Time:    19.904s 
+

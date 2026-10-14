@@ -471,6 +471,8 @@ package "Verificacion de Identidad (KYC)" {
     - referenciaProveedor: String
     - puntajeBiometrico: Decimal
     - urlSelfie: String
+    - urlPerfilIzquierdo: String
+    - urlPerfilDerecho: String
     - motivoRechazo: String
     - revisadaPor: UUID <<revision manual>>
     - iniciadaEn: DateTime
@@ -953,6 +955,8 @@ entity "verificacion_kyc" as kyc {
   referencia_proveedor : VARCHAR(80) <<NULL>>
   puntaje_biometrico : DECIMAL(5,2) <<NULL>>
   url_selfie : VARCHAR(255) <<NULL>>
+  url_perfil_izquierdo : VARCHAR(255) <<NULL, perfil izquierdo de la prueba de vida>>
+  url_perfil_derecho : VARCHAR(255) <<NULL, perfil derecho de la prueba de vida>>
   motivo_rechazo : VARCHAR(160) <<NULL>>
   # revisada_por : UUID <<FK, NULL>>
   iniciada_en : TIMESTAMPTZ

@@ -37,7 +37,7 @@ import org.springframework.test.context.DynamicPropertySource;
  * {@code permisos} y el reclamo {@code rol} es el piso de la sesion (BACKOFFICE). El lado consumidor del mismo archivo es
  * {@code LibroPorHttpPactoContratoTest} en inversiones (cliente real, servidor del JDK).
  *
- * <p>Doble declarado: {@code aportes} (lo comprometido en pozos), un servidor HTTP local con la forma del OpenAPI de aportes.
+ * <p>Dobles declarados: {@code aportes} (lo comprometido en pozos) y {@code grupos} (las participaciones del titular), servidores HTTP locales con la forma de sus OpenAPI.
  * Identidad e inversiones NO estan en esta prueba: el token se firma aca con la forma de identidad.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -63,6 +63,7 @@ class CU13PactoInversionesTest extends BaseDeInversiones {
         registro.add("spring.kafka.bootstrap-servers", () -> "localhost:9092");
         registro.add("aportaya.jwt.jwks-uri", identidades::urlDelJwks);
         registro.add("aportaya.servicios.aportes", identidades::urlDeAportes);
+        registro.add("aportaya.servicios.grupos", identidades::urlDeGrupos);
         registro.add("SEGURIDAD_PIMIENTA", () -> "pimienta-de-prueba");
         registro.add("CUENTA_PUENTE_CUSTODIA", () -> "00000000-0000-0000-0000-0000000000c0");
         registro.add("QR_INTERNO_CLAVE", () -> "clave-de-prueba-de-los-qr-internos-0001");

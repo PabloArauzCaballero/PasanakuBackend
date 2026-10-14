@@ -46,6 +46,7 @@ void main() {
     tester,
   ) async {
     final banco = BancoDeTutoriales(catalogo: [_intro()]);
+    await banco.abrirSesion();
     await tester.pumpWidget(banco.montar());
     await tester.pump();
 
@@ -63,6 +64,7 @@ void main() {
     tester,
   ) async {
     final banco = BancoDeTutoriales(catalogo: [_intro()]);
+    await banco.abrirSesion();
     await tester.pumpWidget(banco.montar());
     await tester.pump();
 
@@ -81,6 +83,7 @@ void main() {
       tester,
     ) async {
       final banco = BancoDeTutoriales(catalogo: [_intro()]);
+      await banco.abrirSesion();
       await banco.almacen.guardar(_progreso(estado));
       await tester.pumpWidget(banco.montar());
       await tester.pump();
@@ -97,6 +100,7 @@ void main() {
     tester,
   ) async {
     final banco = BancoDeTutoriales(catalogo: [tutorialDePrueba('otro')]);
+    await banco.abrirSesion();
     await tester.pumpWidget(banco.montar());
     await tester.pump();
 

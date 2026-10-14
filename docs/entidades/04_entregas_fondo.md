@@ -93,8 +93,12 @@ Siete tipos, todos con un caso real detrás:
   comisión por cobro de turno, 0,3 % de la bolsa"* y el usuario puede verificarlo
   contra el tarifario publicado.
 
+  > **Vigencia ([[ADR-051 Garantía del pozo, comisión y autogestión|ADR-051]], D-04).** Por la regla de pozo completo la
+  > comisión es un **cargo separado**: el principal se acredita íntegro y el cargo es una línea propia, no una
+  > deducción de la bolsa. El camino con deducciones queda como legado.
+
   **Sigue sin haber deducción por comisión del organizador**: administrar no se
-  cobra (RN-18). La bolsa se descuenta para pagar el servicio de la plataforma,
+  cobra (RN-18). El cargo es para pagar el servicio de la plataforma,
   nunca para pagarle a quien administra el grupo.
 
 `referenciaOrigenId` apunta al hecho concreto que justifica cada descuento. Eso es
@@ -314,8 +318,8 @@ entrega ni responsables identificables.
 confirmaciones vencidas y reintenta desembolsos fallidos.
 
 **Para qué sirve (negocio).** Es lo que hace que las entregas ocurran solas, sin
-que un organizador tenga que acordarse. En un grupo autogestionado (M7), este
-servicio *es* el organizador en lo que respecta a entregas.
+que un organizador tenga que acordarse. Como todo grupo tiene un organizador humano habilitado
+([[ADR-051 Garantía del pozo, comisión y autogestión|ADR-051]]), este servicio automatiza las entregas, no reemplaza a quien administra.
 
 ---
 

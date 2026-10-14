@@ -6,10 +6,19 @@ import 'package:aportaya_diseno/organismos/calendario_de_cuotas.dart';
 import 'package:aportaya_diseno/organismos/cuota.dart';
 import 'package:aportaya_diseno/organismos/estado_de_cuota.dart';
 import 'package:aportaya_diseno/organismos/lista_de_movimientos.dart';
+import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Los átomos con aritmética o reglas: se prueban en milisegundos, sin widget.
 void main() {
+  test('Elevacion compone las sombras semánticas con roles de cada tema', () {
+    for (final tema in [Tokens.claro, Tokens.oscuro]) {
+      expect(Elevacion.tarjeta(tema), [tema.sombra1, tema.sombra2]);
+      expect(Elevacion.destacada(tema), [tema.sombra2]);
+      expect(Elevacion.superpuesta(tema), [tema.sombra3]);
+    }
+  });
+
   group('CampoMonto.aCadenaDelContrato', () {
     test(
       'acepta lo que escribe una persona y devuelve la cadena del contrato',
@@ -44,13 +53,16 @@ void main() {
     );
   });
 
-  test('Fecha.formatearDia muestra el día elegido tal cual, sin correrlo por zona', () {
-    expect(Fecha.formatearDia(DateTime(1990, 10, 11)), '11 oct 1990');
-    expect(Fecha.formatearDia(DateTime(2000, 1, 1)), '1 ene 2000');
-    // Borde: medianoche y fin del día de calendario no cambian de día.
-    expect(Fecha.formatearDia(DateTime(1990, 10, 11, 23, 59)), '11 oct 1990');
-    expect(Fecha.formatearDia(DateTime.utc(1990, 10, 11)), '11 oct 1990');
-  });
+  test(
+    'Fecha.formatearDia muestra el día elegido tal cual, sin correrlo por zona',
+    () {
+      expect(Fecha.formatearDia(DateTime(1990, 10, 11)), '11 oct 1990');
+      expect(Fecha.formatearDia(DateTime(2000, 1, 1)), '1 ene 2000');
+      // Borde: medianoche y fin del día de calendario no cambian de día.
+      expect(Fecha.formatearDia(DateTime(1990, 10, 11, 23, 59)), '11 oct 1990');
+      expect(Fecha.formatearDia(DateTime.utc(1990, 10, 11)), '11 oct 1990');
+    },
+  );
 
   test('RelojDePlazo dice lo que falta sin recalcular el vencimiento', () {
     final ahora = DateTime(2026, 9, 9, 10);

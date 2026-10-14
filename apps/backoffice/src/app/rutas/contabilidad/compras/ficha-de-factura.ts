@@ -66,7 +66,6 @@ export class FichaDeFactura {
     { valor: 'TRANSFERENCIA', texto: 'Transferencia' },
     { valor: 'CHEQUE', texto: 'Cheque' },
     { valor: 'EFECTIVO', texto: 'Efectivo' },
-    { valor: 'QR', texto: 'QR' },
   ]
   private readonly enviarPago = crearPagoDeFactura()
   private readonly valorInicialDeForma = 'TRANSFERENCIA'

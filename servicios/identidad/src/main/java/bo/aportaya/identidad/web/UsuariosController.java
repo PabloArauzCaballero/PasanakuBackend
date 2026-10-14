@@ -2,6 +2,7 @@ package bo.aportaya.identidad.web;
 
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
+import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.ConfirmarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.ConsultarNivelKyc;
@@ -9,7 +10,6 @@ import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.SolicitarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.ValidarTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
-import bo.aportaya.identidad.web.generado.modelo.ArchivoDelExpediente;
 import bo.aportaya.identidad.web.generado.modelo.ConfirmacionVerificacionCorreo;
 import bo.aportaya.identidad.web.generado.modelo.EntradaBusquedaPorTelefono;
 import bo.aportaya.identidad.web.generado.modelo.EntradaRegistro;
@@ -41,7 +41,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * La pagina de CU-01: traduce y delega, sin logica.
@@ -51,14 +50,13 @@ import org.springframework.web.multipart.MultipartFile;
  * decirle al cliente que tiene algo que todavia nadie abrio.
  */
 @RestController
-public class UsuariosController extends InvitacionesController {
+public class UsuariosController extends ExpedienteController {
 
     /** El «usuario» del contexto mientras todavia no hay usuario. */
     private static final UUID PROCESO_DE_ALTA = UUID.fromString("00000000-0000-4000-8000-000000000001");
 
     private final CU01RegistrarUsuario cu01;
     private final VerificarTitularidad titularidad;
-    private final CU02GuardarFotoDelExpediente fotos;
     private final EmitirTokenDeInvitacion tokens;
     private final ValidarTokenDeInvitacion validacionDeInvitacion;
     private final BuscarPorTelefono busqueda;
@@ -68,13 +66,13 @@ public class UsuariosController extends InvitacionesController {
     private final SesionDeLaPeticion sesion;
     private final HttpServletRequest peticion;
     private final String pimienta;
-    private final TokenDeAlta tokenDeAlta;
-    private final TitularDelExpediente titular;
+    private final LimiteDeConsultas limiteDeTitularidad;
 
     public UsuariosController(
             CU01RegistrarUsuario cu01,
             VerificarTitularidad titularidad,
             CU02GuardarFotoDelExpediente fotos,
+            CU02ConsultarEstadoDeVerificacion estadoDeVerificacion,
             EmitirTokenDeInvitacion tokens,
             ValidarTokenDeInvitacion validacionDeInvitacion,
             bo.aportaya.identidad.aplicacion.ConsumirInvitacion consumo,
@@ -86,11 +84,11 @@ public class UsuariosController extends InvitacionesController {
             HttpServletRequest peticion,
             @Value("${aportaya.seguridad.pimienta}") String pimienta,
             Reloj reloj,
-            @Value("${identidad.alta.vigencia-token:PT30M}") Duration vigenciaTokenDeAlta) {
-        super(consumo, sesion, peticion);
+            @Value("${identidad.alta.vigencia-token:PT30M}") Duration vigenciaTokenDeAlta,
+            @Value("${aportaya.titularidad.consultas-por-minuto:120}") int titularidadPorMinuto) {
+        super(consumo, sesion, peticion, fotos, estadoDeVerificacion, pimienta, reloj, vigenciaTokenDeAlta);
         this.cu01 = cu01;
         this.titularidad = titularidad;
-        this.fotos = fotos;
         this.tokens = tokens;
         this.validacionDeInvitacion = validacionDeInvitacion;
         this.busqueda = busqueda;
@@ -100,8 +98,7 @@ public class UsuariosController extends InvitacionesController {
         this.sesion = sesion;
         this.peticion = peticion;
         this.pimienta = pimienta;
-        this.tokenDeAlta = new TokenDeAlta(pimienta, reloj, vigenciaTokenDeAlta);
-        this.titular = new TitularDelExpediente(tokenDeAlta, sesion);
+        this.limiteDeTitularidad = new LimiteDeConsultas(reloj, titularidadPorMinuto, Duration.ofMinutes(1));
     }
 
     /**
@@ -185,6 +182,8 @@ public class UsuariosController extends InvitacionesController {
     @PermisoAlternativo("SERVICIO_ENTREGAS")
     public ResponseEntity<SalidaTitularidad> verificarTitularidad(UUID usuarioId, EntradaTitularidad cuerpo) {
         Traza.marcarCasoDeUso("CU-01", usuarioId.toString());
+        // Oraculo de si/no: tope por actor (429 con Retry-After) ANTES de tocar el expediente.
+        limiteDeTitularidad.registrar(sesion.actual().usuarioId());
 
         var respuesta = new SalidaTitularidad();
         respuesta.setCoincide(
@@ -199,43 +198,6 @@ public class UsuariosController extends InvitacionesController {
         Traza.marcarCasoDeUso("CU-02", "nivel-kyc");
         var nivel = nivelesKyc.ejecutar(usuarioId, sesion.actual());
         return ResponseEntity.ok(new NivelKyc(usuarioId, NivelKyc.NivelEnum.fromValue(nivel)));
-    }
-
-    /**
-     * La foto del documento o la prueba de vida. Va al servidor de archivos y en
-     * la fila queda la clave del objeto: el binario nunca se sirve directo ni se guarda
-     * en el disco del contenedor, que se reemplaza — y la evidencia legal no.
-     *
-     * <p>Sin sesion exigida porque estas fotos se sacan durante el registro, cuando todavia no
-     * hay sesion que presentar; pero NO es una ruta abierta: el {@code usuarioId} de la URL no
-     * autoriza nada. Escribe en el expediente solo quien presenta el token que le dio SU alta
-     * (cabecera {@code Token-De-Alta}) o quien tiene sesion propia. Todo lo demas es el mismo
-     * 403, exista o no ese usuario.
-     */
-    @Override
-    @Publico("CU-02: se sube durante el alta, sin sesion; exige el token de alta del propio usuario o su sesion")
-    public ResponseEntity<ArchivoDelExpediente> subirDocumento(
-            UUID usuarioId, UUID idempotencyKey, String cara, MultipartFile archivo, String tokenDeAltaPresentado) {
-        titular.exigir(usuarioId, tokenDeAltaPresentado);
-        try {
-            var guardado = fotos.ejecutar(
-                    usuarioId,
-                    CU02GuardarFotoDelExpediente.Cara.valueOf(cara),
-                    archivo.getInputStream(),
-                    archivo.getSize(),
-                    archivo.getOriginalFilename(),
-                    Traza.actual());
-            var salida = new ArchivoDelExpediente()
-                    .cara(ArchivoDelExpediente.CaraEnum.fromValue(cara))
-                    .claveObjeto(guardado.clave().toString())
-                    .hashArchivo(guardado.hashSha256())
-                    .tipoMime(guardado.tipoMime())
-                    .bytes(guardado.bytes());
-            return ResponseEntity.status(201).body(salida);
-        } catch (java.io.IOException e) {
-            throw new bo.aportaya.plataforma.dominio.ErrorDeDominio(
-                    "Se corto la subida de la foto. Probá de nuevo.", e);
-        }
     }
 
     @Override

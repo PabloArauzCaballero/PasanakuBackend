@@ -2,7 +2,7 @@
   "descripcion": "Parámetros de emisión y validación de tokens, uno por propósito. Sin la fila, el propósito no puede emitir token: el vencimiento, el largo del código y el tope de intentos son dato, no constante en el código.",
   "entorno": "minimo",
   "estado": "listo — revisar con seguridad de la información en cada revisión anual de la política",
-  "nota": "Cambiar un parámetro es cerrar la vigencia de la fila y agregar otra con `vigente_desde` posterior: los tokens ya emitidos se validan con la política que regía al emitirlos.",
+  "nota": "Cambiar un parámetro es cerrar la vigencia de la fila y agregar otra con `vigente_desde` posterior: los tokens ya emitidos se validan con la política que regía al emitirlos. Nunca se edita una fila ya sembrada: la siembra es `ON CONFLICT (proposito, vigente_desde) DO NOTHING` y una base poblada conservaría la fila vieja (INVITACION_GRUPO: la versión 2026-10-11 agrega el canal ENLACE).",
   "bloques": [
     {
       "tabla": "politica_token",
@@ -170,10 +170,23 @@
           "max_reenvios_por_hora": 2,
           "cooldown_reenvio_segundos": 300,
           "max_emisiones_por_dia": 20,
-          "canales_permitidos": "ENLACE,SMS,WHATSAPP,CORREO",
+          "canales_permitidos": "SMS,WHATSAPP,CORREO",
           "exige_dispositivo_conocido": false,
           "invalida_anteriores": false,
           "vigente_desde": "2026-01-01T00:00:00-04:00"
+        },
+        {
+          "proposito": "INVITACION_GRUPO",
+          "ttl_segundos": 604800,
+          "longitud_codigo": 32,
+          "max_intentos_validacion": 5,
+          "max_reenvios_por_hora": 2,
+          "cooldown_reenvio_segundos": 300,
+          "max_emisiones_por_dia": 20,
+          "canales_permitidos": "ENLACE,SMS,WHATSAPP,CORREO",
+          "exige_dispositivo_conocido": false,
+          "invalida_anteriores": false,
+          "vigente_desde": "2026-10-11T00:00:00-04:00"
         },
         {
           "proposito": "ENLACE_PAGO",
@@ -212,6 +225,29 @@
           "canales_permitidos": "CORREO",
           "exige_dispositivo_conocido": true,
           "invalida_anteriores": true,
+          "vigente_desde": "2026-01-01T00:00:00-04:00"
+        }
+      ]
+    },
+    {
+      "tabla": "politica_token",
+      "conflicto": [
+        "proposito",
+        "vigente_desde"
+      ],
+      "comentario": "Refresh de sesión del backoffice (ADR-010): viaja en cookie httpOnly + Secure + SameSite estricto, se rota en cada uso y su reuso revoca la familia (trigger R-SEG-09). Vive lo mismo que la sesión (aportaya.acceso.vigencia-sesion, 12 h). Cada uso emite uno nuevo, por eso el tope diario es alto.",
+      "filas": [
+        {
+          "proposito": "REFRESCO_SESION",
+          "ttl_segundos": 43200,
+          "longitud_codigo": 64,
+          "max_intentos_validacion": 1,
+          "max_reenvios_por_hora": 0,
+          "cooldown_reenvio_segundos": 0,
+          "max_emisiones_por_dia": 200,
+          "canales_permitidos": "COOKIE_HTTPONLY",
+          "exige_dispositivo_conocido": false,
+          "invalida_anteriores": false,
           "vigente_desde": "2026-01-01T00:00:00-04:00"
         }
       ]

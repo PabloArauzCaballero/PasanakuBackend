@@ -39,6 +39,8 @@ public class AnotarFotoEnExpediente {
                 case ANVERSO -> expedientes.anotarAnverso(dsl, usuarioId, archivo);
                 case REVERSO -> expedientes.anotarReverso(dsl, usuarioId, archivo);
                 case SELFIE -> expedientes.anotarSelfie(dsl, usuarioId, archivo);
+                case PERFIL_IZQUIERDO -> expedientes.anotarPerfilIzquierdo(dsl, usuarioId, archivo);
+                case PERFIL_DERECHO -> expedientes.anotarPerfilDerecho(dsl, usuarioId, archivo);
             }
             return null;
         });

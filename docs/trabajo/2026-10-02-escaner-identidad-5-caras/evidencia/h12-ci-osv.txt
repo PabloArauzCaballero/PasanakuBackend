@@ -1,0 +1,51 @@
+# CI completo (workflow_dispatch) sobre c1f3c709 — run 37173643377 — OSV-Scanner
+# El job falla en 'Run osv-scanner-reporter' (la política del repo bloquea toda vulnerabilidad no ignorada en .github/osv-scanner.toml).
+# Esta rama NO modifica yarn.lock ni ningún gradle.lockfile respecto de la base 22c5e687 (git diff --name-only → 0 archivos).
+# Las mismas alertas están abiertas en main y dev (Code Scanning, tool osv-scanner). Conteo por rama de CVE únicos:
+#   justin/feature/escaner-identidad-atlas: 30 CVE únicos abiertos
+#   dev: 26 CVE únicos abiertos
+#   main: 26 CVE únicos abiertos
+# Diferencia rama − dev: CVE-2026-102992 (piscina, yarn.lock), CVE-2026-89407 y CVE-2026-89425 (jackson-core, gradle.lockfile), CVE-2026-93687 (braces, yarn.lock).
+# El último escaneo OSV de dev es del 2026-09-30T21:50Z: son avisos publicados después, sobre archivos que esta rama no cambió.
+
+critical|CVE-2026-102992|yarn.lock|CVE-2026-102992: piscina: Prototype-pollution gadget in ThreadPool.options allows RCE via execArgv / loadBalan
+high|CVE-2026-101895|yarn.lock|CVE-2026-101895: Angular SSR: Denial of Service (DoS) via Infinite Loop on Malformed DOCTYPE
+high|CVE-2026-101896|yarn.lock|CVE-2026-101896: Angular Server-Side Rendering (SSR): Denial of Service via Numeric URL Matrix Parameters
+high|CVE-2026-102276|yarn.lock|CVE-2026-102276: brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion
+high|CVE-2026-102278|yarn.lock|CVE-2026-102278: brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhausti
+high|CVE-2026-19534|yarn.lock|CVE-2026-19534: undici vulnerable to Denial of Service via unrequested WebSocket subprotocol
+high|CVE-2026-68497|gradle.lockfile|CVE-2026-68497: jackson-databind: Duration XMLGregorianCalendar Unbounded Number Parse DoS
+high|CVE-2026-84292|yarn.lock|CVE-2026-84292: fast-uri vulnerable to authority injection via an unvalidated port in serialize
+high|CVE-2026-84394|yarn.lock|CVE-2026-84394: fast-uri vulnerable to host confusion via an unclosed bracket in the URI authority
+high|CVE-2026-84961|yarn.lock|CVE-2026-84961: undici vulnerable to TLS certificate validation bypass via dropped connect options in Balanced
+high|CVE-2026-85152|yarn.lock|CVE-2026-85152: undici vulnerable to cross-origin cache poisoning via missing origin isolation in interceptors
+high|CVE-2026-89407|gradle.lockfile|CVE-2026-89407:  jackson-core: ReDoS: quadratic backtracking in NumberInput.PATTERN_FLOAT via looksLikeValidNu
+high|CVE-2026-89425|gradle.lockfile|CVE-2026-89425: jackson-core: UTF8DataInputJsonParser._reportInvalidToken() missing maxErrorTokenLength limit 
+high|CVE-2026-91776|gradle.lockfile|CVE-2026-91776: jackson-databind retains every unknown raw type ID 
+high|CVE-2026-91777|gradle.lockfile|CVE-2026-91777: jackson-databind quadratic forward-reference completion 
+high|CVE-2026-93687|yarn.lock|CVE-2026-93687: braces vulnerable to stack-exhaustion denial of service through deeply nested patterns
+low|CVE-2026-18540|yarn.lock|CVE-2026-18540: undici vulnerable to downstream response splitting via retry interceptor
+low|CVE-2026-84947|yarn.lock|CVE-2026-84947: undici vulnerable to response truncation via oversized chunked responses in the dump intercept
+low|CVE-2026-85008|yarn.lock|CVE-2026-85008: undici vulnerable to caching and replay of unsafe HTTP method responses
+medium|CVE-2026-101911|yarn.lock|CVE-2026-101911: ip-address: Address6 builds a parse diagnostic proportional to the input with no length bound
+medium|CVE-2026-101912|yarn.lock|CVE-2026-101912: ip-address: isInSubnet() and isHostInSubnet() compare addresses of different families as if t
+medium|CVE-2026-102277|yarn.lock|CVE-2026-102277: brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of servic
+medium|CVE-2026-18149|yarn.lock|CVE-2026-18149: undici vulnerable to Denial of Service via orphaned RetryHandler response body
+medium|CVE-2026-19032|gradle.lockfile|CVE-2026-19032: jackson-databind: Path Deserialization Missing Scheme Allowlist for FileSystemProvider Resolut
+medium|CVE-2026-83557|gradle.lockfile|CVE-2026-83557: jackson-databind: Comparable missing from DefaultBaseTypeLimitingValidator's unsafe base types
+medium|CVE-2026-84890|yarn.lock|CVE-2026-84890: undici vulnerable to Denial of Service via unbounded decompression of compressed responses
+medium|CVE-2026-84933|yarn.lock|CVE-2026-84933: undici vulnerable to cross-user cookie disclosure via Set-Cookie caching in shared caches
+medium|CVE-2026-85014|yarn.lock|CVE-2026-85014: undici vulnerable to Denial of Service via WebSocketStream unclean close
+medium|CVE-2026-85024|yarn.lock|CVE-2026-85024: undici vulnerable to Denial of Service via unhandled error in WebSocket permessage-deflate dec
+medium|CVE-2026-86472|yarn.lock|CVE-2026-86472: fast-uri vulnerable to inconsistent host case normalization via percent-encoded octets
+
+# Trivy (job 'bootJar y docker build', paso 17b2: CRITICAL/HIGH sin parche bloquean) sobre aportaya/identidad:ci:
+Total: 2 (HIGH: 2, CRITICAL: 0)
+│ libssl3t64 │ CVE-2026-84782 │ HIGH     │ fixed  │ 3.0.13-0ubuntu3.15 │ 3.0.13-0ubuntu3.16 │ openssl: compat-openssl: openssl: Information disclosure via │
+Total: 5 (HIGH: 5, CRITICAL: 0)
+│ com.fasterxml.jackson.core:jackson-core     │ CVE-2026-89407 │ HIGH     │ fixed  │ 2.21.5            │ 2.18.11, 2.21.7, 2.22.3 │ com.fasterxml.jackson/jackson-core:                    
+│                                             │ CVE-2026-89425 │          │        │                   │ 2.21.7, 2.22.3, 2.18.11 │ com.fasterxml.jackson.core/jackson-core: Jackson-core: 
+│ com.fasterxml.jackson.core:jackson-databind │ CVE-2026-68497 │          │        │                   │ 2.18.10, 2.21.6, 2.22.2 │ com.fasterxml.jackson.core/jackson-databind:           
+│                                             │ CVE-2026-91776 │          │        │                   │ 2.18.11, 2.21.7, 2.22.3 │ jackson-databind: com.fasterxml.jackson/jackson-core:  
+│                                             │ CVE-2026-91777 │          │        │                   │ 2.21.7, 2.18.11, 2.22.3 │ com.fasterxml.jackson.core/jackson-databind:           
+# Arreglo: jackson-core/jackson-databind 2.21.7 (BOM de Spring, todos los módulos y sus gradle.lockfile) y reconstruir la imagen base con libssl3t64 3.0.13-0ubuntu3.16. Cambio transversal al repositorio, no de esta rama.

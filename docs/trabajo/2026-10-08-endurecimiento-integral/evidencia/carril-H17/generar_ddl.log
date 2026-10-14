@@ -1,0 +1,9 @@
+sql/40_reglas/restricciones.sql: 20 bloques SQL, 173 restricciones · sql/50_verificacion/verificaciones.sql: 1 bloque(s) de control
+minimos  → sql/60_semillas: 22 archivos, 879 filas
+dev      → sql/61_dev: 18 archivos, 634 filas
+         → despliegue/ensayos/sembrar_test.sh: bloque SQL-GENERADO al dia (67 lineas)
+         → despliegue/ensayos/sandbox_licencia_test.sh: bloque SQL-GENERADO al dia (12 lineas)
+         → despliegue/ensayos/politica_invitacion_test.sh: bloque SQL-GENERADO al dia (34 lineas)
+total: 1513 filas de semilla · validadas contra el modelo
+sql/ generado: 337 tablas · 680 claves foráneas · 775 índices · 525 CHECK
+Sin pendientes a nivel de datos.

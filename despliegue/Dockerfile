@@ -64,7 +64,9 @@ RUN --mount=type=cache,target=/root/.gradle \
     BD_URL_ADMIN=${BD_URL_ADMIN} \
     BD_USUARIO_ADMIN=${BD_USUARIO_ADMIN} \
     BD_CLAVE_ADMIN=${BD_CLAVE_ADMIN} \
-    ./gradlew --no-daemon :${MODULO}:${SERVICIO}:bootJar -x test
+    ./gradlew --no-daemon --no-parallel --max-workers=2 \
+      -Dorg.gradle.jvmargs="-Xmx1536m -XX:MaxMetaspaceSize=384m -Dfile.encoding=UTF-8" \
+      :${MODULO}:${SERVICIO}:bootJar -x test
 
 RUN mkdir -p /capas && cd /capas \
     && java -Djarmode=tools -jar /construccion/${MODULO}/${SERVICIO}/build/libs/*.jar extract --layers --launcher --destination /capas
@@ -111,11 +113,15 @@ COPY --from=construccion /nativo/ /app/nativo/
 USER app
 EXPOSE 8080
 
+# La JVM conserva margen para metaspace, buffers directos, threads y memoria nativa.
+# El valor porcentual se calcula contra el límite real del contenedor.
+ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=65 -XX:InitialRAMPercentage=20 -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError"
+
 # Readiness mira base y Kafka; liveness solo el proceso.
 HEALTHCHECK --interval=10s --timeout=3s --start-period=40s --retries=6 \
     CMD wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1
 
-ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-XX:+ExitOnOutOfMemoryError", \
+ENTRYPOINT ["java", \
             "-Djava.security.egd=file:/dev/urandom", \
             "-Djna.boot.library.path=/app/nativo", "-Djna.library.path=/app/nativo", \
             "-Djna.nounpack=true", \

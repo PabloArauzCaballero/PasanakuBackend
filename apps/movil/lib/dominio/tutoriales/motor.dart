@@ -1,11 +1,17 @@
+import 'dart:async';
+
 import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../proveedores/sesion.dart';
 import '../../proveedores/tutoriales.dart';
 import 'avance.dart';
 import 'escribano.dart';
 import 'estado_del_motor.dart';
 import 'modelo.dart';
+import 'textos_del_motor.dart';
+
+export 'textos_del_motor.dart';
 
 /// **El motor: dónde estoy, cómo sigo y qué hago si el paso no se puede dar.**
 ///
@@ -23,6 +29,9 @@ class MotorDeTutoriales extends Notifier<EstadoDelMotor> {
   AnclasDeTutorial? _anclas;
   void Function(String ruta)? _navegar;
   String Function()? _ubicacion;
+  Timer? _temporizadorDeEspera;
+  Completer<void>? _esperaEnCurso;
+  int _generacion = 0;
 
   @override
   EstadoDelMotor build() => EstadoDelMotor.apagado;
@@ -40,22 +49,36 @@ class MotorDeTutoriales extends Notifier<EstadoDelMotor> {
   }
 
   /// Empieza de cero. Si ya se había hecho, las repeticiones viajan.
-  Future<void> iniciar(String tutorialId, {int repeticiones = 0}) async {
+  Future<void> iniciar(
+    String tutorialId, {
+    int repeticiones = 0,
+    bool requiereSesionActiva = false,
+  }) async {
     final tutorial = ref.read(registroDeTutorialesProvider).buscar(tutorialId);
     if (tutorial == null || tutorial.pasos.isEmpty) return;
+    final generacion = ++_generacion;
     state = EstadoDelMotor(tutorial: tutorial);
     await _escribano.guardar(
       progresoInicial(tutorial, DateTime.now(), repeticiones: repeticiones),
     );
-    await _ir(0);
+    if (generacion != _generacion ||
+        (requiereSesionActiva && !ref.read(sesionProvider).activa)) {
+      cancelar();
+      return;
+    }
+    await _ir(0, generacion: generacion);
   }
 
   /// Retoma donde quedó. Un índice fuera de rango vuelve al último paso posible.
   Future<void> continuar(String tutorialId, ProgresoDeTutorial progreso) async {
     final tutorial = ref.read(registroDeTutorialesProvider).buscar(tutorialId);
     if (tutorial == null || tutorial.pasos.isEmpty) return;
+    final generacion = ++_generacion;
     state = EstadoDelMotor(tutorial: tutorial);
-    await _ir(progreso.indice.clamp(0, tutorial.pasos.length - 1));
+    await _ir(
+      progreso.indice.clamp(0, tutorial.pasos.length - 1),
+      generacion: generacion,
+    );
   }
 
   Future<void> avanzar() async {
@@ -67,16 +90,16 @@ class MotorDeTutoriales extends Notifier<EstadoDelMotor> {
       return;
     }
     if (state.esUltimo) return _terminar();
-    await _ir(state.indice + 1);
+    await _ir(state.indice + 1, generacion: _generacion);
   }
 
   Future<void> retroceder() async {
     if (state.indice == 0) return;
-    await _ir(state.indice - 1);
+    await _ir(state.indice - 1, generacion: _generacion);
   }
 
   /// Reintenta el paso actual: vuelve a buscar el objetivo desde cero.
-  Future<void> reintentar() => _ir(state.indice);
+  Future<void> reintentar() => _ir(state.indice, generacion: _generacion);
 
   /// La acción que el paso pedía ya está hecha.
   void marcarAccionCumplida() {
@@ -117,6 +140,34 @@ class MotorDeTutoriales extends Notifier<EstadoDelMotor> {
     state = EstadoDelMotor.apagado;
   }
 
+  /// Cierra el recorrido sin registrar que la persona lo omitió.
+  ///
+  /// Se usa cuando deja de existir el contexto que autorizaba mostrarlo (por ejemplo,
+  /// al cerrar sesión); si vuelve a entrar, una guía pendiente debe seguir pendiente.
+  void cancelar() {
+    _generacion++;
+    _temporizadorDeEspera?.cancel();
+    _temporizadorDeEspera = null;
+    final espera = _esperaEnCurso;
+    _esperaEnCurso = null;
+    if (espera != null && !espera.isCompleted) espera.complete();
+    state = EstadoDelMotor.apagado;
+  }
+
+  Future<void> _pausarCancelable(Duration duracion) {
+    _temporizadorDeEspera?.cancel();
+    final espera = Completer<void>();
+    _esperaEnCurso = espera;
+    _temporizadorDeEspera = Timer(duracion, () {
+      if (!espera.isCompleted) espera.complete();
+      if (identical(_esperaEnCurso, espera)) {
+        _esperaEnCurso = null;
+        _temporizadorDeEspera = null;
+      }
+    });
+    return espera.future;
+  }
+
   Future<void> _terminar() async {
     final tutorial = state.tutorial;
     state = EstadoDelMotor.apagado;
@@ -132,7 +183,8 @@ class MotorDeTutoriales extends Notifier<EstadoDelMotor> {
 
   /// El corazón: navegar si el paso vive en otra pantalla, esperar al elemento y dejar
   /// todo listo. Cada regreso temprano deja un problema declarado, nunca silencio.
-  Future<void> _ir(int indice) async {
+  Future<void> _ir(int indice, {required int generacion}) async {
+    if (generacion != _generacion) return;
     final tutorial = state.tutorial;
     if (tutorial == null || indice >= tutorial.pasos.length) return;
     final paso = tutorial.pasos[indice];
@@ -157,11 +209,21 @@ class MotorDeTutoriales extends Notifier<EstadoDelMotor> {
     // persona en Ayuda, con el primer ancla imposible de encontrar.
     if (!_llegarA(paso.ruta ?? (indice == 0 ? tutorial.ruta : null))) return;
     if (paso.ancla == null) return;
-    final recuadro = await _anclas?.esperar(paso.ancla!, paso.espera);
-    if (!state.activo || state.indice != indice) return;
+    final recuadro = await _anclas?.esperar(
+      paso.ancla!,
+      paso.espera,
+      pausa: _pausarCancelable,
+      cancelada: () => generacion != _generacion,
+    );
+    if (generacion != _generacion || !state.activo || state.indice != indice) {
+      return;
+    }
     if (recuadro == null) {
       state = state.copiaCon(
-        problema: 'No encontramos «${paso.ancla}» en esta pantalla.',
+        // Sin el id interno del ancla («billetera.saldo»): no le dice nada a quien mira. Si esta
+        // parte de la pantalla no está (por ejemplo, la billetera todavía no está activa), se
+        // dice eso y se puede reintentar o salir de la guía.
+        problema: textoAnclaAusente,
       );
       return;
     }
@@ -174,7 +236,7 @@ class MotorDeTutoriales extends Notifier<EstadoDelMotor> {
     final actual = _ubicacion?.call() ?? '';
     if (actual == ruta || actual.startsWith('$ruta/')) return true;
     if (_navegar == null) {
-      state = state.copiaCon(problema: 'No pudimos abrir «$ruta» desde acá.');
+      state = state.copiaCon(problema: textoNoSePudoAbrir);
       return false;
     }
     _navegar!(ruta);

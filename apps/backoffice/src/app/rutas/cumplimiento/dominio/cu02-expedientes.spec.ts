@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ExpedienteEnRevisionEstadoEnum, type ExpedienteEnRevision } from 'clientes/angular/identidad'
-import { carpetaDelExpediente, colaVacia, esperaDecision, POR_DECIDIR, recortar } from './cu02-expedientes'
+import { carpetaDelExpediente, colaVacia, esperaDecision, POR_DECIDIR, recortar, vencimientoDe } from './cu02-expedientes'
 
 const USUARIO = '9f2c1e4a-0000-4000-8000-000000000001'
 
@@ -46,5 +46,20 @@ describe('la cola por decidir', () => {
 describe('la carpeta del expediente', () => {
   it('es una por persona, y las tres fotos de alguien viven ahí', () => {
     expect(carpetaDelExpediente(USUARIO)).toBe(`identidad/${USUARIO}/`)
+  })
+})
+
+/** El vencimiento lo dice el servidor; la pantalla solo lo nombra (H12 · H6). */
+describe('vencimientoDe', () => {
+  const con = (extra: Partial<ExpedienteEnRevision>) => ({ ...EN_REVISION, ...extra }) as ExpedienteEnRevision
+
+  it('vigente cuando el servidor dice que lo está', () => {
+    expect(vencimientoDe(con({ fechaExpiracionDocumento: '2030-01-01', documentoVigente: true }))).toBe('vigente')
+  })
+  it('vencido cuando el servidor dice que no, aunque el reloj de quien mira diga otra cosa', () => {
+    expect(vencimientoDe(con({ fechaExpiracionDocumento: '2099-01-01', documentoVigente: false }))).toBe('vencido')
+  })
+  it('sin fecha no hay forma de comprobarlo', () => {
+    expect(vencimientoDe(con({ documentoVigente: false }))).toBe('sin-fecha')
   })
 })

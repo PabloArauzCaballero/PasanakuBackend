@@ -63,7 +63,7 @@ class DesgloseDeCobro extends StatelessWidget {
                 moneda: moneda,
                 etiqueta: 'Neto',
                 estilo: texto.headlineSmall?.copyWith(
-                  color: t.brandTexto,
+                  color: t.text,
                   fontWeight: FontWeight.w700,
                 ),
               ),

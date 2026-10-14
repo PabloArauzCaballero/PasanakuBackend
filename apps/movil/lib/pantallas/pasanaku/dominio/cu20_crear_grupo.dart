@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../dominio/cliente.dart';
 import '../../../proveedores/idempotencia.dart';
+import '../../../proveedores/sesion.dart';
 
 /// CU-20 · crear grupo y congelar tarifario. El grupo nace `BORRADOR`: esta pantalla
 /// solo dispara la creación, nunca muestra un precio propio — el que se congela lo
@@ -14,7 +15,10 @@ class CrearGrupo extends AsyncNotifier<SalidaGrupo?> {
   static const formularioId = 'cu20-crear-grupo';
 
   @override
-  Future<SalidaGrupo?> build() async => null;
+  Future<SalidaGrupo?> build() async {
+    ref.watch(generacionDeSesionProvider);
+    return null;
+  }
 
   Future<void> enviar({
     required String nombre,
@@ -69,6 +73,7 @@ final crearGrupoProvider = AsyncNotifierProvider<CrearGrupo, SalidaGrupo?>(
 /// lectura que devuelva los 14 ítems (`planes/informes/carril-M3.md`).
 final habilitacionOrganizadorProvider = FutureProvider.autoDispose
     .family<org.Habilitacion, String>((ref, organizadorId) async {
+      ref.watch(generacionDeSesionProvider);
       final dio = ref.watch(dioProvider);
       try {
         final r = await org.DefaultApi(

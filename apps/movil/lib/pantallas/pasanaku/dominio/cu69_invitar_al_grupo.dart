@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../dominio/cliente.dart';
 import '../../../proveedores/idempotencia.dart';
+import '../../../proveedores/sesion.dart';
 
 /// CU-69 · invitar a un contacto. El mensaje que se envía lo redacta el backend con
 /// una plantilla aprobada (CU-80): esta pantalla nunca compone el texto de la
@@ -11,7 +12,10 @@ class InvitarAlGrupo extends AsyncNotifier<SalidaInvitacion?> {
   static String formularioId(String grupoId) => 'cu69-invitar-$grupoId';
 
   @override
-  Future<SalidaInvitacion?> build() async => null;
+  Future<SalidaInvitacion?> build() async {
+    ref.watch(generacionDeSesionProvider);
+    return null;
+  }
 
   Future<void> enviar({
     required String grupoId,

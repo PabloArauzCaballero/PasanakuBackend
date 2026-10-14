@@ -45,6 +45,19 @@ class RotacionDeClavesDeFirmaTest {
     }
 
     @Test
+    @DisplayName("el token de acceso firmado identifica su sesión sin confiar en datos del cliente")
+    void incluyeElIdDeSesionEnElToken() throws Exception {
+        UUID sesionId = UUID.randomUUID();
+        var emisor = new EmisorDeAcceso(nuevaClave().toJSONString(), "");
+
+        var jwt = SignedJWT.parse(
+                emisor.emitir(UUID.randomUUID(), "PARTICIPANTE", List.of(), "SIMPLIFICADA", "dispositivo", sesionId)
+                        .token());
+
+        assertThat(jwt.getJWTClaimsSet().getStringClaim("sesion_id")).isEqualTo(sesionId.toString());
+    }
+
+    @Test
     @DisplayName("durante la ventana el JWKS publica las dos claves y la sesion firmada con la vieja sigue valida")
     void laSesionVivaSobreviveALaRotacion() throws Exception {
         RSAKey vieja = nuevaClave();

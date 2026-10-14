@@ -192,7 +192,7 @@ public class ErpController implements ErpApi {
             UUID facturaId, UUID idempotencyKey, EntradaPago cuerpo) {
         Traza.marcarCasoDeUso("CU-103", facturaId.toString());
 
-        var salida = cu103.pagar(MapeoDeErp.pago(facturaId, cuerpo), sesion.actual());
+        var salida = cu103.pagar(MapeoDeErp.pago(facturaId, idempotencyKey, cuerpo), sesion.actual());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(MapeoDeErp.factura(salida));
     }

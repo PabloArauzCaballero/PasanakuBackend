@@ -25,6 +25,12 @@ class Fecha extends StatelessWidget {
   ];
 
   /// `2026-09-09T14:30:00Z` → `9 sep 2026, 10:30 (La Paz)`.
+  /// Un día calendario (fecha de nacimiento, de emisión): sin hora y SIN zona. Pasarlo
+  /// por [formatear] lo trataba como un instante en UTC y le restaba cuatro horas: el 15
+  /// de octubre elegido en el calendario se mostraba como «14 oct».
+  static String formatearDia(DateTime dia) =>
+      '${dia.day} ${_meses[dia.month - 1]} ${dia.year}';
+
   static String formatear(String iso, {bool conHora = true}) {
     final utc = DateTime.parse(iso).toUtc();
     final laPaz = utc.subtract(const Duration(hours: 4));
@@ -34,13 +40,6 @@ class Fecha extends StatelessWidget {
     final mm = laPaz.minute.toString().padLeft(2, '0');
     return '$d, $hh:$mm (La Paz)';
   }
-
-  /// Un día elegido en un calendario (p. ej. la fecha de nacimiento): es una fecha de
-  /// calendario, sin hora ni zona, así que se muestra con sus propios día, mes y año.
-  /// Pasarla por [formatear] la corría un día atrás en todo teléfono que no estuviera en
-  /// UTC-4 (hallazgo H2: «11 oct 1990» elegido, «10 oct 1990» mostrado).
-  static String formatearDia(DateTime dia) =>
-      '${dia.day} ${_meses[dia.month - 1]} ${dia.year}';
 
   @override
   Widget build(BuildContext context) {

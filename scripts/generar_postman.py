@@ -68,7 +68,10 @@ def permisos_del_codigo(servicio: str) -> dict[str, str]:
             de_clase = "PUBLICO"
         # Cada metodo publico, con las anotaciones que lo preceden.
         for bloque in re.finditer(
-            r"((?:@\w+(?:\([^)]*\))?\s*)+)public\s+ResponseEntity<.+?>\s+(\w+)\s*\(", texto, re.DOTALL
+            # El argumento admite parentesis dentro de cadenas entre comillas: con `[^)]*`
+            # un `@Publico("... (Q-02)")` cortaba en el primer `)` y el metodo quedaba
+            # como «sin @Permiso hallado».
+            r'((?:@\w+(?:\((?:"[^"]*"|[^()"])*\))?\s*)+)public\s+ResponseEntity<.+?>\s+(\w+)\s*\(', texto, re.DOTALL
         ):
             anotaciones, operacion = bloque.group(1), bloque.group(2)
             if (m := re.search(r'@Permiso\("([A-Z_]+)"\)', anotaciones)):

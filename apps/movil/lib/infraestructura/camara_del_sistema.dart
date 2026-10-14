@@ -42,7 +42,7 @@ class CamaraDelSistema implements Camara {
       return foto?.path;
     } on Object {
       // Permiso denegado, cámara ocupada o simulador sin cámara. El puerto promete
-      // `null`, y arriba eso ya significa «ofrecé reintentar o escribir a mano».
+      // `null`, y arriba eso ya significa «ofrecé reintentar o elegir una foto».
       return null;
     }
   }
