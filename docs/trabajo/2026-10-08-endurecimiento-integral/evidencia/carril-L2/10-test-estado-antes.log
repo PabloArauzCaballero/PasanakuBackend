@@ -1,0 +1,5 @@
+# TEST real (161.97.85.216), 2026-10-11T20:50:32Z. Script: despliegue/ensayos/sandbox_licencia_test.sh (ejecutado por ssh 'bash -s' < script)
+
+$ --estado (ANTES)
+[estado] sandbox_filas=0 sandbox_activo_vigente=0 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=false fn_lic_BILLETERA=false 
+RC=0

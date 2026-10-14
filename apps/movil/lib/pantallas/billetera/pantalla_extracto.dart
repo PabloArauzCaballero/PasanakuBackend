@@ -12,7 +12,7 @@ import 'textos.dart';
 import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 
 /// CU-15 — extracto y certificado de saldo del período elegido. El importe final se
-/// pinta con el átomo `Monto`, nunca formateado a mano.
+/// pinta con el átomo `Monto`, nunca con formato implementado localmente.
 class PantallaExtracto extends ConsumerStatefulWidget {
   const PantallaExtracto({super.key, required this.cuentaId});
   final String cuentaId;

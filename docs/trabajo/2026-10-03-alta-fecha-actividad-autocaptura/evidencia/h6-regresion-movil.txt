@@ -1,0 +1,23 @@
+04:03 +329 -9: Some tests failed.
+Fallos (todos goldens, pantallas no tocadas):
+escanear · cámara denegada · escritorio · claro [E]
+escanear · cámara denegada · escritorio · oscuro [E]
+escanear · cámara denegada · movil · claro [E]
+escanear · cámara denegada · movil · oscuro [E]
+escanear · cámara denegada · tableta · claro [E]
+escanear · cámara denegada · tableta · oscuro [E]
+pantalla de saldo · éxito · claro [E]
+pantalla de saldo · éxito · oscuro [E]
+portada → ingreso: el zoom de marca, cuadro por cuadro [E]
+Golden "imagenes/escanear_denegado_escritorio_claro.png": Pixel test failed, 0.91%, 9295px diff
+Golden "imagenes/escanear_denegado_escritorio_oscuro.png": Pixel test failed, 0.91%, 9295px diff
+Golden "imagenes/escanear_denegado_movil_claro.png": Pixel test failed, 3.67%, 8454px diff detected.
+Golden "imagenes/escanear_denegado_movil_oscuro.png": Pixel test failed, 3.67%, 8454px diff
+Golden "imagenes/escanear_denegado_tableta_claro.png": Pixel test failed, 1.18%, 9295px diff
+Golden "imagenes/escanear_denegado_tableta_oscuro.png": Pixel test failed, 1.18%, 9295px diff
+Golden "imagenes/pantalla_de_saldo_claro.png": Pixel test failed, 3.94%, 9080px diff detected.
+Golden "imagenes/pantalla_de_saldo_oscuro.png": Pixel test failed, 3.92%, 9032px diff detected.
+Golden "imagenes/transicion_ingreso_atraviesa.png": Pixel test failed, 0.72%, 21333px diff detected.
+Golden "imagenes/transicion_ingreso_cubre.png": Pixel test failed, 1.52%, 44927px diff detected.
+Golden "imagenes/transicion_ingreso_llega.png": Pixel test failed, 0.72%, 21333px diff detected.
+Golden "imagenes/transicion_ingreso_marca.png": Pixel test failed, 0.72%, 21258px diff detected.

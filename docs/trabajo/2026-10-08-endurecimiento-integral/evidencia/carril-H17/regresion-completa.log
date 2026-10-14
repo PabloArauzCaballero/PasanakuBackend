@@ -1,0 +1,121 @@
+[recortado por tamaño: últimas 120 de 828 líneas; la salida completa se reproduce con el comando del REPORTE]
+    but the following elements were unexpected:
+      ["consultarEstadoDeVerificacion", "renovarSesion"]
+        at bo.aportaya.plataforma.pruebas.seguridad.MatrizDeAutorizacionContratoTest.lasRutasPublicasSonLasDeclaradas(MatrizDeAutorizacionContratoTest.java:107)
+
+20 tests completed, 3 failed
+
+> Task :plataforma:comun-pruebas:contractTest FAILED
+
+> Task :plataforma:comun-web:contractTest
+Picked up JAVA_TOOL_OPTIONS: <proxy y truststore del contenedor, omitido>
+
+> Task :plataforma:gateway:contractTest NO-SOURCE
+> Task :servicios:aportes:contractTest NO-SOURCE
+> Task :servicios:auditoria:contractTest NO-SOURCE
+> Task :servicios:cumplimiento:contractTest NO-SOURCE
+> Task :servicios:entregas:contractTest UP-TO-DATE
+> Task :servicios:erp:contractTest NO-SOURCE
+> Task :servicios:garantia:contractTest NO-SOURCE
+> Task :servicios:grupos:contractTest NO-SOURCE
+> Task :servicios:identidad:contractTest NO-SOURCE
+
+> Task :servicios:inversiones:contractTest
+Picked up JAVA_TOOL_OPTIONS: <proxy y truststore del contenedor, omitido>
+
+> Task :servicios:notificaciones:contractTest NO-SOURCE
+> Task :servicios:nucleo-financiero:contractTest UP-TO-DATE
+> Task :servicios:organizador:contractTest NO-SOURCE
+> Task :servicios:publicidad:contractTest NO-SOURCE
+> Task :servicios:tarifas:contractTest NO-SOURCE
+> Task :servicios:transparencia:contractTest NO-SOURCE
+> Task :plataforma:comun-archivos:sagaTest NO-SOURCE
+> Task :plataforma:comun-datos:sagaTest NO-SOURCE
+> Task :plataforma:comun-dominio:sagaTest NO-SOURCE
+> Task :plataforma:comun-mensajeria:sagaTest NO-SOURCE
+> Task :plataforma:comun-pruebas:sagaTest NO-SOURCE
+> Task :plataforma:comun-web:sagaTest NO-SOURCE
+> Task :plataforma:gateway:sagaTest NO-SOURCE
+> Task :servicios:aportes:sagaTest NO-SOURCE
+> Task :servicios:auditoria:sagaTest NO-SOURCE
+> Task :servicios:cumplimiento:sagaTest NO-SOURCE
+> Task :servicios:entregas:sagaTest NO-SOURCE
+> Task :servicios:erp:sagaTest NO-SOURCE
+> Task :servicios:garantia:sagaTest NO-SOURCE
+> Task :servicios:grupos:sagaTest NO-SOURCE
+> Task :servicios:identidad:sagaTest NO-SOURCE
+
+> Task :servicios:inversiones:sagaTest
+Picked up JAVA_TOOL_OPTIONS: <proxy y truststore del contenedor, omitido>
+
+> Task :servicios:notificaciones:sagaTest NO-SOURCE
+> Task :servicios:nucleo-financiero:sagaTest NO-SOURCE
+> Task :servicios:organizador:sagaTest NO-SOURCE
+> Task :servicios:publicidad:sagaTest NO-SOURCE
+> Task :servicios:tarifas:sagaTest NO-SOURCE
+> Task :servicios:transparencia:sagaTest NO-SOURCE
+> Task :sagaTest
+> Task :plataforma:comun-archivos:testBarrido NO-SOURCE
+> Task :plataforma:comun-datos:testBarrido NO-SOURCE
+> Task :plataforma:comun-dominio:testBarrido NO-SOURCE
+
+> Task :plataforma:comun-mensajeria:testBarrido
+Picked up JAVA_TOOL_OPTIONS: <proxy y truststore del contenedor, omitido>
+
+> Task :plataforma:comun-pruebas:testBarrido
+Picked up JAVA_TOOL_OPTIONS: <proxy y truststore del contenedor, omitido>
+
+> Task :plataforma:comun-web:testBarrido
+Picked up JAVA_TOOL_OPTIONS: <proxy y truststore del contenedor, omitido>
+
+> Task :plataforma:gateway:testBarrido NO-SOURCE
+> Task :servicios:aportes:testBarrido UP-TO-DATE
+
+> Task :servicios:auditoria:testBarrido
+Picked up JAVA_TOOL_OPTIONS: <proxy y truststore del contenedor, omitido>
+
+> Task :servicios:cumplimiento:testBarrido
+Picked up JAVA_TOOL_OPTIONS: <proxy y truststore del contenedor, omitido>
+
+> Task :servicios:entregas:testBarrido UP-TO-DATE
+> Task :servicios:erp:testBarrido UP-TO-DATE
+
+> Task :servicios:garantia:testBarrido
+Picked up JAVA_TOOL_OPTIONS: <proxy y truststore del contenedor, omitido>
+
+> Task :servicios:grupos:testBarrido
+Picked up JAVA_TOOL_OPTIONS: <proxy y truststore del contenedor, omitido>
+
+> Task :servicios:identidad:testBarrido UP-TO-DATE
+
+> Task :servicios:inversiones:testBarrido
+Picked up JAVA_TOOL_OPTIONS: <proxy y truststore del contenedor, omitido>
+
+> Task :servicios:notificaciones:testBarrido
+Picked up JAVA_TOOL_OPTIONS: <proxy y truststore del contenedor, omitido>
+
+> Task :servicios:nucleo-financiero:testBarrido UP-TO-DATE
+
+> Task :servicios:organizador:testBarrido
+Picked up JAVA_TOOL_OPTIONS: <proxy y truststore del contenedor, omitido>
+
+> Task :servicios:publicidad:testBarrido UP-TO-DATE
+> Task :servicios:tarifas:testBarrido UP-TO-DATE
+
+> Task :servicios:transparencia:testBarrido
+Picked up JAVA_TOOL_OPTIONS: <proxy y truststore del contenedor, omitido>
+
+> Task :testBarrido
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':plataforma:comun-pruebas:contractTest'.
+> There were failing tests. See the report at: file:///home/user/PasanakuBackend/plataforma/comun-pruebas/build/reports/tests/contractTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 16m 41s
+299 actionable tasks: 63 executed, 236 up-to-date
+RC 1

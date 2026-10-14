@@ -1,0 +1,8 @@
+git merge-base --is-ancestor 08042090 HEAD
+BASE-OK
+
+git branch --show-current
+codex/alta-atlas-sesion-premium-2026-10-11
+
+git log -1 --format=%H
+080420903b62ce396751ab396ca54c2f23fb0c2b

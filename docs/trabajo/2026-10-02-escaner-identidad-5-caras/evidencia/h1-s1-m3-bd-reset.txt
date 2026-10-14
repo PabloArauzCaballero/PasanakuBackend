@@ -1,0 +1,92 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.7.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+
+> Task :bd:levantar
+ Container aportaya-kafka Running 
+ Container aportaya-minio Running 
+ Container aportaya-nginx Running 
+ Container aportaya-pgbouncer Running 
+ Container aportaya-redis Running 
+ Container aportaya-gateway Running 
+ Container aportaya-postgres Running 
+ Container aportaya-minio Waiting 
+ Container aportaya-postgres Waiting 
+ Container aportaya-minio Healthy 
+ Container aportaya-minio-bucket Starting 
+ Container aportaya-postgres Healthy 
+ Container aportaya-minio-bucket Started 
+ Container aportaya-pgbouncer Waiting 
+ Container aportaya-redis Waiting 
+ Container aportaya-gateway Waiting 
+ Container aportaya-postgres Waiting 
+ Container aportaya-kafka Waiting 
+ Container aportaya-minio-bucket Waiting 
+ Container aportaya-minio Waiting 
+ Container aportaya-nginx Waiting 
+ Container aportaya-nginx Healthy 
+ Container aportaya-kafka Healthy 
+ Container aportaya-gateway Healthy 
+ Container aportaya-pgbouncer Healthy 
+ Container aportaya-postgres Healthy 
+container aportaya-minio-bucket exited (0)
+
+> Task :bd:levantar FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':bd:levantar' (registered in build file 'bd\build.gradle.kts').
+> Process 'command 'docker'' finished with non-zero exit value 1
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 33s
+10 actionable tasks: 1 executed, 9 up-to-date
+
+=== Nota de entorno: dos gotchas encontrados y resueltos (no son bugs del repo) ===
+1. `python3` en esta máquina es el stub roto de Microsoft Store (python.exe real
+   vive en C:\Python314). Se creó un shim en C:\Users\DELL\tools\pyshim\ (archivo
+   `python3` sin extensión para bash + `python3.bat` para procesos nativos de
+   Windows) y se antepuso al PATH. No se tocó bd/build.gradle.kts.
+2. `docker compose --profile base up -d --wait` (tarea bd:levantar) falla
+   siempre con exit 1 porque el contenedor de un solo uso `aportaya-minio-bucket`
+   (crea el bucket y sale con exit 0, `restart: "no"`, sin healthcheck) nunca
+   queda "Running" para el chequeo de `--wait` de Docker Compose v5.3.1 — aunque
+   los 7 servicios reales SÍ quedan healthy (confirmado con `docker ps`). Es una
+   condición pre-existente de `despliegue/compose/base.yml`, no causada por este
+   cambio; no se editó ese archivo (troncal). Se corrió manualmente la secuencia
+   que hacen los demás tasks de `bd/build.gradle.kts` (aplicar.sql, generar
+   semillas, sembrar.sql, sembrar_dev.sql, verificaciones.sql, humo) con
+   `MSYS_NO_PATHCONV=1` (Git Bash traducía `/repo/sql/...` a una ruta de Windows
+   antes de pasarla al contenedor).
+
+=== Verificación final: las 2 columnas nuevas en la base viva ===
+$ docker exec -i aportaya-postgres psql -U pasanaku -d pasanaku -c "\d identidad.verificacion_kyc"
+ url_selfie           | character varying(255)   |           |          |
+ url_perfil_izquierdo | character varying(255)   |           |          |
+ url_perfil_derecho   | character varying(255)   |           |          |
+(resto de la tabla sin cambios; RLS, FKs y CHECK intactos)
+
+=== Verificaciones.sql (deriva/integridad) — todas las consultas en 0 filas ===
+movimiento_huerfano/transaccion_sin_patas, moneda != moneda_cuenta, secuencia hash
+rota, etc.: todas "(0 rows)" → sin anomalías.
+
+=== Prueba de humo (self-contained, base desechable) ===
+165 OK · 0 FALLA · 1 rechazo del motor (esperado en el caso negativo)

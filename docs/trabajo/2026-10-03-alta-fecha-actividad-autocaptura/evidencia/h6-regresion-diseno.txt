@@ -1,0 +1,18 @@
+01:16 +63 -15: Some tests failed.
+Fallos (todos goldens; ninguna referencia incluye CampoDeFecha ni CampoDeSeleccion — grep en lib/catalogo/muestras.dart solo encuentra CampoBusqueda, cuyo cambio es un parámetro con valor por omisión):
+Golden "imagenes/apertura_medio.png": Pixel test failed, 0.11%, 298px diff detected.
+Golden "imagenes/apertura_tarde.png": Pixel test failed, 0.16%, 450px diff detected.
+Golden "imagenes/atomos_botones_claro.png": Pixel test failed, 0.57%, 4899px diff detected.
+Golden "imagenes/atomos_botones_oscuro.png": Pixel test failed, 0.57%, 4899px diff detected.
+Golden "imagenes/atomos_campos_claro.png": Pixel test failed, 1.10%, 9519px diff detected.
+Golden "imagenes/atomos_campos_oscuro.png": Pixel test failed, 1.10%, 9519px diff detected.
+Golden "imagenes/atomos_indicadores_claro.png": Pixel test failed, 1.21%, 10483px diff detected.
+Golden "imagenes/atomos_indicadores_oscuro.png": Pixel test failed, 1.21%, 10413px diff detected.
+Golden "imagenes/atomos_seleccion_claro.png": Pixel test failed, 0.69%, 5964px diff detected.
+Golden "imagenes/atomos_seleccion_oscuro.png": Pixel test failed, 0.69%, 5964px diff detected.
+Golden "imagenes/moleculas_claro.png": Pixel test failed, 3.33%, 28742px diff detected.
+Golden "imagenes/moleculas_oscuro.png": Pixel test failed, 3.32%, 28722px diff detected.
+Golden "imagenes/moviles_claro.png": Pixel test failed, 1.92%, 16622px diff detected.
+Golden "imagenes/moviles_oscuro.png": Pixel test failed, 1.92%, 16623px diff detected.
+Golden "imagenes/organismos_claro.png": Pixel test failed, 3.61%, 31231px diff detected.
+Golden "imagenes/organismos_oscuro.png": Pixel test failed, 3.61%, 31215px diff detected.

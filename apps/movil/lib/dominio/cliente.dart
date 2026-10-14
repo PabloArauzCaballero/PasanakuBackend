@@ -114,13 +114,16 @@ class _TrazaYSesion extends Interceptor {
     DioException err,
     ErrorInterceptorHandler handler,
   ) async {
+    // Cerrar sesión ya tiene un plazo total propio y nunca debe renovar el token
+    // que precisamente intenta revocar.
+    if (err.requestOptions.path == '/sesion') return handler.next(err);
     final yaReintentada = err.requestOptions.extra['reintentada'] == true;
     if (err.response?.statusCode != 401 || yaReintentada) {
       return handler.next(err);
     }
     final refrescada = await _refrescador.refrescar();
     if (!refrescada) {
-      await _sesion.cerrar();
+      await _sesion.cerrar(motivo: MotivoDeSalida.cerrada);
       return handler.next(err);
     }
     final opciones = err.requestOptions..extra['reintentada'] = true;
@@ -128,7 +131,7 @@ class _TrazaYSesion extends Interceptor {
       handler.resolve(await _dio.fetch(opciones));
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {
-        await _sesion.cerrar();
+        await _sesion.cerrar(motivo: MotivoDeSalida.cerrada);
       }
       handler.next(e);
     }
@@ -166,10 +169,22 @@ class _TraduccionDeErrores extends Interceptor {
           codigo: (mapa['codigo'] as String?) ?? 'AP-DESCONOCIDO',
           trazaId: traza,
           estado: respuesta.statusCode ?? 0,
+          contexto: _contextoError(err.requestOptions),
         ),
       ),
     );
   }
+}
+
+ContextoErrorApi _contextoError(RequestOptions request) {
+  final path = Uri.parse(request.path).path;
+  if (path.contains('/usuarios/verificaciones/correo')) {
+    return ContextoErrorApi.verificacionCorreo;
+  }
+  if (request.method.toUpperCase() == 'POST' && path.endsWith('/usuarios')) {
+    return ContextoErrorApi.registro;
+  }
+  return ContextoErrorApi.general;
 }
 
 String _traza() {

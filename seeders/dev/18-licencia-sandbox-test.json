@@ -1,0 +1,41 @@
+{
+  "descripcion": "Entorno de prueba SINTETICO (sandbox) que habilita solo GRUPO_PASANAKU en DEV y TEST, para poder crear grupos de prueba. NO es una licencia: la licencia sigue EN_TRAMITE.",
+  "entorno": "dev",
+  "sintetico": true,
+  "apto_produccion": false,
+  "procedencia": {
+    "fuente": "sandbox de TEST: no es una licencia ASFI. Fila inventada para este repositorio; no corresponde a una resolucion, a un tramite ni a una autoridad.",
+    "obtenido": "2026-10-11",
+    "licencia": "No aplica: contenido propio del proyecto, sin datos de terceros.",
+    "autor": "carril L2 (7.a vuelta del endurecimiento integral); la persona dueña de TEST autorizo expresamente este sandbox («si, sandbox de licencia»)"
+  },
+  "nota": "Es la SEGUNDA puerta de R-LIC-01 / CU-46 (flujo principal 2): `fn_lic_servicio_habilitado()` y `cumplimiento` habilitan un servicio si hay licencia OTORGADA que lo cubre O un `entorno_prueba_regulado` ACTIVO para ese servicio dentro de su ventana. Se usa esa puerta y NO la licencia a proposito: la fila de `licencia_regulatoria` (ASFI, CERTIFICADO_ADECUACION, EN_TRAMITE, sin numero de resolucion) no se toca, asi que no hay numero de licencia ni autoridad que inventar. La respuesta de `GET /licencia/alcance?servicio=GRUPO_PASANAKU` pasa a `habilitado:true, via:SANDBOX` con los limites de abajo. Solo GRUPO_PASANAKU: BILLETERA, RECARGA, RETIRO y TRANSFERENCIA_P2P siguen denegados (R-LIC-01). Identificador estable + ON CONFLICT (id) DO NOTHING: aplicarlo dos veces no cambia nada. `despliegue/ensayos/sandbox_licencia_test.sh` lo aplica en TEST (con guardas), lo reactiva si venció o se retiró y trae `--estado` y `--retirar` (lo pasa a FINALIZADO: el alcance vuelve a `habilitado:false`, via NINGUNA).",
+  "advertencia": "SOLO DEV Y TEST. No existe en produccion: vive en seeders/dev/ (el orquestador de dev aborta si la base no esta marcada con app.entorno = 'dev') y el guion de TEST aborta si los servicios no corren con el perfil `local`. Lo que SIMULA, sin que haya pasado de verdad: que cumplimiento haya autorizado un entorno de prueba regulado. No hay solicitud, ni resolucion, ni garantia constituida, ni informes a la autoridad. Los limites (50 usuarios, 50000.00) son inventados para que el CHECK ck_sandbox_limites (R-LIC-02) se cumpla, no son un limite regulatorio. Que `GRUPO_PASANAKU` quede habilitado en un entorno de prueba no habilita ningun otro servicio financiero ni significa que exista licencia.",
+  "reglas_que_permite_probar": [
+    "R-LIC-01 / CU-46 — via SANDBOX: servicio cubierto por un entorno de prueba activo con licencia EN_TRAMITE",
+    "R-LIC-02 — el sandbox lleva limites obligatorios (limite_usuarios, limite_monto_operacion) y ventana de fechas",
+    "CU-20 — crear grupo: con el alcance habilitado, A (organizador sintetico de seeders/dev/17) pasa AP-CU20-04"
+  ],
+  "bloques": [
+    {
+      "tabla": "entorno_prueba_regulado",
+      "conflicto": ["id"],
+      "comentario": "SINTETICO · apto_produccion=false · «sandbox de TEST: no es una licencia ASFI». Cuelga de la licencia sembrada EN_TRAMITE (08-gobierno-y-licencia.json), que no se modifica. Ventana: desde ayer hasta 90 dias; pasada la ventana el servicio vuelve a denegarse solo.",
+      "filas": [
+        {
+          "id": "e2e00000-0000-4000-8000-0000000000d1",
+          "licencia_regulatoria_id": { "$ref": "licencia_regulatoria", "organismo": "ASFI", "tipo": "CERTIFICADO_ADECUACION" },
+          "servicio_en_prueba": "GRUPO_PASANAKU",
+          "alcance": ["SANDBOX-TEST", "sandbox de TEST: no es una licencia ASFI", "sintetico: apto_produccion=false"],
+          "limite_usuarios": 50,
+          "limite_monto_operacion": 50000.00,
+          "garantia_constituida": null,
+          "fecha_inicio": { "$sql": "current_date - 1" },
+          "fecha_fin": { "$fecha": "+90 days" },
+          "estado": "ACTIVO",
+          "informes_remitidos": 0
+        }
+      ]
+    }
+  ]
+}

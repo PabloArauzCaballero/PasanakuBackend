@@ -130,12 +130,30 @@ def _endpoints_declarados(servicio: Path) -> list[Endpoint]:
     return salida
 
 
+RE_IMPLEMENTA_API = re.compile(r"\bimplements\s+\w+Api\b")
+RE_EXTIENDE = re.compile(r"\bclass\s+\w+\s+extends\s+(\w+)")
+
+
 def _controladores(servicio: Path) -> list[Path]:
-    return [
-        c
-        for c in sorted(servicio.glob("src/main/java/**/*Controller.java"))
-        if RE_RESTCONTROLLER.search(c.read_text(encoding="utf-8"))
-    ]
+    """Los archivos que implementan el contrato HTTP del servicio.
+
+    El controlador de verdad lleva `@RestController`, pero por el tope de lineas por archivo sus
+    metodos viven en clases abstractas que no lo llevan: unas implementan la interfaz generada
+    (`implements XxxApi`) y otras extienden a esas (`Rutas*`, `*Controller` abstractos). Leer solo
+    los `@RestController` declaraba «sin controlador» operaciones que si estan implementadas.
+    """
+    fuentes = {c: c.read_text(encoding="utf-8") for c in sorted(servicio.glob("src/main/java/**/web/*.java"))}
+    elegidos = {c for c, texto in fuentes.items() if RE_RESTCONTROLLER.search(texto) or RE_IMPLEMENTA_API.search(texto)}
+    crecio = True
+    while crecio:
+        crecio = False
+        nombres = {c.stem for c in elegidos}
+        for c, texto in fuentes.items():
+            padre = RE_EXTIENDE.search(texto)
+            if c not in elegidos and padre and padre.group(1) in nombres:
+                elegidos.add(c)
+                crecio = True
+    return sorted(elegidos)
 
 
 def _metodo_de_operacion(textos: list[str], operation_id: str) -> str | None:

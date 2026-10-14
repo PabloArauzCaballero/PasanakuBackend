@@ -124,6 +124,8 @@ tasks.named<Test>("test") {
         "**/Reconciliacion*Test.class",
         "**/*ResilienciaTest.class",
         "**/AutorizacionNegativaTest.class",
+        // Carril I: extiende BaseDeCU08 (contenedor); corre en `integrationTest`.
+        "**/VerificarTitularidad*Test.class",
     )
     systemProperty("junit.jupiter.execution.timeout.default", "5s")
     testLogging {
@@ -229,6 +231,10 @@ corredor(
         // (RLS) — mismo motivo, generalizable a cualquier AutorizacionNegativaTest
         // futuro de cualquier servicio.
         "**/AutorizacionNegativaTest.class",
+        // Carril I (CU-18 → CU-01): VerificarTitularidadTest extiende BaseDeCU08 y corre contra PostgreSQL real con el
+        // rol del servicio; sin este patron caia en `test` (5s por metodo) y su @BeforeAll, que arma el contenedor,
+        // moria por «timeout» sin que nada estuviera mal.
+        "**/VerificarTitularidad*Test.class",
     ),
     "120s",
 )

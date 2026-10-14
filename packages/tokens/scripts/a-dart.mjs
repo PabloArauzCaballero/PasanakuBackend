@@ -36,6 +36,9 @@ const estilosDeTipo = TIPOS.map(([nombre, t]) => {
     `height: ${t.alto}`,
     `letterSpacing: ${aLetterSpacing(t)}`,
   ]
+  if (nombre.startsWith('cifra')) {
+    partes.push('fontFeatures: [FontFeature.tabularFigures()]')
+  }
   return `  static const ${nombre} = TextStyle(\n    ${partes.join(',\n    ')},\n  );`
 }).join('\n\n')
 
@@ -123,6 +126,15 @@ ${tema('oscuro')}
 ${lerp}
     );
   }
+}
+
+/// Composiciones semánticas de las sombras por superficie. Los valores siguen
+/// viviendo en tokens.json y Tokens; esta fachada evita que cada componente vuelva
+/// a decidir qué combinación construye una tarjeta, un panel destacado o una hoja.
+abstract final class Elevacion {
+  static List<BoxShadow> tarjeta(Tokens t) => [t.sombra1, t.sombra2];
+  static List<BoxShadow> destacada(Tokens t) => [t.sombra2];
+  static List<BoxShadow> superpuesta(Tokens t) => [t.sombra3];
 }
 `
 mkdirSync(resolve(RAIZ, 'generado'), { recursive: true })

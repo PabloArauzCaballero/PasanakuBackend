@@ -74,4 +74,48 @@ void main() {
       expect(cuerpos.single['fechaDeInicio'], isNotNull);
     },
   );
+  // Carril H3 (servidor TEST real): «00,00» encendía el botón, y el 422 AP-CU20-04 (licencia sin otorgar) no
+  // se mostraba en ningún lado: la persona apretaba y no pasaba nada.
+  testWidgets('límite: un monto en cero deja el botón apagado', (tester) async {
+    final (:dio, :adaptador) = dioSimulado();
+    await tester.pumpWidget(conApp(const PantallaCrearGrupo(), dio: dio));
+    await tester.pump();
+    final campos = find.byType(EditableText);
+    await tester.enterText(campos.at(0), 'Grupo de prueba');
+    await tester.enterText(campos.at(1), '0,00');
+    await tester.pump();
+    expect(boton(tester).onPressed, isNull);
+    await tester.enterText(campos.at(1), '0,01');
+    await tester.pump();
+    expect(boton(tester).onPressed, isNotNull);
+  });
+
+  testWidgets(
+    'rechaza el servidor (422 AP-CU20-04): el motivo se ve y lo escrito se conserva',
+    (tester) async {
+      final (:dio, :adaptador) = dioSimulado();
+      adaptador.onPost(
+        '/grupos',
+        (s) => s.reply(422, {
+          'codigo': 'AP-CU20-04',
+          'mensaje': 'El servicio no esta habilitado en este momento.',
+          'trazaId': 'traza-h3',
+        }),
+        data: Matchers.any,
+      );
+      await tester.pumpWidget(conApp(const PantallaCrearGrupo(), dio: dio));
+      await tester.pump();
+      final campos = find.byType(EditableText);
+      await tester.enterText(campos.at(0), 'Grupo de prueba');
+      await tester.enterText(campos.at(1), '100,00');
+      await tester.pump();
+      await tester.tap(find.widgetWithText(Boton, 'Crear grupo'));
+      await asentar(tester);
+
+      expect(find.textContaining('todavía no está disponible'), findsOneWidget);
+      expect(find.textContaining('traza-h3'), findsOneWidget);
+      expect(find.text('Grupo de prueba'), findsOneWidget);
+      expect(boton(tester).onPressed, isNotNull);
+    },
+  );
 }

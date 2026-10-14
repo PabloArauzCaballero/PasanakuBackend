@@ -14,12 +14,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'cargar_fuentes_de_aplicacion.dart';
+
 class _Ajustes implements AjustesDelSistema {
   @override
   Future<bool> abrir() async => true;
 }
 
 void main() {
+  setUpAll(cargarFuentesDeAplicacion);
+
   for (final (brillo, tema) in [
     (Brightness.light, 'claro'),
     (Brightness.dark, 'oscuro'),
@@ -55,6 +59,7 @@ void main() {
           ),
         );
         await tester.pump();
+        expect(tester.takeException(), isNull);
         await expectLater(
           find.byType(PantallaEscanear),
           matchesGoldenFile('imagenes/escanear_denegado_${viewport}_$tema.png'),

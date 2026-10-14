@@ -31,6 +31,9 @@ import { Boton } from '../boton/boton'
     h2 { font-size: 1.2em; margin-bottom: var(--s3); }
     .cuerpo { color: var(--text-2); }
     .acciones { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--s2); margin-top: var(--s5); }
+    /* Un texto de confirmación largo («Registrar el pago de F-2026-001») no puede salirse del relleno del diálogo
+       en un teléfono: el botón se encoge hasta el ancho disponible y el texto se parte en líneas. */
+    .acciones ap-boton { min-width: 0; max-width: 100%; --boton-texto-ajuste: normal; }
   `,
 })
 export class Dialogo implements AfterViewInit, OnDestroy {

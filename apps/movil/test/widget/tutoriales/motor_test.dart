@@ -194,7 +194,9 @@ void main() {
       await correr(tester, () => motor.iniciar('fantasma'));
 
       expect(banco.contenedor.read(motorDeTutorialesProvider).activo, isTrue);
-      expect(find.textContaining('No encontramos'), findsOneWidget);
+      expect(find.textContaining('todavía no está disponible'), findsOneWidget);
+      // Sin el id interno del ancla a la vista de nadie.
+      expect(find.textContaining('uno.tardio'), findsNothing);
       expect(find.text('Reintentar'), findsOneWidget);
     },
   );
@@ -206,13 +208,13 @@ void main() {
     await tester.pumpWidget(banco.montar());
     final motor = banco.contenedor.read(motorDeTutorialesProvider.notifier);
     await correr(tester, () => motor.iniciar('fantasma'));
-    expect(find.textContaining('No encontramos'), findsOneWidget);
+    expect(find.textContaining('todavía no está disponible'), findsOneWidget);
 
     banco.mostrarTardio();
     await tester.pump();
     await correr(tester, motor.reintentar);
 
-    expect(find.textContaining('No encontramos'), findsNothing);
+    expect(find.textContaining('todavía no está disponible'), findsNothing);
     expect(
       banco.contenedor.read(motorDeTutorialesProvider).recuadro,
       isNotNull,

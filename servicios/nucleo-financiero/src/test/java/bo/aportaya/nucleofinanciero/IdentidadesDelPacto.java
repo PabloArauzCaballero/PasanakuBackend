@@ -20,7 +20,9 @@ import java.util.UUID;
 
 /**
  * Lo que rodea al servidor real en los pactos: una identidad que firma tokens con la forma que emite identidad
- * (ADR-024) y publica su JWKS por HTTP, y un doble de {@code aportes}. No es identidad: es la forma de su token.
+ * (ADR-024) y publica su JWKS por HTTP, y dobles de {@code aportes} y de {@code grupos} (carril Q: el estado de pagos se
+ * pregunta por PARTICIPACION, asi que antes de {@code aportes} se le pregunta a {@code grupos} cuales son). No es
+ * identidad: es la forma de su token.
  */
 final class IdentidadesDelPacto implements AutoCloseable {
 
@@ -28,10 +30,14 @@ final class IdentidadesDelPacto implements AutoCloseable {
             "{\"alDia\":true,\"totalAportado\":\"0.00\",\"deudaVigente\":\"0.00\",\"porAportar\":\"0.00\","
                     + "\"obligacionesAbiertas\":0,\"moneda\":\"BOB\"}";
 
+    /** Una participacion del titular: lo unico que nucleo lee de {@code GET /grupos/participaciones}. */
+    static final String PARTICIPACIONES = "[{\"participanteId\":\"00000000-0000-4000-8000-0000000000a1\"}]";
+
     private final RSAKey claveDeIdentidad;
     private final RSAKey claveAjena;
     private final HttpServer jwks;
     private final HttpServer aportes;
+    private final HttpServer grupos;
 
     IdentidadesDelPacto() throws Exception {
         claveDeIdentidad =
@@ -40,6 +46,7 @@ final class IdentidadesDelPacto implements AutoCloseable {
         claveAjena = new RSAKeyGenerator(2048).keyID("identidad-del-pacto").generate();
         jwks = servir("/jwks.json", new JWKSet(claveDeIdentidad.toPublicJWK()).toString());
         aportes = servir("/aportes/participantes/", ESTADO_DE_APORTES);
+        grupos = servir("/grupos/participaciones", PARTICIPACIONES);
     }
 
     String urlDelJwks() {
@@ -50,10 +57,15 @@ final class IdentidadesDelPacto implements AutoCloseable {
         return "http://127.0.0.1:" + aportes.getAddress().getPort();
     }
 
+    String urlDeGrupos() {
+        return "http://127.0.0.1:" + grupos.getAddress().getPort();
+    }
+
     @Override
     public void close() {
         jwks.stop(0);
         aportes.stop(0);
+        grupos.stop(0);
     }
 
     private static HttpServer servir(String ruta, String cuerpo) throws IOException {

@@ -103,6 +103,19 @@ public class PagoRepositorio {
 
     public record PagoParaConciliar(UUID id, Dinero monto, String estado) {}
 
+    /**
+     * Compensacion de un aporte que el libro no pudo aplicar: {@code ACREDITADO} pasa a {@code REVERSADO}. La precondicion va
+     * en la escritura (no en un {@code if} previo): un pago en disputa, ya reversado o de otro estado no se toca.
+     */
+    public boolean reversar(DSLContext dsl, UUID pagoId) {
+        return dsl.update(DSL.table(DSL.name("aportes", "pago")))
+                        .set(DSL.field("estado", String.class), "REVERSADO")
+                        .where(DSL.field("id", UUID.class).eq(pagoId))
+                        .and(DSL.field("estado", String.class).eq("ACREDITADO"))
+                        .execute()
+                == 1;
+    }
+
     public Optional<Pago> ver(DSLContext dsl, UUID pagoId) {
         Record fila = dsl.select(
                         DSL.field("id", UUID.class),

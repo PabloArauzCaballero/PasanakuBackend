@@ -323,6 +323,7 @@ ALTER TABLE erp.linea_plantilla_asiento ALTER COLUMN monto_referencial DROP NOT 
 ALTER TABLE erp.orden_compra ALTER COLUMN aprobada_por DROP NOT NULL;
 ALTER TABLE erp.orden_compra ALTER COLUMN centro_costo_id DROP NOT NULL;
 ALTER TABLE erp.pago_a_proveedor ALTER COLUMN asiento_contable_id DROP NOT NULL;
+ALTER TABLE erp.pago_a_proveedor ALTER COLUMN clave_idempotencia DROP NOT NULL;
 ALTER TABLE erp.presupuesto ALTER COLUMN aprobado_en DROP NOT NULL;
 ALTER TABLE erp.presupuesto ALTER COLUMN aprobado_por DROP NOT NULL;
 ALTER TABLE erp.tercero_comercial ALTER COLUMN cuenta_contable_id DROP NOT NULL;
@@ -525,6 +526,8 @@ ALTER TABLE identidad.verificacion_kyc ALTER COLUMN puntaje_biometrico DROP NOT 
 ALTER TABLE identidad.verificacion_kyc ALTER COLUMN referencia_proveedor DROP NOT NULL;
 ALTER TABLE identidad.verificacion_kyc ALTER COLUMN resuelta_en DROP NOT NULL;
 ALTER TABLE identidad.verificacion_kyc ALTER COLUMN revisada_por DROP NOT NULL;
+ALTER TABLE identidad.verificacion_kyc ALTER COLUMN url_perfil_derecho DROP NOT NULL;
+ALTER TABLE identidad.verificacion_kyc ALTER COLUMN url_perfil_izquierdo DROP NOT NULL;
 ALTER TABLE identidad.verificacion_kyc ALTER COLUMN url_selfie DROP NOT NULL;
 ALTER TABLE identidad.verificacion_kyc ALTER COLUMN vigente_hasta DROP NOT NULL;
 ALTER TABLE inversiones.corrida_trabajo ALTER COLUMN error DROP NOT NULL;

@@ -1,0 +1,469 @@
+== intento 1 04:59:28
+Picked up JAVA_TOOL_OPTIONS: <proxy y truststore del contenedor, omitido>
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-archivos:compileJava
+> Task :plataforma:comun-datos:compileJava
+> Task :plataforma:comun-mensajeria:compileJava
+> Task :plataforma:comun-pruebas:compileJava
+> Task :plataforma:comun-web:compileJava
+> Task :plataforma:gateway:compileJava
+> Task :servicios:aportes:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:aportes:generateJooq UP-TO-DATE
+> Task :servicios:aportes:compileJava
+> Task :servicios:auditoria:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:auditoria:generateJooq UP-TO-DATE
+> Task :servicios:auditoria:compileJava
+> Task :servicios:cumplimiento:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:cumplimiento:generateJooq UP-TO-DATE
+> Task :servicios:cumplimiento:compileJava
+> Task :servicios:entregas:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:entregas:generateJooq UP-TO-DATE
+> Task :servicios:entregas:compileJava
+> Task :servicios:erp:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:erp:generateJooq UP-TO-DATE
+> Task :servicios:erp:compileJava
+> Task :servicios:garantia:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:garantia:generateJooq UP-TO-DATE
+> Task :servicios:garantia:compileJava
+> Task :servicios:grupos:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:grupos:generateJooq UP-TO-DATE
+> Task :servicios:grupos:compileJava
+> Task :servicios:identidad:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:identidad:generateJooq UP-TO-DATE
+> Task :servicios:identidad:compileJava
+> Task :servicios:inversiones:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:inversiones:generateJooq UP-TO-DATE
+> Task :servicios:inversiones:compileJava
+> Task :servicios:notificaciones:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:notificaciones:generateJooq UP-TO-DATE
+> Task :servicios:notificaciones:compileJava
+> Task :servicios:nucleo-financiero:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:nucleo-financiero:generateJooq UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileJava
+> Task :servicios:organizador:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:organizador:generateJooq UP-TO-DATE
+> Task :servicios:organizador:compileJava
+> Task :servicios:publicidad:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:publicidad:generateJooq UP-TO-DATE
+> Task :servicios:publicidad:compileJava
+> Task :servicios:tarifas:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:tarifas:generateJooq UP-TO-DATE
+> Task :servicios:tarifas:compileJava
+> Task :servicios:transparencia:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:transparencia:generateJooq UP-TO-DATE
+> Task :servicios:transparencia:compileJava
+> Task :plataforma:comun-archivos:processResources UP-TO-DATE
+> Task :plataforma:comun-archivos:classes
+> Task :plataforma:comun-archivos:compileTestJava
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes
+> Task :plataforma:comun-datos:compileTestJava
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:compileTestJava
+> Task :plataforma:comun-mensajeria:processResources UP-TO-DATE
+> Task :plataforma:comun-mensajeria:classes
+> Task :plataforma:comun-mensajeria:compileTestJava
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes
+> Task :plataforma:comun-pruebas:compileTestJava
+> Task :plataforma:comun-web:compileTestFixturesJava
+> Task :plataforma:comun-web:compileTestJava
+> Task :plataforma:gateway:processResources UP-TO-DATE
+> Task :plataforma:gateway:classes
+> Task :plataforma:gateway:compileTestJava
+> Task :servicios:aportes:processResources UP-TO-DATE
+> Task :servicios:aportes:classes
+> Task :servicios:aportes:compileTestJava
+> Task :servicios:auditoria:processResources UP-TO-DATE
+> Task :servicios:auditoria:classes
+> Task :servicios:auditoria:compileTestJava
+> Task :servicios:cumplimiento:processResources UP-TO-DATE
+> Task :servicios:cumplimiento:classes
+> Task :servicios:cumplimiento:compileTestJava
+> Task :servicios:entregas:processResources UP-TO-DATE
+> Task :servicios:entregas:classes
+> Task :servicios:entregas:compileTestJava
+> Task :servicios:erp:processResources UP-TO-DATE
+> Task :servicios:erp:classes
+
+> Task :servicios:erp:compileTestJava FAILED
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/EscenarioDeFactura.java:81: error: incompatible types: UUID cannot be converted to boolean
+                aprobadaPor);
+                ^
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103Test.java:204: error: incompatible types: boolean cannot be converted to UUID
+        var sinAprobar = transaccion.execute(t -> facturaCU.registrar(factura("400.00", emision, false), aprobador));
+                                                                                                 ^
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103Test.java:206: error: cannot find symbol
+                        new EntradaPago(sinAprobar.facturaId(), new BigDecimal("100.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()),
+                                                  ^
+  symbol:   method facturaId()
+  location: variable sinAprobar of type Object
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:20: error: incompatible types: boolean cannot be converted to UUID
+                factura("F-A01-" + anio, "1200.00", enPeriodo(1), true), aprobador));
+                                                                  ^
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:24: error: cannot find symbol
+        assertThat(rechazaLaBase("UPDATE erp.factura_proveedor SET monto = 1 WHERE id = ?", registrada.facturaId()))
+                                                                                                      ^
+  symbol:   method facturaId()
+  location: variable registrada of type Object
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:26: error: cannot find symbol
+        assertThat(rechazaLaBase("DELETE FROM erp.factura_proveedor WHERE id = ?", registrada.facturaId()))
+                                                                                             ^
+  symbol:   method facturaId()
+  location: variable registrada of type Object
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:30: error: cannot find symbol
+                new EntradaPago(registrada.facturaId(), new BigDecimal("400.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()), tesoreria));
+                                          ^
+  symbol:   method facturaId()
+  location: variable registrada of type Object
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:33: error: cannot find symbol
+                        "DELETE FROM erp.pago_a_proveedor WHERE factura_proveedor_id = ?", registrada.facturaId()))
+                                                                                                     ^
+  symbol:   method facturaId()
+  location: variable registrada of type Object
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:41: error: incompatible types: boolean cannot be converted to UUID
+                factura("F-A05-" + anio, "800.00", enPeriodo(1), true), aprobador));
+                                                                 ^
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:43: error: cannot find symbol
+                new EntradaPago(registrada.facturaId(), new BigDecimal("800.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()), tesoreria));
+                                          ^
+  symbol:   method facturaId()
+  location: variable registrada of type Object
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:53: error: cannot find symbol
+                        registrada.facturaId(),
+                                  ^
+  symbol:   method facturaId()
+  location: variable registrada of type Object
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:54: error: cannot find symbol
+                        registrada.facturaId().toString()))
+                                  ^
+  symbol:   method facturaId()
+  location: variable registrada of type Object
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:62: error: incompatible types: boolean cannot be converted to UUID
+                factura("F-A06-" + anio, "500.00", enPeriodo(1), true), aprobador));
+                                                                 ^
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:64: error: cannot find symbol
+                new EntradaPago(registrada.facturaId(), new BigDecimal("500.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()), tesoreria));
+                                          ^
+  symbol:   method facturaId()
+  location: variable registrada of type Object
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:74: error: cannot find symbol
+                        registrada.facturaId()))
+                                  ^
+  symbol:   method facturaId()
+  location: variable registrada of type Object
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:90: error: incompatible types: boolean cannot be converted to UUID
+                        factura("F-C01-" + anio, "300.00", enero, true), aprobador)))
+                                                                  ^
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:99: error: incompatible types: boolean cannot be converted to UUID
+                t -> facturaCU.registrar(factura(numero, "1000.00", enPeriodo(1), true), aprobador));
+                                                                                  ^
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:104: error: incompatible types: boolean cannot be converted to UUID
+                        factura(numero, "1000.00", enPeriodo(1), true), aprobador)))
+                                                                 ^
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:122: error: incompatible types: boolean cannot be converted to UUID
+                factura("F-C04C-" + anio, "600.00", enPeriodo(1), true), aprobador));
+                                                                  ^
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:124: error: cannot find symbol
+                        new EntradaPago(registrada.facturaId(), new BigDecimal("700.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()),
+                                                  ^
+  symbol:   method facturaId()
+  location: variable registrada of type Object
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:133: error: incompatible types: boolean cannot be converted to UUID
+                factura("F-C05-" + anio, "1500.00", enPeriodo(1), true), aprobador));
+                                                                  ^
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:138: error: cannot find symbol
+                        new EntradaPago(registrada.facturaId(), new BigDecimal("1500.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()),
+                                                  ^
+  symbol:   method facturaId()
+  location: variable registrada of type Object
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:149: error: incompatible types: boolean cannot be converted to UUID
+                factura("F-S04-" + anio, "2000.00", enPeriodo(1), true), aprobador));
+                                                                  ^
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:157: error: cannot find symbol
+                        registrada.facturaId(),
+                                  ^
+  symbol:   method facturaId()
+  location: variable registrada of type Object
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:166: error: incompatible types: boolean cannot be converted to UUID
+                factura("F-C05B-" + anio, "900.00", enPeriodo(1), true), aprobador));
+                                                                  ^
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:167: error: cannot find symbol
+        var pago = new EntradaPago(registrada.facturaId(), new BigDecimal("900.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID());
+                                             ^
+  symbol:   method facturaId()
+  location: variable registrada of type Object
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:175: error: cannot find symbol
+                        registrada.facturaId()))
+                                  ^
+  symbol:   method facturaId()
+  location: variable registrada of type Object
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:182: error: cannot find symbol
+                        registrada.facturaId(),
+                                  ^
+  symbol:   method facturaId()
+  location: variable registrada of type Object
+/home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:187: error: cannot find symbol
+                        registrada.facturaId().toString(),
+                                  ^
+  symbol:   method facturaId()
+  location: variable registrada of type Object
+Note: Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+29 errors
+
+> Task :servicios:garantia:processResources UP-TO-DATE
+> Task :servicios:garantia:classes
+> Task :servicios:garantia:compileTestJava
+> Task :servicios:grupos:processResources UP-TO-DATE
+> Task :servicios:grupos:classes
+> Task :servicios:grupos:compileTestJava
+> Task :servicios:identidad:processResources UP-TO-DATE
+> Task :servicios:identidad:classes
+> Task :servicios:identidad:compileTestJava
+> Task :servicios:inversiones:processResources UP-TO-DATE
+> Task :servicios:inversiones:classes
+> Task :servicios:inversiones:compileTestJava
+> Task :servicios:notificaciones:processResources UP-TO-DATE
+> Task :servicios:notificaciones:classes
+> Task :servicios:notificaciones:compileTestJava
+> Task :servicios:nucleo-financiero:processResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:classes
+> Task :servicios:nucleo-financiero:compileTestJava
+> Task :servicios:organizador:processResources UP-TO-DATE
+> Task :servicios:organizador:classes
+> Task :servicios:organizador:compileTestJava
+> Task :servicios:publicidad:processResources UP-TO-DATE
+> Task :servicios:publicidad:classes
+> Task :servicios:publicidad:compileTestJava
+> Task :servicios:tarifas:processResources UP-TO-DATE
+> Task :servicios:tarifas:classes
+
+> Task :servicios:tarifas:compileTestJava FAILED
+/home/user/PasanakuBackend/servicios/tarifas/src/test/java/bo/aportaya/tarifas/CongelarTarifaDelGrupoTest.java:140: error: method containsOnly in class AbstractIterableAssert<SELF,ACTUAL,ELEMENT,ELEMENT_ASSERT> cannot be applied to given types;
+                .containsOnly(primero.toString());
+                ^
+  required: CAP#1[]
+  found:    String
+  reason: varargs mismatch; String cannot be converted to CAP#1
+  where SELF,ACTUAL,ELEMENT,ELEMENT_ASSERT are type-variables:
+    SELF extends AbstractIterableAssert<SELF,ACTUAL,ELEMENT,ELEMENT_ASSERT> declared in class AbstractIterableAssert
+    ACTUAL extends Iterable<? extends ELEMENT> declared in class AbstractIterableAssert
+    ELEMENT extends Object declared in class AbstractIterableAssert
+    ELEMENT_ASSERT extends AbstractAssert<ELEMENT_ASSERT,ELEMENT> declared in class AbstractIterableAssert
+  where CAP#1 is a fresh type-variable:
+    CAP#1 extends Object from capture of ?
+/home/user/PasanakuBackend/servicios/tarifas/src/test/java/bo/aportaya/tarifas/CongelarTarifaDelGrupoTest.java:208: error: reference to assertThat is ambiguous
+        assertThat(transaccion.execute(e -> repositorio.snapshotDe(dsl, UUID.randomUUID())))
+        ^
+  both method assertThat(IntPredicate) in Assertions and method <T>assertThat(Predicate<T>) in Assertions match
+  where T is a type-variable:
+    T extends Object declared in method <T>assertThat(Predicate<T>)
+/home/user/PasanakuBackend/servicios/tarifas/src/test/java/bo/aportaya/tarifas/CongelarTarifaDelGrupoTest.java:208: error: incompatible types: inference variable T has incompatible bounds
+        assertThat(transaccion.execute(e -> repositorio.snapshotDe(dsl, UUID.randomUUID())))
+                                      ^
+    upper bounds: IntPredicate,Object
+    lower bounds: Optional<String>
+  where T is a type-variable:
+    T extends Object declared in method <T>execute(TransactionCallback<T>)
+Note: Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+3 errors
+
+> Task :servicios:transparencia:processResources UP-TO-DATE
+> Task :servicios:transparencia:classes
+> Task :servicios:transparencia:compileTestJava
+
+[Incubating] Problems report is available at: file:///home/user/PasanakuBackend/build/reports/problems/problems-report.html
+
+FAILURE: Build completed with 2 failures.
+
+1: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:erp:compileTestJava' (registered by plugin class 'org.gradle.api.plugins.JavaBasePlugin').
+> Compilation failed; see the compiler output below.
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/EscenarioDeFactura.java:81: error: incompatible types: UUID cannot be converted to boolean
+                  aprobadaPor);
+                  ^
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103Test.java:204: error: incompatible types: boolean cannot be converted to UUID
+          var sinAprobar = transaccion.execute(t -> facturaCU.registrar(factura("400.00", emision, false), aprobador));
+                                                                                                   ^
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:20: error: incompatible types: boolean cannot be converted to UUID
+                  factura("F-A01-" + anio, "1200.00", enPeriodo(1), true), aprobador));
+                                                                    ^
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:41: error: incompatible types: boolean cannot be converted to UUID
+                  factura("F-A05-" + anio, "800.00", enPeriodo(1), true), aprobador));
+                                                                   ^
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:62: error: incompatible types: boolean cannot be converted to UUID
+                  factura("F-A06-" + anio, "500.00", enPeriodo(1), true), aprobador));
+                                                                   ^
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:90: error: incompatible types: boolean cannot be converted to UUID
+                          factura("F-C01-" + anio, "300.00", enero, true), aprobador)))
+                                                                    ^
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:99: error: incompatible types: boolean cannot be converted to UUID
+                  t -> facturaCU.registrar(factura(numero, "1000.00", enPeriodo(1), true), aprobador));
+                                                                                    ^
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:104: error: incompatible types: boolean cannot be converted to UUID
+                          factura(numero, "1000.00", enPeriodo(1), true), aprobador)))
+                                                                   ^
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:122: error: incompatible types: boolean cannot be converted to UUID
+                  factura("F-C04C-" + anio, "600.00", enPeriodo(1), true), aprobador));
+                                                                    ^
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:133: error: incompatible types: boolean cannot be converted to UUID
+                  factura("F-C05-" + anio, "1500.00", enPeriodo(1), true), aprobador));
+                                                                    ^
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:149: error: incompatible types: boolean cannot be converted to UUID
+                  factura("F-S04-" + anio, "2000.00", enPeriodo(1), true), aprobador));
+                                                                    ^
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:166: error: incompatible types: boolean cannot be converted to UUID
+                  factura("F-C05B-" + anio, "900.00", enPeriodo(1), true), aprobador));
+                                                                    ^
+  Note: Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103Test.java:206: error: cannot find symbol
+                          new EntradaPago(sinAprobar.facturaId(), new BigDecimal("100.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()),
+                                                    ^
+    symbol:   method facturaId()
+    location: variable sinAprobar of type Object
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:24: error: cannot find symbol
+          assertThat(rechazaLaBase("UPDATE erp.factura_proveedor SET monto = 1 WHERE id = ?", registrada.facturaId()))
+                                                                                                        ^
+    symbol:   method facturaId()
+    location: variable registrada of type Object
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:26: error: cannot find symbol
+          assertThat(rechazaLaBase("DELETE FROM erp.factura_proveedor WHERE id = ?", registrada.facturaId()))
+                                                                                               ^
+    symbol:   method facturaId()
+    location: variable registrada of type Object
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:30: error: cannot find symbol
+                  new EntradaPago(registrada.facturaId(), new BigDecimal("400.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()), tesoreria));
+                                            ^
+    symbol:   method facturaId()
+    location: variable registrada of type Object
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:33: error: cannot find symbol
+                          "DELETE FROM erp.pago_a_proveedor WHERE factura_proveedor_id = ?", registrada.facturaId()))
+                                                                                                       ^
+    symbol:   method facturaId()
+    location: variable registrada of type Object
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:43: error: cannot find symbol
+                  new EntradaPago(registrada.facturaId(), new BigDecimal("800.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()), tesoreria));
+                                            ^
+    symbol:   method facturaId()
+    location: variable registrada of type Object
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:53: error: cannot find symbol
+                          registrada.facturaId(),
+                                    ^
+    symbol:   method facturaId()
+    location: variable registrada of type Object
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:54: error: cannot find symbol
+                          registrada.facturaId().toString()))
+                                    ^
+    symbol:   method facturaId()
+    location: variable registrada of type Object
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:64: error: cannot find symbol
+                  new EntradaPago(registrada.facturaId(), new BigDecimal("500.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()), tesoreria));
+                                            ^
+    symbol:   method facturaId()
+    location: variable registrada of type Object
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:74: error: cannot find symbol
+                          registrada.facturaId()))
+                                    ^
+    symbol:   method facturaId()
+    location: variable registrada of type Object
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:124: error: cannot find symbol
+                          new EntradaPago(registrada.facturaId(), new BigDecimal("700.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()),
+                                                    ^
+    symbol:   method facturaId()
+    location: variable registrada of type Object
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:138: error: cannot find symbol
+                          new EntradaPago(registrada.facturaId(), new BigDecimal("1500.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()),
+                                                    ^
+    symbol:   method facturaId()
+    location: variable registrada of type Object
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:157: error: cannot find symbol
+                          registrada.facturaId(),
+                                    ^
+    symbol:   method facturaId()
+    location: variable registrada of type Object
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:167: error: cannot find symbol
+          var pago = new EntradaPago(registrada.facturaId(), new BigDecimal("900.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID());
+                                               ^
+    symbol:   method facturaId()
+    location: variable registrada of type Object
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:175: error: cannot find symbol
+                          registrada.facturaId()))
+                                    ^
+    symbol:   method facturaId()
+    location: variable registrada of type Object
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:182: error: cannot find symbol
+                          registrada.facturaId(),
+                                    ^
+    symbol:   method facturaId()
+    location: variable registrada of type Object
+  /home/user/PasanakuBackend/servicios/erp/src/test/java/bo/aportaya/erp/CU103RechazosTest.java:187: error: cannot find symbol
+                          registrada.facturaId().toString(),
+                                    ^
+    symbol:   method facturaId()
+    location: variable registrada of type Object
+  29 errors
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+2: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:tarifas:compileTestJava' (registered by plugin class 'org.gradle.api.plugins.JavaBasePlugin').
+> Compilation failed; see the compiler output below.
+  /home/user/PasanakuBackend/servicios/tarifas/src/test/java/bo/aportaya/tarifas/CongelarTarifaDelGrupoTest.java:208: error: reference to assertThat is ambiguous
+          assertThat(transaccion.execute(e -> repositorio.snapshotDe(dsl, UUID.randomUUID())))
+          ^
+    both method assertThat(IntPredicate) in Assertions and method <T>assertThat(Predicate<T>) in Assertions match
+    where T is a type-variable:
+      T extends Object declared in method <T>assertThat(Predicate<T>)
+  /home/user/PasanakuBackend/servicios/tarifas/src/test/java/bo/aportaya/tarifas/CongelarTarifaDelGrupoTest.java:140: error: method containsOnly in class AbstractIterableAssert<SELF,ACTUAL,ELEMENT,ELEMENT_ASSERT> cannot be applied to given types;
+                  .containsOnly(primero.toString());
+                  ^
+    required: CAP#1[]
+    found:    String
+    reason: varargs mismatch; String cannot be converted to CAP#1
+    where SELF,ACTUAL,ELEMENT,ELEMENT_ASSERT are type-variables:
+      SELF extends AbstractIterableAssert<SELF,ACTUAL,ELEMENT,ELEMENT_ASSERT> declared in class AbstractIterableAssert
+      ACTUAL extends Iterable<? extends ELEMENT> declared in class AbstractIterableAssert
+      ELEMENT extends Object declared in class AbstractIterableAssert
+      ELEMENT_ASSERT extends AbstractAssert<ELEMENT_ASSERT,ELEMENT> declared in class AbstractIterableAssert
+    where CAP#1 is a fresh type-variable:
+      CAP#1 extends Object from capture of ?
+  /home/user/PasanakuBackend/servicios/tarifas/src/test/java/bo/aportaya/tarifas/CongelarTarifaDelGrupoTest.java:208: error: incompatible types: inference variable T has incompatible bounds
+          assertThat(transaccion.execute(e -> repositorio.snapshotDe(dsl, UUID.randomUUID())))
+                                        ^
+      upper bounds: IntPredicate,Object
+      lower bounds: Optional<String>
+    where T is a type-variable:
+      T extends Object declared in method <T>execute(TransactionCallback<T>)
+  Note: Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+  3 errors
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+BUILD FAILED in 3m 50s
+104 actionable tasks: 44 executed, 60 up-to-date
+RC 1

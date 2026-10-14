@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+import '../moviles/alcance_haptica.dart';
 import '../tokens/tokens.dart';
+import 'movimiento.dart';
 
 /// Cambio entre vistas equivalentes (lista · calendario; QR · código). **El elegido
 /// lleva relleno de marca**: no depende de que dos fondos difieran (D-12).
@@ -19,6 +23,24 @@ class SelectorSegmentado<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
+    assert(opciones.isNotEmpty, 'SelectorSegmentado requiere opciones.');
+    if (opciones.isEmpty) return const SizedBox.shrink();
+    if (opciones.length == 1) {
+      final unica = opciones.entries.single;
+      return Semantics(
+        container: true,
+        label: unica.value,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: Espacio.s2),
+          child: Text(
+            unica.value,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: t.text2),
+          ),
+        ),
+      );
+    }
     return Container(
       padding: const EdgeInsets.all(Espacio.s1),
       decoration: BoxDecoration(
@@ -34,9 +56,14 @@ class SelectorSegmentado<T> extends StatelessWidget {
                 selected: e.key == valor,
                 label: e.value,
                 child: GestureDetector(
-                  onTap: () => onChanged(e.key),
+                  onTap: () {
+                    if (e.key != valor) {
+                      unawaited(AlcanceHaptica.maybeOf(context)?.seleccion());
+                    }
+                    onChanged(e.key);
+                  },
                   child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 120),
+                    duration: duracion(context, Movimiento.micro),
                     height: Tactil.minimo,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(

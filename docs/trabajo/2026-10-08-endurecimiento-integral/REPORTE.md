@@ -1,11 +1,102 @@
 # Reporte — Endurecimiento integral (cierre tras el corte por falta de RAM)
 
-> **AVANCE: 35 / 86 — 40,7 %.**
+> **AVANCE: 93 / 118 — 78,8 %.** (`microtareas HECHO / total` de `PLAN.md`, calculado con `python .claude/hooks/plan_status.py`; `A MEDIAS` cuenta como no hecha. Retomada 2026-10-12: de 69 / 86 a 93 / 118; H17 agregó 32 microtareas, 24 en HECHO.)
 
 - Fecha: 2026-10-08 · Plan: [PLAN.md](./PLAN.md) · Notas: [NOTAS.md](./NOTAS.md) · Repos: PasanakuBackend (principal), PasanakuFrontend (carril E). Integrado sobre `origin/test` en la rama `justin/feature/cierre-endurecimiento-2026-10-08` (ver «Integración sobre test»).
 - Peldaño de evidencia alcanzado: **TESTED por servicio** (regla 30, peldaño 4), contra PostgreSQL real vía Testcontainers. **No** se alcanzó `REGRESSION_VERIFIED` global: falta integración real entre servicios y E2E de punta a punta.
-- Conteo: `python .claude/hooks/plan_status.py` → HECHO=35, A MEDIAS=24, BLOQUEADO=10, TODO=17 (de 86). `A MEDIAS` cuenta como no hecha.
+- Conteo histórico (corte del 2026-10-09; el vigente es el de la línea AVANCE): `python .claude/hooks/plan_status.py` → HECHO=35, A MEDIAS=24, BLOQUEADO=10, TODO=17 (de 86). `A MEDIAS` cuenta como no hecha.
 - Estado de la máquina al cerrar: sin `heavy.lock`, sin procesos java ni Docker, sin `hs_err_pid*`/`replay_pid*` (se borraron los restos del crash), unos 6,7 GB libres.
+
+## Retomada 2026-10-12 (H17): carriles P, Q, R y T verificados
+
+- Rama: `claude-marcelo/affectionate-heisenberg-nzjzml` (Backend). Parte de `dev` (`08042090`, ya con el PR #53) más los commits `WIP:` de P/Q/R/T de `justin/feature/cierre-endurecimiento-2026-10-08`. Frontend: sin cambios (`PasanakuFrontend` no se tocó).
+- Peldaño de evidencia por área (regla 30): **Backend P, Q, R: `TESTED`** contra PostgreSQL real; la cadena P·Q llegó a **`VERIFIED` en un stack local** (servicios, Kafka y Postgres reales, con las caídas provocadas de abajo); **Frontend JS: `TESTED`**; **App móvil (Flutter) y backoffice: `TESTED` con prueba visual contra dobles** (`VERIFIED_FUNCTIONAL_ONLY`; ver «Prueba visual»); **TEST (Contabo): `UNKNOWN`**, no se tocó. El peldaño del trabajo es el más bajo de sus áreas: `UNKNOWN` en TEST. No es `REGRESSION_VERIFIED`.
+- Entorno: contenedor Linux con 16 GB; Postgres 16 y Kafka en Docker, Flutter 3.44.8 (tag de GitHub), Node 24 y Yarn 4.18.0 instalados desde el registro de npm (`repo.yarnpkg.com` devuelve 403 por la política de salida de la organización), y un espejo de Maven Central para Gradle (`~/.gradle/init.d`, fuera del repo) porque `repo.maven.apache.org` respondía 429. Nada de eso entra al repositorio.
+
+### Completado en H17 (comando → resultado; salidas en `evidencia/carril-H17/`)
+
+| Qué | Comando | Resultado |
+|---|---|---|
+| Esquema aplicado y compila todo | `psql -f sql/aplicar.sql`; `./gradlew compileJava compileTestJava generarClientes` | RC 0; 436 tablas; clientes sin diff |
+| Formato | `./gradlew spotlessApply` y `spotlessCheck` (en la regresión) | verde |
+| Regresión completa del backend | `./gradlew spotlessCheck test webTest integrationTest contractTest sagaTest testBarrido --continue` | 22 módulos, **3.587 pruebas, 0 omitidas, 3 rojas** (las 3 son anteriores a H17, ver Hallazgos) — `regresion-completa.log`, conteo desde XML |
+| P: grupos / tarifas / identidad | ídem por servicio | 385 / 140 / 274 pruebas, 0 fallas |
+| Q: nucleo-financiero / aportes / entregas | ídem | 581 / 187 / 212 pruebas, 0 fallas (nucleo y entregas con `contractTest` 10 y 9) |
+| R: erp / publicidad | ídem | 135 / 75 pruebas, 0 fallas |
+| Ensayo de esquema aditivo (R-CTB-11) | `bash evidencia/carril-H17/r_upgrade_local.sh` | columna `clave_idempotencia` NULL + índice `uq_pago_a_proveedor_clave`; 2 pagos legados intactos; 2.ª corrida «columnas expandidas: 0»; el UNIQUE corta el duplicado — `r-upgrade.log` |
+| Siembra de la política de invitación (ENLACE) | `politica_invitacion_test.sh` ×2 sobre una base desechable con el estado de TEST | `permite_ENLACE` false → true; 2.ª corrida «cambios: 0 (idempotente)» — `politica-invitacion-ensayo.log` |
+| Gates | `verificar_criterios/seguridad/pruebas_web/boveda/maqueta/contratos_limites/rutas_frontend/frontend` | todos RC 0 |
+| Frontend JS | `yarn turbo run typecheck lint test:front` (sin los paquetes Flutter) y `build` de web y backoffice | typecheck, lint y build RC 0; **1.007 pruebas** (simulado 261, tokens 15, dominio-cliente 44, tutoriales 9, web 74, ui 125, backoffice 479) |
+| App móvil y paquete de diseño | `dart format`, `dart analyze --fatal-infos`, `flutter test` (unidad, widget, contrato, identidad, pasanaku, a11y) | formato y análisis RC 0; movil **407 + 4 a11y**, diseño **47 + 14 a11y**, 0 fallas |
+| Recorrido A/B local con servicios y Kafka reales | `python3 evidencia/carril-H17/recorrido_ab.py` | A crea el grupo (202) → `ABIERTO_A_INSCRIPCION` en 1–3 s por la cadena `grupo_creado` → `tarifa_congelada`; 1 tarifa con hash y 1 historial; nucleo abre la billetera del grupo en 0,1 s; invitar por **ENLACE 201**; B consulta (200) y acepta (201) con participación en la base; segundo pedido sobre el enlace usado → 422, sin duplicar; canje con postulación pendiente → `AP-CU68-06`, enlace sin consumir (`EMITIDO`), revocación 204 |
+| Billetera de persona al evento, con entrega duplicada | `bash evidencia/carril-H17/e2e-usuario-registrado.sh` | 1.ª entrega `ABIERTA` (ACTIVA BOB), 2.ª `DUPLICADO`, una sola billetera |
+| Caídas provocadas (regla 98.8) | `python3 evidencia/carril-H17/e2e_caidas.py` | **tarifas apagado**: alta rechazada `AP-CU20-01`, sin escribir; **grupos con `kill -9` tras confirmar el alta**: el evento queda `PENDIENTE` en el outbox y el grupo `BORRADOR`, al volver se publica y el grupo abre solo (1 tarifa, 1 billetera); **garantia apagado**: la postulación falla cerrada `AP-CU68-01` sin escribir nada y entra (201) al volver |
+| Traza | `e2e-traza.log` | `grupo_creado` y `tarifa_congelada` comparten el `correlationId` |
+
+### Defectos hallados al correr por primera vez lo que el relevo dejó en `WRITTEN` (regla 80.4)
+
+| # | Qué falló | Clase | Corrección |
+|---|---|---|---|
+| 1 | grupos `AbrirInscripcionDelGrupo`: `INSERT … SELECT` con la fecha sin tipo → `varchar` en una columna `timestamptz` | PRODUCT_BUG (P) | `?::timestamptz`, `?::uuid`, `?::text` |
+| 2 | tarifas `TarifaCongeladaRepositorio.congelar`: misma causa | PRODUCT_BUG (P) | `?::timestamptz` |
+| 3 | `CanjearInvitacion.comprobarAntesDeConsumir`: el `return` salía solo de la lambda; el reintento de un canje ya completado igual pasaba por `postulaciones.comprobar` (rechazo `AP-CU68-06`), contra su propio javadoc | PRODUCT_BUG (P) | devuelve si ya estaba canjeada y sale del método |
+| 4 | `CU69CanjeTest`: ponía `REVOCADA` sin `fecha_respuesta` (viola `ck_invitacion_respuesta`) | TEST_BUG | agrega la fecha |
+| 5 | `CongelarTarifaDelGrupoTest` corría en `test` (límite de 5 s, sin contenedor) | TEST_BUG | pasa a `CU20CongelarTarifaTest` (corredor de integración) |
+| 6 | `UsuariosTitularidadLimiteWebTest`: faltaba mockear `CU02ConsultarEstadoDeVerificacion`, dependencia que trajo `dev` | TEST_BUG | agrega el mock |
+| 7 | erp `EscenarioDeFactura` seguía con `UUID aprobadaPor` (R pasó los llamadores a `boolean aprobar`) | TEST_BUG | helper con `boolean aprobar` |
+| 8 | tarifas: dos `assertThat` ambiguos / mal tipados que no compilaban | TEST_BUG | tipos explícitos |
+| 9 | nucleo `CUConsumoDeAportesTest.fueraDeOrden`: esperaba excepción para un aporte sin saldo; el contrato vigente (CU-21 flujo 3b, carril Q) es rechazo definitivo con `aporte_no_aplicado` | TEST obsoleto | se reescribe el tramo (b) con el contrato vigente y las mismas garantías: cero efectos, evento marcado consumido, duplicado sin efecto, y el fondeo tardío no resucita el aporte |
+| 10 | nucleo `CU13PactoInversionesTest`: el doble solo simulaba `aportes`; `HechosPorHttp` ahora pregunta primero a `grupos` | TEST_BUG (doble incompleto) | el doble de `IdentidadesDelPacto` simula también `GET /grupos/participaciones` |
+| 11 | tres archivos pasaban de 300 líneas (`CU13EjecutarConDestino` 313, `CU13MercadoTest` 356, `CU21CompensaTest` 349) | regla propia (`BarridoTest`) | `RepartoDeCompraEnMercado`; `BaseDeMercado` + `CU13MercadoRechazosTest`; `BaseDeCompensacion` + `CU21CompensaRechazosTest` |
+| 12 | app: `pantalla_mfa_test` contaba pedidos dentro del callback de `onPost`, que corre al registrar la ruta (daba 1 antes de escribir); texto de `AP-CU04-04` distinto del de `dev`; `idioma_test` esperaba `CANCELAR` (la etiqueta es `Cancelar`) | TEST_BUG | contador con interceptor; texto de `dev`; etiqueta real |
+| 13 | app: `estado_alta.dart` (247) y `motor.dart` (206) pasaban de 200 líneas; formato Dart roto en 8 archivos (3 de T, 5 heredados de `dev`) | regla propia / ENVIRONMENT de la deriva | `modelo_del_alta.dart`, `textos_del_motor.dart`; `dart format` |
+| 14 | CU-20, `grupos.yaml` y `CU20CrearGrupo` seguían diciendo que nucleo «todavía no» abre la cuenta del grupo | documentación desactualizada | actualizados |
+
+### Prueba visual (regla 95.7), mirada captura por captura
+
+- **Backoffice, pago a proveedor (R)** — `capturas-backoffice/` (6 PNG: móvil/tablet/escritorio × claro/oscuro). El formulario ofrece Transferencia, Cheque y Efectivo y ninguna «QR»; consola sin errores, sin desborde horizontal, contraste medido con axe sin violaciones. Los listados de facturas y de órdenes no existen en el contrato y van simulados.
+- **App móvil (T)** — `capturas-app/` (30 PNG, 360×740 con texto al 130 %, 768×1024 y 1280×900, claro y oscuro): billetera con saldo (sin «Banco Unión»; «En custodia, separado del dinero de la empresa»), billetera «Tu billetera todavía no está activa» con «Volver a revisar», segundo factor (explicación, «Confirmar» apagado hasta tener 6 dígitos, rechazo con texto y borde rojo, «Confirmar» para reintentar) y selector de fecha en español con el teléfono en inglés. Las 24 pruebas verifican que no haya excepción de desborde.
+- **Lo que se ve mal** (no se corrigió; hallazgos H17.S9.M6 y M7): (1) en `ap-dialogo` a 360 px el botón de confirmar largo se sale del relleno del diálogo; (2) en la billetera con saldo a 360 px y texto al 130 % los botones Aportar/Recargar/Retirar se cortan.
+- Limitaciones de las capturas: las del backoffice son de página completa, así que el velo del diálogo solo cubre el alto de la ventana (efecto de la captura); las de la app no son de un emulador y no se comparan con los goldens de macOS. Los generadores quedan en el repo: `apps/backoffice/e2e/h17-pago-a-proveedor.e2e.ts` y `apps/movil/test/capturas/` (el CI de la app no ejecuta esa carpeta). Este contenedor necesitó apuntar Playwright al Chromium 1194 preinstalado con un config local que no se versionó.
+
+### Hallazgos que NO se corrigieron (registrados en el plan, H17.S9)
+
+1. **`aceptarInvitacionPorEnlace` ignora la `Idempotency-Key`** (regla 96.3.3): reintentar con la misma clave devuelve 422 `AP-CU69-05` aunque la participación ya se creó. Anterior a P (`d8e103ec`). Visto en `e2e-recorrido-ab.log` (único `FAIL` del recorrido, deliberadamente dejado a la vista).
+2. **3 pruebas rojas de `plataforma/comun-pruebas`** (`MatrizDeAutorizacionContratoTest`): `renovarSesion` y `consultarEstadoDeVerificacion` no están en `PoliticaDeAcceso`, y `historialAdmision` no tiene controlador. Rojas también en `origin/dev` `08042090` (`baseline-dev-contractTest.log`). Son decisiones de seguridad y de contrato de otros carriles.
+3. `verificar_carriles.py`: «sin carril dueño: inversiones» (anterior).
+4. `packages/diseno_flutter/pubspec.lock` está resuelto con otro Flutter (con 3.44.8 baja `matcher`/`meta`) y `.flutter-plugins-dependencies` está versionado con rutas de otra máquina. Se revirtió el cambio que hizo `flutter pub get`.
+6. (Visual) `ap-dialogo` desborda el relleno a 360 px y los botones de la billetera se cortan a 360 px con texto al 130 % (H17.S9.M6/M7).
+5. Goldens de Flutter: movil 9 y diseño 15 fallan por píxeles en Linux (el CI los genera en macOS): clasificados `ENVIRONMENT`, no se regeneran.
+
+### A medias
+
+#### H17 — Retomada de los carriles P, Q, R y T
+- Qué anda: todo lo de la tabla de Completado.
+- Qué no anda: nada en rojo propio de H17. Quedan los hallazgos 1–5.
+- Qué falta exactamente: **H17.S7.M3**, redesplegar a TEST y repetir el recorrido allí. Hace falta la clave `id_ed25519_contabo` del dueño; con ella: `subir_a_test.sh`, `crear-topicos.sh` (topico nuevo `aportaya.tarifas.tarifa_congelada`), `politica_invitacion_test.sh`, aplicar el esquema aditivo de R (`aplicar-esquema.sh`) y los scripts de siembra.
+- Dónde quedó: rama `claude-marcelo/affectionate-heisenberg-nzjzml`, compila y las pruebas de arriba están en verde.
+
+### No cubierto en H17
+
+- **TEST (Contabo)**: no se desplegó ni se ejercitó nada ahí. Los scripts de TEST se ensayaron contra dobles locales declarados (el shim de `docker` que hace pasar al proceso del host por los contenedores `identidad-local`/`cumplimiento-local`, y una base desechable con el estado que L3 observó en TEST).
+- **Clientes**: el recorrido A/B es por API. La app (en emulador), la web y el backoffice no se ejercitaron contra el stack real. Sí hay **prueba visual** de lo que cambió en pantalla (ver «Prueba visual» abajo), pero contra dobles: el backoffice contra `ng serve` con los listados simulados, y la app como pruebas de widget con las fuentes reales, no en emulador ni con el backend. Eso es `VERIFIED_FUNCTIONAL_ONLY` + prueba visual contra dobles, no `VERIFIED`. Faltan la web pública y las pantallas que no cambiaron.
+- **Alta real de usuario** (CU-01 con OTP de correo): el OTP no se registra en el log, así que `usuario_registrado` se publicó por el outbox real con el contrato de CU-01 (productor sintético declarado).
+- **Q sobre Kafka real**: el consumo de `aporte_cobrado` y la compensación `aporte_no_aplicado` ↔ `aportes` solo se probaron con base real y dobles de contrato (`CUAporteNoAplicadoTest`, `CU21Compensa*Test`), no con los dos servicios y Kafka a la vez; tampoco el reparto precio − cargos contra el `entregas` real.
+- **Servicios no levantados** en el recorrido: entregas, transparencia, inversiones, erp, publicidad, auditoría, gateway; ni tokens de servicio ni mTLS entre servicios.
+- **Cross-browser, rotación de claves, restauración de backups, rate limit de CU-18 bajo carga** (solo el test web con tope 3).
+
+### Desvíos del plan
+
+- H17 se agregó al `PLAN.md` al empezar (28 microtareas) y el recorrido local (S8) y los hallazgos (S9) se sumaron después, cuando el recorrido local resultó posible; el relevo pedía el recorrido contra TEST.
+- Las 3 pruebas rojas de `comun-pruebas` y los otros hallazgos se anotaron y no se arreglaron (regla 00 §3).
+- `r_upgrade.sh` de R, tal como lo dejó, sembraba pagos «legados» con las FK apagadas apuntando a facturas y usuarios inexistentes; al reponer las FK el esquema aditivo fallaba (RC 3) por culpa del ensayo, no del esquema. Se rehízo como `r_upgrade_local.sh` con una cadena válida (usuarios, proveedor, facturas) y ahí pasa.
+- Se formatearon 5 archivos Dart heredados de `dev` porque `dart format --set-exit-if-changed` es parte del CI de la app (commit aparte).
+
+### Decisiones y ambigüedades de H17
+
+- **Merge**: en `UsuariosController` se conservó la estructura de `dev` (clase base `ExpedienteController`) y se añadió solo el tope de titularidad de P; en `errores.dart` se conservaron los textos de `dev` (los cubren `autenticar_test` y `errores_identidad_test`). Confirmar con el dueño de la app si prefiere los textos más precisos que escribió T.
+- Siguen abiertas, sin cambios, las ambigüedades A1/A2 de P (apertura con precio congelado sin esperar la cuenta del grupo; contenido del snapshot de tarifa) y las de Q (billetera de persona `ACTIVA` al registrarse; solo BOB) y R (`aprobar` boolean; código nuevo `AP-CU103-05`): dueños en `ADR-052` y en los `ESTADO.md` de cada carril.
+- El límite de 120 consultas/min de CU-18 sigue siendo sintético (Seguridad).
 
 ## Qué pasó y por qué hubo que repetir
 

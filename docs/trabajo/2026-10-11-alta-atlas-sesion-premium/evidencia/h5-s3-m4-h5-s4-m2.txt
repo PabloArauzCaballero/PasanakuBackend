@@ -1,0 +1,20 @@
+Evidencia textual de H5.S3.M4 y H5.S4.M2
+Fecha: 2026-10-12
+
+H5.S3.M4 — estados de subida Atlas
+- Implementación: fila por cara ya conectada en `PantallaDeSubidaDelExpediente`; barra indeterminada y semántica de progreso en estados subiendo/lenta; aviso de demora con texto voseante; repetir identifica la cara.
+- Pruebas añadidas: temporizador `fake_async` permanece subiendo a 9 s y cambia a lenta a 10 s; el retry conserva la ruta y repetir recibe una ruta distinta. Cambios anteriores de M1/M3 en los mismos archivos se preservaron.
+- Ejecutado: `dart format apps/movil/lib/pantallas/identidad/fila_de_subida.dart apps/movil/lib/pantallas/identidad/textos_de_subida.dart apps/movil/test/unidad/subida_del_expediente_test.dart` → `Formatted 3 files (1 changed) in 0.01 seconds.`
+- Ejecutado: `git diff --check -- apps/movil/lib/pantallas/identidad/fila_de_subida.dart apps/movil/lib/pantallas/identidad/textos_de_subida.dart apps/movil/test/unidad/subida_del_expediente_test.dart` → sin salida; código 0.
+- Ejecutado en serie para conservar RAM: `flutter test --concurrency=1 --reporter expanded test/unidad/subida_del_expediente_test.dart` → **10/10 PASS**; incluye el umbral exacto de 10 s, cancelación y que retry conserva ruta/clave mientras repetir usa otra ruta/clave.
+- Ejecutado en serie: `flutter test --concurrency=1 --reporter expanded test/widget/pantalla_subida_del_expediente_test.dart` → **2/2 PASS**; valida la fila lenta, barra/textos, cancelación, error, referencia y acciones «Reintentar»/«Repetir foto del perfil derecho».
+- Límite: indicador indeterminado; la API local de `SubidaDeFotos` no expone progreso de bytes.
+
+H5.S4.M2 — pautas públicas de captura
+- Implementación: pantalla independiente Documento/Selfie, cuatro y tres pautas respectivamente, pares Correcto/Incorrecto con dibujo propio `CustomPainter`, ruta `/registro/pautas` fuera del shell y marcada pública; el botón abre la ruta.
+- Pruebas añadidas/extendidas: test de widget de navegación y cambio de pestaña, test de deep link público sin sesión/shell, y ruta incluida en inventario de acceso.
+- Ejecutado: `dart format` sobre los 9 archivos Dart del frente → `Formatted 9 files (0 changed) in 0.04 seconds.` (corrida final; los anteriores arreglaron formato en los archivos nuevos).
+- Ejecutado: `git diff --check` focalizado sobre los 8 archivos Dart del frente → sin salida; código 0.
+- No ejecutado por límite de RAM: `cd apps/movil && flutter test test/widget/paso_capturas_test.dart test/widget/deep_link_test.dart test/unidad/acceso_a_rutas_test.dart`.
+- Salida esperada (no observada): `All tests passed!`; botón navega a pautas, las pestañas muestran el grupo correcto y una sesión anónima abre `/registro/pautas` sin redirección ni shell.
+- No cubierto: ejecución real de pruebas Flutter, revisión con emulador/capturas en claro/oscuro y accesibilidad por lector de pantalla. Los dibujos son vectoriales propios, esquemáticos y sin datos/fotos reales; no se afirma inspección visual.

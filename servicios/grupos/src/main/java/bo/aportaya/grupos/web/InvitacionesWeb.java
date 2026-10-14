@@ -124,7 +124,7 @@ public class InvitacionesWeb {
                 .hashReglamento(datos.hashReglamento());
     }
 
-    public SalidaAceptacionInvitacion aceptar(EntradaAceptacionInvitacion cuerpo) {
+    public SalidaAceptacionInvitacion aceptar(UUID clave, EntradaAceptacionInvitacion cuerpo) {
         if (admisionHumanaObligatoria) {
             // Interruptor aportaya.grupos.admision.humana-obligatoria: esta puerta crea al participante ACTIVO sin
             // expediente humano. No se toca nada (ni se valida ni se consume el enlace): el canje es el camino.
@@ -133,6 +133,14 @@ public class InvitacionesWeb {
                     "Este grupo exige admision humana: usa el canje de la invitacion; tu solicitud queda pendiente de backoffice.");
         }
         var ctx = sesion.actual();
+        // Un reintento con la misma Idempotency-Key devuelve la participación original (regla 96.3.3); el enlace
+        // ya está consumido y revalidarlo daría un 422 por algo que sí salió bien.
+        var repetida = enlaces.repeticion(cuerpo.getTokenId(), clave, ctx);
+        if (repetida.isPresent()) {
+            return new SalidaAceptacionInvitacion()
+                    .grupoId(repetida.get().grupoId())
+                    .participanteId(repetida.get().participanteId());
+        }
         var datos = enlaces.datosDe(cuerpo.getTokenId(), ctx);
         exigirEnlaceValido(cuerpo.getTokenId(), cuerpo.getToken(), datos.telefono(), datos.kycMinimo());
         if (afuera.restriccion(ctx.usuarioId()).vigente()) {
@@ -146,7 +154,12 @@ public class InvitacionesWeb {
             throw new ErrorDeNegocio(CodigoError.de(69, 5), "Tenés que aceptar el reglamento del grupo.");
         }
         var salida = enlaces.aceptar(
-                cuerpo.getTokenId(), cuerpo.getHashReglamento(), peticion.getRemoteAddr(), reputacion.puntaje(), ctx);
+                cuerpo.getTokenId(),
+                clave,
+                cuerpo.getHashReglamento(),
+                peticion.getRemoteAddr(),
+                reputacion.puntaje(),
+                ctx);
         return new SalidaAceptacionInvitacion().grupoId(salida.grupoId()).participanteId(salida.participanteId());
     }
 

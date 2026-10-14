@@ -1,0 +1,12 @@
+H6.S2.M1-M2 — maquina de estados de pose (2026-10-12)
+
+flutter test test/unidad/ciclo_de_pose_test.dart --reporter expanded
+(incluido en corrida dirigida H4/H5/H6/H7)
+00:05 +43: All tests passed!
+
+Los 12 casos cubren reloj/veredicto, respiro, detector presente o silencioso,
+pose correcta sostenida, perdida/reinicio, cuenta atras, disparo manual, pausa
+de foto tomada, reinicio y reloj retrocedido. El modelo es Dart puro.
+
+H6.S2.M3 requiere al menos 10 altas reales en un telefono Android con variacion
+de luz, lentes y barba. No se cambiaron umbrales sin medicion.

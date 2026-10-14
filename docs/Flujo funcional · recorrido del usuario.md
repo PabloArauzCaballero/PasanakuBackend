@@ -54,7 +54,7 @@ dinero. Sin límite vigente a la fecha, la operación se **rechaza**.
 - **Precondición:** ninguna (es la puerta de entrada).
 - **Implementa:** [[CU-01 Registro y apertura de billetera]] — crea la identidad, corre la
   verificación documental básica y abre la billetera en el mismo acto (la cuenta de billetera
-  la abre `nucleo-financiero` al consumir el evento `identidad.usuario_creado`, patrón evento
+  la abre `nucleo-financiero` al consumir el evento `identidad.usuario_registrado`, patrón evento
   S4 de [[ADR-028 Mecánica de saga]]).
 - **Encadena:** [[CU-05 Aceptar contrato de adhesión y tarifario]] — el alta no queda firme
   hasta aceptar el contrato de adhesión y el tarifario vigente, con su hash guardado.
@@ -105,7 +105,7 @@ dinero. Sin límite vigente a la fecha, la operación se **rechaza**.
 - **Implementa:** [[CU-20 Crear grupo y congelar tarifario]] — crea el grupo, fija cupos y
   turnos y **congela el tarifario** vigente para todo el ciclo del grupo.
 - **Estado que deja:** grupo activo con su reglamento y tarifario congelado; `nucleo-financiero`
-  abre la cuenta del grupo al consumir `grupos.grupo_activado` (evento S5).
+  abre la cuenta del grupo al consumir `grupos.grupo_creado` (evento S5).
 
 ---
 

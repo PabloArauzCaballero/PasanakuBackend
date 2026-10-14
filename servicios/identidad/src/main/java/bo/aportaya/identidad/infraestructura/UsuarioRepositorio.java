@@ -28,6 +28,13 @@ public class UsuarioRepositorio {
                 .fetchOptional(USUARIO.ID);
     }
 
+    public Optional<String> estadoDe(DSLContext dsl, UUID usuarioId) {
+        return dsl.select(USUARIO.ESTADO)
+                .from(USUARIO)
+                .where(USUARIO.ID.eq(usuarioId))
+                .fetchOptional(USUARIO.ESTADO);
+    }
+
     public Optional<String> hashDeCredencial(DSLContext dsl, UUID usuarioId) {
         return dsl.select(CREDENCIAL_ACCESO.HASH_CONTRASENA)
                 .from(CREDENCIAL_ACCESO)

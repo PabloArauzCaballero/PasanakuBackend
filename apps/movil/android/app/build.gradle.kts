@@ -6,7 +6,10 @@ plugins {
 
 android {
     namespace = "bo.aportaya.aportaya_movil"
-    compileSdk = flutter.compileSdkVersion
+    // `permission_handler_android` (escáner de identidad, CU-02) exige compileSdk 37;
+    // el de Flutter por omisión es 36. compileSdk es hacia atrás compatible, así que
+    // subirlo no afecta a minSdk/targetSdk (siguen en lo que define Flutter).
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

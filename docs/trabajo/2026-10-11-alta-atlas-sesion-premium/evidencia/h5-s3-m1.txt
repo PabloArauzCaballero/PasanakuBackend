@@ -1,0 +1,22 @@
+H5.S3.M1 — Rótulos dinámicos de repetición
+
+Implementado:
+- `TextosDeCaptura.repetirFotoDe(CaraDelCarril)` y
+  `TextosDeSubida.repetirFotoDe(CaraDelCarril)` exponen los cinco rótulos:
+  anverso, reverso, frente, perfil izquierdo y perfil derecho.
+- El carrusel y la fila de subida usan ahora el rótulo dinámico correspondiente;
+  se quitaron las dos etiquetas genéricas de «Repetir la foto».
+- `apps/movil/test/unidad/textos_de_captura_test.dart` contiene dos pruebas que
+  verifican la tabla completa en ambas clases.
+
+Verificación ejecutada (sin Flutter/build/analyzer por límite de RAM):
+- `dart format` en los dos archivos de textos, sus dos consumidores y el test:
+  `Formatted 5 files (0 changed) in 0.02 seconds.`
+- `dart format --output=none --set-exit-if-changed` en esos mismos archivos:
+  `Formatted 5 files (0 changed) in 0.02 seconds.`
+- `git diff --check` focalizado en los cuatro archivos de Dart existentes:
+  sin salida, código 0.
+- `git diff --no-index --check -- NUL apps/movil/test/unidad/textos_de_captura_test.dart`:
+  sin errores de whitespace; Git avisó que normalizará LF a CRLF al tocarlo en
+  Windows.
+- El test de Dart fue añadido, pero no ejecutado.

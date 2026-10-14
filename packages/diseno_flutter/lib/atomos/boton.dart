@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../atomos/boton_tamano.dart';
 import '../atomos/hundido_al_tocar.dart';
 import '../atomos/boton_variante.dart';
+import '../atomos/superficie_viva.dart';
+import '../moviles/alcance_haptica.dart';
 import '../tokens/tokens.dart';
 
 /// El botón, con sus siete estados: normal, hover, presionado, foco, deshabilitado,
@@ -20,6 +23,7 @@ class Boton extends StatelessWidget {
     this.icono,
     this.expandido = false,
     this.maxLineas = 2,
+    this.motivoDeBloqueo,
   });
 
   final String texto;
@@ -35,6 +39,9 @@ class Boton extends StatelessWidget {
   /// media pantalla, y cortarla con puntos suspensivos esconde justamente el verbo.
   final int maxLineas;
 
+  /// Instrucción visible cuando la acción todavía no se puede realizar.
+  final String? motivoDeBloqueo;
+
   bool get _habilitado => onPressed != null && !cargando;
 
   @override
@@ -42,15 +49,11 @@ class Boton extends StatelessWidget {
     final t = Tokens.of(context);
     final (fondo, frente, borde) = switch (variante) {
       BotonVariante.primario => (t.accent, t.accentInk, null),
-      BotonVariante.secundario => (t.verdeSolido, t.sobreVerdeSolido, null),
-      BotonVariante.fantasma => (Colors.transparent, t.brandTexto, t.brand),
-      BotonVariante.peligro => (t.rojoSolido, t.sobreRojoSolido, null),
-      BotonVariante.enlace => (Colors.transparent, t.brandTexto, null),
-      BotonVariante.sobreVerde => (
-        Colors.transparent,
-        t.sobreVerdeSolido,
-        t.sobreVerdeSolido,
-      ),
+      BotonVariante.secundario => (t.surface2, t.text, t.border),
+      BotonVariante.fantasma => (Colors.transparent, t.text2, t.border),
+      // Las acciones usan el acento naranja; verde/rojo se reserva para estados.
+      BotonVariante.peligro => (t.accent, t.accentInk, null),
+      BotonVariante.enlace => (Colors.transparent, t.accentTexto, null),
     };
     final alto = switch (tamano) {
       BotonTamano.sm => Tactil.minimo - Espacio.s2,
@@ -61,10 +64,19 @@ class Boton extends StatelessWidget {
     // opacidad al naranja da un naranja claro que sigue leyéndose como acción y deja a
     // la persona tocando algo que no responde. Apagado se ve apagado.
     final apagado = !_habilitado && !cargando;
+    // Con relleno y vivo: el color lo pinta `SuperficieViva` (degradado, sombra,
+    // brillo) y el `FilledButton` queda transparente encima, sólo para el toque, el
+    // foco y el teclado.
+    final vivo = !apagado && fondo != Colors.transparent;
     final estilo = ButtonStyle(
       backgroundColor: WidgetStatePropertyAll(
-        apagado ? (fondo == Colors.transparent ? fondo : t.surface2) : fondo,
+        vivo
+            ? Colors.transparent
+            : apagado
+            ? (fondo == Colors.transparent ? fondo : t.surface2)
+            : fondo,
       ),
+      elevation: const WidgetStatePropertyAll(0),
       foregroundColor: WidgetStatePropertyAll(apagado ? t.text3 : frente),
       overlayColor: WidgetStatePropertyAll(frente.withValues(alpha: 0.08)),
       minimumSize: WidgetStatePropertyAll(Size(Tactil.minimo, alto)),
@@ -119,26 +131,52 @@ class Boton extends StatelessWidget {
         ),
       ],
     );
-    return Semantics(
+    final boton = FilledButton(
+      onPressed: _habilitado
+          ? () {
+              if (variante == BotonVariante.primario) {
+                unawaited(AlcanceHaptica.maybeOf(context)?.botonPrimario());
+              }
+              onPressed!();
+            }
+          : null,
+      style: estilo,
+      child: hijo,
+    );
+    final contenido = Semantics(
       button: true,
       enabled: _habilitado,
       label: cargando ? '$texto, enviando' : null,
-      child: HundidoAlTocar(
-        activo: _habilitado,
-        child: FilledButton(
-          onPressed: _habilitado
-              ? () {
-                  // El golpecito llega en el momento del toque, no cuando la pantalla
-                  // siguiente terminó de dibujarse: es lo que confirma que el botón
-                  // entendió, sobre todo en un teléfono lento.
-                  HapticFeedback.lightImpact();
-                  onPressed!();
-                }
-              : null,
-          style: estilo,
-          child: hijo,
+      child: vivo
+          ? SuperficieViva(
+              color: fondo,
+              colorDelTexto: frente,
+              radio: Radios.md,
+              activo: _habilitado,
+              brilla: variante == BotonVariante.primario,
+              cargando: cargando,
+              child: boton,
+            )
+          : HundidoAlTocar(activo: _habilitado, child: boton),
+    );
+    final motivo = motivoDeBloqueo?.trim();
+    if (motivo == null || motivo.isEmpty || _habilitado || cargando) {
+      return contenido;
+    }
+    return Column(
+      crossAxisAlignment: expandido
+          ? CrossAxisAlignment.stretch
+          : CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        contenido,
+        const SizedBox(height: Espacio.s2),
+        Text(
+          motivo,
+          textAlign: TextAlign.center,
+          style: Tipo.ayuda.copyWith(color: t.text2),
         ),
-      ),
+      ],
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../atomos/hundido_al_tocar.dart';
 import '../tokens/tokens.dart';
 
 /// La cabecera de una pantalla de nivel superior: un saludo chico y el título grande,
@@ -121,42 +122,44 @@ class BotonDeCabecera extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
-    return Semantics(
-      button: true,
-      label: etiqueta,
-      child: Material(
-        color: t.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(Radios.md),
-          side: BorderSide(color: t.border, width: Borde.fino),
-        ),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(Radios.md),
-          child: SizedBox.square(
-            dimension: Tactil.minimo,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Icon(icono, size: 20, color: t.text),
-                if (conAviso)
-                  Positioned(
-                    top: Espacio.s2 + 1,
-                    right: Espacio.s2 + 1,
-                    child: Container(
-                      width: Espacio.s2,
-                      height: Espacio.s2,
-                      decoration: BoxDecoration(
-                        color: t.accent,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: t.surface,
-                          width: Borde.desfase,
+    return HundidoAlTocar(
+      child: Semantics(
+        button: true,
+        label: etiqueta,
+        child: Material(
+          color: t.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(Radios.md),
+            side: BorderSide(color: t.border, width: Borde.fino),
+          ),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(Radios.md),
+            child: SizedBox.square(
+              dimension: Tactil.minimo,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Icon(icono, size: 20, color: t.text),
+                  if (conAviso)
+                    Positioned(
+                      top: Espacio.s2 + 1,
+                      right: Espacio.s2 + 1,
+                      child: Container(
+                        width: Espacio.s2,
+                        height: Espacio.s2,
+                        decoration: BoxDecoration(
+                          color: t.accent,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: t.surface,
+                            width: Borde.desfase,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

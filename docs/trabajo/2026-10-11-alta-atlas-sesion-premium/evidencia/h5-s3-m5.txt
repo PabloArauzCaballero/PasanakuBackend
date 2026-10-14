@@ -1,0 +1,31 @@
+H5.S3.M5 — privacidad y limpieza de capturas locales
+
+Alcance implementado
+- Al reemplazar una captura, se borra el archivo anterior antes de publicar
+  el nuevo estado; si ambas apuntan a la misma ruta, se conserva el archivo.
+- Al quitar/abandonar el alta se eliminan las capturas locales; al completar
+  la subida se limpia el seguimiento y sus archivos. Al salir de la pantalla de
+  subida se cancelan las transferencias activas antes de limpiar.
+- Captura.toString() no revela rutas. Los errores de filesystem, cuyo texto
+  puede incluir una ruta, se consumen sin registrarlos.
+- Se preservó la subida manual secuencial, sus reintentos e idempotencia.
+
+Pruebas agregadas (no ejecutadas por restricción de RAM)
+- privacidad_capturas_test.dart: reemplazo, abandono, limpieza del seguimiento,
+  misma ruta y representación sin rutas, con archivos temporales.
+- subida_del_expediente_test.dart: limpieza al completar la subida y abandono
+  de lote cancela el envío y evita iniciar las caras pendientes.
+
+Verificación permitida
+- dart format sobre 11 archivos Dart: «Formatted 11 files (0 changed)».
+- git diff --check sobre los archivos rastreados del alcance: salida vacía,
+  código 0.
+- rg de llamadas de logging/print en dominio de identidad y pantalla de subida:
+  no encontró llamadas que registren rutas.
+- No se ejecutaron Flutter, pruebas, build ni analyzer, para respetar el límite
+  de RAM solicitado.
+
+Nota
+- El borrado del sistema de archivos es de mejor esfuerzo: si el SO rechaza la
+  operación, el estado continúa sin retener la captura y no se expone su ruta
+  por logs.

@@ -94,9 +94,7 @@ class ListaDeMovimientos extends StatelessWidget {
                           monto: saldoDelDia,
                           moneda: moneda,
                           etiqueta: 'Saldo al cierre del día',
-                          estilo: texto.bodySmall?.copyWith(
-                            color: t.brandTexto,
-                          ),
+                          estilo: texto.bodySmall?.copyWith(color: t.text2),
                         ),
                       ],
                     ],

@@ -31,9 +31,10 @@ campos que más importan y por qué:
   números que definen el negocio completo: cuánto pongo, cada cuánto, por cuánto
   tiempo, y cuánto me llevo cuando me toque. `montoBolsaPorPeriodo()` deriva de
   ellos y es la cifra que la gente realmente quiere saber.
-- `esAutogestionado` + `organizadorId` distinguen los dos modelos de negocio de la
-  plataforma: el grupo que administra una persona habilitada (M7) y el que
-  administra el sistema solo (organizador digital). En ninguno de los dos casos
+- `esAutogestionado` + `organizadorId` distinguían dos modelos de negocio: el grupo que
+  administra una persona habilitada (M7) y el que administra el sistema solo. Por
+  [[ADR-051 Garantía del pozo, comisión y autogestión|ADR-051]] (D-12) **solo existe el primero**: todo grupo tiene un
+  organizador humano habilitado y el organizador digital únicamente automatiza tareas. En ningún caso
   el organizador cobra comisión: administrar no se cobra (RN-18). La comisión que
   sí existe es la de la plataforma por el servicio (M11), que se congela por grupo
   al constituirlo (`tarifa_congelada_grupo`) para que el precio no cambie a mitad

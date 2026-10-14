@@ -37,9 +37,17 @@ abstract class BaseDeCU04 {
 
     @BeforeAll
     static void armar() {
-        var contenedor = BaseDePrueba.contenedor();
-        DataSource fuente = new DriverManagerDataSource(
-                contenedor.getJdbcUrl(), contenedor.getUsername(), contenedor.getPassword());
+        String urlExterna = System.getenv("APORTAYA_TEST_DB_URL");
+        DataSource fuente;
+        if (urlExterna != null && !urlExterna.isBlank()) {
+            String usuario = System.getenv().getOrDefault("APORTAYA_TEST_DB_USER", "pasanaku");
+            String clave = System.getenv().getOrDefault("APORTAYA_TEST_DB_PASSWORD", "");
+            fuente = new DriverManagerDataSource(urlExterna, usuario, clave);
+        } else {
+            var contenedor = BaseDePrueba.contenedor();
+            fuente = new DriverManagerDataSource(
+                    contenedor.getJdbcUrl(), contenedor.getUsername(), contenedor.getPassword());
+        }
         dsl = DSL.using(new TransactionAwareDataSourceProxy(fuente), SQLDialect.POSTGRES);
         transaccion = new TransactionTemplate(new DataSourceTransactionManager(fuente));
 

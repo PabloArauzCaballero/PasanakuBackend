@@ -40,7 +40,6 @@ CONOCIDAS_SIN_CONTRATO: dict[str, str] = {
     "GET /publicidad/campanas": "listado de campañas: publicidad.yaml solo publica crear, aprobar y rechazar",
     "GET /publicidad/piezas-creativas": "cola de piezas por moderar: publicidad.yaml solo publica la revisión",
     "GET /reclamos": "bandeja de reclamos: cumplimiento no publica el listado (cu52-reclamos.ts)",
-    "POST /sesion/refrescar": "refresco de sesión por cookie: sin operación en identidad.yaml (refresco-de-sesion.ts)",
 }
 
 PLANTILLA = re.compile(r"`\$\{(?:this\.)?(gateway|base|GW|api)\}(/[^`?\s]*)")

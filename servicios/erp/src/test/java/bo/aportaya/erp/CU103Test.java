@@ -22,7 +22,9 @@ class CU103Test extends EscenarioDeFactura {
         var registrada = transaccion.execute(t -> facturaCU.registrar(factura("5000.00", enPeriodo(1)), aprobador));
 
         var pagada = transaccion.execute(t -> facturaCU.pagar(
-                new EntradaPago(registrada.facturaId(), new BigDecimal("5000.00"), "BOB", "TRANSFERENCIA"), tesoreria));
+                new EntradaPago(
+                        registrada.facturaId(), new BigDecimal("5000.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()),
+                tesoreria));
 
         assertThat(pagada.estado()).isEqualTo("PAGADA");
         assertThat(pagada.saldoPendiente()).isEqualByComparingTo("0.00");
@@ -58,7 +60,12 @@ class CU103Test extends EscenarioDeFactura {
         // R-CTB-05. Una sola persona que aprueba y paga puede inventarse un proveedor,
         // aprobarle una factura y transferirse la plata.
         assertThatThrownBy(() -> transaccion.execute(t -> facturaCU.pagar(
-                        new EntradaPago(registrada.facturaId(), new BigDecimal("5000.00"), "BOB", "TRANSFERENCIA"),
+                        new EntradaPago(
+                                registrada.facturaId(),
+                                new BigDecimal("5000.00"),
+                                "BOB",
+                                "TRANSFERENCIA",
+                                UUID.randomUUID()),
                         aprobador)))
                 .hasMessageContaining("no puede ademas autorizar su pago");
         assertThat(contar(
@@ -106,14 +113,21 @@ class CU103Test extends EscenarioDeFactura {
     @DisplayName("concurrencia: dos transacciones sobre el mismo agregado, una gana y nunca hay doble efecto")
     void concurrencia() throws Exception {
         var registrada = transaccion.execute(t -> facturaCU.registrar(factura("5000.00", enPeriodo(1)), aprobador));
-        var pago = new EntradaPago(registrada.facturaId(), new BigDecimal("5000.00"), "BOB", "TRANSFERENCIA");
+        // Dos pagos DISTINTOS (cada uno con su clave) por el total: el mismo pago repetido
+        // se prueba en CU103IdempotenciaTest.
+        var pago = new EntradaPago(
+                registrada.facturaId(), new BigDecimal("5000.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID());
+        var otroPago = new EntradaPago(
+                registrada.facturaId(), new BigDecimal("5000.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID());
+        var pagos = new java.util.concurrent.ConcurrentLinkedQueue<>(java.util.List.of(pago, otroPago));
 
         var barrera = new java.util.concurrent.CyclicBarrier(2);
         var errores = java.util.Collections.synchronizedList(new java.util.ArrayList<Throwable>());
         Runnable intento = () -> {
             try {
                 barrera.await();
-                transaccion.execute(t -> facturaCU.pagar(pago, tesoreria));
+                var suyo = pagos.poll();
+                transaccion.execute(t -> facturaCU.pagar(suyo, tesoreria));
             } catch (Exception e) {
                 errores.add(e);
             }
@@ -140,9 +154,13 @@ class CU103Test extends EscenarioDeFactura {
         var registrada = transaccion.execute(t -> facturaCU.registrar(factura("5000.00", enPeriodo(1)), aprobador));
 
         transaccion.execute(t -> facturaCU.pagar(
-                new EntradaPago(registrada.facturaId(), new BigDecimal("2000.00"), "BOB", "TRANSFERENCIA"), tesoreria));
+                new EntradaPago(
+                        registrada.facturaId(), new BigDecimal("2000.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()),
+                tesoreria));
         var segundo = transaccion.execute(t -> facturaCU.pagar(
-                new EntradaPago(registrada.facturaId(), new BigDecimal("3000.00"), "BOB", "TRANSFERENCIA"), tesoreria));
+                new EntradaPago(
+                        registrada.facturaId(), new BigDecimal("3000.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()),
+                tesoreria));
 
         // Lo pagado mas el saldo iguala el monto, al centavo. Si no cuadrara, la
         // diferencia la absorberia el proveedor sin enterarse.
@@ -158,12 +176,15 @@ class CU103Test extends EscenarioDeFactura {
     @DisplayName("evento duplicado y fuera de orden: un solo efecto")
     void eventoDuplicadoYFueraDeOrden() {
         var registrada = transaccion.execute(t -> facturaCU.registrar(factura("5000.00", enPeriodo(1)), aprobador));
-        var pago = new EntradaPago(registrada.facturaId(), new BigDecimal("5000.00"), "BOB", "TRANSFERENCIA");
+        var pago = new EntradaPago(
+                registrada.facturaId(), new BigDecimal("5000.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID());
+        var tardio = new EntradaPago(
+                registrada.facturaId(), new BigDecimal("5000.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID());
 
         transaccion.execute(t -> facturaCU.pagar(pago, tesoreria));
-        // El segundo pago del total llega tarde: la factura ya no tiene saldo, y pagarla
-        // de nuevo seria transferir dos veces.
-        assertThatThrownBy(() -> transaccion.execute(t -> facturaCU.pagar(pago, tesoreria)))
+        // El segundo pago del total (otra clave: es otro pago) llega tarde: la factura ya
+        // no tiene saldo, y pagarla de nuevo seria transferir dos veces.
+        assertThatThrownBy(() -> transaccion.execute(t -> facturaCU.pagar(tardio, tesoreria)))
                 .hasMessageContaining("excede el saldo");
         assertThat(contar(
                         "SELECT count(*)::int FROM erp.pago_a_proveedor WHERE factura_proveedor_id = ?",
@@ -187,7 +208,7 @@ class CU103Test extends EscenarioDeFactura {
                                 new BigDecimal("100.00"),
                                 "BOB",
                                 null,
-                                aprobador.usuarioId()),
+                                true),
                         aprobador)))
                 .hasMessageContaining("vencer antes de emitirse");
 
@@ -195,15 +216,25 @@ class CU103Test extends EscenarioDeFactura {
 
         // Paso fallido: pagar una factura sin aprobar. La factura nace REGISTRADA
         // cuando no trae aprobador, y sin aprobacion no se paga.
-        var sinAprobar = transaccion.execute(t -> facturaCU.registrar(factura("400.00", emision, null), aprobador));
+        var sinAprobar = transaccion.execute(t -> facturaCU.registrar(factura("400.00", emision, false), aprobador));
         assertThatThrownBy(() -> transaccion.execute(t -> facturaCU.pagar(
-                        new EntradaPago(sinAprobar.facturaId(), new BigDecimal("100.00"), "BOB", "TRANSFERENCIA"),
+                        new EntradaPago(
+                                sinAprobar.facturaId(),
+                                new BigDecimal("100.00"),
+                                "BOB",
+                                "TRANSFERENCIA",
+                                UUID.randomUUID()),
                         tesoreria)))
                 .hasMessageContaining("no esta aprobada");
 
         // Paso fallido: pagar mas que el saldo.
         assertThatThrownBy(() -> transaccion.execute(t -> facturaCU.pagar(
-                        new EntradaPago(registrada.facturaId(), new BigDecimal("9000.00"), "BOB", "TRANSFERENCIA"),
+                        new EntradaPago(
+                                registrada.facturaId(),
+                                new BigDecimal("9000.00"),
+                                "BOB",
+                                "TRANSFERENCIA",
+                                UUID.randomUUID()),
                         tesoreria)))
                 .hasMessageContaining("excede el saldo");
         assertThat(contar(
@@ -213,7 +244,9 @@ class CU103Test extends EscenarioDeFactura {
 
         // Con el monto correcto y otro autorizante, el mismo camino cierra.
         var pagada = transaccion.execute(t -> facturaCU.pagar(
-                new EntradaPago(registrada.facturaId(), new BigDecimal("5000.00"), "BOB", "TRANSFERENCIA"), tesoreria));
+                new EntradaPago(
+                        registrada.facturaId(), new BigDecimal("5000.00"), "BOB", "TRANSFERENCIA", UUID.randomUUID()),
+                tesoreria));
         assertThat(pagada.estado()).isEqualTo("PAGADA");
     }
 }

@@ -75,7 +75,7 @@ class _TarjetaDeSolicitudState extends State<TarjetaDeSolicitud> {
           for (final f in widget.aFavor)
             Row(
               children: [
-                Icon(Icons.add, size: Espacio.s4, color: t.okTexto),
+                Icon(Icons.add, size: Espacio.s4, color: t.text2),
                 const SizedBox(width: Espacio.s2),
                 Expanded(
                   child: Text(
@@ -88,7 +88,7 @@ class _TarjetaDeSolicitudState extends State<TarjetaDeSolicitud> {
           for (final f in widget.enContra)
             Row(
               children: [
-                Icon(Icons.remove, size: Espacio.s4, color: t.errTexto),
+                Icon(Icons.remove, size: Espacio.s4, color: t.text2),
                 const SizedBox(width: Espacio.s2),
                 Expanded(
                   child: Text(

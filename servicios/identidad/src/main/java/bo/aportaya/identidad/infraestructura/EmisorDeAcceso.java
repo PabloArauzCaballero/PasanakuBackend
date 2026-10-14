@@ -87,12 +87,17 @@ public class EmisorDeAcceso {
      *     significa <b>no puede nada</b>: el token no es una llave maestra.
      */
     public Emitido emitir(
-            UUID usuarioId, String rol, List<String> permisos, String nivelDiligencia, String dispositivo) {
+            UUID usuarioId,
+            String rol,
+            List<String> permisos,
+            String nivelDiligencia,
+            String dispositivo,
+            UUID sesionId) {
 
         Instant ahora = Instant.now();
         Instant vence = ahora.plus(VIGENCIA);
 
-        var reclamos = new JWTClaimsSet.Builder()
+        var constructor = new JWTClaimsSet.Builder()
                 .subject(usuarioId.toString())
                 .jwtID(UUID.randomUUID().toString())
                 .issueTime(Date.from(ahora))
@@ -100,8 +105,9 @@ public class EmisorDeAcceso {
                 .claim("rol", rol)
                 .claim("permisos", permisos)
                 .claim("nivel_diligencia", nivelDiligencia)
-                .claim("dispositivo", dispositivo)
-                .build();
+                .claim("dispositivo", dispositivo);
+        if (sesionId != null) constructor.claim("sesion_id", sesionId.toString());
+        var reclamos = constructor.build();
 
         try {
             var jwt = new SignedJWT(
@@ -114,6 +120,12 @@ public class EmisorDeAcceso {
         } catch (JOSEException imposible) {
             throw new IllegalStateException("No se pudo firmar el token de acceso", imposible);
         }
+    }
+
+    /** Compatibilidad para emisores de pruebas/otros flujos que no abren una sesión revocable. */
+    public Emitido emitir(
+            UUID usuarioId, String rol, List<String> permisos, String nivelDiligencia, String dispositivo) {
+        return emitir(usuarioId, rol, permisos, nivelDiligencia, dispositivo, null);
     }
 
     /**

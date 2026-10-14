@@ -1,6 +1,8 @@
 import 'package:aportaya_diseno/errores.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../dominio/cierre_de_sesion.dart';
+import '../../../dominio/errores.dart' as errores;
 import '../../../proveedores/sesion.dart';
 import 'cu04_autenticar.dart';
 
@@ -18,6 +20,8 @@ class EstadoSesion {
     this.confiarEnDispositivo = false,
     this.enviando = false,
     this.error,
+    this.trazaId,
+    this.credencialesRechazadas = false,
   });
 
   final PasoSesion paso;
@@ -27,6 +31,8 @@ class EstadoSesion {
   final bool confiarEnDispositivo;
   final bool enviando;
   final String? error;
+  final String? trazaId;
+  final bool credencialesRechazadas;
 
   EstadoSesion copiarCon({
     PasoSesion? paso,
@@ -36,6 +42,8 @@ class EstadoSesion {
     bool? confiarEnDispositivo,
     bool? enviando,
     String? error,
+    String? trazaId,
+    bool? credencialesRechazadas,
   }) => EstadoSesion(
     paso: paso ?? this.paso,
     telefono: telefono ?? this.telefono,
@@ -44,15 +52,25 @@ class EstadoSesion {
     confiarEnDispositivo: confiarEnDispositivo ?? this.confiarEnDispositivo,
     enviando: enviando ?? false,
     error: error,
+    trazaId: trazaId,
+    credencialesRechazadas:
+        credencialesRechazadas ?? this.credencialesRechazadas,
   );
 }
 
 class SesionIdentidadNotifier extends Notifier<EstadoSesion> {
   @override
-  EstadoSesion build() => const EstadoSesion();
+  EstadoSesion build() {
+    ref.watch(generacionDeSesionProvider);
+    return const EstadoSesion();
+  }
 
   void actualizarCredenciales({String? telefono, String? contrasena}) =>
-      state = state.copiarCon(telefono: telefono, contrasena: contrasena);
+      state = state.copiarCon(
+        telefono: telefono,
+        contrasena: contrasena,
+        credencialesRechazadas: false,
+      );
 
   /// Manda las credenciales al servidor. La pantalla **no decide** si hace falta un
   /// segundo factor: eso lo dice la respuesta (invariante 7).
@@ -67,6 +85,7 @@ class SesionIdentidadNotifier extends Notifier<EstadoSesion> {
           telefonoE164: state.telefono,
           credencial: state.contrasena,
         ),
+    credenciales: true,
   );
 
   /// El segundo paso: el código que llegó por SMS o app de autenticación.
@@ -84,20 +103,27 @@ class SesionIdentidadNotifier extends Notifier<EstadoSesion> {
   }
 
   Future<bool> _intentar(
-    Future<ResultadoDeAutenticacion> Function() llamada,
-  ) async {
+    Future<ResultadoDeAutenticacion> Function() llamada, {
+    bool credenciales = false,
+  }) async {
     if (state.enviando) return false;
-    state = state.copiarCon(enviando: true);
+    state = state.copiarCon(enviando: true, credencialesRechazadas: false);
     try {
       final resultado = await llamada();
       state = state.copiarCon(
         paso: resultado == ResultadoDeAutenticacion.faltaSegundoFactor
             ? PasoSesion.mfa
             : PasoSesion.dispositivo,
+        credencialesRechazadas: false,
       );
       return true;
     } on Object catch (e) {
-      state = state.copiarCon(error: mensajeDeError(e));
+      state = state.copiarCon(
+        error: mensajeDeError(e),
+        trazaId: e is ErrorPresentable ? e.trazaId : null,
+        credencialesRechazadas:
+            credenciales && e is errores.ErrorDeApi && e.codigo == 'AP-CU04-01',
+      );
       return false;
     }
   }
@@ -108,7 +134,7 @@ class SesionIdentidadNotifier extends Notifier<EstadoSesion> {
   /// Borra los tokens y deja el estado como recién abierto: quien cierra sesión no
   /// puede quedarse con su teléfono escrito en el formulario del siguiente.
   Future<void> cerrarSesion() async {
-    await ref.read(sesionProvider).cerrar();
+    await ref.read(cierreDeSesionProvider).ejecutar();
     state = const EstadoSesion();
   }
 }

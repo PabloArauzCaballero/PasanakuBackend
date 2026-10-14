@@ -34,8 +34,8 @@ class Avatar extends StatelessWidget {
       excludeSemantics: true,
       child: CircleAvatar(
         radius: tamano / 2,
-        backgroundColor: t.brand,
-        foregroundColor: t.sobreVerdeSolido,
+        backgroundColor: t.surface2,
+        foregroundColor: t.text,
         backgroundImage: imagen,
         child: imagen == null
             ? Text(

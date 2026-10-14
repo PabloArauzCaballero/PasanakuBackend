@@ -1,0 +1,14 @@
+H5.S3.M2 — umbrales de calidad de imagen (2026-10-12)
+
+flutter test test/unidad/calidad_de_captura_test.dart --reporter expanded
+00:00 +9: All tests passed!
+
+Casos: carnet bajo 1400 rechazado; 1400 aceptado en vertical; proporción ID-1
+aceptada; ambos extremos inclusivos de ±12 % aceptados; valor apenas fuera
+rechazado. La comprobación de proporción queda limitada al recorte de carnet,
+no a selfies/fotos completas. Copy ajustado a voseo: “La imagen salió muy chica.
+Acercá un poco el teléfono.” / “No parece el carnet entero. Repetila con los
+cuatro bordes a la vista.”
+
+La igualdad matemática de los extremos usa una tolerancia epsilon de 1e-12 por
+representación binaria de `double`; el test con enteros encontró y fijó el caso.

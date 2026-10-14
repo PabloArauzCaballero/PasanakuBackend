@@ -32,10 +32,10 @@ class FondoDeMarca extends StatelessWidget {
               child: CustomPaint(
                 painter: PintorDeAura(
                   luz: t.surface.withValues(alpha: oscuro ? 0.10 : 0.85),
-                  halo: t.brand.withValues(alpha: oscuro ? 0.18 : 0.09),
+                  halo: t.surface.withValues(alpha: oscuro ? 0.18 : 0.09),
                   brillo: t.accent.withValues(alpha: oscuro ? 0.14 : 0.08),
-                  linea: t.brand.withValues(alpha: oscuro ? 0.10 : 0.06),
-                  vineta: Paleta.g900.withValues(alpha: oscuro ? 0.30 : 0.06),
+                  linea: t.surface.withValues(alpha: oscuro ? 0.10 : 0.06),
+                  vineta: Paleta.ink.withValues(alpha: oscuro ? 0.30 : 0.06),
                 ),
               ),
             ),

@@ -1,8 +1,6 @@
 package bo.aportaya.grupos.infraestructura.clientes;
 
 import bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios;
-import bo.aportaya.plataforma.dominio.CodigoError;
-import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.web.clientes.ClienteDeServicio;
 import java.math.BigDecimal;
 import java.util.Map;
@@ -11,21 +9,19 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 /**
  * Le pregunta a los otros seis servicios, por sus contratos.
  *
- * <p>Cada respuesta que no llega se traduce a **la que no deja pasar**: el organizador
- * no esta habilitado, no hay tarifario, la licencia no cubre, el participante no esta
- * al dia, hay restriccion vigente, el contacto esta suprimido. Es denegar por omision
- * (invariante 9), y es deliberado: seguir adelante porque el servicio que valida estaba
- * caido es exactamente el hueco por donde entra lo que las reglas existen para frenar.
+ * <p>Cada respuesta que no llega se traduce a **la que no deja pasar**: el organizador no esta habilitado, no hay
+ * tarifario, la licencia no cubre, el participante no esta al dia, hay restriccion vigente, el contacto esta
+ * suprimido. Es denegar por omision (invariante 9), y es deliberado: seguir adelante porque el servicio que valida
+ * estaba caido es exactamente el hueco por donde entra lo que las reglas existen para frenar.
  *
- * <p>Excepcion: la reputacion («no se sabe», {@code tieneHistorial=false}, lo decide quien pregunta). Cada dependencia lleva tiempo maximo y circuit breaker propio ({@link ClienteConCircuito}, regla 98.2.3). Con el
- * circuito abierto cada metodo responde lo mismo que con el dependido caido (lo que no deja pasar), salvo las
- * operaciones de identidad que EMITEN o CONSUMEN un enlace: fallan con la excepcion de red y no crean invitaciones sin token.
+ * <p>Excepcion: la reputacion («no se sabe», {@code tieneHistorial=false}). Cada dependencia lleva tiempo maximo y
+ * circuit breaker propio ({@link ClienteConCircuito}, regla 98.2.3): con el circuito abierto responde como caida,
+ * salvo identidad al EMITIR o CONSUMIR un enlace, que falla con la excepcion de red y no crea invitaciones sin token.
  */
 @Component
 public class HechosPorHttp implements HechosDeOtrosServicios {
@@ -38,6 +34,7 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     private final ClienteConCircuito garantia;
     private final ClienteConCircuito notificaciones;
     private final ClienteConCircuito identidad;
+    private final TokensDeInvitacionPorHttp tokens;
 
     @Autowired
     @SuppressWarnings("checkstyle:ParameterNumber")
@@ -60,6 +57,7 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
         this.garantia = new ClienteConCircuito(constructor, urlGarantia, "garantia", circuito);
         this.notificaciones = new ClienteConCircuito(constructor, urlNotificaciones, "notificaciones", circuito);
         this.identidad = new ClienteConCircuito(constructor, urlIdentidad, "identidad", circuito);
+        this.tokens = new TokensDeInvitacionPorHttp(identidad);
     }
 
     /** Con los parametros del plan de resiliencia: la usan las pruebas del adaptador. */
@@ -123,7 +121,8 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     @Override
     public EstadoDePagos estadoDePagos(UUID participanteId) {
         return aportes.consultar("/aportes/participantes/" + participanteId + "/estado", Estado.class)
-                // Un cuerpo sin los importes (`{}`) no es una respuesta: es «sin dato». Antes era un NPE (500) en vez del
+                // Un cuerpo sin los importes (`{}`) no es una respuesta: es «sin dato». Antes era un NPE (500) en vez
+                // del
                 // fallback declarado (carril I: hallado por HechosCaidaTest cuando el circuito vuelve a semiabrirse).
                 .filter(e -> e.totalAportado() != null && e.deudaVigente() != null && e.porAportar() != null)
                 .map(e -> new EstadoDePagos(
@@ -176,69 +175,22 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
 
     @Override
     public TokenInvitacion tokenDeInvitacion(UUID clave, UUID grupoId, String canal, String telefono) {
-        var emitido = identidad.ejecutar(rest -> rest.post()
-                .uri("/usuarios/tokens/invitacion")
-                .header("Idempotency-Key", clave.toString())
-                .headers(ClienteDeServicio::propagarElToken)
-                .body(Map.of("canal", canal, "telefonoDestino", telefono, "grupoId", grupoId))
-                .retrieve()
-                .body(TokenInvitacion.class));
-        if (emitido == null) {
-            // Sin token no hay enlace, y sin enlace no hay invitacion que enviar.
-            throw new IllegalStateException("identidad no emitio el token de invitacion");
-        }
-        return emitido;
+        return tokens.emitir(clave, grupoId, canal, telefono);
     }
 
     @Override
     public boolean enlaceDeInvitacionValido(UUID tokenId, String token, String telefonoE164, String kycMinimo) {
-        try {
-            var resultado = identidad.ejecutar(rest -> rest.post()
-                    .uri("/usuarios/tokens/invitacion/validar")
-                    .headers(ClienteDeServicio::propagarElToken)
-                    .body(Map.of(
-                            "tokenId", tokenId, "token", token, "telefonoE164", telefonoE164, "kycMinimo", kycMinimo))
-                    .retrieve()
-                    .body(Validacion.class));
-            return resultado != null && resultado.valido();
-        } catch (RuntimeException noSePudoValidar) {
-            // Denegar por omision: sin respuesta de identidad el enlace no vale.
-            return false;
-        }
+        return tokens.esValido(tokenId, token, telefonoE164, kycMinimo);
     }
 
     @Override
     public ConsumoInvitacion consumirInvitacion(UUID tokenId, UUID grupoId, UUID clave, String token) {
-        try {
-            var consumo = identidad.ejecutar(rest -> rest.post()
-                    .uri("/usuarios/tokens/invitacion/" + tokenId + "/consumos")
-                    .header("Idempotency-Key", clave.toString())
-                    .headers(ClienteDeServicio::propagarElToken)
-                    .body(Map.of("grupoId", grupoId, "token", token))
-                    .retrieve()
-                    .body(ConsumoInvitacion.class));
-            if (consumo == null) throw new IllegalStateException("No se confirmó la invitacion");
-            return consumo;
-        } catch (HttpClientErrorException.UnprocessableEntity yaNoVale) {
-            // Pierde la carrera por un enlace de un solo uso (antes: 500).
-            throw new ErrorDeNegocio(CodigoError.de(69, 5), "Esa invitacion ya no es valida.");
-        }
+        return tokens.consumir(tokenId, grupoId, clave, token);
     }
 
     @Override
     public boolean revocarTokenDeInvitacion(UUID tokenId) {
-        try {
-            identidad.ejecutar(rest -> rest.post()
-                    .uri("/usuarios/tokens/invitacion/{id}/revocacion", tokenId)
-                    .headers(ClienteDeServicio::propagarElToken)
-                    .retrieve()
-                    .toBodilessEntity());
-            return true;
-        } catch (org.springframework.web.client.RestClientResponseException
-                | org.springframework.web.client.ResourceAccessException noSePudo) {
-            // 422 (no es suyo / ya consumido), caida, timeout o circuito abierto: no se da por revocada.
-            return false;
-        }
+        return tokens.revocar(tokenId);
     }
 
     @Override
@@ -295,6 +247,4 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     private record Restringido(boolean vigente, String montoQueLaLevanta) {}
 
     private record Suprimido(boolean suprimido) {}
-
-    private record Validacion(boolean valido) {}
 }

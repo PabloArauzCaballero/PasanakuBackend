@@ -1,0 +1,11 @@
+$ ./gradlew :servicios:identidad:integrationTest --tests *CU04*
+BUILD SUCCESSFUL in 2m 16s
+CU04RenovacionTest 7/7 (ver lista abajo)
+
+# mutacion 1: sin el UPDATE que dispara el trigger de reuso
+CU04RenovacionTest > Dado un refresh ya rotado hace rato · Cuando alguien lo reusa · Entonces se revoca la familia y la sesion, y el refresh nuevo tampoco sir
+7 tests completed, 1 failed
+# mutacion 2: GRACIA = 0 s
+CU04RenovacionTest > Dado dos usos casi simultaneos del mismo refresh (dos pestanas) · Entonces el segundo se rechaza SIN revocar la sesion FAILED
+7 tests completed, 1 failed
+(codigo restaurado tras cada mutacion)

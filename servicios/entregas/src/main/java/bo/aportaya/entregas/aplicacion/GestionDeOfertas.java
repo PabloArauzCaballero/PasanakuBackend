@@ -81,7 +81,7 @@ public class GestionDeOfertas {
             UUID ofertaId, ContextoSesion ctx) {
         return registro.verParaElPago(ofertaId, ctx)
                 .map(o -> new bo.aportaya.entregas.dominio.OfertaParaElPago(
-                        o.id(), o.vendedorUsuarioId(), o.precio(), o.estado()));
+                        o.id(), o.vendedorUsuarioId(), o.precio(), o.cargos(), o.estado()));
     }
 
     public int vencer(ContextoSesion ctx) {

@@ -1,0 +1,814 @@
+== identidad ==
+Resolving dependencies...
+Downloading packages...
+Got dependencies!
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 54 inputs; lib/aportaya_cliente_identidad.dart
+  2s json_serializable on 54 inputs: 1 no-op; spent 1s analyzing; lib/src/api.dart
+W json_serializable on lib/src/model/estado_de_verificacion.dart:
+  The version constraint "^4.9.0" on json_annotation allows versions before 4.12.0 which is not allowed.
+  2s json_serializable on 54 inputs: 24 skipped, 2 output, 28 no-op; spent 2s analyzing
+  0s source_gen:combining_builder on 54 inputs; lib/aportaya_cliente_identidad.dart
+  0s source_gen:combining_builder on 54 inputs: 50 skipped, 2 output, 2 no-op
+  Built with build_runner/aot in 4s; wrote 4 outputs.
+== nucleo-financiero ==
+Resolving dependencies...
+Downloading packages...
++ _fe_analyzer_shared 108.0.0
++ analyzer 14.4.0
++ args 2.7.0
++ async 2.13.1
++ boolean_selector 2.1.2
++ build 4.0.11
++ build_config 1.3.3
++ build_daemon 4.1.6
++ build_runner 2.16.1
++ built_collection 5.1.2
++ built_value 8.13.0
++ checked_yaml 2.0.4
++ cli_config 0.2.0
++ collection 1.19.1
++ convert 3.1.2
++ coverage 1.15.1
++ crypto 3.0.7
++ dart_style 3.1.13
++ dio 5.11.1
++ dio_web_adapter 2.2.2
++ file 7.0.1
++ fixnum 1.1.1
++ frontend_server_client 4.0.0
++ glob 2.2.0
++ graphs 2.3.2
++ http_multi_server 3.2.2
++ http_parser 4.1.2
++ io 1.1.0
++ json_annotation 4.12.0
++ json_serializable 6.14.1
++ logging 1.3.0
++ matcher 0.12.20
++ meta 1.19.0
++ mime 2.1.0
++ node_preamble 2.0.2
++ package_config 3.0.0
++ path 1.9.1
++ pool 1.5.3
++ pub_semver 2.2.1
++ pubspec_parse 1.6.0
++ shelf 1.4.2
++ shelf_packages_handler 3.0.2
++ shelf_static 1.1.3
++ shelf_web_socket 3.0.0
++ source_gen 4.3.0
++ source_helper 1.3.13
++ source_map_stack_trace 2.1.2
++ source_maps 0.10.14
++ source_span 1.10.2
++ stack_trace 1.12.2
++ stream_channel 2.1.4
++ stream_transform 2.1.2
++ string_scanner 1.4.1
++ term_glyph 1.2.2
++ test 1.32.0
++ test_api 0.7.14
++ test_core 0.6.20
++ typed_data 1.4.0
++ vm_service 15.3.0
++ watcher 1.2.1
++ web 1.1.1
++ web_socket 1.0.1
++ web_socket_channel 3.0.3
++ webkit_inspection_protocol 1.2.1
++ yaml 3.1.4
+Changed 65 dependencies!
+  compiling builders/aot
+  201s compiling builders/aot
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 58 inputs; lib/aportaya_cliente_nucleofinanciero.dart
+  12s json_serializable on 58 inputs: 1 no-op; spent 9s sdk, 1s analyzing; lib/src/api.dart
+W json_serializable on lib/src/model/dinero.dart:
+  The version constraint "^4.9.0" on json_annotation allows versions before 4.12.0 which is not allowed.
+  13s json_serializable on 58 inputs: 24 output, 10 no-op; spent 9s sdk, 2s analyzing, 1s resolving; test/dinero_test.dart
+  13s json_serializable on 58 inputs: 24 output, 34 no-op; spent 9s sdk, 2s analyzing, 1s resolving
+  0s source_gen:combining_builder on 58 inputs; lib/aportaya_cliente_nucleofinanciero.dart
+  0s source_gen:combining_builder on 58 inputs: 24 output, 34 no-op
+  Built with build_runner/aot in 220s; wrote 48 outputs.
+== tarifas ==
+Resolving dependencies...
+Downloading packages...
++ _fe_analyzer_shared 108.0.0
++ analyzer 14.4.0
++ args 2.7.0
++ async 2.13.1
++ boolean_selector 2.1.2
++ build 4.0.11
++ build_config 1.3.3
++ build_daemon 4.1.6
++ build_runner 2.16.1
++ built_collection 5.1.2
++ built_value 8.13.0
++ checked_yaml 2.0.4
++ cli_config 0.2.0
++ collection 1.19.1
++ convert 3.1.2
++ coverage 1.15.1
++ crypto 3.0.7
++ dart_style 3.1.13
++ dio 5.11.1
++ dio_web_adapter 2.2.2
++ file 7.0.1
++ fixnum 1.1.1
++ frontend_server_client 4.0.0
++ glob 2.2.0
++ graphs 2.3.2
++ http_multi_server 3.2.2
++ http_parser 4.1.2
++ io 1.1.0
++ json_annotation 4.12.0
++ json_serializable 6.14.1
++ logging 1.3.0
++ matcher 0.12.20
++ meta 1.19.0
++ mime 2.1.0
++ node_preamble 2.0.2
++ package_config 3.0.0
++ path 1.9.1
++ pool 1.5.3
++ pub_semver 2.2.1
++ pubspec_parse 1.6.0
++ shelf 1.4.2
++ shelf_packages_handler 3.0.2
++ shelf_static 1.1.3
++ shelf_web_socket 3.0.0
++ source_gen 4.3.0
++ source_helper 1.3.13
++ source_map_stack_trace 2.1.2
++ source_maps 0.10.14
++ source_span 1.10.2
++ stack_trace 1.12.2
++ stream_channel 2.1.4
++ stream_transform 2.1.2
++ string_scanner 1.4.1
++ term_glyph 1.2.2
++ test 1.32.0
++ test_api 0.7.14
++ test_core 0.6.20
++ typed_data 1.4.0
++ vm_service 15.3.0
++ watcher 1.2.1
++ web 1.1.1
++ web_socket 1.0.1
++ web_socket_channel 3.0.3
++ webkit_inspection_protocol 1.2.1
++ yaml 3.1.4
+Changed 65 dependencies!
+  compiling builders/aot
+  59s compiling builders/aot
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 58 inputs; lib/aportaya_cliente_tarifas.dart
+  3s json_serializable on 58 inputs: 1 no-op; spent 2s sdk; lib/src/api.dart
+W json_serializable on lib/src/model/aceptar_cotizacion200_response.dart:
+  The version constraint "^4.9.0" on json_annotation allows versions before 4.12.0 which is not allowed.
+  3s json_serializable on 58 inputs: 24 output, 34 no-op; spent 2s sdk
+  0s source_gen:combining_builder on 58 inputs; lib/aportaya_cliente_tarifas.dart
+  0s source_gen:combining_builder on 58 inputs: 24 output, 34 no-op
+  Built with build_runner/aot in 65s; wrote 48 outputs.
+== grupos ==
+Resolving dependencies...
+Downloading packages...
++ _fe_analyzer_shared 108.0.0
++ analyzer 14.4.0
++ args 2.7.0
++ async 2.13.1
++ boolean_selector 2.1.2
++ build 4.0.11
++ build_config 1.3.3
++ build_daemon 4.1.6
++ build_runner 2.16.1
++ built_collection 5.1.2
++ built_value 8.13.0
++ checked_yaml 2.0.4
++ cli_config 0.2.0
++ collection 1.19.1
++ convert 3.1.2
++ coverage 1.15.1
++ crypto 3.0.7
++ dart_style 3.1.13
++ dio 5.11.1
++ dio_web_adapter 2.2.2
++ file 7.0.1
++ fixnum 1.1.1
++ frontend_server_client 4.0.0
++ glob 2.2.0
++ graphs 2.3.2
++ http_multi_server 3.2.2
++ http_parser 4.1.2
++ io 1.1.0
++ json_annotation 4.12.0
++ json_serializable 6.14.1
++ logging 1.3.0
++ matcher 0.12.20
++ meta 1.19.0
++ mime 2.1.0
++ node_preamble 2.0.2
++ package_config 3.0.0
++ path 1.9.1
++ pool 1.5.3
++ pub_semver 2.2.1
++ pubspec_parse 1.6.0
++ shelf 1.4.2
++ shelf_packages_handler 3.0.2
++ shelf_static 1.1.3
++ shelf_web_socket 3.0.0
++ source_gen 4.3.0
++ source_helper 1.3.13
++ source_map_stack_trace 2.1.2
++ source_maps 0.10.14
++ source_span 1.10.2
++ stack_trace 1.12.2
++ stream_channel 2.1.4
++ stream_transform 2.1.2
++ string_scanner 1.4.1
++ term_glyph 1.2.2
++ test 1.32.0
++ test_api 0.7.14
++ test_core 0.6.20
++ typed_data 1.4.0
++ vm_service 15.3.0
++ watcher 1.2.1
++ web 1.1.1
++ web_socket 1.0.1
++ web_socket_channel 3.0.3
++ webkit_inspection_protocol 1.2.1
++ yaml 3.1.4
+Changed 65 dependencies!
+  compiling builders/aot
+  47s compiling builders/aot
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 70 inputs; lib/aportaya_cliente_grupos.dart
+  3s json_serializable on 70 inputs: 1 no-op; spent 2s sdk; lib/src/api.dart
+W json_serializable on lib/src/model/actividad_en_grupos.dart:
+  The version constraint "^4.9.0" on json_annotation allows versions before 4.12.0 which is not allowed.
+  3s json_serializable on 70 inputs: 30 output, 40 no-op; spent 2s sdk
+  0s source_gen:combining_builder on 70 inputs; lib/aportaya_cliente_grupos.dart
+  0s source_gen:combining_builder on 70 inputs: 30 output, 40 no-op
+  Built with build_runner/aot in 52s; wrote 60 outputs.
+== aportes ==
+Resolving dependencies...
+Downloading packages...
++ _fe_analyzer_shared 108.0.0
++ analyzer 14.4.0
++ args 2.7.0
++ async 2.13.1
++ boolean_selector 2.1.2
++ build 4.0.11
++ build_config 1.3.3
++ build_daemon 4.1.6
++ build_runner 2.16.1
++ built_collection 5.1.2
++ built_value 8.13.0
++ checked_yaml 2.0.4
++ cli_config 0.2.0
++ collection 1.19.1
++ convert 3.1.2
++ coverage 1.15.1
++ crypto 3.0.7
++ dart_style 3.1.13
++ dio 5.11.1
++ dio_web_adapter 2.2.2
++ file 7.0.1
++ fixnum 1.1.1
++ frontend_server_client 4.0.0
++ glob 2.2.0
++ graphs 2.3.2
++ http_multi_server 3.2.2
++ http_parser 4.1.2
++ io 1.1.0
++ json_annotation 4.12.0
++ json_serializable 6.14.1
++ logging 1.3.0
++ matcher 0.12.20
++ meta 1.19.0
++ mime 2.1.0
++ node_preamble 2.0.2
++ package_config 3.0.0
++ path 1.9.1
++ pool 1.5.3
++ pub_semver 2.2.1
++ pubspec_parse 1.6.0
++ shelf 1.4.2
++ shelf_packages_handler 3.0.2
++ shelf_static 1.1.3
++ shelf_web_socket 3.0.0
++ source_gen 4.3.0
++ source_helper 1.3.13
++ source_map_stack_trace 2.1.2
++ source_maps 0.10.14
++ source_span 1.10.2
++ stack_trace 1.12.2
++ stream_channel 2.1.4
++ stream_transform 2.1.2
++ string_scanner 1.4.1
++ term_glyph 1.2.2
++ test 1.32.0
++ test_api 0.7.14
++ test_core 0.6.20
++ typed_data 1.4.0
++ vm_service 15.3.0
++ watcher 1.2.1
++ web 1.1.1
++ web_socket 1.0.1
++ web_socket_channel 3.0.3
++ webkit_inspection_protocol 1.2.1
++ yaml 3.1.4
+Changed 65 dependencies!
+  compiling builders/aot
+  47s compiling builders/aot
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 42 inputs; lib/aportaya_cliente_aportes.dart
+  2s json_serializable on 42 inputs: 1 no-op; spent 2s sdk; lib/src/api.dart
+W json_serializable on lib/src/model/dinero.dart:
+  The version constraint "^4.9.0" on json_annotation allows versions before 4.12.0 which is not allowed.
+  3s json_serializable on 42 inputs: 16 output, 26 no-op; spent 2s sdk
+  0s source_gen:combining_builder on 42 inputs; lib/aportaya_cliente_aportes.dart
+  0s source_gen:combining_builder on 42 inputs: 16 output, 26 no-op
+  Built with build_runner/aot in 51s; wrote 32 outputs.
+== transparencia ==
+Resolving dependencies...
+Downloading packages...
++ _fe_analyzer_shared 108.0.0
++ analyzer 14.4.0
++ args 2.7.0
++ async 2.13.1
++ boolean_selector 2.1.2
++ build 4.0.11
++ build_config 1.3.3
++ build_daemon 4.1.6
++ build_runner 2.16.1
++ built_collection 5.1.2
++ built_value 8.13.0
++ checked_yaml 2.0.4
++ cli_config 0.2.0
++ collection 1.19.1
++ convert 3.1.2
++ coverage 1.15.1
++ crypto 3.0.7
++ dart_style 3.1.13
++ dio 5.11.1
++ dio_web_adapter 2.2.2
++ file 7.0.1
++ fixnum 1.1.1
++ frontend_server_client 4.0.0
++ glob 2.2.0
++ graphs 2.3.2
++ http_multi_server 3.2.2
++ http_parser 4.1.2
++ io 1.1.0
++ json_annotation 4.12.0
++ json_serializable 6.14.1
++ logging 1.3.0
++ matcher 0.12.20
++ meta 1.19.0
++ mime 2.1.0
++ node_preamble 2.0.2
++ package_config 3.0.0
++ path 1.9.1
++ pool 1.5.3
++ pub_semver 2.2.1
++ pubspec_parse 1.6.0
++ shelf 1.4.2
++ shelf_packages_handler 3.0.2
++ shelf_static 1.1.3
++ shelf_web_socket 3.0.0
++ source_gen 4.3.0
++ source_helper 1.3.13
++ source_map_stack_trace 2.1.2
++ source_maps 0.10.14
++ source_span 1.10.2
++ stack_trace 1.12.2
++ stream_channel 2.1.4
++ stream_transform 2.1.2
++ string_scanner 1.4.1
++ term_glyph 1.2.2
++ test 1.32.0
++ test_api 0.7.14
++ test_core 0.6.20
++ typed_data 1.4.0
++ vm_service 15.3.0
++ watcher 1.2.1
++ web 1.1.1
++ web_socket 1.0.1
++ web_socket_channel 3.0.3
++ webkit_inspection_protocol 1.2.1
++ yaml 3.1.4
+Changed 65 dependencies!
+  compiling builders/aot
+  47s compiling builders/aot
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 80 inputs; lib/aportaya_cliente_transparencia.dart
+  3s json_serializable on 80 inputs: 1 no-op; spent 3s sdk; lib/src/api.dart
+W json_serializable on lib/src/model/alerta_de_riesgo.dart:
+  The version constraint "^4.9.0" on json_annotation allows versions before 4.12.0 which is not allowed.
+  4s json_serializable on 80 inputs: 35 output, 45 no-op; spent 3s sdk
+  0s source_gen:combining_builder on 80 inputs; lib/aportaya_cliente_transparencia.dart
+  0s source_gen:combining_builder on 80 inputs: 35 output, 45 no-op
+  Built with build_runner/aot in 53s; wrote 70 outputs.
+== entregas ==
+Resolving dependencies...
+Downloading packages...
++ _fe_analyzer_shared 108.0.0
++ analyzer 14.4.0
++ args 2.7.0
++ async 2.13.1
++ boolean_selector 2.1.2
++ build 4.0.11
++ build_config 1.3.3
++ build_daemon 4.1.6
++ build_runner 2.16.1
++ built_collection 5.1.2
++ built_value 8.13.0
++ checked_yaml 2.0.4
++ cli_config 0.2.0
++ collection 1.19.1
++ convert 3.1.2
++ coverage 1.15.1
++ crypto 3.0.7
++ dart_style 3.1.13
++ dio 5.11.1
++ dio_web_adapter 2.2.2
++ file 7.0.1
++ fixnum 1.1.1
++ frontend_server_client 4.0.0
++ glob 2.2.0
++ graphs 2.3.2
++ http_multi_server 3.2.2
++ http_parser 4.1.2
++ io 1.1.0
++ json_annotation 4.12.0
++ json_serializable 6.14.1
++ logging 1.3.0
++ matcher 0.12.20
++ meta 1.19.0
++ mime 2.1.0
++ node_preamble 2.0.2
++ package_config 3.0.0
++ path 1.9.1
++ pool 1.5.3
++ pub_semver 2.2.1
++ pubspec_parse 1.6.0
++ shelf 1.4.2
++ shelf_packages_handler 3.0.2
++ shelf_static 1.1.3
++ shelf_web_socket 3.0.0
++ source_gen 4.3.0
++ source_helper 1.3.13
++ source_map_stack_trace 2.1.2
++ source_maps 0.10.14
++ source_span 1.10.2
++ stack_trace 1.12.2
++ stream_channel 2.1.4
++ stream_transform 2.1.2
++ string_scanner 1.4.1
++ term_glyph 1.2.2
++ test 1.32.0
++ test_api 0.7.14
++ test_core 0.6.20
++ typed_data 1.4.0
++ vm_service 15.3.0
++ watcher 1.2.1
++ web 1.1.1
++ web_socket 1.0.1
++ web_socket_channel 3.0.3
++ webkit_inspection_protocol 1.2.1
++ yaml 3.1.4
+Changed 65 dependencies!
+  compiling builders/aot
+  47s compiling builders/aot
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 46 inputs; lib/aportaya_cliente_entregas.dart
+  2s json_serializable on 46 inputs: 1 no-op; spent 2s sdk; lib/src/api.dart
+W json_serializable on lib/src/model/deduccion_entrega.dart:
+  The version constraint "^4.9.0" on json_annotation allows versions before 4.12.0 which is not allowed.
+  3s json_serializable on 46 inputs: 18 output, 28 no-op; spent 2s sdk
+  0s source_gen:combining_builder on 46 inputs; lib/aportaya_cliente_entregas.dart
+  0s source_gen:combining_builder on 46 inputs: 18 output, 28 no-op
+  Built with build_runner/aot in 51s; wrote 36 outputs.
+== garantia ==
+Resolving dependencies...
+Downloading packages...
++ _fe_analyzer_shared 108.0.0
++ analyzer 14.4.0
++ args 2.7.0
++ async 2.13.1
++ boolean_selector 2.1.2
++ build 4.0.11
++ build_config 1.3.3
++ build_daemon 4.1.6
++ build_runner 2.16.1
++ built_collection 5.1.2
++ built_value 8.13.0
++ checked_yaml 2.0.4
++ cli_config 0.2.0
++ collection 1.19.1
++ convert 3.1.2
++ coverage 1.15.1
++ crypto 3.0.7
++ dart_style 3.1.13
++ dio 5.11.1
++ dio_web_adapter 2.2.2
++ file 7.0.1
++ fixnum 1.1.1
++ frontend_server_client 4.0.0
++ glob 2.2.0
++ graphs 2.3.2
++ http_multi_server 3.2.2
++ http_parser 4.1.2
++ io 1.1.0
++ json_annotation 4.12.0
++ json_serializable 6.14.1
++ logging 1.3.0
++ matcher 0.12.20
++ meta 1.19.0
++ mime 2.1.0
++ node_preamble 2.0.2
++ package_config 3.0.0
++ path 1.9.1
++ pool 1.5.3
++ pub_semver 2.2.1
++ pubspec_parse 1.6.0
++ shelf 1.4.2
++ shelf_packages_handler 3.0.2
++ shelf_static 1.1.3
++ shelf_web_socket 3.0.0
++ source_gen 4.3.0
++ source_helper 1.3.13
++ source_map_stack_trace 2.1.2
++ source_maps 0.10.14
++ source_span 1.10.2
++ stack_trace 1.12.2
++ stream_channel 2.1.4
++ stream_transform 2.1.2
++ string_scanner 1.4.1
++ term_glyph 1.2.2
++ test 1.32.0
++ test_api 0.7.14
++ test_core 0.6.20
++ typed_data 1.4.0
++ vm_service 15.3.0
++ watcher 1.2.1
++ web 1.1.1
++ web_socket 1.0.1
++ web_socket_channel 3.0.3
++ webkit_inspection_protocol 1.2.1
++ yaml 3.1.4
+Changed 65 dependencies!
+  compiling builders/aot
+  45s compiling builders/aot
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 64 inputs; lib/aportaya_cliente_garantia.dart
+  3s json_serializable on 64 inputs: 1 no-op; spent 2s sdk; lib/src/api.dart
+W json_serializable on lib/src/model/aprobar_reemplazo200_response.dart:
+  The version constraint "^4.9.0" on json_annotation allows versions before 4.12.0 which is not allowed.
+  3s json_serializable on 64 inputs: 27 output, 37 no-op; spent 2s sdk
+  0s source_gen:combining_builder on 64 inputs; lib/aportaya_cliente_garantia.dart
+  0s source_gen:combining_builder on 64 inputs: 27 output, 37 no-op
+  Built with build_runner/aot in 50s; wrote 54 outputs.
+== organizador ==
+Resolving dependencies...
+Downloading packages...
++ _fe_analyzer_shared 108.0.0
++ analyzer 14.4.0
++ args 2.7.0
++ async 2.13.1
++ boolean_selector 2.1.2
++ build 4.0.11
++ build_config 1.3.3
++ build_daemon 4.1.6
++ build_runner 2.16.1
++ built_collection 5.1.2
++ built_value 8.13.0
++ checked_yaml 2.0.4
++ cli_config 0.2.0
++ collection 1.19.1
++ convert 3.1.2
++ coverage 1.15.1
++ crypto 3.0.7
++ dart_style 3.1.13
++ dio 5.11.1
++ dio_web_adapter 2.2.2
++ file 7.0.1
++ fixnum 1.1.1
++ frontend_server_client 4.0.0
++ glob 2.2.0
++ graphs 2.3.2
++ http_multi_server 3.2.2
++ http_parser 4.1.2
++ io 1.1.0
++ json_annotation 4.12.0
++ json_serializable 6.14.1
++ logging 1.3.0
++ matcher 0.12.20
++ meta 1.19.0
++ mime 2.1.0
++ node_preamble 2.0.2
++ package_config 3.0.0
++ path 1.9.1
++ pool 1.5.3
++ pub_semver 2.2.1
++ pubspec_parse 1.6.0
++ shelf 1.4.2
++ shelf_packages_handler 3.0.2
++ shelf_static 1.1.3
++ shelf_web_socket 3.0.0
++ source_gen 4.3.0
++ source_helper 1.3.13
++ source_map_stack_trace 2.1.2
++ source_maps 0.10.14
++ source_span 1.10.2
++ stack_trace 1.12.2
++ stream_channel 2.1.4
++ stream_transform 2.1.2
++ string_scanner 1.4.1
++ term_glyph 1.2.2
++ test 1.32.0
++ test_api 0.7.14
++ test_core 0.6.20
++ typed_data 1.4.0
++ vm_service 15.3.0
++ watcher 1.2.1
++ web 1.1.1
++ web_socket 1.0.1
++ web_socket_channel 3.0.3
++ webkit_inspection_protocol 1.2.1
++ yaml 3.1.4
+Changed 65 dependencies!
+  compiling builders/aot
+  46s compiling builders/aot
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 68 inputs; lib/aportaya_cliente_organizador.dart
+  3s json_serializable on 68 inputs: 1 no-op; spent 2s sdk; lib/src/api.dart
+W json_serializable on lib/src/model/dinero.dart:
+  The version constraint "^4.9.0" on json_annotation allows versions before 4.12.0 which is not allowed.
+  3s json_serializable on 68 inputs: 29 output, 39 no-op; spent 2s sdk
+  0s source_gen:combining_builder on 68 inputs; lib/aportaya_cliente_organizador.dart
+  0s source_gen:combining_builder on 68 inputs: 29 output, 39 no-op
+  Built with build_runner/aot in 51s; wrote 58 outputs.
+== notificaciones ==
+Resolving dependencies...
+Downloading packages...
++ _fe_analyzer_shared 108.0.0
++ analyzer 14.4.0
++ args 2.7.0
++ async 2.13.1
++ boolean_selector 2.1.2
++ build 4.0.11
++ build_config 1.3.3
++ build_daemon 4.1.6
++ build_runner 2.16.1
++ built_collection 5.1.2
++ built_value 8.13.0
++ checked_yaml 2.0.4
++ cli_config 0.2.0
++ collection 1.19.1
++ convert 3.1.2
++ coverage 1.15.1
++ crypto 3.0.7
++ dart_style 3.1.13
++ dio 5.11.1
++ dio_web_adapter 2.2.2
++ file 7.0.1
++ fixnum 1.1.1
++ frontend_server_client 4.0.0
++ glob 2.2.0
++ graphs 2.3.2
++ http_multi_server 3.2.2
++ http_parser 4.1.2
++ io 1.1.0
++ json_annotation 4.12.0
++ json_serializable 6.14.1
++ logging 1.3.0
++ matcher 0.12.20
++ meta 1.19.0
++ mime 2.1.0
++ node_preamble 2.0.2
++ package_config 3.0.0
++ path 1.9.1
++ pool 1.5.3
++ pub_semver 2.2.1
++ pubspec_parse 1.6.0
++ shelf 1.4.2
++ shelf_packages_handler 3.0.2
++ shelf_static 1.1.3
++ shelf_web_socket 3.0.0
++ source_gen 4.3.0
++ source_helper 1.3.13
++ source_map_stack_trace 2.1.2
++ source_maps 0.10.14
++ source_span 1.10.2
++ stack_trace 1.12.2
++ stream_channel 2.1.4
++ stream_transform 2.1.2
++ string_scanner 1.4.1
++ term_glyph 1.2.2
++ test 1.32.0
++ test_api 0.7.14
++ test_core 0.6.20
++ typed_data 1.4.0
++ vm_service 15.3.0
++ watcher 1.2.1
++ web 1.1.1
++ web_socket 1.0.1
++ web_socket_channel 3.0.3
++ webkit_inspection_protocol 1.2.1
++ yaml 3.1.4
+Changed 65 dependencies!
+  compiling builders/aot
+  46s compiling builders/aot
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 24 inputs; lib/aportaya_cliente_notificaciones.dart
+  3s json_serializable on 24 inputs: 1 no-op; spent 2s sdk; lib/src/api.dart
+W json_serializable on lib/src/model/dinero.dart:
+  The version constraint "^4.9.0" on json_annotation allows versions before 4.12.0 which is not allowed.
+  3s json_serializable on 24 inputs: 7 output, 17 no-op; spent 2s sdk
+  0s source_gen:combining_builder on 24 inputs; lib/aportaya_cliente_notificaciones.dart
+  0s source_gen:combining_builder on 24 inputs: 7 output, 17 no-op
+  Built with build_runner/aot in 50s; wrote 14 outputs.
+== cumplimiento ==
+Resolving dependencies...
+Downloading packages...
++ _fe_analyzer_shared 108.0.0
++ analyzer 14.4.0
++ args 2.7.0
++ async 2.13.1
++ boolean_selector 2.1.2
++ build 4.0.11
++ build_config 1.3.3
++ build_daemon 4.1.6
++ build_runner 2.16.1
++ built_collection 5.1.2
++ built_value 8.13.0
++ checked_yaml 2.0.4
++ cli_config 0.2.0
++ collection 1.19.1
++ convert 3.1.2
++ coverage 1.15.1
++ crypto 3.0.7
++ dart_style 3.1.13
++ dio 5.11.1
++ dio_web_adapter 2.2.2
++ file 7.0.1
++ fixnum 1.1.1
++ frontend_server_client 4.0.0
++ glob 2.2.0
++ graphs 2.3.2
++ http_multi_server 3.2.2
++ http_parser 4.1.2
++ io 1.1.0
++ json_annotation 4.12.0
++ json_serializable 6.14.1
++ logging 1.3.0
++ matcher 0.12.20
++ meta 1.19.0
++ mime 2.1.0
++ node_preamble 2.0.2
++ package_config 3.0.0
++ path 1.9.1
++ pool 1.5.3
++ pub_semver 2.2.1
++ pubspec_parse 1.6.0
++ shelf 1.4.2
++ shelf_packages_handler 3.0.2
++ shelf_static 1.1.3
++ shelf_web_socket 3.0.0
++ source_gen 4.3.0
++ source_helper 1.3.13
++ source_map_stack_trace 2.1.2
++ source_maps 0.10.14
++ source_span 1.10.2
++ stack_trace 1.12.2
++ stream_channel 2.1.4
++ stream_transform 2.1.2
++ string_scanner 1.4.1
++ term_glyph 1.2.2
++ test 1.32.0
++ test_api 0.7.14
++ test_core 0.6.20
++ typed_data 1.4.0
++ vm_service 15.3.0
++ watcher 1.2.1
++ web 1.1.1
++ web_socket 1.0.1
++ web_socket_channel 3.0.3
++ webkit_inspection_protocol 1.2.1
++ yaml 3.1.4
+Changed 65 dependencies!
+  compiling builders/aot
+  46s compiling builders/aot
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 46 inputs; lib/aportaya_cliente_cumplimiento.dart
+  3s json_serializable on 46 inputs: 1 no-op; spent 2s sdk; lib/src/api.dart
+W json_serializable on lib/src/model/contrato_vigente.dart:
+  The version constraint "^4.9.0" on json_annotation allows versions before 4.12.0 which is not allowed.
+  3s json_serializable on 46 inputs: 18 output, 28 no-op; spent 2s sdk
+  0s source_gen:combining_builder on 46 inputs; lib/aportaya_cliente_cumplimiento.dart
+  0s source_gen:combining_builder on 46 inputs: 18 output, 28 no-op
+  Built with build_runner/aot in 50s; wrote 36 outputs.

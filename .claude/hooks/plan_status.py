@@ -200,6 +200,22 @@ def self_test() -> int:
     chequear("lee el estado del hito", plan["hitos"][0]["estado"], "EN CURSO")
     chequear("lee el estado de la subtarea", plan["subtareas"][0]["estado"], "EN CURSO")
 
+    gate_y_anexo = parse_plan(
+        "# Trabajo\n"
+        "| ID | Microtarea | CA | DoD | Estado |\n"
+        "|---|---|---|---|---|\n"
+        "| S0.M1 | gate | x | y | HECHO |\n"
+        "## H1 - hito\n"
+        "| H1.S1.M1 | cambio | x | y | TODO |\n"
+        "## Anexo A - ejemplos\n"
+        "| H1.S1.M1 | ejemplo duplicado | x | y | TODO |\n"
+    )
+    chequear(
+        "cuenta S0 y no lee filas de los anexos",
+        [(m["id"], m["estado"]) for m in gate_y_anexo["microtareas"]],
+        [("S0.M1", "HECHO"), ("H1.S1.M1", "TODO")],
+    )
+
     # --- Normalizacion de estados escritos de cualquier forma ---
     variantes = parse_plan(
         "| ID | t | ca | dod | Estado |\n|---|---|---|---|---|\n"

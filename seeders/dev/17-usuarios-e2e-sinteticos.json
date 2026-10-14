@@ -10,7 +10,7 @@
     "autor": "carril S (6.a vuelta del endurecimiento integral)"
   },
   "nota": "Las filas llevan identificadores estables (e2e00000-0000-4000-8000-…) y ON CONFLICT DO NOTHING: aplicarlas dos veces no cambia nada. Telefonos +59170009100/101/102 y correos @example.invalid (dominio reservado por la IANA: nadie los lee ni los recibe). La CREDENCIAL no esta aca a proposito: identidad hashea `contrasena + pimienta` y la pimienta de TEST es un secreto que no vive en el repositorio. La pone `despliegue/ensayos/sembrar_test.sh`, en el servidor, con la pimienta del propio contenedor de identidad y una contrasena que se genera fuera del repositorio. El segundo factor lo valida el perfil `local` de TEST (DesafioDeDesarrollo, codigo fijo de desarrollo): solo existe donde corre ese perfil.",
-  "advertencia": "SOLO DEV Y TEST. No es un catalogo, no es un dato de la plataforma y no existe en produccion: vive en seeders/dev/, el orquestador de dev aborta si la base no esta marcada con app.entorno = 'dev' y sembrar_test.sh aborta si identidad no corre con el perfil `local`. Lo que estas cuentas SIMULAN, sin que haya pasado de verdad: el nivel de verificacion BASICO de A y de B (no hay documento, ni selfie, ni decision de una persona detras) y la habilitacion de A como organizador APRENDIZ (no hay solicitud, ni capacitacion, ni contrato firmado). Son el estado que dejaria ese tramo, declarado sintetico; no lo reemplazan.",
+  "advertencia": "SOLO DEV Y TEST. No es un catalogo, no es un dato de la plataforma y no existe en produccion: vive en seeders/dev/, el orquestador de dev aborta si la base no esta marcada con app.entorno = 'dev' y sembrar_test.sh aborta si identidad no corre con el perfil `local`. Lo que estas cuentas SIMULAN, sin que haya pasado de verdad: el nivel de verificacion BASICO de A y de B (no hay documento, ni selfie, ni decision de una persona detras) y la habilitacion de A como organizador APRENDIZ (no hay solicitud ni capacitacion; el contrato de organizador es una fila sintetica, sin emision ni firma reales y apoyada en un token de firma sintetico ya consumido, que existe solo porque R-ORG-02 la exige para crear un grupo). Son el estado que dejaria ese tramo, declarado sintetico; no lo reemplazan.",
   "reglas_que_permite_probar": [
     "R-USR — inicio de sesion real contra credencial_acceso (Argon2id con pimienta) de una cuenta que no pasa por el alta con OTP de correo",
     "R-SEG — segundo factor enrolado (SMS) que el perfil local de TEST valida",
@@ -135,7 +135,7 @@
     {
       "tabla": "organizador",
       "conflicto": ["usuario_id"],
-      "comentario": "SINTETICO · A figura HABILITADO, nivel APRENDIZ, con los limites iniciales de aportaya.organizador (2 grupos, 30000.00): es lo unico que consulta grupos antes de crear un grupo. No hubo postulacion, capacitacion ni contrato (ver advertencia).",
+      "comentario": "SINTETICO · A figura HABILITADO, nivel APRENDIZ, con los limites iniciales de aportaya.organizador (2 grupos, 30000.00): es lo unico que consulta grupos antes de crear un grupo. No hubo postulacion ni capacitacion; el contrato es una fila sintetica por R-ORG-02 (ver advertencia).",
       "filas": [
         {
           "id": "e2e00000-0000-4000-8000-0000000000c1",
@@ -151,6 +151,59 @@
           "indice_morosidad_cartera": 0,
           "fecha_postulacion": { "$sql": "now()" },
           "fecha_habilitacion": { "$sql": "now()" }
+        }
+      ]
+    },
+    {
+      "tabla": "token_verificacion",
+      "conflicto": ["id"],
+      "comentario": "SINTETICO · token de firma ya CONSUMIDO que respalda el contrato de abajo (ck_contrato_org_firma exige que un contrato firmado apunte al token con el que se firmo). No lo emitio identidad ni lo recibio nadie: el hash es el de un texto fijo, no el de un secreto, y no sirve para firmar nada (estado CONSUMIDO, vencido). Destino enmascarado sobre un correo @example.invalid.",
+      "filas": [
+        {
+          "id": "e2e00000-0000-4000-8000-0000000000f1",
+          "usuario_id": { "$ref": "usuario", "codigo_publico": "SINT-E2E-A" },
+          "politica_id": { "$sql": "(SELECT id FROM politica_token WHERE proposito = 'FIRMA_REGLAMENTO' ORDER BY vigente_desde DESC LIMIT 1)" },
+          "tipo_token": "ENLACE",
+          "proposito": "FIRMA_REGLAMENTO",
+          "hash_token": { "$sql": "encode(digest('sint-e2e-firma-contrato-organizador-a', 'sha256'), 'hex')" },
+          "algoritmo_hash": "SHA-256",
+          "canal_entrega": "CORREO",
+          "destino_enmascarado": "s***@example.invalid",
+          "estado": "CONSUMIDO",
+          "emitido_en": { "$sql": "now() - interval '2 hours'" },
+          "expira_en": { "$sql": "now() - interval '1 hour'" },
+          "enviado_en": { "$sql": "now() - interval '2 hours'" },
+          "consumido_en": { "$sql": "now() - interval '2 hours'" },
+          "intentos_fallidos": 0,
+          "max_intentos": 5,
+          "reenvios": 0,
+          "ip_origen": "192.0.2.1",
+          "agente_usuario": "SINTETICO sandbox de TEST (sin cliente real)",
+          "correlation_id": "e2e00000-0000-4000-8000-0000000000f2",
+          "clave_idempotencia": "sint-e2e-token-firma-contrato-a",
+          "uso_unico": true,
+          "url_destino": "https://example.invalid/firma/contrato-organizador"
+        }
+      ]
+    },
+    {
+      "tabla": "contrato_organizador",
+      "conflicto": ["id"],
+      "comentario": "SINTETICO · contrato de organizador de A, firmado y vigente. Sin esto el trigger R-ORG-02 (grupos.fn_org_validar_contrato_grupo) rechaza el INSERT del grupo y la API responde 500 AP-INT-01 (medido en TEST: evidencia/carril-L2). Emitirlo y firmarlo por la API exige ADMIN_PLATAFORMA y un token de firma real. No hubo emision ni firma: la fila apunta al token sintetico de arriba. No tiene valor juridico.",
+      "filas": [
+        {
+          "id": "e2e00000-0000-4000-8000-0000000000e1",
+          "organizador_id": "e2e00000-0000-4000-8000-0000000000c1",
+          "version": "SINT-1",
+          "contenido_hash": "29c7ac9cd1b84f6b377809ed16bca25fa6ac3d4263b396bea0e4a727eff6b38e",
+          "obligaciones": "SINTETICO sandbox de TEST: contrato de organizador de prueba, sin valor juridico",
+          "causales_rescision": "SINTETICO sandbox de TEST: se retira con sembrar_test.sh --retirar",
+          "firmado_en": { "$sql": "now() - interval '1 hour'" },
+          "token_firma_id": "e2e00000-0000-4000-8000-0000000000f1",
+          "vigente_desde": { "$sql": "current_date - 1" },
+          "vigente_hasta": null,
+          "rescindido_en": null,
+          "motivo_rescision": null
         }
       ]
     }

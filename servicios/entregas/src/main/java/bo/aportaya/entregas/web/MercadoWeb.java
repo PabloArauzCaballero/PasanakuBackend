@@ -81,7 +81,7 @@ public class MercadoWeb {
         return ResponseEntity.ok(respuesta);
     }
 
-    /** Solo para el pago al vendedor: id, vendedor, precio y estado. La oferta ajena o inexistente es «no disponible». */
+    /** Solo para el pago al vendedor: id, vendedor, precio, cargos y estado. La oferta ajena o inexistente es «no disponible». */
     public ResponseEntity<OfertaParaPago> consultarOfertaParaPago(UUID ofertaId) {
         Traza.marcarCasoDeUso("MERCADO", ofertaId.toString());
 
@@ -91,6 +91,7 @@ public class MercadoWeb {
         respuesta.setOfertaId(oferta.ofertaId());
         respuesta.setVendedorUsuarioId(oferta.vendedorUsuarioId());
         respuesta.setPrecio(MapeoDeEntregas.dinero(oferta.precio()));
+        respuesta.setCargos(MapeoDeEntregas.dinero(oferta.cargos()));
         respuesta.setEstado(OfertaParaPago.EstadoEnum.fromValue(oferta.estado()));
         return ResponseEntity.ok(respuesta);
     }

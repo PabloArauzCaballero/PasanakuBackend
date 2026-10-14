@@ -14,6 +14,12 @@ normas: [Contabilidad, debido proceso, ASFI riesgo]
 > **Objetivo.** Que el grupo no se detenga cuando alguien no aporta, y que esa
 > cobertura **no sea un regalo**: genera deuda exigible, subrogación y expediente.
 
+> **Vigencia ([[ADR-051 Garantía del pozo, comisión y autogestión|ADR-051]], D-15, aceptado por delegación del dueño, pendiente de ratificación).**
+> El faltante del pozo lo cubre la **reserva empresarial por ciclo** (`CU23ReservarRespaldo` / `CU23CubrirConRespaldo`: todo o
+> nada, una cobertura viva por turno) y la deuda del incumplidor se conserva como derecho de recuperación
+> (`CU23RecuperarRespaldo`). El fondo mutual descrito abajo (`CU23CubrirIncumplimiento`) queda como **legado**: no cubre
+> faltantes de pozo.
+
 ## Actores y disparador
 
 - **Actor principal:** el sistema, al detectar bolsa incompleta antes de una entrega.

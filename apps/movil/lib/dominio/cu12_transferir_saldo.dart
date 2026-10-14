@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../dominio/cliente.dart';
 import '../proveedores/idempotencia.dart';
+import '../proveedores/sesion.dart';
 
 /// CU-12 · transferir saldo entre billeteras. El dinero no sale del sistema: cambia
 /// de bolsillo. Igual exige clave de idempotencia (invariante 7): una transferencia
@@ -11,7 +12,10 @@ class TransferirSaldo extends AsyncNotifier<SalidaTransferencia?> {
   static String formularioId(String cuentaId) => 'cu12-transferencia-$cuentaId';
 
   @override
-  Future<SalidaTransferencia?> build() async => null;
+  Future<SalidaTransferencia?> build() async {
+    ref.watch(generacionDeSesionProvider);
+    return null;
+  }
 
   Future<void> enviar({
     required String cuentaOrigenId,

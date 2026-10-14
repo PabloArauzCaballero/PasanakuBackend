@@ -1,0 +1,50 @@
+=== 1 · EL ESTÁNDAR ES COHERENTE ===
+  OK    · el estándar tiene sus nueve secciones
+  OK    · los 51 controles declaran cómo se verifican
+  OK    · las 12 restricciones citadas existen en el catálogo
+  OK    · las 9 brechas declaradas están numeradas sin huecos
+  OK    · la cifra de restricciones del estándar está al día (173)
+
+=== 2 · ACCESO ADMINISTRATIVO ===
+  OK    · ADR-038 registrado
+  OK    · ADR-038 vigente
+  OK    · R-SEG-10 está en la bóveda y llegó al SQL generado
+  OK    · R-SEG-11 está en la bóveda y llegó al SQL generado
+  OK    · R-SEG-12 está en la bóveda y llegó al SQL generado
+  OK    · los disparadores de operador no dependen de una función que el search_path puede no ver
+  OK    · los 37 permisos sembrados respetan R-SEG-12
+  OK    · el permiso SEGURIDAD_ACCESO_RESTABLECER está sembrado
+  OK    · el permiso SEGURIDAD_FACTOR_REINSCRIBIR está sembrado
+  OK    · los 4 operadores de dev tienen TOTP y pueden entrar
+
+=== 3 · PATRONES PROHIBIDOS ===
+  OK    · 3229 archivos de código sin patrones prohibidos
+
+=== 3b · RUTAS ABIERTAS, ENUMERADAS ===
+  OK    · el permiso de acceso abierto vive en un solo archivo
+  OK    · las 5 rutas abiertas son las declaradas y ninguna mas
+
+=== 4 · SECRETOS ===
+  OK    · ningún secreto versionado
+  OK    · ningún archivo .env en el árbol de trabajo
+  OK    · .gitignore excluye los archivos de entorno
+
+=== 5 · EL CICLO ESTÁ CABLEADO ===
+  OK    · la skill seguridad-aplicacion existe
+  OK    · la skill está en el índice de skills
+  OK    · el contrato de implementación exige este gate
+  OK    · el contrato de implementación remite al estándar de seguridad
+  OK    · el CI ejecuta el gate de seguridad
+
+=== 6 · CATÁLOGO COHERENTE CON LA ESPECIFICACIÓN ===
+  AVISO · S-8 · 32 permisos que un CU exige y el catálogo no tiene: APORTE_A_GRUPO, AUTOMATIZACION_ADMINISTRAR, BACKOFFICE, BILLETERA_MOVIL, CALENDARIO_ADMINISTRAR, COBRANZA_GESTIONAR…
+  AVISO · S-9 · 4 propósitos de token sin canal activo (INICIO_SESION_SIN_CONTRASENA, VERIFICACION_TELEFONO, CAMBIO_CORREO, REFRESCO_SESION): un flujo trabado invita a encender SMS
+
+=== 7 · SQL CON ENTRADA DINÁMICA (SQL-SEGURO) ===
+  AVISO · servicios/inversiones/src/main/java/bo/aportaya/inversiones/infraestructura/Sql.java:20 — DSL.field(variable) — nombre de columna dinámico (fuera del alcance de este carril; dueño del servicio)
+  AVISO · servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/infraestructura/ReversoRepositorio.java:73 — DSL.field(variable) — nombre de columna dinámico (fuera del alcance de este carril; dueño del servicio)
+  AVISO · servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/infraestructura/DestinoRepositorio.java:48 — DSL.field(variable) — nombre de columna dinámico (fuera del alcance de este carril; dueño del servicio)
+  AVISO · servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/infraestructura/DestinoRepositorio.java:62 — DSL.field(variable) — nombre de columna dinámico (fuera del alcance de este carril; dueño del servicio)
+  (820 archivos revisados; 0 bloquean, 4 son aviso)
+
+TODO OK · 6 aviso(s)

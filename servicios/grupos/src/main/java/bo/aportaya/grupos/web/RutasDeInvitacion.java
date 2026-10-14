@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 
 /** Resuelve identidad fuera de la transacción; el canje local es recuperable con la misma clave. */
 abstract class RutasDeInvitacion extends RutasDeSolicitudes {
+    private static final org.slf4j.Logger BITACORA = org.slf4j.LoggerFactory.getLogger(RutasDeInvitacion.class);
     private final InvitacionesWeb enlaces;
     private final CU69Invitar invitaciones;
     private final CanjearInvitacion canjes;
@@ -72,7 +73,7 @@ abstract class RutasDeInvitacion extends RutasDeSolicitudes {
     @Permiso("PARTICIPANTE")
     public ResponseEntity<SalidaAceptacionInvitacion> aceptarInvitacionPorEnlace(
             UUID idempotencyKey, EntradaAceptacionInvitacion cuerpo) {
-        return ResponseEntity.status(201).body(enlaces.aceptar(cuerpo));
+        return ResponseEntity.status(201).body(enlaces.aceptar(idempotencyKey, cuerpo));
     }
 
     @Override
@@ -100,11 +101,35 @@ abstract class RutasDeInvitacion extends RutasDeSolicitudes {
             throw new ErrorDeNegocio(CodigoError.de(69, 5), "Esa invitacion ya no es valida.");
         var postulacion = new EntradaPostulacion(cuerpo.getCuposSolicitados()).mensaje(cuerpo.getMensaje());
         var entrada = MapeoDePostulacion.entrada(grupoId, postulacion, consultas, afuera, afinidad, ctx);
+        // Consumir el enlace es irreversible: todo lo que se puede saber de antemano se comprueba ANTES.
+        canjes.comprobarAntesDeConsumir(invitacionId, entrada, ctx);
         var recibo = afuera.consumirInvitacion(invitacion.tokenId(), grupoId, idempotencyKey, cuerpo.getToken());
         if (!idempotencyKey.equals(recibo.clave()))
             throw new ErrorDeNegocio(CodigoError.de(69, 5), "No se confirmó el canje.");
-        UUID solicitud = canjes.ejecutar(invitacionId, recibo, entrada, ctx);
+        UUID solicitud = canjeLocal(invitacionId, recibo, entrada, ctx);
         return ResponseEntity.ok(
                 new SalidaCanjeInvitacion(solicitud, SalidaCanjeInvitacion.EstadoEnum.PENDIENTE_BACKOFFICE));
+    }
+
+    /**
+     * El canje local despues del consumo. Si aun asi falla por una carrera que no se podia prever (otra postulacion
+     * entre la comprobacion y la escritura), el enlace ya esta consumido: se deja el rastro para que soporte lo
+     * resuelva, con identificadores y el codigo, nunca datos de la persona (regla 90.2.1).
+     */
+    private UUID canjeLocal(
+            UUID invitacionId,
+            bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios.ConsumoInvitacion recibo,
+            bo.aportaya.grupos.aplicacion.CU68Postular.EntradaPostulacion entrada,
+            bo.aportaya.plataforma.dominio.ContextoSesion ctx) {
+        try {
+            return canjes.ejecutar(invitacionId, recibo, entrada, ctx);
+        } catch (ErrorDeNegocio rechazo) {
+            BITACORA.warn(
+                    "canje: el enlace {} quedo consumido y la solicitud local fallo con {} (invitacion {})",
+                    recibo.tokenId(),
+                    rechazo.codigo().valor(),
+                    invitacionId);
+            throw rechazo;
+        }
     }
 }

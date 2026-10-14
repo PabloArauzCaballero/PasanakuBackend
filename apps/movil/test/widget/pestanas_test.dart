@@ -7,6 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:aportaya_diseno/moviles/barra_pestanas.dart';
 import 'package:go_router/go_router.dart';
 
+import '../comun.dart';
+
 /// **Cada pestaña abre su pantalla, no la primera ruta que encuentra.**
 ///
 /// `StatefulShellBranch` arranca en la primera ruta declarada de la rama si no se le
@@ -24,7 +26,10 @@ void main() {
   testWidgets('«Perfil» abre el perfil, nunca la pantalla de iniciar sesión', (
     tester,
   ) async {
-    final router = crearEnrutador(inicial: '/billetera/inicio');
+    final router = crearEnrutador(
+      inicial: '/billetera/inicio',
+      sesion: await sesionActivaDePrueba(),
+    );
     await tester.pumpWidget(appCon(router));
     await tester.pumpAndSettle();
 
@@ -42,7 +47,10 @@ void main() {
   testWidgets(
     '«Grupos» abre el estado de los pasanakus, no el marcador vacío',
     (tester) async {
-      final router = crearEnrutador(inicial: '/billetera/inicio');
+      final router = crearEnrutador(
+        inicial: '/billetera/inicio',
+        sesion: await sesionActivaDePrueba(),
+      );
       await tester.pumpWidget(appCon(router));
       await tester.pumpAndSettle();
 
@@ -56,7 +64,10 @@ void main() {
   testWidgets(
     '«Inicio» y «Movimientos» comparten rama y cada uno va a lo suyo',
     (tester) async {
-      final router = crearEnrutador(inicial: '/billetera/inicio');
+      final router = crearEnrutador(
+        inicial: '/billetera/inicio',
+        sesion: await sesionActivaDePrueba(),
+      );
       await tester.pumpWidget(appCon(router));
       await tester.pumpAndSettle();
 
@@ -83,6 +94,7 @@ void main() {
     '/registro',
     '/identidad/contrato',
     '/identidad/bienvenida',
+    '/identidad/mfa',
   ]) {
     testWidgets('$ruta se ve sin la barra de pestañas', (tester) async {
       // Un teléfono de verdad, no los 800×600 de fábrica del entorno de pruebas:
@@ -91,7 +103,10 @@ void main() {
       tester.view.physicalSize = const Size(1290, 2796);
       tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.reset);
-      final router = crearEnrutador(inicial: ruta);
+      final router = crearEnrutador(
+        inicial: ruta,
+        sesion: await sesionAnonimaDePrueba(),
+      );
       await tester.pumpWidget(appCon(router));
       await tester.pumpAndSettle();
 

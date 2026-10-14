@@ -1,4 +1,4 @@
-/// Las listas cerradas del perfil transaccional declarado (CU-01, paso 7).
+/// Las listas cerradas de actividad y perfil transaccional declarado (CU-01, fase 3).
 ///
 /// **Se elige, no se escribe.** Un campo libre acá produce «trabajo», «mi sueldo»,
 /// «negocio» y «NEGOCIO» como cuatro respuestas distintas a la misma pregunta, y el
@@ -34,30 +34,39 @@ const List<OpcionDelPerfil> origenesDeFondos = [
   (codigo: 'OTRO', texto: 'Otro (lo detallo)'),
 ];
 
-/// El código que obliga a escribir el detalle a mano.
+/// El código que requiere un detalle ingresado por la persona.
 const String origenOtro = 'OTRO';
 
 /// A qué se dedica quien abre la cuenta. El código es la sección CIIU Rev. 4.
+///
+/// **Textos cortos, de un renglón** (40 caracteres como mucho): la lista se recorre
+/// en un celular y con buscador, y una opción que no entra en el renglón se corta
+/// justo en la parte que la distinguía. «Otra» abre «¿Cuál?» para escribirla: una
+/// lista cerrada sin salida obliga a mentir.
 const List<OpcionDelPerfil> actividadesEconomicas = [
-  (codigo: 'G', texto: 'Comercio (tienda, puesto, venta por mayor o menor)'),
-  (codigo: 'T', texto: 'Empleo en relación de dependencia'),
-  (codigo: 'M', texto: 'Servicios profesionales o técnicos independientes'),
-  (codigo: 'A', texto: 'Agricultura, ganadería, pesca o silvicultura'),
-  (codigo: 'C', texto: 'Industria manufacturera, artesanía o taller'),
+  (codigo: 'G', texto: 'Comercio (tienda, puesto, mayorista)'),
+  (codigo: 'T', texto: 'Empleado/a en relación de dependencia'),
+  (codigo: 'M', texto: 'Profesional o técnico independiente'),
+  (codigo: 'A', texto: 'Agricultura, ganadería o pesca'),
+  (codigo: 'C', texto: 'Industria, artesanía o taller'),
   (codigo: 'F', texto: 'Construcción'),
   (codigo: 'H', texto: 'Transporte, carga o delivery'),
-  (codigo: 'I', texto: 'Alojamiento, restaurante o comida'),
+  (codigo: 'I', texto: 'Restaurante, comida u hotelería'),
   (codigo: 'B', texto: 'Minería o hidrocarburos'),
-  (codigo: 'K', texto: 'Actividades financieras o de seguros'),
+  (codigo: 'K', texto: 'Finanzas o seguros'),
   (codigo: 'P', texto: 'Educación'),
   (codigo: 'Q', texto: 'Salud o asistencia social'),
-  (codigo: 'O', texto: 'Administración pública o defensa'),
-  (codigo: 'S', texto: 'Otros servicios (peluquería, reparaciones, limpieza)'),
-  (codigo: 'JUBILADO', texto: 'Jubilado o rentista'),
+  (codigo: 'O', texto: 'Administración pública'),
+  (codigo: 'S', texto: 'Otros servicios (peluquería, reparación)'),
+  (codigo: 'JUBILADO', texto: 'Jubilado/a o rentista'),
   (codigo: 'ESTUDIANTE', texto: 'Estudiante'),
   (codigo: 'HOGAR', texto: 'Trabajo del hogar no remunerado'),
   (codigo: 'SIN_ACTIVIDAD', texto: 'Sin actividad por ahora'),
+  (codigo: actividadOtra, texto: 'Otra (¿cuál?)'),
 ];
+
+/// El código que obliga a escribir cuál es la actividad.
+const String actividadOtra = 'OTRA';
 
 /// El texto que corresponde a un código, o el propio código si no está en la lista
 /// —que es lo que hay que mostrar antes que una pantalla en blanco.

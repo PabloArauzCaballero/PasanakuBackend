@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 class InvitacionesAdmisionHumanaWebTest {
     private static final String TELEFONO = "+59176543210";
     private static final String SECRETO = "a".repeat(64);
+    private static final UUID CLAVE = UUID.fromString("00000000-0000-0000-0000-0000000000c1");
 
     private final UUID grupoId = UUID.randomUUID();
     private final UUID tokenId = UUID.randomUUID();
@@ -53,9 +54,10 @@ class InvitacionesAdmisionHumanaWebTest {
         var web = web(true);
         var cuerpo = new EntradaAceptacionInvitacion(tokenId, SECRETO, "hash", true);
 
-        assertThatThrownBy(() -> web.aceptar(cuerpo)).isInstanceOfSatisfying(ErrorDeNegocio.class, e -> assertThat(
-                        e.codigo().valor())
-                .isEqualTo("AP-CU69-10"));
+        assertThatThrownBy(() -> web.aceptar(CLAVE, cuerpo))
+                .isInstanceOfSatisfying(
+                        ErrorDeNegocio.class,
+                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU69-10"));
 
         verifyNoInteractions(enlaces, afuera, invitar);
     }
@@ -84,10 +86,10 @@ class InvitacionesAdmisionHumanaWebTest {
         when(afuera.restriccion(usuarioId)).thenReturn(new HechosDeOtrosServicios.Restriccion(false, BigDecimal.ZERO));
         when(afuera.reputacion(usuarioId)).thenReturn(new HechosDeOtrosServicios.Reputacion(true, BigDecimal.TEN));
         when(peticion.getRemoteAddr()).thenReturn("127.0.0.1");
-        when(enlaces.aceptar(tokenId, "hash", "127.0.0.1", BigDecimal.TEN, ctx))
+        when(enlaces.aceptar(tokenId, CLAVE, "hash", "127.0.0.1", BigDecimal.TEN, ctx))
                 .thenReturn(new CU69Enlace.Aceptada(grupoId, participante));
 
-        var salida = web.aceptar(new EntradaAceptacionInvitacion(tokenId, SECRETO, "hash", true));
+        var salida = web.aceptar(CLAVE, new EntradaAceptacionInvitacion(tokenId, SECRETO, "hash", true));
 
         assertThat(salida.getParticipanteId()).isEqualTo(participante);
     }

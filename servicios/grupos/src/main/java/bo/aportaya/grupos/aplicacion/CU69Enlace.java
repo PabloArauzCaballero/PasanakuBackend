@@ -9,6 +9,7 @@ import bo.aportaya.plataforma.mensajeria.EventoDominio;
 import bo.aportaya.plataforma.mensajeria.Outbox;
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.jooq.DSLContext;
 import org.jooq.Record;
@@ -31,8 +32,21 @@ public class CU69Enlace {
         return datos.conContexto(ctx, dsl -> detalle(dsl, tokenId));
     }
 
+    /**
+     * La aceptación que ya ocurrió con ESTA clave y ESTA persona, si ocurrió (regla 96.3.3). Es lo que hace
+     * que reintentar tras un corte devuelva la participación original en vez de un 422. Quien intenta con
+     * otra clave u otra cuenta un enlace ya consumido no obtiene nada: sigue siendo un enlace inválido.
+     */
+    @Transactional(readOnly = true)
+    public Optional<Aceptada> repeticion(UUID tokenId, UUID clave, ContextoSesion ctx) {
+        ContextoSesion interno =
+                ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
+        return datos.conContexto(interno, dsl -> repeticion(dsl, tokenId, clave, ctx.usuarioId()));
+    }
+
     @Transactional
-    public Aceptada aceptar(UUID tokenId, String hashReglamento, String ip, BigDecimal reputacion, ContextoSesion ctx) {
+    public Aceptada aceptar(
+            UUID tokenId, UUID clave, String hashReglamento, String ip, BigDecimal reputacion, ContextoSesion ctx) {
         // La API ya validó secreto, teléfono, KYC y restricciones. La política
         // de participante reserva las filas del grupo al proceso interno; la
         // sesión del invitado no puede ver al emisor ni insertar su membresía.
@@ -49,6 +63,10 @@ public class CU69Enlace {
                     """,
                     tokenId);
             if (grupo == null) throw enlaceInvalido();
+
+            // Un reintento concurrente llega aca cuando el primero ya terminó: es el mismo pedido, no otro.
+            Optional<Aceptada> repetida = repeticion(dsl, tokenId, clave, ctx.usuarioId());
+            if (repetida.isPresent()) return repetida.get();
 
             Detalle vigente = detalle(dsl, tokenId);
             if (!vigente.hashReglamento().equals(hashReglamento)) {
@@ -79,10 +97,13 @@ public class CU69Enlace {
 
             Record aceptada = dsl.fetchOne(
                     """
-                    UPDATE grupos.invitacion SET estado = 'ACEPTADA', fecha_respuesta = now()
+                    UPDATE grupos.invitacion
+                       SET estado = 'ACEPTADA', fecha_respuesta = now(), consumidor_id = ?, clave_consumo = ?
                      WHERE token_id = ? AND estado = 'ENVIADA' AND fecha_expiracion > now()
                     RETURNING id
                     """,
+                    ctx.usuarioId(),
+                    clave,
                     tokenId);
             if (aceptada == null) throw enlaceInvalido();
 
@@ -135,6 +156,25 @@ public class CU69Enlace {
                             UUID.fromString(ctx.traza().id())));
             return new Aceptada(vigente.grupoId(), participanteId);
         });
+    }
+
+    private Optional<Aceptada> repeticion(DSLContext dsl, UUID tokenId, UUID clave, UUID usuarioId) {
+        Record fila = dsl.fetchOne(
+                "SELECT grupo_id, consumidor_id, clave_consumo FROM grupos.invitacion WHERE token_id = ?", tokenId);
+        if (fila == null || fila.get("consumidor_id", UUID.class) == null) return Optional.empty();
+        if (!usuarioId.equals(fila.get("consumidor_id", UUID.class))
+                || !clave.equals(fila.get("clave_consumo", UUID.class))) {
+            throw enlaceInvalido();
+        }
+        UUID grupoId = fila.get("grupo_id", UUID.class);
+        // Un canje también marca consumidor y clave, pero deja una solicitud, no un participante: eso no es una
+        // aceptación.
+        Record participante = dsl.fetchOne(
+                "SELECT id FROM grupos.participante WHERE grupo_id = ? AND usuario_id = ? ORDER BY fecha_ingreso DESC LIMIT 1",
+                grupoId,
+                usuarioId);
+        if (participante == null) throw enlaceInvalido();
+        return Optional.of(new Aceptada(grupoId, participante.get("id", UUID.class)));
     }
 
     private Detalle detalle(DSLContext dsl, UUID tokenId) {

@@ -53,5 +53,6 @@ END $$;
 \ir 15-usuarios-dev.sql
 \ir 16-campania-cu-principales.sql
 \ir 17-usuarios-e2e-sinteticos.sql
+\ir 18-licencia-sandbox-test.sql
 
 COMMIT;

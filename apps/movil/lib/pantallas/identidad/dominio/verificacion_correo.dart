@@ -1,4 +1,5 @@
 import 'package:aportaya_cliente_identidad/aportaya_cliente_identidad.dart';
+import 'package:aportaya_diseno/errores.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -37,7 +38,11 @@ class VerificacionCorreo {
       );
     } on DioException catch (e) {
       if (e.response != null) idempotencia.cerrar(_formulario);
-      throw VerificacionCorreoException(mensajeDeError(errorDeDominio(e)));
+      final problema = errorDeDominio(e);
+      throw VerificacionCorreoException(
+        mensajeDeError(problema),
+        problema is ErrorPresentable ? problema.trazaId : null,
+      );
     }
   }
 
@@ -58,7 +63,11 @@ class VerificacionCorreo {
         ),
       );
     } on DioException catch (e) {
-      throw VerificacionCorreoException(mensajeDeError(errorDeDominio(e)));
+      final problema = errorDeDominio(e);
+      throw VerificacionCorreoException(
+        mensajeDeError(problema),
+        problema is ErrorPresentable ? problema.trazaId : null,
+      );
     }
   }
 }
@@ -70,8 +79,9 @@ class VerificacionSolicitada {
 }
 
 class VerificacionCorreoException implements Exception {
-  const VerificacionCorreoException(this.mensaje);
+  const VerificacionCorreoException(this.mensaje, [this.trazaId]);
   final String mensaje;
+  final String? trazaId;
 }
 
 final verificacionCorreoProvider = Provider<VerificacionCorreo>(

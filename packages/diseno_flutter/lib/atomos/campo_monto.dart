@@ -13,6 +13,7 @@ class CampoMonto extends StatefulWidget {
     this.moneda = 'BOB',
     this.error,
     this.ayuda,
+    this.ejemplo,
     this.valorInicial,
   });
 
@@ -23,6 +24,7 @@ class CampoMonto extends StatefulWidget {
   final String moneda;
   final String? error;
   final String? ayuda;
+  final String? ejemplo;
   final String? valorInicial;
 
   /// `"1.240,50"` → `"1240.50"`; `"12"` → `"12.00"`; `"abc"` → `null`.
@@ -71,6 +73,7 @@ class _CampoMontoState extends State<CampoMonto> {
       formateadores: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
       error: widget.error,
       ayuda: widget.ayuda ?? 'Con coma para los centavos: 1.240,50',
+      ejemplo: widget.ejemplo,
       onChanged: (v) => widget.onChanged(CampoMonto.aCadenaDelContrato(v)),
     );
   }

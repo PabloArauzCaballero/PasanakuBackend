@@ -13,7 +13,7 @@ class ArteFondoDeGarantia extends ArteDeMaqueta {
     c.drawLine(
       const Offset(70, 24),
       const Offset(70, 34),
-      trazo(Paleta.g600, 5),
+      trazo(t.text2, 5),
     );
 
     // La copa del paraguas: el semicírculo relleno y su borde más oscuro.
@@ -21,8 +21,8 @@ class ArteFondoDeGarantia extends ArteDeMaqueta {
       ..moveTo(14, 76)
       ..arcToPoint(const Offset(126, 76), radius: const Radius.circular(56));
     c
-      ..drawPath(Path.from(copa)..close(), relleno(Paleta.g600))
-      ..drawPath(copa, trazo(Paleta.g700, 3, redondo: false));
+      ..drawPath(Path.from(copa)..close(), relleno(t.surface))
+      ..drawPath(copa, trazo(t.text2, 3, redondo: false));
 
     // El mango, que termina en gancho.
     c.drawPath(
@@ -34,7 +34,7 @@ class ArteFondoDeGarantia extends ArteDeMaqueta {
           radius: const Radius.circular(13),
           clockwise: false,
         ),
-      trazo(Paleta.g600, 5.5),
+      trazo(t.text2, 5.5),
     );
 
     // La moneda de la cuota, con su signo.

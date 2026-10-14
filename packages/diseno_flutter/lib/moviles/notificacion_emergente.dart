@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../atomos/boton_icono.dart';
+import '../atomos/hundido_al_tocar.dart';
 import '../tokens/tokens.dart';
 
 /// Avisos que llegan juntos **se encolan**: uno a la vez, con el contador de los que
@@ -31,52 +32,56 @@ class NotificacionEmergente extends StatelessWidget {
           '$titulo. $detalle${enEspera > 0 ? '. $enEspera más esperan' : ''}',
       child: Material(
         color: Colors.transparent,
-        child: InkWell(
-          onTap: onAbrir,
-          borderRadius: BorderRadius.circular(Radios.lg),
-          child: Container(
-            padding: const EdgeInsets.all(Espacio.s3),
-            decoration: BoxDecoration(
-              color: t.surface,
-              borderRadius: BorderRadius.circular(Radios.lg),
-              border: Border.all(color: t.border, width: Borde.fino),
-              boxShadow: [t.sombra2],
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.notifications_active_outlined, color: t.brandTexto),
-                const SizedBox(width: Espacio.s3),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        titulo,
-                        style: texto.titleSmall?.copyWith(color: t.text),
-                      ),
-                      Text(
-                        detalle,
-                        style: texto.bodySmall?.copyWith(color: t.text2),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                if (enEspera > 0)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: Espacio.s2),
-                    child: Text(
-                      '+$enEspera',
-                      style: texto.labelMedium?.copyWith(color: t.text3),
+        child: HundidoAlTocar(
+          child: InkWell(
+            onTap: onAbrir,
+            borderRadius: BorderRadius.circular(Radios.lg),
+            child: Container(
+              padding: const EdgeInsets.all(Espacio.s3),
+              decoration: BoxDecoration(
+                color: t.surface,
+                borderRadius: BorderRadius.circular(Radios.lg),
+                border: Border.all(color: t.border, width: Borde.fino),
+                boxShadow: Elevacion.superpuesta(t),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.notifications_active_outlined, color: t.text2),
+                  const SizedBox(width: Espacio.s3),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          titulo,
+                          style: texto.titleSmall?.copyWith(color: t.text),
+                        ),
+                        Text(
+                          detalle,
+                          style: texto.bodySmall?.copyWith(color: t.text2),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
                   ),
-                BotonIcono(
-                  icono: Icons.close,
-                  etiqueta: 'Cerrar aviso',
-                  onPressed: onCerrar,
-                ),
-              ],
+                  if (enEspera > 0)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Espacio.s2,
+                      ),
+                      child: Text(
+                        '+$enEspera',
+                        style: texto.labelMedium?.copyWith(color: t.text3),
+                      ),
+                    ),
+                  BotonIcono(
+                    icono: Icons.close,
+                    etiqueta: 'Cerrar aviso',
+                    onPressed: onCerrar,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

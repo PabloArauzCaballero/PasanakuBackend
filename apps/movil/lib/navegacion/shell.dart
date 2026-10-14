@@ -1,7 +1,10 @@
+import 'dart:async';
+
+import 'package:aportaya_diseno/moviles/alcance_haptica.dart';
 import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 import 'package:aportaya_diseno/moviles/barra_pestanas.dart';
+import 'package:aportaya_diseno/atomos/movimiento.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -93,7 +96,7 @@ class ShellPrincipal extends ConsumerWidget {
             final d = _destinos[i];
             // El mismo golpecito que da el sistema al cambiar de pestaña: confirma el
             // toque sin esperar a que la pantalla nueva termine de dibujarse.
-            HapticFeedback.selectionClick();
+            unawaited(AlcanceHaptica.maybeOf(context)?.seleccion());
             if (d.rama == navigationShell.currentIndex) {
               context.go(d.ruta);
             } else {
@@ -144,7 +147,7 @@ class _RamaConTransicionState extends State<_RamaConTransicion>
   void didUpdateWidget(_RamaConTransicion anterior) {
     super.didUpdateWidget(anterior);
     if (anterior.indice == widget.indice) return;
-    if (MediaQuery.disableAnimationsOf(context)) {
+    if (reducirMovimiento(context)) {
       _control.value = 1;
       return;
     }

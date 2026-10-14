@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 /// vacía en vez de tranquila. Acá hay una escena de luz, en este orden:
 ///
 /// 1. **La luz de arriba**, pálida y ancha, como la que entra por una ventana.
-/// 2. **El verde de marca**, corrido a la izquierda, que tiñe sin teñir el centro.
+/// 2. **La luz neutra**, corrida a la izquierda, que separa el centro sin agregar otro
+/// acento cromático.
 /// 3. **El naranja**, abajo a la derecha y más chico: el contrapunto cálido.
 /// 4. **Los dos arcos del isotipo** a escala de pantalla y desenfocados. Nítidos se
 ///    leen como franjas grises —parece un defecto de render—; desenfocados son luz.
@@ -28,7 +29,7 @@ class PintorDeAura extends CustomPainter {
   /// La luz pálida de arriba.
   final Color luz;
 
-  /// El verde de marca de la izquierda.
+  /// La luz neutra de la izquierda.
   final Color halo;
 
   /// El naranja de abajo a la derecha.

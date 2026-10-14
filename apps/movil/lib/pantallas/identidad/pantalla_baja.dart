@@ -2,6 +2,7 @@ import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/moleculas/alerta.dart';
+import 'package:aportaya_diseno/moviles/hoja_de_confirmacion.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 
@@ -31,21 +32,17 @@ class PantallaDeBaja extends StatelessWidget {
                 texto: TextosIdentidad.confirmarBaja,
                 variante: BotonVariante.peligro,
                 expandido: true,
-                onPressed: () => showDialog<void>(
-                  context: context,
-                  builder: (dialogContext) => AlertDialog(
-                    title: const Text(TextosIdentidad.tituloBaja),
-                    content: const Text(TextosIdentidad.avisoBaja),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(dialogContext).pop(),
-                        child: const Text(TextosIdentidad.atras),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.of(dialogContext).pop(),
-                        child: const Text(TextosIdentidad.confirmarBaja),
-                      ),
-                    ],
+                onPressed: () => HojaDeConfirmacion.mostrar<void>(
+                  context,
+                  hoja: HojaDeConfirmacion(
+                    titulo: TextosIdentidad.tituloBaja,
+                    detalle: const Alerta(
+                      titulo: TextosIdentidad.avisoBaja,
+                      tono: Tono.aviso,
+                    ),
+                    textoConfirmar: TextosIdentidad.confirmarBaja,
+                    peligro: true,
+                    onConfirmar: () => Navigator.of(context).pop(),
                   ),
                 ),
               ),

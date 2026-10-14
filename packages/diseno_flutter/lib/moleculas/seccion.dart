@@ -72,7 +72,7 @@ class Panel extends StatelessWidget {
         border: destacado
             ? null
             : Border.all(color: t.border, width: Borde.fino),
-        boxShadow: destacado ? [t.sombra2] : null,
+        boxShadow: destacado ? Elevacion.destacada(t) : null,
       ),
       child: Padding(padding: relleno, child: hijo),
     );

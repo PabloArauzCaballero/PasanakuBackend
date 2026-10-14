@@ -373,7 +373,9 @@ paths:
         el beneficiario y el reparto NO los dicta quien llama, los afirma el dueno de la oferta. Exige la identidad de
         servicio `SERVICIO_ENTREGAS` (la del token que viaja en la llamada entre servicios, porque la operacion de nucleo
         solo la ejecuta `entregas`); un participante, aunque sea el vendedor o el comprador, recibe 403. Respuesta minima:
-        id, vendedor, precio y estado; nunca el grupo, el turno, los cargos ni el comprador. Una oferta que no existe
+        id, vendedor, precio, cargos y estado; nunca el grupo, el turno ni el comprador. Reparto (decision adoptada por
+        delegacion del dueno, 2026-10-11): el comprador paga el `precio`, el vendedor cobra `precio - cargos` y la plataforma
+        ingresa los `cargos`, cada uno con su linea en el asiento; `cargos` va entre 0 y el precio. Una oferta que no existe
         responde 422 `AP-CU130-05` y nucleo no paga (falla cerrado).
       parameters:
         - name: ofertaId
@@ -476,11 +478,12 @@ components:
     OfertaParaPago:
       type: object
       additionalProperties: false
-      required: [ofertaId, vendedorUsuarioId, precio, estado]
+      required: [ofertaId, vendedorUsuarioId, precio, cargos, estado]
       properties:
         ofertaId:          { type: string, format: uuid }
         vendedorUsuarioId: { type: string, format: uuid }
         precio:            { $ref: '#/components/schemas/Dinero' }
+        cargos:            { $ref: '#/components/schemas/Dinero' }
         estado:
           type: string
           enum: [PUBLICADA, RESERVADA, LIQUIDANDO, VENDIDA, CANCELADA, VENCIDA]

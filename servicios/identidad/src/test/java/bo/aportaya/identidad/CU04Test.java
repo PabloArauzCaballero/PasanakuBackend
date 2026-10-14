@@ -8,6 +8,7 @@ import bo.aportaya.identidad.dominio.ResultadoDeAutenticacion;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -32,6 +33,39 @@ class CU04Test extends BaseDeCU04 {
         assertThat(resultado.requiereFactorAdicional()).isTrue();
         assertThat(resultado.codigo()).map(c -> c.valor()).contains("AP-CU04-03");
         assertThat(dispositivoConfiable(usuario, "huella-nueva")).isFalse();
+    }
+
+    @Test
+    @DisplayName("una cuenta pendiente de aprobacion manual puede iniciar sesion y sigue pendiente")
+    void cuentaPendientePuedeIniciarSesionSinAutoaprobarse() {
+        String telefono = "+59173" + ThreadLocalRandom.current().nextInt(100_000, 1_000_000);
+        UUID usuario = participanteConCredencial(telefono);
+        dsl.execute(
+                "UPDATE identidad.usuario SET estado = 'PENDIENTE_VERIFICACION', nivel_kyc = 'NINGUNO' WHERE id = ?",
+                usuario);
+        ResultadoDeAutenticacion resultado = autenticar(entrada(telefono, "clave-correcta", "huella-pendiente"));
+
+        assertThat(resultado.exitoso())
+                .as("rechazo: %s (%s)", resultado.codigo(), resultado.mensaje())
+                .isTrue();
+        assertThat(sesionesDe(usuario)).isEqualTo(1);
+        assertThat(dispositivoConfiable(usuario, "huella-pendiente")).isFalse();
+        assertThat(dsl.fetchOne("SELECT estado FROM identidad.usuario WHERE id = ?", usuario)
+                        .get("estado", String.class))
+                .isEqualTo("PENDIENTE_VERIFICACION");
+    }
+
+    @Test
+    @DisplayName("un usuario activo sin factor sigue requiriendo segundo factor en dispositivo nuevo")
+    void cuentaActivaSinFactorNoOmiteMfaEnDispositivoNuevo() {
+        String telefono = "+59174" + ThreadLocalRandom.current().nextInt(100_000, 1_000_000);
+        UUID usuario = participanteConCredencial(telefono);
+
+        ResultadoDeAutenticacion resultado = autenticar(entrada(telefono, "clave-correcta", "huella-activa-nueva"));
+
+        assertThat(resultado.requiereFactorAdicional()).isTrue();
+        assertThat(resultado.codigo()).map(c -> c.valor()).contains("AP-CU04-03");
+        assertThat(sesionesDe(usuario)).isZero();
     }
 
     @Test
@@ -65,6 +99,37 @@ class CU04Test extends BaseDeCU04 {
 
         assertThat(resultado.codigo()).map(c -> c.valor()).contains("AP-CU04-05");
         assertThat(tieneBloqueoVigente(usuario)).isTrue();
+    }
+
+    @Test
+    @DisplayName(
+            "Dado un operador que ya entró cinco veces con su segundo factor · Cuando se equivoca una vez de contraseña · Entonces se le dice que no coincide y NO queda bloqueado")
+    void ingresosNormalesNoSumanAlBloqueo() {
+        // Cada ingreso con segundo factor deja un FACTOR_REQUERIDO no exitoso antes del
+        // exitoso. Contarlos como fallos bloqueaba 30 min al operador que entraba seguido
+        // y después tipeaba mal una sola vez (observado en el backoffice, H9.S3.M6).
+        UUID usuario = participanteConCredencial("+59171000011");
+        fixtura.ingresosConSegundoFactor(usuario, 5);
+
+        ResultadoDeAutenticacion resultado = autenticar(entrada("+59171000011", "clave-equivocada", "huella-11"));
+
+        assertThat(resultado.codigo()).map(c -> c.valor()).contains("AP-CU04-01");
+        assertThat(tieneBloqueoVigente(usuario)).isFalse();
+    }
+
+    @Test
+    @DisplayName(
+            "Dado cuatro fallos, un ingreso correcto y otro fallo · Cuando se cuenta para bloquear · Entonces solo cuenta lo posterior al ingreso correcto")
+    void unIngresoCorrectoReiniciaLaCuenta() {
+        UUID usuario = participanteConCredencial("+59171000012");
+        fixtura.intentosFallidos(usuario, 4);
+        fixtura.ingresosConSegundoFactor(usuario, 1);
+        fixtura.intentosFallidos(usuario, 1);
+
+        ResultadoDeAutenticacion resultado = autenticar(entrada("+59171000012", "clave-equivocada", "huella-12"));
+
+        assertThat(resultado.codigo()).map(c -> c.valor()).contains("AP-CU04-01");
+        assertThat(tieneBloqueoVigente(usuario)).isFalse();
     }
 
     @Test

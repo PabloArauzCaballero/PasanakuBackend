@@ -32,7 +32,7 @@ class PalabraDeMarca extends StatelessWidget {
                 children: [
                   TextSpan(
                     text: 'Aporta',
-                    style: TextStyle(color: color ?? t.brandInk),
+                    style: TextStyle(color: color ?? t.text),
                   ),
                   TextSpan(
                     text: 'Ya',

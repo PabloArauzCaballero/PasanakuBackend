@@ -110,6 +110,70 @@ public class CuentaBilleteraRepositorio {
         });
     }
 
+    /**
+     * La politica de billetera vigente para esa moneda (la de vigencia mas reciente que ya empezo), o vacio si no hay.
+     * La cuenta de una persona la necesita: sin politica no hay plazo de retencion ni regla P2P (ver
+     * {@code RetencionRepositorio} y {@code TransferenciaRepositorio}, que niegan por omision).
+     */
+    public Optional<UUID> politicaVigente(DSLContext dsl, Moneda moneda) {
+        return Optional.ofNullable(dsl.select(DSL.field("id", UUID.class))
+                .from(DSL.table(DSL.name("nucleo_financiero", "politica_billetera")))
+                .where(DSL.field("moneda", String.class).eq(moneda.name()))
+                .and(DSL.field("vigente_desde", java.time.OffsetDateTime.class).le(DSL.currentOffsetDateTime()))
+                .orderBy(DSL.field("vigente_desde").desc(), DSL.field("codigo").asc())
+                .limit(1)
+                .fetchOne(DSL.field("id", UUID.class)));
+    }
+
+    /**
+     * Abre una cuenta {@code USUARIO} o {@code GRUPO}, en cero. {@code ON CONFLICT DO NOTHING} y no un {@code SELECT}
+     * previo: entre el {@code SELECT} y el {@code INSERT} entra el duplicado, y solo el indice unico (R-BIL-04)
+     * decide. Devuelve {@code false} si ya habia una (de ese titular y moneda, o con ese numero).
+     */
+    public boolean abrir(DSLContext dsl, Apertura a) {
+        boolean deUsuario = "USUARIO".equals(a.tipo());
+        return dsl.insertInto(DSL.table(DSL.name("nucleo_financiero", "cuenta_billetera")))
+                        .columns(
+                                DSL.field("id"),
+                                DSL.field("numero_cuenta"),
+                                DSL.field("tipo"),
+                                DSL.field("usuario_id"),
+                                DSL.field("grupo_id"),
+                                DSL.field("politica_billetera_id"),
+                                DSL.field("moneda"),
+                                DSL.field("estado"),
+                                DSL.field("nivel_debida_diligencia"),
+                                DSL.field("permite_saldo_negativo"),
+                                DSL.field("fecha_apertura"))
+                        .values(
+                                DSL.val(a.id()),
+                                DSL.val(a.numeroDeCuenta()),
+                                DSL.val(a.tipo()),
+                                DSL.val(deUsuario ? a.titularId() : null, UUID.class),
+                                DSL.val(deUsuario ? null : a.titularId(), UUID.class),
+                                DSL.val(a.politicaId().orElse(null), UUID.class),
+                                DSL.val(a.moneda().name()),
+                                DSL.val(a.estado()),
+                                DSL.val(a.nivel()),
+                                DSL.val(false),
+                                DSL.val(a.abiertaEn(), java.time.OffsetDateTime.class))
+                        .onConflictDoNothing()
+                        .execute()
+                == 1;
+    }
+
+    /** Lo que hace falta para abrir una cuenta; el saldo nace en cero y sin sobregiro. */
+    public record Apertura(
+            UUID id,
+            String numeroDeCuenta,
+            String tipo,
+            UUID titularId,
+            Moneda moneda,
+            String estado,
+            String nivel,
+            Optional<UUID> politicaId,
+            java.time.OffsetDateTime abiertaEn) {}
+
     /** Lo que dice el libro ahora mismo: es lo unico que autoriza un debito. */
     public record SaldosDelLibro(Dinero disponible, Dinero retenido) {}
 

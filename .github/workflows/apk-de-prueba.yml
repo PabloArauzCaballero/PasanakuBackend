@@ -1,19 +1,21 @@
-﻿# APK de prueba (Android) contra el entorno TEST.
+# APK de prueba (Android) contra el entorno TEST.
 #
 # Para que el equipo pruebe la app en un Android sin pasar por una tienda: compila
-# el APK en un runner de GitHub (la mÃ¡quina de desarrollo no da abasto con Docker,
+# el APK en un runner de GitHub (la máquina de desarrollo no da abasto con Docker,
 # el emulador y Gradle a la vez) y lo publica como *prerelease* descargable desde el
-# celular. Es el equivalente de Pasanaku a Â«abrirlo en Expo GoÂ» de Atlas.
+# celular. Es el equivalente de Pasanaku a «abrirlo en Expo Go» de Atlas.
 #
-# Firmado con las claves de depuraciÃ³n (asÃ­ estÃ¡ `android/app/build.gradle.kts`
+# Firmado con las claves de depuración (así está `android/app/build.gradle.kts`
 # hoy): sirve para instalar a mano, NO para Play Store. Apunta al gateway de TEST y
-# nada mÃ¡s (`HOSTS_PERMITIDOS`, `lib/dominio/cliente.dart`).
+# nada más (`HOSTS_PERMITIDOS`, `lib/dominio/cliente.dart`).
 name: APK de prueba (Android)
 
 on:
   workflow_dispatch: {}
   push:
-    branches: [pablo/feature/verificacion-correo-gmail-test]
+    branches:
+      - justin/fix/alta-fecha-actividad-autocaptura
+      - pablo/feature/verificacion-correo-gmail-test
     paths:
       - apps/movil/**
       - packages/diseno_flutter/**
@@ -61,7 +63,7 @@ jobs:
         run: |
           corepack enable
           yarn install --immutable
-      - name: tokens y sistema de diseÃ±o
+      - name: tokens y sistema de diseño
         run: |
           yarn workspace @aportaya/tokens build
           yarn workspace @aportaya/simulado build
@@ -95,4 +97,4 @@ jobs:
             --prerelease \
             --target "${{ github.sha }}" \
             --title "APK de prueba ${{ github.run_number }} (TEST)" \
-            --notes "Solo para pruebas internas contra el entorno TEST. Firmado con claves de depuraciÃ³n: se instala a mano (Ajustes â†’ permitir instalar apps de esta fuente). Rama ${{ github.ref_name }}, commit ${{ github.sha }}."
+            --notes "Solo para pruebas internas contra el entorno TEST. Firmado con claves de depuración: se instala a mano (Ajustes → permitir instalar apps de esta fuente). Rama ${{ github.ref_name }}, commit ${{ github.sha }}."

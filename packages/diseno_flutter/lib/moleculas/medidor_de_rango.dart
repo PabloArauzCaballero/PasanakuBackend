@@ -34,7 +34,7 @@ class MedidorDeRango extends StatelessWidget {
         Container(
           height: Espacio.s2,
           decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [Paleta.g200, t.brand]),
+            color: t.accent,
             borderRadius: BorderRadius.circular(Radios.pill),
           ),
         ),
@@ -53,7 +53,7 @@ class MedidorDeRango extends StatelessWidget {
                 monto: estimado!,
                 moneda: moneda,
                 etiqueta: 'Estimado',
-                estilo: texto.titleMedium?.copyWith(color: t.brandTexto),
+                estilo: texto.titleMedium?.copyWith(color: t.text),
               ),
             Monto(
               monto: maximo,

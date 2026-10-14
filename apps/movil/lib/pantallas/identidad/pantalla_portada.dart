@@ -1,6 +1,7 @@
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/marca.dart';
+import 'package:aportaya_diseno/atomos/movimiento.dart';
 import 'package:aportaya_diseno/atomos/palabra_de_marca.dart';
 import 'package:aportaya_diseno/moleculas/aparicion_escalonada.dart';
 import 'package:aportaya_diseno/moviles/fondo_de_marca.dart';
@@ -15,9 +16,9 @@ import 'textos.dart';
 /// maqueta (`identidad/bienvenida`).
 ///
 /// Centrada, con aire y con una sola idea: la marca, qué es esto en dos líneas, y las
-/// dos salidas abajo. El tour no vive acá —se abre con «Crear mi cuenta», que es
-/// cuando alguien quiere saber más—; quien ya tiene cuenta entra sin pasar por cuatro
-/// láminas que no necesita.
+/// dos puertas abajo. «Crear mi cuenta» lleva al tour antes del alta; «¿Cómo
+/// funciona?» permite abrirlo sin iniciar el registro. Quien ya tiene cuenta entra
+/// desde su puerta directa, sin pasar por cuatro láminas que no necesita.
 ///
 /// Sobre la maqueta suma dos cosas, y las dos por el mismo motivo —tres elementos
 /// sueltos sobre un papel liso se ven vacíos, no tranquilos—: el aura de marca de
@@ -42,38 +43,61 @@ class PantallaDePortada extends StatelessWidget {
                   child: Center(
                     child: SingleChildScrollView(
                       child: AparicionEscalonada(
-                        escalon: const Duration(milliseconds: 70),
-                        duracionPorHijo: const Duration(milliseconds: 420),
+                        escalon: Movimiento.escalonDePortada,
+                        duracionPorHijo: Movimiento.entradaDePortada,
                         children: [
-                          Center(child: _Lockup(t: t)),
-                          const SizedBox(height: Espacio.s6),
-                          Semantics(
-                            header: true,
-                            child: Text(
-                              TextosIdentidad.bienvenidaTitulo,
-                              textAlign: TextAlign.center,
-                              style: Tipo.titulo1.copyWith(color: t.text),
-                            ),
-                          ),
-                          const SizedBox(height: Espacio.s3),
                           Center(
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 320),
-                              child: Text(
-                                TextosIdentidad.bienvenidaTexto,
-                                textAlign: TextAlign.center,
-                                style: Tipo.cuerpo.copyWith(color: t.text2),
-                              ),
-                            ),
+                            key: const ValueKey('portada-marca'),
+                            child: _Lockup(t: t),
                           ),
-                          const SizedBox(height: Espacio.s6),
-                          const GarantiasDePortada(),
+                          Column(
+                            key: const ValueKey('portada-titular'),
+                            children: [
+                              const SizedBox(height: Espacio.s4),
+                              Semantics(
+                                header: true,
+                                child: Text(
+                                  TextosIdentidad.bienvenidaTitulo,
+                                  textAlign: TextAlign.center,
+                                  style: Tipo.titulo1.copyWith(color: t.text),
+                                ),
+                              ),
+                              const SizedBox(height: Espacio.s3),
+                              Center(
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 320,
+                                  ),
+                                  child: Text(
+                                    TextosIdentidad.bienvenidaTexto,
+                                    textAlign: TextAlign.center,
+                                    style: Tipo.cuerpo.copyWith(color: t.text2),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: Espacio.s4),
+                            ],
+                          ),
+                          const KeyedSubtree(
+                            key: ValueKey('portada-garantias'),
+                            child: GarantiasDePortada(),
+                          ),
                         ],
                       ),
                     ),
                   ),
                 ),
-                const _Salidas(),
+                AparicionEscalonada(
+                  escalon: Duration.zero,
+                  duracionPorHijo: Movimiento.entradaDePortada,
+                  demoraInicial: Movimiento.escalonDePortada * 3,
+                  children: const [
+                    KeyedSubtree(
+                      key: ValueKey('portada-botones'),
+                      child: _Salidas(),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -83,9 +107,8 @@ class PantallaDePortada extends StatelessWidget {
   }
 }
 
-/// La marca sobre su sello verde y, debajo, la palabra. El sello con el isotipo es el
-/// `#ay-marca` de la maqueta —el isotipo pensado para ir sobre relleno de marca—; la
-/// palabra debajo es lo que lo vuelve un logotipo y no un cuadrado verde.
+/// La marca sobre su sello de acción y, debajo, la palabra. Mantiene la forma del
+/// lockup original sin sumar el verde de marca como segundo acento de la pantalla.
 class _Lockup extends StatelessWidget {
   const _Lockup({required this.t});
   final Tokens t;
@@ -98,16 +121,16 @@ class _Lockup extends StatelessWidget {
         width: 84,
         height: 84,
         decoration: BoxDecoration(
-          color: t.verdeSolido,
+          color: t.accent,
           borderRadius: BorderRadius.circular(Radios.xl),
           boxShadow: [t.sombra3],
         ),
         child: Center(
-          child: Marca(tamano: 54, colorDelTrazo: t.sobreVerdeSolido),
+          child: Marca(tamano: 54, colorDelTrazo: t.accentInk),
         ),
       ),
       const SizedBox(height: Espacio.s4),
-      PalabraDeMarca(ancho: 148, color: t.brandInk),
+      PalabraDeMarca(ancho: 148, color: t.text),
     ],
   );
 }
@@ -133,6 +156,11 @@ class _Salidas extends StatelessWidget {
           variante: BotonVariante.fantasma,
           expandido: true,
           onPressed: () => context.push('/ingreso'),
+        ),
+        const SizedBox(height: Espacio.s1),
+        TextButton(
+          onPressed: () => context.push('/tour'),
+          child: const Text(TextosIdentidad.portadaComoFunciona),
         ),
       ],
     ),

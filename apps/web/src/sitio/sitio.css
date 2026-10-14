@@ -509,7 +509,7 @@ img,svg{max-width:100%}
   font-family:var(--font-d);font-weight:600;font-size:0.8438rem;
   display:flex;align-items:center;justify-content:center;gap:0.4375rem;
 }
-.acciones-rapidas .b--accion{background:var(--o500);color:var(--accent-ink)}
+.acciones-rapidas .b--accion{background:var(--accent);color:var(--accent-ink)}
 .acciones-rapidas .b--fantasma{background:rgba(var(--blanco-rgb),.14);color:var(--sobre-verde);
   border:0.0625rem solid rgba(var(--blanco-rgb),.5)}
 .cuerpo-app{flex:1;overflow:hidden;padding:var(--s4) var(--s4) 0;background:var(--crema)}

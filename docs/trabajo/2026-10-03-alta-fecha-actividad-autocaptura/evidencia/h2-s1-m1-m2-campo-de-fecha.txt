@@ -1,0 +1,2 @@
+00:03 +5: con un valor, los tres selects lo muestran
+00:03 +6: All tests passed!
