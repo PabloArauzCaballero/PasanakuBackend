@@ -1,0 +1,6 @@
+# Cuarta vuelta — cerrar lo que queda (contexto común; leé además TERCERA_VUELTA.md de esta carpeta: reglas, RAM, honestidad)
+
+Worktree: C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre (rama justin/feature/cierre-endurecimiento-2026-10-08, HEAD 0b2de6a6, árbol limpio). Solo ahí. NO git commit/push/stash/checkout: commiteo yo. Idioma rioplatense. Respuestas finales ≤40 líneas, UN solo reporte final, sin avisos intermedios.
+Leer lo mínimo: PLAN.md y REPORTE.md por grep/rangos; evidencia/carril-{A3,B3,C3,D3,E3}/ tienen lo hecho (D3: ESTADO-ENTORNO.md, ENTORNO-E2E.md, despliegue/ensayos/arranque_completo.sh con modos completo/tandas/conjunto/individual; E3: apps/backoffice/e2e/aceptacion, scripts/aceptacion.sh mock|real).
+Estado: 61/86 HECHO. Quedan (sin H15/H16, que son externos): H1.S1.M3, H3.S1.M4, H4.S1.M6, H8.S1.M3, H8.S1.M4, H9.S1.M5, H12.S1.M1-M4, H13.S1.M6, H14.S1.M1-M5. NO edites PLAN.md/REPORTE.md (los consolido yo): dejá evidencia en evidencia/<carril>/ y en el reporte final decí por ID HECHO / A MEDIAS (qué falta exacto) / BLOQUEADO (de quién).
+RAM: Docker Desktop tiene 4 GB: el stack completo solo entra en tandas de 4 servicios. Un proceso pesado a la vez en toda la máquina, siempre por heavy.sh. Puertos propios: G=5446, F=5447.

@@ -3343,7 +3343,7 @@
                   "pm.test(\"trae los campos que el contrato declara obligatorios\", () => {",
                   "    if (pm.response.code >= 300 || pm.response.code === 204) return;",
                   "    const cuerpo = pm.response.json();",
-                  "    for (const campo of [\"ofertaId\", \"vendedorUsuarioId\", \"precio\", \"estado\"]) {",
+                  "    for (const campo of [\"ofertaId\", \"vendedorUsuarioId\", \"precio\", \"cargos\", \"estado\"]) {",
                   "        pm.expect(cuerpo, \"falta \" + campo).to.have.property(campo);",
                   "    }",
                   "});",

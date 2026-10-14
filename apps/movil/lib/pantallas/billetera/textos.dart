@@ -10,11 +10,17 @@ abstract final class TextosBilletera {
   static const sinPasanakus =
       'Todavía no estás en ningún pasanaku. Cuando entres a uno, tu rueda aparece acá.';
   static const cargandoSaldo = 'Cargando tu saldo';
+  static const buscandoBilletera = 'Buscando tu billetera';
+  static const billeteraInactiva =
+      'Tu billetera todavía no está activa. Cuando se active, tu saldo aparece acá.';
+  static const revisarDeNuevo = 'Volver a revisar';
   static const saldoDisponible = 'Saldo disponible';
   static const saldoRetenido = 'Retenido';
   static const nadaTrabado = 'Nada trabado';
-  static const custodia =
-      'En custodia en Banco Unión, separado del dinero de la empresa';
+  // Sin nombre de banco: ninguna fuente del repositorio (docs/, contratos, semillas) dice en qué
+  // entidad queda la cuenta de custodia —solo «una entidad supervisada por ASFI»—; el «Banco Unión»
+  // venía de datos de ejemplo de la maqueta. Cuando producto confirme la entidad, se agrega acá.
+  static const custodia = 'En custodia, separado del dinero de la empresa';
   static const verAportesPendientes = 'Ver aportes pendientes';
   static const movimientos = 'Movimientos';
   static const sinMovimientos =

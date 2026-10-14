@@ -1,0 +1,382 @@
+== intento 1 06:07:18
+Picked up JAVA_TOOL_OPTIONS: <proxy y truststore del contenedor, omitido>
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessApply UP-TO-DATE
+> Task :plataforma:comun-web:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-web:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:comun-web:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-web:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-web:spotlessApply UP-TO-DATE
+> Task :plataforma:gateway:spotlessJava UP-TO-DATE
+> Task :plataforma:gateway:spotlessJavaApply UP-TO-DATE
+> Task :plataforma:gateway:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:gateway:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:gateway:spotlessApply UP-TO-DATE
+> Task :servicios:aportes:spotlessJava
+> Task :servicios:aportes:spotlessJavaApply
+> Task :servicios:aportes:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:aportes:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:aportes:spotlessApply
+> Task :servicios:auditoria:spotlessJava UP-TO-DATE
+> Task :servicios:auditoria:spotlessJavaApply UP-TO-DATE
+> Task :servicios:auditoria:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:auditoria:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:auditoria:spotlessApply UP-TO-DATE
+> Task :servicios:cumplimiento:spotlessJava UP-TO-DATE
+> Task :servicios:cumplimiento:spotlessJavaApply UP-TO-DATE
+> Task :servicios:cumplimiento:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:cumplimiento:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:cumplimiento:spotlessApply UP-TO-DATE
+> Task :servicios:entregas:spotlessJava UP-TO-DATE
+> Task :servicios:entregas:spotlessJavaApply UP-TO-DATE
+> Task :servicios:entregas:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:entregas:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:entregas:spotlessApply UP-TO-DATE
+> Task :servicios:erp:spotlessJava UP-TO-DATE
+> Task :servicios:erp:spotlessJavaApply UP-TO-DATE
+> Task :servicios:erp:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:erp:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:erp:spotlessApply UP-TO-DATE
+> Task :servicios:garantia:spotlessJava UP-TO-DATE
+> Task :servicios:garantia:spotlessJavaApply UP-TO-DATE
+> Task :servicios:garantia:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:garantia:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:garantia:spotlessApply UP-TO-DATE
+> Task :servicios:grupos:spotlessJava
+> Task :servicios:grupos:spotlessJavaApply
+> Task :servicios:grupos:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:grupos:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:grupos:spotlessApply
+> Task :servicios:identidad:spotlessJava UP-TO-DATE
+> Task :servicios:identidad:spotlessJavaApply UP-TO-DATE
+> Task :servicios:identidad:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:identidad:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:identidad:spotlessApply UP-TO-DATE
+> Task :servicios:inversiones:spotlessJava UP-TO-DATE
+> Task :servicios:inversiones:spotlessJavaApply UP-TO-DATE
+> Task :servicios:inversiones:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:inversiones:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:inversiones:spotlessApply UP-TO-DATE
+> Task :servicios:notificaciones:spotlessJava UP-TO-DATE
+> Task :servicios:notificaciones:spotlessJavaApply UP-TO-DATE
+> Task :servicios:notificaciones:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:notificaciones:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:notificaciones:spotlessApply UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessJava UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessJavaApply UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessApply UP-TO-DATE
+> Task :servicios:organizador:spotlessJava UP-TO-DATE
+> Task :servicios:organizador:spotlessJavaApply UP-TO-DATE
+> Task :servicios:organizador:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:organizador:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:organizador:spotlessApply UP-TO-DATE
+> Task :servicios:publicidad:spotlessJava UP-TO-DATE
+> Task :servicios:publicidad:spotlessJavaApply UP-TO-DATE
+> Task :servicios:publicidad:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:publicidad:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:publicidad:spotlessApply UP-TO-DATE
+> Task :servicios:tarifas:spotlessJava UP-TO-DATE
+> Task :servicios:tarifas:spotlessJavaApply UP-TO-DATE
+> Task :servicios:tarifas:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:tarifas:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:tarifas:spotlessApply UP-TO-DATE
+> Task :servicios:transparencia:spotlessJava UP-TO-DATE
+> Task :servicios:transparencia:spotlessJavaApply UP-TO-DATE
+> Task :servicios:transparencia:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:transparencia:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:transparencia:spotlessApply UP-TO-DATE
+> Task :spotlessApply
+> Task :servicios:aportes:generarClienteAngular UP-TO-DATE
+> Task :servicios:aportes:generarClienteDart UP-TO-DATE
+> Task :servicios:aportes:generarClientes UP-TO-DATE
+> Task :servicios:auditoria:generarClienteAngular UP-TO-DATE
+> Task :servicios:auditoria:generarClienteDart UP-TO-DATE
+> Task :servicios:auditoria:generarClientes UP-TO-DATE
+> Task :servicios:cumplimiento:generarClienteAngular UP-TO-DATE
+> Task :servicios:cumplimiento:generarClienteDart UP-TO-DATE
+> Task :servicios:cumplimiento:generarClientes UP-TO-DATE
+> Task :servicios:entregas:generarClienteAngular UP-TO-DATE
+> Task :servicios:entregas:generarClienteDart UP-TO-DATE
+> Task :servicios:entregas:generarClientes UP-TO-DATE
+> Task :servicios:erp:generarClienteAngular UP-TO-DATE
+> Task :servicios:erp:generarClienteDart UP-TO-DATE
+> Task :servicios:erp:generarClientes UP-TO-DATE
+> Task :servicios:garantia:generarClienteAngular UP-TO-DATE
+> Task :servicios:garantia:generarClienteDart UP-TO-DATE
+> Task :servicios:garantia:generarClientes UP-TO-DATE
+
+> Task :servicios:grupos:generarClienteAngular
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+Error (model name matches existing language type) cannot be used as a model name. Renamed to ModelError
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /home/user/PasanakuBackend/clientes/angular/grupos
+
+> Task :servicios:grupos:generarClienteDart
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /home/user/PasanakuBackend/clientes/dart/grupos
+
+> Task :servicios:grupos:generarClientes
+> Task :servicios:identidad:generarClienteAngular UP-TO-DATE
+> Task :servicios:identidad:generarClienteDart UP-TO-DATE
+> Task :servicios:identidad:generarClientes UP-TO-DATE
+> Task :servicios:inversiones:generarClienteAngular UP-TO-DATE
+> Task :servicios:inversiones:generarClienteDart UP-TO-DATE
+> Task :servicios:inversiones:generarClientes UP-TO-DATE
+> Task :servicios:notificaciones:generarClienteAngular UP-TO-DATE
+> Task :servicios:notificaciones:generarClienteDart UP-TO-DATE
+> Task :servicios:notificaciones:generarClientes UP-TO-DATE
+> Task :servicios:nucleo-financiero:generarClienteAngular UP-TO-DATE
+> Task :servicios:nucleo-financiero:generarClienteDart UP-TO-DATE
+> Task :servicios:nucleo-financiero:generarClientes UP-TO-DATE
+> Task :servicios:organizador:generarClienteAngular UP-TO-DATE
+> Task :servicios:organizador:generarClienteDart UP-TO-DATE
+> Task :servicios:organizador:generarClientes UP-TO-DATE
+> Task :servicios:publicidad:generarClienteAngular UP-TO-DATE
+> Task :servicios:publicidad:generarClienteDart UP-TO-DATE
+> Task :servicios:publicidad:generarClientes UP-TO-DATE
+> Task :servicios:tarifas:generarClienteAngular UP-TO-DATE
+> Task :servicios:tarifas:generarClienteDart UP-TO-DATE
+> Task :servicios:tarifas:generarClientes UP-TO-DATE
+> Task :servicios:transparencia:generarClienteAngular UP-TO-DATE
+> Task :servicios:transparencia:generarClienteDart UP-TO-DATE
+> Task :servicios:transparencia:generarClientes UP-TO-DATE
+
+BUILD SUCCESSFUL in 6s
+128 actionable tasks: 6 executed, 122 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+RC 0

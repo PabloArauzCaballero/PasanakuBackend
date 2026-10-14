@@ -18,7 +18,7 @@ import { cargadorDeLista, contextoConClave, filtroPorEstado, type Importe, type 
  * backend confirma la decisión, nunca es la primera línea de defensa.
  */
 export type EstadoFactura = 'REGISTRADA' | 'APROBADA' | 'PAGADA_PARCIAL' | 'PAGADA' | 'ANULADA'
-export type FormaDePago = 'TRANSFERENCIA' | 'CHEQUE' | 'EFECTIVO' | 'QR'
+export type FormaDePago = 'TRANSFERENCIA' | 'CHEQUE' | 'EFECTIVO'
 
 export type FacturaDeProveedor = {
   facturaProveedorId: string

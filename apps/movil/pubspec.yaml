@@ -9,7 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # Material/Widgets del sistema (incluido DatePicker) deben usar español boliviano.
+  # Widgets del sistema (incluido DatePicker) deben seguir el idioma configurado
+  # para Material; esta dependencia viene con Flutter y no agrega proveedor externo.
   flutter_localizations:
     sdk: flutter
   flutter_riverpod: ^3.0.0

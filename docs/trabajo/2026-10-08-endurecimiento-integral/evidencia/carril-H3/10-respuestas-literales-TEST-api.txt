@@ -1,0 +1,48 @@
+# Respuestas literales de https://api.aportaya.161.97.85.216.sslip.io/api/v1 (2026-10-11), carril H3. Cuentas sinteticas A y B; telefonos, tokens y hex64 enmascarados.
+# Cada bloque: peticion -> respuesta cruda del servidor TEST.
+
+## POST /sesiones  A sin segundo factor
+{"codigo":"AP-CU04-03","mensaje":"Confirma el codigo que te enviamos para terminar de entrar.","detalle":{},"trazaId":"fd758c0d-a591-4bc7-8aa3-77974c35803e"}
+HTTP 422
+
+## POST /sesiones  A con segundo factor OTP (perfil local de TEST)
+{"sesionId":"712042e3-4119-4b32-a88d-b00dee0364b0","expiraEn":"2026-10-12T06:51:34.080011Z","requiereFactorAdicional":false,"dispositivoConfiable":false,"tokenAcceso":"***"}
+HTTP 200
+
+## POST /sesiones  B con segundo factor OTP
+{"sesionId":"f2383ae3-e90d-4ca7-9ea4-eec32f635137","expiraEn":"2026-10-12T06:51:35.143923Z","requiereFactorAdicional":false,"dispositivoConfiable":false,"tokenAcceso":"***"}
+HTTP 200
+
+## GET /grupos/participaciones  (A, recien entrada)
+[]
+HTTP 200
+
+## GET /grupos/participaciones  (B)
+[]
+HTTP 200
+
+## POST /grupos  (A) nombre 'H3 API uno', 100.00 BOB, MENSUAL, 3 cupos, dia 5, ORDEN_DE_INGRESO, inicio 2026-11-15
+{"codigo":"AP-CU20-04","mensaje":"El servicio no esta habilitado en este momento.","detalle":{},"trazaId":"eef3117b-e323-4f37-b180-e2048078a0a5"}
+HTTP 422
+
+## GET /licencia/alcance?servicio=GRUPO_PASANAKU  (A) -- la puerta que cierra CU-20 (cumplimiento, R-LIC-01)
+{"habilitado":false,"via":"NINGUNA","limitesSandbox":null,"motivo":"Todavia no hay licencia otorgada: GRUPO_PASANAKU no puede ofrecerse."}
+HTTP 200
+
+## POST /grupos/{uuid-al-azar}/invitaciones  (A, grupo inexistente)
+{"codigo":"AP-CU69-07","mensaje":"No podes invitar a este grupo.","detalle":{},"trazaId":"b85079ad-0732-4c4f-bfed-c287d55e1608"}
+HTTP 422
+
+## POST /grupos/invitaciones/enlace/consultar  (B, tokenId al azar, token de 64 hex inventado)
+{"codigo":"AP-CU69-05","mensaje":"Esa invitacion ya no es valida.","detalle":{},"trazaId":"96fb0e78-89ad-4739-92e7-bca823dd5795"}
+HTTP 422
+
+## POST /grupos/invitaciones/enlace/aceptar  (B, mismo enlace inventado)
+{"codigo":"AP-CU69-05","mensaje":"Esa invitacion ya no es valida.","detalle":{},"trazaId":"ad7ec9bc-48a4-48ba-8129-2793905b4dea"}
+HTTP 422
+
+## GET /grupos/participaciones  (A y B) despues de todo lo anterior
+[]
+HTTP 200
+[]
+HTTP 200

@@ -52,6 +52,16 @@ DUENO_DE_SERVICIO = {
     "4A": "entregas", "4B": "garantia", "5A": "erp", "5B": "publicidad",
 }
 
+# Servicios que existen en el repo y todavia no tienen ficha de carril en planes/18.
+# No es un carril: es una deuda declarada, con su dueno del codigo y su motivo, que el
+# verificador imprime como AVISO en cada corrida. Asignarlos a un carril ajeno seria decidir
+# por el equipo (que puesto y que tramo los lleva); crear la ficha es de quien planifica.
+# Sale de aca cuando el servicio tenga su ficha y entre en DUENO_DE_SERVICIO.
+SERVICIO_SIN_FICHA = {
+    "inversiones": "M18 Inversion no tiene ficha en planes/18 ni en planes/21; "
+                   "dueno del codigo: @PabloArauzCaballero (.github/CODEOWNERS)",
+}
+
 
 def indice_de_fichas():
     """Los carriles del índice de planes/18: id → (puesto, {tramos}, peso)."""
@@ -244,7 +254,10 @@ def main():
     sin_nivel = sorted(s for s in servicios
                        if (SERVICIOS / s / "descriptor.yml").exists()
                        and "nivel:" not in (SERVICIOS / s / "descriptor.yml").read_text(encoding="utf-8"))
-    sin_carril = sorted(servicios - set(DUENO_DE_SERVICIO.values()))
+    sin_carril = sorted(servicios - set(DUENO_DE_SERVICIO.values()) - set(SERVICIO_SIN_FICHA))
+    for servicio, motivo in sorted(SERVICIO_SIN_FICHA.items()):
+        if servicio in servicios:
+            avisos.append(f"servicio sin ficha de carril: {servicio} — {motivo}")
     for lista, texto in ((sin_descriptor, "sin descriptor.yml"),
                          (sin_nivel, "sin nivel declarado (ADR-037)"),
                          (sin_carril, "sin carril dueño")):

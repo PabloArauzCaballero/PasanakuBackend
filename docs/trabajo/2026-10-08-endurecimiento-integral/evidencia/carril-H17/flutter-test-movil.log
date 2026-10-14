@@ -1,0 +1,47 @@
++238: /home/user/PasanakuBackend/apps/movil/test/widget/paso_perfil_transaccional_test.dart: «Otra» pide «¿Cuál?» y no deja seguir sin escribirla
+
+Warning: A call to tap() with finder "Found 1 widget with text "Elegir" (ignoring all but first): [
+  Text("Elegir", debugLabel: ((englishLike bodyLarge 2021).merge((((blackMountainView bodyLarge).apply).apply).merge(unknown))).copyWith, inherit: false, color: Color(alpha: 1.0000, red: 0.3922, green: 0.4431, blue: 0.4118, colorSpace: ColorSpace.sRGB), family: Instrument, size: 15.0, weight: 400, letterSpacing: 0.0, baseline: alphabetic, height: 1.5x, leadingDistribution: even, decoration: Color(alpha: 1.0000, red: 0.0627, green: 0.1373, blue: 0.1020, colorSpace: ColorSpace.sRGB) TextDecoration.none, overflow: ellipsis, dependencies: [DefaultSelectionStyle, DefaultTextStyle, MediaQuery]),
+]" derived an Offset (Offset(113.0, 63.0)) that would not hit test on the specified widget.
+Maybe the widget is actually off-screen, or another widget is obscuring it, or the widget cannot receive pointer events.
+The finder corresponds to this RenderBox: RenderParagraph#7eb61 relayoutBoundary=up8
+The hit test result at that offset is: HitTestResult(_RenderDecoration#bd478@Offset(97.0, 28.0), RenderSemanticsAnnotations#bd5fe@Offset(97.0, 28.0), RenderPointerListener#87463@Offset(97.0, 28.0), RenderSemanticsGestureHandler#a6dcf@Offset(97.0, 28.0), RenderMouseRegion#b92c8@Offset(97.0, 28.0), RenderSemanticsAnnotations#0af45@Offset(97.0, 28.0), RenderSemanticsAnnotations#3694b@Offset(97.0, 28.0), RenderSemanticsAnnotations#88b9a@Offset(97.0, 28.0), RenderSemanticsAnnotations#78c5d@Offset(97.0, 28.0), RenderFlex#f9384@Offset(97.0, 47.0), RenderFlex#afe36@Offset(97.0, 47.0), RenderPadding#30b17@Offset(113.0, 63.0), _RenderSingleChildViewport#94794@Offset(113.0, 63.0), RenderIgnorePointer#80690@Offset(113.0, 63.0), RenderSemanticsAnnotations#dfa3d@Offset(113.0, 63.0), RenderPointerListener#6a5dc@Offset(113.0, 63.0), RenderSemanticsGestureHandler#b3853@Offset(113.0, 63.0), RenderPointerListener#2afea@Offset(113.0, 63.0), _RenderScrollSemantics#f5841@Offset(113.0, 63.0), RenderClipRect#32e73@Offset(113.0, 63.0), RenderCustomMultiChildLayoutBox#960a0@Offset(113.0, 63.0), _RenderInkFeatures#f829a@Offset(113.0, 63.0), RenderPhysicalModel#e934c@Offset(113.0, 63.0), RenderSemanticsAnnotations#3e88d@Offset(113.0, 63.0), RenderRepaintBoundary#554c6@Offset(113.0, 63.0), RenderIgnorePointer#e6d4a@Offset(113.0, 63.0), RenderOpacity#47383@Offset(113.0, 63.0), RenderRepaintBoundary#ea35d@Offset(113.0, 63.0), RenderSemanticsAnnotations#c2de2@Offset(113.0, 63.0), RenderOffstage#bf726@Offset(113.0, 63.0), RenderSemanticsAnnotations#86eff@Offset(113.0, 63.0), _RenderTheater#5f891@Offset(113.0, 63.0), RenderAbsorbPointer#38ccb@Offset(113.0, 63.0), RenderPointerListener#2334b@Offset(113.0, 63.0), RenderSemanticsAnnotations#67767@Offset(113.0, 63.0), RenderCustomPaint#9cb3d@Offset(113.0, 63.0), RenderSemanticsAnnotations#7b806@Offset(113.0, 63.0), RenderSemanticsAnnotations#c3492@Offset(113.0, 63.0), RenderSemanticsAnnotations#a5f5c@Offset(113.0, 63.0), RenderTapRegionSurface#0afea@Offset(113.0, 63.0), RenderSemanticsAnnotations#f0485@Offset(113.0, 63.0), RenderSemanticsAnnotations#882f0@Offset(113.0, 63.0), HitTestEntry<HitTestTarget>#cae0d(_ReusableRenderView#62bcf), HitTestEntry<HitTestTarget>#25ffb(<AutomatedTestWidgetsFlutterBinding>))
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2165:25)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1947:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1080:7)
+#3      main.elegirOrigenSueldo (file:///home/user/PasanakuBackend/apps/movil/test/widget/paso_perfil_transaccional_test.dart:32:18)
+#4      main.<anonymous closure> (file:///home/user/PasanakuBackend/apps/movil/test/widget/paso_perfil_transaccional_test.dart:86:11)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+#7      StackZoneSpecification._registerCallback.<anonymous closure> (package:stack_trace/src/stack_zone_specification.dart:114:42)
+<asynchronous suspension>
+To silence this warning, pass "warnIfMissed: false" to "tap()".
+To make this warning fatal, set WidgetController.hitTestWarningShouldBeFatal to true.
+
++239: /home/user/PasanakuBackend/apps/movil/test/widget/paso_perfil_transaccional_test.dart: con una actividad de la lista, «¿Cuál?» no aparece
+
+Warning: A call to tap() with finder "Found 1 widget with text "Elegir" (ignoring all but first): [
+  Text("Elegir", debugLabel: ((englishLike bodyLarge 2021).merge((((blackMountainView bodyLarge).apply).apply).merge(unknown))).copyWith, inherit: false, color: Color(alpha: 1.0000, red: 0.3922, green: 0.4431, blue: 0.4118, colorSpace: ColorSpace.sRGB), family: Instrument, size: 15.0, weight: 400, letterSpacing: 0.0, baseline: alphabetic, height: 1.5x, leadingDistribution: even, decoration: Color(alpha: 1.0000, red: 0.0627, green: 0.1373, blue: 0.1020, colorSpace: ColorSpace.sRGB) TextDecoration.none, overflow: ellipsis, dependencies: [DefaultSelectionStyle, DefaultTextStyle, MediaQuery]),
+]" derived an Offset (Offset(113.0, 63.0)) that would not hit test on the specified widget.
+Maybe the widget is actually off-screen, or another widget is obscuring it, or the widget cannot receive pointer events.
+The finder corresponds to this RenderBox: RenderParagraph#0d800 relayoutBoundary=up8
+The hit test result at that offset is: HitTestResult(_RenderDecoration#f8962@Offset(97.0, 28.0), RenderSemanticsAnnotations#56dfb@Offset(97.0, 28.0), RenderPointerListener#8a409@Offset(97.0, 28.0), RenderSemanticsGestureHandler#f3c4a@Offset(97.0, 28.0), RenderMouseRegion#61ff4@Offset(97.0, 28.0), RenderSemanticsAnnotations#abf3c@Offset(97.0, 28.0), RenderSemanticsAnnotations#be211@Offset(97.0, 28.0), RenderSemanticsAnnotations#3d962@Offset(97.0, 28.0), RenderSemanticsAnnotations#228c1@Offset(97.0, 28.0), RenderFlex#89ba8@Offset(97.0, 47.0), RenderFlex#c604c@Offset(97.0, 47.0), RenderPadding#1edaf@Offset(113.0, 63.0), _RenderSingleChildViewport#d54e0@Offset(113.0, 63.0), RenderIgnorePointer#75188@Offset(113.0, 63.0), RenderSemanticsAnnotations#284a6@Offset(113.0, 63.0), RenderPointerListener#3db38@Offset(113.0, 63.0), RenderSemanticsGestureHandler#81a8f@Offset(113.0, 63.0), RenderPointerListener#317e5@Offset(113.0, 63.0), _RenderScrollSemantics#aa9dc@Offset(113.0, 63.0), RenderClipRect#d416b@Offset(113.0, 63.0), RenderCustomMultiChildLayoutBox#18c3d@Offset(113.0, 63.0), _RenderInkFeatures#a12cd@Offset(113.0, 63.0), RenderPhysicalModel#48725@Offset(113.0, 63.0), RenderSemanticsAnnotations#97826@Offset(113.0, 63.0), RenderRepaintBoundary#eec12@Offset(113.0, 63.0), RenderIgnorePointer#b7a79@Offset(113.0, 63.0), RenderOpacity#2f37c@Offset(113.0, 63.0), RenderRepaintBoundary#9558d@Offset(113.0, 63.0), RenderSemanticsAnnotations#7c1dc@Offset(113.0, 63.0), RenderOffstage#11ed3@Offset(113.0, 63.0), RenderSemanticsAnnotations#c4956@Offset(113.0, 63.0), _RenderTheater#e1ea2@Offset(113.0, 63.0), RenderAbsorbPointer#ba104@Offset(113.0, 63.0), RenderPointerListener#e4768@Offset(113.0, 63.0), RenderSemanticsAnnotations#5b17c@Offset(113.0, 63.0), RenderCustomPaint#bc0c0@Offset(113.0, 63.0), RenderSemanticsAnnotations#f35ae@Offset(113.0, 63.0), RenderSemanticsAnnotations#e7f25@Offset(113.0, 63.0), RenderSemanticsAnnotations#59548@Offset(113.0, 63.0), RenderTapRegionSurface#17500@Offset(113.0, 63.0), RenderSemanticsAnnotations#75395@Offset(113.0, 63.0), RenderSemanticsAnnotations#26549@Offset(113.0, 63.0), HitTestEntry<HitTestTarget>#52782(_ReusableRenderView#62bcf), HitTestEntry<HitTestTarget>#ccc02(<AutomatedTestWidgetsFlutterBinding>))
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2165:25)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1947:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1080:7)
+#3      main.elegirOrigenSueldo (file:///home/user/PasanakuBackend/apps/movil/test/widget/paso_perfil_transaccional_test.dart:32:18)
+#4      main.<anonymous closure> (file:///home/user/PasanakuBackend/apps/movil/test/widget/paso_perfil_transaccional_test.dart:106:11)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+#7      StackZoneSpecification._registerCallback.<anonymous closure> (package:stack_trace/src/stack_zone_specification.dart:114:42)
+<asynchronous suspension>
+To silence this warning, pass "warnIfMissed: false" to "tap()".
+To make this warning fatal, set WidgetController.hitTestWarningShouldBeFatal to true.
+
++407: All tests passed!

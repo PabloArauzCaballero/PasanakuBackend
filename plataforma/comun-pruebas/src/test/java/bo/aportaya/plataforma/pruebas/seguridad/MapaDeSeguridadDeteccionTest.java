@@ -58,6 +58,8 @@ class MapaDeSeguridadDeteccionTest {
                     get: { operationId: publicaConPuntoYComa, responses: { '200': { description: ok } } }
                   /demo/fantasma:
                     get: { operationId: nadieLaImplementa, responses: { '200': { description: ok } } }
+                  /demo/con-alternativas:
+                    get: { operationId: conAlternativas, responses: { '200': { description: ok } } }
                 """);
         Files.writeString(
                 web.resolve("DemoController.java"),
@@ -85,6 +87,13 @@ class MapaDeSeguridadDeteccionTest {
                     public String publicaConPuntoYComa() {
                         return "x";
                     }
+
+                    @Override
+                    @Permiso("DEMO_LEER")
+                    @PermisoAlternativo({"DEMO_VER", "DEMO_ADMINISTRAR"})
+                    public String conAlternativas() {
+                        return "x";
+                    }
                 }
                 """);
         mapa = MapaDeSeguridad.de(raiz);
@@ -108,6 +117,15 @@ class MapaDeSeguridadDeteccionTest {
         assertThat(decision.tipo()).isEqualTo(Decision.Tipo.PERMISO);
         assertThat(decision.valor()).isEqualTo("DEMO_LEER");
         assertThat(decision.linea()).isEqualTo(10);
+    }
+
+    @Test
+    @DisplayName("una anotacion con arreglo entre llaves no esconde el @Override ni el permiso del metodo")
+    void leeUnMetodoConAlternativasEnArreglo() {
+        Decision decision = mapa.decisionDe(operacion("conAlternativas"));
+
+        assertThat(decision.tipo()).isEqualTo(Decision.Tipo.PERMISO);
+        assertThat(decision.valor()).isEqualTo("DEMO_LEER");
     }
 
     @Test

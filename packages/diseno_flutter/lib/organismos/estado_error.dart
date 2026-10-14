@@ -8,10 +8,16 @@ import '../tokens/tokens.dart';
 /// Qué pasó en lenguaje humano, un botón de reintento y la traza para soporte.
 /// Sin conexión es una variante: último estado conocido, operaciones bloqueadas.
 class EstadoError extends StatelessWidget {
-  const EstadoError({super.key, required this.error, required this.reintentar});
+  const EstadoError({
+    super.key,
+    required this.error,
+    required this.reintentar,
+    this.etiquetaDeTraza = 'Referencia',
+  });
 
   final Object error;
   final VoidCallback reintentar;
+  final String etiquetaDeTraza;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +50,7 @@ class EstadoError extends StatelessWidget {
             if (traza != null) ...[
               const SizedBox(height: Espacio.s2),
               Text(
-                'Referencia: $traza',
+                '$etiquetaDeTraza: $traza',
                 style: Theme.of(
                   context,
                 ).textTheme.bodySmall?.copyWith(color: t.text3),

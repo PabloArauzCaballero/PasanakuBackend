@@ -66,6 +66,7 @@ public class UsuariosController extends ExpedienteController {
     private final SesionDeLaPeticion sesion;
     private final HttpServletRequest peticion;
     private final String pimienta;
+    private final LimiteDeConsultas limiteDeTitularidad;
 
     public UsuariosController(
             CU01RegistrarUsuario cu01,
@@ -83,7 +84,8 @@ public class UsuariosController extends ExpedienteController {
             HttpServletRequest peticion,
             @Value("${aportaya.seguridad.pimienta}") String pimienta,
             Reloj reloj,
-            @Value("${identidad.alta.vigencia-token:PT30M}") Duration vigenciaTokenDeAlta) {
+            @Value("${identidad.alta.vigencia-token:PT30M}") Duration vigenciaTokenDeAlta,
+            @Value("${aportaya.titularidad.consultas-por-minuto:120}") int titularidadPorMinuto) {
         super(consumo, sesion, peticion, fotos, estadoDeVerificacion, pimienta, reloj, vigenciaTokenDeAlta);
         this.cu01 = cu01;
         this.titularidad = titularidad;
@@ -96,6 +98,7 @@ public class UsuariosController extends ExpedienteController {
         this.sesion = sesion;
         this.peticion = peticion;
         this.pimienta = pimienta;
+        this.limiteDeTitularidad = new LimiteDeConsultas(reloj, titularidadPorMinuto, Duration.ofMinutes(1));
     }
 
     /**
@@ -179,6 +182,8 @@ public class UsuariosController extends ExpedienteController {
     @PermisoAlternativo("SERVICIO_ENTREGAS")
     public ResponseEntity<SalidaTitularidad> verificarTitularidad(UUID usuarioId, EntradaTitularidad cuerpo) {
         Traza.marcarCasoDeUso("CU-01", usuarioId.toString());
+        // Oraculo de si/no: tope por actor (429 con Retry-After) ANTES de tocar el expediente.
+        limiteDeTitularidad.registrar(sesion.actual().usuarioId());
 
         var respuesta = new SalidaTitularidad();
         respuesta.setCoincide(

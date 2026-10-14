@@ -94,6 +94,7 @@ void main() {
     '/registro',
     '/identidad/contrato',
     '/identidad/bienvenida',
+    '/identidad/mfa',
   ]) {
     testWidgets('$ruta se ve sin la barra de pestañas', (tester) async {
       // Un teléfono de verdad, no los 800×600 de fábrica del entorno de pruebas:

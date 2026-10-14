@@ -461,6 +461,12 @@ paths:
               schema: { $ref: '#/components/schemas/SalidaTitularidad' }
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
+        '429':
+          description: Demasiadas verificaciones de este actor en el ultimo minuto (el si/no repetido es un oraculo)
+          headers:
+            Retry-After:
+              description: Segundos hasta poder volver a preguntar
+              schema: { type: integer }
 
   /usuarios/tokens/invitacion:
     post:

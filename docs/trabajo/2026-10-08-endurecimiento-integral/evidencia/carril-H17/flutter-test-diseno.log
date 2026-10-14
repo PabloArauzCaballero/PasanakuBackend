@@ -1,0 +1,70 @@
++31: /home/user/PasanakuBackend/packages/diseno_flutter/test/widget/campo_de_fecha_test.dart: elegir 12, abril y 1995 emite el 12 de abril de 1995
+
+Warning: A call to tap() with finder "Found 1 widget with text "Mes": [
+  Text("Mes", debugLabel: ((englishLike bodyLarge 2021).merge((((blackMountainView bodyLarge).apply).apply).merge(unknown))).copyWith, inherit: false, color: Color(alpha: 1.0000, red: 0.3922, green: 0.4431, blue: 0.4118, colorSpace: ColorSpace.sRGB), family: Instrument, size: 15.0, weight: 400, letterSpacing: 0.0, baseline: alphabetic, height: 1.5x, leadingDistribution: even, decoration: Color(alpha: 1.0000, red: 0.0627, green: 0.1373, blue: 0.1020, colorSpace: ColorSpace.sRGB) TextDecoration.none, overflow: ellipsis, dependencies: [DefaultSelectionStyle, DefaultTextStyle, MediaQuery]),
+]" derived an Offset (Offset(264.4, 92.0)) that would not hit test on the specified widget.
+Maybe the widget is actually off-screen, or another widget is obscuring it, or the widget cannot receive pointer events.
+The finder corresponds to this RenderBox: RenderParagraph#354a8 relayoutBoundary=up8
+The hit test result at that offset is: HitTestResult(_RenderDecoration#8085c@Offset(42.5, 28.0), RenderSemanticsAnnotations#73cff@Offset(42.5, 28.0), RenderPointerListener#baf2a@Offset(42.5, 28.0), RenderSemanticsGestureHandler#c173e@Offset(42.5, 28.0), RenderMouseRegion#133f0@Offset(42.5, 28.0), RenderSemanticsAnnotations#4c5ea@Offset(42.5, 28.0), RenderSemanticsAnnotations#efbab@Offset(42.5, 28.0), RenderSemanticsAnnotations#c0980@Offset(42.5, 28.0), RenderSemanticsAnnotations#df458@Offset(42.5, 28.0), RenderFlex#5c81d@Offset(42.5, 28.0), RenderFlex#08b5c@Offset(248.4, 28.0), RenderFlex#290bd@Offset(248.4, 76.0), RenderPadding#f842b@Offset(264.4, 92.0), _RenderSingleChildViewport#3e486@Offset(264.4, 92.0), RenderIgnorePointer#23fc1@Offset(264.4, 92.0), RenderSemanticsAnnotations#06418@Offset(264.4, 92.0), RenderPointerListener#20fd1@Offset(264.4, 92.0), RenderSemanticsGestureHandler#90e79@Offset(264.4, 92.0), RenderPointerListener#9977a@Offset(264.4, 92.0), _RenderScrollSemantics#d9894@Offset(264.4, 92.0), RenderClipRect#6b066@Offset(264.4, 92.0), RenderCustomMultiChildLayoutBox#a8573@Offset(264.4, 92.0), _RenderInkFeatures#4285d@Offset(264.4, 92.0), RenderPhysicalModel#97fd4@Offset(264.4, 92.0), RenderSemanticsAnnotations#25190@Offset(264.4, 92.0), RenderRepaintBoundary#99317@Offset(264.4, 92.0), RenderIgnorePointer#f9715@Offset(264.4, 92.0), RenderOpacity#0c2e5@Offset(264.4, 92.0), RenderRepaintBoundary#cd343@Offset(264.4, 92.0), RenderSemanticsAnnotations#7e1cf@Offset(264.4, 92.0), RenderOffstage#e1d4b@Offset(264.4, 92.0), RenderSemanticsAnnotations#79102@Offset(264.4, 92.0), _RenderTheater#8d23a@Offset(264.4, 92.0), RenderAbsorbPointer#bba4b@Offset(264.4, 92.0), RenderPointerListener#1f588@Offset(264.4, 92.0), RenderSemanticsAnnotations#96fff@Offset(264.4, 92.0), RenderSemanticsAnnotations#22d6a@Offset(264.4, 92.0), RenderSemanticsAnnotations#199d6@Offset(264.4, 92.0), RenderSemanticsAnnotations#48bc1@Offset(264.4, 92.0), RenderTapRegionSurface#82c91@Offset(264.4, 92.0), RenderSemanticsAnnotations#18595@Offset(264.4, 92.0), RenderSemanticsAnnotations#b379f@Offset(264.4, 92.0), HitTestEntry<HitTestTarget>#4d6a9(_ReusableRenderView#1d968), HitTestEntry<HitTestTarget>#e9bc8(<AutomatedTestWidgetsFlutterBinding>))
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2165:25)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1947:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1080:7)
+#3      main.elegirMes (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/widget/campo_de_fecha_test.dart:40:18)
+#4      main.<anonymous closure> (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/widget/campo_de_fecha_test.dart:59:11)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+#7      StackZoneSpecification._registerCallback.<anonymous closure> (package:stack_trace/src/stack_zone_specification.dart:114:42)
+<asynchronous suspension>
+To silence this warning, pass "warnIfMissed: false" to "tap()".
+To make this warning fatal, set WidgetController.hitTestWarningShouldBeFatal to true.
+
++35: /home/user/PasanakuBackend/packages/diseno_flutter/test/widget/campo_de_fecha_test.dart: el 31 de febrero no se emite y se explica
+
+Warning: A call to tap() with finder "Found 1 widget with text "Mes": [
+  Text("Mes", debugLabel: ((englishLike bodyLarge 2021).merge((((blackMountainView bodyLarge).apply).apply).merge(unknown))).copyWith, inherit: false, color: Color(alpha: 1.0000, red: 0.3922, green: 0.4431, blue: 0.4118, colorSpace: ColorSpace.sRGB), family: Instrument, size: 15.0, weight: 400, letterSpacing: 0.0, baseline: alphabetic, height: 1.5x, leadingDistribution: even, decoration: Color(alpha: 1.0000, red: 0.0627, green: 0.1373, blue: 0.1020, colorSpace: ColorSpace.sRGB) TextDecoration.none, overflow: ellipsis, dependencies: [DefaultSelectionStyle, DefaultTextStyle, MediaQuery]),
+]" derived an Offset (Offset(264.4, 92.0)) that would not hit test on the specified widget.
+Maybe the widget is actually off-screen, or another widget is obscuring it, or the widget cannot receive pointer events.
+The finder corresponds to this RenderBox: RenderParagraph#e0179 relayoutBoundary=up8
+The hit test result at that offset is: HitTestResult(_RenderDecoration#4c335@Offset(42.5, 28.0), RenderSemanticsAnnotations#f7e5c@Offset(42.5, 28.0), RenderPointerListener#f3129@Offset(42.5, 28.0), RenderSemanticsGestureHandler#d7925@Offset(42.5, 28.0), RenderMouseRegion#62ebb@Offset(42.5, 28.0), RenderSemanticsAnnotations#6de19@Offset(42.5, 28.0), RenderSemanticsAnnotations#34186@Offset(42.5, 28.0), RenderSemanticsAnnotations#998fd@Offset(42.5, 28.0), RenderSemanticsAnnotations#6059d@Offset(42.5, 28.0), RenderFlex#dea05@Offset(42.5, 28.0), RenderFlex#53c59@Offset(248.4, 28.0), RenderFlex#c067b@Offset(248.4, 76.0), RenderPadding#62c87@Offset(264.4, 92.0), _RenderSingleChildViewport#a06e4@Offset(264.4, 92.0), RenderIgnorePointer#a9c34@Offset(264.4, 92.0), RenderSemanticsAnnotations#49924@Offset(264.4, 92.0), RenderPointerListener#616d1@Offset(264.4, 92.0), RenderSemanticsGestureHandler#c5255@Offset(264.4, 92.0), RenderPointerListener#38e3a@Offset(264.4, 92.0), _RenderScrollSemantics#1e325@Offset(264.4, 92.0), RenderClipRect#0b8ea@Offset(264.4, 92.0), RenderCustomMultiChildLayoutBox#a0399@Offset(264.4, 92.0), _RenderInkFeatures#0dc93@Offset(264.4, 92.0), RenderPhysicalModel#dec5a@Offset(264.4, 92.0), RenderSemanticsAnnotations#cec9c@Offset(264.4, 92.0), RenderRepaintBoundary#bd337@Offset(264.4, 92.0), RenderIgnorePointer#76574@Offset(264.4, 92.0), RenderOpacity#f81d6@Offset(264.4, 92.0), RenderRepaintBoundary#bdd2b@Offset(264.4, 92.0), RenderSemanticsAnnotations#48fb1@Offset(264.4, 92.0), RenderOffstage#24eeb@Offset(264.4, 92.0), RenderSemanticsAnnotations#13d5a@Offset(264.4, 92.0), _RenderTheater#8ca0a@Offset(264.4, 92.0), RenderAbsorbPointer#7cc49@Offset(264.4, 92.0), RenderPointerListener#65fbc@Offset(264.4, 92.0), RenderSemanticsAnnotations#10989@Offset(264.4, 92.0), RenderSemanticsAnnotations#5f334@Offset(264.4, 92.0), RenderSemanticsAnnotations#e5234@Offset(264.4, 92.0), RenderSemanticsAnnotations#b29df@Offset(264.4, 92.0), RenderTapRegionSurface#852c7@Offset(264.4, 92.0), RenderSemanticsAnnotations#e726b@Offset(264.4, 92.0), RenderSemanticsAnnotations#87436@Offset(264.4, 92.0), HitTestEntry<HitTestTarget>#eaa8e(_ReusableRenderView#1d968), HitTestEntry<HitTestTarget>#fa8e8(<AutomatedTestWidgetsFlutterBinding>))
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2165:25)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1947:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1080:7)
+#3      main.elegirMes (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/widget/campo_de_fecha_test.dart:40:18)
+#4      main.<anonymous closure> (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/widget/campo_de_fecha_test.dart:69:11)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+#7      StackZoneSpecification._registerCallback.<anonymous closure> (package:stack_trace/src/stack_zone_specification.dart:114:42)
+<asynchronous suspension>
+To silence this warning, pass "warnIfMissed: false" to "tap()".
+To make this warning fatal, set WidgetController.hitTestWarningShouldBeFatal to true.
+
++36: /home/user/PasanakuBackend/packages/diseno_flutter/test/widget/campo_de_fecha_test.dart: el 29 de febrero de un año bisiesto sí existe
+
+Warning: A call to tap() with finder "Found 1 widget with text "Mes": [
+  Text("Mes", debugLabel: ((englishLike bodyLarge 2021).merge((((blackMountainView bodyLarge).apply).apply).merge(unknown))).copyWith, inherit: false, color: Color(alpha: 1.0000, red: 0.3922, green: 0.4431, blue: 0.4118, colorSpace: ColorSpace.sRGB), family: Instrument, size: 15.0, weight: 400, letterSpacing: 0.0, baseline: alphabetic, height: 1.5x, leadingDistribution: even, decoration: Color(alpha: 1.0000, red: 0.0627, green: 0.1373, blue: 0.1020, colorSpace: ColorSpace.sRGB) TextDecoration.none, overflow: ellipsis, dependencies: [DefaultSelectionStyle, DefaultTextStyle, MediaQuery]),
+]" derived an Offset (Offset(264.4, 92.0)) that would not hit test on the specified widget.
+Maybe the widget is actually off-screen, or another widget is obscuring it, or the widget cannot receive pointer events.
+The finder corresponds to this RenderBox: RenderParagraph#2e0a4 relayoutBoundary=up8
+The hit test result at that offset is: HitTestResult(_RenderDecoration#84950@Offset(42.5, 28.0), RenderSemanticsAnnotations#4f158@Offset(42.5, 28.0), RenderPointerListener#4df79@Offset(42.5, 28.0), RenderSemanticsGestureHandler#fe389@Offset(42.5, 28.0), RenderMouseRegion#cf814@Offset(42.5, 28.0), RenderSemanticsAnnotations#36538@Offset(42.5, 28.0), RenderSemanticsAnnotations#61013@Offset(42.5, 28.0), RenderSemanticsAnnotations#368dd@Offset(42.5, 28.0), RenderSemanticsAnnotations#30052@Offset(42.5, 28.0), RenderFlex#2258e@Offset(42.5, 28.0), RenderFlex#5cd9a@Offset(248.4, 28.0), RenderFlex#ce5df@Offset(248.4, 76.0), RenderPadding#37167@Offset(264.4, 92.0), _RenderSingleChildViewport#518e3@Offset(264.4, 92.0), RenderIgnorePointer#77f4f@Offset(264.4, 92.0), RenderSemanticsAnnotations#3acd5@Offset(264.4, 92.0), RenderPointerListener#00451@Offset(264.4, 92.0), RenderSemanticsGestureHandler#d3778@Offset(264.4, 92.0), RenderPointerListener#9eb27@Offset(264.4, 92.0), _RenderScrollSemantics#38a4c@Offset(264.4, 92.0), RenderClipRect#ea7eb@Offset(264.4, 92.0), RenderCustomMultiChildLayoutBox#0d82e@Offset(264.4, 92.0), _RenderInkFeatures#6bcd5@Offset(264.4, 92.0), RenderPhysicalModel#30c17@Offset(264.4, 92.0), RenderSemanticsAnnotations#b149d@Offset(264.4, 92.0), RenderRepaintBoundary#a966a@Offset(264.4, 92.0), RenderIgnorePointer#4178b@Offset(264.4, 92.0), RenderOpacity#8db82@Offset(264.4, 92.0), RenderRepaintBoundary#8d2d9@Offset(264.4, 92.0), RenderSemanticsAnnotations#5e880@Offset(264.4, 92.0), RenderOffstage#b4217@Offset(264.4, 92.0), RenderSemanticsAnnotations#fc1a1@Offset(264.4, 92.0), _RenderTheater#2bd82@Offset(264.4, 92.0), RenderAbsorbPointer#6087d@Offset(264.4, 92.0), RenderPointerListener#c22b6@Offset(264.4, 92.0), RenderSemanticsAnnotations#be12f@Offset(264.4, 92.0), RenderSemanticsAnnotations#c24eb@Offset(264.4, 92.0), RenderSemanticsAnnotations#85796@Offset(264.4, 92.0), RenderSemanticsAnnotations#d2fb0@Offset(264.4, 92.0), RenderTapRegionSurface#978ef@Offset(264.4, 92.0), RenderSemanticsAnnotations#d6348@Offset(264.4, 92.0), RenderSemanticsAnnotations#33930@Offset(264.4, 92.0), HitTestEntry<HitTestTarget>#6c76c(_ReusableRenderView#1d968), HitTestEntry<HitTestTarget>#f9e01(<AutomatedTestWidgetsFlutterBinding>))
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2165:25)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1947:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1080:7)
+#3      main.elegirMes (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/widget/campo_de_fecha_test.dart:40:18)
+#4      main.<anonymous closure> (file:///home/user/PasanakuBackend/packages/diseno_flutter/test/widget/campo_de_fecha_test.dart:81:11)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+#7      StackZoneSpecification._registerCallback.<anonymous closure> (package:stack_trace/src/stack_zone_specification.dart:114:42)
+<asynchronous suspension>
+To silence this warning, pass "warnIfMissed: false" to "tap()".
+To make this warning fatal, set WidgetController.hitTestWarningShouldBeFatal to true.
+
++47: All tests passed!

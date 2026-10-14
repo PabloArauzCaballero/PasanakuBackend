@@ -277,8 +277,11 @@ paths:
         sesion de usuario final recibe 403 aunque tenga `BILLETERA_OPERAR`). NO lleva cuerpo: el
         beneficiario y el reparto NO los dicta quien llama. Se derivan en el servidor: la retencion
         `COMPRA_EN_MERCADO` nombra la oferta (`referencia_id`); se le pregunta a `entregas` quien es el
-        vendedor y cual es el precio (si no responde, no se paga); el vendedor recibe el precio y la
-        plataforma la diferencia con lo retenido. Una retencion se ejecuta una sola vez: la repetida con
+        vendedor, cual es el precio y cuales son los cargos (si no responde o no informa los cargos, no se paga).
+        Reparto (decision adoptada por delegacion del dueno, 2026-10-11): el comprador paga el precio, que tiene que ser
+        exactamente lo retenido (`AP-CU13-06` si no); el vendedor recibe `precio - cargos` y la plataforma los `cargos`,
+        cada uno con su linea en la transaccion (regla 91.3.4); los cargos van entre 0 y el precio (`AP-CU13-06` si no).
+        Una retencion se ejecuta una sola vez: la repetida con
         la misma `Idempotency-Key` devuelve el mismo resultado sin otro asiento; pagada o liberada se
         rechaza (R-BIL-24).
       parameters:

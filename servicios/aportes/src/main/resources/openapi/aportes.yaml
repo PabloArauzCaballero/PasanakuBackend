@@ -267,7 +267,9 @@ paths:
       description: >-
         La consulta que hace posible que otros servicios decidan sin leer este esquema
         (invariante 11). `grupos` la usa antes de permitir una permuta o un traspaso;
-        `nucleo-financiero`, antes de cerrar una billetera. Sin ella, el dato lo
+        `nucleo-financiero`, antes de cerrar una billetera. El identificador es el `participanteId` de `grupos`
+        (una persona tiene uno POR GRUPO), NO el `usuarioId`: quien parte de un usuario resuelve primero sus
+        participaciones con `GET /grupos/participaciones` y pregunta por cada una. Sin ella, el dato lo
         tendria que afirmar quien pide — y el que pide seria juez de si esta al dia.
 
         Quien no tiene ninguna obligacion esta al dia: no deber nada porque todavia no

@@ -46,6 +46,7 @@ Modulo 02 de la boveda — Grupos, Cupos, Turnos y Gobernanza.
 | Tema | De quien | Efecto |
 | --- | --- | --- |
 | `aportaya.entregas.derecho_cedido` | `entregas` | El cupo del turno vendido pasa del vendedor al comprador (`AplicarCesionDeDerecho`): un traspaso `VENTA` con deuda 0, una sola vez por evento y por hecho; fuera de orden se rechaza sin marcar. Encendido por omision (`CESION_CONSUMO_HABILITADO`). **Pendiente de negocio:** las obligaciones futuras ya generadas a nombre del vendedor y `permite_cupos_multiples` del comprador |
+| `aportaya.tarifas.tarifa_congelada` | `tarifas` | CU-20: el grupo `BORRADOR` pasa a `ABIERTO_A_INSCRIPCION` (`AbrirInscripcionDelGrupo`), una sola vez por evento y con la precondicion `estado='BORRADOR'` en el `UPDATE`; deja `historial_estado_grupo`. Encendido por omision (`APERTURA_CONSUMO_HABILITADO`). **Supuesto A1 (a confirmar con producto y con `nucleo-financiero`):** abre con el precio congelado, sin esperar la cuenta del grupo |
 | `aportaya.organizador.habilitacion_revocada` | `organizador` | Sustitucion del administrador (H5.S1.M7); apagado por omision (`SUSTITUCION_CONSUMO_HABILITADO`) |
 
 ## Trabajos programados
@@ -93,4 +94,9 @@ feriado; `catalogo.dia_no_habil` es de solo lectura (ADR-029), asi que nada lo e
   saltean la admision humana (`AP-CU69-10`, `AP-CU68-15`); `aportaya.grupos.sustitucion.automatica`
   (`SUSTITUCION_AUTOMATICA_ADMIN`, false = manual) y `...consumo-habilitado` gobiernan la sustitucion del administrador al revocarse la
   habilitacion del organizador (`SustitucionAutomatica`, consumidor Kafka apagado por omision).
+- **Decisiones adoptadas por delegacion del dueno del proyecto (2026-10-11, «lo mas recomendado»):** (1) el grupo se abre
+  a inscripciones AUTOMATICAMENTE al confirmarse el congelamiento del precio (`AbrirInscripcionDelGrupo`), sin interruptor
+  apagado; (2) produccion debe fijar `ADMISION_HUMANA_OBLIGATORIA=true` (ya es el valor por omision de la aplicacion; el
+  compose de TEST la deja en `false`); (3) `SUSTITUCION_AUTOMATICA_ADMIN=false` (manual) por omision. El canje de una invitacion
+  comprueba la postulacion ANTES de consumir el enlace en `identidad` (`CanjearInvitacion.comprobarAntesDeConsumir`).
 - Diccionario de variables de riesgo del motor: `docs/operacion/diccionario-variables-de-riesgo.md`.

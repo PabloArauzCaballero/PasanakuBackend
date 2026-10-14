@@ -22,7 +22,7 @@ class TextosIdentidad {
       'Se sortea, y cualquiera del grupo puede comprobarlo.';
   static const portadaCustodiaTitulo = 'La plata no la tenemos nosotros';
   static const portadaCustodiaDetalle =
-      'Queda en Banco Unión, aparte del dinero de la empresa.';
+      'Queda en una cuenta de custodia, aparte del dinero de la empresa.';
   static const portadaSaltar = 'Saltar';
   static const portadaComoFunciona = '¿Cómo funciona?';
   static const tourSiguiente = 'Siguiente';
@@ -156,7 +156,7 @@ class TextosIdentidad {
       'AportaYa y te ayudamos a entrar.';
   static const sesionSinCuenta = '¿Todavía no tenés cuenta?';
   static const sesionCustodia =
-      'Tu plata queda en custodia en Banco Unión, separada del dinero de la empresa.';
+      'Tu plata queda en una cuenta de custodia, separada del dinero de la empresa.';
   static const contrasena = 'Contraseña';
   static const ingresar = 'Ingresar';
   static const tituloMfa = 'Verificación en dos pasos';
@@ -165,6 +165,11 @@ class TextosIdentidad {
   static const mfaSinCodigoAyuda =
       'Si no recibiste un código o no podés acceder, comunicate con soporte de '
       'AportaYa.';
+  static const explicacionMfa =
+      'Para cuidar tu cuenta te pedimos un código más. Escribí los 6 dígitos de '
+      'tu segundo factor y confirmá para terminar de ingresar.';
+  static const confirmarMfa = 'Confirmar';
+  static const etiquetaCodigoMfa = 'Código de tu segundo factor';
   static const dispositivoDeConfianza =
       'Confiar en este dispositivo por 30 días';
   static const tusDispositivos = 'Tus dispositivos';

@@ -213,6 +213,7 @@ package "Terceros comerciales, compras y cuentas por pagar" {
     - fechaPago: DateTime
     - formaPago: String <<TRANSFERENCIA | CHEQUE | EFECTIVO>>
     - autorizadoPor: UUID
+    - claveIdempotencia: UUID
     - asientoContableId: UUID
   }
 }
@@ -546,6 +547,7 @@ entity "pago_a_proveedor" as pagprov {
   fecha_pago : TIMESTAMPTZ
   forma_pago : VARCHAR(20) <<CK>>
   # autorizado_por : UUID <<FK>>
+  clave_idempotencia : UUID <<NULL>>
   # asiento_contable_id : UUID <<FK, NULL, M3>>
 }
 

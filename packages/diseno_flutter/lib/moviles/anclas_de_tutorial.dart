@@ -41,17 +41,21 @@ class AnclasDeTutorial {
     String id,
     Duration plazo, {
     Duration paso = const Duration(milliseconds: 50),
+    Future<void> Function(Duration duracion)? pausa,
+    bool Function()? cancelada,
   }) async {
     final intentos = (plazo.inMilliseconds / paso.inMilliseconds).ceil().clamp(
       1,
       600,
     );
     for (var i = 0; i < intentos; i++) {
+      if (cancelada?.call() ?? false) return null;
       final recuadro = recuadroDe(id);
       if (recuadro != null) {
         return recuadro;
       }
-      await Future<void>.delayed(paso);
+      await (pausa?.call(paso) ?? Future<void>.delayed(paso));
+      if (cancelada?.call() ?? false) return null;
     }
     return recuadroDe(id);
   }

@@ -71,7 +71,12 @@ class _PantallaCrearGrupoState extends ConsumerState<PantallaCrearGrupo>
   /// pregunta y se completa al enviar (hoy + 7 días, `organismos_crear_grupo.dart`). Exigirla
   /// acá dejaba «Crear grupo» apagado para siempre (hallazgo del carril H en emulador).
   @override
-  bool get completo => nombre.text.trim().length >= 3 && monto != null;
+  bool get completo =>
+      nombre.text.trim().length >= 3 && monto != null && _hayImporte(monto!);
+
+  /// Carril H3: «00,00» era un monto válido para el campo y dejaba «Crear grupo» encendido. Un aporte en
+  /// cero no es un aporte: hace falta al menos un dígito distinto de cero.
+  static bool _hayImporte(String monto) => RegExp(r'[1-9]').hasMatch(monto);
 
   @override
   Widget build(BuildContext context) {

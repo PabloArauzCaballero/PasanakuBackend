@@ -1,0 +1,11 @@
+Changed lib/dominio/errores.dart
+Changed lib/pantallas/billetera/resolver_cuenta.dart
+Changed lib/pantallas/identidad/dominio/estado_de_verificacion.dart
+Changed test/unidad/errores_identidad_test.dart
+Changed test/unidad/estado_de_verificacion_test.dart
+Changed test/widget/inicio_de_billetera_test.dart
+Formatted 303 files (6 changed) in 0.62 seconds.
+movil format RC=1
+Analyzing movil...
+No issues found!
+movil analyze RC=0

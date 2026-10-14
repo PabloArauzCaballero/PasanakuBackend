@@ -22,7 +22,8 @@ void main() {
     return emitidas;
   }
 
-  /// Los tres componentes se eligen en la hoja modal buscable.
+  /// Día y año tienen buscador; el mes es desplegable. Conserva el flujo de
+  /// selección desde la hoja modal buscable.
   Future<void> buscarYElegir(
     WidgetTester tester,
     String vacio,

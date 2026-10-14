@@ -126,6 +126,11 @@ export const ErroresCU13 = {
 
 [[retencion_saldo]] · [[cuenta_billetera]] · [[transaccion_billetera]] (si se ejecuta)
 
+> Reparto de la venta de un turno, adoptado por delegación del dueño (2026-10-11) y alineado con lo que modela
+> `entregas`: el comprador paga el **precio** (lo retenido), el vendedor cobra `precio − cargos` y la plataforma
+> ingresa los `cargos`, cada uno con su línea en la transacción (regla 91.3.4). Los cargos los afirma `entregas` con
+> la oferta; sin ellos no se paga. Errores: `AP-CU13-06` si el precio no es lo retenido o los cargos son negativos o superan el precio.
+
 ## Criterios de aceptación
 
 ```gherkin
@@ -147,7 +152,7 @@ Cuando el servicio de inversiones la debita
 Entonces el titular queda con Bs 700 disponibles y Bs 0 retenidos
 Y la custodia de inversión recibe Bs 300 en una transacción que cuadra
 
-Dada una retención COMPRA_EN_MERCADO de Bs 500 para una oferta de Bs 480
+Dada una retención COMPRA_EN_MERCADO de Bs 500 para una oferta de precio Bs 500 con cargos de Bs 20
 Cuando el servicio de entregas la paga
 Entonces el vendedor recibe Bs 480 y la plataforma Bs 20
 Y la retención queda EJECUTADA una sola vez

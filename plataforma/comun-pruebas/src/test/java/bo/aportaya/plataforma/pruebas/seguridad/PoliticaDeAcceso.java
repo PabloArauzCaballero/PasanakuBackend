@@ -31,7 +31,11 @@ final class PoliticaDeAcceso {
             "verificarSorteo", "verificacion publica del sorteo (CU-61)",
             "verificarCadena", "verificacion publica de la cadena de transparencia (CU-73)",
             "listarBloques", "los eslabones se publican para auditarlos (CU-72)",
-            "verificarCertificado", "un certificado se verifica por su codigo, sin cuenta (CU-75)");
+            "verificarCertificado", "un certificado se verifica por su codigo, sin cuenta (CU-75)",
+            "consultarEstadoDeVerificacion",
+                    "lee sin sesion obligatoria porque quien se acaba de registrar aun no puede abrirla (CU-02); "
+                            + "el usuarioId de la URL no autoriza nada: exige el token de alta de ESE usuario o su sesion, "
+                            + "y todo otro caso es el mismo 403 (TitularDelExpediente)");
 
     /** Una ruta publica que CAMBIA estado: sin sesion, algo tiene que autenticar o limitar. */
     static final Map<String, ControlCompensatorio> PUBLICAS_QUE_ESCRIBEN = Map.of(
@@ -69,7 +73,13 @@ final class PoliticaDeAcceso {
             new ControlCompensatorio(
                     "servicios/identidad/src/main/java/bo/aportaya/identidad/web/TitularDelExpediente.java",
                     "AccessDeniedException",
-                    "las fotos se suben durante el alta, sin sesion; exige el token de alta de ESE usuario o su sesion"));
+                    "las fotos se suben durante el alta, sin sesion; exige el token de alta de ESE usuario o su sesion"),
+            "renovarSesion",
+            new ControlCompensatorio(
+                    "servicios/identidad/src/main/java/bo/aportaya/identidad/web/CookieDeRefresco.java",
+                    "sameSite\\(\"Strict\"\\)",
+                    "ADR-010: la credencial es la cookie de refresh (HttpOnly, Secure, SameSite=Strict contra CSRF), "
+                            + "rotada y de un solo uso; no hay token de acceso que presentar porque es lo que se renueva"));
 
     // No hay lista de «publicas que escriben sin control»: el ultimo hallazgo (subirDocumento) se
     // cerro con el token de alta. Una ruta publica que escribe y no figura arriba rompe la matriz.

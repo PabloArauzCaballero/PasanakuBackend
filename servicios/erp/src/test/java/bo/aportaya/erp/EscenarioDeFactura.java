@@ -60,14 +60,14 @@ abstract class EscenarioDeFactura extends BaseDeErp {
      * declarado como hueco del carril.
      */
     protected EntradaFactura factura(String monto, LocalDate emision) {
-        return factura(monto, emision, aprobador.usuarioId());
+        return factura(monto, emision, true);
     }
 
-    protected EntradaFactura factura(String monto, LocalDate emision, UUID aprobadaPor) {
-        return factura("F-" + UUID.randomUUID().toString().substring(0, 8), monto, emision, aprobadaPor);
+    protected EntradaFactura factura(String monto, LocalDate emision, boolean aprobar) {
+        return factura("F-" + UUID.randomUUID().toString().substring(0, 8), monto, emision, aprobar);
     }
 
-    protected EntradaFactura factura(String numero, String monto, LocalDate emision, UUID aprobadaPor) {
+    protected EntradaFactura factura(String numero, String monto, LocalDate emision, boolean aprobar) {
         return new EntradaFactura(
                 proveedor,
                 null,
@@ -78,6 +78,6 @@ abstract class EscenarioDeFactura extends BaseDeErp {
                 new BigDecimal(monto),
                 "BOB",
                 null,
-                aprobadaPor);
+                aprobar);
     }
 }

@@ -27,6 +27,13 @@ Modulo 11 de la boveda — Tarifas, Comisiones, Impuestos y Facturación.
 
 Los siete del modulo 11. Ninguno queda a medias.
 
+## Eventos
+
+| Tema | Direccion | Efecto |
+| --- | --- | --- |
+| `aportaya.grupos.grupo_creado` | consume (`grupos`) | CU-20 · congela el precio del grupo (`CongelarTarifaDelGrupo`): `tarifa_congelada_grupo` con el snapshot del tarifario (conceptos activos y sus reglas) y su hash SHA-256, una sola vez por evento y por grupo (R-TAR-07). Encendido por omision (`CONGELAMIENTO_CONSUMO_HABILITADO`). **Supuesto A2 (a confirmar con producto y finanzas):** el contenido del snapshot |
+| `tarifas.tarifa_congelada` | emite | Responde al `grupo_creado`; `grupos` lo consume para abrir el grupo a inscripciones. Tema nuevo: `despliegue/host/crear-topicos.sh` lo provisiona en el broker |
+
 ## Lo que hay que saber antes de tocar esto
 
 **El devengo es append-only.** `tg_devengo_comision_append_only` bloquea UPDATE *y*

@@ -135,8 +135,10 @@ void main() {
         // Las dos secciones que dan contexto debajo de la cifra.
         expect(find.text('Tus pasanakus'), findsOneWidget);
         expect(find.text('Movimientos'), findsOneWidget);
-        // La custodia sigue estando: es lo que responde «¿dónde está mi plata?».
-        expect(find.textContaining('Banco Unión'), findsOneWidget);
+        // La custodia sigue estando: es lo que responde «¿dónde está mi plata?». Sin nombre de banco:
+        // ninguna fuente documentada lo respalda (docs/, contratos).
+        expect(find.textContaining('En custodia'), findsOneWidget);
+        expect(find.textContaining('Banco Unión'), findsNothing);
       });
     },
   );

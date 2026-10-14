@@ -27,7 +27,6 @@ class CuerpoDeSaldo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
-    final hayRetenido = saldo.retenido.monto != '0.00';
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.only(top: Espacio.s4, bottom: Espacio.s6),
@@ -51,7 +50,10 @@ class CuerpoDeSaldo extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: Espacio.s5),
+        const Padding(
+          padding: EdgeInsets.only(bottom: Espacio.s4),
+          child: _NotaDeCustodia(),
+        ),
         const TituloDeSeccion(titulo: TextosBilletera.tusPasanakus),
         Panel(
           hijo: Text(
@@ -72,14 +74,20 @@ class CuerpoDeSaldo extends StatelessWidget {
           valor: movimientos,
           reintentar: reintentarMovimientos,
         ),
-        const SizedBox(height: Espacio.s5),
-        Text(
-          hayRetenido
-              ? TextosBilletera.custodia
-              : '${TextosBilletera.custodia}. ${TextosBilletera.nadaTrabado}.',
-          style: Tipo.ayuda.copyWith(color: t.text3),
-        ),
       ],
+    );
+  }
+}
+
+class _NotaDeCustodia extends StatelessWidget {
+  const _NotaDeCustodia();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Tokens.of(context);
+    return Text(
+      TextosBilletera.custodia,
+      style: Tipo.ayuda.copyWith(color: t.text3),
     );
   }
 }

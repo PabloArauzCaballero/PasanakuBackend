@@ -17,13 +17,14 @@ normas: [ASFI transparencia y consumidor financiero]
 
 ## Actores y disparador
 
-- **Actor principal:** organizador (humano o digital).
+- **Actor principal:** organizador humano habilitado ([[ADR-051 Garantía del pozo, comisión y autogestión|ADR-051]]).
 - **Disparador:** creación de un grupo de pasanaku.
 
 ## Precondiciones
 
-1. El organizador está habilitado ([[organizador]] con contrato vigente) o el grupo
-   es autogestionado.
+1. El organizador está habilitado ([[organizador]] con contrato vigente). No existen grupos
+   autogestionados ni sin organizador humano: quien no está habilitado rechaza con `AP-CU20-02`
+   ([[ADR-051 Garantía del pozo, comisión y autogestión|ADR-051]], D-12).
 2. Existe [[tarifario]] `VIGENTE` publicado.
 3. La licencia habilita el servicio ([[CU-46 Verificar el alcance de la licencia]]).
 
@@ -43,6 +44,16 @@ normas: [ASFI transparencia y consumidor financiero]
    ([[aceptacion_reglamento]]), viendo el costo que le corresponde.
 5. Se crean [[participante]] y [[cupo]]; se generan [[periodo]] y [[turno]].
 6. Se emite `evento_dominio` `GRUPO_CREADO`.
+7. **Coreografía de apertura.** `tarifas` consume `grupos.grupo_creado`, congela el precio (paso 3, primera
+   viñeta) y responde `tarifas.tarifa_congelada`; `grupos` consume la respuesta y pasa el grupo de `BORRADOR` a
+   `ABIERTO_A_INSCRIPCION`, dejando [[historial_estado_grupo]]. Hasta ese momento no se puede aceptar a nadie: un grupo
+   sin precio congelado no puede recibir a nadie.
+
+> **Decisión A1 ([[ADR-052 Decisiones adoptadas por delegación del dueño|ADR-052]] DD-5; pendiente de ratificación de Producto).** El diseño original dice que el
+> grupo abre «cuando los dos respondieron» (precio congelado y cuenta del grupo abierta). `nucleo-financiero` abre la
+> cuenta del grupo al consumir `grupos.grupo_creado` (ADR-052 DD-8, carril Q), pero la única razón que el diseño da para el
+> borrador es el precio: el grupo abre solo, con el precio congelado, y la cuenta del grupo **no** es condición de apertura.
+> Un grupo puede recibir invitados un instante antes de que su cuenta exista; cobrarles sigue exigiéndola.
 
 ## Flujos alternativos
 
@@ -50,6 +61,8 @@ normas: [ASFI transparencia y consumidor financiero]
 | :-: | --- | --- |
 | 2a | No hay tarifario vigente | No se puede crear el grupo: el precio no puede quedar indefinido |
 | 3a | Ya existe tarifa congelada para el grupo | Rechazo por unicidad (`R-TAR-07`) |
+| 7a | La respuesta de `tarifas` llega repetida, o el grupo ya salió de `BORRADOR` | No cambia nada: el estado no retrocede y no se escribe otro historial |
+| 7b | `tarifas` consume un `grupo_creado` cuyo tarifario no existe | No se congela un precio inventado: el evento se rechaza sin marcarse consumido y se reintenta |
 | 4a | Un participante no acepta el reglamento | No se le asigna cupo |
 | — | Se publica un tarifario nuevo mientras el grupo corre | El grupo sigue con su snapshot hasta `vigente_hasta_ciclo_nro`; el nuevo aplica a grupos nuevos |
 
@@ -140,6 +153,14 @@ Entonces las entregas de ese grupo siguen calculándose con la versión 3
 Dada la cuenta de un grupo
 Cuando se consulta su titular
 Entonces grupo_id no es nulo y usuario_id es nulo
+
+Dado un grupo recién creado en BORRADOR
+Cuando tarifas congela su precio y responde tarifa.congelada
+Entonces el grupo pasa a ABIERTO_A_INSCRIPCION y queda el historial de su estado
+
+Dado un grupo que ya salió de BORRADOR
+Cuando la respuesta de tarifas llega otra vez o fuera de orden
+Entonces el estado no cambia y no se escribe otro historial
 ```
 
 ## Ver también

@@ -1,12 +1,10 @@
 package bo.aportaya.nucleofinanciero;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion.EntradaReverso;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAportes.Resultado;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
-import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Traza;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -178,8 +176,8 @@ class CUConsumoDeAportesTest extends BaseDeAportes {
     @Test
     @DisplayName(
             "fuera de orden: el segundo cobro parcial de una obligacion consumido ANTES que el primero deja el mismo"
-                    + " saldo; y un aporte llegado antes del fondeo se rechaza sin efectos y se aplica una vez al"
-                    + " reprocesar")
+                    + " saldo; y un aporte llegado antes del fondeo se rechaza sin efectos, queda consumido y el fondeo"
+                    + " tardio no lo resucita")
     void fueraDeOrden() {
         // (a) Dos pagos parciales de la misma obligacion, en orden invertido: las sumas son conmutativas.
         var a = aporte("1000.00");
@@ -191,23 +189,24 @@ class CUConsumoDeAportesTest extends BaseDeAportes {
         assertThat(saldoDelLibro(a.billeteraDelGrupo())).isEqualByComparingTo("500.00");
         assertThat(transacciones(a.obligacion())).isEqualTo(2);
 
-        // (b) El aporte llega antes que el fondeo de la billetera (otro evento, otra cola).
+        // (b) El aporte llega antes que el fondeo de la billetera (otro evento, otra cola). Segun el flujo 3b de
+        // CU-21 el rechazo por saldo es DEFINITIVO: no se mueve nada, el evento queda consumido y se avisa una sola
+        // vez para que `aportes` compense el pago (CUAporteNoAplicadoTest fija el sobre del aviso). El fondeo que
+        // llega despues NO resucita el aporte: reprocesar el mismo evento es un duplicado.
         var sinFondos = aporte("0.00");
         var llegaPrimero = cobrado(sinFondos, "400.00");
-        assertThatThrownBy(() -> procesar(llegaPrimero))
-                .isInstanceOf(ErrorDeNegocio.class)
-                .satisfies(x -> assertThat(codigo(x)).isEqualTo("AP-CU12-01"));
+        assertThat(procesar(llegaPrimero).resultado()).isEqualTo(Resultado.RECHAZADO_POR_SALDO);
         assertThat(transacciones(sinFondos.obligacion())).isZero();
         assertThat(asientosDeAportes(sinFondos.grupo())).isZero();
-        assertThat(marcas(llegaPrimero.eventoId())).isZero();
+        assertThat(marcas(llegaPrimero.eventoId())).isEqualTo(1);
 
         fixtura.acreditar(sinFondos.billetera(), new BigDecimal("400.00"));
-        assertThat(procesar(llegaPrimero).resultado()).isEqualTo(Resultado.APLICADO);
         assertThat(procesar(llegaPrimero).resultado()).isEqualTo(Resultado.DUPLICADO);
 
-        assertThat(saldoDelLibro(sinFondos.billetera())).isEqualByComparingTo("0.00");
-        assertThat(saldoDelLibro(sinFondos.billeteraDelGrupo())).isEqualByComparingTo("400.00");
-        assertThat(transacciones(sinFondos.obligacion())).isEqualTo(1);
+        assertThat(saldoDelLibro(sinFondos.billetera())).isEqualByComparingTo("400.00");
+        assertThat(saldoDelLibro(sinFondos.billeteraDelGrupo())).isEqualByComparingTo("0.00");
+        assertThat(transacciones(sinFondos.obligacion())).isZero();
+        assertThat(asientosDeAportes(sinFondos.grupo())).isZero();
     }
 
     @Test
