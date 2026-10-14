@@ -131,8 +131,12 @@ class CU04RenovacionTest extends BaseDeCU04 {
         UUID sesion = fixtura.sesionAbierta(usuario);
         String token = emitir(usuario, sesion);
         dsl.execute(
-                "UPDATE identidad.sesion SET iniciada_en = now() - interval '8 hours 1 second', "
-                        + "expira_en = now() - interval '1 second' WHERE id = ?",
+                """
+                UPDATE identidad.sesion
+                SET iniciada_en = now() - interval '8 hours 1 second',
+                    expira_en = now() - interval '1 second'
+                WHERE id = ?
+                """,
                 sesion);
 
         assertThat(renovar(token).renovada()).isFalse();
