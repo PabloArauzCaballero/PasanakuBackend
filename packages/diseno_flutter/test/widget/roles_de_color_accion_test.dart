@@ -11,7 +11,7 @@ import '../comun.dart';
 
 void main() {
   for (final brillo in Brightness.values) {
-    testWidgets('las acciones no usan verde/rojo en tema $brillo', (
+    testWidgets('las acciones usan el acento; lo irreversible, rojo, en tema $brillo', (
       tester,
     ) async {
       final tokens = brillo == Brightness.dark ? Tokens.oscuro : Tokens.claro;
@@ -42,13 +42,14 @@ void main() {
             final superficie = tester.widget<SuperficieViva>(
               find.byType(SuperficieViva),
             );
-            expect(superficie.color, tokens.accent, reason: '$variante');
+            // Lo irreversible se distingue de la acción principal: rojo sólido.
+            expect(superficie.color, tokens.rojoSolido, reason: '$variante');
             expect(
               superficie.colorDelTexto,
-              tokens.accentInk,
+              tokens.sobreRojoSolido,
               reason: '$variante',
             );
-            expect(frente, tokens.accentInk, reason: '$variante');
+            expect(frente, tokens.sobreRojoSolido, reason: '$variante');
           case BotonVariante.fantasma:
             expect(frente, tokens.text2, reason: '$variante');
           case BotonVariante.enlace:

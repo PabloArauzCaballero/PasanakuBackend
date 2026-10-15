@@ -38,7 +38,7 @@ void main() {
     }
   });
 
-  testWidgets('dibuja las tres poses y espeja el perfil derecho', (
+  testWidgets('un solo óvalo en las tres poses y flechas espejadas', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -46,28 +46,30 @@ void main() {
     );
     final frente = _pintor(tester);
     expect(frente.pose, PoseDeVida.frente);
-    expect(
-      frente.contornoNormalizado.getBounds(),
-      contornoDeFrente().getBounds(),
-    );
+    expect(frente.contornoNormalizado.getBounds(), ovaloDeRostro);
+    expect(frente.flechasNormalizadas, isNull);
 
     await tester.pumpWidget(
       _escena(const SiluetaDeCara(pose: PoseDeVida.izquierda)),
     );
     final izquierda = _pintor(tester);
-    final boundsIzquierda = izquierda.contornoNormalizado.getBounds();
     expect(izquierda.pose, PoseDeVida.izquierda);
-    expect(boundsIzquierda.left, contornoDePerfil().getBounds().left);
-    expect(boundsIzquierda.right, contornoDePerfil().getBounds().right);
+    expect(izquierda.contornoNormalizado.getBounds(), ovaloDeRostro);
+    final flechasIzquierda = izquierda.flechasNormalizadas!.getBounds();
+    expect(flechasIzquierda, flechasDeGiro().getBounds());
+    // Las flechas quedan fuera del óvalo, del lado hacia el que se gira.
+    expect(flechasIzquierda.right, lessThan(ovaloDeRostro.left));
 
     await tester.pumpWidget(
       _escena(const SiluetaDeCara(pose: PoseDeVida.derecha)),
     );
     final derecha = _pintor(tester);
-    final boundsDerecha = derecha.contornoNormalizado.getBounds();
     expect(derecha.pose, PoseDeVida.derecha);
-    expect(boundsDerecha.left, 300 - boundsIzquierda.right);
-    expect(boundsDerecha.right, 300 - boundsIzquierda.left);
+    expect(derecha.contornoNormalizado.getBounds(), ovaloDeRostro);
+    final flechasDerecha = derecha.flechasNormalizadas!.getBounds();
+    expect(flechasDerecha.left, 300 - flechasIzquierda.right);
+    expect(flechasDerecha.right, 300 - flechasIzquierda.left);
+    expect(flechasDerecha.left, greaterThan(ovaloDeRostro.right));
   });
 
   testWidgets('aplica velo, guía y tinta de cámara de tokens invariables', (
