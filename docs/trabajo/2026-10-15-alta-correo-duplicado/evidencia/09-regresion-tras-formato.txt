@@ -1,0 +1,3 @@
+plataforma/comun-web/build/test-results/webTest tests=40 fallas=0
+servicios/identidad/build/test-results/webTest tests=46 fallas=0
+servicios/identidad/build/test-results/integrationTest tests=24 fallas=0

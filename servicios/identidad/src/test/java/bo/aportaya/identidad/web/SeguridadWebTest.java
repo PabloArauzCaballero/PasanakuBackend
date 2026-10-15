@@ -44,6 +44,11 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     @MockitoBean
     private RenovarSesion renovarSesion;
 
+    // SesionController depende de CerrarSesion desde 553bd786; sin doblarlo el
+    // contexto de esta prueba no levantaba y las seis comprobaciones caian juntas.
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.CerrarSesion cerrarSesion;
+
     // La subida de la foto del expediente es dependencia de UsuariosController desde
     // que existe el portal de riesgo: sin doblarla, el contexto de esta prueba no levanta.
     // El portal de riesgo tambien cuelga de la sabana de seguridad: sus rutas son las

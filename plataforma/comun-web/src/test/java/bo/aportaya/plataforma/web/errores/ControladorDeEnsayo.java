@@ -141,6 +141,28 @@ public class ControladorDeEnsayo {
                         + "  Detail: Key (telefono)=(+59170000000) already exists.");
     }
 
+    /**
+     * Lo que lanzan de verdad los servicios: la excepcion de jOOQ, con la de JDBC
+     * adentro y su SQLSTATE. El {@code DSLContext} del proyecto no traduce a la de
+     * Spring, asi que esta es la forma en que llega un rechazo real de la base.
+     */
+    @GetMapping("/ensayo/jooq/{sqlState}")
+    @Permiso("BILLETERA_VER")
+    public Salida rechazoDeJooq(@PathVariable String sqlState, @RequestParam(defaultValue = "") String restriccion) {
+        String mensaje = restriccion.isEmpty()
+                ? "ERROR: algo fallo"
+                : "ERROR: duplicate key value violates unique constraint \"" + restriccion + "\"\n"
+                        + "  Detail: Key (correo)=(persona@ejemplo.test) already exists.";
+        throw new org.jooq.exception.IntegrityConstraintViolationException(
+                "SQL [insert into tabla_secreta ...]; " + mensaje, new java.sql.SQLException(mensaje, sqlState));
+    }
+
+    @GetMapping("/ensayo/jooq-sin-sqlstate")
+    @Permiso("BILLETERA_VER")
+    public Salida rechazoDeJooqSinSqlState() {
+        throw new org.jooq.exception.DataAccessException("SQL [select 1]; conexion cerrada");
+    }
+
     @GetMapping("/ensayo/idempotencia-conflicto")
     @Permiso("BILLETERA_VER")
     public Salida idempotenciaConflicto() {

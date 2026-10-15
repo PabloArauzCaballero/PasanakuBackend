@@ -1,0 +1,4 @@
+00:25 +266: /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/unidad/ruta_del_aviso_test.dart: inválido invitación con hash corto → null
+00:25 +267: /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/unidad/ruta_del_aviso_test.dart: inválido más largo que el tope → null
+00:25 +268: /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/unidad/ruta_del_aviso_test.dart: inválido texto libre → null
+00:25 +269: All tests passed!
