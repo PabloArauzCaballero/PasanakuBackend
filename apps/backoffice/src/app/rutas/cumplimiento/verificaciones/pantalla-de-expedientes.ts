@@ -10,7 +10,7 @@ import {
   ExpedienteEnRevisionEstadoEnum,
   type ExpedienteEnRevision,
 } from 'clientes/angular/identidad'
-import { colaVacia, crearResolver, expedientesEnEstado, POR_DECIDIR, recortar, vencimientoDe } from '../dominio/cu02-expedientes'
+import { crearResolver, expedientesEnEstado, POR_DECIDIR, recortar, vencimientoDe } from '../dominio/cu02-expedientes'
 import type { ErrorTraducido } from '../../../nucleo/errores'
 import { textosCumplimiento } from '../textos'
 import { DecisionDeExpediente, type Decision } from './decision-de-expediente'
@@ -51,11 +51,16 @@ import { TiraDeFotos } from './tira-de-fotos'
         }
       </div>
 
+      <label class="busqueda">
+        <span>{{ t.buscarExpediente }}</span>
+        <input type="search" [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" [attr.aria-label]="t.buscarExpediente" />
+      </label>
+
       <ap-estado-de-pantalla
         data-tutorial-id="cumplimiento-cola"
         [recurso]="cola"
         [vacio]="vacio"
-        [mensajeVacio]="t.sinPendientes"
+        [mensajeVacio]="mensajeVacio()"
         [etiquetaDeCarga]="t.cargando"
         (reintentar)="cola.reload()"
       >
@@ -66,6 +71,7 @@ import { TiraDeFotos } from './tira-de-fotos'
                 <header>
                   <div>
                     <h2>{{ e.nombreCompleto }}</h2>
+                    <p class="telefono">{{ t.telefono }}: {{ e.telefono }}</p>
                     <p class="doc">{{ e.documento ?? t.sinDocumento }}</p>
                     <ap-vencimiento-del-documento [expediente]="e" />
                   </div>
@@ -96,11 +102,14 @@ import { TiraDeFotos } from './tira-de-fotos'
   styles: `
     .pantalla { padding: var(--s5); max-width: 52rem; display: flex; flex-direction: column; gap: var(--s4); }
     .filtros { display: flex; gap: var(--s2); flex-wrap: wrap; }
+    .busqueda { display: flex; flex-direction: column; gap: var(--s1); max-width: 32rem; color: var(--text-2); font-size: .875rem; }
+    .busqueda input { min-height: 2.75rem; padding: 0 var(--s3); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface); color: var(--text); font: inherit; }
     .cola { list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--s4); }
     .cola li { border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); padding: var(--s4); display: flex; flex-direction: column; gap: var(--s3); }
     header { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s3); }
     h2 { margin: 0; font-size: 1.05rem; }
     .doc { margin: 0; color: var(--text-2); font-size: .875rem; }
+    .telefono { margin: 0; color: var(--text-2); font-size: .875rem; }
     .aviso { margin: 0; color: var(--aviso-texto); font-size: .875rem; }
   `,
 })
@@ -114,6 +123,7 @@ export class PantallaDeExpedientes {
   protected readonly caras = Object.values(CaraDelExpediente)
 
   protected readonly estado = signal<string>(POR_DECIDIR)
+  protected readonly busqueda = signal('')
   protected readonly cola = expedientesEnEstado(this.estado)
   /**
    * El error de la última decisión, por expediente: se ve en la tarjeta donde se tomó. Se guarda el error traducido
@@ -126,14 +136,26 @@ export class PantallaDeExpedientes {
    * Lo que se pinta. `POR_DECIDIR` se recorta acá porque el backend filtra por UN
    * estado y los que esperan una persona son dos.
    */
-  protected readonly visibles = computed(() => recortar(this.cola.value() ?? [], this.estado()))
+  protected readonly visibles = computed(() => {
+    const termino = this.normalizar(this.busqueda())
+    return recortar(this.cola.value() ?? [], this.estado()).filter((e) =>
+      !termino || this.normalizar(`${e.nombreCompleto} ${e.telefono ?? ''}`).includes(termino),
+    )
+  })
 
   /**
    * Vacío es lo que queda DESPUÉS del recorte: con `POR_DECIDIR` la respuesta trae
    * también los resueltos, y decir «no hay nada» porque el recorte los sacó sería
    * mentir al revés — mostrar la lista vacía sin explicar por qué.
    */
-  protected readonly vacio = (c: ExpedienteEnRevision[]): boolean => colaVacia(recortar(c, this.estado()))
+  protected readonly vacio = (_c: ExpedienteEnRevision[]): boolean => this.visibles().length === 0
+  protected readonly mensajeVacio = computed(() =>
+    this.busqueda().trim() ? this.t.sinCoincidencias : this.t.sinPendientes,
+  )
+
+  private normalizar(valor: string): string {
+    return valor.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es').trim()
+  }
 
   /** `POR_DECIDIR` no es un estado del contrato: se nombra en castellano, no en mayúsculas. */
   protected etiquetaDeFiltro(estado: string): string {
