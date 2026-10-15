@@ -20,6 +20,7 @@ public record ExpedienteDeIdentidad(
         UUID verificacionId,
         UUID usuarioId,
         String nombreCompleto,
+        String telefono,
         String documento,
         String estado,
         OffsetDateTime iniciadaEn,
@@ -44,6 +45,7 @@ public record ExpedienteDeIdentidad(
                 verificacionId,
                 usuarioId,
                 nombreCompleto,
+                null,
                 documento,
                 estado,
                 iniciadaEn,
@@ -51,6 +53,32 @@ public record ExpedienteDeIdentidad(
                 motivoRechazo,
                 fotos,
                 null);
+    }
+
+    /** Compatibilidad con usos anteriores que ya incluian fecha de vencimiento. */
+    public ExpedienteDeIdentidad(
+            UUID verificacionId,
+            UUID usuarioId,
+            String nombreCompleto,
+            String documento,
+            String estado,
+            OffsetDateTime iniciadaEn,
+            OffsetDateTime resueltaEn,
+            String motivoRechazo,
+            List<String> fotos,
+            LocalDate fechaExpiracionDocumento) {
+        this(
+                verificacionId,
+                usuarioId,
+                nombreCompleto,
+                null,
+                documento,
+                estado,
+                iniciadaEn,
+                resueltaEn,
+                motivoRechazo,
+                fotos,
+                fechaExpiracionDocumento);
     }
 
     /** Las cinco caras que exige la verificacion (contrato: {@code CaraDelExpediente}). */
