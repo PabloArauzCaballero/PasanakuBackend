@@ -82,6 +82,21 @@ class BitacoraDeErroresSinContenidoWebTest {
     }
 
     @Test
+    @DisplayName(
+            "rechaza: el rechazo de jOOQ sin regla (WARN, AP-BD-01) deja la restriccion y el SQLSTATE, nunca el valor")
+    void rechazoDeJooqSinValor() throws Exception {
+        mvc.perform(get("/ensayo/jooq/23505")
+                        .param("restriccion", "uq_usuario_correo")
+                        .with(Sesiones.como("PARTICIPANTE", CON_PERMISO)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.codigo").value("AP-BD-01"));
+
+        String todo = todoLoEscrito();
+        assertThat(todo).doesNotContain("persona@ejemplo.test").doesNotContain("Key (correo)");
+        assertThat(todo).contains("uq_usuario_correo").contains("sqlstate=23505");
+    }
+
+    @Test
     @DisplayName("rechaza: ni el mensaje ni la pila de una excepcion de la base viajan como throwable del evento")
     void sinThrowableAdjunto() throws Exception {
         mvc.perform(get("/ensayo/restriccion-desconocida").with(Sesiones.como("PARTICIPANTE", CON_PERMISO)))

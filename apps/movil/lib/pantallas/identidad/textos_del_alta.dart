@@ -67,6 +67,8 @@ class TextosDelAlta {
   static const reintentar = 'Volver a intentar';
   static const altaEnviando = 'Creando tu cuenta…';
   static const avisoLeerContrato = 'Deslizá hasta el final para poder aceptar.';
+  static const contratoLeido =
+      'Leíste el contrato completo. Ya podés aceptarlo.';
   static const aceptoContrato = 'Acepto el contrato de adhesión';
   static const aceptoTarifario = 'Acepto el tarifario vigente';
   static const aceptoTratamientoDatos =

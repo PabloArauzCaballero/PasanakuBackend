@@ -1,0 +1,6 @@
+00:00 +0: loading /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/unidad/cliente_test.dart
+00:00 +0: un 403 llega traducido, con traza y sin el mensaje del backend
+00:00 +1: un 422 de cuenta repetida dice cuál dato ya tiene cuenta (detalle.campo)
+00:00 +2: cada AP-BD-0n tiene su texto y ninguno culpa al servidor
+00:00 +3: sin red llega como ErrorDeRed
+00:00 +4: All tests passed!

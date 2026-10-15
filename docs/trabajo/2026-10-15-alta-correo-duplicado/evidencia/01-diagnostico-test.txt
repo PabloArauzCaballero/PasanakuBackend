@@ -1,0 +1,6 @@
+2026-10-15T17:06:07.489Z ERROR 1 --- [identidad] [at-handler-2591] [6ad107fe33dc8a80043c9e139f87c371-0614ac09f4e682c1] b.a.p.w.e.ManejadorGlobalDeErrores       : fallo no previsto trazaId=cfa6d668-da35-7283-2482-131532573174 causa=IntegrityConstraintViolationException <- PSQLException [SQLSTATE 23505] en RegistroRepositorio.crearUsuario:66, CU01RegistrarUsuario.lambda$ejecutar$0:149, Datos.conContexto:52, CU01Registr
+2026-10-15 17:06:07.377 UTC [545923] ERROR:  duplicate key value violates unique constraint "uq_usuario_correo"
+2026-10-15 17:06:22.919 UTC [544250] ERROR:  duplicate key value violates unique constraint "uq_usuario_correo"
+--- restricciones nombradas en sql/ vs catalogo
+    1769
+191
