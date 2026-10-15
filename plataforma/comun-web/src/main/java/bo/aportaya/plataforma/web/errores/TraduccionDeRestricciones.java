@@ -48,6 +48,18 @@ public final class TraduccionDeRestricciones {
         return Optional.empty();
     }
 
+    /**
+     * El nombre de la restriccion violada, para la bitacora. Solo el nombre: el mensaje
+     * de PostgreSQL trae tambien el valor que la violo, y ese es un dato de la persona.
+     */
+    public Optional<String> restriccion(String mensajeDeLaBase) {
+        if (mensajeDeLaBase == null) {
+            return Optional.empty();
+        }
+        Matcher nombre = NOMBRE_EN_EL_MENSAJE.matcher(mensajeDeLaBase);
+        return nombre.find() ? Optional.of(nombre.group(1)) : Optional.empty();
+    }
+
     private static Properties leer(String recurso) {
         try (InputStream flujo = TraduccionDeRestricciones.class.getResourceAsStream(recurso)) {
             if (flujo == null) {

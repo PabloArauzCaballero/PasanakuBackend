@@ -166,6 +166,10 @@ class _TraduccionDeErrores extends Interceptor {
           codigo: (mapa['codigo'] as String?) ?? 'AP-DESCONOCIDO',
           trazaId: traza,
           estado: respuesta.statusCode ?? 0,
+          campo: switch (mapa['detalle']) {
+            {'campo': final String campo} => campo,
+            _ => null,
+          },
         ),
       ),
     );

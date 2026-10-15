@@ -54,7 +54,11 @@ paths:
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU01-01 KYC_RECHAZADO · AP-CU01-02 COINCIDENCIA_EN_LISTA
           # AP-CU01-03 CUENTA_YA_EXISTE (R-BIL-04) · AP-CU01-04 CONTRATO_NO_ACEPTADO
-          # AP-CU01-05 SERVICIO_NO_AUTORIZADO (R-LIC-01)
+          # AP-CU01-05 SERVICIO_NO_AUTORIZADO (R-LIC-01) · AP-CU01-06 CLAVE_RECHAZADA
+          # AP-CU01-03 lleva detalle.campo = telefono | documento | correo: el dato
+          # que ya tiene cuenta, para que el cliente diga CUAL (2026-10-15).
+          # Si dos altas con el mismo dato se cruzan, la segunda rebota en el indice
+          # unico y sale 409 AP-BD-01 (ver skill errores-api), nunca 500.
 
   /sesiones:
     post:

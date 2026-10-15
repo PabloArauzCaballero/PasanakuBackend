@@ -101,14 +101,27 @@ public class CU01RegistrarUsuario {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
         return datos.conContexto(ctx, dsl -> {
+            // Un solo codigo para «la cuenta ya existe» (AP-CU01-03, CUENTA_YA_EXISTE) y el
+            // campo en el detalle: la app le dice a la persona CUAL dato ya tiene cuenta,
+            // que es lo unico que le permite corregirlo o ir a recuperar el acceso.
             if (registros.telefonoYaRegistrado(dsl, entrada.telefonoE164())) {
                 throw new ErrorDeNegocio(
-                        CodigoError.de(1, 3), "Ya hay una cuenta con ese telefono. Podes recuperar el acceso.");
+                        CodigoError.de(1, 3),
+                        "Ya hay una cuenta con ese telefono. Podes recuperar el acceso.",
+                        Map.of("campo", "telefono"));
             }
             if (registros.documentoYaRegistrado(
                     dsl, entrada.documento().hashNumero(), entrada.documento().lugarExpedicion())) {
                 throw new ErrorDeNegocio(
-                        CodigoError.de(1, 3), "Ya hay una cuenta con ese documento. Podes recuperar el acceso.");
+                        CodigoError.de(1, 3),
+                        "Ya hay una cuenta con ese documento. Podes recuperar el acceso.",
+                        Map.of("campo", "documento"));
+            }
+            if (entrada.correo() != null && registros.correoYaRegistrado(dsl, entrada.correo())) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(1, 3),
+                        "Ya hay una cuenta con ese correo. Usa otro o recupera el acceso.",
+                        Map.of("campo", "correo"));
             }
             if (entrada.aceptaContratos().isEmpty()) {
                 throw new ErrorDeNegocio(CodigoError.de(1, 4), "Hace falta aceptar el contrato para abrir la cuenta.");
