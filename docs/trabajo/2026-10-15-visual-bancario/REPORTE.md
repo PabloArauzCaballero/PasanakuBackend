@@ -2,7 +2,7 @@
 
 > **AVANCE: 14 / 14 — 100,0 %.** Hitos H1 y H2 quedan A MEDIAS: falta verlo en un teléfono real (cámara + ML Kit) y que Pablo confirme las ambigüedades A1–A3.
 
-- Fecha: 2026-10-15 · Plan: [PLAN.md](./PLAN.md) · Rama: `pablo/feat/visual-bancario-2026-10-15` (desde `origin/test` 51982f75), worktree `.claude/worktrees/visual-bancario`. Commit local; **no se hizo push ni PR**.
+- Fecha: 2026-10-15 · Plan: [PLAN.md](./PLAN.md) · Rama: `pablo/feat/visual-bancario-2026-10-15` (desde `origin/test` 51982f75), worktree `.claude/worktrees/visual-bancario`. Subida a `origin` y `frontend-mirror`; PR #71 contra `test` (https://github.com/PabloArauzCaballero/PasanakuBackend/pull/71), sin mergear.
 - Peldaño de evidencia alcanzado: `TESTED` + prueba visual por goldens renderizados (claro/oscuro, 360/412/600 dp, texto 130 %). **No** `VERIFIED`: no se corrió en dispositivo.
 
 ## Completado
@@ -27,8 +27,8 @@
 ### H1 / H2 — hitos
 - Qué anda: todo lo de la tabla, demostrado en goldens renderizados por Flutter.
 - Qué no anda: nada observado en rojo atribuible a este trabajo.
-- Qué falta exactamente: (1) correr el alta en un iPhone/Android real y mirar el óvalo y el contorno del carnet sobre la imagen de la cámara viva, con ML Kit midiendo; (2) confirmar A1–A3 con Pablo; (3) push + PR a `test`.
-- Dónde quedó: rama `pablo/feat/visual-bancario-2026-10-15`, compila (`dart analyze` limpio), un commit local.
+- Qué falta exactamente: (1) correr el alta en un iPhone/Android real y mirar el óvalo y el contorno del carnet sobre la imagen de la cámara viva, con ML Kit midiendo; (2) confirmar A1–A3 con Pablo; (3) revisar CI y mergear el PR #71.
+- Dónde quedó: rama `pablo/feat/visual-bancario-2026-10-15`, compila (`dart analyze` limpio), subida a los dos remotos, PR #71 abierto.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
