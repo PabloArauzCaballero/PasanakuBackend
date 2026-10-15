@@ -32,7 +32,9 @@ export class RefrescoDeSesion {
   }
 
   private crear(): Observable<RespuestaRefresco> {
-    return this.http.post<RespuestaRefresco>(`${this.gateway}/sesion/refrescar`, {}, { withCredentials: true }).pipe(
+    // WEB se autentica con la cookie HttpOnly. Un cuerpo {} activa la validación
+    // del esquema móvil (refresco obligatorio) y el servidor responde 400.
+    return this.http.post<RespuestaRefresco>(`${this.gateway}/sesion/refrescar`, null, { withCredentials: true }).pipe(
       // Se limpia ANTES del multicast: la próxima llamada, ya sea porque el refresco
       // anterior terminó bien o mal, arranca una ejecución nueva, no reutiliza el
       // `ReplaySubject` de `shareReplay`, que seguiría devolviendo el valor o el error viejo.

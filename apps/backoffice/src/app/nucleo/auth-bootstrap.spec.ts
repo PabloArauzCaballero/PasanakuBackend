@@ -31,7 +31,10 @@ describe('inicializarSesion · AuthBootstrap', () => {
     const listo = TestBed.runInInjectionContext(() => inicializarSesion()())
     expect(sesion.estado()).toBe('RESTORING')
 
-    backend.expectOne(`${GATEWAY_TEST}/sesion/refrescar`).flush({ acceso: 'nuevo', permisos: ['x'], rol: 'oficial' })
+    const peticion = backend.expectOne(`${GATEWAY_TEST}/sesion/refrescar`)
+    expect(peticion.request.body).toBeNull()
+    expect(peticion.request.withCredentials).toBe(true)
+    peticion.flush({ acceso: 'nuevo', permisos: ['x'], rol: 'oficial' })
     await listo
 
     expect(sesion.estado()).toBe('AUTHENTICATED')
