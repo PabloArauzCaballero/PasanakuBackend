@@ -21,6 +21,7 @@ import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeDominio;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Reloj;
+import bo.aportaya.plataforma.dominio.Traza;
 import bo.aportaya.plataforma.pruebas.BaseDePrueba;
 import java.io.ByteArrayInputStream;
 import java.time.Duration;
@@ -51,6 +52,12 @@ class CU02RevisionTest {
         transaccion = new TransactionTemplate(new DataSourceTransactionManager(fuente));
         repositorio = new RevisionRepositorio();
         ExpedientesDePrueba.usar(dsl);
+        dsl.execute(
+                """
+                INSERT INTO identidad.rol (codigo, nombre, ambito, es_sistema)
+                VALUES ('PARTICIPANTE', 'Participante de grupo', 'GRUPO', TRUE)
+                ON CONFLICT (codigo) DO NOTHING
+                """);
     }
 
     @Test
@@ -187,7 +194,8 @@ class CU02RevisionTest {
         UUID vRechazada = expediente(rechazado, "EN_REVISION", false);
         UUID vDelActivo = expedienteCompleto(yaActivo, "2030-01-01");
         dsl.execute("UPDATE identidad.verificacion_kyc SET nivel_solicitado = 'AVANZADO' WHERE id = ?", vAprobada);
-        ContextoSesion contexto = contexto(usuario());
+        UUID revisor = usuario();
+        ContextoSesion contexto = contexto(revisor);
         var caso = new CU02RevisarExpediente(
                 repositorio,
                 mock(AlmacenDeArchivos.class),
@@ -205,8 +213,33 @@ class CU02RevisionTest {
                         .intoMap())
                 .containsEntry("estado", "ACTIVO")
                 .containsEntry("nivel_kyc", "COMPLETO");
+        ContextoSesion titularAprobado = ContextoSesion.de(
+                aprobado, "PARTICIPANTE", new Traza(UUID.randomUUID().toString()));
+        var asignacion = transaccion.execute(tx -> new Datos(dsl).conContexto(
+                titularAprobado,
+                conSesion -> conSesion.fetchOne(
+                        """
+                        SELECT r.codigo, a.ambito, a.otorgada_por
+                          FROM identidad.asignacion_rol a
+                          JOIN identidad.rol r ON r.id = a.rol_id
+                         WHERE a.usuario_id = ? AND a.revocada_en IS NULL
+                        """,
+                        aprobado)));
+        assertThat(asignacion.intoMap())
+                .containsEntry("codigo", "PARTICIPANTE")
+                .containsEntry("ambito", "GLOBAL")
+                .containsEntry("otorgada_por", revisor);
         assertThat(dsl.fetchValue("SELECT estado FROM identidad.usuario WHERE id = ?", rechazado))
                 .isEqualTo("PENDIENTE_VERIFICACION");
+        ContextoSesion titularRechazado = ContextoSesion.de(
+                rechazado, "PARTICIPANTE", new Traza(UUID.randomUUID().toString()));
+        Integer asignacionesDelRechazado = transaccion.execute(tx -> new Datos(dsl).conContexto(
+                titularRechazado,
+                conSesion -> conSesion.fetchOne(
+                                "SELECT count(*) FROM identidad.asignacion_rol WHERE usuario_id = ?",
+                                rechazado)
+                        .get(0, Integer.class)));
+        assertThat(asignacionesDelRechazado).isEqualTo(0);
         assertThat(dsl.fetchOne("SELECT estado, nivel_kyc FROM identidad.usuario WHERE id = ?", yaActivo)
                         .intoMap())
                 .containsEntry("estado", "ACTIVO")
