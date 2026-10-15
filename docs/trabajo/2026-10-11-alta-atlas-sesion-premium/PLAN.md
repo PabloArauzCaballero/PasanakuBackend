@@ -1566,7 +1566,7 @@ Textos (voseo; `pantallas/identidad/textos_de_sesion.dart`, nuevo):
 
 | ID | Microtarea | Pasos | CA | DoD | Estado |
 |---|---|---|---|---|---|
-| H2.S1.M1 | Correr la app contra **el mismo backend que usa Pablo** (preguntarle la URL si no está en `NOTAS.md`; si no responde, Prism `:4010` y el backend local) y recorrer: alta completa; ingreso correcto; ingreso con contraseña mala; esperar/forzar 15 min | `flutter run --dart-define=API=…` · capturas de cada error | Cada error visto queda en una tabla «pantalla · acción · texto visto · código real · HTTP» | `evidencia/h2-reproduccion.md` + PNG | A MEDIAS |
+| H2.S1.M1 | Correr la app contra **el mismo backend que usa Pablo** (preguntarle la URL si no está en `NOTAS.md`; si no responde, Prism `:4010` y el backend local) y recorrer: alta completa; ingreso correcto; ingreso con contraseña mala; esperar/forzar 15 min | `flutter run --dart-define=API=…` · capturas de cada error | Cada error visto queda en una tabla «pantalla · acción · texto visto · código real · HTTP» | [reproducción/capturas aportadas](./evidencia/h2-reproduccion.md) + [análisis de capturas 2026-10-15](./evidencia/h2-capturas-no-acceso-telefono-real-2026-10-15.md) | A MEDIAS |
 | H2.S1.M2 | Para cada error de la tabla, **clasificar** (regla 80.4: `PRODUCT_BUG`, `TEST_BUG`, `ENVIRONMENT`, `DATA`, `EXTERNAL`) y asignarlo a una hipótesis E1–E7 (§4.3) o a una nueva | — | 100 % clasificados | [auditoría 1/1 filas](./evidencia/h2-reproduccion.md#h2s1m2-auditoría-de-clasificación) | HECHO |
 | H2.S1.M3 | Si un error no se reproduce, **no se inventa la causa**: se registra como «no reproducido» con lo intentado y se le pide a Pablo la captura (A7) | — | — | [fila y solicitud en PR #61](./evidencia/h2-reproduccion.md) | HECHO |
 

@@ -1,8 +1,8 @@
 # Progreso — alta Atlas, sesión premium y app móvil
 
-Actualizado: 2026-10-14. Este archivo es el punto de reanudación; el trabajo no está terminado.
+Actualizado: 2026-10-15. Este archivo es el punto de reanudación; el trabajo no está terminado.
 
-Continuación actual (2026-10-14): conteo oficial **197/213 (92,5 %)**, 7 `A MEDIAS`, 9 `BLOQUEADO`; H2.S1.M1 sigue parcial porque falta la jornada Flutter completa. Ajusté CU-04: una cuenta `PENDIENTE_VERIFICACION`, sin factor enrolado y sin operación sensible, ya puede iniciar sesión desde dispositivo nuevo; sigue pendiente y el dispositivo sigue no confiable. Si ya existe factor se conserva MFA. Regresión `integrationTest` **2/2 PASS**, incluida cuenta activa sin factor que todavía requiere MFA en dispositivo nuevo. No se cambia ni automatiza aprobación. Evidencia: [H2 sesión pendiente](docs/trabajo/2026-10-11-alta-atlas-sesion-premium/evidencia/h2-sesion-pendiente-2026-10-14.md). Los recorridos móviles irán por AVD/emulador, no teléfono físico; ensayos que requieran rostros reales quedan pendientes. H10.S2.M1 queda parcial tras la prueba AVD; falta push/backend real. M2–M6 siguen bloqueados por backend o cuentas/fixtures, no por falta de teléfono.
+Continuación actual (2026-10-15): conteo oficial **197/213 (92,5 %)**, 7 `A MEDIAS`, 9 `BLOQUEADO`; para las 210 tareas del prompt original son 194/210 (**92,4 %**). H2.S1.M1 sigue parcial: se revisaron y documentaron las seis capturas del usuario, sin inventar status HTTP ni afirmar una causa por ID; ver [evidencia de capturas](docs/trabajo/2026-10-11-alta-atlas-sesion-premium/evidencia/h2-capturas-no-acceso-telefono-real-2026-10-15.md). El arreglo de asignación de `PARTICIPANTE` al aprobar KYC pasó CI y quedó integrado en `test` por PR #70, pero no verifica las cuentas previamente aprobadas ni reemplaza el recorrido Flutter/backend completo. Tras hallar un AVD encendido con 0,5 GB libres, se apagó ordenadamente; ahora queda sin dispositivo Android conectado, con 3,0 GB libres y Docker apagado. No se publicó ningún cambio en esta continuación.
 
 Avance adicional H1.S6.M8: se cerró HECHO con el interceptor real del cliente contra `identidad` y PostgreSQL aislado: access vencido 401, renovación/reintento 200, `DELETE /sesion` 204 y refresh rotado posterior 401. La revocación quedó confirmada en DB. Login directo por API; no incluye Gateway/Kafka ni UI Android. La prueba optativa y sus límites están en [la evidencia](docs/trabajo/2026-10-11-alta-atlas-sesion-premium/evidencia/h1-s6-m8-http-parcial-2026-10-14.md). Identidad está apagada y el clúster temporal se conserva en disco.
 
@@ -237,7 +237,7 @@ python ..\..\scripts\verificar_frontend.py movil
 
 ## Pendiente en el plan
 
-El contador oficial actualizado informa 0 microtareas `TODO`, 7 `A MEDIAS` y 10 bloqueadas. Consultar sus criterios en `PLAN.md` y `REPORTE.md`; no cambiar estados para inflar el porcentaje.
+El contador oficial verificado en esta continuación informa **197/213 (92,5 %)**, 0 `TODO`, 7 `A MEDIAS` y 9 `BLOQUEADO`; para el alcance original de 210 microtareas equivale a **194/210 (92,4 %)**, pues el espejo local añade 3 microtareas H0 ya HECHO. Consultar los criterios concretos en `PLAN.md` y `REPORTE.md`; no cambiar estados para inflar el porcentaje.
 
 ## Continuación de integración y conflictos (2026-10-14)
 
@@ -313,8 +313,9 @@ El contador oficial actualizado informa 0 microtareas `TODO`, 7 `A MEDIAS` y 10 
 
 ## Incidente de acceso visto en capturas del teléfono (2026-10-15)
 
-- El usuario aportó seis capturas locales en `docs/trabajo/2026-10-11-alta-atlas-sesion-premium/evidencia/telefono-real-2026-10-15/`. Muestran «No tenés acceso a esto» en billetera/movimientos y al intentar crear un grupo. Los archivos de imagen se conservaron y no se incluyen en esta publicación.
-- El backend de TEST estaba respondiendo; la evidencia apunta a respuestas HTTP 403 de autorización, que la app presenta con ese mensaje genérico, no a un backend apagado.
+- El usuario aportó seis capturas locales en `docs/trabajo/2026-10-11-alta-atlas-sesion-premium/evidencia/telefono-real-2026-10-15/`. Muestran «No tenés acceso a esto» en billetera/movimientos y al intentar crear un grupo. Se inspeccionaron individualmente y se registró lo observado vs. inferido en [evidencia H2](docs/trabajo/2026-10-11-alta-atlas-sesion-premium/evidencia/h2-capturas-no-acceso-telefono-real-2026-10-15.md). Los archivos de imagen se conservaron y no se incluyen en esta publicación.
+- La sonda pública de TEST responde (`/actuator/health` 200; `/api/v1/sesiones` sin token 401), pero eso no confirma qué status tuvo cada petición de las capturas. El mapeador móvil asigna el mensaje visible al caso HTTP 403; faltan los logs correlacionados para confirmarlo por código.
+- En la reanudación del plan se halló un AVD ya activo con solo 0,5 GB libres; se apagó de forma ordenada antes de iniciar pruebas. Tras cerrarlo hay 3,0 GB libres y Docker permanece apagado; no se arrancó otro AVD por el presupuesto de RAM.
 - Causa hallada para billetera: la revisión manual aprobaba el expediente y activaba la cuenta, pero no asignaba el rol base `PARTICIPANTE`; los permisos `BILLETERA_VER` se derivan de las asignaciones vigentes. El cambio local añade esa asignación global al aprobar, de forma idempotente y registrando al revisor como otorgante. La prueba `CU02RevisionTest` verifica aprobación, rol otorgado y ausencia de asignación al rechazar.
 - Límite importante: esta corrección cubre las aprobaciones nuevas. No retroasigna el rol a cuentas ya aprobadas antes del despliegue. Antes de probar una cuenta aprobada previamente habrá que confirmar su asignación y, si falta, hacer un otorgamiento administrativo auditado; luego renovar la sesión para obtener los permisos actuales.
 - Crear grupos es independiente: requiere `ORGANIZADOR`. Este arreglo no concede ese rol ni relaja esa autorización; un 403 al crear grupos seguirá siendo el resultado esperado para una cuenta sin rol de organizador.
