@@ -1,17 +1,15 @@
-import 'package:aportaya_diseno/atomos/boton.dart';
-import 'package:aportaya_diseno/atomos/boton_variante.dart';
-import 'package:aportaya_diseno/atomos/casilla.dart';
 import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/moleculas/alerta.dart';
 import 'package:aportaya_diseno/organismos/estado_error.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import 'dominio/contratos_vigentes.dart';
 import 'dominio/estado_contrato.dart';
-import 'texto_del_contrato.dart';
+import 'barra_de_lectura.dart';
+import 'cuerpo_del_contrato.dart';
+import 'panel_de_aceptacion.dart';
 import 'textos.dart';
 import 'textos_del_alta.dart';
 
@@ -45,6 +43,9 @@ class PantallaDeContrato extends ConsumerStatefulWidget {
 class _PantallaDeContratoState extends ConsumerState<PantallaDeContrato> {
   final _scroll = ScrollController();
 
+  /// Cuánto se leyó, 0..1. Lo dice una barra en vez de un párrafo de aviso.
+  final _leido = ValueNotifier<double>(0);
+
   @override
   void initState() {
     super.initState();
@@ -52,7 +53,9 @@ class _PantallaDeContratoState extends ConsumerState<PantallaDeContrato> {
   }
 
   void _alDesplazar() {
-    if (_scroll.position.pixels >= _scroll.position.maxScrollExtent - 8) {
+    final p = _scroll.position;
+    _leido.value = p.maxScrollExtent <= 0 ? 1 : p.pixels / p.maxScrollExtent;
+    if (p.pixels >= p.maxScrollExtent - 8) {
       ref.read(contratoProvider.notifier).marcarLeidoHastaElFinal();
     }
   }
@@ -61,6 +64,7 @@ class _PantallaDeContratoState extends ConsumerState<PantallaDeContrato> {
   void dispose() {
     _scroll.removeListener(_alDesplazar);
     _scroll.dispose();
+    _leido.dispose();
     super.dispose();
   }
 
@@ -109,74 +113,37 @@ class _PantallaDeContratoState extends ConsumerState<PantallaDeContrato> {
     return Scaffold(
       appBar: AppBar(title: const Text(TextosIdentidad.tituloContrato)),
       body: SafeArea(
-        child: Column(
-          children: [
-            // Mientras la consulta viaja, el texto ya se puede ir leyendo: lo único
-            // que falta son los ids, y llegan antes de que nadie termine de deslizar.
-            if (vigentes.isLoading)
-              const Padding(
-                padding: EdgeInsets.all(Espacio.s3),
-                child: Text(TextosDelAlta.contratosCargando),
-              ),
-            if (!estado.leidoHastaElFinal)
-              const Padding(
-                padding: EdgeInsets.all(Espacio.s3),
-                child: Text(TextosDelAlta.avisoLeerContrato),
-              ),
-            Expanded(
-              child: Scrollbar(
-                controller: _scroll,
-                thumbVisibility: true,
-                child: SingleChildScrollView(
-                  controller: _scroll,
-                  padding: const EdgeInsets.all(Espacio.s4),
-                  child: const Text(textoDelContrato),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: anchoDeLectura),
+            child: Column(
+              children: [
+                // Mientras la consulta viaja, el texto ya se puede ir leyendo: lo único
+                // que falta son los ids, y llegan antes de que nadie termine de deslizar.
+                if (vigentes.isLoading)
+                  const Padding(
+                    padding: EdgeInsets.all(Espacio.s3),
+                    child: Text(TextosDelAlta.contratosCargando),
+                  ),
+                BarraDeLectura(
+                  leido: _leido,
+                  completo: estado.leidoHastaElFinal,
                 ),
-              ),
+                Expanded(
+                  child: Scrollbar(
+                    controller: _scroll,
+                    thumbVisibility: true,
+                    child: SingleChildScrollView(
+                      controller: _scroll,
+                      padding: const EdgeInsets.all(Espacio.s4),
+                      child: const CuerpoDelContrato(),
+                    ),
+                  ),
+                ),
+                const PanelDeAceptacion(),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(Espacio.s4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Casilla(
-                    etiqueta: TextosDelAlta.aceptoContrato,
-                    valor: estado.aceptaContrato,
-                    onChanged: estado.leidoHastaElFinal
-                        ? notifier.alternarContrato
-                        : null,
-                  ),
-                  Casilla(
-                    etiqueta: TextosDelAlta.aceptoTarifario,
-                    valor: estado.aceptaTarifario,
-                    onChanged: estado.leidoHastaElFinal
-                        ? notifier.alternarTarifario
-                        : null,
-                  ),
-                  Casilla(
-                    etiqueta: TextosDelAlta.aceptoTratamientoDatos,
-                    valor: estado.aceptaTratamientoDatos,
-                    onChanged: estado.leidoHastaElFinal
-                        ? notifier.alternarTratamientoDatos
-                        : null,
-                  ),
-                  const SizedBox(height: Espacio.s3),
-                  Boton(
-                    texto: TextosDelAlta.aceptarYContinuar,
-                    variante: BotonVariante.primario,
-                    expandido: true,
-                    // El servidor es quien realmente registra la aceptación
-                    // (CU-05); acá solo se habilita seguir. Cuando exista el
-                    // cliente de cumplimiento, este onPressed llama a
-                    // `POST /contratos/{id}/aceptaciones` antes de volver.
-                    onPressed: estado.puedeAceptar
-                        ? () => context.pop(true)
-                        : null,
-                  ),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

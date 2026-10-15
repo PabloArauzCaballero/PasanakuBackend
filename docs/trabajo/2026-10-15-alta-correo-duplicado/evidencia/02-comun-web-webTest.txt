@@ -1,0 +1,40 @@
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestJava UP-TO-DATE
+> Task :plataforma:comun-web:testClasses UP-TO-DATE
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+> Task :plataforma:comun-web:webTest
+
+BUILD SUCCESSFUL in 11s
+27 actionable tasks: 1 executed, 26 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+name="lo que el cliente mando mal es 4xx, y nunca 500" tests="11" skipped="0" failures="0" errors="0" name="MacBook-Air-de-Pablo.local" 
+name="lo que rechaza la base por jOOQ sale catalogado, nunca como 500" tests="11" skipped="0" failures="0" errors="0" name="MacBook-Air-de-Pablo.local" 
+name="lo que decide el dominio" tests="6" skipped="0" failures="0" errors="0" name="MacBook-Air-de-Pablo.local" 
+name="bo.aportaya.plataforma.web.errores.ManejadorGlobalDeErroresWebTest" tests="2" skipped="0" failures="0" errors="0" name="MacBook-Air-de-Pablo.local" 
+testcase name="500: sin SQLSTATE no hay como saber que paso, y eso sigue siendo un fallo"
+testcase name="SQLSTATE 23503 -&gt; 409 AP-BD-02"
+testcase name="SQLSTATE 23514 -&gt; 422 AP-BD-03"
+testcase name="SQLSTATE 23502 -&gt; 422 AP-BD-03"
+testcase name="SQLSTATE 22001 -&gt; 422 AP-BD-03"
+testcase name="SQLSTATE 23P01 -&gt; 409 AP-BD-04"
+testcase name="SQLSTATE 40001 -&gt; 409 AP-BD-05"
+testcase name="SQLSTATE 40P01 -&gt; 409 AP-BD-05"
+testcase name="SQLSTATE 57014 -&gt; 503 AP-BD-06"
+testcase name="409: la excepcion de jOOQ con una restriccion del catalogo sale con su R-XXX-nn"
+testcase name="409 AP-BD-01: un unico sin regla —uq_usuario_correo— es un duplicado, no una caida"
