@@ -2553,7 +2553,7 @@
                   "pm.test(\"trae los campos que el contrato declara obligatorios\", () => {",
                   "    if (pm.response.code >= 300 || pm.response.code === 204) return;",
                   "    const cuerpo = pm.response.json();",
-                  "    for (const campo of [\"verificacionId\", \"usuarioId\", \"nombreCompleto\", \"estado\", \"iniciadaEn\", \"fotos\", \"documentoVigente\"]) {",
+                  "    for (const campo of [\"verificacionId\", \"usuarioId\", \"nombreCompleto\", \"telefono\", \"estado\", \"iniciadaEn\", \"fotos\", \"documentoVigente\"]) {",
                   "        pm.expect(cuerpo, \"falta \" + campo).to.have.property(campo);",
                   "    }",
                   "});",
