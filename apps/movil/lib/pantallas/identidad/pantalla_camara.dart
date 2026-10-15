@@ -123,7 +123,10 @@ class _PantallaDeCamaraState extends ConsumerState<PantallaDeCamara> {
             children: [
               _visor(),
               if (_lista) ...[
-                GuiaDeEncuadre(esDocumento: widget.cara.esDocumento),
+                GuiaDeEncuadre(
+                  esDocumento: widget.cara.esDocumento,
+                  velo: Tokens.of(context).camaraVelo,
+                ),
               ],
               Align(
                 alignment: Alignment.topCenter,

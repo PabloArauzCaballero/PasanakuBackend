@@ -54,7 +54,7 @@ class ArteSorteoALaVista extends ArteDeMaqueta {
         ..lineTo(62, 26)
         ..lineTo(78, 26)
         ..close(),
-      relleno(Paleta.o500),
+      relleno(Paleta.g700),
     );
   }
 }

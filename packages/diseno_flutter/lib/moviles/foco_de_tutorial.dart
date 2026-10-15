@@ -3,6 +3,11 @@ import 'package:flutter/widgets.dart';
 import '../tokens/tokens.dart';
 import '../atomos/movimiento.dart';
 
+/// El anillo se lee contra el velo oscuro, no contra la app: un verde claro fijo.
+/// Con el acento de acción (verde profundo en tema claro) el anillo se perdía en el
+/// velo, y el foco quedaba comunicado sólo por la sombra.
+const _anillo = Paleta.g300;
+
 /// Aire alrededor del elemento, para que el anillo no lo toque.
 const double _holgura = 6;
 
@@ -28,16 +33,15 @@ class FocoDeTutorial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = Tokens.of(context);
     final actual = recuadro;
     final pintura = actual == null
         // Sin recuadro no hay nada que animar —y `RectTween` sin destino revienta—:
         // el velo se cierra entero y el globo habla de la pantalla.
-        ? CustomPaint(
+        ? const CustomPaint(
             painter: _PintorDeFoco(
               recuadro: null,
               velo: Paleta.ink,
-              anillo: t.accent,
+              anillo: _anillo,
             ),
             size: Size.infinite,
           )
@@ -49,7 +53,7 @@ class FocoDeTutorial extends StatelessWidget {
               painter: _PintorDeFoco(
                 recuadro: animado ?? actual,
                 velo: Paleta.ink,
-                anillo: t.accent,
+                anillo: _anillo,
               ),
               size: Size.infinite,
             ),

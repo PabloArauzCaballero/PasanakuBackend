@@ -1,0 +1,2 @@
+00:06 +100: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/packages/diseno_flutter/test/widget/comportamiento_test.dart: TarjetaDeSolicitud no deja rechazar en blanco
+00:06 +101: All tests passed!

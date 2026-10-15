@@ -51,8 +51,8 @@ class Boton extends StatelessWidget {
       BotonVariante.primario => (t.accent, t.accentInk, null),
       BotonVariante.secundario => (t.surface2, t.text, t.border),
       BotonVariante.fantasma => (Colors.transparent, t.text2, t.border),
-      // Las acciones usan el acento naranja; verde/rojo se reserva para estados.
-      BotonVariante.peligro => (t.accent, t.accentInk, null),
+      // Una acción irreversible (dar de baja, rechazar) se pinta en rojo sólido.
+      BotonVariante.peligro => (t.rojoSolido, t.sobreRojoSolido, null),
       BotonVariante.enlace => (Colors.transparent, t.accentTexto, null),
     };
     final alto = switch (tamano) {
@@ -64,8 +64,8 @@ class Boton extends StatelessWidget {
     // opacidad al naranja da un naranja claro que sigue leyéndose como acción y deja a
     // la persona tocando algo que no responde. Apagado se ve apagado.
     final apagado = !_habilitado && !cargando;
-    // Con relleno y vivo: el color lo pinta `SuperficieViva` (degradado, sombra,
-    // brillo) y el `FilledButton` queda transparente encima, sólo para el toque, el
+    // Con relleno y vivo: el color lo pinta `SuperficieViva` (relleno plano y
+    // sombra mínima) y el `FilledButton` queda transparente encima, sólo para el toque, el
     // foco y el teclado.
     final vivo = !apagado && fondo != Colors.transparent;
     final estilo = ButtonStyle(
@@ -153,7 +153,6 @@ class Boton extends StatelessWidget {
               colorDelTexto: frente,
               radio: Radios.md,
               activo: _habilitado,
-              brilla: variante == BotonVariante.primario,
               cargando: cargando,
               child: boton,
             )
