@@ -115,6 +115,7 @@ public class CU02RevisarExpediente {
             revisiones.resolver(
                     dsl,
                     verificacionId,
+                    expediente.usuarioId(),
                     aprueba ? "APROBADA" : "RECHAZADA",
                     aprueba ? null : motivo,
                     ctx.usuarioId(),
