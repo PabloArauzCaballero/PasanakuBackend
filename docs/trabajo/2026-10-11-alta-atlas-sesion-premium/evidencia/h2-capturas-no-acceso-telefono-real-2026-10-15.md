@@ -36,6 +36,55 @@ GET /api/v1/sesiones sin token: 401
 
 Demuestra que el host responde y que la ruta de sesión rechaza una petición sin token como corresponde; no identifica el SHA de la imagen servida ni reproduce las llamadas autenticadas de las capturas.
 
+## Traducción cliente/UI del HTTP 403 (pruebas focalizadas, Flutter 3.47.5)
+
+Corridas locales con respuestas **simuladas**; verifican únicamente el contrato cliente y el estado UI, no el servidor remoto:
+
+Comando desde `apps/movil`:
+
+```text
+flutter test --no-pub --concurrency=1 --reporter expanded test/unidad/cliente_test.dart
+```
+
+Salida:
+
+```text
+00:00 +0: loading C:/Users/leonardo/Repositories/pasanaku/PasanakuBackend/apps/movil/test/unidad/cliente_test.dart
+00:00 +0: un 403 llega traducido, con traza y sin el mensaje del backend
+00:00 +1: sin red llega como ErrorDeRed
+00:00 +2: All tests passed!
+```
+
+Comando desde `apps/movil`:
+
+```text
+flutter test --no-pub --concurrency=1 --reporter expanded test/widget/pantalla_de_saldo_test.dart
+```
+
+Salida:
+
+```text
+00:00 +0: loading C:/Users/leonardo/Repositories/pasanaku/PasanakuBackend/apps/movil/test/widget/pantalla_de_saldo_test.dart
+00:00 +0: cargando: lo dice mientras espera, sin pantalla en blanco
+00:00 +1: éxito: muestra el saldo que respondió el contrato, sin recalcular nada
+00:00 +2: vacío: una cuenta en cero dice por qué no hay nada y qué hacer
+00:00 +3: error: mensaje humano, reintento a la vista y traza para soporte
+00:00 +4: sin red: no se queda cargando para siempre, y dice que no hay conexión
+00:00 +5: un 403 no dice más que «no tenés acceso»
+00:00 +6: reintentar vuelve a pedir el saldo al servidor: nunca se ajusta en memoria
+00:00 +7: refrescar emite haptica de seleccion
+00:00 +8: movimientos del servidor conservan orden y muestran los posteriores juntos
+00:00 +9: All tests passed!
+```
+
+```text
+VEREDICTO:   PASS (mapeo y widget con doble); no acredita reproducción contra TEST
+Peldaño:     TESTED
+Superficie:  Mobile — unidad del cliente y widget de billetera
+Demuestra:   una respuesta 403 entregada al cliente se traduce al mensaje genérico y la pantalla lo muestra sin filtrar el backend
+No cubierto: status real de los cuatro códigos de seguimiento, HTTP con token real, rol de la cuenta de las capturas, persistencia/permisos en TEST ni ejecución en AVD
+```
+
 ## Veredicto y pendiente
 
 ```text
