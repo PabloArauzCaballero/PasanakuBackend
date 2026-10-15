@@ -853,11 +853,12 @@ components:
     ExpedienteEnRevision:
       type: object
       additionalProperties: false
-      required: [verificacionId, usuarioId, nombreCompleto, estado, iniciadaEn, fotos, documentoVigente]
+      required: [verificacionId, usuarioId, nombreCompleto, telefono, estado, iniciadaEn, fotos, documentoVigente]
       properties:
         verificacionId: { type: string, format: uuid }
         usuarioId:      { type: string, format: uuid }
         nombreCompleto: { type: string }
+        telefono:      { type: string, description: 'Telefono E.164 de la persona para localizar el expediente en el backoffice.' }
         documento:      { type: string, description: 'Tipo y lugar de expedicion; el numero NUNCA viaja.' }
         estado:         { type: string, enum: [PENDIENTE, EN_REVISION, APROBADA, RECHAZADA] }
         iniciadaEn:     { type: string, format: date-time }
