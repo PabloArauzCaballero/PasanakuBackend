@@ -226,6 +226,12 @@ Entonces se rechaza con AP-CU01-03 y campo correo, sin crear nada
 Dado un telefono que ya tiene cuenta
 Cuando otra persona se registra con ese telefono
 Entonces se rechaza con AP-CU01-03 y campo telefono
+
+Dado un correo que ya tiene cuenta
+Cuando se pide el código para ese correo
+Entonces se rechaza con AP-CU01-03 y campo correo
+Y no se envía ningún correo
+Y otro correo libre sí recibe su código
 ```
 
 ## Ver también
