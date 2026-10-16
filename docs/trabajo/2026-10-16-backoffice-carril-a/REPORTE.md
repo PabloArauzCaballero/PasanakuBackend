@@ -2,8 +2,8 @@
 
 > **AVANCE: 50 / 53 — 94,3 %.** Las 3 microtareas no hechas están `BLOQUEADO` por
 > `DECISION_REQUIRED` (H7.S4 solicitudes escaladas D-15, H7.S5 registro de accesos, H9.S1.M4 sesionar
-> el comité sin `GOBIERNO_SESIONAR` sembrado). A4 (H8) y A5 (H9) quedaron cerrados en backend. A6: tarifario y
-> mensajería integrados y re-verificados (subagente); ERP sigue en su subagente, sin integrar.
+> el comité sin `GOBIERNO_SESIONAR` sembrado). A4 (H8) y A5 (H9) quedaron cerrados en backend. A6: ERP, tarifario y
+> mensajería integrados y re-verificados (dos subagentes); reportería (CU-58) en curso.
 > A7 sigue pendiente. El carril A completo (A0–A7) **no** está terminado.
 
 - Fecha: 2026-10-16 · Plan: [PLAN.md](./PLAN.md) · Rama: `codex/backoffice-dominio-20261015`
@@ -79,7 +79,7 @@ Ninguna microtarea quedó a medias. A nivel de **hito**, H2–H5 quedan en `TEST
 | H9.S1.M4 · `sesionar` el comité (CU-94) por HTTP | `BLOQUEADO` · `DECISION_REQUIRED` | sembrar `GOBIERNO_SESIONAR` (S-8, Seguridad de la información) |
 | A5 · denuncia (§9.1) | `DECISION_REQUIRED` | exige modelo |
 | A5 · ficha de alerta/caso con datos de la persona | `DECISION_REQUIRED` | catálogo de finalidades para `registro_acceso_datos` (A-8) |
-| A6 · ERP (listados que faltan) | EN CURSO en subagente, rama `codex/backoffice-a6-erp` | su reporte propio en `a6-erp/REPORTE.md`; la integración y la verificación final las hace el agente principal |
+| A6 · ERP | 5 listados HECHO (subagente, integrado en `b5831572` y re-verificado: `evidencia/A6-02`); listado de asientos = dueño de `nucleo-financiero`; adaptar la UI paginada = carril B | ver `a6-erp/REPORTE.md` |
 | A6 · tarifario y mensajería | 3 listados HECHO (subagente, integrado en `49299219` y re-verificado: `evidencia/A6-01`); simulación de impacto, enrutamiento, consentimiento y edición de plantillas `DECISION_REQUIRED` | ver `a6-tarifas-mensajeria/REPORTE.md` |
 | A6 · reportería (CU-58) | TODO | siguiente ola |
 | A7 · paneles, alertas con runbook, backups | TODO | siguiente ola |
