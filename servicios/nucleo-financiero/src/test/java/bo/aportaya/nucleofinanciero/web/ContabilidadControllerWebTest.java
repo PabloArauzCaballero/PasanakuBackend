@@ -31,7 +31,7 @@ import org.springframework.test.web.servlet.ResultActions;
  * {@code CU51CierreDesdeContabilidadTest}.
  */
 @PruebaWeb(ContabilidadController.class)
-class CierreDiarioWebTest {
+class ContabilidadControllerWebTest {
     private static final LocalDate DIA = LocalDate.of(2026, 3, 10);
     private static final UUID CIERRE = UUID.fromString("eeeeeeee-0000-4000-8000-000000000061");
     private static final String CLAVE = "eeeeeeee-0000-4000-8000-0000000000bb";

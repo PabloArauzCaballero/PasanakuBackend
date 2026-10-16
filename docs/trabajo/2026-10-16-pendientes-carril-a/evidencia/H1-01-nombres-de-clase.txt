@@ -1,0 +1,3 @@
+CustodiaControllerWebTest: 1
+ContabilidadControllerWebTest: 1
+UifControllerWebTest: 1

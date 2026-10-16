@@ -1,0 +1,2 @@
+$ grep -rn "marcarCasoDeUso(.*get(Telefono|Correo|NumeroDocumento)" servicios
+(vacio = ningun dato personal en el MDC)

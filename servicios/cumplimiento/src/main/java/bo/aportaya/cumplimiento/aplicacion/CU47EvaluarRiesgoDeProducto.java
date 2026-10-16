@@ -168,7 +168,8 @@ public class CU47EvaluarRiesgoDeProducto {
                         CodigoError.de(47, 4),
                         "El producto exige no objecion del supervisor y todavia no la tiene (R-LIC-04).");
             }
-            if (!evaluaciones.aprobar(dsl, entrada.evaluacionId(), entrada.aprobadaPor(), ahora.toLocalDate())) {
+            // El aprobador es la sesion, nunca un id de la entrada: declararlo seria poder firmar por otro.
+            if (!evaluaciones.aprobar(dsl, entrada.evaluacionId(), ctx.usuarioId(), ahora.toLocalDate())) {
                 throw new ErrorDeNegocio(CodigoError.de(47, 5), "Esa evaluacion ya no esta en borrador.");
             }
 
@@ -199,7 +200,7 @@ public class CU47EvaluarRiesgoDeProducto {
             boolean requiereNoObjecion) {}
 
     public record EntradaAprobacion(
-            UUID evaluacionId, UUID aprobadaPor, boolean comiteConQuorum, boolean hayNoObjecion, String numeroDeActa) {}
+            UUID evaluacionId, boolean comiteConQuorum, boolean hayNoObjecion, String numeroDeActa) {}
 
     public record SalidaEvaluacion(
             UUID evaluacionId,
