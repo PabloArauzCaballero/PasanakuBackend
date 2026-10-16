@@ -1,0 +1,12 @@
+$ ./gradlew :servicios:identidad:integrationTest --tests '*CU01*'   (1ra)
+exit=1 · CU01VerificacionCorreoTest 2/2 en rojo: SinTransaccion (conContexto sin transacción) — PRODUCT_BUG propio: la consulta se hacía fuera de transacción. Corregido con VerificacionCorreoRepositorio.correoConCuenta @Transactional(readOnly).
+
+$ ./gradlew :servicios:identidad:integrationTest --tests '*CU01*'   (2da)
+exit=0 · CU01CredencialTest 4/4 · CU01Test 22/22 · CU01VerificacionCorreoTest 2/2
+
+$ ./gradlew :servicios:identidad:check :servicios:identidad:integrationTest --continue
+test 35/35 · integrationTest 151/151 · webTest 120/120 · spotless/jacoco/sinJpa OK
+testBarrido: rojo PREEXISTENTE, mismos 3 archivos ajenos (RevisionRepositorio 313, CU01Test 334, UsuariosControllerWebTest 300). VerificacionCorreoRepositorio queda en 298.
+
+$ grep AP-CU01-03 en la ruta /usuarios/verificaciones/correo
+46:          # AP-CU01-03 CUENTA_YA_EXISTE (detalle.campo = correo): ese correo ya tiene
