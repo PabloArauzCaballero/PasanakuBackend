@@ -10,8 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
-import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02ActualizarFechaExpiracion;
+import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.ConfirmarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.ConsultarNivelKyc;
