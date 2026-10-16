@@ -26,9 +26,9 @@
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H1.S1.M1 | Traer el arreglo de `dev` de la otra sesión a la rama de `test` (merge) | merge sin conflictos sin resolver | `git diff --check` y sin `<<<<<<<` | BLOQUEADO — espera el commit de la otra sesión |
-| H1.S1.M2 | `spotlessApply` en identidad | `spotlessCheck` pasa | `./gradlew spotlessCheck` → rc 0 | TODO |
-| H1.S1.M3 | `dart format` en `diseno_flutter` y `movil` | sin cambios pendientes | `dart format --output=none --set-exit-if-changed lib test` → rc 0 | TODO |
+| H1.S1.M1 | Traer el arreglo de `dev` de la otra sesión a la rama de `test` (merge) | merge sin conflictos sin resolver | `git diff --check` y sin `<<<<<<<` | BLOQUEADO — espera el PR a dev de pasanaku-28 (rama `pablo/fix/arreglos-dev-ci-2026-10-16`), reparto acordado por mensaje |
+| H1.S1.M2 | `spotlessApply` en identidad | `spotlessCheck` pasa | `./gradlew spotlessCheck` → rc 0 | HECHO (`evidencia/m2-spotless.txt`, commit 6caf30e9) |
+| H1.S1.M3 | `dart format` en `diseno_flutter` y `movil` | sin cambios pendientes | `dart format --output=none --set-exit-if-changed lib test` → rc 0 | HECHO (`evidencia/m3-dart-format.txt`, commit 6caf30e9) |
 | H1.S1.M4 | Barrido por debajo de 300 líneas | `testBarrido` pasa | `./gradlew testBarrido` → rc 0 | TODO |
 | H1.S1.M5 | Regresión de identidad | tests de identidad en verde | `./gradlew :servicios:identidad:test :servicios:identidad:webTest` | TODO |
 | H1.S2.M1 | PR → `test` | MERGEABLE, checks verdes | `gh pr view --json mergeable,statusCheckRollup` | TODO |
