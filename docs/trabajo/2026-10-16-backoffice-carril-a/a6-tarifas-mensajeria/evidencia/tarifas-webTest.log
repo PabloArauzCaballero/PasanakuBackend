@@ -1,0 +1,4 @@
+catalogo de errores: 263 restricciones -> 141 reglas · errores-restricciones.properties
+mensajes de regla: 170 · errores-reglas.properties
+  AVISO: 3 reglas con restriccion y sin fila en la boveda: R-BIL-21, R-BIL-22, R-UIF-13
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended

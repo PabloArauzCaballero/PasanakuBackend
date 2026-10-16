@@ -52,6 +52,9 @@ class AutorizacionNegativaWebTest {
     @MockitoBean
     private CU82ProcesarRespuesta cu82;
 
+    @MockitoBean
+    private bo.aportaya.notificaciones.aplicacion.ConsultarMensajeria consultarMensajeria;
+
     private ResultActions preguntar(org.springframework.test.web.servlet.request.RequestPostProcessor sesion)
             throws Exception {
         var peticion = post("/notificaciones/supresion/consultas")

@@ -1,0 +1,9 @@
+postman/coleccion/  15 colecciones · 262 operaciones
+postman/humo/       15 colecciones · 786–1048 pruebas
+postman/entornos/   4 entornos
+postman/recorrido   8 pasos encadenados, de punta a punta
+
+AVISO · operaciones sin @Permiso hallado en el codigo:
+  identidad: abrirDesafioDeStepUp, verificarDesafioDeStepUp
+  grupos: canjearInvitacion, revocarInvitacionDelGrupo, proponerAdmision, resolverAdmision, sustituirAdministrador, historialAdmision, invitarAlGrupo, consultarInvitacionPorEnlace, aceptarInvitacionPorEnlace, consultarCalendarioDeAportes, listarMisParticipaciones, listarSolicitudesDeIngreso, decidirSolicitudDeIngreso
+  organizador: listarBandejaDeHabilitaciones, consultarMiExpedienteDeHabilitacion, consultarExpedienteDeHabilitacion, resolverHabilitacion, revisarHabilitacion

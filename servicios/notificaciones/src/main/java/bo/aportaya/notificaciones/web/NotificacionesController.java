@@ -1,12 +1,15 @@
 package bo.aportaya.notificaciones.web;
 
 import bo.aportaya.notificaciones.aplicacion.CU82ProcesarRespuesta;
+import bo.aportaya.notificaciones.aplicacion.ConsultarMensajeria;
 import bo.aportaya.notificaciones.aplicacion.ConsultarSupresion;
 import bo.aportaya.notificaciones.aplicacion.SolicitarAviso;
 import bo.aportaya.notificaciones.web.generado.NotificacionesApi;
 import bo.aportaya.notificaciones.web.generado.modelo.EntradaConsultaSupresion;
 import bo.aportaya.notificaciones.web.generado.modelo.EntradaNotificacion;
 import bo.aportaya.notificaciones.web.generado.modelo.EntradaRespuesta;
+import bo.aportaya.notificaciones.web.generado.modelo.PaginaDeEnvios;
+import bo.aportaya.notificaciones.web.generado.modelo.PaginaDePlantillas;
 import bo.aportaya.notificaciones.web.generado.modelo.SalidaNotificacion;
 import bo.aportaya.notificaciones.web.generado.modelo.SalidaRespuesta;
 import bo.aportaya.notificaciones.web.generado.modelo.Supresion;
@@ -17,6 +20,8 @@ import bo.aportaya.plataforma.web.seguridad.Publico;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,6 +50,7 @@ public class NotificacionesController implements NotificacionesApi {
     private final SolicitarAviso avisos;
     private final ConsultarSupresion supresiones;
     private final CU82ProcesarRespuesta cu82;
+    private final ConsultarMensajeria mensajeria;
     private final SesionDeLaPeticion sesion;
     private final LimiteDeConsultas limiteDeConsultas;
 
@@ -52,12 +58,14 @@ public class NotificacionesController implements NotificacionesApi {
             SolicitarAviso avisos,
             ConsultarSupresion supresiones,
             CU82ProcesarRespuesta cu82,
+            ConsultarMensajeria mensajeria,
             SesionDeLaPeticion sesion,
             Reloj reloj,
             @Value("${aportaya.supresion.consultas-por-minuto:30}") int consultasPorMinuto) {
         this.avisos = avisos;
         this.supresiones = supresiones;
         this.cu82 = cu82;
+        this.mensajeria = mensajeria;
         this.sesion = sesion;
         this.limiteDeConsultas = new LimiteDeConsultas(reloj, consultasPorMinuto, Duration.ofMinutes(1));
     }
@@ -147,5 +155,27 @@ public class NotificacionesController implements NotificacionesApi {
         respuesta.setAccion(SalidaRespuesta.AccionEnum.fromValue(salida.accion()));
         respuesta.setReferenciaId(salida.referenciaId());
         return ResponseEntity.ok(respuesta);
+    }
+
+    // Auditoria operativa de la mensajeria (backoffice carril A · A6): lee, no escribe, y no ve a quien
+    // se le escribio. No hay permiso de mensajeria sembrado; AUDITORIA_LEER es el unico que aplica.
+    @Override
+    @Permiso("AUDITORIA_LEER")
+    public ResponseEntity<PaginaDePlantillas> listarPlantillas(
+            List<String> estados, Integer limite, OffsetDateTime antesDe, UUID antesDeId) {
+        Traza.marcarCasoDeUso("CU-80", "plantillas");
+        var pagina = mensajeria.plantillas(
+                estados, Optional.ofNullable(antesDe), Optional.ofNullable(antesDeId), limite, sesion.actual());
+        return ResponseEntity.ok(MapeoDeMensajeria.plantillas(pagina));
+    }
+
+    @Override
+    @Permiso("AUDITORIA_LEER")
+    public ResponseEntity<PaginaDeEnvios> listarEnvios(
+            List<String> estados, Integer limite, OffsetDateTime antesDe, UUID antesDeId) {
+        Traza.marcarCasoDeUso("CU-83", "envios");
+        var pagina = mensajeria.envios(
+                estados, Optional.ofNullable(antesDe), Optional.ofNullable(antesDeId), limite, sesion.actual());
+        return ResponseEntity.ok(MapeoDeMensajeria.envios(pagina));
     }
 }

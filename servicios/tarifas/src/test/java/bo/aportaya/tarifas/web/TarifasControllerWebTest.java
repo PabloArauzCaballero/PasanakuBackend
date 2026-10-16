@@ -65,6 +65,9 @@ class TarifasControllerWebTest {
     private ConsultarTarifarioVigente vigentes;
 
     @MockitoBean
+    private bo.aportaya.tarifas.aplicacion.ConsultarTarifarios historial;
+
+    @MockitoBean
     private CU34PublicarTarifario cu34;
 
     @MockitoBean
