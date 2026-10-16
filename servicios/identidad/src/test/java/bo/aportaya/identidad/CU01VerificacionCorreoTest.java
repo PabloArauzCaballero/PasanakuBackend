@@ -127,6 +127,32 @@ class CU01VerificacionCorreoTest {
         assertThat(usuariosConCorreo(otroDestino)).isEqualTo(antes);
     }
 
+    @Test
+    @DisplayName(
+            "Dado un correo que ya tiene cuenta · Cuando se pide el código para ese correo · Entonces se rechaza con AP-CU01-03 y campo correo · Y no se envía ningún correo · Y otro correo libre sí recibe su código")
+    void correoConCuentaSeCortaAlPedirElCodigo() {
+        String sufijo = UUID.randomUUID().toString().substring(0, 8);
+        String destino = "repetido-" + sufijo + "@example.com";
+        ContextoSesion contexto = contexto();
+        var emitida = solicitar.ejecutar(destino, UUID.randomUUID(), "127.0.0.1", "prueba-integracion", contexto);
+        confirmar.ejecutar(
+                emitida.verificacionId(), destino, codigoEntregado.get(), "127.0.0.1", "prueba-integracion", contexto);
+        registrar.ejecutar(entrada(destino, emitida.verificacionId(), sufijo), contexto);
+        codigoEntregado.set(null);
+
+        assertThatThrownBy(() ->
+                        solicitar.ejecutar(destino, UUID.randomUUID(), "127.0.0.1", "prueba-integracion", contexto))
+                .isInstanceOfSatisfying(ErrorDeNegocio.class, error -> {
+                    assertThat(error.codigo().valor()).isEqualTo("AP-CU01-03");
+                    assertThat(error.detalle()).containsEntry("campo", "correo");
+                });
+        assertThat(codigoEntregado.get()).isNull();
+
+        String libre = "libre-" + sufijo + "@example.com";
+        solicitar.ejecutar(libre, UUID.randomUUID(), "127.0.0.1", "prueba-integracion", contexto);
+        assertThat(codigoEntregado.get()).matches("\\d{6}");
+    }
+
     private CU01RegistrarUsuario.EntradaRegistro entrada(String correo, UUID verificacion, String sufijo) {
         String digitos = Integer.toUnsignedString(sufijo.hashCode());
         digitos = (digitos + "00000000").substring(0, 8);

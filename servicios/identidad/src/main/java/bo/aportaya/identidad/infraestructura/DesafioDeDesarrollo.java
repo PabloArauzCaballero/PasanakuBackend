@@ -26,6 +26,10 @@ import org.springframework.stereotype.Component;
  *       corre es el de verdad. No hay bandera que lo encienda por accidente.</li>
  *   <li>Avisa al arrancar, fuerte, para que nadie confunda un entorno con otro.</li>
  * </ul>
+ *
+ * <p>El factor {@code CORREO} si tiene canal encendido (Gmail en TEST), asi que ese no
+ * se finge: se delega en {@link DesafioLocal}, que manda el codigo real. El {@code 000000}
+ * sigue entrando, porque es la decision registrada para este perfil.
  */
 @Component
 @Primary
@@ -37,7 +41,10 @@ public class DesafioDeDesarrollo implements DesafioDeFactor {
 
     private static final Logger BITACORA = LoggerFactory.getLogger(DesafioDeDesarrollo.class);
 
-    public DesafioDeDesarrollo() {
+    private final DesafioLocal real;
+
+    public DesafioDeDesarrollo(DesafioLocal real) {
+        this.real = real;
         BITACORA.warn("SEGUNDO FACTOR DE DESARROLLO ACTIVO: el codigo fijo de desarrollo entra. "
                 + "Esto SOLO existe con el perfil `local`.");
     }
@@ -52,7 +59,18 @@ public class DesafioDeDesarrollo implements DesafioDeFactor {
     }
 
     @Override
+    public UUID emitir(UUID usuarioId, String tipoDeFactor, String destino) {
+        if ("CORREO".equals(tipoDeFactor)) {
+            return real.emitir(usuarioId, tipoDeFactor, destino);
+        }
+        return emitir(usuarioId, tipoDeFactor);
+    }
+
+    @Override
     public boolean validar(UUID usuarioId, String tipoDeFactor, String valorPresentado) {
-        return CODIGO.equals(valorPresentado);
+        if (CODIGO.equals(valorPresentado)) {
+            return true;
+        }
+        return "CORREO".equals(tipoDeFactor) && real.validar(usuarioId, tipoDeFactor, valorPresentado);
     }
 }

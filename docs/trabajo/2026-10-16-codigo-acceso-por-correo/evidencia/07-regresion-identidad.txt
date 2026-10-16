@@ -1,0 +1,17 @@
+$ ./gradlew :servicios:identidad:check --continue
+> Task :servicios:identidad:testBarrido FAILED
+BarridoTest > tamano-archivo: ningun archivo llega a 300 lineas FAILED
+BUILD FAILED in 14s
+  test: 7 clases · 35 tests · 0 fallas | webTest: 18 clases · 120 tests · 0 fallas | spotless, sinJpa, jacoco: OK
+  testBarrido FALLA PREEXISTENTE (no tocados por este trabajo; mismo tamaño en origin/test):
+    main/java/bo/aportaya/identidad/infraestructura/RevisionRepositorio.java · origin/test: 313 líneas · diff de este trabajo: 0
+    test/java/bo/aportaya/identidad/CU01Test.java · origin/test: 334 líneas · diff de este trabajo: 0
+    test/java/bo/aportaya/identidad/web/UsuariosControllerWebTest.java · origin/test: 300 líneas · diff de este trabajo: 0
+
+$ ./gradlew :servicios:identidad:integrationTest --rerun-tasks
+exit=0 · BUILD SUCCESSFUL in 57s
+  integrationTest: 25 clases · 150 tests · 0 fallas · 0 omitidos
+  EsquemaAlDiaRepositorioTest (gate de deriva): 2/2 · CU04CodigoPorCorreoTest: 5/5
+
+$ ApplicationContextRunner perfil local + gmail_api (CableadoDelSegundoFactorTest): 2/2
+$ python3 scripts/verificar_seguridad.py / verificar_boveda.py / verificar_carriles.py / generar_semillas.py → exit 0 los cuatro

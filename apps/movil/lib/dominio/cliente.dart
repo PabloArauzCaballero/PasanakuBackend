@@ -179,6 +179,7 @@ class _TraduccionDeErrores extends Interceptor {
           trazaId: traza,
           estado: respuesta.statusCode ?? 0,
           contexto: _contextoError(err.requestOptions),
+          campoDelServidor: campoDelDetalle(mapa['detalle']),
         ),
       ),
     );

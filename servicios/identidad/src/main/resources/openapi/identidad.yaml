@@ -41,7 +41,10 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/VerificacionCorreoSolicitada' }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU01-03 CUENTA_YA_EXISTE (detalle.campo = correo): ese correo ya tiene
+          # cuenta; se corta aca y no al final del alta · AP-CU01-07 envio fallido
 
   /usuarios/verificaciones/correo/{verificacionId}/confirmacion:
     post:
@@ -105,6 +108,10 @@ paths:
           # AP-CU01-05 SERVICIO_NO_AUTORIZADO (R-LIC-01)
           # AP-CU01-06 CLAVE_RECHAZADA: corta, o derivada del telefono o del documento
           # AP-CU01-07 DOCUMENTO_VENCIDO: la fecha de vencimiento ya paso
+          # AP-CU01-03 lleva detalle.campo = telefono | documento | correo: el dato
+          # que ya tiene cuenta, para que el cliente diga CUAL (2026-10-15).
+          # Si dos altas con el mismo dato se cruzan, la segunda rebota en el indice
+          # unico y sale 409 AP-BD-01 (ver skill errores-api), nunca 500.
 
   /sesiones:
     post:

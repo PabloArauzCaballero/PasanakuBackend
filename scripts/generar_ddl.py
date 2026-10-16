@@ -36,7 +36,7 @@ if hasattr(sys.stdout, "reconfigure"):
 from collections import defaultdict
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from modelo import (MODULOS, FOCO, APPEND_ONLY, PARTICIONADAS,  # noqa: E402
+from modelo import (MODULOS, FOCO, APPEND_ONLY, PARTICIONADAS, CK_AMPLIADOS,  # noqa: E402
 
                     ESQUEMA, ESQUEMA_CATALOGO, CATALOGO, CATALOGO_ESCRITOR,
                     LIBRO_CONTABLE,
@@ -563,6 +563,12 @@ def generar():
                     "      d + ((i + 1) || ' month')::interval);",
                     "  END LOOP;",
                     "END $$;", ""]
+            ampliadas = {ident("ck", tabla, c) for c in CK_AMPLIADOS.get(tabla, [])}
+            for nombre_ck, expr in checks:
+                if nombre_ck in ampliadas:
+                    sql += [f"-- Evolucion: CHECK ampliado (ver CK_AMPLIADOS en modelo.py).",
+                            f"ALTER TABLE {q(tabla)} DROP CONSTRAINT IF EXISTS {nombre_ck};",
+                            f"ALTER TABLE {q(tabla)} ADD CONSTRAINT {nombre_ck} CHECK ({expr});", ""]
             desc = FOCO[k].replace("'", "''")
             marca = " [append-only]" if tabla in APPEND_ONLY else ""
             sql.append(f"COMMENT ON TABLE {q(tabla)} IS "

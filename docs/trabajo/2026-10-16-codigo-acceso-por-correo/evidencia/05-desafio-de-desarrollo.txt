@@ -1,0 +1,7 @@
+$ ./gradlew :servicios:identidad:test --tests '*DesafioDeDesarrollo*'
+exit=0 · BUILD SUCCESSFUL
+testsuite name="bo.aportaya.identidad.DesafioDeDesarrolloTest" tests="4" skipped="0" failures="0" errors="0"
+testcase name="limite: TOTP no manda correo y sigue entrando con el codigo fijo"
+testcase name="correcto: CORREO manda el codigo real y ese codigo entra"
+testcase name="limite: con CORREO el codigo fijo de desarrollo tambien entra"
+testcase name="invalido: un codigo que no es ni el enviado ni el fijo no entra"

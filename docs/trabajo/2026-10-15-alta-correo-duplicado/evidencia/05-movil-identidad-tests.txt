@@ -1,0 +1,6 @@
+00:04 +19: /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/identidad/paso_contrasena_test.dart: una clave corta no avanza y dice por qué
+00:05 +20: /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/identidad/pantalla_contrato_test.dart: si el servidor no publica los contratos, no hay nada que aceptar y se dice
+00:05 +21: /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/identidad/paso_contrasena_test.dart: si las dos no coinciden, no avanza
+00:05 +22: /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/identidad/pantalla_contrato_test.dart: si el servidor publica solo dos de los tres, tampoco se acepta
+00:05 +23: /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/identidad/paso_contrasena_test.dart: una clave que lleva el celular adentro se rechaza acá, no en el servidor
+00:06 +24: All tests passed!

@@ -18,4 +18,9 @@ public class CorreoDeVerificacionLocal implements CorreoDeVerificacion {
     public void enviarCodigo(String destino, String codigo, Duration vigencia) {
         BITACORA.info("correo de verificacion preparado para un destino local ({} digitos)", codigo.length());
     }
+
+    @Override
+    public void enviarCodigoDeAcceso(String destino, String codigo, Duration vigencia) {
+        BITACORA.info("correo de acceso preparado para un destino local ({} digitos)", codigo.length());
+    }
 }
