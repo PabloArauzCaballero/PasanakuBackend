@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
 import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
+import bo.aportaya.identidad.aplicacion.CU02ActualizarFechaExpiracion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.ConfirmarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.ConsultarNivelKyc;
@@ -29,6 +30,7 @@ import bo.aportaya.plataforma.pruebas.web.Sesiones;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -83,6 +85,9 @@ class EstadoDeVerificacionWebTest {
     private CU02ConsultarEstadoDeVerificacion estadoDeVerificacion;
 
     @MockitoBean
+    private CU02ActualizarFechaExpiracion actualizarFechaExpiracion;
+
+    @MockitoBean
     private CU01RegistrarUsuario cu01;
 
     @MockitoBean
@@ -126,7 +131,8 @@ class EstadoDeVerificacionWebTest {
                         OffsetDateTime.now(),
                         null,
                         motivo,
-                        fotos));
+                        fotos,
+                        LocalDate.of(2030, 1, 15)));
     }
 
     private MockHttpServletRequestBuilder consulta(UUID enLaRuta, String token) {
@@ -151,6 +157,7 @@ class EstadoDeVerificacionWebTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.verificacionId").value(VERIFICACION.toString()))
                 .andExpect(jsonPath("$.estado").value("EN_REVISION"))
+                .andExpect(jsonPath("$.fechaExpiracionDocumento").value("2030-01-15"))
                 .andExpect(jsonPath("$.fotos", org.hamcrest.Matchers.hasSize(2)));
         verify(estadoDeVerificacion).ejecutar(eq(USUARIO), any());
     }

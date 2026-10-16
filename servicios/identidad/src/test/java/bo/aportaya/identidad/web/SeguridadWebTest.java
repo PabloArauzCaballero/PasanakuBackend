@@ -3,6 +3,7 @@ package bo.aportaya.identidad.web;
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
 import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
+import bo.aportaya.identidad.aplicacion.CU02ActualizarFechaExpiracion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.CU02RevisarExpediente;
 import bo.aportaya.identidad.aplicacion.CU04Autenticar;
@@ -64,6 +65,9 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private CU02ConsultarEstadoDeVerificacion estadoDeVerificacion;
+
+    @MockitoBean
+    private CU02ActualizarFechaExpiracion actualizarFechaExpiracion;
 
     @MockitoBean
     private BuscarPorTelefono buscarPorTelefono;

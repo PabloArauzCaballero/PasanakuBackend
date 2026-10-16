@@ -397,6 +397,38 @@ paths:
         '403':
           description: No es la persona ni presenta el token de su alta (idéntico exista o no el usuario)
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /usuarios/{usuarioId}/documento/fecha-expiracion:
+    put:
+      operationId: actualizarFechaExpiracionDocumento
+      summary: Completa la fecha de vencimiento del documento propio
+      description: >-
+        Solo el titular autenticado puede completar o corregir la fecha de su documento.
+        Se admite mientras el expediente siga PENDIENTE o EN_REVISION; la persona revisora
+        valida la fecha contra el documento fotografiado y esta operacion no aprueba el KYC.
+        El usuarioId de la ruta debe coincidir con el sujeto de la sesion.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: usuarioId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FechaExpiracionDocumento' }
+      responses:
+        '204':
+          description: Fecha guardada; la aprobacion sigue siendo manual
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: La sesión pertenece a otra persona
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
   /usuarios/{usuarioId}/verificacion:
     get:
       operationId: consultarEstadoDeVerificacion
@@ -903,10 +935,23 @@ components:
         verificacionId: { type: string, format: uuid }
         estado:         { type: string, enum: [PENDIENTE, EN_REVISION, APROBADA, RECHAZADA] }
         motivoRechazo:  { type: string, maxLength: 160 }
+        fechaExpiracionDocumento:
+          type: string
+          format: date
+          description: Fecha declarada por el titular; solo se muestra en su expediente para completar datos faltantes.
         fotos:
           type: array
           description: Que caras tiene cargadas hasta ahora.
           items: { $ref: '#/components/schemas/CaraDelExpediente' }
+    FechaExpiracionDocumento:
+      type: object
+      additionalProperties: false
+      required: [fechaExpiracionDocumento]
+      properties:
+        fechaExpiracionDocumento:
+          type: string
+          format: date
+          description: Fecha que figura en el documento; una persona la verificará antes de aprobar.
     ArchivoDelExpediente:
       type: object
       additionalProperties: false
