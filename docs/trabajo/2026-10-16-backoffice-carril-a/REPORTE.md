@@ -1,8 +1,10 @@
 # Reporte — Backoffice financiero · Carril A (dominio, contratos y controles)
 
-> **AVANCE: 31 / 31 — 100 % de las microtareas de este plan.** El carril A del plan estratégico
-> (A0–A7) **no** está completo: este plan cubre A0 y los cortes P0 de A4/A5/A6 que no esperan
-> decisiones de negocio; el resto queda en «Pendiente» con su motivo.
+> **AVANCE: 36 / 38 — 94,7 %.** Las 2 microtareas no hechas están `BLOQUEADO` por
+> `DECISION_REQUIRED` (H7.S4 solicitudes escaladas D-15, H7.S5 registro de accesos). El carril A
+> del plan estratégico (A0–A7) **no** está completo: este plan cubre A0, los cortes P0 de A4/A5/A6
+> que no esperan decisiones y la ola 2 (llamadas del backoffice sin contrato); el resto queda en
+> «Pendiente» con su motivo.
 
 - Fecha: 2026-10-16 · Plan: [PLAN.md](./PLAN.md) · Rama: `codex/backoffice-dominio-20261015`
   (worktree `.claude/worktrees/backoffice-dominio`, integrada con `origin/dev` @ `4b4cb2e5`)
@@ -33,7 +35,12 @@
 | H5.S2.M1–M3 | Abrir/decidir caso LFT: revisor = sesión, una decisión, reintentos seguros | `--tests '*CU44*'` + `LftAccionesWebTest` | PASS (27+6) · H5-04…H5-06 |
 | H6.S1.M1 | Regresión final sobre el árbol integrado con `dev`, sin caché | ver «Evidencia» | PASS 1.136/0 · H6-03 |
 | H6.S1.M3 | 11 fichas de contrato para el carril B | `grep -c '^### '` + operationIds en YAML | PASS 11/11 · H6-05 |
-| H6.S1.M2 | Este reporte + commits + push | `git log origin/codex/backoffice-dominio-20261015 -1` | ver «Evidencia» |
+| H6.S1.M2 | Reporte del tramo 1 + commits + push | `git log origin/codex/backoffice-dominio-20261015 -1` | PASS · H6-06 |
+| H7.S1.M1 | Listados de publicidad que B ya llamaba (anunciantes, campañas, piezas) | `--tests '*CU11[012]ListadoTest'` + `PublicidadListadosWebTest` | PASS (7+5) · H7-02…H7-04 |
+| H7.S1.M2 | **Privacidad:** el número de documento ya no va al MDC de los logs (publicidad, erp) | `grep -rn 'marcarCasoDeUso(.*getNumeroDocumento' servicios` | PASS (vacío) · H7-05 |
+| H7.S2.M1 | Períodos de un ejercicio con totales **sellados** del cierre | `--tests '*CU100PeriodosTest*'` + `ErpPeriodosWebTest` | PASS · H7-06 |
+| H7.S3.M1 | Descarga del estado financiero: se reconstruye, se recalcula el hash y solo se entrega si coincide | `--tests '*CU106DescargaTest*'` + webTest | PASS (3+1) · H7-07, H7-08 |
+| H7.S6.M1 | Cruce final: de 33 llamadas de B, quedan 2 sin contrato, ambas `DECISION_REQUIRED` | `entregables/llamadas_sin_contrato.py .` | PASS · H7-10 |
 
 ## A medias
 
@@ -55,6 +62,8 @@ Ninguna microtarea quedó a medias. A nivel de **hito**, H2–H5 quedan en `TEST
 
 | Bloque del plan estratégico | Estado | Qué lo destraba |
 |---|---|---|
+| H7.S4 · `GET /grupos/solicitudes-escaladas` (D-15) | `BLOQUEADO` · `DECISION_REQUIRED` | negocio: ¿vencer = expirar o escalar a Operaciones, y quién resuelve? + columna de plazo guardado (invariante 8). Evidencia H7-09 |
+| H7.S5 · `POST /extraccion/accesos` | `BLOQUEADO` · `DECISION_REQUIRED` | catálogo de finalidades (A-8); el rastro de lectura va en el servidor |
 | A1 · catalogar los 33 permisos S-8 (`entregables/matriz-autorizacion.md`) | `DECISION_REQUIRED` | Seguridad de la información decide recurso/acción/MFA/rol |
 | A1 · `aprobado_por` en restablecimiento y política de token por perfil (§9.4–9.5) | `DECISION_REQUIRED` | cambio de modelo con ADR (`boveda-modelo`) |
 | A2/A3 · tablas del motor de decisión y del gobierno de políticas | `DECISION_REQUIRED` | aprobar `entregables/ADR-propuesto-motor-de-decisiones.md` (A-2) |
@@ -79,7 +88,12 @@ Ninguna microtarea quedó a medias. A nivel de **hito**, H2–H5 quedan en `TEST
 | `H6-02-compilacion-completa.txt` | todo el backend compila sin caché |
 | `H6-03-regresion-final.txt` | regresión final de los tres servicios |
 | `H6-04-contractTest-clasificacion.txt` | 9 fallas de contrato clasificadas con reproducción |
-| `H6-05-fichas.txt` | fichas de contrato ↔ operationIds |
+| `H6-05-fichas.txt` · `H6-06-push.txt` | fichas de contrato ↔ operationIds; push del tramo 1 |
+| `H7-00-llamadas-sin-contrato.txt` · `H7-10-cruce-final.txt` | cruce de las 33 llamadas de B contra los OpenAPI: 7 → 2 |
+| `H7-01-linea-base-publicidad.txt` · `H7-02…H7-04` | línea base y listados de publicidad |
+| `H7-05-sin-documento-en-trazas.txt` | ningún `marcarCasoDeUso` con número de documento |
+| `H7-06…H7-08` | períodos del ejercicio, documento sellado, regresión `erp` |
+| `H7-09-d15-sin-modelo.txt` | por qué D-15 es `DECISION_REQUIRED` |
 
 ```text
 $ ./gradlew :servicios:<s>:spotlessCheck test webTest testBarrido integrationTest contractTest --continue --no-build-cache
@@ -87,6 +101,10 @@ $ ./gradlew :servicios:<s>:spotlessCheck test webTest testBarrido integrationTes
 == cumplimiento        test 14 · webTest 70 · testBarrido 2 · integrationTest 306                     — 0 fallas
 == erp                 test 5  · webTest 43 · testBarrido 2 · integrationTest 95                      — 0 fallas
 TOTAL 1136 pruebas · 0 fallas
+
+# ola 2 (después del tramo 1)
+== publicidad          test 5  · webTest 21 · testBarrido 2 · integrationTest 59                      — 0 fallas
+== erp                 test 5  · webTest 45 · testBarrido 2 · integrationTest 100                     — 0 fallas
 ```
 
 **Asientos / dinero (regla 91.6):** ningún cambio de este trabajo crea, modifica ni reversa asientos
@@ -137,6 +155,12 @@ Riesgo residual de seguridad: ver «Riesgos residuales».
    cuerpo y duplicaba efectos; `abrirCaso` creaba un caso vacío al reintentar; códigos reusados.
 5. **Fichas de contrato** (H6.S1.M3) agregadas: COORDINACION.md las exige antes de integrar con B.
 6. **Integración de `origin/dev`** (merge `70502103`, sin conflictos en archivos del carril).
+7. **Ola 2 (H7) agregada al plan** tras cerrar el tramo 1: cruce de llamadas reales del backoffice.
+8. **Privacidad en trazas** (H7.S1.M2): descubierto al tocar `publicidad`; mismo defecto en `erp`.
+9. **Pruebas partidas por CU** en `publicidad`: `integrationTest` solo incluye `CU*Test`; una clase
+   `ListadosDePublicidadTest` no habría corrido nunca en el CI.
+10. **`serializar` de CU-106 extraído** a `dominio/DocumentoDeEstadoFinanciero` para que generación y
+    descarga usen una sola definición (comportamiento idéntico: suites de CU-106 en verde).
 
 ## Riesgos residuales
 
@@ -147,6 +171,8 @@ Riesgo residual de seguridad: ver «Riesgos residuales».
 | `CU48CalibrarReglas.activar` recibe `aprobadaPor` en la entrada | si se expone por HTTP tal cual, se puede declarar otro aprobador | aplicar el patrón de `CU44DecidirComoRevisor` antes de exponerlo |
 | Ruta de `identidad` `PUT /usuarios/{id}/documento/fecha-expiracion` no declarada como abierta | gate de autorización en rojo en `dev` | declararla en la política de acceso con su control (dueño: identidad) |
 | Caché de Gradle local cruza salidas del generador OpenAPI entre servicios | compilaciones falsas en rojo (visto en `entregas`) | usar `--no-build-cache` como el CI, o arreglar las entradas de la tarea de generación |
+| `identidad/web/SesionesController.java:96` pone el **teléfono** en el MDC en cada login | dato personal en logs (regla 90.2.1) | mismo arreglo que en publicidad/erp, por su dueño |
+| `crearCampana`: el YAML dice `PUBLICIDAD_APROBAR_CAMPANA`, el código exige `PUBLICIDAD_CAMPANA_GESTIONAR` | documentación engañosa del permiso | corregir el YAML (dueño de publicidad) |
 | `Traza.marcarCasoDeUso(cu, usuarioId)` se usa con ids de recurso | logs con "usuario" que no es un usuario | renombrar el parámetro (plataforma, micro-PR) |
 | Respuestas idempotentes por estado (reclamos, LFT) comparan el texto completo | un reintento con un espacio de diferencia es "otra respuesta" (`AP-…-06/07`) | la UI debe reenviar exactamente el mismo cuerpo |
 

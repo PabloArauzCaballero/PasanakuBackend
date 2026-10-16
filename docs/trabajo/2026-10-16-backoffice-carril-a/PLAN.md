@@ -155,7 +155,7 @@
 entonces existe la operación (o queda declarada como `DECISION_REQUIRED` con motivo), con permiso,
 paginación y respuesta mínima.
 **DoD:** el cruce vuelve a correr y lista solo las declaradas como decisión; regresión de cada servicio tocado.
-**Estado:** EN CURSO
+**Estado:** HECHO salvo H7.S4 y H7.S5 (`BLOQUEADO`, `DECISION_REQUIRED`) — cruce 7 → 2 (H7-10).
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
@@ -163,9 +163,9 @@ paginación y respuesta mínima.
 | H7.S1.M2 | **(descubierta)** `PublicidadController.postularSocioComercial` y `ErpController.darDeAltaTercero` ponen `numeroDocumento` en el MDC de los logs (`Traza.marcarCasoDeUso`), regla 90.2.1. Se reemplaza por una etiqueta sin dato. (El mismo defecto con el **teléfono** en `identidad/SesionesController.java:96` queda reportado: no es de este carril) | ningún `marcarCasoDeUso` con documento/teléfono/correo en `servicios/` | `grep -rn 'marcarCasoDeUso(.*getNumeroDocumento' servicios` → vacío | HECHO |
 | H7.S2.M1 | `GET /erp/ejercicios/{ejercicioId}/periodos`: períodos con estado, `cerradoEn` y totales debe/haber en una consulta | correcto (12 períodos, cerrado con totales) / inexistente → código / 403 | `:servicios:erp:integrationTest --tests '*CU100PeriodosTest*'` | HECHO |
 | H7.S3.M1 | `GET /erp/estados-financieros/{id}/documento` con `X-Hash-Contenido`: el contenido sí está guardado (`datos JSONB` + `hash_contenido`); como JSONB normaliza el texto, el servidor reconstruye el canónico con la misma función que selló (extraída a `dominio/DocumentoDeEstadoFinanciero`), recalcula y solo entrega si coincide | entregado hashea al sellado; alterado → `AP-CU106-04`; inexistente → `AP-CU106-03` | `integrationTest --tests '*CU106DescargaTest*'` (H7-07) | HECHO |
-| H7.S4.M1 | `GET /grupos/solicitudes-escaladas` **si** el escalamiento D-15 existe en el modelo/código de `grupos`; si no, `DECISION_REQUIRED` | evidencia | idem | TODO |
-| H7.S5.M1 | `POST /extraccion/accesos`: no se implementa como endpoint para el front (el rastro de lectura es del servidor, R-SEG-02, A-8) | declarado | `entregables/fichas-de-contrato.md` § decisiones | TODO |
-| H7.S6.M1 | Cruce final + regresión de servicios tocados + reporte + push | 0 llamadas sin contrato salvo declaradas | script de cruce + regresión | TODO |
+| H7.S4.M1 | `GET /grupos/solicitudes-escaladas` (D-15): **`DECISION_REQUIRED`** (decisión de negocio + cambio de modelo). D-15 exige el plazo de 48 h **guardado al crear** (`planes/20 Maqueta de referencia · deltas del frontend.md:556`), pero `grupos.solicitud_ingreso` no tiene columna de plazo ni estado/responsable de escalamiento (solo `PENDIENTE/APROBADA/RECHAZADA/EXPIRADA`). Derivarlo como `fecha_solicitud + 48 h` al consultar violaría el invariante 8. Destraba: dueño de negocio decide si vencer = expirar o escalar a Operaciones y quién resuelve; luego `boveda-modelo` agrega `plazo_resolucion` y el estado | evidencia del modelo | `sed -n '/CREATE TABLE/,/);/p' sql/10_tablas/02_grupos_turnos/solicitud_ingreso.sql` (H7-09) | BLOQUEADO |
+| H7.S5.M1 | `POST /extraccion/accesos`: **`DECISION_REQUIRED`**. El propio interceptor de B lo deja apagado y dice que el front no es la fuente de verdad de la auditoría (`apps/backoffice/src/app/nucleo/registro-de-acceso.interceptor.ts`); el rastro de lectura (R-SEG-02, `registro_acceso_datos`) va en el servidor que entrega el dato y exige el catálogo de finalidades (A-8). Destraba: Seguridad/Cumplimiento definen finalidades; luego cada ficha sensible registra su lectura en el servidor | declarado | `entregables/fichas-de-contrato.md` § Decisiones | BLOQUEADO |
+| H7.S6.M1 | Cruce final + regresión de servicios tocados + reporte + push | 0 llamadas sin contrato salvo declaradas | script de cruce + regresión | HECHO |
 
 ## Pendiente fuera de esta sesión (registrado, no ejecutable sin decisión)
 
