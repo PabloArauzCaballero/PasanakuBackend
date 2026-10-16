@@ -111,3 +111,43 @@ Notas transversales para B:
   `AP-CU44-03`. Inexistente `AP-CU44-06`. Otra decisión sobre un decidido `AP-CU44-07`; la misma
   decisión del mismo oficial repetida → mismo resultado.
 - Nunca se notifica al titular: la UI no debe ofrecer "avisar al cliente" en este flujo.
+
+---
+
+## Llamadas de B que NO se publican (y por qué)
+
+| Llamada de B | Estado | Motivo | Qué la destraba |
+| --- | --- | --- | --- |
+| `GET /grupos/solicitudes-escaladas` (D-15) | `DECISION_REQUIRED` | D-15 pide el plazo de 48 h **guardado** al crear; `solicitud_ingreso` no tiene esa columna ni estado de escalamiento. Calcularlo al consultar violaría el invariante 8 | negocio: ¿vencer = expirar o escalar a Operaciones? + cambio de modelo |
+| `POST /extraccion/accesos` | `DECISION_REQUIRED` | El rastro de lectura de datos personales (R-SEG-02) lo deja el servidor que entrega el dato, con su finalidad; no un POST del front | catálogo de finalidades (A-8) |
+
+### 12. `listarAnunciantes` — `GET /api/v1/publicidad/anunciantes` (publicidad, CU-110)
+
+- Permiso `PUBLICIDAD_ANUNCIANTES`. Filtro `estados` (`ACTIVO,SUSPENDIDO,DADO_DE_BAJA`, todos por omisión),
+  cursor `despuesDeFecha` + `despuesDeId` (del más nuevo al más viejo). `limiteGastoMensual` es `Dinero` o `null`.
+- **Cambio para B:** página `{items, proximo…}` en vez de arreglo; no hay `anuncianteNombre` aparte de
+  `razonSocialFacturacion`. 422 `AP-CU110-04`.
+
+### 13. `listarCampanas` — `GET /api/v1/publicidad/campanas` (publicidad, CU-111)
+
+- Permiso `PUBLICIDAD_APROBAR_CAMPANA` (cola de Operaciones). `estados` por omisión `EN_REVISION`; la que
+  empieza antes primero; presupuestos como `Dinero`. 422 `AP-CU111-04`.
+
+### 14. `listarPiezasCreativas` — `GET /api/v1/publicidad/piezas-creativas` (publicidad, CU-112)
+
+- Permiso `PUBLICIDAD_MODERAR`. `estadoModeracion` por omisión `PENDIENTE` (uno solo, como lo manda B);
+  la más antigua primero. No hay `anuncianteNombre` ni `subidaPor` (la tabla no guarda quién subió;
+  R-PUB-05 lo controla al moderar). 422 `AP-CU112-04`.
+
+### 15. `listarPeriodosDelEjercicio` — `GET /api/v1/erp/ejercicios/{ejercicioId}/periodos` (erp, CU-100)
+
+- Mismos permisos que la sección Contabilidad. Hasta 12 filas, sin cursor. `totalDebe`/`totalHaber` son
+  los **sellados en el cierre** (`Monto`, cadena) o `null` en períodos abiertos; `cerradoEn` igual.
+  No hay `nombre` del mes: lo arma la UI. 422 `AP-CU100-05` ejercicio inexistente.
+
+### 16. `descargarEstadoFinanciero` — `GET /api/v1/erp/estados-financieros/{id}/documento` (erp, CU-106)
+
+- Permiso `CONTABILIDAD_ERP_REPORTES`. Devuelve el JSON canónico sellado con
+  `X-Hash-Contenido` = hash del generado; `cu106-estados-financieros.ts` ya compara con
+  `CABECERA_DE_HASH` y puede marcar `verificado: true`. 422 `AP-CU106-03` inexistente,
+  `AP-CU106-04` si lo guardado ya no da el hash (no se entrega nada).

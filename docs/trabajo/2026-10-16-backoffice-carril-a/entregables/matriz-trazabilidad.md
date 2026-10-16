@@ -44,26 +44,26 @@ la publica pero ningún controlador la sobrescribe (responde el ejemplo del gene
 | `cumplimiento/riesgo` | Flujo de pantallas | CU-55 | cumplimiento | `POST /cumplimiento/seguridad/incidentes/{incidenteId}/notificaciones` · notificarTitulares<br>`POST /cumplimiento/seguridad/incidentes` · registrarIncidente<br>`POST /cumplimiento/seguridad/incidentes/{incidenteId}/reportes` · reportarIncidente | `RESPONSABLE_SEGURIDAD` (no catalogado) | **sin lectura atribuida** |
 | `cumplimiento/riesgo` | Flujo de pantallas | CU-56 | cumplimiento | — | `RESPONSABLE_RIESGOS` (no catalogado) | **ausente** |
 | `cumplimiento/gobierno` | Flujo de pantallas | CU-94 | cumplimiento | — | `GOBIERNO_SESIONAR` (no catalogado) | **ausente** |
-| `contabilidad/periodo` | Flujo de pantallas | CU-100 | erp | `POST /erp/ejercicios` · abrirEjercicioFiscal<br>`POST /erp/periodos/{periodoId}/cierre` · cerrarPeriodoContable<br>`GET /erp/periodos/vigente` · consultarPeriodoVigente<br>`GET /erp/ejercicios` · listarEjerciciosFiscales | `CONTABILIDAD_ERP_CERRAR`, `CONTABILIDAD_ERP_REPORTES` | **existe** |
+| `contabilidad/periodo` | Flujo de pantallas | CU-100 | erp | `POST /erp/ejercicios` · abrirEjercicioFiscal<br>`POST /erp/periodos/{periodoId}/cierre` · cerrarPeriodoContable<br>`GET /erp/periodos/vigente` · consultarPeriodoVigente<br>`GET /erp/ejercicios` · listarEjerciciosFiscales<br>`GET /erp/ejercicios/{ejercicioId}/periodos` · listarPeriodosDelEjercicio | `CONTABILIDAD_ERP_CERRAR`, `CONTABILIDAD_ERP_REPORTES` | **existe** |
 | `contabilidad/presupuesto` | Flujo de pantallas | CU-101 | erp | `POST /erp/presupuestos/{presupuestoId}/aprobacion` · aprobarPresupuesto<br>`POST /erp/presupuestos` · crearPresupuesto | `CONTABILIDAD_ERP_PRESUPUESTO` | **sin lectura atribuida** |
 | `contabilidad/compras` | Flujo de pantallas | CU-102 | erp | `POST /erp/ordenes-de-compra/{ordenId}/aprobacion` · aprobarOrdenDeCompra<br>`POST /erp/ordenes-de-compra` · crearOrdenDeCompra<br>`POST /erp/terceros` · darDeAltaTercero | `CONTABILIDAD_ERP_COMPRAS` | **sin lectura atribuida** |
 | `contabilidad/compras` | Flujo de pantallas | CU-103 | erp | `POST /erp/facturas-de-proveedor/{facturaId}/pagos` · pagarFacturaDeProveedor<br>`POST /erp/facturas-de-proveedor` · registrarFacturaDeProveedor | `CONTABILIDAD_ERP_CUENTAS_POR_PAGAR`, `CONTABILIDAD_ERP_PAGAR` | **sin lectura atribuida** |
 | `contabilidad/cobros` | Flujo de pantallas | CU-104 | erp | `POST /erp/cuentas-por-cobrar` · abrirCuentaPorCobrar<br>`POST /erp/cuentas-por-cobrar/{cuentaId}/cobros` · registrarCobro | `CONTABILIDAD_ERP_COBRAR` | **sin lectura atribuida** |
 | `contabilidad/activos` | Flujo de pantallas | CU-105 | erp | `POST /erp/periodos/{periodoId}/depreciaciones` · correrDepreciacionDelPeriodo<br>`POST /erp/activos/{activoId}/depreciaciones` · depreciarActivo | `CONTABILIDAD_ERP_ACTIVOS_FIJOS` | **sin lectura atribuida** |
-| `contabilidad/estados` | Flujo de pantallas | CU-106 | erp | `POST /erp/periodos/{periodoId}/estados-financieros` · generarEstadoFinanciero<br>`GET /erp/plantillas-de-asiento/{plantillaId}/validacion` · validarPlantillaDeAsiento | `CONTABILIDAD_ERP_CERRAR`, `CONTABILIDAD_ERP_REPORTES` | **existe** |
+| `contabilidad/estados` | Flujo de pantallas | CU-106 | erp | `GET /erp/estados-financieros/{estadoFinancieroId}/documento` · descargarEstadoFinanciero<br>`POST /erp/periodos/{periodoId}/estados-financieros` · generarEstadoFinanciero<br>`GET /erp/plantillas-de-asiento/{plantillaId}/validacion` · validarPlantillaDeAsiento | `CONTABILIDAD_ERP_CERRAR`, `CONTABILIDAD_ERP_REPORTES` | **existe** |
 | `publicidad/partners` | Flujo de pantallas | — | — | — | — | **sin CU en el flujo** |
-| `publicidad/anunciantes` | Flujo de pantallas | CU-110 | publicidad | `POST /publicidad/anunciantes` · darDeAltaAnunciante<br>`POST /publicidad/socios-comerciales` · postularSocioComercial<br>`POST /publicidad/socios-comerciales/{socioId}/verificacion` · verificarSocioComercial | `PUBLICIDAD_ANUNCIANTES` | **sin lectura atribuida** |
-| `publicidad/campanas` | Flujo de pantallas | CU-111 | publicidad | `POST /publicidad/campanas/{campanaId}/aprobacion` · aprobarCampana<br>`POST /publicidad/campanas` · crearCampana<br>`POST /publicidad/campanas/{campanaId}/rechazo` · rechazarCampana | `PUBLICIDAD_APROBAR_CAMPANA` | **sin lectura atribuida** |
-| `publicidad/moderacion` | Flujo de pantallas | CU-112 | publicidad | `POST /publicidad/piezas-creativas/{piezaId}/revision` · moderarPiezaCreativa<br>`POST /publicidad/piezas-creativas` · subirPiezaCreativa | `PUBLICIDAD_MODERAR` | **sin lectura atribuida** |
+| `publicidad/anunciantes` | Flujo de pantallas | CU-110 | publicidad | `POST /publicidad/anunciantes` · darDeAltaAnunciante<br>`GET /publicidad/anunciantes` · listarAnunciantes<br>`POST /publicidad/socios-comerciales` · postularSocioComercial<br>`POST /publicidad/socios-comerciales/{socioId}/verificacion` · verificarSocioComercial | `PUBLICIDAD_ANUNCIANTES` | **existe** |
+| `publicidad/campanas` | Flujo de pantallas | CU-111 | publicidad | `POST /publicidad/campanas/{campanaId}/aprobacion` · aprobarCampana<br>`POST /publicidad/campanas` · crearCampana<br>`GET /publicidad/campanas` · listarCampanas<br>`POST /publicidad/campanas/{campanaId}/rechazo` · rechazarCampana | `PUBLICIDAD_APROBAR_CAMPANA` | **existe** |
+| `publicidad/moderacion` | Flujo de pantallas | CU-112 | publicidad | `GET /publicidad/piezas-creativas` · listarPiezasCreativas<br>`POST /publicidad/piezas-creativas/{piezaId}/revision` · moderarPiezaCreativa<br>`POST /publicidad/piezas-creativas` · subirPiezaCreativa | `PUBLICIDAD_MODERAR` | **existe** |
 | `publicidad/liquidacion` | Flujo de pantallas | CU-114 | publicidad | `GET /publicidad/cuentas/{cuentaId}/consumo` · consumoDelPeriodo<br>`POST /publicidad/cuentas/{cuentaId}/liquidaciones` · liquidarPeriodo | — | **existe** |
 | `operacion/retiros` | ruta real en apps/backoffice/src/app/rutas/operacion/operacion.routes.ts; ADR-049 | CU-11 | nucleo-financiero | `POST /billetera/retiros/{ordenId}/aprobacion` · aprobarRetiro<br>`GET /billetera/retiros` · listarRetirosEnRevision<br>`POST /billetera/retiros` · solicitarRetiro | `BILLETERA_OPERAR`, `RETIRO_APROBAR` | **existe** |
 
 ## Resumen
 
 - ausente: 13
-- existe: 8
+- existe: 11
 - sin CU en el flujo: 5
-- sin lectura atribuida: 17
+- sin lectura atribuida: 14
 
 ## Lecturas (`GET`) que no están atribuidas a ningún CU
 

@@ -1,0 +1,4 @@
+$ python3 docs/trabajo/2026-10-16-backoffice-carril-a/entregables/llamadas_sin_contrato.py .
+llamadas de la UI: 33 · sin operacion en ningun contrato: 2
+  GET    /grupos/solicitudes-escaladas                           apps/backoffice/src/app/rutas/operacion/dominio/d15-solicitudes-escaladas.ts
+  POST   /extraccion/accesos                                     apps/backoffice/src/app/nucleo/registro-de-acceso.interceptor.ts

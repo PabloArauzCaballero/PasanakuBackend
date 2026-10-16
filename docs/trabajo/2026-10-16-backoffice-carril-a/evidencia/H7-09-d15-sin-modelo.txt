@@ -1,0 +1,20 @@
+$ sed -n '/CREATE TABLE/,/);/p' sql/10_tablas/02_grupos_turnos/solicitud_ingreso.sql
+CREATE TABLE IF NOT EXISTS grupos.solicitud_ingreso (
+  id                                 UUID DEFAULT gen_random_uuid() NOT NULL,
+  grupo_id                           UUID NOT NULL,
+  usuario_id                         UUID NOT NULL,
+  cupos_solicitados                  SMALLINT NOT NULL,
+  mensaje                            VARCHAR(300),
+  estado                             VARCHAR(15) NOT NULL,
+  puntaje_compatibilidad             NUMERIC(5,2),
+  revisada_por                       UUID,
+  fecha_solicitud                    TIMESTAMPTZ NOT NULL,
+  fecha_resolucion                   TIMESTAMPTZ,
+  CONSTRAINT pk_solicitud_ingreso PRIMARY KEY (id),
+  CONSTRAINT ck_solicitud_ingreso_estado CHECK (estado IN ('APROBADA', 'EXPIRADA', 'PENDIENTE', 'RECHAZADA'))
+);
+
+$ sed -n 556,558p 'planes/20 Maqueta de referencia · deltas del frontend.md'
+2. **Cuánto tiene para decidir**: 48 horas, calculadas y **guardadas al crear la
+   solicitud**. No se recalculan al consultar — misma regla que los plazos de reclamo y
+   de descargo.
