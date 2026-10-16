@@ -206,6 +206,20 @@ casos de uso ya existen, con el actor tomado de la sesión.
 | H9.S1.M4 | (separada de M2) CU-94 `sesionar` el comité por HTTP | — | — | BLOQUEADO — DECISION_REQUIRED: la bóveda exige `GOBIERNO_SESIONAR`, que no está sembrado (S-8, lo decide Seguridad de la información); exponerlo con otro permiso sería inventar quién puede sesionar |
 | H9.S1.M3 | Bóveda, Postman, regresión, commit y push | 0 fallas | regresión + gates | HECHO — bóveda CU-43/45/54/55/56/94, Postman de cumplimiento, regresión en `evidencia/H9-01…H9-02`, commits `bb8025e1` y `c78aa1b2` pusheados |
 
+## H10 — Ola 5 · A6 ERP, tarifario, mensajería y reportería
+
+**CA:** Dado Contabilidad, Tesorería o Auditoría con sus permisos sembrados, cuando abren las pantallas de
+ERP, tarifario, mensajería y reportes, entonces ven listas reales paginadas con respuesta mínima.
+**DoD:** integración + web por ruta, regresión del servicio, gates; lo hecho por subagentes, re-verificado
+por el agente principal sobre el árbol integrado (D-2).
+**Estado:** HECHO (backend)
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H10.S1.M1 | (subagente) Cinco listados de ERP: partidas, órdenes de compra, facturas de proveedor, cuentas por cobrar, activos | correcto/límite/inválido + 403/401/400/422 | re-verificación `erp` tras merge `b5831572` | HECHO — `evidencia/A6-02-integracion-erp.txt` · `a6-erp/REPORTE.md` |
+| H10.S2.M1 | (subagente) Historial de tarifarios y auditoría de mensajería (plantillas, envíos) sin datos personales | ídem | re-verificación `tarifas` y `notificaciones` tras merge `49299219` | HECHO — `evidencia/A6-01-integracion-tarifas-mensajeria.txt` · `a6-tarifas-mensajeria/REPORTE.md` |
+| H10.S3.M1 | Catálogo de reportes e historial de ejecuciones (CU-58) sin consulta base, parámetros ni error | 3 integración + 6 web | `:servicios:auditoria:integrationTest --tests '*CU58HistorialTest*'` + `ReportesHistorialWebTest` + regresión | HECHO — `evidencia/A6-03-reporteria-cu58.txt` |
+
 ## Pendiente fuera de esta sesión (registrado, no ejecutable sin decisión)
 
 | Bloque del plan estratégico | Estado | Qué lo destraba |

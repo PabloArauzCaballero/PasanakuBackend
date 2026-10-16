@@ -1,9 +1,9 @@
 # Reporte — Backoffice financiero · Carril A (dominio, contratos y controles)
 
-> **AVANCE: 50 / 53 — 94,3 %.** Las 3 microtareas no hechas están `BLOQUEADO` por
+> **AVANCE: 53 / 56 — 94,6 %.** Las 3 microtareas no hechas están `BLOQUEADO` por
 > `DECISION_REQUIRED` (H7.S4 solicitudes escaladas D-15, H7.S5 registro de accesos, H9.S1.M4 sesionar
-> el comité sin `GOBIERNO_SESIONAR` sembrado). A4 (H8) y A5 (H9) quedaron cerrados en backend. A6: ERP, tarifario y
-> mensajería integrados y re-verificados (dos subagentes); reportería (CU-58) en curso.
+> el comité sin `GOBIERNO_SESIONAR` sembrado). A4 (H8) y A5 (H9) quedaron cerrados en backend. A6 (H10) cerrado en backend:
+> ERP, tarifario y mensajería por dos subagentes, integrados y re-verificados; reportería (CU-58) propia.
 > A7 sigue pendiente. El carril A completo (A0–A7) **no** está terminado.
 
 - Fecha: 2026-10-16 · Plan: [PLAN.md](./PLAN.md) · Rama: `codex/backoffice-dominio-20261015`
@@ -50,6 +50,9 @@
 | H9.S1.M1 | Seis colas de cumplimiento/riesgo/gobierno con respuesta mínima (CU-43/45/54/55/56/94) | `--tests '*ColaTest'` + `ColasDeCumplimientoWebTest` | PASS (12+8) · H9-01 |
 | H9.S1.M2 | Acciones CU-43/45/56 con actor de sesión, plazo guardado y reintento seguro | `--tests '*AccionesTest'` + `AccionesDeCumplimientoWebTest` | PASS (14+9) · H9-02 |
 | H9.S1.M3 | Bóveda, Postman y regresión de `cumplimiento` | ver «Evidencia» | PASS · H9-01, H9-02 |
+| H10.S1.M1 | (subagente) Cinco listados de ERP | re-verificación tras merge `b5831572` | PASS (erp 5/52/117/2) · A6-02 |
+| H10.S2.M1 | (subagente) Historial de tarifarios y auditoría de mensajería | re-verificación tras merge `49299219` | PASS (tarifas 7/34/106/2, notificaciones 5/36/66/2) · A6-01 |
+| H10.S3.M1 | Catálogo de reportes e historial de ejecuciones (CU-58) | `--tests '*CU58HistorialTest*'` + `ReportesHistorialWebTest` | PASS (3+6; auditoria 16/34/46/2) · A6-03 |
 
 ## A medias
 
@@ -81,7 +84,7 @@ Ninguna microtarea quedó a medias. A nivel de **hito**, H2–H5 quedan en `TEST
 | A5 · ficha de alerta/caso con datos de la persona | `DECISION_REQUIRED` | catálogo de finalidades para `registro_acceso_datos` (A-8) |
 | A6 · ERP | 5 listados HECHO (subagente, integrado en `b5831572` y re-verificado: `evidencia/A6-02`); listado de asientos = dueño de `nucleo-financiero`; adaptar la UI paginada = carril B | ver `a6-erp/REPORTE.md` |
 | A6 · tarifario y mensajería | 3 listados HECHO (subagente, integrado en `49299219` y re-verificado: `evidencia/A6-01`); simulación de impacto, enrutamiento, consentimiento y edición de plantillas `DECISION_REQUIRED` | ver `a6-tarifas-mensajeria/REPORTE.md` |
-| A6 · reportería (CU-58) | TODO | siguiente ola |
+| A6 · reportería: programación de reportes (CU-58 paso 7) por HTTP | TODO | no hay caso de uso de programación; sería un CU nuevo |
 | A7 · paneles, alertas con runbook, backups | TODO | siguiente ola |
 
 ## Evidencia
@@ -109,6 +112,7 @@ Ninguna microtarea quedó a medias. A nivel de **hito**, H2–H5 quedan en `TEST
 | `H8-02-regresion-entregas.txt` | bandeja de desembolsos; regresión `entregas` |
 | `H8-03-cierre-desde-contabilidad.txt` | cierre del día con recaudo de `aportes` (doble + aportes falso + productor real); regresiones `nucleo-financiero` y `aportes` |
 | `H9-01-colas-cumplimiento.txt` · `H9-02-acciones-cumplimiento.txt` | colas y acciones de cumplimiento; regresión `cumplimiento` |
+| `A6-01…A6-03` | re-verificación de los subagentes tras el merge; reportería CU-58 |
 
 ```text
 $ ./gradlew :servicios:<s>:spotlessCheck test webTest testBarrido integrationTest contractTest --continue --no-build-cache
