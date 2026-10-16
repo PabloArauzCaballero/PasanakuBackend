@@ -40,8 +40,16 @@ export const rutasOperacion: Routes = [
     canMatch: [requierePermiso('SOLICITUD_INGRESO_VER')],
   },
   {
-    // CU-11 · segunda firma de un retiro. El contrato no publica un listado de órdenes en revisión: se abre por id.
+    // CU-11 · bandeja `listarRetirosEnRevision` (exige RETIRO_APROBAR, el mismo permiso que `aprobarRetiro`).
     path: 'retiros',
+    pathMatch: 'full',
+    loadComponent: () => import('./retiros/bandeja-de-retiros').then((m) => m.BandejaDeRetiros),
+    title: 'Retiros en revisión · AportaYa',
+    canMatch: [requierePermiso('RETIRO_APROBAR')],
+  },
+  {
+    // CU-11 · segunda firma de una orden (fila de la bandeja o enlace profundo por id).
+    path: 'retiros/:ordenId',
     loadComponent: () => import('./retiros/pantalla-de-aprobacion-de-retiro').then((m) => m.PantallaDeAprobacionDeRetiro),
     title: 'Aprobación de retiros · AportaYa',
     canMatch: [requierePermiso('RETIRO_APROBAR')],
