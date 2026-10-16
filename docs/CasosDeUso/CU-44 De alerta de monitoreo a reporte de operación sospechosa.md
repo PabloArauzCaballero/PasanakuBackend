@@ -84,6 +84,9 @@ export const ErroresCU44 = {
   REPORTE_SIN_NARRATIVA: 'AP-CU44-03',
   CASO_VENCIDO: 'AP-CU44-04',
   FILTRO_DE_BANDEJA_INVALIDO: 'AP-CU44-05',
+  CASO_INEXISTENTE: 'AP-CU44-06',
+  CASO_YA_DECIDIDO: 'AP-CU44-07',
+  ALERTAS_INVALIDAS: 'AP-CU44-08',
 } as const
 ```
 
@@ -94,6 +97,16 @@ export const ErroresCU44 = {
 | `REPORTE_SIN_NARRATIVA` | Decidir reportar exige narrativa y tipología |
 | `CASO_VENCIDO` | Se pasó el plazo de investigación |
 | `FILTRO_DE_BANDEJA_INVALIDO` | La bandeja recibió un estado o una severidad que no existen, o un cursor a medias |
+| `CASO_INEXISTENTE` | El caso que se decide no existe |
+| `CASO_YA_DECIDIDO` | El caso ya tiene otra decisión (la misma decisión del mismo oficial repetida devuelve el mismo resultado) |
+| `ALERTAS_INVALIDAS` | Alertas inexistentes, de titulares distintos o ya enlazadas a otro caso |
+
+**Abrir y decidir por el backoffice (carril A).** `POST /cumplimiento/casos` (`abrirCasoLft`) enlaza
+las alertas al caso desde que se abre; reintentarlo devuelve el mismo caso. `POST
+/cumplimiento/casos/{casoId}/decision` (`decidirCasoLft`) toma al revisor de la **sesión** y al
+analista y las alertas del caso **guardado**: el cuerpo no puede declararlos. Una sola decisión por
+caso, también con dos oficiales a la vez. Ambas exigen `CUMPLIMIENTO_CASOS`, que el catálogo solo
+asigna a `OFICIAL_CUMPLIMIENTO`.
 
 **Bandejas del analista y del oficial (backoffice carril A).** `GET /cumplimiento/alertas`
 (`listarBandejaDeAlertas`, `CUMPLIMIENTO_ALERTAS`) de la más antigua a la más nueva, filtrable por
@@ -169,6 +182,23 @@ Entonces aparece primero y vencido, sin la persona ni el resumen
 Dada una ventana sin alertas
 Cuando el analista consulta la bandeja
 Entonces recibe una pagina vacia y sin cursor, nunca un error
+
+# Abrir y decidir por el backoffice (carril A)
+Dado un caso abierto por un analista
+Cuando un oficial distinto lo decide DESCARTAR
+Entonces el caso queda CERRADO con el oficial de la sesion como revisor y sus alertas se descartan con conclusion
+
+Dados dos casos abiertos
+Cuando el oficial decide uno
+Entonces las alertas del otro siguen abiertas: la decision solo cierra las alertas de su propio caso
+
+Dado un caso ya decidido por un oficial
+Cuando el mismo oficial repite la misma decision
+Entonces recibe el mismo resultado y no hay un segundo evento
+
+Dado un caso recien abierto con dos alertas
+Cuando se reintenta abrirlo con las mismas alertas y el mismo analista
+Entonces devuelve el mismo caso y no abre otro vacio
 ```
 
 ## Ver también

@@ -122,6 +122,16 @@ public class MonitoreoLftRepositorio {
                         f.get("detectada_en", OffsetDateTime.class)));
     }
 
+    /** A que caso ya estan enlazadas estas alertas (las que no estan en ninguno no aparecen). */
+    public java.util.Map<UUID, UUID> casosDe(DSLContext dsl, List<UUID> ids) {
+        return dsl.select(DSL.field("id", UUID.class), DSL.field("caso_id", UUID.class))
+                .from(DSL.table(DSL.name("cumplimiento", "alerta_monitoreo_lft")))
+                .where(DSL.field("id", UUID.class)
+                        .in(ids)
+                        .and(DSL.field("caso_id").isNotNull()))
+                .fetchMap(DSL.field("id", UUID.class), DSL.field("caso_id", UUID.class));
+    }
+
     /** Cerrar una alerta: siempre con conclusion, y siempre atada a su caso si escalo. */
     public boolean cerrar(
             DSLContext dsl, UUID alertaId, String estado, String conclusion, UUID casoId, OffsetDateTime ahora) {
@@ -137,15 +147,41 @@ public class MonitoreoLftRepositorio {
                 == 1;
     }
 
-    public boolean asignar(DSLContext dsl, UUID alertaId, UUID analistaId) {
+    /**
+     * La alerta entra al caso: queda asignada al analista Y enlazada al caso desde que se abre
+     * (backoffice carril A · H5). Antes el enlace solo se escribia al cerrar, y la decision tenia que
+     * recibir del cliente que alertas cerrar.
+     */
+    public boolean asignar(DSLContext dsl, UUID alertaId, UUID analistaId, UUID casoId) {
         return dsl.update(DSL.table(DSL.name("cumplimiento", "alerta_monitoreo_lft")))
                         .set(DSL.field("asignada_a", UUID.class), analistaId)
+                        .set(DSL.field("caso_id", UUID.class), casoId)
                         .set(DSL.field("estado", String.class), "EN_ANALISIS")
                         .where(DSL.field("id", UUID.class)
                                 .eq(alertaId)
                                 .and(DSL.field("estado", String.class).eq("ABIERTA")))
                         .execute()
                 == 1;
+    }
+
+    /** Las alertas todavia abiertas de un caso: las que su decision tiene que cerrar. */
+    public List<UUID> abiertasDelCaso(DSLContext dsl, UUID casoId) {
+        return dsl.select(DSL.field("id", UUID.class))
+                .from(DSL.table(DSL.name("cumplimiento", "alerta_monitoreo_lft")))
+                .where(DSL.field("caso_id", UUID.class)
+                        .eq(casoId)
+                        .and(DSL.field("estado", String.class).in("ABIERTA", "EN_ANALISIS")))
+                .orderBy(DSL.field("detectada_en"), DSL.field("id"))
+                .fetch(DSL.field("id", UUID.class));
+    }
+
+    /** Cuantas alertas del caso ya cerro su decision. */
+    public int cerradasDelCaso(DSLContext dsl, UUID casoId) {
+        return dsl.fetchCount(
+                DSL.table(DSL.name("cumplimiento", "alerta_monitoreo_lft")),
+                DSL.field("caso_id", UUID.class)
+                        .eq(casoId)
+                        .and(DSL.field("estado", String.class).in("DESCARTADA", "ESCALADA")));
     }
 
     /** Alertas abiertas sin analista pasado su plazo: lo que el trabajo diario escala. */

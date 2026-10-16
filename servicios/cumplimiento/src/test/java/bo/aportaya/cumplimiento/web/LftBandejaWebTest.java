@@ -71,6 +71,12 @@ class LftBandejaWebTest {
     @MockitoBean
     private ConsultarBandejasLft bandejas;
 
+    @MockitoBean
+    private bo.aportaya.cumplimiento.aplicacion.CU44InvestigarYReportar cu44;
+
+    @MockitoBean
+    private bo.aportaya.cumplimiento.aplicacion.CU44DecidirComoRevisor decisionLft;
+
     @Test
     @DisplayName("200: con CUMPLIMIENTO_ALERTAS la cola trae regla, severidad y estado, sin persona ni monto")
     void alertas() throws Exception {

@@ -75,6 +75,12 @@ class CumplimientoControllerWebTest {
     @MockitoBean
     private bo.aportaya.cumplimiento.aplicacion.ConsultarBandejasLft bandejasLft;
 
+    @MockitoBean
+    private bo.aportaya.cumplimiento.aplicacion.CU44InvestigarYReportar cu44;
+
+    @MockitoBean
+    private bo.aportaya.cumplimiento.aplicacion.CU44DecidirComoRevisor decisionLft;
+
     @Nested
     @DisplayName("CU-05 y CU-02 · nadie se eleva su propio nivel de diligencia")
     class Adhesion {

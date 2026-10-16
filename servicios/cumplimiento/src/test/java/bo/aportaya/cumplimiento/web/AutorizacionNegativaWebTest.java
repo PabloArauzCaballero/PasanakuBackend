@@ -72,6 +72,12 @@ class AutorizacionNegativaWebTest {
     private bo.aportaya.cumplimiento.aplicacion.ConsultarBandejasLft bandejasLft;
 
     @MockitoBean
+    private bo.aportaya.cumplimiento.aplicacion.CU44InvestigarYReportar cu44;
+
+    @MockitoBean
+    private bo.aportaya.cumplimiento.aplicacion.CU44DecidirComoRevisor decisionLft;
+
+    @MockitoBean
     private ConsultarEfectoDelReclamo efecto;
 
     // La bandeja, la ficha y la respuesta de CU-52 (backoffice carril A · H3) viven en el mismo controlador.
