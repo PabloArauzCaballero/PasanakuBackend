@@ -64,6 +64,9 @@ aportaya:
     cuenta-puente: ${CUENTA_PUENTE_CUSTODIA}
 
   billetera:
+    # Cuantas lineas del libro devuelve, como maximo, la consulta de movimientos recientes.
+    # El contrato tambien lo acota (1..100); esto es el tope del caso de uso, no del esquema.
+    tope-de-movimientos: 100
     apertura:
       # Carril Q: quien abre las billeteras. identidad.usuario_registrado -> la de la persona (BOB, SIMPLIFICADA);
       # grupos.grupo_creado -> la del grupo (BOB, titular el GRUPO, R-GRP-04). ENCENDIDOS: sin ellos nadie tiene billetera.

@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AportaYa · nucleo-financiero",
-    "description": "# AportaYa · nucleo-financiero\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**21 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · nucleo-financiero\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**22 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -907,6 +907,92 @@
       ]
     },
     {
+      "name": "listarRetirosEnRevision · Bandeja de retiros que esperan la segunda aprobacion, del mas antiguo al mas nuevo",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/billetera/retiros",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "billetera",
+            "retiros"
+          ],
+          "variable": [],
+          "query": [
+            {
+              "key": "limite",
+              "value": "1",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "despuesDeFecha",
+              "value": "{{momento_ahora}}",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "despuesDeId",
+              "value": "{{despuesDeId}}",
+              "description": "",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "## Bandeja de retiros que esperan la segunda aprobacion, del mas antiguo al mas nuevo\n\nSolo quien puede decidir ve la cola: exige RETIRO_APROBAR, el mismo permiso que aprobarRetiro. Paginada por cursor (solicitadaEn, id) — el desempate por id hace estable el orden aunque dos ordenes compartan el instante. Cada fila trae lo necesario para decidir y nada mas: ni la cuenta de destino ni el nombre de la persona viajan aca (respuesta minima); se ven en la ficha de la orden. La fila de quien consulta aparece con puedeDecidir=false: la segregacion (R-SEG-04) la vuelve a exigir aprobarRetiro, esto solo evita ofrecer un boton muerto.\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `listarRetirosEnRevision` |\n| **Ruta** | `GET /api/v1/billetera/retiros` |\n| **Permiso** | `RETIRO_APROBAR` |\n| **Respuestas** | `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU11-14` | Cursor incompleto |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "solicitarRetiro · Solicitar un retiro hacia una cuenta de destino",
       "request": {
         "method": "POST",
@@ -1028,7 +1114,7 @@
             }
           ]
         },
-        "description": "## Aprueba o rechaza un retiro que necesita doble aprobacion\n\nSolo alguien con RETIRO_APROBAR, DISTINTO de quien solicito el retiro (R-SEG-04): la segregacion la exige la aplicacion Y la base (ck_retiro_doble_aprobacion), dos capas independientes. Dos aprobadores simultaneos producen una sola transicion: el segundo recibe 409, nunca un doble efecto.\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `aprobarRetiro` |\n| **Ruta** | `POST /api/v1/billetera/retiros/{ordenId}/aprobacion` |\n| **Permiso** | `RETIRO_APROBAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422`, `404`, `409`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU11-10` | Retiro autoaprobacion prohibida |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Aprueba o rechaza un retiro que necesita doble aprobacion\n\nSolo alguien con RETIRO_APROBAR, DISTINTO de quien solicito el retiro (R-SEG-04): la segregacion la exige la aplicacion Y la base (ck_retiro_doble_aprobacion), dos capas independientes. Dos aprobadores simultaneos producen una sola transicion: el segundo recibe 409, nunca un doble efecto.\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `aprobarRetiro` |\n| **Ruta** | `POST /api/v1/billetera/retiros/{ordenId}/aprobacion` |\n| **Permiso** | `RETIRO_APROBAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422`, `404`, `409`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU11-10` | Retiro autoaprobacion prohibida |\n| `AP-CU11-11` | Retiro ya resuelto |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"desenlace\": \"AUTORIZADA\",\n  \"motivo\": \"motivo-de-prueba\"\n}",
@@ -1796,6 +1882,10 @@
     },
     {
       "key": "cuentaOrigenId",
+      "value": ""
+    },
+    {
+      "key": "despuesDeId",
       "value": ""
     },
     {

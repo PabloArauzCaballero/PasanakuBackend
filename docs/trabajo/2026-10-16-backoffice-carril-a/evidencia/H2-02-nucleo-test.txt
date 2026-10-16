@@ -1,0 +1,3 @@
+$ ./gradlew :servicios:nucleo-financiero:spotlessApply :servicios:nucleo-financiero:test
+bo.aportaya.nucleofinanciero.ArquitecturaTest tests 5 failures 0 errors 0 skipped 0
+TOTAL 81 fallas 0 omitidas 0

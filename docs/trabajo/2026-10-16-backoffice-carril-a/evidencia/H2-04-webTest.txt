@@ -1,0 +1,9 @@
+$ ./gradlew :servicios:nucleo-financiero:spotlessApply :servicios:nucleo-financiero:webTest
+    PASS BilleteraAprobacionWebTest$Bandeja · 422: el cursor a medias sale con AP-CU11-14, nunca como 500
+    PASS BilleteraAprobacionWebTest$Bandeja · 400: limite fuera de 1..100 lo corta el contrato antes del caso de uso
+    PASS BilleteraAprobacionWebTest$Bandeja · 200: con RETIRO_APROBAR devuelve la pagina con importes como cadena, moneda y cursor
+    PASS BilleteraAprobacionWebTest$Bandeja · 401: sin token no hay bandeja
+    PASS BilleteraAprobacionWebTest$Bandeja · 200: sin limite usa el default del contrato (25) y la ultima pagina no trae cursor
+    PASS BilleteraAprobacionWebTest$Bandeja · 400: un despuesDeId que no es UUID es entrada invalida, no un 500
+    PASS BilleteraAprobacionWebTest$Bandeja · 403: quien opera su billetera (BILLETERA_OPERAR) no ve la cola de nadie
+TOTAL webTest 51 fallas 0

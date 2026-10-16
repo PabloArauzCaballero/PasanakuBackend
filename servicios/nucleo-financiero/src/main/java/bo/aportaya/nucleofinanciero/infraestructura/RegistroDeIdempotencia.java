@@ -31,6 +31,15 @@ public class RegistroDeIdempotencia {
      * @throws ErrorDeNegocio si la clave ya se uso con una peticion distinta.
      */
     public Optional<String> buscar(DSLContext dsl, UUID usuarioId, String operacion, String clave, String huella) {
+        return buscar(dsl, usuarioId, operacion, clave, huella, CodigoError.de(13, 4));
+    }
+
+    /**
+     * Igual que {@link #buscar(DSLContext, UUID, String, String, String)}, con el codigo que el
+     * caso de uso publica cuando la clave ya identifica otra peticion: cada contrato nombra el suyo.
+     */
+    public Optional<String> buscar(
+            DSLContext dsl, UUID usuarioId, String operacion, String clave, String huella, CodigoError siEsOtra) {
         turnarse(dsl, usuarioId, operacion, clave);
         var previa = dsl.select(
                         DSL.field("hash_solicitud", String.class),
@@ -44,7 +53,7 @@ public class RegistroDeIdempotencia {
             return Optional.empty();
         }
         if (!huella.equals(previa.get(0, String.class))) {
-            throw new ErrorDeNegocio(CodigoError.de(13, 4), "La clave de idempotencia ya identifica otra peticion.");
+            throw new ErrorDeNegocio(siEsOtra, "La clave de idempotencia ya identifica otra peticion.");
         }
         return Optional.of(previa.get(1, String.class));
     }

@@ -22,6 +22,13 @@
 #   AP-CU24-05  REVERSA_NO_COINCIDE  · las partidas del evento de reversa no son el inverso del original
 #   AP-CU24-06  ORIGEN_PENDIENTE     · el asiento que el evento reversa todavia no llego: se reintenta
 #   AP-CU24-07  EVENTO_ILEGIBLE      · el asiento propuesto por el evento no se puede leer
+#
+# CU-11 · el despacho al proveedor y la confirmacion del pago NO tienen ruta HTTP (los
+# corre el flujo de retiros y la reconciliacion). Sus codigos viven aca por la misma razon:
+#   AP-CU11-08  ORDEN_NO_INSTRUIBLE  · la orden no esta AUTORIZADA (falta la segunda aprobacion
+#                                      o otra instruccion la adelanto)
+#   AP-CU11-09  PAGO_NO_CONFIRMABLE  · la orden no esta EN_PROCESO, o el proveedor respondio
+#                                      algo que no coincide con la orden
 openapi: 3.1.0
 info:
   title: nucleo-financiero
@@ -381,6 +388,34 @@ paths:
   # ADR-039 retiro el efectivo del alcance el 20-08-2026.
 
   /billetera/retiros:
+    get:
+      operationId: listarRetirosEnRevision     # CU-11 (ADR-049, backoffice carril A · H2)
+      summary: Bandeja de retiros que esperan la segunda aprobacion, del mas antiguo al mas nuevo
+      description: >-
+        Solo quien puede decidir ve la cola: exige RETIRO_APROBAR, el mismo permiso que
+        aprobarRetiro. Paginada por cursor (solicitadaEn, id) — el desempate por id hace
+        estable el orden aunque dos ordenes compartan el instante. Cada fila trae lo
+        necesario para decidir y nada mas: ni la cuenta de destino ni el nombre de la
+        persona viajan aca (respuesta minima); se ven en la ficha de la orden.
+        La fila de quien consulta aparece con puedeDecidir=false: la segregacion
+        (R-SEG-04) la vuelve a exigir aprobarRetiro, esto solo evita ofrecer un boton muerto.
+      parameters:
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: despuesDeFecha, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: despuesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina de la bandeja (vacia si no hay nada en revision)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaRetirosEnRevision' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU11-14 CURSOR_INCOMPLETO · despuesDeFecha y despuesDeId van juntos o ninguno
+        '403':
+          description: Sin el permiso RETIRO_APROBAR
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
     post:
       operationId: solicitarRetiro             # CU-11
       summary: Solicitar un retiro hacia una cuenta de destino
@@ -442,6 +477,10 @@ paths:
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU11-10 RETIRO_AUTOAPROBACION_PROHIBIDA
+          # AP-CU11-11 RETIRO_YA_RESUELTO · la orden ya no esta EN_REVISION (hoy sale 422, no el 409 de abajo:
+          #            la convencion errores-api reserva 409 para lo que rechaza la base — ambiguedad A-5)
+          # AP-CU11-13 la Idempotency-Key ya identifica otra decision u otra orden
+          # Misma Idempotency-Key + misma decision: 200 con el recibo original, sin otra transicion.
         '404':
           description: Esa orden no existe
         '409':
@@ -892,6 +931,33 @@ components:
         ordenRetiroId: { type: string, format: uuid }
         estado:        { type: string, enum: [AUTORIZADA, RECHAZADA] }
         aprobadaPor:   { type: string, format: uuid }
+    PaginaRetirosEnRevision:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/RetiroEnRevision' }
+        proximoFecha: { type: [string, 'null'], format: date-time }
+        proximoId:    { type: [string, 'null'], format: uuid }
+    RetiroEnRevision:
+      type: object
+      additionalProperties: false
+      required: [ordenRetiroId, cuentaBilleteraId, solicitadaPor, solicitado, costo, neto, mfaVerificado, solicitadaEn, puedeDecidir]
+      properties:
+        ordenRetiroId:     { type: string, format: uuid }
+        cuentaBilleteraId: { type: string, format: uuid }
+        solicitadaPor:     { type: string, format: uuid }
+        solicitado:        { $ref: '#/components/schemas/Dinero' }
+        costo:             { $ref: '#/components/schemas/Dinero' }
+        neto:              { $ref: '#/components/schemas/Dinero' }
+        mfaVerificado:     { type: boolean }
+        solicitadaEn:      { type: string, format: date-time }
+        ventanaEnfriamientoHasta: { type: [string, 'null'], format: date-time }
+        puedeDecidir:
+          type: boolean
+          description: false cuando quien consulta es quien solicito (R-SEG-04)
     EntradaRecarga:
       type: object
       additionalProperties: false
