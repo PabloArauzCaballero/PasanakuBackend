@@ -1,0 +1,15 @@
+
+Linting "backoffice"...
+(node:7943) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/bo-l2-cumplimiento/apps/backoffice/eslint.config.js?mtime=1792186869619 is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/bo-l2-cumplimiento/apps/backoffice/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+/Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/bo-l2-cumplimiento/apps/backoffice/src/app/rutas/cumplimiento/verificaciones/pantalla-de-expedientes.ts
+  151:31  error  '_c' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (1 error, 0 warnings)
+
+Lint errors found in the listed files.
+
+exit 1

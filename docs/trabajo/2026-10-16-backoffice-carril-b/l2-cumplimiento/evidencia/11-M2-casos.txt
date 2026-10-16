@@ -1,0 +1,19 @@
+Application bundle generation complete. [2.429 seconds] - 2026-10-16T22:07:50.212Z
+ RUN  v4.1.11 /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/bo-l2-cumplimiento/apps/backoffice
+ ✓  backoffice  src/app/rutas/cumplimiento/casos/decidir-caso.spec.ts > DecidirCaso · CU-44 decidirCasoLft > correcto: cuerpo exacto SIN revisor (es la sesión), con Idempotency-Key y botón bloqueado durante el envío 101ms
+ ✓  backoffice  src/app/rutas/cumplimiento/casos/decidir-caso.spec.ts > DecidirCaso · CU-44 decidirCasoLft > correcto: REPORTAR viaja con el ROS radicado 14ms
+ ✓  backoffice  src/app/rutas/cumplimiento/casos/decidir-caso.spec.ts > DecidirCaso · CU-44 decidirCasoLft > límite: conclusión de 19 caracteres no sale; de 20 sí; REPORTAR sin ROS no sale 14ms
+ ✓  backoffice  src/app/rutas/cumplimiento/casos/decidir-caso.spec.ts > DecidirCaso · CU-44 decidirCasoLft > inválido: 422 AP-CU44-02 (revisor = analista) no dice «decidido» y deja el formulario 18ms
+ ✓  backoffice  src/app/rutas/cumplimiento/casos/decidir-caso.spec.ts > DecidirCaso · CU-44 decidirCasoLft > inválido: AP-CU44-03 se muestra en el campo del ROS; AP-CU44-07 como error general 22ms
+ ✓  backoffice  src/app/rutas/cumplimiento/casos/decidir-caso.spec.ts > DecidirCaso · CU-44 decidirCasoLft > inválido: 403 sin éxito 14ms
+ ✓  backoffice  src/app/rutas/cumplimiento/casos/bandeja-de-casos.spec.ts > BandejaDeCasos · CU-44 listarBandejaDeCasos > correcto: primera página sin cursor; la segunda se pide con el par (despuesDePlazo, despuesDeId) que dio el servidor 86ms
+ ✓  backoffice  src/app/rutas/cumplimiento/casos/bandeja-de-casos.spec.ts > BandejaDeCasos · CU-44 listarBandejaDeCasos > correcto: filtro de estado con explode: false 45ms
+ ✓  backoffice  src/app/rutas/cumplimiento/casos/bandeja-de-casos.spec.ts > BandejaDeCasos · CU-44 listarBandejaDeCasos > límite: vacío explica que sin filtros se ven los no cerrados 27ms
+ ✓  backoffice  src/app/rutas/cumplimiento/casos/bandeja-de-casos.spec.ts > BandejaDeCasos · CU-44 listarBandejaDeCasos > inválido: 403 → «sin acceso», sin tabla 22ms
+ ✓  backoffice  src/app/rutas/cumplimiento/casos/bandeja-de-casos.spec.ts > BandejaDeCasos · CU-44 listarBandejaDeCasos > inválido: 422 AP-CU44-05 muestra el filtro inválido con su código de seguimiento 18ms
+ ✓  backoffice  src/app/rutas/cumplimiento/casos/bandeja-de-casos.spec.ts > BandejaDeCasos · CU-44 listarBandejaDeCasos > decidir abre el diálogo sobre el caso elegido; nunca ofrece avisar al cliente 19ms
+ Test Files  2 passed (2)
+      Tests  12 passed (12)
+   Start at  18:07:50
+   Duration  1.26s (transform 166ms, setup 185ms, import 220ms, tests 403ms, environment 369ms)
+exit 0

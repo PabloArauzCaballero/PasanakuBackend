@@ -1,0 +1,20 @@
+Application bundle generation complete. [2.043 seconds] - 2026-10-16T22:07:55.292Z
+ RUN  v4.1.11 /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/bo-l2-cumplimiento/apps/backoffice
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/bandeja-de-reportes.spec.ts > BandejaDeReportes · CU-43 listarReportesRegulatorios > correcto: filas del contrato; los estados viajan repetidos (explode: true) y el cursor es antesDe/antesDeId 133ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/bandeja-de-reportes.spec.ts > BandejaDeReportes · CU-43 listarReportesRegulatorios > límite: vacío con su porqué 26ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/bandeja-de-reportes.spec.ts > BandejaDeReportes · CU-43 listarReportesRegulatorios > inválido: 403 → «sin acceso» 41ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/bandeja-de-reportes.spec.ts > BandejaDeReportes · CU-43 listarReportesRegulatorios > inválido: 422 AP-CU43-05 → filtro inválido 31ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/bandeja-de-reportes.spec.ts > BandejaDeReportes · CU-43 listarReportesRegulatorios > con solo AUDITORIA_LEER se lee pero no se prepara ni se aprueba 28ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/bandeja-de-reportes.spec.ts > BandejaDeReportes · CU-43 listarReportesRegulatorios > con CUMPLIMIENTO_REPORTAR, aprobar abre la confirmación con la consecuencia exacta del período elegido 29ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/acciones-de-reportes.spec.ts > PrepararReporte · CU-43 generarReporteRegulatorio > correcto: cuerpo exacto + Idempotency-Key + botón bloqueado; 201 es «preparado» 18ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/acciones-de-reportes.spec.ts > PrepararReporte · CU-43 generarReporteRegulatorio > límite: 200 es un reintento (ya estaba preparado); período 2026-13 no sale 15ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/acciones-de-reportes.spec.ts > PrepararReporte · CU-43 generarReporteRegulatorio > inválido: 422 AP-CU43-01 sin éxito y con el texto propio 16ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/acciones-de-reportes.spec.ts > AprobarYEnviar · CU-43 aprobarYEnviarReporte > correcto: el período sale de la fila; cuerpo exacto con constancia; botón bloqueado; Idempotency-Key 15ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/acciones-de-reportes.spec.ts > AprobarYEnviar · CU-43 aprobarYEnviarReporte > límite: sin constancia no se manda el campo; reintentos 0 es válido 8ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/acciones-de-reportes.spec.ts > AprobarYEnviar · CU-43 aprobarYEnviarReporte > inválido: 422 AP-CU43-02 (quien aprueba generó) no dice «aprobado» 13ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/acciones-de-reportes.spec.ts > AprobarYEnviar · CU-43 aprobarYEnviarReporte > inválido: sin canal o reintentos negativos no sale 7ms
+ Test Files  2 passed (2)
+      Tests  13 passed (13)
+   Start at  18:07:55
+   Duration  1.21s (transform 166ms, setup 188ms, import 228ms, tests 380ms, environment 328ms)
+exit 0
