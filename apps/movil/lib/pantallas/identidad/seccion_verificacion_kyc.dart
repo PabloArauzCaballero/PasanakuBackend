@@ -1,4 +1,5 @@
 import 'package:aportaya_cliente_identidad/aportaya_cliente_identidad.dart';
+import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,7 +15,7 @@ class SeccionVerificacionKyc extends ConsumerWidget {
     final estado = ref.watch(kycDeLaSesionProvider);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(Espacio.s4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

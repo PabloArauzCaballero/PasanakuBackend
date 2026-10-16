@@ -15,3 +15,5 @@ Formatted test/goldens/h10_alta_datos_visual_test.dart
 Formatted test/goldens/h10_prueba_vida_visual_test.dart
 Formatted 472 files (7 changed) in 0.41 seconds.
 apps/movil rc=0
+packages/diseno_flutter dart rc=0
+apps/movil dart rc=0

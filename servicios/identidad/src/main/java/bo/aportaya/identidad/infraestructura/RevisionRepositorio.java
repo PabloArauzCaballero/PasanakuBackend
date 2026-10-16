@@ -5,19 +5,16 @@ import static bo.aportaya.identidad.generado.Tables.USUARIO;
 import static bo.aportaya.identidad.generado.Tables.VERIFICACION_KYC;
 
 import bo.aportaya.identidad.dominio.ExpedienteDeIdentidad;
-import bo.aportaya.plataforma.archivos.DestinoDeObjeto;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeDominio;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.jooq.DSLContext;
-import org.jooq.Record;
 import org.springframework.stereotype.Repository;
 
 /** La cola de expedientes que espera una decision humana, y su resolucion. */
@@ -54,7 +51,7 @@ public class RevisionRepositorio {
                 : consulta.where(VERIFICACION_KYC.ESTADO.eq(estado))
                         .orderBy(VERIFICACION_KYC.INICIADA_EN)
                         .fetch();
-        return filas.map(RevisionRepositorio::aExpedienteDeIdentidad);
+        return filas.map(FilaDeExpediente::aExpedienteDeIdentidad);
     }
 
     /**
@@ -89,7 +86,7 @@ public class RevisionRepositorio {
                 .where(VERIFICACION_KYC.USUARIO_ID.eq(usuarioId))
                 .orderBy(VERIFICACION_KYC.INICIADA_EN.desc())
                 .limit(1)
-                .fetchOptional(RevisionRepositorio::aExpedienteDeIdentidad);
+                .fetchOptional(FilaDeExpediente::aExpedienteDeIdentidad);
     }
 
     /** Bloquea la revisión antes de escribir para que una decisión humana concurrente gane o espere. */
@@ -115,58 +112,6 @@ public class RevisionRepositorio {
         if (filas == 0) {
             throw new ErrorDeDominio("Todavía no hay un documento cargado para esa persona.");
         }
-    }
-
-    /**
-     * Una foto esta cargada cuando su clave apunta <b>a la carpeta del expediente</b>
-     * — {@code identidad/<usuarioId>/} —, que es donde el unico que sube fotos las
-     * pone (ADR-034, enmienda del 2026-09-17).
-     *
-     * <p>Desde que {@code url_anverso} y {@code hash_archivo} admiten nulos, el alta ya
-     * no inventa nada y una columna nula alcanzaria. La comprobacion se queda igual por
-     * las filas viejas: las que se escribieron mientras las columnas eran
-     * {@code NOT NULL} llevan una clave de relleno —{@code local://documentos/…}— que
-     * apunta a un objeto que nunca existio, y contarla como foto hacia que la cola
-     * dijera que <b>todo el mundo</b> tiene anverso. Mirar la carpeta las descarta sin
-     * tener que migrar datos.
-     */
-    private static boolean estaCargada(String clave, UUID usuarioId) {
-        return clave != null && clave.contains(DestinoDeObjeto.carpetaDeExpediente(usuarioId));
-    }
-
-    private static ExpedienteDeIdentidad aExpedienteDeIdentidad(Record f) {
-        UUID usuario = f.get(VERIFICACION_KYC.USUARIO_ID);
-        List<String> fotos = new ArrayList<>();
-        if (estaCargada(f.get(DOCUMENTO_IDENTIDAD.URL_ANVERSO), usuario)) {
-            fotos.add("ANVERSO");
-        }
-        if (estaCargada(f.get(DOCUMENTO_IDENTIDAD.URL_REVERSO), usuario)) {
-            fotos.add("REVERSO");
-        }
-        if (estaCargada(f.get(VERIFICACION_KYC.URL_SELFIE), usuario)) {
-            fotos.add("SELFIE");
-        }
-        if (estaCargada(f.get(VERIFICACION_KYC.URL_PERFIL_IZQUIERDO), usuario)) {
-            fotos.add("PERFIL_IZQUIERDO");
-        }
-        if (estaCargada(f.get(VERIFICACION_KYC.URL_PERFIL_DERECHO), usuario)) {
-            fotos.add("PERFIL_DERECHO");
-        }
-        String tipo = f.get(DOCUMENTO_IDENTIDAD.TIPO);
-        String lugar = f.get(DOCUMENTO_IDENTIDAD.LUGAR_EXPEDICION);
-        return new ExpedienteDeIdentidad(
-                f.get(VERIFICACION_KYC.ID),
-                f.get(VERIFICACION_KYC.USUARIO_ID),
-                f.get(USUARIO.NOMBRES) + " " + f.get(USUARIO.APELLIDOS),
-                f.get(USUARIO.TELEFONO_E164),
-                tipo == null ? null : (lugar == null ? tipo : tipo + " " + lugar),
-                f.get(VERIFICACION_KYC.ESTADO),
-                f.get(VERIFICACION_KYC.INICIADA_EN),
-                f.get(VERIFICACION_KYC.RESUELTA_EN),
-                f.get(VERIFICACION_KYC.MOTIVO_RECHAZO),
-                fotos,
-                f.get(DOCUMENTO_IDENTIDAD.FECHA_EXPIRACION),
-                f.get(USUARIO.CORREO));
     }
 
     /**
@@ -202,7 +147,7 @@ public class RevisionRepositorio {
                 .where(VERIFICACION_KYC.ID.eq(verificacionId))
                 .forUpdate()
                 .of(VERIFICACION_KYC)
-                .fetchOptional(RevisionRepositorio::aExpedienteDeIdentidad);
+                .fetchOptional(FilaDeExpediente::aExpedienteDeIdentidad);
     }
 
     /** La clave del objeto de una cara, para pedirle al almacen su enlace temporal. */
@@ -246,7 +191,7 @@ public class RevisionRepositorio {
         // La misma regla que la cola: una clave de relleno no es una foto. Sin esto se
         // le pedia al almacen un objeto que nunca existio y salia un error de almacen
         // donde correspondia decir «todavia no esta cargada».
-        if (!estaCargada(clave, usuario)) {
+        if (!FilaDeExpediente.estaCargada(clave, usuario)) {
             throw new ErrorDeDominio("Esa foto todavia no esta cargada");
         }
         return clave;
