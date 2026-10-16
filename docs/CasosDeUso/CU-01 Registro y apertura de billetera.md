@@ -218,6 +218,14 @@ Entonces la fecha queda guardada
 Dado un documento vencido
 Cuando se registra
 Entonces AP-CU01-07 y no se crea nada
+
+Dado un correo que ya tiene cuenta
+Cuando otra persona se registra con ese correo
+Entonces se rechaza con AP-CU01-03 y campo correo, sin crear nada
+
+Dado un telefono que ya tiene cuenta
+Cuando otra persona se registra con ese telefono
+Entonces se rechaza con AP-CU01-03 y campo telefono
 ```
 
 ## Ver también

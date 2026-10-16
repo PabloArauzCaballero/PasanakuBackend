@@ -36,7 +36,8 @@ class CU04Test extends BaseDeCU04 {
     }
 
     @Test
-    @DisplayName("una cuenta pendiente de aprobacion manual puede iniciar sesion y sigue pendiente")
+    @DisplayName(
+            "Dado una cuenta pendiente de aprobacion manual · Cuando inicia sesion con credenciales correctas · Entonces inicia sesion y su estado sigue pendiente")
     void cuentaPendientePuedeIniciarSesionSinAutoaprobarse() {
         String telefono = "+59173" + ThreadLocalRandom.current().nextInt(100_000, 1_000_000);
         UUID usuario = participanteConCredencial(telefono);
@@ -56,7 +57,8 @@ class CU04Test extends BaseDeCU04 {
     }
 
     @Test
-    @DisplayName("un usuario activo sin factor sigue requiriendo segundo factor en dispositivo nuevo")
+    @DisplayName(
+            "Dado un usuario activo sin factor · Cuando inicia sesion desde un dispositivo nuevo · Entonces se exige segundo factor y no se crea sesion")
     void cuentaActivaSinFactorNoOmiteMfaEnDispositivoNuevo() {
         String telefono = "+59174" + ThreadLocalRandom.current().nextInt(100_000, 1_000_000);
         UUID usuario = participanteConCredencial(telefono);

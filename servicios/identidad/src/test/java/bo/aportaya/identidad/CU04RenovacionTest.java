@@ -125,7 +125,8 @@ class CU04RenovacionTest extends BaseDeCU04 {
     }
 
     @Test
-    @DisplayName("Dado el límite absoluto de ocho horas · una sesión expirada no renueva su refresh")
+    @DisplayName(
+            "Dado el limite absoluto de ocho horas · Cuando una sesion expirada renueva su refresh · Entonces se rechaza")
     void topeAbsolutoDeSesion() {
         UUID usuario = participanteConCredencial("+59171000029");
         UUID sesion = fixtura.sesionAbierta(usuario);
@@ -166,7 +167,8 @@ class CU04RenovacionTest extends BaseDeCU04 {
     }
 
     @Test
-    @DisplayName("Dado una sesión con refresh vivo · al cerrarla, revoca su familia y no acepta otro titular")
+    @DisplayName(
+            "Dado una sesion con refresh vivo · Cuando otro titular intenta cerrarla y luego su dueno la cierra · Entonces se revoca la familia y se invalida el refresh siguiente")
     void cierreRevocaLaFamiliaDeLaSesionDelTitular() {
         UUID usuario = participanteConCredencial("+59171000027");
         UUID otroUsuario = participanteConCredencial("+59171000028");

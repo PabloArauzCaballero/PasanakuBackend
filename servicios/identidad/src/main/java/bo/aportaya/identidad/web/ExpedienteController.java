@@ -1,7 +1,7 @@
 package bo.aportaya.identidad.web;
 
-import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02ActualizarFechaExpiracion;
+import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.ConsumirInvitacion;
 import bo.aportaya.identidad.web.generado.modelo.ArchivoDelExpediente;
@@ -124,15 +124,10 @@ public abstract class ExpedienteController extends InvitacionesController {
     /** Fecha del documento aportada por el titular; la aprobación permanece en manos de la revisión humana. */
     @Override
     @Publico("CU-02: valida sesión y titularidad antes de modificar la fecha del documento propio")
-    public ResponseEntity<Void> actualizarFechaExpiracionDocumento(
-            UUID usuarioId, FechaExpiracionDocumento cuerpo) {
+    public ResponseEntity<Void> actualizarFechaExpiracionDocumento(UUID usuarioId, FechaExpiracionDocumento cuerpo) {
         var actor = sesion.actual();
         titular.exigir(usuarioId, null);
-        actualizarFechaExpiracion.ejecutar(
-                usuarioId,
-                cuerpo.getFechaExpiracionDocumento(),
-                actor,
-                reloj.hoy());
+        actualizarFechaExpiracion.ejecutar(usuarioId, cuerpo.getFechaExpiracionDocumento(), actor, reloj.hoy());
         return ResponseEntity.noContent().build();
     }
 }

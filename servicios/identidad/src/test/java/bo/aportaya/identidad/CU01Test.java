@@ -85,7 +85,8 @@ class CU01Test extends BaseDeCU01 {
     }
 
     @Test
-    @DisplayName("el telefono repetido dice que el campo es el telefono")
+    @DisplayName(
+            "Dado un telefono que ya tiene cuenta · Cuando otra persona se registra con ese telefono · Entonces se rechaza con AP-CU01-03 y campo telefono")
     void telefonoQueYaTieneCuenta() {
         registrar("+59177000033", "3333331");
         assertThatThrownBy(() -> registrar("+59177000033", "3333332"))
