@@ -23,6 +23,15 @@ public interface DesafioDeFactor {
         return emitir(usuarioId, tipoDeFactor);
     }
 
+    /**
+     * {@code true} si el ultimo desafio de este usuario salio por correo y el proveedor
+     * acepto el mensaje. Asi el ingreso puede decirle a la app que el codigo ya viaja,
+     * en lugar de pedirlo sin confirmar el envio. Por omision, {@code false}.
+     */
+    default boolean entregaPorCorreoConfirmada(UUID usuarioId) {
+        return false;
+    }
+
     /** {@code true} si el valor presentado corresponde al desafio vigente. */
     boolean validar(UUID usuarioId, String tipoDeFactor, String valorPresentado);
 }

@@ -29,7 +29,8 @@ class DesafioPorCorreoTest {
         assertThat(enviado.destino()).isEqualTo(DESTINO);
         assertThat(enviado.deAcceso()).isTrue();
         assertThat(enviado.codigo()).matches("\\d{6}");
-        assertThat(enviado.vigencia()).isEqualTo(Duration.ofMinutes(5));
+        assertThat(enviado.vigencia()).isEqualTo(Duration.ofMinutes(10));
+        assertThat(desafio.entregaPorCorreoConfirmada(usuario)).isTrue();
 
         assertThat(desafio.validar(usuario, "CORREO", enviado.codigo())).isTrue();
         assertThat(desafio.validar(usuario, "CORREO", enviado.codigo())).isFalse();
@@ -57,6 +58,7 @@ class DesafioPorCorreoTest {
         desafio.emitir(usuario, "TOTP", DESTINO);
 
         assertThat(correo.enviados).isEmpty();
+        assertThat(desafio.entregaPorCorreoConfirmada(usuario)).isFalse();
     }
 
     @Test
@@ -66,6 +68,7 @@ class DesafioPorCorreoTest {
 
         assertThatCode(() -> desafio.emitir(usuario, "CORREO", DESTINO)).doesNotThrowAnyException();
         assertThat(correo.enviados).isEmpty();
+        assertThat(desafio.entregaPorCorreoConfirmada(usuario)).isFalse();
         assertThat(desafio.validar(usuario, "CORREO", "000000")).isFalse();
     }
 
@@ -75,6 +78,7 @@ class DesafioPorCorreoTest {
         assertThatCode(() -> desafio.emitir(usuario, "CORREO", " ")).doesNotThrowAnyException();
 
         assertThat(correo.enviados).isEmpty();
+        assertThat(desafio.entregaPorCorreoConfirmada(usuario)).isFalse();
         assertThat(desafio.validar(usuario, "CORREO", "123456")).isFalse();
     }
 }

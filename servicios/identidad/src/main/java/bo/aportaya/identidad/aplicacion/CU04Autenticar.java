@@ -170,6 +170,13 @@ public class CU04Autenticar {
                 && ExigeSegundoFactor.decidir(perfil, dispositivo.confiable(), entrada.operacionSensible())) {
             if (entrada.factorPresentado().isEmpty()) {
                 factor.ifPresent(tipo -> desafio.emitir(usuario, tipo, correoDeAcceso.orElse(null)));
+                if (desafio.entregaPorCorreoConfirmada(usuario)) {
+                    return cerrar(
+                            dsl,
+                            intentoId,
+                            "FACTOR_REQUERIDO",
+                            ResultadoDeAutenticacion.factorEnviadoPorCorreo(dispositivo.confiable()));
+                }
                 return cerrar(
                         dsl,
                         intentoId,
