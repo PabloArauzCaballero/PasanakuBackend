@@ -85,6 +85,11 @@ export const ErroresCU56 = {
 **Cola del backoffice (carril A · H9).** `GET /cumplimiento/continuidad/pruebas` (`listarPruebasDeContinuidad`, el rol RESPONSABLE_RIESGOS, con `AUDITORIA_LEER` como
 alternativa) pagina por cursor de la más reciente a la más antigua y devuelve tipo, RTO y RPO obtenidos y resultado; sin hallazgos ni evidencia.
 
+**Registro desde el backoffice (carril A · H9).** `POST /cumplimiento/continuidad/pruebas`
+(`registrarPruebaDeContinuidad`, rol `RESPONSABLE_RIESGOS`, `Idempotency-Key`). `ejecutadaPor` es el dato
+que se registra (quién de TI ejecutó), no el actor de la petición. La misma prueba (plan, fecha, tipo,
+ejecutor) dos veces es una sola: el reintento devuelve la registrada (200) sin abrir otro plan de acción.
+
 ## Descomposición atómica
 
 | Nivel | Pieza | Responsabilidad |
@@ -140,6 +145,11 @@ Entonces existe un hallazgo_auditoria que lo identifica por nombre
 Dadas dos pruebas de continuidad en fechas distintas
 Cuando Riesgos lista las pruebas
 Entonces las ve de la más reciente a la más antigua con su RTO, RPO y resultado
+
+# Acciones desde el backoffice (carril A)
+Dada una prueba que no alcanzó el RTO ya registrada
+Cuando Riesgos la registra otra vez desde el backoffice
+Entonces no se duplica ni se abre un segundo plan de acción
 ```
 
 ## Ver también

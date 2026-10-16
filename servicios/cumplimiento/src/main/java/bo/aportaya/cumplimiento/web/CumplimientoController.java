@@ -62,8 +62,9 @@ public class CumplimientoController extends ColasDeCumplimientoWeb {
             CU44DecidirComoRevisor decisionLft,
             SesionDeLaPeticion sesion,
             jakarta.servlet.http.HttpServletRequest peticion,
-            TableroDeCumplimientoWeb tablero) {
-        super(tablero);
+            TableroDeCumplimientoWeb tablero,
+            AccionesDeCumplimientoWeb acciones) {
+        super(tablero, acciones);
         this.cu54 = cu54;
         this.cu55 = cu55;
         this.sesion = sesion;

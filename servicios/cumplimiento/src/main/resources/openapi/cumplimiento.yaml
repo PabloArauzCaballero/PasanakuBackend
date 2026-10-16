@@ -745,6 +745,37 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+    post:
+      operationId: generarReporteRegulatorio   # CU-43 (backoffice carril A · H9)
+      summary: Generar el reporte regulatorio de un periodo
+      description: >-
+        Arma el archivo del periodo con las operaciones del formulario pedido y su hash. Generar dos veces devuelve el que hay. El actor sale de la sesion. Repetir lo mismo devuelve lo que ya hay (200); lo nuevo, 201.
+        Exige CUMPLIMIENTO_REPORTAR.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaGeneracionReporte' }
+      responses:
+        '201':
+          description: Registrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaReporteRegulatorio' }
+        '200':
+          description: Ya estaba registrado (reintento)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaReporteRegulatorio' }
+        '422':
+          # AP-CU43-01
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin CUMPLIMIENTO_REPORTAR
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
   /uif/requerimientos:
     get:
       operationId: listarRequerimientosDeAutoridad   # CU-45 (backoffice carril A · H9)
@@ -777,6 +808,37 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+    post:
+      operationId: registrarRequerimientoDeAutoridad   # CU-45 (backoffice carril A · H9)
+      summary: Registrar un requerimiento de autoridad
+      description: >-
+        Sin documento y su hash no se actua; un alcance ambiguo pide aclaracion. El mismo oficio con el mismo hash es un reintento. El actor sale de la sesion. Repetir lo mismo devuelve lo que ya hay (200); lo nuevo, 201.
+        Exige el rol OFICIAL_CUMPLIMIENTO.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaRequerimientoDeAutoridad' }
+      responses:
+        '201':
+          description: Registrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaRequerimientoDeAutoridad' }
+        '200':
+          description: Ya estaba registrado (reintento)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaRequerimientoDeAutoridad' }
+        '422':
+          # AP-CU45-01 · AP-CU45-02 · AP-CU45-03
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin el rol OFICIAL_CUMPLIMIENTO
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
   /cumplimiento/continuidad/pruebas:
     get:
       operationId: listarPruebasDeContinuidad   # CU-56 (backoffice carril A · H9)
@@ -801,6 +863,37 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+    post:
+      operationId: registrarPruebaDeContinuidad   # CU-56 (backoffice carril A · H9)
+      summary: Registrar una prueba de continuidad
+      description: >-
+        Evalua el RTO y RPO obtenidos contra los comprometidos del plan; si no se alcanzan abre hallazgo y plan de accion. La misma prueba (plan, fecha, tipo, quien la ejecuto) dos veces es una sola. El actor sale de la sesion. Repetir lo mismo devuelve lo que ya hay (200); lo nuevo, 201.
+        Exige el rol RESPONSABLE_RIESGOS.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaPruebaDeContinuidad' }
+      responses:
+        '201':
+          description: Registrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaPruebaDeContinuidad' }
+        '200':
+          description: Ya estaba registrado (reintento)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaPruebaDeContinuidad' }
+        '422':
+          # AP-CU56-01 · AP-CU56-03
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin el rol RESPONSABLE_RIESGOS
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
   /cumplimiento/comites/actas:
     get:
       operationId: listarActasDeComite   # CU-94 (backoffice carril A · H9)
@@ -822,6 +915,76 @@ paths:
           $ref: '#/components/responses/ReglaDeNegocio'
         '403':
           description: Sin OFICIAL_CUMPLIMIENTO ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /uif/reportes/envios:
+    post:
+      operationId: aprobarYEnviarReporte   # CU-43 (backoffice carril A · H9)
+      summary: Aprobar el reporte y registrar su envio al organismo
+      description: >-
+        Quien aprueba es quien lo pide y no puede ser quien lo genero (R-SEG-04). Fuera de plazo se envia igual y se abre hallazgo. El actor sale de la sesion. Repetir lo mismo devuelve lo que ya hay (200); lo nuevo, 201.
+        Exige CUMPLIMIENTO_REPORTAR.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaEnvioReporte' }
+      responses:
+        '201':
+          description: Registrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaReporteRegulatorio' }
+        '200':
+          description: Ya estaba registrado (reintento)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaReporteRegulatorio' }
+        '422':
+          # AP-CU43-01 · AP-CU43-02 · AP-CU43-03
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin CUMPLIMIENTO_REPORTAR
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /uif/requerimientos/{requerimientoId}/respuesta:
+    post:
+      operationId: responderRequerimientoDeAutoridad   # CU-45 (backoffice carril A · H9)
+      summary: Responder un requerimiento de autoridad
+      description: >-
+        Se responde siempre, dentro o fuera de plazo; el plazo y el numero de oficio son los registrados, nunca los del cliente. Fuera de plazo abre hallazgo. El actor sale de la sesion. Repetir lo mismo devuelve lo que ya hay (200); lo nuevo, 201.
+        Exige el rol OFICIAL_CUMPLIMIENTO.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - name: requerimientoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaRespuestaRequerimiento' }
+      responses:
+        '201':
+          description: Registrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaRequerimientoDeAutoridad' }
+        '200':
+          description: Ya estaba registrado (reintento)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaRequerimientoDeAutoridad' }
+        '422':
+          # AP-CU45-01
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin el rol OFICIAL_CUMPLIMIENTO
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
@@ -1486,6 +1649,85 @@ components:
         fecha: { type: string, format: date }
         cumpleQuorum: { type: boolean }
         hashDocumento: { type: string }
+    EntradaGeneracionReporte:
+      type: object
+      additionalProperties: false
+      required: [periodo, catalogoCodigo, formulario]
+      properties:
+        periodo: { type: string, pattern: '^\d{4}-(0[1-9]|1[0-2])$' }
+        catalogoCodigo: { type: string, minLength: 1, maxLength: 30 }
+        formulario: { type: string, enum: [PCC-01, ROG-01, ROG-02, ROG-03, ROG-04] }
+    EntradaEnvioReporte:
+      type: object
+      additionalProperties: false
+      required: [periodo, catalogoCodigo, canal, aceptadoPorElOrganismo, reintentos]
+      properties:
+        periodo: { type: string, pattern: '^\d{4}-(0[1-9]|1[0-2])$' }
+        catalogoCodigo: { type: string, minLength: 1, maxLength: 30 }
+        canal: { type: string, enum: [CORREO, MEDIO_FISICO, PORTAL_WEB, SERVICIO_WEB] }
+        numeroConstancia: { type: string, maxLength: 60 }
+        aceptadoPorElOrganismo: { type: boolean }
+        reintentos: { type: integer, minimum: 0 }
+    SalidaReporteRegulatorio:
+      type: object
+      additionalProperties: false
+      required: [reporteId, cantidadRegistros, reporteEnCero, fueraDePlazo]
+      properties:
+        reporteId: { type: string, format: uuid }
+        cantidadRegistros: { type: integer }
+        reporteEnCero: { type: boolean }
+        hashArchivo: { type: string }
+        fueraDePlazo: { type: boolean }
+    EntradaRequerimientoDeAutoridad:
+      type: object
+      additionalProperties: false
+      required: [autoridad, numeroOficio, plazoRespuesta, alcance, documentoUrl, hashDocumento, exigeBloqueoDeSaldo]
+      properties:
+        autoridad: { type: string, enum: [ASFI, FISCALIA, JUZGADO, POLICIA, SIN, UIF] }
+        numeroOficio: { type: string, minLength: 1, maxLength: 60 }
+        plazoRespuesta: { type: string, format: date-time }
+        usuarioAfectadoId: { type: string, format: uuid }
+        alcance: { type: string, maxLength: 300 }
+        documentoUrl: { type: string, maxLength: 255 }
+        hashDocumento: { type: string, pattern: '^[0-9a-f]{64}$' }
+        exigeBloqueoDeSaldo: { type: boolean }
+    EntradaRespuestaRequerimiento:
+      type: object
+      additionalProperties: false
+      required: [respuestaUrl]
+      properties:
+        respuestaUrl: { type: string, minLength: 1, maxLength: 255 }
+    SalidaRequerimientoDeAutoridad:
+      type: object
+      additionalProperties: false
+      required: [requerimientoId]
+      properties:
+        requerimientoId: { type: string, format: uuid }
+    EntradaPruebaDeContinuidad:
+      type: object
+      additionalProperties: false
+      required: [planContinuidadId, tipo, fecha, ejecutadaPor, rtoObtenido, rpoObtenido, impactoEnClientes]
+      properties:
+        planContinuidadId: { type: string, format: uuid }
+        tipo: { type: string, enum: [ESCRITORIO, PARCIAL, TOTAL, CONMUTACION_REAL] }
+        fecha: { type: string, format: date }
+        ejecutadaPor: { type: string, format: uuid }
+        actaComiteId: { type: string, format: uuid }
+        rtoObtenido: { type: integer, minimum: 0 }
+        rpoObtenido: { type: integer, minimum: 0 }
+        evidenciaUrl: { type: string, maxLength: 255 }
+        impactoEnClientes: { type: boolean }
+        perdidaCuantificada: { type: string, pattern: '^\d+\.\d{2}$' }
+    SalidaPruebaDeContinuidad:
+      type: object
+      additionalProperties: false
+      required: [pruebaId, rtoObtenido, rpoObtenido, resultado]
+      properties:
+        pruebaId: { type: string, format: uuid }
+        rtoObtenido: { type: integer }
+        rpoObtenido: { type: integer }
+        resultado: { type: string, enum: [EXITOSA, PARCIAL, FALLIDA] }
+        planAccionId: { type: string, format: uuid }
     Dinero:
       type: object
       additionalProperties: false

@@ -187,4 +187,8 @@ class LftBandejaWebTest {
     // Las colas del backoffice (carril A · H9) cuelgan del controlador: sin este doble no carga.
     @org.springframework.test.context.bean.override.mockito.MockitoBean
     private TableroDeCumplimientoWeb tableroDeCumplimiento;
+
+    // Las acciones del backoffice (carril A · H9) cuelgan de los controladores: sin este doble no cargan.
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private AccionesDeCumplimientoWeb accionesDeCumplimiento;
 }
