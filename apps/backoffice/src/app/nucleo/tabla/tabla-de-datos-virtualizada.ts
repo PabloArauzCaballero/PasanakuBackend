@@ -89,9 +89,7 @@ import { accionParaTecla, enfocarFilaPorId } from './navegacion-por-teclado'
     <ap-paginacion [(pagina)]="pagina" [totalDeFilas]="total()" [porPagina]="tamanoDePagina()" />
   `,
   styles: `
-    :host { display: block; min-width: 0; max-width: 100%; }
-    /* El envoltorio del CDK se ajustaba al contenido (1059 px en 528): las filas se desalineaban de la cabecera en tablet. */
-    :host ::ng-deep .cdk-virtual-scroll-content-wrapper { width: 100%; }
+    :host { display: block; min-width: 0; max-width: 100%; } :host ::ng-deep .cdk-virtual-scroll-content-wrapper { width: 100%; /* sin esto, en tablet las filas crecían a su max-content y se desalineaban de la cabecera */ }
     .cabecera-tabla { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); padding-bottom: var(--s3); }
     h2 { font-size: 1.05em; color: var(--text); margin: 0; }
     .cargando { color: var(--text-3); font-size: .85em; }
