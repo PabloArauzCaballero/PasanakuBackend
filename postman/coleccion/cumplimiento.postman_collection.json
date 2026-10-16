@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AportaYa · cumplimiento",
-    "description": "# AportaYa · cumplimiento\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**10 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · cumplimiento\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**13 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -751,6 +751,260 @@
       ]
     },
     {
+      "name": "listarBandejaDeReclamos · Bandeja de reclamos, el que vence antes primero",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/reclamos",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "reclamos"
+          ],
+          "variable": [],
+          "query": [
+            {
+              "key": "estados",
+              "value": "['INGRESADO']",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "limite",
+              "value": "1",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "despuesDeLimite",
+              "value": "{{momento_ahora}}",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "despuesDeId",
+              "value": "{{despuesDeId}}",
+              "description": "",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "## Bandeja de reclamos, el que vence antes primero\n\nLa cola del Punto de Reclamo (CU-52, Interfaz: \"Bandeja con vencimientos primero\"). Ordena por el limite vigente —la prorroga si la hay, si no el plazo de respuesta— y desempata por id; pagina por cursor (limiteVigente, id). Los plazos son los GUARDADOS al ingresar o al prorrogar (R-CON-01): aca no se recalcula ninguno; `vencido` solo compara el guardado con la hora del servidor.\nRespuesta minima: no viaja el texto del reclamo ni la persona que reclama; eso esta en la ficha, con otro permiso. `montoReclamado` es cadena decimal SIN moneda porque reclamo_cliente no la modela (ambiguedad A-7 del carril A): no se supone BOB.\nSin `estados` devuelve los abiertos (INGRESADO, EN_ANALISIS). Exige RECLAMO_VER.\n\n| | |\n| --- | --- |\n| **Servicio** | `cumplimiento` |\n| **Operacion** | `listarBandejaDeReclamos` |\n| **Ruta** | `GET /api/v1/reclamos` |\n| **Permiso** | `RECLAMO_VER` |\n| **Respuestas** | `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU52-07` | Filtro de bandeja invalido |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "consultarReclamo · La ficha de un reclamo, con su texto, para quien lo atiende",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/reclamos/:reclamoId",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "reclamos",
+            ":reclamoId"
+          ],
+          "variable": [
+            {
+              "key": "reclamoId",
+              "value": "{{reclamoId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## La ficha de un reclamo, con su texto, para quien lo atiende\n\nLo que hace falta para responder: el texto del reclamo, la respuesta si ya la tiene y los plazos guardados. Exige RECLAMO_ATENDER — el texto lo escribio una persona y solo lo lee quien lo atiende. No devuelve la identidad de quien reclama.\n\n| | |\n| --- | --- |\n| **Servicio** | `cumplimiento` |\n| **Operacion** | `consultarReclamo` |\n| **Ruta** | `GET /api/v1/reclamos/{reclamoId}` |\n| **Permiso** | `RECLAMO_ATENDER` |\n| **Respuestas** | `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU52-05` | Reclamo inexistente |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "responderReclamo · Responder y cerrar un reclamo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/reclamos/:reclamoId/respuesta",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "reclamos",
+            ":reclamoId",
+            "respuesta"
+          ],
+          "variable": [
+            {
+              "key": "reclamoId",
+              "value": "{{reclamoId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Responder y cerrar un reclamo\n\nRegistra resultado y respuesta y cierra el reclamo (CU-52, paso 5). Un FAVORABLE con monto exige la devolucion ya ejecutada por tarifas (CU-33): sin ella, AP-CU52-03 (R-CON-04). Responder fuera de plazo se acepta y abre un hallazgo (AP-CU52-04 no es un rechazo).\nReintento seguro: si el reclamo ya esta cerrado por el MISMO responsable con el mismo resultado, texto y devolucion, devuelve el mismo recibo sin emitir otro evento. Cualquier otra respuesta sobre un reclamo cerrado es AP-CU52-06. Exige RECLAMO_ATENDER.\n\n| | |\n| --- | --- |\n| **Servicio** | `cumplimiento` |\n| **Operacion** | `responderReclamo` |\n| **Ruta** | `POST /api/v1/reclamos/{reclamoId}/respuesta` |\n| **Permiso** | `RECLAMO_ATENDER` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU52-03` | Falta reparacion |\n| `AP-CU52-05` | Reclamo inexistente |\n| `AP-CU52-06` | Reclamo ya cerrado |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"resultado\": \"FAVORABLE\",\n  \"respuesta\": \"respuesta-de-prueba\",\n  \"devolucionId\": \"{{devolucionId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "verificarAlcance · Verificar el alcance de la licencia",
       "request": {
         "method": "GET",
@@ -872,6 +1126,14 @@
       "value": ""
     },
     {
+      "key": "despuesDeId",
+      "value": ""
+    },
+    {
+      "key": "devolucionId",
+      "value": ""
+    },
+    {
       "key": "eventoRiesgoId",
       "value": ""
     },
@@ -889,6 +1151,10 @@
     },
     {
       "key": "prefijo_api",
+      "value": ""
+    },
+    {
+      "key": "reclamoId",
       "value": ""
     },
     {

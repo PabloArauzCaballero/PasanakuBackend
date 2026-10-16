@@ -25,6 +25,8 @@
   - **A-2 · El plan estratégico asigna "esquema" al carril A; la skill de carril lo prohíbe.** Supuesto: el carril A **no** edita `sql/` ni `.puml` en esta sesión; el motor de decisión y el gobierno de políticas salen como ADR + modelo propuesto, y su implementación espera visto bueno de modelo (`boveda-modelo`). Confirmar con: Pablo Arauz + responsable de Seguridad/Riesgos.
   - **A-3 · Permiso de las bandejas.** No hay `RETIRO_VER` ni `CUMPLIMIENTO_ALERTA_VER`. Supuesto: listar retiros en revisión exige `RETIRO_APROBAR` (sólo quien puede decidir ve la cola); bandeja de reclamos exige `RECLAMO_VER` (ya sembrado); responder exige el permiso que el CU-52 declare y que esté sembrado — si no lo está, la acción queda cerrada (denegar por omisión) y se registra. Confirmar con: Seguridad de la información (S-8).
   - **A-5 · Códigos y estados HTTP de `aprobarRetiro` no coinciden con su contrato.** El YAML promete `409` cuando la orden ya no está en revisión y `404` cuando no existe; la implementación (convención `errores-api`, `ManejadorGlobalDeErrores.java:30-35`: 422 para negocio, 409 sólo para la base) responde `422 AP-CU11-11` y `422 AP-CU11-01` — y `AP-CU11-01` es también `SALDO_INSUFICIENTE`, así que el cliente no puede distinguir «orden inexistente» de «saldo insuficiente». Supuesto: no se cambia la plataforma ni el código público en este trabajo; B debe tratar `422 AP-CU11-11` como «ya resuelta». Confirmar con: dueño de `errores-api` / Pablo Arauz (asignar `AP-CU11-15 ORDEN_INEXISTENTE` exige actualizar CU-11).
+  - **A-6 · Códigos de CU-52 reutilizados.** `CU52AtenderReclamo` lanza `AP-CU52-01` (`PUNTO_RECLAMO_INACTIVO`) también para «reclamo inexistente» y «reclamo ya cerrado» (`CU52AtenderReclamo.java:130,175,195`). Como `responder`/`prorrogar` no tenían endpoint, se asignan `AP-CU52-05 RECLAMO_INEXISTENTE` y `AP-CU52-06 RECLAMO_YA_CERRADO` antes de publicarlos. Confirmar con: dueño de CU-52.
+  - **A-7 · `reclamo_cliente.monto_reclamado` sin moneda.** La regla 91.1.2 prohíbe un importe sin moneda; la tabla no tiene `moneda`. El contrato publica el monto como cadena decimal y declara que la moneda no está modelada, sin suponer BOB. Cerrarlo es cambio de modelo (troncal). Confirmar con: Pablo Arauz / dueño del modelo M12.
   - **A-4 · Datos personales en la bandeja de retiros.** La bandeja muestra ids, importe, moneda, estado, fechas y quién la solicitó (id), **no** cuenta destino ni nombre. Supuesto conservador por regla 90.2/96.5.3. Confirmar con: Cumplimiento.
 
 ## H1 — A0 · Inventario, trazabilidad y contratos P0
@@ -87,14 +89,16 @@
 
 **CA:** Dado un operador con `RECLAMO_VER`, cuando abre la bandeja, entonces ve los reclamos paginados con estado, categoría, plazo persistido (nunca recalculado) y vencimiento; y dado un operador con el permiso de atención, cuando responde, entonces la respuesta se registra una sola vez por clave de idempotencia, con evento de outbox, y el reclamo cambia de estado según CU-52.
 **DoD:** `./gradlew :servicios:cumplimiento:spotlessCheck compileJava integrationTest --tests '*CU52*'` verde + autorización negativa.
-**Estado:** TODO
+**Estado:** HECHO a nivel `TESTED` (evidencia H3-00…H3-04); sin prueba contra el servicio levantado (igual que H2).
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H3.S1.M1 | Descubrir: qué expone `CU52AtenderReclamo` (ingresar/responder/prorrogar), su permiso en el CU-52 y los estados de `reclamo_cliente` | Lista con archivo:línea | lectura citada en `evidencia/` | TODO |
-| H3.S1.M2 | Contrato `GET /reclamos` (paginado) + `POST /reclamos/{reclamoId}/respuesta` en `cumplimiento.yaml` | genera y compila | `./gradlew :servicios:cumplimiento:compileJava` exit 0 | TODO |
-| H3.S1.M3 | Bandeja: repositorio keyset + controlador con `RECLAMO_VER` | correcto/límite/inválido + 403 | `integrationTest --tests '*CU52BandejaTest*'` | TODO |
-| H3.S1.M4 | Respuesta: controlador → `CU52AtenderReclamo` existente con idempotencia | doble envío = 1 efecto; reclamo inexistente = 404; ya respondido = 409 | `integrationTest --tests '*CU52RespuestaTest*'` | TODO |
+| H3.S1.M1 | Descubrir qué expone `CU52AtenderReclamo`, permisos y estados | Lista con archivo:línea | `evidencia/H3-00-linea-base-cumplimiento.txt` + hallazgos en este plan (A-6, A-7) | HECHO |
+| H3.S1.M2 | Contrato en `cumplimiento.yaml`: `GET /reclamos` (`listarBandejaDeReclamos`, vencimientos primero, cursor `(limiteVigente, id)`, `estados` opcional con default abiertos), `GET /reclamos/{reclamoId}` (`consultarReclamo`, ficha con descripción), `POST /reclamos/{reclamoId}/respuesta` (`responderReclamo`, `Idempotency-Key`) y códigos `AP-CU52-05/06/07` | genera y compila | `./gradlew :servicios:cumplimiento:compileJava` exit 0 | HECHO |
+| H3.S1.M3 | Bandeja: repositorio keyset + `ConsultarBandejaDeReclamos` + controlador con `RECLAMO_VER` | correcto (orden por vencimiento, 2 páginas sin repetir) / límite (vacía; prorrogado ordena por la prórroga) / inválido (cursor a medias o estado desconocido `AP-CU52-07`) | `integrationTest --tests '*CU52BandejaTest*'` | HECHO |
+| H3.S1.M4 | Respuesta: controlador → `CU52AtenderReclamo.responder` con idempotencia **por estado** (no hay `respuesta_idempotente` en el esquema `cumplimiento`): mismo responsable + mismo resultado/texto/devolución sobre reclamo ya cerrado ⇒ mismo recibo, sin segundo evento; cualquier otra cosa `AP-CU52-06`; inexistente `AP-CU52-05` | doble envío = 1 evento | `integrationTest --tests '*CU52RespuestaTest*'` | HECHO |
+| H3.S1.M5 | Ficha `GET /reclamos/{id}` con `RECLAMO_ATENDER` (el texto del reclamo solo lo ve quien lo atiende) | 200 / 404→`AP-CU52-05` / 403 | `webTest --tests '*ReclamosBandejaWebTest*'` | HECHO |
+| H3.S1.M6 | Matriz HTTP: 401/403 por ruta, 400 por enum/limite, forma JSON; bóveda CU-52 y Postman al día; regresión de `cumplimiento` | 0 fallas | `./gradlew :servicios:cumplimiento:spotlessCheck test webTest testBarrido integrationTest` + `verificar_criterios.py` + `verificar_boveda.py` | HECHO |
 
 ## H4 — A6 · Ejercicios y período vigente (`erp`)
 
