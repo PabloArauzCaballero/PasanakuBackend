@@ -211,4 +211,7 @@ class DesembolsosControllerWebTest {
             verifyNoInteractions(cu28);
         }
     }
+
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private bo.aportaya.entregas.aplicacion.ConsultarDesembolsos consultas;
 }

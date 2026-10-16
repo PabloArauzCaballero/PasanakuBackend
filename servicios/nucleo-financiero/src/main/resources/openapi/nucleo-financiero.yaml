@@ -738,8 +738,8 @@ paths:
   # encaje roto no SALE dinero, pero SI entra — dejar entrar plata mejora el encaje.
   #   AP-CU50-01 SIN_CIERRES_DIARIOS · AP-CU50-02 SIN_EXTRACTO_BANCARIO
   #   AP-CU50-03 CONCILIACION_DUPLICADA (otra conciliacion de esa cuenta y dia, con otros saldos)
-  #   AP-CU50-04 FILTRO_DE_LISTADO_INVALIDO · AP-CU50-05 MONEDA_DISTINTA_A_LA_CUSTODIA
-  #   AP-CU50-06 CUENTA_CUSTODIA_INEXISTENTE
+  #   AP-CU50-04 FILTRO_DE_LISTADO_INVALIDO · AP-CU50-05 MONEDA_DISTINTA_DE_LA_CUSTODIA
+  #   AP-CU50-06 CUSTODIA_INEXISTENTE
   /custodia/conciliaciones:
     get:
       operationId: listarConciliaciones             # CU-50 (backoffice carril A · H8)

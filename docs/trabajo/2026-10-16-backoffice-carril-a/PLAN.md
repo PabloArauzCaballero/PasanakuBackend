@@ -184,7 +184,7 @@ servidor** (nunca enviado por el cliente).
 | H8.S2.M1 | `GET /contabilidad/cierres-diarios` (`AUDITORIA_LEER`) | correcto/límite/inválido + 403 | `integrationTest --tests '*CU51CierresTest*'` + webTest | HECHO — `evidencia/H8-01-regresion-nucleo-financiero.txt` |
 | H8.S2.M2 | Ejecutar el cierre diario por HTTP: `CU51` recibe los totales del recaudo **desde afuera** (`aportes`). Exponerlo con totales del cliente sería confiarle cifras; se resuelve con puerto + adaptador HTTP al resumen de `aportes` + doble en tres niveles (regla 65) | ver H8.S2.M3 | idem | TODO |
 | H8.S3.M1 | `GET /contabilidad/reversos` (`AUDITORIA_LEER`): reversos con estado, tipo y monto | correcto/límite/inválido + 403 | `integrationTest --tests '*CU14ReversosTest*'` + webTest | HECHO — `evidencia/H8-01-regresion-nucleo-financiero.txt` |
-| H8.S4.M1 | `GET /desembolsos` en `entregas` (`ENTREGA_EJECUTAR` o `AUDITORIA_LEER`): por omisión las excepciones (`RECHAZADA`, `DEVUELTA_POR_BANCO`, `EN_PROCESO`) | correcto/límite/inválido + 403 | `:servicios:entregas:integrationTest --tests '*CU28DesembolsosTest*'` + webTest | TODO |
+| H8.S4.M1 | `GET /desembolsos` en `entregas` (`ENTREGA_EJECUTAR` o `AUDITORIA_LEER`): por omisión las excepciones (`RECHAZADA`, `DEVUELTA_POR_BANCO`, `EN_PROCESO`) | correcto/límite/inválido + 403 | `:servicios:entregas:integrationTest --tests '*CU28DesembolsosTest*'` + webTest | HECHO — `evidencia/H8-02-regresion-entregas.txt` |
 | H8.S5.M1 | Bóveda, Postman, regresión de `nucleo-financiero` y `entregas`, commit y push | 0 fallas | regresión + gates | TODO |
 
 ## H9 — Ola 4 · A5 Cumplimiento, riesgo y seguridad
