@@ -16,6 +16,7 @@
 #   AP-CU100-03  DESCUADRE_DETECTADO          · total_debe != total_haber al cerrar
 #   AP-CU100-04  SIN_PERIODO_VIGENTE          · ningun periodo contiene la fecha de hoy (America/La_Paz):
 #                                              no hay ejercicio abierto para hoy, y no se inventa uno
+#   AP-CU100-05  EJERCICIO_INEXISTENTE        · ese ejercicio fiscal no existe
 #
 # CU-101 · Presupuestar por centro de costo
 #   AP-CU101-01  CENTRO_COSTO_INEXISTENTE     · el centro no existe o esta inactivo
@@ -47,6 +48,8 @@
 # CU-106 · Generar el estado financiero del periodo
 #   AP-CU106-01  YA_GENERADO_PARA_ESE_PERIODO · un estado por periodo y tipo (R-CTB-08)
 #   AP-CU106-02  CUENTA_PLANTILLA_INVALIDA    · la plantilla apunta a una sumarizadora
+#   AP-CU106-03  ESTADO_FINANCIERO_INEXISTENTE · ese estado financiero no existe
+#   AP-CU106-04  INTEGRIDAD_DEL_DOCUMENTO     · lo guardado ya no da el hash sellado: no se entrega
 #
 # NOTA · divergencias declaradas contra la boveda, con su detalle en
 # planes/informes/carril-3D-erp.md:
@@ -117,6 +120,32 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/SalidaEjercicio' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /erp/ejercicios/{ejercicioId}/periodos:
+    get:
+      operationId: listarPeriodosDelEjercicio   # CU-100 (backoffice carril A · H7)
+      summary: Los periodos de un ejercicio, con su cierre si lo tienen
+      description: >-
+        A lo sumo doce filas (un periodo por mes): no pagina. Los totales debe/haber son los
+        SELLADOS en el cierre (cierre_periodo_contable, append-only); un periodo abierto los trae
+        en null, porque calcularlos en vivo exigiria leer el libro de nucleo_financiero y esa
+        lectura cruzada ya esta acotada al cierre (invariante 11 declarado). Mismos permisos que
+        listarEjerciciosFiscales.
+      parameters:
+        - { name: ejercicioId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: El ejercicio y sus periodos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PeriodosDelEjercicio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU100-05 EJERCICIO_INEXISTENTE
+        '403':
+          description: Sin ningun permiso de Contabilidad
+        '401':
+          description: Sin sesion
 
   /erp/periodos/vigente:
     get:
@@ -408,6 +437,35 @@ paths:
               schema: { $ref: '#/components/schemas/SalidaEstadoFinanciero' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
+  /erp/estados-financieros/{estadoFinancieroId}/documento:
+    get:
+      operationId: descargarEstadoFinanciero    # CU-106 (backoffice carril A · H7)
+      summary: El documento sellado del estado financiero, con su hash en X-Hash-Contenido
+      description: >-
+        El servidor reconstruye el texto canonico desde lo guardado con la MISMA funcion que lo
+        sello, recalcula su SHA-256 y solo lo entrega si coincide con el hash guardado; la
+        cabecera X-Hash-Contenido repite ese hash. El cliente compara, no recalcula. Si no
+        coincide, AP-CU106-04 y no se entrega nada. Exige CONTABILIDAD_ERP_REPORTES.
+      parameters:
+        - { name: estadoFinancieroId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: El documento sellado (JSON canonico)
+          headers:
+            X-Hash-Contenido:
+              description: SHA-256 del documento entregado, igual al sellado al generarlo
+              schema: { type: string }
+          content:
+            application/json:
+              schema: { type: string, format: binary }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU106-03 ESTADO_FINANCIERO_INEXISTENTE · AP-CU106-04 INTEGRIDAD_DEL_DOCUMENTO
+        '403':
+          description: Sin CONTABILIDAD_ERP_REPORTES
+        '401':
+          description: Sin sesion
+
   /erp/plantillas-de-asiento/{plantillaId}/validacion:
     get:
       operationId: validarPlantillaDeAsiento
@@ -470,6 +528,35 @@ components:
       required: true
       schema: { type: string, format: uuid }
   schemas:
+    PeriodosDelEjercicio:
+      type: object
+      additionalProperties: false
+      required: [ejercicioId, anio, estado, periodos]
+      properties:
+        ejercicioId: { type: string, format: uuid }
+        anio: { type: integer }
+        estado: { type: string, enum: [ABIERTO, CERRADO] }
+        periodos:
+          type: array
+          maxItems: 12
+          items: { $ref: '#/components/schemas/PeriodoConCierre' }
+    PeriodoConCierre:
+      type: object
+      additionalProperties: false
+      required: [periodoId, mes, estado, fechaInicio, fechaFin]
+      properties:
+        periodoId: { type: string, format: uuid }
+        mes: { type: integer, minimum: 1, maximum: 12 }
+        estado: { type: string, enum: [ABIERTO, CERRADO] }
+        fechaInicio: { type: string, format: date }
+        fechaFin: { type: string, format: date }
+        cerradoEn: { type: [string, 'null'], format: date-time }
+        totalDebe:
+          description: Sellado en el cierre; null mientras el periodo este abierto.
+          oneOf: [ { $ref: '#/components/schemas/Monto' }, { type: 'null' } ]
+        totalHaber:
+          description: Sellado en el cierre; null mientras el periodo este abierto.
+          oneOf: [ { $ref: '#/components/schemas/Monto' }, { type: 'null' } ]
     PaginaDeEjercicios:
       type: object
       additionalProperties: false

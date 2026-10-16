@@ -46,4 +46,7 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private CU106GenerarEstadoFinanciero cu106GenerarEstadoFinanciero;
+
+    @MockitoBean
+    private bo.aportaya.erp.aplicacion.CU106DescargarEstadoFinanciero descarga;
 }

@@ -245,4 +245,54 @@ final class MapeoDeErp {
         respuesta.setHaberes(plantilla.haberes());
         return respuesta;
     }
+
+    static bo.aportaya.erp.aplicacion.CU102AltaDeTercero.EntradaTercero tercero(
+            bo.aportaya.erp.web.generado.modelo.EntradaTercero cuerpo) {
+        return new bo.aportaya.erp.aplicacion.CU102AltaDeTercero.EntradaTercero(
+                cuerpo.getTipo().getValue(),
+                cuerpo.getRazonSocial(),
+                cuerpo.getNumeroDocumento(),
+                cuerpo.getEmail(),
+                cuerpo.getCuentaContableId());
+    }
+
+    static bo.aportaya.erp.web.generado.modelo.PeriodosDelEjercicio periodosDelEjercicio(
+            bo.aportaya.erp.aplicacion.CU100AbrirCerrarPeriodo.PeriodosDelEjercicio ejercicio) {
+        var salida = new bo.aportaya.erp.web.generado.modelo.PeriodosDelEjercicio();
+        salida.setEjercicioId(ejercicio.ejercicioId());
+        salida.setAnio(ejercicio.anio());
+        salida.setEstado(
+                bo.aportaya.erp.web.generado.modelo.PeriodosDelEjercicio.EstadoEnum.fromValue(ejercicio.estado()));
+        salida.setPeriodos(ejercicio.periodos().stream()
+                .map(p -> {
+                    var r = new bo.aportaya.erp.web.generado.modelo.PeriodoConCierre();
+                    r.setPeriodoId(p.periodoId());
+                    r.setMes(p.mes());
+                    r.setEstado(bo.aportaya.erp.web.generado.modelo.PeriodoConCierre.EstadoEnum.fromValue(p.estado()));
+                    r.setFechaInicio(p.desde());
+                    r.setFechaFin(p.hasta());
+                    r.setCerradoEn(p.cerradoEn().orElse(null));
+                    r.setTotalDebe(p.totalDebe().map(MapeoDeErp::monto).orElse(null));
+                    r.setTotalHaber(p.totalHaber().map(MapeoDeErp::monto).orElse(null));
+                    return r;
+                })
+                .toList());
+        return salida;
+    }
+
+    /** La cabecera en la que se repite el hash del documento entregado (el cliente compara, no recalcula). */
+    static final String CABECERA_DE_HASH = "X-Hash-Contenido";
+
+    static org.springframework.http.ResponseEntity<org.springframework.core.io.Resource> documento(
+            bo.aportaya.erp.aplicacion.CU106DescargarEstadoFinanciero.Documento doc) {
+        String nombre = doc.tipo().toLowerCase(java.util.Locale.ROOT).replace('_', '-') + "-"
+                + doc.hashContenido().substring(0, 8) + ".json";
+        return org.springframework.http.ResponseEntity.ok()
+                .header(CABECERA_DE_HASH, doc.hashContenido())
+                .header(
+                        org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + nombre + "\"")
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .body(new org.springframework.core.io.ByteArrayResource(doc.contenido()));
+    }
 }

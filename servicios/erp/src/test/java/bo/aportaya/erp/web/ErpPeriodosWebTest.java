@@ -67,6 +67,9 @@ class ErpPeriodosWebTest {
     @MockitoBean
     private CU106GenerarEstadoFinanciero cu106;
 
+    @MockitoBean
+    private bo.aportaya.erp.aplicacion.CU106DescargarEstadoFinanciero descarga;
+
     private static CU100AbrirCerrarPeriodo.PeriodoVigente marzo() {
         return new CU100AbrirCerrarPeriodo.PeriodoVigente(
                 PERIODO, EJERCICIO, 2026, 3, "ABIERTO", LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 31));
@@ -150,5 +153,81 @@ class ErpPeriodosWebTest {
                         .with(Sesiones.como("CONTABILIDAD", "CONTABILIDAD_ERP_REPORTES")))
                 .andExpect(status().isBadRequest());
         verifyNoInteractions(cu100);
+    }
+
+    @Test
+    @DisplayName("200: los periodos de un ejercicio, con totales sellados solo en el cerrado; 422 si no existe")
+    void periodosDelEjercicio() throws Exception {
+        when(cu100.periodosDelEjercicio(eq(EJERCICIO), any()))
+                .thenReturn(new CU100AbrirCerrarPeriodo.PeriodosDelEjercicio(
+                        EJERCICIO,
+                        2026,
+                        "ABIERTO",
+                        List.of(
+                                new CU100AbrirCerrarPeriodo.PeriodoConCierre(
+                                        PERIODO,
+                                        1,
+                                        "CERRADO",
+                                        LocalDate.of(2026, 1, 1),
+                                        LocalDate.of(2026, 1, 31),
+                                        Optional.of(java.time.OffsetDateTime.parse("2026-02-02T15:00:00Z")),
+                                        Optional.of(new java.math.BigDecimal("1500.00")),
+                                        Optional.of(new java.math.BigDecimal("1500.00"))),
+                                new CU100AbrirCerrarPeriodo.PeriodoConCierre(
+                                        UUID.randomUUID(),
+                                        2,
+                                        "ABIERTO",
+                                        LocalDate.of(2026, 2, 1),
+                                        LocalDate.of(2026, 2, 28),
+                                        Optional.empty(),
+                                        Optional.empty(),
+                                        Optional.empty()))));
+        when(cu100.periodosDelEjercicio(eq(PERIODO), any()))
+                .thenThrow(new ErrorDeNegocio(CodigoError.de(100, 5), "Ese ejercicio fiscal no existe."));
+
+        mvc.perform(get("/erp/ejercicios/{id}/periodos", EJERCICIO)
+                        .with(Sesiones.como("TESORERIA", "CONTABILIDAD_ERP_COBRAR")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.periodos[0].totalDebe").value("1500.00"))
+                .andExpect(jsonPath("$.periodos[1].totalDebe").doesNotExist())
+                .andExpect(jsonPath("$.periodos[1].estado").value("ABIERTO"));
+        mvc.perform(get("/erp/ejercicios/{id}/periodos", PERIODO)
+                        .with(Sesiones.como("CONTABILIDAD", "CONTABILIDAD_ERP_REPORTES")))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.codigo").value("AP-CU100-05"));
+        mvc.perform(get("/erp/ejercicios/{id}/periodos", EJERCICIO)
+                        .with(Sesiones.como("PARTICIPANTE", "BILLETERA_VER")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("200: el documento sellado con su hash repetido en X-Hash-Contenido; 422 si la integridad no cierra")
+    void documentoSellado() throws Exception {
+        byte[] contenido =
+                "{\"tipo\":\"BALANCE_GENERAL\",\"renglones\":[]}".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        when(descarga.descargar(eq(EJERCICIO), any()))
+                .thenReturn(new bo.aportaya.erp.aplicacion.CU106DescargarEstadoFinanciero.Documento(
+                        EJERCICIO,
+                        "BALANCE_GENERAL",
+                        java.time.OffsetDateTime.parse("2026-02-02T15:00:00Z"),
+                        contenido,
+                        "a1b2c3d4e5f6"));
+        when(descarga.descargar(eq(PERIODO), any()))
+                .thenThrow(new ErrorDeNegocio(CodigoError.de(106, 4), "No se entrega."));
+
+        mvc.perform(get("/erp/estados-financieros/{id}/documento", EJERCICIO)
+                        .with(Sesiones.como("AUDITOR_INTERNO", "CONTABILIDAD_ERP_REPORTES")))
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header()
+                        .string("X-Hash-Contenido", "a1b2c3d4e5f6"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .bytes(contenido));
+        mvc.perform(get("/erp/estados-financieros/{id}/documento", PERIODO)
+                        .with(Sesiones.como("AUDITOR_INTERNO", "CONTABILIDAD_ERP_REPORTES")))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.codigo").value("AP-CU106-04"));
+        mvc.perform(get("/erp/estados-financieros/{id}/documento", EJERCICIO)
+                        .with(Sesiones.como("TESORERIA", "CONTABILIDAD_ERP_PAGAR")))
+                .andExpect(status().isForbidden());
     }
 }
