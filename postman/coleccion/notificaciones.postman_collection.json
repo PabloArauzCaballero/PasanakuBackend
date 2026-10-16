@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AportaYa · notificaciones",
-    "description": "# AportaYa · notificaciones\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**4 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · notificaciones\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**6 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -116,7 +116,7 @@
             }
           ]
         },
-        "description": "## Procesar una respuesta entrante\n\nLa unica puerta que abre alguien de afuera. Verifica la firma ANTES de tocar la base, y no revela nada: un remitente desconocido recibe la misma respuesta que un mensaje duplicado. Contestar «ese numero no existe» convertiria este webhook en un directorio de clientes.\n\n| | |\n| --- | --- |\n| **Servicio** | `notificaciones` |\n| **Operacion** | `procesarRespuestaEntrante` |\n| **Ruta** | `POST /api/v1/notificaciones/webhooks/{proveedor}` |\n| **Permiso** | **ruta publica, sin sesion** |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU82-01` | Firma invalida |\n| `AP-CU82-02` | Remitente desconocido |\n| `AP-CU82-03` | Mensaje duplicado |\n| `AP-CU80-01` | Sin plantilla aprobada |\n| `AP-CU80-02` | Canal no verificado |\n| `AP-CU80-03` | Destinatario suprimido |\n| `AP-CU80-04` | Evento reservado |\n| `AP-CU81-01` | Periodo no abierto |\n| `AP-CU81-02` | Sin programacion |\n| `AP-CU83-01` | Sin proveedor para canal |\n| `AP-CU83-02` | Envio ya procesado |\n| `AP-CU83-03` | Ritmo excedido |\n| `AP-CU83-04` | Proveedor degradado |\n| `AP-CU83-05` | Agotados los reintentos |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Procesar una respuesta entrante\n\nLa unica puerta que abre alguien de afuera. Verifica la firma ANTES de tocar la base, y no revela nada: un remitente desconocido recibe la misma respuesta que un mensaje duplicado. Contestar «ese numero no existe» convertiria este webhook en un directorio de clientes.\n\n| | |\n| --- | --- |\n| **Servicio** | `notificaciones` |\n| **Operacion** | `procesarRespuestaEntrante` |\n| **Ruta** | `POST /api/v1/notificaciones/webhooks/{proveedor}` |\n| **Permiso** | **ruta publica, sin sesion** |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU82-01` | Firma invalida |\n| `AP-CU82-02` | Remitente desconocido |\n| `AP-CU82-03` | Mensaje duplicado |\n| `AP-CU80-01` | Sin plantilla aprobada |\n| `AP-CU80-02` | Canal no verificado |\n| `AP-CU80-03` | Destinatario suprimido |\n| `AP-CU80-04` | Evento reservado |\n| `AP-CU80-05` | Filtro de listado invalido |\n| `AP-CU81-01` | Periodo no abierto |\n| `AP-CU81-02` | Sin programacion |\n| `AP-CU83-01` | Sin proveedor para canal |\n| `AP-CU83-02` | Envio ya procesado |\n| `AP-CU83-03` | Ritmo excedido |\n| `AP-CU83-04` | Proveedor degradado |\n| `AP-CU83-05` | Agotados los reintentos |\n| `AP-CU83-06` | Filtro de listado invalido |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"canal\": \"IN_APP\",\n  \"remitente\": \"remitente-de-prueba\",\n  \"firma\": \"firma-de-prueba\",\n  \"cargaUtil\": \"cargaUtil-de-prueba\",\n  \"contenido\": \"contenido-de-prueba\",\n  \"claveIdempotencia\": \"claveIdempotencia-de-prueba\",\n  \"notificacionRelacionadaId\": \"{{notificacionRelacionadaId}}\"\n}",
@@ -136,6 +136,190 @@
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
               "const esperadas = [200, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "listarPlantillas · Plantillas de mensaje y sus versiones, de la mas reciente a la mas antigua",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/notificaciones/plantillas",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "notificaciones",
+            "plantillas"
+          ],
+          "variable": [],
+          "query": [
+            {
+              "key": "estados",
+              "value": "['estados-de-prueba']",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "limite",
+              "value": "1",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "antesDe",
+              "value": "{{momento_ahora}}",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "antesDeId",
+              "value": "{{antesDeId}}",
+              "description": "",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "## Plantillas de mensaje y sus versiones, de la mas reciente a la mas antigua\n\nUna fila por version de plantilla, con el codigo, el evento, el canal, el estado de aprobacion del proveedor y la vigencia. SIN asunto, cuerpo, botones ni media: la lista dice que plantilla rige, no lo que dice. Sin filtro trae todos los estados de aprobacion. Cursor (vigenteDesde, versionId) descendente. Exige AUDITORIA_LEER.\n\n| | |\n| --- | --- |\n| **Servicio** | `notificaciones` |\n| **Operacion** | `listarPlantillas` |\n| **Ruta** | `GET /api/v1/notificaciones/plantillas` |\n| **Permiso** | `AUDITORIA_LEER` |\n| **Respuestas** | `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "listarEnvios · Intentos de envio y su estado de entrega, del mas reciente al mas antiguo",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/notificaciones/envios",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "notificaciones",
+            "envios"
+          ],
+          "variable": [],
+          "query": [
+            {
+              "key": "estados",
+              "value": "['estados-de-prueba']",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "limite",
+              "value": "1",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "antesDe",
+              "value": "{{momento_ahora}}",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "antesDeId",
+              "value": "{{antesDeId}}",
+              "description": "",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "## Intentos de envio y su estado de entrega, del mas reciente al mas antiguo\n\nAuditoria operativa de la mensajeria: estado, intentos, proveedor, costo con su moneda y el ultimo acuse del proveedor. SIN destinatario, contenido enviado, identificador del mensaje en el proveedor ni carga cruda del acuse: telefono y correo son datos personales (regla 90.2). Sin filtro trae todos los estados. Cursor (encoladoEn, id) descendente. Exige AUDITORIA_LEER.\n\n| | |\n| --- | --- |\n| **Servicio** | `notificaciones` |\n| **Operacion** | `listarEnvios` |\n| **Ruta** | `GET /api/v1/notificaciones/envios` |\n| **Permiso** | `AUDITORIA_LEER` |\n| **Respuestas** | `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -356,11 +540,19 @@
   ],
   "variable": [
     {
+      "key": "antesDeId",
+      "value": ""
+    },
+    {
       "key": "base_url",
       "value": ""
     },
     {
       "key": "destinatarioId",
+      "value": ""
+    },
+    {
+      "key": "momento_ahora",
       "value": ""
     },
     {

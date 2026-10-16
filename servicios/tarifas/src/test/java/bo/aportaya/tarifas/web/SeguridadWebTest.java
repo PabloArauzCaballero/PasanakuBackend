@@ -50,4 +50,7 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private ConsultarTarifarioVigente consultarTarifarioVigente;
+
+    @MockitoBean
+    private bo.aportaya.tarifas.aplicacion.ConsultarTarifarios consultarTarifarios;
 }
