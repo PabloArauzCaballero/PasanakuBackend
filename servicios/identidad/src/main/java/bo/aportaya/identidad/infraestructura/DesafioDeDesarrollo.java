@@ -67,6 +67,11 @@ public class DesafioDeDesarrollo implements DesafioDeFactor {
     }
 
     @Override
+    public boolean entregaPorCorreoConfirmada(UUID usuarioId) {
+        return real.entregaPorCorreoConfirmada(usuarioId);
+    }
+
+    @Override
     public boolean validar(UUID usuarioId, String tipoDeFactor, String valorPresentado) {
         if (CODIGO.equals(valorPresentado)) {
             return true;

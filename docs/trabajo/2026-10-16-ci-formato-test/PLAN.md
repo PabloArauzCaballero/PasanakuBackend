@@ -31,7 +31,8 @@
 | H1.S1.M3 | `dart format` en `diseno_flutter` y `movil` | sin cambios pendientes | `dart format --output=none --set-exit-if-changed lib test` → rc 0 | HECHO (`evidencia/m3-dart-format.txt`, commit 6caf30e9) |
 | H1.S1.M4 | Barrido por debajo de 300 líneas | `testBarrido` pasa | `./gradlew testBarrido` → rc 0 | HECHO (`evidencia/m4-barrido.txt`, rc=0) |
 | H1.S1.M5 | Regresión de identidad | tests de identidad en verde | `./gradlew :servicios:identidad:test :servicios:identidad:webTest` | HECHO — test 35/35, webTest 120/120 con `--rerun` (`evidencia/m5-identidad.txt`) |
-| H1.S2.M1 | PR → `test` (#99) y → `dev` con la misma cabeza | MERGEABLE, checks verdes | `gh pr view --json mergeable,statusCheckRollup` | EN CURSO |
+| H1.S2.M1 | PR → `test` (#99) y → `dev` con la misma cabeza | MERGEABLE, checks verdes | `gh pr view --json mergeable,statusCheckRollup` | HECHO — #99 (24383231) y #103 (9c888371) |
+| H1.S2.M3 | (agregada) Sincronizar `dev` y `test` con una rama `test` + `dev` | `rev-list` en 0 para ambos sentidos | `git rev-list --count origin/dev..origin/test` y al revés → 0 / diff vacío | EN CURSO |
 | H1.S2.M2 | (agregada) Rama para `dev`: resolver la doble división de `UsuariosControllerWebTest` (#97 vs #98) | sin tests duplicados ni perdidos; checks de dev en verde | spotless/barrido/dart/identidad en `wt-dev` → rc 0 | HECHO — `evidencia/dev-*.txt`, test 35/35, webTest 123/123 |
 
 Simulación del bloqueo (regla 65) para H1.S1.M1: el contrato es "dev sin rojos de formato/barrido". Si la

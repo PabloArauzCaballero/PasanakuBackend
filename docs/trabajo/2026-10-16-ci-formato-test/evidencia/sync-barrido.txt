@@ -1,0 +1,6 @@
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /private/tmp/claude-501/-Users-pablo-Documents-GitHub-Pasanaku/3fbfc8d5-59d5-4201-8975-756685bb04b8/scratchpad/wt-dev/servicios/identidad/build/generated/openapi

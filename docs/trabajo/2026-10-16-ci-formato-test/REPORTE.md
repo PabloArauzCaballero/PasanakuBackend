@@ -1,6 +1,6 @@
 # Reporte — `test` y `dev` vuelven a pasar formato, barrido y `dart format`
 
-> **AVANCE: 6 / 7 — 85,7 %.**
+> **AVANCE: 7 / 8 — 87,5 %.**
 
 - Fecha: 2026-10-16 · Plan: [PLAN.md](./PLAN.md)
 - Ramas: `pablo/fix/ci-formato-test-2026-10-16` (PR #99 → `test`) y `pablo/merge/ci-test-a-dev-2026-10-16` (PR → `dev`), con la misma cabeza `1fad9ffe` o su descendiente con este reporte.
@@ -14,15 +14,19 @@
 | H1.S1.M3 | `dart format` en `diseno_flutter` (6) y `movil` (7) | `dart format --output=none --set-exit-if-changed lib test` | PASS — `evidencia/m3-dart-format.txt` |
 | H1.S1.M4 | Barrido de 300 líneas | `./gradlew testBarrido` | PASS — `evidencia/m4-barrido.txt` |
 | H1.S1.M5 | Regresión de identidad sobre la rama de test | `./gradlew :servicios:identidad:test --rerun :servicios:identidad:webTest --rerun` | PASS — 35/35 y 120/120, `evidencia/m5-identidad.txt` |
+| H1.S2.M1 | #99 → `test` y #103 → `dev` mergeados | `gh pr view 99/103` | PASS — merge 24383231 y 9c888371 |
 | H1.S2.M2 | Rama para dev: #97 (ya en dev) y #98 partieron `UsuariosControllerWebTest` de dos formas. Queda la de #97 (`UsuariosConsultasSensiblesWebTest`); se quitan `UsuariosControllerConsultasWebTest` y `ArnesDeUsuariosController` | spotless, barrido, dart format e identidad en la rama de dev | PASS — `evidencia/dev-*.txt`, 35/35 y 123/123 |
 
 ## A medias
 ninguna
 
 ## Pendiente
+
+H1.S2.M1 quedó HECHO: #99 se mergeó en `test` (24383231, con la cabeza vieja 7c5727d4) y #103 en `dev` (9c888371).
+
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| H1.S2.M1 | EN CURSO → merge de los PRs a `test` (#99) y a `dev` | CI de los PRs y `gh pr merge`. Si el modo auto bloquea el merge, lo hace Pablo. |
+| H1.S2.M3 | EN CURSO | PRs de `pablo/sync/dev-test-2026-10-16` a `test` y a `dev` (misma cabeza): CI y merge. |
 
 ## Evidencia
 ```text
@@ -46,6 +50,7 @@ identidad: test 35/35, webTest 123/123 (BUILD SUCCESSFUL, --rerun)
 - En los PRs hacia `test` no corre `ci.yml`; el CI completo solo corre en el PR hacia `dev`.
 
 ## Desvíos del plan
+- #99 se mergeó con la cabeza vieja (7c5727d4) antes de que llegara 3279d9c7, así que `test` quedó con la división duplicada de #98, y `dev` y `test` divergieron (4 y 14 commits). Se agregó H1.S2.M3: una rama `test` + `dev` que entra limpia en las dos. En ella se verificó: spotless 0, barrido 0, dart 0, identidad 35/35 y 123/123 (`evidencia/sync-*.txt`).
 - Se agregó H1.S2.M2: `dev` avanzó con #97 mientras tanto, que partió los mismos archivos de otra forma que #98.
 - El PR a `test` (#99) se actualizó a la misma cabeza que el PR a `dev`, para que las dos ramas queden idénticas.
 

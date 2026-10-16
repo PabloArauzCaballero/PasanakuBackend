@@ -138,6 +138,7 @@ paths:
           # AP-CU04-03 FACTOR_REQUERIDO   · AP-CU04-04 TOKEN_VENCIDO
           # AP-CU04-05 DEMASIADOS_INTENTOS · AP-CU04-06 FACTOR_NO_ENROLADO
           # AP-CU04-07 FACTOR_NO_ADMISIBLE (R-SEG-10)
+          # AP-CU04-10 FACTOR_ENVIADO_POR_CORREO: el codigo ya salio al correo verificado (vence en 10 minutos)
       # Con `plataforma: WEB` la respuesta 200 trae ademas `Set-Cookie: aportaya_refresco`
       # (HttpOnly; Secure; SameSite=Strict; Path=/api/v1/sesion), el refresh de ADR-010.
       # Android/iOS reciben el refresh rotatorio en tokenRefresco (cuerpo); WEB lo recibe
