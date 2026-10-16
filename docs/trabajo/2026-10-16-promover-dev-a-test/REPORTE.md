@@ -1,6 +1,6 @@
 # Reporte — Resolver conflictos de la promoción dev → test
 
-> **AVANCE: 5 / 6 — 83,3 %.**
+> **AVANCE: 6 / 6 — 100 %.** CI del PR #95 pendiente; la de `test` ya estaba en rojo.
 
 - Fecha: 2026-10-16 · Plan: [PLAN.md](./PLAN.md) · Rama: `pablo/merge/dev-a-test-2026-10-16` (base `origin/dev` + merge de `origin/test`)
 - Peldaño de evidencia alcanzado: `TESTED` (tests locales dirigidos en verde; la CI de la rama todavía no corrió)
@@ -12,14 +12,11 @@
 | H1.S1.M2 | Backoffice cumplimiento: versión de `test` (agrega el correo, #87; búsqueda vía `coincideConBusqueda`) | `yarn typecheck` · `yarn test:front` | exit 0 · 73 archivos, 482 tests PASS |
 | H1.S1.M3 | Identidad: versión de `test` en los 4 archivos con conflicto, más `ExpedienteDeIdentidad.java` y `SeguridadWebTest.java`, que git fusionó solo pero con constructor y campo `cerrarSesion` duplicados | `./gradlew :servicios:identidad:test --rerun-tasks` | BUILD SUCCESSFUL · 35 tests, 0 fallos |
 | H1.S1.M4 | Goldens de capturas: versión de `test` (con la de `dev`, 3 fallan por diferencias de 39–97 %) | `flutter test test/widget/paso_capturas_test.dart` | `+4: All tests passed!` |
+| H1.S1.M5 | PR #95 abierto hacia `test`; #94 cerrado | `gh pr view 95 --json mergeable` | `MERGEABLE` |
 | H1.S1.M6 | `VerificacionesControllerWebTest` (roto ya en `test`) pasa `null` como teléfono al constructor de 12 campos | `./gradlew :servicios:identidad:test` | incluido en los 35 PASS |
 
 ## A medias
-### H1.S1.M5 — Commit, push y PR hacia test
-- Qué anda: merge resuelto, sin marcadores de conflicto, tests locales en verde.
-- Qué no anda: no se verificó todavía la CI de GitHub sobre la rama.
-- Qué falta exactamente: que la CI del PR nuevo corra y `gh pr view --json mergeable` dé MERGEABLE.
-- Dónde quedó: rama `pablo/merge/dev-a-test-2026-10-16`, compila.
+ninguna
 
 ## Pendiente
 ninguna

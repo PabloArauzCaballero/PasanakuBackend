@@ -26,7 +26,7 @@
 | H1.S1.M3 | Resolver identidad (4 archivos) | compila y pasan los tests | `./gradlew :servicios:identidad:test` → BUILD SUCCESSFUL | HECHO |
 | H1.S1.M4 | Resolver goldens móvil (3 png) | test de widget de capturas pasa | `flutter test` de capturas → All tests passed | HECHO |
 | H1.S1.M6 | `VerificacionesControllerWebTest` (roto ya en `test`: llama al constructor sin `telefono`) pasa `null` como teléfono | compila y pasa | `./gradlew :servicios:identidad:test` → BUILD SUCCESSFUL | HECHO |
-| H1.S1.M5 | Commit, push y PR hacia test | PR mergeable | `gh pr view --json mergeable` → MERGEABLE | TODO |
+| H1.S1.M5 | Commit, push y PR hacia test | PR mergeable | `gh pr view --json mergeable` → MERGEABLE | HECHO |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
