@@ -9,7 +9,7 @@
       "cuerpo": {
         "verificacionId": "6b2d9e40-a1c3-4f87-b5d6-e90a38c17d24",
         "destinoEnmascarado": "ju***@ejemplo.test",
-        "expiraEn": "2026-10-08T14:35:00Z"
+        "expiraEn": "2030-01-01T00:10:00Z"
       }
     },
     "vacio": {
@@ -17,7 +17,7 @@
       "cuerpo": {
         "verificacionId": "6b2d9e40-a1c3-4f87-b5d6-e90a38c17d24",
         "destinoEnmascarado": "ju***@ejemplo.test",
-        "expiraEn": "2026-10-08T14:35:00Z"
+        "expiraEn": "2030-01-01T00:10:00Z"
       }
     },
     "adverso": {
@@ -25,7 +25,7 @@
       "cuerpo": {
         "verificacionId": "6b2d9e40-a1c3-4f87-b5d6-e90a38c17d24",
         "destinoEnmascarado": "ju***@ejemplo.test",
-        "expiraEn": "2026-10-08T14:35:00Z"
+        "expiraEn": "2030-01-01T00:10:00Z"
       }
     },
     "aceptado": {
@@ -33,7 +33,7 @@
       "cuerpo": {
         "verificacionId": "6b2d9e40-a1c3-4f87-b5d6-e90a38c17d24",
         "destinoEnmascarado": "ju***@ejemplo.test",
-        "expiraEn": "2026-10-08T14:35:00Z"
+        "expiraEn": "2030-01-01T00:10:00Z"
       }
     },
     "intermitente": {

@@ -1,0 +1,76 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "listarMovimientosBilletera",
+  "metodo": "get",
+  "ruta": "/billetera/{cuentaId}/movimientos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "cuentaId": "46bd71b9-d7fc-45f7-86eb-ebbb21eb9a7b",
+        "movimientos": [
+          {
+            "id": "68b29d83-5d04-4f2f-85b6-22acc5b75cb2",
+            "sentido": "DEBITO",
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "saldoDisponiblePosterior": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "saldoRetenidoPosterior": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "glosa": "glosa",
+            "registradoEn": "2026-01-15T10:30:00Z"
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "cuentaId": "46bd71b9-d7fc-45f7-86eb-ebbb21eb9a7b",
+        "movimientos": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "cuentaId": "46bd71b9-d7fc-45f7-86eb-ebbb21eb9a7b",
+        "movimientos": [
+          {
+            "id": "68b29d83-5d04-4f2f-85b6-22acc5b75cb2",
+            "sentido": "DEBITO",
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "saldoDisponiblePosterior": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "saldoRetenidoPosterior": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "glosa": "glosa",
+            "registradoEn": "2026-01-15T10:30:00Z"
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU13-01",
+        "mensaje": "Cuenta inexistente",
+        "detalle": {},
+        "trazaId": "traza-listarMovimientosBilletera-rechazo"
+      }
+    }
+  }
+}

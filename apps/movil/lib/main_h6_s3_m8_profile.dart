@@ -1,4 +1,5 @@
 import 'dart:ui' show FramePhase, FrameTiming;
+import 'dart:developer' as developer;
 
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
@@ -11,12 +12,19 @@ import 'infraestructura/plataforma.dart';
 import 'pantallas/identidad/dominio/juez_de_pose.dart';
 import 'pantallas/identidad/pantalla_prueba_de_vida.dart';
 
+// Switch de diagnóstico solo para comparar el coste del stream; por defecto,
+// el perfil conserva cámara + ML Kit igual que la pantalla de producción.
+const _omitirStreamMl = bool.fromEnvironment('H6_PROFILE_OMITIR_STREAM_ML');
+
 /// Punto de entrada temporal para medir H6.S3.M8 sin alterar `main.dart`.
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   final medicion = _MedicionDeCuentaAtras();
   SchedulerBinding.instance.addTimingsCallback(medicion.registrar);
-  final camara = _CamaraDePerfil(alIniciarStream: medicion.iniciarVentana);
+  final camara = _CamaraDePerfil(
+    alIniciarStream: medicion.iniciarVentana,
+    omitirStreamMl: _omitirStreamMl,
+  );
   runApp(
     ProviderScope(
       child: MaterialApp(
@@ -44,8 +52,10 @@ class _MedicionDeCuentaAtras {
     final hasta = base + const Duration(milliseconds: 4600);
     _desde = desde;
     _hasta = hasta;
-    // ignore: avoid_print
-    print('H6_PROFILE_WINDOW=${desde.inMicroseconds}:${hasta.inMicroseconds}');
+    developer.log(
+      'H6_PROFILE_WINDOW=${desde.inMicroseconds}:${hasta.inMicroseconds}',
+      name: 'AportaYa.performance',
+    );
   }
 
   void registrar(List<FrameTiming> cuadros) {
@@ -67,8 +77,10 @@ class _MedicionDeCuentaAtras {
   void _imprimir() {
     _reportada = true;
     if (_cuadros.isEmpty) {
-      // ignore: avoid_print
-      print('H6_PROFILE_FRAME_TIMINGS count=0');
+      developer.log(
+        'H6_PROFILE_FRAME_TIMINGS count=0',
+        name: 'AportaYa.performance',
+      );
       return;
     }
     final maxUiMs = _cuadros
@@ -91,22 +103,23 @@ class _MedicionDeCuentaAtras {
               '${(frame.rasterDuration.inMicroseconds / 1000).toStringAsFixed(2)}',
         )
         .join(',');
-    // ignore: avoid_print
-    print(
+    developer.log(
       'H6_PROFILE_FRAME_TIMINGS count=${_cuadros.length} '
       'max_ui_ms=${maxUiMs.toStringAsFixed(2)} '
       'max_raster_ms=${maxRasterMs.toStringAsFixed(2)} '
       'frames_over_16ms=$over16Ms samples_ms=$samples',
+      name: 'AportaYa.performance',
     );
   }
 }
 
 class _CamaraDePerfil implements CamaraEnVivo {
-  _CamaraDePerfil({required this.alIniciarStream})
+  _CamaraDePerfil({required this.alIniciarStream, required this.omitirStreamMl})
     : _real = camaraEnVivoDeLaPlataforma();
 
   final CamaraEnVivo _real;
   final VoidCallback alIniciarStream;
+  final bool omitirStreamMl;
 
   @override
   Future<EstadoDePermiso> pedirPermiso() => _real.pedirPermiso();
@@ -123,7 +136,7 @@ class _CamaraDePerfil implements CamaraEnVivo {
 
   @override
   Future<bool> escucharRostros(void Function(LecturaDeRostro?) alLeer) async {
-    await _real.escucharRostros((_) {});
+    if (!omitirStreamMl) await _real.escucharRostros((_) {});
     alIniciarStream();
     return false;
   }

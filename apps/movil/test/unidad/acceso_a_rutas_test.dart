@@ -31,6 +31,7 @@ void main() {
     '/identidad/contrasena',
     '/identidad/baja',
     '/soporte/ayuda',
+    '/sesion/verificacion',
   ];
   const soloSinSesion = ['/portada', '/tour', '/ingreso', '/registro'];
   const publicas = [
@@ -50,7 +51,7 @@ void main() {
   test(
     'todas las rutas inventariadas tienen acceso predeterminado explícito',
     () {
-      expect(rutas, hasLength(41));
+      expect(rutas, hasLength(42));
       for (final ruta in privadas) {
         expect(accesoDe(ruta), AccesoDeRuta.privada, reason: ruta);
       }
@@ -104,6 +105,44 @@ void main() {
       isNull,
     );
   });
+
+  test(
+    'sesión sin permiso de billetera va a verificación y no puede salir',
+    () {
+      expect(
+        decidirRuta(
+          estado: EstadoDeSesion.activa,
+          destino: Uri.parse('/billetera/inicio'),
+          requiereVerificacion: true,
+        ),
+        '/sesion/verificacion',
+      );
+      expect(
+        decidirRuta(
+          estado: EstadoDeSesion.activa,
+          destino: Uri.parse('/sesion/verificacion'),
+          requiereVerificacion: true,
+        ),
+        isNull,
+      );
+      expect(
+        decidirRuta(
+          estado: EstadoDeSesion.activa,
+          destino: Uri.parse('/billetera/inicio'),
+          requiereVerificacion: false,
+        ),
+        isNull,
+      );
+      expect(
+        decidirRuta(
+          estado: EstadoDeSesion.anonima,
+          destino: Uri.parse('/sesion/verificacion'),
+          requiereVerificacion: true,
+        ),
+        startsWith('/ingreso?volver='),
+      );
+    },
+  );
 
   test(
     'volver rechaza redirecciones externas y conserva destinos privados',

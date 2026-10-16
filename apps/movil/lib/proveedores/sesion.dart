@@ -1,10 +1,11 @@
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../dominio/reclamos_del_token.dart';
 import '../dominio/puertos/almacen_seguro.dart';
 import '../infraestructura/plataforma.dart';
+
+export '../dominio/reclamos_del_token.dart';
 
 const _claveAcceso = 'sesion.acceso';
 const _claveRefresco = 'sesion.refresco';
@@ -34,6 +35,10 @@ class Sesion extends ChangeNotifier {
   EstadoDeSesion _estado = EstadoDeSesion.desconocida;
   EstadoDeSesion get estado => _estado;
   bool get activa => _estado == EstadoDeSesion.activa;
+  String? _usuarioIdActual;
+  String? get usuarioIdActual => _usuarioIdActual;
+  bool _requiereVerificacion = false;
+  bool get requiereVerificacion => _requiereVerificacion;
 
   MotivoDeSalida? _motivo;
   int _generacion = 0;
@@ -57,8 +62,9 @@ class Sesion extends ChangeNotifier {
 
   Future<void> hidratar({Duration tope = topeDeSesion}) async {
     EstadoDeSesion nuevo;
+    String? acceso;
     try {
-      final acceso = await tokenDeAcceso();
+      acceso = await tokenDeAcceso();
       // Aunque el refresh sea opcional, leerlo detecta fallos del almacén seguro.
       await tokenDeRefresco();
       final inicio = await inicioConCredencial();
@@ -74,6 +80,7 @@ class Sesion extends ChangeNotifier {
     } on Object {
       nuevo = EstadoDeSesion.anonima;
     }
+    _actualizarReclamos(nuevo == EstadoDeSesion.activa ? acceso : null);
     _cambiar(nuevo);
   }
 
@@ -88,6 +95,7 @@ class Sesion extends ChangeNotifier {
       _claveInicio,
       '${_ahora().toUtc().millisecondsSinceEpoch}',
     );
+    _actualizarReclamos(acceso);
     _motivo = null;
     _generacion++;
     _cambiar(EstadoDeSesion.activa, forzarAviso: true);
@@ -99,6 +107,7 @@ class Sesion extends ChangeNotifier {
   }) async {
     await _almacen.guardar(_claveAcceso, acceso);
     await _almacen.guardar(_claveRefresco, refresco);
+    if (_actualizarReclamos(acceso)) notifyListeners();
   }
 
   Future<void> cerrar({MotivoDeSalida? motivo}) {
@@ -112,6 +121,7 @@ class Sesion extends ChangeNotifier {
 
   Future<void> _cerrar(MotivoDeSalida? motivo) async {
     await _borrarTokens();
+    _actualizarReclamos(null);
     _motivo = motivo;
     _generacion++;
     _cambiar(EstadoDeSesion.anonima, forzarAviso: true);
@@ -134,6 +144,19 @@ class Sesion extends ChangeNotifier {
     await _almacen.borrar(_claveAcceso);
     await _almacen.borrar(_claveRefresco);
     await _almacen.borrar(_claveInicio);
+  }
+
+  bool _actualizarReclamos(String? acceso) {
+    final usuarioId = usuarioIdDelToken(acceso);
+    final requiereVerificacion =
+        usuarioId != null && billeteraPermitidaDelToken(acceso) != true;
+    if (_usuarioIdActual == usuarioId &&
+        _requiereVerificacion == requiereVerificacion) {
+      return false;
+    }
+    _usuarioIdActual = usuarioId;
+    _requiereVerificacion = requiereVerificacion;
+    return true;
   }
 
   void _cambiar(EstadoDeSesion nuevo, {bool forzarAviso = false}) {
@@ -171,19 +194,3 @@ final generacionDeSesionProvider = Provider<int>((ref) {
   ref.onDispose(() => sesion.removeListener(alCambiar));
   return sesion.generacion;
 });
-
-/// El `sub` de un JWT, o `null` si no hay token o no tiene la forma esperada. No verifica la firma.
-String? usuarioIdDelToken(String? token) {
-  if (token == null) return null;
-  final partes = token.split('.');
-  if (partes.length != 3) return null;
-  try {
-    final carga = jsonDecode(
-      utf8.decode(base64Url.decode(base64Url.normalize(partes[1]))),
-    );
-    final sub = carga is Map ? carga['sub'] : null;
-    return sub is String && sub.isNotEmpty ? sub : null;
-  } catch (_) {
-    return null;
-  }
-}
