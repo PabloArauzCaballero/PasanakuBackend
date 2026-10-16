@@ -733,11 +733,124 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
-  # CU-50 Conciliar la custodia NO tiene endpoint: corre como cierre diario. Con el
-  # encaje roto no SALE dinero, pero SI entra — dejar entrar plata mejora el encaje y
-  # frenarla lo empeoraria justo cuando hace falta lo contrario.
+  # CU-50 Conciliar la custodia: el diseno la corria como trabajo de medianoche, pero ese
+  # trabajo no existe; Tesoreria la dispara desde el backoffice (carril A · H8). Con el
+  # encaje roto no SALE dinero, pero SI entra — dejar entrar plata mejora el encaje.
   #   AP-CU50-01 SIN_CIERRES_DIARIOS · AP-CU50-02 SIN_EXTRACTO_BANCARIO
-  #   AP-CU50-03 CONCILIACION_DUPLICADA
+  #   AP-CU50-03 CONCILIACION_DUPLICADA (otra conciliacion de esa cuenta y dia, con otros saldos)
+  #   AP-CU50-04 FILTRO_DE_LISTADO_INVALIDO · AP-CU50-05 MONEDA_DISTINTA_A_LA_CUSTODIA
+  #   AP-CU50-06 CUENTA_CUSTODIA_INEXISTENTE
+  /custodia/conciliaciones:
+    get:
+      operationId: listarConciliaciones             # CU-50 (backoffice carril A · H8)
+      summary: Conciliaciones de custodia, de la mas reciente a la mas antigua
+      description: >-
+        Cifras enfrentadas por corte: saldo emitido, custodia, transito, diferencia y ratio, con los descuadres abiertos de cada una. Cursor (fecha, id) descendente. Exige AUDITORIA_LEER.
+      parameters:
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeConciliaciones' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU50-04 FILTRO_DE_LISTADO_INVALIDO
+        '403':
+          description: Sin AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+    post:
+      operationId: conciliarCustodia            # CU-50 (backoffice carril A · H8)
+      summary: Tesoreria concilia la custodia de un dia contra el dinero electronico emitido
+      description: >-
+        El saldo emitido lo CALCULA el servidor (suma de saldo_total de las billeteras USUARIO,
+        GRUPO y FONDO_GARANTIA en la moneda de la custodia, CU-50 paso 1): el cliente no lo
+        manda. Tesoreria informa el saldo segun el extracto bancario y el transito. Exige el
+        rol TESORERIA (mismo patron que acreditarRecarga). Reintentar con los mismos saldos
+        devuelve la misma conciliacion; otros saldos para el mismo dia es AP-CU50-03.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaConciliacionCustodia' }
+      responses:
+        '201':
+          description: Conciliacion registrada (o la misma, si es un reintento identico)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaConciliacionCustodia' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU50-01 · AP-CU50-03 · AP-CU50-05 · AP-CU50-06
+        '403':
+          description: Sin el rol TESORERIA
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /contabilidad/cierres-diarios:
+    get:
+      operationId: listarCierresDiarios             # CU-51 (backoffice carril A · H8)
+      summary: Cierres diarios, del mas reciente al mas antiguo
+      description: >-
+        Recaudado, conciliado, excepciones y si el dia cerro cuadrado. Los importes son cadena SIN moneda: cierre_diario no la modela (ambiguedad A-7). Cursor (fecha, id) descendente. Exige AUDITORIA_LEER.
+      parameters:
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeCierresDiarios' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU51-05 FILTRO_DE_LISTADO_INVALIDO
+        '403':
+          description: Sin AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /contabilidad/reversos:
+    get:
+      operationId: listarReversos             # CU-14 (backoffice carril A · H8)
+      summary: Reversos de transacciones, del mas reciente al mas antiguo
+      description: >-
+        Para Tesoreria y Auditoria: tipo, estado, quien autorizo y monto (cadena SIN moneda: reverso_transaccion no la modela, A-7). Sin estados devuelve todos. Cursor (solicitadaEn, id) descendente. Exige AUDITORIA_LEER.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          schema:
+            type: array
+            items: { type: string, enum: [SOLICITADO, AUTORIZADO, EJECUTADO, RECHAZADO] }
+            minItems: 1
+            maxItems: 4
+          style: form
+          explode: false
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeReversos' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU14-04 FILTRO_DE_LISTADO_INVALIDO
+        '403':
+          description: Sin AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
 
   # CU-51 Ejecutar el cierre diario tampoco tiene endpoint: lo dispara el trabajo de
   # medianoche. Sus codigos viven aca —y no en openapi/aportes.yaml, como dice la
@@ -748,6 +861,7 @@ paths:
   #   AP-CU51-01 EXCEPCIONES_ABIERTAS   · el dia no cierra con excepciones vivas
   #   AP-CU51-02 CUSTODIA_DESCUADRADA   · el encaje no da; cerrar seria firmarlo igual
   #   AP-CU51-03 ASIENTOS_SIN_CONFIRMAR · queda un asiento en BORRADOR con esa fecha
+  #   AP-CU51-05 FILTRO_DE_LISTADO_INVALIDO · cursor a medias en el listado de cierres
   #   AP-CU51-04 DIA_YA_CERRADO         · reintento sobre un dia ya cerrado
 
 components:
@@ -931,6 +1045,102 @@ components:
         ordenRetiroId: { type: string, format: uuid }
         estado:        { type: string, enum: [AUTORIZADA, RECHAZADA] }
         aprobadaPor:   { type: string, format: uuid }
+    PaginaDeConciliaciones:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/ConciliacionEnLista' } }
+        proximoAntesDe: { type: [string, 'null'], format: date }
+        proximoAntesDeId: { type: [string, 'null'], format: uuid }
+    ConciliacionEnLista:
+      type: object
+      additionalProperties: false
+      required: [conciliacionId, cuentaCustodiaId, fecha, saldoEmitido, saldoCustodia, saldoEnTransito, diferencia, ratioCobertura, cumpleEncaje, estado, ejecutadaEn, descuadresAbiertos]
+      properties:
+        conciliacionId: { type: string, format: uuid }
+        cuentaCustodiaId: { type: string, format: uuid }
+        fecha: { type: string, format: date }
+        saldoEmitido: { $ref: '#/components/schemas/Dinero' }
+        saldoCustodia: { $ref: '#/components/schemas/Dinero' }
+        saldoEnTransito: { $ref: '#/components/schemas/Dinero' }
+        diferencia: { $ref: '#/components/schemas/Dinero' }
+        ratioCobertura: { type: string, pattern: '^\d+\.\d{6}$' }
+        cumpleEncaje: { type: boolean }
+        estado: { type: string, enum: [CUADRADA, DESCUADRADA, EN_ANALISIS] }
+        ejecutadaPor: { type: [string, 'null'], format: uuid }
+        ejecutadaEn: { type: string, format: date-time }
+        descuadresAbiertos: { type: integer, minimum: 0 }
+    EntradaConciliacionCustodia:
+      type: object
+      additionalProperties: false
+      required: [cuentaCustodiaId, fecha, saldoCustodia, saldoEnTransito]
+      properties:
+        cuentaCustodiaId: { type: string, format: uuid }
+        fecha: { type: string, format: date }
+        saldoCustodia:
+          description: El saldo segun el extracto bancario de ese dia.
+          allOf: [ { $ref: '#/components/schemas/Dinero' } ]
+        saldoEnTransito:
+          description: Movimientos ordenados y aun no impactados en el banco.
+          allOf: [ { $ref: '#/components/schemas/Dinero' } ]
+    SalidaConciliacionCustodia:
+      type: object
+      additionalProperties: false
+      required: [conciliacionId, saldoEmitido, ratioCobertura, cumpleEncaje, diferencia, estado]
+      properties:
+        conciliacionId: { type: string, format: uuid }
+        saldoEmitido: { $ref: '#/components/schemas/Dinero' }
+        ratioCobertura: { type: string }
+        cumpleEncaje: { type: boolean }
+        diferencia: { $ref: '#/components/schemas/Dinero' }
+        estado: { type: string, enum: [CUADRADA, DESCUADRADA] }
+    PaginaDeCierresDiarios:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/CierreDiarioEnLista' } }
+        proximoAntesDe: { type: [string, 'null'], format: date }
+        proximoAntesDeId: { type: [string, 'null'], format: uuid }
+    CierreDiarioEnLista:
+      type: object
+      additionalProperties: false
+      required: [cierreId, fecha, totalRecaudado, totalConciliado, totalExcepciones, cantidadPagos, cuadrado, cerradoPor, cerradoEn]
+      properties:
+        cierreId: { type: string, format: uuid }
+        fecha: { type: string, format: date }
+        totalRecaudado: { type: string, pattern: '^-?\d+\.\d{2}$', description: Sin moneda (A-7). }
+        totalConciliado: { type: string, pattern: '^-?\d+\.\d{2}$' }
+        totalExcepciones: { type: string, pattern: '^-?\d+\.\d{2}$' }
+        cantidadPagos: { type: integer }
+        cuadrado: { type: boolean }
+        cerradoPor: { type: string, format: uuid }
+        cerradoEn: { type: string, format: date-time }
+        reabiertoEn: { type: [string, 'null'], format: date-time }
+    PaginaDeReversos:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/ReversoEnLista' } }
+        proximoAntesDe: { type: [string, 'null'], format: date-time }
+        proximoAntesDeId: { type: [string, 'null'], format: uuid }
+    ReversoEnLista:
+      type: object
+      additionalProperties: false
+      required: [reversoId, transaccionOriginalId, autorizadaPor, tipo, motivo, montoReversado, estado, solicitadaEn]
+      properties:
+        reversoId: { type: string, format: uuid }
+        transaccionOriginalId: { type: string, format: uuid }
+        transaccionReversoId: { type: [string, 'null'], format: uuid }
+        autorizadaPor: { type: string, format: uuid }
+        tipo: { type: string, enum: [ANULACION, CONTRACARGO, ERROR_OPERATIVO, ORDEN_AUTORIDAD] }
+        motivo: { type: string }
+        montoReversado: { type: string, pattern: '^-?\d+\.\d{2}$', description: Sin moneda (A-7). }
+        estado: { type: string, enum: [SOLICITADO, AUTORIZADO, EJECUTADO, RECHAZADO] }
+        solicitadaEn: { type: string, format: date-time }
+        ejecutadaEn: { type: [string, 'null'], format: date-time }
     PaginaRetirosEnRevision:
       type: object
       additionalProperties: false

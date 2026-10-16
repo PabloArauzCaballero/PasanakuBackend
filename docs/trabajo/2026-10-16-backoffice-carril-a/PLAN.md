@@ -167,6 +167,41 @@ paginación y respuesta mínima.
 | H7.S5.M1 | `POST /extraccion/accesos`: **`DECISION_REQUIRED`**. El propio interceptor de B lo deja apagado y dice que el front no es la fuente de verdad de la auditoría (`apps/backoffice/src/app/nucleo/registro-de-acceso.interceptor.ts`); el rastro de lectura (R-SEG-02, `registro_acceso_datos`) va en el servidor que entrega el dato y exige el catálogo de finalidades (A-8). Destraba: Seguridad/Cumplimiento definen finalidades; luego cada ficha sensible registra su lectura en el servidor | declarado | `entregables/fichas-de-contrato.md` § Decisiones | BLOQUEADO |
 | H7.S6.M1 | Cruce final + regresión de servicios tocados + reporte + push | 0 llamadas sin contrato salvo declaradas | script de cruce + regresión | HECHO |
 
+## H8 — Ola 3 · A4 Tesorería: conciliación, cierre diario, reversos y desembolsos
+
+**CA:** Dado Tesorería/Contabilidad/Auditoría con sus permisos sembrados, cuando abren las pantallas
+`operacion/conciliacion`, `operacion/cierre-diario` y `operacion/desembolsos`, entonces ven las listas
+reales paginadas y Tesorería puede conciliar la custodia con el saldo emitido **calculado por el
+servidor** (nunca enviado por el cliente).
+**DoD:** pruebas `CU*Test` de integración + webTest por ruta + regresión de `nucleo-financiero` y `entregas`.
+**Estado:** EN CURSO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H8.S1.M1 | `GET /custodia/conciliaciones` (`AUDITORIA_LEER`): de la más reciente a la más antigua, con descuadres abiertos | correcto/límite/inválido + 403 | `integrationTest --tests '*CU50ConciliacionesTest*'` + webTest | HECHO — `evidencia/H8-01-regresion-nucleo-financiero.txt` |
+| H8.S1.M2 | `POST /custodia/conciliaciones` (`TESORERIA`, patrón de `acreditarRecarga`): saldo emitido calculado por el servidor desde las billeteras; custodia y tránsito los informa Tesorería; reintento idéntico = mismo resultado | cuadra/descuadra/duplicada con otros saldos `AP-CU50-03` | idem | HECHO — `evidencia/H8-01-regresion-nucleo-financiero.txt` |
+| H8.S1.M3 | (descubierta) El reintento de la conciliación recalcula `diferencia`/ratio con el átomo `RatioDeCobertura`: la columna generada de la tabla es `custodia − emitido` y NO suma el tránsito, así que leerla daba otra respuesta que la primera vez | reintento con tránsito ≠ 0 devuelve la misma diferencia | `integrationTest --tests '*CU50ConciliacionesTest*'` (caso `reintento`) | HECHO — `evidencia/H8-01-regresion-nucleo-financiero.txt` |
+| H8.S2.M1 | `GET /contabilidad/cierres-diarios` (`AUDITORIA_LEER`) | correcto/límite/inválido + 403 | `integrationTest --tests '*CU51CierresTest*'` + webTest | HECHO — `evidencia/H8-01-regresion-nucleo-financiero.txt` |
+| H8.S2.M2 | Ejecutar el cierre diario por HTTP: `CU51` recibe los totales del recaudo **desde afuera** (`aportes`). Exponerlo con totales del cliente sería confiarle cifras; se resuelve con puerto + adaptador HTTP al resumen de `aportes` + doble en tres niveles (regla 65) | ver H8.S2.M3 | idem | TODO |
+| H8.S3.M1 | `GET /contabilidad/reversos` (`AUDITORIA_LEER`): reversos con estado, tipo y monto | correcto/límite/inválido + 403 | `integrationTest --tests '*CU14ReversosTest*'` + webTest | HECHO — `evidencia/H8-01-regresion-nucleo-financiero.txt` |
+| H8.S4.M1 | `GET /desembolsos` en `entregas` (`ENTREGA_EJECUTAR` o `AUDITORIA_LEER`): por omisión las excepciones (`RECHAZADA`, `DEVUELTA_POR_BANCO`, `EN_PROCESO`) | correcto/límite/inválido + 403 | `:servicios:entregas:integrationTest --tests '*CU28DesembolsosTest*'` + webTest | TODO |
+| H8.S5.M1 | Bóveda, Postman, regresión de `nucleo-financiero` y `entregas`, commit y push | 0 fallas | regresión + gates | TODO |
+
+## H9 — Ola 4 · A5 Cumplimiento, riesgo y seguridad
+
+**CA:** Dado el oficial, Riesgos o Seguridad, cuando abren `cumplimiento/uif`, `cumplimiento/riesgo`
+y `cumplimiento/gobierno`, entonces ven sus colas reales (requerimientos, reportes regulatorios,
+eventos de riesgo, incidentes, pruebas de continuidad, actas) y pueden ejecutar las acciones cuyos
+casos de uso ya existen, con el actor tomado de la sesión.
+**DoD:** pruebas de integración y web por ruta + regresión de `cumplimiento`.
+**Estado:** TODO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H9.S1.M1 | Listados: requerimientos de autoridad (CU-45), reportes regulatorios (CU-43), eventos de riesgo (CU-54), incidentes (CU-55), pruebas de continuidad (CU-56), actas de comité (CU-94), con sus permisos sembrados o roles | correcto/límite/inválido + 403 por listado | `integrationTest --tests '*CU4[35]*' --tests '*CU5[456]*' --tests '*CU94*'` | TODO |
+| H9.S1.M2 | Acciones de CU-43/45/56/94 por HTTP, revisando antes que el actor salga de la sesión (lección H5.S2) | revisor/actor de sesión; reintento seguro | idem | TODO |
+| H9.S1.M3 | Bóveda, Postman, regresión, commit y push | 0 fallas | regresión + gates | TODO |
+
 ## Pendiente fuera de esta sesión (registrado, no ejecutable sin decisión)
 
 | Bloque del plan estratégico | Estado | Qué lo destraba |

@@ -74,4 +74,10 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private QrDeLaBilletera qrDeLaBilletera;
+
+    @MockitoBean
+    private bo.aportaya.nucleofinanciero.aplicacion.ConsultarTesoreria consultarTesoreria;
+
+    @MockitoBean
+    private bo.aportaya.nucleofinanciero.aplicacion.CU50ConciliarCustodia cu50ConciliarCustodia;
 }
