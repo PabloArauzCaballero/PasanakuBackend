@@ -43,7 +43,7 @@ import org.springframework.test.web.servlet.MockMvc;
  */
 @PruebaWeb({UifController.class, CumplimientoController.class})
 @Import(TableroDeCumplimientoWeb.class)
-class ColasDeCumplimientoWebTest {
+class UifControllerWebTest {
     private static final UUID ID = UUID.fromString("c9000000-0000-4000-8000-000000000001");
     private static final OffsetDateTime EN = OffsetDateTime.of(2026, 7, 1, 8, 0, 0, 0, ZoneOffset.UTC);
 
