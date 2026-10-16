@@ -9,9 +9,9 @@ import { erroresInterceptor } from '../../../nucleo/errores.interceptor'
 import { trazaInterceptor } from '../../../nucleo/traza.interceptor'
 import { Sesion } from '../../../nucleo/sesion'
 import { PantallaDeAnunciantes } from './pantalla-de-anunciantes'
-import type { Anunciante } from '../dominio/cu110-anunciantes'
+import { anunciante, pagina } from '../publicidad.apoyo'
 
-const URL = 'http://gw/api/v1/publicidad/anunciantes'
+const URL = 'http://gw/api/v1/publicidad/anunciantes?limite=50'
 
 /**
  * Deja correr la cola de microtareas (el `await` encadenado de `cargar`, HTTP incluido) sin
@@ -23,18 +23,6 @@ const URL = 'http://gw/api/v1/publicidad/anunciantes'
 async function esperarMicrotareas(fixture: ComponentFixture<unknown>): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, 0))
   fixture.detectChanges()
-}
-
-function anunciante(parcial: Partial<Anunciante>): Anunciante {
-  return {
-    anuncianteId: 'a-1',
-    tipo: 'SOCIO_COMERCIAL',
-    razonSocialFacturacion: 'Anunciante SA',
-    moneda: 'BOB',
-    limiteGastoMensual: null,
-    estado: 'ACTIVA',
-    ...parcial,
-  } as Anunciante
 }
 
 /**
@@ -65,7 +53,8 @@ describe('PantallaDeAnunciantes', () => {
     TestBed.inject(Sesion).abrir('t', [], 'lector')
     const fixture = TestBed.createComponent(PantallaDeAnunciantes)
     fixture.detectChanges()
-    http.expectOne(URL).flush([anunciante({})])
+    await esperarMicrotareas(fixture)
+    http.expectOne(URL).flush(pagina([anunciante()]))
     await fixture.whenStable()
     expect(fixture.nativeElement.querySelector('header ap-boton')).toBeNull()
   })
@@ -74,7 +63,8 @@ describe('PantallaDeAnunciantes', () => {
     TestBed.inject(Sesion).abrir('t', ['PUBLICIDAD_ANUNCIANTES'], 'oficial')
     const fixture = TestBed.createComponent(PantallaDeAnunciantes)
     fixture.detectChanges()
-    http.expectOne(URL).flush([anunciante({ anuncianteId: 'a-1', razonSocialFacturacion: 'Primero SA' })])
+    await esperarMicrotareas(fixture)
+    http.expectOne(URL).flush(pagina([anunciante({ anuncianteId: 'a-1', razonSocialFacturacion: 'Primero SA' })]))
     await fixture.whenStable()
     expect(fixture.nativeElement.textContent).toContain('Primero SA')
   })
@@ -85,13 +75,13 @@ describe('PantallaDeAnunciantes', () => {
     fixture.detectChanges()
 
     // Petición #1 (pedido inicial): queda pendiente, todavía no se resuelve.
+    await esperarMicrotareas(fixture)
     const primera = http.expectOne(URL)
 
     // Cambia el orden antes de que la #1 responda: se emite la petición #2 con un pedido
-    // distinto. Se usa `orden` y no `pagina` porque `cargarAnunciantes` trae la lista COMPLETA
-    // en cada petición y pagina en memoria (JSDoc de la pantalla): mockear una "página 2" con
-    // una lista de un solo elemento cortaría vacío por aritmética de `slice`, no por el defecto
-    // que esta prueba busca cubrir. No se usa `whenStable()` acá: mientras la #1 sigue sin
+    // distinto. Se usa `orden` y no `pagina` porque con cursor la página 2 necesita el cursor
+    // que devuelve la 1 (todavía pendiente): cambiar el orden reinicia los cursores y vuelve a
+    // pedir la primera página, que es exactamente una petición nueva que compite con la vieja. No se usa `whenStable()` acá: mientras la #1 sigue sin
     // resolver, HttpClient la mantiene como tarea pendiente (para que la app zoneless no se dé
     // por estable con una petición en vuelo) y `whenStable()` nunca resolvería.
     // `esperarMicrotareas` avanza la cola sin depender de esa estabilidad global.
@@ -100,12 +90,12 @@ describe('PantallaDeAnunciantes', () => {
     const segunda = http.expectOne(URL)
 
     // La #2 (más nueva) responde primero.
-    segunda.flush([anunciante({ anuncianteId: 'b-1', razonSocialFacturacion: 'Segundo SA' })])
+    segunda.flush(pagina([anunciante({ anuncianteId: 'b-1', razonSocialFacturacion: 'Segundo SA' })]))
     await esperarMicrotareas(fixture)
     expect(fixture.nativeElement.textContent).toContain('Segundo SA')
 
     // La #1 (más vieja) responde tarde: no debe pisar el resultado de la #2 ya aplicado.
-    primera.flush([anunciante({ anuncianteId: 'a-1', razonSocialFacturacion: 'Primero SA' })])
+    primera.flush(pagina([anunciante({ anuncianteId: 'a-1', razonSocialFacturacion: 'Primero SA' })]))
     await esperarMicrotareas(fixture)
     expect(fixture.nativeElement.textContent).toContain('Segundo SA')
     expect(fixture.nativeElement.textContent).not.toContain('Primero SA')
@@ -115,8 +105,48 @@ describe('PantallaDeAnunciantes', () => {
     TestBed.inject(Sesion).abrir('t', [], 'lector')
     const fixture = TestBed.createComponent(PantallaDeAnunciantes)
     fixture.detectChanges()
+    await esperarMicrotareas(fixture)
     http.expectOne(URL).flush({ codigo: undefined }, { status: 403, statusText: 'Forbidden' })
     await fixture.whenStable()
     expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain('No tenés acceso')
+  })
+
+  it('límite · el límite mensual es Dinero con su moneda; sin límite lo dice; el estado se nombra', async () => {
+    TestBed.inject(Sesion).abrir('t', ['PUBLICIDAD_ANUNCIANTES'], 'oficial')
+    const fixture = TestBed.createComponent(PantallaDeAnunciantes)
+    fixture.detectChanges()
+    await esperarMicrotareas(fixture)
+    http.expectOne(URL).flush(
+      pagina([anunciante({ limiteGastoMensual: { monto: '1500.00', moneda: 'USD' } }), anunciante({ anuncianteId: 'a-2', estado: 'SUSPENDIDO' })]),
+    )
+    await fixture.whenStable()
+    const texto = fixture.nativeElement.textContent as string
+    expect(fixture.nativeElement.querySelector('ap-monto')?.getAttribute('aria-label')).toContain('Límite mensual')
+    expect(texto).toContain('Sin límite')
+    expect(texto).toContain('Suspendido')
+  })
+
+  it('cursor · con próxima página, la paginación ofrece avanzar y la página 2 va con despuesDeFecha + despuesDeId', async () => {
+    TestBed.inject(Sesion).abrir('t', [], 'lector')
+    const fixture = TestBed.createComponent(PantallaDeAnunciantes)
+    fixture.detectChanges()
+    await esperarMicrotareas(fixture)
+    http.expectOne(URL).flush(pagina([anunciante()], '2026-09-01T12:00:00Z', 'a-1'))
+    await fixture.whenStable()
+    fixture.componentInstance['pagina'].set(2)
+    await esperarMicrotareas(fixture)
+    http.expectOne(`${URL}&despuesDeFecha=2026-09-01T12:00:00Z&despuesDeId=a-1`).flush(pagina([anunciante({ anuncianteId: 'a-2', razonSocialFacturacion: 'Segunda SA' })]))
+    await fixture.whenStable()
+    expect(fixture.nativeElement.textContent).toContain('Segunda SA')
+  })
+
+  it('inválido · 422 AP-CU110-04 se dice con el texto del dominio', async () => {
+    TestBed.inject(Sesion).abrir('t', [], 'lector')
+    const fixture = TestBed.createComponent(PantallaDeAnunciantes)
+    fixture.detectChanges()
+    await esperarMicrotareas(fixture)
+    http.expectOne(URL).flush({ codigo: 'AP-CU110-04', mensaje: 'x', trazaId: 'tz' }, { status: 422, statusText: 'x' })
+    await fixture.whenStable()
+    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain('El filtro de la lista no es válido')
   })
 })

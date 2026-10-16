@@ -3,7 +3,8 @@ import { inject } from '@angular/core'
 import { firstValueFrom } from 'rxjs'
 import { GATEWAY } from '../../../nucleo/gateway'
 import { contextoIdempotente } from '../../../nucleo/idempotencia.interceptor'
-import type { CargadorDePagina, PaginaServidor } from '../../../nucleo/tabla/tipos'
+import type { CargadorDePagina } from '../../../nucleo/tabla/tipos'
+import { cargadorPublicidadPorCursor, type Dinero } from './contrato-publicidad'
 import type { EntradaCampana } from 'clientes/angular/publicidad/model/entradaCampana'
 import type { SalidaCampana } from 'clientes/angular/publicidad/model/salidaCampana'
 import type { EntradaRechazo } from 'clientes/angular/publicidad/model/entradaRechazo'
@@ -18,34 +19,35 @@ import type { EntradaRechazo } from 'clientes/angular/publicidad/model/entradaRe
  * gestión y `campanas/:campanaId/aprobacion` de la de aprobación), cada una con su
  * propio `canMatch`; este archivo no decide quién puede qué, solo transporta.
  *
- * **Supuesto declarado**: igual que en `cu110-anunciantes.ts`, no hay `GET` de listado
- * en el contrato — se asume `GET /publicidad/campanas` como extensión del recurso.
- * La descripción de `crearCampana` en el YAML dice «Exige PUBLICIDAD_APROBAR_CAMPANA»,
- * lo que contradice su propio resumen («el anunciante crea») y a `aprobarCampana`/
- * `rechazarCampana`, que sí dicen «Operaciones aprueba/rechaza» bajo el mismo permiso.
- * Se trata como una errata de copia del backend: acá `crearCampana` exige
- * `PUBLICIDAD_ANUNCIANTES` (gestión) y `aprobarCampana`/`rechazarCampana` exigen
- * `PUBLICIDAD_APROBAR_CAMPANA` (aprobación) — es la única lectura consistente con la
- * segregación de funciones que pide este mismo carril. Se deja anotado para que
- * Backend lo confirme o corrija el contrato.
+ * Listado: `GET /publicidad/campanas` (`listarCampanas`, cursor (fechaInicio, id)). **Exige
+ * `PUBLICIDAD_APROBAR_CAMPANA`: es la cola de Operaciones, no la vista del anunciante**, y sin `estados` devuelve solo
+ * `EN_REVISION`. La pantalla de gestión no lo pide sin ese permiso (ver ambigüedad en el reporte de L3).
+ *
+ * La descripción de `crearCampana` en el YAML dice «Exige PUBLICIDAD_APROBAR_CAMPANA», lo que contradice su propio
+ * resumen («el anunciante crea»). Se trata como errata del backend: acá `crearCampana` vive en la ruta de gestión
+ * (`PUBLICIDAD_ANUNCIANTES`) y `aprobarCampana`/`rechazarCampana` en la de aprobación (`PUBLICIDAD_APROBAR_CAMPANA`).
  */
-export type Campana = SalidaCampana & { nombre: string; moneda: string; fechaInicio: string }
+export type EstadoCampana = 'BORRADOR' | 'EN_REVISION' | 'ACTIVA' | 'PAUSADA' | 'RECHAZADA' | 'FINALIZADA'
+
+/** `CampanaEnLista` de `publicidad.yaml`. */
+export type Campana = {
+  campanaId: string
+  cuentaPublicitariaId: string
+  anuncianteId: string
+  nombre: string
+  objetivo: 'CONVERSION' | 'DESCARGA_APP' | 'POSTULACION_GRUPO' | 'TRAFICO' | 'VISIBILIDAD_MARCA'
+  presupuestoTotal: Dinero
+  presupuestoConsumido: Dinero
+  fechaInicio: string
+  fechaFin?: string | null
+  estado: EstadoCampana
+  aprobadaPor?: string | null
+}
 
 export function cargarCampanas(http: HttpClient, gateway: string): CargadorDePagina<Campana> {
-  return async (pedido) => {
-    const todas = await firstValueFrom(http.get<Campana[]>(`${gateway}/publicidad/campanas`))
-    const filtradas = pedido.filtros['estado'] ? todas.filter((c) => c.estado === pedido.filtros['estado']) : todas
-    const ordenadas = pedido.orden
-      ? [...filtradas].sort((a, b) => {
-          const clave = pedido.orden!.clave as keyof Campana
-          const [va, vb] = [String(a[clave] ?? ''), String(b[clave] ?? '')]
-          return pedido.orden!.sentido === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va)
-        })
-      : filtradas
-    const inicio = (pedido.pagina - 1) * pedido.tamano
-    const pagina: PaginaServidor<Campana> = { filas: ordenadas.slice(inicio, inicio + pedido.tamano), total: ordenadas.length }
-    return pagina
-  }
+  return cargadorPublicidadPorCursor<Campana>(http, `${gateway}/publicidad/campanas`, (filtros, params) =>
+    filtros['estado'] ? params.set('estados', filtros['estado']) : params,
+  )
 }
 
 export function cargadorDeCampanas(): CargadorDePagina<Campana> {
