@@ -1,0 +1,67 @@
+Resolving dependencies...
+Downloading packages...
+  accessibility_tools 2.8.0 (3.0.0 available)
+  camera_avfoundation 0.10.3+1 (0.11.0+1 available)
+  camera_platform_interface 2.14.0 (2.15.0 available)
+  clock 1.1.2 (1.1.3 available)
+  code_assets 1.2.1 (2.1.0 available)
+  connectivity_plus 7.3.1 (7.3.2 available)
+  cross_file 0.3.5+5 (0.4.0 available)
+  dbus 0.7.15 (0.8.0 available)
+  equatable 2.1.0 (3.0.0 available)
+  flutter_secure_storage 10.3.2 (11.2.0 available)
+  flutter_secure_storage_darwin 0.3.2 (0.4.3 available)
+  flutter_secure_storage_linux 3.0.2 (3.0.3 available)
+  flutter_secure_storage_platform_interface 2.1.0 (2.1.1 available)
+  go_router 17.5.0 (18.0.2 available)
+  hooks 2.0.2 (2.2.0 available)
+  image_picker 1.2.3 (1.2.4 available)
+  image_picker_android 0.8.13+23 (0.8.13+25 available)
+  image_picker_ios 0.8.13+7 (0.8.13+10 available)
+  image_picker_platform_interface 2.11.1 (2.11.2 available)
+  intl 0.20.2 (0.20.3 available)
+  jni 1.0.3 (1.1.0 available)
+  jni_flutter 1.0.3 (1.0.4+1 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  mobile_scanner 7.4.1 (7.4.2 available)
+  nm 0.5.0 (0.6.0 available)
+  objective_c 9.5.0 (9.6.2 available)
+  patrol 3.20.0 (4.10.0 available)
+  patrol_finders 2.9.0 (3.6.0 available)
+  patrol_log 0.5.0 (0.10.1 available)
+  petitparser 7.0.2 (7.1.0 available)
+  qr 3.0.2 (4.0.0 available)
+  record_use 0.6.0 (1.1.1 available)
+  stack_trace 1.12.1 (1.12.2 available)
+  test_api 0.7.11 (0.7.15 available)
+  url_launcher 6.3.2 (6.3.3 available)
+  vector_math 2.2.0 (2.4.3 available)
+  vm_service 15.3.0 (15.4.0 available)
+  xml 7.0.1 (7.1.0 available)
+Got dependencies!
+40 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/silueta_de_cara_test.dart
+00:00 +0: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/silueta_de_cara_test.dart: golden de las tres poses en tema claro y oscuro
+00:00 +1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/paso_capturas_test.dart: cinco láminas, avance tras guardar y puntos tocables
+00:00 +2: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/paso_capturas_test.dart: cinco láminas, avance tras guardar y puntos tocables
+00:00 +3: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/paso_capturas_test.dart: cinco láminas, avance tras guardar y puntos tocables
+00:00 +4: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/paso_capturas_test.dart: cinco láminas, avance tras guardar y puntos tocables
+00:00 +5: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/paso_capturas_test.dart: cinco láminas, avance tras guardar y puntos tocables
+00:01 +6: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/paso_capturas_test.dart: cinco láminas, avance tras guardar y puntos tocables
+00:01 +7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/paso_capturas_test.dart: cinco láminas, avance tras guardar y puntos tocables
+00:01 +8: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/paso_capturas_test.dart: cinco láminas, avance tras guardar y puntos tocables
+00:01 +9: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/paso_capturas_test.dart: cinco láminas, avance tras guardar y puntos tocables
+00:01 +10: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/paso_capturas_test.dart: cinco láminas, avance tras guardar y puntos tocables
+00:01 +11: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/paso_capturas_test.dart: cinco láminas, avance tras guardar y puntos tocables
+00:01 +12: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/paso_capturas_test.dart: cinco láminas, avance tras guardar y puntos tocables
+00:01 +13: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/pantalla_camara_de_respaldo_test.dart: Tomar foto entrega el carnet capturado
+00:01 +14: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/pantalla_camara_de_respaldo_test.dart: Tomar foto entrega el carnet capturado
+00:02 +15: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/paso_capturas_test.dart: el botón de pautas abre el contenido disponible
+00:02 +16: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/pantalla_camara_de_respaldo_test.dart: foto rechazada en cámara de respaldo puede usarse sin repetirla
+00:02 +17: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/pantalla_camara_de_respaldo_test.dart: foto rechazada en cámara de respaldo puede usarse sin repetirla
+00:02 +18: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/pantalla_camara_de_respaldo_test.dart: el flujo de captura envuelve la foto aceptada en el mapa del alta
+00:03 +19: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/pantalla_camara_de_respaldo_test.dart: Cancelar cierra la cámara sin devolver una captura
+00:03 +20: All tests passed!

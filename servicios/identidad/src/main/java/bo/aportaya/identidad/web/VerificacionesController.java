@@ -107,6 +107,7 @@ public class VerificacionesController implements IdentidadApi {
                 .usuarioId(e.usuarioId())
                 .nombreCompleto(e.nombreCompleto())
                 .telefono(e.telefono())
+                .correo(e.correo())
                 .documento(e.documento())
                 .estado(ExpedienteEnRevision.EstadoEnum.fromValue(e.estado()))
                 .iniciadaEn(e.iniciadaEn())

@@ -13,7 +13,7 @@
 #   - Xcode con la cuenta del equipo 7A42TVN3Y6 iniciada (Xcode > Settings > Accounts)
 #   - Flutter 3.44.8 (el de ci.yml y Dockerfile.movil-web; con otro, pubspec.lock no coincide)
 #   - Node 22 + corepack (yarn) y CocoaPods
-#   - Java 21 NO hace falta: los clientes Dart ya vienen versionados (clientes/dart)
+#   - Java 21 (brew install openjdk@21): clientes/dart/*/lib/src NO esta versionado; si falta, el paso 1 lo genera
 #
 # Variables opcionales:
 #   API              por defecto TEST: https://api.aportaya.161.97.85.216.sslip.io/api/v1
@@ -54,6 +54,14 @@ fi
 paso "1) Dependencias, tokens de diseno y clientes Dart (mismo orden que ci.yml)"
 corepack enable
 yarn install --immutable
+if ls "$RAIZ"/clientes/dart/*/lib/src >/dev/null 2>&1; then
+  echo "clientes Dart: ya generados"
+else
+  JDK21="$(/usr/libexec/java_home -v 21 2>/dev/null || true)"
+  [ -n "$JDK21" ] || JDK21="$(brew --prefix openjdk@21 2>/dev/null)/libexec/openjdk.jdk/Contents/Home"
+  [ -x "$JDK21/bin/java" ] || falta "falta Java 21 para generar los clientes Dart (brew install openjdk@21)"
+  (cd "$RAIZ" && JAVA_HOME="$JDK21" ./gradlew generateOpenApiClients --no-parallel --no-build-cache)
+fi
 yarn workspace @aportaya/tokens build
 yarn workspace @aportaya/diseno-flutter build
 yarn workspace @aportaya/movil build

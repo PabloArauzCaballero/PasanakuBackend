@@ -71,6 +71,21 @@ export function vencimientoDe(e: ExpedienteEnRevision): Vencimiento {
 /** Una cola vacía es una cola vacía: no hay nada que revisar, y eso es una buena noticia. */
 export const colaVacia = (cola: ExpedienteEnRevision[]): boolean => cola.length === 0
 
+/** La búsqueda del operador cubre el nombre, teléfono y correo del titular. */
+export function coincideConBusqueda(e: ExpedienteEnRevision, busqueda: string): boolean {
+  const normalizar = (valor: string) =>
+    valor
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLocaleLowerCase('es')
+      .trim()
+  const termino = normalizar(busqueda)
+  return (
+    !termino ||
+    normalizar(`${e.nombreCompleto} ${e.telefono ?? ''} ${e.correo ?? ''}`).includes(termino)
+  )
+}
+
 /**
  * La carpeta del expediente en el servidor de archivos: `identidad/<usuarioId>/`.
  *

@@ -1,0 +1,245 @@
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/clientes/angular/identidad
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/clientes/dart/identidad
+gradle exit=0
+generado/tokens.css · 256 lineas
+generado/tokens.dart · 427 lineas
+vectores/monto.json · 5006 casos
+Formatted lib/tokens/tokens.dart
+Formatted 1 file (1 changed) in 0.01 seconds.
+Resolving dependencies...
+Downloading packages...
+  accessibility_tools 2.8.0 (3.0.0 available)
+  clock 1.1.2 (1.1.3 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  qr 3.0.2 (4.0.0 available)
+  stack_trace 1.12.1 (1.12.2 available)
+  test_api 0.7.11 (0.7.15 available)
+  url_launcher 6.3.2 (6.3.3 available)
+  vector_math 2.2.0 (2.4.3 available)
+  vm_service 15.3.0 (15.4.0 available)
+Got dependencies!
+11 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Resolving dependencies...
+Downloading packages...
+  accessibility_tools 2.8.0 (3.0.0 available)
+  camera_avfoundation 0.10.3+1 (0.11.0+1 available)
+  camera_platform_interface 2.14.0 (2.15.0 available)
+  clock 1.1.2 (1.1.3 available)
+  code_assets 1.2.1 (2.1.0 available)
+  connectivity_plus 7.3.1 (7.3.2 available)
+  cross_file 0.3.5+5 (0.4.0 available)
+  dbus 0.7.15 (0.8.0 available)
+  equatable 2.1.0 (3.0.0 available)
+  flutter_secure_storage 10.3.2 (11.2.0 available)
+  flutter_secure_storage_darwin 0.3.2 (0.4.3 available)
+  flutter_secure_storage_linux 3.0.2 (3.0.3 available)
+  flutter_secure_storage_platform_interface 2.1.0 (2.1.1 available)
+  go_router 17.5.0 (18.0.2 available)
+  hooks 2.0.2 (2.2.0 available)
+  image_picker 1.2.3 (1.2.4 available)
+  image_picker_android 0.8.13+23 (0.8.13+25 available)
+  image_picker_ios 0.8.13+7 (0.8.13+10 available)
+  image_picker_platform_interface 2.11.1 (2.11.2 available)
+  intl 0.20.2 (0.20.3 available)
+  jni 1.0.3 (1.1.0 available)
+  jni_flutter 1.0.3 (1.0.4+1 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  mobile_scanner 7.4.1 (7.4.2 available)
+  nm 0.5.0 (0.6.0 available)
+  objective_c 9.5.0 (9.6.2 available)
+  patrol 3.20.0 (4.10.0 available)
+  patrol_finders 2.9.0 (3.6.0 available)
+  patrol_log 0.5.0 (0.10.1 available)
+  petitparser 7.0.2 (7.1.0 available)
+  qr 3.0.2 (4.0.0 available)
+  record_use 0.6.0 (1.1.1 available)
+  stack_trace 1.12.1 (1.12.2 available)
+  test_api 0.7.11 (0.7.15 available)
+  url_launcher 6.3.2 (6.3.3 available)
+  vector_math 2.2.0 (2.4.3 available)
+  vm_service 15.3.0 (15.4.0 available)
+  xml 7.0.1 (7.1.0 available)
+Got dependencies!
+40 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+== identidad ==
+Resolving dependencies...
+Downloading packages...
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+Got dependencies!
+3 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 84 inputs; lib/aportaya_cliente_identidad.dart
+  0s json_serializable on 84 inputs: 84 skipped
+  0s source_gen:combining_builder on 84 inputs; lib/aportaya_cliente_identidad.dart
+  0s source_gen:combining_builder on 84 inputs: 84 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+== nucleo-financiero ==
+Resolving dependencies...
+Downloading packages...
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+Got dependencies!
+3 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 90 inputs; lib/aportaya_cliente_nucleofinanciero.dart
+  0s json_serializable on 90 inputs: 90 skipped
+  0s source_gen:combining_builder on 90 inputs; lib/aportaya_cliente_nucleofinanciero.dart
+  0s source_gen:combining_builder on 90 inputs: 90 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+== tarifas ==
+Resolving dependencies...
+Downloading packages...
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+Got dependencies!
+3 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 58 inputs; lib/aportaya_cliente_tarifas.dart
+  0s json_serializable on 58 inputs: 58 skipped
+  0s source_gen:combining_builder on 58 inputs; lib/aportaya_cliente_tarifas.dart
+  0s source_gen:combining_builder on 58 inputs: 58 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+== grupos ==
+Resolving dependencies...
+Downloading packages...
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+Got dependencies!
+3 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 98 inputs; lib/aportaya_cliente_grupos.dart
+  0s json_serializable on 98 inputs: 98 skipped
+  0s source_gen:combining_builder on 98 inputs; lib/aportaya_cliente_grupos.dart
+  0s source_gen:combining_builder on 98 inputs: 98 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+== aportes ==
+Resolving dependencies...
+Downloading packages...
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+Got dependencies!
+3 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 52 inputs; lib/aportaya_cliente_aportes.dart
+  0s json_serializable on 52 inputs: 52 skipped
+  0s source_gen:combining_builder on 52 inputs; lib/aportaya_cliente_aportes.dart
+  0s source_gen:combining_builder on 52 inputs: 52 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+== transparencia ==
+Resolving dependencies...
+Downloading packages...
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+Got dependencies!
+3 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 80 inputs; lib/aportaya_cliente_transparencia.dart
+  0s json_serializable on 80 inputs: 80 skipped
+  0s source_gen:combining_builder on 80 inputs; lib/aportaya_cliente_transparencia.dart
+  0s source_gen:combining_builder on 80 inputs: 80 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+== entregas ==
+Resolving dependencies...
+Downloading packages...
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+Got dependencies!
+3 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 64 inputs; lib/aportaya_cliente_entregas.dart
+  0s json_serializable on 64 inputs: 64 skipped
+  0s source_gen:combining_builder on 64 inputs; lib/aportaya_cliente_entregas.dart
+  0s source_gen:combining_builder on 64 inputs: 64 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+== garantia ==
+Resolving dependencies...
+Downloading packages...
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+Got dependencies!
+3 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 88 inputs; lib/aportaya_cliente_garantia.dart
+  0s json_serializable on 88 inputs: 88 skipped
+  0s source_gen:combining_builder on 88 inputs; lib/aportaya_cliente_garantia.dart
+  0s source_gen:combining_builder on 88 inputs: 88 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+== organizador ==
+Resolving dependencies...
+Downloading packages...
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+Got dependencies!
+3 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 82 inputs; lib/aportaya_cliente_organizador.dart
+  0s json_serializable on 82 inputs: 82 skipped
+  0s source_gen:combining_builder on 82 inputs; lib/aportaya_cliente_organizador.dart
+  0s source_gen:combining_builder on 82 inputs: 82 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+== notificaciones ==
+Resolving dependencies...
+Downloading packages...
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+Got dependencies!
+3 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 26 inputs; lib/aportaya_cliente_notificaciones.dart
+  0s json_serializable on 26 inputs: 26 skipped
+  0s source_gen:combining_builder on 26 inputs; lib/aportaya_cliente_notificaciones.dart
+  0s source_gen:combining_builder on 26 inputs: 26 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+== cumplimiento ==
+Resolving dependencies...
+Downloading packages...
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+Got dependencies!
+3 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 50 inputs; lib/aportaya_cliente_cumplimiento.dart
+  0s json_serializable on 50 inputs: 50 skipped
+  0s source_gen:combining_builder on 50 inputs; lib/aportaya_cliente_cumplimiento.dart
+  0s source_gen:combining_builder on 50 inputs: 50 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+exit=0

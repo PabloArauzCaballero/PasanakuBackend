@@ -10,7 +10,7 @@ import '../textos_de_captura.dart';
 ///
 /// Reemplaza a «Anterior» y «Siguiente» sueltos debajo del carrusel, que obligaban a
 /// recorrer foto por foto para saber cuál faltaba. Cada cara es tocable y lleva al
-/// cuadro; la actual tiene anillo, la lista un tilde verde, la pendiente queda tenue.
+/// cuadro; la actual tiene contorno de marca, la lista un tilde verde, la pendiente queda tenue.
 /// Lo que está y lo que falta no depende solo del color: cambia el ícono.
 class RielDeCapturas extends StatelessWidget {
   const RielDeCapturas({
@@ -97,12 +97,11 @@ class _Cara extends StatelessWidget {
                   height: _lado,
                   decoration: BoxDecoration(
                     color: fondo,
-                    shape: BoxShape.circle,
+                    borderRadius: BorderRadius.circular(Radios.md),
                     border: Border.all(
                       color: actual ? t.brand : t.border,
-                      width: actual ? Borde.foco - Borde.fino : Borde.fino,
+                      width: actual ? Borde.foco : Borde.fino,
                     ),
-                    boxShadow: actual || lista ? [t.sombra1, t.sombra2] : null,
                   ),
                   child: AnimatedSwitcher(
                     duration: duracion(context, Movimiento.entrada),
