@@ -117,7 +117,7 @@
 
 **CA:** Dado un analista u oficial de cumplimiento con el permiso sembrado, cuando abre Alertas o Casos, entonces ve la cola paginada desde `alerta_monitoreo_lft` / `caso_investigacion_lft` con estado, severidad y plazo, sin datos personales en la lista.
 **DoD:** `./gradlew :servicios:cumplimiento:integrationTest --tests '*CU44Bandeja*'` verde.
-**Estado:** TODO
+**Estado:** HECHO a nivel `TESTED` (evidencia H5-01…H5-06).
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
@@ -127,13 +127,13 @@
 ### H5.S2 — Acciones de CU-44 por HTTP, corregidas
 **CA:** Dado un caso abierto, cuando el oficial (distinto del analista guardado en el caso) registra la decisión, entonces el revisor es la identidad de la sesión, el analista y las alertas salen del caso guardado, un caso ya decidido no se vuelve a decidir (sin segundo evento) y "caso inexistente" tiene su propio código.
 **DoD:** `integrationTest --tests '*CU44DecisionTest*'` + webTest de la ruta.
-**Estado:** TODO
+**Estado:** HECHO a nivel `TESTED` (H5-04, H5-05, H5-06).
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H5.S2.M1 | **(descubierta)** `CU44.decidir` toma `analistaId`/`revisadoPor`/`alertaIds` del cuerpo y **ignora** el `boolean` de `CasoLftRepositorio.decidir` (doble efecto); "caso no existe" usa `AP-CU44-04` (= `CASO_VENCIDO`). Nuevo `decidirComoRevisor(casoId, decision, conclusion, rosId, ctx)`: analista y alertas desde la base, revisor = sesión, transición condicionada y verificada, `AP-CU44-06 CASO_INEXISTENTE`, `AP-CU44-07 CASO_YA_DECIDIDO` | revisor = analista → `AP-CU44-02`; segunda decisión → `AP-CU44-07` y 1 evento | `integrationTest --tests '*CU44DecisionTest*'` | TODO |
-| H5.S2.M2 | Contrato + controlador `POST /cumplimiento/casos/{casoId}/decision` (`decidirCaso`, `CUMPLIMIENTO_CASOS` + rol `OFICIAL_CUMPLIMIENTO` según CU-44 «Exige») y `POST /cumplimiento/casos` (`abrirCasoLft`, `CUMPLIMIENTO_CASOS`) | 200/201, 403 para analista sin rol de oficial en la decisión, 400 cuerpo | `webTest --tests '*LftAccionesWebTest*'` | TODO |
-| H5.S2.M3 | Bóveda CU-44, Postman, regresión `cumplimiento` | 0 fallas | regresión + gates | TODO |
+| H5.S2.M1 | **(descubierta)** `CU44.decidir` toma `analistaId`/`revisadoPor`/`alertaIds` del cuerpo y **ignora** el `boolean` de `CasoLftRepositorio.decidir` (doble efecto); "caso no existe" usa `AP-CU44-04` (= `CASO_VENCIDO`). Nuevo `decidirComoRevisor(casoId, decision, conclusion, rosId, ctx)`: analista y alertas desde la base, revisor = sesión, transición condicionada y verificada, `AP-CU44-06 CASO_INEXISTENTE`, `AP-CU44-07 CASO_YA_DECIDIDO` | revisor = analista → `AP-CU44-02`; segunda decisión → `AP-CU44-07` y 1 evento | `integrationTest --tests '*CU44DecisionTest*'` | HECHO |
+| H5.S2.M2 | Contrato + controlador `POST /cumplimiento/casos/{casoId}/decision` (`decidirCaso`, `CUMPLIMIENTO_CASOS` + rol `OFICIAL_CUMPLIMIENTO` según CU-44 «Exige») y `POST /cumplimiento/casos` (`abrirCasoLft`, `CUMPLIMIENTO_CASOS`) | 200/201, 403 para analista sin rol de oficial en la decisión, 400 cuerpo | `webTest --tests '*LftAccionesWebTest*'` | HECHO |
+| H5.S2.M3 | Bóveda CU-44, Postman, regresión `cumplimiento` | 0 fallas | regresión + gates | HECHO |
 
 ## H6 — Cierre del carril en esta sesión
 

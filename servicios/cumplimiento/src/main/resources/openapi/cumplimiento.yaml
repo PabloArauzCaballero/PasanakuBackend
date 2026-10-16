@@ -35,6 +35,10 @@
 #   AP-CU44-03  REPORTE_SIN_NARRATIVA · decidir reportar exige el ROS ya radicado
 #   AP-CU44-04  CASO_VENCIDO          · se paso el plazo de investigacion
 #   AP-CU44-05  FILTRO_DE_BANDEJA_INVALIDO · estado o severidad que no existen, o cursor a medias
+#   AP-CU44-06  CASO_INEXISTENTE      · ese caso no existe
+#   AP-CU44-07  CASO_YA_DECIDIDO      · el caso ya tiene otra decision (el reintento identico del mismo
+#                                       oficial devuelve el mismo resultado, no este error)
+#   AP-CU44-08  ALERTAS_INVALIDAS     · alertas inexistentes, de titulares distintos o ya en otro caso
 #
 # CU-45 · Atender un requerimiento de autoridad
 #   AP-CU45-01  OFICIO_DUPLICADO · ese numero ya fue registrado
@@ -583,6 +587,67 @@ paths:
           description: Sin CUMPLIMIENTO_CASOS
         '401':
           $ref: '#/components/responses/NoAutenticado'
+    post:
+      operationId: abrirCasoLft                # CU-44 (backoffice carril A · H5)
+      summary: Agrupar alertas de un titular en un caso de investigacion y asignarle analista
+      description: >-
+        CU-44, paso 4. Las alertas quedan enlazadas al caso desde que se abre. El plazo se guarda al
+        abrir segun la severidad mas alta (R-UIF-08). Reintentar con las mismas alertas y el mismo
+        analista devuelve el caso ya abierto, no uno nuevo. Exige CUMPLIMIENTO_CASOS.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaCasoLft' }
+      responses:
+        '201':
+          description: Caso abierto (o el ya abierto, si es un reintento)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaCasoLft' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU44-08 ALERTAS_INVALIDAS
+        '403':
+          description: Sin CUMPLIMIENTO_CASOS
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /cumplimiento/casos/{casoId}/decision:
+    post:
+      operationId: decidirCasoLft              # CU-44 (backoffice carril A · H5)
+      summary: La decision del oficial sobre un caso
+      description: >-
+        CU-44, pasos 5 a 8. El revisor es la sesion —nunca un campo del cuerpo— y tiene que ser
+        distinto del analista GUARDADO en el caso. Cierra las alertas del caso (las enlazadas al
+        abrirlo), una sola decision por caso: la misma decision del mismo oficial repetida devuelve
+        el mismo resultado sin otro evento; otra decision es AP-CU44-07. REPORTAR exige el ROS ya
+        radicado (vive en auditoria). Nunca se notifica al titular (deber de reserva). Exige
+        CUMPLIMIENTO_CASOS (solo OFICIAL_CUMPLIMIENTO lo tiene sembrado).
+      parameters:
+        - { name: casoId, in: path, required: true, schema: { type: string, format: uuid } }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDecisionCasoLft' }
+      responses:
+        '200':
+          description: Caso decidido (o el mismo resultado, si es un reintento identico)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDecisionCasoLft' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU44-01 CONCLUSION_REQUERIDA · AP-CU44-02 REVISOR_ES_ANALISTA · AP-CU44-03 REPORTE_SIN_NARRATIVA
+          # AP-CU44-06 CASO_INEXISTENTE · AP-CU44-07 CASO_YA_DECIDIDO
+        '403':
+          description: Sin CUMPLIMIENTO_CASOS
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
 
   /licencia/alcance:
     get:
@@ -934,6 +999,48 @@ components:
             usuarios:       { type: integer }
             montoOperacion: { type: string, pattern: '^-?\\d+\\.\\d{2}$' }
         motivo: { type: string, nullable: true }
+    EntradaCasoLft:
+      type: object
+      additionalProperties: false
+      required: [alertaIds, analistaId, resumen]
+      properties:
+        alertaIds:
+          type: array
+          items: { type: string, format: uuid }
+          minItems: 1
+          maxItems: 50
+        analistaId: { type: string, format: uuid }
+        resumen:    { type: string, minLength: 1, maxLength: 500 }
+    SalidaCasoLft:
+      type: object
+      additionalProperties: false
+      required: [casoId, estado, plazoLimite]
+      properties:
+        casoId:      { type: string, format: uuid }
+        estado:      { type: string, enum: [ABIERTO, EN_ANALISIS, EN_REVISION, CERRADO] }
+        plazoLimite: { type: string, format: date-time }
+    EntradaDecisionCasoLft:
+      type: object
+      additionalProperties: false
+      required: [decision, conclusion]
+      properties:
+        decision:   { type: string, enum: [DESCARTAR, MONITOREO_REFORZADO, REPORTAR, TERMINAR_RELACION] }
+        conclusion: { type: string, minLength: 20, maxLength: 2000 }
+        reporteSospechosoId:
+          type: string
+          format: uuid
+          description: El ROS ya radicado en auditoria. Obligatorio si la decision es REPORTAR.
+    SalidaDecisionCasoLft:
+      type: object
+      additionalProperties: false
+      required: [casoId, decision, revisadoPor, alertasCerradas, fueraDePlazo]
+      properties:
+        casoId:          { type: string, format: uuid }
+        decision:        { type: string, enum: [DESCARTAR, MONITOREO_REFORZADO, REPORTAR, TERMINAR_RELACION] }
+        revisadoPor:     { type: string, format: uuid }
+        alertasCerradas: { type: integer, minimum: 0 }
+        fueraDePlazo:    { type: boolean }
+        reporteSospechosoId: { type: [string, 'null'], format: uuid }
     PaginaDeAlertas:
       type: object
       additionalProperties: false

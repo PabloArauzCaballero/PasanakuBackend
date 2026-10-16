@@ -1,0 +1,8 @@
+$ ./gradlew :servicios:cumplimiento:webTest --tests '*LftAccionesWebTest*'
+bo.aportaya.cumplimiento.web.LftAccionesWebTest tests 6 fallas 0
+   PASS 400: una conclusion de menos de 20 caracteres la corta el contrato (R-UIF-07)
+   PASS 200: la decision llega al caso de uso sin revisor en el cuerpo (el revisor sale de la sesion)
+   PASS 422: otra decision sobre un caso ya decidido sale con AP-CU44-07
+   PASS 400: el cuerpo no puede declarar revisadoPor ni analistaId: suplantar al revisor no llega al caso de uso
+   PASS 403: el analista (solo CUMPLIMIENTO_ALERTAS) no abre ni decide casos
+   PASS 201: el oficial abre un caso con alertas y analista, y recibe el plazo guardado

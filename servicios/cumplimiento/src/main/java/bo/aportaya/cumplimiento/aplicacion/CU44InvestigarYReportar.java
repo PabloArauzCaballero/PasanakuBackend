@@ -68,8 +68,24 @@ public class CU44InvestigarYReportar {
 
         return datos.conContexto(ctx, dsl -> {
             var alertas = monitoreo.alertas(dsl, entrada.alertaIds());
-            if (alertas.isEmpty()) {
-                throw new ErrorDeNegocio(CodigoError.de(44, 1), "No hay alertas para investigar.");
+            if (alertas.isEmpty()
+                    || alertas.size() != entrada.alertaIds().stream().distinct().count()) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(44, 8), "No hay alertas para investigar con esos identificadores.");
+            }
+            // Reintento (backoffice carril A · H5.S2): si TODAS ya estan en un mismo caso de este
+            // analista, es el caso que se abrio la primera vez; se devuelve, no se abre otro vacio.
+            var enCaso = monitoreo.casosDe(dsl, entrada.alertaIds());
+            if (enCaso.size() == alertas.size()
+                    && enCaso.values().stream().distinct().count() == 1) {
+                UUID existente = enCaso.values().iterator().next();
+                var caso = casos.porId(dsl, existente)
+                        .filter(c -> c.analistaId().equals(entrada.analistaId()))
+                        .orElseThrow(() -> alertasInvalidas());
+                return new SalidaCaso(caso.id(), caso.estado(), caso.plazoLimite(), null);
+            }
+            if (!enCaso.isEmpty()) {
+                throw alertasInvalidas();
             }
             // Un caso reune alertas de UN cliente. Mezclar clientes en un expediente
             // hace que la decision sobre uno contamine al otro.
@@ -79,7 +95,7 @@ public class CU44InvestigarYReportar {
                     .toList();
             if (titulares.size() > 1) {
                 throw new ErrorDeNegocio(
-                        CodigoError.de(44, 1), "Las alertas son de titulares distintos: van en casos separados.");
+                        CodigoError.de(44, 8), "Las alertas son de titulares distintos: van en casos separados.");
             }
 
             String severidad = alertas.stream()
@@ -100,7 +116,11 @@ public class CU44InvestigarYReportar {
                     plazo);
 
             for (var alerta : alertas) {
-                monitoreo.asignar(dsl, alerta.id(), entrada.analistaId());
+                // Si otra transaccion la tomo primero (ya no esta ABIERTA), este caso no se abre:
+                // seguir dejaria un caso vacio, sin alertas que decidir.
+                if (!monitoreo.asignar(dsl, alerta.id(), entrada.analistaId(), casoId)) {
+                    throw alertasInvalidas();
+                }
             }
 
             outbox.emitir(
@@ -145,19 +165,35 @@ public class CU44InvestigarYReportar {
 
         return datos.conContexto(ctx, dsl -> {
             var caso = casos.porId(dsl, entrada.casoId())
-                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(44, 4), "Ese caso no existe."));
+                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(44, 6), "Ese caso no existe."));
             // AP-CU44-04: pasado el plazo la decision se registra igual —no cerrar seria
             // peor— pero queda marcada como fuera de plazo.
             boolean vencido = ahora.isAfter(caso.plazoLimite());
 
-            casos.decidir(
+            // La transicion es condicional (estado <> CERRADO): si no paso, el caso ya tenia decision y
+            // seguir cerraria alertas y emitiria otro caso_decidido (backoffice carril A · H5.S2).
+            if (!casos.decidir(
                     dsl,
                     entrada.casoId(),
                     entrada.decision(),
                     entrada.conclusion(),
                     entrada.revisadoPor(),
                     entrada.reporteSospechosoId(),
-                    ahora);
+                    ahora)) {
+                // El reintento identico devuelve lo mismo sin segundo efecto; otra decision es AP-CU44-07.
+                boolean reintento = casos.decisionRegistrada(dsl, entrada.casoId())
+                        .filter(d -> d.repite(
+                                entrada.decision(),
+                                entrada.conclusion(),
+                                entrada.revisadoPor(),
+                                entrada.reporteSospechosoId()))
+                        .isPresent();
+                if (reintento) {
+                    return new SalidaCaso(
+                            entrada.casoId(), "CERRADO", caso.plazoLimite(), entrada.reporteSospechosoId());
+                }
+                throw new ErrorDeNegocio(CodigoError.de(44, 7), "Ese caso ya tiene su decision.");
+            }
 
             for (UUID alertaId : entrada.alertaIds()) {
                 monitoreo.cerrar(
@@ -186,6 +222,10 @@ public class CU44InvestigarYReportar {
 
             return new SalidaCaso(entrada.casoId(), "CERRADO", caso.plazoLimite(), entrada.reporteSospechosoId());
         });
+    }
+
+    private static ErrorDeNegocio alertasInvalidas() {
+        return new ErrorDeNegocio(CodigoError.de(44, 8), "Alguna alerta ya esta en otro caso o ya no esta abierta.");
     }
 
     private static int peso(String severidad) {
