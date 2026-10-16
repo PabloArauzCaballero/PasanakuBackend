@@ -25,7 +25,7 @@
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| Prueba en dispositivo | TODO | Un APK o TestFlight de esta rama |
+| Prueba en dispositivo | TODO | Pablo instala el APK `aportaya-test-8-pautas-de-foto-TEST.apk` (versionCode 26101522) o el TestFlight 202610152229, ambos de esta rama, ya subidos |
 
 ## Evidencia
 ```text
@@ -37,6 +37,8 @@ test/widget/escaner_del_carnet_test.dart: un carnet escaneado queda como captura
 # (evidencia/escaner-en-base-origin-test.txt). Depende de una espera real de 300 ms para decodificar un PNG.
 ```
 Capturas: `evidencia/hoja-antes-de-escanear-{claro,oscuro}-412.png`, `consejos-camara-{claro,oscuro}-412.png`, `pautas-rostro-{claro,oscuro}-412.png`. Las renderizó una prueba descartable que no cargaba las fuentes, así que el texto y los íconos salen como bloques; sirven para ver la composición. Las ilustraciones salen completas.
+
+Builds de esta rama: APK `evidencia/apk.txt` (exit=0, sha256 c9ea8e1d…9e95e22); `Runner.xcarchive` 202610152229 `evidencia/ipa.txt` (exit=0); subida a TestFlight `evidencia/subida-testflight.txt` (`Upload succeeded`, `EXPORT SUCCEEDED`; la corrió Pablo con `!`).
 
 ## No cubierto
 - Dispositivo real.
