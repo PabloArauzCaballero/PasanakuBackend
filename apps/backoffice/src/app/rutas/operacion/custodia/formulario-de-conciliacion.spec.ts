@@ -89,6 +89,7 @@ describe('FormularioDeConciliacion · [UI contra HTTP simulado] CU-50', () => {
     f.detectChanges()
     expect(texto(f)).not.toContain('Conciliación registrada')
     expect(texto(f)).not.toContain('crudo')
+    expect(texto(f)).toContain('Ese día ya tiene una conciliación de esta cuenta con otros saldos')
     expect(f.componentInstance['custodia']()).toBe('1.250.000,50')
     llenar(f)
     confirmar(f)

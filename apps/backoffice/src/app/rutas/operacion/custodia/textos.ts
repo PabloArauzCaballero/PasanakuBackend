@@ -34,5 +34,11 @@ export const textosCustodia = {
     recibo: 'Conciliación registrada',
     reciboId: 'Identificador',
     otra: 'Registrar otra conciliación',
+    rechazos: {
+      'AP-CU50-01': 'Todavía no hay cierres diarios para conciliar contra ese día.',
+      'AP-CU50-03': 'Ese día ya tiene una conciliación de esta cuenta con otros saldos. Revisala en el historial antes de repetir.',
+      'AP-CU50-05': 'La moneda elegida no es la de esa cuenta de custodia.',
+      'AP-CU50-06': 'No encontramos esa cuenta de custodia. Revisá el identificador.',
+    } as Readonly<Record<string, string>>,
   },
 } as const

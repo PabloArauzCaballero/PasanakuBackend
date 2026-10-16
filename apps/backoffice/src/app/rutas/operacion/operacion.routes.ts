@@ -62,6 +62,13 @@ export const rutasOperacion: Routes = [
     title: 'Conciliación de custodia · AportaYa',
     canMatch: [requierePermiso('AUDITORIA_LEER')],
   },
+  {
+    // CU-51 · `listarCierresDiarios` exige AUDITORIA_LEER; cerrar (`ejecutarCierreDiario`) exige el rol CONTABILIDAD.
+    path: 'cierres-diarios',
+    loadComponent: () => import('./cierres/pantalla-de-cierres').then((m) => m.PantallaDeCierres),
+    title: 'Cierres diarios · AportaYa',
+    canMatch: [requierePermiso('AUDITORIA_LEER')],
+  },
   // `estado/` es de F6 (ficha F6, estructura congelada): la ficha se lo asigna al shell
   // aunque viva dentro del dominio `operacion` que B1 posee. Es la única entrada de esta
   // lista que F6 agrega; el resto de `operacion.routes.ts` lo llena B1.

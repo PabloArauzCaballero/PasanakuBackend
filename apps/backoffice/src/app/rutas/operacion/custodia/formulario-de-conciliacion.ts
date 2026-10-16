@@ -118,7 +118,7 @@ export class FormularioDeConciliacion {
         this.pendiente.set(null)
         const estado = e.estado ?? 0
         this.sinConfirmar.set(!!e.sinConexion || !!e.tiempoAgotado || estado === 0 || estado >= 500)
-        this.aviso.set(this.sinConfirmar() ? T.sinConfirmar : e.mensaje)
+        this.aviso.set(this.sinConfirmar() ? T.sinConfirmar : (T.rechazos[e.codigo ?? ''] ?? e.mensaje))
       },
     })
   }
