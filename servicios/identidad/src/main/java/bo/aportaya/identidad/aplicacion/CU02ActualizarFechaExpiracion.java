@@ -1,6 +1,6 @@
 package bo.aportaya.identidad.aplicacion;
 
-import bo.aportaya.identidad.infraestructura.RevisionRepositorio;
+import bo.aportaya.identidad.infraestructura.FechaDeExpiracionRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
@@ -14,10 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CU02ActualizarFechaExpiracion {
 
-    private final RevisionRepositorio revisiones;
+    private final FechaDeExpiracionRepositorio revisiones;
     private final Datos datos;
 
-    public CU02ActualizarFechaExpiracion(RevisionRepositorio revisiones, Datos datos) {
+    public CU02ActualizarFechaExpiracion(FechaDeExpiracionRepositorio revisiones, Datos datos) {
         this.revisiones = revisiones;
         this.datos = datos;
     }

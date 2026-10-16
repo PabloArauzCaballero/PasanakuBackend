@@ -1,0 +1,12 @@
+identidad          test 35/0 · webTest 123/0 · integrationTest 151/0 · testBarrido 2/0
+publicidad         test 5/0 · webTest 21/0 · integrationTest 59/0 · testBarrido 2/0
+cumplimiento       test 14/0 · webTest 87/0 · integrationTest 332/0 · testBarrido 2/0
+nucleo-financiero  test 81/0 · webTest 68/0 · integrationTest 476/0 · testBarrido 2/0
+plataforma/comun-pruebas  20/0
+plataforma/comun-web      11/0
+
+$ verificar_criterios / verificar_boveda / verificar_seguridad / verificar_pruebas_web
+Sin divergencias entre la boveda y el codigo.
+TODO OK
+TODO OK · 6 aviso(s)
+La capa web esta cubierta segun ADR-043.
