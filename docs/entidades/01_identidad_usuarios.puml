@@ -329,7 +329,7 @@ package "Tokens de Verificacion y Credenciales" {
   class FactorMFA {
     - id: UUID
     - usuarioId: UUID
-    - tipo: String <<TOTP | SMS | WHATSAPP | RESPALDO>>
+    - tipo: String <<TOTP | SMS | WHATSAPP | RESPALDO | CORREO>>
     - secretoCifrado: String
     - activo: Boolean
     - esPrincipal: Boolean

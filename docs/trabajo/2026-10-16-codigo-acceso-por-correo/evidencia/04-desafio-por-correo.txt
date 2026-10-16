@@ -1,0 +1,9 @@
+$ ./gradlew :servicios:identidad:test --tests '*DesafioPorCorreo*'
+exit=0 · BUILD SUCCESSFUL
+testsuite name="bo.aportaya.identidad.DesafioPorCorreoTest" tests="5" skipped="0" failures="0" errors="0"
+testcase name="correcto: el codigo sale una vez por correo de acceso y entra una sola vez"
+testcase name="invalido: sin destino no se envia nada y ningun codigo entra"
+testcase name="limite: pedirlo de nuevo reemplaza el codigo anterior"
+testcase name="invalido: si el proveedor falla, el ingreso no se rompe y no queda un codigo vivo"
+testcase name="limite: un factor que no viaja (TOTP) no manda ningun correo"
+(contra DOBLE CorreoEnMemoria; Gmail real no ejercitado aquí)

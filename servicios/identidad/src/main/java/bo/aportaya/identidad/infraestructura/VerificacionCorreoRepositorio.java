@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class VerificacionCorreoRepositorio {
 
-    private static final String PROPOSITO = "VERIFICACION_CORREO";
+    static final String PROPOSITO = "VERIFICACION_CORREO";
 
     private final Datos datos;
     private final Ids ids;
