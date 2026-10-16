@@ -31,12 +31,13 @@ import org.springframework.stereotype.Component;
 public class DesafioLocal implements DesafioDeFactor {
 
     private static final Logger BITACORA = LoggerFactory.getLogger(DesafioLocal.class);
-    private static final Duration VIGENCIA = Duration.ofMinutes(5);
+    private static final Duration VIGENCIA = Duration.ofMinutes(10);
     private static final int DIGITOS = 6;
     private static final String CORREO = "CORREO";
 
     private final SecureRandom azar = new SecureRandom();
     private final Map<UUID, Desafio> vigentes = new ConcurrentHashMap<>();
+    private final java.util.Set<UUID> entregadosPorCorreo = ConcurrentHashMap.newKeySet();
     private final CorreoDeVerificacion correo;
 
     public DesafioLocal(CorreoDeVerificacion correo) {
@@ -47,6 +48,7 @@ public class DesafioLocal implements DesafioDeFactor {
     public UUID emitir(UUID usuarioId, String tipoDeFactor) {
         UUID id = UUID.randomUUID();
         String codigo = "%06d".formatted(azar.nextInt(1_000_000));
+        entregadosPorCorreo.remove(usuarioId);
         vigentes.put(usuarioId, new Desafio(codigo, Instant.now().plus(VIGENCIA)));
         // El valor NUNCA se registra. Un codigo en el log es un codigo filtrado.
         BITACORA.info("desafio {} emitido para el usuario {} ({} digitos)", id, usuarioId, DIGITOS);
@@ -67,6 +69,7 @@ public class DesafioLocal implements DesafioDeFactor {
         }
         try {
             correo.enviarCodigoDeAcceso(destino, desafio.codigo(), VIGENCIA);
+            entregadosPorCorreo.add(usuarioId);
         } catch (RuntimeException fallo) {
             // Solo el tipo de la falla: el mensaje del proveedor puede traer el destino.
             vigentes.remove(usuarioId);
@@ -76,6 +79,11 @@ public class DesafioLocal implements DesafioDeFactor {
                     fallo.getClass().getSimpleName());
         }
         return id;
+    }
+
+    @Override
+    public boolean entregaPorCorreoConfirmada(UUID usuarioId) {
+        return entregadosPorCorreo.contains(usuarioId);
     }
 
     @Override

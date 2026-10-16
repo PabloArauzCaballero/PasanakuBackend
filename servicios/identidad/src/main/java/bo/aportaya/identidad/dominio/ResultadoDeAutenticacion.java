@@ -68,6 +68,20 @@ public record ResultadoDeAutenticacion(
                 "Confirma el codigo que te enviamos para terminar de entrar.");
     }
 
+    /** AP-CU04-10: igual que el factor requerido, pero el proveedor ya acepto el correo con el codigo. */
+    public static ResultadoDeAutenticacion factorEnviadoPorCorreo(boolean dispositivoConfiable) {
+        return new ResultadoDeAutenticacion(
+                false,
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                true,
+                dispositivoConfiable,
+                false,
+                Optional.of(CodigoError.de(4, 10)),
+                "Te enviamos el codigo a tu correo verificado. Escribilo para terminar de entrar.");
+    }
+
     public static ResultadoDeAutenticacion rechazado(CodigoError codigo, String mensaje) {
         return new ResultadoDeAutenticacion(
                 false,
