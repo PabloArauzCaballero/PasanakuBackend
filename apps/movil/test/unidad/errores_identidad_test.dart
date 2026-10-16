@@ -1,9 +1,10 @@
 import 'package:aportaya_movil/dominio/errores.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Carril H2 · los rechazos de identidad que el servidor TEST real devuelve con código propio
-/// (AP-CU04-01/02/04/05, AP-CU01-07..11) se explican por separado: antes caían en «El código no
-/// coincide» (credencial mal) o en el genérico «Algo salió mal de nuestro lado» (código de correo).
+/// Los rechazos con código propio del contrato de identidad se explican por separado:
+/// CU-04 distingue credenciales, bloqueo y factor; CU-01-07..11 cubre vencimiento y
+/// decisiones de revisión del expediente. Los códigos de confirmación de correo deben
+/// quedar diferenciados en el contrato antes de asignarles textos en este catálogo.
 void main() {
   final generico = mensajeDe('AP-DESCONOCIDO', estado: 422);
 
@@ -46,7 +47,7 @@ void main() {
     );
 
     test(
-      'correcto: los cinco rechazos del código de correo del alta son distintos y accionables',
+      'correcto: los cinco rechazos de documento y revisión son distintos y accionables',
       () {
         final textos = [
           for (final n in ['07', '08', '09', '10', '11'])

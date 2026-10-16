@@ -14,9 +14,9 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * El permiso de la persona que acaba de darse de alta para completar SU expediente KYC.
  *
- * <p>Las fotos del documento se suben justo despues del alta. El acceso limitado a la sesion
- * puede comenzar mientras la cuenta sigue {@code PENDIENTE_VERIFICACION}; este token permite
- * completar el expediente sin ampliar los permisos de la sesion. Esa ruta era
+ * <p>Las fotos se suben justo despues del alta, antes de que exista una sesion, o mientras
+ * el acceso limitado a la sesion comienza con la cuenta {@code PENDIENTE_VERIFICACION}.
+ * Este token permite completar el expediente sin ampliar los permisos de la sesion. Esa ruta era
  * publica y confiaba en el {@code usuarioId} de la URL: quien conociera el UUID de otra persona
  * escribia en su expediente. Ahora el alta devuelve este token, atado a ESE usuario, con un unico
  * proposito —subir las fotos del expediente— y vencimiento corto (regla 90.1.11).

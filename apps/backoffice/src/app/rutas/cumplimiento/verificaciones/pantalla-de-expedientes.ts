@@ -79,7 +79,6 @@ import { TiraDeFotos } from './tira-de-fotos'
                 </header>
 
                 <ap-tira-de-fotos [expediente]="e" />
-
                 @if (pendiente(e)) {
                   <ap-decision-de-expediente
                     [verificacionId]="e.verificacionId"

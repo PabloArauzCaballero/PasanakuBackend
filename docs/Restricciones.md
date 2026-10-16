@@ -4,8 +4,8 @@ tags:
   - restricciones
 titulo: "Catálogo de restricciones — AportaYa"
 motor: PostgreSQL 15+
-total_restricciones: 138
-fecha: 2026-08-16
+total_restricciones: 173
+fecha: 2026-10-14
 ---
 
 # Catálogo de restricciones

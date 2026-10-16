@@ -178,10 +178,22 @@ class _TraduccionDeErrores extends Interceptor {
           codigo: codigo,
           trazaId: traza,
           estado: respuesta.statusCode ?? 0,
+          contexto: _contextoError(err.requestOptions),
         ),
       ),
     );
   }
+}
+
+ContextoErrorApi _contextoError(RequestOptions request) {
+  final path = Uri.parse(request.path).path;
+  if (path.contains('/usuarios/verificaciones/correo')) {
+    return ContextoErrorApi.verificacionCorreo;
+  }
+  if (request.method.toUpperCase() == 'POST' && path.endsWith('/usuarios')) {
+    return ContextoErrorApi.registro;
+  }
+  return ContextoErrorApi.general;
 }
 
 String _traza() {
