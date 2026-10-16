@@ -1,0 +1,22 @@
+Application bundle generation complete. [1.788 seconds] - 2026-10-16T22:07:44.762Z
+ RUN  v4.1.11 /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/bo-l2-cumplimiento/apps/backoffice
+ ✓  backoffice  src/app/rutas/cumplimiento/alertas/bandeja-de-alertas.spec.ts > BandejaDeAlertas · CU-44 listarBandejaDeAlertas > correcto: pide la primera página sin cursor y entrega las filas del contrato a la tabla 101ms
+ ✓  backoffice  src/app/rutas/cumplimiento/alertas/bandeja-de-alertas.spec.ts > BandejaDeAlertas · CU-44 listarBandejaDeAlertas > correcto: los filtros viajan como el contrato los pide (explode: false → una clave con comas) 40ms
+ ✓  backoffice  src/app/rutas/cumplimiento/alertas/bandeja-de-alertas.spec.ts > BandejaDeAlertas · CU-44 listarBandejaDeAlertas > límite: bandeja vacía muestra el porqué, no una tabla muda 19ms
+ ✓  backoffice  src/app/rutas/cumplimiento/alertas/bandeja-de-alertas.spec.ts > BandejaDeAlertas · CU-44 listarBandejaDeAlertas > límite: última página (próximo nulo) no inventa una página más 23ms
+ ✓  backoffice  src/app/rutas/cumplimiento/alertas/bandeja-de-alertas.spec.ts > BandejaDeAlertas · CU-44 listarBandejaDeAlertas > inválido: 403 muestra «sin acceso» y oculta la tabla 17ms
+stderr | src/app/rutas/cumplimiento/alertas/bandeja-de-alertas.spec.ts > BandejaDeAlertas · CU-44 listarBandejaDeAlertas > inválido: 422 AP-CU44-05 muestra un error accionable con reintento, sin el texto crudo del servidor
+NG0956: The configured tracking expression (track by identity) caused re-creation of the entire collection of size 1. This is an expensive operation requiring destruction and subsequent creation of DOM nodes, directives, components etc. Please review the "track expression" and make sure that it uniquely identifies items in a collection. Find more at https://v22.angular.dev/errors/NG0956
+ ✓  backoffice  src/app/rutas/cumplimiento/alertas/bandeja-de-alertas.spec.ts > BandejaDeAlertas · CU-44 listarBandejaDeAlertas > inválido: 422 AP-CU44-05 muestra un error accionable con reintento, sin el texto crudo del servidor 31ms
+ ✓  backoffice  src/app/rutas/cumplimiento/alertas/bandeja-de-alertas.spec.ts > BandejaDeAlertas · CU-44 listarBandejaDeAlertas > sin CUMPLIMIENTO_CASOS no se ofrece abrir un caso (la tabla no es seleccionable) 17ms
+ ✓  backoffice  src/app/rutas/cumplimiento/alertas/bandeja-de-alertas.spec.ts > BandejaDeAlertas · CU-44 listarBandejaDeAlertas > con CUMPLIMIENTO_CASOS, el botón de abrir caso espera una selección de 1 a 50 alertas 32ms
+ ✓  backoffice  src/app/rutas/cumplimiento/alertas/abrir-caso.spec.ts > AbrirCaso · CU-44 abrirCasoLft > correcto: cuerpo exacto del contrato, con Idempotency-Key, y el botón bloqueado mientras se envía 27ms
+ ✓  backoffice  src/app/rutas/cumplimiento/alertas/abrir-caso.spec.ts > AbrirCaso · CU-44 abrirCasoLft > límite: 50 alertas se envían; 51 no salen de la pantalla 17ms
+ ✓  backoffice  src/app/rutas/cumplimiento/alertas/abrir-caso.spec.ts > AbrirCaso · CU-44 abrirCasoLft > inválido (cliente): analista que no es UUID y resumen vacío no se envían; el error queda en su campo 9ms
+ ✓  backoffice  src/app/rutas/cumplimiento/alertas/abrir-caso.spec.ts > AbrirCaso · CU-44 abrirCasoLft > inválido: 422 AP-CU44-08 no dice «abierto», marca la selección y deja el formulario como estaba 16ms
+ ✓  backoffice  src/app/rutas/cumplimiento/alertas/abrir-caso.spec.ts > AbrirCaso · CU-44 abrirCasoLft > inválido: 403 se muestra como error del envío, sin éxito 11ms
+ Test Files  2 passed (2)
+      Tests  13 passed (13)
+   Start at  18:07:44
+   Duration  1.22s (transform 171ms, setup 186ms, import 231ms, tests 361ms, environment 359ms)
+exit 0
