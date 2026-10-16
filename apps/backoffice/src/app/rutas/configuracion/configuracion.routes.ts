@@ -26,4 +26,10 @@ export const rutasConfiguracion: Routes = [
     title: 'Mensajería · AportaYa',
     canMatch: [requiereAlgunPermiso('AUDITORIA_LEER')],
   },
+  {
+    path: 'reportes',
+    loadComponent: () => import('./reportes/pantalla-de-reportes').then((m) => m.PantallaDeReportes),
+    title: 'Reportes · AportaYa',
+    canMatch: [requiereAlgunPermiso('AUDITORIA_LEER')],
+  },
 ]
