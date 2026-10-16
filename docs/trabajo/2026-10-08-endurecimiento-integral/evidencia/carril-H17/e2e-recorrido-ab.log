@@ -1,0 +1,21 @@
+PASS login A en dos pasos (credencial -> pide factor -> sesion) · http=422/AP-CU04-03 luego 200
+PASS login B en dos pasos · http=422/AP-CU04-03 luego 200
+PASS A crea el grupo (202) · http=202 codigo=None
+PASS el grupo nace BORRADOR o ya abierto (la cadena es asincrona) · estado=BORRADOR
+PASS P·H1: grupo_creado -> tarifas congela -> tarifa_congelada -> grupos abre (Kafka real) · estado=ABIERTO_A_INSCRIPCION en 1.3s
+PASS tarifas dejo una sola tarifa congelada con hash · filas=1
+PASS el historial de estado registra la apertura una vez · filas=1
+PASS Q·DD-8: nucleo abre la billetera del grupo al consumir grupo_creado (Kafka real) · filas=1 en 0.1s
+PASS P·H2: invitar por ENLACE responde 201 (antes 500 AP-INT-01) · http=201 codigo=None
+   respuesta de la invitacion (claves): ['enlace', 'expiraEn', 'invitacionId', 'mensaje', 'token'] | enlace: aportaya://unirse/76382a86-6e7f-4b0e-89f8-03b94aaab1a1.5ce1fc037126860
+PASS B consulta el enlace (200, antes 422 AP-CU69-05 por BORRADOR) · http=200 codigo=None
+PASS B acepta el enlace (201) con participanteId · http=201 codigo=None
+PASS la participacion existe en la base (persistencia real) · filas=1
+FAIL reintento con la misma clave: mismo participanteId y una sola participacion · http=422 participaciones=1
+PASS rechaza: otro pedido (otra clave) sobre el enlace ya usado no suma otra participacion · http=422 codigo=AP-CU69-05 participaciones=1
+PASS rechaza: el organizador (otro actor) no consulta el enlace de B · http=422 codigo=AP-CU69-05
+PASS B se postula al segundo grupo (queda una postulacion pendiente) · http=201 codigo=None
+PASS rechaza: canje con una postulacion pendiente -> AP-CU68-06 · http=422 codigo=AP-CU68-06
+PASS el enlace NO quedo consumido en identidad y la invitacion sigue ENVIADA (no se quemo) · token=EMITIDO invitacion=ENVIADA
+PASS el organizador todavia puede revocar la invitacion (204) · http=204 codigo=None
+{"grupo": "336182bc-5ed5-4517-8c93-fe0ececeb43a", "resultado": [["login A en dos pasos (credencial -> pide factor -> sesion)", true], ["login B en dos pasos", true], ["A crea el grupo (202)", true], ["el grupo nace BORRADOR o ya abierto (la cadena es asincrona)", true], ["P\u00b7H1: grupo_creado -> tarifas congela -> tarifa_congelada -> grupos abre (Kafka real)", true], ["tarifas dejo una sola tarifa congelada con hash", true], ["el historial de estado registra la apertura una vez", true], ["Q\u00b7DD-8: nucleo abre la billetera del grupo al consumir grupo_creado (Kafka real)", true], ["P\u00b7H2: invitar por ENLACE responde 201 (antes 500 AP-INT-01)", true], ["B consulta el enlace (200, antes 422 AP-CU69-05 por BORRADOR)", true], ["B acepta el enlace (201) con participanteId", true], ["la participacion existe en la base (persistencia real)", true], ["reintento con la misma clave: mismo participanteId y una sola participacion", false], ["rechaza: otro pedido (otra clave) sobre el enlace ya usado no suma otra participacion", true], ["rechaza: el organizador (otro actor) no consulta el enlace de B", true], ["B se postula al segundo grupo (queda una postulacion pendiente)", true], ["rechaza: canje con una postulacion pendiente -> AP-CU68-06", true], ["el enlace NO quedo consumido en identidad y la invitacion sigue ENVIADA (no se quemo)", true], ["el organizador todavia puede revocar la invitacion (204)", true]]}

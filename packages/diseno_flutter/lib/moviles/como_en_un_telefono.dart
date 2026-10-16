@@ -87,7 +87,7 @@ class ComoEnUnTelefono extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(28),
                   border: Border.all(color: tokens.border),
-                  boxShadow: [tokens.sombra3],
+                  boxShadow: Elevacion.superpuesta(tokens),
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(28),

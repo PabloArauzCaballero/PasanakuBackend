@@ -1,0 +1,15 @@
+python tools\extraer_anexos.py docs\trabajo\2026-10-11-alta-atlas-sesion-premium\PLAN.md --listar
+blocks_ok=1065 blocks_bad=0
+
+python tools\extraer_anexos.py PLAN.md --prefijo D1/ --quitar-prefijo D1/ --destino .claude\skills
+escritos: 65 · con error: 0
+python tools\extraer_anexos.py PLAN.md --prefijo D2/ --quitar-prefijo D2/ --destino .claude\skills
+escritos: 22 · con error: 0
+python tools\extraer_anexos.py PLAN.md --prefijo D3/ --quitar-prefijo D3/ --destino .claude\skills-referencia-atlas
+escritos: 5 · con error: 0
+python tools\extraer_anexos.py PLAN.md --prefijo D4/ --quitar-prefijo D4/ --destino .claude\skills
+escritos: 4 · con error: 0
+
+mirror_dirs=278
+README D3 y sección Skills obligatorias para la app móvil en AGENTS.md: creados.
+Lectura documentada en NOTAS.md: 9 skills iniciales requeridas.

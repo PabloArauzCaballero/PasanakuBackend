@@ -3,6 +3,7 @@ package bo.aportaya.plataforma.datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import org.jooq.DSLContext;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -49,6 +50,39 @@ public final class Datos {
         fijar("app.rol", ctx.rol());
         fijar("app.traza", ctx.traza().id());
         return consulta.apply(dsl);
+    }
+
+    /**
+     * Ejecuta {@code trabajo} con el rol de {@code sistema} y restaura el rol anterior al terminar.
+     *
+     * <p>Es la unica forma de escribir lo que las politicas de fila reservan al sistema
+     * (el libro de billetera, por ejemplo) desde una peticion de un participante. Es
+     * deliberadamente <b>estatico y de alcance estrecho</b>: no cambia {@code app.usuario_id}
+     * (quien actuo sigue constando) y el rol vuelve a ser el de la sesion apenas termina el
+     * bloque, de modo que no queda un privilegio abierto para el resto de la peticion.
+     * Quien lo usa responde de haber autorizado antes la operacion.
+     */
+    public static <T> T comoSistema(DSLContext dsl, Supplier<T> trabajo) {
+        Objects.requireNonNull(dsl, "dsl");
+        Objects.requireNonNull(trabajo, "trabajo");
+        String rolDeLaSesion = dsl.fetchOne("select coalesce(current_setting('app.rol', true), '')")
+                .get(0, String.class);
+        dsl.execute("select set_config('app.rol', ?, true)", ContextoSesion.ROL_SISTEMA);
+        T resultado;
+        try {
+            resultado = trabajo.get();
+        } catch (RuntimeException fallo) {
+            // Si el trabajo aborto la transaccion, restaurar el rol tambien falla: el error que
+            // importa es el del trabajo, no el de la restauracion, que se anota aparte.
+            try {
+                dsl.execute("select set_config('app.rol', ?, true)", rolDeLaSesion);
+            } catch (RuntimeException alRestaurar) {
+                fallo.addSuppressed(alRestaurar);
+            }
+            throw fallo;
+        }
+        dsl.execute("select set_config('app.rol', ?, true)", rolDeLaSesion);
+        return resultado;
     }
 
     private void fijar(String clave, String valor) {

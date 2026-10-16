@@ -69,3 +69,17 @@ Técnica: el canal `bo.aportaya/proteccion_pantalla` (el mismo de Android) atend
 | H1.S6.M2 | Receptor nativo en `AppDelegate.swift` | El build de iOS compila | `flutter build ios --release --no-codesign` → exit 0 | HECHO — exit 0 (`evidencia/h1s6m2-build.txt`) |
 | H1.S6.M3 | En el iPhone 12 la app abre sin cartel de bloqueo | Pantalla inicial visible | lanzar por `devicectl` + captura/confirmación de Pablo | A MEDIAS — instalada en el iPhone 12 (exit 0); no se pudo lanzar (teléfono bloqueado); Pablo reporta "el error persiste" sin precisar el teléfono; el iPhone se desconectó. |
 | H1.S6.M4 | Build nuevo a TestFlight | ASC acepta | `Upload succeeded` | HECHO — build 202609282146, canal en el binario, `Upload succeeded` (`evidencia/h1s6m4-subida.txt`) |
+
+### H1.S8 — Verificación de arranque y subida limpia (pedido de Pablo 2026-09-29: "que no haya ningún faltante")
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H1.S8.M1 | Arranque debug en simulador iPhone 17 contra TEST | Se ve la pantalla de inicio, no el bloqueo | `xcrun simctl launch` + captura inspeccionada | HECHO — pantalla «El pasanaku de siempre, con la plata segura»; solo debug (`kReleaseMode` false: no ejercita el gate de release) |
+| H1.S8.M2 | Release limpio 202609291900 con API y HOSTS de TEST y canal nativo | Binario con URL TEST y `bo.aportaya/proteccion_pantalla` | `flutter build ipa --release --no-codesign …` + `strings` | HECHO — `evidencia/h1s8-build.txt` |
+| H1.S8.M3 | Subida a App Store Connect | `Upload succeeded` | `xcodebuild -exportArchive … destination=upload` | HECHO — `Upload succeeded` · `EXPORT SUCCEEDED` · exit=0 (`evidencia/h1s8-upload.txt`) |
+| H1.S8.M4 | Abrir el build release en un iPhone real | La app abre sin cartel de bloqueo | captura o confirmación de Pablo | A MEDIAS — sin iPhone conectado (`unavailable`); pendiente de Pablo |
+
+### H1.S9 — ITMS-90068 (correo de Apple sobre build 202609291900)
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H1.S9.M1 | Subir `IPHONEOS_DEPLOYMENT_TARGET` a 15.0 en Runner | El binario declara `minos >= 15.0` y compila | `flutter build ipa --release --no-codesign` exit 0 + `otool -l … LC_BUILD_VERSION` → minos 15.0 | HECHO — Runner `minos 15.0` (`evidencia/h1s9-minos.txt`; cambios en `project.pbxproj` ×3 y `Podfile`) |
+| H1.S9.M2 | Subir nuevo build | `Upload succeeded` y sin ITMS-90068 en el correo | export upload | HECHO — build 202609291930 `Upload succeeded` · exit=0 (`evidencia/h1s9-upload.txt`); la ausencia de ITMS-90068 en el correo de Apple NO está confirmada todavía |

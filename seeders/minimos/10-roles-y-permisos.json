@@ -63,6 +63,18 @@
           "es_sistema": true
         },
         {
+          "codigo": "SERVICIO_ENTREGAS",
+          "nombre": "Identidad de servicio: entregas (pagos del mercado)",
+          "ambito": "GLOBAL",
+          "es_sistema": true
+        },
+        {
+          "codigo": "SERVICIO_INVERSIONES",
+          "nombre": "Identidad de servicio: inversiones (debita y acredita)",
+          "ambito": "GLOBAL",
+          "es_sistema": true
+        },
+        {
           "codigo": "CONTABILIDAD",
           "nombre": "Contabilidad",
           "ambito": "GLOBAL",
@@ -341,6 +353,27 @@
           "codigo": "VERIFICACION_RESOLVER",
           "descripcion": "Aprobar o rechazar la verificación de identidad de una persona",
           "recurso": "verificacion_kyc",
+          "accion": "RESOLVER",
+          "requiere_mfa": true
+        },
+        {
+          "codigo": "RECLAMO_VER",
+          "descripcion": "Ver el rastro de reclamos de una persona y su efecto sobre sanciones y deudas (CU-52)",
+          "recurso": "reclamo_cliente",
+          "accion": "LEER",
+          "requiere_mfa": false
+        },
+        {
+          "codigo": "SOLICITUD_INGRESO_VER",
+          "descripcion": "Ver las solicitudes de ingreso a un grupo escaladas a revision humana (CU-68)",
+          "recurso": "solicitud_ingreso",
+          "accion": "LEER",
+          "requiere_mfa": false
+        },
+        {
+          "codigo": "SOLICITUD_INGRESO_RESOLVER",
+          "descripcion": "Resolver una solicitud de ingreso escalada; quien propone no resuelve (CU-68)",
+          "recurso": "solicitud_ingreso",
           "accion": "RESOLVER",
           "requiere_mfa": true
         }
@@ -933,6 +966,76 @@
           "permiso_id": {
             "$ref": "permiso",
             "codigo": "VERIFICACION_RESOLVER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "SOPORTE"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "RECLAMO_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "PUNTO_RECLAMO"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "RECLAMO_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "OFICIAL_CUMPLIMIENTO"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "RECLAMO_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "ADMIN_PLATAFORMA"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "SOLICITUD_INGRESO_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "SOPORTE"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "SOLICITUD_INGRESO_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "ADMIN_PLATAFORMA"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "SOLICITUD_INGRESO_RESOLVER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "ADMIN_PLATAFORMA"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "RECLAMO_VER"
           }
         }
       ]

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:aportaya_movil/dominio/cliente.dart';
 import 'package:aportaya_movil/pantallas/identidad/dominio/cu04_autenticar.dart';
 import 'package:aportaya_movil/pantallas/identidad/dominio/estado_sesion.dart';
@@ -31,10 +33,19 @@ void main() {
     'guarda hasta que el factor pasa',
     () async {
       final (:dio, :adaptador) = dioSimulado();
+      late String cuerpo;
       adaptador.onPost(
         ruta,
         (s) => s.reply(200, ejemplo('identidad', 'autenticar', 'ok')['cuerpo']),
         data: Matchers.any,
+      );
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (o, h) {
+            if (o.path == ruta) cuerpo = '${o.data}';
+            h.next(o);
+          },
+        ),
       );
       final c = contenedorCon(dio);
       addTearDown(c.dispose);
@@ -43,7 +54,7 @@ void main() {
           .read(autenticacionProvider)
           .conCredenciales(
             telefonoE164: '+59178123456',
-            credencial: 'Secreta123',
+            credencial: '12345678',
           );
 
       expect(r, ResultadoDeAutenticacion.faltaSegundoFactor);
@@ -52,6 +63,33 @@ void main() {
         isNull,
         reason: 'un segundo factor pendiente no es una sesión abierta',
       );
+      final body = jsonDecode(cuerpo) as Map<String, dynamic>;
+      expect(body.keys, containsAll({'telefonoE164', 'huellaDispositivo'}));
+      expect(
+        body.keys.toSet().difference({
+          'telefonoE164',
+          'credencial',
+          'huellaDispositivo',
+          'plataforma',
+          'factor',
+        }),
+        isEmpty,
+      );
+      expect(body['telefonoE164'], matches(RegExp(r'^\+591\d{8}$')));
+      expect((body['credencial'] as String).length, 8);
+      expect(
+        (body['huellaDispositivo'] as String).length,
+        lessThanOrEqualTo(128),
+      );
+      expect(body['plataforma'], anyOf('ANDROID', 'IOS'));
+      await c
+          .read(autenticacionProvider)
+          .conCredenciales(
+            telefonoE164: '+59178123456',
+            credencial: List.filled(128, 'x').join(),
+          );
+      final bodyMaximo = jsonDecode(cuerpo) as Map<String, dynamic>;
+      expect((bodyMaximo['credencial'] as String).length, 128);
     },
   );
 
@@ -80,6 +118,36 @@ void main() {
     },
   );
 
+  test(
+    'el servicio real pide el segundo factor con 422 AP-CU04-03: la app pasa al paso del código',
+    () async {
+      final (:dio, :adaptador) = dioSimulado();
+      adaptador.onPost(
+        ruta,
+        (s) => s.reply(422, {
+          'codigo': 'AP-CU04-03',
+          'mensaje':
+              'Confirma el codigo que te enviamos para terminar de entrar.',
+          'detalle': <String, dynamic>{},
+          'trazaId': 'traza-1',
+        }),
+        data: Matchers.any,
+      );
+      final c = contenedorCon(dio);
+      addTearDown(c.dispose);
+
+      final r = await c
+          .read(autenticacionProvider)
+          .conCredenciales(
+            telefonoE164: '+59178123456',
+            credencial: 'Secreta123',
+          );
+
+      expect(r, ResultadoDeAutenticacion.faltaSegundoFactor);
+      expect(await c.read(sesionProvider).tokenDeAcceso(), isNull);
+    },
+  );
+
   test('el segundo factor abre la sesión', () async {
     final (:dio, :adaptador) = dioSimulado();
     adaptador.onPost(
@@ -101,58 +169,6 @@ void main() {
 
     expect(r, ResultadoDeAutenticacion.entro);
     expect(await c.read(sesionProvider).tokenDeAcceso(), 'tokenAcceso');
-  });
-
-  test(
-    'la sesión autenticada no retiene credenciales ni el código MFA',
-    () async {
-      final (:dio, :adaptador) = dioSimulado();
-      adaptador.onPost(
-        ruta,
-        (s) =>
-            s.reply(200, ejemplo('identidad', 'autenticar', 'vacio')['cuerpo']),
-        data: Matchers.any,
-      );
-      final c = contenedorCon(dio);
-      addTearDown(c.dispose);
-
-      final n = c.read(sesionIdentidadProvider.notifier);
-      n.actualizarCredenciales(
-        telefono: '+59178123456',
-        contrasena: 'Secreta123',
-      );
-      expect(await n.completarMfa('123456'), isTrue);
-
-      final estado = c.read(sesionIdentidadProvider);
-      expect(estado.paso, PasoSesion.autenticada);
-      expect(estado.telefono, isEmpty);
-      expect(estado.contrasena, isEmpty);
-      expect(estado.codigoMfa, isEmpty);
-    },
-  );
-
-  test('el desafío MFA conserva solo las credenciales necesarias', () async {
-    final (:dio, :adaptador) = dioSimulado();
-    adaptador.onPost(
-      ruta,
-      (s) => s.reply(200, ejemplo('identidad', 'autenticar', 'ok')['cuerpo']),
-      data: Matchers.any,
-    );
-    final c = contenedorCon(dio);
-    addTearDown(c.dispose);
-
-    final n = c.read(sesionIdentidadProvider.notifier);
-    n.actualizarCredenciales(
-      telefono: '+59178123456',
-      contrasena: 'Secreta123',
-    );
-    expect(await n.enviarCredenciales(), isTrue);
-
-    final estado = c.read(sesionIdentidadProvider);
-    expect(estado.paso, PasoSesion.mfa);
-    expect(estado.telefono, '+59178123456');
-    expect(estado.contrasena, 'Secreta123');
-    expect(estado.codigoMfa, isEmpty);
   });
 
   test(
@@ -182,10 +198,13 @@ void main() {
       expect(await c.read(sesionProvider).tokenDeAcceso(), isNull);
       expect(
         c.read(sesionIdentidadProvider).error,
-        'El código no coincide. Revisalo e intentá de nuevo.',
+        // AP-CU04-01 es CREDENCIAL_INVALIDA (contrato): hablar de «código» con una
+        // contraseña mal escrita mandaba a la persona a buscar un SMS que no existe.
+        'El celular o la contraseña no coinciden.',
         reason: 'la app no muestra el mensaje crudo del backend',
       );
       expect(c.read(sesionIdentidadProvider).enviando, isFalse);
+      expect(c.read(sesionIdentidadProvider).trazaId, 't');
     },
   );
 

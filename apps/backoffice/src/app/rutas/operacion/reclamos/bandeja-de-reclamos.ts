@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router'
 import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { RelojDePlazo } from '@aportaya/ui/reloj-de-plazo/reloj-de-plazo'
+import { Alerta } from '@aportaya/ui/alerta/alerta'
 import { Boton } from '@aportaya/ui/boton/boton'
 import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
 import type { Filtro } from '@aportaya/ui/chips-de-filtro/chips-de-filtro'
@@ -43,11 +44,12 @@ const COLUMNAS: ColumnaVirtual<ReclamoDeBandeja>[] = [
 @Component({
   selector: 'ap-bandeja-de-reclamos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, ChipEstado, RelojDePlazo, Boton, Dialogo, TablaDeDatosVirtualizada, BarraDeFiltros],
+  imports: [Alerta, BandaDeProposito, ChipEstado, RelojDePlazo, Boton, Dialogo, TablaDeDatosVirtualizada, BarraDeFiltros],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1 data-tutorial-id="operacion-reclamos">{{ t.titulo }}</h1>
+      @if (sinEnviar()) { <ap-alerta tono="aviso">{{ t.sinEnviar }}</ap-alerta> }
       <ap-barra-de-filtros etiqueta="Estado" [incluirBusqueda]="false" [definiciones]="filtrosDeEstado" />
       <ap-tabla-de-datos-virtualizada
         [titulo]="t.titulo"
@@ -76,7 +78,7 @@ const COLUMNAS: ColumnaVirtual<ReclamoDeBandeja>[] = [
           }
         </ng-template>
       </ap-tabla-de-datos-virtualizada>
-    </main>
+    </section>
 
     @if (seleccionado(); as r) {
       <ap-dialogo
@@ -92,7 +94,7 @@ const COLUMNAS: ColumnaVirtual<ReclamoDeBandeja>[] = [
     }
   `,
   styles: `
-    main { padding: var(--s5); max-width: 64rem; display: grid; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 64rem; display: grid; gap: var(--s4); }
     h1 { margin: 0; }
   `,
 })
@@ -121,6 +123,8 @@ export class BandejaDeReclamos {
 
   protected readonly seleccionado = signal<ReclamoDeBandeja | null>(null)
   protected readonly dialogoAbierto = signal(false)
+  /** La confirmación no manda nada (falta la operación en el servicio): se dice, en vez de cerrar el diálogo como si hubiera funcionado. */
+  protected readonly sinEnviar = signal(false)
   protected readonly puedeAtender = computed(() => this.sesion.puede('RECLAMO_ATENDER'))
   protected readonly vencido = vencido
 
@@ -146,6 +150,8 @@ export class BandejaDeReclamos {
     // El envío real queda pendiente del contrato `POST /reclamos/{id}/respuesta`
     // (ver el supuesto declarado en dominio/cu52-reclamos.ts). El diálogo ya exige
     // la confirmación con el código concreto delante, que es lo que pide el gate.
+    // Mientras tanto se avisa que NO se envió.
     this.cerrarConfirmacion()
+    this.sinEnviar.set(true)
   }
 }

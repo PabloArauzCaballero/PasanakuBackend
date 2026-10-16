@@ -1,0 +1,21 @@
+$ flutter test test/unidad/subida_del_expediente_test.dart test/unidad/estado_de_verificacion_test.dart -r expanded
+00:00 +0: loading test/unidad/subida_del_expediente_test.dart
+00:00 +0: test/unidad/subida_del_expediente_test.dart: sube las cinco en orden y termina con todas «subida»
+00:00 +1: test/unidad/estado_de_verificacion_test.dart: solo APROBADA y RECHAZADA son finales
+00:00 +2: test/unidad/estado_de_verificacion_test.dart: solo APROBADA y RECHAZADA son finales
+00:00 +3: test/unidad/subida_del_expediente_test.dart: una cara que falla queda «fallida» y no frena a las demás
+00:00 +4: test/unidad/estado_de_verificacion_test.dart: sondea cada 2 s y se detiene apenas llega APROBADA
+00:00 +5: test/unidad/estado_de_verificacion_test.dart: sondea cada 2 s y se detiene apenas llega APROBADA
+00:00 +6: test/unidad/estado_de_verificacion_test.dart: sondea cada 2 s y se detiene apenas llega APROBADA
+00:00 +7: test/unidad/estado_de_verificacion_test.dart: sondea cada 2 s y se detiene apenas llega APROBADA
+00:00 +8: test/unidad/estado_de_verificacion_test.dart: sondea cada 2 s y se detiene apenas llega APROBADA
+00:00 +9: test/unidad/estado_de_verificacion_test.dart: RECHAZADA también corta el sondeo
+00:00 +10: test/unidad/estado_de_verificacion_test.dart: no sondea para siempre: tope de 20 consultas
+00:00 +11: test/unidad/estado_de_verificacion_test.dart: «Actualizar estado» a mano consulta de nuevo
+00:00 +12: test/unidad/estado_de_verificacion_test.dart: un fallo de red queda como error y no reprograma
+00:00 +13: All tests passed!
+
+# chequeo de mutacion: alerta «lenta» a 30 s y sondeo sin tope -> fallan exactamente los dos tests que lo cubren (codigo restaurado despues)
+00:01 +11 -2: Some tests failed.
+estado_de_verificacion_test.dart: no sondea para siempre: tope de 20 consultas [E]
+subida_del_expediente_test.dart: a los 10 s sin respuesta pasa a «lenta», y no antes [E]

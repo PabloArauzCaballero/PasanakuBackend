@@ -42,7 +42,7 @@ const TAMANO_DE_PAGINA = 20
     <ap-banda-de-proposito
       texto="Qué hay debajo y en qué estado está de verdad: el nivel de criticidad de cada servicio y cuántas réplicas exige."
     />
-    <main>
+    <section class="pantalla">
       <div class="cabecera">
         <h1>Arquitectura y estado del proyecto</h1>
         @if (exportador.puedeExportar('estado-plataforma')) {
@@ -68,10 +68,10 @@ const TAMANO_DE_PAGINA = 20
         </ng-template>
       </ap-tabla-de-datos>
       <ap-paginacion [pagina]="paginaAcotada()" (paginaChange)="pagina.set($event)" [totalDeFilas]="total()" [porPagina]="tamanoDePagina" />
-    </main>
+    </section>
   `,
   styles: `
-    main { padding: var(--s5); display: flex; flex-direction: column; gap: var(--s4); }
+    .pantalla { padding: var(--s5); display: flex; flex-direction: column; gap: var(--s4); }
     .cabecera { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); }
     h1 { margin: 0; }
     button { min-height: var(--area-tactil); padding: 0 var(--s5); border: 0; border-radius: var(--r-md); background: var(--verde-solido); color: var(--sobre-verde-solido); font: inherit; font-weight: 600; cursor: pointer; }

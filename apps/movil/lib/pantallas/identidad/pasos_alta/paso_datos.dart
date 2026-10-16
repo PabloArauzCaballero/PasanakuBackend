@@ -1,27 +1,18 @@
-import 'package:aportaya_diseno/atomos/boton.dart';
-import 'package:aportaya_diseno/atomos/boton_variante.dart';
+import 'package:aportaya_diseno/moleculas/campo_de_fecha.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../dominio/notifier_alta.dart';
+import '../dominio/estado_alta.dart';
 import '../dominio/validaciones.dart';
 import '../textos.dart';
-import 'campos_del_alta.dart';
-import 'foco_del_primer_error.dart';
+import 'bloque_de_formulario.dart';
+import 'campos_de_nombre.dart';
+import 'paso_cotejo.dart';
+import 'pie_del_paso_datos.dart';
+import 'tarjeta_de_confianza.dart';
 
-/// Paso 1 de 8 — datos personales (CU-01). Un organismo puro: lee y escribe en el
-/// notifier, no llama a la red.
-///
-/// **«Continuar» siempre se puede tocar.** Antes el botón nacía apagado y se
-/// encendía solo con el formulario entero válido, sin decir nunca qué faltaba: quien
-/// escribía su celular como `71000090` veía un botón muerto y no tenía forma de
-/// saber por qué. Ahora el toque siempre hace algo — o avanza, o muestra los errores
-/// y lleva el foco al primer campo que falla.
-///
-/// Los errores no aparecen mientras se escribe por primera vez: un formulario que te
-/// grita «escribí al menos dos letras» cuando llevás una sola letra escrita está
-/// retando a alguien que todavía no terminó.
+/// Fase «Tus datos»: identidad personal más cotejo con la información declarada.
 class PasoDatos extends ConsumerStatefulWidget {
   const PasoDatos({super.key});
 
@@ -30,22 +21,15 @@ class PasoDatos extends ConsumerStatefulWidget {
 }
 
 class _PasoDatosState extends ConsumerState<PasoDatos> {
-  static const _prefijoBolivia = '+591';
-
-  late final _nombres = _campo(ref.read(altaProvider).datos.nombres);
-  late final _apellidos = _campo(ref.read(altaProvider).datos.apellidos);
-  late final _telefono = _campo(
-    ref.read(altaProvider).datos.telefono.replaceFirst(_prefijoBolivia, ''),
-  );
-  late final _documento = _campo(ref.read(altaProvider).datos.numeroDocumento);
-  late final _correo = _campo(ref.read(altaProvider).datos.correo);
-
+  late final _nombres = [
+    _campo(ref.read(altaProvider).datos.primerNombre),
+    _campo(ref.read(altaProvider).datos.segundoNombre),
+    _campo(ref.read(altaProvider).datos.apellidoPaterno),
+    _campo(ref.read(altaProvider).datos.apellidoMaterno),
+  ];
   final _focos = List.generate(5, (_) => FocusNode());
   final _focoFecha = FocusNode();
-  final _focoLugar = FocusNode();
   DateTime? _fechaNacimiento;
-  String? _lugarExpedicion;
-  String? _canal;
   final _tocados = <String>{};
   var _intentado = false;
 
@@ -54,90 +38,81 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
 
   @override
   void dispose() {
-    for (final c in [_nombres, _apellidos, _telefono, _documento, _correo]) {
-      c.dispose();
+    for (final controller in _nombres) {
+      controller.dispose();
     }
-    for (final f in [..._focos, _focoFecha, _focoLugar]) {
-      f.dispose();
+    for (final foco in [..._focos, _focoFecha]) {
+      foco.dispose();
     }
     super.dispose();
   }
 
-  String get _telefonoCompleto =>
-      _telefono.text.isEmpty ? '' : '$_prefijoBolivia${_telefono.text}';
-
-  void _sincronizar(String cual) {
-    _tocados.add(cual);
-    setState(() {
-      ref
-          .read(altaProvider.notifier)
-          .actualizarDatos(
-            ref
-                .read(altaProvider)
-                .datos
-                .copiarCon(
-                  nombres: _nombres.text,
-                  apellidos: _apellidos.text,
-                  telefono: _telefonoCompleto,
-                  numeroDocumento: _documento.text,
-                  correo: _correo.text,
-                  canalVerificacion: _canal,
-                  lugarExpedicion: _lugarExpedicion,
-                  fechaNacimiento: _fechaNacimiento,
-                ),
-          );
-    });
+  void _sincronizar(String campo) {
+    _tocados.add(campo);
+    final actual = ref.read(altaProvider).datos;
+    ref
+        .read(altaProvider.notifier)
+        .actualizarDatos(
+          actual.copiarCon(
+            primerNombre: _nombres[0].text,
+            segundoNombre: _nombres[1].text,
+            apellidoPaterno: _nombres[2].text,
+            apellidoMaterno: _nombres[3].text,
+            fechaNacimiento: _fechaNacimiento,
+          ),
+        );
+    setState(() {});
   }
 
-  /// El error de un campo, o `null` mientras no lo hayan tocado ni se haya intentado
-  /// continuar.
-  String? _error(String cual, String? Function() calcular) =>
-      _tocados.contains(cual) || _intentado ? calcular() : null;
-
-  Map<String, String?> get _errores => {
-    'nombres': _error('nombres', () => errorNombre(_nombres.text)),
-    'apellidos': _error('apellidos', () => errorNombre(_apellidos.text)),
-    'telefono': _error('telefono', () => errorTelefono(_telefonoCompleto)),
-    'documento': _error('documento', () => errorDocumento(_documento.text)),
-    // El correo se exige siempre: una billetera manda extractos y comprobantes, y
-    // sin correo no tienen adonde ir. Ademas es lo que habilita elegirlo como canal.
-    'correo': _error('correo', () => errorCorreo(_correo.text)),
-    'lugar': _error('lugar', () => errorLugarExpedicion(_lugarExpedicion)),
-    'fecha': _error('fecha', () => errorFechaNacimiento(_fechaNacimiento)),
-  };
+  Map<String, String?> get _errores {
+    String? error(String campo, String? Function() validar) =>
+        _intentado || _tocados.contains(campo) ? validar() : null;
+    return {
+      'primerNombre': error(
+        'primerNombre',
+        () => errorNombres(_nombres[0].text, _nombres[1].text),
+      ),
+      'segundoNombre': error(
+        'segundoNombre',
+        () => errorCampoDeNombre(_nombres[1].text),
+      ),
+      'apellidoPaterno': error(
+        'apellidoPaterno',
+        () => errorApellidos(_nombres[2].text, _nombres[3].text),
+      ),
+      'apellidoMaterno': error(
+        'apellidoMaterno',
+        () => errorCampoDeNombre(_nombres[3].text),
+      ),
+      'fecha': error('fecha', () => errorFechaNacimiento(_fechaNacimiento)),
+    };
+  }
 
   void _continuar() {
     setState(() => _intentado = true);
-    final fallan = _errores.entries.where((e) => e.value != null).toList();
-    if (fallan.isEmpty) {
-      ref.read(altaProvider.notifier).siguiente();
+    final errores = _errores;
+    final primerError = errores.entries.firstWhere(
+      (entrada) => entrada.value != null,
+      orElse: () => const MapEntry('', null),
+    );
+    if (primerError.value != null) {
+      final foco = switch (primerError.key) {
+        'segundoNombre' => _focos[1],
+        'apellidoPaterno' => _focos[2],
+        'apellidoMaterno' => _focos[3],
+        'fecha' => _focoFecha,
+        _ => _focos[0],
+      };
+      foco.requestFocus();
       return;
     }
-    const orden = [
-      'nombres',
-      'apellidos',
-      'telefono',
-      'documento',
-      'correo',
-      'lugar',
-      'fecha',
-    ];
-    final primero = orden.indexOf(fallan.first.key);
-    final foco = switch (primero) {
-      5 => _focoLugar,
-      6 => _focoFecha,
-      _ => _focos[primero],
-    };
-    mostrarPrimerError(foco, context);
+    ref.read(altaProvider.notifier).siguiente();
   }
 
   @override
   Widget build(BuildContext context) {
-    final t = Tokens.of(context);
     _fechaNacimiento ??= ref.read(altaProvider).datos.fechaNacimiento;
-    _lugarExpedicion ??= ref.read(altaProvider).datos.lugarExpedicion;
-    _canal ??= ref.read(altaProvider).datos.canalVerificacion;
-    final errores = _errores;
+    final hoy = DateTime.now();
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         Espacio.s4,
@@ -148,51 +123,38 @@ class _PasoDatosState extends ConsumerState<PasoDatos> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          CamposDelAlta(
-            controladores: [
-              _nombres,
-              _apellidos,
-              _telefono,
-              _documento,
-              _correo,
+          BloqueDeFormulario(
+            icono: Icons.person_outline_rounded,
+            titulo: 'Quién sos',
+            hijos: [
+              CamposDeNombre(
+                controladores: _nombres,
+                focos: _focos,
+                errores: _errores,
+                onCambio: _sincronizar,
+              ),
+              const SizedBox(height: Espacio.s3),
+              CampoDeFecha(
+                etiqueta: TextosIdentidad.fechaNacimiento,
+                valor: _fechaNacimiento,
+                foco: _focoFecha,
+                ultima: DateTime(hoy.year - 18, hoy.month, hoy.day),
+                inicial: DateTime(hoy.year - 25, hoy.month, hoy.day),
+                ayuda: TextosIdentidad.fechaNacimientoAyuda,
+                error: _errores['fecha'],
+                onElegida: (fecha) {
+                  _fechaNacimiento = fecha;
+                  _sincronizar('fecha');
+                },
+              ),
             ],
-            focos: _focos,
-            focoFecha: _focoFecha,
-            focoLugar: _focoLugar,
-            errores: errores,
-            tocados: _tocados,
-            prefijo: _prefijoBolivia,
-            fecha: _fechaNacimiento,
-            lugar: _lugarExpedicion,
-            onCambio: _sincronizar,
-            canal: _canal!,
-            onCanal: (c) {
-              _canal = c;
-              _sincronizar('canal');
-            },
-            onLugar: (l) {
-              _lugarExpedicion = l;
-              _sincronizar('lugar');
-            },
-            onFecha: (f) {
-              _fechaNacimiento = f;
-              _sincronizar('fecha');
-            },
           ),
-          const SizedBox(height: Espacio.s5),
-          Boton(
-            texto: TextosIdentidad.continuar,
-            icono: Icons.arrow_forward,
-            variante: BotonVariante.primario,
-            expandido: true,
-            onPressed: _continuar,
-          ),
-          const SizedBox(height: Espacio.s3),
-          Text(
-            TextosIdentidad.registroPie,
-            textAlign: TextAlign.center,
-            style: Tipo.ayuda.copyWith(color: t.text3),
-          ),
+          const SizedBox(height: Espacio.s4),
+          const PasoCotejo(soloResumen: true),
+          const SizedBox(height: Espacio.s4),
+          PieDelPasoDatos(onContinuar: _continuar),
+          const SizedBox(height: Espacio.s4),
+          const TarjetaDeConfianza(),
         ],
       ),
     );

@@ -1,5 +1,6 @@
 package bo.aportaya.entregas.aplicacion;
 
+import bo.aportaya.entregas.dominio.AsientoDeEntrega;
 import bo.aportaya.entregas.dominio.ReintentoDeDesembolso;
 import bo.aportaya.entregas.infraestructura.CuentaDestinoRepositorio;
 import bo.aportaya.entregas.infraestructura.DesembolsoRepositorio;
@@ -182,7 +183,11 @@ public class CU28EmitirDesembolso {
                                 Map.of(
                                         "entregaId", orden.entregaId().toString(),
                                         "referenciaProveedor", entrada.referenciaProveedor(),
-                                        "monto", orden.monto().toString()),
+                                        "monto", orden.monto().toString(),
+                                        "moneda", orden.monto().moneda().name(),
+                                        // El mayor lo escribe nucleo-financiero: aca solo viaja la propuesta que
+                                        // cuadra.
+                                        "asiento", new AsientoDeEntrega(orden.entregaId(), orden.monto()).comoCarga()),
                                 UUID.fromString(ctx.traza().id())));
 
                 return new SalidaIntento(orden.id(), "ACREDITADA", numero, null, true);

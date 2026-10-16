@@ -36,6 +36,12 @@ Modulo 01 de la boveda — Identidad, Usuarios y Seguridad.
 | --- | --- | --- |
 | | | |
 
+## Operaciones de servicio a servicio
+
+| Ruta | Identidad exigida | Lo pide | Que hace |
+| --- | --- | --- | --- |
+| `POST /usuarios/{id}/titularidad/verificacion` | `DATOS_SENSIBLES_LEER` **o** el rol `SERVICIO_ENTREGAS` (`@PermisoAlternativo`) | `entregas` (CU-18, R-SEG-02) | Contesta SOLO `{coincide: true|false}`, nunca el nombre ni el documento. La lectura es de sistema, acotada a ese booleano. **Pendiente de Seguridad:** el modelo de roles (que otro rol de operacion puede verificar) y un limite de consultas por servicio |
+
 ## Trabajos programados
 
 | Bloqueo | Cron | Que hace |

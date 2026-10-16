@@ -36,6 +36,15 @@ import org.springframework.stereotype.Component;
  * punta a punta, y tiene el precio de que al reiniciar identidad los tokens vivos dejan
  * de validar. En cualquier entorno con datos reales se configura, porque una clave que
  * cambia sola no es una clave.
+ *
+ * <p><b>Rotacion sin cortar sesiones.</b> Rotar {@code aportaya.jwt.clave-firma} con una sola
+ * clave publicada invalida de golpe todo token vivo (la clave vieja desaparece del JWKS y los
+ * otros catorce servicios dejan de poder verificarlos). Por eso el JWKS publica DOS claves:
+ * la vigente, con la que se firma, y opcionalmente {@code aportaya.jwt.clave-firma-anterior},
+ * que solo se publica para que los tokens firmados antes sigan validando hasta que venzan
+ * (15 minutos) — nunca firma. Rotacion: pasar la vigente a «anterior», poner la nueva como
+ * vigente, reiniciar; pasada la vida del token, vaciar la «anterior». Cada token lleva el
+ * {@code kid} de la clave que lo firmo, que es lo que permite elegir sin probar una por una.
  */
 @Component
 public class EmisorDeAcceso {
@@ -49,9 +58,15 @@ public class EmisorDeAcceso {
 
     private final RSAKey clave;
 
-    public EmisorDeAcceso(@Value("${aportaya.jwt.clave-firma:}") String claveJwk) {
+    /** Solo se publica, nunca firma: es la ventana de solapamiento de una rotacion. */
+    private final RSAKey claveAnterior;
+
+    public EmisorDeAcceso(
+            @Value("${aportaya.jwt.clave-firma:}") String claveJwk,
+            @Value("${aportaya.jwt.clave-firma-anterior:}") String claveAnteriorJwk) {
         boolean generada = claveJwk == null || claveJwk.isBlank();
-        this.clave = generada ? generar() : leer(claveJwk);
+        this.clave = generada ? generar() : leer(claveJwk, "aportaya.jwt.clave-firma");
+        this.claveAnterior = anterior(generada, claveAnteriorJwk, clave);
         if (generada) {
             // **No es un detalle de desarrollo.** ADR-037 pide dos replicas como
             // minimo, y con la clave generada en memoria cada replica firma con la
@@ -72,12 +87,17 @@ public class EmisorDeAcceso {
      *     significa <b>no puede nada</b>: el token no es una llave maestra.
      */
     public Emitido emitir(
-            UUID usuarioId, String rol, List<String> permisos, String nivelDiligencia, String dispositivo) {
+            UUID usuarioId,
+            String rol,
+            List<String> permisos,
+            String nivelDiligencia,
+            String dispositivo,
+            UUID sesionId) {
 
         Instant ahora = Instant.now();
         Instant vence = ahora.plus(VIGENCIA);
 
-        var reclamos = new JWTClaimsSet.Builder()
+        var constructor = new JWTClaimsSet.Builder()
                 .subject(usuarioId.toString())
                 .jwtID(UUID.randomUUID().toString())
                 .issueTime(Date.from(ahora))
@@ -85,8 +105,9 @@ public class EmisorDeAcceso {
                 .claim("rol", rol)
                 .claim("permisos", permisos)
                 .claim("nivel_diligencia", nivelDiligencia)
-                .claim("dispositivo", dispositivo)
-                .build();
+                .claim("dispositivo", dispositivo);
+        if (sesionId != null) constructor.claim("sesion_id", sesionId.toString());
+        var reclamos = constructor.build();
 
         try {
             var jwt = new SignedJWT(
@@ -101,9 +122,79 @@ public class EmisorDeAcceso {
         }
     }
 
-    /** Lo que se publica: la parte publica, y nada mas. */
+    /** Compatibilidad para emisores de pruebas/otros flujos que no abren una sesión revocable. */
+    public Emitido emitir(
+            UUID usuarioId, String rol, List<String> permisos, String nivelDiligencia, String dispositivo) {
+        return emitir(usuarioId, rol, permisos, nivelDiligencia, dispositivo, null);
+    }
+
+    /**
+     * La evidencia step-up: prueba de que ESTE usuario paso un segundo factor AHORA, para UNA
+     * operacion (contrato docs/auditoria-produccion/contratos/step-up-jwt.md). Firmada con la
+     * misma clave que el token de acceso, pero con otra audiencia: un token de acceso no sirve como
+     * evidencia ni al reves.
+     *
+     * @param amr como se probo el factor (`totp`, `otp`, `biometria`); informativo.
+     */
+    public Emitido emitirEvidencia(
+            UUID usuarioId, String proposito, UUID desafioId, String amr, Duration vigencia, String audiencia) {
+        Instant ahora = Instant.now();
+        Instant vence = ahora.plus(vigencia);
+        var reclamos = new JWTClaimsSet.Builder()
+                .issuer("aportaya-identidad")
+                .audience(audiencia)
+                .subject(usuarioId.toString())
+                .jwtID(UUID.randomUUID().toString())
+                .issueTime(Date.from(ahora))
+                .expirationTime(Date.from(vence))
+                .claim("proposito", proposito)
+                .claim("desafio_id", desafioId.toString())
+                .claim("acr", "mfa")
+                .claim("amr", List.of(amr))
+                .build();
+        try {
+            var jwt = new SignedJWT(
+                    new JWSHeader.Builder(JWSAlgorithm.RS256)
+                            .keyID(clave.getKeyID())
+                            .build(),
+                    reclamos);
+            jwt.sign(new RSASSASigner(clave));
+            return new Emitido(jwt.serialize(), vence);
+        } catch (JOSEException imposible) {
+            throw new IllegalStateException("No se pudo firmar la evidencia step-up", imposible);
+        }
+    }
+
+    /**
+     * Lo que se publica: la parte publica, y nada mas. La vigente primero; la anterior, si hay
+     * una rotacion en curso.
+     */
     public Map<String, Object> jwks() {
-        return new JWKSet(clave.toPublicJWK()).toJSONObject();
+        var publicas = new java.util.ArrayList<com.nimbusds.jose.jwk.JWK>();
+        publicas.add(clave.toPublicJWK());
+        if (claveAnterior != null) {
+            publicas.add(claveAnterior.toPublicJWK());
+        }
+        return new JWKSet(publicas).toJSONObject();
+    }
+
+    private static RSAKey anterior(boolean vigenteGenerada, String claveAnteriorJwk, RSAKey vigente) {
+        if (claveAnteriorJwk == null || claveAnteriorJwk.isBlank()) {
+            return null;
+        }
+        if (vigenteGenerada) {
+            // Una vigente generada al arrancar no sobrevive al reinicio: publicar una «anterior»
+            // al lado de ella no rota nada y esconde que la configuracion esta incompleta.
+            throw new IllegalStateException(
+                    "aportaya.jwt.clave-firma-anterior sin aportaya.jwt.clave-firma: no hay nada que rotar");
+        }
+        RSAKey previa = leer(claveAnteriorJwk, "aportaya.jwt.clave-firma-anterior");
+        if (previa.getKeyID() == null || previa.getKeyID().equals(vigente.getKeyID())) {
+            // Dos claves con el mismo kid hacen que el verificador elija una al azar.
+            throw new IllegalStateException(
+                    "aportaya.jwt.clave-firma-anterior tiene que traer un kid distinto al de la vigente");
+        }
+        return previa;
     }
 
     private static RSAKey generar() {
@@ -116,11 +207,12 @@ public class EmisorDeAcceso {
         }
     }
 
-    private static RSAKey leer(String claveJwk) {
+    private static RSAKey leer(String claveJwk, String propiedad) {
         try {
             return RSAKey.parse(claveJwk);
         } catch (java.text.ParseException mal) {
-            throw new IllegalStateException("aportaya.jwt.clave-firma no es un JWK RSA valido", mal);
+            // Sin el JWK en el mensaje ni como causa: es una clave privada.
+            throw new IllegalStateException(propiedad + " no es un JWK RSA valido");
         }
     }
 

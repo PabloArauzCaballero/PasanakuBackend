@@ -1,0 +1,6 @@
+movil/light: errores de consola=7 · respuestas 4xx/5xx=["401 /api/v1/sesion/refrescar","422 /api/v1/sesiones","403 /api/v1/organizadores/<id>/habilitacion"]
+movil/dark: errores de consola=7 · respuestas 4xx/5xx=["401 /api/v1/sesion/refrescar","422 /api/v1/sesiones","403 /api/v1/organizadores/<id>/habilitacion"]
+tablet/light: errores de consola=7 · respuestas 4xx/5xx=["401 /api/v1/sesion/refrescar","422 /api/v1/sesiones","403 /api/v1/organizadores/<id>/habilitacion"]
+tablet/dark: errores de consola=7 · respuestas 4xx/5xx=["401 /api/v1/sesion/refrescar","422 /api/v1/sesiones","403 /api/v1/organizadores/<id>/habilitacion"]
+escritorio/light: errores de consola=7 · respuestas 4xx/5xx=["401 /api/v1/sesion/refrescar","422 /api/v1/sesiones","403 /api/v1/organizadores/<id>/habilitacion"]
+escritorio/dark: errores de consola=7 · respuestas 4xx/5xx=["401 /api/v1/sesion/refrescar","422 /api/v1/sesiones","403 /api/v1/organizadores/<id>/habilitacion"]

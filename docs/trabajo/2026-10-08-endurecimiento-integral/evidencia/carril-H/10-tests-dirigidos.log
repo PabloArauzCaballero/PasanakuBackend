@@ -1,0 +1,53 @@
+00:00 +0: loading C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/acciones_de_grupo_test.dart
+00:00 +0: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/invitacion_creada_test.dart: muestra título con tilde, a quién va, vigencia y el enlace
+00:00 +1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/invitacion_creada_test.dart: muestra título con tilde, a quién va, vigencia y el enlace
+00:00 +2: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_crear_grupo_test.dart: sin monto el botón sigue apagado
+00:00 +3: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_crear_grupo_test.dart: sin monto el botón sigue apagado
+00:00 +4: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_crear_grupo_test.dart: sin monto el botón sigue apagado
+00:00 +5: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/invitacion_creada_test.dart: «Invitar a otra persona» avisa para volver al formulario
+00:00 +6: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_crear_grupo_test.dart: con nombre y monto el botón se habilita y envía una sola petición con fecha de inicio
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: an object with length of <1>
+  Actual: []
+   Which: has length of <0>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_crear_grupo_test.dart:58:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_crear_grupo_test.dart line 58
+The test description was:
+  con nombre y monto el botón se habilita y envía una sola petición con fecha de inicio
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +6 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_mi_estado_montos_test.dart: todos los importes salen con moneda y coma decimal
+00:01 +6 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_crear_grupo_test.dart: con nombre y monto el botón se habilita y envía una sola petición con fecha de inicio [E]
+  Test failed. See exception logs above.
+  The test description was: con nombre y monto el botón se habilita y envía una sola petición con fecha de inicio
+  
+00:02 +7 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_pedir_cupo_test.dart: el botón para postular dice "Pedir mi cupo"
+00:02 +8 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_pedir_cupo_test.dart: doble toque al pedir el cupo: una sola postulación, la misma clave
+00:02 +9 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_verificar_sorteo_test.dart: el sorteo verificado muestra que el orden coincide
+00:03 +10 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_verificar_sorteo_test.dart: un sorteo que NO verifica lo dice explícitamente, sin suavizarlo
+00:03 +11 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/identidad/pantalla_sesion_prefijo_test.dart: el prefijo +591 viene puesto: con ocho dígitos y clave se habilita
+00:03 +12 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/motor_test.dart: iniciar muestra el primer paso, su cuenta y resalta el ancla
+00:03 +13 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/motor_test.dart: iniciar muestra el primer paso, su cuenta y resalta el ancla
+00:04 +14 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/motor_test.dart: el globo se pinta dentro de un Material: sin él Flutter subraya el texto en amarillo
+00:04 +15 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/motor_test.dart: avanza con el botón, retrocede, y no pasa del primero hacia atrás
+00:04 +16 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/motor_test.dart: el último paso dice Terminar, completa y queda guardado
+00:04 +17 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/motor_test.dart: el primer paso hereda la ruta del tutorial
+00:04 +18 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/motor_test.dart: un paso de otra pantalla navega solo
+00:04 +19 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/motor_test.dart: un ancla que no aparece deja el problema a la vista y NO traba
+00:04 +20 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/motor_test.dart: reintentar encuentra el ancla que llegó después
+00:04 +21 -1: C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/widget/tutoriales/motor_test.dart: salir en el primer paso cierra; a la mitad pregunta antes
+00:04 +22 -1: Some tests failed.
+
+Failing tests:
+  C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/movil/test/pasanaku/pantalla_crear_grupo_test.dart: con nombre y monto el botón se habilita y envía una sola petición con fecha de inicio

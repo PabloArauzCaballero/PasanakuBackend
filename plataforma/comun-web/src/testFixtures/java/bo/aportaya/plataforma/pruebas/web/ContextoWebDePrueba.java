@@ -1,6 +1,7 @@
 package bo.aportaya.plataforma.pruebas.web;
 
 import bo.aportaya.plataforma.dominio.Reloj;
+import bo.aportaya.plataforma.web.CuerposEstrictos;
 import bo.aportaya.plataforma.web.dinero.ConfiguracionDeDinero;
 import bo.aportaya.plataforma.web.errores.ManejadorGlobalDeErrores;
 import bo.aportaya.plataforma.web.errores.TraduccionDeRestricciones;
@@ -41,6 +42,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 @Import({
     ConfiguracionDeSeguridad.class,
     ConfiguracionDeDinero.class,
+    CuerposEstrictos.class,
     SesionDeLaPeticion.class,
     GuardiaDePermiso.class,
     RegistroDeGuardias.class,

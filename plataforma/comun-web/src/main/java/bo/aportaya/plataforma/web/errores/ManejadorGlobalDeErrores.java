@@ -34,9 +34,11 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
  * {@code 422} para la regla de negocio, {@code 409} para lo que rechaza la base,
  * {@code 403} sin permiso y {@code 500} con **solo** la traza.
  *
- * <p>Una restriccion que dispara y no esta en el catalogo NO se convierte en un
- * mensaje generico: es un caso que nadie previo, y sale como {@code 500} con alerta.
- * Improvisar ahi un texto amable es esconder un defecto.
+ * <p>Una restriccion que dispara y no tiene regla sale con el codigo de su clase de
+ * falla ({@link FallaDeLaBase}, {@code AP-BD-0n}) y queda en la bitacora como WARN con
+ * su nombre: el cliente necesita distinguir un duplicado de una caida, y el equipo
+ * necesita encontrar el caso que nadie valido antes de escribir. Solo lo que no trae
+ * SQLSTATE reconocible sigue saliendo {@code 500}.
  */
 @RestControllerAdvice
 public class ManejadorGlobalDeErrores {
@@ -104,19 +106,64 @@ public class ManejadorGlobalDeErrores {
                 .body(ErrorApi.de("AP-SEG-01", "No tenes acceso a este recurso.", Traza.actual()));
     }
 
-    /** Lo que rechaza la BASE: 409 con la regla traducida. */
-    @ExceptionHandler(DataAccessException.class)
-    public ResponseEntity<ErrorApi> restriccionDeLaBase(DataAccessException e) {
+    /** Demasiadas consultas del mismo actor: 429 con cuanto esperar. Sin eco de lo que preguntaba. */
+    @ExceptionHandler(LimiteDeUsoExcedido.class)
+    public ResponseEntity<ErrorApi> limiteDeUso(LimiteDeUsoExcedido e) {
+        BITACORA.info(
+                "limite de uso excedido; reintentar en {} s", e.reintentarEn().toSeconds());
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header(
+                        "Retry-After",
+                        String.valueOf(Math.max(1, e.reintentarEn().toSeconds())))
+                .body(ErrorApi.de("AP-LIM-01", "Hiciste demasiadas consultas. Esperá un momento.", Traza.actual()));
+    }
+
+    /**
+     * Lo que rechaza la BASE: 409 con la regla traducida, o el codigo de su clase de
+     * falla si la restriccion no tiene regla.
+     *
+     * <p>Atrapa las DOS jerarquias. Los servicios hablan con la base por jOOQ y un
+     * {@code DSLContext} propio ({@code ConfiguracionDeDatos}) que no traduce a la de
+     * Spring: atrapar solo {@code org.springframework.dao.DataAccessException} dejaba
+     * pasar todo rechazo real de la base a {@code falloNoPrevisto}, como {@code 500}.
+     * Asi salio el alta con correo repetido (2026-10-15, {@code uq_usuario_correo}).
+     *
+     * <p>La bitacora lleva el nombre de la restriccion y el SQLSTATE, nunca el mensaje
+     * crudo: el de PostgreSQL trae {@code Key (correo)=(...)}, el valor que se violo.
+     */
+    @ExceptionHandler({DataAccessException.class, org.jooq.exception.DataAccessException.class})
+    public ResponseEntity<ErrorApi> restriccionDeLaBase(RuntimeException e) {
         String mensajeCrudo = raiz(e).getMessage();
-        return traduccion
-                .traducir(mensajeCrudo)
-                .map(regla -> {
-                    BITACORA.info("restriccion {} rechazo la escritura", regla.codigo());
-                    return ResponseEntity.status(HttpStatus.CONFLICT)
-                            .body(ErrorApi.de(regla.codigo(), regla.mensaje() + ".", Traza.actual()));
+        String restriccion = RastroSeguro.restriccionDe(mensajeCrudo);
+        String sqlState = FallaDeLaBase.sqlState(e).orElse("-");
+        var regla = traduccion.traducir(mensajeCrudo);
+        if (regla.isPresent()) {
+            BITACORA.info("restriccion {} rechazo la escritura", regla.get().codigo());
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ErrorApi.de(regla.get().codigo(), regla.get().mensaje() + ".", Traza.actual()));
+        }
+        return FallaDeLaBase.de(e)
+                .map(falla -> {
+                    // WARN y no INFO: una restriccion sin regla es un caso que el caso de
+                    // uso no valido antes de escribir. El cliente recibe un codigo estable;
+                    // el equipo tiene que poder encontrarlo para curarlo.
+                    BITACORA.warn(
+                            "rechazo de la base sin regla en el catalogo: codigo={} sqlstate={} restriccion={}",
+                            falla.codigo(),
+                            sqlState,
+                            restriccion);
+                    return ResponseEntity.status(falla.estado())
+                            .body(ErrorApi.de(falla.codigo(), falla.mensaje(), Traza.actual()));
                 })
                 .orElseGet(() -> {
-                    BITACORA.error("restriccion sin traduccion en el catalogo: {}", mensajeCrudo, e);
+                    // Ni el mensaje del driver ni la excepcion entera: ahi viaja el valor que violo
+                    // la restriccion. Se deja el nombre de la restriccion y el rastro (RastroSeguro).
+                    BITACORA.error(
+                            "falla de la base sin SQLSTATE catalogado: sqlstate={} restriccion={} trazaId={} causa={}",
+                            sqlState,
+                            RastroSeguro.restriccionDe(mensajeCrudo),
+                            Traza.actual(),
+                            RastroSeguro.de(e));
                     return sinPrevision();
                 });
     }
@@ -210,7 +257,7 @@ public class ManejadorGlobalDeErrores {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorApi> falloNoPrevisto(Exception e) {
-        BITACORA.error("fallo no previsto", e);
+        BITACORA.error("fallo no previsto trazaId={} causa={}", Traza.actual(), RastroSeguro.de(e));
         return sinPrevision();
     }
 

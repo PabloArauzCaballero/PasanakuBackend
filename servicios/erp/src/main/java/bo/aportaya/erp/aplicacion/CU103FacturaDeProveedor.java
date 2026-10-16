@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -101,6 +102,11 @@ public class CU103FacturaDeProveedor {
                                 .formatted(periodo.get().mes()));
             }
 
+            // Quien aprueba lo dicta el token, no el cuerpo: si el cliente nombrara al
+            // aprobador, cualquiera podria registrar una factura «aprobada por» otra
+            // persona y vaciar de sentido la segregacion de R-CTB-05.
+            UUID aprobadaPor = entrada.aprobar() ? ctx.usuarioId() : null;
+
             UUID id;
             try {
                 id = compras.registrarFactura(
@@ -113,7 +119,7 @@ public class CU103FacturaDeProveedor {
                         entrada.vencimiento(),
                         entrada.monto(),
                         entrada.moneda(),
-                        entrada.aprobadaPor());
+                        aprobadaPor);
             } catch (org.jooq.exception.IntegrityConstraintViolationException
                     | org.springframework.dao.DataIntegrityViolationException e) {
                 // uq_factura_proveedor_numero: la misma factura cargada dos veces se
@@ -145,7 +151,7 @@ public class CU103FacturaDeProveedor {
                             UUID.fromString(ctx.traza().id())));
             return new SalidaFactura(
                     id,
-                    entrada.aprobadaPor() == null ? "REGISTRADA" : "APROBADA",
+                    aprobadaPor == null ? "REGISTRADA" : "APROBADA",
                     entrada.monto(),
                     BigDecimal.ZERO,
                     entrada.monto());
@@ -158,12 +164,26 @@ public class CU103FacturaDeProveedor {
      * <p>{@code factura_proveedor} es append-only (R-AUD-01), asi que
      * {@code aprobada_por} no se puede completar despues del alta, y
      * {@code ck_factura_proveedor_aprobacion} tampoco admite una fila APROBADA sin
-     * aprobador. La aprobacion es un dato del alta: quien registra la factura la trae ya
-     * aprobada, o la factura queda REGISTRADA y no se paga.
+     * aprobador. La aprobacion es un dato del alta: quien registra la factura la deja ya
+     * aprobada (por si mismo, segun su token), o la factura queda REGISTRADA y no se paga.
      *
      * <p>Lo que **no** se relaja es la segregacion: quien figura como aprobador no puede
      * ser quien autoriza el pago. Queda declarado como hueco en
      * {@code planes/informes/carril-3D-erp.md}.
+     *
+     * <p>**Quien autoriza el pago lo dicta el token, no el cuerpo.** El autorizante es
+     * {@code ctx.usuarioId()}, el sujeto autenticado de la peticion: si lo mandara el
+     * cliente, quien aprobo la factura solo tendria que escribir otro identificador para
+     * saltarse R-CTB-05. Por eso {@link EntradaPago} no lo trae y el contrato lo rechaza.
+     *
+     * <p>**El mismo pago, repetido, es el mismo pago** (R-CTB-11, regla 91.1.4). La clave
+     * de idempotencia se ampara en la factura: el reintento con la misma clave y el mismo
+     * pago devuelve lo que devolvio el original (la factura tal como quedo al registrarse
+     * ese pago) sin escribir una fila ni un evento mas; con la misma clave y OTRO pago
+     * (otro monto, otra forma, otro autorizante) se rechaza, porque responder con el pago
+     * viejo le haria creer al cliente que el nuevo se hizo. La fila de la factura esta
+     * bloqueada ({@code FOR UPDATE}), asi que dos reintentos simultaneos se serializan: el
+     * segundo ya ve el pago del primero. El {@code UNIQUE} de la base es la red de abajo.
      */
     @Transactional
     public SalidaFactura pagar(EntradaPago entrada, ContextoSesion ctx) {
@@ -173,12 +193,18 @@ public class CU103FacturaDeProveedor {
             var factura = compras.facturaBloqueada(dsl, entrada.facturaId())
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(103, 3), "Esa factura no existe."));
 
+            var previo = compras.pagoPorClave(dsl, entrada.facturaId(), entrada.claveIdempotencia());
+            if (previo.isPresent()) {
+                return ReintentoDePago.responder(compras, dsl, previo.get(), entrada, factura, ctx);
+            }
+
             // AP-CU103-02 · R-CTB-05. Se comprueba aca para poder explicarlo; la base lo
             // frena igual con fn_ctb_segregacion_pago.
             if (factura.aprobadaPor() == null) {
                 throw new ErrorDeNegocio(CodigoError.de(103, 2), "La factura no esta aprobada: no se puede pagar.");
             }
-            if (factura.aprobadaPor().equals(entrada.autorizadoPor())) {
+            UUID autorizadoPor = ctx.usuarioId();
+            if (factura.aprobadaPor().equals(autorizadoPor)) {
                 throw new ErrorDeNegocio(
                         CodigoError.de(103, 2),
                         "Quien aprobo la factura no puede ademas autorizar su pago (R-CTB-05).");
@@ -203,9 +229,8 @@ public class CU103FacturaDeProveedor {
                     entrada.monto(),
                     entrada.moneda(),
                     entrada.formaPago(),
-                    entrada.autorizadoPor(),
-                    pagadoNuevo,
-                    factura.monto(),
+                    autorizadoPor,
+                    entrada.claveIdempotencia(),
                     ahora);
 
             outbox.emitir(
@@ -221,7 +246,7 @@ public class CU103FacturaDeProveedor {
                                             factura.monto()
                                                     .subtract(pagadoNuevo)
                                                     .toPlainString(),
-                                    "autorizadoPor", entrada.autorizadoPor().toString()),
+                                    "autorizadoPor", autorizadoPor.toString()),
                             UUID.fromString(ctx.traza().id())));
 
             return new SalidaFactura(
@@ -243,9 +268,19 @@ public class CU103FacturaDeProveedor {
             BigDecimal monto,
             String moneda,
             UUID cuentaGastoId,
-            UUID aprobadaPor) {}
+            boolean aprobar) {}
 
-    public record EntradaPago(UUID facturaId, BigDecimal monto, String moneda, String formaPago, UUID autorizadoPor) {}
+    /**
+     * El pago. {@code claveIdempotencia} es la cabecera {@code Idempotency-Key} y no es
+     * opcional: un pago de dinero reintentable sin clave se duplica (regla 91.1.4).
+     */
+    public record EntradaPago(
+            UUID facturaId, BigDecimal monto, String moneda, String formaPago, UUID claveIdempotencia) {
+
+        public EntradaPago {
+            Objects.requireNonNull(claveIdempotencia, "el pago exige su clave de idempotencia");
+        }
+    }
 
     public record SalidaFactura(
             UUID facturaId, String estado, BigDecimal monto, BigDecimal montoPagado, BigDecimal saldoPendiente) {}

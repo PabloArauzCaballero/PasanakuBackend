@@ -4,4 +4,8 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Solo debug: el simulado/doble corre en http://10.0.2.2:4010 (el anfitrion del emulador).
+         Android 9+ bloquea http en claro por defecto y la app mostraria "sin conexion" en todo.
+         En release esto NO esta: release usa https obligatorio (ver dominio/configuracion.dart). -->
+    <application android:usesCleartextTraffic="true"/>
 </manifest>

@@ -29,6 +29,19 @@ public class PermutaRepositorio {
                         fila.get(TURNO.GRUPO_ID)));
     }
 
+    /** El participante que es titular del cupo de ese turno (quien tiene derecho a permutarlo). */
+    public Optional<UUID> titularDelTurno(DSLContext dsl, UUID turnoId) {
+        var fila = dsl.fetchOne(
+                """
+                SELECT c.participante_id AS titular
+                  FROM grupos.turno t
+                  JOIN grupos.cupo c ON c.id = t.cupo_id
+                 WHERE t.id = ?
+                """,
+                turnoId);
+        return fila == null ? Optional.empty() : Optional.ofNullable(fila.get("titular", UUID.class));
+    }
+
     public UUID solicitar(
             DSLContext dsl,
             UUID origen,

@@ -1,0 +1,3 @@
+00:00 +27: inválido más largo que el tope → null
+00:00 +28: inválido texto libre → null
+00:00 +29: All tests passed!

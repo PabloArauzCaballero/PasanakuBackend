@@ -33,6 +33,20 @@ public class TraspasoRepositorio {
                 cobrado));
     }
 
+    /** El traspaso que ya aplico ese acuerdo a ese cupo para ese entrante, si existe (reintento). */
+    public java.util.Optional<UUID> yaTraspasado(DSLContext dsl, UUID cupoId, UUID acuerdoId, UUID entranteId) {
+        var fila = dsl.fetchOne(
+                """
+                SELECT id FROM grupos.traspaso_cupo
+                 WHERE cupo_id = ? AND aprobado_por_acuerdo_id = ? AND participante_destino_id = ?
+                 ORDER BY fecha DESC LIMIT 1
+                """,
+                cupoId,
+                acuerdoId,
+                entranteId);
+        return fila == null ? java.util.Optional.empty() : java.util.Optional.of(fila.get("id", UUID.class));
+    }
+
     public UUID registrar(
             DSLContext dsl,
             UUID cupoId,
@@ -83,6 +97,47 @@ public class TraspasoRepositorio {
         dsl.update(PARTICIPANTE)
                 .set(PARTICIPANTE.ESTADO, "ACTIVO")
                 .where(PARTICIPANTE.ID.eq(entrante))
+                .execute();
+    }
+
+    /**
+     * El cupo, BLOQUEADO para la operacion: dos cesiones del mismo cupo que llegan a la vez se turnan en vez de pisarse.
+     * Misma forma que {@link #estadoDelCupo}.
+     */
+    public Optional<EstadoDelCupo> bloquearCupo(DSLContext dsl, UUID cupoId) {
+        Record fila = dsl.select(CUPO.ESTADO, CUPO.PARTICIPANTE_ID, CUPO.GRUPO_ID)
+                .from(CUPO)
+                .where(CUPO.ID.eq(cupoId))
+                .forUpdate()
+                .fetchOne();
+        if (fila == null) {
+            return Optional.empty();
+        }
+        boolean cobrado = dsl.fetchExists(
+                dsl.selectFrom(TURNO).where(TURNO.CUPO_ID.eq(cupoId)).and(TURNO.ESTADO.eq("COBRADO")));
+        return Optional.of(new EstadoDelCupo(
+                fila.get(CUPO.ESTADO),
+                Optional.ofNullable(fila.get(CUPO.PARTICIPANTE_ID)),
+                fila.get(CUPO.GRUPO_ID),
+                cobrado));
+    }
+
+    /** Si ese participante es ACTIVO en ESE grupo: la cesion no entrega un cupo a alguien que no esta dentro. */
+    public boolean esParticipanteActivoDe(DSLContext dsl, UUID participanteId, UUID grupoId) {
+        return dsl.fetchExists(dsl.selectFrom(PARTICIPANTE)
+                .where(PARTICIPANTE.ID.eq(participanteId))
+                .and(PARTICIPANTE.GRUPO_ID.eq(grupoId))
+                .and(PARTICIPANTE.ESTADO.eq("ACTIVO")));
+    }
+
+    /**
+     * El titular del cupo cambia por una cesion de derecho del mercado; NADA mas: el turno no se mueve, y los estados de
+     * los participantes tampoco (el vendedor puede conservar otros cupos; el comprador ya estaba dentro).
+     */
+    public void reasignarCupo(DSLContext dsl, UUID cupoId, UUID nuevoTitular) {
+        dsl.update(CUPO)
+                .set(CUPO.PARTICIPANTE_ID, nuevoTitular)
+                .where(CUPO.ID.eq(cupoId))
                 .execute();
     }
 

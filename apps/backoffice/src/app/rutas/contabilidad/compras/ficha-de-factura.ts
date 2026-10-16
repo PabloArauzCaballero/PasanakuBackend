@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core'
-import { CampoMonto } from '@aportaya/ui/campo-monto/campo-monto'
+import { aCadenaDelContrato, CampoMonto } from '@aportaya/ui/campo-monto/campo-monto'
 import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
 import { GrupoRadio } from '@aportaya/ui/grupo-radio/grupo-radio'
 import { Monto } from '@aportaya/ui/monto/monto'
 import { crearPagoDeFactura, pagoExcedeElSaldo, type FacturaDeProveedor, type FormaDePago } from '../dominio/cu103-facturas'
 import { textosContabilidad } from '../textos'
+import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
+import type { ErrorTraducido } from '../../../nucleo/errores'
 
 /**
  * `FichaFactura` de CU-103: el paso de Tesorería. Confirma el pago con el número de la
@@ -19,7 +21,7 @@ import { textosContabilidad } from '../textos'
 @Component({
   selector: 'ap-ficha-de-factura',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CampoMonto, Dialogo, GrupoRadio, Monto],
+  imports: [ErrorDeEnvio, CampoMonto, Dialogo, GrupoRadio, Monto],
   template: `
     <ap-dialogo
       [titulo]="t.pagar + ' · ' + factura().numeroFactura"
@@ -39,6 +41,7 @@ import { textosContabilidad } from '../textos'
       @if (entidadCambioConBorradorSucio()) {
         <p class="aviso-entidad" role="alert">Esta factura cambió mientras editabas. Tu borrador no se perdió, pero no se puede guardar contra los datos anteriores: cerrá y volvé a abrir para continuar.</p>
       }
+      <ap-error-de-envio [error]="errorDeEnvio()" />
       <ap-campo-monto [etiqueta]="'Monto a pagar'" [(valor)]="monto" [error]="errorDeMonto()" />
       <ap-grupo-radio nombre="forma-de-pago" etiqueta="Forma de pago" [opciones]="formas" [(elegido)]="forma" />
     </ap-dialogo>
@@ -54,19 +57,21 @@ export class FichaDeFactura {
   readonly cerrada = output<void>()
   protected readonly abierto = signal(true)
   protected readonly enviando = signal(false)
+  protected readonly errorDeEnvio = signal<ErrorTraducido | null>(null)
   protected readonly monto = signal('')
+  /** Lo escrito («1.240,50») pasado a la cadena del contrato («1240.50»); `null` si no es un monto válido. */
+  protected readonly montoDelContrato = computed(() => aCadenaDelContrato(this.monto()))
   protected readonly forma = signal<string>('TRANSFERENCIA')
   protected readonly formas = [
     { valor: 'TRANSFERENCIA', texto: 'Transferencia' },
     { valor: 'CHEQUE', texto: 'Cheque' },
     { valor: 'EFECTIVO', texto: 'Efectivo' },
-    { valor: 'QR', texto: 'QR' },
   ]
   private readonly enviarPago = crearPagoDeFactura()
   private readonly valorInicialDeForma = 'TRANSFERENCIA'
 
   protected readonly errorDeMonto = computed(() =>
-    this.monto() && pagoExcedeElSaldo(this.factura(), this.monto()) ? 'El pago no puede exceder el saldo pendiente de la factura.' : undefined,
+    this.montoDelContrato() && pagoExcedeElSaldo(this.factura(), this.montoDelContrato()!) ? 'El pago no puede exceder el saldo pendiente de la factura.' : undefined,
   )
 
   /** Ver el mismo comentario en `ficha-de-cobro.ts`: candidato mínimo sin un `dirty` propio de campo. */
@@ -96,10 +101,11 @@ export class FichaDeFactura {
   }
 
   protected confirmar(): void {
-    if (this.enviando() || this.entidadCambioConBorradorSucio() || this.errorDeMonto() || !this.monto()) return
+    if (this.enviando() || this.entidadCambioConBorradorSucio() || this.errorDeMonto() || !this.montoDelContrato()) return
     this.enviando.set(true)
+    this.errorDeEnvio.set(null)
     this.enviarPago(this.factura().facturaProveedorId, {
-      monto: this.monto(),
+      monto: this.montoDelContrato()!,
       moneda: this.factura().saldoPendiente.moneda,
       formaPago: this.forma() as FormaDePago,
     }).subscribe({
@@ -107,7 +113,10 @@ export class FichaDeFactura {
         this.enviando.set(false)
         this.cambiarApertura(false)
       },
-      error: () => this.enviando.set(false),
+      error: (e: ErrorTraducido) => {
+        this.errorDeEnvio.set(e)
+        this.enviando.set(false)
+      },
     })
   }
 }

@@ -1,0 +1,7 @@
+BEGIN
+SET
+ANTES (contexto del servicio, politica de fila): filas de usuario visibles | 0
+ANTES: documentos visibles | 0
+DESPUES (lectura de sistema acotada): filas de usuario visibles | 1
+DESPUES: documentos visibles | 1
+ROLLBACK

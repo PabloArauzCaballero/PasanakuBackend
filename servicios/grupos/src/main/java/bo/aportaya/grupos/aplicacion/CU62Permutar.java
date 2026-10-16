@@ -54,6 +54,14 @@ public class CU62Permutar {
             var destino = permutas.turno(dsl, entrada.turnoDestinoId())
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(62, 1), "Ese turno no existe."));
 
+            // Solo el titular del cupo del turno de origen puede pedir permutarlo: sin esto,
+            // cualquier participante pedia mover el turno de otro.
+            if (!permutas.titularDelTurno(dsl, entrada.turnoOrigenId())
+                    .map(entrada.solicitanteId()::equals)
+                    .orElse(false)) {
+                throw new ErrorDeNegocio(CodigoError.de(62, 1), "Ese turno no es tuyo.");
+            }
+
             PermutaPosible.impedimento(
                             origen.estado(),
                             destino.estado(),

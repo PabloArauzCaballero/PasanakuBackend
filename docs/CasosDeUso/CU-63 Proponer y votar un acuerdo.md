@@ -155,6 +155,14 @@ Entonces se rechaza con VOTO_YA_EMITIDO
 Dado un acuerdo cuyo plazo venció sin quórum
 Cuando corre el trabajo de cierre
 Entonces queda RECHAZADO_POR_QUORUM y no se ejecuta ningún efecto
+
+Dado un acuerdo con votos pendientes que aun pueden alcanzar el quorum
+Cuando entra el primer voto
+Entonces la votacion NO se cierra
+
+Dado un acuerdo en el que ni con todo el peso que falta a favor se alcanza el quorum
+Cuando entra un voto
+Entonces se cierra RECHAZADO
 ```
 
 ## Ver también

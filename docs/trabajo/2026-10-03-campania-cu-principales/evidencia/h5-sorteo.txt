@@ -1,0 +1,26 @@
+LOGIN USR1 (+591***01) -> 200 requiereFactor=False token=si
+LOGIN USR2 (+591***02) -> 200 requiereFactor=False token=si
+estado del grupo antes: ABIERTO_A_INSCRIPCION ocupados=2/3
+
+== invitar y aceptar al ultimo participante (USR2)
+POST  /grupos/c8822609-f632-45c0-ae8c-eab6cb12008e/invitaciones                        -> 201
+POST  /grupos/invitaciones/enlace/aceptar                                              -> 201
+aceptar: {'grupoId': 'c8822609-f632-45c0-ae8c-eab6cb12008e', 'participanteId': 'e72487d2-fdff-4735-9506-2f12994cfaed'}
+estado del grupo despues: ABIERTO_A_INSCRIPCION ocupados=3/3
+cupos: OCUPADO=3
+
+== CU-60 comprometer el sorteo
+-- negativo: USR2 (sin GRUPO_ADMINISTRAR)
+POST  /grupos/c8822609-f632-45c0-ae8c-eab6cb12008e/sorteo                              -> 403 AP-SEG-01
+POST  /grupos/c8822609-f632-45c0-ae8c-eab6cb12008e/sorteo                              -> 201
+respuesta: {'sorteoId': 'c21a5caa-866a-4dd2-9514-b773dab3e322', 'hashSemilla': '4f40bd7741cdc38d5b83b7389649579fc2c43e90d99d9cc90c6e67f3f8702c25', 'algoritmo': 'FISHER_YATES_SHA256', 'semilla': '<oculta>'}
+SQL sorteo: COMPROMETIDO
+
+== CU-60 revelar el sorteo
+POST  /grupos/c8822609-f632-45c0-ae8c-eab6cb12008e/sorteo/revelacion                   -> 200
+respuesta: {'sorteoId': 'c21a5caa-866a-4dd2-9514-b773dab3e322', 'verificado': True, 'semilla': '74654338-76da-42e8-8456-871bfa10fbebc07c6ce2-5103-40e1-80c9-d24e001ab2d6', 'cuposEnOrden': ['66aa8b74-41b7-45b4-a12f-06963c08f9b8', '3a0a06ff-d10e-4300-a4dc-7ae9dda9ff3d', 'de24dd19-9d6c-4a60-a74c-e2460363a29b']}
+
+== CU-61 verificacion publica (sin sesion)
+GET   /publico/sorteos/c21a5caa-866a-4dd2-9514-b773dab3e322/verificacion               -> 200
+respuesta: {'verifica': False, 'hashEsperado': '', 'hashRecomputado': '', 'ordenCoincide': False, 'primerCupoDiscrepante': None}
+turnos: 1:PROGRAMADO 2:PROGRAMADO 3:PROGRAMADO

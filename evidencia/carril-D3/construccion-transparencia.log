@@ -1,0 +1,60 @@
+#14 [construccion 13/15] RUN --mount=type=cache,target=/root/.gradle     BD_URL_ADMIN=jdbc:postgresql://127.0.0.1:5444/pasanaku     BD_USUARIO_ADMIN=pasanaku     BD_CLAVE_ADMIN=<BD_CLAVE_ADMIN>     ./gradlew --no-daemon --max-workers=2 -Dorg.gradle.parallel=false "-Dorg.gradle.jvmargs=-Xmx1g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8" :servicios:transparencia:bootJar -x test
+#14 CACHED
+
+#15 [construccion 14/15] RUN mkdir -p /capas && cd /capas     && java -Djarmode=tools -jar /construccion/servicios/transparencia/build/libs/*.jar extract --layers --launcher --destination /capas
+#15 CACHED
+
+#16 [runtime 3/8] WORKDIR /app
+#16 CACHED
+
+#17 [construccion  3/15] RUN apt-get update     && apt-get install -y --no-install-recommends python3     && rm -rf /var/lib/apt/lists/*
+#17 CACHED
+
+#18 [construccion  4/15] COPY gradlew settings.gradle.kts build.gradle.kts gradle.properties ./
+#18 CACHED
+
+#19 [runtime 4/8] COPY --from=construccion --chown=app:app /capas/dependencies/ ./
+#19 CACHED
+
+#20 [runtime 6/8] COPY --from=construccion --chown=app:app /capas/snapshot-dependencies/ ./
+#20 CACHED
+
+#21 [construccion  8/15] COPY scripts scripts
+#21 CACHED
+
+#22 [runtime 5/8] COPY --from=construccion --chown=app:app /capas/spring-boot-loader/ ./
+#22 CACHED
+
+#23 [construccion 10/15] COPY sql/50_verificacion/prueba_humo.sql sql/50_verificacion/prueba_humo.sql
+#23 CACHED
+
+#24 [runtime 7/8] COPY --from=construccion --chown=app:app /capas/application/ ./
+#24 CACHED
+
+#25 [construccion  5/15] COPY gradle gradle
+#25 CACHED
+
+#26 [construccion 12/15] COPY servicios/transparencia servicios/transparencia
+#26 CACHED
+
+#27 [construccion  2/15] WORKDIR /construccion
+#27 CACHED
+
+#28 [runtime 2/8] RUN groupadd --system app && useradd --system --gid app app     && apt-get update     && apt-get install -y --no-install-recommends wget     && rm -rf /var/lib/apt/lists/*
+#28 CACHED
+
+#29 [construccion  7/15] COPY bd bd
+#29 CACHED
+
+#30 [runtime 8/8] COPY --from=construccion /nativo/ /app/nativo/
+#30 CACHED
+
+#31 exporting to image
+#31 exporting layers done
+#31 exporting manifest sha256:42bb6b3696f04e5e4bb0b88a517499a1b88888a531ebf60abd6afbfd2272ad6a done
+#31 exporting config sha256:c70490dc887ccaa71d0ee64cb0adec65acbd042faa2a188e0b2b952de4e8c180 done
+#31 exporting attestation manifest sha256:257b3196ece9978b247fc965491e700bd4b2b0d57510e76eb9141d7a97e647ed 0.0s done
+#31 exporting manifest list sha256:b345181fa7ea08543410d47c930ea6527ad2be55ae004cb599d2a60cd6c87941 done
+#31 naming to docker.io/aportaya/transparencia:test done
+#31 unpacking to docker.io/aportaya/transparencia:test done
+#31 DONE 0.1s

@@ -91,6 +91,30 @@ class GuardiaDePermisoWebTest {
     }
 
     @Test
+    @DisplayName("R-SEG: una alternativa abre SOLO su puerta: el permiso alternativo pasa, igual que el principal")
+    void laAlternativaAbreSuPuerta() throws Exception {
+        mvc.perform(get("/ensayo/dos-puertas").with(Sesiones.como("ADMIN_PLATAFORMA", "SOLICITUD_INGRESO_VER")))
+                .andExpect(status().isOk());
+        mvc.perform(get("/ensayo/dos-puertas").with(Sesiones.como("PARTICIPANTE")))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("R-SEG: rechaza: con alternativas declaradas, un tercero (otro permiso, otro rol, sin permisos, sin"
+            + " sesion) sigue fuera")
+    void laAlternativaNoAbreOtrasPuertas() throws Exception {
+        mvc.perform(get("/ensayo/dos-puertas").with(Sesiones.como("TESORERIA", "ENTREGA_EJECUTAR")))
+                .andExpect(status().isForbidden());
+        mvc.perform(get("/ensayo/dos-puertas").with(Sesiones.como("SOPORTE", "RECLAMO_VER")))
+                .andExpect(status().isForbidden());
+        mvc.perform(get("/ensayo/dos-puertas").with(Sesiones.sinPermisos())).andExpect(status().isForbidden());
+        mvc.perform(get("/ensayo/dos-puertas")).andExpect(status().isUnauthorized());
+        // La alternativa de OTRO endpoint no se hereda: en /solo-rol no hay alternativas.
+        mvc.perform(get("/ensayo/solo-rol").with(Sesiones.como("ADMIN_PLATAFORMA", "SOLICITUD_INGRESO_VER")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     @DisplayName("R-SEG: el 403 no dice que permiso falta")
     void laNegativaNoCuentaNada() throws Exception {
         String cuerpo = mvc.perform(

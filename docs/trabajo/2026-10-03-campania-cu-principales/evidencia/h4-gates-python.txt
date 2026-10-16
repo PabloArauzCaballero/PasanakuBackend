@@ -1,0 +1,39 @@
+=== python scripts/generar_ddl.py
+sql\40_reglas\restricciones.sql: 19 bloques SQL, 142 restricciones · sql\50_verificacion\verificaciones.sql: 1 bloque(s) de control
+minimos  → sql\60_semillas: 21 archivos, 848 filas
+dev      → sql\61_dev: 16 archivos, 620 filas
+total: 1468 filas de semilla · validadas contra el modelo
+sql/ generado: 306 tablas · 631 claves foráneas · 672 índices · 422 CHECK
+Sin pendientes a nivel de datos.
+rc=0
+=== python scripts/extraer_sql.py
+sql\40_reglas\restricciones.sql: 19 bloques SQL, 142 restricciones · sql\50_verificacion\verificaciones.sql: 1 bloque(s) de control
+rc=0
+=== python scripts/verificar_boveda.py
+
+=== CIFRAS CITADAS ===
+  OK    · ninguna cifra desfasada en los planes 
+          cifras vigentes: 99 casos de uso · 306 tablas · 305 entidades · 142 restricciones · 48 ADR
+
+TODO OK
+rc=0
+=== python scripts/inventario_endpoints.py --check
+endpoints relevados: 162 · hallazgos: 0
+El inventario esta alineado: todo lo implementado tiene contrato y viceversa.
+rc=0
+=== python scripts/verificar_contratos_limites.py
+  - transparencia · openapi/*.yaml#/components/schemas/Indicadores/antiguedadMeses: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/Medicion/valorCrudo: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/Medicion/valorNormalizado: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/MetricaDeRiesgo/valor: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/MetricaDeRiesgo/umbral: sin limite (`maxLength`/`maximum`/`maxItems`)
+Los contratos de request en el alcance de este gate declaran limites y additionalProperties: false.
+rc=0
+=== python scripts/verificar_seguridad.py
+
+=== 7 · SQL CON ENTRADA DINÁMICA (SQL-SEGURO) ===
+  AVISO · servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/infraestructura/DestinoRepositorio.java:34 — DSL.field(variable) — nombre de columna dinámico (fuera del alcance de este carril; dueño del servicio)
+  (556 archivos revisados; 0 bloquean, 1 son aviso)
+
+TODO OK · 3 aviso(s)
+rc=0

@@ -1,0 +1,50 @@
+LOGIN USR90 (+591***90) -> 200 requiereFactor=False token=si
+LOGIN USR1 (+591***01) -> 200 requiereFactor=False token=si
+LOGIN USR2 (+591***02) -> 200 requiereFactor=False token=si
+LOGIN USR8 (+591***08) -> 200 requiereFactor=False token=si
+LOGIN USR9 (+591***09) -> 200 requiereFactor=False token=si
+
+===== CU-90 · USR90 postula (cuerpo corregido: reputacion con formato decimal)
+POST  /organizadores/postulaciones                                                     -> 500 AP-INT-01
+respuesta: {'codigo': 'AP-INT-01', 'mensaje': 'No pudimos completar la operacion. Volve a intentar.', 'trazaId': '4ec60947-603c-f21e-77b7-b0abff9788af'}
+SQL solicitudes de organizador: 
+
+===== CU-61 · verificación pública del sorteo sembrado de GRP-DEMO-01 (sin sesión)
+GET   /publico/sorteos/3b04ace1-afd5-41c0-ac2c-adc2496ae419/verificacion               -> 200
+respuesta: {'verifica': False, 'hashEsperado': '', 'hashRecomputado': '', 'ordenCoincide': False, 'primerCupoDiscrepante': None, 'paquete': {'semilla': '', 'entropias': [], 'metodo': 'NO_DISPONIBLE', 'cupos': []}}
+
+===== CU-62 · USR2 solicita permuta de su turno con el de USR3
+POST  /turnos/permutas                                                                 -> 422 AP-CU62-01
+respuesta: {'codigo': 'AP-CU62-01', 'mensaje': 'Ese turno ya no se puede permutar.', 'detalle': {}, 'trazaId': 'cfeca866-58cd-6a4b-c6df-74e494f5ed93'}
+-- negativo: USR1 solicita permuta de un turno que no es suyo (cupo 2)
+POST  /turnos/permutas                                                                 -> 400 AP-VAL-01
+SQL permutas: 0
+
+===== CU-22 · entrega del fondo: liquidar (USR8) -> autorizar (USR9) -> ejecutar (USR8)
+-- negativo: USR9 (solo autoriza) intenta liquidar
+POST  /entregas                                                                        -> 403 AP-SEG-01
+-- negativo: bruto mayor que lo recaudado
+POST  /entregas                                                                        -> 422 AP-CU22-01
+POST  /entregas                                                                        -> 201
+liquidar: {'entregaId': 'b8562be4-eff8-40d1-8974-5d3fa8795e12', 'bruto': {'monto': '3000.00', 'moneda': 'BOB'}, 'totalDeducciones': {'monto': '0.00', 'moneda': 'BOB'}, 'neto': {'monto': '3000.00', 'moneda': 'BOB'}, 'estado': 'PROGRAMADA'}
+-- repetir la MISMA clave
+POST  /entregas                                                                        -> 500 AP-INT-01
+liquidar (2.ª): {'codigo': 'AP-INT-01', 'mensaje': 'No pudimos completar la operacion. Volve a intentar.', 'trazaId': '32cf25bf-ca73-e6e1-8312-797d979614ef'}
+-- negativo: USR8 (ejecutor) intenta autorizar
+POST  /entregas/b8562be4-eff8-40d1-8974-5d3fa8795e12/autorizacion                      -> 403 AP-SEG-01
+-- USR9 autoriza
+POST  /entregas/b8562be4-eff8-40d1-8974-5d3fa8795e12/autorizacion                      -> 200
+autorizar: {'entregaId': 'b8562be4-eff8-40d1-8974-5d3fa8795e12', 'estado': 'AUTORIZADA', 'autorizadaPor': '560f4dea-41e3-4a7b-8136-dcb99bdce16a'}
+-- USR8 ejecuta
+POST  /entregas/b8562be4-eff8-40d1-8974-5d3fa8795e12/ejecucion                         -> 200
+ejecutar: {'entregaId': 'b8562be4-eff8-40d1-8974-5d3fa8795e12', 'estado': 'ENTREGADA', 'montoEntregado': {'monto': '2989.50', 'moneda': 'BOB'}}
+SQL entrega: ENTREGADA bruto=3000.00 neto=3000.00 entregado=2989.50
+SQL saldo del beneficiario (no se acredita: el servicio no mueve saldo): 600.00
+
+===== CU-11 · USR1 solicita un retiro de 100.00 a su instrumento verificado
+POST  /billetera/retiros                                                               -> 422 AP-CU11-01
+respuesta: {'codigo': 'AP-CU11-01', 'mensaje': 'No se pudo cotizar el costo del retiro: intentalo de nuevo.', 'detalle': {}, 'trazaId': 'ccbf4ffa-0b2e-db75-a5df-738c168a7b3e'}
+-- negativo: USR2 retira de la cuenta de USR1
+POST  /billetera/retiros                                                               -> 422 AP-CU11-01
+SQL órdenes de retiro: EN_REVISION=1
+SQL saldo USR1: 3589.50 retenido=0.00

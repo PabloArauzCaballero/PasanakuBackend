@@ -25,6 +25,11 @@ public interface HechosDeOtrosServicios {
     /** ¿El organizador puede abrir grupos hoy? Lo dice {@code organizador}. */
     boolean organizadorHabilitado(UUID organizadorId);
 
+    /** Identidad de organizador comprobada por su servicio, nunca elegida por el cliente. */
+    default java.util.Optional<UUID> organizadorHabilitadoDelUsuario(UUID usuarioId) {
+        return java.util.Optional.empty();
+    }
+
     /** El tarifario vigente de un codigo, o vacio si no hay. Lo dice {@code tarifas}. */
     java.util.Optional<UUID> tarifarioVigente(String codigo);
 
@@ -34,7 +39,10 @@ public interface HechosDeOtrosServicios {
     /** Como viene de pagos un participante. Lo dice {@code aportes}. */
     EstadoDePagos estadoDePagos(UUID participanteId);
 
-    /** Cuantos del grupo estan en mora. Lo dice {@code aportes}. */
+    /** Lo que devuelve {@link #morososDelGrupo} cuando {@code aportes} no contesta: no es un conteo, es "sin dato". */
+    int SIN_DATO_DE_MOROSOS = Integer.MAX_VALUE;
+
+    /** Cuantos del grupo estan en mora. Lo dice {@code aportes}; {@link #SIN_DATO_DE_MOROSOS} si no contesta. */
     int morososDelGrupo(UUID grupoId);
 
     /** El puntaje de reputacion. Lo dice {@code transparencia}. */
@@ -47,10 +55,35 @@ public interface HechosDeOtrosServicios {
     boolean contactoSuprimido(String identificador, String categoria);
 
     /** El enlace de un solo uso de una invitacion. Lo emite {@code identidad}. */
-    TokenDeInvitacion tokenDeInvitacion(String canal, String destinoEnmascarado);
+    TokenInvitacion tokenDeInvitacion(UUID clave, UUID grupoId, String canal, String telefono);
 
-    /** Identidad coteja el secreto y el telefono con la sesion autenticada. */
+    /** Identidad coteja el secreto y el telefono con la sesion autenticada, sin consumir el enlace. */
     boolean enlaceDeInvitacionValido(UUID tokenId, String token, String telefonoE164, String kycMinimo);
+
+    ConsumoInvitacion consumirInvitacion(UUID tokenId, UUID grupoId, UUID clave, String token);
+
+    /**
+     * Revoca el enlace de una invitacion. Es idempotente para el emisor; falso si no se pudo
+     * revocar (no es suyo, ya se consumio o {@code identidad} no respondio): quien llama no
+     * debe dar la invitacion por revocada.
+     */
+    boolean revocarTokenDeInvitacion(UUID tokenId);
+
+    /**
+     * Nivel de KYC vigente de una persona (NINGUNO, BASICO, INTERMEDIO, COMPLETO). Lo dice
+     * {@code identidad}. Sin respuesta, o con un nivel desconocido, vale NINGUNO: denegar por omision.
+     */
+    String nivelDeKyc(UUID usuarioId);
+
+    record TokenInvitacion(UUID tokenId, String token, java.time.OffsetDateTime expiraEn) {
+        @Override
+        public String toString() {
+            return "TokenInvitacion[tokenId=" + tokenId + ", token=REDACTADO]";
+        }
+    }
+
+    record ConsumoInvitacion(
+            UUID tokenId, UUID grupoId, UUID usuarioId, UUID clave, java.time.OffsetDateTime consumidoEn) {}
 
     /** Si ese telefono ya tiene cuenta. Lo dice {@code identidad}. */
     java.util.Optional<UUID> usuarioDelTelefono(String telefonoE164);
@@ -73,6 +106,4 @@ public interface HechosDeOtrosServicios {
     record Reputacion(boolean tieneHistorial, BigDecimal puntaje) {}
 
     record Restriccion(boolean vigente, BigDecimal montoQueLaLevanta) {}
-
-    record TokenDeInvitacion(UUID tokenId, String token) {}
 }

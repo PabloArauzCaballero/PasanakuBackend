@@ -1,0 +1,28 @@
+funciones sin esquema (caen en `aportes`): 71
+  fn_seg_* (quedan INVOKER): 10
+  DEFINER (todas las demas): 61  -> triggers: 51 · invocables por SQL (no trigger): 10
+no-trigger invocables:
+   fn_bil_recalcular_saldos -> void  (40_reglas/restricciones.sql)
+   fn_con_exigir_contrato -> void  (40_reglas/restricciones.sql)
+   fn_ctb_recalcular_saldo -> void  (40_reglas/restricciones.sql)
+   fn_lic_servicio_habilitado -> boolean  (40_reglas/restricciones.sql)
+   fn_lim_evaluar -> void  (40_reglas/restricciones.sql)
+   fn_not_puede_enviar -> void  (40_reglas/restricciones.sql)
+   fn_uif_concepto -> text  (40_reglas/restricciones.sql)
+   fn_uif_exigir_ddd -> void  (40_reglas/restricciones.sql)
+   fn_uif_registrar_operacion -> integer  (40_reglas/restricciones.sql)
+   fn_uif_titular -> uuid  (40_reglas/restricciones.sql)
+
+DEFINER cuyo cuerpo menciona tablas de MAS DE UN esquema (candidatas a conservar): 11
+   fn_bil_validar_cierre_diario: aportes, nucleo_financiero
+   fn_ctb_segregacion_pago: aportes, erp
+   fn_grp_validar_disolucion: grupos, nucleo_financiero
+   fn_grp_validar_retiro_grupo: entregas, grupos, nucleo_financiero
+   fn_inv_distribucion_coherente: catalogo, inversiones
+   fn_inv_orden_consentida: identidad, inversiones
+   fn_lic_servicio_habilitado: catalogo, cumplimiento
+   fn_lim_evaluar: catalogo, nucleo_financiero
+   fn_not_puede_enviar: identidad, notificaciones
+   fn_pub_moderador_distinto: identidad, organizador, publicidad
+   fn_uif_registrar_operacion: catalogo, cumplimiento, nucleo_financiero
+DEFINER sin cruce aparente (candidatas a INVOKER): 50

@@ -1,0 +1,36 @@
+##### 10. RETIRAR => FINALIZADO, la licencia sigue EN_TRAMITE, GRUPO_PASANAKU vuelve a false
+$ bash sandbox_licencia_test.sh --retirar   [retirar]
+[retirar] antes:   sandbox_filas=1 sandbox_activo_vigente=1 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=true fn_lic_BILLETERA=false 
+[retirar] despues: sandbox_filas=1 sandbox_activo_vigente=0 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=false fn_lic_BILLETERA=false 
+[retirar] listo. La licencia no se toco (sigue EN_TRAMITE); correr el guion de nuevo reactiva el sandbox.
+RC=0
+$ bash sandbox_licencia_test.sh --retirar   [retirar-otra-vez]
+[retirar] antes:   sandbox_filas=1 sandbox_activo_vigente=0 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=false fn_lic_BILLETERA=false 
+[retirar] despues: sandbox_filas=1 sandbox_activo_vigente=0 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=false fn_lic_BILLETERA=false 
+[retirar] listo. La licencia no se toco (sigue EN_TRAMITE); correr el guion de nuevo reactiva el sandbox.
+RC=0
+
+##### 11. APLICAR tras el retiro => REACTIVA (cambios: si) y otra vez habilitado
+$ bash sandbox_licencia_test.sh    [reactivar]
+[sandbox] antes:   sandbox_filas=1 sandbox_activo_vigente=0 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=false fn_lic_BILLETERA=false 
+[sandbox] despues: sandbox_filas=1 sandbox_activo_vigente=1 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=true fn_lic_BILLETERA=false 
+[sandbox] cambios: si (antes != despues)
+[listo] sandbox SINTETICO de GRUPO_PASANAKU activo (no es una licencia ASFI; la licencia sigue EN_TRAMITE). Retirar: --retirar.
+RC=0
+$ bash sandbox_licencia_test.sh    [idempotente-de-nuevo]
+[sandbox] antes:   sandbox_filas=1 sandbox_activo_vigente=1 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=true fn_lic_BILLETERA=false 
+[sandbox] despues: sandbox_filas=1 sandbox_activo_vigente=1 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=true fn_lic_BILLETERA=false 
+[sandbox] cambios: 0 (idempotente)
+[listo] sandbox SINTETICO de GRUPO_PASANAKU activo (no es una licencia ASFI; la licencia sigue EN_TRAMITE). Retirar: --retirar.
+RC=0
+
+##### 12. Ventana vencida => la reactivacion renueva la ventana
+$ bash sandbox_licencia_test.sh --estado   [vencido]
+[estado] sandbox_filas=1 sandbox_activo_vigente=0 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=false fn_lic_BILLETERA=false 
+RC=0
+$ bash sandbox_licencia_test.sh    [renovar]
+[sandbox] antes:   sandbox_filas=1 sandbox_activo_vigente=0 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=false fn_lic_BILLETERA=false 
+[sandbox] despues: sandbox_filas=1 sandbox_activo_vigente=1 otros_entornos_activos=0 licencias_otorgadas=0 licencias_en_tramite=1 fn_lic_GRUPO_PASANAKU=true fn_lic_BILLETERA=false 
+[sandbox] cambios: si (antes != despues)
+[listo] sandbox SINTETICO de GRUPO_PASANAKU activo (no es una licencia ASFI; la licencia sigue EN_TRAMITE). Retirar: --retirar.
+RC=0

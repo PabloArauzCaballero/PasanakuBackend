@@ -1,0 +1,13 @@
+== lock de origin/test, flutter 3.44.8, --enforce-lockfile
+29 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Unable to satisfy `pubspec.yaml` using `pubspec.lock`.
+To update `pubspec.lock` run `flutter pub get` without
+`--enforce-lockfile`.
+Failed to update packages.
+exit=65
+== lock regenerado con flutter 3.44.8, --enforce-lockfile
+Got dependencies!
+29 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+exit=0

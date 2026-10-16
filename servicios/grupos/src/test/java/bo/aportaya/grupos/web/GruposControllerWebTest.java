@@ -14,6 +14,7 @@ import bo.aportaya.grupos.aplicacion.CU59CalcularPlazo;
 import bo.aportaya.grupos.aplicacion.CU64TraspasarCupo;
 import bo.aportaya.grupos.aplicacion.CU65Retirarse;
 import bo.aportaya.grupos.aplicacion.CU68Postular;
+import bo.aportaya.grupos.aplicacion.CU69Invitar;
 import bo.aportaya.grupos.aplicacion.Consultas;
 import bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
@@ -73,6 +74,9 @@ class GruposControllerWebTest {
     private MockMvc mvc;
 
     @MockitoBean
+    private bo.aportaya.grupos.aplicacion.CanjearInvitacion canjearInvitacion;
+
+    @MockitoBean
     private CU20CrearGrupo cu20;
 
     @MockitoBean
@@ -88,7 +92,16 @@ class GruposControllerWebTest {
     private CU68Postular cu68;
 
     @MockitoBean
+    private bo.aportaya.grupos.aplicacion.CU68AceptarIngreso cu68Decision;
+
+    @MockitoBean
     private InvitacionesWeb invitaciones;
+
+    @MockitoBean
+    private AdmisionDelGrupo admision;
+
+    @MockitoBean
+    private CU69Invitar cu69;
 
     @MockitoBean
     private Consultas consultas;
@@ -106,6 +119,40 @@ class GruposControllerWebTest {
     @DisplayName("CU-20 · crear el grupo")
     class Crear {
 
+        @Test
+        void sinHabilitacionDelCreadorNoInvocaElAlta() throws Exception {
+            crear(GRUPO_NUEVO).andExpect(status().isUnprocessableEntity());
+            verifyNoInteractions(cu20);
+        }
+
+        @Test
+        void noPermiteElegirOrganizadorAjeno() throws Exception {
+            when(afuera.organizadorHabilitadoDelUsuario(any())).thenReturn(java.util.Optional.of(UUID.randomUUID()));
+            String pedido = GRUPO_NUEVO.replaceFirst("\\{", "{\"organizadorId\":\"" + UUID.randomUUID() + "\",");
+            crear(pedido).andExpect(status().isUnprocessableEntity());
+            verifyNoInteractions(cu20);
+        }
+
+        @ParameterizedTest(name = "422 · KYC del creador: {0}")
+        @ValueSource(strings = {"NINGUNO", "DESCONOCIDO", ""})
+        @DisplayName("CU-20 · un creador sin el KYC minimo (o con un nivel que no se entiende) no abre grupo")
+        void creadorSinKycSuficiente(String nivel) throws Exception {
+            when(afuera.organizadorHabilitadoDelUsuario(any())).thenReturn(java.util.Optional.of(UUID.randomUUID()));
+            when(afuera.nivelDeKyc(any())).thenReturn(nivel);
+            crear(GRUPO_NUEVO)
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU20-05"));
+            verifyNoInteractions(cu20);
+        }
+
+        @Test
+        @DisplayName("CU-20 · sin respuesta de identidad el nivel es NINGUNO: no se abre grupo")
+        void creadorSinRespuestaDeIdentidad() throws Exception {
+            when(afuera.organizadorHabilitadoDelUsuario(any())).thenReturn(java.util.Optional.of(UUID.randomUUID()));
+            crear(GRUPO_NUEVO).andExpect(status().isUnprocessableEntity());
+            verifyNoInteractions(cu20);
+        }
+
         private org.springframework.test.web.servlet.ResultActions crear(String cuerpo) throws Exception {
             return mvc.perform(post("/grupos")
                     .with(Sesiones.como("ORGANIZADOR", "GRUPO_CREAR"))
@@ -117,6 +164,8 @@ class GruposControllerWebTest {
         @Test
         @DisplayName("CU-20 · 202: el grupo queda PEDIDO, no armado")
         void crearGrupo() throws Exception {
+            when(afuera.organizadorHabilitadoDelUsuario(any())).thenReturn(java.util.Optional.of(UUID.randomUUID()));
+            when(afuera.nivelDeKyc(any())).thenReturn("BASICO");
             when(cu20.ejecutar(any(), any())).thenReturn(new CU20CrearGrupo.SalidaCreacion(GRUPO, "250.00"));
 
             crear(GRUPO_NUEVO)

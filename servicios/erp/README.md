@@ -46,7 +46,9 @@ cableada en `main/java`, y `testBarrido` lo comprueba.
 **4 · Cuatro ojos sobre el egreso.** Quien aprueba una factura no autoriza su pago
 (R-CTB-05). El caso de uso lo comprueba para poder explicarlo con un mensaje, y el
 trigger `fn_ctb_segregacion_pago` lo sostiene aunque alguien escriba el pago por
-fuera.
+fuera. Quien autoriza el pago es el sujeto del token (`ctx.usuarioId()`), nunca un dato
+del cuerpo: `EntradaPago` no declara `autorizadoPor` y la entrada estricta rechaza con
+400 un cuerpo que lo traiga (`PagoDeFacturaWebTest`).
 
 ## Pruebas
 

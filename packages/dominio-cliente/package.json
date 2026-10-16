@@ -8,7 +8,8 @@
   "types": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./configuracion": "./src/configuracion.ts"
+    "./configuracion": "./src/configuracion.ts",
+    "./posiciones": "./src/posiciones.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
@@ -17,10 +18,10 @@
     "test:a11y": "echo 'dominio-cliente: sin pruebas de a11y (no renderiza)'"
   },
   "devDependencies": {
-    "@types/node": "^26.6.4",
-    "eslint": "^10.12.0",
-    "typescript": "~7.0.2",
-    "typescript-eslint": "^8.71.1",
-    "vitest": "^5.0.3"
+    "@types/node": "^22.10.0",
+    "eslint": "^9.39.0",
+    "typescript": "~5.9.2",
+    "typescript-eslint": "^8.68.0",
+    "vitest": "^4.1.0"
   }
 }

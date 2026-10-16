@@ -1,0 +1,100 @@
+heavy.sh: candado tomado, libres 4216 MB -> bash g_jj.sh --continue :servicios:aportes:integrationTest --tests *CU21ReintentoConcurrenteTest
+== docker listo, libres: 4193 MB
+== aplicar.sql RC: 0
+psql:/repo/sql/40_reglas/restricciones.sql:3396: NOTICE:  trigger "tg_distribucion_interes_coherente" for relation "distribucion_interes" does not exist, skipping
+psql:/repo/sql/40_reglas/restricciones.sql:3402: NOTICE:  constraint "ck_corrida_trabajo_fin" of relation "corrida_trabajo" does not exist, skipping
+psql:/repo/sql/40_reglas/restricciones.sql:3403: NOTICE:  constraint "ck_corrida_trabajo_error" of relation "corrida_trabajo" does not exist, skipping
+== sembrar.sql corrida 1 RC: 0
+SET
+cuenta_contable|59
+cuenta_billetera|5
+sistema|5
+== sembrar.sql corrida 2 RC: 0
+SET
+cuenta_contable|59
+cuenta_billetera|5
+sistema|5
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Starting a Gradle Daemon, 1 stopped Daemon could not be reused, use --status for details
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources UP-TO-DATE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :servicios:aportes:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:aportes:generateJooq UP-TO-DATE
+> Task :servicios:aportes:compileJava
+> Task :servicios:aportes:processResources UP-TO-DATE
+> Task :servicios:aportes:classes
+> Task :servicios:aportes:compileTestJava UP-TO-DATE
+> Task :servicios:aportes:processTestResources UP-TO-DATE
+> Task :servicios:aportes:testClasses UP-TO-DATE
+
+> Task :servicios:aportes:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+CU21ReintentoConcurrenteTest > concurrencia: la misma clave en simultaneo devuelve a todos el pago del original y no cobra dos veces FAILED
+    java.util.concurrent.ExecutionException: bo.aportaya.plataforma.dominio.ErrorDeNegocio: Esa obligacion esta PAGADO.
+        at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
+        at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:191)
+        at bo.aportaya.aportes.CU21ReintentoConcurrenteTest.concurrenciaDeLaMismaClave(CU21ReintentoConcurrenteTest.java:74)
+
+        Caused by:
+        bo.aportaya.plataforma.dominio.ErrorDeNegocio: Esa obligacion esta PAGADO.
+            at app//bo.aportaya.aportes.aplicacion.CU21CobrarAporte.lambda$acreditar$1(CU21CobrarAporte.java:87)
+            at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:52)
+            at app//bo.aportaya.aportes.aplicacion.CU21CobrarAporte.acreditar(CU21CobrarAporte.java:61)
+            at app//bo.aportaya.aportes.CU21ReintentoConcurrenteTest.lambda$cobrar$0(CU21ReintentoConcurrenteTest.java:41)
+            at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+            at app//bo.aportaya.aportes.CU21ReintentoConcurrenteTest.cobrar(CU21ReintentoConcurrenteTest.java:41)
+            at app//bo.aportaya.aportes.CU21ReintentoConcurrenteTest.lambda$concurrenciaDeLaMismaClave$1(CU21ReintentoConcurrenteTest.java:69)
+
+1 test completed, 1 failed
+
+> Task :servicios:aportes:integrationTest FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':servicios:aportes:integrationTest'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/servicios/aportes/build/reports/tests/integrationTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 32s
+33 actionable tasks: 2 executed, 31 up-to-date
+== RC gradle: 1

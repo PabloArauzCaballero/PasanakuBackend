@@ -18,12 +18,25 @@ spring:
     bootstrap-servers: ${KAFKA_URL}
 
 aportaya:
+  resiliencia:
+    # Circuit breaker de los clientes hacia otros servicios (regla 98.2.3). Valores SINTETICOS del plan de
+    # resiliencia (evidencia/carril-S2/DEUDA-circuit-breaker-clientes-http.md): no salen de medir trafico real.
+    circuito:
+      ventana: 10                   # llamadas que se miran, y minimo para juzgar
+      umbral-de-fallos: 50          # % de fallos (red, timeout, 5xx, cuerpo ilegible) que lo abre
+      espera-abierto: PT30S         # cuanto se deja de llamar antes de probar
+      llamadas-de-prueba: 3         # llamadas de prueba en semiabierto
   esquema: garantia
   outbox:
     intervalo: PT1S                 # relevo: lee el outbox y publica DESPUES del commit
   jwt:
     jwks-uri: ${JWKS_URI}           # ADR-024: cada servicio valida la firma el mismo
   zona-horaria: America/La_Paz      # plazos habiles
+  servicios:
+    # A quien se le pregunta (invariante 11): el recaudo del pozo lo afirma aportes, no el cliente.
+    aportes: ${URL_APORTES:http://aportes:8080}
+    # H13.S1.M6: un reclamo en curso no es una deuda ejecutable ni una sancion firme (efecto de los reclamos).
+    cumplimiento: ${URL_CUMPLIMIENTO:http://cumplimiento:8080}
   incumplimiento:
     # Lo que tiene el participante para presentar su descargo antes de que la
     # declaracion quede firme. Es debido proceso, no un parametro tecnico.

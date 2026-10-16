@@ -1,0 +1,12 @@
+29 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/unidad/abridor_de_avisos_test.dart
+00:00 +0: correcto: un toque con destino válido abre esa ruta
+00:00 +1: correcto: la invitación válida abre unirse
+00:00 +2: límite: el mismo toque dos veces dentro de la ventana abre una vez
+00:00 +3: límite: pasada la ventana el mismo destino vuelve a abrirse
+00:00 +4: límite: destinos distintos seguidos abren ambos
+00:00 +5: inválido: un destino externo o ajeno no abre nada
+00:00 +6: inválido: un error del flujo no mata la escucha
+00:00 +7: límite: tras detener no se abre nada más
+00:00 +8: All tests passed!

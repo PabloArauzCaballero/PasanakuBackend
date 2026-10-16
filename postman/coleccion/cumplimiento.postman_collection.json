@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AportaYa · cumplimiento",
-    "description": "# AportaYa · cumplimiento\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**9 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · cumplimiento\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**10 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -669,6 +669,88 @@
       ]
     },
     {
+      "name": "consultarEfectoDeReclamos · Si algun reclamo de la persona frena una sancion firme o una deuda ejecutable",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/reclamos/usuarios/:usuarioId/efecto",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "reclamos",
+            "usuarios",
+            ":usuarioId",
+            "efecto"
+          ],
+          "variable": [
+            {
+              "key": "usuarioId",
+              "value": "{{usuarioId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ],
+          "query": [
+            {
+              "key": "producto",
+              "value": "producto-de-prueba",
+              "description": "",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "## Si algun reclamo de la persona frena una sancion firme o una deuda ejecutable\n\nLa consulta que `garantia` (cobranza, restricciones) y `organizador` (sanciones) hacen ANTES de volver ejecutable una deuda o firme una sancion (debido proceso, regla 91.4). Devuelve el rastro entero —cada caso con su estado, resultado, fechas y el motivo por el que frena o no— y los dos indicadores agregados. No devuelve el texto del reclamo ni de la respuesta.\nQue ningun reclamo frene es condicion NECESARIA, no suficiente: la causal, la notificacion probada, el descargo y la apelacion siguen siendo del proceso que aplica el efecto.\nSe deriva del estado cada vez (no hay columna que quede vieja). Ante un caso que no se puede interpretar, FRENA (denegar por omision). Con `producto` solo cuentan los reclamos de ese producto. No lleva `Idempotency-Key`: solo lee.\nExige `RECLAMO_VER` (personal de reclamos, cumplimiento y administracion). Un participante o el token de otro servicio sin ese permiso reciben 403, exista o no la persona.\n\n| | |\n| --- | --- |\n| **Servicio** | `cumplimiento` |\n| **Operacion** | `consultarEfectoDeReclamos` |\n| **Ruta** | `GET /api/v1/reclamos/usuarios/{usuarioId}/efecto` |\n| **Permiso** | `RECLAMO_VER` |\n| **Respuestas** | `200`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "verificarAlcance · Verificar el alcance de la licencia",
       "request": {
         "method": "GET",
@@ -703,7 +785,7 @@
             }
           ]
         },
-        "description": "## Verificar el alcance de la licencia\n\nLo consultan los otros servicios antes de habilitar una operacion. Deniega por omision: sin licencia legible, sin alcance o sin sandbox, la respuesta es no. Un fallo de lectura no puede traducirse en «segui». No lleva Idempotency-Key porque no tiene efecto: solo responde.\n\n| | |\n| --- | --- |\n| **Servicio** | `cumplimiento` |\n| **Operacion** | `verificarAlcance` |\n| **Ruta** | `GET /api/v1/licencia/alcance` |\n| **Permiso** | `SOPORTE` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU46-01` | Licencia no otorgada |\n| `AP-CU46-02` | Fuera de alcance |\n| `AP-CU46-03` | Sandbox agotado |\n| `AP-CU46-04` | Licencia suspendida |\n| `AP-CU06-01` | Sin calificacion vigente |\n| `AP-CU06-02` | Perfil no declarado |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+        "description": "## Verificar el alcance de la licencia\n\nLo consultan los otros servicios antes de habilitar una operacion. Deniega por omision: sin licencia legible, sin alcance o sin sandbox, la respuesta es no. Un fallo de lectura no puede traducirse en «segui». No lleva Idempotency-Key porque no tiene efecto: solo responde.\n\n| | |\n| --- | --- |\n| **Servicio** | `cumplimiento` |\n| **Operacion** | `verificarAlcance` |\n| **Ruta** | `GET /api/v1/licencia/alcance` |\n| **Permiso** | `PARTICIPANTE` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU46-01` | Licencia no otorgada |\n| `AP-CU46-02` | Fuera de alcance |\n| `AP-CU46-03` | Sandbox agotado |\n| `AP-CU46-04` | Licencia suspendida |\n| `AP-CU06-01` | Sin calificacion vigente |\n| `AP-CU06-02` | Perfil no declarado |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [

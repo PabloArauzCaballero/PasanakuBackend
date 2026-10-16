@@ -31,7 +31,7 @@ class ResumenDeAvance extends StatelessWidget {
         children: [
           Text(
             TextosSoporte.avanceTitulo,
-            style: Tipo.titulo3.copyWith(color: t.brandTexto),
+            style: Tipo.titulo3.copyWith(color: t.text),
           ),
           const SizedBox(height: Espacio.s1),
           Text(

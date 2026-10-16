@@ -51,10 +51,8 @@ public class CU102AltaDeTercero {
                 if (!existente.get().tipo().equals(entrada.tipo())) {
                     throw new ErrorDeNegocio(
                             CodigoError.de(102, 2),
-                            "El documento %s ya esta registrado como %s."
-                                    .formatted(
-                                            entrada.numeroDocumento(),
-                                            existente.get().tipo()));
+                            "Ese documento ya esta registrado como %s."
+                                    .formatted(existente.get().tipo()));
                 }
                 // El reintento es inocuo: devuelve el que hay en vez de crear un
                 // duplicado que despues permitiria pagar dos veces.
@@ -74,7 +72,9 @@ public class CU102AltaDeTercero {
                             "erp.tercero_dado_de_alta",
                             "tercero_comercial",
                             id,
-                            Map.of("tipo", entrada.tipo(), "numeroDocumento", entrada.numeroDocumento()),
+                            // El documento no viaja a los consumidores (90.2.1): el que lo necesite lo pide por
+                            // contrato con este id.
+                            Map.of("tipo", entrada.tipo(), "terceroId", id.toString()),
                             UUID.fromString(ctx.traza().id())));
             return id;
         });

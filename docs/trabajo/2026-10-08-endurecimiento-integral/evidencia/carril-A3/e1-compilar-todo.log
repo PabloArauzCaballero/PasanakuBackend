@@ -1,0 +1,188 @@
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-archivos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:gateway:compileJava
+> Task :servicios:aportes:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:aportes:generateJooq UP-TO-DATE
+> Task :servicios:aportes:compileJava UP-TO-DATE
+
+> Task :servicios:auditoria:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+Failed to get the schema name: null
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\servicios\auditoria\build\generated\openapi
+
+> Task :servicios:auditoria:generateJooq
+Version mismatch         : Database version is older than what dialect POSTGRES supports: 16.15 (Debian 16.15-1.pgdg13+2). Consider https://www.jooq.org/download/support-matrix to see what jOOQ version and edition supports which RDBMS versions.
+
+> Task :servicios:auditoria:compileJava
+> Task :servicios:cumplimiento:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:cumplimiento:generateJooq UP-TO-DATE
+> Task :servicios:cumplimiento:compileJava UP-TO-DATE
+> Task :servicios:entregas:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:entregas:generateJooq UP-TO-DATE
+> Task :servicios:entregas:compileJava UP-TO-DATE
+
+> Task :servicios:erp:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+Failed to get the schema name: null
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\servicios\erp\build\generated\openapi
+
+> Task :servicios:erp:generateJooq
+> Task :servicios:erp:compileJava
+> Task :servicios:garantia:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:garantia:generateJooq UP-TO-DATE
+> Task :servicios:garantia:compileJava UP-TO-DATE
+> Task :servicios:grupos:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:grupos:generateJooq UP-TO-DATE
+> Task :servicios:grupos:compileJava UP-TO-DATE
+> Task :servicios:identidad:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:identidad:generateJooq UP-TO-DATE
+> Task :servicios:identidad:compileJava
+> Task :servicios:inversiones:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:inversiones:generateJooq UP-TO-DATE
+> Task :servicios:inversiones:compileJava UP-TO-DATE
+> Task :servicios:notificaciones:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:notificaciones:generateJooq UP-TO-DATE
+> Task :servicios:notificaciones:compileJava UP-TO-DATE
+> Task :servicios:nucleo-financiero:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:nucleo-financiero:generateJooq UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileJava UP-TO-DATE
+> Task :servicios:organizador:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:organizador:generateJooq UP-TO-DATE
+> Task :servicios:organizador:compileJava UP-TO-DATE
+
+> Task :servicios:publicidad:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+Failed to get the schema name: null
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\servicios\publicidad\build\generated\openapi
+
+> Task :servicios:publicidad:generateJooq
+> Task :servicios:publicidad:compileJava
+> Task :servicios:tarifas:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:tarifas:generateJooq UP-TO-DATE
+> Task :servicios:tarifas:compileJava UP-TO-DATE
+
+> Task :servicios:transparencia:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+Failed to get the schema name: null
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+No application/json content media type found in response. Response examples can currently only be generated for application/json media type.
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\servicios\transparencia\build\generated\openapi
+
+> Task :servicios:transparencia:generateJooq
+Ambiguous key name       : The one-to-many key transparencia.fk_evento_reputacion_revertido_por_id generates an inbound key method name eventoReputacion on table transparencia.evento_reputacion which conflicts with the previously generated key method name for key transparencia.fk_evento_reputacion_revertido_por_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+
+> Task :servicios:transparencia:compileJava
+> Task :plataforma:comun-archivos:processResources UP-TO-DATE
+> Task :plataforma:comun-archivos:classes UP-TO-DATE
+> Task :plataforma:comun-archivos:compileTestJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:compileTestJava UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:compileTestJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources NO-SOURCE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileTestJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileTestJava
+> Task :plataforma:comun-web:compileTestFixturesJava
+> Task :plataforma:comun-web:compileTestJava
+> Task :plataforma:gateway:processResources
+> Task :plataforma:gateway:classes
+> Task :plataforma:gateway:compileTestJava
+> Task :servicios:aportes:processResources UP-TO-DATE
+> Task :servicios:aportes:classes UP-TO-DATE
+> Task :servicios:aportes:compileTestJava
+> Task :servicios:auditoria:processResources UP-TO-DATE
+> Task :servicios:auditoria:classes
+> Task :servicios:auditoria:compileTestJava
+> Task :servicios:cumplimiento:processResources UP-TO-DATE
+> Task :servicios:cumplimiento:classes UP-TO-DATE
+> Task :servicios:cumplimiento:compileTestJava
+> Task :servicios:entregas:processResources UP-TO-DATE
+> Task :servicios:entregas:classes UP-TO-DATE
+> Task :servicios:entregas:compileTestJava
+> Task :servicios:erp:processResources UP-TO-DATE
+> Task :servicios:erp:classes
+> Task :servicios:erp:compileTestJava
+> Task :servicios:garantia:processResources UP-TO-DATE
+> Task :servicios:garantia:classes UP-TO-DATE
+> Task :servicios:garantia:compileTestJava
+> Task :servicios:grupos:processResources UP-TO-DATE
+> Task :servicios:grupos:classes UP-TO-DATE
+> Task :servicios:grupos:compileTestJava
+> Task :servicios:identidad:processResources UP-TO-DATE
+> Task :servicios:identidad:classes
+> Task :servicios:identidad:compileTestJava
+> Task :servicios:inversiones:processResources UP-TO-DATE
+> Task :servicios:inversiones:classes UP-TO-DATE
+> Task :servicios:inversiones:compileTestJava
+> Task :servicios:notificaciones:processResources UP-TO-DATE
+> Task :servicios:notificaciones:classes UP-TO-DATE
+> Task :servicios:notificaciones:compileTestJava
+> Task :servicios:nucleo-financiero:processResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:classes UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileTestJava
+> Task :servicios:organizador:processResources UP-TO-DATE
+> Task :servicios:organizador:classes UP-TO-DATE
+> Task :servicios:organizador:compileTestJava
+> Task :servicios:publicidad:processResources UP-TO-DATE
+> Task :servicios:publicidad:classes
+> Task :servicios:publicidad:compileTestJava
+> Task :servicios:tarifas:processResources UP-TO-DATE
+> Task :servicios:tarifas:classes UP-TO-DATE
+> Task :servicios:tarifas:compileTestJava
+> Task :servicios:transparencia:processResources UP-TO-DATE
+> Task :servicios:transparencia:classes
+> Task :servicios:transparencia:compileTestJava
+
+BUILD SUCCESSFUL in 33s
+103 actionable tasks: 34 executed, 69 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+== etapa e1-compilar-todo RC: 0

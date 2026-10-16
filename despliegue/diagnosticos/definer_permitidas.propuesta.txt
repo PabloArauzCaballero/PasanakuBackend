@@ -1,0 +1,14 @@
+# Lista EXPLICITA PROPUESTA de funciones que justifican SECURITY DEFINER (candidatas por cruce de esquemas).
+# Resultado del analisis estatico (definer_estatico.py): una persona debe revisar cada una antes de adoptarla.
+# El resto de las funciones de regla pasarian a SECURITY INVOKER.
+fn_bil_validar_cierre_diario
+fn_ctb_segregacion_pago
+fn_grp_validar_disolucion
+fn_grp_validar_retiro_grupo
+fn_inv_distribucion_coherente
+fn_inv_orden_consentida
+fn_lic_servicio_habilitado
+fn_lim_evaluar
+fn_not_puede_enviar
+fn_pub_moderador_distinto
+fn_uif_registrar_operacion

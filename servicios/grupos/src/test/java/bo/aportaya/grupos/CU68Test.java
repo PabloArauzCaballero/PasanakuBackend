@@ -87,7 +87,8 @@ class CU68Test extends BaseDeCU68 {
     void rechazaRGRP14() {
         // Proteger a los que ya estan es parte del servicio: un grupo en su tope de
         // morosos no recibe a nadie mas.
-        CriterioDeEmparejamiento criterio = new CriterioDeEmparejamiento(uno(), uno(), uno(), uno(), 0, 2);
+        CriterioDeEmparejamiento criterio =
+                new CriterioDeEmparejamiento(UUID.randomUUID(), uno(), uno(), uno(), uno(), 0, 2);
 
         assertThat(criterio.admiteOtroMoroso(1)).isTrue();
         assertThat(criterio.admiteOtroMoroso(2)).isFalse();
@@ -176,13 +177,19 @@ class CU68Test extends BaseDeCU68 {
     void cuadre() {
         // Un peso en cero DESACTIVA esa dimension en vez de castigar a todo el
         // mundo: se divide por la suma de los pesos, no por cuatro.
-        CriterioDeEmparejamiento soloMonto =
-                new CriterioDeEmparejamiento(BigDecimal.ZERO, uno(), BigDecimal.ZERO, BigDecimal.ZERO, 0, 5);
+        CriterioDeEmparejamiento soloMonto = new CriterioDeEmparejamiento(
+                UUID.randomUUID(), BigDecimal.ZERO, uno(), BigDecimal.ZERO, BigDecimal.ZERO, 0, 5);
 
         assertThat(soloMonto.puntuar(BigDecimal.ZERO, uno(), BigDecimal.ZERO, BigDecimal.ZERO))
                 .isEqualByComparingTo(uno());
         assertThat(new CriterioDeEmparejamiento(
-                                BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, 0, 5)
+                                UUID.randomUUID(),
+                                BigDecimal.ZERO,
+                                BigDecimal.ZERO,
+                                BigDecimal.ZERO,
+                                BigDecimal.ZERO,
+                                0,
+                                5)
                         .puntuar(uno(), uno(), uno(), uno()))
                 .isEqualByComparingTo(BigDecimal.ZERO);
     }
@@ -223,5 +230,32 @@ class CU68Test extends BaseDeCU68 {
         // postulante queda escrita. A medias, la propuesta diria que alguien acepto
         // un grupo que no existe.
         assertThat(respondioAlguien(propuesta.id())).isFalse();
+    }
+
+    @Test
+    @DisplayName(
+            "Dado un grupo con reputacion minima y dos postulantes, uno con historial por debajo del minimo y otro nuevo · Cuando postulan · Entonces se excluye a quien TIENE historial y no llega, pero no a quien es nuevo (B24)")
+    void elRecienLlegadoNoSeExcluyePorSerNuevo() {
+        UUID grupo = grupoConCupoLibre();
+        criterioVigente();
+        UUID exigente = UUID.randomUUID();
+        dslFixtura.execute(
+                """
+                INSERT INTO grupos.criterio_emparejamiento
+                    (id, peso_reputacion, peso_monto, peso_geografia, peso_historial_comun,
+                     reputacion_minima, max_morosos_por_grupo, vigente_desde)
+                VALUES (?, 0.40, 0.30, 0.20, 0.10, 500, 2, now())
+                """,
+                exigente);
+        try {
+            assertThatThrownBy(() -> postular(grupo, false, true, 100, 0, false))
+                    .isInstanceOf(ErrorDeNegocio.class)
+                    .hasMessageContaining("reputacion");
+
+            SalidaPostulacion nuevo = postular(grupo, false, true, 0, 0, true);
+            assertThat(nuevo.solicitudId()).isNotNull();
+        } finally {
+            dslFixtura.execute("DELETE FROM grupos.criterio_emparejamiento WHERE id = ?", exigente);
+        }
     }
 }

@@ -1,0 +1,60 @@
+#23 12.42 
+#23 12.42 > Task :servicios:grupos:generateJooq
+#23 12.42 Version mismatch         : Database version is older than what dialect POSTGRES supports: 16.15 (Debian 16.15-1.pgdg13+2). Consider https://www.jooq.org/download/support-matrix to see what jOOQ version and edition supports which RDBMS versions.
+#23 12.42 Ambiguous key name       : The one-to-many key grupos.fk_decision_ingreso_propuesta generates an inbound key method name decisionIngreso on table grupos.decision_ingreso which conflicts with the previously generated key method name for key grupos.fk_decision_ingreso_propuesta. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+#23 12.42  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+#23 12.42  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+#23 12.42  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+#23 12.42 Ambiguous key name       : The one-to-many key grupos.fk_participante_invitado_por_id generates an inbound key method name participante on table grupos.participante which conflicts with the previously generated key method name for key grupos.fk_participante_invitado_por_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+#23 12.42  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+#23 12.42  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+#23 12.42  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+#23 12.42 Ambiguous key name       : The one-to-many key grupos.fk_turno_permutado_con_turno_id generates an inbound key method name turno on table grupos.turno which conflicts with the previously generated key method name for key grupos.fk_turno_permutado_con_turno_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+#23 12.42  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+#23 12.42  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+#23 12.42  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+#23 16.22 
+#23 16.22 > Task :servicios:grupos:compileJava
+#23 16.22 > Task :servicios:grupos:processResources
+#23 16.22 > Task :servicios:grupos:classes
+#23 16.32 > Task :servicios:grupos:resolveMainClassName
+#23 16.62 > Task :servicios:grupos:bootJar
+#23 16.62 
+#23 16.62 BUILD SUCCESSFUL in 16s
+#23 16.62 26 actionable tasks: 16 executed, 10 from cache
+#23 16.62 Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+#23 DONE 16.8s
+
+#24 [construccion 14/15] RUN mkdir -p /capas && cd /capas     && java -Djarmode=tools -jar /construccion/servicios/grupos/build/libs/*.jar extract --layers --launcher --destination /capas
+#24 DONE 0.5s
+
+#25 [construccion 15/15] RUN mkdir -p /nativo /tmp/nativo && cd /tmp/nativo     && case "$(uname -m)" in x86_64) prefijo=linux-x86-64 ;; aarch64) prefijo=linux-aarch64 ;; *) prefijo=desconocido ;; esac     && for j in /capas/dependencies/BOOT-INF/lib/jna-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "com/sun/jna/${prefijo}/libjnidispatch.so" && cp "com/sun/jna/${prefijo}/libjnidispatch.so" /nativo/; done     && for j in /capas/dependencies/BOOT-INF/lib/argon2-jvm-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "${prefijo}/libargon2.so" && cp "${prefijo}/libargon2.so" /nativo/; done     ; ls -l /nativo
+#25 0.067 total 0
+#25 DONE 0.1s
+
+#26 [runtime 4/8] COPY --from=construccion --chown=app:app /capas/dependencies/ ./
+#26 DONE 0.2s
+
+#27 [runtime 5/8] COPY --from=construccion --chown=app:app /capas/spring-boot-loader/ ./
+#27 DONE 0.0s
+
+#28 [runtime 6/8] COPY --from=construccion --chown=app:app /capas/snapshot-dependencies/ ./
+#28 DONE 0.0s
+
+#29 [runtime 7/8] COPY --from=construccion --chown=app:app /capas/application/ ./
+#29 DONE 0.0s
+
+#30 [runtime 8/8] COPY --from=construccion /nativo/ /app/nativo/
+#30 DONE 0.1s
+
+#31 exporting to image
+#31 exporting layers
+#31 exporting layers 1.1s done
+#31 exporting manifest sha256:f360979bbce0cdc0ca42b80d611defe19fad1cfea3227f10170a151385757ec0 done
+#31 exporting config sha256:eb473f25bbdccc63e25bb5e1c0585c195a3433bb66eb0bbfffaa601582cca27f done
+#31 exporting attestation manifest sha256:763b2628959ff5052e392dd1d4cbbee51ff2462e6430772e3c1bdf9909e04999 0.0s done
+#31 exporting manifest list sha256:38740095d9819f564be81f226e80729c11ef7119a4b8d7fbd41bbb837992f41b done
+#31 naming to docker.io/aportaya/grupos:test done
+#31 unpacking to docker.io/aportaya/grupos:test
+#31 unpacking to docker.io/aportaya/grupos:test 0.3s done
+#31 DONE 1.5s

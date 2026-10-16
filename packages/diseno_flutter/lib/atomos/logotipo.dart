@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../tokens/tokens.dart';
 import 'marca.dart';
 import 'palabra_de_marca.dart';
 
@@ -28,8 +27,8 @@ class Logotipo extends StatelessWidget {
   /// El lado del isotipo. La palabra se dimensiona en proporción a esto.
   final double tamano;
 
-  /// El color de los tres trazos exteriores. Por defecto, el verde de marca; sobre
-  /// relleno verde sólido se le pasa [Tokens.sobreVerdeSolido].
+  /// El color de los tres trazos exteriores. Por defecto, texto neutral; el trazo
+  /// naranja interno conserva el único acento del isotipo.
   final Color? colorDelTrazo;
 
   /// El color de «Aporta», si va distinto del trazo.

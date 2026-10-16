@@ -7,6 +7,7 @@ import bo.aportaya.cumplimiento.aplicacion.CU05ConsultarContratosVigentes;
 import bo.aportaya.cumplimiento.aplicacion.CU46VerificarAlcance;
 import bo.aportaya.cumplimiento.aplicacion.CU54RegistrarRiesgoOperativo;
 import bo.aportaya.cumplimiento.aplicacion.CU55GestionarIncidente;
+import bo.aportaya.cumplimiento.aplicacion.ConsultarEfectoDelReclamo;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.SabanaDeSeguridadWeb;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -46,4 +47,7 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private CU55GestionarIncidente cu55GestionarIncidente;
+
+    @MockitoBean
+    private ConsultarEfectoDelReclamo consultarEfectoDelReclamo;
 }

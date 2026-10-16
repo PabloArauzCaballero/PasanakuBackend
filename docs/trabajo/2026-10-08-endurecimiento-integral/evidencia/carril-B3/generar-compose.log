@@ -1,0 +1,5 @@
+compose perfil `todo`: 15 servicios -> despliegue\compose\servicios.yml
+compose desplegado (Coolify): 15 servicios -> docker-compose.coolify.yml
+  front backoffice -> despliegue\coolify\backoffice.yml
+  front web -> despliegue\coolify\web.yml
+  front movil -> despliegue\coolify\movil.yml

@@ -1,0 +1,2 @@
+spotless rc=0
+tests rc=1

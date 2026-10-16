@@ -74,6 +74,15 @@ public class CU58DescargarExportacion {
             var exportacion = reportes.exportacion(dsl, exportacionId)
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(58, 5), "Esa exportacion no existe."));
 
+            // H13.S1.M2 · la exportacion es de quien pidio el reporte. Otro auditor con el mismo
+            // permiso recibe EXACTAMENTE la respuesta de una exportacion que no existe: decirle
+            // «es de otro» ya seria contarle que existe.
+            UUID solicitante =
+                    reportes.solicitanteDe(dsl, exportacion.ejecucionId()).orElse(null);
+            if (!ctx.usuarioId().equals(solicitante)) {
+                throw new ErrorDeNegocio(CodigoError.de(58, 5), "Esa exportacion no existe.");
+            }
+
             // AP-CU58-05
             if (!exportacion.expiraEn().isAfter(ahora)) {
                 throw new ErrorDeNegocio(

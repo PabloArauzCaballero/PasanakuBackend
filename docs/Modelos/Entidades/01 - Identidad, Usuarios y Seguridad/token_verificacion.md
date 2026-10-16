@@ -9,7 +9,7 @@ estereotipo: Raíz de agregado
 clave_primaria: [id]
 columnas: 31
 fk_salientes: 4
-fk_entrantes: 10
+fk_entrantes: 11
 append_only: false
 ---
 
@@ -78,6 +78,7 @@ append_only: false
 | --- | --- | :-: | --- |
 | [[aceptacion_contrato]] | `token_firma_id` | ↗ 12 | [[aceptacion_contrato.token_firma_id → token_verificacion]] |
 | [[aceptacion_reglamento]] | `token_firma_id` | ↗ 02 | [[aceptacion_reglamento.token_firma_id → token_verificacion]] |
+| [[alcance_invitacion]] | `token_id` | 01 | [[alcance_invitacion.token_id → token_verificacion]] |
 | [[aval_participante]] | `token_aceptacion_id` | ↗ 08 | [[aval_participante.token_aceptacion_id → token_verificacion]] |
 | [[confirmacion_recepcion]] | `token_confirmacion_id` | ↗ 04 | [[confirmacion_recepcion.token_confirmacion_id → token_verificacion]] |
 | [[contrato_organizador]] | `token_firma_id` | ↗ 07 | [[contrato_organizador.token_firma_id → token_verificacion]] |
@@ -89,7 +90,7 @@ append_only: false
 
 ## Entidades vecinas
 
-[[aceptacion_contrato]] · [[aceptacion_reglamento]] · [[aval_participante]] · [[confirmacion_recepcion]] · [[contrato_organizador]] · [[dispositivo]] · [[enlace_pago_notificado]] · [[enlace_pago_rapido]] · [[intento_validacion_token]] · [[invitacion]] · [[politica_sancion]] · [[token_verificacion]] · [[usuario]]
+[[aceptacion_contrato]] · [[aceptacion_reglamento]] · [[alcance_invitacion]] · [[aval_participante]] · [[confirmacion_recepcion]] · [[contrato_organizador]] · [[dispositivo]] · [[enlace_pago_notificado]] · [[enlace_pago_rapido]] · [[intento_validacion_token]] · [[invitacion]] · [[politica_sancion]] · [[token_verificacion]] · [[usuario]]
 
 ## Notas del modelo
 

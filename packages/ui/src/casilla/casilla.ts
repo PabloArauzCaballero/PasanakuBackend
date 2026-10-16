@@ -14,7 +14,7 @@ import { ChangeDetectionStrategy, Component, input, model } from '@angular/core'
   styles: `
     label { display: inline-flex; align-items: center; gap: var(--s3); min-height: var(--area-tactil); cursor: pointer; color: var(--text); }
     input { position: absolute; width: var(--borde-fino); height: var(--borde-fino); opacity: 0; }
-    .caja { width: var(--s5); height: var(--s5); flex: none; border: var(--borde-desfase) solid var(--field-border); border-radius: var(--r-sm); background: var(--field); }
+    .caja { width: var(--s5); height: var(--s5); flex: none; border: var(--borde-desfase) solid var(--borde-control); border-radius: var(--r-sm); background: var(--field); }
     input:checked + .caja { background: var(--verde-solido); border-color: var(--verde-solido); background-image: linear-gradient(var(--sobre-verde-solido), var(--sobre-verde-solido)); background-size: 50% 18%; background-repeat: no-repeat; background-position: center; }
     input:focus-visible + .caja { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
     input:disabled ~ * { opacity: .5; }

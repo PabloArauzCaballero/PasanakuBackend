@@ -1,0 +1,5 @@
+grupos       test=53  webTest=82  integrationTest=206  testBarrido=2
+aportes      test=46  webTest=36  integrationTest=88  testBarrido=2
+entregas     test=23  webTest=54  integrationTest=107  testBarrido=2
+garantia     test=25  webTest=43  integrationTest=149  testBarrido=2
+organizador  test=5  webTest=35  integrationTest=105  testBarrido=2

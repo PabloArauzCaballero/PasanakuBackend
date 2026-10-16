@@ -1,0 +1,36 @@
+##### backoffice: typecheck app
+tsc app exit=0
+##### backoffice: typecheck spec
+tsc spec exit=0
+##### backoffice: ng lint
+Linting "backoffice"...
+(node:32192) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/backoffice/eslint.config.js?mtime=1791516635797 is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+All files pass linting.
+##### backoffice: verificar_frontend.py
+TODO OK
+##### backoffice: test:front
+Using Vitest configuration file: C:\Users\Usuario\AppData\Local\Temp\claude\C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku\c468f89e-ca7f-4172-b7d5-74080b60e5a8\scratchpad\vitest-serial.config.mjs
+❯ Building...
+✔ Building...
+Application bundle generation complete. [2.794 seconds] - 2026-10-10T11:19:37.585Z
+ RUN  v4.1.11 C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/backoffice
+Not implemented: Window's confirm() method
+Not implemented: Window's confirm() method
+ Test Files  69 passed (69)
+      Tests  449 passed (449)
+   Start at  07:19:37
+   Duration  4.64s (transform 791ms, setup 356ms, import 941ms, tests 2.34s, environment 812ms)
+##### backoffice: test:a11y
+Using Vitest configuration file: C:\Users\Usuario\AppData\Local\Temp\claude\C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku\c468f89e-ca7f-4172-b7d5-74080b60e5a8\scratchpad\vitest-serial.config.mjs
+❯ Building...
+✔ Building...
+Application bundle generation complete. [2.829 seconds] - 2026-10-10T11:19:46.638Z
+ RUN  v4.1.11 C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/backoffice
+ Test Files  29 passed (29)
+      Tests  47 passed (47)
+   Start at  07:19:46
+   Duration  6.19s (transform 555ms, setup 276ms, import 963ms, tests 4.31s, environment 497ms)
+FIN backoffice

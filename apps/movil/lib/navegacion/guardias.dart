@@ -1,33 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../proveedores/sesion.dart';
-import 'retorno_de_invitacion.dart';
-
-/// El ingreso solo conserva un destino que también acepta el flujo posterior.
-/// No incrusta una URL arbitraria —y sus posibles datos— en `?volver=`.
-String rutaDeIngresoPara(Uri origen) {
-  final retorno = retornoDeInvitacion(origen.toString());
-  if (retorno == null) return '/ingreso';
-  return '/ingreso?volver=${Uri.encodeComponent(retorno)}';
-}
-
-/// Guardias que cada `rutas.dart` de dominio **compone** en su propia `GoRoute`
-/// (`redirect: (c, s) => exigirSesion(ref, s)`). Este archivo no se edita para
-/// agregar una pantalla — eso es exactamente lo que rompe el enchufe por dominio.
+/// Guards de capacidades específicas del dominio. La autenticación de rutas es global
+/// en `navegacion/rutas.dart` para evitar políticas divergentes por pantalla.
 class Guardias {
-  Guardias(this._ref);
-  final Ref _ref;
-
-  /// `null` deja pasar; una cadena no vacía es la ruta a la que se redirige.
-  Future<String?> exigirSesion(GoRouterState estado) async {
-    final sesion = _ref.read(sesionProvider);
-    final token = await sesion.tokenDeAcceso();
-    if (token != null) return null;
-    // `/ingreso`, no `/identidad/ingreso`: esa ruta nunca existió y quien perdía la
-    // sesión terminaba en «ruta no encontrada» en vez de en el login.
-    return rutaDeIngresoPara(estado.uri);
-  }
+  Guardias();
 
   /// Nivel de verificación insuficiente (CU-02, CU-40): a la pantalla que explica
   /// qué desbloquea el nivel siguiente, sin perder a dónde iba.
@@ -48,4 +25,4 @@ class Guardias {
   }
 }
 
-final guardiasProvider = Provider<Guardias>((ref) => Guardias(ref));
+final guardiasProvider = Provider<Guardias>((ref) => Guardias());

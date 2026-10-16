@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../dominio/cliente.dart';
 import '../../../proveedores/idempotencia.dart';
+import '../../../proveedores/sesion.dart';
 
 /// CU-68 · postular a un grupo ("Pedir mi cupo", D-15). El botón nunca dice
 /// "Unirme": pedir el cupo no lo ocupa. La API no expone (todavía) un estado de la
@@ -21,7 +22,10 @@ class PostularAlGrupo extends AsyncNotifier<SalidaPostulacion?> {
   String get _formularioId => 'cu68-postular-$grupoId';
 
   @override
-  Future<SalidaPostulacion?> build() async => null;
+  Future<SalidaPostulacion?> build() async {
+    ref.watch(generacionDeSesionProvider);
+    return null;
+  }
 
   Future<void> enviar({
     required String grupoId,

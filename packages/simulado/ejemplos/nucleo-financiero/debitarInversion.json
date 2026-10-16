@@ -1,0 +1,82 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "debitarInversion",
+  "metodo": "post",
+  "ruta": "/billetera/inversiones/debitos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "transaccionId": "affb9f4f-dfb5-4811-804e-275e8fb15760",
+        "saldoDisponible": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "saldoRetenido": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "transaccionId": "affb9f4f-dfb5-4811-804e-275e8fb15760",
+        "saldoDisponible": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "saldoRetenido": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "transaccionId": "affb9f4f-dfb5-4811-804e-275e8fb15760",
+        "saldoDisponible": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "saldoRetenido": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "transaccionId": "affb9f4f-dfb5-4811-804e-275e8fb15760",
+        "saldoDisponible": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "saldoRetenido": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU13-03",
+        "mensaje": "Retencion ya ejecutada",
+        "detalle": {},
+        "trazaId": "traza-debitarInversion-rechazo"
+      }
+    }
+  }
+}

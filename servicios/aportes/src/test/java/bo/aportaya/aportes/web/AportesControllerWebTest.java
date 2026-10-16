@@ -1,24 +1,23 @@
 package bo.aportaya.aportes.web;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import bo.aportaya.aportes.aplicacion.CU21CobrarAporte;
 import bo.aportaya.aportes.aplicacion.ConsultarEstadoDelParticipante;
-import bo.aportaya.aportes.dominio.EstadoDePagos;
+import bo.aportaya.aportes.aplicacion.ConsultarRecaudoDelPeriodo;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Moneda;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.Sesiones;
-import java.math.BigDecimal;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -65,6 +64,29 @@ class AportesControllerWebTest {
 
     @MockitoBean
     private ConsultarEstadoDelParticipante estados;
+
+    @MockitoBean
+    private bo.aportaya.aportes.aplicacion.HechosDeGrupos grupos;
+
+    private static final java.util.UUID DUENO = java.util.UUID.fromString("a2100000-0000-4000-8000-000000000001");
+    private static final java.util.UUID PERIODO = java.util.UUID.fromString("a2100000-0000-4000-8000-000000000002");
+
+    /** Por omision: la obligacion es de quien paga y el periodo esta abierto; cada caso cambia lo suyo. */
+    @org.junit.jupiter.api.BeforeEach
+    void admisible() {
+        when(cu21.contextoDe(any(), any()))
+                .thenReturn(java.util.Optional.of(new CU21CobrarAporte.ContextoDeObligacion(DUENO, PERIODO)));
+        when(grupos.admisibilidad(DUENO, PERIODO))
+                .thenReturn(java.util.Optional.of(
+                        new bo.aportaya.aportes.aplicacion.HechosDeGrupos.Admisibilidad(true, true)));
+    }
+
+    // El recaudo del periodo tiene su propia prueba (RecaudoWebTest).
+    @MockitoBean
+    private bo.aportaya.aportes.aplicacion.GenerarObligacionesDelPeriodo generarObligaciones;
+
+    @MockitoBean
+    private ConsultarRecaudoDelPeriodo recaudos;
 
     private static Dinero bob(String monto) {
         return Dinero.de(monto, Moneda.BOB);
@@ -163,6 +185,57 @@ class AportesControllerWebTest {
         }
 
         @Test
+        @DisplayName("B15 · 422: nadie paga la obligacion de otro, y no se registra nada")
+        void obligacionAjena() throws Exception {
+            when(grupos.admisibilidad(DUENO, PERIODO))
+                    .thenReturn(java.util.Optional.of(
+                            new bo.aportaya.aportes.aplicacion.HechosDeGrupos.Admisibilidad(false, true)));
+
+            cobrar(COBRO)
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU21-06"));
+            org.mockito.Mockito.verify(cu21, org.mockito.Mockito.never()).acreditar(any(), any());
+        }
+
+        @Test
+        @DisplayName("B15 · 422: si grupos no contesta no se asume que si, se rechaza (dinero)")
+        void gruposNoContesta() throws Exception {
+            when(grupos.admisibilidad(DUENO, PERIODO)).thenReturn(java.util.Optional.empty());
+
+            cobrar(COBRO)
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU21-07"));
+            org.mockito.Mockito.verify(cu21, org.mockito.Mockito.never()).acreditar(any(), any());
+        }
+
+        @Test
+        @DisplayName("B5 · el periodo cerrado llega al caso de uso como periodoAbierto=false (ya no es un true fijo)")
+        void periodoCerrado() throws Exception {
+            when(grupos.admisibilidad(DUENO, PERIODO))
+                    .thenReturn(java.util.Optional.of(
+                            new bo.aportaya.aportes.aplicacion.HechosDeGrupos.Admisibilidad(true, false)));
+            when(cu21.acreditar(any(), any()))
+                    .thenThrow(new ErrorDeNegocio(CodigoError.de(21, 4), "El periodo ya se cerro."));
+
+            cobrar(COBRO)
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU21-04"));
+            var entrada = org.mockito.ArgumentCaptor.forClass(CU21CobrarAporte.EntradaCobro.class);
+            org.mockito.Mockito.verify(cu21).acreditar(entrada.capture(), any());
+            assertThat(entrada.getValue().periodoAbierto()).isFalse();
+        }
+
+        @Test
+        @DisplayName("422: una obligacion que no existe (o que no es visible para quien paga)")
+        void obligacionInexistente() throws Exception {
+            when(cu21.contextoDe(any(), any())).thenReturn(java.util.Optional.empty());
+            cobrar(COBRO)
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU21-01"));
+            org.mockito.Mockito.verify(cu21, org.mockito.Mockito.never()).acreditar(any(), any());
+        }
+
+        @Test
         @DisplayName("422: la regla del caso de uso sale con su codigo y sin filtrar nada")
         void reglaDeNegocio() throws Exception {
             when(cu21.acreditar(any(), any()))
@@ -175,66 +248,6 @@ class AportesControllerWebTest {
                     .andExpect(status().isUnprocessableEntity())
                     .andExpect(jsonPath("$.codigo").value("AP-CU21-03"))
                     .andExpect(jsonPath("$.detalle.faltan").value("50.00"));
-        }
-    }
-
-    @Nested
-    @DisplayName("GET — lo que este servicio le contesta a los otros")
-    class Consultas {
-
-        @Test
-        @DisplayName("200 con el estado del participante y los importes como cadena decimal")
-        void estadoDelParticipante() throws Exception {
-            when(estados.ejecutar(any(), any()))
-                    .thenReturn(new EstadoDePagos(
-                            false,
-                            new BigDecimal("1050.00"),
-                            new BigDecimal("350.00"),
-                            new BigDecimal("700.00"),
-                            2,
-                            "BOB"));
-
-            mvc.perform(get("/aportes/participantes/{id}/estado", PARTICIPANTE)
-                            .with(Sesiones.como("PARTICIPANTE", "BILLETERA_VER")))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.alDia").value(false))
-                    .andExpect(jsonPath("$.totalAportado").value("1050.00"))
-                    .andExpect(jsonPath("$.deudaVigente").value("350.00"))
-                    .andExpect(jsonPath("$.obligacionesAbiertas").value(2))
-                    .andExpect(jsonPath("$.moneda").value("BOB"));
-        }
-
-        @Test
-        @DisplayName("quien no tiene obligaciones esta al dia, y eso viaja como tal")
-        void sinObligacionesEstaAlDia() throws Exception {
-            when(estados.ejecutar(any(), any())).thenReturn(EstadoDePagos.sinObligaciones());
-
-            mvc.perform(get("/aportes/participantes/{id}/estado", PARTICIPANTE)
-                            .with(Sesiones.como("PARTICIPANTE", "BILLETERA_VER")))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.alDia").value(true))
-                    .andExpect(jsonPath("$.obligacionesAbiertas").value(0));
-        }
-
-        @Test
-        @DisplayName("400: un identificador de participante que no es un identificador")
-        void participanteQueNoEsUuid() throws Exception {
-            mvc.perform(get("/aportes/participantes/{id}/estado", "no-soy-un-uuid")
-                            .with(Sesiones.como("PARTICIPANTE", "BILLETERA_VER")))
-                    .andExpect(status().isBadRequest());
-            verifyNoInteractions(estados);
-        }
-
-        @Test
-        @DisplayName("200 con la cuenta de morosos del grupo")
-        void morosos() throws Exception {
-            when(estados.morososDelGrupo(any(), any())).thenReturn(3);
-
-            mvc.perform(get("/aportes/grupos/{id}/morosos", OBLIGACION)
-                            .with(Sesiones.como("ORGANIZADOR", "BILLETERA_VER")))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.morosos").value(3))
-                    .andExpect(jsonPath("$.grupoId").value(OBLIGACION.toString()));
         }
     }
 }

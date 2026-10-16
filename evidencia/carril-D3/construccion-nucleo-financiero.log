@@ -1,0 +1,60 @@
+#23 13.86 # We appreciate your support! Please consider donation to help us maintain this project.   #
+#23 13.86 # https://opencollective.com/openapi_generator/donate                                      #
+#23 13.86 ############################################################################################
+#23 13.86 Successfully generated code to /construccion/servicios/nucleo-financiero/build/generated/openapi
+#23 15.25 
+#23 15.26 > Task :servicios:nucleo-financiero:generateJooq
+#23 15.26 Version mismatch         : Database version is older than what dialect POSTGRES supports: 16.15 (Debian 16.15-1.pgdg13+2). Consider https://www.jooq.org/download/support-matrix to see what jOOQ version and edition supports which RDBMS versions.
+#23 15.26 Ambiguous key name       : The one-to-many key nucleo_financiero.fk_asiento_contable_asiento_reversa_id generates an inbound key method name asientoContable on table nucleo_financiero.asiento_contable which conflicts with the previously generated key method name for key nucleo_financiero.fk_asiento_contable_asiento_reversa_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+#23 15.26  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+#23 15.26  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+#23 15.26  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+#23 15.26 Ambiguous key name       : The one-to-many key nucleo_financiero.fk_cuenta_contable_cuenta_padre_id generates an inbound key method name cuentaContable on table nucleo_financiero.cuenta_contable which conflicts with the previously generated key method name for key nucleo_financiero.fk_cuenta_contable_cuenta_padre_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+#23 15.26  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+#23 15.26  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+#23 15.26  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+#23 21.05 
+#23 21.05 > Task :servicios:nucleo-financiero:compileJava
+#23 21.05 > Task :servicios:nucleo-financiero:processResources
+#23 21.05 > Task :servicios:nucleo-financiero:classes
+#23 21.16 > Task :servicios:nucleo-financiero:resolveMainClassName
+#23 21.55 > Task :servicios:nucleo-financiero:bootJar
+#23 21.59 
+#23 21.59 BUILD SUCCESSFUL in 21s
+#23 21.59 26 actionable tasks: 16 executed, 10 from cache
+#23 21.59 Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+#23 DONE 21.8s
+
+#24 [construccion 14/15] RUN mkdir -p /capas && cd /capas     && java -Djarmode=tools -jar /construccion/servicios/nucleo-financiero/build/libs/*.jar extract --layers --launcher --destination /capas
+#24 DONE 0.6s
+
+#25 [construccion 15/15] RUN mkdir -p /nativo /tmp/nativo && cd /tmp/nativo     && case "$(uname -m)" in x86_64) prefijo=linux-x86-64 ;; aarch64) prefijo=linux-aarch64 ;; *) prefijo=desconocido ;; esac     && for j in /capas/dependencies/BOOT-INF/lib/jna-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "com/sun/jna/${prefijo}/libjnidispatch.so" && cp "com/sun/jna/${prefijo}/libjnidispatch.so" /nativo/; done     && for j in /capas/dependencies/BOOT-INF/lib/argon2-jvm-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "${prefijo}/libargon2.so" && cp "${prefijo}/libargon2.so" /nativo/; done     ; ls -l /nativo
+#25 0.066 total 0
+#25 DONE 0.1s
+
+#26 [runtime 4/8] COPY --from=construccion --chown=app:app /capas/dependencies/ ./
+#26 DONE 0.2s
+
+#27 [runtime 5/8] COPY --from=construccion --chown=app:app /capas/spring-boot-loader/ ./
+#27 DONE 0.0s
+
+#28 [runtime 6/8] COPY --from=construccion --chown=app:app /capas/snapshot-dependencies/ ./
+#28 DONE 0.0s
+
+#29 [runtime 7/8] COPY --from=construccion --chown=app:app /capas/application/ ./
+#29 DONE 0.1s
+
+#30 [runtime 8/8] COPY --from=construccion /nativo/ /app/nativo/
+#30 DONE 0.0s
+
+#31 exporting to image
+#31 exporting layers
+#31 exporting layers 1.3s done
+#31 exporting manifest sha256:23c3325c509c4b65db6e1ef1f83bd6779b28d5e47b9b19feeccd77eb4880629c done
+#31 exporting config sha256:2259c2ef8a7732147b4775de425be86ddc90376ed8134d62b032e87a84061f2d done
+#31 exporting attestation manifest sha256:9f7076ba2dce7074c152be6fa06188dcd1c7ecf763f86f0bcf666da213451ea9 0.0s done
+#31 exporting manifest list sha256:626620e0b750f79773d519ee91bcd6a9797108d2f1d5cca916b3d663cc8b8443 done
+#31 naming to docker.io/aportaya/nucleo-financiero:test done
+#31 unpacking to docker.io/aportaya/nucleo-financiero:test
+#31 unpacking to docker.io/aportaya/nucleo-financiero:test 0.4s done
+#31 DONE 1.7s

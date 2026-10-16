@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
 import org.springframework.stereotype.Component;
 
 /**
@@ -22,7 +23,7 @@ public class AsientoRepositorio {
 
     public record AsientoExistente(UUID id, String origenTipo, UUID origenId, UUID grupoId, String estado) {}
 
-    public record MovimientoExistente(UUID cuentaId, BigDecimal debe, BigDecimal haber) {}
+    public record MovimientoExistente(UUID cuentaId, BigDecimal debe, BigDecimal haber, String moneda) {}
 
     /**
      * {@code periodo_contable_id} queda NULL: {@code periodo_contable} es del módulo 13
@@ -56,12 +57,19 @@ public class AsientoRepositorio {
     }
 
     public void agregarMovimiento(
-            DSLContext dsl, UUID asientoId, UUID cuentaId, BigDecimal debe, BigDecimal haber, String descripcion) {
+            DSLContext dsl,
+            UUID asientoId,
+            UUID cuentaId,
+            BigDecimal debe,
+            BigDecimal haber,
+            String moneda,
+            String descripcion) {
         dsl.insertInto(MOVIMIENTO_CONTABLE)
                 .set(MOVIMIENTO_CONTABLE.ASIENTO_ID, asientoId)
                 .set(MOVIMIENTO_CONTABLE.CUENTA_ID, cuentaId)
                 .set(MOVIMIENTO_CONTABLE.DEBE, debe)
                 .set(MOVIMIENTO_CONTABLE.HABER, haber)
+                .set(MOVIMIENTO_CONTABLE.MONEDA, moneda)
                 .set(MOVIMIENTO_CONTABLE.DESCRIPCION, descripcion)
                 .execute();
     }
@@ -78,10 +86,33 @@ public class AsientoRepositorio {
                 .fetchOptional(r -> new AsientoExistente(r.value1(), r.value2(), r.value3(), r.value4(), r.value5()));
     }
 
+    /**
+     * El asiento a corregir de ese hecho: el ultimo confirmado de ese origen que todavia no tiene un
+     * inverso que apunte a el. Vacio si nunca llego (el evento de la reversa se adelanto al de la
+     * aplicacion) o si ya fue reversado (reintento de la reversa).
+     */
+    public Optional<UUID> originalSinReversar(DSLContext dsl, String origenTipo, UUID origenId) {
+        return dsl.select(ASIENTO_CONTABLE.ID)
+                .from(ASIENTO_CONTABLE)
+                .where(ASIENTO_CONTABLE.ORIGEN_TIPO.eq(origenTipo))
+                .and(ASIENTO_CONTABLE.ORIGEN_ID.eq(origenId))
+                .and(ASIENTO_CONTABLE.ESTADO.eq("CONFIRMADO"))
+                .andNotExists(DSL.selectOne()
+                        .from(ASIENTO_CONTABLE.as("inverso"))
+                        .where(ASIENTO_CONTABLE.as("inverso").ASIENTO_REVERSA_ID.eq(ASIENTO_CONTABLE.ID)))
+                .orderBy(ASIENTO_CONTABLE.NUMERO.desc())
+                .limit(1)
+                .fetchOptional(r -> r.value1());
+    }
+
     public List<MovimientoExistente> movimientosDe(DSLContext dsl, UUID asientoId) {
-        return dsl.select(MOVIMIENTO_CONTABLE.CUENTA_ID, MOVIMIENTO_CONTABLE.DEBE, MOVIMIENTO_CONTABLE.HABER)
+        return dsl.select(
+                        MOVIMIENTO_CONTABLE.CUENTA_ID,
+                        MOVIMIENTO_CONTABLE.DEBE,
+                        MOVIMIENTO_CONTABLE.HABER,
+                        MOVIMIENTO_CONTABLE.MONEDA)
                 .from(MOVIMIENTO_CONTABLE)
                 .where(MOVIMIENTO_CONTABLE.ASIENTO_ID.eq(asientoId))
-                .fetch(r -> new MovimientoExistente(r.value1(), r.value2(), r.value3()));
+                .fetch(r -> new MovimientoExistente(r.value1(), r.value2(), r.value3(), r.value4()));
     }
 }

@@ -1,5 +1,6 @@
 import 'package:aportaya_cliente_identidad/aportaya_cliente_identidad.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../dominio/cliente.dart';
@@ -75,14 +76,27 @@ class Autenticacion {
           estado: r.statusCode ?? 200,
         );
       }
-      // El contrato de CU-04 entrega un solo token. `sesionId` es lo que identifica
-      // la sesión para renovarla, así que es lo que se guarda como refresco.
-      await _ref
-          .read(sesionProvider)
-          .guardar(acceso: token, refresco: salida.sesionId ?? token);
+      final refresco = salida.tokenRefresco;
+      if (refresco == null || refresco.isEmpty) {
+        // Nunca usar sesionId como refresh: es un identificador, no una credencial.
+        // Sin refresh la sesión se conserva hasta que venza el acceso (15 min).
+        debugPrint(
+          'El servidor no entregó tokenRefresco para la sesión móvil.',
+        );
+      }
+      await _ref.read(sesionProvider).abrir(acceso: token, refresco: refresco);
       return ResultadoDeAutenticacion.entro;
     } on DioException catch (e) {
-      throw errorDeDominio(e);
+      final error = errorDeDominio(e);
+      // El servicio real pide el segundo factor con 422 `AP-CU04-03` (así lo espera también el
+      // backoffice), no con un 200 + `requiereFactorAdicional`. Sin esto, quien tiene factor
+      // veía «algo salió mal» y no podía entrar (hallazgo B31 de la campaña de CU principales).
+      if (factor == null &&
+          error is ErrorDeApi &&
+          error.codigo == 'AP-CU04-03') {
+        return ResultadoDeAutenticacion.faltaSegundoFactor;
+      }
+      throw error;
     }
   }
 

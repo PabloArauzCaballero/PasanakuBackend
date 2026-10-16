@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../atomos/movimiento.dart';
 import '../tokens/tokens.dart';
 
 /// El orden sorteado con tu lugar marcado y cuánto falta (D-14).
@@ -36,35 +37,39 @@ class RielDeTurnos extends StatelessWidget {
             child: Row(
               children: [
                 for (var i = 1; i <= total; i += 1) ...[
-                  Container(
-                    width: Espacio.s6,
-                    height: Espacio.s6,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: i == mio
-                          ? t.accent
-                          : i <= actual
-                          ? t.verdeSolido
-                          : t.surface2,
-                      border: Border.all(
+                  _PulsoDeTurno(
+                    key: ValueKey('turno-$i'),
+                    activo: i == actual,
+                    child: Container(
+                      width: Espacio.s6,
+                      height: Espacio.s6,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
                         color: i == mio
                             ? t.accent
                             : i <= actual
                             ? t.verdeSolido
-                            : t.border,
-                        width: Borde.fino,
+                            : t.surface2,
+                        border: Border.all(
+                          color: i == mio
+                              ? t.accent
+                              : i <= actual
+                              ? t.verdeSolido
+                              : t.border,
+                          width: Borde.fino,
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      '$i',
-                      style: texto.labelMedium?.copyWith(
-                        color: i == mio
-                            ? t.accentInk
-                            : i <= actual
-                            ? t.sobreVerdeSolido
-                            : t.text2,
-                        fontWeight: FontWeight.w700,
+                      child: Text(
+                        '$i',
+                        style: texto.labelMedium?.copyWith(
+                          color: i == mio
+                              ? t.accentInk
+                              : i <= actual
+                              ? t.sobreVerdeSolido
+                              : t.text2,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),
@@ -89,4 +94,56 @@ class RielDeTurnos extends StatelessWidget {
       ),
     );
   }
+}
+
+class _PulsoDeTurno extends StatefulWidget {
+  const _PulsoDeTurno({super.key, required this.activo, required this.child});
+
+  final bool activo;
+  final Widget child;
+
+  @override
+  State<_PulsoDeTurno> createState() => _PulsoDeTurnoState();
+}
+
+class _PulsoDeTurnoState extends State<_PulsoDeTurno>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _control = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 800),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _actualizarPulso();
+  }
+
+  @override
+  void didUpdateWidget(covariant _PulsoDeTurno oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.activo != widget.activo) _actualizarPulso();
+  }
+
+  void _actualizarPulso() {
+    if (!widget.activo || reducirMovimiento(context)) {
+      _control.stop();
+      _control.value = 1;
+    } else if (!_control.isAnimating) {
+      _control.value = 0;
+      _control.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _control.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => FadeTransition(
+    opacity: Tween<double>(begin: 0.6, end: 1).animate(_control),
+    child: widget.child,
+  );
 }

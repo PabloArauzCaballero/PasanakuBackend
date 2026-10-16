@@ -1,0 +1,80 @@
+nucleo-financiero-1  | Action:
+nucleo-financiero-1  | 
+nucleo-financiero-1  | Consider defining a bean of type 'bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRetiro' in your configuration.
+nucleo-financiero-1  | 
+nucleo-financiero-1  | Picked up JAVA_TOOL_OPTIONS: -Xmx144m -Xss512k -XX:MaxMetaspaceSize=128m -XX:ReservedCodeCacheSize=48m -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:CICompilerCount=1
+nucleo-financiero-1  | 
+nucleo-financiero-1  |   .   ____          _            __ _ _
+nucleo-financiero-1  |  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+nucleo-financiero-1  | ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+nucleo-financiero-1  |  \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+nucleo-financiero-1  |   '  |____| .__|_| |_|_| |_\__, | / / / /
+nucleo-financiero-1  |  =========|_|==============|___/=/_/_/_/
+nucleo-financiero-1  | 
+nucleo-financiero-1  |  :: Spring Boot ::               (v3.5.16)
+nucleo-financiero-1  | 
+nucleo-financiero-1  | 2026-10-10T07:25:55.747Z  INFO 1 --- [nucleo-financiero] [           main] [                                                 ] b.aportaya.nucleofinanciero.Aplicacion   : Starting Aplicacion v1.0.0 using Java 21.0.12 with PID 1 (/app/BOOT-INF/classes started by app in /app)
+nucleo-financiero-1  | 2026-10-10T07:25:55.749Z  INFO 1 --- [nucleo-financiero] [           main] [                                                 ] b.aportaya.nucleofinanciero.Aplicacion   : The following 1 profile is active: "production"
+nucleo-financiero-1  | 2026-10-10T07:25:56.668Z  INFO 1 --- [nucleo-financiero] [           main] [                                                 ] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+nucleo-financiero-1  | 2026-10-10T07:25:56.675Z  INFO 1 --- [nucleo-financiero] [           main] [                                                 ] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+nucleo-financiero-1  | 2026-10-10T07:25:56.676Z  INFO 1 --- [nucleo-financiero] [           main] [                                                 ] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.60]
+nucleo-financiero-1  | 2026-10-10T07:25:56.690Z  INFO 1 --- [nucleo-financiero] [           main] [                                                 ] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+nucleo-financiero-1  | 2026-10-10T07:25:56.691Z  INFO 1 --- [nucleo-financiero] [           main] [                                                 ] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 920 ms
+nucleo-financiero-1  | 2026-10-10T07:25:57.324Z  WARN 1 --- [nucleo-financiero] [           main] [                                                 ] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'CU11RetirarSaldo' defined in file [/app/BOOT-INF/classes/bo/aportaya/nucleofinanciero/aplicacion/CU11RetirarSaldo.class]: Unsatisfied dependency expressed through constructor parameter 9: No qualifying bean of type 'bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRetiro' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+nucleo-financiero-1  | 2026-10-10T07:25:57.327Z  INFO 1 --- [nucleo-financiero] [           main] [                                                 ] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+nucleo-financiero-1  | 2026-10-10T07:25:57.338Z  INFO 1 --- [nucleo-financiero] [           main] [                                                 ] .s.b.a.l.ConditionEvaluationReportLogger : 
+nucleo-financiero-1  | 
+nucleo-financiero-1  | Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+nucleo-financiero-1  | 2026-10-10T07:25:57.346Z ERROR 1 --- [nucleo-financiero] [           main] [                                                 ] o.s.b.d.LoggingFailureAnalysisReporter   : 
+nucleo-financiero-1  | 
+nucleo-financiero-1  | ***************************
+nucleo-financiero-1  | APPLICATION FAILED TO START
+nucleo-financiero-1  | ***************************
+nucleo-financiero-1  | 
+nucleo-financiero-1  | Description:
+nucleo-financiero-1  | 
+nucleo-financiero-1  | Parameter 9 of constructor in bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo required a bean of type 'bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRetiro' that could not be found.
+nucleo-financiero-1  | 
+nucleo-financiero-1  | 
+nucleo-financiero-1  | Action:
+nucleo-financiero-1  | 
+nucleo-financiero-1  | Consider defining a bean of type 'bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRetiro' in your configuration.
+nucleo-financiero-1  | 
+nucleo-financiero-1  | Picked up JAVA_TOOL_OPTIONS: -Xmx144m -Xss512k -XX:MaxMetaspaceSize=128m -XX:ReservedCodeCacheSize=48m -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:CICompilerCount=1
+nucleo-financiero-1  | 
+nucleo-financiero-1  |   .   ____          _            __ _ _
+nucleo-financiero-1  |  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+nucleo-financiero-1  | ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+nucleo-financiero-1  |  \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+nucleo-financiero-1  |   '  |____| .__|_| |_|_| |_\__, | / / / /
+nucleo-financiero-1  |  =========|_|==============|___/=/_/_/_/
+nucleo-financiero-1  | 
+nucleo-financiero-1  |  :: Spring Boot ::               (v3.5.16)
+nucleo-financiero-1  | 
+nucleo-financiero-1  | 2026-10-10T07:26:49.073Z  INFO 1 --- [nucleo-financiero] [           main] [                                                 ] b.aportaya.nucleofinanciero.Aplicacion   : Starting Aplicacion v1.0.0 using Java 21.0.12 with PID 1 (/app/BOOT-INF/classes started by app in /app)
+nucleo-financiero-1  | 2026-10-10T07:26:49.074Z  INFO 1 --- [nucleo-financiero] [           main] [                                                 ] b.aportaya.nucleofinanciero.Aplicacion   : The following 1 profile is active: "production"
+nucleo-financiero-1  | 2026-10-10T07:26:49.993Z  INFO 1 --- [nucleo-financiero] [           main] [                                                 ] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+nucleo-financiero-1  | 2026-10-10T07:26:50.000Z  INFO 1 --- [nucleo-financiero] [           main] [                                                 ] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+nucleo-financiero-1  | 2026-10-10T07:26:50.000Z  INFO 1 --- [nucleo-financiero] [           main] [                                                 ] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.60]
+nucleo-financiero-1  | 2026-10-10T07:26:50.017Z  INFO 1 --- [nucleo-financiero] [           main] [                                                 ] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+nucleo-financiero-1  | 2026-10-10T07:26:50.017Z  INFO 1 --- [nucleo-financiero] [           main] [                                                 ] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 920 ms
+nucleo-financiero-1  | 2026-10-10T07:26:50.612Z  WARN 1 --- [nucleo-financiero] [           main] [                                                 ] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'CU11RetirarSaldo' defined in file [/app/BOOT-INF/classes/bo/aportaya/nucleofinanciero/aplicacion/CU11RetirarSaldo.class]: Unsatisfied dependency expressed through constructor parameter 9: No qualifying bean of type 'bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRetiro' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+nucleo-financiero-1  | 2026-10-10T07:26:50.618Z  INFO 1 --- [nucleo-financiero] [           main] [                                                 ] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+nucleo-financiero-1  | 2026-10-10T07:26:50.627Z  INFO 1 --- [nucleo-financiero] [           main] [                                                 ] .s.b.a.l.ConditionEvaluationReportLogger : 
+nucleo-financiero-1  | 
+nucleo-financiero-1  | Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+nucleo-financiero-1  | 2026-10-10T07:26:50.636Z ERROR 1 --- [nucleo-financiero] [           main] [                                                 ] o.s.b.d.LoggingFailureAnalysisReporter   : 
+nucleo-financiero-1  | 
+nucleo-financiero-1  | ***************************
+nucleo-financiero-1  | APPLICATION FAILED TO START
+nucleo-financiero-1  | ***************************
+nucleo-financiero-1  | 
+nucleo-financiero-1  | Description:
+nucleo-financiero-1  | 
+nucleo-financiero-1  | Parameter 9 of constructor in bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo required a bean of type 'bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRetiro' that could not be found.
+nucleo-financiero-1  | 
+nucleo-financiero-1  | 
+nucleo-financiero-1  | Action:
+nucleo-financiero-1  | 
+nucleo-financiero-1  | Consider defining a bean of type 'bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRetiro' in your configuration.
+nucleo-financiero-1  | 

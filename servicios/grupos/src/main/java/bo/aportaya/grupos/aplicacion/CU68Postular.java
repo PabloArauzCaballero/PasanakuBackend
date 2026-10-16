@@ -1,7 +1,6 @@
 package bo.aportaya.grupos.aplicacion;
 
 import bo.aportaya.grupos.dominio.CriterioDeEmparejamiento;
-import bo.aportaya.grupos.dominio.MotivoDelPuntaje;
 import bo.aportaya.grupos.infraestructura.EmparejamientoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -52,37 +51,11 @@ public class CU68Postular {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
         return datos.conContexto(ctx, dsl -> {
-            // La restriccion se responde diciendo QUE la levanta: rechazar sin decir
-            // como salir deja a alguien fuera sin camino de vuelta.
-            if (entrada.tieneRestriccionVigente()) {
-                throw new ErrorDeNegocio(
-                        CodigoError.de(68, 1),
-                        "Tenes una restriccion vigente.",
-                        Map.of(
-                                "montoQueLaLevanta",
-                                entrada.montoQueLevantaLaRestriccion().toString()));
-            }
-            if (!entrada.kycSuficiente()) {
-                throw new ErrorDeNegocio(CodigoError.de(68, 2), "Necesitas elevar tu nivel de verificacion.");
-            }
-            if (!emparejamientos.hayCuposLibres(dsl, entrada.grupoId())) {
-                throw new ErrorDeNegocio(CodigoError.de(68, 4), "Este grupo ya no tiene cupos libres.");
-            }
-            if (emparejamientos.yaPostulo(dsl, entrada.grupoId(), ctx.usuarioId())) {
-                throw new ErrorDeNegocio(CodigoError.de(68, 6), "Ya tenes una postulacion pendiente en este grupo.");
-            }
-
-            CriterioDeEmparejamiento criterio = emparejamientos
-                    .criterioVigente(dsl, ahora)
-                    .orElseThrow(() ->
-                            new ErrorDeNegocio(CodigoError.de(68, 5), "No hay criterio de emparejamiento vigente."));
-
-            if (!criterio.alcanzaLaReputacion(entrada.reputacion())) {
-                throw new ErrorDeNegocio(CodigoError.de(68, 3), "Tu reputacion todavia no alcanza para este grupo.");
-            }
-            if (!criterio.admiteOtroMoroso(entrada.morososDelGrupo())) {
-                throw new ErrorDeNegocio(CodigoError.de(68, 5), "Este grupo esta cerrado a nuevos ingresos por ahora.");
-            }
+            CriterioDeEmparejamiento criterio =
+                    PrecondicionesDePostulacion.exigir(emparejamientos, dsl, entrada, ctx.usuarioId(), ahora);
+            // El riesgo recomienda; la resolución de admisión pertenece al backoffice.
+            var motivos = MotorDeRecomendacion.motivos(criterio, entrada);
+            String recomendacion = MotorDeRecomendacion.recomendacion(motivos);
 
             BigDecimal puntaje = criterio.puntuar(
                     entrada.afinidadReputacion(),
@@ -105,19 +78,31 @@ public class CU68Postular {
                             "grupos.ingreso_solicitado",
                             "solicitud_ingreso",
                             solicitud,
-                            Map.of("grupoId", entrada.grupoId().toString()),
+                            Map.ofEntries(
+                                    Map.entry("grupoId", entrada.grupoId().toString()),
+                                    Map.entry("criterio", criterio.toString()),
+                                    Map.entry("versionMotor", criterio.id().toString()),
+                                    Map.entry("motivos", List.copyOf(motivos)),
+                                    Map.entry("puntaje", puntaje.toPlainString()),
+                                    Map.entry("recomendacion", recomendacion),
+                                    // Las entradas, para poder reproducir el puntaje con la version del motor.
+                                    Map.entry("entradas", MotorDeRecomendacion.entradas(entrada)),
+                                    Map.entry("decisionAutomatica", false)),
                             UUID.fromString(ctx.traza().id())));
 
-            return new SalidaPostulacion(
-                    solicitud,
-                    puntaje,
-                    MotivoDelPuntaje.de(
-                            criterio,
-                            entrada.afinidadReputacion(),
-                            entrada.afinidadMonto(),
-                            entrada.afinidadGeografia(),
-                            entrada.afinidadHistorial()));
+            return new SalidaPostulacion(solicitud, puntaje, List.copyOf(motivos));
         });
+    }
+
+    /**
+     * Las mismas precondiciones de {@link #postular}, SIN escribir. Sirve para comprobar antes de un paso
+     * irreversible en otro servicio (el canje de una invitacion consume el enlace en {@code identidad}).
+     */
+    @Transactional(readOnly = true)
+    public void comprobar(EntradaPostulacion entrada, ContextoSesion ctx) {
+        OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
+        datos.conContexto(
+                ctx, dsl -> PrecondicionesDePostulacion.exigir(emparejamientos, dsl, entrada, ctx.usuarioId(), ahora));
     }
 
     /**
@@ -178,7 +163,115 @@ public class CU68Postular {
             BigDecimal afinidadReputacion,
             BigDecimal afinidadMonto,
             BigDecimal afinidadGeografia,
-            BigDecimal afinidadHistorial) {}
+            BigDecimal afinidadHistorial,
+            boolean reputacionSinDatos,
+            boolean concentracionSinDatos,
+            boolean reputacionExcluyente) {
+        /** Con datos completos: el motor no tiene nada que marcar como SIN_DATOS. */
+        public EntradaPostulacion(
+                UUID grupoId,
+                short cuposSolicitados,
+                String mensaje,
+                boolean tieneRestriccionVigente,
+                BigDecimal montoQueLevantaLaRestriccion,
+                boolean kycSuficiente,
+                int reputacion,
+                int morososDelGrupo,
+                BigDecimal afinidadReputacion,
+                BigDecimal afinidadMonto,
+                BigDecimal afinidadGeografia,
+                BigDecimal afinidadHistorial) {
+            this(
+                    grupoId,
+                    cuposSolicitados,
+                    mensaje,
+                    tieneRestriccionVigente,
+                    montoQueLevantaLaRestriccion,
+                    kycSuficiente,
+                    reputacion,
+                    morososDelGrupo,
+                    afinidadReputacion,
+                    afinidadMonto,
+                    afinidadGeografia,
+                    afinidadHistorial,
+                    false,
+                    false,
+                    false);
+        }
+
+        /**
+         * Recomendacion con SIN_DATOS: nada se rechaza por reputacion, lo decide una persona (la ruta HTTP usa
+         * esta forma).
+         */
+        public EntradaPostulacion(
+                UUID grupoId,
+                short cuposSolicitados,
+                String mensaje,
+                boolean tieneRestriccionVigente,
+                BigDecimal montoQueLevantaLaRestriccion,
+                boolean kycSuficiente,
+                int reputacion,
+                int morososDelGrupo,
+                BigDecimal afinidadReputacion,
+                BigDecimal afinidadMonto,
+                BigDecimal afinidadGeografia,
+                BigDecimal afinidadHistorial,
+                boolean reputacionSinDatos,
+                boolean concentracionSinDatos) {
+            this(
+                    grupoId,
+                    cuposSolicitados,
+                    mensaje,
+                    tieneRestriccionVigente,
+                    montoQueLevantaLaRestriccion,
+                    kycSuficiente,
+                    reputacion,
+                    morososDelGrupo,
+                    afinidadReputacion,
+                    afinidadMonto,
+                    afinidadGeografia,
+                    afinidadHistorial,
+                    reputacionSinDatos,
+                    concentracionSinDatos,
+                    false);
+        }
+
+        /**
+         * Evaluacion directa de CU-68 2a: quien TIENE historial y no llega a la reputacion minima es rechazado
+         * (AP-CU68-03); quien es nuevo ({@code sinHistorial}) no se excluye por serlo.
+         */
+        public EntradaPostulacion(
+                UUID grupoId,
+                short cuposSolicitados,
+                String mensaje,
+                boolean tieneRestriccionVigente,
+                BigDecimal montoQueLevantaLaRestriccion,
+                boolean kycSuficiente,
+                int reputacion,
+                int morososDelGrupo,
+                BigDecimal afinidadReputacion,
+                BigDecimal afinidadMonto,
+                BigDecimal afinidadGeografia,
+                BigDecimal afinidadHistorial,
+                boolean sinHistorial) {
+            this(
+                    grupoId,
+                    cuposSolicitados,
+                    mensaje,
+                    tieneRestriccionVigente,
+                    montoQueLevantaLaRestriccion,
+                    kycSuficiente,
+                    reputacion,
+                    morososDelGrupo,
+                    afinidadReputacion,
+                    afinidadMonto,
+                    afinidadGeografia,
+                    afinidadHistorial,
+                    sinHistorial,
+                    false,
+                    true);
+        }
+    }
 
     public record SalidaPostulacion(UUID solicitudId, BigDecimal puntaje, List<String> motivos) {}
 

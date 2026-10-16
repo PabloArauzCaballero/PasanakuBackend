@@ -14,21 +14,6 @@
       "comentario": "Cuentas técnicas: contrapartida de todo movimiento. Son las únicas con permite_saldo_negativo, porque representan la posición del sistema, no el dinero de una persona (R-BIL-02).",
       "filas": [
         {
-          "numero_cuenta": "SYS-INGRESOS",
-          "tipo": "PLATAFORMA_INGRESOS",
-          "moneda": "BOB",
-          "estado": "ACTIVA",
-          "nivel_debida_diligencia": "REFORZADA",
-          "fecha_apertura": {
-            "$sql": "now()"
-          },
-          "cuenta_contable_id": {
-            "$ref": "cuenta_contable",
-            "codigo": "4.1.01"
-          },
-          "permite_saldo_negativo": true
-        },
-        {
           "numero_cuenta": "SYS-IMPUESTOS",
           "tipo": "PLATAFORMA_IMPUESTOS_POR_PAGAR",
           "moneda": "BOB",
@@ -40,21 +25,6 @@
           "cuenta_contable_id": {
             "$ref": "cuenta_contable",
             "codigo": "2.2.01"
-          },
-          "permite_saldo_negativo": true
-        },
-        {
-          "numero_cuenta": "SYS-CUSTODIA",
-          "tipo": "PUENTE_CUSTODIA",
-          "moneda": "BOB",
-          "estado": "ACTIVA",
-          "nivel_debida_diligencia": "REFORZADA",
-          "fecha_apertura": {
-            "$sql": "now()"
-          },
-          "cuenta_contable_id": {
-            "$ref": "cuenta_contable",
-            "codigo": "1.1.01"
           },
           "permite_saldo_negativo": true
         },

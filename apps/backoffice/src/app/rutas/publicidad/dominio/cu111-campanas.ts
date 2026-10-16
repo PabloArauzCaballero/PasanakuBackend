@@ -1,8 +1,8 @@
-import { HttpClient, HttpContext } from '@angular/common/http'
+import { HttpClient } from '@angular/common/http'
 import { inject } from '@angular/core'
 import { firstValueFrom } from 'rxjs'
 import { GATEWAY } from '../../../nucleo/gateway'
-import { CLAVE_IDEMPOTENCIA, claveDeIdempotencia } from '../../../nucleo/idempotencia.interceptor'
+import { contextoIdempotente } from '../../../nucleo/idempotencia.interceptor'
 import type { CargadorDePagina, PaginaServidor } from '../../../nucleo/tabla/tipos'
 import type { EntradaCampana } from 'clientes/angular/publicidad/model/entradaCampana'
 import type { SalidaCampana } from 'clientes/angular/publicidad/model/salidaCampana'
@@ -54,20 +54,20 @@ export function cargadorDeCampanas(): CargadorDePagina<Campana> {
 
 export async function crearCampana(http: HttpClient, gateway: string, entrada: EntradaCampana): Promise<SalidaCampana> {
   return firstValueFrom(
-    http.post<SalidaCampana>(`${gateway}/publicidad/campanas`, entrada, { context: new HttpContext().set(CLAVE_IDEMPOTENCIA, claveDeIdempotencia()) }),
+    http.post<SalidaCampana>(`${gateway}/publicidad/campanas`, entrada, { context: contextoIdempotente() }),
   )
 }
 
 export async function aprobarCampana(http: HttpClient, gateway: string, campanaId: string): Promise<SalidaCampana> {
   return firstValueFrom(
-    http.post<SalidaCampana>(`${gateway}/publicidad/campanas/${campanaId}/aprobacion`, {}, { context: new HttpContext().set(CLAVE_IDEMPOTENCIA, claveDeIdempotencia()) }),
+    http.post<SalidaCampana>(`${gateway}/publicidad/campanas/${campanaId}/aprobacion`, {}, { context: contextoIdempotente() }),
   )
 }
 
 export async function rechazarCampana(http: HttpClient, gateway: string, campanaId: string, entrada: EntradaRechazo): Promise<SalidaCampana> {
   return firstValueFrom(
     http.post<SalidaCampana>(`${gateway}/publicidad/campanas/${campanaId}/rechazo`, entrada, {
-      context: new HttpContext().set(CLAVE_IDEMPOTENCIA, claveDeIdempotencia()),
+      context: contextoIdempotente(),
     }),
   )
 }

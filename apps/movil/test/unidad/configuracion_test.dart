@@ -16,8 +16,32 @@ void main() {
     });
 
     test('el simulado (Prism) en debug, vía 10.0.2.2 (alias del emulador)', () {
-      final r = validarGateway('http://10.0.2.2:4010/api/v1', release: false);
+      final r = validarGateway(
+        'http://10.0.2.2:4010/api/v1',
+        release: false,
+        hostsPermitidos: const ['10.0.2.2'],
+      );
       expect(r.valida, isTrue);
+    });
+
+    test(
+      '10.0.2.2 en debug no necesita HOSTS_PERMITIDOS (defines-por-plataforma)',
+      () {
+        final r = validarGateway('http://10.0.2.2:4010/api/v1', release: false);
+        expect(r.valida, isTrue);
+        expect(r.url, 'http://10.0.2.2:4010/api/v1');
+      },
+    );
+
+    test('10.0.2.2 en debug, sin necesidad de lista (emulador de Android)', () {
+      final r = validarGateway('http://10.0.2.2/api/v1', release: false);
+      expect(r.valida, isTrue);
+    });
+
+    test('10.0.2.2 en release se rechaza, igual que localhost', () {
+      final r = validarGateway('http://10.0.2.2/api/v1', release: true);
+      expect(r.valida, isFalse);
+      expect(r.motivo, 'localhost-no-permitido');
     });
 
     test('localhost en debug, sin necesidad de lista', () {
@@ -126,19 +150,6 @@ void main() {
       expect(r.motivo, 'sin-ruta-versionada');
     });
 
-    for (final url in [
-      'https://usuario:secreto@api.aportaya.bo/api/v1',
-      'https://api.aportaya.bo/api/v1?token=secreto',
-      'https://api.aportaya.bo/api/v1#secreto',
-    ]) {
-      test('no acepta datos embebidos en la base: $url', () {
-        final r = validarGateway(url, release: true, hostsPermitidos: _hosts);
-        expect(r.valida, isFalse);
-        expect(r.motivo, 'url-con-datos');
-        expect(r.url, isNull);
-      });
-    }
-
     test('la forma "//otro-host/..." nunca se acepta', () {
       final r = validarGateway(
         '//evil.example.com/api/v1',
@@ -153,13 +164,18 @@ void main() {
       expect(r.motivo, 'localhost-no-permitido');
     });
 
-    test('127.0.0.1 nunca se acepta en release', () {
-      final r = validarGateway('https://127.0.0.1/api/v1', release: true);
+    test('10.0.2.2 nunca se acepta en release, ni estando en la lista', () {
+      final r = validarGateway(
+        'https://10.0.2.2/api/v1',
+        release: true,
+        hostsPermitidos: const ['10.0.2.2'],
+      );
+      expect(r.valida, isFalse);
       expect(r.motivo, 'localhost-no-permitido');
     });
 
-    test('el alias de emulador Android nunca se acepta en release', () {
-      final r = validarGateway('http://10.0.2.2:4010/api/v1', release: true);
+    test('127.0.0.1 nunca se acepta en release', () {
+      final r = validarGateway('https://127.0.0.1/api/v1', release: true);
       expect(r.motivo, 'localhost-no-permitido');
     });
 

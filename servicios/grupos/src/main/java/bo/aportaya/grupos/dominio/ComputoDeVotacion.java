@@ -36,6 +36,22 @@ public record ComputoDeVotacion(BigDecimal aFavor, BigDecimal enContra, BigDecim
         return fraccionAFavor().compareTo(quorumRequerido) >= 0;
     }
 
+    /**
+     * Si todavia puede alcanzarse el quorum: lo ya a favor mas TODO el peso que falta votar. Mientras
+     * pueda, la votacion sigue abierta; cerrarla al primer voto (B38) deja a los demas sin votar.
+     */
+    public boolean puedeAlcanzar(BigDecimal quorumRequerido) {
+        if (pesoTotal.signum() == 0) {
+            return false;
+        }
+        BigDecimal votado = aFavor.add(enContra).add(abstenciones);
+        BigDecimal pendiente = pesoTotal.subtract(votado).max(BigDecimal.ZERO);
+        return aFavor.add(pendiente)
+                        .divide(pesoTotal, ESCALA, RoundingMode.HALF_UP)
+                        .compareTo(quorumRequerido)
+                >= 0;
+    }
+
     private static BigDecimal sumar(List<VotoPonderado> votos, Sentido sentido) {
         return votos.stream()
                 .filter(voto -> voto.sentido() == sentido)

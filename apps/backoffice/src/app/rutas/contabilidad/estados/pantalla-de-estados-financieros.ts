@@ -15,6 +15,8 @@ import {
   type TipoDeEstadoFinanciero,
 } from '../dominio/cu106-estados-financieros'
 import { textosContabilidad } from '../textos'
+import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
+import type { ErrorTraducido } from '../../../nucleo/errores'
 
 /**
  * CU-106 · `VisorEstadoFinanciero`. **Gate propio del carril B3: el estado financiero se
@@ -29,15 +31,16 @@ import { textosContabilidad } from '../textos'
 @Component({
   selector: 'ap-pantalla-de-estados-financieros',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alerta, BandaDeProposito, Boton, Fecha, GrupoRadio, SeccionDeExpediente],
+  imports: [ErrorDeEnvio, Alerta, BandaDeProposito, Boton, Fecha, GrupoRadio, SeccionDeExpediente],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
       <ap-alerta [tono]="provisorio() ? 'aviso' : 'info'">{{ provisorio() ? t.provisorio : t.definitivo }}</ap-alerta>
 
       <ap-grupo-radio nombre="tipo-de-estado" etiqueta="Tipo de estado financiero" [opciones]="tipos" [(elegido)]="tipo" />
       <ap-boton variante="primario" [cargando]="generando()" (pulsado)="generar()">{{ t.generar }}</ap-boton>
+      <ap-error-de-envio [error]="errorDeEnvio()" />
 
       @if (generado(); as g) {
         <ap-alerta [tono]="g.cuadra ? 'ok' : 'error'">{{ g.cuadra ? t.cuadra : t.noCuadra }}</ap-alerta>
@@ -56,10 +59,10 @@ import { textosContabilidad } from '../textos'
         </p>
       }
       @if (errorDeDescarga(); as e) { <ap-alerta tono="error">{{ e }}</ap-alerta> }
-    </main>
+    </section>
   `,
   styles: `
-    main { padding: var(--s5); max-width: 48rem; display: grid; gap: var(--s4); justify-items: start; }
+    .pantalla { padding: var(--s5); max-width: 48rem; display: grid; gap: var(--s4); justify-items: start; }
     h1, h2 { margin: 0; }
     h2 { font-size: 1.05em; }
     .hash-ayuda { color: var(--text-2); margin: 0; }
@@ -78,6 +81,7 @@ export class PantallaDeEstadosFinancieros {
     { valor: 'ESTADO_RESULTADOS', texto: 'Estado de resultados' },
   ]
   protected readonly generando = signal(false)
+  protected readonly errorDeEnvio = signal<ErrorTraducido | null>(null)
   protected readonly descargando = signal(false)
   protected readonly generado = signal<EstadoFinancieroGenerado | null>(null)
   protected readonly descarga = signal<DocumentoDescargado | null>(null)
@@ -86,7 +90,9 @@ export class PantallaDeEstadosFinancieros {
   private readonly enviarGeneracion = crearGeneracion()
   private readonly pedirDocumento = crearDescarga()
 
-  protected etiquetaDeTipo = (tipo: TipoDeEstadoFinanciero) => this.t.tipos[tipo]
+  // Aserción sobre el ÍNDICE, no sobre el contrato: `t.tipos` es un diccionario local de
+  // traducción con claves literales; esto no cambia el comportamiento si `tipo` no está.
+  protected etiquetaDeTipo = (tipo: TipoDeEstadoFinanciero) => this.t.tipos[tipo as keyof typeof this.t.tipos]
 
   /** El hash viaja tal cual llegó del backend: acá solo se lo nombra y se lo muestra. */
   protected datosDe(g: EstadoFinancieroGenerado) {
@@ -99,6 +105,7 @@ export class PantallaDeEstadosFinancieros {
 
   protected generar(): void {
     this.generando.set(true)
+    this.errorDeEnvio.set(null)
     this.descarga.set(null)
     this.errorDeDescarga.set(null)
     this.enviarGeneracion(this.periodoId(), this.tipo() as TipoDeEstadoFinanciero).subscribe({
@@ -106,7 +113,10 @@ export class PantallaDeEstadosFinancieros {
         this.generado.set(g)
         this.generando.set(false)
       },
-      error: () => this.generando.set(false),
+      error: (e: ErrorTraducido) => {
+        this.errorDeEnvio.set(e)
+        this.generando.set(false)
+      },
     })
   }
 

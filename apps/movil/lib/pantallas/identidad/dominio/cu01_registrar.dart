@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../dominio/cliente.dart';
 import '../../../proveedores/idempotencia.dart';
 
-/// CU-01 · alta de usuario. `POST /usuarios`, en una sola petición: los ocho pasos
+/// CU-01 · alta de usuario. `POST /usuarios`, en una sola petición: los datos reunidos en el asistente
 /// del formulario juntan datos y recién al final —con los contratos aceptados— se
 /// crea la persona. Antes de eso no existe nada del lado del servidor, que es lo que
 /// permite abandonar el alta a mitad sin dejar una cuenta a medio hacer.
@@ -28,11 +28,16 @@ class Registro {
     required String tipoDocumento,
     required String numeroDocumento,
     required String? lugarExpedicion,
+    required DateTime? fechaExpiracion,
     required String correo,
     required String canalVerificacion,
+    required String? verificacionCorreoId,
     required String contrasena,
     required List<String> contratosAceptados,
   }) async {
+    if (verificacionCorreoId == null) {
+      throw const VerificacionCorreoFaltante();
+    }
     try {
       final r = await DefaultApi(_ref.read(dioProvider)).registrarUsuario(
         idempotencyKey: _ref
@@ -43,7 +48,8 @@ class Registro {
           nombres: nombres,
           apellidos: apellidos,
           fechaNacimiento: fechaNacimiento,
-          correo: correo.isEmpty ? null : correo,
+          correo: correo,
+          verificacionCorreoId: verificacionCorreoId,
           canalVerificacion: EntradaRegistroCanalVerificacionEnum.values
               .firstWhere((e) => e.value == canalVerificacion),
           documento: Documento(
@@ -54,6 +60,7 @@ class Registro {
                 : DocumentoLugarExpedicionEnum.values.firstWhere(
                     (e) => e.name == lugarExpedicion,
                   ),
+            fechaExpiracion: fechaExpiracion,
           ),
           contrasena: contrasena,
           aceptaContratos: contratosAceptados,
@@ -64,6 +71,7 @@ class Registro {
       return AltaCreada(
         usuarioId: r.data?.usuarioId.toString(),
         cuentaBilleteraId: r.data?.cuentaBilleteraId?.toString(),
+        tokenDeAlta: r.data?.tokenDeAlta,
       );
     } on DioException catch (e) {
       throw errorDeDominio(e);
@@ -80,9 +88,25 @@ class Registro {
 /// Lo que vuelve del alta. La billetera puede no existir todavia —el alta responde
 /// 202 y la abre otro servicio al consumir el evento—, pero el usuario si.
 class AltaCreada {
-  const AltaCreada({required this.usuarioId, required this.cuentaBilleteraId});
+  const AltaCreada({
+    required this.usuarioId,
+    required this.cuentaBilleteraId,
+    this.tokenDeAlta,
+  });
   final String? usuarioId;
   final String? cuentaBilleteraId;
+
+  /// El permiso de UN solo proposito para subir las fotos de ESTE usuario: la subida ya
+  /// no se acepta con solo conocer el `usuarioId` (cabecera `Token-De-Alta`).
+  final String? tokenDeAlta;
 }
 
 final registroProvider = Provider<Registro>(Registro.new);
+
+class VerificacionCorreoFaltante implements Exception {
+  const VerificacionCorreoFaltante();
+
+  @override
+  String toString() =>
+      'Confirma el codigo de tu correo antes de crear la cuenta.';
+}

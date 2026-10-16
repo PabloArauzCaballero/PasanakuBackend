@@ -1,0 +1,17 @@
+$ políticas RLS por forma (qual)
+55  (fn_seg_rol_privilegiado() OR fn_seg_es_sistema())
+30  ((usuario_id = fn_seg_usuario_actual()) OR fn_seg_rol_privilegiado() OR fn_seg_es_sistema())
+5  fn_seg_rol_privilegiado()
+1  ((id = fn_seg_usuario_actual()) OR fn_seg_rol_privilegiado() OR fn_seg_es_sistema())
+1  (fn_seg_rol_privilegiado() OR fn_seg_es_sistema() OR (EXISTS ( SELECT 1
+   FROM cuenta_billetera c
+  WHERE ((c.id = orden_recarga.cuenta_billetera_id) AND (c.usuario_id = fn_seg_usuario_actual())))))
+1  (fn_seg_rol_privilegiado() OR fn_seg_es_sistema() OR (EXISTS ( SELECT 1
+   FROM cuenta_billetera c
+  WHERE ((c.id = orden_retiro.cuenta_billetera_id) AND (c.usuario_id = fn_seg_usuario_actual())))))
+
+$ tablas con RLS activada y forzada
+92 con RLS · 92 forzada
+
+$ políticas que mencionan al usuario actual (app.usuario_id / titular real)
+2

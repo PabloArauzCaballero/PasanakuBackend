@@ -15,7 +15,7 @@ void main() {
 
     await $.native.disableWifi();
     await $.native.disableCellular();
-    await $.pumpAndSettle();
+    await $.pumpAndTrySettle();
 
     // El último estado (saldo, movimientos) sigue en pantalla: no se borra por
     // quedarse sin red (planes/15 §F12.4, "sin datos perdidos").

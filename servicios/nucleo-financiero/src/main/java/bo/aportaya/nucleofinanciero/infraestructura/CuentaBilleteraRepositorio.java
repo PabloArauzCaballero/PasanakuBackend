@@ -1,5 +1,6 @@
 package bo.aportaya.nucleofinanciero.infraestructura;
 
+import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
 import java.math.BigDecimal;
@@ -18,6 +19,13 @@ import org.springframework.stereotype.Component;
  * sume o reste saldo — quien mueve plata escribe movimientos, y el saldo sale de
  * ellos. Un {@code UPDATE saldo = saldo + x} seria una cifra que nadie puede
  * reconstruir despues.
+ *
+ * <p><b>H2.S1.M5 · la cache no autoriza nada.</b> {@code disponible} y {@code retenido} que
+ * devuelve este repositorio se calculan desde el LIBRO ({@code movimiento_billetera} y las
+ * retenciones vigentes), no se leen de las columnas {@code saldo_*}. Si la cache quedo
+ * atrasada o alguien la toco, una decision de dinero (retener, transferir, retirar) se
+ * toma igual contra lo que dice el libro. La columna se sigue leyendo solo para
+ * detectar la discrepancia, no para decidir.
  */
 @Component
 public class CuentaBilleteraRepositorio {
@@ -36,15 +44,28 @@ public class CuentaBilleteraRepositorio {
                         DSL.field("moneda", String.class),
                         DSL.field("estado", String.class),
                         DSL.field("nivel_debida_diligencia", String.class),
-                        DSL.field("saldo_disponible", BigDecimal.class),
-                        DSL.field("saldo_retenido", BigDecimal.class),
                         DSL.field("permite_saldo_negativo", Boolean.class),
                         DSL.field("version", Integer.class))
                 .from(DSL.table(DSL.name("nucleo_financiero", "cuenta_billetera")))
                 .where(DSL.field("id", UUID.class).eq(cuentaId))
                 .forUpdate()
                 .fetchOne();
-        return Optional.ofNullable(fila).map(CuentaBilleteraRepositorio::mapear);
+        return Optional.ofNullable(fila).map(f -> mapear(dsl, f));
+    }
+
+    /**
+     * La cuenta {@code USUARIO} activa de una persona en esa moneda, vista con la sesion de quien pregunta.
+     * Vacio si no hay ninguna o hay mas de una: no se elige por la persona.
+     */
+    public Optional<UUID> operativaDe(DSLContext dsl, UUID usuarioId, Moneda moneda) {
+        var ids = dsl.select(DSL.field("id", UUID.class))
+                .from(DSL.table(DSL.name("nucleo_financiero", "cuenta_billetera")))
+                .where(DSL.field("tipo", String.class).eq("USUARIO"))
+                .and(DSL.field("usuario_id", UUID.class).eq(usuarioId))
+                .and(DSL.field("moneda", String.class).eq(moneda.name()))
+                .and(DSL.field("estado", String.class).eq("ACTIVA"))
+                .fetch(DSL.field("id", UUID.class));
+        return ids.size() == 1 ? Optional.of(ids.get(0)) : Optional.empty();
     }
 
     /** Lectura sin bloqueo, para consultar. Nunca para decidir sobre plata. */
@@ -55,26 +76,119 @@ public class CuentaBilleteraRepositorio {
                         DSL.field("moneda", String.class),
                         DSL.field("estado", String.class),
                         DSL.field("nivel_debida_diligencia", String.class),
-                        DSL.field("saldo_disponible", BigDecimal.class),
-                        DSL.field("saldo_retenido", BigDecimal.class),
                         DSL.field("permite_saldo_negativo", Boolean.class),
                         DSL.field("version", Integer.class))
                 .from(DSL.table(DSL.name("nucleo_financiero", "cuenta_billetera")))
                 .where(DSL.field("id", UUID.class).eq(cuentaId))
                 .fetchOne();
-        return Optional.ofNullable(fila).map(CuentaBilleteraRepositorio::mapear);
+        return Optional.ofNullable(fila).map(f -> mapear(dsl, f));
     }
 
-    private static Cuenta mapear(Record fila) {
+    /**
+     * Disponible y retenido desde el libro: {@code SUM(movimientos) - SUM(retenciones vigentes)}.
+     * Es la misma formula que {@code fn_bil_recalcular_saldos}, evaluada ahora y no cacheada.
+     * Se lee con el rol de sistema porque el libro es del sistema; el filtro por cuenta lo pone
+     * esta consulta, y a ella solo se llega despues de que la fila de la cuenta fue visible
+     * para quien pregunta.
+     */
+    public static SaldosDelLibro delLibro(DSLContext dsl, UUID cuentaId, Moneda moneda) {
+        return Datos.comoSistema(dsl, () -> {
+            var signado = DSL.when(
+                            DSL.field("sentido", String.class).eq("CREDITO"), DSL.field("monto", BigDecimal.class))
+                    .otherwise(DSL.field("monto", BigDecimal.class).neg());
+            BigDecimal movimientos = dsl.select(DSL.coalesce(DSL.sum(signado), BigDecimal.ZERO))
+                    .from(DSL.table(DSL.name("nucleo_financiero", "movimiento_billetera")))
+                    .where(DSL.field("cuenta_billetera_id", UUID.class).eq(cuentaId))
+                    .fetchOne(0, BigDecimal.class);
+            BigDecimal retenido = dsl.select(
+                            DSL.coalesce(DSL.sum(DSL.field("monto", BigDecimal.class)), BigDecimal.ZERO))
+                    .from(DSL.table(DSL.name("nucleo_financiero", "retencion_saldo")))
+                    .where(DSL.field("cuenta_billetera_id", UUID.class).eq(cuentaId))
+                    .and(DSL.field("estado", String.class).eq("VIGENTE"))
+                    .fetchOne(0, BigDecimal.class);
+            return new SaldosDelLibro(Dinero.de(movimientos.subtract(retenido), moneda), Dinero.de(retenido, moneda));
+        });
+    }
+
+    /**
+     * La politica de billetera vigente para esa moneda (la de vigencia mas reciente que ya empezo), o vacio si no hay.
+     * La cuenta de una persona la necesita: sin politica no hay plazo de retencion ni regla P2P (ver
+     * {@code RetencionRepositorio} y {@code TransferenciaRepositorio}, que niegan por omision).
+     */
+    public Optional<UUID> politicaVigente(DSLContext dsl, Moneda moneda) {
+        return Optional.ofNullable(dsl.select(DSL.field("id", UUID.class))
+                .from(DSL.table(DSL.name("nucleo_financiero", "politica_billetera")))
+                .where(DSL.field("moneda", String.class).eq(moneda.name()))
+                .and(DSL.field("vigente_desde", java.time.OffsetDateTime.class).le(DSL.currentOffsetDateTime()))
+                .orderBy(DSL.field("vigente_desde").desc(), DSL.field("codigo").asc())
+                .limit(1)
+                .fetchOne(DSL.field("id", UUID.class)));
+    }
+
+    /**
+     * Abre una cuenta {@code USUARIO} o {@code GRUPO}, en cero. {@code ON CONFLICT DO NOTHING} y no un {@code SELECT}
+     * previo: entre el {@code SELECT} y el {@code INSERT} entra el duplicado, y solo el indice unico (R-BIL-04)
+     * decide. Devuelve {@code false} si ya habia una (de ese titular y moneda, o con ese numero).
+     */
+    public boolean abrir(DSLContext dsl, Apertura a) {
+        boolean deUsuario = "USUARIO".equals(a.tipo());
+        return dsl.insertInto(DSL.table(DSL.name("nucleo_financiero", "cuenta_billetera")))
+                        .columns(
+                                DSL.field("id"),
+                                DSL.field("numero_cuenta"),
+                                DSL.field("tipo"),
+                                DSL.field("usuario_id"),
+                                DSL.field("grupo_id"),
+                                DSL.field("politica_billetera_id"),
+                                DSL.field("moneda"),
+                                DSL.field("estado"),
+                                DSL.field("nivel_debida_diligencia"),
+                                DSL.field("permite_saldo_negativo"),
+                                DSL.field("fecha_apertura"))
+                        .values(
+                                DSL.val(a.id()),
+                                DSL.val(a.numeroDeCuenta()),
+                                DSL.val(a.tipo()),
+                                DSL.val(deUsuario ? a.titularId() : null, UUID.class),
+                                DSL.val(deUsuario ? null : a.titularId(), UUID.class),
+                                DSL.val(a.politicaId().orElse(null), UUID.class),
+                                DSL.val(a.moneda().name()),
+                                DSL.val(a.estado()),
+                                DSL.val(a.nivel()),
+                                DSL.val(false),
+                                DSL.val(a.abiertaEn(), java.time.OffsetDateTime.class))
+                        .onConflictDoNothing()
+                        .execute()
+                == 1;
+    }
+
+    /** Lo que hace falta para abrir una cuenta; el saldo nace en cero y sin sobregiro. */
+    public record Apertura(
+            UUID id,
+            String numeroDeCuenta,
+            String tipo,
+            UUID titularId,
+            Moneda moneda,
+            String estado,
+            String nivel,
+            Optional<UUID> politicaId,
+            java.time.OffsetDateTime abiertaEn) {}
+
+    /** Lo que dice el libro ahora mismo: es lo unico que autoriza un debito. */
+    public record SaldosDelLibro(Dinero disponible, Dinero retenido) {}
+
+    private static Cuenta mapear(DSLContext dsl, Record fila) {
         Moneda moneda = Moneda.valueOf(fila.get("moneda", String.class));
+        UUID id = fila.get("id", UUID.class);
+        SaldosDelLibro libro = delLibro(dsl, id, moneda);
         return new Cuenta(
-                fila.get("id", UUID.class),
+                id,
                 fila.get("usuario_id", UUID.class),
                 moneda,
                 fila.get("estado", String.class),
                 fila.get("nivel_debida_diligencia", String.class),
-                Dinero.de(fila.get("saldo_disponible", BigDecimal.class), moneda),
-                Dinero.de(fila.get("saldo_retenido", BigDecimal.class), moneda),
+                libro.disponible(),
+                libro.retenido(),
                 fila.get("permite_saldo_negativo", Boolean.class),
                 fila.get("version", Integer.class));
     }

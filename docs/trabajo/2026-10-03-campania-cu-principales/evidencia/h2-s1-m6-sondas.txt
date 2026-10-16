@@ -1,0 +1,31 @@
+== 1. Tokens: rol y permisos reales
+LOGIN USR90 (+591***90) -> 200 requiereFactor=False token=si
+   USR90: rol=PARTICIPANTE permisos=['BILLETERA_OPERAR', 'BILLETERA_VER']
+LOGIN USR1 (+591***01) -> 200 requiereFactor=False token=si
+   USR1: rol=PARTICIPANTE permisos=['BILLETERA_OPERAR', 'BILLETERA_VER', 'GRUPO_ADMINISTRAR', 'GRUPO_CREAR']
+LOGIN USR2 (+591***02) -> 200 requiereFactor=False token=si
+   USR2: rol=PARTICIPANTE permisos=['BILLETERA_OPERAR', 'BILLETERA_VER']
+LOGIN USR91 (+591***91) -> 200 requiereFactor=False token=si
+   USR91: rol=BACKOFFICE permisos=['ACCESOS_ADMINISTRAR', 'AUDITORIA_LEER', 'CATALOGO_EDITAR', 'SEGURIDAD_ACCESO_RESTABLECER', 'SEGURIDAD_FACTOR_REINSCRIBIR', 'TARIFARIO_PUBLICAR', 'VERIFICACION_RESOLVER']
+LOGIN USR8 (+591***08) -> 200 requiereFactor=False token=si
+   USR8: rol=BACKOFFICE permisos=['AUDITORIA_LEER', 'BILLETERA_VER_TERCEROS', 'CONTABILIDAD_ERP_COBRAR', 'CONTABILIDAD_ERP_PAGAR', 'ENTREGA_EJECUTAR', 'RETIRO_APROBAR']
+LOGIN USR9 (+591***09) -> 200 requiereFactor=False token=si
+   USR9: rol=BACKOFFICE permisos=['AUDITORIA_LEER', 'BILLETERA_VER_TERCEROS', 'ENTREGA_AUTORIZAR', 'REVERSO_AUTORIZAR']
+
+== 2. Sondas (cuerpos mínimos: el guardia de permisos responde antes de validar el cuerpo)
+-- CU-20: consulta de licencia que hace el servicio grupos  [actor USR1]
+GET   /licencia/alcance?servicio=GRUPO_PASANAKU                                        -> 403 AP-SEG-01
+-- mismo, con token de participante  [actor USR90]
+GET   /licencia/alcance?servicio=GRUPO_PASANAKU                                        -> 403 AP-SEG-01
+-- mismo, con token de backoffice  [actor USR91]
+GET   /licencia/alcance?servicio=GRUPO_PASANAKU                                        -> 403 AP-SEG-01
+-- CU-90 aprobar (ADMIN_PLATAFORMA)  [actor USR91]
+POST  /organizadores/postulaciones/c424c44b-0598-4d7c-9743-f5e2040c9554/aprobacion     -> 403 AP-SEG-01
+-- CU-90 habilitar (ADMIN_PLATAFORMA)  [actor USR91]
+POST  /organizadores/c424c44b-0598-4d7c-9743-f5e2040c9554/habilitacion                 -> 403 AP-SEG-01
+-- CU-74 evaluar insignias (SOPORTE)  [actor USR91]
+POST  /reputacion/insignias/evaluacion                                                 -> 403 AP-SEG-01
+-- CU-90 postular (PARTICIPANTE) — debe pasar el guardia  [actor USR90]
+POST  /organizadores/postulaciones                                                     -> 400 AP-VAL-01
+-- CU-20 crear grupo (GRUPO_CREAR) — debe pasar el guardia  [actor USR1]
+POST  /grupos                                                                          -> 400 AP-VAL-01

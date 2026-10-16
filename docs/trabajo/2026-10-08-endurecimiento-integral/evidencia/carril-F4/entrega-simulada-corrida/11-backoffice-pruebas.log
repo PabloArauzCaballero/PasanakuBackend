@@ -1,0 +1,17 @@
+heavy.sh: candado tomado, libres 4287 MB -> bash -c cd '/c/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/backoffice' && npx ng test --runner-config='/c/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/scripts/vitest-serial.config.mjs' --include='src/**/*.spec.ts' --exclude='src/**/*.a11y.spec.ts' --no-watch
+Using Vitest configuration file: C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\scripts\vitest-serial.config.mjs
+❯ Building...
+✔ Building...
+Application bundle generation complete. [4.929 seconds] - 2026-10-10T13:06:46.835Z
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90mC:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/backoffice[39m
+
+Not implemented: Window's confirm() method
+Not implemented: Window's confirm() method
+
+[2m Test Files [22m [1m[32m70 passed[39m[22m[90m (70)[39m
+[2m      Tests [22m [1m[32m457 passed[39m[22m[90m (457)[39m
+[2m   Start at [22m 09:06:47
+[2m   Duration [22m 5.01s[2m (transform 863ms, setup 389ms, import 1.12s, tests 2.46s, environment 826ms)[22m
+

@@ -1,0 +1,9 @@
+LOGIN USR90 (+591***90) -> 200 requiereFactor=False token=si
+LOGIN USR8 (+591***08) -> 200 requiereFactor=False token=si
+solicitar 201 a2af70ae
+saldo antes: 150.00
+acreditar #1 (misma clave) 200 {'ordenRecargaId': 'a2af70ae-7819-4ef4-8e04-4cc3e57fba44', 'transaccionId': '6d762137-9177-4014-9c7d-d8fc54143a93', 'saldoDespues': {'monto': '180.00', 'moneda': 'BOB'}}
+acreditar #2 (misma clave) 200 {'ordenRecargaId': 'a2af70ae-7819-4ef4-8e04-4cc3e57fba44', 'transaccionId': '6d762137-9177-4014-9c7d-d8fc54143a93', 'saldoDespues': {'monto': '180.00', 'moneda': 'BOB'}}
+acreditar #3 (clave nueva) 200 {'ordenRecargaId': 'a2af70ae-7819-4ef4-8e04-4cc3e57fba44', 'transaccionId': '6d762137-9177-4014-9c7d-d8fc54143a93', 'saldoDespues': {'monto': '180.00', 'moneda': 'BOB'}}
+saldo despues (sube UNA sola vez): 180.00
+transacciones de la orden: 1 · movimientos: 2

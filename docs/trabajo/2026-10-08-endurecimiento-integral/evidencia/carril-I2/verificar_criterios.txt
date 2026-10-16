@@ -1,0 +1,2 @@
+casos de uso implementados y verificados: 10
+Sin divergencias entre la boveda y el codigo.

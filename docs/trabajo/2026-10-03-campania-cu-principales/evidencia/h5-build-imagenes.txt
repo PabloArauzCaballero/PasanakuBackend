@@ -1,0 +1,15 @@
+=== 10:24:09 construyendo identidad
+=== 10:25:11 identidad rc=0
+=== 10:25:11 construyendo cumplimiento
+=== 10:26:12 cumplimiento rc=0
+=== 10:26:12 construyendo garantia
+=== 10:27:09 garantia rc=0
+=== 10:27:09 construyendo notificaciones
+=== 10:28:07 notificaciones rc=0
+=== 10:28:07 construyendo grupos
+=== 10:29:09 grupos rc=0
+=== 10:29:09 construyendo entregas
+=== 10:30:08 entregas rc=0
+=== 10:30:08 construyendo nucleo-financiero
+=== 10:31:17 nucleo-financiero rc=0
+=== TODAS RECONSTRUIDAS

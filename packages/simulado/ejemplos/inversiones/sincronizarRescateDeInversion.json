@@ -1,0 +1,106 @@
+{
+  "servicio": "inversiones",
+  "operacion": "sincronizarRescateDeInversion",
+  "metodo": "post",
+  "ruta": "/inversiones/rescates/{rescateId}/sincronizacion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "rescateId": "ba2b2634-2411-4eae-861c-50766de3d04e",
+        "posicionId": "701ef099-7683-4f83-869d-2f1ae6a2d01c",
+        "tipo": "PARCIAL",
+        "estado": "SOLICITADO",
+        "cuotas": "4.444444",
+        "corte": {
+          "fechaValor": "2026-01-15",
+          "liquidaEn": "2026-01-15T10:30:00Z"
+        },
+        "netoAcreditar": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "motivoRechazo": "motivoRechazo",
+        "mensaje": "mensaje"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "rescateId": "ba2b2634-2411-4eae-861c-50766de3d04e",
+        "posicionId": "701ef099-7683-4f83-869d-2f1ae6a2d01c",
+        "tipo": "PARCIAL",
+        "estado": "SOLICITADO",
+        "cuotas": "0.000000",
+        "corte": {
+          "fechaValor": "2026-01-15",
+          "liquidaEn": "2026-01-15T10:30:00Z"
+        },
+        "netoAcreditar": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "motivoRechazo": "motivoRechazo",
+        "mensaje": "mensaje"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "rescateId": "ba2b2634-2411-4eae-861c-50766de3d04e",
+        "posicionId": "701ef099-7683-4f83-869d-2f1ae6a2d01c",
+        "tipo": "PARCIAL",
+        "estado": "SOLICITADO",
+        "cuotas": "4.444444",
+        "corte": {
+          "fechaValor": "2026-01-15",
+          "liquidaEn": "2026-01-15T10:30:00Z"
+        },
+        "netoAcreditar": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "motivoRechazo": "motivoRechazo",
+        "mensaje": "mensaje"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "rescateId": "ba2b2634-2411-4eae-861c-50766de3d04e",
+        "posicionId": "701ef099-7683-4f83-869d-2f1ae6a2d01c",
+        "tipo": "PARCIAL",
+        "estado": "SOLICITADO",
+        "cuotas": "4.444444",
+        "corte": {
+          "fechaValor": "2026-01-15",
+          "liquidaEn": "2026-01-15T10:30:00Z"
+        },
+        "netoAcreditar": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "motivoRechazo": "motivoRechazo",
+        "mensaje": "mensaje"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU125-01",
+        "mensaje": "Discrepancia con el emisor",
+        "detalle": {},
+        "trazaId": "traza-sincronizarRescateDeInversion-rechazo"
+      }
+    }
+  }
+}

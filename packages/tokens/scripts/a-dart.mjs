@@ -6,7 +6,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { RAIZ, ROLES, TIPOS, resolverRol, tokens } from './comun.mjs'
 
-const { color, espacio, radio, fuente, tactil, borde, movimiento } = tokens.primitivas
+const { color, espacio, radio, fuente, tactil, borde } = tokens.primitivas
 
 /** `#1C5A3A` → `Color(0xFF1C5A3A)`; `rgba(31,157,87,.14)` → `Color.fromRGBO(31, 157, 87, 0.14)`. */
 function aColorDart(valor) {
@@ -36,6 +36,9 @@ const estilosDeTipo = TIPOS.map(([nombre, t]) => {
     `height: ${t.alto}`,
     `letterSpacing: ${aLetterSpacing(t)}`,
   ]
+  if (nombre.startsWith('cifra')) {
+    partes.push('fontFeatures: [FontFeature.tabularFigures()]')
+  }
   return `  static const ${nombre} = TextStyle(\n    ${partes.join(',\n    ')},\n  );`
 }).join('\n\n')
 
@@ -75,12 +78,6 @@ ${Object.entries(radio).map(([k, v]) => `  static const double ${k} = ${v};`).jo
 
 abstract final class Borde {
 ${Object.entries(borde).map(([k, v]) => `  static const double ${k} = ${v};`).join('\n')}
-}
-
-/// Duraciones por intención. Una interacción pide un propósito; nunca inventa
-/// milisegundos dentro del widget.
-abstract final class MovimientoDeInterfaz {
-${Object.entries(movimiento).map(([k, v]) => `  static const Duration ${k} = Duration(milliseconds: ${v});`).join('\n')}
 }
 
 abstract final class Fuente {
@@ -129,6 +126,15 @@ ${tema('oscuro')}
 ${lerp}
     );
   }
+}
+
+/// Composiciones semánticas de las sombras por superficie. Los valores siguen
+/// viviendo en tokens.json y Tokens; esta fachada evita que cada componente vuelva
+/// a decidir qué combinación construye una tarjeta, un panel destacado o una hoja.
+abstract final class Elevacion {
+  static List<BoxShadow> tarjeta(Tokens t) => [t.sombra1, t.sombra2];
+  static List<BoxShadow> destacada(Tokens t) => [t.sombra2];
+  static List<BoxShadow> superpuesta(Tokens t) => [t.sombra3];
 }
 `
 mkdirSync(resolve(RAIZ, 'generado'), { recursive: true })

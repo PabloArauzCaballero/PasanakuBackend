@@ -1,0 +1,3 @@
+app.entorno sin marca dev (como TEST) [t=si]: t
+usuarios antes de sembrar: 0
+psql:/repo/sql/61_dev/sembrar_dev.sql:24: ERROR:  SEMILLAS DE DEV BLOQUEADAS: app.entorno = <sin definir>, se exige 'dev'

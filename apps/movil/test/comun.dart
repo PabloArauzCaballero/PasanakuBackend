@@ -11,9 +11,8 @@ import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_movil/dominio/cliente.dart';
 import 'package:aportaya_movil/dominio/puertos/almacen_seguro.dart';
-import 'package:aportaya_movil/dominio/puertos/conectividad.dart';
-import 'package:aportaya_movil/pantallas/identidad/dominio/notifier_alta.dart';
-import 'package:aportaya_movil/proveedores/conexion.dart';
+import 'package:aportaya_movil/dominio/puertos/haptica.dart';
+import 'package:aportaya_movil/proveedores/haptica.dart';
 import 'package:aportaya_movil/proveedores/sesion.dart';
 
 /// Almacén en memoria: las pruebas no tocan el Keystore.
@@ -28,24 +27,22 @@ class AlmacenEnMemoria implements AlmacenSeguro {
   Future<void> borrar(String clave) async => _datos.remove(clave);
 }
 
-/// Las pruebas widget no tienen plugin de conectividad; la red HTTP se simula
-/// por separado en Dio. Cada caso offline inyecta su adaptador explícito.
-class ConexionDePruebaEnLinea implements Conectividad {
-  const ConexionDePruebaEnLinea();
-
-  @override
-  Stream<bool> get cambios => const Stream<bool>.empty();
-
-  @override
-  Future<bool> hayConexion() async => true;
+Future<Sesion> sesionActivaDePrueba() async {
+  final sesion = Sesion(
+    AlmacenEnMemoria(),
+    () => DateTime.utc(2026, 10, 11, 12),
+  );
+  await sesion.abrir(acceso: 'token-sintetico', refresco: 'refresco-sintetico');
+  return sesion;
 }
 
-/// Solo para probar el envío posterior a una futura verificación contractual.
-/// La app real no dispone de esta operación ni puede marcar un OTP como válido.
-class AltaVerificadaSoloEnPrueba extends AltaNotifier {
-  void simularVerificacionDelServidor() {
-    state = state.copiarCon(codigoConfirmado: true);
-  }
+Future<Sesion> sesionAnonimaDePrueba() async {
+  final sesion = Sesion(
+    AlmacenEnMemoria(),
+    () => DateTime.utc(2026, 10, 11, 12),
+  );
+  await sesion.hidratar();
+  return sesion;
 }
 
 /// La base para el Dio de pruebas — nunca `baseDelGateway`: en `flutter test` no hay
@@ -64,6 +61,13 @@ const String _baseDePrueba = 'https://pruebas.aportaya.bo/api/v1';
     ),
   );
   final adaptador = DioAdapter(dio: dio, matcher: const UrlRequestMatcher());
+  adaptador.onGet(
+    RegExp(r'/billetera/[^/]+/movimientos'),
+    (s) => s.reply(200, {
+      'cuentaId': '11111111-1111-4111-8111-111111111111',
+      'movimientos': <Object>[],
+    }),
+  );
   instalarInterceptores(dio, Sesion(AlmacenEnMemoria()));
   return (dio: dio, adaptador: adaptador);
 }
@@ -127,32 +131,27 @@ Widget conApp(
   Widget hijo, {
   required Dio dio,
   Brightness brillo = Brightness.light,
-  double escalaDeTexto = 1,
-  AlmacenSeguro? almacenSeguro,
-  Conectividad? conectividad,
+  bool movimientoReducido = false,
+  Haptica? haptica,
 }) => ProviderScope(
   // Igual que en main.dart: sin reintentos automáticos.
   retry: (retryCount, error) => null,
   overrides: [
-    almacenSeguroProvider.overrideWithValue(
-      almacenSeguro ?? AlmacenEnMemoria(),
-    ),
+    almacenSeguroProvider.overrideWithValue(AlmacenEnMemoria()),
     dioProvider.overrideWithValue(dio),
-    conectividadProvider.overrideWithValue(
-      conectividad ?? const ConexionDePruebaEnLinea(),
-    ),
+    if (haptica != null) hapticaProvider.overrideWithValue(haptica),
   ],
   child: MaterialApp(
     theme: temaDesde(Tokens.claro, Brightness.light),
     darkTheme: temaDesde(Tokens.oscuro, Brightness.dark),
     themeMode: brillo == Brightness.dark ? ThemeMode.dark : ThemeMode.light,
+    home: hijo,
     builder: (context, child) => MediaQuery(
       data: MediaQuery.of(
         context,
-      ).copyWith(textScaler: TextScaler.linear(escalaDeTexto)),
+      ).copyWith(disableAnimations: movimientoReducido),
       child: child!,
     ),
-    home: hijo,
   ),
 );
 

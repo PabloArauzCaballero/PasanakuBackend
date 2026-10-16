@@ -10,6 +10,8 @@ import bo.aportaya.plataforma.dominio.Traza;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,20 +55,23 @@ public class EmitirAcceso {
     }
 
     @Transactional(readOnly = true)
-    public Acceso ejecutar(UUID usuarioId, String rol, String nivelDiligencia, String dispositivo) {
+    public Acceso ejecutar(UUID usuarioId, String rol, String nivelDiligencia, String dispositivo, UUID sesionId) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
         // El contexto es el del propio titular: leer sus asignaciones bajo su politica de
         // fila es lo que impide que emitir un token para otro sea posible por descuido.
         var ctx = ContextoSesion.de(usuarioId, rol, new Traza(UUID.randomUUID().toString()));
 
-        List<String> permisos = datos.conContexto(
-                ctx, dsl -> PermisosEfectivos.de(accesos.asignacionesDe(dsl, usuarioId), ahora).stream()
-                        .sorted()
-                        .toList());
+        List<String> permisos = datos.conContexto(ctx, dsl -> {
+            // Los permisos del catalogo y, ademas, el codigo de cada rol vigente: hay endpoints
+            // que exigen el rol por nombre.
+            Set<String> todos = new TreeSet<>(PermisosEfectivos.de(accesos.asignacionesDe(dsl, usuarioId), ahora));
+            todos.addAll(accesos.codigosDeRolesVigentes(dsl, usuarioId, ahora));
+            return List.copyOf(todos);
+        });
 
-        var emitido = emisor.emitir(usuarioId, rol, permisos, nivelDiligencia, dispositivo);
-        return new Acceso(emitido.token(), emitido.expiraEn());
+        var emitido = emisor.emitir(usuarioId, rol, permisos, nivelDiligencia, dispositivo, sesionId);
+        return new Acceso(emitido.token(), emitido.expiraEn(), permisos);
     }
 
     /**
@@ -75,5 +80,10 @@ public class EmitirAcceso {
      * <p>Es de esta capa y no de infraestructura porque lo consume la pagina, y la pagina
      * no depende de infraestructura. El detalle de como se firmo se queda del otro lado.
      */
-    public record Acceso(String token, java.time.Instant expiraEn) {}
+    public record Acceso(String token, java.time.Instant expiraEn, List<String> permisos) {
+        /** Sin permisos a la vista: para quien solo necesita el token. */
+        public Acceso(String token, java.time.Instant expiraEn) {
+            this(token, expiraEn, List.of());
+        }
+    }
 }

@@ -1,0 +1,70 @@
+{
+  "servicio": "inversiones",
+  "operacion": "reintentarInstruccionesAlLibro",
+  "metodo": "post",
+  "ruta": "/inversiones/instrucciones/reintento",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "aplicadas": 2,
+        "rechazadas": 0,
+        "siguenPendientes": 0,
+        "esperando": 0,
+        "atascadas": 0,
+        "cortada": false
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "aplicadas": 0,
+        "rechazadas": 0,
+        "siguenPendientes": 0,
+        "esperando": 0,
+        "atascadas": 0,
+        "cortada": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "aplicadas": 2,
+        "rechazadas": 0,
+        "siguenPendientes": 0,
+        "esperando": 0,
+        "atascadas": 0,
+        "cortada": false
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "aplicadas": 1,
+        "rechazadas": 1,
+        "siguenPendientes": 1,
+        "esperando": 1,
+        "atascadas": 1,
+        "cortada": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU122-01",
+        "mensaje": "Orden inexistente",
+        "detalle": {},
+        "trazaId": "traza-reintentarInstruccionesAlLibro-rechazo"
+      }
+    }
+  }
+}

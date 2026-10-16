@@ -1,0 +1,114 @@
+# H13.S1.M5 · Reglas de alerta verificables.
+#
+# Cada regla es DATO: un detector (SQL de solo lectura), un responsable por rol del catalogo
+# sembrado, un procedimiento que existe en el repo, y el evento de notificacion con que se
+# avisa. Lo evalua despliegue/alertas/evaluar_alarmas.py; lo cuida
+# plataforma/comun-pruebas (AlarmasContratoTest) y lo prueba con incidentes inyectados
+# despliegue/ensayos/alarmas/ensayo_alarmas.sh.
+#
+# LOS UMBRALES DE ABAJO SON SINTETICOS (apto_produccion: false). Cuanto tiempo de atraso, de
+# cola detenida o de conciliacion faltante es aceptable es una decision de operaciones y
+# tesoreria: no se infiere (regla 97.5.4). Hasta que alguien con autoridad los fije y deje la
+# fuente, la alarma funciona pero NO se declara apta para produccion.
+version: 1
+apto_produccion: false
+parametros:
+  atraso_dias: 3            # dias despues del fin de gracia para alertar        (sintetico)
+  cola_minutos: 15          # minutos que un evento puede estar sin publicar     (sintetico)
+  conciliacion_horas: 36    # horas sin conciliar una cuenta de custodia activa  (sintetico)
+
+reglas:
+  - id: ALR-01
+    nombre: brecha_de_caja
+    descripcion: >-
+      La ultima conciliacion de una cuenta de custodia muestra menos plata en custodia que
+      dinero electronico emitido. Es el unico caso en que el sistema debe a los participantes
+      mas de lo que tiene.
+    severidad: CRITICA
+    responsable_rol: TESORERIA
+    escalamiento_rol: OFICIAL_CUMPLIMIENTO
+    evento_notificable: OPERACION_BRECHA_DE_CAJA
+    runbook: docs/operacion/alarmas/ALR-01-brecha-de-caja.md
+    detector: |
+      SELECT count(*) FROM (
+        SELECT DISTINCT ON (cuenta_custodia_id) saldo_custodia, saldo_dinero_electronico
+          FROM nucleo_financiero.conciliacion_custodia
+         ORDER BY cuenta_custodia_id, fecha DESC, ejecutada_en DESC) u
+       WHERE u.saldo_custodia < u.saldo_dinero_electronico
+    evidencia: |
+      SELECT left(cuenta_custodia_id::text, 8) AS cuenta, fecha, saldo_custodia, saldo_dinero_electronico, diferencia
+        FROM (SELECT DISTINCT ON (cuenta_custodia_id) * FROM nucleo_financiero.conciliacion_custodia
+               ORDER BY cuenta_custodia_id, fecha DESC, ejecutada_en DESC) u
+       WHERE u.saldo_custodia < u.saldo_dinero_electronico LIMIT 5
+
+  - id: ALR-02
+    nombre: atraso_de_aportes
+    descripcion: >-
+      Hay obligaciones de aporte con saldo pendiente cuyo fin de gracia paso hace mas de
+      :atraso_dias dias y siguen abiertas: nadie las esta cobrando ni encaminando a debido proceso.
+    severidad: ALTA
+    responsable_rol: SOPORTE
+    escalamiento_rol: ADMIN_PLATAFORMA
+    evento_notificable: OPERACION_ATRASO_DE_APORTES
+    runbook: docs/operacion/alarmas/ALR-02-atraso-de-aportes.md
+    detector: |
+      SELECT count(*) FROM aportes.obligacion_aporte
+       WHERE saldo_pendiente > 0
+         AND estado NOT IN ('PAGADO','ANULADO','CONDONADO','EXONERADO','CUBIERTO_POR_GARANTIA')
+         AND fecha_fin_gracia < current_date - :atraso_dias
+    evidencia: |
+      SELECT left(grupo_id::text, 8) AS grupo, count(*) AS obligaciones, sum(saldo_pendiente) AS pendiente, moneda
+        FROM aportes.obligacion_aporte
+       WHERE saldo_pendiente > 0
+         AND estado NOT IN ('PAGADO','ANULADO','CONDONADO','EXONERADO','CUBIERTO_POR_GARANTIA')
+         AND fecha_fin_gracia < current_date - :atraso_dias
+       GROUP BY grupo_id, moneda LIMIT 5
+
+  - id: ALR-03
+    nombre: cola_detenida
+    descripcion: >-
+      Un outbox tiene eventos PENDIENTE o TOMADO por un relevo muerto desde hace mas de
+      :cola_minutos minutos, o eventos FALLIDO. La operacion quedo registrada y el efecto
+      derivado (notificaciones, proyecciones, contabilidad) no esta llegando.
+    severidad: ALTA
+    responsable_rol: ADMIN_PLATAFORMA
+    escalamiento_rol: RESPONSABLE_SEGURIDAD
+    evento_notificable: OPERACION_COLA_DETENIDA
+    runbook: docs/operacion/alarmas/ALR-03-cola-detenida.md
+    detector: "@outbox_detenido"
+    evidencia: "@outbox_detenido_por_esquema"
+
+  - id: ALR-04
+    nombre: conciliacion_vencida
+    descripcion: >-
+      Una cuenta de custodia ACTIVA no tiene conciliacion ejecutada en las ultimas
+      :conciliacion_horas horas. Sin conciliacion no se sabe si hay brecha de caja.
+    severidad: CRITICA
+    responsable_rol: TESORERIA
+    escalamiento_rol: OFICIAL_CUMPLIMIENTO
+    evento_notificable: OPERACION_CONCILIACION_VENCIDA
+    runbook: docs/operacion/alarmas/ALR-04-conciliacion-vencida.md
+    detector: |
+      SELECT count(*) FROM nucleo_financiero.cuenta_custodia c
+       WHERE c.estado = 'ACTIVA'
+         AND NOT EXISTS (SELECT 1 FROM nucleo_financiero.conciliacion_custodia k
+                          WHERE k.cuenta_custodia_id = c.id
+                            AND k.ejecutada_en > now() - make_interval(hours => :conciliacion_horas))
+    evidencia: |
+      SELECT left(c.id::text, 8) AS cuenta, c.tipo, c.moneda,
+             (SELECT max(k.ejecutada_en) FROM nucleo_financiero.conciliacion_custodia k WHERE k.cuenta_custodia_id = c.id) AS ultima
+        FROM nucleo_financiero.cuenta_custodia c
+       WHERE c.estado = 'ACTIVA'
+         AND NOT EXISTS (SELECT 1 FROM nucleo_financiero.conciliacion_custodia k
+                          WHERE k.cuenta_custodia_id = c.id
+                            AND k.ejecutada_en > now() - make_interval(hours => :conciliacion_horas)) LIMIT 5
+
+# El outbox existe en cada esquema de servicio (ADR-027). Se arma una vez, por esquema, para que
+# un servicio nuevo no tenga que acordarse de entrar a la alarma: la lista sale del contrato de plataforma.
+outbox:
+  esquemas: [aportes, auditoria, cumplimiento, entregas, erp, garantia, grupos, identidad, inversiones,
+             notificaciones, nucleo_financiero, organizador, publicidad, tarifas, transparencia]
+  condicion: >-
+    (estado = 'PENDIENTE' AND ocurrido_en < now() - make_interval(mins => :cola_minutos))
+    OR (estado = 'TOMADO' AND tomado_en < now() - make_interval(mins => :cola_minutos))
+    OR estado = 'FALLIDO'

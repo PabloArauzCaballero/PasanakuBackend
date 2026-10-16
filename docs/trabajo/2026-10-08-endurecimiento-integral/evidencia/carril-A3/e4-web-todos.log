@@ -1,0 +1,366 @@
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-archivos:compileJava UP-TO-DATE
+> Task :plataforma:comun-archivos:processResources UP-TO-DATE
+> Task :plataforma:comun-archivos:classes UP-TO-DATE
+> Task :plataforma:comun-archivos:jar UP-TO-DATE
+> Task :plataforma:comun-archivos:compileTestJava UP-TO-DATE
+> Task :plataforma:comun-archivos:processTestResources NO-SOURCE
+> Task :plataforma:comun-archivos:testClasses UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-archivos:webTest NO-SOURCE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileTestJava UP-TO-DATE
+> Task :plataforma:comun-datos:processTestResources NO-SOURCE
+> Task :plataforma:comun-datos:testClasses UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-datos:webTest NO-SOURCE
+> Task :plataforma:comun-dominio:compileTestJava UP-TO-DATE
+> Task :plataforma:comun-dominio:processTestResources NO-SOURCE
+> Task :plataforma:comun-dominio:testClasses UP-TO-DATE
+> Task :plataforma:comun-dominio:webTest NO-SOURCE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources NO-SOURCE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileTestJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processTestResources NO-SOURCE
+> Task :plataforma:comun-mensajeria:testClasses UP-TO-DATE
+> Task :plataforma:comun-mensajeria:webTest NO-SOURCE
+> Task :plataforma:comun-pruebas:compileTestJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processTestResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:testClasses UP-TO-DATE
+> Task :plataforma:comun-pruebas:webTest NO-SOURCE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestResources NO-SOURCE
+> Task :plataforma:comun-web:testClasses UP-TO-DATE
+> Task :plataforma:comun-web:webTest UP-TO-DATE
+> Task :plataforma:gateway:compileJava UP-TO-DATE
+> Task :plataforma:gateway:processResources UP-TO-DATE
+> Task :plataforma:gateway:classes UP-TO-DATE
+> Task :plataforma:gateway:compileTestJava UP-TO-DATE
+> Task :plataforma:gateway:processTestResources NO-SOURCE
+> Task :plataforma:gateway:testClasses UP-TO-DATE
+> Task :plataforma:gateway:webTest NO-SOURCE
+> Task :servicios:aportes:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:aportes:generateJooq UP-TO-DATE
+> Task :servicios:aportes:compileJava UP-TO-DATE
+> Task :servicios:aportes:processResources UP-TO-DATE
+> Task :servicios:aportes:classes UP-TO-DATE
+> Task :servicios:aportes:compileTestJava UP-TO-DATE
+> Task :servicios:aportes:processTestResources UP-TO-DATE
+> Task :servicios:aportes:testClasses UP-TO-DATE
+
+> Task :servicios:aportes:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:auditoria:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:auditoria:generateJooq UP-TO-DATE
+> Task :servicios:auditoria:compileJava UP-TO-DATE
+> Task :servicios:auditoria:processResources UP-TO-DATE
+> Task :servicios:auditoria:classes UP-TO-DATE
+> Task :servicios:auditoria:compileTestJava UP-TO-DATE
+> Task :servicios:auditoria:processTestResources UP-TO-DATE
+> Task :servicios:auditoria:testClasses UP-TO-DATE
+
+> Task :servicios:auditoria:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:cumplimiento:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:cumplimiento:generateJooq UP-TO-DATE
+> Task :servicios:cumplimiento:compileJava UP-TO-DATE
+> Task :servicios:cumplimiento:processResources UP-TO-DATE
+> Task :servicios:cumplimiento:classes UP-TO-DATE
+> Task :servicios:cumplimiento:compileTestJava UP-TO-DATE
+> Task :servicios:cumplimiento:processTestResources UP-TO-DATE
+> Task :servicios:cumplimiento:testClasses UP-TO-DATE
+
+> Task :servicios:cumplimiento:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:entregas:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:entregas:generateJooq UP-TO-DATE
+> Task :servicios:entregas:compileJava UP-TO-DATE
+> Task :servicios:entregas:processResources UP-TO-DATE
+> Task :servicios:entregas:classes UP-TO-DATE
+> Task :servicios:entregas:compileTestJava UP-TO-DATE
+> Task :servicios:entregas:processTestResources UP-TO-DATE
+> Task :servicios:entregas:testClasses UP-TO-DATE
+
+> Task :servicios:entregas:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:erp:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:erp:generateJooq UP-TO-DATE
+> Task :servicios:erp:compileJava UP-TO-DATE
+> Task :servicios:erp:processResources UP-TO-DATE
+> Task :servicios:erp:classes UP-TO-DATE
+> Task :servicios:erp:compileTestJava UP-TO-DATE
+> Task :servicios:erp:processTestResources UP-TO-DATE
+> Task :servicios:erp:testClasses UP-TO-DATE
+
+> Task :servicios:erp:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:garantia:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:garantia:generateJooq UP-TO-DATE
+> Task :servicios:garantia:compileJava UP-TO-DATE
+> Task :servicios:garantia:processResources UP-TO-DATE
+> Task :servicios:garantia:classes UP-TO-DATE
+> Task :servicios:garantia:compileTestJava UP-TO-DATE
+> Task :servicios:garantia:processTestResources UP-TO-DATE
+> Task :servicios:garantia:testClasses UP-TO-DATE
+
+> Task :servicios:garantia:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:garantia:webTest
+
+RespaldoCoberturaWebTest > POST /coberturas · MONTO INFLADO: pozo, confirmado o lineas en el cuerpo NO llegan al caso de uso (el pedido solo puede llevar identificadores); un faltanteEsperado numerico es 400 FAILED
+    java.lang.AssertionError: Status expected:<200> but was:<400>
+        at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:61)
+        at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:128)
+        at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:640)
+        at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+        at bo.aportaya.garantia.web.RespaldoCoberturaWebTest.elClienteNoDictaImportes(RespaldoCoberturaWebTest.java:130)
+
+43 tests completed, 1 failed
+
+> Task :servicios:garantia:webTest FAILED
+> Task :servicios:grupos:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:grupos:generateJooq UP-TO-DATE
+> Task :servicios:grupos:compileJava UP-TO-DATE
+> Task :servicios:grupos:processResources UP-TO-DATE
+> Task :servicios:grupos:classes UP-TO-DATE
+> Task :servicios:grupos:compileTestJava UP-TO-DATE
+> Task :servicios:grupos:processTestResources UP-TO-DATE
+> Task :servicios:grupos:testClasses UP-TO-DATE
+
+> Task :servicios:grupos:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:grupos:webTest
+
+AcuerdosControllerWebTest > CU-63 · el QUÓRUM sale de la política del grupo, no de quien propone FAILED
+    java.lang.AssertionError: Status expected:<201> but was:<400>
+        at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:61)
+        at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:128)
+        at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:640)
+        at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+        at bo.aportaya.grupos.web.AcuerdosControllerWebTest.elQuorumNoLoDeclaraElProponente(AcuerdosControllerWebTest.java:107)
+
+TurnosControllerWebTest > CU-62 · los tres hechos los resuelve el servicio, NO el cuerpo de la petición FAILED
+    java.lang.AssertionError: Status expected:<201> but was:<400>
+        at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:61)
+        at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:128)
+        at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:640)
+        at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+        at bo.aportaya.grupos.web.TurnosControllerWebTest.losHechosNoLosDeclaraQuienPide(TurnosControllerWebTest.java:130)
+
+82 tests completed, 2 failed
+
+> Task :servicios:grupos:webTest FAILED
+> Task :servicios:identidad:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:identidad:generateJooq UP-TO-DATE
+> Task :servicios:identidad:compileJava UP-TO-DATE
+> Task :servicios:identidad:processResources UP-TO-DATE
+> Task :servicios:identidad:classes UP-TO-DATE
+> Task :servicios:identidad:compileTestJava UP-TO-DATE
+> Task :servicios:identidad:processTestResources UP-TO-DATE
+> Task :servicios:identidad:testClasses UP-TO-DATE
+
+> Task :servicios:identidad:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:inversiones:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:inversiones:generateJooq UP-TO-DATE
+> Task :servicios:inversiones:compileJava UP-TO-DATE
+> Task :servicios:inversiones:processResources UP-TO-DATE
+> Task :servicios:inversiones:classes UP-TO-DATE
+> Task :servicios:inversiones:compileTestJava UP-TO-DATE
+> Task :servicios:inversiones:processTestResources UP-TO-DATE
+> Task :servicios:inversiones:testClasses UP-TO-DATE
+
+> Task :servicios:inversiones:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:inversiones:webTest
+
+InversionesAnalisisWebTest > CU-129 · la simulacion no recibe ninguna cuenta, sale con usaSaldoReal=false y un importe invalido es 422 FAILED
+    java.lang.AssertionError: Status expected:<200> but was:<400>
+        at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:61)
+        at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:128)
+        at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:640)
+        at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+        at bo.aportaya.inversiones.web.InversionesAnalisisWebTest.simulacion(InversionesAnalisisWebTest.java:273)
+
+33 tests completed, 1 failed
+
+> Task :servicios:inversiones:webTest FAILED
+> Task :servicios:notificaciones:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:notificaciones:generateJooq UP-TO-DATE
+> Task :servicios:notificaciones:compileJava UP-TO-DATE
+> Task :servicios:notificaciones:processResources UP-TO-DATE
+> Task :servicios:notificaciones:classes UP-TO-DATE
+> Task :servicios:notificaciones:compileTestJava UP-TO-DATE
+> Task :servicios:notificaciones:processTestResources UP-TO-DATE
+> Task :servicios:notificaciones:testClasses UP-TO-DATE
+
+> Task :servicios:notificaciones:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:nucleo-financiero:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:nucleo-financiero:generateJooq UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileJava UP-TO-DATE
+> Task :servicios:nucleo-financiero:processResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:classes UP-TO-DATE
+> Task :servicios:nucleo-financiero:compileTestJava UP-TO-DATE
+> Task :servicios:nucleo-financiero:processTestResources UP-TO-DATE
+> Task :servicios:nucleo-financiero:testClasses UP-TO-DATE
+
+> Task :servicios:nucleo-financiero:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:organizador:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:organizador:generateJooq UP-TO-DATE
+> Task :servicios:organizador:compileJava UP-TO-DATE
+> Task :servicios:organizador:processResources UP-TO-DATE
+> Task :servicios:organizador:classes UP-TO-DATE
+> Task :servicios:organizador:compileTestJava UP-TO-DATE
+> Task :servicios:organizador:processTestResources UP-TO-DATE
+> Task :servicios:organizador:testClasses UP-TO-DATE
+
+> Task :servicios:organizador:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:publicidad:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:publicidad:generateJooq UP-TO-DATE
+> Task :servicios:publicidad:compileJava UP-TO-DATE
+> Task :servicios:publicidad:processResources UP-TO-DATE
+> Task :servicios:publicidad:classes UP-TO-DATE
+> Task :servicios:publicidad:compileTestJava UP-TO-DATE
+> Task :servicios:publicidad:processTestResources UP-TO-DATE
+> Task :servicios:publicidad:testClasses UP-TO-DATE
+
+> Task :servicios:publicidad:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:tarifas:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:tarifas:generateJooq UP-TO-DATE
+> Task :servicios:tarifas:compileJava UP-TO-DATE
+> Task :servicios:tarifas:processResources UP-TO-DATE
+> Task :servicios:tarifas:classes UP-TO-DATE
+> Task :servicios:tarifas:compileTestJava UP-TO-DATE
+> Task :servicios:tarifas:processTestResources UP-TO-DATE
+> Task :servicios:tarifas:testClasses UP-TO-DATE
+
+> Task :servicios:tarifas:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:transparencia:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:transparencia:generateJooq UP-TO-DATE
+> Task :servicios:transparencia:compileJava UP-TO-DATE
+> Task :servicios:transparencia:processResources UP-TO-DATE
+> Task :servicios:transparencia:classes UP-TO-DATE
+> Task :servicios:transparencia:compileTestJava UP-TO-DATE
+> Task :servicios:transparencia:processTestResources UP-TO-DATE
+> Task :servicios:transparencia:testClasses UP-TO-DATE
+
+> Task :servicios:transparencia:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+FAILURE: Build completed with 3 failures.
+
+1: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:garantia:webTest'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/servicios/garantia/build/reports/tests/webTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+2: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:grupos:webTest'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/servicios/grupos/build/reports/tests/webTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+3: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:inversiones:webTest'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/servicios/inversiones/build/reports/tests/webTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+BUILD FAILED in 2m 13s
+144 actionable tasks: 15 executed, 129 up-to-date
+== etapa e4-web-todos RC: 1

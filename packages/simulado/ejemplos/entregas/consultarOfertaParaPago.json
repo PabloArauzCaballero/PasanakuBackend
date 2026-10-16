@@ -1,0 +1,65 @@
+{
+  "servicio": "entregas",
+  "operacion": "consultarOfertaParaPago",
+  "metodo": "get",
+  "ruta": "/entregas/mercado/ofertas/{ofertaId}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "ofertaId": "af0facf0-4a38-4328-81ac-80028f948001",
+        "vendedorUsuarioId": "2feb8da4-4072-407a-8f99-4dde705e4e1e",
+        "precio": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "cargos": {
+          "monto": "0.44",
+          "moneda": "BOB"
+        },
+        "estado": "PUBLICADA"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "ofertaId": "af0facf0-4a38-4328-81ac-80028f948001",
+        "vendedorUsuarioId": "2feb8da4-4072-407a-8f99-4dde705e4e1e",
+        "precio": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "cargos": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "estado": "PUBLICADA"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "ofertaId": "af0facf0-4a38-4328-81ac-80028f948001",
+        "vendedorUsuarioId": "2feb8da4-4072-407a-8f99-4dde705e4e1e",
+        "precio": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "cargos": {
+          "monto": "0.44",
+          "moneda": "BOB"
+        },
+        "estado": "PUBLICADA"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU18-01",
+        "mensaje": "Titular no coincide",
+        "detalle": {},
+        "trazaId": "traza-consultarOfertaParaPago-rechazo"
+      }
+    }
+  }
+}

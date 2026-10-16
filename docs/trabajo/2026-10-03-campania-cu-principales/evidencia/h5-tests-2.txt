@@ -1,0 +1,513 @@
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources NO-SOURCE
+> Task :plataforma:comun-archivos:processResources UP-TO-DATE
+> Task :servicios:entregas:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:entregas:generateJooq UP-TO-DATE
+> Task :servicios:cumplimiento:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:entregas:processResources UP-TO-DATE
+> Task :servicios:cumplimiento:generateJooq UP-TO-DATE
+> Task :servicios:entregas:processTestResources UP-TO-DATE
+> Task :servicios:cumplimiento:processResources UP-TO-DATE
+> Task :servicios:grupos:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:grupos:generateJooq UP-TO-DATE
+> Task :servicios:cumplimiento:processTestResources UP-TO-DATE
+> Task :servicios:garantia:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:grupos:processResources UP-TO-DATE
+> Task :servicios:garantia:generateJooq UP-TO-DATE
+> Task :servicios:grupos:processTestResources UP-TO-DATE
+> Task :servicios:notificaciones:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:notificaciones:generateJooq UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :servicios:garantia:processResources UP-TO-DATE
+> Task :servicios:garantia:processTestResources UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :servicios:notificaciones:processResources UP-TO-DATE
+> Task :servicios:notificaciones:processTestResources UP-TO-DATE
+> Task :servicios:identidad:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:identidad:generateJooq UP-TO-DATE
+> Task :servicios:identidad:processResources UP-TO-DATE
+> Task :servicios:identidad:processTestResources UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-archivos:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-archivos:classes UP-TO-DATE
+> Task :plataforma:comun-archivos:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :servicios:cumplimiento:compileJava UP-TO-DATE
+> Task :servicios:grupos:compileJava UP-TO-DATE
+> Task :servicios:cumplimiento:classes UP-TO-DATE
+> Task :servicios:notificaciones:compileJava UP-TO-DATE
+> Task :servicios:grupos:classes UP-TO-DATE
+> Task :servicios:notificaciones:classes UP-TO-DATE
+> Task :servicios:entregas:compileJava UP-TO-DATE
+> Task :servicios:entregas:classes UP-TO-DATE
+> Task :servicios:garantia:compileJava UP-TO-DATE
+> Task :servicios:identidad:compileJava UP-TO-DATE
+> Task :servicios:garantia:classes UP-TO-DATE
+> Task :servicios:identidad:classes UP-TO-DATE
+> Task :servicios:entregas:compileTestJava UP-TO-DATE
+> Task :servicios:entregas:testClasses UP-TO-DATE
+> Task :servicios:entregas:test UP-TO-DATE
+
+> Task :servicios:nucleo-financiero:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+Failed to get the schema name: null
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+
+> Task :servicios:identidad:compileTestJava
+> Task :servicios:identidad:testClasses
+> Task :servicios:grupos:compileTestJava
+> Task :servicios:grupos:testClasses
+> Task :servicios:notificaciones:compileTestJava
+> Task :servicios:notificaciones:testClasses
+> Task :servicios:garantia:compileTestJava
+> Task :servicios:garantia:testClasses
+> Task :servicios:cumplimiento:compileTestJava
+> Task :servicios:cumplimiento:testClasses
+
+> Task :servicios:nucleo-financiero:generarServidorOpenApi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\build\generated\openapi
+
+> Task :servicios:nucleo-financiero:generateJooq
+No schemata were loaded  : Please check your connection settings, and whether your database (and your database version!) is really supported by jOOQ. Also, check the case-sensitivity in your configured <inputSchema/> elements : {=[nucleo_financiero]}
+
+> Task :servicios:identidad:test
+
+CodigosDeRolVigentesTest > initializationError FAILED
+    java.util.concurrent.TimeoutException: bo.aportaya.identidad.BaseDeCU08#armar() timed out after 5 seconds
+        at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+> Task :servicios:grupos:test
+> Task :servicios:notificaciones:webTest
+> Task :servicios:garantia:webTest
+> Task :servicios:cumplimiento:webTest
+> Task :servicios:nucleo-financiero:compileJava
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:identidad:test
+
+6 tests completed, 1 failed
+
+> Task :servicios:identidad:test FAILED
+
+> Task :servicios:nucleo-financiero:compileJava
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\CuentaContableRepositorio.java:3: error: package bo.aportaya.nucleofinanciero.generado does not exist
+import static bo.aportaya.nucleofinanciero.generado.Tables.CUENTA_CONTABLE;
+                                                   ^
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\CuentaContableRepositorio.java:3: error: static import only from classes and interfaces
+import static bo.aportaya.nucleofinanciero.generado.Tables.CUENTA_CONTABLE;
+^
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:3: error: package bo.aportaya.nucleofinanciero.generado does not exist
+import static bo.aportaya.nucleofinanciero.generado.Tables.ASIENTO_CONTABLE;
+                                                   ^
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:3: error: static import only from classes and interfaces
+import static bo.aportaya.nucleofinanciero.generado.Tables.ASIENTO_CONTABLE;
+^
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:4: error: package bo.aportaya.nucleofinanciero.generado does not exist
+import static bo.aportaya.nucleofinanciero.generado.Tables.MOVIMIENTO_CONTABLE;
+                                                   ^
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:4: error: static import only from classes and interfaces
+import static bo.aportaya.nucleofinanciero.generado.Tables.MOVIMIENTO_CONTABLE;
+^
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\CuentaContableRepositorio.java:24: error: cannot find symbol
+                .from(CUENTA_CONTABLE)
+                      ^
+  symbol:   variable CUENTA_CONTABLE
+  location: class CuentaContableRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\CuentaContableRepositorio.java:23: error: cannot find symbol
+        return dsl.select(CUENTA_CONTABLE.ID)
+                          ^
+  symbol:   variable CUENTA_CONTABLE
+  location: class CuentaContableRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\CuentaContableRepositorio.java:25: error: package CUENTA_CONTABLE does not exist
+                .where(CUENTA_CONTABLE.CODIGO.eq(codigo))
+                                      ^
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:54: error: cannot find symbol
+                .returning(ASIENTO_CONTABLE.ID, ASIENTO_CONTABLE.NUMERO)
+                           ^
+  symbol:   variable ASIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:54: error: cannot find symbol
+                .returning(ASIENTO_CONTABLE.ID, ASIENTO_CONTABLE.NUMERO)
+                                                ^
+  symbol:   variable ASIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:53: error: cannot find symbol
+                .set(ASIENTO_CONTABLE.ASIENTO_REVERSA_ID, asientoReversaId.orElse(null))
+                     ^
+  symbol:   variable ASIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:52: error: cannot find symbol
+                .set(ASIENTO_CONTABLE.REGISTRADO_POR, registradoPor.orElse(null))
+                     ^
+  symbol:   variable ASIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:51: error: cannot find symbol
+                .set(ASIENTO_CONTABLE.ESTADO, estado)
+                     ^
+  symbol:   variable ASIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:50: error: cannot find symbol
+                .set(ASIENTO_CONTABLE.GRUPO_ID, grupoId.orElse(null))
+                     ^
+  symbol:   variable ASIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:49: error: cannot find symbol
+                .set(ASIENTO_CONTABLE.ORIGEN_ID, origenId)
+                     ^
+  symbol:   variable ASIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:48: error: cannot find symbol
+                .set(ASIENTO_CONTABLE.ORIGEN_TIPO, origenTipo)
+                     ^
+  symbol:   variable ASIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:47: error: cannot find symbol
+                .set(ASIENTO_CONTABLE.GLOSA, glosa)
+                     ^
+  symbol:   variable ASIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:46: error: cannot find symbol
+                .set(ASIENTO_CONTABLE.FECHA, fecha)
+                     ^
+  symbol:   variable ASIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:45: error: cannot find symbol
+        return dsl.insertInto(ASIENTO_CONTABLE)
+                              ^
+  symbol:   variable ASIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:65: error: cannot find symbol
+                .set(MOVIMIENTO_CONTABLE.DESCRIPCION, descripcion)
+                     ^
+  symbol:   variable MOVIMIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:64: error: cannot find symbol
+                .set(MOVIMIENTO_CONTABLE.HABER, haber)
+                     ^
+  symbol:   variable MOVIMIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:63: error: cannot find symbol
+                .set(MOVIMIENTO_CONTABLE.DEBE, debe)
+                     ^
+  symbol:   variable MOVIMIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:62: error: cannot find symbol
+                .set(MOVIMIENTO_CONTABLE.CUENTA_ID, cuentaId)
+                     ^
+  symbol:   variable MOVIMIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:61: error: cannot find symbol
+                .set(MOVIMIENTO_CONTABLE.ASIENTO_ID, asientoId)
+                     ^
+  symbol:   variable MOVIMIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:60: error: cannot find symbol
+        dsl.insertInto(MOVIMIENTO_CONTABLE)
+                       ^
+  symbol:   variable MOVIMIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:76: error: cannot find symbol
+                .from(ASIENTO_CONTABLE)
+                      ^
+  symbol:   variable ASIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:71: error: cannot find symbol
+                        ASIENTO_CONTABLE.ID,
+                        ^
+  symbol:   variable ASIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:72: error: cannot find symbol
+                        ASIENTO_CONTABLE.ORIGEN_TIPO,
+                        ^
+  symbol:   variable ASIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:73: error: cannot find symbol
+                        ASIENTO_CONTABLE.ORIGEN_ID,
+                        ^
+  symbol:   variable ASIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:74: error: cannot find symbol
+                        ASIENTO_CONTABLE.GRUPO_ID,
+                        ^
+  symbol:   variable ASIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:75: error: cannot find symbol
+                        ASIENTO_CONTABLE.ESTADO)
+                        ^
+  symbol:   variable ASIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:77: error: package ASIENTO_CONTABLE does not exist
+                .where(ASIENTO_CONTABLE.ID.eq(id))
+                                       ^
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:83: error: cannot find symbol
+                .from(MOVIMIENTO_CONTABLE)
+                      ^
+  symbol:   variable MOVIMIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:82: error: cannot find symbol
+        return dsl.select(MOVIMIENTO_CONTABLE.CUENTA_ID, MOVIMIENTO_CONTABLE.DEBE, MOVIMIENTO_CONTABLE.HABER)
+                          ^
+  symbol:   variable MOVIMIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:82: error: cannot find symbol
+        return dsl.select(MOVIMIENTO_CONTABLE.CUENTA_ID, MOVIMIENTO_CONTABLE.DEBE, MOVIMIENTO_CONTABLE.HABER)
+                                                         ^
+  symbol:   variable MOVIMIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:82: error: cannot find symbol
+        return dsl.select(MOVIMIENTO_CONTABLE.CUENTA_ID, MOVIMIENTO_CONTABLE.DEBE, MOVIMIENTO_CONTABLE.HABER)
+                                                                                   ^
+  symbol:   variable MOVIMIENTO_CONTABLE
+  location: class AsientoRepositorio
+C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:84: error: package MOVIMIENTO_CONTABLE does not exist
+                .where(MOVIMIENTO_CONTABLE.ASIENTO_ID.eq(asientoId))
+                                          ^
+38 errors
+
+> Task :servicios:nucleo-financiero:compileJava FAILED
+> Task :servicios:nucleo-financiero:processResources
+> Task :servicios:nucleo-financiero:processTestResources
+> Task :servicios:grupos:webTest
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+[Incubating] Problems report is available at: file:///C:/Users/DELL/Documents/Github/Pasanaku/PasanakuBackend-campania/build/reports/problems/problems-report.html
+
+FAILURE: Build completed with 2 failures.
+
+1: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:identidad:test'.
+> There were failing tests. See the report at: file:///C:/Users/DELL/Documents/Github/Pasanaku/PasanakuBackend-campania/servicios/identidad/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+2: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:nucleo-financiero:compileJava' (registered by plugin class 'org.gradle.api.plugins.JavaBasePlugin').
+> Compilation failed; see the compiler output below.
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\CuentaContableRepositorio.java:3: error: static import only from classes and interfaces
+  import static bo.aportaya.nucleofinanciero.generado.Tables.CUENTA_CONTABLE;
+  ^
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:3: error: static import only from classes and interfaces
+  import static bo.aportaya.nucleofinanciero.generado.Tables.ASIENTO_CONTABLE;
+  ^
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:4: error: static import only from classes and interfaces
+  import static bo.aportaya.nucleofinanciero.generado.Tables.MOVIMIENTO_CONTABLE;
+  ^
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\CuentaContableRepositorio.java:24: error: cannot find symbol
+                  .from(CUENTA_CONTABLE)
+                        ^
+    symbol:   variable CUENTA_CONTABLE
+    location: class CuentaContableRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\CuentaContableRepositorio.java:23: error: cannot find symbol
+          return dsl.select(CUENTA_CONTABLE.ID)
+                            ^
+    symbol:   variable CUENTA_CONTABLE
+    location: class CuentaContableRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:54: error: cannot find symbol
+                  .returning(ASIENTO_CONTABLE.ID, ASIENTO_CONTABLE.NUMERO)
+                             ^
+    symbol:   variable ASIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:54: error: cannot find symbol
+                  .returning(ASIENTO_CONTABLE.ID, ASIENTO_CONTABLE.NUMERO)
+                                                  ^
+    symbol:   variable ASIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:53: error: cannot find symbol
+                  .set(ASIENTO_CONTABLE.ASIENTO_REVERSA_ID, asientoReversaId.orElse(null))
+                       ^
+    symbol:   variable ASIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:52: error: cannot find symbol
+                  .set(ASIENTO_CONTABLE.REGISTRADO_POR, registradoPor.orElse(null))
+                       ^
+    symbol:   variable ASIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:51: error: cannot find symbol
+                  .set(ASIENTO_CONTABLE.ESTADO, estado)
+                       ^
+    symbol:   variable ASIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:50: error: cannot find symbol
+                  .set(ASIENTO_CONTABLE.GRUPO_ID, grupoId.orElse(null))
+                       ^
+    symbol:   variable ASIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:49: error: cannot find symbol
+                  .set(ASIENTO_CONTABLE.ORIGEN_ID, origenId)
+                       ^
+    symbol:   variable ASIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:48: error: cannot find symbol
+                  .set(ASIENTO_CONTABLE.ORIGEN_TIPO, origenTipo)
+                       ^
+    symbol:   variable ASIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:47: error: cannot find symbol
+                  .set(ASIENTO_CONTABLE.GLOSA, glosa)
+                       ^
+    symbol:   variable ASIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:46: error: cannot find symbol
+                  .set(ASIENTO_CONTABLE.FECHA, fecha)
+                       ^
+    symbol:   variable ASIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:45: error: cannot find symbol
+          return dsl.insertInto(ASIENTO_CONTABLE)
+                                ^
+    symbol:   variable ASIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:65: error: cannot find symbol
+                  .set(MOVIMIENTO_CONTABLE.DESCRIPCION, descripcion)
+                       ^
+    symbol:   variable MOVIMIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:64: error: cannot find symbol
+                  .set(MOVIMIENTO_CONTABLE.HABER, haber)
+                       ^
+    symbol:   variable MOVIMIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:63: error: cannot find symbol
+                  .set(MOVIMIENTO_CONTABLE.DEBE, debe)
+                       ^
+    symbol:   variable MOVIMIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:62: error: cannot find symbol
+                  .set(MOVIMIENTO_CONTABLE.CUENTA_ID, cuentaId)
+                       ^
+    symbol:   variable MOVIMIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:61: error: cannot find symbol
+                  .set(MOVIMIENTO_CONTABLE.ASIENTO_ID, asientoId)
+                       ^
+    symbol:   variable MOVIMIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:60: error: cannot find symbol
+          dsl.insertInto(MOVIMIENTO_CONTABLE)
+                         ^
+    symbol:   variable MOVIMIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:76: error: cannot find symbol
+                  .from(ASIENTO_CONTABLE)
+                        ^
+    symbol:   variable ASIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:71: error: cannot find symbol
+                          ASIENTO_CONTABLE.ID,
+                          ^
+    symbol:   variable ASIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:72: error: cannot find symbol
+                          ASIENTO_CONTABLE.ORIGEN_TIPO,
+                          ^
+    symbol:   variable ASIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:73: error: cannot find symbol
+                          ASIENTO_CONTABLE.ORIGEN_ID,
+                          ^
+    symbol:   variable ASIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:74: error: cannot find symbol
+                          ASIENTO_CONTABLE.GRUPO_ID,
+                          ^
+    symbol:   variable ASIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:75: error: cannot find symbol
+                          ASIENTO_CONTABLE.ESTADO)
+                          ^
+    symbol:   variable ASIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:83: error: cannot find symbol
+                  .from(MOVIMIENTO_CONTABLE)
+                        ^
+    symbol:   variable MOVIMIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:82: error: cannot find symbol
+          return dsl.select(MOVIMIENTO_CONTABLE.CUENTA_ID, MOVIMIENTO_CONTABLE.DEBE, MOVIMIENTO_CONTABLE.HABER)
+                            ^
+    symbol:   variable MOVIMIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:82: error: cannot find symbol
+          return dsl.select(MOVIMIENTO_CONTABLE.CUENTA_ID, MOVIMIENTO_CONTABLE.DEBE, MOVIMIENTO_CONTABLE.HABER)
+                                                           ^
+    symbol:   variable MOVIMIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:82: error: cannot find symbol
+          return dsl.select(MOVIMIENTO_CONTABLE.CUENTA_ID, MOVIMIENTO_CONTABLE.DEBE, MOVIMIENTO_CONTABLE.HABER)
+                                                                                     ^
+    symbol:   variable MOVIMIENTO_CONTABLE
+    location: class AsientoRepositorio
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\CuentaContableRepositorio.java:3: error: package bo.aportaya.nucleofinanciero.generado does not exist
+  import static bo.aportaya.nucleofinanciero.generado.Tables.CUENTA_CONTABLE;
+                                                     ^
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:3: error: package bo.aportaya.nucleofinanciero.generado does not exist
+  import static bo.aportaya.nucleofinanciero.generado.Tables.ASIENTO_CONTABLE;
+                                                     ^
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:4: error: package bo.aportaya.nucleofinanciero.generado does not exist
+  import static bo.aportaya.nucleofinanciero.generado.Tables.MOVIMIENTO_CONTABLE;
+                                                     ^
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\CuentaContableRepositorio.java:25: error: package CUENTA_CONTABLE does not exist
+                  .where(CUENTA_CONTABLE.CODIGO.eq(codigo))
+                                        ^
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:77: error: package ASIENTO_CONTABLE does not exist
+                  .where(ASIENTO_CONTABLE.ID.eq(id))
+                                         ^
+  C:\Users\DELL\Documents\Github\Pasanaku\PasanakuBackend-campania\servicios\nucleo-financiero\src\main\java\bo\aportaya\nucleofinanciero\infraestructura\AsientoRepositorio.java:84: error: package MOVIMIENTO_CONTABLE does not exist
+                  .where(MOVIMIENTO_CONTABLE.ASIENTO_ID.eq(asientoId))
+                                            ^
+  38 errors
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+BUILD FAILED in 1m 53s
+76 actionable tasks: 16 executed, 60 up-to-date

@@ -1,6 +1,6 @@
 # Reporte — Primera subida de la app móvil a TestFlight
 
-> **AVANCE: 13 / 15 — 86,7 %. Todo build de iOS mostraba «AportaYa no puede abrir en este dispositivo» (protección de pantalla sin implementar en iOS). Arreglo subido en 202609282146; SIN confirmar todavía en un iPhone.**
+> **AVANCE: 16 / 19 — 84,2 %. (H1.S8: build 202609291900 subido; abre en simulador debug; SIN confirmar en iPhone real.)** Anterior: 13 / 15 — 86,7 %. Todo build de iOS mostraba «AportaYa no puede abrir en este dispositivo» (protección de pantalla sin implementar en iOS). Arreglo subido en 202609282146; SIN confirmar todavía en un iPhone.**
 
 - Fecha: 2026-09-28 · Plan: [PLAN.md](./PLAN.md) · Rama: `pablo/fix/docker-test-coolify-2026-09-25`
 - Peldaño de evidencia alcanzado: `RUNS` en la cadena de distribución (App Store Connect aceptó el paquete). La app no se abrió todavía en un iPhone.
@@ -72,3 +72,15 @@ $ curl https://app.aportaya.161.97.85.216.sslip.io/ → 200, TLS válido
 ## Decisiones y ambigüedades
 - A1 (resuelta 2026-09-28): la cuenta es paga, Individual, equipo 7A42TVN3Y6 (confirmado por el login de EAS en la sesión de GymSheet y por la firma aceptada).
 - A2 (decidido por Pablo, 2026-09-28): el build de TestFlight apunta a TEST en Contabo.
+
+## Actualización 2026-09-29 (H1.S8)
+- Qué anda: la app abre en el simulador (debug) contra TEST y muestra la pantalla de inicio. Release 202609291900 con URL/host de TEST y canal de protección en el binario, subido a ASC (`evidencia/h1s8-upload.txt`).
+- Qué no anda / no verificado: Pablo no precisó el síntoma; no hay crash log; el iPhone 12 estaba desconectado. No se ejercitó el release en un dispositivo: el simulador no corre release, así que el gate de `kReleaseMode` y el receptor nativo `activar` no se vieron ejecutarse. Peldaño: `RUNS`.
+- Qué falta: Pablo instala 202609291900 desde TestFlight (tarda en procesar) y, si falla, pasa el `.ips` de Ajustes → Privacidad → Analíticas o el texto del cartel.
+- Sin procesos corriendo: simulador apagado.
+- Riesgo: `patrol.framework` (dev dependency) va embebido en el release; no se demostró que cause algo.
+
+## Actualización 2026-09-29 (H1.S9 — ITMS-90068)
+- Apple avisó por correo, sobre el build 202609291900, que iOS 13.0 quedará por debajo del mínimo desde abril de 2027 (aviso, no rechazo).
+- Cambio: `IPHONEOS_DEPLOYMENT_TARGET = 15.0` ×3 en `apps/movil/ios/Runner.xcodeproj/project.pbxproj` y `platform :ios, '15.0'` en `ios/Podfile`. Build 202609291930 subido (`Upload succeeded`).
+- Verificado: el ejecutable Runner declara `minos 15.0`. No cubierto: los frameworks `App`, `Flutter` y `objective_c` siguen con `minos 13.0` (vienen del SDK de Flutter); si Apple los marca, el próximo correo lo dirá. La app no se probó en un iPhone con este build.

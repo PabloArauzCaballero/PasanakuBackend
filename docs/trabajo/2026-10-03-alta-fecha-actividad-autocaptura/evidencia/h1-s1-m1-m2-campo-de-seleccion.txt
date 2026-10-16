@@ -1,0 +1,4 @@
+00:01 +2: el buscador filtra sin tildes ni mayúsculas y elegir cierra
+00:01 +3: sin coincidencias, la hoja lo dice en vez de quedar vacía
+00:01 +4: normalizar quita tildes, eñes y mayúsculas
+00:01 +5: All tests passed!

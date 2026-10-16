@@ -1,10 +1,9 @@
 import 'package:aportaya_cliente_nucleofinanciero/aportaya_cliente_nucleofinanciero.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../proveedores/conexion.dart';
 import '../dominio/cliente.dart';
-import 'clave_persistida_de_billetera.dart';
-import 'error_de_operacion_de_dinero.dart';
+import '../proveedores/idempotencia.dart';
+import '../proveedores/sesion.dart';
 
 /// CU-11 · retirar saldo (cash-out). Primero se retiene el saldo, después se instruye
 /// el pago (lo hace el servidor, fuera de esta transacción): la app solo pide el
@@ -13,7 +12,10 @@ class RetirarSaldo extends AsyncNotifier<SalidaRetiro?> {
   static String formularioId(String cuentaId) => 'cu11-retiro-$cuentaId';
 
   @override
-  Future<SalidaRetiro?> build() async => null;
+  Future<SalidaRetiro?> build() async {
+    ref.watch(generacionDeSesionProvider);
+    return null;
+  }
 
   Future<void> enviar({
     required String cuentaId,
@@ -23,18 +25,11 @@ class RetirarSaldo extends AsyncNotifier<SalidaRetiro?> {
   }) async {
     if (state.isLoading) return;
     state = const AsyncLoading<SalidaRetiro?>();
+    final dio = ref.read(dioProvider);
+    final clave = ref
+        .read(idempotenciaProvider.notifier)
+        .claveDe(formularioId(cuentaId));
     try {
-      exigirConexionConfirmada(ref);
-      final dio = ref.read(dioProvider);
-      final claves = ref.read(clavePersistidaDeBilleteraProvider);
-      final id = formularioId(cuentaId);
-      // El factor MFA es secreto y puede caducar: no se guarda ni se incluye
-      // en la huella de la transacción monetaria.
-      final clave = await claves.abrir(
-        formularioId: id,
-        datos: [monto, instrumentoDestinoId],
-      );
-      exigirConexionConfirmada(ref);
       final r = await DefaultApi(dio).solicitarRetiro(
         idempotencyKey: clave,
         entradaRetiro: EntradaRetiro(
@@ -44,18 +39,10 @@ class RetirarSaldo extends AsyncNotifier<SalidaRetiro?> {
           factorMfa: factorMfa,
         ),
       );
-      final salida = r.data;
-      if (salida == null) {
-        throw StateError('El servidor no devolvió el estado del retiro.');
-      }
-      state = AsyncData(salida);
-      try {
-        await claves.confirmar(id);
-      } on Object {
-        // El éxito remoto no se convierte en error por una limpieza local fallida.
-      }
+      ref.read(idempotenciaProvider.notifier).cerrar(formularioId(cuentaId));
+      state = AsyncData(r.data);
     } catch (e) {
-      state = AsyncError(errorDeOperacionDeDinero(e), StackTrace.current);
+      state = AsyncError(errorDeDominio(e), StackTrace.current);
     }
   }
 }

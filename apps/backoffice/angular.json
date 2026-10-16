@@ -72,7 +72,11 @@
                   "replace": "src/app/rutas/sistemas/dominio/proveedor-fuentes.ts",
                   "with": "src/app/rutas/sistemas/dominio/proveedor-fuentes.demo.ts"
                 }
-              ]
+              ],
+              "index": {
+                "input": "src/index.desarrollo.html",
+                "output": "index.html"
+              }
             },
             "demo": {
               "outputHashing": "all",
@@ -106,7 +110,8 @@
               "buildTarget": "backoffice:build:production"
             },
             "development": {
-              "buildTarget": "backoffice:build:development"
+              "buildTarget": "backoffice:build:development",
+              "proxyConfig": "proxy.desarrollo.json"
             }
           },
           "defaultConfiguration": "development"

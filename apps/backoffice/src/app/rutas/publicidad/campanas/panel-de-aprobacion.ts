@@ -24,14 +24,14 @@ type Decision = 'APROBAR' | 'RECHAZAR'
   imports: [BandaDeProposito, Boton, Dialogo, Campo],
   template: `
     <ap-banda-de-proposito [texto]="t.propositoAprobacion" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.tituloAprobacion }}</h1>
       <p>Campaña <strong>{{ campanaId() }}</strong></p>
       <div class="acciones">
         <ap-boton (pulsado)="abrir('APROBAR')">{{ t.aprobar }}</ap-boton>
         <ap-boton variante="fantasma" (pulsado)="abrir('RECHAZAR')">{{ t.rechazar }}</ap-boton>
       </div>
-    </main>
+    </section>
 
     @if (dialogoAbierto()) {
       <ap-dialogo
@@ -53,7 +53,7 @@ type Decision = 'APROBAR' | 'RECHAZAR'
     }
   `,
   styles: `
-    main { padding: var(--s5); max-width: 68rem; display: grid; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 68rem; display: grid; gap: var(--s4); }
     h1 { margin: 0; }
     .acciones { display: flex; gap: var(--s2); }
   `,

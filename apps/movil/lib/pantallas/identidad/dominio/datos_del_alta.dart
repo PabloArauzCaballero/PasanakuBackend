@@ -2,18 +2,37 @@
 /// su documento. Separados de `estado_alta.dart` por el barrido de 200 líneas.
 class DatosPersonales {
   const DatosPersonales({
-    this.nombres = '',
-    this.apellidos = '',
+    String? nombres,
+    String? apellidos,
+    String? primerNombre,
+    this.segundoNombre = '',
+    String? apellidoPaterno,
+    this.apellidoMaterno = '',
     this.fechaNacimiento,
     this.telefono = '',
     this.tipoDocumento = 'CI',
     this.numeroDocumento = '',
     this.lugarExpedicion,
+    this.fechaExpiracion,
     this.correo = '',
-    this.canalVerificacion = 'SMS',
-  });
-  final String nombres;
-  final String apellidos;
+    this.canalVerificacion = 'CORREO',
+  }) : primerNombre = primerNombre ?? nombres ?? '',
+       apellidoPaterno = apellidoPaterno ?? apellidos ?? '';
+
+  final String primerNombre;
+  final String segundoNombre;
+  final String apellidoPaterno;
+  final String apellidoMaterno;
+
+  /// Forma compatible con el contrato y con `DatosLeidosDelDocumento`.
+  String get nombres => _unirPartes(primerNombre, segundoNombre);
+  String get apellidos => _unirPartes(apellidoPaterno, apellidoMaterno);
+
+  static String _unirPartes(String primera, String segunda) =>
+      [primera, segunda]
+          .map((parte) => parte.trim().replaceAll(RegExp(r'\s+'), ' '))
+          .where((parte) => parte.isNotEmpty)
+          .join(' ');
   final DateTime? fechaNacimiento;
   final String telefono;
   final String tipoDocumento;
@@ -23,6 +42,12 @@ class DatosPersonales {
   /// repite entre departamentos, asi que sin esto dos personas distintas comparten
   /// documento y la segunda no puede abrir cuenta.
   final String? lugarExpedicion;
+
+  /// Hasta cuando vale el documento, como lo escribe la persona leyendolo del carnet.
+  /// El servidor no abre cuenta con un documento vencido (AP-CU01-07) y el backoffice
+  /// no aprueba un expediente sin esta fecha (AP-CU01-10): sin ella nadie puede
+  /// comprobar que el documento seguia vigente al revisarlo.
+  final DateTime? fechaExpiracion;
 
   /// Adonde van los comprobantes y el extracto, y el destino posible de la
   /// verificación si se elige el correo en vez del SMS.
@@ -35,21 +60,30 @@ class DatosPersonales {
   DatosPersonales copiarCon({
     String? nombres,
     String? apellidos,
+    String? primerNombre,
+    String? segundoNombre,
+    String? apellidoPaterno,
+    String? apellidoMaterno,
     DateTime? fechaNacimiento,
     String? telefono,
     String? tipoDocumento,
     String? numeroDocumento,
     String? lugarExpedicion,
+    DateTime? fechaExpiracion,
     String? correo,
     String? canalVerificacion,
   }) => DatosPersonales(
-    nombres: nombres ?? this.nombres,
-    apellidos: apellidos ?? this.apellidos,
+    primerNombre: primerNombre ?? nombres ?? this.primerNombre,
+    segundoNombre: segundoNombre ?? (nombres == null ? this.segundoNombre : ''),
+    apellidoPaterno: apellidoPaterno ?? apellidos ?? this.apellidoPaterno,
+    apellidoMaterno:
+        apellidoMaterno ?? (apellidos == null ? this.apellidoMaterno : ''),
     fechaNacimiento: fechaNacimiento ?? this.fechaNacimiento,
     telefono: telefono ?? this.telefono,
     tipoDocumento: tipoDocumento ?? this.tipoDocumento,
     numeroDocumento: numeroDocumento ?? this.numeroDocumento,
     lugarExpedicion: lugarExpedicion ?? this.lugarExpedicion,
+    fechaExpiracion: fechaExpiracion ?? this.fechaExpiracion,
     correo: correo ?? this.correo,
     canalVerificacion: canalVerificacion ?? this.canalVerificacion,
   );

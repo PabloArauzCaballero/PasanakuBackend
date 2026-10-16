@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS aportes.excepcion_conciliacion (
   abierta_en                         TIMESTAMPTZ DEFAULT now() NOT NULL,
   resuelta_en                        TIMESTAMPTZ,
   CONSTRAINT pk_excepcion_conciliacion PRIMARY KEY (id),
-  CONSTRAINT ck_excepcion_conciliacion_tipo CHECK (tipo IN ('FUERA_DE_PLAZO', 'MONEDA_DISTINTA', 'MONTO_DISTINTO', 'OBLIGACION_SIN_PAGO', 'PAGO_DUPLICADO', 'PAGO_SIN_OBLIGACION', 'REFERENCIA_AUSENTE')),
+  CONSTRAINT ck_excepcion_conciliacion_tipo CHECK (tipo IN ('FUERA_DE_PLAZO', 'MONEDA_DISTINTA', 'MONTO_DISTINTO', 'OBLIGACION_SIN_PAGO', 'PAGO_DUPLICADO', 'PAGO_SIN_OBLIGACION', 'REFERENCIA_AUSENTE', 'SIN_CONFIRMACION_PROVEEDOR', 'SIN_MOVIMIENTO_BANCARIO')),
   CONSTRAINT ck_excepcion_conciliacion_estado CHECK (estado IN ('ABIERTA', 'EN_GESTION', 'ESCALADA', 'RESUELTA'))
 );
 

@@ -1,0 +1,9 @@
+node scripts\a-dart.mjs
+generado/tokens.dart · 378 lineas
+
+dart format ..\diseno_flutter\lib\tokens\tokens.dart
+Formatted ..\diseno_flutter\lib\tokens\tokens.dart
+Formatted 1 file (1 changed) in 0.03 seconds.
+
+(Select-String -Pattern 'abstract final class').Count
+7

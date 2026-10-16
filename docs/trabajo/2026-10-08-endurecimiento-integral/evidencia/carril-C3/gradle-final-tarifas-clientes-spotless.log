@@ -1,0 +1,231 @@
+heavy.sh: candado tomado, libres 3607 MB -> bash C:/Users/Usuario/AppData/Local/Temp/claude/C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku/c468f89e-ca7f-4172-b7d5-74080b60e5a8/scratchpad/c3_jj.sh --continue :servicios:nucleo-financiero:spotlessApply :servicios:inversiones:spotlessApply :servicios:tarifas:spotlessApply :plataforma:comun-pruebas:spotlessApply :servicios:tarifas:test :servicios:tarifas:webTest :servicios:tarifas:integrationTest :servicios:tarifas:testBarrido :servicios:nucleo-financiero:spotlessCheck :servicios:inversiones:spotlessCheck :servicios:tarifas:spotlessCheck :plataforma:comun-pruebas:test :plataforma:comun-pruebas:testBarrido generarClientes
+== docker listo, libres: 3599 MB
+== aplicar.sql RC: 0
+psql:/repo/sql/40_reglas/restricciones.sql:3396: NOTICE:  trigger "tg_distribucion_interes_coherente" for relation "distribucion_interes" does not exist, skipping
+psql:/repo/sql/40_reglas/restricciones.sql:3402: NOTICE:  constraint "ck_corrida_trabajo_fin" of relation "corrida_trabajo" does not exist, skipping
+psql:/repo/sql/40_reglas/restricciones.sql:3403: NOTICE:  constraint "ck_corrida_trabajo_error" of relation "corrida_trabajo" does not exist, skipping
+== sembrar.sql corrida 1 RC: 0
+SET
+cuenta_contable|57
+cuenta_billetera|5
+sistema|5
+== sembrar.sql corrida 2 RC: 0
+SET
+cuenta_contable|57
+cuenta_billetera|5
+sistema|5
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+Starting a Gradle Daemon, 2 stopped Daemons could not be reused, use --status for details
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessJava
+> Task :servicios:nucleo-financiero:spotlessJavaApply
+> Task :servicios:nucleo-financiero:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessApply
+> Task :servicios:inversiones:spotlessJava UP-TO-DATE
+> Task :servicios:inversiones:spotlessJavaApply UP-TO-DATE
+> Task :servicios:inversiones:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:inversiones:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:inversiones:spotlessApply UP-TO-DATE
+> Task :servicios:tarifas:spotlessJava
+> Task :servicios:tarifas:spotlessJavaApply
+> Task :servicios:tarifas:spotlessKotlinGradle
+> Task :servicios:tarifas:spotlessKotlinGradleApply
+> Task :servicios:tarifas:spotlessApply
+> Task :plataforma:comun-pruebas:spotlessJava
+> Task :plataforma:comun-pruebas:spotlessJavaApply
+> Task :plataforma:comun-pruebas:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessKotlinGradleApply UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessApply
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources NO-SOURCE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+
+> Task :servicios:tarifas:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\servicios\tarifas\build\generated\openapi
+
+> Task :servicios:tarifas:generateJooq
+Version mismatch         : Database version is older than what dialect POSTGRES supports: 16.15 (Debian 16.15-1.pgdg13+2). Consider https://www.jooq.org/download/support-matrix to see what jOOQ version and edition supports which RDBMS versions.
+
+> Task :servicios:tarifas:compileJava
+> Task :servicios:tarifas:processResources UP-TO-DATE
+> Task :servicios:tarifas:classes
+> Task :servicios:tarifas:compileTestJava
+> Task :servicios:tarifas:processTestResources UP-TO-DATE
+> Task :servicios:tarifas:testClasses
+
+> Task :servicios:tarifas:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:tarifas:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:tarifas:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-10T01:55:07.111-04:00  INFO 24472 --- [tarifas] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-10T01:55:07.115-04:00  INFO 24472 --- [tarifas] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-10T01:55:07.265-04:00  INFO 24472 --- [tarifas] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-10T01:55:07.267-04:00  INFO 24472 --- [tarifas] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:tarifas:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+> Task :servicios:nucleo-financiero:spotlessJavaCheck
+> Task :servicios:nucleo-financiero:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessCheck
+> Task :servicios:inversiones:spotlessJavaCheck UP-TO-DATE
+> Task :servicios:inversiones:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:inversiones:spotlessCheck UP-TO-DATE
+> Task :servicios:tarifas:spotlessJavaCheck
+> Task :servicios:tarifas:spotlessKotlinGradleCheck
+> Task :servicios:tarifas:spotlessCheck
+> Task :plataforma:comun-pruebas:compileTestJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processTestResources
+> Task :plataforma:comun-pruebas:testClasses
+
+> Task :plataforma:comun-pruebas:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+ModelosSinCamposAbiertosTest > rechaza: ningun modelo ya generado en build/ declara @JsonAnySetter FAILED
+    java.lang.AssertionError: [modelos generados con @JsonAnySetter (de 461 revisados)] 
+    Expecting empty but was: ["servicios/auditoria/build/generated/openapi/src/main/java/bo/aportaya/auditoria/web/generado/modelo/Dinero.java",
+        "servicios/auditoria/build/generated/openapi/src/main/java/bo/aportaya/auditoria/web/generado/modelo/Indicador.java",
+        "servicios/erp/build/generated/openapi/src/main/java/bo/aportaya/erp/web/generado/modelo/Dinero.java",
+        "servicios/erp/build/generated/openapi/src/main/java/bo/aportaya/erp/web/generado/modelo/EntradaPresupuesto.java",
+        "servicios/erp/build/generated/openapi/src/main/java/bo/aportaya/erp/web/generado/modelo/SalidaEjercicio.java",
+        "servicios/publicidad/build/generated/openapi/src/main/java/bo/aportaya/publicidad/web/generado/modelo/Dinero.java",
+        "servicios/transparencia/build/generated/openapi/src/main/java/bo/aportaya/transparencia/web/generado/modelo/SalidaVerificacionSorteo.java"]
+        at bo.aportaya.plataforma.pruebas.seguridad.ModelosSinCamposAbiertosTest.ningunModeloGeneradoLoTiene(ModelosSinCamposAbiertosTest.java:78)
+
+52 tests completed, 1 failed
+
+> Task :plataforma:comun-pruebas:test FAILED
+
+> Task :plataforma:comun-pruebas:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+
+SalidasSensiblesBarridoTest > barrido: ninguna salida nueva lleva PII ni credenciales; la deuda conocida esta declarada y vigente FAILED
+    java.lang.AssertionError: [salida con dato sensible que no estaba declarada: se loguean ids, no contenidos (90.2.1-2-9)] 
+    Expecting empty but was: ["servicios/entregas/src/main/java/bo/aportaya/entregas/infraestructura/RespaldoPorHttp.java:54  URL  «clave»"]
+        at bo.aportaya.plataforma.pruebas.seguridad.SalidasSensiblesBarridoTest.ningunaSalidaNuevaConDatosSensibles(SalidasSensiblesBarridoTest.java:49)
+
+5 tests completed, 1 failed
+
+> Task :plataforma:comun-pruebas:testBarrido FAILED
+> Task :servicios:aportes:generarClienteAngular UP-TO-DATE
+> Task :servicios:aportes:generarClienteDart UP-TO-DATE
+> Task :servicios:aportes:generarClientes UP-TO-DATE
+> Task :servicios:auditoria:generarClienteAngular UP-TO-DATE
+> Task :servicios:auditoria:generarClienteDart UP-TO-DATE
+> Task :servicios:auditoria:generarClientes UP-TO-DATE
+> Task :servicios:cumplimiento:generarClienteAngular UP-TO-DATE
+> Task :servicios:cumplimiento:generarClienteDart UP-TO-DATE
+> Task :servicios:cumplimiento:generarClientes UP-TO-DATE
+> Task :servicios:entregas:generarClienteAngular UP-TO-DATE
+> Task :servicios:entregas:generarClienteDart UP-TO-DATE
+> Task :servicios:entregas:generarClientes UP-TO-DATE
+> Task :servicios:erp:generarClienteAngular UP-TO-DATE
+> Task :servicios:erp:generarClienteDart UP-TO-DATE
+> Task :servicios:erp:generarClientes UP-TO-DATE
+> Task :servicios:garantia:generarClienteAngular UP-TO-DATE
+> Task :servicios:garantia:generarClienteDart UP-TO-DATE
+> Task :servicios:garantia:generarClientes UP-TO-DATE
+> Task :servicios:grupos:generarClienteAngular UP-TO-DATE
+> Task :servicios:grupos:generarClienteDart UP-TO-DATE
+> Task :servicios:grupos:generarClientes UP-TO-DATE
+> Task :servicios:identidad:generarClienteAngular UP-TO-DATE
+> Task :servicios:identidad:generarClienteDart UP-TO-DATE
+> Task :servicios:identidad:generarClientes UP-TO-DATE
+> Task :servicios:inversiones:generarClienteAngular UP-TO-DATE
+> Task :servicios:inversiones:generarClienteDart UP-TO-DATE
+> Task :servicios:inversiones:generarClientes UP-TO-DATE
+> Task :servicios:notificaciones:generarClienteAngular UP-TO-DATE
+> Task :servicios:notificaciones:generarClienteDart UP-TO-DATE
+> Task :servicios:notificaciones:generarClientes UP-TO-DATE
+> Task :servicios:nucleo-financiero:generarClienteAngular UP-TO-DATE
+> Task :servicios:nucleo-financiero:generarClienteDart UP-TO-DATE
+> Task :servicios:nucleo-financiero:generarClientes UP-TO-DATE
+> Task :servicios:organizador:generarClienteAngular UP-TO-DATE
+> Task :servicios:organizador:generarClienteDart UP-TO-DATE
+> Task :servicios:organizador:generarClientes UP-TO-DATE
+> Task :servicios:publicidad:generarClienteAngular UP-TO-DATE
+> Task :servicios:publicidad:generarClienteDart UP-TO-DATE
+> Task :servicios:publicidad:generarClientes UP-TO-DATE
+> Task :servicios:tarifas:generarClienteAngular UP-TO-DATE
+> Task :servicios:tarifas:generarClienteDart UP-TO-DATE
+> Task :servicios:tarifas:generarClientes UP-TO-DATE
+> Task :servicios:transparencia:generarClienteAngular UP-TO-DATE
+> Task :servicios:transparencia:generarClienteDart UP-TO-DATE
+> Task :servicios:transparencia:generarClientes UP-TO-DATE
+
+FAILURE: Build completed with 2 failures.
+
+1: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':plataforma:comun-pruebas:test'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/plataforma/comun-pruebas/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+2: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':plataforma:comun-pruebas:testBarrido'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/plataforma/comun-pruebas/build/reports/tests/testBarrido/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+BUILD FAILED in 1m 25s
+92 actionable tasks: 22 executed, 70 up-to-date
+== RC gradle: 1

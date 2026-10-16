@@ -6,6 +6,7 @@ import bo.aportaya.identidad.dominio.DocumentoDeIdentidad;
 import bo.aportaya.identidad.dominio.PoliticaDeClave;
 import bo.aportaya.identidad.dominio.puertos.HasheadorDeCredencial;
 import bo.aportaya.identidad.infraestructura.RegistroRepositorio;
+import bo.aportaya.identidad.infraestructura.VerificacionCorreoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
@@ -72,6 +73,7 @@ public class CU01RegistrarUsuario {
     private final Reloj reloj;
     private final Ids ids;
     private final HasheadorDeCredencial hasheador;
+    private final VerificacionCorreoRepositorio verificacionesCorreo;
     private final PoliticaDeClave politica;
 
     public CU01RegistrarUsuario(
@@ -81,6 +83,7 @@ public class CU01RegistrarUsuario {
             Reloj reloj,
             Ids ids,
             HasheadorDeCredencial hasheador,
+            VerificacionCorreoRepositorio verificacionesCorreo,
             // De configuracion y no de una constante: el largo minimo es politica, y la
             // politica se cambia sin recompilar (invariante 10). `clavesQueNoSeRepiten`
             // no tiene efecto en el alta —no hay historial todavia— pero la politica es
@@ -93,6 +96,7 @@ public class CU01RegistrarUsuario {
         this.reloj = reloj;
         this.ids = ids;
         this.hasheador = hasheador;
+        this.verificacionesCorreo = verificacionesCorreo;
         this.politica = new PoliticaDeClave(largoMinimoDeClave, clavesQueNoSeRepiten);
     }
 
@@ -100,15 +104,35 @@ public class CU01RegistrarUsuario {
     public SalidaRegistro ejecutar(EntradaRegistro entrada, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
+        // Un documento vencido no abre cuenta: se valida aca y no solo en la app. El
+        // ultimo dia todavia vale (DocumentoDeIdentidad.vencidoAl).
+        if (entrada.documento().vencidoAl(reloj.hoy())) {
+            throw new ErrorDeNegocio(
+                    CodigoError.de(1, 7), "Tu documento esta vencido. Para abrir la cuenta hace falta uno vigente.");
+        }
+
         return datos.conContexto(ctx, dsl -> {
+            // Un solo codigo para «la cuenta ya existe» (AP-CU01-03, CUENTA_YA_EXISTE) y el
+            // campo en el detalle: la app le dice a la persona CUAL dato ya tiene cuenta,
+            // que es lo unico que le permite corregirlo o ir a recuperar el acceso.
             if (registros.telefonoYaRegistrado(dsl, entrada.telefonoE164())) {
                 throw new ErrorDeNegocio(
-                        CodigoError.de(1, 3), "Ya hay una cuenta con ese telefono. Podes recuperar el acceso.");
+                        CodigoError.de(1, 3),
+                        "Ya hay una cuenta con ese telefono. Podes recuperar el acceso.",
+                        Map.of("campo", "telefono"));
             }
             if (registros.documentoYaRegistrado(
                     dsl, entrada.documento().hashNumero(), entrada.documento().lugarExpedicion())) {
                 throw new ErrorDeNegocio(
-                        CodigoError.de(1, 3), "Ya hay una cuenta con ese documento. Podes recuperar el acceso.");
+                        CodigoError.de(1, 3),
+                        "Ya hay una cuenta con ese documento. Podes recuperar el acceso.",
+                        Map.of("campo", "documento"));
+            }
+            if (entrada.correo() != null && registros.correoYaRegistrado(dsl, entrada.correo())) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(1, 3),
+                        "Ya hay una cuenta con ese correo. Usa otro o recupera el acceso.",
+                        Map.of("campo", "correo"));
             }
             if (entrada.aceptaContratos().isEmpty()) {
                 throw new ErrorDeNegocio(CodigoError.de(1, 4), "Hace falta aceptar el contrato para abrir la cuenta.");
@@ -145,6 +169,14 @@ public class CU01RegistrarUsuario {
                     entrada.fechaNacimiento(),
                     AperturaDeCuenta.PENDIENTE_VERIFICACION.name(),
                     ahora);
+
+            if (entrada.canalVerificacion() == CanalDeVerificacion.CORREO) {
+                if (entrada.verificacionCorreoId() == null) {
+                    throw new ErrorDeNegocio(CodigoError.de(1, 11), "Confirma tu correo antes de crear la cuenta.");
+                }
+                verificacionesCorreo.vincularAlAlta(
+                        dsl, entrada.verificacionCorreoId(), entrada.correo(), usuario, ahora);
+            }
 
             // En la MISMA transaccion que el usuario. Si quedara afuera habria un
             // instante —o un fallo— con la persona creada y sin con que entrar, y
@@ -197,6 +229,7 @@ public class CU01RegistrarUsuario {
             LocalDate fechaNacimiento,
             String correo,
             CanalDeVerificacion canalVerificacion,
+            UUID verificacionCorreoId,
             DocumentoDeIdentidad documento,
             String numeroCifrado,
             /** En claro y como {@code char[]}: se borra en cuanto se hashea. */

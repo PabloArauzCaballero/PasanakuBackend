@@ -6,6 +6,11 @@ spring:
   threads:
     virtual:
       enabled: true                 # ADR-015: la carga es de E/S, no reactiva
+  jackson:
+    deserialization:
+      # H13.S1.M2 · el contrato dice `additionalProperties: false`: un campo que no declara se RECHAZA (400), no se
+      # ignora en silencio (96.2.2, mass assignment). El valor por omision de Spring Boot es `false`.
+      fail-on-unknown-properties: true
   datasource:
     url: ${BD_URL}                  # por PgBouncer, modo transaccion
     username: svc_notificaciones
@@ -28,6 +33,9 @@ aportaya:
     # Del almacen de secretos: es lo que separa un acuse del proveedor de cualquiera
     # que alcance la ruta publica del webhook.
     secreto: ${WEBHOOK_SECRETO}
+  supresion:
+    # Tope de consultas «este contacto pidio no recibir» por actor y por minuto (oraculo de baja).
+    consultas-por-minuto: 30
   proveedores:
     umbral-de-salud: 70
   envios:

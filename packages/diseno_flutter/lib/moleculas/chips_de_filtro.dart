@@ -17,6 +17,20 @@ class ChipsDeFiltro<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (opciones.isEmpty) return const SizedBox.shrink();
+    if (opciones.length == 1) {
+      return Semantics(
+        container: true,
+        label: opciones.single.texto,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: Espacio.s2),
+          child: Text(
+            opciones.single.texto,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ),
+      );
+    }
     return Wrap(
       spacing: Espacio.s2,
       runSpacing: Espacio.s2,

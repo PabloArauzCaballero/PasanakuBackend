@@ -1,14 +1,10 @@
 import 'package:aportaya_cliente_transparencia/aportaya_cliente_transparencia.dart';
 import 'package:aportaya_diseno/atomos/numero_que_sube.dart';
-import 'package:aportaya_diseno/atomos/boton.dart';
-import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/moleculas/cabecera.dart';
 import 'package:aportaya_diseno/organismos/estado_de_pantalla.dart';
-import 'package:aportaya_diseno/organismos/estado_vacio.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import 'dominio/consultar_puntaje.dart';
 import 'textos.dart';
@@ -22,31 +18,6 @@ class PantallaMiPuntaje extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (usuarioId.trim().isEmpty) {
-      return Scaffold(
-        body: SafeArea(
-          child: Column(
-            children: [
-              const CabeceraDeSeccion(titulo: TextosPasanaku.tituloMiPuntaje),
-              Expanded(
-                child: Center(
-                  child: SingleChildScrollView(
-                    child: EstadoVacio(
-                      mensaje: TextosPasanaku.faltaIdentificarPuntaje,
-                      accion: Boton(
-                        texto: TextosPasanaku.irAAyuda,
-                        variante: BotonVariante.secundario,
-                        onPressed: () => context.goNamed('soporte.ayuda'),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
     final puntaje = ref.watch(puntajeProvider(usuarioId));
     final t = Tokens.of(context);
     return Scaffold(

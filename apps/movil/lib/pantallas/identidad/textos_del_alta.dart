@@ -15,6 +15,16 @@ class TextosDelAlta {
   static const claveNueva = 'Contraseña';
   static const claveRepetir = 'Repetila';
   static const claveAyuda = 'Ocho caracteres o más.';
+  static const ejemploPrimerNombre = 'Ej.: María';
+  static const ejemploSegundoNombre = 'Ej.: Fernanda';
+  static const ejemploApellidoPaterno = 'Ej.: Mendoza';
+  static const ejemploApellidoMaterno = 'Ej.: Quispe';
+  static const ejemploTelefono = '71234567';
+  static const ejemploCorreo = 'tu@correo.com';
+  static const ejemploContrasena = 'Mínimo 8 caracteres';
+  static const ejemploRepetirContrasena = 'Igual a la de arriba';
+  static const ejemploNumeroDocumento = 'Ej.: 8452136';
+  static const ejemploCodigo = '6 dígitos';
   static const claveCorta = 'Todavía es corta: tienen que ser ocho o más.';
   static const claveConTelefono =
       'No uses tu celular adentro de la contraseña.';
@@ -27,7 +37,8 @@ class TextosDelAlta {
       'intentando estafarte.';
 
   static const origenDeFondos = 'Origen de los fondos';
-  static const origenDeFondosAyuda = 'De dónde viene la plata.';
+  static const origenDeFondosAyuda =
+      'De dónde sale la plata que vas a mover por acá.';
   static const origenFalta = 'Elegí de dónde salen tus fondos.';
   static const origenDetalle = 'Contanos de dónde';
   static const origenDetalleAyuda =
@@ -36,9 +47,14 @@ class TextosDelAlta {
   static const actividadEconomica = 'Actividad económica';
   static const actividadEconomicaAyuda = 'A qué te dedicás hoy.';
   static const actividadFalta = 'Elegí a qué te dedicás.';
+  static const actividadDetalle = '¿Cuál?';
+  static const actividadDetalleAyuda = 'Escribila en pocas palabras.';
+  static const actividadDetalleFalta = 'Escribí a qué te dedicás.';
   static const elegirOpcion = 'Elegir';
   static const montoMensualEstimado = 'Monto mensual estimado';
-  static const montoMensualAyuda = 'Opcional; no es un límite.';
+  static const montoMensualAyuda =
+      'Cuánto calculás mover por mes. Es una estimación, no un límite: '
+      'podés dejarlo vacío si todavía no sabés.';
   static const montoInvalido = 'Escribí un monto mayor a cero, o dejalo vacío.';
 
   static const contratosCargando = 'Buscando el contrato vigente…';
@@ -51,6 +67,8 @@ class TextosDelAlta {
   static const reintentar = 'Volver a intentar';
   static const altaEnviando = 'Creando tu cuenta…';
   static const avisoLeerContrato = 'Deslizá hasta el final para poder aceptar.';
+  static const contratoLeido =
+      'Leíste el contrato completo. Ya podés aceptarlo.';
   static const aceptoContrato = 'Acepto el contrato de adhesión';
   static const aceptoTarifario = 'Acepto el tarifario vigente';
   static const aceptoTratamientoDatos =

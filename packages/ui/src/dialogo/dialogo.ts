@@ -31,6 +31,9 @@ import { Boton } from '../boton/boton'
     h2 { font-size: 1.2em; margin-bottom: var(--s3); }
     .cuerpo { color: var(--text-2); }
     .acciones { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--s2); margin-top: var(--s5); }
+    /* Un texto de confirmación largo («Registrar el pago de F-2026-001») no puede salirse del relleno del diálogo
+       en un teléfono: el botón se encoge hasta el ancho disponible y el texto se parte en líneas. */
+    .acciones ap-boton { min-width: 0; max-width: 100%; --boton-texto-ajuste: normal; }
   `,
 })
 export class Dialogo implements AfterViewInit, OnDestroy {
@@ -72,6 +75,8 @@ export class Dialogo implements AfterViewInit, OnDestroy {
     effect(() => {
       const d = this.caja().nativeElement
       if (this.abierto() && !d.open) {
+        // Quién tenía el foco al abrir: a él vuelve al cerrar (regla 95.4.2).
+        this.quienAbrio = document.activeElement instanceof HTMLElement ? document.activeElement : null
         // jsdom no implementa showModal: en pruebas se abre como atributo.
         if (typeof d.showModal === 'function') d.showModal()
         else d.setAttribute('open', '')
@@ -80,6 +85,7 @@ export class Dialogo implements AfterViewInit, OnDestroy {
         // jsdom tampoco implementa close(): mismo motivo que showModal() arriba.
         if (typeof d.close === 'function') d.close()
         else d.removeAttribute('open')
+        this.devolverElFoco()
       }
     })
   }
@@ -89,7 +95,24 @@ export class Dialogo implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.caja().nativeElement.removeEventListener('click', this.manejarClicDeFondo)
+    const d = this.caja().nativeElement
+    d.removeEventListener('click', this.manejarClicDeFondo)
+    // Quien muestra el diálogo con `@if` lo DESTRUYE al cerrar: el navegador no devuelve el foco de un `<dialog>` que se quita del DOM
+    // todavía abierto, y la persona quedaba en <body>. Cerrarlo antes de que se vaya hace que el foco vuelva a quien lo abrió.
+    if (d.open) {
+      if (typeof d.close === 'function') d.close()
+      else d.removeAttribute('open')
+    }
+    this.devolverElFoco()
+  }
+
+  private quienAbrio: HTMLElement | null = null
+
+  /** Si el foco quedó en <body> (o en nada), vuelve a quien abrió el diálogo, siempre que siga en la página. */
+  private devolverElFoco(): void {
+    const destino = this.quienAbrio
+    this.quienAbrio = null
+    if (destino?.isConnected && (document.activeElement === null || document.activeElement === document.body)) destino.focus()
   }
 
   /** `Escape`: el navegador dispara `cancel` y cerraría solo. Se frena acá para que pase por la misma guardia que las otras dos rutas. */

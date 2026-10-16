@@ -358,6 +358,39 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+  /reclamos/usuarios/{usuarioId}/efecto:
+    get:
+      operationId: consultarEfectoDeReclamos   # CU-52 / CU-53
+      summary: Si algun reclamo de la persona frena una sancion firme o una deuda ejecutable
+      description: >-
+        La consulta que `garantia` (cobranza, restricciones) y `organizador` (sanciones) hacen ANTES
+        de volver ejecutable una deuda o firme una sancion (debido proceso, regla 91.4). Devuelve el
+        rastro entero —cada caso con su estado, resultado, fechas y el motivo por el que frena o
+        no— y los dos indicadores agregados. No devuelve el texto del reclamo ni de la respuesta.
+
+        Que ningun reclamo frene es condicion NECESARIA, no suficiente: la causal, la notificacion
+        probada, el descargo y la apelacion siguen siendo del proceso que aplica el efecto.
+
+        Se deriva del estado cada vez (no hay columna que quede vieja). Ante un caso que no se puede
+        interpretar, FRENA (denegar por omision). Con `producto` solo cuentan los reclamos de ese
+        producto. No lleva `Idempotency-Key`: solo lee.
+
+        Exige `RECLAMO_VER` (personal de reclamos, cumplimiento y administracion). Un participante o
+        el token de otro servicio sin ese permiso reciben 403, exista o no la persona.
+      parameters:
+        - { name: usuarioId, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: producto, in: query, required: false, schema: { type: string, maxLength: 40 } }
+      responses:
+        '200':
+          description: El efecto vigente, con el rastro de cada caso
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EfectoDeReclamos' }
+        '403':
+          description: Sin permiso para ver los reclamos de otra persona
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
   /licencia/alcance:
     get:
       operationId: verificarAlcance          # CU-46
@@ -403,6 +436,50 @@ components:
         seguro, y la clave se valida ANTES de escribir (invariante 7).
       schema: { type: string, format: uuid }
   schemas:
+    EfectoDeReclamos:
+      type: object
+      additionalProperties: false
+      required: [usuarioId, bloqueaSancionFirme, bloqueaDeudaEjecutable, casos]
+      properties:
+        usuarioId: { type: string, format: uuid }
+        bloqueaSancionFirme:
+          type: boolean
+          description: Verdadero si algun caso impide dejar firme una sancion (OR de los casos)
+        bloqueaDeudaEjecutable:
+          type: boolean
+          description: Verdadero si algun caso impide volver ejecutable una deuda (OR de los casos)
+        motivoGlobal:
+          type: [string, 'null']
+          description: SIN_RECLAMOS, y solo cuando la persona no tiene reclamos que mirar
+        casos:
+          type: array
+          items: { $ref: '#/components/schemas/CasoDeReclamo' }
+    CasoDeReclamo:
+      type: object
+      additionalProperties: false
+      required: [reclamoId, codigo, categoria, producto, estado, bloqueaSancionFirme, bloqueaDeudaEjecutable, motivo]
+      properties:
+        reclamoId: { type: string, format: uuid }
+        codigo: { type: string }
+        categoria: { type: string }
+        producto: { type: string }
+        estado: { type: string }
+        resultado: { type: [string, 'null'] }
+        fechaIngreso: { type: string, format: date-time }
+        fechaRespuesta: { type: [string, 'null'], format: date-time }
+        bloqueaSancionFirme: { type: boolean }
+        bloqueaDeudaEjecutable: { type: boolean }
+        motivo:
+          type: string
+          enum:
+            - SIN_RECLAMOS
+            - EN_REVISION
+            - INSTANCIA_SIN_RESOLVER
+            - RESARCIMIENTO_DISPUESTO
+            - FAVORABLE_AL_CLIENTE
+            - PLAZO_DE_ELEVACION_ABIERTO
+            - TERMINADO_SIN_BLOQUEO
+            - ESTADO_NO_RECONOCIDO
     EntradaRiesgoOperativo:
       type: object
       additionalProperties: false

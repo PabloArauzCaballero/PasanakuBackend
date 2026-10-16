@@ -19,7 +19,7 @@ import { textosPublicidad } from '../textos'
   imports: [BandaDeProposito, Boton, Campo, Monto, EstadoDePantalla],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
       <div class="filtros">
         <ap-campo [etiqueta]="t.cuenta" [(valor)]="cuentaId" />
@@ -36,10 +36,10 @@ import { textosPublicidad } from '../textos'
           </section>
         }
       </ap-estado-de-pantalla>
-    </main>
+    </section>
   `,
   styles: `
-    main { padding: var(--s5); max-width: 48rem; display: grid; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 48rem; display: grid; gap: var(--s4); }
     h1 { margin: 0; }
     .filtros { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--s3); }
     .resultado { display: grid; gap: var(--s2); }

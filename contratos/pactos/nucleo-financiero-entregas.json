@@ -1,0 +1,37 @@
+{
+  "consumidor": "nucleo-financiero",
+  "productor": "entregas",
+  "version": 2,
+  "descripcion": "Pacto dirigido por el consumidor: lo que nucleo-financiero le pregunta a entregas antes de pagarle al vendedor de una oferta del mercado (H8/H9, pagarAlTercero). Version 2 (carril Q, decision adoptada por delegacion del dueno, 2026-10-11): la oferta trae los CARGOS; el comprador paga el PRECIO, el vendedor cobra precio - cargos y la plataforma ingresa los cargos, cada uno con su linea (regla 91.3.4). Una respuesta sin cargos se trata como no confirmada y nucleo no paga. El consumidor es el cliente REAL OfertasPorHttp; el productor publica la misma operacion como consultarOfertaParaPago en entregas.yaml. La prueba del consumidor (OfertasPorHttpPactoContratoTest, nucleo-financiero) usa este archivo contra un servidor HTTP del JDK; la prueba de la forma del productor (EntregasPublicaLaOfertaTest, nucleo-financiero) compara este archivo con el OpenAPI REAL de entregas. NO existe todavia una prueba contra el proceso real de entregas: ver evidencia/carril-C3/integracion-entre-servicios.md.",
+  "identidades": {
+    "SERVICIO_ENTREGAS": "Authorization: Bearer <token del que llama a nucleo>; entregas exige SERVICIO_ENTREGAS y nucleo lo propaga tal cual (no emite uno propio)"
+  },
+  "interacciones": [
+    {
+      "id": "oferta-reservada",
+      "peticion": { "metodo": "GET", "ruta": "/entregas/mercado/ofertas/{oferta}", "identidad": "SERVICIO_ENTREGAS" },
+      "respuesta": {
+        "estado": 200,
+        "campos": ["ofertaId", "vendedorUsuarioId", "precio.monto", "precio.moneda", "cargos.monto", "cargos.moneda", "estado"],
+        "ejemplo": {
+          "ofertaId": "{oferta}",
+          "vendedorUsuarioId": "{vendedor}",
+          "precio": { "monto": "500.00", "moneda": "BOB" },
+          "cargos": { "monto": "20.00", "moneda": "BOB" },
+          "estado": "RESERVADA"
+        }
+      }
+    },
+    {
+      "id": "oferta-inexistente",
+      "peticion": { "metodo": "GET", "ruta": "/entregas/mercado/ofertas/{oferta2}", "identidad": "SERVICIO_ENTREGAS" },
+      "respuesta": {
+        "estado": 422,
+        "codigo": "AP-CU130-05",
+        "ejemplo": { "codigo": "AP-CU130-05", "mensaje": "Esa oferta no esta disponible.", "trazaId": "traza-pacto" },
+        "consecuencia": "nucleo NO paga: sin oferta confirmada por entregas no hay beneficiario"
+      }
+    }
+  ],
+  "estadosDeOferta": ["PUBLICADA", "RESERVADA", "LIQUIDANDO", "VENDIDA", "CANCELADA", "VENCIDA"]
+}

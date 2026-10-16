@@ -2,15 +2,21 @@ package bo.aportaya.identidad.web;
 
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
+import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.CU02RevisarExpediente;
 import bo.aportaya.identidad.aplicacion.CU04Autenticar;
+import bo.aportaya.identidad.aplicacion.ConfirmarVerificacionCorreo;
+import bo.aportaya.identidad.aplicacion.ConsultarNivelKyc;
 import bo.aportaya.identidad.aplicacion.EmitirAcceso;
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
+import bo.aportaya.identidad.aplicacion.RenovarSesion;
+import bo.aportaya.identidad.aplicacion.SolicitarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.ValidarTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.SabanaDeSeguridadWeb;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 /**
@@ -32,17 +38,32 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
             "aportaya.acceso.vigencia-sesion=PT15M",
             "aportaya.seguridad.pimienta=pimienta-de-prueba-no-es-la-de-produccion",
         })
+@Import(CookieDeRefresco.class)
 class SeguridadWebTest extends SabanaDeSeguridadWeb {
+
+    @MockitoBean
+    private RenovarSesion renovarSesion;
+
+    // SesionController depende de CerrarSesion desde 553bd786; sin doblarlo el
+    // contexto de esta prueba no levantaba y las seis comprobaciones caian juntas.
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.CerrarSesion cerrarSesion;
 
     // La subida de la foto del expediente es dependencia de UsuariosController desde
     // que existe el portal de riesgo: sin doblarla, el contexto de esta prueba no levanta.
     // El portal de riesgo tambien cuelga de la sabana de seguridad: sus rutas son las
     // que miran cedulas ajenas.
     @MockitoBean
+    private bo.aportaya.identidad.aplicacion.ConsumirInvitacion consumirInvitacion;
+
+    @MockitoBean
     private CU02RevisarExpediente revisarExpediente;
 
     @MockitoBean
     private CU02GuardarFotoDelExpediente guardarFoto;
+
+    @MockitoBean
+    private CU02ConsultarEstadoDeVerificacion estadoDeVerificacion;
 
     @MockitoBean
     private BuscarPorTelefono buscarPorTelefono;
@@ -51,7 +72,16 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private CU01RegistrarUsuario cu01RegistrarUsuario;
 
     @MockitoBean
+    private SolicitarVerificacionCorreo solicitarVerificacionCorreo;
+
+    @MockitoBean
+    private ConfirmarVerificacionCorreo confirmarVerificacionCorreo;
+
+    @MockitoBean
     private CU04Autenticar cu04Autenticar;
+
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.CU04StepUp cu04StepUp;
 
     @MockitoBean
     private EmitirAcceso emitirAcceso;
@@ -64,4 +94,7 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private VerificarTitularidad verificarTitularidad;
+
+    @MockitoBean
+    private ConsultarNivelKyc consultarNivelKyc;
 }

@@ -1,16 +1,14 @@
 import 'package:aportaya_cliente_aportes/aportaya_cliente_aportes.dart';
-import 'package:aportaya_diseno/atomos/boton.dart';
-import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/chip_estado.dart';
 import 'package:aportaya_diseno/atomos/monto.dart';
 import 'package:aportaya_diseno/atomos/tono.dart';
+import 'package:aportaya_diseno/dinero/formatear.dart';
 import 'package:aportaya_diseno/organismos/estado_de_pantalla.dart';
-import 'package:aportaya_diseno/organismos/estado_vacio.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
+import 'acciones_de_grupo.dart';
 import 'dominio/estado_de_mora.dart';
 import 'textos.dart';
 import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
@@ -21,36 +19,24 @@ import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 /// pantalla nunca inventa un número de días — muestra `alDia`, `deudaVigente` y
 /// `montoQueLaLevanta` tal como el backend los guarda. Cumple el gate propio de F5:
 /// la mora se comunica en hechos, nunca en probabilidad.
+/// El importe con espacio sin corte entre la moneda y la cifra: en una frase, «Bs» no puede
+/// quedar solo al final de una línea y «4,44» en la siguiente.
+String _importe(String monto, String moneda) =>
+    formatearMonto(monto: monto, moneda: moneda).replaceAll(' ', '\u00A0');
+
 class PantallaMiEstado extends ConsumerWidget {
   const PantallaMiEstado({
     super.key,
     required this.participanteId,
     required this.usuarioId,
+    this.grupoId,
   });
   final String participanteId;
   final String usuarioId;
+  final String? grupoId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (participanteId.trim().isEmpty || usuarioId.trim().isEmpty) {
-      return Scaffold(
-        appBar: AppBar(title: const Text(TextosPasanaku.tituloMora)),
-        body: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              child: EstadoVacio(
-                mensaje: TextosPasanaku.faltaIdentificarParticipacion,
-                accion: Boton(
-                  texto: TextosPasanaku.irAAyuda,
-                  variante: BotonVariante.secundario,
-                  onPressed: () => context.goNamed('soporte.ayuda'),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
     final estado = ref.watch(estadoDelParticipanteProvider(participanteId));
     final restriccion = ref.watch(restriccionVigenteProvider(usuarioId));
     return Scaffold(
@@ -82,6 +68,8 @@ class PantallaMiEstado extends ConsumerWidget {
                     ref.invalidate(restriccionVigenteProvider(usuarioId)),
                 exito: (r) => _Restriccion(r: r),
               ),
+              const SizedBox(height: Espacio.s5),
+              AccionesDeGrupo(grupoId: grupoId),
             ],
           ),
         ),
@@ -108,7 +96,9 @@ class _Aportes extends StatelessWidget {
         const SizedBox(height: Espacio.s3),
         if (!e.alDia) ...[
           Text(
-            TextosPasanaku.deudaVigente(e.deudaVigente),
+            TextosPasanaku.deudaVigente(
+              _importe(e.deudaVigente, e.moneda.value),
+            ),
             style: texto.bodyMedium,
           ),
           const SizedBox(height: Espacio.s2),
@@ -116,7 +106,9 @@ class _Aportes extends StatelessWidget {
         Monto(
           monto: e.porAportar,
           moneda: e.moneda.value,
-          etiqueta: TextosPasanaku.porAportarAviso(e.porAportar),
+          etiqueta: TextosPasanaku.porAportarAviso(
+            _importe(e.porAportar, e.moneda.value),
+          ),
         ),
         const SizedBox(height: Espacio.s2),
         Text(
@@ -139,8 +131,61 @@ class _Restriccion extends StatelessWidget {
       return Text(TextosPasanaku.sinRestriccion, style: texto.bodyMedium);
     }
     return Text(
-      TextosPasanaku.restriccionVigente(r.montoQueLaLevanta as String),
+      // La restricción no trae moneda y la app opera solo en bolivianos (`Dinero`: BOB).
+      TextosPasanaku.restriccionVigente(
+        _importe(r.montoQueLaLevanta as String, 'BOB'),
+      ),
       style: texto.bodyMedium,
+    );
+  }
+}
+
+/// La pestaña «Grupos»: si la ruta no trae `participante` y `usuario` (deep link), se resuelven con la
+/// sesión. Sin esto la pantalla pedía ids vacíos y mostraba «no encontramos lo que buscabas» (B36).
+class PantallaMiEstadoDeLaSesion extends ConsumerWidget {
+  const PantallaMiEstadoDeLaSesion({
+    super.key,
+    this.participanteId,
+    this.usuarioId,
+  });
+  final String? participanteId;
+  final String? usuarioId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final p = participanteId;
+    final u = usuarioId;
+    if (p != null && p.isNotEmpty && u != null && u.isNotEmpty) {
+      return PantallaMiEstado(participanteId: p, usuarioId: u);
+    }
+    final mia = ref.watch(miParticipacionProvider);
+    final lista = mia.value;
+    if (lista != null && lista.participanteId.isNotEmpty) {
+      return PantallaMiEstado(
+        participanteId: lista.participanteId,
+        usuarioId: lista.usuarioId,
+        grupoId: lista.grupoId,
+      );
+    }
+    return Scaffold(
+      appBar: AppBar(title: const Text(TextosPasanaku.tituloMora)),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(Espacio.s4),
+          children: [
+            EstadoDePantalla<MiParticipacion>(
+              valor: mia,
+              etiquetaDeCarga: TextosPasanaku.cargando,
+              mensajeVacio: TextosPasanaku.sinParticipacion,
+              vacio: (m) => m.participanteId.isEmpty,
+              reintentar: () => ref.invalidate(miParticipacionProvider),
+              exito: (m) => const SizedBox.shrink(),
+            ),
+            const SizedBox(height: Espacio.s5),
+            const AccionesDeGrupo(),
+          ],
+        ),
+      ),
     );
   }
 }

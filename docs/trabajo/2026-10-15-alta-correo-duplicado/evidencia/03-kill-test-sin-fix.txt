@@ -1,0 +1,2 @@
+11 tests completed, 10 failed
+BUILD FAILED in 9s

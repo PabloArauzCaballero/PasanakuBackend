@@ -1,0 +1,19 @@
+casos de uso implementados y verificados: 106
+pendientes de implementar (3): CU-05 (identidad), CU-51 (aportes), CU-57 (nucleo-financiero)
+
+14 FALLAS:
+  - CU-08 · identidad: prueba sin criterio en la boveda — «Dado un usuario con un rol vigente · Cuando se piden los codigos de rol · Entonces vienen · Y los de una asignacion revocada no»
+  - CU-08 · identidad: prueba sin criterio en la boveda — «Dado un usuario sin roles · Cuando se piden los codigos de rol · Entonces no hay ninguno»
+  - CU-62 · grupos: prueba sin criterio en la boveda — «Dado el turno de otro participante · Cuando alguien que no es su titular pide permutarlo · Entonces se rechaza y no queda solicitud»
+  - CU-63 · grupos: prueba sin criterio en la boveda — «B38 · con votos pendientes que aun pueden alcanzar el quorum, el primer voto NO cierra la votacion»
+  - CU-63 · grupos: prueba sin criterio en la boveda — «B38 · cuando ni con todo el peso que falta a favor se alcanza el quorum, se cierra RECHAZADO»
+  - CU-64 · grupos: prueba sin criterio en la boveda — «B39 · repetir el traspaso con el MISMO acuerdo devuelve el traspaso ya hecho y no mueve el cupo otra vez»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 · aceptar: reserva el cupo, crea al participante pendiente de firma y deja el evento»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 · repetir la MISMA decisión devuelve lo ya resuelto y no mueve nada»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 · rechazar exige motivo, y rechazada no toma cupo»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 · sin cupos libres no se acepta, y la solicitud sigue PENDIENTE»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 · el organizador de OTRO grupo (o un participante) no decide: «esa solicitud no existe»»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 · decidir lo contrario de lo ya resuelto es un error, no un reintento»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 · la cola del organizador lista solo las PENDIENTES de SU grupo»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «CU-68 2a · la reputacion minima excluye a quien TIENE historial y no llega, pero no a quien es nuevo (B24)»
+rc=1

@@ -2,33 +2,33 @@
 /// archivo global de textos (conflicto nº 3 de planes/16).
 abstract final class TextosBilletera {
   static const titulo = 'Tu billetera';
-  static const cuentaNoDisponible =
-      'No podemos identificar tu cuenta para mostrar esta sección. Por seguridad, no mostraremos saldo ni permitiremos operaciones. Pedí ayuda para continuar.';
-  static const irAAyuda = 'Ir a ayuda';
   static const disponible = 'Disponible';
   static const enPasanakus = 'En pasanakus';
   static const tusPasanakus = 'Tus pasanakus';
   static const verTodos = 'Ver todos';
   static const todos = 'Todos';
-  static const detallePasanakusPendiente =
-      'No podemos mostrar tus pasanakus en este inicio todavía.';
+  static const sinPasanakus =
+      'Todavía no estás en ningún pasanaku. Cuando entres a uno, tu rueda aparece acá.';
   static const cargandoSaldo = 'Cargando tu saldo';
-  static const saldoSinConexion =
-      'El saldo puede estar desactualizado. Las operaciones están pausadas.';
-  static const operacionSinConexion =
-      'No podemos enviar ahora. Si ya hiciste un intento, revisá su estado al volver.';
+  static const buscandoBilletera = 'Buscando tu billetera';
+  static const billeteraInactiva =
+      'Tu billetera todavía no está activa. Cuando se active, tu saldo aparece acá.';
+  static const revisarDeNuevo = 'Volver a revisar';
   static const saldoDisponible = 'Saldo disponible';
   static const saldoRetenido = 'Retenido';
   static const nadaTrabado = 'Nada trabado';
-  static const custodia =
-      'En una cuenta de custodia, separada del dinero de AportaYa';
+  // Sin nombre de banco: ninguna fuente del repositorio (docs/, contratos, semillas) dice en qué
+  // entidad queda la cuenta de custodia —solo «una entidad supervisada por ASFI»—; el «Banco Unión»
+  // venía de datos de ejemplo de la maqueta. Cuando producto confirme la entidad, se agrega acá.
+  static const custodia = 'En custodia, separado del dinero de la empresa';
   static const verAportesPendientes = 'Ver aportes pendientes';
   static const movimientos = 'Movimientos';
   static const sinMovimientos =
       'Todavía no tenés movimientos. Cuando recargues saldo van a aparecer acá.';
-  static const consultaExtracto =
-      'Elegí un período en el extracto para consultar su saldo final y cantidad de movimientos.';
   static const alCorteDe = 'Actualizado';
+  static const cargandoMovimientos = 'Cargando movimientos';
+  static const errorMovimientos = 'No pudimos cargar tus movimientos.';
+  static const reintentar = 'Reintentar';
   static const recargar = 'Recargar';
   static const aportar = 'Aportar';
   static const retirar = 'Retirar';

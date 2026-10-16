@@ -1,0 +1,1261 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.7.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources NO-SOURCE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :servicios:inversiones:generarServidorOpenApi UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :servicios:inversiones:spotlessJava
+> Task :servicios:inversiones:spotlessJavaApply
+> Task :servicios:inversiones:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:inversiones:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:inversiones:spotlessApply
+> Task :servicios:inversiones:generateJooq UP-TO-DATE
+> Task :servicios:inversiones:compileJava UP-TO-DATE
+> Task :servicios:inversiones:processResources
+> Task :servicios:inversiones:classes
+> Task :servicios:inversiones:compileTestJava
+> Task :servicios:inversiones:processTestResources
+> Task :servicios:inversiones:testClasses
+
+> Task :servicios:inversiones:test
+
+ArquitecturaTest > laWebNoTieneReglas FAILED
+    java.lang.AssertionError: Architecture Violation [Priority: MEDIUM] - Rule 'no classes that reside in a package '..web..' should depend on classes that reside in a package '..infraestructura..'' was violated (28 times):
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.comprobante(bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante, java.lang.String)> calls method <bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante.d()> in (MapeoDeInversiones.java:182)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.comprobante(bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante, java.lang.String)> calls method <bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante.d()> in (MapeoDeInversiones.java:183)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.comprobante(bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante, java.lang.String)> calls method <bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante.d()> in (MapeoDeInversiones.java:184)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.comprobante(bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante, java.lang.String)> calls method <bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante.d()> in (MapeoDeInversiones.java:185)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.comprobante(bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante, java.lang.String)> calls method <bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante.d()> in (MapeoDeInversiones.java:186)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.comprobante(bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante, java.lang.String)> calls method <bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante.d()> in (MapeoDeInversiones.java:187)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.comprobante(bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante, java.lang.String)> calls method <bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante.emitidoEn()> in (MapeoDeInversiones.java:189)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.comprobante(bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante, java.lang.String)> calls method <bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante.id()> in (MapeoDeInversiones.java:178)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.comprobante(bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante, java.lang.String)> calls method <bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante.origen()> in (MapeoDeInversiones.java:188)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.comprobante(bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante, java.lang.String)> calls method <bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante.sentidoTitular()> in (MapeoDeInversiones.java:181)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.comprobante(bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante, java.lang.String)> calls method <bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante.tipo()> in (MapeoDeInversiones.java:179)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.comprobante(bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante, java.lang.String)> has parameter of type <bo.aportaya.inversiones.infraestructura.ComprobanteRepositorio$Comprobante> in (MapeoDeInversiones.java:0)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.posicion(bo.aportaya.inversiones.aplicacion.CU123Posiciones$VistaPosicion)> calls method <bo.aportaya.inversiones.infraestructura.PosicionRepositorio$Posicion.estado()> in (MapeoDeInversiones.java:110)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.posicion(bo.aportaya.inversiones.aplicacion.CU123Posiciones$VistaPosicion)> calls method <bo.aportaya.inversiones.infraestructura.PosicionRepositorio$Posicion.fechaConstitucion()> in (MapeoDeInversiones.java:113)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.posicion(bo.aportaya.inversiones.aplicacion.CU123Posiciones$VistaPosicion)> calls method <bo.aportaya.inversiones.infraestructura.PosicionRepositorio$Posicion.fechaVencimiento()> in (MapeoDeInversiones.java:114)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.posicion(bo.aportaya.inversiones.aplicacion.CU123Posiciones$VistaPosicion)> calls method <bo.aportaya.inversiones.infraestructura.PosicionRepositorio$Posicion.id()> in (MapeoDeInversiones.java:107)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.posicion(bo.aportaya.inversiones.aplicacion.CU123Posiciones$VistaPosicion)> calls method <bo.aportaya.inversiones.infraestructura.PosicionRepositorio$Posicion.moneda()> in (MapeoDeInversiones.java:111)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.posicion(bo.aportaya.inversiones.aplicacion.CU123Posiciones$VistaPosicion)> calls method <bo.aportaya.inversiones.infraestructura.PosicionRepositorio$Posicion.moneda()> in (MapeoDeInversiones.java:112)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.posicion(bo.aportaya.inversiones.aplicacion.CU123Posiciones$VistaPosicion)> calls method <bo.aportaya.inversiones.infraestructura.PosicionRepositorio$Posicion.moneda()> in (MapeoDeInversiones.java:117)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.posicion(bo.aportaya.inversiones.aplicacion.CU123Posiciones$VistaPosicion)> calls method <bo.aportaya.inversiones.infraestructura.PosicionRepositorio$Posicion.moneda()> in (MapeoDeInversiones.java:118)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.posicion(bo.aportaya.inversiones.aplicacion.CU123Posiciones$VistaPosicion)> calls method <bo.aportaya.inversiones.infraestructura.PosicionRepositorio$Posicion.principal()> in (MapeoDeInversiones.java:111)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.posicion(bo.aportaya.inversiones.aplicacion.CU123Posiciones$VistaPosicion)> calls method <bo.aportaya.inversiones.infraestructura.PosicionRepositorio$Posicion.tipo()> in (MapeoDeInversiones.java:108)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.producto(bo.aportaya.inversiones.aplicacion.CU120Catalogo$VistaProducto)> calls method <bo.aportaya.inversiones.infraestructura.CatalogoRepositorio$Producto.codigo()> in (MapeoDeInversiones.java:77)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.producto(bo.aportaya.inversiones.aplicacion.CU120Catalogo$VistaProducto)> calls method <bo.aportaya.inversiones.infraestructura.CatalogoRepositorio$Producto.emisor()> in (MapeoDeInversiones.java:80)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.producto(bo.aportaya.inversiones.aplicacion.CU120Catalogo$VistaProducto)> calls method <bo.aportaya.inversiones.infraestructura.CatalogoRepositorio$Producto.moneda()> in (MapeoDeInversiones.java:81)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.producto(bo.aportaya.inversiones.aplicacion.CU120Catalogo$VistaProducto)> calls method <bo.aportaya.inversiones.infraestructura.CatalogoRepositorio$Producto.nivelRiesgo()> in (MapeoDeInversiones.java:83)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.producto(bo.aportaya.inversiones.aplicacion.CU120Catalogo$VistaProducto)> calls method <bo.aportaya.inversiones.infraestructura.CatalogoRepositorio$Producto.nombre()> in (MapeoDeInversiones.java:79)
+    Method <bo.aportaya.inversiones.web.MapeoDeInversiones.producto(bo.aportaya.inversiones.aplicacion.CU120Catalogo$VistaProducto)> calls method <bo.aportaya.inversiones.infraestructura.CatalogoRepositorio$Producto.tipo()> in (MapeoDeInversiones.java:78)
+        at com.tngtech.archunit.lang.ArchRule$Assertions.assertNoViolation(ArchRule.java:94)
+        at com.tngtech.archunit.lang.ArchRule$Assertions.check(ArchRule.java:86)
+        at com.tngtech.archunit.lang.ArchRule$Factory$SimpleArchRule.check(ArchRule.java:165)
+        at com.tngtech.archunit.lang.syntax.ObjectsShouldInternal.check(ObjectsShouldInternal.java:81)
+        at com.tngtech.archunit.junit.internal.ArchUnitTestDescriptor$ArchUnitRuleDescriptor.execute(ArchUnitTestDescriptor.java:168)
+        at com.tngtech.archunit.junit.internal.ArchUnitTestDescriptor$ArchUnitRuleDescriptor.execute(ArchUnitTestDescriptor.java:151)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+36 tests completed, 1 failed
+
+> Task :servicios:inversiones:test FAILED
+
+> Task :servicios:inversiones:integrationTest
+
+CU120Test > La base rechaza un dato sintetico marcado apto para produccion (R-INV-01) FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU120Test > Si cambian las condiciones nace una version NUEVA y la anterior queda intacta (append-only) FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU120Test > Todo parametro sin fuente aprobada sale marcado SINTETICO y no apto para produccion FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU120Test > Con el aliado caido, sincronizar falla con AP-CU120-02 y no cambia nada FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU120Test > Dado un DPF y un fondo del aliado · Cuando se consulta el catalogo · Entonces identifica riesgo, plazo, costos, titularidad, fuente y fecha de cotizacion FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU120Test > En un entorno productivo no se ofrece ningun producto sintetico FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU120Test > La base rechaza un fondo con tasa fija y un DPF sin plazo (R-INV-01) FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU120Test > Sincronizar dos veces no duplica versiones: la segunda corrida no inserta nada FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU121Test > Dado un monto bajo el minimo del producto · Entonces AP-CU121-03; con el minimo exacto, pasa FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU121Test > Dadas condiciones que cambiaron (version o hash viejos) · Entonces AP-CU121-02: hay que volver a aceptar FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU121Test > Dado saldo insuficiente sin pozo de por medio · Entonces AP-CU121-04, no AP-CU121-05 FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU121Test > Dado el libro caido al verificar el saldo · Entonces AP-CU121-07 y no se reserva ni se crea nada (falla cerrada) FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU121Test > Dada una moneda que no es BOB · Entonces AP-CU121-08; dado un producto inexistente · AP-CU121-01 FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU121Test > Dado un saldo afectado a un pozo · Cuando intenta invertirlo · Entonces rechaza AP-CU121-05 y no crea orden; en el borde exacto de lo invertible, pasa FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU121Test > Dada la misma orden enviada dos veces con la misma clave · Cuando se repite · Entonces devuelve la original y no duplica orden, retencion ni posicion FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU121Test > Dados doce pedidos simultaneos con la misma clave · Entonces hay UNA orden, UNA posicion y el libro se debita UNA vez FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU121Test > Dada una cuenta de otra persona · Entonces no se puede usar para invertir (objeto propio, no solo rol) FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU121Test > La base rechaza una orden cuyo consentimiento es de otra persona (R-INV-02) FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU121Test > Dado saldo libre · Cuando invierte voluntariamente · Entonces reserva el importe y guarda el consentimiento con la version y el hash que acepto FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU121Test > Dada la misma clave con OTRO monto · Entonces se rechaza AP-CU121-06 y no se crea nada nuevo FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU121Test > Dadas dos ordenes DISTINTAS que juntas superan el saldo · Cuando entran a la vez · Entonces una se concreta y la otra se rechaza por saldo, y el libro no queda en negativo FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU122Test > Dado el libro caido AL DEBITAR · Entonces la posicion existe pero el importe sigue retenido (no hay doble disponibilidad); al volver el libro, se debita una vez FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU122Test > Dado un aliado que rechaza · Entonces la orden queda RECHAZADA y lo retenido se libera exactamente una vez FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU122Test > Dada la confirmacion del aliado · Cuando se procesa · Entonces nace la posicion, se elimina la disponibilidad del importe y efectivo + posicion = saldo inicial FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU122Test > Una orden ajena no existe para otra persona: ni se ve ni se sincroniza (AP-CU122-01) FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU122Test > Confirmar dos veces la misma orden (sincronizar x2) no duplica posicion, comprobante ni debito FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU122Test > Dado un aliado que confirma un importe DISTINTO · Entonces AP-CU122-02: no hay posicion y el importe sigue retenido FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU122Test > Dado el aliado CAIDO antes de recibirla · Entonces INCIERTA; al volver, la consulta dice que no la conoce y recien ahi se reenvia con la misma referencia FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+CU122Test > Dada la respuesta PERDIDA (el aliado la registro y a nosotros nos llega un corte) · Entonces INCIERTA, el saldo sigue retenido, se CONSULTA y no se reenvia a ciegas FAILED
+    org.jooq.exception.DataAccessException: SQL [insert into "inversiones"."version_condiciones" ("id", "producto_inversion_id", "numero", "plazo_dias", "base_dias", "tasa_nominal_anual", "permite_rescate_anticipado", "penalizacion_anticipo", "dias_rescate", "hora_corte", "monto_minimo", "tasa_retencion", "tasa_comision_exito", "costos_texto", "texto_condiciones", "texto_hash", "fuente", "fecha_cotizacion", "origen_datos", "apto_produccion", "vigente_desde") values (cast(? as uuid), cast(? as uuid), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as timestamp with time zone), ?, ?, cast(? as timestamp with time zone))]; ERROR: relation "producto_inversion" does not exist
+      Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+        at org.jooq_3.20.5.POSTGRES.debug(Unknown Source)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3681)
+        at app//org.jooq.impl.Tools.translate(Tools.java:3654)
+        at app//org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:847)
+        at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:363)
+        at app//org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+        at app//bo.aportaya.inversiones.infraestructura.CatalogoRepositorio.insertarVersion(CatalogoRepositorio.java:156)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:107)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$0(CU120Catalogo.java:84)
+        at app//bo.aportaya.plataforma.datos.Datos.conContexto(Datos.java:51)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.lambda$sincronizar$1(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.lambda$en$0(Transaccionar.java:27)
+        at app//org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+        at app//bo.aportaya.inversiones.aplicacion.Transaccionar.en(Transaccionar.java:27)
+        at app//bo.aportaya.inversiones.aplicacion.CU120Catalogo.sincronizar(CU120Catalogo.java:84)
+        at app//bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:143)
+        at java.base@21.0.9/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+        at java.base@21.0.9/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        org.postgresql.util.PSQLException: ERROR: relation "producto_inversion" does not exist
+          Where: PL/pgSQL function fn_inv_condiciones_coherentes() line 5 at SQL statement
+            at app//org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2904)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2589)
+            at app//org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:431)
+            at app//org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:534)
+            at app//org.postgresql.jdbc.PgStatement.execute(PgStatement.java:437)
+            at app//org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196)
+            at app//org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:182)
+            at app//org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:459)
+            at app//org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1115)
+            at app//org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:349)
+            ... 14 more
+
+29 tests completed, 29 failed
+
+> Task :servicios:inversiones:integrationTest FAILED
+
+FAILURE: Build completed with 2 failures.
+
+1: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:inversiones:test'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend/servicios/inversiones/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+2: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:inversiones:integrationTest'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend/servicios/inversiones/build/reports/tests/integrationTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+BUILD FAILED in 36s
+38 actionable tasks: 7 executed, 31 up-to-date

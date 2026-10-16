@@ -5,15 +5,12 @@ import 'package:aportaya_diseno/atomos/campo.dart';
 import 'package:aportaya_diseno/atomos/campo_monto.dart';
 import 'package:aportaya_diseno/atomos/selector_segmentado.dart';
 import 'package:aportaya_diseno/organismos/estado_error.dart';
-import 'package:aportaya_diseno/organismos/aviso_de_conexion.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../dominio/cu12_transferir_saldo.dart';
-import '../../dominio/error_de_operacion_de_dinero.dart';
 import '../../dominio/proteccion_de_pantalla_dinero.dart';
-import '../../proveedores/conexion.dart';
 import 'textos.dart';
 
 const _tipos = {
@@ -47,103 +44,66 @@ class _PantallaTransferirState extends ConsumerState<PantallaTransferir>
     final estado = ref.watch(transferirSaldoProvider);
     final notifier = ref.read(transferirSaldoProvider.notifier);
     final resultado = estado.value;
-    final conexion = ref.watch(hayConexionProvider);
-    final redConfirmada = conexion.permiteOperar;
-    void enviar() {
-      if (!ref.read(hayConexionProvider).permiteOperar || !_puedeEnviar) {
-        return;
-      }
-      notifier.enviar(
-        cuentaOrigenId: widget.cuentaOrigenId,
-        monto: _monto!,
-        tipoDestino: _tipo,
-        valorDestino: _destino,
-        concepto: _concepto,
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(title: const Text(TextosBilletera.transferir)),
       body: SafeArea(
-        child: CustomScrollView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          slivers: [
-            SliverPadding(
-              padding: const EdgeInsets.all(Espacio.s4),
-              sliver: SliverFillRemaining(
-                hasScrollBody: false,
-                child: resultado != null
-                    ? Center(
-                        child: Text(
-                          TextosBilletera.transferenciaHecha,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          if (!redConfirmada) ...[
-                            AvisoDeConexion(
-                              estado: conexion,
-                              detalleSinConexion:
-                                  TextosBilletera.operacionSinConexion,
-                              reintentar: () =>
-                                  ref.invalidate(hayConexionProvider),
-                            ),
-                            const SizedBox(height: Espacio.s4),
-                          ],
-                          SelectorSegmentado<
-                            EntradaTransferenciaDestinoTipoEnum
-                          >(
-                            opciones: _tipos,
-                            valor: _tipo,
-                            onChanged: (v) => setState(() => _tipo = v),
-                          ),
-                          const SizedBox(height: Espacio.s3),
-                          Campo(
-                            etiqueta: TextosBilletera.alias,
-                            onChanged: (v) => setState(() => _destino = v),
-                          ),
-                          const SizedBox(height: Espacio.s3),
-                          CampoMonto(
-                            etiqueta: TextosBilletera.monto,
-                            onChanged: (v) => setState(() => _monto = v),
-                          ),
-                          const SizedBox(height: Espacio.s3),
-                          Campo(
-                            etiqueta: TextosBilletera.concepto,
-                            onChanged: (v) => setState(() => _concepto = v),
-                          ),
-                          const SizedBox(height: Espacio.s4),
-                          if (estado.hasError)
-                            EstadoError(
-                              error: estado.error!,
-                              reintentar:
-                                  !redConfirmada ||
-                                      estado.error
-                                          is ErrorDeOperacionPendiente ||
-                                      !_puedeEnviar
-                                  ? null
-                                  : enviar,
-                            ),
-                          const Spacer(),
-                          Boton(
-                            texto: TextosBilletera.transferir,
-                            variante: BotonVariante.primario,
-                            expandido: true,
-                            cargando: estado.isLoading,
-                            onPressed:
-                                redConfirmada &&
-                                    _puedeEnviar &&
-                                    estado.error is! ErrorDeOperacionPendiente
-                                ? enviar
-                                : null,
-                          ),
-                        ],
+        child: Padding(
+          padding: const EdgeInsets.all(Espacio.s4),
+          child: resultado != null
+              ? Center(
+                  child: Text(
+                    TextosBilletera.transferenciaHecha,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SelectorSegmentado<EntradaTransferenciaDestinoTipoEnum>(
+                      opciones: _tipos,
+                      valor: _tipo,
+                      onChanged: (v) => setState(() => _tipo = v),
+                    ),
+                    const SizedBox(height: Espacio.s3),
+                    Campo(
+                      etiqueta: TextosBilletera.alias,
+                      onChanged: (v) => setState(() => _destino = v),
+                    ),
+                    const SizedBox(height: Espacio.s3),
+                    CampoMonto(
+                      etiqueta: TextosBilletera.monto,
+                      onChanged: (v) => setState(() => _monto = v),
+                    ),
+                    const SizedBox(height: Espacio.s3),
+                    Campo(
+                      etiqueta: TextosBilletera.concepto,
+                      onChanged: (v) => setState(() => _concepto = v),
+                    ),
+                    const SizedBox(height: Espacio.s4),
+                    if (estado.hasError)
+                      EstadoError(
+                        error: estado.error!,
+                        reintentar: () =>
+                            ref.invalidate(transferirSaldoProvider),
                       ),
-              ),
-            ),
-          ],
+                    const Spacer(),
+                    Boton(
+                      texto: TextosBilletera.transferir,
+                      variante: BotonVariante.primario,
+                      expandido: true,
+                      cargando: estado.isLoading,
+                      onPressed: _puedeEnviar
+                          ? () => notifier.enviar(
+                              cuentaOrigenId: widget.cuentaOrigenId,
+                              monto: _monto!,
+                              tipoDestino: _tipo,
+                              valorDestino: _destino,
+                              concepto: _concepto,
+                            )
+                          : null,
+                    ),
+                  ],
+                ),
         ),
       ),
     );

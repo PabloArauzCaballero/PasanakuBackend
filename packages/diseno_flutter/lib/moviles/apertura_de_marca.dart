@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../atomos/marca.dart';
+import '../atomos/movimiento.dart';
 import '../tokens/tokens.dart';
 
 /// La apertura de la app: la marca se acerca a la cámara y el nombre aparece detrás.
@@ -15,7 +16,7 @@ class AperturaDeMarca extends StatefulWidget {
   const AperturaDeMarca({
     super.key,
     required this.alTerminar,
-    this.duracion = MovimientoDeInterfaz.marca,
+    this.duracion = const Duration(milliseconds: 1400),
   });
 
   final VoidCallback alTerminar;
@@ -47,7 +48,7 @@ class _AperturaDeMarcaState extends State<AperturaDeMarca>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (MediaQuery.disableAnimationsOf(context)) {
+    if (reducirMovimiento(context)) {
       _terminar();
       return;
     }
@@ -75,8 +76,6 @@ class _AperturaDeMarcaState extends State<AperturaDeMarca>
       label: 'AportaYa',
       button: true,
       hint: 'Tocá para saltar la apertura',
-      onTap: _terminar,
-      excludeSemantics: true,
       child: GestureDetector(
         onTap: _terminar,
         behavior: HitTestBehavior.opaque,

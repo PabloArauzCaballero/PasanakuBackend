@@ -1,0 +1,58 @@
+{
+  "servicio": "identidad",
+  "operacion": "solicitarVerificacionCorreo",
+  "metodo": "post",
+  "ruta": "/usuarios/verificaciones/correo",
+  "escenarios": {
+    "ok": {
+      "estado": 202,
+      "cuerpo": {
+        "verificacionId": "6b2d9e40-a1c3-4f87-b5d6-e90a38c17d24",
+        "destinoEnmascarado": "ju***@ejemplo.test",
+        "expiraEn": "2026-10-08T14:35:00Z"
+      }
+    },
+    "vacio": {
+      "estado": 202,
+      "cuerpo": {
+        "verificacionId": "6b2d9e40-a1c3-4f87-b5d6-e90a38c17d24",
+        "destinoEnmascarado": "ju***@ejemplo.test",
+        "expiraEn": "2026-10-08T14:35:00Z"
+      }
+    },
+    "adverso": {
+      "estado": 202,
+      "cuerpo": {
+        "verificacionId": "6b2d9e40-a1c3-4f87-b5d6-e90a38c17d24",
+        "destinoEnmascarado": "ju***@ejemplo.test",
+        "expiraEn": "2026-10-08T14:35:00Z"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "verificacionId": "6b2d9e40-a1c3-4f87-b5d6-e90a38c17d24",
+        "destinoEnmascarado": "ju***@ejemplo.test",
+        "expiraEn": "2026-10-08T14:35:00Z"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU01-01",
+        "mensaje": "Kyc rechazado",
+        "detalle": {},
+        "trazaId": "traza-solicitarVerificacionCorreo-rechazo"
+      }
+    }
+  }
+}

@@ -59,7 +59,13 @@
     },
     "rechazo": {
       "estado": 422,
-      "cuerpo": null
+      "cuerpo": {
+        "tipo": "about:blank",
+        "titulo": "Periodo con excepciones",
+        "estado": 422,
+        "codigo": "AP-CU72-01",
+        "detalle": null
+      }
     }
   }
 }

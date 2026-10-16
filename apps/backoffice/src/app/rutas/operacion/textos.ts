@@ -4,8 +4,8 @@ export const textosOperacion = {
     titulo: 'Billetera del titular',
     proposito: 'Ver el saldo real de una cuenta para atender una consulta o un reclamo, sin tocar nada.',
     cargando: 'Cargando el saldo de la cuenta',
-    disponible: 'Saldo disponible',
-    retenido: 'Saldo retenido',
+    alcance: 'Este es solo el saldo de la billetera personal. El dinero de un grupo (pozos y aportes) y lo invertido no forman parte de lo gastable: lo comprometido en pozos se muestra aparte, y la posición de inversiones vive en su propia pantalla.',
+    incoherente: 'No mostramos este saldo porque sus cifras no se pueden explicar (importes fuera de contrato, negativos o en monedas distintas). Es un problema de datos, no de la cuenta: reportalo con el código de seguimiento.',
     alCorteDe: 'Al corte de',
     enCero: 'La cuenta está en cero. No es un error de consulta: el titular todavía no recargó, o retiró todo.',
   },
@@ -18,6 +18,7 @@ export const textosOperacion = {
     norma: 'RNSF Libro 4 Título I — 5 días hábiles, prórroga a 10',
     montoReclamado: 'Monto reclamado',
     responder: 'Responder',
+    sinEnviar: 'Esta respuesta todavía NO se envió: el servicio de cumplimiento no publica la operación para responder reclamos. Quedó sin registrar.',
     confirmarResponder: (codigo: string) => `Vas a registrar la respuesta del reclamo ${codigo}. Esta acción queda en el expediente y no se puede deshacer.`,
     estados: {
       INGRESADO: 'Ingresado',
@@ -42,5 +43,6 @@ export const textosOperacion = {
     confirmarAceptar: (nombre: string, grupo: string) => `Vas a dar el cupo a ${nombre} en el grupo ${grupo}. Recién ahí se genera su primera obligación.`,
     confirmarRechazar: (nombre: string, grupo: string) => `Vas a rechazar a ${nombre} en el grupo ${grupo}. El motivo escrito viaja tal cual al postulante.`,
     faltaMotivo: 'Escribí el motivo antes de confirmar el rechazo.',
+    sinEnviar: 'Esta decisión todavía NO se envió: el servicio de grupos no publica la operación para resolver desde esta cola. Para resolver la solicitud usá Admisiones.',
   },
 } as const

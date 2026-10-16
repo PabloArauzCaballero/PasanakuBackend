@@ -1,0 +1,11 @@
+# H11 diseno_flutter · 2026-10-03 19:23:25
+$ flutter analyze
+No issues found! (ran in 8.1s)
+$ flutter test test/unidad test/widget test/a11y (goldens aparte: son de macOS, H8.S3.M5)
+00:15 +49: All tests passed!                                                                                                                                                                           
+$ flutter test test/unidad/fecha_test.dart -r expanded
+00:00 +0: un día calendario se muestra tal cual, sin correrse por zona horaria
+00:00 +1: un instante en UTC sí se pasa a la hora de La Paz
+00:00 +2: All tests passed!
+$ verificar_frontend.py diseno
+TODO OK

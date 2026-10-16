@@ -59,10 +59,11 @@ class CU10Test extends BaseDeBilletera {
             "Dado un webhook de acreditación válido · Cuando se procesa por primera vez · Entonces el saldo_disponible aumenta en monto_acreditado · Y existen exactamente dos movimiento_billetera que suman cero")
     void criterio1() {
         UUID cuenta = billeteraConLimite();
-        ContextoSesion ctx = contextoDe(fixtura.usuario());
+        ContextoSesion ctx = contextoDe(fixtura.titular(cuenta));
         SalidaSolicitud orden = solicitar(cuenta, "500.00", "rec-1", ctx);
 
-        SalidaAcreditacion acreditada = transaccion.execute(e -> recargaCU.acreditar(orden.ordenRecargaId(), ctx));
+        SalidaAcreditacion acreditada = transaccion.execute(e -> recargaCU.acreditar(
+                orden.ordenRecargaId(), ConfirmacionesDePrueba.para(dsl, orden.ordenRecargaId()), ctx));
 
         assertThat(acreditada.saldoDespues()).isEqualByComparingTo(bob("500.00"));
         // Dos patas, y suman cero: la plata viene de algun lado.
@@ -84,12 +85,14 @@ class CU10Test extends BaseDeBilletera {
             "Dado el mismo webhook reenviado tres veces · Cuando se procesan · Entonces existe una sola transaccion_billetera · Y el saldo no cambia después del primer procesamiento")
     void criterio2() {
         UUID cuenta = billeteraConLimite();
-        ContextoSesion ctx = contextoDe(fixtura.usuario());
+        ContextoSesion ctx = contextoDe(fixtura.titular(cuenta));
         SalidaSolicitud orden = solicitar(cuenta, "300.00", "rec-2", ctx);
 
-        transaccion.execute(e -> recargaCU.acreditar(orden.ordenRecargaId(), ctx));
+        transaccion.execute(e -> recargaCU.acreditar(
+                orden.ordenRecargaId(), ConfirmacionesDePrueba.para(dsl, orden.ordenRecargaId()), ctx));
         for (int i = 0; i < 2; i++) {
-            assertThatThrownBy(() -> transaccion.execute(e -> recargaCU.acreditar(orden.ordenRecargaId(), ctx)))
+            assertThatThrownBy(() -> transaccion.execute(e -> recargaCU.acreditar(
+                            orden.ordenRecargaId(), ConfirmacionesDePrueba.para(dsl, orden.ordenRecargaId()), ctx)))
                     .isInstanceOf(ErrorDeNegocio.class);
         }
 
@@ -142,7 +145,7 @@ class CU10Test extends BaseDeBilletera {
         // La clave de idempotencia no se reusa: la segunda solicitud devuelve la
         // MISMA orden en vez de crear otra.
         UUID cuenta = billeteraConLimite();
-        ContextoSesion ctx = contextoDe(fixtura.usuario());
+        ContextoSesion ctx = contextoDe(fixtura.titular(cuenta));
 
         SalidaSolicitud primera = solicitar(cuenta, "100.00", "rec-idem", ctx);
         SalidaSolicitud segunda = solicitar(cuenta, "100.00", "rec-idem", ctx);
@@ -160,7 +163,7 @@ class CU10Test extends BaseDeBilletera {
         // Sin limite configurado no se recarga: denegar por omision.
         fixtura.tipoDeCambioDeHoy();
         UUID cuenta = fixtura.billetera(fixtura.usuario(), ESTANDAR, BigDecimal.ZERO);
-        ContextoSesion ctx = contextoDe(fixtura.usuario());
+        ContextoSesion ctx = contextoDe(fixtura.titular(cuenta));
 
         assertThatThrownBy(() -> solicitar(cuenta, "100.00", "rec-sin-limite", ctx))
                 .isInstanceOf(ErrorDeNegocio.class)
@@ -171,9 +174,10 @@ class CU10Test extends BaseDeBilletera {
     @DisplayName("rechaza por R-AUD-01")
     void rechazaRAUD01() {
         UUID cuenta = billeteraConLimite();
-        ContextoSesion ctx = contextoDe(fixtura.usuario());
+        ContextoSesion ctx = contextoDe(fixtura.titular(cuenta));
         SalidaSolicitud orden = solicitar(cuenta, "50.00", "rec-aud", ctx);
-        transaccion.execute(e -> recargaCU.acreditar(orden.ordenRecargaId(), ctx));
+        transaccion.execute(e -> recargaCU.acreditar(
+                orden.ordenRecargaId(), ConfirmacionesDePrueba.para(dsl, orden.ordenRecargaId()), ctx));
 
         assertThat(rechazaLaBase("DELETE FROM nucleo_financiero.movimiento_billetera"))
                 .contains("R-AUD-01");
@@ -183,7 +187,7 @@ class CU10Test extends BaseDeBilletera {
     @DisplayName("reintento: la misma clave de idempotencia dos veces devuelve la misma respuesta y un solo efecto")
     void reintento() {
         UUID cuenta = billeteraConLimite();
-        ContextoSesion ctx = contextoDe(fixtura.usuario());
+        ContextoSesion ctx = contextoDe(fixtura.titular(cuenta));
 
         SalidaSolicitud primera = solicitar(cuenta, "250.00", "rec-reintento", ctx);
         SalidaSolicitud segunda = solicitar(cuenta, "250.00", "rec-reintento", ctx);
@@ -198,8 +202,8 @@ class CU10Test extends BaseDeBilletera {
     void mismaClaveDistintaCuenta() {
         UUID cuentaA = billeteraConLimite();
         UUID cuentaB = otraBilletera();
-        ContextoSesion ctxA = contextoDe(fixtura.usuario());
-        ContextoSesion ctxB = contextoDe(fixtura.usuario());
+        ContextoSesion ctxA = contextoDe(fixtura.titular(cuentaA));
+        ContextoSesion ctxB = contextoDe(fixtura.titular(cuentaB));
 
         SalidaSolicitud solicitudA = solicitar(cuentaA, "150.00", "rec-compartida", ctxA);
         SalidaSolicitud solicitudB = solicitar(cuentaB, "150.00", "rec-compartida", ctxB);
@@ -218,12 +222,14 @@ class CU10Test extends BaseDeBilletera {
         // El WHERE estado = 'PENDIENTE' del UPDATE es la barrera. Sin el, el mismo
         // pago sumaria saldo dos veces y nadie sabria cual de los dos fue el bueno.
         UUID cuenta = billeteraConLimite();
-        ContextoSesion ctx = contextoDe(fixtura.usuario());
+        ContextoSesion ctx = contextoDe(fixtura.titular(cuenta));
         SalidaSolicitud orden = solicitar(cuenta, "400.00", "rec-carrera", ctx);
 
-        transaccion.execute(e -> recargaCU.acreditar(orden.ordenRecargaId(), ctx));
+        transaccion.execute(e -> recargaCU.acreditar(
+                orden.ordenRecargaId(), ConfirmacionesDePrueba.para(dsl, orden.ordenRecargaId()), ctx));
 
-        assertThatThrownBy(() -> transaccion.execute(e -> recargaCU.acreditar(orden.ordenRecargaId(), ctx)))
+        assertThatThrownBy(() -> transaccion.execute(e -> recargaCU.acreditar(
+                        orden.ordenRecargaId(), ConfirmacionesDePrueba.para(dsl, orden.ordenRecargaId()), ctx)))
                 .isInstanceOf(ErrorDeNegocio.class);
         assertThat(contar("SELECT saldo_disponible::int FROM nucleo_financiero.cuenta_billetera WHERE id = ?", cuenta))
                 .isEqualTo(400);
@@ -257,13 +263,14 @@ class CU10Test extends BaseDeBilletera {
     void compensa() {
         // Una orden vencida no acredita, y no deja media transaccion escrita.
         UUID cuenta = billeteraConLimite();
-        ContextoSesion ctx = contextoDe(fixtura.usuario());
+        ContextoSesion ctx = contextoDe(fixtura.titular(cuenta));
         SalidaSolicitud orden = solicitar(cuenta, "200.00", "rec-vencida", ctx);
         dslFixtura.execute(
                 "UPDATE nucleo_financiero.orden_recarga SET expira_en = now() - interval '1 hour' WHERE id = ?",
                 orden.ordenRecargaId());
 
-        assertThatThrownBy(() -> transaccion.execute(e -> recargaCU.acreditar(orden.ordenRecargaId(), ctx)))
+        assertThatThrownBy(() -> transaccion.execute(e -> recargaCU.acreditar(
+                        orden.ordenRecargaId(), ConfirmacionesDePrueba.para(dsl, orden.ordenRecargaId()), ctx)))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("vencio");
 
@@ -280,7 +287,7 @@ class CU10Test extends BaseDeBilletera {
     void rechazaAcreditarAlSolicitar() {
         // Acreditar al pedir seria regalarle saldo a quien abandona el pago a medias.
         UUID cuenta = billeteraConLimite();
-        ContextoSesion ctx = contextoDe(fixtura.usuario());
+        ContextoSesion ctx = contextoDe(fixtura.titular(cuenta));
 
         solicitar(cuenta, "700.00", "rec-sin-acreditar", ctx);
 

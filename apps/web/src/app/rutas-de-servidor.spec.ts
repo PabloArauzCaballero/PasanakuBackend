@@ -27,6 +27,17 @@ describe('rutas de servidor', () => {
     }
   })
 
+  it('la invitación por enlace va en cliente, noindex y sin referrer: una ruta con parámetros no se puede prerenderizar (rompía `ng build`)', () => {
+    const r = serverRoutes.find((r) => r.path === 'invitacion/:grupoId/:invitacionId')
+    expect(r?.renderMode).toBe(RenderMode.Client)
+    expect(r?.headers?.['X-Robots-Tag']).toBe('noindex, nofollow')
+    expect(r?.headers?.['Referrer-Policy']).toBe('no-referrer')
+    expect(r?.headers?.['Cache-Control']).toBe('no-store')
+    // Ninguna ruta con parámetros puede quedar en el prerender de `**`: sin `getPrerenderParams` el build falla.
+    const conParametros = (serverRoutes.at(-1)?.path ?? '') === '**' ? serverRoutes.filter((x) => x.path.includes(':') && x.renderMode === RenderMode.Prerender) : []
+    expect(conParametros).toEqual([])
+  })
+
   it('ninguna ruta de servidor deja cachear datos vivos sin decirlo', () => {
     for (const r of serverRoutes.filter((r) => r.renderMode === RenderMode.Server)) {
       expect(r.headers?.['Cache-Control'], `${r.path} sin Cache-Control`).toBeDefined()

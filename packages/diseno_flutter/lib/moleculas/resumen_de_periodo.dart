@@ -52,7 +52,7 @@ class ResumenDePeriodo extends StatelessWidget {
           const SizedBox(height: Espacio.s2),
           Row(
             children: [
-              celda('Entró', entro, t.okTexto),
+              celda('Entró', entro, t.text),
               celda('Salió', salio, t.text),
             ],
           ),
@@ -61,7 +61,7 @@ class ResumenDePeriodo extends StatelessWidget {
             Row(
               children: [
                 celda('Saldo inicial', saldoInicial!, t.text2),
-                celda('Saldo de hoy', saldoFinal!, t.brandTexto),
+                celda('Saldo de hoy', saldoFinal!, t.text),
               ],
             ),
           ],

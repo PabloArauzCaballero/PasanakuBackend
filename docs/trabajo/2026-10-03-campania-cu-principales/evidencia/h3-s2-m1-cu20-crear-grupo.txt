@@ -1,0 +1,3 @@
+LOGIN USR1 (+591***01) -> 200 requiereFactor=False token=si
+POST  /grupos                                                                          -> 422 AP-CU20-02
+respuesta: {'codigo': 'AP-CU20-02', 'mensaje': 'Ese organizador no esta habilitado.', 'detalle': {}, 'trazaId': '83810398-fd12-f2a1-8b6f-ef0358669560'}

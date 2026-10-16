@@ -3,32 +3,21 @@ import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/campo.dart';
 import 'package:aportaya_diseno/atomos/campo_monto.dart';
 import 'package:aportaya_diseno/atomos/casilla.dart';
+import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/dinero/formatear.dart';
+import 'package:aportaya_diseno/errores.dart';
+import 'package:aportaya_diseno/moleculas/alerta.dart';
 import 'package:aportaya_diseno/moleculas/barra_de_accion.dart';
 import 'package:aportaya_diseno/moleculas/pregunta.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'dominio/periodicidades.dart';
 import 'grilla_de_opciones.dart';
+import 'grupo_creado.dart';
+import 'opciones_de_grupo.dart';
 import 'pantalla_crear_grupo.dart';
 import 'textos.dart';
-
-const modalidades = {
-  'SORTEO_ALEATORIO': (
-    nombre: 'Sorteo al azar',
-    detalle: 'Nadie elige: el orden sale sorteado y verificable',
-  ),
-  'ORDEN_DE_INGRESO': (
-    nombre: 'Orden de ingreso',
-    detalle: 'Cobra primero quien entró primero',
-  ),
-  'ACUERDO_MANUAL': (
-    nombre: 'Lo acuerda el grupo',
-    detalle: 'Ustedes fijan el orden entre todos',
-  ),
-};
 
 /// El formulario, como conversación: una pregunta por bloque, las opciones
 /// excluyentes como tarjetas elegibles, y la acción anclada abajo para que no haya
@@ -48,25 +37,10 @@ class FormularioCrearGrupo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = Tokens.of(context);
     if (resultado != null) {
-      return Padding(
-        padding: const EdgeInsets.all(Espacio.s4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              TextosPasanaku.grupoCreado,
-              style: Tipo.titulo2.copyWith(color: t.text),
-            ),
-            const SizedBox(height: Espacio.s2),
-            Text(
-              'Fondo por período: ${resultado.fondoPorPeriodo}',
-              style: Tipo.cuerpo.copyWith(color: t.text2),
-            ),
-          ],
-        ),
+      return GrupoCreado(
+        grupoId: '${resultado.grupoId}',
+        fondoPorPeriodo: resultado.fondoPorPeriodo as String,
       );
     }
     return StatefulBuilder(
@@ -143,6 +117,18 @@ class FormularioCrearGrupo extends StatelessWidget {
                 ],
               ),
             ),
+            // Carril H3: con el servidor TEST real el rechazo (p. ej. 422 AP-CU20-04) no se veía:
+            // el botón dejaba de girar y no pasaba nada. Se dice arriba de la acción, siempre visible.
+            if (estado.hasError && !estado.isLoading)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  Espacio.s4,
+                  Espacio.s2,
+                  Espacio.s4,
+                  0,
+                ),
+                child: _RechazoAlCrear(error: estado.error!),
+              ),
             BarraDeAccion(
               hijo: Boton(
                 texto: TextosPasanaku.crearGrupoBoton,
@@ -179,5 +165,26 @@ class FormularioCrearGrupo extends StatelessWidget {
       // Todavía está escribiendo: no hay consecuencia que adelantar.
       return null;
     }
+  }
+}
+
+/// El rechazo de crear grupo, en lenguaje humano y con la traza para soporte.
+class _RechazoAlCrear extends StatelessWidget {
+  const _RechazoAlCrear({required this.error});
+  final Object error;
+
+  @override
+  Widget build(BuildContext context) {
+    final presentable = error is ErrorPresentable
+        ? error as ErrorPresentable
+        : null;
+    final traza = presentable?.trazaId;
+    return Alerta(
+      titulo:
+          presentable?.mensaje ??
+          'No pudimos crear el grupo. Probá de nuevo en un momento.',
+      detalle: traza == null ? null : 'Código de seguimiento: $traza',
+      tono: Tono.error,
+    );
   }
 }

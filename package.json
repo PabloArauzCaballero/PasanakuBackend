@@ -23,13 +23,13 @@
     "postman": "python3 scripts/generar_postman.py"
   },
   "devDependencies": {
-    "postman-cli": "1.71.0",
-    "turbo": "^2.11.7",
-    "typescript": "~7.0.2"
+    "postman-cli": "1.59.0",
+    "turbo": "^2.10.0",
+    "typescript": "~5.9.2"
   },
   "resolutions": {
-    "@scalar/json-magic/undici": "7.29.0",
-    "handlebars": "4.7.9",
+    "@scalar/json-magic/undici": "7.29.1",
+    "handlebars": "4.7.10",
     "lodash": "4.18.1"
   },
   "engines": {

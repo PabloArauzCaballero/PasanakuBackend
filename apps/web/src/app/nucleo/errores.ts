@@ -2,7 +2,7 @@
  * Traducción de `AP-CU<NN>-<nn>` a lenguaje humano. Un `403` responde «no tenés acceso»
  * y nada más: detallarlo confirma que el recurso existe.
  */
-export type ErrorTraducido = { mensaje: string; trazaId?: string; codigo?: string; estado?: number; sinConexion?: boolean }
+export type ErrorTraducido = { mensaje: string; trazaId?: string; codigo?: string; estado?: number; sinConexion?: boolean; tiempoAgotado?: boolean }
 
 const CATALOGO: Readonly<Record<string, string>> = {
   'AP-CU04-06': 'Tu segundo factor no está enrolado. Pedí el enrolamiento a otra persona con permiso.',
@@ -20,4 +20,9 @@ export function mensajeDe(codigo: string | undefined, estado: number): string {
     case 0: return 'No hay conexión. Te mostramos lo último que vimos; para operar hace falta señal.'
     default: return 'Algo salió mal de nuestro lado. Probá de nuevo en un momento.'
   }
+}
+
+/** Vencido el plazo de espera de una lectura. */
+export function mensajeDeTiempoAgotado(): string {
+  return 'La respuesta tardó demasiado. Probá de nuevo en un momento.'
 }

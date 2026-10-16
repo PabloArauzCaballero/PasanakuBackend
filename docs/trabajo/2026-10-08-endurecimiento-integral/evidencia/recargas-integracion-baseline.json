@@ -1,0 +1,26 @@
+[
+  {
+    "name": "bo.aportaya.nucleofinanciero.CU10ConcurrenciaTest",
+    "tests": "1",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "15.451"
+  },
+  {
+    "name": "bo.aportaya.nucleofinanciero.CU10RechazosTest",
+    "tests": "9",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "2.206"
+  },
+  {
+    "name": "bo.aportaya.nucleofinanciero.CU10Test",
+    "tests": "13",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "3.329"
+  }
+]

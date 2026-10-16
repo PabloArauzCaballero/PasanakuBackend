@@ -1,0 +1,60 @@
+#23 203.2 ############################################################################################
+#23 203.2 # Thanks for using OpenAPI Generator.                                                      #
+#23 203.2 # We appreciate your support! Please consider donation to help us maintain this project.   #
+#23 203.2 # https://opencollective.com/openapi_generator/donate                                      #
+#23 203.2 ############################################################################################
+#23 203.2 Successfully generated code to /construccion/servicios/identidad/build/generated/openapi
+#23 204.6 
+#23 204.6 > Task :servicios:identidad:generateJooq
+#23 204.6 Version mismatch         : Database version is older than what dialect POSTGRES supports: 16.15 (Debian 16.15-1.pgdg13+2). Consider https://www.jooq.org/download/support-matrix to see what jOOQ version and edition supports which RDBMS versions.
+#23 204.6 Ambiguous key name       : The one-to-many key identidad.fk_token_verificacion_rotado_de_id generates an inbound key method name tokenVerificacion on table identidad.token_verificacion which conflicts with the previously generated key method name for key identidad.fk_token_verificacion_rotado_de_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+#23 204.6  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+#23 204.6  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+#23 204.6  - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+#23 210.1 
+#23 210.1 > Task :servicios:identidad:compileJava
+#23 210.1 > Task :servicios:identidad:processResources
+#23 210.1 > Task :servicios:identidad:classes
+#23 210.1 > Task :servicios:identidad:resolveMainClassName
+#23 213.4 > Task :servicios:identidad:bootJar
+#23 213.4 
+#23 213.4 BUILD SUCCESSFUL in 3m 33s
+#23 213.4 29 actionable tasks: 29 executed
+#23 213.4 Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+#23 DONE 214.0s
+
+#24 [construccion 14/15] RUN mkdir -p /capas && cd /capas     && java -Djarmode=tools -jar /construccion/servicios/identidad/build/libs/*.jar extract --layers --launcher --destination /capas
+#24 DONE 1.1s
+
+#25 [construccion 15/15] RUN mkdir -p /nativo /tmp/nativo && cd /tmp/nativo     && case "$(uname -m)" in x86_64) prefijo=linux-x86-64 ;; aarch64) prefijo=linux-aarch64 ;; *) prefijo=desconocido ;; esac     && for j in /capas/dependencies/BOOT-INF/lib/jna-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "com/sun/jna/${prefijo}/libjnidispatch.so" && cp "com/sun/jna/${prefijo}/libjnidispatch.so" /nativo/; done     && for j in /capas/dependencies/BOOT-INF/lib/argon2-jvm-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "${prefijo}/libargon2.so" && cp "${prefijo}/libargon2.so" /nativo/; done     ; ls -l /nativo
+#25 0.215 total 324
+#25 0.215 -rw-r--r-- 1 root root 194040 Oct 10 02:50 libargon2.so
+#25 0.215 -rw-r--r-- 1 root root 134447 Oct 10 02:50 libjnidispatch.so
+#25 DONE 0.2s
+
+#26 [runtime 4/8] COPY --from=construccion --chown=app:app /capas/dependencies/ ./
+#26 DONE 1.6s
+
+#27 [runtime 5/8] COPY --from=construccion --chown=app:app /capas/spring-boot-loader/ ./
+#27 DONE 0.1s
+
+#28 [runtime 6/8] COPY --from=construccion --chown=app:app /capas/snapshot-dependencies/ ./
+#28 DONE 0.0s
+
+#29 [runtime 7/8] COPY --from=construccion --chown=app:app /capas/application/ ./
+#29 DONE 0.1s
+
+#30 [runtime 8/8] COPY --from=construccion /nativo/ /app/nativo/
+#30 DONE 0.0s
+
+#31 exporting to image
+#31 exporting layers
+#31 exporting layers 3.6s done
+#31 exporting manifest sha256:084eb6b4d0ff6efb50f7f869b817e8803848d4a12fdcfdbff82c807033528fcc 0.0s done
+#31 exporting config sha256:bbef7242e5f6bcbede24dd090370f22ef94d7de68784e70c744d9edeb0fd8b65 done
+#31 exporting attestation manifest sha256:e9288fdc6a8047ed39f3a8e15a2a1401f54a7bba4bc3873dec6abe4efe29fa46 0.0s done
+#31 exporting manifest list sha256:78ba85b403714a4411419cfa18f5ecfc4bbfac26ebac16ffd375e9891d96b1bf 0.0s done
+#31 naming to docker.io/aportaya/identidad:test done
+#31 unpacking to docker.io/aportaya/identidad:test
+#31 unpacking to docker.io/aportaya/identidad:test 0.4s done
+#31 DONE 4.1s

@@ -1,0 +1,60 @@
+#23 9.515 > Task :plataforma:comun-web:jar
+#23 10.91 
+#23 10.91 > Task :servicios:inversiones:generarServidorOpenApi
+#23 10.92 OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+#23 10.92 OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+#23 10.92 No application/json content media type found in response. Response examples can currently only be generated for application/json media type.
+#23 10.92 ############################################################################################
+#23 10.92 # Thanks for using OpenAPI Generator.                                                      #
+#23 10.92 # We appreciate your support! Please consider donation to help us maintain this project.   #
+#23 10.92 # https://opencollective.com/openapi_generator/donate                                      #
+#23 10.92 ############################################################################################
+#23 10.92 Successfully generated code to /construccion/servicios/inversiones/build/generated/openapi
+#23 12.21 
+#23 12.21 > Task :servicios:inversiones:generateJooq
+#23 12.21 Version mismatch         : Database version is older than what dialect POSTGRES supports: 16.15 (Debian 16.15-1.pgdg13+2). Consider https://www.jooq.org/download/support-matrix to see what jOOQ version and edition supports which RDBMS versions.
+#23 15.61 
+#23 15.61 > Task :servicios:inversiones:compileJava
+#23 15.61 > Task :servicios:inversiones:processResources
+#23 15.61 > Task :servicios:inversiones:classes
+#23 15.61 > Task :servicios:inversiones:resolveMainClassName
+#23 15.91 > Task :servicios:inversiones:bootJar
+#23 15.91 
+#23 15.91 BUILD SUCCESSFUL in 15s
+#23 15.91 26 actionable tasks: 16 executed, 10 from cache
+#23 15.91 Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+#23 DONE 16.1s
+
+#24 [construccion 14/15] RUN mkdir -p /capas && cd /capas     && java -Djarmode=tools -jar /construccion/servicios/inversiones/build/libs/*.jar extract --layers --launcher --destination /capas
+#24 DONE 0.5s
+
+#25 [construccion 15/15] RUN mkdir -p /nativo /tmp/nativo && cd /tmp/nativo     && case "$(uname -m)" in x86_64) prefijo=linux-x86-64 ;; aarch64) prefijo=linux-aarch64 ;; *) prefijo=desconocido ;; esac     && for j in /capas/dependencies/BOOT-INF/lib/jna-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "com/sun/jna/${prefijo}/libjnidispatch.so" && cp "com/sun/jna/${prefijo}/libjnidispatch.so" /nativo/; done     && for j in /capas/dependencies/BOOT-INF/lib/argon2-jvm-[0-9]*.jar; do          [ -f "$j" ] && jar xf "$j" "${prefijo}/libargon2.so" && cp "${prefijo}/libargon2.so" /nativo/; done     ; ls -l /nativo
+#25 0.486 total 0
+#25 DONE 0.5s
+
+#26 [runtime 4/8] COPY --from=construccion --chown=app:app /capas/dependencies/ ./
+#26 DONE 0.2s
+
+#27 [runtime 5/8] COPY --from=construccion --chown=app:app /capas/spring-boot-loader/ ./
+#27 DONE 0.0s
+
+#28 [runtime 6/8] COPY --from=construccion --chown=app:app /capas/snapshot-dependencies/ ./
+#28 DONE 0.0s
+
+#29 [runtime 7/8] COPY --from=construccion --chown=app:app /capas/application/ ./
+#29 DONE 0.1s
+
+#30 [runtime 8/8] COPY --from=construccion /nativo/ /app/nativo/
+#30 DONE 0.0s
+
+#31 exporting to image
+#31 exporting layers
+#31 exporting layers 1.7s done
+#31 exporting manifest sha256:6eb1ee7c1a1e3adb4643d2d50ff3064b2505e48a1ed8c1535bb91a2e10720a3b done
+#31 exporting config sha256:97b9052db167e861038c2b3110d7648665ff86e53a7e21a95dadde623ea3783d done
+#31 exporting attestation manifest sha256:a7c26e8a948c0ff7bf823b5ed293690ed59da7402d58ff8edfffb9ec51c13413 0.0s done
+#31 exporting manifest list sha256:45fa115640198573a7cd6569e8107ae38e21b1ed7b0c33d7299e4b518422065a done
+#31 naming to docker.io/aportaya/inversiones:test done
+#31 unpacking to docker.io/aportaya/inversiones:test
+#31 unpacking to docker.io/aportaya/inversiones:test 0.3s done
+#31 DONE 2.1s

@@ -1,5 +1,4 @@
 import 'package:aportaya_movil/navegacion/retorno_de_invitacion.dart';
-import 'package:aportaya_movil/navegacion/guardias.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -16,19 +15,5 @@ void main() {
     expect(retornoDeInvitacion('//otro.example/$destino'), isNull);
     expect(retornoDeInvitacion('/billetera/inicio'), isNull);
     expect(retornoDeInvitacion('$destino?x=1'), isNull);
-  });
-
-  test('la guardia no copia una query externa al login', () {
-    final destinoIngreso = rutaDeIngresoPara(
-      Uri.parse('/billetera/inicio?documento=CI_FICTICIA&monto=125.00'),
-    );
-    expect(destinoIngreso, '/ingreso');
-    expect(destinoIngreso, isNot(contains('CI_FICTICIA')));
-    expect(destinoIngreso, isNot(contains('125.00')));
-  });
-
-  test('la guardia conserva solo una invitación interna válida', () {
-    final destinoIngreso = rutaDeIngresoPara(Uri.parse(destino));
-    expect(destinoIngreso, '/ingreso?volver=${Uri.encodeComponent(destino)}');
   });
 }

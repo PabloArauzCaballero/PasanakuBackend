@@ -112,7 +112,7 @@ img,svg{max-width:100%}
 .marca{display:inline-flex;align-items:center;gap:var(--s2);text-decoration:none;color:var(--brand)}
 .marca .simbolo{width:1.875rem;height:1.875rem;flex:none}
 .marca .palabra{font-family:var(--font-d);font-weight:700;font-size:1.1875rem;letter-spacing:-.02em;color:var(--brand-ink)}
-.marca .ya{color:var(--accent)}
+.marca .ya{color:var(--accent-texto)}  /* --accent (#E5852B) sobre el fondo claro da 2,46:1; el texto va con --accent-texto (4,6:1) */
 
 /* ============================================================
    2 · MOLÉCULAS
@@ -370,17 +370,18 @@ img,svg{max-width:100%}
   .barra{background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(0.75rem)}
 }
 
-/* Nav en móvil: no se esconde, se desliza — con pista de que hay más.
+/* Nav en móvil: no se esconde ni se desliza (en 360 px el deslizamiento cortaba «Transparencia»
+   sin ninguna pista de que había más, defecto E3-d): baja a una segunda fila y, si no entra, se
+   parte en líneas. Todos los enlaces quedan a la vista y con su área táctil de 44 px.
    El corte sale de medir el ancho real de la barra (ver README § Breakpoints). */
 @media (max-width:56.25rem){
   .barra-in{flex-wrap:wrap;gap:var(--s2)}
-  .barra nav{
-    order:3;width:100%;margin:0;overflow-x:auto;scrollbar-width:none;
-    -webkit-overflow-scrolling:touch;padding-bottom:var(--s1);
-    mask-image:linear-gradient(90deg,black 88%,transparent);
-  }
-  .barra nav::-webkit-scrollbar{display:none}
+  .barra nav{order:3;width:100%;margin:0;flex-wrap:wrap;row-gap:0;padding-bottom:var(--s1)}
   .barra .acciones{margin-left:auto}
+}
+/* Con la barra en dos o tres filas, fija ocuparía casi un tercio de una pantalla de 640 px. */
+@media (max-width:37.5rem){
+  .barra{position:static}
 }
 
 /* --- Sección --- */
@@ -508,7 +509,7 @@ img,svg{max-width:100%}
   font-family:var(--font-d);font-weight:600;font-size:0.8438rem;
   display:flex;align-items:center;justify-content:center;gap:0.4375rem;
 }
-.acciones-rapidas .b--accion{background:var(--o500);color:var(--accent-ink)}
+.acciones-rapidas .b--accion{background:var(--accent);color:var(--accent-ink)}
 .acciones-rapidas .b--fantasma{background:rgba(var(--blanco-rgb),.14);color:var(--sobre-verde);
   border:0.0625rem solid rgba(var(--blanco-rgb),.5)}
 .cuerpo-app{flex:1;overflow:hidden;padding:var(--s4) var(--s4) 0;background:var(--crema)}
@@ -597,6 +598,7 @@ img,svg{max-width:100%}
 .aviso .signo{color:var(--aviso-texto);flex:none;display:grid;place-items:center;margin-top:0.0625rem}
 .aviso .t{font-weight:600;font-size:0.9062rem}
 .aviso .m{font-size:0.875rem;color:var(--text-2);margin-top:0.125rem;max-width:80ch}
+.aviso + .prosa,.aviso + .acciones{margin-top:var(--s5)}  /* el aviso no se pega al bloque que le sigue (invitación a 360 px) */
 
 /* --- Pie --- */
 .pie{border-top:0.0625rem solid var(--border);padding:var(--s6) 0 var(--s7);color:var(--text-3);font-size:0.875rem}

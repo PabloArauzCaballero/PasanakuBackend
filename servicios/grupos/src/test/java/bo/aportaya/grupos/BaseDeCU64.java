@@ -44,7 +44,11 @@ abstract class BaseDeCU64 {
         dslFixtura = DSL.using(fuente, SQLDialect.POSTGRES);
         transaccion = new TransactionTemplate(new DataSourceTransactionManager(fuente));
         traspasar = new CU64TraspasarCupo(
-                new Datos(dsl), new TraspasoRepositorio(), new Outbox("grupos"), Reloj.delSistema());
+                new Datos(dsl),
+                new TraspasoRepositorio(),
+                new bo.aportaya.grupos.infraestructura.AcuerdoRepositorio(),
+                new Outbox("grupos"),
+                Reloj.delSistema());
         fixtura = new FixturaDeGrupos(dslFixtura);
         consumidos = new Consumidos("grupos");
         actor = fixtura.usuario();
@@ -80,6 +84,23 @@ abstract class BaseDeCU64 {
                         true,
                         true,
                         Optional.empty()),
+                contexto()));
+    }
+
+    protected UUID ejecutarConAcuerdo(Escenario escenario, UUID acuerdo) {
+        return transaccion.execute(e -> traspasar.ejecutar(
+                new EntradaTraspaso(
+                        escenario.cupo(),
+                        escenario.entrante(),
+                        "RETIRO",
+                        true,
+                        "COMPLETO",
+                        kycMinimoDe(escenario.grupo()),
+                        100,
+                        0,
+                        true,
+                        true,
+                        Optional.of(acuerdo)),
                 contexto()));
     }
 

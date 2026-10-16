@@ -1,0 +1,2 @@
+ERROR: faltan CUENTA_A_CLAVE / CUENTA_B_CLAVE (16 caracteres o mas). Se pasan asi:
+  cat "$TEMP/aportaya-s/cuentas-test.txt" despliegue/ensayos/sembrar_test.sh | ssh root@161.97.85.216 'bash -s'

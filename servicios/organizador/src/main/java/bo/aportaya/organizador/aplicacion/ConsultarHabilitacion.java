@@ -28,6 +28,28 @@ public class ConsultarHabilitacion {
     }
 
     @Transactional(readOnly = true)
+    public Personal personal(UUID usuarioId, ContextoSesion ctx) {
+        if (!usuarioId.equals(ctx.usuarioId())
+                && !"BACKOFFICE".equals(ctx.rol())
+                && !"ADMIN_PLATAFORMA".equals(ctx.rol())) {
+            throw new bo.aportaya.plataforma.dominio.ErrorDeNegocio(
+                    bo.aportaya.plataforma.dominio.CodigoError.de(90, 3),
+                    "Solo puedes consultar tu habilitación personal.");
+        }
+        return datos.conContexto(ctx, dsl -> {
+            var fila = dsl.fetchOne("SELECT id, estado FROM organizador.organizador WHERE usuario_id=?", usuarioId);
+            return fila == null
+                    ? new Personal(usuarioId, null, false)
+                    : new Personal(
+                            usuarioId,
+                            fila.get("id", UUID.class),
+                            "HABILITADO".equals(fila.get("estado", String.class)));
+        });
+    }
+
+    public record Personal(UUID usuarioId, UUID organizadorId, boolean habilitado) {}
+
+    @Transactional(readOnly = true)
     public Habilitacion ejecutar(UUID organizadorId, ContextoSesion ctx) {
         return datos.conContexto(ctx, dsl -> {
             var fila = dsl.select(

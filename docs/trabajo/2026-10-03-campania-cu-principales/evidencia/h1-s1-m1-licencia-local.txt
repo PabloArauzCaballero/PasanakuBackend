@@ -1,0 +1,7 @@
+$ psql -f h1-s1-m1-sandbox-local.sql
+INSERT 0 5
+fn_lic_servicio_habilitado(GRUPO_PASANAKU) = t
+fn_lic_servicio_habilitado(RECARGA) = t
+fn_lic_servicio_habilitado(RETIRO) = t
+fn_lic_servicio_habilitado(TRANSFERENCIA_P2P) = t
+fn_lic_servicio_habilitado(BILLETERA) = t

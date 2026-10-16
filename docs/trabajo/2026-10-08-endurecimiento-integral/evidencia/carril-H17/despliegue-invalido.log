@@ -1,0 +1,9 @@
+$ politica_invitacion_test.sh con un Postgres que no existe (como un host sin el contenedor)
+ERROR: no encuentro el contenedor de Postgres «no-existe» en marcha
+RC=3
+$ argumento desconocido
+argumento desconocido: --borrar
+RC=2
+$ sembrar_test.sh sin contenedor de Postgres
+ERROR: no encuentro el contenedor de Postgres «no-existe» en marcha
+RC=3

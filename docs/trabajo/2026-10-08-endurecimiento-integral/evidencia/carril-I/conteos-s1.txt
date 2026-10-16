@@ -1,0 +1,2 @@
+plataforma/comun-web: tests=67 fallos=0 errores=0 omitidos=0 por tarea={'contractTest': 9, 'integrationTest': 10, 'test': 11, 'testBarrido': 3, 'webTest': 34}
+servicios/grupos: tests=362 fallos=0 errores=0 omitidos=0 por tarea={'integrationTest': 213, 'test': 61, 'testBarrido': 2, 'webTest': 86}

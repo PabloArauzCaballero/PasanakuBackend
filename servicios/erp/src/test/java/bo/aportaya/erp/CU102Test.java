@@ -162,11 +162,17 @@ class CU102Test extends BaseDeErp {
                 .isEqualTo(1);
         assertThat(contar(
                         """
-                        SELECT count(*)::int FROM erp.evento_dominio
-                         WHERE tipo = 'erp.tercero_dado_de_alta' AND payload->>'numeroDocumento' = ?
+                        SELECT count(*)::int FROM erp.evento_dominio e
+                          JOIN erp.tercero_comercial t ON t.id = e.agregado_id
+                         WHERE e.tipo = 'erp.tercero_dado_de_alta' AND t.numero_documento = ?
                         """,
                         nit))
                 .isEqualTo(1);
+        // El documento NO viaja en el evento: a los consumidores les llega el id del tercero.
+        assertThat(contar(
+                        "SELECT count(*)::int FROM erp.evento_dominio WHERE tipo = 'erp.tercero_dado_de_alta' AND payload::text LIKE ?",
+                        "%" + nit + "%"))
+                .isZero();
     }
 
     @Test

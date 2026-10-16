@@ -1,0 +1,44 @@
+LOGIN USR90 (+591***90) -> 200 requiereFactor=False token=si
+LOGIN USR2 (+591***02) -> 200 requiereFactor=False token=si
+LOGIN USR8 (+591***08) -> 200 requiereFactor=False token=si
+
+== CU-10 · saldo antes: BOB-0000090 disponible=0.00
+POST  /billetera/recargas                                                              -> 201
+orden: {'ordenRecargaId': 'fbc4fe7e-df83-4f17-b351-2320a835f4f0', 'estado': 'PENDIENTE', 'acreditara': {'monto': '200.00', 'moneda': 'BOB'}}
+-- negativo: USR2 (participante ajeno) intenta acreditar la orden de USR90
+POST  /billetera/recargas/fbc4fe7e-df83-4f17-b351-2320a835f4f0/acreditacion            -> 403 AP-SEG-01
+-- negativo: USR90, TITULAR de la orden, intenta acreditarsela a si mismo (B20)
+POST  /billetera/recargas/fbc4fe7e-df83-4f17-b351-2320a835f4f0/acreditacion            -> 403 AP-SEG-01
+-- acreditar (TESORERIA, USR8) con Idempotency-Key K
+POST  /billetera/recargas/fbc4fe7e-df83-4f17-b351-2320a835f4f0/acreditacion            -> 500 AP-INT-01
+   respuesta 1: {'codigo': 'AP-INT-01', 'mensaje': 'No pudimos completar la operacion. Volve a intentar.', 'trazaId': '84b28c94-5597-1c6f-3c86-50ce5b586e6e'}
+-- repetir la MISMA clave K
+POST  /billetera/recargas/fbc4fe7e-df83-4f17-b351-2320a835f4f0/acreditacion            -> 500 AP-INT-01
+   respuesta 2: {'codigo': 'AP-INT-01', 'mensaje': 'No pudimos completar la operacion. Volve a intentar.', 'trazaId': '3cb84825-c353-c596-e4ee-3cbd53bd894e'}
+-- repetir con clave NUEVA (la orden ya esta acreditada)
+POST  /billetera/recargas/fbc4fe7e-df83-4f17-b351-2320a835f4f0/acreditacion            -> 500 AP-INT-01
+SQL orden: PENDIENTE bruto=200.00 costo=0.00 acreditado=200.00
+SQL transacciones con esa orden: 0
+SQL patas del libro (sentido, monto): ERROR:  invalid input syntax for type uuid: ""
+LINE 1: ...anciero.movimiento_billetera where transaccion_id='' order b...
+                                                             ^
+SQL cuadre de la transacción (suma por sentido): ERROR:  invalid input syntax for type uuid: ""
+LINE 1: ...anciero.movimiento_billetera where transaccion_id='' group b...
+                                                             ^
+SQL asiento contable enlazado: ERROR:  invalid input syntax for type uuid: ""
+LINE 1: ...L') from nucleo_financiero.transaccion_billetera where id=''
+                                                                     ^
+== CU-10 · saldo después: BOB-0000090 disponible=0.00
+
+== CU-12 · saldos antes: BOB-0000090 disponible=0.00 · BOB-0000002 disponible=600.00
+POST  /billetera/transferencias                                                        -> 422 AP-CU12-02
+transferencia: {'codigo': 'AP-CU12-02', 'mensaje': 'Ese destino no existe.', 'detalle': {}, 'trazaId': '07a3bace-f9f5-58f2-3c70-fa9b97bbf9da'}
+-- repetir la misma clave
+POST  /billetera/transferencias                                                        -> 422 AP-CU12-02
+   respuesta 2: {'codigo': 'AP-CU12-02', 'mensaje': 'Ese destino no existe.', 'detalle': {}, 'trazaId': '5ed37b12-9d40-6d94-9a50-d1a2f277876c'}
+-- negativo: USR2 transfiere desde la cuenta de USR90
+POST  /billetera/transferencias                                                        -> 422 AP-CU12-02
+-- negativo: saldo insuficiente
+POST  /billetera/transferencias                                                        -> 422 AP-CU12-02
+== CU-12 · saldos después: BOB-0000090 disponible=0.00 · BOB-0000002 disponible=600.00
+SQL transacciones TRANSFERENCIA por la clave: 0

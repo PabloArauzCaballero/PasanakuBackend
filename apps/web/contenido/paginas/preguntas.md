@@ -4,7 +4,7 @@ titulo: "Preguntas frecuentes"
 bajada: "Lo que más preguntan antes de unirse a un grupo."
 descripcion: "Preguntas frecuentes sobre AportaYa: qué es, qué cobra, qué pasa si alguien no aporta y cómo se verifica el sorteo."
 indexable: true
-actualizado: 2026-09-09
+actualizado: 2026-10-09
 ---
 
 ## ¿AportaYa presta dinero o paga intereses?
@@ -30,3 +30,7 @@ Tenemos una solicitud de licencia en trámite ante la ASFI. El estado actualizad
 ## ¿Qué hago si tengo un reclamo?
 
 Lo presentás desde la app o por los canales publicados en [Reclamos](/reclamos), con un plazo de respuesta garantizado.
+
+## ¿Todo lo que veo en mi billetera lo puedo gastar?
+
+No, y la billetera te lo muestra separado. Lo **gastable** es lo único que podés retirar o transferir. Lo **comprometido en pozos** es plata tuya que ya está afectada a un aporte o a un pozo de un grupo: va al grupo y no se gasta. Lo **retenido** está apartado por una operación en curso y vuelve a tu disponible si esa operación se cancela. Lo que invertís tampoco forma parte de ese saldo. Las tres cifras suman el total que figura en el libro de la cuenta.

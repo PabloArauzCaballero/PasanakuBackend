@@ -1,0 +1,15 @@
+  test_api 0.7.11 (0.7.14 available)
+  vector_math 2.2.0 (2.4.3 available)
+  xml 7.0.1 (7.1.0 available)
+Got dependencies!
+29 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/unidad/tutoriales/autolanzamiento_test.dart
+00:00 +0: debeAutolanzar correcto: nunca se hizo, se lanza
+00:00 +1: debeAutolanzar límite: versión nueva del tutorial, se ofrece de nuevo
+00:00 +2: debeAutolanzar límite: ya EstadoDeProgreso.enProgreso en esta versión, no insiste
+00:00 +3: debeAutolanzar límite: ya EstadoDeProgreso.omitido en esta versión, no insiste
+00:00 +4: debeAutolanzar límite: ya EstadoDeProgreso.completado en esta versión, no insiste
+00:00 +5: debeAutolanzar inválido: sin tutorial en el catálogo no lanza nada
+00:00 +6: debeAutolanzar inválido: tutorial sin pasos no lanza nada
+00:00 +7: All tests passed!

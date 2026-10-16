@@ -13,6 +13,7 @@ class Campo extends StatelessWidget {
     this.controlador,
     this.valorInicial,
     this.ayuda,
+    this.ejemplo,
     this.error,
     this.exito = false,
     this.habilitado = true,
@@ -25,17 +26,24 @@ class Campo extends StatelessWidget {
     this.formateadores,
     this.onChanged,
     this.onSubmitted,
-    this.accionDeTeclado,
     this.autofocus = false,
     this.soloLectura = false,
     this.onTap,
     this.foco,
+    this.autocorreccion = true,
+    this.capitalizacion = TextCapitalization.sentences,
+    this.accionDeTeclado = TextInputAction.done,
+    this.etiquetaSemantica,
+    this.sugerenciasDeAutocompletado = const [],
+    this.alturaMinimaEtiqueta,
+    this.lineasDeAyuda = 2,
   });
 
   final String etiqueta;
   final TextEditingController? controlador;
   final String? valorInicial;
   final String? ayuda;
+  final String? ejemplo;
 
   /// El texto de error, en voz de marca: «Revisá el número, le falta un dígito».
   final String? error;
@@ -52,7 +60,6 @@ class Campo extends StatelessWidget {
   final List<TextInputFormatter>? formateadores;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
-  final TextInputAction? accionDeTeclado;
   final bool autofocus;
 
   /// El valor no se escribe: se elige. Un campo de fecha se ve como cualquier otro
@@ -63,6 +70,13 @@ class Campo extends StatelessWidget {
 
   /// Para que el formulario pueda llevar el foco al primer campo con error.
   final FocusNode? foco;
+  final bool autocorreccion;
+  final TextCapitalization capitalizacion;
+  final TextInputAction accionDeTeclado;
+  final String? etiquetaSemantica;
+  final Iterable<String> sugerenciasDeAutocompletado;
+  final double? alturaMinimaEtiqueta;
+  final int lineasDeAyuda;
 
   @override
   Widget build(BuildContext context) {
@@ -75,33 +89,54 @@ class Campo extends StatelessWidget {
         // `Pregunta` de un formulario, por ejemplo—. Sin esto, el `Text` vacío deja
         // igual su renglón y abre un hueco entre la pregunta y su campo.
         if (etiqueta.isNotEmpty) ...[
-          Text(etiqueta, style: texto.labelLarge?.copyWith(color: t.text2)),
+          if (alturaMinimaEtiqueta == null)
+            Text(etiqueta, style: texto.labelLarge?.copyWith(color: t.text2))
+          else
+            ConstrainedBox(
+              constraints: BoxConstraints(minHeight: alturaMinimaEtiqueta!),
+              child: Align(
+                alignment: Alignment.bottomLeft,
+                child: Text(
+                  etiqueta,
+                  style: texto.labelLarge?.copyWith(color: t.text2),
+                ),
+              ),
+            ),
           const SizedBox(height: Espacio.s1),
         ],
-        TextField(
-          controller: controlador,
-          focusNode: foco,
-          readOnly: soloLectura,
-          onTap: onTap,
-          enabled: habilitado,
-          obscureText: oculto,
-          keyboardType: tipoDeTeclado,
-          maxLines: oculto ? 1 : lineas,
-          inputFormatters: formateadores,
-          onChanged: onChanged,
-          onSubmitted: onSubmitted,
-          textInputAction: accionDeTeclado,
-          autofocus: autofocus,
-          style: texto.bodyLarge?.copyWith(color: t.text),
-          decoration: DecoracionDeCampo.de(
-            context,
-            ayuda: ayuda,
-            error: error,
-            exito: exito,
-            habilitado: habilitado,
-            icono: icono,
-            prefijo: prefijo,
-            sufijo: sufijo,
+        Semantics(
+          label: etiquetaSemantica,
+          textField: true,
+          child: TextField(
+            controller: controlador,
+            focusNode: foco,
+            readOnly: soloLectura,
+            onTap: onTap,
+            enabled: habilitado,
+            obscureText: oculto,
+            keyboardType: tipoDeTeclado,
+            autocorrect: autocorreccion,
+            textCapitalization: capitalizacion,
+            textInputAction: accionDeTeclado,
+            autofillHints: sugerenciasDeAutocompletado,
+            maxLines: oculto ? 1 : lineas,
+            inputFormatters: formateadores,
+            onChanged: onChanged,
+            onSubmitted: onSubmitted,
+            autofocus: autofocus,
+            style: texto.bodyLarge?.copyWith(color: t.text),
+            decoration: DecoracionDeCampo.de(
+              context,
+              ayuda: ayuda,
+              lineasDeAyuda: lineasDeAyuda,
+              ejemplo: ejemplo,
+              error: error,
+              exito: exito,
+              habilitado: habilitado,
+              icono: icono,
+              prefijo: prefijo,
+              sufijo: sufijo,
+            ),
           ),
         ),
       ],

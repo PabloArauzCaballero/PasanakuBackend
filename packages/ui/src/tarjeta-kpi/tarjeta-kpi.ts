@@ -11,7 +11,7 @@ import { Monto } from '../monto/monto'
   imports: [Monto],
   host: { role: 'group', '[attr.aria-label]': 'etiqueta()' },
   template: `
-    <p class="etiqueta">{{ etiqueta() }}</p>
+    <p class="rotulo">{{ etiqueta() }}</p>
     <p class="valor">
       @if (moneda()) { <ap-monto [monto]="valor()" [moneda]="moneda()!" [etiqueta]="etiqueta()" /> } @else { {{ valor() }} }
     </p>
@@ -20,7 +20,7 @@ import { Monto } from '../monto/monto'
   styles: `
     :host { display: block; padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); }
     p { margin: 0; }
-    .etiqueta { color: var(--text-2); font-weight: 600; font-size: .9em; }
+    .rotulo { color: var(--text-2); font-weight: 600; font-size: .9em; }
     .valor { margin-top: var(--s1); font-family: var(--font-d); font-size: 1.6em; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
     .variacion { margin-top: var(--s1); color: var(--text-3); font-size: .85em; }
   `,

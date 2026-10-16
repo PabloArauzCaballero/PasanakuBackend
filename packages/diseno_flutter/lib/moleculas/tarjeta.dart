@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../atomos/hundido_al_tocar.dart';
 import '../tokens/tokens.dart';
 
 /// Superficie base de toda tarjeta: radio, borde y sombra de los tokens.
@@ -26,18 +27,20 @@ class Tarjeta extends StatelessWidget {
         color: t.surface,
         borderRadius: BorderRadius.circular(Radios.lg),
         border: Border.all(color: t.border, width: Borde.fino),
-        boxShadow: [t.sombra1],
+        boxShadow: Elevacion.tarjeta(t),
       ),
       child: child,
     );
     if (onTap == null) return cuerpo;
-    return Semantics(
-      button: true,
-      label: etiqueta,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(Radios.lg),
-        child: cuerpo,
+    return HundidoAlTocar(
+      child: Semantics(
+        button: true,
+        label: etiqueta,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(Radios.lg),
+          child: cuerpo,
+        ),
       ),
     );
   }

@@ -1,0 +1,4 @@
+00:00 +13: CerrojoDeLectura correcto: la primera lectura pasa
+00:00 +14: CerrojoDeLectura límite: la segunda y la tercera no pasan
+00:00 +15: CerrojoDeLectura límite: tras liberar vuelve a pasar una sola vez
+00:00 +16: All tests passed!

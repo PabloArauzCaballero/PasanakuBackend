@@ -1,0 +1,1437 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.7.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources NO-SOURCE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :servicios:inversiones:generarServidorOpenApi UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+
+> Task :plataforma:comun-web:erroresCatalogo
+catalogo de errores: 250 restricciones -> 134 reglas · errores-restricciones.properties
+mensajes de regla: 161 · errores-reglas.properties
+  AVISO: 3 reglas con restriccion y sin fila en la boveda: R-BIL-21, R-BIL-22, R-UIF-13
+
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:processResources
+> Task :plataforma:comun-web:classes
+> Task :plataforma:comun-web:jar
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :servicios:inversiones:spotlessJava
+> Task :servicios:inversiones:spotlessJavaApply
+> Task :servicios:inversiones:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:inversiones:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:inversiones:spotlessApply
+> Task :servicios:inversiones:generateJooq UP-TO-DATE
+> Task :servicios:inversiones:compileJava UP-TO-DATE
+> Task :servicios:inversiones:processResources UP-TO-DATE
+> Task :servicios:inversiones:classes UP-TO-DATE
+> Task :servicios:inversiones:compileTestJava
+> Task :servicios:inversiones:processTestResources UP-TO-DATE
+> Task :servicios:inversiones:testClasses
+> Task :servicios:inversiones:test
+> Task :servicios:inversiones:webTest
+
+> Task :servicios:inversiones:integrationTest
+
+ArranqueTest > produccion con el aliado SIMULADO: el proceso NO arranca y dice por que FAILED
+    java.lang.IllegalStateException: Failed to load ApplicationContext for [WebMergedContextConfiguration@333d5a0c testClass = bo.aportaya.inversiones.ArranqueTest, locations = [], classes = [bo.aportaya.inversiones.Aplicacion], contextInitializerClasses = [], activeProfiles = [], propertySourceDescriptors = [], propertySourceProperties = ["org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true", "server.port=0"], contextCustomizers = [org.springframework.boot.test.autoconfigure.OnFailureConditionReportContextCustomizerFactory$OnFailureConditionReportContextCustomizer@364b1061, org.springframework.boot.test.autoconfigure.actuate.observability.ObservabilityContextCustomizerFactory$DisableObservabilityContextCustomizer@1f, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizer@7f97bc14, org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@5e002356, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@69aabcb0, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@1df5c7e3, org.springframework.boot.test.web.reactor.netty.DisableReactorResourceFactoryGlobalResourcesContextCustomizerFactory$DisableReactorResourceFactoryGlobalResourcesContextCustomizerCustomizer@5aa62ee7, org.springframework.test.context.support.DynamicPropertiesContextCustomizer@3b339e5f, org.springframework.boot.test.context.SpringBootTestAnnotation@885fd9d9], resourceBasePath = "src/main/webapp", contextLoader = org.springframework.boot.test.context.SpringBootContextLoader, parent = null]
+        at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContext(DefaultCacheAwareContextLoaderDelegate.java:180)
+        at org.springframework.test.context.support.DefaultTestContext.getApplicationContext(DefaultTestContext.java:130)
+        at org.springframework.test.context.support.DependencyInjectionTestExecutionListener.injectDependencies(DependencyInjectionTestExecutionListener.java:155)
+        at org.springframework.test.context.support.DependencyInjectionTestExecutionListener.prepareTestInstance(DependencyInjectionTestExecutionListener.java:111)
+        at org.springframework.test.context.TestContextManager.prepareTestInstance(TestContextManager.java:260)
+        at org.springframework.test.context.junit.jupiter.SpringExtension.postProcessTestInstance(SpringExtension.java:159)
+        at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(Unknown Source)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(Unknown Source)
+        at java.base/java.util.stream.ReferencePipeline$2$1.accept(Unknown Source)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(Unknown Source)
+        at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(Unknown Source)
+        at java.base/java.util.stream.AbstractPipeline.copyInto(Unknown Source)
+        at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(Unknown Source)
+        at java.base/java.util.stream.ForEachOps$ForEachOp.evaluateSequential(Unknown Source)
+        at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(Unknown Source)
+        at java.base/java.util.stream.AbstractPipeline.evaluate(Unknown Source)
+        at java.base/java.util.stream.ReferencePipeline.forEach(Unknown Source)
+        at java.base/java.util.Optional.orElseGet(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+        Caused by:
+        java.lang.IllegalStateException: Could not find a valid Docker environment. Please see logs and check configuration
+            at org.testcontainers.dockerclient.DockerClientProviderStrategy.lambda$getFirstValidStrategy$7(DockerClientProviderStrategy.java:274)
+            at java.base/java.util.Optional.orElseThrow(Unknown Source)
+            at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:265)
+            at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+            at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+            at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+            at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+            at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+            at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+            at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+            at bo.aportaya.inversiones.ArranqueTest.propiedades(ArranqueTest.java:38)
+            at bo.aportaya.inversiones.ArranqueTest.configuracion(ArranqueTest.java:34)
+
+ArranqueTest > el mismo modo simulado SI arranca fuera de produccion (control negativo de la prueba anterior) FAILED
+    java.lang.IllegalStateException: ApplicationContext failure threshold (1) exceeded: skipping repeated attempt to load context for [WebMergedContextConfiguration@333d5a0c testClass = bo.aportaya.inversiones.ArranqueTest, locations = [], classes = [bo.aportaya.inversiones.Aplicacion], contextInitializerClasses = [], activeProfiles = [], propertySourceDescriptors = [], propertySourceProperties = ["org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true", "server.port=0"], contextCustomizers = [org.springframework.boot.test.autoconfigure.OnFailureConditionReportContextCustomizerFactory$OnFailureConditionReportContextCustomizer@364b1061, org.springframework.boot.test.autoconfigure.actuate.observability.ObservabilityContextCustomizerFactory$DisableObservabilityContextCustomizer@1f, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizer@7f97bc14, org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@5e002356, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@69aabcb0, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@1df5c7e3, org.springframework.boot.test.web.reactor.netty.DisableReactorResourceFactoryGlobalResourcesContextCustomizerFactory$DisableReactorResourceFactoryGlobalResourcesContextCustomizerCustomizer@5aa62ee7, org.springframework.test.context.support.DynamicPropertiesContextCustomizer@3b339e5f, org.springframework.boot.test.context.SpringBootTestAnnotation@885fd9d9], resourceBasePath = "src/main/webapp", contextLoader = org.springframework.boot.test.context.SpringBootContextLoader, parent = null]
+        at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContext(DefaultCacheAwareContextLoaderDelegate.java:145)
+        at org.springframework.test.context.support.DefaultTestContext.getApplicationContext(DefaultTestContext.java:130)
+        at org.springframework.test.context.support.DependencyInjectionTestExecutionListener.injectDependencies(DependencyInjectionTestExecutionListener.java:155)
+        at org.springframework.test.context.support.DependencyInjectionTestExecutionListener.prepareTestInstance(DependencyInjectionTestExecutionListener.java:111)
+        at org.springframework.test.context.TestContextManager.prepareTestInstance(TestContextManager.java:260)
+        at org.springframework.test.context.junit.jupiter.SpringExtension.postProcessTestInstance(SpringExtension.java:159)
+        at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(Unknown Source)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(Unknown Source)
+        at java.base/java.util.stream.ReferencePipeline$2$1.accept(Unknown Source)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(Unknown Source)
+        at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(Unknown Source)
+        at java.base/java.util.stream.AbstractPipeline.copyInto(Unknown Source)
+        at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(Unknown Source)
+        at java.base/java.util.stream.ForEachOps$ForEachOp.evaluateSequential(Unknown Source)
+        at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(Unknown Source)
+        at java.base/java.util.stream.AbstractPipeline.evaluate(Unknown Source)
+        at java.base/java.util.stream.ReferencePipeline.forEach(Unknown Source)
+        at java.base/java.util.Optional.orElseGet(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+ArranqueTest > arranque: el contexto levanta, las doce rutas del contrato quedan mapeadas y el aliado esta deshabilitado por omision FAILED
+    java.lang.IllegalStateException: ApplicationContext failure threshold (1) exceeded: skipping repeated attempt to load context for [WebMergedContextConfiguration@333d5a0c testClass = bo.aportaya.inversiones.ArranqueTest, locations = [], classes = [bo.aportaya.inversiones.Aplicacion], contextInitializerClasses = [], activeProfiles = [], propertySourceDescriptors = [], propertySourceProperties = ["org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true", "server.port=0"], contextCustomizers = [org.springframework.boot.test.autoconfigure.OnFailureConditionReportContextCustomizerFactory$OnFailureConditionReportContextCustomizer@364b1061, org.springframework.boot.test.autoconfigure.actuate.observability.ObservabilityContextCustomizerFactory$DisableObservabilityContextCustomizer@1f, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizer@7f97bc14, org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@5e002356, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@69aabcb0, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@1df5c7e3, org.springframework.boot.test.web.reactor.netty.DisableReactorResourceFactoryGlobalResourcesContextCustomizerFactory$DisableReactorResourceFactoryGlobalResourcesContextCustomizerCustomizer@5aa62ee7, org.springframework.test.context.support.DynamicPropertiesContextCustomizer@3b339e5f, org.springframework.boot.test.context.SpringBootTestAnnotation@885fd9d9], resourceBasePath = "src/main/webapp", contextLoader = org.springframework.boot.test.context.SpringBootContextLoader, parent = null]
+        at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContext(DefaultCacheAwareContextLoaderDelegate.java:145)
+        at org.springframework.test.context.support.DefaultTestContext.getApplicationContext(DefaultTestContext.java:130)
+        at org.springframework.test.context.support.DependencyInjectionTestExecutionListener.injectDependencies(DependencyInjectionTestExecutionListener.java:155)
+        at org.springframework.test.context.support.DependencyInjectionTestExecutionListener.prepareTestInstance(DependencyInjectionTestExecutionListener.java:111)
+        at org.springframework.test.context.TestContextManager.prepareTestInstance(TestContextManager.java:260)
+        at org.springframework.test.context.junit.jupiter.SpringExtension.postProcessTestInstance(SpringExtension.java:159)
+        at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(Unknown Source)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(Unknown Source)
+        at java.base/java.util.stream.ReferencePipeline$2$1.accept(Unknown Source)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(Unknown Source)
+        at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(Unknown Source)
+        at java.base/java.util.stream.AbstractPipeline.copyInto(Unknown Source)
+        at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(Unknown Source)
+        at java.base/java.util.stream.ForEachOps$ForEachOp.evaluateSequential(Unknown Source)
+        at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(Unknown Source)
+        at java.base/java.util.stream.AbstractPipeline.evaluate(Unknown Source)
+        at java.base/java.util.stream.ReferencePipeline.forEach(Unknown Source)
+        at java.base/java.util.Optional.orElseGet(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU120Test > La base rechaza un dato sintetico marcado apto para produccion (R-INV-01) FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU120Test > Si cambian las condiciones nace una version NUEVA y la anterior queda intacta (append-only) FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU120Test > Todo parametro sin fuente aprobada sale marcado SINTETICO y no apto para produccion FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU120Test > Con el aliado caido, sincronizar falla con AP-CU120-02 y no cambia nada FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU120Test > Dado un DPF y un fondo del aliado · Cuando se consulta el catalogo · Entonces identifica riesgo, plazo, costos, titularidad, fuente y fecha de cotizacion FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU120Test > En un entorno productivo no se ofrece ningun producto sintetico FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU120Test > La base rechaza un fondo con tasa fija y un DPF sin plazo (R-INV-01) FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU120Test > Sincronizar dos veces no duplica versiones: la segunda corrida no inserta nada FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU121ConcurrenciaTest > Dados doce pedidos simultaneos con la misma clave · Entonces hay UNA orden, UNA posicion y el libro se debita UNA vez FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU121ConcurrenciaTest > Dadas dos ordenes DISTINTAS que juntas superan el saldo · Cuando entran a la vez · Entonces una se concreta y la otra se rechaza por saldo, y el libro no queda en negativo FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU121Test > Dado un monto bajo el minimo del producto · Entonces AP-CU121-03; con el minimo exacto, pasa FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU121Test > Dadas condiciones que cambiaron (version o hash viejos) · Entonces AP-CU121-02: hay que volver a aceptar FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU121Test > Dado saldo insuficiente sin pozo de por medio · Entonces AP-CU121-04, no AP-CU121-05 FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU121Test > Dado el libro caido al verificar el saldo · Entonces AP-CU121-07 y no se reserva ni se crea nada (falla cerrada) FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU121Test > Dada una moneda que no es BOB · Entonces AP-CU121-08; dado un producto inexistente · AP-CU121-01 FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU121Test > Dado un saldo afectado a un pozo · Cuando intenta invertirlo · Entonces rechaza AP-CU121-05 y no crea orden; en el borde exacto de lo invertible, pasa FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU121Test > Dada la misma orden enviada dos veces con la misma clave · Cuando se repite · Entonces devuelve la original y no duplica orden, retencion ni posicion FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU121Test > Dada una cuenta de otra persona · Entonces no se puede usar para invertir (objeto propio, no solo rol) FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU121Test > La base rechaza una orden cuyo consentimiento es de otra persona (R-INV-02) FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU121Test > Dado saldo libre · Cuando invierte voluntariamente · Entonces reserva el importe y guarda el consentimiento con la version y el hash que acepto FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU121Test > Dada la misma clave con OTRO monto · Entonces se rechaza AP-CU121-06 y no se crea nada nuevo FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU122Test > Dado el libro caido AL DEBITAR · Entonces la posicion existe pero el importe sigue retenido (no hay doble disponibilidad); al volver el libro, se debita una vez FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU122Test > Dado un aliado que rechaza · Entonces la orden queda RECHAZADA y lo retenido se libera exactamente una vez FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU122Test > Dada la confirmacion del aliado · Cuando se procesa · Entonces nace la posicion, se elimina la disponibilidad del importe y efectivo + posicion = saldo inicial FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU122Test > Una orden ajena no existe para otra persona: ni se ve ni se sincroniza (AP-CU122-01) FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU122Test > Confirmar dos veces la misma orden (sincronizar x2) no duplica posicion, comprobante ni debito FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU122Test > Dado un aliado que confirma un importe DISTINTO · Entonces AP-CU122-02: no hay posicion y el importe sigue retenido FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU122Test > Dado el aliado CAIDO antes de recibirla · Entonces INCIERTA; al volver, la consulta dice que no la conoce y recien ahi se reenvia con la misma referencia FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU122Test > Dada la respuesta PERDIDA (el aliado la registro y a nosotros nos llega un corte) · Entonces INCIERTA, el saldo sigue retenido, se CONSULTA y no se reenvia a ciegas FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU123Test > Dadas cuotas y valor publicado · Cuando cae el valor · Entonces muestra fecha, variacion NEGATIVA y valor neto, sin promesa FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU123Test > Dado un valor por encima de la marca · Entonces la comision de exito devengada se muestra aparte y se descuenta del neto estimado FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU123Test > Correr el devengo dos veces el mismo dia no duplica nada FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU123Test > Si pasaron dias sin correr, el devengo del dia cubre la diferencia (no se pierde un centavo) FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU123Test > Con el aliado caido, sincronizar valores falla con AP-CU123-02 y la valoracion existente sigue visible FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU123Test > Dados principal, tasa y base contractual · Cuando devenga · Entonces distingue devengado, pagado, impuesto estimado y vencimiento FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU123Test > Los 180 devengos diarios suman EXACTAMENTE 197,26 (cuenta independiente hecha a mano) y el acumulado final es igual FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU123Test > Sin ningun valor publicado no se inventa una valoracion FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU123Test > Un valor ya publicado no se reescribe: si el aliado publica otro para la misma fecha, se rechaza y queda el primero FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU123Test > La posicion de otra persona no existe para esta: ni se ve ni aparece en su listado ni en sus comprobantes FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU123Test > Dato desactualizado visible: a los 3 dias no avisa, a los 4 si FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU123Test > No se devenga despues del vencimiento ni antes de constituir FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU124FondoTest > Reglas de entrada: cuotas en cero o con mas de seis decimales, posicion ajena, posicion inexistente y clave reutilizada con otro contenido FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU124FondoTest > La BASE rechaza la doble disponibilidad aunque la aplicacion no la vea (R-INV-05) FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU124FondoTest > Un pedido despues de la hora de corte informa el proximo dia habil; un viernes tarde, el lunes FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU124FondoTest > Dado el aliado CAIDO al pedir el rescate · Entonces INCIERTO y las cuotas siguen comprometidas; al volver, se consulta y se reenvia con la misma referencia FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU124FondoTest > Dado un aliado que rechaza el rescate · Entonces queda RECHAZADO con su motivo y las cuotas vuelven a estar libres FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU124FondoTest > Dos rescates SIMULTANEOS que juntos superan las cuotas · Entonces solo uno entra (concurrencia real) FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU124FondoTest > Dadas cuotas ya comprometidas en otro rescate · Cuando se piden otra vez · Entonces AP-CU124-02; el borde (lo que queda libre) si pasa FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU124FondoTest > Dado un fondo con plazo de rescate · Cuando solicita · Entonces informa el corte y queda PENDIENTE: el dinero no esta disponible hasta que el aliado confirme los fondos FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU124FondoTest > La misma clave dos veces devuelve el MISMO rescate y no vuelve a escribirle al aliado FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU124Test > Un DPF no se rescata por cuotas, y la base impide un segundo rescate vigente del mismo deposito (R-INV-05) FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU124Test > Un deposito se rescata UNA vez: la misma clave devuelve el rescate original y otra clave se rechaza porque la posicion ya esta cerrada FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU124Test > Dado un DPF que NO admite cancelacion anticipada · Cuando pide rescate antes del vencimiento · Entonces AP-CU124-01 y no queda ningun rescate FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU124Test > Dado un DPF que si admite la cancelacion · Cuando pide rescate anticipado · Entonces el tipo es ANTICIPADO y se liquida con penalizacion e impuesto del contrato FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU125ComisionTest > Recuperacion: lo rescatado con perdida no paga exito y lo rescatado despues solo paga sobre lo que supera la marca del lote FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU125ComisionTest > Perdida: se cobra solo beneficio elegible, asi que no hay comision y la diferencia es perdida realizada FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU125ComisionTest > Suscripcion por lotes: cada lote paga exito solo sobre lo que supera SU valor de entrada FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU125ComisionTest > Ejemplo sintetico del plan: 100 cuotas, marca 110, valor 112 y 10 % dan comision Bs 20,00 y cuota neta 111,80 (no es una tarifa comercial) FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU125ComisionTest > Redondeo declarado: tres rescates de una posicion de 100,00 en 3 cuotas liberan 33,33 + 33,34 + 33,33; el residuo se asigna y no se pierde FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU125LibroTest > La base rechaza un comprobante que no descompone sin residuo (R-INV-03) y no admite UPDATE ni DELETE (append-only) FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU125LibroTest > La base rechaza una conciliacion marcada CONCILIADA con cifras distintas y una comision sobre una base inexistente (R-INV-07/08) FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU125LibroTest > Dado el libro caido AL ACREDITAR · Entonces el rescate queda POR_ACREDITAR (liquidado y descontado, pero no disponible); al volver, se acredita una vez FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU125LibroTest > Rescate demorado de punta a punta: PENDIENTE hasta confirmar, despues liquida, descuenta las cuotas y acredita una sola vez FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU125LibroTest > Dado un valor del aliado distinto del que ya tenemos publicado para esa fecha · Entonces AP-CU125-02 FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU125LibroTest > Dado un rescate de cuotas cuyo importe no es cuotas x valor · Entonces AP-CU125-02: no se acredita y la posicion no cambia FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU125LibroTest > Dado un movimiento con tratamiento definido · Entonces principal, interes, impuesto y comision son separables y cuadran con el mayor FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU125LibroTest > Reversa: una orden rechazada deshace la retencion con una operacion nueva (liberar), sin editar nada del historial FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU125Test > Dado el interes pagado por el emisor · Cuando se acredita · Entonces coincide con titular, periodo y retencion y se concilia contra el devengo propio FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU125Test > Dado un importe que no es principal + interes - retencion · Entonces AP-CU125-02 y no se acredita FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+CU125Test > Dado un interes que NO coincide con el calculo propio · Entonces AP-CU125-01: discrepancia registrada, nada se acredita y el deposito sigue abierto FAILED
+    java.lang.IllegalStateException: Previous attempts to find a Docker environment failed. Will not retry. Please see logs and check configuration
+        at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:229)
+        at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:154)
+        at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:196)
+        at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:108)
+        at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+        at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:321)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.arrancar(BaseDePrueba.java:60)
+        at bo.aportaya.plataforma.pruebas.BaseDePrueba.contenedor(BaseDePrueba.java:36)
+        at bo.aportaya.inversiones.BaseDeInversiones.armar(BaseDeInversiones.java:93)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+        at java.base/java.util.ArrayList.forEach(Unknown Source)
+
+73 tests completed, 73 failed
+
+> Task :servicios:inversiones:integrationTest FAILED
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (malloc) failed to allocate 2072416 bytes. Error detail: Chunk::new
+# An error report file with more information is saved as:
+# C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\inversiones\hs_err_pid29392.log
+[thread 16080 also had an error]
+#
+# Compiler replay data is saved as:
+# C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\inversiones\replay_pid29392.log
+Unexpected exception thrown.
+org.gradle.internal.remote.internal.MessageIOException: Could not write '/127.0.0.1:60139'.
+	at org.gradle.internal.remote.internal.inet.SocketConnection.flush(SocketConnection.java:142)
+	at org.gradle.internal.remote.internal.hub.MessageHub$ConnectionDispatch.run(MessageHub.java:333)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.base/java.lang.Thread.run(Unknown Source)
+Caused by: java.io.IOException: Connection reset by peer
+	at java.base/sun.nio.ch.SocketDispatcher.write0(Native Method)
+	at java.base/sun.nio.ch.SocketDispatcher.write(Unknown Source)
+	at java.base/sun.nio.ch.IOUtil.writeFromNativeBuffer(Unknown Source)
+	at java.base/sun.nio.ch.IOUtil.write(Unknown Source)
+	at java.base/sun.nio.ch.IOUtil.write(Unknown Source)
+	at java.base/sun.nio.ch.SocketChannelImpl.write(Unknown Source)
+	at org.gradle.internal.remote.internal.inet.SocketConnection$SocketOutputStream.writeWithNonBlockingRetry(SocketConnection.java:282)
+	at org.gradle.internal.remote.internal.inet.SocketConnection$SocketOutputStream.writeBufferToChannel(SocketConnection.java:269)
+	at org.gradle.internal.remote.internal.inet.SocketConnection$SocketOutputStream.flush(SocketConnection.java:263)
+	at org.gradle.internal.remote.internal.inet.SocketConnection.flush(SocketConnection.java:140)
+	... 6 more
+
+> Task :servicios:inversiones:contractTest FAILED
+
+Gradle Test Run :servicios:inversiones:contractTest FAILED
+    org.gradle.process.ProcessExecutionException: Process 'Gradle Test Executor 4' finished with non-zero exit value 1
+        at org.gradle.process.internal.DefaultExecHandle$ExecResultImpl.assertNormalExitValue(DefaultExecHandle.java:460)
+        at org.gradle.process.internal.worker.DefaultWorkerProcess.waitForStop(DefaultWorkerProcess.java:230)
+        at org.gradle.process.internal.worker.DefaultWorkerProcessBuilder$MemoryRequestingWorkerProcess.waitForStop(DefaultWorkerProcessBuilder.java:298)
+        at org.gradle.api.internal.tasks.testing.worker.ForkingTestDefinitionProcessor.stop(ForkingTestDefinitionProcessor.java:157)
+        at org.gradle.api.internal.tasks.testing.processors.RestartEveryNTestDefinitionProcessor.endBatch(RestartEveryNTestDefinitionProcessor.java:77)
+        at org.gradle.api.internal.tasks.testing.processors.RestartEveryNTestDefinitionProcessor.stop(RestartEveryNTestDefinitionProcessor.java:62)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at org.gradle.internal.dispatch.MethodInvocation.invokeOn(MethodInvocation.java:77)
+        at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:28)
+        at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:19)
+        at org.gradle.internal.dispatch.FailureHandlingDispatch.dispatch(FailureHandlingDispatch.java:30)
+        at org.gradle.internal.dispatch.AsyncDispatch.dispatchMessages(AsyncDispatch.java:88)
+        at org.gradle.internal.dispatch.AsyncDispatch.access$000(AsyncDispatch.java:36)
+        at org.gradle.internal.dispatch.AsyncDispatch$1.run(AsyncDispatch.java:72)
+        at org.gradle.internal.concurrent.InterruptibleRunnable.run(InterruptibleRunnable.java:44)
+        at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:84)
+        at org.gradle.internal.operations.CurrentBuildOperationPreservingRunnable.run(CurrentBuildOperationPreservingRunnable.java:51)
+        at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)
+        at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+        at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+        at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+        at java.base/java.lang.Thread.run(Unknown Source)
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (malloc) failed to allocate 1942704 bytes. Error detail: Chunk::new
+# An error report file with more information is saved as:
+# C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\inversiones\hs_err_pid21652.log
+#
+# Compiler replay data is saved as:
+# C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend\servicios\inversiones\replay_pid21652.log
+Unexpected exception thrown.
+org.gradle.internal.remote.internal.MessageIOException: Could not write '/127.0.0.1:60144'.
+	at org.gradle.internal.remote.internal.inet.SocketConnection.flush(SocketConnection.java:142)
+	at org.gradle.internal.remote.internal.hub.MessageHub$ConnectionDispatch.run(MessageHub.java:333)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.base/java.lang.Thread.run(Unknown Source)
+Caused by: java.io.IOException: Connection reset by peer
+	at java.base/sun.nio.ch.SocketDispatcher.write0(Native Method)
+	at java.base/sun.nio.ch.SocketDispatcher.write(Unknown Source)
+	at java.base/sun.nio.ch.IOUtil.writeFromNativeBuffer(Unknown Source)
+	at java.base/sun.nio.ch.IOUtil.write(Unknown Source)
+	at java.base/sun.nio.ch.IOUtil.write(Unknown Source)
+	at java.base/sun.nio.ch.SocketChannelImpl.write(Unknown Source)
+	at org.gradle.internal.remote.internal.inet.SocketConnection$SocketOutputStream.writeWithNonBlockingRetry(SocketConnection.java:282)
+	at org.gradle.internal.remote.internal.inet.SocketConnection$SocketOutputStream.writeBufferToChannel(SocketConnection.java:269)
+	at org.gradle.internal.remote.internal.inet.SocketConnection$SocketOutputStream.flush(SocketConnection.java:263)
+	at org.gradle.internal.remote.internal.inet.SocketConnection.flush(SocketConnection.java:140)
+	... 6 more
+
+> Task :servicios:inversiones:sagaTest FAILED
+
+Gradle Test Run :servicios:inversiones:sagaTest FAILED
+    org.gradle.process.ProcessExecutionException: Process 'Gradle Test Executor 5' finished with non-zero exit value 1
+        at org.gradle.process.internal.DefaultExecHandle$ExecResultImpl.assertNormalExitValue(DefaultExecHandle.java:460)
+        at org.gradle.process.internal.worker.DefaultWorkerProcess.waitForStop(DefaultWorkerProcess.java:230)
+        at org.gradle.process.internal.worker.DefaultWorkerProcessBuilder$MemoryRequestingWorkerProcess.waitForStop(DefaultWorkerProcessBuilder.java:298)
+        at org.gradle.api.internal.tasks.testing.worker.ForkingTestDefinitionProcessor.stop(ForkingTestDefinitionProcessor.java:157)
+        at org.gradle.api.internal.tasks.testing.processors.RestartEveryNTestDefinitionProcessor.endBatch(RestartEveryNTestDefinitionProcessor.java:77)
+        at org.gradle.api.internal.tasks.testing.processors.RestartEveryNTestDefinitionProcessor.stop(RestartEveryNTestDefinitionProcessor.java:62)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at org.gradle.internal.dispatch.MethodInvocation.invokeOn(MethodInvocation.java:77)
+        at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:28)
+        at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:19)
+        at org.gradle.internal.dispatch.FailureHandlingDispatch.dispatch(FailureHandlingDispatch.java:30)
+        at org.gradle.internal.dispatch.AsyncDispatch.dispatchMessages(AsyncDispatch.java:88)
+        at org.gradle.internal.dispatch.AsyncDispatch.access$000(AsyncDispatch.java:36)
+        at org.gradle.internal.dispatch.AsyncDispatch$1.run(AsyncDispatch.java:72)
+        at org.gradle.internal.concurrent.InterruptibleRunnable.run(InterruptibleRunnable.java:44)
+        at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:84)
+        at org.gradle.internal.operations.CurrentBuildOperationPreservingRunnable.run(CurrentBuildOperationPreservingRunnable.java:51)
+        at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)
+        at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+        at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+        at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+        at java.base/java.lang.Thread.run(Unknown Source)
+Could not write standard input to Gradle Test Executor 6.
+java.io.IOException: Se está cerrando la canalización
+	at java.base/java.io.FileOutputStream.writeBytes(Native Method)
+	at java.base/java.io.FileOutputStream.implWriteBytes(Unknown Source)
+	at java.base/java.io.FileOutputStream.write(Unknown Source)
+	at java.base/java.io.BufferedOutputStream.flushBuffer(Unknown Source)
+	at java.base/java.io.BufferedOutputStream.implFlush(Unknown Source)
+	at java.base/java.io.BufferedOutputStream.flush(Unknown Source)
+	at org.gradle.process.internal.streams.ExecOutputHandleRunner.writeBuffer(ExecOutputHandleRunner.java:98)
+	at org.gradle.process.internal.streams.ExecOutputHandleRunner.forwardContent(ExecOutputHandleRunner.java:85)
+	at org.gradle.process.internal.streams.ExecOutputHandleRunner.run(ExecOutputHandleRunner.java:64)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.base/java.lang.Thread.run(Unknown Source)
+
+> Task :servicios:inversiones:testBarrido FAILED
+Exception in thread "main" FATAL ERROR in native method: processing of -javaagent failed, processJavaStart failed
+java.lang.reflect.InvocationTargetException
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)
+	at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+	at java.instrument/sun.instrument.InstrumentationImpl.loadClassAndStartAgent(Unknown Source)
+	at java.instrument/sun.instrument.InstrumentationImpl.loadClassAndCallPremain(Unknown Source)
+Caused by: java.lang.OutOfMemoryError: (class: org/jacoco/agent/rt/internal_29a6edd/core/runtime/WildcardMatcher) 
+	at org.jacoco.agent.rt.internal_29a6edd.CoverageTransformer.<init>(CoverageTransformer.java:68)
+	at org.jacoco.agent.rt.internal_29a6edd.PreMain.premain(PreMain.java:51)
+	... 4 more
+*** java.lang.instrument ASSERTION FAILED ***: "!errorOutstanding" with message Outstanding error when calling method in invokeJavaAgentMainMethod at s\src\java.instrument\share\native\libinstrument\JPLISAgent.c line: 627
+*** java.lang.instrument ASSERTION FAILED ***: "success" with message invokeJavaAgentMainMethod failed at s\src\java.instrument\share\native\libinstrument\JPLISAgent.c line: 466
+*** java.lang.instrument ASSERTION FAILED ***: "result" with message agent load/premain call failed at s\src\java.instrument\share\native\libinstrument\JPLISAgent.c line: 429
+
+Gradle Test Run :servicios:inversiones:testBarrido FAILED
+    org.gradle.process.ProcessExecutionException: Process 'Gradle Test Executor 6' finished with non-zero exit value 1
+        at org.gradle.process.internal.DefaultExecHandle$ExecResultImpl.assertNormalExitValue(DefaultExecHandle.java:460)
+        at org.gradle.process.internal.worker.DefaultWorkerProcess.onProcessStop(DefaultWorkerProcess.java:146)
+        at org.gradle.process.internal.worker.DefaultWorkerProcess.access$000(DefaultWorkerProcess.java:43)
+        at org.gradle.process.internal.worker.DefaultWorkerProcess$1.executionFinished(DefaultWorkerProcess.java:99)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at org.gradle.internal.dispatch.MethodInvocation.invokeOn(MethodInvocation.java:77)
+        at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:28)
+        at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:19)
+        at org.gradle.internal.event.AbstractBroadcastDispatch.dispatch(AbstractBroadcastDispatch.java:44)
+        at org.gradle.internal.event.BroadcastDispatch$SingletonDispatch.dispatch(BroadcastDispatch.java:270)
+        at org.gradle.internal.event.BroadcastDispatch$SingletonDispatch.dispatch(BroadcastDispatch.java:172)
+        at org.gradle.internal.event.ListenerBroadcast.dispatch(ListenerBroadcast.java:160)
+        at org.gradle.internal.event.ListenerBroadcast.dispatch(ListenerBroadcast.java:37)
+        at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:88)
+        at jdk.proxy1/jdk.proxy1.$Proxy114.executionFinished(Unknown Source)
+        at org.gradle.process.internal.DefaultExecHandle.setEndStateInfo(DefaultExecHandle.java:226)
+        at org.gradle.process.internal.DefaultExecHandle.finished(DefaultExecHandle.java:398)
+        at org.gradle.process.internal.ExecHandleRunner.completed(ExecHandleRunner.java:214)
+        at org.gradle.process.internal.ExecHandleRunner.lambda$run$2(ExecHandleRunner.java:177)
+        at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:84)
+        at org.gradle.process.internal.ExecHandleRunner.run(ExecHandleRunner.java:175)
+        at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)
+        at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+        at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+        at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+        at java.base/java.lang.Thread.run(Unknown Source)
+
+FAILURE: Build completed with 4 failures.
+
+1: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:inversiones:integrationTest'.
+> There were failing tests. See the report at: file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend/servicios/inversiones/build/reports/tests/integrationTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+==============================================================================
+
+2: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:inversiones:contractTest' (registered by plugin 'aportaya.base').
+> Test process encountered an unexpected problem.
+   > Process 'Gradle Test Executor 4' finished with non-zero exit value 1
+
+* Try:
+> Check common problems https://docs.gradle.org/9.7.1/userguide/java_testing.html#sec:java_testing_troubleshooting.
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+3: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:inversiones:sagaTest' (registered by plugin 'aportaya.base').
+> Test process encountered an unexpected problem.
+   > Process 'Gradle Test Executor 5' finished with non-zero exit value 1
+
+* Try:
+> Check common problems https://docs.gradle.org/9.7.1/userguide/java_testing.html#sec:java_testing_troubleshooting.
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+4: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':servicios:inversiones:testBarrido' (registered by plugin 'aportaya.base').
+> Test process encountered an unexpected problem.
+   > Process 'Gradle Test Executor 6' finished with non-zero exit value 1
+
+* Try:
+> Check common problems https://docs.gradle.org/9.7.1/userguide/java_testing.html#sec:java_testing_troubleshooting.
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+BUILD FAILED in 44s
+42 actionable tasks: 12 executed, 30 up-to-date

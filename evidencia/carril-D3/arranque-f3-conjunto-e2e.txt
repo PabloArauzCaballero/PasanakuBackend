@@ -1,0 +1,89 @@
+[d3 03:44:08] escenario=limpia perfil=local roles=todos modo=conjunto omitir=[] xmx=144m mem=320m
+[d3 03:44:08] libres Windows al empezar: 3518 MB
+[d3 03:44:11] infra: postgres, pgbouncer, redis, minio, kafka
+ Container aportaya-d3-infra-minio-1 Healthy 
+ Container aportaya-d3-infra-kafka-1 Healthy 
+ Container aportaya-d3-infra-pgbouncer-1 Healthy 
+[d3 03:44:21] esquema: docker compose up esquema (service_completed_successfully en TEST)
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3396: NOTICE:  trigger "tg_distribucion_interes_coherente" for relation "distribucion_interes" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3402: NOTICE:  constraint "ck_corrida_trabajo_fin" of relation "corrida_trabajo" does not exist, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3403: NOTICE:  constraint "ck_corrida_trabajo_error" of relation "corrida_trabajo" does not exist, skipping
+esquema-1  | esquema: catalogos minimos (sql/60_semillas)
+esquema-1  | esquema:                ?column?               
+esquema-1  | esquema: --------------------------------------
+esquema-1  | esquema:  roles svc_* con credencial: 15 de 15
+esquema-1  | esquema: (1 row)
+esquema-1  | esquema: 
+esquema-1  | esquema: 436 tablas en pasanaku
+esquema-1  | esquema: listo
+[Kesquema-1 exited with code 0
+[d3 03:44:26] esquema: exit code = 0
+roles svc_* sin login: 0
+RESULTADO gateway: healthy | readiness: {"status":"UP"}
+RESULTADO identidad: healthy | readiness: {"status":"UP"}
+RESULTADO grupos: healthy | readiness: {"status":"UP"}
+RESULTADO nucleo-financiero: healthy | readiness: {"status":"UP"}
+RESULTADO cumplimiento: healthy | readiness: {"status":"UP"}
+RESULTADO tarifas: healthy | readiness: {"status":"UP"}
+RESULTADO aportes: healthy | readiness: {"status":"UP"}
+RESULTADO organizador: healthy | readiness: {"status":"UP"}
+ERROR:  new row for relation "asignacion_rol" violates check constraint "ck_asignacion_no_autoasignada"
+DETAIL:  Failing row contains (abcbf2a7-7f82-4959-b755-2493cea40503, cc2c4f2b-2832-4485-b0d1-2a1d925bfe91, bc050590-7915-4d47-b866-8a5c5f404a9b, GLOBAL, null, cc2c4f2b-2832-4485-b0d1-2a1d925bfe91, 2026-10-10 03:44:53.606953-04, null, null, null).
+usuarios sembrados: 0
+credenciales (fuera del repo): C:\Users\Usuario\AppData\Local\Temp/aportaya-d3/credenciales-e2e.txt
+--- 1. readiness de cada servicio (por dentro) y gateway
+PASS  readiness identidad -> UP
+PASS  readiness aportes -> UP
+PASS  readiness cumplimiento -> UP
+PASS  readiness grupos -> UP
+PASS  readiness nucleo-financiero -> UP
+PASS  readiness organizador -> UP
+PASS  readiness tarifas -> UP
+--- 1b. /actuator/health completo (la sonda de base pega a PostgreSQL por PgBouncer con el rol svc_<servicio>)
+PASS  health+base identidad -> UP
+PASS  health+base aportes -> UP
+PASS  health+base cumplimiento -> UP
+PASS  health+base grupos -> UP
+PASS  health+base nucleo-financiero -> UP
+PASS  health+base organizador -> UP
+PASS  health+base tarifas -> UP
+PASS  gateway liveness -> 200
+PASS  gateway readiness -> 200
+--- 2. ruta publica (identidad + PgBouncer + base) a traves del gateway
+PASS  POST /api/v1/sesiones rechaza por contrato -> 400
+PASS  POST /api/v1/usuarios/verificaciones/correo es publica -> 400
+--- 3. ruta protegida por cada prefijo del gateway: sin token -> 401 (o 200 si es publica por contrato)
+PASS  GET /api/v1/aportes/humo-d3 [aportes] -> 401
+PASS  GET /api/v1/conciliacion/humo-d3 [aportes] -> 401
+PASS  GET /api/v1/pagos/humo-d3 [aportes] -> 401
+PASS  GET /api/v1/qr/humo-d3 [aportes] -> 401
+PASS  GET /api/v1/cumplimiento/humo-d3 [cumplimiento] -> 401
+PASS  GET /api/v1/licencia/humo-d3 [cumplimiento] -> 401
+PASS  GET /api/v1/reclamos/humo-d3 [cumplimiento] -> 401
+PASS  GET /api/v1/uif/humo-d3 [cumplimiento] -> 401
+PASS  GET /api/v1/acuerdos/humo-d3 [grupos] -> 401
+PASS  GET /api/v1/grupos/humo-d3 [grupos] -> 401
+PASS  GET /api/v1/turnos/humo-d3 [grupos] -> 401
+PASS  GET /api/v1/identidad/humo-d3 [identidad] -> 401
+PASS  GET /api/v1/roles/humo-d3 [identidad] -> 401
+PASS  GET /api/v1/sesion/humo-d3 [identidad] -> 401
+PASS  GET /api/v1/sesiones/humo-d3 [identidad] -> 401
+PASS  GET /api/v1/usuarios/humo-d3 [identidad] -> 401
+PASS  GET /api/v1/billetera/humo-d3 [nucleo-financiero] -> 401
+PASS  GET /api/v1/billetera/retiros/humo-d3 [nucleo-financiero] -> 401
+PASS  GET /api/v1/billetera/transferencias/humo-d3 [nucleo-financiero] -> 401
+PASS  GET /api/v1/contabilidad/humo-d3 [nucleo-financiero] -> 401
+PASS  GET /api/v1/custodia/humo-d3 [nucleo-financiero] -> 401
+PASS  GET /api/v1/puntos-atencion/humo-d3 [nucleo-financiero] -> 401
+PASS  GET /api/v1/automatizacion/humo-d3 [organizador] -> 401
+PASS  GET /api/v1/organizadores/humo-d3 [organizador] -> 401
+PASS  GET /api/v1/comisiones/humo-d3 [tarifas] -> 401
+PASS  GET /api/v1/facturas/humo-d3 [tarifas] -> 401
+PASS  GET /api/v1/tarifas/humo-d3 [tarifas] -> 401
+--- 5. ruta inexistente
+PASS  GET /api/v1/no-existe -> 404
+RESUMEN humo: 0 falla(s)
+[d3 03:45:00] gateway: http://127.0.0.1:18080  postgres: 127.0.0.1:5444  pgbouncer: 127.0.0.1:6444
+[d3 03:45:00] RAM pico de los contenedores (hora,n,MB): 03:44:58,13,2357
+[d3 03:45:00] D3_MANTENER=1: el stack queda arriba (consume RAM). Bajar con: bash despliegue/ensayos/bajar_entorno.sh
+[d3 03:45:00] libres Windows al terminar: 1640 MB

@@ -13,6 +13,7 @@ import bo.aportaya.garantia.aplicacion.CU25DeclararIncumplimiento;
 import bo.aportaya.garantia.aplicacion.CU26EjecutarAval;
 import bo.aportaya.garantia.aplicacion.CU27RestringirDeudor;
 import bo.aportaya.garantia.aplicacion.CU66ReemplazarParticipante;
+import bo.aportaya.garantia.aplicacion.ReclamosEnCurso;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
@@ -72,6 +73,9 @@ class IncumplimientosControllerWebTest {
 
     @MockitoBean
     private CU66ReemplazarParticipante cu66;
+
+    @MockitoBean
+    private ReclamosEnCurso reclamosEnCurso;
 
     private static Dinero bob(String monto) {
         return Dinero.de(monto, Moneda.BOB);
@@ -200,6 +204,61 @@ class IncumplimientosControllerWebTest {
                     // Los dos: aceptar el descargo sin cerrar el expediente dejaria a la
                     // persona absuelta y sancionada a la vez.
                     .andExpect(jsonPath("$.estadoDelExpediente").value("CERRADO_SIN_SANCION"));
+        }
+    }
+
+    @Nested
+    @DisplayName("H13.S1.M6 · un reclamo en curso no es una deuda ejecutable ni una restriccion firme")
+    class ReclamoEnCurso {
+
+        private void reclamoQueFrena(int casoDeUso) {
+            org.mockito.Mockito.doThrow(new bo.aportaya.plataforma.dominio.ErrorDeNegocio(
+                            bo.aportaya.plataforma.dominio.CodigoError.de(casoDeUso, 7),
+                            "Hay un reclamo en curso de esa persona."))
+                    .when(reclamosEnCurso)
+                    .exigirQueNoFrene(any(), org.mockito.ArgumentMatchers.eq(casoDeUso), any());
+        }
+
+        @Test
+        @DisplayName("rechaza: restringir con un reclamo que frena responde 422 AP-CU27-07 y NO llega al caso de uso")
+        void restringirConReclamo() throws Exception {
+            reclamoQueFrena(27);
+
+            mvc.perform(post("/incumplimientos/{id}/restriccion", EXPEDIENTE)
+                            .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"nivel\":\"LIMITADO\",\"motivo\":\"Deuda sin regularizar\"}"))
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU27-07"));
+            verifyNoInteractions(cu27);
+        }
+
+        @Test
+        @DisplayName(
+                "rechaza: ejecutar el aval con un reclamo que frena responde 422 AP-CU26-07 y NO llega al caso de uso")
+        void ejecutarAvalConReclamo() throws Exception {
+            reclamoQueFrena(26);
+
+            mvc.perform(post("/incumplimientos/{id}/aval/ejecucion", EXPEDIENTE)
+                            .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR")))
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU26-07"));
+            verifyNoInteractions(cu26);
+        }
+
+        @Test
+        @DisplayName("rechaza: el 401 y el 403 siguen siendo de la guardia: sin sesion no se pregunta a cumplimiento")
+        void sinSesionNoPregunta() throws Exception {
+            mvc.perform(post("/incumplimientos/{id}/aval/ejecucion", EXPEDIENTE))
+                    .andExpect(status().isUnauthorized());
+            mvc.perform(post("/incumplimientos/{id}/restriccion", EXPEDIENTE)
+                            .with(Sesiones.como("PARTICIPANTE"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"nivel\":\"LIMITADO\",\"motivo\":\"x\"}"))
+                    .andExpect(status().isForbidden());
+            verifyNoInteractions(reclamosEnCurso);
+            verifyNoInteractions(cu26);
+            verifyNoInteractions(cu27);
         }
     }
 

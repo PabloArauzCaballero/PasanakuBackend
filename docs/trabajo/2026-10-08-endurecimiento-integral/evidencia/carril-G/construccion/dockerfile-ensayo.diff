@@ -1,0 +1,5 @@
+1,122c1,122
+< # syntax=docker/dockerfile:1.7
+< #
+< # Un Dockerfile y no catorce. Es la unica excepcion a "el servicio posee todos sus
+< # archivos", y esta justificada: no tiene contenido propio del servicio (ADR-025).

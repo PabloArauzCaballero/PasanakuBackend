@@ -8,11 +8,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import bo.aportaya.organizador.aplicacion.CU90ConsultarBandeja;
 import bo.aportaya.organizador.aplicacion.CU90PostularOrganizador;
+import bo.aportaya.organizador.aplicacion.CU90ResolverHabilitacion;
 import bo.aportaya.organizador.aplicacion.CU91FirmarContrato;
 import bo.aportaya.organizador.aplicacion.CU92EvaluarDesempeno;
 import bo.aportaya.organizador.aplicacion.CU93SancionarOrganizador;
 import bo.aportaya.organizador.aplicacion.ConsultarHabilitacion;
+import bo.aportaya.organizador.aplicacion.ReclamosEnCurso;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.Sesiones;
 import java.time.OffsetDateTime;
@@ -65,6 +68,15 @@ class OrganizadorSancionesWebTest {
 
     @MockitoBean
     private CU93SancionarOrganizador cu93;
+
+    @MockitoBean
+    private ReclamosEnCurso reclamosEnCurso;
+
+    @MockitoBean
+    private CU90ResolverHabilitacion resolverHabilitacion;
+
+    @MockitoBean
+    private CU90ConsultarBandeja consultarBandeja;
 
     @Nested
     @DisplayName("CU-93 · sancionar, apelar y resolver")
@@ -168,6 +180,45 @@ class OrganizadorSancionesWebTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{}"))
                     .andExpect(status().isForbidden());
+            verifyNoInteractions(cu93);
+        }
+    }
+
+    @Nested
+    @DisplayName("H13.S1.M6 · un reclamo en curso no es una sancion firme")
+    class ReclamoEnCurso {
+
+        @Test
+        @DisplayName("rechaza: sancionar con un reclamo que frena responde 422 AP-CU93-07 y NO llega al caso de uso")
+        void sancionConReclamo() throws Exception {
+            org.mockito.Mockito.doThrow(new bo.aportaya.plataforma.dominio.ErrorDeNegocio(
+                            bo.aportaya.plataforma.dominio.CodigoError.de(93, 7),
+                            "Hay un reclamo en curso de esa persona."))
+                    .when(reclamosEnCurso)
+                    .exigirQueNoFrene(any(), any());
+
+            mvc.perform(post("/organizadores/{id}/sanciones", ORGANIZADOR)
+                            .with(Sesiones.como("ADMIN_PLATAFORMA"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"tipo\":\"SUSPENSION\",\"motivo\":\"No rindio la entrega del turno 4\"}"))
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU93-07"));
+            verifyNoInteractions(cu93);
+        }
+
+        @Test
+        @DisplayName("rechaza: sin sesion o sin permiso la guardia responde antes y no se pregunta a cumplimiento")
+        void laGuardiaVaPrimero() throws Exception {
+            mvc.perform(post("/organizadores/{id}/sanciones", ORGANIZADOR)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"tipo\":\"SUSPENSION\",\"motivo\":\"x\"}"))
+                    .andExpect(status().isUnauthorized());
+            mvc.perform(post("/organizadores/{id}/sanciones", ORGANIZADOR)
+                            .with(Sesiones.como("ORGANIZADOR"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"tipo\":\"SUSPENSION\",\"motivo\":\"x\"}"))
+                    .andExpect(status().isForbidden());
+            verifyNoInteractions(reclamosEnCurso);
             verifyNoInteractions(cu93);
         }
     }

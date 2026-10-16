@@ -1,0 +1,2 @@
+$ ¿existe el permiso SOLICITUD_INGRESO_VER y a qué roles se asigna?
+0 en el catálogo de permisos · 0 asignaciones a roles

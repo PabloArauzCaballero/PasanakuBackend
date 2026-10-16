@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../dominio/cliente.dart';
 import '../../../proveedores/idempotencia.dart';
+import '../../../proveedores/sesion.dart';
 
 /// CU-65 · solicitar el retiro de un grupo. La posición (`ACREEDORA`, `DEUDORA`,
 /// `NEUTRA`) la calcula `grupos`; esta pantalla la muestra tal como llega, nunca la
@@ -11,7 +12,10 @@ class SolicitarRetiro extends AsyncNotifier<SalidaRetiro?> {
   static String formularioId(String grupoId) => 'cu65-retiro-$grupoId';
 
   @override
-  Future<SalidaRetiro?> build() async => null;
+  Future<SalidaRetiro?> build() async {
+    ref.watch(generacionDeSesionProvider);
+    return null;
+  }
 
   Future<void> enviar({
     required String grupoId,

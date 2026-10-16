@@ -49,12 +49,9 @@ class _Pastilla extends StatelessWidget {
     final t = Tokens.of(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: t.brandBg,
+        color: t.surface2,
         borderRadius: BorderRadius.circular(Radios.pill),
-        border: Border.all(
-          color: t.brand.withValues(alpha: 0.14),
-          width: Borde.fino,
-        ),
+        border: Border.all(color: t.border, width: Borde.fino),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -64,14 +61,9 @@ class _Pastilla extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icono, size: Espacio.s4, color: t.brandTexto),
+            Icon(icono, size: Espacio.s4, color: t.text2),
             const SizedBox(width: Espacio.s2),
-            Flexible(
-              child: Text(
-                texto,
-                style: Tipo.cuerpoChico.copyWith(color: t.brandTexto),
-              ),
-            ),
+            Text(texto, style: Tipo.cuerpoChico.copyWith(color: t.text2)),
           ],
         ),
       ),

@@ -51,6 +51,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @PruebaWeb(
         value = BilleteraController.class,
         properties = {"aportaya.retiro.doble-aprobacion-desde=5000.00"})
+@org.springframework.context.annotation.Import(FondeoDeLaBilletera.class)
 class BilleteraControllerWebTest {
     private static final UUID CUENTA = UUID.fromString("eeeeeeee-0000-4000-8000-000000000001");
     private static final UUID TRANSACCION = UUID.fromString("eeeeeeee-0000-4000-8000-000000000002");
@@ -64,6 +65,9 @@ class BilleteraControllerWebTest {
 
     @MockitoBean
     private CU10RecargarSaldo cu10;
+
+    @MockitoBean
+    private bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor recargas;
 
     @MockitoBean
     private CU11RetirarSaldo cu11;
@@ -88,6 +92,20 @@ class BilleteraControllerWebTest {
 
     @MockitoBean
     private SegundoFactor segundoFactor;
+
+    // El controlador delega recargas y retiros en FondeoDeLaBilletera: se usa el real, con sus colaboradores
+    // doblados, para que "acreditar" siga probando el camino HTTP de punta a punta.
+    @MockitoBean
+    private bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion cotizaciones;
+
+    @MockitoBean
+    private bo.aportaya.nucleofinanciero.aplicacion.CuentaPropia cuentaPropia;
+
+    @MockitoBean
+    private bo.aportaya.nucleofinanciero.aplicacion.OrdenesExistentes existentes;
+
+    @MockitoBean
+    private QrDeLaBilletera qrDeLaBilletera;
 
     private static Dinero bob(String monto) {
         return Dinero.de(monto, Moneda.BOB);
@@ -159,6 +177,30 @@ class BilleteraControllerWebTest {
                             .content("{}"))
                     .andExpect(status().isForbidden());
             verifyNoInteractions(cu17);
+        }
+
+        @Test
+        @DisplayName("acreditar una recarga NO lo hace quien la pide: el permiso de operar su billetera no alcanza")
+        void acreditarNoSeHaceConElPermisoDeOperar() throws Exception {
+            mvc.perform(post("/billetera/recargas/{id}/acreditacion", TRANSACCION)
+                            .with(Sesiones.como("PARTICIPANTE", "BILLETERA_OPERAR", "BILLETERA_VER"))
+                            .header("Idempotency-Key", CLAVE))
+                    .andExpect(status().isForbidden());
+            // Acreditarse a uno mismo lo que acaba de pedir es fabricarse saldo (91.3).
+            verifyNoInteractions(cu10);
+            verifyNoInteractions(recargas);
+        }
+
+        @Test
+        @DisplayName("con el rol de tesoreria, acreditar pasa: confirma que la plata llego")
+        void acreditarConTesoreria() throws Exception {
+            when(recargas.confirmar(any(), any()))
+                    .thenReturn(new CU10RecargarSaldo.SalidaAcreditacion(TRANSACCION, TRANSACCION, bob("200.00")));
+
+            mvc.perform(post("/billetera/recargas/{id}/acreditacion", TRANSACCION)
+                            .with(Sesiones.como("BACKOFFICE", "TESORERIA"))
+                            .header("Idempotency-Key", CLAVE))
+                    .andExpect(status().isOk());
         }
 
         @Test

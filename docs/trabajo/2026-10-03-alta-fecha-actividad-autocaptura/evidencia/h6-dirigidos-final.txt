@@ -1,0 +1,6 @@
+## diseno_flutter (dirigidos)
+No issues found! (ran in 4.7s)
+00:08 +11: All tests passed!
+## movil (dirigidos)
+No issues found! (ran in 9.0s)
+00:15 +42: All tests passed!

@@ -1,0 +1,3 @@
+LOGIN USR1 (+591***01) -> 200 requiereFactor=False token=si
+POST  /grupos                                                                          -> 500 AP-INT-01
+respuesta: {'codigo': 'AP-INT-01', 'mensaje': 'No pudimos completar la operacion. Volve a intentar.', 'trazaId': 'fc1c2145-2b38-9be7-2e0c-eebfdd20b5d5'}

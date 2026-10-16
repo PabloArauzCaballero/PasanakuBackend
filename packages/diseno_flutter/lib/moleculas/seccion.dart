@@ -25,30 +25,20 @@ class TituloDeSeccion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
-    final encabezado = Semantics(
-      header: true,
-      child: Text(titulo, style: Tipo.titulo3.copyWith(color: t.text)),
-    );
-    final enlace = accion == null
-        ? null
-        : TextButton(onPressed: alTocarAccion, child: Text(accion!));
-    if (MediaQuery.textScalerOf(context).scale(16) > 16) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: Espacio.s2),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [encabezado, ?alCostado, ?enlace],
-        ),
-      );
-    }
     return Padding(
       padding: const EdgeInsets.only(bottom: Espacio.s2),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Expanded(child: encabezado),
+          Expanded(
+            child: Semantics(
+              header: true,
+              child: Text(titulo, style: Tipo.titulo3.copyWith(color: t.text)),
+            ),
+          ),
           ?alCostado,
-          ?enlace,
+          if (accion != null)
+            TextButton(onPressed: alTocarAccion, child: Text(accion!)),
         ],
       ),
     );
@@ -82,7 +72,7 @@ class Panel extends StatelessWidget {
         border: destacado
             ? null
             : Border.all(color: t.border, width: Borde.fino),
-        boxShadow: destacado ? [t.sombra2] : null,
+        boxShadow: destacado ? Elevacion.destacada(t) : null,
       ),
       child: Padding(padding: relleno, child: hijo),
     );

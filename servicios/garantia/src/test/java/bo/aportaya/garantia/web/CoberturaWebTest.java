@@ -12,6 +12,7 @@ import bo.aportaya.garantia.aplicacion.CU25DeclararIncumplimiento;
 import bo.aportaya.garantia.aplicacion.CU26EjecutarAval;
 import bo.aportaya.garantia.aplicacion.CU27RestringirDeudor;
 import bo.aportaya.garantia.aplicacion.CU66ReemplazarParticipante;
+import bo.aportaya.garantia.aplicacion.ReclamosEnCurso;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
@@ -62,6 +63,9 @@ class CoberturaWebTest {
 
     @MockitoBean
     private CU66ReemplazarParticipante cu66;
+
+    @MockitoBean
+    private ReclamosEnCurso reclamosEnCurso;
 
     private static Dinero bob(String monto) {
         return Dinero.de(monto, Moneda.BOB);

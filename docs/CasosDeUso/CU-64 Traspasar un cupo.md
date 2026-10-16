@@ -118,6 +118,12 @@ export const ErroresCU64 = {
 | `traspaso.propuesto` | Invitación al entrante + notificación al grupo | `PARTICIPANTE` |
 | `cupo.traspasado` | Recálculo de la bolsa esperada + evento de reputación de ambos | `GRUPO_ADMINISTRAR` |
 
+> **Venta de un turno en el mercado (carril I).** `entregas.derecho_cedido` (trae `grupoId`, `cupoId`, `turnoId` y los participantes
+> de origen y destino) lo CONSUME `grupos` (`AplicarCesionDeDerecho`): el cupo pasa al comprador con un traspaso `VENTA` (deuda
+> transferida 0, derecho de cobro transferido), una sola vez por evento y por hecho. Fuera de orden (la cesión siguiente de la cadena
+> llega antes) se rechaza sin marcar el evento y se aplica al reprocesar. Decisión de negocio pendiente: qué pasa con las
+> obligaciones futuras ya generadas a nombre del vendedor.
+
 ## Interfaz
 
 - **App:** *Mi cupo → Traspasar*; el entrante recibe una invitación con el detalle

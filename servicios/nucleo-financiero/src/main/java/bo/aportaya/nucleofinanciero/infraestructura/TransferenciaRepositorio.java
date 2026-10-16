@@ -1,6 +1,7 @@
 package bo.aportaya.nucleofinanciero.infraestructura;
 
 import bo.aportaya.plataforma.dominio.Dinero;
+import bo.aportaya.plataforma.dominio.Moneda;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -40,6 +41,35 @@ public class TransferenciaRepositorio {
                 .execute();
         return id;
     }
+
+    /** Lo que se transfirio en esa transaccion: contra esto se compara un reintento. */
+    public Optional<Transferencia> porTransaccion(DSLContext dsl, UUID transaccionId) {
+        return dsl.select(
+                        DSL.field("cuenta_billetera_origen_id", UUID.class),
+                        DSL.field("cuenta_billetera_destino_id", UUID.class),
+                        DSL.field("monto", BigDecimal.class),
+                        DSL.field("moneda", String.class),
+                        DSL.field("concepto", String.class),
+                        DSL.field("obligacion_id", UUID.class),
+                        DSL.field("grupo_id", UUID.class))
+                .from(DSL.table(DSL.name("nucleo_financiero", "transferencia_p2p")))
+                .where(DSL.field("transaccion_id", UUID.class).eq(transaccionId))
+                .fetchOptional(f -> new Transferencia(
+                        f.get("cuenta_billetera_origen_id", UUID.class),
+                        f.get("cuenta_billetera_destino_id", UUID.class),
+                        Dinero.de(f.get("monto", BigDecimal.class), Moneda.valueOf(f.get("moneda", String.class))),
+                        f.get("concepto", String.class),
+                        Optional.ofNullable(f.get("obligacion_id", UUID.class)),
+                        Optional.ofNullable(f.get("grupo_id", UUID.class))));
+    }
+
+    public record Transferencia(
+            UUID origenId,
+            UUID destinoId,
+            Dinero monto,
+            String concepto,
+            Optional<UUID> obligacionId,
+            Optional<UUID> grupoId) {}
 
     /**
      * ¿La politica de esa billetera admite transferencias?

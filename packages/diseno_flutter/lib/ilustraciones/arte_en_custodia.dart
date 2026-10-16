@@ -20,10 +20,10 @@ class ArteEnCustodia extends ArteDeMaqueta {
     c.drawLine(
       const Offset(28, 60),
       const Offset(112, 60),
-      trazo(Paleta.g300, 3, redondo: false),
+      trazo(t.border, 3, redondo: false),
     );
 
-    final renglon = trazo(Paleta.g600, 4);
+    final renglon = trazo(t.text3, 4);
     c
       ..drawLine(const Offset(36, 74), const Offset(80, 74), renglon)
       ..drawLine(const Offset(36, 86), const Offset(66, 86), renglon);
@@ -49,7 +49,7 @@ class ArteEnCustodia extends ArteDeMaqueta {
         ..cubicTo(31.6, 49.4, 26, 44, 26, 37)
         ..lineTo(26, 28)
         ..close(),
-      relleno(Paleta.o500),
+      relleno(Paleta.g700),
     );
   }
 }

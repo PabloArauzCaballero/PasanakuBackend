@@ -1,4 +1,4 @@
-import { HttpClient, httpResource, HttpContext } from '@angular/common/http'
+import { HttpClient, httpResource } from '@angular/common/http'
 import { inject, Signal } from '@angular/core'
 import type { Observable } from 'rxjs'
 import {
@@ -8,7 +8,7 @@ import {
   type ExpedienteEnRevision,
 } from 'clientes/angular/identidad'
 import { GATEWAY } from '../../../nucleo/gateway'
-import { CLAVE_IDEMPOTENCIA, claveDeIdempotencia } from '../../../nucleo/idempotencia.interceptor'
+import { contextoIdempotente } from '../../../nucleo/idempotencia.interceptor'
 
 /**
  * CU-02 · el portal de riesgo: la cola de expedientes de identidad, sus fotos y la
@@ -53,6 +53,19 @@ export const esperaDecision = (e: ExpedienteEnRevision): boolean => ESPERAN_A_UN
 /** Lo que se muestra con el filtro elegido. `POR_DECIDIR` recorta; el resto ya viene filtrado. */
 export function recortar(cola: readonly ExpedienteEnRevision[], estado: string): ExpedienteEnRevision[] {
   return estado === POR_DECIDIR ? cola.filter(esperaDecision) : [...cola]
+}
+
+/** Lo que el servidor dijo del vencimiento del documento. */
+export type Vencimiento = 'vigente' | 'vencido' | 'sin-fecha'
+
+/**
+ * Lo decide el servidor (`documentoVigente`, con su reloj en hora de Bolivia), no el
+ * reloj de quien mira: un operador con la hora corrida no puede «revivir» un carnet.
+ * Sin fecha no hay forma de comprobarlo, y el servidor tampoco deja aprobar (AP-CU01-10).
+ */
+export function vencimientoDe(e: ExpedienteEnRevision): Vencimiento {
+  if (!e.fechaExpiracionDocumento) return 'sin-fecha'
+  return e.documentoVigente ? 'vigente' : 'vencido'
 }
 
 /** Una cola vacía es una cola vacía: no hay nada que revisar, y eso es una buena noticia. */
@@ -107,7 +120,7 @@ export function crearResolver(): (verificacionId: string, cuerpo: DecisionDeVeri
   const http = inject(HttpClient)
   const gateway = inject(GATEWAY)
   return (verificacionId: string, cuerpo: DecisionDeVerificacion) => {
-    const contexto = new HttpContext().set(CLAVE_IDEMPOTENCIA, claveDeIdempotencia())
+    const contexto = contextoIdempotente()
     return http.post<ExpedienteEnRevision>(`${gateway}/identidad/verificaciones/${verificacionId}/decision`, cuerpo, {
       context: contexto,
     })

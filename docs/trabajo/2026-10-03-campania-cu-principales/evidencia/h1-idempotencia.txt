@@ -1,0 +1,10 @@
+licencia habilitada (sandbox sembrado):
+  GRUPO_PASANAKU = t
+  RECARGA = t
+  RETIRO = t
+  TRANSFERENCIA_P2P = t
+  BILLETERA = t
+licencia: CERTIFICADO_ADECUACION EN_TRAMITE
+conteos 1.ª corrida (usuario/grupo/cupo/participante/obligacion/sandbox): 11/2/9/7/19/5
+2.ª corrida de bd:dev, BUILD SUCCESSFUL x1
+conteos 2.ª corrida: 11/2/9/7/19/5

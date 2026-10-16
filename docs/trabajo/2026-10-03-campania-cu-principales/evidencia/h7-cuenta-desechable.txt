@@ -1,0 +1,13 @@
+== contratos vigentes (los que hay que aceptar)
+GET   /cumplimiento/contratos/vigentes                                                 -> 200
+   contratos: 4
+== alta (CU-01) de la cuenta desechable
+POST  /usuarios                                                                        -> 202
+   respuesta: {'estado': 'PENDIENTE_VERIFICACION', 'nivelDiligencia': None}
+== expediente: 3 fotos sinteticas
+POST  /usuarios/<id>/documentos (ANVERSO)  -> 201
+POST  /usuarios/<id>/documentos (REVERSO)  -> 201
+POST  /usuarios/<id>/documentos (SELFIE)  -> 201
+SQL verificacion: ERROR:  column "url_anverso" does not exist
+LINE 1: select estado||' · fotos='||(case when url_anverso is not nu...
+                                               ^

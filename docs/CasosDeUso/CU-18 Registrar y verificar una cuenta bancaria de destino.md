@@ -54,10 +54,17 @@ normas: [ASFI Seguridad de la Información, UIF titularidad, PCI-DSS por analog�
 7. Todo alta, verificación o baja de cuenta se notifica por los canales verificados
    y se registra en [[bitacora_evento]].
 
+> **Quién verifica la titularidad ([[ADR-052 Decisiones adoptadas por delegación del dueño|ADR-052]] DD-4; pendiente de
+> ratificación de Seguridad).** `entregas` no lee la base de identidad: pregunta a `identidad` con su credencial de
+> servicio (`SERVICIO_ENTREGAS`) y recibe **solo un sí/no**, sin ningún dato del titular. Hay un **límite de consultas** por
+> servicio y por usuario consultado, cada consulta deja rastro y ante cualquier fallo la respuesta es «no». El límite
+> todavía no está implementado y sus cifras las fija Seguridad.
+
 ## Flujos alternativos
 
 | # | Situación | Resultado |
 | :-: | --- | --- |
+| 3b | `entregas` consulta la titularidad más veces por minuto que el tope de su credencial de servicio | `identidad` responde 429 con `Retry-After` (`AP-LIM-01`) y no toca el expediente; `entregas` lo lee como «no coincide» (falla cerrado). La verificación contesta solo sí/no, y un sí/no repetido es un oráculo del titular |
 | 3a | El documento del titular de la cuenta no coincide | Rechazo `TITULAR_NO_COINCIDE`. Si insiste, se registra como señal para [[CU-44 De alerta de monitoreo a reporte de operación sospechosa]] |
 | 2a | La cuenta ya está registrada por otro usuario | Se detecta por `hash_numero_cuenta` sin descifrar nada. Puede ser legítimo (cuenta conjunta) o no: queda en revisión manual con evidencia |
 | 4a | El micro-depósito se informa mal tres veces | La verificación se cancela y hay que empezarla de nuevo; el importe enviado se recupera |
@@ -138,6 +145,12 @@ export const ErroresCU18 = {
 | `cuenta_beneficiaria.verificada` | Habilita retiro y desembolso pasado el enfriamiento | — |
 | `cuenta_beneficiaria.rechazada` | Aviso con el motivo y pedido de otra cuenta | — |
 | — | Trabajo que concilia los micro-depósitos enviados y no informados | — |
+
+> **Quién verifica la titularidad (carril I).** El paso 3 lo contesta `identidad` (`POST /usuarios/{id}/titularidad/verificacion`, solo
+> sí/no, nunca el dato). `entregas` firma esa pregunta con la credencial de SERVICIO `SERVICIO_ENTREGAS`, no con el token del
+> participante: el participante no tiene `DATOS_SENSIBLES_LEER` y su 403 se leía como «no coincide», con lo que nadie podía registrar
+> su cuenta. Sin credencial de servicio la respuesta es «no coincide» (falla cerrado). Qué otros roles pueden verificar es una decisión
+> del modelo de roles que corresponde a Seguridad.
 
 ## Interfaz
 

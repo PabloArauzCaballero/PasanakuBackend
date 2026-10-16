@@ -6,6 +6,8 @@ import bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios;
 import bo.aportaya.grupos.web.generado.TurnosApi;
 import bo.aportaya.grupos.web.generado.modelo.EntradaPermuta;
 import bo.aportaya.grupos.web.generado.modelo.SalidaPermuta;
+import bo.aportaya.plataforma.dominio.CodigoError;
+import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
@@ -43,7 +45,15 @@ public class TurnosController implements TurnosApi {
         var ctx = sesion.actual();
         Traza.marcarCasoDeUso("CU-62", cuerpo.getTurnoOrigenId().toString());
 
-        var solicitante = afuera.estadoDePagos(ctx.usuarioId());
+        // El solicitante es el PARTICIPANTE de quien llama en el grupo del turno (la FK de la
+        // solicitud apunta a `participante`, no a `usuario`).
+        UUID grupoId = consultas
+                .grupoDelTurno(cuerpo.getTurnoOrigenId(), ctx)
+                .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(62, 1), "Ese turno no existe."));
+        UUID solicitanteId = consultas
+                .participanteDe(grupoId, ctx.usuarioId(), ctx)
+                .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(62, 1), "No participas de ese grupo."));
+        var solicitante = afuera.estadoDePagos(solicitanteId);
         var contraparte = afuera.estadoDePagos(cuerpo.getContraparteId());
         boolean loPermiteElReglamento = consultas.permitePermuta(cuerpo.getTurnoOrigenId(), ctx);
 
@@ -51,7 +61,7 @@ public class TurnosController implements TurnosApi {
                 new CU62Permutar.EntradaPermuta(
                         cuerpo.getTurnoOrigenId(),
                         cuerpo.getTurnoDestinoId(),
-                        ctx.usuarioId(),
+                        solicitanteId,
                         cuerpo.getContraparteId(),
                         cuerpo.getMotivo(),
                         solicitante.alDia(),

@@ -1,0 +1,8 @@
+$ flutter analyze
+No issues found! (ran in 100.1s)
+$ flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku
+00:45 +276 -2: Some tests failed.                                                                                                                                                                      
+test/unidad/enchufe_de_rutas_test.dart: agregar una pantalla vacía en un dominio no cambia ningún archivo fuera de él [E]
+test/unidad/gate_del_shell_test.dart: Platform.is solo aparece dentro de infraestructura/ [E]                 
+$ python scripts/verificar_frontend.py movil
+TODO OK

@@ -1,0 +1,54 @@
+{
+  "servicio": "entregas",
+  "operacion": "cancelarOferta",
+  "metodo": "post",
+  "ruta": "/entregas/mercado/ofertas/{ofertaId}/cancelacion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "ofertaId": "8c59ef85-827d-474f-8e24-08ca0ed7d6d4",
+        "cancelada": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "ofertaId": "8c59ef85-827d-474f-8e24-08ca0ed7d6d4",
+        "cancelada": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "ofertaId": "8c59ef85-827d-474f-8e24-08ca0ed7d6d4",
+        "cancelada": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "ofertaId": "8c59ef85-827d-474f-8e24-08ca0ed7d6d4",
+        "cancelada": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU18-01",
+        "mensaje": "Titular no coincide",
+        "detalle": {},
+        "trazaId": "traza-cancelarOferta-rechazo"
+      }
+    }
+  }
+}

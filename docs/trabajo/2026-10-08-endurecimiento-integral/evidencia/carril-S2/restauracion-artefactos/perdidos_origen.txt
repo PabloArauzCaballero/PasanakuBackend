@@ -1,0 +1,7 @@
+401|S2 sintetico posterior 1|2026-10-09 17:33:50.500956-04
+402|S2 sintetico posterior 2|2026-10-09 17:33:50.501686-04
+403|S2 sintetico posterior 3|2026-10-09 17:33:50.501706-04
+404|S2 sintetico posterior 4|2026-10-09 17:33:50.501713-04
+405|S2 sintetico posterior 5|2026-10-09 17:33:50.501736-04
+406|S2 sintetico posterior 6|2026-10-09 17:33:50.501745-04
+407|S2 sintetico posterior 7|2026-10-09 17:33:50.501752-04

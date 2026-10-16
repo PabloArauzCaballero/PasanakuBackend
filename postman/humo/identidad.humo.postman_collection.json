@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Humo · identidad",
-    "description": "# Humo · identidad\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**11 operaciones × tres preguntas.**\n\n| Caso | Que pregunta |\n| --- | --- |\n| `1 · valido` | Hace lo que promete cuando todo esta bien, y devuelve los campos obligatorios |\n| `2 · limite` | Que hace en el borde exacto: el umbral, el largo maximo, el minimo del rango |\n| `3 · error · sin sesion` | Deniega por omision: sin token no se pasa, y el 401 no cuenta de mas |\n| `4 · error · cuerpo invalido` | Rechaza lo que no valida, sin filtrar la traza |\n\nSe corre con `newman`:\n\n```\nnewman run postman/humo/identidad.humo.postman_collection.json \\\n  -e postman/entornos/ensayo-local.postman_environment.json\n```\n",
+    "description": "# Humo · identidad\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**22 operaciones × tres preguntas.**\n\n| Caso | Que pregunta |\n| --- | --- |\n| `1 · valido` | Hace lo que promete cuando todo esta bien, y devuelve los campos obligatorios |\n| `2 · limite` | Que hace en el borde exacto: el umbral, el largo maximo, el minimo del rango |\n| `3 · error · sin sesion` | Deniega por omision: sin token no se pasa, y el 401 no cuenta de mas |\n| `4 · error · cuerpo invalido` | Rechaza lo que no valida, sin filtrar la traza |\n\nSe corre con `newman`:\n\n```\nnewman run postman/humo/identidad.humo.postman_collection.json \\\n  -e postman/entornos/ensayo-local.postman_environment.json\n```\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -80,6 +80,469 @@
       ]
     },
     {
+      "name": "solicitarVerificacionCorreo · Enviar el codigo que confirma el correo del alta",
+      "item": [
+        {
+          "name": "1 · valido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/verificaciones/correo",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                "verificaciones",
+                "correo"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"correo-de-prueba\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO VALIDO — todo bien formado, sesion valida, cuerpo completo.",
+                  "pm.test(\"acepta el caso valido\", () => {",
+                  "    pm.expect(pm.response.code, \"esperaba \" + [202] + \", vino \" + pm.response.code",
+                  "        + \" · \" + pm.response.text().slice(0, 300)).to.be.oneOf([202]);",
+                  "});",
+                  "",
+                  "pm.test(\"responde JSON\", () => {",
+                  "    if (pm.response.code !== 204) {",
+                  "        pm.response.to.have.header(\"Content-Type\");",
+                  "        pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"json\");",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"trae los campos que el contrato declara obligatorios\", () => {",
+                  "    if (pm.response.code >= 300 || pm.response.code === 204) return;",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const campo of [\"verificacionId\", \"destinoEnmascarado\", \"expiraEn\"]) {",
+                  "        pm.expect(cuerpo, \"falta \" + campo).to.have.property(campo);",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"los importes son cadena, no numero\", () => {",
+                  "    if (pm.response.code >= 300) return;",
+                  "    const revisar = (nodo) => {",
+                  "        if (nodo === null || typeof nodo !== \"object\") return;",
+                  "        if (\"monto\" in nodo && \"moneda\" in nodo) {",
+                  "            // Un `number` de JSON es un doble. Dos decimales exactos, como cadena.",
+                  "            pm.expect(nodo.monto, \"el importe viajo como numero\").to.be.a(\"string\");",
+                  "            pm.expect(nodo.monto).to.match(/^-?\\d+\\.\\d{2}$/);",
+                  "        }",
+                  "        Object.values(nodo).forEach(revisar);",
+                  "    };",
+                  "    revisar(pm.response.json());",
+                  "});",
+                  "",
+                  "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+                  "if (pm.response.code < 300) {",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+                  "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+                  "            pm.collectionVariables.set(clave, valor);",
+                  "        }",
+                  "    }",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2 · limite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/verificaciones/correo",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                "verificaciones",
+                "correo"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
+                  "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
+                  "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([202, 400, 404, 409, 422]);",
+                  "});",
+                  "",
+                  "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
+                  "    pm.expect(pm.response.code, \"un borde nunca es un error del servidor\").to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4 · error · cuerpo invalido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/verificaciones/correo",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                "verificaciones",
+                "correo"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — cuerpo invalido: falta un campo obligatorio y sobra uno que el",
+                  "// esquema prohibe (`additionalProperties: false`).",
+                  "pm.test(\"rechaza el cuerpo invalido\", () => {",
+                  "    pm.expect(pm.response.code, \"acepto un cuerpo que no valida contra su esquema\")",
+                  "        .to.be.oneOf([400, 422]);",
+                  "});",
+                  "",
+                  "pm.test(\"dice que esta mal sin exponer como esta hecho por dentro\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+                  "    pm.expect(cuerpo).to.not.include(\"org.jooq\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Humo de `solicitarVerificacionCorreo`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
+    },
+    {
+      "name": "confirmarVerificacionCorreo · Confirmar el codigo recibido por correo",
+      "item": [
+        {
+          "name": "1 · valido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/verificaciones/correo/:verificacionId/confirmacion",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                "verificaciones",
+                "correo",
+                ":verificacionId",
+                "confirmacion"
+              ],
+              "variable": [
+                {
+                  "key": "verificacionId",
+                  "value": "{{verificacionId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"correo-de-prueba\",\n  \"codigo\": \"111111\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO VALIDO — todo bien formado, sesion valida, cuerpo completo.",
+                  "pm.test(\"acepta el caso valido\", () => {",
+                  "    pm.expect(pm.response.code, \"esperaba \" + [200] + \", vino \" + pm.response.code",
+                  "        + \" · \" + pm.response.text().slice(0, 300)).to.be.oneOf([200]);",
+                  "});",
+                  "",
+                  "pm.test(\"responde JSON\", () => {",
+                  "    if (pm.response.code !== 204) {",
+                  "        pm.response.to.have.header(\"Content-Type\");",
+                  "        pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"json\");",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"trae los campos que el contrato declara obligatorios\", () => {",
+                  "    if (pm.response.code >= 300 || pm.response.code === 204) return;",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const campo of [\"verificada\"]) {",
+                  "        pm.expect(cuerpo, \"falta \" + campo).to.have.property(campo);",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"los importes son cadena, no numero\", () => {",
+                  "    if (pm.response.code >= 300) return;",
+                  "    const revisar = (nodo) => {",
+                  "        if (nodo === null || typeof nodo !== \"object\") return;",
+                  "        if (\"monto\" in nodo && \"moneda\" in nodo) {",
+                  "            // Un `number` de JSON es un doble. Dos decimales exactos, como cadena.",
+                  "            pm.expect(nodo.monto, \"el importe viajo como numero\").to.be.a(\"string\");",
+                  "            pm.expect(nodo.monto).to.match(/^-?\\d+\\.\\d{2}$/);",
+                  "        }",
+                  "        Object.values(nodo).forEach(revisar);",
+                  "    };",
+                  "    revisar(pm.response.json());",
+                  "});",
+                  "",
+                  "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+                  "if (pm.response.code < 300) {",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+                  "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+                  "            pm.collectionVariables.set(clave, valor);",
+                  "        }",
+                  "    }",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2 · limite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/verificaciones/correo/:verificacionId/confirmacion",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                "verificaciones",
+                "correo",
+                ":verificacionId",
+                "confirmacion"
+              ],
+              "variable": [
+                {
+                  "key": "verificacionId",
+                  "value": "{{verificacionId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"codigo\": \"111111\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
+                  "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
+                  "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 422]);",
+                  "});",
+                  "",
+                  "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
+                  "    pm.expect(pm.response.code, \"un borde nunca es un error del servidor\").to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4 · error · cuerpo invalido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/verificaciones/correo/:verificacionId/confirmacion",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                "verificaciones",
+                "correo",
+                ":verificacionId",
+                "confirmacion"
+              ],
+              "variable": [
+                {
+                  "key": "verificacionId",
+                  "value": "{{verificacionId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"111111\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — cuerpo invalido: falta un campo obligatorio y sobra uno que el",
+                  "// esquema prohibe (`additionalProperties: false`).",
+                  "pm.test(\"rechaza el cuerpo invalido\", () => {",
+                  "    pm.expect(pm.response.code, \"acepto un cuerpo que no valida contra su esquema\")",
+                  "        .to.be.oneOf([400, 422]);",
+                  "});",
+                  "",
+                  "pm.test(\"dice que esta mal sin exponer como esta hecho por dentro\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+                  "    pm.expect(cuerpo).to.not.include(\"org.jooq\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Humo de `confirmarVerificacionCorreo`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
+    },
+    {
       "name": "registrarUsuario · Registro y apertura de billetera",
       "item": [
         {
@@ -109,7 +572,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"nombres\": \"nombres-de-prueba\",\n  \"apellidos\": \"apellidos-de-prueba\",\n  \"fechaNacimiento\": \"{{fecha_hoy}}\",\n  \"contrasena\": \"contrasena-de-prueba\",\n  \"correo\": \"correo-de-prueba\",\n  \"canalVerificacion\": \"SMS\",\n  \"documento\": {\n    \"tipo\": \"CI\",\n    \"numero\": \"numero-de-prueba\",\n    \"lugarExpedicion\": \"LP\"\n  },\n  \"aceptaContratos\": [\n    \"{{aceptaContratos}}\"\n  ]\n}",
+              "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"nombres\": \"nombres-de-prueba\",\n  \"apellidos\": \"apellidos-de-prueba\",\n  \"fechaNacimiento\": \"{{fecha_hoy}}\",\n  \"contrasena\": \"contrasena-de-prueba\",\n  \"correo\": \"correo-de-prueba\",\n  \"verificacionCorreoId\": \"{{verificacionCorreoId}}\",\n  \"canalVerificacion\": \"CORREO\",\n  \"documento\": {\n    \"tipo\": \"CI\",\n    \"numero\": \"numero-de-prueba\",\n    \"lugarExpedicion\": \"LP\",\n    \"fechaExpiracion\": \"{{fecha_hoy}}\"\n  },\n  \"aceptaContratos\": [\n    \"{{aceptaContratos}}\"\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -201,7 +664,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"nombres\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"apellidos\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"fechaNacimiento\": \"{{fecha_hoy}}\",\n  \"contrasena\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"correo\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"canalVerificacion\": \"CORREO\",\n  \"documento\": {\n    \"tipo\": \"PASAPORTE\",\n    \"numero\": \"LLLLLLLLLLLLLLLLLLLL\",\n    \"lugarExpedicion\": \"PD\"\n  },\n  \"aceptaContratos\": [\n    \"{{id}}\"\n  ]\n}",
+              "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"nombres\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"apellidos\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"fechaNacimiento\": \"{{fecha_hoy}}\",\n  \"contrasena\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"correo\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"verificacionCorreoId\": \"{{id}}\",\n  \"canalVerificacion\": \"CORREO\",\n  \"documento\": {\n    \"tipo\": \"PASAPORTE\",\n    \"numero\": \"LLLLLLLLLLLLLLLLLLLL\",\n    \"lugarExpedicion\": \"PD\",\n    \"fechaExpiracion\": \"{{fecha_hoy}}\"\n  },\n  \"aceptaContratos\": [\n    \"{{id}}\"\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -263,7 +726,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombres\": \"nombres-de-prueba\",\n  \"apellidos\": \"apellidos-de-prueba\",\n  \"fechaNacimiento\": \"{{fecha_hoy}}\",\n  \"contrasena\": \"contrasena-de-prueba\",\n  \"correo\": \"correo-de-prueba\",\n  \"canalVerificacion\": \"SMS\",\n  \"documento\": {\n    \"tipo\": \"CI\",\n    \"numero\": \"numero-de-prueba\",\n    \"lugarExpedicion\": \"LP\"\n  },\n  \"aceptaContratos\": [\n    \"{{aceptaContratos}}\"\n  ],\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"nombres\": \"nombres-de-prueba\",\n  \"apellidos\": \"apellidos-de-prueba\",\n  \"fechaNacimiento\": \"{{fecha_hoy}}\",\n  \"contrasena\": \"contrasena-de-prueba\",\n  \"correo\": \"correo-de-prueba\",\n  \"verificacionCorreoId\": \"{{verificacionCorreoId}}\",\n  \"canalVerificacion\": \"CORREO\",\n  \"documento\": {\n    \"tipo\": \"CI\",\n    \"numero\": \"numero-de-prueba\",\n    \"lugarExpedicion\": \"LP\",\n    \"fechaExpiracion\": \"{{fecha_hoy}}\"\n  },\n  \"aceptaContratos\": [\n    \"{{aceptaContratos}}\"\n  ],\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -505,6 +968,871 @@
         }
       ],
       "description": "Humo de `autenticar`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
+    },
+    {
+      "name": "renovarSesion · Renovar el acceso con cookie web o refresh del cuerpo móvil",
+      "item": [
+        {
+          "name": "1 · valido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/sesion/refrescar",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "sesion",
+                "refrescar"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresco\": \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO VALIDO — todo bien formado, sesion valida, cuerpo completo.",
+                  "pm.test(\"acepta el caso valido\", () => {",
+                  "    pm.expect(pm.response.code, \"esperaba \" + [200] + \", vino \" + pm.response.code",
+                  "        + \" · \" + pm.response.text().slice(0, 300)).to.be.oneOf([200]);",
+                  "});",
+                  "",
+                  "pm.test(\"responde JSON\", () => {",
+                  "    if (pm.response.code !== 204) {",
+                  "        pm.response.to.have.header(\"Content-Type\");",
+                  "        pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"json\");",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"trae los campos que el contrato declara obligatorios\", () => {",
+                  "    if (pm.response.code >= 300 || pm.response.code === 204) return;",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const campo of [\"acceso\", \"rol\", \"permisos\"]) {",
+                  "        pm.expect(cuerpo, \"falta \" + campo).to.have.property(campo);",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"los importes son cadena, no numero\", () => {",
+                  "    if (pm.response.code >= 300) return;",
+                  "    const revisar = (nodo) => {",
+                  "        if (nodo === null || typeof nodo !== \"object\") return;",
+                  "        if (\"monto\" in nodo && \"moneda\" in nodo) {",
+                  "            // Un `number` de JSON es un doble. Dos decimales exactos, como cadena.",
+                  "            pm.expect(nodo.monto, \"el importe viajo como numero\").to.be.a(\"string\");",
+                  "            pm.expect(nodo.monto).to.match(/^-?\\d+\\.\\d{2}$/);",
+                  "        }",
+                  "        Object.values(nodo).forEach(revisar);",
+                  "    };",
+                  "    revisar(pm.response.json());",
+                  "});",
+                  "",
+                  "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+                  "if (pm.response.code < 300) {",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+                  "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+                  "            pm.collectionVariables.set(clave, valor);",
+                  "        }",
+                  "    }",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2 · limite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/sesion/refrescar",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "sesion",
+                "refrescar"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresco\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
+                  "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
+                  "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 401, 404, 409, 422]);",
+                  "});",
+                  "",
+                  "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
+                  "    pm.expect(pm.response.code, \"un borde nunca es un error del servidor\").to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4 · error · cuerpo invalido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/sesion/refrescar",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "sesion",
+                "refrescar"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — cuerpo invalido: falta un campo obligatorio y sobra uno que el",
+                  "// esquema prohibe (`additionalProperties: false`).",
+                  "pm.test(\"rechaza el cuerpo invalido\", () => {",
+                  "    pm.expect(pm.response.code, \"acepto un cuerpo que no valida contra su esquema\")",
+                  "        .to.be.oneOf([400, 422]);",
+                  "});",
+                  "",
+                  "pm.test(\"dice que esta mal sin exponer como esta hecho por dentro\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+                  "    pm.expect(cuerpo).to.not.include(\"org.jooq\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Humo de `renovarSesion`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
+    },
+    {
+      "name": "cerrarSesion · Cerrar la sesión autenticada actual",
+      "item": [
+        {
+          "name": "1 · valido",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/sesion",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "sesion"
+              ],
+              "variable": []
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO VALIDO — todo bien formado, sesion valida, cuerpo completo.",
+                  "pm.test(\"acepta el caso valido\", () => {",
+                  "    pm.expect(pm.response.code, \"esperaba \" + [204] + \", vino \" + pm.response.code",
+                  "        + \" · \" + pm.response.text().slice(0, 300)).to.be.oneOf([204]);",
+                  "});",
+                  "",
+                  "pm.test(\"responde JSON\", () => {",
+                  "    if (pm.response.code !== 204) {",
+                  "        pm.response.to.have.header(\"Content-Type\");",
+                  "        pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"json\");",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"trae los campos que el contrato declara obligatorios\", () => {",
+                  "    if (pm.response.code >= 300 || pm.response.code === 204) return;",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const campo of []) {",
+                  "        pm.expect(cuerpo, \"falta \" + campo).to.have.property(campo);",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"los importes son cadena, no numero\", () => {",
+                  "    if (pm.response.code >= 300) return;",
+                  "    const revisar = (nodo) => {",
+                  "        if (nodo === null || typeof nodo !== \"object\") return;",
+                  "        if (\"monto\" in nodo && \"moneda\" in nodo) {",
+                  "            // Un `number` de JSON es un doble. Dos decimales exactos, como cadena.",
+                  "            pm.expect(nodo.monto, \"el importe viajo como numero\").to.be.a(\"string\");",
+                  "            pm.expect(nodo.monto).to.match(/^-?\\d+\\.\\d{2}$/);",
+                  "        }",
+                  "        Object.values(nodo).forEach(revisar);",
+                  "    };",
+                  "    revisar(pm.response.json());",
+                  "});",
+                  "",
+                  "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+                  "if (pm.response.code < 300) {",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+                  "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+                  "            pm.collectionVariables.set(clave, valor);",
+                  "        }",
+                  "    }",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2 · limite",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/sesion",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "sesion"
+              ],
+              "variable": []
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
+                  "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
+                  "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([204, 400, 401, 404, 409, 422]);",
+                  "});",
+                  "",
+                  "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
+                  "    pm.expect(pm.response.code, \"un borde nunca es un error del servidor\").to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/sesion",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "sesion"
+              ],
+              "variable": []
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Humo de `cerrarSesion`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
+    },
+    {
+      "name": "abrirDesafioDeStepUp · Abrir un desafio de segundo factor para una operacion sensible",
+      "item": [
+        {
+          "name": "1 · valido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/sesiones/desafios",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "sesiones",
+                "desafios"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"proposito\": \"RETIRO\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO VALIDO — todo bien formado, sesion valida, cuerpo completo.",
+                  "pm.test(\"acepta el caso valido\", () => {",
+                  "    pm.expect(pm.response.code, \"esperaba \" + [201] + \", vino \" + pm.response.code",
+                  "        + \" · \" + pm.response.text().slice(0, 300)).to.be.oneOf([201]);",
+                  "});",
+                  "",
+                  "pm.test(\"responde JSON\", () => {",
+                  "    if (pm.response.code !== 204) {",
+                  "        pm.response.to.have.header(\"Content-Type\");",
+                  "        pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"json\");",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"trae los campos que el contrato declara obligatorios\", () => {",
+                  "    if (pm.response.code >= 300 || pm.response.code === 204) return;",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const campo of [\"desafioId\", \"expiraEn\"]) {",
+                  "        pm.expect(cuerpo, \"falta \" + campo).to.have.property(campo);",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"los importes son cadena, no numero\", () => {",
+                  "    if (pm.response.code >= 300) return;",
+                  "    const revisar = (nodo) => {",
+                  "        if (nodo === null || typeof nodo !== \"object\") return;",
+                  "        if (\"monto\" in nodo && \"moneda\" in nodo) {",
+                  "            // Un `number` de JSON es un doble. Dos decimales exactos, como cadena.",
+                  "            pm.expect(nodo.monto, \"el importe viajo como numero\").to.be.a(\"string\");",
+                  "            pm.expect(nodo.monto).to.match(/^-?\\d+\\.\\d{2}$/);",
+                  "        }",
+                  "        Object.values(nodo).forEach(revisar);",
+                  "    };",
+                  "    revisar(pm.response.json());",
+                  "});",
+                  "",
+                  "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+                  "if (pm.response.code < 300) {",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+                  "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+                  "            pm.collectionVariables.set(clave, valor);",
+                  "        }",
+                  "    }",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2 · limite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/sesiones/desafios",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "sesiones",
+                "desafios"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"proposito\": \"ADMIN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
+                  "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
+                  "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([201, 400, 404, 409, 422]);",
+                  "});",
+                  "",
+                  "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
+                  "    pm.expect(pm.response.code, \"un borde nunca es un error del servidor\").to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4 · error · cuerpo invalido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/sesiones/desafios",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "sesiones",
+                "desafios"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — cuerpo invalido: falta un campo obligatorio y sobra uno que el",
+                  "// esquema prohibe (`additionalProperties: false`).",
+                  "pm.test(\"rechaza el cuerpo invalido\", () => {",
+                  "    pm.expect(pm.response.code, \"acepto un cuerpo que no valida contra su esquema\")",
+                  "        .to.be.oneOf([400, 422]);",
+                  "});",
+                  "",
+                  "pm.test(\"dice que esta mal sin exponer como esta hecho por dentro\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+                  "    pm.expect(cuerpo).to.not.include(\"org.jooq\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Humo de `abrirDesafioDeStepUp`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
+    },
+    {
+      "name": "verificarDesafioDeStepUp · Presentar el factor y recibir la evidencia firmada",
+      "item": [
+        {
+          "name": "1 · valido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/sesiones/desafios/:desafioId/verificacion",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "sesiones",
+                "desafios",
+                ":desafioId",
+                "verificacion"
+              ],
+              "variable": [
+                {
+                  "key": "desafioId",
+                  "value": "{{desafioId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"factor\": {\n    \"tipo\": \"OTP\",\n    \"valor\": \"valor-de-prueba\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO VALIDO — todo bien formado, sesion valida, cuerpo completo.",
+                  "pm.test(\"acepta el caso valido\", () => {",
+                  "    pm.expect(pm.response.code, \"esperaba \" + [200] + \", vino \" + pm.response.code",
+                  "        + \" · \" + pm.response.text().slice(0, 300)).to.be.oneOf([200]);",
+                  "});",
+                  "",
+                  "pm.test(\"responde JSON\", () => {",
+                  "    if (pm.response.code !== 204) {",
+                  "        pm.response.to.have.header(\"Content-Type\");",
+                  "        pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"json\");",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"trae los campos que el contrato declara obligatorios\", () => {",
+                  "    if (pm.response.code >= 300 || pm.response.code === 204) return;",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const campo of [\"evidencia\", \"expiraEn\", \"jti\"]) {",
+                  "        pm.expect(cuerpo, \"falta \" + campo).to.have.property(campo);",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"los importes son cadena, no numero\", () => {",
+                  "    if (pm.response.code >= 300) return;",
+                  "    const revisar = (nodo) => {",
+                  "        if (nodo === null || typeof nodo !== \"object\") return;",
+                  "        if (\"monto\" in nodo && \"moneda\" in nodo) {",
+                  "            // Un `number` de JSON es un doble. Dos decimales exactos, como cadena.",
+                  "            pm.expect(nodo.monto, \"el importe viajo como numero\").to.be.a(\"string\");",
+                  "            pm.expect(nodo.monto).to.match(/^-?\\d+\\.\\d{2}$/);",
+                  "        }",
+                  "        Object.values(nodo).forEach(revisar);",
+                  "    };",
+                  "    revisar(pm.response.json());",
+                  "});",
+                  "",
+                  "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+                  "if (pm.response.code < 300) {",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+                  "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+                  "            pm.collectionVariables.set(clave, valor);",
+                  "        }",
+                  "    }",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2 · limite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/sesiones/desafios/:desafioId/verificacion",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "sesiones",
+                "desafios",
+                ":desafioId",
+                "verificacion"
+              ],
+              "variable": [
+                {
+                  "key": "desafioId",
+                  "value": "{{desafioId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"factor\": {\n    \"tipo\": \"TOTP\",\n    \"valor\": \"LLLLLLLLLLLL\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
+                  "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
+                  "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 422]);",
+                  "});",
+                  "",
+                  "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
+                  "    pm.expect(pm.response.code, \"un borde nunca es un error del servidor\").to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4 · error · cuerpo invalido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/sesiones/desafios/:desafioId/verificacion",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "sesiones",
+                "desafios",
+                ":desafioId",
+                "verificacion"
+              ],
+              "variable": [
+                {
+                  "key": "desafioId",
+                  "value": "{{desafioId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — cuerpo invalido: falta un campo obligatorio y sobra uno que el",
+                  "// esquema prohibe (`additionalProperties: false`).",
+                  "pm.test(\"rechaza el cuerpo invalido\", () => {",
+                  "    pm.expect(pm.response.code, \"acepto un cuerpo que no valida contra su esquema\")",
+                  "        .to.be.oneOf([400, 422]);",
+                  "});",
+                  "",
+                  "pm.test(\"dice que esta mal sin exponer como esta hecho por dentro\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+                  "    pm.expect(cuerpo).to.not.include(\"org.jooq\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Humo de `verificarDesafioDeStepUp`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
     },
     {
       "name": "listarVerificaciones · La cola de expedientes esperando una decision humana",
@@ -1225,7 +2553,7 @@
                   "pm.test(\"trae los campos que el contrato declara obligatorios\", () => {",
                   "    if (pm.response.code >= 300 || pm.response.code === 204) return;",
                   "    const cuerpo = pm.response.json();",
-                  "    for (const campo of [\"verificacionId\", \"usuarioId\", \"nombreCompleto\", \"estado\", \"iniciadaEn\", \"fotos\"]) {",
+                  "    for (const campo of [\"verificacionId\", \"usuarioId\", \"nombreCompleto\", \"telefono\", \"estado\", \"iniciadaEn\", \"fotos\", \"documentoVigente\"]) {",
                   "        pm.expect(cuerpo, \"falta \" + campo).to.have.property(campo);",
                   "    }",
                   "});",
@@ -1612,7 +2940,7 @@
                   "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
                   "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
                   "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
-                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([201, 400, 404, 409, 422]);",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([201, 400, 403, 404, 409, 422]);",
                   "});",
                   "",
                   "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
@@ -1631,6 +2959,144 @@
         }
       ],
       "description": "Humo de `subirDocumento`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
+    },
+    {
+      "name": "consultarEstadoDeVerificacion · El estado de la verificacion de quien acaba de registrarse",
+      "item": [
+        {
+          "name": "1 · valido",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/:usuarioId/verificacion",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                ":usuarioId",
+                "verificacion"
+              ],
+              "variable": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO VALIDO — todo bien formado, sesion valida, cuerpo completo.",
+                  "pm.test(\"acepta el caso valido\", () => {",
+                  "    pm.expect(pm.response.code, \"esperaba \" + [200] + \", vino \" + pm.response.code",
+                  "        + \" · \" + pm.response.text().slice(0, 300)).to.be.oneOf([200]);",
+                  "});",
+                  "",
+                  "pm.test(\"responde JSON\", () => {",
+                  "    if (pm.response.code !== 204) {",
+                  "        pm.response.to.have.header(\"Content-Type\");",
+                  "        pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"json\");",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"trae los campos que el contrato declara obligatorios\", () => {",
+                  "    if (pm.response.code >= 300 || pm.response.code === 204) return;",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const campo of [\"verificacionId\", \"estado\", \"fotos\"]) {",
+                  "        pm.expect(cuerpo, \"falta \" + campo).to.have.property(campo);",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"los importes son cadena, no numero\", () => {",
+                  "    if (pm.response.code >= 300) return;",
+                  "    const revisar = (nodo) => {",
+                  "        if (nodo === null || typeof nodo !== \"object\") return;",
+                  "        if (\"monto\" in nodo && \"moneda\" in nodo) {",
+                  "            // Un `number` de JSON es un doble. Dos decimales exactos, como cadena.",
+                  "            pm.expect(nodo.monto, \"el importe viajo como numero\").to.be.a(\"string\");",
+                  "            pm.expect(nodo.monto).to.match(/^-?\\d+\\.\\d{2}$/);",
+                  "        }",
+                  "        Object.values(nodo).forEach(revisar);",
+                  "    };",
+                  "    revisar(pm.response.json());",
+                  "});",
+                  "",
+                  "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+                  "if (pm.response.code < 300) {",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+                  "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+                  "            pm.collectionVariables.set(clave, valor);",
+                  "        }",
+                  "    }",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2 · limite",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/:usuarioId/verificacion",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                ":usuarioId",
+                "verificacion"
+              ],
+              "variable": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
+                  "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
+                  "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 403, 404, 409, 422]);",
+                  "});",
+                  "",
+                  "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
+                  "    pm.expect(pm.response.code, \"un borde nunca es un error del servidor\").to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Humo de `consultarEstadoDeVerificacion`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
     },
     {
       "name": "verificarTitularidad · Si el nombre y el documento declarados son los del titular",
@@ -1788,7 +3254,7 @@
                   "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
                   "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
                   "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
-                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 422]);",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 422, 429]);",
                   "});",
                   "",
                   "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
@@ -1979,7 +3445,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"canal\": \"ENLACE\",\n  \"destinoEnmascarado\": \"destinoEnmascarado-de-prueba\"\n}",
+              "raw": "{\n  \"canal\": \"ENLACE\",\n  \"grupoId\": \"{{grupoId}}\",\n  \"telefonoDestino\": \"+59178123456\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2077,7 +3543,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"canal\": \"CORREO\",\n  \"destinoEnmascarado\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\"\n}",
+              "raw": "{\n  \"canal\": \"CORREO\",\n  \"grupoId\": \"{{id}}\",\n  \"telefonoDestino\": \"+59178123456\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2141,7 +3607,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"canal\": \"ENLACE\",\n  \"destinoEnmascarado\": \"destinoEnmascarado-de-prueba\"\n}",
+              "raw": "{\n  \"canal\": \"ENLACE\",\n  \"grupoId\": \"{{grupoId}}\",\n  \"telefonoDestino\": \"+59178123456\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2209,7 +3675,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"destinoEnmascarado\": \"destinoEnmascarado-de-prueba\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"grupoId\": \"{{grupoId}}\",\n  \"telefonoDestino\": \"+59178123456\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2534,7 +4000,830 @@
       "description": "Humo de `validarTokenDeInvitacion`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
     },
     {
-      "name": "buscarPorTelefono · Si ese telefono ya tiene cuenta",
+      "name": "consumirInvitacion",
+      "item": [
+        {
+          "name": "1 · valido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/tokens/invitacion/:tokenId/consumos",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                "tokens",
+                "invitacion",
+                ":tokenId",
+                "consumos"
+              ],
+              "variable": [
+                {
+                  "key": "tokenId",
+                  "value": "{{tokenId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"grupoId\": \"{{grupoId}}\",\n  \"token\": \"0000000000000000000000000000000000000000000000000000000000000000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO VALIDO — todo bien formado, sesion valida, cuerpo completo.",
+                  "pm.test(\"acepta el caso valido\", () => {",
+                  "    pm.expect(pm.response.code, \"esperaba \" + [200] + \", vino \" + pm.response.code",
+                  "        + \" · \" + pm.response.text().slice(0, 300)).to.be.oneOf([200]);",
+                  "});",
+                  "",
+                  "pm.test(\"responde JSON\", () => {",
+                  "    if (pm.response.code !== 204) {",
+                  "        pm.response.to.have.header(\"Content-Type\");",
+                  "        pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"json\");",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"trae los campos que el contrato declara obligatorios\", () => {",
+                  "    if (pm.response.code >= 300 || pm.response.code === 204) return;",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const campo of [\"tokenId\", \"grupoId\", \"usuarioId\", \"clave\", \"consumidoEn\"]) {",
+                  "        pm.expect(cuerpo, \"falta \" + campo).to.have.property(campo);",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"los importes son cadena, no numero\", () => {",
+                  "    if (pm.response.code >= 300) return;",
+                  "    const revisar = (nodo) => {",
+                  "        if (nodo === null || typeof nodo !== \"object\") return;",
+                  "        if (\"monto\" in nodo && \"moneda\" in nodo) {",
+                  "            // Un `number` de JSON es un doble. Dos decimales exactos, como cadena.",
+                  "            pm.expect(nodo.monto, \"el importe viajo como numero\").to.be.a(\"string\");",
+                  "            pm.expect(nodo.monto).to.match(/^-?\\d+\\.\\d{2}$/);",
+                  "        }",
+                  "        Object.values(nodo).forEach(revisar);",
+                  "    };",
+                  "    revisar(pm.response.json());",
+                  "});",
+                  "",
+                  "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+                  "if (pm.response.code < 300) {",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+                  "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+                  "            pm.collectionVariables.set(clave, valor);",
+                  "        }",
+                  "    }",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2 · limite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/tokens/invitacion/:tokenId/consumos",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                "tokens",
+                "invitacion",
+                ":tokenId",
+                "consumos"
+              ],
+              "variable": [
+                {
+                  "key": "tokenId",
+                  "value": "{{tokenId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"grupoId\": \"{{id}}\",\n  \"token\": \"0000000000000000000000000000000000000000000000000000000000000000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
+                  "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
+                  "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 422]);",
+                  "});",
+                  "",
+                  "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
+                  "    pm.expect(pm.response.code, \"un borde nunca es un error del servidor\").to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/tokens/invitacion/:tokenId/consumos",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                "tokens",
+                "invitacion",
+                ":tokenId",
+                "consumos"
+              ],
+              "variable": [
+                {
+                  "key": "tokenId",
+                  "value": "{{tokenId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"grupoId\": \"{{grupoId}}\",\n  \"token\": \"0000000000000000000000000000000000000000000000000000000000000000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4 · error · cuerpo invalido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/tokens/invitacion/:tokenId/consumos",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                "tokens",
+                "invitacion",
+                ":tokenId",
+                "consumos"
+              ],
+              "variable": [
+                {
+                  "key": "tokenId",
+                  "value": "{{tokenId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"0000000000000000000000000000000000000000000000000000000000000000\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — cuerpo invalido: falta un campo obligatorio y sobra uno que el",
+                  "// esquema prohibe (`additionalProperties: false`).",
+                  "pm.test(\"rechaza el cuerpo invalido\", () => {",
+                  "    pm.expect(pm.response.code, \"acepto un cuerpo que no valida contra su esquema\")",
+                  "        .to.be.oneOf([400, 422]);",
+                  "});",
+                  "",
+                  "pm.test(\"dice que esta mal sin exponer como esta hecho por dentro\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+                  "    pm.expect(cuerpo).to.not.include(\"org.jooq\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Humo de `consumirInvitacion`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
+    },
+    {
+      "name": "revocarInvitacion",
+      "item": [
+        {
+          "name": "1 · valido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/tokens/invitacion/:tokenId/revocacion",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                "tokens",
+                "invitacion",
+                ":tokenId",
+                "revocacion"
+              ],
+              "variable": [
+                {
+                  "key": "tokenId",
+                  "value": "{{tokenId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO VALIDO — todo bien formado, sesion valida, cuerpo completo.",
+                  "pm.test(\"acepta el caso valido\", () => {",
+                  "    pm.expect(pm.response.code, \"esperaba \" + [204] + \", vino \" + pm.response.code",
+                  "        + \" · \" + pm.response.text().slice(0, 300)).to.be.oneOf([204]);",
+                  "});",
+                  "",
+                  "pm.test(\"responde JSON\", () => {",
+                  "    if (pm.response.code !== 204) {",
+                  "        pm.response.to.have.header(\"Content-Type\");",
+                  "        pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"json\");",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"trae los campos que el contrato declara obligatorios\", () => {",
+                  "    if (pm.response.code >= 300 || pm.response.code === 204) return;",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const campo of []) {",
+                  "        pm.expect(cuerpo, \"falta \" + campo).to.have.property(campo);",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"los importes son cadena, no numero\", () => {",
+                  "    if (pm.response.code >= 300) return;",
+                  "    const revisar = (nodo) => {",
+                  "        if (nodo === null || typeof nodo !== \"object\") return;",
+                  "        if (\"monto\" in nodo && \"moneda\" in nodo) {",
+                  "            // Un `number` de JSON es un doble. Dos decimales exactos, como cadena.",
+                  "            pm.expect(nodo.monto, \"el importe viajo como numero\").to.be.a(\"string\");",
+                  "            pm.expect(nodo.monto).to.match(/^-?\\d+\\.\\d{2}$/);",
+                  "        }",
+                  "        Object.values(nodo).forEach(revisar);",
+                  "    };",
+                  "    revisar(pm.response.json());",
+                  "});",
+                  "",
+                  "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+                  "if (pm.response.code < 300) {",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+                  "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+                  "            pm.collectionVariables.set(clave, valor);",
+                  "        }",
+                  "    }",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2 · limite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/tokens/invitacion/:tokenId/revocacion",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                "tokens",
+                "invitacion",
+                ":tokenId",
+                "revocacion"
+              ],
+              "variable": [
+                {
+                  "key": "tokenId",
+                  "value": "{{tokenId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
+                  "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
+                  "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([204, 400, 404, 409, 422]);",
+                  "});",
+                  "",
+                  "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
+                  "    pm.expect(pm.response.code, \"un borde nunca es un error del servidor\").to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/tokens/invitacion/:tokenId/revocacion",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                "tokens",
+                "invitacion",
+                ":tokenId",
+                "revocacion"
+              ],
+              "variable": [
+                {
+                  "key": "tokenId",
+                  "value": "{{tokenId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Humo de `revocarInvitacion`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
+    },
+    {
+      "name": "buscarUsuarioPorTelefono · Si ese telefono ya tiene cuenta (el telefono viaja en el cuerpo)",
+      "item": [
+        {
+          "name": "1 · valido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/busquedas/por-telefono",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                "busquedas",
+                "por-telefono"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"telefono\": \"+59178123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO VALIDO — todo bien formado, sesion valida, cuerpo completo.",
+                  "pm.test(\"acepta el caso valido\", () => {",
+                  "    pm.expect(pm.response.code, \"esperaba \" + [200] + \", vino \" + pm.response.code",
+                  "        + \" · \" + pm.response.text().slice(0, 300)).to.be.oneOf([200]);",
+                  "});",
+                  "",
+                  "pm.test(\"responde JSON\", () => {",
+                  "    if (pm.response.code !== 204) {",
+                  "        pm.response.to.have.header(\"Content-Type\");",
+                  "        pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"json\");",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"trae los campos que el contrato declara obligatorios\", () => {",
+                  "    if (pm.response.code >= 300 || pm.response.code === 204) return;",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const campo of [\"existe\"]) {",
+                  "        pm.expect(cuerpo, \"falta \" + campo).to.have.property(campo);",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"los importes son cadena, no numero\", () => {",
+                  "    if (pm.response.code >= 300) return;",
+                  "    const revisar = (nodo) => {",
+                  "        if (nodo === null || typeof nodo !== \"object\") return;",
+                  "        if (\"monto\" in nodo && \"moneda\" in nodo) {",
+                  "            // Un `number` de JSON es un doble. Dos decimales exactos, como cadena.",
+                  "            pm.expect(nodo.monto, \"el importe viajo como numero\").to.be.a(\"string\");",
+                  "            pm.expect(nodo.monto).to.match(/^-?\\d+\\.\\d{2}$/);",
+                  "        }",
+                  "        Object.values(nodo).forEach(revisar);",
+                  "    };",
+                  "    revisar(pm.response.json());",
+                  "});",
+                  "",
+                  "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+                  "if (pm.response.code < 300) {",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+                  "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+                  "            pm.collectionVariables.set(clave, valor);",
+                  "        }",
+                  "    }",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2 · limite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/busquedas/por-telefono",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                "busquedas",
+                "por-telefono"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"telefono\": \"+59178123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
+                  "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
+                  "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 422]);",
+                  "});",
+                  "",
+                  "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
+                  "    pm.expect(pm.response.code, \"un borde nunca es un error del servidor\").to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/busquedas/por-telefono",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                "busquedas",
+                "por-telefono"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"telefono\": \"+59178123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4 · error · cuerpo invalido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/busquedas/por-telefono",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                "busquedas",
+                "por-telefono"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — cuerpo invalido: falta un campo obligatorio y sobra uno que el",
+                  "// esquema prohibe (`additionalProperties: false`).",
+                  "pm.test(\"rechaza el cuerpo invalido\", () => {",
+                  "    pm.expect(pm.response.code, \"acepto un cuerpo que no valida contra su esquema\")",
+                  "        .to.be.oneOf([400, 422]);",
+                  "});",
+                  "",
+                  "pm.test(\"dice que esta mal sin exponer como esta hecho por dentro\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+                  "    pm.expect(cuerpo).to.not.include(\"org.jooq\");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Humo de `buscarUsuarioPorTelefono`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
+    },
+    {
+      "name": "buscarPorTelefono · Si ese telefono ya tiene cuenta (DEPRECADO - usar la busqueda por cuerpo)",
       "item": [
         {
           "name": "1 · valido",
@@ -2734,6 +5023,205 @@
         }
       ],
       "description": "Humo de `buscarPorTelefono`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
+    },
+    {
+      "name": "consultarNivelKyc · El nivel de verificacion (KYC) vigente de una persona",
+      "item": [
+        {
+          "name": "1 · valido",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/:usuarioId/kyc",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                ":usuarioId",
+                "kyc"
+              ],
+              "variable": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO VALIDO — todo bien formado, sesion valida, cuerpo completo.",
+                  "pm.test(\"acepta el caso valido\", () => {",
+                  "    pm.expect(pm.response.code, \"esperaba \" + [200] + \", vino \" + pm.response.code",
+                  "        + \" · \" + pm.response.text().slice(0, 300)).to.be.oneOf([200]);",
+                  "});",
+                  "",
+                  "pm.test(\"responde JSON\", () => {",
+                  "    if (pm.response.code !== 204) {",
+                  "        pm.response.to.have.header(\"Content-Type\");",
+                  "        pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"json\");",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"trae los campos que el contrato declara obligatorios\", () => {",
+                  "    if (pm.response.code >= 300 || pm.response.code === 204) return;",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const campo of [\"usuarioId\", \"nivel\"]) {",
+                  "        pm.expect(cuerpo, \"falta \" + campo).to.have.property(campo);",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"los importes son cadena, no numero\", () => {",
+                  "    if (pm.response.code >= 300) return;",
+                  "    const revisar = (nodo) => {",
+                  "        if (nodo === null || typeof nodo !== \"object\") return;",
+                  "        if (\"monto\" in nodo && \"moneda\" in nodo) {",
+                  "            // Un `number` de JSON es un doble. Dos decimales exactos, como cadena.",
+                  "            pm.expect(nodo.monto, \"el importe viajo como numero\").to.be.a(\"string\");",
+                  "            pm.expect(nodo.monto).to.match(/^-?\\d+\\.\\d{2}$/);",
+                  "        }",
+                  "        Object.values(nodo).forEach(revisar);",
+                  "    };",
+                  "    revisar(pm.response.json());",
+                  "});",
+                  "",
+                  "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+                  "if (pm.response.code < 300) {",
+                  "    const cuerpo = pm.response.json();",
+                  "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+                  "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+                  "            pm.collectionVariables.set(clave, valor);",
+                  "        }",
+                  "    }",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2 · limite",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/:usuarioId/kyc",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                ":usuarioId",
+                "kyc"
+              ],
+              "variable": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
+                  "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
+                  "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 403, 404, 409, 422]);",
+                  "});",
+                  "",
+                  "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
+                  "    pm.expect(pm.response.code, \"un borde nunca es un error del servidor\").to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/usuarios/:usuarioId/kyc",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "usuarios",
+                ":usuarioId",
+                "kyc"
+              ],
+              "variable": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Humo de `consultarNivelKyc`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
     }
   ],
   "event": [
@@ -2777,7 +5265,15 @@
       "value": ""
     },
     {
+      "key": "desafioId",
+      "value": ""
+    },
+    {
       "key": "fecha_hoy",
+      "value": ""
+    },
+    {
+      "key": "grupoId",
       "value": ""
     },
     {
@@ -2798,6 +5294,10 @@
     },
     {
       "key": "usuarioId",
+      "value": ""
+    },
+    {
+      "key": "verificacionCorreoId",
       "value": ""
     },
     {

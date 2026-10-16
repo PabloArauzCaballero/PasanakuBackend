@@ -1,0 +1,58 @@
+{
+  "servicio": "entregas",
+  "operacion": "comprarOferta",
+  "metodo": "post",
+  "ruta": "/entregas/mercado/ofertas/{ofertaId}/compra",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "cesionId": "f8989abc-56fb-4a64-8519-c8f284f94852",
+        "estado": "VALIDADA",
+        "liquidada": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "cesionId": "f8989abc-56fb-4a64-8519-c8f284f94852",
+        "estado": "VALIDADA",
+        "liquidada": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "cesionId": "f8989abc-56fb-4a64-8519-c8f284f94852",
+        "estado": "VALIDADA",
+        "liquidada": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "cesionId": "f8989abc-56fb-4a64-8519-c8f284f94852",
+        "estado": "VALIDADA",
+        "liquidada": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU18-01",
+        "mensaje": "Titular no coincide",
+        "detalle": {},
+        "trazaId": "traza-comprarOferta-rechazo"
+      }
+    }
+  }
+}

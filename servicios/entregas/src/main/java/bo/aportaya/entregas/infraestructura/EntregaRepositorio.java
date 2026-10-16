@@ -31,6 +31,18 @@ public class EntregaRepositorio {
                 .fetchOptional(this::aEntrega);
     }
 
+    /**
+     * La entrega de un turno, si ya se liquido. La base permite una por turno
+     * ({@code uq_entrega_turno}): es la clave natural con la que repetir la liquidacion
+     * devuelve la misma entrega en vez de chocar con el indice.
+     */
+    public Optional<Entrega> deTurno(DSLContext dsl, UUID turnoId) {
+        return dsl.select(campos())
+                .from(DSL.table(DSL.name("entregas", "entrega_fondo")))
+                .where(DSL.field("turno_id", UUID.class).eq(turnoId))
+                .fetchOptional(this::aEntrega);
+    }
+
     /** Con candado: dos autorizaciones de la misma entrega se ponen en fila. */
     public Optional<Entrega> bloquear(DSLContext dsl, UUID id) {
         return dsl.select(campos())

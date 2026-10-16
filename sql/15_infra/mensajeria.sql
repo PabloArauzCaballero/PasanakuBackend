@@ -619,6 +619,76 @@ CREATE TABLE IF NOT EXISTS identidad.shedlock (
 );
 COMMENT ON TABLE identidad.shedlock IS 'Bloqueo de trabajos programados entre replicas (ADR-018).';
 
+-- ── inversiones ──
+-- Outbox del servicio: se escribe en la MISMA transaccion del caso
+-- de uso; el relevo lo publica (UPDATE de estado, ADR-027/018).
+CREATE TABLE IF NOT EXISTS inversiones.evento_dominio (
+  id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  tipo                VARCHAR(60) NOT NULL,
+  version             VARCHAR(10) NOT NULL DEFAULT '1',
+  agregado            VARCHAR(40) NOT NULL,
+  agregado_id         UUID        NOT NULL,
+  payload             JSONB       NOT NULL,
+  metadatos           JSONB       NOT NULL DEFAULT '{}'::jsonb,
+  correlation_id      UUID        NOT NULL,
+  causation_id        UUID,
+  ocurrido_en         TIMESTAMPTZ NOT NULL DEFAULT now(),
+  publicado_en        TIMESTAMPTZ,
+  estado              VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
+    CONSTRAINT ck_inversiones_evtdom_estado
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO')),
+  intentos            SMALLINT    NOT NULL DEFAULT 0,
+  -- H2.S3.M1: tomar-publicar-marcar en transacciones cortas, sin la red
+  -- adentro (ADR-018). tomado_en/tomado_por identifican QUE relevo tomo la
+  -- fila (recuperacion de un TOMADO huerfano si el proceso muere entre las
+  -- dos transacciones cortas); ultimo_error y proximo_intento_en son el
+  -- backoff exponencial con jitter (Q-02: base PT1S, tope PT5M, +-20 por
+  -- ciento), config en aportaya.outbox.*, nunca literal en el codigo.
+  tomado_en           TIMESTAMPTZ,
+  tomado_por          VARCHAR(100),
+  ultimo_error        TEXT,
+  proximo_intento_en  TIMESTAMPTZ
+);
+-- Evolucion (#20): una base creada antes de tomar-publicar-marcar tiene la
+-- tabla sin estas columnas y con el CHECK sin 'TOMADO', y el CREATE de
+-- arriba la saltea. Aditivo e idempotente: columnas nulables y un CHECK
+-- que solo se amplia, asi que ninguna fila existente queda invalida.
+ALTER TABLE inversiones.evento_dominio
+  ADD COLUMN IF NOT EXISTS tomado_en           TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS tomado_por          VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS ultimo_error        TEXT,
+  ADD COLUMN IF NOT EXISTS proximo_intento_en  TIMESTAMPTZ,
+  DROP CONSTRAINT IF EXISTS ck_inversiones_evtdom_estado,
+  ADD CONSTRAINT ck_inversiones_evtdom_estado
+    CHECK (estado IN ('PENDIENTE', 'TOMADO', 'PUBLICADO', 'FALLIDO'));
+-- Indice parcial de despacho: el relevo solo mira lo PENDIENTE listo para
+-- reintentar (proximo_intento_en nulo o ya paso).
+CREATE INDEX IF NOT EXISTS ix_inversiones_evtdom_despacho
+  ON inversiones.evento_dominio (ocurrido_en) WHERE estado = 'PENDIENTE';
+-- Recuperacion de un TOMADO huerfano (el relevo que lo tomo murio antes
+-- de marcar PUBLICADO/backoff): el siguiente relevo lo vuelve a tomar.
+CREATE INDEX IF NOT EXISTS ix_inversiones_evtdom_tomado
+  ON inversiones.evento_dominio (tomado_en) WHERE estado = 'TOMADO';
+COMMENT ON TABLE inversiones.evento_dominio IS 'Outbox transaccional del servicio (ADR-027).';
+
+-- Idempotencia de consumo: (id_evento, consumidor). Append-only de facto.
+CREATE TABLE IF NOT EXISTS inversiones.evento_consumido (
+  id_evento    UUID        NOT NULL,
+  consumidor   VARCHAR(60) NOT NULL,
+  consumido_en TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT pk_inversiones_evtcons PRIMARY KEY (id_evento, consumidor)
+);
+COMMENT ON TABLE inversiones.evento_consumido IS 'Marca de evento ya consumido, por consumidor (ADR-027).';
+
+-- ShedLock: un solo relevo/planificador activo entre replicas (ADR-018).
+CREATE TABLE IF NOT EXISTS inversiones.shedlock (
+  name       VARCHAR(64)  PRIMARY KEY,
+  lock_until TIMESTAMPTZ  NOT NULL,
+  locked_at  TIMESTAMPTZ  NOT NULL,
+  locked_by  VARCHAR(255) NOT NULL
+);
+COMMENT ON TABLE inversiones.shedlock IS 'Bloqueo de trabajos programados entre replicas (ADR-018).';
+
 -- ── notificaciones ──
 -- Outbox del servicio: se escribe en la MISMA transaccion del caso
 -- de uso; el relevo lo publica (UPDATE de estado, ADR-027/018).

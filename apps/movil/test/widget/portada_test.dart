@@ -1,11 +1,15 @@
 import 'package:aportaya_diseno/atomos/barra_de_puntos.dart';
+import 'package:aportaya_diseno/atomos/boton.dart';
+import 'package:aportaya_diseno/moleculas/aparicion_escalonada.dart';
 import 'package:aportaya_diseno/moviles/barra_pestanas.dart';
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_movil/app.dart';
 import 'package:aportaya_movil/navegacion/rutas.dart';
 import 'package:aportaya_movil/pantallas/identidad/textos.dart';
+import 'package:aportaya_movil/proveedores/capacidades.dart';
 import 'package:aportaya_movil/proveedores/sesion.dart';
+import 'package:aportaya_movil/infraestructura/capacidades.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,7 +25,6 @@ import '../comun.dart';
 /// onboarding va **centrado**, con símbolo, título, texto y puntos.
 void main() {
   Widget appCon(GoRouter router) => ProviderScope(
-    overrides: [almacenSeguroProvider.overrideWithValue(AlmacenEnMemoria())],
     child: MaterialApp.router(
       theme: temaDesde(Tokens.claro, Brightness.light),
       routerConfig: router,
@@ -32,7 +35,7 @@ void main() {
     tester.view.physicalSize = const Size(1170, 2532); // iPhone 13/14, 3x
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
-    final router = crearEnrutador();
+    final router = crearEnrutador(sesion: await sesionAnonimaDePrueba());
     await tester.pumpWidget(appCon(router));
     await tester.pumpAndSettle();
     return router;
@@ -50,6 +53,20 @@ void main() {
     expect(router.state.uri.toString(), '/portada');
     expect(find.text(TextosIdentidad.portadaCrearCuenta), findsOneWidget);
     expect(find.text(TextosIdentidad.portadaYaTengoCuenta), findsOneWidget);
+    expect(find.byType(Boton), findsNWidgets(2));
+    expect(find.text(TextosIdentidad.portadaComoFunciona), findsOneWidget);
+    expect(find.byType(BarraPestanas), findsNothing);
+  });
+
+  testWidgets('«¿Cómo funciona?» abre el tour sin cambiar las dos puertas', (
+    tester,
+  ) async {
+    final router = await abrir(tester);
+    await tester.tap(find.text(TextosIdentidad.portadaComoFunciona));
+    await tester.pumpAndSettle();
+
+    expect(router.state.uri.toString(), '/tour');
+    expect(find.byType(PageView), findsOneWidget);
     expect(find.byType(BarraPestanas), findsNothing);
   });
 
@@ -63,10 +80,50 @@ void main() {
     }
   });
 
+  testWidgets('marca, titular, garantías y botones entran en ese orden', (
+    tester,
+  ) async {
+    await abrir(tester);
+    final entradas = tester
+        .widgetList<AparicionEscalonada>(find.byType(AparicionEscalonada))
+        .toList();
+    expect(entradas, hasLength(2));
+    expect(entradas.first.children, hasLength(3));
+    expect(entradas.first.escalon, const Duration(milliseconds: 40));
+    expect(entradas.first.duracionPorHijo, const Duration(milliseconds: 220));
+    expect(entradas.last.demoraInicial, const Duration(milliseconds: 120));
+    expect(find.byKey(const ValueKey('portada-botones')), findsOneWidget);
+  });
+
+  testWidgets('las puertas no reciben toques antes de hacerse visibles', (
+    tester,
+  ) async {
+    final router = crearEnrutador(sesion: await sesionAnonimaDePrueba());
+    await tester.pumpWidget(appCon(router));
+    await tester.pump();
+    final bloqueo = find
+        .ancestor(
+          of: find.byKey(const ValueKey('portada-botones')),
+          matching: find.byType(IgnorePointer),
+        )
+        .first;
+    expect(tester.widget<IgnorePointer>(bloqueo).ignoring, isTrue);
+  });
+
   testWidgets(
     'arrancando la app de verdad —no solo el enrutador— se llega a la bienvenida',
     (tester) async {
-      await tester.pumpWidget(ProviderScope(child: AppAportaYa()));
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            almacenSeguroProvider.overrideWithValue(AlmacenEnMemoria()),
+            capacidadesProvider.overrideWithValue(
+              capacidadesDeLaPlataforma(forzarIOSParaPruebas: true),
+            ),
+          ],
+          child: const AppAportaYa(),
+        ),
+      );
       await tester.pumpAndSettle();
       expect(find.text(TextosIdentidad.portadaCrearCuenta), findsOneWidget);
       expect(find.text('Tu billetera'), findsNothing);
@@ -94,28 +151,24 @@ void main() {
     expect(find.byType(BarraPestanas), findsNothing);
   });
 
-  testWidgets(
-    '«Siguiente» recorre las láminas, y en la última el botón abre el alta',
-    (tester) async {
-      final router = await abrir(tester);
-      await abrirTour(tester);
+  testWidgets('«Siguiente» recorre las láminas, y «Empezar» abre el alta', (
+    tester,
+  ) async {
+    final router = await abrir(tester);
+    await abrirTour(tester);
 
-      for (var i = 0; i < 3; i++) {
-        await tester.tap(find.text(TextosIdentidad.tourSiguiente));
-        await tester.pumpAndSettle();
-      }
-      expect(
-        tester.widget<BarraDePuntos>(find.byType(BarraDePuntos)).actual,
-        3,
-      );
-      expect(find.text(TextosIdentidad.tourSiguiente), findsNothing);
-
-      await tester.tap(find.text(TextosIdentidad.portadaCrearCuenta));
+    for (var i = 0; i < 3; i++) {
+      await tester.tap(find.text(TextosIdentidad.tourSiguiente));
       await tester.pumpAndSettle();
-      expect(router.state.uri.toString(), '/registro');
-      expect(find.byType(BarraPestanas), findsNothing);
-    },
-  );
+    }
+    expect(tester.widget<BarraDePuntos>(find.byType(BarraDePuntos)).actual, 3);
+    expect(find.text(TextosIdentidad.tourSiguiente), findsNothing);
+
+    await tester.tap(find.text(TextosIdentidad.tourEmpezar));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.toString(), '/registro');
+    expect(find.byType(BarraPestanas), findsNothing);
+  });
 
   testWidgets('«Saltar» va directo al alta, sin barra de pestañas', (
     tester,

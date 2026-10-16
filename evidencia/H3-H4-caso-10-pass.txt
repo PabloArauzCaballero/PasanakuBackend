@@ -1,0 +1,15 @@
+❯ Building...
+✔ Building...
+Application bundle generation complete. [2.862 seconds] - 2026-09-22T13:50:59.661Z
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90mC:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-richard-pr6/apps/backoffice[39m
+
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m10 passed[39m[22m[90m (10)[39m
+[2m   Start at [22m 09:51:00
+[2m   Duration [22m 13.80s[2m (transform 1.91s, setup 11.21s, import 3.07s, tests 1.86s, environment 17.53s)[22m
+
+exit=0

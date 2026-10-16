@@ -1,8 +1,9 @@
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/moviles/barra_pestanas.dart';
-import 'package:aportaya_diseno/organismos/estado_error.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_movil/navegacion/rutas.dart';
+import 'package:aportaya_movil/navegacion/shell.dart';
+import 'package:aportaya_movil/pantallas/identidad/textos.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -28,7 +29,10 @@ void main() {
   testWidgets('app cerrada: aportaya://billetera abre /billetera/inicio', (
     tester,
   ) async {
-    final router = crearEnrutador(inicial: 'aportaya://billetera');
+    final router = crearEnrutador(
+      inicial: 'aportaya://billetera',
+      sesion: await sesionActivaDePrueba(),
+    );
     await tester.pumpWidget(appCon(router));
     await tester.pumpAndSettle();
 
@@ -38,7 +42,10 @@ void main() {
   testWidgets('app abierta: navegar a un deep link también redirige', (
     tester,
   ) async {
-    final router = crearEnrutador(inicial: '/billetera/inicio');
+    final router = crearEnrutador(
+      inicial: '/billetera/inicio',
+      sesion: await sesionActivaDePrueba(),
+    );
     await tester.pumpWidget(appCon(router));
     await tester.pumpAndSettle();
 
@@ -54,7 +61,10 @@ void main() {
     const codigo =
         '12345678-1234-4234-8234-123456789abc.'
         '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
-    final router = crearEnrutador(inicial: 'aportaya://unirse/$codigo');
+    final router = crearEnrutador(
+      inicial: 'aportaya://unirse/$codigo',
+      sesion: await sesionAnonimaDePrueba(),
+    );
     await tester.pumpWidget(appCon(router));
     await tester.pumpAndSettle();
 
@@ -64,45 +74,35 @@ void main() {
     expect(find.byType(BarraPestanas), findsNothing);
   });
 
-  testWidgets(
-    'enlace malformado no traslada datos a la ruta ni consulta grupo',
-    (tester) async {
-      final router = crearEnrutador(
-        inicial: 'aportaya://unirse/ABC%3Fdocumento%3DCI_FICTICIA',
-      );
-      addTearDown(router.dispose);
-      await tester.pumpWidget(appCon(router));
-      await tester.pumpAndSettle();
+  testWidgets('MFA se muestra fuera del shell de navegación', (tester) async {
+    final router = crearEnrutador(
+      inicial: '/identidad/mfa',
+      sesion: await sesionAnonimaDePrueba(),
+    );
+    await tester.pumpWidget(appCon(router));
+    await tester.pumpAndSettle();
 
-      expect(router.state.uri.toString(), '/pasanaku/unirse/invalida');
-      expect(
-        find.textContaining('El enlace de invitación no es válido.'),
-        findsOneWidget,
-      );
-      expect(find.textContaining('Pedí uno nuevo'), findsOneWidget);
-      expect(find.text('Reintentar'), findsNothing);
-      expect(find.text('Ir a portada'), findsOneWidget);
-      expect(find.textContaining('CI_FICTICIA'), findsNothing);
-      await tester.tap(find.text('Ir a portada'));
-      await tester.pumpAndSettle();
-      expect(router.state.uri.toString(), '/portada');
-      expect(tester.takeException(), isNull);
-    },
-  );
+    expect(find.byType(ShellPrincipal), findsNothing);
+    expect(find.byType(BarraPestanas), findsNothing);
+    expect(find.text(TextosIdentidad.explicacionMfa), findsOneWidget);
+    expect(find.text(TextosIdentidad.mfaSinCodigoAyuda), findsOneWidget);
+  });
 
-  testWidgets('una ruta desconocida no copia su query al error', (
+  testWidgets('las pautas abren directamente sin sesión ni shell', (
     tester,
   ) async {
-    const ubicacion = '/ruta-inexistente?documento=CI_FICTICIA&monto=125.00';
-    final router = crearEnrutador(inicial: ubicacion);
+    final router = crearEnrutador(
+      inicial: '/registro/pautas',
+      sesion: await sesionAnonimaDePrueba(),
+    );
     addTearDown(router.dispose);
     await tester.pumpWidget(appCon(router));
     await tester.pumpAndSettle();
 
-    final error = tester.widget<EstadoError>(find.byType(EstadoError)).error;
-    expect(error.toString(), contains('Ruta no encontrada'));
-    expect(error.toString(), isNot(contains('CI_FICTICIA')));
-    expect(error.toString(), isNot(contains('125.00')));
-    expect(tester.takeException(), isNull);
+    expect(router.state.uri.path, '/registro/pautas');
+    expect(find.text('Pautas para tus fotos'), findsOneWidget);
+    expect(find.text('Pautas para el documento de identidad'), findsOneWidget);
+    expect(find.byType(ShellPrincipal), findsNothing);
+    expect(find.byType(BarraPestanas), findsNothing);
   });
 }

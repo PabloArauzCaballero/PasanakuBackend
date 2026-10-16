@@ -1,0 +1,13 @@
+gradlew generateOpenApiClients --no-parallel --no-build-cache
+BUILD SUCCESSFUL in 4m 49s
+39 actionable tasks: 39 executed
+Clientes OpenAPI Dart y Angular generados desde los contratos del monorepo. La salida de warnings del generador se conservó en la sesión; el build terminó con código 0.
+
+bash apps/movil/scripts/generar-clientes.sh
+EXIT_CODE=0
+Build_runner: clientes Dart procesados en serie; se generaron modelos y serializadores (por ejemplo, organizador: 72 salidas; notificaciones: 16; cumplimiento: 40).
+
+dart analyze --fatal-infos
+EXIT_CODE=0
+Analyzing movil...
+No issues found!

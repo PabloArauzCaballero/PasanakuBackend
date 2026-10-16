@@ -1,0 +1,103 @@
+{
+  "servicio": "organizador",
+  "operacion": "consultarMiExpedienteDeHabilitacion",
+  "metodo": "get",
+  "ruta": "/organizadores/postulaciones/mia",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "solicitud": {
+          "solicitudId": "ff9f0f32-45ea-44a6-8458-a746c458993d",
+          "usuarioId": "9d22bd1c-7d54-4a78-81f8-9589c1a76d79",
+          "estado": "PENDIENTE",
+          "reputacionAlSolicitar": "reputacionAlSolicitar",
+          "kycReforzadoId": "f1db5439-4272-4345-84c5-68884344d777",
+          "motivoRechazo": "motivoRechazo",
+          "fechaSolicitud": "2026-01-15T10:30:00Z",
+          "fechaResolucion": "2026-01-15T10:30:00Z",
+          "revision": 1,
+          "acciones": [
+            "RESOLVER"
+          ]
+        },
+        "decisiones": [
+          {
+            "id": "e31f0b08-a39a-495e-8085-e25686b9f466",
+            "solicitudId": "b9cad7d8-aebd-457c-8777-52a468885d54",
+            "fase": "RESOLUCION",
+            "decision": "APROBAR",
+            "actorId": "2f36d17f-3c7a-4e27-834c-1f586bb19fa6",
+            "motivo": "motivo",
+            "revision": 1,
+            "organizadorId": "47a2098c-d6cc-48d0-86e9-1fea41e6e125",
+            "evidenciaRequisitos": "evidenciaRequisitos",
+            "ocurridaEn": "2026-01-15T10:30:00Z",
+            "nueva": true
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "solicitud": {
+          "solicitudId": "ff9f0f32-45ea-44a6-8458-a746c458993d",
+          "usuarioId": "9d22bd1c-7d54-4a78-81f8-9589c1a76d79",
+          "estado": "PENDIENTE",
+          "reputacionAlSolicitar": "reputacionAlSolicitar",
+          "kycReforzadoId": "f1db5439-4272-4345-84c5-68884344d777",
+          "motivoRechazo": "motivoRechazo",
+          "fechaSolicitud": "2026-01-15T10:30:00Z",
+          "fechaResolucion": "2026-01-15T10:30:00Z",
+          "revision": 0,
+          "acciones": []
+        },
+        "decisiones": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "solicitud": {
+          "solicitudId": "ff9f0f32-45ea-44a6-8458-a746c458993d",
+          "usuarioId": "9d22bd1c-7d54-4a78-81f8-9589c1a76d79",
+          "estado": "PENDIENTE",
+          "reputacionAlSolicitar": "reputacionAlSolicitar",
+          "kycReforzadoId": "f1db5439-4272-4345-84c5-68884344d777",
+          "motivoRechazo": "motivoRechazo",
+          "fechaSolicitud": "2026-01-15T10:30:00Z",
+          "fechaResolucion": "2026-01-15T10:30:00Z",
+          "revision": 1,
+          "acciones": [
+            "RESOLVER"
+          ]
+        },
+        "decisiones": [
+          {
+            "id": "e31f0b08-a39a-495e-8085-e25686b9f466",
+            "solicitudId": "b9cad7d8-aebd-457c-8777-52a468885d54",
+            "fase": "RESOLUCION",
+            "decision": "APROBAR",
+            "actorId": "2f36d17f-3c7a-4e27-834c-1f586bb19fa6",
+            "motivo": "motivo",
+            "revision": 1,
+            "organizadorId": "47a2098c-d6cc-48d0-86e9-1fea41e6e125",
+            "evidenciaRequisitos": "evidenciaRequisitos",
+            "ocurridaEn": "2026-01-15T10:30:00Z",
+            "nueva": true
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU90-01",
+        "mensaje": "Kyc insuficiente",
+        "detalle": {},
+        "trazaId": "traza-consultarMiExpedienteDeHabilitacion-rechazo"
+      }
+    }
+  }
+}

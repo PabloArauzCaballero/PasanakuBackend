@@ -17,6 +17,11 @@
 #   AP-CU24-02  CUENTA_INEXISTENTE   · el codigo de cuenta no esta en el plan
 #   AP-CU24-03  PERIODO_CERRADO      · pendiente: periodo_contable es de M13 (ERP),
 #                                      que todavia no existe en este carril
+#   AP-CU24-04  MONEDA_INCOHERENTE   · el asiento mezcla monedas, o la partida no es de la
+#                                      moneda de su cuenta (R-AUD-12, R-CTB-10)
+#   AP-CU24-05  REVERSA_NO_COINCIDE  · las partidas del evento de reversa no son el inverso del original
+#   AP-CU24-06  ORIGEN_PENDIENTE     · el asiento que el evento reversa todavia no llego: se reintenta
+#   AP-CU24-07  EVENTO_ILEGIBLE      · el asiento propuesto por el evento no se puede leer
 openapi: 3.1.0
 info:
   title: nucleo-financiero
@@ -29,6 +34,33 @@ servers:
   - url: /api/v1
 
 paths:
+  /billetera/cuentas/propia:
+    get:
+      operationId: consultarCuentaPropia
+      summary: La billetera operativa de quien pregunta, en una moneda
+      description: >-
+        [CONTRATO · carril G] Las operaciones con plata piden `cuentaBilleteraId`, y nadie lo sabia: el alta
+        responde 202 sin cuenta y ningun otro contrato la entrega. Quien pregunta es SIEMPRE el titular de
+        la sesion (el servidor toma el usuario del token; no hay parametro para preguntar por otra persona).
+        Lo usa `entregas` para retener el saldo de quien compra un turno, con el token de esa persona.
+        422 `AP-CU13-01` si la persona no tiene una billetera activa en esa moneda (o tiene mas de una: no
+        se elige por ella).
+      parameters:
+        - name: moneda
+          in: query
+          required: true
+          schema: { type: string, pattern: '^(BOB|USD)$' }
+      responses:
+        '200':
+          description: La cuenta de la sesion
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CuentaDeLaSesion' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
   /billetera/{cuentaId}/saldo:
     get:
       operationId: consultarSaldo
@@ -48,6 +80,68 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/SaldoBilletera' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/{cuentaId}/movimientos:
+    get:
+      operationId: listarMovimientosBilletera
+      summary: Listar movimientos recientes de una billetera
+      description: >-
+        Lectura del libro append-only, ordenada del movimiento más reciente al más antiguo.
+        `limite` vale 5 por omisión para el resumen de inicio y admite hasta 100 para la
+        pantalla de movimientos. Nunca emite ni sella un extracto (CU-15).
+      parameters:
+        - name: cuentaId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: limite
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 100, default: 5 }
+      responses:
+        '200':
+          description: Movimientos recientes y saldos posteriores del libro
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ListaMovimientosBilletera' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU13-01 CUENTA_INEXISTENTE · AP-CU13-02 LIMITE_INVALIDO
+
+  /billetera/cotizaciones:
+    post:
+      operationId: cotizarOperacion            # CU-30 (consume tarifas)
+      summary: Ver el precio de una recarga o un retiro antes de confirmarlo
+      description: >-
+        [CONTRATO] Que la persona vea el numero final ANTES de aceptar: base, comision, impuesto,
+        costo total, neto y hasta cuando vale ese precio. No mueve nada ni compromete a nadie. La
+        `Idempotency-Key` que se manda aca es la MISMA que despues lleva la recarga o el retiro, y
+        `cotizacionId` es lo que esa operacion cita para confirmar. Pedir otro importe con la misma
+        clave produce otra cotizacion: no se puede cobrar el precio de un importe sobre otro.
+
+        El precio lo fija `tarifas`; este servicio no lo calcula. Una operacion sin concepto en el
+        tarifario es gratuita (`gratuita=true`, sin `cotizacionId`).
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaCotizacionOperacion' }
+      responses:
+        '200':
+          description: La cotizacion y su desglose
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaCotizacionOperacion' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU10-05 / AP-CU11-01 no se pudo cotizar (tarifas no respondio)
+          # AP-CU10-08 / AP-CU11-12 el costo no puede igualar ni superar el importe
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
@@ -84,6 +178,8 @@ paths:
           # AP-CU10-01 LIMITE_EXCEDIDO           · AP-CU10-02 SALDO_MAXIMO_ALCANZADO
           # AP-CU10-03 INSTRUMENTO_NO_VERIFICADO · AP-CU10-04 CUENTA_NO_OPERATIVA
           # AP-CU10-05 ORDEN_EXPIRADA
+          # AP-CU10-06 COTIZACION_REQUERIDA · AP-CU10-07 COTIZACION_VENCIDA
+          # AP-CU10-08 COTIZACION_NO_COINCIDE
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
@@ -172,6 +268,109 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+  /billetera/retenciones/{retencionId}/pago-a-tercero:
+    post:
+      operationId: pagarAlTercero              # CU-13
+      summary: Ejecuta una retencion de compra del mercado a favor del vendedor
+      description: >-
+        [CONTRATO · SOLO SERVICIO] Lo pide `entregas` (identidad de servicio `SERVICIO_ENTREGAS`; una
+        sesion de usuario final recibe 403 aunque tenga `BILLETERA_OPERAR`). NO lleva cuerpo: el
+        beneficiario y el reparto NO los dicta quien llama. Se derivan en el servidor: la retencion
+        `COMPRA_EN_MERCADO` nombra la oferta (`referencia_id`); se le pregunta a `entregas` quien es el
+        vendedor, cual es el precio y cuales son los cargos (si no responde o no informa los cargos, no se paga).
+        Reparto (decision adoptada por delegacion del dueno, 2026-10-11): el comprador paga el precio, que tiene que ser
+        exactamente lo retenido (`AP-CU13-06` si no); el vendedor recibe `precio - cargos` y la plataforma los `cargos`,
+        cada uno con su linea en la transaccion (regla 91.3.4); los cargos van entre 0 y el precio (`AP-CU13-06` si no).
+        Una retencion se ejecuta una sola vez: la repetida con
+        la misma `Idempotency-Key` devuelve el mismo resultado sin otro asiento; pagada o liberada se
+        rechaza (R-BIL-24).
+      parameters:
+        - name: retencionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      responses:
+        '200':
+          description: Pagada (o la misma respuesta si se repite), con el saldo del comprador
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaEjecucionDeRetencion' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU13-03 RETENCION_YA_EJECUTADA · AP-CU13-04 CLAVE_DE_OTRA_OPERACION
+          # AP-CU13-05 MOTIVO_INCOMPATIBLE · AP-CU13-06 MONTO_DISTINTO_DE_LO_RETENIDO
+          # AP-CU13-07 CUENTA_DE_SISTEMA_NO_CONFIGURADA · AP-CU13-08 DESTINATARIO_INVALIDO
+          # AP-CU13-09 SOLO_SERVICIO
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/inversiones/debitos:
+    post:
+      operationId: debitarInversion            # CU-13
+      summary: Convierte la retencion de una inversion en el debito definitivo
+      description: >-
+        [CONTRATO · SOLO SERVICIO] Lo pide `inversiones` (DR-INV-05) con identidad de servicio
+        `SERVICIO_INVERSIONES`; una sesion de usuario final recibe 403. La retencion `INVERSION_VOLUNTARIA` pasa a
+        `EJECUTADA` y el importe sale del disponible Y del retenido hacia la custodia de inversion,
+        en una sola transaccion que cuadra. El importe tiene que ser el retenido. Idempotente por
+        `Idempotency-Key` y por orden: una orden se debita una sola vez (R-BIL-24). Saldo insuficiente
+        no aplica aca —la plata ya estaba retenida—; ese rechazo ocurre al retener (AP-CU13-01).
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDebitoInversion' }
+      responses:
+        '200':
+          description: Debitada (o la misma respuesta si se repite), con el saldo resultante
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaEjecucionDeRetencion' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU13-03 · AP-CU13-04 · AP-CU13-05 · AP-CU13-06 · AP-CU13-07 · AP-CU13-09 SOLO_SERVICIO
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/inversiones/acreditaciones:
+    post:
+      operationId: acreditarRescate            # CU-12
+      summary: Acredita al titular un rescate de inversion desde la custodia
+      description: >-
+        [CONTRATO · SOLO SERVICIO] Lo pide `inversiones` (DR-INV-05). Acreditar es confirmar que la plata volvio,
+        y eso no lo hace quien la espera (91.3): exige la identidad de servicio `SERVICIO_INVERSIONES`, no la del titular. Mueve el importe
+        de la custodia de inversion a la billetera del titular en una transaccion que cuadra; la custodia
+        no puede quedar en negativo. Idempotente por `Idempotency-Key` y por rescate (R-BIL-24).
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaAcreditacionRescate' }
+      responses:
+        '200':
+          description: Acreditado (o la misma respuesta si se repite), con el saldo del titular
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaAcreditacionRescate' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU12-01 la custodia no cubre · AP-CU12-02 destino inexistente o de otra moneda
+          # AP-CU12-03 destino no operativo · AP-CU12-06 CLAVE_DE_OTRA_OPERACION
+          # AP-CU12-07 CUSTODIA_NO_CONFIGURADA · AP-CU12-08 SOLO_SERVICIO
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutenticado'
+
   # CU-40 Evaluar limites NO tiene endpoint propio: corre DENTRO de la transaccion
   # de la operacion que evalua. Exponerlo dejaria que alguien consulte el limite,
   # vea que entra, y opere despues contra un acumulado ya cambiado.
@@ -209,6 +408,7 @@ paths:
           # AP-CU11-03 INSTRUMENTO_EN_ENFRIAMIENTO · AP-CU11-04 TITULAR_NO_COINCIDE
           # AP-CU11-05 BLOQUEO_DE_AUTORIDAD        · AP-CU11-06 ENCAJE_INCUMPLIDO
           # AP-CU11-07 MFA_INVALIDO (H2: evidencia provista pero no valida)
+          # AP-CU11-13 la Idempotency-Key ya identifica otro retiro (otro importe, destino o cotizacion)
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
@@ -406,6 +606,94 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+  /billetera/qr:
+    post:
+      tags: [qr]
+      operationId: emitirQr                    # CU-12 · QR interno
+      summary: Emitir un QR interno para cobrar
+      description: >-
+        [CONTRATO] Un QR INTERNO es un cobro que una billetera de Pasanaku publica; se paga
+        entre billeteras de Pasanaku. El DINAMICO fija importe y vencimiento y se consume al
+        pagarse. El ESTATICO no fija importe, no vence y se puede pagar muchas veces.
+
+        El `contenido` solo lleva un identificador y una firma: alterarlo lo invalida, nunca
+        cambia a quien se paga ni cuanto. NO es un QR bancario ni interoperable: ese no se
+        procesa (AP-CU12-10).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaQr' }
+      responses:
+        '201':
+          description: QR emitido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaQrEmitido' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU12-02 solo el titular · AP-CU12-03 CUENTA_NO_OPERATIVA · AP-CU12-07 QR_NO_VALIDO
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/qr/lecturas:
+    post:
+      tags: [qr]
+      operationId: leerQr                      # CU-12 · QR interno
+      summary: Ver a quien y cuanto se va a pagar con un QR, sin pagar
+      description: >-
+        [CONTRATO] El contenido viaja en el cuerpo, nunca en la URL. Responde para un QR
+        interno vigente; un QR vencido, usado o alterado se rechaza con su motivo, y uno de otro
+        sistema de pagos se rechaza como NO aceptado (AP-CU12-10): no se afirma interoperabilidad
+        sin un proveedor habilitado ni se lo procesa como si fuera interno.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaLecturaQr' }
+      responses:
+        '200':
+          description: El cobro que el QR representa
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaQrLeido' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU12-07 QR_NO_VALIDO · AP-CU12-08 QR_VENCIDO · AP-CU12-09 QR_YA_USADO
+          # AP-CU12-10 QR_INTEROPERABLE_NO_HABILITADO
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/qr/pagos:
+    post:
+      tags: [qr]
+      operationId: pagarQr                     # CU-12 · QR interno
+      summary: Pagar un QR interno confirmando destinatario e importe
+      description: >-
+        [CONTRATO] Es una transferencia comun entre billeteras (CU-12), atada al QR en la misma
+        transaccion. Un QR dinamico se paga por SU importe, que quien paga tiene que confirmar;
+        y una sola vez: el segundo pago, de quien sea, se rechaza. Repetir la misma
+        `Idempotency-Key` devuelve el mismo comprobante sin mover plata de nuevo.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaPagoQr' }
+      responses:
+        '201':
+          description: Pagado, con su comprobante
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaPagoQr' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU12-01 SALDO_INSUFICIENTE · AP-CU12-02 destino o titular · AP-CU12-07..10 del QR
+          # AP-CU12-11 IMPORTE_NO_CONFIRMADO
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
   # CU-50 Conciliar la custodia NO tiene endpoint: corre como cierre diario. Con el
   # encaje roto no SALE dinero, pero SI entra — dejar entrar plata mejora el encaje y
   # frenarla lo empeoraria justo cuando hace falta lo contrario.
@@ -543,6 +831,37 @@ components:
         # llega vacio.
         evidenciaMfa: { type: string, minLength: 20, maxLength: 4096 }
         factorMfa:    { type: string, minLength: 6, maxLength: 8, deprecated: true }
+        cotizacionId:
+          type: string
+          format: uuid
+          description: >-
+            La cotizacion que la persona vio y acepto (POST /billetera/cotizaciones, con la MISMA
+            Idempotency-Key). Obligatoria mientras `aportaya.cotizacion.exigir-previa` este activa.
+    EntradaCotizacionOperacion:
+      type: object
+      additionalProperties: false
+      required: [operacion, cuentaBilleteraId, monto]
+      properties:
+        operacion: { type: string, enum: [RECARGA, RETIRO] }
+        cuentaBilleteraId: { type: string, format: uuid }
+        monto: { $ref: '#/components/schemas/Dinero' }
+    SalidaCotizacionOperacion:
+      type: object
+      additionalProperties: false
+      required: [base, comision, impuesto, costoTotal, neto, gratuita]
+      properties:
+        cotizacionId:
+          type: string
+          format: uuid
+          description: la version del precio que se acepta; ausente cuando la operacion es gratuita
+        base: { $ref: '#/components/schemas/Dinero' }
+        comision: { $ref: '#/components/schemas/Dinero' }
+        impuesto: { $ref: '#/components/schemas/Dinero' }
+        costoTotal: { $ref: '#/components/schemas/Dinero' }
+        neto:
+          $ref: '#/components/schemas/Dinero'
+        validaHasta: { type: string, format: date-time }
+        gratuita: { type: boolean }
     SalidaRetiro:
       type: object
       additionalProperties: false
@@ -583,6 +902,12 @@ components:
         costoProveedor: { $ref: '#/components/schemas/Dinero' }
         medio: { type: string, maxLength: 30 }
         instrumentoFondeoId: { type: string, format: uuid }
+        cotizacionId:
+          type: string
+          format: uuid
+          description: >-
+            La cotizacion que la persona vio y acepto (POST /billetera/cotizaciones, con la MISMA
+            Idempotency-Key). Obligatoria mientras `aportaya.cotizacion.exigir-previa` este activa.
     SalidaRecarga:
       type: object
       additionalProperties: false
@@ -643,6 +968,96 @@ components:
         estado:          { type: string, maxLength: 20 }
         saldoDisponible: { $ref: '#/components/schemas/Dinero' }
         saldoRetenido:   { $ref: '#/components/schemas/Dinero' }
+    EntradaDebitoInversion:
+      type: object
+      additionalProperties: false
+      required: [retencionId, monto]
+      properties:
+        retencionId: { type: string, format: uuid }
+        monto:       { $ref: '#/components/schemas/Dinero' }
+        # titularId: opcional. Si el servicio llamador ya valido a la persona y la informa, el libro
+        # verifica que sea la dueña de la billetera retenida; si difiere, no se mueve nada.
+        titularId:   { type: string, format: uuid }
+    SalidaEjecucionDeRetencion:
+      type: object
+      additionalProperties: false
+      required: [transaccionId, saldoDisponible, saldoRetenido]
+      properties:
+        transaccionId:   { type: string, format: uuid }
+        saldoDisponible: { $ref: '#/components/schemas/Dinero' }
+        saldoRetenido:   { $ref: '#/components/schemas/Dinero' }
+    EntradaAcreditacionRescate:
+      type: object
+      additionalProperties: false
+      required: [cuentaBilleteraId, monto, referenciaId]
+      properties:
+        cuentaBilleteraId: { type: string, format: uuid }
+        monto:             { $ref: '#/components/schemas/Dinero' }
+        referenciaId:      { type: string, format: uuid }
+    SalidaAcreditacionRescate:
+      type: object
+      additionalProperties: false
+      required: [transaccionId, saldoDespues]
+      properties:
+        transaccionId: { type: string, format: uuid }
+        saldoDespues:  { $ref: '#/components/schemas/Dinero' }
+    EntradaQr:
+      type: object
+      additionalProperties: false
+      required: [cuentaBilleteraId, modalidad]
+      properties:
+        cuentaBilleteraId: { type: string, format: uuid }
+        modalidad: { type: string, enum: [DINAMICO, ESTATICO] }
+        monto: { $ref: '#/components/schemas/Dinero' }
+        concepto: { type: string, maxLength: 140 }
+    SalidaQrEmitido:
+      type: object
+      additionalProperties: false
+      required: [qrId, contenido, modalidad]
+      properties:
+        qrId: { type: string, format: uuid }
+        contenido: { type: string, maxLength: 80 }
+        modalidad: { type: string, enum: [DINAMICO, ESTATICO] }
+        monto: { $ref: '#/components/schemas/Dinero' }
+        expiraEn: { type: string, format: date-time }
+    EntradaLecturaQr:
+      type: object
+      additionalProperties: false
+      required: [contenido]
+      properties:
+        contenido: { type: string, maxLength: 2048 }
+    SalidaQrLeido:
+      type: object
+      additionalProperties: false
+      required: [qrId, clase, modalidad, destinatario]
+      properties:
+        qrId: { type: string, format: uuid }
+        clase: { type: string, enum: [INTERNO], description: 'solo se responde por QR internos; los demas se rechazan' }
+        modalidad: { type: string, enum: [DINAMICO, ESTATICO] }
+        monto: { $ref: '#/components/schemas/Dinero' }
+        destinatario: { type: string, maxLength: 20, description: 'numero de cuenta enmascarado' }
+        concepto: { type: string, maxLength: 140 }
+        expiraEn: { type: string, format: date-time }
+    EntradaPagoQr:
+      type: object
+      additionalProperties: false
+      required: [contenido, cuentaOrigenId]
+      properties:
+        contenido: { type: string, maxLength: 2048 }
+        cuentaOrigenId: { type: string, format: uuid }
+        monto:
+          $ref: '#/components/schemas/Dinero'
+    SalidaPagoQr:
+      type: object
+      additionalProperties: false
+      required: [transaccionId, qrId, monto, destinatario, saldoDespues]
+      properties:
+        transaccionId: { type: string, format: uuid }
+        qrId: { type: string, format: uuid }
+        monto: { $ref: '#/components/schemas/Dinero' }
+        destinatario: { type: string, maxLength: 20 }
+        concepto: { type: string, maxLength: 140 }
+        saldoDespues: { $ref: '#/components/schemas/Dinero' }
     Dinero:
       type: object
       additionalProperties: false
@@ -663,6 +1078,14 @@ components:
         mensaje:  { type: string }
         detalle:  { type: object }
         trazaId:  { type: string }
+    CuentaDeLaSesion:
+      type: object
+      additionalProperties: false
+      required: [cuentaId, moneda, estado]
+      properties:
+        cuentaId: { type: string, format: uuid }
+        moneda:   { type: string, enum: [BOB, USD] }
+        estado:   { type: string, maxLength: 20 }
     SaldoBilletera:
       type: object
       additionalProperties: false
@@ -672,6 +1095,36 @@ components:
         disponible: { $ref: '#/components/schemas/Dinero' }
         retenido:   { $ref: '#/components/schemas/Dinero' }
         alCorteDe:  { type: string, format: date-time }
+        titularId:
+          type: string
+          format: uuid
+          description: >-
+            La persona dueña de la cuenta; ausente si es de un grupo o del sistema. Lo pide
+            `inversiones` para compararla con la sesion y no confiar en el id que mando el cliente.
+        # comprometidoEnPozos: la parte del disponible afectada a aportes y pozos (deuda vigente
+        # mas lo por aportar, segun aportes). AUSENTE cuando aportes no informa: el consumidor falla cerrado.
+        comprometidoEnPozos: { $ref: '#/components/schemas/Dinero' }
+    ListaMovimientosBilletera:
+      type: object
+      additionalProperties: false
+      required: [cuentaId, movimientos]
+      properties:
+        cuentaId: { type: string, format: uuid }
+        movimientos:
+          type: array
+          items: { $ref: '#/components/schemas/MovimientoBilletera' }
+    MovimientoBilletera:
+      type: object
+      additionalProperties: false
+      required: [id, sentido, monto, saldoDisponiblePosterior, saldoRetenidoPosterior, glosa, registradoEn]
+      properties:
+        id: { type: string, format: uuid }
+        sentido: { type: string, enum: [DEBITO, CREDITO] }
+        monto: { $ref: '#/components/schemas/Dinero' }
+        saldoDisponiblePosterior: { $ref: '#/components/schemas/Dinero' }
+        saldoRetenidoPosterior: { $ref: '#/components/schemas/Dinero' }
+        glosa: { type: string, maxLength: 160 }
+        registradoEn: { type: string, format: date-time }
   responses:
     ReglaDeNegocio:
       description: Regla de negocio de la aplicacion (422, no 400)

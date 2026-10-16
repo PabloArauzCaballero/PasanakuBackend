@@ -38,16 +38,16 @@ public class DesafioDeDesarrollo implements DesafioDeFactor {
     private static final Logger BITACORA = LoggerFactory.getLogger(DesafioDeDesarrollo.class);
 
     public DesafioDeDesarrollo() {
-        BITACORA.warn(
-                "SEGUNDO FACTOR DE DESARROLLO ACTIVO: cualquier codigo {} entra. "
-                        + "Esto SOLO existe con el perfil `local`.",
-                CODIGO);
+        BITACORA.warn("SEGUNDO FACTOR DE DESARROLLO ACTIVO: el codigo fijo de desarrollo entra. "
+                + "Esto SOLO existe con el perfil `local`.");
     }
 
     @Override
     public UUID emitir(UUID usuarioId, String tipoDeFactor) {
         UUID id = UUID.randomUUID();
-        BITACORA.info("desafio {} de desarrollo para el usuario {}: el codigo es {}", id, usuarioId, CODIGO);
+        // Solo el id del desafio: el valor del codigo no se escribe en ningun log (90.2.9). Es una constante
+        // publica del codigo fuente, pero el patron de loguear un codigo no se deja ni en desarrollo.
+        BITACORA.info("desafio {} de desarrollo emitido para el usuario {}", id, usuarioId);
         return id;
     }
 

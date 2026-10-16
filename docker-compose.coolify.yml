@@ -11,11 +11,11 @@
 #       16 JVM, carga 49 y la maquina entera (Atlas incluido) camino al OOM.
 #       `pull_policy: never` porque Coolify intenta bajar del registro hasta las
 #       imagenes locales;
-#   3 · postgres, pgbouncer, minio y kafka NO estan aca: viven fuera de Coolify, en
+#   3 · postgres, pgbouncer, minio, redis y kafka NO estan aca: viven fuera de Coolify, en
 #       /opt/aportaya/, porque Coolify recrea la aplicacion entera en cada despliegue.
 #
 # La red `aportaya-interna` es externa y ya existe: ahi `postgres`, `pgbouncer`,
-# `minio`, `kafka` y `gateway` resuelven igual que en la maquina de desarrollo.
+# `minio`, `redis`, `kafka` y `gateway` resuelven igual que en la maquina de desarrollo.
 name: aportaya
 
 networks:
@@ -47,6 +47,10 @@ services:
       PGDATABASE: pasanaku
       PGUSER: ${BD_USUARIO_ADMIN}
       PGPASSWORD: ${BD_CLAVE_ADMIN}
+      # Credencial de los roles svc_* que todavia no la tienen (ver despliegue/aplicar-esquema.sh):
+      # los servicios se conectan con ${BD_CLAVE}, asi que es la misma clave. Un servicio nuevo
+      # trae su rol NOLOGIN y no arranca sin esto.
+      ROLES_CLAVE: ${BD_CLAVE}
     networks: [interna]
 
   # El gateway: la unica entrada a la API (ADR-025).
@@ -64,6 +68,10 @@ services:
     mem_limit: 512m
     environment:
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+      SPRING_DATA_REDIS_HOST: aportaya-redis
+      SPRING_DATA_REDIS_PORT: "6379"
+      # Obligatoria fuera de local/test (ConfiguracionCors tumba el arranque si falta o es `*`).
+      APORTAYA_CORS_ORIGENES: ${APORTAYA_CORS_ORIGENES}
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/liveness || exit 1"]
       interval: 10s
@@ -93,8 +101,10 @@ services:
     environment:
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      COMPENSACION_CONSUMO_HABILITADO: ${COMPENSACION_CONSUMO_HABILITADO:-true}
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
+      URL_GRUPOS: http://grupos:8080
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
       SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
       SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "0"
@@ -204,10 +214,19 @@ services:
     environment:
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      ENTREGAS_LIBRO_CREDENCIAL_SERVICIO: 
+      ENTREGAS_SERVICIO_CLAVE: 
+      ENTREGAS_SERVICIO_FACTOR_FIJO: 
+      ENTREGAS_SERVICIO_TELEFONO: 
+      ENTREGAS_SERVICIO_TOTP_SEMILLA: 
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
       SEGURIDAD_PIMIENTA: ${SEGURIDAD_PIMIENTA}
+      URL_APORTES: http://aportes:8080
+      URL_GARANTIA: http://garantia:8080
+      URL_GRUPOS: http://grupos:8080
       URL_IDENTIDAD: http://identidad:8080
+      URL_NUCLEO_FINANCIERO: http://nucleo-financiero:8080
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
       SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
       SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "0"
@@ -292,6 +311,8 @@ services:
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
+      URL_APORTES: http://aportes:8080
+      URL_CUMPLIMIENTO: http://cumplimiento:8080
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
       SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
       SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "0"
@@ -330,10 +351,15 @@ services:
       cumplimiento:
         condition: service_healthy
     environment:
+      ADMISION_HUMANA_OBLIGATORIA: ${ADMISION_HUMANA_OBLIGATORIA:-false}
+      APERTURA_CONSUMO_HABILITADO: ${APERTURA_CONSUMO_HABILITADO:-true}
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      CESION_CONSUMO_HABILITADO: ${CESION_CONSUMO_HABILITADO:-true}
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
+      SUSTITUCION_AUTOMATICA_ADMIN: ${SUSTITUCION_AUTOMATICA_ADMIN:-false}
+      SUSTITUCION_CONSUMO_HABILITADO: ${SUSTITUCION_CONSUMO_HABILITADO:-false}
       URL_APORTES: http://aportes:8080
       URL_CUMPLIMIENTO: http://cumplimiento:8080
       URL_GARANTIA: http://garantia:8080
@@ -378,10 +404,71 @@ services:
       ARCHIVOS_USUARIO: ${ARCHIVOS_USUARIO}
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      GMAIL_CLIENT_ID: ${GMAIL_CLIENT_ID}
+      GMAIL_CLIENT_SECRET: ${GMAIL_CLIENT_SECRET}
+      GMAIL_FROM_EMAIL: ${GMAIL_FROM_EMAIL}
+      GMAIL_REFRESH_TOKEN: ${GMAIL_REFRESH_TOKEN}
+      INVITACIONES_CLAVE: ${INVITACIONES_CLAVE}
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       JWT_CLAVE_FIRMA: ${JWT_CLAVE_FIRMA}
+      JWT_CLAVE_FIRMA_ANTERIOR: ${JWT_CLAVE_FIRMA_ANTERIOR:-}
       KAFKA_URL: kafka:9092
+      NOTIFICATION_EMAIL_PROVIDER: ${NOTIFICATION_EMAIL_PROVIDER}
       SEGURIDAD_PIMIENTA: ${SEGURIDAD_PIMIENTA}
+      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "0"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 18
+      start_period: 60s
+    networks: [interna]
+
+  inversiones:
+    image: aportaya/inversiones:test
+    pull_policy: never
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    cpus: "0.5"
+    mem_limit: 512m
+    read_only: true
+    tmpfs:
+      - /tmp
+    depends_on:
+      esquema:
+        condition: service_completed_successfully
+      entregas:
+        condition: service_healthy
+      erp:
+        condition: service_healthy
+      garantia:
+        condition: service_healthy
+      grupos:
+        condition: service_healthy
+    environment:
+      APORTAYA_CORS_ORIGENES: ${APORTAYA_CORS_ORIGENES}
+      BD_CLAVE: ${BD_CLAVE}
+      BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      INVERSIONES_ALIADO_API_KEY: 
+      INVERSIONES_ALIADO_FIRMA_SECRETO: 
+      INVERSIONES_ALIADO_MODO: deshabilitado
+      INVERSIONES_ALIADO_URL: http://127.0.0.1:4030
+      INVERSIONES_LIBRO_CREDENCIAL_SERVICIO: 
+      INVERSIONES_SERVICIO_CLAVE: 
+      INVERSIONES_SERVICIO_FACTOR_FIJO: 
+      INVERSIONES_SERVICIO_TELEFONO: 
+      INVERSIONES_SERVICIO_TOTP_SEMILLA: 
+      JWKS_URI: http://identidad:8080/.well-known/jwks.json
+      KAFKA_URL: kafka:9092
+      NUCLEO_FINANCIERO_URL: http://nucleo-financiero:8080
+      URL_IDENTIDAD: http://identidad:8080
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
       SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
       SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "0"
@@ -463,12 +550,33 @@ services:
       grupos:
         condition: service_healthy
     environment:
+      APERTURA_ESTADO_INICIAL_USUARIO: ${APERTURA_ESTADO_INICIAL_USUARIO:-ACTIVA}
+      APERTURA_GRUPOS_HABILITADO: ${APERTURA_GRUPOS_HABILITADO:-true}
+      APERTURA_USUARIOS_HABILITADO: ${APERTURA_USUARIOS_HABILITADO:-true}
+      APORTAYA_CORS_ORIGENES: ${APORTAYA_CORS_ORIGENES}
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      CONSUMO_DE_APORTES_HABILITADO: ${CONSUMO_DE_APORTES_HABILITADO:-true}
+      CONSUMO_DE_ASIENTOS_HABILITADO: ${CONSUMO_DE_ASIENTOS_HABILITADO:-true}
+      CUENTAS_LOGICAS_APTO_PRODUCCION: false
+      CUENTA_LOGICA_CAJA_EMPRESA_BOB: ${CUENTA_LOGICA_CAJA_EMPRESA_BOB:-9.1.01}
+      CUENTA_LOGICA_CAJA_EMPRESA_USD: ${CUENTA_LOGICA_CAJA_EMPRESA_USD:-9.2.01}
+      CUENTA_LOGICA_DESEMBOLSO_BOB: ${CUENTA_LOGICA_DESEMBOLSO_BOB:-9.1.04}
+      CUENTA_LOGICA_DESEMBOLSO_USD: ${CUENTA_LOGICA_DESEMBOLSO_USD:-9.2.04}
+      CUENTA_LOGICA_POZO_GRUPO_BOB: ${CUENTA_LOGICA_POZO_GRUPO_BOB:-9.1.03}
+      CUENTA_LOGICA_POZO_GRUPO_USD: ${CUENTA_LOGICA_POZO_GRUPO_USD:-9.2.03}
+      CUENTA_LOGICA_RESERVA_RESPALDO_BOB: ${CUENTA_LOGICA_RESERVA_RESPALDO_BOB:-9.1.02}
+      CUENTA_LOGICA_RESERVA_RESPALDO_USD: ${CUENTA_LOGICA_RESERVA_RESPALDO_USD:-9.2.02}
+      CUENTA_LOGICA_SALDO_GRUPOS_BOB: ${CUENTA_LOGICA_SALDO_GRUPOS_BOB:-2.1.02}
+      CUENTA_LOGICA_SALDO_GRUPOS_USD: ${CUENTA_LOGICA_SALDO_GRUPOS_USD:-}
+      CUENTA_LOGICA_SALDO_USUARIOS_BOB: ${CUENTA_LOGICA_SALDO_USUARIOS_BOB:-2.1.01}
+      CUENTA_LOGICA_SALDO_USUARIOS_USD: ${CUENTA_LOGICA_SALDO_USUARIOS_USD:-}
       CUENTA_PUENTE_CUSTODIA: ${CUENTA_PUENTE_CUSTODIA}
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
+      QR_INTERNO_CLAVE: ${QR_INTERNO_CLAVE}
       URL_APORTES: http://aportes:8080
+      URL_ENTREGAS: http://entregas:8080
       URL_GRUPOS: http://grupos:8080
       URL_TARIFAS: http://tarifas:8080
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
@@ -513,6 +621,7 @@ services:
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
+      URL_CUMPLIMIENTO: http://cumplimiento:8080
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
       SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
       SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "0"
@@ -542,13 +651,13 @@ services:
     depends_on:
       esquema:
         condition: service_completed_successfully
-      entregas:
+      inversiones:
         condition: service_healthy
-      erp:
+      notificaciones:
         condition: service_healthy
-      garantia:
+      nucleo-financiero:
         condition: service_healthy
-      grupos:
+      organizador:
         condition: service_healthy
     environment:
       BD_CLAVE: ${BD_CLAVE}
@@ -584,17 +693,18 @@ services:
     depends_on:
       esquema:
         condition: service_completed_successfully
+      inversiones:
+        condition: service_healthy
       notificaciones:
         condition: service_healthy
       nucleo-financiero:
         condition: service_healthy
       organizador:
         condition: service_healthy
-      publicidad:
-        condition: service_healthy
     environment:
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      CONGELAMIENTO_CONSUMO_HABILITADO: ${CONGELAMIENTO_CONSUMO_HABILITADO:-true}
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
       SIN_NIT_EMISOR: ${SIN_NIT_EMISOR}
@@ -627,13 +737,13 @@ services:
     depends_on:
       esquema:
         condition: service_completed_successfully
+      inversiones:
+        condition: service_healthy
       notificaciones:
         condition: service_healthy
       nucleo-financiero:
         condition: service_healthy
       organizador:
-        condition: service_healthy
-      publicidad:
         condition: service_healthy
     environment:
       BASE_URL_PUBLICA: ${BASE_URL_PUBLICA}

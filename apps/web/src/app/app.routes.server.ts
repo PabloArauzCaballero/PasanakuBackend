@@ -28,5 +28,13 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'verificar/:codigo', renderMode: RenderMode.Server, headers: { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' } },
   { path: 'publico/grupos/:codigo', renderMode: RenderMode.Server, headers: { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' } },
   { path: 'publico/sorteos/:id', renderMode: RenderMode.Server, headers: { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' } },
+  // F4: sin esta entrada `ng build` FALLA («la ruta invitacion/:grupoId/:invitacionId usa prerender y tiene parámetros pero falta
+  // getPrerenderParams»): la ruta caía en `**` y no se puede prerenderizar un enlace por invitación. Va en cliente: la página lee el secreto
+  // del fragmento (que el servidor nunca ve) y no tiene datos que servir. `noindex` además de la meta; el secreto no viaja en la ruta.
+  {
+    path: 'invitacion/:grupoId/:invitacionId',
+    renderMode: RenderMode.Client,
+    headers: { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow', 'Referrer-Policy': 'no-referrer' },
+  },
   { path: '**', renderMode: RenderMode.Prerender },
 ]

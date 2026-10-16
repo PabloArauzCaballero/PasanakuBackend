@@ -9,29 +9,27 @@ class CampoContrasena extends StatefulWidget {
     super.key,
     required this.etiqueta,
     this.controlador,
+    this.foco,
     this.ayuda,
+    this.ejemplo,
     this.error,
     this.fortaleza,
     this.onChanged,
-    this.onSubmitted,
-    this.accionDeTeclado,
-    this.foco,
   });
 
   final String etiqueta;
   final TextEditingController? controlador;
+  final FocusNode? foco;
 
   /// La regla, en el campo y no en un párrafo aparte: una contraseña que se está
   /// eligiendo se escribe mirando el campo, no el texto de arriba.
   final String? ayuda;
+  final String? ejemplo;
   final String? error;
 
   /// 0..1; `null` no muestra medidor.
   final double? fortaleza;
   final ValueChanged<String>? onChanged;
-  final ValueChanged<String>? onSubmitted;
-  final TextInputAction? accionDeTeclado;
-  final FocusNode? foco;
 
   @override
   State<CampoContrasena> createState() => _CampoContrasenaState();
@@ -49,13 +47,12 @@ class _CampoContrasenaState extends State<CampoContrasena> {
         Campo(
           etiqueta: widget.etiqueta,
           controlador: widget.controlador,
+          foco: widget.foco,
           ayuda: widget.ayuda,
+          ejemplo: widget.ejemplo,
           error: widget.error,
           oculto: !_visible,
           onChanged: widget.onChanged,
-          onSubmitted: widget.onSubmitted,
-          accionDeTeclado: widget.accionDeTeclado,
-          foco: widget.foco,
           sufijo: IconButton(
             tooltip: _visible ? 'Ocultar contraseña' : 'Mostrar contraseña',
             icon: Icon(_visible ? Icons.visibility_off : Icons.visibility),

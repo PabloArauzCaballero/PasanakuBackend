@@ -1,0 +1,41 @@
+LOGIN USR90 (+591***90) -> 200 requiereFactor=False token=si
+LOGIN USR2 (+591***02) -> 200 requiereFactor=False token=si
+
+== CU-10 · saldo antes: BOB-0000090 disponible=0.00
+POST  /billetera/recargas                                                              -> 201
+orden: {'ordenRecargaId': '42369c03-1aee-4b60-aec3-b2628bdf3e8f', 'estado': 'PENDIENTE', 'acreditara': {'monto': '200.00', 'moneda': 'BOB'}}
+-- negativo: USR2 intenta acreditar la orden de USR90 (objeto ajeno)
+POST  /billetera/recargas/42369c03-1aee-4b60-aec3-b2628bdf3e8f/acreditacion            -> 422 AP-CU10-05
+-- acreditar (USR90) con Idempotency-Key K
+POST  /billetera/recargas/42369c03-1aee-4b60-aec3-b2628bdf3e8f/acreditacion            -> 500 AP-INT-01
+   respuesta 1: {'codigo': 'AP-INT-01', 'mensaje': 'No pudimos completar la operacion. Volve a intentar.', 'trazaId': 'fc2f3bf7-dd5d-40ae-3114-bd7fec316b90'}
+-- repetir la MISMA clave K
+POST  /billetera/recargas/42369c03-1aee-4b60-aec3-b2628bdf3e8f/acreditacion            -> 500 AP-INT-01
+   respuesta 2: {'codigo': 'AP-INT-01', 'mensaje': 'No pudimos completar la operacion. Volve a intentar.', 'trazaId': 'a41e4050-cc78-6e17-c6a2-cfc37586e216'}
+-- repetir con clave NUEVA (la orden ya está acreditada)
+POST  /billetera/recargas/42369c03-1aee-4b60-aec3-b2628bdf3e8f/acreditacion            -> 500 AP-INT-01
+SQL orden: PENDIENTE bruto=200.00 costo=0.00 acreditado=200.00
+SQL transacciones con esa orden: 0
+SQL patas del libro (sentido, monto): ERROR:  invalid input syntax for type uuid: ""
+LINE 1: ...anciero.movimiento_billetera where transaccion_id='' order b...
+                                                             ^
+SQL cuadre de la transacción (suma por sentido): ERROR:  invalid input syntax for type uuid: ""
+LINE 1: ...anciero.movimiento_billetera where transaccion_id='' group b...
+                                                             ^
+SQL asiento contable enlazado: ERROR:  invalid input syntax for type uuid: ""
+LINE 1: ...L') from nucleo_financiero.transaccion_billetera where id=''
+                                                                     ^
+== CU-10 · saldo después: BOB-0000090 disponible=0.00
+
+== CU-12 · saldos antes: BOB-0000090 disponible=0.00 · BOB-0000002 disponible=600.00
+POST  /billetera/transferencias                                                        -> 422 AP-CU12-02
+transferencia: {'codigo': 'AP-CU12-02', 'mensaje': 'Ese destino no existe.', 'detalle': {}, 'trazaId': '8ffd5f5e-c930-31b9-b7fb-2c8b0e1ca695'}
+-- repetir la misma clave
+POST  /billetera/transferencias                                                        -> 422 AP-CU12-02
+   respuesta 2: {'codigo': 'AP-CU12-02', 'mensaje': 'Ese destino no existe.', 'detalle': {}, 'trazaId': 'd8f643da-b4e4-0fff-0ba7-5f2b4d94513c'}
+-- negativo: USR2 transfiere desde la cuenta de USR90
+POST  /billetera/transferencias                                                        -> 422 AP-CU12-02
+-- negativo: saldo insuficiente
+POST  /billetera/transferencias                                                        -> 422 AP-CU12-02
+== CU-12 · saldos después: BOB-0000090 disponible=0.00 · BOB-0000002 disponible=600.00
+SQL transacciones TRANSFERENCIA por la clave: 0

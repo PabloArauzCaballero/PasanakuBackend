@@ -1,0 +1,20 @@
+== verificar_criterios --servicio garantia
+casos de uso implementados y verificados: 7
+Sin divergencias entre la boveda y el codigo.
+== verificar_criterios --servicio aportes
+casos de uso implementados y verificados: 3
+pendientes de implementar (1): CU-51 (aportes)
+Sin divergencias entre la boveda y el codigo.
+== verificar_criterios --servicio entregas
+casos de uso implementados y verificados: 3
+Sin divergencias entre la boveda y el codigo.
+== verificar_pruebas_web
+controladores: 33 · con matriz propia: 32 · en deuda: 0
+operaciones con el estado HTTP fuera de su contrato: 25
+servicios con sabana de seguridad: 15
+
+1 FALLAS:
+  - inversiones/InversionesController: falta InversionesControllerWebTest (matriz de su contrato HTTP)
+== verificar_seguridad (solo mis servicios)
+  FALLA · docs/Seguridad.md dice 142 restricciones y son 164
+  FALLA · patrones prohibidos: ['servicios\\organizador\\src\\test\\java\\bo\\aportaya\\organizador\\CU90RevisionYBandejaTest.java:75 — SQL concatenado (prohibición 2)', 'servicios\\organizador\\src\\test\\java\\bo\\aportaya\\organizador\\

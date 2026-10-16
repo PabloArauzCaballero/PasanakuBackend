@@ -1,18 +1,20 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
-import 'pantalla_aporte_no_disponible.dart';
-import 'pantalla_accion_personal_no_disponible.dart';
+import 'pantalla_aportar.dart';
 import 'pantalla_crear_grupo.dart';
 import 'pantalla_invitar.dart';
 import 'pantalla_mi_estado.dart';
 import 'pantalla_mi_puntaje.dart';
 import 'pantalla_pedir_cupo.dart';
+import 'pantalla_permuta.dart';
 import 'pantalla_reclamo_pendiente.dart';
+import 'pantalla_retiro.dart';
 import 'pantalla_transparencia.dart';
 import 'pantalla_turno.dart';
+import 'pantalla_escanear.dart';
 import 'pantalla_unirse.dart';
 import 'pantalla_verificar_sorteo.dart';
-import 'textos.dart';
 
 /// Las rutas del dominio pasanaku. Sigue el mismo patrón que `billetera` (M2) e
 /// `identidad` (M1): un archivo por pantalla, todo registrado acá, nada en el
@@ -24,12 +26,9 @@ final List<RouteBase> rutasPasanaku = [
   GoRoute(
     path: '/pasanaku/grupos/nuevo',
     name: 'pasanaku.crearGrupo',
-    // Un ID de organizador recibido por URL no demuestra titularidad.
-    builder: (context, state) => state.uri.hasQuery
-        ? const PantallaAccionPersonalNoDisponible(
-            titulo: TextosPasanaku.tituloCrearGrupo,
-          )
-        : const PantallaCrearGrupo(),
+    builder: (context, state) => PantallaCrearGrupo(
+      organizadorId: state.uri.queryParameters['organizador'],
+    ),
   ),
   GoRoute(
     path: '/pasanaku/grupos/:grupoId/pedir-cupo',
@@ -46,17 +45,18 @@ final List<RouteBase> rutasPasanaku = [
   GoRoute(
     path: '/pasanaku/grupos/:grupoId/retiro',
     name: 'pasanaku.retiro',
-    // No hay contrato que derive la participación propia desde la sesión.
-    builder: (context, state) => const PantallaAccionPersonalNoDisponible(
-      titulo: TextosPasanaku.tituloRetiro,
+    builder: (context, state) => PantallaRetiro(
+      grupoId: state.pathParameters['grupoId']!,
+      participanteId: state.uri.queryParameters['participante'] ?? '',
     ),
   ),
   GoRoute(
     path: '/pasanaku/turnos/permuta',
     name: 'pasanaku.permuta',
-    // Los IDs de turnos y contraparte de un enlace no prueban autorización.
-    builder: (context, state) => const PantallaAccionPersonalNoDisponible(
-      titulo: TextosPasanaku.tituloPermuta,
+    builder: (context, state) => PantallaPermuta(
+      turnoOrigenId: state.uri.queryParameters['origen'] ?? '',
+      turnoDestinoId: state.uri.queryParameters['destino'] ?? '',
+      contraparteId: state.uri.queryParameters['contraparte'] ?? '',
     ),
   ),
   GoRoute(
@@ -74,33 +74,38 @@ final List<RouteBase> rutasPasanaku = [
   GoRoute(
     path: '/pasanaku/mi-estado',
     name: 'pasanaku.miEstado',
-    // Un enlace no prueba la titularidad de la participación ni del usuario.
-    redirect: (context, state) => state.uri.hasQuery ? state.uri.path : null,
-    builder: (context, state) =>
-        const PantallaMiEstado(participanteId: '', usuarioId: ''),
+    builder: (context, state) => PantallaMiEstadoDeLaSesion(
+      participanteId: state.uri.queryParameters['participante'],
+      usuarioId: state.uri.queryParameters['usuario'],
+    ),
   ),
   GoRoute(
     path: '/pasanaku/mi-puntaje',
     name: 'pasanaku.miPuntaje',
-    redirect: (context, state) => state.uri.hasQuery ? state.uri.path : null,
-    builder: (context, state) => const PantallaMiPuntaje(usuarioId: ''),
+    builder: (context, state) => PantallaMiPuntaje(
+      usuarioId: state.uri.queryParameters['usuario'] ?? '',
+    ),
   ),
   GoRoute(
     path: '/pasanaku/sorteos/:sorteoId/turno',
     name: 'pasanaku.turno',
-    // El turno personal y el actual no están en el contrato publicado. Los
-    // parámetros de un enlace no son una fuente confiable para mostrarlos.
-    redirect: (context, state) => state.uri.hasQuery ? state.uri.path : null,
-    builder: (context, state) =>
-        PantallaTurno(sorteoId: state.pathParameters['sorteoId']!),
+    builder: (context, state) {
+      final q = state.uri.queryParameters;
+      return PantallaTurno(
+        sorteoId: state.pathParameters['sorteoId']!,
+        total: int.parse(q['total'] ?? '0'),
+        miTurno: int.parse(q['mio'] ?? '0'),
+        turnoActual: int.parse(q['actual'] ?? '0'),
+      );
+    },
   ),
   GoRoute(
     path: '/pasanaku/obligaciones/:obligacionId/aportar',
     name: 'pasanaku.aportar',
-    // Un importe de query no es una obligación verificada y además queda en
-    // historiales/logs. Hasta tener GET autenticado, la ruta falla cerrado.
-    redirect: (context, state) => state.uri.hasQuery ? state.uri.path : null,
-    builder: (context, state) => const PantallaAporteNoDisponible(),
+    builder: (context, state) => PantallaAportar(
+      obligacionId: state.pathParameters['obligacionId']!,
+      montoDelPeriodo: state.uri.queryParameters['monto'] ?? '0.00',
+    ),
   ),
   GoRoute(
     path: '/pasanaku/reclamos/nuevo',
@@ -114,9 +119,19 @@ final List<RouteBase> rutasPasanaku = [
 /// El enlace llega también antes de iniciar sesión, por eso vive fuera del shell.
 final List<RouteBase> rutasDeInvitacion = [
   GoRoute(
+    path: '/pasanaku/escanear',
+    name: 'pasanaku.escanear',
+    builder: (context, state) => const PantallaEscanear(),
+  ),
+  GoRoute(
     path: '/pasanaku/unirse/:codigo',
     name: 'pasanaku.unirse',
-    builder: (context, state) =>
-        PantallaUnirse(codigo: state.pathParameters['codigo']!),
+    // La clave por código: con la app ya abierta en una invitación, un segundo enlace llega a
+    // la MISMA ruta con otro parámetro y, sin clave, Flutter reutilizaba el estado y seguía
+    // mostrando la invitación anterior (hallazgo del carril H en emulador).
+    builder: (context, state) {
+      final codigo = state.pathParameters['codigo']!;
+      return PantallaUnirse(key: ValueKey(codigo), codigo: codigo);
+    },
   ),
 ];

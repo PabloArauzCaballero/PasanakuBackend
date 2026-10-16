@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { prepararArranque } from './apoyo/arranque-e2e'
 import { abrirSesionDePruebaYNavegar } from './apoyo/sesion-de-prueba'
 
 /**
@@ -56,9 +57,18 @@ test.describe('sistemas — sin contrato real, nunca datos de ejemplo (con sesi�
   }
 
   test('sin sesión, /sistemas/servicios redirige a /ingreso (requiereSesion en el shell)', async ({ page }) => {
+    // F4 (TEST_BUG heredado): `prepararArranque` fija el meta del gateway y responde el refresco de sesión; sin él el arranque se quedaba en /arranque.
+    await prepararArranque(page)
+    // Sin sesión tampoco hay cookie de refresco, y el servidor real contesta 401
+    // (`AP-SES-01`). Desde que `POST /sesion/refrescar` está en el contrato (H10 del
+    // escáner), el mock de Prism lo contesta 200 con un ejemplo y «restauraba» una
+    // sesión que nadie abrió: se fija lo que hace el servidor.
+    await page.route('**/sesion/refrescar', (route) => route.fulfill({ status: 401, json: { codigo: 'AP-SES-01' } }))
     const r = await page.goto('/sistemas/servicios')
     expect(r?.status()).toBe(200)
-    await expect(page).toHaveURL(/\/ingreso$/)
+    // `requiereSesion` manda a /ingreso recordando adónde se quería ir (`volverA`,
+    // nucleo/permisos.ts), para volver ahí después de entrar.
+    await expect(page).toHaveURL(/\/ingreso\?volverA=%2Fsistemas%2Fservicios$/)
   })
 
   test('con sesión pero sin rol PLATAFORMA/SEGURIDAD, /sistemas/servicios nunca monta (soloRolesDeSistemas)', async ({ page }) => {

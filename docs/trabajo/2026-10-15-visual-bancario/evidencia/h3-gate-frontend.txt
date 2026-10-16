@@ -1,0 +1,14 @@
+=== apps/movil (Flutter) ===
+  OK    · sin red en vista 
+  OK    · sin literal de diseño 
+  FALLA · sin formato de dinero ['apps/movil/lib/main_h6_s3_m8_profile.dart:90', 'apps/movil/lib/main_h6_s3_m8_profile.dart:91', 'apps/movil/lib/main_h6_s3_m8_profile.dart:97', 'apps/movil/lib/main_h6_s3_m8_profile.dart:98']
+  OK    · sin plataforma en vista 
+  FALLA · sin print ['apps/movil/lib/main_h6_s3_m8_profile.dart:48', 'apps/movil/lib/main_h6_s3_m8_profile.dart:71', 'apps/movil/lib/main_h6_s3_m8_profile.dart:95', 'apps/movil/lib/pantallas/identidad/dominio/cu04_autenticar.dart:83']
+  OK    · selects y fechas solo con el sistema de diseño 
+  OK    · selects con hoja también en diseno_flutter 
+  FALLA · ningún archivo de más de 200 líneas (texto_del_contrato.dart es dato y queda fuera) ['apps/movil/lib/dominio/tutoriales/motor.dart (256)']
+  OK    · el shell tiene navegacion/rutas.dart
+  OK    · el shell tiene dominio/cliente.dart
+  OK    · el shell tiene proveedores/sesion.dart
+
+3 FALLAS

@@ -28,18 +28,20 @@ Los demas casos de uso del modulo 03 siguen pendientes; ninguno esta a medias.
 
 | Tema | Cuando |
 | --- | --- |
-| `aportes.aporte_cobrado` | Se acredito un pago contra una obligacion. Lleva `monto` y `participanteId`: sin ellos, `cumplimiento` no puede evaluar el umbral (R-UIF-02) ni `nucleo-financiero` cuadrar el asiento |
+| `aportes.aporte_cobrado` | Se acredito un pago contra una obligacion. Lleva `monto` y `participanteId`: sin ellos, `cumplimiento` no puede evaluar el umbral (R-UIF-02) ni `nucleo-financiero` cuadrar el asiento. Desde el carril I lleva tambien `moneda`, `canal`, `obligacionId` y `usuarioId` (quien paga): `nucleo-financiero` lo CONSUME y mueve billetera y mayor (campos sumados, compatible) |
 | `aportes.reembolso_solicitado` | Alguien pidio devolver un pago. Todavia no salio plata |
 | `aportes.reembolso_ejecutado` | Se aprobo y ejecuto: `nucleo-financiero` mueve el dinero |
 | `aportes.disputa_abierta` | El proveedor abrio una disputa, con su `fechaLimiteRespuesta` ya guardada |
 | `aportes.proveedor_activado` | Un proveedor de pago quedo activo y empieza a recibir trafico |
 | `aportes.recargo_generado` | El trabajo diario creo una obligacion de tipo `RECARGO_MORA` |
+| `aportes.aporte_compensado` | Carril Q: un pago que `nucleo-financiero` no pudo aplicar por falta de saldo se revirtio (`REVERSADO`) y la obligacion volvio a quedar pendiente por ese importe |
 
 ## Eventos que consume
 
 | Tema | De quien | Efecto |
 | --- | --- | --- |
-| — | — | Ninguno todavia. Las confirmaciones del proveedor llegan por webhook y se anotan en `evento_consumido` con el consumidor `proveedor-pago`, que es lo que impide que un reenvio abra dos disputas |
+| `aportaya.nucleo_financiero.aporte_no_aplicado` | `nucleo-financiero` | Carril Q · compensa el aporte `PAGADO` que el libro no pudo aplicar por falta de saldo (`CU21CompensarAporte`, consumidor `ConsumidorDeAportesNoAplicadosKafka`): el pago pasa a `REVERSADO`, la obligacion vuelve a `PENDIENTE` (o `EN_MORA` si ya vencio) y se publica `aporte_compensado`. Una sola vez por evento (`evento_consumido`) y por pago (el `UPDATE` lleva la precondicion `estado = 'ACREDITADO'`); el importe sale del pago guardado, no del evento; un pago con reembolsos o en disputa NO se compensa solo (`NO_COMPENSABLE`: lo resuelve una persona). **Encendido por omision** (`COMPENSACION_CONSUMO_HABILITADO`). Pacto: `contratos/pactos/aportes-nucleo-financiero.json`. NO verificado con Kafka y los dos procesos reales |
+| `proveedor-pago` (webhook) | la pasarela | Las confirmaciones del proveedor llegan por webhook y se anotan en `evento_consumido` con el consumidor `proveedor-pago`, que es lo que impide que un reenvio abra dos disputas |
 
 ## Trabajos programados
 
@@ -49,6 +51,14 @@ Los demas casos de uso del modulo 03 siguen pendientes; ninguno esta a medias.
 
 > El disparo (`@Scheduled` + ShedLock) todavia no esta cableado: el metodo existe,
 > se prueba y no lo llama nadie. Declarado en el informe del carril.
+
+## Recaudo del pozo (carril C, H8)
+
+`GET /aportes/periodos/{periodoId}/recaudo` (`ConsultarRecaudoDelPeriodo`): cuanto del pozo es
+caja confirmada y que obligaciones faltan. Un pendiente NO es caja; el pago de mas, tampoco; lo
+que cubrio el fondo mutual se cuenta aparte. Lo consumen `entregas` y `garantia` para no creerle
+el importe al cliente. Fuente: `obligacion_aporte.monto_pagado` (lo mueve CU-21 tras la
+confirmacion del proveedor); el cuadre contra el mayor es trabajo de la conciliacion (H13).
 
 ## Lo que este servicio NO puede hacer
 
@@ -67,3 +77,19 @@ docker compose --profile base up -d --wait
 ```
 
 Skills: `arrancar-carril` primero, despues las diecinueve de todo carril de backend.
+
+## Calendario de obligaciones (carril O2, H8.S1.M1)
+
+`POST /aportes/periodos/{periodoId}/obligaciones` (`GenerarObligacionesDelPeriodo`, `ADMIN_PLATAFORMA`): una obligacion
+`APORTE_PERIODICO` por cupo (R-GRP-03, `ON CONFLICT DO NOTHING`), con titular, turno, monto y estado `PENDIENTE`. Quien es titular
+y cuanto aporta lo afirma `grupos` (puerto `CalendarioDelPeriodo`, **contrato propuesto**: hoy el adaptador por omision deniega y
+las pruebas usan un doble). `fecha_vencimiento` guarda la fecha de LIQUIDACION (siguiente dia habil si la contractual cae en feriado,
+sabado o domingo); la contractual viaja en la respuesta y en `aportes.obligaciones_generadas`, con `notificarAlGrupo`.
+El "hoy" de mora y recargos es el de La Paz (`Reloj.hoy()`), no el de UTC. Ver `docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-O2/`.
+
+## Tercera vuelta (carril B3)
+
+- `CalendarioDelPeriodoPorHttp` reemplaza a `CalendarioNoDisponible`: consume `GET /grupos/periodos/{id}/calendario-de-aportes`
+  con tiempo maximo y circuit breaker (`ClienteConCircuito`, parametros sinteticos en `aportaya.resiliencia.circuito.*`) y fallo
+  cerrado (`PERIODO_NO_CONFIRMADO` si `grupos` no contesta o el cuerpo no cumple el contrato). `HechosDeGruposPorHttp` tambien
+  lleva circuit breaker.

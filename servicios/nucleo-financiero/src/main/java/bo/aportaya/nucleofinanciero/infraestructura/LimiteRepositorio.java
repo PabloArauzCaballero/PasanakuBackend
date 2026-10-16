@@ -1,5 +1,6 @@
 package bo.aportaya.nucleofinanciero.infraestructura;
 
+import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
 import java.math.BigDecimal;
@@ -57,14 +58,14 @@ public class LimiteRepositorio {
      */
     public Consumo acumuladoBloqueado(
             DSLContext dsl, UUID cuentaId, UUID limiteId, OffsetDateTime inicio, Moneda moneda) {
-        var fila = dsl.select(
+        var fila = Datos.comoSistema(dsl, () -> dsl.select(
                         DSL.field("monto_acumulado", BigDecimal.class), DSL.field("cantidad_acumulada", Integer.class))
                 .from(DSL.table(DSL.name("nucleo_financiero", "consumo_limite")))
                 .where(DSL.field("cuenta_billetera_id", UUID.class).eq(cuentaId))
                 .and(DSL.field("limite_id", UUID.class).eq(limiteId))
                 .and(DSL.field("ventana_inicio", OffsetDateTime.class).eq(inicio))
                 .forUpdate()
-                .fetchOne();
+                .fetchOne());
 
         if (fila == null) {
             return new Consumo(Dinero.cero(moneda), 0);
@@ -90,31 +91,36 @@ public class LimiteRepositorio {
             Dinero monto,
             OffsetDateTime ahora) {
 
-        var tabla = DSL.table(DSL.name("nucleo_financiero", "consumo_limite"));
-        dsl.insertInto(tabla)
-                .set(DSL.field("id", UUID.class), UUID.randomUUID())
-                .set(DSL.field("cuenta_billetera_id", UUID.class), cuentaId)
-                .set(DSL.field("limite_id", UUID.class), limiteId)
-                .set(DSL.field("ventana_inicio", OffsetDateTime.class), inicio)
-                .set(DSL.field("ventana_fin", OffsetDateTime.class), fin)
-                .set(DSL.field("monto_acumulado", BigDecimal.class), monto.monto())
-                .set(DSL.field("cantidad_acumulada", Integer.class), 1)
-                .set(DSL.field("actualizado_en", OffsetDateTime.class), ahora)
-                .onConflict(
-                        DSL.field("cuenta_billetera_id", UUID.class),
-                        DSL.field("limite_id", UUID.class),
-                        DSL.field("ventana_inicio", OffsetDateTime.class))
-                .doUpdate()
-                .set(
-                        DSL.field("monto_acumulado", BigDecimal.class),
-                        DSL.field("consumo_limite.monto_acumulado", BigDecimal.class)
-                                .plus(monto.monto()))
-                .set(
-                        DSL.field("cantidad_acumulada", Integer.class),
-                        DSL.field("consumo_limite.cantidad_acumulada", Integer.class)
-                                .plus(1))
-                .set(DSL.field("actualizado_en", OffsetDateTime.class), ahora)
-                .execute();
+        // El contador de consumo es contabilidad interna del limite, no una fila del titular (B8): se
+        // escribe con rol de sistema.
+        Datos.comoSistema(dsl, () -> {
+            var tabla = DSL.table(DSL.name("nucleo_financiero", "consumo_limite"));
+            dsl.insertInto(tabla)
+                    .set(DSL.field("id", UUID.class), UUID.randomUUID())
+                    .set(DSL.field("cuenta_billetera_id", UUID.class), cuentaId)
+                    .set(DSL.field("limite_id", UUID.class), limiteId)
+                    .set(DSL.field("ventana_inicio", OffsetDateTime.class), inicio)
+                    .set(DSL.field("ventana_fin", OffsetDateTime.class), fin)
+                    .set(DSL.field("monto_acumulado", BigDecimal.class), monto.monto())
+                    .set(DSL.field("cantidad_acumulada", Integer.class), 1)
+                    .set(DSL.field("actualizado_en", OffsetDateTime.class), ahora)
+                    .onConflict(
+                            DSL.field("cuenta_billetera_id", UUID.class),
+                            DSL.field("limite_id", UUID.class),
+                            DSL.field("ventana_inicio", OffsetDateTime.class))
+                    .doUpdate()
+                    .set(
+                            DSL.field("monto_acumulado", BigDecimal.class),
+                            DSL.field("consumo_limite.monto_acumulado", BigDecimal.class)
+                                    .plus(monto.monto()))
+                    .set(
+                            DSL.field("cantidad_acumulada", Integer.class),
+                            DSL.field("consumo_limite.cantidad_acumulada", Integer.class)
+                                    .plus(1))
+                    .set(DSL.field("actualizado_en", OffsetDateTime.class), ahora)
+                    .execute();
+            return null;
+        });
     }
 
     /**
@@ -124,17 +130,20 @@ public class LimiteRepositorio {
      * error del sistema le comeria el cupo del mes a la persona.
      */
     public void devolver(DSLContext dsl, UUID cuentaId, UUID limiteId, OffsetDateTime inicio, Dinero monto) {
-        dsl.update(DSL.table(DSL.name("nucleo_financiero", "consumo_limite")))
-                .set(
-                        DSL.field("monto_acumulado", BigDecimal.class),
-                        DSL.field("monto_acumulado", BigDecimal.class).minus(monto.monto()))
-                .set(
-                        DSL.field("cantidad_acumulada", Integer.class),
-                        DSL.field("cantidad_acumulada", Integer.class).minus(1))
-                .where(DSL.field("cuenta_billetera_id", UUID.class).eq(cuentaId))
-                .and(DSL.field("limite_id", UUID.class).eq(limiteId))
-                .and(DSL.field("ventana_inicio", OffsetDateTime.class).eq(inicio))
-                .execute();
+        Datos.comoSistema(dsl, () -> {
+            dsl.update(DSL.table(DSL.name("nucleo_financiero", "consumo_limite")))
+                    .set(
+                            DSL.field("monto_acumulado", BigDecimal.class),
+                            DSL.field("monto_acumulado", BigDecimal.class).minus(monto.monto()))
+                    .set(
+                            DSL.field("cantidad_acumulada", Integer.class),
+                            DSL.field("cantidad_acumulada", Integer.class).minus(1))
+                    .where(DSL.field("cuenta_billetera_id", UUID.class).eq(cuentaId))
+                    .and(DSL.field("limite_id", UUID.class).eq(limiteId))
+                    .and(DSL.field("ventana_inicio", OffsetDateTime.class).eq(inicio))
+                    .execute();
+            return null;
+        });
     }
 
     public record Limite(

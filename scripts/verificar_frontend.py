@@ -60,13 +60,25 @@ def movil():
     barrer("sin plataforma en vista", raiz, {".dart"}, r"Platform\.is[A-Z]",
            lambda p: "/infraestructura/" in p.as_posix())
     barrer("sin print", raiz, {".dart"}, r"\b(print|debugPrint)\(", lambda p: False)
+    # Disciplina del buscador: un select se arma SOLO con `CampoDeSeleccion`, que con
+    # más de 12 opciones abre la hoja con buscador. Un `DropdownButton` o un
+    # `showDatePicker` suelto en una pantalla se saltea esa regla (y el segundo trae el
+    # modo de texto `mm/dd/yyyy` que nadie entiende; las fechas van con `CampoDeFecha`).
+    barrer("selects y fechas solo con el sistema de diseño", raiz, {".dart"},
+           r"\b(DropdownButton(FormField)?|DropdownMenu|showDatePicker)\b", lambda p: False)
+    # Ningún desplegable dentro del sistema de diseño puede saltarse la hoja.
+    # Los menús de acción solo se admiten con una excepción comentada por línea.
+    raiz_diseno = R / "packages/diseno_flutter/lib"
+    barrer("selects con hoja también en diseno_flutter", raiz_diseno, {".dart"},
+           r"\b(DropdownButton(FormField)?|DropdownMenu|PopupMenuButton)\b|showMenu\s*\(",
+           lambda p: False)
     # `texto_del_contrato.dart` queda fuera por lo mismo que `tokens.dart`: es DATO, no
     # código. Es el contrato de adhesión y el tarifario que se le muestran a la persona,
     # y su largo lo decide lo que el contrato tiene que decir. La regla existe para que
     # no haya widgets de 600 líneas, no para acortar una cláusula.
-    grandes = [f"{p.relative_to(R)} ({len(p.read_text().splitlines())})"
+    grandes = [f"{p.relative_to(R)} ({len(p.read_text(encoding='utf-8', errors='ignore').splitlines())})"
                for p in archivos(raiz, {".dart"}, ("tokens.dart", "texto_del_contrato.dart"))
-               if len(p.read_text().splitlines()) > 200]
+               if len(p.read_text(encoding="utf-8", errors="ignore").splitlines()) > 200]
     check(not grandes, f"ningún archivo de más de 200 líneas (texto_del_contrato.dart es dato y queda fuera) {grandes or ''}")
     for shell in ("navegacion/rutas.dart", "dominio/cliente.dart", "proveedores/sesion.dart"):
         check((raiz / shell).exists(), f"el shell tiene {shell}")
@@ -82,8 +94,8 @@ def angular(app):
     barrer("sin formato de dinero", raiz, {".ts", ".html"}, r"(toFixed\(|Intl\.NumberFormat|'Bs '|\"Bs \")",
            lambda p: p.name.startswith("monto") or p.name.startswith("formatear"))
     barrer("sin console", raiz, {".ts"}, r"console\.(log|warn|error)\(", lambda p: p.name == "main.ts")
-    grandes = [f"{p.relative_to(R)} ({len(p.read_text().splitlines())})" for p in archivos(raiz, {".ts", ".html"})
-               if len(p.read_text().splitlines()) > 200]
+    grandes = [f"{p.relative_to(R)} ({len(p.read_text(encoding='utf-8', errors='ignore').splitlines())})" for p in archivos(raiz, {".ts", ".html"})
+               if len(p.read_text(encoding="utf-8", errors="ignore").splitlines()) > 200]
     check(not grandes, f"ningún archivo de más de 200 líneas {grandes or ''}")
     tutoriales()
     ui = R / "packages/ui/src"
@@ -101,8 +113,8 @@ def diseno():
            lambda p: p.name in ("formatear.dart", "monto.dart"))
     barrer("sin plataforma", raiz, {".dart"}, r"Platform\.is[A-Z]", lambda p: False)
     barrer("sin print", raiz, {".dart"}, r"\b(print|debugPrint)\(", lambda p: False)
-    grandes = [f"{p.relative_to(R)} ({len(p.read_text().splitlines())})" for p in archivos(raiz, {".dart"}, ("tokens.dart", "/catalogo/"))
-               if len(p.read_text().splitlines()) > 200]
+    grandes = [f"{p.relative_to(R)} ({len(p.read_text(encoding='utf-8', errors='ignore').splitlines())})" for p in archivos(raiz, {".dart"}, ("tokens.dart", "/catalogo/"))
+               if len(p.read_text(encoding="utf-8", errors="ignore").splitlines()) > 200]
     check(not grandes, f"ningún archivo de más de 200 líneas (catalogo/ es datos y queda fuera) {grandes or ''}")
 
 
@@ -115,8 +127,8 @@ def ui():
     barrer("sin formato de dinero", raiz, {".ts", ".html"}, r"(toFixed\(|Intl\.NumberFormat|parseFloat\(|'Bs '|\"Bs \")",
            lambda p: p.name.startswith("monto") or p.name.startswith("formatear"))
     barrer("sin console", raiz, {".ts"}, r"console\.(log|warn|error)\(", lambda p: False)
-    grandes = [f"{p.relative_to(R)} ({len(p.read_text().splitlines())})" for p in archivos(raiz, {".ts"}, ("/catalogo/", ".spec.ts"))
-               if len(p.read_text().splitlines()) > 200]
+    grandes = [f"{p.relative_to(R)} ({len(p.read_text(encoding='utf-8', errors='ignore').splitlines())})" for p in archivos(raiz, {".ts"}, ("/catalogo/", ".spec.ts"))
+               if len(p.read_text(encoding="utf-8", errors="ignore").splitlines()) > 200]
     check(not grandes, f"ningún archivo de más de 200 líneas (catalogo/ es datos y queda fuera) {grandes or ''}")
     piezas = sorted(d.name for d in raiz.iterdir() if d.is_dir() and d.name not in ("catalogo",))
     sin_archivo = [d for d in piezas if not (raiz / d / f"{d}.ts").exists()]
@@ -138,8 +150,8 @@ def tutoriales():
     barrer("sin red fuera del puerto", raiz, {".ts"}, r"(HttpClient\b|fetch\(|XMLHttpRequest)", lambda p: False)
     barrer("sin literal de diseño", raiz, {".ts", ".html", ".css"}, r"(#[0-9a-fA-F]{3,6}\b|(?<![\w-])\d+px\b|font-family:(?!\s*var\())", lambda p: False)
     barrer("sin console", raiz, {".ts"}, r"console\.(log|warn|error)\(", lambda p: False)
-    grandes = [f"{p.relative_to(R)} ({len(p.read_text().splitlines())})" for p in archivos(raiz, {".ts"})
-               if len(p.read_text().splitlines()) > 200]
+    grandes = [f"{p.relative_to(R)} ({len(p.read_text(encoding='utf-8', errors='ignore').splitlines())})" for p in archivos(raiz, {".ts"})
+               if len(p.read_text(encoding="utf-8", errors="ignore").splitlines()) > 200]
     check(not grandes, f"ningún archivo de más de 200 líneas {grandes or ''}")
 
 

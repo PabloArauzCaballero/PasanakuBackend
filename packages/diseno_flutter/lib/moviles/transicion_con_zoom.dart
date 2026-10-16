@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../tokens/tokens.dart';
-
 /// **La transición de AportaYa: se entra hacia adentro, no de costado.**
 ///
 /// La pantalla que llega arranca al 88 % y crece hasta su tamaño mientras aparece; la
@@ -24,10 +22,10 @@ class TransicionConZoom extends PageTransitionsBuilder {
   static const _hasta = 1.06;
 
   @override
-  Duration get transitionDuration => MovimientoDeInterfaz.navegacion;
+  Duration get transitionDuration => const Duration(milliseconds: 340);
 
   @override
-  Duration get reverseTransitionDuration => MovimientoDeInterfaz.salida;
+  Duration get reverseTransitionDuration => const Duration(milliseconds: 260);
 
   @override
   Widget buildTransitions<T>(

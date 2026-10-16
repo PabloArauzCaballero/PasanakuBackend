@@ -1,0 +1,8 @@
+00:06 +169: /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/unidad/capacidades_test.dart: capacidadesDeLaPlataforma -- catorce casos (7 puertos x 2 plataformas) iOS: Haptica soportada (HapticFeedback es del SDK de Flutter)
+00:06 +170: /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/unidad/capacidades_test.dart: seguridadCriticaSoportada Android: soportada (almacén y protección de pantalla plenos)
+00:06 +171: /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/unidad/capacidades_test.dart: seguridadCriticaSoportada iOS: soportada (almacén pleno, protección de pantalla degradada)
+00:06 +172: /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/unidad/capacidades_test.dart: los adaptadores "no soportado en iOS" nunca abren un canal nativo BiometriaIos.disponible()/confirmar() devuelven el valor seguro sin canal
+00:06 +173: /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/unidad/capacidades_test.dart: los adaptadores "no soportado en iOS" nunca abren un canal nativo AvisosPushIos.token() es null sin canal, y toques no emite nada
+00:06 +174: /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/unidad/capacidades_test.dart: ProteccionPantallaIos habla con el receptor nativo activar() y desactivar() llegan al canal, en orden
+00:06 +175: /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/unidad/capacidades_test.dart: ProteccionPantallaIos habla con el receptor nativo sin receptor (prueba de widget) no falla
+00:06 +176: All tests passed!

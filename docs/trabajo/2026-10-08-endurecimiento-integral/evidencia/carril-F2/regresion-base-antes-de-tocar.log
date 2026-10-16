@@ -1,0 +1,75 @@
+##### simulado: typecheck + lint + vitest
+tsc exit=0
+eslint exit=0
+ RUN  v4.1.11 C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/packages/simulado
+ Test Files  3 passed (3)
+      Tests  231 passed (231)
+   Start at  17:19:37
+   Duration  1.07s (transform 100ms, setup 0ms, import 266ms, tests 1.20s, environment 0ms)
+##### backoffice: typecheck
+tsc app exit=0
+tsc spec exit=0
+##### backoffice: ng lint
+Linting "backoffice"...
+(node:5848) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/backoffice/eslint.config.js?mtime=1791516635797 is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\backoffice\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+All files pass linting.
+##### backoffice: verificar_frontend.py
+TODO OK
+##### backoffice: test:front
+❯ Building...
+✔ Building...
+Application bundle generation complete. [2.861 seconds] - 2026-10-09T21:19:50.578Z
+ RUN  v4.1.11 C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/backoffice
+Not implemented: Window's confirm() method
+Not implemented: Window's confirm() method
+ Test Files  62 passed (62)
+      Tests  373 passed (373)
+   Start at  17:19:51
+   Duration  4.27s (transform 726ms, setup 361ms, import 867ms, tests 2.10s, environment 759ms)
+##### backoffice: test:a11y
+Using Vitest configuration file: C:\Users\Usuario\AppData\Local\Temp\claude\C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku\c468f89e-ca7f-4172-b7d5-74080b60e5a8\scratchpad\vitest-serial.config.mjs
+❯ Building...
+✔ Building...
+Application bundle generation complete. [2.711 seconds] - 2026-10-09T21:19:59.266Z
+ RUN  v4.1.11 C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/backoffice
+ Test Files  28 passed (28)
+      Tests  39 passed (39)
+   Start at  17:19:59
+   Duration  5.64s (transform 511ms, setup 279ms, import 884ms, tests 3.83s, environment 497ms)
+##### web: typecheck
+tsc app exit=0
+tsc spec exit=0
+##### web: ng lint
+Linting "web"...
+(node:29816) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/web/eslint.config.js?mtime=1791516635999 is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre\apps\web\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+All files pass linting.
+##### web: verificar_frontend.py
+TODO OK
+##### web: test:front
+Using Vitest configuration file: C:\Users\Usuario\AppData\Local\Temp\claude\C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku\c468f89e-ca7f-4172-b7d5-74080b60e5a8\scratchpad\vitest-serial.config.mjs
+❯ Building...
+✔ Building...
+Application bundle generation complete. [1.782 seconds] - 2026-10-09T21:20:14.731Z
+ RUN  v4.1.11 C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/web
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+ Test Files  13 passed (13)
+      Tests  64 passed (64)
+   Start at  17:20:15
+   Duration  2.08s (transform 181ms, setup 261ms, import 397ms, tests 766ms, environment 519ms)
+##### web: test:a11y
+Using Vitest configuration file: C:\Users\Usuario\AppData\Local\Temp\claude\C--Users-Usuario-Downloads-Entrypoint-GitHUb-Pasanaku\c468f89e-ca7f-4172-b7d5-74080b60e5a8\scratchpad\vitest-serial.config.mjs
+❯ Building...
+✔ Building...
+Application bundle generation complete. [1.762 seconds] - 2026-10-09T21:20:20.235Z
+ RUN  v4.1.11 C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/apps/web
+ Test Files  3 passed (3)
+      Tests  6 passed (6)
+   Start at  17:20:20
+   Duration  1.94s (transform 175ms, setup 232ms, import 327ms, tests 747ms, environment 503ms)
+regresion terminada

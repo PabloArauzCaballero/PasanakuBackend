@@ -1,0 +1,20 @@
+$ psql: verificacion_kyc + documento_identidad de los 2 ultimos usuarios (antes/despues del fix H5.S1.M1)
+              usuario_id              |   estado    | anverso | reverso | selfie | perfil_izq | perfil_der 
+--------------------------------------+-------------+---------+---------+--------+------------+------------
+ 83bba82f-97d6-49dc-978d-ee4dc091e593 | EN_REVISION | t       | t       | t      | t          | t
+ a5738afe-6d1f-4069-af11-6b530db3a042 | EN_REVISION | f       | f       | f      | f          | f
+(2 rows)
+
+$ nginx: POST de la subida
+172.26.0.1 - - [02/Oct/2026:20:03:19 +0000] "POST /api/v1/usuarios HTTP/1.1" 422 172 "-" "Dart/3.13 (dart:io)" "-"
+172.26.0.1 - - [02/Oct/2026:20:06:30 +0000] "POST /api/v1/usuarios HTTP/1.1" 202 158 "-" "Dart/3.13 (dart:io)" "-"
+2026/10/02 20:06:31 [warn] 28#28: *521 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000001, client: 172.26.0.1, server: _, request: "POST /api/v1/usuarios/<id>/documentos HTTP/1.1", host: "10.0.2.2"
+172.26.0.1 - - [02/Oct/2026:20:06:31 +0000] "POST /api/v1/usuarios/<id>/documentos HTTP/1.1" 201 264 "-" "Dart/3.13 (dart:io)" "-"
+2026/10/02 20:06:31 [warn] 28#28: *521 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000002, client: 172.26.0.1, server: _, request: "POST /api/v1/usuarios/<id>/documentos HTTP/1.1", host: "10.0.2.2"
+172.26.0.1 - - [02/Oct/2026:20:06:31 +0000] "POST /api/v1/usuarios/<id>/documentos HTTP/1.1" 201 264 "-" "Dart/3.13 (dart:io)" "-"
+2026/10/02 20:06:31 [warn] 28#28: *521 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000003, client: 172.26.0.1, server: _, request: "POST /api/v1/usuarios/<id>/documentos HTTP/1.1", host: "10.0.2.2"
+172.26.0.1 - - [02/Oct/2026:20:06:32 +0000] "POST /api/v1/usuarios/<id>/documentos HTTP/1.1" 201 268 "-" "Dart/3.13 (dart:io)" "-"
+2026/10/02 20:06:32 [warn] 28#28: *521 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000004, client: 172.26.0.1, server: _, request: "POST /api/v1/usuarios/<id>/documentos HTTP/1.1", host: "10.0.2.2"
+172.26.0.1 - - [02/Oct/2026:20:06:32 +0000] "POST /api/v1/usuarios/<id>/documentos HTTP/1.1" 201 283 "-" "Dart/3.13 (dart:io)" "-"
+2026/10/02 20:06:32 [warn] 28#28: *521 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000005, client: 172.26.0.1, server: _, request: "POST /api/v1/usuarios/<id>/documentos HTTP/1.1", host: "10.0.2.2"
+172.26.0.1 - - [02/Oct/2026:20:06:32 +0000] "POST /api/v1/usuarios/<id>/documentos HTTP/1.1" 201 279 "-" "Dart/3.13 (dart:io)" "-"

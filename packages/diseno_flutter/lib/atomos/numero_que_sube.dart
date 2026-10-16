@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../tokens/tokens.dart';
+import 'movimiento.dart';
 
 /// Un número entero contando hacia arriba: puntos, experiencia, calificación.
 ///
@@ -15,8 +16,10 @@ class NumeroQueSube extends StatefulWidget {
     required this.valor,
     this.etiqueta,
     this.estilo,
+    this.prefijo = '',
     this.sufijo = '',
-    this.duracion = MovimientoDeInterfaz.contador,
+    this.cifrasTabulares = true,
+    this.duracion = const Duration(milliseconds: 650),
   });
 
   final int valor;
@@ -25,8 +28,14 @@ class NumeroQueSube extends StatefulWidget {
   final String? etiqueta;
   final TextStyle? estilo;
 
+  /// Lo que antecede al valor visible y anunciado.
+  final String prefijo;
+
   /// Lo que va pegado al número: `' pts'`, `' %'`.
   final String sufijo;
+
+  /// Mantiene el estilo recibido cuando el valor no representa una cifra financiera.
+  final bool cifrasTabulares;
   final Duration duracion;
 
   @override
@@ -59,7 +68,7 @@ class _NumeroQueSubeState extends State<NumeroQueSube>
   }
 
   void _arrancar() {
-    if (_desde == _hasta || MediaQuery.disableAnimationsOf(context)) {
+    if (_desde == _hasta || reducirMovimiento(context)) {
       _control.value = 1;
       return;
     }
@@ -83,17 +92,19 @@ class _NumeroQueSubeState extends State<NumeroQueSube>
     final etiqueta = widget.etiqueta;
     return Semantics(
       label: etiqueta == null
-          ? '${widget.valor}${widget.sufijo}'
-          : '$etiqueta: ${widget.valor}${widget.sufijo}',
+          ? '${widget.prefijo}${widget.valor}${widget.sufijo}'
+          : '$etiqueta: ${widget.prefijo}${widget.valor}${widget.sufijo}',
       excludeSemantics: true,
       child: AnimatedBuilder(
         animation: _control,
         builder: (context, _) => Text(
-          '$_visible${widget.sufijo}',
-          style: base.copyWith(
-            fontFamily: Fuente.display,
-            fontFeatures: const [FontFeature.tabularFigures()],
-          ),
+          '${widget.prefijo}$_visible${widget.sufijo}',
+          style: widget.cifrasTabulares
+              ? base.copyWith(
+                  fontFamily: Fuente.display,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                )
+              : base,
         ),
       ),
     );

@@ -1,0 +1,13 @@
+asientos=400
+movimientos=800
+suma_debe=216500.00
+suma_haber=216500.00
+max_numero=400
+huella_mayor=82dfcc11728d4e857c6b83ad579d27a2
+eventos=400
+ev_pendientes=8
+ev_tomados=2
+ev_publicados=390
+consumidos_erp=390
+tablas_con_rls=101
+tablas=436

@@ -10,6 +10,8 @@ import '../pantallas/notificaciones/rutas.dart';
 import '../pantallas/pasanaku/rutas.dart';
 import '../pantallas/soporte/rutas.dart';
 import 'enlaces_profundos.dart';
+import 'acceso_a_rutas.dart';
+import '../proveedores/sesion.dart';
 import 'shell.dart';
 
 /// **El enchufe por dominio.** Lo escribe el shell (F2) UNA vez y se congela: cada
@@ -24,11 +26,16 @@ import 'shell.dart';
 /// que encontrarse con qué es AportaYa y cómo entrar, no con el tablero de una cuenta
 /// que todavía no es suya. Las pruebas que van directo a una pantalla de adentro pasan
 /// su ruta explícitamente.
-GoRouter crearEnrutador({String inicial = '/portada'}) => GoRouter(
+GoRouter crearEnrutador({
+  String inicial = '/portada',
+  required Sesion sesion,
+}) => GoRouter(
   initialLocation: inicial,
+  refreshListenable: sesion,
   redirect: (context, state) {
     final interna = rutaInternaDesde(state.uri);
-    return interna;
+    final destino = interna == null ? state.uri : Uri.parse(interna);
+    return decidirRuta(estado: sesion.estado, destino: destino) ?? interna;
   },
   routes: [
     StatefulShellRoute.indexedStack(
@@ -37,7 +44,10 @@ GoRouter crearEnrutador({String inicial = '/portada'}) => GoRouter(
       branches: [
         StatefulShellBranch(routes: rutasBilletera),
         StatefulShellBranch(
-          // Cada rama declara su casa; Grupos no debe abrir un marcador vacío.
+          // Sin esto, la rama arranca en su primera ruta declarada. Para `identidad`
+          // esa primera ruta es `/identidad`, que es **iniciar sesión**: tocar
+          // «Perfil» dejaba a alguien ya identificado frente a un formulario de login.
+          // Cada rama dice explícitamente cuál es su casa.
           initialLocation: '/pasanaku/mi-estado',
           routes: [
             ...rutasPasanaku,
@@ -54,7 +64,15 @@ GoRouter crearEnrutador({String inicial = '/portada'}) => GoRouter(
         ),
         StatefulShellBranch(
           initialLocation: '/identidad/perfil',
-          routes: rutasIdentidad,
+          routes: [
+            ...rutasIdentidad,
+            // idem, para `identidad/rutas.dart` (carril M1, ficha `F3`).
+            GoRoute(
+              path: '/identidad',
+              builder: (context, state) =>
+                  const _AunNoDisponible(dominio: 'Perfil'),
+            ),
+          ],
         ),
         // La quinta rama: el centro de ayuda. Tiene pila propia a propósito — se entra
         // a buscar cómo se hace algo y se vuelve a lo que uno estaba haciendo, sin
@@ -76,9 +94,7 @@ GoRouter crearEnrutador({String inicial = '/portada'}) => GoRouter(
   errorBuilder: (context, state) => Scaffold(
     body: SafeArea(
       child: EstadoError(
-        // La URI puede traer datos sensibles en una query de un enlace externo.
-        // No debe entrar al error, que un monitor futuro podría exportar.
-        error: StateError('Ruta no encontrada'),
+        error: StateError('Ruta no encontrada: ${state.uri}'),
         reintentar: () => context.go(inicial),
       ),
     ),

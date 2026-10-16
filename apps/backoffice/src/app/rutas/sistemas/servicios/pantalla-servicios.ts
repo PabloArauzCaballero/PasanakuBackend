@@ -20,7 +20,7 @@ const TONO: Record<EstadoServicio['estado'], 'ok' | 'aviso' | 'error'> = { opera
   imports: [BandaDeProposito, TablaDeDatos, ChipEstado, EstadoDePantalla],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1 data-tutorial-id="sistemas-servicios">{{ t.titulo }}</h1>
       <ap-estado-de-pantalla
         data-tutorial-id="sistemas-servicios-estado"
@@ -42,9 +42,9 @@ const TONO: Record<EstadoServicio['estado'], 'ok' | 'aviso' | 'error'> = { opera
           </ap-tabla-de-datos>
         }
       </ap-estado-de-pantalla>
-    </main>
+    </section>
   `,
-  styles: `main { padding: 0; max-width: 60rem; } h1 { margin-bottom: var(--s4); }`,
+  styles: `.pantalla { padding: 0; max-width: 60rem; } h1 { margin-bottom: var(--s4); }`,
 })
 export class PantallaServicios {
   protected readonly t = textosSistemas.servicios

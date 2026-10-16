@@ -1,172 +1,141 @@
-import 'dart:async';
-
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../dominio/errores.dart';
 import '../../../proveedores/sesion.dart';
-import 'borrador_de_alta.dart';
-import 'estado_alta.dart';
+import 'capturas_del_expediente.dart';
 import 'envio_del_alta.dart';
+import 'modelo_alta.dart';
+import 'verificacion_correo.dart';
 
-/// Orquesta los pasos y el envío del registro; la UI vive en sus widgets de paso.
-class AltaNotifier extends Notifier<EstadoAlta> with WidgetsBindingObserver {
-  Timer? _timerDeGuardado;
-  Future<void> _colaDeGuardado = Future<void>.value();
-  bool _intentoRestaurar = false;
-  bool _hayCambiosGuardables = false;
-
-  late final BorradorDeAlta _borrador = BorradorDeAlta(
-    ref.read(almacenSeguroProvider),
-  );
-
+/// Sabe en qué paso está el alta y lo manda al servidor al cerrarlo. No pinta: eso
+/// es de los organismos de cada paso, y la petición la arma [Registro].
+class AltaNotifier extends Notifier<EstadoAlta> {
   @override
   EstadoAlta build() {
-    WidgetsBinding.instance.addObserver(this);
-    ref.onDispose(() {
-      _timerDeGuardado?.cancel();
-      WidgetsBinding.instance.removeObserver(this);
-    });
+    ref.watch(generacionDeSesionProvider);
     return const EstadoAlta();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.inactive ||
-        state == AppLifecycleState.paused) {
-      _guardarAhora();
-    }
-  }
-
-  /// Restaura una sola vez; OTP, contraseña, contrato y fotos se repiten.
-  Future<void> restaurarBorrador() async {
-    if (_intentoRestaurar) return;
-    _intentoRestaurar = true;
-    state = state.copiarCon(restaurando: true);
-    try {
-      final guardado = await _borrador.restaurar();
-      state = (guardado ?? state).copiarCon(restaurando: false);
-    } on Object {
-      state = state.copiarCon(restaurando: false, errorBorrador: 'recuperar');
-    }
-  }
-
   void actualizarDatos(DatosPersonales datos) {
-    state = state.copiarCon(datos: datos);
-    _programarGuardado();
+    final cambioCorreo =
+        state.datos.correo.trim().toLowerCase() !=
+        datos.correo.trim().toLowerCase();
+    if (cambioCorreo) ref.read(verificacionCorreoProvider).reiniciar();
+    state = state.copiarCon(datos: datos, limpiarVerificacion: cambioCorreo);
   }
 
-  void elegirContrasena(String clave) {
-    state = state.copiarCon(contrasena: clave);
-    _programarGuardado();
+  void elegirContrasena(String clave) =>
+      state = state.copiarCon(contrasena: clave);
+
+  void confirmarCelular() => state = state.copiarCon(codigoConfirmado: true);
+
+  Future<bool> solicitarCodigoCorreo({bool nuevo = false}) async {
+    if (state.enviandoCodigo) return false;
+    if (!nuevo && state.verificacionCorreoId != null) return true;
+    state = state.copiarCon(enviandoCodigo: true);
+    try {
+      final solicitud = await ref
+          .read(verificacionCorreoProvider)
+          .solicitar(state.datos.correo, nueva: nuevo);
+      state = state.copiarCon(
+        verificacionCorreoId: solicitud.id,
+        destinoVerificacion: solicitud.destino,
+        codigoConfirmado: false,
+      );
+      return true;
+    } on VerificacionCorreoException catch (e) {
+      state = state.copiarCon(errorCodigo: e.mensaje, trazaId: e.trazaId);
+      return false;
+    } on Object {
+      state = state.copiarCon(
+        errorCodigo: 'No pudimos enviar el codigo. Intenta nuevamente.',
+      );
+      return false;
+    }
   }
 
-  void capturarAnverso(String? ruta) {
-    state = state.copiarCon(rutaAnverso: ruta);
-    _programarGuardado();
+  Future<void> confirmarCodigoCorreo(String codigo) async {
+    final id = state.verificacionCorreoId;
+    if (id == null || state.verificandoCodigo) return;
+    state = state.copiarCon(verificandoCodigo: true);
+    try {
+      await ref
+          .read(verificacionCorreoProvider)
+          .confirmar(id: id, correo: state.datos.correo, codigo: codigo);
+      state = state.copiarCon(codigoConfirmado: true);
+    } on VerificacionCorreoException catch (e) {
+      state = state.copiarCon(errorCodigo: e.mensaje, trazaId: e.trazaId);
+    } on Object {
+      state = state.copiarCon(errorCodigo: 'No pudimos comprobar el codigo.');
+    }
   }
 
-  void capturarReverso(String? ruta) {
-    state = state.copiarCon(rutaReverso: ruta);
-    _programarGuardado();
+  Future<void> registrarCaptura(CaraDelCarril cara, Captura captura) async {
+    final capturas = await state.capturas.reemplazarCaptura(cara, captura);
+    state = state.copiarCon(capturas: capturas);
   }
 
-  void capturarSelfie(String? ruta) {
-    state = state.copiarCon(rutaSelfie: ruta);
-    _programarGuardado();
+  Future<void> quitarCaptura(CaraDelCarril cara) async {
+    final anterior = state.capturas.porCara[cara];
+    await anterior?.eliminarArchivoLocal();
+    state = state.copiarCon(capturas: state.capturas.sinCaptura(cara));
+  }
+
+  /// Se llama cuando se abandona la pantalla de alta, no al transferir las fotos
+  /// al seguimiento después de crear la cuenta.
+  Future<void> abandonar() async {
+    final capturas = state.capturas;
+    state = const EstadoAlta();
+    await capturas.eliminarArchivosLocales();
   }
 
   void actualizarPerfilTransaccional({
     required String origen,
     required String detalleDelOrigen,
     required String actividad,
-    required String monto,
-  }) {
-    state = state.copiarCon(
-      origenDeFondos: origen,
-      detalleDelOrigen: detalleDelOrigen,
-      actividadEconomica: actividad,
-      montoMensualEstimado: monto,
-    );
-    _programarGuardado();
-  }
+    required String detalleDeLaActividad,
+    required double? monto,
+  }) => state = state.copiarCon(
+    origenDeFondos: origen,
+    detalleDelOrigen: detalleDelOrigen,
+    actividadEconomica: actividad,
+    detalleDeLaActividad: detalleDeLaActividad,
+    montoMensualEstimado: monto,
+  );
 
-  void reiniciar() {
-    _timerDeGuardado?.cancel();
-    _hayCambiosGuardables = false;
-    state = const EstadoAlta();
-    unawaited(_encolar(_borrador.borrar));
-  }
+  /// Vacía el asistente. Se llama al cerrar el alta: un formulario de seis pasos
+  /// que sobrevive hace que el siguiente empiece con los datos del anterior.
+  void reiniciar() => state = const EstadoAlta();
 
   void siguiente() {
-    // No existe todavía validación OTP pre-registro en el contrato de Identidad.
-    // Bloquear también el notifier impide saltar este gate sin pasar por la UI.
-    if (state.paso == PasoAlta.celular && !state.codigoConfirmado) return;
     const orden = PasoAlta.values;
     final i = orden.indexOf(state.paso);
-    if (i < orden.length - 1) {
-      state = state.copiarCon(paso: orden[i + 1]);
-      _programarGuardado();
-    }
+    if (i < orden.length - 1) state = state.copiarCon(paso: orden[i + 1]);
   }
 
   void atras() {
     const orden = PasoAlta.values;
     final i = orden.indexOf(state.paso);
-    if (i > 0) {
-      state = state.copiarCon(paso: orden[i - 1]);
-      _programarGuardado();
-    }
+    if (i > 0) state = state.copiarCon(paso: orden[i - 1]);
   }
 
-  void _programarGuardado() {
-    if (state.restaurando) return;
-    _hayCambiosGuardables = true;
-    _timerDeGuardado?.cancel();
-    _timerDeGuardado = Timer(const Duration(milliseconds: 400), () {
-      final fotografia = state;
-      unawaited(_encolar(() => _borrador.guardar(fotografia)));
-    });
-  }
-
-  void _guardarAhora() {
-    _timerDeGuardado?.cancel();
-    if (state.restaurando || !_hayCambiosGuardables) return;
-    final fotografia = state;
-    unawaited(_encolar(() => _borrador.guardar(fotografia)));
-  }
-
-  Future<void> _encolar(Future<void> Function() operacion) {
-    _colaDeGuardado = _colaDeGuardado.then((_) => operacion()).catchError((_) {
-      if (ref.mounted) state = state.copiarCon(errorBorrador: 'guardar');
-    });
-    return _colaDeGuardado;
-  }
-
-  Future<String?> enviarAlServidor() async {
-    if (!state.codigoConfirmado) {
-      state = state.copiarCon(
-        error: 'No pudimos verificar tu contacto. No enviamos el alta.',
-      );
-      return null;
-    }
-    if (state.enviando) return null;
+  /// CU-01 · `POST /usuarios`. La petición la arma [enviarElAlta]; acá solo vive el
+  /// estado de envío, que es lo único que mira la pantalla.
+  Future<ResultadoDelAlta> enviarAlServidor() async {
+    if (state.enviando) return const ResultadoDelAlta();
     state = state.copiarCon(enviando: true);
-    final respuesta = await enviarElAlta(ref, state);
-    if (respuesta.cuentaBilleteraId != null) {
-      _timerDeGuardado?.cancel();
-      _hayCambiosGuardables = false;
-      try {
-        await _colaDeGuardado;
-        await _borrador.borrar();
-      } on Object {
-        state = state.copiarCon(errorBorrador: 'borrar');
-      }
-    }
+    final r = await enviarElAlta(ref, state);
     state = state.copiarCon(
-      error: respuesta.error,
-      fotosPendientes: respuesta.fotosPendientes,
+      paso: switch (r.campoError) {
+        CampoDeErrorApi.contrasena => PasoAlta.cuenta,
+        CampoDeErrorApi.fechaExpiracion => PasoAlta.documento,
+        null => state.paso,
+      },
+      error: r.error,
+      campoError: r.campoError,
+      trazaId: r.trazaId,
     );
-    return respuesta.cuentaBilleteraId;
+    return r;
   }
 }
 

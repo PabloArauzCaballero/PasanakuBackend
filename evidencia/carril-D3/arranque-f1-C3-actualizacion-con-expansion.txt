@@ -1,0 +1,54 @@
+[d3 02:52:22] escenario=actualizacion perfil=local roles=todos modo=individual omitir=[] xmx=144m mem=320m
+[d3 02:52:23] libres Windows al empezar: 4743 MB
+[d3 02:52:34] infra: postgres, pgbouncer, redis, minio, kafka
+ Container aportaya-d3-infra-minio-1 Healthy 
+ Container aportaya-d3-infra-kafka-1 Healthy 
+ Container aportaya-d3-infra-pgbouncer-1 Healthy 
+[d3 02:52:44] version anterior 59370bbd: esquema + semillas + datos de dev + credencial de los roles
+psql:40_reglas/restricciones.sql:2731: NOTICE:  trigger "tg_revision_creativa_moderador" for relation "revision_creativa" does not exist, skipping
+psql:40_reglas/restricciones.sql:2737: NOTICE:  constraint "uq_factura_publicidad_cuenta_periodo" of relation "factura_publicidad" does not exist, skipping
+psql:40_reglas/restricciones.sql:2742: NOTICE:  constraint "ck_espacio_pub_capacidad" of relation "espacio_publicitario" does not exist, skipping
+[d3 02:52:52] version anterior: 402 tablas; usuarios=11 movimientos=25
+[d3 02:52:52] esquema: docker compose up esquema (service_completed_successfully en TEST)
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3492: NOTICE:  relation "ix_transaccion_ocurrida" already exists, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3496: NOTICE:  relation "ix_operelev_periodo" already exists, skipping
+esquema-1  | psql:/sql/40_reglas/restricciones.sql:3498: NOTICE:  relation "ix_operelev_usuario_fecha" already exists, skipping
+esquema-1  | esquema: catalogos minimos (sql/60_semillas)
+esquema-1  | esquema:                ?column?               
+esquema-1  | esquema: --------------------------------------
+esquema-1  | esquema:  roles svc_* con credencial: 15 de 15
+esquema-1  | esquema: (1 row)
+esquema-1  | esquema: 
+esquema-1  | esquema: 436 tablas en pasanaku
+esquema-1  | esquema: listo
+[Kesquema-1 exited with code 0
+[d3 02:53:04] esquema: exit code = 0
+roles svc_* sin login: 0
+[d3 02:53:04] actualizacion: tablas que PERDIERON filas tras aplicar el esquema nuevo: 0
+NOTICE:  database "pasanaku_fresco" does not exist, skipping
+esquema: 436 tablas en pasanaku_fresco
+esquema: listo
+huellas: actualizada=9283 fresca=9282
+=== SOLO en la base fresca (el esquema actual lo tiene, la actualizada NO) ===
+CON aportes.excepcion_conciliacion ck_excepcion_conciliacion_tipo CHECK (((tipo)::text = ANY ((ARRAY['FUERA_DE_PLAZO'::character varying, 'MONEDA_DISTINTA'::character varying, 'MONTO_DISTINTO'::character varying, 'OBLIGACION_SIN_PAGO'::character varying, 'PAGO
+CON nucleo_financiero.cuenta_billetera ck_cuenta_billetera_tipo CHECK (((tipo)::text = ANY ((ARRAY['CUSTODIA_INVERSION'::character varying, 'FONDO_GARANTIA'::character varying, 'GRUPO'::character varying, 'LIQUIDACION_PROVEEDOR'::character varying, 'PLATAFORMA
+CON nucleo_financiero.retencion_saldo ck_retencion_saldo_motivo CHECK (((motivo)::text = ANY ((ARRAY['ANTIFRAUDE'::character varying, 'APORTE_PROGRAMADO'::character varying, 'COMISION_PENDIENTE'::character varying, 'COMPRA_EN_MERCADO'::character varying, 'DISP
+CON nucleo_financiero.transaccion_billetera ck_transaccion_billetera_origen_tipo CHECK (((origen_tipo)::text = ANY ((ARRAY['AJUSTE'::character varying, 'COBERTURA_INCUMPLIMIENTO'::character varying, 'DEVENGO_COMISION'::character varying, 'ENTREGA_FONDO'::chara
+CON nucleo_financiero.transaccion_billetera ck_transaccion_billetera_tipo CHECK (((tipo)::text = ANY ((ARRAY['AJUSTE_OPERATIVO'::character varying, 'APORTE_A_GRUPO'::character varying, 'COBERTURA_GARANTIA'::character varying, 'COBRO_COMISION'::character varyin
+(total: 5)
+=== SOLO en la actualizada (sobra respecto del esquema actual) ===
+CON aportes.excepcion_conciliacion ck_excepcion_conciliacion_tipo CHECK (((tipo)::text = ANY (ARRAY[('FUERA_DE_PLAZO'::character varying)::text, ('MONEDA_DISTINTA'::character varying)::text, ('MONTO_DISTINTO'::character varying)::text, ('OBLIGACION_SIN_PAGO'::
+CON nucleo_financiero.cuenta_billetera ck_cuenta_billetera_tipo CHECK (((tipo)::text = ANY (ARRAY[('CUSTODIA_INVERSION'::character varying)::text, ('FONDO_GARANTIA'::character varying)::text, ('GRUPO'::character varying)::text, ('LIQUIDACION_PROVEEDOR'::charac
+CON nucleo_financiero.retencion_saldo ck_retencion_saldo_motivo CHECK (((motivo)::text = ANY (ARRAY[('ANTIFRAUDE'::character varying)::text, ('APORTE_PROGRAMADO'::character varying)::text, ('COMISION_PENDIENTE'::character varying)::text, ('COMPRA_EN_MERCADO'::
+CON nucleo_financiero.transaccion_billetera ck_transaccion_billetera_origen_tipo CHECK (((origen_tipo)::text = ANY (ARRAY[('AJUSTE'::character varying)::text, ('COBERTURA_INCUMPLIMIENTO'::character varying)::text, ('DEVENGO_COMISION'::character varying)::text,
+CON nucleo_financiero.transaccion_billetera ck_transaccion_billetera_tipo CHECK (((tipo)::text = ANY (ARRAY[('AJUSTE_OPERATIVO'::character varying)::text, ('APORTE_A_GRUPO'::character varying)::text, ('COBERTURA_GARANTIA'::character varying)::text, ('COBRO_COM
+FUN aportes.fn_org_validar_contrato_grupo() definer=true
+(total: 6)
+[d3 02:53:10] == identidad solo (--no-deps)
+RESULTADO identidad: healthy | readiness: {"status":"UP"}
+RAM aportaya-d3-identidad-1 238.9MiB / 320MiB
+[d3 02:53:23] == nucleo-financiero solo (--no-deps)
+RESULTADO nucleo-financiero: healthy | readiness: {"status":"UP"}
+RAM aportaya-d3-nucleo-financiero-1 261.9MiB / 320MiB
+[d3 02:53:38] RAM pico de los contenedores (hora,n,MB): 02:53:35,6,1067
+[d3 02:53:41] libres Windows al terminar: 1414 MB

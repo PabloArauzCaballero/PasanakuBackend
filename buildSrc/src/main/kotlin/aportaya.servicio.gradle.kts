@@ -40,7 +40,7 @@ extra["jooq.version"] = catalogo.findVersion("jooq").get().requiredVersion
 
 // Parches de seguridad posteriores al ultimo BOM OSS de Boot 3.5. Se mantienen
 // juntas las familias que Boot administra para no mezclar versiones incompatibles.
-extra["jackson-bom.version"] = "2.21.5"
+extra["jackson-bom.version"] = "2.21.7"
 extra["tomcat.version"] = "10.1.60"
 extra["netty.version"] = "4.1.138.Final"
 extra["log4j2.version"] = "2.25.5"
@@ -53,7 +53,7 @@ dependencies {
     constraints {
         listOf("implementation", "testImplementation").forEach { alcance ->
             add(alcance, "org.apache.commons:commons-compress:1.26.0")
-            add(alcance, "at.yawk.lz4:lz4-java:1.11.1")
+            add(alcance, "at.yawk.lz4:lz4-java:1.11.4")
             add(alcance, "org.bouncycastle:bcprov-jdk18on:1.85.2")
             add(alcance, "org.bouncycastle:bcpkix-jdk18on:1.85.2")
             add(alcance, "org.bouncycastle:bcutil-jdk18on:1.85.2")

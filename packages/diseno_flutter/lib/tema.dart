@@ -1,9 +1,10 @@
+import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 
 import 'tokens/tokens.dart';
 import 'tema_de_campos.dart';
 import 'tema_de_controles.dart';
-import 'moviles/transicion_con_zoom.dart';
+import 'moviles/transicion_de_eje.dart';
 
 /// Los dos temas se construyen desde `tokens.dart` (generado). Ningún `Colors.*`.
 /// La app los usa tal cual: `theme: temaDesde(Tokens.claro, Brightness.light)`.
@@ -25,7 +26,9 @@ ThemeData temaDesde(Tokens t, Brightness brillo) {
       onPrimaryContainer: t.brandInk,
       secondary: t.accent,
       onSecondary: t.accentInk,
-      error: t.err,
+      // El texto blanco de ColorScheme.onError necesita el rojo sólido con ≥4.5:1;
+      // `err` queda como tono semántico para bordes e indicadores de error.
+      error: t.rojoSolido,
       onError: t.sobreRojoSolido,
       errorContainer: t.errBg,
       onErrorContainer: t.errTexto,
@@ -53,22 +56,20 @@ ThemeData temaDesde(Tokens t, Brightness brillo) {
       centerTitle: false,
       titleTextStyle: Tipo.titulo2.copyWith(color: t.text),
     ),
-    // El mismo gesto en todas las plataformas: acercarse. El empujón lateral de iOS y
-    // el desvanecido de Android son lo que trae Flutter de fábrica; esto es una
-    // decisión de marca, y una app que se siente igual en los dos teléfonos es una
-    // app, no dos.
+    // Eje lateral corto + fundido, sin escalar nada (ver `TransicionDeEje`). En iOS,
+    // la del sistema: es la única que trae deslizar desde el borde para volver.
     // Están las seis y no solo las tres de los teléfonos: en la web
     // `defaultTargetPlatform` lo decide el navegador —Chrome en Windows dice
     // `windows`, en Linux `linux`—, y sin esas dos la app abierta desde una
     // computadora caía en la transición de fábrica de Flutter.
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
-        TargetPlatform.iOS: TransicionConZoom(),
-        TargetPlatform.macOS: TransicionConZoom(),
-        TargetPlatform.android: TransicionConZoom(),
-        TargetPlatform.windows: TransicionConZoom(),
-        TargetPlatform.linux: TransicionConZoom(),
-        TargetPlatform.fuchsia: TransicionConZoom(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.macOS: TransicionDeEje(),
+        TargetPlatform.android: TransicionDeEje(),
+        TargetPlatform.windows: TransicionDeEje(),
+        TargetPlatform.linux: TransicionDeEje(),
+        TargetPlatform.fuchsia: TransicionDeEje(),
       },
     ),
     inputDecorationTheme: campoDesde(t),
@@ -104,7 +105,7 @@ ThemeData temaDesde(Tokens t, Brightness brillo) {
       behavior: SnackBarBehavior.floating,
       backgroundColor: t.text,
       contentTextStyle: Tipo.cuerpo.copyWith(color: t.bg),
-      actionTextColor: t.accent,
+      actionTextColor: t.bg,
       insetPadding: const EdgeInsets.all(Espacio.s4),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Radios.md),

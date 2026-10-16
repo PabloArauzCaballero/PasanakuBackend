@@ -1,0 +1,38 @@
+$ FK de solicitante_id
+fk_solicitud_permuta_contraparte_id :: FOREIGN KEY (contraparte_id) REFERENCES participante(id) ON UPDATE CASCADE ON DELETE RESTRICT
+fk_solicitud_permuta_solicitante_id :: FOREIGN KEY (solicitante_id) REFERENCES participante(id) ON UPDATE CASCADE ON DELETE RESTRICT
+fk_solicitud_permuta_turno_destino_id :: FOREIGN KEY (turno_destino_id) REFERENCES turno(id) ON UPDATE CASCADE ON DELETE RESTRICT
+fk_solicitud_permuta_turno_origen_id :: FOREIGN KEY (turno_origen_id) REFERENCES turno(id) ON UPDATE CASCADE ON DELETE RESTRICT
+$ qué guarda el código en solicitante_id
+servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU62Permutar.java:60:                            entrada.solicitanteAlDia(),
+servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU62Permutar.java:71:                    entrada.solicitanteId(),
+servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU62Permutar.java:113:            UUID solicitanteId,
+servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU62Permutar.java:116:            boolean solicitanteAlDia,
+servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/PermutaRepositorio.java:36:            UUID solicitante,
+servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/PermutaRepositorio.java:43:                .set(SOLICITUD_PERMUTA.SOLICITANTE_ID, solicitante)
+$ ¿se valida que el solicitante sea dueño del turno antes del insert?
+
+            PermutaPosible.impedimento(
+                            origen.estado(),
+                            destino.estado(),
+                            entrada.solicitanteAlDia(),
+                            entrada.contraparteAlDia(),
+                            entrada.elReglamentoLoPermite())
+                    .ifPresent(motivo -> {
+                        throw new ErrorDeNegocio(CodigoError.de(62, motivo.numero()), motivo.mensaje());
+                    });
+
+            return permutas.solicitar(
+                    dsl,
+                    entrada.turnoOrigenId(),
+                    entrada.turnoDestinoId(),
+                    entrada.solicitanteId(),
+                    entrada.contraparteId(),
+                    entrada.motivo(),
+                    ahora);
+        });
+    }
+
+    /** La contraparte acepta: recien aca se intercambian los dos turnos. */
+    @Transactional
+    public void aceptar(UUID solicitudId, UUID turnoOrigenId, UUID turnoDestinoId, ContextoSesion ctx) {

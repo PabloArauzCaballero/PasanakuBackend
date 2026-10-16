@@ -1,0 +1,10 @@
+(segundo factor: doble LOCAL de desarrollo encendido a proposito con APORTAYA_MFA_DOBLE_LOCAL=true; la evidencia step-up real no se puede obtener: identidad no expone el endpoint)
+LOGIN USR1 (+591***01) -> 200 requiereFactor=False token=si
+LOGIN USR2 (+591***02) -> 200 requiereFactor=False token=si
+saldo antes: 3539.50 retenido=0.00
+retiro #1 misma clave -> 201 {'ordenRetiroId': 'c140fe3f-fcf9-4f76-ba04-7b09c72f4d9b', 'estado': 'AUTORIZADA', 'costoRetiro': {'monto': '0.00', 'moneda': 'BOB'}, 'montoNeto': {'monto': '100.00', 'moneda': 'BOB'}, 'retencionId': 'bd4807a5-b467-4e6b-83c5-227ca7cf3447'}
+retiro #2 misma clave -> 201 {'ordenRetiroId': 'c140fe3f-fcf9-4f76-ba04-7b09c72f4d9b', 'estado': 'AUTORIZADA', 'costoRetiro': {'monto': '0.00', 'moneda': 'BOB'}, 'montoNeto': {'monto': '100.00', 'moneda': 'BOB'}, 'retencionId': 'bd4807a5-b467-4e6b-83c5-227ca7cf3447'}
+saldo despues: 3439.50 retenido=100.00
+ordenes: AUTORIZADA=1 ; EN_REVISION=1
+retenciones: VIGENTE 100.00 ; VIGENTE 900.00
+negativo USR2 retira de la cuenta de USR1 -> (422, {'codigo': 'AP-CU11-01', 'mensaje': 'Esa billetera no existe.', 'detalle': {}, 'trazaId': 'eefa8b95-c582-25f4-98b2-0e95a7d47130'})

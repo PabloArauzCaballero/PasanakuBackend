@@ -1,0 +1,101 @@
+{
+  "servicio": "inversiones",
+  "operacion": "listarDistribucionesDeInteres",
+  "metodo": "get",
+  "ruta": "/inversiones/posiciones/{posicionId}/distribuciones",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "distribuciones": [
+          {
+            "distribucionId": "789ac6a5-166f-45ef-8ef5-434a8f0a4c94",
+            "rescateId": "90d9e597-12de-4f57-87df-8b540a3b894e",
+            "periodoDesde": "2026-01-01",
+            "periodoHasta": "2026-06-30",
+            "interesDevengado": {
+              "monto": "197.26",
+              "moneda": "BOB"
+            },
+            "penalizacion": {
+              "monto": "0.00",
+              "moneda": "BOB"
+            },
+            "interesEsperado": {
+              "monto": "197.26",
+              "moneda": "BOB"
+            },
+            "interesPagado": {
+              "monto": "197.26",
+              "moneda": "BOB"
+            },
+            "retencion": {
+              "monto": "0.00",
+              "moneda": "BOB"
+            },
+            "interesNeto": {
+              "monto": "197.26",
+              "moneda": "BOB"
+            },
+            "estado": "CONCILIADA",
+            "distribuidaEn": "2026-01-15T10:30:00Z"
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "distribuciones": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "distribuciones": [
+          {
+            "distribucionId": "789ac6a5-166f-45ef-8ef5-434a8f0a4c94",
+            "rescateId": "90d9e597-12de-4f57-87df-8b540a3b894e",
+            "periodoDesde": "2026-01-01",
+            "periodoHasta": "2026-06-30",
+            "interesDevengado": {
+              "monto": "197.26",
+              "moneda": "BOB"
+            },
+            "penalizacion": {
+              "monto": "0.00",
+              "moneda": "BOB"
+            },
+            "interesEsperado": {
+              "monto": "197.26",
+              "moneda": "BOB"
+            },
+            "interesPagado": {
+              "monto": "197.26",
+              "moneda": "BOB"
+            },
+            "retencion": {
+              "monto": "0.00",
+              "moneda": "BOB"
+            },
+            "interesNeto": {
+              "monto": "197.26",
+              "moneda": "BOB"
+            },
+            "estado": "CONCILIADA",
+            "distribuidaEn": "2026-01-15T10:30:00Z"
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU120-01",
+        "mensaje": "Producto inexistente",
+        "detalle": {},
+        "trazaId": "traza-listarDistribucionesDeInteres-rechazo"
+      }
+    }
+  }
+}

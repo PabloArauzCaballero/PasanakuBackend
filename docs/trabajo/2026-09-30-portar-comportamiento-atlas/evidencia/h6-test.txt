@@ -1,0 +1,2 @@
+Failing tests:
+  /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/unidad/gate_del_shell_test.dart: Platform.is solo aparece dentro de infraestructura/

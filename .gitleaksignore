@@ -21,3 +21,7 @@ b2d91e70e141cbbac48aa6e1e741be7127ef522b:packages/simulado/ejemplos/identidad/em
 b2d91e70e141cbbac48aa6e1e741be7127ef522b:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:18
 b2d91e70e141cbbac48aa6e1e741be7127ef522b:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:26
 b2d91e70e141cbbac48aa6e1e741be7127ef522b:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:34
+# 2026-10-14: falso positivo en un ejemplo de puntuación de riesgo copiado en PLAN.md.
+# `SHOWN_INPUTS` contiene identificadores públicos de campos del modelo, no credenciales;
+# fingerprint exacto (no se ignora el archivo ni la regla completa), hallado por CI #61.
+0922bade94f4dd531b6175011e045e4062e4de33:docs/trabajo/2026-10-11-alta-atlas-sesion-premium/PLAN.md:generic-api-key:52141

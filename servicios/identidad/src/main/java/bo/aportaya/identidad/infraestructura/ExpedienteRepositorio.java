@@ -29,11 +29,25 @@ public class ExpedienteRepositorio {
 
     /**
      * La prueba de vida no es del documento sino de la verificacion: es la cara de
-     * quien dice ser, no el papel.
+     * quien dice ser, no el papel. La selfie de frente y los dos perfiles son las
+     * tres fotos de esa prueba.
      */
     public void anotarSelfie(DSLContext dsl, UUID usuarioId, ArchivoGuardado archivo) {
+        actualizarVerificacion(dsl, usuarioId, VERIFICACION_KYC.URL_SELFIE, archivo);
+    }
+
+    public void anotarPerfilIzquierdo(DSLContext dsl, UUID usuarioId, ArchivoGuardado archivo) {
+        actualizarVerificacion(dsl, usuarioId, VERIFICACION_KYC.URL_PERFIL_IZQUIERDO, archivo);
+    }
+
+    public void anotarPerfilDerecho(DSLContext dsl, UUID usuarioId, ArchivoGuardado archivo) {
+        actualizarVerificacion(dsl, usuarioId, VERIFICACION_KYC.URL_PERFIL_DERECHO, archivo);
+    }
+
+    private void actualizarVerificacion(
+            DSLContext dsl, UUID usuarioId, org.jooq.TableField<?, String> columna, ArchivoGuardado archivo) {
         int filas = dsl.update(VERIFICACION_KYC)
-                .set(VERIFICACION_KYC.URL_SELFIE, archivo.clave().toString())
+                .set(columna, archivo.clave().toString())
                 .where(VERIFICACION_KYC.USUARIO_ID.eq(usuarioId))
                 .execute();
         if (filas == 0) {

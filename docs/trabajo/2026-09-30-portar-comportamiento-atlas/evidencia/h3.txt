@@ -1,0 +1,4 @@
+00:00 +7: límite: si el sistema no abre los ajustes, la pantalla sigue en pie
+00:00 +8: inválido: ProblemaDeCamara.noDisponible no ofrece Abrir ajustes (no ayudaría)
+00:00 +9: inválido: ProblemaDeCamara.otro no ofrece Abrir ajustes (no ayudaría)
+00:00 +10: All tests passed!

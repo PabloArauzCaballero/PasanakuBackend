@@ -1,0 +1,18 @@
+##### simulado: contratos-a-json + ejemplos + inyectar (build)
+contratos convertidos desde C:\Users\Usuario\Downloads\Entrypoint-GitHUb\Pasanaku\PasanakuBackend-cierre: aportes (11 rutas) · auditoria (4 rutas) · cumplimiento (10 rutas) · entregas (14 rutas) · erp (15 rutas) · garantia (20 rutas) · grupos (28 rutas) · identidad (19 rutas) · inversiones (20 rutas) · notificaciones (4 rutas) · nucleo-financiero (19 rutas) · organizador (21 rutas) · publicidad (14 rutas) · tarifas (12 rutas) · transparencia (18 rutas)
+contratos exit=0
+ejemplos: 0 creados · 231 conservados (editados a mano, no se pisan) · 0 rechazos alineados al catalogo de errores
+ejemplos exit=0
+simulado: 1261 ejemplos inyectados · 229 rutas en generado/prism/todos.yaml
+inyectar exit=0
+##### simulado: typecheck
+tsc exit=0
+##### simulado: lint
+eslint exit=0
+##### simulado: vitest
+ RUN  v4.1.11 C:/Users/Usuario/Downloads/Entrypoint-GitHUb/Pasanaku/PasanakuBackend-cierre/packages/simulado
+ Test Files  4 passed (4)
+      Tests  258 passed (258)
+   Start at  07:15:50
+   Duration  1.12s (transform 125ms, setup 0ms, import 293ms, tests 1.26s, environment 0ms)
+FIN simulado

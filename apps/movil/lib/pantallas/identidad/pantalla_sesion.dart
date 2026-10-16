@@ -1,10 +1,8 @@
+import 'dart:async';
+
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
-import 'package:aportaya_diseno/atomos/campo.dart';
-import 'package:aportaya_diseno/atomos/campo_contrasena.dart';
 import 'package:aportaya_diseno/atomos/marca.dart';
-import 'package:aportaya_diseno/atomos/tono.dart';
-import 'package:aportaya_diseno/moleculas/alerta.dart';
 import 'package:aportaya_diseno/moleculas/aparicion_escalonada.dart';
 import 'package:aportaya_diseno/moleculas/barra_de_accion.dart';
 import 'package:aportaya_diseno/moleculas/cabecera.dart';
@@ -13,79 +11,115 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'aviso_alta.dart';
 import 'dominio/estado_sesion.dart';
 import 'dominio/validaciones.dart';
+import 'avisos_de_sesion.dart';
 import 'sesion_pie.dart';
+import 'sacudida_de_credenciales.dart';
+import 'campos_de_sesion.dart';
 import 'textos.dart';
+import '../../navegacion/acceso_a_rutas.dart';
 import '../../navegacion/retorno_de_invitacion.dart';
+import '../../dominio/proteccion_de_pantalla_dinero.dart';
+import '../../proveedores/sesion.dart';
+import '../../proveedores/haptica.dart';
 
-/// CU-04: teléfono y contraseña; el servidor decide si pide MFA (invariante 7).
-/// Primera pantalla que solicita datos: marca y saludo dan contexto de confianza.
+/// CU-04, paso 1: teléfono y contraseña. El servidor decide si además pide MFA —
+/// esta pantalla nunca asume que no hace falta (invariante 7).
+///
+/// Es la segunda pantalla que ve alguien que abre la app, después de la portada, y
+/// la primera que le pide algo. Por eso tiene la marca arriba y un saludo: entre
+/// «AportaYa te reconoce» y «formulario de acceso» hay una diferencia de confianza
+/// que en una billetera se paga.
 class PantallaDeSesion extends ConsumerStatefulWidget {
-  const PantallaDeSesion({
-    super.key,
-    this.cuentaRecienCreada = false,
-    this.fotosPendientes = false,
-  });
+  const PantallaDeSesion({super.key, this.cuentaRecienCreada = false});
 
   /// Se llega acá desde el último paso del alta. Sin decirlo, el salto del contrato
   /// aceptado a un formulario de acceso se lee como que algo falló: se completaron
-  /// ocho pasos y la app pide entrar de nuevo, sin explicar que la cuenta quedó hecha.
+  /// seis pasos y la app pide entrar de nuevo, sin explicar que la cuenta quedó hecha.
   final bool cuentaRecienCreada;
-  final bool fotosPendientes;
 
   @override
   ConsumerState<PantallaDeSesion> createState() => _PantallaDeSesionState();
 }
 
-class _PantallaDeSesionState extends ConsumerState<PantallaDeSesion> {
+class _PantallaDeSesionState extends ConsumerState<PantallaDeSesion>
+    with ConProteccionDePantalla<PantallaDeSesion> {
   final _telefono = TextEditingController();
   final _contrasena = TextEditingController();
-  final _focoContrasena = FocusNode();
+  MotivoDeSalida? _motivoDeSalida;
+  final _sacudida = GlobalKey<SacudidaDeCredencialesState>();
+
+  @override
+  void initState() {
+    super.initState();
+    // El motivo pertenece a esta entrada al login: se toma una vez y no se vuelve
+    // a mostrar al reconstruir el formulario.
+    _motivoDeSalida = ref.read(sesionProvider).tomarMotivoDeSalida();
+  }
 
   @override
   void dispose() {
     _telefono.dispose();
     _contrasena.dispose();
-    _focoContrasena.dispose();
     super.dispose();
   }
 
-  /// Validación local mínima; la decisión de autenticación siempre es del servidor.
+  /// El formato mínimo que el contrato acepta: la contraseña no baja de ocho. Es
+  /// ayuda para no gastar un viaje al servidor, no la decisión — la de verdad la
+  /// toma el servidor.
+  /// El prefijo `+591` ya está puesto en el campo (como en el alta): se escriben los ocho
+  /// dígitos. Antes había que tipear el `+591` y, sin él, «Ingresar» quedaba apagado
+  /// sin decir por qué (hallazgo del carril H en emulador).
+  static const _prefijoBolivia = '+591';
+  String get _celular {
+    final digitos = _telefono.text.trim();
+    return digitos.isEmpty ? '' : '$_prefijoBolivia$digitos';
+  }
+
   bool get _valido =>
-      errorTelefono(_telefono.text) == null && _contrasena.text.length >= 8;
+      errorTelefono(_celular) == null && _contrasena.text.length >= 8;
 
   Future<void> _ingresar() async {
-    if (!_valido || ref.read(sesionIdentidadProvider).enviando) return;
     final n = ref.read(sesionIdentidadProvider.notifier);
-    n.actualizarCredenciales(
-      telefono: _telefono.text.trim(),
-      contrasena: _contrasena.text,
-    );
+    n.actualizarCredenciales(telefono: _celular, contrasena: _contrasena.text);
     final avanzo = await n.enviarCredenciales();
     if (!avanzo || !mounted) return;
     // A dónde ir lo dijo el servidor, no esta pantalla.
     final paso = ref.read(sesionIdentidadProvider).paso;
-    final retorno = retornoDeInvitacion(
-      GoRouterState.of(context).uri.queryParameters['volver'],
-    );
+    final volver = GoRouterState.of(context).uri.queryParameters['volver'];
+    final retornoInvitacion = retornoDeInvitacion(volver);
+    final destino = destinoTrasIngresar(volver);
     if (paso == PasoSesion.mfa) {
       context.push(
-        retorno == null
+        retornoInvitacion == null
             ? '/identidad/mfa'
-            : '/identidad/mfa?volver=${Uri.encodeComponent(retorno)}',
+            : '/identidad/mfa?volver=${Uri.encodeComponent(retornoInvitacion)}',
       );
     } else {
-      context.go(retorno ?? '/billetera/inicio');
+      context.go(retornoInvitacion ?? destino);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final estado = ref.watch(sesionIdentidadProvider);
+    ref.listen(sesionIdentidadProvider, (anterior, siguiente) {
+      if (!siguiente.credencialesRechazadas ||
+          anterior?.credencialesRechazadas == true) {
+        return;
+      }
+      _sacudida.currentState?.ejecutar();
+      unawaited(
+        ref
+            .read(hapticaProvider)
+            .avisoDeCredencialesIncorrectas()
+            .catchError((Object _) {}),
+      );
+    });
     final t = Tokens.of(context);
     return Scaffold(
+      key: const Key('pantalla-de-ingreso'),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -119,53 +153,24 @@ class _PantallaDeSesionState extends ConsumerState<PantallaDeSesion> {
                         ),
                       ),
                       const SizedBox(height: Espacio.s5),
-                      if (widget.cuentaRecienCreada &&
-                          estado.error == null) ...[
-                        AvisoDeAlta(fotosPendientes: widget.fotosPendientes),
-                        const SizedBox(height: Espacio.s4),
-                      ],
-                      if (estado.error != null) ...[
-                        Alerta(tono: Tono.error, titulo: estado.error!),
-                        const SizedBox(height: Espacio.s4),
-                      ],
-                      Campo(
-                        etiqueta: TextosIdentidad.telefono,
-                        icono: Icons.phone_iphone,
-                        ayuda: TextosIdentidad.sesionCelularAyuda,
-                        controlador: _telefono,
-                        tipoDeTeclado: TextInputType.phone,
-                        accionDeTeclado: TextInputAction.next,
-                        onSubmitted: (_) => _focoContrasena.requestFocus(),
-                        onChanged: (_) => setState(() {}),
+                      ...avisosDeSesion(
+                        cuentaRecienCreada: widget.cuentaRecienCreada,
+                        motivoDeSalida: _motivoDeSalida,
+                        error: estado.error,
+                        trazaId: estado.trazaId,
                       ),
-                      const SizedBox(height: Espacio.s4),
-                      CampoContrasena(
-                        etiqueta: TextosIdentidad.contrasena,
-                        controlador: _contrasena,
-                        foco: _focoContrasena,
-                        accionDeTeclado: TextInputAction.done,
-                        onSubmitted: (_) => _ingresar(),
-                        onChanged: (_) => setState(() {}),
+                      SacudidaDeCredenciales(
+                        key: _sacudida,
+                        child: CamposDeSesion(
+                          telefono: _telefono,
+                          contrasena: _contrasena,
+                          onChanged: () => setState(() {}),
+                        ),
                       ),
                       const SizedBox(height: Espacio.s2),
                       const SesionOlvide(),
                       const SizedBox(height: Espacio.s6),
-                      // La custodia va acá, no en un pie de página: este es el momento
-                      // exacto en que alguien duda antes de entregar su contraseña, y
-                      // lo que responde esa duda es dónde está su plata.
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.lock_outline, size: 16, color: t.text3),
-                          const SizedBox(width: Espacio.s2),
-                          Expanded(
-                            child: Text(
-                              TextosIdentidad.sesionCustodia,
-                              style: Tipo.ayuda.copyWith(color: t.text3),
-                            ),
-                          ),
-                        ],
-                      ),
+                      notaDeCustodia(context),
                     ],
                   ),
                 ],
@@ -183,8 +188,7 @@ class _PantallaDeSesionState extends ConsumerState<PantallaDeSesion> {
                     cargando: estado.enviando,
                     onPressed: _valido ? _ingresar : null,
                   ),
-                  if (MediaQuery.viewInsetsOf(context).bottom == 0)
-                    const SesionSinCuenta(),
+                  const SesionSinCuenta(),
                 ],
               ),
             ),

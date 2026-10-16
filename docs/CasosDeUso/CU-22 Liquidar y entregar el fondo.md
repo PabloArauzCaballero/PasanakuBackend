@@ -15,6 +15,13 @@ normas: [ASFI transparencia, SIN facturación, contabilidad]
 > vez**, y que cada boliviano descontado tenga una línea explicable —incluida la
 > comisión de la plataforma.
 
+> **Vigencia ([[ADR-051 Garantía del pozo, comisión y autogestión|ADR-051]], D-04 y D-15, aceptado por delegación del dueño, pendiente de ratificación).**
+> El camino que manda es el del **pozo completo** (`CU22EntregarPozoCompleto`): el principal se acredita íntegro, la
+> comisión de la plataforma es un **cargo separado** con su propia línea (no una deducción del principal) y todo importe
+> que se cobre a quien recibe se muestra línea por línea. La liquidación con deducciones de abajo
+> (`CU22LiquidarEntrega`) queda como **legado**, y la falta de plata en la bolsa la cubre la reserva empresarial
+> (todo o nada), no el fondo mutual. No hay comisión del organizador (RN-18).
+
 ## Actores y disparador
 
 - **Actor principal:** el sistema (organizador digital) o el organizador humano.
@@ -131,13 +138,30 @@ export const ErroresCU22 = {
 ## Restricciones aplicables
 
 `R-GRP-01` · `R-GRP-02` · `R-TAR-04` · `R-TAR-06` · `R-BIL-01` · `R-SEG-04` ·
-`R-AUD-05`
+`R-AUD-05` · `R-DES-03` · `R-DES-04` · `R-DES-05`
+
+Las tres últimas las hace cumplir la base en el camino del **pozo completo** y del
+mercado de turnos del servicio `entregas` (`CU22EntregarPozoCompleto` y las clases de
+ofertas y compra de turno), no en la liquidación con deducciones descrita arriba:
+
+- `R-DES-03` · el fondeo del pozo **cuadra al centavo**: confirmado + cubierto por el
+  fondo mutual + faltante = pozo. Lo pendiente es el faltante menos lo que cubrió el
+  respaldo empresarial —es la deuda que se conserva— y el fondeo solo está `FONDEADO`
+  cuando el pendiente es cero.
+- `R-DES-04` · **una oferta viva por turno**: el derecho a cobrar un turno no puede
+  estar publicado, reservado o liquidándose en dos ofertas a la vez.
+- `R-DES-05` · **una cesión viva por turno**, entre partes distintas, y sin retención de
+  fondos no hay título asignado ni cesión liquidada.
+
+Esos caminos devuelven además `AP-CU22-06` a `AP-CU22-09`, declarados en
+`openapi/entregas.yaml`; el contrato de arriba todavía no los lista.
 
 ## Evidencia que deja
 
 [[entrega_fondo]] · [[deduccion_entrega]] · [[validacion_pre_entrega]] ·
 [[transaccion_billetera]] · [[devengo_comision]] · [[cargo_comision]] ·
-[[asiento_contable]] · [[constancia_pago]] · [[confirmacion_recepcion]]
+[[asiento_contable]] · [[constancia_pago]] · [[confirmacion_recepcion]] ·
+[[fondeo_entrega]] · [[oferta_turno]] · [[cesion_derecho]]
 
 ## Criterios de aceptación
 
@@ -147,9 +171,10 @@ Cuando se liquida la entrega
 Entonces monto_neto_a_entregar es 5.482
 Y existe una deduccion_entrega de tipo COMISION_PLATAFORMA con referencia a cargo_comision
 
-Dado un turno con entrega ya ejecutada
-Cuando se intenta crear otra entrega para el mismo turno
-Entonces la base de datos lo rechaza (R-GRP-01)
+Dado un turno ya liquidado
+Cuando se repite la liquidación
+Entonces devuelve la MISMA entrega y no crea otra
+Y la base sigue rechazando una segunda entrega del turno (R-GRP-01)
 
 Dada una entrega autorizada
 Cuando la ejecuta el mismo usuario que la autorizó

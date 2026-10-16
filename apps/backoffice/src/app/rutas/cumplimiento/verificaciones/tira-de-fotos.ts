@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, signal } from '@angular/core'
 import { Boton } from '@aportaya/ui/boton/boton'
-import { ExpedienteEnRevisionFotosEnum, type ExpedienteEnRevision } from 'clientes/angular/identidad'
+import { CaraDelExpediente, type ExpedienteEnRevision } from 'clientes/angular/identidad'
 import { carpetaDelExpediente, crearPedirContenido } from '../dominio/cu02-expedientes'
 import { textosCumplimiento } from '../textos'
 
@@ -88,10 +88,12 @@ export class TiraDeFotos {
   readonly expediente = input.required<ExpedienteEnRevision>()
 
   protected readonly t = textosCumplimiento.verificaciones
-  protected readonly caras = Object.values(ExpedienteEnRevisionFotosEnum)
+  // Tipado explícito: así la variable del `@for` es una cara del contrato y no `unknown`,
+  // tanto contra el doble `clientes/angular/identidad.ts` como contra el cliente generado.
+  protected readonly caras = Object.values(CaraDelExpediente) as CaraDelExpediente[]
   protected readonly abierto = signal(false)
-  protected readonly url = signal<Partial<Record<ExpedienteEnRevisionFotosEnum, string>>>({})
-  protected readonly fallo = signal<Partial<Record<ExpedienteEnRevisionFotosEnum, boolean>>>({})
+  protected readonly url = signal<Partial<Record<CaraDelExpediente, string>>>({})
+  protected readonly fallo = signal<Partial<Record<CaraDelExpediente, boolean>>>({})
   protected readonly carpeta = computed(() => carpetaDelExpediente(this.expediente().usuarioId))
 
   private readonly pedirContenido = crearPedirContenido()
@@ -128,7 +130,7 @@ export class TiraDeFotos {
     }
   }
 
-  protected pedir(cara: ExpedienteEnRevisionFotosEnum): void {
+  protected pedir(cara: CaraDelExpediente): void {
     this.fallo.update((actual) => ({ ...actual, [cara]: false }))
     this.pedirContenido(this.expediente().verificacionId, cara).subscribe({
       next: (bytes) => this.url.update((actual) => ({ ...actual, [cara]: URL.createObjectURL(bytes) })),

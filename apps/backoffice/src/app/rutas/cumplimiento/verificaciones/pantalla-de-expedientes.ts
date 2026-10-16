@@ -1,18 +1,20 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core'
 import { FormsModule } from '@angular/forms'
 import { Boton } from '@aportaya/ui/boton/boton'
-import { Campo } from '@aportaya/ui/campo/campo'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
 import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
 import {
-  DecisionDeVerificacionDecisionEnum,
+  CaraDelExpediente,
   ExpedienteEnRevisionEstadoEnum,
-  ExpedienteEnRevisionFotosEnum,
   type ExpedienteEnRevision,
 } from 'clientes/angular/identidad'
-import { colaVacia, crearResolver, expedientesEnEstado, POR_DECIDIR, recortar } from '../dominio/cu02-expedientes'
+import { crearResolver, expedientesEnEstado, POR_DECIDIR, recortar, vencimientoDe } from '../dominio/cu02-expedientes'
+import type { ErrorTraducido } from '../../../nucleo/errores'
 import { textosCumplimiento } from '../textos'
+import { DecisionDeExpediente, type Decision } from './decision-de-expediente'
+import { VencimientoDelDocumento } from './vencimiento-del-documento'
 import { TiraDeFotos } from './tira-de-fotos'
 
 /**
@@ -27,7 +29,7 @@ import { TiraDeFotos } from './tira-de-fotos'
  * lectura queda registrada — una grilla que las precarga todas es una filtración
  * cómoda.
  *
- * Abierto un expediente, las tres se piden juntas y se muestran **una al lado de la
+ * Abierto un expediente, las cinco se piden juntas y se muestran **una al lado de la
  * otra**: la prueba de vida se decide cotejando la cara contra el documento, y
  * cotejar es mirar las dos a la vez. Antes cada foto pisaba a la anterior y había que
  * decidir de memoria.
@@ -35,25 +37,30 @@ import { TiraDeFotos } from './tira-de-fotos'
 @Component({
   selector: 'ap-pantalla-de-expedientes',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [EstadoDePantalla, BandaDeProposito, ChipEstado, Boton, Campo, FormsModule, TiraDeFotos],
+  imports: [ErrorDeEnvio, EstadoDePantalla, BandaDeProposito, ChipEstado, Boton, FormsModule, TiraDeFotos, DecisionDeExpediente, VencimientoDelDocumento],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
 
       <div class="filtros" role="group" data-tutorial-id="cumplimiento-filtros" [attr.aria-label]="t.filtrar">
         @for (e of estados; track e) {
-          <ap-boton [variante]="estado() === e ? 'primario' : 'fantasma'" (pulsado)="estado.set(e)">
+          <ap-boton [variante]="estado() === e ? 'primario' : 'fantasma'" [presionado]="estado() === e" (pulsado)="estado.set(e)">
             {{ etiquetaDeFiltro(e) }}
           </ap-boton>
         }
       </div>
 
+      <label class="busqueda">
+        <span>{{ t.buscarExpediente }}</span>
+        <input type="search" [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" [attr.aria-label]="t.buscarExpediente" />
+      </label>
+
       <ap-estado-de-pantalla
         data-tutorial-id="cumplimiento-cola"
         [recurso]="cola"
         [vacio]="vacio"
-        [mensajeVacio]="t.sinPendientes"
+        [mensajeVacio]="mensajeVacio()"
         [etiquetaDeCarga]="t.cargando"
         (reintentar)="cola.reload()"
       >
@@ -64,31 +71,24 @@ import { TiraDeFotos } from './tira-de-fotos'
                 <header>
                   <div>
                     <h2>{{ e.nombreCompleto }}</h2>
+                    <p class="telefono">{{ t.telefono }}: {{ e.telefono }}</p>
                     <p class="doc">{{ e.documento ?? t.sinDocumento }}</p>
+                    <ap-vencimiento-del-documento [expediente]="e" />
                   </div>
                   <ap-chip-estado [tono]="tonoDe(e)">{{ e.estado }}</ap-chip-estado>
                 </header>
 
                 <ap-tira-de-fotos [expediente]="e" />
-
                 @if (pendiente(e)) {
-                  @if (!completo(e)) {
-                    <p class="aviso">{{ t.expedienteIncompleto }}</p>
-                  }
-                  <ap-campo
-                    [etiqueta]="t.motivo"
-                    [ayuda]="t.motivoAyuda"
-                    [(valor)]="motivo"
-                    [id]="'motivo-' + e.verificacionId"
+                  <ap-decision-de-expediente
+                    [verificacionId]="e.verificacionId"
+                    [completo]="completo(e)"
+                    [vencimiento]="vencimientoDe(e)"
+                    [ocupado]="resolviendo() !== null"
+                    [enCurso]="resolviendo()?.id === e.verificacionId ? resolviendo()!.decision : null"
+                    (decidir)="resolver(e, $event)"
                   />
-                  <div class="acciones">
-                    <ap-boton variante="primario" [deshabilitado]="!completo(e) || resolviendo()" (pulsado)="resolver(e, decisiones.Aprobar)">
-                      {{ t.aprobar }}
-                    </ap-boton>
-                    <ap-boton variante="peligro" [deshabilitado]="!motivo() || resolviendo()" (pulsado)="resolver(e, decisiones.Rechazar)">
-                      {{ t.rechazar }}
-                    </ap-boton>
-                  </div>
+                  <ap-error-de-envio [error]="errores()[e.verificacionId] ?? null" />
                 } @else if (e.motivoRechazo) {
                   <p class="aviso">{{ t.motivo }}: {{ e.motivoRechazo }}</p>
                 }
@@ -97,18 +97,20 @@ import { TiraDeFotos } from './tira-de-fotos'
           </ul>
         }
       </ap-estado-de-pantalla>
-    </main>
+    </section>
   `,
   styles: `
-    main { padding: var(--s5); max-width: 52rem; display: flex; flex-direction: column; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 52rem; display: flex; flex-direction: column; gap: var(--s4); }
     .filtros { display: flex; gap: var(--s2); flex-wrap: wrap; }
+    .busqueda { display: flex; flex-direction: column; gap: var(--s1); max-width: 32rem; color: var(--text-2); font-size: .875rem; }
+    .busqueda input { min-height: 2.75rem; padding: 0 var(--s3); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface); color: var(--text); font: inherit; }
     .cola { list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--s4); }
     .cola li { border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); padding: var(--s4); display: flex; flex-direction: column; gap: var(--s3); }
     header { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s3); }
     h2 { margin: 0; font-size: 1.05rem; }
     .doc { margin: 0; color: var(--text-2); font-size: .875rem; }
+    .telefono { margin: 0; color: var(--text-2); font-size: .875rem; }
     .aviso { margin: 0; color: var(--aviso-texto); font-size: .875rem; }
-    .acciones { display: flex; gap: var(--s2); flex-wrap: wrap; }
   `,
 })
 export class PantallaDeExpedientes {
@@ -118,38 +120,57 @@ export class PantallaDeExpedientes {
    * paralela — dos listas de lo mismo divergen.
    */
   protected readonly estados: readonly string[] = [POR_DECIDIR, ...Object.values(ExpedienteEnRevisionEstadoEnum)]
-  protected readonly caras = Object.values(ExpedienteEnRevisionFotosEnum)
+  protected readonly caras = Object.values(CaraDelExpediente)
 
   protected readonly estado = signal<string>(POR_DECIDIR)
+  protected readonly busqueda = signal('')
   protected readonly cola = expedientesEnEstado(this.estado)
-  protected readonly motivo = signal('')
-  protected readonly resolviendo = signal(false)
+  /**
+   * El error de la última decisión, por expediente: se ve en la tarjeta donde se tomó. Se guarda el error traducido
+   * entero (no solo el texto) para que `ap-error-de-envio` distinga «no pasó» de «no sabemos si pasó».
+   */
+  protected readonly errores = signal<Readonly<Record<string, ErrorTraducido>>>({})
+  /** La decisión en vuelo; mientras haya una, no se dispara otra. */
+  protected readonly resolviendo = signal<{ id: string; decision: Decision['decision'] } | null>(null)
   /**
    * Lo que se pinta. `POR_DECIDIR` se recorta acá porque el backend filtra por UN
    * estado y los que esperan una persona son dos.
    */
-  protected readonly visibles = computed(() => recortar(this.cola.value() ?? [], this.estado()))
+  protected readonly visibles = computed(() => {
+    const termino = this.normalizar(this.busqueda())
+    return recortar(this.cola.value() ?? [], this.estado()).filter((e) =>
+      !termino || this.normalizar(`${e.nombreCompleto} ${e.telefono ?? ''}`).includes(termino),
+    )
+  })
 
   /**
    * Vacío es lo que queda DESPUÉS del recorte: con `POR_DECIDIR` la respuesta trae
    * también los resueltos, y decir «no hay nada» porque el recorte los sacó sería
    * mentir al revés — mostrar la lista vacía sin explicar por qué.
    */
-  protected readonly vacio = (c: ExpedienteEnRevision[]): boolean => colaVacia(recortar(c, this.estado()))
+  protected readonly vacio = (_c: ExpedienteEnRevision[]): boolean => this.visibles().length === 0
+  protected readonly mensajeVacio = computed(() =>
+    this.busqueda().trim() ? this.t.sinCoincidencias : this.t.sinPendientes,
+  )
+
+  private normalizar(valor: string): string {
+    return valor.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es').trim()
+  }
 
   /** `POR_DECIDIR` no es un estado del contrato: se nombra en castellano, no en mayúsculas. */
   protected etiquetaDeFiltro(estado: string): string {
     return estado === POR_DECIDIR ? this.t.filtroPorDecidir : estado
   }
 
-  protected readonly decisiones = DecisionDeVerificacionDecisionEnum
-
   private readonly enviarDecision = crearResolver()
 
-  /** Sin las tres fotos no se aprueba: aprobar a ciegas es no revisar. */
+  /** Sin las cinco fotos no se aprueba: aprobar a ciegas es no revisar. */
   protected completo(e: ExpedienteEnRevision): boolean {
     return this.caras.every((c) => e.fotos.includes(c))
   }
+
+  /** Lo decide el servidor (`documentoVigente`), no el reloj de quien mira. */
+  protected readonly vencimientoDe = vencimientoDe
 
   /** Un expediente ya resuelto no se vuelve a decidir desde acá. */
   protected pendiente(e: ExpedienteEnRevision): boolean {
@@ -165,15 +186,24 @@ export class PantallaDeExpedientes {
     return e.estado === ExpedienteEnRevisionEstadoEnum.EnRevision ? 'aviso' : 'neutro'
   }
 
-  protected resolver(e: ExpedienteEnRevision, decision: DecisionDeVerificacionDecisionEnum): void {
-    this.resolviendo.set(true)
-    this.enviarDecision(e.verificacionId, { decision, motivo: this.motivo() || undefined }).subscribe({
+  protected resolver(e: ExpedienteEnRevision, { decision, motivo }: Decision): void {
+    const id = e.verificacionId
+    this.resolviendo.set({ id, decision })
+    this.errores.update((m) => {
+      const resto = { ...m }
+      delete resto[id]
+      return resto
+    })
+    this.enviarDecision(id, { decision, motivo }).subscribe({
       next: () => {
-        this.resolviendo.set(false)
-        this.motivo.set('')
+        this.resolviendo.set(null)
         this.cola.reload()
       },
-      error: () => this.resolviendo.set(false),
+      // Callarlo dejaba al operador creyendo que decidió: el error se ve en la tarjeta.
+      error: (err: ErrorTraducido) => {
+        this.resolviendo.set(null)
+        this.errores.update((m) => ({ ...m, [id]: { ...err, mensaje: err?.mensaje ?? this.t.decisionFallo } }))
+      },
     })
   }
 }

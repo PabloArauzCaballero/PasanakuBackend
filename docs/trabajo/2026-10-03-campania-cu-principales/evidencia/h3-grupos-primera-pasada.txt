@@ -1,0 +1,54 @@
+LOGIN USR90 (+591***90) -> 200 requiereFactor=False token=si
+LOGIN USR1 (+591***01) -> 200 requiereFactor=False token=si
+LOGIN USR2 (+591***02) -> 200 requiereFactor=False token=si
+LOGIN USR3 (+591***03) -> 200 requiereFactor=False token=si
+LOGIN USR91 (+591***91) -> 200 requiereFactor=False token=si
+
+===== CU-90 · USR90 postula a organizador
+POST  /organizadores/postulaciones                                                     -> 400 AP-VAL-01
+respuesta: {'codigo': 'AP-VAL-01', 'mensaje': 'Revisa los datos del formulario.', 'detalle': {'reputacion': 'must match "^\\d+\\.\\d{2}$"'}, 'trazaId': '51ba5322-184e-8f05-e9dd-442b89075c1b'}
+SQL solicitudes: 0
+
+===== CU-69 · USR1 invita a USR90 a GRP-DEMO-02 (ENLACE)
+POST  /grupos/49e2c3d8-b082-4516-a58a-7e1702522cce/invitaciones                        -> 201
+respuesta: {'invitacionId': None, 'mensaje': 'Listo, si corresponde le va a llegar la invitacion.', 'enlace': None}
+SQL invitaciones: ERROR:  relation "grupos.invitacion_grupo" does not exist
+LINE 1: select count(*) from grupos.invitacion_grupo
+                             ^
+(sin token de enlace en la respuesta: no se puede continuar con aceptar)
+SQL cupos GRP-DEMO-02: LIBRE=2 ; OCUPADO=1
+SQL participantes GRP-DEMO-02: 1
+
+===== CU-68 · USR3 postula a GRP-DEMO-02
+POST  /grupos/49e2c3d8-b082-4516-a58a-7e1702522cce/postulaciones                       -> 422 AP-CU68-01
+SQL solicitudes de ingreso: 
+
+===== CU-60 · USR1 compromete el sorteo de GRP-DEMO-02 (grupo con cupos libres: se espera rechazo)
+POST  /grupos/49e2c3d8-b082-4516-a58a-7e1702522cce/sorteo                              -> 422 AP-CU60-01
+-- negativo: USR2 (sin GRUPO_ADMINISTRAR) intenta sortear
+POST  /grupos/49e2c3d8-b082-4516-a58a-7e1702522cce/sorteo                              -> 403 AP-SEG-01
+SQL sorteos GRP-DEMO-02: 0
+
+===== CU-21 · USR2 paga la obligación PENDIENTE
+POST  /aportes/obligaciones/22f64ce3-ffd7-47da-8ac9-c48b7b1e548b/pagos                 -> 201
+respuesta: {'pagoId': 'a544ad3a-fc78-4e35-a477-34bfe98a28c4', 'obligacionId': '22f64ce3-ffd7-47da-8ac9-c48b7b1e548b', 'estadoObligacion': 'PAGADO', 'pendiente': {'monto': '0.00', 'moneda': 'BOB'}, 'esNuevo': True}
+-- repetir la MISMA clave
+POST  /aportes/obligaciones/22f64ce3-ffd7-47da-8ac9-c48b7b1e548b/pagos                 -> 200
+respuesta 2: {'pagoId': 'a544ad3a-fc78-4e35-a477-34bfe98a28c4', 'obligacionId': '22f64ce3-ffd7-47da-8ac9-c48b7b1e548b', 'estadoObligacion': 'PAGADO', 'pendiente': {'monto': '0.00', 'moneda': 'BOB'}, 'esNuevo': False}
+-- negativo: monto mayor al pendiente
+POST  /aportes/obligaciones/22f64ce3-ffd7-47da-8ac9-c48b7b1e548b/pagos                 -> 422 AP-CU21-01
+-- negativo: USR3 paga la obligación de USR2
+POST  /aportes/obligaciones/22f64ce3-ffd7-47da-8ac9-c48b7b1e548b/pagos                 -> 422 AP-CU21-01
+SQL obligación: PAGADO pagado=500.00
+SQL pagos de la obligación: 1
+SQL saldo USR2 (no debe moverse: el servicio no debita): 600.00
+
+===== CU-64 · USR1 traspasa el cupo 6 de GRP-DEMO-01 a USR90
+POST  /grupos/ecf59396-fdd2-4283-8824-ce93f5a7f513/cupos/7804c1b1-7650-4708-a164-4aad8 -> 422 AP-CU64-05
+respuesta: {'codigo': 'AP-CU64-05', 'mensaje': 'Este grupo exige que el traspaso se vote.', 'detalle': {}, 'trazaId': '2b58a661-e736-0f06-aa1b-05eb46928e64'}
+-- negativo: USR2 intenta traspasar
+POST  /grupos/ecf59396-fdd2-4283-8824-ce93f5a7f513/cupos/7804c1b1-7650-4708-a164-4aad8 -> 403 AP-SEG-01
+SQL traspasos: 0
+
+===== CU-74 · evaluar insignias con token de backoffice (se espera 403 por SOPORTE)
+POST  /reputacion/insignias/evaluacion                                                 -> 403 AP-SEG-01

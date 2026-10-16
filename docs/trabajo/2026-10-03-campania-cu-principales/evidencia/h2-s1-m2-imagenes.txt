@@ -1,0 +1,12 @@
+aportaya/aportes:local
+aportaya/cumplimiento:local
+aportaya/entregas:local
+aportaya/garantia:local
+aportaya/gateway:local
+aportaya/grupos:local
+aportaya/identidad:local
+aportaya/notificaciones:local
+aportaya/nucleo-financiero:local
+aportaya/organizador:local
+aportaya/tarifas:local
+aportaya/transparencia:local

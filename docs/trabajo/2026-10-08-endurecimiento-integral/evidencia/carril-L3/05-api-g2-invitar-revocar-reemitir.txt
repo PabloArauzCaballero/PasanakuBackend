@@ -1,0 +1,35 @@
+## 20. A crea G2
+{"grupoId":"3119494d-b1aa-4b3d-8ea3-879eb92558eb","fondoPorPeriodo":"600.00"}
+HTTP 202
+## 21. A invita a B (SMS) a G2
+{"invitacionId":"561341eb-12fb-4bdb-9052-c7a3ac49fc2e","mensaje":"Invitacion disponible para compartir.","enlace":"aportaya://unirse/c42e28c9-5b8c-4d8e-a635-fa3a1c170ebd.<hex64>","token":"***","expiraEn":"2026-10-18T22:16:06.502896Z"}
+HTTP 201
+## 22. validar (identidad, como B) antes de revocar
+{"valido":true}
+HTTP 200
+## 23. B consulta el enlace (grupos)
+{"codigo":"AP-CU69-05","mensaje":"Esa invitacion ya no es valida.","detalle":{},"trazaId":"4b29da42-3a40-4519-8818-638b6070e64b"}
+HTTP 422
+## 24. B no puede revocar (no es el emisor)
+{"codigo":"AP-SEG-01","mensaje":"No tenes acceso a este recurso.","trazaId":"07ce5397-4b64-48eb-86e5-0b1bd981ecd6"}
+HTTP 403
+## 25. A revoca
+
+HTTP 204
+## 26. validar tras revocar
+{"valido":false}
+HTTP 200
+## 27. revocar otra vez (idempotente)
+
+HTTP 204
+## 28. A reemite a B (SMS) tras revocar
+{"invitacionId":"fd2ceb9b-0def-4a9c-bc31-7ea3a5c0d013","mensaje":"Invitacion disponible para compartir.","enlace":"aportaya://unirse/bc828b2a-cfca-4f8e-9c23-519cf8ac6dec.<hex64>","token":"***","expiraEn":"2026-10-18T22:16:13.99877Z"}
+HTTP 201
+## 29. validar la nueva
+{"valido":true}
+HTTP 200
+## 30. participaciones A y B
+[{"grupoId":"3119494d-b1aa-4b3d-8ea3-879eb92558eb","participanteId":"4ab93e2f-86ce-4539-a7a4-0f58e6591186","estado":"ACEPTADO_PENDIENTE_FIRMA"},{"grupoId":"bfb102a3-0e36-401a-abac-97911e4bae55","participanteId":"c37763fb-f345-46d6-b860-4c3badfa0d28","estado":"ACEPTADO_PENDIENTE_FIRMA"}]
+HTTP 200
+[]
+HTTP 200

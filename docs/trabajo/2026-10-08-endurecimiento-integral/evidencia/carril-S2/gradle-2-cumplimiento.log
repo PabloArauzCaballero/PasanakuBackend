@@ -1,0 +1,25 @@
+> Task :servicios:cumplimiento:generateJooq UP-TO-DATE
+> Task :servicios:cumplimiento:compileJava
+> Task :servicios:cumplimiento:processResources
+> Task :servicios:cumplimiento:classes
+> Task :servicios:cumplimiento:compileTestJava
+> Task :servicios:cumplimiento:processTestResources UP-TO-DATE
+> Task :servicios:cumplimiento:testClasses
+> Task :servicios:cumplimiento:test
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+> Task :servicios:cumplimiento:webTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+> Task :servicios:cumplimiento:integrationTest
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-09T20:48:52.543-04:00  INFO 33044 --- [cumplimiento] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-09T20:48:52.549-04:00  INFO 33044 --- [cumplimiento] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-09T20:48:52.721-04:00  INFO 33044 --- [cumplimiento] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-09T20:48:52.723-04:00  INFO 33044 --- [cumplimiento] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+> Task :servicios:cumplimiento:testBarrido
+Picked up JAVA_TOOL_OPTIONS: -Xmx1g -XX:+UseSerialGC
+BUILD SUCCESSFUL in 1m 13s
+40 actionable tasks: 7 executed, 33 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+== RC gradle: 0

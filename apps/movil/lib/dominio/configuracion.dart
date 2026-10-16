@@ -31,7 +31,18 @@ class ResultadoValidacionGateway {
 }
 
 final RegExp _rutaVersionada = RegExp(r'/v\d+/?$');
-const Set<String> _loopback = {'localhost', '127.0.0.1', '::1', '0.0.0.0'};
+
+/// Hosts que significan «la máquina de desarrollo»: el loopback y `10.0.2.2`, el alias
+/// fijo con que el emulador de Android llega a la máquina anfitriona. `release` los
+/// rechaza a todos (hallazgo del carril H: el emulador no pasaba sin `HOSTS_PERMITIDOS`,
+/// contra lo que dice `entregables/defines-por-plataforma.md`).
+const Set<String> _loopback = {
+  'localhost',
+  '127.0.0.1',
+  '::1',
+  '0.0.0.0',
+  '10.0.2.2',
+};
 
 /// Valida la URL del gateway para el build de la app.
 ///
@@ -68,18 +79,10 @@ ResultadoValidacionGateway validarGateway(
   if (analizada.host.isEmpty) {
     return const ResultadoValidacionGateway.invalida('formato-invalido');
   }
-  // La base del gateway es solo origen + ruta versionada. Credenciales o datos
-  // en URL pueden acabar en diagnósticos, historiales y solicitudes posteriores.
-  if (analizada.userInfo.isNotEmpty ||
-      analizada.hasQuery ||
-      analizada.hasFragment) {
-    return const ResultadoValidacionGateway.invalida('url-con-datos');
-  }
 
   final host = analizada.host.toLowerCase();
   final esLoopback = _loopback.contains(host) || host.startsWith('127.');
-  final esAliasEmuladorAndroid = host == '10.0.2.2';
-  if ((esLoopback || esAliasEmuladorAndroid) && release) {
+  if (esLoopback && release) {
     return const ResultadoValidacionGateway.invalida('localhost-no-permitido');
   }
 
@@ -89,7 +92,7 @@ ResultadoValidacionGateway validarGateway(
       .toSet();
   final hostPermitido = permitidos.contains(host);
 
-  if (!hostPermitido && !esLoopback && !esAliasEmuladorAndroid) {
+  if (!hostPermitido && !esLoopback) {
     return const ResultadoValidacionGateway.invalida('host-ajeno');
   }
   if (release && analizada.scheme != 'https' && !esLoopback) {

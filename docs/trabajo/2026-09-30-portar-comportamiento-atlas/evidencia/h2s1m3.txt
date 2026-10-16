@@ -1,0 +1,9 @@
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/widget/pantalla_escanear_test.dart
+00:00 +0: correcto: un QR de invitación abre unirse y reemplaza el visor
+00:00 +1: límite: la misma lectura repetida navega una sola vez
+00:00 +2: inválido: un QR que no es invitación se avisa y no navega
+00:00 +3: inválido: cámara denegada → mensaje accionable y entrada manual
+00:00 +4: correcto: pegar el enlace a mano lleva a unirse
+00:00 +5: inválido: pegar un enlace cualquiera se rechaza en su lugar
+00:00 +6: All tests passed!

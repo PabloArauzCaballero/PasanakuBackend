@@ -33,7 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>Misma respuesta que en CU-01, por la misma razon: <b>coreografia</b>. El grupo
  * nace {@code BORRADOR} y emite {@code grupos.grupo_creado}; {@code tarifas} congela
  * el precio y {@code nucleo-financiero} abre la cuenta al consumirlo. El grupo pasa a
- * {@code ABIERTO_A_INSCRIPCION} cuando los dos respondieron.
+ * {@code ABIERTO_A_INSCRIPCION} cuando {@code tarifas} responde ({@link AbrirInscripcionDelGrupo}; la apertura no
+ * espera a la cuenta del grupo: supuesto A1, a confirmar con producto y con ese servicio).
  *
  * <p>Que nazca en borrador no es un rodeo: <b>un grupo sin precio congelado no puede
  * recibir a nadie</b>, porque el precio es justamente lo que cada participante acepta
@@ -76,13 +77,16 @@ public class CU20CrearGrupo {
     @Transactional
     public SalidaCreacion ejecutar(EntradaCreacion entrada, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
+        if (entrada.claveIdempotencia() == null) {
+            throw new ErrorDeNegocio(CodigoError.de(20, 2), "Falta la clave de idempotencia del alta.");
+        }
 
         // El precio no puede quedar indefinido: sin tarifario vigente no hay grupo.
         if (entrada.tarifarioVigenteId().isEmpty()) {
             throw new ErrorDeNegocio(
                     CodigoError.de(20, 1), "No hay un tarifario vigente, asi que todavia no se puede crear el grupo.");
         }
-        if (entrada.organizador().isPresent() && !entrada.organizadorHabilitado()) {
+        if (entrada.organizador().isEmpty() || !entrada.organizadorHabilitado()) {
             throw new ErrorDeNegocio(CodigoError.de(20, 2), "Ese organizador no esta habilitado.");
         }
         if (!entrada.licenciaHabilitaElServicio()) {
@@ -90,6 +94,17 @@ public class CU20CrearGrupo {
         }
 
         return datos.conContexto(ctx, dsl -> {
+            String huella = hash(
+                    entrada.datos().toString() + "|" + entrada.organizador() + "|" + entrada.permitePermutaDeTurnos());
+            var anterior = creacion.altaAnterior(dsl, ctx.usuarioId(), entrada.claveIdempotencia());
+            if (anterior.isPresent()) {
+                var alta = anterior.get();
+                if (!alta.creadorId().equals(ctx.usuarioId()) || !alta.huella().equals(huella)) {
+                    throw new ErrorDeNegocio(
+                            CodigoError.de(20, 2), "La clave de idempotencia pertenece a otra creación.");
+                }
+                return new SalidaCreacion(alta.grupoId(), alta.fondo());
+            }
             UUID grupo = creacion.crear(
                     dsl, entrada.datos(), codigoPublico(), entrada.organizador(), quorumPorOmision, ahora);
             creacion.configurar(dsl, grupo, entrada.permitePermutaDeTurnos());
@@ -97,6 +112,13 @@ public class CU20CrearGrupo {
             String reglamento = textoDelReglamento(entrada.datos());
             creacion.redactarReglamento(dsl, grupo, reglamento, hash(reglamento), ctx.usuarioId(), ahora);
             creacion.abrirCupos(dsl, grupo, entrada.datos().cupos(), ahora);
+            creacion.guardarAlta(
+                    dsl,
+                    grupo,
+                    ctx.usuarioId(),
+                    entrada.claveIdempotencia(),
+                    huella,
+                    entrada.datos().fondoPorPeriodo().toString());
 
             outbox.emitir(
                     dsl,
@@ -161,7 +183,8 @@ public class CU20CrearGrupo {
             boolean organizadorHabilitado,
             Optional<UUID> tarifarioVigenteId,
             boolean licenciaHabilitaElServicio,
-            boolean permitePermutaDeTurnos) {}
+            boolean permitePermutaDeTurnos,
+            UUID claveIdempotencia) {}
 
     public record SalidaCreacion(UUID grupoId, String fondoPorPeriodo) {}
 }

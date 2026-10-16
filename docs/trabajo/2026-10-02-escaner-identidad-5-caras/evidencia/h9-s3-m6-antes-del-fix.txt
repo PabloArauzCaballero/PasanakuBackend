@@ -1,0 +1,9 @@
+CU04Test > Dado cuatro fallos, un ingreso correcto y otro fallo · Cuando se cuenta para bloquear · Entonces solo cuenta lo posterior al ingreso correcto FAILED
+    Expecting actual:
+    to contain:
+CU04Test > Dado un operador que ya entró cinco veces con su segundo factor · Cuando se equivoca una vez de contraseña · Entonces se le dice que no coincide y NO queda bloqueado FAILED
+    Expecting actual:
+    to contain:
+13 tests completed, 2 failed
+> Task :servicios:identidad:integrationTest FAILED
+BUILD FAILED in 41s

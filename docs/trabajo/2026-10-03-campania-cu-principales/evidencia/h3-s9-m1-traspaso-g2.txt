@@ -1,0 +1,12 @@
+LOGIN USR1 (+591***01) -> 200 requiereFactor=False token=si
+LOGIN USR2 (+591***02) -> 200 requiereFactor=False token=si
+SQL antes: OCUPADO titular=024b2955-8c83-4704-9c53-ff4a7a4ce33d
+-- negativo: USR2 (sin GRUPO_ADMINISTRAR) intenta traspasar
+POST  /grupos/9c504666-74aa-43c8-bb35-76d7ee1f947d/cupos/f17468cb-e5b2-4d8b-805b-124f0 -> 403 AP-SEG-01
+-- sin acuerdo: el grupo exige votación
+POST  /grupos/9c504666-74aa-43c8-bb35-76d7ee1f947d/cupos/f17468cb-e5b2-4d8b-805b-124f0 -> 422 AP-CU64-05
+-- CU-63: USR1 propone un acuerdo de traspaso
+POST  /acuerdos                                                                        -> 500 AP-INT-01
+respuesta: {'codigo': 'AP-INT-01', 'mensaje': 'No pudimos completar la operacion. Volve a intentar.', 'trazaId': '2f7ea8df-ab63-319c-6dfc-2f83d2e9e918'}
+SQL después: OCUPADO titular=024b2955-8c83-4704-9c53-ff4a7a4ce33d
+SQL traspasos: 0

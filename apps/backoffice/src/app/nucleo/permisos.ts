@@ -1,5 +1,7 @@
 import { inject } from '@angular/core'
+import { toObservable } from '@angular/core/rxjs-interop'
 import { CanMatchFn, Router } from '@angular/router'
+import { filter, map, take } from 'rxjs'
 import { Sesion } from './sesion'
 
 /**
@@ -17,13 +19,27 @@ export function requierePermiso(permiso: string): CanMatchFn {
 }
 
 /**
- * `canMatch` del shell: sin sesión abierta no monta NINGUNA ruta del backoffice y se va
- * al ingreso. Antes el shell montaba siempre y un visitante sin cuenta llegaba a un
- * tablero vacío, sin forma de entrar.
+ * `canMatch` del shell: espera a que `Sesion` termine de resolver (`AuthBootstrap` corre
+ * antes de esto por `provideAppInitializer`, pero un reintento manual desde la pantalla de
+ * error puede dejar el estado en `RESTORING` mientras el usuario ya está navegando). En
+ * `AUTHENTICATED` monta; en `ANONYMOUS` va al ingreso preservando la ruta pedida
+ * (`volverA`); en `ERROR` va a la pantalla de arranque con errror, nunca a un login
+ * silencioso mientras el estado es desconocido.
  */
 export function requiereSesion(): CanMatchFn {
-  return () => {
-    if (inject(Sesion).abierta()) return true
-    return inject(Router).parseUrl('/ingreso')
+  return (_ruta, segmentos) => {
+    const sesion = inject(Sesion)
+    const router = inject(Router)
+
+    return toObservable(sesion.estado).pipe(
+      filter((estado) => estado !== 'UNKNOWN' && estado !== 'RESTORING'),
+      take(1),
+      map((estado) => {
+        if (estado === 'AUTHENTICATED') return true
+        const rutaPedida = '/' + segmentos.map((s) => s.path).join('/')
+        if (estado === 'ERROR') return router.createUrlTree(['/arranque'], { queryParams: { volverA: rutaPedida } })
+        return router.createUrlTree(['/ingreso'], { queryParams: { volverA: rutaPedida } })
+      }),
+    )
   }
 }

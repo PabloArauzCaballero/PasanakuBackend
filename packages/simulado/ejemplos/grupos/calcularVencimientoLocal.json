@@ -1,0 +1,66 @@
+{
+  "servicio": "grupos",
+  "operacion": "calcularVencimientoLocal",
+  "metodo": "get",
+  "ruta": "/grupos/calendario/vencimiento",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "instanteUtc": "2026-05-02T02:00:00Z",
+        "zonaHoraria": "America/La_Paz",
+        "fechaEnUtc": "2026-05-02",
+        "fechaContractual": "2026-05-01",
+        "fechaDeLiquidacion": "2026-05-04",
+        "corridaPorNoHabil": true,
+        "diasSalteados": [
+          {
+            "fecha": "2026-05-01",
+            "descripcion": "Día del Trabajo — feriado nacional"
+          },
+          {
+            "fecha": "2026-05-02",
+            "descripcion": "Sabado"
+          },
+          {
+            "fecha": "2026-05-03",
+            "descripcion": "Domingo"
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "instanteUtc": "2026-05-05T14:00:00Z",
+        "zonaHoraria": "America/La_Paz",
+        "fechaEnUtc": "2026-05-05",
+        "fechaContractual": "2026-05-05",
+        "fechaDeLiquidacion": "2026-05-05",
+        "corridaPorNoHabil": false,
+        "diasSalteados": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "instanteUtc": "2027-01-01T03:30:00Z",
+        "zonaHoraria": "America/La_Paz",
+        "fechaEnUtc": "2027-01-01",
+        "fechaContractual": "2026-12-31",
+        "fechaDeLiquidacion": "2026-12-31",
+        "corridaPorNoHabil": false,
+        "diasSalteados": []
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU59-05",
+        "mensaje": "No hay calendario cargado para 2031, asi que no podemos calcular ese plazo.",
+        "detalle": {},
+        "trazaId": "traza-calcularVencimientoLocal-rechazo"
+      }
+    }
+  }
+}

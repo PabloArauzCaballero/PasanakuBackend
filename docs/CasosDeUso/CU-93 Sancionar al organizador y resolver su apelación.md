@@ -112,6 +112,7 @@ export const ErroresCU93 = {
   MISMO_RESOLUTOR:       'AP-CU93-04',
   GRUPOS_SIN_DESTINO:    'AP-CU93-05',
   SANCION_PRESCRITA:     'AP-CU93-06',
+  RECLAMO_EN_CURSO:      'AP-CU93-07',
 } as const
 ```
 
@@ -123,6 +124,7 @@ export const ErroresCU93 = {
 | `MISMO_RESOLUTOR` | Quien resuelve la apelación es quien aplicó la sanción (`R-SEG-04`) |
 | `GRUPOS_SIN_DESTINO` | La suspensión con reasignación no tiene a quién reasignar |
 | `SANCION_PRESCRITA` | Venció `prescribe_en_dias` sin resolución |
+| `RECLAMO_EN_CURSO` | La persona sancionada tiene un reclamo que frena la sancion firme, o cumplimiento no contesto algo entendible: un reclamo en revision no es una sancion firme (H13.S1.M6, regla 91.4) |
 
 ## Descomposición atómica
 

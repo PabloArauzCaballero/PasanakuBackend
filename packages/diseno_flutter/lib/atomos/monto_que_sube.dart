@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../dinero/formatear.dart';
 import '../tokens/tokens.dart';
+import 'movimiento.dart';
 
 /// El importe contando hacia arriba: de cero al saldo la primera vez, y del valor
 /// anterior al nuevo cuando cambia.
@@ -12,7 +13,7 @@ import '../tokens/tokens.dart';
 /// - **Nunca queda en cero.** El estado en reposo es siempre el importe real: si el
 ///   widget se destruye, si el sistema mata las animaciones o si algo falla a mitad de
 ///   camino, lo que queda en pantalla es el saldo, no el arranque de la cuenta.
-/// - **Es corta.** Medio segundo largo. Nadie tiene que esperar para saber cuánto tiene.
+/// - **Es corta.** 220 ms. Nadie tiene que esperar para saber cuánto tiene.
 /// - **El lector de pantalla anuncia el valor final desde el primer frame**, nunca los
 ///   intermedios: quien escucha recibe su saldo, no un conteo.
 /// - **Si el valor no cambió, no se reanima.** Refrescar la pantalla y que el saldo sea
@@ -26,7 +27,7 @@ class MontoQueSube extends StatefulWidget {
     required this.moneda,
     this.etiqueta,
     this.estilo,
-    this.duracion = MovimientoDeInterfaz.contador,
+    this.duracion = Movimiento.entrada,
   });
 
   /// El importe como cadena del contrato (`^-?\d+\.\d{2}$`).
@@ -75,7 +76,7 @@ class _MontoQueSubeState extends State<MontoQueSube>
   void _arrancar() {
     // El sistema puede pedir que no haya movimiento —por mareo, por batería, por
     // preferencia—. Ahí el importe aparece entero y listo.
-    if (_desde == _hasta || MediaQuery.disableAnimationsOf(context)) {
+    if (_desde == _hasta || reducirMovimiento(context)) {
       _control.value = 1;
       return;
     }
@@ -83,7 +84,7 @@ class _MontoQueSubeState extends State<MontoQueSube>
   }
 
   int get _centavosVisibles {
-    final t = Curves.easeOutCubic.transform(_control.value);
+    final t = Movimiento.llega.transform(_control.value);
     // Redondeo, no truncado: el último frame tiene que dar exactamente el importe.
     return _desde + ((_hasta - _desde) * t).round();
   }

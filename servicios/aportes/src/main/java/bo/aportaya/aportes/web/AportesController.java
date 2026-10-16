@@ -2,11 +2,20 @@ package bo.aportaya.aportes.web;
 
 import bo.aportaya.aportes.aplicacion.CU21CobrarAporte;
 import bo.aportaya.aportes.aplicacion.ConsultarEstadoDelParticipante;
+import bo.aportaya.aportes.aplicacion.ConsultarRecaudoDelPeriodo;
+import bo.aportaya.aportes.aplicacion.GenerarObligacionesDelPeriodo;
 import bo.aportaya.aportes.web.generado.AportesApi;
+import bo.aportaya.aportes.web.generado.modelo.CalendarioDeObligaciones;
+import bo.aportaya.aportes.web.generado.modelo.DiaSalteadoDelCalendario;
 import bo.aportaya.aportes.web.generado.modelo.EntradaCobro;
 import bo.aportaya.aportes.web.generado.modelo.EstadoDelParticipante;
+import bo.aportaya.aportes.web.generado.modelo.LineaDelCalendario;
 import bo.aportaya.aportes.web.generado.modelo.Morosos;
+import bo.aportaya.aportes.web.generado.modelo.ObligacionPendiente;
+import bo.aportaya.aportes.web.generado.modelo.RecaudoDelPeriodo;
 import bo.aportaya.aportes.web.generado.modelo.SalidaCobro;
+import bo.aportaya.plataforma.dominio.CodigoError;
+import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
@@ -29,11 +38,23 @@ public class AportesController implements AportesApi {
 
     private final CU21CobrarAporte cu21;
     private final ConsultarEstadoDelParticipante estados;
+    private final ConsultarRecaudoDelPeriodo recaudos;
+    private final GenerarObligacionesDelPeriodo calendario;
     private final SesionDeLaPeticion sesion;
+    private final bo.aportaya.aportes.aplicacion.HechosDeGrupos grupos;
 
-    public AportesController(CU21CobrarAporte cu21, ConsultarEstadoDelParticipante estados, SesionDeLaPeticion sesion) {
+    public AportesController(
+            CU21CobrarAporte cu21,
+            ConsultarEstadoDelParticipante estados,
+            ConsultarRecaudoDelPeriodo recaudos,
+            GenerarObligacionesDelPeriodo calendario,
+            SesionDeLaPeticion sesion,
+            bo.aportaya.aportes.aplicacion.HechosDeGrupos grupos) {
+        this.grupos = grupos;
         this.cu21 = cu21;
         this.estados = estados;
+        this.recaudos = recaudos;
+        this.calendario = calendario;
         this.sesion = sesion;
     }
 
@@ -76,6 +97,18 @@ public class AportesController implements AportesApi {
     public ResponseEntity<SalidaCobro> cobrarAporte(UUID idempotencyKey, UUID obligacionId, EntradaCobro cuerpo) {
         Traza.marcarCasoDeUso("CU-21", obligacionId.toString());
 
+        // Antes de tocar nada: la obligacion tiene que ser de quien paga y el periodo tiene que seguir
+        // abierto (B15/B5). Se pregunta a `grupos` FUERA de la transaccion del cobro (invariante 6).
+        var ctx = sesion.actual();
+        var contexto = cu21.contextoDe(obligacionId, ctx)
+                .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(21, 1), "Esa obligacion no existe."));
+        var admisibilidad = grupos.admisibilidad(contexto.participanteId(), contexto.periodoId())
+                .orElseThrow(() -> new ErrorDeNegocio(
+                        CodigoError.de(21, 7), "No pudimos verificar esa obligacion: intentalo de nuevo."));
+        if (!admisibilidad.esDelUsuario()) {
+            throw new ErrorDeNegocio(CodigoError.de(21, 6), "Esa obligacion no es tuya.");
+        }
+
         var salida = cu21.acreditar(
                 new CU21CobrarAporte.EntradaCobro(
                         idempotencyKey.toString(),
@@ -89,8 +122,8 @@ public class AportesController implements AportesApi {
                         cuerpo.getReferenciaProveedor(),
                         Optional.ofNullable(cuerpo.getProveedorId()),
                         Boolean.TRUE.equals(cuerpo.getEsManual()),
-                        true),
-                sesion.actual());
+                        admisibilidad.periodoAbierto()),
+                ctx);
 
         var respuesta = new SalidaCobro();
         respuesta.setPagoId(salida.pagoId());
@@ -104,5 +137,83 @@ public class AportesController implements AportesApi {
         // reintentar sea seguro sin adivinar.
         var estado = salida.esNuevo() ? HttpStatus.CREATED : HttpStatus.OK;
         return ResponseEntity.status(estado).body(respuesta);
+    }
+
+    /**
+     * Cuanto del pozo del periodo es caja confirmada.
+     *
+     * <p>Lo pide {@code entregas} antes de liquidar. El permiso es el de quien ejecuta la
+     * entrega: el token del usuario viaja en la llamada entre servicios.
+     */
+    @Override
+    @Permiso("ENTREGA_EJECUTAR")
+    public ResponseEntity<RecaudoDelPeriodo> consultarRecaudoDelPeriodo(UUID periodoId) {
+        Traza.marcarCasoDeUso("CU-21", periodoId.toString());
+
+        var salida = recaudos.ejecutar(periodoId, sesion.actual());
+
+        var respuesta = new RecaudoDelPeriodo();
+        respuesta.setPeriodoId(salida.periodoId());
+        respuesta.setGrupoId(salida.grupoId());
+        respuesta.setCorteEn(salida.corteEn());
+        respuesta.setPozo(MapeoDeAportes.dinero(salida.recaudo().pozo()));
+        respuesta.setConfirmado(MapeoDeAportes.dinero(salida.recaudo().confirmado()));
+        respuesta.setCubiertoMutual(MapeoDeAportes.dinero(salida.recaudo().cubiertoMutual()));
+        respuesta.setFaltante(MapeoDeAportes.dinero(salida.recaudo().faltante()));
+        respuesta.setPendientes(salida.recaudo().pendientes().stream()
+                .map(p -> {
+                    var o = new ObligacionPendiente();
+                    o.setObligacionId(p.obligacionId());
+                    o.setMonto(MapeoDeAportes.dinero(p.monto()));
+                    return o;
+                })
+                .toList());
+        return ResponseEntity.ok(respuesta);
+    }
+
+    /**
+     * El calendario de obligaciones del periodo: una por cupo, sin duplicar. Lo dispara quien opera
+     * la plataforma; todo lo que se escribe lo afirma `grupos`, no el cuerpo (que no existe).
+     */
+    @Override
+    @Permiso("ADMIN_PLATAFORMA")
+    public ResponseEntity<CalendarioDeObligaciones> generarObligacionesDelPeriodo(UUID periodoId, UUID idempotencyKey) {
+        Traza.marcarCasoDeUso("CU-21", periodoId.toString());
+
+        var salida = calendario.generar(periodoId, sesion.actual());
+
+        var respuesta = new CalendarioDeObligaciones();
+        respuesta.setPeriodoId(salida.periodoId());
+        respuesta.setGrupoId(salida.grupoId());
+        respuesta.setTurno(salida.turno());
+        respuesta.setFechaContractual(salida.fechaContractual());
+        respuesta.setFechaDeLiquidacion(salida.fechaDeLiquidacion());
+        respuesta.setCorridaPorNoHabil(salida.corridaPorNoHabil());
+        respuesta.setCreadas(salida.creadas());
+        respuesta.setDiasSalteados(salida.diasSalteados().stream()
+                .map(d -> {
+                    var dia = new DiaSalteadoDelCalendario();
+                    dia.setFecha(d.fecha());
+                    dia.setMotivo(d.motivo());
+                    return dia;
+                })
+                .toList());
+        respuesta.setObligaciones(salida.calendario().stream()
+                .map(l -> {
+                    var linea = new LineaDelCalendario();
+                    linea.setObligacionId(l.obligacionId());
+                    linea.setCupoId(l.cupoId());
+                    linea.setTitularParticipanteId(l.titularParticipanteId());
+                    linea.setTurno(l.turno());
+                    linea.setMonto(MapeoDeAportes.dinero(l.monto()));
+                    linea.setEstado(l.estado());
+                    linea.setFechaContractual(l.fechaContractual());
+                    linea.setFechaDeLiquidacion(l.fechaDeLiquidacion());
+                    linea.setFinDeGracia(l.finDeGracia());
+                    linea.setEsNueva(l.esNueva());
+                    return linea;
+                })
+                .toList());
+        return ResponseEntity.ok(respuesta);
     }
 }

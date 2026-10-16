@@ -18,6 +18,23 @@ class GrupoRadio<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
+    assert(opciones.isNotEmpty, 'GrupoRadio requiere opciones.');
+    if (opciones.isEmpty) return const SizedBox.shrink();
+    if (opciones.length == 1) {
+      return Semantics(
+        container: true,
+        label: opciones.values.single,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: Espacio.s2),
+          child: Text(
+            opciones.values.single,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: t.text2),
+          ),
+        ),
+      );
+    }
     return RadioGroup<T>(
       groupValue: valor,
       onChanged: onChanged,

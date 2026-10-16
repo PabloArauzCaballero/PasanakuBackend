@@ -1,19 +1,22 @@
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
+import 'package:aportaya_diseno/atomos/fecha.dart';
 import 'package:aportaya_diseno/moleculas/fila_de_cotejo.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../dominio/notifier_alta.dart';
+import '../dominio/estado_alta.dart';
 import '../textos.dart';
 
-/// Paso 6 de 8 — cotejo campo a campo (D-1: "cotejo campo a campo"). Sin OCR
+/// Cotejo campo a campo en la fase «Tus datos» (D-1: "cotejo campo a campo"). Sin OCR
 /// contratado todavía (hueco H-CLIENTE), `leido` reusa lo declarado por la persona
 /// — la fila igual muestra la mecánica de coincidencia/corrección que pide la
 /// maqueta, y queda lista para que el proveedor real reemplace ese origen de dato.
 class PasoCotejo extends ConsumerWidget {
-  const PasoCotejo({super.key});
+  const PasoCotejo({super.key, this.soloResumen = false});
+
+  final bool soloResumen;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,13 +43,25 @@ class PasoCotejo extends ConsumerWidget {
             declarado: datos.numeroDocumento,
             leido: datos.numeroDocumento,
           ),
-          const SizedBox(height: Espacio.s5),
-          Boton(
-            texto: TextosIdentidad.continuar,
-            variante: BotonVariante.primario,
-            expandido: true,
-            onPressed: () => ref.read(altaProvider.notifier).siguiente(),
-          ),
+          // El vencimiento tambien se coteja: es lo que el revisor del backoffice
+          // compara contra la foto del anverso antes de aprobar.
+          if (datos.fechaExpiracion case final vence?) ...[
+            const SizedBox(height: Espacio.s2),
+            FilaDeCotejo(
+              campo: TextosIdentidad.fechaExpiracion,
+              declarado: Fecha.formatearDia(vence),
+              leido: Fecha.formatearDia(vence),
+            ),
+          ],
+          if (!soloResumen) ...[
+            const SizedBox(height: Espacio.s5),
+            Boton(
+              texto: TextosIdentidad.continuar,
+              variante: BotonVariante.primario,
+              expandido: true,
+              onPressed: () => ref.read(altaProvider.notifier).siguiente(),
+            ),
+          ],
         ],
       ),
     );

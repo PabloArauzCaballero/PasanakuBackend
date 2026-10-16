@@ -85,6 +85,13 @@ class BilleteraAprobacionWebTest {
     @MockitoBean
     private SegundoFactor segundoFactor;
 
+    // El controlador delega recargas/retiros y QR en estos dos colaboradores (arreglos de la integracion).
+    @MockitoBean
+    private FondeoDeLaBilletera fondeo;
+
+    @MockitoBean
+    private QrDeLaBilletera qrDeLaBilletera;
+
     private static Dinero bob(String monto) {
         return Dinero.de(monto, Moneda.BOB);
     }

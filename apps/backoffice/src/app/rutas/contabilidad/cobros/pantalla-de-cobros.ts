@@ -37,7 +37,7 @@ const COLUMNAS: ColumnaVirtual<CuentaPorCobrar>[] = [
   imports: [BandaDeProposito, BarraDeFiltros, Boton, ChipEstado, Fecha, Monto, TablaDeDatosVirtualizada, FichaDeCobro],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
-    <main>
+    <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
       <ap-barra-de-filtros etiqueta="Estado" [incluirBusqueda]="false" [definiciones]="filtros" />
       <ap-tabla-de-datos-virtualizada
@@ -75,14 +75,14 @@ const COLUMNAS: ColumnaVirtual<CuentaPorCobrar>[] = [
           }
         </ng-template>
       </ap-tabla-de-datos-virtualizada>
-    </main>
+    </section>
 
     @if (elegida(); as c) {
       <ap-ficha-de-cobro [cuenta]="c" (cerrada)="elegida.set(null)" />
     }
   `,
   styles: `
-    main { padding: var(--s5); max-width: 76rem; display: grid; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 76rem; display: grid; gap: var(--s4); }
     h1 { margin: 0; }
     .motivo { color: var(--text-2); white-space: normal; }
   `,

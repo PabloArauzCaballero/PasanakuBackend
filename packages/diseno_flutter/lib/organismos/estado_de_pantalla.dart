@@ -22,6 +22,8 @@ class EstadoDePantalla<T> extends StatelessWidget {
     this.motivoVacio = MotivoVacio.sinDatos,
     this.esqueleto,
     this.etiquetaDeCarga = 'Cargando',
+    this.etiquetaDeTraza = 'Referencia',
+    this.omitirSkeletonAlActualizar = false,
   });
 
   final AsyncValue<T> valor;
@@ -32,17 +34,23 @@ class EstadoDePantalla<T> extends StatelessWidget {
   final VoidCallback reintentar;
   final Widget? esqueleto;
   final String etiquetaDeCarga;
+  final String etiquetaDeTraza;
+  final bool omitirSkeletonAlActualizar;
 
   @override
   Widget build(BuildContext context) {
     return valor.when(
-      skipLoadingOnRefresh: false,
+      skipLoadingOnRefresh: omitirSkeletonAlActualizar,
       loading: () => Semantics(
         label: etiquetaDeCarga,
         liveRegion: true,
         child: esqueleto ?? const _Esqueleto(),
       ),
-      error: (error, _) => EstadoError(error: error, reintentar: reintentar),
+      error: (error, _) => EstadoError(
+        error: error,
+        reintentar: reintentar,
+        etiquetaDeTraza: etiquetaDeTraza,
+      ),
       data: (dato) {
         if (vacio?.call(dato) ?? false) {
           return EstadoVacio(mensaje: mensajeVacio, motivo: motivoVacio);

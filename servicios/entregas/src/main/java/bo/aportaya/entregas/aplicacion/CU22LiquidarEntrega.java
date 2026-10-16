@@ -62,6 +62,15 @@ public class CU22LiquidarEntrega {
                         "La bolsa esta incompleta: se recaudo " + entrada.recaudado() + " de " + entrada.bruto() + ".");
             }
 
+            // Repetir la liquidacion de un turno ya liquidado (un reintento del cliente) devuelve
+            // la misma entrega: no crea otra ni falla contra el indice unico.
+            var yaLiquidada = entregas.deTurno(dsl, entrada.turnoId());
+            if (yaLiquidada.isPresent()) {
+                var previa = yaLiquidada.get();
+                return new SalidaLiquidacion(
+                        previa.id(), previa.bruto(), previa.totalDeducciones(), previa.neto(), previa.estado());
+            }
+
             UUID entregaId = entregas.crear(
                     dsl,
                     entrada.grupoId(),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../atomos/hundido_al_tocar.dart';
 import '../tokens/tokens.dart';
 
 /// Recargar · Retirar · Vales · Aportes: cuatro accesos, cada uno con ícono y nombre.
@@ -19,28 +20,30 @@ class AccionesRapidas extends StatelessWidget {
               button: true,
               label: a.texto,
               excludeSemantics: true,
-              child: InkWell(
-                onTap: a.onTap,
-                borderRadius: BorderRadius.circular(Radios.md),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: Espacio.s2),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: Tactil.minimo,
-                        height: Tactil.minimo,
-                        decoration: BoxDecoration(
-                          color: t.brandBg,
-                          borderRadius: BorderRadius.circular(Radios.md),
+              child: HundidoAlTocar(
+                child: InkWell(
+                  onTap: a.onTap,
+                  borderRadius: BorderRadius.circular(Radios.md),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: Espacio.s2),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: Tactil.minimo,
+                          height: Tactil.minimo,
+                          decoration: BoxDecoration(
+                            color: t.surface2,
+                            borderRadius: BorderRadius.circular(Radios.md),
+                          ),
+                          child: Icon(a.icono, color: t.accentTexto),
                         ),
-                        child: Icon(a.icono, color: t.brandTexto),
-                      ),
-                      const SizedBox(height: Espacio.s1),
-                      Text(
-                        a.texto,
-                        style: texto.labelMedium?.copyWith(color: t.text2),
-                      ),
-                    ],
+                        const SizedBox(height: Espacio.s1),
+                        Text(
+                          a.texto,
+                          style: texto.labelMedium?.copyWith(color: t.text2),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

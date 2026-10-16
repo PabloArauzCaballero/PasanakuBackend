@@ -9,13 +9,16 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # Widgets del sistema (incluido DatePicker) deben seguir el idioma configurado
+  # para Material; esta dependencia viene con Flutter y no agrega proveedor externo.
+  flutter_localizations:
+    sdk: flutter
   flutter_riverpod: ^3.0.0
-  go_router: ^18.0.2
+  go_router: ^17.0.0
   dio: ^5.7.0
-  crypto: ^3.0.7
-  flutter_secure_storage: ^11.2.0
-  connectivity_plus: ^7.3.2
-  mobile_scanner: ^7.4.2
+  flutter_secure_storage: ^10.0.0
+  connectivity_plus: ^7.0.0
+  mobile_scanner: ^7.1.2
   # El sistema de diseño (packages/diseno_flutter) y los clientes GENERADOS desde el OpenAPI
   # (clientes/dart). No se editan en un carril de pantallas — micro-PR al troncal (planes/16 §6).
   # Se declaran los catorce servicios de una vez para no repetir este micro-PR por cada carril
@@ -46,19 +49,43 @@ dependencies:
   # contratos vigentes solo se pueden preguntar (`GET /cumplimiento/contratos/vigentes`).
   aportaya_cliente_cumplimiento:
     path: ../../clientes/dart/cumplimiento
-  image_picker: ^1.2.4
+  image_picker: ^1.2.3
   path_provider: ^2.1.6
+  app_settings: ^9.0.0
+  # El visor en vivo del escáner de identidad (CU-02, comportamiento de Atlas):
+  # `image_picker` solo abría la cámara del sistema, sin guía de encuadre ni cámara
+  # frontal controlada. Plugin oficial de flutter.dev, Android minSdk 24.
+  camera: ^0.12.1
+  # Distingue "denegado" de "denegado para siempre" para el escáner — `camera` solo
+  # da el código de excepción, no el estado del permiso. Abrir Ajustes sigue siendo
+  # `AjustesDelSistema` (ya en el repo); esto solo decide CUÁNDO ofrecerlo.
+  permission_handler: ^13.0.2
+  # Ya era dependencia transitiva (pubspec.lock); se declara explícita porque el
+  # carrusel de capturas la importa para el adelanto de hash en cada foto.
+  crypto: ^3.0.6
+  # Escáner de documentos del sistema para el anverso y el reverso (CU-02), el mismo
+  # que usa Atlas (`@dariyd/react-native-document-scanner`): VisionKit en iOS y el
+  # Document Scanner de ML Kit en Android. Encuentra los bordes del carnet y dispara
+  # solo. Android minSdk 24, iOS 13. Licencia MIT.
+  cunning_document_scanner: ^3.0.3
+  # Detección de rostro en el video para la prueba de vida automática (frente,
+  # izquierda, derecha): da el giro de la cabeza (`headEulerAngleY`). Atlas no lo
+  # tiene —sus selfies son manuales—; lo pidió el usuario el 2026-10-03. Corre en el
+  # teléfono, sin mandar la imagen a nadie. Plugin de google_ml_kit_flutter (MIT);
+  # exige iOS 15.5 (el Podfile y el proyecto se subieron de 15.0).
+  google_mlkit_face_detection: ^0.15.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  fake_async: ^1.3.3
   flutter_lints: ^6.0.0
   http_mock_adapter: ^0.6.1
   # F12: el andamiaje de integration_test/ (7 recorridos) lo necesita. Micro-PR al
   # troncal (planes/16 §6) — hueco declarado por el carril F12 en su informe.
   integration_test:
     sdk: flutter
-  patrol: ^4.10.0
+  patrol: ^3.15.0
 
 patrol:
   app_name: Aportaya Movil

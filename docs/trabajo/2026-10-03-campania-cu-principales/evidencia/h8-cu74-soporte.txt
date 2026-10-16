@@ -1,0 +1,8 @@
+LOGIN USR91 (+591***91) -> 200 requiereFactor=False token=si
+permisos incluyen SOPORTE: True
+(hechos SINTETICOS entregados por el operador; el contrato los recibe resueltos)
+CICLO_COMPLETADO #1 misma clave -> 200 [(None, None)]
+CICLO_COMPLETADO #2 misma clave -> 200 [(None, None)]
+APORTE_PUNTUAL #1 misma clave -> 200 [(None, None), (None, None)]
+APORTE_PUNTUAL #2 misma clave -> 200 [(None, None), (None, None)]
+SQL otorgadas: PAGADOR_PUNTUAL,PRIMER_PASANAKU,SIN_MORA_12_MESES | 3

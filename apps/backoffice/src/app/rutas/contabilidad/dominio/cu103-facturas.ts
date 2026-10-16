@@ -18,7 +18,7 @@ import { cargadorDeLista, contextoConClave, filtroPorEstado, type Importe, type 
  * backend confirma la decisión, nunca es la primera línea de defensa.
  */
 export type EstadoFactura = 'REGISTRADA' | 'APROBADA' | 'PAGADA_PARCIAL' | 'PAGADA' | 'ANULADA'
-export type FormaDePago = 'TRANSFERENCIA' | 'CHEQUE' | 'EFECTIVO' | 'QR'
+export type FormaDePago = 'TRANSFERENCIA' | 'CHEQUE' | 'EFECTIVO'
 
 export type FacturaDeProveedor = {
   facturaProveedorId: string
@@ -43,13 +43,10 @@ export type FacturaDeProveedor = {
 }
 
 /**
- * **Divergencia declarada contra `erp.yaml`, por seguridad.** El esquema `EntradaPago`
- * exige `autorizadoPor` en el cuerpo. Un control de segregación de funciones cuyo «quién
- * autorizó» lo manda el cliente es falsificable con una petición hecha a mano: quien
- * aprobó la factura solo tiene que escribir otro identificador. Este cliente **no** lo
- * envía; se pide al carril `5A` que `pago_a_proveedor.autorizado_por` salga del token de
- * la sesión, como ya hace el resto de la plataforma. Hasta entonces el backend puede
- * rechazar el cuerpo por `required`, y eso es preferible a mandar un actor sin respaldo.
+ * **El autorizante del pago NO viaja en el cuerpo.** `erp.yaml` ya no declara `autorizadoPor` en `EntradaPago` (y rechaza con 400 un
+ * cuerpo que lo traiga): un control de segregación de funciones cuyo «quién autorizó» lo manda el cliente es falsificable con una petición
+ * hecha a mano —quien aprobó la factura solo tendría que escribir otro identificador—. El servidor lo deriva del sujeto del token de la
+ * sesión (`CU103FacturaDeProveedor.pagar`, `ctx.usuarioId()`) y es ese actor el que queda escrito en `pago_a_proveedor.autorizado_por`.
  */
 export type EntradaPago = { monto: string; moneda: Moneda; formaPago: FormaDePago }
 

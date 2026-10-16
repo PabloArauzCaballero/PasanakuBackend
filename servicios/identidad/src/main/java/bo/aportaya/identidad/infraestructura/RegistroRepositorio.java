@@ -27,6 +27,16 @@ public class RegistroRepositorio {
     }
 
     /**
+     * Contra la misma columna y sin filtros, igual que {@code uq_usuario_correo}: si la
+     * pregunta fuera mas laxa que el indice —ignorar eliminados, comparar sin
+     * mayusculas— la respuesta seria «libre» y el insert igual rebotaria en la base.
+     * Antes no se preguntaba: el alta con un correo que ya tenia cuenta salia 500.
+     */
+    public boolean correoYaRegistrado(DSLContext dsl, String correo) {
+        return dsl.fetchExists(dsl.selectFrom(USUARIO).where(USUARIO.CORREO.eq(correo)));
+    }
+
+    /**
      * El duplicado se mide por numero Y lugar de expedicion: el mismo numero de CI
      * existe en dos departamentos y pertenece a dos personas distintas. Preguntar
      * solo por el numero le negaba la cuenta a la segunda.
@@ -110,6 +120,7 @@ public class RegistroRepositorio {
                 .set(DOCUMENTO_IDENTIDAD.NUMERO_CIFRADO, numeroCifrado)
                 .set(DOCUMENTO_IDENTIDAD.VERSION_LLAVE, (short) 1)
                 .set(DOCUMENTO_IDENTIDAD.HASH_NUMERO, documento.hashNumero())
+                .set(DOCUMENTO_IDENTIDAD.FECHA_EXPIRACION, documento.fechaExpiracion())
                 .set(DOCUMENTO_IDENTIDAD.LUGAR_EXPEDICION, documento.lugarExpedicion())
                 .set(DOCUMENTO_IDENTIDAD.PAIS_EMISION, documento.paisEmision())
                 .set(DOCUMENTO_IDENTIDAD.ESTADO, "EN_REVISION")

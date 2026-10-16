@@ -1,0 +1,31 @@
+// Aprueba en el backoffice (pantalla real, USR000091) el expediente de la cuenta desechable +59171000195 y captura cada paso.
+import { chromium } from '@playwright/test'
+import { mkdirSync } from 'node:fs'
+const SALIDA = process.argv[2]; const CLAVE = process.env.CLAVE_DEV; const base = 'http://localhost:4200'
+mkdirSync(SALIDA, { recursive: true })
+const navegador = await chromium.launch()
+const ctx = await navegador.newContext({ viewport: { width: 1440, height: 1400 } })
+const page = await ctx.newPage()
+const red = []; page.on('response', async (r) => { if (r.url().includes('/api/v1')) console.log(r.status(), r.request().method(), new URL(r.url()).pathname, r.status()>=400 ? (await r.text()).slice(0,200) : '') })
+page.on('response', (r) => { if (r.url().includes('/api/v1') && !r.url().endsWith('.js')) red.push(`${r.request().method()} ${r.status()} ${new URL(r.url()).pathname.replace(/[0-9a-f-]{36}/g, '<id>')}`) })
+await page.route('**/ingreso', async (route) => {
+  const resp = await route.fetch()
+  await route.fulfill({ response: resp, body: (await resp.text()).replace('</head>', '<meta name="aportaya-gateway" content="/api/v1"></head>') })
+}, { times: 1 })
+await page.goto(`${base}/ingreso`)
+await page.getByLabel('Teléfono').fill('71000091')
+await page.getByLabel('Contraseña', { exact: true }).fill(CLAVE)
+await page.getByRole('button', { name: 'Continuar' }).click()
+await page.getByLabel('Código de verificación').fill('000000')
+await page.waitForURL(/\/tablero$/, { timeout: 20000 })
+await page.evaluate(() => { history.pushState({}, '', '/cumplimiento/verificaciones'); window.dispatchEvent(new PopStateEvent('popstate')) })
+await page.waitForTimeout(2500)
+await page.screenshot({ path: `${SALIDA}/h7-bo-01-cola.png` })
+const tarjeta = page.locator('li', { hasText: 'Desechable' }).first()
+await tarjeta.scrollIntoViewIfNeeded()
+await tarjeta.screenshot({ path: `${SALIDA}/h7-bo-02-expediente-desechable.png` })
+await tarjeta.getByRole('button', { name: 'Aprobar' }).click()
+await page.waitForTimeout(2500)
+await page.screenshot({ path: `${SALIDA}/h7-bo-03-tras-aprobar.png` })
+console.log('red:', JSON.stringify([...new Set(red)].filter((x) => /verific|expedient/i.test(x))))
+await navegador.close()

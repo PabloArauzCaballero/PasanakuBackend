@@ -4,7 +4,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { RAIZ, ROLES, TIPOS, aFontCss, aKebab, resolverRol, tokens } from './comun.mjs'
 
-const { color, espacio, radio, fuente, tactil, borde, movimiento } = tokens.primitivas
+const { color, espacio, radio, fuente, tactil, borde } = tokens.primitivas
 const linea = (nombre, valor) => `  --${nombre}: ${valor};`
 
 const primitivas = [
@@ -18,7 +18,6 @@ const primitivas = [
   ...Object.entries(radio).map(([k, v]) => linea(`r-${k}`, `${v}px`)),
   linea('area-tactil', `${tactil.minimoWeb}px`),
   ...Object.entries(borde).map(([k, v]) => linea(`borde-${k}`, `${v}px`)),
-  ...Object.entries(movimiento).map(([k, v]) => linea(`motion-${aKebab(k)}`, `${v}ms`)),
   linea('font-d', fuente.display),
   linea('font-b', fuente.cuerpo),
   linea('mono', fuente.mono),

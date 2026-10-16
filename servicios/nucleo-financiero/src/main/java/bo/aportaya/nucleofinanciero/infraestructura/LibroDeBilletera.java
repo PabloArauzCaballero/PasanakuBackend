@@ -1,5 +1,6 @@
 package bo.aportaya.nucleofinanciero.infraestructura;
 
+import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.Dinero;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -55,8 +56,80 @@ public class LibroDeBilletera {
             Optional<UUID> iniciadaPor,
             List<Pata> patas,
             OffsetDateTime ahora) {
+        // El libro lo escribe el sistema, nunca el titular: las politicas de fila reservan
+        // `movimiento_billetera` y los saldos al sistema. El permiso para llegar hasta aca ya
+        // lo valido cada caso de uso; el rol de sistema dura solo lo que dura este bloque.
+        return registrarVinculada(
+                dsl,
+                UUID.randomUUID(),
+                tipo,
+                origenTipo,
+                origenId,
+                canal,
+                montoTotal,
+                claveIdempotencia,
+                iniciadaPor,
+                patas,
+                Vinculos.ninguno(),
+                ahora);
+    }
 
-        UUID id = UUID.randomUUID();
+    /** A que grupo pertenece la transaccion y con que asiento del mayor quedo asentada (ambos opcionales). */
+    public record Vinculos(Optional<UUID> grupoId, Optional<UUID> asientoId) {
+        public static Vinculos ninguno() {
+            return new Vinculos(Optional.empty(), Optional.empty());
+        }
+    }
+
+    /**
+     * Igual que {@link #registrar}, pero con el identificador de la transaccion ya decidido y sus vinculos al grupo y al
+     * asiento del mayor. Existe porque el libro es append-only: el asiento ({@code origen_id} = esta transaccion) se
+     * escribe PRIMERO y la transaccion nace ya apuntandolo; enlazarlos despues exigiria un UPDATE sobre el libro.
+     */
+    public UUID registrarVinculada(
+            DSLContext dsl,
+            UUID id,
+            String tipo,
+            String origenTipo,
+            UUID origenId,
+            String canal,
+            Dinero montoTotal,
+            String claveIdempotencia,
+            Optional<UUID> iniciadaPor,
+            List<Pata> patas,
+            Vinculos vinculos,
+            OffsetDateTime ahora) {
+        return Datos.comoSistema(
+                dsl,
+                () -> escribir(
+                        dsl,
+                        id,
+                        tipo,
+                        origenTipo,
+                        origenId,
+                        canal,
+                        montoTotal,
+                        claveIdempotencia,
+                        iniciadaPor,
+                        patas,
+                        vinculos,
+                        ahora));
+    }
+
+    private UUID escribir(
+            DSLContext dsl,
+            UUID id,
+            String tipo,
+            String origenTipo,
+            UUID origenId,
+            String canal,
+            Dinero montoTotal,
+            String claveIdempotencia,
+            Optional<UUID> iniciadaPor,
+            List<Pata> patas,
+            Vinculos vinculos,
+            OffsetDateTime ahora) {
+
         String hashAnterior = ultimoHash(dsl);
         dsl.insertInto(DSL.table(DSL.name("nucleo_financiero", "transaccion_billetera")))
                 .set(DSL.field("id", UUID.class), id)
@@ -64,6 +137,10 @@ public class LibroDeBilletera {
                 .set(DSL.field("estado", String.class), "APLICADA")
                 .set(DSL.field("moneda", String.class), montoTotal.moneda().name())
                 .set(DSL.field("monto_total", BigDecimal.class), montoTotal.monto())
+                .set(DSL.field("grupo_id", UUID.class), vinculos.grupoId().orElse(null))
+                .set(
+                        DSL.field("asiento_contable_id", UUID.class),
+                        vinculos.asientoId().orElse(null))
                 .set(DSL.field("origen_tipo", String.class), origenTipo)
                 .set(DSL.field("origen_id", UUID.class), origenId)
                 .set(DSL.field("canal", String.class), canal)
@@ -84,8 +161,8 @@ public class LibroDeBilletera {
                     .set(DSL.field("orden", Short.class), orden++)
                     .set(DSL.field("sentido", String.class), pata.sentido())
                     .set(DSL.field("monto", BigDecimal.class), pata.monto().monto())
-                    // Los saldos posteriores los recalcula el trigger; se escribe el
-                    // que se conoce al momento y la base lo corrige.
+                    // BEFORE INSERT fija ambos saldos bajo bloqueo de cuenta.
+                    // No se modifica el movimiento después de su inserción.
                     .set(DSL.field("saldo_disponible_posterior", BigDecimal.class), BigDecimal.ZERO)
                     .set(DSL.field("saldo_retenido_posterior", BigDecimal.class), BigDecimal.ZERO)
                     .set(DSL.field("glosa", String.class), pata.glosa())
@@ -116,6 +193,11 @@ public class LibroDeBilletera {
                 clave);
     }
 
+    /** Atajo para quien inicia siempre una persona (el titular de la sesion). */
+    public Optional<UUID> porClaveIdempotencia(DSLContext dsl, UUID iniciadaPor, String origenTipo, String clave) {
+        return porClaveIdempotencia(dsl, Optional.of(iniciadaPor), origenTipo, clave);
+    }
+
     public Optional<UUID> porClaveIdempotencia(
             DSLContext dsl, Optional<UUID> iniciadaPor, String origenTipo, String clave) {
         return Optional.ofNullable(dsl.select(DSL.field("id", UUID.class))
@@ -125,6 +207,52 @@ public class LibroDeBilletera {
                 .and(DSL.field("origen_tipo", String.class).eq(origenTipo))
                 .and(DSL.field("clave_idempotencia").eq(clave))
                 .fetchOne(DSL.field("id", UUID.class)));
+    }
+
+    /**
+     * La transaccion de ESE hecho (la orden, el rescate, la oferta), la haya pedido quien la haya pedido.
+     * Es la unicidad por origen de R-BIL-24 vista desde la aplicacion: el segundo pedido con otra clave
+     * encuentra el comprobante en vez de chocar con el indice.
+     */
+    public Optional<UUID> porOrigen(DSLContext dsl, String tipo, UUID origenId) {
+        return Datos.comoSistema(
+                dsl,
+                () -> Optional.ofNullable(dsl.select(DSL.field("id", UUID.class))
+                        .from(DSL.table(DSL.name("nucleo_financiero", "transaccion_billetera")))
+                        .where(DSL.field("tipo", String.class).eq(tipo))
+                        .and(DSL.field("origen_id", UUID.class).eq(origenId))
+                        .fetchOne(DSL.field("id", UUID.class))));
+    }
+
+    /** Si una pata de esa transaccion toca la cuenta en ese sentido. */
+    public boolean tocaLaCuenta(DSLContext dsl, UUID transaccionId, UUID cuentaId, String sentido) {
+        return Datos.comoSistema(
+                dsl,
+                () -> dsl.fetchExists(DSL.selectOne()
+                        .from(DSL.table(DSL.name("nucleo_financiero", "movimiento_billetera")))
+                        .where(DSL.field("transaccion_id", UUID.class).eq(transaccionId))
+                        .and(DSL.field("cuenta_billetera_id", UUID.class).eq(cuentaId))
+                        .and(DSL.field("sentido", String.class).eq(sentido))));
+    }
+
+    /** Lo que identifica a una transaccion ya escrita: para decidir si un reintento es el mismo hecho. */
+    public record Resumen(UUID id, String tipo, UUID origenId, Dinero monto) {}
+
+    public Optional<Resumen> resumen(DSLContext dsl, UUID transaccionId) {
+        return Datos.comoSistema(dsl, () -> dsl.select(
+                        DSL.field("tipo", String.class),
+                        DSL.field("origen_id", UUID.class),
+                        DSL.field("monto_total", BigDecimal.class),
+                        DSL.field("moneda", String.class))
+                .from(DSL.table(DSL.name("nucleo_financiero", "transaccion_billetera")))
+                .where(DSL.field("id", UUID.class).eq(transaccionId))
+                .fetchOptional(r -> new Resumen(
+                        transaccionId,
+                        r.get("tipo", String.class),
+                        r.get("origen_id", UUID.class),
+                        Dinero.de(
+                                r.get("monto_total", BigDecimal.class),
+                                bo.aportaya.plataforma.dominio.Moneda.valueOf(r.get("moneda", String.class))))));
     }
 
     private String ultimoHash(DSLContext dsl) {

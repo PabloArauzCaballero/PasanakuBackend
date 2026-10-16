@@ -16,7 +16,7 @@ export function coloresDe(tono: Tono): { fondo: string; frente: string } {
     case 'error':
       return { fondo: 'var(--err-bg)', frente: 'var(--err-texto)' }
     case 'info':
-      return { fondo: 'var(--info-bg)', frente: 'var(--info)' }
+      return { fondo: 'var(--info-bg)', frente: 'var(--info-texto)' }
     case 'neutro':
       return { fondo: 'var(--surface-2)', frente: 'var(--text-2)' }
   }

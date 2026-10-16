@@ -1,5 +1,6 @@
 import 'package:aportaya_movil/dominio/tutoriales/modelo.dart';
 import 'package:aportaya_movil/proveedores/tutoriales.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'banco.dart';
@@ -100,6 +101,25 @@ void main() {
   });
 
   testWidgets(
+    'el globo se pinta dentro de un Material: sin él Flutter subraya el texto en amarillo',
+    (tester) async {
+      final banco = BancoDeTutoriales(catalogo: const [_tresPasos]);
+      await tester.pumpWidget(banco.montar());
+      final motor = banco.contenedor.read(motorDeTutorialesProvider.notifier);
+      await correr(tester, () => motor.iniciar('tres'));
+      // Hallazgo del carril H en emulador: el overlay vive por encima del Navigator y sus
+      // textos salían con doble subrayado amarillo (Text sin ancestro Material).
+      for (final texto in ['Paso 1 de 3', 'Primero esto', 'Mirá arriba']) {
+        expect(
+          find.ancestor(of: find.text(texto), matching: find.byType(Material)),
+          findsWidgets,
+          reason: texto,
+        );
+      }
+    },
+  );
+
+  testWidgets(
     'avanza con el botón, retrocede, y no pasa del primero hacia atrás',
     (tester) async {
       final banco = BancoDeTutoriales(catalogo: const [_tresPasos]);
@@ -174,7 +194,9 @@ void main() {
       await correr(tester, () => motor.iniciar('fantasma'));
 
       expect(banco.contenedor.read(motorDeTutorialesProvider).activo, isTrue);
-      expect(find.textContaining('No encontramos'), findsOneWidget);
+      expect(find.textContaining('todavía no está disponible'), findsOneWidget);
+      // Sin el id interno del ancla a la vista de nadie.
+      expect(find.textContaining('uno.tardio'), findsNothing);
       expect(find.text('Reintentar'), findsOneWidget);
     },
   );
@@ -186,13 +208,13 @@ void main() {
     await tester.pumpWidget(banco.montar());
     final motor = banco.contenedor.read(motorDeTutorialesProvider.notifier);
     await correr(tester, () => motor.iniciar('fantasma'));
-    expect(find.textContaining('No encontramos'), findsOneWidget);
+    expect(find.textContaining('todavía no está disponible'), findsOneWidget);
 
     banco.mostrarTardio();
     await tester.pump();
     await correr(tester, motor.reintentar);
 
-    expect(find.textContaining('No encontramos'), findsNothing);
+    expect(find.textContaining('todavía no está disponible'), findsNothing);
     expect(
       banco.contenedor.read(motorDeTutorialesProvider).recuadro,
       isNotNull,
