@@ -110,8 +110,10 @@ class CU44BandejaTest extends BaseDeCumplimiento {
                 analista(analistaId)));
         OffsetDateTime vencio = OffsetDateTime.of(2001, 1, 2, 0, 0, 0, 0, ZoneOffset.UTC);
         dslFixtura.execute(
-                "UPDATE cumplimiento.caso_investigacion_lft SET abierto_en = ?::timestamptz, plazo_limite = ?::timestamptz"
-                        + " WHERE id = ?",
+                """
+                        UPDATE cumplimiento.caso_investigacion_lft SET abierto_en = ?::timestamptz, plazo_limite = ?::timestamptz
+                         WHERE id = ?
+                        """,
                 vencio.minusDays(30),
                 vencio,
                 caso.casoId());

@@ -69,8 +69,10 @@ class CU52RespuestaTest extends BaseDeCumplimiento {
 
     private int eventos(UUID reclamo) {
         return contar(
-                "SELECT count(*)::int FROM cumplimiento.evento_dominio"
-                        + " WHERE tipo = 'cumplimiento.reclamo_respondido' AND agregado_id = ?",
+                """
+                        SELECT count(*)::int FROM cumplimiento.evento_dominio
+                         WHERE tipo = 'cumplimiento.reclamo_respondido' AND agregado_id = ?
+                        """,
                 reclamo);
     }
 

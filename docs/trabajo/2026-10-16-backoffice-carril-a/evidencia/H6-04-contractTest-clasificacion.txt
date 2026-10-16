@@ -1,0 +1,24 @@
+$ ./gradlew contractTest --continue --no-build-cache --no-parallel   (todos los modulos, arbol integrado con origin/dev)
+servicios con pruebas de contrato: entregas, inversiones, nucleo-financiero (+ plataforma:comun-pruebas)
+pruebas 42 fallas 9
+
+Clasificacion (regla 80.4), cada una con su reproduccion:
+
+1) inversiones · AliadoSimuladoContratoTest / AliadoSimuladoFlujosContratoTest (7) -> ENVIRONMENT
+   java.io.IOException: Cannot run program "python" ... error: 2 (No such file or directory)
+   En este Mac solo existe python3. Reproduccion con un shim temporal fuera del repo:
+   $ PATH="<scratchpad>/bin:$PATH" ./gradlew :servicios:inversiones:contractTest --rerun --no-build-cache
+   BUILD SUCCESSFUL · inversiones contractTest con python->python3: 23 pruebas 0 fallas
+
+2) plataforma:comun-pruebas · MatrizDeAutorizacionContratoTest (2) -> heredado de origin/dev (no de este carril)
+   "una ruta sin sesion que escribe sin control compensatorio ...":
+     identidad PUT /usuarios/{usuarioId}/documento/fecha-expiracion (actualizarFechaExpiracionDocumento)
+   Reproduccion sobre origin/dev PURO (worktree temporal en 4b4cb2e5):
+   $ ./gradlew :plataforma:comun-pruebas:contractTest --tests '*MatrizDeAutorizacionContratoTest*' --no-build-cache
+   MatrizDeAutorizacionContratoTest > ... control compensatorio ... FAILED
+   MatrizDeAutorizacionContratoTest > ... la lista de rutas sin sesion es exactamente la declarada ... FAILED
+   BUILD FAILED
+   Introducida por 874b9578 feat(identidad): completar KYC desde perfil. La ruta lleva @Publico y el
+   metodo exige sesion y titularidad (ExpedienteController.java:129 titular.exigir), pero no esta
+   declarada en la lista de rutas abiertas con su control (PoliticaDeAcceso). Fuera del alcance de
+   este carril (identidad/plataforma): anotado, no corregido.

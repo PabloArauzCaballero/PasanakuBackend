@@ -1,0 +1,16 @@
+$ grep -c '^### ' entregables/fichas-de-contrato.md
+11
+$ (operationIds de cada ficha presentes en su YAML)
+listarRetirosEnRevision -> servicios/nucleo-financiero/src/main/resources/openapi/nucleo-financiero.yaml
+aprobarRetiro -> servicios/nucleo-financiero/src/main/resources/openapi/nucleo-financiero.yaml
+listarBandejaDeReclamos -> servicios/cumplimiento/src/main/resources/openapi/cumplimiento.yaml
+consultarReclamo -> servicios/cumplimiento/src/main/resources/openapi/cumplimiento.yaml
+responderReclamo -> servicios/cumplimiento/src/main/resources/openapi/cumplimiento.yaml
+listarEjerciciosFiscales -> servicios/erp/src/main/resources/openapi/erp.yaml
+consultarPeriodoVigente -> servicios/erp/src/main/resources/openapi/erp.yaml
+listarBandejaDeAlertas -> servicios/cumplimiento/src/main/resources/openapi/cumplimiento.yaml
+listarBandejaDeCasos -> servicios/cumplimiento/src/main/resources/openapi/cumplimiento.yaml
+abrirCasoLft -> servicios/cumplimiento/src/main/resources/openapi/cumplimiento.yaml
+decidirCasoLft -> servicios/cumplimiento/src/main/resources/openapi/cumplimiento.yaml
+$ sed -n 28p apps/backoffice/src/app/rutas/contabilidad/contabilidad.routes.ts
+  { path: '', pathMatch: 'full', redirectTo: 'periodo/11111111-1111-4111-8111-111111111111' },

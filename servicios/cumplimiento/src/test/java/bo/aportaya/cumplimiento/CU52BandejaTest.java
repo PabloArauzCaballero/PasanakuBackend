@@ -139,8 +139,10 @@ class CU52BandejaTest extends BaseDeCumplimiento {
         OffsetDateTime pasado = OffsetDateTime.now(ZoneOffset.UTC).minusDays(1).withNano(0);
         // Un reclamo ingresado hace dos semanas cuyo plazo vencio ayer (ck_reclamo_plazo exige ingreso < plazo).
         dslFixtura.execute(
-                "UPDATE cumplimiento.reclamo_cliente SET fecha_ingreso = ?::timestamptz, plazo_respuesta = ?::timestamptz"
-                        + " WHERE id = ?",
+                """
+                        UPDATE cumplimiento.reclamo_cliente SET fecha_ingreso = ?::timestamptz, plazo_respuesta = ?::timestamptz
+                         WHERE id = ?
+                        """,
                 pasado.minusDays(13),
                 pasado,
                 reclamo);
