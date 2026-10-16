@@ -126,7 +126,7 @@ void main() {
         ),
       );
       expect(
-        tester.widget<Icon>(find.byIcon(Icons.check_circle).first).color,
+        tester.widget<Icon>(find.byIcon(Icons.wb_sunny_outlined)).color,
         tokens.text2,
       );
       final acordeon = tester.widget<ExpansionTile>(find.byType(ExpansionTile));

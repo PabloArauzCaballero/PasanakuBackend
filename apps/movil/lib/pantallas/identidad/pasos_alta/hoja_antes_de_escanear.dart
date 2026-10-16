@@ -2,6 +2,9 @@ import 'package:aportaya_diseno/moviles/hoja_de_confirmacion.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 
+import '../dominio/pautas_de_fotos.dart';
+import '../ilustraciones/ilustracion_de_pauta.dart';
+
 /// "Antes de escanear" de Atlas: se muestra una vez por visita al paso, antes del
 /// anverso o el reverso del carnet. "Abrir el escáner" solo actúa si la hoja
 /// terminó de cerrarse con esa opción — cualquier otro cierre es "ahora no".
@@ -32,6 +35,8 @@ class _HojaAntesDeEscanear extends StatelessWidget {
       detalle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const IlustracionDePauta(escena: EscenaDePauta.carnetClaro),
+          const SizedBox(height: Espacio.s4),
           Text(
             'Poné el carnet sobre una mesa lisa y de color oscuro, con buena '
             'luz y sin reflejos. El recuadro lo encuentra solo y dispara '
