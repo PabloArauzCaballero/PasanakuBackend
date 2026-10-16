@@ -891,6 +891,7 @@ components:
         usuarioId:      { type: string, format: uuid }
         nombreCompleto: { type: string }
         telefono:      { type: string, description: 'Telefono E.164 de la persona para localizar el expediente en el backoffice.' }
+        correo:        { type: string, description: 'Correo declarado por la persona para contacto del operador de verificacion. Ausente en cuentas antiguas sin correo.' }
         documento:      { type: string, description: 'Tipo y lugar de expedicion; el numero NUNCA viaja.' }
         estado:         { type: string, enum: [PENDIENTE, EN_REVISION, APROBADA, RECHAZADA] }
         iniciadaEn:     { type: string, format: date-time }

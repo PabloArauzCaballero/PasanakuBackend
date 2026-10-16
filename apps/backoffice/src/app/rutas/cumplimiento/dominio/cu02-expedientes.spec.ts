@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ExpedienteEnRevisionEstadoEnum, type ExpedienteEnRevision } from 'clientes/angular/identidad'
-import { carpetaDelExpediente, colaVacia, esperaDecision, POR_DECIDIR, recortar, vencimientoDe } from './cu02-expedientes'
+import { carpetaDelExpediente, colaVacia, coincideConBusqueda, esperaDecision, POR_DECIDIR, recortar, vencimientoDe } from './cu02-expedientes'
 
 const USUARIO = '9f2c1e4a-0000-4000-8000-000000000001'
 
@@ -9,6 +9,8 @@ const expediente = (estado: ExpedienteEnRevisionEstadoEnum, verificacionId: stri
     verificacionId,
     usuarioId: USUARIO,
     nombreCompleto: 'Marcelo Rojas',
+    telefono: '+59170000001',
+    correo: 'marcelo@example.test',
     documento: 'CI 4821993 SC',
     estado,
     iniciadaEn: '2026-09-17T10:00:00-04:00',
@@ -46,6 +48,15 @@ describe('la cola por decidir', () => {
 describe('la carpeta del expediente', () => {
   it('es una por persona, y las tres fotos de alguien viven ahí', () => {
     expect(carpetaDelExpediente(USUARIO)).toBe(`identidad/${USUARIO}/`)
+  })
+})
+
+describe('búsqueda de expedientes', () => {
+  it('encuentra por nombre, teléfono o correo sin distinguir mayúsculas ni tildes', () => {
+    expect(coincideConBusqueda(EN_REVISION, 'marcelo rojas')).toBe(true)
+    expect(coincideConBusqueda(EN_REVISION, '+59170000001')).toBe(true)
+    expect(coincideConBusqueda(EN_REVISION, 'MARCELO@EXAMPLE.TEST')).toBe(true)
+    expect(coincideConBusqueda(EN_REVISION, 'persona-inexistente')).toBe(false)
   })
 })
 
