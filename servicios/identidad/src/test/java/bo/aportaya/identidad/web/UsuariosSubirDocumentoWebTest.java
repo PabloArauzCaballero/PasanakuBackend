@@ -10,12 +10,14 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
 import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
+import bo.aportaya.identidad.aplicacion.CU02ActualizarFechaExpiracion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.ConfirmarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.ConsultarNivelKyc;
@@ -33,6 +35,7 @@ import bo.aportaya.plataforma.pruebas.web.Sesiones;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -99,6 +102,9 @@ class UsuariosSubirDocumentoWebTest {
 
     @MockitoBean
     private CU02ConsultarEstadoDeVerificacion estadoDeVerificacion;
+
+    @MockitoBean
+    private CU02ActualizarFechaExpiracion actualizarFechaExpiracion;
 
     @MockitoBean
     private CU01RegistrarUsuario cu01;
@@ -250,6 +256,29 @@ class UsuariosSubirDocumentoWebTest {
                         .content("{\"nombreCompleto\":\"Pablo Arauz\",\"documento\":\"1234567\"}"))
                 .andExpect(status().isUnauthorized());
         verifyNoInteractions(titularidad);
+    }
+
+    @Test
+    @DisplayName("el titular con sesión puede completar su fecha de documento")
+    void completaFechaConSesionPropia() throws Exception {
+        mvc.perform(put("/usuarios/{id}/documento/fecha-expiracion", TITULAR)
+                        .with(Sesiones.como("PARTICIPANTE", "BILLETERA_VER"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"fechaExpiracionDocumento\":\"2030-01-15\"}"))
+                .andExpect(status().isNoContent());
+        verify(actualizarFechaExpiracion).ejecutar(
+                eq(TITULAR), eq(LocalDate.parse("2030-01-15")), any(), eq(reloj.hoy()));
+    }
+
+    @Test
+    @DisplayName("una sesión de otra persona no puede modificar la fecha del expediente")
+    void otraSesionNoCompletaFecha() throws Exception {
+        mvc.perform(put("/usuarios/{id}/documento/fecha-expiracion", TITULAR)
+                        .with(Sesiones.comoOtro("PARTICIPANTE", "BILLETERA_VER"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"fechaExpiracionDocumento\":\"2030-01-15\"}"))
+                .andExpect(status().isForbidden());
+        verifyNoInteractions(actualizarFechaExpiracion);
     }
 
     private static String cuerpoDelRechazo(ResultActions resultado) throws Exception {

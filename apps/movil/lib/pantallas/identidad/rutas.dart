@@ -8,6 +8,7 @@ import 'pagina_con_transicion_de_marca.dart';
 import 'pantalla_camara.dart';
 import 'pantalla_prueba_de_vida.dart';
 import 'pantalla_contrasena.dart';
+import 'pantalla_completar_kyc_de_sesion.dart';
 import 'pantalla_contrato.dart';
 import 'pantalla_dispositivos.dart';
 import 'pantalla_estado_de_verificacion.dart';
@@ -64,6 +65,11 @@ final List<RouteBase> rutasIdentidad = [
     path: '/identidad/perfil',
     name: 'identidad.perfil',
     builder: (context, state) => const PantallaDePerfil(),
+  ),
+  GoRoute(
+    path: '/identidad/perfil/verificacion',
+    name: 'identidad.perfil.verificacion',
+    builder: (context, state) => const PantallaCompletarKycDeSesion(),
   ),
   GoRoute(
     path: '/identidad/contrasena',
