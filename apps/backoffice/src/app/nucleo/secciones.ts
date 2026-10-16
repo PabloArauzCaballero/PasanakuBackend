@@ -28,6 +28,11 @@ export const PERMISOS_POR_SECCION: Readonly<Record<string, readonly string[]>> =
     'ENTREGA_AUTORIZAR',
     'ENTREGA_EJECUTAR',
     'REVERSO_AUTORIZAR',
+    // Carril B · L1: conciliación de custodia (CU-50) y cierre diario (CU-51) los exige el servidor por código de rol
+    // (`@Permiso("TESORERIA")`, `@Permiso("CONTABILIDAD")`); el token trae esos códigos (EmitirAcceso: permisos + roles vigentes).
+    // AUDITORIA_LEER NO se agrega: abriría Operación al administrador de plataforma (ver secciones.spec y AMB-B4 del plan).
+    'TESORERIA',
+    'CONTABILIDAD',
   ],
   // Verificación de identidad, alertas, casos, actas, habilitación de organizadores.
   'ver:cumplimiento': ['VERIFICACION_RESOLVER', 'CUMPLIMIENTO_ALERTAS', 'CUMPLIMIENTO_CASOS', 'CUMPLIMIENTO_REPORTAR'],
