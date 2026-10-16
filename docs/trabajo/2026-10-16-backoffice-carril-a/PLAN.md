@@ -104,12 +104,13 @@
 
 **CA:** Dado un operador de contabilidad, cuando entra a Contabilidad, entonces el servidor le devuelve los ejercicios con sus períodos y cuál está vigente (abierto que contiene hoy en zona Bolivia), en lugar del UUID de demostración; si no hay período abierto, la respuesta lo dice (no inventa uno).
 **DoD:** `./gradlew :servicios:erp:spotlessCheck compileJava integrationTest --tests '*Periodo*'` verde.
-**Estado:** TODO
+**Estado:** HECHO a nivel `TESTED` (evidencia H4-00…H4-03).
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H4.S1.M1 | Contrato `GET /erp/ejercicios` (paginado, con períodos) y `GET /erp/periodos/vigente` | genera y compila | `./gradlew :servicios:erp:compileJava` exit 0 | TODO |
-| H4.S1.M2 | Implementación + permiso existente de lectura contable | correcto (vigente), límite (sin abierto → 404 de contrato con código), inválido (sin permiso → 403) | `integrationTest --tests '*PeriodoVigenteTest*'` | TODO |
+| H4.S1.M1 | Contrato `GET /erp/ejercicios` (`listarEjerciciosFiscales`, año descendente, `limite` 1–20, cursor `antesDeAnio`, con sus períodos) y `GET /erp/periodos/vigente` (`consultarPeriodoVigente`) + `AP-CU100-04 SIN_PERIODO_VIGENTE` | genera y compila | `./gradlew :servicios:erp:compileJava` exit 0 | HECHO |
+| H4.S1.M2 | Lecturas en `CU100AbrirCerrarPeriodo` (`periodoDeLaFecha` existente para el vigente) + `ErpController` con `CONTABILIDAD_ERP_REPORTES` y `@PermisoAlternativo` de los otros 7 permisos ERP (los mismos que abren la sección en `secciones.ts:38-47`) | correcto (vigente = el que contiene hoy en America/La_Paz; ejercicios con 12 períodos) / límite (sin período para hoy → `AP-CU100-04`, nunca uno inventado; paginado por año) / inválido (sin permiso → 403) | `integrationTest --tests '*CU100PeriodosTest*'` + `webTest --tests '*PeriodosWebTest*'` | HECHO |
+| H4.S1.M3 | Bóveda CU-100, Postman y regresión de `erp` (incl. `testBarrido`: `ErpController` está en 298 líneas, se mueve mapeo a `MapeoDeErp`) | 0 fallas | `./gradlew :servicios:erp:spotlessCheck test webTest testBarrido integrationTest` + gates | HECHO |
 
 ## H5 — A5 · Bandejas de alertas y casos LFT (`cumplimiento`, CU-44)
 

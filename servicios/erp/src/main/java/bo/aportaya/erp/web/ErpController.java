@@ -19,6 +19,8 @@ import bo.aportaya.erp.web.generado.modelo.EntradaOrden;
 import bo.aportaya.erp.web.generado.modelo.EntradaPago;
 import bo.aportaya.erp.web.generado.modelo.EntradaPresupuesto;
 import bo.aportaya.erp.web.generado.modelo.EntradaTercero;
+import bo.aportaya.erp.web.generado.modelo.PaginaDeEjercicios;
+import bo.aportaya.erp.web.generado.modelo.PeriodoContable;
 import bo.aportaya.erp.web.generado.modelo.SalidaCierre;
 import bo.aportaya.erp.web.generado.modelo.SalidaCobro;
 import bo.aportaya.erp.web.generado.modelo.SalidaCorrida;
@@ -32,9 +34,11 @@ import bo.aportaya.erp.web.generado.modelo.SalidaPlantilla;
 import bo.aportaya.erp.web.generado.modelo.SalidaPresupuesto;
 import bo.aportaya.erp.web.generado.modelo.SalidaTercero;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
+import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -91,12 +95,7 @@ public class ErpController implements ErpApi {
         Traza.marcarCasoDeUso("CU-100", String.valueOf(cuerpo.getAnio()));
 
         var salida = cu100.abrirEjercicio(cuerpo.getAnio(), sesion.actual());
-
-        var respuesta = new SalidaEjercicio();
-        respuesta.setEjercicioId(salida.ejercicioId());
-        respuesta.setAnio(salida.anio());
-        respuesta.setPeriodos(salida.periodosAbiertos());
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+        return ResponseEntity.status(HttpStatus.CREATED).body(MapeoDeErp.ejercicioAbierto(salida));
     }
 
     @Override
@@ -108,13 +107,34 @@ public class ErpController implements ErpApi {
         var salida = cu100.cerrarPeriodo(
                 new CU100AbrirCerrarPeriodo.EntradaCierre(periodoId, cuerpo.getGlosa()), sesion.actual());
 
-        var respuesta = new SalidaCierre();
-        respuesta.setCierreId(salida.cierreId());
-        respuesta.setPeriodoId(salida.periodoId());
-        respuesta.setTotalDebe(MapeoDeErp.monto(salida.totalDebe()));
-        respuesta.setTotalHaber(MapeoDeErp.monto(salida.totalHaber()));
-        respuesta.setCerradoEn(salida.cerradoEn());
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+        return ResponseEntity.status(HttpStatus.CREATED).body(MapeoDeErp.cierre(salida));
+    }
+
+    // Elegir periodo lo necesita toda pantalla de Contabilidad: alcanza cualquiera de los permisos
+    // que abren la seccion (secciones.ts), no solo el de reportes. Solo lee.
+    @Override
+    @Permiso("CONTABILIDAD_ERP_REPORTES")
+    @PermisoAlternativo({
+        PermisosDeContabilidad.CERRAR, PermisosDeContabilidad.PRESUPUESTO, PermisosDeContabilidad.COMPRAS,
+        PermisosDeContabilidad.CUENTAS_POR_PAGAR, PermisosDeContabilidad.PAGAR, PermisosDeContabilidad.COBRAR,
+        PermisosDeContabilidad.ACTIVOS_FIJOS
+    })
+    public ResponseEntity<PaginaDeEjercicios> listarEjerciciosFiscales(Integer limite, Integer antesDeAnio) {
+        Traza.marcarCasoDeUso("CU-100", "ejercicios");
+        return ResponseEntity.ok(
+                MapeoDeErp.ejercicios(cu100.ejercicios(Optional.ofNullable(antesDeAnio), limite, sesion.actual())));
+    }
+
+    @Override
+    @Permiso("CONTABILIDAD_ERP_REPORTES")
+    @PermisoAlternativo({
+        PermisosDeContabilidad.CERRAR, PermisosDeContabilidad.PRESUPUESTO, PermisosDeContabilidad.COMPRAS,
+        PermisosDeContabilidad.CUENTAS_POR_PAGAR, PermisosDeContabilidad.PAGAR, PermisosDeContabilidad.COBRAR,
+        PermisosDeContabilidad.ACTIVOS_FIJOS
+    })
+    public ResponseEntity<PeriodoContable> consultarPeriodoVigente() {
+        Traza.marcarCasoDeUso("CU-100", "vigente");
+        return ResponseEntity.ok(MapeoDeErp.periodo(cu100.vigente(sesion.actual())));
     }
 
     // ------------------------------------------------------------------ CU-101 --
@@ -224,13 +244,7 @@ public class ErpController implements ErpApi {
                         cuerpo.getFormaCobro().getValue()),
                 sesion.actual());
 
-        var respuesta = new SalidaCobro();
-        respuesta.setCobroId(salida.cobroId());
-        respuesta.setCuentaPorCobrarId(salida.cuentaPorCobrarId());
-        respuesta.setEstado(SalidaCobro.EstadoEnum.fromValue(salida.estado()));
-        respuesta.setCobrado(MapeoDeErp.monto(salida.cobrado()));
-        respuesta.setSaldoPendiente(MapeoDeErp.monto(salida.saldoPendiente()));
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+        return ResponseEntity.status(HttpStatus.CREATED).body(MapeoDeErp.cobro(salida));
     }
 
     // ------------------------------------------------------------------ CU-105 --
@@ -250,16 +264,7 @@ public class ErpController implements ErpApi {
     public ResponseEntity<SalidaCorrida> correrDepreciacionDelPeriodo(UUID periodoId, UUID idempotencyKey) {
         Traza.marcarCasoDeUso("CU-105", periodoId.toString());
 
-        var salida = cu105.correr(periodoId, sesion.actual());
-
-        var respuesta = new SalidaCorrida();
-        respuesta.setPeriodoId(salida.periodoId());
-        respuesta.setDepreciaciones(
-                salida.depreciaciones().stream().map(MapeoDeErp::depreciacion).toList());
-        respuesta.setTotalDepreciado(MapeoDeErp.monto(salida.totalDepreciado()));
-        respuesta.setYaCorridos(salida.yaCorridos());
-        respuesta.setTotalmenteDepreciados(salida.totalmenteDepreciados());
-        return ResponseEntity.ok(respuesta);
+        return ResponseEntity.ok(MapeoDeErp.corrida(cu105.correr(periodoId, sesion.actual())));
     }
 
     // ------------------------------------------------------------------ CU-106 --
@@ -271,14 +276,7 @@ public class ErpController implements ErpApi {
         Traza.marcarCasoDeUso("CU-106", cuerpo.getTipo().getValue());
 
         var salida = cu106.generar(periodoId, cuerpo.getTipo().getValue(), sesion.actual());
-
-        var respuesta = new SalidaEstadoFinanciero();
-        respuesta.setEstadoFinancieroId(salida.estadoId());
-        respuesta.setTipo(SalidaEstadoFinanciero.TipoEnum.fromValue(salida.tipo()));
-        respuesta.setCuadra(salida.estado().ecuacionCierra());
-        respuesta.setHashContenido(salida.hashContenido());
-        respuesta.setGeneradoEn(salida.generadoEn());
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+        return ResponseEntity.status(HttpStatus.CREATED).body(MapeoDeErp.estadoFinanciero(salida));
     }
 
     @Override
@@ -286,13 +284,6 @@ public class ErpController implements ErpApi {
     public ResponseEntity<SalidaPlantilla> validarPlantillaDeAsiento(UUID plantillaId) {
         Traza.marcarCasoDeUso("CU-106", plantillaId.toString());
 
-        var plantilla = cu106.validarPlantilla(plantillaId, sesion.actual());
-
-        var respuesta = new SalidaPlantilla();
-        respuesta.setPlantillaId(plantilla.plantillaId());
-        respuesta.setLineas(plantilla.lineas());
-        respuesta.setDebes(plantilla.debes());
-        respuesta.setHaberes(plantilla.haberes());
-        return ResponseEntity.ok(respuesta);
+        return ResponseEntity.ok(MapeoDeErp.plantilla(cu106.validarPlantilla(plantillaId, sesion.actual())));
     }
 }
