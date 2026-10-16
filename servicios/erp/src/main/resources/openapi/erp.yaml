@@ -22,11 +22,13 @@
 #   AP-CU101-01  CENTRO_COSTO_INEXISTENTE     · el centro no existe o esta inactivo
 #   AP-CU101-02  PRESUPUESTO_DUPLICADO        · ya hay presupuesto para ese centro y ejercicio
 #   AP-CU101-03  PARTIDA_SOBRE_PRESUPUESTO_CERRADO · un presupuesto cerrado no admite partidas
+#   AP-CU101-04  FILTRO_DE_LISTADO_INVALIDO   · listado de partidas: cursor a medias o estado desconocido
 #
 # CU-102 · Dar de alta un tercero comercial y su orden de compra
 #   AP-CU102-01  TERCERO_BLOQUEADO            · el tercero existe pero no esta ACTIVO
 #   AP-CU102-02  DOCUMENTO_YA_REGISTRADO_A_OTRO_TERCERO · el NIT ya es de otro tercero
 #   AP-CU102-03  ORDEN_SIN_APROBACION         · la orden sigue en BORRADOR
+#   AP-CU102-04  FILTRO_DE_LISTADO_INVALIDO   · listado de ordenes: cursor a medias o estado desconocido
 #
 # CU-103 · Registrar y pagar una factura de proveedor
 #   AP-CU103-01  PERIODO_CERRADO              · la emision cae en un mes ya cerrado
@@ -34,16 +36,19 @@
 #   AP-CU103-03  FACTURA_DUPLICADA            · ese proveedor ya tiene ese numero
 #   AP-CU103-04  MONTO_PAGO_MAYOR_AL_SALDO    · el pago excede el saldo pendiente
 #   AP-CU103-05  CLAVE_DE_IDEMPOTENCIA_REUTILIZADA · R-CTB-11: esa clave ya es de otro pago de la factura
+#   AP-CU103-06  FILTRO_DE_LISTADO_INVALIDO   · listado de facturas: cursor a medias o estado desconocido
 #
 # CU-104 · Cobrar una cuenta por cobrar
 #   AP-CU104-01  CUENTA_INEXISTENTE           · el identificador no corresponde a una cuenta
 #   AP-CU104-02  MONTO_MAYOR_AL_SALDO         · el cobro excede lo adeudado
 #   AP-CU104-03  CUENTA_YA_INCOBRABLE         · una cuenta incobrable no se cobra
+#   AP-CU104-04  FILTRO_DE_LISTADO_INVALIDO   · listado de cuentas: cursor a medias o estado desconocido
 #
 # CU-105 · Depreciar un activo fijo
 #   AP-CU105-01  DEPRECIACION_YA_CALCULADA    · ya hay cuota de ese activo en ese mes
 #   AP-CU105-02  ACTIVO_YA_AGOTADO            · el valor en libros llego al residual
 #   AP-CU105-03  ACTIVO_DADO_DE_BAJA          · el activo no esta ACTIVO
+#   AP-CU105-04  FILTRO_DE_LISTADO_INVALIDO   · listado de activos: cursor a medias o estado desconocido
 #
 # CU-106 · Generar el estado financiero del periodo
 #   AP-CU106-01  YA_GENERADO_PARA_ESE_PERIODO · un estado por periodo y tipo (R-CTB-08)
@@ -227,6 +232,46 @@ paths:
               schema: { $ref: '#/components/schemas/SalidaPresupuesto' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
+  /erp/partidas-presupuestarias:
+    get:
+      operationId: listarPartidasPresupuestarias   # CU-101 (backoffice carril A · A6)
+      summary: Las partidas presupuestarias con lo presupuestado y lo ejecutado
+      description: >-
+        Para medir la desviacion por partida (CU-101 mide, no bloquea). Opcionalmente de un ejercicio y
+        por estado del presupuesto. Cursor (inicio del periodo, id) descendente. Importes como cadena con
+        su moneda. La cuenta contable viaja como id: su nombre es de nucleo-financiero y erp no cruza
+        esquemas. Exige CONTABILIDAD_ERP_PRESUPUESTO o CONTABILIDAD_ERP_REPORTES. Solo lee: no lleva Idempotency-Key. Cursor a medias (antesDe sin antesDeId o al reves) o estado desconocido: 422.
+      parameters:
+        - { name: ejercicioId, in: query, required: false, schema: { type: string, format: uuid } }
+        - name: estados
+          in: query
+          required: false
+          schema:
+            type: array
+            items: { type: string, enum: [BORRADOR, APROBADO, CERRADO] }
+            minItems: 1
+            maxItems: 3
+          style: form
+          explode: false
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDePartidas' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU101-04 FILTRO_DE_LISTADO_INVALIDO
+        '400':
+          description: Parametro mal formado (fecha, uuid o limite fuera de rango)
+        '403':
+          description: Sin CONTABILIDAD_ERP_PRESUPUESTO ni CONTABILIDAD_ERP_REPORTES
+        '401':
+          description: Sin sesion
+
   /erp/terceros:
     post:
       operationId: darDeAltaTercero
@@ -250,6 +295,43 @@ paths:
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
   /erp/ordenes-de-compra:
+    get:
+      operationId: listarOrdenesDeCompra   # CU-102 (backoffice carril A · A6)
+      summary: Las ordenes de compra, de la mas reciente a la mas antigua
+      description: >-
+        Numero, proveedor (razon social), centro de costo, estado y monto con moneda. No devuelve la
+        descripcion libre de la orden ni el documento del tercero (respuesta minima). Cursor (creadaEn, id)
+        descendente. Exige CONTABILIDAD_ERP_COMPRAS, CONTABILIDAD_ERP_CUENTAS_POR_PAGAR (factura contra la
+        orden) o CONTABILIDAD_ERP_REPORTES. Solo lee: no lleva Idempotency-Key. Cursor a medias (antesDe sin antesDeId o al reves) o estado desconocido: 422.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          schema:
+            type: array
+            items: { type: string, enum: [BORRADOR, APROBADA, RECIBIDA_PARCIAL, RECIBIDA_TOTAL, CANCELADA] }
+            minItems: 1
+            maxItems: 5
+          style: form
+          explode: false
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeOrdenes' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU102-04 FILTRO_DE_LISTADO_INVALIDO
+        '400':
+          description: Parametro mal formado (fecha, uuid o limite fuera de rango)
+        '403':
+          description: Sin CONTABILIDAD_ERP_COMPRAS, CONTABILIDAD_ERP_CUENTAS_POR_PAGAR ni CONTABILIDAD_ERP_REPORTES
+        '401':
+          description: Sin sesion
     post:
       operationId: crearOrdenDeCompra
       summary: CU-102 · Crea la orden de compra en BORRADOR
@@ -286,6 +368,44 @@ paths:
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
   /erp/facturas-de-proveedor:
+    get:
+      operationId: listarFacturasDeProveedor   # CU-103 (backoffice carril A · A6)
+      summary: Las cuentas por pagar, de la emision mas reciente a la mas antigua
+      description: >-
+        Monto, pagado y saldo pendiente con su moneda, vencimiento y estado; lo pagado, el saldo y el
+        estado se derivan de los pagos registrados (la factura es append-only). aprobadaPorLaSesion la
+        resuelve el servidor contra el sujeto del token (R-CTB-05): el cliente no compara identidades.
+        Cursor (fechaEmision, id) descendente. Exige CONTABILIDAD_ERP_CUENTAS_POR_PAGAR,
+        CONTABILIDAD_ERP_PAGAR o CONTABILIDAD_ERP_REPORTES. Solo lee: no lleva Idempotency-Key. Cursor a medias (antesDe sin antesDeId o al reves) o estado desconocido: 422.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          schema:
+            type: array
+            items: { type: string, enum: [REGISTRADA, APROBADA, PAGADA_PARCIAL, PAGADA, ANULADA] }
+            minItems: 1
+            maxItems: 5
+          style: form
+          explode: false
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeFacturas' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU103-06 FILTRO_DE_LISTADO_INVALIDO
+        '400':
+          description: Parametro mal formado (fecha, uuid o limite fuera de rango)
+        '403':
+          description: Sin CONTABILIDAD_ERP_CUENTAS_POR_PAGAR, CONTABILIDAD_ERP_PAGAR ni CONTABILIDAD_ERP_REPORTES
+        '401':
+          description: Sin sesion
     post:
       operationId: registrarFacturaDeProveedor
       summary: CU-103 · Registra la factura del proveedor
@@ -337,6 +457,42 @@ paths:
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
   /erp/cuentas-por-cobrar:
+    get:
+      operationId: listarCuentasPorCobrar   # CU-104 (backoffice carril A · A6)
+      summary: Las cuentas por cobrar, del vencimiento mas lejano al mas antiguo
+      description: >-
+        Origen, tercero (razon social, si tiene), monto, cobrado y saldo con su moneda, vencimiento y
+        estado; lo cobrado, el saldo y el estado se derivan de los cobros (la cuenta es append-only). Cursor (fechaVencimiento, id) descendente. Exige CONTABILIDAD_ERP_COBRAR o
+        CONTABILIDAD_ERP_REPORTES. Solo lee: no lleva Idempotency-Key. Cursor a medias (antesDe sin antesDeId o al reves) o estado desconocido: 422.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          schema:
+            type: array
+            items: { type: string, enum: [PENDIENTE, COBRADA_PARCIAL, COBRADA, INCOBRABLE] }
+            minItems: 1
+            maxItems: 4
+          style: form
+          explode: false
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeCuentasPorCobrar' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU104-04 FILTRO_DE_LISTADO_INVALIDO
+        '400':
+          description: Parametro mal formado (fecha, uuid o limite fuera de rango)
+        '403':
+          description: Sin CONTABILIDAD_ERP_COBRAR ni CONTABILIDAD_ERP_REPORTES
+        '401':
+          description: Sin sesion
     post:
       operationId: abrirCuentaPorCobrar
       summary: CU-104 · Abre la cuenta por cobrar de un tercero
@@ -376,6 +532,46 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/SalidaCobro' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /erp/activos:
+    get:
+      operationId: listarActivosFijos   # CU-105 (backoffice carril A · A6)
+      summary: El inventario de activos fijos con su valor en libros
+      description: >-
+        Codigo, descripcion del bien, categoria y vida util, costo, residual, depreciacion acumulada y
+        valor en libros (costo menos acumulada, el mismo atomo de CU-105) con su moneda. depreciadoEnElPeriodoVigente
+        dice si ya tiene cuota en el periodo que contiene hoy en America/La_Paz. Cursor
+        (fechaAdquisicion, id) descendente. Exige CONTABILIDAD_ERP_ACTIVOS_FIJOS o
+        CONTABILIDAD_ERP_REPORTES. Solo lee: no lleva Idempotency-Key. Cursor a medias (antesDe sin antesDeId o al reves) o estado desconocido: 422.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          schema:
+            type: array
+            items: { type: string, enum: [ACTIVO, DADO_DE_BAJA, VENDIDO] }
+            minItems: 1
+            maxItems: 3
+          style: form
+          explode: false
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeActivos' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU105-04 FILTRO_DE_LISTADO_INVALIDO
+        '400':
+          description: Parametro mal formado (fecha, uuid o limite fuera de rango)
+        '403':
+          description: Sin CONTABILIDAD_ERP_ACTIVOS_FIJOS ni CONTABILIDAD_ERP_REPORTES
+        '401':
+          description: Sin sesion
 
   /erp/activos/{activoId}/depreciaciones:
     post:
@@ -566,6 +762,132 @@ components:
           type: array
           items: { $ref: '#/components/schemas/EjercicioFiscal' }
         proximoAntesDeAnio: { type: [integer, 'null'] }
+    PaginaDePartidas:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/PartidaEnLista' } }
+        proximoAntesDe: { type: [string, 'null'], format: date }
+        proximoAntesDeId: { type: [string, 'null'], format: uuid }
+    PartidaEnLista:
+      type: object
+      additionalProperties: false
+      required: [partidaId, presupuestoId, presupuestoNombre, estado, centroCostoId, centroCostoNombre, cuentaContableId, periodoContableId, anio, mes, fechaInicioPeriodo, montoPresupuestado, montoEjecutado]
+      properties:
+        partidaId: { type: string, format: uuid }
+        presupuestoId: { type: string, format: uuid }
+        presupuestoNombre: { type: string }
+        estado: { type: string, enum: [BORRADOR, APROBADO, CERRADO] }
+        centroCostoId: { type: string, format: uuid }
+        centroCostoNombre: { type: string }
+        cuentaContableId: { type: string, format: uuid }
+        periodoContableId: { type: string, format: uuid }
+        anio: { type: integer }
+        mes: { type: integer, minimum: 1, maximum: 12 }
+        fechaInicioPeriodo: { type: string, format: date }
+        montoPresupuestado: { $ref: '#/components/schemas/Dinero' }
+        montoEjecutado: { $ref: '#/components/schemas/Dinero' }
+    PaginaDeOrdenes:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/OrdenEnLista' } }
+        proximoAntesDe: { type: [string, 'null'], format: date-time }
+        proximoAntesDeId: { type: [string, 'null'], format: uuid }
+    OrdenEnLista:
+      type: object
+      additionalProperties: false
+      required: [ordenCompraId, numero, terceroComercialId, terceroRazonSocial, estado, monto, creadaEn]
+      properties:
+        ordenCompraId: { type: string, format: uuid }
+        numero: { type: string }
+        terceroComercialId: { type: string, format: uuid }
+        terceroRazonSocial: { type: string }
+        centroCostoId: { type: [string, 'null'], format: uuid }
+        centroCostoNombre: { type: [string, 'null'] }
+        estado: { type: string, enum: [BORRADOR, APROBADA, RECIBIDA_PARCIAL, RECIBIDA_TOTAL, CANCELADA] }
+        monto: { $ref: '#/components/schemas/Dinero' }
+        creadaEn: { type: string, format: date-time }
+    PaginaDeFacturas:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/FacturaEnLista' } }
+        proximoAntesDe: { type: [string, 'null'], format: date }
+        proximoAntesDeId: { type: [string, 'null'], format: uuid }
+    FacturaEnLista:
+      type: object
+      additionalProperties: false
+      required: [facturaProveedorId, numeroFactura, terceroComercialId, terceroRazonSocial, fechaEmision, fechaVencimiento, estado, monto, montoPagado, saldoPendiente, aprobadaPorLaSesion]
+      properties:
+        facturaProveedorId: { type: string, format: uuid }
+        numeroFactura: { type: string }
+        terceroComercialId: { type: string, format: uuid }
+        terceroRazonSocial: { type: string }
+        ordenCompraId: { type: [string, 'null'], format: uuid }
+        fechaEmision: { type: string, format: date }
+        fechaVencimiento: { type: string, format: date }
+        estado: { type: string, enum: [REGISTRADA, APROBADA, PAGADA_PARCIAL, PAGADA, ANULADA] }
+        monto: { $ref: '#/components/schemas/Dinero' }
+        montoPagado: { $ref: '#/components/schemas/Dinero' }
+        saldoPendiente: { $ref: '#/components/schemas/Dinero' }
+        aprobadaPorLaSesion:
+          type: boolean
+          description: Cierto si el sujeto del token aprobo esta factura (no puede pagarla, R-CTB-05).
+        asientoContableId: { type: [string, 'null'], format: uuid }
+    PaginaDeCuentasPorCobrar:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/CuentaPorCobrarEnLista' } }
+        proximoAntesDe: { type: [string, 'null'], format: date }
+        proximoAntesDeId: { type: [string, 'null'], format: uuid }
+    CuentaPorCobrarEnLista:
+      type: object
+      additionalProperties: false
+      required: [cuentaPorCobrarId, origenTipo, origenId, fechaVencimiento, estado, monto, cobrado, saldoPendiente]
+      properties:
+        cuentaPorCobrarId: { type: string, format: uuid }
+        origenTipo: { type: string, enum: [FACTURA_PUBLICIDAD, OTRO, VENTA_SERVICIO] }
+        origenId: { type: string, format: uuid }
+        terceroComercialId: { type: [string, 'null'], format: uuid }
+        terceroRazonSocial: { type: [string, 'null'] }
+        fechaVencimiento: { type: string, format: date }
+        estado: { type: string, enum: [PENDIENTE, COBRADA_PARCIAL, COBRADA, INCOBRABLE] }
+        monto: { $ref: '#/components/schemas/Dinero' }
+        cobrado: { $ref: '#/components/schemas/Dinero' }
+        saldoPendiente: { $ref: '#/components/schemas/Dinero' }
+    PaginaDeActivos:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/ActivoEnLista' } }
+        proximoAntesDe: { type: [string, 'null'], format: date }
+        proximoAntesDeId: { type: [string, 'null'], format: uuid }
+    ActivoEnLista:
+      type: object
+      additionalProperties: false
+      required: [activoFijoId, codigo, descripcion, categoriaNombre, vidaUtilMeses, fechaAdquisicion, estado, costoAdquisicion, valorResidual, depreciacionAcumulada, valorEnLibros, depreciadoEnElPeriodoVigente]
+      properties:
+        activoFijoId: { type: string, format: uuid }
+        codigo: { type: string }
+        descripcion: { type: string }
+        categoriaNombre: { type: string }
+        vidaUtilMeses: { type: integer, minimum: 1 }
+        fechaAdquisicion: { type: string, format: date }
+        estado: { type: string, enum: [ACTIVO, DADO_DE_BAJA, VENDIDO] }
+        costoAdquisicion: { $ref: '#/components/schemas/Dinero' }
+        valorResidual: { $ref: '#/components/schemas/Dinero' }
+        depreciacionAcumulada: { $ref: '#/components/schemas/Dinero' }
+        valorEnLibros: { $ref: '#/components/schemas/Dinero' }
+        depreciadoEnElPeriodoVigente:
+          type: boolean
+          description: Ya tiene depreciacion_activo en el periodo que contiene hoy (America/La_Paz).
     EjercicioFiscal:
       type: object
       additionalProperties: false

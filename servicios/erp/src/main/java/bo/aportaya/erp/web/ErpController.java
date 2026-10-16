@@ -16,7 +16,7 @@ import bo.aportaya.erp.aplicacion.CU104CobrarCuenta;
 import bo.aportaya.erp.aplicacion.CU105DepreciarActivo;
 import bo.aportaya.erp.aplicacion.CU106DescargarEstadoFinanciero;
 import bo.aportaya.erp.aplicacion.CU106GenerarEstadoFinanciero;
-import bo.aportaya.erp.web.generado.ErpApi;
+import bo.aportaya.erp.aplicacion.ConsultarListadosDeErp;
 import bo.aportaya.erp.web.generado.modelo.EntradaCierre;
 import bo.aportaya.erp.web.generado.modelo.EntradaCobro;
 import bo.aportaya.erp.web.generado.modelo.EntradaCuentaPorCobrar;
@@ -58,17 +58,15 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Las paginas de {@code /erp}: traducen y delegan, sin logica.
  *
- * <p><b>Una sola clase y no siete.</b> El generador agrupa las operaciones por el primer
- * tramo de la ruta, y las quince de este servicio caen bajo {@code /erp}: dos
- * {@code @RestController} implementando la misma interfaz registrarian dos veces cada
- * mapeo y Spring no levanta. Partirla exigiria partir las rutas, y las rutas las manda
- * el contrato.
+ * <p><b>Un solo controlador.</b> El generador agrupa todo {@code /erp} en {@code ErpApi}: dos
+ * {@code @RestController} registrarian dos veces cada mapeo. Los listados del backoffice viven
+ * en {@link ListadosDeErpController}, que esta clase extiende.
  *
  * <p>Los importes entran y salen como CADENA decimal (ADR-019): un {@code number} de
  * JSON es un doble, y un doble no cuenta plata.
  */
 @RestController
-public class ErpController implements ErpApi {
+public class ErpController extends ListadosDeErpController {
 
     private final CU100AbrirCerrarPeriodo cu100;
     private final CU101Presupuestar cu101;
@@ -89,7 +87,9 @@ public class ErpController implements ErpApi {
             CU105DepreciarActivo cu105,
             CU106GenerarEstadoFinanciero cu106,
             CU106DescargarEstadoFinanciero descarga,
+            ConsultarListadosDeErp listados,
             SesionDeLaPeticion sesion) {
+        super(listados, sesion);
         this.cu100 = cu100;
         this.cu101 = cu101;
         this.cu102 = cu102;

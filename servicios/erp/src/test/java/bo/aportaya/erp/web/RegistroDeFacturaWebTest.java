@@ -78,6 +78,9 @@ class RegistroDeFacturaWebTest {
     @MockitoBean
     private bo.aportaya.erp.aplicacion.CU106DescargarEstadoFinanciero descarga;
 
+    @MockitoBean
+    private bo.aportaya.erp.aplicacion.ConsultarListadosDeErp listados;
+
     private ResultActions registrar(
             org.springframework.test.web.servlet.request.RequestPostProcessor sesion, String cuerpo) throws Exception {
         return mvc.perform(post("/erp/facturas-de-proveedor")

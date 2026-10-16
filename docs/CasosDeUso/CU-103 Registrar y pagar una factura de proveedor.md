@@ -97,6 +97,7 @@ export const ErroresCU103 = {
   FACTURA_DUPLICADA: 'AP-CU103-03',
   MONTO_PAGO_MAYOR_AL_SALDO: 'AP-CU103-04',
   CLAVE_DE_IDEMPOTENCIA_REUTILIZADA: 'AP-CU103-05',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU103-06',
 } as const
 ```
 
@@ -107,6 +108,9 @@ export const ErroresCU103 = {
 | `FACTURA_DUPLICADA` | Ya existe una factura con el mismo `numero_factura` para ese tercero (`UQ`) |
 | `MONTO_PAGO_MAYOR_AL_SALDO` | El pago excede `saldo_pendiente` |
 | `CLAVE_DE_IDEMPOTENCIA_REUTILIZADA` | La `Idempotency-Key` ya registró otro pago de esa factura (otro monto, forma o autorizante) |
+| `FILTRO_DE_LISTADO_INVALIDO` | En el listado del backoffice: cursor a medias (`antesDe` sin `antesDeId` o al revés) o un estado fuera del catálogo |
+
+**Listado del backoffice (carril A).** `GET /erp/facturas-de-proveedor` (`listarFacturasDeProveedor`) es la cola de cuentas por pagar, de la emisión más reciente a la más antigua (cursor `(fechaEmision, id)`). Lo pagado, el saldo y el estado se **derivan de `pago_a_proveedor`**, igual que al pagar: la factura es append-only y sus columnas `monto_pagado` y `estado` se quedan como nacieron. `aprobadaPorLaSesion` la resuelve el servidor contra el sujeto del token (R-CTB-05): el cliente no compara identidades. Tesorería la lee con `CONTABILIDAD_ERP_PAGAR` porque paga desde ella. Exige `CONTABILIDAD_ERP_CUENTAS_POR_PAGAR`, `CONTABILIDAD_ERP_PAGAR` o `CONTABILIDAD_ERP_REPORTES`. Pagina por cursor keyset con desempate por id (`limite` 1..100, 25 por omisión); un filtro inválido es `AP-CU103-06` y no una lista vacía.
 
 ## Descomposición atómica
 
@@ -124,6 +128,7 @@ export const ErroresCU103 = {
 | --- | --- | --- |
 | `factura_proveedor.aprobada` | Genera el asiento de la obligación | `CONTABILIDAD_ERP_CUENTAS_POR_PAGAR` |
 | `pago_a_proveedor.registrado` | Genera el asiento del egreso y actualiza saldo | `CONTABILIDAD_ERP_PAGAR` |
+| — (listado `listarFacturasDeProveedor`) | — | `CONTABILIDAD_ERP_CUENTAS_POR_PAGAR`, `CONTABILIDAD_ERP_PAGAR` o `CONTABILIDAD_ERP_REPORTES` |
 
 ## Interfaz
 
@@ -158,6 +163,19 @@ Entonces el sistema devuelve PERIODO_CERRADO
 Dado un pago parcial ya registrado con una clave de idempotencia
 Cuando se repite el mismo pago con la misma clave
 Entonces el sistema responde lo mismo que la primera vez y no registra otro pago
+
+# Listado del backoffice (backoffice carril A)
+Dada una factura aprobada y pagada en parte
+Cuando Tesoreria lista las cuentas por pagar
+Entonces la ve PAGADA_PARCIAL con lo pagado y el saldo derivados de sus pagos, y no aprobada por ella
+
+Dada una factura aprobada por quien consulta
+Cuando lista las cuentas por pagar
+Entonces la fila dice que la aprobo la sesion, para que no se le ofrezca pagarla
+
+Dadas dos facturas del mismo dia y una de ellas pagada entera
+Cuando Tesoreria las recorre de a una o filtra por PAGADA
+Entonces no se repiten y la pagada figura PAGADA con saldo cero
 ```
 
 ## Ver también

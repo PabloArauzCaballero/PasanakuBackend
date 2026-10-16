@@ -1,0 +1,10 @@
+$ python3 scripts/generar_postman.py   (exit 0)
+Antes del renombre a ListadosDeErpController, el AVISO listaba:
+  erp: listarPartidasPresupuestarias, listarOrdenesDeCompra, listarFacturasDeProveedor, listarCuentasPorCobrar, listarActivosFijos
+Despues del renombre: erp ya no aparece en "operaciones sin @Permiso hallado en el codigo"
+(siguen apareciendo identidad, grupos y organizador: fuera del alcance de este carril).
+
+$ git status --short postman
+ M postman/coleccion/erp.postman_collection.json
+ M postman/humo/erp.humo.postman_collection.json
+(solo cambian las colecciones de erp: 19 -> 24 operaciones)
