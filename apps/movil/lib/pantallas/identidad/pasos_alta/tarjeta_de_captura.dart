@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import '../dominio/capturas_del_expediente.dart';
 import '../textos_de_captura.dart';
 import 'guia_de_encuadre.dart';
-import 'riel_de_capturas.dart';
 import 'visor_ampliado_de_captura.dart';
 
 /// Un cuadro del carrusel: el título de la cara con su insignia y el marco donde va
@@ -16,8 +15,8 @@ import 'visor_ampliado_de_captura.dart';
 /// la página.
 ///
 /// Vacío no es una caja gris con una cámara: es el **marco de encuadre** de esa cara
-/// (las esquinas de un carnet o las del rostro) dibujado en color neutral, con
-/// el ícono de la cara y la pista de cómo sacarla. Así la persona ve qué se le pide
+/// (el contorno de un carnet con su esquema, o el óvalo del rostro) dibujado en
+/// color neutral, con la pista de cómo sacarla debajo. Así la persona ve qué se le pide
 /// antes de abrir la cámara. Con la foto, la foto ocupa el marco.
 class TarjetaDeCaptura extends StatelessWidget {
   const TarjetaDeCaptura({
@@ -67,11 +66,7 @@ class TarjetaDeCaptura extends StatelessWidget {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(Radios.lg),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [t.surface2, t.surface],
-                ),
+                color: t.surface,
                 border: Border.all(color: t.border),
                 boxShadow: Elevacion.tarjeta(t),
               ),
@@ -124,47 +119,26 @@ class _Marco extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(Espacio.s3),
-          child: GuiaDeEncuadre(
-            esDocumento: cara.esDocumento,
-            color: t.text2,
-            grosor: Borde.foco,
-          ),
-        ),
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: Espacio.s6),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(Espacio.s3),
-                  decoration: BoxDecoration(
-                    color: t.surface,
-                    shape: BoxShape.circle,
-                    boxShadow: [t.sombra1, t.sombra2],
-                  ),
-                  child: Icon(
-                    iconoDeCara(cara),
-                    size: Espacio.s6,
-                    color: t.text2,
-                  ),
-                ),
-                const SizedBox(height: Espacio.s3),
-                Text(
-                  TextosDeCaptura.pista(cara.valorApi),
-                  textAlign: TextAlign.center,
-                  style: Tipo.cuerpoChico.copyWith(color: t.text2),
-                ),
-              ],
+    return Padding(
+      padding: const EdgeInsets.all(Espacio.s4),
+      child: Column(
+        children: [
+          Expanded(
+            child: GuiaDeEncuadre(
+              esDocumento: cara.esDocumento,
+              color: t.text2,
+              grosor: Borde.foco,
+              esquemaDe: cara,
             ),
           ),
-        ),
-      ],
+          const SizedBox(height: Espacio.s3),
+          Text(
+            TextosDeCaptura.pista(cara.valorApi),
+            textAlign: TextAlign.center,
+            style: Tipo.cuerpoChico.copyWith(color: t.text2),
+          ),
+        ],
+      ),
     );
   }
 }

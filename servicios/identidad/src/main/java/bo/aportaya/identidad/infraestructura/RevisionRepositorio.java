@@ -30,6 +30,7 @@ public class RevisionRepositorio {
                         USUARIO.NOMBRES,
                         USUARIO.APELLIDOS,
                         USUARIO.TELEFONO_E164,
+                        USUARIO.CORREO,
                         DOCUMENTO_IDENTIDAD.TIPO,
                         DOCUMENTO_IDENTIDAD.LUGAR_EXPEDICION,
                         DOCUMENTO_IDENTIDAD.URL_ANVERSO,
@@ -66,6 +67,7 @@ public class RevisionRepositorio {
                         USUARIO.NOMBRES,
                         USUARIO.APELLIDOS,
                         USUARIO.TELEFONO_E164,
+                        USUARIO.CORREO,
                         DOCUMENTO_IDENTIDAD.TIPO,
                         DOCUMENTO_IDENTIDAD.LUGAR_EXPEDICION,
                         DOCUMENTO_IDENTIDAD.URL_ANVERSO,
@@ -137,7 +139,8 @@ public class RevisionRepositorio {
                 f.get(VERIFICACION_KYC.RESUELTA_EN),
                 f.get(VERIFICACION_KYC.MOTIVO_RECHAZO),
                 fotos,
-                f.get(DOCUMENTO_IDENTIDAD.FECHA_EXPIRACION));
+                f.get(DOCUMENTO_IDENTIDAD.FECHA_EXPIRACION),
+                f.get(USUARIO.CORREO));
     }
 
     /**
@@ -152,6 +155,7 @@ public class RevisionRepositorio {
                         USUARIO.NOMBRES,
                         USUARIO.APELLIDOS,
                         USUARIO.TELEFONO_E164,
+                        USUARIO.CORREO,
                         DOCUMENTO_IDENTIDAD.TIPO,
                         DOCUMENTO_IDENTIDAD.LUGAR_EXPEDICION,
                         DOCUMENTO_IDENTIDAD.URL_ANVERSO,

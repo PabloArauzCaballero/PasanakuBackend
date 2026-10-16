@@ -1,0 +1,2 @@
+00:03 +31: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/packages/diseno_flutter/test/goldens/catalogo_golden_test.dart: Móviles · oscuro
+00:03 +32: All tests passed!

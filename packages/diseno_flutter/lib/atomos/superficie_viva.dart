@@ -7,9 +7,9 @@ import '../tokens/tokens.dart';
 import 'luz_de_boton.dart';
 import 'movimiento.dart';
 
-/// **Piel de botón con relleno**: profundidad, respuesta al dedo y brillo finito.
-/// El degradado conserva el contraste del texto; el movimiento se suprime si el
-/// usuario prefiere reducirlo. En carga, el brillo comunica actividad.
+/// **Piel de botón con relleno**: superficie plana, respuesta sutil al dedo y brillo
+/// finito sólo si se pide. El movimiento se suprime si el usuario prefiere
+/// reducirlo. En carga, el brillo comunica actividad.
 class SuperficieViva extends StatefulWidget {
   const SuperficieViva({
     super.key,
@@ -47,11 +47,10 @@ class _SuperficieVivaState extends State<SuperficieViva>
     vsync: this,
     duration: Movimiento.brillo + Movimiento.pausaDelBrillo,
   );
-  bool _encima = false;
   bool _quieto = false;
   Timer? _brilloEnEspera;
 
-  static const _escalaPresion = 0.97;
+  static const _escalaPresion = 0.98;
 
   @override
   void didChangeDependencies() {
@@ -119,65 +118,37 @@ class _SuperficieVivaState extends State<SuperficieViva>
     final t = Tokens.of(context);
     final c = widget.color;
     final forma = BorderRadius.circular(widget.radio);
-    return MouseRegion(
-      onEnter: (_) => setState(() => _encima = true),
-      onExit: (_) => setState(() => _encima = false),
-      child: Listener(
-        onPointerDown: (_) => _apretar(),
-        onPointerUp: (_) => _soltar(),
-        onPointerCancel: (_) => _soltar(),
-        child: AnimatedBuilder(
-          animation: Listenable.merge([_hundido, _brillo]),
-          child: widget.child,
-          builder: (context, hijo) {
-            final h = _hundido.value.clamp(0.0, 1.0);
-            final alto = widget.activo ? (_encima ? 1.25 : 1.0) * (1 - h) : 0.0;
-            final direccionDelDegradado =
-                widget.colorDelTexto.computeLuminance() > c.computeLuminance()
-                ? Paleta.ink
-                : Paleta.white;
-            return Transform.scale(
-              scale: 1 - (1 - _escalaPresion) * _hundido.value,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: forma,
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Color.lerp(c, direccionDelDegradado, 0.06)!,
-                      Color.lerp(c, direccionDelDegradado, 0.10)!,
-                    ],
+    return Listener(
+      onPointerDown: (_) => _apretar(),
+      onPointerUp: (_) => _soltar(),
+      onPointerCancel: (_) => _soltar(),
+      child: AnimatedBuilder(
+        animation: Listenable.merge([_hundido, _brillo]),
+        child: widget.child,
+        builder: (context, hijo) {
+          // Plano, como una app bancaria: relleno sólido y una sombra mínima. Sin
+          // degradado ni halo del color del botón —eso lo hacía de videojuego—.
+          return Transform.scale(
+            scale: 1 - (1 - _escalaPresion) * _hundido.value,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: forma,
+                color: c,
+                boxShadow: widget.activo ? [t.sombra1] : null,
+              ),
+              child: ClipRRect(
+                borderRadius: forma,
+                child: CustomPaint(
+                  foregroundPainter: LuzDeBoton(
+                    avance: _avanceDelBrillo(),
+                    filo: Paleta.white,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      offset: Offset(0, 1 + alto),
-                      blurRadius: 2 + 2 * alto,
-                      color: c.withValues(alpha: 0.30 * (alto > 0 ? 1 : 0)),
-                    ),
-                    BoxShadow(
-                      offset: Offset(0, 8 * alto),
-                      blurRadius: 22 * alto,
-                      spreadRadius: -4,
-                      color: c.withValues(alpha: 0.38 * alto.clamp(0.0, 1.0)),
-                    ),
-                    if (alto == 0) t.sombra1,
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: forma,
-                  child: CustomPaint(
-                    foregroundPainter: LuzDeBoton(
-                      avance: _avanceDelBrillo(),
-                      filo: Paleta.white,
-                    ),
-                    child: hijo,
-                  ),
+                  child: hijo,
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

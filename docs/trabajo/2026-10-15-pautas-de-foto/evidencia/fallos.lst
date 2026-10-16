@@ -1,0 +1,8 @@
+test/goldens/h10_mfa_visual_test.dart: MFA · cargando · claro · 360 dp · texto 130 % [E]
+test/goldens/h10_mfa_visual_test.dart: MFA · cargando · claro · 412 dp · texto 130 % [E]
+test/goldens/h10_mfa_visual_test.dart: MFA · cargando · claro · 600 dp · texto 130 % [E]
+test/goldens/h10_mfa_visual_test.dart: MFA · cargando · oscuro · 360 dp · texto 130 % [E]
+test/goldens/h10_mfa_visual_test.dart: MFA · cargando · oscuro · 412 dp · texto 130 % [E]
+test/goldens/h10_mfa_visual_test.dart: MFA · cargando · oscuro · 600 dp · texto 130 % [E]
+test/goldens/h8_break_ui_test.dart: billetera · saldo cero y vacíos · 200 % · oscuro [E]
+test/widget/escaner_del_carnet_test.dart: un carnet escaneado queda como captura del anverso [E]
