@@ -9,9 +9,11 @@ import 'avance.dart';
 import 'escribano.dart';
 import 'estado_del_motor.dart';
 import 'modelo.dart';
+import 'registro.dart';
 import 'textos_del_motor.dart';
 
 export 'textos_del_motor.dart';
+part 'motor_acciones.dart';
 
 /// **El motor: dónde estoy, cómo sigo y qué hago si el paso no se puede dar.**
 ///
@@ -26,6 +28,12 @@ export 'textos_del_motor.dart';
 /// 3. **No inventa permisos.** Los tutoriales ya vienen filtrados por capacidad.
 class MotorDeTutoriales extends Notifier<EstadoDelMotor> {
   late final _escribano = EscribanoDeProgreso(ref);
+  EstadoDelMotor get _estado => state;
+  set _estado(EstadoDelMotor valor) => state = valor;
+
+  RegistroDeTutoriales get _registro => ref.read(registroDeTutorialesProvider);
+  Sesion get _sesion => ref.read(sesionProvider);
+
   AnclasDeTutorial? _anclas;
   void Function(String ruta)? _navegar;
   String Function()? _ubicacion;
@@ -46,112 +54,6 @@ class MotorDeTutoriales extends Notifier<EstadoDelMotor> {
     _anclas = anclas;
     _navegar = navegar;
     _ubicacion = ubicacion;
-  }
-
-  /// Empieza de cero. Si ya se había hecho, las repeticiones viajan.
-  Future<void> iniciar(
-    String tutorialId, {
-    int repeticiones = 0,
-    bool requiereSesionActiva = false,
-  }) async {
-    final tutorial = ref.read(registroDeTutorialesProvider).buscar(tutorialId);
-    if (tutorial == null || tutorial.pasos.isEmpty) return;
-    final generacion = ++_generacion;
-    state = EstadoDelMotor(tutorial: tutorial);
-    await _escribano.guardar(
-      progresoInicial(tutorial, DateTime.now(), repeticiones: repeticiones),
-    );
-    if (generacion != _generacion ||
-        (requiereSesionActiva && !ref.read(sesionProvider).activa)) {
-      cancelar();
-      return;
-    }
-    await _ir(0, generacion: generacion);
-  }
-
-  /// Retoma donde quedó. Un índice fuera de rango vuelve al último paso posible.
-  Future<void> continuar(String tutorialId, ProgresoDeTutorial progreso) async {
-    final tutorial = ref.read(registroDeTutorialesProvider).buscar(tutorialId);
-    if (tutorial == null || tutorial.pasos.isEmpty) return;
-    final generacion = ++_generacion;
-    state = EstadoDelMotor(tutorial: tutorial);
-    await _ir(
-      progreso.indice.clamp(0, tutorial.pasos.length - 1),
-      generacion: generacion,
-    );
-  }
-
-  Future<void> avanzar() async {
-    if (!state.puedeAvanzar) {
-      state = state.copiaCon(
-        problema:
-            state.paso?.ayudaSiFalla ?? 'Hacé lo que pide el paso para seguir.',
-      );
-      return;
-    }
-    if (state.esUltimo) return _terminar();
-    await _ir(state.indice + 1, generacion: _generacion);
-  }
-
-  Future<void> retroceder() async {
-    if (state.indice == 0) return;
-    await _ir(state.indice - 1, generacion: _generacion);
-  }
-
-  /// Reintenta el paso actual: vuelve a buscar el objetivo desde cero.
-  Future<void> reintentar() => _ir(state.indice, generacion: _generacion);
-
-  /// La acción que el paso pedía ya está hecha.
-  void marcarAccionCumplida() {
-    if (state.activo) state = state.copiaCon(accionCumplida: true);
-  }
-
-  /// Pide confirmación si va por la mitad; si recién empezó, cierra sin preguntar.
-  void pedirSalida() {
-    if (state.indice == 0 || state.esUltimo) {
-      omitir();
-      return;
-    }
-    state = state.copiaCon(confirmandoSalida: true);
-  }
-
-  void seguirEnElTutorial() {
-    state = state.copiaCon(confirmandoSalida: false);
-  }
-
-  /// Abandona: queda omitido, con el paso donde se fue. Se puede repetir después.
-  void omitir() {
-    final tutorial = state.tutorial;
-    if (tutorial != null) {
-      final ahora = DateTime.now();
-      _escribano.sinEsperar(
-        cerrado(
-          enPaso(
-            _escribano.de(tutorial, ahora),
-            state.indice,
-            state.paso?.id,
-            ahora,
-          ),
-          EstadoDeProgreso.omitido,
-          ahora,
-        ),
-      );
-    }
-    state = EstadoDelMotor.apagado;
-  }
-
-  /// Cierra el recorrido sin registrar que la persona lo omitió.
-  ///
-  /// Se usa cuando deja de existir el contexto que autorizaba mostrarlo (por ejemplo,
-  /// al cerrar sesión); si vuelve a entrar, una guía pendiente debe seguir pendiente.
-  void cancelar() {
-    _generacion++;
-    _temporizadorDeEspera?.cancel();
-    _temporizadorDeEspera = null;
-    final espera = _esperaEnCurso;
-    _esperaEnCurso = null;
-    if (espera != null && !espera.isCompleted) espera.complete();
-    state = EstadoDelMotor.apagado;
   }
 
   Future<void> _pausarCancelable(Duration duracion) {
@@ -241,16 +143,5 @@ class MotorDeTutoriales extends Notifier<EstadoDelMotor> {
     }
     _navegar!(ruta);
     return true;
-  }
-
-  /// Vuelve a medir el elemento del paso actual: la pantalla se desplazó o cambió de
-  /// tamaño y el agujero tiene que seguirla.
-  void medirDeNuevo() {
-    final ancla = state.paso?.ancla;
-    if (!state.activo || ancla == null) return;
-    final recuadro = _anclas?.recuadroDe(ancla);
-    if (recuadro != null && recuadro != state.recuadro) {
-      state = state.copiaCon(recuadro: recuadro);
-    }
   }
 }

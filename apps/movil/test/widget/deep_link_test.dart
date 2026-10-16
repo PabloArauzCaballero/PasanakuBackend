@@ -84,7 +84,7 @@ void main() {
 
     expect(find.byType(ShellPrincipal), findsNothing);
     expect(find.byType(BarraPestanas), findsNothing);
-    expect(find.text(TextosIdentidad.mfaIndicacion), findsOneWidget);
+    expect(find.text(TextosIdentidad.explicacionMfa), findsOneWidget);
     expect(find.text(TextosIdentidad.mfaSinCodigoAyuda), findsOneWidget);
   });
 

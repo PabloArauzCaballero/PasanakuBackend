@@ -1,9 +1,9 @@
 import 'package:aportaya_cliente_identidad/aportaya_cliente_identidad.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../dominio/cliente.dart';
+import '../../../dominio/diagnostico_api.dart';
 import '../../../dominio/errores.dart';
 import '../../../proveedores/huella_de_dispositivo.dart';
 import '../../../proveedores/sesion.dart';
@@ -80,9 +80,7 @@ class Autenticacion {
       if (refresco == null || refresco.isEmpty) {
         // Nunca usar sesionId como refresh: es un identificador, no una credencial.
         // Sin refresh la sesión se conserva hasta que venza el acceso (15 min).
-        debugPrint(
-          'El servidor no entregó tokenRefresco para la sesión móvil.',
-        );
+        registrarAvisoRefrescoAusente();
       }
       await _ref.read(sesionProvider).abrir(acceso: token, refresco: refresco);
       return ResultadoDeAutenticacion.entro;

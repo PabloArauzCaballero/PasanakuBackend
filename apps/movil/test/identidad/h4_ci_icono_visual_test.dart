@@ -8,10 +8,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../goldens/cargar_fuentes_de_aplicacion.dart';
 
-const _evidencia =
-    '../../../../docs/trabajo/2026-10-11-alta-atlas-sesion-premium/'
-    'evidencia/h4-s3-icono';
-
 void main() {
   setUpAll(cargarFuentesDeAplicacion);
 
@@ -42,9 +38,11 @@ void main() {
     expect(find.byIcon(Icons.badge_outlined), findsWidgets);
     expect(find.byIcon(Icons.credit_card), findsNothing);
     expect(tester.takeException(), isNull);
+    // La evidencia H4 en docs conserva la captura histórica. El baseline del
+    // test vive junto a la suite y sigue el marco neutralizado de la UI actual.
     await expectLater(
       find.byType(PasoDocumento),
-      matchesGoldenFile('$_evidencia/anverso-360.png'),
+      matchesGoldenFile('goldens/anverso-360.png'),
     );
 
     await tester.ensureVisible(find.text('Número de CI'));
@@ -53,7 +51,7 @@ void main() {
     expect(tester.takeException(), isNull);
     await expectLater(
       find.byType(PasoDocumento),
-      matchesGoldenFile('$_evidencia/numero-ci-360.png'),
+      matchesGoldenFile('goldens/numero-ci-360.png'),
     );
   });
 }

@@ -97,7 +97,7 @@ class _HojaDeSeleccionState extends State<_HojaDeSeleccion> {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: disponible * .92),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: teclado > 0 ? MainAxisSize.max : MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(

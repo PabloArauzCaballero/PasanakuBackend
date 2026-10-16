@@ -1,4 +1,6 @@
 import 'package:aportaya_diseno/tema.dart';
+import 'package:aportaya_diseno/atomos/campo_de_seleccion.dart';
+import 'package:aportaya_diseno/atomos/fila_de_seleccion.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_movil/dominio/tutoriales/avance.dart';
 import 'package:aportaya_movil/dominio/tutoriales/modelo.dart';
@@ -130,6 +132,31 @@ void main() {
     await tester.enterText(find.byType(TextField).first, 'zzzzz');
     await tester.pump();
     expect(find.textContaining('Ningún tutorial coincide'), findsOneWidget);
+  });
+
+  testWidgets('el tema elegido recorta la lista con categorías del registro', (
+    tester,
+  ) async {
+    final contenedor = _contenedor({
+      Capacidad.sesion,
+    }, AlmacenDeProgresoSeguro(AlmacenEnMemoria()));
+    await montarCentro(tester, contenedor);
+
+    final selector = find.byWidgetPredicate(
+      (widget) =>
+          widget is CampoDeSeleccion && widget.etiqueta == 'Tema del tutorial',
+    );
+    expect(selector, findsOneWidget);
+    await tester.tap(
+      find.descendant(of: selector, matching: find.byType(InkWell)),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(FilaDeSeleccion).last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Entender tu saldo'), findsWidgets);
+    expect(find.text('Qué es AportaYa'), findsNothing);
+    expect(find.text('Tu plata'), findsWidgets);
   });
 
   testWidgets('lo completado se ve completado y se puede repetir', (

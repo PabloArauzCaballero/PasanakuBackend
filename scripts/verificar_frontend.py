@@ -55,11 +55,21 @@ def movil():
            lambda p: "/dominio/" in p.as_posix())
     barrer("sin literal de diseño", raiz, {".dart"}, r"(Color\(0x|Colors\.(?!transparent)[a-z]|EdgeInsets\.(all|symmetric|only)\(\s*\d|fontSize:\s*\d|fontFamily:\s*')",
            lambda p: p.name == "tokens.dart")
+    # La sonda H6 calcula y muestra duración de cuadros en milisegundos, no dinero.
     barrer("sin formato de dinero", raiz, {".dart"}, r"(NumberFormat|toStringAsFixed|double\.parse|num\.parse)",
-           lambda p: p.name in ("formatear.dart", "monto.dart"))
+           lambda p: p.name in ("formatear.dart", "monto.dart", "main_h6_s3_m8_profile.dart"))
     barrer("sin plataforma en vista", raiz, {".dart"}, r"Platform\.is[A-Z]",
            lambda p: "/infraestructura/" in p.as_posix())
-    barrer("sin print", raiz, {".dart"}, r"\b(print|debugPrint)\(", lambda p: False)
+    # Única excepción: diagnóstico HTTP anonimizado y gated por kDebugMode; en
+    # release no registra. El resto de print/debugPrint sigue siendo un fallo.
+    barrer(
+        "sin print",
+        raiz,
+        {".dart"},
+        r"\b(print|debugPrint)\(",
+        lambda p: p.name == "diagnostico_api.dart"
+        and "if (!kDebugMode) return;" in p.read_text(encoding="utf-8"),
+    )
     # Disciplina del buscador: un select se arma SOLO con `CampoDeSeleccion`, que con
     # más de 12 opciones abre la hoja con buscador. Un `DropdownButton` o un
     # `showDatePicker` suelto en una pantalla se saltea esa regla (y el segundo trae el

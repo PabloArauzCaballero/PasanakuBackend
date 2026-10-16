@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../pantallas/alianzas/rutas.dart';
 import '../pantallas/billetera/rutas.dart';
 import '../pantallas/identidad/rutas.dart';
+import '../pantallas/identidad/pantalla_estado_de_verificacion.dart';
 import '../pantallas/notificaciones/rutas.dart';
 import '../pantallas/pasanaku/rutas.dart';
 import '../pantallas/soporte/rutas.dart';
@@ -35,7 +36,12 @@ GoRouter crearEnrutador({
   redirect: (context, state) {
     final interna = rutaInternaDesde(state.uri);
     final destino = interna == null ? state.uri : Uri.parse(interna);
-    return decidirRuta(estado: sesion.estado, destino: destino) ?? interna;
+    return decidirRuta(
+          estado: sesion.estado,
+          destino: destino,
+          requiereVerificacion: sesion.requiereVerificacion,
+        ) ??
+        interna;
   },
   routes: [
     StatefulShellRoute.indexedStack(
@@ -87,6 +93,14 @@ GoRouter crearEnrutador({
     // de tener sesión, y una barra de pestañas debajo de un formulario de acceso
     // ofrece destinos a los que todavía no se puede ir.
     ...rutasDeEntrada,
+    GoRoute(
+      path: rutaDeVerificacionDeSesion,
+      name: 'sesion.verificacion',
+      builder: (context, state) => PantallaDeEstadoDeVerificacion(
+        usuarioId: sesion.usuarioIdActual!,
+        sesionActiva: true,
+      ),
+    ),
     ...rutasDeInvitacion,
     ...rutasAlianzas,
     ...rutasNotificaciones,
