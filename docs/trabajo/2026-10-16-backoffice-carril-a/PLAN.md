@@ -174,7 +174,7 @@ paginación y respuesta mínima.
 reales paginadas y Tesorería puede conciliar la custodia con el saldo emitido **calculado por el
 servidor** (nunca enviado por el cliente).
 **DoD:** pruebas `CU*Test` de integración + webTest por ruta + regresión de `nucleo-financiero` y `entregas`.
-**Estado:** EN CURSO
+**Estado:** HECHO (backend; las pantallas son del carril B)
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
@@ -182,10 +182,13 @@ servidor** (nunca enviado por el cliente).
 | H8.S1.M2 | `POST /custodia/conciliaciones` (`TESORERIA`, patrón de `acreditarRecarga`): saldo emitido calculado por el servidor desde las billeteras; custodia y tránsito los informa Tesorería; reintento idéntico = mismo resultado | cuadra/descuadra/duplicada con otros saldos `AP-CU50-03` | idem | HECHO — `evidencia/H8-01-regresion-nucleo-financiero.txt` |
 | H8.S1.M3 | (descubierta) El reintento de la conciliación recalcula `diferencia`/ratio con el átomo `RatioDeCobertura`: la columna generada de la tabla es `custodia − emitido` y NO suma el tránsito, así que leerla daba otra respuesta que la primera vez | reintento con tránsito ≠ 0 devuelve la misma diferencia | `integrationTest --tests '*CU50ConciliacionesTest*'` (caso `reintento`) | HECHO — `evidencia/H8-01-regresion-nucleo-financiero.txt` |
 | H8.S2.M1 | `GET /contabilidad/cierres-diarios` (`AUDITORIA_LEER`) | correcto/límite/inválido + 403 | `integrationTest --tests '*CU51CierresTest*'` + webTest | HECHO — `evidencia/H8-01-regresion-nucleo-financiero.txt` |
-| H8.S2.M2 | Ejecutar el cierre diario por HTTP: `CU51` recibe los totales del recaudo **desde afuera** (`aportes`). Exponerlo con totales del cliente sería confiarle cifras; se resuelve con puerto + adaptador HTTP al resumen de `aportes` + doble en tres niveles (regla 65) | ver H8.S2.M3 | idem | TODO |
+| H8.S2.M2 | Ejecutar el cierre diario por HTTP: `CU51` recibe los totales del recaudo **desde afuera** (`aportes`). Exponerlo con totales del cliente sería confiarle cifras; se resuelve con puerto + adaptador HTTP al resumen de `aportes` + doble en tres niveles (regla 65) | ver H8.S2.M3 | idem | HECHO — `evidencia/H8-03-cierre-desde-contabilidad.txt` |
+| H8.S2.M3 | (descubierta) Productor en `aportes`: `GET /aportes/recaudo-diario?fecha=` (`CONTABILIDAD` o `AUDITORIA_LEER`), un total por moneda, día de `America/La_Paz` | correcto (800/500/20) · límite (medianoche La Paz, BOB+USD, reversado y resuelta no cuentan, día vacío) | `:servicios:aportes:integrationTest --tests '*CU51RecaudoDiarioTest*'` + `RecaudoDiarioWebTest` | HECHO — `evidencia/H8-03-cierre-desde-contabilidad.txt` |
+| H8.S2.M4 | (descubierta) Puerto `RecaudoDelDia` + adaptador HTTP en `nucleo-financiero`, tres niveles contra un `aportes` falso: correcto, límite (vacío, otra fecha), inválido (500, 403, JSON roto, moneda desconocida, negativo, caído, > 3 s) | 8 casos | `contractTest --tests '*RecaudoDelDiaContratoTest*'` | HECHO — `evidencia/H8-03-cierre-desde-contabilidad.txt` |
+| H8.S2.M5 | (descubierta) `POST /contabilidad/cierres-diarios` (`CONTABILIDAD`): sin cifras del cliente, `aportes` consultado fuera de la transacción, custodia del día desde CU-50, idempotente por fecha; AP-CU51-06/07/08 | 8 casos de integración contra el doble + 6 web | `integrationTest --tests '*CU51CierreDesdeContabilidadTest*'` + `CierreDiarioWebTest` | HECHO — `evidencia/H8-03-cierre-desde-contabilidad.txt` |
 | H8.S3.M1 | `GET /contabilidad/reversos` (`AUDITORIA_LEER`): reversos con estado, tipo y monto | correcto/límite/inválido + 403 | `integrationTest --tests '*CU14ReversosTest*'` + webTest | HECHO — `evidencia/H8-01-regresion-nucleo-financiero.txt` |
 | H8.S4.M1 | `GET /desembolsos` en `entregas` (`ENTREGA_EJECUTAR` o `AUDITORIA_LEER`): por omisión las excepciones (`RECHAZADA`, `DEVUELTA_POR_BANCO`, `EN_PROCESO`) | correcto/límite/inválido + 403 | `:servicios:entregas:integrationTest --tests '*CU28DesembolsosTest*'` + webTest | HECHO — `evidencia/H8-02-regresion-entregas.txt` |
-| H8.S5.M1 | Bóveda, Postman, regresión de `nucleo-financiero` y `entregas`, commit y push | 0 fallas | regresión + gates | TODO |
+| H8.S5.M1 | Bóveda, Postman, regresión de `nucleo-financiero` y `entregas`, commit y push | 0 fallas | regresión + gates | HECHO — `evidencia/H8-01…H8-03` (regresión nucleo-financiero, entregas y aportes en verde) |
 
 ## H9 — Ola 4 · A5 Cumplimiento, riesgo y seguridad
 

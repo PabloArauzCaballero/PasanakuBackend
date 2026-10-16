@@ -150,4 +150,8 @@ class CalendarioWebTest {
                 .andExpect(jsonPath("$.obligaciones[0].monto.monto").value("500.00"));
         verify(generar).generar(org.mockito.ArgumentMatchers.eq(PERIODO), any());
     }
+
+    // El controlador tambien responde el recaudo diario (CU-51, carril A · H8): sin este doble no carga.
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private bo.aportaya.aportes.aplicacion.ConsultarRecaudoDiario recaudosDiarios;
 }
