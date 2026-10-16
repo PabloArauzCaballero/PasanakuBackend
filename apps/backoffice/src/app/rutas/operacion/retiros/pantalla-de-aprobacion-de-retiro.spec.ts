@@ -50,11 +50,23 @@ describe('PantallaDeAprobacionDeRetiro · [UI contra HTTP simulado] F5', () => {
   }
   const sinRespuesta = (p: { error: (e: ProgressEvent, o: { status: number }) => void }) => p.error(new ProgressEvent('error'), { status: 0 })
 
-  it('muestra qué hace, que no hay listado y el formulario (estado inicial, sin pedir nada)', () => {
+  it('muestra qué hace, que se abrió por identificador (la bandeja es aparte) y el formulario (estado inicial, sin pedir nada)', () => {
     const f = montar()
     expect(texto(f)).toContain('Aprobar o rechazar un retiro')
-    expect(texto(f)).toContain('Todavía no hay un listado')
+    expect(texto(f)).toContain('Abriste esta orden por su identificador')
     http.expectNone(URL)
+  })
+
+  it('enlace profundo retiros/:ordenId: la orden llega fijada por la ruta y el envío va a esa orden', () => {
+    const f = TestBed.createComponent(PantallaDeAprobacionDeRetiro)
+    f.componentRef.setInput('ordenId', ORDEN)
+    f.detectChanges()
+    expect(f.componentInstance['ordenId']()).toBe(ORDEN)
+    f.componentInstance['desenlace'].set('AUTORIZADA')
+    f.componentInstance['enviar']()
+    http.expectOne(URL).flush(OK)
+    f.detectChanges()
+    expect(texto(f)).toContain('Volver a la bandeja de retiros')
   })
 
   it('sin identificador ni decisión: un error junto a cada campo y ninguna petición', () => {
@@ -142,6 +154,16 @@ describe('PantallaDeAprobacionDeRetiro · [UI contra HTTP simulado] F5', () => {
     http.expectOne(URL).flush({ codigo: 'AP-GW-409', mensaje: 'x', trazaId: 't' }, { status: 409, statusText: 'x' })
     f.detectChanges()
     expect(texto(f)).toContain('otra persona la resolvió primero')
+  })
+
+  it('rechazo (422 AP-CU11-11, la forma vigente del contrato para «ya resuelta»): mismo texto que el 409, sin «falló»', () => {
+    const f = montar()
+    cargar(f, ORDEN, 'AUTORIZADA')
+    f.componentInstance['enviar']()
+    http.expectOne(URL).flush({ codigo: 'AP-CU11-11', mensaje: 'crudo', trazaId: 't' }, { status: 422, statusText: 'x' })
+    f.detectChanges()
+    expect(texto(f)).toContain('otra persona la resolvió primero')
+    expect(texto(f)).not.toContain('crudo')
   })
 
   it('rechazo (404): la orden no existe y se puede corregir el identificador', () => {

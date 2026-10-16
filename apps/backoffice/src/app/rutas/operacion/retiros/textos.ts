@@ -3,7 +3,9 @@ export const textosRetiros = {
   titulo: 'Aprobar o rechazar un retiro',
   proposito:
     'Un retiro que supera el umbral necesita una segunda persona. Quien lo pidió no lo aprueba: lo resuelve otra persona con permiso, con motivo y a su nombre.',
-  sinListado: 'Todavía no hay un listado de retiros en revisión: cada orden se abre por su identificador, el que llega en el aviso de la orden.',
+  sinListado: 'Abriste esta orden por su identificador. La bandeja de retiros en revisión muestra todas las que esperan una segunda firma.',
+  volverABandeja: 'Volver a la bandeja de retiros',
+  resumen: 'Lo que pidió la persona',
   ordenEtiqueta: 'Identificador de la orden de retiro',
   ordenAyuda: 'Tiene la forma 8-4-4-4-12 (por ejemplo, 9f1c2b7e-3a54-4d0e-8a61-5b7d2c9e4f10).',
   ordenError: 'Ese identificador no tiene el formato de una orden de retiro.',
@@ -31,4 +33,17 @@ export const textosRetiros = {
   confirmadaRechazada: 'Registrado: la orden quedó rechazada y el saldo retenido se libera.',
   aprobadaPor: 'Resuelta por',
   otra: 'Resolver otra orden',
+  bandeja: {
+    titulo: 'Retiros en revisión',
+    proposito: 'Los retiros que superan el umbral esperan una segunda firma. Van del más antiguo al más nuevo; quien pidió un retiro no lo decide.',
+    vacio: 'No hay retiros esperando una segunda firma.',
+    explicacionVacio: 'Cuando un retiro supere el umbral va a aparecer acá.',
+    denegado: 'Esta bandeja es de quien tiene el permiso de aprobar retiros.',
+    decidir: 'Decidir',
+    propia: 'La pediste vos: la decide otra persona.',
+    conSegundoFactor: 'Con segundo factor',
+    sinSegundoFactor: 'Sin segundo factor',
+    sinEnfriamiento: 'Sin enfriamiento',
+    columnas: { solicitadaEn: 'Pedido el', solicitado: 'Pedido', costo: 'Costo', neto: 'Neto', mfaVerificado: 'Segundo factor', ventanaEnfriamientoHasta: 'Enfriamiento hasta', ordenRetiroId: 'Acción' },
+  },
 } as const

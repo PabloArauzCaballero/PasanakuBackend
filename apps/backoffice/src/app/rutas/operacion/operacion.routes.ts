@@ -1,5 +1,13 @@
-import { Routes } from '@angular/router'
+import { inject } from '@angular/core'
+import { CanMatchFn, Router, Routes } from '@angular/router'
 import { requierePermiso } from '../../nucleo/permisos'
+import { Sesion } from '../../nucleo/sesion'
+
+/** Como `requierePermiso`, pero basta con UNO de los permisos (el contrato de `listarDesembolsos` acepta dos). */
+const requiereAlguno =
+  (...permisos: string[]): CanMatchFn =>
+  () =>
+    permisos.some((p) => inject(Sesion).puede(p)) || inject(Router).parseUrl('/tablero')
 
 /**
  * Las rutas del dominio operación. **Este archivo lo posee el carril B1**; el shell
@@ -40,11 +48,48 @@ export const rutasOperacion: Routes = [
     canMatch: [requierePermiso('SOLICITUD_INGRESO_VER')],
   },
   {
-    // CU-11 · segunda firma de un retiro. El contrato no publica un listado de órdenes en revisión: se abre por id.
+    // CU-11 · bandeja `listarRetirosEnRevision` (exige RETIRO_APROBAR, el mismo permiso que `aprobarRetiro`).
     path: 'retiros',
+    pathMatch: 'full',
+    loadComponent: () => import('./retiros/bandeja-de-retiros').then((m) => m.BandejaDeRetiros),
+    title: 'Retiros en revisión · AportaYa',
+    canMatch: [requierePermiso('RETIRO_APROBAR')],
+  },
+  {
+    // CU-11 · segunda firma de una orden (fila de la bandeja o enlace profundo por id).
+    path: 'retiros/:ordenId',
     loadComponent: () => import('./retiros/pantalla-de-aprobacion-de-retiro').then((m) => m.PantallaDeAprobacionDeRetiro),
     title: 'Aprobación de retiros · AportaYa',
     canMatch: [requierePermiso('RETIRO_APROBAR')],
+  },
+  {
+    // CU-50 · `listarConciliaciones` exige AUDITORIA_LEER; registrar (`conciliarCustodia`) exige el rol TESORERIA y la
+    // pantalla lo vuelve a chequear antes de montar el formulario.
+    path: 'custodia',
+    loadComponent: () => import('./custodia/pantalla-de-conciliaciones').then((m) => m.PantallaDeConciliaciones),
+    title: 'Conciliación de custodia · AportaYa',
+    canMatch: [requierePermiso('AUDITORIA_LEER')],
+  },
+  {
+    // CU-51 · `listarCierresDiarios` exige AUDITORIA_LEER; cerrar (`ejecutarCierreDiario`) exige el rol CONTABILIDAD.
+    path: 'cierres-diarios',
+    loadComponent: () => import('./cierres/pantalla-de-cierres').then((m) => m.PantallaDeCierres),
+    title: 'Cierres diarios · AportaYa',
+    canMatch: [requierePermiso('AUDITORIA_LEER')],
+  },
+  {
+    // CU-14 · `listarReversos` (solo lectura) exige AUDITORIA_LEER.
+    path: 'reversos',
+    loadComponent: () => import('./reversos/listado-de-reversos').then((m) => m.ListadoDeReversos),
+    title: 'Reversos · AportaYa',
+    canMatch: [requierePermiso('AUDITORIA_LEER')],
+  },
+  {
+    // CU-28 · `listarDesembolsos` (entregas) exige ENTREGA_EJECUTAR o AUDITORIA_LEER.
+    path: 'desembolsos',
+    loadComponent: () => import('./desembolsos/bandeja-de-desembolsos').then((m) => m.BandejaDeDesembolsos),
+    title: 'Desembolsos · AportaYa',
+    canMatch: [requiereAlguno('ENTREGA_EJECUTAR', 'AUDITORIA_LEER')],
   },
   // `estado/` es de F6 (ficha F6, estructura congelada): la ficha se lo asigna al shell
   // aunque viva dentro del dominio `operacion` que B1 posee. Es la única entrada de esta

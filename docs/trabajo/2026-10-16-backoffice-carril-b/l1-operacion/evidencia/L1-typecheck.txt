@@ -1,0 +1,2 @@
+$ corepack yarn workspace @aportaya/backoffice typecheck   # HEAD d58fb5a2
+EXIT=0
