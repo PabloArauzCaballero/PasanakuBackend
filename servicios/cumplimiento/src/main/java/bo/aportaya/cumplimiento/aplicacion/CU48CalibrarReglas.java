@@ -145,7 +145,8 @@ public class CU48CalibrarReglas {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
         datos.conContexto(ctx, dsl -> {
-            if (!monitoreo.activar(dsl, entrada.reglaId(), entrada.aprobadaPor(), ahora)) {
+            // El aprobador es la sesion, nunca un id de la entrada: declararlo seria poder firmar por otro.
+            if (!monitoreo.activar(dsl, entrada.reglaId(), ctx.usuarioId(), ahora)) {
                 throw new ErrorDeNegocio(CodigoError.de(48, 6), "Esa regla ya estaba activa.");
             }
             outbox.emitir(
@@ -155,7 +156,7 @@ public class CU48CalibrarReglas {
                             "regla_monitoreo_lft",
                             entrada.reglaId(),
                             Map.of(
-                                    "aprobadaPor", entrada.aprobadaPor().toString(),
+                                    "aprobadaPor", ctx.usuarioId().toString(),
                                     "porcentajeTrafico", entrada.porcentajeTrafico()),
                             UUID.fromString(ctx.traza().id())));
             return null;
@@ -203,7 +204,7 @@ public class CU48CalibrarReglas {
             String fuenteNormativa) {}
 
     public record EntradaActivacion(
-            UUID reglaId, UUID aprobadaPor, boolean hubosimulacion, boolean superaTecho, String porcentajeTrafico) {}
+            UUID reglaId, boolean hubosimulacion, boolean superaTecho, String porcentajeTrafico) {}
 
     public record EntradaTriaje(UUID alertaId, String conclusion, String fundamento) {}
 

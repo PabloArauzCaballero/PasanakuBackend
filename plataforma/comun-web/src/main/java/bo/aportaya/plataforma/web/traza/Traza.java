@@ -56,10 +56,16 @@ public final class Traza {
         return limpio;
     }
 
-    /** Lo que hace que una traza de produccion lleve al caso de uso sin herramientas. */
-    public static void marcarCasoDeUso(String cu, String usuarioId) {
+    /**
+     * Lo que hace que una traza de produccion lleve al caso de uso sin herramientas.
+     *
+     * @param referencia el identificador de lo que se opera (un id de recurso o una etiqueta como «ingreso»);
+     *     NUNCA un dato personal (telefono, correo, documento: regla 90.2.1). Se guarda bajo la clave
+     *     historica {@code usuarioId} del MDC para no romper los tableros que ya la leen.
+     */
+    public static void marcarCasoDeUso(String cu, String referencia) {
         MDC.put(CLAVE_CU, cu);
-        MDC.put(CLAVE_USUARIO, usuarioId);
+        MDC.put(CLAVE_USUARIO, referencia);
     }
 
     static void limpiar() {

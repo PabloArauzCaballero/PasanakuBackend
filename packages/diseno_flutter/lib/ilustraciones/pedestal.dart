@@ -23,7 +23,10 @@ class Pedestal extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          _Circulo(lado: tamano * 1.3, color: t.surface2.withValues(alpha: 0.5)),
+          _Circulo(
+            lado: tamano * 1.3,
+            color: t.surface2.withValues(alpha: 0.5),
+          ),
           _Circulo(lado: tamano * 1.06, color: t.surface, sombra: t.sombra3),
           hijo,
         ],

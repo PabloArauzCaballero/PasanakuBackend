@@ -197,7 +197,7 @@ paths:
     post:
       operationId: crearCampana
       summary: CU-111 · Crea la campana con sus conjuntos y la manda a revision
-      description: Exige PUBLICIDAD_APROBAR_CAMPANA para el anunciante autenticado.
+      description: Exige PUBLICIDAD_CAMPANA_GESTIONAR para el anunciante autenticado (el mismo permiso que declara el codigo).
       parameters:
         - $ref: '#/components/parameters/ClaveIdempotencia'
       requestBody:

@@ -74,6 +74,13 @@ final class PoliticaDeAcceso {
                     "servicios/identidad/src/main/java/bo/aportaya/identidad/web/TitularDelExpediente.java",
                     "AccessDeniedException",
                     "las fotos se suben durante el alta, sin sesion; exige el token de alta de ESE usuario o su sesion"),
+            "actualizarFechaExpiracionDocumento",
+            new ControlCompensatorio(
+                    "servicios/identidad/src/main/java/bo/aportaya/identidad/web/TitularDelExpediente.java",
+                    "AccessDeniedException",
+                    "@Publico porque quien todavia no tiene rol no tiene permiso que declarar (CU-02); el control es "
+                            + "la sesion del PROPIO titular (TitularDelExpediente.exigir con token nulo): ni el UUID de "
+                            + "la ruta ni el token de alta alcanzan. Prueba: UsuariosFechaExpiracionWebTest"),
             "renovarSesion",
             new ControlCompensatorio(
                     "servicios/identidad/src/main/java/bo/aportaya/identidad/web/CookieDeRefresco.java",

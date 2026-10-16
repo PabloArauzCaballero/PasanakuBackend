@@ -52,8 +52,8 @@ class CU47RechazosTest extends BaseDeCumplimiento {
         // producto se aprobo como estaba antes, que es justo lo que un supervisor pide
         // ver cuando algo sale mal.
         var primera = transaccion.execute(t -> productoCU.evaluar(entrada(false), ctx));
-        transaccion.execute(t -> productoCU.aprobar(
-                new EntradaAprobacion(primera.evaluacionId(), ctx.usuarioId(), true, false, "ACTA-1"), ctx));
+        transaccion.execute(
+                t -> productoCU.aprobar(new EntradaAprobacion(primera.evaluacionId(), true, false, "ACTA-1"), ctx));
         transaccion.execute(t -> productoCU.evaluar(entrada(false), ctx));
 
         assertThat(contar(
@@ -127,8 +127,7 @@ class CU47RechazosTest extends BaseDeCumplimiento {
         var evaluacion = transaccion.execute(t -> productoCU.evaluar(entrada(false), ctx));
 
         assertThatThrownBy(() -> transaccion.execute(t -> productoCU.aprobar(
-                        new EntradaAprobacion(evaluacion.evaluacionId(), ctx.usuarioId(), false, false, "ACTA-1"),
-                        ctx)))
+                        new EntradaAprobacion(evaluacion.evaluacionId(), false, false, "ACTA-1"), ctx)))
                 .hasMessageContaining("comite con quorum");
         assertThat(contar(
                         "SELECT count(*)::int FROM cumplimiento.evaluacion_riesgo_producto WHERE id = ? AND estado = 'BORRADOR'",
@@ -143,7 +142,7 @@ class CU47RechazosTest extends BaseDeCumplimiento {
         var evaluacion = transaccion.execute(t -> productoCU.evaluar(entrada(true), ctx));
 
         assertThatThrownBy(() -> transaccion.execute(t -> productoCU.aprobar(
-                        new EntradaAprobacion(evaluacion.evaluacionId(), ctx.usuarioId(), true, false, "ACTA-1"), ctx)))
+                        new EntradaAprobacion(evaluacion.evaluacionId(), true, false, "ACTA-1"), ctx)))
                 .hasMessageContaining("no objecion");
 
         // HUECO: `ck_evaluacion_no_objecion` y `ck_evaluacion_vigente_aprobada` vigilan
