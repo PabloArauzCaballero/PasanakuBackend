@@ -294,8 +294,7 @@ public class RevisionRepositorio {
      * La cuenta aprobada entra como titular/participante y necesita los permisos base de
      * billetera que se calculan desde sus roles vigentes. El revisor queda como otorgante.
      */
-    private void asignarRolBaseAlUsuarioDe(
-            DSLContext dsl, UUID usuarioId, UUID revisor, OffsetDateTime ahora) {
+    private void asignarRolBaseAlUsuarioDe(DSLContext dsl, UUID usuarioId, UUID revisor, OffsetDateTime ahora) {
         Datos.comoSistema(
                 dsl,
                 () -> dsl.execute(
