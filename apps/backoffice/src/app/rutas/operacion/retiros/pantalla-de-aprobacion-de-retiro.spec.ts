@@ -156,6 +156,16 @@ describe('PantallaDeAprobacionDeRetiro · [UI contra HTTP simulado] F5', () => {
     expect(texto(f)).toContain('otra persona la resolvió primero')
   })
 
+  it('rechazo (422 AP-CU11-11, la forma vigente del contrato para «ya resuelta»): mismo texto que el 409, sin «falló»', () => {
+    const f = montar()
+    cargar(f, ORDEN, 'AUTORIZADA')
+    f.componentInstance['enviar']()
+    http.expectOne(URL).flush({ codigo: 'AP-CU11-11', mensaje: 'crudo', trazaId: 't' }, { status: 422, statusText: 'x' })
+    f.detectChanges()
+    expect(texto(f)).toContain('otra persona la resolvió primero')
+    expect(texto(f)).not.toContain('crudo')
+  })
+
   it('rechazo (404): la orden no existe y se puede corregir el identificador', () => {
     const f = montar()
     cargar(f, ORDEN, 'AUTORIZADA')

@@ -185,7 +185,7 @@ export class PantallaDeAprobacionDeRetiro {
 
   private mensajeDeRechazo(e: ErrorTraducido): string {
     if (e.codigo === 'AP-CU11-10') return this.t.autoaprobacion
-    if (e.estado === 409) return this.t.yaResuelta
+    if (e.estado === 409 || e.codigo === 'AP-CU11-11') return this.t.yaResuelta
     if (e.estado === 404) return this.t.noExiste
     return e.mensaje
   }
