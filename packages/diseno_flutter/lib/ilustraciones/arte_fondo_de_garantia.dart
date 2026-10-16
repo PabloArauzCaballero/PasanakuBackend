@@ -10,11 +10,7 @@ class ArteFondoDeGarantia extends ArteDeMaqueta {
 
   @override
   void dibujar(Canvas c) {
-    c.drawLine(
-      const Offset(70, 24),
-      const Offset(70, 34),
-      trazo(t.text2, 5),
-    );
+    c.drawLine(const Offset(70, 24), const Offset(70, 34), trazo(t.text2, 5));
 
     // La copa del paraguas: el semicírculo relleno y su borde más oscuro.
     final copa = Path()

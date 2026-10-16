@@ -33,11 +33,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         conTema(
-          const FilaDeCotejo(
-            campo: 'Nombres',
-            declarado: 'Ana',
-            leido: 'Ana',
-          ),
+          const FilaDeCotejo(campo: 'Nombres', declarado: 'Ana', leido: 'Ana'),
           brillo: brillo,
         ),
       );
@@ -56,11 +52,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         conTema(
-          const FilaDeCotejo(
-            campo: 'Nombres',
-            declarado: 'Ana',
-            leido: 'Anea',
-          ),
+          const FilaDeCotejo(campo: 'Nombres', declarado: 'Ana', leido: 'Anea'),
           brillo: brillo,
         ),
       );

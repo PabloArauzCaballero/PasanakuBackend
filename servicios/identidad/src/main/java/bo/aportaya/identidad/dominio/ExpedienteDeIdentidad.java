@@ -33,11 +33,30 @@ public record ExpedienteDeIdentidad(
 
     /** Compatibilidad con expedientes anteriores al campo de contacto por correo. */
     public ExpedienteDeIdentidad(
-            UUID verificacionId, UUID usuarioId, String nombreCompleto, String telefono, String documento,
-            String estado, OffsetDateTime iniciadaEn, OffsetDateTime resueltaEn, String motivoRechazo,
-            List<String> fotos, LocalDate fechaExpiracionDocumento) {
-        this(verificacionId, usuarioId, nombreCompleto, telefono, documento, estado, iniciadaEn, resueltaEn,
-                motivoRechazo, fotos, fechaExpiracionDocumento, null);
+            UUID verificacionId,
+            UUID usuarioId,
+            String nombreCompleto,
+            String telefono,
+            String documento,
+            String estado,
+            OffsetDateTime iniciadaEn,
+            OffsetDateTime resueltaEn,
+            String motivoRechazo,
+            List<String> fotos,
+            LocalDate fechaExpiracionDocumento) {
+        this(
+                verificacionId,
+                usuarioId,
+                nombreCompleto,
+                telefono,
+                documento,
+                estado,
+                iniciadaEn,
+                resueltaEn,
+                motivoRechazo,
+                fotos,
+                fechaExpiracionDocumento,
+                null);
     }
 
     /** Sin fecha de vencimiento: los usos anteriores a que el alta la pidiera. */

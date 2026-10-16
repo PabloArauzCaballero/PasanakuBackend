@@ -1,0 +1,15 @@
+== Rama pablo/fix/arreglos-dev-ci-2026-10-16 (desde origin/dev db37fd16)
+$ ./gradlew :servicios:identidad:check :servicios:identidad:integrationTest --continue
+exit=0 · integrationTest 151/151 · test 35/35 · testBarrido 2/2 · webTest 120/120 · spotless OK
+Antes en dev: spotless FALLA (RevisionRepositorio, CU02RevisionTest) · barrido FALLA (RevisionRepositorio 314, UsuariosControllerWebTest 300)
+
+$ (packages/diseno_flutter) yarn lint   → exit 0 · TODO OK
+$ (apps/movil) yarn lint               → exit 0 · TODO OK
+Antes: dart format en 5 + 7 archivos; FALLA literal de diseño seccion_verificacion_kyc.dart:17; FALLA >200 líneas cliente.dart (210), rutas.dart (202), hoja_de_seleccion.dart (203)
+Ahora: cliente.dart 154 + traduccion_de_errores.dart (part) 59 · rutas.dart 73 + rutas_de_entrada.dart 135 · hoja_de_seleccion.dart 183 + ayuda_de_hoja.dart 30
+
+$ (packages/diseno_flutter) flutter test (sin goldens): 115 pasan
+$ flutter test test/goldens: 15 fallan CON y SIN estos cambios (dependen de la plataforma; el CI tiene jobs de goldens propios)
+$ python3 scripts/verificar_criterios.py → exit 0
+
+No verificado localmente: flutter analyze/test de apps/movil (requiere los clientes Dart generados; lo cubre el CI del PR).

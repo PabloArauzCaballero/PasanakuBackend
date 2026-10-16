@@ -1,0 +1,19 @@
+Formatted lib/atomos/boton_variante.dart
+Formatted lib/ilustraciones/arte_fondo_de_garantia.dart
+Formatted lib/ilustraciones/pedestal.dart
+Formatted lib/moleculas/fila_de_cotejo.dart
+Formatted test/widget/fila_de_cotejo_test.dart
+Formatted test/widget/roles_de_color_accion_test.dart
+Formatted 158 files (6 changed) in 0.18 seconds.
+packages/diseno_flutter rc=0
+Formatted lib/pantallas/identidad/pantalla_portada.dart
+Formatted test/goldens/h10_alta_actividad_visual_test.dart
+Formatted test/goldens/h10_alta_contrato_visual_test.dart
+Formatted test/goldens/h10_alta_correo_visual_test.dart
+Formatted test/goldens/h10_alta_cuenta_visual_test.dart
+Formatted test/goldens/h10_alta_datos_visual_test.dart
+Formatted test/goldens/h10_prueba_vida_visual_test.dart
+Formatted 472 files (7 changed) in 0.41 seconds.
+apps/movil rc=0
+packages/diseno_flutter dart rc=0
+apps/movil dart rc=0

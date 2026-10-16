@@ -59,106 +59,110 @@ void main() {
   for (final ancho in [360, 412, 600]) {
     for (final tema in ['claro', 'oscuro']) {
       final reutilizaH8 = ancho == 360 && tema == 'oscuro';
-      testWidgets('prueba de vida inicial · $tema · $ancho dp · texto 130 %', (
-        tester,
-      ) async {
-        tester.view.physicalSize = Size(
-          ancho.toDouble(),
-          ancho == 360
-              ? 740
-              : ancho == 412
-              ? 850
-              : 960,
-        );
-        tester.view.devicePixelRatio = 1;
-        tester.platformDispatcher.textScaleFactorTestValue = 1.3;
-        tester.platformDispatcher.accessibilityFeaturesTestValue =
-            const FakeAccessibilityFeatures(disableAnimations: true);
-        addTearDown(tester.view.reset);
-        addTearDown(tester.platformDispatcher.clearAllTestValues);
-        addTearDown(
-          tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
-        );
+      testWidgets(
+        'prueba de vida inicial · $tema · $ancho dp · texto 130 %',
+        (tester) async {
+          tester.view.physicalSize = Size(
+            ancho.toDouble(),
+            ancho == 360
+                ? 740
+                : ancho == 412
+                ? 850
+                : 960,
+          );
+          tester.view.devicePixelRatio = 1;
+          tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+          tester.platformDispatcher.accessibilityFeaturesTestValue =
+              const FakeAccessibilityFeatures(disableAnimations: true);
+          addTearDown(tester.view.reset);
+          addTearDown(tester.platformDispatcher.clearAllTestValues);
+          addTearDown(
+            tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+          );
 
-        final camara = _CamaraSintetica();
-        await tester.pumpWidget(
-          ProviderScope(
-            child: MaterialApp(
-              theme: temaDesde(
-                tema == 'oscuro' ? Tokens.oscuro : Tokens.claro,
-                tema == 'oscuro' ? Brightness.dark : Brightness.light,
-              ),
-              builder: (context, child) => MediaQuery(
-                data: MediaQuery.of(context).copyWith(disableAnimations: true),
-                child: child!,
-              ),
-              home: PantallaDePruebaDeVida(
-                poses: PoseDeVida.values,
-                crearCamara: () => camara,
-                ahora: () => DateTime.utc(2026, 1, 1),
+          final camara = _CamaraSintetica();
+          await tester.pumpWidget(
+            ProviderScope(
+              child: MaterialApp(
+                theme: temaDesde(
+                  tema == 'oscuro' ? Tokens.oscuro : Tokens.claro,
+                  tema == 'oscuro' ? Brightness.dark : Brightness.light,
+                ),
+                builder: (context, child) => MediaQuery(
+                  data: MediaQuery.of(
+                    context,
+                  ).copyWith(disableAnimations: true),
+                  child: child!,
+                ),
+                home: PantallaDePruebaDeVida(
+                  poses: PoseDeVida.values,
+                  crearCamara: () => camara,
+                  ahora: () => DateTime.utc(2026, 1, 1),
+                ),
               ),
             ),
-          ),
-        );
-        await tester.pumpAndSettle();
-
-        expect(
-          tester.widget<Scaffold>(find.byType(Scaffold)).backgroundColor,
-          Paleta.ink,
-        );
-        expect(find.text('FOTO 1 DE 3'), findsOneWidget);
-        expect(
-          find.text(TextosDeCaptura.tituloDePose(PoseDeVida.frente)),
-          findsOneWidget,
-        );
-        expect(
-          find.text(TextosDeCaptura.instruccionDePose(PoseDeVida.frente)),
-          findsOneWidget,
-        );
-        expect(find.text(TextosDeCaptura.tomarAhora), findsOneWidget);
-        expect(
-          tester
-              .widget<Boton>(
-                find.ancestor(
-                  of: find.text(TextosDeCaptura.tomarAhora),
-                  matching: find.byType(Boton),
-                ),
-              )
-              .onPressed,
-          isNotNull,
-        );
-        expect(find.text(TextosDeCaptura.cancelar), findsOneWidget);
-        expect(camara.fotoTomada, isFalse);
-        expect(tester.takeException(), isNull);
-
-        for (final texto in [
-          'FOTO 1 DE 3',
-          TextosDeCaptura.tituloDePose(PoseDeVida.frente),
-          TextosDeCaptura.instruccionDePose(PoseDeVida.frente),
-          TextosDeCaptura.tomarAhora,
-          TextosDeCaptura.cancelar,
-        ]) {
-          final rect = tester.getRect(find.text(texto));
-          expect(rect.top, greaterThanOrEqualTo(0), reason: '$texto arriba');
-          expect(
-            rect.bottom,
-            lessThanOrEqualTo(tester.view.physicalSize.height),
-            reason: '$texto dentro del viewport',
           );
-        }
+          await tester.pumpAndSettle();
 
-        await expectLater(
-          find.byType(PantallaDePruebaDeVida),
-          matchesGoldenFile(
-            reutilizaH8
-                ? _h8
-                : '${_evidencia}h10-prueba-vida-inicial-$tema-$ancho-130.png',
-          ),
-        );
-        expect(camara.fotoTomada, isFalse);
-        await tester.pumpWidget(const SizedBox.shrink());
-        expect(camara.liberada, isTrue);
-      }, skip: reutilizaH8 && _omitirH8EnActualizacion);
+          expect(
+            tester.widget<Scaffold>(find.byType(Scaffold)).backgroundColor,
+            Paleta.ink,
+          );
+          expect(find.text('FOTO 1 DE 3'), findsOneWidget);
+          expect(
+            find.text(TextosDeCaptura.tituloDePose(PoseDeVida.frente)),
+            findsOneWidget,
+          );
+          expect(
+            find.text(TextosDeCaptura.instruccionDePose(PoseDeVida.frente)),
+            findsOneWidget,
+          );
+          expect(find.text(TextosDeCaptura.tomarAhora), findsOneWidget);
+          expect(
+            tester
+                .widget<Boton>(
+                  find.ancestor(
+                    of: find.text(TextosDeCaptura.tomarAhora),
+                    matching: find.byType(Boton),
+                  ),
+                )
+                .onPressed,
+            isNotNull,
+          );
+          expect(find.text(TextosDeCaptura.cancelar), findsOneWidget);
+          expect(camara.fotoTomada, isFalse);
+          expect(tester.takeException(), isNull);
+
+          for (final texto in [
+            'FOTO 1 DE 3',
+            TextosDeCaptura.tituloDePose(PoseDeVida.frente),
+            TextosDeCaptura.instruccionDePose(PoseDeVida.frente),
+            TextosDeCaptura.tomarAhora,
+            TextosDeCaptura.cancelar,
+          ]) {
+            final rect = tester.getRect(find.text(texto));
+            expect(rect.top, greaterThanOrEqualTo(0), reason: '$texto arriba');
+            expect(
+              rect.bottom,
+              lessThanOrEqualTo(tester.view.physicalSize.height),
+              reason: '$texto dentro del viewport',
+            );
+          }
+
+          await expectLater(
+            find.byType(PantallaDePruebaDeVida),
+            matchesGoldenFile(
+              reutilizaH8
+                  ? _h8
+                  : '${_evidencia}h10-prueba-vida-inicial-$tema-$ancho-130.png',
+            ),
+          );
+          expect(camara.fotoTomada, isFalse);
+          await tester.pumpWidget(const SizedBox.shrink());
+          expect(camara.liberada, isTrue);
+        },
+        skip: reutilizaH8 && _omitirH8EnActualizacion,
+      );
     }
   }
 }
