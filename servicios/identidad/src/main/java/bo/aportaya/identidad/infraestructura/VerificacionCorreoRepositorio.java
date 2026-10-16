@@ -23,12 +23,21 @@ public class VerificacionCorreoRepositorio {
     private final Datos datos;
     private final Ids ids;
     private final ProteccionDeVerificacionCorreo proteccion;
+    private final RegistroRepositorio registros;
     private final SecureRandom azar = new SecureRandom();
 
-    public VerificacionCorreoRepositorio(Datos datos, Ids ids, ProteccionDeVerificacionCorreo proteccion) {
+    public VerificacionCorreoRepositorio(
+            Datos datos, Ids ids, ProteccionDeVerificacionCorreo proteccion, RegistroRepositorio registros) {
         this.datos = datos;
         this.ids = ids;
         this.proteccion = proteccion;
+        this.registros = registros;
+    }
+
+    /** La misma pregunta que CU-01 hace al final del alta, en su propia transaccion corta. */
+    @Transactional(readOnly = true)
+    public boolean correoConCuenta(String correo, ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> registros.correoYaRegistrado(dsl, correo));
     }
 
     @Transactional
