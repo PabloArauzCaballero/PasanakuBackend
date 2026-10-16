@@ -63,6 +63,7 @@ class CU02RevisionTest {
     @Test
     void colaDistingueFotosCargadasDeRellenosYFiltraPorEstado() {
         UUID usuario = usuario();
+        dsl.execute("UPDATE identidad.usuario SET correo = ? WHERE id = ?", "ana@example.test", usuario);
         UUID verificacion = expediente(usuario, "PENDIENTE", true);
         String reverso = clave(usuario, "reverso");
         dsl.execute(
@@ -81,6 +82,7 @@ class CU02RevisionTest {
                 .findFirst()
                 .orElseThrow();
         assertThat(fila.nombreCompleto()).isEqualTo("Ana Quispe");
+        assertThat(fila.correo()).isEqualTo("ana@example.test");
         assertThat(fila.documento()).isEqualTo("CI LP");
         assertThat(fila.fotos()).containsExactly("REVERSO", "SELFIE");
         assertThat(pendientes).noneMatch(it -> it.verificacionId().equals(otraVerificacion));

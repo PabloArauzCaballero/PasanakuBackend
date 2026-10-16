@@ -10,7 +10,7 @@ import {
   ExpedienteEnRevisionEstadoEnum,
   type ExpedienteEnRevision,
 } from 'clientes/angular/identidad'
-import { crearResolver, expedientesEnEstado, POR_DECIDIR, recortar, vencimientoDe } from '../dominio/cu02-expedientes'
+import { crearResolver, expedientesEnEstado, coincideConBusqueda, POR_DECIDIR, recortar, vencimientoDe } from '../dominio/cu02-expedientes'
 import type { ErrorTraducido } from '../../../nucleo/errores'
 import { textosCumplimiento } from '../textos'
 import { DecisionDeExpediente, type Decision } from './decision-de-expediente'
@@ -72,6 +72,7 @@ import { TiraDeFotos } from './tira-de-fotos'
                   <div>
                     <h2>{{ e.nombreCompleto }}</h2>
                     <p class="telefono">{{ t.telefono }}: {{ e.telefono }}</p>
+                    <p class="correo">{{ t.correo }}: {{ e.correo || t.sinCorreo }}</p>
                     <p class="doc">{{ e.documento ?? t.sinDocumento }}</p>
                     <ap-vencimiento-del-documento [expediente]="e" />
                   </div>
@@ -110,6 +111,7 @@ import { TiraDeFotos } from './tira-de-fotos'
     h2 { margin: 0; font-size: 1.05rem; }
     .doc { margin: 0; color: var(--text-2); font-size: .875rem; }
     .telefono { margin: 0; color: var(--text-2); font-size: .875rem; }
+    .correo { margin: 0; color: var(--text-2); font-size: .875rem; }
     .aviso { margin: 0; color: var(--aviso-texto); font-size: .875rem; }
   `,
 })
@@ -137,9 +139,8 @@ export class PantallaDeExpedientes {
    * estado y los que esperan una persona son dos.
    */
   protected readonly visibles = computed(() => {
-    const termino = this.normalizar(this.busqueda())
     return recortar(this.cola.value() ?? [], this.estado()).filter((e) =>
-      !termino || this.normalizar(`${e.nombreCompleto} ${e.telefono ?? ''}`).includes(termino),
+      coincideConBusqueda(e, this.busqueda()),
     )
   })
 
@@ -152,10 +153,6 @@ export class PantallaDeExpedientes {
   protected readonly mensajeVacio = computed(() =>
     this.busqueda().trim() ? this.t.sinCoincidencias : this.t.sinPendientes,
   )
-
-  private normalizar(valor: string): string {
-    return valor.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es').trim()
-  }
 
   /** `POR_DECIDIR` no es un estado del contrato: se nombra en castellano, no en mayúsculas. */
   protected etiquetaDeFiltro(estado: string): string {
