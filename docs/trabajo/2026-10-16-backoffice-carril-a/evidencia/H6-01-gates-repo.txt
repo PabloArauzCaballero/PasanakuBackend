@@ -1,0 +1,19 @@
+$ python3 scripts/verificar_criterios.py
+casos de uso implementados y verificados: 106
+pendientes de implementar (3): CU-05 (identidad), CU-51 (aportes), CU-57 (nucleo-financiero)
+Sin divergencias entre la boveda y el codigo.
+
+$ python3 scripts/verificar_boveda.py
+
+TODO OK
+
+$ python3 scripts/verificar_seguridad.py
+  (834 archivos revisados; 0 bloquean, 4 son aviso)
+
+1 FALLAS
+
+$ python3 scripts/generar_postman.py && git diff --exit-code -- postman/
+postman sin divergencia
+
+$ python3 docs/trabajo/2026-10-16-backoffice-carril-a/entregables/matriz.py --verificar
+OK · las matrices coinciden con las fuentes

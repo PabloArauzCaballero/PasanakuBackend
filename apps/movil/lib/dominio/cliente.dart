@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../dominio/errores.dart';
 import '../proveedores/sesion.dart';
 import 'configuracion.dart';
+import 'diagnostico_api.dart';
 import 'refrescador.dart';
 
 export 'refrescador.dart';
@@ -157,16 +158,24 @@ class _TraduccionDeErrores extends Interceptor {
     final mapa = cuerpo is Map<String, dynamic>
         ? cuerpo
         : const <String, dynamic>{};
+    final codigo = mapa['codigo'] as String? ?? 'AP-DESCONOCIDO';
     final traza =
         (mapa['trazaId'] as String?) ??
         (err.requestOptions.headers['x-request-id'] as String? ?? '');
+    registrarRechazoApi(
+      metodo: err.requestOptions.method,
+      ruta: err.requestOptions.path,
+      estado: respuesta.statusCode ?? 0,
+      codigo: codigo,
+      traza: traza,
+    );
     handler.reject(
       DioException(
         requestOptions: err.requestOptions,
         response: respuesta,
         type: err.type,
         error: ErrorDeApi(
-          codigo: (mapa['codigo'] as String?) ?? 'AP-DESCONOCIDO',
+          codigo: codigo,
           trazaId: traza,
           estado: respuesta.statusCode ?? 0,
           contexto: _contextoError(err.requestOptions),

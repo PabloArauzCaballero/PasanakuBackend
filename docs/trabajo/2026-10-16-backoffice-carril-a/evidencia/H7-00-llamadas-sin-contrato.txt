@@ -1,0 +1,9 @@
+$ python3 docs/trabajo/2026-10-16-backoffice-carril-a/entregables/llamadas_sin_contrato.py .
+llamadas de la UI: 33 · sin operacion en ningun contrato: 7
+  GET    /erp/ejercicios/{x}/periodos                            apps/backoffice/src/app/rutas/contabilidad/dominio/cu100-periodos.ts
+  GET    /erp/estados-financieros/{x}/documento                  apps/backoffice/src/app/rutas/contabilidad/dominio/cu106-estados-financieros.ts
+  GET    /grupos/solicitudes-escaladas                           apps/backoffice/src/app/rutas/operacion/dominio/d15-solicitudes-escaladas.ts
+  GET    /publicidad/anunciantes                                 apps/backoffice/src/app/rutas/publicidad/dominio/cu110-anunciantes.ts
+  GET    /publicidad/campanas                                    apps/backoffice/src/app/rutas/publicidad/dominio/cu111-campanas.ts
+  GET    /publicidad/piezas-creativas                            apps/backoffice/src/app/rutas/publicidad/dominio/cu112-moderacion.ts
+  POST   /extraccion/accesos                                     apps/backoffice/src/app/nucleo/registro-de-acceso.interceptor.ts

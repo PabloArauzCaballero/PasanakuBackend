@@ -95,6 +95,7 @@ export const ErroresCU83 = {
   RITMO_EXCEDIDO:           'AP-CU83-03',
   PROVEEDOR_DEGRADADO:      'AP-CU83-04',
   AGOTADOS_LOS_REINTENTOS:  'AP-CU83-05',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU83-06',
 } as const
 ```
 
@@ -105,6 +106,15 @@ export const ErroresCU83 = {
 | `RITMO_EXCEDIDO` | Se alcanzó el límite por segundo; se reprograma, no se descarta |
 | `PROVEEDOR_DEGRADADO` | El elegido está por debajo del umbral de salud; se conmuta |
 | `AGOTADOS_LOS_REINTENTOS` | Todos los proveedores fallaron; va a cola muerta |
+| `FILTRO_DE_LISTADO_INVALIDO` | El listado de envíos recibió un estado desconocido, o `antesDe` sin `antesDeId` (o al revés) |
+
+**Intentos de envío para Auditoría (backoffice carril A · A6).** `GET /notificaciones/envios`
+(`listarEnvios`, `AUDITORIA_LEER`) lista cada envío con su estado, proveedor, orden, intentos y máximo,
+costo con la escala de la columna (cuatro decimales, en cadena) y su moneda, código de error, marcas de
+encolado/envío/entrega/lectura/reintento y el último acuse del proveedor (tipo, fecha y código de error).
+Sin filtro trae todos los estados. **No devuelve destinatario, contenido enviado, identificador del mensaje
+en el proveedor, clave de idempotencia ni la carga cruda del acuse**: teléfono y correo son datos personales
+(regla 90.2). Pagina por `(encoladoEn, id)` del más reciente al más antiguo.
 
 ## Descomposición atómica
 
@@ -163,6 +173,15 @@ Entonces no se lo selecciona y queda registrada la degradación
 Dado un envío obligatorio que agota todos los proveedores
 Cuando cae a cola muerta
 Entonces se escala a operaciones y no se cierra en silencio
+
+# Intentos de envío para Auditoría (backoffice carril A)
+Dado un envío despachado con acuse de entrega y otro que agotó su único proveedor
+Cuando Auditoría abre los intentos de envío
+Entonces ve los dos con su estado, intentos y último acuse, sin destinatario ni contenido
+
+Dados dos envíos despachados
+Cuando Auditoría recorre los intentos de a uno
+Entonces ve cada uno una sola vez, del más reciente al más antiguo, y la última página cierra sin cursor
 ```
 
 ## Ver también

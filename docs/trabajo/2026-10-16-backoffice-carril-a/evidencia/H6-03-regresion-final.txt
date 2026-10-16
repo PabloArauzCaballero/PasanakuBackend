@@ -1,0 +1,25 @@
+Regresion final sobre el arbol integrado con origin/dev (merge 70502103), --no-build-cache, en serie:
+$ ./gradlew :servicios:<s>:spotlessCheck test webTest testBarrido integrationTest contractTest --continue --no-build-cache   (erp con --rerun)
+== nucleo-financiero
+   test             clases  15  pruebas   81  fallas 0  omitidas 0
+   webTest          clases  11  pruebas   51  fallas 0  omitidas 0
+   testBarrido      clases   1  pruebas    2  fallas 0  omitidas 0
+   integrationTest  clases  78  pruebas  455  fallas 0  omitidas 0
+   contractTest     clases   2  pruebas   10  fallas 0  omitidas 0
+== cumplimiento
+   test             clases   2  pruebas   14  fallas 0  omitidas 0
+   webTest          clases  10  pruebas   70  fallas 0  omitidas 0
+   testBarrido      clases   1  pruebas    2  fallas 0  omitidas 0
+   integrationTest  clases  45  pruebas  306  fallas 0  omitidas 0
+   contractTest     clases   0  pruebas    0  fallas 0  omitidas 0
+== erp
+   test             clases   1  pruebas    5  fallas 0  omitidas 0
+   webTest          clases   6  pruebas   43  fallas 0  omitidas 0
+   testBarrido      clases   1  pruebas    2  fallas 0  omitidas 0
+   integrationTest  clases  17  pruebas   95  fallas 0  omitidas 0
+   contractTest     clases   0  pruebas    0  fallas 0  omitidas 0
+TOTAL 1136 pruebas · 0 fallas
+
+$ ./gradlew contractTest --continue --no-build-cache --no-parallel   (todos los servicios)
+servicios con pruebas de contrato: entregas, inversiones, nucleo-financiero
+pruebas 42 fallas 9

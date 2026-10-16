@@ -97,6 +97,13 @@ export const ErroresCU11 = {
   BLOQUEO_DE_AUTORIDAD: 'AP-CU11-05',
   ENCAJE_INCUMPLIDO: 'AP-CU11-06',
   MFA_INVALIDO: 'AP-CU11-07',
+  ORDEN_NO_INSTRUIBLE: 'AP-CU11-08',
+  PAGO_NO_CONFIRMABLE: 'AP-CU11-09',
+  RETIRO_AUTOAPROBACION_PROHIBIDA: 'AP-CU11-10',
+  RETIRO_YA_RESUELTO: 'AP-CU11-11',
+  COSTO_NO_MENOR_AL_IMPORTE: 'AP-CU11-12',
+  CLAVE_DE_OTRA_PETICION: 'AP-CU11-13',
+  CURSOR_INCOMPLETO: 'AP-CU11-14',
 } as const
 ```
 
@@ -109,6 +116,20 @@ export const ErroresCU11 = {
 | `BLOQUEO_DE_AUTORIDAD` | Hay saldo inmovilizado por oficio |
 | `ENCAJE_INCUMPLIDO` | El sistema está en modo restringido (R-BIL-11) |
 | `MFA_INVALIDO` | Se envió evidencia de segundo factor, pero la firma, el vencimiento, el propósito o el `jti` no son válidos (R-BIL-09, H2) |
+| `ORDEN_NO_INSTRUIBLE` | Se intenta instruir al proveedor una orden que no está `AUTORIZADA`: le falta la segunda aprobación, o otra instrucción ya la adelantó |
+| `PAGO_NO_CONFIRMABLE` | Se confirma el pago de una orden que no está `EN_PROCESO`, o el proveedor responde algo que no coincide con la orden (queda para revisión) |
+| `RETIRO_AUTOAPROBACION_PROHIBIDA` | Quien solicitó el retiro intenta aprobarlo o rechazarlo (R-SEG-04, ADR-049) |
+| `RETIRO_YA_RESUELTO` | La orden ya no está `EN_REVISION`: otro aprobador la resolvió primero, o se envía con otra clave una decisión ya tomada |
+| `COSTO_NO_MENOR_AL_IMPORTE` | La cotización devuelve un costo que iguala o supera el importe del retiro |
+| `CLAVE_DE_OTRA_PETICION` | La `Idempotency-Key` ya identifica otra petición (otro retiro, u otra decisión sobre la orden) |
+| `CURSOR_INCOMPLETO` | La bandeja de revisión recibió `despuesDeFecha` sin `despuesDeId`, o al revés |
+
+**Bandeja y respuesta de la segunda aprobación (ADR-049, backoffice carril A).** `GET /billetera/retiros`
+(`listarRetirosEnRevision`) lista las órdenes `EN_REVISION` de la más antigua a la más nueva, paginadas
+por cursor `(solicitadaEn, id)`, sin destino ni datos de la persona; la fila propia sale con
+`puedeDecidir=false`. `POST /billetera/retiros/{ordenId}/aprobacion` guarda el recibo bajo la
+`Idempotency-Key` del aprobador en `respuesta_idempotente`: reintentar con la misma clave y la misma
+decisión devuelve el mismo recibo, sin otra transición, evento ni métrica.
 
 ## Descomposición atómica
 
@@ -129,6 +150,8 @@ export const ErroresCU11 = {
 | `retiro.solicitado` | Retención del importe y evaluación antifraude | `BILLETERA_OPERAR` |
 | `retiro.pagado` | Transacción de billetera, asiento y umbrales UIF | — |
 | `retiro.rechazado` | Liberación de la retención y aviso | — |
+| `retiro.autorizado` (segunda aprobación) | Despacho al proveedor | `RETIRO_APROBAR` |
+| — (lectura de la bandeja de revisión) | — | `RETIRO_APROBAR` |
 
 ## Interfaz
 
@@ -181,6 +204,36 @@ Entonces la orden nace EN_REVISION, no AUTORIZADA
 Dado un retiro EN_REVISION
 Cuando un aprobador DISTINTO del solicitante lo aprueba
 Entonces la orden pasa a AUTORIZADA con aprobada_por igual al aprobador
+
+# Bandeja de la segunda aprobación (backoffice carril A)
+Dadas tres ordenes EN_REVISION
+Cuando el aprobador recorre la bandeja de a dos
+Entonces ve las tres una sola vez, de la mas antigua a la mas nueva, y la segunda pagina cierra sin cursor
+
+Dada una orden que otro aprobador ya autorizo
+Cuando se consulta la bandeja
+Entonces ya no aparece: la cola muestra solo lo que todavia espera decision
+
+Dada una bandeja sin ordenes EN_REVISION
+Cuando el aprobador la consulta
+Entonces recibe una pagina vacia y sin cursor, nunca un error
+
+Dada una orden EN_REVISION que pidio el mismo operador
+Cuando la consulta en la bandeja
+Entonces aparece marcada como no decidible (R-SEG-04)
+
+# Respuesta idempotente de la segunda aprobación
+Dado un aprobador que autorizo una orden y perdio la respuesta
+Cuando reintenta con la MISMA clave
+Entonces recibe el mismo recibo, y la orden, el evento y la metrica ocurrieron una sola vez
+
+Dado un rechazo ya registrado
+Cuando se repite con la misma clave
+Entonces devuelve el mismo recibo y la retencion se libero una sola vez
+
+Dado un solicitante que intenta aprobar su propia orden con una clave
+Cuando envia la aprobacion
+Entonces se rechaza por auto-aprobacion y la clave no queda reservada
 
 Dado un retiro bajo el umbral
 Cuando se solicita y queda AUTORIZADA

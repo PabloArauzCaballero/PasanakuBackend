@@ -249,7 +249,13 @@ public class RevisionRepositorio {
     }
 
     public void resolver(
-            DSLContext dsl, UUID verificacionId, String estado, String motivo, UUID revisor, OffsetDateTime ahora) {
+            DSLContext dsl,
+            UUID verificacionId,
+            UUID usuarioId,
+            String estado,
+            String motivo,
+            UUID revisor,
+            OffsetDateTime ahora) {
         int filas = dsl.update(VERIFICACION_KYC)
                 .set(VERIFICACION_KYC.ESTADO, estado)
                 .set(VERIFICACION_KYC.MOTIVO_RECHAZO, motivo)
@@ -265,6 +271,7 @@ public class RevisionRepositorio {
         }
         if ("APROBADA".equals(estado)) {
             activarAlUsuarioDe(dsl, verificacionId);
+            asignarRolBaseAlUsuarioDe(dsl, usuarioId, revisor, ahora);
         }
     }
 
@@ -281,5 +288,27 @@ public class RevisionRepositorio {
                  WHERE v.id = ? AND u.id = v.usuario_id AND u.estado = 'PENDIENTE_VERIFICACION'
                 """,
                         verificacionId));
+    }
+
+    /**
+     * La cuenta aprobada entra como titular/participante y necesita los permisos base de
+     * billetera que se calculan desde sus roles vigentes. El revisor queda como otorgante.
+     */
+    private void asignarRolBaseAlUsuarioDe(
+            DSLContext dsl, UUID usuarioId, UUID revisor, OffsetDateTime ahora) {
+        Datos.comoSistema(
+                dsl,
+                () -> dsl.execute(
+                        """
+                INSERT INTO identidad.asignacion_rol
+                  (usuario_id, rol_id, ambito, ambito_id, otorgada_por, otorgada_en)
+                SELECT ?, r.id, 'GLOBAL', NULL, ?, ?::timestamptz
+                  FROM identidad.rol r
+                 WHERE r.codigo = 'PARTICIPANTE'
+                ON CONFLICT DO NOTHING
+                """,
+                        usuarioId,
+                        revisor,
+                        ahora));
     }
 }

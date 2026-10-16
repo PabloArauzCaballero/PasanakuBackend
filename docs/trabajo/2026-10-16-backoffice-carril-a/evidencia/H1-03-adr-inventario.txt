@@ -1,0 +1,7 @@
+$ diff <(ls sql/10_tablas/*/ | grep -E "^(regla|politica|decision|version)_") <(tablas del inventario del ADR)
+sin diferencias · 19 tablas
+
+$ grep -c "| §2\." ADR (checklist §2.1–§2.7)
+7
+$ matriz.py --citas
+20/20 citas resuelven

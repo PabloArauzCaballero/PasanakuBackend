@@ -76,6 +76,9 @@ export const ErroresCU50 = {
   SIN_CIERRES_DIARIOS: 'AP-CU50-01',
   SIN_EXTRACTO_BANCARIO: 'AP-CU50-02',
   CONCILIACION_DUPLICADA: 'AP-CU50-03',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU50-04',
+  MONEDA_DISTINTA_DE_LA_CUSTODIA: 'AP-CU50-05',
+  CUSTODIA_INEXISTENTE: 'AP-CU50-06',
 } as const
 ```
 
@@ -83,7 +86,21 @@ export const ErroresCU50 = {
 | --- | --- |
 | `SIN_CIERRES_DIARIOS` | Faltan saldos diarios sellados de la fecha |
 | `SIN_EXTRACTO_BANCARIO` | No se cargó el movimiento de custodia |
-| `CONCILIACION_DUPLICADA` | Ya existe para esa cuenta y fecha (R-BIL-11) |
+| `CONCILIACION_DUPLICADA` | Ya existe para esa cuenta y fecha (R-BIL-11), con otros saldos o de otro operador |
+| `FILTRO_DE_LISTADO_INVALIDO` | El listado recibió `antesDe` sin `antesDeId`, o al revés |
+| `MONEDA_DISTINTA_DE_LA_CUSTODIA` | Tesorería informa saldos en otra moneda que la de la cuenta de custodia |
+| `CUSTODIA_INEXISTENTE` | La cuenta de custodia informada no existe |
+
+**Conciliación y listado desde el backoffice (carril A · H8).** `POST /custodia/conciliaciones`
+(`conciliarCustodia`, rol `TESORERIA`, `Idempotency-Key`) recibe el saldo del extracto bancario y el
+tránsito; el **saldo de dinero electrónico lo calcula el servidor** en la misma transacción (suma de
+`saldo_total` de las billeteras USUARIO, GRUPO y FONDO_GARANTIA en la moneda de la custodia), nunca lo
+manda el cliente. Repetir con los mismos saldos y el mismo operador devuelve la conciliación ya
+registrada (idempotencia por estado: una por cuenta y día). `GET /custodia/conciliaciones`
+(`AUDITORIA_LEER`) pagina por `(fecha, id)` de la más reciente a la más antigua, con los descuadres
+abiertos de cada una. La columna generada `diferencia` de la tabla es `custodia − emitido` y no suma el
+tránsito, mientras el átomo `RatioDeCobertura` sí lo suma: divergencia de modelo registrada en el
+reporte del carril, no resuelta acá.
 
 ## Descomposición atómica
 
@@ -133,6 +150,15 @@ Dado un ratio_cobertura menor a 1
 Cuando un usuario intenta retirar
 Entonces la operación se rechaza por modo restringido
 Y una recarga del mismo usuario sí se acepta
+
+# Conciliación y listado desde el backoffice (carril A)
+Dada una custodia en BOB con cierres del día
+Cuando Tesorería concilia desde el backoffice con el saldo del extracto y el tránsito
+Entonces el saldo de dinero electrónico registrado es el que calcula el servidor, no uno enviado por el cliente
+
+Dadas dos conciliaciones en días distintos
+Cuando Auditoría lista las conciliaciones de a una
+Entonces recibe la más reciente primero y un cursor que lleva a la anterior
 ```
 
 ## Ver también

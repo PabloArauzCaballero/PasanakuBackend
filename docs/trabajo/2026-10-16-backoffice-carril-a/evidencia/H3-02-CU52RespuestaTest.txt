@@ -1,0 +1,7 @@
+$ ./gradlew :servicios:cumplimiento:integrationTest --tests '*CU52RespuestaTest*'
+bo.aportaya.cumplimiento.CU52RespuestaTest tests 5 fallas 0 omitidas 0
+   PASS rechaza la misma respuesta de OTRO responsable: no es un reintento, es AP-CU52-06
+   PASS rechaza responder un reclamo inexistente: AP-CU52-05, ya no el codigo del punto de reclamo
+   PASS rechaza otra respuesta sobre un reclamo cerrado: AP-CU52-06 y la primera queda intacta
+   PASS Dado un reclamo respondido · Cuando el mismo responsable repite la misma respuesta · Entonces recibe el mismo recibo y el evento se emitio una sola vez
+   PASS concurrencia: dos respuestas identicas simultaneas cierran el reclamo una vez y emiten un evento

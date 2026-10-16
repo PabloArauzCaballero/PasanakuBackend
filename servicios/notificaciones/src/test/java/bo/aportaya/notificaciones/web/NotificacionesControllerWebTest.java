@@ -61,6 +61,9 @@ class NotificacionesControllerWebTest {
     @MockitoBean
     private CU82ProcesarRespuesta cu82;
 
+    @MockitoBean
+    private bo.aportaya.notificaciones.aplicacion.ConsultarMensajeria consultarMensajeria;
+
     @Nested
     @DisplayName("POST /notificaciones — emitir")
     class Emitir {

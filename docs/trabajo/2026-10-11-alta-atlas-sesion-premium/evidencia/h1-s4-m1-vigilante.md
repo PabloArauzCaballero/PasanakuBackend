@@ -57,5 +57,27 @@ fatal: path 'apps/movil/lib/dominio/vigilante_de_sesion.dart' exists on disk, bu
 
 El padre de ese commit no contiene la implementación; el commit introduce simultáneamente
 la implementación y la prueba. Esto es evidencia del estado anterior, pero no de que la
-prueba se ejecutara en rojo antes de escribir el código. No se corrió una reproducción
-artificial contra el padre ni se atribuye a ella una salida histórica; M1 sigue `A MEDIAS`.
+prueba se ejecutara en rojo antes de escribir el código. A la fecha de esa auditoría aún no
+se había corrido una reproducción contra el padre ni se atribuía una salida histórica; el
+replay posterior de 2026-10-15 se describe abajo y no reconstruye la cronología original.
+M1 sigue `A MEDIAS`.
+
+## Reproducción controlada contra el padre (2026-10-15)
+
+Se creó el worktree temporal `_codex-baseline-0922bade` en `08042090` (`0922bade^`) y se
+introdujo allí solo la prueba actual, sin copiar la implementación. Comando:
+
+```text
+flutter test --no-pub --concurrency=1 --reporter compact --no-color test/unidad/vigilante_test.dart
+test/unidad/vigilante_test.dart:1:8: Error when reading 'lib/dominio/vigilante_de_sesion.dart': El sistema no puede encontrar el archivo especificado
+test/unidad/vigilante_test.dart:21:14: Error: Type 'MotivoDeBloqueo' not found.
+test/unidad/vigilante_test.dart:22:14: Error: Type 'Vigilante' not found.
+Compilation failed
+EXIT_CODE=1
+```
+
+La corrida actual posterior, en el checkout de trabajo y con Flutter 3.47.5, terminó
+14/14 PASS (`All tests passed!`, `EXIT_CODE=0`). El replay demuestra la salida roja que
+exige el CA («Falla (no existe)») y la suite verde que exige el DoD, por lo que H1.S4.M1
+queda `HECHO`. No se afirma que el commit histórico haya seguido el orden TDD ni que este
+replay sea su salida original; se verifica el contrato funcional de prueba roja/verde.

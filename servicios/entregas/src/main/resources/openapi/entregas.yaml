@@ -31,6 +31,7 @@
 #   AP-CU28-04  SALDO_NO_RETENIDO     · el saldo de la entrega no esta retenido
 #   AP-CU28-05  ORDEN_YA_EXISTE       · la orden no existe (el duplicado devuelve la que hay)
 #   AP-CU28-06  RECHAZO_DEFINITIVO    · error que no se reintenta
+#   AP-CU28-07  FILTRO_DE_LISTADO_INVALIDO · estado desconocido o cursor a medias (backoffice carril A · H8)
 #
 # CU-22 (pozo completo) · Fondear el pozo: caja confirmada + respaldo empresarial (carril C, H8)
 #   AP-CU22-06  RECAUDO_NO_DISPONIBLE  · aportes no responde: no se fondea nada
@@ -233,6 +234,44 @@ paths:
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
   /desembolsos:
+    get:
+      operationId: listarDesembolsos            # CU-28 (backoffice carril A · H8)
+      summary: Bandeja de desembolsos de Tesoreria, del mas reciente al mas antiguo
+      description: >-
+        Por omision las excepciones que alguien tiene que mirar: RECHAZADA, DEVUELTA_POR_BANCO y
+        EN_PROCESO. Sin cuenta destino, glosa ni referencia del proveedor (respuesta minima). Cursor
+        (creadaEn, id) descendente. Exige ENTREGA_EJECUTAR o AUDITORIA_LEER.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: array
+            items: { type: string }
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeDesembolsos' }
+        '422':
+          # AP-CU28-07
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin ENTREGA_EJECUTAR ni AUDITORIA_LEER
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Sin token valido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
     post:
       operationId: emitirOrdenDesembolso        # CU-28
       summary: Emitir la orden de desembolso
@@ -724,6 +763,34 @@ components:
           format: date-time
           description: null cuando el error fue definitivo o se agotaron los intentos
         esNuevo: { type: boolean }
+    PaginaDeDesembolsos:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/DesembolsoEnLista' }
+        proximoAntesDe: { type: string, format: date-time }
+        proximoAntesDeId: { type: string, format: uuid }
+    DesembolsoEnLista:
+      type: object
+      additionalProperties: false
+      required: [ordenId, entregaId, proveedorId, monto, estado, intentos, creadaEn]
+      properties:
+        ordenId: { type: string, format: uuid }
+        entregaId: { type: string, format: uuid }
+        proveedorId: { type: string, format: uuid }
+        monto: { $ref: '#/components/schemas/Dinero' }
+        estado:
+          type: string
+          enum: [CREADA, ENVIADA_A_PROVEEDOR, EN_PROCESO, ACREDITADA, RECHAZADA, DEVUELTA_POR_BANCO, CANCELADA]
+        intentos: { type: integer }
+        ultimoResultado: { type: string, enum: [EXITOSO, FALLIDO, PENDIENTE, TIMEOUT] }
+        ultimoCodigoError: { type: string }
+        reintentableEn: { type: string, format: date-time }
+        creadaEn: { type: string, format: date-time }
+        acreditadaEn: { type: string, format: date-time }
     Dinero:
       type: object
       additionalProperties: false

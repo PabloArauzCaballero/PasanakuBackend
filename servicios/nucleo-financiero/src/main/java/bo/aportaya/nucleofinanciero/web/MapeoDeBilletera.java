@@ -154,4 +154,23 @@ final class MapeoDeBilletera {
                 cuerpo.getMotivo(),
                 cuerpo.getAutorizadaPor());
     }
+
+    static bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaReverso reverso(
+            bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion.SalidaReverso salida) {
+        var respuesta = new bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaReverso();
+        respuesta.setReversoId(salida.reversoId());
+        respuesta.setTransaccionReversoId(salida.transaccionReversoId());
+        respuesta.setGeneraObligacionDeRestitucion(salida.generaObligacionDeRestitucion());
+        return respuesta;
+    }
+
+    static bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaBloqueo bloqueo(
+            bo.aportaya.nucleofinanciero.aplicacion.CU17BloquearPorAutoridad.SalidaBloqueo salida) {
+        var respuesta = new bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaBloqueo();
+        respuesta.setBloqueoId(salida.bloqueoId());
+        respuesta.setRetencionId(salida.retencionId());
+        respuesta.setMontoBloqueado(dinero(salida.montoBloqueado()));
+        respuesta.setSaldoDisponible(dinero(salida.saldoDisponible()));
+        return respuesta;
+    }
 }

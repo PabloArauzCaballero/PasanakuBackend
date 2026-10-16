@@ -91,6 +91,34 @@ public class CasoLftRepositorio {
                 == 1;
     }
 
+    /** La decision ya registrada de un caso cerrado: lo que distingue un reintento de otra decision. */
+    public java.util.Optional<DecisionRegistrada> decisionRegistrada(DSLContext dsl, UUID casoId) {
+        return dsl.select(
+                        DSL.field("decision", String.class),
+                        DSL.field("hallazgos", String.class),
+                        DSL.field("revisado_por", UUID.class),
+                        DSL.field("reporte_operacion_sospechosa_id", UUID.class))
+                .from(DSL.table(DSL.name("cumplimiento", "caso_investigacion_lft")))
+                .where(DSL.field("id", UUID.class)
+                        .eq(casoId)
+                        .and(DSL.field("estado", String.class).eq("CERRADO")))
+                .fetchOptional(f -> new DecisionRegistrada(
+                        f.get("decision", String.class),
+                        f.get("hallazgos", String.class),
+                        f.get("revisado_por", UUID.class),
+                        f.get("reporte_operacion_sospechosa_id", UUID.class)));
+    }
+
+    public record DecisionRegistrada(String decision, String conclusion, UUID revisadoPor, UUID reporteSospechosoId) {
+        /** Misma decision, mismo texto, mismo revisor y mismo ROS: es un reintento, no otra decision. */
+        public boolean repite(String decision, String conclusion, UUID revisadoPor, UUID reporteSospechosoId) {
+            return java.util.Objects.equals(this.decision, decision)
+                    && java.util.Objects.equals(this.conclusion, conclusion)
+                    && java.util.Objects.equals(this.revisadoPor, revisadoPor)
+                    && java.util.Objects.equals(this.reporteSospechosoId, reporteSospechosoId);
+        }
+    }
+
     public record Caso(UUID id, UUID usuarioId, UUID analistaId, String estado, OffsetDateTime plazoLimite) {}
 
     public boolean hayCasoAbiertoDe(DSLContext dsl, UUID usuarioId) {

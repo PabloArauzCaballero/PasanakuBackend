@@ -1,6 +1,7 @@
 package bo.aportaya.cumplimiento.aplicacion;
 
 import bo.aportaya.cumplimiento.dominio.PlazoDelReclamo;
+import bo.aportaya.cumplimiento.infraestructura.BandejaDeReclamosRepositorio;
 import bo.aportaya.cumplimiento.infraestructura.GobiernoRepositorio;
 import bo.aportaya.cumplimiento.infraestructura.ReclamoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
@@ -15,7 +16,9 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
+import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +43,7 @@ public class CU52AtenderReclamo {
 
     private final Datos datos;
     private final ReclamoRepositorio reclamos;
+    private final BandejaDeReclamosRepositorio registradas = new BandejaDeReclamosRepositorio();
     private final GobiernoRepositorio gobierno;
     private final Outbox outbox;
     private final Reloj reloj;
@@ -127,7 +131,7 @@ public class CU52AtenderReclamo {
 
         datos.conContexto(ctx, dsl -> {
             var reclamo = reclamos.porId(dsl, entrada.reclamoId())
-                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(52, 1), "Ese reclamo no existe."));
+                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(52, 5), "Ese reclamo no existe."));
 
             var veredicto = PlazoDelReclamo.revisarProrroga(
                     reclamo.fechaIngreso(),
@@ -172,7 +176,7 @@ public class CU52AtenderReclamo {
 
         return datos.conContexto(ctx, dsl -> {
             var reclamo = reclamos.porId(dsl, entrada.reclamoId())
-                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(52, 1), "Ese reclamo no existe."));
+                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(52, 5), "Ese reclamo no existe."));
 
             // AP-CU52-03 · R-CON-04. Se comprueba antes de escribir para poder explicar
             // el rechazo, aunque ck_reclamo_reparacion tambien lo frenaria.
@@ -184,6 +188,9 @@ public class CU52AtenderReclamo {
                         "Un reclamo favorable con monto exige la devolucion asociada (R-CON-04).");
             }
 
+            OffsetDateTime limite =
+                    reclamo.plazoProrrogadoHasta() != null ? reclamo.plazoProrrogadoHasta() : reclamo.plazoRespuesta();
+
             if (!reclamos.cerrar(
                     dsl,
                     entrada.reclamoId(),
@@ -192,11 +199,14 @@ public class CU52AtenderReclamo {
                     entrada.devolucionId(),
                     ctx.usuarioId(),
                     ahora)) {
-                throw new ErrorDeNegocio(CodigoError.de(52, 1), "Ese reclamo ya estaba cerrado.");
+                // Reintento seguro (backoffice carril A · H3): la MISMA respuesta del MISMO responsable
+                // sobre un reclamo que ya cerro es el recibo de antes, sin otro evento ni hallazgo.
+                // El esquema de cumplimiento no tiene respuesta_idempotente: el estado guardado es la clave.
+                if (esLaMismaRespuesta(dsl, entrada, ctx)) {
+                    return new SalidaReclamo(entrada.reclamoId(), null, limite, diasHabilesDeRespuesta, "CERRADO");
+                }
+                throw new ErrorDeNegocio(CodigoError.de(52, 6), "Ese reclamo ya estaba cerrado con otra respuesta.");
             }
-
-            OffsetDateTime limite =
-                    reclamo.plazoProrrogadoHasta() != null ? reclamo.plazoProrrogadoHasta() : reclamo.plazoRespuesta();
             boolean fueraDePlazo = ahora.isAfter(limite);
             if (fueraDePlazo) {
                 // AP-CU52-04: se responde igual, y el incumplimiento queda visible.
@@ -225,6 +235,17 @@ public class CU52AtenderReclamo {
 
             return new SalidaReclamo(entrada.reclamoId(), null, limite, diasHabilesDeRespuesta, "CERRADO");
         });
+    }
+
+    private boolean esLaMismaRespuesta(DSLContext dsl, EntradaRespuesta entrada, ContextoSesion ctx) {
+        return registradas
+                .ficha(dsl, entrada.reclamoId())
+                .filter(f -> "CERRADO".equals(f.reclamo().estado()))
+                .filter(f -> ctx.usuarioId().equals(f.reclamo().responsableId()))
+                .filter(f -> entrada.resultado().equals(f.resultado()))
+                .filter(f -> entrada.respuesta().equals(f.respuesta()))
+                .filter(f -> Objects.equals(entrada.devolucionId(), f.devolucionId()))
+                .isPresent();
     }
 
     public record EntradaReclamo(

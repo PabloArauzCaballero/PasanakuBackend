@@ -3,6 +3,7 @@ import '../proveedores/sesion.dart';
 enum AccesoDeRuta { soloSinSesion, publica, privada }
 
 const _soloSinSesion = <String>{'/portada', '/tour', '/ingreso', '/registro'};
+const rutaDeVerificacionDeSesion = '/sesion/verificacion';
 
 const _publicas = <String>{
   '/identidad/mfa',
@@ -25,7 +26,11 @@ AccesoDeRuta accesoDe(String ruta) {
   return AccesoDeRuta.privada;
 }
 
-String? decidirRuta({required EstadoDeSesion estado, required Uri destino}) {
+String? decidirRuta({
+  required EstadoDeSesion estado,
+  required Uri destino,
+  bool requiereVerificacion = false,
+}) {
   final acceso = accesoDe(destino.toString());
   switch (estado) {
     case EstadoDeSesion.desconocida:
@@ -37,6 +42,9 @@ String? decidirRuta({required EstadoDeSesion estado, required Uri destino}) {
         queryParameters: {'volver': destino.toString()},
       ).toString();
     case EstadoDeSesion.activa:
+      if (requiereVerificacion && destino.path != rutaDeVerificacionDeSesion) {
+        return rutaDeVerificacionDeSesion;
+      }
       if (acceso == AccesoDeRuta.soloSinSesion) return '/billetera/inicio';
       return null;
   }

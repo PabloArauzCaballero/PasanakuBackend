@@ -10,6 +10,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import bo.aportaya.cumplimiento.aplicacion.CU52AtenderReclamo;
+import bo.aportaya.cumplimiento.aplicacion.ConsultarBandejaDeReclamos;
 import bo.aportaya.cumplimiento.aplicacion.ConsultarEfectoDelReclamo;
 import bo.aportaya.cumplimiento.aplicacion.ConsultarEfectoDelReclamo.Caso;
 import bo.aportaya.cumplimiento.aplicacion.ConsultarEfectoDelReclamo.Resultado;
@@ -55,6 +57,13 @@ class ReclamosControllerWebTest {
 
     @MockitoBean
     private ConsultarEfectoDelReclamo efecto;
+
+    // La bandeja, la ficha y la respuesta de CU-52 (backoffice carril A · H3) viven en el mismo controlador.
+    @MockitoBean
+    private ConsultarBandejaDeReclamos bandejaDeReclamos;
+
+    @MockitoBean
+    private CU52AtenderReclamo cu52;
 
     private static RequestPostProcessor personal() {
         return Sesiones.de(OTRA, "SOPORTE", "RECLAMO_VER", "RECLAMO_ATENDER");

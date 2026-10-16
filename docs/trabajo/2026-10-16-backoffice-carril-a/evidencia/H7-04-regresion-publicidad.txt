@@ -1,0 +1,5 @@
+$ ./gradlew :servicios:publicidad:spotlessCheck test webTest testBarrido integrationTest --continue --no-build-cache
+test             clases   1  pruebas    5  fallas 0
+webTest          clases   5  pruebas   21  fallas 0
+testBarrido      clases   1  pruebas    2  fallas 0
+integrationTest  clases  14  pruebas   59  fallas 0

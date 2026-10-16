@@ -71,6 +71,7 @@ export const ErroresCU104 = {
   CUENTA_INEXISTENTE: 'AP-CU104-01',
   MONTO_MAYOR_AL_SALDO: 'AP-CU104-02',
   CUENTA_YA_INCOBRABLE: 'AP-CU104-03',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU104-04',
 } as const
 ```
 
@@ -79,6 +80,9 @@ export const ErroresCU104 = {
 | `CUENTA_INEXISTENTE` | El `cuentaPorCobrarId` no existe |
 | `MONTO_MAYOR_AL_SALDO` | El cobro excede `saldo_pendiente` |
 | `CUENTA_YA_INCOBRABLE` | Se intenta cobrar una cuenta ya marcada `INCOBRABLE` |
+| `FILTRO_DE_LISTADO_INVALIDO` | En el listado del backoffice: cursor a medias (`antesDe` sin `antesDeId` o al revés) o un estado fuera del catálogo |
+
+**Listado del backoffice (carril A).** `GET /erp/cuentas-por-cobrar` (`listarCuentasPorCobrar`) devuelve las cuentas con cursor `(fechaVencimiento, id)` descendente: origen, tercero por razón social si tiene, monto, cobrado y saldo con su moneda. Lo cobrado, el saldo y el estado se **derivan de `cobro_cuenta_por_cobrar`**, igual que al cobrar; `INCOBRABLE` se conserva tal como nació. Exige `CONTABILIDAD_ERP_COBRAR` o `CONTABILIDAD_ERP_REPORTES`. Pagina por cursor keyset con desempate por id (`limite` 1..100, 25 por omisión); un filtro inválido es `AP-CU104-04` y no una lista vacía.
 
 ## Descomposición atómica
 
@@ -96,6 +100,7 @@ export const ErroresCU104 = {
 | --- | --- | --- |
 | `cuenta_por_cobrar.creada` | Aparece en el panel de cuentas por cobrar | Interno |
 | `cuenta_por_cobrar.cobrada` | Genera el asiento del ingreso | `CONTABILIDAD_ERP_COBRAR` |
+| — (listado `listarCuentasPorCobrar`) | — | `CONTABILIDAD_ERP_COBRAR` o `CONTABILIDAD_ERP_REPORTES` |
 
 ## Interfaz
 
@@ -126,6 +131,15 @@ Entonces el sistema devuelve MONTO_MAYOR_AL_SALDO
 Dada una cuenta_por_cobrar marcada INCOBRABLE
 Cuando se intenta registrar un cobro sobre ella
 Entonces el sistema devuelve CUENTA_YA_INCOBRABLE
+
+# Listado del backoffice (backoffice carril A)
+Dada una cuenta por cobrar cobrada en parte y otra incobrable
+Cuando Tesoreria lista las cuentas por cobrar
+Entonces ve COBRADA_PARCIAL con el saldo derivado de sus cobros, y la incobrable sigue INCOBRABLE
+
+Dada una cuenta cobrada entera y otra pendiente
+Cuando Tesoreria filtra por estado o corta la pagina en la cobrada
+Entonces la cobrada figura COBRADA con saldo cero, la pendiente sigue PENDIENTE y el cursor no repite la fila en la que se corto
 ```
 
 ## Ver también

@@ -74,6 +74,7 @@ export const ErroresCU110 = {
   ORGANIZADOR_NO_HABILITADO: 'AP-CU110-01',
   TIPO_Y_REFERENCIA_INCONSISTENTES: 'AP-CU110-02',
   SOCIO_COMERCIAL_NO_VERIFICADO: 'AP-CU110-03',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU110-04',
 } as const
 ```
 
@@ -82,6 +83,9 @@ export const ErroresCU110 = {
 | `ORGANIZADOR_NO_HABILITADO` | El `organizador_id` referenciado no está `HABILITADO` |
 | `TIPO_Y_REFERENCIA_INCONSISTENTES` | `tipo` no coincide con la referencia provista |
 | `SOCIO_COMERCIAL_NO_VERIFICADO` | Se intenta crear el `anunciante` antes de que el socio comercial esté `ACTIVO` |
+| `FILTRO_DE_LISTADO_INVALIDO` | El listado recibió un estado que no existe o un cursor a medias |
+
+**Listado (backoffice carril A).** `GET /publicidad/anunciantes` (`listarAnunciantes`, `PUBLICIDAD_ANUNCIANTES`): del más nuevo al más viejo, con su cuenta publicitaria y su límite como `Dinero`; sin documento ni datos del organizador.
 
 ## Descomposición atómica
 
@@ -131,6 +135,11 @@ Entonces puede crearse un anunciante tipo SOCIO_COMERCIAL sobre él
 Dado un intento de alta de anunciante con organizador_id y socio_comercial_id a la vez
 Cuando se procesa la solicitud
 Entonces el sistema devuelve TIPO_Y_REFERENCIA_INCONSISTENTES
+
+# Listado del backoffice (carril A)
+Dados tres anunciantes recien dados de alta
+Cuando Operaciones recorre el listado de a dos
+Entonces los ve del mas nuevo al mas viejo, con su cuenta y su limite, sin repetir ninguno
 ```
 
 ## Ver también

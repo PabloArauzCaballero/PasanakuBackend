@@ -45,6 +45,8 @@ public class CU51EjecutarCierreDiario {
     private final CuentaBilleteraRepositorio cuentas;
     private final Outbox outbox;
     private final Reloj reloj;
+    private final bo.aportaya.nucleofinanciero.infraestructura.TesoreriaRepositorio tesoreria =
+            new bo.aportaya.nucleofinanciero.infraestructura.TesoreriaRepositorio();
 
     public CU51EjecutarCierreDiario(
             Datos datos,
@@ -138,6 +140,33 @@ public class CU51EjecutarCierreDiario {
                             : "Quedan " + entrada.excepcionesAbiertas()
                                     + " excepcion(es) de conciliacion abiertas o la custodia no cuadra.");
         });
+    }
+
+    /**
+     * El cierre que dispara Contabilidad desde el backoffice (carril A · H8), con el recaudo que ya
+     * contesto {@code aportes} FUERA de esta transaccion (invariante 6). Si la custodia cuadro se decide
+     * aca, en la misma transaccion que escribe el cierre, desde las conciliaciones de este esquema.
+     */
+    @Transactional
+    public SalidaCierre ejecutarConRecaudo(
+            LocalDate fecha,
+            java.math.BigDecimal recaudado,
+            java.math.BigDecimal conciliado,
+            java.math.BigDecimal excepciones,
+            int cantidadPagos,
+            int excepcionesAbiertas,
+            ContextoSesion ctx) {
+        boolean custodiaCuadrada = datos.conContexto(ctx, dsl -> tesoreria.custodiaCuadradaDelDia(dsl, fecha));
+        return ejecutar(
+                new EntradaCierre(
+                        fecha,
+                        recaudado,
+                        conciliado,
+                        excepciones,
+                        cantidadPagos,
+                        excepcionesAbiertas,
+                        custodiaCuadrada),
+                ctx);
     }
 
     /** El sello del saldo del dia: lo que permite detectar despues una alteracion. */

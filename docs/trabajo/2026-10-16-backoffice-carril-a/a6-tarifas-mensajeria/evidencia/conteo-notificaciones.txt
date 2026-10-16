@@ -1,0 +1,4 @@
+integrationTest: tests=66 failures=0 errors=0 skipped=0
+test: tests=5 failures=0 errors=0 skipped=0
+testBarrido: tests=2 failures=0 errors=0 skipped=0
+webTest: tests=36 failures=0 errors=0 skipped=0
