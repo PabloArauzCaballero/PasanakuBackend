@@ -1,0 +1,1 @@
+$ ./gradlew compileJava compileTestJava --continue --no-build-cache --no-parallel  -> EXIT 0 (todos los modulos)

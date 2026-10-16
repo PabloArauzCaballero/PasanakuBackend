@@ -143,7 +143,8 @@
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H6.S1.M1 | Regresión de los tres servicios tocados (`test integrationTest` por servicio, en serie) | verde o fallo clasificado | salidas en `evidencia/` | TODO |
+| H6.S1.M1 | Regresión de los tres servicios tocados (`test integrationTest` por servicio, en serie) | verde o fallo clasificado | salidas en `evidencia/` | HECHO |
+| H6.S1.M3 | **(descubierta)** Fichas de contrato para el carril B (COORDINACION.md «Interfaz de coordinación obligatoria»): por operación nueva, permiso, estados, paginación, errores, idempotencia, correlación y ejemplo **sintético** marcado | una ficha por cada operación nueva (11) | `grep -c '^### ' entregables/fichas-de-contrato.md` → 11 | HECHO |
 | H6.S1.M2 | `REPORTE.md` + commit + push a `origin/codex/backoffice-dominio-20261015` | push aceptado | `git log origin/codex/backoffice-dominio-20261015 -1` | TODO |
 
 ## Pendiente fuera de esta sesión (registrado, no ejecutable sin decisión)

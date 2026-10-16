@@ -76,8 +76,10 @@ class CU44DecisionTest extends BaseDeCumplimiento {
 
     private int eventos(UUID casoId) {
         return contar(
-                "SELECT count(*)::int FROM cumplimiento.evento_dominio WHERE tipo = 'cumplimiento.caso_decidido'"
-                        + " AND agregado_id = ?",
+                """
+                        SELECT count(*)::int FROM cumplimiento.evento_dominio WHERE tipo = 'cumplimiento.caso_decidido'
+                         AND agregado_id = ?
+                        """,
                 casoId);
     }
 
@@ -97,14 +99,18 @@ class CU44DecisionTest extends BaseDeCumplimiento {
         assertThat(decision.revisadoPor()).isEqualTo(oficial);
         assertThat(decision.alertasCerradas()).isEqualTo(2);
         assertThat(contar(
-                        "SELECT count(*)::int FROM cumplimiento.caso_investigacion_lft"
-                                + " WHERE id = ? AND estado = 'CERRADO' AND revisado_por = ? AND decision = 'DESCARTAR'",
+                        """
+                                SELECT count(*)::int FROM cumplimiento.caso_investigacion_lft
+                                 WHERE id = ? AND estado = 'CERRADO' AND revisado_por = ? AND decision = 'DESCARTAR'
+                                """,
                         e.casoId(),
                         oficial))
                 .isEqualTo(1);
         assertThat(contar(
-                        "SELECT count(*)::int FROM cumplimiento.alerta_monitoreo_lft"
-                                + " WHERE caso_id = ? AND estado = 'DESCARTADA' AND conclusion IS NOT NULL",
+                        """
+                                SELECT count(*)::int FROM cumplimiento.alerta_monitoreo_lft
+                                 WHERE caso_id = ? AND estado = 'DESCARTADA' AND conclusion IS NOT NULL
+                                """,
                         e.casoId()))
                 .isEqualTo(2);
         assertThat(eventos(e.casoId())).isEqualTo(1);
