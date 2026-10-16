@@ -86,7 +86,10 @@ class _HojaDeSeleccionState extends State<_HojaDeSeleccion> {
     final t = Tokens.of(context);
     final media = MediaQuery.of(context);
     final teclado = media.viewInsets.bottom;
-    final disponible = media.size.height - media.padding.top - teclado;
+    // The bottom inset is applied by AnimatedPadding below. Constraining this
+    // child to the already-reduced height would subtract the IME twice and clip
+    // the search field and options on short screens.
+    final altoAntesDelTeclado = media.size.height - media.padding.top;
     final visibles = _visibles;
     final duracionAnimacion = duracion(context, Movimiento.micro);
     return AnimatedPadding(
@@ -95,7 +98,7 @@ class _HojaDeSeleccionState extends State<_HojaDeSeleccion> {
       duration: duracion(context, Movimiento.entrada),
       curve: Movimiento.llega,
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: disponible * .92),
+        constraints: BoxConstraints(maxHeight: altoAntesDelTeclado * .92),
         child: Column(
           mainAxisSize: teclado > 0 ? MainAxisSize.max : MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,

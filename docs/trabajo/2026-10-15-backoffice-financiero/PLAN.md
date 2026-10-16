@@ -2,6 +2,8 @@
 
 Fecha: 2026-10-15. Estado: plan, sin cambios de implementación. Dos carriles de ejecución independientes: **A, dominio y contratos**; **B, experiencia Angular**. Integración por contratos versionados y puertas de aceptación. El objetivo es operar dinero, cumplimiento y cambios de política con trazabilidad y controles claros; la aprobación humana de una política se distingue de la decisión automática de cada caso.
 
+**Decisiones de ejecución confirmadas:** los carriles trabajarán en computadoras independientes sobre el estado local conservado y conciliado con `origin/dev`. Los límites y la matriz de excepciones todavía no están aprobados: se implementan como parámetros con comportamientos sensibles cerrados hasta su validación. «Firmar aprobación» significa por ahora intención explícita, MFA reciente y evidencia auditable; una firma digital certificada queda como decisión aparte de Legal. El punto de partida compartido y las ramas están documentados en `COORDINACION.md`.
+
 ## 1. Base comprobada y alcance
 
 Fuentes locales: `docs/Flujo funcional · usuario administrador.md`, `docs/Flujo de pantallas · backoffice administrador.md`, `docs/Cumplimiento.md`, `docs/Arquitectura/ADR-049 Doble aprobación de retiros.md`, contratos OpenAPI de `servicios/*/src/main/resources/openapi/`, `sql/60_semillas/10-roles-y-permisos.sql`, `apps/backoffice/src/app/rutas/`, `apps/backoffice/src/app/nucleo/secciones.ts` y `packages/ui/src/`. Los documentos funcionales son intención de producto, no evidencia de una pantalla operativa. Cada historia exige cotejar modelo, endpoint, autorización y pantalla real.
