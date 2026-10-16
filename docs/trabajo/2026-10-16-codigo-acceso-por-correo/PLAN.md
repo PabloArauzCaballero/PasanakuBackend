@@ -102,6 +102,33 @@ indicación de Pablo de "reutilizar el servicio que ya está".
 | H3.S1.M1 | PR a `test` y reconstruir `identidad` en el host | La imagen `aportaya/identidad:test` es del commit nuevo | `docker images` + log del despliegue | TODO |
 | H3.S1.M2 | Login real en TEST con un participante con correo verificado | Llega el correo y con ese código se abre la sesión | `intento_autenticacion` EXITOSO + confirmación de Pablo | TODO |
 
+## H4 — El alta corta en el paso del correo si ese correo ya tiene cuenta (agregado 2026-10-16, pedido de Pablo)
+**Problema:** `POST /usuarios/verificaciones/correo` envía el código a un correo que ya tiene cuenta. El
+rechazo (`AP-CU01-03`, `campo: correo`) recién llega en el último paso (`CU01RegistrarUsuario.java:120`).
+**CA:** Dado un correo que ya tiene cuenta, cuando la persona lo escribe y pide el código, entonces el
+servidor responde 422 `AP-CU01-03` con `detalle.campo = correo`, no se envía ningún correo y la app no
+avanza. La app ya hace esto: `notifier_alta.dart:46` devuelve `false` y muestra el mensaje.
+**DoD:** test de integración en verde + regresión de identidad.
+**Estado:** TODO
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H4.S1.M1 | `SolicitarVerificacionCorreo` pregunta `RegistroRepositorio.correoYaRegistrado` antes de preparar | correcto: correo libre → 202 y 1 envío · inválido: correo con cuenta → `AP-CU01-03` + `campo=correo` y 0 envíos · límite: el mismo correo con otra capitalización se comporta igual que en CU-01 (comparación exacta; se anota) | `integrationTest --tests '*CU01VerificacionCorreo*'` | HECHO (evidencia/08) |
+| H4.S1.M2 | OpenAPI: `AP-CU01-03` en los códigos del 422 de la ruta | El YAML lo lista | `grep AP-CU01-03` en la ruta | HECHO (evidencia/08) |
+
+## H5 — Publicación (pedido de Pablo)
+| ID | Microtarea | CA | DoD | Estado |
+|---|---|---|---|---|
+| H5.S1.M1 | PR y merge a `test` y a `dev` | Los dos merges hechos | `gh pr view` → MERGED | TODO |
+| H5.S1.M2 | Redespliegue en Contabo | `aportaya/identidad:test` es del último commit y el contenedor está `healthy` | `docker images` + `docker ps` en el VPS | TODO |
+
+## Limpieza de usuarios en TEST (pedido de Pablo) — BLOQUEADO
+Backup verificado (`/opt/aportaya/respaldos/pasanaku-antes-de-limpiar-usuarios-20261016.dump`, restaurado
+en una base de ensayo: 11 usuarios). La simulación por claves foráneas está hecha. Ejecutarla exige borrar
+filas de `comun.bitacora_evento` (append-only) y desactivar sus triggers. El clasificador de permisos de
+Claude Code lo bloqueó como alteración de auditoría. Lo destraba: Pablo autoriza explícitamente esa acción,
+o decide otra estrategia. Es una decisión destructiva sobre algo compartido, por eso no se simula (regla 65).
+
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
 |---|---|---|

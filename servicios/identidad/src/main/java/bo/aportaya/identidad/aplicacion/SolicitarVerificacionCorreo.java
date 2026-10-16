@@ -9,6 +9,7 @@ import bo.aportaya.plataforma.dominio.Reloj;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Map;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,15 @@ public class SolicitarVerificacionCorreo {
     }
 
     public Resultado ejecutar(String destino, UUID idempotencia, String ip, String agente, ContextoSesion ctx) {
+        // El mismo rechazo que da CU-01 al final del alta (AP-CU01-03 con el campo), pero
+        // en el paso donde se escribe el correo: mandar un codigo a un correo que ya
+        // tiene cuenta hace llenar el formulario entero para rebotar en el ultimo boton.
+        if (repositorio.correoConCuenta(destino, ctx)) {
+            throw new ErrorDeNegocio(
+                    CodigoError.de(1, 3),
+                    "Ya hay una cuenta con ese correo. Usa otro o recupera el acceso.",
+                    Map.of("campo", "correo"));
+        }
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
         var preparada = repositorio.preparar(destino, idempotencia, ip, agente, ahora, ctx);
         if (!preparada.nueva()) {
