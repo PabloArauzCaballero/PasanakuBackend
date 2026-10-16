@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../tokens/tokens.dart';
 import '../moviles/alcance_haptica.dart';
+import 'ayuda_de_hoja.dart';
 import 'campo_busqueda.dart';
 import 'fila_de_seleccion.dart';
 import 'filtrar_opciones_de_hoja.dart';
@@ -116,28 +117,7 @@ class _HojaDeSeleccionState extends State<_HojaDeSeleccion> {
                 ),
               ),
             ),
-            if (widget.ayuda case final ayuda?)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  Espacio.s4,
-                  Espacio.s2,
-                  Espacio.s4,
-                  0,
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(Icons.info_outline_rounded, size: 16, color: t.text3),
-                    const SizedBox(width: Espacio.s2),
-                    Expanded(
-                      child: Text(
-                        ayuda,
-                        style: Tipo.ayuda.copyWith(color: t.text2),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            if (widget.ayuda case final ayuda?) AyudaDeHoja(ayuda),
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: Espacio.s4,

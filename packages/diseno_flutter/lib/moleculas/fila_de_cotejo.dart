@@ -19,7 +19,8 @@ class FilaDeCotejo extends StatelessWidget {
   bool get pendiente => declarado.trim().isEmpty || leido.trim().isEmpty;
 
   bool get coincide =>
-      !pendiente && declarado.trim().toLowerCase() == leido.trim().toLowerCase();
+      !pendiente &&
+      declarado.trim().toLowerCase() == leido.trim().toLowerCase();
 
   @override
   Widget build(BuildContext context) {
@@ -33,11 +34,12 @@ class FilaDeCotejo extends StatelessWidget {
         ? t.okTexto
         : t.avisoTexto;
     return Semantics(
-      label: '$campo: ${switch ((estaPendiente, estaCotejada)) {
-        (true, _) => 'pendiente de completar',
-        (_, true) => 'coincide',
-        _ => 'no coincide. Declaraste $declarado, el documento dice $leido',
-      }}',
+      label:
+          '$campo: ${switch ((estaPendiente, estaCotejada)) {
+            (true, _) => 'pendiente de completar',
+            (_, true) => 'coincide',
+            _ => 'no coincide. Declaraste $declarado, el documento dice $leido',
+          }}',
       child: Container(
         padding: const EdgeInsets.all(Espacio.s3),
         decoration: BoxDecoration(
@@ -67,14 +69,11 @@ class FilaDeCotejo extends StatelessWidget {
                     campo,
                     style: texto.labelLarge?.copyWith(color: t.text2),
                   ),
-                  Text(
-                    switch ((estaPendiente, estaCotejada)) {
-                      (true, _) => 'Pendiente de completar',
-                      (_, true) => declarado,
-                      _ => 'Declaraste: $declarado',
-                    },
-                    style: texto.bodyMedium?.copyWith(color: t.text),
-                  ),
+                  Text(switch ((estaPendiente, estaCotejada)) {
+                    (true, _) => 'Pendiente de completar',
+                    (_, true) => declarado,
+                    _ => 'Declaraste: $declarado',
+                  }, style: texto.bodyMedium?.copyWith(color: t.text)),
                   if (!estaPendiente && !estaCotejada)
                     Text(
                       'El documento dice: $leido',
