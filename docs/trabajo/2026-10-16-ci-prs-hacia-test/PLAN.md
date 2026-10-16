@@ -12,9 +12,9 @@
 ## H1 — CI en PRs hacia `test`
 **CA:** Dado un PR hacia `test`, cuando se abre, entonces corre el workflow `CI`.
 **DoD:** YAML válido + checks de `CI` visibles en el PR hacia `test`.
-**Estado:** EN CURSO
+**Estado:** HECHO
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | H1.S1.M1 | `pull_request.branches: [main, dev, test]` | El YAML parsea y la lista tiene `test` | `python3 -c "yaml.safe_load(...)"` → `['main','dev','test']` | HECHO (`evidencia/m1-yaml.txt`) |
-| H1.S1.M2 | PR hacia `test` y hacia `dev`, misma cabeza | El PR hacia `test` muestra corridas de `CI` | `gh run list --branch <rama> --workflow ci.yml` | TODO |
+| H1.S1.M2 | PR hacia `test` y hacia `dev`, misma cabeza | El PR hacia `test` muestra corridas de `CI` | `gh run list --branch <rama> --workflow ci.yml` | HECHO (`evidencia/m2-corridas.txt`; #107 → test, #108 → dev) |
