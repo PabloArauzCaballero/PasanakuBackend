@@ -10,8 +10,8 @@ import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeDominio;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
-import java.time.OffsetDateTime;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -294,8 +294,7 @@ public class RevisionRepositorio {
      * La cuenta aprobada entra como titular/participante y necesita los permisos base de
      * billetera que se calculan desde sus roles vigentes. El revisor queda como otorgante.
      */
-    private void asignarRolBaseAlUsuarioDe(
-            DSLContext dsl, UUID usuarioId, UUID revisor, OffsetDateTime ahora) {
+    private void asignarRolBaseAlUsuarioDe(DSLContext dsl, UUID usuarioId, UUID revisor, OffsetDateTime ahora) {
         Datos.comoSistema(
                 dsl,
                 () -> dsl.execute(
