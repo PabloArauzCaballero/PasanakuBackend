@@ -34,6 +34,7 @@ export 'package:aportaya_cliente_identidad/src/model/error.dart';
 export 'package:aportaya_cliente_identidad/src/model/estado_de_verificacion.dart';
 export 'package:aportaya_cliente_identidad/src/model/expediente_en_revision.dart';
 export 'package:aportaya_cliente_identidad/src/model/factor_presentado.dart';
+export 'package:aportaya_cliente_identidad/src/model/fecha_expiracion_documento.dart';
 export 'package:aportaya_cliente_identidad/src/model/limite_aplicable.dart';
 export 'package:aportaya_cliente_identidad/src/model/nivel_kyc.dart';
 export 'package:aportaya_cliente_identidad/src/model/salida_autenticacion.dart';
