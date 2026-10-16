@@ -73,6 +73,7 @@ export const ErroresCU51 = {
   CUSTODIA_DESCUADRADA: 'AP-CU51-02',
   ASIENTOS_SIN_CONFIRMAR: 'AP-CU51-03',
   DIA_YA_CERRADO: 'AP-CU51-04',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU51-05',
 } as const
 ```
 
@@ -82,6 +83,14 @@ export const ErroresCU51 = {
 | `CUSTODIA_DESCUADRADA` | El encaje del día no cumple |
 | `ASIENTOS_SIN_CONFIRMAR` | Quedan asientos en borrador |
 | `DIA_YA_CERRADO` | Requiere reapertura autorizada |
+| `FILTRO_DE_LISTADO_INVALIDO` | El listado de cierres recibió `antesDe` sin `antesDeId`, o al revés |
+
+**Listado de cierres (backoffice carril A · H8).** `GET /contabilidad/cierres-diarios`
+(`listarCierresDiarios`, `AUDITORIA_LEER`) vive en `openapi/nucleo-financiero.yaml`, porque
+`cierre_diario` es de ese esquema; pagina por `(fecha, id)` del más reciente al más antiguo. Los
+totales viajan como cadena **sin moneda**: la tabla no la modela y no se supone BOB (ambigüedad A-7 del
+carril). La acción de cerrar desde el backoffice sigue pendiente: los totales de recaudo vienen de
+aportes y exigen un puerto con su contrato.
 
 ## Descomposición atómica
 
@@ -133,6 +142,11 @@ Entonces devuelve el cierre existente y no reescribe los saldos diarios
 Dado un asiento_contable sin confirmar en la fecha
 Cuando se ejecuta el cierre
 Entonces el cierre no procede y el asiento queda señalado como bloqueante
+
+# Listado de cierres (backoffice carril A)
+Dados dos días cerrados
+Cuando Contabilidad lista los cierres diarios
+Entonces los recibe del más reciente al más antiguo con sus totales
 ```
 
 ## Ver también

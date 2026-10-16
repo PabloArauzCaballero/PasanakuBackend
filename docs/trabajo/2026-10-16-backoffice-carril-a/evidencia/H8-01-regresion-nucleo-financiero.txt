@@ -1,0 +1,44 @@
+$ ./gradlew :servicios:nucleo-financiero:spotlessCheck test webTest integrationTest testBarrido contractTest --no-build-cache --continue
+BUILD SUCCESSFUL (exit=0)
+
+test             tests=81 skipped=0 failures=0 errors=0
+webTest          tests=62 skipped=0 failures=0 errors=0
+integrationTest  tests=468 skipped=0 failures=0 errors=0
+testBarrido      tests=2 skipped=0 failures=0 errors=0
+contractTest     tests=10 skipped=0 failures=0 errors=0
+
+CU50ConciliacionesTest tests="8" skipped="0" failures="0" errors="0"
+   PASS · reintento: los mismos saldos del mismo operador devuelven la misma conciliacion, con transito incluido
+   PASS · Dadas dos conciliaciones en días distintos · Cuando Auditoría lista las conciliaciones de a una · Entonces recibe la más reciente primero y un cursor que lleva a la anterior
+   PASS · Dada una custodia en BOB con cierres del día · Cuando Tesorería concilia desde el backoffice con el saldo del extracto y el tránsito · Entonces el saldo de dinero electrónico registrado es el que calcula el servidor, no uno enviado por el cliente
+   PASS · rechaza un dia sin saldos diarios sellados con AP-CU50-01
+   PASS · rechaza saldos en otra moneda que la de la custodia con AP-CU50-05
+   PASS · rechaza otros saldos para el mismo dia con AP-CU50-03 y no escribe una segunda verdad
+   PASS · rechaza un cursor a medias en el listado de conciliaciones con AP-CU50-04
+   PASS · rechaza una cuenta de custodia que no existe con AP-CU50-06
+CU51CierresTest tests="2" skipped="0" failures="0" errors="0"
+   PASS · Dados dos días cerrados · Cuando Contabilidad lista los cierres diarios · Entonces los recibe del más reciente al más antiguo con sus totales
+   PASS · rechaza un cursor a medias en el listado de cierres con AP-CU51-05
+CU14ReversosTest tests="3" skipped="0" failures="0" errors="0"
+   PASS · Dados reversos en estado SOLICITADO y EJECUTADO · Cuando Auditoría lista los reversos filtrando por EJECUTADO · Entonces solo recibe los ejecutados, con el monto y quien lo autorizó
+   PASS · rechaza un estado que el contrato no conoce con AP-CU14-04 en vez de devolver una lista vacia
+   PASS · rechaza un cursor a medias en el listado de reversos con AP-CU14-04
+web.TesoreriaWebTest tests="11" skipped="0" failures="0" errors="0"
+   PASS · 403: AUDITORIA_LEER lee las conciliaciones pero no concilia
+   PASS · 201: TESORERIA concilia y el saldo emitido de la respuesta sale de custodia + transito - diferencia
+   PASS · 400: limite fuera de 1..100 lo corta el contrato antes del caso de uso
+   PASS · 422: un estado desconocido o un cursor a medias en reversos sale con AP-CU14-04
+   PASS · 400: sin Idempotency-Key la conciliacion no llega al caso de uso
+   PASS · 401: sin token no hay conciliaciones, cierres ni reversos
+   PASS · 200: los cierres van con importes como cadena SIN moneda (A-7) y sin cursor en la ultima pagina
+   PASS · 422: otra conciliacion el mismo dia sale con AP-CU50-03
+   PASS · 403: quien opera su billetera no lee cierres ni reversos
+   PASS · 200: AUDITORIA_LEER ve las conciliaciones con importes con moneda, ratio y cursor
+   PASS · 200: los reversos pasan el filtro de estados al caso de uso y devuelven el monto como cadena
+web.SeguridadWebTest tests="6" skipped="0" failures="0" errors="0"
+   PASS · seguridad: 401 y 403 no distinguen entre un recurso que existe y uno que no
+   PASS · seguridad: autenticado sin el permiso, toda ruta con @Permiso responde 403
+   PASS · seguridad: el servicio expone al menos una ruta, y todas se pueden inspeccionar
+   PASS · seguridad: el permiso de UNA operacion no abre las de al lado
+   PASS · seguridad: sin Idempotency-Key, ninguna operacion con efecto se ejecuta
+   PASS · seguridad: sin sesion, toda ruta que no sea @Publico responde 401
