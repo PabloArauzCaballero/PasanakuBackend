@@ -54,6 +54,14 @@ export const rutasOperacion: Routes = [
     title: 'Aprobación de retiros · AportaYa',
     canMatch: [requierePermiso('RETIRO_APROBAR')],
   },
+  {
+    // CU-50 · `listarConciliaciones` exige AUDITORIA_LEER; registrar (`conciliarCustodia`) exige el rol TESORERIA y la
+    // pantalla lo vuelve a chequear antes de montar el formulario.
+    path: 'custodia',
+    loadComponent: () => import('./custodia/pantalla-de-conciliaciones').then((m) => m.PantallaDeConciliaciones),
+    title: 'Conciliación de custodia · AportaYa',
+    canMatch: [requierePermiso('AUDITORIA_LEER')],
+  },
   // `estado/` es de F6 (ficha F6, estructura congelada): la ficha se lo asigna al shell
   // aunque viva dentro del dominio `operacion` que B1 posee. Es la única entrada de esta
   // lista que F6 agrega; el resto de `operacion.routes.ts` lo llena B1.
