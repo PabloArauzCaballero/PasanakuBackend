@@ -71,6 +71,7 @@ export const ErroresCU100 = {
   PERIODO_YA_CERRADO: 'AP-CU100-01',
   PERIODO_NO_ES_EL_MAS_ANTIGUO: 'AP-CU100-02',
   DESCUADRE_DETECTADO: 'AP-CU100-03',
+  SIN_PERIODO_VIGENTE: 'AP-CU100-04',
 } as const
 ```
 
@@ -79,6 +80,14 @@ export const ErroresCU100 = {
 | `PERIODO_YA_CERRADO` | El período ya tiene un `cierre_periodo_contable` |
 | `PERIODO_NO_ES_EL_MAS_ANTIGUO` | Hay un período anterior del mismo ejercicio todavía abierto |
 | `DESCUADRE_DETECTADO` | `total_debe ≠ total_haber` al momento de cerrar |
+| `SIN_PERIODO_VIGENTE` | Ningún período contiene la fecha de hoy (America/La_Paz): no se elige uno en su lugar |
+
+**Lecturas para elegir período (backoffice carril A).** `GET /erp/ejercicios`
+(`listarEjerciciosFiscales`) devuelve los ejercicios del más reciente al más antiguo, con sus
+períodos, paginados por año. `GET /erp/periodos/vigente` (`consultarPeriodoVigente`) devuelve el
+período que contiene hoy en America/La_Paz, con su estado aunque esté `CERRADO`. Ambas aceptan
+cualquiera de los permisos que abren la sección Contabilidad (`CONTABILIDAD_ERP_REPORTES` y los otros
+siete `CONTABILIDAD_ERP_*`): elegir período lo necesita toda pantalla de la sección.
 
 ## Descomposición atómica
 
@@ -96,6 +105,7 @@ export const ErroresCU100 = {
 | --- | --- | --- |
 | `periodo_contable.cerrado` | Bloquea nuevas escrituras contra ese período | `CONTABILIDAD_ERP_CERRAR` |
 | `ejercicio_fiscal.cerrado` | Habilita la generación del estado financiero anual | `CONTABILIDAD_ERP_CERRAR` |
+| — (lectura de ejercicios y período vigente) | — | `CONTABILIDAD_ERP_REPORTES` o cualquier otro `CONTABILIDAD_ERP_*` |
 
 ## Interfaz
 
@@ -125,6 +135,23 @@ Entonces el sistema lo rechaza
 Dados dos períodos abiertos consecutivos del mismo ejercicio
 Cuando se intenta cerrar el segundo antes que el primero
 Entonces el sistema devuelve PERIODO_NO_ES_EL_MAS_ANTIGUO
+
+# Elegir el período (backoffice carril A)
+Dado un ejercicio abierto y el reloj en la noche del 31 de marzo en La Paz
+Cuando se consulta el periodo vigente
+Entonces es marzo, aunque en UTC ya sea primero de abril
+
+Dados tres ejercicios
+Cuando Contabilidad los recorre de a dos
+Entonces van del mas reciente al mas antiguo, cada uno con sus doce periodos, sin repetir ninguno
+
+Dado un dia que ningun periodo contiene
+Cuando se consulta el periodo vigente
+Entonces responde SIN_PERIODO_VIGENTE y no elige uno cualquiera
+
+Dado un periodo vigente ya cerrado
+Cuando se consulta el periodo vigente
+Entonces vuelve con estado CERRADO: el estado se informa, no se salta al mes siguiente
 ```
 
 ## Ver también

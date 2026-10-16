@@ -52,6 +52,7 @@ class ArranqueTest {
                         .anyMatch(p -> p.startsWith("/erp")))
                 .count();
 
-        assertThat(delContrato).isEqualTo(15);
+        // 15 operaciones + las 2 lecturas de periodo del backoffice (carril A · H4): ejercicios y vigente.
+        assertThat(delContrato).isEqualTo(17);
     }
 }

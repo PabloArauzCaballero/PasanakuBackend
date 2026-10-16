@@ -3,6 +3,7 @@ package bo.aportaya.erp.infraestructura;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.jooq.DSLContext;
@@ -211,6 +212,64 @@ public class PeriodoRepositorio {
                 .execute();
         return id;
     }
+
+    /**
+     * Ejercicios del mas reciente al mas antiguo (backoffice carril A · H4). El anio es unico por
+     * ejercicio, asi que alcanza como cursor: no hay dos ejercicios que empaten.
+     */
+    public List<EjercicioConFechas> ejercicios(DSLContext dsl, Optional<Integer> antesDeAnio, int limite) {
+        var anio = DSL.field("anio", Short.class);
+        var condicion = antesDeAnio.map(a -> anio.lt(a.shortValue())).orElse(DSL.noCondition());
+        return dsl.select(
+                        anio,
+                        DSL.field("id", UUID.class),
+                        DSL.field("estado", String.class),
+                        DSL.field("fecha_inicio", LocalDate.class),
+                        DSL.field("fecha_fin", LocalDate.class))
+                .from(DSL.table(DSL.name("erp", "ejercicio_fiscal")))
+                .where(condicion)
+                .orderBy(anio.desc())
+                .limit(limite)
+                .fetch(f -> new EjercicioConFechas(
+                        f.get("id", UUID.class),
+                        f.get(anio).intValue(),
+                        f.get("estado", String.class),
+                        f.get("fecha_inicio", LocalDate.class),
+                        f.get("fecha_fin", LocalDate.class)));
+    }
+
+    /** Los periodos de varios ejercicios en UNA consulta (sin N+1), por ejercicio y mes. */
+    public List<Periodo> periodosDe(DSLContext dsl, List<UUID> ejercicioIds) {
+        if (ejercicioIds.isEmpty()) {
+            return List.of();
+        }
+        return dsl.select(
+                        DSL.field("id", UUID.class),
+                        DSL.field("ejercicio_fiscal_id", UUID.class),
+                        DSL.field("mes", Short.class),
+                        DSL.field("estado", String.class),
+                        DSL.field("fecha_inicio", LocalDate.class),
+                        DSL.field("fecha_fin", LocalDate.class))
+                .from(DSL.table(DSL.name("erp", "periodo_contable")))
+                .where(DSL.field("ejercicio_fiscal_id", UUID.class).in(ejercicioIds))
+                .orderBy(DSL.field("ejercicio_fiscal_id"), DSL.field("mes"))
+                .fetch(f -> new Periodo(
+                        f.get("id", UUID.class),
+                        f.get("ejercicio_fiscal_id", UUID.class),
+                        f.get("mes", Short.class).intValue(),
+                        f.get("estado", String.class),
+                        f.get("fecha_inicio", LocalDate.class),
+                        f.get("fecha_fin", LocalDate.class)));
+    }
+
+    public Optional<Integer> anioDelEjercicio(DSLContext dsl, UUID ejercicioId) {
+        return dsl.select(DSL.field("anio", Short.class))
+                .from(DSL.table(DSL.name("erp", "ejercicio_fiscal")))
+                .where(DSL.field("id", UUID.class).eq(ejercicioId))
+                .fetchOptional(f -> f.value1().intValue());
+    }
+
+    public record EjercicioConFechas(UUID id, int anio, String estado, LocalDate desde, LocalDate hasta) {}
 
     public record Ejercicio(UUID id, int anio, String estado) {}
 

@@ -13,8 +13,11 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -156,4 +159,66 @@ public class CU100AbrirCerrarPeriodo {
             java.math.BigDecimal totalHaber,
             boolean cuadrado,
             OffsetDateTime cerradoEn) {}
+
+    /**
+     * Los ejercicios con sus periodos, del mas reciente al mas antiguo (backoffice carril A · H4):
+     * lo que la pantalla necesita para elegir un periodo real en vez de uno de demostracion.
+     */
+    @Transactional(readOnly = true)
+    public PaginaDeEjercicios ejercicios(Optional<Integer> antesDeAnio, int limite, ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> {
+            var ejercicios = periodos.ejercicios(dsl, antesDeAnio, limite);
+            var porEjercicio = periodos
+                    .periodosDe(dsl, ejercicios.stream().map(e -> e.id()).toList())
+                    .stream()
+                    .collect(Collectors.groupingBy(PeriodoRepositorio.Periodo::ejercicioId));
+            var items = ejercicios.stream()
+                    .map(e -> new EjercicioConPeriodos(
+                            e.id(),
+                            e.anio(),
+                            e.estado(),
+                            e.desde(),
+                            e.hasta(),
+                            porEjercicio.getOrDefault(e.id(), List.of()).stream()
+                                    .map(p -> periodo(p, e.anio()))
+                                    .toList()))
+                    .toList();
+            // Pagina llena => puede haber mas anios atras. Pagina corta => se termino.
+            Optional<Integer> proximo = items.size() == limite
+                    ? Optional.of(items.get(items.size() - 1).anio())
+                    : Optional.empty();
+            return new PaginaDeEjercicios(items, proximo);
+        });
+    }
+
+    /**
+     * El periodo que contiene hoy en America/La_Paz, con su estado aunque este CERRADO. Si ninguno
+     * lo contiene, AP-CU100-04: elegir "el mas cercano" seria inventar donde aterriza Contabilidad.
+     */
+    @Transactional(readOnly = true)
+    public PeriodoVigente vigente(ContextoSesion ctx) {
+        LocalDate hoy = reloj.hoy();
+        return datos.conContexto(ctx, dsl -> periodos.periodoDeLaFecha(dsl, hoy)
+                .map(p -> periodo(
+                        p, periodos.anioDelEjercicio(dsl, p.ejercicioId()).orElseThrow()))
+                .orElseThrow(() -> new ErrorDeNegocio(
+                        CodigoError.de(100, 4), "Ningun periodo contable contiene la fecha de hoy (" + hoy + ").")));
+    }
+
+    private static PeriodoVigente periodo(PeriodoRepositorio.Periodo p, int anio) {
+        return new PeriodoVigente(p.id(), p.ejercicioId(), anio, p.mes(), p.estado(), p.desde(), p.hasta());
+    }
+
+    public record PeriodoVigente(
+            UUID periodoId, UUID ejercicioId, int anio, int mes, String estado, LocalDate desde, LocalDate hasta) {}
+
+    public record EjercicioConPeriodos(
+            UUID ejercicioId,
+            int anio,
+            String estado,
+            LocalDate desde,
+            LocalDate hasta,
+            List<PeriodoVigente> periodos) {}
+
+    public record PaginaDeEjercicios(List<EjercicioConPeriodos> items, Optional<Integer> proximoAntesDeAnio) {}
 }

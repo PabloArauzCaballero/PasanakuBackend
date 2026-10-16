@@ -14,6 +14,8 @@
 #   AP-CU100-01  PERIODO_YA_CERRADO           · el periodo ya tiene su cierre
 #   AP-CU100-02  PERIODO_NO_ES_EL_MAS_ANTIGUO · hay un mes anterior todavia abierto
 #   AP-CU100-03  DESCUADRE_DETECTADO          · total_debe != total_haber al cerrar
+#   AP-CU100-04  SIN_PERIODO_VIGENTE          · ningun periodo contiene la fecha de hoy (America/La_Paz):
+#                                              no hay ejercicio abierto para hoy, y no se inventa uno
 #
 # CU-101 · Presupuestar por centro de costo
 #   AP-CU101-01  CENTRO_COSTO_INEXISTENTE     · el centro no existe o esta inactivo
@@ -76,6 +78,27 @@ servers:
 
 paths:
   /erp/ejercicios:
+    get:
+      operationId: listarEjerciciosFiscales     # CU-100 (backoffice carril A · H4)
+      summary: Los ejercicios fiscales con sus periodos, del mas reciente al mas antiguo
+      description: >-
+        Lo que la pantalla de Contabilidad necesita para elegir un periodo real en vez de un
+        identificador de demostracion. Pagina por anio descendente (cursor antesDeAnio). La ve
+        cualquiera que pueda abrir la seccion Contabilidad: CONTABILIDAD_ERP_REPORTES o cualquiera
+        de los otros permisos ERP. Solo lee: no lleva Idempotency-Key.
+      parameters:
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 20, default: 5 } }
+        - { name: antesDeAnio, in: query, required: false, schema: { type: integer, minimum: 2000, maximum: 2999 } }
+      responses:
+        '200':
+          description: Pagina de ejercicios (vacia si todavia no se abrio ninguno)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeEjercicios' }
+        '403':
+          description: Sin ningun permiso de Contabilidad
+        '401':
+          description: Sin sesion
     post:
       operationId: abrirEjercicioFiscal
       summary: CU-100 · Abre el ejercicio y sus doce periodos
@@ -94,6 +117,29 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/SalidaEjercicio' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /erp/periodos/vigente:
+    get:
+      operationId: consultarPeriodoVigente      # CU-100 (backoffice carril A · H4)
+      summary: El periodo contable que contiene la fecha de hoy (America/La_Paz)
+      description: >-
+        Donde aterriza la seccion Contabilidad. Es el periodo cuyo rango contiene hoy; puede estar
+        CERRADO si se cerro antes de terminar el mes, y se devuelve igual con su estado. Si ningun
+        periodo contiene hoy (no hay ejercicio abierto para este anio) responde AP-CU100-04: la
+        pantalla lo dice, no elige uno cualquiera. Mismos permisos que listarEjerciciosFiscales.
+      responses:
+        '200':
+          description: El periodo vigente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PeriodoContable' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU100-04 SIN_PERIODO_VIGENTE
+        '403':
+          description: Sin ningun permiso de Contabilidad
+        '401':
+          description: Sin sesion
 
   /erp/periodos/{periodoId}/cierre:
     post:
@@ -424,6 +470,40 @@ components:
       required: true
       schema: { type: string, format: uuid }
   schemas:
+    PaginaDeEjercicios:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/EjercicioFiscal' }
+        proximoAntesDeAnio: { type: [integer, 'null'] }
+    EjercicioFiscal:
+      type: object
+      additionalProperties: false
+      required: [ejercicioId, anio, estado, fechaInicio, fechaFin, periodos]
+      properties:
+        ejercicioId: { type: string, format: uuid }
+        anio:        { type: integer }
+        estado:      { type: string, enum: [ABIERTO, CERRADO] }
+        fechaInicio: { type: string, format: date }
+        fechaFin:    { type: string, format: date }
+        periodos:
+          type: array
+          items: { $ref: '#/components/schemas/PeriodoContable' }
+    PeriodoContable:
+      type: object
+      additionalProperties: false
+      required: [periodoId, ejercicioId, anio, mes, estado, fechaInicio, fechaFin]
+      properties:
+        periodoId:   { type: string, format: uuid }
+        ejercicioId: { type: string, format: uuid }
+        anio:        { type: integer }
+        mes:         { type: integer, minimum: 1, maximum: 12 }
+        estado:      { type: string, enum: [ABIERTO, CERRADO] }
+        fechaInicio: { type: string, format: date }
+        fechaFin:    { type: string, format: date }
     Dinero:
       type: object
       additionalProperties: false
