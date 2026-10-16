@@ -1,0 +1,61 @@
+/** Los textos de configuración (tarifario, mensajería, reportes), en voz de marca. Todo de solo lectura. */
+export const textosConfiguracion = {
+  comun: {
+    noSePudo: 'No pudimos traer el listado',
+    traza: 'Código de seguimiento',
+    reintentar: 'Volver a intentar',
+    vacioPorFiltro: 'Nada coincide con ese filtro. Quitalo para ver todo.',
+    soloLectura: 'Solo lectura: acá no se cambia nada.',
+    estado: 'Estado',
+  },
+  inicio: {
+    titulo: 'Configuración',
+    proposito: 'Consultar cómo está configurada la plataforma: tarifas, mensajes y reportes. Nada de esto se edita desde acá.',
+    secciones: [
+      { ruta: 'tarifario', texto: 'Tarifario', descripcion: 'Versiones publicadas, vigencia, preaviso y simulación de impacto.', permisos: ['TARIFARIO_PUBLICAR', 'AUDITORIA_LEER'] },
+      { ruta: 'mensajeria', texto: 'Mensajería', descripcion: 'Plantillas vigentes y auditoría de envíos, sin destinatarios.', permisos: ['AUDITORIA_LEER'] },
+      { ruta: 'reportes', texto: 'Reportes', descripcion: 'Catálogo de reportes e historial de ejecuciones.', permisos: ['AUDITORIA_LEER'] },
+    ],
+    sinSecciones: 'Tu rol no tiene acceso a ninguna parte de la configuración.',
+  },
+  tarifario: {
+    titulo: 'Historial del tarifario',
+    proposito: 'Cada versión del tarifario con su vigencia, el preaviso y la última simulación de impacto (CU-34).',
+    vacio: 'Todavía no hay tarifarios publicados.',
+    deltaSinMoneda: 'sin moneda en el contrato',
+    usuarios: 'usuarios',
+    estados: { ARCHIVADO: 'Archivado', BORRADOR: 'Borrador', EN_PREAVISO: 'En preaviso', SUSTITUIDO: 'Sustituido', VIGENTE: 'Vigente' },
+  },
+  mensajeria: {
+    titulo: 'Mensajería',
+    proposito: 'Qué plantilla rige cada mensaje y cómo salieron los envíos (CU-80, CU-83). No se muestran destinatarios ni contenido.',
+    plantillas: { titulo: 'Plantillas', vacio: 'Todavía no hay plantillas cargadas.' },
+    envios: { titulo: 'Envíos', vacio: 'Todavía no hay envíos registrados.' },
+    activa: 'Activa',
+    inactiva: 'Inactiva',
+    estadosPlantilla: { APROBADA: 'Aprobada', BORRADOR: 'Borrador', ENVIADA: 'Enviada al proveedor', PAUSADA: 'Pausada', RECHAZADA: 'Rechazada' },
+    estadosEnvio: {
+      ACEPTADO_POR_PROVEEDOR: 'Aceptado por el proveedor',
+      ENTREGADO: 'Entregado',
+      ENVIADO: 'Enviado',
+      EXPIRADO: 'Expirado',
+      FALLIDO: 'Fallido',
+      LEIDO: 'Leído',
+      PENDIENTE: 'Pendiente',
+      RECHAZADO: 'Rechazado',
+    },
+  },
+  reportes: {
+    titulo: 'Reportes',
+    proposito: 'Qué reportes ofrece el backoffice y quién ejecutó cuál, cuándo y con qué resultado (CU-58).',
+    definiciones: { titulo: 'Catálogo de reportes', vacio: 'No hay reportes activos en el catálogo.' },
+    ejecuciones: {
+      titulo: 'Historial de ejecuciones',
+      vacio: 'Todavía nadie ejecutó un reporte.',
+      corte: 'El contrato no publica los parámetros ni el corte de cada ejecución (pueden llevar datos de una persona): se ven en la ficha de auditoría.',
+    },
+    sensible: 'Datos sensibles: pide justificación',
+    noSensible: 'Sin datos sensibles',
+    estados: { EN_COLA: 'En cola', EJECUTANDO: 'Ejecutando', COMPLETADA: 'Completada', FALLIDA: 'Fallida', EXPIRADA: 'Expirada' },
+  },
+}
