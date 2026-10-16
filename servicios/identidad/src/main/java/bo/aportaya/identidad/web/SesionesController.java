@@ -93,7 +93,8 @@ public class SesionesController implements SesionesApi {
     @Publico("CU-04: el ingreso es el momento en que todavia no hay sesion")
     public ResponseEntity<SalidaAutenticacion> autenticar(
             bo.aportaya.identidad.web.generado.modelo.EntradaAutenticacion cuerpo) {
-        Traza.marcarCasoDeUso("CU-04", cuerpo.getTelefonoE164());
+        // El telefono es dato personal: no va al MDC ni a ningun log (regla 90.2.1). Se marca el caso, no la persona.
+        Traza.marcarCasoDeUso("CU-04", "ingreso");
 
         ResultadoDeAutenticacion resultado = cu04.ejecutar(mapear(cuerpo), politica);
 
