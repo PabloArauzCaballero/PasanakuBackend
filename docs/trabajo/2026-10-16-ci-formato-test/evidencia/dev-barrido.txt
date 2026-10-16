@@ -1,0 +1,93 @@
+catalogo de errores: 263 restricciones -> 141 reglas · errores-restricciones.properties
+mensajes de regla: 170 · errores-reglas.properties
+  AVISO: 3 reglas con restriccion y sin fila en la boveda: R-BIL-21, R-BIL-22, R-UIF-13
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /private/tmp/claude-501/-Users-pablo-Documents-GitHub-Pasanaku/3fbfc8d5-59d5-4201-8975-756685bb04b8/scratchpad/wt-dev/servicios/auditoria/build/generated/openapi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /private/tmp/claude-501/-Users-pablo-Documents-GitHub-Pasanaku/3fbfc8d5-59d5-4201-8975-756685bb04b8/scratchpad/wt-dev/servicios/aportes/build/generated/openapi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /private/tmp/claude-501/-Users-pablo-Documents-GitHub-Pasanaku/3fbfc8d5-59d5-4201-8975-756685bb04b8/scratchpad/wt-dev/servicios/entregas/build/generated/openapi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /private/tmp/claude-501/-Users-pablo-Documents-GitHub-Pasanaku/3fbfc8d5-59d5-4201-8975-756685bb04b8/scratchpad/wt-dev/servicios/garantia/build/generated/openapi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /private/tmp/claude-501/-Users-pablo-Documents-GitHub-Pasanaku/3fbfc8d5-59d5-4201-8975-756685bb04b8/scratchpad/wt-dev/servicios/identidad/build/generated/openapi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /private/tmp/claude-501/-Users-pablo-Documents-GitHub-Pasanaku/3fbfc8d5-59d5-4201-8975-756685bb04b8/scratchpad/wt-dev/servicios/erp/build/generated/openapi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /private/tmp/claude-501/-Users-pablo-Documents-GitHub-Pasanaku/3fbfc8d5-59d5-4201-8975-756685bb04b8/scratchpad/wt-dev/servicios/grupos/build/generated/openapi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /private/tmp/claude-501/-Users-pablo-Documents-GitHub-Pasanaku/3fbfc8d5-59d5-4201-8975-756685bb04b8/scratchpad/wt-dev/servicios/inversiones/build/generated/openapi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /private/tmp/claude-501/-Users-pablo-Documents-GitHub-Pasanaku/3fbfc8d5-59d5-4201-8975-756685bb04b8/scratchpad/wt-dev/servicios/cumplimiento/build/generated/openapi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /private/tmp/claude-501/-Users-pablo-Documents-GitHub-Pasanaku/3fbfc8d5-59d5-4201-8975-756685bb04b8/scratchpad/wt-dev/servicios/notificaciones/build/generated/openapi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /private/tmp/claude-501/-Users-pablo-Documents-GitHub-Pasanaku/3fbfc8d5-59d5-4201-8975-756685bb04b8/scratchpad/wt-dev/servicios/publicidad/build/generated/openapi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /private/tmp/claude-501/-Users-pablo-Documents-GitHub-Pasanaku/3fbfc8d5-59d5-4201-8975-756685bb04b8/scratchpad/wt-dev/servicios/organizador/build/generated/openapi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /private/tmp/claude-501/-Users-pablo-Documents-GitHub-Pasanaku/3fbfc8d5-59d5-4201-8975-756685bb04b8/scratchpad/wt-dev/servicios/tarifas/build/generated/openapi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /private/tmp/claude-501/-Users-pablo-Documents-GitHub-Pasanaku/3fbfc8d5-59d5-4201-8975-756685bb04b8/scratchpad/wt-dev/servicios/nucleo-financiero/build/generated/openapi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /private/tmp/claude-501/-Users-pablo-Documents-GitHub-Pasanaku/3fbfc8d5-59d5-4201-8975-756685bb04b8/scratchpad/wt-dev/servicios/transparencia/build/generated/openapi

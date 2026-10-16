@@ -214,7 +214,8 @@ public class UsuariosController extends ExpedienteController {
     @Override
     @Publico("CU-01: el alta ocurre antes de que exista la sesion")
     public ResponseEntity<SalidaRegistro> registrarUsuario(UUID idempotencyKey, EntradaRegistro cuerpo) {
-        Traza.marcarCasoDeUso("CU-01", String.valueOf(cuerpo.getTelefonoE164()));
+        // El telefono es dato personal: no va al MDC ni a ningun log (regla 90.2.1). Se marca el caso, no la persona.
+        Traza.marcarCasoDeUso("CU-01", "alta");
 
         var salida = cu01.ejecutar(MapeoDelAlta.mapear(cuerpo, pimienta, ip(), agente()), contextoDelAlta());
 

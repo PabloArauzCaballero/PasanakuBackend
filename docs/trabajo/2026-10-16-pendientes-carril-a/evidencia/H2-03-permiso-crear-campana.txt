@@ -1,0 +1,6 @@
+$ grep -n 'operationId: crearCampana' -A3 publicidad.yaml | grep description
+200-      description: Exige PUBLICIDAD_CAMPANA_GESTIONAR para el anunciante autenticado (el mismo permiso que declara el codigo).
+$ grep -B2 crearCampana PublicidadController.java | grep Permiso
+139-    @Permiso("PUBLICIDAD_CAMPANA_GESTIONAR")
+$ git status --short postman  ->  solo publicidad regenerada
+ M postman/coleccion/publicidad.postman_collection.json

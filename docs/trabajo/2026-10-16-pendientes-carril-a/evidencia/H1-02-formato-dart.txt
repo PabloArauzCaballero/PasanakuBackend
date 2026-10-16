@@ -1,0 +1,32 @@
+$ (packages/diseno_flutter) dart format --output=none --set-exit-if-changed lib test
+Formatted 158 files (0 changed) in 0.27 seconds.
+exit=0
+$ (apps/movil) dart format --output=none --set-exit-if-changed lib test
+Formatted 470 files (0 changed) in 0.66 seconds.
+exit=0
+$ (packages/diseno_flutter) flutter test
+  /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/backoffice-dominio/packages/diseno_flutter/test/goldens/marca_golden_test.dart: loading /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/backoffice-dominio/packages/diseno_flutter/test/goldens/marca_golden_test.dart
+  ... and 14 more
+  ... and 14 more
+
+$ (packages/diseno_flutter, con lib/tokens generado como en CI) flutter test
+00:14 +118 -15: Some tests failed.
+$ mismo comando sobre origin/dev limpio (worktree aparte)
+00:16 +118 -15: Some tests failed.
+Fallas: las mismas 15 en ambos (diff vacio) — todas goldens:
+Moléculas · claro [E]
+Moléculas · oscuro [E]
+Móviles · claro [E]
+Móviles · oscuro [E]
+Organismos · claro [E]
+Organismos · oscuro [E]
+la apertura, cuadro por cuadro [E]
+Átomos · botones · claro [E]
+Átomos · botones · oscuro [E]
+Átomos · campos · claro [E]
+Átomos · campos · oscuro [E]
+Átomos · indicadores · claro [E]
+Átomos · indicadores · oscuro [E]
+Átomos · selección · claro [E]
+Átomos · selección · oscuro [E]
+Clasificacion: ENVIRONMENT — goldens generados en Linux (job 'App — goldens (Linux)'), corridos en macOS. El formateo no cambia el resultado.

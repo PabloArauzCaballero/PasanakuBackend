@@ -63,8 +63,8 @@ class CU47Test extends BaseDeCumplimiento {
         var evaluacion = transaccion.execute(t -> productoCU.evaluar(
                 entrada(losCuatroFactores(), Map.of(0, List.of("KYC reforzado antes de operar")), false), ctx));
 
-        var aprobada = transaccion.execute(t -> productoCU.aprobar(
-                new EntradaAprobacion(evaluacion.evaluacionId(), ctx.usuarioId(), true, false, "ACTA-2026-04"), ctx));
+        var aprobada = transaccion.execute(t ->
+                productoCU.aprobar(new EntradaAprobacion(evaluacion.evaluacionId(), true, false, "ACTA-2026-04"), ctx));
 
         // HUECO: el catalogo de estados no tiene 'VIGENTE' —admite APROBADA, BORRADOR,
         // EN_EVALUACION y RECHAZADA—, asi que lo mas cerca que la base llega es
@@ -74,9 +74,10 @@ class CU47Test extends BaseDeCumplimiento {
                         """
                         SELECT count(*)::int FROM cumplimiento.evaluacion_riesgo_producto
                          WHERE id = ? AND estado = 'APROBADA' AND fecha_aprobacion IS NOT NULL
-                           AND aprobada_por IS NOT NULL
+                           AND aprobada_por = ?
                         """,
-                        evaluacion.evaluacionId()))
+                        evaluacion.evaluacionId(),
+                        ctx.usuarioId()))
                 .isEqualTo(1);
         assertThat(contar(
                         """
@@ -111,7 +112,7 @@ class CU47Test extends BaseDeCumplimiento {
                 t -> productoCU.evaluar(entrada(losCuatroFactores(), Map.of(0, List.of("KYC reforzado")), true), ctx));
 
         assertThatThrownBy(() -> transaccion.execute(t -> productoCU.aprobar(
-                        new EntradaAprobacion(evaluacion.evaluacionId(), ctx.usuarioId(), true, false, "ACTA-1"), ctx)))
+                        new EntradaAprobacion(evaluacion.evaluacionId(), true, false, "ACTA-1"), ctx)))
                 .hasMessageContaining("no objecion");
 
         // HUECO: ck_evaluacion_no_objecion vigila un estado 'VIGENTE' que el catalogo no
@@ -130,8 +131,8 @@ class CU47Test extends BaseDeCumplimiento {
     void criterio4() {
         var primera = transaccion.execute(
                 t -> productoCU.evaluar(entrada(losCuatroFactores(), Map.of(0, List.of("KYC reforzado")), false), ctx));
-        transaccion.execute(t -> productoCU.aprobar(
-                new EntradaAprobacion(primera.evaluacionId(), ctx.usuarioId(), true, false, "ACTA-1"), ctx));
+        transaccion.execute(
+                t -> productoCU.aprobar(new EntradaAprobacion(primera.evaluacionId(), true, false, "ACTA-1"), ctx));
 
         var segunda = transaccion.execute(t -> productoCU.evaluar(
                 entrada(losCuatroFactores(), Map.of(0, List.of("KYC reforzado y monitoreo")), false), ctx));
@@ -228,7 +229,7 @@ class CU47Test extends BaseDeCumplimiento {
     void eventoDuplicadoYFueraDeOrden() {
         var evaluacion = transaccion.execute(
                 t -> productoCU.evaluar(entrada(losCuatroFactores(), Map.of(0, List.of("KYC reforzado")), false), ctx));
-        var aprobacion = new EntradaAprobacion(evaluacion.evaluacionId(), ctx.usuarioId(), true, false, "ACTA-1");
+        var aprobacion = new EntradaAprobacion(evaluacion.evaluacionId(), true, false, "ACTA-1");
 
         transaccion.execute(t -> productoCU.aprobar(aprobacion, ctx));
         // La segunda aprobacion llega tarde: ya no esta en borrador.
