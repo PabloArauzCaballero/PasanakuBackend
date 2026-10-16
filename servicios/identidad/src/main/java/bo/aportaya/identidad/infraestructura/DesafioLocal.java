@@ -1,5 +1,6 @@
 package bo.aportaya.identidad.infraestructura;
 
+import bo.aportaya.identidad.dominio.puertos.CorreoDeVerificacion;
 import bo.aportaya.identidad.dominio.puertos.DesafioDeFactor;
 import java.security.SecureRandom;
 import java.time.Duration;
@@ -20,6 +21,11 @@ import org.springframework.stereotype.Component;
  *
  * <p>El azar es criptografico: un codigo de seis digitos generado con
  * {@code Math.random} se adivina, y adivinarlo es entrar.
+ *
+ * <p>El factor {@code CORREO} es el unico que sale del proceso: se entrega con el mismo
+ * {@link CorreoDeVerificacion} que confirma el correo en el alta (Gmail en TEST). Si el
+ * proveedor falla, el desafio se descarta y el ingreso sigue respondiendo normalmente:
+ * no queda un codigo vivo que nadie recibio, y volver a ingresar lo pide de nuevo.
  */
 @Component
 public class DesafioLocal implements DesafioDeFactor {
@@ -27,9 +33,15 @@ public class DesafioLocal implements DesafioDeFactor {
     private static final Logger BITACORA = LoggerFactory.getLogger(DesafioLocal.class);
     private static final Duration VIGENCIA = Duration.ofMinutes(5);
     private static final int DIGITOS = 6;
+    private static final String CORREO = "CORREO";
 
     private final SecureRandom azar = new SecureRandom();
     private final Map<UUID, Desafio> vigentes = new ConcurrentHashMap<>();
+    private final CorreoDeVerificacion correo;
+
+    public DesafioLocal(CorreoDeVerificacion correo) {
+        this.correo = correo;
+    }
 
     @Override
     public UUID emitir(UUID usuarioId, String tipoDeFactor) {
@@ -38,6 +50,31 @@ public class DesafioLocal implements DesafioDeFactor {
         vigentes.put(usuarioId, new Desafio(codigo, Instant.now().plus(VIGENCIA)));
         // El valor NUNCA se registra. Un codigo en el log es un codigo filtrado.
         BITACORA.info("desafio {} emitido para el usuario {} ({} digitos)", id, usuarioId, DIGITOS);
+        return id;
+    }
+
+    @Override
+    public UUID emitir(UUID usuarioId, String tipoDeFactor, String destino) {
+        UUID id = emitir(usuarioId, tipoDeFactor);
+        if (!CORREO.equals(tipoDeFactor)) {
+            return id;
+        }
+        Desafio desafio = vigentes.get(usuarioId);
+        if (destino == null || destino.isBlank()) {
+            vigentes.remove(usuarioId);
+            BITACORA.warn("desafio {} por correo sin destino: no se envio", id);
+            return id;
+        }
+        try {
+            correo.enviarCodigoDeAcceso(destino, desafio.codigo(), VIGENCIA);
+        } catch (RuntimeException fallo) {
+            // Solo el tipo de la falla: el mensaje del proveedor puede traer el destino.
+            vigentes.remove(usuarioId);
+            BITACORA.warn(
+                    "desafio {} por correo no se pudo enviar ({})",
+                    id,
+                    fallo.getClass().getSimpleName());
+        }
         return id;
     }
 

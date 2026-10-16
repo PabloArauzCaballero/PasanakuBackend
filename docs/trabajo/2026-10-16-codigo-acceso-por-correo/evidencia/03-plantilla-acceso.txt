@@ -1,0 +1,8 @@
+$ ./gradlew :servicios:identidad:test --tests '*GmailApiCorreoDeVerificacion*'
+exit=0 · BUILD SUCCESSFUL in 27s
+testsuite name="bo.aportaya.identidad.GmailApiCorreoDeVerificacionTest" tests="5" skipped="0" failures="0" errors="0"
+testcase name="el correo de acceso dice que es para entrar, no para confirmar el correo"
+testcase name="renueva OAuth y envia por Gmail API el codigo dentro del HTML animado"
+testcase name="el codigo de acceso sale por Gmail API con el asunto de acceso"
+testcase name="el correo del alta conserva su texto de siempre"
+testcase name="el HTML muestra seis celdas, vigencia y animacion con fallback estatico"

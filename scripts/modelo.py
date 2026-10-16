@@ -338,6 +338,16 @@ PARTICIONADAS = {
     "registro_acceso_datos": "fecha_hora",
 }
 
+# CHECK de enumerado que se AMPLIO despues de que existieran bases. El CREATE TABLE
+# IF NOT EXISTS saltea una tabla que ya esta, asi que su CHECK viejo quedaria vivo
+# en TEST para siempre. Para estas columnas el generador emite ademas el DROP/ADD
+# idempotente, igual que la evolucion del outbox (ADR-027). Solo se AMPLIA: ninguna
+# fila existente queda invalida.
+CK_AMPLIADOS = {
+    # 2026-10-16: segundo factor por correo para participantes.
+    "factor_mfa": ["tipo"],
+}
+
 # --- FK -> tabla destino: overrides donde el nombre de columna no coincide ---
 OVERRIDES = {
     "obligacion_id": "obligacion_aporte", "obligacion_origen_id": "obligacion_aporte",

@@ -38,6 +38,15 @@ public class GmailApiCorreoDeVerificacion implements CorreoDeVerificacion {
 
     @Override
     public void enviarCodigo(String destino, String codigo, Duration vigencia) {
+        enviar(destino, codigo, vigencia, PlantillaCorreoDeVerificacion.Motivo.VERIFICACION);
+    }
+
+    @Override
+    public void enviarCodigoDeAcceso(String destino, String codigo, Duration vigencia) {
+        enviar(destino, codigo, vigencia, PlantillaCorreoDeVerificacion.Motivo.ACCESO);
+    }
+
+    private void enviar(String destino, String codigo, Duration vigencia, PlantillaCorreoDeVerificacion.Motivo motivo) {
         var formulario = new LinkedMultiValueMap<String, String>();
         formulario.add("client_id", clientId);
         formulario.add("client_secret", clientSecret);
@@ -57,10 +66,10 @@ public class GmailApiCorreoDeVerificacion implements CorreoDeVerificacion {
         }
 
         String asunto = Base64.getEncoder()
-                .encodeToString(PlantillaCorreoDeVerificacion.asunto().getBytes(StandardCharsets.UTF_8));
+                .encodeToString(PlantillaCorreoDeVerificacion.asunto(motivo).getBytes(StandardCharsets.UTF_8));
         String cuerpo = Base64.getMimeEncoder(76, "\r\n".getBytes(StandardCharsets.US_ASCII))
-                .encodeToString(
-                        PlantillaCorreoDeVerificacion.html(codigo, vigencia).getBytes(StandardCharsets.UTF_8));
+                .encodeToString(PlantillaCorreoDeVerificacion.html(codigo, vigencia, motivo)
+                        .getBytes(StandardCharsets.UTF_8));
         String mime = "From: AportaYa <" + remitente + ">\r\n"
                 + "To: " + destino + "\r\n"
                 + "Subject: =?UTF-8?B?" + asunto + "?=\r\n"

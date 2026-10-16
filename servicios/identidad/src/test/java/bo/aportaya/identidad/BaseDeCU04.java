@@ -34,6 +34,11 @@ abstract class BaseDeCU04 {
     protected static FixturaDeIdentidad fixtura;
     protected static Consumidos consumidos;
     protected static String hashDeLaClave;
+    /** DOBLE del enviador de correo: lo que CU-04 habria mandado por Gmail. */
+    protected static final CorreoEnMemoria correo = new CorreoEnMemoria();
+
+    protected static final bo.aportaya.identidad.infraestructura.ProteccionDeVerificacionCorreo proteccion =
+            new bo.aportaya.identidad.infraestructura.ProteccionDeVerificacionCorreo("pimienta-de-prueba");
 
     @BeforeAll
     static void armar() {
@@ -59,7 +64,8 @@ abstract class BaseDeCU04 {
                 new UsuarioRepositorio(),
                 new AccesoRepositorio(),
                 hasheador,
-                new DesafioLocal(),
+                new DesafioLocal(correo),
+                new bo.aportaya.identidad.infraestructura.CorreoDeAccesoRepositorio(proteccion),
                 new Outbox("identidad"),
                 Reloj.delSistema());
         fixtura = new FixturaDeIdentidad(dsl);

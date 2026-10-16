@@ -1,0 +1,20 @@
+== 1ra aplicación de sql/aplicar.sql: exit=0 (ver arriba en sesión); CHECK antes: 4 valores, después: 5 (incluye CORREO)
+$ psql -f aplicar.sql   (2da corrida, idempotencia)
+ 
+(1 row)
+
+exit=0
+$ CHECK vigente
+ck_factor_mfa_tipo|CHECK (((tipo)::text = ANY ((ARRAY['CORREO'::character varying, 'RESPALDO'::character varying, 'SMS'::character varying, 'TOTP'::character varying, 'WHATSAPP'::character varying])::text[])))
+$ INSERT de prueba dentro de transacción revertida
+BEGIN
+  tipo  
+--------
+ CORREO
+(1 row)
+
+INSERT 0 1
+ERROR:  new row for relation "factor_mfa" violates check constraint "ck_factor_mfa_tipo"
+DETAIL:  Failing row contains (<id enmascarado>, <usuario enmascarado>, PALOMA, -, 1, f, f, null, null).
+$ filas CORREO que quedaron (esperado 0)
+0

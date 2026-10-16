@@ -58,4 +58,48 @@ class GmailApiCorreoDeVerificacionTest {
         assertThat(Pattern.compile("class=\\\"digit\\\"").matcher(html).results())
                 .hasSize(6);
     }
+
+    @Test
+    @DisplayName("el correo de acceso dice que es para entrar, no para confirmar el correo")
+    void plantillaDeAcceso() {
+        var acceso = bo.aportaya.identidad.infraestructura.PlantillaCorreoDeVerificacion.Motivo.ACCESO;
+        String html = bo.aportaya.identidad.infraestructura.PlantillaCorreoDeVerificacion.html(
+                "482019", Duration.ofMinutes(5), acceso);
+
+        assertThat(html)
+                .contains("iniciar sesion", "5 minutos", "Nunca compartas este codigo")
+                .doesNotContain("confirmar que este correo te pertenece", "se inicio un registro", "{{");
+        assertThat(bo.aportaya.identidad.infraestructura.PlantillaCorreoDeVerificacion.asunto(acceso))
+                .isEqualTo("Tu codigo para entrar a AportaYa");
+    }
+
+    @Test
+    @DisplayName("el correo del alta conserva su texto de siempre")
+    void plantillaDeVerificacionSinCambios() {
+        String html = bo.aportaya.identidad.infraestructura.PlantillaCorreoDeVerificacion.html(
+                "482019", Duration.ofMinutes(10));
+
+        assertThat(html)
+                .contains("confirmar que este correo te pertenece", "se inicio un registro")
+                .doesNotContain("iniciar sesion", "{{");
+    }
+
+    @Test
+    @DisplayName("el codigo de acceso sale por Gmail API con el asunto de acceso")
+    void enviaCodigoDeAcceso() {
+        RestClient.Builder constructor = RestClient.builder();
+        MockRestServiceServer servidor =
+                MockRestServiceServer.bindTo(constructor).build();
+        servidor.expect(once(), requestTo("https://oauth2.googleapis.com/token"))
+                .andRespond(withSuccess("{\"access_token\":\"acceso-prueba\"}", MediaType.APPLICATION_JSON));
+        servidor.expect(once(), requestTo("https://gmail.googleapis.com/gmail/v1/users/me/messages/send"))
+                .andExpect(header("Authorization", "Bearer acceso-prueba"))
+                .andRespond(withSuccess("{\"id\":\"mensaje-2\"}", MediaType.APPLICATION_JSON));
+
+        var gmail =
+                new GmailApiCorreoDeVerificacion(constructor, "cliente", "secreto", "refresco", "cuentas@aportaya.bo");
+        gmail.enviarCodigoDeAcceso("ana@example.com", "482019", Duration.ofMinutes(5));
+
+        servidor.verify();
+    }
 }
