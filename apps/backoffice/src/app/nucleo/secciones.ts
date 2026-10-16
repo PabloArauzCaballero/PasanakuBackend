@@ -46,6 +46,9 @@ export const PERMISOS_POR_SECCION: Readonly<Record<string, readonly string[]>> =
     'CONTABILIDAD_ERP_REPORTES',
   ],
   'ver:publicidad': ['PUBLICIDAD_ANUNCIANTES', 'PUBLICIDAD_APROBAR_CAMPANA', 'PUBLICIDAD_LIQUIDAR', 'PUBLICIDAD_MODERAR'],
+  // Tarifario, mensajería y reportes: `listarTarifarios` pide TARIFARIO_PUBLICAR o AUDITORIA_LEER (tarifas.yaml); los listados de
+  // `notificaciones.yaml` y `auditoria.yaml` piden AUDITORIA_LEER. Ambos sembrados en `sql/60_semillas/10-roles-y-permisos.sql`.
+  'ver:configuracion': ['TARIFARIO_PUBLICAR', 'AUDITORIA_LEER'],
 }
 
 /**

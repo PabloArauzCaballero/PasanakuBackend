@@ -85,6 +85,7 @@ export class ShellFinanciero {
     { ruta: 'sistemas', texto: 'Sistemas', permiso: 'ver:sistemas' },
     { ruta: 'contabilidad', texto: 'Contabilidad', permiso: 'ver:contabilidad' },
     { ruta: 'publicidad', texto: 'Publicidad', permiso: 'ver:publicidad' },
+    { ruta: 'configuracion', texto: 'Configuración', permiso: 'ver:configuracion' },
     // Última a propósito: es la sección a la que se vuelve, no por la que se empieza.
     { ruta: 'ayuda', texto: 'Ayuda', permiso: 'ver:ayuda' },
   ]
