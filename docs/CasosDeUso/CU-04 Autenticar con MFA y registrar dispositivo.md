@@ -236,6 +236,27 @@ Entonces su refresh ya no renueva
 
 Dado un refresh emitido
 Entonces en la base solo queda su SHA-256 y nunca el valor en claro
+
+Dado un participante sin factor y con el correo confirmado en el alta
+Cuando entra desde un telefono nuevo
+Entonces se le pide el codigo y le llega por correo
+Y con ese codigo abre la sesion
+
+Dado un participante sin factor que recibio el codigo por correo
+Cuando escribe un codigo que no es el enviado
+Entonces se rechaza con AP-CU04-04 y no abre sesion
+
+Dado un participante cuyo correo actual NO es el que confirmo en el alta
+Cuando entra desde un telefono nuevo
+Entonces no se manda ningun correo
+
+Dado un participante con TOTP enrolado y correo confirmado
+Cuando entra desde un telefono nuevo
+Entonces se le pide su factor enrolado y no se envia correo
+
+Dado un operador sin factor y con correo confirmado
+Cuando entra
+Entonces sigue rechazado con AP-CU04-06 y no se envia correo (R-SEG-10)
 ```
 
 ## Ver también

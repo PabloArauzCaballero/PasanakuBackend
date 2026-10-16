@@ -47,7 +47,7 @@ class CU04CodigoPorCorreoTest extends BaseDeCU04 {
 
     @Test
     @DisplayName(
-            "Dado el mismo participante · Cuando escribe un codigo que no es el enviado · Entonces se rechaza con AP-CU04-04 y no abre sesion")
+            "Dado un participante sin factor que recibio el codigo por correo · Cuando escribe un codigo que no es el enviado · Entonces se rechaza con AP-CU04-04 y no abre sesion")
     void codigoEquivocadoNoEntra() {
         String telefono = telefono();
         String destino = destino();
@@ -82,7 +82,7 @@ class CU04CodigoPorCorreoTest extends BaseDeCU04 {
 
     @Test
     @DisplayName(
-            "Dado un participante con TOTP enrolado y correo confirmado · Cuando entra desde un telefono nuevo · Entonces manda su factor enrolado y no se envia correo")
+            "Dado un participante con TOTP enrolado y correo confirmado · Cuando entra desde un telefono nuevo · Entonces se le pide su factor enrolado y no se envia correo")
     void factorEnroladoGana() {
         String telefono = telefono();
         String destino = destino();
