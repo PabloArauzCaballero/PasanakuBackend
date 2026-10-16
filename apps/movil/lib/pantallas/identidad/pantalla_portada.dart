@@ -125,9 +125,7 @@ class _Lockup extends StatelessWidget {
           borderRadius: BorderRadius.circular(Radios.xl),
           boxShadow: [t.sombra3],
         ),
-        child: Center(
-          child: Marca(tamano: 54, colorDelTrazo: t.accentInk),
-        ),
+        child: Center(child: Marca(tamano: 54, colorDelTrazo: t.accentInk)),
       ),
       const SizedBox(height: Espacio.s4),
       PalabraDeMarca(ancho: 148, color: t.text),
