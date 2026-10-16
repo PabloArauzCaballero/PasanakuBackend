@@ -13,6 +13,7 @@ import 'textos.dart';
 import 'fila_de_accion_de_perfil.dart';
 import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 import '../../proveedores/tutoriales.dart';
+import 'seccion_verificacion_kyc.dart';
 
 /// CU-07 — ejercer derechos sobre datos personales: ver y corregir el correo de
 /// contacto. La identidad verificada (nombre, documento) no se edita acá; para eso
@@ -48,6 +49,8 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
                 hijo: CabeceraDeInicio(titulo: TextosIdentidad.tituloPerfil),
               ),
               const SizedBox(height: Espacio.s4),
+              const SeccionVerificacionKyc(),
+              const SizedBox(height: Espacio.s3),
               Campo(
                 etiqueta: 'Correo',
                 controlador: _correo,
