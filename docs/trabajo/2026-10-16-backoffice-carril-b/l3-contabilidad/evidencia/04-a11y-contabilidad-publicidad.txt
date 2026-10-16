@@ -1,0 +1,3 @@
+$ npx ng test --watch=false --include='src/app/rutas/{contabilidad,publicidad}/**/*.a11y.spec.ts'
+ Test Files  9 passed (9)
+      Tests  12 passed (12)

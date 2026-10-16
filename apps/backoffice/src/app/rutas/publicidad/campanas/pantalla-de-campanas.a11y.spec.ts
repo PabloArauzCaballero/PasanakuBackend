@@ -9,18 +9,9 @@ import { GATEWAY } from '../../../nucleo/gateway'
 import { erroresInterceptor } from '../../../nucleo/errores.interceptor'
 import { Sesion } from '../../../nucleo/sesion'
 import { PantallaDeCampanas } from './pantalla-de-campanas'
-import type { Campana } from '../dominio/cu111-campanas'
-import { SalidaCampanaEstadoEnum } from 'clientes/angular/publicidad/model/salidaCampana'
+import { campana, pagina } from '../publicidad.apoyo'
 
-const URL = 'http://gw/api/v1/publicidad/campanas'
-const CAMPANA: Campana = {
-  campanaPublicitariaId: 'c-1',
-  estado: SalidaCampanaEstadoEnum.EnRevision,
-  presupuestoTotal: '500.00',
-  nombre: 'Lanzamiento',
-  moneda: 'BOB',
-  fechaInicio: '2026-09-01T00:00:00-04:00',
-}
+const URL = 'http://gw/api/v1/publicidad/campanas?limite=50'
 
 describe('PantallaDeCampanas · accesibilidad', () => {
   let http: HttpTestingController
@@ -32,11 +23,14 @@ describe('PantallaDeCampanas · accesibilidad', () => {
     http = TestBed.inject(HttpTestingController)
   })
 
-  it('sin violaciones serias con la lista de campañas cargada, lado gestión', async () => {
-    TestBed.inject(Sesion).abrir('t', ['PUBLICIDAD_ANUNCIANTES'], 'operador')
+  it('sin violaciones serias con la lista de campañas cargada (gestión + cola de Operaciones)', async () => {
+    TestBed.inject(Sesion).abrir('t', ['PUBLICIDAD_ANUNCIANTES', 'PUBLICIDAD_APROBAR_CAMPANA'], 'operador')
     const fixture = TestBed.createComponent(PantallaDeCampanas)
     fixture.detectChanges()
-    http.expectOne(URL).flush([CAMPANA])
+    await new Promise((r) => setTimeout(r, 0))
+    http.expectOne(URL).flush(pagina([campana()]))
+    await new Promise((r) => setTimeout(r, 0))
+    fixture.detectChanges()
     await fixture.whenStable()
     expect(await axe(fixture.nativeElement)).toHaveNoViolations()
   })

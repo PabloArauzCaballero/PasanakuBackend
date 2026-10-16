@@ -3,7 +3,8 @@ import { inject } from '@angular/core'
 import { firstValueFrom } from 'rxjs'
 import { GATEWAY } from '../../../nucleo/gateway'
 import { contextoIdempotente } from '../../../nucleo/idempotencia.interceptor'
-import type { CargadorDePagina, PaginaServidor } from '../../../nucleo/tabla/tipos'
+import type { CargadorDePagina } from '../../../nucleo/tabla/tipos'
+import { cargadorPublicidadPorCursor } from './contrato-publicidad'
 import type { EntradaRevision } from 'clientes/angular/publicidad/model/entradaRevision'
 import type { SalidaRevision } from 'clientes/angular/publicidad/model/salidaRevision'
 
@@ -17,46 +18,39 @@ import type { SalidaRevision } from 'clientes/angular/publicidad/model/salidaRev
  * consultar (regla R-PUB-04): se prueba en el spec de este archivo y es la evidencia
  * del gate.
  *
- * **Supuesto declarado**: no hay `GET` de listado en el contrato — se asume
- * `GET /publicidad/piezas-creativas?estadoModeracion=PENDIENTE` como extensión natural
- * del recurso, mismo criterio que D-15 y CU-110/111.
+ * Listado: `GET /publicidad/piezas-creativas` (`listarPiezasCreativas`, cursor (creadaEn, id), sin
+ * `estadoModeracion` devuelve PENDIENTE; exige `PUBLICIDAD_MODERAR`). El contrato **no** dice quién subió la pieza ni
+ * el nombre del anunciante: R-PUB-05 (quien sube no se autoaprueba) lo decide el servidor al moderar
+ * (`AP-CU112-03 MODERADOR_ES_EL_ANUNCIANTE`), y la pantalla muestra ese rechazo; no hay dato en el cliente para
+ * anticiparlo ni se inventa uno.
  */
+export type EstadoModeracion = 'PENDIENTE' | 'APROBADA' | 'RECHAZADA'
+
+/** `PiezaEnLista` de `publicidad.yaml`. */
 export type PiezaCreativa = {
   piezaCreativaId: string
   anuncianteId: string
-  anuncianteNombre: string
-  subidaPor: string
   titulo: string
-  texto: string | null
+  texto?: string | null
   urlRecurso: string
   tipoRecurso: 'IMAGEN' | 'VIDEO'
-  estadoModeracion: 'PENDIENTE' | 'APROBADA' | 'RECHAZADA'
+  estadoModeracion: EstadoModeracion
+  creadaEn: string
 }
+
+/** Código con el que el servidor rechaza que quien subió la pieza la modere (R-PUB-05). */
+export const MODERADOR_ES_EL_ANUNCIANTE = 'AP-CU112-03'
 
 /** R-PUB-04: una pieza que no está APROBADA no entra a ningún anuncio. */
 export function puedeUsarseEnUnAnuncio(pieza: Pick<PiezaCreativa, 'estadoModeracion'>): boolean {
   return pieza.estadoModeracion === 'APROBADA'
 }
 
-/** R-PUB-05: quien sube no se autoaprueba. La UI lo refuerza; el servidor lo decide (AP-CU112-03). */
-export function puedeModerar(pieza: Pick<PiezaCreativa, 'subidaPor'>, operadorId: string): boolean {
-  return pieza.subidaPor !== operadorId
-}
-
+/** La cola: `estadoModeracion=PENDIENTE` explícito (es también el valor por omisión del contrato). */
 export function cargarPiezasPendientes(http: HttpClient, gateway: string): CargadorDePagina<PiezaCreativa> {
-  return async (pedido) => {
-    const todas = await firstValueFrom(http.get<PiezaCreativa[]>(`${gateway}/publicidad/piezas-creativas`, { params: { estadoModeracion: 'PENDIENTE' } }))
-    const ordenadas = pedido.orden
-      ? [...todas].sort((a, b) => {
-          const clave = pedido.orden!.clave as keyof PiezaCreativa
-          const [va, vb] = [String(a[clave] ?? ''), String(b[clave] ?? '')]
-          return pedido.orden!.sentido === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va)
-        })
-      : todas
-    const inicio = (pedido.pagina - 1) * pedido.tamano
-    const pagina: PaginaServidor<PiezaCreativa> = { filas: ordenadas.slice(inicio, inicio + pedido.tamano), total: ordenadas.length }
-    return pagina
-  }
+  return cargadorPublicidadPorCursor<PiezaCreativa>(http, `${gateway}/publicidad/piezas-creativas`, (_f, params) =>
+    params.set('estadoModeracion', 'PENDIENTE'),
+  )
 }
 
 export function cargadorDePiezasPendientes(): CargadorDePagina<PiezaCreativa> {

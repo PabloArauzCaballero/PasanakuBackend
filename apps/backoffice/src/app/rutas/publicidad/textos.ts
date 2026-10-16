@@ -1,5 +1,16 @@
+const FILTRO_INVALIDO = 'El filtro de la lista no es válido. Quitá el filtro y volvé a intentar.'
+
 /** Los textos del dominio publicidad, en voz de marca. Un archivo por dominio (mismo patrón que operación y cumplimiento). */
 export const textosPublicidad = {
+  /** Códigos que el catálogo de `nucleo/errores.ts` todavía no traduce (pedido en el reporte de L3). */
+  errores: {
+    'AP-CU110-04': FILTRO_INVALIDO,
+    'AP-CU111-04': FILTRO_INVALIDO,
+    'AP-CU112-04': FILTRO_INVALIDO,
+    'AP-CU112-01': 'Esta pieza ya fue revisada por otra persona. Actualizá la cola.',
+    'AP-CU112-02': 'El rechazo exige un motivo escrito.',
+    'AP-CU112-03': 'Quien subió esta pieza no puede moderarla (R-PUB-05). La tiene que revisar otra persona.',
+  } as Readonly<Record<string, string>>,
   anunciantes: {
     titulo: 'Anunciantes',
     proposito: 'Dar de alta un anunciante (organizador o socio comercial) y su cuenta publicitaria. El socio comercial se verifica antes de poder facturar.',
@@ -22,6 +33,7 @@ export const textosPublicidad = {
       SUSPENDIDO: 'Suspendido',
       DADO_DE_BAJA: 'Dado de baja',
     },
+    sinLimite: 'Sin límite',
     guardar: 'Guardar',
     cancelar: 'Cancelar',
   },
@@ -45,6 +57,12 @@ export const textosPublicidad = {
     confirmarRechazar: (nombre: string) => `Vas a rechazar la campaña «${nombre}». Esta acción queda en el expediente.`,
     columnaEstado: 'Estado',
     columnaPresupuesto: 'Presupuesto',
+    columnaConsumido: 'Consumido',
+    columnaInicio: 'Inicio',
+    revisar: 'Revisar',
+    soloOperaciones:
+      'La lista de campañas es la cola de Operaciones: la ve quien tiene PUBLICIDAD_APROBAR_CAMPANA. Desde acá podés crear campañas.',
+    porOmision: 'Sin filtro se muestran las campañas en revisión.',
     estados: {
       BORRADOR: 'Borrador',
       EN_REVISION: 'En revisión',
@@ -61,15 +79,16 @@ export const textosPublicidad = {
     proposito: 'Toda pieza nace PENDIENTE y solo se puede usar en un anuncio si queda APROBADA acá. Quien la subió no puede moderarla (R-PUB-05).',
     cargando: 'Cargando la cola de moderación',
     sinPiezas: 'No hay piezas pendientes de moderación.',
+    columnaSubida: 'Subida',
+    verPieza: (titulo: string) => `Ver la pieza «${titulo}» (se abre en otra pestaña)`,
+    autorLoDecideElServidor: 'Si la subiste vos, el servidor no te va a dejar moderarla (R-PUB-05).',
     columnaTitulo: 'Título',
-    columnaAnunciante: 'Anunciante',
     columnaRecurso: 'Recurso',
     columnaEstado: 'Estado moderación',
     aprobar: 'Aprobar pieza',
     rechazar: 'Rechazar pieza',
     motivoDeRechazo: 'Motivo del rechazo',
     faltaMotivo: 'El rechazo exige un motivo escrito.',
-    esAutorNoPuedeModerar: 'Quien subió esta pieza no puede moderarla.',
     confirmarAprobar: (titulo: string) => `Vas a aprobar la pieza «${titulo}». Queda disponible para programarse en un anuncio.`,
     confirmarRechazar: (titulo: string) => `Vas a rechazar la pieza «${titulo}». No podrá usarse en ningún anuncio.`,
     estados: {

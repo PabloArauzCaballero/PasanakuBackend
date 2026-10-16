@@ -11,7 +11,7 @@ import type { CuentaPorCobrar } from '../dominio/cu104-cobros'
 
 const CUENTA: CuentaPorCobrar = {
   cuentaPorCobrarId: 'c-1',
-  origenTipo: 'GRUPO',
+  origenTipo: 'OTRO',
   origenId: 'g-1',
   terceroRazonSocial: 'Ana Pérez',
   fechaVencimiento: '2026-09-30',
