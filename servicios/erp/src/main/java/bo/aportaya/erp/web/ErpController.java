@@ -161,7 +161,8 @@ public class ErpController implements ErpApi {
     @Override
     @Permiso("CONTABILIDAD_ERP_COMPRAS")
     public ResponseEntity<SalidaTercero> darDeAltaTercero(UUID idempotencyKey, EntradaTercero cuerpo) {
-        Traza.marcarCasoDeUso("CU-102", cuerpo.getNumeroDocumento());
+        // Nunca el documento en la traza: los logs llevan identificadores, no contenidos (regla 90.2.1).
+        Traza.marcarCasoDeUso("CU-102", "alta-tercero");
 
         UUID id = cu102.darDeAlta(
                 new CU102AltaDeTercero.EntradaTercero(

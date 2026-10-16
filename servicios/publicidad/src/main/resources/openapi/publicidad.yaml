@@ -14,16 +14,19 @@
 #   AP-CU110-01  ORGANIZADOR_NO_HABILITADO   · el organizador citado no esta HABILITADO
 #   AP-CU110-02  TIPO_Y_REFERENCIA_INCONSISTENTES · dos referencias, ninguna, o la que no toca
 #   AP-CU110-03  SOCIO_COMERCIAL_NO_VERIFICADO · el socio todavia no esta ACTIVO
+#   AP-CU110-04  FILTRO_DE_LISTADO_INVALIDO · estado que no existe o cursor a medias
 #
 # CU-111 · Crear y aprobar una campana publicitaria
 #   AP-CU111-01  LIMITE_DE_GASTO_EXCEDIDO    · el presupuesto no cabe en lo que queda del mes
 #   AP-CU111-02  ESPACIO_PUBLICITARIO_INACTIVO · el espacio esta apagado; no se enciende
 #   AP-CU111-03  CUENTA_PUBLICITARIA_NO_ACTIVA · la cuenta no admite gasto nuevo
+#   AP-CU111-04  FILTRO_DE_LISTADO_INVALIDO · estado que no existe o cursor a medias
 #
 # CU-112 · Moderar una pieza creativa
 #   AP-CU112-01  PIEZA_YA_REVISADA           · una pieza se revisa una vez
 #   AP-CU112-02  MOTIVO_OBLIGATORIO_EN_RECHAZO · un rechazo sin motivo no dice nada
 #   AP-CU112-03  MODERADOR_ES_EL_ANUNCIANTE  · R-PUB-05: quien sube no se autoaprueba
+#   AP-CU112-04  FILTRO_DE_LISTADO_INVALIDO · estado de moderacion que no existe o cursor a medias
 #
 # CU-113 · Entregar un anuncio y medir su desempeno
 #   AP-CU113-01  SIN_ANUNCIO_ELEGIBLE        · el espacio no muestra nada. NO es un error
@@ -103,6 +106,39 @@ paths:
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
   /publicidad/anunciantes:
+    get:
+      operationId: listarAnunciantes            # CU-110 (backoffice carril A · H7)
+      summary: Anunciantes con su cuenta publicitaria, del mas nuevo al mas viejo
+      description: >-
+        Para la pantalla publicidad/anunciantes. Cursor (creadoEn, id) descendente. Trae la razon social de facturacion (dato comercial que la pantalla necesita) y la cuenta publicitaria con su limite; no trae datos personales del organizador ni del socio. Exige PUBLICIDAD_ANUNCIANTES.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          description: Sin filtro, todos.
+          schema:
+            type: array
+            items: { type: string, enum: [ACTIVO, SUSPENDIDO, DADO_DE_BAJA] }
+            minItems: 1
+            maxItems: 3
+          style: form
+          explode: false
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: despuesDeFecha, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: despuesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina del listado (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeAnunciantes' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU110-04 FILTRO_DE_LISTADO_INVALIDO
+        '403':
+          description: Sin el permiso de la operacion
+        '401':
+          description: Sin sesion
     post:
       operationId: darDeAltaAnunciante
       summary: CU-110 · Da de alta el anunciante y abre su cuenta publicitaria
@@ -125,6 +161,39 @@ paths:
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
   /publicidad/campanas:
+    get:
+      operationId: listarCampanas            # CU-111 (backoffice carril A · H7)
+      summary: Campanas, la que empieza antes primero
+      description: >-
+        Cola de aprobacion de publicidad/campanas. Sin estados devuelve EN_REVISION. Cursor (fechaInicio, id). Importes como Dinero con su moneda. Exige PUBLICIDAD_APROBAR_CAMPANA: es la vista de Operaciones, no la del anunciante.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          description: Sin filtro, EN_REVISION.
+          schema:
+            type: array
+            items: { type: string, enum: [BORRADOR, EN_REVISION, ACTIVA, PAUSADA, RECHAZADA, FINALIZADA] }
+            minItems: 1
+            maxItems: 6
+          style: form
+          explode: false
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: despuesDeFecha, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: despuesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina del listado (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeCampanas' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU111-04 FILTRO_DE_LISTADO_INVALIDO
+        '403':
+          description: Sin el permiso de la operacion
+        '401':
+          description: Sin sesion
     post:
       operationId: crearCampana
       summary: CU-111 · Crea la campana con sus conjuntos y la manda a revision
@@ -184,6 +253,33 @@ paths:
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
   /publicidad/piezas-creativas:
+    get:
+      operationId: listarPiezasCreativas            # CU-112 (backoffice carril A · H7)
+      summary: Cola de moderacion de piezas creativas, la mas antigua primero
+      description: >-
+        Para publicidad/moderacion. Sin estadoModeracion devuelve PENDIENTE. Cursor (creadaEn, id). Quien subio la pieza no la puede moderar (R-PUB-05): lo vuelve a exigir moderarPiezaCreativa. Exige PUBLICIDAD_MODERAR.
+      parameters:
+        - name: estadoModeracion
+          in: query
+          required: false
+          description: Sin filtro, PENDIENTE.
+          schema: { type: string, enum: [PENDIENTE, APROBADA, RECHAZADA] }
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: despuesDeFecha, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: despuesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina del listado (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDePiezas' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU112-04 FILTRO_DE_LISTADO_INVALIDO
+        '403':
+          description: Sin el permiso de la operacion
+        '401':
+          description: Sin sesion
     post:
       operationId: subirPiezaCreativa
       summary: CU-112 · El anunciante sube una pieza, que nace PENDIENTE
@@ -633,6 +729,76 @@ components:
         moneda: { type: string, enum: [BOB, USD] }
         estado: { type: string, enum: [GENERADA, FACTURADA, COBRADA, ANULADA] }
         cuentaPorCobrarId: { type: [string, 'null'], format: uuid }
+    PaginaDeAnunciantes:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/AnuncianteEnLista' } }
+        proximoFecha: { type: [string, 'null'], format: date-time }
+        proximoId: { type: [string, 'null'], format: uuid }
+    AnuncianteEnLista:
+      type: object
+      additionalProperties: false
+      required: [anuncianteId, tipo, razonSocialFacturacion, estado, creadoEn]
+      properties:
+        anuncianteId: { type: string, format: uuid }
+        tipo: { type: string, enum: [ORGANIZADOR, SOCIO_COMERCIAL] }
+        razonSocialFacturacion: { type: string }
+        estado: { type: string, enum: [ACTIVO, SUSPENDIDO, DADO_DE_BAJA] }
+        creadoEn: { type: string, format: date-time }
+        cuentaPublicitariaId: { type: [string, 'null'], format: uuid }
+        estadoCuenta: { type: [string, 'null'], enum: [ACTIVA, SUSPENDIDA, CERRADA, null] }
+        limiteGastoMensual:
+          description: Null cuando la cuenta no tiene limite.
+          oneOf:
+            - { $ref: '#/components/schemas/Dinero' }
+            - { type: 'null' }
+    PaginaDeCampanas:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/CampanaEnLista' } }
+        proximoFecha: { type: [string, 'null'], format: date-time }
+        proximoId: { type: [string, 'null'], format: uuid }
+    CampanaEnLista:
+      type: object
+      additionalProperties: false
+      required: [campanaId, cuentaPublicitariaId, anuncianteId, nombre, objetivo, presupuestoTotal, presupuestoConsumido, fechaInicio, estado]
+      properties:
+        campanaId: { type: string, format: uuid }
+        cuentaPublicitariaId: { type: string, format: uuid }
+        anuncianteId: { type: string, format: uuid }
+        nombre: { type: string }
+        objetivo: { type: string, enum: [CONVERSION, DESCARGA_APP, POSTULACION_GRUPO, TRAFICO, VISIBILIDAD_MARCA] }
+        presupuestoTotal: { $ref: '#/components/schemas/Dinero' }
+        presupuestoConsumido: { $ref: '#/components/schemas/Dinero' }
+        fechaInicio: { type: string, format: date-time }
+        fechaFin: { type: [string, 'null'], format: date-time }
+        estado: { type: string, enum: [BORRADOR, EN_REVISION, ACTIVA, PAUSADA, RECHAZADA, FINALIZADA] }
+        aprobadaPor: { type: [string, 'null'], format: uuid }
+    PaginaDePiezas:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/PiezaEnLista' } }
+        proximoFecha: { type: [string, 'null'], format: date-time }
+        proximoId: { type: [string, 'null'], format: uuid }
+    PiezaEnLista:
+      type: object
+      additionalProperties: false
+      required: [piezaCreativaId, anuncianteId, titulo, urlRecurso, tipoRecurso, estadoModeracion, creadaEn]
+      properties:
+        piezaCreativaId: { type: string, format: uuid }
+        anuncianteId: { type: string, format: uuid }
+        titulo: { type: string }
+        texto: { type: [string, 'null'] }
+        urlRecurso: { type: string }
+        tipoRecurso: { type: string, enum: [IMAGEN, VIDEO] }
+        estadoModeracion: { type: string, enum: [PENDIENTE, APROBADA, RECHAZADA] }
+        creadaEn: { type: string, format: date-time }
     Error:
       type: object
       additionalProperties: false

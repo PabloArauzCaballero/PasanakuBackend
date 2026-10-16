@@ -1,0 +1,7 @@
+$ ./gradlew :servicios:publicidad:webTest
+   PASS PublicidadListadosWebTest · 422: filtro invalido con el codigo del CU; 400 si el limite pasa de 100
+   PASS PublicidadListadosWebTest · 200: la cola de moderacion; el estadoModeracion llega al caso de uso
+   PASS PublicidadListadosWebTest · 200: anunciantes con su cuenta y el limite como Dinero; sin limite, null
+   PASS PublicidadListadosWebTest · 200: la cola de campanas trae presupuestos como Dinero, y el filtro de estados llega entero
+   PASS PublicidadListadosWebTest · 403: cada listado con su permiso; el anunciante no ve la cola de Operaciones ni modera
+TOTAL webTest 21 fallas 0
