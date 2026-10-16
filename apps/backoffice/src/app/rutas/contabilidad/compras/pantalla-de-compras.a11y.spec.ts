@@ -37,7 +37,7 @@ describe('PantallaDeCompras · accesibilidad', () => {
     fixture.detectChanges()
     TestBed.inject(HttpTestingController)
       .match(() => true)
-      .forEach((p) => p.flush([]))
+      .forEach((p) => p.flush({ items: [], proximoAntesDe: null, proximoAntesDeId: null }))
     await fixture.whenStable()
     return fixture
   }
@@ -54,7 +54,7 @@ describe('PantallaDeCompras · accesibilidad', () => {
     fixture.detectChanges()
     TestBed.inject(HttpTestingController)
       .match(() => true)
-      .forEach((p) => p.flush([]))
+      .forEach((p) => p.flush({ items: [], proximoAntesDe: null, proximoAntesDeId: null }))
     await fixture.whenStable()
     expect(await axe(fixture.nativeElement)).toHaveNoViolations()
   })

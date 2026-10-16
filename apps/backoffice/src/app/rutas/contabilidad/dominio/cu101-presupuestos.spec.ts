@@ -8,10 +8,14 @@ function partida(presupuestado: string, ejecutado: string): PartidaPresupuestari
     partidaId: 'pp-1',
     presupuestoId: 'p-1',
     presupuestoNombre: 'Marketing 2026',
-    centroCostoNombre: 'Marketing',
-    cuentaContableNombre: 'Publicidad',
-    periodoNombre: '3/2026',
     estado: 'APROBADO',
+    centroCostoId: 'cc-1',
+    centroCostoNombre: 'Marketing',
+    cuentaContableId: 'cta-1',
+    periodoContableId: 'per-3',
+    anio: 2026,
+    mes: 3,
+    fechaInicioPeriodo: '2026-03-01',
     montoPresupuestado: { monto: presupuestado, moneda: 'BOB' },
     montoEjecutado: { monto: ejecutado, moneda: 'BOB' },
   }
@@ -94,7 +98,7 @@ function activo(parcial: Partial<ActivoFijo> = {}): ActivoFijo {
     valorResidual: { monto: '0.00', moneda: 'BOB' },
     depreciacionAcumulada: { monto: '1000.00', moneda: 'BOB' },
     valorEnLibros: { monto: '11000.00', moneda: 'BOB' },
-    corridoEnElPeriodoVigente: false,
+    depreciadoEnElPeriodoVigente: false,
     ...parcial,
   }
 }
@@ -106,7 +110,7 @@ describe('CU-105 · cuándo un activo deja de depreciarse', () => {
   })
 
   it('ya corrido en el período no se vuelve a correr (AP-CU105-01)', () => {
-    expect(motivoParaNoDepreciar(activo({ corridoEnElPeriodoVigente: true }), true)).toContain('Ya tiene cuota')
+    expect(motivoParaNoDepreciar(activo({ depreciadoEnElPeriodoVigente: true }), true)).toContain('Ya tiene cuota')
   })
 
   it('dado de baja no se deprecia (AP-CU105-03)', () => {

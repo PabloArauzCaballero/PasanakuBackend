@@ -1,5 +1,15 @@
+const FILTRO_INVALIDO = 'El filtro de la lista no es válido. Quitá el filtro y volvé a intentar.'
+
 /** Los textos del dominio contabilidad (ERP, CU-100 a CU-106), en voz de marca. Un archivo por dominio. */
 export const textosContabilidad = {
+  /** Códigos de los listados que el catálogo de `nucleo/errores.ts` todavía no traduce (pedido en el reporte de L3). */
+  erroresDeListado: {
+    'AP-CU101-04': FILTRO_INVALIDO,
+    'AP-CU102-04': FILTRO_INVALIDO,
+    'AP-CU103-06': FILTRO_INVALIDO,
+    'AP-CU104-04': FILTRO_INVALIDO,
+    'AP-CU105-04': FILTRO_INVALIDO,
+  } as Readonly<Record<string, string>>,
   periodo: {
     titulo: 'Períodos contables',
     proposito: 'Fijar el mes: una vez cerrado, nadie puede asentar hacia atrás y los libros dejan de moverse solos.',
@@ -16,6 +26,33 @@ export const textosContabilidad = {
     haber: 'Total haber',
     estados: { ABIERTO: 'Abierto', CERRADO: 'Cerrado' } as const,
     glosa: 'Glosa del cierre',
+    vigente: 'Período de hoy',
+    cargandoVigente: 'Buscando el período que contiene la fecha de hoy',
+    marcaVigente: 'Hoy',
+    hoyEn: (nombre: string, estado: string) => `Hoy estás en ${nombre} (${estado.toLowerCase()}).`,
+    sinVigente:
+      'Hoy no cae dentro de ningún período contable: no hay un ejercicio abierto para este año. No elegimos otro por vos; para operar hoy hay que abrir el ejercicio. Mientras tanto podés consultar un ejercicio de la lista.',
+    sinVigenteTitulo: 'Sin período vigente',
+    noSePudoVigente: 'No pudimos saber cuál es el período de hoy.',
+    ejercicios: 'Ejercicios fiscales',
+    cargandoEjercicios: 'Cargando los ejercicios',
+    sinEjercicios: 'Todavía no se abrió ningún ejercicio fiscal.',
+    masEjercicios: 'Ver ejercicios anteriores',
+    ejercicio: (anio: number, estado: string) => `Ejercicio ${anio} · ${estado.toLowerCase()}`,
+    elegirEjercicio: 'Elegí un ejercicio de la lista para ver sus períodos.',
+    ejercicioInexistente: 'Ese ejercicio fiscal no existe. Elegí uno de la lista.',
+    sinCierre: 'Sin cierre todavía: los totales se sellan al cerrar el mes.',
+    cuadroAlCierre: 'Cuadró al cierre: debe y haber sellados coinciden.',
+    descuadreSellado: 'El cierre quedó sellado con debe y haber distintos: es un incidente a revisar.',
+    cerradoEl: 'Cerrado el',
+    secciones: 'Ir a',
+    enlaces: {
+      presupuesto: 'Presupuesto',
+      compras: 'Compras y cuentas por pagar',
+      cobros: 'Cuentas por cobrar',
+      activos: 'Activos fijos del período de hoy',
+      estados: 'Estados financieros del período de hoy',
+    },
   },
   presupuesto: {
     titulo: 'Presupuesto por centro de costo',
@@ -44,7 +81,8 @@ export const textosContabilidad = {
     segregacion: 'Quien aprobó la factura no puede autorizar su pago (R-CTB-05). Esta cuenta aprobó esta factura.',
     sinPermisoDePago: 'Registrar el pago es de Tesorería: esta cuenta no tiene CONTABILIDAD_ERP_PAGAR.',
     confirmarPago: (numero: string) => `Vas a registrar el pago de la factura ${numero}. El pago es append-only: para corregirlo hace falta un movimiento inverso.`,
-    estadosOrden: { BORRADOR: 'Borrador', APROBADA: 'Aprobada', RECIBIDA: 'Recibida', CANCELADA: 'Cancelada' } as const,
+    estadosOrden: { BORRADOR: 'Borrador', APROBADA: 'Aprobada', RECIBIDA_PARCIAL: 'Recibida en parte', RECIBIDA_TOTAL: 'Recibida', CANCELADA: 'Cancelada' } as const,
+    sinCentroDeCosto: 'Sin centro de costo',
     estadosFactura: { REGISTRADA: 'Registrada', APROBADA: 'Aprobada', PAGADA_PARCIAL: 'Pagada en parte', PAGADA: 'Pagada', ANULADA: 'Anulada' } as const,
   },
   cobros: {
@@ -58,6 +96,8 @@ export const textosContabilidad = {
     incobrable: 'Cuenta declarada incobrable: no admite cobros.',
     confirmarCobro: (origen: string) => `Vas a registrar un cobro contra la cuenta de origen ${origen}. El cobro no puede exceder el saldo pendiente.`,
     estados: { PENDIENTE: 'Pendiente', COBRADA_PARCIAL: 'Cobrada en parte', COBRADA: 'Cobrada', INCOBRABLE: 'Incobrable' } as const,
+    origenes: { FACTURA_PUBLICIDAD: 'Factura de publicidad', VENTA_SERVICIO: 'Venta de servicio', OTRO: 'Otro' } as const,
+    sinTercero: 'Sin tercero registrado',
   },
   activos: {
     titulo: 'Activos fijos',

@@ -29,7 +29,7 @@ describe('PantallaDePresupuesto · accesibilidad', () => {
     fixture.detectChanges()
     TestBed.inject(HttpTestingController)
       .match(() => true)
-      .forEach((p) => p.flush([]))
+      .forEach((p) => p.flush({ items: [], proximoAntesDe: null, proximoAntesDeId: null }))
     await fixture.whenStable()
     expect(fixture.nativeElement.textContent).toContain('mide el gasto, no lo bloquea')
     expect(await axe(fixture.nativeElement)).toHaveNoViolations()

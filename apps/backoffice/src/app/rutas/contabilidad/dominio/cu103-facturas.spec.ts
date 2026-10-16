@@ -6,6 +6,7 @@ function factura(parcial: Partial<FacturaDeProveedor> = {}): FacturaDeProveedor 
   return {
     facturaProveedorId: 'f-1',
     numeroFactura: 'F-0001',
+    terceroComercialId: 't-1',
     terceroRazonSocial: 'Imprenta Illimani SRL',
     ordenCompraId: 'o-1',
     fechaEmision: '2026-03-01',
@@ -14,7 +15,6 @@ function factura(parcial: Partial<FacturaDeProveedor> = {}): FacturaDeProveedor 
     monto: { monto: '1200.00', moneda: 'BOB' },
     montoPagado: { monto: '0.00', moneda: 'BOB' },
     saldoPendiente: { monto: '1200.00', moneda: 'BOB' },
-    aprobadaPor: 'op-ana',
     aprobadaPorLaSesion: false,
     asientoContableId: null,
     ...parcial,

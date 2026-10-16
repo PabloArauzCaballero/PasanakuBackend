@@ -9,22 +9,24 @@ import { BarraDeFiltros } from '../../../nucleo/filtros/barra-de-filtros'
 import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
 import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
 import { calcularDesviacion, cargadorDePartidas, sobreEjecutada, type PartidaPresupuestaria } from '../dominio/cu101-presupuestos'
+import { nombreDelPeriodo } from '../dominio/cu100-periodos'
+import { EstadoDeListado, observarListado } from '../listado/estado-de-listado'
 import { textosContabilidad } from '../textos'
 
 const COLUMNAS: ColumnaVirtual<PartidaPresupuestaria>[] = [
-  { clave: 'centroCostoNombre', titulo: 'Centro de costo', ordenable: true },
-  { clave: 'cuentaContableNombre', titulo: 'Cuenta contable' },
-  { clave: 'periodoNombre', titulo: 'Período', ordenable: true },
-  { clave: 'montoPresupuestado', titulo: 'Presupuestado', numerica: true, ordenable: true },
-  { clave: 'montoEjecutado', titulo: 'Ejecutado', numerica: true, ordenable: true },
+  { clave: 'centroCostoNombre', titulo: 'Centro de costo' },
+  { clave: 'presupuestoNombre', titulo: 'Presupuesto' },
+  { clave: 'fechaInicioPeriodo', titulo: 'Período' },
+  { clave: 'montoPresupuestado', titulo: 'Presupuestado', numerica: true },
+  { clave: 'montoEjecutado', titulo: 'Ejecutado', numerica: true },
   { clave: 'partidaId', titulo: 'Desviación', numerica: true },
   { clave: 'estado', titulo: 'Estado' },
 ]
 
 /**
  * CU-101 · Presupuestar por centro de costo, sobre `TablaDeDatosVirtualizada` (la del
- * shell: no se duplica ninguna grilla). Las partidas sobre-ejecutadas van primero
- * —las ordena el `cargador` del dominio, no la tabla— y la desviación se resalta.
+ * shell: no se duplica ninguna grilla), paginada por cursor en el orden del servidor
+ * (inicio del período, descendente): no se ordena por columna. La desviación se resalta.
  *
  * El presupuesto **mide, no bloquea** (CU-101, 4a): pasarse no deshabilita nada acá,
  * registra una desviación que alguien tiene que explicar. Todos los importes, incluida
@@ -33,18 +35,19 @@ const COLUMNAS: ColumnaVirtual<PartidaPresupuestaria>[] = [
 @Component({
   selector: 'ap-pantalla-de-presupuesto',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, BarraDeFiltros, ChipEstado, Monto, TablaDeDatosVirtualizada],
+  imports: [BandaDeProposito, BarraDeFiltros, ChipEstado, EstadoDeListado, Monto, TablaDeDatosVirtualizada],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
       <p class="aviso">{{ t.noBloquea }}</p>
       <ap-barra-de-filtros etiqueta="Estado" [incluirBusqueda]="false" [definiciones]="filtros" />
+      <ap-estado-de-listado [error]="listado.error()" [vacio]="listado.vacio()" [mensajeVacio]="t.enCero" [filtrado]="!!filtrosActivos()['estado']" />
       <ap-tabla-de-datos-virtualizada
         [titulo]="t.titulo"
         [columnas]="COLUMNAS"
-        [cargador]="cargador"
-        [ordenPermitido]="['centroCostoNombre', 'periodoNombre', 'montoPresupuestado', 'montoEjecutado']"
+        [cargador]="listado.cargador"
+        [ordenPermitido]="[]"
         [identidad]="identidad"
         [filtros]="filtrosActivos()"
       >
@@ -61,6 +64,9 @@ const COLUMNAS: ColumnaVirtual<PartidaPresupuestaria>[] = [
                 <ap-monto [monto]="desviacion(p).monto" [moneda]="desviacion(p).moneda" [etiqueta]="t.desviacion" />
                 @if (sobre(p)) { <span class="marca">{{ t.sobreEjecutado }}</span> }
               </span>
+            }
+            @case ('fechaInicioPeriodo') {
+              {{ periodo(p) }}
             }
             @case ('estado') {
               <ap-chip-estado [tono]="p.estado === 'APROBADO' ? 'ok' : 'neutro'">{{ etiqueta(p) }}</ap-chip-estado>
@@ -85,7 +91,8 @@ const COLUMNAS: ColumnaVirtual<PartidaPresupuestaria>[] = [
 export class PantallaDePresupuesto {
   protected readonly t = textosContabilidad.presupuesto
   protected readonly COLUMNAS = COLUMNAS
-  protected readonly cargador = cargadorDePartidas()
+  protected readonly listado = observarListado(cargadorDePartidas(), textosContabilidad.erroresDeListado)
+  protected readonly periodo = (p: PartidaPresupuestaria) => nombreDelPeriodo(p.anio, p.mes)
   protected readonly identidad = (p: PartidaPresupuestaria) => p.partidaId
   protected readonly desviacion = calcularDesviacion
   protected readonly sobre = sobreEjecutada
