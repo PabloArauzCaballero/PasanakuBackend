@@ -72,6 +72,7 @@ export const ErroresCU100 = {
   PERIODO_NO_ES_EL_MAS_ANTIGUO: 'AP-CU100-02',
   DESCUADRE_DETECTADO: 'AP-CU100-03',
   SIN_PERIODO_VIGENTE: 'AP-CU100-04',
+  EJERCICIO_INEXISTENTE: 'AP-CU100-05',
 } as const
 ```
 
@@ -81,6 +82,7 @@ export const ErroresCU100 = {
 | `PERIODO_NO_ES_EL_MAS_ANTIGUO` | Hay un período anterior del mismo ejercicio todavía abierto |
 | `DESCUADRE_DETECTADO` | `total_debe ≠ total_haber` al momento de cerrar |
 | `SIN_PERIODO_VIGENTE` | Ningún período contiene la fecha de hoy (America/La_Paz): no se elige uno en su lugar |
+| `EJERCICIO_INEXISTENTE` | Se piden los períodos de un ejercicio que no existe |
 
 **Lecturas para elegir período (backoffice carril A).** `GET /erp/ejercicios`
 (`listarEjerciciosFiscales`) devuelve los ejercicios del más reciente al más antiguo, con sus
@@ -88,6 +90,9 @@ períodos, paginados por año. `GET /erp/periodos/vigente` (`consultarPeriodoVig
 período que contiene hoy en America/La_Paz, con su estado aunque esté `CERRADO`. Ambas aceptan
 cualquiera de los permisos que abren la sección Contabilidad (`CONTABILIDAD_ERP_REPORTES` y los otros
 siete `CONTABILIDAD_ERP_*`): elegir período lo necesita toda pantalla de la sección.
+`GET /erp/ejercicios/{ejercicioId}/periodos` (`listarPeriodosDelEjercicio`) devuelve los doce
+períodos con su cierre; los totales son los **sellados** en `cierre_periodo_contable` y un período
+abierto los trae vacíos (no se suma el libro en vivo para listar).
 
 ## Descomposición atómica
 
@@ -152,6 +157,10 @@ Entonces responde SIN_PERIODO_VIGENTE y no elige uno cualquiera
 Dado un periodo vigente ya cerrado
 Cuando se consulta el periodo vigente
 Entonces vuelve con estado CERRADO: el estado se informa, no se salta al mes siguiente
+
+Dado un ejercicio con enero cerrado
+Cuando Contabilidad pide sus periodos
+Entonces ve los doce en orden, enero con su cierre y totales sellados, y los abiertos sin totales
 ```
 
 ## Ver también

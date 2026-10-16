@@ -1,6 +1,7 @@
 package bo.aportaya.erp.aplicacion;
 
 import bo.aportaya.erp.dominio.CuadreContable;
+import bo.aportaya.erp.infraestructura.CierresDelEjercicioRepositorio;
 import bo.aportaya.erp.infraestructura.PeriodoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -37,6 +38,7 @@ public class CU100AbrirCerrarPeriodo {
 
     private final Datos datos;
     private final PeriodoRepositorio periodos;
+    private final CierresDelEjercicioRepositorio cierres = new CierresDelEjercicioRepositorio();
     private final Outbox outbox;
     private final Reloj reloj;
 
@@ -221,4 +223,40 @@ public class CU100AbrirCerrarPeriodo {
             List<PeriodoVigente> periodos) {}
 
     public record PaginaDeEjercicios(List<EjercicioConPeriodos> items, Optional<Integer> proximoAntesDeAnio) {}
+
+    /**
+     * Los periodos de un ejercicio con su cierre (backoffice carril A · H7). Los totales son los
+     * sellados en el cierre: un periodo abierto los trae vacios, no calculados en vivo.
+     */
+    @Transactional(readOnly = true)
+    public PeriodosDelEjercicio periodosDelEjercicio(UUID ejercicioId, ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> {
+            var ejercicio = cierres.ejercicio(dsl, ejercicioId)
+                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(100, 5), "Ese ejercicio fiscal no existe."));
+            var filas = cierres.periodos(dsl, ejercicioId).stream()
+                    .map(p -> new PeriodoConCierre(
+                            p.id(),
+                            p.mes(),
+                            p.estado(),
+                            p.desde(),
+                            p.hasta(),
+                            Optional.ofNullable(p.cerradoEn()),
+                            Optional.ofNullable(p.totalDebe()),
+                            Optional.ofNullable(p.totalHaber())))
+                    .toList();
+            return new PeriodosDelEjercicio(ejercicio.id(), ejercicio.anio(), ejercicio.estado(), filas);
+        });
+    }
+
+    public record PeriodoConCierre(
+            UUID periodoId,
+            int mes,
+            String estado,
+            LocalDate desde,
+            LocalDate hasta,
+            Optional<OffsetDateTime> cerradoEn,
+            Optional<java.math.BigDecimal> totalDebe,
+            Optional<java.math.BigDecimal> totalHaber) {}
+
+    public record PeriodosDelEjercicio(UUID ejercicioId, int anio, String estado, List<PeriodoConCierre> periodos) {}
 }

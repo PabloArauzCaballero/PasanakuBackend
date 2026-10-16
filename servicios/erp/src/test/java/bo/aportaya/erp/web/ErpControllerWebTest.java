@@ -79,6 +79,9 @@ class ErpControllerWebTest {
     @MockitoBean
     private CU106GenerarEstadoFinanciero cu106;
 
+    @MockitoBean
+    private bo.aportaya.erp.aplicacion.CU106DescargarEstadoFinanciero descarga;
+
     @Nested
     @DisplayName("El ejercicio fiscal y los estados financieros")
     class Contabilidad {

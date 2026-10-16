@@ -99,4 +99,39 @@ class CU100PeriodosTest extends BaseDeErp {
         assertThat(vigente.periodoId()).isEqualTo(enero);
         assertThat(vigente.estado()).isEqualTo("CERRADO");
     }
+
+    @Test
+    @DisplayName("Dado un ejercicio con enero cerrado · Cuando Contabilidad pide sus periodos · Entonces ve los doce en"
+            + " orden, enero con su cierre y totales sellados, y los abiertos sin totales")
+    void periodosDelEjercicio() {
+        var ejercicio = transaccion.execute(t -> periodoCU.abrirEjercicio(2830, contador()));
+        var enero = dsl.fetchOne(
+                        "SELECT id FROM erp.periodo_contable WHERE ejercicio_fiscal_id = ? AND mes = 1",
+                        ejercicio.ejercicioId())
+                .get(0, java.util.UUID.class);
+        transaccion.execute(t -> periodoCU.cerrarPeriodo(
+                new CU100AbrirCerrarPeriodo.EntradaCierre(enero, "Cierre sin movimientos"), contador()));
+
+        var periodos = transaccion.execute(t -> periodoCU.periodosDelEjercicio(ejercicio.ejercicioId(), contador()));
+
+        assertThat(periodos.anio()).isEqualTo(2830);
+        assertThat(periodos.periodos()).extracting(p -> p.mes()).containsExactly(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+        var primero = periodos.periodos().get(0);
+        assertThat(primero.estado()).isEqualTo("CERRADO");
+        assertThat(primero.cerradoEn()).isPresent();
+        assertThat(primero.totalDebe()).hasValueSatisfying(d -> assertThat(d).isEqualByComparingTo("0.00"));
+        assertThat(primero.totalHaber()).isPresent();
+        assertThat(periodos.periodos().get(1).totalDebe()).isEmpty();
+        assertThat(periodos.periodos().get(1).cerradoEn()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("rechaza los periodos de un ejercicio inexistente: AP-CU100-05, no una lista vacia")
+    void ejercicioInexistente() {
+        assertThatThrownBy(() -> transaccion.execute(
+                        t -> periodoCU.periodosDelEjercicio(java.util.UUID.randomUUID(), contador())))
+                .isInstanceOf(ErrorDeNegocio.class)
+                .satisfies(
+                        e -> assertThat(((ErrorDeNegocio) e).codigo().valor()).isEqualTo("AP-CU100-05"));
+    }
 }
