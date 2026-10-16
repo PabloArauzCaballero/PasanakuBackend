@@ -56,6 +56,7 @@ class VerificacionesControllerWebTest {
             VERIFICACION,
             USUARIO,
             "Marisol Quispe",
+            null,
             "CI 1234567 LP",
             "EN_REVISION",
             CUANDO,
