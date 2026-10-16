@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AportaYa · cumplimiento",
-    "description": "# AportaYa · cumplimiento\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**23 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · cumplimiento\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**28 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -1649,6 +1649,90 @@
       ]
     },
     {
+      "name": "generarReporteRegulatorio · Generar el reporte regulatorio de un periodo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/uif/reportes",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "uif",
+            "reportes"
+          ],
+          "variable": []
+        },
+        "description": "## Generar el reporte regulatorio de un periodo\n\nArma el archivo del periodo con las operaciones del formulario pedido y su hash. Generar dos veces devuelve el que hay. El actor sale de la sesion. Repetir lo mismo devuelve lo que ya hay (200); lo nuevo, 201. Exige CUMPLIMIENTO_REPORTAR.\n\n| | |\n| --- | --- |\n| **Servicio** | `cumplimiento` |\n| **Operacion** | `generarReporteRegulatorio` |\n| **Ruta** | `POST /api/v1/uif/reportes` |\n| **Permiso** | `CUMPLIMIENTO_REPORTAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"periodo\": \"1111-0a1a\",\n  \"catalogoCodigo\": \"catalogoCodigo-de-prueba\",\n  \"formulario\": \"PCC-01\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 201, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "listarRequerimientosDeAutoridad · Requerimientos de autoridad, del recibido mas reciente al mas antiguo",
       "request": {
         "method": "GET",
@@ -1706,6 +1790,90 @@
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
               "const esperadas = [200, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "registrarRequerimientoDeAutoridad · Registrar un requerimiento de autoridad",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/uif/requerimientos",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "uif",
+            "requerimientos"
+          ],
+          "variable": []
+        },
+        "description": "## Registrar un requerimiento de autoridad\n\nSin documento y su hash no se actua; un alcance ambiguo pide aclaracion. El mismo oficio con el mismo hash es un reintento. El actor sale de la sesion. Repetir lo mismo devuelve lo que ya hay (200); lo nuevo, 201. Exige el rol OFICIAL_CUMPLIMIENTO.\n\n| | |\n| --- | --- |\n| **Servicio** | `cumplimiento` |\n| **Operacion** | `registrarRequerimientoDeAutoridad` |\n| **Ruta** | `POST /api/v1/uif/requerimientos` |\n| **Permiso** | `OFICIAL_CUMPLIMIENTO` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"autoridad\": \"ASFI\",\n  \"numeroOficio\": \"numeroOficio-de-prueba\",\n  \"plazoRespuesta\": \"{{momento_ahora}}\",\n  \"usuarioAfectadoId\": \"{{usuarioAfectadoId}}\",\n  \"alcance\": \"alcance-de-prueba\",\n  \"documentoUrl\": \"documentoUrl-de-prueba\",\n  \"hashDocumento\": \"0000000000000000000000000000000000000000000000000000000000000000\",\n  \"exigeBloqueoDeSaldo\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 201, 401, 403, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -1828,6 +1996,91 @@
       ]
     },
     {
+      "name": "registrarPruebaDeContinuidad · Registrar una prueba de continuidad",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/cumplimiento/continuidad/pruebas",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "cumplimiento",
+            "continuidad",
+            "pruebas"
+          ],
+          "variable": []
+        },
+        "description": "## Registrar una prueba de continuidad\n\nEvalua el RTO y RPO obtenidos contra los comprometidos del plan; si no se alcanzan abre hallazgo y plan de accion. La misma prueba (plan, fecha, tipo, quien la ejecuto) dos veces es una sola. El actor sale de la sesion. Repetir lo mismo devuelve lo que ya hay (200); lo nuevo, 201. Exige el rol RESPONSABLE_RIESGOS.\n\n| | |\n| --- | --- |\n| **Servicio** | `cumplimiento` |\n| **Operacion** | `registrarPruebaDeContinuidad` |\n| **Ruta** | `POST /api/v1/cumplimiento/continuidad/pruebas` |\n| **Permiso** | _no declarado en el codigo_ |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"planContinuidadId\": \"{{planContinuidadId}}\",\n  \"tipo\": \"ESCRITORIO\",\n  \"fecha\": \"{{fecha_hoy}}\",\n  \"ejecutadaPor\": \"{{ejecutadaPor}}\",\n  \"actaComiteId\": \"{{actaComiteId}}\",\n  \"rtoObtenido\": 0,\n  \"rpoObtenido\": 0,\n  \"evidenciaUrl\": \"evidenciaUrl-de-prueba\",\n  \"impactoEnClientes\": true,\n  \"perdidaCuantificada\": \"1.11\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 201, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "listarActasDeComite · Actas de comite, de la mas reciente a la mas antigua",
       "request": {
         "method": "GET",
@@ -1880,6 +2133,183 @@
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
               "const esperadas = [200, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "aprobarYEnviarReporte · Aprobar el reporte y registrar su envio al organismo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/uif/reportes/envios",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "uif",
+            "reportes",
+            "envios"
+          ],
+          "variable": []
+        },
+        "description": "## Aprobar el reporte y registrar su envio al organismo\n\nQuien aprueba es quien lo pide y no puede ser quien lo genero (R-SEG-04). Fuera de plazo se envia igual y se abre hallazgo. El actor sale de la sesion. Repetir lo mismo devuelve lo que ya hay (200); lo nuevo, 201. Exige CUMPLIMIENTO_REPORTAR.\n\n| | |\n| --- | --- |\n| **Servicio** | `cumplimiento` |\n| **Operacion** | `aprobarYEnviarReporte` |\n| **Ruta** | `POST /api/v1/uif/reportes/envios` |\n| **Permiso** | `CUMPLIMIENTO_REPORTAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"periodo\": \"1111-0a1a\",\n  \"catalogoCodigo\": \"catalogoCodigo-de-prueba\",\n  \"canal\": \"CORREO\",\n  \"numeroConstancia\": \"numeroConstancia-de-prueba\",\n  \"aceptadoPorElOrganismo\": true,\n  \"reintentos\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 201, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "responderRequerimientoDeAutoridad · Responder un requerimiento de autoridad",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/uif/requerimientos/:requerimientoId/respuesta",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "uif",
+            "requerimientos",
+            ":requerimientoId",
+            "respuesta"
+          ],
+          "variable": [
+            {
+              "key": "requerimientoId",
+              "value": "{{requerimientoId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Responder un requerimiento de autoridad\n\nSe responde siempre, dentro o fuera de plazo; el plazo y el numero de oficio son los registrados, nunca los del cliente. Fuera de plazo abre hallazgo. El actor sale de la sesion. Repetir lo mismo devuelve lo que ya hay (200); lo nuevo, 201. Exige el rol OFICIAL_CUMPLIMIENTO.\n\n| | |\n| --- | --- |\n| **Servicio** | `cumplimiento` |\n| **Operacion** | `responderRequerimientoDeAutoridad` |\n| **Ruta** | `POST /api/v1/uif/requerimientos/{requerimientoId}/respuesta` |\n| **Permiso** | `OFICIAL_CUMPLIMIENTO` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"respuestaUrl\": \"respuestaUrl-de-prueba\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 201, 401, 403, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -2020,6 +2450,10 @@
   ],
   "variable": [
     {
+      "key": "actaComiteId",
+      "value": ""
+    },
+    {
       "key": "activoInformacionId",
       "value": ""
     },
@@ -2060,6 +2494,10 @@
       "value": ""
     },
     {
+      "key": "ejecutadaPor",
+      "value": ""
+    },
+    {
       "key": "eventoRiesgoId",
       "value": ""
     },
@@ -2076,6 +2514,10 @@
       "value": ""
     },
     {
+      "key": "planContinuidadId",
+      "value": ""
+    },
+    {
       "key": "prefijo_api",
       "value": ""
     },
@@ -2085,6 +2527,10 @@
     },
     {
       "key": "reporteSospechosoId",
+      "value": ""
+    },
+    {
+      "key": "requerimientoId",
       "value": ""
     },
     {
@@ -2101,6 +2547,10 @@
     },
     {
       "key": "tokenFirma",
+      "value": ""
+    },
+    {
+      "key": "usuarioAfectadoId",
       "value": ""
     },
     {

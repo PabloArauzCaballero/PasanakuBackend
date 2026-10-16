@@ -214,4 +214,8 @@ class ColasDeCumplimientoWebTest {
     private static <T, C> Pagina<T, C> vacia() {
         return new Pagina<>(List.of(), Optional.empty(), Optional.empty());
     }
+
+    // Las acciones del backoffice (carril A · H9) cuelgan de los controladores: sin este doble no cargan.
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private AccionesDeCumplimientoWeb accionesDeCumplimiento;
 }

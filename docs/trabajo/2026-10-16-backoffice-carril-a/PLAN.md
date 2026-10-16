@@ -202,7 +202,7 @@ casos de uso ya existen, con el actor tomado de la sesión.
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
 | H9.S1.M1 | Listados: requerimientos de autoridad (CU-45), reportes regulatorios (CU-43), eventos de riesgo (CU-54), incidentes (CU-55), pruebas de continuidad (CU-56), actas de comité (CU-94), con sus permisos sembrados o roles | correcto/límite/inválido + 403 por listado | `integrationTest --tests '*CU4[35]*' --tests '*CU5[456]*' --tests '*CU94*'` | HECHO — `evidencia/H9-01-colas-cumplimiento.txt` (6 colas: /uif/reportes, /uif/requerimientos, /cumplimiento/riesgos/eventos, /cumplimiento/seguridad/incidentes, /cumplimiento/continuidad/pruebas, /cumplimiento/comites/actas) |
-| H9.S1.M2 | Acciones de CU-43/45/56/94 por HTTP, revisando antes que el actor salga de la sesión (lección H5.S2) | revisor/actor de sesión; reintento seguro | idem | TODO |
+| H9.S1.M2 | Acciones de CU-43/45/56/94 por HTTP, revisando antes que el actor salga de la sesión (lección H5.S2) | revisor/actor de sesión; reintento seguro | idem | HECHO parcial por diseño — CU-43 (generar, aprobar y enviar), CU-45 (registrar, responder) y CU-56 (registrar) con actor de sesión y reintento seguro: `evidencia/H9-02-acciones-cumplimiento.txt`. CU-94 `sesionar` queda DECISION_REQUIRED (permiso `GOBIERNO_SESIONAR` no sembrado, S-8) |
 | H9.S1.M3 | Bóveda, Postman, regresión, commit y push | 0 fallas | regresión + gates | TODO |
 
 ## Pendiente fuera de esta sesión (registrado, no ejecutable sin decisión)

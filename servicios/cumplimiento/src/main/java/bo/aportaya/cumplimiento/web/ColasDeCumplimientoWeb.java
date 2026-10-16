@@ -1,10 +1,12 @@
 package bo.aportaya.cumplimiento.web;
 
 import bo.aportaya.cumplimiento.web.generado.CumplimientoApi;
+import bo.aportaya.cumplimiento.web.generado.modelo.EntradaPruebaDeContinuidad;
 import bo.aportaya.cumplimiento.web.generado.modelo.PaginaDeActas;
 import bo.aportaya.cumplimiento.web.generado.modelo.PaginaDeEventosDeRiesgo;
 import bo.aportaya.cumplimiento.web.generado.modelo.PaginaDeIncidentes;
 import bo.aportaya.cumplimiento.web.generado.modelo.PaginaDePruebasDeContinuidad;
+import bo.aportaya.cumplimiento.web.generado.modelo.SalidaPruebaDeContinuidad;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import java.time.LocalDate;
@@ -15,7 +17,8 @@ import org.springframework.http.ResponseEntity;
 
 /**
  * Las colas de {@code /cumplimiento} que lee el backoffice (carril A · H9): eventos de riesgo (CU-54),
- * incidentes (CU-55), pruebas de continuidad (CU-56) y actas de comite (CU-94). Auditoria lee todas.
+ * incidentes (CU-55), pruebas de continuidad (CU-56) y actas de comite (CU-94), que Auditoria lee, y el
+ * registro de una prueba de continuidad.
  *
  * <p>Es la base de {@link CumplimientoController}: el generador agrupa todo {@code /cumplimiento} en una
  * sola interfaz que un solo controlador implementa, y ese controlador ya esta en el limite de tamano. Los
@@ -25,9 +28,19 @@ import org.springframework.http.ResponseEntity;
 abstract class ColasDeCumplimientoWeb implements CumplimientoApi {
 
     private final TableroDeCumplimientoWeb tablero;
+    private final AccionesDeCumplimientoWeb acciones;
 
-    protected ColasDeCumplimientoWeb(TableroDeCumplimientoWeb tablero) {
+    protected ColasDeCumplimientoWeb(TableroDeCumplimientoWeb tablero, AccionesDeCumplimientoWeb acciones) {
         this.tablero = tablero;
+        this.acciones = acciones;
+    }
+
+    // CU-56: Riesgos registra la prueba que ejecuto TI; quien la ejecuto es el dato que se registra.
+    @Override
+    @Permiso("RESPONSABLE_RIESGOS")
+    public ResponseEntity<SalidaPruebaDeContinuidad> registrarPruebaDeContinuidad(
+            UUID idempotencyKey, EntradaPruebaDeContinuidad cuerpo) {
+        return acciones.registrarPrueba(cuerpo);
     }
 
     @Override
