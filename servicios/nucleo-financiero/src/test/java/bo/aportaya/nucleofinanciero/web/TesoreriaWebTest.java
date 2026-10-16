@@ -63,6 +63,9 @@ class TesoreriaWebTest {
     @MockitoBean
     private CU50ConciliarCustodia cu50;
 
+    @MockitoBean
+    private bo.aportaya.nucleofinanciero.aplicacion.CierreDiarioDesdeContabilidad cierres;
+
     private static Dinero bob(String monto) {
         return Dinero.de(monto, Moneda.BOB);
     }

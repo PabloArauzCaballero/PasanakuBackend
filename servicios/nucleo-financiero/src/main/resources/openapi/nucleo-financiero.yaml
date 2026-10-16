@@ -816,7 +816,40 @@ paths:
           description: Sin AUDITORIA_LEER
         '401':
           $ref: '#/components/responses/NoAutenticado'
-
+    post:
+      operationId: ejecutarCierreDiario              # CU-51 (backoffice carril A · H8)
+      summary: Cerrar un dia operativo con el recaudo que informa aportes
+      description: >-
+        Contabilidad pide la fecha; las cifras NO las manda el cliente: el recaudo, lo conciliado y las
+        excepciones los informa aportes (GET /aportes/recaudo-diario, con el token de quien cierra, fuera de la
+        transaccion) y si la custodia cuadro sale de las conciliaciones del dia (CU-50; sin conciliacion no
+        cuadra). Idempotente por fecha: el dia ya cerrado devuelve el cierre que hay (200). Exige el rol
+        CONTABILIDAD.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaCierreDiario' }
+      responses:
+        '201':
+          description: Dia cerrado (cuadrado o con observaciones)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaCierreDiario' }
+        '200':
+          description: El dia ya estaba cerrado; se devuelve ese cierre
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaCierreDiario' }
+        '422':
+          # AP-CU51-03 · AP-CU51-06 · AP-CU51-07 · AP-CU51-08
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin el rol CONTABILIDAD
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
   /contabilidad/reversos:
     get:
       operationId: listarReversos             # CU-14 (backoffice carril A · H8)
@@ -862,6 +895,9 @@ paths:
   #   AP-CU51-02 CUSTODIA_DESCUADRADA   · el encaje no da; cerrar seria firmarlo igual
   #   AP-CU51-03 ASIENTOS_SIN_CONFIRMAR · queda un asiento en BORRADOR con esa fecha
   #   AP-CU51-05 FILTRO_DE_LISTADO_INVALIDO · cursor a medias en el listado de cierres
+  #   AP-CU51-06 DIA_NO_TERMINADO       · se pide cerrar hoy o un dia futuro (zona America/La_Paz)
+  #   AP-CU51-07 MONEDAS_MEZCLADAS      · el recaudo del dia trae mas de una moneda; cierre_diario no la modela
+  #   AP-CU51-08 RECAUDO_NO_DISPONIBLE  · aportes no informo el recaudo: no se cierra a ciegas
   #   AP-CU51-04 DIA_YA_CERRADO         · reintento sobre un dia ya cerrado
 
 components:
@@ -1095,6 +1131,23 @@ components:
         cumpleEncaje: { type: boolean }
         diferencia: { $ref: '#/components/schemas/Dinero' }
         estado: { type: string, enum: [CUADRADA, DESCUADRADA] }
+    EntradaCierreDiario:
+      type: object
+      additionalProperties: false
+      required: [fecha]
+      properties:
+        fecha: { type: string, format: date }
+    SalidaCierreDiario:
+      type: object
+      additionalProperties: false
+      required: [cierreId, fecha, cuadrado, excepcionesAbiertas, yaExistia]
+      properties:
+        cierreId: { type: string, format: uuid }
+        fecha: { type: string, format: date }
+        cuadrado: { type: boolean }
+        excepcionesAbiertas: { type: integer, minimum: 0 }
+        yaExistia: { type: boolean }
+        motivoDelDescuadre: { type: string }
     PaginaDeCierresDiarios:
       type: object
       additionalProperties: false

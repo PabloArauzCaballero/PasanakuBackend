@@ -31,6 +31,21 @@ public class TesoreriaRepositorio {
                 .get(0, BigDecimal.class);
     }
 
+    /**
+     * CU-51 paso 5: la custodia del dia cuadra si hay al menos una conciliacion de esa fecha y TODAS estan
+     * CUADRADAS. Sin conciliacion no hay evidencia de encaje, y lo que no se verifico no cuadra.
+     */
+    public boolean custodiaCuadradaDelDia(DSLContext dsl, LocalDate fecha) {
+        return dsl.fetchOne(
+                        """
+                SELECT count(*) > 0 AND bool_and(estado = 'CUADRADA')
+                  FROM nucleo_financiero.conciliacion_custodia
+                 WHERE fecha = ?
+                """,
+                        fecha)
+                .get(0, Boolean.class);
+    }
+
     public Optional<String> monedaDeLaCustodia(DSLContext dsl, UUID cuentaCustodiaId) {
         return Optional.ofNullable(dsl.fetchOne(
                         "SELECT moneda FROM nucleo_financiero.cuenta_custodia WHERE id = ?", cuentaCustodiaId))

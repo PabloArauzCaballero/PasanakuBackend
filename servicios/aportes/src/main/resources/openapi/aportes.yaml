@@ -328,6 +328,39 @@ paths:
               schema: { $ref: '#/components/schemas/RecaudoDelPeriodo' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
+  /aportes/recaudo-diario:
+    get:
+      operationId: consultarRecaudoDiario       # CU-51 (backoffice carril A · H8)
+      summary: Lo recaudado, conciliado y en excepcion de un dia, por moneda
+      description: >-
+        Lo que nucleo-financiero necesita para cerrar el dia (CU-51) sin leer este esquema (invariante 11) y
+        sin que el operador afirme cuanto se recaudo. El dia es el de America/La_Paz (Reloj.ZONA). Cuenta los
+        pagos ACREDITADOS con acreditacion en ese dia; conciliado es la parte con conciliacion
+        CONCILIADO_AUTOMATICO o CONCILIADO_MANUAL; excepciones son las no RESUELTAS de esos pagos, por el
+        valor absoluto de su diferencia. Un total por moneda: sumar monedas distintas esta prohibido.
+        Exige CONTABILIDAD o AUDITORIA_LEER.
+      parameters:
+        - name: fecha
+          in: query
+          required: true
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: El resumen del dia (sin pagos, la lista va vacia)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RecaudoDiario' }
+        '403':
+          description: Sin CONTABILIDAD ni AUDITORIA_LEER
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Sin token valido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
   /aportes/periodos/{periodoId}/obligaciones:
     post:
       operationId: generarObligacionesDelPeriodo   # CU-21 · H8.S1.M1
@@ -415,6 +448,28 @@ components:
       properties:
         obligacionId: { type: string, format: uuid }
         monto:        { $ref: '#/components/schemas/Dinero' }
+    RecaudoDiario:
+      type: object
+      additionalProperties: false
+      required: [fecha, zonaHoraria, porMoneda, excepcionesAbiertas]
+      properties:
+        fecha: { type: string, format: date }
+        zonaHoraria: { type: string, description: 'el dia se corta en esta zona (America/La_Paz)' }
+        porMoneda:
+          type: array
+          maxItems: 10
+          items: { $ref: '#/components/schemas/RecaudoDiarioPorMoneda' }
+        excepcionesAbiertas: { type: integer, minimum: 0 }
+    RecaudoDiarioPorMoneda:
+      type: object
+      additionalProperties: false
+      required: [moneda, totalRecaudado, totalConciliado, totalExcepciones, cantidadPagos]
+      properties:
+        moneda: { type: string, pattern: '^[A-Z]{3}$' }
+        totalRecaudado: { type: string, pattern: '^\d+\.\d{2}$' }
+        totalConciliado: { type: string, pattern: '^\d+\.\d{2}$' }
+        totalExcepciones: { type: string, pattern: '^\d+\.\d{2}$' }
+        cantidadPagos: { type: integer, minimum: 0 }
     RecaudoDelPeriodo:
       type: object
       additionalProperties: false

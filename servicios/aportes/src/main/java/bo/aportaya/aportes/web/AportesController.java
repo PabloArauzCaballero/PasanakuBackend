@@ -3,6 +3,7 @@ package bo.aportaya.aportes.web;
 import bo.aportaya.aportes.aplicacion.CU21CobrarAporte;
 import bo.aportaya.aportes.aplicacion.ConsultarEstadoDelParticipante;
 import bo.aportaya.aportes.aplicacion.ConsultarRecaudoDelPeriodo;
+import bo.aportaya.aportes.aplicacion.ConsultarRecaudoDiario;
 import bo.aportaya.aportes.aplicacion.GenerarObligacionesDelPeriodo;
 import bo.aportaya.aportes.web.generado.AportesApi;
 import bo.aportaya.aportes.web.generado.modelo.CalendarioDeObligaciones;
@@ -13,12 +14,16 @@ import bo.aportaya.aportes.web.generado.modelo.LineaDelCalendario;
 import bo.aportaya.aportes.web.generado.modelo.Morosos;
 import bo.aportaya.aportes.web.generado.modelo.ObligacionPendiente;
 import bo.aportaya.aportes.web.generado.modelo.RecaudoDelPeriodo;
+import bo.aportaya.aportes.web.generado.modelo.RecaudoDiario;
+import bo.aportaya.aportes.web.generado.modelo.RecaudoDiarioPorMoneda;
 import bo.aportaya.aportes.web.generado.modelo.SalidaCobro;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
+import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
@@ -41,6 +46,7 @@ public class AportesController implements AportesApi {
     private final ConsultarRecaudoDelPeriodo recaudos;
     private final GenerarObligacionesDelPeriodo calendario;
     private final SesionDeLaPeticion sesion;
+    private final ConsultarRecaudoDiario recaudosDiarios;
     private final bo.aportaya.aportes.aplicacion.HechosDeGrupos grupos;
 
     public AportesController(
@@ -49,8 +55,10 @@ public class AportesController implements AportesApi {
             ConsultarRecaudoDelPeriodo recaudos,
             GenerarObligacionesDelPeriodo calendario,
             SesionDeLaPeticion sesion,
-            bo.aportaya.aportes.aplicacion.HechosDeGrupos grupos) {
+            bo.aportaya.aportes.aplicacion.HechosDeGrupos grupos,
+            ConsultarRecaudoDiario recaudosDiarios) {
         this.grupos = grupos;
+        this.recaudosDiarios = recaudosDiarios;
         this.cu21 = cu21;
         this.estados = estados;
         this.recaudos = recaudos;
@@ -145,6 +153,34 @@ public class AportesController implements AportesApi {
      * <p>Lo pide {@code entregas} antes de liquidar. El permiso es el de quien ejecuta la
      * entrega: el token del usuario viaja en la llamada entre servicios.
      */
+    /**
+     * Lo recaudado de un dia, por moneda: lo pide {@code nucleo-financiero} para cerrar el dia (CU-51) con
+     * el token de quien cierra. Contabilidad lo opera; Auditoria lo lee.
+     */
+    @Override
+    @Permiso("CONTABILIDAD")
+    @PermisoAlternativo({"AUDITORIA_LEER"})
+    public ResponseEntity<RecaudoDiario> consultarRecaudoDiario(LocalDate fecha) {
+        Traza.marcarCasoDeUso("CU-51", fecha.toString());
+        var salida = recaudosDiarios.ejecutar(fecha, sesion.actual());
+        var respuesta = new RecaudoDiario();
+        respuesta.setFecha(salida.fecha());
+        respuesta.setZonaHoraria(salida.zonaHoraria());
+        respuesta.setExcepcionesAbiertas(salida.excepcionesAbiertas());
+        respuesta.setPorMoneda(salida.porMoneda().stream()
+                .map(m -> {
+                    var r = new RecaudoDiarioPorMoneda();
+                    r.setMoneda(m.moneda());
+                    r.setTotalRecaudado(MapeoDeAportes.importe(m.recaudado()));
+                    r.setTotalConciliado(MapeoDeAportes.importe(m.conciliado()));
+                    r.setTotalExcepciones(MapeoDeAportes.importe(m.excepciones()));
+                    r.setCantidadPagos(m.pagos());
+                    return r;
+                })
+                .toList());
+        return ResponseEntity.ok(respuesta);
+    }
+
     @Override
     @Permiso("ENTREGA_EJECUTAR")
     public ResponseEntity<RecaudoDelPeriodo> consultarRecaudoDelPeriodo(UUID periodoId) {

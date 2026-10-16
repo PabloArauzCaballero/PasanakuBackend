@@ -1,0 +1,57 @@
+$ ./gradlew :servicios:nucleo-financiero:spotlessCheck test webTest integrationTest testBarrido contractTest --no-build-cache --continue
+BUILD SUCCESSFUL (exit=0)
+  test             tests=81 skipped=0 failures=0 errors=0
+  webTest          tests=68 skipped=0 failures=0 errors=0
+  integrationTest  tests=476 skipped=0 failures=0 errors=0
+  testBarrido      tests=2 skipped=0 failures=0 errors=0
+  contractTest     tests=18 skipped=0 failures=0 errors=0
+
+$ ./gradlew :servicios:aportes:spotlessCheck test webTest integrationTest testBarrido contractTest --no-build-cache --continue
+BUILD SUCCESSFUL (exit=0)
+  test             tests=49 skipped=0 failures=0 errors=0
+  webTest          tests=41 skipped=0 failures=0 errors=0
+  integrationTest  tests=105 skipped=0 failures=0 errors=0
+  testBarrido      tests=2 skipped=0 failures=0 errors=0
+  contractTest     tests=0 skipped=0 failures=0 errors=0
+
+bo.aportaya.nucleofinanciero.CU51CierreDesdeContabilidadTest tests=8 failures=0 errors=0
+   PASS · Dado un día sin conciliación de custodia · Cuando Contabilidad lo cierra · Entonces el cierre queda NO cuadrado: lo que no se verificó no cuadra
+   PASS · cuadre: con excepciones abiertas segun aportes el dia cierra NO cuadrado aunque la custodia cuadre
+   PASS · cuadre: un dia sin pagos cierra con totales en cero y sin suponer moneda
+   PASS · rechaza con AP-CU51-07 un dia con recaudo en dos monedas: el cierre no las suma
+   PASS · rechaza cerrar el dia de hoy con AP-CU51-06 sin preguntarle nada a aportes
+   PASS · Dado un día terminado con la custodia cuadrada y aportes que informa Bs 1.000 recaudados sin excepciones · Cuando Contabilidad lo cierra desde el backoffice · Entonces el cierre queda cuadrado con los totales de aportes, no con cifras del cliente
+   PASS · rechaza con AP-CU51-08 cuando aportes no informa el recaudo, y no escribe ningun cierre
+   PASS · reintento: cerrar dos veces el mismo dia devuelve el mismo cierre y escribe una sola fila
+bo.aportaya.nucleofinanciero.infraestructura.RecaudoDelDiaContratoTest tests=8 failures=0 errors=0
+   PASS · limite: la respuesta de OTRA fecha no se usa para cerrar este dia
+   PASS · correcto: un dia en BOB se lee con sus totales exactos y la cantidad de excepciones
+   PASS · limite: un dia sin pagos llega como lista vacia, no como un cero inventado en BOB
+   PASS · invalido: aportes caido (nadie escucha) es «no se sabe»
+   PASS · invalido: JSON roto, moneda desconocida o importe negativo son «no se sabe»
+   PASS · invalido: un 403 (el token no alcanza) es «no se sabe»
+   PASS · invalido: un 500 de aportes es «no se sabe», nunca un resumen
+   PASS · invalido: aportes que tarda mas que el tiempo maximo (3 s) es «no se sabe», no un hilo colgado
+bo.aportaya.nucleofinanciero.web.CierreDiarioWebTest tests=6 failures=0 errors=0
+   PASS · 403: AUDITORIA_LEER lee los cierres pero no cierra
+   PASS · 201: CONTABILIDAD cierra el dia y recibe si cuadro
+   PASS · 422: aportes sin respuesta sale con AP-CU51-08, nunca como 500
+   PASS · 400: un campo de mas (las cifras del cliente) lo rechaza el contrato antes del caso de uso
+   PASS · 200: el dia ya cerrado devuelve ese cierre, no otro
+   PASS · 401: sin token no se cierra nada
+bo.aportaya.aportes.CU51RecaudoDiarioTest tests=5 failures=0 errors=0
+   PASS · Dados un pago reversado y una excepción ya resuelta · Cuando se pide el recaudo del día · Entonces ninguno de los dos cuenta
+   PASS · Dados pagos del día en BOB y en USD · Cuando se pide el recaudo · Entonces vuelve un total por moneda y nunca una suma de las dos
+   PASS · Dado un pago acreditado a las 23:00 del día anterior en La Paz · Cuando se pide el recaudo del día · Entonces no se cuenta aunque en UTC ya sea el día pedido
+   PASS · Dado un día sin pagos · Cuando se pide el recaudo · Entonces la lista por moneda va vacía y no hay excepciones, nunca un cero inventado en BOB
+   PASS · Dado un día de La Paz con un pago conciliado de Bs 500 y otro de Bs 300 en excepción por Bs 20 · Cuando nucleo-financiero pide el recaudo del día · Entonces recibe recaudado 800, conciliado 500, excepciones 20 y una excepción abierta
+bo.aportaya.aportes.web.RecaudoDiarioWebTest tests=5 failures=0 errors=0
+   PASS · 200: CONTABILIDAD recibe los totales por moneda como cadena al centavo y la zona del corte
+   PASS · 200: AUDITORIA_LEER tambien lo lee
+   PASS · 400: sin fecha, o con una fecha mal formada, lo corta el contrato
+   PASS · 401: sin token no hay recaudo
+   PASS · 403: quien cobra aportes (ENTREGA_EJECUTAR) no ve los totales del dia
+
+NOTA: el lado nucleo se verifico contra un DOBLE de aportes (puerto RecaudoDelDia) y contra un aportes
+FALSO por HTTP (RecaudoDelDiaContratoTest). El productor real se verifico en aportes por separado.
+NO se ejercito nucleo -> aportes real por la red con ambos servicios levantados.

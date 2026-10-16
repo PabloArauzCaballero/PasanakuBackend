@@ -80,4 +80,10 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private bo.aportaya.nucleofinanciero.aplicacion.CU50ConciliarCustodia cu50ConciliarCustodia;
+
+    @MockitoBean
+    private bo.aportaya.nucleofinanciero.aplicacion.CierreDiarioDesdeContabilidad cierreDiarioDesdeContabilidad;
+
+    @MockitoBean
+    private bo.aportaya.nucleofinanciero.dominio.puertos.RecaudoDelDia recaudoDelDia;
 }
