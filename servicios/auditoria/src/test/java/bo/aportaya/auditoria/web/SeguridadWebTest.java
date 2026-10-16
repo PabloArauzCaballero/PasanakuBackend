@@ -34,4 +34,8 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private CU98PublicarTablero cu98PublicarTablero;
+
+    // El controlador tambien lista el catalogo y el historial (CU-58, carril A · A6).
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private bo.aportaya.auditoria.aplicacion.ConsultarHistorialDeReportes historialDeReportes;
 }

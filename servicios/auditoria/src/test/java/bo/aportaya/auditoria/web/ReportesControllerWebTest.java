@@ -164,4 +164,8 @@ class ReportesControllerWebTest {
         // pagina no puede hacer es saltearse el registro de que alguien descargó.
         verify(descargas).ejecutar(eq(EXPORTACION), any());
     }
+
+    // El controlador tambien lista el catalogo y el historial (CU-58, carril A · A6).
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private bo.aportaya.auditoria.aplicacion.ConsultarHistorialDeReportes historialDeReportes;
 }

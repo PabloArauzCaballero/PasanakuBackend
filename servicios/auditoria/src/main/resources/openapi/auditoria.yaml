@@ -70,6 +70,66 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+  /reportes:
+    get:
+      operationId: listarDefinicionesDeReporte   # CU-58 (backoffice carril A · A6)
+      summary: Catalogo de reportes activos, por nombre
+      description: >-
+        Lo que el backoffice ofrece para ejecutar: tipo, nombre, descripcion, el permiso que cada uno exige y si
+        contiene datos sensibles (pide justificacion). Sin la consulta base. El permiso de cada reporte lo
+        verifica la ejecucion, no este listado. Cursor (nombre, id) ascendente. Exige AUDITORIA_LEER.
+      parameters:
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: despuesDe, in: query, required: false, schema: { type: string, maxLength: 80 } }
+        - { name: despuesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeDefinicionesDeReporte' }
+        '422':
+          # AP-CU58-07 FILTRO_DE_LISTADO_INVALIDO
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /reportes/ejecuciones:
+    get:
+      operationId: listarEjecucionesDeReporte    # CU-58 (backoffice carril A · A6)
+      summary: Historial de ejecuciones, de la mas reciente a la mas antigua
+      description: >-
+        Quien pidio que reporte, cuando, en que estado termino, cuantas filas y con que hash. Sin parametros ni
+        mensaje de error (pueden llevar datos de una persona). Cursor (iniciadaEn, id) descendente. Exige
+        AUDITORIA_LEER.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: array
+            items: { type: string }
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeEjecucionesDeReporte' }
+        '422':
+          # AP-CU58-07 FILTRO_DE_LISTADO_INVALIDO
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
   /reportes/{definicionId}/ejecuciones:
     post:
       operationId: ejecutarReporte            # CU-58
@@ -142,6 +202,7 @@ paths:
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU58-05 EXPORTACION_VENCIDA · AP-CU58-06 TOPE_DESCARGAS
+          # AP-CU58-07 FILTRO_DE_LISTADO_INVALIDO (listados del backoffice, carril A · A6)
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
@@ -205,6 +266,51 @@ components:
         seguro, y la clave se valida ANTES de escribir (invariante 7).
       schema: { type: string, format: uuid }
   schemas:
+    PaginaDeDefinicionesDeReporte:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/DefinicionDeReporteEnLista' }
+        proximoDespuesDe: { type: string }
+        proximoDespuesDeId: { type: string, format: uuid }
+    DefinicionDeReporteEnLista:
+      type: object
+      additionalProperties: false
+      required: [definicionId, tipo, nombre, descripcion, permisoRequerido, contieneDatosSensibles]
+      properties:
+        definicionId: { type: string, format: uuid }
+        tipo: { type: string }
+        nombre: { type: string }
+        descripcion: { type: string }
+        permisoRequerido: { type: string }
+        contieneDatosSensibles: { type: boolean }
+    PaginaDeEjecucionesDeReporte:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/EjecucionDeReporteEnLista' }
+        proximoAntesDe: { type: string, format: date-time }
+        proximoAntesDeId: { type: string, format: uuid }
+    EjecucionDeReporteEnLista:
+      type: object
+      additionalProperties: false
+      required: [ejecucionId, definicionId, solicitadoPor, estado, filasGeneradas, duracionMs, iniciadaEn]
+      properties:
+        ejecucionId: { type: string, format: uuid }
+        definicionId: { type: string, format: uuid }
+        solicitadoPor: { type: string, format: uuid }
+        estado: { type: string, enum: [EN_COLA, EJECUTANDO, COMPLETADA, FALLIDA, EXPIRADA] }
+        filasGeneradas: { type: integer }
+        duracionMs: { type: integer }
+        hashResultado: { type: string }
+        iniciadaEn: { type: string, format: date-time }
+        finalizadaEn: { type: string, format: date-time }
     EntradaDerechos:
       type: object
       additionalProperties: false
