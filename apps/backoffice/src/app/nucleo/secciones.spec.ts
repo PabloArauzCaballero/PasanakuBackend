@@ -32,10 +32,10 @@ describe('alcanza · de permiso real a sección', () => {
     expect(alcanza('ver:seccion-nueva', ['ACCESOS_ADMINISTRAR'], true)).toBe(false)
   })
 
-  it('el administrador de plataforma del catálogo ve tablero, cumplimiento y sistemas, y nada de dinero', () => {
+  it('el administrador de plataforma del catálogo ve tablero, cumplimiento, sistemas y configuración (plan §3: tarifario y reportes), y nada de dinero', () => {
     const admin = ['CATALOGO_EDITAR', 'ACCESOS_ADMINISTRAR', 'TARIFARIO_PUBLICAR', 'AUDITORIA_LEER', 'SEGURIDAD_ACCESO_RESTABLECER', 'SEGURIDAD_FACTOR_REINSCRIBIR', 'VERIFICACION_RESOLVER']
     const abiertas = ['ver:tablero', ...Object.keys(PERMISOS_POR_SECCION)].filter((s) => alcanza(s, admin, true))
-    expect(abiertas).toEqual(['ver:tablero', 'ver:cumplimiento', 'ver:sistemas'])
+    expect(abiertas).toEqual(['ver:tablero', 'ver:cumplimiento', 'ver:sistemas', 'ver:configuracion'])
   })
 })
 

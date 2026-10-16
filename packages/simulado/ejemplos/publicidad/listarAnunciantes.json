@@ -1,0 +1,69 @@
+{
+  "servicio": "publicidad",
+  "operacion": "listarAnunciantes",
+  "metodo": "get",
+  "ruta": "/publicidad/anunciantes",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "anuncianteId": "4942e0f0-42c3-481e-8b81-08ee8c06c90e",
+            "tipo": "ORGANIZADOR",
+            "razonSocialFacturacion": "razonSocialFacturacion",
+            "estado": "ACTIVO",
+            "creadoEn": "2026-01-15T10:30:00Z",
+            "cuentaPublicitariaId": "1c2d00f1-f282-4b27-8115-0942a0eaf6c1",
+            "estadoCuenta": "ACTIVA",
+            "limiteGastoMensual": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ],
+        "proximoFecha": "2026-01-15T10:30:00Z",
+        "proximoId": "dc434a80-a386-47c6-8fc5-2d467fc9b246"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoFecha": "2026-01-15T10:30:00Z",
+        "proximoId": "dc434a80-a386-47c6-8fc5-2d467fc9b246"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "anuncianteId": "4942e0f0-42c3-481e-8b81-08ee8c06c90e",
+            "tipo": "ORGANIZADOR",
+            "razonSocialFacturacion": "razonSocialFacturacion",
+            "estado": "ACTIVO",
+            "creadoEn": "2026-01-15T10:30:00Z",
+            "cuentaPublicitariaId": "1c2d00f1-f282-4b27-8115-0942a0eaf6c1",
+            "estadoCuenta": "ACTIVA",
+            "limiteGastoMensual": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ],
+        "proximoFecha": "2026-01-15T10:30:00Z",
+        "proximoId": "dc434a80-a386-47c6-8fc5-2d467fc9b246"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU110-04",
+        "mensaje": "Filtro de listado invalido",
+        "detalle": {},
+        "trazaId": "traza-listarAnunciantes-rechazo"
+      }
+    }
+  }
+}

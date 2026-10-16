@@ -9,20 +9,9 @@ import { GATEWAY } from '../../../nucleo/gateway'
 import { erroresInterceptor } from '../../../nucleo/errores.interceptor'
 import { Sesion } from '../../../nucleo/sesion'
 import { ColaDeModeracion } from './cola-de-moderacion'
-import type { PiezaCreativa } from '../dominio/cu112-moderacion'
+import { pagina, pieza } from '../publicidad.apoyo'
 
-const URL = 'http://gw/api/v1/publicidad/piezas-creativas?estadoModeracion=PENDIENTE'
-const PIEZA: PiezaCreativa = {
-  piezaCreativaId: 'p-1',
-  anuncianteId: 'a-1',
-  anuncianteNombre: 'Ferretería del Sur',
-  subidaPor: 'op-9',
-  titulo: 'Banner de aniversario',
-  texto: null,
-  urlRecurso: 'https://cdn.aportaya.test/p-1.png',
-  tipoRecurso: 'IMAGEN',
-  estadoModeracion: 'PENDIENTE',
-}
+const URL = 'http://gw/api/v1/publicidad/piezas-creativas?limite=50&estadoModeracion=PENDIENTE'
 
 describe('ColaDeModeracion · accesibilidad', () => {
   let http: HttpTestingController
@@ -38,7 +27,10 @@ describe('ColaDeModeracion · accesibilidad', () => {
     TestBed.inject(Sesion).abrir('t', ['PUBLICIDAD_MODERAR'], 'operador')
     const fixture = TestBed.createComponent(ColaDeModeracion)
     fixture.detectChanges()
-    http.expectOne(URL).flush([PIEZA])
+    await new Promise((r) => setTimeout(r, 0))
+    http.expectOne(URL).flush(pagina([pieza()]))
+    await new Promise((r) => setTimeout(r, 0))
+    fixture.detectChanges()
     await fixture.whenStable()
     expect(await axe(fixture.nativeElement)).toHaveNoViolations()
   })

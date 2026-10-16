@@ -1,0 +1,85 @@
+{
+  "servicio": "erp",
+  "operacion": "listarCuentasPorCobrar",
+  "metodo": "get",
+  "ruta": "/erp/cuentas-por-cobrar",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "cuentaPorCobrarId": "e0ef4a6c-de9b-49de-8e74-33b2bf8ac44a",
+            "origenTipo": "FACTURA_PUBLICIDAD",
+            "origenId": "c771f86c-aa40-4f2e-8d31-b74271b2479a",
+            "terceroComercialId": "876aff51-11de-4019-8694-ba0b899499f6",
+            "terceroRazonSocial": "terceroRazonSocial",
+            "fechaVencimiento": "2026-01-15",
+            "estado": "PENDIENTE",
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "cobrado": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "saldoPendiente": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "72d053e6-dd3c-42ca-8501-36ed4500d16b"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "72d053e6-dd3c-42ca-8501-36ed4500d16b"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "cuentaPorCobrarId": "e0ef4a6c-de9b-49de-8e74-33b2bf8ac44a",
+            "origenTipo": "FACTURA_PUBLICIDAD",
+            "origenId": "c771f86c-aa40-4f2e-8d31-b74271b2479a",
+            "terceroComercialId": "876aff51-11de-4019-8694-ba0b899499f6",
+            "terceroRazonSocial": "terceroRazonSocial",
+            "fechaVencimiento": "2026-01-15",
+            "estado": "PENDIENTE",
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "cobrado": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "saldoPendiente": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "72d053e6-dd3c-42ca-8501-36ed4500d16b"
+      }
+    },
+    "rechazo": {
+      "estado": 400,
+      "cuerpo": {
+        "codigo": "AP-CU104-04",
+        "mensaje": "Filtro de listado invalido",
+        "detalle": {},
+        "trazaId": "traza-listarCuentasPorCobrar-rechazo"
+      }
+    }
+  }
+}

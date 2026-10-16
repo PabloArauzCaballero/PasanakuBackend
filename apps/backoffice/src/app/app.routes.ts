@@ -67,6 +67,12 @@ export const routes: Routes = [
         canMatch: [requierePermiso('ver:publicidad')],
         loadChildren: () => import('./rutas/publicidad/publicidad.routes').then((m) => m.rutasPublicidad),
       },
+      {
+        // Carril B · L4: tarifario (CU-34), mensajería (CU-80/83) y reportes (CU-58), de solo lectura.
+        path: 'configuracion',
+        canMatch: [requierePermiso('ver:configuracion')],
+        loadChildren: () => import('./rutas/configuracion/configuracion.routes').then((m) => m.rutasConfiguracion),
+      },
     ],
   },
 ]

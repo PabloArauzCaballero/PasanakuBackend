@@ -1,0 +1,36 @@
+  ✘   1 [chromium] › e2e/aceptacion/f1-invitacion.aceptacion.e2e.ts:16:7 › F1 · invitación por enlace de un solo uso › el secreto sale de la URL y de toda petición; A pide ingreso; el enlace se consume una sola vez (173ms)
+  ✘   2 [chromium] › e2e/aceptacion/f1-invitacion.aceptacion.e2e.ts:69:7 › F1 · invitación por enlace de un solo uso › el reintento con la MISMA clave devuelve la misma solicitud (la respuesta se perdió, no se duplica) (5ms)
+  ✘   3 [chromium] › e2e/aceptacion/f1-invitacion.aceptacion.e2e.ts:80:7 › F1 · invitación por enlace de un solo uso › rechazos del canje: sin sesión, secreto mal formado, secreto de otra invitación y clave ausente (6ms)
+  ✘   4 [chromium] › e2e/aceptacion/f1-invitacion.aceptacion.e2e.ts:94:7 › F1 · invitación por enlace de un solo uso › segundo uso en la web: el enlace consumido se sigue viendo «listo» pero la pantalla declara que no puede verificar la vigencia (58ms)
+  ✘   5 [chromium] › e2e/aceptacion/f2-aceptar.aceptacion.e2e.ts:20:7 › F2 · aceptar una solicitud (dos usuarios) › B aprueba con motivo, el estado persiste tras recargar y A ve su participación una sola vez (52ms)
+  ✘   6 [chromium] › e2e/aceptacion/f3-rechazar.aceptacion.e2e.ts:18:7 › F3 · rechazar una solicitud (dos usuarios) › B rechaza con motivo; no queda membresía; no se puede reabrir sin una nueva revisión (50ms)
+  ✘   7 [chromium] › e2e/aceptacion/f3-rechazar.aceptacion.e2e.ts:72:7 › F3 · rechazar una solicitud (dos usuarios) › el motivo de más de 1000 caracteres se rechaza en el campo y no se envía (49ms)
+  ✘   8 [chromium] › e2e/aceptacion/f3-rechazar.aceptacion.e2e.ts:87:7 › F3 · rechazar una solicitud (dos usuarios) › A no puede leer el expediente de su propia solicitud ni decidir sobre ella (separación de funciones) (4ms)
+  ✘   9 [chromium] › e2e/aceptacion/f3-rechazar.aceptacion.e2e.ts:95:7 › F3 · rechazar una solicitud (dos usuarios) › DESEADO: A ve el rechazo con su motivo (hoy no existe cómo) (4ms)
+  ✘  10 [chromium] › e2e/aceptacion/f4-limites.aceptacion.e2e.ts:11:7 › F4 · límites de la admisión › un operador sin permiso sobre admisiones no ve la sección ni puede abrirla; el servidor también lo rechaza (403) (48ms)
+  ✘  11 [chromium] › e2e/aceptacion/f4-limites.aceptacion.e2e.ts:31:7 › F4 · límites de la admisión › nadie resuelve su propia postulación ni se la propone: A (postulante) recibe 403 en ambas rutas (5ms)
+  ✘  12 [chromium] › e2e/aceptacion/f4-limites.aceptacion.e2e.ts:44:7 › F4 · límites de la admisión › doble resolución concurrente: dos pestañas de B con decisiones opuestas dejan UNA sola decisión (55ms)
+  ✘  13 [chromium] › e2e/aceptacion/f4-limites.aceptacion.e2e.ts:79:7 › F4 · límites de la admisión › respuesta perdida: B no la reenvía a ciegas, verifica, y el reintento con la MISMA clave no duplica (50ms)
+  ✘  14 [chromium] › e2e/aceptacion/f4-limites.aceptacion.e2e.ts:121:7 › F4 · límites de la admisión › el envío que nunca llegó: verificar no la encuentra y el reintento reutiliza la MISMA clave (51ms)
+  ✘  15 [chromium] › e2e/aceptacion/f4-limites.aceptacion.e2e.ts:145:7 › F4 · límites de la admisión › estados de la pantalla: cargando, vacío (sin propuesta) y error del servidor (49ms)
+  ✘  20 [chromium] › e2e/aceptacion/f5-retiro.aceptacion.e2e.ts:25:7 › F5 · retiro con doble aprobación (dos tesoreros) › quien pidió el retiro no lo aprueba; otra persona lo autoriza una sola vez y la tercera ve que ya no está en revisión (58ms)
+  ✘  21 [chromium] › e2e/aceptacion/f5-retiro.aceptacion.e2e.ts:84:7 › F5 · retiro con doble aprobación (dos tesoreros) › rechazar con motivo libera la orden y queda registrado; un campo de más no llega al servidor (49ms)
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+  17 failed
+  44 passed (29.0s)

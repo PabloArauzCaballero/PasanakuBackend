@@ -1,0 +1,29 @@
+$ (apps/backoffice) corepack yarn ng test --watch=false --include='src/app/rutas/operacion/**/*.a11y.spec.ts'   # HEAD 5a64c76f
+ ✓  backoffice  src/app/rutas/operacion/comun/bandejas-l1.a11y.spec.ts > Bandejas del lote L1 · accesibilidad > retiros: sin violaciones con la página cargada 320ms
+ ✓  backoffice  src/app/rutas/operacion/comun/bandejas-l1.a11y.spec.ts > Bandejas del lote L1 · accesibilidad > custodia (Tesorería): sin violaciones con la página cargada 269ms
+ ✓  backoffice  src/app/rutas/operacion/comun/bandejas-l1.a11y.spec.ts > Bandejas del lote L1 · accesibilidad > cierres (Contabilidad): sin violaciones con la página cargada 161ms
+ ✓  backoffice  src/app/rutas/operacion/comun/bandejas-l1.a11y.spec.ts > Bandejas del lote L1 · accesibilidad > reversos: sin violaciones con la página cargada 125ms
+ ✓  backoffice  src/app/rutas/operacion/comun/bandejas-l1.a11y.spec.ts > Bandejas del lote L1 · accesibilidad > desembolsos: sin violaciones con la página cargada 140ms
+ ✓  backoffice  src/app/rutas/operacion/comun/bandejas-l1.a11y.spec.ts > Bandejas del lote L1 · accesibilidad > retiros: sin violaciones con el error del servidor 92ms
+ ✓  backoffice  src/app/rutas/operacion/comun/bandejas-l1.a11y.spec.ts > Bandejas del lote L1 · accesibilidad > custodia (Tesorería): sin violaciones con el error del servidor 187ms
+ ✓  backoffice  src/app/rutas/operacion/comun/bandejas-l1.a11y.spec.ts > Bandejas del lote L1 · accesibilidad > cierres (Contabilidad): sin violaciones con el error del servidor 119ms
+ ✓  backoffice  src/app/rutas/operacion/comun/bandejas-l1.a11y.spec.ts > Bandejas del lote L1 · accesibilidad > reversos: sin violaciones con el error del servidor 114ms
+ ✓  backoffice  src/app/rutas/operacion/comun/bandejas-l1.a11y.spec.ts > Bandejas del lote L1 · accesibilidad > desembolsos: sin violaciones con el error del servidor 121ms
+ ✓  backoffice  src/app/rutas/operacion/comun/bandejas-l1.a11y.spec.ts > Bandejas del lote L1 · accesibilidad > respuesta a un reclamo: sin violaciones con la ficha y los errores de campo a la vista 27ms
+ ✓  backoffice  src/app/rutas/operacion/retiros/pantalla-de-aprobacion-de-retiro.a11y.spec.ts > PantallaDeAprobacionDeRetiro · accesibilidad (axe, [UI contra HTTP simulado]) > sin violaciones en el formulario inicial 93ms
+ ✓  backoffice  src/app/rutas/operacion/retiros/pantalla-de-aprobacion-de-retiro.a11y.spec.ts > PantallaDeAprobacionDeRetiro · accesibilidad (axe, [UI contra HTTP simulado]) > sin violaciones con los errores de campo a la vista 88ms
+ ✓  backoffice  src/app/rutas/operacion/retiros/pantalla-de-aprobacion-de-retiro.a11y.spec.ts > PantallaDeAprobacionDeRetiro · accesibilidad (axe, [UI contra HTTP simulado]) > sin violaciones con la decisión registrada 47ms
+ ✓  backoffice  src/app/rutas/operacion/retiros/pantalla-de-aprobacion-de-retiro.a11y.spec.ts > PantallaDeAprobacionDeRetiro · accesibilidad (axe, [UI contra HTTP simulado]) > sin violaciones con el rechazo del servidor (autoaprobación) 100ms
+ ✓  backoffice  src/app/rutas/operacion/retiros/pantalla-de-aprobacion-de-retiro.a11y.spec.ts > PantallaDeAprobacionDeRetiro · accesibilidad (axe, [UI contra HTTP simulado]) > sin violaciones con el envío sin confirmar 98ms
+ ✓  backoffice  src/app/rutas/operacion/estado/pantalla-de-estado.a11y.spec.ts > PantallaDeEstado · accesibilidad > sin violaciones serias, con la tabla virtualizada y los filtros ya renderizados 485ms
+ ✓  backoffice  src/app/rutas/operacion/billetera/pantalla-de-billetera.a11y.spec.ts > PantallaDeBilletera · accesibilidad > sin violaciones serias en el estado éxito 87ms
+ ✓  backoffice  src/app/rutas/operacion/billetera/pantalla-de-billetera.a11y.spec.ts > PantallaDeBilletera · accesibilidad > sin violaciones serias en el estado error 41ms
+ ✓  backoffice  src/app/rutas/operacion/billetera/pantalla-de-billetera.a11y.spec.ts > PantallaDeBilletera · accesibilidad > sin violaciones serias en el estado vacío 30ms
+ ✓  backoffice  src/app/rutas/operacion/billetera/pantalla-de-billetera.a11y.spec.ts > PantallaDeBilletera · accesibilidad > sin violaciones serias en el estado posiciones separadas (contrato pedido, doble) 84ms
+ ✓  backoffice  src/app/rutas/operacion/billetera/pantalla-de-billetera.a11y.spec.ts > PantallaDeBilletera · accesibilidad > sin violaciones serias en el estado comprometido mayor que el disponible (doble) 89ms
+ ✓  backoffice  src/app/rutas/operacion/billetera/pantalla-de-billetera.a11y.spec.ts > PantallaDeBilletera · accesibilidad > sin violaciones serias en el estado saldo incoherente (doble) 31ms
+ ✓  backoffice  src/app/rutas/operacion/reclamos/bandeja-de-reclamos.a11y.spec.ts > BandejaDeReclamos · accesibilidad > sin violaciones serias con la bandeja cargada 145ms
+ ✓  backoffice  src/app/rutas/operacion/solicitudes-escaladas/cola-de-solicitudes-escaladas.a11y.spec.ts > ColaDeSolicitudesEscaladas · accesibilidad > sin violaciones serias con la cola cargada 72ms
+ Test Files  6 passed (6)
+      Tests  25 passed (25)
+EXIT=0

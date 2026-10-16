@@ -28,9 +28,26 @@ export const PERMISOS_POR_SECCION: Readonly<Record<string, readonly string[]>> =
     'ENTREGA_AUTORIZAR',
     'ENTREGA_EJECUTAR',
     'REVERSO_AUTORIZAR',
+    // Carril B · L1: conciliación de custodia (CU-50) y cierre diario (CU-51) los exige el servidor por código de rol
+    // (`@Permiso("TESORERIA")`, `@Permiso("CONTABILIDAD")`); el token trae esos códigos (EmitirAcceso: permisos + roles vigentes).
+    // AUDITORIA_LEER NO se agrega: abriría Operación al administrador de plataforma (ver secciones.spec y AMB-B4 del plan).
+    'TESORERIA',
+    'CONTABILIDAD',
   ],
   // Verificación de identidad, alertas, casos, actas, habilitación de organizadores.
-  'ver:cumplimiento': ['VERIFICACION_RESOLVER', 'CUMPLIMIENTO_ALERTAS', 'CUMPLIMIENTO_CASOS', 'CUMPLIMIENTO_REPORTAR'],
+  // Carril B · L2: las colas de UIF, requerimientos, actas, continuidad, riesgo e incidentes (CU-43/45/94/56/54/55) las abre el
+  // ROL del plan §3 (oficial, riesgos, seguridad, auditor), no AUDITORIA_LEER: ese permiso lo tienen casi todos los roles y le
+  // abriría Cumplimiento a Tesorería y Contabilidad. Cada ruta vuelve a filtrar y el servidor decide.
+  'ver:cumplimiento': [
+    'VERIFICACION_RESOLVER',
+    'CUMPLIMIENTO_ALERTAS',
+    'CUMPLIMIENTO_CASOS',
+    'CUMPLIMIENTO_REPORTAR',
+    'OFICIAL_CUMPLIMIENTO',
+    'RESPONSABLE_RIESGOS',
+    'RESPONSABLE_SEGURIDAD',
+    'AUDITOR_INTERNO',
+  ],
   // Accesos y factores de operadores, catálogos, despliegues e interruptores.
   // Solicitudes de ingreso a grupos: resolver la admisión es de la plataforma (`@Permiso("ADMIN_PLATAFORMA")` en `grupos`).
   'ver:admisiones': ['ADMIN_PLATAFORMA'],
@@ -46,6 +63,10 @@ export const PERMISOS_POR_SECCION: Readonly<Record<string, readonly string[]>> =
     'CONTABILIDAD_ERP_REPORTES',
   ],
   'ver:publicidad': ['PUBLICIDAD_ANUNCIANTES', 'PUBLICIDAD_APROBAR_CAMPANA', 'PUBLICIDAD_LIQUIDAR', 'PUBLICIDAD_MODERAR'],
+  // Tarifario, mensajería y reportes: `listarTarifarios` pide TARIFARIO_PUBLICAR o AUDITORIA_LEER (tarifas.yaml); los listados de
+  // `notificaciones.yaml` y `auditoria.yaml` piden AUDITORIA_LEER. La sección la abren TARIFARIO_PUBLICAR y los roles a los que el
+  // plan §3 da Reportes (oficial, auditor, riesgos); AUDITORIA_LEER solo no la abre (lo tienen casi todos los roles).
+  'ver:configuracion': ['TARIFARIO_PUBLICAR', 'OFICIAL_CUMPLIMIENTO', 'AUDITOR_INTERNO', 'RESPONSABLE_RIESGOS'],
 }
 
 /**

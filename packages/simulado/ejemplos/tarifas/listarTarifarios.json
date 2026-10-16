@@ -1,0 +1,103 @@
+{
+  "servicio": "tarifas",
+  "operacion": "listarTarifarios",
+  "metodo": "get",
+  "ruta": "/tarifas/tarifarios",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "tarifarioId": "82677dba-1fa5-400e-8623-dc24ca20cbdc",
+            "codigo": "codigo",
+            "version": 1,
+            "nombre": "nombre",
+            "estado": "ARCHIVADO",
+            "monedaBase": "BOB",
+            "vigenteDesde": "2026-01-15T10:30:00Z",
+            "vigenteHasta": "2026-01-15T10:30:00Z",
+            "diasPreaviso": 1,
+            "publicadoEn": "2026-01-15T10:30:00Z",
+            "tarifarioAnteriorId": "d93a1fba-fcb7-4dee-858d-4254d5f17da8",
+            "aprobadoPor": "0549e41f-83c5-4065-8797-33b86890f048",
+            "actaAprobacion": "actaAprobacion",
+            "cambio": {
+              "cambioId": "9249be69-49d4-4309-8246-222a0dc1e217",
+              "tipoCambio": "ELIMINACION",
+              "requierePreaviso": true,
+              "diasPreaviso": 1,
+              "fechaAviso": "2026-01-15T10:30:00Z",
+              "canalAviso": "canalAviso",
+              "usuariosNotificados": 1,
+              "permiteRescisionSinCosto": true
+            },
+            "simulacion": {
+              "deltaIngresoEstimado": "4.44",
+              "usuariosImpactados": 1,
+              "ejecutadaEn": "2026-01-15T10:30:00Z"
+            }
+          }
+        ],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "93a6e057-885c-46c3-8bfa-96941c03571a"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "93a6e057-885c-46c3-8bfa-96941c03571a"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "tarifarioId": "82677dba-1fa5-400e-8623-dc24ca20cbdc",
+            "codigo": "codigo",
+            "version": 1,
+            "nombre": "nombre",
+            "estado": "ARCHIVADO",
+            "monedaBase": "BOB",
+            "vigenteDesde": "2026-01-15T10:30:00Z",
+            "vigenteHasta": "2026-01-15T10:30:00Z",
+            "diasPreaviso": 1,
+            "publicadoEn": "2026-01-15T10:30:00Z",
+            "tarifarioAnteriorId": "d93a1fba-fcb7-4dee-858d-4254d5f17da8",
+            "aprobadoPor": "0549e41f-83c5-4065-8797-33b86890f048",
+            "actaAprobacion": "actaAprobacion",
+            "cambio": {
+              "cambioId": "9249be69-49d4-4309-8246-222a0dc1e217",
+              "tipoCambio": "ELIMINACION",
+              "requierePreaviso": true,
+              "diasPreaviso": 1,
+              "fechaAviso": "2026-01-15T10:30:00Z",
+              "canalAviso": "canalAviso",
+              "usuariosNotificados": 1,
+              "permiteRescisionSinCosto": true
+            },
+            "simulacion": {
+              "deltaIngresoEstimado": "4.44",
+              "usuariosImpactados": 1,
+              "ejecutadaEn": "2026-01-15T10:30:00Z"
+            }
+          }
+        ],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "93a6e057-885c-46c3-8bfa-96941c03571a"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU34-01",
+        "mensaje": "Preaviso no cumplido",
+        "detalle": {},
+        "trazaId": "traza-listarTarifarios-rechazo"
+      }
+    }
+  }
+}

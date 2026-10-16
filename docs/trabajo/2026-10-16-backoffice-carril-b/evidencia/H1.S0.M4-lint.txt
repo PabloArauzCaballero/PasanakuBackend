@@ -1,0 +1,3 @@
+All files pass linting.
+  FALLA · ningún archivo de más de 200 líneas ['apps/backoffice/src/app/rutas/cumplimiento/verificaciones/pantalla-de-expedientes.ts (209)']
+1 FALLAS

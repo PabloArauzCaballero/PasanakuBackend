@@ -9,21 +9,11 @@ import { GATEWAY } from '../../../nucleo/gateway'
 import { erroresInterceptor } from '../../../nucleo/errores.interceptor'
 import { Sesion } from '../../../nucleo/sesion'
 import { BandejaDeReclamos } from './bandeja-de-reclamos'
-import type { ReclamoDeBandeja } from '../dominio/cu52-reclamos'
+import { ejemploDe } from '@aportaya/simulado'
 
 const URL = 'http://gw/api/v1/reclamos'
-const RECLAMO: ReclamoDeBandeja = {
-  reclamoId: 'r-1',
-  codigo: 'REC-2026-08-0157',
-  categoria: 'COMISION',
-  canalIngreso: 'APP',
-  fechaIngreso: '2026-08-01T10:00:00-04:00',
-  plazoRespuesta: '2026-08-06T10:00:00-04:00',
-  diasHabilesPlazo: 5,
-  estado: 'EN_ANALISIS',
-  responsableId: 'op-1',
-  responsableNombre: 'Ana',
-}
+/** Página del ejemplo generado del contrato (`listarBandejaDeReclamos`, sintético). */
+const PAGINA = ejemploDe('cumplimiento', 'listarBandejaDeReclamos', 'ok').cuerpo as object
 
 describe('BandejaDeReclamos · accesibilidad', () => {
   let http: HttpTestingController
@@ -39,7 +29,8 @@ describe('BandejaDeReclamos · accesibilidad', () => {
     TestBed.inject(Sesion).abrir('t', ['RECLAMO_VER', 'RECLAMO_ATENDER'], 'operador')
     const fixture = TestBed.createComponent(BandejaDeReclamos)
     fixture.detectChanges()
-    http.expectOne(URL).flush([RECLAMO])
+    http.expectOne((r) => r.url === URL).flush(PAGINA)
+    await new Promise((r) => setTimeout(r, 0))
     await fixture.whenStable()
     expect(await axe(fixture.nativeElement)).toHaveNoViolations()
   })

@@ -1,0 +1,65 @@
+{
+  "servicio": "cumplimiento",
+  "operacion": "listarPruebasDeContinuidad",
+  "metodo": "get",
+  "ruta": "/cumplimiento/continuidad/pruebas",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "pruebaId": "5f396281-74b3-4a27-8b8a-c8a6d3ed0ca8",
+            "planContinuidadId": "4c239de5-5601-496b-8a22-448ea2257750",
+            "actaComiteId": "571e0e7c-721b-4fcc-8505-b1b0c939ce48",
+            "ejecutadaPor": "39c3d846-3625-4440-8fe6-bc066fe93c86",
+            "tipo": "ESCRITORIO",
+            "fecha": "2026-01-15",
+            "rtoMinutos": 1,
+            "rpoMinutos": 1,
+            "resultado": "EXITOSA"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "4b599170-2f6b-438e-8432-c2fe7ac4e4fe"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "4b599170-2f6b-438e-8432-c2fe7ac4e4fe"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "pruebaId": "5f396281-74b3-4a27-8b8a-c8a6d3ed0ca8",
+            "planContinuidadId": "4c239de5-5601-496b-8a22-448ea2257750",
+            "actaComiteId": "571e0e7c-721b-4fcc-8505-b1b0c939ce48",
+            "ejecutadaPor": "39c3d846-3625-4440-8fe6-bc066fe93c86",
+            "tipo": "ESCRITORIO",
+            "fecha": "2026-01-15",
+            "rtoMinutos": 1,
+            "rpoMinutos": 1,
+            "resultado": "EXITOSA"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "4b599170-2f6b-438e-8432-c2fe7ac4e4fe"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU56-04",
+        "mensaje": "Filtro de listado invalido",
+        "detalle": {},
+        "trazaId": "traza-listarPruebasDeContinuidad-rechazo"
+      }
+    }
+  }
+}

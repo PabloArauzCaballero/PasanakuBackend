@@ -11,23 +11,25 @@ import { Sesion } from '../../../nucleo/sesion'
 import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
 import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
 import { cargadorDeActivos, crearDepreciacion, motivoParaNoDepreciar, type ActivoFijo } from '../dominio/cu105-activos'
+import { EstadoDeListado, observarListado } from '../listado/estado-de-listado'
 import { textosContabilidad } from '../textos'
 import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
 import type { ErrorTraducido } from '../../../nucleo/errores'
 
 const COLUMNAS: ColumnaVirtual<ActivoFijo>[] = [
-  { clave: 'codigo', titulo: 'Código', ordenable: true },
+  { clave: 'codigo', titulo: 'Código' },
   { clave: 'descripcion', titulo: 'Descripción', ancho: '2' },
   { clave: 'categoriaNombre', titulo: 'Categoría' },
-  { clave: 'costoAdquisicion', titulo: 'Costo', numerica: true, ordenable: true },
+  { clave: 'costoAdquisicion', titulo: 'Costo', numerica: true },
   { clave: 'depreciacionAcumulada', titulo: 'Depreciación acumulada', numerica: true },
-  { clave: 'valorEnLibros', titulo: 'Valor en libros', numerica: true, ordenable: true },
+  { clave: 'valorEnLibros', titulo: 'Valor en libros', numerica: true },
   { clave: 'estado', titulo: 'Estado' },
   { clave: 'activoFijoId', titulo: 'Depreciación' },
 ]
 
 /**
- * CU-105 · Inventario de activos fijos, sobre `TablaDeDatosVirtualizada` (la del shell).
+ * CU-105 · Inventario de activos fijos, sobre `TablaDeDatosVirtualizada` (la del shell), paginado por cursor en el orden
+ * del servidor (adquisición más reciente primero).
  * `valor_en_libros` es columna `GENERATED` en la base: se muestra tal como vino, **no se
  * recalcula acá**, y como todo importe pasa por el átomo `Monto`.
  *
@@ -37,18 +39,19 @@ const COLUMNAS: ColumnaVirtual<ActivoFijo>[] = [
 @Component({
   selector: 'ap-pantalla-de-activos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ErrorDeEnvio, BandaDeProposito, BarraDeFiltros, Boton, ChipEstado, Monto, TablaDeDatosVirtualizada],
+  imports: [ErrorDeEnvio, BandaDeProposito, BarraDeFiltros, Boton, ChipEstado, EstadoDeListado, Monto, TablaDeDatosVirtualizada],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
       <ap-error-de-envio [error]="errorDeEnvio()" />
       <ap-barra-de-filtros etiqueta="Estado" [incluirBusqueda]="false" [definiciones]="filtros" />
+      <ap-estado-de-listado [error]="listado.error()" [vacio]="listado.vacio()" [mensajeVacio]="t.enCero" [filtrado]="!!filtrosActivos()['estado']" />
       <ap-tabla-de-datos-virtualizada
         [titulo]="t.titulo"
         [columnas]="COLUMNAS"
-        [cargador]="cargador"
-        [ordenPermitido]="['codigo', 'costoAdquisicion', 'valorEnLibros']"
+        [cargador]="listado.cargador"
+        [ordenPermitido]="[]"
         [identidad]="identidad"
         [filtros]="filtrosActivos()"
       >
@@ -91,7 +94,7 @@ export class PantallaDeActivos {
   protected readonly t = textosContabilidad.activos
   protected readonly COLUMNAS = COLUMNAS
   readonly periodoVigenteId = input.required<string>()
-  protected readonly cargador = cargadorDeActivos()
+  protected readonly listado = observarListado(cargadorDeActivos(), textosContabilidad.erroresDeListado)
   protected readonly identidad = (a: ActivoFijo) => a.activoFijoId
   protected readonly etiqueta = (a: ActivoFijo) => this.t.estados[a.estado]
   protected readonly enviando = signal<string | null>(null)

@@ -1,0 +1,17 @@
+Application bundle generation complete. [2.586 seconds] - 2026-10-16T22:08:09.952Z
+ RUN  v4.1.11 /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/bo-l2-cumplimiento/apps/backoffice
+ ✓  backoffice  src/app/rutas/cumplimiento/compartido/contenedores.spec.ts > contenedores sin contrato · indisponibilidad honesta > CU-97: la alerta de riesgo temprano no inventa hechos ni un grupo de ejemplo, y lleva a la bandeja real 47ms
+ ✓  backoffice  src/app/rutas/cumplimiento/compartido/contenedores.spec.ts > contenedores sin contrato · indisponibilidad honesta > CU-94: el acta no arma asistentes de ejemplo y lleva a la lista de actas 7ms
+ ✓  backoffice  src/app/rutas/cumplimiento/compartido/contenedores.spec.ts > contenedores sin contrato · indisponibilidad honesta > CU-52: el reclamo no muestra un plazo inventado ni un botón que no envía; lleva a Operación 7ms
+ ✓  backoffice  src/app/rutas/cumplimiento/dominio/paginas.spec.ts > pedirPagina · familia H9 (antesDe / antesDeId, estados con explode: true) > correcto: estados repetidos, cursor completo y próximo par devuelto como cursor 7ms
+ ✓  backoffice  src/app/rutas/cumplimiento/dominio/paginas.spec.ts > pedirPagina · familia H9 (antesDe / antesDeId, estados con explode: true) > límite: sin próximo par, no hay siguiente página 4ms
+ ✓  backoffice  src/app/rutas/cumplimiento/dominio/paginas.spec.ts > pedirPagina · familia H9 (antesDe / antesDeId, estados con explode: true) > inválido: un cursor a medias del servidor (solo la fecha) no se usa: nunca se manda medio cursor 4ms
+ ✓  backoffice  src/app/rutas/cumplimiento/compartido/acceso.spec.ts > acceso · espejo de GuardiaDePermiso (rol o permiso) > un código alcanza si es el ROL de la sesión o si está entre sus permisos 1ms
+ ✓  backoffice  src/app/rutas/cumplimiento/compartido/acceso.spec.ts > acceso · espejo de GuardiaDePermiso (rol o permiso) > sin ninguno de los códigos, la ruta no monta y se vuelve al tablero 1ms
+ ✓  backoffice  src/app/rutas/cumplimiento/compartido/acceso.spec.ts > acceso · espejo de GuardiaDePermiso (rol o permiso) > cada bandeja nueva pide exactamente los códigos de su operación en cumplimiento.yaml 2ms
+ ✓  backoffice  src/app/rutas/cumplimiento/compartido/acceso.spec.ts > acceso · espejo de GuardiaDePermiso (rol o permiso) > la navegación de la sección ofrece solo lo que la sesión puede abrir 1ms
+ Test Files  3 passed (3)
+      Tests  10 passed (10)
+   Start at  18:08:10
+   Duration  804ms (transform 89ms, setup 180ms, import 124ms, tests 84ms, environment 330ms)
+exit 0

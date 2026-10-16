@@ -1,0 +1,65 @@
+{
+  "servicio": "cumplimiento",
+  "operacion": "listarBandejaDeAlertas",
+  "metodo": "get",
+  "ruta": "/cumplimiento/alertas",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "alertaId": "9399cd56-2e01-4686-8426-7c430c19bc3d",
+            "reglaCodigo": "reglaCodigo",
+            "tipologia": "tipologia",
+            "severidad": "CRITICA",
+            "estado": "ABIERTA",
+            "detectadaEn": "2026-01-15T10:30:00Z",
+            "asignadaA": "3531b8e7-dead-4311-8146-3f40a13df6bf",
+            "casoId": "cf23d3f5-13b3-442d-8236-ff828e2d7a82",
+            "cerradaEn": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoFecha": "2026-01-15T10:30:00Z",
+        "proximoId": "ebb87bcf-c810-4075-83a8-6bbab3c88c44"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoFecha": "2026-01-15T10:30:00Z",
+        "proximoId": "ebb87bcf-c810-4075-83a8-6bbab3c88c44"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "alertaId": "9399cd56-2e01-4686-8426-7c430c19bc3d",
+            "reglaCodigo": "reglaCodigo",
+            "tipologia": "tipologia",
+            "severidad": "CRITICA",
+            "estado": "ABIERTA",
+            "detectadaEn": "2026-01-15T10:30:00Z",
+            "asignadaA": "3531b8e7-dead-4311-8146-3f40a13df6bf",
+            "casoId": "cf23d3f5-13b3-442d-8236-ff828e2d7a82",
+            "cerradaEn": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoFecha": "2026-01-15T10:30:00Z",
+        "proximoId": "ebb87bcf-c810-4075-83a8-6bbab3c88c44"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU44-05",
+        "mensaje": "Filtro de bandeja invalido",
+        "detalle": {},
+        "trazaId": "traza-listarBandejaDeAlertas-rechazo"
+      }
+    }
+  }
+}

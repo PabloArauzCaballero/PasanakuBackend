@@ -19,7 +19,7 @@ import type { ErrorTraducido } from '../../../nucleo/errores'
   imports: [ErrorDeEnvio, CampoMonto, Dialogo, GrupoRadio, Monto],
   template: `
     <ap-dialogo
-      [titulo]="t.cobrar + ' · ' + cuenta().origenTipo"
+      [titulo]="t.cobrar + ' · ' + t.origenes[cuenta().origenTipo]"
       [textoDeConfirmar]="t.cobrar + ' de ' + cuenta().terceroRazonSocial"
       [cargando]="enviando()"
       [abierto]="abierto()"
@@ -28,7 +28,7 @@ import type { ErrorTraducido } from '../../../nucleo/errores'
       (confirmar)="confirmar()"
       (cancelar)="cambiarApertura(false)"
     >
-      <p>{{ t.confirmarCobro(cuenta().origenTipo) }}</p>
+      <p>{{ t.confirmarCobro(t.origenes[cuenta().origenTipo]) }}</p>
       <p class="saldo">
         {{ t.saldoPendiente }}:
         <ap-monto [monto]="cuenta().saldoPendiente.monto" [moneda]="cuenta().saldoPendiente.moneda" [etiqueta]="t.saldoPendiente" />

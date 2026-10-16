@@ -13,43 +13,51 @@ import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-v
 import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
 import { cargadorDeCuentas, motivoParaNoCobrar, type CuentaPorCobrar } from '../dominio/cu104-cobros'
 import { FichaDeCobro } from './ficha-de-cobro'
+import { EstadoDeListado, observarListado } from '../listado/estado-de-listado'
 import { textosContabilidad } from '../textos'
 
 const COLUMNAS: ColumnaVirtual<CuentaPorCobrar>[] = [
-  { clave: 'origenTipo', titulo: 'Origen', ordenable: true },
-  { clave: 'terceroRazonSocial', titulo: 'Tercero', ordenable: true },
-  { clave: 'fechaVencimiento', titulo: 'Vence', ordenable: true },
-  { clave: 'monto', titulo: 'Monto', numerica: true, ordenable: true },
+  { clave: 'origenTipo', titulo: 'Origen' },
+  { clave: 'terceroRazonSocial', titulo: 'Tercero' },
+  { clave: 'fechaVencimiento', titulo: 'Vence' },
+  { clave: 'monto', titulo: 'Monto', numerica: true },
   { clave: 'saldoPendiente', titulo: 'Saldo pendiente', numerica: true },
   { clave: 'estado', titulo: 'Estado' },
   { clave: 'cuentaPorCobrarId', titulo: 'Cobro' },
 ]
 
 /**
- * CU-104 · Cuentas por cobrar, sobre `TablaDeDatosVirtualizada` (la del shell), ordenada
- * por vencimiento desde el `cargador`. Una cuenta `INCOBRABLE` no ofrece cobrar: muestra
+ * CU-104 · Cuentas por cobrar, sobre `TablaDeDatosVirtualizada` (la del shell), paginada
+ * por cursor en el orden del servidor (vencimiento descendente). Una cuenta `INCOBRABLE` no ofrece cobrar: muestra
  * el motivo, porque el `AP-CU104-03` del backend tiene que confirmar la decisión, no
  * explicarla por primera vez.
  */
 @Component({
   selector: 'ap-pantalla-de-cobros',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, BarraDeFiltros, Boton, ChipEstado, Fecha, Monto, TablaDeDatosVirtualizada, FichaDeCobro],
+  imports: [BandaDeProposito, BarraDeFiltros, Boton, ChipEstado, EstadoDeListado, Fecha, Monto, TablaDeDatosVirtualizada, FichaDeCobro],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
       <h1>{{ t.titulo }}</h1>
       <ap-barra-de-filtros etiqueta="Estado" [incluirBusqueda]="false" [definiciones]="filtros" />
+      <ap-estado-de-listado [error]="listado.error()" [vacio]="listado.vacio()" [mensajeVacio]="t.enCero" [filtrado]="!!filtrosActivos()['estado']" />
       <ap-tabla-de-datos-virtualizada
         [titulo]="t.titulo"
         [columnas]="COLUMNAS"
-        [cargador]="cargador"
-        [ordenPermitido]="['origenTipo', 'terceroRazonSocial', 'fechaVencimiento', 'monto']"
+        [cargador]="listado.cargador"
+        [ordenPermitido]="[]"
         [identidad]="identidad"
         [filtros]="filtrosActivos()"
       >
         <ng-template #celda let-c let-columna="columna">
           @switch (columna.clave) {
+            @case ('origenTipo') {
+              {{ origen(c) }}
+            }
+            @case ('terceroRazonSocial') {
+              {{ c.terceroRazonSocial ?? t.sinTercero }}
+            }
             @case ('fechaVencimiento') {
               <ap-fecha [iso]="c.fechaVencimiento" [conHora]="false" />
             }
@@ -90,7 +98,8 @@ const COLUMNAS: ColumnaVirtual<CuentaPorCobrar>[] = [
 export class PantallaDeCobros {
   protected readonly t = textosContabilidad.cobros
   protected readonly COLUMNAS = COLUMNAS
-  protected readonly cargador = cargadorDeCuentas()
+  protected readonly origen = (c: CuentaPorCobrar) => this.t.origenes[c.origenTipo]
+  protected readonly listado = observarListado(cargadorDeCuentas(), textosContabilidad.erroresDeListado)
   protected readonly identidad = (c: CuentaPorCobrar) => c.cuentaPorCobrarId
   protected readonly etiqueta = (c: CuentaPorCobrar) => this.t.estados[c.estado]
   protected readonly elegida = signal<CuentaPorCobrar | null>(null)

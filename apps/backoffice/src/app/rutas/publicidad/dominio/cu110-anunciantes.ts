@@ -3,7 +3,8 @@ import { inject } from '@angular/core'
 import { firstValueFrom } from 'rxjs'
 import { GATEWAY } from '../../../nucleo/gateway'
 import { contextoIdempotente } from '../../../nucleo/idempotencia.interceptor'
-import type { CargadorDePagina, PaginaServidor } from '../../../nucleo/tabla/tipos'
+import type { CargadorDePagina } from '../../../nucleo/tabla/tipos'
+import { cargadorPublicidadPorCursor, type Dinero } from './contrato-publicidad'
 import type { EntradaAnunciante } from 'clientes/angular/publicidad/model/entradaAnunciante'
 import type { SalidaAnunciante } from 'clientes/angular/publicidad/model/salidaAnunciante'
 import type { EntradaSocio } from 'clientes/angular/publicidad/model/entradaSocio'
@@ -12,34 +13,29 @@ import type { SalidaSocio } from 'clientes/angular/publicidad/model/salidaSocio'
 /**
  * CU-110 · Dar de alta un anunciante y su cuenta publicitaria.
  *
- * **Supuesto declarado**: `servicios/publicidad/openapi/publicidad.yaml` publica
- * `POST /publicidad/anunciantes` pero no un `GET` de listado — mismo hueco que ya
- * declaró `B1` para D-15 (`d15-solicitudes-escaladas.ts`). Se asume, con el mismo
- * criterio, `GET /publicidad/anunciantes` como extensión natural del recurso que el
- * POST ya define. Cuando el contrato real lo publique, solo cambia este archivo.
+ * Contrato real: `GET /publicidad/anunciantes` (`listarAnunciantes`, cursor (creadoEn, id) descendente, exige
+ * `PUBLICIDAD_ANUNCIANTES`) y `POST /publicidad/anunciantes` (`darDeAltaAnunciante`). El listado trae la razón social de
+ * facturación y la cuenta publicitaria con su límite; no trae datos personales del organizador ni del socio.
  */
-export type Anunciante = SalidaAnunciante & {
-  tipo: EntradaAnunciante['tipo']
+export type EstadoAnunciante = 'ACTIVO' | 'SUSPENDIDO' | 'DADO_DE_BAJA'
+export type EstadoCuentaPublicitaria = 'ACTIVA' | 'SUSPENDIDA' | 'CERRADA'
+
+/** `AnuncianteEnLista` de `publicidad.yaml`. El límite es `Dinero` con su moneda, o `null` si la cuenta no tiene techo. */
+export type Anunciante = {
+  anuncianteId: string
+  tipo: 'ORGANIZADOR' | 'SOCIO_COMERCIAL'
   razonSocialFacturacion: string
-  moneda: EntradaAnunciante['moneda']
-  limiteGastoMensual: string | null
-  estado: 'ACTIVA' | 'SUSPENDIDA'
+  estado: EstadoAnunciante
+  creadoEn: string
+  cuentaPublicitariaId?: string | null
+  estadoCuenta?: EstadoCuentaPublicitaria | null
+  limiteGastoMensual?: Dinero | null
 }
 
 export function cargarAnunciantes(http: HttpClient, gateway: string): CargadorDePagina<Anunciante> {
-  return async (pedido) => {
-    const todos = await firstValueFrom(http.get<Anunciante[]>(`${gateway}/publicidad/anunciantes`))
-    const ordenados = pedido.orden
-      ? [...todos].sort((a, b) => {
-          const clave = pedido.orden!.clave as keyof Anunciante
-          const [va, vb] = [String(a[clave] ?? ''), String(b[clave] ?? '')]
-          return pedido.orden!.sentido === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va)
-        })
-      : todos
-    const inicio = (pedido.pagina - 1) * pedido.tamano
-    const pagina: PaginaServidor<Anunciante> = { filas: ordenados.slice(inicio, inicio + pedido.tamano), total: ordenados.length }
-    return pagina
-  }
+  return cargadorPublicidadPorCursor<Anunciante>(http, `${gateway}/publicidad/anunciantes`, (filtros, params) =>
+    filtros['estado'] ? params.set('estados', filtros['estado']) : params,
+  )
 }
 
 export function cargadorDeAnunciantes(): CargadorDePagina<Anunciante> {

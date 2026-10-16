@@ -1,0 +1,94 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "conciliarCustodia",
+  "metodo": "post",
+  "ruta": "/custodia/conciliaciones",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "conciliacionId": "8ad21c0a-772e-46c0-8203-1536020112ca",
+        "saldoEmitido": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "ratioCobertura": "ratioCobertura",
+        "cumpleEncaje": true,
+        "diferencia": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "estado": "CUADRADA"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "conciliacionId": "8ad21c0a-772e-46c0-8203-1536020112ca",
+        "saldoEmitido": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "ratioCobertura": "ratioCobertura",
+        "cumpleEncaje": false,
+        "diferencia": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "estado": "CUADRADA"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "conciliacionId": "8ad21c0a-772e-46c0-8203-1536020112ca",
+        "saldoEmitido": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "ratioCobertura": "ratioCobertura",
+        "cumpleEncaje": true,
+        "diferencia": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "estado": "CUADRADA"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "conciliacionId": "8ad21c0a-772e-46c0-8203-1536020112ca",
+        "saldoEmitido": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "ratioCobertura": "ratioCobertura",
+        "cumpleEncaje": true,
+        "diferencia": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "estado": "CUADRADA"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU50-01",
+        "mensaje": "Sin cierres diarios",
+        "detalle": {},
+        "trazaId": "traza-conciliarCustodia-rechazo"
+      }
+    }
+  }
+}

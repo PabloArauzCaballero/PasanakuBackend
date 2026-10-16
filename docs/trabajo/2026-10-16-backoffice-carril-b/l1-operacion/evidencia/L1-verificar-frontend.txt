@@ -1,0 +1,21 @@
+$ python3 scripts/verificar_frontend.py backoffice   # HEAD 5a64c76f
+=== apps/backoffice (Angular) ===
+  OK    · sin red en vista 
+  OK    · sin literal de diseño 
+  OK    · sin formato de dinero 
+  OK    · sin console 
+  FALLA · ningún archivo de más de 200 líneas ['apps/backoffice/src/app/rutas/cumplimiento/verificaciones/pantalla-de-expedientes.ts (209)']
+=== packages/tutoriales (Angular) ===
+  OK    · sin red fuera del puerto 
+  OK    · sin literal de diseño 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+  OK    · sin literal de diseño en @aportaya/ui 
+
+1 FALLAS
+EXIT=1
+
+# La única FALLA es preexistente y fuera del lote L1 (último commit que tocó el archivo):
+82fc28fe feat(backoffice): mostrar teléfono y buscar expedientes KYC
+# Archivos de rutas/cumplimiento tocados por L1 desde la base e3909ef3:
+       0

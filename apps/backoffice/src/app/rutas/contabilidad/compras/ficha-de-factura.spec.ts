@@ -11,6 +11,7 @@ import { FichaDeFactura } from './ficha-de-factura'
 const FACTURA: FacturaDeProveedor = {
   facturaProveedorId: 'fac-1',
   numeroFactura: 'F-0001',
+  terceroComercialId: 't-1',
   terceroRazonSocial: 'Proveedor de prueba',
   ordenCompraId: null,
   fechaEmision: '2026-09-01',
@@ -19,7 +20,6 @@ const FACTURA: FacturaDeProveedor = {
   monto: { monto: '500.00', moneda: 'BOB' },
   montoPagado: { monto: '0.00', moneda: 'BOB' },
   saldoPendiente: { monto: '500.00', moneda: 'BOB' },
-  aprobadaPor: 'otra-cuenta',
   aprobadaPorLaSesion: false,
   asientoContableId: null,
 }

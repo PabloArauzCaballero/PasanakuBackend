@@ -10,9 +10,10 @@ import { capturar } from './apoyo/capturas-f2'
  * doble envío—, no que el servidor real no duplique.
  */
 const CUENTA = {
-  cuentaPorCobrarId: 'cxc-1',
-  origenTipo: 'GRUPO',
-  origenId: 'g-1',
+  cuentaPorCobrarId: 'c0000000-0000-4000-8000-000000000001',
+  origenTipo: 'OTRO',
+  origenId: 'c0000000-0000-4000-8000-000000000002',
+  terceroComercialId: null,
   terceroRazonSocial: 'Tercero de prueba',
   fechaVencimiento: '2026-10-20',
   estado: 'PENDIENTE',
@@ -24,8 +25,11 @@ type Mundo = { llamadas: { clave: string | null; cuerpo: unknown }[]; registrado
 const nuevo = (): Mundo => ({ llamadas: [], registrados: new Map(), modo: 'ok' })
 
 async function simular(page: Page, mundo: Mundo): Promise<void> {
-  await page.route('**/api/v1/erp/cuentas-por-cobrar', (r: Route) => r.fulfill({ status: 200, json: [CUENTA] }))
-  await page.route('**/api/v1/erp/cuentas-por-cobrar/cxc-1/cobros', async (r: Route) => {
+  // Listado con la forma del contrato (`PaginaDeCuentasPorCobrar`, erp.yaml): página por cursor; la URL lleva `limite` en la query.
+  await page.route((u) => u.pathname.endsWith('/api/v1/erp/cuentas-por-cobrar'), (r: Route) =>
+    r.fulfill({ status: 200, json: { items: [CUENTA], proximoAntesDe: null, proximoAntesDeId: null } }),
+  )
+  await page.route(`**/api/v1/erp/cuentas-por-cobrar/${CUENTA.cuentaPorCobrarId}/cobros`, async (r: Route) => {
     const clave = r.request().headers()['idempotency-key'] ?? null
     mundo.llamadas.push({ clave, cuerpo: r.request().postDataJSON() })
     if (mundo.modo === 'no-llega') return r.abort('connectionreset')
@@ -126,8 +130,8 @@ test.describe('[doble del servidor] cobro: éxito no confirmado, corte, sin cone
   test('rechazo del servidor (422): dice que NO se completó, con el código de seguimiento, y no promete nada sobre repetir', async ({ page }) => {
     const mundo = nuevo()
     await abrirElCobro(page, mundo)
-    await page.unroute('**/api/v1/erp/cuentas-por-cobrar/cxc-1/cobros')
-    await page.route('**/api/v1/erp/cuentas-por-cobrar/cxc-1/cobros', (r) =>
+    await page.unroute('**/api/v1/erp/cuentas-por-cobrar/c0000000-0000-4000-8000-000000000001/cobros')
+    await page.route('**/api/v1/erp/cuentas-por-cobrar/c0000000-0000-4000-8000-000000000001/cobros', (r) =>
       r.fulfill({ status: 422, json: { codigo: 'AP-CU104-02', mensaje: 'tecnico', trazaId: 'traza-f2-422' } }),
     )
     await escribirMonto(page, '90,00')

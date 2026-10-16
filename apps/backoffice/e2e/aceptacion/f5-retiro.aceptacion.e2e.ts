@@ -7,13 +7,14 @@ import { BASE_API, MODO } from './apoyo/entorno'
  * F5 · RETIRO CON DOBLE APROBACIÓN (CU-11, `aprobarRetiro`, permiso RETIRO_APROBAR, ADR-049). Dos personas de tesorería, cada una en una
  * sesión independiente del backoffice.
  *
- * `VERIFIED_FUNCTIONAL_ONLY` y solo contra el DOBLE con estado: `nucleo-financiero` no publica un listado ni una consulta de órdenes en
- * revisión, así que sembrar una orden «EN_REVISION» real exige un retiro por encima del umbral con MFA y fondos (carril G). Lo que SÍ se
+ * `VERIFIED_FUNCTIONAL_ONLY` y solo contra el DOBLE con estado: sembrar una orden «EN_REVISION» real exige un retiro por encima del
+ * umbral con MFA y fondos (carril G). La bandeja `GET /billetera/retiros` ya existe (carril A · H2); la decisión se abre por enlace
+ * profundo `operacion/retiros/:ordenId`, con la orden fijada por la ruta (carril B · L1). Lo que SÍ se
  * prueba acá es la pantalla y su contrato: entrada estricta (sin campos de más), la segregación (quien pidió no aprueba), la carrera
  * (el segundo recibe 409, nunca un doble efecto) y que el rechazo con motivo queda registrado.
  */
 test.describe('F5 · retiro con doble aprobación (dos tesoreros)', () => {
-  test.fixme(MODO === 'real', 'BLOQUEADO en modo real: no hay cómo sembrar una orden de retiro en revisión (sin listado ni alta de prueba en nucleo-financiero)')
+  test.fixme(MODO === 'real', 'BLOQUEADO en modo real: no hay cómo sembrar una orden de retiro en revisión (sin alta de prueba en nucleo-financiero)')
 
   async function orden(solicitadaPor: string): Promise<string> {
     const r = await fetch(`${BASE_API}/__doble/retiro`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ solicitadaPor }) })
@@ -28,19 +29,18 @@ test.describe('F5 · retiro con doble aprobación (dos tesoreros)', () => {
     const ordenId = await orden(t1.id!)
 
     // Quien pidió el retiro (t1) abre la pantalla, ve su alcance y el servidor le dice que no.
-    await ingresarBackoffice(b.page, t1, '/operacion/retiros')
+    await ingresarBackoffice(b.page, t1, `/operacion/retiros/${ordenId}`)
     await expect(b.page.getByRole('heading', { name: 'Aprobar o rechazar un retiro' })).toBeVisible()
-    await expect(b.page.getByText('Todavía no hay un listado de retiros en revisión')).toBeVisible()
+    await expect(b.page.getByLabel(/Identificador de la orden de retiro/), 'la orden la fija la ruta').toHaveValue(ordenId)
+    await expect(b.page.getByLabel(/Identificador de la orden de retiro/)).toBeDisabled()
     await capturarEstado(b.page, 'F5', 'b-retiro-formulario')
 
     const marca = b.obs.marca()
     await b.page.getByRole('button', { name: 'Registrar mi decisión' }).click()
-    await expect(b.page.getByText('no tiene el formato de una orden de retiro')).toBeVisible()
     await expect(b.page.getByText('Elegí si autorizás o rechazás')).toBeVisible()
-    expect(b.obs.peticiones.slice(marca).filter((p) => p.metodo === 'POST'), 'el formulario vacío no llega al servidor').toEqual([])
+    expect(b.obs.peticiones.slice(marca).filter((p) => p.metodo === 'POST'), 'el formulario sin decisión no llega al servidor').toEqual([])
     await capturarEstado(b.page, 'F5', 'b-retiro-errores-por-campo', { viewports: ['movil', 'escritorio'] })
 
-    await b.page.getByLabel(/Identificador de la orden de retiro/).fill(ordenId)
     await b.page.getByLabel('Autorizar el retiro', { exact: true }).check({ force: true })
     await b.page.getByRole('button', { name: 'Registrar mi decisión' }).click()
     await expect(b.page.getByText('No podés resolver un retiro que pediste vos')).toBeVisible()
@@ -50,8 +50,7 @@ test.describe('F5 · retiro con doble aprobación (dos tesoreros)', () => {
 
     // La segunda persona (t2), en una sesión nueva, autoriza. Sin motivo: el cuerpo lleva solo `desenlace`.
     await b.page.reload()
-    await ingresarBackoffice(b.page, t2, '/operacion/retiros')
-    await b.page.getByLabel(/Identificador de la orden de retiro/).fill(ordenId)
+    await ingresarBackoffice(b.page, t2, `/operacion/retiros/${ordenId}`)
     await b.page.getByLabel('Autorizar el retiro', { exact: true }).check({ force: true })
     const desde = b.obs.marca()
     await b.page.getByRole('button', { name: 'Registrar mi decisión' }).dblclick()
@@ -70,8 +69,7 @@ test.describe('F5 · retiro con doble aprobación (dos tesoreros)', () => {
     expect((await c2.enviar('POST', `billetera/retiros/${otraOrden}/aprobacion`, { desenlace: 'AUTORIZADA' }, crypto.randomUUID())).estado).toBe(200)
     await c2.cerrar()
     await b.page.reload()
-    await ingresarBackoffice(b.page, t1, '/operacion/retiros')
-    await b.page.getByLabel(/Identificador de la orden de retiro/).fill(otraOrden)
+    await ingresarBackoffice(b.page, t1, `/operacion/retiros/${otraOrden}`)
     await b.page.getByLabel('Rechazar el retiro', { exact: true }).check({ force: true })
     await b.page.getByLabel(/Motivo/).fill('Titular no coincide con la cuenta de destino.')
     await b.page.getByRole('button', { name: 'Registrar mi decisión' }).click()
@@ -84,8 +82,7 @@ test.describe('F5 · retiro con doble aprobación (dos tesoreros)', () => {
   test('rechazar con motivo libera la orden y queda registrado; un campo de más no llega al servidor', async ({ b, mundo }) => {
     const t1 = mundo.tesoreria!
     const ordenId = await orden(mundo.operador.id!)
-    await ingresarBackoffice(b.page, t1, '/operacion/retiros')
-    await b.page.getByLabel(/Identificador de la orden de retiro/).fill(ordenId)
+    await ingresarBackoffice(b.page, t1, `/operacion/retiros/${ordenId}`)
     await b.page.getByLabel('Rechazar el retiro', { exact: true }).check({ force: true })
     await b.page.getByLabel(/Motivo/).fill('La cuenta de destino está en enfriamiento.')
     const desde = b.obs.marca()

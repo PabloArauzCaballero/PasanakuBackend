@@ -15,7 +15,7 @@ import { FichaDeCobro } from './ficha-de-cobro'
  */
 const CUENTA: CuentaPorCobrar = {
   cuentaPorCobrarId: 'cxc-1',
-  origenTipo: 'GRUPO',
+  origenTipo: 'OTRO',
   origenId: 'g-1',
   terceroRazonSocial: 'Tercero de prueba',
   fechaVencimiento: '2026-10-01',
