@@ -1,0 +1,7 @@
+00:08 +2: el rechazo ofrece usar la foto igual y cierra la hoja
+00:10 +3: repetir foto del carnet vuelve a escanear y continúa con la nueva
+00:12 +4: cerrar el escáner sin escanear no hace nada
+00:13 +5: All tests passed!
+  /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/widget/escaner_del_carnet_test.dart: repetir foto del carnet vuelve a escanear y continúa con la nueva
+00:05 +5: All tests passed!
+00:05 +5: All tests passed!
