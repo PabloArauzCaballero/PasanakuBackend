@@ -197,13 +197,14 @@ y `cumplimiento/gobierno`, entonces ven sus colas reales (requerimientos, report
 eventos de riesgo, incidentes, pruebas de continuidad, actas) y pueden ejecutar las acciones cuyos
 casos de uso ya existen, con el actor tomado de la sesión.
 **DoD:** pruebas de integración y web por ruta + regresión de `cumplimiento`.
-**Estado:** EN CURSO
+**Estado:** HECHO (backend; CU-94 sesionar BLOQUEADO por DECISION_REQUIRED en H9.S1.M4)
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
 | H9.S1.M1 | Listados: requerimientos de autoridad (CU-45), reportes regulatorios (CU-43), eventos de riesgo (CU-54), incidentes (CU-55), pruebas de continuidad (CU-56), actas de comité (CU-94), con sus permisos sembrados o roles | correcto/límite/inválido + 403 por listado | `integrationTest --tests '*CU4[35]*' --tests '*CU5[456]*' --tests '*CU94*'` | HECHO — `evidencia/H9-01-colas-cumplimiento.txt` (6 colas: /uif/reportes, /uif/requerimientos, /cumplimiento/riesgos/eventos, /cumplimiento/seguridad/incidentes, /cumplimiento/continuidad/pruebas, /cumplimiento/comites/actas) |
-| H9.S1.M2 | Acciones de CU-43/45/56/94 por HTTP, revisando antes que el actor salga de la sesión (lección H5.S2) | revisor/actor de sesión; reintento seguro | idem | HECHO parcial por diseño — CU-43 (generar, aprobar y enviar), CU-45 (registrar, responder) y CU-56 (registrar) con actor de sesión y reintento seguro: `evidencia/H9-02-acciones-cumplimiento.txt`. CU-94 `sesionar` queda DECISION_REQUIRED (permiso `GOBIERNO_SESIONAR` no sembrado, S-8) |
-| H9.S1.M3 | Bóveda, Postman, regresión, commit y push | 0 fallas | regresión + gates | TODO |
+| H9.S1.M2 | Acciones de CU-43 (generar, aprobar y enviar), CU-45 (registrar, responder) y CU-56 (registrar) por HTTP, con el actor de la sesión y el plazo guardado (lección H5.S2) | aprobador/respondedor de sesión; campo de actor o plazo en el cuerpo = 400; reintento = 200 | `integrationTest --tests '*AccionesTest*'` + `AccionesDeCumplimientoWebTest` | HECHO — `evidencia/H9-02-acciones-cumplimiento.txt` |
+| H9.S1.M4 | (separada de M2) CU-94 `sesionar` el comité por HTTP | — | — | BLOQUEADO — DECISION_REQUIRED: la bóveda exige `GOBIERNO_SESIONAR`, que no está sembrado (S-8, lo decide Seguridad de la información); exponerlo con otro permiso sería inventar quién puede sesionar |
+| H9.S1.M3 | Bóveda, Postman, regresión, commit y push | 0 fallas | regresión + gates | HECHO — bóveda CU-43/45/54/55/56/94, Postman de cumplimiento, regresión en `evidencia/H9-01…H9-02`, commits `bb8025e1` y `c78aa1b2` pusheados |
 
 ## Pendiente fuera de esta sesión (registrado, no ejecutable sin decisión)
 
