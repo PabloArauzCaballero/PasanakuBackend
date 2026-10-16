@@ -1,0 +1,2 @@
+$ python3 .../entregables/matriz.py --citas
+20/20 citas resuelven
