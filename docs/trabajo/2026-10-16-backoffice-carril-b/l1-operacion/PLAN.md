@@ -13,13 +13,13 @@
 ## H1.S1 — Operación y tesorería
 **CA:** Dado un operador con el permiso del contrato, cuando abre cada bandeja, entonces ve la página del servidor (cursor), el vacío explicado, el error traducido y el 403 como «sin acceso»; las acciones envían el cuerpo exacto con `Idempotency-Key` y no anuncian éxito sin 2xx.
 **DoD:** specs dirigidos verdes + typecheck 0 + `verificar_frontend.py backoffice`.
-**Estado:** EN CURSO
+**Estado:** A MEDIAS — microtareas en `TESTED` (UI contra HTTP simulado); falta prueba visual, E2E contra backend real y navegación a las rutas nuevas (ver REPORTE).
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H1.S1.M1 | Retiros: bandeja `listarRetirosEnRevision` + ficha `retiros/:ordenId` | cursor `despuesDeFecha/Id`; `puedeDecidir=false` sin acción | spec retiros verde | TODO |
-| H1.S1.M2 | Reclamos: bandeja cursor + ficha + `responderReclamo` | cuerpo `{resultado,respuesta,devolucionId?}`; sin `sinEnviar` | spec reclamos verde | TODO |
-| H1.S1.M3 | Conciliación de custodia: listado + `conciliarCustodia` | cuerpo del contrato, recibo con id | spec custodia verde | TODO |
-| H1.S1.M4 | Cierres diarios: listado + `ejecutarCierreDiario` | cuerpo `{fecha}`, comprobante | spec cierres verde | TODO |
-| H1.S1.M5 | Reversos: listado | `estados` CSV + cursor `antesDe/Id` | spec reversos verde | TODO |
-| H1.S1.M6 | Desembolsos: bandeja de excepciones | sin cuenta destino; `estados` explode | spec desembolsos verde | TODO |
+| H1.S1.M1 | Retiros: bandeja `listarRetirosEnRevision` + ficha `retiros/:ordenId` | cursor `despuesDeFecha/Id`; `puedeDecidir=false` sin acción | spec retiros verde | HECHO |
+| H1.S1.M2 | Reclamos: bandeja cursor + ficha + `responderReclamo` | cuerpo `{resultado,respuesta,devolucionId?}`; sin `sinEnviar` | spec reclamos verde | HECHO |
+| H1.S1.M3 | Conciliación de custodia: listado + `conciliarCustodia` | cuerpo del contrato, recibo con id | spec custodia verde | HECHO |
+| H1.S1.M4 | Cierres diarios: listado + `ejecutarCierreDiario` | cuerpo `{fecha}`, comprobante | spec cierres verde | HECHO |
+| H1.S1.M5 | Reversos: listado | `estados` CSV + cursor `antesDe/Id` | spec reversos verde | HECHO |
+| H1.S1.M6 | Desembolsos: bandeja de excepciones | sin cuenta destino; `estados` explode | spec desembolsos verde | HECHO |
