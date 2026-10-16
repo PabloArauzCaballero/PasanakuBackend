@@ -97,6 +97,7 @@ export const ErroresCU55 = {
   SIN_RESPONSABLE_DESIGNADO: 'AP-CU55-01',
   PLAZO_REPORTE_VENCIDO: 'AP-CU55-02',
   CIERRE_SIN_NOTIFICAR: 'AP-CU55-03',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU55-04',
 } as const
 ```
 
@@ -105,6 +106,10 @@ export const ErroresCU55 = {
 | `SIN_RESPONSABLE_DESIGNADO` | No hay responsable de seguridad activo |
 | `PLAZO_REPORTE_VENCIDO` | Se reporta igual y se abre hallazgo |
 | `CIERRE_SIN_NOTIFICAR` | Con datos personales afectados no se cierra sin notificar (R-SEG-05) |
+| `FILTRO_DE_LISTADO_INVALIDO` | La cola recibió un estado desconocido, o `antesDe` sin `antesDeId` (o al revés) |
+
+**Cola del backoffice (carril A · H9).** `GET /cumplimiento/seguridad/incidentes` (`listarIncidentesDeSeguridad`, el rol RESPONSABLE_SEGURIDAD, con `AUDITORIA_LEER` como
+alternativa) pagina por cursor de la más reciente a la más antigua y devuelve tipo, severidad, relojes de reporte y notificación y estado; sin vector ni lección aprendida.
 
 ## Descomposición atómica
 
@@ -152,6 +157,11 @@ Entonces figura como vencido y genera hallazgo
 Dado un incidente en un proveedor crítico
 Cuando se registra
 Entonces queda enlazado al contrato_tercero correspondiente
+
+# Cola del backoffice (carril A)
+Dados dos incidentes DETECTADO
+Cuando Seguridad recorre la cola de a uno
+Entonces ve cada uno una sola vez, del más reciente al más antiguo, con su plazo de reporte
 ```
 
 ## Ver también
