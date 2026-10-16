@@ -1,0 +1,7 @@
+$ ./gradlew :servicios:cumplimiento:integrationTest --tests '*CU44BandejaTest*'
+bo.aportaya.cumplimiento.CU44BandejaTest tests 5 fallas 0 omitidas 0
+   PASS Dadas alertas de severidad ALTA y BAJA · Cuando el analista filtra por CRITICA y ALTA · Entonces solo ve las ALTA
+   PASS rechaza un filtro invalido: severidad o estado desconocidos, o cursor a medias, son AP-CU44-05
+   PASS Dada una ventana sin alertas · Cuando el analista consulta la bandeja · Entonces recibe una pagina vacia y sin cursor, nunca un error
+   PASS Dadas tres alertas abiertas · Cuando el analista recorre la bandeja de a dos · Entonces las ve una sola vez, de la mas antigua a la mas nueva, sin la persona ni el monto
+   PASS Dado un caso abierto cuyo plazo guardado ya paso · Cuando el oficial consulta la bandeja de casos · Entonces aparece primero y vencido, sin la persona ni el resumen

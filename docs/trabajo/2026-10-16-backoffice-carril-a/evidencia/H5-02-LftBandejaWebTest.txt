@@ -1,0 +1,7 @@
+$ ./gradlew :servicios:cumplimiento:webTest --tests '*LftBandejaWebTest*'
+bo.aportaya.cumplimiento.web.LftBandejaWebTest tests 5 fallas 0 omitidas 0
+   PASS 422: un filtro invalido sale con AP-CU44-05; 400 si el limite pasa de 100; 401 sin sesion
+   PASS 200: con CUMPLIMIENTO_ALERTAS la cola trae regla, severidad y estado, sin persona ni monto
+   PASS 200: los filtros de estado y severidad llegan enteros al caso de uso
+   PASS 403: el permiso de alertas no abre la cola de casos, ni al reves
+   PASS 200: con CUMPLIMIENTO_CASOS la cola de casos trae plazo y vencido, sin persona ni resumen

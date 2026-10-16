@@ -83,6 +83,7 @@ export const ErroresCU44 = {
   REVISOR_ES_ANALISTA: 'AP-CU44-02',
   REPORTE_SIN_NARRATIVA: 'AP-CU44-03',
   CASO_VENCIDO: 'AP-CU44-04',
+  FILTRO_DE_BANDEJA_INVALIDO: 'AP-CU44-05',
 } as const
 ```
 
@@ -92,6 +93,14 @@ export const ErroresCU44 = {
 | `REVISOR_ES_ANALISTA` | La revisión debe ser independiente |
 | `REPORTE_SIN_NARRATIVA` | Decidir reportar exige narrativa y tipología |
 | `CASO_VENCIDO` | Se pasó el plazo de investigación |
+| `FILTRO_DE_BANDEJA_INVALIDO` | La bandeja recibió un estado o una severidad que no existen, o un cursor a medias |
+
+**Bandejas del analista y del oficial (backoffice carril A).** `GET /cumplimiento/alertas`
+(`listarBandejaDeAlertas`, `CUMPLIMIENTO_ALERTAS`) de la más antigua a la más nueva, filtrable por
+estado y severidad; `GET /cumplimiento/casos` (`listarBandejaDeCasos`, `CUMPLIMIENTO_CASOS`) el que
+vence antes primero, con `vencido` calculado contra el plazo guardado (R-UIF-08). Ninguna de las
+dos devuelve la persona, montos, `detalle`, `resumen` ni `hallazgos`: deber de reserva y lectura de
+datos financieros con rastro auditable (regla 90.2.7), que corresponde a la ficha, no a la cola.
 
 ## Descomposición atómica
 
@@ -111,6 +120,8 @@ export const ErroresCU44 = {
 | --- | --- | --- |
 | `caso.abierto` | Asignación a analista con plazo | `CUMPLIMIENTO_CASOS` |
 | `caso.decidido` | Reporte, monitoreo reforzado o cierre de la relación | `OFICIAL_CUMPLIMIENTO` |
+| — (bandeja de alertas) | — | `CUMPLIMIENTO_ALERTAS` |
+| — (bandeja de casos) | — | `CUMPLIMIENTO_CASOS` |
 
 ## Interfaz
 
@@ -141,6 +152,23 @@ Dado un caso con decisión REPORTAR
 Cuando se cierra
 Entonces existe un reporte_operacion_sospechosa enlazado
 Y no se generó ninguna notificación al cliente
+
+# Bandejas del analista y del oficial (backoffice carril A)
+Dadas tres alertas abiertas
+Cuando el analista recorre la bandeja de a dos
+Entonces las ve una sola vez, de la mas antigua a la mas nueva, sin la persona ni el monto
+
+Dadas alertas de severidad ALTA y BAJA
+Cuando el analista filtra por CRITICA y ALTA
+Entonces solo ve las ALTA
+
+Dado un caso abierto cuyo plazo guardado ya paso
+Cuando el oficial consulta la bandeja de casos
+Entonces aparece primero y vencido, sin la persona ni el resumen
+
+Dada una ventana sin alertas
+Cuando el analista consulta la bandeja
+Entonces recibe una pagina vacia y sin cursor, nunca un error
 ```
 
 ## Ver también

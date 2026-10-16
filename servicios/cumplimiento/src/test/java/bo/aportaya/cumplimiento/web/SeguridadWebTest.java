@@ -51,6 +51,9 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private CU55GestionarIncidente cu55GestionarIncidente;
 
     @MockitoBean
+    private bo.aportaya.cumplimiento.aplicacion.ConsultarBandejasLft bandejasLft;
+
+    @MockitoBean
     private ConsultarEfectoDelReclamo consultarEfectoDelReclamo;
 
     // La bandeja, la ficha y la respuesta de CU-52 (backoffice carril A · H3) viven en el mismo controlador.
