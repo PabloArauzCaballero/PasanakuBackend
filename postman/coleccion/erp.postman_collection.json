@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AportaYa · erp",
-    "description": "# AportaYa · erp\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**19 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · erp\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**24 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -566,6 +566,104 @@
       ]
     },
     {
+      "name": "listarPartidasPresupuestarias · Las partidas presupuestarias con lo presupuestado y lo ejecutado",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/erp/partidas-presupuestarias",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "erp",
+            "partidas-presupuestarias"
+          ],
+          "variable": [],
+          "query": [
+            {
+              "key": "ejercicioId",
+              "value": "{{ejercicioId}}",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "estados",
+              "value": "['BORRADOR']",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "limite",
+              "value": "1",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "antesDe",
+              "value": "{{fecha_hoy}}",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "antesDeId",
+              "value": "{{antesDeId}}",
+              "description": "",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "## Las partidas presupuestarias con lo presupuestado y lo ejecutado\n\nPara medir la desviacion por partida (CU-101 mide, no bloquea). Opcionalmente de un ejercicio y por estado del presupuesto. Cursor (inicio del periodo, id) descendente. Importes como cadena con su moneda. La cuenta contable viaja como id: su nombre es de nucleo-financiero y erp no cruza esquemas. Exige CONTABILIDAD_ERP_PRESUPUESTO o CONTABILIDAD_ERP_REPORTES. Solo lee: no lleva Idempotency-Key. Cursor a medias (antesDe sin antesDeId o al reves) o estado desconocido: 422.\n\n| | |\n| --- | --- |\n| **Servicio** | `erp` |\n| **Operacion** | `listarPartidasPresupuestarias` |\n| **Ruta** | `GET /api/v1/erp/partidas-presupuestarias` |\n| **Permiso** | `CONTABILIDAD_ERP_PRESUPUESTO` |\n| **Respuestas** | `200`, `422`, `400`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU101-04` | Filtro de listado invalido |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 400, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "darDeAltaTercero · CU-102 · Da de alta un tercero comercial",
       "request": {
         "method": "POST",
@@ -615,6 +713,98 @@
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
               "const esperadas = [201, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "listarOrdenesDeCompra · Las ordenes de compra, de la mas reciente a la mas antigua",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/erp/ordenes-de-compra",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "erp",
+            "ordenes-de-compra"
+          ],
+          "variable": [],
+          "query": [
+            {
+              "key": "estados",
+              "value": "['BORRADOR']",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "limite",
+              "value": "1",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "antesDe",
+              "value": "{{momento_ahora}}",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "antesDeId",
+              "value": "{{antesDeId}}",
+              "description": "",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "## Las ordenes de compra, de la mas reciente a la mas antigua\n\nNumero, proveedor (razon social), centro de costo, estado y monto con moneda. No devuelve la descripcion libre de la orden ni el documento del tercero (respuesta minima). Cursor (creadaEn, id) descendente. Exige CONTABILIDAD_ERP_COMPRAS, CONTABILIDAD_ERP_CUENTAS_POR_PAGAR (factura contra la orden) o CONTABILIDAD_ERP_REPORTES. Solo lee: no lleva Idempotency-Key. Cursor a medias (antesDe sin antesDeId o al reves) o estado desconocido: 422.\n\n| | |\n| --- | --- |\n| **Servicio** | `erp` |\n| **Operacion** | `listarOrdenesDeCompra` |\n| **Ruta** | `GET /api/v1/erp/ordenes-de-compra` |\n| **Permiso** | `CONTABILIDAD_ERP_COMPRAS` |\n| **Respuestas** | `200`, `422`, `400`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU102-04` | Filtro de listado invalido |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 400, 401, 403, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -778,6 +968,98 @@
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
               "const esperadas = [200, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "listarFacturasDeProveedor · Las cuentas por pagar, de la emision mas reciente a la mas antigua",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/erp/facturas-de-proveedor",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "erp",
+            "facturas-de-proveedor"
+          ],
+          "variable": [],
+          "query": [
+            {
+              "key": "estados",
+              "value": "['REGISTRADA']",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "limite",
+              "value": "1",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "antesDe",
+              "value": "{{fecha_hoy}}",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "antesDeId",
+              "value": "{{antesDeId}}",
+              "description": "",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "## Las cuentas por pagar, de la emision mas reciente a la mas antigua\n\nMonto, pagado y saldo pendiente con su moneda, vencimiento y estado; lo pagado, el saldo y el estado se derivan de los pagos registrados (la factura es append-only). aprobadaPorLaSesion la resuelve el servidor contra el sujeto del token (R-CTB-05): el cliente no compara identidades. Cursor (fechaEmision, id) descendente. Exige CONTABILIDAD_ERP_CUENTAS_POR_PAGAR, CONTABILIDAD_ERP_PAGAR o CONTABILIDAD_ERP_REPORTES. Solo lee: no lleva Idempotency-Key. Cursor a medias (antesDe sin antesDeId o al reves) o estado desconocido: 422.\n\n| | |\n| --- | --- |\n| **Servicio** | `erp` |\n| **Operacion** | `listarFacturasDeProveedor` |\n| **Ruta** | `GET /api/v1/erp/facturas-de-proveedor` |\n| **Permiso** | `CONTABILIDAD_ERP_CUENTAS_POR_PAGAR` |\n| **Respuestas** | `200`, `422`, `400`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU103-06` | Filtro de listado invalido |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 400, 401, 403, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -989,6 +1271,98 @@
       ]
     },
     {
+      "name": "listarCuentasPorCobrar · Las cuentas por cobrar, del vencimiento mas lejano al mas antiguo",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/erp/cuentas-por-cobrar",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "erp",
+            "cuentas-por-cobrar"
+          ],
+          "variable": [],
+          "query": [
+            {
+              "key": "estados",
+              "value": "['PENDIENTE']",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "limite",
+              "value": "1",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "antesDe",
+              "value": "{{fecha_hoy}}",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "antesDeId",
+              "value": "{{antesDeId}}",
+              "description": "",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "## Las cuentas por cobrar, del vencimiento mas lejano al mas antiguo\n\nOrigen, tercero (razon social, si tiene), monto, cobrado y saldo con su moneda, vencimiento y estado; lo cobrado, el saldo y el estado se derivan de los cobros (la cuenta es append-only). Cursor (fechaVencimiento, id) descendente. Exige CONTABILIDAD_ERP_COBRAR o CONTABILIDAD_ERP_REPORTES. Solo lee: no lleva Idempotency-Key. Cursor a medias (antesDe sin antesDeId o al reves) o estado desconocido: 422.\n\n| | |\n| --- | --- |\n| **Servicio** | `erp` |\n| **Operacion** | `listarCuentasPorCobrar` |\n| **Ruta** | `GET /api/v1/erp/cuentas-por-cobrar` |\n| **Permiso** | `CONTABILIDAD_ERP_COBRAR` |\n| **Respuestas** | `200`, `422`, `400`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU104-04` | Filtro de listado invalido |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 400, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "abrirCuentaPorCobrar · CU-104 · Abre la cuenta por cobrar de un tercero",
       "request": {
         "method": "POST",
@@ -1130,6 +1504,98 @@
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
               "const esperadas = [201, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "listarActivosFijos · El inventario de activos fijos con su valor en libros",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/erp/activos",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "erp",
+            "activos"
+          ],
+          "variable": [],
+          "query": [
+            {
+              "key": "estados",
+              "value": "['ACTIVO']",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "limite",
+              "value": "1",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "antesDe",
+              "value": "{{fecha_hoy}}",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "antesDeId",
+              "value": "{{antesDeId}}",
+              "description": "",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "## El inventario de activos fijos con su valor en libros\n\nCodigo, descripcion del bien, categoria y vida util, costo, residual, depreciacion acumulada y valor en libros (costo menos acumulada, el mismo atomo de CU-105) con su moneda. depreciadoEnElPeriodoVigente dice si ya tiene cuota en el periodo que contiene hoy en America/La_Paz. Cursor (fechaAdquisicion, id) descendente. Exige CONTABILIDAD_ERP_ACTIVOS_FIJOS o CONTABILIDAD_ERP_REPORTES. Solo lee: no lleva Idempotency-Key. Cursor a medias (antesDe sin antesDeId o al reves) o estado desconocido: 422.\n\n| | |\n| --- | --- |\n| **Servicio** | `erp` |\n| **Operacion** | `listarActivosFijos` |\n| **Ruta** | `GET /api/v1/erp/activos` |\n| **Permiso** | `CONTABILIDAD_ERP_ACTIVOS_FIJOS` |\n| **Respuestas** | `200`, `422`, `400`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU105-04` | Filtro de listado invalido |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 400, 401, 403, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -1605,6 +2071,10 @@
       "value": ""
     },
     {
+      "key": "antesDeId",
+      "value": ""
+    },
+    {
       "key": "base_url",
       "value": ""
     },
@@ -1642,6 +2112,10 @@
     },
     {
       "key": "fecha_hoy",
+      "value": ""
+    },
+    {
+      "key": "momento_ahora",
       "value": ""
     },
     {

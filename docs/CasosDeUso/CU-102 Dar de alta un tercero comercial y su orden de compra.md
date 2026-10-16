@@ -74,6 +74,7 @@ export const ErroresCU102 = {
   TERCERO_BLOQUEADO: 'AP-CU102-01',
   DOCUMENTO_YA_REGISTRADO_A_OTRO_TERCERO: 'AP-CU102-02',
   ORDEN_SIN_APROBACION: 'AP-CU102-03',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU102-04',
 } as const
 ```
 
@@ -82,6 +83,9 @@ export const ErroresCU102 = {
 | `TERCERO_BLOQUEADO` | El tercero existe pero está `BLOQUEADO` |
 | `DOCUMENTO_YA_REGISTRADO_A_OTRO_TERCERO` | El NIT coincide con un tercero de otra razón social |
 | `ORDEN_SIN_APROBACION` | Se intenta recibir o facturar una orden todavía en `BORRADOR` |
+| `FILTRO_DE_LISTADO_INVALIDO` | En el listado del backoffice: cursor a medias (`antesDe` sin `antesDeId` o al revés) o un estado fuera del catálogo |
+
+**Listado del backoffice (carril A).** `GET /erp/ordenes-de-compra` (`listarOrdenesDeCompra`) devuelve las órdenes de la más reciente a la más antigua (cursor `(creadaEn, id)`), con número, proveedor por razón social, centro de costo, estado y monto con moneda. No devuelve la descripción libre de la orden ni el documento o el contacto del tercero (respuesta mínima). Quien registra facturas la lee porque factura contra la orden. Exige `CONTABILIDAD_ERP_COMPRAS`, `CONTABILIDAD_ERP_CUENTAS_POR_PAGAR` o `CONTABILIDAD_ERP_REPORTES`. Pagina por cursor keyset con desempate por id (`limite` 1..100, 25 por omisión); un filtro inválido es `AP-CU102-04` y no una lista vacía.
 
 ## Descomposición atómica
 
@@ -99,6 +103,7 @@ export const ErroresCU102 = {
 | --- | --- | --- |
 | `orden_compra.aprobada` | Habilita registrar la factura del proveedor | `CONTABILIDAD_ERP_COMPRAS` |
 | `tercero_comercial.bloqueado` | Impide nuevas órdenes contra ese tercero | `CONTABILIDAD_ERP_COMPRAS` |
+| — (listado `listarOrdenesDeCompra`) | — | `CONTABILIDAD_ERP_COMPRAS`, `CONTABILIDAD_ERP_CUENTAS_POR_PAGAR` o `CONTABILIDAD_ERP_REPORTES` |
 
 ## Interfaz
 
@@ -131,6 +136,15 @@ Entonces pasa a estado APROBADA con aprobada_por registrado
 Dado un tercero_comercial en estado BLOQUEADO
 Cuando se intenta crear una orden_compra nueva contra él
 Entonces el sistema rechaza la operación
+
+# Listado del backoffice (backoffice carril A)
+Dadas tres ordenes de compra creadas una tras otra
+Cuando Contabilidad las recorre de a dos
+Entonces van de la mas reciente a la mas antigua, con proveedor y monto en cadena, sin repetir ninguna
+
+Dada una orden aprobada y otra en borrador
+Cuando Compras filtra por BORRADOR
+Entonces solo ve la que falta aprobar
 ```
 
 ## Ver también

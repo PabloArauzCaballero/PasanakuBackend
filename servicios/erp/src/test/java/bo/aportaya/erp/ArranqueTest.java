@@ -53,7 +53,8 @@ class ArranqueTest {
                 .count();
 
         // 15 operaciones + 4 lecturas del backoffice (carril A · H4/H7): ejercicios, periodo vigente,
-        // periodos de un ejercicio y documento sellado del estado financiero.
-        assertThat(delContrato).isEqualTo(19);
+        // periodos de un ejercicio y documento sellado del estado financiero; + 5 listados (carril A · A6):
+        // partidas, ordenes de compra, facturas de proveedor, cuentas por cobrar y activos fijos.
+        assertThat(delContrato).isEqualTo(24);
     }
 }
