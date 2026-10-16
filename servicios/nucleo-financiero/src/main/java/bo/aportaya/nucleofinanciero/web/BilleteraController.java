@@ -1,6 +1,5 @@
 package bo.aportaya.nucleofinanciero.web;
 
-import bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU13RetenerSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion;
 import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto;
@@ -24,6 +23,7 @@ import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaRetiro;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaReverso;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaTransferencia;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.ListaMovimientosBilletera;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.PaginaRetirosEnRevision;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SaldoBilletera;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaAcreditacion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaAcreditacionRescate;
@@ -46,6 +46,7 @@ import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,7 +70,6 @@ public class BilleteraController implements BilleteraApi {
 
     private final FondeoDeLaBilletera fondeo;
     private final QrDeLaBilletera qr;
-    private final CU11RetirarSaldo cu11;
     private final CU13RetenerSaldo cu13;
     private final CU14ReversarTransaccion cu14;
     private final CU15EmitirExtracto cu15;
@@ -83,7 +83,6 @@ public class BilleteraController implements BilleteraApi {
     public BilleteraController(
             FondeoDeLaBilletera fondeo,
             QrDeLaBilletera qr,
-            CU11RetirarSaldo cu11,
             CU13RetenerSaldo cu13,
             CU14ReversarTransaccion cu14,
             CU15EmitirExtracto cu15,
@@ -94,7 +93,6 @@ public class BilleteraController implements BilleteraApi {
             SesionDeLaPeticion sesion) {
         this.fondeo = fondeo;
         this.qr = qr;
-        this.cu11 = cu11;
         this.cu13 = cu13;
         this.cu14 = cu14;
         this.cu15 = cu15;
@@ -123,8 +121,8 @@ public class BilleteraController implements BilleteraApi {
     @Permiso("BILLETERA_VER")
     public ResponseEntity<ListaMovimientosBilletera> listarMovimientosBilletera(UUID cuentaId, Integer limite) {
         Traza.marcarCasoDeUso("CU-13", cuentaId.toString());
-        return ResponseEntity.ok(MapeoDeBilletera.movimientos(
-                consultasDeMovimientos.ejecutar(cuentaId, limite, sesion.actual())));
+        return ResponseEntity.ok(
+                MapeoDeBilletera.movimientos(consultasDeMovimientos.ejecutar(cuentaId, limite, sesion.actual())));
     }
 
     @Override
@@ -158,6 +156,14 @@ public class BilleteraController implements BilleteraApi {
         return fondeo.retirar(idempotencyKey, cuerpo, sesion.actual());
     }
 
+    // La cola la ve solo quien puede decidirla: el mismo permiso que aprobar (no se inventa otro, S-8).
+    @Override
+    @Permiso("RETIRO_APROBAR")
+    public ResponseEntity<PaginaRetirosEnRevision> listarRetirosEnRevision(
+            Integer limite, OffsetDateTime despuesDeFecha, UUID despuesDeId) {
+        return fondeo.listarRetirosEnRevision(limite, despuesDeFecha, despuesDeId, sesion.actual());
+    }
+
     // H3.S2 (ADR-049): RETIRO_APROBAR es la primera defensa (403); la segregacion
     // solicitante != aprobador es la SEGUNDA y vive en CU11.aprobar/rechazarRevision,
     // porque la base la exige igual y las dos tienen que decir lo mismo.
@@ -165,17 +171,7 @@ public class BilleteraController implements BilleteraApi {
     @Permiso("RETIRO_APROBAR")
     public ResponseEntity<SalidaAprobacionRetiro> aprobarRetiro(
             UUID ordenId, UUID idempotencyKey, EntradaAprobacionRetiro cuerpo) {
-        Traza.marcarCasoDeUso("CU-11", ordenId.toString());
-
-        var salida = cuerpo.getDesenlace() == EntradaAprobacionRetiro.DesenlaceEnum.AUTORIZADA
-                ? cu11.aprobar(ordenId, sesion.actual())
-                : cu11.rechazarRevision(ordenId, sesion.actual());
-
-        var respuesta = new SalidaAprobacionRetiro();
-        respuesta.setOrdenRetiroId(salida.ordenRetiroId());
-        respuesta.setEstado(SalidaAprobacionRetiro.EstadoEnum.fromValue(salida.estado()));
-        respuesta.setAprobadaPor(salida.aprobadaPor());
-        return ResponseEntity.ok(respuesta);
+        return fondeo.aprobarRetiro(ordenId, idempotencyKey, cuerpo, sesion.actual());
     }
 
     @Override
@@ -238,12 +234,7 @@ public class BilleteraController implements BilleteraApi {
         Traza.marcarCasoDeUso("CU-14", cuerpo.getTransaccionOriginalId().toString());
         var salida =
                 cu14.ejecutar(MapeoDeBilletera.entradaDeReverso(idempotencyKey.toString(), cuerpo), sesion.actual());
-
-        var respuesta = new SalidaReverso();
-        respuesta.setReversoId(salida.reversoId());
-        respuesta.setTransaccionReversoId(salida.transaccionReversoId());
-        respuesta.setGeneraObligacionDeRestitucion(salida.generaObligacionDeRestitucion());
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+        return ResponseEntity.status(HttpStatus.CREATED).body(MapeoDeBilletera.reverso(salida));
     }
 
     @Override
@@ -266,13 +257,7 @@ public class BilleteraController implements BilleteraApi {
     public ResponseEntity<SalidaBloqueo> bloquearPorAutoridad(UUID idempotencyKey, EntradaBloqueo cuerpo) {
         Traza.marcarCasoDeUso("CU-17", cuerpo.getNumeroOficio());
         var salida = cu17.ejecutar(MapeoDeBilletera.entradaDeBloqueo(cuerpo), sesion.actual());
-
-        var respuesta = new SalidaBloqueo();
-        respuesta.setBloqueoId(salida.bloqueoId());
-        respuesta.setRetencionId(salida.retencionId());
-        respuesta.setMontoBloqueado(MapeoDeBilletera.dinero(salida.montoBloqueado()));
-        respuesta.setSaldoDisponible(MapeoDeBilletera.dinero(salida.saldoDisponible()));
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+        return ResponseEntity.status(HttpStatus.CREATED).body(MapeoDeBilletera.bloqueo(salida));
     }
 
     @Override

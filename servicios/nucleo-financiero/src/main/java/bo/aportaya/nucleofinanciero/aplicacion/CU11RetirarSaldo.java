@@ -155,6 +155,19 @@ public class CU11RetirarSaldo {
         return resolucion.rechazarRevision(ordenId, ctx);
     }
 
+    /** Aprobar amparado en la clave del aprobador: el reintento devuelve el mismo recibo (H2.S3). */
+    @Transactional
+    public SalidaAprobacion aprobar(UUID ordenId, String claveIdempotencia, ContextoSesion ctx) {
+        return resolucion.resolverConClave(ordenId, null, claveIdempotencia, ctx, true);
+    }
+
+    /** Rechazar en revision amparado en la clave del aprobador; el motivo forma parte de la huella. */
+    @Transactional
+    public SalidaAprobacion rechazarRevision(
+            UUID ordenId, String motivo, String claveIdempotencia, ContextoSesion ctx) {
+        return resolucion.resolverConClave(ordenId, motivo, claveIdempotencia, ctx, false);
+    }
+
     public record EntradaRetiro(
             String claveIdempotencia,
             UUID cuentaBilleteraId,

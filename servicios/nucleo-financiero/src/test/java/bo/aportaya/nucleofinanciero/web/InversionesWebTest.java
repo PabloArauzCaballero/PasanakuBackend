@@ -8,12 +8,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import bo.aportaya.nucleofinanciero.aplicacion.BandejaDeRetiros;
 import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU13RetenerSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion;
 import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto;
 import bo.aportaya.nucleofinanciero.aplicacion.CU17BloquearPorAutoridad;
+import bo.aportaya.nucleofinanciero.aplicacion.ConsultarMovimientosBilletera;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
 import bo.aportaya.nucleofinanciero.dominio.puertos.CotizadorDeComision;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
@@ -74,6 +76,10 @@ class InversionesWebTest {
     @MockitoBean
     private CU11RetirarSaldo cu11;
 
+    // El controlador tambien lee los movimientos recientes: sin este doble el contexto no carga.
+    @MockitoBean
+    private ConsultarMovimientosBilletera consultasDeMovimientos;
+
     @MockitoBean
     private CU13RetenerSaldo cu13;
 
@@ -94,6 +100,9 @@ class InversionesWebTest {
 
     @MockitoBean
     private SegundoFactor segundoFactor;
+
+    @MockitoBean
+    private BandejaDeRetiros bandeja;
 
     @MockitoBean
     private bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion cotizaciones;

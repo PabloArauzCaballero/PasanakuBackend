@@ -1,0 +1,6 @@
+$ ./gradlew :servicios:nucleo-financiero:spotlessCheck test webTest testBarrido integrationTest contractTest --continue
+test             clases  15  pruebas   81  fallas 0  omitidas 0
+webTest          clases  11  pruebas   51  fallas 0  omitidas 0
+testBarrido      clases   1  pruebas    2  fallas 0  omitidas 0
+integrationTest  clases  78  pruebas  455  fallas 0  omitidas 0
+contractTest     clases   2  pruebas   10  fallas 0  omitidas 0
