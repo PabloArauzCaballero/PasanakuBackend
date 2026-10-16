@@ -34,28 +34,28 @@
 
 **CA:** Dado el plan estratégico y el código de la rama, cuando el carril B o un revisor abre los entregables, entonces encuentra para cada pantalla P0 su CU, entidad, servicio, operación OpenAPI (o `ausente`), permiso (o `no catalogado`) y estado, con ruta de archivo como evidencia; y ninguna historia P0 queda sin fuente de verdad o marcada como decisión pendiente con dueño.
 **DoD:** archivos en `entregables/` + `python3 scripts/verificar_seguridad.py` pegado (lista S-8 vigente) + cada fila `existe` verificable con `grep` de su `operationId`.
-**Estado:** TODO
+**Estado:** HECHO (evidencia H1-01…H1-03; matrices regenerables con `entregables/matriz.py`).
 
 ### H1.S1 — Matrices
 **CA:** Dado un módulo P0 del backoffice, cuando se busca en la matriz, entonces se ve su estado real con evidencia.
 **DoD:** script de verificación de la matriz contra los OpenAPI en verde.
-**Estado:** TODO
+**Estado:** HECHO
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H1.S1.M1 | Matriz de trazabilidad pantalla→CU→entidad→servicio→operación→permiso→estado (`entregables/matriz-trazabilidad.md`) | Toda ruta de `Flujo de pantallas §3–§6` tiene fila | `python3 -I entregables/verificar_matriz.py` → cada `operationId` marcado `existe` aparece en su YAML; 0 discrepancias | TODO |
-| H1.S1.M2 | Matriz de autorización (recurso/acción/MFA/SoD) con los 12 roles y los permisos sembrados; S-8 listado como `DECISION_REQUIRED` | Cada permiso citado existe en `sql/60_semillas/10-roles-y-permisos.sql` o está marcado no catalogado | `grep` de cada código en la semilla (salida en `evidencia/`) | TODO |
-| H1.S1.M3 | Vocabulario congelado de estados/errores/correlación/paginación para contratos nuevos (`entregables/convenciones-contrato.md`) basado en patrones existentes (`ProblemDetail`, `X-Correlation-Id`, `Idempotency-Key`) | Cada convención cita archivo:línea existente | revisión `grep` de las citas → todas resuelven | TODO |
+| H1.S1.M1 | Matriz de trazabilidad pantalla→CU→entidad→servicio→operación→permiso→estado (`entregables/matriz-trazabilidad.md`) | Toda ruta de `Flujo de pantallas §3–§6` tiene fila | `python3 docs/trabajo/2026-10-16-backoffice-carril-a/entregables/matriz.py --verificar` → cada `operationId` marcado `existe` aparece en su YAML; 0 discrepancias | HECHO |
+| H1.S1.M2 | Matriz de autorización (recurso/acción/MFA/SoD) con los 12 roles y los permisos sembrados; S-8 listado como `DECISION_REQUIRED` | Cada permiso citado existe en `sql/60_semillas/10-roles-y-permisos.sql` o está marcado no catalogado | `grep` de cada código en la semilla (salida en `evidencia/`) | HECHO |
+| H1.S1.M3 | Vocabulario congelado de estados/errores/correlación/paginación para contratos nuevos (`entregables/convenciones-contrato.md`) basado en patrones existentes (`ProblemDetail`, `X-Correlation-Id`, `Idempotency-Key`) | Cada convención cita archivo:línea existente | revisión `grep` de las citas → todas resuelven | HECHO |
 
 ### H1.S2 — Diseño del núcleo de decisión y gobierno de políticas (A2/A3)
 **CA:** Dado el patrón de gobierno de Atlas y las tablas `regla_*`/`politica_*` existentes, cuando se lee el ADR propuesto, entonces dice qué se reutiliza, qué entidades nuevas haría falta declarar en la bóveda, cómo se garantiza idempotencia/concurrencia y qué parámetros quedan cerrados hasta aprobación.
 **DoD:** `entregables/ADR-propuesto-motor-de-decisiones.md` con inventario de tablas existentes citadas (`ls sql/10_tablas/*/{regla,politica}_*`).
-**Estado:** TODO
+**Estado:** HECHO (estado del ADR: *Propuesto*, pendiente de decisión del dueño de la bóveda — A-2).
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H1.S2.M1 | Inventario de motor/políticas existentes (`regla_*`, `politica_*`, skill `motor-de-reglas`, CU-48) con ruta | Toda tabla `regla_*`/`politica_*` del árbol aparece | `ls sql/10_tablas/*/ \| grep -E '^(regla\|politica)_'` vs. lista del ADR → mismo conjunto | TODO |
-| H1.S2.M2 | ADR propuesto: contrato `evaluar/obtener/historial/reprocesar`, estados, idempotencia, outbox, gobierno con SoD, rollback, adaptador documental OCR | Cubre las 7 decisiones de §2 del plan estratégico | checklist §2.1–§2.7 marcado con sección del ADR | TODO |
+| H1.S2.M1 | Inventario de motor/políticas existentes (`regla_*`, `politica_*`, skill `motor-de-reglas`, CU-48) con ruta | Toda tabla `regla_*`/`politica_*` del árbol aparece | `ls sql/10_tablas/*/ \| grep -E '^(regla\|politica)_'` vs. lista del ADR → mismo conjunto | HECHO |
+| H1.S2.M2 | ADR propuesto: contrato `evaluar/obtener/historial/reprocesar`, estados, idempotencia, outbox, gobierno con SoD, rollback, adaptador documental OCR | Cubre las 7 decisiones de §2 del plan estratégico | checklist §2.1–§2.7 marcado con sección del ADR | HECHO |
 
 ## H2 — A4 · Bandeja de retiros en revisión y respuesta idempotente (`nucleo-financiero`)
 
