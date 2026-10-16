@@ -1,0 +1,1 @@
+pull_request: ['main', 'dev', 'test'] push: ['main', 'dev']
