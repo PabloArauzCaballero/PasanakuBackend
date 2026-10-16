@@ -20,4 +20,10 @@ export const rutasConfiguracion: Routes = [
     title: 'Tarifario · AportaYa',
     canMatch: [requiereAlgunPermiso('TARIFARIO_PUBLICAR', 'AUDITORIA_LEER')],
   },
+  {
+    path: 'mensajeria',
+    loadComponent: () => import('./mensajeria/pantalla-de-mensajeria').then((m) => m.PantallaDeMensajeria),
+    title: 'Mensajería · AportaYa',
+    canMatch: [requiereAlgunPermiso('AUDITORIA_LEER')],
+  },
 ]
