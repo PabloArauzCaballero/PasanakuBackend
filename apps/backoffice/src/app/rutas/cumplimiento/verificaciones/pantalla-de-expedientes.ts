@@ -148,7 +148,7 @@ export class PantallaDeExpedientes {
    * también los resueltos, y decir «no hay nada» porque el recorte los sacó sería
    * mentir al revés — mostrar la lista vacía sin explicar por qué.
    */
-  protected readonly vacio = (_c: ExpedienteEnRevision[]): boolean => this.visibles().length === 0
+  protected readonly vacio = (): boolean => this.visibles().length === 0
   protected readonly mensajeVacio = computed(() =>
     this.busqueda().trim() ? this.t.sinCoincidencias : this.t.sinPendientes,
   )

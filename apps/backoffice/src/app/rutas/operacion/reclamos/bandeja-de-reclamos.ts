@@ -13,7 +13,7 @@ import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-v
 import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
 import { EstadoDeBandejaVista } from '../comun/estado-de-bandeja'
 import { ImporteSinMoneda } from '../comun/importe-sin-moneda'
-import { bandejaDeReclamos, sePuedeResponder, type EstadoReclamo, type ReclamoEnBandeja, type SalidaRespuestaReclamo } from '../dominio/cu52-reclamos'
+import { bandejaDeReclamos, sePuedeResponder, type EstadoReclamo, type ReclamoEnBandeja } from '../dominio/cu52-reclamos'
 import { RespuestaAReclamo } from './respuesta-a-reclamo'
 import { textosReclamos } from './textos'
 
@@ -65,7 +65,7 @@ const COLUMNAS: ColumnaVirtual<ReclamoEnBandeja>[] = (['codigo', 'categoria', 'c
       }
     </section>
     @if (seleccionado(); as r) {
-      <ap-respuesta-a-reclamo [reclamo]="r" (respondido)="alResponder(r, $event)" (cerrar)="seleccionado.set(null)" />
+      <ap-respuesta-a-reclamo [reclamo]="r" (respondido)="alResponder(r)" (cerrar)="seleccionado.set(null)" />
     }
   `,
   styles: `
@@ -112,7 +112,7 @@ export class BandejaDeReclamos {
   }
 
   /** El éxito se anuncia con el 200 y la bandeja se vuelve a pedir: el reclamo cerrado sale de los abiertos. */
-  protected alResponder(r: ReclamoEnBandeja, _salida: SalidaRespuestaReclamo): void {
+  protected alResponder(r: ReclamoEnBandeja): void {
     this.seleccionado.set(null)
     this.hecho.set(T.respuesta.hecho(r.codigo))
     this.b.reintentar()

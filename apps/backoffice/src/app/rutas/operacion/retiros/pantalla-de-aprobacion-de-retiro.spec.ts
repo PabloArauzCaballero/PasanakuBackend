@@ -43,7 +43,7 @@ describe('PantallaDeAprobacionDeRetiro · [UI contra HTTP simulado] F5', () => {
   }
   const texto = (f: ComponentFixture<unknown>) => (f.nativeElement as HTMLElement).textContent ?? ''
   const cargar = (f: ComponentFixture<PantallaDeAprobacionDeRetiro>, orden: string, desenlace: string | null, motivo = '') => {
-    f.componentInstance['ordenId'].set(orden)
+    f.componentInstance['ordenEscrita'].set(orden)
     f.componentInstance['desenlace'].set(desenlace)
     f.componentInstance['motivo'].set(motivo)
     f.detectChanges()
@@ -61,7 +61,7 @@ describe('PantallaDeAprobacionDeRetiro · [UI contra HTTP simulado] F5', () => {
     const f = TestBed.createComponent(PantallaDeAprobacionDeRetiro)
     f.componentRef.setInput('ordenId', ORDEN)
     f.detectChanges()
-    expect(f.componentInstance['ordenId']()).toBe(ORDEN)
+    expect(f.componentInstance['ordenEscrita']()).toBe(ORDEN)
     f.componentInstance['desenlace'].set('AUTORIZADA')
     f.componentInstance['enviar']()
     http.expectOne(URL).flush(OK)
@@ -127,7 +127,7 @@ describe('PantallaDeAprobacionDeRetiro · [UI contra HTTP simulado] F5', () => {
     f.detectChanges()
     expect(texto(f)).toContain('No pudimos confirmar si tu decisión quedó registrada')
     expect(f.componentInstance['motivo']()).toBe('Todo en orden')
-    expect(f.componentInstance['ordenId']()).toBe(ORDEN)
+    expect(f.componentInstance['ordenEscrita']()).toBe(ORDEN)
     f.componentInstance['enviar']()
     const segunda = http.expectOne(URL)
     expect(segunda.request.headers.get('Idempotency-Key')).toBe(clave)
@@ -173,7 +173,7 @@ describe('PantallaDeAprobacionDeRetiro · [UI contra HTTP simulado] F5', () => {
     http.expectOne(URL).flush({ codigo: 'X', mensaje: 'x', trazaId: 't' }, { status: 404, statusText: 'x' })
     f.detectChanges()
     expect(texto(f)).toContain('No encontramos esa orden')
-    expect(f.componentInstance['ordenId']()).toBe(ORDEN)
+    expect(f.componentInstance['ordenEscrita']()).toBe(ORDEN)
   })
 
   it('sin el permiso de aprobar: lo dice (el servidor igual rechazaría con 403, que se muestra sin detalle)', () => {

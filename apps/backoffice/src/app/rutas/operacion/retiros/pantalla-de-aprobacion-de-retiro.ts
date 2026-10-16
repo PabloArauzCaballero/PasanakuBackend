@@ -60,7 +60,7 @@ type Envio = 'inactivo' | 'enviando' | 'confirmado' | 'sinConfirmar' | 'rechazad
           <span class="traza">{{ t.aprobadaPor }} {{ r.aprobadaPor }}</span>
         </ap-alerta>
         <div class="acciones">
-          <ap-boton variante="secundario" (pulsado)="ordenDeRuta() ? volver() : otra()">{{ ordenDeRuta() ? t.volverABandeja : t.otra }}</ap-boton>
+          <ap-boton variante="secundario" (pulsado)="ordenId() ? volver() : otra()">{{ ordenId() ? t.volverABandeja : t.otra }}</ap-boton>
         </div>
       } @else {
         @if (!puedeAprobar()) {
@@ -77,7 +77,7 @@ type Envio = 'inactivo' | 'enviando' | 'confirmado' | 'sinConfirmar' | 'rechazad
         }
 
         <form (submit)="$event.preventDefault(); enviar()" novalidate>
-          <ap-campo [etiqueta]="t.ordenEtiqueta" [ayuda]="t.ordenAyuda" [error]="errorOrden()" [deshabilitado]="bloqueado() || !!ordenDeRuta()" [(valor)]="ordenId" />
+          <ap-campo [etiqueta]="t.ordenEtiqueta" [ayuda]="t.ordenAyuda" [error]="errorOrden()" [deshabilitado]="bloqueado() || !!ordenId()" [(valor)]="ordenEscrita" />
           <fieldset class="bloque" [disabled]="bloqueado()">
             <ap-grupo-radio [etiqueta]="t.desenlaceEtiqueta" [opciones]="opciones" [(elegido)]="desenlace" />
           </fieldset>
@@ -117,7 +117,7 @@ export class PantallaDeAprobacionDeRetiro {
   private readonly aprobar = crearAprobarRetiro()
   private readonly router = inject(Router)
   /** `retiros/:ordenId` (enlace profundo o fila de la bandeja): la orden llega fijada por la ruta. */
-  readonly ordenDeRuta = input<string | undefined>(undefined, { alias: 'ordenId' })
+  readonly ordenId = input<string | undefined>(undefined)
   /** La fila de la bandeja, si se llegó desde ahí; en un enlace profundo no hay (el contrato no consulta la orden). */
   protected readonly resumen = (this.router.currentNavigation()?.extras.state?.['retiro'] ?? null) as RetiroEnRevision | null
 
@@ -125,7 +125,7 @@ export class PantallaDeAprobacionDeRetiro {
     { valor: 'AUTORIZADA', texto: this.t.autorizar },
     { valor: 'RECHAZADA', texto: this.t.rechazar },
   ]
-  protected readonly ordenId = signal('')
+  protected readonly ordenEscrita = signal('')
   protected readonly desenlace = signal<string | null>(null)
   protected readonly motivo = signal('')
   protected readonly errorOrden = signal('')
@@ -140,8 +140,8 @@ export class PantallaDeAprobacionDeRetiro {
 
   constructor() {
     effect(() => {
-      const orden = this.ordenDeRuta()
-      if (orden) this.ordenId.set(orden)
+      const orden = this.ordenId()
+      if (orden) this.ordenEscrita.set(orden)
     })
   }
 
@@ -151,7 +151,7 @@ export class PantallaDeAprobacionDeRetiro {
 
   protected enviar(): void {
     if (this.bloqueado()) return
-    const orden = this.ordenId().trim().toLowerCase()
+    const orden = this.ordenEscrita().trim().toLowerCase()
     const desenlace = this.desenlace() as DesenlaceDeRetiro | null
     const motivo = this.motivo().trim()
     this.errorOrden.set(UUID.test(orden) ? '' : this.t.ordenError)
@@ -193,7 +193,7 @@ export class PantallaDeAprobacionDeRetiro {
   protected otra(): void {
     this.resultado.set(null)
     this.envio.set('inactivo')
-    this.ordenId.set('')
+    this.ordenEscrita.set('')
     this.desenlace.set(null)
     this.motivo.set('')
   }
