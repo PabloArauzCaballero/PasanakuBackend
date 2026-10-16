@@ -1,0 +1,26 @@
+$ python3 scripts/generar_ddl.py  (1ra)
+diff --git a/sql/10_tablas/01_identidad_usuarios/factor_mfa.sql b/sql/10_tablas/01_identidad_usuarios/factor_mfa.sql
+index 95b59de3..70c572b0 100644
+--- a/sql/10_tablas/01_identidad_usuarios/factor_mfa.sql
++++ b/sql/10_tablas/01_identidad_usuarios/factor_mfa.sql
+@@ -13,9 +13,13 @@ CREATE TABLE IF NOT EXISTS identidad.factor_mfa (
+   confirmado_en                      TIMESTAMPTZ,
+   ultimo_uso_en                      TIMESTAMPTZ,
+   CONSTRAINT pk_factor_mfa PRIMARY KEY (id),
+-  CONSTRAINT ck_factor_mfa_tipo CHECK (tipo IN ('RESPALDO', 'SMS', 'TOTP', 'WHATSAPP'))
++  CONSTRAINT ck_factor_mfa_tipo CHECK (tipo IN ('CORREO', 'RESPALDO', 'SMS', 'TOTP', 'WHATSAPP'))
+ );
+ 
++-- Evolucion: CHECK ampliado (ver CK_AMPLIADOS en modelo.py).
++ALTER TABLE identidad.factor_mfa DROP CONSTRAINT IF EXISTS ck_factor_mfa_tipo;
++ALTER TABLE identidad.factor_mfa ADD CONSTRAINT ck_factor_mfa_tipo CHECK (tipo IN ('CORREO', 'RESPALDO', 'SMS', 'TOTP', 'WHATSAPP'));
++
+ COMMENT ON TABLE identidad.factor_mfa IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
+ COMMENT ON COLUMN identidad.factor_mfa.id IS 'PK';
+ COMMENT ON COLUMN identidad.factor_mfa.usuario_id IS 'FK, IDX';
+
+$ python3 scripts/generar_ddl.py  (2da, idempotencia)
+sql/ generado: 337 tablas · 680 claves foráneas · 775 índices · 525 CHECK
+Sin pendientes a nivel de datos.
+ sql/10_tablas/01_identidad_usuarios/factor_mfa.sql | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)

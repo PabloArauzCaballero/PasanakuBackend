@@ -9,6 +9,7 @@ import bo.aportaya.identidad.dominio.ResultadoDeAutenticacion;
 import bo.aportaya.identidad.dominio.puertos.DesafioDeFactor;
 import bo.aportaya.identidad.dominio.puertos.HasheadorDeCredencial;
 import bo.aportaya.identidad.infraestructura.AccesoRepositorio;
+import bo.aportaya.identidad.infraestructura.CorreoDeAccesoRepositorio;
 import bo.aportaya.identidad.infraestructura.UsuarioRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -43,11 +44,14 @@ public class CU04Autenticar {
     /** Ventana en la que se cuentan los fallidos consecutivos. */
     private static final Duration VENTANA_DE_INTENTOS = Duration.ofMinutes(15);
 
+    private static final String FACTOR_CORREO = "CORREO";
+
     private final Datos datos;
     private final UsuarioRepositorio usuarios;
     private final AccesoRepositorio accesos;
     private final HasheadorDeCredencial hasheador;
     private final DesafioDeFactor desafio;
+    private final CorreoDeAccesoRepositorio correos;
     private final Outbox outbox;
     private final Reloj reloj;
 
@@ -57,6 +61,7 @@ public class CU04Autenticar {
             AccesoRepositorio accesos,
             HasheadorDeCredencial hasheador,
             DesafioDeFactor desafio,
+            CorreoDeAccesoRepositorio correos,
             Outbox outbox,
             Reloj reloj) {
         this.datos = datos;
@@ -64,6 +69,7 @@ public class CU04Autenticar {
         this.accesos = accesos;
         this.hasheador = hasheador;
         this.desafio = desafio;
+        this.correos = correos;
         this.outbox = outbox;
         this.reloj = reloj;
     }
@@ -122,7 +128,18 @@ public class CU04Autenticar {
                 .filter(AperturaDeCuenta.PENDIENTE_VERIFICACION.name()::equals)
                 .isPresent();
         var dispositivo = accesos.dispositivoPorHuella(dsl, usuario, entrada.huella(), entrada.plataforma(), ahora);
-        Optional<String> factor = accesos.factorActivo(dsl, usuario);
+        Optional<String> enrolado = accesos.factorActivo(dsl, usuario);
+
+        // El participante que no enrolo ningun factor pero confirmo su correo en el alta
+        // recibe el codigo por ese correo. Antes se le pedia un codigo que nunca se
+        // emitia y que ninguno validaba: no podia entrar desde un telefono nuevo. Al
+        // operador no le alcanza el correo (R-SEG-10): sigue exigiendo TOTP enrolado.
+        Optional<String> correoDeAcceso =
+                !perfil.esOperador() && enrolado.map(FACTOR_CORREO::equals).orElse(true)
+                        ? correos.correoVerificadoDe(dsl, usuario)
+                        : Optional.empty();
+        Optional<String> factor =
+                enrolado.isEmpty() && correoDeAcceso.isPresent() ? Optional.of(FACTOR_CORREO) : enrolado;
 
         if (perfil.esOperador() && factor.isEmpty()) {
             // Una asignacion de rol sin factor deja al operador afuera, y eso es lo
@@ -152,7 +169,7 @@ public class CU04Autenticar {
         if (!accesoInicialPendienteSinFactor
                 && ExigeSegundoFactor.decidir(perfil, dispositivo.confiable(), entrada.operacionSensible())) {
             if (entrada.factorPresentado().isEmpty()) {
-                factor.ifPresent(tipo -> desafio.emitir(usuario, tipo));
+                factor.ifPresent(tipo -> desafio.emitir(usuario, tipo, correoDeAcceso.orElse(null)));
                 return cerrar(
                         dsl,
                         intentoId,

@@ -129,6 +129,40 @@ final class FixturaDeIdentidad {
         return id;
     }
 
+    /**
+     * El correo que la persona confirmo con codigo en el alta: el token
+     * {@code VERIFICACION_CORREO} consumido, vinculado a la cuenta y con la huella del
+     * correo. Es lo mismo que deja CU-01, sin pasar por el envio.
+     */
+    void correoConfirmadoEnAlta(UUID usuarioId, String correo, String huellaDelCorreo) {
+        dsl.execute("UPDATE identidad.usuario SET correo = ? WHERE id = ?", correo, usuarioId);
+        dsl.execute(
+                """
+                INSERT INTO identidad.politica_token
+                    (proposito, ttl_segundos, longitud_codigo, max_intentos_validacion,
+                     max_reenvios_por_hora, cooldown_reenvio_segundos, max_emisiones_por_dia,
+                     canales_permitidos, exige_dispositivo_conocido, invalida_anteriores, vigente_desde)
+                VALUES ('VERIFICACION_CORREO', 600, 6, 5, 2, 60, 5, 'CORREO', false, true,
+                        '2026-10-07T00:00:00-04:00'::timestamptz)
+                ON CONFLICT (proposito, vigente_desde) DO NOTHING
+                """);
+        dsl.execute(
+                """
+                INSERT INTO identidad.token_verificacion
+                    (id, usuario_id, politica_id, tipo_token, proposito, hash_token, algoritmo_hash,
+                     canal_entrega, destino_enmascarado, estado, expira_en, max_intentos, reenvios,
+                     ip_origen, agente_usuario, correlation_id, clave_idempotencia, firma_hmac)
+                SELECT gen_random_uuid(), ?, p.id, 'OTP', 'VERIFICACION_CORREO', gen_random_uuid()::text, 'HMAC-SHA256',
+                       'CORREO', 'a***@example.com', 'CONSUMIDO', now() + interval '10 minutes', 5, 0,
+                       '127.0.0.1'::inet, 'prueba', gen_random_uuid(), gen_random_uuid()::text, ?
+                  FROM identidad.politica_token p
+                 WHERE p.proposito = 'VERIFICACION_CORREO'
+                 LIMIT 1
+                """,
+                usuarioId,
+                huellaDelCorreo);
+    }
+
     void factor(UUID usuarioId, String tipo, boolean activo, boolean confirmado) {
         dsl.execute(
                 """
