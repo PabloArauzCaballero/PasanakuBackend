@@ -1,7 +1,6 @@
 package bo.aportaya.identidad.web;
 
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
-import bo.aportaya.identidad.aplicacion.CerrarSesion;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
 import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02ActualizarFechaExpiracion;
@@ -42,9 +41,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
         })
 @Import(CookieDeRefresco.class)
 class SeguridadWebTest extends SabanaDeSeguridadWeb {
-
-    @MockitoBean
-    private CerrarSesion cerrarSesion;
 
     @MockitoBean
     private RenovarSesion renovarSesion;
