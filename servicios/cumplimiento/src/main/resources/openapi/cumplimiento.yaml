@@ -70,6 +70,11 @@
 #   AP-CU52-02  PRORROGA_EXCEDIDA      · supera el maximo sin comunicacion al organismo (R-CON-03)
 #   AP-CU52-03  FALTA_REPARACION       · favorable con monto exige devolucion (R-CON-04)
 #   AP-CU52-04  PLAZO_VENCIDO          · se responde igual y escala a hallazgo
+#   AP-CU52-05  RECLAMO_INEXISTENTE    · ese reclamo no existe
+#   AP-CU52-06  RECLAMO_YA_CERRADO     · ya tiene respuesta, y no es la misma (un reintento identico
+#                                        devuelve el recibo, no este error)
+#   AP-CU52-07  FILTRO_DE_BANDEJA_INVALIDO · cursor a medias (despuesDeLimite sin despuesDeId o al
+#                                        reves) o un estado que no existe
 #
 # CU-53 · Elevar un reclamo a segunda instancia
 #   AP-CU53-01  RECLAMO_NO_RESPONDIDO  · todavia en plazo de primera instancia
@@ -388,6 +393,108 @@ paths:
               schema: { $ref: '#/components/schemas/EfectoDeReclamos' }
         '403':
           description: Sin permiso para ver los reclamos de otra persona
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /reclamos:
+    get:
+      operationId: listarBandejaDeReclamos     # CU-52 (backoffice carril A · H3)
+      summary: Bandeja de reclamos, el que vence antes primero
+      description: >-
+        La cola del Punto de Reclamo (CU-52, Interfaz: "Bandeja con vencimientos primero"). Ordena
+        por el limite vigente —la prorroga si la hay, si no el plazo de respuesta— y desempata por
+        id; pagina por cursor (limiteVigente, id). Los plazos son los GUARDADOS al ingresar o al
+        prorrogar (R-CON-01): aca no se recalcula ninguno; `vencido` solo compara el guardado con
+        la hora del servidor.
+
+        Respuesta minima: no viaja el texto del reclamo ni la persona que reclama; eso esta en la
+        ficha, con otro permiso. `montoReclamado` es cadena decimal SIN moneda porque
+        reclamo_cliente no la modela (ambiguedad A-7 del carril A): no se supone BOB.
+
+        Sin `estados` devuelve los abiertos (INGRESADO, EN_ANALISIS). Exige RECLAMO_VER.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          schema:
+            type: array
+            items: { type: string, enum: [INGRESADO, EN_ANALISIS, RESPONDIDO, CERRADO, ELEVADO] }
+            minItems: 1
+            maxItems: 5
+          style: form
+          explode: false
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: despuesDeLimite, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: despuesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina de la bandeja (vacia si no hay reclamos en esos estados)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeReclamos' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU52-07 FILTRO_DE_BANDEJA_INVALIDO
+        '403':
+          description: Sin RECLAMO_VER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /reclamos/{reclamoId}:
+    get:
+      operationId: consultarReclamo            # CU-52 (backoffice carril A · H3)
+      summary: La ficha de un reclamo, con su texto, para quien lo atiende
+      description: >-
+        Lo que hace falta para responder: el texto del reclamo, la respuesta si ya la tiene y los
+        plazos guardados. Exige RECLAMO_ATENDER — el texto lo escribio una persona y solo lo lee
+        quien lo atiende. No devuelve la identidad de quien reclama.
+      parameters:
+        - { name: reclamoId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: La ficha
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FichaDeReclamo' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU52-05 RECLAMO_INEXISTENTE
+        '403':
+          description: Sin RECLAMO_ATENDER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /reclamos/{reclamoId}/respuesta:
+    post:
+      operationId: responderReclamo            # CU-52 (backoffice carril A · H3)
+      summary: Responder y cerrar un reclamo
+      description: >-
+        Registra resultado y respuesta y cierra el reclamo (CU-52, paso 5). Un FAVORABLE con monto
+        exige la devolucion ya ejecutada por tarifas (CU-33): sin ella, AP-CU52-03 (R-CON-04).
+        Responder fuera de plazo se acepta y abre un hallazgo (AP-CU52-04 no es un rechazo).
+
+        Reintento seguro: si el reclamo ya esta cerrado por el MISMO responsable con el mismo
+        resultado, texto y devolucion, devuelve el mismo recibo sin emitir otro evento. Cualquier
+        otra respuesta sobre un reclamo cerrado es AP-CU52-06. Exige RECLAMO_ATENDER.
+      parameters:
+        - { name: reclamoId, in: path, required: true, schema: { type: string, format: uuid } }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaRespuestaReclamo' }
+      responses:
+        '200':
+          description: Reclamo respondido y cerrado (o el mismo recibo, si es un reintento)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaRespuestaReclamo' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU52-03 FALTA_REPARACION · AP-CU52-05 RECLAMO_INEXISTENTE · AP-CU52-06 RECLAMO_YA_CERRADO
+        '403':
+          description: Sin RECLAMO_ATENDER
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
@@ -741,6 +848,74 @@ components:
             usuarios:       { type: integer }
             montoOperacion: { type: string, pattern: '^-?\\d+\\.\\d{2}$' }
         motivo: { type: string, nullable: true }
+    PaginaDeReclamos:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/ReclamoEnBandeja' }
+        proximoLimite: { type: [string, 'null'], format: date-time }
+        proximoId:     { type: [string, 'null'], format: uuid }
+    ReclamoEnBandeja:
+      type: object
+      additionalProperties: false
+      required: [reclamoId, codigo, categoria, producto, canalIngreso, estado, fechaIngreso, plazoRespuesta, diasHabilesPlazo, limiteVigente, vencido]
+      properties:
+        reclamoId:     { type: string, format: uuid }
+        codigo:        { type: string }
+        categoria:     { type: string, enum: [COMISION, OPERACION_NO_RECONOCIDA, SALDO, SERVICIO, DATOS_PERSONALES, GRUPO] }
+        producto:      { type: string }
+        canalIngreso:  { type: string, enum: [APP, WEB, TELEFONO, PRESENCIAL, CORREO] }
+        montoReclamado:
+          type: [string, 'null']
+          pattern: '^\d+\.\d{2}$'
+          description: Cadena decimal. La moneda no esta modelada en reclamo_cliente (A-7).
+        estado:        { type: string, enum: [INGRESADO, EN_ANALISIS, RESPONDIDO, CERRADO, ELEVADO] }
+        fechaIngreso:  { type: string, format: date-time }
+        plazoRespuesta: { type: string, format: date-time }
+        plazoProrrogadoHasta: { type: [string, 'null'], format: date-time }
+        diasHabilesPlazo: { type: integer }
+        limiteVigente:
+          type: string
+          format: date-time
+          description: La prorroga si la hay; si no, el plazo de respuesta. Guardado, no recalculado.
+        vencido:
+          type: boolean
+          description: Sin respuesta y con el limite vigente ya pasado (CU-52, 5c).
+        responsableId: { type: [string, 'null'], format: uuid }
+    FichaDeReclamo:
+      type: object
+      additionalProperties: false
+      required: [reclamo, descripcion]
+      properties:
+        reclamo:       { $ref: '#/components/schemas/ReclamoEnBandeja' }
+        descripcion:   { type: string }
+        resultado:     { type: [string, 'null'], enum: [FAVORABLE, DESFAVORABLE, PARCIAL, DESISTIDO, null] }
+        respuesta:     { type: [string, 'null'] }
+        fechaRespuesta: { type: [string, 'null'], format: date-time }
+        devolucionId:  { type: [string, 'null'], format: uuid }
+    EntradaRespuestaReclamo:
+      type: object
+      additionalProperties: false
+      required: [resultado, respuesta]
+      properties:
+        resultado:    { type: string, enum: [FAVORABLE, DESFAVORABLE, PARCIAL, DESISTIDO] }
+        respuesta:    { type: string, minLength: 1, maxLength: 4000 }
+        devolucionId:
+          type: string
+          format: uuid
+          description: La devolucion que ejecuto tarifas (CU-33). Obligatoria si FAVORABLE con monto.
+    SalidaRespuestaReclamo:
+      type: object
+      additionalProperties: false
+      required: [reclamoId, estado, resultado, limiteVigente]
+      properties:
+        reclamoId:     { type: string, format: uuid }
+        estado:        { type: string, enum: [CERRADO] }
+        resultado:     { type: string, enum: [FAVORABLE, DESFAVORABLE, PARCIAL, DESISTIDO] }
+        limiteVigente: { type: string, format: date-time }
     Dinero:
       type: object
       additionalProperties: false

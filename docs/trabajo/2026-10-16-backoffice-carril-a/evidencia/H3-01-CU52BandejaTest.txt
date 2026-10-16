@@ -1,0 +1,9 @@
+$ ./gradlew :servicios:cumplimiento:integrationTest --tests '*CU52BandejaTest*'
+bo.aportaya.cumplimiento.CU52BandejaTest tests 7 fallas 0 omitidas 0
+   PASS Dado un reclamo ya respondido · Cuando se consulta la bandeja sin filtro · Entonces no aparece; con el filtro CERRADO si
+   PASS Dados tres reclamos abiertos, uno con prorroga · Cuando el operador recorre la bandeja de a dos · Entonces los ve una sola vez, el que vence antes primero, y el prorrogado al final
+   PASS rechaza un filtro invalido: estado desconocido o cursor a medias son AP-CU52-07
+   PASS Dada una bandeja sin reclamos abiertos · Cuando el operador la consulta · Entonces recibe una pagina vacia y sin cursor, nunca un error
+   PASS rechaza la ficha de un reclamo inexistente: AP-CU52-05, no un 500
+   PASS Dado un reclamo ingresado · Cuando quien lo atiende abre su ficha · Entonces ve el texto del reclamo y todavia ninguna respuesta
+   PASS Dado un reclamo abierto cuyo limite guardado ya paso · Cuando se consulta la bandeja · Entonces aparece vencido, sin que su plazo cambie

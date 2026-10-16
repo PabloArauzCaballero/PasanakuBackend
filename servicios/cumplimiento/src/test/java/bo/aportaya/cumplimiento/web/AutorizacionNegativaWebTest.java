@@ -11,8 +11,10 @@ import bo.aportaya.cumplimiento.aplicacion.CU03DeclararPep;
 import bo.aportaya.cumplimiento.aplicacion.CU05AceptarContrato;
 import bo.aportaya.cumplimiento.aplicacion.CU05ConsultarContratosVigentes;
 import bo.aportaya.cumplimiento.aplicacion.CU46VerificarAlcance;
+import bo.aportaya.cumplimiento.aplicacion.CU52AtenderReclamo;
 import bo.aportaya.cumplimiento.aplicacion.CU54RegistrarRiesgoOperativo;
 import bo.aportaya.cumplimiento.aplicacion.CU55GestionarIncidente;
+import bo.aportaya.cumplimiento.aplicacion.ConsultarBandejaDeReclamos;
 import bo.aportaya.cumplimiento.aplicacion.ConsultarEfectoDelReclamo;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.Sesiones;
@@ -68,6 +70,13 @@ class AutorizacionNegativaWebTest {
 
     @MockitoBean
     private ConsultarEfectoDelReclamo efecto;
+
+    // La bandeja, la ficha y la respuesta de CU-52 (backoffice carril A · H3) viven en el mismo controlador.
+    @MockitoBean
+    private ConsultarBandejaDeReclamos bandejaDeReclamos;
+
+    @MockitoBean
+    private CU52AtenderReclamo cu52;
 
     /** Ruta, y los roles que NO deben poder usarla (ninguno tiene el permiso de la ruta). */
     static Stream<Arguments> rutasDeFuncion() {

@@ -82,6 +82,9 @@ export const ErroresCU52 = {
   PRORROGA_EXCEDIDA: 'AP-CU52-02',
   FALTA_REPARACION: 'AP-CU52-03',
   PLAZO_VENCIDO: 'AP-CU52-04',
+  RECLAMO_INEXISTENTE: 'AP-CU52-05',
+  RECLAMO_YA_CERRADO: 'AP-CU52-06',
+  FILTRO_DE_BANDEJA_INVALIDO: 'AP-CU52-07',
 } as const
 ```
 
@@ -91,6 +94,17 @@ export const ErroresCU52 = {
 | `PRORROGA_EXCEDIDA` | La prórroga supera el máximo sin comunicación al organismo (R-CON-03) |
 | `FALTA_REPARACION` | Reclamo favorable con monto exige devolución asociada (R-CON-04) |
 | `PLAZO_VENCIDO` | Se responde igual y escala a hallazgo |
+| `RECLAMO_INEXISTENTE` | El reclamo que se consulta, prorroga o responde no existe |
+| `RECLAMO_YA_CERRADO` | El reclamo ya tiene otra respuesta (un reintento idéntico del mismo responsable devuelve el recibo, no este error) |
+| `FILTRO_DE_BANDEJA_INVALIDO` | La bandeja recibió un estado que no existe o un cursor a medias |
+
+**Bandeja, ficha y respuesta del Punto de Reclamo (backoffice carril A).** `GET /reclamos`
+(`listarBandejaDeReclamos`, `RECLAMO_VER`) ordena por el límite vigente —la prórroga si la hay— y
+pagina por cursor `(limiteVigente, id)`, sin texto ni persona; sin filtro devuelve los abiertos.
+`GET /reclamos/{reclamoId}` (`consultarReclamo`, `RECLAMO_ATENDER`) trae el texto para responder.
+`POST /reclamos/{reclamoId}/respuesta` (`responderReclamo`, `RECLAMO_ATENDER`) cierra el reclamo;
+repetir la misma respuesta del mismo responsable devuelve el mismo recibo sin otro evento. El monto
+viaja como cadena decimal **sin moneda**: `reclamo_cliente` no la modela (hueco declarado).
 
 ## Descomposición atómica
 
@@ -109,6 +123,8 @@ export const ErroresCU52 = {
 | --- | --- | --- |
 | `reclamo.ingresado` | Código al cliente y reloj del plazo | Ninguno: canal público |
 | `reclamo.respondido` | Reparación si corresponde y aviso | `RECLAMO_ATENDER` |
+| — (bandeja del Punto de Reclamo) | — | `RECLAMO_VER` |
+| — (ficha con el texto del reclamo) | — | `RECLAMO_ATENDER` |
 | `reclamo.vencido` | Hallazgo de auditoría | — |
 
 ## Interfaz
@@ -139,6 +155,32 @@ Entonces plazo_prorrogado_hasta no excede 10 días hábiles
 Dado un reclamo con resultado FAVORABLE y monto reclamado de Bs 18
 Cuando se intenta cerrar sin devolución asociada
 Entonces el cierre se rechaza
+
+# Bandeja y ficha del Punto de Reclamo (backoffice carril A)
+Dados tres reclamos abiertos, uno con prorroga
+Cuando el operador recorre la bandeja de a dos
+Entonces los ve una sola vez, el que vence antes primero, y el prorrogado al final
+
+Dado un reclamo ya respondido
+Cuando se consulta la bandeja sin filtro
+Entonces no aparece; con el filtro CERRADO si
+
+Dado un reclamo abierto cuyo limite guardado ya paso
+Cuando se consulta la bandeja
+Entonces aparece vencido, sin que su plazo cambie
+
+Dada una bandeja sin reclamos abiertos
+Cuando el operador la consulta
+Entonces recibe una pagina vacia y sin cursor, nunca un error
+
+Dado un reclamo ingresado
+Cuando quien lo atiende abre su ficha
+Entonces ve el texto del reclamo y todavia ninguna respuesta
+
+# Respuesta segura de reintentar
+Dado un reclamo respondido
+Cuando el mismo responsable repite la misma respuesta
+Entonces recibe el mismo recibo y el evento se emitio una sola vez
 ```
 
 ## Ver también
