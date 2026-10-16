@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../proveedores/sesion.dart';
 import 'dominio/kyc_del_titular.dart';
 
 /// Estado propio y acción de completar evidencia faltante, dentro de Perfil.
@@ -12,15 +11,7 @@ class SeccionVerificacionKyc extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(generacionDeSesionProvider);
-    final usuarioId = ref.read(sesionProvider).usuarioIdActual;
-    if (usuarioId == null) {
-      return const ListTile(
-        title: Text('Verificación de identidad (KYC)'),
-        subtitle: Text('Iniciá sesión para consultar tu verificación.'),
-      );
-    }
-    final estado = ref.watch(kycDelTitularProvider(usuarioId));
+    final estado = ref.watch(kycDeLaSesionProvider);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -33,13 +24,17 @@ class SeccionVerificacionKyc extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             estado.when(
-              loading: () => const LinearProgressIndicator(),
+              loading: () => const Text('Consultando tu verificación…'),
               error: (_, _) => TextButton(
-                onPressed: () =>
-                    ref.invalidate(kycDelTitularProvider(usuarioId)),
+                onPressed: () => ref.invalidate(kycDeLaSesionProvider),
                 child: const Text('No pudimos consultar el estado. Reintentar'),
               ),
               data: (expediente) {
+                if (expediente == null) {
+                  return const Text(
+                    'Iniciá sesión para consultar tu verificación.',
+                  );
+                }
                 final faltantes = pendientesDeKyc(expediente);
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,

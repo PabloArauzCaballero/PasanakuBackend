@@ -1,7 +1,23 @@
 import 'package:aportaya_cliente_identidad/aportaya_cliente_identidad.dart';
+import 'package:aportaya_movil/proveedores/sesion.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'cu02_consultar_verificacion.dart';
+
+/// Resuelve el titular desde el `sub` del token local; el backend vuelve a validar la sesión.
+final usuarioIdDeLaSesionProvider = FutureProvider<String?>((ref) {
+  ref.watch(generacionDeSesionProvider);
+  return ref.read(sesionProvider).usuarioId();
+});
+
+final kycDeLaSesionProvider = FutureProvider<EstadoDeVerificacion?>((
+  ref,
+) async {
+  ref.watch(generacionDeSesionProvider);
+  final usuarioId = await ref.read(sesionProvider).usuarioId();
+  if (usuarioId == null) return null;
+  return ref.read(consultarVerificacionProvider).ejecutar(usuarioId);
+});
 
 /// Resumen del KYC propio para el Perfil. El backend vuelve a validar la sesión y titularidad.
 final kycDelTitularProvider =
