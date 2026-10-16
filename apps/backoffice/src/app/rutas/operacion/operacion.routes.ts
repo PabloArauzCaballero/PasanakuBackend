@@ -69,6 +69,13 @@ export const rutasOperacion: Routes = [
     title: 'Cierres diarios · AportaYa',
     canMatch: [requierePermiso('AUDITORIA_LEER')],
   },
+  {
+    // CU-14 · `listarReversos` (solo lectura) exige AUDITORIA_LEER.
+    path: 'reversos',
+    loadComponent: () => import('./reversos/listado-de-reversos').then((m) => m.ListadoDeReversos),
+    title: 'Reversos · AportaYa',
+    canMatch: [requierePermiso('AUDITORIA_LEER')],
+  },
   // `estado/` es de F6 (ficha F6, estructura congelada): la ficha se lo asigna al shell
   // aunque viva dentro del dominio `operacion` que B1 posee. Es la única entrada de esta
   // lista que F6 agrega; el resto de `operacion.routes.ts` lo llena B1.
