@@ -74,6 +74,7 @@ export const ErroresCU105 = {
   DEPRECIACION_YA_CALCULADA: 'AP-CU105-01',
   ACTIVO_YA_AGOTADO: 'AP-CU105-02',
   ACTIVO_DADO_DE_BAJA: 'AP-CU105-03',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU105-04',
 } as const
 ```
 
@@ -82,6 +83,9 @@ export const ErroresCU105 = {
 | `DEPRECIACION_YA_CALCULADA` | Ya existe `depreciacion_activo` para ese activo y período |
 | `ACTIVO_YA_AGOTADO` | `valor_en_libros` ya llegó a `valor_residual` |
 | `ACTIVO_DADO_DE_BAJA` | El activo está `DADO_DE_BAJA` o `VENDIDO` |
+| `FILTRO_DE_LISTADO_INVALIDO` | En el listado del backoffice: cursor a medias (`antesDe` sin `antesDeId` o al revés) o un estado fuera del catálogo |
+
+**Listado del backoffice (carril A).** `GET /erp/activos` (`listarActivosFijos`) es el inventario con cursor `(fechaAdquisicion, id)` descendente: código, descripción del bien, categoría y vida útil, costo, residual, depreciación acumulada y valor en libros (costo menos acumulada, el mismo átomo `valorEnLibros`) con su moneda. `depreciadoEnElPeriodoVigente` dice si ya tiene `depreciacion_activo` en el período que contiene hoy en America/La_Paz. Exige `CONTABILIDAD_ERP_ACTIVOS_FIJOS` o `CONTABILIDAD_ERP_REPORTES`. Pagina por cursor keyset con desempate por id (`limite` 1..100, 25 por omisión); un filtro inválido es `AP-CU105-04` y no una lista vacía.
 
 ## Descomposición atómica
 
@@ -99,6 +103,7 @@ export const ErroresCU105 = {
 | --- | --- | --- |
 | `activo_fijo.depreciado` | Actualiza el mayor con el gasto del período | Interno (worker de cierre) |
 | `activo_fijo.dado_de_baja` | Detiene la depreciación futura | `CONTABILIDAD_ERP_ACTIVOS_FIJOS` |
+| — (listado `listarActivosFijos`) | — | `CONTABILIDAD_ERP_ACTIVOS_FIJOS` o `CONTABILIDAD_ERP_REPORTES` |
 
 ## Interfaz
 
@@ -129,6 +134,15 @@ Entonces el sistema devuelve ACTIVO_YA_AGOTADO
 Dado un activo fijo ya depreciado en el período vigente
 Cuando se intenta calcular la depreciación de ese mismo período otra vez
 Entonces el sistema devuelve DEPRECIACION_YA_CALCULADA
+
+# Listado del backoffice (backoffice carril A)
+Dados dos activos adquiridos el mismo dia y uno ya depreciado en el periodo vigente
+Cuando Contabilidad recorre el inventario de a uno
+Entonces no se repite ninguno y solo el depreciado dice que ya tiene cuota en el periodo vigente, con su valor en libros
+
+Dado un activo depreciado en junio y otro dado de baja
+Cuando Contabilidad consulta el inventario en julio
+Entonces el depreciado ya no figura con cuota en el periodo vigente y el filtro por DADO_DE_BAJA trae solo el dado de baja
 ```
 
 ## Ver también

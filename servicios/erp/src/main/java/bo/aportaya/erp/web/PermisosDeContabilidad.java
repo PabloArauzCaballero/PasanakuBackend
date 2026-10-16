@@ -16,6 +16,7 @@ final class PermisosDeContabilidad {
     static final String PAGAR = "CONTABILIDAD_ERP_PAGAR";
     static final String COBRAR = "CONTABILIDAD_ERP_COBRAR";
     static final String ACTIVOS_FIJOS = "CONTABILIDAD_ERP_ACTIVOS_FIJOS";
+    static final String REPORTES = "CONTABILIDAD_ERP_REPORTES";
 
     private PermisosDeContabilidad() {}
 }

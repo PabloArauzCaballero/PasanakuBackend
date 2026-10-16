@@ -70,6 +70,9 @@ class ErpPeriodosWebTest {
     @MockitoBean
     private bo.aportaya.erp.aplicacion.CU106DescargarEstadoFinanciero descarga;
 
+    @MockitoBean
+    private bo.aportaya.erp.aplicacion.ConsultarListadosDeErp listados;
+
     private static CU100AbrirCerrarPeriodo.PeriodoVigente marzo() {
         return new CU100AbrirCerrarPeriodo.PeriodoVigente(
                 PERIODO, EJERCICIO, 2026, 3, "ABIERTO", LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 31));
