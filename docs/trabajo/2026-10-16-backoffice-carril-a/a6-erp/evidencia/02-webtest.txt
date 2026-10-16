@@ -1,0 +1,7 @@
+servicios/erp/build/test-results/webTest/TEST-bo.aportaya.erp.web.ErpControllerWebTest$Contabilidad.xml:testsuite name="El ejercicio fiscal y los estados financieros" tests="8" skipped="0" failures="0" errors="0"
+servicios/erp/build/test-results/webTest/TEST-bo.aportaya.erp.web.ErpControllerWebTest$ControlInterno.xml:testsuite name="Ocho permisos, y ninguno sirve para el trabajo del otro" tests="5" skipped="0" failures="0" errors="0"
+servicios/erp/build/test-results/webTest/TEST-bo.aportaya.erp.web.ListadosDeErpWebTest.xml:testsuite name="bo.aportaya.erp.web.ListadosDeErpWebTest" tests="7" skipped="0" failures="0" errors="0"
+servicios/erp/build/test-results/webTest/TEST-bo.aportaya.erp.web.ErpPeriodosWebTest.xml:testsuite name="bo.aportaya.erp.web.ErpPeriodosWebTest" tests="8" skipped="0" failures="0" errors="0"
+servicios/erp/build/test-results/webTest/TEST-bo.aportaya.erp.web.PagoDeFacturaWebTest.xml:testsuite name="bo.aportaya.erp.web.PagoDeFacturaWebTest" tests="12" skipped="0" failures="0" errors="0"
+servicios/erp/build/test-results/webTest/TEST-bo.aportaya.erp.web.RegistroDeFacturaWebTest.xml:testsuite name="bo.aportaya.erp.web.RegistroDeFacturaWebTest" tests="6" skipped="0" failures="0" errors="0"
+servicios/erp/build/test-results/webTest/TEST-bo.aportaya.erp.web.SeguridadWebTest.xml:testsuite name="bo.aportaya.erp.web.SeguridadWebTest" tests="6" skipped="0" failures="0" errors="0"

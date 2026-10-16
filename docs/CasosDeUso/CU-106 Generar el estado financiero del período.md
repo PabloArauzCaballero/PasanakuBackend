@@ -71,6 +71,8 @@ export const SalidaCU106 = z.object({
 export const ErroresCU106 = {
   YA_GENERADO_PARA_ESE_PERIODO: 'AP-CU106-01',
   CUENTA_PLANTILLA_INVALIDA: 'AP-CU106-02',
+  ESTADO_FINANCIERO_INEXISTENTE: 'AP-CU106-03',
+  INTEGRIDAD_DEL_DOCUMENTO: 'AP-CU106-04',
 } as const
 ```
 
@@ -78,6 +80,13 @@ export const ErroresCU106 = {
 | --- | --- |
 | `YA_GENERADO_PARA_ESE_PERIODO` | Ya existe un `estado_financiero_generado` de ese `tipo` para ese período |
 | `CUENTA_PLANTILLA_INVALIDA` | Una `linea_plantilla_asiento` apunta a una cuenta inactiva o sumarizadora |
+| `ESTADO_FINANCIERO_INEXISTENTE` | Se pide el documento de un estado financiero que no existe |
+| `INTEGRIDAD_DEL_DOCUMENTO` | Lo guardado ya no da el hash sellado al generarlo: el documento no se entrega |
+
+**Descarga del documento sellado (backoffice carril A).** `GET /erp/estados-financieros/{id}/documento`
+(`descargarEstadoFinanciero`, `CONTABILIDAD_ERP_REPORTES`): el servidor reconstruye el texto
+canónico con la misma función que lo selló, recalcula el SHA-256 y solo entrega si coincide; la
+cabecera `X-Hash-Contenido` repite el hash. El cliente compara, no recalcula.
 
 ## Descomposición atómica
 
@@ -124,6 +133,11 @@ Entonces el sistema devuelve YA_GENERADO_PARA_ESE_PERIODO
 Dada una asiento_plantilla activa con dos líneas balanceadas
 Cuando se aplica antes del cierre del período
 Entonces se crea un asiento_contable cuadrado con esas partidas
+
+# Descarga del documento sellado (backoffice carril A)
+Dado un balance general generado sobre un mes cerrado
+Cuando Contabilidad descarga su documento
+Entonces el contenido entregado hashea al hash sellado al generarlo
 ```
 
 ## Ver también

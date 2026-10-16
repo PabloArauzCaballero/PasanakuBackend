@@ -8,6 +8,7 @@ import bo.aportaya.publicidad.aplicacion.CU111CrearCampana;
 import bo.aportaya.publicidad.aplicacion.CU112ModerarPieza;
 import bo.aportaya.publicidad.aplicacion.CU113EntregarAnuncio;
 import bo.aportaya.publicidad.aplicacion.CU114LiquidarPublicidad;
+import bo.aportaya.publicidad.aplicacion.ConsultarListadosDePublicidad;
 import bo.aportaya.publicidad.web.generado.PublicidadApi;
 import bo.aportaya.publicidad.web.generado.modelo.EntradaAnunciante;
 import bo.aportaya.publicidad.web.generado.modelo.EntradaAnuncio;
@@ -19,6 +20,9 @@ import bo.aportaya.publicidad.web.generado.modelo.EntradaPieza;
 import bo.aportaya.publicidad.web.generado.modelo.EntradaRechazo;
 import bo.aportaya.publicidad.web.generado.modelo.EntradaRevision;
 import bo.aportaya.publicidad.web.generado.modelo.EntradaSocio;
+import bo.aportaya.publicidad.web.generado.modelo.PaginaDeAnunciantes;
+import bo.aportaya.publicidad.web.generado.modelo.PaginaDeCampanas;
+import bo.aportaya.publicidad.web.generado.modelo.PaginaDePiezas;
 import bo.aportaya.publicidad.web.generado.modelo.SalidaAnunciante;
 import bo.aportaya.publicidad.web.generado.modelo.SalidaAnuncio;
 import bo.aportaya.publicidad.web.generado.modelo.SalidaCampana;
@@ -30,6 +34,8 @@ import bo.aportaya.publicidad.web.generado.modelo.SalidaLiquidacion;
 import bo.aportaya.publicidad.web.generado.modelo.SalidaPieza;
 import bo.aportaya.publicidad.web.generado.modelo.SalidaRevision;
 import bo.aportaya.publicidad.web.generado.modelo.SalidaSocio;
+import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +58,7 @@ public class PublicidadController implements PublicidadApi {
     private final CU113EntregarAnuncio cu113;
     private final CU114LiquidarPublicidad cu114;
     private final SesionDeLaPeticion sesion;
+    private final ListadosDePublicidadWeb listados;
 
     public PublicidadController(
             CU110AltaDeAnunciante cu110,
@@ -59,6 +66,7 @@ public class PublicidadController implements PublicidadApi {
             CU112ModerarPieza cu112,
             CU113EntregarAnuncio cu113,
             CU114LiquidarPublicidad cu114,
+            ConsultarListadosDePublicidad listados,
             SesionDeLaPeticion sesion) {
         this.cu110 = cu110;
         this.cu111 = cu111;
@@ -66,6 +74,29 @@ public class PublicidadController implements PublicidadApi {
         this.cu113 = cu113;
         this.cu114 = cu114;
         this.sesion = sesion;
+        this.listados = new ListadosDePublicidadWeb(listados);
+    }
+
+    @Override
+    @Permiso("PUBLICIDAD_ANUNCIANTES")
+    public ResponseEntity<PaginaDeAnunciantes> listarAnunciantes(
+            List<String> estados, Integer limite, OffsetDateTime despuesDeFecha, UUID despuesDeId) {
+        return ResponseEntity.ok(listados.anunciantes(estados, limite, despuesDeFecha, despuesDeId, sesion.actual()));
+    }
+
+    @Override
+    @Permiso("PUBLICIDAD_APROBAR_CAMPANA")
+    public ResponseEntity<PaginaDeCampanas> listarCampanas(
+            List<String> estados, Integer limite, OffsetDateTime despuesDeFecha, UUID despuesDeId) {
+        return ResponseEntity.ok(listados.campanas(estados, limite, despuesDeFecha, despuesDeId, sesion.actual()));
+    }
+
+    @Override
+    @Permiso("PUBLICIDAD_MODERAR")
+    public ResponseEntity<PaginaDePiezas> listarPiezasCreativas(
+            String estadoModeracion, Integer limite, OffsetDateTime despuesDeFecha, UUID despuesDeId) {
+        return ResponseEntity.ok(
+                listados.piezas(estadoModeracion, limite, despuesDeFecha, despuesDeId, sesion.actual()));
     }
 
     // ------------------------------------------------------------------ CU-110 --
@@ -73,7 +104,8 @@ public class PublicidadController implements PublicidadApi {
     @Override
     @Permiso("PUBLICIDAD_ANUNCIANTES")
     public ResponseEntity<SalidaSocio> postularSocioComercial(UUID idempotencyKey, EntradaSocio cuerpo) {
-        Traza.marcarCasoDeUso("CU-110", cuerpo.getNumeroDocumento());
+        // Nunca el documento en la traza: los logs llevan identificadores, no contenidos (regla 90.2.1).
+        Traza.marcarCasoDeUso("CU-110", "postulacion-socio");
 
         UUID id = cu110.postularSocio(MapeoDePublicidad.socio(cuerpo), sesion.actual());
         return ResponseEntity.status(HttpStatus.CREATED).body(socio(id, SalidaSocio.EstadoEnum.POSTULADO));

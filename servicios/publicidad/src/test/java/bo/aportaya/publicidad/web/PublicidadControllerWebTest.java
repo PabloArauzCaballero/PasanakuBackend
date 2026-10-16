@@ -67,6 +67,9 @@ class PublicidadControllerWebTest {
     @MockitoBean
     private CU114LiquidarPublicidad cu114;
 
+    @MockitoBean
+    private bo.aportaya.publicidad.aplicacion.ConsultarListadosDePublicidad listados;
+
     @Nested
     @DisplayName("CU-113 · entregar un anuncio y cobrarlo")
     class Entrega {

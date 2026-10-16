@@ -82,6 +82,7 @@ export const ErroresCU111 = {
   LIMITE_DE_GASTO_EXCEDIDO: 'AP-CU111-01',
   ESPACIO_PUBLICITARIO_INACTIVO: 'AP-CU111-02',
   CUENTA_PUBLICITARIA_NO_ACTIVA: 'AP-CU111-03',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU111-04',
 } as const
 ```
 
@@ -90,6 +91,9 @@ export const ErroresCU111 = {
 | `LIMITE_DE_GASTO_EXCEDIDO` | El presupuesto total supera el límite disponible de la cuenta publicitaria |
 | `ESPACIO_PUBLICITARIO_INACTIVO` | El `espacio_publicitario_id` referenciado tiene `activo = false` |
 | `CUENTA_PUBLICITARIA_NO_ACTIVA` | La cuenta publicitaria no está `ACTIVA` |
+| `FILTRO_DE_LISTADO_INVALIDO` | La cola recibió un estado que no existe o un cursor a medias |
+
+**Cola de aprobación (backoffice carril A).** `GET /publicidad/campanas` (`listarCampanas`, `PUBLICIDAD_APROBAR_CAMPANA`): sin filtro devuelve `EN_REVISION`, la que empieza antes primero, con presupuestos como `Dinero`. Es la vista de Operaciones; el anunciante no ve campañas ajenas por esta ruta.
 
 ## Descomposición atómica
 
@@ -140,6 +144,15 @@ Entonces la campaña pasa a ACTIVA con aprobada_por registrado
 Dada una campaña cuyo presupuesto_total excede el límite disponible de la cuenta
 Cuando Operaciones intenta aprobarla
 Entonces el sistema devuelve LIMITE_DE_GASTO_EXCEDIDO
+
+# Listado del backoffice (carril A)
+Dadas dos campanas en revision
+Cuando Operaciones abre la cola sin filtro
+Entonces ve las dos, la que empieza antes primero, con presupuesto y moneda
+
+Dada una ventana sin campanas
+Cuando Operaciones abre la cola
+Entonces recibe una pagina vacia y sin cursor, nunca un error
 ```
 
 ## Ver también

@@ -1,5 +1,6 @@
 package bo.aportaya.nucleofinanciero.web;
 
+import bo.aportaya.nucleofinanciero.aplicacion.BandejaDeRetiros;
 import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion;
@@ -8,15 +9,20 @@ import bo.aportaya.nucleofinanciero.aplicacion.OrdenesExistentes;
 import bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.CuentaDeLaSesion;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaAprobacionRetiro;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaCotizacionOperacion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaRecarga;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaRetiro;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.PaginaRetirosEnRevision;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.RetiroEnRevision;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaAcreditacion;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaAprobacionRetiro;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaCotizacionOperacion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaRecarga;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaRetiro;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,6 +55,7 @@ class FondeoDeLaBilletera {
     private final CuentaPropia cuentaPropia;
     private final OrdenesExistentes existentes;
     private final SegundoFactor segundoFactor;
+    private final BandejaDeRetiros bandeja;
     private final BigDecimal desdeCuandoSonDosFirmas;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
@@ -59,6 +66,7 @@ class FondeoDeLaBilletera {
             CuentaPropia cuentaPropia,
             OrdenesExistentes existentes,
             SegundoFactor segundoFactor,
+            BandejaDeRetiros bandeja,
             @Value("${aportaya.retiro.doble-aprobacion-desde}") BigDecimal desdeCuandoSonDosFirmas) {
         this.recargas = recargas;
         this.cu11 = cu11;
@@ -66,6 +74,7 @@ class FondeoDeLaBilletera {
         this.cuentaPropia = cuentaPropia;
         this.existentes = existentes;
         this.segundoFactor = segundoFactor;
+        this.bandeja = bandeja;
         this.desdeCuandoSonDosFirmas = desdeCuandoSonDosFirmas;
     }
 
@@ -171,5 +180,59 @@ class FondeoDeLaBilletera {
         respuesta.setMontoNeto(MapeoDeBilletera.dinero(salida.montoNeto()));
         respuesta.setRetencionId(salida.retencionId());
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+    }
+
+    /**
+     * La bandeja de la segunda aprobacion (ADR-049): solo lo necesario para decidir, sin destino ni
+     * datos de la persona (respuesta minima). Sin {@code limite} el contrato ya trae su default.
+     */
+    ResponseEntity<PaginaRetirosEnRevision> listarRetirosEnRevision(
+            Integer limite, OffsetDateTime despuesDeFecha, UUID despuesDeId, ContextoSesion ctx) {
+        bo.aportaya.plataforma.web.traza.Traza.marcarCasoDeUso("CU-11", "bandeja");
+        var pagina =
+                bandeja.enRevision(Optional.ofNullable(despuesDeFecha), Optional.ofNullable(despuesDeId), limite, ctx);
+
+        var respuesta = new PaginaRetirosEnRevision();
+        respuesta.setItems(pagina.items().stream()
+                .map(FondeoDeLaBilletera::retiroEnRevision)
+                .toList());
+        respuesta.setProximoFecha(pagina.proximoFecha().orElse(null));
+        respuesta.setProximoId(pagina.proximoId().orElse(null));
+        return ResponseEntity.ok(respuesta);
+    }
+
+    private static RetiroEnRevision retiroEnRevision(BandejaDeRetiros.Fila fila) {
+        var item = new RetiroEnRevision();
+        item.setOrdenRetiroId(fila.ordenRetiroId());
+        item.setCuentaBilleteraId(fila.cuentaId());
+        item.setSolicitadaPor(fila.solicitadaPor());
+        item.setSolicitado(MapeoDeBilletera.dinero(fila.solicitado()));
+        item.setCosto(MapeoDeBilletera.dinero(fila.costo()));
+        item.setNeto(MapeoDeBilletera.dinero(fila.neto()));
+        item.setMfaVerificado(fila.mfaVerificado());
+        item.setSolicitadaEn(fila.solicitadaEn());
+        item.setVentanaEnfriamientoHasta(fila.enfriamientoHasta().orElse(null));
+        item.setPuedeDecidir(fila.puedeDecidir());
+        return item;
+    }
+
+    /**
+     * La segunda firma (ADR-049). La segregacion solicitante-distinto-de-aprobador la exigen el caso de
+     * uso y la base ({@code ck_retiro_doble_aprobacion}). La clave viaja al caso de uso: perder la
+     * respuesta y reintentar devuelve el mismo recibo, no un "ya no esta en revision" por una orden
+     * que este mismo aprobador acaba de resolver.
+     */
+    ResponseEntity<SalidaAprobacionRetiro> aprobarRetiro(
+            UUID ordenId, UUID clave, EntradaAprobacionRetiro cuerpo, ContextoSesion ctx) {
+        bo.aportaya.plataforma.web.traza.Traza.marcarCasoDeUso("CU-11", ordenId.toString());
+        var salida = cuerpo.getDesenlace() == EntradaAprobacionRetiro.DesenlaceEnum.AUTORIZADA
+                ? cu11.aprobar(ordenId, clave.toString(), ctx)
+                : cu11.rechazarRevision(ordenId, cuerpo.getMotivo(), clave.toString(), ctx);
+
+        var respuesta = new SalidaAprobacionRetiro();
+        respuesta.setOrdenRetiroId(salida.ordenRetiroId());
+        respuesta.setEstado(SalidaAprobacionRetiro.EstadoEnum.fromValue(salida.estado()));
+        respuesta.setAprobadaPor(salida.aprobadaPor());
+        return ResponseEntity.ok(respuesta);
     }
 }

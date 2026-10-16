@@ -1,0 +1,16 @@
+$ python3 docs/trabajo/2026-10-16-backoffice-carril-a/entregables/matriz.py --verificar
+OK · las matrices coinciden con las fuentes
+
+$ grep "Total no catalogados" entregables/matriz-autorizacion.md
+Total no catalogados: 33
+$ python3 scripts/verificar_seguridad.py | grep S-8
+  AVISO · S-8 · 33 permisos que un CU exige y el catálogo no tiene: APORTE_A_GRUPO, AUTOMATIZACION_ADMINISTRAR, BACKOFFICE, BILLETERA_MOVIL, CALENDARIO_ADMINISTRAR, COBRANZA_GESTIONAR…
+
+## Resumen
+
+- ausente: 13
+- existe: 8
+- sin CU en el flujo: 5
+- sin lectura atribuida: 17
+
+## Lecturas (`GET`) que no están atribuidas a ningún CU

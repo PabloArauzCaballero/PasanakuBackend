@@ -6,6 +6,7 @@ import bo.aportaya.nucleofinanciero.aplicacion.CU13RetenerSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion;
 import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto;
 import bo.aportaya.nucleofinanciero.aplicacion.CU17BloquearPorAutoridad;
+import bo.aportaya.nucleofinanciero.aplicacion.ConsultarMovimientosBilletera;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
 import bo.aportaya.nucleofinanciero.dominio.puertos.CotizadorDeComision;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
@@ -40,6 +41,10 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     @MockitoBean
     private CU11RetirarSaldo cu11RetirarSaldo;
 
+    // El controlador tambien lee los movimientos recientes: sin este doble el contexto no carga.
+    @MockitoBean
+    private ConsultarMovimientosBilletera consultasDeMovimientos;
+
     @MockitoBean
     private CU13RetenerSaldo cu13RetenerSaldo;
 
@@ -69,4 +74,16 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private QrDeLaBilletera qrDeLaBilletera;
+
+    @MockitoBean
+    private bo.aportaya.nucleofinanciero.aplicacion.ConsultarTesoreria consultarTesoreria;
+
+    @MockitoBean
+    private bo.aportaya.nucleofinanciero.aplicacion.CU50ConciliarCustodia cu50ConciliarCustodia;
+
+    @MockitoBean
+    private bo.aportaya.nucleofinanciero.aplicacion.CierreDiarioDesdeContabilidad cierreDiarioDesdeContabilidad;
+
+    @MockitoBean
+    private bo.aportaya.nucleofinanciero.dominio.puertos.RecaudoDelDia recaudoDelDia;
 }

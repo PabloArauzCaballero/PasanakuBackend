@@ -1,0 +1,6 @@
+$ ./gradlew :servicios:erp:integrationTest --tests '*CU100PeriodosTest*'
+bo.aportaya.erp.CU100PeriodosTest tests 4 fallas 0 omitidas 0
+   PASS Dados tres ejercicios · Cuando Contabilidad los recorre de a dos · Entonces van del mas reciente al mas antiguo, cada uno con sus doce periodos, sin repetir ninguno
+   PASS Dado un dia que ningun periodo contiene · Cuando se consulta el periodo vigente · Entonces responde SIN_PERIODO_VIGENTE y no elige uno cualquiera
+   PASS Dado un periodo vigente ya cerrado · Cuando se consulta el periodo vigente · Entonces vuelve con estado CERRADO: el estado se informa, no se salta al mes siguiente
+   PASS Dado un ejercicio abierto y el reloj en la noche del 31 de marzo en La Paz · Cuando se consulta el periodo vigente · Entonces es marzo, aunque en UTC ya sea primero de abril

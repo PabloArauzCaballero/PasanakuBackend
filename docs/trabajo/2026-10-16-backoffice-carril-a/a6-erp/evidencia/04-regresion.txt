@@ -1,0 +1,15 @@
+$ ./gradlew :servicios:erp:spotlessCheck :servicios:erp:test :servicios:erp:webTest :servicios:erp:integrationTest :servicios:erp:testBarrido :servicios:erp:contractTest --no-build-cache --continue
+> Task :servicios:erp:spotlessCheck UP-TO-DATE   (spotlessApply corrido justo antes)
+> Task :servicios:erp:test
+> Task :servicios:erp:webTest
+> Task :servicios:erp:integrationTest
+> Task :servicios:erp:testBarrido
+> Task :servicios:erp:contractTest NO-SOURCE
+BUILD SUCCESSFUL in 55s   (exit 0)
+
+--- conteos sacados de servicios/erp/build/test-results/<task>/TEST-*.xml
+test:            tests=5   skipped=0 failures=0 errors=0
+webTest:         tests=52  skipped=0 failures=0 errors=0
+integrationTest: tests=117 skipped=0 failures=0 errors=0   (incluye ArranqueTest: 24 rutas /erp, tests=1 failures=0)
+testBarrido:     tests=2   skipped=0 failures=0 errors=0
+contractTest:    NO-SOURCE (el modulo no tiene pruebas de contrato)

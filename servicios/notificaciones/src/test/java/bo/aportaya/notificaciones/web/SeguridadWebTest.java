@@ -26,6 +26,9 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private CU82ProcesarRespuesta cu82ProcesarRespuesta;
 
     @MockitoBean
+    private bo.aportaya.notificaciones.aplicacion.ConsultarMensajeria consultarMensajeria;
+
+    @MockitoBean
     private ConsultarSupresion consultarSupresion;
 
     @MockitoBean

@@ -1,0 +1,42 @@
+$ ./gradlew :servicios:cumplimiento:spotlessCheck test webTest integrationTest testBarrido contractTest --no-build-cache --continue
+BUILD SUCCESSFUL (exit=0)
+  test             tests=14 skipped=0 failures=0 errors=0
+  webTest          tests=78 skipped=0 failures=0 errors=0
+  integrationTest  tests=318 skipped=0 failures=0 errors=0
+  testBarrido      tests=2 skipped=0 failures=0 errors=0
+  contractTest     tests=0 skipped=0 failures=0 errors=0
+
+bo.aportaya.cumplimiento.CU43ColaTest tests=2 failures=0 errors=0
+   PASS · Dados reportes GENERADO y ENVIADO · Cuando el oficial lista la cola filtrando por GENERADO · Entonces ve solo los generados, del corte más reciente al más antiguo, con el monto sin moneda
+   PASS · rechaza un estado desconocido o un cursor a medias con AP-CU43-05
+bo.aportaya.cumplimiento.CU45ColaTest tests=2 failures=0 errors=0
+   PASS · rechaza un estado desconocido o un cursor a medias con AP-CU45-05
+   PASS · Dados oficios RECIBIDO y RESPONDIDO · Cuando el oficial lista la cola sin filtro · Entonces ve los dos, del recibido más reciente al más antiguo, sin el alcance ni el documento
+bo.aportaya.cumplimiento.CU54ColaTest tests=2 failures=0 errors=0
+   PASS · Dados un evento REGISTRADO y uno CERRADO · Cuando Riesgos lista los eventos filtrando por REGISTRADO · Entonces ve solo el registrado con su pérdida bruta, recuperación y pérdida neta en su moneda
+   PASS · rechaza un estado desconocido con AP-CU54-04
+bo.aportaya.cumplimiento.CU55ColaTest tests=2 failures=0 errors=0
+   PASS · Dados dos incidentes DETECTADO · Cuando Seguridad recorre la cola de a uno · Entonces ve cada uno una sola vez, del más reciente al más antiguo, con su plazo de reporte
+   PASS · rechaza un cursor a medias en la cola de incidentes con AP-CU55-04
+bo.aportaya.cumplimiento.CU56ColaTest tests=2 failures=0 errors=0
+   PASS · Dadas dos pruebas de continuidad en fechas distintas · Cuando Riesgos lista las pruebas · Entonces las ve de la más reciente a la más antigua con su RTO, RPO y resultado
+   PASS · rechaza un cursor a medias en la cola de pruebas con AP-CU56-04
+bo.aportaya.cumplimiento.CU94ColaTest tests=2 failures=0 errors=0
+   PASS · Dada un acta de comité registrada · Cuando el oficial lista las actas · Entonces la ve con su número, quórum y hash, sin asistentes ni decisiones
+   PASS · rechaza un cursor a medias en la cola de actas con AP-CU94-07
+bo.aportaya.cumplimiento.web.ColasDeCumplimientoWebTest tests=8 failures=0 errors=0
+   PASS · 403: Seguridad no lee la cola de Riesgos ni Riesgos la de Seguridad
+   PASS · 200: Riesgos ve los eventos con las perdidas como Dinero en su moneda
+   PASS · 422: un filtro invalido sale con el codigo del CU, nunca como 500
+   PASS · 200: AUDITORIA_LEER lee las seis colas
+   PASS · 400: limite fuera de 1..100 lo corta el contrato antes del caso de uso
+   PASS · 403: un participante no ve ninguna cola, y la consulta ni se entera
+   PASS · 401: sin token no hay colas
+   PASS · 200: el oficial ve los requerimientos sin alcance ni documento, con el plazo y el cursor
+
+$ python3 scripts/verificar_criterios.py -> Sin divergencias entre la boveda y el codigo.
+$ python3 scripts/verificar_boveda.py -> TODO OK · verificar_seguridad.py -> TODO OK · 6 aviso(s)
+
+Diagnostico registrado: la primera regresion fallo en CU43Test.reintento (expected 1 but was 2):
+DATA — los reportes sinteticos de CU43ColaTest quedaban en la base compartida y CU43Test cuenta por periodo.
+Correccion: cada prueba de cola borra al terminar sus filas en tablas no append-only (por id).

@@ -91,6 +91,7 @@ export const ErroresCU80 = {
   CANAL_NO_VERIFICADO:    'AP-CU80-02',
   DESTINATARIO_SUPRIMIDO: 'AP-CU80-03',
   EVENTO_RESERVADO:       'AP-CU80-04',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU80-05',
 } as const
 ```
 
@@ -100,6 +101,14 @@ export const ErroresCU80 = {
 | `CANAL_NO_VERIFICADO` | El teléfono o el correo del destinatario no está verificado |
 | `DESTINATARIO_SUPRIMIDO` | Está en [[lista_supresion]] para esa categoría; **nunca se fuerza el envío** |
 | `EVENTO_RESERVADO` | Otra réplica lo tomó con `SKIP LOCKED`; no es falla, es concurrencia sana |
+| `FILTRO_DE_LISTADO_INVALIDO` | El listado de plantillas recibió un estado de aprobación desconocido, o `antesDe` sin `antesDeId` (o al revés) |
+
+**Plantillas para Auditoría (backoffice carril A · A6).** `GET /notificaciones/plantillas`
+(`listarPlantillas`, `AUDITORIA_LEER`) lista una fila por versión de plantilla con su código, evento,
+canal, categoría y estado de aprobación del proveedor, si está activa, idioma y vigencia. Sin filtro trae
+todos los estados de aprobación. **No devuelve asunto, cuerpo, botones ni media**: dice qué plantilla rige,
+no lo que dice. Pagina por `(vigenteDesde, versionId)` de la más reciente a la más antigua. No hay permiso de
+mensajería sembrado; `AUDITORIA_LEER` es el único que aplica.
 
 ## Descomposición atómica
 
@@ -153,6 +162,15 @@ Entonces el estado es SUPRIMIDA con su motivo y no hay envío
 Dado un evento fuera del horario permitido
 Cuando se procesa
 Entonces queda REPROGRAMADA para la primera hora hábil
+
+# Plantillas para Auditoría (backoffice carril A)
+Dada una plantilla aprobada y otra en borrador, cada una con su versión
+Cuando Auditoría abre las plantillas
+Entonces ve las dos con su estado de aprobación y su versión, sin cuerpo ni asunto
+
+Dadas dos versiones de plantilla
+Cuando Auditoría recorre las plantillas de a una
+Entonces ve cada versión una sola vez, de la más reciente a la más antigua, y la última página cierra sin cursor
 ```
 
 ## Ver también

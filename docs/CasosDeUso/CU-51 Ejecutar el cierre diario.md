@@ -73,6 +73,10 @@ export const ErroresCU51 = {
   CUSTODIA_DESCUADRADA: 'AP-CU51-02',
   ASIENTOS_SIN_CONFIRMAR: 'AP-CU51-03',
   DIA_YA_CERRADO: 'AP-CU51-04',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU51-05',
+  DIA_NO_TERMINADO: 'AP-CU51-06',
+  MONEDAS_MEZCLADAS: 'AP-CU51-07',
+  RECAUDO_NO_DISPONIBLE: 'AP-CU51-08',
 } as const
 ```
 
@@ -82,6 +86,24 @@ export const ErroresCU51 = {
 | `CUSTODIA_DESCUADRADA` | El encaje del día no cumple |
 | `ASIENTOS_SIN_CONFIRMAR` | Quedan asientos en borrador |
 | `DIA_YA_CERRADO` | Requiere reapertura autorizada |
+| `FILTRO_DE_LISTADO_INVALIDO` | El listado de cierres recibió `antesDe` sin `antesDeId`, o al revés |
+| `DIA_NO_TERMINADO` | Se pide cerrar hoy o un día futuro (día de `America/La_Paz`) |
+| `MONEDAS_MEZCLADAS` | El recaudo del día trae más de una moneda y `cierre_diario` no modela moneda |
+| `RECAUDO_NO_DISPONIBLE` | `aportes` no informó el recaudo (caído, fuera de tiempo o fuera de contrato) |
+
+**Listado de cierres (backoffice carril A · H8).** `GET /contabilidad/cierres-diarios`
+(`listarCierresDiarios`, `AUDITORIA_LEER`) vive en `openapi/nucleo-financiero.yaml`, porque
+`cierre_diario` es de ese esquema; pagina por `(fecha, id)` del más reciente al más antiguo. Los
+totales viajan como cadena **sin moneda**: la tabla no la modela y no se supone BOB (ambigüedad A-7 del
+carril).
+
+**Cerrar desde el backoffice (carril A · H8).** `POST /contabilidad/cierres-diarios`
+(`ejecutarCierreDiario`, rol `CONTABILIDAD`, `Idempotency-Key`) recibe solo la fecha. Las cifras las
+informa `aportes` por `GET /aportes/recaudo-diario` (pagos `ACREDITADO` con acreditación en el día de
+`America/La_Paz`; conciliado = los que tienen conciliación `CONCILIADO_*`; excepciones = las no
+`RESUELTA` de esos pagos, por valor absoluto), preguntado con el token de quien cierra y **fuera** de la
+transacción del cierre. `custodiaCuadrada` sale de las conciliaciones de custodia de esa fecha: sin
+ninguna, no cuadra. Idempotente por fecha: el día ya cerrado devuelve el cierre existente (200).
 
 ## Descomposición atómica
 
@@ -133,6 +155,20 @@ Entonces devuelve el cierre existente y no reescribe los saldos diarios
 Dado un asiento_contable sin confirmar en la fecha
 Cuando se ejecuta el cierre
 Entonces el cierre no procede y el asiento queda señalado como bloqueante
+
+# Cierre desde el backoffice (carril A)
+Dado un día terminado con la custodia cuadrada y aportes que informa Bs 1.000 recaudados sin excepciones
+Cuando Contabilidad lo cierra desde el backoffice
+Entonces el cierre queda cuadrado con los totales de aportes, no con cifras del cliente
+
+Dado un día sin conciliación de custodia
+Cuando Contabilidad lo cierra
+Entonces el cierre queda NO cuadrado: lo que no se verificó no cuadra
+
+# Listado de cierres (backoffice carril A)
+Dados dos días cerrados
+Cuando Contabilidad lista los cierres diarios
+Entonces los recibe del más reciente al más antiguo con sus totales
 ```
 
 ## Ver también

@@ -81,6 +81,7 @@ export const ErroresCU14 = {
   TRANSACCION_NO_REVERSABLE: 'AP-CU14-01',
   FALTA_AUTORIZACION: 'AP-CU14-02',
   SALDO_INSUFICIENTE_PARA_REVERSO: 'AP-CU14-03',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU14-04',
 } as const
 ```
 
@@ -89,6 +90,12 @@ export const ErroresCU14 = {
 | `TRANSACCION_NO_REVERSABLE` | No está aplicada o ya fue reversada (R-BIL-15) |
 | `FALTA_AUTORIZACION` | Quien autoriza no puede ser quien solicita (R-SEG-04) |
 | `SALDO_INSUFICIENTE_PARA_REVERSO` | Se generó obligación de restitución en su lugar |
+| `FILTRO_DE_LISTADO_INVALIDO` | El listado recibió un estado desconocido, o `antesDe` sin `antesDeId` (o al revés) |
+
+**Listado de reversos (backoffice carril A · H8).** `GET /contabilidad/reversos` (`listarReversos`,
+`AUDITORIA_LEER`) filtra por `estados` (sin filtro: todos) y pagina por `(solicitadaEn, id)` del más
+reciente al más antiguo. El monto viaja como cadena **sin moneda** (la tabla no la modela; ambigüedad
+A-7 del carril).
 
 ## Descomposición atómica
 
@@ -153,6 +160,11 @@ Dada una recarga con cargo cuyo saldo acreditado ya se gastó
 Cuando se reversa
 Entonces el reverso se convierte en obligación de restitución
 Y el cargo no se avisa y la orden sigue ACREDITADA
+
+# Listado de reversos (backoffice carril A)
+Dados reversos en estado SOLICITADO y EJECUTADO
+Cuando Auditoría lista los reversos filtrando por EJECUTADO
+Entonces solo recibe los ejecutados, con el monto y quien lo autorizó
 ```
 
 ## Ver también

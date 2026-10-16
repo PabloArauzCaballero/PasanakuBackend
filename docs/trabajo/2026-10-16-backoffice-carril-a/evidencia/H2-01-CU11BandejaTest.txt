@@ -1,0 +1,7 @@
+$ ./gradlew :servicios:nucleo-financiero:integrationTest --tests '*CU11BandejaTest*'  -> BUILD SUCCESSFUL
+bo.aportaya.nucleofinanciero.CU11BandejaTest tests 5 failures 0 errors 0 skipped 0 time 34.68
+   PASS Dadas tres ordenes EN_REVISION · Cuando el aprobador recorre la bandeja de a dos · Entonces ve las tres una sola vez, de la mas antigua a la mas nueva, y la segunda pagina cierra sin cursor
+   PASS Dada una orden que otro aprobador ya autorizo · Cuando se consulta la bandeja · Entonces ya no aparece: la cola muestra solo lo que todavia espera decision
+   PASS rechaza un cursor a medias: despuesDeFecha sin despuesDeId es AP-CU11-14, no una pagina inventada
+   PASS limite: la orden que pidio el mismo operador aparece, pero marcada como no decidible (R-SEG-04)
+   PASS limite: sin nada en revision la bandeja es una pagina vacia y sin cursor, nunca un error

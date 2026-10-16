@@ -151,4 +151,8 @@ class AportesConsultasWebTest {
                     .andExpect(jsonPath("$.grupoId").value(OBLIGACION.toString()));
         }
     }
+
+    // El controlador tambien responde el recaudo diario (CU-51, carril A · H8): sin este doble no carga.
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private bo.aportaya.aportes.aplicacion.ConsultarRecaudoDiario recaudosDiarios;
 }

@@ -1,0 +1,9 @@
+$ git merge --no-ff origin/codex/backoffice-a6-erp   (b4ca1dc6, subagente) -> b5831572
+Verificacion del agente principal (regla 70.4.8), sobre el arbol integrado:
+
+$ ./gradlew :servicios:erp:spotlessCheck test webTest integrationTest testBarrido --no-build-cache --rerun-tasks --continue
+BUILD SUCCESSFUL (exit=0)
+  test             tests=5 skipped=0 failures=0 errors=0
+  webTest          tests=52 skipped=0 failures=0 errors=0
+  integrationTest  tests=117 skipped=0 failures=0 errors=0
+  testBarrido      tests=2 skipped=0 failures=0 errors=0

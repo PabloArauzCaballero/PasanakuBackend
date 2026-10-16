@@ -1,0 +1,5 @@
+$ ./gradlew :servicios:erp:spotlessCheck test webTest testBarrido integrationTest --continue --no-build-cache
+test             clases   1  pruebas    5  fallas 0
+webTest          clases   6  pruebas   45  fallas 0
+testBarrido      clases   1  pruebas    2  fallas 0
+integrationTest  clases  18  pruebas  100  fallas 0

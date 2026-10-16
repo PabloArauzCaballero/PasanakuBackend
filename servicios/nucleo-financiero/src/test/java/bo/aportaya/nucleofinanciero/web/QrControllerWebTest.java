@@ -12,6 +12,7 @@ import bo.aportaya.nucleofinanciero.aplicacion.CU13RetenerSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion;
 import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto;
 import bo.aportaya.nucleofinanciero.aplicacion.CU17BloquearPorAutoridad;
+import bo.aportaya.nucleofinanciero.aplicacion.ConsultarMovimientosBilletera;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.QrInterno;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -64,6 +65,10 @@ class QrControllerWebTest {
 
     @MockitoBean
     private CU11RetirarSaldo cu11;
+
+    // El controlador tambien lee los movimientos recientes: sin este doble el contexto no carga.
+    @MockitoBean
+    private ConsultarMovimientosBilletera consultasDeMovimientos;
 
     @MockitoBean
     private CU13RetenerSaldo cu13;

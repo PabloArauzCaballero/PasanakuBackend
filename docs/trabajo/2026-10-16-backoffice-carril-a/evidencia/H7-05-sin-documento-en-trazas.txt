@@ -1,0 +1,2 @@
+$ grep -rn "marcarCasoDeUso(.*getNumeroDocumento" servicios
+exit grep=1 (1 = sin coincidencias)

@@ -77,6 +77,7 @@ export const ErroresCU45 = {
   SIN_DOCUMENTO: 'AP-CU45-02',
   ALCANCE_AMBIGUO: 'AP-CU45-03',
   PLAZO_VENCIDO: 'AP-CU45-04',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU45-05',
 } as const
 ```
 
@@ -86,6 +87,17 @@ export const ErroresCU45 = {
 | `SIN_DOCUMENTO` | No se actúa sin el oficio y su hash |
 | `ALCANCE_AMBIGUO` | Se pide aclaración antes de entregar información |
 | `PLAZO_VENCIDO` | Se responde igual y se abre hallazgo |
+| `FILTRO_DE_LISTADO_INVALIDO` | La cola recibió un estado desconocido, o `antesDe` sin `antesDeId` (o al revés) |
+
+**Cola del backoffice (carril A · H9).** `GET /uif/requerimientos` (`listarRequerimientosDeAutoridad`, el rol OFICIAL_CUMPLIMIENTO, con `AUDITORIA_LEER` como
+alternativa) pagina por cursor de la más reciente a la más antigua y devuelve autoridad, oficio, plazo, estado y si hay bloqueo de saldo; sin alcance ni enlace al documento.
+
+**Acciones desde el backoffice (carril A · H9).** `POST /uif/requerimientos`
+(`registrarRequerimientoDeAutoridad`) y `POST /uif/requerimientos/{requerimientoId}/respuesta`
+(`responderRequerimientoDeAutoridad`), con el rol `OFICIAL_CUMPLIMIENTO` e `Idempotency-Key`. La respuesta
+usa el **plazo y el número de oficio guardados**: el cliente solo manda la URL de la respuesta (un plazo en
+el cuerpo es 400), así un plazo falso no puede evitar el hallazgo por respuesta tardía. El mismo oficio
+con el mismo hash es un reintento (200); con otro documento, `AP-CU45-01`.
 
 ## Descomposición atómica
 
@@ -132,6 +144,16 @@ Entonces existe un registro_acceso_datos con el número de oficio como justifica
 Dado un oficio con plazo vencido sin respuesta
 Cuando corre el control diario
 Entonces existe un hallazgo_auditoria abierto
+
+# Cola del backoffice (carril A)
+Dados oficios RECIBIDO y RESPONDIDO
+Cuando el oficial lista la cola sin filtro
+Entonces ve los dos, del recibido más reciente al más antiguo, sin el alcance ni el documento
+
+# Acciones desde el backoffice (carril A)
+Dado un oficio registrado con plazo vencido
+Cuando el oficial responde desde el backoffice
+Entonces se usa el plazo guardado y se abre el hallazgo aunque el cliente no mande plazo
 ```
 
 ## Ver también

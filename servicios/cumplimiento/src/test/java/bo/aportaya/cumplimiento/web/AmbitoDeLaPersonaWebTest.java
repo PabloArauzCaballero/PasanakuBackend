@@ -60,6 +60,15 @@ class AmbitoDeLaPersonaWebTest {
     @MockitoBean
     private CU55GestionarIncidente cu55;
 
+    @MockitoBean
+    private bo.aportaya.cumplimiento.aplicacion.ConsultarBandejasLft bandejasLft;
+
+    @MockitoBean
+    private bo.aportaya.cumplimiento.aplicacion.CU44InvestigarYReportar cu44;
+
+    @MockitoBean
+    private bo.aportaya.cumplimiento.aplicacion.CU44DecidirComoRevisor decisionLft;
+
     @Test
     @DisplayName("rechaza: un participante no declara el PEP de otra persona, y el caso de uso ni se entera")
     void rechazaDeclararElPepDeOtro() throws Exception {
@@ -176,4 +185,12 @@ class AmbitoDeLaPersonaWebTest {
     private static String sinTraza(String cuerpo) {
         return cuerpo.replaceAll("\"trazaId\"\\s*:\\s*\"[^\"]*\"", "\"trazaId\":\"-\"");
     }
+
+    // Las colas del backoffice (carril A · H9) cuelgan del controlador: sin este doble no carga.
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private TableroDeCumplimientoWeb tableroDeCumplimiento;
+
+    // Las acciones del backoffice (carril A · H9) cuelgan de los controladores: sin este doble no cargan.
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private AccionesDeCumplimientoWeb accionesDeCumplimiento;
 }

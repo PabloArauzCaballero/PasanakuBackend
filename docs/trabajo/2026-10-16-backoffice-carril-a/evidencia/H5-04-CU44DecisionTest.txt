@@ -1,0 +1,14 @@
+$ ./gradlew :servicios:cumplimiento:integrationTest --tests '*CU44*'
+bo.aportaya.cumplimiento.CU44BandejaTest tests 5 fallas 0
+bo.aportaya.cumplimiento.CU44DecisionTest tests 9 fallas 0
+   PASS rechaza un caso inexistente con AP-CU44-06, y REPORTAR sin ROS con AP-CU44-03
+   PASS rechaza una segunda decision sobre el mismo caso: AP-CU44-07 y un solo evento
+   PASS Dado un caso ya decidido por un oficial · Cuando el mismo oficial repite la misma decision · Entonces recibe el mismo resultado y no hay un segundo evento
+   PASS rechaza que el analista del caso se revise a si mismo: AP-CU44-02 contra el analista GUARDADO
+   PASS rechaza abrir un caso con una alerta que ya esta en otro: AP-CU44-08 y ningun caso nuevo
+   PASS Dado un caso abierto por un analista · Cuando un oficial distinto lo decide DESCARTAR · Entonces el caso queda CERRADO con el oficial de la sesion como revisor y sus alertas se descartan con conclusion
+   PASS concurrencia: dos oficiales deciden a la vez, uno gana, el otro recibe AP-CU44-07 y hay un evento
+   PASS Dados dos casos abiertos · Cuando el oficial decide uno · Entonces las alertas del otro siguen abiertas: la decision solo cierra las alertas de su propio caso
+   PASS Dado un caso recien abierto con dos alertas · Cuando se reintenta abrirlo con las mismas alertas y el mismo analista · Entonces devuelve el mismo caso y no abre otro vacio
+bo.aportaya.cumplimiento.CU44RechazosTest tests 5 fallas 0
+bo.aportaya.cumplimiento.CU44Test tests 8 fallas 0

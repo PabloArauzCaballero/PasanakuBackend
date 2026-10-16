@@ -1,6 +1,7 @@
 package bo.aportaya.erp.aplicacion;
 
 import bo.aportaya.erp.dominio.CuadreContable;
+import bo.aportaya.erp.dominio.DocumentoDeEstadoFinanciero;
 import bo.aportaya.erp.infraestructura.PeriodoRepositorio;
 import bo.aportaya.erp.infraestructura.PresupuestoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
@@ -10,8 +11,6 @@ import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.mensajeria.EventoDominio;
 import bo.aportaya.plataforma.mensajeria.Outbox;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
@@ -152,40 +151,17 @@ public class CU106GenerarEstadoFinanciero {
 
     public record Plantilla(UUID plantillaId, int lineas, int debes, int haberes) {}
 
-    /**
-     * El JSON del estado, en forma canonica.
-     *
-     * <p>Los renglones van en el orden en que se calcularon y los importes como cadena:
-     * el hash tiene que poder recomputarse desde el mismo estado, y un `double` daria
-     * otro hash en otra maquina.
-     */
+    /** El texto canonico vive en {@link DocumentoDeEstadoFinanciero}: la descarga lo reconstruye igual. */
     private String serializar(CuadreContable.Estado estado) {
-        var sb = new StringBuilder("{\"tipo\":\"").append(estado.tipo()).append("\",\"renglones\":[");
-        for (int i = 0; i < estado.renglones().size(); i++) {
-            var r = estado.renglones().get(i);
-            if (i > 0) {
-                sb.append(',');
-            }
-            sb.append("{\"concepto\":\"")
-                    .append(r.concepto())
-                    .append("\",\"monto\":\"")
-                    .append(r.monto().toPlainString())
-                    .append("\"}");
-        }
-        return sb.append("]}").toString();
+        return DocumentoDeEstadoFinanciero.canonico(
+                estado.tipo(),
+                estado.renglones().stream()
+                        .map(r -> new DocumentoDeEstadoFinanciero.Renglon(r.concepto(), r.monto()))
+                        .toList());
     }
 
     private String sha256(String contenido) {
-        try {
-            byte[] resumen = MessageDigest.getInstance("SHA-256").digest(contenido.getBytes(StandardCharsets.UTF_8));
-            var texto = new StringBuilder(resumen.length * 2);
-            for (byte b : resumen) {
-                texto.append(Character.forDigit((b >> 4) & 0xF, 16)).append(Character.forDigit(b & 0xF, 16));
-            }
-            return texto.toString();
-        } catch (java.security.NoSuchAlgorithmException imposible) {
-            throw new IllegalStateException("Toda JVM trae SHA-256", imposible);
-        }
+        return DocumentoDeEstadoFinanciero.sha256(contenido);
     }
 
     public record SalidaEstado(

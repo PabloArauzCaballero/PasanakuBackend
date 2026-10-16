@@ -110,6 +110,7 @@ export const ErroresCU28 = {
   SALDO_NO_RETENIDO:      'AP-CU28-04',
   ORDEN_YA_EXISTE:        'AP-CU28-05',
   RECHAZO_DEFINITIVO:     'AP-CU28-06',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU28-07',
 } as const
 ```
 
@@ -121,6 +122,13 @@ export const ErroresCU28 = {
 | `SALDO_NO_RETENIDO` | Falta la retención previa: no se ordena contra saldo suelto |
 | `ORDEN_YA_EXISTE` | Reintento con la misma clave; se devuelve la orden existente |
 | `RECHAZO_DEFINITIVO` | El proveedor rechazó por un motivo que no se reintenta |
+| `FILTRO_DE_LISTADO_INVALIDO` | La bandeja recibió un estado desconocido, o `antesDe` sin `antesDeId` (o al revés) |
+
+**Bandeja de desembolsos (backoffice carril A · H8).** `GET /desembolsos` (`listarDesembolsos`,
+`ENTREGA_EJECUTAR` o `AUDITORIA_LEER`) muestra por omisión las excepciones que esperan a una persona
+—`RECHAZADA`, `DEVUELTA_POR_BANCO` y `EN_PROCESO`—, con el monto y su moneda, la cantidad de intentos y
+el resultado y código de error del último. No devuelve cuenta destino, glosa ni referencia del
+proveedor. Pagina por `(creadaEn, id)` de la más reciente a la más antigua.
 
 ## Descomposición atómica
 
@@ -182,6 +190,15 @@ Y el saldo vuelve a estar disponible para el beneficiario
 Dada una orden acreditada que no cruza con el extracto bancario
 Cuando se intenta cerrar el día
 Entonces el cierre no puede marcarse cuadrado
+
+# Bandeja de desembolsos (backoffice carril A)
+Dadas una orden RECHAZADA y una ACREDITADA
+Cuando Tesorería abre la bandeja de desembolsos sin filtro
+Entonces ve solo la rechazada, con su último código de error
+
+Dadas dos órdenes rechazadas
+Cuando Tesorería recorre la bandeja de a una
+Entonces ve cada una una sola vez, de la más reciente a la más antigua, y la última página cierra sin cursor
 ```
 
 ## Ver también

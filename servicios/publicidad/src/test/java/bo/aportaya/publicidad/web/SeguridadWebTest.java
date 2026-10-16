@@ -38,4 +38,7 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private CU114LiquidarPublicidad cu114LiquidarPublicidad;
+
+    @MockitoBean
+    private bo.aportaya.publicidad.aplicacion.ConsultarListadosDePublicidad listados;
 }

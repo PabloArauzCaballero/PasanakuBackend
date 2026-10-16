@@ -80,6 +80,7 @@ export const ErroresCU43 = {
   SEGREGACION_INCUMPLIDA: 'AP-CU43-02',
   ENVIO_FALLIDO: 'AP-CU43-03',
   FUERA_DE_PLAZO: 'AP-CU43-04',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU43-05',
 } as const
 ```
 
@@ -89,6 +90,16 @@ export const ErroresCU43 = {
 | `SEGREGACION_INCUMPLIDA` | Quien aprueba no puede ser quien generó (R-SEG-04) |
 | `ENVIO_FALLIDO` | El organismo no confirmó recepción; se reintenta |
 | `FUERA_DE_PLAZO` | Se pasó la fecha límite: se envía igual y se abre hallazgo |
+| `FILTRO_DE_LISTADO_INVALIDO` | La cola recibió un estado desconocido, o `antesDe` sin `antesDeId` (o al revés) |
+
+**Cola del backoffice (carril A · H9).** `GET /uif/reportes` (`listarReportesRegulatorios`, CUMPLIMIENTO_REPORTAR, con `AUDITORIA_LEER` como
+alternativa) pagina por cursor de la más reciente a la más antigua y devuelve estado, plazo, conteo y monto total (cadena SIN moneda: la tabla no la modela, ambigüedad A-7).
+
+**Acciones desde el backoffice (carril A · H9).** `POST /uif/reportes` (`generarReporteRegulatorio`) y
+`POST /uif/reportes/envios` (`aprobarYEnviarReporte`), ambos con `CUMPLIMIENTO_REPORTAR` e `Idempotency-Key`.
+El aprobador es la sesión, nunca un id del cuerpo (un campo de más es 400); el formulario se elige del
+conjunto cerrado de esta ficha (PCC-01, ROG-01..04). Generar dos veces devuelve el mismo reporte (200); el
+mismo aprobador enviando otra vez recibe el envío que ya hay (200) sin registrar un segundo.
 
 ## Descomposición atómica
 
@@ -138,6 +149,20 @@ Entonces existe un reporte_regulatorio con reporte_en_cero = true
 Dado un reporte cuya fecha_limite venció sin envío
 Cuando corre el control diario
 Entonces existe un hallazgo_auditoria abierto
+
+# Cola del backoffice (carril A)
+Dados reportes GENERADO y ENVIADO
+Cuando el oficial lista la cola filtrando por GENERADO
+Entonces ve solo los generados, del corte más reciente al más antiguo, con el monto sin moneda
+
+# Acciones desde el backoffice (carril A)
+Dado un periodo sin reporte
+Cuando el oficial lo genera desde el backoffice dos veces
+Entonces el segundo pedido devuelve el mismo reporte marcado como ya existente
+
+Dado un reporte generado por otra persona
+Cuando el oficial lo aprueba y envía desde el backoffice
+Entonces el aprobador registrado es quien lo pidió, nunca un id enviado por el cliente
 ```
 
 ## Ver también

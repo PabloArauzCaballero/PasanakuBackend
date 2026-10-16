@@ -1,0 +1,5 @@
+$ ./gradlew :servicios:erp:integrationTest --tests '*CU100PeriodosTest*' :servicios:erp:webTest --tests '*ErpPeriodosWebTest*'
+bo.aportaya.erp.CU100PeriodosTest tests 6 fallas 0
+   PASS rechaza los periodos de un ejercicio inexistente: AP-CU100-05, no una lista vacia
+bo.aportaya.erp.web.ErpPeriodosWebTest tests 7 fallas 0
+   PASS 200: los periodos de un ejercicio, con totales sellados solo en el cerrado; 422 si no existe

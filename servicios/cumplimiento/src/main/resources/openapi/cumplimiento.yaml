@@ -28,18 +28,25 @@
 #   AP-CU43-02  SEGREGACION_INCUMPLIDA · quien aprueba no puede ser quien genero (R-SEG-04)
 #   AP-CU43-03  ENVIO_FALLIDO          · el reporte ya no esta en estado GENERADO
 #   AP-CU43-04  FUERA_DE_PLAZO         · se envia igual y se abre hallazgo
+#   AP-CU43-05  FILTRO_DE_LISTADO_INVALIDO · estado desconocido o cursor a medias (carril A · H9)
 #
 # CU-44 · De alerta de monitoreo a reporte de operacion sospechosa
 #   AP-CU44-01  CONCLUSION_REQUERIDA  · no se cierra una alerta sin justificacion (R-UIF-07)
 #   AP-CU44-02  REVISOR_ES_ANALISTA   · la revision tiene que ser independiente
 #   AP-CU44-03  REPORTE_SIN_NARRATIVA · decidir reportar exige el ROS ya radicado
 #   AP-CU44-04  CASO_VENCIDO          · se paso el plazo de investigacion
+#   AP-CU44-05  FILTRO_DE_BANDEJA_INVALIDO · estado o severidad que no existen, o cursor a medias
+#   AP-CU44-06  CASO_INEXISTENTE      · ese caso no existe
+#   AP-CU44-07  CASO_YA_DECIDIDO      · el caso ya tiene otra decision (el reintento identico del mismo
+#                                       oficial devuelve el mismo resultado, no este error)
+#   AP-CU44-08  ALERTAS_INVALIDAS     · alertas inexistentes, de titulares distintos o ya en otro caso
 #
 # CU-45 · Atender un requerimiento de autoridad
 #   AP-CU45-01  OFICIO_DUPLICADO · ese numero ya fue registrado
 #   AP-CU45-02  SIN_DOCUMENTO    · no se actua sin el oficio y su hash
 #   AP-CU45-03  ALCANCE_AMBIGUO  · se pide aclaracion antes de entregar informacion
 #   AP-CU45-04  PLAZO_VENCIDO    · se responde igual y se abre hallazgo
+#   AP-CU45-05  FILTRO_DE_LISTADO_INVALIDO · estado desconocido o cursor a medias (carril A · H9)
 #
 # CU-47 · Evaluar el riesgo del producto antes de lanzarlo
 #   AP-CU47-01  FUERA_DE_ALCANCE        · el producto excede la licencia vigente (R-LIC-01)
@@ -70,6 +77,11 @@
 #   AP-CU52-02  PRORROGA_EXCEDIDA      · supera el maximo sin comunicacion al organismo (R-CON-03)
 #   AP-CU52-03  FALTA_REPARACION       · favorable con monto exige devolucion (R-CON-04)
 #   AP-CU52-04  PLAZO_VENCIDO          · se responde igual y escala a hallazgo
+#   AP-CU52-05  RECLAMO_INEXISTENTE    · ese reclamo no existe
+#   AP-CU52-06  RECLAMO_YA_CERRADO     · ya tiene respuesta, y no es la misma (un reintento identico
+#                                        devuelve el recibo, no este error)
+#   AP-CU52-07  FILTRO_DE_BANDEJA_INVALIDO · cursor a medias (despuesDeLimite sin despuesDeId o al
+#                                        reves) o un estado que no existe
 #
 # CU-53 · Elevar un reclamo a segunda instancia
 #   AP-CU53-01  RECLAMO_NO_RESPONDIDO  · todavia en plazo de primera instancia
@@ -80,6 +92,7 @@
 #   AP-CU56-01  SIN_ACTA_DE_COMITE      · una prueba exitosa exige acta que la reporte
 #   AP-CU56-02  OBJETIVOS_NO_ALCANZADOS · el RTO obtenido supera el comprometido
 #   AP-CU56-03  PLAN_INEXISTENTE        · el proceso critico no tiene plan
+#   AP-CU56-04  FILTRO_DE_LISTADO_INVALIDO · cursor a medias (carril A · H9)
 #
 # CU-94 · Elevar una decision al comite de gobierno
 #   AP-CU94-01  SIN_QUORUM             · sesionaron menos que el minimo
@@ -88,6 +101,7 @@
 #   AP-CU94-04  FUERA_DE_FACULTAD      · reservado
 #   AP-CU94-05  ACTA_YA_CERRADA        · reservado; lo frena la unicidad del numero
 #   AP-CU94-06  COMITE_INACTIVO        · el comite no existe o no esta activo
+#   AP-CU94-07  FILTRO_DE_LISTADO_INVALIDO · cursor a medias (carril A · H9)
 #
 # NOTA · divergencias declaradas contra la boveda, con su detalle en
 # planes/informes/carril-3C.md:
@@ -221,6 +235,36 @@ paths:
           # AP-CU05-03 TARIFARIO_NO_PUBLICADO
 
   /cumplimiento/riesgos/eventos:
+    get:
+      operationId: listarEventosDeRiesgo   # CU-54 (backoffice carril A · H9)
+      summary: Eventos de riesgo operativo, del detectado mas reciente al mas antiguo
+      description: >-
+        Taxonomia, perdidas con su moneda y estado; sin descripcion ni causa raiz. Cursor descendente con desempate por id. Exige RESPONSABLE_RIESGOS o AUDITORIA_LEER.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: array
+            items: { type: string }
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeEventosDeRiesgo' }
+        '422':
+          # AP-CU54-04 FILTRO_DE_LISTADO_INVALIDO
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin RESPONSABLE_RIESGOS ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
     post:
       operationId: registrarRiesgoOperativo  # CU-54
       summary: Registra un evento de riesgo operativo y su plan de accion
@@ -266,6 +310,36 @@ paths:
           $ref: '#/components/responses/NoAutenticado'
 
   /cumplimiento/seguridad/incidentes:
+    get:
+      operationId: listarIncidentesDeSeguridad   # CU-55 (backoffice carril A · H9)
+      summary: Incidentes de seguridad, del detectado mas reciente al mas antiguo
+      description: >-
+        Tipo, severidad, relojes de reporte y notificacion, y estado; sin vector ni leccion. Cursor descendente con desempate por id. Exige RESPONSABLE_SEGURIDAD o AUDITORIA_LEER.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: array
+            items: { type: string }
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeIncidentes' }
+        '422':
+          # AP-CU55-04 FILTRO_DE_LISTADO_INVALIDO
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin RESPONSABLE_SEGURIDAD ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
     post:
       operationId: registrarIncidente        # CU-55
       summary: Abre el expediente de un incidente de seguridad y arranca sus relojes
@@ -388,6 +462,529 @@ paths:
               schema: { $ref: '#/components/schemas/EfectoDeReclamos' }
         '403':
           description: Sin permiso para ver los reclamos de otra persona
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /reclamos:
+    get:
+      operationId: listarBandejaDeReclamos     # CU-52 (backoffice carril A · H3)
+      summary: Bandeja de reclamos, el que vence antes primero
+      description: >-
+        La cola del Punto de Reclamo (CU-52, Interfaz: "Bandeja con vencimientos primero"). Ordena
+        por el limite vigente —la prorroga si la hay, si no el plazo de respuesta— y desempata por
+        id; pagina por cursor (limiteVigente, id). Los plazos son los GUARDADOS al ingresar o al
+        prorrogar (R-CON-01): aca no se recalcula ninguno; `vencido` solo compara el guardado con
+        la hora del servidor.
+
+        Respuesta minima: no viaja el texto del reclamo ni la persona que reclama; eso esta en la
+        ficha, con otro permiso. `montoReclamado` es cadena decimal SIN moneda porque
+        reclamo_cliente no la modela (ambiguedad A-7 del carril A): no se supone BOB.
+
+        Sin `estados` devuelve los abiertos (INGRESADO, EN_ANALISIS). Exige RECLAMO_VER.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          schema:
+            type: array
+            items: { type: string, enum: [INGRESADO, EN_ANALISIS, RESPONDIDO, CERRADO, ELEVADO] }
+            minItems: 1
+            maxItems: 5
+          style: form
+          explode: false
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: despuesDeLimite, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: despuesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina de la bandeja (vacia si no hay reclamos en esos estados)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeReclamos' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU52-07 FILTRO_DE_BANDEJA_INVALIDO
+        '403':
+          description: Sin RECLAMO_VER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /reclamos/{reclamoId}:
+    get:
+      operationId: consultarReclamo            # CU-52 (backoffice carril A · H3)
+      summary: La ficha de un reclamo, con su texto, para quien lo atiende
+      description: >-
+        Lo que hace falta para responder: el texto del reclamo, la respuesta si ya la tiene y los
+        plazos guardados. Exige RECLAMO_ATENDER — el texto lo escribio una persona y solo lo lee
+        quien lo atiende. No devuelve la identidad de quien reclama.
+      parameters:
+        - { name: reclamoId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: La ficha
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FichaDeReclamo' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU52-05 RECLAMO_INEXISTENTE
+        '403':
+          description: Sin RECLAMO_ATENDER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /reclamos/{reclamoId}/respuesta:
+    post:
+      operationId: responderReclamo            # CU-52 (backoffice carril A · H3)
+      summary: Responder y cerrar un reclamo
+      description: >-
+        Registra resultado y respuesta y cierra el reclamo (CU-52, paso 5). Un FAVORABLE con monto
+        exige la devolucion ya ejecutada por tarifas (CU-33): sin ella, AP-CU52-03 (R-CON-04).
+        Responder fuera de plazo se acepta y abre un hallazgo (AP-CU52-04 no es un rechazo).
+
+        Reintento seguro: si el reclamo ya esta cerrado por el MISMO responsable con el mismo
+        resultado, texto y devolucion, devuelve el mismo recibo sin emitir otro evento. Cualquier
+        otra respuesta sobre un reclamo cerrado es AP-CU52-06. Exige RECLAMO_ATENDER.
+      parameters:
+        - { name: reclamoId, in: path, required: true, schema: { type: string, format: uuid } }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaRespuestaReclamo' }
+      responses:
+        '200':
+          description: Reclamo respondido y cerrado (o el mismo recibo, si es un reintento)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaRespuestaReclamo' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU52-03 FALTA_REPARACION · AP-CU52-05 RECLAMO_INEXISTENTE · AP-CU52-06 RECLAMO_YA_CERRADO
+        '403':
+          description: Sin RECLAMO_ATENDER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /cumplimiento/alertas:
+    get:
+      operationId: listarBandejaDeAlertas      # CU-44 (backoffice carril A · H5)
+      summary: Bandeja de alertas de monitoreo LFT, de la mas antigua a la mas nueva
+      description: >-
+        La cola del analista (CU-44, Interfaz: "Bandeja de alertas y casos"). Cursor (detectadaEn,
+        id). Sin `estados` devuelve ABIERTA y EN_ANALISIS. Respuesta minima y deber de reserva: no
+        viaja la persona, ni el monto, ni el detalle de lo que disparo la regla —son datos
+        financieros de una persona y su lectura exige rastro auditable con finalidad (regla
+        90.2.7), que se resuelve en la ficha, no aca. Exige CUMPLIMIENTO_ALERTAS.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          schema:
+            type: array
+            items: { type: string, enum: [ABIERTA, EN_ANALISIS, ESCALADA, DESCARTADA] }
+            minItems: 1
+            maxItems: 4
+          style: form
+          explode: false
+        - name: severidades
+          in: query
+          required: false
+          schema:
+            type: array
+            items: { type: string, enum: [CRITICA, ALTA, MEDIA, BAJA] }
+            minItems: 1
+            maxItems: 4
+          style: form
+          explode: false
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: despuesDeFecha, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: despuesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina de alertas
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeAlertas' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU44-05 FILTRO_DE_BANDEJA_INVALIDO
+        '403':
+          description: Sin CUMPLIMIENTO_ALERTAS
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /cumplimiento/casos:
+    get:
+      operationId: listarBandejaDeCasos        # CU-44 (backoffice carril A · H5)
+      summary: Bandeja de casos de investigacion LFT, el que vence antes primero
+      description: >-
+        Ordena por el plazo limite GUARDADO al abrir el caso (R-UIF-08: no se recalcula) y
+        desempata por id; cursor (plazoLimite, id). Sin `estados` devuelve los no cerrados.
+        `vencido` compara el plazo guardado con la hora del servidor. No viaja la persona, el
+        resumen ni los hallazgos (deber de reserva). Exige CUMPLIMIENTO_CASOS.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          schema:
+            type: array
+            items: { type: string, enum: [ABIERTO, EN_ANALISIS, EN_REVISION, CERRADO] }
+            minItems: 1
+            maxItems: 4
+          style: form
+          explode: false
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: despuesDePlazo, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: despuesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina de casos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeCasos' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU44-05 FILTRO_DE_BANDEJA_INVALIDO
+        '403':
+          description: Sin CUMPLIMIENTO_CASOS
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+    post:
+      operationId: abrirCasoLft                # CU-44 (backoffice carril A · H5)
+      summary: Agrupar alertas de un titular en un caso de investigacion y asignarle analista
+      description: >-
+        CU-44, paso 4. Las alertas quedan enlazadas al caso desde que se abre. El plazo se guarda al
+        abrir segun la severidad mas alta (R-UIF-08). Reintentar con las mismas alertas y el mismo
+        analista devuelve el caso ya abierto, no uno nuevo. Exige CUMPLIMIENTO_CASOS.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaCasoLft' }
+      responses:
+        '201':
+          description: Caso abierto (o el ya abierto, si es un reintento)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaCasoLft' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU44-08 ALERTAS_INVALIDAS
+        '403':
+          description: Sin CUMPLIMIENTO_CASOS
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /cumplimiento/casos/{casoId}/decision:
+    post:
+      operationId: decidirCasoLft              # CU-44 (backoffice carril A · H5)
+      summary: La decision del oficial sobre un caso
+      description: >-
+        CU-44, pasos 5 a 8. El revisor es la sesion —nunca un campo del cuerpo— y tiene que ser
+        distinto del analista GUARDADO en el caso. Cierra las alertas del caso (las enlazadas al
+        abrirlo), una sola decision por caso: la misma decision del mismo oficial repetida devuelve
+        el mismo resultado sin otro evento; otra decision es AP-CU44-07. REPORTAR exige el ROS ya
+        radicado (vive en auditoria). Nunca se notifica al titular (deber de reserva). Exige
+        CUMPLIMIENTO_CASOS (solo OFICIAL_CUMPLIMIENTO lo tiene sembrado).
+      parameters:
+        - { name: casoId, in: path, required: true, schema: { type: string, format: uuid } }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDecisionCasoLft' }
+      responses:
+        '200':
+          description: Caso decidido (o el mismo resultado, si es un reintento identico)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDecisionCasoLft' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU44-01 CONCLUSION_REQUERIDA · AP-CU44-02 REVISOR_ES_ANALISTA · AP-CU44-03 REPORTE_SIN_NARRATIVA
+          # AP-CU44-06 CASO_INEXISTENTE · AP-CU44-07 CASO_YA_DECIDIDO
+        '403':
+          description: Sin CUMPLIMIENTO_CASOS
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /uif/reportes:
+    get:
+      operationId: listarReportesRegulatorios   # CU-43 (backoffice carril A · H9)
+      summary: Reportes regulatorios, del corte mas reciente al mas antiguo
+      description: >-
+        Estado, plazo y conteo de cada reporte; el monto total va como cadena SIN moneda (reporte_regulatorio no la modela). Cursor descendente con desempate por id. Exige CUMPLIMIENTO_REPORTAR o AUDITORIA_LEER.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: array
+            items: { type: string }
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeReportesRegulatorios' }
+        '422':
+          # AP-CU43-05 FILTRO_DE_LISTADO_INVALIDO
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin CUMPLIMIENTO_REPORTAR ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+    post:
+      operationId: generarReporteRegulatorio   # CU-43 (backoffice carril A · H9)
+      summary: Generar el reporte regulatorio de un periodo
+      description: >-
+        Arma el archivo del periodo con las operaciones del formulario pedido y su hash. Generar dos veces devuelve el que hay. El actor sale de la sesion. Repetir lo mismo devuelve lo que ya hay (200); lo nuevo, 201.
+        Exige CUMPLIMIENTO_REPORTAR.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaGeneracionReporte' }
+      responses:
+        '201':
+          description: Registrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaReporteRegulatorio' }
+        '200':
+          description: Ya estaba registrado (reintento)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaReporteRegulatorio' }
+        '422':
+          # AP-CU43-01
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin CUMPLIMIENTO_REPORTAR
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+  /uif/requerimientos:
+    get:
+      operationId: listarRequerimientosDeAutoridad   # CU-45 (backoffice carril A · H9)
+      summary: Requerimientos de autoridad, del recibido mas reciente al mas antiguo
+      description: >-
+        Autoridad, oficio, plazo y estado; sin alcance ni enlace al documento (respuesta minima). Cursor descendente con desempate por id. Exige OFICIAL_CUMPLIMIENTO o AUDITORIA_LEER.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: array
+            items: { type: string }
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeRequerimientos' }
+        '422':
+          # AP-CU45-05 FILTRO_DE_LISTADO_INVALIDO
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin OFICIAL_CUMPLIMIENTO ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+    post:
+      operationId: registrarRequerimientoDeAutoridad   # CU-45 (backoffice carril A · H9)
+      summary: Registrar un requerimiento de autoridad
+      description: >-
+        Sin documento y su hash no se actua; un alcance ambiguo pide aclaracion. El mismo oficio con el mismo hash es un reintento. El actor sale de la sesion. Repetir lo mismo devuelve lo que ya hay (200); lo nuevo, 201.
+        Exige el rol OFICIAL_CUMPLIMIENTO.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaRequerimientoDeAutoridad' }
+      responses:
+        '201':
+          description: Registrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaRequerimientoDeAutoridad' }
+        '200':
+          description: Ya estaba registrado (reintento)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaRequerimientoDeAutoridad' }
+        '422':
+          # AP-CU45-01 · AP-CU45-02 · AP-CU45-03
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin el rol OFICIAL_CUMPLIMIENTO
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+  /cumplimiento/continuidad/pruebas:
+    get:
+      operationId: listarPruebasDeContinuidad   # CU-56 (backoffice carril A · H9)
+      summary: Pruebas de continuidad, de la mas reciente a la mas antigua
+      description: >-
+        Tipo, RTO y RPO obtenidos y resultado; sin hallazgos ni evidencia. Cursor descendente con desempate por id. Exige RESPONSABLE_RIESGOS o AUDITORIA_LEER.
+      parameters:
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDePruebasDeContinuidad' }
+        '422':
+          # AP-CU56-04 FILTRO_DE_LISTADO_INVALIDO
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin RESPONSABLE_RIESGOS ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+    post:
+      operationId: registrarPruebaDeContinuidad   # CU-56 (backoffice carril A · H9)
+      summary: Registrar una prueba de continuidad
+      description: >-
+        Evalua el RTO y RPO obtenidos contra los comprometidos del plan; si no se alcanzan abre hallazgo y plan de accion. La misma prueba (plan, fecha, tipo, quien la ejecuto) dos veces es una sola. El actor sale de la sesion. Repetir lo mismo devuelve lo que ya hay (200); lo nuevo, 201.
+        Exige el rol RESPONSABLE_RIESGOS.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaPruebaDeContinuidad' }
+      responses:
+        '201':
+          description: Registrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaPruebaDeContinuidad' }
+        '200':
+          description: Ya estaba registrado (reintento)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaPruebaDeContinuidad' }
+        '422':
+          # AP-CU56-01 · AP-CU56-03
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin el rol RESPONSABLE_RIESGOS
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+  /cumplimiento/comites/actas:
+    get:
+      operationId: listarActasDeComite   # CU-94 (backoffice carril A · H9)
+      summary: Actas de comite, de la mas reciente a la mas antigua
+      description: >-
+        Numero, fecha, quorum y hash del documento; sin asistentes, temas ni decisiones. Cursor descendente con desempate por id. Exige OFICIAL_CUMPLIMIENTO o AUDITORIA_LEER.
+      parameters:
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeActas' }
+        '422':
+          # AP-CU94-07 FILTRO_DE_LISTADO_INVALIDO
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin OFICIAL_CUMPLIMIENTO ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /uif/reportes/envios:
+    post:
+      operationId: aprobarYEnviarReporte   # CU-43 (backoffice carril A · H9)
+      summary: Aprobar el reporte y registrar su envio al organismo
+      description: >-
+        Quien aprueba es quien lo pide y no puede ser quien lo genero (R-SEG-04). Fuera de plazo se envia igual y se abre hallazgo. El actor sale de la sesion. Repetir lo mismo devuelve lo que ya hay (200); lo nuevo, 201.
+        Exige CUMPLIMIENTO_REPORTAR.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaEnvioReporte' }
+      responses:
+        '201':
+          description: Registrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaReporteRegulatorio' }
+        '200':
+          description: Ya estaba registrado (reintento)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaReporteRegulatorio' }
+        '422':
+          # AP-CU43-01 · AP-CU43-02 · AP-CU43-03
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin CUMPLIMIENTO_REPORTAR
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /uif/requerimientos/{requerimientoId}/respuesta:
+    post:
+      operationId: responderRequerimientoDeAutoridad   # CU-45 (backoffice carril A · H9)
+      summary: Responder un requerimiento de autoridad
+      description: >-
+        Se responde siempre, dentro o fuera de plazo; el plazo y el numero de oficio son los registrados, nunca los del cliente. Fuera de plazo abre hallazgo. El actor sale de la sesion. Repetir lo mismo devuelve lo que ya hay (200); lo nuevo, 201.
+        Exige el rol OFICIAL_CUMPLIMIENTO.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - name: requerimientoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaRespuestaRequerimiento' }
+      responses:
+        '201':
+          description: Registrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaRequerimientoDeAutoridad' }
+        '200':
+          description: Ya estaba registrado (reintento)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaRequerimientoDeAutoridad' }
+        '422':
+          # AP-CU45-01
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin el rol OFICIAL_CUMPLIMIENTO
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
@@ -741,6 +1338,396 @@ components:
             usuarios:       { type: integer }
             montoOperacion: { type: string, pattern: '^-?\\d+\\.\\d{2}$' }
         motivo: { type: string, nullable: true }
+    EntradaCasoLft:
+      type: object
+      additionalProperties: false
+      required: [alertaIds, analistaId, resumen]
+      properties:
+        alertaIds:
+          type: array
+          items: { type: string, format: uuid }
+          minItems: 1
+          maxItems: 50
+        analistaId: { type: string, format: uuid }
+        resumen:    { type: string, minLength: 1, maxLength: 500 }
+    SalidaCasoLft:
+      type: object
+      additionalProperties: false
+      required: [casoId, estado, plazoLimite]
+      properties:
+        casoId:      { type: string, format: uuid }
+        estado:      { type: string, enum: [ABIERTO, EN_ANALISIS, EN_REVISION, CERRADO] }
+        plazoLimite: { type: string, format: date-time }
+    EntradaDecisionCasoLft:
+      type: object
+      additionalProperties: false
+      required: [decision, conclusion]
+      properties:
+        decision:   { type: string, enum: [DESCARTAR, MONITOREO_REFORZADO, REPORTAR, TERMINAR_RELACION] }
+        conclusion: { type: string, minLength: 20, maxLength: 2000 }
+        reporteSospechosoId:
+          type: string
+          format: uuid
+          description: El ROS ya radicado en auditoria. Obligatorio si la decision es REPORTAR.
+    SalidaDecisionCasoLft:
+      type: object
+      additionalProperties: false
+      required: [casoId, decision, revisadoPor, alertasCerradas, fueraDePlazo]
+      properties:
+        casoId:          { type: string, format: uuid }
+        decision:        { type: string, enum: [DESCARTAR, MONITOREO_REFORZADO, REPORTAR, TERMINAR_RELACION] }
+        revisadoPor:     { type: string, format: uuid }
+        alertasCerradas: { type: integer, minimum: 0 }
+        fueraDePlazo:    { type: boolean }
+        reporteSospechosoId: { type: [string, 'null'], format: uuid }
+    PaginaDeAlertas:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/AlertaEnBandeja' }
+        proximoFecha: { type: [string, 'null'], format: date-time }
+        proximoId:    { type: [string, 'null'], format: uuid }
+    AlertaEnBandeja:
+      type: object
+      additionalProperties: false
+      required: [alertaId, reglaCodigo, tipologia, severidad, estado, detectadaEn]
+      properties:
+        alertaId:    { type: string, format: uuid }
+        reglaCodigo: { type: string }
+        tipologia:   { type: string }
+        severidad:   { type: string, enum: [CRITICA, ALTA, MEDIA, BAJA] }
+        estado:      { type: string, enum: [ABIERTA, EN_ANALISIS, ESCALADA, DESCARTADA] }
+        detectadaEn: { type: string, format: date-time }
+        asignadaA:   { type: [string, 'null'], format: uuid }
+        casoId:      { type: [string, 'null'], format: uuid }
+        cerradaEn:   { type: [string, 'null'], format: date-time }
+    PaginaDeCasos:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/CasoEnBandeja' }
+        proximoPlazo: { type: [string, 'null'], format: date-time }
+        proximoId:    { type: [string, 'null'], format: uuid }
+    CasoEnBandeja:
+      type: object
+      additionalProperties: false
+      required: [casoId, codigo, origen, estado, prioridad, analistaId, abiertoEn, plazoLimite, vencido]
+      properties:
+        casoId:      { type: string, format: uuid }
+        codigo:      { type: string }
+        origen:      { type: string, enum: [ALERTA, DENUNCIA, REQUERIMIENTO, REVISION_PERIODICA] }
+        estado:      { type: string, enum: [ABIERTO, EN_ANALISIS, EN_REVISION, CERRADO] }
+        prioridad:   { type: string, enum: [URGENTE, ALTA, MEDIA, BAJA] }
+        analistaId:  { type: string, format: uuid }
+        revisadoPor: { type: [string, 'null'], format: uuid }
+        abiertoEn:   { type: string, format: date-time }
+        plazoLimite: { type: string, format: date-time }
+        vencido:     { type: boolean, description: Sin cerrar y con el plazo guardado ya pasado (CU-44, 4a). }
+        decision:    { type: [string, 'null'], enum: [DESCARTAR, MONITOREO_REFORZADO, REPORTAR, TERMINAR_RELACION, null] }
+        cerradoEn:   { type: [string, 'null'], format: date-time }
+    PaginaDeReclamos:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/ReclamoEnBandeja' }
+        proximoLimite: { type: [string, 'null'], format: date-time }
+        proximoId:     { type: [string, 'null'], format: uuid }
+    ReclamoEnBandeja:
+      type: object
+      additionalProperties: false
+      required: [reclamoId, codigo, categoria, producto, canalIngreso, estado, fechaIngreso, plazoRespuesta, diasHabilesPlazo, limiteVigente, vencido]
+      properties:
+        reclamoId:     { type: string, format: uuid }
+        codigo:        { type: string }
+        categoria:     { type: string, enum: [COMISION, OPERACION_NO_RECONOCIDA, SALDO, SERVICIO, DATOS_PERSONALES, GRUPO] }
+        producto:      { type: string }
+        canalIngreso:  { type: string, enum: [APP, WEB, TELEFONO, PRESENCIAL, CORREO] }
+        montoReclamado:
+          type: [string, 'null']
+          pattern: '^\d+\.\d{2}$'
+          description: Cadena decimal. La moneda no esta modelada en reclamo_cliente (A-7).
+        estado:        { type: string, enum: [INGRESADO, EN_ANALISIS, RESPONDIDO, CERRADO, ELEVADO] }
+        fechaIngreso:  { type: string, format: date-time }
+        plazoRespuesta: { type: string, format: date-time }
+        plazoProrrogadoHasta: { type: [string, 'null'], format: date-time }
+        diasHabilesPlazo: { type: integer }
+        limiteVigente:
+          type: string
+          format: date-time
+          description: La prorroga si la hay; si no, el plazo de respuesta. Guardado, no recalculado.
+        vencido:
+          type: boolean
+          description: Sin respuesta y con el limite vigente ya pasado (CU-52, 5c).
+        responsableId: { type: [string, 'null'], format: uuid }
+    FichaDeReclamo:
+      type: object
+      additionalProperties: false
+      required: [reclamo, descripcion]
+      properties:
+        reclamo:       { $ref: '#/components/schemas/ReclamoEnBandeja' }
+        descripcion:   { type: string }
+        resultado:     { type: [string, 'null'], enum: [FAVORABLE, DESFAVORABLE, PARCIAL, DESISTIDO, null] }
+        respuesta:     { type: [string, 'null'] }
+        fechaRespuesta: { type: [string, 'null'], format: date-time }
+        devolucionId:  { type: [string, 'null'], format: uuid }
+    EntradaRespuestaReclamo:
+      type: object
+      additionalProperties: false
+      required: [resultado, respuesta]
+      properties:
+        resultado:    { type: string, enum: [FAVORABLE, DESFAVORABLE, PARCIAL, DESISTIDO] }
+        respuesta:    { type: string, minLength: 1, maxLength: 4000 }
+        devolucionId:
+          type: string
+          format: uuid
+          description: La devolucion que ejecuto tarifas (CU-33). Obligatoria si FAVORABLE con monto.
+    SalidaRespuestaReclamo:
+      type: object
+      additionalProperties: false
+      required: [reclamoId, estado, resultado, limiteVigente]
+      properties:
+        reclamoId:     { type: string, format: uuid }
+        estado:        { type: string, enum: [CERRADO] }
+        resultado:     { type: string, enum: [FAVORABLE, DESFAVORABLE, PARCIAL, DESISTIDO] }
+        limiteVigente: { type: string, format: date-time }
+    PaginaDeReportesRegulatorios:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/ReporteRegulatorioEnLista' }
+        proximoAntesDe: { type: string, format: date }
+        proximoAntesDeId: { type: string, format: uuid }
+    ReporteRegulatorioEnLista:
+      type: object
+      additionalProperties: false
+      required: [reporteId, catalogoReporteId, periodo, fechaCorte, fechaLimite, estado, cantidadRegistros, reporteEnCero, montoTotal]
+      properties:
+        reporteId: { type: string, format: uuid }
+        catalogoReporteId: { type: string, format: uuid }
+        periodo: { type: string }
+        fechaCorte: { type: string, format: date }
+        fechaLimite: { type: string, format: date }
+        estado: { type: string, enum: [PENDIENTE, GENERADO, REVISADO, APROBADO, ENVIADO, OBSERVADO, RECHAZADO] }
+        cantidadRegistros: { type: integer }
+        reporteEnCero: { type: boolean }
+        montoTotal: { type: string, pattern: '^-?\d+\.\d{2}$' }
+        generadoEn: { type: string, format: date-time }
+        aprobadoPor: { type: string, format: uuid }
+    PaginaDeRequerimientos:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/RequerimientoEnLista' }
+        proximoAntesDe: { type: string, format: date-time }
+        proximoAntesDeId: { type: string, format: uuid }
+    RequerimientoEnLista:
+      type: object
+      additionalProperties: false
+      required: [requerimientoId, autoridad, numeroOficio, fechaRecepcion, plazoRespuesta, estado, conBloqueoDeSaldo]
+      properties:
+        requerimientoId: { type: string, format: uuid }
+        autoridad: { type: string, enum: [ASFI, FISCALIA, JUZGADO, POLICIA, SIN, UIF] }
+        numeroOficio: { type: string }
+        fechaRecepcion: { type: string, format: date-time }
+        plazoRespuesta: { type: string, format: date-time }
+        estado: { type: string, enum: [RECIBIDO, EN_PROCESO, RESPONDIDO, VENCIDO, ARCHIVADO] }
+        usuarioAfectadoId: { type: string, format: uuid }
+        conBloqueoDeSaldo: { type: boolean }
+        respondidoPor: { type: string, format: uuid }
+        respondidoEn: { type: string, format: date-time }
+    PaginaDeEventosDeRiesgo:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/EventoDeRiesgoEnLista' }
+        proximoAntesDe: { type: string, format: date-time }
+        proximoAntesDeId: { type: string, format: uuid }
+    EventoDeRiesgoEnLista:
+      type: object
+      additionalProperties: false
+      required: [eventoId, codigo, categoria, factor, lineaNegocio, fechaOcurrencia, fechaDeteccion, perdidaBruta, recuperacion, perdidaNeta, estado, reportadoCentral]
+      properties:
+        eventoId: { type: string, format: uuid }
+        codigo: { type: string }
+        categoria: { type: string }
+        factor: { type: string }
+        lineaNegocio: { type: string }
+        fechaOcurrencia: { type: string, format: date-time }
+        fechaDeteccion: { type: string, format: date-time }
+        perdidaBruta: { $ref: '#/components/schemas/Dinero' }
+        recuperacion: { $ref: '#/components/schemas/Dinero' }
+        perdidaNeta: { $ref: '#/components/schemas/Dinero' }
+        estado: { type: string, enum: [REGISTRADO, EN_ANALISIS, EN_REMEDIACION, CERRADO] }
+        reportadoCentral: { type: boolean }
+    PaginaDeIncidentes:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/IncidenteEnLista' }
+        proximoAntesDe: { type: string, format: date-time }
+        proximoAntesDeId: { type: string, format: uuid }
+    IncidenteEnLista:
+      type: object
+      additionalProperties: false
+      required: [incidenteId, codigo, tipo, severidad, datosPersonalesAfectados, usuariosAfectados, detectadoEn, plazoReporte, estado]
+      properties:
+        incidenteId: { type: string, format: uuid }
+        codigo: { type: string }
+        tipo: { type: string }
+        severidad: { type: string, enum: [BAJA, MEDIA, ALTA, CRITICA] }
+        datosPersonalesAfectados: { type: boolean }
+        usuariosAfectados: { type: integer }
+        detectadoEn: { type: string, format: date-time }
+        contenidoEn: { type: string, format: date-time }
+        plazoReporte: { type: string, format: date-time }
+        reportadoAlOrganismoEn: { type: string, format: date-time }
+        notificadoATitularesEn: { type: string, format: date-time }
+        estado: { type: string, enum: [DETECTADO, EN_CONTENCION, CONTENIDO, ERRADICADO, CERRADO] }
+    PaginaDePruebasDeContinuidad:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/PruebaDeContinuidadEnLista' }
+        proximoAntesDe: { type: string, format: date }
+        proximoAntesDeId: { type: string, format: uuid }
+    PruebaDeContinuidadEnLista:
+      type: object
+      additionalProperties: false
+      required: [pruebaId, planContinuidadId, ejecutadaPor, tipo, fecha, rtoMinutos, rpoMinutos, resultado]
+      properties:
+        pruebaId: { type: string, format: uuid }
+        planContinuidadId: { type: string, format: uuid }
+        actaComiteId: { type: string, format: uuid }
+        ejecutadaPor: { type: string, format: uuid }
+        tipo: { type: string, enum: [ESCRITORIO, PARCIAL, TOTAL, CONMUTACION_REAL] }
+        fecha: { type: string, format: date }
+        rtoMinutos: { type: integer }
+        rpoMinutos: { type: integer }
+        resultado: { type: string, enum: [EXITOSA, PARCIAL, FALLIDA] }
+    PaginaDeActas:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/ActaEnLista' }
+        proximoAntesDe: { type: string, format: date }
+        proximoAntesDeId: { type: string, format: uuid }
+    ActaEnLista:
+      type: object
+      additionalProperties: false
+      required: [actaId, comiteGobiernoId, numero, fecha, cumpleQuorum, hashDocumento]
+      properties:
+        actaId: { type: string, format: uuid }
+        comiteGobiernoId: { type: string, format: uuid }
+        numero: { type: string }
+        fecha: { type: string, format: date }
+        cumpleQuorum: { type: boolean }
+        hashDocumento: { type: string }
+    EntradaGeneracionReporte:
+      type: object
+      additionalProperties: false
+      required: [periodo, catalogoCodigo, formulario]
+      properties:
+        periodo: { type: string, pattern: '^\d{4}-(0[1-9]|1[0-2])$' }
+        catalogoCodigo: { type: string, minLength: 1, maxLength: 30 }
+        formulario: { type: string, enum: [PCC-01, ROG-01, ROG-02, ROG-03, ROG-04] }
+    EntradaEnvioReporte:
+      type: object
+      additionalProperties: false
+      required: [periodo, catalogoCodigo, canal, aceptadoPorElOrganismo, reintentos]
+      properties:
+        periodo: { type: string, pattern: '^\d{4}-(0[1-9]|1[0-2])$' }
+        catalogoCodigo: { type: string, minLength: 1, maxLength: 30 }
+        canal: { type: string, enum: [CORREO, MEDIO_FISICO, PORTAL_WEB, SERVICIO_WEB] }
+        numeroConstancia: { type: string, maxLength: 60 }
+        aceptadoPorElOrganismo: { type: boolean }
+        reintentos: { type: integer, minimum: 0 }
+    SalidaReporteRegulatorio:
+      type: object
+      additionalProperties: false
+      required: [reporteId, cantidadRegistros, reporteEnCero, fueraDePlazo]
+      properties:
+        reporteId: { type: string, format: uuid }
+        cantidadRegistros: { type: integer }
+        reporteEnCero: { type: boolean }
+        hashArchivo: { type: string }
+        fueraDePlazo: { type: boolean }
+    EntradaRequerimientoDeAutoridad:
+      type: object
+      additionalProperties: false
+      required: [autoridad, numeroOficio, plazoRespuesta, alcance, documentoUrl, hashDocumento, exigeBloqueoDeSaldo]
+      properties:
+        autoridad: { type: string, enum: [ASFI, FISCALIA, JUZGADO, POLICIA, SIN, UIF] }
+        numeroOficio: { type: string, minLength: 1, maxLength: 60 }
+        plazoRespuesta: { type: string, format: date-time }
+        usuarioAfectadoId: { type: string, format: uuid }
+        alcance: { type: string, maxLength: 300 }
+        documentoUrl: { type: string, maxLength: 255 }
+        hashDocumento: { type: string, pattern: '^[0-9a-f]{64}$' }
+        exigeBloqueoDeSaldo: { type: boolean }
+    EntradaRespuestaRequerimiento:
+      type: object
+      additionalProperties: false
+      required: [respuestaUrl]
+      properties:
+        respuestaUrl: { type: string, minLength: 1, maxLength: 255 }
+    SalidaRequerimientoDeAutoridad:
+      type: object
+      additionalProperties: false
+      required: [requerimientoId]
+      properties:
+        requerimientoId: { type: string, format: uuid }
+    EntradaPruebaDeContinuidad:
+      type: object
+      additionalProperties: false
+      required: [planContinuidadId, tipo, fecha, ejecutadaPor, rtoObtenido, rpoObtenido, impactoEnClientes]
+      properties:
+        planContinuidadId: { type: string, format: uuid }
+        tipo: { type: string, enum: [ESCRITORIO, PARCIAL, TOTAL, CONMUTACION_REAL] }
+        fecha: { type: string, format: date }
+        ejecutadaPor: { type: string, format: uuid }
+        actaComiteId: { type: string, format: uuid }
+        rtoObtenido: { type: integer, minimum: 0 }
+        rpoObtenido: { type: integer, minimum: 0 }
+        evidenciaUrl: { type: string, maxLength: 255 }
+        impactoEnClientes: { type: boolean }
+        perdidaCuantificada: { type: string, pattern: '^\d+\.\d{2}$' }
+    SalidaPruebaDeContinuidad:
+      type: object
+      additionalProperties: false
+      required: [pruebaId, rtoObtenido, rpoObtenido, resultado]
+      properties:
+        pruebaId: { type: string, format: uuid }
+        rtoObtenido: { type: integer }
+        rpoObtenido: { type: integer }
+        resultado: { type: string, enum: [EXITOSA, PARCIAL, FALLIDA] }
+        planAccionId: { type: string, format: uuid }
     Dinero:
       type: object
       additionalProperties: false

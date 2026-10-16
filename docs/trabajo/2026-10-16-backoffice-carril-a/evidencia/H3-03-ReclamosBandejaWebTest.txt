@@ -1,0 +1,13 @@
+$ ./gradlew :servicios:cumplimiento:webTest --tests '*ReclamosBandejaWebTest*'
+bo.aportaya.cumplimiento.web.ReclamosBandejaWebTest tests 11 fallas 0 omitidas 0
+   PASS 200: la ficha con el texto del reclamo es para quien lo atiende
+   PASS 403: quien solo ve la cola no puede responder
+   PASS 422: un filtro invalido sale con AP-CU52-07, nunca como 500
+   PASS 200: responder llega al caso de uso con resultado, texto y devolucion, y devuelve el recibo
+   PASS 403: RECLAMO_VER no alcanza para leer el texto del reclamo
+   PASS 200: con RECLAMO_VER la bandeja trae plazos, monto como cadena y cursor, sin texto ni persona
+   PASS 422: otra respuesta sobre un reclamo cerrado sale con AP-CU52-06
+   PASS 400: un resultado que el contrato no declara, o un campo de mas, no llega al caso de uso
+   PASS 400: limite fuera de 1..100 lo corta el contrato antes del caso de uso
+   PASS 403: un participante no ve la cola de reclamos de nadie
+   PASS 200: el filtro de estados llega entero al caso de uso, y sin el va vacio (abiertos por omision)

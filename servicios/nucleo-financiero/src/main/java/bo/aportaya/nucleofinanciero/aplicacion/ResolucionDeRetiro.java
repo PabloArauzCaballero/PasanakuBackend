@@ -1,11 +1,13 @@
 package bo.aportaya.nucleofinanciero.aplicacion;
 
 import bo.aportaya.nucleofinanciero.dominio.EstadoDeRetiro;
+import bo.aportaya.nucleofinanciero.dominio.HuellaDePeticion;
 import bo.aportaya.nucleofinanciero.infraestructura.AprobacionDeRetiroRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.CuentaBilleteraRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera;
 import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera.Pata;
 import bo.aportaya.nucleofinanciero.infraestructura.OrdenRetiroRepositorio;
+import bo.aportaya.nucleofinanciero.infraestructura.RegistroDeIdempotencia;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
@@ -13,19 +15,29 @@ import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.mensajeria.EventoDominio;
 import bo.aportaya.plataforma.mensajeria.Outbox;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.Counter;
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.jooq.DSLContext;
 
 final class ResolucionDeRetiro {
     private final Datos datos;
     private final CuentaBilleteraRepositorio cuentas;
     private final OrdenRetiroRepositorio ordenes;
+    /** Operacion bajo la que se guarda la clave del aprobador en {@code respuesta_idempotente}. */
+    static final String OPERACION_APROBAR = "aprobarRetiro";
+
+    private static final ObjectMapper JSON = new ObjectMapper();
+
     private final AprobacionDeRetiroRepositorio aprobaciones = new AprobacionDeRetiroRepositorio();
+    private final RegistroDeIdempotencia idempotencia = new RegistroDeIdempotencia();
     private final CU13RetenerSaldo retenciones;
     private final LibroDeBilletera libro;
     private final Outbox outbox;
@@ -182,51 +194,98 @@ final class ResolucionDeRetiro {
         return resolverAprobacion(ordenId, ctx, false);
     }
 
-    private CU11RetirarSaldo.SalidaAprobacion resolverAprobacion(UUID ordenId, ContextoSesion ctx, boolean autorizar) {
+    /**
+     * La misma resolucion, amparada en la {@code Idempotency-Key} del aprobador (backoffice
+     * carril A · H2.S3): el reintento con la misma clave y la misma decision devuelve el recibo
+     * original sin volver a transicionar, emitir el evento ni contar la metrica. La misma clave con
+     * otra decision (u otra orden) es AP-CU11-13. Patron de {@code CU13RetenerSaldo}: candado por
+     * (aprobador, operacion, clave) y recibo guardado en la misma transaccion que la transicion.
+     */
+    public CU11RetirarSaldo.SalidaAprobacion resolverConClave(
+            UUID ordenId, String motivo, String clave, ContextoSesion ctx, boolean autorizar) {
+        OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
         return datos.conContexto(ctx, dsl -> {
-            var orden = ordenes.ver(dsl, ordenId)
-                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(11, 1), "Esa orden no existe."));
-
-            if (orden.solicitadaPor().equals(ctx.usuarioId())) {
-                throw new ErrorDeNegocio(
-                        CodigoError.de(11, 10),
-                        "Quien solicito el retiro no puede aprobar (ni rechazar) su propia solicitud.");
+            String huella = HuellaDePeticion.de(ordenId, autorizar ? "AUTORIZADA" : "RECHAZADA", motivo);
+            var previa =
+                    idempotencia.buscar(dsl, ctx.usuarioId(), OPERACION_APROBAR, clave, huella, CodigoError.de(11, 13));
+            if (previa.isPresent()) {
+                return leerRecibo(previa.get());
             }
-
-            boolean resuelta = autorizar
-                    ? aprobaciones.pasarAAutorizadaPorAprobacion(dsl, ordenId, ctx.usuarioId())
-                    : aprobaciones.pasarARechazadaPorAprobacion(dsl, ordenId, ctx.usuarioId());
-            if (!resuelta) {
-                throw new ErrorDeNegocio(
-                        CodigoError.de(11, 11),
-                        "Esa orden ya no esta en revision: alguien mas la resolvio, o ya no esta pendiente de"
-                                + " aprobacion.");
-            }
-
-            String estadoFinal = autorizar ? "AUTORIZADA" : "RECHAZADA";
-            if (!autorizar) {
-                orden.retencionId().ifPresent(id -> retenciones.liberarDentroDe(dsl, id, ctx));
-            }
-
-            outbox.emitir(
-                    dsl,
-                    new EventoDominio(
-                            autorizar ? "nucleo_financiero.retiro_autorizado" : "nucleo_financiero.retiro_rechazado",
-                            "orden_retiro",
-                            orden.id(),
-                            Map.of(
-                                    "cuentaBilleteraId", orden.cuentaId().toString(),
-                                    "aprobadaPor", ctx.usuarioId().toString(),
-                                    "solicitadaPor", orden.solicitadaPor().toString()),
-                            UUID.fromString(ctx.traza().id())));
-
-            if (autorizar) {
-                retirosAutorizados.increment();
-            } else {
-                retirosRechazados.increment();
-            }
-
-            return new CU11RetirarSaldo.SalidaAprobacion(orden.id(), estadoFinal, ctx.usuarioId());
+            var salida = resolverDentroDe(dsl, ordenId, ctx, autorizar);
+            idempotencia.guardar(
+                    dsl, ctx.usuarioId(), OPERACION_APROBAR, clave, huella, 200, escribirRecibo(salida), ahora);
+            return salida;
         });
+    }
+
+    private static String escribirRecibo(CU11RetirarSaldo.SalidaAprobacion salida) {
+        return JSON.createObjectNode()
+                .put("ordenRetiroId", salida.ordenRetiroId().toString())
+                .put("estado", salida.estado())
+                .put("aprobadaPor", salida.aprobadaPor().toString())
+                .toString();
+    }
+
+    private static CU11RetirarSaldo.SalidaAprobacion leerRecibo(String guardado) {
+        try {
+            JsonNode nodo = JSON.readTree(guardado);
+            return new CU11RetirarSaldo.SalidaAprobacion(
+                    UUID.fromString(nodo.path("ordenRetiroId").asText()),
+                    nodo.path("estado").asText(),
+                    UUID.fromString(nodo.path("aprobadaPor").asText()));
+        } catch (IOException | IllegalArgumentException ilegible) {
+            throw new IllegalStateException("El recibo guardado de la aprobacion no se puede leer", ilegible);
+        }
+    }
+
+    private CU11RetirarSaldo.SalidaAprobacion resolverAprobacion(UUID ordenId, ContextoSesion ctx, boolean autorizar) {
+        return datos.conContexto(ctx, dsl -> resolverDentroDe(dsl, ordenId, ctx, autorizar));
+    }
+
+    private CU11RetirarSaldo.SalidaAprobacion resolverDentroDe(
+            DSLContext dsl, UUID ordenId, ContextoSesion ctx, boolean autorizar) {
+        var orden = ordenes.ver(dsl, ordenId)
+                .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(11, 1), "Esa orden no existe."));
+
+        if (orden.solicitadaPor().equals(ctx.usuarioId())) {
+            throw new ErrorDeNegocio(
+                    CodigoError.de(11, 10),
+                    "Quien solicito el retiro no puede aprobar (ni rechazar) su propia solicitud.");
+        }
+
+        boolean resuelta = autorizar
+                ? aprobaciones.pasarAAutorizadaPorAprobacion(dsl, ordenId, ctx.usuarioId())
+                : aprobaciones.pasarARechazadaPorAprobacion(dsl, ordenId, ctx.usuarioId());
+        if (!resuelta) {
+            throw new ErrorDeNegocio(
+                    CodigoError.de(11, 11),
+                    "Esa orden ya no esta en revision: alguien mas la resolvio, o ya no esta pendiente de"
+                            + " aprobacion.");
+        }
+
+        String estadoFinal = autorizar ? "AUTORIZADA" : "RECHAZADA";
+        if (!autorizar) {
+            orden.retencionId().ifPresent(id -> retenciones.liberarDentroDe(dsl, id, ctx));
+        }
+
+        outbox.emitir(
+                dsl,
+                new EventoDominio(
+                        autorizar ? "nucleo_financiero.retiro_autorizado" : "nucleo_financiero.retiro_rechazado",
+                        "orden_retiro",
+                        orden.id(),
+                        Map.of(
+                                "cuentaBilleteraId", orden.cuentaId().toString(),
+                                "aprobadaPor", ctx.usuarioId().toString(),
+                                "solicitadaPor", orden.solicitadaPor().toString()),
+                        UUID.fromString(ctx.traza().id())));
+
+        if (autorizar) {
+            retirosAutorizados.increment();
+        } else {
+            retirosRechazados.increment();
+        }
+
+        return new CU11RetirarSaldo.SalidaAprobacion(orden.id(), estadoFinal, ctx.usuarioId());
     }
 }
