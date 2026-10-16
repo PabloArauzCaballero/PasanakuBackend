@@ -1,0 +1,69 @@
+{
+  "servicio": "cumplimiento",
+  "operacion": "listarReportesRegulatorios",
+  "metodo": "get",
+  "ruta": "/uif/reportes",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "reporteId": "a78dc15a-456e-4d4a-81d1-c33f0ecfbcea",
+            "catalogoReporteId": "9ad60322-2b82-4cd0-84ea-bf00ec6580ff",
+            "periodo": "periodo",
+            "fechaCorte": "2026-01-15",
+            "fechaLimite": "2026-01-15",
+            "estado": "PENDIENTE",
+            "cantidadRegistros": 1,
+            "reporteEnCero": true,
+            "montoTotal": "4.44",
+            "generadoEn": "2026-01-15T10:30:00Z",
+            "aprobadoPor": "cc6fcc4d-7a80-4031-8491-0238446efdc7"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "f339e9b5-7872-4a4f-874b-46c066bac640"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "f339e9b5-7872-4a4f-874b-46c066bac640"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "reporteId": "a78dc15a-456e-4d4a-81d1-c33f0ecfbcea",
+            "catalogoReporteId": "9ad60322-2b82-4cd0-84ea-bf00ec6580ff",
+            "periodo": "periodo",
+            "fechaCorte": "2026-01-15",
+            "fechaLimite": "2026-01-15",
+            "estado": "PENDIENTE",
+            "cantidadRegistros": 1,
+            "reporteEnCero": true,
+            "montoTotal": "4.44",
+            "generadoEn": "2026-01-15T10:30:00Z",
+            "aprobadoPor": "cc6fcc4d-7a80-4031-8491-0238446efdc7"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "f339e9b5-7872-4a4f-874b-46c066bac640"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU43-05",
+        "mensaje": "Filtro de listado invalido",
+        "detalle": {},
+        "trazaId": "traza-listarReportesRegulatorios-rechazo"
+      }
+    }
+  }
+}

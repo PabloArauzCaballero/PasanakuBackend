@@ -1,0 +1,15 @@
+  ✘   5 e2e/aceptacion/f2-aceptar.aceptacion.e2e.ts:20:7 › F2 · aceptar una solicitud (dos usuarios) › B aprueba con motivo, el estado persiste tras recargar y A ve su participación una sola vez (10.2s)
+  ✘   6 e2e/aceptacion/f3-rechazar.aceptacion.e2e.ts:18:7 › F3 · rechazar una solicitud (dos usuarios) › B rechaza con motivo; no queda membresía; no se puede reabrir sin una nueva revisión (10.3s)
+  ✘   7 e2e/aceptacion/f3-rechazar.aceptacion.e2e.ts:72:7 › F3 · rechazar una solicitud (dos usuarios) › el motivo de más de 1000 caracteres se rechaza en el campo y no se envía (10.2s)
+  ✘   9 e2e/aceptacion/f3-rechazar.aceptacion.e2e.ts:95:7 › F3 · rechazar una solicitud (dos usuarios) › DESEADO: A ve el rechazo con su motivo (hoy no existe cómo) (44ms)
+  ✘  10 e2e/aceptacion/f4-limites.aceptacion.e2e.ts:11:7 › F4 · límites de la admisión › un operador sin permiso sobre admisiones no ve la sección ni puede abrirla; el servidor también lo rechaza (403) (10.1s)
+  ✘  12 e2e/aceptacion/f4-limites.aceptacion.e2e.ts:44:7 › F4 · límites de la admisión › doble resolución concurrente: dos pestañas de B con decisiones opuestas dejan UNA sola decisión (10.1s)
+  ✘  13 e2e/aceptacion/f4-limites.aceptacion.e2e.ts:79:7 › F4 · límites de la admisión › respuesta perdida: B no la reenvía a ciegas, verifica, y el reintento con la MISMA clave no duplica (10.1s)
+  ✘  14 e2e/aceptacion/f4-limites.aceptacion.e2e.ts:121:7 › F4 · límites de la admisión › el envío que nunca llegó: verificar no la encuentra y el reintento reutiliza la MISMA clave (10.1s)
+  ✘  15 e2e/aceptacion/f4-limites.aceptacion.e2e.ts:145:7 › F4 · límites de la admisión › estados de la pantalla: cargando, vacío (sin propuesta) y error del servidor (10.1s)
+  ✘  20 e2e/aceptacion/f5-retiro.aceptacion.e2e.ts:26:7 › F5 · retiro con doble aprobación (dos tesoreros) › quien pidió el retiro no lo aprueba; otra persona lo autoriza una sola vez y la tercera ve que ya no está en revisión (10.1s)
+  ✘  21 e2e/aceptacion/f5-retiro.aceptacion.e2e.ts:82:7 › F5 · retiro con doble aprobación (dos tesoreros) › rechazar con motivo libera la orden y queda registrado; un campo de más no llega al servidor (10.1s)
+    ../../docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-E3/trazas/mock/f1-invitacion.aceptacion.e-86718-ace-se-consume-una-sola-vez/test-failed-1.png
+    ../../docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-E3/trazas/mock/f1-invitacion.aceptacion.e-929fd-puede-verificar-la-vigencia/test-failed-1.png
+  12 failed
+  9 passed (1.8m)

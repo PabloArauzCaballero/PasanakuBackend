@@ -1,0 +1,68 @@
+  ✘    2 [chromium] › e2e/aceptacion/f1-invitacion.aceptacion.e2e.ts:16:7 › F1 · invitación por enlace de un solo uso › el secreto sale de la URL y de toda petición; A pide ingreso; el enlace se consume una sola vez (98ms)
+  ✘    3 [chromium] › e2e/aceptacion/f1-invitacion.aceptacion.e2e.ts:69:7 › F1 · invitación por enlace de un solo uso › el reintento con la MISMA clave devuelve la misma solicitud (la respuesta se perdió, no se duplica) (14ms)
+  ✘    4 [chromium] › e2e/aceptacion/f1-invitacion.aceptacion.e2e.ts:80:7 › F1 · invitación por enlace de un solo uso › rechazos del canje: sin sesión, secreto mal formado, secreto de otra invitación y clave ausente (15ms)
+  ✘    5 [chromium] › e2e/aceptacion/f1-invitacion.aceptacion.e2e.ts:94:7 › F1 · invitación por enlace de un solo uso › segundo uso en la web: el enlace consumido se sigue viendo «listo» pero la pantalla declara que no puede verificar la vigencia (140ms)
+  ✘    6 [chromium] › e2e/aceptacion/f2-aceptar.aceptacion.e2e.ts:20:7 › F2 · aceptar una solicitud (dos usuarios) › B aprueba con motivo, el estado persiste tras recargar y A ve su participación una sola vez (144ms)
+  ✘    7 [chromium] › e2e/aceptacion/f3-rechazar.aceptacion.e2e.ts:18:7 › F3 · rechazar una solicitud (dos usuarios) › B rechaza con motivo; no queda membresía; no se puede reabrir sin una nueva revisión (136ms)
+  ✘    8 [chromium] › e2e/aceptacion/f3-rechazar.aceptacion.e2e.ts:72:7 › F3 · rechazar una solicitud (dos usuarios) › el motivo de más de 1000 caracteres se rechaza en el campo y no se envía (131ms)
+  ✘    9 [chromium] › e2e/aceptacion/f3-rechazar.aceptacion.e2e.ts:87:7 › F3 · rechazar una solicitud (dos usuarios) › A no puede leer el expediente de su propia solicitud ni decidir sobre ella (separación de funciones) (11ms)
+  ✘   10 [chromium] › e2e/aceptacion/f3-rechazar.aceptacion.e2e.ts:95:7 › F3 · rechazar una solicitud (dos usuarios) › DESEADO: A ve el rechazo con su motivo (hoy no existe cómo) (17ms)
+  ✘   11 [chromium] › e2e/aceptacion/f4-limites.aceptacion.e2e.ts:11:7 › F4 · límites de la admisión › un operador sin permiso sobre admisiones no ve la sección ni puede abrirla; el servidor también lo rechaza (403) (126ms)
+  ✘   12 [chromium] › e2e/aceptacion/f4-limites.aceptacion.e2e.ts:31:7 › F4 · límites de la admisión › nadie resuelve su propia postulación ni se la propone: A (postulante) recibe 403 en ambas rutas (16ms)
+  ✘   13 [chromium] › e2e/aceptacion/f4-limites.aceptacion.e2e.ts:44:7 › F4 · límites de la admisión › doble resolución concurrente: dos pestañas de B con decisiones opuestas dejan UNA sola decisión (91ms)
+  ✘   14 [chromium] › e2e/aceptacion/f4-limites.aceptacion.e2e.ts:79:7 › F4 · límites de la admisión › respuesta perdida: B no la reenvía a ciegas, verifica, y el reintento con la MISMA clave no duplica (89ms)
+  ✘   15 [chromium] › e2e/aceptacion/f4-limites.aceptacion.e2e.ts:121:7 › F4 · límites de la admisión › el envío que nunca llegó: verificar no la encuentra y el reintento reutiliza la MISMA clave (88ms)
+  ✘   16 [chromium] › e2e/aceptacion/f4-limites.aceptacion.e2e.ts:145:7 › F4 · límites de la admisión › estados de la pantalla: cargando, vacío (sin propuesta) y error del servidor (88ms)
+  ✘   21 [chromium] › e2e/aceptacion/f5-retiro.aceptacion.e2e.ts:26:7 › F5 · retiro con doble aprobación (dos tesoreros) › quien pidió el retiro no lo aprueba; otra persona lo autoriza una sola vez y la tercera ve que ya no está en revisión (91ms)
+  ✘   22 [chromium] › e2e/aceptacion/f5-retiro.aceptacion.e2e.ts:82:7 › F5 · retiro con doble aprobación (dos tesoreros) › rechazar con motivo libera la orden y queda registrado; un campo de más no llega al servidor (90ms)
+  ✘   31 [chromium] › e2e/caso-de-cumplimiento.e2e.ts:57:7 › pantalla de caso — E2E dirigido › carga con la escalera de etapas, el botón deshabilitado sin causal, y el título real (5.4s)
+  ✘   32 [chromium] › e2e/caso-de-cumplimiento.e2e.ts:64:7 › pantalla de caso — E2E dirigido › elegir una causal habilita "Confirmar decisión" — el contenedor y la presentación se comunican de verdad (30.0s)
+  ✘   33 [chromium] › e2e/caso-de-cumplimiento.e2e.ts:70:7 › pantalla de caso — E2E dirigido › escribir en la narrativa no se pierde al re-renderizar (el contenedor sigue siendo la fuente de verdad) (30.0s)
+  ✘   36 [chromium] › e2e/caso-de-cumplimiento.e2e.ts:112:11 › pantalla de caso — comparación visual (3 viewports × 2 temas) › movil · claro · con causal elegida (35.8s)
+  ✘   38 [chromium] › e2e/caso-de-cumplimiento.e2e.ts:112:11 › pantalla de caso — comparación visual (3 viewports × 2 temas) › movil · oscuro · con causal elegida (30.0s)
+  ✘   40 [chromium] › e2e/caso-de-cumplimiento.e2e.ts:112:11 › pantalla de caso — comparación visual (3 viewports × 2 temas) › tablet · claro · con causal elegida (10.8m)
+  ✘   42 [chromium] › e2e/caso-de-cumplimiento.e2e.ts:112:11 › pantalla de caso — comparación visual (3 viewports × 2 temas) › tablet · oscuro · con causal elegida (30.0s)
+  ✘   44 [chromium] › e2e/caso-de-cumplimiento.e2e.ts:112:11 › pantalla de caso — comparación visual (3 viewports × 2 temas) › escritorio · claro · con causal elegida (12.4m)
+  ✘   46 [chromium] › e2e/caso-de-cumplimiento.e2e.ts:112:11 › pantalla de caso — comparación visual (3 viewports × 2 temas) › escritorio · oscuro · con causal elegida (30.0s)
+  ✘   59 [chromium] › e2e/f2-red-y-teclado.e2e.ts:57:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › respuesta perdida: avisa que no se pudo confirmar, conserva el monto, y el reintento reutiliza la clave y no duplica (30.0s)
+  ✘   60 [chromium] › e2e/f2-red-y-teclado.e2e.ts:80:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › el botón no permite doble envío mientras la operación está en curso (30.0s)
+  ✘   61 [chromium] › e2e/f2-red-y-teclado.e2e.ts:92:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › plazo vencido (30 s sin respuesta): «sin confirmar», no «falló»; el reintento reutiliza la clave (30.0s)
+  ✘   62 [chromium] › e2e/f2-red-y-teclado.e2e.ts:109:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › sin conexión: el envío falla visible, lo escrito se conserva y al volver la red el reintento sale con la misma clave (30.0s)
+  ✘   63 [chromium] › e2e/f2-red-y-teclado.e2e.ts:126:7 › [doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido › rechazo del servidor (422): dice que NO se completó, con el código de seguimiento, y no promete nada sobre repetir (30.0s)
+  ✘   66 [chromium] › e2e/h17-pago-a-proveedor.e2e.ts:14:7 › H17 · pago a proveedor › el formulario ofrece solo las formas que la base admite, en 3 viewports y 2 temas (30.0s)
+  ✘   71 [chromium] › e2e/publicidad-anunciantes.e2e.ts:21:7 › publicidad/anunciantes — tabla canónica › comportamiento real de hoy: el 405 del contrato se traduce a un estado de error visible, tabla oculta (no un estado mudo) (5.3s)
+  ✘   72 [chromium] › e2e/publicidad-anunciantes.e2e.ts:34:9 › publicidad/anunciantes — tabla canónica › con el GET de listado disponible (interceptado — el contrato real todavía no lo publica, ver JSDoc de este archivo) › la lista cargada se muestra en la tabla canónica, con el botón de alta visible (5.4s)
+  ✘  146 [chromium] › e2e/visual-tabla-de-datos.e2e.ts:35:9 › publicidad/anunciantes — movil × light (error real del contrato) (5.3s)
+  ✘  148 [chromium] › e2e/visual-tabla-de-datos.e2e.ts:35:9 › publicidad/anunciantes — movil × dark (error real del contrato) (5.3s)
+  ✘  150 [chromium] › e2e/visual-tabla-de-datos.e2e.ts:35:9 › publicidad/anunciantes — tablet × light (error real del contrato) (5.3s)
+  ✘  152 [chromium] › e2e/visual-tabla-de-datos.e2e.ts:35:9 › publicidad/anunciantes — tablet × dark (error real del contrato) (5.3s)
+  ✘  154 [chromium] › e2e/visual-tabla-de-datos.e2e.ts:35:9 › publicidad/anunciantes — escritorio × light (error real del contrato) (5.3s)
+  ✘  156 [chromium] › e2e/visual-tabla-de-datos.e2e.ts:35:9 › publicidad/anunciantes — escritorio × dark (error real del contrato) (5.3s)
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    TypeError: fetch failed
+    Error: expect(locator).toHaveText(expected) failed
+    Error: expect(locator).toBeVisible() failed
+    Error: expect(locator).toHaveCount(expected) failed
+    Error: expect(locator).toBeVisible() failed
+    Error: expect(locator).toBeVisible() failed
+    Error: expect(locator).toBeVisible() failed
+    Error: expect(locator).toBeVisible() failed
+    Error: expect(locator).toBeVisible() failed
+    Error: expect(locator).toBeVisible() failed
+  40 failed
+  117 passed (31.7m)

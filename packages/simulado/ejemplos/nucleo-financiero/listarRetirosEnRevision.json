@@ -1,0 +1,85 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "listarRetirosEnRevision",
+  "metodo": "get",
+  "ruta": "/billetera/retiros",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "ordenRetiroId": "20f11c1c-59a2-4590-8953-398c7a9341ac",
+            "cuentaBilleteraId": "cc988153-d267-4425-8eff-d5769effd578",
+            "solicitadaPor": "9e404296-945f-42a0-8a1f-803632a00536",
+            "solicitado": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "costo": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "neto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "mfaVerificado": true,
+            "solicitadaEn": "2026-01-15T10:30:00Z",
+            "ventanaEnfriamientoHasta": "2026-01-15T10:30:00Z",
+            "puedeDecidir": true
+          }
+        ],
+        "proximoFecha": "2026-01-15T10:30:00Z",
+        "proximoId": "b0ad7675-e875-4181-88d8-c7f4992327f6"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoFecha": "2026-01-15T10:30:00Z",
+        "proximoId": "b0ad7675-e875-4181-88d8-c7f4992327f6"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "ordenRetiroId": "20f11c1c-59a2-4590-8953-398c7a9341ac",
+            "cuentaBilleteraId": "cc988153-d267-4425-8eff-d5769effd578",
+            "solicitadaPor": "9e404296-945f-42a0-8a1f-803632a00536",
+            "solicitado": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "costo": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "neto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "mfaVerificado": true,
+            "solicitadaEn": "2026-01-15T10:30:00Z",
+            "ventanaEnfriamientoHasta": "2026-01-15T10:30:00Z",
+            "puedeDecidir": true
+          }
+        ],
+        "proximoFecha": "2026-01-15T10:30:00Z",
+        "proximoId": "b0ad7675-e875-4181-88d8-c7f4992327f6"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU40-01",
+        "mensaje": "Sin limite configurado",
+        "detalle": {},
+        "trazaId": "traza-listarRetirosEnRevision-rechazo"
+      }
+    }
+  }
+}

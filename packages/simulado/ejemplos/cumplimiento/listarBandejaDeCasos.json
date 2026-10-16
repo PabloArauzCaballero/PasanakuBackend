@@ -1,0 +1,71 @@
+{
+  "servicio": "cumplimiento",
+  "operacion": "listarBandejaDeCasos",
+  "metodo": "get",
+  "ruta": "/cumplimiento/casos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "casoId": "e1912228-2f66-4842-8310-8a59610f79a6",
+            "codigo": "codigo",
+            "origen": "ALERTA",
+            "estado": "ABIERTO",
+            "prioridad": "URGENTE",
+            "analistaId": "1a6a9c7b-bf26-468d-85ab-3f50ad991330",
+            "revisadoPor": "045673d3-999d-424d-8623-44e629df4362",
+            "abiertoEn": "2026-01-15T10:30:00Z",
+            "plazoLimite": "2026-01-15T10:30:00Z",
+            "vencido": true,
+            "decision": "DESCARTAR",
+            "cerradoEn": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoPlazo": "2026-01-15T10:30:00Z",
+        "proximoId": "a9aecd76-57a2-4ac2-81f3-884c01518838"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoPlazo": "2026-01-15T10:30:00Z",
+        "proximoId": "a9aecd76-57a2-4ac2-81f3-884c01518838"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "casoId": "e1912228-2f66-4842-8310-8a59610f79a6",
+            "codigo": "codigo",
+            "origen": "ALERTA",
+            "estado": "ABIERTO",
+            "prioridad": "URGENTE",
+            "analistaId": "1a6a9c7b-bf26-468d-85ab-3f50ad991330",
+            "revisadoPor": "045673d3-999d-424d-8623-44e629df4362",
+            "abiertoEn": "2026-01-15T10:30:00Z",
+            "plazoLimite": "2026-01-15T10:30:00Z",
+            "vencido": true,
+            "decision": "DESCARTAR",
+            "cerradoEn": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoPlazo": "2026-01-15T10:30:00Z",
+        "proximoId": "a9aecd76-57a2-4ac2-81f3-884c01518838"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU44-05",
+        "mensaje": "Filtro de bandeja invalido",
+        "detalle": {},
+        "trazaId": "traza-listarBandejaDeCasos-rechazo"
+      }
+    }
+  }
+}

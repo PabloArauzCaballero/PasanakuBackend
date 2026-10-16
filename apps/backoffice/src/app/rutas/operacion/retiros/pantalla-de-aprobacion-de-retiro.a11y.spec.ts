@@ -33,7 +33,7 @@ describe('PantallaDeAprobacionDeRetiro · accesibilidad (axe, [UI contra HTTP si
   async function abrirYEnviar(respuesta: (p: ReturnType<HttpTestingController['expectOne']>) => void) {
     const fixture = TestBed.createComponent(PantallaDeAprobacionDeRetiro)
     fixture.detectChanges()
-    fixture.componentInstance['ordenId'].set(ORDEN)
+    fixture.componentInstance['ordenEscrita'].set(ORDEN)
     fixture.componentInstance['desenlace'].set('RECHAZADA')
     fixture.componentInstance['motivo'].set('Titular no coincide')
     fixture.detectChanges()

@@ -1,0 +1,97 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "listarConciliaciones",
+  "metodo": "get",
+  "ruta": "/custodia/conciliaciones",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "conciliacionId": "f7c29571-9fea-4039-8828-b54897acb5aa",
+            "cuentaCustodiaId": "66d81a5c-e974-4f02-8705-39aa2504c995",
+            "fecha": "2026-01-15",
+            "saldoEmitido": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "saldoCustodia": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "saldoEnTransito": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "diferencia": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "ratioCobertura": "4.444444",
+            "cumpleEncaje": true,
+            "estado": "CUADRADA",
+            "ejecutadaPor": "8cd57190-3c44-4a8a-84f6-e34e6c91a2c1",
+            "ejecutadaEn": "2026-01-15T10:30:00Z",
+            "descuadresAbiertos": 0
+          }
+        ],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "bcc01dce-7c5e-444c-83f6-1e67e391e221"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "bcc01dce-7c5e-444c-83f6-1e67e391e221"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "conciliacionId": "f7c29571-9fea-4039-8828-b54897acb5aa",
+            "cuentaCustodiaId": "66d81a5c-e974-4f02-8705-39aa2504c995",
+            "fecha": "2026-01-15",
+            "saldoEmitido": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "saldoCustodia": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "saldoEnTransito": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "diferencia": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "ratioCobertura": "4.444444",
+            "cumpleEncaje": true,
+            "estado": "CUADRADA",
+            "ejecutadaPor": "8cd57190-3c44-4a8a-84f6-e34e6c91a2c1",
+            "ejecutadaEn": "2026-01-15T10:30:00Z",
+            "descuadresAbiertos": 0
+          }
+        ],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "bcc01dce-7c5e-444c-83f6-1e67e391e221"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU50-01",
+        "mensaje": "Sin cierres diarios",
+        "detalle": {},
+        "trazaId": "traza-listarConciliaciones-rechazo"
+      }
+    }
+  }
+}

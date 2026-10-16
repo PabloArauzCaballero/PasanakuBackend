@@ -1,0 +1,18 @@
+Application bundle generation complete. [1.780 seconds] - 2026-10-16T22:07:59.984Z
+ RUN  v4.1.11 /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/bo-l2-cumplimiento/apps/backoffice
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/bandeja-de-requerimientos.spec.ts > BandejaDeRequerimientos · CU-45 listarRequerimientosDeAutoridad > correcto: filas del contrato; la persona alcanzada no se muestra; acciones solo para el rol OFICIAL_CUMPLIMIENTO 125ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/bandeja-de-requerimientos.spec.ts > BandejaDeRequerimientos · CU-45 listarRequerimientosDeAutoridad > con AUDITORIA_LEER sin el rol, se lee pero no se registra ni se responde 23ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/bandeja-de-requerimientos.spec.ts > BandejaDeRequerimientos · CU-45 listarRequerimientosDeAutoridad > límite: vacío con su porqué; filtro con explode: true 25ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/bandeja-de-requerimientos.spec.ts > BandejaDeRequerimientos · CU-45 listarRequerimientosDeAutoridad > inválido: 403 → «sin acceso» 16ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/bandeja-de-requerimientos.spec.ts > BandejaDeRequerimientos · CU-45 listarRequerimientosDeAutoridad > inválido: 422 AP-CU45-05 → filtro inválido 19ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/acciones-de-requerimientos.spec.ts > RegistrarRequerimiento · CU-45 registrarRequerimientoDeAutoridad > correcto: cuerpo exacto, plazo en hora de La Paz (−04:00), sin persona si no se cargó, con Idempotency-Key y botón bloqueado 19ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/acciones-de-requerimientos.spec.ts > RegistrarRequerimiento · CU-45 registrarRequerimientoDeAutoridad > límite: hash de 63 caracteres o en mayúscula no sale; 200 es el mismo oficio ya registrado 16ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/acciones-de-requerimientos.spec.ts > RegistrarRequerimiento · CU-45 registrarRequerimientoDeAutoridad > inválido: 422 AP-CU45-03 se marca en el alcance y no hay éxito 14ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/acciones-de-requerimientos.spec.ts > RegistrarRequerimiento · CU-45 registrarRequerimientoDeAutoridad > inválido: 403 sin éxito 15ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/acciones-de-requerimientos.spec.ts > ResponderRequerimiento · CU-45 responderRequerimientoDeAutoridad > correcto: cuerpo exacto (solo el enlace: plazo y oficio son los registrados), Idempotency-Key, botón bloqueado 11ms
+ ✓  backoffice  src/app/rutas/cumplimiento/uif/acciones-de-requerimientos.spec.ts > ResponderRequerimiento · CU-45 responderRequerimientoDeAutoridad > límite e inválido: vacío no sale; 422 AP-CU45-01 sin éxito 10ms
+ Test Files  2 passed (2)
+      Tests  11 passed (11)
+   Start at  18:08:00
+   Duration  1.11s (transform 151ms, setup 181ms, import 190ms, tests 296ms, environment 355ms)
+exit 0

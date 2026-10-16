@@ -1,0 +1,70 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "ejecutarCierreDiario",
+  "metodo": "post",
+  "ruta": "/contabilidad/cierres-diarios",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "cierreId": "fa7c712f-39e9-4973-83c6-a27a434661aa",
+        "fecha": "2026-01-15",
+        "cuadrado": true,
+        "excepcionesAbiertas": 0,
+        "yaExistia": true,
+        "motivoDelDescuadre": "motivoDelDescuadre"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "cierreId": "fa7c712f-39e9-4973-83c6-a27a434661aa",
+        "fecha": "2026-01-15",
+        "cuadrado": false,
+        "excepcionesAbiertas": 0,
+        "yaExistia": false,
+        "motivoDelDescuadre": "motivoDelDescuadre"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "cierreId": "fa7c712f-39e9-4973-83c6-a27a434661aa",
+        "fecha": "2026-01-15",
+        "cuadrado": true,
+        "excepcionesAbiertas": 0,
+        "yaExistia": true,
+        "motivoDelDescuadre": "motivoDelDescuadre"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "cierreId": "fa7c712f-39e9-4973-83c6-a27a434661aa",
+        "fecha": "2026-01-15",
+        "cuadrado": true,
+        "excepcionesAbiertas": 0,
+        "yaExistia": true,
+        "motivoDelDescuadre": "motivoDelDescuadre"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU51-03",
+        "mensaje": "Asientos sin confirmar",
+        "detalle": {},
+        "trazaId": "traza-ejecutarCierreDiario-rechazo"
+      }
+    }
+  }
+}

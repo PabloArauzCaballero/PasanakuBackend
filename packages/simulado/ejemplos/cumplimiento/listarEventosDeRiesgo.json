@@ -1,0 +1,89 @@
+{
+  "servicio": "cumplimiento",
+  "operacion": "listarEventosDeRiesgo",
+  "metodo": "get",
+  "ruta": "/cumplimiento/riesgos/eventos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "eventoId": "a3c0fed6-195d-4c54-8456-26d7ebd1e6b2",
+            "codigo": "codigo",
+            "categoria": "categoria",
+            "factor": "factor",
+            "lineaNegocio": "lineaNegocio",
+            "fechaOcurrencia": "2026-01-15T10:30:00Z",
+            "fechaDeteccion": "2026-01-15T10:30:00Z",
+            "perdidaBruta": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "recuperacion": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "perdidaNeta": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "estado": "REGISTRADO",
+            "reportadoCentral": true
+          }
+        ],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "b97b816d-49ee-4b75-8f6a-a5e8036a5ce2"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "b97b816d-49ee-4b75-8f6a-a5e8036a5ce2"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "eventoId": "a3c0fed6-195d-4c54-8456-26d7ebd1e6b2",
+            "codigo": "codigo",
+            "categoria": "categoria",
+            "factor": "factor",
+            "lineaNegocio": "lineaNegocio",
+            "fechaOcurrencia": "2026-01-15T10:30:00Z",
+            "fechaDeteccion": "2026-01-15T10:30:00Z",
+            "perdidaBruta": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "recuperacion": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "perdidaNeta": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "estado": "REGISTRADO",
+            "reportadoCentral": true
+          }
+        ],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "b97b816d-49ee-4b75-8f6a-a5e8036a5ce2"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU54-04",
+        "mensaje": "Filtro de listado invalido",
+        "detalle": {},
+        "trazaId": "traza-listarEventosDeRiesgo-rechazo"
+      }
+    }
+  }
+}

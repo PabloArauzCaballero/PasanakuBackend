@@ -1,0 +1,25 @@
+Application bundle generation complete. [1.776 seconds] - 2026-10-16T22:08:04.538Z
+ RUN  v4.1.11 /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/bo-l2-cumplimiento/apps/backoffice
+ ✓  backoffice  src/app/rutas/cumplimiento/colas/colas-de-lectura.spec.ts > PantallaDeActas · CU-94 listarActasDeComite > correcto: lista sin filtros de estado (el contrato no los tiene) y sin ofrecer sesionar 97ms
+ ✓  backoffice  src/app/rutas/cumplimiento/colas/colas-de-lectura.spec.ts > PantallaDeActas · CU-94 listarActasDeComite > límite: vacío 22ms
+ ✓  backoffice  src/app/rutas/cumplimiento/colas/colas-de-lectura.spec.ts > PantallaDeActas · CU-94 listarActasDeComite > inválido: 403 → «sin acceso» 17ms
+ ✓  backoffice  src/app/rutas/cumplimiento/colas/colas-de-lectura.spec.ts > PantallaDeActas · CU-94 listarActasDeComite > inválido: 422 AP-CU94-07 23ms
+ ✓  backoffice  src/app/rutas/cumplimiento/colas/colas-de-lectura.spec.ts > PantallaDeEventos · CU-54 listarEventosDeRiesgo > correcto: pérdidas con su moneda vía ap-monto; estados con explode: true 33ms
+ ✓  backoffice  src/app/rutas/cumplimiento/colas/colas-de-lectura.spec.ts > PantallaDeEventos · CU-54 listarEventosDeRiesgo > inválido: 403 → sin acceso 13ms
+ ✓  backoffice  src/app/rutas/cumplimiento/colas/colas-de-lectura.spec.ts > PantallaDeEventos · CU-54 listarEventosDeRiesgo > inválido: 422 AP-CU54-04 17ms
+ ✓  backoffice  src/app/rutas/cumplimiento/colas/colas-de-lectura.spec.ts > PantallaDeIncidentes · CU-55 listarIncidentesDeSeguridad > correcto: plazos guardados; sin reportar se dice 20ms
+ ✓  backoffice  src/app/rutas/cumplimiento/colas/colas-de-lectura.spec.ts > PantallaDeIncidentes · CU-55 listarIncidentesDeSeguridad > límite: vacío 19ms
+ ✓  backoffice  src/app/rutas/cumplimiento/colas/colas-de-lectura.spec.ts > PantallaDeIncidentes · CU-55 listarIncidentesDeSeguridad > inválido: 403 → «sin acceso» 15ms
+ ✓  backoffice  src/app/rutas/cumplimiento/colas/colas-de-lectura.spec.ts > PantallaDeIncidentes · CU-55 listarIncidentesDeSeguridad > inválido: 422 AP-CU55-04 16ms
+ ✓  backoffice  src/app/rutas/cumplimiento/colas/pantalla-de-continuidad.spec.ts > PantallaDeContinuidad · CU-56 listarPruebasDeContinuidad > correcto: lista sin estados; registrar solo para el rol RESPONSABLE_RIESGOS 25ms
+ ✓  backoffice  src/app/rutas/cumplimiento/colas/pantalla-de-continuidad.spec.ts > PantallaDeContinuidad · CU-56 listarPruebasDeContinuidad > con AUDITORIA_LEER sin el rol, no se ofrece registrar 12ms
+ ✓  backoffice  src/app/rutas/cumplimiento/colas/pantalla-de-continuidad.spec.ts > PantallaDeContinuidad · CU-56 listarPruebasDeContinuidad > inválido: 403 → «sin acceso» 11ms
+ ✓  backoffice  src/app/rutas/cumplimiento/colas/pantalla-de-continuidad.spec.ts > PantallaDeContinuidad · CU-56 listarPruebasDeContinuidad > inválido: 422 AP-CU56-04 14ms
+ ✓  backoffice  src/app/rutas/cumplimiento/colas/pantalla-de-continuidad.spec.ts > RegistrarPrueba · CU-56 registrarPruebaDeContinuidad > correcto: cuerpo exacto (sin pérdida: el contrato no le da moneda), Idempotency-Key y botón bloqueado 18ms
+ ✓  backoffice  src/app/rutas/cumplimiento/colas/pantalla-de-continuidad.spec.ts > RegistrarPrueba · CU-56 registrarPruebaDeContinuidad > límite: RTO 0 es válido; RTO decimal o negativo no sale 9ms
+ ✓  backoffice  src/app/rutas/cumplimiento/colas/pantalla-de-continuidad.spec.ts > RegistrarPrueba · CU-56 registrarPruebaDeContinuidad > inválido: 422 AP-CU56-01 se marca en el acta y no hay éxito 14ms
+ Test Files  2 passed (2)
+      Tests  18 passed (18)
+   Start at  18:08:04
+   Duration  1.18s (transform 148ms, setup 185ms, import 190ms, tests 397ms, environment 326ms)
+exit 0

@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { iniciarSesionDePrueba, navegarSinRecargar } from './apoyo/sesion-e2e'
+import { PAGINA_SINTETICA } from './apoyo/anunciantes-sinteticos'
 
 /**
  * Evidencia visual real (PNG de Playwright, no una maqueta) de las dos pantallas
@@ -32,9 +33,13 @@ for (const viewport of VIEWPORTS) {
       await page.screenshot({ path: `../../.playwright/backoffice/visual/operacion-estado.${viewport.nombre}.${tema}.png`, fullPage: true })
     })
 
-    test(`publicidad/anunciantes — ${viewport.nombre} × ${tema} (error real del contrato)`, async ({ page }) => {
+    test(`publicidad/anunciantes — ${viewport.nombre} × ${tema} (error del servidor, interceptado)`, async ({ page }) => {
       await page.setViewportSize({ width: viewport.width, height: viewport.height })
       await page.emulateMedia({ colorScheme: tema })
+      // El contrato ya publica el listado (CU-110): el estado de error se fuerza con una falla del servidor.
+      await page.route((u) => u.pathname.endsWith('/api/v1/publicidad/anunciantes'), (route) =>
+        route.request().method() === 'GET' ? route.fulfill({ status: 503, json: { codigo: 'AP-SISTEMA-01', mensaje: 'no disponible' } }) : route.fallback(),
+      )
       await iniciarSesionDePrueba(page, ['PUBLICIDAD_ANUNCIANTES'])
       await page.locator('ul.accesos').getByRole('link', { name: /Publicidad/ }).click()
       await page.waitForURL(/\/publicidad\/anunciantes$/)
@@ -44,18 +49,15 @@ for (const viewport of VIEWPORTS) {
   }
 }
 
-test('publicidad/anunciantes — escritorio × light, con datos (interceptado — ver JSDoc de publicidad-anunciantes.e2e.ts)', async ({ page }) => {
+test('publicidad/anunciantes — escritorio × light, con datos (interceptado con la forma del contrato)', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.emulateMedia({ colorScheme: 'light' })
-  await page.route('**/api/v1/publicidad/anunciantes', async (route) => {
+  await page.route((u) => u.pathname.endsWith('/api/v1/publicidad/anunciantes'), async (route) => {
     if (route.request().method() !== 'GET') { await route.fallback(); return }
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify([
-        { anuncianteId: 'a-1', tipo: 'SOCIO_COMERCIAL', razonSocialFacturacion: 'Café del Valle SRL', moneda: 'BOB', limiteGastoMensual: '500.00', estado: 'ACTIVA' },
-        { anuncianteId: 'a-2', tipo: 'ORGANIZADOR', razonSocialFacturacion: 'Cooperativa Andina', moneda: 'BOB', limiteGastoMensual: null, estado: 'SUSPENDIDA' },
-      ]),
+      body: JSON.stringify(PAGINA_SINTETICA),
     })
   })
   await iniciarSesionDePrueba(page, ['PUBLICIDAD_ANUNCIANTES'])

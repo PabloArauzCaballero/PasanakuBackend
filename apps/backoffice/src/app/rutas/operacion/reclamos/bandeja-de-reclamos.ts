@@ -1,157 +1,124 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core'
 import { toSignal } from '@angular/core/rxjs-interop'
-import { ActivatedRoute } from '@angular/router'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
-import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
-import { RelojDePlazo } from '@aportaya/ui/reloj-de-plazo/reloj-de-plazo'
+import { ActivatedRoute, Router } from '@angular/router'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
+import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
 import { Boton } from '@aportaya/ui/boton/boton'
-import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
+import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import type { Filtro } from '@aportaya/ui/chips-de-filtro/chips-de-filtro'
+import { RelojDePlazo } from '@aportaya/ui/reloj-de-plazo/reloj-de-plazo'
+import { BarraDeFiltros } from '../../../nucleo/filtros/barra-de-filtros'
 import { Sesion } from '../../../nucleo/sesion'
 import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
 import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
-import { BarraDeFiltros } from '../../../nucleo/filtros/barra-de-filtros'
-import { cargadorDeReclamos, vencido, type EstadoReclamo, type ReclamoDeBandeja } from '../dominio/cu52-reclamos'
-import { textosOperacion } from '../textos'
+import { EstadoDeBandejaVista } from '../comun/estado-de-bandeja'
+import { ImporteSinMoneda } from '../comun/importe-sin-moneda'
+import { bandejaDeReclamos, sePuedeResponder, type EstadoReclamo, type ReclamoEnBandeja } from '../dominio/cu52-reclamos'
+import { RespuestaAReclamo } from './respuesta-a-reclamo'
+import { textosReclamos } from './textos'
 
-const TONO_POR_ESTADO: Record<EstadoReclamo, 'ok' | 'aviso' | 'error' | 'info' | 'neutro'> = {
-  INGRESADO: 'info',
-  EN_ANALISIS: 'aviso',
-  RESPONDIDO: 'ok',
-  CERRADO: 'neutro',
-  ELEVADO: 'error',
-}
-
-const COLUMNAS: ColumnaVirtual<ReclamoDeBandeja>[] = [
-  { clave: 'codigo', titulo: 'Código', ordenable: true },
-  { clave: 'categoria', titulo: 'Categoría' },
-  { clave: 'canalIngreso', titulo: 'Canal' },
-  { clave: 'plazoRespuesta', titulo: 'Plazo', ordenable: true },
-  { clave: 'estado', titulo: 'Estado' },
-  { clave: 'reclamoId', titulo: 'Acciones' },
-]
+const T = textosReclamos
+const TONO: Record<EstadoReclamo, 'ok' | 'aviso' | 'error' | 'info' | 'neutro'> = { INGRESADO: 'info', EN_ANALISIS: 'aviso', RESPONDIDO: 'ok', CERRADO: 'neutro', ELEVADO: 'error' }
+const COLUMNAS: ColumnaVirtual<ReclamoEnBandeja>[] = (['codigo', 'categoria', 'canalIngreso', 'montoReclamado', 'limiteVigente', 'estado', 'reclamoId'] as const).map((clave) => ({
+  clave,
+  titulo: T.columnas[clave],
+  numerica: clave === 'montoReclamado',
+}))
 
 /**
- * D-18 · Bandeja de reclamos (CU-52), sobre `TablaDeDatosVirtualizada` (del shell, no
- * se duplica) y ordenada por plazo desde el `cargador` (`cargarReclamos`, dominio):
- * el que vence antes va primero. `BarraDeFiltros` guarda el filtro de estado en la URL.
- * Segregación de funciones: **cualquier operador la ve**; solo quien tiene
- * `RECLAMO_ATENDER` puede abrir el diálogo de respuesta — el mismo permiso que CU-52
- * exige del lado del backend para `reclamo.respondido`, así el 403 real nunca es la
- * primera línea de defensa, solo la confirma.
+ * D-18 · Bandeja de reclamos (CU-52) sobre `listarBandejaDeReclamos`: el servidor ordena por límite vigente y pagina
+ * por cursor; `BarraDeFiltros` guarda los estados elegidos en la URL y viajan como `estados` (CSV). Cualquier operador
+ * con RECLAMO_VER la ve; solo quien tiene RECLAMO_ATENDER abre la respuesta (el mismo permiso que exige el servidor).
  */
 @Component({
   selector: 'ap-bandeja-de-reclamos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alerta, BandaDeProposito, ChipEstado, RelojDePlazo, Boton, Dialogo, TablaDeDatosVirtualizada, BarraDeFiltros],
+  imports: [Alerta, BandaDeProposito, Boton, ChipEstado, RelojDePlazo, TablaDeDatosVirtualizada, BarraDeFiltros, EstadoDeBandejaVista, ImporteSinMoneda, RespuestaAReclamo],
   template: `
     <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
       <h1 data-tutorial-id="operacion-reclamos">{{ t.titulo }}</h1>
-      @if (sinEnviar()) { <ap-alerta tono="aviso">{{ t.sinEnviar }}</ap-alerta> }
-      <ap-barra-de-filtros etiqueta="Estado" [incluirBusqueda]="false" [definiciones]="filtrosDeEstado" />
-      <ap-tabla-de-datos-virtualizada
-        [titulo]="t.titulo"
-        [columnas]="COLUMNAS"
-        [cargador]="cargador"
-        [ordenPermitido]="['plazoRespuesta', 'codigo']"
-        [identidad]="identidad"
-        [filtros]="filtrosActivos()"
-      >
-        <ng-template #celda let-r let-columna="columna">
-          @switch (columna.clave) {
-            @case ('estado') {
-              <ap-chip-estado [tono]="tonoDe(r)">{{ etiquetaDe(r) }}</ap-chip-estado>
-            }
-            @case ('plazoRespuesta') {
-              <ap-reloj-de-plazo [etiqueta]="t.plazo" [venceIso]="r.plazoRespuesta" [ahoraIso]="ahoraIso" [norma]="t.norma" />
-            }
-            @case ('reclamoId') {
-              @if (puedeAtender()) {
-                <ap-boton [deshabilitado]="r.estado === 'CERRADO'" (pulsado)="abrirConfirmacion(r)">{{ t.responder }}</ap-boton>
+      @if (hecho(); as h) { <ap-alerta tono="ok">{{ h }}</ap-alerta> }
+      <ap-barra-de-filtros [etiqueta]="t.filtroEtiqueta" [incluirBusqueda]="false" [definiciones]="filtrosDeEstado" />
+      <ap-estado-de-bandeja [estado]="b.estado()" [error]="b.error()" [vacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [denegado]="t.denegado" [conFiltro]="!!filtrosActivos()['estados']" (reintentar)="b.reintentar()" (quitarFiltros)="quitarFiltros()" />
+      @if (b.estado() !== 'denegado') {
+        @for (v of [b.version()]; track v) {
+          <ap-tabla-de-datos-virtualizada [titulo]="t.titulo" [columnas]="COLUMNAS" [cargador]="b.cargador" [ordenPermitido]="[]" [identidad]="identidad" [filtros]="filtrosActivos()" [tamanoDePagina]="25">
+            <ng-template #celda let-r let-columna="columna">
+              @switch (columna.clave) {
+                @case ('estado') { <ap-chip-estado [tono]="tonoDe(r)">{{ etiquetaDe(r) }}</ap-chip-estado> }
+                @case ('limiteVigente') {
+                  <ap-reloj-de-plazo [etiqueta]="t.plazo" [venceIso]="r.limiteVigente" [ahoraIso]="ahoraIso" [norma]="t.norma" />
+                  @if (r.vencido) { <span class="vencido">{{ t.vencido }}</span> }
+                }
+                @case ('montoReclamado') {
+                  @if (r.montoReclamado) { <ap-importe-sin-moneda [monto]="r.montoReclamado" /> } @else { {{ t.sinMonto }} }
+                }
+                @case ('reclamoId') {
+                  @if (puedeAtender() && sePuedeResponder(r)) { <ap-boton (pulsado)="abrir(r)">{{ t.responder }}</ap-boton> }
+                }
+                @default { {{ r[columna.clave] }} }
               }
-            }
-            @default {
-              {{ r[columna.clave] }}
-            }
-          }
-        </ng-template>
-      </ap-tabla-de-datos-virtualizada>
+            </ng-template>
+          </ap-tabla-de-datos-virtualizada>
+        }
+      }
     </section>
-
     @if (seleccionado(); as r) {
-      <ap-dialogo
-        [titulo]="'Responder ' + r.codigo"
-        [textoDeConfirmar]="'Confirmar respuesta de ' + r.codigo"
-        [abierto]="dialogoAbierto()"
-        (abiertoChange)="dialogoAbierto.set($event)"
-        (confirmar)="confirmarRespuesta()"
-        (cancelar)="cerrarConfirmacion()"
-      >
-        <p>{{ t.confirmarResponder(r.codigo) }}</p>
-      </ap-dialogo>
+      <ap-respuesta-a-reclamo [reclamo]="r" (respondido)="alResponder(r)" (cerrar)="seleccionado.set(null)" />
     }
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 64rem; display: grid; gap: var(--s4); }
+    .pantalla { padding: var(--s5); max-width: 72rem; display: grid; gap: var(--s4); }
     h1 { margin: 0; }
+    .vencido { display: block; color: var(--err-texto); font-weight: 600; }
   `,
 })
 export class BandejaDeReclamos {
   private readonly sesion = inject(Sesion)
-  protected readonly t = textosOperacion.reclamos
-  protected readonly TONO = TONO_POR_ESTADO
-  protected readonly ETIQUETA: Record<EstadoReclamo, string> = textosOperacion.reclamos.estados
-  protected readonly ahoraIso = new Date().toISOString()
-  protected readonly COLUMNAS = COLUMNAS
-  protected readonly identidad = (r: ReclamoDeBandeja) => r.reclamoId
-  protected readonly cargador = cargadorDeReclamos()
-  protected readonly filtrosDeEstado: Filtro[] = [
-    { valor: 'INGRESADO', texto: 'Ingresado' },
-    { valor: 'EN_ANALISIS', texto: 'En análisis' },
-    { valor: 'ELEVADO', texto: 'Elevado' },
-  ]
+  private readonly router = inject(Router)
   private readonly ruta = inject(ActivatedRoute)
+  protected readonly t = T
+  protected readonly COLUMNAS = COLUMNAS
+  protected readonly ahoraIso = new Date().toISOString()
+  protected readonly b = bandejaDeReclamos()
+  protected readonly identidad = (r: ReclamoEnBandeja) => r.reclamoId
+  protected readonly sePuedeResponder = sePuedeResponder
+  protected readonly filtrosDeEstado: Filtro[] = (Object.keys(T.estados) as EstadoReclamo[]).map((valor) => ({ valor, texto: T.estados[valor] }))
   private readonly queryParamMap = toSignal(this.ruta.queryParamMap, { requireSync: false })
+  /** `?filtro=A,B` → `{ estados: 'A,B' }`: el cargador lo manda tal cual al servidor. */
   protected readonly filtrosActivos = computed<Record<string, string>>(() => {
-    const elegido = this.queryParamMap()?.get('filtro')?.split(',').filter(Boolean)[0]
+    const elegidos = this.queryParamMap()?.get('filtro')?.split(',').filter(Boolean) ?? []
     const filtros: Record<string, string> = {}
-    if (elegido) filtros['estado'] = elegido
+    if (elegidos.length) filtros['estados'] = elegidos.join(',')
     return filtros
   })
-
-  protected readonly seleccionado = signal<ReclamoDeBandeja | null>(null)
-  protected readonly dialogoAbierto = signal(false)
-  /** La confirmación no manda nada (falta la operación en el servicio): se dice, en vez de cerrar el diálogo como si hubiera funcionado. */
-  protected readonly sinEnviar = signal(false)
   protected readonly puedeAtender = computed(() => this.sesion.puede('RECLAMO_ATENDER'))
-  protected readonly vencido = vencido
+  protected readonly seleccionado = signal<ReclamoEnBandeja | null>(null)
+  protected readonly hecho = signal('')
 
-  tonoDe(r: ReclamoDeBandeja): 'ok' | 'aviso' | 'error' | 'info' | 'neutro' {
-    return this.TONO[r.estado]
+  protected tonoDe(r: ReclamoEnBandeja): 'ok' | 'aviso' | 'error' | 'info' | 'neutro' {
+    return TONO[r.estado as EstadoReclamo]
   }
 
-  etiquetaDe(r: ReclamoDeBandeja): string {
-    return this.ETIQUETA[r.estado]
+  protected etiquetaDe(r: ReclamoEnBandeja): string {
+    return T.estados[r.estado as EstadoReclamo]
   }
 
-  abrirConfirmacion(r: ReclamoDeBandeja): void {
+  protected abrir(r: ReclamoEnBandeja): void {
+    if (!this.puedeAtender() || !sePuedeResponder(r)) return
+    this.hecho.set('')
     this.seleccionado.set(r)
-    this.dialogoAbierto.set(true)
   }
 
-  cerrarConfirmacion(): void {
-    this.dialogoAbierto.set(false)
+  /** El éxito se anuncia con el 200 y la bandeja se vuelve a pedir: el reclamo cerrado sale de los abiertos. */
+  protected alResponder(r: ReclamoEnBandeja): void {
     this.seleccionado.set(null)
+    this.hecho.set(T.respuesta.hecho(r.codigo))
+    this.b.reintentar()
   }
 
-  confirmarRespuesta(): void {
-    // El envío real queda pendiente del contrato `POST /reclamos/{id}/respuesta`
-    // (ver el supuesto declarado en dominio/cu52-reclamos.ts). El diálogo ya exige
-    // la confirmación con el código concreto delante, que es lo que pide el gate.
-    // Mientras tanto se avisa que NO se envió.
-    this.cerrarConfirmacion()
-    this.sinEnviar.set(true)
+  protected quitarFiltros(): void {
+    void this.router.navigate([], { relativeTo: this.ruta, queryParams: { filtro: null }, queryParamsHandling: 'merge' })
   }
 }

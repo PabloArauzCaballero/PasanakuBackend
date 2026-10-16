@@ -1,0 +1,81 @@
+{
+  "servicio": "publicidad",
+  "operacion": "listarCampanas",
+  "metodo": "get",
+  "ruta": "/publicidad/campanas",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "campanaId": "7c863b12-81f7-4fc2-828e-db30fe7d5ad4",
+            "cuentaPublicitariaId": "c9515ac6-abdd-41ac-828c-7b6a752e7c72",
+            "anuncianteId": "509415a7-4851-4cc3-88c5-d96498e5e26a",
+            "nombre": "nombre",
+            "objetivo": "CONVERSION",
+            "presupuestoTotal": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "presupuestoConsumido": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "fechaInicio": "2026-01-15T10:30:00Z",
+            "fechaFin": "2026-01-15T10:30:00Z",
+            "estado": "BORRADOR",
+            "aprobadaPor": "040cd67f-dac2-4c91-8213-1c512decfc31"
+          }
+        ],
+        "proximoFecha": "2026-01-15T10:30:00Z",
+        "proximoId": "4ad9958b-a307-4b1b-8162-18170ede180a"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoFecha": "2026-01-15T10:30:00Z",
+        "proximoId": "4ad9958b-a307-4b1b-8162-18170ede180a"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "campanaId": "7c863b12-81f7-4fc2-828e-db30fe7d5ad4",
+            "cuentaPublicitariaId": "c9515ac6-abdd-41ac-828c-7b6a752e7c72",
+            "anuncianteId": "509415a7-4851-4cc3-88c5-d96498e5e26a",
+            "nombre": "nombre",
+            "objetivo": "CONVERSION",
+            "presupuestoTotal": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "presupuestoConsumido": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "fechaInicio": "2026-01-15T10:30:00Z",
+            "fechaFin": "2026-01-15T10:30:00Z",
+            "estado": "BORRADOR",
+            "aprobadaPor": "040cd67f-dac2-4c91-8213-1c512decfc31"
+          }
+        ],
+        "proximoFecha": "2026-01-15T10:30:00Z",
+        "proximoId": "4ad9958b-a307-4b1b-8162-18170ede180a"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU111-04",
+        "mensaje": "Filtro de listado invalido",
+        "detalle": {},
+        "trazaId": "traza-listarCampanas-rechazo"
+      }
+    }
+  }
+}

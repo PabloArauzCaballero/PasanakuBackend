@@ -1,0 +1,5 @@
+$ corepack yarn workspace @aportaya/backoffice test:front --watch=false --include='src/app/rutas/operacion/**/*.spec.ts'   # HEAD d58fb5a2, 2026-10-16T22:06:58Z
+ Test Files  82 passed (82)
+      Tests  532 passed (532)
+   Duration  3.97s (transform 640ms, setup 278ms, import 843ms, tests 2.24s, environment 459ms)
+EXIT=0

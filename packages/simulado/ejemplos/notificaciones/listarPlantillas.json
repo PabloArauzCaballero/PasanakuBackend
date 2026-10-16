@@ -1,0 +1,71 @@
+{
+  "servicio": "notificaciones",
+  "operacion": "listarPlantillas",
+  "metodo": "get",
+  "ruta": "/notificaciones/plantillas",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "plantillaId": "b66aa346-a8df-49e2-8eb5-4aa45f4a8d28",
+            "codigo": "codigo",
+            "evento": "evento",
+            "canal": "CORREO",
+            "categoriaProveedor": "AUTHENTICATION",
+            "estadoAprobacion": "APROBADA",
+            "activa": true,
+            "versionId": "3d69a605-e0a3-4631-8223-50fcc1e0cfc3",
+            "version": 1,
+            "idioma": "idioma",
+            "vigenteDesde": "2026-01-15T10:30:00Z",
+            "vigenteHasta": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "4eff7973-80e5-466d-831e-5c0e2cfe4bfe"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "4eff7973-80e5-466d-831e-5c0e2cfe4bfe"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "plantillaId": "b66aa346-a8df-49e2-8eb5-4aa45f4a8d28",
+            "codigo": "codigo",
+            "evento": "evento",
+            "canal": "CORREO",
+            "categoriaProveedor": "AUTHENTICATION",
+            "estadoAprobacion": "APROBADA",
+            "activa": true,
+            "versionId": "3d69a605-e0a3-4631-8223-50fcc1e0cfc3",
+            "version": 1,
+            "idioma": "idioma",
+            "vigenteDesde": "2026-01-15T10:30:00Z",
+            "vigenteHasta": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "4eff7973-80e5-466d-831e-5c0e2cfe4bfe"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU80-01",
+        "mensaje": "Sin plantilla aprobada",
+        "detalle": {},
+        "trazaId": "traza-listarPlantillas-rechazo"
+      }
+    }
+  }
+}

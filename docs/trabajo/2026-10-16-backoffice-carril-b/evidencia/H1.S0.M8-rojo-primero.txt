@@ -1,0 +1,5 @@
+     × /cumplimiento/casos/caso-1 se abre sin el permiso del listado 3ms
+     × /cumplimiento/alertas/alerta-1 se abre sin el permiso del listado 1ms
+     × /cumplimiento/actas/acta-1 se abre sin el permiso del listado 1ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  3 failed | 767 passed (770)

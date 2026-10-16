@@ -1,0 +1,66 @@
+{
+  "servicio": "cumplimiento",
+  "operacion": "registrarPruebaDeContinuidad",
+  "metodo": "post",
+  "ruta": "/cumplimiento/continuidad/pruebas",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "pruebaId": "976e5c92-aa87-4e20-8de9-72b241f58ab2",
+        "rtoObtenido": 1,
+        "rpoObtenido": 1,
+        "resultado": "EXITOSA",
+        "planAccionId": "ac8f7401-8f45-4f29-83ca-cb283bd5332a"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "pruebaId": "976e5c92-aa87-4e20-8de9-72b241f58ab2",
+        "rtoObtenido": 0,
+        "rpoObtenido": 0,
+        "resultado": "EXITOSA",
+        "planAccionId": "ac8f7401-8f45-4f29-83ca-cb283bd5332a"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "pruebaId": "976e5c92-aa87-4e20-8de9-72b241f58ab2",
+        "rtoObtenido": 1,
+        "rpoObtenido": 1,
+        "resultado": "EXITOSA",
+        "planAccionId": "ac8f7401-8f45-4f29-83ca-cb283bd5332a"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "pruebaId": "976e5c92-aa87-4e20-8de9-72b241f58ab2",
+        "rtoObtenido": 1,
+        "rpoObtenido": 1,
+        "resultado": "EXITOSA",
+        "planAccionId": "ac8f7401-8f45-4f29-83ca-cb283bd5332a"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU56-01",
+        "mensaje": "Sin acta de comite",
+        "detalle": {},
+        "trazaId": "traza-registrarPruebaDeContinuidad-rechazo"
+      }
+    }
+  }
+}

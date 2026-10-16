@@ -17,20 +17,27 @@ import { requierePermiso } from '../../nucleo/permisos'
  * acciones: `puedePagar`, `puedeCobrar` y `puedeDepreciar` se consultan en el componente,
  * porque el permiso puede cambiar después de montada la ruta.
  *
- * **Supuesto declarado sobre los parámetros de la URL.** `erp.yaml` no publica ninguna
- * operación de listado (ver `dominio/contrato-erp.ts`), y tampoco una que diga cuál es el
- * ejercicio o el período vigente. Las tres rutas que lo necesitan lo llevan en la URL
- * (`:ejercicioId`, `:periodoId`), que es además lo que permite pegar el enlace de un mes
- * concreto en un expediente — mismo criterio que `cumplimiento`. La redirección de `''`
- * apunta al ejercicio de demostración, igual que hace `operacion` con su cuenta.
+ * **Período de hoy, sin identificador de demostración (L3 · H1.S3.M1).** La raíz de Contabilidad monta la pantalla de
+ * períodos sin `:ejercicioId`: la pantalla consulta `GET /erp/periodos/vigente` y, si no hay período para hoy
+ * (`AP-CU100-04`), lo dice sin elegir otro. `periodo/:ejercicioId` es la misma pantalla con un ejercicio elegido por la
+ * persona desde el selector (`GET /erp/ejercicios`), pegable en un expediente.
+ *
+ * Esas lecturas las ve «cualquiera de los permisos ERP» (`erp.yaml`, `listarEjerciciosFiscales`), que es exactamente
+ * `ver:contabilidad` del shell (ya exigido al cargar este archivo): por eso las dos rutas de períodos no repiten un
+ * `canMatch` propio. Cerrar sigue exigiendo `CONTABILIDAD_ERP_CERRAR` dentro de la pantalla (y en el servidor).
+ * Activos y estados financieros siguen llevando el período en la URL; los enlaces salen del período de hoy.
  */
 export const rutasContabilidad: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'periodo/11111111-1111-4111-8111-111111111111' },
+  {
+    path: '',
+    pathMatch: 'full',
+    loadComponent: () => import('./periodo/pantalla-de-periodo').then((m) => m.PantallaDePeriodo),
+    title: 'Períodos contables · AportaYa',
+  },
   {
     path: 'periodo/:ejercicioId',
     loadComponent: () => import('./periodo/pantalla-de-periodo').then((m) => m.PantallaDePeriodo),
     title: 'Períodos contables · AportaYa',
-    canMatch: [requierePermiso('CONTABILIDAD_ERP_CERRAR')],
   },
   {
     path: 'presupuesto',

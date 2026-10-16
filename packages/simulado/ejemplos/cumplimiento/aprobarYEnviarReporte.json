@@ -1,0 +1,66 @@
+{
+  "servicio": "cumplimiento",
+  "operacion": "aprobarYEnviarReporte",
+  "metodo": "post",
+  "ruta": "/uif/reportes/envios",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "reporteId": "62e1e1b9-10ab-4b71-824a-1ac8738ddd2a",
+        "cantidadRegistros": 1,
+        "reporteEnCero": true,
+        "hashArchivo": "hashArchivo",
+        "fueraDePlazo": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "reporteId": "62e1e1b9-10ab-4b71-824a-1ac8738ddd2a",
+        "cantidadRegistros": 0,
+        "reporteEnCero": false,
+        "hashArchivo": "hashArchivo",
+        "fueraDePlazo": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "reporteId": "62e1e1b9-10ab-4b71-824a-1ac8738ddd2a",
+        "cantidadRegistros": 1,
+        "reporteEnCero": true,
+        "hashArchivo": "hashArchivo",
+        "fueraDePlazo": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "reporteId": "62e1e1b9-10ab-4b71-824a-1ac8738ddd2a",
+        "cantidadRegistros": 1,
+        "reporteEnCero": true,
+        "hashArchivo": "hashArchivo",
+        "fueraDePlazo": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU43-01",
+        "mensaje": "Periodo sin cerrar",
+        "detalle": {},
+        "trazaId": "traza-aprobarYEnviarReporte-rechazo"
+      }
+    }
+  }
+}

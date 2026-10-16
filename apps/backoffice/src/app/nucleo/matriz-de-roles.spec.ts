@@ -30,17 +30,17 @@ const CATALOGO = leerCatalogo()
 
 /** El token de un rol: su código más los permisos del catálogo que ese rol concede. */
 const tokenDe = (rol: string): string[] => [rol, ...(CATALOGO.concedidos.get(rol) ?? [])]
-const SECCIONES = ['ver:operacion', 'ver:cumplimiento', 'ver:admisiones', 'ver:sistemas', 'ver:contabilidad', 'ver:publicidad'] as const
+const SECCIONES = ['ver:operacion', 'ver:cumplimiento', 'ver:admisiones', 'ver:sistemas', 'ver:contabilidad', 'ver:publicidad', 'ver:configuracion'] as const
 const seccionesDe = (rol: string) => SECCIONES.filter((s) => alcanza(s, tokenDe(rol), true)).map((s) => s.slice(4))
 
 /** Lo que cada rol debe ver. Escrito a mano desde las concesiones del catálogo, para que un cambio en cualquiera de los dos se note. */
 const ESPERADO: Record<string, string[]> = {
-  ADMIN_PLATAFORMA: ['operacion', 'cumplimiento', 'admisiones', 'sistemas'],
-  OFICIAL_CUMPLIMIENTO: ['operacion', 'cumplimiento'],
+  ADMIN_PLATAFORMA: ['operacion', 'cumplimiento', 'admisiones', 'sistemas', 'configuracion'],
+  OFICIAL_CUMPLIMIENTO: ['operacion', 'cumplimiento', 'configuracion'],
   ANALISTA_CUMPLIMIENTO: ['operacion', 'cumplimiento'],
-  AUDITOR_INTERNO: ['operacion', 'contabilidad'],
-  RESPONSABLE_RIESGOS: ['operacion'],
-  RESPONSABLE_SEGURIDAD: ['sistemas'],
+  AUDITOR_INTERNO: ['operacion', 'cumplimiento', 'contabilidad', 'configuracion'],
+  RESPONSABLE_RIESGOS: ['operacion', 'cumplimiento', 'configuracion'],
+  RESPONSABLE_SEGURIDAD: ['cumplimiento', 'sistemas'],
   TESORERIA: ['operacion', 'contabilidad'],
   CONTABILIDAD: ['operacion', 'contabilidad'],
   SOPORTE: ['operacion'],

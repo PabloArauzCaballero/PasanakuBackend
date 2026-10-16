@@ -1,0 +1,95 @@
+{
+  "servicio": "erp",
+  "operacion": "listarActivosFijos",
+  "metodo": "get",
+  "ruta": "/erp/activos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "activoFijoId": "a5679503-1430-4161-84ea-83b9eb997e66",
+            "codigo": "codigo",
+            "descripcion": "descripcion",
+            "categoriaNombre": "categoriaNombre",
+            "vidaUtilMeses": 1,
+            "fechaAdquisicion": "2026-01-15",
+            "estado": "ACTIVO",
+            "costoAdquisicion": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "valorResidual": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "depreciacionAcumulada": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "valorEnLibros": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "depreciadoEnElPeriodoVigente": true
+          }
+        ],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "5fcefb7f-c709-4ebd-8673-8ca3e26d8ca3"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "5fcefb7f-c709-4ebd-8673-8ca3e26d8ca3"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "activoFijoId": "a5679503-1430-4161-84ea-83b9eb997e66",
+            "codigo": "codigo",
+            "descripcion": "descripcion",
+            "categoriaNombre": "categoriaNombre",
+            "vidaUtilMeses": 1,
+            "fechaAdquisicion": "2026-01-15",
+            "estado": "ACTIVO",
+            "costoAdquisicion": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "valorResidual": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "depreciacionAcumulada": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "valorEnLibros": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "depreciadoEnElPeriodoVigente": true
+          }
+        ],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "5fcefb7f-c709-4ebd-8673-8ca3e26d8ca3"
+      }
+    },
+    "rechazo": {
+      "estado": 400,
+      "cuerpo": {
+        "codigo": "AP-CU105-04",
+        "mensaje": "Filtro de listado invalido",
+        "detalle": {},
+        "trazaId": "traza-listarActivosFijos-rechazo"
+      }
+    }
+  }
+}

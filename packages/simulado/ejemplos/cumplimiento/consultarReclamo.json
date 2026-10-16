@@ -1,0 +1,95 @@
+{
+  "servicio": "cumplimiento",
+  "operacion": "consultarReclamo",
+  "metodo": "get",
+  "ruta": "/reclamos/{reclamoId}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "reclamo": {
+          "reclamoId": "b9f5fec0-8a6d-4658-8398-a89844635518",
+          "codigo": "codigo",
+          "categoria": "COMISION",
+          "producto": "producto",
+          "canalIngreso": "APP",
+          "montoReclamado": "4.44",
+          "estado": "INGRESADO",
+          "fechaIngreso": "2026-01-15T10:30:00Z",
+          "plazoRespuesta": "2026-01-15T10:30:00Z",
+          "plazoProrrogadoHasta": "2026-01-15T10:30:00Z",
+          "diasHabilesPlazo": 1,
+          "limiteVigente": "2026-01-15T10:30:00Z",
+          "vencido": true,
+          "responsableId": "ad612255-8bf4-48cd-8695-da9839561b22"
+        },
+        "descripcion": "descripcion",
+        "resultado": "FAVORABLE",
+        "respuesta": "respuesta",
+        "fechaRespuesta": "2026-01-15T10:30:00Z",
+        "devolucionId": "dc1e614e-8ee4-4d96-82fa-6cd86b026ee4"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "reclamo": {
+          "reclamoId": "b9f5fec0-8a6d-4658-8398-a89844635518",
+          "codigo": "codigo",
+          "categoria": "COMISION",
+          "producto": "producto",
+          "canalIngreso": "APP",
+          "montoReclamado": "0.00",
+          "estado": "INGRESADO",
+          "fechaIngreso": "2026-01-15T10:30:00Z",
+          "plazoRespuesta": "2026-01-15T10:30:00Z",
+          "plazoProrrogadoHasta": "2026-01-15T10:30:00Z",
+          "diasHabilesPlazo": 0,
+          "limiteVigente": "2026-01-15T10:30:00Z",
+          "vencido": false,
+          "responsableId": "ad612255-8bf4-48cd-8695-da9839561b22"
+        },
+        "descripcion": "descripcion",
+        "resultado": "FAVORABLE",
+        "respuesta": "respuesta",
+        "fechaRespuesta": "2026-01-15T10:30:00Z",
+        "devolucionId": "dc1e614e-8ee4-4d96-82fa-6cd86b026ee4"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "reclamo": {
+          "reclamoId": "b9f5fec0-8a6d-4658-8398-a89844635518",
+          "codigo": "codigo",
+          "categoria": "COMISION",
+          "producto": "producto",
+          "canalIngreso": "APP",
+          "montoReclamado": "4.44",
+          "estado": "INGRESADO",
+          "fechaIngreso": "2026-01-15T10:30:00Z",
+          "plazoRespuesta": "2026-01-15T10:30:00Z",
+          "plazoProrrogadoHasta": "2026-01-15T10:30:00Z",
+          "diasHabilesPlazo": 1,
+          "limiteVigente": "2026-01-15T10:30:00Z",
+          "vencido": true,
+          "responsableId": "ad612255-8bf4-48cd-8695-da9839561b22"
+        },
+        "descripcion": "descripcion",
+        "resultado": "FAVORABLE",
+        "respuesta": "respuesta",
+        "fechaRespuesta": "2026-01-15T10:30:00Z",
+        "devolucionId": "dc1e614e-8ee4-4d96-82fa-6cd86b026ee4"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU52-05",
+        "mensaje": "Reclamo inexistente",
+        "detalle": {},
+        "trazaId": "traza-consultarReclamo-rechazo"
+      }
+    }
+  }
+}

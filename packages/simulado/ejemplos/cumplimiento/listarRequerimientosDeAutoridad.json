@@ -1,0 +1,67 @@
+{
+  "servicio": "cumplimiento",
+  "operacion": "listarRequerimientosDeAutoridad",
+  "metodo": "get",
+  "ruta": "/uif/requerimientos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "requerimientoId": "5607bdd8-f4c6-438e-85d3-ef1aa4ace716",
+            "autoridad": "ASFI",
+            "numeroOficio": "numeroOficio",
+            "fechaRecepcion": "2026-01-15T10:30:00Z",
+            "plazoRespuesta": "2026-01-15T10:30:00Z",
+            "estado": "RECIBIDO",
+            "usuarioAfectadoId": "fc5d50d2-3a88-4ede-8392-a11f436e60fb",
+            "conBloqueoDeSaldo": true,
+            "respondidoPor": "6dac4c80-8bd7-4636-8198-4654af98422b",
+            "respondidoEn": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "a681f5f5-5fcb-42c7-86b5-c8ce064db8bc"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "a681f5f5-5fcb-42c7-86b5-c8ce064db8bc"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "requerimientoId": "5607bdd8-f4c6-438e-85d3-ef1aa4ace716",
+            "autoridad": "ASFI",
+            "numeroOficio": "numeroOficio",
+            "fechaRecepcion": "2026-01-15T10:30:00Z",
+            "plazoRespuesta": "2026-01-15T10:30:00Z",
+            "estado": "RECIBIDO",
+            "usuarioAfectadoId": "fc5d50d2-3a88-4ede-8392-a11f436e60fb",
+            "conBloqueoDeSaldo": true,
+            "respondidoPor": "6dac4c80-8bd7-4636-8198-4654af98422b",
+            "respondidoEn": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "a681f5f5-5fcb-42c7-86b5-c8ce064db8bc"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU45-05",
+        "mensaje": "Filtro de listado invalido",
+        "detalle": {},
+        "trazaId": "traza-listarRequerimientosDeAutoridad-rechazo"
+      }
+    }
+  }
+}

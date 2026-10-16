@@ -1,0 +1,14 @@
+  ✘  32 [chromium] › e2e/visual-tabla-de-datos.e2e.ts:35:9 › publicidad/anunciantes — movil × light (error real del contrato) (5.5s)
+  ✘  34 [chromium] › e2e/visual-tabla-de-datos.e2e.ts:35:9 › publicidad/anunciantes — movil × dark (error real del contrato) (5.6s)
+  ✘  36 [chromium] › e2e/visual-tabla-de-datos.e2e.ts:35:9 › publicidad/anunciantes — tablet × light (error real del contrato) (5.5s)
+  ✘  38 [chromium] › e2e/visual-tabla-de-datos.e2e.ts:35:9 › publicidad/anunciantes — tablet × dark (error real del contrato) (5.5s)
+  ✘  40 [chromium] › e2e/visual-tabla-de-datos.e2e.ts:35:9 › publicidad/anunciantes — escritorio × light (error real del contrato) (5.6s)
+  ✘  42 [chromium] › e2e/visual-tabla-de-datos.e2e.ts:35:9 › publicidad/anunciantes — escritorio × dark (error real del contrato) (5.6s)
+    Error: expect(locator).toBeVisible() failed
+    Error: expect(locator).toBeVisible() failed
+    Error: expect(locator).toBeVisible() failed
+    Error: expect(locator).toBeVisible() failed
+    Error: expect(locator).toBeVisible() failed
+    Error: expect(locator).toBeVisible() failed
+  6 failed
+  37 passed (1.5m)

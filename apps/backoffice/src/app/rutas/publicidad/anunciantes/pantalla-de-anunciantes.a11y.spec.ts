@@ -10,9 +10,9 @@ import { erroresInterceptor } from '../../../nucleo/errores.interceptor'
 import { trazaInterceptor } from '../../../nucleo/traza.interceptor'
 import { Sesion } from '../../../nucleo/sesion'
 import { PantallaDeAnunciantes } from './pantalla-de-anunciantes'
-import type { Anunciante } from '../dominio/cu110-anunciantes'
+import { anunciante, pagina } from '../publicidad.apoyo'
 
-const URL = 'http://gw/api/v1/publicidad/anunciantes'
+const URL = 'http://gw/api/v1/publicidad/anunciantes?limite=50'
 
 describe('PantallaDeAnunciantes · accesibilidad', () => {
   it('sin violaciones serias, con la tabla canónica cargada', async () => {
@@ -29,9 +29,8 @@ describe('PantallaDeAnunciantes · accesibilidad', () => {
     const fixture = TestBed.createComponent(PantallaDeAnunciantes)
     fixture.detectChanges()
     const http = TestBed.inject(HttpTestingController)
-    http.expectOne(URL).flush([
-      { anuncianteId: 'a-1', tipo: 'ORGANIZADOR', razonSocialFacturacion: 'Uno SA', moneda: 'BOB', limiteGastoMensual: null, estado: 'ACTIVA' } as Anunciante,
-    ])
+    await new Promise((r) => setTimeout(r, 0))
+    http.expectOne(URL).flush(pagina([anunciante({ tipo: 'ORGANIZADOR', razonSocialFacturacion: 'Uno SA' }), anunciante({ anuncianteId: 'a-2', limiteGastoMensual: { monto: '900.00', moneda: 'BOB' } })]))
     await fixture.whenStable()
     expect(await axe(fixture.nativeElement as HTMLElement)).toHaveNoViolations()
   })

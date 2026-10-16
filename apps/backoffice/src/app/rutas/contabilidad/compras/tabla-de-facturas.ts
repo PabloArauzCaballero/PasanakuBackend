@@ -8,21 +8,22 @@ import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-v
 import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
 import { cargadorDeFacturas, motivoParaNoPagar, type FacturaDeProveedor } from '../dominio/cu103-facturas'
 import { FichaDeFactura } from './ficha-de-factura'
+import { EstadoDeListado, observarListado } from '../listado/estado-de-listado'
 import { textosContabilidad } from '../textos'
 
 const COLUMNAS: ColumnaVirtual<FacturaDeProveedor>[] = [
-  { clave: 'numeroFactura', titulo: 'Número', ordenable: true },
-  { clave: 'terceroRazonSocial', titulo: 'Proveedor', ordenable: true },
-  { clave: 'fechaVencimiento', titulo: 'Vence', ordenable: true },
-  { clave: 'monto', titulo: 'Monto', numerica: true, ordenable: true },
+  { clave: 'numeroFactura', titulo: 'Número' },
+  { clave: 'terceroRazonSocial', titulo: 'Proveedor' },
+  { clave: 'fechaVencimiento', titulo: 'Vence' },
+  { clave: 'monto', titulo: 'Monto', numerica: true },
   { clave: 'saldoPendiente', titulo: 'Saldo pendiente', numerica: true },
   { clave: 'estado', titulo: 'Estado' },
   { clave: 'facturaProveedorId', titulo: 'Pago' },
 ]
 
 /**
- * CU-103 · Cuentas por pagar, sobre `TablaDeDatosVirtualizada` (la del shell), ordenada
- * por vencimiento desde el `cargador`: la que vence antes va primero.
+ * CU-103 · Cuentas por pagar, sobre `TablaDeDatosVirtualizada` (la del shell), paginada por
+ * cursor en el orden del servidor (de la emisión más reciente a la más antigua).
  *
  * **Registrar ≠ pagar.** El botón de pago aparece solo si la sesión tiene
  * `CONTABILIDAD_ERP_PAGAR` y **no** fue esta cuenta la que aprobó la factura
@@ -32,15 +33,16 @@ const COLUMNAS: ColumnaVirtual<FacturaDeProveedor>[] = [
 @Component({
   selector: 'ap-tabla-de-facturas',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Boton, ChipEstado, Fecha, Monto, TablaDeDatosVirtualizada, FichaDeFactura],
+  imports: [Boton, ChipEstado, EstadoDeListado, Fecha, Monto, TablaDeDatosVirtualizada, FichaDeFactura],
   template: `
     <section aria-labelledby="facturas">
       <h2 id="facturas">{{ t.facturas }}</h2>
+      <ap-estado-de-listado [error]="listado.error()" [vacio]="listado.vacio()" [mensajeVacio]="t.enCeroFacturas" />
       <ap-tabla-de-datos-virtualizada
         [titulo]="t.facturas"
         [columnas]="COLUMNAS"
-        [cargador]="cargador"
-        [ordenPermitido]="['numeroFactura', 'terceroRazonSocial', 'fechaVencimiento', 'monto']"
+        [cargador]="listado.cargador"
+        [ordenPermitido]="[]"
         [identidad]="identidad"
       >
         <ng-template #celda let-f let-columna="columna">
@@ -85,7 +87,7 @@ const COLUMNAS: ColumnaVirtual<FacturaDeProveedor>[] = [
 export class TablaDeFacturas {
   protected readonly t = textosContabilidad.compras
   protected readonly COLUMNAS = COLUMNAS
-  protected readonly cargador = cargadorDeFacturas()
+  protected readonly listado = observarListado(cargadorDeFacturas(), textosContabilidad.erroresDeListado)
   protected readonly identidad = (f: FacturaDeProveedor) => f.facturaProveedorId
   protected readonly etiqueta = (f: FacturaDeProveedor) => this.t.estadosFactura[f.estado]
   protected readonly elegida = signal<FacturaDeProveedor | null>(null)
