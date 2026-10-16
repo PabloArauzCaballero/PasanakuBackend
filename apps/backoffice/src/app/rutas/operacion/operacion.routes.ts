@@ -1,5 +1,13 @@
-import { Routes } from '@angular/router'
+import { inject } from '@angular/core'
+import { CanMatchFn, Router, Routes } from '@angular/router'
 import { requierePermiso } from '../../nucleo/permisos'
+import { Sesion } from '../../nucleo/sesion'
+
+/** Como `requierePermiso`, pero basta con UNO de los permisos (el contrato de `listarDesembolsos` acepta dos). */
+const requiereAlguno =
+  (...permisos: string[]): CanMatchFn =>
+  () =>
+    permisos.some((p) => inject(Sesion).puede(p)) || inject(Router).parseUrl('/tablero')
 
 /**
  * Las rutas del dominio operación. **Este archivo lo posee el carril B1**; el shell
@@ -75,6 +83,13 @@ export const rutasOperacion: Routes = [
     loadComponent: () => import('./reversos/listado-de-reversos').then((m) => m.ListadoDeReversos),
     title: 'Reversos · AportaYa',
     canMatch: [requierePermiso('AUDITORIA_LEER')],
+  },
+  {
+    // CU-28 · `listarDesembolsos` (entregas) exige ENTREGA_EJECUTAR o AUDITORIA_LEER.
+    path: 'desembolsos',
+    loadComponent: () => import('./desembolsos/bandeja-de-desembolsos').then((m) => m.BandejaDeDesembolsos),
+    title: 'Desembolsos · AportaYa',
+    canMatch: [requiereAlguno('ENTREGA_EJECUTAR', 'AUDITORIA_LEER')],
   },
   // `estado/` es de F6 (ficha F6, estructura congelada): la ficha se lo asigna al shell
   // aunque viva dentro del dominio `operacion` que B1 posee. Es la única entrada de esta
