@@ -1,0 +1,53 @@
+{
+  "servicio": "erp",
+  "operacion": "consultarPeriodoVigente",
+  "metodo": "get",
+  "ruta": "/erp/periodos/vigente",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "periodoId": "b6ab0151-f825-4175-8e8e-6024aed062c6",
+        "ejercicioId": "a1cc376e-f723-40d6-86ef-d7b898f01844",
+        "anio": 1,
+        "mes": 1,
+        "estado": "ABIERTO",
+        "fechaInicio": "2026-01-15",
+        "fechaFin": "2026-01-15"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "periodoId": "b6ab0151-f825-4175-8e8e-6024aed062c6",
+        "ejercicioId": "a1cc376e-f723-40d6-86ef-d7b898f01844",
+        "anio": 0,
+        "mes": 1,
+        "estado": "ABIERTO",
+        "fechaInicio": "2026-01-15",
+        "fechaFin": "2026-01-15"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "periodoId": "b6ab0151-f825-4175-8e8e-6024aed062c6",
+        "ejercicioId": "a1cc376e-f723-40d6-86ef-d7b898f01844",
+        "anio": 1,
+        "mes": 1,
+        "estado": "ABIERTO",
+        "fechaInicio": "2026-01-15",
+        "fechaFin": "2026-01-15"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU100-04",
+        "mensaje": "Sin periodo vigente",
+        "detalle": {},
+        "trazaId": "traza-consultarPeriodoVigente-rechazo"
+      }
+    }
+  }
+}

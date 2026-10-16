@@ -1,0 +1,66 @@
+{
+  "servicio": "erp",
+  "operacion": "listarPeriodosDelEjercicio",
+  "metodo": "get",
+  "ruta": "/erp/ejercicios/{ejercicioId}/periodos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "ejercicioId": "a60738d9-b0ad-44eb-86aa-0c3256b46dc4",
+        "anio": 1,
+        "estado": "ABIERTO",
+        "periodos": [
+          {
+            "periodoId": "1ca325ab-0e51-468d-82f2-e3262af4ec38",
+            "mes": 1,
+            "estado": "ABIERTO",
+            "fechaInicio": "2026-01-15",
+            "fechaFin": "2026-01-15",
+            "cerradoEn": "2026-01-15T10:30:00Z",
+            "totalDebe": "4.44",
+            "totalHaber": "4.44"
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "ejercicioId": "a60738d9-b0ad-44eb-86aa-0c3256b46dc4",
+        "anio": 0,
+        "estado": "ABIERTO",
+        "periodos": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "ejercicioId": "a60738d9-b0ad-44eb-86aa-0c3256b46dc4",
+        "anio": 1,
+        "estado": "ABIERTO",
+        "periodos": [
+          {
+            "periodoId": "1ca325ab-0e51-468d-82f2-e3262af4ec38",
+            "mes": 1,
+            "estado": "ABIERTO",
+            "fechaInicio": "2026-01-15",
+            "fechaFin": "2026-01-15",
+            "cerradoEn": "2026-01-15T10:30:00Z",
+            "totalDebe": "4.44",
+            "totalHaber": "4.44"
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU100-05",
+        "mensaje": "Ejercicio inexistente",
+        "detalle": {},
+        "trazaId": "traza-listarPeriodosDelEjercicio-rechazo"
+      }
+    }
+  }
+}

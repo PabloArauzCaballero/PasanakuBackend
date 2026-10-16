@@ -1,0 +1,91 @@
+{
+  "servicio": "erp",
+  "operacion": "listarFacturasDeProveedor",
+  "metodo": "get",
+  "ruta": "/erp/facturas-de-proveedor",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "facturaProveedorId": "45589307-d0fb-4c0d-86a5-cc0f616543f1",
+            "numeroFactura": "numeroFactura",
+            "terceroComercialId": "653051be-8740-4e24-81d8-fa066ec705fe",
+            "terceroRazonSocial": "terceroRazonSocial",
+            "ordenCompraId": "639a2cb7-7461-40f7-87fb-3c40d7fb3dae",
+            "fechaEmision": "2026-01-15",
+            "fechaVencimiento": "2026-01-15",
+            "estado": "REGISTRADA",
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "montoPagado": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "saldoPendiente": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "aprobadaPorLaSesion": true,
+            "asientoContableId": "4c69819c-e817-4c08-85b8-1526c3480ada"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "87868bdb-14a7-42d3-86cd-e66f89c2d9ea"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "87868bdb-14a7-42d3-86cd-e66f89c2d9ea"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "facturaProveedorId": "45589307-d0fb-4c0d-86a5-cc0f616543f1",
+            "numeroFactura": "numeroFactura",
+            "terceroComercialId": "653051be-8740-4e24-81d8-fa066ec705fe",
+            "terceroRazonSocial": "terceroRazonSocial",
+            "ordenCompraId": "639a2cb7-7461-40f7-87fb-3c40d7fb3dae",
+            "fechaEmision": "2026-01-15",
+            "fechaVencimiento": "2026-01-15",
+            "estado": "REGISTRADA",
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "montoPagado": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "saldoPendiente": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "aprobadaPorLaSesion": true,
+            "asientoContableId": "4c69819c-e817-4c08-85b8-1526c3480ada"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "87868bdb-14a7-42d3-86cd-e66f89c2d9ea"
+      }
+    },
+    "rechazo": {
+      "estado": 400,
+      "cuerpo": {
+        "codigo": "AP-CU103-06",
+        "mensaje": "Filtro de listado invalido",
+        "detalle": {},
+        "trazaId": "traza-listarFacturasDeProveedor-rechazo"
+      }
+    }
+  }
+}

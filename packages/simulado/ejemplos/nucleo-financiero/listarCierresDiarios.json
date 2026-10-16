@@ -1,0 +1,67 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "listarCierresDiarios",
+  "metodo": "get",
+  "ruta": "/contabilidad/cierres-diarios",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "cierreId": "cd6cb307-4cf9-47f1-87e6-a5b0a1a65caf",
+            "fecha": "2026-01-15",
+            "totalRecaudado": "4.44",
+            "totalConciliado": "4.44",
+            "totalExcepciones": "4.44",
+            "cantidadPagos": 1,
+            "cuadrado": true,
+            "cerradoPor": "4461d3b3-28b0-471d-8cd1-54ae6d125ad0",
+            "cerradoEn": "2026-01-15T10:30:00Z",
+            "reabiertoEn": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "e5309fbb-ec2b-4d43-891b-b2f8d15bccfe"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "e5309fbb-ec2b-4d43-891b-b2f8d15bccfe"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "cierreId": "cd6cb307-4cf9-47f1-87e6-a5b0a1a65caf",
+            "fecha": "2026-01-15",
+            "totalRecaudado": "4.44",
+            "totalConciliado": "4.44",
+            "totalExcepciones": "4.44",
+            "cantidadPagos": 1,
+            "cuadrado": true,
+            "cerradoPor": "4461d3b3-28b0-471d-8cd1-54ae6d125ad0",
+            "cerradoEn": "2026-01-15T10:30:00Z",
+            "reabiertoEn": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "e5309fbb-ec2b-4d43-891b-b2f8d15bccfe"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU51-05",
+        "mensaje": "Filtro de listado invalido",
+        "detalle": {},
+        "trazaId": "traza-listarCierresDiarios-rechazo"
+      }
+    }
+  }
+}

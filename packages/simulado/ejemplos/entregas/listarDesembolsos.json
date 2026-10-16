@@ -1,0 +1,75 @@
+{
+  "servicio": "entregas",
+  "operacion": "listarDesembolsos",
+  "metodo": "get",
+  "ruta": "/desembolsos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "ordenId": "2a0e21fb-aaa0-4615-87f5-1f812d4ae481",
+            "entregaId": "c2d6e0bb-3749-48bf-8a60-27fcfa20197a",
+            "proveedorId": "340f70dd-4972-42a5-8d7d-e2787d820382",
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "estado": "CREADA",
+            "intentos": 1,
+            "ultimoResultado": "EXITOSO",
+            "ultimoCodigoError": "ultimoCodigoError",
+            "reintentableEn": "2026-01-15T10:30:00Z",
+            "creadaEn": "2026-01-15T10:30:00Z",
+            "acreditadaEn": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "1fe9dac5-4a1c-460b-85f5-ccce6a05f0d0"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "1fe9dac5-4a1c-460b-85f5-ccce6a05f0d0"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "ordenId": "2a0e21fb-aaa0-4615-87f5-1f812d4ae481",
+            "entregaId": "c2d6e0bb-3749-48bf-8a60-27fcfa20197a",
+            "proveedorId": "340f70dd-4972-42a5-8d7d-e2787d820382",
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "estado": "CREADA",
+            "intentos": 1,
+            "ultimoResultado": "EXITOSO",
+            "ultimoCodigoError": "ultimoCodigoError",
+            "reintentableEn": "2026-01-15T10:30:00Z",
+            "creadaEn": "2026-01-15T10:30:00Z",
+            "acreditadaEn": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "1fe9dac5-4a1c-460b-85f5-ccce6a05f0d0"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU28-01",
+        "mensaje": "Entrega no autorizada",
+        "detalle": {},
+        "trazaId": "traza-listarDesembolsos-rechazo"
+      }
+    }
+  }
+}

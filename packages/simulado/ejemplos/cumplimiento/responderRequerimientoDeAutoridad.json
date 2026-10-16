@@ -1,0 +1,50 @@
+{
+  "servicio": "cumplimiento",
+  "operacion": "responderRequerimientoDeAutoridad",
+  "metodo": "post",
+  "ruta": "/uif/requerimientos/{requerimientoId}/respuesta",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "requerimientoId": "21fc7d7a-96f6-41c6-848f-58344b8f27f4"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "requerimientoId": "21fc7d7a-96f6-41c6-848f-58344b8f27f4"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "requerimientoId": "21fc7d7a-96f6-41c6-848f-58344b8f27f4"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "requerimientoId": "21fc7d7a-96f6-41c6-848f-58344b8f27f4"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU45-01",
+        "mensaje": "Oficio duplicado",
+        "detalle": {},
+        "trazaId": "traza-responderRequerimientoDeAutoridad-rechazo"
+      }
+    }
+  }
+}

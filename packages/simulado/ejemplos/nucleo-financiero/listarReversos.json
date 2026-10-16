@@ -1,0 +1,67 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "listarReversos",
+  "metodo": "get",
+  "ruta": "/contabilidad/reversos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "reversoId": "6cf2c746-f549-4d90-8664-4252a623be4d",
+            "transaccionOriginalId": "b06ac00e-1045-44ec-85fd-03b1ec0afc4f",
+            "transaccionReversoId": "f169d409-86a9-4819-87c0-1c1078139c22",
+            "autorizadaPor": "3263c37e-9516-4416-8588-a5898c77a279",
+            "tipo": "ANULACION",
+            "motivo": "motivo",
+            "montoReversado": "4.44",
+            "estado": "SOLICITADO",
+            "solicitadaEn": "2026-01-15T10:30:00Z",
+            "ejecutadaEn": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "32fe0d80-8a5b-4558-8475-a0728bd5a02d"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "32fe0d80-8a5b-4558-8475-a0728bd5a02d"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "reversoId": "6cf2c746-f549-4d90-8664-4252a623be4d",
+            "transaccionOriginalId": "b06ac00e-1045-44ec-85fd-03b1ec0afc4f",
+            "transaccionReversoId": "f169d409-86a9-4819-87c0-1c1078139c22",
+            "autorizadaPor": "3263c37e-9516-4416-8588-a5898c77a279",
+            "tipo": "ANULACION",
+            "motivo": "motivo",
+            "montoReversado": "4.44",
+            "estado": "SOLICITADO",
+            "solicitadaEn": "2026-01-15T10:30:00Z",
+            "ejecutadaEn": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "32fe0d80-8a5b-4558-8475-a0728bd5a02d"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU14-04",
+        "mensaje": "Filtro de listado invalido",
+        "detalle": {},
+        "trazaId": "traza-listarReversos-rechazo"
+      }
+    }
+  }
+}

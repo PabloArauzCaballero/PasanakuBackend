@@ -1,0 +1,63 @@
+{
+  "servicio": "publicidad",
+  "operacion": "listarPiezasCreativas",
+  "metodo": "get",
+  "ruta": "/publicidad/piezas-creativas",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "piezaCreativaId": "34b61be1-1b72-49df-8fc4-823e5028b5c0",
+            "anuncianteId": "431c61fb-2fbd-4d7f-8ca1-0c8472d9cf7a",
+            "titulo": "titulo",
+            "texto": "texto",
+            "urlRecurso": "urlRecurso",
+            "tipoRecurso": "IMAGEN",
+            "estadoModeracion": "PENDIENTE",
+            "creadaEn": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoFecha": "2026-01-15T10:30:00Z",
+        "proximoId": "f2e0b47f-688d-4c17-8659-227985b6e209"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoFecha": "2026-01-15T10:30:00Z",
+        "proximoId": "f2e0b47f-688d-4c17-8659-227985b6e209"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "piezaCreativaId": "34b61be1-1b72-49df-8fc4-823e5028b5c0",
+            "anuncianteId": "431c61fb-2fbd-4d7f-8ca1-0c8472d9cf7a",
+            "titulo": "titulo",
+            "texto": "texto",
+            "urlRecurso": "urlRecurso",
+            "tipoRecurso": "IMAGEN",
+            "estadoModeracion": "PENDIENTE",
+            "creadaEn": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoFecha": "2026-01-15T10:30:00Z",
+        "proximoId": "f2e0b47f-688d-4c17-8659-227985b6e209"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU112-04",
+        "mensaje": "Filtro de listado invalido",
+        "detalle": {},
+        "trazaId": "traza-listarPiezasCreativas-rechazo"
+      }
+    }
+  }
+}

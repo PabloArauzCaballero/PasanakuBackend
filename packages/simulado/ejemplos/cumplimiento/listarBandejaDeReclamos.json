@@ -1,0 +1,75 @@
+{
+  "servicio": "cumplimiento",
+  "operacion": "listarBandejaDeReclamos",
+  "metodo": "get",
+  "ruta": "/reclamos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "reclamoId": "26f7a2b6-d47c-4abe-8d74-a7f8fb749d74",
+            "codigo": "codigo",
+            "categoria": "COMISION",
+            "producto": "producto",
+            "canalIngreso": "APP",
+            "montoReclamado": "4.44",
+            "estado": "INGRESADO",
+            "fechaIngreso": "2026-01-15T10:30:00Z",
+            "plazoRespuesta": "2026-01-15T10:30:00Z",
+            "plazoProrrogadoHasta": "2026-01-15T10:30:00Z",
+            "diasHabilesPlazo": 1,
+            "limiteVigente": "2026-01-15T10:30:00Z",
+            "vencido": true,
+            "responsableId": "1fd5a84f-fa1e-4153-81a3-456e419f3a9a"
+          }
+        ],
+        "proximoLimite": "2026-01-15T10:30:00Z",
+        "proximoId": "3ca8f4eb-ee9c-4a8f-82dc-bd19c2b45cf7"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoLimite": "2026-01-15T10:30:00Z",
+        "proximoId": "3ca8f4eb-ee9c-4a8f-82dc-bd19c2b45cf7"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "reclamoId": "26f7a2b6-d47c-4abe-8d74-a7f8fb749d74",
+            "codigo": "codigo",
+            "categoria": "COMISION",
+            "producto": "producto",
+            "canalIngreso": "APP",
+            "montoReclamado": "4.44",
+            "estado": "INGRESADO",
+            "fechaIngreso": "2026-01-15T10:30:00Z",
+            "plazoRespuesta": "2026-01-15T10:30:00Z",
+            "plazoProrrogadoHasta": "2026-01-15T10:30:00Z",
+            "diasHabilesPlazo": 1,
+            "limiteVigente": "2026-01-15T10:30:00Z",
+            "vencido": true,
+            "responsableId": "1fd5a84f-fa1e-4153-81a3-456e419f3a9a"
+          }
+        ],
+        "proximoLimite": "2026-01-15T10:30:00Z",
+        "proximoId": "3ca8f4eb-ee9c-4a8f-82dc-bd19c2b45cf7"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU52-07",
+        "mensaje": "Filtro de bandeja invalido",
+        "detalle": {},
+        "trazaId": "traza-listarBandejaDeReclamos-rechazo"
+      }
+    }
+  }
+}

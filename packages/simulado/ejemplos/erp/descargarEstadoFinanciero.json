@@ -1,0 +1,29 @@
+{
+  "servicio": "erp",
+  "operacion": "descargarEstadoFinanciero",
+  "metodo": "get",
+  "ruta": "/erp/estados-financieros/{estadoFinancieroId}/documento",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": "200"
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": "200"
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": "200"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU106-04",
+        "mensaje": "Integridad del documento",
+        "detalle": {},
+        "trazaId": "traza-descargarEstadoFinanciero-rechazo"
+      }
+    }
+  }
+}

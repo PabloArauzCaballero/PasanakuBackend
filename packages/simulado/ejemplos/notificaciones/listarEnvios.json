@@ -1,0 +1,95 @@
+{
+  "servicio": "notificaciones",
+  "operacion": "listarEnvios",
+  "metodo": "get",
+  "ruta": "/notificaciones/envios",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "envioId": "9ae59ba6-e31c-4702-89f9-8ca47e01b2a8",
+            "notificacionId": "b231d6ed-93d0-4cf5-81e1-fa18460203e2",
+            "proveedorId": "14222fef-5109-49b7-852b-7658652b89a6",
+            "proveedor": "proveedor",
+            "versionPlantillaId": "04a56c0a-a86e-44ce-8533-4173cad13f0d",
+            "canal": "CORREO",
+            "estado": "ACEPTADO_POR_PROVEEDOR",
+            "orden": 1,
+            "intentos": 1,
+            "maxIntentos": 1,
+            "costo": "4.4444",
+            "moneda": "MMM",
+            "codigoError": "codigoError",
+            "encoladoEn": "2026-01-15T10:30:00Z",
+            "enviadoEn": "2026-01-15T10:30:00Z",
+            "entregadoEn": "2026-01-15T10:30:00Z",
+            "leidoEn": "2026-01-15T10:30:00Z",
+            "proximoReintentoEn": "2026-01-15T10:30:00Z",
+            "ultimoAcuse": {
+              "tipoEvento": "ENTREGADO",
+              "fechaHoraProveedor": "2026-01-15T10:30:00Z",
+              "recibidoEn": "2026-01-15T10:30:00Z",
+              "codigoError": "codigoError"
+            }
+          }
+        ],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "7674d4cb-4c6d-48bd-8a19-bc76c2e23d88"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "7674d4cb-4c6d-48bd-8a19-bc76c2e23d88"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "envioId": "9ae59ba6-e31c-4702-89f9-8ca47e01b2a8",
+            "notificacionId": "b231d6ed-93d0-4cf5-81e1-fa18460203e2",
+            "proveedorId": "14222fef-5109-49b7-852b-7658652b89a6",
+            "proveedor": "proveedor",
+            "versionPlantillaId": "04a56c0a-a86e-44ce-8533-4173cad13f0d",
+            "canal": "CORREO",
+            "estado": "ACEPTADO_POR_PROVEEDOR",
+            "orden": 1,
+            "intentos": 1,
+            "maxIntentos": 1,
+            "costo": "4.4444",
+            "moneda": "MMM",
+            "codigoError": "codigoError",
+            "encoladoEn": "2026-01-15T10:30:00Z",
+            "enviadoEn": "2026-01-15T10:30:00Z",
+            "entregadoEn": "2026-01-15T10:30:00Z",
+            "leidoEn": "2026-01-15T10:30:00Z",
+            "proximoReintentoEn": "2026-01-15T10:30:00Z",
+            "ultimoAcuse": {
+              "tipoEvento": "ENTREGADO",
+              "fechaHoraProveedor": "2026-01-15T10:30:00Z",
+              "recibidoEn": "2026-01-15T10:30:00Z",
+              "codigoError": "codigoError"
+            }
+          }
+        ],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "7674d4cb-4c6d-48bd-8a19-bc76c2e23d88"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU83-01",
+        "mensaje": "Sin proveedor para canal",
+        "detalle": {},
+        "trazaId": "traza-listarEnvios-rechazo"
+      }
+    }
+  }
+}
