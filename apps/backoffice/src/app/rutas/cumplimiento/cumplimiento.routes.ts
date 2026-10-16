@@ -24,6 +24,8 @@ export const rutasCumplimiento: Routes = [
   },
   {
     path: 'alertas',
+    // `full`: si no, su `canMatch` corre por prefijo sobre `alertas/:id` y redirige antes de probar la ruta del detalle.
+    pathMatch: 'full',
     canMatch: [requierePermiso('CUMPLIMIENTO_ALERTAS')],
     loadComponent: () => import('./alertas/bandeja-de-alertas').then((m) => m.BandejaDeAlertas),
     title: 'Alertas de monitoreo · AportaYa',
@@ -35,6 +37,8 @@ export const rutasCumplimiento: Routes = [
   },
   {
     path: 'casos',
+    // `full`: si no, su `canMatch` corre por prefijo sobre `casos/:id` y redirige antes de probar la ruta del detalle.
+    pathMatch: 'full',
     canMatch: [requierePermiso('CUMPLIMIENTO_CASOS')],
     loadComponent: () => import('./casos/bandeja-de-casos').then((m) => m.BandejaDeCasos),
     title: 'Casos de investigación · AportaYa',
@@ -64,6 +68,8 @@ export const rutasCumplimiento: Routes = [
   },
   {
     path: 'actas',
+    // `full`: si no, su `canMatch` corre por prefijo sobre `actas/:id` y redirige antes de probar la ruta del detalle.
+    pathMatch: 'full',
     canMatch: [requiereAlguno('OFICIAL_CUMPLIMIENTO', 'AUDITORIA_LEER')],
     loadComponent: () => import('./colas/pantalla-de-actas').then((m) => m.PantallaDeActas),
     title: 'Actas de comité · AportaYa',

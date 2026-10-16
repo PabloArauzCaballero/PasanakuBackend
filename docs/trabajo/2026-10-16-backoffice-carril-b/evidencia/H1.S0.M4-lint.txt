@@ -1,8 +1,3 @@
-=== packages/tutoriales (Angular) ===
-  OK    · sin red fuera del puerto 
-  OK    · sin literal de diseño 
-  OK    · sin console 
-  OK    · ningún archivo de más de 200 líneas 
-  OK    · sin literal de diseño en @aportaya/ui 
-
+All files pass linting.
+  FALLA · ningún archivo de más de 200 líneas ['apps/backoffice/src/app/rutas/cumplimiento/verificaciones/pantalla-de-expedientes.ts (209)', 'apps/backoffice/src/app/nucleo/tabla/tabla-de-datos-virtualizada.ts (202)']
 1 FALLAS
