@@ -16,7 +16,6 @@ import 'dominio/ciclo_de_pose.dart';
 import 'pasos_alta/aviso_de_permiso_camara.dart';
 import 'pasos_alta/barra_superior_de_vida.dart';
 import 'pasos_alta/cuenta_atras_grande.dart';
-import 'pasos_alta/guia_de_encuadre.dart';
 import 'pasos_alta/miniaturas_de_vida.dart';
 import 'pasos_alta/pie_de_prueba_de_vida.dart';
 import 'pasos_alta/silueta_de_cara.dart';
@@ -173,7 +172,6 @@ class _PantallaDePruebaDeVidaState extends ConsumerState<PantallaDePruebaDeVida>
           progreso: _prueba.estado.progreso,
           tomada: _prueba.fotoTomada,
         ),
-        const GuiaDeEncuadre(esDocumento: false),
         CuentaAtrasGrande(
           segundos: _prueba.estado.fase == FaseDePose.cuentaAtras
               ? _prueba.estado.segundos

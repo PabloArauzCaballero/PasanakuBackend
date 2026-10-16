@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_diseno/atomos/movimiento.dart';
@@ -68,91 +70,66 @@ class PintorDeSiluetaDeCara extends CustomPainter {
 
   double get grosor => 3.0 + progreso.clamp(0.0, 1.0).toDouble() * 2;
 
-  /// Geometría en el espacio de referencia, útil para validar el espejo del perfil.
-  Path get contornoNormalizado {
-    if (pose == PoseDeVida.frente) return contornoDeFrente();
-    return _segunPose(contornoDePerfil());
-  }
+  /// Geometría en el espacio de referencia: el mismo óvalo para las tres poses.
+  Path get contornoNormalizado => contornoDeRostro();
 
-  Path get _detalleNormalizado {
-    if (pose == PoseDeVida.frente) return orejasDeFrente();
-    return _segunPose(orejaDePerfil());
-  }
-
-  Path _segunPose(Path trazo) {
-    if (pose == PoseDeVida.izquierda) return trazo;
+  /// Las flechas de giro, espejadas para el perfil derecho; ninguna de frente.
+  Path? get flechasNormalizadas {
+    if (pose == PoseDeVida.frente) return null;
+    if (pose == PoseDeVida.izquierda) return flechasDeGiro();
     final espejo = Matrix4.identity()
       ..translateByDouble(_lienzo, 0, 0, 1)
       ..scaleByDouble(-1.0, 1.0, 1, 1);
-    return trazo.transform(espejo.storage);
+    return flechasDeGiro().transform(espejo.storage);
   }
 
-  Path areaVelada(Size size) {
+  /// El óvalo ocupa ~78 % del ancho y la mitad del alto, dejando libre el pie.
+  Float64List _matriz(Size size) {
     final escala = (size.width * 0.78 / _lienzo)
         .clamp(0.0, size.height * 0.5 / _lienzo)
         .toDouble();
     final dx = (size.width - _lienzo * escala) / 2;
-    final matriz = Matrix4.identity()
-      ..translateByDouble(dx, size.height * 0.2, 0, 1)
-      ..scaleByDouble(escala, escala, 1, 1);
-    final contorno = contornoNormalizado.transform(matriz.storage);
-    return Path.combine(
-      PathOperation.difference,
-      Path()..addRect(Offset.zero & size),
-      contorno,
-    );
+    return (Matrix4.identity()
+          ..translateByDouble(dx, size.height * 0.2, 0, 1)
+          ..scaleByDouble(escala, escala, 1, 1))
+        .storage;
   }
+
+  Path areaVelada(Size size) => Path.combine(
+    PathOperation.difference,
+    Path()..addRect(Offset.zero & size),
+    contornoNormalizado.transform(_matriz(size)),
+  );
 
   @override
   void paint(Canvas canvas, Size size) {
     if (size.isEmpty) return;
-
-    // La cara ocupa ~78 % del ancho y la mitad del alto, dejando libre el pie.
-    final escala = (size.width * 0.78 / _lienzo)
-        .clamp(0.0, size.height * 0.5 / _lienzo)
-        .toDouble();
-    final dx = (size.width - _lienzo * escala) / 2;
-    final dy = size.height * 0.2;
-    final matriz = Matrix4.identity()
-      ..translateByDouble(dx, dy, 0, 1)
-      ..scaleByDouble(escala, escala, 1, 1);
-    final transformacion = matriz.storage;
-    final deFrente = pose == PoseDeVida.frente;
-    final contorno = contornoNormalizado.transform(transformacion);
-    final detalle = _detalleNormalizado.transform(transformacion);
+    final matriz = _matriz(size);
 
     canvas.drawPath(areaVelada(size), Paint()..color = velo);
+    canvas.drawPath(
+      contornoNormalizado.transform(matriz),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..color = color
+        ..strokeWidth = grosor,
+    );
 
-    final grosor = this.grosor;
-    final trazo = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeJoin = StrokeJoin.round
-      ..strokeCap = StrokeCap.round
-      ..color = color
-      ..strokeWidth = grosor;
-    canvas.drawPath(contorno, trazo);
-    canvas.drawPath(detalle, trazo..strokeWidth = grosor * 0.85);
-    if (deFrente) {
-      _punteado(
-        canvas,
-        guiasDeFrente().transform(transformacion),
+    final flechas = flechasNormalizadas;
+    if (flechas == null) return;
+    // La flecha más cercana al óvalo, la más marcada: se lee como movimiento.
+    var opacidad = 1.0;
+    for (final metrica in flechas.transform(matriz).computeMetrics()) {
+      canvas.drawPath(
+        metrica.extractPath(0, metrica.length),
         Paint()
           ..style = PaintingStyle.stroke
-          ..color = guia
-          ..strokeWidth = 1.5,
+          ..strokeCap = StrokeCap.round
+          ..strokeJoin = StrokeJoin.round
+          ..strokeWidth = 3
+          ..color = guia.withValues(alpha: guia.a * opacidad),
       );
-    } else {
-      canvas.drawPath(detalle, Paint()..color = color.withValues(alpha: 0.25));
-    }
-  }
-
-  void _punteado(Canvas canvas, Path camino, Paint pintura) {
-    for (final metrica in camino.computeMetrics()) {
-      var inicio = 0.0;
-      while (inicio < metrica.length) {
-        canvas.drawPath(metrica.extractPath(inicio, inicio + 4), pintura);
-        inicio += 10;
-      }
+      opacidad -= 0.3;
     }
   }
 

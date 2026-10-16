@@ -56,12 +56,15 @@ class VerificacionesControllerWebTest {
             VERIFICACION,
             USUARIO,
             "Marisol Quispe",
+            null,
             "CI 1234567 LP",
             "EN_REVISION",
             CUANDO,
             null,
             null,
-            List.of("ANVERSO", "REVERSO", "SELFIE", "PERFIL_IZQUIERDO", "PERFIL_DERECHO"));
+            List.of("ANVERSO", "REVERSO", "SELFIE", "PERFIL_IZQUIERDO", "PERFIL_DERECHO"),
+            null,
+            "marisol@example.test");
 
     @Autowired
     private MockMvc mvc;
@@ -84,6 +87,7 @@ class VerificacionesControllerWebTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$[0].verificacionId").value(VERIFICACION.toString()))
                     .andExpect(jsonPath("$[0].estado").value("EN_REVISION"))
+                    .andExpect(jsonPath("$[0].correo").value("marisol@example.test"))
                     .andExpect(jsonPath("$[0].fotos[0]").value("ANVERSO"))
                     // Las caras se nombran; la imagen no viaja en la lista.
                     .andExpect(jsonPath("$[0].url").doesNotExist());

@@ -28,7 +28,17 @@ public record ExpedienteDeIdentidad(
         String motivoRechazo,
         List<String> fotos,
         /** Hasta cuando vale el documento; {@code null} si el alta no la trajo. */
-        LocalDate fechaExpiracionDocumento) {
+        LocalDate fechaExpiracionDocumento,
+        String correo) {
+
+    /** Compatibilidad con expedientes anteriores al campo de contacto por correo. */
+    public ExpedienteDeIdentidad(
+            UUID verificacionId, UUID usuarioId, String nombreCompleto, String telefono, String documento,
+            String estado, OffsetDateTime iniciadaEn, OffsetDateTime resueltaEn, String motivoRechazo,
+            List<String> fotos, LocalDate fechaExpiracionDocumento) {
+        this(verificacionId, usuarioId, nombreCompleto, telefono, documento, estado, iniciadaEn, resueltaEn,
+                motivoRechazo, fotos, fechaExpiracionDocumento, null);
+    }
 
     /** Sin fecha de vencimiento: los usos anteriores a que el alta la pidiera. */
     public ExpedienteDeIdentidad(
@@ -52,6 +62,7 @@ public record ExpedienteDeIdentidad(
                 resueltaEn,
                 motivoRechazo,
                 fotos,
+                null,
                 null);
     }
 
@@ -78,7 +89,8 @@ public record ExpedienteDeIdentidad(
                 resueltaEn,
                 motivoRechazo,
                 fotos,
-                fechaExpiracionDocumento);
+                fechaExpiracionDocumento,
+                null);
     }
 
     /** Las cinco caras que exige la verificacion (contrato: {@code CaraDelExpediente}). */

@@ -171,8 +171,12 @@ class _FichaDeEjemplo extends StatelessWidget {
             ],
           ),
           const SizedBox(height: Espacio.s1),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(Radios.md),
+          DecoratedBox(
+            position: DecorationPosition.foreground,
+            decoration: BoxDecoration(
+              border: Border.all(color: color, width: Borde.foco),
+              borderRadius: BorderRadius.circular(Radios.md),
+            ),
             child: IlustracionDePauta(escena: escena),
           ),
           const SizedBox(height: Espacio.s1),

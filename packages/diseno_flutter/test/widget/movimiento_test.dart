@@ -26,7 +26,7 @@ void main() {
   );
 
   testWidgets('primario, secundario y peligro llevan piel viva; '
-      'solo el primario brilla', (tester) async {
+      'ninguno brilla en reposo', (tester) async {
     for (final v in [
       BotonVariante.primario,
       BotonVariante.secundario,
@@ -34,7 +34,7 @@ void main() {
     ]) {
       await tester.pumpWidget(conTema(boton(v)));
       final piel = tester.widget<SuperficieViva>(find.byType(SuperficieViva));
-      expect(piel.brilla, v == BotonVariante.primario, reason: '$v');
+      expect(piel.brilla, isFalse, reason: '$v');
     }
   });
 
@@ -61,20 +61,26 @@ void main() {
     expect(find.byType(SuperficieViva), findsNothing);
   });
 
-  testWidgets('el brillo cruza y se detiene: la pantalla se asienta', (
+  testWidgets('en reposo el primario no brilla: la pantalla queda quieta', (
     tester,
   ) async {
     await tester.pumpWidget(conTema(boton(BotonVariante.primario)));
-    expect(_luz(tester).avance, isNull, reason: 'no brilla al cargar');
-    await tester.pump(
-      Movimiento.pausaDelBrillo - const Duration(milliseconds: 1),
-    );
-    expect(_luz(tester).avance, isNull, reason: 'espera los 4,2 s');
-    await tester.pump(const Duration(milliseconds: 1));
+    expect(_luz(tester).avance, isNull);
+    await tester.pump(Movimiento.pausaDelBrillo);
     await tester.pump(const Duration(milliseconds: 500));
-    expect(_luz(tester).avance, isNotNull, reason: 'cruzando al aparecer');
-    // Si el brillo fuera eterno, esto no terminaría nunca.
+    expect(_luz(tester).avance, isNull, reason: 'ni después de la pausa');
     await tester.pumpAndSettle();
+    expect(_luz(tester).avance, isNull);
+  });
+
+  testWidgets('enviando, la actividad la dice el indicador, no un brillo', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      conTema(boton(BotonVariante.primario, cargando: true)),
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
     expect(_luz(tester).avance, isNull);
   });
 

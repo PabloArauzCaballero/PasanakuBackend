@@ -6,12 +6,9 @@ import '../dominio/capturas_del_expediente.dart';
 import '../textos_de_captura.dart';
 
 /// El panel plegable de consejos sobre el visor, comportamiento de Atlas: cerrado
-/// por omisión, con un consejo por línea y su ícono de correcto/incorrecto.
-///
-/// Reutiliza `Acordeon` del sistema de diseño en vez de dibujos propios: Atlas trae
-/// una ilustración por consejo; acá se prioriza terminar el comportamiento completo
-/// (plegado, contenido por tipo de cara) con el tiempo disponible, y se deja
-/// declarado que el arte bespoke queda pendiente.
+/// por omisión, con un consejo por línea y un ícono que nombra de qué se trata
+/// (luz, reflejo, nitidez, encuadre). Los ejemplos dibujados viven en la pantalla
+/// «Pautas para tus fotos».
 class ConsejosParaLaFoto extends StatelessWidget {
   const ConsejosParaLaFoto({
     super.key,
@@ -35,7 +32,10 @@ class ConsejosParaLaFoto extends StatelessWidget {
           abierto: abierto,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [for (final c in consejos) _FilaDeConsejo(texto: c)],
+            children: [
+              for (final (icono, texto) in consejos)
+                _FilaDeConsejo(icono: icono, texto: texto),
+            ],
           ),
         ),
       ),
@@ -43,21 +43,22 @@ class ConsejosParaLaFoto extends StatelessWidget {
   }
 
   static const _consejosCarnet = [
-    'Buena luz, sin sombras sobre el carnet.',
-    'Sin reflejos — no uses la linterna.',
-    'Imagen nítida: mantené el teléfono quieto.',
-    'Los cuatro bordes del carnet, de frente.',
+    (Icons.wb_sunny_outlined, 'Buena luz, sin sombras sobre el carnet.'),
+    (Icons.flash_off, 'Sin reflejos — no uses la linterna.'),
+    (Icons.center_focus_strong, 'Imagen nítida: mantené el teléfono quieto.'),
+    (Icons.crop_free, 'Los cuatro bordes del carnet, de frente.'),
   ];
 
   static const _consejosRostro = [
-    'De frente y centrado en el encuadre.',
-    'Sin lentes, gorro ni barbijo.',
-    'Luz de frente, no a contraluz.',
+    (Icons.face_outlined, 'De frente y centrado en el encuadre.'),
+    (Icons.face_retouching_off, 'Sin lentes, gorro ni barbijo.'),
+    (Icons.wb_sunny_outlined, 'Luz de frente, no a contraluz.'),
   ];
 }
 
 class _FilaDeConsejo extends StatelessWidget {
-  const _FilaDeConsejo({required this.texto});
+  const _FilaDeConsejo({required this.icono, required this.texto});
+  final IconData icono;
   final String texto;
 
   @override
@@ -68,7 +69,7 @@ class _FilaDeConsejo extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.check_circle, size: Espacio.s4, color: t.text2),
+          Icon(icono, size: Espacio.s5, color: t.text2),
           const SizedBox(width: Espacio.s2),
           Expanded(
             child: Text(texto, style: Theme.of(context).textTheme.bodySmall),

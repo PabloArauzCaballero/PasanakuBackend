@@ -1,0 +1,616 @@
+Resolving dependencies...
+Downloading packages...
+  accessibility_tools 2.8.0 (3.0.0 available)
+  camera_avfoundation 0.10.3+1 (0.11.0+1 available)
+  camera_platform_interface 2.14.0 (2.15.0 available)
+  clock 1.1.2 (1.1.3 available)
+  code_assets 1.2.1 (2.1.0 available)
+  connectivity_plus 7.3.1 (7.3.2 available)
+  cross_file 0.3.5+5 (0.4.0 available)
+  dbus 0.7.15 (0.8.0 available)
+  equatable 2.1.0 (3.0.0 available)
+  flutter_secure_storage 10.3.2 (11.2.0 available)
+  flutter_secure_storage_darwin 0.3.2 (0.4.3 available)
+  flutter_secure_storage_linux 3.0.2 (3.0.3 available)
+  flutter_secure_storage_platform_interface 2.1.0 (2.1.1 available)
+  go_router 17.5.0 (18.0.2 available)
+  hooks 2.0.2 (2.2.0 available)
+  image_picker 1.2.3 (1.2.4 available)
+  image_picker_android 0.8.13+23 (0.8.13+25 available)
+  image_picker_ios 0.8.13+7 (0.8.13+10 available)
+  image_picker_platform_interface 2.11.1 (2.11.2 available)
+  intl 0.20.2 (0.20.3 available)
+  jni 1.0.3 (1.1.0 available)
+  jni_flutter 1.0.3 (1.0.4+1 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  mobile_scanner 7.4.1 (7.4.2 available)
+  nm 0.5.0 (0.6.0 available)
+  objective_c 9.5.0 (9.6.2 available)
+  patrol 3.20.0 (4.10.0 available)
+  patrol_finders 2.9.0 (3.6.0 available)
+  patrol_log 0.5.0 (0.10.1 available)
+  petitparser 7.0.2 (7.1.0 available)
+  qr 3.0.2 (4.0.0 available)
+  record_use 0.6.0 (1.1.1 available)
+  stack_trace 1.12.1 (1.12.2 available)
+  test_api 0.7.11 (0.7.15 available)
+  url_launcher 6.3.2 (6.3.3 available)
+  vector_math 2.2.0 (2.4.3 available)
+  vm_service 15.3.0 (15.4.0 available)
+  xml 7.0.1 (7.1.0 available)
+Got dependencies!
+40 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_prueba_vida_oscura_test.dart
+00:00 +0: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_prueba_vida_oscura_test.dart: (setUpAll)
+00:00 +0: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_prueba_vida_oscura_test.dart: pose frontal oscura · 360 px · texto 130 %
+00:01 +1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_subida_oscura_test.dart: subida del expediente · oscuro · 360 px · texto 130 %
+00:02 +2: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_break_ui_test.dart: alta · nombre de 60 caracteres con tildes y ñ · 200 %
+00:02 +3: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_break_ui_test.dart: alta · nombre de 60 caracteres con tildes y ñ · 200 %
+00:02 +4: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_break_ui_test.dart: alta · nombre de 60 caracteres con tildes y ñ · 200 %
+00:03 +5: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_break_ui_test.dart: alta · nombre de 60 caracteres con tildes y ñ · 200 %
+00:03 +6: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_perfil_visual_test.dart: perfil inicial · claro · 360 dp · texto 130 %
+00:03 +7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_perfil_visual_test.dart: perfil inicial · claro · 360 dp · texto 130 %
+00:03 +8: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ingreso_visual_test.dart: ingreso · principal · claro · 360 dp · texto 130 %
+00:03 +9: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ingreso_visual_test.dart: ingreso · principal · claro · 360 dp · texto 130 %
+00:03 +10: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ingreso_visual_test.dart: ingreso · principal · claro · 360 dp · texto 130 %
+00:04 +11: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ingreso_visual_test.dart: ingreso · principal · claro · 360 dp · texto 130 %
+00:04 +12: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ingreso_visual_test.dart: ingreso · principal · claro · 360 dp · texto 130 %
+00:04 +13: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ingreso_visual_test.dart: ingreso · principal · claro · 360 dp · texto 130 %
+00:04 +14: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ingreso_visual_test.dart: ingreso · principal · claro · 360 dp · texto 130 %
+00:04 +14: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_break_ui_test.dart: billetera · saldo cero y vacíos · 200 % · oscuro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following StateError was thrown running a test:
+Bad state: No element
+
+When the exception was thrown, this was the stack:
+#0      Iterable.first (dart:core/iterable.dart:663:7)
+#1      _FirstFinderMixin.filter (package:flutter_test/src/finders.dart:1383:28)
+#3      _AncestorFinderMixin.allCandidates (package:flutter_test/src/finders.dart:1857:49)
+#4      FinderBase.evaluate (package:flutter_test/src/finders.dart:1030:76)
+#5      WidgetController.widgetList (package:flutter_test/src/controller.dart:848:19)
+#6      WidgetController._maybeViewOf (package:flutter_test/src/controller.dart:795:34)
+#7      WidgetController.drag (package:flutter_test/src/controller.dart:1602:31)
+#8      main.<anonymous closure> (file:///Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_break_ui_test.dart:194:18)
+<asynchronous suspension>
+#9      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#10     TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 2 frames from dart:async-patch and package:stack_trace)
+
+The test description was:
+  billetera · saldo cero y vacíos · 200 % · oscuro
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:04 +14 -1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ingreso_visual_test.dart: ingreso · principal · claro · 360 dp · texto 130 %
+00:04 +14 -1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_break_ui_test.dart: billetera · saldo cero y vacíos · 200 % · oscuro [E]
+  Test failed. See exception logs above.
+  The test description was: billetera · saldo cero y vacíos · 200 % · oscuro
+  
+00:05 +15 -1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ingreso_visual_test.dart: ingreso · principal · claro · 360 dp · texto 130 %
+00:05 +16 -1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h1_candado_visual_test.dart: candado claro-360
+00:05 +17 -1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h1_candado_visual_test.dart: candado claro-360
+00:05 +18 -1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · principal · claro · 360 dp · texto 130 %
+00:06 +19 -1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · principal · claro · 360 dp · texto 130 %
+00:07 +20 -1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · principal · claro · 360 dp · texto 130 %
+00:07 +21 -1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · principal · claro · 360 dp · texto 130 %
+00:07 +22 -1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · principal · claro · 360 dp · texto 130 %
+00:07 +23 -1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_break_ui_test.dart: billetera · 40 movimientos · 200 %
+00:07 +24 -1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_break_ui_test.dart: billetera · 40 movimientos · 200 %
+00:07 +25 -1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h1_candado_visual_test.dart: candado claro-tablet
+00:07 +26 -1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_bienvenida_oscuro_test.dart: bienvenida oscura · 360 px · texto 130 %
+00:07 +27 -1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_bienvenida_oscuro_test.dart: bienvenida oscura · 360 px · texto 130 %
+00:08 +28 -1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_bienvenida_oscuro_test.dart: bienvenida oscura · 360 px · texto 130 %
+00:08 +29 -1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_bienvenida_oscuro_test.dart: bienvenida oscura · 360 px · texto 130 %
+00:08 +30 -1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_bienvenida_oscuro_test.dart: bienvenida oscura · 360 px · texto 130 %
+00:09 +30 -1: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · cargando · claro · 360 dp · texto 130 %
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _ElementPredicateWidgetFinder:<Found 0 widgets with a semantics label named "Comprobando
+código..., enviando": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart:102:13)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart line 102
+The test description was:
+  MFA · cargando · claro · 360 dp · texto 130 %
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:09 +30 -2: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_bienvenida_oscuro_test.dart: bienvenida oscura · 360 px · texto 130 %
+00:09 +30 -2: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · cargando · claro · 360 dp · texto 130 % [E]
+  Test failed. See exception logs above.
+  The test description was: MFA · cargando · claro · 360 dp · texto 130 %
+  
+00:09 +31 -2: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_bienvenida_oscuro_test.dart: bienvenida oscura · 360 px · texto 130 %
+00:09 +32 -2: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_bienvenida_oscuro_test.dart: bienvenida oscura · 360 px · texto 130 %
+00:09 +33 -2: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · error · claro · 360 dp · texto 130 %
+00:09 +34 -2: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ingreso_visual_test.dart: ingreso · error · claro · 412 dp · texto 130 %
+00:09 +35 -2: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · principal · oscuro · 360 dp · texto 130 %
+00:09 +36 -2: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ingreso_visual_test.dart: ingreso · principal · oscuro · 412 dp · texto 130 %
+00:10 +37 -2: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · cargando · oscuro · 360 dp · texto 130 %
+00:10 +38 -2: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · cargando · oscuro · 360 dp · texto 130 %
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _ElementPredicateWidgetFinder:<Found 0 widgets with a semantics label named "Comprobando
+código..., enviando": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart:102:13)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart line 102
+The test description was:
+  MFA · cargando · oscuro · 360 dp · texto 130 %
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:10 +38 -3: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ingreso_visual_test.dart: ingreso · error · oscuro · 412 dp · texto 130 %
+00:10 +38 -3: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · cargando · oscuro · 360 dp · texto 130 % [E]
+  Test failed. See exception logs above.
+  The test description was: MFA · cargando · oscuro · 360 dp · texto 130 %
+  
+00:10 +38 -3: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ingreso_visual_test.dart: ingreso · error · oscuro · 412 dp · texto 130 %
+00:10 +39 -3: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · error · oscuro · 360 dp · texto 130 %
+00:10 +40 -3: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_camara_visual_test.dart: cámara concedida · claro · 360 dp · texto 130 %
+00:10 +41 -3: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_camara_visual_test.dart: cámara concedida · claro · 360 dp · texto 130 %
+00:10 +42 -3: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_camara_visual_test.dart: cámara concedida · claro · 360 dp · texto 130 %
+00:10 +43 -3: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_camara_visual_test.dart: cámara concedida · claro · 360 dp · texto 130 %
+00:10 +43 -3: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · cargando · claro · 412 dp · texto 130 %
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _ElementPredicateWidgetFinder:<Found 0 widgets with a semantics label named "Comprobando
+código..., enviando": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart:102:13)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart line 102
+The test description was:
+  MFA · cargando · claro · 412 dp · texto 130 %
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:10 +43 -4: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_camara_visual_test.dart: cámara concedida · claro · 360 dp · texto 130 %
+00:10 +43 -4: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · cargando · claro · 412 dp · texto 130 % [E]
+  Test failed. See exception logs above.
+  The test description was: MFA · cargando · claro · 412 dp · texto 130 %
+  
+00:11 +44 -4: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_camara_visual_test.dart: cámara concedida · claro · 360 dp · texto 130 %
+00:11 +45 -4: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_camara_visual_test.dart: cámara concedida · claro · 360 dp · texto 130 %
+00:11 +46 -4: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_camara_visual_test.dart: cámara concedida · claro · 360 dp · texto 130 %
+00:11 +47 -4: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_camara_visual_test.dart: cámara concedida · claro · 360 dp · texto 130 %
+00:11 +48 -4: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_camara_visual_test.dart: cámara concedida · claro · 360 dp · texto 130 %
+00:11 +49 -4: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_cuenta_visual_test.dart: alta cuenta vacía · claro · 360 dp · texto 130 %
+00:11 +49 -4: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · cargando · oscuro · 412 dp · texto 130 %
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _ElementPredicateWidgetFinder:<Found 0 widgets with a semantics label named "Comprobando
+código..., enviando": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart:102:13)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart line 102
+The test description was:
+  MFA · cargando · oscuro · 412 dp · texto 130 %
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:11 +49 -5: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_cuenta_visual_test.dart: alta cuenta vacía · claro · 360 dp · texto 130 %
+00:11 +49 -5: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · cargando · oscuro · 412 dp · texto 130 % [E]
+  Test failed. See exception logs above.
+  The test description was: MFA · cargando · oscuro · 412 dp · texto 130 %
+  
+00:11 +50 -5: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_cuenta_visual_test.dart: alta cuenta vacía · claro · 360 dp · texto 130 %
+00:11 +51 -5: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_cuenta_visual_test.dart: alta cuenta vacía · claro · 360 dp · texto 130 %
+00:11 +52 -5: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_cuenta_visual_test.dart: alta cuenta vacía · claro · 360 dp · texto 130 %
+00:11 +53 -5: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_cuenta_visual_test.dart: alta cuenta vacía · claro · 360 dp · texto 130 %
+00:12 +54 -5: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_cuenta_visual_test.dart: alta cuenta vacía · claro · 360 dp · texto 130 %
+00:12 +55 -5: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_cuenta_visual_test.dart: alta cuenta vacía · claro · 360 dp · texto 130 %
+00:12 +56 -5: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_cuenta_visual_test.dart: alta cuenta vacía · claro · 360 dp · texto 130 %
+00:12 +56 -5: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · cargando · claro · 600 dp · texto 130 %
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _ElementPredicateWidgetFinder:<Found 0 widgets with a semantics label named "Comprobando
+código..., enviando": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart:102:13)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart line 102
+The test description was:
+  MFA · cargando · claro · 600 dp · texto 130 %
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:12 +56 -6: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_cuenta_visual_test.dart: alta cuenta vacía · claro · 360 dp · texto 130 %
+00:12 +56 -6: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · cargando · claro · 600 dp · texto 130 % [E]
+  Test failed. See exception logs above.
+  The test description was: MFA · cargando · claro · 600 dp · texto 130 %
+  
+00:12 +57 -6: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_cuenta_visual_test.dart: alta cuenta vacía · claro · 360 dp · texto 130 %
+00:12 +58 -6: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_cuenta_visual_test.dart: alta cuenta vacía · claro · 360 dp · texto 130 %
+00:12 +59 -6: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_ingreso_oscuro_test.dart: ingreso oscuro · 360 px · texto 130 %
+00:12 +60 -6: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_ingreso_oscuro_test.dart: ingreso oscuro · 360 px · texto 130 %
+00:12 +60 -6: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · cargando · oscuro · 600 dp · texto 130 %
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _ElementPredicateWidgetFinder:<Found 0 widgets with a semantics label named "Comprobando
+código..., enviando": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart:102:13)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart line 102
+The test description was:
+  MFA · cargando · oscuro · 600 dp · texto 130 %
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:12 +60 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_ingreso_oscuro_test.dart: ingreso oscuro · 360 px · texto 130 %
+00:12 +60 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · cargando · oscuro · 600 dp · texto 130 % [E]
+  Test failed. See exception logs above.
+  The test description was: MFA · cargando · oscuro · 600 dp · texto 130 %
+  
+00:12 +61 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_ingreso_oscuro_test.dart: ingreso oscuro · 360 px · texto 130 %
+00:12 +62 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · error · oscuro · 600 dp · texto 130 %
+00:13 +63 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · error · oscuro · 600 dp · texto 130 %
+00:13 +64 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_ingreso_oscuro_test.dart: ingreso rechaza credenciales · oscuro · 360 px · texto 130 %
+00:13 +65 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_ingreso_oscuro_test.dart: ingreso rechaza credenciales · oscuro · 360 px · texto 130 %
+00:13 +66 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_ingreso_oscuro_test.dart: ingreso rechaza credenciales · oscuro · 360 px · texto 130 %
+00:13 +67 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_ingreso_oscuro_test.dart: ingreso rechaza credenciales · oscuro · 360 px · texto 130 %
+00:13 +68 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_portada_visual_test.dart: portada principal · claro · 412 dp · texto 130 %
+00:14 +69 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_centro_ayuda_oscuro_test.dart: centro de ayuda · oscuro · 360 px · texto 130 %
+00:14 +70 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_centro_ayuda_oscuro_test.dart: centro de ayuda · oscuro · 360 px · texto 130 %
+00:15 +71 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_centro_ayuda_oscuro_test.dart: centro de ayuda · oscuro · 360 px · texto 130 %
+00:15 +72 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_centro_ayuda_oscuro_test.dart: centro de ayuda · oscuro · 360 px · texto 130 %
+00:16 +73 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_grupos_mi_estado_visual_test.dart: mi estado · principal-deuda · claro · 360 dp · texto 130 %
+00:16 +74 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_candado_visual_test.dart: candado inicial · claro · 360 dp · texto 130 %
+00:16 +75 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_candado_visual_test.dart: candado inicial · claro · 360 dp · texto 130 %
+00:16 +76 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_candado_visual_test.dart: candado inicial · claro · 360 dp · texto 130 %
+00:17 +77 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_prueba_vida_visual_test.dart: prueba de vida inicial · claro · 360 dp · texto 130 %
+00:17 +78 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_prueba_vida_visual_test.dart: prueba de vida inicial · claro · 360 dp · texto 130 %
+00:17 +79 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_candado_visual_test.dart: candado inicial · oscuro · 360 dp · texto 130 %
+00:17 +80 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_candado_visual_test.dart: candado inicial · oscuro · 360 dp · texto 130 %
+00:17 +81 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: (setUpAll)
+00:17 +81 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_prueba_vida_visual_test.dart: prueba de vida inicial · oscuro · 360 dp · texto 130 %
+00:17 +82 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_prueba_vida_visual_test.dart: prueba de vida inicial · oscuro · 360 dp · texto 130 %
+00:17 +83 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_candado_visual_test.dart: candado inicial · claro · 412 dp · texto 130 %
+00:17 +84 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_candado_visual_test.dart: candado inicial · claro · 412 dp · texto 130 %
+00:17 +85 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:17 +86 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:18 +87 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:18 +88 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:18 +89 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:18 +90 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:18 +91 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:18 +92 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:18 +93 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:19 +94 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:19 +95 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:19 +96 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:19 +97 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:19 +98 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:20 +99 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:20 +100 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:21 +101 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:21 +102 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:22 +103 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:22 +104 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:23 +105 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:23 +106 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:24 +107 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:24 +108 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:25 +109 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:26 +110 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:27 +111 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:28 +112 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:28 +113 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:30 +114 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:31 +115 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:31 +116 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:32 +117 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:32 +118 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:32 +119 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:32 +120 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_alta_oscura_test.dart: seis pasos del alta en oscuro · 360 px · texto 130 %
+00:32 +121 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_tour_oscuro_test.dart: cuatro láminas del tour oscuro · 360 px · texto 130 %
+00:33 +122 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_tour_oscuro_test.dart: cuatro láminas del tour oscuro · 360 px · texto 130 %
+00:33 +123 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_tour_oscuro_test.dart: cuatro láminas del tour oscuro · 360 px · texto 130 %
+00:34 +124 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_documento_visual_test.dart: alta documento inicial · claro · 360 dp · texto 130 %
+00:34 +125 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_documento_visual_test.dart: alta documento inicial · claro · 360 dp · texto 130 %
+00:39 +126 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_correo_visual_test.dart: alta correo inicial · claro · 360 dp · texto 130 %
+00:41 +127 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_correo_visual_test.dart: alta correo inicial · claro · 360 dp · texto 130 %
+00:42 +128 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_correo_visual_test.dart: alta correo inicial · claro · 360 dp · texto 130 %
+00:43 +129 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_correo_visual_test.dart: alta correo inicial · claro · 360 dp · texto 130 %
+00:43 +130 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_correo_visual_test.dart: alta correo inicial · claro · 360 dp · texto 130 %
+00:43 +131 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_correo_visual_test.dart: alta correo inicial · claro · 360 dp · texto 130 %
+00:43 +132 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: ingreso · sistema al 200 %
+00:43 +133 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: ingreso · sistema al 200 %
+00:44 +134 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: ingreso · sistema al 200 %
+00:44 +135 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: ingreso · sistema al 200 %
+00:44 +136 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: ingreso · sistema al 200 %
+00:45 +137 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: ingreso · sistema al 200 %
+00:45 +138 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: ingreso · sistema al 200 %
+00:45 +139 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: ingreso · sistema al 200 %
+00:46 +140 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: ingreso · sistema al 200 %
+00:46 +141 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: ingreso · sistema al 200 %
+00:46 +142 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: ingreso · sistema al 200 %
+00:46 +143 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: ingreso · sistema al 200 %
+00:46 +144 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: ingreso · sistema al 200 %
+00:46 +145 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_portada_mfa_oscuro_test.dart: MFA código rechazado · oscuro · 360 px · texto 130 %
+00:47 +146 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_portada_mfa_oscuro_test.dart: MFA código rechazado · oscuro · 360 px · texto 130 %
+00:47 +147 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_portada_mfa_oscuro_test.dart: MFA código rechazado · oscuro · 360 px · texto 130 %
+00:47 +148 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_portada_mfa_oscuro_test.dart: MFA código rechazado · oscuro · 360 px · texto 130 %
+00:47 +149 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_portada_mfa_oscuro_test.dart: MFA código rechazado · oscuro · 360 px · texto 130 %
+00:48 +150 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: alta · sistema al 200 %
+00:48 +151 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: alta · sistema al 200 %
+00:48 +152 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: alta · sistema al 200 %
+00:48 +153 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_verificacion_visual_test.dart: verificación · rechazada · claro · 412 dp · texto 130 %
+00:48 +154 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_correo_visual_test.dart: alta correo inicial · oscuro · 600 dp · texto 130 %
+00:49 +155 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_correo_visual_test.dart: alta correo inicial · oscuro · 600 dp · texto 130 %
+00:49 +156 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: billetera · saldo alto · sistema al 200 %
+00:49 +157 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: billetera · saldo alto · sistema al 200 %
+00:50 +158 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: billetera · saldo alto · sistema al 200 %
+00:51 +159 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: billetera · saldo alto · sistema al 200 %
+00:51 +160 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_texto_200_test.dart: billetera · saldo alto · sistema al 200 %
+00:51 +161 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ayuda_visual_test.dart: ayuda · inicio · claro · 360 dp · texto 130 %
+00:52 +162 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ayuda_visual_test.dart: ayuda · inicio · claro · 360 dp · texto 130 %
+00:52 +163 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ayuda_visual_test.dart: ayuda · inicio · claro · 360 dp · texto 130 %
+00:53 +164 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ayuda_visual_test.dart: ayuda · inicio · claro · 360 dp · texto 130 %
+00:53 +165 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ayuda_visual_test.dart: ayuda · inicio · claro · 360 dp · texto 130 %
+00:54 +166 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ayuda_visual_test.dart: ayuda · inicio · claro · 360 dp · texto 130 %
+00:54 +167 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ayuda_visual_test.dart: ayuda · inicio · claro · 360 dp · texto 130 %
+00:55 +168 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ayuda_visual_test.dart: ayuda · inicio · claro · 360 dp · texto 130 %
+00:57 +169 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_ayuda_visual_test.dart: ayuda · inicio · claro · 360 dp · texto 130 %
+00:57 +170 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_actividad_visual_test.dart: alta actividad vacía · claro · 360 dp · texto 130 %
+00:58 +171 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_contrato_visual_test.dart: alta contrato previo · claro · 360 dp · texto 130 %
+00:58 +172 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_contrato_visual_test.dart: alta contrato previo · claro · 360 dp · texto 130 %
+00:59 +173 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_contrato_visual_test.dart: alta contrato previo · claro · 360 dp · texto 130 %
+01:00 +174 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_grupos_mi_estado_oscuro_test.dart: mi estado con deuda · oscuro · 360 px · texto 130 %
+01:00 +175 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_grupos_mi_estado_oscuro_test.dart: mi estado con deuda · oscuro · 360 px · texto 130 %
+01:01 +176 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_grupos_mi_estado_oscuro_test.dart: mi estado con deuda · oscuro · 360 px · texto 130 %
+01:01 +177 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_grupos_mi_estado_oscuro_test.dart: mi estado con deuda · oscuro · 360 px · texto 130 %
+01:01 +178 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_grupos_mi_estado_oscuro_test.dart: mi estado con deuda · oscuro · 360 px · texto 130 %
+01:01 +179 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_grupos_mi_estado_oscuro_test.dart: mi estado con deuda · oscuro · 360 px · texto 130 %
+01:02 +180 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_grupos_mi_estado_oscuro_test.dart: mi estado con deuda · oscuro · 360 px · texto 130 %
+01:02 +181 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_grupos_mi_estado_oscuro_test.dart: mi estado con deuda · oscuro · 360 px · texto 130 %
+01:02 +182 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_grupos_mi_estado_oscuro_test.dart: mi estado con deuda · oscuro · 360 px · texto 130 %
+01:02 +183 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_grupos_mi_estado_oscuro_test.dart: mi estado con deuda · oscuro · 360 px · texto 130 %
+01:02 +184 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_grupos_mi_estado_oscuro_test.dart: mi estado con deuda · oscuro · 360 px · texto 130 %
+01:02 +185 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_grupos_mi_estado_oscuro_test.dart: mi estado con deuda · oscuro · 360 px · texto 130 %
+01:03 +186 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_grupos_mi_estado_oscuro_test.dart: mi estado con deuda · oscuro · 360 px · texto 130 %
+01:03 +187 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_grupos_mi_estado_oscuro_test.dart: mi estado con deuda · oscuro · 360 px · texto 130 %
+01:03 +188 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · movil · claro
+01:03 +189 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · movil · claro
+01:04 +190 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · movil · claro
+01:04 +191 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · movil · claro
+01:04 +192 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · movil · claro
+01:05 +193 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · movil · claro
+01:05 +194 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · movil · claro
+01:06 +195 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/pantalla_escanear_golden_test.dart: escanear · cámara denegada · movil · claro
+01:06 +196 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_billetera_visual_test.dart: billetera · principal · claro · 360 dp · texto 130 %
+01:07 +197 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_billetera_visual_test.dart: billetera · principal · claro · 360 dp · texto 130 %
+01:07 +198 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_billetera_visual_test.dart: billetera · principal · claro · 360 dp · texto 130 %
+01:07 +199 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_billetera_visual_test.dart: billetera · principal · claro · 360 dp · texto 130 %
+01:08 +200 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_billetera_visual_test.dart: billetera · principal · claro · 360 dp · texto 130 %
+01:08 +201 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_billetera_visual_test.dart: billetera · principal · claro · 360 dp · texto 130 %
+01:09 +202 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_billetera_visual_test.dart: billetera · principal · claro · 360 dp · texto 130 %
+01:09 +203 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_billetera_visual_test.dart: billetera · principal · claro · 360 dp · texto 130 %
+01:13 +204 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:15 +205 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:15 +206 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:16 +207 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:16 +208 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:17 +209 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:18 +210 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:18 +211 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:18 +212 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:18 +213 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:18 +214 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:20 +215 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:20 +216 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:20 +217 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:21 +218 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:23 +219 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:24 +220 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:25 +221 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:26 +222 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:27 +223 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:27 +224 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:28 +225 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:28 +226 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:29 +227 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:30 +228 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:30 +229 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:31 +230 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:31 +231 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:31 +232 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:32 +233 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/transiciones_golden_test.dart: portada → ingreso: el fundido no superpone las pantallas
+01:32 +234 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_alta_datos_visual_test.dart: alta datos inicial · oscuro · 600 dp · texto 130 %
+01:32 +235 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_tour_visual_test.dart: tour · lámina 4 · oscuro · 360 dp · texto 130 %
+01:33 +236 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_billetera_visual_test.dart: billetera · principal · claro · 600 dp · texto 130 %
+01:33 +237 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_tour_visual_test.dart: tour · lámina 1 · claro · 412 dp · texto 130 %
+01:33 +238 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_tour_visual_test.dart: tour · lámina 1 · claro · 412 dp · texto 130 %
+01:34 +239 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_billetera_visual_test.dart: billetera · vacio · claro · 600 dp · texto 130 %
+01:34 +240 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_tour_visual_test.dart: tour · lámina 2 · claro · 412 dp · texto 130 %
+01:34 +241 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_tour_visual_test.dart: tour · lámina 2 · claro · 412 dp · texto 130 %
+01:35 +242 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_billetera_visual_test.dart: billetera · principal · oscuro · 600 dp · texto 130 %
+01:35 +243 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_tour_visual_test.dart: tour · lámina 3 · claro · 412 dp · texto 130 %
+01:36 +244 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_tour_visual_test.dart: tour · lámina 3 · claro · 412 dp · texto 130 %
+01:36 +245 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_verificacion_oscura_test.dart: estado de verificación · oscuro · 360 px · texto 130 %
+01:36 +246 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_verificacion_oscura_test.dart: estado de verificación · oscuro · 360 px · texto 130 %
+01:36 +247 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_verificacion_oscura_test.dart: estado de verificación · oscuro · 360 px · texto 130 %
+01:37 +248 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_verificacion_oscura_test.dart: estado de verificación · oscuro · 360 px · texto 130 %
+01:37 +249 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_verificacion_oscura_test.dart: estado de verificación · oscuro · 360 px · texto 130 %
+01:38 +250 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_verificacion_oscura_test.dart: estado de verificación · oscuro · 360 px · texto 130 %
+01:39 +251 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_verificacion_oscura_test.dart: estado de verificación · oscuro · 360 px · texto 130 %
+01:40 +252 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h8_verificacion_oscura_test.dart: estado de verificación · oscuro · 360 px · texto 130 %
+01:40 +253 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_tour_visual_test.dart: tour · lámina 1 · claro · 600 dp · texto 130 %
+01:41 +254 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/capturas/h17_billetera_acciones_test.dart: acciones del saldo · 360 px · texto 1.0x · claro
+01:42 +255 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/capturas/h17_billetera_acciones_test.dart: acciones del saldo · 360 px · texto 1.0x · claro
+01:43 +256 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/capturas/h17_billetera_acciones_test.dart: acciones del saldo · 360 px · texto 1.0x · claro
+01:44 +257 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/capturas/h17_billetera_acciones_test.dart: acciones del saldo · 360 px · texto 1.0x · claro
+M7 despues texto 1.0x claro -> textoCortado=false
+01:45 +258 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/capturas/h17_capturas_test.dart: billetera con saldo · movil-claro
+01:45 +259 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/capturas/h17_capturas_test.dart: billetera con saldo · movil-claro
+01:45 +260 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/motivo_de_salida_en_ingreso_test.dart: avisa una vez cuando la sesión caducó por el tope de 8 horas
+01:45 +260 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/capturas/h17_billetera_acciones_test.dart: acciones del saldo · 360 px · texto 1.0x · oscuro
+M7 despues texto 1.0x oscuro -> textoCortado=false
+01:45 +261 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/motivo_de_salida_en_ingreso_test.dart: avisa una vez cuando la sesión caducó por el tope de 8 horas
+01:46 +262 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/motivo_de_salida_en_ingreso_test.dart: avisa una vez cuando la sesión caducó por el tope de 8 horas
+01:46 +263 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/motivo_de_salida_en_ingreso_test.dart: avisa una vez cuando la sesión caducó por el tope de 8 horas
+01:46 +264 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: el cambio de paso usa el eje y duraciones de entrada/salida
+01:46 +264 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/capturas/h17_billetera_acciones_test.dart: acciones del saldo · 360 px · texto 1.3x · claro
+M7 despues texto 1.3x claro -> textoCortado=false
+01:46 +265 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: el cambio de paso usa el eje y duraciones de entrada/salida
+01:46 +266 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: el cambio de paso usa el eje y duraciones de entrada/salida
+01:47 +266 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/capturas/h17_billetera_acciones_test.dart: acciones del saldo · 360 px · texto 1.3x · oscuro
+M7 despues texto 1.3x oscuro -> textoCortado=false
+01:47 +267 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/capturas/h17_capturas_test.dart: segundo factor · inicial y rechazo · movil-claro
+01:47 +268 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/capturas/h17_capturas_test.dart: segundo factor · inicial y rechazo · movil-claro
+01:47 +269 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/capturas/h17_capturas_test.dart: segundo factor · inicial y rechazo · movil-claro
+01:47 +270 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/capturas/h17_capturas_test.dart: segundo factor · inicial y rechazo · movil-claro
+01:48 +270 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/capturas/h17_billetera_acciones_test.dart: acciones del saldo · 360 px · texto 2.0x · claro
+M7 despues texto 2.0x claro -> textoCortado=false
+01:48 +271 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/capturas/h17_capturas_test.dart: segundo factor · inicial y rechazo · movil-claro
+01:48 +272 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/capturas/h17_capturas_test.dart: segundo factor · inicial y rechazo · movil-claro
+01:48 +273 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/capturas/h17_capturas_test.dart: segundo factor · inicial y rechazo · movil-claro
+01:48 +274 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_tour_visual_test.dart: tour · lámina 4 · oscuro · 600 dp · texto 130 %
+01:48 +275 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/capturas/h17_billetera_acciones_test.dart: acciones del saldo · 360 px · texto 2.0x · oscuro
+M7 despues texto 2.0x oscuro -> textoCortado=false
+01:48 +276 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:50 +277 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:50 +278 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:51 +279 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:51 +280 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:51 +281 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:51 +282 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:51 +283 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:51 +284 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:51 +285 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:51 +286 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:51 +287 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:51 +288 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:51 +289 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:52 +290 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:54 +291 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:54 +292 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:55 +293 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:55 +294 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:55 +295 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:56 +296 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:56 +297 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:58 +298 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:58 +299 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+01:59 +300 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+02:00 +301 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+02:01 +302 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+02:02 +303 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+02:02 +304 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+02:02 +305 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+02:02 +306 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+02:02 +307 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/estructura_del_alta_test.dart: atrás conserva los campos que viven en fases distintas
+02:02 +308 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/pantalla_contrato_test.dart: aceptar sigue deshabilitado con scroll parcial, y se habilita al llegar al final y marcar los tres consentimientos
+02:02 +309 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/pantalla_contrato_test.dart: aceptar sigue deshabilitado con scroll parcial, y se habilita al llegar al final y marcar los tres consentimientos
+02:03 +310 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/capturas/h17_capturas_test.dart: selector de fecha en español (telefono en ingles) · tablet-claro
+02:04 +311 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/capturas/h17_capturas_test.dart: selector de fecha en español (telefono en ingles) · tablet-claro
+02:05 +312 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:05 +313 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:05 +314 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:05 +315 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:06 +316 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:06 +317 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:06 +318 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:07 +319 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:07 +320 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:07 +321 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:10 +322 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:12 +323 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:12 +324 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:12 +325 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:15 +326 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:18 +327 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:18 +328 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:20 +329 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:20 +330 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:21 +331 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:24 +332 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:25 +333 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/error_alta_desplazamiento_test.dart: un error remoto nuevo desplaza al banner desde el final del paso
+02:26 +334 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/proteccion_alta_ingreso_test.dart: alta protege fases 1 y 2 y libera en fase 3 y al salir
+02:26 +335 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/proteccion_alta_ingreso_test.dart: alta protege fases 1 y 2 y libera en fase 3 y al salir
+02:26 +336 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/proteccion_alta_ingreso_test.dart: alta protege fases 1 y 2 y libera en fase 3 y al salir
+02:27 +337 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/proteccion_alta_ingreso_test.dart: alta protege fases 1 y 2 y libera en fase 3 y al salir
+02:29 +338 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/proteccion_alta_ingreso_test.dart: alta protege fases 1 y 2 y libera en fase 3 y al salir
+02:29 +339 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/proteccion_alta_ingreso_test.dart: alta protege fases 1 y 2 y libera en fase 3 y al salir
+02:30 +340 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/proteccion_alta_ingreso_test.dart: alta protege fases 1 y 2 y libera en fase 3 y al salir
+02:30 +341 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/proteccion_alta_ingreso_test.dart: alta protege fases 1 y 2 y libera en fase 3 y al salir
+02:30 +342 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/paso_contrasena_test.dart: una clave de ocho o más, repetida bien, avanza de paso
+02:33 +343 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/paso_contrasena_test.dart: una clave de ocho o más, repetida bien, avanza de paso
+02:46 +344 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/pantalla_sesion_prefijo_test.dart: el prefijo +591 viene puesto: con ocho dígitos y clave se habilita
+02:48 +345 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/paso_contrasena_test.dart: una clave corta no avanza y dice por qué
+02:48 +346 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/pantalla_sesion_prefijo_test.dart: con menos de ocho dígitos sigue apagado
+02:49 +347 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/paso_contrasena_test.dart: si las dos no coinciden, no avanza
+02:49 +348 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/pantalla_sesion_prefijo_test.dart: credencial incorrecta tiembla tres veces y da haptic ligero
+02:51 +349 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/pantalla_sesion_prefijo_test.dart: credencial incorrecta tiembla tres veces y da haptic ligero
+02:53 +350 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/paso_contrasena_test.dart: una clave que lleva el celular adentro se rechaza acá, no en el servidor
+02:54 +351 -7: /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/identidad/pantalla_sesion_prefijo_test.dart: movimiento reducido mantiene el formulario quieto ante rechazo
+02:55 +352 -7: Some tests failed.
+
+Failing tests:
+  /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · cargando · claro · 360 dp · texto 130 %
+  /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · cargando · claro · 412 dp · texto 130 %
+  /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · cargando · claro · 600 dp · texto 130 %
+  /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/visual-bancario/apps/movil/test/goldens/h10_mfa_visual_test.dart: MFA · cargando · oscuro · 360 dp · texto 130 %
+  ... and 3 more

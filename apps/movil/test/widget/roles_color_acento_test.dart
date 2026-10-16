@@ -7,7 +7,6 @@ import 'package:aportaya_movil/pantallas/identidad/lamina_del_tour.dart';
 import 'package:aportaya_movil/pantallas/identidad/laminas_del_tour.dart';
 import 'package:aportaya_movil/pantallas/identidad/pasos_alta/consejos_para_la_foto.dart';
 import 'package:aportaya_movil/pantallas/identidad/pasos_alta/guia_de_encuadre.dart';
-import 'package:aportaya_movil/pantallas/identidad/pasos_alta/riel_de_capturas.dart';
 import 'package:aportaya_movil/pantallas/identidad/pasos_alta/tarjeta_de_captura.dart';
 import 'package:aportaya_movil/pantallas/billetera/lista_de_movimientos.dart';
 import 'package:aportaya_movil/pantallas/notificaciones/dominio.dart';
@@ -127,7 +126,7 @@ void main() {
         ),
       );
       expect(
-        tester.widget<Icon>(find.byIcon(Icons.check_circle).first).color,
+        tester.widget<Icon>(find.byIcon(Icons.wb_sunny_outlined)).color,
         tokens.text2,
       );
       final acordeon = tester.widget<ExpansionTile>(find.byType(ExpansionTile));
@@ -156,16 +155,9 @@ void main() {
           brillo: brillo,
         ),
       );
-      expect(
-        tester
-            .widget<Icon>(find.byIcon(iconoDeCara(CaraDelCarril.anverso)))
-            .color,
-        tokens.text2,
-      );
-      expect(
-        tester.widget<GuiaDeEncuadre>(find.byType(GuiaDeEncuadre)).color,
-        tokens.text2,
-      );
+      final guia = tester.widget<GuiaDeEncuadre>(find.byType(GuiaDeEncuadre));
+      expect(guia.color, tokens.text2);
+      expect(guia.esquemaDe, CaraDelCarril.anverso);
       final tarjetaVisual = tester.widget<DecoratedBox>(
         find.descendant(
           of: find.byType(TarjetaDeCaptura),
@@ -173,14 +165,14 @@ void main() {
             (widget) =>
                 widget is DecoratedBox &&
                 widget.decoration is BoxDecoration &&
-                (widget.decoration as BoxDecoration).gradient != null,
+                (widget.decoration as BoxDecoration).borderRadius ==
+                    BorderRadius.circular(Radios.lg),
           ),
         ),
       );
-      expect((tarjetaVisual.decoration as BoxDecoration).gradient?.colors, [
-        tokens.surface2,
-        tokens.surface,
-      ]);
+      final decoracion = tarjetaVisual.decoration as BoxDecoration;
+      expect(decoracion.gradient, isNull);
+      expect(decoracion.color, tokens.surface);
     });
   }
 }
