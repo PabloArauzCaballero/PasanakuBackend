@@ -116,6 +116,7 @@ export const ErroresCU94 = {
   FUERA_DE_FACULTAD:     'AP-CU94-04',
   ACTA_YA_CERRADA:       'AP-CU94-05',
   COMITE_INACTIVO:       'AP-CU94-06',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU94-07',
 } as const
 ```
 
@@ -127,6 +128,10 @@ export const ErroresCU94 = {
 | `FUERA_DE_FACULTAD` | El asunto excede lo que el comité puede decidir; se eleva |
 | `ACTA_YA_CERRADA` | Se intenta modificar un acta cerrada (`R-AUD-01`) |
 | `COMITE_INACTIVO` | El comité está dado de baja |
+| `FILTRO_DE_LISTADO_INVALIDO` | La cola recibió `antesDe` sin `antesDeId` (o al revés) |
+
+**Cola del backoffice (carril A · H9).** `GET /cumplimiento/comites/actas` (`listarActasDeComite`, el rol OFICIAL_CUMPLIMIENTO, con `AUDITORIA_LEER` como
+alternativa) pagina por cursor de la más reciente a la más antigua y devuelve número, fecha, quórum y hash del documento; sin asistentes, temas ni decisiones.
 
 ## Descomposición atómica
 
@@ -184,6 +189,11 @@ Entonces se rechaza con PARTE_INTERESADA
 Dado un comité que no sesiona dentro de su periodicidad mínima
 Cuando corre el control
 Entonces existe un hallazgo_auditoria abierto
+
+# Cola del backoffice (carril A)
+Dada un acta de comité registrada
+Cuando el oficial lista las actas
+Entonces la ve con su número, quórum y hash, sin asistentes ni decisiones
 ```
 
 ## Ver también

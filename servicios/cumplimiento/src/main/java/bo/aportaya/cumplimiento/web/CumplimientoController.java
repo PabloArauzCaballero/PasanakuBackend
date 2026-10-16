@@ -5,7 +5,6 @@ import bo.aportaya.cumplimiento.aplicacion.CU44InvestigarYReportar;
 import bo.aportaya.cumplimiento.aplicacion.CU54RegistrarRiesgoOperativo;
 import bo.aportaya.cumplimiento.aplicacion.CU55GestionarIncidente;
 import bo.aportaya.cumplimiento.aplicacion.ConsultarBandejasLft;
-import bo.aportaya.cumplimiento.web.generado.CumplimientoApi;
 import bo.aportaya.cumplimiento.web.generado.modelo.EntradaCasoLft;
 import bo.aportaya.cumplimiento.web.generado.modelo.EntradaDecisionCasoLft;
 import bo.aportaya.cumplimiento.web.generado.modelo.EntradaIncidente;
@@ -41,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
  * un {@code if} sobre una regla del pasanaku aca, esta mal ubicado.
  */
 @RestController
-public class CumplimientoController implements CumplimientoApi {
+public class CumplimientoController extends ColasDeCumplimientoWeb {
 
     private final CU54RegistrarRiesgoOperativo cu54;
     private final CU55GestionarIncidente cu55;
@@ -62,7 +61,9 @@ public class CumplimientoController implements CumplimientoApi {
             CU44InvestigarYReportar cu44,
             CU44DecidirComoRevisor decisionLft,
             SesionDeLaPeticion sesion,
-            jakarta.servlet.http.HttpServletRequest peticion) {
+            jakarta.servlet.http.HttpServletRequest peticion,
+            TableroDeCumplimientoWeb tablero) {
+        super(tablero);
         this.cu54 = cu54;
         this.cu55 = cu55;
         this.sesion = sesion;

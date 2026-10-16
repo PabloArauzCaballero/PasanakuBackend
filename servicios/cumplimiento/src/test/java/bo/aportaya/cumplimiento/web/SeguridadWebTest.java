@@ -68,4 +68,8 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private CU52AtenderReclamo cu52;
+
+    // Las colas del backoffice (carril A · H9) cuelgan del controlador: sin este doble no carga.
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private TableroDeCumplimientoWeb tableroDeCumplimiento;
 }

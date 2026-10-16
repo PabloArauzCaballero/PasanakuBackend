@@ -93,6 +93,7 @@ export const ErroresCU54 = {
   FECHAS_INCOHERENTES: 'AP-CU54-01',
   RECUPERACION_MAYOR_A_PERDIDA: 'AP-CU54-02',
   TAXONOMIA_INVALIDA: 'AP-CU54-03',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU54-04',
 } as const
 ```
 
@@ -101,6 +102,10 @@ export const ErroresCU54 = {
 | `FECHAS_INCOHERENTES` | La detección no puede ser anterior a la ocurrencia |
 | `RECUPERACION_MAYOR_A_PERDIDA` | La recuperación no puede superar la pérdida bruta |
 | `TAXONOMIA_INVALIDA` | Categoría o factor fuera de la taxonomía (R-RIS-01) |
+| `FILTRO_DE_LISTADO_INVALIDO` | La cola recibió un estado desconocido, o `antesDe` sin `antesDeId` (o al revés) |
+
+**Cola del backoffice (carril A · H9).** `GET /cumplimiento/riesgos/eventos` (`listarEventosDeRiesgo`, el rol RESPONSABLE_RIESGOS, con `AUDITORIA_LEER` como
+alternativa) pagina por cursor de la más reciente a la más antigua y devuelve taxonomía, pérdidas bruta/recuperada/neta con su moneda y estado; sin descripción ni causa raíz.
 
 ## Descomposición atómica
 
@@ -148,6 +153,11 @@ Entonces la base de datos lo rechaza
 Dado un plan de acción vencido
 Cuando corre el control diario
 Entonces existe un hallazgo_auditoria abierto
+
+# Cola del backoffice (carril A)
+Dados un evento REGISTRADO y uno CERRADO
+Cuando Riesgos lista los eventos filtrando por REGISTRADO
+Entonces ve solo el registrado con su pérdida bruta, recuperación y pérdida neta en su moneda
 ```
 
 ## Ver también

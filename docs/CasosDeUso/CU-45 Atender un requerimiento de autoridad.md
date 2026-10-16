@@ -77,6 +77,7 @@ export const ErroresCU45 = {
   SIN_DOCUMENTO: 'AP-CU45-02',
   ALCANCE_AMBIGUO: 'AP-CU45-03',
   PLAZO_VENCIDO: 'AP-CU45-04',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU45-05',
 } as const
 ```
 
@@ -86,6 +87,10 @@ export const ErroresCU45 = {
 | `SIN_DOCUMENTO` | No se actúa sin el oficio y su hash |
 | `ALCANCE_AMBIGUO` | Se pide aclaración antes de entregar información |
 | `PLAZO_VENCIDO` | Se responde igual y se abre hallazgo |
+| `FILTRO_DE_LISTADO_INVALIDO` | La cola recibió un estado desconocido, o `antesDe` sin `antesDeId` (o al revés) |
+
+**Cola del backoffice (carril A · H9).** `GET /uif/requerimientos` (`listarRequerimientosDeAutoridad`, el rol OFICIAL_CUMPLIMIENTO, con `AUDITORIA_LEER` como
+alternativa) pagina por cursor de la más reciente a la más antigua y devuelve autoridad, oficio, plazo, estado y si hay bloqueo de saldo; sin alcance ni enlace al documento.
 
 ## Descomposición atómica
 
@@ -132,6 +137,11 @@ Entonces existe un registro_acceso_datos con el número de oficio como justifica
 Dado un oficio con plazo vencido sin respuesta
 Cuando corre el control diario
 Entonces existe un hallazgo_auditoria abierto
+
+# Cola del backoffice (carril A)
+Dados oficios RECIBIDO y RESPONDIDO
+Cuando el oficial lista la cola sin filtro
+Entonces ve los dos, del recibido más reciente al más antiguo, sin el alcance ni el documento
 ```
 
 ## Ver también
