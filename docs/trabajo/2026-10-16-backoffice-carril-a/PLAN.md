@@ -27,6 +27,7 @@
   - **A-5 · Códigos y estados HTTP de `aprobarRetiro` no coinciden con su contrato.** El YAML promete `409` cuando la orden ya no está en revisión y `404` cuando no existe; la implementación (convención `errores-api`, `ManejadorGlobalDeErrores.java:30-35`: 422 para negocio, 409 sólo para la base) responde `422 AP-CU11-11` y `422 AP-CU11-01` — y `AP-CU11-01` es también `SALDO_INSUFICIENTE`, así que el cliente no puede distinguir «orden inexistente» de «saldo insuficiente». Supuesto: no se cambia la plataforma ni el código público en este trabajo; B debe tratar `422 AP-CU11-11` como «ya resuelta». Confirmar con: dueño de `errores-api` / Pablo Arauz (asignar `AP-CU11-15 ORDEN_INEXISTENTE` exige actualizar CU-11).
   - **A-6 · Códigos de CU-52 reutilizados.** `CU52AtenderReclamo` lanza `AP-CU52-01` (`PUNTO_RECLAMO_INACTIVO`) también para «reclamo inexistente» y «reclamo ya cerrado» (`CU52AtenderReclamo.java:130,175,195`). Como `responder`/`prorrogar` no tenían endpoint, se asignan `AP-CU52-05 RECLAMO_INEXISTENTE` y `AP-CU52-06 RECLAMO_YA_CERRADO` antes de publicarlos. Confirmar con: dueño de CU-52.
   - **A-7 · `reclamo_cliente.monto_reclamado` sin moneda.** La regla 91.1.2 prohíbe un importe sin moneda; la tabla no tiene `moneda`. El contrato publica el monto como cadena decimal y declara que la moneda no está modelada, sin suponer BOB. Cerrarlo es cambio de modelo (troncal). Confirmar con: Pablo Arauz / dueño del modelo M12.
+  - **A-8 · Lectura de datos financieros de una persona en Cumplimiento.** La regla 90.2.7 exige rastro auditable de toda lectura de datos financieros de una persona; `comun.registro_acceso_datos` existe (lo usa `auditoria/CU58`) pero exige finalidad (`R-SEG-02`). Supuesto: las bandejas LFT salen **sin** persona, monto ni detalle; la ficha con esos datos se construye cuando se defina el catálogo de finalidades de consulta (A1). Confirmar con: Oficial de Cumplimiento / Seguridad.
   - **A-4 · Datos personales en la bandeja de retiros.** La bandeja muestra ids, importe, moneda, estado, fechas y quién la solicitó (id), **no** cuenta destino ni nombre. Supuesto conservador por regla 90.2/96.5.3. Confirmar con: Cumplimiento.
 
 ## H1 — A0 · Inventario, trazabilidad y contratos P0
@@ -120,8 +121,19 @@
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H5.S1.M1 | Contrato `GET /cumplimiento/alertas` y `GET /cumplimiento/casos` | compila | `compileJava` exit 0 | TODO |
-| H5.S1.M2 | Implementación + permisos sembrados (o cerrado si no existe, A-3) | correcto/límite/inválido + 403 | `integrationTest --tests '*CU44BandejaTest*'` | TODO |
+| H5.S1.M1 | Contrato `GET /cumplimiento/alertas` (`listarBandejaDeAlertas`, `CUMPLIMIENTO_ALERTAS`) y `GET /cumplimiento/casos` (`listarBandejaDeCasos`, `CUMPLIMIENTO_CASOS`): sin persona, sin monto, sin detalle ni hallazgos (deber de reserva + lectura de datos financieros sin rastro auditable, regla 90.2.7) | compila | `./gradlew :servicios:cumplimiento:compileJava` exit 0 | HECHO |
+| H5.S1.M2 | Bandejas: alertas por severidad y antigüedad (cursor `(peso, detectadaEn, id)` simplificado a `(detectadaEn, id)` con filtro de severidad/estado), casos por `plazo_limite` (vencidos primero) | correcto (orden y 2 páginas) / límite (vacía; caso vencido marcado) / inválido (filtro desconocido → código de contrato) / 403 | `integrationTest --tests '*CU44BandejaTest*'` + `webTest --tests '*LftBandejaWebTest*'` | HECHO |
+
+### H5.S2 — Acciones de CU-44 por HTTP, corregidas
+**CA:** Dado un caso abierto, cuando el oficial (distinto del analista guardado en el caso) registra la decisión, entonces el revisor es la identidad de la sesión, el analista y las alertas salen del caso guardado, un caso ya decidido no se vuelve a decidir (sin segundo evento) y "caso inexistente" tiene su propio código.
+**DoD:** `integrationTest --tests '*CU44DecisionTest*'` + webTest de la ruta.
+**Estado:** TODO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H5.S2.M1 | **(descubierta)** `CU44.decidir` toma `analistaId`/`revisadoPor`/`alertaIds` del cuerpo y **ignora** el `boolean` de `CasoLftRepositorio.decidir` (doble efecto); "caso no existe" usa `AP-CU44-04` (= `CASO_VENCIDO`). Nuevo `decidirComoRevisor(casoId, decision, conclusion, rosId, ctx)`: analista y alertas desde la base, revisor = sesión, transición condicionada y verificada, `AP-CU44-06 CASO_INEXISTENTE`, `AP-CU44-07 CASO_YA_DECIDIDO` | revisor = analista → `AP-CU44-02`; segunda decisión → `AP-CU44-07` y 1 evento | `integrationTest --tests '*CU44DecisionTest*'` | TODO |
+| H5.S2.M2 | Contrato + controlador `POST /cumplimiento/casos/{casoId}/decision` (`decidirCaso`, `CUMPLIMIENTO_CASOS` + rol `OFICIAL_CUMPLIMIENTO` según CU-44 «Exige») y `POST /cumplimiento/casos` (`abrirCasoLft`, `CUMPLIMIENTO_CASOS`) | 200/201, 403 para analista sin rol de oficial en la decisión, 400 cuerpo | `webTest --tests '*LftAccionesWebTest*'` | TODO |
+| H5.S2.M3 | Bóveda CU-44, Postman, regresión `cumplimiento` | 0 fallas | regresión + gates | TODO |
 
 ## H6 — Cierre del carril en esta sesión
 

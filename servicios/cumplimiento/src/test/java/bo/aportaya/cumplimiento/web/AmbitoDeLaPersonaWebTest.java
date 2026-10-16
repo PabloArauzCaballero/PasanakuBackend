@@ -60,6 +60,9 @@ class AmbitoDeLaPersonaWebTest {
     @MockitoBean
     private CU55GestionarIncidente cu55;
 
+    @MockitoBean
+    private bo.aportaya.cumplimiento.aplicacion.ConsultarBandejasLft bandejasLft;
+
     @Test
     @DisplayName("rechaza: un participante no declara el PEP de otra persona, y el caso de uso ni se entera")
     void rechazaDeclararElPepDeOtro() throws Exception {

@@ -1,0 +1,5 @@
+$ ./gradlew :servicios:cumplimiento:spotlessCheck test webTest testBarrido integrationTest --continue
+test             clases   2  pruebas   14  fallas 0  omitidas 0
+webTest          clases   9  pruebas   64  fallas 0  omitidas 0
+testBarrido      clases   1  pruebas    2  fallas 0  omitidas 0
+integrationTest  clases  44  pruebas  297  fallas 0  omitidas 0

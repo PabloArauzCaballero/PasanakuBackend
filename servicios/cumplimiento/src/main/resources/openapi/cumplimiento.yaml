@@ -34,6 +34,7 @@
 #   AP-CU44-02  REVISOR_ES_ANALISTA   · la revision tiene que ser independiente
 #   AP-CU44-03  REPORTE_SIN_NARRATIVA · decidir reportar exige el ROS ya radicado
 #   AP-CU44-04  CASO_VENCIDO          · se paso el plazo de investigacion
+#   AP-CU44-05  FILTRO_DE_BANDEJA_INVALIDO · estado o severidad que no existen, o cursor a medias
 #
 # CU-45 · Atender un requerimiento de autoridad
 #   AP-CU45-01  OFICIO_DUPLICADO · ese numero ya fue registrado
@@ -498,6 +499,91 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+  /cumplimiento/alertas:
+    get:
+      operationId: listarBandejaDeAlertas      # CU-44 (backoffice carril A · H5)
+      summary: Bandeja de alertas de monitoreo LFT, de la mas antigua a la mas nueva
+      description: >-
+        La cola del analista (CU-44, Interfaz: "Bandeja de alertas y casos"). Cursor (detectadaEn,
+        id). Sin `estados` devuelve ABIERTA y EN_ANALISIS. Respuesta minima y deber de reserva: no
+        viaja la persona, ni el monto, ni el detalle de lo que disparo la regla —son datos
+        financieros de una persona y su lectura exige rastro auditable con finalidad (regla
+        90.2.7), que se resuelve en la ficha, no aca. Exige CUMPLIMIENTO_ALERTAS.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          schema:
+            type: array
+            items: { type: string, enum: [ABIERTA, EN_ANALISIS, ESCALADA, DESCARTADA] }
+            minItems: 1
+            maxItems: 4
+          style: form
+          explode: false
+        - name: severidades
+          in: query
+          required: false
+          schema:
+            type: array
+            items: { type: string, enum: [CRITICA, ALTA, MEDIA, BAJA] }
+            minItems: 1
+            maxItems: 4
+          style: form
+          explode: false
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: despuesDeFecha, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: despuesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina de alertas
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeAlertas' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU44-05 FILTRO_DE_BANDEJA_INVALIDO
+        '403':
+          description: Sin CUMPLIMIENTO_ALERTAS
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /cumplimiento/casos:
+    get:
+      operationId: listarBandejaDeCasos        # CU-44 (backoffice carril A · H5)
+      summary: Bandeja de casos de investigacion LFT, el que vence antes primero
+      description: >-
+        Ordena por el plazo limite GUARDADO al abrir el caso (R-UIF-08: no se recalcula) y
+        desempata por id; cursor (plazoLimite, id). Sin `estados` devuelve los no cerrados.
+        `vencido` compara el plazo guardado con la hora del servidor. No viaja la persona, el
+        resumen ni los hallazgos (deber de reserva). Exige CUMPLIMIENTO_CASOS.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          schema:
+            type: array
+            items: { type: string, enum: [ABIERTO, EN_ANALISIS, EN_REVISION, CERRADO] }
+            minItems: 1
+            maxItems: 4
+          style: form
+          explode: false
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: despuesDePlazo, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: despuesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina de casos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeCasos' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU44-05 FILTRO_DE_BANDEJA_INVALIDO
+        '403':
+          description: Sin CUMPLIMIENTO_CASOS
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
   /licencia/alcance:
     get:
       operationId: verificarAlcance          # CU-46
@@ -848,6 +934,57 @@ components:
             usuarios:       { type: integer }
             montoOperacion: { type: string, pattern: '^-?\\d+\\.\\d{2}$' }
         motivo: { type: string, nullable: true }
+    PaginaDeAlertas:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/AlertaEnBandeja' }
+        proximoFecha: { type: [string, 'null'], format: date-time }
+        proximoId:    { type: [string, 'null'], format: uuid }
+    AlertaEnBandeja:
+      type: object
+      additionalProperties: false
+      required: [alertaId, reglaCodigo, tipologia, severidad, estado, detectadaEn]
+      properties:
+        alertaId:    { type: string, format: uuid }
+        reglaCodigo: { type: string }
+        tipologia:   { type: string }
+        severidad:   { type: string, enum: [CRITICA, ALTA, MEDIA, BAJA] }
+        estado:      { type: string, enum: [ABIERTA, EN_ANALISIS, ESCALADA, DESCARTADA] }
+        detectadaEn: { type: string, format: date-time }
+        asignadaA:   { type: [string, 'null'], format: uuid }
+        casoId:      { type: [string, 'null'], format: uuid }
+        cerradaEn:   { type: [string, 'null'], format: date-time }
+    PaginaDeCasos:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/CasoEnBandeja' }
+        proximoPlazo: { type: [string, 'null'], format: date-time }
+        proximoId:    { type: [string, 'null'], format: uuid }
+    CasoEnBandeja:
+      type: object
+      additionalProperties: false
+      required: [casoId, codigo, origen, estado, prioridad, analistaId, abiertoEn, plazoLimite, vencido]
+      properties:
+        casoId:      { type: string, format: uuid }
+        codigo:      { type: string }
+        origen:      { type: string, enum: [ALERTA, DENUNCIA, REQUERIMIENTO, REVISION_PERIODICA] }
+        estado:      { type: string, enum: [ABIERTO, EN_ANALISIS, EN_REVISION, CERRADO] }
+        prioridad:   { type: string, enum: [URGENTE, ALTA, MEDIA, BAJA] }
+        analistaId:  { type: string, format: uuid }
+        revisadoPor: { type: [string, 'null'], format: uuid }
+        abiertoEn:   { type: string, format: date-time }
+        plazoLimite: { type: string, format: date-time }
+        vencido:     { type: boolean, description: Sin cerrar y con el plazo guardado ya pasado (CU-44, 4a). }
+        decision:    { type: [string, 'null'], enum: [DESCARTAR, MONITOREO_REFORZADO, REPORTAR, TERMINAR_RELACION, null] }
+        cerradoEn:   { type: [string, 'null'], format: date-time }
     PaginaDeReclamos:
       type: object
       additionalProperties: false
