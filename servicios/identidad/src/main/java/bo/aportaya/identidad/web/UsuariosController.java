@@ -2,6 +2,7 @@ package bo.aportaya.identidad.web;
 
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
+import bo.aportaya.identidad.aplicacion.CU02ActualizarFechaExpiracion;
 import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.ConfirmarVerificacionCorreo;
@@ -73,6 +74,7 @@ public class UsuariosController extends ExpedienteController {
             VerificarTitularidad titularidad,
             CU02GuardarFotoDelExpediente fotos,
             CU02ConsultarEstadoDeVerificacion estadoDeVerificacion,
+            CU02ActualizarFechaExpiracion actualizarFechaExpiracion,
             EmitirTokenDeInvitacion tokens,
             ValidarTokenDeInvitacion validacionDeInvitacion,
             bo.aportaya.identidad.aplicacion.ConsumirInvitacion consumo,
@@ -86,7 +88,16 @@ public class UsuariosController extends ExpedienteController {
             Reloj reloj,
             @Value("${identidad.alta.vigencia-token:PT30M}") Duration vigenciaTokenDeAlta,
             @Value("${aportaya.titularidad.consultas-por-minuto:120}") int titularidadPorMinuto) {
-        super(consumo, sesion, peticion, fotos, estadoDeVerificacion, pimienta, reloj, vigenciaTokenDeAlta);
+        super(
+                consumo,
+                sesion,
+                peticion,
+                fotos,
+                estadoDeVerificacion,
+                actualizarFechaExpiracion,
+                pimienta,
+                reloj,
+                vigenciaTokenDeAlta);
         this.cu01 = cu01;
         this.titularidad = titularidad;
         this.tokens = tokens;

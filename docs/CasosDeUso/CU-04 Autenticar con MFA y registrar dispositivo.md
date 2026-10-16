@@ -158,6 +158,14 @@ export const ErroresCU04 = {
 ## Criterios de aceptación
 
 ```gherkin
+Dado una cuenta pendiente de aprobacion manual
+Cuando inicia sesion con credenciales correctas
+Entonces inicia sesion y su estado sigue pendiente
+
+Dado un usuario activo sin factor
+Cuando inicia sesion desde un dispositivo nuevo
+Entonces se exige segundo factor y no se crea sesion
+
 Dado un usuario con MFA activo
 Cuando inicia sesión desde un dispositivo desconocido
 Entonces se le exige un factor adicional
@@ -214,6 +222,14 @@ Entonces se rechaza
 
 Dado un refresh vencido
 Entonces se rechaza
+
+Dado el limite absoluto de ocho horas
+Cuando una sesion expirada renueva su refresh
+Entonces se rechaza
+
+Dado una sesion con refresh vivo
+Cuando otro titular intenta cerrarla y luego su dueno la cierra
+Entonces se revoca la familia y se invalida el refresh siguiente
 
 Dado una sesion revocada (p. ej. cambio de credencial)
 Entonces su refresh ya no renueva

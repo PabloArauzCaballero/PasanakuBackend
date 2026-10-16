@@ -1,11 +1,13 @@
 package bo.aportaya.identidad.web;
 
+import bo.aportaya.identidad.aplicacion.CU02ActualizarFechaExpiracion;
 import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.ConsumirInvitacion;
 import bo.aportaya.identidad.web.generado.modelo.ArchivoDelExpediente;
 import bo.aportaya.identidad.web.generado.modelo.CaraDelExpediente;
 import bo.aportaya.identidad.web.generado.modelo.EstadoDeVerificacion;
+import bo.aportaya.identidad.web.generado.modelo.FechaExpiracionDocumento;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.web.seguridad.Publico;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
@@ -27,6 +29,9 @@ public abstract class ExpedienteController extends InvitacionesController {
 
     private final CU02GuardarFotoDelExpediente fotos;
     private final CU02ConsultarEstadoDeVerificacion estadoDeVerificacion;
+    private final CU02ActualizarFechaExpiracion actualizarFechaExpiracion;
+    private final SesionDeLaPeticion sesion;
+    private final Reloj reloj;
     private final TitularDelExpediente titular;
 
     /** El token que devuelve el alta y autoriza las fotos de ESA persona; el alta lo emite desde la subclase. */
@@ -38,12 +43,16 @@ public abstract class ExpedienteController extends InvitacionesController {
             HttpServletRequest peticion,
             CU02GuardarFotoDelExpediente fotos,
             CU02ConsultarEstadoDeVerificacion estadoDeVerificacion,
+            CU02ActualizarFechaExpiracion actualizarFechaExpiracion,
             String pimienta,
             Reloj reloj,
             Duration vigenciaTokenDeAlta) {
         super(consumo, sesion, peticion);
         this.fotos = fotos;
         this.estadoDeVerificacion = estadoDeVerificacion;
+        this.actualizarFechaExpiracion = actualizarFechaExpiracion;
+        this.sesion = sesion;
+        this.reloj = reloj;
         this.tokenDeAlta = new TokenDeAlta(pimienta, reloj, vigenciaTokenDeAlta);
         this.titular = new TitularDelExpediente(tokenDeAlta, sesion);
     }
@@ -106,8 +115,19 @@ public abstract class ExpedienteController extends InvitacionesController {
         var salida = new EstadoDeVerificacion()
                 .verificacionId(expediente.verificacionId())
                 .estado(estado)
+                .fechaExpiracionDocumento(expediente.fechaExpiracionDocumento())
                 .motivoRechazo(estado == EstadoDeVerificacion.EstadoEnum.RECHAZADA ? expediente.motivoRechazo() : null);
         expediente.fotos().forEach(f -> salida.addFotosItem(CaraDelExpediente.fromValue(f)));
         return ResponseEntity.ok(salida);
+    }
+
+    /** Fecha del documento aportada por el titular; la aprobación permanece en manos de la revisión humana. */
+    @Override
+    @Publico("CU-02: valida sesión y titularidad antes de modificar la fecha del documento propio")
+    public ResponseEntity<Void> actualizarFechaExpiracionDocumento(UUID usuarioId, FechaExpiracionDocumento cuerpo) {
+        var actor = sesion.actual();
+        titular.exigir(usuarioId, null);
+        actualizarFechaExpiracion.ejecutar(usuarioId, cuerpo.getFechaExpiracionDocumento(), actor, reloj.hoy());
+        return ResponseEntity.noContent().build();
     }
 }
