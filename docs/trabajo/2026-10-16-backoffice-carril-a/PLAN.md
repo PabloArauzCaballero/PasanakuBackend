@@ -145,7 +145,27 @@
 |---|---|---|---|---|
 | H6.S1.M1 | Regresión de los tres servicios tocados (`test integrationTest` por servicio, en serie) | verde o fallo clasificado | salidas en `evidencia/` | HECHO |
 | H6.S1.M3 | **(descubierta)** Fichas de contrato para el carril B (COORDINACION.md «Interfaz de coordinación obligatoria»): por operación nueva, permiso, estados, paginación, errores, idempotencia, correlación y ejemplo **sintético** marcado | una ficha por cada operación nueva (11) | `grep -c '^### ' entregables/fichas-de-contrato.md` → 11 | HECHO |
-| H6.S1.M2 | `REPORTE.md` + commit + push a `origin/codex/backoffice-dominio-20261015` | push aceptado | `git log origin/codex/backoffice-dominio-20261015 -1` | TODO |
+| H6.S1.M2 | `REPORTE.md` + commit + push a `origin/codex/backoffice-dominio-20261015` | push aceptado | `git log origin/codex/backoffice-dominio-20261015 -1` | HECHO |
+
+## H7 — Ola 2 · Las llamadas que el backoffice ya hace y ningún contrato publica
+
+**Origen:** cruce de las 33 llamadas HTTP de `apps/backoffice` contra todos los OpenAPI (script en
+`evidencia/H7-00-llamadas-sin-contrato.txt`): 7 no tienen operación y en ejecución darían 404.
+**CA:** Dado el backoffice actual, cuando cualquiera de sus pantallas hace una de esas llamadas,
+entonces existe la operación (o queda declarada como `DECISION_REQUIRED` con motivo), con permiso,
+paginación y respuesta mínima.
+**DoD:** el cruce vuelve a correr y lista solo las declaradas como decisión; regresión de cada servicio tocado.
+**Estado:** EN CURSO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H7.S1.M1 | `GET /publicidad/anunciantes` (`PUBLICIDAD_ANUNCIANTES`), `GET /publicidad/campanas` (`PUBLICIDAD_APROBAR_CAMPANA`, filtro `estados`), `GET /publicidad/piezas-creativas` (`PUBLICIDAD_MODERAR`, filtro `estadoModeracion`) paginados por cursor | correcto/límite/inválido + 403 | `:servicios:publicidad:integrationTest --tests '*BandejasPublicidadTest*'` + `webTest` | HECHO |
+| H7.S1.M2 | **(descubierta)** `PublicidadController.postularSocioComercial` y `ErpController.darDeAltaTercero` ponen `numeroDocumento` en el MDC de los logs (`Traza.marcarCasoDeUso`), regla 90.2.1. Se reemplaza por una etiqueta sin dato. (El mismo defecto con el **teléfono** en `identidad/SesionesController.java:96` queda reportado: no es de este carril) | ningún `marcarCasoDeUso` con documento/teléfono/correo en `servicios/` | `grep -rn 'marcarCasoDeUso(.*getNumeroDocumento' servicios` → vacío | HECHO |
+| H7.S2.M1 | `GET /erp/ejercicios/{ejercicioId}/periodos`: períodos con estado, `cerradoEn` y totales debe/haber en una consulta | correcto (12 períodos, cerrado con totales) / inexistente → código / 403 | `:servicios:erp:integrationTest --tests '*CU100PeriodosTest*'` | TODO |
+| H7.S3.M1 | `GET /erp/estados-financieros/{id}/documento` con `X-Hash-Contenido` **si** el contenido sellado está guardado; si no está modelado, `DECISION_REQUIRED` | evidencia del modelo | lectura de `estado_financiero_generado.sql` en evidencia | TODO |
+| H7.S4.M1 | `GET /grupos/solicitudes-escaladas` **si** el escalamiento D-15 existe en el modelo/código de `grupos`; si no, `DECISION_REQUIRED` | evidencia | idem | TODO |
+| H7.S5.M1 | `POST /extraccion/accesos`: no se implementa como endpoint para el front (el rastro de lectura es del servidor, R-SEG-02, A-8) | declarado | `entregables/fichas-de-contrato.md` § decisiones | TODO |
+| H7.S6.M1 | Cruce final + regresión de servicios tocados + reporte + push | 0 llamadas sin contrato salvo declaradas | script de cruce + regresión | TODO |
 
 ## Pendiente fuera de esta sesión (registrado, no ejecutable sin decisión)
 

@@ -1,0 +1,11 @@
+$ ./gradlew :servicios:publicidad:integrationTest --tests '*CU110ListadoTest' --tests '*CU111ListadoTest' --tests '*CU112ListadoTest'
+bo.aportaya.publicidad.CU110ListadoTest tests 2 fallas 0
+   PASS rechaza un filtro invalido o un cursor a medias con AP-CU110-04
+   PASS Dados tres anunciantes recien dados de alta · Cuando Operaciones recorre el listado de a dos · Entonces los ve del mas nuevo al mas viejo, con su cuenta y su limite, sin repetir ninguno
+bo.aportaya.publicidad.CU111ListadoTest tests 3 fallas 0
+   PASS rechaza un filtro invalido o un cursor a medias con AP-CU111-04
+   PASS Dadas dos campanas en revision · Cuando Operaciones abre la cola sin filtro · Entonces ve las dos, la que empieza antes primero, con presupuesto y moneda
+   PASS Dada una ventana sin campanas · Cuando Operaciones abre la cola · Entonces recibe una pagina vacia y sin cursor, nunca un error
+bo.aportaya.publicidad.CU112ListadoTest tests 2 fallas 0
+   PASS Dada una pieza pendiente y otra ya moderada · Cuando el moderador abre su cola · Entonces solo ve la pendiente, la mas antigua primero
+   PASS rechaza un filtro invalido o un cursor a medias con AP-CU112-04
