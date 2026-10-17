@@ -421,7 +421,7 @@ y `REPORTE.md`.
 | H9.S1.M2 | Regresión del backoffice (unit, a11y y lint) | Exit 0, o rojos preexistentes demostrados (memoria `a11y-backoffice-vence-plazo`) | Salidas pegadas | HECHO — `evidencia/H9-S1-M2-regresion-backoffice.txt` |
 | H9.S1.M3 | Gate de seguridad y privacidad: amenaza, control, test negativo y riesgo residual | Sección completa en el reporte | Revisión contra 90.6 | HECHO — sección «Gate de seguridad y privacidad» del `REPORTE.md` (cada fila cita su prueba negativa en verde) |
 | H9.S1.M5 | (Agregada) Rojos de la primera corrida del CI del PR #115: barrido (literal y tamaño de archivo), Postman y OSV (OpenTelemetry 1.49) | Los cuatro gates en verde en local | `spotlessCheck testBarrido` + `check` + suites tocadas, pegado | HECHO — `evidencia/H9-S1-M5-rojos-del-ci.txt` |
-| H9.S1.M4 | PR a `dev` y PR a `test` | CI en verde y mergeados | `gh pr checks` pegado | TODO |
+| H9.S1.M4 | PR a `dev` y PR a `test` | CI en verde y mergeados | `gh pr checks` pegado | HECHO — `evidencia/H9-S1-M4-prs.txt` (#115 y #116 mergeados con CI en verde) |
 
 ## Hallazgos durante la ejecución
 
