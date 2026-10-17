@@ -1464,7 +1464,7 @@
           },
           "origen_tipo": "ENTREGA_FONDO",
           "origen_id": {
-            "$sql": "(SELECT e.id FROM entrega_fondo e JOIN periodo pe ON pe.id = e.periodo_id WHERE pe.numero = 1)"
+            "$sql": "(SELECT e.id FROM entrega_fondo e JOIN periodo pe ON pe.id = e.periodo_id JOIN grupo g ON g.id = pe.grupo_id WHERE pe.numero = 1 AND g.codigo_publico = 'GRP-DEMO-01')"
           },
           "canal": "BATCH",
           "clave_idempotencia": "demo-entrega-p1",
@@ -1570,7 +1570,7 @@
             "clave_idempotencia": "demo-devengo-entrega-p1"
           },
           "deduccion_entrega_id": {
-            "$sql": "(SELECT id FROM deduccion_entrega WHERE tipo = 'COMISION_PLATAFORMA' LIMIT 1)"
+            "$sql": "(SELECT d.id FROM deduccion_entrega d JOIN entrega_fondo e ON e.id = d.entrega_id JOIN grupo g ON g.id = e.grupo_id WHERE d.tipo = 'COMISION_PLATAFORMA' AND g.codigo_publico = 'GRP-DEMO-01')"
           },
           "transaccion_id": {
             "$ref": "transaccion_billetera",

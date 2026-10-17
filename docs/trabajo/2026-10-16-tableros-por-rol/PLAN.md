@@ -167,14 +167,14 @@ inserta nada.
 variados, 12 meses de aportes, moras, coberturas, recuperaciones, recargos, entregas, recargas y retiros. Todo
 importe es decimal con moneda, todo asiento cuadra, y cada registro lleva la marca de sintético.
 **DoD:** Dos corridas → `sha256` idéntico; el script de verificación de cuadre en verde.
-**Estado:** TODO
+**Estado:** HECHO — con desvío: en vez de inventar 60 tablas con Faker se CLONA el escenario demo coherente (12 clones, uno por mes) con claves renombradas y personas de Faker; conjunto propio `seeders/volumen/` → `sql/62_volumen` con marca propia. Se anclaron al grupo 3 subconsultas del seed de dev que asumían un único grupo.
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H2.S2.M1 | `scripts/generar_volumen_dev.py` con Faker (versión de H0.S1.M6), semilla fija y `Decimal` | Escribe `seeders/dev/volumen-*.json` con `entorno: dev` | `python3 -I scripts/generar_volumen_dev.py && sha256sum seeders/dev/volumen-*` dos veces, mismo hash | TODO |
-| H2.S2.M2 | Coherencia de dominio: estados de turnos y obligaciones válidos contra los `CHECK` | La guarda de `generar_semillas.py` acepta los archivos | `python3 scripts/generar_semillas.py` → exit 0 | TODO |
-| H2.S2.M3 | Siembra real en la base dev y cuadre del mayor | `SUM(debe)=SUM(haber)` por asiento, 0 huérfanos | Consultas de verificación pegadas | TODO |
-| H2.S2.M4 | Idempotencia de la siembra | 0 inserciones en la segunda corrida | Salida pegada | TODO |
+| H2.S2.M1 | `scripts/generar_volumen_dev.py` con Faker (versión de H0.S1.M6), semilla fija y `Decimal` | Escribe `seeders/dev/volumen-*.json` con `entorno: dev` | `python3 -I scripts/generar_volumen_dev.py && sha256sum seeders/dev/volumen-*` dos veces, mismo hash | HECHO — `evidencia/H2-S2-volumen.txt` |
+| H2.S2.M2 | Coherencia de dominio: estados de turnos y obligaciones válidos contra los `CHECK` | La guarda de `generar_semillas.py` acepta los archivos | `python3 scripts/generar_semillas.py` → exit 0 | HECHO — `evidencia/H2-S2-volumen.txt` |
+| H2.S2.M3 | Siembra real en la base dev y cuadre del mayor | `SUM(debe)=SUM(haber)` por asiento, 0 huérfanos | Consultas de verificación pegadas | HECHO — `evidencia/H2-S2-volumen.txt` |
+| H2.S2.M4 | Idempotencia de la siembra | 0 inserciones en la segunda corrida | Salida pegada | HECHO — `evidencia/H2-S2-volumen.txt` |
 
 ### H2.S3 — Datafaker en los fixtures Java
 

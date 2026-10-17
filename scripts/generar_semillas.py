@@ -74,10 +74,14 @@ DESTINOS = {
                 "Catálogos mínimos — también se aplican en producción"),
     "dev": (pathlib.Path("sql/61_dev"), "sembrar_dev.sql",
             "Datos de desarrollo — NO aplicar en producción"),
+    # Volumen sintetico para los tableros (scripts/generar_volumen_dev.py). Conjunto aparte, con su
+    # propia marca: asi entra tambien en una base que ya tiene la demo de dev/. Misma guarda de entorno.
+    "volumen": (pathlib.Path("sql/62_volumen"), "sembrar_volumen.sql",
+                "Volumen sintético (Faker) para tableros — NO aplicar en producción"),
 }
 
 # Lo que debe decir el campo "entorno" de cada archivo de la carpeta.
-ETIQUETA = {"minimos": "minimo", "dev": "dev"}
+ETIQUETA = {"minimos": "minimo", "dev": "dev", "volumen": "dev"}
 
 # Tablas con datos de personas: `minimos/` no las toca nunca. Un catálogo que
 # necesita una persona está mal modelado, o es un dato de dev disfrazado.
@@ -387,7 +391,7 @@ def validar_separacion():
                     f"{entorno}/{nombre}: declara entorno "
                     f"'{datos.get('entorno')}' y está en la carpeta de '{etiqueta}'")
 
-    de_minimos, de_dev = tablas_de("minimos"), tablas_de("dev")
+    de_minimos, de_dev = tablas_de("minimos"), tablas_de("dev") | tablas_de("volumen")
 
     for tabla in sorted(de_minimos & PROHIBIDAS_EN_MINIMOS):
         errores.append(f"minimos/: escribe '{tabla}', que es dato de personas")
@@ -419,7 +423,7 @@ def procesar(entorno):
         L = [f"-- {datos.get('descripcion', nombre)}",
              f"-- GENERADO desde seeders/{entorno}/{nombre} — no editar a mano.", ""]
         for b in datos["bloques"]:
-            L.append(bloque_sql(b, dev=(entorno == "dev")))
+            L.append(bloque_sql(b, dev=(entorno in ("dev", "volumen"))))
             filas_totales += len(b.get("filas", []))
         (destino / salida).write_text("\n".join(L), encoding="utf-8")
         archivos.append(salida)
@@ -438,7 +442,7 @@ def procesar(entorno):
          "\\set ON_ERROR_STOP on",
          SEARCH_PATH_SQL,
          "BEGIN;", ""]
-    if entorno == "dev":
+    if entorno in ("dev", "volumen"):
         if "marca" not in manifiesto:
             raise SystemExit(
                 f"seeders/{entorno}/manifiesto.json no declara `marca`: sin ella las "
