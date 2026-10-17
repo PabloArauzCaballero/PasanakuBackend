@@ -1,6 +1,7 @@
 package bo.aportaya.organizador.web;
 
 import bo.aportaya.organizador.aplicacion.CU90ConsultarBandeja;
+import bo.aportaya.organizador.aplicacion.CU90HabilitacionBasica;
 import bo.aportaya.organizador.aplicacion.CU90PostularOrganizador;
 import bo.aportaya.organizador.aplicacion.CU90ResolverHabilitacion;
 import bo.aportaya.organizador.aplicacion.CU91FirmarContrato;
@@ -45,7 +46,7 @@ import org.springframework.web.bind.annotation.RestController;
  * rutas es lo que permite exigirlo.
  */
 @RestController
-public class OrganizadoresController extends RutasDeHabilitacion {
+public class OrganizadoresController extends HabilitacionBasicaController {
 
     @Override
     @Permiso("GRUPO_CREAR")
@@ -76,8 +77,9 @@ public class OrganizadoresController extends RutasDeHabilitacion {
             ReclamosEnCurso reclamos,
             CU90ResolverHabilitacion resolutor,
             CU90ConsultarBandeja bandeja,
+            CU90HabilitacionBasica basica,
             SesionDeLaPeticion sesion) {
-        super(resolutor, bandeja, sesion);
+        super(resolutor, bandeja, basica, sesion);
         this.habilitaciones = habilitaciones;
         this.cu90 = cu90;
         this.cu91 = cu91;

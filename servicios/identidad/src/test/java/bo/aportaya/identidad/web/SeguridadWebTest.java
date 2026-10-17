@@ -82,6 +82,9 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private ConfirmarVerificacionCorreo confirmarVerificacionCorreo;
 
     @MockitoBean
+    private bo.aportaya.identidad.aplicacion.ActivarRolOrganizador activarRolOrganizador;
+
+    @MockitoBean
     private CU04Autenticar cu04Autenticar;
 
     @MockitoBean

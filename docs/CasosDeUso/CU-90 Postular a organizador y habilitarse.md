@@ -237,7 +237,47 @@ Y ninguna resolución queda afuera: resolverla de nuevo por la ruta nueva se rec
 Dada una solicitud pendiente y el servicio con su rol real, sin superusuario
 Cuando backoffice la resuelve
 Entonces la resolución se registra y se lee en el historial
+
+Dado un participante con KYC aprobado y sin ficha de organizador
+Cuando acepta el contrato Aprendiz y lo firma
+Entonces queda organizador Aprendiz habilitado con el contrato firmado
+
+Dado un contrato Aprendiz ya firmado
+Cuando se intenta firmar otra vez
+Entonces se conserva la primera firma
+
+Dado el contrato Aprendiz de otra persona
+Cuando alguien intenta firmarlo
+Entonces se rechaza porque el contrato lo firma su titular
+
+Dado un participante que ya aceptó el contrato Aprendiz
+Cuando lo acepta de nuevo
+Entonces recibe la misma ficha y el mismo contrato
+
+Dado un participante que todavía no aceptó el contrato Aprendiz
+Cuando consulta su habilitación básica
+Entonces no figura habilitado
+
+Dado un participante que no marcó la aceptación del contrato
+Cuando pide la habilitación básica
+Entonces se rechaza y no se escribe nada
+
+Dado un participante que leyó una versión anterior del contrato
+Cuando la acepta
+Entonces se rechaza para que lea la vigente
+
+Dado un organizador suspendido
+Cuando acepta el contrato Aprendiz
+Entonces se rechaza y sigue suspendido
 ```
+
+> **Vía básica (2026-10-17).** Además de la postulación con bandeja, un participante con KYC
+> aprobado puede habilitarse como **Aprendiz** aceptando y firmando el contrato de organizador
+> desde la app, sin aprobación manual: el nivel de entrada acota el riesgo (límites
+> `aportaya.organizador.limite-inicial-*`) y el contrato firmado cumple R-ORG-02. La firma usa un
+> token `FIRMA_CONTRATO` que emite identidad, que además concede el rol ORGANIZADOR. El texto del
+> contrato es **provisional, solo para TEST**, hasta que negocio y cumplimiento entreguen el
+> definitivo.
 
 ## Ver también
 
